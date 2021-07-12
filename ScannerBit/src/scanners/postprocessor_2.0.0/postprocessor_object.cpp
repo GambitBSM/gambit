@@ -16,6 +16,7 @@
 ///
 ///  *********************************************
 
+#include "gambit/Logs/logger.hpp"
 #include "gambit/ScannerBit/scanners/postprocessor_2.0.0/postprocessor.hpp"
 #include "gambit/Utils/new_mpi_datatypes.hpp"
 #include "gambit/Utils/model_parameters.hpp"
@@ -246,6 +247,7 @@ namespace Gambit
         #ifdef WITH_MPI
         , comm(NULL)
         #endif
+        , verbose(false)
       {}
 
       /// Real constructor
@@ -283,6 +285,7 @@ namespace Gambit
         #ifdef WITH_MPI
         , comm                       (o.comm                       )
         #endif
+        , verbose                    (o.verbose                    )
     {
          // Retrieve "visibile" parameter and model names
          // This will ignore parameters with fixed values in the yaml file,
@@ -631,6 +634,8 @@ namespace Gambit
             // likelihood container. But doing this locks the postprocessor into using
             // the GAMBIT signal handling methods. TODO: is there another way?
 
+            //if(verbose) logger() << LogTags::debug << LogTags::scanner << "Chunk to process has length zero! Will check for shutdown signals and then exit chunk process loop" << EOM;
+
             quit = Gambit::Scanner::Plugins::plugin_info.early_shutdown_in_progress();
             if(not quit)
             {
@@ -650,6 +655,9 @@ namespace Gambit
             PPIDpair current_point = getReader().get_current_point();
             loopi = getReader().get_current_index();
 
+            //iif(verbose) logger() << LogTags::debug << LogTags::scanner << "Starting loop over old points ("<<total_length<<" in total)" << std::endl;
+            //std::cout << "This task (rank "<<rank<<" of "<<numtasks<<"), will process iterations "<<mychunk.start<<" through to "<<mychunk.end<<", excluding any points that may have already been processed as recorded by resume data. This leaves "<<mychunk.eff_length<<" points for this rank to process."<<std::endl;
+
             // Disable auto-incrementing of pointID's in the likelihood container. We will set these manually.
             Gambit::Printers::auto_increment() = false;
 
@@ -661,6 +669,7 @@ namespace Gambit
                // We should exit with the "unexpected finish" error code if this has happened.
             }
 
+            if(verbose) logger() << LogTags::debug << LogTags::scanner << "Searching dataset for chunk ["<<mychunk.start<<" -> "<<mychunk.end<<"] (effective length "<<mychunk.eff_length<<")"<<EOM;
             ChunkSet::iterator current_done_chunk=done_chunks.begin(); // Used to skip past points that are already done
             while(not stop_loop) // while not end of input
             {
@@ -672,7 +681,7 @@ namespace Gambit
                // Cancel processing of iterations beyond our assigned range
                if(loopi>mychunk.end)
                {
-                  //std::cout << "Rank "<<rank<<" has reached the end of its batch, stopping iteration. (loopi:"<<loopi<<", mychunk.end:"<<mychunk.end<<")" << std::endl;
+                  if(verbose) logger() << LogTags::debug << LogTags::scanner << "Reached the end of our batch, stopping iteration. (loopi:"<<loopi<<", mychunk.end:"<<mychunk.end<<")" << EOM;
                   loopi--; // Return counter to the last index that we actually processed.
                   break; // Exit the loop
                }
@@ -680,6 +689,7 @@ namespace Gambit
                // Send early quit signal if we unexpectedly hit the end of the input file
                if(getReader().eoi())
                {
+                  if(verbose) logger() << LogTags::debug << LogTags::scanner << "Unexpectedly hit end of input file!" <<EOM;
                   quit = true;
                }
 
@@ -705,9 +715,10 @@ namespace Gambit
                   unsigned int       MPIrank = current_point.rank;
                   unsigned long long pointID = current_point.pointID;
 
-                  // std::cout << "Current point: "<<MPIrank<<", "<<pointID<<std::endl;
-                  // std::cout << "Current index: "<<getReader().get_current_index()<<std::endl;
-                  // std::cout << "Current loopi: "<<loopi<<std::endl;
+                  if(verbose) logger() << LogTags::debug << LogTags::scanner
+                     << "Current point: "<<MPIrank<<", "<<pointID<<std::endl
+                     << "Current index: "<<getReader().get_current_index()<<std::endl
+                     << "Current loopi: "<<loopi<<EOM;
 
                   // Make sure we didn't somehow get desynchronised from the reader's internal index
                   if(loopi!=getReader().get_current_index())
@@ -723,7 +734,7 @@ namespace Gambit
                   {
                      // Need to save data about which points have been processed, so we
                      // can resume processing from here.
-                     //std::cout << "Postprocessor (rank "<<rank<<") received quit signal! Aborting run." << std::endl;
+                     if(verbose) logger() << LogTags::debug << LogTags::scanner << "Postprocessor (rank "<<rank<<") received quit signal! Aborting run." << EOM;
                      stop_loop = true;
                   }
 
@@ -742,7 +753,7 @@ namespace Gambit
                   if(loopi<mychunk.start or (current_done_chunk!=done_chunks.end() and current_done_chunk->iContain(loopi)))
                   {
                      //std::cout<<"Skipping point (not in our batch)"<<std::endl;
-                     //std::cout<<"(loopi=="<<loopi<<", mychunk.start="<<mychunk.start<<", current_done_chunk.start="<<current_done_chunk->start<<", current_done_chunk.end="<<current_done_chunk->end<<")"<<std::endl; 
+                     //std::cout<<"(loopi=="<<loopi<<", mychunk.start="<<mychunk.start<<", current_done_chunk.start="<<current_done_chunk->start<<", current_done_chunk.end="<<current_done_chunk->end<<")"<<std::endl;
                      current_point = getReader().get_next_point();
                      loopi++;
                      continue;
@@ -770,11 +781,14 @@ namespace Gambit
                   }
                   ppi++; // Processing is go, update counter.
 
+                  if(verbose) logger() << LogTags::debug << LogTags::scanner << "Found candidate point for postprocessing:"<<std::endl
+                      << "  loopi = "<<loopi<<", point = ("<<current_point.rank<<", "<<current_point.pointID<<")"<<EOM;
+
                   // Data about current point in input file
                   if(current_point == Printers::nullpoint)
                   {
                      // No valid data here, go to next point
-                     //std::cout<<"Skipping point (no valid data)"<<std::endl;
+                     if(verbose) logger() << LogTags::debug << LogTags::scanner << "Skipping point (no valid data here)"<<EOM;
                      current_point = getReader().get_next_point();
                      loopi++;
                      continue;
@@ -792,7 +806,7 @@ namespace Gambit
                   // Check if valid model parameters were extracted. If not, something may be wrong with the input file, or we could just be at the end of a buffer (e.g. in HDF5 case). Can't tell the difference, so just skip the point and continue.
                   if(not valid_modelparams)
                   {
-                     //std::cout << "Skipping point "<<loopi<<" as it has no valid ModelParameters" <<std::endl;
+                     if(verbose) logger() << LogTags::debug << LogTags::scanner << "Skipping point as it has no valid ModelParameters" <<EOM;
                      current_point = getReader().get_next_point();
                      loopi++;
                      continue;
@@ -849,6 +863,7 @@ namespace Gambit
 
                   if(cuts_passed) // Else skip new calculations and go straight to copying old results
                   {
+                     if(verbose) logger() << LogTags::debug << LogTags::scanner << "Point passed all cuts, beginning new observable/likelihood calculations"<<EOM;
                      n_passed += 1; // Counter for number of points which have passed all the cuts.
                      // Before calling the likelihood function, we need to set up the printer to
                      // output correctly. The auto-incrementing of pointID's cannot be used,
@@ -870,7 +885,7 @@ namespace Gambit
 
                      // Print the index of the point in the input dataset, so that we can easily figure out later which ones
                      // were postprocessed
-                     //std::cout<<"Rank "<<rank<<": Printing new data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl; 
+                     //std::cout<<"Rank "<<rank<<": Printing new data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl;
                      getPrinter().print(loopi, "input_dataset_index", MPIrank, pointID);
 
                      // Add old likelihood components as requested in the inifile
@@ -955,6 +970,8 @@ namespace Gambit
                   }
                   else if(not discard_points_outside_cuts)
                   {
+                     if(verbose) logger() << LogTags::debug << LogTags::scanner << "Point outside cuts, but discard_points_outside_cuts is false, so we will copy the old data for this point. But no new calculations will be done."<<EOM;
+
                      /// No postprocessing to be done, but we still should copy across the modelparameters
                      /// and point ID data, since the copying routines below assume that these were taken
                      /// care of by the likelihood routine, which we never ran.
@@ -979,6 +996,10 @@ namespace Gambit
                        }
                      }
                   }
+                  else
+                  {
+                     if(verbose) logger() << LogTags::debug << LogTags::scanner << "Skipping point (outside cuts, no data to be copied)"<<EOM;
+                  }
 
                   /// Copy selected data from input file
                   if(not cuts_passed and discard_points_outside_cuts)
@@ -988,7 +1009,11 @@ namespace Gambit
                   }
                   else
                   {
-                     //std::cout<<"Rank "<<rank<<": Copying existing data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl; 
+
+                     if(verbose) logger() << LogTags::debug << LogTags::scanner << "Copying old data for this point to new output file" << EOM;
+
+                     //std::cout<<"Rank "<<rank<<": Copying existing data for point ("<<MPIrank<<", "<<pointID<<")"<<std::endl;
+
                      for(std::set<std::string>::iterator it = data_labels_copy.begin(); it!=data_labels_copy.end(); ++it)
                      {
                         // Check if this input label has been mapped to a different output label.
@@ -1027,7 +1052,10 @@ namespace Gambit
          // Check if we finished because of reaching the end of the input
          if(getReader().eoi() and loopi!=mychunk.end)
          {
+            if(verbose) logger() << LogTags::debug << LogTags::scanner << "Postprocessor (rank "<<rank<<") reached the end of the input file! (debug: was this the end of our batch? (loopi="<<loopi<<", mychunk.end="<<mychunk.end<<", total_length = "<<total_length<<")"<<EOM;
+
             //std::cout << "Postprocessor (rank "<<rank<<") reached the end of the input file! (debug: was this the end of our batch? (loopi="<<loopi<<", mychunk.end="<<mychunk.end<<", total_length = "<<total_length<<")"<<std::endl;
+
          }
 
          // We now set the return code to inform the calling code of why we stopped.
@@ -1038,7 +1066,7 @@ namespace Gambit
          if(quit)
          {
            exit_code = 1;
-           //std::cout << "Postprocessor (rank "<<rank<<") received quit signal! Aborting run." << std::endl;
+           if(verbose) logger() << LogTags::debug << LogTags::scanner << "Postprocessor (rank "<<rank<<") received quit signal! Aborting run." << EOM;
          }
          else if(getReader().eoi() and loopi!=mychunk.end)
          {

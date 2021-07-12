@@ -2,12 +2,12 @@
 #define __wrapper_Rndm_decl_Pythia_8_212_h__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.h"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_Rndm.h"
 #include <utility>
 #include <vector>
 #include <string>
+#include "forward_decls_wrapper_classes.h"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_Rndm.h"
 
 #include "identification.hpp"
 
@@ -22,8 +22,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Rndm* (*__factory0)();
-                static Pythia8::Abstract_Rndm* (*__factory1)(int);
+                static Abstract_Rndm* (*__factory0)();
+                static Abstract_Rndm* (*__factory1)(int);
         
                 // -- Other member variables: 
         
@@ -56,7 +56,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Rndm(int seedIn);
         
                 // Special pointer-based constructor: 
-                Rndm(Pythia8::Abstract_Rndm* in);
+                Rndm(Abstract_Rndm* in);
         
                 // Copy constructor: 
                 Rndm(const Rndm& in);
@@ -68,7 +68,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Rndm();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Rndm* get_BEptr() const;
+                Abstract_Rndm* get_BEptr() const;
         
         };
     }

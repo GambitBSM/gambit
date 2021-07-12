@@ -1,0 +1,53 @@
+--- c_source/dynamicME/Makefile	2016-07-27 08:06:48.000000000 +0100
++++ c_source/dynamicME/Makefile_patched	2017-06-01 09:57:12.378644724 +0100
+@@ -10,7 +10,7 @@
+ OBJ = dynamic_cs.o kin4.o vp.o VVdecay.o
+ lib = ../../lib
+ 
+-all: $(lib)/dynamic_me.a $(lib)/dynamic_vp.a
++all: $(lib)/dynamic_me.a $(lib)/dynamic_vp.a $(lib)/libcalchep.$(SO)
+ 
+ $(lib)/dynamic_me.a:$(lib)/dynamic_me.a($(OBJ))
+ 	$(RANLIB) $@
+@@ -20,5 +20,11 @@
+ 	$(RANLIB) $@
+ 	@rm -f $(OBJ)
+ 
++ifneq ($(SONAME),)
++  soname_libcalchep := $(SONAME)$(CALCHEP)/lib/libcalchep.$(SO)
++else
++  soname_libcalchep :=  
++endif
+ 
+-
++$(lib)/libcalchep.$(SO): vp_dynam.c main.c ../service2/fcompare.c
++	$(CC) $(CFLAGS) $(SHARED) -o $@ $(soname_libcalchep) $^ -lm -lc -ldl 
+
+--- c_source/dynamicME/vp_dynam.c	2015-08-09 17:26:16.000000000 +0100
++++ c_source/dynamicME/vp_dynam_patched.c	2017-05-19 11:45:57.184666000 +0100
+@@ -93,7 +93,7 @@
+    {  compDir=realloc(compDir,size+20);
+       if(getcwd(compDir,size)) break; else size*=2;
+    }
+-   strcat(compDir,"/aux");
++   compDir = "GAMBITDIR/Backends/installed/calchep/3.6.27/aux";
+    libDir=malloc(strlen(compDir)+20);
+    sprintf(libDir,"%s/so_generated",compDir);
+    modelNum=nModel;
+@@ -164,4 +164,4 @@
+   fclose(f);
+   return n;                                         
+ }
+- 
+\ No newline at end of file
++ 
+
+--- c_source/chep_crt/include/syst.h    2014-10-24 11:01:02.000000000 +0100
++++ c_source_patched/chep_crt/include/syst.h    2020-01-14 20:33:01.880797556 +0000
+@@ -2,7 +2,7 @@
+ #define __SYST_
+ 
+ #ifndef STRSIZ
+-#define STRSIZ 4096
++#define STRSIZ 16384
+ #endif

@@ -34,7 +34,7 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Elements/subspectrum.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/SpecBit/ScalarSingletDM_Z3Spec_head.hpp"   // "Header" declarations for ScalarSingletDM_Z3Spec class
 

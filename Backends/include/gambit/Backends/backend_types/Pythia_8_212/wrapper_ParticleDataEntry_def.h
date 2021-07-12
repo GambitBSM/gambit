@@ -4,6 +4,7 @@
 #include <string>
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_DecayChannel_decl.h"
+#include "wrapper_ResonanceWidths_decl.h"
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Couplings_decl.h"
@@ -502,6 +503,16 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->pickChannel__BOSS().get_init_wref();
         }
         
+        inline void ParticleDataEntry::setResonancePtr(Pythia8::ResonanceWidths* resonancePtrIn)
+        {
+            get_BEptr()->setResonancePtr__BOSS((*resonancePtrIn).get_BEptr());
+        }
+        
+        inline Pythia8::ResonanceWidths* ParticleDataEntry::getResonancePtr()
+        {
+            return get_BEptr()->getResonancePtr__BOSS()->get_init_wptr();
+        }
+        
         inline void ParticleDataEntry::resInit(Pythia8::Info* infoPtrIn, Pythia8::Settings* settingsPtrIn, Pythia8::ParticleData* particleDataPtrIn, Pythia8::Couplings* couplingsPtrIn)
         {
             get_BEptr()->resInit__BOSS((*infoPtrIn).get_BEptr(), (*settingsPtrIn).get_BEptr(), (*particleDataPtrIn).get_BEptr(), (*couplingsPtrIn).get_BEptr());
@@ -574,140 +585,140 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In) :
             WrapperBase(__factory0(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn) :
             WrapperBase(__factory1(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn) :
             WrapperBase(__factory2(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn) :
             WrapperBase(__factory3(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In) :
             WrapperBase(__factory4(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn) :
             WrapperBase(__factory5(idIn, nameIn, spinTypeIn, chargeTypeIn, colTypeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn, int chargeTypeIn) :
             WrapperBase(__factory6(idIn, nameIn, spinTypeIn, chargeTypeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, int spinTypeIn) :
             WrapperBase(__factory7(idIn, nameIn, spinTypeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn) :
             WrapperBase(__factory8(idIn, nameIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn) :
             WrapperBase(__factory9(idIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry() :
+        inline ParticleDataEntry::ParticleDataEntry() :
             WrapperBase(__factory10())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn, double tau0In) :
             WrapperBase(__factory11(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn, double mMaxIn) :
             WrapperBase(__factory12(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn, double mMinIn) :
             WrapperBase(__factory13(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In, double mWidthIn) :
             WrapperBase(__factory14(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn, double m0In) :
             WrapperBase(__factory15(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn, int colTypeIn) :
             WrapperBase(__factory16(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn, colTypeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn, int chargeTypeIn) :
             WrapperBase(__factory17(idIn, nameIn, antiNameIn, spinTypeIn, chargeTypeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn, int spinTypeIn) :
             WrapperBase(__factory18(idIn, nameIn, antiNameIn, spinTypeIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn) :
+        inline ParticleDataEntry::ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn) :
             WrapperBase(__factory19(idIn, nameIn, antiNameIn))
         {
             get_BEptr()->set_wptr(this);
@@ -715,7 +726,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(Pythia8::Abstract_ParticleDataEntry* in) :
+        inline ParticleDataEntry::ParticleDataEntry(Abstract_ParticleDataEntry* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -723,7 +734,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::ParticleDataEntry::ParticleDataEntry(const ParticleDataEntry& in) :
+        inline ParticleDataEntry::ParticleDataEntry(const ParticleDataEntry& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -731,7 +742,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::ParticleDataEntry& ParticleDataEntry::operator=(const ParticleDataEntry& in)
+        inline ParticleDataEntry& ParticleDataEntry::operator=(const ParticleDataEntry& in)
         {
             if (this != &in)
             {
@@ -742,7 +753,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::ParticleDataEntry::~ParticleDataEntry()
+        inline ParticleDataEntry::~ParticleDataEntry()
         {
             if (get_BEptr() != 0)
             {
@@ -757,9 +768,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_ParticleDataEntry* Pythia8::ParticleDataEntry::get_BEptr() const
+        inline Abstract_ParticleDataEntry* Pythia8::ParticleDataEntry::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_ParticleDataEntry*>(BEptr);
+            return dynamic_cast<Abstract_ParticleDataEntry*>(BEptr);
         }
     }
     

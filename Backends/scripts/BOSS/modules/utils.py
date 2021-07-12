@@ -1602,6 +1602,10 @@ def identifyIncludedHeaders(content, only_native=True):
 
         if line[0:8] == '#include':
 
+            # Make sure there's a whitespace after '#include' 
+            if line[8] != ' ':
+                line = line[0:8] + ' ' + line[8:]
+
             header_file_name = line.split()[1]
 
             # Skip standard headers (of the form: #include <FILENAME>)
@@ -1845,8 +1849,9 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
         else:
             infomsg.NoIncludeStatementGenerated( type_name['long_templ'] ).printMessage()
 
-    # Remove duplicates and return list
+    # Remove duplicates and return list (ordered)
     include_statements = list( OrderedDict.fromkeys(include_statements) )
+    include_statements = orderIncludeStatements(include_statements)
 
     return include_statements
 
@@ -2138,7 +2143,7 @@ def constrEnumDeclHeader(enum_el_list, file_output_path):
 
         # Get enum names and values
         enum_members_list = []
-        for sub_el in enum_el.getchildren():
+        for sub_el in list(enum_el):
             if sub_el.tag == 'EnumValue':
                 member_string = sub_el.get('name') + '=' + sub_el.get('init')
                 enum_members_list.append(member_string)
@@ -2606,12 +2611,12 @@ def xmlFilesToDicts(xml_files):
         tree = ET.parse(xml_file)
         root = tree.getroot()
 
-        for el in root.getchildren():
+        for el in list(root):
 
             # Fill id-based dict
             gb.all_id_dict[xml_file][el.get('id')] = el
 
-        for el in root.getchildren():
+        for el in list(root):
 
             # Determine name
             if 'name' in el.keys():
@@ -2938,3 +2943,36 @@ def modifyText(msg, mod):
 
 # ====== END: modifyText ========
 
+
+# ====== orderIncludeStatements ========
+
+def orderIncludeStatements(include_statements):
+
+    ordered_include_statements = []
+
+    # This is not the fastest solution, but an easy way to 
+    # to keep the existing order within each group of headers
+
+    # Add standard headers (not Boost headers)
+    for s in include_statements:
+        if "<" in s:
+            if "<boost/" not in s:
+                ordered_include_statements.append(s)
+
+    # Add BOSS-generated and/or backend-specific headers
+    for s in include_statements:
+        if "<" not in s:
+            ordered_include_statements.append(s)
+
+    # Add Boost headers
+    for s in include_statements:
+        if "<boost/" in s:
+            ordered_include_statements.append(s)
+
+    # Check that we haven't missed any include statements
+    assert len(ordered_include_statements) == len(include_statements)
+
+    # Return ordered list of include statements
+    return ordered_include_statements
+
+# ====== END: orderIncludeStatements ========

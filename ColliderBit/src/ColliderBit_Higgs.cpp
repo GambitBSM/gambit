@@ -23,6 +23,14 @@
 ///          (j.mckay14@imperial.ac.uk)
 ///  \date 2016 Sep
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2020 Mar
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Mar
+///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
@@ -43,6 +51,7 @@
 #include <vector>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/Utils/util_types.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
 
@@ -220,9 +229,9 @@ namespace Gambit
 
       // Add the invisibles
       result.BR_hjinvisible[0] = 0.;
-      for (auto it = couplings.invisibles.begin(); it != couplings.invisibles.end(); ++it)
+      for (std::vector<std::pair<str,str>>::const_iterator it = couplings.invisibles.begin(); it != couplings.invisibles.end(); ++it)
       {
-        result.BR_hjinvisible[0] += decays.BF(*it, *it);
+        result.BR_hjinvisible[0] += decays.BF(it->first, it->second);
       }
 
       // Retrieve cross-section ratios from the HiggsCouplingsTable
@@ -290,20 +299,6 @@ namespace Gambit
       set_CS_charged(result); // Moved this to end, so CS_lep_HpjHmi_ratio is set. Is that OK?
     }
 
-    /// SM Higgs model parameters for HiggsBounds/Signals
-    void SMHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
-    {
-      using namespace Pipes::SMHiggs_ModelParameters;
-      set_SMLikeHiggs_ModelParameters(Dep::SM_spectrum->get_HE(), *Dep::Higgs_Couplings, result);
-    }
-
-        /// SM Higgs model parameters for HiggsBounds/Signals
-    void SMHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
-    {
-      using namespace Pipes::SMHiggs_ModelParameters_charged;
-      set_SMLikeHiggs_ModelParameters_charged(result);
-    }
-
     /// SM-like (SM + possible invisibles) Higgs model parameters for HiggsBounds/Signals
     void SMLikeHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
@@ -311,6 +306,7 @@ namespace Gambit
       dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;
       else if (ModelInUse("ScalarSingletDM_Z3") or ModelInUse("ScalarSingletDM_Z3_running")) spectrum_dependency = &Dep::ScalarSingletDM_Z3_spectrum;
+      else if (ModelInUse("StandardModel_Higgs") or ModelInUse("StandardModel_Higgs_running")) spectrum_dependency = &Dep::SM_spectrum;
       else ColliderBit_error().raise(LOCAL_INFO, "No valid model for SMLikeHiggs_ModelParameters.");
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
       set_SMLikeHiggs_ModelParameters(spec, *Dep::Higgs_Couplings, result);
@@ -323,35 +319,60 @@ namespace Gambit
       set_SMLikeHiggs_ModelParameters_charged(result);
     }
 
-    /// MSSM Higgs neutral model parameters for HB 4
-    void MSSMHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
+    /// MSSM-like (MSSM + NMSSM + ...) Higgs model parameters for HiggsBounds/Signals
+    void MSSMLikeHiggs_ModelParameters(hb_ModelParameters &result)
     {
-      using namespace Pipes::MSSMHiggs_ModelParameters;
+      using namespace Pipes::MSSMLikeHiggs_ModelParameters;
 
       // Set up neutral Higgses
-      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      int n_neutral_higgses = Dep::Higgs_Couplings->get_n_neutral_higgs();
 
       // Set the CP of the Higgs states.
-      for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
+      for (int i = 0; i < n_neutral_higgses; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
 
       // Retrieve higgs partial widths
-      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
+      const std::vector<const DecayTable::Entry*>& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array();
 
-      // Retrieve masses
-      const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
-      const SubSpectrum& spec = fullspectrum.get_HE();
+      // Pick the correct spectrum and specify the Higgses
+      dep_bucket<Spectrum>* spectrum_dependency;  
+      std::vector<str> Higgses;
+
+      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ")) 
+      {
+        spectrum_dependency = &Dep::MSSM_spectrum;
+        Higgses = initVector<str>("h0_1", "h0_2", "A0");
+      }
+      else if (ModelInUse("THDM") or ModelInUse("THDMatQ"))
+      {
+        spectrum_dependency = &Dep::THDM_spectrum;
+        Higgses = initVector<str>("h0_1", "h0_2", "A0");
+      }
+      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");  
+
+          
+      const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
+      static const std::vector<str> sHneut(Higgses);
 
       // Neutral higgs masses and errors
-      for(int i = 0; i < 3; i++)
+      for(int i = 0; i < n_neutral_higgses; i++)
       {
         result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
-        double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
-        double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
-        result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
+        bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
+        bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
+        if (has_high_err and has_low_err)
+        {
+          double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
+          double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
+          result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
+        }
+        else
+        {
+          result.deltaMh[i] = 0.;
+        }
       }
 
       // Loop over all neutral Higgses, setting their branching fractions and total widths.
-      for(int i = 0; i < 3; i++)
+      for(int i = 0; i < n_neutral_higgses; i++)
       {
         result.hGammaTot[i] = h0_widths[i]->width_in_GeV;
         result.BR_hjss[i] = h0_widths[i]->BF("s", "sbar");
@@ -359,19 +380,19 @@ namespace Gambit
         result.BR_hjbb[i] = h0_widths[i]->BF("b", "bbar");
         result.BR_hjmumu[i] = h0_widths[i]->BF("mu+", "mu-");
         result.BR_hjtautau[i] = h0_widths[i]->BF("tau+", "tau-");
-        result.BR_hjWW[i] = h0_widths[i]->BF("W+", "W-");
-        result.BR_hjZZ[i] = h0_widths[i]->BF("Z0", "Z0");
-        result.BR_hjZga[i] = h0_widths[i]->BF("gamma", "Z0");
+        result.BR_hjWW[i] = h0_widths[i]->has_channel("W+", "W-") ? h0_widths[i]->BF("W+", "W-") : 0.0;
+        result.BR_hjZZ[i] = h0_widths[i]->has_channel("Z0", "Z0") ? h0_widths[i]->BF("Z0", "Z0") : 0.0;
+        result.BR_hjZga[i] = h0_widths[i]->has_channel("gamma", "Z0") ? h0_widths[i]->BF("gamma", "Z0") : 0.0;
         result.BR_hjgaga[i] = h0_widths[i]->BF("gamma", "gamma");
         result.BR_hjgg[i] = h0_widths[i]->BF("g", "g");
         // Do decays to invisibles
         result.BR_hjinvisible[i] = 0.;
-        for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
+        for (std::vector<std::pair<str,str>>::const_iterator it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
         {
-          result.BR_hjinvisible[i] += h0_widths[i]->BF(*it, *it);
+          result.BR_hjinvisible[i] += h0_widths[i]->BF(it->first, it->second);
         }
         // Do decays to other neutral higgses
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < n_neutral_higgses; j++)
         {
           if (2.*result.Mh[j] < result.Mh[i] and h0_widths[i]->has_channel(sHneut[j],sHneut[j]))
           {
@@ -384,91 +405,129 @@ namespace Gambit
         }
       }
       // Retrieve cross-section ratios from the HiggsCouplingsTable
-      set_CS_neutral(result, *Dep::Higgs_Couplings, 3);
+      set_CS_neutral(result, *Dep::Higgs_Couplings, n_neutral_higgses);
+
     }
 
-    // fills MSSM neutral model input for HB 5
-    void MSSMHiggs_ModelParameters_effc(hb_neutral_ModelParameters_effc &result)
+    /// MSSM-like (MSSM + NMSSM + ...) Higgs model parameters for HiggsBounds 5
+    void MSSMLikeHiggs_ModelParameters_effc(hb_neutral_ModelParameters_effc &result)
     {
-        using namespace Pipes::MSSMHiggs_ModelParameters_effc;
+      using namespace Pipes::MSSMLikeHiggs_ModelParameters_effc;
 
-        // Set up neutral Higgses
-        static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      // Pick the correct spectrum and specify the Higgses
+      dep_bucket<Spectrum>* spectrum_dependency;
+      std::vector<str> Higgses;
 
-        // Set the CP of the Higgs states.
-        for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
+      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
+      {
+        spectrum_dependency = &Dep::MSSM_spectrum;
+        Higgses = initVector<str>("h0_1", "h0_2", "A0");
+      }
+      else if(ModelInUse("THDM") or ModelInUse("THDMatQ")
+      {
+        spectrum_dependency = &Dep::THDM_spectrum;
+        Higgses = initVector<str>("h0_1", "h0_2", "A0");
+      }
+      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");
 
-        // Retrieve masses
-        const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
-        const SubSpectrum& he = fullspectrum.get_HE();
+      const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
+      static const std::vector<str> sHneut(Higgses);
 
-        // Neutral higgs masses, widths and errors
-        for(int i = 0; i < 3; i++)
+      // Set the CP of the Higgs states.
+      for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
+
+      // Retrieve masses
+      const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
+      const SubSpectrum& he = fullspectrum.get_HE();
+
+      // Neutral higgs masses, widths and errors
+      for(int i = 0; i < 3; i++)
+      {
+        result.Mh[i] = he.get(Par::Pole_Mass,sHneut[i]);
+        bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
+        bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
+        if (has_high_err and has_low_err)
         {
-          result.Mh[i] = he.get(Par::Pole_Mass,sHneut[i]);
-          bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
-          bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
-          if (has_high_err and has_low_err)
-          {
-            double upper = he.get(Par::Pole_Mass_1srd_high,sHneut[i]);
-            double lower = he.get(Par::Pole_Mass_1srd_low,sHneut[i]);
-            result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
-          }
-          else
-          {
-            result.deltaMh[i] = 0.;
-          }
-
-          // Total width - get HB to calculate this 
-          result.hGammaTot[i] = -1.;
-          // Total width - use calculated
-          // result.hGammaTot[i] = decays.width_in_GeV;
+          double upper = he.get(Par::Pole_Mass_1srd_high,sHneut[i]);
+          double lower = he.get(Par::Pole_Mass_1srd_low,sHneut[i]);
+          result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
+        }
+        else
+        {
+          result.deltaMh[i] = 0.;
         }
 
-        // fill neutral effective couplings
-        set_CS_neutral_effc(result, *Dep::Higgs_Couplings, 3);
-        // fill non SM BRs
-        set_nonSMBR(result, *Dep::Higgs_Couplings, 3);
-      
-        #ifdef COLLIDERBIT_DEBUG
-          for (int h=1;h<=3;h++) {
-            for (int h2=1; h2<=3; h2++) {
-              std::cout << "Pole_Mass " << result.Mh[h-1]  << std::endl;
-              printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h - 1], result.ghjmumu_p[h - 1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
-              printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
-              printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
-              printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
-              printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
-              printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
-              printf("%2d %2d hihjZ %16.8E\n", h, h2, result.ghjhiZ[h-1][h2-1]);
-            }
+        // Total width - get HB to calculate this 
+        result.hGammaTot[i] = -1.;
+        // Total width - use calculated
+        // result.hGammaTot[i] = decays.width_in_GeV;
+      }
+
+      // fill neutral effective couplings
+      set_CS_neutral_effc(result, *Dep::Higgs_Couplings, n_neutral_higgses);
+      // fill non SM BRs
+      set_nonSMBR(result, *Dep::Higgs_Couplings, n_neutral_higgses);
+    
+      #ifdef COLLIDERBIT_DEBUG
+        for (int h=1;h<=3;h++) {
+          for (int h2=1; h2<=3; h2++) {
+            std::cout << "Pole_Mass " << result.Mh[h-1]  << std::endl;
+            printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h - 1], result.ghjmumu_p[h - 1]);
+            printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
+            printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
+            printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
+            printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
+            printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
+            printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
+            printf("%2d %2d hihjZ %16.8E\n", h, h2, result.ghjhiZ[h-1][h2-1]);
           }
-        #endif
+        }
+      #endif
     }
 
-     /// MSSM Higgs model parameters
-    void MSSMHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
+    // MSSM-like Higgs charged model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...)
+    void MSSMLikeHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
     {
-      using namespace Pipes::MSSMHiggs_ModelParameters_charged;
+      using namespace Pipes::MSSMLikeHiggs_ModelParameters_charged;
 
       // Retrieve higgs partial widths
       const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
       const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
-      // Retrieve masses
-      const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
-      const SubSpectrum& spec = fullspectrum.get_HE();
+      // Pick the correct spectrum
+      dep_bucket<Spectrum>* spectrum_dependency;
+
+      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
+      {
+        spectrum_dependency = &Dep::MSSM_spectrum;
+      }
+      else if (ModelInUse("THDM") or ModelInUse("THDMatQ"))
+      {
+        spectrum_dependency = &Dep::THDM_spectrum;
+      }
+      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");
+
+      const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
+      static const std::vector<str> sHneut(Higgses);
 
       // Charged higgs masses and errors
       result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");
-      double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
-      double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
-      result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
+      bool has_high_err = spec.has(Par::Pole_Mass_1srd_high,"H+");
+      bool has_low_err = spec.has(Par::Pole_Mass_1srd_low,"H+");
+      if (has_high_err and has_low_err)
+      {
+        double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
+        double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
+        result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
+      }
+      else
+      {
+        result.deltaMHplus[0] = 0.;
+      }
 
       // Cross section
       set_CS_charged(result);
@@ -490,130 +549,11 @@ namespace Gambit
       // Set up neutral Higgses (keys)
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
       
-      for (int h=1;h<=3;h++) {
+      for (int h=1;h<=3;h++)
+      {
         result.BR_HpjhiW[h-1] = H_plus_widths.has_channel("W+",sHneut[h-1]) ? H_plus_widths.BF("W+",sHneut[h-1]): 0.;
       }
      
-    }
-
-    // fills THDM neutral model input for HB 5
-    void THDM_ModelParameters_effc(hb_neutral_ModelParameters_effc &result)
-    {
-        using namespace Pipes::THDM_ModelParameters_effc;
-
-        // Set up neutral Higgses
-        static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-
-        // Set the CP of the Higgs states.
-        for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
-
-        // Retrieve masses
-        const Spectrum& fullspectrum = *Dep::THDM_spectrum;
-        const SubSpectrum& he = fullspectrum.get_HE();
-
-        // Neutral higgs masses and errors
-        for(int i = 0; i < 3; i++)
-        {
-          result.Mh[i] = he.get(Par::Pole_Mass,sHneut[i]);
-          bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
-          bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
-          if (has_high_err and has_low_err)
-          {
-            double upper = he.get(Par::Pole_Mass_1srd_high,sHneut[i]);
-            double lower = he.get(Par::Pole_Mass_1srd_low,sHneut[i]);
-            result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
-          }
-          else
-          {
-            result.deltaMh[i] = 0.;
-          }
-
-          const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
-
-          // Total width - get HB to calculate this 
-          result.hGammaTot[i] = -1.;
-          // Total width - use calculated
-          // result.hGammaTot[i] = decays.width_in_GeV;
-        }
-
-        // fill neutral effective couplings
-        set_CS_neutral_effc(result, *Dep::Higgs_Couplings, 3);
-         // fill non SM BRs
-        set_nonSMBR(result, *Dep::Higgs_Couplings, 3);
-        
-        #ifdef COLLIDERBIT_DEBUG
-          for (int h=1;h<=3;h++) {
-            for (int h2=1; h2<=3; h2++) {
-              std::cout << "Pole_Mass " << result.Mh[h-1]  << std::endl;
-              printf("%2d %5s %16.8E %16.8E\n", h, "ss", result.ghjss_s[h-1], result.ghjss_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "bb", result.ghjbb_s[h-1], result.ghjbb_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "cc", result.ghjcc_s[h-1], result.ghjcc_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "tt", result.ghjtt_s[h-1], result.ghjtt_p[h-1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "mumu", result.ghjmumu_s[h - 1], result.ghjmumu_p[h - 1]);
-              printf("%2d %5s %16.8E %16.8E\n", h, "tata", result.ghjtautau_s[h-1], result.ghjtautau_p[h-1]);
-              printf("%2d %5s %16.8E\n", h, "ZZ", result.ghjZZ[h-1]);
-              printf("%2d %5s %16.8E\n", h, "WW", result.ghjWW[h-1]);
-              printf("%2d %5s %16.8E\n", h, "gaga", result.ghjgaga[h-1]);
-              printf("%2d %5s %16.8E\n", h, "Zga", result.ghjZga[h-1]);
-              printf("%2d %5s %16.8E\n", h, "gg", result.ghjgg[h-1]);
-              printf("%2d %2d hihjZ %16.8E\n", h, h2, result.ghjhiZ[h-1][h2-1]);
-            }
-          }
-        #endif
-    }
-
-    // fills THDM charged model input for HB 4/5
-    void THDM_ModelParameters_charged(hb_charged_ModelParameters &result)
-    {
-        using namespace Pipes::THDM_ModelParameters_charged;
-
-        // Retrieve higgs partial widths
-        const DecayTable::Entry& H_plus_widths = Dep::Higgs_Couplings->get_charged_decays(0);
-        const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
-
-        // Retrieve masses
-        const Spectrum& fullspectrum = *Dep::THDM_spectrum;
-        const SubSpectrum& spec = fullspectrum.get_HE();
-
-        // Charged higgs masses and errors
-        result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");
-        bool has_high_err = spec.has(Par::Pole_Mass_1srd_high,"H+");
-        bool has_low_err = spec.has(Par::Pole_Mass_1srd_low,"H+");
-        if (has_high_err and has_low_err)
-        {
-          double upper = spec.get(Par::Pole_Mass_1srd_high,"H+");
-          double lower = spec.get(Par::Pole_Mass_1srd_low,"H+");
-          result.deltaMHplus[0] = result.MHplus[0] * std::max(upper,lower);
-        }
-        else
-        {
-          result.deltaMHplus[0] = 0.;
-        }
-
-        // fill charged effective couplings
-        set_CS_charged(result);
-
-        // Set charged Higgs branching fractions and total width.
-        result.HpGammaTot[0] = H_plus_widths.width_in_GeV;
-        result.BR_Hpjcs[0]   = H_plus_widths.has_channel("c", "sbar") ? H_plus_widths.BF("c", "sbar") : 0.; 
-        result.BR_Hpjcb[0]   = H_plus_widths.has_channel("c", "bbar") ? H_plus_widths.BF("c", "bbar") : 0.; 
-        result.BR_Hptaunu[0] = H_plus_widths.has_channel("tau+", "nu_tau") ? H_plus_widths.BF("tau+", "nu_tau") : 0.; 
-
-        // Set top branching fractions
-        result.BR_tWpb       = t_widths.has_channel("W+", "b") ? t_widths.BF("W+", "b") : 0.; 
-        result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
-
-        // extra HB v5 beta input
-        result.BR_Hpjtb[0] = H_plus_widths.has_channel("t", "bbar") ? H_plus_widths.BF("t", "bbar"): 0.;
-        result.BR_HpjWZ[0] = H_plus_widths.has_channel("W+","Z0") ? H_plus_widths.BF("W+","Z0") : 0.; 
-
-        // Set up neutral Higgses (keys)
-        static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-        
-         for (int h=1;h<=3;h++) {
-          result.BR_HpjhiW[h-1] = H_plus_widths.has_channel("W+",sHneut[h-1]) ? H_plus_widths.BF("W+",sHneut[h-1]): 0.;
-         }
-
         #ifdef COLLIDERBIT_DEBUG
         std::cout << "Pole_Mass " << result.MHplus[0] << std::endl;
         std::cout << "Width " << result.HpGammaTot[0] << std::endl;
@@ -625,81 +565,6 @@ namespace Gambit
           printf("4 %5s %16.8E\n", "BR_Hpjtb", result.BR_Hpjtb[0]);
           printf("4 %5s %16.8E\n", "BR_HpjhiW", result.BR_HpjhiW[0]);
         #endif
- 
-    }
-
-    // fills THDM neutral model input for HB 4 
-    void THDM_ModelParameters(hb_neutral_ModelParameters_part &result)
-    {
-      using namespace Pipes::THDM_ModelParameters;
-
-      // Set up neutral Higgses
-      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-
-      // Set the CP of the Higgs states.
-      for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
-
-      // Retrieve higgs partial widths
-      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
-
-      // Retrieve masses
-      const Spectrum& fullspectrum = *Dep::THDM_spectrum;
-      const SubSpectrum& he = fullspectrum.get_HE();
-
-      // Neutral higgs masses and errors
-      for(int i = 0; i < 3; i++)
-      {
-        result.Mh[i] = he.get(Par::Pole_Mass,sHneut[i]);
-        bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
-        bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
-        if (has_high_err and has_low_err)
-        {
-          double upper = he.get(Par::Pole_Mass_1srd_high,sHneut[i]);
-          double lower = he.get(Par::Pole_Mass_1srd_low,sHneut[i]);
-          result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
-        }
-        else
-        {
-          result.deltaMh[i] = 0.;
-        }
-      }
-
-      set_CS_neutral(result, *Dep::Higgs_Couplings, 3);
-
-      // cycle over neutral scalars & fill HB input
-      for (int h=0; h<3; h++) {
-        result.hGammaTot[h] = h0_widths[h]->width_in_GeV;
-        result.BR_hjss[h] = h0_widths[h]->BF("s", "sbar");
-        result.BR_hjcc[h] = h0_widths[h]->BF("c", "cbar");
-        result.BR_hjbb[h] = h0_widths[h]->BF("b", "bbar");
-        result.BR_hjmumu[h] = h0_widths[h]->BF("mu+", "mu-");
-        result.BR_hjtautau[h] = h0_widths[h]->BF("tau+", "tau-");
-        result.BR_hjWW[h] = h0_widths[h]->BF("W+", "W-");
-        result.BR_hjZZ[h] = h0_widths[h]->BF("Z0", "Z0");
-        result.BR_hjZga[h] = h0_widths[h]->BF("gamma", "Z0");
-        result.BR_hjgaga[h] = h0_widths[h]->BF("gamma", "gamma");
-        result.BR_hjgg[h] = h0_widths[h]->BF("g", "g");
-
-        // Do decays to invisibles
-        result.BR_hjinvisible[h] = 0.;
-        for (auto it = Dep::Higgs_Couplings->invisibles.begin(); it != Dep::Higgs_Couplings->invisibles.end(); ++it)
-        {
-          result.BR_hjinvisible[h] += h0_widths[h]->BF(*it, *it);
-        }
-
-        // Do decays to other neutral higgses
-        for (int h2=0; h2<3; h2++) {
-
-          if (2.*result.Mh[h2] < result.Mh[h] and h0_widths[h]->has_channel(sHneut[h2],sHneut[h2]))
-          {
-            result.BR_hjhihi[h][h2] = h0_widths[h]->BF(sHneut[h2],sHneut[h2]);
-          }
-          else
-          {
-            result.BR_hjhihi[h][h2] = 0.;
-          }
-        }
-      }
     }
 
     /// Get a LEP chisq from HiggsBounds
@@ -712,15 +577,22 @@ namespace Gambit
 
       Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
       Farray<double, 1,3, 1,3> BR_hjhihi;
+      // Transpose to get around Fortran matrix types
       for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
       {
         CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
       }
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        ModelParam.CS_lep_hjhi_ratio[j][i] = CS_lep_hjhi_ratio(i+1,j+1);
+        ModelParam.BR_hjhihi[j][i] = BR_hjhihi(i+1,j+1);
+      }
+
 
       BEreq::HiggsBounds_neutral_input_part(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
               &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
-              &ModelParam.CS_lep_tautauhj_ratio[0], CS_lep_hjhi_ratio,
+              &ModelParam.CS_lep_tautauhj_ratio[0], &ModelParam.CS_lep_hjhi_ratio[0][0],
               &ModelParam.CS_gg_hj_ratio[0], &ModelParam.CS_bb_hj_ratio[0],
               &ModelParam.CS_bg_hjb_ratio[0], &ModelParam.CS_ud_hjWp_ratio[0],
               &ModelParam.CS_cs_hjWp_ratio[0], &ModelParam.CS_ud_hjWm_ratio[0],
@@ -735,7 +607,20 @@ namespace Gambit
               &ModelParam.BR_hjmumu[0], &ModelParam.BR_hjtautau[0],
               &ModelParam.BR_hjWW[0], &ModelParam.BR_hjZZ[0],
               &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
-              &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
+              &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], &ModelParam.BR_hjhihi[0][0]);
+
+      // Transpose it back
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
+        BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
+      }
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        ModelParam.CS_lep_hjhi_ratio[j][i] = CS_lep_hjhi_ratio(i+1,j+1);
+        ModelParam.BR_hjhihi[j][i] = BR_hjhihi(i+1,j+1);
+      }
+
 
       BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
                &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], &ModelParam_charged.BR_Hpjcs[0],
@@ -939,15 +824,22 @@ namespace Gambit
 
       Farray<double, 1,3, 1,3> CS_lep_hjhi_ratio;
       Farray<double, 1,3, 1,3> BR_hjhihi;
+      // Transpose to get around Fortran matrix types
       for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
       {
         CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
         BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
       }
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        ModelParam.CS_lep_hjhi_ratio[j][i] = CS_lep_hjhi_ratio(i+1,j+1);
+        ModelParam.BR_hjhihi[j][i] = BR_hjhihi(i+1,j+1);
+      }
+
 
       BEreq::HiggsBounds_neutral_input_part_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0],
                  &ModelParam.CS_lep_hjZ_ratio[0], &ModelParam.CS_lep_bbhj_ratio[0],
-                 &ModelParam.CS_lep_tautauhj_ratio[0], CS_lep_hjhi_ratio,
+                 &ModelParam.CS_lep_tautauhj_ratio[0], &ModelParam.CS_lep_hjhi_ratio[0][0],
                  &ModelParam.CS_gg_hj_ratio[0], &ModelParam.CS_bb_hj_ratio[0],
                  &ModelParam.CS_bg_hjb_ratio[0], &ModelParam.CS_ud_hjWp_ratio[0],
                  &ModelParam.CS_cs_hjWp_ratio[0], &ModelParam.CS_ud_hjWm_ratio[0],
@@ -962,7 +854,20 @@ namespace Gambit
                  &ModelParam.BR_hjmumu[0], &ModelParam.BR_hjtautau[0],
                  &ModelParam.BR_hjWW[0], &ModelParam.BR_hjZZ[0],
                  &ModelParam.BR_hjZga[0], &ModelParam.BR_hjgaga[0],
-                 &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], BR_hjhihi);
+                 &ModelParam.BR_hjgg[0], &ModelParam.BR_hjinvisible[0], &ModelParam.BR_hjhihi[0][0]);
+
+      // Transpose it back
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        CS_lep_hjhi_ratio(i+1,j+1) = ModelParam.CS_lep_hjhi_ratio[i][j];
+        BR_hjhihi(i+1,j+1) = ModelParam.BR_hjhihi[i][j];
+      }
+      for(int i = 0; i < 3; i++) for(int j = 0; j < 3; j++)
+      {
+        ModelParam.CS_lep_hjhi_ratio[j][i] = CS_lep_hjhi_ratio(i+1,j+1);
+        ModelParam.BR_hjhihi[j][i] = BR_hjhihi(i+1,j+1);
+      }
+
 
       BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
             &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], &ModelParam_charged.BR_Hpjcs[0],

@@ -90,7 +90,6 @@ namespace Gambit
     template<typename Engine>
     class specialised_threadsafe_rng : public threadsafe_rng
     {
-
       public:
         /// Create RNG engines, one for each thread.
         specialised_threadsafe_rng(int& seed)
@@ -111,7 +110,10 @@ namespace Gambit
         /// Selected uniformly from range (min,max).
         /// To be used as an entropy source for stdlib distributions.
         /// If you want (0,1) random doubles then please use Random::draw(), NOT this function!
-        virtual result_type operator()() { return rngs[omp_get_thread_num()](); }
+        virtual result_type operator()()
+        { 
+          return rngs[omp_get_thread_num()](); 
+        }
 
       private:
 

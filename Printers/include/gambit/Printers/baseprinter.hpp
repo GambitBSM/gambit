@@ -65,6 +65,9 @@ namespace Gambit
     // Helper function for parsing ModelParameters label strings.
     bool parse_label_for_ModelParameters(const std::string& fulllabel, const std::string& modelname, std::string& out, std::string& rest, bool case_sensitive=true);
 
+    /// Helper function for parsing Spectrum label strings
+    bool parse_label_for_spectrum_entry(const std::string& fulllabel, const std::string& req_capability, const std::string& req_module, const std::string& req_function, std::string& outname, std::string& outtag, std::string& labelroot, bool case_sensitive=true);
+
     /// For debugging; print to stdout all the typeIDs for all types.
     void printAllTypeIDs(void);
 
@@ -187,6 +190,16 @@ namespace Gambit
 
         /// Destructor
         virtual ~BaseReader() {}
+
+        /// Reimplement overload for 'retrieve' that uses the current point as the input for rank/pointID
+        // Need to do this because otherwise we end up using the scanner-only templates for the retrieves,
+        // rather than the full set available here.
+        template<typename T>
+        bool retrieve(T& out, const std::string& label)
+        {
+          PPIDpair pt = get_current_point();
+          return retrieve(out, label, pt.rank, pt.pointID);
+        }
 
         // retrieve function dispatch
         template<typename T>

@@ -38,7 +38,7 @@
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
 #  \date 2019 Feb
-#  \date 2020 May
+#  \date 2020 Feb, May
 #
 #  \author Jonathan Cornell
 #          (jonathan.cornell@uc.edu)
@@ -143,20 +143,22 @@ if [ ! -f $1/${filename} ]; then
   fi
 fi
 # Check the MD5 sum
-$2 -E md5sum $1/${filename} |
-{
-  read md5 name;
-  if [ "${md5}" != "$5" ]; then
-    $2 -E cmake_echo_color --red --bold  "ERROR: MD5 sum of downloaded file $1/${filename} does not match"
-    $2 -E cmake_echo_color --red --bold  "Expected: $5"
-    $2 -E cmake_echo_color --red --bold  "Found:    ${md5}"
-    $2 -E cmake_echo_color --red --bold  "Deleting downloaded file."
-    # Delete the file if the md5 is bad, and make a stamp saying so, as cmake does not actually check if DOWNLOAD_COMMAND fails.
-    $2 -E remove $1/${filename}
-    $2 -E touch $7_$8-stamp/$7_$8-download-failed
-    exit 1
-  fi
-}
+if [ "$5" != "none" ]; then
+  $2 -E md5sum $1/${filename} |
+  {
+    read md5 name;
+    if [ "${md5}" != "$5" ]; then
+      $2 -E cmake_echo_color --red --bold  "ERROR: MD5 sum of downloaded file $1/${filename} does not match"
+      $2 -E cmake_echo_color --red --bold  "Expected: $5"
+      $2 -E cmake_echo_color --red --bold  "Found:    ${md5}"
+      $2 -E cmake_echo_color --red --bold  "Deleting downloaded file."
+      # Delete the file if the md5 is bad, and make a stamp saying so, as cmake does not actually check if DOWNLOAD_COMMAND fails.
+      $2 -E remove $1/${filename}
+      $2 -E touch $7_$8-stamp/$7_$8-download-failed
+      exit 1
+    fi
+  }
+fi
 # Do the extraction
 cd $6
 $2 -E tar -xf $1/${filename}
@@ -176,10 +178,12 @@ if [ "retain container folder" != "$9" ]; then
         dirname=${dir1}
       fi
     fi
-    if cd ${dirname}; then
-      mv * ../
-      cd ../
-      $2 -E remove_directory ${dirname}
+    if [ -d ${dirname} ]; then
+      if cd ${dirname}; then
+        mv * ../
+        cd ../
+        $2 -E remove_directory ${dirname}
+      fi
     fi
   fi
 fi

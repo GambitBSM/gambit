@@ -1,10 +1,10 @@
 #ifndef __wrapper_Settings_def_Pythia_8_212_h__
 #define __wrapper_Settings_def_Pythia_8_212_h__
 
-#include "wrapper_Info_decl.h"
 #include <string>
 #include <ostream>
 #include <vector>
+#include "wrapper_Info_decl.h"
 
 #include "identification.hpp"
 
@@ -387,7 +387,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::Settings::Settings() :
+        inline Settings::Settings() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -395,7 +395,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Settings::Settings(Pythia8::Abstract_Settings* in) :
+        inline Settings::Settings(Abstract_Settings* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -403,7 +403,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Settings::Settings(const Settings& in) :
+        inline Settings::Settings(const Settings& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -411,7 +411,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Settings& Settings::operator=(const Settings& in)
+        inline Settings& Settings::operator=(const Settings& in)
         {
             if (this != &in)
             {
@@ -422,7 +422,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Settings::~Settings()
+        inline Settings::~Settings()
         {
             if (get_BEptr() != 0)
             {
@@ -437,9 +437,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Settings* Pythia8::Settings::get_BEptr() const
+        inline Abstract_Settings* Pythia8::Settings::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Settings*>(BEptr);
+            return dynamic_cast<Abstract_Settings*>(BEptr);
         }
     }
     

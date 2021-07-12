@@ -30,7 +30,7 @@ namespace Gambit {
     // }
 
 
-    bool sortByPT_2lep(HEPUtils::Particle* lep1, HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT()); }
+    bool sortByPT_2lep(const HEPUtils::Particle* lep1, const HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT()); }
 
     class Analysis_ATLAS_8TeV_2LEPEW_20invfb : public Analysis {
     private:
@@ -87,10 +87,10 @@ namespace Gambit {
 
       }
 
-      void EleEleOverlapRemoval(vector<HEPUtils::Particle*> &vec1, vector<HEPUtils::Particle*> &vec2, double DeltaRMax) {
+      void EleEleOverlapRemoval(vector<const HEPUtils::Particle*> &vec1, vector<const HEPUtils::Particle*> &vec2, double DeltaRMax) {
         //Routine to do electron-electron overlap check
         //Discard lowest energy electron if two are found overlapping
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int it1 = 0; it1 < vec1.size(); it1++) {
           bool overlap = false;
@@ -112,10 +112,10 @@ namespace Gambit {
         return;
       }
 
-      void LepLepOverlapRemoval(vector<HEPUtils::Particle*> &vec1, vector<HEPUtils::Particle*> &vec2, double DeltaRMax) {
+      void LepLepOverlapRemoval(vector<const HEPUtils::Particle*> &vec1, vector<const HEPUtils::Particle*> &vec2, double DeltaRMax) {
         //Routine to do lepton-lepton overlap check
         //Discard first lepton if overlap is found
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int it1 = 0; it1 < vec1.size(); it1++) {
           bool overlap = false;
@@ -137,11 +137,11 @@ namespace Gambit {
         return;
       }
 
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Jet*> Survivors;
+        vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
           bool overlap = false;
@@ -160,11 +160,11 @@ namespace Gambit {
         return;
       }
 
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec, double DeltaRMax) {
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax) {
         //Routine to do lepton-jet check
         //Discards leptons if they are within DeltaRMax of a jet
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
           bool overlap = false;
@@ -185,11 +185,11 @@ namespace Gambit {
         return;
       }
 
-      void RemoveLeptonsMllLt12(vector<HEPUtils::Particle*> &lepvec){
+      void RemoveLeptonsMllLt12(vector<const HEPUtils::Particle*> &lepvec){
 
         ssize_t removeLep1=-1;
         ssize_t removeLep2=-1;
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         //Function removes SF lepton pairs with m_ll < 12 GeV
         for(unsigned int itlep1 = 0; itlep1 < lepvec.size(); itlep1++) {
@@ -219,8 +219,8 @@ namespace Gambit {
         double met = event->met();
 
         // Now define vector of baseline electrons
-        vector<HEPUtils::Particle*> signalElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> signalElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && fabs(electron->eta()) < 2.47) signalElectrons.push_back(electron);
         }
 
@@ -228,22 +228,22 @@ namespace Gambit {
         ATLAS::applyElectronEff(signalElectrons);
 
         // Now define vector of baseline muons
-        vector<HEPUtils::Particle*> signalMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> signalMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && fabs(muon->eta()) < 2.4) signalMuons.push_back(muon);
         }
 
         // Apply muon efficiency
         ATLAS::applyMuonEff(signalMuons);
 
-        vector<HEPUtils::Jet*> signalJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> signalJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.5) signalJets.push_back(jet);
           //if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
         }
 
-        vector<HEPUtils::Particle*> signalTaus;
-        for (HEPUtils::Particle* tau : event->taus()) {
+        vector<const HEPUtils::Particle*> signalTaus;
+        for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 20. && tau->abseta() < 2.5) signalTaus.push_back(tau);
         }
         ATLAS::applyTauEfficiencyR1(signalTaus);
@@ -277,17 +277,17 @@ namespace Gambit {
 
 
         //Classify jets into various categories
-        vector<HEPUtils::Jet*> centralBJets;
-        vector<HEPUtils::Jet*> centralNonBJets;
-        vector<HEPUtils::Jet*> forwardJets;
+        vector<const HEPUtils::Jet*> centralBJets;
+        vector<const HEPUtils::Jet*> centralNonBJets;
+        vector<const HEPUtils::Jet*> forwardJets;
 
         const std::vector<double> a = {0,10.};
         const std::vector<double> b = {0,10000.};
         const std::vector<double> c = {0.8};
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
-        for (HEPUtils::Jet* jet : signalJets) {
-          bool hasTag=has_tag(_eff2d, jet->eta(), jet->pT());
+        for (const HEPUtils::Jet* jet : signalJets) {
+          bool hasTag=has_tag(_eff2d, jet->abseta(), jet->pT());
           if(fabs(jet->eta()) < 2.4){
             if(jet->btag() && hasTag){
               centralBJets.push_back(jet);
@@ -302,12 +302,12 @@ namespace Gambit {
         //Common cuts for all signal regions
 
         bool leptonPTCut=false;
-        vector<HEPUtils::Particle*> signalLeptons;
-        for (HEPUtils::Particle* ele : signalElectrons) {
+        vector<const HEPUtils::Particle*> signalLeptons;
+        for (const HEPUtils::Particle* ele : signalElectrons) {
           signalLeptons.push_back(ele);
         }
 
-        for (HEPUtils::Particle* muo : signalMuons) {
+        for (const HEPUtils::Particle* muo : signalMuons) {
           signalLeptons.push_back(muo);
         }
 
@@ -362,17 +362,17 @@ namespace Gambit {
           if(mt2>150.)cut_SRMT2150=true;
 
           //Signal region increments use the trigger efficiencies for ee, emu and mumu triggers
-          if(mt2 > 90. && (numElectrons==1 && numMuons==1))_num_MT2_90_DF=_num_MT2_90_DF+0.89;
-          if(passZVeto && mt2 > 90. && (numElectrons==2 && fabs(mll-91.)>10))_num_MT2_90_SF=_num_MT2_90_SF+0.97;
-          if(passZVeto && mt2 > 90. && (numMuons==2 && fabs(mll-91.)>10))_num_MT2_90_SF=_num_MT2_90_SF+0.75;
+          if(mt2 > 90. && (numElectrons==1 && numMuons==1)) _num_MT2_90_DF += event->weight() * 0.89;
+          if(passZVeto && mt2 > 90. && (numElectrons==2 && fabs(mll-91.)>10)) _num_MT2_90_SF += event->weight() * 0.97;
+          if(passZVeto && mt2 > 90. && (numMuons==2 && fabs(mll-91.)>10)) _num_MT2_90_SF += event->weight() * 0.75;
 
-          if(mt2 > 120. && (numElectrons==1 && numMuons==1))_num_MT2_120_DF=_num_MT2_120_DF+0.89;
-          if(passZVeto && mt2 > 120. && (numElectrons==2 && fabs(mll-91.)>10))_num_MT2_120_SF=_num_MT2_120_SF+0.97;
-          if(passZVeto && mt2 > 120. &&  (numMuons==2 && fabs(mll-91.)>10))_num_MT2_120_SF=_num_MT2_120_SF+0.75;
+          if(mt2 > 120. && (numElectrons==1 && numMuons==1)) _num_MT2_120_DF += event->weight() * 0.89;
+          if(passZVeto && mt2 > 120. && (numElectrons==2 && fabs(mll-91.)>10)) _num_MT2_120_SF += event->weight() * 0.97;
+          if(passZVeto && mt2 > 120. &&  (numMuons==2 && fabs(mll-91.)>10)) _num_MT2_120_SF += event->weight() * 0.75;
 
-          if(mt2 > 150. && (numElectrons==1 && numMuons==1))_num_MT2_150_DF=_num_MT2_150_DF+0.89;
-          if(passZVeto && mt2 > 150. && (numElectrons==2 && fabs(mll-91.)>10))_num_MT2_150_SF=_num_MT2_150_SF+0.97;
-          if(passZVeto && mt2 > 150. && (numMuons==2 && fabs(mll-91.)>10))_num_MT2_150_SF=_num_MT2_150_SF+0.75;
+          if(mt2 > 150. && (numElectrons==1 && numMuons==1)) _num_MT2_150_DF += event->weight() * 0.89;
+          if(passZVeto && mt2 > 150. && (numElectrons==2 && fabs(mll-91.)>10)) _num_MT2_150_SF += event->weight() * 0.97;
+          if(passZVeto && mt2 > 150. && (numMuons==2 && fabs(mll-91.)>10)) _num_MT2_150_SF += event->weight() * 0.75;
 
         }
 
@@ -390,17 +390,17 @@ namespace Gambit {
 
           //Calculate ETmiss_rel
           double dPhiMin=9999;
-          for(HEPUtils::Jet* jet : centralBJets){
+          for(const HEPUtils::Jet* jet : centralBJets){
             double dphi=fabs(jet->mom().deltaPhi(ptot));
             if(fabs(dphi)<dPhiMin)dPhiMin=dphi;
           }
 
-          for(HEPUtils::Jet* jet : centralNonBJets){
+          for(const HEPUtils::Jet* jet : centralNonBJets){
             double dphi=fabs(jet->mom().deltaPhi(ptot));
             if(fabs(dphi)<dPhiMin)dPhiMin=dphi;
           }
 
-          for(HEPUtils::Particle* lep : signalLeptons){
+          for(const HEPUtils::Particle* lep : signalLeptons){
             double dphi=fabs(lep->mom().deltaPhi(ptot));
             if(fabs(dphi)<dPhiMin)dPhiMin=dphi;
           }
@@ -443,36 +443,36 @@ namespace Gambit {
           if((signalLeptons[0]->mom() + signalLeptons[1]->mom()).pT() > 80. &&
              ETmiss_rel > 80. &&
              mll < 120. &&
-             (numElectrons==1 && numMuons==1))_num_WWa_DF=_num_WWa_DF+0.89;
+             (numElectrons==1 && numMuons==1)) _num_WWa_DF += event->weight() * 0.89;
 
           if((signalLeptons[0]->mom() + signalLeptons[1]->mom()).pT() > 80. &&
              ETmiss_rel > 80. &&
              mll < 120. &&
-             (numElectrons==2 && fabs(mll-91.)>10.))_num_WWa_SF=_num_WWa_SF+0.97;
+             (numElectrons==2 && fabs(mll-91.)>10.)) _num_WWa_SF += event->weight() * 0.97;
 
           if((signalLeptons[0]->mom() + signalLeptons[1]->mom()).pT() > 80. &&
              ETmiss_rel > 80. &&
              mll < 120. &&
-             (numMuons==2 && fabs(mll-91.)>10.))_num_WWa_SF=_num_WWa_SF+0.75;
+             (numMuons==2 && fabs(mll-91.)>10.)) _num_WWa_SF += event->weight() * 0.75;
 
           if(mt2 > 90. &&
              mll < 170. &&
-             (numElectrons==1 && numMuons==1))_num_WWb_DF=_num_WWb_DF+0.89;
+             (numElectrons==1 && numMuons==1)) _num_WWb_DF += event->weight() * 0.89;
 
           if(mt2 > 90. &&
              mll < 170. &&
-             (numElectrons==2 && fabs(mll-91.)>10.))_num_WWb_SF=_num_WWb_SF+0.97;
+             (numElectrons==2 && fabs(mll-91.)>10.)) _num_WWb_SF += event->weight() * 0.97;
 
 
           if(mt2 > 90. &&
              mll < 170. &&
-             (numMuons==2 && fabs(mll-91.)>10.))_num_WWb_SF=_num_WWb_SF+0.75;
+             (numMuons==2 && fabs(mll-91.)>10.)) _num_WWb_SF += event->weight() * 0.75;
 
-          if(mt2 > 100. && (numElectrons==1 && numMuons==1))_num_WWc_DF=_num_WWc_DF+0.89;
+          if(mt2 > 100. && (numElectrons==1 && numMuons==1)) _num_WWc_DF += event->weight() * 0.89;
 
-          if(mt2 > 100. && (numElectrons==2 && fabs(mll-91.)>10.))_num_WWc_SF=_num_WWc_SF+0.97;
+          if(mt2 > 100. && (numElectrons==2 && fabs(mll-91.)>10.)) _num_WWc_SF += event->weight() * 0.97;
 
-          if(mt2 > 100. && (numMuons==2 && fabs(mll-91.)>10.))_num_WWc_SF=_num_WWc_SF+0.75;
+          if(mt2 > 100. && (numMuons==2 && fabs(mll-91.)>10.)) _num_WWc_SF += event->weight() * 0.75;
 
         }
 
@@ -491,17 +491,17 @@ namespace Gambit {
 
           //Calculate ETmiss_rel
           double dPhiMin=9999;
-          for(HEPUtils::Jet* jet : centralBJets){
+          for(const HEPUtils::Jet* jet : centralBJets){
             double dphi=jet->mom().deltaPhi(ptot);
             if(dphi<dPhiMin)dPhiMin=dphi;
           }
 
-          for(HEPUtils::Jet* jet : centralNonBJets){
+          for(const HEPUtils::Jet* jet : centralNonBJets){
             double dphi=jet->mom().deltaPhi(ptot);
             if(dphi<dPhiMin)dPhiMin=dphi;
           }
 
-          for(HEPUtils::Particle* lep : signalLeptons){
+          for(const HEPUtils::Particle* lep : signalLeptons){
             double dphi=lep->mom().deltaPhi(ptot);
             if(dphi<dPhiMin)dPhiMin=dphi;
           }
@@ -528,9 +528,9 @@ namespace Gambit {
           if(!(mjj > 50. && mjj<100.))passMjj=false;
           if(!(centralNonBJets[0]->pT()>45. && centralNonBJets[1]->pT()>45.))passJetPT=false;
 
-          if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==2 && numMuons==0))_num_Zjets=_num_Zjets+0.97;
+          if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==2 && numMuons==0)) _num_Zjets += event->weight() * 0.97;
 
-          if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==0 && numMuons==2))_num_Zjets=_num_Zjets+0.75;
+          if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==0 && numMuons==2)) _num_Zjets += event->weight() * 0.75;
 
         }
 
@@ -860,123 +860,22 @@ namespace Gambit {
 
 
       void collect_results() {
-        SignalRegionData results_MT2_90_SF;
-        results_MT2_90_SF.sr_label = "MT2_90_SF";
-        results_MT2_90_SF.n_observed = 33.;
-        results_MT2_90_SF.n_background = 38.2;
-        results_MT2_90_SF.background_sys = 5.1;
-        results_MT2_90_SF.signal_sys = 0.;
-        results_MT2_90_SF.n_signal = _num_MT2_90_SF;
 
-        SignalRegionData results_MT2_90_DF;
-        results_MT2_90_DF.sr_label = "MT2_90_DF";
-        results_MT2_90_DF.n_observed = 21.;
-        results_MT2_90_DF.n_background = 23.3;
-        results_MT2_90_DF.background_sys = 3.7;
-        results_MT2_90_DF.signal_sys = 0.;
-        results_MT2_90_DF.n_signal = _num_MT2_90_DF;
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_MT2_120_SF;
-        results_MT2_120_SF.sr_label = "MT2_120_SF";
-        results_MT2_120_SF.n_observed = 5.;
-        results_MT2_120_SF.n_background = 8.9;
-        results_MT2_120_SF.background_sys = 2.1;
-        results_MT2_120_SF.signal_sys = 0.;
-        results_MT2_120_SF.n_signal = _num_MT2_120_SF;
-
-        SignalRegionData results_MT2_120_DF;
-        results_MT2_120_DF.sr_label = "MT2_120_DF";
-        results_MT2_120_DF.n_observed = 5.;
-        results_MT2_120_DF.n_background = 3.6;
-        results_MT2_120_DF.background_sys = 1.2;
-        results_MT2_120_DF.signal_sys = 0.;
-        results_MT2_120_DF.n_signal = _num_MT2_120_DF;
-
-        SignalRegionData results_MT2_150_SF;
-        results_MT2_150_SF.sr_label = "MT2_150_SF";
-        results_MT2_150_SF.n_observed = 3.;
-        results_MT2_150_SF.n_background = 3.2;
-        results_MT2_150_SF.background_sys = 0.7;
-        results_MT2_150_SF.signal_sys = 0.;
-        results_MT2_150_SF.n_signal = _num_MT2_150_SF;
-
-        SignalRegionData results_MT2_150_DF;
-        results_MT2_150_DF.sr_label = "MT2_150_DF";
-        results_MT2_150_DF.n_observed = 2.;
-        results_MT2_150_DF.n_background = 1.0;
-        results_MT2_150_DF.background_sys = 0.5;
-        results_MT2_150_DF.signal_sys = 0.;
-        results_MT2_150_DF.n_signal = _num_MT2_150_DF;
-
-        SignalRegionData results_WWa_SF;
-        results_WWa_SF.sr_label = "WWa_SF";
-        results_WWa_SF.n_observed = 73.;
-        results_WWa_SF.n_background = 86.5;
-        results_WWa_SF.background_sys = 7.4;
-        results_WWa_SF.signal_sys = 0.;
-        results_WWa_SF.n_signal = _num_WWa_SF;
-
-        SignalRegionData results_WWa_DF;
-        results_WWa_DF.sr_label = "WWa_DF";
-        results_WWa_DF.n_observed = 70.;
-        results_WWa_DF.n_background = 73.6;
-        results_WWa_DF.background_sys = 7.9;
-        results_WWa_DF.signal_sys = 0.;
-        results_WWa_DF.n_signal = _num_WWa_DF;
-
-        SignalRegionData results_WWb_SF;
-        results_WWb_SF.sr_label = "WWb_SF";
-        results_WWb_SF.n_observed = 26.;
-        results_WWb_SF.n_background = 30.2;
-        results_WWb_SF.background_sys = 3.5;
-        results_WWb_SF.signal_sys = 0.;
-        results_WWb_SF.n_signal = _num_WWb_SF;
-
-        SignalRegionData results_WWb_DF;
-        results_WWb_DF.sr_label = "WWb_DF";
-        results_WWb_DF.n_observed = 17.;
-        results_WWb_DF.n_background = 18.1;
-        results_WWb_DF.background_sys = 2.6;
-        results_WWb_DF.signal_sys = 0.;
-        results_WWb_DF.n_signal = _num_WWb_DF;
-
-        SignalRegionData results_WWc_SF;
-        results_WWc_SF.sr_label = "WWc_SF";
-        results_WWc_SF.n_observed = 10.;
-        results_WWc_SF.n_background = 20.3;
-        results_WWc_SF.background_sys = 3.5;
-        results_WWc_SF.signal_sys = 0.;
-        results_WWc_SF.n_signal = _num_WWc_SF;
-
-        SignalRegionData results_WWc_DF;
-        results_WWc_DF.sr_label = "WWc_DF";
-        results_WWc_DF.n_observed = 11.;
-        results_WWc_DF.n_background = 9.0;
-        results_WWc_DF.background_sys = 2.2;
-        results_WWc_DF.signal_sys = 0.;
-        results_WWc_DF.n_signal = _num_WWc_DF;
-
-        SignalRegionData results_Zjets;
-        results_Zjets.sr_label = "Zjets";
-        results_Zjets.n_observed = 1.;
-        results_Zjets.n_background = 1.4;
-        results_Zjets.background_sys = 0.6;
-        results_Zjets.signal_sys = 0.;
-        results_Zjets.n_signal = _num_Zjets;
-
-        add_result(results_MT2_90_SF);
-        add_result(results_MT2_90_DF);
-        add_result(results_MT2_120_SF);
-        add_result(results_MT2_120_DF);
-        add_result(results_MT2_150_SF);
-        add_result(results_MT2_150_DF);
-        add_result(results_WWa_SF);
-        add_result(results_WWa_DF);
-        add_result(results_WWb_SF);
-        add_result(results_WWb_DF);
-        add_result(results_WWc_SF);
-        add_result(results_WWc_DF);
-        add_result(results_Zjets);
+        add_result(SignalRegionData("MT2_90_SF", 33., {_num_MT2_90_SF, 0.}, {38.2, 5.1}));
+        add_result(SignalRegionData("MT2_90_DF", 21., {_num_MT2_90_DF, 0.}, {23.3, 3.7}));
+        add_result(SignalRegionData("MT2_120_SF", 5., {_num_MT2_120_SF, 0.}, {8.9, 2.1}));
+        add_result(SignalRegionData("MT2_120_DF", 5., {_num_MT2_120_DF, 0.}, {3.6, 1.2}));
+        add_result(SignalRegionData("MT2_150_SF", 3., {_num_MT2_150_SF, 0.}, {3.2, 0.7}));
+        add_result(SignalRegionData("MT2_150_DF", 2., {_num_MT2_150_DF, 0.}, {1.0, 0.5}));
+        add_result(SignalRegionData("WWa_SF", 73., {_num_WWa_SF, 0.}, {86.5, 7.4}));
+        add_result(SignalRegionData("WWa_DF", 70., {_num_WWa_DF, 0.}, {73.6, 7.9}));
+        add_result(SignalRegionData("WWb_SF", 26., {_num_WWb_SF, 0.}, {30.2, 3.5}));
+        add_result(SignalRegionData("WWb_DF", 17., {_num_WWb_DF, 0.}, {18.1, 2.6}));
+        add_result(SignalRegionData("WWc_SF", 10., {_num_WWc_SF, 0.}, {20.3, 3.5}));
+        add_result(SignalRegionData("WWc_DF", 11., {_num_WWc_DF, 0.}, {9.0, 2.2}));
+        add_result(SignalRegionData("Zjets", 1., {_num_Zjets, 0.}, {1.4, 0.6}));
 
         return;
       }

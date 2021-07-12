@@ -1,0 +1,221 @@
+
+Parameters:
+
+  # Dummy model for doing a ColliderBit-only 
+  # scan over a set of SLHA files
+  ColliderBit_SLHA_file_model:
+    dummy: 1.0
+
+
+
+Priors:
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "MSSMEW.hdf5"
+  #   group: "/MSSMEW"
+  #   delete_file_on_restart: true
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1  # give the total number of SLHA files here
+      output_file:  output
+      like:  LogLike
+      files:
+        output_file: "weights ..."
+
+
+ObsLikes:
+
+    # Combined LHC likelihood
+    - purpose:    LogLike
+      capability: LHC_Combined_LogLike
+
+    # Observables (not included in likelihood)
+    - purpose:    Observable
+      capability: LHC_signals
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_per_SR
+
+    - purpose:    likelihood_details
+      capability: LHC_LogLike_SR_indices
+
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
+
+    - purpose:    Observable
+      capability: SLHAFileElements
+    
+
+Rules:
+
+  # Give the set of SLHA files that ColliderBit should use
+  - capability: SLHAFileNameAndContent
+    function: getNextSLHAFileNameAndContent
+    options:
+      SLHA_filenames:
+        - ColliderBit/data/example.slha
+        # list more SLHA files here
+
+
+  # List the SLHA file entries that should be stored in the GAMBIT output.
+  # Use SLHAea syntax for the SLHA_keys: <block/pdg> ; <line identifier> ; <line index of requested element>
+  - capability: SLHAFileElements
+    function: getSLHAFileElements
+    type: map_str_dbl
+    options:
+      value_for_missing_elements: -9999
+      SLHA_keys:
+        - MASS;1000022;1
+        - MASS;1000024;1
+        - NMIX;1,1;2
+        - NMIX;1,2;2
+        - NMIX;1,3;2
+        - NMIX;1,4;2
+        - 1000024;DECAY;2               # <-- Total decay width for 1000024 (chargino1)
+        - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24 
+
+  # Assign cross-sections and uncertainties for each SLHA file
+  - capability: TotalCrossSection
+    function: getYAMLCrossSection_SLHA
+    options:
+      cross_section_fb:
+        ColliderBit/data/example.slha: 1807.4
+        # list more SLHA files and corrsponding total cross sections here
+      cross_section_uncert_fb:
+        ColliderBit/data/example.slha: 101.32
+        # list more SLHA files and corrsponding total cross section uncertainties here
+
+  # Choose how to do event weighting 
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+
+  # Generate evens (don't read LH event files)
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+    module: ColliderBit
+
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV_SUSY_EWonly:
+        min_nEvents: 10000  # Chosen only for quick demo -- should be increased
+        max_nEvents: 10000  # Chosen only for quick demo -- should be increased
+        events_between_convergence_checks: 10000000
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia_SLHA   # <-- The function to use for the model ColliderBit_SLHA_file_model
+    options:
+      LHC_13TeV_SUSY_EWonly:
+        xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        pythia_settings:
+          - SLHA:verbose = 1
+          - Next:numberShowProcess = 1
+          - Print:quiet = off
+          - Next:numberCount = 1000
+          - Random:setSeed = on
+          - Beams:eCM = 13000          
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = off
+          - SUSY:qqbar2chi0chi0 = on
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+
+  # Choose ATLAS detector simulation and options.
+  - capability: ATLASDetectorSim
+    options:
+      LHC_13TeV_SUSY_EWonly:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose CMS detector simulation and options.
+  - capability: CMSDetectorSim
+    options:
+      LHC_13TeV_SUSY_EWonly:
+        partonOnly: false
+        antiktR: 0.4
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6 #1
+      nuisance_prof_verbosity: 0
+
+  # Choose options for the LHC likelihood combination
+  - capability: LHC_Combined_LogLike
+    options:
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
+      # skip_analyses:
+      #   - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
+
+
+# Set the names of key log files
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [ColliderBit] : "ColliderBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  debug: true
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  # Choose a lower cutoff for the likelihood
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  # Set the default output path
+  default_output_path: "runs/ColliderBit_SLHA_file_model/"
+
+  # Exceptions fatal or non-fatal?
+  exceptions:
+    ColliderBit_error: fatal

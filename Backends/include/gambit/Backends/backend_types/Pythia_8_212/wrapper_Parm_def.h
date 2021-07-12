@@ -14,7 +14,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         // Member functions: 
         
         // Wrappers for original constructors: 
-        inline Pythia8::Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn) :
+        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn) :
             WrapperBase(__factory0(nameIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -28,7 +28,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn) :
+        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn) :
             WrapperBase(__factory1(nameIn, defaultIn, hasMinIn, hasMaxIn, minIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -42,7 +42,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn) :
+        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn) :
             WrapperBase(__factory2(nameIn, defaultIn, hasMinIn, hasMaxIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -56,7 +56,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn) :
+        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn) :
             WrapperBase(__factory3(nameIn, defaultIn, hasMinIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -70,7 +70,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn) :
+        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn) :
             WrapperBase(__factory4(nameIn, defaultIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -84,7 +84,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn) :
+        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn) :
             WrapperBase(__factory5(nameIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -98,7 +98,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Parm::Parm() :
+        inline Parm::Parm() :
             WrapperBase(__factory6()),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -113,7 +113,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Parm::Parm(Pythia8::Abstract_Parm* in) :
+        inline Parm::Parm(Abstract_Parm* in) :
             WrapperBase(in),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -128,7 +128,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Parm::Parm(const Parm& in) :
+        inline Parm::Parm(const Parm& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -143,7 +143,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Parm& Parm::operator=(const Parm& in)
+        inline Parm& Parm::operator=(const Parm& in)
         {
             if (this != &in)
             {
@@ -154,7 +154,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Parm::~Parm()
+        inline Parm::~Parm()
         {
             if (get_BEptr() != 0)
             {
@@ -169,9 +169,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Parm* Pythia8::Parm::get_BEptr() const
+        inline Abstract_Parm* Pythia8::Parm::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Parm*>(BEptr);
+            return dynamic_cast<Abstract_Parm*>(BEptr);
         }
     }
     

@@ -1,0 +1,138 @@
+#################################################################################################
+#
+#      Example YAML file for DecayingDM model with DM likelihoods.
+#      NO relic density routines available for this model.
+#      NO indirect detection routines available for this model.
+#
+#      Likelihoods:
+#        - Direct detection: MicrOMEGAs + DDCalc
+#
+#################################################################################################
+
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+    mH: 125.09
+
+  DecayingDM:
+    lamS:
+      range: [1e-20, 1e-10]
+      prior_type: log
+    mS0:
+      range: [3.,10000.]
+      prior_type: log
+
+  # Default halo parameters for the example
+  Halo_gNFW_rho0:
+    rho0: 0.3
+    v0: 240
+    vesc: 533
+    vrot: 240
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+  # Nuclear matrix parameters.
+  nuclear_params_sigmas_sigmal:
+    sigmas: 43
+    sigmal: 58
+    deltau: 0.842
+    deltad: -0.427
+    deltas: -0.085
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Printer:
+
+  printer: hdf5
+
+  options:
+    output_file: "DecayingDM.hdf5"
+    group: "/DDM"
+
+Scanner:
+
+  use_scanner: square_grid
+
+  scanners:
+
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 50
+
+    random:
+      plugin: random
+      point_number: 1
+      like:  LogLike
+
+ObsLikes:
+
+  # Direct detection
+  - capability: LUX_2016_LogLikelihood
+    purpose: LogLike
+
+  - capability: XENON1T_2018_LogLikelihood
+    purpose: LogLike
+
+  # Other observables
+  - capability: mwimp
+    purpose:    Observable
+
+  - capability: sigma_SI_p
+    purpose:    Observable
+
+  - capability: sigma_SI_n
+    purpose:    Observable
+
+Rules:
+
+  # We have a decaying DM model, not an annihilating one
+  - capability: GA_Yield
+    function: GA_DecayYield_General
+
+  # Assume the DM candidate S0 is all of the DM.
+  - capability: RD_fraction
+    function: RD_fraction_one
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+
+Logger:
+
+  redirection:
+    [Backends] : "backends.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [Scanner] : "ScannerBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+    [Error] : "errors.log"
+    [Warning] : "warnings.log"
+    [Utilities] : "utils.log"
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/DecayingDM/"
+
+  debug: true
+

@@ -42,7 +42,6 @@ namespace Gambit
   {
 
     /// An abstract base class for detector simulators within ColliderBit.
-    template<typename EventT>
     class BaseDetector
     {
 
@@ -56,7 +55,7 @@ namespace Gambit
         virtual void clear() {}
 
         /// Perform the actual simulation on the next collider event.
-        virtual void processEvent(const EventT&, HEPUtils::Event&) const = 0;
+        virtual void processEvent(HEPUtils::Event&) const = 0;
 
         /// @name (Re-)Initialization functions
         ///@{

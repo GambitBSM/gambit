@@ -1,0 +1,649 @@
+diff -rupN darksusy-6.2.5_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F darksusy-6.2.5_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+--- darksusy-6.2.5_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F
++++ darksusy-6.2.5_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+@@ -76,7 +76,7 @@ c...Read it in
+  
+  ! We want to get the model ID from the file eventually
+  ! For now, just use the filename, trimming away the path 
+-      idtag=file(index(file,'/',BACK=.true.)+1:lnblnk(file)) 
++      idtag=file(index(file,'/',BACK=.true.)+1:LEN_TRIM(file))
+ 
+ c...Transfer stuff from the SLHA data structure to DarkSUSY
+       call dsfromslha
+diff -rupN darksusy-6.2.5_original/contrib/isajet788-for-darksusy/isajet/zgeev.f darksusy-6.2.5_patched/contrib/isajet788-for-darksusy/isajet/zgeev.f
+--- darksusy-6.2.5_original/contrib/isajet788-for-darksusy/isajet/zgeev.f	2021-03-10 22:37:24.000000000 +0100
++++ darksusy-6.2.5_patched/contrib/isajet788-for-darksusy/isajet/zgeev.f	2021-04-21 07:58:51.000000000 +0200
+@@ -648,9 +648,9 @@
+ *     ..
+ *     .. External Functions ..
+       LOGICAL            LSAME
+-      INTEGER            IDAMAX, ILAENV
++      INTEGER            dsisa_IDAMAX, ILAENV
+       DOUBLE PRECISION   DLAMCH, DZNRM2, ZLANGE
+-      EXTERNAL           LSAME, IDAMAX, ILAENV, DLAMCH, DZNRM2, ZLANGE
++      EXTERNAL           LSAME, dsisa_IDAMAX, ILAENV, DLAMCH, DZNRM2, ZLANGE
+ *     ..
+ *     .. Intrinsic Functions ..
+       INTRINSIC          DBLE, DCMPLX, DCONJG, DIMAG, MAX, SQRT
+@@ -870,7 +870,7 @@
+                RWORK( IRWORK+K-1 ) = DBLE( VL( K, I ) )**2 +
+      $                               DIMAG( VL( K, I ) )**2
+    10       CONTINUE
+-            K = IDAMAX( N, RWORK( IRWORK ), 1 )
++            K = dsisa_IDAMAX( N, RWORK( IRWORK ), 1 )
+             TMP = DCONJG( VL( K, I ) ) / SQRT( RWORK( IRWORK+K-1 ) )
+             CALL ZSCAL( N, TMP, VL( 1, I ), 1 )
+             VL( K, I ) = DCMPLX( DBLE( VL( K, I ) ), ZERO )
+@@ -895,7 +895,7 @@
+                RWORK( IRWORK+K-1 ) = DBLE( VR( K, I ) )**2 +
+      $                               DIMAG( VR( K, I ) )**2
+    30       CONTINUE
+-            K = IDAMAX( N, RWORK( IRWORK ), 1 )
++            K = dsisa_IDAMAX( N, RWORK( IRWORK ), 1 )
+             TMP = DCONJG( VR( K, I ) ) / SQRT( RWORK( IRWORK+K-1 ) )
+             CALL ZSCAL( N, TMP, VR( 1, I ), 1 )
+             VR( K, I ) = DCMPLX( DBLE( VR( K, I ) ), ZERO )
+@@ -7872,14 +7872,14 @@
+ *     ..
+ *     .. External Functions ..
+       LOGICAL            LSAME
+-      INTEGER            IDAMAX, IZAMAX
++      INTEGER            dsisa_IDAMAX, IZAMAX
+       DOUBLE PRECISION   DLAMCH, DZASUM
+       COMPLEX*16         ZDOTC, ZDOTU, ZLADIV
+-      EXTERNAL           LSAME, IDAMAX, IZAMAX, DLAMCH, DZASUM, ZDOTC,
++      EXTERNAL           LSAME, dsisa_IDAMAX, IZAMAX, DLAMCH, DZASUM, ZDOTC,
+      $                   ZDOTU, ZLADIV
+ *     ..
+ *     .. External Subroutines ..
+-      EXTERNAL           DSCAL, XERBLA, ZAXPY, ZDSCAL, ZTRSV
++      EXTERNAL           dsisa_DSCAL, XERBLA, ZAXPY, ZDSCAL, ZTRSV
+ *     ..
+ *     .. Intrinsic Functions ..
+       INTRINSIC          ABS, DBLE, DCMPLX, DCONJG, DIMAG, MAX, MIN
+@@ -7960,13 +7960,13 @@
+ *     Scale the column norms by TSCAL if the maximum element in CNORM is
+ *     greater than BIGNUM/2.
+ *
+-      IMAX = IDAMAX( N, CNORM, 1 )
++      IMAX = dsisa_IDAMAX( N, CNORM, 1 )
+       TMAX = CNORM( IMAX )
+       IF( TMAX.LE.BIGNUM*HALF ) THEN
+          TSCAL = ONE
+       ELSE
+          TSCAL = HALF / ( SMLNUM*TMAX )
+-         CALL DSCAL( N, TSCAL, CNORM, 1 )
++         CALL dsisa_DSCAL( N, TSCAL, CNORM, 1 )
+       END IF
+ *
+ *     Compute a bound on the computed solution vector to see if the
+@@ -8558,7 +8558,7 @@
+ *     Scale the column norms by 1/TSCAL for return.
+ *
+       IF( TSCAL.NE.ONE ) THEN
+-         CALL DSCAL( N, ONE / TSCAL, CNORM, 1 )
++         CALL dsisa_DSCAL( N, ONE / TSCAL, CNORM, 1 )
+       END IF
+ *
+       RETURN
+@@ -11583,7 +11583,7 @@
+ *
+       END
+ !
+-      SUBROUTINE DSCAL(N,DA,DX,INCX)
++      SUBROUTINE dsisa_DSCAL(N,DA,DX,INCX)
+ *     .. Scalar Arguments ..
+       DOUBLE PRECISION DA
+       INTEGER INCX,N
+@@ -11762,7 +11762,7 @@
+ *
+       END
+ !
+-      INTEGER FUNCTION IDAMAX(N,DX,INCX)
++      INTEGER FUNCTION dsisa_IDAMAX(N,DX,INCX)
+ *     .. Scalar Arguments ..
+       INTEGER INCX,N
+ *     ..
+@@ -11786,9 +11786,9 @@
+ *     .. Intrinsic Functions ..
+       INTRINSIC DABS
+ *     ..
+-      IDAMAX = 0
++      dsisa_IDAMAX = 0
+       IF (N.LT.1 .OR. INCX.LE.0) RETURN
+-      IDAMAX = 1
++      dsisa_IDAMAX = 1
+       IF (N.EQ.1) RETURN
+       IF (INCX.EQ.1) GO TO 20
+ *
+@@ -11799,7 +11799,7 @@
+       IX = IX + INCX
+       DO 10 I = 2,N
+           IF (DABS(DX(IX)).LE.DMAX) GO TO 5
+-          IDAMAX = I
++          dsisa_IDAMAX = I
+           DMAX = DABS(DX(IX))
+     5     IX = IX + INCX
+    10 CONTINUE
+@@ -11810,7 +11810,7 @@
+    20 DMAX = DABS(DX(1))
+       DO 30 I = 2,N
+           IF (DABS(DX(I)).LE.DMAX) GO TO 30
+-          IDAMAX = I
++          dsisa_IDAMAX = I
+           DMAX = DABS(DX(I))
+    30 CONTINUE
+       RETURN
+diff -rupN darksusy-6.2.5_original/src_models/mssm/an/dsandwdcosnn.f darksusy-6.2.5_patched/src_models/mssm/an/dsandwdcosnn.f
+--- darksusy-6.2.5_original/src_models/mssm/an/dsandwdcosnn.f	2021-03-10 22:37:34.000000000 +0100
++++ darksusy-6.2.5_patched/src_models/mssm/an/dsandwdcosnn.f	2021-04-21 13:17:02.000000000 +0200
+@@ -39,7 +39,7 @@ c=======================================
+       real*8 dsandwdcosnn
+       integer h,i,ii,j,c,kh(3),f,ksf,k,kp1,kp2,ind1,ind2
+       logical qcdcorr(7:12)
+-      real*8 w,p,costheta,tmp, vzero,
++      real*8 w,wqq,p,costheta,tmp, vzero,
+      & sumf,imres,reres,gluons,gammas,zgam,qqv0(20:25,42:45),qqgv0(20:25,42:45)
+       common /qqv0/ qqv0 
+       save gluons,gammas,zgam, /qqv0/, qqgv0
+@@ -422,16 +422,24 @@ c---------------------------------------
+       w=w+prtial(17)            ! mu+ mu-
+       w=w+prtial(18)            ! nutau nutaubar
+       w=w+prtial(19)            ! tau+ tau-
+-      w=w+prtial(20)            ! u ubar
+-      w=w+prtial(21)            ! d dbar
+-      w=w+prtial(22)            ! c cbar
+-      w=w+prtial(23)            ! s sbar
+-      w=w+prtial(24)            ! t tbar
+-      w=w+prtial(25)            ! b bbar
+-c... loop diagrams
+-      if (prtial(26)+prtial(27).lt.0.0d0) stop
+-      w=w+prtial(26)            ! glue glue
+-      w=w+prtial(27)            ! qq glue
++      wqq=0.0d0
++      wqq=wqq+prtial(20)            ! u ubar
++      wqq=wqq+prtial(21)            ! d dbar
++      wqq=wqq+prtial(22)            ! c cbar
++      wqq=wqq+prtial(23)            ! s sbar
++      wqq=wqq+prtial(24)            ! t tbar
++      wqq=wqq+prtial(25)            ! b bbar
++      wqq=wqq+prtial(27)            ! qq glue
++      wqq=wqq+prtial(26)            ! glue glue
++      if (wqq.lt.0.0d0) then
++        if (prtlevel.gt.1) then
++          write(*,*) 'WARNING in dsandwdcosnn: '
++          write(*,*) 'Neglecting annihilation rate to quarks (negative wqq!)...'
++        endif
++      else
++        w=w+wqq
++      endif
++c... further loop diagrams
+       w=w+prtial(28)            ! gamma gamma
+       w=w+prtial(29)            ! z gamma
+
+diff -rupN darksusy-6.2.5_original/src_models/empty/rd/dsrddofDS.f darksusy-6.2.5_patched/src_models/empty/rd/dsrddofDS.f
+--- ddarksusy-6.2.5_original/src_models/empty/rd/dsrddofDS.f	2021-03-10 22:37:34.000000000 +0100
++++ darksusy-6.2.5_patched/src_models/empty/rd/dsrddofDS.f	2021-04-21 14:52:04.000000000 +0200
+@@ -22,11 +22,11 @@ c=======================================
+ 
+       real*8 Td
+       
+-      write(*,*) 'WARNING: you are calling routine dsrddofDS in',
+-     &     ' module empty.'
+-      write(*,*) 'You need to modify this routine.'
++c      write(*,*) 'WARNING: you are calling routine dsrddofDS in',
++c     &     ' module empty.'
++c      write(*,*) 'You need to modify this routine.'
+       
+-      dsrddofDS = 1.d0
++      dsrddofDS = 0.d0
+  
+       return
+       end
+diff -rupN darksusy-6.2.5_original/configure darksusy-6.2.5_patched/configure
+--- darksusy-6.2.5_original/configure	2021-03-10 22:37:05.000000000 +0100
++++ darksusy-6.2.5_patched/configure	2021-04-28 20:42:29.000000000 +0200
+@@ -639,6 +639,7 @@ infodir
+ docdir
+ oldincludedir
+ includedir
++runstatedir
+ localstatedir
+ sharedstatedir
+ sysconfdir
+@@ -732,6 +733,7 @@ datadir='${datarootdir}'
+ sysconfdir='${prefix}/etc'
+ sharedstatedir='${prefix}/com'
+ localstatedir='${prefix}/var'
++runstatedir='${localstatedir}/run'
+ includedir='${prefix}/include'
+ oldincludedir='/usr/include'
+ docdir='${datarootdir}/doc/${PACKAGE}'
+@@ -984,6 +986,15 @@ do
+   | -silent | --silent | --silen | --sile | --sil)
+     silent=yes ;;
+ 
++  -runstatedir | --runstatedir | --runstatedi | --runstated \
++  | --runstate | --runstat | --runsta | --runst | --runs \
++  | --run | --ru | --r)
++    ac_prev=runstatedir ;;
++  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
++  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
++  | --run=* | --ru=* | --r=*)
++    runstatedir=$ac_optarg ;;
++
+   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
+     ac_prev=sbindir ;;
+   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
+@@ -1121,7 +1132,7 @@ fi
+ for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
+ 		datadir sysconfdir sharedstatedir localstatedir includedir \
+ 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
+-		libdir localedir mandir
++		libdir localedir mandir runstatedir
+ do
+   eval ac_val=\$$ac_var
+   # Remove trailing slashes.
+@@ -1274,6 +1285,7 @@ Fine tuning of the installation director
+   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
+   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
+   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
++  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
+   --libdir=DIR            object code libraries [EPREFIX/lib]
+   --includedir=DIR        C header files [PREFIX/include]
+   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
+@@ -3453,8 +3465,9 @@ echo "Running configure in ${FEYNHIGGSDI
+ #   COPT="--prefix=ds FFLAGS=default FC=${F77}"
+ #fi
+ # there is a bounds-check problem when linking FH to DS...........
+-echo "./configure --prefix=ds FC=${FC} CXX=${CC}" ;
+-./configure FC=${FC} CXX=${CC} --prefix=ds)
++# passing of flags does not really work here... FIXME !
++echo "./configure --prefix=ds FC=${FC} CXX=${CC} FCFLAGS=${FCFLAGS} CXXFLAGS=${CXXFLAGS} CFLAGS=${CFLAGS} " ;
++./configure FC=${FC} CXX=${CC} FFLAGS=${FCFLAGS} FCFLAGS=${FCFLAGS} CXXFLAGS=${CXXFLAGS} CFLAGS=${CFLAGS})
+ #echo "./configure --prefix=ds FC=${FC} FFLAGS=""${FCFLAGS}""" ;
+ #./configure FC=${FC} --prefix=ds FFLAGS="${FCFLAGS}")
+ 
+@@ -3483,8 +3496,8 @@ echo "mkdir -p build" ;
+ mkdir -p build ;
+ echo "cd build" ;
+ cd build ;
+-echo "cmake -D CMAKE_Fortran_COMPILER=${FC} .." ;
+-cmake -D CMAKE_Fortran_COMPILER=${FC} ..)
++echo "cmake -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_Fortran_FLAGS=${FCFLAGS} .." ;
++cmake -DCMAKE_Fortran_COMPILER="${FC}" -DCMAKE_Fortran_FLAGS="${FCFLAGS}" ..)
+ 
+ # HiggsSignals
+ 
+@@ -3505,7 +3518,7 @@ mkdir -p build ;
+ echo "cd build" ;
+ cd build ;
+ echo "cmake -D HiggsBounds_DIR=${HIGGSBOUNDSDIR}/build CMAKE_Fortran_COMPILER=${FC} CMAKE_CXX_COMPILER=${CXX} ..." ;
+-cmake -D HiggsBounds_DIR=${HIGGSBOUNDSDIR}/build CMAKE_Fortran_COMPILER=${FC} CMAKE_CXX_COMPILER=${CC} ..)
++cmake -D HiggsBounds_DIR=${HIGGSBOUNDSDIR}/build -DCMAKE_Fortran_COMPILER=${FC} -DCMAKE_Fortran_FLAGS="${FCFLAGS}" -DCMAKE_CXX_COMPILER=${CC} -DCMAKE_CXX_FLAGS="${CXXFLAGS}" ..)
+ 
+ # HealPix
+
+diff -rupN darksusy-6.2.5_original/makefile.in darksusy-6.2.5_patched/makefile.in
+--- darksusy-6.2.5_original/makefile.in	2021-04-20 07:58:42.000000000 +0200
++++ darksusy-6.2.5_patched/makefile.in	2021-04-28 20:42:29.000000000 +0200
+@@ -2,7 +2,7 @@
+ # Technical questions about this makefile should be directed to
+ # Joakim Edsjo, edsjo@fysik.su.se
+ # Date: February 7, 2016
+-# updated: Torsten Bringmann, Oct 2020
++# updated: Torsten Bringmann, Oct 2020, Apr 21
+ # Note that this file follows a certain structure and it is also updated
+ # automatically, e.g. when modules are added/deleted by the script
+ # scr/update_mainmf.pl. Hence, don't delete comments below which are needed for
+@@ -260,37 +260,35 @@ cfitsio:
+ 
+ healpix: cfitsio
+ 	echo "Now building CONTRIBUTED CODE: healpix....."
++	touch $(DS_INSTALL)/src/include/dscontribstat.F;
+ 	cd ${HEALPIXDIR} ; \
+ 	mkdir -p lib include bin build ; \
+ 	sh configure_darksusy $(CONTRIB_IO_HOW_PREP); \
+ 	make f90-all $(CONTRIB_IO_HOW); \
+ 	cd lib;\
+-	if [ ! -f ../include/pix_tools.mod ] ; then \
+-		if [ ! -f ../build/mod/pix_tools.mod ] ; then \
+-			echo "${RED}ERROR${RESET} -- something went wrong!"; \
+-			echo "(Maybe a missing libcurl? See ${HEALPIXDIR}/DS_contrib_log*.txt for more details...)"; \
+-			echo "${RED}DarkSUSY cannot compile without pix_tools.mod.${RESET}"; \
++	if [ ! -f ../build/mod/pix_tools.mod ] ; then \
++		echo "${RED}WARNING${RESET} -- pix_tools.mod not found!"; \
++		echo "(Maybe a missing libcurl-dev? See ${HEALPIXDIR}/DS_contrib_log*.txt for more details...)"; \
++		echo "${RED}Building DarkSUSY libraries without HealPIX support...${RESET}"; \
++	else \
++		cp -p ../build/mod/pix_tools.mod $(DS_INSTALL)/src/include ;\
++		cp libgif.a tmp1.dsx; cp libhealpix.a tmp2.dsx; cp libhpxgif.a tmp3.dsx; \
++		cp libsharp.a tmp4.dsx; \
++		ls *.dsx | wc -l > all.dsxxx; \
++		if grep -q 4 all.dsxxx; then \
++			cp -p libgif.a $(DS_INSTALL)/lib/ ;\
++			cp -p libhealpix.a $(DS_INSTALL)/lib/ ;\
++			cp -p libhpxgif.a $(DS_INSTALL)/lib/ ;\
++			cp -p libsharp.a $(DS_INSTALL)/lib/libsharp_healpix_f.a ;\
++			echo "#define HEALPIX_INSTALLATION succeeded\n" >> $(DS_INSTALL)/src/include/dscontribstat.F;\
++			echo "[done]";\
+ 		else \
+-			cp -p ../build/mod/pix_tools.mod $(DS_INSTALL)/src/include ;\
++			echo "${RED}WARNING${RESET} -- missing HealPIX libraries!"; \
++			echo "(See ${HEALPIXDIR}/DS_contrib_log.txt for more details...)"; \
++			echo "You will not be able to compile main files that require HealPIX."; \
+ 		fi; \
+-	else \
+-		cp -p ../include/pix_tools.mod $(DS_INSTALL)/src/include ;\
++		rm -f *.dsx*;\
+ 	fi; \
+-	cp libgif.a tmp1.dsx; cp libhealpix.a tmp2.dsx; cp libhpxgif.a tmp3.dsx; \
+-	cp libsharp.a tmp4.dsx; \
+-	ls *.dsx | wc -l > all.dsxxx; \
+-	if grep -q 4 all.dsxxx; then \
+-		cp -p libgif.a $(DS_INSTALL)/lib/ ;\
+-		cp -p libhealpix.a $(DS_INSTALL)/lib/ ;\
+-		cp -p libhpxgif.a $(DS_INSTALL)/lib/ ;\
+-		cp -p libsharp.a $(DS_INSTALL)/lib/ibsharp_healpix_f.a ;\
+-		echo "[done]";\
+-	else \
+-		echo "${RED}WARNING${RESET} -- something went wrong!"; \
+-		echo "(See ${HEALPIXDIR}/DS_contrib_log.txt for more details...)"; \
+-		echo "You will not be able to compile main files that require HealPIX."; \
+-	fi; \
+-	rm -f *.dsx*;\
+ 	echo " "
+ 
+ # needed by ucmh routines
+@@ -356,7 +354,8 @@ higgssignals:
+ 	echo " "
+ 
+ # For FeynHiggs we do not pass our flags, instead we use the ones FeynHiggs'
+-# configure script has set up
++# configure script has set up (which we modified to always add -fPIC, to allow
++# building shared objects)
+ feynhiggs: 
+ 	echo "Now building CONTRIBUTED CODE: feynhiggs....."
+ 	cd $(FEYNHIGGSDIR); \
+@@ -432,6 +431,7 @@ clean_ds: 
+ 
+ clean_contrib:
+ # Additional checks to avoid errors when required files are absent
++	rm -f $(DS_INSTALL)/src/include/dscontribstat.F
+ 	cd $(ISAJETDIR); $(MAKE) clean; rm -f DS_contrib_log.txt
+ 	cd $(FEYNHIGGSDIR); $(MAKE) clean ; rm -fr ds DS_contrib_log.txt
+ 	cd $(SUPERISODIR); $(MAKE) clean; rm -f DS_contrib_log.txt DS_contrib_log_prep.txt
+@@ -449,6 +449,10 @@ clean_contrib:
+ 		$(MAKE) distclean; rm -f DS_contrib_log.txt DS_contrib_log_prep.txt; \
+ 		rm -rf $(HEALPIXDIR)/bin/sky_ng_sim*; \
+ 	fi;
++# undo patch applied in case healpix installation was unsuccessful
++	if [ -f $(DS_INSTALL)/src/aux/dshealpixave.f.orig ] ; then \
++		mv $(DS_INSTALL)/src/aux/dshealpixave.f.orig $(DS_INSTALL)/src/aux/dshealpixave.f;\
++	fi;
+ 	cd $(DS_ROOT)
+ 	cp -r lib libtmp; rm -f lib/*
+ 	mv -f libtmp/libds* lib/; rm -rf libtmp
+@@ -513,21 +517,67 @@ pdf-manual-long-debug pdf-Manual-long-de
+ 
+ 
+ # Below are instructions for shared libraries, currently used by GAMBIT
++# NB: For these targets to work, you need to compile everything with the -fPIC option,
++# see e.g. conf.gfortran_shared!
+ 
+-ds_mssm_shared : lib/libds_mssm.a lib/libds_empty.a lib/libds_core.a lib/libHS.a lib/libHB.a lib/libFH.a lib/libisospin.a lib/libisajet.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_mssm.so $(DS_INSTALL)/lib/libds_mssm.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libHS.a $(DS_INSTALL)/lib/libHB.a $(DS_INSTALL)/lib/libFH.a $(DS_INSTALL)/lib/libisospin.a $(DS_INSTALL)/lib/libisajet.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
++# need first to strip libisajet off a symbol that is already contained in
++# elsewhere...
++ds_mssm_shared : lib/libds_mssm.a lib/libds_empty.a lib/libds_core.a lib/libHS.a lib/libHB.a lib/libFH.a lib/libsuperiso.a lib/libisajet.a
++	@if grep -q "HEALPIX_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F; then \
++		$(ADD_SCR) -lcurl $(DS_INSTALL)/lib/libds_core_mssm.so $(DS_INSTALL)/lib/libds_mssm.a \
++		$(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libisajet.a \
++		$(DS_INSTALL)/lib/libHS.a $(DS_INSTALL)/lib/libHB.a $(DS_INSTALL)/lib/libsuperiso.a  \
++		$(DS_INSTALL)/lib/libFH.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a \
++		$(DS_INSTALL)/lib/libsharp_healpix_f.a;\
++	else \
++		$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_mssm.so $(DS_INSTALL)/lib/libds_mssm.a \
++		$(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libisajet.a \
++		$(DS_INSTALL)/lib/libHS.a $(DS_INSTALL)/lib/libHB.a $(DS_INSTALL)/lib/libsuperiso.a \
++		$(DS_INSTALL)/lib/libFH.a ;\
++	fi
+ 
+ ds_generic_decayingDM_shared : lib/libds_generic_decayingDM.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_decayingDM.so $(DS_INSTALL)/lib/libds_generic_decayingDM.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
++	@if grep -q "HEALPIX_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F; then \
++		$(ADD_SCR) -lcurl $(DS_INSTALL)/lib/libds_core_generic_decayingDM.so \
++		$(DS_INSTALL)/lib/libds_generic_decayingDM.a $(DS_INSTALL)/lib/libds_empty.a \
++		$(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a \
++		$(DS_INSTALL)/lib/libsharp_healpix_f.a;\
++	else \
++		$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_wimp.so $(DS_INSTALL)/lib/libds_generic_wimp.a \
++		$(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a;\
++	fi 
+ 
+ ds_generic_wimp_shared : lib/libds_generic_wimp.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_wimp.so $(DS_INSTALL)/lib/libds_generic_wimp.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
++	@if grep -q "HEALPIX_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F; then \
++		$(ADD_SCR) -lcurl $(DS_INSTALL)/lib/libds_core_generic_wimp.so \
++		$(DS_INSTALL)/lib/libds_generic_wimp.a $(DS_INSTALL)/lib/libds_empty.a \
++		$(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a \
++		$(DS_INSTALL)/lib/libsharp_healpix_f.a;\
++	else \
++		$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_generic_wimp.so $(DS_INSTALL)/lib/libds_generic_wimp.a \
++		$(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a;\
++	fi
+ 
+ ds_silveira_zee_shared : lib/libds_silveira_zee.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_silveira_zee.so $(DS_INSTALL)/lib/libds_silveira_zee.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
++	@if grep -q "HEALPIX_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F; then \
++		$(ADD_SCR) -lcurl $(DS_INSTALL)/lib/libds_core_silveira_zee.so \
++		$(DS_INSTALL)/lib/libds_silveira_zee.a $(DS_INSTALL)/lib/libds_empty.a \
++		$(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a \
++		$(DS_INSTALL)/lib/libsharp_healpix_f.a;\
++	else \
++		$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_silveira_zee.so $(DS_INSTALL)/lib/libds_silveira_zee.a \
++		$(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a;\
++	fi
+ 
+ ds_vdSIDM_shared : lib/libds_vdSIDM.a lib/libds_empty.a lib/libds_core.a
+-	$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_vdSIDM.so $(DS_INSTALL)/lib/libds_vdSIDM.a $(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a $(DS_INSTALL)/lib/libcfitsio.a
++	@if grep -q "HEALPIX_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F; then \
++		$(ADD_SCR) -lcurl $(DS_INSTALL)/lib/libds_core_vdSIDM.so $(DS_INSTALL)/lib/libds_vdSIDM.a \
++		$(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a $(DS_INSTALL)/lib/libhealpix.a \
++		$(DS_INSTALL)/lib/libcfitsio.a $(DS_INSTALL)/lib/libsharp_healpix_f.a;\
++	else \
++		$(ADD_SCR) $(DS_INSTALL)/lib/libds_core_vdSIDM.so $(DS_INSTALL)/lib/libds_vdSIDM.a \
++		$(DS_INSTALL)/lib/libds_empty.a $(DS_INSTALL)/lib/libds_core.a;\
++	fi
+ 
+ 
+ # "Generally all targets in your Makefile which do not produce an output file with 
+diff -rupN darksusy-6.2.5_original/contrib/FeynHiggs-2.17.0/configure darksusy-6.2.5_patched/contrib/FeynHiggs-2.17.0/configure
+--- darksusy-6.2.5_original/contrib/FeynHiggs-2.17.0/configure	2021-03-10 22:37:13.000000000 +0100
++++ darksusy-6.2.5_patched/contrib/FeynHiggs-2.17.0/configure	2021-04-28 20:42:29.000000000 +0200
+@@ -450,7 +450,7 @@ QUADSIZE = $CONF_QUADSIZE
+ GM2FULL = $CONF_GM2FULL
+ 
+ FC = $CONF_FC
+-FFLAGS =$CONF_FFLAGS \\
++FFLAGS =$CONF_FFLAGS -fPIC \\
+   \$(DEF)QUAD=\$(QUAD) \$(DEF)QUADSIZE=\$(QUADSIZE) \\
+   \$(DEF)U77EXT=$CONF_U77EXT \\
+   \$(DEF)VT100=$CONF_VT100 \\
+@@ -458,14 +458,14 @@ FFLAGS =$CONF_FFLAGS \\
+   \$(DEF)GM2FULL=\$(GM2FULL)
+ 
+ CC = $CONF_CC
+-CFLAGS =$CONF_CFLAGS \\
++CFLAGS =$CONF_CFLAGS -fPIC \\
+   -DQUAD=\$(QUAD) -DQUADSIZE=\$(QUADSIZE) \\
+   -DNOUNDERSCORE=\$(NOUNDERSCORE) \\
+   -DBIGENDIAN=$CONF_BIGENDIAN \\
+   -DVT100=$CONF_VT100
+ 
+ CXX = $CONF_CXX
+-CXXFLAGS =$CONF_CXXFLAGS$CONF_STDCPP
++CXXFLAGS =$CONF_CXXFLAGS$CONF_STDCPP -fPIC
+ 
+ ML = $CONF_ML
+ MCC = $CONF_MCC
+diff -rupN darksusy-6.2.5_original/contrib/Healpix_3.70/configure_darksusy.in darksusy-6.2.5_patched/contrib/Healpix_3.70/configure_darksusy.in
+--- darksusy-6.2.5_original/contrib/Healpix_3.70/configure_darksusy.in	2021-03-10 22:37:12.000000000 +0100
++++ darksusy-6.2.5_patched/contrib/Healpix_3.70/configure_darksusy.in	2021-04-28 20:42:29.000000000 +0200
+@@ -7,13 +7,13 @@ cd ../../../
+ ./configure<<EOF
+ 3
+ @CC@
+-
++-O3 -ffast-math -march=native -fopenmp @CFLAGS@
+ @FC@
+ 
+--I@HEALPIXDIR@/include -DGFORTRAN -fno-second-underscore @FOPT@
++-I@HEALPIXDIR@/include @FOPT@
+ 
+ @CC@
+-
++-O3 -std=c99 -I@HEALPIXDIR@/include @CFLAGS@
+ 
+ 
+ ../../lib
+diff -rupN darksusy-6.2.5_original/scr/add_libs.pl darksusy-6.2.5_patched/scr/add_libs.pl
+--- darksusy-6.2.5_original/scr/add_libs.pl	2021-03-10 22:37:33.000000000 +0100
++++ darksusy-6.2.5_patched/scr/add_libs.pl	2021-04-27 16:17:44.000000000 +0200
+@@ -7,6 +7,21 @@
+ # Author: Joakim Edsjo, edsjo@fysik.su.se
+ # Date: 2015-12-07
+ 
++
++# Search for -l options
++
++$linklib="";
++$i=-1;
++while($i++ < scalar @ARGV-1) {
++    $arg=$ARGV[$i];
++    if ($arg=~ /^\-l/) {
++	$linklib .= "$arg ";
++	splice(@ARGV,$i,1);
++	$i--;
++    }
++}
++
++
+ if (scalar @ARGV <=1) {
+ print <<END;
+ add_libs adds libraries (or .o files) together to one library.
+@@ -22,12 +37,23 @@ object files in the libraries are compil
+ 
+ Usage: There are two ways to call this script:
+     
+-1) add_libs <new_library> <file-with-libraries, one per line>
+-2) add_libs <new_library> <old_library_1> <old_library_2> etc    
++1) add_libs [-l<library>] <new_library> <file-with-libraries, one per line>
++2) add_libs [-l<library>] <new_library> <old_library_1> <old_library_2> etc    
++
++The argument -l<library> is optional and can be used if an external library
++is needed to create the new library (only used for creation of shared library).
++There should be no space beteween -l and <library>.
++There can be several -l<library> arguments if more than one library is needed.
++
+ END
+ die "\n";  
+ }
+ 
++if ($linklib ne "") {
++    print "These libraries will be used for linking: $linklib\n";
++}
++
++
+ $newlib=shift;
+ unlink("$newlib");
+ if ($newlib =~ /\.so/) {
+@@ -87,9 +113,9 @@ if ($static == 1) {
+     }
+ } else {
+     if ($newlib =~ /^\//) { # absolute path
+-	system("gfortran -shared -fopenmp *.o -o $newlib");
++	system("gfortran -shared -fopenmp *.o $linklib -o $newlib");
+     } else {
+-	system("gfortran -shared -fopenmp *.o -o ../$newlib");
++	system("gfortran -shared -fopenmp *.o $linklib -o ../$newlib");
+     }
+ }
+ chdir("..");
+diff -rupN darksusy-6.2.5_original/src/aux/dshealpixave.f darksusy-6.2.5_patched/src/aux/dshealpixave.F
+--- darksusy-6.2.5_original/src/aux/dshealpixave.f	2021-03-10 22:37:34.000000000 +0100
++++ darksusy-6.2.5_patched/src/aux/dshealpixave.F	2021-04-28 20:42:29.000000000 +0200
+@@ -18,7 +18,10 @@
+ *** date 2018-11-28                                                         ***
+ *******************************************************************************
+       subroutine dshealpixave(f,n,how,ave)
++#include "dscontribstat.F"
++#if defined HEALPIX_INSTALLATION && HEALPIX_INSTALLATION == succeeded
+       use pix_tools
++#endif
+       implicit none
+       include 'dsmpconst.h'
+       integer n, how
+@@ -28,6 +31,17 @@
+       integer plist(2000000),nlist(2000000),pmax,nmax
+       save nlist, nmax
+ 
++#if !defined HEALPIX_INSTALLATION || HEALPIX_INSTALLATION != succeeded
++      write(*,*) 'ERROR in dshealpix: You have built ds_core without HealPIX support,'
++      write(*,*) 'so this function is DISABLED. '
++      write(*,*) '(To enable HealPix support, re-install DarkSUSY and follow the  instructions'
++      write(*,*) ' after the message ''Now building CONTRIBUTED CODE: healpix'')'
++      write(*,*)
++      write(*,*) 'Program stopping...'
++      write(*,*)
++      stop
++#else
++
+       nside=2**n      
+       ppmax=12*nside*nside
+       sum=0.d0
+@@ -71,6 +85,7 @@ c 10    continue
+          sum=sum+f(-l+l0,b-b0)
+       enddo
+ 20    ave=sum/real(ppmax)
++#endif
+       end
+ 
+ 
+@@ -79,15 +94,20 @@ c 10    continue
+ *** Auxiliary routine needed by dshealpixave, adding points to nlist        ***
+ *******************************************************************************
+       subroutine dsaddhpxpt(nside,ipix,nmax,nlist)
+-      use pix_tools
+-      implicit none
++#include "dscontribstat.F"
++#if defined HEALPIX_INSTALLATION && HEALPIX_INSTALLATION == succeeded
++        use pix_tools
++#endif
++        implicit none
+         integer nside,ipix,nmax,nlist(10000)
+         integer i,j,nneigh,lneigh(9),cand(36)
+         integer klo,khi,k
+         
+ c... create a list with 4*(nneigh+1) candidate pixels to be added 
+ c... to the list of relevant pixels at next level
++#if defined HEALPIX_INSTALLATION && HEALPIX_INSTALLATION == succeeded
+         call neighbours_nest(nside, ipix, lneigh, nneigh)        
++#endif
+         lneigh(nneigh+1) = ipix ! add central point to list
+         do i=0,nneigh
+           do j=0,3
+diff -rupN darksusy-6.2.5_original/src/aux/makefile.in darksusy-6.2.5_patched/src/aux/makefile.in
+--- darksusy-6.2.5_original/src/aux/makefile.in	2021-03-10 22:37:34.000000000 +0100
++++ darksusy-6.2.5_patched/src/aux/makefile.in	2021-04-27 17:07:05.000000000 +0200
+@@ -26,7 +26,7 @@ vpath %.h $(INC)
+ 
+ SRC = dsabsq.f dsbessei0.f dsbessei1.f dsbessek0.f dsbessek1.f \
+ dsbessek2.f dsbessjw.f dscharadd.f dsdatafile.f dsdilog.f dsf_int.f \
+-dsf_int2.f dsfac.f dsgamma.f dshealpixave.f dshealpixint.f \
++dsf_int2.f dsfac.f dsgamma.f dshealpixave.F dshealpixint.f \
+ dshiprecint3.f dshunt.f dsi_trim.f dsidtag.f dsinterpolatetable.f \
+ dsinterpolatetable2D.f dsisnan.f dslowcase.f dsmoderf.f dsrnd1.f \
+ dsrndlin.f dsrndlog.f dsrndsgn.f dsspline.f dssplint.f dswrite.f \
+
+

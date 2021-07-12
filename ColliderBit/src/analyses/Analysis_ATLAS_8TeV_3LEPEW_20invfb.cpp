@@ -32,15 +32,15 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      int _num_SR0tau_a_bin_1, _num_SR0tau_a_bin_2, _num_SR0tau_a_bin_3, _num_SR0tau_a_bin_4;
-      int _num_SR0tau_a_bin_5, _num_SR0tau_a_bin_6, _num_SR0tau_a_bin_7, _num_SR0tau_a_bin_8;
-      int _num_SR0tau_a_bin_9, _num_SR0tau_a_bin_10, _num_SR0tau_a_bin_11, _num_SR0tau_a_bin_12;
-      int _num_SR0tau_a_bin_13, _num_SR0tau_a_bin_14, _num_SR0tau_a_bin_15, _num_SR0tau_a_bin_16;
-      int _num_SR0tau_a_bin_17, _num_SR0tau_a_bin_18, _num_SR0tau_a_bin_19, _num_SR0tau_a_bin_20;
-      int _num_SR0tau_b;
-      int _num_SR1tau;
-      int _num_SR2tau_a;
-      int _num_SR2tau_b;
+      double _num_SR0tau_a_bin_1, _num_SR0tau_a_bin_2, _num_SR0tau_a_bin_3, _num_SR0tau_a_bin_4;
+      double _num_SR0tau_a_bin_5, _num_SR0tau_a_bin_6, _num_SR0tau_a_bin_7, _num_SR0tau_a_bin_8;
+      double _num_SR0tau_a_bin_9, _num_SR0tau_a_bin_10, _num_SR0tau_a_bin_11, _num_SR0tau_a_bin_12;
+      double _num_SR0tau_a_bin_13, _num_SR0tau_a_bin_14, _num_SR0tau_a_bin_15, _num_SR0tau_a_bin_16;
+      double _num_SR0tau_a_bin_17, _num_SR0tau_a_bin_18, _num_SR0tau_a_bin_19, _num_SR0tau_a_bin_20;
+      double _num_SR0tau_b;
+      double _num_SR1tau;
+      double _num_SR2tau_a;
+      double _num_SR2tau_b;
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       const static int NCUTS=55;
@@ -87,10 +87,10 @@ namespace Gambit {
 
       }
 
-      void EleEleOverlapRemoval(vector<HEPUtils::Particle*> &vec1, vector<HEPUtils::Particle*> &vec2, double DeltaRMax) {
+      void EleEleOverlapRemoval(vector<const HEPUtils::Particle*> &vec1, vector<const HEPUtils::Particle*> &vec2, double DeltaRMax) {
         //Routine to do electron-electron overlap check
         //Discard lowest energy electron if two are found overlapping
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int it1 = 0; it1 < vec1.size(); it1++) {
           bool overlap = false;
@@ -113,9 +113,9 @@ namespace Gambit {
       }
 
 
-      void LepLepOverlapRemoval(vector<HEPUtils::Particle*> &vec1, vector<HEPUtils::Particle*> &vec2, double DeltaRMax) {
+      void LepLepOverlapRemoval(vector<const HEPUtils::Particle*> &vec1, vector<const HEPUtils::Particle*> &vec2, double DeltaRMax) {
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int it1 = 0; it1 < vec1.size(); it1++) {
           bool overlap = false;
@@ -137,11 +137,11 @@ namespace Gambit {
         return;
       }
 
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Jet*> Survivors;
+        vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
           bool overlap = false;
@@ -162,11 +162,11 @@ namespace Gambit {
         return;
       }
 
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec, double DeltaRMax) {
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax) {
         //Routine to do lepton-jet check
         //Discards leptons if they are within DeltaRMax of a jet
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
           bool overlap = false;
@@ -195,8 +195,8 @@ namespace Gambit {
         double met = event->met();
 
         // Now define vector of baseline electrons
-        vector<HEPUtils::Particle*> signalElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> signalElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && fabs(electron->eta()) < 2.47) signalElectrons.push_back(electron);
         }
 
@@ -204,24 +204,24 @@ namespace Gambit {
         ATLAS::applyElectronEff(signalElectrons);
 
         // Now define vector of baseline muons
-        vector<HEPUtils::Particle*> signalMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> signalMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && fabs(muon->eta()) < 2.4) signalMuons.push_back(muon);
         }
 
         // Apply muon efficiency
         ATLAS::applyMuonEff(signalMuons);
 
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> bJets;
 
-        for (HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.5) signalJets.push_back(jet);
           //if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
         }
 
-        vector<HEPUtils::Particle*> signalTaus;
-        for (HEPUtils::Particle* tau : event->taus()) {
+        vector<const HEPUtils::Particle*> signalTaus;
+        for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.47) signalTaus.push_back(tau);
         }
         ATLAS::applyTauEfficiencyR1(signalTaus);
@@ -298,8 +298,8 @@ namespace Gambit {
         const std::vector<double> c = {0.8};
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
-        for (HEPUtils::Jet* jet : signalJets) {
-          bool hasTag=has_tag(_eff2d, jet->eta(), jet->pT());
+        for (const HEPUtils::Jet* jet : signalJets) {
+          bool hasTag=has_tag(_eff2d, jet->abseta(), jet->pT());
           if(jet->btag() && hasTag)bJets.push_back(jet);
         }
 
@@ -360,18 +360,18 @@ namespace Gambit {
         bool triggerEMU=false;
         bool triggerMUE=false;
 
-        for(HEPUtils::Particle* ele : signalElectrons){
+        for(const HEPUtils::Particle* ele : signalElectrons){
           if(ele->pT()>25.)triggerE=true;
         }
 
-        for(HEPUtils::Particle* muo : signalMuons){
+        for(const HEPUtils::Particle* muo : signalMuons){
           if(muo->pT()>25.)triggerMU=true;
         }
 
         int numMuonsGt14=0;
         int numMuonsGt18=0;
 
-        for(HEPUtils::Particle* muo : signalMuons){
+        for(const HEPUtils::Particle* muo : signalMuons){
           if(muo->pT()>14.)numMuonsGt14++;
           if(muo->pT()>18.)numMuonsGt18++;
         }
@@ -382,7 +382,7 @@ namespace Gambit {
         int numEleGt14=0;
         int numEleGt25=0;
 
-        for(HEPUtils::Particle* ele : signalElectrons){
+        for(const HEPUtils::Particle* ele : signalElectrons){
           if(ele->pT()>14.)numEleGt14++;
           if(ele->pT()>25.)numEleGt25++;
 
@@ -415,13 +415,13 @@ namespace Gambit {
         }
 
         //Now find the lepton that isn't in that invariant mass
-        vector<HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> signalLeptons;
 
-        for (HEPUtils::Particle* ele : signalElectrons) {
+        for (const HEPUtils::Particle* ele : signalElectrons) {
           signalLeptons.push_back(ele);
         }
 
-        for (HEPUtils::Particle* muo : signalMuons) {
+        for (const HEPUtils::Particle* muo : signalMuons) {
           signalLeptons.push_back(muo);
         }
 
@@ -466,30 +466,30 @@ namespace Gambit {
 
         if(trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && signalTaus.size()==0){
 
-          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>50. && met<90.)_num_SR0tau_a_bin_1++;
-          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>90.)_num_SR0tau_a_bin_2++;
-          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>50. && met<75.)_num_SR0tau_a_bin_3++;
-          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>75.)_num_SR0tau_a_bin_4++;
+          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>50. && met<90.) _num_SR0tau_a_bin_1 += event->weight();
+          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>90.) _num_SR0tau_a_bin_2 += event->weight();
+          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>50. && met<75.) _num_SR0tau_a_bin_3 += event->weight();
+          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>75.) _num_SR0tau_a_bin_4 += event->weight();
 
-          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto)_num_SR0tau_a_bin_5++;
-          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>75.)_num_SR0tau_a_bin_6++;
-          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>50. && met<135.)_num_SR0tau_a_bin_7++;
-          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>135.)_num_SR0tau_a_bin_8++;
+          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) _num_SR0tau_a_bin_5 += event->weight();
+          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>75.) _num_SR0tau_a_bin_6 += event->weight();
+          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>50. && met<135.) _num_SR0tau_a_bin_7 += event->weight();
+          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>135.) _num_SR0tau_a_bin_8 += event->weight();
 
-          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto)_num_SR0tau_a_bin_9++;
-          if(mSFOS>60. && mSFOS < 81.2 && mT>80. && met>50. && met<75.)_num_SR0tau_a_bin_10++;
-          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<110. && met>75.)_num_SR0tau_a_bin_11++;
-          if(mSFOS>60. && mSFOS < 81.2 && mT>110. && met>75.)_num_SR0tau_a_bin_12++;
+          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) _num_SR0tau_a_bin_9 += event->weight();
+          if(mSFOS>60. && mSFOS < 81.2 && mT>80. && met>50. && met<75.) _num_SR0tau_a_bin_10 += event->weight();
+          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<110. && met>75.) _num_SR0tau_a_bin_11 += event->weight();
+          if(mSFOS>60. && mSFOS < 81.2 && mT>110. && met>75.) _num_SR0tau_a_bin_12 += event->weight();
 
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT<110. && met>50. && met<90. && !threelZVeto)_num_SR0tau_a_bin_13++;
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT < 110. && met>90.)_num_SR0tau_a_bin_14++;
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>50. && met < 135.)_num_SR0tau_a_bin_15++;
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>135.)_num_SR0tau_a_bin_16++;
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT<110. && met>50. && met<90. && !threelZVeto) _num_SR0tau_a_bin_13 += event->weight();
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT < 110. && met>90.) _num_SR0tau_a_bin_14 += event->weight();
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>50. && met < 135.) _num_SR0tau_a_bin_15 += event->weight();
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>135.) _num_SR0tau_a_bin_16 += event->weight();
 
-          if(mSFOS > 101.2 && mT>0. && mT<180. && met>50. && met<210.)_num_SR0tau_a_bin_17++;
-          if(mSFOS > 101.2 && mT > 180. && met>50. && met<210.)_num_SR0tau_a_bin_18++;
-          if(mSFOS > 101.2 && mT>0. && mT<120. && met>210.)_num_SR0tau_a_bin_19++;
-          if(mSFOS > 101.2 && mT>120. && met>210.)_num_SR0tau_a_bin_20++;
+          if(mSFOS > 101.2 && mT>0. && mT<180. && met>50. && met<210.) _num_SR0tau_a_bin_17 += event->weight();
+          if(mSFOS > 101.2 && mT > 180. && met>50. && met<210.) _num_SR0tau_a_bin_18 += event->weight();
+          if(mSFOS > 101.2 && mT>0. && mT<120. && met>210.) _num_SR0tau_a_bin_19 += event->weight();
+          if(mSFOS > 101.2 && mT>120. && met>210.) _num_SR0tau_a_bin_20 += event->weight();
         }
         //Now do SR0tau_b
         //Need either two electrons or two muons, and they must have the same sign
@@ -535,7 +535,7 @@ namespace Gambit {
 
         if(trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR0taub && bJets.size()==0 && signalTaus.size()==0){
 
-          if(met > 50. && leptonPTCut_SR0taub && dPhiLLMin < 1.)_num_SR0tau_b++;
+          if(met > 50. && leptonPTCut_SR0taub && dPhiLLMin < 1.) _num_SR0tau_b += event->weight();
 
         }
 
@@ -569,7 +569,7 @@ namespace Gambit {
         if(leptonTypeCut_SR1tau && signalLeptons[1]->pT()>30. && (signalLeptons[0]->pT()+signalLeptons[1]->pT())>70.)leptonPTCut_SR1tau=true;
 
         if(trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau && bJets.size()==0){
-          if(met>50. && leptonPTCut_SR1tau && mltau < 120. && !eePairVeto)_num_SR1tau++;
+          if(met>50. && leptonPTCut_SR1tau && mltau < 120. && !eePairVeto) _num_SR1tau += event->weight();
         }
 
         //Now do SR2taua
@@ -578,17 +578,17 @@ namespace Gambit {
         if(numTaus==2 && (numElectrons + numMuons)==1){
 
           //Calculate MT2 for all pairs of leptonsand take the largest
-          vector<HEPUtils::Particle*> mt2Leptons;
+          vector<const HEPUtils::Particle*> mt2Leptons;
 
-          for (HEPUtils::Particle* ele : signalElectrons) {
+          for (const HEPUtils::Particle* ele : signalElectrons) {
             mt2Leptons.push_back(ele);
           }
 
-          for (HEPUtils::Particle* muo : signalMuons) {
+          for (const HEPUtils::Particle* muo : signalMuons) {
             mt2Leptons.push_back(muo);
           }
 
-          for (HEPUtils::Particle* tau : signalTaus) {
+          for (const HEPUtils::Particle* tau : signalTaus) {
             mt2Leptons.push_back(tau);
           }
 
@@ -610,13 +610,13 @@ namespace Gambit {
           }
         }
 
-        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && met > 50. && mT2max > 100.)_num_SR2tau_a++;
+        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && met > 50. && mT2max > 100.) _num_SR2tau_a += event->weight();
 
         //Finally do SR2taub
         double mtautau=0;
         if(numTaus==2)mtautau=(signalTaus[0]->mom()+signalTaus[1]->mom()).m();
 
-        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && (signalTaus[0]->mom().pT() + signalTaus[1]->mom().pT())>110. && mtautau>70. && mtautau < 120.)_num_SR2tau_b++;
+        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && (signalTaus[0]->mom().pT() + signalTaus[1]->mom().pT())>110. && mtautau>70. && mtautau < 120.) _num_SR2tau_b += event->weight();
 
         //Now do cutflow (for debugging)
 
@@ -830,220 +830,32 @@ namespace Gambit {
 
 
       void collect_results() {
-        SignalRegionData results_SR0tau_a_bin_1;
-        results_SR0tau_a_bin_1.sr_label = "SR0tau_a_bin_1";
-        results_SR0tau_a_bin_1.n_observed = 36.;
-        results_SR0tau_a_bin_1.n_background = 23.;
-        results_SR0tau_a_bin_1.background_sys = 4.;
-        results_SR0tau_a_bin_1.signal_sys = 0.;
-        results_SR0tau_a_bin_1.n_signal = _num_SR0tau_a_bin_1;
 
-        SignalRegionData results_SR0tau_a_bin_2;
-        results_SR0tau_a_bin_2.sr_label = "SR0tau_a_bin_2";
-        results_SR0tau_a_bin_2.n_observed = 5.;
-        results_SR0tau_a_bin_2.n_background = 4.2;
-        results_SR0tau_a_bin_2.background_sys = 1.5;
-        results_SR0tau_a_bin_2.signal_sys = 0.;
-        results_SR0tau_a_bin_2.n_signal = _num_SR0tau_a_bin_2;
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_SR0tau_a_bin_3;
-        results_SR0tau_a_bin_3.sr_label = "SR0tau_a_bin_3";
-        results_SR0tau_a_bin_3.n_observed = 9.;
-        results_SR0tau_a_bin_3.n_background = 10.6;
-        results_SR0tau_a_bin_3.background_sys = 1.8;
-        results_SR0tau_a_bin_3.signal_sys = 0.;
-        results_SR0tau_a_bin_3.n_signal = _num_SR0tau_a_bin_3;
-
-        SignalRegionData results_SR0tau_a_bin_4;
-        results_SR0tau_a_bin_4.sr_label = "SR0tau_a_bin_4";
-        results_SR0tau_a_bin_4.n_observed = 9.;
-        results_SR0tau_a_bin_4.n_background = 8.5;
-        results_SR0tau_a_bin_4.background_sys = 1.7;
-        results_SR0tau_a_bin_4.signal_sys = 0.;
-        results_SR0tau_a_bin_4.n_signal = _num_SR0tau_a_bin_4;
-
-        SignalRegionData results_SR0tau_a_bin_5;
-        results_SR0tau_a_bin_5.sr_label = "SR0tau_a_bin_5";
-        results_SR0tau_a_bin_5.n_observed = 11.;
-        results_SR0tau_a_bin_5.n_background = 12.9;
-        results_SR0tau_a_bin_5.background_sys = 2.4;
-        results_SR0tau_a_bin_5.signal_sys = 0.;
-        results_SR0tau_a_bin_5.n_signal = _num_SR0tau_a_bin_5;
-
-        SignalRegionData results_SR0tau_a_bin_6;
-        results_SR0tau_a_bin_6.sr_label = "SR0tau_a_bin_6";
-        results_SR0tau_a_bin_6.n_observed = 13.;
-        results_SR0tau_a_bin_6.n_background = 6.6;
-        results_SR0tau_a_bin_6.background_sys = 1.9;
-        results_SR0tau_a_bin_6.signal_sys = 0.;
-        results_SR0tau_a_bin_6.n_signal = _num_SR0tau_a_bin_6;
-
-        SignalRegionData results_SR0tau_a_bin_7;
-        results_SR0tau_a_bin_7.sr_label = "SR0tau_a_bin_7";
-        results_SR0tau_a_bin_7.n_observed = 15.;
-        results_SR0tau_a_bin_7.n_background = 14.1;
-        results_SR0tau_a_bin_7.background_sys = 2.2;
-        results_SR0tau_a_bin_7.signal_sys = 0.;
-        results_SR0tau_a_bin_7.n_signal = _num_SR0tau_a_bin_7;
-
-        SignalRegionData results_SR0tau_a_bin_8;
-        results_SR0tau_a_bin_8.sr_label = "SR0tau_a_bin_8";
-        results_SR0tau_a_bin_8.n_observed = 1.;
-        results_SR0tau_a_bin_8.n_background = 1.1;
-        results_SR0tau_a_bin_8.background_sys = 0.4;
-        results_SR0tau_a_bin_8.signal_sys = 0.;
-        results_SR0tau_a_bin_8.n_signal = _num_SR0tau_a_bin_8;
-
-        SignalRegionData results_SR0tau_a_bin_9;
-        results_SR0tau_a_bin_9.sr_label = "SR0tau_a_bin_9";
-        results_SR0tau_a_bin_9.n_observed = 28.;
-        results_SR0tau_a_bin_9.n_background = 22.4;
-        results_SR0tau_a_bin_9.background_sys = 3.6;
-        results_SR0tau_a_bin_9.signal_sys = 0.;
-        results_SR0tau_a_bin_9.n_signal = _num_SR0tau_a_bin_9;
-
-        SignalRegionData results_SR0tau_a_bin_10;
-        results_SR0tau_a_bin_10.sr_label = "SR0tau_a_bin_10";
-        results_SR0tau_a_bin_10.n_observed = 24.;
-        results_SR0tau_a_bin_10.n_background = 16.4;
-        results_SR0tau_a_bin_10.background_sys = 2.8;
-        results_SR0tau_a_bin_10.signal_sys = 0.;
-        results_SR0tau_a_bin_10.n_signal = _num_SR0tau_a_bin_10;
-
-        SignalRegionData results_SR0tau_a_bin_11;
-        results_SR0tau_a_bin_11.sr_label = "SR0tau_a_bin_11";
-        results_SR0tau_a_bin_11.n_observed = 29.;
-        results_SR0tau_a_bin_11.n_background = 27.;
-        results_SR0tau_a_bin_11.background_sys = 5.;
-        results_SR0tau_a_bin_11.signal_sys = 0.;
-        results_SR0tau_a_bin_11.n_signal = _num_SR0tau_a_bin_11;
-
-        SignalRegionData results_SR0tau_a_bin_12;
-        results_SR0tau_a_bin_12.sr_label = "SR0tau_a_bin_12";
-        results_SR0tau_a_bin_12.n_observed = 8.;
-        results_SR0tau_a_bin_12.n_background = 5.5;
-        results_SR0tau_a_bin_12.background_sys = 1.5;
-        results_SR0tau_a_bin_12.signal_sys = 0.;
-        results_SR0tau_a_bin_12.n_signal = _num_SR0tau_a_bin_12;
-
-        SignalRegionData results_SR0tau_a_bin_13;
-        results_SR0tau_a_bin_13.sr_label = "SR0tau_a_bin_13";
-        results_SR0tau_a_bin_13.n_observed = 714.;
-        results_SR0tau_a_bin_13.n_background = 715.;
-        results_SR0tau_a_bin_13.background_sys = 70.;
-        results_SR0tau_a_bin_13.signal_sys = 0.;
-        results_SR0tau_a_bin_13.n_signal = _num_SR0tau_a_bin_13;
-
-        SignalRegionData results_SR0tau_a_bin_14;
-        results_SR0tau_a_bin_14.sr_label = "SR0tau_a_bin_14";
-        results_SR0tau_a_bin_14.n_observed = 214.;
-        results_SR0tau_a_bin_14.n_background = 219.;
-        results_SR0tau_a_bin_14.background_sys = 33.;
-        results_SR0tau_a_bin_14.signal_sys = 0.;
-        results_SR0tau_a_bin_14.n_signal = _num_SR0tau_a_bin_14;
-
-        SignalRegionData results_SR0tau_a_bin_15;
-        results_SR0tau_a_bin_15.sr_label = "SR0tau_a_bin_15";
-        results_SR0tau_a_bin_15.n_observed = 63.;
-        results_SR0tau_a_bin_15.n_background = 65.;
-        results_SR0tau_a_bin_15.background_sys = 13.;
-        results_SR0tau_a_bin_15.signal_sys = 0.;
-        results_SR0tau_a_bin_15.n_signal = _num_SR0tau_a_bin_15;
-
-        SignalRegionData results_SR0tau_a_bin_16;
-        results_SR0tau_a_bin_16.sr_label = "SR0tau_a_bin_16";
-        results_SR0tau_a_bin_16.n_observed = 3.;
-        results_SR0tau_a_bin_16.n_background = 4.6;
-        results_SR0tau_a_bin_16.background_sys = 1.7;
-        results_SR0tau_a_bin_16.signal_sys = 0.;
-        results_SR0tau_a_bin_16.n_signal = _num_SR0tau_a_bin_16;
-
-        SignalRegionData results_SR0tau_a_bin_17;
-        results_SR0tau_a_bin_17.sr_label = "SR0tau_a_bin_17";
-        results_SR0tau_a_bin_17.n_observed = 60.;
-        results_SR0tau_a_bin_17.n_background = 69.;
-        results_SR0tau_a_bin_17.background_sys = 9.;
-        results_SR0tau_a_bin_17.signal_sys = 0.;
-        results_SR0tau_a_bin_17.n_signal = _num_SR0tau_a_bin_17;
-
-        SignalRegionData results_SR0tau_a_bin_18;
-        results_SR0tau_a_bin_18.sr_label = "SR0tau_a_bin_18";
-        results_SR0tau_a_bin_18.n_observed = 1.;
-        results_SR0tau_a_bin_18.n_background = 3.4;
-        results_SR0tau_a_bin_18.background_sys = 1.4;
-        results_SR0tau_a_bin_18.signal_sys = 0.;
-        results_SR0tau_a_bin_18.n_signal = _num_SR0tau_a_bin_18;
-
-        SignalRegionData results_SR0tau_a_bin_19;
-        results_SR0tau_a_bin_19.sr_label = "SR0tau_a_bin_19";
-        results_SR0tau_a_bin_19.n_observed = 0.;
-        results_SR0tau_a_bin_19.n_background = 1.2;
-        results_SR0tau_a_bin_19.background_sys = 0.4;
-        results_SR0tau_a_bin_19.signal_sys = 0.;
-        results_SR0tau_a_bin_19.n_signal = _num_SR0tau_a_bin_19;
-
-        SignalRegionData results_SR0tau_a_bin_20;
-        results_SR0tau_a_bin_20.sr_label = "SR0tau_a_bin_20";
-        results_SR0tau_a_bin_20.n_observed = 0.;
-        results_SR0tau_a_bin_20.n_background = 0.29;
-        results_SR0tau_a_bin_20.background_sys = 0.18;
-        results_SR0tau_a_bin_20.signal_sys = 0.;
-        results_SR0tau_a_bin_20.n_signal = _num_SR0tau_a_bin_20;
-
-        SignalRegionData results_SR1tau;
-        results_SR1tau.sr_label = "SR1tau";
-        results_SR1tau.n_observed = 13.;
-        results_SR1tau.n_background = 10.3;
-        results_SR1tau.background_sys = 1.2;
-        results_SR1tau.signal_sys = 0.;
-        results_SR1tau.n_signal = _num_SR1tau;
-
-        SignalRegionData results_SR2tau_a;
-        results_SR2tau_a.sr_label = "SR2tau_a";
-        results_SR2tau_a.n_observed = 6.;
-        results_SR2tau_a.n_background = 6.9;
-        results_SR2tau_a.background_sys = 0.8;
-        results_SR2tau_a.signal_sys = 0.;
-        results_SR2tau_a.n_signal = _num_SR2tau_a;
-
-        SignalRegionData results_SR2tau_b;
-        results_SR2tau_b.sr_label = "SR2tau_b";
-        results_SR2tau_b.n_observed = 5.;
-        results_SR2tau_b.n_background = 7.2;
-        results_SR2tau_b.background_sys = 0.8;
-        results_SR2tau_b.signal_sys = 0.;
-        results_SR2tau_b.n_signal = _num_SR2tau_b;
-
-        add_result(results_SR0tau_a_bin_1);
-        add_result(results_SR0tau_a_bin_2);
-        add_result(results_SR0tau_a_bin_3);
-        add_result(results_SR0tau_a_bin_4);
-        add_result(results_SR0tau_a_bin_5);
-        add_result(results_SR0tau_a_bin_6);
-        add_result(results_SR0tau_a_bin_7);
-        add_result(results_SR0tau_a_bin_8);
-        add_result(results_SR0tau_a_bin_9);
-        add_result(results_SR0tau_a_bin_10);
-        add_result(results_SR0tau_a_bin_11);
-        add_result(results_SR0tau_a_bin_12);
-        add_result(results_SR0tau_a_bin_13);
-        add_result(results_SR0tau_a_bin_14);
-        add_result(results_SR0tau_a_bin_15);
-        add_result(results_SR0tau_a_bin_16);
-        add_result(results_SR0tau_a_bin_17);
-        add_result(results_SR0tau_a_bin_18);
-        add_result(results_SR0tau_a_bin_19);
-        add_result(results_SR0tau_a_bin_20);
-        add_result(results_SR1tau);
-        add_result(results_SR2tau_a);
-        add_result(results_SR2tau_b);
-
-        /*  add_result(results_SRnoZa);
-            add_result(results_SRnoZb);
-            add_result(results_SRnoZc);
-            add_result(results_SRZa);
-            add_result(results_SRZb);
-            add_result(results_SRZc);*/
+        add_result(SignalRegionData("SR0tau_a_bin_1", 36., {_num_SR0tau_a_bin_1, 0.}, { 23., 4. }));
+        add_result(SignalRegionData("SR0tau_a_bin_2", 5., {_num_SR0tau_a_bin_2, 0.}, { 4.2,  1.5}));
+        add_result(SignalRegionData("SR0tau_a_bin_3", 9., {_num_SR0tau_a_bin_3, 0.}, { 10.6,  1.8}));
+        add_result(SignalRegionData("SR0tau_a_bin_4", 9., {_num_SR0tau_a_bin_4, 0.}, { 8.5,  1.7}));
+        add_result(SignalRegionData("SR0tau_a_bin_5", 11., {_num_SR0tau_a_bin_5, 0.}, { 12.9,  2.4}));
+        add_result(SignalRegionData("SR0tau_a_bin_6", 13., {_num_SR0tau_a_bin_6, 0.}, { 6.6,  1.9}));
+        add_result(SignalRegionData("SR0tau_a_bin_7", 15., {_num_SR0tau_a_bin_7, 0.}, { 14.1,  2.2}));
+        add_result(SignalRegionData("SR0tau_a_bin_8", 1., {_num_SR0tau_a_bin_8, 0.}, { 1.1,  0.4}));
+        add_result(SignalRegionData("SR0tau_a_bin_9", 28., {_num_SR0tau_a_bin_9, 0.}, { 22.4,  3.6}));
+        add_result(SignalRegionData("SR0tau_a_bin_10", 24., {_num_SR0tau_a_bin_10, 0.}, { 16.4,  2.8}));
+        add_result(SignalRegionData("SR0tau_a_bin_11", 29., {_num_SR0tau_a_bin_11, 0.}, { 27., 5. }));
+        add_result(SignalRegionData("SR0tau_a_bin_12", 8., {_num_SR0tau_a_bin_12, 0.}, { 5.5,  1.5}));
+        add_result(SignalRegionData("SR0tau_a_bin_13", 714., {_num_SR0tau_a_bin_13, 0.}, { 715., 70. }));
+        add_result(SignalRegionData("SR0tau_a_bin_14", 214., {_num_SR0tau_a_bin_14, 0.}, { 219., 33. }));
+        add_result(SignalRegionData("SR0tau_a_bin_15", 63., {_num_SR0tau_a_bin_15, 0.}, { 65., 13. }));
+        add_result(SignalRegionData("SR0tau_a_bin_16", 3., {_num_SR0tau_a_bin_16, 0.}, { 4.6,  1.7}));
+        add_result(SignalRegionData("SR0tau_a_bin_17", 60., {_num_SR0tau_a_bin_17, 0.}, { 69., 9. }));
+        add_result(SignalRegionData("SR0tau_a_bin_18", 1., {_num_SR0tau_a_bin_18, 0.}, { 3.4,  1.4}));
+        add_result(SignalRegionData("SR0tau_a_bin_19", 0., {_num_SR0tau_a_bin_19, 0.}, { 1.2,  0.4}));
+        add_result(SignalRegionData("SR0tau_a_bin_20", 0., {_num_SR0tau_a_bin_20, 0.}, { 0.29,  0.18}));
+        add_result(SignalRegionData("SR1tau", 13., {_num_SR1tau, 0.}, { 10.3,  1.2}));
+        add_result(SignalRegionData("SR2tau_a", 6., {_num_SR2tau_a, 0.}, { 6.9,  0.8}));
+        add_result(SignalRegionData("SR2tau_b", 5., {_num_SR2tau_b, 0.}, { 7.2,  0.8}));
 
         return;
       }

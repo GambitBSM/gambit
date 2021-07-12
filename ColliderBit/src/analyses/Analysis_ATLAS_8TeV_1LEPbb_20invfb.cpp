@@ -47,11 +47,11 @@ namespace Gambit {
       static constexpr const char* detector = "ATLAS";
 
       struct particleComparison {
-        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } compareParticlePt;
 
       struct jetComparison {
-        bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
       Analysis_ATLAS_8TeV_1LEPbb_20invfb() {
@@ -89,8 +89,8 @@ namespace Gambit {
         double met = event->met();
 
         // Baseline objects
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT()>10. && electron->abseta()<2.47)baselineElectrons.push_back(electron);
         }
 
@@ -100,24 +100,24 @@ namespace Gambit {
         // Apply medium electron selection
         ATLAS::applyMediumIDElectronSelection(baselineElectrons);
 
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT()>10. && muon->abseta()<2.4)baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
         ATLAS::applyMuonEff(baselineMuons);
 
-        vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT()>20. && fabs(jet->eta())<4.5) baselineJets.push_back(jet);
         }
 
         //Overlap Removal
-        vector<HEPUtils::Particle*> overlapElectrons1;
-        vector<HEPUtils::Particle*> overlapElectrons2;
-        vector<HEPUtils::Particle*> overlapMuons;
-        vector<HEPUtils::Jet*> overlapJets;
+        vector<const HEPUtils::Particle*> overlapElectrons1;
+        vector<const HEPUtils::Particle*> overlapElectrons2;
+        vector<const HEPUtils::Particle*> overlapMuons;
+        vector<const HEPUtils::Jet*> overlapJets;
 
         vector<size_t> overlapEl;
         for (size_t iEl1=0;iEl1<baselineElectrons.size();iEl1++) {
@@ -155,11 +155,11 @@ namespace Gambit {
         }
 
         //Signal Objects
-        vector<HEPUtils::Particle*> signalLeptons;
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> signalBJets;
+        vector<const HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> signalBJets;
 
         for (size_t iEl=0;iEl<overlapElectrons2.size();iEl++) {
           if (overlapElectrons2.at(iEl)->pT()>25.)signalElectrons.push_back(overlapElectrons2.at(iEl));
@@ -177,7 +177,7 @@ namespace Gambit {
         for (size_t iJet=0;iJet<overlapJets.size();iJet++) {
           if (overlapJets.at(iJet)->pT()>25. && overlapJets.at(iJet)->abseta()<2.40) {
             signalJets.push_back(overlapJets.at(iJet));
-            bool hasTag=has_tag(_eff2dBJet, overlapJets.at(iJet)->eta(), overlapJets.at(iJet)->pT());
+            bool hasTag=has_tag(_eff2dBJet, overlapJets.at(iJet)->abseta(), overlapJets.at(iJet)->pT());
             if (overlapJets.at(iJet)->btag() && hasTag)signalBJets.push_back(overlapJets.at(iJet));
           }
         }
@@ -222,13 +222,13 @@ namespace Gambit {
         }
         if (lepton_overlap && nSignalLeptons==1 && nBaselineLeptons==1 && (nSignalJets==2 || nSignalJets==3) && leadingBJets) {
           if (nSignalMuons==1) {
-            bool hasTrig1=has_tag(_eff2dMu1,signalMuons.at(0)->eta(),signalMuons.at(0)->pT());
-            bool hasTrig2=has_tag(_eff2dMu2,signalMuons.at(0)->eta(),signalMuons.at(0)->pT());
+            bool hasTrig1=has_tag(_eff2dMu1,signalMuons.at(0)->abseta(),signalMuons.at(0)->pT());
+            bool hasTrig2=has_tag(_eff2dMu2,signalMuons.at(0)->abseta(),signalMuons.at(0)->pT());
             if (signalMuons.at(0)->abseta()<1.05 && hasTrig1)preselection=true;
             if (signalMuons.at(0)->abseta()>1.05 && hasTrig2)preselection=true;
           }
           if (nSignalElectrons==1) {
-            bool hasTrig=has_tag(_eff2dEl,signalElectrons.at(0)->eta(),signalElectrons.at(0)->pT());
+            bool hasTrig=has_tag(_eff2dEl,signalElectrons.at(0)->abseta(),signalElectrons.at(0)->pT());
             if (hasTrig)preselection=true;
           }
         }
@@ -243,11 +243,11 @@ namespace Gambit {
         bool SRB=false;
         if (preselection && nSignalBJets==2 && met>100. && mCT>160. && mbb>105. && mbb<135.) {
           if (mT>100. && mT<130.) {
-            _numSRA++;
+            _numSRA += event->weight();
             SRA=true;
           }
           if (mT>130.) {
-            _numSRB++;
+            _numSRB += event->weight();
             SRB=true;
           }
         }
@@ -329,71 +329,14 @@ namespace Gambit {
 
       void collect_results() {
 
-        // string path = "ColliderBit/results/cutflow_";
-        // path.append(analysis_name());
-        // path.append(".txt");
-        // cutflowFile.open(path.c_str());
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
- //        if (analysis_name().find("250_0") != string::npos) {
- //          cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/h$, $[\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0},\\tilde{\\chi}_{1}^{0}]: [250,0] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
-        //   cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
-        //   cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsecATLAS_250_0<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<<xsec()/xsecATLAS_250_0<<" & 1\\\\"<<endl;
-        //   cutflowFile<<"Generated Events &"<<setprecision(4)<<cutFlowVectorATLAS_250_0[0]<<"&"<<setprecision(4)<<cutFlowVector[0]<<"& - & -\\\\ \\hline"<<endl;
-        //   cutflowFile<<"\\multicolumn{5}{c}{Expected events at 20.3 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorATLAS_250_0[i]<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorATLAS_250_0[i]<<"&"<<setprecision(4)<<(xsecATLAS_250_0/xsec())*cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorATLAS_250_0[i]<<"\\\\"<< endl;
- //          }
- //          for (size_t i=1; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorATLAS_250_0[i]*100./cutFlowVectorATLAS_250_0[1]<<"&"<<setprecision(4)<<cutFlowVector[i]*100./cutFlowVector[1]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
- //        if (analysis_name().find("130_0") != string::npos) {
- //          cutflowFile<<"\\begin{table}[H] \n\\caption{$\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0}$ decay via $W/h$, $[\\tilde{\\chi}_{1}^{\\pm}\\tilde{\\chi}_{2}^{0},\\tilde{\\chi}_{1}^{0}]: [130,0] [GeV]$} \n\\makebox[\\linewidth]{ \n\\renewcommand{\\arraystretch}{0.4} \n\\begin{tabular}{c c c c c} \n\\hline"<<endl;
-        //   cutflowFile<<"& ATLAS & GAMBIT & GAMBIT/ATLAS & $\\sigma$-corrected GAMBIT/ATLAS \\\\ \\hline"<<endl;
-        //   cutflowFile<<"$\\sigma (pp\\to \\tilde{\\chi}_{1}^{\\pm}, \\tilde{\\chi}_{2}^{0})$ &"<<setprecision(4)<<xsecATLAS_130_0<<" $fb$ &"<<setprecision(4)<<xsec()<<"$fb$ &"<<setprecision(4)<<xsec()/xsecATLAS_130_0<<" & 1\\\\"<<endl;
-        //   cutflowFile<<"Generated Events &"<<setprecision(4)<<cutFlowVectorATLAS_130_0[0]<<"&"<<setprecision(4)<<cutFlowVector[0]<<"& - & -\\\\ \\hline"<<endl;
-        //   cutflowFile<<"\\multicolumn{5}{c}{Expected events at 20.3 $fb^{-1}$} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorATLAS_130_0[i]<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()<<"&"<<setprecision(4)<<cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorATLAS_130_0[i]<<"&"<<setprecision(4)<<(xsecATLAS_130_0/xsec())*cutFlowVector[i]*xsec_per_event()*luminosity()/cutFlowVectorATLAS_130_0[i]<<"\\\\"<< endl;
- //          }
-        //   cutflowFile<<"\\hline \\multicolumn{5}{c}{Percentage (\\%)} \\\\ \\hline"<<endl;
- //          for (size_t i=1; i<NCUTS; i++) {
- //            cutflowFile<<cutFlowVector_str[i]<<"&"<<setprecision(4)<<cutFlowVectorATLAS_130_0[i]*100./cutFlowVectorATLAS_130_0[1]<<"&"<<setprecision(4)<<cutFlowVector[i]*100./cutFlowVector[1]<<"& - & -\\\\"<< endl;
- //          }
- //          cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
-        // }
-        // cutflowFile.close();
-
-        // plots_2bjets->createFile(luminosity(),xsec_per_event());
-        // plots_mbb->createFile(luminosity(),xsec_per_event());
-        // plots_HEPmct->createFile(luminosity(),xsec_per_event());
-        // plots_HEPmt->createFile(luminosity(),xsec_per_event());
- //        plots_HEPnbj->createFile(luminosity(),xsec_per_event());
-        // plots_HEPmbb->createFile(luminosity(),xsec_per_event());
-
-// cout<<"NUMSRA: "<<_numSRA<<" NUMSRB: "<<_numSRB<<endl;
-        SignalRegionData results_SRA;
-        results_SRA.sr_label = "SRA";
-        results_SRA.n_observed = 4.;
-        results_SRA.n_background = 5.69;
-        results_SRA.background_sys = 1.10;
-        results_SRA.signal_sys = 0.;
-        results_SRA.n_signal = _numSRA;
-        add_result(results_SRA);
-
-        SignalRegionData results_SRB;
-        results_SRB.sr_label = "SRB";
-        results_SRB.n_observed = 3.;
-        results_SRB.n_background = 2.67;
-        results_SRB.background_sys = 0.69;
-        results_SRB.signal_sys = 0.;
-        results_SRB.n_signal = _numSRB;
-        add_result(results_SRB);
+        add_result(SignalRegionData("SRA", 4., {_numSRA, 0.}, {5.69, 1.10}));
+        add_result(SignalRegionData("SRB", 3., {_numSRB, 0.}, {2.67, 0.69}));
 
       }
 
-      bool isLeadingBJets(vector<HEPUtils::Jet*> jets, vector<HEPUtils::Jet*> bjets) {
+      bool isLeadingBJets(vector<const HEPUtils::Jet*> jets, vector<const HEPUtils::Jet*> bjets) {
         sort(jets.begin(), jets.end(), compareJetPt);
         sort(bjets.begin(), bjets.end(), compareJetPt);
         int nbjet = bjets.size();

@@ -37,11 +37,11 @@ namespace Gambit {
   namespace ColliderBit {
 
     // Need two different functions here for use with std::sort
-    bool sortByPT_1l(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
+    bool sortByPT_1l(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
     bool sortByPT_1l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT_1l(jet1.get(), jet2.get()); }
 
     // Need two different functions here for use with std::sort
-    bool sortByMass_1l(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->mass() > jet2->mass()); }
+    bool sortByMass_1l(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->mass() > jet2->mass()); }
     bool sortByMass_1l_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByMass_1l(jet1.get(), jet2.get()); }
 
     double calcMT_1l(HEPUtils::P4 jetMom,HEPUtils::P4 metMom)
@@ -59,36 +59,34 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      //int _numSRA_TT, _numSRA_TW, _numSRA_T0;
-
-      int num_tN_med;
-      int num_tN_high;
-      int num_bWN;
-      int num_bC2x_diag;
-      int num_bC2x_med;
-      int num_bCbv;
-      int num_DM_low_loose;
-      int num_DM_low;
-      int num_DM_high;
-
-      int num_bffN;
-      int num_bCsoft_diag;
-      int num_bCsoft_med;
-      int num_bCsoft_high;
+      std::map<string, EventCounter> _counters = {
+        {"tN_med", EventCounter("tN_med")},
+        {"tN_high", EventCounter("tN_high")},
+        {"bWN", EventCounter("bWN")},
+        {"bC2x_diag", EventCounter("bC2x_diag")},
+        {"bC2x_med", EventCounter("bC2x_med")},
+        {"bCbv", EventCounter("bCbv")},
+        {"DM_low_loose", EventCounter("DM_low_loose")},
+        {"DM_low", EventCounter("DM_low")},
+        {"DM_high", EventCounter("DM_high")},
+        {"bffN", EventCounter("bffN")},
+        {"bCsoft_diag", EventCounter("bCsoft_diag")},
+        {"bCsoft_med", EventCounter("bCsoft_med")},
+        {"bCsoft_high", EventCounter("bCsoft_high")},
+      };
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=16;
 
 
-
-      void LeptonLeptonOverlapRemoval(vector<HEPUtils::Particle*> &lep1vec, vector<HEPUtils::Particle*> &lep2vec, double DeltaRMax)
+      void LeptonLeptonOverlapRemoval(vector<const HEPUtils::Particle*> &lep1vec, vector<const HEPUtils::Particle*> &lep2vec, double DeltaRMax)
       {
 
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep1 = 0; itlep1 < lep1vec.size(); itlep1++)
         {
@@ -112,12 +110,12 @@ namespace Gambit {
       }
 
 
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax)
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax)
       {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Jet*> Survivors;
+        vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
         {
@@ -141,12 +139,12 @@ namespace Gambit {
       }
 
 
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec)
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec)
       {
         //Routine to do lepton-jet check
         //Discards leptons if they are within dR of a jet as defined in analysis paper
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
         {
@@ -180,21 +178,6 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_13TeV_1LEPStop_36invfb");
         set_luminosity(36.);
-
-        num_tN_med=0;
-        num_tN_high=0;
-        num_bWN=0;
-        num_bC2x_diag=0;
-        num_bC2x_med=0;
-        num_bCbv=0;
-        num_DM_low_loose=0;
-        num_DM_low=0;
-        num_DM_high=0;
-
-        num_bffN=0;
-        num_bCsoft_diag=0;
-        num_bCsoft_med=0;
-        num_bCsoft_high=0;
 
         NCUTS=150;
 
@@ -308,7 +291,7 @@ namespace Gambit {
       }
 
 
-      HEPUtils::P4 reclusteredParticle(vector<HEPUtils::Jet*> jets, vector<HEPUtils::Jet*> bjets,
+      HEPUtils::P4 reclusteredParticle(vector<const HEPUtils::Jet*> jets, vector<const HEPUtils::Jet*> bjets,
                                        const double mass, const bool useBJets)
       {
 
@@ -316,15 +299,15 @@ namespace Gambit {
         HEPUtils::P4 p;
         double r0 = 3.0;
 
-        vector<HEPUtils::Jet*> usejets;
-        for(HEPUtils::Jet* jet : jets)
+        vector<const HEPUtils::Jet*> usejets;
+        for(const HEPUtils::Jet* jet : jets)
         {
           usejets.push_back(jet);
         }
 
         if (useBJets && bjets.size())
         {
-          for(HEPUtils::Jet* bjet : bjets)
+          for(const HEPUtils::Jet* bjet : bjets)
           {
             usejets.push_back(bjet);
           }
@@ -332,7 +315,7 @@ namespace Gambit {
 
         std::vector<FJNS::PseudoJet> initialJets;
 
-        for (HEPUtils::Jet* jet : usejets)
+        for (const HEPUtils::Jet* jet : usejets)
         {
           FJNS::PseudoJet Pjet(jet->mom().px(), jet->mom().py(), jet->mom().pz(), jet->mom().E());
           initialJets.push_back(Pjet);
@@ -398,8 +381,8 @@ namespace Gambit {
         double Met = event->met();
 
         // Construct baseline electron objects
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons())
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT() > 5. && electron->abseta() < 2.47)
           {
@@ -411,8 +394,8 @@ namespace Gambit {
         ATLAS::applyElectronEff(baselineElectrons);
 
         // Construct baseline muon objects
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons())
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 4. && muon->abseta() < 2.7)
           {
@@ -424,12 +407,12 @@ namespace Gambit {
         ATLAS::applyMuonEff(baselineMuons);
 
         // Construct set of all light baseline leptons
-        vector<HEPUtils::Particle*> baselineLeptons = baselineElectrons;
+        vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
         baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end() );
 
         // Construct baseline tau objects
-        vector<HEPUtils::Particle*> baselineTaus;
-        for (HEPUtils::Particle* tau : event->taus())
+        vector<const HEPUtils::Particle*> baselineTaus;
+        for (const HEPUtils::Particle* tau : event->taus())
         {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.5) baselineTaus.push_back(tau);
         }
@@ -437,16 +420,16 @@ namespace Gambit {
         ATLAS::applyTauEfficiencyR1(baselineTaus);
 
         // Photons
-        vector<HEPUtils::Particle*> signalPhotons;
-        for (HEPUtils::Particle* photon : event->photons())
+        vector<const HEPUtils::Particle*> signalPhotons;
+        for (const HEPUtils::Particle* photon : event->photons())
         {
           signalPhotons.push_back(photon);
         }
 
         // Jets
-        vector<HEPUtils::Jet*> bJets;
-        vector<HEPUtils::Jet*> nonBJets;
-        vector<HEPUtils::Jet*> trueBJets; //for debugging
+        vector<const HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> nonBJets;
+        vector<const HEPUtils::Jet*> trueBJets; //for debugging
 
         // Get b jets
         /// @note We assume that b jets have previously been 100% tagged
@@ -454,9 +437,9 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets())
         {
-          bool hasTag=has_tag(_eff2d, jet->eta(), jet->pT());
+          bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.9)
           {
             if(jet->btag() && hasTag && fabs(jet->eta()) < 2.5 && jet->pT() > 20.)
@@ -470,20 +453,6 @@ namespace Gambit {
           }
         }
 
-        // Overlap removal
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalSoftElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Particle*> signalSoftMuons;
-        vector<HEPUtils::Particle*> signalLeptons;
-        vector<HEPUtils::Particle*> signalSoftLeptons;
-        vector<HEPUtils::Particle*> electronsForVeto;
-        vector<HEPUtils::Particle*> muonsForVeto;
-
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> signalBJets;
-        vector<HEPUtils::Jet*> signalNonBJets;
-
         // Note: use paper description instead of code snippet
         // This is not identical to the overlap removal in the paper
         // Probably good enough though
@@ -495,22 +464,44 @@ namespace Gambit {
         LeptonJetOverlapRemoval(baselineMuons,bJets);
         LeptonLeptonOverlapRemoval(baselineTaus,baselineElectrons,0.1);
 
+        // Fill a jet-pointer-to-bool map to make it easy to check
+        // if a given jet is treated as a b-jet in this analysis
+        map<const HEPUtils::Jet*,bool> analysisBtags;
+        for (const HEPUtils::Jet* jet : bJets) {
+          analysisBtags[jet] = true;
+        }
+        for (const HEPUtils::Jet* jet : nonBJets) {
+          analysisBtags[jet] = false;
+        }
+
+        // Signal object containers
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalSoftElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> signalSoftMuons;
+        vector<const HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> signalSoftLeptons;
+        vector<const HEPUtils::Particle*> electronsForVeto;
+        vector<const HEPUtils::Particle*> muonsForVeto;
+
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> signalBJets;
+        vector<const HEPUtils::Jet*> signalNonBJets;
+
         // Now apply signal jet cuts
-        for (HEPUtils::Jet* jet : bJets)
+        for (const HEPUtils::Jet* jet : bJets)
         {
           if(jet->pT() > 25. && fabs(jet->eta())<2.5)
           {
-            jet->set_btag(true);
             signalJets.push_back(jet);
             signalBJets.push_back(jet);
           }
         }
 
-        for (HEPUtils::Jet* jet : nonBJets)
+        for (const HEPUtils::Jet* jet : nonBJets)
         {
           if(jet->pT() > 25. && fabs(jet->eta())<2.5)
           {
-            jet->set_btag(false);
             signalJets.push_back(jet);
             signalNonBJets.push_back(jet);
           }
@@ -518,7 +509,7 @@ namespace Gambit {
 
         // Note that the isolation requirements and tight selection are currently missing
 
-        for (HEPUtils::Particle* electron : baselineElectrons)
+        for (const HEPUtils::Particle* electron : baselineElectrons)
         {
           signalSoftElectrons.push_back(electron);
           signalSoftLeptons.push_back(electron);
@@ -529,7 +520,7 @@ namespace Gambit {
           }
         }
 
-        for (HEPUtils::Particle* muon : baselineMuons)
+        for (const HEPUtils::Particle* muon : baselineMuons)
         {
           signalSoftMuons.push_back(muon);
           signalSoftLeptons.push_back(muon);
@@ -550,16 +541,16 @@ namespace Gambit {
         if((Met > 100. && (baselineElectrons.size()+baselineMuons.size()) == 1 &&
             ((signalSoftLeptons.size() == 1 || signalLeptons.size() == 1)) && nJets > 1)) cut_minSelection=true;
 
-        vector<HEPUtils::Jet*> mostBjetLike;
-        vector<HEPUtils::Jet*> signalNotBjetLike;
-        vector<HEPUtils::Jet*> signalNotBjet;
+        vector<const HEPUtils::Jet*> mostBjetLike;
+        vector<const HEPUtils::Jet*> signalNotBjetLike;
+        vector<const HEPUtils::Jet*> signalNotBjet;
 
         // create containers with exactly 2 jets being considered to be b-jets and the inverse
         int bJet1 = -1, bJet2 = -1;
 
         for (unsigned int i = 0; i < signalJets.size(); ++i)
         {
-          if (!signalJets[i]->btag()) continue;
+          if (!analysisBtags.at(signalJets[i])) continue;
           if (bJet1 == -1)
             bJet1 = i;
           else if (bJet2 == -1)
@@ -572,7 +563,7 @@ namespace Gambit {
         {
           for (unsigned int i = 0; i < signalJets.size(); ++i)
           {
-            if (signalJets[i]->btag()) continue;
+            if (analysisBtags.at(signalJets[i])) continue;
             if (bJet1 == -1)
               bJet1 = i;
             else if (bJet2 == -1)
@@ -591,7 +582,7 @@ namespace Gambit {
 
         for (int i = 0; i < (int)signalJets.size(); ++i)
         {
-          if (!signalJets[i]->btag()) signalNotBjet.push_back(signalJets.at(i));
+          if (!analysisBtags.at(signalJets[i])) signalNotBjet.push_back(signalJets.at(i));
           if (i == bJet1 || i == bJet2) continue;
           signalNotBjetLike.push_back(signalJets.at(i));
         }
@@ -647,7 +638,7 @@ namespace Gambit {
             vecHtMiss -= signalJets[i]->mom();
 
           /* calculate Ht and HtSig */
-          for (HEPUtils::Jet* jet : signalJets) Ht += jet->pT();
+          for (const HEPUtils::Jet* jet : signalJets) Ht += jet->pT();
 
           TRandom3 myRandom;
           myRandom.SetSeed(signalJets[0]->pT());
@@ -716,7 +707,7 @@ namespace Gambit {
           // Note that we have already applied a 1 lepton cut
           if (baselineElectrons.size()==1 && baselineMuons.size()==0)
           {
-            vector<HEPUtils::Particle*> tightElectrons;
+            vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(baselineElectrons[0]);
             ATLAS::applyTightIDElectronSelection(tightElectrons);
             preselLowMet = preselLowMet && (tightElectrons.size()==1);
@@ -925,7 +916,7 @@ namespace Gambit {
           // Note that we have already applied a 1 lepton cut
           if (signalSoftElectrons.size()==1 && signalSoftMuons.size()==0)
           {
-            vector<HEPUtils::Particle*> tightElectrons;
+            vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(signalSoftElectrons[0]);
             ATLAS::applyTightIDElectronSelection(tightElectrons);
             preselSoftLep = preselSoftLep && (tightElectrons.size()==1);
@@ -937,12 +928,12 @@ namespace Gambit {
         //bffN
         if (nJets > 1 && nBJets > 0 && preselSoftLep && signalJets[0]->pT() > 400 && Met > 300 && mT < 160 &&
             pTLepOverMet < 0.02 && minDPhiMetBJet < 1.5 && absDPhiJMet0 > 0.4 && absDPhiJMet1 > 0.4 &&
-            topReclM < 150 && !signalJets[0]->btag())is_bffN=true;
+            topReclM < 150 && !analysisBtags.at(signalJets[0]))is_bffN=true;
 
         //bCsoft_diag
         if (nJets > 1 && nBJets > 0 && preselSoftLep && signalJets[0]->pT() > 400 && Met > 300 && mT < 50 &&
             pTLepOverMet < 0.02 && minDPhiMetBJet < 1.5 && absDPhiJMet0 > 0.4 && absDPhiJMet1 > 0.4 &&
-            topReclM < 150 && !signalJets[0]->btag())is_bCsoft_diag=true;
+            topReclM < 150 && !analysisBtags.at(signalJets[0]))is_bCsoft_diag=true;
 
         //bCsoft_med
         if (nJets > 2 && nBJets > 1 && preselSoftLep && signalJets[0]->pT() > 120 && signalJets[1]->pT() > 60 &&
@@ -1174,15 +1165,15 @@ namespace Gambit {
 
              (j==42 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160.) ||
 
-             (j==43 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag()) ||
+             (j==43 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0])) ||
 
-             (j==44 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5) ||
+             (j==44 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5) ||
 
-             (j==45 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05) ||
+             (j==45 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05) ||
 
-             (j==46 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150) ||
+             (j==46 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150) ||
 
-             (j==47 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !signalJets[0]->btag() && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150 && pTLepOverMet < 0.02) ||
+             (j==47 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && nJets > 0 && signalJets[0]->pT() > 400. && mT < 160. &&  !analysisBtags.at(signalJets[0]) && minDPhiMetBJet < 1.5 && pTLepOverMet < 0.05 && topReclM < 150 && pTLepOverMet < 0.02) ||
 
              // bC2x_diag cutflow
 
@@ -1268,17 +1259,17 @@ namespace Gambit {
 
              (j==85 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160) ||
 
-             (j==86 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag()) ||
+             (j==86 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0])) ||
 
-             (j==87 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50) ||
+             (j==87 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50) ||
 
-             (j==88 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5) ||
+             (j==88 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5) ||
 
-             (j==89 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05) ||
+             (j==89 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05) ||
 
-             (j==90 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 ) ||
+             (j==90 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 ) ||
 
-             (j==91 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !signalJets[0]->btag() && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 &&  pTLepOverMet < 0.02) ||
+             (j==91 && baselineLeptons.size()==1 && nJets > 1 && nBJets > 0 && preselSoftLep && Met > 300. && signalJets[0]->pT() > 400 && mT < 160 && !analysisBtags.at(signalJets[0]) && mT < 50 && minDPhiMetBJet < 1.5 &&  pTLepOverMet < 0.05 && topReclM < 150 &&  pTLepOverMet < 0.02) ||
 
              // bCsoft_med cutflow
 
@@ -1342,20 +1333,20 @@ namespace Gambit {
 
         }
 
-        if(is_tN_med)num_tN_med++;
-        if(is_tN_high)num_tN_high++;
-        if(is_bWN)num_bWN++;
-        if(is_bC2x_diag)num_bC2x_diag++;
-        if(is_bC2x_med)num_bC2x_med++;
-        if(is_bCbv)num_bCbv++;
-        if(is_DM_low)num_DM_low_loose++;
-        if(is_DM_low)num_DM_low++;
-        if(is_DM_high)num_DM_high++;
+        if(is_tN_med) _counters.at("tN_med").add_event(event);
+        if(is_tN_high) _counters.at("tN_high").add_event(event);
+        if(is_bWN) _counters.at("bWN").add_event(event);
+        if(is_bC2x_diag) _counters.at("bC2x_diag").add_event(event);
+        if(is_bC2x_med) _counters.at("bC2x_med").add_event(event);
+        if(is_bCbv) _counters.at("bCbv").add_event(event);
+        if(is_DM_low) _counters.at("DM_low_loose").add_event(event);
+        if(is_DM_low) _counters.at("DM_low").add_event(event);
+        if(is_DM_high) _counters.at("DM_high").add_event(event);
 
-        if(is_bffN)num_bffN++;
-        if(is_bCsoft_diag)num_bCsoft_diag++;
-        if(is_bCsoft_med)num_bCsoft_med++;
-        if(is_bCsoft_high)num_bCsoft_high++;
+        if(is_bffN) _counters.at("bffN").add_event(event);
+        if(is_bCsoft_diag) _counters.at("bCsoft_diag").add_event(event);
+        if(is_bCsoft_med) _counters.at("bCsoft_med").add_event(event);
+        if(is_bCsoft_high) _counters.at("bCsoft_high").add_event(event);
 
         return;
 
@@ -1367,22 +1358,14 @@ namespace Gambit {
         const Analysis_ATLAS_13TeV_1LEPStop_36invfb* specificOther
                 = dynamic_cast<const Analysis_ATLAS_13TeV_1LEPStop_36invfb*>(other);
 
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (int j=0; j<NCUTS; j++)
         {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
-
-        num_tN_med += specificOther->num_tN_med;
-        num_tN_high += specificOther->num_tN_high;
-        num_bWN += specificOther->num_bWN;
-        num_bC2x_diag += specificOther->num_bC2x_diag;
-        num_bC2x_med += specificOther->num_bC2x_med;
-        num_bCbv += specificOther->num_bCbv;
-        num_DM_low_loose += specificOther->num_DM_low_loose;
-        num_DM_low += specificOther->num_DM_low;
-        num_DM_high += specificOther->num_DM_high;
       }
 
 
@@ -1407,122 +1390,19 @@ namespace Gambit {
 
         /// Register results objects with the results for each SR; obs & bkg numbers from the paper
 
-        SignalRegionData results_tN_med;
-        results_tN_med.sr_label = "tN_med";
-        results_tN_med.n_observed = 50;
-        results_tN_med.n_background = 36.3;
-        results_tN_med.background_sys = 6.6;
-        results_tN_med.signal_sys = 0.;
-        results_tN_med.n_signal = num_tN_med;
-        add_result(results_tN_med);
-
-        SignalRegionData results_tN_high;
-        results_tN_high.sr_label = "tN_med";
-        results_tN_high.n_observed = 8;
-        results_tN_high.n_background = 3.8;
-        results_tN_high.background_sys = 1.0;
-        results_tN_high.signal_sys = 0.;
-        results_tN_high.n_signal = num_tN_high;
-        add_result(results_tN_high);
-
-        SignalRegionData results_bWN;
-        results_bWN.sr_label = "tN_med";
-        results_bWN.n_observed = 68;
-        results_bWN.n_background = 71;
-        results_bWN.background_sys = 16;
-        results_bWN.signal_sys = 0.;
-        results_bWN.n_signal = num_bWN;
-        add_result(results_bWN);
-
-        SignalRegionData results_bC2x_diag;
-        results_bC2x_diag.sr_label = "bC2x_diag";
-        results_bC2x_diag.n_observed = 22;
-        results_bC2x_diag.n_background = 21.3;
-        results_bC2x_diag.background_sys = 5.0;
-        results_bC2x_diag.signal_sys = 0.;
-        results_bC2x_diag.n_signal = num_bC2x_diag;
-        add_result(results_bC2x_diag);
-
-        SignalRegionData results_bC2x_med;
-        results_bC2x_med.sr_label = "bC2x_med";
-        results_bC2x_med.n_observed = 4;
-        results_bC2x_med.n_background = 5.8;
-        results_bC2x_med.background_sys = 1.6;
-        results_bC2x_med.signal_sys = 0.;
-        results_bC2x_med.n_signal = num_bC2x_med;
-        add_result(results_bC2x_med);
-
-        SignalRegionData results_bCbv;
-        results_bCbv.sr_label = "bCbv";
-        results_bCbv.n_observed = 25;
-        results_bCbv.n_background = 25.1;
-        results_bCbv.background_sys = 3.8;
-        results_bCbv.signal_sys = 0.;
-        results_bCbv.n_signal = num_bCbv;
-        add_result(results_bCbv);
-
-        SignalRegionData results_DM_low_loose;
-        results_DM_low_loose.sr_label = "DM_low_loose";
-        results_DM_low_loose.n_observed = 65;
-        results_DM_low_loose.n_background = 48.3;
-        results_DM_low_loose.background_sys = 8.2;
-        results_DM_low_loose.signal_sys = 0.;
-        results_DM_low_loose.n_signal = num_DM_low_loose;
-        add_result(results_DM_low_loose);
-
-        SignalRegionData results_DM_low;
-        results_DM_low.sr_label = "DM_low";
-        results_DM_low.n_observed = 13;
-        results_DM_low.n_background = 13.8;
-        results_DM_low.background_sys = 3.6;
-        results_DM_low.signal_sys = 0.;
-        results_DM_low.n_signal = num_DM_low;
-        add_result(results_DM_low);
-
-        SignalRegionData results_DM_high;
-        results_DM_high.sr_label = "DM_high";
-        results_DM_high.n_observed = 5;
-        results_DM_high.n_background = 7.4;
-        results_DM_high.background_sys = 2.1;
-        results_DM_high.signal_sys = 0.;
-        results_DM_high.n_signal = num_DM_high;
-        add_result(results_DM_high);
-
-        SignalRegionData results_bffN;
-        results_bffN.sr_label = "bffN";
-        results_bffN.n_observed = 70;
-        results_bffN.n_background = 60.5;
-        results_bffN.background_sys = 6.1;
-        results_bffN.signal_sys = 0.;
-        results_bffN.n_signal = num_bffN;
-        add_result(results_bffN);
-
-        SignalRegionData results_bCsoft_diag;
-        results_bCsoft_diag.sr_label = "bCsoft_diag";
-        results_bCsoft_diag.n_observed = 33;
-        results_bCsoft_diag.n_background = 24.7;
-        results_bCsoft_diag.background_sys = 3.1;
-        results_bCsoft_diag.signal_sys = 0.;
-        results_bCsoft_diag.n_signal = num_bCsoft_diag;
-        add_result(results_bCsoft_diag);
-
-        SignalRegionData results_bCsoft_med;
-        results_bCsoft_med.sr_label = "bCsoft_med";
-        results_bCsoft_med.n_observed = 19;
-        results_bCsoft_med.n_background = 13.7;
-        results_bCsoft_med.background_sys = 2.1;
-        results_bCsoft_med.signal_sys = 0.;
-        results_bCsoft_med.n_signal = num_bCsoft_med;
-        add_result(results_bCsoft_med);
-
-        SignalRegionData results_bCsoft_high;
-        results_bCsoft_high.sr_label = "bCsoft_high";
-        results_bCsoft_high.n_observed = 2;
-        results_bCsoft_high.n_background = 1.8;
-        results_bCsoft_high.background_sys = 0.3;
-        results_bCsoft_high.signal_sys = 0.;
-        results_bCsoft_high.n_signal = num_bCsoft_high;
-        add_result(results_bCsoft_high);
+        add_result(SignalRegionData(_counters.at("tN_med"), 50., { 36.3, 6.6}));
+        add_result(SignalRegionData(_counters.at("tN_high"), 8., { 3.8, 1.0}));
+        add_result(SignalRegionData(_counters.at("bWN"), 68., { 71, 16}));
+        add_result(SignalRegionData(_counters.at("bC2x_diag"), 22., { 21.3, 5.0}));
+        add_result(SignalRegionData(_counters.at("bC2x_med"), 4., { 5.8, 1.6}));
+        add_result(SignalRegionData(_counters.at("bCbv"), 25., { 25.1, 3.8}));
+        add_result(SignalRegionData(_counters.at("DM_low_loose"), 65., { 48.3, 8.2}));
+        add_result(SignalRegionData(_counters.at("DM_low"), 13., { 13.8, 3.6}));
+        add_result(SignalRegionData(_counters.at("DM_high"), 5., { 7.4, 2.1}));
+        add_result(SignalRegionData(_counters.at("bffN"), 70., { 60.5, 6.1}));
+        add_result(SignalRegionData(_counters.at("bCsoft_diag"), 33., { 24.7, 3.1}));
+        add_result(SignalRegionData(_counters.at("bCsoft_med"), 19., { 13.7, 2.1}));
+        add_result(SignalRegionData(_counters.at("bCsoft_high"), 2., { 1.8, 0.3}));
 
         return;
       }
@@ -1531,20 +1411,7 @@ namespace Gambit {
     protected:
       void analysis_specific_reset()
       {
-        num_tN_med=0;
-        num_tN_high=0;
-        num_bWN=0;
-        num_bC2x_diag=0;
-        num_bC2x_med=0;
-        num_bCbv=0;
-        num_DM_low_loose=0;
-        num_DM_low=0;
-        num_DM_high=0;
-
-        num_bffN=0;
-        num_bCsoft_diag=0;
-        num_bCsoft_med=0;
-        num_bCsoft_high=0;
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

@@ -63,12 +63,16 @@ namespace Gambit
       using namespace Pipes::GA_missingFinalStates;
       std::set<std::string> missingFinalStates;
       std::string DMid= *Dep::DarkMatter_ID;
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
 
       /// Option ignore_all<bool>: Ignore all missing final states (default false)
       if ( runOptions->getValueOrDef(false, "ignore_all") ) return;
 
-      TH_Process process = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
-
+      // What type of process are we dealing with? 
+      std::string processtype = *Dep::DM_process;
+      TH_Process process = (*Dep::DM_process == "annihilation") ? 
+        (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid) : (*Dep::TH_ProcessCatalog).getProcess(DMid);
+      
       // Add only gamma-ray spectra for two and three body final states
       for (std::vector<TH_Channel>::iterator it = process.channelList.begin();
           it != process.channelList.end(); ++it)
@@ -171,49 +175,29 @@ namespace Gambit
       //  ->set_epsabs(0)->set_epsrel(1e-3)->set("Ep", daFunk::var("E"));
     }
 
-    /*! \brief General routine to derive annihilation yield.
-     *
-     * Depends on:
-     * - SimYieldTable
-     * - TH_ProcessCatalog
-     * - cascadeMC_gammaSpectra
-     *
-     * This function returns
-     *
-     *   k*dN/dE*(sv)/mDM**2 (E, v)  [cm^3/s/GeV^3]
-     *
-     * the energy spectrum of photons times sigma*v/m^2, as function of
-     * energy (GeV) and velocity (c), multiplied by k=1 for self-conjugate DM
-     * or k=1/2 for non-self conjugate.  By default, only the v=0 component
-     * is calculated.
-     *
+
+    /*! \brief Helper function returning yield from 
+     *         a given DM process.
      */
-    void GA_AnnYield_General(daFunk::Funk &result)
+    daFunk::Funk getYield(TH_Process process, double Ecm, double mass, TH_ProcessCatalog catalog, 
+                          SimYieldTable table, double line_width, stringFunkMap cascadeMC_gammaSpectra)
     {
-      using namespace Pipes::GA_AnnYield_General;
       using DarkBit_utils::gamma3bdy_limits;
 
-      std::string DMid= *Dep::DarkMatter_ID;
-
-      /// Option line_width<double>: Set relative line width used in gamma-ray spectra (default 0.03)
-      double line_width = runOptions->getValueOrDef<double>(0.03,  "line_width");
-
-      // Get annihilation process from process catalog
-      TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
-
-      // If process involves non-self-conjugate DM then we need to add a factor of 1/2 to the final spectrum. This must be explicitly set in the process catalogue.
-      double k = (annProc.isSelfConj) ? 1. : 0.5;
-
-      // Get particle mass from process catalog
-      const double mass = (*Dep::TH_ProcessCatalog).getParticleProperty(DMid).mass;
-      const double Ecm = 2*mass;
-
-      // Loop over all channels for that process
-      daFunk::Funk Yield = daFunk::zero("E", "v");
-
+      // Set the daFunk object based on the type of process.
+      daFunk::Funk Yield;
+      if (process.isAnnihilation)
+      {
+        Yield = daFunk::zero("E", "v");
+      }
+      else
+      {
+        Yield = daFunk::zero("E");
+      }
+      
       // Adding two-body channels
-      for (std::vector<TH_Channel>::iterator it = annProc.channelList.begin();
-          it != annProc.channelList.end(); ++it)
+      for (std::vector<TH_Channel>::iterator it = process.channelList.begin();
+          it != process.channelList.end(); ++it)
       {
         bool added = false;  // If spectrum is not available from any source
 
@@ -221,26 +205,24 @@ namespace Gambit
         if (it->nFinalStates != 2) continue;
 
         // Get final state masses
-        double m0 = (*Dep::TH_ProcessCatalog).getParticleProperty(
-            it->finalStateIDs[0]).mass;
-        double m1 = (*Dep::TH_ProcessCatalog).getParticleProperty(
-            it->finalStateIDs[1]).mass;
+        double m0 = catalog.getParticleProperty(it->finalStateIDs[0]).mass;
+        double m1 = catalog.getParticleProperty(it->finalStateIDs[1]).mass;
 
         // Ignore channels that are kinematically closed for v=0
         if ( m0 + m1 > Ecm ) continue;
 
-        // Ignore channels with 0 BR in v=0 limit
-        if (it->genRate->bind("v")->eval(0.) <= 0.) continue;
+        // Ignore channels with 0 BR in v=0 limit (if "v" is a variable of genRate, i.e. not a decay).
+        if (it->genRate->hasArg("v") && it->genRate->bind("v")->eval(0.) <= 0.0) continue;
+        else if ( !(it->genRate->hasArgs()) && it->genRate->bind()->eval() <=0.0) continue; 
 
         double E0 = 0.5*(Ecm*Ecm+m0*m0-m1*m1)/Ecm;
         double E1 = Ecm-E0;
 
         // Check whether two-body final state is in SimYield table
-        if ( Dep::SimYieldTable->hasChannel(
-              it->finalStateIDs[0], it->finalStateIDs[1], "gamma") )
+        if ( table.hasChannel(it->finalStateIDs[0], it->finalStateIDs[1], "gamma") )
         {
           Yield = Yield +
-            it->genRate*(*Dep::SimYieldTable)(
+            it->genRate*(table)(
                 it->finalStateIDs[0], it->finalStateIDs[1], "gamma", Ecm);
           added = true;
         }
@@ -253,9 +235,9 @@ namespace Gambit
 
           // Final state particle one
           // Tabulated spectrum available?
-          if ( Dep::SimYieldTable->hasChannel(it->finalStateIDs[0], "gamma") )
+          if ( table.hasChannel(it->finalStateIDs[0], "gamma") )
           {
-            spec0 = (*Dep::SimYieldTable)(it->finalStateIDs[0], "gamma")->set("Ecm",E0);
+            spec0 = (table)(it->finalStateIDs[0], "gamma")->set("Ecm",E0);
           }
           // Gamma-ray line?
           else if ( it->finalStateIDs[0] == "gamma" )
@@ -264,29 +246,29 @@ namespace Gambit
             spec0 = exp(-pow((E-E0)/line_width/E0,2)/2)/E0/sqrt(2*M_PI)/line_width;
           }
           // MC spectra available?
-          else if ( Dep::cascadeMC_gammaSpectra->count(it->finalStateIDs[0]) )
+          else if ( cascadeMC_gammaSpectra.count(it->finalStateIDs[0]) )
           {
             double gamma0 = E0/m0;
             //std::cout << it->finalStateIDs[0] << " " << gamma0 << std::endl;
-            spec0 = boost_dNdE(Dep::cascadeMC_gammaSpectra->at(it->finalStateIDs[0]), gamma0, 0.0);
+            spec0 = boost_dNdE(cascadeMC_gammaSpectra.at(it->finalStateIDs[0]), gamma0, 0.0);
           }
           else added = false;
 
           // Final state particle two
-          if ( Dep::SimYieldTable->hasChannel(it->finalStateIDs[1], "gamma") )
+          if ( table.hasChannel(it->finalStateIDs[1], "gamma") )
           {
-            spec1 = (*Dep::SimYieldTable)(it->finalStateIDs[1], "gamma")->set("Ecm", E1);
+            spec1 = (table)(it->finalStateIDs[1], "gamma")->set("Ecm", E1);
           }
           else if ( it->finalStateIDs[1] == "gamma" )
           {
             daFunk::Funk E = daFunk::var("E");
             spec1 = exp(-pow((E-E1)/line_width/E1,2)/2)/E1/sqrt(2*M_PI)/line_width;
           }
-          else if ( Dep::cascadeMC_gammaSpectra->count(it->finalStateIDs[1]) )
+          else if ( cascadeMC_gammaSpectra.count(it->finalStateIDs[1]) )
           {
             double gamma1 = E1/m1;
             //std::cout << it->finalStateIDs[1] << " " << gamma1 << std::endl;
-            spec1 = boost_dNdE(Dep::cascadeMC_gammaSpectra->at(it->finalStateIDs[1]), gamma1, 0.0);
+            spec1 = boost_dNdE(cascadeMC_gammaSpectra.at(it->finalStateIDs[1]), gamma1, 0.0);
           }
           else added = false;
 
@@ -326,7 +308,7 @@ namespace Gambit
 
         for(size_t i=0; i<test1.size();i++)
         {
-            daFunk::Funk chnSpec = (*Dep::SimYieldTable)(test1[i], test2[i], "gamma", Ecm);
+            daFunk::Funk chnSpec = (table)(test1[i], test2[i], "gamma", Ecm);
             std::vector<double> y = chnSpec->bind("E")->vect(x);
             os << test1[i] << test2[i] << ":\n";
             os << "  E: [";
@@ -343,8 +325,8 @@ namespace Gambit
       // Adding three-body final states
       //
       // NOTE:  Three body processes are added even if they are closed for at v=0
-      for (std::vector<TH_Channel>::iterator it = annProc.channelList.begin();
-          it != annProc.channelList.end(); ++it)
+      for (std::vector<TH_Channel>::iterator it = process.channelList.begin();
+          it != process.channelList.end(); ++it)
       {
         bool added = true;
 
@@ -354,18 +336,18 @@ namespace Gambit
         // Implement tabulated three-body final states
         /*
            if ( it->nFinalStates == 3
-           and Dep::SimYieldTable->hasChannel(it->finalStateIDs[0], "gamma")
-           and Dep::SimYieldTable->hasChannel(it->finalStateIDs[1], "gamma")
-           and Dep::SimYieldTable->hasChannel(it->finalStateIDs[2], "gamma")
+           and table->hasChannel(it->finalStateIDs[0], "gamma")
+           and table->hasChannel(it->finalStateIDs[1], "gamma")
+           and table->hasChannel(it->finalStateIDs[2], "gamma")
            )
            {
            daFunk::Funk dNdE1dE2 = it->genRate->set("v",0.);
            daFunk::Funk spec0 =
-             (*Dep::SimYieldTable)(it->finalStateIDs[0], "gamma");
+             (table)(it->finalStateIDs[0], "gamma");
            daFunk::Funk spec1 =
-             (*Dep::SimYieldTable)(it->finalStateIDs[1], "gamma");
+             (table)(it->finalStateIDs[1], "gamma");
            daFunk::Funk spec2 =
-             (*Dep::SimYieldTable)(it->finalStateIDs[2], "gamma");
+             (table)(it->finalStateIDs[2], "gamma");
            Yield = Yield + convspec(spec0, spec1, spec2, dNdE1dE2);
            }
         */
@@ -376,10 +358,8 @@ namespace Gambit
           {
             DarkBit_warning().raise(LOCAL_INFO, "Second and/or third primary gamma rays in three-body final states ignored.");
           }
-          double m1 = (*Dep::TH_ProcessCatalog).getParticleProperty(
-              it->finalStateIDs[1]).mass;
-          double m2 = (*Dep::TH_ProcessCatalog).getParticleProperty(
-              it->finalStateIDs[2]).mass;
+          double m1 = catalog.getParticleProperty(it->finalStateIDs[1]).mass;
+          double m2 = catalog.getParticleProperty(it->finalStateIDs[2]).mass;
           daFunk::Funk E1_low =  daFunk::func(gamma3bdy_limits<0>, daFunk::var("E"),
               mass, m1, m2);
           daFunk::Funk E1_high =  daFunk::func(gamma3bdy_limits<1>, daFunk::var("E"),
@@ -416,10 +396,112 @@ namespace Gambit
         if(debug) os.close();
       #endif
 
+      return Yield;
+
+    }
+
+    /*! \brief General routine to derive annihilation yield.
+     *
+     * Depends on:
+     * - SimYieldTable
+     * - TH_ProcessCatalog
+     * - cascadeMC_gammaSpectra
+     *
+     * This function returns
+     *
+     *   k*dN/dE*(sv)/mDM**2 (E, v)  [cm^3/s/GeV^3]
+     *
+     * the energy spectrum of photons times sigma*v/m^2, as function of
+     * energy (GeV) and velocity (c), multiplied by k=1 for self-conjugate DM
+     * or k=1/2 for non-self conjugate.  By default, only the v=0 component
+     * is calculated.
+     *
+     */
+    void GA_AnnYield_General(daFunk::Funk &result)
+    {
+      using namespace Pipes::GA_AnnYield_General;
+
+      std::string DMid= *Dep::DarkMatter_ID;
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+
+      /// Option line_width<double>: Set relative line width used in gamma-ray spectra (default 0.03)
+      double line_width = runOptions->getValueOrDef<double>(0.03,  "line_width");
+
+      // Check that the ProcessCatalog process *is* an annihilation, not a decay.
+      const TH_Process* p = (*Dep::TH_ProcessCatalog).find(DMid, DMbarid);
+      if (p == NULL)
+        DarkBit_error().raise(LOCAL_INFO, "Annihilation process not found.  For decaying DM please use GA_DecayYield_General.");
+
+      // if (not *Dep::TH_ProcessCatalog.isAnnihilation)
+      //   DarkBit_error().raise(LOCAL_INFO, "Process is not an annihilation.  Please use GA_DecayYield_General.");
+
+      // Get annihilation process from process catalog
+      TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid);
+
+      // If process involves non-self-conjugate DM then we need to add a factor of 1/2 
+      // to the final spectrum. This must be explicitly set in the process catalog.
+      double k = (annProc.isSelfConj) ? 1. : 0.5;
+
+      // Get particle mass from process catalog
+      const double mass = (*Dep::TH_ProcessCatalog).getParticleProperty(DMid).mass;
+      const double Ecm = 2*mass;
+
+      // Loop over all channels for that process
+      daFunk::Funk Yield = getYield(annProc, Ecm, mass, *Dep::TH_ProcessCatalog, *Dep::SimYieldTable, 
+                                    line_width, *Dep::cascadeMC_gammaSpectra);
+
       result = k*daFunk::ifelse(1e-6 - daFunk::var("v"), Yield/(mass*mass),
           daFunk::throwError("Spectrum currently only defined for v=0."));
     }
 
+    /*! \brief General routine to derive yield from decaying DM.
+     *
+     * Depends on:
+     * - SimYieldTable
+     * - TH_ProcessCatalog
+     * - cascadeMC_gammaSpectra
+     *
+     * This function returns
+     *
+     *   dN/dE*(Gamma)/mDM (E, v)  [cm^3/s/GeV^3]
+     *
+     * the energy spectrum of photons times Gamma/m, as function of
+     * energy (GeV) and velocity (c).  By default, only the v=0 component
+     * is calculated.
+     *
+     */
+    void GA_DecayYield_General(daFunk::Funk &result)
+    {
+      using namespace Pipes::GA_DecayYield_General;
+
+      std::string DMid= *Dep::DarkMatter_ID;
+
+      /// Option line_width<double>: Set relative line width used in gamma-ray spectra (default 0.03)
+      double line_width = runOptions->getValueOrDef<double>(0.03,  "line_width");
+
+      // // Check that the ProcessCatalog process *is* a decay, not an annihilation.
+      const TH_Process* p = (*Dep::TH_ProcessCatalog).find(DMid);
+      if (p == NULL)
+        DarkBit_error().raise(LOCAL_INFO, "Decay process not found.  For annihilating DM please use GA_AnnYield_General.");
+
+      // // Check that the ProcessCatalog process *is* a decay, not an annihilation.
+      // if (*Dep::TH_ProcessCatalog.isAnnihilation)
+      //   DarkBit_error().raise(LOCAL_INFO, "Process is not a decay.  Please use GA_AnnYield_General.");
+
+      // Get annihilation process from process catalog
+      TH_Process decayProc = (*Dep::TH_ProcessCatalog).getProcess(DMid);
+
+      // Get particle mass from process catalog
+      const double mass = (*Dep::TH_ProcessCatalog).getParticleProperty(DMid).mass;
+      double Ecm = mass;
+
+      // Loop over all channels for that process
+      daFunk::Funk Yield = getYield(decayProc, Ecm, mass, *Dep::TH_ProcessCatalog, *Dep::SimYieldTable, 
+                                    line_width, *Dep::cascadeMC_gammaSpectra);
+
+      // Rescale the yield by the correct kinematic factor
+      result = Yield/(mass);
+    }
 
     /// SimYieldTable based on DarkSUSY5 tabulated results. (DS6 below)
     void SimYieldTable_DS5(SimYieldTable& result)

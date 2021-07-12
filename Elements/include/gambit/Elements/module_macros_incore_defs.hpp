@@ -63,6 +63,7 @@
 #include "gambit/Elements/module_macros_common.hpp"
 #include "gambit/Elements/safety_bucket.hpp"
 #include "gambit/Elements/ini_functions.hpp"
+#include "gambit/Elements/elements_extras.hpp"
 #include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
@@ -424,6 +425,12 @@
             /* Create a loop-breaking function that can be called to tell the  \
             functor's loop manager that it is time to break. */                \
             void wrapup() { Functown::FUNCTION.breakLoopFromManagedFunctor(); }\
+            /* Create a function that can be called to break a loop            \
+            immediately,, without finishing the current iteration. */          \
+            void halt() { throw halt_loop_exception(); }                       \
+            /* Create an iteration-skipping function that can be called to skip\
+            on to the next iteration. */                                       \
+            void cycle() { throw invalid_loop_iteration_exception(); }         \
           }                                                                    \
           /* Register the fact that this FUNCTION must be run by a manager with\
           capability LOOPMAN. */                                               \

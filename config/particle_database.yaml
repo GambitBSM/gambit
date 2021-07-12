@@ -1,264 +1,637 @@
-## YAML file containing all particles for the particle database.
+# YAML file containing all particles for the particle database.
 
-## particle_database.cpp is constructed from this, at compile time, via particle_harvester.py
+# particle_database.cpp is constructed from this YAML file at compile time, via particle_harvester.py.
 
-StandardModel:
-  
-  # add_SM_particle
-  Particles:
-  
-    - comment: " ---- Standard Model flavour eigenstates (context = 1) ---- "
-      
-    - comment: "Quarks"
-  
-    - name: "d"
-      PDG_context: [1, 1]
-      conjugate: "dbar"
-      description: "Down quark"
-      
-    - name: "u"
-      PDG_context: [2, 1]
-      conjugate: "ubar"
-      description: "Up quark"
-      
-    - name: "s"
-      PDG_context: [3, 1]
-      conjugate: "sbar"
-      description: "Strange quark"
-      
-    - name: "c"
-      PDG_context: [4, 1]
-      conjugate: "cbar"
-      description: "Charm quark"
-      
-    - name: "b"
-      PDG_context: [5, 1]
-      conjugate: "bbar"
-      description: "Bottom quark"
-      
-    - name: "t"
-      PDG_context: [6, 1]
-      conjugate: "tbar"
-      description: "Top quark"
-      
-    - comment: "Leptons"
-      
-    - name: "e-"
-      PDG_context: [11, 1]
-      conjugate: "e+"
-      description: "Electron"
-      
-    - name: "mu-"
-      PDG_context: [13, 1]
-      conjugate: "mu+"
-      description: "Muon"
-      
-    - name: "tau-"
-      PDG_context: [15, 1]
-      conjugate: "tau+"
-      description: "Tau"
-      
-    - comment: "Neutrinos"
-      
-    - name: "nu_e"
-      PDG_context: [12, 1]
-      conjugate: "nubar_e"
-      description: "Electron neutrino"
-      
-    - name: "nu_mu"
-      PDG_context: [14, 1]
-      conjugate: "nubar_mu"
-      description: "Muon neutrino"
-      
-    - name: "nu_tau"
-      PDG_context: [16, 1]
-      conjugate: "nubar_tau"
-      description: "Tau neutrino"
-      
-    - comment: " ---- Standard Model gauge bosons [context = 0] ---- "
-      
-    - name: "g"
-      PDG_context: [21, 0]
-      description: "Gluon"
-      
-    - name: "gamma"
-      PDG_context: [22, 0]
-      description: "Photon"
-      
-    - name: "Z0"
-      PDG_context: [23, 0]
-      description: "Z Boson"
-      
-    - name: "W+"
-      PDG_context: [24, 0]
-      conjugate: "W-"
-      description: "W Boson"
-      
-    - name: "G"
-      PDG_context: [39, 0]
-      description: "Graviton"
-      
-    - comment: " ---- Standard Model significant mesons [context = 0] ----"
-      
-    - name: "pi0"
-      PDG_context: [111, 0]
-    
-    - name: "pi+"
-      PDG_context: [211, 0]
-      conjugate: "pi-"
-      
-    - name: "eta"
-      PDG_context: [221, 0]
-      
-    - name: "rho0"
-      PDG_context: [113, 0]
-      
-    - name: "rho+"
-      PDG_context: [213, 0]
-      conjugate: "rho-"
-      
-    - name: "omega"
-      PDG_context: [223, 0]
-  
-  # add_SM_particle_set    
-  Sets:
-  
-    - comment: " ---- Standard Model mass eigenstates (context = 0) ---- "
-  
-    - name: "d"
-      PDG_context: [[1, 0], [3, 0], [5, 0]]
-      conjugate: "dbar"
-      description: "Mass-ordered down-type quarks"
-      
-    - name: "u"
-      PDG_context: [[2, 0], [4, 0], [6, 0]]
-      conjugate: "ubar"
-      description: "Mass-ordered up-type quarks"
-     
-    - name: "e-"
-      PDG_context: [[11, 0], [13, 0], [15, 0]]
-      conjugate: "e+"
-      description: "Mass-ordered leptons"
-      
-    - name: "nu"
-      PDG_context: [[12, 0], [14, 0], [16, 0]]
-      conjugate: "nubar"
-      description: "Mass-ordered neutrinos"
+# New entries should look like:
+#
+#   - name: "X+"                         The name used within GAMBIT, in the particleDB.
+#     PDG_context: [10, 4]                 The PDG-context pair used for a single particle.
+#     conjugate: "X-"                    The name for the conjugate particle, also added to the particleDB.
+#     description: "New particle"        Optional - adds a C++ comment to particle_database.cpp. For readability.
+#     chargex3: 0                          Three times the electric charge.
+#     spinx2: 1                            Twice the spin.
+#     color:  3                            The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).
+#     DecayBit:
+#       Decays: True                       Flag to show whether or not to include a particle's Decays in DecayBit.
+#       name: "X_plus"                   The name used as CAPABILITES in DecayBit_rollcall.hpp for the specific particle.
+#       conjugate: "X_minus"             And the name used for it's conjugate.
+#
+# The syntax for adding sets is identical - GAMBIT automatically numbers each particle in a set.
+#
+#   - name: "h0"
+#     PDG_context:
+#     - [25, 0]      (This line-by-line format is equivalent to a list of lists)
+#     - [35, 0]      Creates entries for "h0_1" and "h0_2" in the particleDB.
+#     DecayBit:
+#       Decays: True
+#       name: "h0"                         Creates rollcall entries for "h0_1_decay_rates" and "h0_2_decay_rates" CAPABILITIES.
+#       name: ["Higgs", "h0_2"]            Alternative syntax - if particles within sets have different names - creating CAPABILITIES "Higgs_decay_rates" and "h0_2_decay_rates".
+#
+# Note: If there is no entry for the 'DecayBit' field, GAMBIT will use the 'name' and 'conjugate' fields by default.
+# TODO: Decide if Decays belong here, or elsewhere (GUM)
 
-      
 OtherModels:
-   
-  # add_particle
-  Particles:
-  
-    - comment: " ---- MSSM sparticle mass eigenstates (context = 0) ---- (TODO to be extended to NMSSM) \n      // Defined according to SLHA2 (http://arxiv.org/pdf/0801.0045v3.pdf, see eq. 28 - 31) where applicable."
-    
-    - name: "~g"
-      PDG_context: [1000021, 0]
-      description: "Gluino"
-      
-    - name: "~G"
-      PDG_context: [1000039, 0]
-      description: "Gravitino"
-      
-    - name: "A0"
-      PDG_context: [36, 0]
-      description: "Pseudoscalar Higgs"
-      
-    - name: "H+"
-      PDG_context: [37, 0]
-      conjugate: "H-"
-      description: "Charged Higgs"
-      
-    - name: "S"
-      PDG_context: [9900001, 0]
-      description: "Scalar Singlet"
-      
-    - name: "F"
-      PDG_context: [9900002, 0]
-      description: "Dirac Singlet"
-      
-    - name: "X"
-      PDG_context: [9900003, 0]
-      description: "Majorana Singlet"
-      
-    - name: "V"
-      PDG_context: [9900004, 0]
-      description: "Vector Singlet"
-
-    - name: "p1"
-      PDG_context: [51, 0]
-      description: "External model particle"
-
-
-  # add_particle_set
-  Sets:
-  
-    - name: "h0"
-      PDG_context: [[25, 0], [35, 0]]
-      description: "Mass-ordered neutral Higgs"
-      
-    - name: "~d"
-      PDG_context: [[1000001, 0], [1000003, 0], [1000005, 0], [2000001, 0], [2000003, 0], [2000005, 0]]
-      conjugate: "~dbar"
-      description: "Mass-ordered down-type squarks"
-      
-    - name: "~u"
-      PDG_context: [[1000002, 0], [1000004, 0], [1000006, 0], [2000002, 0], [2000004, 0], [2000006, 0]]
-      conjugate: "~ubar"
-      description: "Mass-ordered up-type squarks"
-      
-    - name: "~e-"
-      PDG_context: [[1000011, 0], [1000013, 0], [1000015, 0], [2000011, 0], [2000013, 0], [2000015, 0]]
-      conjugate: "~e+"
-      description: "Mass-ordered sleptons"
-      
-    - name: "~nu"
-      PDG_context: [[1000012, 0], [1000014, 0], [1000016, 0], [2000012, 0], [2000014, 0], [2000016, 0]]
-      conjugate: "~nubar"
-      description: "Mass-ordered sneutrinos"
-      
-    - name: "~chi0"
-      PDG_context: [[1000022, 0], [1000023, 0], [1000025, 0], [1000035, 0]]
-      description: "Mass-ordered neutralinos"
-    
-    - name: "~chi+"
-      PDG_context: [[1000024, 0], [1000037, 0]]
-      conjugate: "~chi-"
-      description: "Mass-ordered charginos"
-
-    - name: "nu_RPV"
-      PDG_context: [[12, 10], [14, 10], [16, 10], [1000022, 10], [1000023, 10], [1000025, 10], [1000035, 10], [1000045, 10]]
-      description: "Example extension of neutrino set to account for mixing with NMSSM neutralinos"
-  
-  # add_generic_particle
   Generic:
-  
-    - comment: "---- GAMBIT generic particle classes (context = 0) ----"
-  
-    - name: "boson"
-      PDG_context: [9900081, 0]
-      
-    - name: "fermion"
-      PDG_context: [9900082, 0]
-      
-    - name: "lepton"
-      PDG_context: [9900083, 0]
-      
-    - name: "quark"
-      PDG_context: [9900084, 0]
-      
-    - name: "neutrino"
-      PDG_context: [9900085, 0]
-      
-    - name: "hadron"
-      PDG_context: [9900086, 0]
-      
-    - name: "meson"
-      PDG_context: [9900087, 0]
-      
-    - name: "penta"
-      PDG_context: [9900088, 0]
-      
-      
 
+  - PDG_context:
+    - 9900081
+    - 0
+    name: boson
+    spinx2: 0
+
+  - PDG_context:
+    - 9900082
+    - 0
+    name: fermion
+    spinx2: 1
+
+  - PDG_context:
+    - 9900083
+    - 0
+    name: lepton
+    spinx2: 1
+
+  - PDG_context:
+    - 9900084
+    - 0
+    name: quark
+    spinx2: 1
+
+  - PDG_context:
+    - 9900085
+    - 0
+    name: neutrino
+    spinx2: 1
+
+  - PDG_context:
+    - 9900086
+    - 0
+    name: hadron
+    spinx2: 1
+
+  - PDG_context:
+    - 9900087
+    - 0
+    name: meson
+    spinx2: 0
+
+  - PDG_context:
+    - 9900088
+    - 0
+    name: penta
+  Particles:
+
+  - DecayBit:
+      Decays: true
+      name: gluino
+    PDG_context:
+    - 1000021
+    - 0
+    chargex3: 0
+    color: 8
+    description: Gluino
+    name: ~g
+    spinx2: 1
+
+  - PDG_context:
+    - 1000039
+    - 0
+    chargex3: 0
+    color: 1
+    description: Gravitino
+    name: ~G
+    spinx2: 3
+
+  - DecayBit:
+      Decays: true
+      conjugate: H_minus
+      name: H_plus
+    PDG_context:
+    - 37
+    - 0
+    chargex3: 3
+    color: 1
+    conjugate: H-
+    description: Charged Higgs
+    name: H+
+    spinx2: 0
+
+  - PDG_context:
+    - 9900001
+    - 0
+    chargex3: 0
+    color: 1
+    description: Scalar Singlet
+    name: S
+    spinx2: 0
+
+  - PDG_context:
+    - 9900002
+    - 0
+    chargex3: 0
+    color: 1
+    description: Dirac Singlet
+    name: F
+    spinx2: 1
+
+  - PDG_context:
+    - 9900003
+    - 0
+    chargex3: 0
+    color: 1
+    description: Majorana Singlet
+    name: X
+    spinx2: 1
+
+  - PDG_context:
+    - 9900004
+    - 0
+    chargex3: 0
+    color: 1
+    description: Vector Singlet
+    name: V
+    spinx2: 2
+
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 36
+    - 0
+    chargex3: 0
+    color: 1
+    description: Pseudoscalar Higgs
+    name: A0
+    spinx2: 0
+  Sets:
+
+  - DecayBit:
+      Decays: true
+      name:
+      - Higgs
+      - h0_2
+    PDG_context:
+    - - 25
+      - 0
+    - - 35
+      - 0
+    chargex3: 0
+    color: 1
+    description: Mass-ordered neutral Higgs
+    name: h0
+    spinx2: 0
+
+  - PDG_context:
+    - - 1000001
+      - 0
+    - - 1000003
+      - 0
+    - - 1000005
+      - 0
+    - - 2000001
+      - 0
+    - - 2000003
+      - 0
+    - - 2000005
+      - 0
+    chargex3: -1
+    color: 3
+    conjugate: ~dbar
+    description: Mass-ordered down-type squarks
+    name: ~d
+    spinx2: 0
+
+  - PDG_context:
+    - - 1000002
+      - 0
+    - - 1000004
+      - 0
+    - - 1000006
+      - 0
+    - - 2000002
+      - 0
+    - - 2000004
+      - 0
+    - - 2000006
+      - 0
+    chargex3: 2
+    color: 3
+    conjugate: ~ubar
+    description: Mass-ordered up-type squarks
+    name: ~u
+    spinx2: 0
+
+  - PDG_context:
+    - - 1000011
+      - 0
+    - - 1000013
+      - 0
+    - - 1000015
+      - 0
+    - - 2000011
+      - 0
+    - - 2000013
+      - 0
+    - - 2000015
+      - 0
+    chargex3: -3
+    color: 1
+    conjugate: ~e+
+    description: Mass-ordered sleptons
+    name: ~e-
+    spinx2: 0
+
+  - PDG_context:
+    - - 1000012
+      - 0
+    - - 1000014
+      - 0
+    - - 1000016
+      - 0
+    - - 2000012
+      - 0
+    - - 2000014
+      - 0
+    - - 2000016
+      - 0
+    chargex3: 0
+    color: 1
+    conjugate: ~nubar
+    description: Mass-ordered sneutrinos
+    name: ~nu
+    spinx2: 0
+
+  - DecayBit:
+      Decays: true
+      name: neutralino
+    PDG_context:
+    - - 1000022
+      - 0
+    - - 1000023
+      - 0
+    - - 1000025
+      - 0
+    - - 1000035
+      - 0
+    - - 1000045
+      - 0
+    chargex3: 0
+    color: 1
+    description: Mass-ordered neutralinos
+    name: ~chi0
+    spinx2: 1
+
+  - DecayBit:
+      Decays: true
+      conjugate: chargino_minus
+      name: chargino_plus
+    PDG_context:
+    - - 1000024
+      - 0
+    - - 1000037
+      - 0
+    chargex3: 3
+    color: 1
+    conjugate: ~chi-
+    description: Mass-ordered charginos
+    name: ~chi+
+    spinx2: 1
+
+  - PDG_context:
+    - - 12
+      - 10
+    - - 14
+      - 10
+    - - 16
+      - 10
+    - - 1000022
+      - 10
+    - - 1000023
+      - 10
+    - - 1000025
+      - 10
+    - - 1000035
+      - 10
+    - - 1000045
+      - 10
+    chargex3: 0
+    color: 1
+    description: Example extension of neutrino set to account for mixing with NMSSM
+      neutralinos
+    name: nu_RPV
+    spinx2: 1
+StandardModel:
+  Particles:
+
+  - PDG_context:
+    - 1
+    - 1
+    chargex3: -1
+    color: 3
+    conjugate: dbar
+    description: Down quark
+    name: d
+    spinx2: 1
+
+  - PDG_context:
+    - 2
+    - 1
+    chargex3: 2
+    color: 3
+    conjugate: ubar
+    description: Up quark
+    name: u
+    spinx2: 1
+
+  - PDG_context:
+    - 3
+    - 1
+    chargex3: -1
+    color: 3
+    conjugate: sbar
+    description: Strange quark
+    name: s
+    spinx2: 1
+
+  - PDG_context:
+    - 4
+    - 1
+    chargex3: 2
+    color: 3
+    conjugate: cbar
+    description: Charm quark
+    name: c
+    spinx2: 1
+
+  - PDG_context:
+    - 5
+    - 1
+    chargex3: -1
+    color: 3
+    conjugate: bbar
+    description: Bottom quark
+    name: b
+    spinx2: 1
+
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 6
+    - 1
+    chargex3: 2
+    color: 3
+    conjugate: tbar
+    description: Top quark
+    name: t
+    spinx2: 1
+
+  - PDG_context:
+    - 11
+    - 1
+    chargex3: -3
+    color: 1
+    conjugate: e+
+    description: Electron
+    name: e-
+    spinx2: 1
+
+  - DecayBit:
+      Decays: true
+      conjugate: mu_plus
+      name: mu_minus
+    PDG_context:
+    - 13
+    - 1
+    chargex3: -3
+    color: 1
+    conjugate: mu+
+    description: Muon
+    name: mu-
+    spinx2: 1
+
+  - DecayBit:
+      Decays: true
+      conjugate: tau_plus
+      name: tau_minus
+    PDG_context:
+    - 15
+    - 1
+    chargex3: -3
+    color: 1
+    conjugate: tau+
+    description: Tau
+    name: tau-
+    spinx2: 1
+
+  - PDG_context:
+    - 12
+    - 1
+    chargex3: 0
+    color: 1
+    conjugate: nubar_e
+    description: Electron neutrino
+    name: nu_e
+    spinx2: 1
+
+  - PDG_context:
+    - 14
+    - 1
+    chargex3: 0
+    color: 1
+    conjugate: nubar_mu
+    description: Muon neutrino
+    name: nu_mu
+    spinx2: 1
+
+  - PDG_context:
+    - 16
+    - 1
+    chargex3: 0
+    color: 1
+    conjugate: nubar_tau
+    description: Tau neutrino
+    name: nu_tau
+    spinx2: 1
+
+  - PDG_context:
+    - 21
+    - 0
+    chargex3: 0
+    color: 8
+    description: Gluon
+    name: g
+    spinx2: 2
+
+  - PDG_context:
+    - 22
+    - 0
+    chargex3: 0
+    color: 1
+    description: Photon
+    name: gamma
+    spinx2: 2
+
+  - DecayBit:
+      Decays: true
+      name: Z
+    PDG_context:
+    - 23
+    - 0
+    chargex3: 0
+    color: 1
+    description: Z Boson
+    name: Z0
+    spinx2: 2
+
+  - DecayBit:
+      Decays: true
+      conjugate: W_minus
+      name: W_plus
+    PDG_context:
+    - 24
+    - 0
+    chargex3: -3
+    color: 1
+    conjugate: W-
+    description: W Boson
+    name: W+
+    spinx2: 2
+
+  - PDG_context:
+    - 39
+    - 0
+    chargex3: 0
+    color: 1
+    description: Graviton
+    name: G
+    spinx2: 4
+
+  - DecayBit:
+      Decays: true
+      name: pi_0
+    PDG_context:
+    - 111
+    - 0
+    chargex3: 0
+    color: 1
+    description: Neutral pion
+    name: pi0
+    spinx2: 0
+
+  - DecayBit:
+      Decays: true
+      conjugate: pi_minus
+      name: pi_plus
+    PDG_context:
+    - 211
+    - 0
+    chargex3: 3
+    color: 1
+    conjugate: pi-
+    description: Charged pion
+    name: pi+
+    spinx2: 0
+
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 221
+    - 0
+    chargex3: 0
+    color: 1
+    description: Eta meson
+    name: eta
+    spinx2: 0
+
+  - DecayBit:
+      Decays: true
+      name: rho_0
+    PDG_context:
+    - 113
+    - 0
+    chargex3: 0
+    color: 1
+    description: Neutral rho meson
+    name: rho0
+    spinx2: 2
+
+  - DecayBit:
+      Decays: true
+      conjugate: rho_minus
+      name: rho_plus
+    PDG_context:
+    - 213
+    - 0
+    chargex3: 3
+    color: 1
+    conjugate: rho-
+    description: Charged rho meson
+    name: rho+
+    spinx2: 2
+
+  - DecayBit:
+      Decays: true
+    PDG_context:
+    - 223
+    - 0
+    chargex3: -3
+    color: 1
+    description: Omega meson
+    name: omega
+    spinx2: 3
+  Sets:
+
+  - PDG_context:
+    - - 1
+      - 0
+    - - 3
+      - 0
+    - - 5
+      - 0
+    chargex3: 1
+    color: 3
+    conjugate: dbar
+    description: Mass-ordered down-type quarks
+    name: d
+    spinx2: 1
+
+  - PDG_context:
+    - - 2
+      - 0
+    - - 4
+      - 0
+    - - 6
+      - 0
+    chargex3: 2
+    color: 3
+    conjugate: ubar
+    description: Mass-ordered up-type quarks
+    name: u
+    spinx2: 1
+
+  - PDG_context:
+    - - 11
+      - 0
+    - - 13
+      - 0
+    - - 15
+      - 0
+    chargex3: 3
+    color: 1
+    conjugate: e+
+    description: Mass-ordered leptons
+    name: e-
+    spinx2: 1
+
+  - PDG_context:
+    - - 12
+      - 0
+    - - 14
+      - 0
+    - - 16
+      - 0
+    chargex3: 0
+    color: 1
+    conjugate: nubar
+    description: Mass-ordered neutrinos
+    name: nu
+    spinx2: 1

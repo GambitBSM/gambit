@@ -1,0 +1,147 @@
+Tutorial for GUM as detailed in the GUM manual: arXiv:200X:XXXXX
+- Sanjay Bloor (sanjay.bloor12@imperial.ac.uk)
+
+Adding a model with a Majorana fermion DM candidate, a real scalar mediator
+coupled to the SM with universal Yukawa-like couplings.
+
+==============================================================================
+
+You will need the following for GUM:
+  - CMake
+  - Boost 1.41 or above
+  - Mathematica 7 or above
+  - Python 2.7 or above
+  - The following Python modules,
+    - yaml
+    - numpy
+
+To run GAMBIT you will also need:
+  - gcc/gfortran 4.7.1 or above OR icc/ifort 12.1.0 or above
+  - GSL 1.10 or above
+
+For this tutorial you will need:
+  - HDF5
+  - h5py
+  - Optionally MPI (...otherwise this tutorial will take much, much longer to run)
+  - scipy
+  - ctioga v0.8 or above
+
+==============================================================================
+
+If you've never installed GAMBIT before, you'll want to make a build
+directory to get going.
+
+    cd $GAMBIT
+    mkdir build
+    cd build
+
+For this tutorial we want to build GAMBIT with MPI, so we use the flag WITH_MPI,
+
+    cmake -DWITH_MPI=ON ..
+
+which will make our lives way easier. If you don't have MPI libraries then this will
+just revert back to a single core, and you'll have to just wait a long time for your
+scan to run.
+
+Next let's install the scanning algorithm we want to use for this study, Diver.
+
+    make diver
+    cmake ..
+
+We perform another CMake step so GAMBIT finds the libraries for the scanners.
+
+1. Create a directory for the model file in GUM
+
+        mkdir $GUM/Models/MDMSM
+
+2. Copy the model file to this directory
+
+        cp $GUM/Tutorial/MDMSM.fr $GUM/Models/MDMSM/MDMSM.fr
+
+3. You may need to build GUM, if this is your first encounter. Let's do that,
+   starting from the GUM directory
+
+        cd $GUM
+        mkdir build
+        cd build
+        cmake ..
+        make -j4
+
+4. Copy the gum file to the gum_files directory
+
+        cp $GUM/Tutorial/MDMSM.gum $GUM/gum_files/MDMSM.gum
+
+5. Let's check that 'math' is in your $PATH. From the command line do:
+
+        math
+
+  If a Wolfram kernel pops up then we're good to go. If not, add the directory
+  of your Mathematica installation to $PATH.
+
+6. That's all we need to run GUM! So let's do it.
+
+        cd $GUM
+        ./gum -f gum_files/MDMSM.gum
+
+and sit back and wait. This should only take a couple of minutes.
+All details about the GUM file can be found in the GUM manual.
+
+7. Once GUM has finished running, it will print a set of commands to
+   the standard output. They should be the following:
+
+        cd ../build
+        cmake ..
+        make micromegas_MDMSM
+        make calchep
+        make -j<n> gambit
+
+where you should replace <n> with the number of logical cores you
+have available to scan.
+
+which will build GAMBIT and all backends we've just added. This
+will take a bit longer. Once this is done we also have to install the
+remaining backends we wish to use for the scan. This is simple,
+
+        cd $GAMBIT/build
+        make -j3 darksusy_generic_wimp gamlike ddcalc
+
+8. Then we're ready to scan. The options included in the YAML file
+   we are using to scan are detailed in the GUM manual. For more
+   information on the YAML file within GAMBIT please consult the
+   GAMBIT manual (arXiv:1705.07908). Let's copy the YAML file to the
+   GAMBIT yaml directory (so the !include statements work properly),
+
+        cp $GUM/Tutorial/MDMSM_Tute.yaml $GAMBIT/yaml_files/MDMSM_Tute.yaml
+
+9. Now we run GAMBIT.
+   (If you didn't install the other backends earlier, do it now!)
+   I'm running on a laptop with 4 cores, so I run with
+
+        mpirun -n 4 gambit -rf yaml_files/MDMSM_Tute.yaml
+
+   but you should replace '4' with as many cores as you want to run with.
+
+   My laptop has an i5-6200U CPU @ 2.30 GHz and this scan took
+   around 11 hours to complete, sampling 292k points in total.
+   (i.e. you may want to boil the kettle and come back in a bit...)
+
+10. Once the scan has finished, we can perform plots with pippi. 
+    To download pippi, simply run
+
+        cd build
+        make get-pippi
+
+    which drops pippi in $GAMBIT/pippi.
+    I'll assume you've added pippi to your $PATH. Lets go to our results...
+
+        cd $GUM/Tutorial
+
+    open up the pippi file and make sure the main_chain variable in MDMSM.pip
+    points to your results,
+       main_chain: '$GAMBIT/results/MDMSM/samples/MDMSM.hdf5'
+
+    Then we can run pippi:
+
+      pippi MDMSM.pip
+
+    Now there should be loads of plots in $GUM/Tutorial/plots/. Happy plotting!

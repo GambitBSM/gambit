@@ -32,10 +32,12 @@ DarkSUSY:
 DarkSUSY_MSSM:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
-
+  6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_mssm.so
+  
 DarkSUSY_generic_wimp:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
+  6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_generic_wimp.so
 
 SuperIso:
   4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
@@ -73,10 +75,11 @@ FeynHiggs:
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
 
-Pythia:
-  8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
+# Work in progress:
+# Prospino:
+#   2.1:         ./Backends/installed/prospino/2.1/libprospino.so
 
-Pythia_EM:
+Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
 
 gamLike:
@@ -119,6 +122,10 @@ nulike:
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
+# Work in progress:
+# Rivet:
+#   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
+
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
 
@@ -126,14 +133,30 @@ SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
   4.0.3:       ./Backends/installed/spheno/4.0.3/lib/libSPheno.so
 
+CalcHEP:
+  3.6.27:      ./Backends/installed/calchep/3.6.27/lib/libcalchep.so
+
+libMathematicaTest:
+  1.0:         ./Backends/examples/libMathematicaTest.m
+
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m
+
+vevacious:
+  1.0:         ./Backends/installed/vevacious/1.0/lib/libVevaciousPlusPlus.so
+
+hom4ps:
+  2.0:         ./Backends/installed/hom4ps/2.0/
+
+phc:
+  2.4.58:      ./Backends/installed/phc/2.4.58/
 
 plc:
   3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
 
 MultiModeCode:
   2.0.0:       ./Backends/installed/multimodecode/2.0.0/lib/libmodecode.so
+
 
 # Example/debug backends
 
@@ -159,3 +182,11 @@ LibFarrayTest:
 
 libMathematicaTest:
   1.0:         ./Backends/examples/libMathematicaTest.m
+
+# Work in progress:
+# xsecBE:
+#   1.0.2:       ./Backends/installed/xsecBE/1.0.2/xsecBE_gambit.py
+
+# Work in progress:
+# salami:
+#   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py

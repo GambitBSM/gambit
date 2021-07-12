@@ -1,0 +1,22 @@
+# Input GUM file for the MDMSM (Majorana DM, scalar mediator)
+# model in GUM
+
+math:
+    package: feynrules
+    model: MDMSM
+    base_model: SM
+    restriction: DiagonalCKM
+    lagrangian: LDM + LSM
+
+wimp_candidate: 52
+
+output:
+  calchep: true
+  pythia: true  
+ 
+output_options:
+  pythia:
+    collider_processes:
+      - p p > ~chi ~chi
+      - p p > ~chi ~chi j
+      - p p > Y t t~

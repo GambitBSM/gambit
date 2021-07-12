@@ -29,7 +29,7 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      int _numSR;
+      double _numSR;
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
@@ -76,8 +76,8 @@ namespace Gambit {
         double met = event->met();
 
         // Baseline electrons
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 20. && fabs(electron->eta()) < 2.5) {
             baselineElectrons.push_back(electron);
           }
@@ -87,8 +87,8 @@ namespace Gambit {
         CMS::applyElectronEff(baselineElectrons);
 
         // Baseline muons
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 20. && fabs(muon->eta()) < 2.4) {
             baselineMuons.push_back(muon);
           }
@@ -98,12 +98,12 @@ namespace Gambit {
         CMS::applyMuonEff(baselineMuons);
 
         // All baseline leptons
-        vector<HEPUtils::Particle*> baselineLeptons = baselineElectrons;
+        vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
         baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end() );
 
-        vector<HEPUtils::Jet*> baselineJets;
+        vector<const HEPUtils::Jet*> baselineJets;
         vector<HEPUtils::P4> jets;
-        vector<HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> bJets;
         vector<bool> btag;
 
         const std::vector<double>  a = {0,10.};
@@ -111,12 +111,12 @@ namespace Gambit {
         const std::vector<double> c = {0.60};
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
-        for (HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 30. && fabs(jet->eta()) < 5.0) {
             baselineJets.push_back(jet);
             //LorentzVector j1 (jet->mom().px(),jet->mom().py(),jet->mom().pz(),jet->mom().E()) ;
             jets.push_back(jet->mom());
-            bool hasTag=has_tag(_eff2d, jet->eta(), jet->pT());
+            bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
             bool isB=false;
 
             if(jet->btag() && hasTag && fabs(jet->eta()) < 2.4 && jet->pT() > 30.) {
@@ -198,7 +198,7 @@ namespace Gambit {
         //We're now ready to apply the cuts for each signal region
         //_numSR1, _numSR2, _numSR3;
 
-        if(passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.)_numSR++;
+        if(passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.) _numSR += event->weight();
 
         return;
       }
@@ -224,15 +224,9 @@ namespace Gambit {
       }
 
       void collect_results() {
-        SignalRegionData results_SR;
-        results_SR.sr_label = "SR";
-        results_SR.n_observed = 1.;
-        results_SR.n_background = 1.89;
-        results_SR.background_sys = 0.66;
-        results_SR.signal_sys = 0.;
-        results_SR.n_signal = _numSR;
 
-        add_result(results_SR);
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+        add_result(SignalRegionData("SR", 1., {_numSR, 0.}, {1.89, 0.66}));
 
         return;
       }

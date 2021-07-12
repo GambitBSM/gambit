@@ -305,8 +305,9 @@ namespace Gambit
 
       // retrieve annihilation processes and DM properties
       std::string DMid= *Dep::DarkMatter_ID;
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
       TH_Process annihilation =
-              (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
+              (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid);
       TH_ParticleProperty DMproperty =
               (*Dep::TH_ProcessCatalog).getParticleProperty(DMid);
 
@@ -437,7 +438,7 @@ namespace Gambit
       }
 
       double tmp; int itmp;
-      for (int i=1; i<=myrdmgev.nco-1; i++) 
+      for (int i=1; i<=myrdmgev.nco-1; i++)
       {
         for (int j=i+1; j<=myrdmgev.nco; j++)
         {
@@ -556,7 +557,8 @@ namespace Gambit
         using namespace Pipes::RD_eff_annrate_from_ProcessCatalog;
 
         std::string DMid= *Dep::DarkMatter_ID;
-        TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
+        std::string DMbarid = *Dep::DarkMatterConj_ID;
+        TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid);
         double mDM = (*Dep::TH_ProcessCatalog).getParticleProperty(DMid).mass;
 
         auto Weff = daFunk::zero("peff");
@@ -810,7 +812,7 @@ namespace Gambit
         myrdmgev->mdof(i)=myRDspec.coannihilatingParticles[i-1].degreesOfFreedom;
         myrdmgev->kcoann(i)=myRDspec.coannihilatingParticles[i-1].index;
         #ifdef DARKBIT_RD_DEBUG
-          std::cout << "kcoann, mco, mdof: " << myrdmgev->kcoann(i) << "  " << myrdmgev->mco(i) 
+          std::cout << "kcoann, mco, mdof: " << myrdmgev->kcoann(i) << "  " << myrdmgev->mco(i)
                     << "  " << myrdmgev->mdof(i) << std::endl;
         #endif
       }
@@ -1082,6 +1084,24 @@ namespace Gambit
 
       result = BEreq::get_oneChannel(byVal(Xf),byVal(Beps),byVal(n1),byVal(n2),byVal(n3),byVal(n4));
 
+    }
+
+    /// Return the thermally averaged cross-section at T_freezeout
+    void vSigma_freezeout_MicrOmegas(double &result)
+    {
+      using namespace Pipes::vSigma_freezeout_MicrOmegas;
+
+      // Beps=1e-5 recommended, Beps=1 switches coannihilation off
+      double Beps = runOptions->getValueOrDef<double>(1e-5, "Beps");
+
+      // Xf = m_WIMP/T_freezeout
+      double Xf = *Dep::Xf;
+      double mwimp = *Dep::mwimp;
+
+      // Get sigma*v at T_freezeout [pb]
+      double sigmav = BEreq::vSigma(byVal(Xf/mwimp), byVal(Beps), byVal(1));
+
+      result = sigmav*1e-36*s2cm;
     }
 
 

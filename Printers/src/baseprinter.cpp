@@ -120,5 +120,53 @@ namespace Gambit
         return result;
      }
 
+     /// Helper function for the Spectrum '_retrieve' functions
+     /// Parses a printer label and checks if it contains a single Spectrum entry.
+     /// "out" is a memory location to store the spectrum entry name, if found.
+     /// "labelroot" is a memory location to store the rest of the label (i.e. minus the entry name)
+     // example label:
+     // #MSSM_spectrum @SpecBit::get_MSSM_spectrum_as_map::~u_(6,6) Pole_Mixing
+     bool parse_label_for_spectrum_entry(const std::string& fulllabel, const std::string& req_capability, const std::string& req_module, const std::string& req_function, std::string& outname, std::string& outtag, std::string& labelroot, bool case_sensitive)
+     {
+        bool result = false;
+        std::istringstream iss(fulllabel);
+        std::string capability;
+        std::string rest; 
+        iss >> capability;
+        iss >> rest;
+        iss >> outtag; // Last element is that spectrum 'tag', e.g. dimensionless, Pole_Mixing, etc.
+        if(!iss)
+        {
+          // Weren't three elements to the label, so this can't be a match
+          result = false; // failed to match
+        }
+        else
+        {
+          //capability is "#MSSM_spectrum", for example
+          capability.erase(0,1); // cut off the first character (hash, in all potentially matching cases)
+          if(Utils::iequals(capability,req_capability,case_sensitive))
+          {
+             // Check 'rest', should be something like @SpecBit::get_MSSM_spectrum_as_map::~u_(6,6)
+             rest.erase(0,1); // cut off the first character (@, in all potentially matching cases)
+             std::vector<str> split_rest = Utils::delimiterSplit(rest, "::");
+             if(    Utils::iequals(split_rest[0],req_module,case_sensitive) 
+                and Utils::iequals(split_rest[1],req_function,case_sensitive)
+                and split_rest.size()==3)
+             {
+               // Ok! We have a match!
+               outname = split_rest[2];
+               result = true;
+               // Get the rest of the full label
+               labelroot = fulllabel;
+               // Erase the "::entryname tag" part
+               std::size_t offset = outname.size() + outtag.size() + 3; // Names plus :: plus space
+               labelroot.erase(fulllabel.size() - offset, offset);
+             } else { result = false; }
+          } else { result = false; }        
+        }
+        return result;
+     }
+
+
   }
 }

@@ -27,23 +27,23 @@ LOAD_LIBRARY
 
 BE_ALLOW_MODELS(AnnihilatingDM_general, DecayingDM_general)
 
+/* Syntax for BE_FUNCTION (same as for any other backend):
+ * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
+ */
+
+/* --- NONE --- */
+
+/* Syntax for BE_VARIABLE:
+ * BE_VARIABLE([name], [type], "[exact symbol name]", "[choose capability name]")
+ * */
+
+ /* --- NONE --- */
+
+/* We use BE_INI_DEPENDENCY, since DarkAges needs the spectra of injected electrons, positrons and photons
+ * to calculate f(z)
+ * */
+
 #ifdef HAVE_PYBIND11
-
-  /* Syntax for BE_FUNCTION (same as for any other backend):
-   * BE_FUNCTION([choose function name], [type], [arguement types], "[exact symbol name]", "[choose capability name]")
-   */
-
-  /* --- NONE --- */
-
-  /* Syntax for BE_VARIABLE:
-   * BE_VARIABLE([name], [type], "[exact symbol name]", "[choose capability name]")
-   * */
-
-   /* --- NONE --- */
-
-  /* We use BE_INI_DEPENDENCY, since DarkAges needs the spectra of injected electrons, positrons and photons
-   * to calculate f(z)
-   * */
 
   BE_INI_DEPENDENCY(energy_injection_spectrum, DarkAges::Energy_injection_spectrum)
 

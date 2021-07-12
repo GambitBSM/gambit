@@ -221,6 +221,15 @@ namespace Gambit
         return result;
     }
 
+    /// Convert a whole string to lowercase
+    std::string strtolower(const std::string& a)
+    {
+        unsigned int sz = a.size();
+        std::string b = a;
+        for (unsigned int i = 0; i < sz; ++i)
+        { b[i] = tolower(a[i]); }
+        return b;
+    }
 
     /// Ensure that a path exists (and then return the path, for chaining purposes)
     const std::string& ensure_path_exists(const std::string& path)

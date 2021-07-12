@@ -123,7 +123,10 @@ namespace Gambit
 
     /// Split string into vector of strings, using a delimiter string
     EXPORT_SYMBOLS std::vector<std::string> split(const std::string& input, const std::string& delimiter);
-
+    
+    /// Convert a whole string to lowercase
+    EXPORT_SYMBOLS std::string strtolower(const std::string& a);
+ 
     /************************************************************************/
     /* Comparator for case-insensitive comparison in STL assos. containers  */
     /************************************************************************/

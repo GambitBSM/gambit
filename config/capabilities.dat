@@ -392,8 +392,68 @@ RunMC: |
    Controls the parallelization and execution of the entire
    event loop of the collider simulation.
 
-CrossSection: |
-   Total cross-section used to scale Pythia event numbers.
+TotalCrossSection: |
+   Total collider cross-section used to scale the Pythia event numbers.
+
+TotalCrossSectionAsMap: |
+   Info on TotalCrossSection as a str-double map, for easy printing.
+
+TotalEvGenCrossSection: |
+   Total collider cross-section as calculated by Pythia.
+
+EventWeighterFunction: |
+   A function that can be used for collider event weighting, e.g.
+   for weighting events according to process-level cross-sections
+   provided via a ProcessCrossSectionsMap.
+
+ProcessCrossSectionsMap: |
+   A map between Pythia process codes and cross-sections.
+
+PIDPairCrossSectionsMap: |
+   A map between pairs of particle ID codes (PID pairs) and cross-sections.
+
+PIDPairCrossSectionsInfo: |
+   The PID pair cross-sections from PIDPairCrossSectionsMap as a str-dbl map,
+   for easy printing.
+
+ActiveProcessCodes: |
+   A list of Pythia process codes for all production processes activated in Pythia.
+
+ActivePIDPairs: |
+   A list of all the PID pairs related to the active Pythia process codes (ActiveProcessCodes).
+
+ActiveProcessCodeToPIDPairsMap: |
+   A map connecting Pythia process codes (for the active Pythia processes) to PID pairs
+
+CrossSectionConsistencyCheck: |
+   A consistency check that ensures that if each Pythia event is weighted by a
+   process-level cross-section from an external calculator, then the total cross-section
+   (TotalCrossSection) is taken from Pythia.
+
+SpectrumAndDecaysForPythia: |
+   What it says on the box: mass spectrum and decays for Pythia.
+
+SLHA1Spectrum: |
+   A SLHA1 spectrum.
+
+SLHA2Spectrum: |
+   A SLHA2 spectrum.
+
+SLHAFileElements: |
+   A map of selected SLHA file elements.
+
+SLHAFileNameAndContent: |
+   Name and content of a SLHA file.
+
+susy_spectrum_scan_guide: |
+   Invalid point check with advances mass cuts, to aid scans of SUSY models.
+
+LHC_LogLike_scan_guide: |
+   A dummy log-likelihood to force the scanner to explore a given range of
+   LHC_Combined_LogLike values. This is done by defining a Gaussian
+   (meta-)likelihood based on the original LHC_Combined_LogLike value.
+   Use the two YAML file options 'target_LHC_loglike' and 'width_LHC_loglike'
+   to control this Gaussian likelihood.
 
 LHCEventLoopInfo: |
    Info about the event loop.
@@ -423,63 +483,52 @@ LHC_LogLike_SR_labels: |
    LHC_Combined_LogLike and LHC_LogLike_per_analysis.
 
 HardScatteringSim: |
-   Provides a Pythia 8 instance within a container which is
-   ready to simulate collision events for a model chosen by ScannerBit.
+   Provides a Monte Carlo generator instance ready to simulate collision events.
 
 HardScatteringEvent: |
-   Uses the given HardScatteringSim to generate the next event
-   of the collider simulation chain.
+   Uses a HardScatteringSim to generate the next event of the collider simulation chain.
+
+CrossSection: |
+   Provides a total cross-section to be applied to collider analyses.
 
 ATLASDetectorSim: |
-   Provides a set functions within a container ready to apply ATLAS
-   smearing and reconstruction efficiencies to an event.
+   Provides a detector simulation of ATLAS.
 
 CMSDetectorSim: |
-   Provides a set functions within a container ready to apply CMS
-   smearing and reconstruction efficiencies to an event.
+   Provides a detector simulation of CMS.
 
 IdentityDetectorSim: |
    Provides a fake detector sim, which simply returns truth-level events.
 
 ATLASSmearedEvent: |
-   Uses the given SimpleSmearingSim to apply smearing and
-   reconstruction efficiencies upon the given HardScatteringEvent.
+   Uses an ATLASDetectorSim to smear a HardScatteringEvent.
 
 CMSSmearedEvent: |
-   Uses the given SimpleSmearingSim to apply smearing and
-   reconstruction efficiencies upon the given HardScatteringEvent.
+   Uses a CMSDetectorSim to smear a HardScatteringEvent.
 
 CopiedEvent: |
-   Uses the given SimpleSmearingSim to do absolutely nothing to
-   the given HardScatteringEvent.
+   Uses an IdentityDetectorSim to do absolutely nothing to a HardScatteringEvent.
 
 ATLASAnalysisContainer: |
-   Provides a container of ATLAS analyses to be used with the detector simulation
-   capability ATLASSmearedEvent. The container is ready to apply each analysis to
-   each event.
+   Provides a container of ATLAS analyses to be applied to an ATLASSmearedEvent.
 
 CMSAnalysisContainer: |
-   Provides a container of CMS analyses to be used with the detector simulation
-   capability CMSSmearedEvent. The container is ready to apply each analysis to
-   each event.
+   Provides a container of CMS analyses to be applied to an ATLASSmearedEvent.
 
 IdentityAnalysisContainer: |
-   Provides a list of “identity” analyses (no detector
-   smearing) within a container that is ready to apply
-   them to an event.
+   Provides a container of 'truth-level analyses' to be applied to a CopiedEvent.
 
 ATLASAnalysisNumbers: |
-   Uses the given ATLASAnalysisContainer to perform all its
-   analyses upon the given ATLASSmearedEvent.
+   Uses an ATLASAnalysisContainer to perform all its
+   analyses upon a given ATLASSmearedEvent.
 
 CMSAnalysisNumbers: |
-   Uses the given CMSAnalysisContainer to perform all its analyses
-   upon the given CMSSmearedEvent.
+   Uses a CMSAnalysisContainer to perform all its
+   analyses upon a given CMSSmearedEvent.
 
 IdentityAnalysisNumbers: |
-   Uses the given IdentityAnalysisContainer
-   to perform all its analyses upon the given
-   CopiedEvent.
+   Uses an IdentityAnalysisContainer to perform all its
+   analyses upon a given CopiedEvent.
 
 AllAnalysisNumbers: |
    Combined analysis numbers from all LHC analyses used in a scan.
@@ -584,15 +633,11 @@ LHC_Higgs_LogLike: |
    Provides log-likelihood for LHC Higgs mass and signal
    strength measurements.
 
-HB_ModelParameters: |
-   Provides SM and MSSM input parameters for LEP and LHC Higgs
-   likelihood calculations.
-
-HB_ModelParameters_charged:
+HB_ModelParameters_charged: |
    Provides SM and MSSM input parameters for charged Higgs(es) for LEP and LHC Higgs
    likelihood calculations.
 
-HB_ModelParameters_neutral:
+HB_ModelParameters_neutral: | 
    Provides SM and MSSM input parameters for neutral Higgs(es) for LEP and LHC Higgs
    likelihood calculations.
 
@@ -1063,12 +1108,58 @@ LEP208_xsec_staurstaurbar: |
    The LEP pair production cross-section for sfermion
    eigenstates 'staur' and 'staurbar' at centre of mass energy 208 GeV.
 
-Pythia_EM_8_212_init: |
-   Initializes Pythia_EM 8.212.
-
 Pythia_8_212_init: |
-   Initializes Pythia 8.212.
+   Initializes the Pythia 8.212 MSSM backend.
 
+Prospino_2_1_init: |
+   Initializes the Prospino 2.1 backend.
+
+prospino_gb: |
+   Main function in the GAMBIT-patched version of Prospino.
+
+prospino_gb_init: |
+   Initialization function in the GAMBIT-patched version of Prospino.
+
+prospino_errorhandler_cptr: |
+   C function pointer in the GAMBIT-patched version of Prospino, connected
+   to GAMBIT for safe error handling.
+
+prospino_read_slha1_input: |
+   Prospino backend convenience function: reads SLHA1 input.
+
+prospino_run: |
+   Prospino backend convenience function: runs Prospino after reading
+   options from the YAML file.
+
+prospino_run_alloptions: |
+   Prospino backend convenience function: runs Prospino, with all options
+   provided directly as function arguments.
+
+salami_0_1_0_init: |
+   Initializes the salami 0.1.0 backend.
+
+salami_get_xsection: |
+   Salami backend function: return the cross-section for a given process,
+   identified by a PID pair.
+
+salami_import_slha_string: |
+   Salami backend function: import SLHA content as string.
+
+salami_set_parameters: |
+   Salami backend function: set parameters in salami.
+
+xsecBE_1_0_2_init: |
+   Initializes the xsec 1.0.2 backend.
+
+xsecBE_get_xsection: |
+   Xsec backend function: return the cross-section for a given process,
+   identified by a PID pair.
+
+xsecBE_import_slha_string: |
+   Xsec backend function: import SLHA content as string.
+
+xsecBE_set_parameters: |
+   Xsec backend function: set parameters in xsec.
 
 
 #-------------------------------------
@@ -1109,6 +1200,9 @@ sigma_SD_n: |
 
 DarkMatter_ID: |
    Contains string ID to identify dark matter particle.
+
+DarkMatterConj_ID: |
+   Contains string ID to identify the conjugate to the dark matter particle.
 
 RD_spectrum: |
    Contains degrees of freedom and masses of all (co)-annihilating
@@ -1987,8 +2081,11 @@ SimYieldTable: |
 GA_missingFinalStates: |
    Final states that are not avaialable with tabulated spectra.
 
-GA_AnnYield: |
+GA_Yield: |
    Calculate the gamma-ray yield from the process catalogue.
+
+DM_process: |
+   Returns a string based on the nature of the DM process used for indirect detection (either annihilation or decay).
 
 dsanyield_sim: |
    Provides tabulated yields from DarkSUSY 6.
@@ -2143,11 +2240,17 @@ DarkSUSY_MSSM_6_1_1_init: |
 DarkSUSY_MSSM_6_2_2_init: |
    Initialises DarkSUSY 6.2.2 for the MSSM.
 
+DarkSUSY_MSSM_6_2_5_init: |
+   Initialises DarkSUSY 6.2.5 for the MSSM.
+
 DarkSUSY_generic_wimp_6_1_1_init: |
    Initialises DarkSUSY 6.1.1 for a generic WIMP.
 
 DarkSUSY_generic_wimp_6_2_2_init: |
    Initialises DarkSUSY 6.2.2 for a generic WIMP.
+
+DarkSUSY_generic_wimp_6_2_5_init: |
+   Initialises DarkSUSY 6.2.5 for a generic WIMP.
 
 DarkSUSY5_PointInit_LocalHalo: |
    Initialises Milky Way halo model parameters in DarkSUSY5
@@ -2399,7 +2502,7 @@ HiggsBounds_4_3_1_init:
 HiggsBounds_5_3_2beta_init: |
    Initialises HiggsBounds backend, version 5.3.2beta.
 
-HiggsBounds_5_8_0_init: 
+HiggsBounds_5_8_0_init: |
    Initialises HiggsBounds backend, version 5.8.0.
 
 finish_HiggsBounds: |
@@ -2444,8 +2547,8 @@ HiggsBounds_set_mass_uncertainties: |
 run_HiggsBounds_classic: |
    Runs HiggsBounds after initialization in 'classic' mode.
 
-run_HiggsBounds: 
-   Run HiggsBounds after initialization.
+run_HiggsBounds:  |
+   Runs HiggsBounds after initialization.
 
 finish_HiggsBounds_chisqtables: |
    Generates chi squared tables from HiggsBounds.
@@ -2456,8 +2559,9 @@ initialize_HiggsBounds_chisqtables: |
 HB_calc_stats: |
    To quote from HiggsBounds: "this is in the middle of development! DO NOT USE!"
 
-HiggsBounds_get_LEPChisq: 
+HiggsBounds_get_LEPChisq: |
    HiggsBounds capability to calculate the LEP chi-square value.
+
 
 #-------------------------------------
 #  HiggsSignals capabilities
@@ -2469,7 +2573,7 @@ HiggsSignals_1_4_init: |
 HiggsSignals_2_2_3beta_init: |
    Initialise HiggsSignals backend, version 2.2.3beta.
 
-HiggsSignals_2_5_0_init: 
+HiggsSignals_2_5_0_init: |
    Initialise HiggsSignals backend, version 2.5.0.
 
 HiggsSignals_neutral_input_MassUncertainty: |
@@ -2872,10 +2976,13 @@ momegas_print_channels: |
    Print the contributions to the relic density from all channels
 
 assignVal: |
-   Assigns a value to a model parameter in MicrOmegas.
+   Assigns a value to a model parameter in MicrOmegas and CalcHEP.
 
 vSigma: |
    The velocity averaged cross section calculated at a specified temperature.
+
+vSigma_freezeout: |
+   The velocity averaged cross section calculated at the temperature of thermal freezeout.
 
 oh2: |
    The dark matter relic density (Omega h^2).
@@ -2939,6 +3046,9 @@ vSigmaCh: |
 
 decay_rates: |
    Collect all the decay rates into a table.
+
+all_BFs: |
+  Returns branching fractions for the specified particles (as a map<str,double>)
 
 Z_decay_rates : |
    All decays of the Z gauge boson.
@@ -4062,6 +4172,15 @@ RightHandedNeutrinos_parameters: |
 
 RightHandedNeutrinos_diff_parameters: |
    Parameters for the model RightHandedNeutrinos_diff (see ./gambit RightHandedNeutrinos_diff)
+
+ColliderBit_SLHA_file_model_parameters: |
+   Parameters for the ColliderBit dummy model ColliderBit_SLHA_file_model.
+   See ./gambit ColliderBit_SLHA_file_model_parameters for details.
+
+ColliderBit_SLHA_scan_model_parameters: |
+   Parameters for the ColliderBit dummy model ColliderBit_SLHA_scan_model.
+   See ./gambit ColliderBit_SLHA_scan_model_parameters for details.
+
 
 
 #-------------------------------------
@@ -5304,38 +5423,168 @@ cap_sun_saturation: |
 
 cap_Sun_vnqn_isoscalar: |
   Compute v^n or q^n solar capture rate.
-  
+
+#-------------------------------------
+#  CalcHEP capabilities
+#-------------------------------------
+
+CalcHEP_3_6_27_init: |
+  Initialise CalcHEP backend.
+
+generate_decay_code: |
+  Generates the codelet for a 1->2 process in CalcHEP.
+
+generate_xsec_code: |
+  Generates the codelet for a 2->2 process in CalcHEP.
+
+Assign_Value: |
+  Assigns a numerical value to a given CalcHEP parameter (with error-checking).
+
+Assign_Widths: |
+  Passes the width from each BSM particle (+ top quark) in the model, from the DecayTable to CalcHEP.
+
+Assign_All_Values: |
+  Takes all parameters in a model as given by the vector of SpectrumParameters, and assigns them by value to the appropriate CalcHEP parameter names.
+
+CH_Decay_Width: |
+  Provides spin-averaged decay width for 2 body decay process in CM frame at tree-level.
+
+CH_Sigma_V: |
+  Computes annihilation cross-section for 2->2 process, DM+DMbar -> X + Y at tree level. Coannihilations not currently supported; we require the mass of both in states are equal.
+
+setModel: |
+  Set the model within CalcHEP.
+
+pdg2mass: |
+  Returns the name of the mass parameter within CalcHEP for a given PDG code.
+
+pdg2width: |
+  Returns the name of the width parameter within CalcHEP for a given PDG code.
+
+calcMainFunc: |
+  Calculates and updates all PUBLIC (model-dependent) parameters in CalcHEP.
+
+pMass: |
+  Obtains the value of the mass of a particle, for a given CalcHEP particle name.
+
+getMEcode: |
+  Generates shared object file computing matrix element - or points to if it already exists.
+
+passParameters: |
+  Exports numerical values of parameters to the dynamic CalcHEP matrix element code
+
+varNames: |
+  CalcHEP's internal list of variable names.
+
+#------------------------
+#  Rivet capabilites
+#-----------------------
+
+Rivet_3_0_0_init: |
+  Initialise Rivet backend
+
+
+#--------------------------------
+#  Vacuum stability capabilities
+#--------------------------------
+
+VS_likelihood: |
+  Computes the likelihood associated with the stability of the scalar potential
+
+VS_results: |
+  Results from a Vevacious run in the format of a string to double map
+
+check_vacuum_stability: |
+  Computes the stability of a scalar potential with Vevacious
+
+compare_panic_vacua: |
+  Compares two vacua to check if they are the same
+
+panic_vacua: |
+  List of requested panic vacua
+
+tunnelling_strategy: |
+  List of requested tunnelling strategies
+
+vevacious_file_location: |
+    Sets the name and locations of the ini files for vevacious for each model, since they might not be just <MODELNAME>.vin, etc. Model dependent.
+
+init_vevacious: |
+    Initialize vevacious. Set potential runOptions for vevacious in the YAML file in the rules section for this capability. Model independent.
+
+vevacious_1_0_init: |
+    Initialization of vevacious 1.0 backend.
+
+pass_spectrum_to_vevacious: |
+    Adds all entries of the spectrum object (as SLHAea) that need to be passed to vevacious to an instance of type SpectrumEntriesForVevacious and returns this instance. The actual passing happens in the helper function exec_pass_spectrum_to_vevacious which gets executed every time before a vevacious call. Model dependent.
+
+
 #-------------------------------------
 #  ObjectivesBit capabilities
 #-------------------------------------
 
 gaussian: |
   Multi-dimensional Gaussian centered at 0.5 with diagonal covariances of 0.1^2.
+
 rosenbrock: |
   Multi-dimensional generalization of 2d Rosenbrock function. See https://en.wikipedia.org/wiki/Rosenbrock_function
+
 himmelblau: |
   Two-dimensional Himmelblau function. See https://en.wikipedia.org/wiki/Himmelblau%27s_function
+
 mccormick: |
   Two-dimensional McCormick function.
+
 ackley: |
   Multi-dimensional Ackely function. See https://en.wikipedia.org/wiki/Ackley_function
+
 eggbox: |
   Multi-dimensional eggbox function. Test problem 2 from https://arxiv.org/abs/1306.2144
+
 rastrigin: |
   Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function 
+
 beale: |
   Two-dimensional Beale function.
+
 shells: |
   Multi-dimensional Gausian shells. Test problem 1 from https://arxiv.org/abs/1306.2144
+
 styblinski_tang: |
   Multi-dimensional Styblinski-Tang function.
+
 easom: |
   Two-dimensional Easom function.
+
 tf1: |
   Analytic function 1 from https://arxiv.org/abs/2101.04525
+
 tf2: |
   Analytic function 2 from https://arxiv.org/abs/2101.04525
+
 tf3: |
   Analytic function 3 from https://arxiv.org/abs/2101.04525
+
 tf4: |
   Analytic function 4 from https://arxiv.org/abs/2101.04525
+
+trivial_1d_parameters: |
+  Model parameters for the trivial 1D model
+
+trivial_2d_parameters: |
+  Model parameters for the trivial 2D model
+
+trivial_3d_parameters: |
+  Model parameters for the trivial 3D model
+
+trivial_4d_parameters: |
+  Model parameters for the trivial 4D model
+
+trivial_5d_parameters: |
+  Model parameters for the trivial 5D model
+
+trivial_7d_parameters: |
+  Model parameters for the trivial 7D model
+
+trivial_10d_parameters: |
+  Model parameters for the trivial 10D model

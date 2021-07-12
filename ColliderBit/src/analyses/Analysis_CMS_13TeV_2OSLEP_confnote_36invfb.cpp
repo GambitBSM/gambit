@@ -27,7 +27,18 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      double _numSR1, _numSR2, _numSR3, _numSR4, _numSR5, _numSR6, _numSR7, _numSR8, _numSR9;
+      std::map<string, EventCounter> _counters = {
+        {"SR1", EventCounter("SR1")},
+        {"SR2", EventCounter("SR2")},
+        {"SR3", EventCounter("SR3")},
+        {"SR4", EventCounter("SR4")},
+        {"SR5", EventCounter("SR5")},
+        {"SR6", EventCounter("SR6")},
+        {"SR7", EventCounter("SR7")},
+        {"SR8", EventCounter("SR8")},
+        {"SR9", EventCounter("SR9")},
+      };
+
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       size_t NCUTS;
@@ -42,27 +53,17 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       struct ptComparison {
-        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
       struct ptJetComparison {
-        bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
       Analysis_CMS_13TeV_2OSLEP_confnote_36invfb() {
 
         set_analysis_name("CMS_13TeV_2OSLEP_confnote_36invfb");
         set_luminosity(35.9);
-
-        _numSR1=0;
-        _numSR2=0;
-        _numSR3=0;
-        _numSR4=0;
-        _numSR5=0;
-        _numSR6=0;
-        _numSR7=0;
-        _numSR8=0;
-        _numSR9=0;
 
         NCUTS=13;
         // xsecCMS_550_200=30.2;
@@ -80,32 +81,32 @@ namespace Gambit {
         double met = event->met();
 
         // Baseline objects
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT()>10. && fabs(electron->eta())<2.5)baselineElectrons.push_back(electron);
         }
 
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT()>10. &&fabs(muon->eta())<2.4)baselineMuons.push_back(muon);
         }
 
-        vector<HEPUtils::Particle*> baselinePhotons;
-        for (HEPUtils::Particle* photon : event->photons()) {
+        vector<const HEPUtils::Particle*> baselinePhotons;
+        for (const HEPUtils::Particle* photon : event->photons()) {
           if (photon->pT()>25. && fabs(photon->eta())<2.4 && (fabs(photon->eta())<1.4 || fabs(photon->eta())>1.6) && fabs(photon->phi()-event->missingmom().phi())>0.4)baselinePhotons.push_back(photon);
         }
 
-        vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT()>35. &&fabs(jet->eta())<2.4)baselineJets.push_back(jet);
         }
 
         // Signal objects
-        vector<HEPUtils::Particle*> signalLeptons;
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> signalBJets;
+        vector<const HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> signalBJets;
 
         //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_034_ttbar.pdf
         const vector<double> aEl={0,0.8,1.442,1.556,2.,2.5};
@@ -113,7 +114,7 @@ namespace Gambit {
         const vector<double> cEl={0.619,0.669,0.7,0.737,0.79,0.625,0.658,0.72,0.712,0.793,0.338,0.372,0.36,0.365,0.416,0.576,0.531,0.614,0.644,0.712,0.440,0.527,0.585,0.606,0.648};
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
         for (size_t iEl=0;iEl<baselineElectrons.size();iEl++) {
-          bool isEl=has_tag(_eff2dEl, baselineElectrons.at(iEl)->eta(), baselineElectrons.at(iEl)->pT());
+          bool isEl=has_tag(_eff2dEl, fabs(baselineElectrons.at(iEl)->eta()), baselineElectrons.at(iEl)->pT());
           if (isEl && baselineElectrons.at(iEl)->pT()>20. && (fabs(baselineElectrons.at(iEl)->eta())<1.4 || fabs(baselineElectrons.at(iEl)->eta())>1.6)) signalElectrons.push_back(baselineElectrons.at(iEl));
         }
 
@@ -123,7 +124,7 @@ namespace Gambit {
         const vector<double> cMu={0.869,0.889,0.91,0.929,0.93,0.857,0.88,0.893,0.937,0.93,0.891,0.894,0.901,0.912,0.927,0.803,0.818,0.817,0.855,0.869};
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
         for (size_t iMu=0;iMu<baselineMuons.size();iMu++) {
-          bool isMu=has_tag(_eff2dMu, baselineMuons.at(iMu)->eta(), baselineMuons.at(iMu)->pT());
+          bool isMu=has_tag(_eff2dMu, fabs(baselineMuons.at(iMu)->eta()), baselineMuons.at(iMu)->pT());
           if (isMu && baselineMuons.at(iMu)->pT()>20. && (fabs(baselineMuons.at(iMu)->eta())<1.4 || fabs(baselineMuons.at(iMu)->eta())>1.6))signalMuons.push_back(baselineMuons.at(iMu));
         }
 
@@ -166,9 +167,9 @@ namespace Gambit {
         double deltaPhi_met_j0=0;
         double deltaPhi_met_j1=0;
 
-        vector<vector<HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
         for (size_t iPa=0;iPa<SFOSpair_cont.size();iPa++) {
-          vector<HEPUtils::Particle*> pair = SFOSpair_cont.at(iPa);
+          vector<const HEPUtils::Particle*> pair = SFOSpair_cont.at(iPa);
           sort(pair.begin(),pair.end(),comparePt);
           if (pair.at(0)->pT()>25. && fabs(pair.at(0)->mom().deltaR_eta(pair.at(1)->mom()))>0.1 && (pair.at(0)->mom()+pair.at(1)->mom()).pT()>25)preselection=true;
         }
@@ -189,18 +190,18 @@ namespace Gambit {
         if (preselection && mll>86. && mll<96. && met>100. && (nSignalJets==2 || nSignalJets==3)  && (baselineMuons.size()+baselineElectrons.size())==2 && pT_j1>35. && deltaPhi_met_j0>0.4 && deltaPhi_met_j1>0.4) {
           //VZ
           if (nSignalBJets==0 && mT2>80. && mjj<110.) {
-            if (met>50. && met<100.)_numSR1++;
-            if (met>100. && met<150.)_numSR2++;
-            if (met>150. && met<250.)_numSR3++;
-            if (met>250. && met<350.)_numSR4++;
-            if (met>350.)_numSR5++;
+            if (met>50. && met<100.) _counters.at("SR1").add_event(event);
+            if (met>100. && met<150.) _counters.at("SR2").add_event(event);
+            if (met>150. && met<250.) _counters.at("SR3").add_event(event);
+            if (met>250. && met<350.) _counters.at("SR4").add_event(event);
+            if (met>350.) _counters.at("SR5").add_event(event);
           }
           //HZ
           if (nSignalBJets==2 && mbb<150. && mT2>200.) {
-            if (met>50. && met<100.)_numSR6++;
-            if (met>100. && met<150.)_numSR7++;
-            if (met>150. && met<250.)_numSR8++;
-            if (met>250.)_numSR9++;
+            if (met>50. && met<100.) _counters.at("SR6").add_event(event);
+            if (met>100. && met<150.) _counters.at("SR7").add_event(event);
+            if (met>150. && met<250.) _counters.at("SR8").add_event(event);
+            if (met>250.) _counters.at("SR9").add_event(event);
           }
         }
 
@@ -270,20 +271,13 @@ namespace Gambit {
         const Analysis_CMS_13TeV_2OSLEP_confnote_36invfb* specificOther
                 = dynamic_cast<const Analysis_CMS_13TeV_2OSLEP_confnote_36invfb*>(other);
 
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
         for (size_t j = 0; j < NCUTS; j++) {
           cutFlowVector[j] += specificOther->cutFlowVector[j];
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
-        _numSR1 += specificOther->_numSR1;
-        _numSR2 += specificOther->_numSR2;
-        _numSR3 += specificOther->_numSR3;
-        _numSR4 += specificOther->_numSR4;
-        _numSR5 += specificOther->_numSR5;
-        _numSR6 += specificOther->_numSR6;
-        _numSR7 += specificOther->_numSR7;
-        _numSR8 += specificOther->_numSR8;
-        _numSR9 += specificOther->_numSR9;
       }
 
 
@@ -308,31 +302,15 @@ namespace Gambit {
        //  cutflowFile<<"\\end{tabular} \n} \n\\end{table}"<<endl;
        // cutflowFile.close();
 
-        // Only 7 of the 9 signal regions are included in the covariance matrix
-        // (SR1 and SR6 are left out)
-        static const size_t SR_size_cov = 7;
-        const int SR_labels_cov[SR_size_cov] = {2, 3, 4, 5, 7, 8, 9};
-        const double SR_nums_cov[SR_size_cov] = {
-          _numSR2, _numSR3, _numSR4, _numSR5, _numSR7, _numSR8, _numSR9,
-        };
+        // Only 7 of the 9 signal regions are included in the covariance matrix (SR1 and SR6 are left out)
 
-        // Observed event counts
-        static const double OBSNUM[SR_size_cov] = {
-          57., 29., 2., 0., 9., 5., 1.
-        };
-        // Background estimates
-        static const double BKGNUM[SR_size_cov] = {
-          54.9, 21.6, 6., 2.5, 7.6, 5.6, 1.3
-        };
-        // Background uncertainties, same-flavor signal regions
-        static const double BKGERR[SR_size_cov] = {
-          7., 5.6, 1.9, 0.9, 2.8, 1.6, 0.4,
-        };
-
-        for (size_t ibin = 0; ibin < SR_size_cov; ++ibin) {
-          stringstream ss; ss << "SR-" << SR_labels_cov[ibin];
-          add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {SR_nums_cov[ibin], 0.}, {BKGNUM[ibin], BKGERR[ibin]}));
-        }
+        add_result(SignalRegionData(_counters.at("SR2"), 57., {54.9, 7.}));
+        add_result(SignalRegionData(_counters.at("SR3"), 29., {21.6, 5.6}));
+        add_result(SignalRegionData(_counters.at("SR4"), 2., {6., 1.9}));
+        add_result(SignalRegionData(_counters.at("SR5"), 0., {2.5, 0.9}));
+        add_result(SignalRegionData(_counters.at("SR7"), 9., {7.6, 2.8}));
+        add_result(SignalRegionData(_counters.at("SR8"), 5., {5.6, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR9"), 1., {1.3, 0.4}));
 
         // Covariance matrix
         static const vector< vector<double> > BKGCOV = {
@@ -349,93 +327,8 @@ namespace Gambit {
 
       }
 
-        // //Now fill a results object with the results for each SR
-        // SignalRegionData results_SR1;
-        // results_SR1.sr_label = "SR1";
-        // results_SR1.n_observed = 793.;
-        // results_SR1.n_background = 793.;
-        // results_SR1.background_sys = 32.2;
-        // results_SR1.signal_sys = 0.;
-        // results_SR1.n_signal = _numSR1;
-        // add_result(results_SR1);
 
-        // SignalRegionData results_SR2;
-        // results_SR2.sr_label = "SR2";
-        // results_SR2.n_observed = 57.;
-        // results_SR2.n_background = 54.9;
-        // results_SR2.background_sys = 7.;
-        // results_SR2.signal_sys = 0.;
-        // results_SR2.n_signal = _numSR2;
-        // add_result(results_SR2);
-
-        // SignalRegionData results_SR3;
-        // results_SR3.sr_label = "SR3";
-        // results_SR3.n_observed = 29.;
-        // results_SR3.n_background = 21.6;
-        // results_SR3.background_sys = 5.6;
-        // results_SR3.signal_sys = 0.;
-        // results_SR3.n_signal = _numSR3;
-        // add_result(results_SR3);
-
-        // SignalRegionData results_SR4;
-        // results_SR4.sr_label = "SR4";
-        // results_SR4.n_observed = 2.;
-        // results_SR4.n_background = 6.;
-        // results_SR4.background_sys = 1.9;
-        // results_SR4.signal_sys = 0.;
-        // results_SR4.n_signal = _numSR4;
-        // add_result(results_SR4);
-
-        // SignalRegionData results_SR5;
-        // results_SR5.sr_label = "SR5";
-        // results_SR5.n_observed = 0.;
-        // results_SR5.n_background = 2.5;
-        // results_SR5.background_sys = 0.9;
-        // results_SR5.signal_sys = 0.;
-        // results_SR5.n_signal = _numSR5;
-        // add_result(results_SR5);
-
-        // SignalRegionData results_SR6;
-        // results_SR6.sr_label = "SR6";
-        // results_SR6.n_observed = 82;
-        // results_SR6.n_background = 82.;
-        // results_SR6.background_sys = 9.5;
-        // results_SR6.signal_sys = 0.;
-        // results_SR6.n_signal = _numSR6;
-        // add_result(results_SR6);
-
-        // SignalRegionData results_SR7;
-        // results_SR7.sr_label = "SR7";
-        // results_SR7.n_observed = 9.;
-        // results_SR7.n_background = 7.6;
-        // results_SR7.background_sys = 2.8;
-        // results_SR7.signal_sys = 0.;
-        // results_SR7.n_signal = _numSR7;
-        // add_result(results_SR7);
-
-        // SignalRegionData results_SR8;
-        // results_SR8.sr_label = "SR8";
-        // results_SR8.n_observed = 5.;
-        // results_SR8.n_background = 5.6;
-        // results_SR8.background_sys = 1.6;
-        // results_SR8.signal_sys = 0.;
-        // results_SR8.n_signal = _numSR8;
-        // add_result(results_SR8);
-
-        // SignalRegionData results_SR9;
-        // results_SR9.sr_label = "SR9";
-        // results_SR9.n_observed = 1.;
-        // results_SR9.n_background = 1.3;
-        // results_SR9.background_sys = 0.4;
-        // results_SR9.signal_sys = 0.;
-        // results_SR9.n_signal = _numSR9;
-        // add_result(results_SR9);
-
-      // }
-
-
-
-      double get_mjj(vector<HEPUtils::Jet*> jets) {
+      double get_mjj(vector<const HEPUtils::Jet*> jets) {
         double mjj=0;
         double deltaPhi_min=999;
         for (size_t iJet1=0;iJet1<jets.size();iJet1++) {
@@ -452,7 +345,7 @@ namespace Gambit {
         return mjj;
       }
 
-      double get_mT2(vector<HEPUtils::Particle*> leptons, vector<HEPUtils::Jet*> bjets, HEPUtils::P4 met) {
+      double get_mT2(vector<const HEPUtils::Particle*> leptons, vector<const HEPUtils::Jet*> bjets, HEPUtils::P4 met) {
         double mT2=0;
         if (bjets.size()<2) {
           double pLep0[3] = {leptons.at(0)->mass(), leptons.at(0)->mom().px(), leptons.at(0)->mom().py()};
@@ -488,15 +381,8 @@ namespace Gambit {
 
     protected:
       void analysis_specific_reset() {
-        _numSR1=0;
-        _numSR2=0;
-        _numSR3=0;
-        _numSR4=0;
-        _numSR5=0;
-        _numSR6=0;
-        _numSR7=0;
-        _numSR8=0;
-        _numSR9=0;
+
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

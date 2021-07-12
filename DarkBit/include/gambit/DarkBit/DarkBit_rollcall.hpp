@@ -117,8 +117,8 @@ START_MODULE
       BACKEND_REQ(dshmisodf, (ds6), DS_HMISODF)
       BACKEND_REQ(dshmframevelcom, (ds6), DS_HMFRAMEVELCOM)
       BACKEND_REQ(dshmnoclue, (ds6), DS_HMNOCLUE)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))  // Only DS6
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2), (ds6))  // Only DS6
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only DS6
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -146,6 +146,7 @@ START_MODULE
       START_FUNCTION(RD_spectrum_type)
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
                    DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2)
@@ -177,7 +178,7 @@ START_MODULE
       DEPENDENCY(RD_spectrum_ordered, RD_spectrum_type)
       BACKEND_REQ(dsancoann, (ds6), DS_DSANCOANN)
       BACKEND_REQ(DSparticle_code, (ds6), int, (const str&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
   #undef CAPABILITY
@@ -196,12 +197,13 @@ START_MODULE
       ALLOW_MODELS(MSSM63atQ)
       DEPENDENCY(RD_eff_annrate_DSprep_MSSM, int)
       BACKEND_REQ(dsanwx, (ds6), double, (double&))
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
     #undef FUNCTION
     #define FUNCTION RD_eff_annrate_from_ProcessCatalog
       START_FUNCTION(fptr_dd)
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2)
     #undef FUNCTION
@@ -325,8 +327,18 @@ START_MODULE
     #define FUNCTION get_semi_ann_MicrOmegas
       START_FUNCTION(double)
       DEPENDENCY(Xf, double)
-      BACKEND_REQ(get_oneChannel, (gimmemicro) , double,  (double,double,char*,char*,char*,char*))
+      BACKEND_REQ(get_oneChannel, (gimmemicro), double, (double,double,char*,char*,char*,char*))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z3),(gimmemicro))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY vSigma_freezeout
+  START_CAPABILITY
+    #define FUNCTION vSigma_freezeout_MicrOmegas
+      START_FUNCTION(double)
+      DEPENDENCY(Xf, double)
+      DEPENDENCY(mwimp, double)
+      BACKEND_REQ(vSigma, (), double, (double, double, int))
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -454,12 +466,24 @@ START_MODULE
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(SimYieldTable, SimYieldTable)
       DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(DarkMatterConj_ID, std::string)
+      DEPENDENCY(DM_process, std::string)
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY GA_AnnYield
+  #define CAPABILITY GA_Yield
   START_CAPABILITY
+
     #define FUNCTION GA_AnnYield_General
+      START_FUNCTION(daFunk::Funk)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+      DEPENDENCY(SimYieldTable, SimYieldTable)
+      DEPENDENCY(cascadeMC_gammaSpectra, stringFunkMap)
+      DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(DarkMatterConj_ID, std::string)
+    #undef FUNCTION
+
+    #define FUNCTION GA_DecayYield_General
       START_FUNCTION(daFunk::Funk)
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(SimYieldTable, SimYieldTable)
@@ -476,6 +500,7 @@ START_MODULE
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(MSSM_spectrum, Spectrum)
       DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(DarkMatterConj_ID, std::string)
       DEPENDENCY(decay_rates,DecayTable)
       BACKEND_REQ(dssigmav, (ds5), double, (int&))
       BACKEND_REQ(dsIBffdxdy, (ds5), double, (int&, double&, double&))
@@ -499,7 +524,7 @@ START_MODULE
       BACKEND_REQ(dsIBwhdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(dsIBwwdxdy, (ds6), double, (int&, double&, double&))
       BACKEND_REQ(IBintvars, (ds6), DS_IBINTVARS)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
 
@@ -542,6 +567,18 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Information about the nature of the DM process in question
+  // (i.e. decay or annihilation) to use the correct scaling in 
+  // terms of the DM density, phase space, etc.
+  #define CAPABILITY DM_process
+  START_CAPABILITY
+    #define FUNCTION DM_process_from_ProcessCatalog
+      START_FUNCTION(std::string)
+      DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+      DEPENDENCY(DarkMatter_ID, std::string)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY set_gamLike_GC_halo
   START_CAPABILITY
     #define FUNCTION set_gamLike_GC_halo
@@ -555,8 +592,9 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION lnL_FermiLATdwarfs_gamLike
       START_FUNCTION(double)
-      DEPENDENCY(GA_AnnYield, daFunk::Funk)
+      DEPENDENCY(GA_Yield, daFunk::Funk)
       DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(DM_process, std::string)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
     #undef FUNCTION
   #undef CAPABILITY
@@ -565,9 +603,10 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION lnL_FermiGC_gamLike
       START_FUNCTION(double)
-      DEPENDENCY(GA_AnnYield, daFunk::Funk)
+      DEPENDENCY(GA_Yield, daFunk::Funk)
       DEPENDENCY(RD_fraction, double)
       DEPENDENCY(set_gamLike_GC_halo, bool)
+      DEPENDENCY(DM_process, std::string)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
     #undef FUNCTION
   #undef CAPABILITY
@@ -576,8 +615,9 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION lnL_CTAGC_gamLike
       START_FUNCTION(double)
-      DEPENDENCY(GA_AnnYield, daFunk::Funk)
+      DEPENDENCY(GA_Yield, daFunk::Funk)
       DEPENDENCY(RD_fraction, double)
+      DEPENDENCY(DM_process, std::string)
       //DEPENDENCY(set_gamLike_GC_halo, bool)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
     #undef FUNCTION
@@ -587,9 +627,10 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION lnL_HESSGC_gamLike
       START_FUNCTION(double)
-      DEPENDENCY(GA_AnnYield, daFunk::Funk)
+      DEPENDENCY(GA_Yield, daFunk::Funk)
       DEPENDENCY(RD_fraction, double)
       DEPENDENCY(set_gamLike_GC_halo, bool)
+      DEPENDENCY(DM_process, std::string)
       BACKEND_REQ(lnL, (gamLike), double, (int, const std::vector<double> &, const std::vector<double> &))
     #undef FUNCTION
   #undef CAPABILITY
@@ -598,7 +639,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION dump_GammaSpectrum
       START_FUNCTION(double)
-      DEPENDENCY(GA_AnnYield, daFunk::Funk)
+      DEPENDENCY(GA_Yield, daFunk::Funk)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -662,6 +703,7 @@ START_MODULE
       START_FUNCTION(double)
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(DarkMatterConj_ID, std::string)
     #undef FUNCTION
 
     #define FUNCTION sigmav_late_universe_MicrOmegas
@@ -696,7 +738,7 @@ START_MODULE
       BACKEND_REQ(get_DD_couplings, (ds6), std::vector<double>, ())
       BACKEND_REQ(ddcomlegacy, (ds6), DS_DDCOMLEGACY)
       BACKEND_REQ(ddmssmcom, (ds6), DS_DDMSSMCOM)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))  // Only for DarkSUSY6 MSSM
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
       ALLOW_JOINT_MODEL(nuclear_params_fnq,MSSM63atQ)
     #undef FUNCTION
@@ -957,8 +999,8 @@ START_MODULE
       DEPENDENCY(RD_fraction, double)
       DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
       DEPENDENCY(DarkSUSY_PointInit_LocalHalo, bool)
-      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2), (ds6))
-      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2), (ds6))
+      BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))
+      BACKEND_OPTION((DarkSUSY_generic_wimp, 6.1.1, 6.2.2, 6.2.5), (ds6))
       FORCE_SAME_BACKEND(ds6)
     #undef FUNCTION
 
@@ -995,6 +1037,7 @@ START_MODULE
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(mwimp, double)
       DEPENDENCY(DarkMatter_ID, std::string)
+      DEPENDENCY(DarkMatterConj_ID, std::string)
       DEPENDENCY(capture_rate_Sun, double)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1020,6 +1063,7 @@ START_MODULE
     DEPENDENCY(mwimp, double)
     DEPENDENCY(sigmav, double)
     DEPENDENCY(DarkMatter_ID, std::string)
+    DEPENDENCY(DarkMatterConj_ID, std::string)
     BACKEND_REQ(DS_nuyield_setup, (ds), void, (const double(&)[29],
      const double(&)[29][3], const double(&)[15], const double(&)[3], const double&,
      const double&))
@@ -1319,9 +1363,10 @@ START_MODULE
     START_FUNCTION(int)
     DEPENDENCY(DD_couplings, DM_nucleon_couplings)
     DEPENDENCY(RD_oh2, double)
-    DEPENDENCY(GA_AnnYield, daFunk::Funk)
+    DEPENDENCY(GA_Yield, daFunk::Funk)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(DarkMatter_ID, std::string)
+    DEPENDENCY(DarkMatterConj_ID, std::string)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1364,6 +1409,30 @@ START_MODULE
     ALLOW_MODELS(DiracSingletDM_Z2)
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_MSSM
+    START_FUNCTION(std::string)
+    DEPENDENCY(MSSM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DarkMatterConj_ID
+  START_CAPABILITY
+    #define FUNCTION DarkMatterConj_ID_ScalarSingletDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_VectorSingletDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(VectorSingletDM_Z2)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_MajoranaSingletDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(MajoranaSingletDM_Z2)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DiracSingletDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DiracSingletDM_Z2)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_MSSM
     START_FUNCTION(std::string)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     #undef FUNCTION

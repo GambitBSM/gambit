@@ -25,9 +25,32 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    /// Set exceeded_maxFailedEvents = true and decrement event counter by 1
+    void MCLoopInfo::report_exceeded_maxFailedEvents() const
+    {
+      #pragma omp critical
+      {
+        exceeded_maxFailedEvents = true;
+        // Decrement event counter
+        _current_event_count_it->second--;        
+      }
+    }
+
+    /// Set end_of_event_file = true and decrement event counter by 1
+    void MCLoopInfo::report_end_of_event_file() const
+    {
+      #pragma omp critical
+      {
+        end_of_event_file = true;
+        // Decrement event counter
+        _current_event_count_it->second--;        
+      }
+    }
+
     /// Reset flags
     void MCLoopInfo::reset_flags()
     {
+      end_of_event_file = false;
       event_generation_began = false;
       exceeded_maxFailedEvents = false;
     }
@@ -83,6 +106,15 @@ namespace Gambit
       }
       _current_detector_analyses_it = lt;
 
+      // Save an iterator to the current invalidate_failed_points
+      auto mt = invalidate_failed_points.find(_current_collider);
+      if (mt == invalidate_failed_points.end())
+      {
+        str msg = "Current collider \"" + _current_collider + "\" not found in MCLoopInfo::invalidate_failed_points map.";
+        utils_error().raise(LOCAL_INFO, msg);
+      }
+      _current_invalidate_failed_points_it = mt;
+
     }
 
     bool MCLoopInfo::current_analyses_exist_for(const str& detname) const
@@ -96,6 +128,9 @@ namespace Gambit
 
     const int& MCLoopInfo::current_maxFailedEvents() const { return _current_maxFailedEvents_it->second; }
     int& MCLoopInfo::current_maxFailedEvents() { return _current_maxFailedEvents_it->second; }
+
+    const bool& MCLoopInfo::current_invalidate_failed_points() const { return _current_invalidate_failed_points_it->second; }
+    bool& MCLoopInfo::current_invalidate_failed_points() { return _current_invalidate_failed_points_it->second; }
 
     const int& MCLoopInfo::current_event_count() const { return _current_event_count_it->second; }
     int& MCLoopInfo::current_event_count() { return _current_event_count_it->second; }

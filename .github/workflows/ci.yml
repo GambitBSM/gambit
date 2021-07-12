@@ -44,7 +44,7 @@ jobs:
         echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
         echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
         cat buildenv.sh
-        pip install pyyaml pybind11 h5py
+        pip install pyyaml pybind11 h5py scipy
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh

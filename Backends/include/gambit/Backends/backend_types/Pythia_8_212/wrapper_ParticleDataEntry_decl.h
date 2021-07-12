@@ -2,10 +2,10 @@
 #define __wrapper_ParticleDataEntry_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ParticleDataEntry.h"
-#include <string>
 #include "wrapper_DecayChannel_decl.h"
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
@@ -24,26 +24,26 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory0)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory1)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory2)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory3)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory4)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory5)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory6)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory7)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory8)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory9)(int);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory10)();
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory11)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory12)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory13)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory14)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory15)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory16)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory17)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory18)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
-                static Pythia8::Abstract_ParticleDataEntry* (*__factory19)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+                static Abstract_ParticleDataEntry* (*__factory0)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double, double);
+                static Abstract_ParticleDataEntry* (*__factory1)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double);
+                static Abstract_ParticleDataEntry* (*__factory2)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double);
+                static Abstract_ParticleDataEntry* (*__factory3)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double);
+                static Abstract_ParticleDataEntry* (*__factory4)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double);
+                static Abstract_ParticleDataEntry* (*__factory5)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int);
+                static Abstract_ParticleDataEntry* (*__factory6)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int);
+                static Abstract_ParticleDataEntry* (*__factory7)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
+                static Abstract_ParticleDataEntry* (*__factory8)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+                static Abstract_ParticleDataEntry* (*__factory9)(int);
+                static Abstract_ParticleDataEntry* (*__factory10)();
+                static Abstract_ParticleDataEntry* (*__factory11)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double, double);
+                static Abstract_ParticleDataEntry* (*__factory12)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double);
+                static Abstract_ParticleDataEntry* (*__factory13)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double);
+                static Abstract_ParticleDataEntry* (*__factory14)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double);
+                static Abstract_ParticleDataEntry* (*__factory15)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double);
+                static Abstract_ParticleDataEntry* (*__factory16)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int);
+                static Abstract_ParticleDataEntry* (*__factory17)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int);
+                static Abstract_ParticleDataEntry* (*__factory18)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
+                static Abstract_ParticleDataEntry* (*__factory19)(int, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
         
                 // -- Other member variables: 
         
@@ -243,6 +243,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 Pythia8::DecayChannel& pickChannel();
         
+                void setResonancePtr(Pythia8::ResonanceWidths* resonancePtrIn);
+        
+                Pythia8::ResonanceWidths* getResonancePtr();
+        
                 void resInit(Pythia8::Info* infoPtrIn, Pythia8::Settings* settingsPtrIn, Pythia8::ParticleData* particleDataPtrIn, Pythia8::Couplings* couplingsPtrIn);
         
                 double resWidth(int idSgn, double mHat, int idIn, bool openOnly, bool setBR);
@@ -296,7 +300,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ParticleDataEntry(int idIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > antiNameIn);
         
                 // Special pointer-based constructor: 
-                ParticleDataEntry(Pythia8::Abstract_ParticleDataEntry* in);
+                ParticleDataEntry(Abstract_ParticleDataEntry* in);
         
                 // Copy constructor: 
                 ParticleDataEntry(const ParticleDataEntry& in);
@@ -308,7 +312,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~ParticleDataEntry();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_ParticleDataEntry* get_BEptr() const;
+                Abstract_ParticleDataEntry* get_BEptr() const;
         
         };
     }

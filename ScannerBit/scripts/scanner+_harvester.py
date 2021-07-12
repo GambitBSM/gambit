@@ -623,7 +623,7 @@ endif()
             for plug in scanbit_plugins[plug_type[i]][directory]:
                 if plug[3] == "excluded":
                     towrite += "set (" + plug_type[i] + "_ok_flag_" + directory + " \"\\n    - user excluded plugin: \\\"" + plug[4].split("__t__")[0] + "\\\"\")\n"
-                    print("excluding ", plug[4])
+                    if verbose: print("excluding ", plug[4])
                 
             towrite += "set (" + plug_type[i] + "_plugin_libraries_" + directory + "\n"
             if plug_type[i] in scanbit_libs:
