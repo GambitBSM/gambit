@@ -1705,7 +1705,7 @@ namespace Gambit
       parameters const& param = *Dep::SuperIso_modelinfo;
       double mB = 5.27926;    
       double mK = 0.493677;
-      double mTau = 1.77686;
+      const double mTau = Dep::SMINPUTS->mTau;
       double Q2min = 4*mTau*mTau;
       double Q2max = pow(mB-mK,2);
       result=BEreq::BRBKtautau_CONV(&param,byVal(Q2min),byVal(Q2max));
@@ -2800,10 +2800,9 @@ namespace Gambit
       double xi_taumu = Ytaumu/cosb;
       double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       double R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
-      double Roff = ((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);
-      //cout<<"D = "<<D<<endl;
+      double Roff = 2*((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);//The 2 factor accounts for tau mu and mu tau neutrinos
       
-      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R+Roff));               
+      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R));               
     }           
       
     /// Fill SuperIso nuisance structure

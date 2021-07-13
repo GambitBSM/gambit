@@ -525,6 +525,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION SI_BRBKtautau
     START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(BRBKtautau_CONV, (libsuperiso), double, (const parameters*, double, double))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
