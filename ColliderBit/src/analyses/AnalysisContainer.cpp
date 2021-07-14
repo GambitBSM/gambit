@@ -55,6 +55,7 @@ namespace Gambit
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
+      F(ATLAS_13TeV_3LEP_139invfb)                   \
       F(ATLAS_13TeV_2BoostedBosons_139invfb)         \
       F(ATLAS_13TeV_0LEP_13invfb)                    \
       F(ATLAS_13TeV_0LEP_36invfb)                    \
