@@ -4267,7 +4267,7 @@ namespace Gambit
       result = 2*abs(M12_NP);
       const double A = (pow(fBs,2)*pow(mBs,3)/(4*pow(mBmB+mS,2)));
       const double Gammah = 4.07e-3;
-      double BRhbs = ((3*pow(mh, 3)*pow(mH, 2))/(16*pi*Gammah*(pow(mH, 2) - pow(mh, 2))))*(1/(A*abs(U22*Bag2*b2 + U32*Bag3*b3)));
+      double BRhbs = ((3*pow(mh, 3)*pow(mH, 2))/(16*pi*Gammah*(pow(mH, 2) - pow(mh, 2))))*(1/(A*abs(U22*Bag2*b2 + U32*Bag3*b3 + U44*Bag4*b4)));
       result*= BRhbs;
       if (flav_debug) printf("BR(h->bs)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_h2bs"<<endl;
