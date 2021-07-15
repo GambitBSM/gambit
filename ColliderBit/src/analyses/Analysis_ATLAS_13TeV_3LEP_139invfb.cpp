@@ -5,6 +5,9 @@
 ///
 ///  Based on the search presented in 2106.01676.
 ///
+/// The Recursive Jigsaw (RJR) signal regions are not included in this implementation as they are not
+/// statistically independent from the rest of the signal regions, and believed to not be competitve in terms of
+/// exclusion power.
 ///
 ///  *********************************************
 
@@ -20,49 +23,65 @@
 
 using namespace std;
 
-
 namespace Gambit {
   namespace ColliderBit {
-
-
+  
     class Analysis_ATLAS_13TeV_3LEP_139invfb : public Analysis {
 
     protected:
       // Signal region map
       std::map<string, EventCounter> _counters = {
-        // Exclusion regions
-        {"SR-4Q-WW", EventCounter("SR-4Q-WW")},
-        {"SR-4Q-WZ", EventCounter("SR-4Q-WZ")},
-        {"SR-4Q-ZZ", EventCounter("SR-4Q-ZZ")},
-        {"SR-4Q-VV", EventCounter("SR-4Q-VV")},
-        {"SR-2B2Q-WZ", EventCounter("SR-2B2Q-WZ")},
-        {"SR-2B2Q-ZZ", EventCounter("SR-2B2Q-ZZ")},
-        {"SR-2B2Q-Wh", EventCounter("SR-2B2Q-Wh")},
-        {"SR-2B2Q-Zh", EventCounter("SR-2B2Q-Zh")},
-        {"SR-2B2Q-VZ", EventCounter("SR-2B2Q-VZ")},
-        {"SR-2B2Q-Vh", EventCounter("SR-2B2Q-Vh")},
-        // Discovery regions
-        {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
-        {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
+        // Exclusive SRs
+        // WZ on-shell
+        {"SR-WZ-1", EventCounter("SR-WZ-1")},
+        {"SR-WZ-2", EventCounter("SR-WZ-2")},
+        {"SR-WZ-3", EventCounter("SR-WZ-3")},
+        {"SR-WZ-4", EventCounter("SR-WZ-4")},
+        {"SR-WZ-5", EventCounter("SR-WZ-5")},
+        {"SR-WZ-6", EventCounter("SR-WZ-6")},
+        {"SR-WZ-7", EventCounter("SR-WZ-7")},
+        {"SR-WZ-8", EventCounter("SR-WZ-8")},
+        {"SR-WZ-9", EventCounter("SR-WZ-9")},
+        {"SR-WZ-10", EventCounter("SR-WZ-10")},
+        {"SR-WZ-11", EventCounter("SR-WZ-11")},
+        {"SR-WZ-12", EventCounter("SR-WZ-12")},
+        {"SR-WZ-13", EventCounter("SR-WZ-13")},
+        {"SR-WZ-14", EventCounter("SR-WZ-14")},
+        {"SR-WZ-15", EventCounter("SR-WZ-15")},
+        {"SR-WZ-16", EventCounter("SR-WZ-16")},
+        {"SR-WZ-17", EventCounter("SR-WZ-17")},
+        {"SR-WZ-18", EventCounter("SR-WZ-18")},
+        {"SR-WZ-19", EventCounter("SR-WZ-19")},
+        {"SR-WZ-20", EventCounter("SR-WZ-20")},
+        // Wh
+        // WZ off-shell
+        // Inclusive SRs
       };
             
-    public:
+    private:
+
+      // Struct to sort on pT in decending order
+      struct ptComparison
+      {
+        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+      } comparePt;
+      
+      // Internally used Z-mass
+      double mZ = 91.1876; // [GeV]
+
       
       #ifdef CHECK_CUTFLOW
-      string scenario = "HG";
-      // Cut-flows
-      // Yields in SRs {4Q-WW, 4Q-WZ, 4Q-ZZ, 4Q-VV, 2B2Q-WZ, 2B2Q-Wh, 2B2Q-ZZ, 2B2Q-Zh, 2B2Q-VZ, 2B2Q-Vh}
-      vector<double> _yield_WZ = {3.5967, 6.3812, 4.1271, 6.7624, 2.0387, 0.3481, 1.8895, 0.2818, 2.3702, 0.3812};
-      vector<double> _yield_Wh = {0.3812, 0.6961, 0.4475, 0.7459, 1.1934, 5.2044, 0.8287, 3.6961, 1.2597, 5.5359};
-      vector<double> _yield_HG = {0.8122, 1.5746, 1.2597, 1.8398, 1.5083, 2.0552, 1.9558, 3.0000, 2.1878, 3.2818};
-      
-      vector<double> _meff_4QVV_WW = {0.15911, 1.1519, 2.1652, 2.3533, 2.302, 1.3157, 0.70599, 0.39097, 0.22347, 0.12507, 0.0, 0.0};
-      vector<double> _meff_4QVV_WZ = {0.0, 0.30543, 0.62458, 1.264, 1.4178, 1.493, 1.2082, 0.9881, 0.65451, 0.35119, 0.29642, 0.0};
-      vector<double> _meff_4QVV_HG = {0.0, 0.1461, 0.56213, 0.43614, 0.4357, 0.66339, 0.40393, 0.1648, 0.0, 0.0, 0.0, 0.0};
+      // Benchmark scenario
+      string scenario = "";
+      // Cut-flow variables
+      size_t NCUTS;
+      vector<int> cutFlowSig;
+      vector<string> cutFlowStr = {"Total events", "Leptons + ETmiss", "nSFOS", "Trigger", "n_bjets = 0", "m_ll > 12 GeV", "|m_3l-m_Z| > 15 GeV", "75 < m_ll < 105", "MC to data weight", "n_jets = 0", "100 < m_T < 160", "50 < ETmiss < 100", "100 < ETmiss < 150", "150 < ETmiss < 200", "200 < ETmiss"};
+      vector<double> cutFlowExp;
 
-      const vector<double> _meff_bins = {700., 850., 1000., 1150., 1300., 1450., 1600., 1750., 1900., 2050., 2200., 2350., 2500,};
-      vector<double> _meff_4QVV = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       #endif
+      
+    public:
       
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
@@ -71,6 +90,16 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_13TeV_3LEP_139invfb");
         set_luminosity(139.);
+        
+        #ifdef CHECK_CUTFLOW
+        scenario = "WZ_300_200";
+        NCUTS=15;
+        for(size_t i=0; i<NCUTS; i++){
+          cutFlowSig.push_back(0);
+          cutFlowExp.push_back(0);
+          //cutFlowStr.push_back("");
+        }
+        #endif
         
       }
       
@@ -124,111 +153,172 @@ namespace Gambit {
         vector<const HEPUtils::Particle*> muons;
         for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 3.
-              && fabs(muon->eta()) < 2.7)
+              && fabs(muon->eta()) < 2.5)
             muons.push_back(muon);
         }
-        // Apply muon efficiency
+        // Apply muon efficiency from "Medium" criteria
         ATLAS::applyMuonEffR2(muons);
         
         // Number of leptons
         size_t nMuons = muons.size();
         size_t nElectrons = electrons.size();
-        size_t nLeptons = nElectrons+nMuons;
-
-        // Look at jets to see if they fulfil criteria for fat jets
-        vector<const HEPUtils::Jet*> fatJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
-          //  cout  << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
-          if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 40.){
-            fatJets.push_back(jet);
-          }
-        }
-        // Overlap removal (remove fat jets within DR=1 of electrons)
-        JetLeptonOverlapRemoval(fatJets, electrons, 1.0);
-        size_t nfat = fatJets.size();
+//        size_t nLeptons = nElectrons+nMuons;
         
-        // Tag the large jets (only look at two hardest jets)
-        int nW = 0; int nZ = 0; int ntest = 0;
-        const vector<double> bpT = {200., 300., 500., 700., 900., DBL_MAX}; // pT bin edges
-        const vector<double> pW = {0.469, 0.475, 0.481, 0.496, 0.522}; // W tag prob
-        const vector<double> pWmiss = {1/10.2574, 1/20.2997, 1/33.4745, 1/36.0622, 1/29.1341}; // W misstag prob
-        const vector<double> pZ = {0.469, 0.488, 0.513, 0.516, 0.525}; // Z tag prob
-        const vector<double> pZmiss = {1/11.5847, 1/18.5291, 1/27.7596, 1/38.4142, 1/26.0997}; // Z misstag prob
-        const HEPUtils::BinnedFn1D<double> _eff1dW(bpT, pW);
-        const HEPUtils::BinnedFn1D<double> _eff1dWmiss(bpT, pWmiss);
-        const HEPUtils::BinnedFn1D<double> _eff1dZ(bpT, pZ);
-        const HEPUtils::BinnedFn1D<double> _eff1dZmiss(bpT, pZmiss);
-        for (const HEPUtils::Jet* jet : fatJets) {
-          // Tag W
-          if( jet->Wtag() && random_bool( _eff1dW.get_at( jet->pT() ) ) ) nW++;
-          // Tag Z
-          if( jet->Ztag()  && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
-          // Misstag as Z or W
-          if( !jet->Wtag() && !jet->Ztag() ) {
-            if( random_bool( _eff1dZmiss.get_at( jet->pT() ) )  ) nZ++;
-            if( random_bool( _eff1dWmiss.get_at( jet->pT() ) )  ) nW++;
+        // Baseline jets
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
+          if (jet->pT() > 20. && fabs(jet->eta()) < 4.5 ){
+            baselineJets.push_back(jet);
           }
-          ntest++;
-          if(ntest > 1) break;
         }
-        int nV = nZ + nW;
-        // cout << "nZ " << nZ << " nW " << nW << " nV " << nV << endl;
+
+        // Overlap removal (remove jets within DR=1 of electrons)
+        JetLeptonOverlapRemoval(baselineJets, electrons, 0.4);
+        //        size_t nfat = fatJets.size();
+
+        
+        int njets = baselineJets.size();
+        double HT = 0;
+        for(const HEPUtils::Jet* jet : baselineJets) HT += jet->pT();
+        
+        // Joint vector for leptons
+        vector<const HEPUtils::Particle*> leptons;
+        leptons = electrons;
+        leptons.insert(leptons.end(), muons.begin(), muons.end());
+        // Sort leptons by pT
+        sortByPt(leptons);
+        size_t nLeptons = leptons.size();
+        
+        // Check lepton pT
+        bool bpT1 = false; bool bpT2 = false; bool bpT3 = false;
+        if(nLeptons == 3){
+         if( leptons[0]->pT() > 25.) bpT1 = true;
+         if( leptons[1]->pT() > 20.) bpT2 = true;
+         if( leptons[2]->pT() > 10.) bpT3 = true;
+        }
+        bool bLeptons = bpT1 && bpT2 && bpT3;
+        
+        // Identify the roles of the leptons
+        bool bSFOS = false;
+        int iZ1 = -1; int iZ2 = -1; int iW = -1;
+        double dmZ = 999.; double mll = 0; double mlll = 0; double mT = 0; double HTlep = 999.;
+        // Only bother if we have three OK leptons
+        if(bLeptons){
+          // Find SFOS from Z under given criteria
+          for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+              // Check for SFOS
+              if(leptons[i]->pid() + leptons[j]->pid() == 0){
+                // Check invariant mass
+                double mll_test = (leptons[i]->mom()+leptons[j]->mom()).m();
+                if(fabs(mll_test-mZ) < dmZ){
+                  iZ1 = i; iZ2 = j; dmZ = fabs(mll_test-mZ); mll = mll_test;
+                  bSFOS = true;
+                }
+              }
+            }
+          }
+          
+          // Find lepton from W
+          if( iZ1 == 0 && iZ2 == 1) iW = 2;
+          if( iZ1 == 1 && iZ2 == 2) iW = 0;
+          if( iZ1 == 0 && iZ2 == 2) iW = 1;
+          
+          // If SFOS pair from Z and W-lepton found, calculate some kinematics
+          if(bSFOS && iW != -1) {
+            HEPUtils::P4 plW = leptons[iW]->mom();
+            mlll = (leptons[iZ1]->mom()+leptons[iZ2]->mom()+plW).m();
+            // Calculate m_T between W-lepton and missing momentum vector
+            mT = sqrt( 2.*plW.pT()*met*( 1.-cos( plW.deltaPhi(metVec) ) ) );
+            HTlep = leptons[iZ1]->pT() + leptons[iZ2]->pT() + plW.pT();
+          }
+        }
+        //cout << iZ1 << " " << iZ2 << " " << iW << " " << mll << endl;
+        
         
   	    // b-jet tagging
-        /* There is a difference here wrt the actual analysis where small
-         sliding radius track jets are used, and the number of such b-jets are
-         counted. This means that the rejection for b-jets in the 4Q SRs has to
-         be changed. We use the conservative choice of rejecting all events with
-         a b-labeled large radius jet and mis-tagging large radius non-b-jets
-         according to the mis-tag probabilities of the small radius track jets.
-        */
-        double btag = 0.83; double cmisstag = 1/3.; double misstag = 1./33.;
+        double btag = 0.85; double cmisstag = 1/2.7; double misstag = 1./25.;
         int nb = 0;
         for ( const HEPUtils::Jet* jet : event->jets() ) {
-          // Tag b-jet
-          if( jet->btag() ) nb++;
-          // Misstag c-jet
-          else if( !jet->btag() && jet->ctag() && random_bool(cmisstag) ) nb++;
-          // Misstag light jet
-          else if( !jet->btag() && !jet->ctag() && random_bool(misstag) ) nb++;
+          // Kinematics criteria for candidate b-jets
+          if (jet->pT() > 20. && fabs(jet->eta()) < 2.5 ){
+            // Tag b-jet
+            if( jet->btag() && random_bool(btag) ) nb++;
+            // Misstag c-jet
+            else if( !jet->btag() && jet->ctag() && random_bool(cmisstag) ) nb++;
+            // Misstag light jet
+            else if( !jet->btag() && !jet->ctag() && random_bool(misstag) ) nb++;
+          }
         }
         
-        // Check separation of jets and ETmiss
-        bool delphi = true;
-        for ( const HEPUtils::Jet* jet : fatJets ) {
-          double phi = jet->mom().deltaPhi(metVec);
-          if (phi < 1.0) delphi = false;
-        }
-
-        // Effective mass (missing energy plus two leading fatjet pTs)
-        double meff = met;
-        if(fatJets.size() > 0) meff += fatJets[0]->pT();
-        if(fatJets.size() > 1) meff += fatJets[1]->pT();
-
         
         //
         // Count signal region events
         //
         
-        // Preselection conditions
-        if(nfat > 1 && nLeptons == 0){
-          // First exclusion regions
-          if(nb == 0 && delphi){
-            if(met > 300. && meff > 1300. && nV == 2 && nW == 2) _counters.at("SR-4Q-WW").add_event(event);
-            if(met > 300. && meff > 1300. && nV == 2 && nW > 0 && nZ > 0) _counters.at("SR-4Q-WZ").add_event(event);
-            if(met > 300. && meff > 1300. && nV == 2 && nZ ==2) _counters.at("SR-4Q-ZZ").add_event(event);
-            if(met > 300. && meff > 1300. && nV == 2) _counters.at("SR-4Q-VV").add_event(event);
+        // First exclusive regions
+        // Pre-selection for WZ on-shell SRs
+        if(bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105){
+          // Zero jet SRs
+          if(njets == 0) {
+            if(mT > 100 && mT < 160){
+              if(             met < 100) _counters.at("SR-WZ-1").add_event(event);
+              if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(event);
+              if(met > 150 && met < 200) _counters.at("SR-WZ-3").add_event(event);
+              if(met > 200             ) _counters.at("SR-WZ-4").add_event(event);
+            }
+            if(mT > 160){
+              if(             met < 150) _counters.at("SR-WZ-5").add_event(event);
+              if(met > 150 && met < 200) _counters.at("SR-WZ-6").add_event(event);
+              if(met > 200 && met < 350) _counters.at("SR-WZ-7").add_event(event);
+              if(met > 350             ) _counters.at("SR-WZ-8").add_event(event);
+            }
           }
-          if(nb == 1){
+          if(njets > 0 && HT < 200){
+            if(mT > 100 && mT < 160){
+              if(met > 100 && met < 150) _counters.at("SR-WZ-9").add_event(event);
+              if(met > 150 && met < 250) _counters.at("SR-WZ-10").add_event(event);
+              if(met > 250 && met < 300) _counters.at("SR-WZ-11").add_event(event);
+              if(met > 300             ) _counters.at("SR-WZ-12").add_event(event);
+            }
+            if(mT > 160){
+              if(             met < 150) _counters.at("SR-WZ-13").add_event(event);
+              if(met > 150 && met < 250) _counters.at("SR-WZ-14").add_event(event);
+              if(met > 250 && met < 400) _counters.at("SR-WZ-15").add_event(event);
+              if(met > 400             ) _counters.at("SR-WZ-16").add_event(event);
+            }
           }
-          // Then discovery regions
-          
+          if(njets > 0 && HT > 200 && HTlep < 350){
+            if(mT > 100){
+              if(met > 150 && met < 200) _counters.at("SR-WZ-17").add_event(event);
+              if(met > 200 && met < 300) _counters.at("SR-WZ-18").add_event(event);
+              if(met > 300 && met < 400) _counters.at("SR-WZ-19").add_event(event);
+              if(met > 400             ) _counters.at("SR-WZ-20").add_event(event);
+            }
+          }
         }
+        // Then inclusive regions
+        
         
         #ifdef CHECK_CUTFLOW
-        if(nfat > 1 && nLeptons == 0 && nb == 0 && delphi && met > 300. && nV == 2){
-          size_t i = floor((meff-_meff_bins[0])/150);
-          if(i < _meff_4QVV.size() ) _meff_4QVV[i]++;
+        for(size_t j=0; j<NCUTS; j++){
+          if(
+            (j==0) ||
+            (j==1 && bLeptons && met > 50) ||
+            (j==2 && bLeptons && met > 50 && bSFOS) ||
+            (j==3 && bLeptons && met > 50 && bSFOS) ||
+            (j==4 && bLeptons && met > 50 && bSFOS && nb == 0) ||
+            (j==5 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12) ||
+            (j==6 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15) ||
+            (j==7 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105) ||
+            (j==8 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105) ||
+            (j==9 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105 && njets == 0) ||
+            (j==10 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105 && njets == 0 && mT > 100 && mT < 160) ||
+            (j==11 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105 && njets == 0 && mT > 100 && mT < 160 && met > 50 && met < 100) ||
+            (j==12 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105 && njets == 0 && mT > 100 && mT < 160 && met > 100 && met < 150) ||
+            (j==13 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105 && njets == 0 && mT > 100 && mT < 160 && met > 150 && met < 200) ||
+            (j==14 && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105 && njets == 0 && mT > 100 && mT < 160 && met > 200)
+            ) cutFlowSig[j]++;
         }
         #endif
         
@@ -247,18 +337,27 @@ namespace Gambit {
       void collect_results() {
 
         // Now fill a results object with the results for each SR
-        add_result(SignalRegionData(_counters.at("SR-4Q-WW"),   2., {1.9, 0.4}));
-        add_result(SignalRegionData(_counters.at("SR-4Q-WZ"),   3., {3.4, 0.7}));
-        add_result(SignalRegionData(_counters.at("SR-4Q-ZZ"),   1., {1.9, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR-4Q-VV"),   3., {3.9, 0.8}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-WZ"), 2., {1.6, 0.4}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-ZZ"), 2., {1.7, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-Wh"), 0., {1.9, 0.7}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-Zh"), 1., {1.6, 0.5}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-VZ"), 2., {2.2, 0.6}));
-        add_result(SignalRegionData(_counters.at("SR-2B2Q-Vh"), 1., {2.5, 0.8}));
-        add_result(SignalRegionData(_counters.at("Disc-SR-2B2Q"), 3., {4.7, 1.0})); // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
-        add_result(SignalRegionData(_counters.at("Disc-SR-Incl"), 6., {8.6, 1.3})); // Union of SR-4Q-VV and Disc-SR-2B2Q
+        add_result(SignalRegionData(_counters.at("SR-WZ-1"), 331., {314. , 33.}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-2"),  31., { 35. ,  6.}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-3"),   3., {  4.1,  1.0}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-4"),   2., {  1.2,  0.5}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-5"),  42., { 58. ,  5.}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-6"),   7., {  8.0,  0.9}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-7"),   3., {  5.8,  1.0}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-8"),   1., {  0.8,  0.4}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-9"),  77., { 90. , 20.}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-10"), 11., { 13.4,  2.4}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-11"),  0., {  0.5,  0.4}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-12"),  0., {  0.49, 0.24}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-13"),111., { 89. , 11.}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-14"), 19., { 16.0,  1.4}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-15"),  5., {  2.8,  0.6}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-16"),  1., {  1.3,  0.27}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-17"), 13., { 13.7,  2.6}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-18"),  9., {  9.2,  1.3}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-19"),  3., {  2.3,  0.4}));
+        add_result(SignalRegionData(_counters.at("SR-WZ-20"),  1., {  1.09, 0.13}));
+
 
         #ifdef CHECK_CUTFLOW
         cout << "Cut-flow output" << endl;
@@ -266,41 +365,27 @@ namespace Gambit {
         double _xsec_model;
         double lumi = luminosity();
 
-        vector<double> _yield_model(10);
-        vector<double> _meff_4QVV_model(12);
-        if(scenario == "WZ"){
-          _yield_model = _yield_WZ;
-          _meff_4QVV_model = _meff_4QVV_WZ;
-          _xsec_model = 2.52;
+        vector<double> _yield_model(12);
+        if(scenario == "WZ_300_200"){
+          _yield_model = {53784, 227, 226, 222, 209, 209, 203, 196, 186, 76.4, 26.7, 20.9, 4.86, 0.78, 0.14};
+          _xsec_model = 386.9;
         }
-        else if(scenario == "WW"){
-          _meff_4QVV_model = _meff_4QVV_WW;
-          _xsec_model = 4.42;
-        }
-        else if(scenario == "Wh"){
-          _yield_model = _yield_Wh;
-          _xsec_model = 2.52;
-        }
-        else if(scenario == "HG"){
-          _yield_model = _yield_HG;
-          _meff_4QVV_model = _meff_4QVV_HG;
-          _xsec_model = 2.34;
-        }
-        double weight = _xsec_model*lumi/50000; // Weights of less than 0.01
+
+        double weight = _xsec_model*lumi/10000;
         
         // Compare final event yield per SR for model
-        cout << "SR\t\t" << "GAMBIT\t" << "ATLAS" << endl;
-        cout << "SR-4Q-WW\t" << _counters.at("SR-4Q-WW").sum()*weight << "\t" << _yield_model[0] << endl;
-        cout << "SR-4Q-WZ\t" << _counters.at("SR-4Q-WZ").sum()*weight << "\t" << _yield_model[1] << endl;
-        cout << "SR-4Q-ZZ\t" << _counters.at("SR-4Q-ZZ").sum()*weight << "\t" << _yield_model[2] << endl;
-        cout << "SR-4Q-VV\t" << _counters.at("SR-4Q-VV").sum()*weight << "\t" << _yield_model[3] << endl;
-        cout << endl;
-
-        // Compare meff spectrum
-        cout << "Meff SR-4Q-VV\t" << "GAMBIT\t" << "ATLAS " << endl;
-        for( size_t j = 0; j < _meff_4QVV.size(); j++){
-          cout << "[" << _meff_bins[j] << ", " << _meff_bins[j+1] << "]\t" << _meff_4QVV[j]*weight << "\t" << _meff_4QVV_model[j] << endl;
+        for (size_t i=0; i<NCUTS; i++) {
+          
+          cout << i << ":  " << setprecision(4) << cutFlowSig[i]*weight << "\t\t" << _yield_model[i] <<  "\t\t" << cutFlowSig[i]*weight/_yield_model[i]  << "\t\t" << cutFlowStr[i] <<endl;
+          
+//          double ATLAS_abs = cutFlowVectorATLAS[i];
+//          double eff = (double)cutFlowVector[i] / (double)cutFlowVector[0];
+//          //if(i > 0) eff *= 0.90; // Lower trigger efficiency for 130 GeV
+//          double GAMBIT_scaled = eff * xsec * L;
+//          double ratio = GAMBIT_scaled/ATLAS_abs;
+//          cout << "DEBUG 1: i: " << i << ":   " << setprecision(4) << ATLAS_abs << "\t\t\t" << GAMBIT_scaled << "\t\t\t" << ratio << "\t\t\t" << cutFlowVector[i] << "\t\t\t" << cutFlowVector_str[i] << endl;
         }
+
 
         #endif
         
