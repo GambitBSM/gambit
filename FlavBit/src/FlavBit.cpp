@@ -1205,18 +1205,18 @@ namespace Gambit
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_tc = Ytc/cosb;
+      double xi_ct = Yct/cosb;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
 
       std::complex<double> C7p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
-               +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2));
+               +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2));
 
       result = C7p0;
 
@@ -1240,18 +1240,18 @@ namespace Gambit
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_tc = Ytc/cosb;
+      double xi_ct = Yct/cosb;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
 
       std::complex<double> C8p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_3(pow(mT/mHp,2))
-                 +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_4(pow(mT/mHp,2));
+                 +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_4(pow(mT/mHp,2));
 
 
       result = C8p0;
@@ -3307,7 +3307,7 @@ namespace Gambit
       const double mS = Dep::SMINPUTS->mS;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
@@ -3361,7 +3361,7 @@ namespace Gambit
       const double mS = Dep::SMINPUTS->mS;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
@@ -3410,7 +3410,7 @@ namespace Gambit
       const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
       const double mMu = Dep::SMINPUTS->mMu;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3); 
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
@@ -3444,7 +3444,7 @@ namespace Gambit
       const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
       const double mTau = Dep::SMINPUTS->mTau;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
