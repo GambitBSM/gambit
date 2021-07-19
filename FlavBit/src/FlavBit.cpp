@@ -4287,10 +4287,12 @@ namespace Gambit
       double cba = cos(beta-alpha);
       const double mT = Dep::SMINPUTS->mT;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double xi_ct = Yct/cosb;
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double xi_tc = Ytc/cosb;
       const double Gamma = 1.42;//From PDG 2021 in GeV
-      result = (1/Gamma)*(mT*pow(cba,2)/(32*pi))*pow(xi_tc,2)*pow(1-pow(mh/mT,2),2); 
+      result = (1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2); 
       if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;      
     }
