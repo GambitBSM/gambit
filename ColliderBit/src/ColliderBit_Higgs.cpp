@@ -1100,6 +1100,7 @@ namespace Gambit
     void calc_HS_2_LHC_LogLike(double &result)
     {
       using namespace Pipes::calc_HS_2_LHC_LogLike;
+      const SMHiggsMassOnly = runOptions->getValueOrDef<bool>(false, "sm_higgs_mass_only");
 
       hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
@@ -1170,6 +1171,11 @@ namespace Gambit
       BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
+
+      if (SMHiggsMassOnly) {
+        result = -0.5*(csqmh + csqmh1 + csqmh2);
+        return;
+      }
 
       result = -0.5*(csqtot + csqtot1 + csqtot2);
     }
