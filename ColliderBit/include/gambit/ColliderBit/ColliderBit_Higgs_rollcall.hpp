@@ -241,4 +241,16 @@
   #undef CAPABILITY
 
 
+  // Get an LHC Higgs chisq
+  #define CAPABILITY SM_Higgs_Mass_LogLike
+  START_CAPABILITY
+
+    #define FUNCTION calc_SM_Higgs_Mass_LogLike
+    START_FUNCTION(double)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+
 #undef MODULE
