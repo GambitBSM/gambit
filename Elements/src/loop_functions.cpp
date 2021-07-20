@@ -686,13 +686,14 @@ namespace Gambit
         // Qf is array of fermion electric charges
         // gfv is array of fermion Z-charges
         const int gi = 2; // Internal generation is the heaviest
+        const std::complex<double> I(0,1);
         if ((phi == 0) or (phi == 1))
         {
           return (TwoLoopFunctions::TwoLoopfgammaphi(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonphi(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ, gfv[0], gfv[lf])) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * vev / mf[lf] * Yukawas::yff_phi(lf, gi, gi, phi, mf[lf], xi_f, VCKM, vev, cosab);
         }
         else if (phi == 2)
         {
-          return (TwoLoopFunctions::TwoLoopfgammaA(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonA(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ, gfv[0], gfv[lf])) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * vev / mf[lf] * Yukawas::yff_phi(lf, gi, gi, phi, mf[lf], xi_f, VCKM, vev, cosab);
+          return (TwoLoopFunctions::TwoLoopfgammaA(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ) + TwoLoopFunctions::TwoLoopfZbosonA(Nc, Qf[lf], alph, mmu, mf[lf], mphi, mW, mZ, gfv[0], gfv[lf])) * I * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab) * I * vev / mf[lf] * Yukawas::yff_phi(lf, gi, gi, phi, mf[lf], xi_f, VCKM, vev, cosab);
         }
         else if (phi == 3)
         {
