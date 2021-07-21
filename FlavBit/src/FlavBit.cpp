@@ -5279,13 +5279,13 @@ namespace Gambit
 // BR(l -> l' gamma) for the GTHDM from 1511.08880
     void THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double &result)
     {
-      const double Alpha = 1/(sminputs.alphainv);
-      const double alpha = spectrum.get(Par::dimensionless,"alpha");
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double alpha_h = spectrum.get(Par::dimensionless,"alpha");
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
       const double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      const double cab = cos(alpha-beta);
+      const double vev = spectrum.get(Par::mass1, "vev");
+      const double cab = cos(alpha_h-beta);
       const double mE = (*sminputspointer)->mE;
       const double mMu = (*sminputspointer)->mMu;
       const double mTau = (*sminputspointer)->mTau;
@@ -5334,23 +5334,23 @@ namespace Gambit
       const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
       const complex<double> Vcb(A*lambda*lambda,0);
       const complex<double> Vtb(1,0);
-      const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
       const double xitc = Ytc/cosb;
       const double xict = Yct/cosb;
-      const double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      const double xiss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
       const double xisb = Ysb/cosb;
       const double xibs = Ybs/cosb;
-      const double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
       const double xiemu = Yemu/cosb;
       const double ximue = Ymue/cosb;
       const double xietau = Yetau/cosb;
       const double xitaue = Ytaue/cosb;
-      const double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
       const double ximutau = Ymutau/cosb;
       const double xitaumu = Ytaumu/cosb;
-      const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
@@ -5384,8 +5384,8 @@ namespace Gambit
       {
         for (int li = 0; li <=2; ++li)
         {
-          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
-          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
         }
       }
 
@@ -5403,8 +5403,8 @@ namespace Gambit
       {
         for (int lf=0; lf<=2; ++lf)
         {
-          Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
-          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
+          Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha_em)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, vev, cab);
+          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha_em)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, vev, cab);
          }
       }
       //Bosonic contribution
@@ -5415,14 +5415,14 @@ namespace Gambit
        const complex<double> sab(sqrt(1-cab*cab),0);
        const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
        const vector<complex<double>> angle = {sab,Cab};
-       Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bL(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
-       Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
+       Aloop2bL += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bL(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
+       Aloop2bR += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
       }
 
 
       result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
       double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
-      result *= BRtautomununu*48*pow(pi,3)*Alpha/pow(sminputs.GF,2);
+      result *= BRtautomununu*48*pow(pi,3)*Alpha_em/pow(sminputs.GF,2);
     }
 
     // BR(mu -> e  gamma) for gTHDM from 1511.08880
