@@ -86,7 +86,7 @@ namespace Gambit
              case 2 ://flip sign and include CKM Matrix if it is an up-like quark
                for (int kk = 0; kk <= 2; ++kk)
                {
-                 vertex_total += -VCKM(i,kk)*xi_f(kk,j);
+                 vertex_total += -conj(VCKM(kk,j))*xi_f(kk,i);
                }
                break;
              case 1 ://include CKM Matrix if it is an down-like quark
