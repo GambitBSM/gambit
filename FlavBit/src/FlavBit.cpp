@@ -883,7 +883,7 @@ namespace Gambit
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
       const double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double cba = cos(beta-alpha), sba = sin(beta-alpha);
       const double mW = (*sminputspointer)->mW;
       const double mZ = (*sminputspointer)->mZ;
@@ -1080,7 +1080,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1118,7 +1118,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1157,7 +1157,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1195,7 +1195,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1230,7 +1230,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1304,7 +1304,7 @@ namespace Gambit
     {
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double cosb = cos(beta);
       const double mMu = (*sminputspointer)->mMu;
       const double mTau = (*sminputspointer)->mTau;
@@ -1989,7 +1989,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
@@ -2031,7 +2031,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double mTau = (*sminputspointer)->mTau;
       const double mBmB = (*sminputspointer)->mBmB;
       const double mCmC = (*sminputspointer)->mCmC;
@@ -2075,7 +2075,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double mTau = (*sminputspointer)->mTau;
       const double mBmB = (*sminputspointer)->mBmB;
       const double mCmC = (*sminputspointer)->mCmC;
@@ -2782,8 +2782,7 @@ namespace Gambit
     {
       using namespace Pipes::THDM_gmu_ge;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -3248,7 +3247,7 @@ namespace Gambit
       const double life_B = 1.638e-12;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double Vus = lambda;
       const double Vub = 3.55e-3;
@@ -3297,7 +3296,7 @@ namespace Gambit
       const double life_Ds = 5.e-13;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
@@ -3351,7 +3350,7 @@ namespace Gambit
       const double life_Ds = 5.e-13;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
@@ -3404,7 +3403,7 @@ namespace Gambit
       const double life_D = 1.040e-12;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double Vcd = -lambda;
       const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
@@ -3438,7 +3437,7 @@ namespace Gambit
       const double life_D = 1.040e-12;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double Vcd = -lambda;
       const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
@@ -3592,7 +3591,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
       const double mMu = Dep::SMINPUTS->mMu;
       const double mBmB = Dep::SMINPUTS->mBmB;
@@ -3641,7 +3640,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
       const double mMu = Dep::SMINPUTS->mMu;
       const double mTau = Dep::SMINPUTS->mTau;
@@ -3696,7 +3695,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
       const double mMu = Dep::SMINPUTS->mMu;
       const double mTau = Dep::SMINPUTS->mTau;
@@ -3749,7 +3748,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
@@ -3809,7 +3808,6 @@ namespace Gambit
     {
       using namespace Pipes::THDM_Rmu;
       if (flav_debug) cout<<"Starting THDM_Rmu"<<endl;
-      SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double delta_em = -0.0070;//All values taken from SuperIso 3.6
       const double m_pi = 0.13957;
@@ -3819,7 +3817,7 @@ namespace Gambit
       const double life_K=1.2380e-8; 
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double Vud = 1. - 0.5*pow(lambda,2);
       const double Vus = lambda;
@@ -5649,7 +5647,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double v = spectrum.get(Par::mass1, "vev");
       double cab = cos(alpha-beta);
       double mE = sminputs.mE;
       double mMu = sminputs.mMu;
