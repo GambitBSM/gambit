@@ -335,53 +335,53 @@ namespace Gambit {
         // First exclusive regions
         // Pre-selection for WZ on-shell SRs
         // TODO: Add trigger efficiency and MC to data ratio weight as a weight
-//        double weight = event->weight();
+        double weight = event->weight();
         bool bPreselect = bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105;
         if(bPreselect){
           // Zero jet SRs
           if(njets == 0) {
             // Below does not work due to consrt nature of weight in event. Change?
-            // weight *= weight_trigger_WZonshell*weight_SR1_8;
+            weight *= weight_trigger_WZonshell*weight_SR1_8;
             // event->set_weight(weight);
             // OR, use EventCounter add_event(double w = 1.0, double werr = 0.0)
             // DANGER: This disregards event weight information from Event (!!!)
             if(mT > 100 && mT < 160){
-              if(             met < 100) _counters.at("SR-WZ-1").add_event(event);
-              if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(event);
-              if(met > 150 && met < 200) _counters.at("SR-WZ-3").add_event(event);
-              if(met > 200             ) _counters.at("SR-WZ-4").add_event(event);
+              if(             met < 100) _counters.at("SR-WZ-1").add_event(weight, 0.0);
+              if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(weight, 0.0);
+              if(met > 150 && met < 200) _counters.at("SR-WZ-3").add_event(weight, 0.0);
+              if(met > 200             ) _counters.at("SR-WZ-4").add_event(weight, 0.0);
             }
             if(mT > 160){
-              if(             met < 150) _counters.at("SR-WZ-5").add_event(event);
-              if(met > 150 && met < 200) _counters.at("SR-WZ-6").add_event(event);
-              if(met > 200 && met < 350) _counters.at("SR-WZ-7").add_event(event);
-              if(met > 350             ) _counters.at("SR-WZ-8").add_event(event);
+              if(             met < 150) _counters.at("SR-WZ-5").add_event(weight, 0.0);
+              if(met > 150 && met < 200) _counters.at("SR-WZ-6").add_event(weight, 0.0);
+              if(met > 200 && met < 350) _counters.at("SR-WZ-7").add_event(weight, 0.0);
+              if(met > 350             ) _counters.at("SR-WZ-8").add_event(weight, 0.0);
             }
           }
           if(njets > 0 && HT < 200){
-//            weight *= weight_trigger_WZonshell*weight_SR9_16;
+            weight *= weight_trigger_WZonshell*weight_SR9_16;
 //            event->set_weight(weight);
             if(mT > 100 && mT < 160){
-              if(met > 100 && met < 150) _counters.at("SR-WZ-9").add_event(event);
-              if(met > 150 && met < 250) _counters.at("SR-WZ-10").add_event(event);
-              if(met > 250 && met < 300) _counters.at("SR-WZ-11").add_event(event);
-              if(met > 300             ) _counters.at("SR-WZ-12").add_event(event);
+              if(met > 100 && met < 150) _counters.at("SR-WZ-9").add_event(weight, 0.0);
+              if(met > 150 && met < 250) _counters.at("SR-WZ-10").add_event(weight, 0.0);
+              if(met > 250 && met < 300) _counters.at("SR-WZ-11").add_event(weight, 0.0);
+              if(met > 300             ) _counters.at("SR-WZ-12").add_event(weight, 0.0);
             }
             if(mT > 160){
-              if(             met < 150) _counters.at("SR-WZ-13").add_event(event);
-              if(met > 150 && met < 250) _counters.at("SR-WZ-14").add_event(event);
-              if(met > 250 && met < 400) _counters.at("SR-WZ-15").add_event(event);
-              if(met > 400             ) _counters.at("SR-WZ-16").add_event(event);
+              if(             met < 150) _counters.at("SR-WZ-13").add_event(weight, 0.0);
+              if(met > 150 && met < 250) _counters.at("SR-WZ-14").add_event(weight, 0.0);
+              if(met > 250 && met < 400) _counters.at("SR-WZ-15").add_event(weight, 0.0);
+              if(met > 400             ) _counters.at("SR-WZ-16").add_event(weight, 0.0);
             }
           }
           if(njets > 0 && HT > 200 && HTlep < 350){
-//            weight *= weight_trigger_WZonshell*weight_SR17_20;
+            weight *= weight_trigger_WZonshell*weight_SR17_20;
 //            event->set_weight(weight);
             if(mT > 100){
-              if(met > 150 && met < 200) _counters.at("SR-WZ-17").add_event(event);
-              if(met > 200 && met < 300) _counters.at("SR-WZ-18").add_event(event);
-              if(met > 300 && met < 400) _counters.at("SR-WZ-19").add_event(event);
-              if(met > 400             ) _counters.at("SR-WZ-20").add_event(event);
+              if(met > 150 && met < 200) _counters.at("SR-WZ-17").add_event(weight, 0.0);
+              if(met > 200 && met < 300) _counters.at("SR-WZ-18").add_event(weight, 0.0);
+              if(met > 300 && met < 400) _counters.at("SR-WZ-19").add_event(weight, 0.0);
+              if(met > 400             ) _counters.at("SR-WZ-20").add_event(weight, 0.0);
             }
           }
         }
