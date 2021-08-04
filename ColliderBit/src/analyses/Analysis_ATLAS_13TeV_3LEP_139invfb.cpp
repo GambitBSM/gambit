@@ -9,7 +9,8 @@
 /// statistically independent from the rest of the signal regions, and believed to not be competitve in terms of
 /// exclusion power.
 ///
-/// TODO: Add weights for trigger and MC2data ratio to event counter
+/// TODO: Finish Wh DFOS SRs
+/// TODO: WZ off-shell SRs
 ///  *********************************************
 
 #define CHECK_CUTFLOW
@@ -31,7 +32,6 @@ namespace Gambit {
     protected:
       // Signal region map
       std::map<string, EventCounter> _counters = {
-        // Exclusive SRs
         // WZ on-shell
         {"SR-WZ-1", EventCounter("SR-WZ-1")},
         {"SR-WZ-2", EventCounter("SR-WZ-2")},
@@ -73,10 +73,9 @@ namespace Gambit {
         {"SR-Wh-17", EventCounter("SR-Wh-17")},
         {"SR-Wh-18", EventCounter("SR-Wh-18")},
         {"SR-Wh-19", EventCounter("SR-Wh-19")},
-        {"SR-Wh-DFOS-1", EventCounter("SR-Wh-DFOS-1")},
-        {"SR-Wh-DFOS-2", EventCounter("SR-Wh-DFOS-2")},
+//        {"SR-Wh-DFOS-1", EventCounter("SR-Wh-DFOS-1")},
+//        {"SR-Wh-DFOS-2", EventCounter("SR-Wh-DFOS-2")},
         // WZ off-shell
-        // Inclusive SRs
       };
             
     private:
@@ -274,10 +273,11 @@ namespace Gambit {
         
         // Check lepton properties
         bool bpT1 = false; bool bpT2 = false; bool bpT3 = false;
+        double pT3 = 0;
         if(nLeptons == 3 && nBaselineLeptons == 3){
-         if( leptons[0]->pT() > 25.) bpT1 = true;
-         if( leptons[1]->pT() > 20.) bpT2 = true;
-         if( leptons[2]->pT() > 10.) bpT3 = true;
+          if( leptons[0]->pT() > 25.) bpT1 = true;
+          if( leptons[1]->pT() > 20.) bpT2 = true;
+          if( leptons[2]->pT() > 10.) {bpT3 = true; pT3 = leptons[2]->pT();}
         }
         bool bLeptons = bpT1 && bpT2 && bpT3;
         
@@ -324,27 +324,25 @@ namespace Gambit {
         // Count signal region events
         //
         
+        // Generator event weight
+        double weight = event->weight();
         // Weights for trigger efficiency and MC to data comparison
-        // Taken from WZ on-shell benchmark points (conservative choice)
-        double weight_trigger_WZonshell = 0.98;
+        // Taken from benchmark points (conservative choice)
+        double weight_trigger_WZ = 0.98;
         double weight_trigger_Wh = 0.96;
-        double weight_SR1_8 = 0.96;
-        double weight_SR9_16 = 0.94;
-        double weight_SR17_20 = 0.89;
-
+        double weight_SR1_8_WZ   = 0.96;
+        double weight_SR9_16_WZ  = 0.94;
+        double weight_SR17_20_WZ = 0.89;
+        double weight_SR_SFOS_Wh  = 0.94;
+        double weight_SR_DFOS_Wh = 0.98;
+        
         // First exclusive regions
         // Pre-selection for WZ on-shell SRs
-        // TODO: Add trigger efficiency and MC to data ratio weight as a weight
-        double weight = event->weight();
-        bool bPreselect = bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105;
-        if(bPreselect){
+        bool bPreselWZ = bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15 && mll > 75 && mll < 105;
+        if(bPreselWZ){
           // Zero jet SRs
           if(njets == 0) {
-            // Below does not work due to consrt nature of weight in event. Change?
-            weight *= weight_trigger_WZonshell*weight_SR1_8;
-            // event->set_weight(weight);
-            // OR, use EventCounter add_event(double w = 1.0, double werr = 0.0)
-            // DANGER: This disregards event weight information from Event (!!!)
+            weight *= weight_trigger_WZ*weight_SR1_8_WZ;
             if(mT > 100 && mT < 160){
               if(             met < 100) _counters.at("SR-WZ-1").add_event(weight, 0.0);
               if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(weight, 0.0);
@@ -359,8 +357,7 @@ namespace Gambit {
             }
           }
           if(njets > 0 && HT < 200){
-            weight *= weight_trigger_WZonshell*weight_SR9_16;
-//            event->set_weight(weight);
+            weight *= weight_trigger_WZ*weight_SR9_16_WZ;
             if(mT > 100 && mT < 160){
               if(met > 100 && met < 150) _counters.at("SR-WZ-9").add_event(weight, 0.0);
               if(met > 150 && met < 250) _counters.at("SR-WZ-10").add_event(weight, 0.0);
@@ -375,8 +372,7 @@ namespace Gambit {
             }
           }
           if(njets > 0 && HT > 200 && HTlep < 350){
-            weight *= weight_trigger_WZonshell*weight_SR17_20;
-//            event->set_weight(weight);
+            weight *= weight_trigger_WZ*weight_SR17_20_WZ;
             if(mT > 100){
               if(met > 150 && met < 200) _counters.at("SR-WZ-17").add_event(weight, 0.0);
               if(met > 200 && met < 300) _counters.at("SR-WZ-18").add_event(weight, 0.0);
@@ -385,8 +381,62 @@ namespace Gambit {
             }
           }
         }
-        // Then inclusive regions
-        
+        // Pre-selection for Wh SRs
+        bool bPreselWh = bLeptons && met > 50 && nb == 0;
+        if(bPreselWh){
+          // SFOS SRs
+          if(bSFOS && mll > 12 && fabs(mlll-mZ) > 15){
+            weight *= weight_trigger_Wh*weight_SR_SFOS_Wh;
+            if(njets == 0 && mll < 75){
+              if(mT < 100){
+                if(             met < 100) _counters.at("SR-Wh-1").add_event(weight, 0.0);
+                if(met > 100 && met < 150) _counters.at("SR-Wh-2").add_event(weight, 0.0);
+                if(met > 150             ) _counters.at("SR-Wh-3").add_event(weight, 0.0);
+              }
+              if(mT > 100 && mT < 160){
+                if(             met < 100) _counters.at("SR-Wh-4").add_event(weight, 0.0);
+                if(met > 100             ) _counters.at("SR-Wh-5").add_event(weight, 0.0);
+              }
+              if(mT > 160){
+                if(             met < 100) _counters.at("SR-Wh-6").add_event(weight, 0.0);
+                if(met > 100             ) _counters.at("SR-Wh-7").add_event(weight, 0.0);
+              }
+            }
+            if(njets > 0 && mll < 75 && HT < 200){
+              if(mT < 50){
+                if(             met < 100) _counters.at("SR-Wh-8").add_event(weight, 0.0);
+              }
+              if(mT > 50 && mT < 100){
+                if(             met < 100) _counters.at("SR-Wh-9").add_event(weight, 0.0);
+              }
+              if(mT < 100){
+                if(met > 100 && met < 150) _counters.at("SR-Wh-10").add_event(weight, 0.0);
+                if(met > 150             ) _counters.at("SR-Wh-11").add_event(weight, 0.0);
+              }
+              if(mT > 100 && mT < 160){
+                if(             met < 100) _counters.at("SR-Wh-12").add_event(weight, 0.0);
+                if(met > 100 && met < 150) _counters.at("SR-Wh-13").add_event(weight, 0.0);
+                if(met > 150             ) _counters.at("SR-Wh-14").add_event(weight, 0.0);
+              }
+              if(mT > 160){
+                if(             met < 150) _counters.at("SR-Wh-15").add_event(weight, 0.0);
+                if(met > 150             ) _counters.at("SR-Wh-16").add_event(weight, 0.0);
+              }
+              if(njets == 0 && mll > 105){
+                if(mT > 100){
+                  if(             met < 100) _counters.at("SR-Wh-17").add_event(weight, 0.0);
+                  if(met > 100 && met < 200) _counters.at("SR-Wh-18").add_event(weight, 0.0);
+                  if(met > 200             ) _counters.at("SR-Wh-19").add_event(weight, 0.0);
+                }
+              }
+            }
+          }
+          // DFOS SRs
+          if(!bSFOS){
+            weight *= weight_trigger_Wh*weight_SR_DFOS_Wh;
+            // TODO
+          }
+        }
         
         #ifdef CHECK_CUTFLOW
         for(size_t j=0; j<NCUTS; j++){
@@ -403,65 +453,91 @@ namespace Gambit {
                (j==6  && bLeptons && met > 50 && bSFOS && nb == 0) ||
                (j==7  && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12) ||
                (j==8  && bLeptons && met > 50 && bSFOS && nb == 0 && mll > 12 && fabs(mlll-mZ) > 15) ||
-               (j==9  && bPreselect)
-               ) _cutflow_GAMBIT[j] += weight_trigger_WZonshell;
+               (j==9  && bPreselWZ)
+               ) _cutflow_GAMBIT[j] += weight_trigger_WZ;
             if(
-               (j==10 && bPreselect) ||
-               (j==11 && bPreselect && njets == 0) ||
-               (j==12 && bPreselect && njets == 0 && mT > 100 && mT < 160) ||
-               (j==13 && bPreselect && njets == 0 && mT > 100 && mT < 160 && met > 50  && met < 100) ||
-               (j==14 && bPreselect && njets == 0 && mT > 100 && mT < 160 && met > 100 && met < 150) ||
-               (j==15 && bPreselect && njets == 0 && mT > 100 && mT < 160 && met > 150 && met < 200) ||
-               (j==16 && bPreselect && njets == 0 && mT > 100 && mT < 160 && met > 200) ||
-               (j==17 && bPreselect && njets == 0 && mT > 160) ||
-               (j==18 && bPreselect && njets == 0 && mT > 160 && met > 50  && met < 150) ||
-               (j==19 && bPreselect && njets == 0 && mT > 160 && met > 150 && met < 200) ||
-               (j==20 && bPreselect && njets == 0 && mT > 160 && met > 200 && met < 350) ||
-               (j==21 && bPreselect && njets == 0 && mT > 160 && met > 350) ||
-               (j==22 && bPreselect && njets == 0 && mT > 100 && met > 50)
-               ) _cutflow_GAMBIT[j] += weight_trigger_WZonshell*weight_SR1_8;
+               (j==10 && bPreselWZ) ||
+               (j==11 && bPreselWZ && njets == 0) ||
+               (j==12 && bPreselWZ && njets == 0 && mT > 100 && mT < 160) ||
+               (j==13 && bPreselWZ && njets == 0 && mT > 100 && mT < 160 && met > 50  && met < 100) ||
+               (j==14 && bPreselWZ && njets == 0 && mT > 100 && mT < 160 && met > 100 && met < 150) ||
+               (j==15 && bPreselWZ && njets == 0 && mT > 100 && mT < 160 && met > 150 && met < 200) ||
+               (j==16 && bPreselWZ && njets == 0 && mT > 100 && mT < 160 && met > 200) ||
+               (j==17 && bPreselWZ && njets == 0 && mT > 160) ||
+               (j==18 && bPreselWZ && njets == 0 && mT > 160 && met > 50  && met < 150) ||
+               (j==19 && bPreselWZ && njets == 0 && mT > 160 && met > 150 && met < 200) ||
+               (j==20 && bPreselWZ && njets == 0 && mT > 160 && met > 200 && met < 350) ||
+               (j==21 && bPreselWZ && njets == 0 && mT > 160 && met > 350) ||
+               (j==22 && bPreselWZ && njets == 0 && mT > 100 && met > 50)
+               ) _cutflow_GAMBIT[j] += weight_trigger_WZ*weight_SR1_8_WZ;
             if(
-               (j==23 && bPreselect && njets > 0 && HT < 200) ||
-               (j==24 && bPreselect && njets > 0 && HT < 200 && mT > 100 && mT < 160) ||
-               (j==25 && bPreselect && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 100 && met < 150) ||
-               (j==26 && bPreselect && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 150 && met < 250) ||
-               (j==27 && bPreselect && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 250 && met < 300) ||
-               (j==28 && bPreselect && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 300 ) ||
-               (j==29 && bPreselect && njets > 0 && HT < 200 && mT > 160) ||
-               (j==30 && bPreselect && njets > 0 && HT < 200 && mT > 160 && met > 50  && met < 150) ||
-               (j==31 && bPreselect && njets > 0 && HT < 200 && mT > 160 && met > 150 && met < 250) ||
-               (j==32 && bPreselect && njets > 0 && HT < 200 && mT > 160 && met > 250 && met < 400) ||
-               (j==33 && bPreselect && njets > 0 && HT < 200 && mT > 160 && met > 400 )
-               ) _cutflow_GAMBIT[j] += weight_trigger_WZonshell*weight_SR9_16;
+               (j==23 && bPreselWZ && njets > 0 && HT < 200) ||
+               (j==24 && bPreselWZ && njets > 0 && HT < 200 && mT > 100 && mT < 160) ||
+               (j==25 && bPreselWZ && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 100 && met < 150) ||
+               (j==26 && bPreselWZ && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 150 && met < 250) ||
+               (j==27 && bPreselWZ && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 250 && met < 300) ||
+               (j==28 && bPreselWZ && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 300 ) ||
+               (j==29 && bPreselWZ && njets > 0 && HT < 200 && mT > 160) ||
+               (j==30 && bPreselWZ && njets > 0 && HT < 200 && mT > 160 && met > 50  && met < 150) ||
+               (j==31 && bPreselWZ && njets > 0 && HT < 200 && mT > 160 && met > 150 && met < 250) ||
+               (j==32 && bPreselWZ && njets > 0 && HT < 200 && mT > 160 && met > 250 && met < 400) ||
+               (j==33 && bPreselWZ && njets > 0 && HT < 200 && mT > 160 && met > 400 )
+               ) _cutflow_GAMBIT[j] += weight_trigger_WZ*weight_SR9_16_WZ;
             if(
-               (j==34 && bPreselect && njets > 0 && HT > 200) ||
-               (j==35 && bPreselect && njets > 0 && HT > 200 && HTlep < 350) ||
-               (j==36 && bPreselect && njets > 0 && HT > 200 && HTlep < 350 && mT > 100) ||
-               (j==37 && bPreselect && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 150 && met < 200) ||
-               (j==38 && bPreselect && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 200 && met < 300) ||
-               (j==39 && bPreselect && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 300 && met < 400) ||
-               (j==40 && bPreselect && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 400 ) ||
-               (j==41 && bPreselect && njets > 0 && mT > 100 && ( met > 100 || (mT > 160 && met > 50) || (HTlep < 350 && met > 150) ))  // TODO: Small bug here
-               ) _cutflow_GAMBIT[j] += weight_trigger_WZonshell*weight_SR17_20;
+               (j==34 && bPreselWZ && njets > 0 && HT > 200) ||
+               (j==35 && bPreselWZ && njets > 0 && HT > 200 && HTlep < 350) ||
+               (j==36 && bPreselWZ && njets > 0 && HT > 200 && HTlep < 350 && mT > 100) ||
+               (j==37 && bPreselWZ && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 150 && met < 200) ||
+               (j==38 && bPreselWZ && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 200 && met < 300) ||
+               (j==39 && bPreselWZ && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 300 && met < 400) ||
+               (j==40 && bPreselWZ && njets > 0 && HT > 200 && HTlep < 350 && mT > 100 && met > 400 ) ||
+               (j==41 && bPreselWZ && njets > 0 && mT > 100 && ( met > 100 || (mT > 160 && met > 50) || (HTlep < 350 && met > 150) ))  // TODO: Small bug here
+               ) _cutflow_GAMBIT[j] += weight_trigger_WZ*weight_SR17_20_WZ;
           }
           if(benchmark == "Wh_190_60"){
             if(
-            (j==0) ||
-            (j==1) ||
-            (j==2  && nFilterLeptons > 2) ||
-            (j==3  && bLeptons && met > 50)
+               (j==0) ||
+               (j==1) ||
+               (j==2  && nFilterLeptons > 2) ||
+               (j==3  && bLeptons && met > 50)
                ) _cutflow_GAMBIT[j]++;
             if(
-            (j==4  && bLeptons && met > 50) ||
-            (j==5  && bLeptons && met > 50 && nb == 0) ||
-            (j==6  && bLeptons && met > 50 && nb == 0 && bSFOS) ||
-            (j==7  && bLeptons && met > 50 && nb == 0 && bSFOS && mll > 12) ||
-            (j==8  && bLeptons && met > 50 && nb == 0 && bSFOS && mll > 12 && fabs(mlll-mZ) > 15) ||
-            (j==9  && bLeptons && met > 50 && nb == 0 && bSFOS && mll > 12 && fabs(mlll-mZ) > 15) ||
-            (j==10 && bLeptons && met > 50 && nb == 0 && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75) ||
-            (j==11 && bLeptons && met > 50 && nb == 0 && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0) ||
-            (j==12 && bLeptons && met > 50 && nb == 0 && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0)
+               (j==4  && bLeptons && met > 50) ||
+               (j==5  && bPreselWh) ||
+               (j==6  && bPreselWh && bSFOS) ||
+               (j==29 && bPreselWh && !bSFOS) ||
+               (j==7  && bPreselWh && bSFOS && mll > 12) ||
+               (j==8  && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15)
                ) _cutflow_GAMBIT[j] += weight_trigger_Wh;
+              if(
+               (j==9  && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15) ||
+               (j==10 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75) ||
+               (j==11 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0) ||
+               (j==12 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0 && mT < 100 && met > 50 && met < 100) ||
+               (j==13 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0 && mT < 100 && met > 100 && met < 150) ||
+               (j==14 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0 && mT < 100 && met > 150) ||
+               (j==15 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0 && mT > 100 && mT < 160 && met > 50 && met < 100) ||
+               (j==16 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0 && mT > 100 && mT < 160 && met > 100 ) ||
+               (j==17 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0 && mT > 160 && met > 50 && met < 100) ||
+               (j==18 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets == 0 && mT > 160 && met > 100) ||
+               (j==19 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200) ||
+               (j==20 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT < 50 && met > 50 && met < 100) ||
+               (j==21 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 50 && mT < 100 && met > 50 && met < 100) ||
+               (j==22 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT < 100 && met > 100 && met < 150) ||
+               (j==23 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT < 100 && met > 150) ||
+               (j==24 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 50 && met < 100) ||
+               (j==25 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 100 && met < 150) ||
+               (j==26 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 150) ||
+               (j==27 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 160 && met > 50 && met < 150) ||
+               (j==28 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 160 && met > 150)
+               ) _cutflow_GAMBIT[j] += weight_trigger_Wh*weight_SR_SFOS_Wh;
+            if(
+               (j==30 && bPreselWh && !bSFOS) ||
+               (j==31 && bPreselWh && !bSFOS && njets == 0) ||
+               (j==32 && bPreselWh && !bSFOS && njets == 0 && pT3 > 15) ||
+               (j==33 && bPreselWh && !bSFOS && (njets == 1 || njets == 2)) ||
+               (j==34 && bPreselWh && !bSFOS && (njets == 1 || njets == 2) && pT3 > 20)
+               ) _cutflow_GAMBIT[j] += weight_trigger_Wh*weight_SR_DFOS_Wh;
           }
         } // Ends loop over cuts
         #endif
@@ -480,7 +556,8 @@ namespace Gambit {
 
       void collect_results() {
 
-        // Now fill a results object with the results for each SR
+        // Fill a results object with the results for each SR
+        // WZ on-shell
         add_result(SignalRegionData(_counters.at("SR-WZ-1"), 331., {314. , 33.}));
         add_result(SignalRegionData(_counters.at("SR-WZ-2"),  31., { 35. ,  6.}));
         add_result(SignalRegionData(_counters.at("SR-WZ-3"),   3., {  4.1,  1.0}));
@@ -501,6 +578,29 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR-WZ-18"),  9., {  9.2,  1.3}));
         add_result(SignalRegionData(_counters.at("SR-WZ-19"),  3., {  2.3,  0.4}));
         add_result(SignalRegionData(_counters.at("SR-WZ-20"),  1., {  1.09, 0.13}));
+        // Wh
+        add_result(SignalRegionData(_counters.at("SR-Wh-1"), 152., {136. , 13. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-2"),  14., { 13.5,  1.7}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-3"),   8., {  4.3,  0.9}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-4"),  47., { 50. ,  5. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-5"),   6., {  4.3,  0.7}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-6"),  15., { 20.2,  2.1}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-7"),  19., { 16.0,  2.1}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-8"), 113., {108. , 13. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-9"), 184., {180. , 17. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-10"), 28., { 31. ,  4. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-11"),  5., {  6.6,  0.9}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-12"), 82., { 90. , 11. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-13"), 16., { 18.7,  2.6}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-14"),  4., {  2.5,  0.7}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-15"), 51., { 46. ,  7. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-16"),  5., {  9.8,  1.6}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-17"), 37., { 43. ,  7. }));
+        add_result(SignalRegionData(_counters.at("SR-Wh-18"),  7., { 12.6,  1.7}));
+        add_result(SignalRegionData(_counters.at("SR-Wh-19"),  4., {  1.8,  0.4}));
+//        add_result(SignalRegionData(_counters.at("SR-Wh-DFOS-1"),  10., {  4.5,  0.8}));
+//        add_result(SignalRegionData(_counters.at("SR-Wh-DFOS-2"),  10., {  7.0,  2.3}));
+        // WZ off-shell
 
 
         #ifdef CHECK_CUTFLOW
@@ -510,11 +610,12 @@ namespace Gambit {
         double _lumi = luminosity();
         double _scale;
         double _scale_BR;
-        // Z decay to leptons BR = 0.0335480+0.0335477+0.0334720=0.1005677
-        // W decay to leptons BR = 0.1081014+0.1081011+0.1080222=0.3242247
-        // SM h decay to WW (both leptonic), ZZ (both leptonic), \tau\tau BR = 0.3242*(0.2152*(0.3242)**2+0.02641*(0.1006)**2+0.06256) = 0.0277 ????
+        // Z decay to leptons BR = 0.0335480+0.0335477+0.0334720 = 0.1005677
+        // W decay to leptons BR = 0.1081014+0.1081011+0.1080222 = 0.3242247
+        // h decay to WW, ZZ or \tau\tau BR = 0.215844+0.0261758+0.0628569 = 0.3048767
         double _BR_WZ_leptonic = 0.0327; // W and Z leptonic decays (& \tau leptonic decay)
-        double _BR_Wh_leptonic = 0.0360; // W leptonic, SM Higgs to WW, ZZ and \tau \tau and leptonic decays
+        double _BR_Wh_leptonic = 0.0278; // 0.3242247*(0.215844*(0.3242247)**2+0.0261758*(0.1005677)**2+0.0628569)
+        // double _BR_Wh_leptonic = 0.0360; // ATLAS number (!!!)
         //
         if(benchmark == "WZ_300_200"){
           _cutflow_ATLAS = {53784, 1760, 1322, 227, 226, 222, 209, 209, 203, 196, 186, 76.4, 26.7, 20.9, 4.86, 0.78, 0.14, 5.8, 4.64, 0.16, 0, 0, 31.4, 97.5, 29.6, 8.75, 3.46, 0.54, 0, 9.50, 7.19, 1.53, 0.09, 0, 22.2, 20.9, 10.8, 2.53, 3.12, 1.09, 1.13, 29.4};
@@ -533,8 +634,8 @@ namespace Gambit {
           _scale_BR = _scale*_BR_WZ_leptonic;
         }
         if(benchmark == "Wh_190_60"){
-          _cutflow_ATLAS = {303527, 10927, 1174, 192, 186, 171, 137, 133, 110, 104, 56.2, 22.3, 26.5};
-          _cuts = {"Total events", "Total events x leptonic BR", "Total events x leptonic BR x lepton filter", "Leptons + ETmiss", "Trigger", "n_bjets = 0", "nSFOS > 0", "m_ll > 12 GeV", "|m_3l-m_Z| > 15 GeV", "\twith MC to data weight", "m_ll < 75 GeV", "n_jets = 0", "n_jets > 0"
+          _cutflow_ATLAS = {303527, 10927, 1174, 192, 186, 171, 137, 133, 110, 104, 56.2, 22.3, 8.26, 1.57, 0.50, 5.97, 0.64, 2.67, 2.75, 26.5, 2.95, 5.28, 1.59, 0.63, 5.55, 2.91, 0.68, 5.48, 1.39, 34, 33.5, 14.8, 12.2, 15.6, 9.4};
+          _cuts = {"Total events", "Total events x leptonic BR", "Total events x leptonic BR x lepton filter", "Leptons + ETmiss", "Trigger", "n_bjets = 0", "nSFOS > 0", "m_ll > 12 GeV", "|m_3l-m_Z| > 15 GeV", "with MC to data weight", "m_ll < 75 GeV", "\tn_jets = 0", "\t\tSR^Wh-1", "\t\tSR^Wh-2", "\t\tSR^Wh-3", "\t\tSR^Wh-4", "\t\tSR^Wh-5", "\t\tSR^Wh-6", "\t\tSR^Wh-7", "\tn_jets > 0, H_T < 200 GeV", "\t\tSR^Wh-8", "\t\tSR^Wh-9", "\t\tSR^Wh-10", "\t\tSR^Wh-11", "\t\tSR^Wh-12", "\t\tSR^Wh-13", "\t\tSR^Wh-14", "\t\tSR^Wh-15", "\t\tSR^Wh-16", "nSFOS = 0", "with MC to data weight", "\tn_jets = 0", "\t\t p_T^l3 > 15 GeV", "\tn_jets = 1,2", "\t\t p_T^l3 > 20 GeV"
           };
           _xsec_model = 2183.65;
           _scale = _xsec_model*_lumi/100000;
@@ -706,5 +807,39 @@ namespace Gambit {
  41:  9.36    7.80    1.20    SR^WZ_nj
  
  
+ Cut flow for Wh_190_60
+ Event scaling factor: 0.109
+     GAMBIT    MC error  ATLAS    Ratio    Cut
+ 0:  303527.35    0    303527.00    1.00    Total events
+ 1:  10926.98    0    10927.00    1.00    Total events x leptonic BR
+ 2:  1338.34    12.09    1174.00    1.14    Total events x leptonic BR x lepton filter
+ 3:  270.77    5.44    192.00    1.41    Leptons + ETmiss
+ 4:  259.94    5.33    186.00    1.40    Trigger
+ 5:  245.88    5.18    171.00    1.44    n_bjets = 0
+ 6:  186.41    4.51    137.00    1.36    nSFOS > 0
+ 7:  180.11    4.44    133.00    1.35    m_ll > 12 GeV
+ 8:  148.54    4.03    110.00    1.35    |m_3l-m_Z| > 15 GeV
+ 9:  139.62    3.91    104.00    1.34    with MC to data weight
+ 10:  80.07    2.96    56.20    1.42    m_ll < 75 GeV
+ 11:  41.71    2.13    22.30    1.87      n_jets = 0
+ 12:  14.40    1.25    8.26    1.74        SR^Wh-1
+ 13:  2.66    0.54    1.57    1.70        SR^Wh-2
+ 14:  0.89    0.31    0.50    1.77        SR^Wh-3
+ 15:  9.47    1.02    5.97    1.59        SR^Wh-4
+ 16:  2.66    0.54    0.64    4.16        SR^Wh-5
+ 17:  5.72    0.79    2.67    2.14        SR^Wh-6
+ 18:  5.92    0.80    2.75    2.15        SR^Wh-7
+ 19:  31.06    1.84    26.50    1.17      n_jets > 0, H_T < 200 GeV
+ 20:  3.25    0.60    2.95    1.10        SR^Wh-8
+ 21:  5.23    0.76    5.28    0.99        SR^Wh-9
+ 22:  3.25    0.60    1.59    2.05        SR^Wh-10
+ 23:  1.38    0.39    0.63    2.19        SR^Wh-11
+ 24:  4.83    0.73    5.55    0.87        SR^Wh-12
+ 25:  2.86    0.56    2.91    0.98        SR^Wh-13
+ 26:  0.99    0.33    0.68    1.45        SR^Wh-14
+ 27:  6.90    0.87    5.48    1.26        SR^Wh-15
+ 28:  2.37    0.51    1.39    1.70        SR^Wh-16
+ 29:  59.48    2.55    34.00    1.75    nSFOS = 0
+ 30:  58.29    2.52    33.50    1.74    with MC to data weight
 
  */
