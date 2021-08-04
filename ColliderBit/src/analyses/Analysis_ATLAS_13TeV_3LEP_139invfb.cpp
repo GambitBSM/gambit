@@ -5,11 +5,14 @@
 ///
 /// Based on the three-lepton search with the full Run 2 data set presented in 2106.01676.
 ///
+/// For the Wh search the DFOS SRs are not included as they rely on an E_T^miss significance cut
+/// where the resolution of the indivdual objects used for E_T^miss is needed (see ATLAS-CONF-2018-038).
+/// This is currently not supported by the event simulation in BuckFast.
+///
 /// The Recursive Jigsaw (RJR) signal regions are not included in this implementation as they are not
 /// statistically independent from the rest of the signal regions, and believed to not be competitve in terms of
 /// exclusion power.
 ///
-/// TODO: Finish Wh DFOS SRs
 /// TODO: WZ off-shell SRs
 ///  *********************************************
 
@@ -273,11 +276,12 @@ namespace Gambit {
         
         // Check lepton properties
         bool bpT1 = false; bool bpT2 = false; bool bpT3 = false;
-        double pT3 = 0;
+        // double pT3 = 0;
         if(nLeptons == 3 && nBaselineLeptons == 3){
           if( leptons[0]->pT() > 25.) bpT1 = true;
           if( leptons[1]->pT() > 20.) bpT2 = true;
-          if( leptons[2]->pT() > 10.) {bpT3 = true; pT3 = leptons[2]->pT();}
+          if( leptons[2]->pT() > 10.) bpT3 = true;
+          // if( leptons[2]->pT() > 10.) {bpT3 = true; pT3 = leptons[2]->pT();}
         }
         bool bLeptons = bpT1 && bpT2 && bpT3;
         
@@ -434,7 +438,7 @@ namespace Gambit {
           // DFOS SRs
           if(!bSFOS){
             weight *= weight_trigger_Wh*weight_SR_DFOS_Wh;
-            // TODO
+            // TODO: Needs E_T^miss significance reconstruction
           }
         }
         
@@ -505,7 +509,7 @@ namespace Gambit {
                (j==4  && bLeptons && met > 50) ||
                (j==5  && bPreselWh) ||
                (j==6  && bPreselWh && bSFOS) ||
-               (j==29 && bPreselWh && !bSFOS) ||
+//               (j==29 && bPreselWh && !bSFOS) ||
                (j==7  && bPreselWh && bSFOS && mll > 12) ||
                (j==8  && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15)
                ) _cutflow_GAMBIT[j] += weight_trigger_Wh;
@@ -529,15 +533,18 @@ namespace Gambit {
                (j==25 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 100 && met < 150) ||
                (j==26 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 100 && mT < 160 && met > 150) ||
                (j==27 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 160 && met > 50 && met < 150) ||
-               (j==28 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 160 && met > 150)
+               (j==28 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll < 75 && njets > 0 && HT < 200 && mT > 160 && met > 150) ||
+               (j==29 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll > 105 && njets == 0 && mT > 100 && met > 50 && met < 100) ||
+               (j==30 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll > 105 && njets == 0 && mT > 100 && met > 100 && met < 200) ||
+               (j==31 && bPreselWh && bSFOS && mll > 12 && fabs(mlll-mZ) > 15 && mll > 105 && njets == 0 && mT > 100 && met > 200)
                ) _cutflow_GAMBIT[j] += weight_trigger_Wh*weight_SR_SFOS_Wh;
-            if(
-               (j==30 && bPreselWh && !bSFOS) ||
-               (j==31 && bPreselWh && !bSFOS && njets == 0) ||
-               (j==32 && bPreselWh && !bSFOS && njets == 0 && pT3 > 15) ||
-               (j==33 && bPreselWh && !bSFOS && (njets == 1 || njets == 2)) ||
-               (j==34 && bPreselWh && !bSFOS && (njets == 1 || njets == 2) && pT3 > 20)
-               ) _cutflow_GAMBIT[j] += weight_trigger_Wh*weight_SR_DFOS_Wh;
+//            if(
+//               (j==30 && bPreselWh && !bSFOS) ||
+//               (j==31 && bPreselWh && !bSFOS && njets == 0) ||
+//               (j==32 && bPreselWh && !bSFOS && njets == 0 && pT3 > 15) ||
+//               (j==33 && bPreselWh && !bSFOS && (njets == 1 || njets == 2)) ||
+//               (j==34 && bPreselWh && !bSFOS && (njets == 1 || njets == 2) && pT3 > 20)
+//               ) _cutflow_GAMBIT[j] += weight_trigger_Wh*weight_SR_DFOS_Wh;
           }
         } // Ends loop over cuts
         #endif
@@ -634,11 +641,13 @@ namespace Gambit {
           _scale_BR = _scale*_BR_WZ_leptonic;
         }
         if(benchmark == "Wh_190_60"){
-          _cutflow_ATLAS = {303527, 10927, 1174, 192, 186, 171, 137, 133, 110, 104, 56.2, 22.3, 8.26, 1.57, 0.50, 5.97, 0.64, 2.67, 2.75, 26.5, 2.95, 5.28, 1.59, 0.63, 5.55, 2.91, 0.68, 5.48, 1.39, 34, 33.5, 14.8, 12.2, 15.6, 9.4};
-          _cuts = {"Total events", "Total events x leptonic BR", "Total events x leptonic BR x lepton filter", "Leptons + ETmiss", "Trigger", "n_bjets = 0", "nSFOS > 0", "m_ll > 12 GeV", "|m_3l-m_Z| > 15 GeV", "with MC to data weight", "m_ll < 75 GeV", "\tn_jets = 0", "\t\tSR^Wh-1", "\t\tSR^Wh-2", "\t\tSR^Wh-3", "\t\tSR^Wh-4", "\t\tSR^Wh-5", "\t\tSR^Wh-6", "\t\tSR^Wh-7", "\tn_jets > 0, H_T < 200 GeV", "\t\tSR^Wh-8", "\t\tSR^Wh-9", "\t\tSR^Wh-10", "\t\tSR^Wh-11", "\t\tSR^Wh-12", "\t\tSR^Wh-13", "\t\tSR^Wh-14", "\t\tSR^Wh-15", "\t\tSR^Wh-16", "nSFOS = 0", "with MC to data weight", "\tn_jets = 0", "\t\t p_T^l3 > 15 GeV", "\tn_jets = 1,2", "\t\t p_T^l3 > 20 GeV"
+          _cutflow_ATLAS = {303527, 10927, 1174, 192, 186, 171, 137, 133, 110, 104, 56.2, 22.3, 8.26, 1.57, 0.50, 5.97, 1.64, 2.67, 2.75, 26.5, 2.95, 5.28, 1.59, 0.63, 5.55, 2.91, 0.68, 5.48, 1.39, 1.73, 1.37, 0.08};
+ //            34, 33.5, 14.8, 12.2, 15.6, 9.4};
+          _cuts = {"Total events", "Total events x leptonic BR", "Total events x leptonic BR x lepton filter", "Leptons + ETmiss", "Trigger", "n_bjets = 0", "nSFOS > 0", "m_ll > 12 GeV", "|m_3l-m_Z| > 15 GeV", "with MC to data weight", "m_ll < 75 GeV", "\tn_jets = 0", "\t\tSR^Wh-1", "\t\tSR^Wh-2", "\t\tSR^Wh-3", "\t\tSR^Wh-4", "\t\tSR^Wh-5", "\t\tSR^Wh-6", "\t\tSR^Wh-7", "\tn_jets > 0, H_T < 200 GeV", "\t\tSR^Wh-8", "\t\tSR^Wh-9", "\t\tSR^Wh-10", "\t\tSR^Wh-11", "\t\tSR^Wh-12", "\t\tSR^Wh-13", "\t\tSR^Wh-14", "\t\tSR^Wh-15", "\t\tSR^Wh-16", "\t\tSR^Wh-17", "\t\tSR^Wh-18", "\t\tSR^Wh-19",
+//            "nSFOS = 0", "with MC to data weight", "\tn_jets = 0", "\t\t p_T^l3 > 15 GeV", "\tn_jets = 1,2", "\t\t p_T^l3 > 20 GeV"
           };
           _xsec_model = 2183.65;
-          _scale = _xsec_model*_lumi/100000;
+          _scale = _xsec_model*_lumi/400000;
           _scale_BR = _scale*_BR_Wh_leptonic;
         }
         
@@ -669,7 +678,6 @@ namespace Gambit {
 
   }
 }
-
 
 
 /*
@@ -720,47 +728,6 @@ namespace Gambit {
  40:  0.95    0.09    1.13    0.84        SR^WZ-20
  41:  31.49    0.53    29.40    1.07    SR^WZ_nj
 
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-10__i9__signal: 125.58588
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-10__i9__signal_uncert: 5.8114216
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-11__i10__signal: 3.7648873
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-11__i10__signal_uncert: 1.0062085
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-12__i11__signal: 3.2270462
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-12__i11__signal_uncert: 0.93156801
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-13__i12__signal: 236.65006
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-13__i12__signal_uncert: 7.9774718
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-14__i13__signal: 60.238196
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-14__i13__signal_uncert: 4.0248338
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-15__i14__signal: 0.80676156
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-15__i14__signal_uncert: 0.465784
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-16__i15__signal: 0
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-16__i15__signal_uncert: 0
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-17__i16__signal: 70.726097
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-17__i16__signal_uncert: 4.361158
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-18__i17__signal: 118.59395
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-18__i17__signal_uncert: 5.6473309
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-19__i18__signal: 55.128707
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-19__i18__signal_uncert: 3.8503559
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-1__i0__signal: 736.03546
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-1__i0__signal_uncert: 14.068939
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-20__i19__signal: 33.077224
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-20__i19__signal_uncert: 2.9824728
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-2__i1__signal: 166.19288
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-2__i1__signal_uncert: 6.6852581
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-3__i2__signal: 27.160973
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-3__i2__signal_uncert: 2.7026178
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-4__i3__signal: 7.5297746
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-4__i3__signal_uncert: 1.4229936
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-5__i4__signal: 191.74033
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-5__i4__signal_uncert: 7.1807318
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-6__i5__signal: 5.1094899
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-6__i5__signal_uncert: 1.1721974
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-7__i6__signal: 1.6135231
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-7__i6__signal_uncert: 0.65871806
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-8__i7__signal: 0
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-8__i7__signal_uncert: 0
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-9__i8__signal: 323.78031
- 0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_3LEP_139invfb__SR-WZ-9__i8__signal_uncert: 9.3311933
-
  Cut flow for WZ_600_100
  Event weight: 0.00184
  0:  2799.07    2799.00    1.00    Total events
@@ -806,40 +773,40 @@ namespace Gambit {
  40:  0.19    0.13    1.48        SR^WZ-20
  41:  9.36    7.80    1.20    SR^WZ_nj
  
- 
  Cut flow for Wh_190_60
- Event scaling factor: 0.109
+ Event scaling factor: 0.0211
      GAMBIT    MC error  ATLAS    Ratio    Cut
  0:  303527.35    0    303527.00    1.00    Total events
- 1:  10926.98    0    10927.00    1.00    Total events x leptonic BR
- 2:  1338.34    12.09    1174.00    1.14    Total events x leptonic BR x lepton filter
- 3:  270.77    5.44    192.00    1.41    Leptons + ETmiss
- 4:  259.94    5.33    186.00    1.40    Trigger
- 5:  245.88    5.18    171.00    1.44    n_bjets = 0
- 6:  186.41    4.51    137.00    1.36    nSFOS > 0
- 7:  180.11    4.44    133.00    1.35    m_ll > 12 GeV
- 8:  148.54    4.03    110.00    1.35    |m_3l-m_Z| > 15 GeV
- 9:  139.62    3.91    104.00    1.34    with MC to data weight
- 10:  80.07    2.96    56.20    1.42    m_ll < 75 GeV
- 11:  41.71    2.13    22.30    1.87      n_jets = 0
- 12:  14.40    1.25    8.26    1.74        SR^Wh-1
- 13:  2.66    0.54    1.57    1.70        SR^Wh-2
- 14:  0.89    0.31    0.50    1.77        SR^Wh-3
- 15:  9.47    1.02    5.97    1.59        SR^Wh-4
- 16:  2.66    0.54    0.64    4.16        SR^Wh-5
- 17:  5.72    0.79    2.67    2.14        SR^Wh-6
- 18:  5.92    0.80    2.75    2.15        SR^Wh-7
- 19:  31.06    1.84    26.50    1.17      n_jets > 0, H_T < 200 GeV
- 20:  3.25    0.60    2.95    1.10        SR^Wh-8
- 21:  5.23    0.76    5.28    0.99        SR^Wh-9
- 22:  3.25    0.60    1.59    2.05        SR^Wh-10
- 23:  1.38    0.39    0.63    2.19        SR^Wh-11
- 24:  4.83    0.73    5.55    0.87        SR^Wh-12
- 25:  2.86    0.56    2.91    0.98        SR^Wh-13
- 26:  0.99    0.33    0.68    1.45        SR^Wh-14
- 27:  6.90    0.87    5.48    1.26        SR^Wh-15
- 28:  2.37    0.51    1.39    1.70        SR^Wh-16
- 29:  59.48    2.55    34.00    1.75    nSFOS = 0
- 30:  58.29    2.52    33.50    1.74    with MC to data weight
+ 1:  8438.06    0    10927.00    0.77    Total events x leptonic BR
+ 2:  1027.84    4.66    1174.00    0.88    Total events x leptonic BR x lepton filter
+ 3:  207.75    2.09    192.00    1.08    Leptons + ETmiss
+ 4:  199.44    2.05    186.00    1.07    Trigger
+ 5:  188.82    2.00    171.00    1.10    n_bjets = 0
+ 6:  143.14    1.74    137.00    1.04    nSFOS > 0
+ 7:  138.70    1.71    133.00    1.04    m_ll > 12 GeV
+ 8:  112.54    1.54    110.00    1.02    |m_3l-m_Z| > 15 GeV
+ 9:  105.78    1.49    104.00    1.02    with MC to data weight
+ 10:  61.03    1.13    56.20    1.09    m_ll < 75 GeV
+ 11:  29.81    0.79    22.30    1.34      n_jets = 0
+ 12:  10.72    0.48    8.26    1.30        SR^Wh-1
+ 13:  2.07    0.21    1.57    1.32        SR^Wh-2
+ 14:  0.72    0.12    0.50    1.45        SR^Wh-3
+ 15:  7.04    0.39    5.97    1.18        SR^Wh-4
+ 16:  2.40    0.22    1.64    1.46        SR^Wh-5
+ 17:  3.43    0.27    2.67    1.28        SR^Wh-6
+ 18:  3.43    0.27    2.75    1.25        SR^Wh-7
+ 19:  25.28    0.73    26.50    0.95      n_jets > 0, H_T < 200 GeV
+ 20:  2.91    0.25    2.95    0.99        SR^Wh-8
+ 21:  5.01    0.32    5.28    0.95        SR^Wh-9
+ 22:  2.89    0.25    1.59    1.82        SR^Wh-10
+ 23:  1.16    0.16    0.63    1.84        SR^Wh-11
+ 24:  4.30    0.30    5.55    0.78        SR^Wh-12
+ 25:  2.27    0.22    2.91    0.78        SR^Wh-13
+ 26:  0.82    0.13    0.68    1.20        SR^Wh-14
+ 27:  4.57    0.31    5.48    0.83        SR^Wh-15
+ 28:  1.35    0.17    1.39    0.97        SR^Wh-16
+ 29:  1.68    0.19    1.73    0.97        SR^Wh-17
+ 30:  2.00    0.21    1.36    1.47        SR^Wh-18
+ 31:  0.17    0.06    0.08    2.14        SR^Wh-19
 
  */
