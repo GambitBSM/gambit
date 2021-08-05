@@ -328,8 +328,6 @@ namespace Gambit {
         // Count signal region events
         //
         
-        // Generator event weight
-        double weight = event->weight();
         // Weights for trigger efficiency and MC to data comparison
         // Taken from benchmark points (conservative choice)
         double weight_trigger_WZ = 0.98;
@@ -346,7 +344,7 @@ namespace Gambit {
         if(bPreselWZ){
           // Zero jet SRs
           if(njets == 0) {
-            weight *= weight_trigger_WZ*weight_SR1_8_WZ;
+            double weight = event->weight()*weight_trigger_WZ*weight_SR1_8_WZ;
             if(mT > 100 && mT < 160){
               if(             met < 100) _counters.at("SR-WZ-1").add_event(weight, 0.0);
               if(met > 100 && met < 150) _counters.at("SR-WZ-2").add_event(weight, 0.0);
@@ -361,7 +359,7 @@ namespace Gambit {
             }
           }
           if(njets > 0 && HT < 200){
-            weight *= weight_trigger_WZ*weight_SR9_16_WZ;
+            double weight = event->weight()*weight_trigger_WZ*weight_SR9_16_WZ;
             if(mT > 100 && mT < 160){
               if(met > 100 && met < 150) _counters.at("SR-WZ-9").add_event(weight, 0.0);
               if(met > 150 && met < 250) _counters.at("SR-WZ-10").add_event(weight, 0.0);
@@ -376,7 +374,7 @@ namespace Gambit {
             }
           }
           if(njets > 0 && HT > 200 && HTlep < 350){
-            weight *= weight_trigger_WZ*weight_SR17_20_WZ;
+            double weight = event->weight()*weight_trigger_WZ*weight_SR17_20_WZ;
             if(mT > 100){
               if(met > 150 && met < 200) _counters.at("SR-WZ-17").add_event(weight, 0.0);
               if(met > 200 && met < 300) _counters.at("SR-WZ-18").add_event(weight, 0.0);
@@ -390,7 +388,7 @@ namespace Gambit {
         if(bPreselWh){
           // SFOS SRs
           if(bSFOS && mll > 12 && fabs(mlll-mZ) > 15){
-            weight *= weight_trigger_Wh*weight_SR_SFOS_Wh;
+            double weight = event->weight()*weight_trigger_Wh*weight_SR_SFOS_Wh;
             if(njets == 0 && mll < 75){
               if(mT < 100){
                 if(             met < 100) _counters.at("SR-Wh-1").add_event(weight, 0.0);
@@ -437,7 +435,7 @@ namespace Gambit {
           }
           // DFOS SRs
           if(!bSFOS){
-            weight *= weight_trigger_Wh*weight_SR_DFOS_Wh;
+            double weight = event->weight()*weight_trigger_Wh*weight_SR_DFOS_Wh;
             // TODO: Needs E_T^miss significance reconstruction
           }
         }
