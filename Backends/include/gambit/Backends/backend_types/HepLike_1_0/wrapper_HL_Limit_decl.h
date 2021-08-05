@@ -2,12 +2,12 @@
 #define __wrapper_HL_Limit_decl_HepLike_1_0_h__
 
 #include <cstddef>
+#include <string>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_HL_Limit.h"
 #include "wrapper_HL_Data_decl.h"
-#include <string>
-#include <vector>
 
 #include "identification.hpp"
 

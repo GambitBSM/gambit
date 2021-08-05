@@ -50,16 +50,6 @@ namespace Gambit {
          , my_blockname(blockname)
          , my_blockname_index(blockindex)
        {}
-<<<<<<< HEAD
-
-       Par::Tags        tag()   const { return my_tag; }
-       std::string      name()  const { return my_name; }
-       std::vector<int> shape() const { return my_shape; }
-
-       std::string      blockname()  const { return my_blockname; }
-       int              blockindex() const { return my_blockname_index; }
-
-=======
    
        Par::Tags        tag()        const { return my_tag; }
        std::string      name()       const { return my_name; }
@@ -67,7 +57,6 @@ namespace Gambit {
 
        std::string      blockname()  const { return my_blockname; }
        int              blockindex() const { return my_blockname_index; }
->>>>>>> master
    };
    
    /// Base class for defining the required contents of a SubSpectrum object
@@ -82,10 +71,7 @@ namespace Gambit {
    
       protected:
         void addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape = initVector(1), const std::string& blockname="", const int index=0);
-<<<<<<< HEAD
         void addParameter(const Par::Tags tag, const std::string& name, const std::vector<int>& shape, const std::string& blockname, const std::vector<int>& indices);
-=======
->>>>>>> master
         void setName(const std::string& name);
 
       public:

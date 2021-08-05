@@ -26,11 +26,11 @@
 #include <typeinfo>
 
 #include "gambit/cmake/cmake_variables.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
 #include "gambit/Elements/thdm_slhahelp.hpp"
 #include "gambit/Elements/subspectrum.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/version.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/SpecBit/THDMSpec_head.hpp"
 
 // Flexible SUSY stuff (should not be needed by the rest of gambit)

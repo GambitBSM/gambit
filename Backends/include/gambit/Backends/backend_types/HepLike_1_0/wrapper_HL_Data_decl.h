@@ -2,10 +2,10 @@
 #define __wrapper_HL_Data_decl_HepLike_1_0_h__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_HL_Data.h"
-#include <string>
 #include "yaml-cpp/yaml.h"
 
 #include "identification.hpp"

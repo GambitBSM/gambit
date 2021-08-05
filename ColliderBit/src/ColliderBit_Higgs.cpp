@@ -144,19 +144,23 @@ namespace Gambit
 
     /// Helper function to set HiggsBounds/Signals non SM branchings (v5) from a GAMBIT HiggsCouplingsTable
     template <class T>
-    void set_nonSMBR(T &result, const HiggsCouplingsTable& Higgs_Couplings, int nNeutral)
+    void set_nonSMBR(T &result, const HiggsCouplingsTable& Higgs_Couplings, std::vector<str> sHneut)
     {
-      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Higgs_Couplings.get_neutral_decays_array(3);
-      const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      const std::vector<const DecayTable::Entry*>& h0_widths = Higgs_Couplings.get_neutral_decays_array();
       // Loop over Higgs & fill
-      for (int j = 1; j <= nNeutral; j++) {
-        for (int i = 1; i <= nNeutral; i++) {
-          for (int k = 1; k <= nNeutral; k++) {
+      for (size_t j = 1; j <= sHneut.size(); j++)
+      {
+        for (size_t i = 1; i <= sHneut.size(); i++)
+        {
+          for (size_t k = 1; k <= sHneut.size(); k++)
+          {
               // h -> h,h
-              if (result.Mh[k-1] > (result.Mh[j-1]+result.Mh[i-1]) and h0_widths[k-1]->has_channel(sHneut[j-1],sHneut[i-1])) {
+              if (result.Mh[k-1] > (result.Mh[j-1]+result.Mh[i-1]) and h0_widths[k-1]->has_channel(sHneut[j-1],sHneut[i-1]))
+              {
                 result.BR_hkhjhi[k-1][j-1][i-1] = h0_widths[k-1]->BF(sHneut[j-1],sHneut[i-1]);
               }
-              else {
+              else
+              {
                 result.BR_hkhjhi[k-1][j-1][i-1] = 0.;
               }
               #ifdef COLLIDERBIT_DEBUG
@@ -170,8 +174,9 @@ namespace Gambit
           }
         // invisibles
         result.BR_hjinvisible[j-1] = 0.;
-        for (auto it = Higgs_Couplings.invisibles.begin(); it != Higgs_Couplings.invisibles.end(); ++it) {
-          result.BR_hjinvisible[j-1] += h0_widths[j-1]->BF(*it, *it);
+        for (auto it = Higgs_Couplings.invisibles.begin(); it != Higgs_Couplings.invisibles.end(); ++it)
+        {
+          result.BR_hjinvisible[j-1] += h0_widths[j-1]->BF(it->first, it->second);
         }
         // other
         result.BR_hjemu[j-1] = h0_widths[j-1]->has_channel("e+","mu-") ? h0_widths[j-1]->BF("e+","mu-") : 0.; 
@@ -320,7 +325,7 @@ namespace Gambit
     }
 
     /// MSSM-like (MSSM + NMSSM + ...) Higgs model parameters for HiggsBounds/Signals
-    void MSSMLikeHiggs_ModelParameters(hb_ModelParameters &result)
+    void MSSMLikeHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
       using namespace Pipes::MSSMLikeHiggs_ModelParameters;
 
@@ -357,8 +362,8 @@ namespace Gambit
       for(int i = 0; i < n_neutral_higgses; i++)
       {
         result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
-        bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
-        bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
+        bool has_high_err = spec.has(Par::Pole_Mass_1srd_high,sHneut[i]);
+        bool has_low_err = spec.has(Par::Pole_Mass_1srd_low,sHneut[i]);
         if (has_high_err and has_low_err)
         {
           double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
@@ -414,6 +419,9 @@ namespace Gambit
     {
       using namespace Pipes::MSSMLikeHiggs_ModelParameters_effc;
 
+      // Set up neutral Higgses
+      int n_neutral_higgses = Dep::Higgs_Couplings->get_n_neutral_higgs();
+
       // Pick the correct spectrum and specify the Higgses
       dep_bucket<Spectrum>* spectrum_dependency;
       std::vector<str> Higgses;
@@ -423,7 +431,7 @@ namespace Gambit
         spectrum_dependency = &Dep::MSSM_spectrum;
         Higgses = initVector<str>("h0_1", "h0_2", "A0");
       }
-      else if(ModelInUse("THDM") or ModelInUse("THDMatQ")
+      else if(ModelInUse("THDM") or ModelInUse("THDMatQ"))
       {
         spectrum_dependency = &Dep::THDM_spectrum;
         Higgses = initVector<str>("h0_1", "h0_2", "A0");
@@ -436,20 +444,16 @@ namespace Gambit
       // Set the CP of the Higgs states.
       for (int i = 0; i < 3; i++) result.CP[i] = Dep::Higgs_Couplings->CP[i];
 
-      // Retrieve masses
-      const Spectrum& fullspectrum = *Dep::MSSM_spectrum;
-      const SubSpectrum& he = fullspectrum.get_HE();
-
       // Neutral higgs masses, widths and errors
       for(int i = 0; i < 3; i++)
       {
-        result.Mh[i] = he.get(Par::Pole_Mass,sHneut[i]);
-        bool has_high_err = he.has(Par::Pole_Mass_1srd_high,sHneut[i]);
-        bool has_low_err = he.has(Par::Pole_Mass_1srd_low,sHneut[i]);
+        result.Mh[i] = spec.get(Par::Pole_Mass,sHneut[i]);
+        bool has_high_err = spec.has(Par::Pole_Mass_1srd_high,sHneut[i]);
+        bool has_low_err = spec.has(Par::Pole_Mass_1srd_low,sHneut[i]);
         if (has_high_err and has_low_err)
         {
-          double upper = he.get(Par::Pole_Mass_1srd_high,sHneut[i]);
-          double lower = he.get(Par::Pole_Mass_1srd_low,sHneut[i]);
+          double upper = spec.get(Par::Pole_Mass_1srd_high,sHneut[i]);
+          double lower = spec.get(Par::Pole_Mass_1srd_low,sHneut[i]);
           result.deltaMh[i] = result.Mh[i] * std::max(upper,lower);
         }
         else
@@ -466,7 +470,7 @@ namespace Gambit
       // fill neutral effective couplings
       set_CS_neutral_effc(result, *Dep::Higgs_Couplings, n_neutral_higgses);
       // fill non SM BRs
-      set_nonSMBR(result, *Dep::Higgs_Couplings, n_neutral_higgses);
+      set_nonSMBR(result, *Dep::Higgs_Couplings, sHneut);
     
       #ifdef COLLIDERBIT_DEBUG
         for (int h=1;h<=3;h++) {
@@ -512,7 +516,6 @@ namespace Gambit
       else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");
 
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
-      static const std::vector<str> sHneut(Higgses);
 
       // Charged higgs masses and errors
       result.MHplus[0] = spec.get(Par::Pole_Mass,"H+");

@@ -60,7 +60,6 @@
 // GAMBIT headers
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
 #include "gambit/Utils/stream_overloads.hpp" // Just for more convenient output to logger
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
@@ -71,6 +70,7 @@
 #include "gambit/SpecBit/THDMSpec_basis.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
 // TODO: These need to go
 // compiler define statements ------
@@ -4045,6 +4045,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
        // give higgs indicies names
       enum neutral_higgs_indicies {

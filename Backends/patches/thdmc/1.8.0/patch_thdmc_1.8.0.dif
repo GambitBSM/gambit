@@ -1,3 +1,77 @@
+diff -ruN Makefile Makefile_patched
+--- Makefile	2021-03-09 16:09:49.000000000 +1100
++++ Makefile_patched	2021-03-09 16:09:49.000000000 +1100
+@@ -11,19 +11,27 @@
+ 
+ VPATH=src
+ 
+-CFLAGS= -std=c++11 -Wall $(DEBUG) $(OPT)
++CFLAGS= -std=c++17 -Wall $(DEBUG) $(OPT)
+ 
+ OBJDIR=lib
+ LIBDIR=$(OBJDIR)
+-SOURCES=THDM.cpp SM.cpp DecayTable.cpp Constraints.cpp Util.cpp
++SOURCES=THDM.cpp SM.cpp DecayTableTHDM.cpp Constraints.cpp Util.cpp
++SOURCES+=BOSS_Constraints.cpp  BOSS_DecayTableTHDM.cpp  BOSS_factory_Constraints.cpp  BOSS_factory_DecayTableTHDM.cpp  BOSS_factory_SM.cpp  BOSS_factory_THDM.cpp  BOSS_SM.cpp  BOSS_THDM.cpp  BOSS_wrapperutils.cpp
+ OBJECTS=$(SOURCES:.cpp=.o)
+ LIB=lib2HDMC.a
+-LDFLAGS+=-L$(LIBDIR) -l2HDMC -lgsl -lgslcblas -lm
++LDFLAGS+=-L$(LIBDIR) $(GSLLIBS) -l2HDMC -lgsl -lgslcblas -lm
+ #LDFLAGS+=-L$(LIBDIR) -l2HDMC
+ LIBS=
+ PROG=CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo
+ INCLUDE=
+ 
++SHAREDCFLAGS = -fPIC
++SHAREDLIBFLAGS = -Wl,-rpath,$(LIBDIR) -shared -rdynamic $(GSLLIBS)
++SHAREDLIB=lib2HDMC.so
++
++CUSTOM_FLAGS+= $(CXXFLAGS) -I$(VPATH)
++CFLAGS+= $(SHAREDCFLAGS) $(CUSTOM_FLAGS)
++
+ # To use HiggsBounds/HiggsSignals for Higgs constraints, set both of the
+ # following path variables to the corresponding build directories.
+ # Requires HiggsBounds>=5.7.0 and HiggsSignals>=2.4.0
+@@ -51,6 +60,17 @@
+ $(OBJDIR)/%.o : %.cpp %.h
+ 	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+ 
++boss:
++	$(CC) $(CFLAGS) -c src/BOSS_Constraints.cpp -o lib/BOSS_Constraints.o
++	$(CC) $(CFLAGS) -c src/BOSS_DecayTableTHDM.cpp -o lib/BOSS_DecayTableTHDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_Constraints.cpp -o lib/BOSS_factory_Constraints.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_DecayTableTHDM.cpp -o lib/BOSS_factory_DecayTableTHDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_SM.cpp -o lib/BOSS_factory_SM.o
++	$(CC) $(CFLAGS) -c src/BOSS_factory_THDM.cpp -o lib/BOSS_factory_THDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_SM.cpp -o lib/BOSS_SM.o
++	$(CC) $(CFLAGS) -c src/BOSS_THDM.cpp -o lib/BOSS_THDM.o
++	$(CC) $(CFLAGS) -c src/BOSS_wrapperutils.cpp -o lib/BOSS_wrapperutils.o
++
+ lib: $(addprefix $(LIBDIR)/, $(LIB))
+ 
+ $(addprefix $(LIBDIR)/, $(LIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
+@@ -61,10 +81,20 @@
+ 	@ echo $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
+ 	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
+ 
++sharedlib: $(addprefix $(LIBDIR)/, $(SHAREDLIB))
++
++$(addprefix $(LIBDIR)/, $(SHAREDLIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
++	@ echo "Making library $@"
++	$(CC) $(addprefix $(OBJDIR)/, $(OBJECTS)) $(SHAREDLIBFLAGS) -o $@
++
++%: %.cpp $(addprefix $(LIBDIR)/, $(SHAREDLIB))
++	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
++
+ clean:
+-	@ echo "Cleaning library"
++	@ echo "Cleaning libraries"
+ 	@ rm -f $(addprefix $(OBJDIR)/, *.o)
+ 	@ rm -f $(addprefix $(LIBDIR)/, $(LIB))
++	@ rm -f $(addprefix $(LIBDIR)/, $(SHAREDLIB))
+ 
+ distclean:
+ 	@ make -s clean
 diff -ruN src/CalcLH.cpp src_patched/CalcLH.cpp
 --- src/CalcLH.cpp	2021-03-09 16:09:49.000000000 +1100
 +++ src_patched/CalcLH.cpp	2021-03-09 16:09:49.000000000 +1100

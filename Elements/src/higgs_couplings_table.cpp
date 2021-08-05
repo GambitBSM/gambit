@@ -40,6 +40,19 @@ namespace Gambit
     C_ss2.resize(n);
     C_hiZ.resize(n);
     for (int i = 0; i < n; i++) C_hiZ[i].resize(n);
+    C_tt_s.resize(n);
+    C_tt_p.resize(n);
+    C_bb_s.resize(n);
+    C_bb_p.resize(n);
+    C_cc_s.resize(n);
+    C_cc_p.resize(n);
+    C_ss_s.resize(n);
+    C_ss_p.resize(n);
+    C_tautau_s.resize(n);
+    C_tautau_p.resize(n);
+    C_mumu_s.resize(n);
+    C_mumu_p.resize(n);
+
   }
 
   /// Set the number of charged Higgses

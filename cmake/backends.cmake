@@ -389,7 +389,7 @@ set(ver "1.0")
 #set(dl "https://github.com/mchrzasz/HEPLike/archive/V${ver}.tar.gz")
 set(dl "https://github.com/mchrzasz/HEPLike/archive/master.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "be29776b4596d981bfd61b3c16e27b89")
+set(md5 "none")
 set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1881,7 +1881,7 @@ set(name "thdmc")
 set(ver "1.8.0")
 set(ver_underlined "1_8_0")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 set(dl "https://2hdmc.hepforge.org/downloads/2HDMC-${ver}.tar.gz")
 set(md5 "97a60d3d10637faf3fe26f704a666d26")
 set(THDM_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -1893,8 +1893,9 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch < ${patch}/Makefile.patch
-	        COMMAND patch -s -p0 < ${patch}/src.patch
+#    PATCH_COMMAND patch < ${patch}/Makefile.patch
+#	        COMMAND patch -s -p0 < ${patch}/src.patch
+    PATCH_COMMAND patch -p0 < ${patch}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ${MAKE_PARALLEL} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${THDM_CXX_FLAGS} GSLINCLUDE_DIR=${GSL_INCLUDE_DIRS} boss
           COMMAND ${MAKE_PARALLEL} GSLLIBS=${GSL_LIB_FLAGS} sharedlib

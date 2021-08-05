@@ -1,12 +1,12 @@
 #ifndef __abstract_SM_THDMC_1_8_0_h__
 #define __abstract_SM_THDMC_1_8_0_h__
 
+#include <cstddef>
+#include <iostream>
+#include <complex>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <complex>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

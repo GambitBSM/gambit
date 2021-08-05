@@ -2,11 +2,11 @@
 #define __wrapper_HL_BifurGaussian_decl_HepLike_1_0_h__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_HL_BifurGaussian.h"
 #include "wrapper_HL_Gaussian_decl.h"
-#include <string>
 
 #include "identification.hpp"
 

@@ -2,10 +2,10 @@
 #define __wrapper_SM_decl_THDMC_1_8_0_h__
 
 #include <cstddef>
+#include <complex>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_SM.h"
-#include <complex>
 
 #include "identification.hpp"
 

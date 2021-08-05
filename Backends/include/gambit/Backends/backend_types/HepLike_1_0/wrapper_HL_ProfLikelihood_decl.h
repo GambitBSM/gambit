@@ -2,11 +2,11 @@
 #define __wrapper_HL_ProfLikelihood_decl_HepLike_1_0_h__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_HL_ProfLikelihood.h"
 #include "wrapper_HL_Data_decl.h"
-#include <string>
 
 #include "identification.hpp"
 

@@ -521,12 +521,6 @@ Rules:
     #  function: THDM_ModelParameters_effc
     #  module: ColliderBit
 
-    - capability: HB_ModelParameters_charged
-      function: THDM_ModelParameters_charged
-      
-    - capability: HB_ModelParameters_neutral
-      function: THDM_ModelParameters_effc
-     
     - capability: Higgs_Couplings
       function: THDM_higgs_couplings_2HDMC
       module: SpecBit
