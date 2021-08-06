@@ -393,7 +393,8 @@
   th_error_type: M
   th_error_source: 1208.0934
   correlation:
-  - name: -0.20884
+  - name: BR_B02mumu
+    value: -0.20884
 
 - name: BR_B02mumu
   islimit: false
@@ -405,7 +406,8 @@
   th_error_type: M
   th_error_source: 1208.0934
   correlation:
-  - name: -0.20884
+  - name: BR_Bs2mumu
+    value: -0.20884
 
 - name: BR_b2sgamma
   islimit: false
