@@ -1340,6 +1340,8 @@ namespace Gambit
       // 3-boson contributions suppressed and neglected
 
       result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() - Aloop2SMf.real() + Aloop2BZ.real() - Aloop2SMBZ.real();
+      //convert to g-2 for the likelihood
+      result.central = 2. * result.central;
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
 
