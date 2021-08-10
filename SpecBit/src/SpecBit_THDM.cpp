@@ -30,16 +30,8 @@
 ///  \date 2021 Apr
 ///  *********************************************
 
-// TODO: Too many headers, all used?
 // GSL headers
 #include <gsl/gsl_matrix.h>
-#include <gsl/gsl_eigen.h>
-#include <gsl/gsl_permutation.h>
-#include <gsl/gsl_permute.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_min.h>
-#include <gsl/gsl_integration.h>
-#include <gsl/gsl_math.h>
 #include <gsl/gsl_deriv.h>
 
 // Eigen headers
