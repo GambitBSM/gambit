@@ -80,6 +80,7 @@
 #define __FJCORE_FASTJET_BASE_HH__
 #define FJCORE_BEGIN_NAMESPACE namespace fjcore {
 #define FJCORE_END_NAMESPACE   }
+#define FJCORE_OMPGPUOFFLOAD 1000000
 #endif // __FJCORE_FASTJET_BASE_HH__
 #ifndef __FJCORE_NUMCONSTS__
 #define __FJCORE_NUMCONSTS__
@@ -91,6 +92,7 @@ const double zeta2 = 1.644934066848226436472415166646025189219;
 const double zeta3 = 1.202056903159594285399738161511449990765;
 const double eulergamma = 0.577215664901532860606512090082402431042;
 const double ln2   = 0.693147180559945309417232121458176568076;
+
 FJCORE_END_NAMESPACE
 #endif // __FJCORE_NUMCONSTS__
 #ifndef __FJCORE_INTERNAL_IS_BASE_HH__
@@ -1559,6 +1561,19 @@ inline const std::vector<ClusterSequence::history_element> & ClusterSequence::hi
 inline unsigned int ClusterSequence::n_particles() const {return _initial_n;}
 // PJE: these are inline functions that might be useful to redefine 
 // as not inline to get a more informative profiling
+
+// set the information of a jet pointer based on the cluster sequence jets 
+// calcualte rap() and phi_02pi();
+// note that rap() seems to call pointless functions before returning _rap
+// internal variable. 
+// phi_02pi returns the phi variable wrapped between 0 and 2pi
+// NN_dist initialised to _R2 (which is set for cluster sequence 
+// in _initialise_and_run_no_decant() or _decant_options_partial() functions
+// and NN to NULL 
+// could be useful to have the NN array separated from the jet array 
+// and have a special NULL like jet object where the _jets_index == -1
+// Parallelism: this can easily be parallised via OpenMP
+// if array is large enough might warrent offloading to GPU 
 //template <class J> inline void ClusterSequence::_bj_set_jetinfo(
 template <class J> void ClusterSequence::_bj_set_jetinfo(
   J * const jetA, const int _jets_index) const 
@@ -1568,23 +1583,66 @@ template <class J> void ClusterSequence::_bj_set_jetinfo(
     jetA->kt2  = jet_scale_for_algorithm(_jets[_jets_index]);
     jetA->_jets_index = _jets_index;
     jetA->NN_dist = _R2;
-    jetA->NN      = NULL;
+    //jetA->NN      = NULL;
+    jetA->NN      = nullptr;
 }
+
+template <class J> void ClusterSequence::_bj_set_jetinfo(
+  J &jetA, const int _jets_index) const 
+{
+    jetA.eta  = _jets[_jets_index].rap();
+    jetA.phi  = _jets[_jets_index].phi_02pi();
+    jetA.kt2  = jet_scale_for_algorithm(_jets[_jets_index]);
+    jetA._jets_index = _jets_index;
+    jetA.NN_dist = _R2;
+    jetA.NN      = nullptr;
+}
+
+// distance between two jets from their phi and eta 
 //template <class J> inline double ClusterSequence::_bj_dist(
 template <class J> double ClusterSequence::_bj_dist(
   const J * const jetA, const J * const jetB) const {
-  double dphi = std::abs(jetA->phi - jetB->phi);
+  //double dphi = std::abs(jetA->phi - jetB->phi);
+  // if (dphi > pi) {dphi = twopi - dphi;}
+  // get absolute value and wrap 
+  double dphi = jetA->phi - jetB->phi;
+  dphi = (dphi < 0) ? -dphi : dphi;
+  dphi = (dphi > pi) ? twopi - dphi : dphi;
   double deta = (jetA->eta - jetB->eta);
-  if (dphi > pi) {dphi = twopi - dphi;}
   return dphi*dphi + deta*deta;
 }
-//template <class J> double ClusterSequence::_bj_diJ(
-template <class J> inline double ClusterSequence::_bj_diJ(
+template <class J> double ClusterSequence::_bj_dist(
+  const J const &jetA, const J const &jetB) const {
+  double dphi = jetA.phi - jetB.phi;
+  double deta = (jetA.eta - jetB.eta);
+  dphi = (dphi < 0) ? -dphi : dphi;
+  dphi = (dphi > pi) ? twopi - dphi : dphi;
+  return dphi*dphi + deta*deta;
+}
+
+// distance is either jet's kt2 value * either the NN's kt2 value 
+// times the NN_distance (which if object has no NN, is _R2)
+//template <class J> inline double ClusterSequence::_bj_diJ(
+template <class J> double ClusterSequence::_bj_diJ(
   const J * const jet) const {
   double kt2 = jet->kt2;
-  if (jet->NN != NULL) {if (jet->NN->kt2 < kt2) {kt2 = jet->NN->kt2;}}
+  //if (jet->NN != NULL) {if (jet->NN->kt2 < kt2) {kt2 = jet->NN->kt2;}}
+  if (jet->NN != NULL) kt2 = (jet->NN->kt2 < kt2) ? jet->NN->kt2 : kt2;
   return jet->NN_dist * kt2;
 }
+
+template <class J> double ClusterSequence::_bj_diJ(
+  const J const &jet) const {
+  double kt2 = jet.kt2;
+  if (jet.NN != NULL) kt2 = (jet.NN->kt2 < kt2) ? jet.NN->kt2 : kt2;
+  return jet.NN_dist * kt2;
+}
+
+// for a given jet input and head and tails of array
+// iterate over all jets between head and tail to calcaute 
+// the jet distance and also set NN, setting only the jet's NN 
+// values (hence nocross). 
+// Can be parallelised
 //template <class J> inline void ClusterSequence::_bj_set_NN_nocross(
 template <class J> void ClusterSequence::_bj_set_NN_nocross(
   J * const jet, J * const head, const J * const tail) const 
@@ -1595,8 +1653,8 @@ template <class J> void ClusterSequence::_bj_set_NN_nocross(
     for (J * jetB = head; jetB != jet; jetB++) {
       double dist = _bj_dist(jet,jetB);
       if (dist < NN_dist) {
-	NN_dist = dist;
-	NN = jetB;
+	      NN_dist = dist;
+	      NN = jetB;
       }
     }
   }
@@ -1604,14 +1662,18 @@ template <class J> void ClusterSequence::_bj_set_NN_nocross(
     for (J * jetB = jet+1; jetB != tail; jetB++) {
       double dist = _bj_dist(jet,jetB);
       if (dist < NN_dist) {
-	NN_dist = dist;
-	NN = jetB;
+	      NN_dist = dist;
+	      NN = jetB;
       }
     }
   }
   jet->NN = NN;
   jet->NN_dist = NN_dist;
 }
+
+// determine the NN of a jet, given an head and an tail
+// loops over all jets from head to tail and gets distance between 
+// jet and all the other jets. if jet is minimum set 
 //template <class J> inline void ClusterSequence::_bj_set_NN_crosscheck(
 template <class J> void ClusterSequence::_bj_set_NN_crosscheck(
   J * const jet, J * const head, const J * const tail) const 
