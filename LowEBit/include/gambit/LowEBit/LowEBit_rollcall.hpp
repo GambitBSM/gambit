@@ -43,7 +43,7 @@ START_CAPABILITY
     // uncertainties
    #define FUNCTION CPV_Wilson_q_Simple
    START_FUNCTION(CPV_WC_q)
-   DEPENDENCY(SMINPUTS, SMInputs)
+//   DEPENDENCY(SMINPUTS, SMInputs)
    ALLOW_MODELS(CPVYukawas)
    #undef FUNCTION
 #undef CAPABILITY
@@ -54,7 +54,7 @@ START_CAPABILITY
     // uncertainties
    #define FUNCTION CPV_Wilson_l_Simple
    START_FUNCTION(CPV_WC_l)
-   DEPENDENCY(SMINPUTS, SMInputs)
+//   DEPENDENCY(SMINPUTS, SMInputs)
    ALLOW_MODELS(CPVYukawas)
    #undef FUNCTION
 #undef CAPABILITY
@@ -65,7 +65,7 @@ START_CAPABILITY
    // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in e cm
    START_FUNCTION(dq)
    DEPENDENCY(CPV_Wilson_Coeff_q, CPV_WC_q)
-   DEPENDENCY(SMINPUTS, SMInputs)
+//   DEPENDENCY(SMINPUTS, SMInputs)
    #undef FUNCTION
 #undef CAPABILITY
 
@@ -76,7 +76,7 @@ START_CAPABILITY
    // Calculation of quark EDMs (at mu_had) from Wilson Coefficients in e cm
    START_FUNCTION(dl)
    DEPENDENCY(CPV_Wilson_Coeff_l, CPV_WC_l)
-   DEPENDENCY(SMINPUTS, SMInputs)
+//   DEPENDENCY(SMINPUTS, SMInputs)
    #undef FUNCTION
 #undef CAPABILITY
 
@@ -86,7 +86,7 @@ START_CAPABILITY
    // Calculation of quark chromoEDMs (at mu_had) from Wilson Coefficients in cm
    START_FUNCTION(dq)
    DEPENDENCY(CPV_Wilson_Coeff_q, CPV_WC_q)
-   DEPENDENCY(SMINPUTS, SMInputs)
+//   DEPENDENCY(SMINPUTS, SMInputs)
    #undef FUNCTION
 #undef CAPABILITY
 
@@ -95,7 +95,7 @@ START_CAPABILITY
    #define FUNCTION EDM_n_quark
    // Calculation of neutron EDM from quark EDMs and CEDMs in e cm
    START_FUNCTION(double)
-   DEPENDENCY(SMINPUTS, SMInputs)
+//   DEPENDENCY(SMINPUTS, SMInputs)
    DEPENDENCY(EDM_q, dq)
    DEPENDENCY(CEDM_q, dq)
    ALLOW_MODELS(nEDMme)
@@ -108,7 +108,7 @@ START_CAPABILITY
 	#define FUNCTION EDM_199Hg_quark
 	// Calculation of 199Hg EDM from quark CEDMs in e cm
 	START_FUNCTION(double)
-	DEPENDENCY(SMINPUTS,SMInputs)
+//	DEPENDENCY(SMINPUTS,SMInputs)
 	DEPENDENCY(CEDM_q, dq)
 	DEPENDENCY(EDM_l, dl)
 	ALLOW_MODELS(diaEDMme)
@@ -118,7 +118,7 @@ START_CAPABILITY
 	#define FUNCTION EDM_225Ra_quark
 	// Calculation of 225Ra EDM from quark CEDMs in e cm
 	START_FUNCTION(double)
-	DEPENDENCY(SMINPUTS,SMInputs)
+//	DEPENDENCY(SMINPUTS,SMInputs)
 	DEPENDENCY(CEDM_q, dq)
 	DEPENDENCY(EDM_l, dl)
 	ALLOW_MODELS(diaEDMme)
@@ -127,7 +127,7 @@ START_CAPABILITY
 	#define FUNCTION EDM_211Rn_quark
 	// Calculation of 211Rn EDM from quark CEDMs in e cm
 	START_FUNCTION(double)
-	DEPENDENCY(SMINPUTS,SMInputs)
+//	DEPENDENCY(SMINPUTS,SMInputs)
 	DEPENDENCY(CEDM_q, dq)
 	DEPENDENCY(EDM_l, dl)
 	ALLOW_MODELS(diaEDMme)
@@ -136,7 +136,7 @@ START_CAPABILITY
 	#define FUNCTION EDM_129Xe_quark
 	// Calculation of 129Xe EDM from quark CEDMs in e cm
 	START_FUNCTION(double)
-	DEPENDENCY(SMINPUTS,SMInputs)
+//	DEPENDENCY(SMINPUTS,SMInputs)
 	DEPENDENCY(CEDM_q, dq)
 	DEPENDENCY(EDM_l, dl)
 	ALLOW_MODELS(diaEDMme)
@@ -148,10 +148,18 @@ START_CAPABILITY
 	#define FUNCTION EDM_ThO_electron
 	// Calculation of ThO EDM from electron EDMs in e cm
 	START_FUNCTION(double)
-	DEPENDENCY(SMINPUTS,SMInputs)
+//	DEPENDENCY(SMINPUTS,SMInputs)
 	DEPENDENCY(EDM_l, dl)
 	ALLOW_MODELS(CPVYukawas)
 	#undef FUNCTION
+	#define FUNCTION EDM_mu
+	// Calculation of muon EDM in e cm
+	START_FUNCTION(double)
+//	DEPENDENCY(SMINPUTS,SMInputs)
+	DEPENDENCY(EDM_l, dl)
+	ALLOW_MODELS(CPVYukawas)
+	#undef FUNCTION
+
 #undef CAPABILITY
 
 #define CAPABILITY lnL_EDM_dia
@@ -177,6 +185,10 @@ START_CAPABILITY
 #define CAPABILITY lnL_EDM_para
 START_CAPABILITY
     #define FUNCTION lnL_EDM_ThO_gaussianStep
+    START_FUNCTION(double)
+    DEPENDENCY(EDM_para, double)
+    #undef FUNCTION
+    #define FUNCTION lnL_EDM_mu_gaussian
     START_FUNCTION(double)
     DEPENDENCY(EDM_para, double)
     #undef FUNCTION

@@ -38,6 +38,7 @@ namespace Gambit
    {
 	// These arrays hold the numerical values for the WC prefactors, i.e. loop functions at the hadronic scale.
 	static double Ce3[9];
+	static double Cmu3[9];
 	static double Cu3[9];
 	static double Cd3[9];
 	static double Cs3[9];
@@ -78,6 +79,34 @@ namespace Gambit
 		return;	
 	}
 	
+	void Cmu3list(double muH, double Lambda){
+		static bool first = true;
+		if(first){
+			LoopFunctions l;
+			std::cout << "Cmu3 calc" << std::endl;
+			Cmu3[0] = l.C3e('m',muH,Lambda,1,0,0,0,0,0,0,0,0);
+			Cmu3[1] = l.C3e('m',muH,Lambda,0,1,0,0,0,0,0,0,0);
+			Cmu3[2] = l.C3e('m',muH,Lambda,0,0,1,0,0,0,0,0,0);
+			Cmu3[3] = l.C3e('m',muH,Lambda,0,0,0,1,0,0,0,0,0);
+			Cmu3[4] = l.C3e('m',muH,Lambda,0,0,0,0,1,0,0,0,0);
+			Cmu3[5] = l.C3e('m',muH,Lambda,0,0,0,0,0,1,0,0,0);
+			Cmu3[6] = l.C3e('m',muH,Lambda,0,0,0,0,0,0,1,0,0);
+			Cmu3[7] = l.C3e('m',muH,Lambda,0,0,0,0,0,0,0,1,0);
+			Cmu3[8] = l.C3e('m',muH,Lambda,0,0,0,0,0,0,0,0,1);
+			std::cout << "Cmu3 e: " << Cmu3[0] << std::endl;
+			std::cout << "Cmu3 m: " << Cmu3[1] << std::endl;
+			std::cout << "Cmu3 t: " << Cmu3[2] << std::endl;
+			std::cout << "Cmu3 u: " << Cmu3[3] << std::endl;
+			std::cout << "Cmu3 d: " << Cmu3[4] << std::endl;
+			std::cout << "Cmu3 s: " << Cmu3[5] << std::endl;
+			std::cout << "Cmu3 c: " << Cmu3[6] << std::endl;
+			std::cout << "Cmu3 b: " << Cmu3[7] << std::endl;
+			std::cout << "Cmu3 t: " << Cmu3[8] << std::endl;
+			
+			first = false;
+		}
+		return;	
+	}
 	void Cu3list(double muH, double Lambda){
 		static bool first = true;
 		if(first){
@@ -292,10 +321,10 @@ namespace Gambit
 		  first = false;	
 		  cnt = 1;
 	  	  LoopFunctions c;
-		  qmasses = c.get_masses2GeV();
+		  qmasses = c.get_massesMh();
 		  AlphaS as;
 		  gsat2GeV = sqrt(4*pi*as.run(2,4,1));
-		  cout << "masses at 2GeV:" << endl;
+		  cout << "masses at Mh:" << endl;
 		  cout  << qmasses[0] << endl;
 		  cout  << qmasses[1] << endl;
 		  cout  << qmasses[2] << endl;
@@ -401,13 +430,15 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       {
           using namespace Pipes::CPV_Wilson_q_Simple;
 
-		  double gf = Dep::SMINPUTS->GF;
+//		  double gf = Dep::SMINPUTS->GF;
+		  double gf = GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
 		  initialise(Mh,Lambda);
-		  double me = 5.11E-4;
+//		  double me = 5.11E-4;
+//		  masses at Mh: The cpv phases (sin and cos below) are established at Mh
 		  double mu = qmasses[0];
-		  double md = qmasses[1];
+		  double md = qmasses[1]; 
 		  double ms = qmasses[2];
 		  double mc = qmasses[3];
 		  double mb = qmasses[4];
@@ -417,7 +448,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mmu;
 		  double sinThTau = *Param["CtauHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mtau;
 		  double sinThU = *Param["CuHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mu;
-		  double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/md;
+		  double sinThD = *Param["CdHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/md; 
 		  double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/ms;
 		  double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mc;
 		  double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/2./sqrt(2.)/mb;
@@ -446,9 +477,12 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
 			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
 		  		  };
+
+
 //		  for(int i = 0; i<9; i++){cout << "CqH[" << i << "] = " << CqH[i] << endl; }
 
-		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;Cw[i]=0;}
+
+		  for(int i = 1; i<3; i++) {result.Cu[i]=0;result.Cd[i]=0;result.Cs[i]=0;result.Cw[i]=0;}
 		  for(int i = 0; i<9; i++){
 		          result.Cu[1] = result.Cu[1] + Cu3[i]*CqH[i];
 		          result.Cd[1] = result.Cd[1] + Cd3[i]*CqH[i];
@@ -457,7 +491,34 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		          result.Cd[2] = result.Cd[2] + Cd4[i]*CqH[i];
 		          result.Cs[2] = result.Cs[2] + Cs4[i]*CqH[i];
 			  result.Cw[1] = result.Cw[1] + Cw[i]*CqH[i];
+			  std::cout << i << "cw_i: " << Cw[i] << "CqH_i: " << CqH[i] << "CWcombined: " << result.Cw[1] <<std::endl;
 			  }
+		std::cout << "CuHm: " << (*Param["CuHm"]) << std::endl;
+		std::cout << "CuHp: " << (*Param["CuHp"]) << std::endl;
+		std::cout << "CdHm: " << (*Param["CdHm"]) << std::endl;
+		std::cout << "CdHp: " << (*Param["CdHp"]) << std::endl;
+		std::cout << "CtHm: " << (*Param["CtHm"]) << std::endl;
+		std::cout << "CtHp: " << (*Param["CtHp"]) << std::endl;
+		std::cout << "CuHodd: " << CqH[3] << std::endl;
+		std::cout << "CdHodd: " << CqH[4] << std::endl;
+		std::cout << "sinThD: " << sinThD << std::endl;
+		std::cout << "CtHodd: " << CqH[8] << std::endl;
+		std::cout << "Cuu3rge: " << Cu3[3] << std::endl;
+		std::cout << "Cut3rge: " << Cu3[8] << std::endl;
+		std::cout << "Cdd3rge: " << Cd3[4] << std::endl;
+		std::cout << "Cdt3rge: " << Cd3[8] << std::endl;
+		std::cout << "Cuu3rge: " << Cu3[3] << std::endl;
+		std::cout << "Cut3rge: " << Cu3[8] << std::endl;
+		std::cout << "Cdd3rge: " << Cd3[4] << std::endl;
+		std::cout << "Cdt3rge: " << Cd3[8] << std::endl;
+		std::cout << "Cwtrge: " << Cw[8] << std::endl;
+		std::cout << "Cu3*CqHcombined: " << result.Cu[1] << std::endl;
+		std::cout << "Cd3*CqHcombined: " << result.Cd[1] << std::endl;
+		std::cout << "Cu4*CqHcombined: " << result.Cu[2] << std::endl;
+		std::cout << "Cd4*CqHcombined: " << result.Cd[2] << std::endl;
+		std::cout << "Cwcombined: " << result.Cw[1] << std::endl;
+
+
 /*		  for(int i = 1; i<3; i++) {
 			  cout << endl << "Cu"<<i<< " " << result.Cu[i] << " ";
 			  cout << "Cd"<<i<< " " << result.Cd[i] << " ";
@@ -474,11 +535,12 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       {
           using namespace Pipes::CPV_Wilson_l_Simple;
 
-		  double gf = Dep::SMINPUTS->GF;
+//		  double gf = Dep::SMINPUTS->GF;
+		  double gf = GF;		  
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
 		  initialise(Mh,Lambda);
-		  double me = 5.11E-4;
+//		  double me = 5.11E-4;
 		  double mu = qmasses[0];
 		  double md = qmasses[1];
 		  double ms = qmasses[2];
@@ -505,36 +567,40 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  double cosThB = sqrt(1.-sinThB*sinThB);
 		  double cosThT = sqrt(1.-sinThT*sinThT);
 
-		std::fstream dne("/home/dskodras/gambitgit/LowEBit/src/dne.dat", std::ios::app);
-	  	if (dne.is_open()){
-			dne << "CuHm " << *Param["CuHm"] << "\n";
-			dne << "CuHp " << *Param["CuHp"] << "\n";
-			dne << "CdHm " << *Param["CdHm"] << "\n";
-			dne << "CdHp " << *Param["CdHp"] << "\n";
-		}
-		  	dne.close();
+//		std::fstream dne("/home/dskodras/gambitgit/LowEBit/src/dne.dat", std::ios::app);
+//	  	if (dne.is_open()){
+//			dne << "CuHm " << *Param["CuHm"] << "\n";
+//			dne << "CuHp " << *Param["CuHp"] << "\n";
+//			dne << "CdHm " << *Param["CdHm"] << "\n";
+//			dne << "CdHp " << *Param["CdHp"] << "\n";
+//		}
+//		  	dne.close();
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
-//		  if(sampleStyle==1){
-		  double CeH[9] = {
+		  double ClH[9] = {
 			  (*Param["CeHm"])*cosThE + (*Param["CeHp"]*sinThE),
 			  (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"]*sinThMu),
 			  (*Param["CtauHm"])*cosThTau + (*Param["CtauHp"]*sinThTau),
+//			  (*Param["CtauHm"])*2*sqrt(2)*mtau*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CtauHp"],2) + pow(*Param["CtauHm"],2)),
 			  (*Param["CuHm"])*cosThU + (*Param["CuHp"]*sinThU),
 			  (*Param["CdHm"])*cosThD + (*Param["CdHp"]*sinThD),
 			  (*Param["CsHm"])*cosThS + (*Param["CsHp"]*sinThS),
 			  (*Param["CcHm"])*cosThC + (*Param["CcHp"]*sinThC),
 			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
-			  (*Param["CtHm"])*1 + (*Param["CtHp"]*sinThT*0) //cosThT
+			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT) //cosThT
+		//	  (*Param["CbHm"])*2*sqrt(2)*mb*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CbHp"],2) + pow(*Param["CbHm"],2)),
+		//	  (*Param["CtHm"])*2*sqrt(2)*mt*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CtHp"],2) + pow(*Param["CtHm"],2)) 
+				  //paramter from 2003.00099
 		  		  };
 
 		  for(int i = 1; i<3; i++) {result.Ce[i]=0;result.Cmu[i]=0;result.Ctau[i]=0;}
 		  for(int i = 0; i<9; i++){
-		          result.Ce[1] = result.Ce[1] + Ce3[i]*CeH[i];
-/*			  cout << "Ce "<<i<< " " << result.Ce[i];
+		          result.Ce[1] = result.Ce[1] + Ce3[i]*ClH[i];
+		          result.Cmu[1] = result.Cmu[1] + Cmu3[i]*ClH[i];
+			  cout << "Ce "<<i<< " " << result.Ce[i];
 			  cout << " C3e "<<i<< " " << Ce3[i];
-			  cout << " CeH "<<i<< " " << CeH[i];
-			  cout << endl;*/
+			  cout << " CeH "<<i<< " " << ClH[i];
+			  cout << endl;
 			  }
 //		cout << "Ce: "<< " " << result.Ce[1] << endl;;
 //
@@ -548,16 +614,24 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       {
          using namespace Pipes::EDM_q_Wilson;
 
-    	 double e = sqrt(4.*pi/Dep::SMINPUTS->alphainv);
-    	 double gf = Dep::SMINPUTS->GF;
-    	 double mu = Dep::SMINPUTS->mU;
-    	 double md = Dep::SMINPUTS->mD;
-    	 double ms = Dep::SMINPUTS->mS;
+//    	 double e = sqrt(4.*pi/Dep::SMINPUTS->alphainv);
+	 double e = sqrt(4.*pi*aMZ);
+//    	 double gf = Dep::SMINPUTS->GF;
+    	 double gf = GF;
+//    	 double mu = Dep::SMINPUTS->mU;
+    	 double mu = muat2gev;
+//    	 double md = Dep::SMINPUTS->mD;
+    	 double md = mdat2gev;
+//    	 double ms = Dep::SMINPUTS->mS;
+    	 double ms = msat2gev;
 
     	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
          result.u = sqrt(2.)*gf*e/pow(gsat2GeV,2)*2./3.*mu*c.Cu[1]*gev2cm;
          result.d = sqrt(2.)*gf*e/pow(gsat2GeV,2)*(-1./3.)*md*c.Cd[1]*gev2cm;
          result.s = sqrt(2.)*gf*e/pow(gsat2GeV,2)*(-1./3.)*ms*c.Cs[1]*gev2cm;
+	 std::cout << "du: " << result.u << std::endl;
+	 std::cout << "dd: " << result.d << std::endl;
+	 std::cout << "ds: " << result.s << std::endl;
 //	 cout << "du: " << result.u << " dd: " << result.d << " ds: " << result.s << endl;
          //Heavy quarks for completeness??
       }
@@ -568,14 +642,16 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       {
          using namespace Pipes::EDM_l_Wilson;
 
-    	 double gf = Dep::SMINPUTS->GF;
+//    	 double gf = Dep::SMINPUTS->GF;
+	 double gf = GF;
     	 //double me = Dep::SMINPUTS->mE;
-	 double me = 5.11E-4;
+//	 double me = 5.11E-4;
 
     	 CPV_WC_l c = *Dep::CPV_Wilson_Coeff_l;
          result.e = sqrt(2.)*gf*(-1.)*me*c.Ce[1]*gev2cm;
-//	 cout << "Ce[1]: " << c.Ce[1] << endl;
-//	 cout << "result.e: " << result.e << endl;
+         result.mu = sqrt(2.)*gf*(-1.)*mmu*c.Cmu[1]*gev2cm;
+	 cout << "Ce[1]: " << c.Ce[1] << endl;
+	 cout << "result.e: " << result.e << endl;
 
          //Heavy quarks for completeness??
       }
@@ -587,16 +663,23 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       {
          using namespace Pipes::CEDM_q_Wilson;
 
-    	 double gf = Dep::SMINPUTS->GF;
-    	 double mu = Dep::SMINPUTS->mU;
-    	 double md = Dep::SMINPUTS->mD;
-    	 double ms = Dep::SMINPUTS->mS;
+    	 double gf = GF;
+//    	 double mu = Dep::SMINPUTS->mU;
+    	 double mu = muat2gev;
+//    	 double md = Dep::SMINPUTS->mD;
+    	 double md = mdat2gev;
+//    	 double ms = Dep::SMINPUTS->mS;
+    	 double ms = msat2gev;
 
-    	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
+	 CPV_WC_q c = *Dep::CPV_Wilson_Coeff_q;
          result.u = -sqrt(2.)*gf/pow(gsat2GeV,2)*mu*c.Cu[2]*gev2cm;
          result.d = -sqrt(2.)*gf/pow(gsat2GeV,2)*md*c.Cd[2]*gev2cm;
          result.s = -sqrt(2.)*gf/pow(gsat2GeV,2)*ms*c.Cs[2]*gev2cm;
          result.w = sqrt(2.)*gf/pow(gsat2GeV,2)*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
+	 std::cout << "cdu: " << result.u << std::endl;
+	 std::cout << "cdd: " << result.d << std::endl;
+	 std::cout << "cds: " << result.s << std::endl;
+	 std::cout << "cw: " << result.w << std::endl;
 //	 cout << "cdu: " << result.u << " cdd: " << result.d << " cds: " << result.s << " w: " << result.w << endl;
          //Heavy quarks for completeness?? - (C)EDMs of heavy quarks do not enter explicitly the atomic/nuclear EDMs
       }
@@ -629,9 +712,32 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  }*/
 			//gaussian Overall:
 		  	mu = 0.;
-			result = 0.;
+//			sig = 1.1E-29 / 1.645;
+			if ( abs(*Dep::EDM_para) < 1.1E-29){
+				result = 0.0;
+			}
+			else{result = 1.0E10;}
+			result = -1./2*pow((abs(*Dep::EDM_para) - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
+			cout << "edm:" << abs(*Dep::EDM_para) << endl;
+		  	cout << "gaussian result_EDM_ThO: " << result << endl;
+
+	  }
+	  void EDM_mu(double &result)
+      // Calculation of electron EDM in e cm
+      {
+         using namespace Pipes::EDM_mu;
+	
+         dl dEDM = *Dep::EDM_l;
+         result = dEDM.mu ;
+      }
+
+          void lnL_EDM_mu_gaussian(double &result)
+	  {
+		  using namespace Pipes::lnL_EDM_mu_gaussian;
+		  double mu = -0.1E-19, sig = 0.9E-19;//0811.1207
+			//gaussian Overall:
+		  	mu = 0.;
 			result = -1./2*pow((*Dep::EDM_para - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
-//		  	cout << "gaussian result_EDM_ThO: " << result << endl;
 
 	  }
       void EDM_n_quark(double &result)
@@ -639,7 +745,8 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       {
          using namespace Pipes::EDM_n_quark;
 
-    	 double e = sqrt(4.*pi/Dep::SMINPUTS->alphainv);
+    	 //double e = sqrt(4.*pi/Dep::SMINPUTS->alphainv);
+    	 double e = sqrt(4.*pi*aMZ);
          dq dEDM = *Dep::EDM_q;
          dq dCEDM = *Dep::CEDM_q;
 
@@ -656,6 +763,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 			+ (*Param["gTs"])*dEDM.s )/e
 			+ 25E-3*dCEDM.w // CEDMs are in cm, EDMs are in e cm, the 25E-3 is valid if w is given in GeV
 			;
+	 std::cout << "dneutron/e: " << result << std::endl;
       }
 	  void lnL_EDM_n_gaussianOverall(double &result)
 	  {
@@ -669,12 +777,12 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 
 	
 			result = -1./2*pow((*Dep::EDM_n - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
-			std::fstream dne("/home/dskodras/gambitgit/LowEBit/src/dne.dat", std::ios::app);
-		  	if (dne.is_open()){
-				dne << "dne: " << *Dep::EDM_n << "\n";
-				dne << "dchi2: " << result << "\n";
-			}
-		  	dne.close();
+//			std::fstream dne("/home/dskodras/gambitgit/LowEBit/src/dne.dat", std::ios::app);
+//		  	if (dne.is_open()){
+//				dne << "dne: " << *Dep::EDM_n << "\n";
+//				dne << "dchi2: " << result << "\n";
+//			}
+//		  	dne.close();
 	
 //		  	cout << "gaussian result_EDM_n: " << result << endl;
 			cnt++;
@@ -692,23 +800,27 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 	  // a0_Ra = -3.3;				took mean of results shown in 1101.3529
 	  // b_Ra = 0;					not calculated yet
 	  // a1_Ra = 8.4;				took mean of results shown in 1101.3529
-	
-         dq dCEDM = *Dep::CEDM_q;
+	 dq dCEDM = *Dep::CEDM_q;
+         dl dEDM = *Dep::EDM_l;
 	  // 2.(+4 -1) 
          result = 2.0E-3 * (*Param["CSchiff_Xe"]) * gPiNN * 
-			 ((*Param["a0_Xe"]+*Param["b_Xe"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Xe"])*(dCEDM.u - dCEDM.d));
+			 ((*Param["a0_Xe"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Xe"])*(dCEDM.u - dCEDM.d)) 
+			 + *Param["ae_Xe"]*dEDM.e
+			 ;
+
       }
 
       void lnL_EDM_129Xe_step(double &result)
       // Step function likelihood for neutron EDM (TODO: improve this!!!!!)
       {
     	  using namespace Pipes::lnL_EDM_129Xe_step;
-    	  
-		  if (abs(*Dep::EDM_dia) > 6.6E-27) //95% CL limit from arXiv:hep-ex/0602020
-    		  result = 0.0;
-    	  else
-//    		  result = -1.0E50;
-    		  result = 10.0;
+    	  	  double sig = 6.40E-28; //1601.04339
+		  double mu = 0.; //2.2E-30; //1601.04339
+			//gaussian overall:
+		  	mu = 0.;
+			result = -1./2*pow((*Dep::EDM_dia - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
+		  	cout << "gaussian result_EDM_dia: " << result << endl;
+
       }
 
 	  void EDM_211Rn_quark(double &result)
@@ -788,6 +900,12 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 			 + *Param["ae_Hg"]*dEDM.e
 			 ;
 //	 result = -1.8E-4 * (4)*(dCEDM.u - dCEDM.d);
+	 cout << "cdu: " << dCEDM.u << endl;	 
+	 cout << "cdd: " << dCEDM.d << endl;	 
+	 cout << "g0: " << (*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) << endl;
+	 cout << "g1: " << (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d) << endl;
+	 cout << "de: " << dEDM.e << endl;	 
+	 cout << "ge: " << *Param["ae_Hg"]*dEDM.e << endl;	 
 //	 cout << "d_e: " << dEDM.e << endl;	 
 //	 cout << "dHg: " << result << endl;
       }
@@ -797,7 +915,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       {
     	  using namespace Pipes::lnL_EDM_199Hg_step;
     		  double sig = 4.23E-30; //1601.04339
-		  double mu = 2.2E-30; //1601.04339
+		  double mu = 0.; //2.2E-30; //1601.04339
 	//	  double offset = 7.4E-30;//90% CL limit from arXiv:hep-ex/0602020
 	//	  double value = *Dep::EDM_dia;
 		  
@@ -860,6 +978,5 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 */
 	  }
 
-
+    }
    }
-}

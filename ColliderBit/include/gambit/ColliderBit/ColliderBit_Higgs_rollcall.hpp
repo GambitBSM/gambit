@@ -226,7 +226,7 @@
     #define FUNCTION calc_HS_LHC_LogLike_CPVYukawas 
     START_FUNCTION(double)
     ALLOW_MODELS(CPVYukawas)
-    DEPENDENCY(SMINPUTS, SMInputs)
+//    DEPENDENCY(SMINPUTS, SMInputs)
 //    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
 //    DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
     BACKEND_REQ(HiggsBounds_neutral_input_properties_HS, (libhiggssignals), void,
