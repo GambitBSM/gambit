@@ -5275,7 +5275,7 @@ namespace Gambit
     }
 
 // BR(l -> l' gamma) for the GTHDM from 1511.08880
-    void THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double &result)
+    void THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double &result, double BRltolpnunu)
     {
       const double Alpha_em = 1/(sminputs.alphainv);
       const double alpha_h = spectrum.get(Par::dimensionless,"alpha");
@@ -5419,8 +5419,7 @@ namespace Gambit
 
 
       result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
-      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
-      result *= BRtautomununu*48*pow(pi,3)*Alpha_em/pow(sminputs.GF,2);
+      result *= BRltolpnunu*48*pow(pi,3)*Alpha_em/pow(sminputs.GF,2);
     }
 
     // BR(mu -> e  gamma) for gTHDM from 1511.08880
@@ -5431,8 +5430,9 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 0;
+      double BRmutoenunu = 100./100.;//BR(mu->e nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
+      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result, BRmutoenunu);
     }
 
     // BR(tau -> e gamma) for gTHDM from 1511.08880
@@ -5443,8 +5443,9 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 0;
+      double BRtautoenunu = 17.82/100.;//BR(tau->e nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
+      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result, BRtautoenunu);
     }
 
     // BR(tau -> mu gamma) for gTHDM from 1511.08880
@@ -5455,8 +5456,9 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 1;
+      double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
+      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result, BRtautomununu);
     }
 
     // General contribution to l_\alpha^- -> l_\beta^- l_\gamma^- l_\delta^+ from RHNs
