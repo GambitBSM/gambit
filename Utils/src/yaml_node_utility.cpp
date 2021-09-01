@@ -23,7 +23,7 @@
 
 namespace Gambit
 {
-
+/*
     /// Expand environment variables in the given string.
     void NodeUtility::autoExpandEnvironmentVariables(std::string & text)
     {
@@ -57,7 +57,7 @@ namespace Gambit
       // Finally return the text string in the normal order.
       std::reverse(text.begin(), text.end());
     }
-
+*/
     /// Remove characters in the given string.
     void NodeUtility::removeCharsFromString(std::string& text, const char* charsToRemove)
     {
@@ -65,6 +65,18 @@ namespace Gambit
        {
           text.erase(std::remove(text.begin(), text.end(), charsToRemove[i]), text.end());
        }
+    }
+
+
+    void NodeUtility::autoExpandEnvironmentVariables(std::string & text){
+      static std::regex env( "\\$\\{([^}]+)\\}" );
+      std::smatch match;
+      while ( std::regex_search( text, match, env ) ) {
+        const char * s = getenv( match[1].str().c_str() );
+        const std::string var( s == NULL ? "" : s );
+        //text.replace( match[0].first, match[0].second(), var ); //< some problem with RH devtoolsets?  
+        text.replace( match[0].first - std::cbegin(text), match[0].str().size(), var ); //< workaround :-/
+      }
     }
 
     /// Leave input alone and return new string, which has environment variables
@@ -77,5 +89,6 @@ namespace Gambit
       NodeUtility::removeCharsFromString(text, escape_character);
       return text;
     }
+    
 
 }
