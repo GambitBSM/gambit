@@ -5275,7 +5275,7 @@ namespace Gambit
     }
 
 // BR(l -> l' gamma) for the GTHDM from 1511.08880
-    void THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double &result, double BRltolpnunu)
+    double THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double BRltolpnunu)
     {
       const double Alpha_em = 1/(sminputs.alphainv);
       const double alpha_h = spectrum.get(Par::dimensionless,"alpha");
@@ -5418,8 +5418,8 @@ namespace Gambit
       }
 
 
-      result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
-      result *= BRltolpnunu*48*pow(pi,3)*Alpha_em/pow(sminputs.GF,2);
+      double NormAs = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
+      return NormAs*BRltolpnunu*48*pow(pi,3)*Alpha_em/pow(sminputs.GF,2);
     }
 
     // BR(mu -> e  gamma) for gTHDM from 1511.08880
@@ -5432,7 +5432,7 @@ namespace Gambit
       const int l = 1, lp = 0;
       double BRmutoenunu = 100./100.;//BR(mu->e nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result, BRmutoenunu);
+      result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRmutoenunu);
     }
 
     // BR(tau -> e gamma) for gTHDM from 1511.08880
@@ -5445,7 +5445,7 @@ namespace Gambit
       const int l = 2, lp = 0;
       double BRtautoenunu = 17.82/100.;//BR(tau->e nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result, BRtautoenunu);
+      result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautoenunu);
     }
 
     // BR(tau -> mu gamma) for gTHDM from 1511.08880
@@ -5458,7 +5458,7 @@ namespace Gambit
       const int l = 2, lp = 1;
       double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result, BRtautomununu);
+      result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu);
     }
 
     // General contribution to l_\alpha^- -> l_\beta^- l_\gamma^- l_\delta^+ from RHNs
@@ -5770,9 +5770,18 @@ namespace Gambit
       using namespace Pipes::THDM_taumumumu;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double mMu = (*sminputspointer)->mMu;
+      const double mTau = (*sminputspointer)->mTau;
 
       int mu = 1, tau = 2;
-      result =  THDM_l2lll(tau, mu, mu, mu, sminputs, spectrum);
+      const int l = 2, lp = 1;
+      double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
+      double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mTau/mMu,2))-11./4);
+
+      result = THDM_l2lll(tau, mu, mu, mu, sminputs, spectrum) + (dipoleconst/BRtautomununu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu);
 
     }
 
