@@ -1698,6 +1698,7 @@ gambit_find_python_module(cython)
 if(PY_cython_FOUND)
   set(pyext yes)
   set(Rivet_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  set(Rivet_RH_PY_PATH "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib64/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(Rivet_LIB "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/local/lib/libRivet.so")
   message("   Backends depending on Rivet's python extension will be enabled.")
 else()
@@ -1752,6 +1753,8 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${dir}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${YODA_RH_PY_PATH}')" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "sys.path.append('${Rivet_RH_PY_PATH}')" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "os.environ[\"CONTUR_ROOT\"]='${dir}'" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from ctypes import *" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "cdll.LoadLibrary(\"${Rivet_LIB}\")" >> ${init_file}
