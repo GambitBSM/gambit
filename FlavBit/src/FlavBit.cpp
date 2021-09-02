@@ -4272,7 +4272,7 @@ namespace Gambit
       if (flav_debug) cout<<"Finished THDM_h2bs"<<endl;
     }
 
-    /// Gamma(t->ch) at tree level for the general THDM from JHEP02(2020)147
+    /// BR(t->ch) at tree level for the general THDM from JHEP02(2020)147
     void THDM_t2ch(double &result)
     {
       using namespace Pipes::THDM_t2ch;
