@@ -4314,8 +4314,8 @@ namespace Gambit
       double xi_taumu = Ytaumu/cosb;
       const double Gamma = 0.0032;//From PDG 2021 in GeV
       result = (1/Gamma)*(3*mh*pow(cba,2)/(8*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2);
-      if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;
+      if (flav_debug) printf("BR(h->taumu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_h2taumu"<<endl;
     }
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
