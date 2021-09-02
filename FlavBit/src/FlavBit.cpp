@@ -5430,7 +5430,7 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 0;
-      double BRmutoenunu = 100./100.;//BR(mu->e nu nu) from PDG 2020
+      const double BRmutoenunu = 100./100.;//BR(mu->e nu nu) from PDG 2020
 
       result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRmutoenunu);
     }
@@ -5443,7 +5443,7 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 0;
-      double BRtautoenunu = 17.82/100.;//BR(tau->e nu nu) from PDG 2020
+      const double BRtautoenunu = 17.82/100.;//BR(tau->e nu nu) from PDG 2020
 
       result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautoenunu);
     }
@@ -5456,7 +5456,7 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 1;
-      double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
+      const double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
 
       result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu);
     }
@@ -5735,7 +5735,7 @@ namespace Gambit
          }
        }
 
-      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
+      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2020
       return (BRtautomununu/(32*pow(sminputs.GF,2)))*l2lll;
     }
 
@@ -5746,10 +5746,17 @@ namespace Gambit
       using namespace Pipes::THDM_mueee;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
 
-      int e = 0, mu = 1;
-      result =  THDM_l2lll(mu, e, e, e, sminputs,spectrum);
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double mE = (*sminputspointer)->mE;
+      const double mMu = (*sminputspointer)->mMu;
 
+      const int l = 1, lp = 0;
+      const double BRmutoenunu = 100./100.;//BR(mu->e nu nu) from PDG 2020
+      const double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mMu/mE,2))-11./4);
+
+      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRmutoenunu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRmutoenunu);
     }
 
     // Contribution to tau -> e e e from THDM
@@ -5758,10 +5765,17 @@ namespace Gambit
       using namespace Pipes::THDM_taueee;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
 
-      int e = 0, tau = 2;
-      result =  THDM_l2lll(tau, e, e, e, sminputs, spectrum);
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double mE = (*sminputspointer)->mE;
+      const double mTau = (*sminputspointer)->mTau;
 
+      const int l = 2, lp = 0;
+      const double BRtautoenunu = 17.82/100.;//BR(tau->e nu nu) from PDG 2020
+      const double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mTau/mE,2))-11./4);
+
+      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRtautoenunu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautoenunu);
     }
 
     // Contribution to tau -> mu mu mu from THDM
@@ -5776,12 +5790,11 @@ namespace Gambit
       const double mMu = (*sminputspointer)->mMu;
       const double mTau = (*sminputspointer)->mTau;
 
-      int mu = 1, tau = 2;
       const int l = 2, lp = 1;
-      double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
-      double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mTau/mMu,2))-11./4);
+      const double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
+      const double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mTau/mMu,2))-11./4);
 
-      result = THDM_l2lll(tau, mu, mu, mu, sminputs, spectrum) + (dipoleconst/BRtautomununu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu);
+      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRtautomununu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu);
 
     }
 
