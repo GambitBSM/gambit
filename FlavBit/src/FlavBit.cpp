@@ -5739,6 +5739,155 @@ namespace Gambit
       return (BRtautomununu/(32*pow(sminputs.GF,2)))*l2lll;
     }
 
+// charged boxes diagrams for tau to 3 mu in the GTHDM 
+    double THDM_box_l2lll(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
+    { 
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double alpha_h = spectrum.get(Par::dimensionless,"alpha");
+      const double tanb = spectrum.get(Par::dimensionless,"tanb");
+      const double beta = atan(tanb);
+      const double cosb = cos(beta);
+      const double vev = spectrum.get(Par::mass1, "vev");
+      const double cab = cos(alpha_h-beta);
+      const double mE = (*sminputspointer)->mE;
+      const double mMu = (*sminputspointer)->mMu;
+      const double mTau = (*sminputspointer)->mTau;
+      const double mNu1 = (*sminputspointer)->mNu1;
+      const double mNu2 = (*sminputspointer)->mNu2;
+      const double mNu3 = (*sminputspointer)->mNu3;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mS = (*sminputspointer)->mS;
+      const double mCmC = (*sminputspointer)->mCmC;
+      const double mT = (*sminputspointer)->mT;
+      const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      const double mA = spectrum.get(Par::Pole_Mass,"A0");
+      const double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      const vector<double> mphi = {mh, mH, mA, mHp};
+      const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      const double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      const double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      const double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      const double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      const double rhobar = (*sminputspointer)->CKM.rhobar;
+      const double etabar = (*sminputspointer)->CKM.etabar;
+      const complex<double> Vud(1 - (1/2)*lambda*lambda);
+      const complex<double> Vcd(-lambda,0);
+      const complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const complex<double> Vus(lambda,0);
+      const complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      const complex<double> Vts(-A*lambda*lambda,0);
+      const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const complex<double> Vcb(A*lambda*lambda,0);
+      const complex<double> Vtb(1,0);
+      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
+      const double xitc = Ytc/cosb;
+      const double xict = Yct/cosb;
+      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
+      const double xisb = Ysb/cosb;
+      const double xibs = Ybs/cosb;
+      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
+      const double xiemu = Yemu/cosb;
+      const double ximue = Ymue/cosb;
+      const double xietau = Yetau/cosb;
+      const double xitaue = Ytaue/cosb;
+      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
+      const double ximutau = Ymutau/cosb;
+      const double xitaumu = Ytaumu/cosb;
+      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
+      
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+      
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+      
+      xi_U << 0,   0,    0,
+              0, xicc, xict,
+              0, xitc, xitt;
+      
+      xi_D << 0,   0,    0,
+              0, xiss, xisb,
+              0, xibs, xibb;
+      
+      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
+      
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+      
+      int f = 0;
+      
+      // One loop amplitude
+      complex<double> Aloop1R = 0;
+      //Charged higgs contributions are being neglected
+      //no longer
+      for (int phi=0; phi<=3; ++phi)
+      { 
+        for (int li = 0; li <=2; ++li)
+        { 
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
+        }
+      }
+      
+      /// Two loop amplitude
+      const double mW = (*sminputspointer)->mW;
+      const double mZ = (*sminputspointer)->mZ;
+      const double sw2 = 1 - pow(mW/mZ,2);
+      const vector<double> Qf = {2./3.,-1./3.,-1.};
+      const vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
+      const vector<double> Nc = {3.,3.,1.};
+      //Fermionic contribution 
+      complex<double> Aloop2fR = 0;
+      for (int phi=0; phi<=2; ++phi)
+      { 
+        for (int lf=0; lf<=2; ++lf)
+        { 
+          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha_em)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, vev, cab);
+         }
+      }
+      //Bosonic contribution
+      complex<double> Aloop2bR = 0;
+      for (int phi=0; phi<=1; ++phi)
+      {
+       const complex<double> sab(sqrt(1-cab*cab),0);
+       const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
+       const vector<complex<double>> angle = {sab,Cab};
+       Aloop2bR += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
+      }
+      complex<double> I(0,1);
+      //g2 coupling
+      double g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
+      //g4 coupling
+      double g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
+     
+      double C2 = norm(g2)/16; 
+      double C7 = (pi*Alpha_em/(sqrt(2)*sminputs.GF))*g4*real(conj(I)*(Aloop1R+Aloop2fR+Aloop2bR));
+     
+      return 2*C2+16*C7;
+    }
+
+
 
     // Contribution to mu -> e e e from THDM
     void THDM_mueee(double &result)
@@ -5794,7 +5943,7 @@ namespace Gambit
       const double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
       const double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mTau/mMu,2))-11./4);
 
-      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRtautomununu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu);
+      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRtautomununu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu) + THDM_box_l2lll(l, lp, sminputs, sminputspointer,spectrum);
 
     }
 
