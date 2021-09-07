@@ -5881,7 +5881,7 @@ namespace Gambit
       //g4 coupling
       double g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
      
-      double C2 = norm(g2)/16; 
+      double C2 = norm(g2)/16 + norm(g4); 
       double C7 = (pi*Alpha_em/(sqrt(2)*sminputs.GF))*g4*real(conj(I)*(Aloop1R+Aloop2fR+Aloop2bR));
      
       return 2*C2+16*C7;
