@@ -24,6 +24,8 @@
 #include <cmath>
 #include <complex>
 #include <math.h>
+#include <iostream>
+#include <fstream>
 
 // GAMBIT headers
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -2867,7 +2869,7 @@ namespace Gambit
     // Step Functions (forward declarations)
     double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container &container);
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container &container);
-    double scalar_masses_THDM(THDM_spectrum_container &container, const double max_scalar_mass);
+    double scalar_masses_THDM(THDM_spectrum_container &container, const double min_scalar_mass, const double max_scalar_mass);
     // Likelihood Functions (forward declarations)
     double unitarity_likelihood_THDM(THDM_spectrum_container &container);
     double NLO_unitarity_likelihood_THDM(THDM_spectrum_container &container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections);
@@ -3249,14 +3251,16 @@ namespace Gambit
         }
       }
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &, const double)> likelihood_function = scalar_masses_THDM;
+      std::function<double(THDM_spectrum_container &, const double, const double)> likelihood_function = scalar_masses_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
-      const double max_scalar_mass = runOptions->getValueOrDef<double>(3000.0, "maximum_scalar_mass");
+      const double infinity = std::numeric_limits<double>::infinity();
+      const double max_scalar_mass = runOptions->getValueOrDef<double>(infinity, "maximum_scalar_mass");
+      const double min_scalar_mass = runOptions->getValueOrDef<double>(-1.0*infinity, "minimum_scalar_mass");
       // evaluate loglike
-      const double loglike = likelihood_function(container, max_scalar_mass);
+      const double loglike = likelihood_function(container, min_scalar_mass, max_scalar_mass);
       // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
@@ -3265,7 +3269,7 @@ namespace Gambit
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
         BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
-        loglike_at_Q = likelihood_function(container_at_scale, max_scalar_mass);
+        loglike_at_Q = likelihood_function(container_at_scale, min_scalar_mass, max_scalar_mass);
       }
       // return the worse performing likelihood
       result = std::min(loglike, loglike_at_Q);
@@ -3706,13 +3710,16 @@ namespace Gambit
 
     // enforces an upper limit on the heavy scalar masses from the yaml
     // ---------------------------------------------------------------------
-    double scalar_masses_THDM(THDM_spectrum_container &container, const double max_scalar_mass)
+    double scalar_masses_THDM(THDM_spectrum_container &container, const double min_scalar_mass, const double max_scalar_mass)
     {
-      if (container.he->get(Par::Pole_Mass, "h0", 2) > max_scalar_mass)
+      const double mH0 = container.he->get(Par::Pole_Mass, "h0", 2);
+      if (mH0 < min_scalar_mass || mH0 > max_scalar_mass)
         return -L_MAX;
-      if (container.he->get(Par::Pole_Mass, "A0") > max_scalar_mass)
+      const double mA0 = container.he->get(Par::Pole_Mass, "A0");
+      if (mA0 < min_scalar_mass || mA0 > max_scalar_mass)
         return -L_MAX;
-      if (container.he->get(Par::Pole_Mass, "H+") > max_scalar_mass)
+      const double mHp = container.he->get(Par::Pole_Mass, "H+");
+      if (mHp < min_scalar_mass || mHp > max_scalar_mass)
         return -L_MAX;
       return 0;
     }
