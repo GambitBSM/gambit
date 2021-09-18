@@ -263,7 +263,6 @@ if(NOT EXCLUDE_YODA)
   set(lib "YODA")
   set(YODA_VERSION "1.9.1")
   set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${YODA_VERSION}.tar.gz")
-  #set(md5 "3a756c8d45ec1d754e0f16853891153f")
   set(md5 "8f835049fb88c0ad0ed82f0ad16a7073")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
@@ -287,7 +286,7 @@ if(NOT EXCLUDE_YODA)
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )

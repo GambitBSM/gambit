@@ -54,6 +54,13 @@ BE_NAMESPACE
     args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");
     args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_tags");
 
+    //This is a temporary fix until Contur has its refloading cache system improved
+    Contur.attr("config").attr("refLoaded") = pybind11::bool_(false);
+
+    //Return the contur output.
+    //TODO this should be done by reference, no idea why I did it this way originally.
+    //Ditto for function below.
+    //TODO: In fact, why not unify the repeated code into one function?
     return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
   }
 

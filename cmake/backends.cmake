@@ -1715,7 +1715,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ./configure CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} LDFLAGS=${Rivet_LD_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --with-yoda=${yoda_dir} --with-hepmc3=${hepmc_dir} -with-fastjet=${fastjet_dir} --prefix=${dir}/local --enable-shared=yes --enable-static=no --libdir=${dir}/local/lib --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} CFLAGS=${Rivet_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${Rivet_CXX_FLAGS} ${dir}/local/lib/libRivet.so
     INSTALL_COMMAND ""
   )
@@ -1761,6 +1761,8 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import arg_utils" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
+                #Following line should be removed once Contur revamps its refdata caching (hopefully in Contur 2.1.1)
+                COMMAND ${CMAKE_COMMAND} -E echo "from contur import config" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}

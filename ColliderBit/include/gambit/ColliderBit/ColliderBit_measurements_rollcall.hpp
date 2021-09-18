@@ -51,6 +51,7 @@
       START_FUNCTION(Contur_output)
       DEPENDENCY(Rivet_measurements, std::shared_ptr<std::ostringstream>)
       BACKEND_REQ(Contur_Measurements, (libcontur), Contur_output, (std::shared_ptr<std::ostringstream>, std::vector<std::string>&))
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
       BACKEND_OPTION( (Contur), (libcontur) )
       #undef FUNCTION
 
@@ -69,6 +70,7 @@
       #define FUNCTION Contur_LHC_measurements_LogLike
       START_FUNCTION(double)
       DEPENDENCY(LHC_measurements, Contur_output)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
     #undef CAPABILITY
 
@@ -78,6 +80,7 @@
       #define FUNCTION Contur_LHC_measurements_LogLike_perPool
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(LHC_measurements, Contur_output)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
     #undef CAPABILITY
 
@@ -86,6 +89,7 @@
       #define FUNCTION Contur_LHC_measurements_histotags_perPool
       START_FUNCTION(map_str_str)
       DEPENDENCY(LHC_measurements, Contur_output)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
     #undef CAPABILITY
 

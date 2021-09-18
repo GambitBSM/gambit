@@ -1,0 +1,393 @@
+##########################################################################
+## GAMBIT configuration for running a MultiNest scan of the CMSSM using
+## only ColliderBit likelihoods (LHC and LEP particle searches, LHC and LEP
+## Higgs data).
+##
+## SM nuisance parameters are fixed to default values, and no astrophysical
+## nuisance parameters are used. See the ColliderBit paper for more details.
+##########################################################################
+
+
+Parameters:
+  CMSSM:
+    A0: -100.0
+    M0: 100.0
+    M12: 250.0
+    SignMu: 1
+    TanBeta: 10.0
+  StandardModel_SLHA2:
+    CKM_A: 0.814
+    CKM_etabar: 0.353
+    CKM_lambda: 0.22537
+    CKM_rhobar: 0.117
+    GF: 1.16638e-05
+    alpha1: 0
+    alpha2: 0
+    alphaS: 0.1181
+    alphainv: 127.95
+    delta13: 0
+    mBmB: 4.18
+    mCmC: 1.28
+    mD: 0.0047
+    mE: 0.000510999
+    mMu: 0.105658
+    mNu1: 0
+    mNu2: 0
+    mNu3: 0
+    mS: 0.096
+    mT: 173.34
+    mTau: 1.77686
+    mU: 0.0022
+    mZ: 91.1876
+    theta12: 0.58376
+    theta13: 0.15495
+    theta23: 0.76958
+
+Priors:
+
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  # These lines tell GAMBIT to use the hdf5 printer
+  # Can switch to the ascii printer by commenting out and
+  # using the ascii lines below
+
+  printer: cout
+#  printer: hdf5
+  options:
+    output_file: "Rivet.hdf5"
+    group: "/Rivet"
+    delete_file_on_restart: true
+
+  #printer: ascii
+  #options:
+  #  output_file: "gambit_output.txt"
+
+ # printer: cout
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 4000
+      tol: 0.5
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  Likelihood
+      files:
+        output_file: "weights ..."
+
+
+ObsLikes:
+
+
+    # Calculate the LHC likelihood
+#    - purpose:    LogLike
+#      capability: LHC_Combined_LogLike
+
+    - purpose: LogLike
+      capability: LHC_measurements_LogLike
+
+    - purpose: likelihood_details
+      capability: LHC_measurements_LogLike_perPool
+
+    - purpose: likelihood_details
+      capability: LHC_measurements_histotags_perPool
+
+    # Other observables
+#    - purpose:    likelihood_details
+#      capability: LHC_LogLike_per_analysis
+
+#    - purpose:    Observable
+#      capability: LHC_signals
+
+#    - purpose:    Observable
+#      capability: LHCEventLoopInfo
+
+#    - purpose:    Observable
+#      capability: SLHA1_violation
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+
+Rules:
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+
+  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
+  - capability: unimproved_MSSM_spectrum
+    function: get_CMSSM_spectrum_FS
+    options:
+      drop_SLHA_file: false
+      # Set to match benchmark point specified in
+      # SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 1
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+
+  # Choose where to get the precision spectrum from
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+
+  # These options set various tolerances in the spectrum generation
+  - options:
+      gauge_mixing_tolerance: 0.5
+      family_mixing_tolerance: 0.5
+      #gauge_mixing_tolerance_invalidates_point_only: false
+      #family_mixing_tolerance_invalidates_point_only: false
+
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_table
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_table
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_table
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+ # Choose where to get the Higgs couplings from
+  - capability: Higgs_Couplings
+    function: MSSM_higgs_couplings_pwid
+
+
+  # -- LHC Detector and Analysis rules --
+
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    type: Pythia_default::Pythia8::Event
+    function: generateEventPythia
+    options:
+      drop_HepMC2_file: true
+
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
+
+  - capability: HardScatteringEvent
+    type: HepMC3::GenEvent
+    function: generateEventPythia_HepMC
+
+  # Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_8TeV:
+        min_nEvents: 500
+        max_nEvents: 500
+        events_between_convergence_checks: 500
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - ATLAS_8TeV_2LEPEW_20invfb
+          - ATLAS_8TeV_3LEPEW_20invfb
+      LHC_13TeV:
+        min_nEvents: 500
+        max_nEvents: 500
+        events_between_convergence_checks: 500
+        target_fractional_uncert: 0.3
+        halt_when_systematic_dominated: true
+        all_analyses_must_converge: false
+        all_SR_must_converge: false
+        maxFailedEvents: 10
+        analyses:
+          - ATLAS_13TeV_0LEP_13invfb
+          - ATLAS_13TeV_MultiLEP_36invfb
+          - ATLAS_13TeV_0LEPStop_36invfb
+          - ATLAS_13TeV_2LEPStop_36invfb
+          - ATLAS_13TeV_2bMET_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_0LEP_13invfb
+          - CMS_13TeV_1LEPbb_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_2OSLEP_36invfb
+          - CMS_13TeV_1LEPStop_36invfb
+          - CMS_13TeV_MultiLEP_36invfb
+      
+
+  # Choose Monte Carlo event simulator and options.
+  - capability:  HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia
+    options:
+      LHC_8TeV:
+          xsec_veto: 0.00
+          partonOnly: false
+          antiktR: 0.4
+          pythia_settings:
+            - Print:quiet = on
+            - PartonLevel:MPI = off
+            - PartonLevel:ISR = on
+            - PartonLevel:FSR = on
+            - HadronLevel:all = on
+            - Beams:eCM = 8000
+            - SUSY:all = on
+            - TauDecays:mode = 0
+            - TimeShower:pTmin = 2
+            - 23:mMin = 0.1
+            - 24:mMin = 0.1
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        partonOnly: false
+        antiktR: 0.4
+        pythia_settings:
+          - Print:quiet = on
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - Beams:eCM = 13000
+          - SUSY:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+      
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: false
+      use_marginalising: false
+      combine_SRs_without_covariances: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6 #1
+      nuisance_prof_verbosity: 0
+      # covariance_marg_convthres_abs: 0.05
+      # covariance_marg_convthres_rel: 0.05
+      # covariance_nsamples_start: 1000000
+
+  # Options for how the combined LHC loglike should be calculated
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: false
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
+      # skip_analyses: 
+
+  # Set analyses for Rivet measurements
+  - capability: Rivet_measurements
+    options:
+      drop_YODA_file: true
+      LHC_8TeV:
+        analyses:
+          # - 8TeV
+          - ATLAS_2014_I1279489
+          - ATLAS_2014_I1306615
+          - ATLAS_2014_I1310835
+          - ATLAS_2015_I1394679
+          - ATLAS_2015_I1394865
+          - ATLAS_2015_I1397637
+          - ATLAS_2015_I1404878
+          - ATLAS_2015_I1408516:LMODE=EL
+          - ATLAS_2015_I1408516:LMODE=MU
+      LHC_13TeV:
+        analyses:
+          #- 13TeV
+          - ATLAS_2016_I1458270
+          - ATLAS_2017_I1514251:LMODE=EL
+          - ATLAS_2017_I1514251:LMODE=MU
+        exclude_analyses:
+          - ATLAS_2016_I1469071 #This analysis causes crashes if run on BSM outside of rivet.
+      
+          
+
+  - capability: LHC_measurements
+    function: Contur_LHC_measurements_from_stream
+    options:
+      #Adding a contur option is equivalent to running contur with the equivalent flag.
+      #contur_options:
+       #- use-searches
+       # - theory
+       # YODA_filename: "./runpoint_0017.yoda"
+
+  - capability: LHC_measurements_LogLike
+    function: Contur_LHC_measurements_LogLike
+
+  - capability: LHC_measurements_LogLike_perPool
+    function: Contur_LHC_measurements_LogLike_perPool
+
+
+
+# Set the names of key log files
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+#    [DecayBit] : "DecayBit.log"
+    [SpecBit] : "SpecBit.lig"
+    [ColliderBit] : "ColliderBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  debug: true
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  # Choose a lower cutoff for the likelihood
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+
+    # Set the default output path
+
+  default_output_path: "runs/Rivet/"
