@@ -62,7 +62,7 @@ namespace Gambit
           static bool studying_first_event;
           static int events_analysed = 0;
 
-          if (*Loop::iteration == COLLIDER_INIT_OMP)
+          if (*Loop::iteration == COLLIDER_INIT)
           {
             if (ah != nullptr) {
               ah->~AnalysisHandler();
