@@ -1009,17 +1009,20 @@ namespace Gambit
 		std::complex<double> denglu = 0.0;
 		for(int i = 0; i<9; i++) { 
 			//c_SM - denominators of the respective signal strengths
-			dengam += 1/6.*pow(fcharges[i],2) * fNcs[i] * Aloop(pow(fmasses[i]/Mh,2)); 
-			denglu += Aloop(pow(fmasses[i]/Mh,2))*fisq[i]; 
+			dengam += 1/6.*pow(fcharges[i],2) * fNcs[i] * Aloop(4*pow(fmasses[i]/Mh,2)); 
+			cout << "dengam"<<i<<": "<< 1/6.*pow(fcharges[i],2) * fNcs[i] * Aloop(4*pow(fmasses[i]/Mh,2)) << endl;
+			denglu += Aloop(4*pow(fmasses[i]/Mh,2))*fisq[i]; 
 		}
+		cout << "dengam: "<< dengam << endl;
 		for(int i = 0; i<9; i++){
 			//c and c_tilde and c_SM combined
-			CPevenKapPreGam[i] = 1./dengam * 1./6. * pow(fcharges[i],2) * fNcs[i] * Aloop(pow(fmasses[i]/Mh,2));
-			CPoddKapPreGam[i] = 1./dengam * 1./4. * pow(fcharges[i],2) * fNcs[i] * Bloop(pow(fmasses[i]/Mh,2));
-			CPevenKapPreGlu[i] = 1./denglu * fisq[i] * Aloop(pow(fmasses[i]/Mh,2));
-			CPoddKapPreGlu[i] = 1./denglu * 3./2. *fisq[i] * Bloop(pow(fmasses[i]/Mh,2));
-			cout << "Aloop " << Aloop(pow(fmasses[i]/Mh,2)) << endl;
-			cout << "Bloop " << Bloop(pow(fmasses[i]/Mh,2)) << endl;
+			CPevenKapPreGam[i] = 1./dengam * 1./6. * pow(fcharges[i],2) * fNcs[i] * Aloop(4*pow(fmasses[i]/Mh,2));
+			CPoddKapPreGam[i] = 1./dengam * 1./4. * pow(fcharges[i],2) * fNcs[i] * Bloop(4*pow(fmasses[i]/Mh,2));
+			CPevenKapPreGlu[i] = 1./denglu * fisq[i] * Aloop(4*pow(fmasses[i]/Mh,2));
+			CPoddKapPreGlu[i] = 1./denglu * 3./2. *fisq[i] * Bloop(4*pow(fmasses[i]/Mh,2));
+			cout << "AW " << AW << endl;
+			cout << "Aloop " << Aloop(4*pow(fmasses[i]/Mh,2)) << endl;
+			cout << "Bloop " << Bloop(4*pow(fmasses[i]/Mh,2)) << endl;
 		}
 		//contribution from W-loops in h->gamgam
 		weakLoopConstant = AW/dengam;
@@ -1087,6 +1090,7 @@ namespace Gambit
       double sinThS = *Param["CsHm"]*vev*vev*vev/Lambda/Lambda/ms/2./sqrt(2.);
       double sinThC = *Param["CcHm"]*vev*vev*vev/Lambda/Lambda/mc/2./sqrt(2.);
       double sinThB = *Param["CbHm"]*vev*vev*vev/Lambda/Lambda/mb/2./sqrt(2.);
+      //double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
       double sinThT = *Param["CtHm"]*vev*vev*vev/Lambda/Lambda/mt/2./sqrt(2.);
       double sinThE = *Param["CeHm"]*vev*vev*vev/Lambda/Lambda/me/2./sqrt(2.);
       double sinThMu = *Param["CmuHm"]*vev*vev*vev/Lambda/Lambda/mmu/2./sqrt(2.);
@@ -1138,6 +1142,11 @@ namespace Gambit
 	      ghjtt_p[i] = -((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
 	      ghjtt_s[i] = 1.-((*Param["CtHp"])*cosThT - (*Param["CtHm"])*sinThT)*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
 
+	      //sm values interference
+	     // ghjtt_p[i] = 0.;//-((*Param["CtHm"])*cosThT + (*Param["CtHp"])*sinThT)*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
+	     // ghjtt_s[i] = 1.;//-((*Param["CtHp"])*cosThT - (*Param["CtHm"])*sinThT)*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
+
+
 	      ghjmumu_p[i] = -((*Param["CmuHm"])*cosThMu + (*Param["CmuHp"])*sinThMu)*vev*vev*vev/Lambda/Lambda/mmu/sqrt(2.);
 	      ghjmumu_s[i] = 1.-((*Param["CmuHp"])*cosThMu - (*Param["CmuHm"])*sinThMu)*vev*vev*vev/Lambda/Lambda/mmu/sqrt(2.);
 	      ghjtautau_p[i] = -((*Param["CtauHm"])*cosThTau + (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/mtau/sqrt(2.);
@@ -1173,6 +1182,7 @@ namespace Gambit
 		      kaptilgam += CPoddKapPreGam[j]*WCodd[j];
 		      kapglu += CPevenKapPreGlu[j]*WCeven[j];
 		      kaptilglu += CPoddKapPreGlu[j]*WCodd[j];
+		      cout << "kapgampre"<<j<<": " << CPevenKapPreGam[j]<< " kaptilgampre"<<j<<": "<<CPoddKapPreGam[j] << endl;
 	      }	
 	     /* cout << "kapgam " << kapgam << endl;
 	      cout << "kapgam^2 " << std::real(std::conj(kapgam)*kapgam) << endl;
@@ -1186,7 +1196,12 @@ namespace Gambit
 	      cout << "sqrt " <<sqrt(std::real(kapgam*std::conj(kapgam))+std::real(kaptilgam*std::conj(kaptilgam))) << endl;*/
 	      //g = sqrt(signalstrength = mu) = sqrt(|kappa|^2 + |kappa_tilde|^2)
 	      ghjgaga[i] += sqrt(std::real(kapgam*std::conj(kapgam)) + std::real(kaptilgam*std::conj(kaptilgam))) ;
+	      cout << "gaga checks:" << endl;
+	      cout << "kapgam: "<< kapgam<< " kapgamconj: "<< std::conj(kapgam) << endl;
+	      cout << "kaptilgam: "<< kaptilgam<< " kaptilgamconj: "<< std::conj(kaptilgam) << endl;
+	//      ghjgaga[i] = sqrt( ( 1+0.000751*(*Param["CtHm"])*(*Param["CtHm"]) + 0.03598*(*Param["CtHp"]) + 0.0002483*(*Param["CtHp"])*(*Param["CtHp"]) )  ) ;
 	      ghjgg[i] += sqrt(std::real(kapglu*std::conj(kapglu)) + std::real(kaptilglu*std::conj(kaptilglu))) ;
+//	      ghjgg[i] = 1 ; //check different contributions
 //	      ghjgg[i] = sqrt( ((1+3*TtR)*(1+3*TtR) + 9*TtI*TtI )/((1+1*TtR)*(1+1*TtR) + 1*TtI*TtI) );
       }
       //taken from HS
@@ -1219,6 +1234,10 @@ namespace Gambit
       }
 
       BEreq::HiggsBounds_neutral_input_properties_HS(&Mh[0], &GammaTot[0], &CP[0]);
+
+      //DSDebug
+//      ghjtt_s[0] = 1;
+//      ghjtt_p[0] = 0;
 
       BEreq::HiggsBounds_neutral_input_effC_HS(&ghjss_s[0], &ghjss_p[0],
 					    &ghjcc_s[0], &ghjcc_p[0],
