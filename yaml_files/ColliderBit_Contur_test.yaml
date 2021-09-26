@@ -290,7 +290,8 @@ Rules:
   - capability: Rivet_measurements
     options:
       drop_YODA_file: true
-      analyses:
+      LHC_13TeV:
+        analyses:
          - 13TeV
         # - ATLAS_2021_I1849535
         # - ATLAS_2016_I1458270
@@ -312,8 +313,8 @@ Rules:
         # - ATLAS_2019_I1718132:LMODE=MUMU
         # - ATLAS_2019_I1725190
         # - ATLAS_2019_I1734263
-      exclude_analyses:
-        - ATLAS_2016_I1469071 #This analysis causes crashes if run on BSM outside of rivet.
+        exclude_analyses:
+          - ATLAS_2016_I1469071 #This analysis causes crashes if run on BSM outside of rivet.
         
 
   - capability: LHC_measurements

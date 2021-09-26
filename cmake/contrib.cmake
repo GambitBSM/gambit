@@ -269,7 +269,7 @@ if(NOT EXCLUDE_YODA)
   set(YODA_PATH "${dir}")
   set(YODA_LIB "${dir}/local/lib")
   set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
-  set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
   set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
   set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
   set(YODA_RH_PY_PATH "${dir}/local/lib64/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
@@ -286,7 +286,7 @@ if(NOT EXCLUDE_YODA)
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
