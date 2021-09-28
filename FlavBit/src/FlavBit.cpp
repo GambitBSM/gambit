@@ -47,7 +47,7 @@
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 June-December
-///  \date 2021 Jan-May
+///  \date 2021 Jan-Sep
 //
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
@@ -960,8 +960,14 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 1;
-
-      result = THDM_DeltaCQ_NP(1, l, lp, sminputs, sminputspointer, spectrum);
+      std::complex<double> DeltaCQ1=THDM_DeltaCQ_NP(1, l, lp, sminputs, sminputspointer, spectrum);
+    //Auxiliary conditional to invalidate points with fabs(real(DeltaCQ1))>0.1
+    //  if (fabs(real(DeltaCQ1))>0.1)
+    //  {
+    //    cout<<"Before invalidation, DeltaCQ1>0.12"<<endl;
+    //    invalid_point().raise("Model point with DeltaCQ1>0.1");
+    //  }
+      result = DeltaCQ1;
     }
    
    
