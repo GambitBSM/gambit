@@ -31,7 +31,7 @@ Parameters:
             fixed_value: 0.0
         # -------------------------------------------
         m12_2:
-            ranges: [-1e6, -1e4, 1e4, 1e6]
+            ranges: [-1e6, -1e4, 1e4, 1e7]
             prior_type: double_log_flat_join
         tanb:
             range: [0.1, 100]
