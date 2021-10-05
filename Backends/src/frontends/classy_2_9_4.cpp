@@ -107,7 +107,7 @@
       pybind11::dict cl_dict = cosmo.attr("lensed_cl")();
 
       // Get only the relevant Cl as np array and steal the pointer to its data.
-      pybind11::object cl_array_obj = cl_dict[pybind11::cast<str>(spectype)];
+      pybind11::object cl_array_obj = cl_dict[pybind11::cast(spectype)];
       pybind11::array_t<double> cl_array = pybind11::cast<pybind11::array_t<double>>(cl_array_obj);
       auto cl_ptr = cl_array.data();
       size_t len = cl_array.size();
@@ -129,7 +129,7 @@
       pybind11::dict cl_dict = cosmo.attr("raw_cl")();
 
       // Get only the relevant Cl as np array and steal the pointer to its data.
-      pybind11::object cl_array_obj = cl_dict[pybind11::cast<str>(spectype)];
+      pybind11::object cl_array_obj = cl_dict[pybind11::cast(spectype)];
       pybind11::array_t<double> cl_array = pybind11::cast<pybind11::array_t<double>>(cl_array_obj);
       auto cl_ptr = cl_array.data();
       size_t len = cl_array.size();

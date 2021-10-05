@@ -207,7 +207,7 @@ else()
       endif()
     else()
       message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
-      include_directories("${PYBIND11_INCLUDE_DIR}")
+      include_directories("${pybind11_INCLUDE_DIR}")
     endif()
   endif()
   if(NOT pybind11_FOUND)
@@ -686,3 +686,5 @@ endif()
 
 # Create a list of Gambit bits to be used in the diagnostic system of Gambit.
 execute_process(COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Utils/scripts/find_all_gambit_bits.py --source-dir ${PROJECT_SOURCE_DIR} --output-file=${PROJECT_SOURCE_DIR}/config/gambit_bits.yaml)
+
+include(cmake/scan-test.cmake)
