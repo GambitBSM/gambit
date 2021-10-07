@@ -961,6 +961,11 @@ if args.file:
         write_capability_definitions("capabilities.dat", gum.name, capability_definitions, reset_contents)
         write_model_definitions("models.dat", gum.name, model_definitions, reset_contents)
 
+        # Generate a file containing all of the bib tags for the backends used.
+        bibtags = generate_bib_tags(output_opts,gum.math)
+        num = find_string("citation_keys.hpp", "Utils","      // GUM additions")[1]
+        amend_file("citation_keys.hpp", "Utils", bibtags, num,reset_contents)
+
         # Write a simple YAML file.
         drop_yaml_file(gum.name, model_parameters, add_higgs, reset_contents,
                        gum.spec, output_opts.spheno)

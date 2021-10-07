@@ -343,6 +343,10 @@ Rules:
   - capability: DD_couplings
     function: DD_couplings_ScalarSingletDM_Z2
     #function: DD_couplings_MicrOmegas
+    
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
 
   # Nuclear SI Parameter Likelihoods (All values in MeV)
   - capability: lnL_SI_nuclear_parameters

@@ -45,7 +45,7 @@ def banner() :
          "\n"\
          " Documentation and details for GUM\n"\
          " can be found at\n"\
-         "   S. Bloor et al, arXiv:20xx.xxxx\n"\
+         "   S. Bloor et al, arXiv:2107.00030\n"\
          "\n"\
          " *********************************\n"\
          "\n"

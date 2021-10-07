@@ -366,8 +366,8 @@ def write_boss_configs_for_pythia(model, output_dir, reset_dict):
       to_write = ("")
       with open(template) as f_old:
         for line in f_old:
-          if "gambit_backend_name    = 'Pythia'" in line:
-              to_write += ("gambit_backend_name    = 'Pythia_"+model+"'\n")
+          if "gambit_backend_name      = 'Pythia'" in line:
+              to_write += ("gambit_backend_name      = 'Pythia_"+model+"'\n")
           # Add the CombineMatchingInput class to the input files.
           elif "                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/Pythia.h'" in line:
               to_write += ("                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/Pythia.h',\n")

@@ -45,6 +45,7 @@
 
 
 #define MODULE DecayBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
   #define CAPABILITY t_decay_rates
@@ -910,6 +911,7 @@ START_MODULE
 
   #undef CAPABILITY
 
+#undef REFERENCE
 #undef MODULE
 
 // SM decay rate functions

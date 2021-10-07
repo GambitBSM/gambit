@@ -310,6 +310,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
        --enable-shared-libs
        --with-shared-lib-ext=.so
        --with-shared-lib-cmd=${FS_SO_LINK_COMMAND}
+       --with-gsl-config=${GSL_CONFIG_EXECUTABLE}
       #--enable-verbose flag causes verbose output at runtime as well. Maybe set it dynamically somehow in future.
      )
 

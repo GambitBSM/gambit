@@ -32,7 +32,7 @@
 #
 #  \author Anders Kvellestad
 #          (anders.kvellestad@fys.uio.no)
-#  \date 2021 Jul
+#  \date 2021 Jul, Aug
 #
 #************************************************
 
@@ -266,9 +266,9 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
 endif()
 
 # Add some Fortran compiler flags
-if(CMAKE_Fortran_COMPILER MATCHES "gfortran*" OR CMAKE_Fortran_COMPILER MATCHES "f95*")
+if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -ffixed-line-length-none -cpp")
-elseif(CMAKE_Fortran_COMPILER MATCHES "ifort*")
+elseif("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -extend-source -fpp")
 endif()
 
@@ -344,11 +344,11 @@ endif()
 
 # Check for Boost
 set(Boost_NO_BOOST_CMAKE ON)
-find_package(Boost 1.41)
+find_package(Boost 1.48)
 if(Boost_FOUND)
   include_directories("${Boost_INCLUDE_DIR}")
 else()
-  message(FATAL_ERROR "GAMBIT requires Boost v1.41 or greater.\nPlease install a suitable version of Boost and rerun cmake.")
+  message(FATAL_ERROR "GAMBIT requires Boost v1.48 or greater.\nPlease install a suitable version of Boost and rerun cmake.")
 endif()
 
 # Fix Boost < 1.55 for Clang

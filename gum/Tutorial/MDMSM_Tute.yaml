@@ -122,15 +122,11 @@ Rules:
   - capability: RD_fraction
     function: RD_fraction_leq_one
 
-  # Choose to use DarkSUSY 6 yield tables for indirect detection
+  # Choose to use MicrOmegas yield tables for indirect detection
   - capability: GA_SimYieldTable
-    function: GA_SimYieldTable_DarkSUSY
-  - capability: positron_SimYieldTable
-    function: positron_SimYieldTable_DarkSUSY
-  - capability: antiproton_SimYieldTable
-    function: antiproton_SimYieldTable_DarkSUSY
-  - capability: antideuteron_SimYieldTable
-    function: antideuteron_SimYieldTable_DarkSUSY
+    function: GA_SimYieldTable_MicrOmegas
+    options:
+      allow_yield_extrapolation: true
 
   # Choose to get late-universe sigma*v from the process catalog
   - capability: sigmav

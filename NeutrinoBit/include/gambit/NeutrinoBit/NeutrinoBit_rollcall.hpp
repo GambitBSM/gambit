@@ -41,6 +41,7 @@
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
 #define MODULE NeutrinoBit
+#define REFERENCE Chrzaszcz:2019inj
 START_MODULE
 
   #define CAPABILITY ordering
@@ -1145,6 +1146,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+#undef REFERENCE
 #undef MODULE
 
 #endif /* defined(__NeutrinoBit_rollcall_hpp__) */

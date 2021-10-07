@@ -975,6 +975,7 @@ def write_micromegas_header(gambit_model_name, mathpackage, params, cap_def):
             "#define BACKENDLANG CC\n"
             "#define VERSION {1}\n"
             "#define SAFE_VERSION {2}\n"
+            "#define REFERENCE Belanger:2001fz,Belanger:2004yn,Belanger:2006is,Belanger:2008sj,Belanger:2010gh,Belanger:2013oya,Belanger:2014vza"
             "\n"
             "LOAD_LIBRARY\n"
             "\n"

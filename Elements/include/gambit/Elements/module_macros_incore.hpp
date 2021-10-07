@@ -219,6 +219,5 @@
 #define CLASSLOAD_NEEDED(BACKEND, VERSION)               CORE_CLASSLOAD_NEEDED(BACKEND, VERSION, NOT_MODEL)
 /// @}
 
-
 #endif // defined __core_module_macros_incore_hpp__
 

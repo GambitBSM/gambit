@@ -28,6 +28,7 @@
 #define BACKENDLANG Python
 #define VERSION exo_2.7.2
 #define SAFE_VERSION exo_2_7_2
+#define REFERENCE Blas:2011rf,Stocker:2018avm
 
 LOAD_LIBRARY
 

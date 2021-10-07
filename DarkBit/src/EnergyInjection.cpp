@@ -91,7 +91,8 @@ namespace Gambit
       }
 
       // Rescale totalRate by the correct kinematic factor and normalise the yields
-      if (totalRate > 0.0) {
+      if (totalRate > 0.0)
+      {
         if (isAnnihilation)
         {
           const double k = (process.isSelfConj) ? 1. : 0.5;

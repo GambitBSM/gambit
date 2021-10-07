@@ -13,6 +13,12 @@
 //  Jonathan Cornell
 //  2015 March
 //
+//  Felix Kahlhoefer
+//  2020 December
+//
+//  Ankit Beniwal
+//  2020 December
+//
 //  *********************************************
 
 #include "gambit/Models/model_macros.hpp"
@@ -20,6 +26,37 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Elements/sminputs.hpp"
+
+#define MODEL nuclear_params_ChPT_sigmapiN
+#define PARENT nuclear_params_ChPT
+    void MODEL_NAMESPACE::sigmapiN_to_sigma_udN (const ModelParameters &myP, ModelParameters &targetP)
+    {
+        USE_MODEL_PIPE(PARENT)
+
+        logger() << "Converting sigma_piN to sigma_udN ..." << LogTags::debug << EOM;
+
+        double sigmapiN = myP["sigmapiN"];
+        double Bc5m = myP["Bc5m"];
+
+        const SMInputs& SM = *Dep::SMINPUTS;
+
+        double xi = (SM.mD - SM.mU)/(SM.mD + SM.mU);
+
+        double sigmauN = sigmapiN/2*(1-xi)+Bc5m*(1-1/xi);
+        double sigmadN = sigmapiN/2*(1+xi)-Bc5m*(1+1/xi);
+
+        targetP.setValue("sigmaup", sigmauN);
+        targetP.setValue("sigmaun", sigmauN);
+        targetP.setValue("sigmadp", sigmadN);
+        targetP.setValue("sigmadn", sigmadN);
+
+        targetP.setValues(myP, false);
+
+        logger() << LogTags::debug << "sigmapiN = "<< sigmapiN << " Bc5m = "<< Bc5m << " xi = "<< xi << EOM;
+        logger() << LogTags::debug << "sigmauN = " << sigmauN  << " sigmadN = "<< sigmadN << EOM;
+    }
+#undef PARENT
+#undef MODEL
 
 #define MODEL nuclear_params_sigma0_sigmal
 #define PARENT nuclear_params_fnq

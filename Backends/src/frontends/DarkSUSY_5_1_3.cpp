@@ -74,7 +74,7 @@ BE_INI_FUNCTION
     dshainit(151); // Initialize positron tables
     dshainit(152); // Initialize gamma ray tables
     dshainit(154); // Initialize antiproton tables
-    // Note, for DarkSUSY 5, anti-deutron does not need special initialization
+    // Note, for DarkSUSY 5, anti-deuteron does not need special initialization
     // as they are calculated from antiproton fluxes
 
     // Call dshayield for first call initialization of variables

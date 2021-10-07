@@ -127,7 +127,7 @@ BE_NAMESPACE
     // SUSY-HIT and HDecay non-SLHA inputs
     susyhitin->amsin = to<double>(sminputs.at(23).at(1));          // MSBAR(1): HDECAY claims it wants ms(1GeV)^MSbar, but we don't believe it, and give it m_s(2GeV)^MSBar
     susyhitin->amcin = to<double>(sminputs.at(24).at(1));          // MC: HDECAY claims it wants the c pole mass, but that is not well defined, so we give it mc(mc)^MSBar
-    susyhitin->ammuonin = sd_leshouches2->smval(11);               // MMUON: mmu(pole)
+    susyhitin->ammuonin = sd_leshouches2->smval(13);               // MMUON: mmu(pole)
     susyhitin->alphin = sd_leshouches2->smval(1);                  // ALPHA: alpha_em^-1(M_Z)^MSbar (scheme and scale not specified in SUSYHIT or HDECAY documentation)
     susyhitin->gamwin = W_width;                                   // GAMW: W width (GeV)
     susyhitin->gamzin = Z_width;                                   // GAMZ: Z width (GeV)

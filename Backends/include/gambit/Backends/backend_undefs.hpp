@@ -8,8 +8,8 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Pat Scott 
+///
+///  \author Pat Scott
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Sep
 ///
@@ -24,6 +24,7 @@
   #undef BACKENDLANG
   #undef VERSION
   #undef SAFE_VERSION
+  #undef REFERENCE
   #undef DO_CLASSLOADING
   #define DO_CLASSLOADING 0
 #endif

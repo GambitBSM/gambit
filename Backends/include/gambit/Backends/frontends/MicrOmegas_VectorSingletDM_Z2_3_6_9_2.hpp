@@ -20,6 +20,7 @@
 #define BACKENDLANG CC
 #define VERSION 3.6.9.2
 #define SAFE_VERSION 3_6_9_2
+#define REFERENCE Belanger:2001fz,Belanger:2004yn,Belanger:2006is,Belanger:2008sj,Belanger:2010gh,Belanger:2013oya,Belanger:2014vza
 
 LOAD_LIBRARY
 

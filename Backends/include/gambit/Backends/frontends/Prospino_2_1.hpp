@@ -21,6 +21,7 @@
 #define BACKENDLANG Fortran
 #define VERSION 2.1
 #define SAFE_VERSION 2_1
+#define REFERENCE Beenakker:1996ed
 
 // Load it
 LOAD_LIBRARY

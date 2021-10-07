@@ -32,6 +32,8 @@
 ///  \author Ankit Beniwal
 ///         (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Oct
+///  \date 2020 Dec
+///  \date 2021 Jan, Mar
 ///
 ///  *********************************************
 
@@ -753,6 +755,26 @@ namespace Gambit
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mT, 173.34, 0.0, 0.76, profile);
+    }
+
+    /**
+     * @brief Running top mass MS-bar likelihood
+     *
+     * This uses a special running MS-bar top mass input parameter at the scale mtop from ATLAS.
+     * Reference: https://arxiv.org/pdf/1905.02302.pdf (see table 2, page 14)
+     *
+     * The asymmetric errors are averaged.
+     */
+    void lnL_mtrun(double &result)
+    {
+      using namespace Pipes::lnL_mtrun;
+      const double mtrun_obs = runOptions->getValueOrDef<double>(162.9, "mtrun_obs");
+      const double default_mtrun_obserr = 0.5 * (2.3 + 1.6);
+      const double mtrun_obserr = runOptions->getValueOrDef<double>(default_mtrun_obserr, "mtrun_obserr");
+      const bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      const Spectrum& spec = *Dep::DMEFT_spectrum;
+      const double mtrun = spec.get(Par::mass1, "mtrun");
+      result = Stats::gaussian_loglikelihood(mtrun, mtrun_obs, 0.0, mtrun_obserr, profile);
     }
 
     /// b quark mass likelihood

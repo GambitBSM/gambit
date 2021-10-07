@@ -239,6 +239,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     settings.all_params.insert("MPIrank"); // These should be re-printed the same as they were anyway
     settings.all_params.insert("pointID");
     settings.all_params.insert(settings.logl_purpose_name); // If there is a name clash and the run was not aborted, we are to discard the old data under this name.
+    settings.all_params.insert("Modified" + settings.logl_purpose_name);
     settings.all_params.insert(settings.reweighted_loglike_name); //   "  "
     #ifdef WITH_MPI
     settings.comm = &ppComm;

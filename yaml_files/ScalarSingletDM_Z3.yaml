@@ -241,6 +241,10 @@ Rules:
   - capability: lnL_oh2
     function: lnL_oh2_upperlimit
 
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
+
   # Retrieve the semi-annihilation branching fraction from MicrOmegas
   - capability: get_channel_MicrOmegas
     function: get_channel_MicrOmegas
@@ -268,7 +272,11 @@ Rules:
   # Use DarkBit's own calculations of the direct detection couplings
   - capability: DD_couplings
     function: DD_couplings_ScalarSingletDM_Z3
-
+    
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
+    
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
@@ -304,4 +312,4 @@ KeyValues:
 
   debug: false
 
-  default_output_path: "./output/"
+  default_output_path: "runs/ScalarSingletDM_Z3/"

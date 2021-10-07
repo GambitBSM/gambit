@@ -27,6 +27,7 @@
 #include "gambit/SpecBit/SpecBit_types.hpp"
 
 #define MODULE SpecBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
   // Capabilities used in more than one of the headers
@@ -64,7 +65,9 @@ START_MODULE
   /// Module function declarations for SpecBit_tests.cpp (new tests)
   #include "gambit/SpecBit/SpecBit_tests_rollcall.hpp"
   
-
+  /// Module function declarations for SpecBit_DMEFT.cpp
+  #include "gambit/SpecBit/SpecBit_DMEFT_rollcall.hpp"
+  
   /// For SpecBit testing only
   //#include "gambit/SpecBit/SpecBit_sandbox_rollcall.hpp"
 
@@ -88,7 +91,7 @@ START_MODULE
 
   // #undef CAPABILITY
 
-
+#undef REFERENCE
 #undef MODULE
 
 #endif /* defined(__SpecBit_rollcall_hpp__) */

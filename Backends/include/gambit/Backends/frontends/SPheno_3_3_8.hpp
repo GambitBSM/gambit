@@ -19,6 +19,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 3.3.8
 #define SAFE_VERSION 3_3_8
+#define REFERENCE Porod:2003um,Porod:2011nf
 
 // Begin
 LOAD_LIBRARY

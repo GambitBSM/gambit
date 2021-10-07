@@ -85,6 +85,7 @@ add_custom_target(nuke-pippi COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-d
 add_dependencies(nuke-all nuke-pippi)
 set_target_properties(get-pippi PROPERTIES EXCLUDE_FROM_ALL 1)
 
+
 # Macro to clear the build stamp manually for an external project
 macro(enable_auto_rebuild package)
   set(rmstring "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}-build")

@@ -42,6 +42,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 5.1.3
 #define SAFE_VERSION 5_1_3
+#define REFERENCE Gondolo:2004sc
 
 // Load the library
 LOAD_LIBRARY

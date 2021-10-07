@@ -61,6 +61,7 @@
 #  \author Sanjay Bloor
 #          (sanjay.bloor12@imperial.ac.uk)
 #  \date 2017 May
+#  \date 2018 Sep
 #
 #  \author Ankit Beniwal
 #      (ankit.beniwal@adelaide.edu.au)
@@ -133,20 +134,20 @@ endif()
 
 # CaptnGeneral
 set(name "capgen")
-set(ver "1.0")
+set(ver "2.1")
 set(lib "gencaplib")
-set(dl "https://github.com/aaronvincent/captngen/archive/${ver}.tar.gz")
-set(md5 "410034ac91593c6695a8ed1751a4214c")
+set(dl "https://github.com/aaronvincent/captngen/archive/refs/tags/${ver}.tar.gz")
+set(md5 "128871ed6f0b61330c3d18571f01f2ab")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
-    INSTALL_COMMAND ""
+  DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+  SOURCE_DIR ${dir}
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+  INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
@@ -1370,7 +1371,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-          DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+          DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
           SOURCE_DIR ${dir}
           BUILD_IN_SOURCE 1
           CONFIGURE_COMMAND ""
@@ -1426,6 +1427,7 @@ set(Minuit_include "${PROJECT_SOURCE_DIR}/Backends/installed/${Minuit_name}/${Mi
 set(Minuit_lib "${PROJECT_SOURCE_DIR}/Backends/installed/${Minuit_name}/${Minuit_ver}/lib/")
 set(VPP_CMAKE_FLAGS -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
 set(VPP_FLAGS "${BACKEND_CXX_FLAGS} -Wno-unused-local-typedefs -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
+set_compiler_warning("no-unused-parameter" VPP_FLAGS)
 set(BOSSregex "s#cpp)#cpp   source/BOSS_factory_VevaciousPlusPlus.cpp       source/BOSS_wrapperutils.cpp        source/BOSS_VevaciousPlusPlus.cpp)#g")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -1470,6 +1472,26 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# DirectDM
+set(name "directdm")
+set(ver "2.2.0")
+set(dl "https://github.com/DirectDM/directdm-py/archive/v2.2.0.tar.gz")
+set(md5 "c22d26ae7bec44bbfe1eb5f4306a23e0")
+set(lib "libdirectdm")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # CalcHEP
 set(name "calchep")
@@ -1513,7 +1535,7 @@ if(NOT ditched_${name}_${ver})
           COMMAND sed ${dashi} -e "s|CFLAGS=.*|CFLAGS=\"${calchep_C_FLAGS}\"|" ${dir}/FlagsForSh
           COMMAND sed ${dashi} -e "s|CXXFLAGS=.*|CXXFLAGS=\"${calchep_CXX_FLAGS}\"|" ${dir}/FlagsForSh
           COMMAND sed ${dashi} -e "s|lFort=.*|lFort=|" ${dir}/FlagsForSh
-    BUILD_COMMAND ${MAKE_PARALLEL}
+    BUILD_COMMAND ${MAKE_SERIAL}
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/Models/ ${dir}/models/
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} "yes | clean")

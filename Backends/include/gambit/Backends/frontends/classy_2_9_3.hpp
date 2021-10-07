@@ -27,6 +27,7 @@
 #define BACKENDLANG Python
 #define VERSION 2.9.3
 #define SAFE_VERSION 2_9_3
+#define REFERENCE Blas:2011rf
 
 LOAD_LIBRARY
 

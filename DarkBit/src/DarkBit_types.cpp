@@ -42,6 +42,14 @@
 ///          (sebastian.wild@ph.tum.de)
 ///  \date 2016 Aug
 ///
+///  \author Ben Farmer
+///          (benjamin.farmer@imperial.ac.uk)
+///  \date 2019 Jul
+///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 
@@ -95,7 +103,7 @@ namespace Gambit
     }
 
     /// General annihilation/decay channel for sim yield tables
-    SimYieldChannel::SimYieldChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm_min, double Ecm_max)
+    SimYieldChannel::SimYieldChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions)
     : dNdE(dNdE)
     , p1(p1)
     , p2(p2)
@@ -107,34 +115,69 @@ namespace Gambit
       // If dNdE is given w.r.t 'Ekin', write it as a function w.r.t. 'E' (total energy)
       // in order to conform with the rest of the code.
       // For E < m, we return zero.
-      if (dNdE->hasArg("Ekin")) {
+      if (dNdE->hasArg("Ekin"))
+      {
         auto E = daFunk::var("E");
         double m = this->finalStateMass;
         dNdE = daFunk::ifelse(E-m, dNdE->set("Ekin", E -m), daFunk::zero("E","Ecm"));
       }
 
-      std::ostringstream msg;
+      std::ostringstream msg, msg2;
       msg << "SimYieldChannel for " << p1 << " " << p2 <<
        " final state(s): Requested center-of-mass energy out of range (";
       msg << Ecm_min << "-" << Ecm_max << " GeV).";
-      auto error = daFunk::raiseInvalidPoint(msg.str());
+      daFunk::Funk error;
+      bool invalidate = runOptions.isNull() ? false : runOptions->getValueOrDef<bool>(false, "out_of_range_invalidate");
+      bool zero = runOptions.isNull() ? false : runOptions->getValueOrDef<bool>(false, "out_of_range_zero_yield");
+      if(invalidate and zero)
+      {
+        msg2 << std::endl << "The following selected options are incompatible: " << std::endl
+            << "  out_of_range_invalidate: true" << std::endl
+            << "  out_of_range_zero_yield: true" << std::endl
+            << "Please modify your YAML file to correct that." << std::endl;
+        DarkBit_error().raise(LOCAL_INFO,msg2.str());
+      }
+      else if(invalidate)
+      {
+        error = daFunk::raiseInvalidPoint(msg.str());
+      }
+      else if(zero)
+      {
+        error = daFunk::zero("E", "Ecm");
+      }
+      else
+      {
+        msg << std::endl << "To circumvent this error you can add one"
+            << " of the following two options to the Rules section of your YAML file:" << std::endl
+            << " - out_of_range_invalidate:  invalidate points that have"
+            << " c.o.m. energy out of range of yield tables." << std::endl
+            << " - out_of_range_zero_yield:  set to zero the yields out"
+            << " of range of the yield tables." << std::endl
+            << " You can add either (but not both) options as module-wide rules like this:" << std::endl << std::endl
+            << "  - module: DarkBit" << std::endl
+            << "    options:" << std::endl
+            << "      out_of_range_zero_yield: true" << std::endl << std::endl
+            << "Note that this choice has important physical implications on"
+            << " your result, so choose wisely." << std::endl;
+        error = daFunk::throwError(msg.str());
+      }
       auto Ecm = daFunk::var("Ecm");
       this->dNdE = daFunk::ifelse(Ecm - Ecm_min, daFunk::ifelse(Ecm_max - Ecm, dNdE, error), error);
       dNdE_bound = this->dNdE->bind("E", "Ecm");
     }
 
     /// Sim yield table dummy constructor
-    SimYieldTable::SimYieldTable() : dummy_channel(daFunk::zero("E", "Ecm"), "", "", "", 0.0, 0.0) {}
+    SimYieldTable::SimYieldTable() : dummy_channel(daFunk::zero("E", "Ecm"), "", "", "", 0.0, 0.0, safe_ptr<Options>()) {}
 
-    void SimYieldTable::addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm_min, double Ecm_max)
+    void SimYieldTable::addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions)
     {
       if (checkChannel(p1, p2, finalState) == SimYieldChannelCheck::success)
-        channel_list.push_back(SimYieldChannel(dNdE, p1, p2, finalState, Ecm_min, Ecm_max));
+        channel_list.push_back(SimYieldChannel(dNdE, p1, p2, finalState, Ecm_min, Ecm_max, runOptions));
     }
 
-    void SimYieldTable::addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& finalState, double Ecm_min, double Ecm_max)
+    void SimYieldTable::addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions)
     {
-      addChannel(dNdE, p1, "", finalState, Ecm_min, Ecm_max);
+      addChannel(dNdE, p1, "", finalState, Ecm_min, Ecm_max, runOptions);
     }
 
     void SimYieldTable::addChannel(SimYieldChannel channel)

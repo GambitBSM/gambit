@@ -391,6 +391,10 @@ Rules:
       loop: true
     #function: DD_couplings_MicrOmegas
 
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
+
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   # Also, discard points with stable charged SUSY particles
   - capability: decay_rates

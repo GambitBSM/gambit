@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Feb
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #include "gambit/Core/ini_functions.hpp"
@@ -26,11 +30,11 @@ namespace Gambit
 {
 
   /// Register a module with the Core.
-  int register_module(str module)
+  int register_module(str module, str ref)
   {
     try
     {
-      Core().registerModule(module);
+      Core().registerModule(module, ref);
     }
     catch (std::exception& e) { ini_catch(e); }
     return 0;
@@ -59,11 +63,11 @@ namespace Gambit
   }
 
   /// Register a backend with the Core
-  int register_backend(str be, str ver)
+  int register_backend(str be, str ver, str ref)
   {
     try
     {
-      Core().registerBackend(be, ver);
+      Core().registerBackend(be, ver, ref);
     }
     catch (std::exception& e) { ini_catch(e); }
     return 0;

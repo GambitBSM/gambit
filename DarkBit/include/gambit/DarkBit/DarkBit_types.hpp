@@ -48,6 +48,11 @@
 ///  \author Sebastian Wild
 ///          (sebastian.wild@ph.tum.de)
 ///  \date 2016 Aug
+///
+///  \author Ben Farmer
+///          (benjamin.farmer@imperial.ac.uk)
+///  \date 2019 Jul
+///
 ///  *********************************************
 
 
@@ -58,10 +63,11 @@
 #include "gambit/DarkBit/SimpleHist.hpp"
 #include "gambit/DarkBit/ProcessCatalog.hpp"
 #include "gambit/Elements/daFunk.hpp"
+#include "gambit/Models/safe_param_map.hpp"
+#include "gambit/Utils/yaml_options.hpp"
 
 namespace Gambit
 {
-
   namespace DarkBit
   {
 
@@ -141,7 +147,7 @@ namespace Gambit
     struct SimYieldChannel
     {
         SimYieldChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2,
-            const std::string& finalState, double Ecm_min, double Ecm_max);
+            const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions);
         daFunk::Funk dNdE;
         daFunk::BoundFunk dNdE_bound;  // Pre-bound version for use in e.g. cascade decays
         std::string p1;
@@ -166,8 +172,8 @@ namespace Gambit
     {
         public:
             SimYieldTable();
-            void addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm_min, double Ecm_max);
-            void addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& finalState, double Ecm_min, double Ecm_max);
+            void addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions);
+            void addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions);
             void addChannel(SimYieldChannel channel);
             void replaceFinalState(const std::string& oldFinalState, const std::string& newFinalState);
             void donateChannels(SimYieldTable& receiver) const;
@@ -188,7 +194,8 @@ namespace Gambit
             SimYieldChannelCheck checkChannel(const std::string& p1, const std::string& p2, const std::string& finalState) const;
     };
 
-  }
+
+ }
 }
 
 #endif // defined __DarkBit_types_hpp__

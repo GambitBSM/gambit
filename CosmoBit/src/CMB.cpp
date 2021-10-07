@@ -237,7 +237,8 @@ namespace Gambit
       // Read in the table with the weighting function
       static ASCIItableReader W_table;
       static bool first = true;
-      if (first) {
+      if (first)
+      {
         W_table = std::move( ASCIItableReader(GAMBIT_DIR "/CosmoBit/data/EnergyInjection/f_eff_weighting_function.txt") );
         W_table.setcolnames({"z+1","W(z)"});
         first = false;
@@ -251,23 +252,6 @@ namespace Gambit
       // Retrieve the Energy_injection_efficiency_table.
       static DarkAges::Energy_injection_efficiency_table fz_cached;
       DarkAges::Energy_injection_efficiency_table fz = *Dep::energy_injection_efficiency;
-
-      // For this function f_eff_mode has to be true.
-      // Raise an error if this is not the case.
-      bool f_eff_mode = fz.f_eff_mode;
-      if (!f_eff_mode)
-      {
-        std::ostringstream ss;
-        ss << "Sorry, you cannot use the function \'CosmoBit::f_eff_weighted\' when the energy injection efficiency table "
-           << "does not contain f_eff(z) i.e. the attribute \'f_eff_mode\' is set to \'false\'.\n\n"
-           << "Please fix this in the rules section by choosing the correct operating mode for the backend "
-           << "to calculate the energy injection efficiency table.\n"
-           << "An appropriate rule for the DarkAges backend would look like this:\n\n"
-           << "  - capability: DarkAges_1_2_0_init\n"
-           << "    options:\n"
-           << "      f_eff_mode: true\n";
-        CosmoBit_error().raise(LOCAL_INFO, ss.str());
-      }
 
       const std::vector<double>& z = fz.redshift;
       const std::vector<double>& f_eff = fz.f_eff;
@@ -340,23 +324,6 @@ namespace Gambit
       // Retrieve the Energy_injection_efficiency_table.
       static DarkAges::Energy_injection_efficiency_table fz_cached;
       DarkAges::Energy_injection_efficiency_table fz = *Dep::energy_injection_efficiency;
-
-      // For this function f_eff_mode has to be true.
-      // Raise an error if this is not the case.
-      bool f_eff_mode = fz.f_eff_mode;
-      if (!f_eff_mode)
-      {
-        std::ostringstream ss;
-        ss << "Sorry, you cannot use the function \'CosmoBit::f_eff_at_z\' when the energy injection efficiency table "
-           << "does not contain f_eff(z) i.e. the attribute \'f_eff_mode\' is set to \'false\'.\n\n"
-           << "Please fix this in the rules section by choosing the correct operating mode for the backend "
-           << "to calculate the energy injection efficiency table.\n"
-           << "An appropriate rule for the DarkAges backend would look like this:\n\n"
-           << "  - capability: DarkAges_1_2_0_init\n"
-           << "    options:\n"
-           << "      f_eff_mode: true\n";
-        CosmoBit_error().raise(LOCAL_INFO, ss.str());
-      }
 
       if (fz_cached != fz)
       {

@@ -27,10 +27,11 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'vevacious'
-gambit_backend_version = '1.0'
-gambit_base_namespace  = ''
-gambit_minuit_version  = '5.34.14'
+gambit_backend_name      = 'vevacious'
+gambit_backend_version   = '1.0'
+gambit_backend_reference = 'Camargo-Molina:2013qva'
+gambit_base_namespace    = ''
+gambit_minuit_version    = '5.34.14'
 
 
 # ~~~~~ Information about the external code ~~~~~

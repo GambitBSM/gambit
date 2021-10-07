@@ -109,18 +109,6 @@ namespace Gambit
         printer._print(m, label, vID, mpirank, pointID);
       }
 
-      /// DM-nucleon coupling print overload (For the fermionic HP)
-      template<typename P>
-      void _common_print(P& printer, DM_nucleon_couplings_fermionic_HP const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        m["Gp_SI"] = value.gps;
-        m["Gn_SI"] = value.gns;
-        m["Gp_q2"] = value.gp_q2;
-        m["Gn_q2"] = value.gn_q2;
-        printer._print(m, label, vID, mpirank, pointID);
-      }
-
       /// K*->mumu angular observables print overload
       template<typename P>
       void _common_print(P& printer, Flav_KstarMuMu_obs const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)

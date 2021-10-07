@@ -559,6 +559,10 @@ Rules:
   - capability: decay_rates
     function: all_decays
 
+  # Select WIMP-nucleon couplings to pass to DDCalc
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
+
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
   - capability: Reference_SM_Higgs_decay_rates
     function: Ref_SM_Higgs_decays_table

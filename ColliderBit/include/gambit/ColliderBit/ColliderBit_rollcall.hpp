@@ -32,7 +32,9 @@
 #pragma once
 
 #define MODULE ColliderBit
+#define REFERENCE GAMBIT:2017qxg
 START_MODULE
+#undef REFERENCE
 #undef MODULE
 
 #include "gambit/Elements/shared_types.hpp"

@@ -15,6 +15,7 @@
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 Jun
+///  \date 2021 Sep
 ///
 ///  \author Markus Prim
 ///          (markus.prim@kit.edu)
@@ -65,7 +66,7 @@ namespace Gambit
         outprec(8)
         /* command line flags */
         ,
-        processed_options(false), show_runorder(false), resume(true), verbose_flag(false), found_inifile(false)
+        processed_options(false), show_runorder(false), show_backends(false), resume(true), verbose_flag(false), found_inifile(false)
   {
   }
 
@@ -106,6 +107,8 @@ namespace Gambit
               "\n   -v/--verbose          Turn on verbose mode                              "
               "\n   -d/--dryrun           List the function evaluation order computed based "
               "\n                           on inifile                                      "
+              "\n   -b/--backends         List the backends required to fulfil dependencies "
+              "\n                           based on inifile                                "
               "\n   -r/--restart          Restart the scan defined by <inifile>. Existing   "
               "\n                         output files for the run will be overwritten.     "
               "\n                         Default behaviour in the absence of this option is"
@@ -134,7 +137,8 @@ namespace Gambit
     const struct option primary_options[] = {
         {"version", no_argument, 0, 1}, /*1 is just a unique integer key to identify this argument*/
         {"verbose", no_argument, 0, 'v'}, {"help", no_argument, 0, 'h'},
-        {"dryrun", no_argument, 0, 'd'},  {"restart", no_argument, 0, 'r'}, {0, 0, 0, 0},
+        {"dryrun", no_argument, 0, 'd'},  {"backends", no_argument, 0, 'b'},
+        {"restart", no_argument, 0, 'r'}, {0, 0, 0, 0},
     };
 
     // Must at least have one argument.
@@ -142,7 +146,7 @@ namespace Gambit
 
     while (iarg != -1)
     {
-      iarg = getopt_long(argc, argv, "vhdrf:", primary_options, &index);
+      iarg = getopt_long(argc, argv, "vhdbrf:", primary_options, &index);
       switch (iarg)
       {
       case 1:
@@ -172,6 +176,10 @@ namespace Gambit
           throw SilentShutdownException();
         }
         break;
+      case 'b':
+        // Show the list of backends that need to be built and then quit
+        show_backends = true;
+        break;
       case 'r':
         // Restart scan (turn off "resume" mode, activate output overwrite)
         resume = false;
@@ -193,7 +201,13 @@ namespace Gambit
   }
 
   /// Add a new module to modules list
-  void gambit_core::registerModule(str module) { modules.insert(module); }
+  void gambit_core::registerModule(str module, str ref)
+  {
+    if(ref == "REFERENCE")
+      module_citation_keys[module] = "";
+    else
+      module_citation_keys[module] = ref;
+  }
 
   /// Add a new module functor to functorList
   void gambit_core::registerModuleFunctor(functor &f)
@@ -213,7 +227,14 @@ namespace Gambit
   }
 
   /// Register a new backend
-  void gambit_core::registerBackend(str be, str version) { backend_versions[be].insert(version); }
+  void gambit_core::registerBackend(str be, str version, str ref)
+  {
+     backend_versions[be].insert(version);
+     if(ref == "REFERENCE")
+       backend_citation_keys[sspair(be,version)] = "";
+     else
+       backend_citation_keys[sspair(be,version)] = ref;
+  }
 
   /// Add a new primary model functor to primaryModelFunctorList
   void gambit_core::registerPrimaryModelFunctor(primary_model_functor &f)
@@ -242,6 +263,12 @@ namespace Gambit
 
   /// Get a reference to the map of all user-activated primary model functors
   const gambit_core::pmfMap &gambit_core::getActiveModelFunctors() const { return activeModelFunctorList; }
+
+  /// Get a reference to the map of module citaton keys
+  const std::map<str,str> &gambit_core::getModuleCitationKeys() const {  return module_citation_keys; }
+
+  /// Get a reference to the map of backend citation keys
+  const std::map<sspair, str> &gambit_core::getBackendCitationKeys() const { return backend_citation_keys; }
 
   /// Tell the module functors which backends are actually present,
   /// so that they can deactivate themselves if they require a class

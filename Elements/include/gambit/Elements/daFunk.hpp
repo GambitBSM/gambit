@@ -886,11 +886,6 @@ namespace daFunk
             FunkDelta(std::string arg, double pos, double width) : pos(pos), width(width)
             {
                 arguments = vec(arg);
-
-                // FunkBase::set_singularity is using shared_from_this.
-                // This can't be used within a ctor ().
-                //this->set_singularity(arg, pos, width);
-
                 singularities[arg].push_back(std::pair<Funk, Funk>(cnst(pos), cnst(width)));
             }
 

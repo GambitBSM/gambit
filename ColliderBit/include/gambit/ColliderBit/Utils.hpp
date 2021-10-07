@@ -33,7 +33,6 @@ namespace Gambit
   namespace ColliderBit
   {
 
-
     /// Unit conversions (multiply to construct in standard units, divide to decode to that unit)
     static const double GeV = 1, MeV = 1e-3, TeV = 1e3;
 

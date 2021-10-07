@@ -46,6 +46,7 @@
 
 
 #define MODULE PrecisionBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
 
@@ -132,6 +133,16 @@ START_MODULE
   QUICK_FUNCTION(PrecisionBit, lnL_GF,       NEW_CAPABILITY, lnL_GF,       double, (), (SMINPUTS, SMInputs))
 
   QUICK_FUNCTION(PrecisionBit, lnL_light_quark_masses, NEW_CAPABILITY, lnL_light_quark_masses, double, (), (SMINPUTS, SMInputs))
+
+  // Top quark running mass log-likelihood
+  #define CAPABILITY lnL_mtrun
+  START_CAPABILITY
+    #define FUNCTION lnL_mtrun
+    START_FUNCTION(double)
+    DEPENDENCY(DMEFT_spectrum, Spectrum)
+    ALLOW_MODEL(DMEFT)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 
   // Electroweak precision likelihoods: W mass
@@ -273,7 +284,7 @@ START_MODULE
 
 
 
-
+#undef REFERENCE
 #undef MODULE
 
 

@@ -97,16 +97,22 @@ namespace Gambit
       return get_results();
     }
 
-    /// Get a pointer to _results.
-    const AnalysisData* Analysis::get_results_ptr()
+    /// Get a (non-const!) pointer to _results.
+    AnalysisData* Analysis::get_results_ptr()
     {
-      return &get_results();
+      // Call get_results() to make sure everything has been collected properly, but ignore the return value
+      get_results();
+      // Now provide pointer to _results directly
+      return &_results;
     }
 
-    /// Get a pointer to _results.
-    const AnalysisData* Analysis::get_results_ptr(str& warning)
+    /// An overload of get_results_ptr() with some additional consistency checks.
+    AnalysisData* Analysis::get_results_ptr(str& warning)
     {
-      return &get_results(warning);
+      // Call get_results() to make sure everything has been collected properly, but ignore the return value
+      get_results(warning);
+      // Now provide pointer to _results directly
+      return &_results;
     }
 
     /// Add the given result to the internal results list.

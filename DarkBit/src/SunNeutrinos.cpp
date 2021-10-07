@@ -91,7 +91,7 @@ namespace Gambit
       double resultSI;
       double maxcap;
 
-      BEreq::cap_sun_saturation(*Dep::mwimp,maxcap);
+      maxcap = BEreq::cap_sun_saturation(*Dep::mwimp);
       BEreq::cap_Sun_v0q0_isoscalar(*Dep::mwimp,*Dep::sigma_SD_p,*Dep::sigma_SI_p,resultSD,resultSI);
       result = resultSI + resultSD;
 
@@ -118,7 +118,7 @@ namespace Gambit
       const int nelems = 29;
       double maxcap;
 
-      BEreq::cap_sun_saturation(*Dep::mwimp,maxcap);
+      maxcap = BEreq::cap_sun_saturation(*Dep::mwimp);
 
       resultSI = 0e0;
       resultSD = 0e0;
@@ -136,7 +136,7 @@ namespace Gambit
           vpow =  (iterator->first).second/2;
 
           //Capture
-          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,1,qpow,vpow,capped);
+          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,1,qpow,vpow,*Dep::spinwimpx2/2.,capped);
           resultSD = resultSD+capped;
         }
       }
@@ -152,7 +152,7 @@ namespace Gambit
           vpow =  (iterator->first).second/2;
 
           //Capture
-          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,nelems,qpow,vpow,capped);
+          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,nelems,qpow,vpow,*Dep::spinwimpx2/2.,capped);
           resultSI = resultSI+capped;
         }
       }
@@ -166,8 +166,66 @@ namespace Gambit
         result = maxcap;
       }
 
-      //cout << "capture rate via capture_rate_Sun_vnqn = " << result << "\n";
+    }
 
+    //Capture rate for Non-Relataivistic Effective Operator (NREO)
+    void capture_rate_Sun_NREO(double &result)
+    {
+      #ifdef DARKBIT_DEBUG
+        cout << "Starting capture_rate_Sun_NREO ..." << endl;
+      #endif
+      using namespace Pipes::capture_rate_Sun_NREO;
+
+      double capped;
+      double maxcap;
+      const int niso = 16;
+
+      maxcap = BEreq::cap_sun_saturation(Dep::WIMP_properties->mass);
+
+      /*
+      use pipe to access parameters of model (0c1...1c15) here (3.2.3 of gambit paper)
+
+      for loop through C++ array of [0c1,0c2,...] (initialized by INI in captn_gen.cpp)
+      call populate Array with the value found in the C++ array and the position in the C++ array
+      */
+
+      int coupleNum;
+      int maxCouplingIndex;
+      if (Dep::DD_nonrel_WCs->CPTbasis == 0) // if we are using the NREffectiveTheory basis
+      {
+        maxCouplingIndex = 15;
+      }
+      else if (Dep::DD_nonrel_WCs->CPTbasis == 1) // if we are using the NREFT_CPT basis
+      {
+        maxCouplingIndex = 12;
+      }
+      for(int j=0; j<maxCouplingIndex; j++)
+      {
+        coupleNum = j + 1; // this is the coupling number, ranges 1 to 15 (but not 2)
+        if (coupleNum != 2) // 2 is not an allowed coupling constant
+        {
+          BEreq::captn_populate_array(Dep::DD_nonrel_WCs->c0.at(coupleNum), coupleNum, 0);
+          BEreq::captn_populate_array(Dep::DD_nonrel_WCs->c1.at(coupleNum), coupleNum, 1);
+        }
+      }
+
+
+      /*
+      Code to sum over all elements in solar model simultaneously.
+      The third parameter tells captn_NREO how many isotopes to sum over,
+      of which captn is currently set up to sum the 16 from arxiv:1501.03729.
+      */
+      BEreq::captn_NREO(Dep::WIMP_properties->mass,Dep::WIMP_properties->spinx2/2.,niso,capped);
+
+      result = capped;
+
+      logger() << "Capgen captured: total: " << result << "max = " << maxcap << "\n" << EOM;
+
+      // If capture is above saturation, return saturation value.
+      if (maxcap < result)
+      {
+        result = maxcap;
+      }
     }
 
     /*! \brief Equilibration time for capture and annihilation of dark matter
@@ -790,4 +848,3 @@ namespace Gambit
 
   }
 }
-

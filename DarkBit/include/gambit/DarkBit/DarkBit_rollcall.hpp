@@ -53,19 +53,20 @@
 ///  \date 2016 August
 ///
 ///  \author Ankit Beniwal
-///          (ankit.beniwal@adelaide.edu.au)
+///          (ankit.beniwal@uclouvain.be)
 ///  \date 2016 Oct
 ///  \date 2018 Jan, Aug
+///  \date 2020 Dec
 ///
-/// \author Aaron Vincent
-///         (aaron.vincent@cparc.ca)
-/// \date 2017 Sept
+///  \author Aaron Vincent
+///          (aaron.vincent@cparc.ca)
+///  \date 2017 Sept
 ///
-/// \author Sanjay Bloor
-///         (sanjay.bloor12@imperial.ac.uk)
-/// \date 2017 Dec
-/// \date 2018 Aug
-/// \date 2020 Feb
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2017 Dec
+///  \date 2018 Aug, Sep, Oct
+///  \date 2020 Feb, May
 ///
 ///  \author Sebastian Hoof
 ///          (s.hoof15@imperial.ac.uk)
@@ -74,17 +75,21 @@
 ///  \date 2018 Jan, Mar, Apr
 ///  \date 2019 Mar, Apr, Jun
 ///
-/// \author Anders Kvellestad
-///         (anders.kvellestad@fys.uio.no)
-/// \date 2020 Feb
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date 2020 Feb
 ///
-/// \author Jonathan Cornell
-///         (jonathancornell@weber.edu)
-/// \date 2013 - 2020
+///  \author Jonathan Cornell
+///          (jonathancornell@weber.edu)
+///  \date 2013 - 2020
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2021 Mar
+///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
 ///
 ///  *********************************************
 
@@ -93,6 +98,7 @@
 #include "gambit/DarkBit/DarkBit_types.hpp"
 
 #define MODULE DarkBit
+#define REFERENCE GAMBITDarkMatterWorkgroup:2017fax
 START_MODULE
 
   // DarkSUSY-specific initialisation functions ========================
@@ -155,7 +161,7 @@ START_MODULE
       DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2)
+                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -211,7 +217,7 @@ START_MODULE
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2)
+                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -303,7 +309,7 @@ START_MODULE
       ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT,
                    ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2)
+                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -390,6 +396,7 @@ START_MODULE
       BACKEND_REQ(IBintvars, (ds5), DS_IBINTVARS)
       BACKEND_OPTION((DarkSUSY, 5.1.3), (ds5))  // Only for DarkSUSY5
       FORCE_SAME_BACKEND(ds5)
+      ALLOW_MODELS(MSSM63atQ)
     #undef FUNCTION
 
     /// Process Catalogue from DarkSUSY6 (MSSM)
@@ -408,6 +415,7 @@ START_MODULE
       BACKEND_REQ(IBintvars, (ds6), DS_IBINTVARS)
       BACKEND_OPTION((DarkSUSY_MSSM, 6.1.1, 6.2.2, 6.2.5), (ds6))  // Only for DarkSUSY6 MSSM
       FORCE_SAME_BACKEND(ds6)
+      ALLOW_MODELS(MSSM63atQ)
     #undef FUNCTION
 
     #define FUNCTION TH_ProcessCatalog_ScalarSingletDM_Z2
@@ -456,6 +464,26 @@ START_MODULE
     #define FUNCTION TH_ProcessCatalog_DecayingDM_mixture
       START_FUNCTION(TH_ProcessCatalog)
       ALLOW_MODELS(DecayingDM_mixture)
+    #undef FUNCTION
+
+    #define FUNCTION TH_ProcessCatalog_WIMP_EFT
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(SM_spectrum, Spectrum)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      ALLOW_MODEL_DEPENDENCE(WIMP_sigmav, NREO_ScalarDM, NREO_DiracDM, NREO_MajoranaDM)
+      MODEL_GROUP(group1, (WIMP_sigmav))
+      MODEL_GROUP(group2, (NREO_ScalarDM, NREO_DiracDM, NREO_MajoranaDM))
+      ALLOW_MODEL_COMBINATION(group1, group2)
+    #undef FUNCTION
+
+    #define FUNCTION TH_ProcessCatalog_DMEFT
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMEFT_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -987,9 +1015,37 @@ START_MODULE
 
   // Simple WIMP property extractors ===================================
 
+  #define CAPABILITY WIMP_properties
+  START_CAPABILITY
+    #define FUNCTION WIMP_properties
+    START_FUNCTION(WIMPprops)
+    DEPENDENCY(DarkMatter_ID, std::string)
+    DEPENDENCY(DarkMatterConj_ID, std::string)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
+    MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2_running)
+    MODEL_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z3_spectrum, Spectrum, ScalarSingletDM_Z3_running)
+    MODEL_CONDITIONAL_DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum, MajoranaSingletDM_Z2)
+    MODEL_CONDITIONAL_DEPENDENCY(DiracSingletDM_Z2_spectrum, Spectrum, DiracSingletDM_Z2)
+    MODEL_CONDITIONAL_DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum, VectorSingletDM_Z2)
+    MODEL_CONDITIONAL_DEPENDENCY(MDM_spectrum, Spectrum, MDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running)
+    ALLOW_MODELS(VectorSingletDM_Z2, MajoranaSingletDM_Z2, DiracSingletDM_Z2)
+    ALLOW_MODELS(AnnihilatingDM_mixture, DecayingDM_mixture)
+    ALLOW_MODELS(NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM)
+    ALLOW_MODELS(MDM, DMEFT)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // Retrieve the DM mass in GeV for generic models
-  QUICK_FUNCTION(DarkBit, mwimp, NEW_CAPABILITY, mwimp_generic, double, (),
-      (TH_ProcessCatalog, TH_ProcessCatalog), (DarkMatter_ID, std::string))
+  QUICK_FUNCTION(DarkBit, mwimp, NEW_CAPABILITY, mwimp_generic, double, (), (WIMP_properties, WIMPprops))
+
+  // Retrieve the DM spin (times two) for generic models
+  QUICK_FUNCTION(DarkBit, spinwimpx2, NEW_CAPABILITY, spinwimpx2_generic, unsigned int, (), (WIMP_properties, WIMPprops))
+
+  // Retrieve a bool determining if a WIMP is self-conjugate.
+  QUICK_FUNCTION(DarkBit, wimp_sc, NEW_CAPABILITY, wimp_sc_generic, bool, (), (WIMP_properties, WIMPprops))
 
   // Retrieve the total thermally-averaged annihilation cross-section for indirect detection (cm^3 / s)
   #define CAPABILITY sigmav
@@ -1015,6 +1071,24 @@ START_MODULE
   #undef CAPABILITY
 
   // Direct detection ==================================================
+
+  // Function to initialise DDCalc couplings from a given DM interaction basis.
+  #define CAPABILITY DDCalc_Couplings
+  START_CAPABILITY
+
+    // Initialise DDCalc couplings for spin-independent/spin-dependent interactions only.
+    #define FUNCTION DDCalc_Couplings_WIMP_nucleon
+      START_FUNCTION(DD_coupling_container)
+      DEPENDENCY(DD_couplings, DM_nucleon_couplings)
+    #undef FUNCTION
+
+    // Initialise DDCalc couplings for non-relativistic Wilson Coefficient coupling structure.
+    #define FUNCTION DDCalc_Couplings_NR_WCs
+      START_FUNCTION(DD_coupling_container)
+      DEPENDENCY(DD_nonrel_WCs, NREO_DM_nucleon_couplings)
+    #undef FUNCTION
+
+  #undef CAPABILITY
 
   // Determine the DM-nucleon couplings
   #define CAPABILITY DD_couplings
@@ -1047,12 +1121,12 @@ START_MODULE
       ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq, MSSM63atQ,
                              ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                              ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                             VectorSingletDM_Z2)
+                             VectorSingletDM_Z2, DMEFT)
       MODEL_GROUP(group1, (nuclear_params_fnq))
       MODEL_GROUP(group2, (MSSM63atQ,
                            ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                            ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                           VectorSingletDM_Z2))
+                           VectorSingletDM_Z2, DMEFT))
       ALLOW_MODEL_COMBINATION(group1, group2)
       BACKEND_OPTION((MicrOmegas_MSSM),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z2),(gimmemicro))
@@ -1087,20 +1161,70 @@ START_MODULE
 
   #undef CAPABILITY
 
-  #define CAPABILITY DD_couplings_fermionic_HP
+
+  // Relativistic Wilson coefficients defined in the 5(or 4 or 3) flavscheme
+  #define CAPABILITY DD_rel_WCs_flavscheme
   START_CAPABILITY
 
-     #define FUNCTION DD_couplings_MajoranaSingletDM_Z2
-      START_FUNCTION(DM_nucleon_couplings_fermionic_HP)
-      DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
-      ALLOW_JOINT_MODEL(nuclear_params_fnq, MajoranaSingletDM_Z2)
-     #undef FUNCTION
+      #define FUNCTION DD_rel_WCs_flavscheme_DMEFT
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DMEFT_spectrum, Spectrum)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODEL(DMEFT)
+      #undef FUNCTION
 
-     #define FUNCTION DD_couplings_DiracSingletDM_Z2
-      START_FUNCTION(DM_nucleon_couplings_fermionic_HP)
+      #define FUNCTION DD_rel_WCs_flavscheme_DiracSingletDM_Z2
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DiracSingletDM_Z2_spectrum, Spectrum)
+      ALLOW_MODEL(DiracSingletDM_Z2)
+      #undef FUNCTION
+
+      #define FUNCTION DD_rel_WCs_flavscheme_MajoranaSingletDM_Z2
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
+      ALLOW_MODEL(MajoranaSingletDM_Z2)
+      #undef FUNCTION
+
+  #undef CAPABILITY
+
+  // Non-relativistic Wilson coefficients
+  #define CAPABILITY DD_nonrel_WCs
+  START_CAPABILITY
+
+      /// Copying of NREO model parameters into NREO_DD_nucleon_couplings object
+      #define FUNCTION NREO_couplings_from_parameters
+      START_FUNCTION(NREO_DM_nucleon_couplings)
+      ALLOW_MODELS(NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM)
+      #undef FUNCTION
+
+      /// Translation of DDcalc couplings into NREO couplings
+      #define FUNCTION NREO_from_DD_couplings
+      START_FUNCTION(NREO_DM_nucleon_couplings)
+      DEPENDENCY(DD_couplings, DM_nucleon_couplings)
+      #undef FUNCTION
+
+      // Get non-relativistic WCs from the relativistic ones, using DirectDM.
+      // Using flavour matching scheme.
+      #define FUNCTION DD_nonrel_WCs_flavscheme
+      START_FUNCTION(NREO_DM_nucleon_couplings)
+      DEPENDENCY(DD_rel_WCs_flavscheme, map_str_dbl)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(DirectDMNuisanceParameters, map_str_dbl)
+      BACKEND_REQ(get_NR_WCs_flav, (), NREO_DM_nucleon_couplings, (map_str_dbl&, double&, int&, std::string&, map_str_dbl&))
+      #undef FUNCTION
+
+      // Non-relativistic WCs computed directly for fermionic Higgs portal models.
+      #define FUNCTION DD_nonrel_WCs_DiracSingletDM_Z2
+      START_FUNCTION(NREO_DM_nucleon_couplings)
       DEPENDENCY(DiracSingletDM_Z2_spectrum, Spectrum)
       ALLOW_JOINT_MODEL(nuclear_params_fnq, DiracSingletDM_Z2)
-     #undef FUNCTION
+      #undef FUNCTION
+
+      #define FUNCTION DD_nonrel_WCs_MajoranaSingletDM_Z2
+      START_FUNCTION(NREO_DM_nucleon_couplings)
+      DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
+      ALLOW_JOINT_MODEL(nuclear_params_fnq, MajoranaSingletDM_Z2)
+      #undef FUNCTION
 
   #undef CAPABILITY
 
@@ -1110,22 +1234,23 @@ START_MODULE
   QUICK_FUNCTION(DarkBit, sigma_SD_p, NEW_CAPABILITY, sigma_SD_p_simple, double, (), (DD_couplings, DM_nucleon_couplings), (mwimp, double))
   QUICK_FUNCTION(DarkBit, sigma_SD_n, NEW_CAPABILITY, sigma_SD_n_simple, double, (), (DD_couplings, DM_nucleon_couplings), (mwimp, double))
 
-  // Generalized v^2n, q^2n DM-nucleon cross sections
+  // Generalized v^2n, q^2n DM-nucleon SI cross sections
+  // for the fermionic Higgs portal models
   #define CAPABILITY sigma_SI_p
-      #define FUNCTION sigma_SI_vnqn
+      #define FUNCTION sigma_SI_vnqn_FermionicHiggsPortal
       START_FUNCTION(map_intpair_dbl)
       DEPENDENCY(mwimp,double)
-      DEPENDENCY(DD_couplings_fermionic_HP,DM_nucleon_couplings_fermionic_HP)
+      DEPENDENCY(DD_nonrel_WCs, NREO_DM_nucleon_couplings)
       ALLOW_MODELS(DiracSingletDM_Z2, MajoranaSingletDM_Z2)
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Generalized v^2n, q^2n DM-nucleon SD cross sections
+  // for the fermionic Higgs portal models
   #define CAPABILITY sigma_SD_p
-  //Spin-dependent general v^2n q^2n cross section
-      #define FUNCTION sigma_SD_vnqn
+      #define FUNCTION sigma_SD_vnqn_FermionicHiggsPortal
       START_FUNCTION(map_intpair_dbl)
       DEPENDENCY(mwimp,double)
-      DEPENDENCY(DD_couplings_fermionic_HP,DM_nucleon_couplings_fermionic_HP)
       ALLOW_MODELS(DiracSingletDM_Z2, MajoranaSingletDM_Z2)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1144,6 +1269,24 @@ START_MODULE
     #define FUNCTION lnL_deltaq
       START_FUNCTION(double)
       ALLOW_MODELS(nuclear_params_fnq)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DirectDMNuisanceParameters
+  START_CAPABILITY
+    #define FUNCTION ExtractDirectDMNuisanceParameters
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODELS(nuclear_params_ChPT)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+   // Likelihoods for nuisance parameters ChPT in DirectDM 2.2.0
+  #define CAPABILITY lnL_nuclear_parameters_ChPT
+  START_CAPABILITY
+    #define FUNCTION lnL_sigmapiN_Deltas_gTs_rs2
+      START_FUNCTION(double)
+      ALLOW_MODELS(nuclear_params_ChPT_sigmapiN)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1247,8 +1390,8 @@ START_MODULE
   // If an experiment does not have any entry here, any version (of any backend) is allowed.
 
   // Introduced in DDCalc 1.0.0 but later deleted
-  SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0))
-  SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0))
+  SET_BACKEND_OPTION(PICO_60_F, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
+  SET_BACKEND_OPTION(PICO_60_I, (DDCalc, 1.0.0, 1.1.0, 1.2.0, 2.1.0))
   // Introduced in DDCalc 1.1.0
   SET_BACKEND_OPTION(PICO_60_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
   SET_BACKEND_OPTION(XENON1T_2017, (DDCalc, 1.1.0, 1.2.0, 2.0.0, 2.1.0, 2.2.0))
@@ -1270,6 +1413,10 @@ START_MODULE
 
 
   // Neutrinos =========================================================
+
+
+  // Solar capture ------------------------
+
 
   /// Capture rate of regular dark matter in the Sun (no v-dependent or q-dependent cross-sections) (s^-1).
   #define CAPABILITY capture_rate_Sun
@@ -1305,7 +1452,7 @@ START_MODULE
     DEPENDENCY(sigma_SI_p, double)
     DEPENDENCY(sigma_SD_p, double)
     BACKEND_REQ(cap_Sun_v0q0_isoscalar,(cg),void,(const double&,const double&,const double&,double&,double&))
-    BACKEND_REQ(cap_sun_saturation,(cg),void,(const double&,double&))
+    BACKEND_REQ(cap_sun_saturation,(cg),double,(const double&))
     BACKEND_OPTION((CaptnGeneral),(cg))
     FORCE_SAME_BACKEND(cg)
     #undef FUNCTION
@@ -1314,12 +1461,25 @@ START_MODULE
     #define FUNCTION capture_rate_Sun_vnqn
     START_FUNCTION(double)
     DEPENDENCY(mwimp,double)
+    DEPENDENCY(spinwimpx2,unsigned int)
     DEPENDENCY(sigma_SD_p, map_intpair_dbl)
     DEPENDENCY(sigma_SI_p, map_intpair_dbl)
-    BACKEND_REQ(cap_Sun_vnqn_isoscalar,(cg),void,(const double&,const double&,const int&,const int&,const int&,double&))
-    BACKEND_REQ(cap_sun_saturation,(cg),void,(const double&,double&))
-    BACKEND_OPTION((CaptnGeneral),(cg))
+    BACKEND_REQ(cap_Sun_vnqn_isoscalar,(cg),void,(const double&,const double&,const int&,const int&,const int&,const double&,double&))
+    BACKEND_REQ(cap_sun_saturation,(cg),double,(const double&))
+    BACKEND_OPTION((CaptnGeneral, 2.1),(cg))
     FORCE_SAME_BACKEND(cg)
+    #undef FUNCTION
+
+    ///Capture rate of dark matter with NREO method (s^-1), using backend Captn' General
+    #define FUNCTION capture_rate_Sun_NREO
+    START_FUNCTION(double)
+    BACKEND_REQ(captn_NREO,(cg),void,(const double&,const double&,const int&,double&))
+    BACKEND_REQ(cap_sun_saturation,(cg),double,(const double&))
+    BACKEND_REQ(captn_populate_array,(cg),void,(const double&,const int&,const int&))
+    BACKEND_OPTION((CaptnGeneral, 2.1), (cg))
+    FORCE_SAME_BACKEND(cg)
+    DEPENDENCY(WIMP_properties, WIMPprops)
+    DEPENDENCY(DD_nonrel_WCs,NREO_DM_nucleon_couplings)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1352,7 +1512,8 @@ START_MODULE
     #define FUNCTION nuyield_from_DS
     START_FUNCTION(nuyield_info)
     ALLOW_MODELS(MSSM63atQ, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running,
-                 MajoranaSingletDM_Z2, DiracSingletDM_Z2, VectorSingletDM_Z2)
+                 MajoranaSingletDM_Z2, DiracSingletDM_Z2, VectorSingletDM_Z2,
+                 NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM,DMEFT)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(mwimp, double)
     DEPENDENCY(sigmav, double)
@@ -1713,6 +1874,15 @@ START_MODULE
     #define FUNCTION DarkMatter_ID_MSSM
     START_FUNCTION(std::string)
     DEPENDENCY(MSSM_spectrum, Spectrum)
+    ALLOW_MODELS(MSSM63atQ)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_EFT
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMEFT
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1745,6 +1915,14 @@ START_MODULE
     #define FUNCTION DarkMatterConj_ID_MSSM
     START_FUNCTION(std::string)
     DEPENDENCY(MSSM_spectrum, Spectrum)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_EFT
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMEFT
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1987,4 +2165,5 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+#undef REFERENCE
 #undef MODULE

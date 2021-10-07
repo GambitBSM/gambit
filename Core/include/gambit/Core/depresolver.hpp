@@ -21,6 +21,7 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
+///  \date 2021 Sep
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
@@ -132,6 +133,15 @@ namespace Gambit
         /// Pretty print function evaluation order
         void printFunctorEvalOrder(bool toterminal=false);
 
+        /// Print the list of required backends
+        void printRequiredBackends();
+
+        /// Collect the citation keys for backends, modules, etc
+        void getCitationKeys();
+
+        // Print citation keys
+        void printCitationKeys();
+
         /// Retrieve the order in which target vertices are to be evaluated.
         std::vector<VertexID> getObsLikeOrder();
 
@@ -224,6 +234,9 @@ namespace Gambit
         /// Main function for resolution of backend requirements
         void resolveVertexBackend(VertexID);
 
+        /// Function for resolution of backends that need class loading
+        void resolveVertexClassLoading(VertexID);
+
         /// Find backend function matching any one of a number of capability-type pairs.
         functor* solveRequirement(std::set<sspair>, const IniParser::ObservableType*, VertexID, std::vector<functor*>, bool, str group="none");
 
@@ -271,6 +284,12 @@ namespace Gambit
         /// Map from nested function -> list of fulfilled dependencies that need
         /// to be passed on to its loop manager when it is selected
         std::map<VertexID, std::set<VertexID>> edges_to_force_on_manager;
+
+        // Backends required to fullfil dependencies
+        std::vector<std::vector<sspair> > backendsRequired;
+
+        // List of BibTeX keys
+        std::vector<str> citationKeys;
 
         /// Indices associated with graph vertices (used by printers to identify functors)
         IndexMap index;

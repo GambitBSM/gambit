@@ -204,6 +204,9 @@ namespace Gambit
         return ptr;
       }
 
+      // Is the pointer null
+      virtual bool isNull() const { return ptr == NULL; }
+
     protected:
 
       /// The actual underlying pointer, interpreted as a pointer to constant value

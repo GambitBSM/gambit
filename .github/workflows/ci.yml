@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ master ]
   schedule:
-    - cron:  '* * * * 1'
+    - cron:  '0 5 * * *'
 
 jobs:
   gambit_build:
@@ -52,16 +52,16 @@ jobs:
     - name: Build scanners
       run: |
         cd BUILD/ && . buildenv.sh
-        make -j$(nproc) scanners
+        make -j$(( ($(nproc)+1)/2 )) scanners
         cmake ..
     - name: Build Gambit
       run: |
         cd BUILD && . buildenv.sh
-        make -j$(nproc) gambit
+        make -j$(( ($(nproc)+1)/2 )) gambit
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
-        make -j$(nproc) backends
+        make -j$(( ($(nproc)+1)/2 )) backends
     - name: CLI test
       run: |
         . BUILD/buildenv.sh
