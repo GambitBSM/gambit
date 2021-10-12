@@ -37,7 +37,9 @@ BE_INI_FUNCTION
   if(scan_level)
   {
     int nHneut = 3; // number of neutral higgses
+    nHneut = 1; // number of neutral higgses
     int nHplus = 1; // number of charged higgses
+    nHplus = 0; // number of charged higgses
     int pdf = 2;    // choose which pdf style to use for Higgs lineshape; 2 = Gaussian
     
     // Initialize HiggsSignals. Do this one-by-one for each MPI process with

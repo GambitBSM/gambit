@@ -219,8 +219,12 @@ endif()
 # Add some Fortran compiler flags
 if(CMAKE_Fortran_COMPILER MATCHES "gfortran*" OR CMAKE_Fortran_COMPILER MATCHES "f95*")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -ffixed-line-length-none -cpp")
+  #DSDEBUG
+  #  set(CMAKE_FORCE_Fortran_COMPILER ( "gfortran" "5.5.0" ))
 elseif(CMAKE_Fortran_COMPILER MATCHES "ifort*")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -extend-source -fpp")
+  #DSDEBUG
+  set(CMAKE_FORCE_Fortran_COMPILER ( "gfortran" "5.5.0" ))
 endif()
 
 # Set output paths

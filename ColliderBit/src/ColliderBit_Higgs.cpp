@@ -1010,10 +1010,10 @@ namespace Gambit
 		for(int i = 0; i<9; i++) { 
 			//c_SM - denominators of the respective signal strengths
 			dengam += 1/6.*pow(fcharges[i],2) * fNcs[i] * Aloop(4*pow(fmasses[i]/Mh,2)); 
-			cout << "dengam"<<i<<": "<< 1/6.*pow(fcharges[i],2) * fNcs[i] * Aloop(4*pow(fmasses[i]/Mh,2)) << endl;
+		//	cout << "dengam"<<i<<": "<< 1/6.*pow(fcharges[i],2) * fNcs[i] * Aloop(4*pow(fmasses[i]/Mh,2)) << endl;
 			denglu += Aloop(4*pow(fmasses[i]/Mh,2))*fisq[i]; 
 		}
-		cout << "dengam: "<< dengam << endl;
+		//cout << "dengam: "<< dengam << endl;
 		for(int i = 0; i<9; i++){
 			//c and c_tilde and c_SM combined
 			CPevenKapPreGam[i] = 1./dengam * 1./6. * pow(fcharges[i],2) * fNcs[i] * Aloop(4*pow(fmasses[i]/Mh,2));
@@ -1182,7 +1182,7 @@ namespace Gambit
 		      kaptilgam += CPoddKapPreGam[j]*WCodd[j];
 		      kapglu += CPevenKapPreGlu[j]*WCeven[j];
 		      kaptilglu += CPoddKapPreGlu[j]*WCodd[j];
-		      cout << "kapgampre"<<j<<": " << CPevenKapPreGam[j]<< " kaptilgampre"<<j<<": "<<CPoddKapPreGam[j] << endl;
+		//      cout << "kapgampre"<<j<<": " << CPevenKapPreGam[j]<< " kaptilgampre"<<j<<": "<<CPoddKapPreGam[j] << endl;
 	      }	
 	     /* cout << "kapgam " << kapgam << endl;
 	      cout << "kapgam^2 " << std::real(std::conj(kapgam)*kapgam) << endl;
@@ -1196,9 +1196,9 @@ namespace Gambit
 	      cout << "sqrt " <<sqrt(std::real(kapgam*std::conj(kapgam))+std::real(kaptilgam*std::conj(kaptilgam))) << endl;*/
 	      //g = sqrt(signalstrength = mu) = sqrt(|kappa|^2 + |kappa_tilde|^2)
 	      ghjgaga[i] += sqrt(std::real(kapgam*std::conj(kapgam)) + std::real(kaptilgam*std::conj(kaptilgam))) ;
-	      cout << "gaga checks:" << endl;
-	      cout << "kapgam: "<< kapgam<< " kapgamconj: "<< std::conj(kapgam) << endl;
-	      cout << "kaptilgam: "<< kaptilgam<< " kaptilgamconj: "<< std::conj(kaptilgam) << endl;
+	      //cout << "gaga checks:" << endl;
+	      //cout << "kapgam: "<< kapgam<< " kapgamconj: "<< std::conj(kapgam) << endl;
+	      //cout << "kaptilgam: "<< kaptilgam<< " kaptilgamconj: "<< std::conj(kaptilgam) << endl;
 	//      ghjgaga[i] = sqrt( ( 1+0.000751*(*Param["CtHm"])*(*Param["CtHm"]) + 0.03598*(*Param["CtHp"]) + 0.0002483*(*Param["CtHp"])*(*Param["CtHp"]) )  ) ;
 	      ghjgg[i] += sqrt(std::real(kapglu*std::conj(kapglu)) + std::real(kaptilglu*std::conj(kaptilglu))) ;
 //	      ghjgg[i] = 1 ; //check different contributions
@@ -1285,12 +1285,12 @@ namespace Gambit
       int nobs, nobs1, nobs2;
 
       // Run the main subroutines
-      BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
+     // BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       result = -0.5*(
-		     + csqtot 
+//		     + csqtot 
 		     + csqtot1 
 		     + csqtot2
 		     );

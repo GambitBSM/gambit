@@ -304,20 +304,22 @@ namespace Gambit
 		}
 		return;	
 	}
-	void initialise(double muH, double Lambda){
+	void initialise(double muH, double Lambda,bool hadronic){
 		static bool first = true;
 		if(first){
 		  std::fstream wcinit("/home/dskodras/gambitgit/LowEBit/src/WCinits1.dat", std::ios::app);
 		  if (wcinit.is_open()){std::cout << "opened" << std::endl;}
 		  else {std::cout << "failed" << std::endl;return;}
-		  Cu3list(muH,Lambda);
-		  Cd3list(muH,Lambda);
-		  Cs3list(muH,Lambda);
 		  Ce3list(muH,Lambda);
-		  Cu4list(muH,Lambda);
-		  Cd4list(muH,Lambda);
-		  Cs4list(muH,Lambda);
-		  Cwlist(muH,Lambda);
+		  if(hadronic){
+			  Cu3list(muH,Lambda);
+			  Cd3list(muH,Lambda);
+			  Cs3list(muH,Lambda);
+			  Cu4list(muH,Lambda);
+			  Cd4list(muH,Lambda);
+			  Cs4list(muH,Lambda);
+			  Cwlist(muH,Lambda);
+		  }
 		  first = false;	
 		  cnt = 1;
 	  	  LoopFunctions c;
@@ -434,7 +436,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  double gf = GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
-		  initialise(Mh,Lambda);
+		  initialise(Mh,Lambda,true);
 //		  double me = 5.11E-4;
 //		  masses at Mh: The cpv phases (sin and cos below) are established at Mh
 		  double mu = qmasses[0];
@@ -539,7 +541,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  double gf = GF;		  
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
-		  initialise(Mh,Lambda);
+		  initialise(Mh,Lambda,false);
 //		  double me = 5.11E-4;
 		  double mu = qmasses[0];
 		  double md = qmasses[1];
