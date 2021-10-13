@@ -1,0 +1,508 @@
+##########################################################################
+## GAMBIT configuration for running a diver scan of the THDM
+## THDMSS
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## THDMC, SuperISO, HiggsBounds, HiggsSignals, HEPLike
+##########################################################################
+
+Parameters:
+
+  # all models below activated simultaneously
+
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  
+  THDMIatQ:
+    lambda_1:
+        range: [-0.5, 12.5664]
+        prior_type: flat
+    lambda_2:
+        range: [-0.5, 12.5664]
+        prior_type: flat
+    lambda_3:
+        range: [-12.5664, 12.5664]
+        prior_type: flat
+    lambda_4:
+        range: [-12.5664, 12.5664]
+        prior_type: flat
+    lambda_5:
+        range: [-12.5664, 12.5664]
+        prior_type: flat
+    # --- Assuming a CP-conserving THDM model ---
+    lambda_6:
+        fixed_value: 0.0
+    lambda_7:
+        fixed_value: 0.0
+    # -------------------------------------------
+    m12_2:
+        ranges: [-1e6, -1e4, 1e4, 1e7]
+        prior_type: double_log_flat_join
+    tanb:
+        range: [0,50]
+        prior_type: flat # log
+    Qin:
+        fixed_value: 91.1876 # = mZ
+    QrunTo:
+        fixed_value: 1000 # for comparison with other literature
+
+##############################
+# Printer setup
+##############################
+
+Printer:
+
+  # printer: ascii
+
+  # options:
+  #   buffer_length: 100
+  #   output_file: "scan_de10000.txt"
+  #   output_path: default_output_path
+
+  # Select printer to use via string tag
+  printer: hdf5
+
+  options:
+    output_file: "scan.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
+    # buffer_length: 100
+
+  # printer: hdf5_v1
+
+  # options:
+  #   # name of output file
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: false
+  #   disable_combine_routines: true
+  #   # need to run  /home/alex/gambit_THDM_stable/Printers/scripts/combine_hdf5.py
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+  use_scanner: de
+
+  scanners:
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 300000
+      convthresh: 1e-5
+      verbosity: 1
+
+    random:
+      plugin: random
+      point_number: 1
+      like:  LogLike
+
+      # No options to set, but still need the nodes at the moment...
+      aux_printer_txt_options:
+      aux_printer_stats_options:
+      aux_printer_live_options:
+
+ObsLikes:
+
+  ###########################
+  # Likelihoods from FlavBit.cpp / PrecisionBit.cpp / ColliderBit_Higgs.cpp
+  ###########################
+
+  # FlavBit.cpp:2193 (b->s gamma via HEPLike)
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
+
+  # FlavBit.cpp:2120 (B meson mass aysmmetry)
+  - capability: deltaMB_LL
+    function: deltaMB_likelihood
+    purpose: LogLike
+
+  # FlavBit.cpp:2156
+  - capability: deltaMBd_LL
+    function: deltaMBd_likelihood
+    purpose: LogLike
+
+  # FlavBit.cpp:2298
+  - capability: b2ll_LL
+    function: b2ll_likelihood
+    purpose: LogLike
+
+  # FlavBit.cpp:2435
+  - capability: SL_LL
+    function: SL_likelihood
+    purpose: LogLike
+
+  # FlavBit.cpp:3163
+  - purpose:    LogLike
+    capability: LUV_LL # LUV_likelihood
+
+  # PrecisionBit.cpp:1166
+  - purpose:    LogLike
+    capability: oblique_parameters_likelihood_THDM
+
+  # ColliderBit_Higgs.cpp:840
+  - capability: LEP_Higgs_LogLike
+    function: calc_HB_5_LEP_LogLike
+    purpose: LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
+
+  # ColliderBit_Higgs.cpp:1091
+  - capability: LHC_Higgs_LogLike
+    function: calc_HS_2_LHC_LogLike
+    purpose: LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
+
+  ###########################
+  # Likelihoods from SpecBit_THDM.cpp
+  ###########################
+
+  # TODO: needs to be modified
+  # Theoretical | SpecBit_THDM.cpp:3026 (stability of the THDM PED)
+  - purpose:    LogLike
+    capability: stability_likelihood_THDM
+
+  # Theoretical | SpecBit_THDM.cpp:2927 (unitarity of the S-matrix at NLO)
+  - purpose:    LogLike
+    capability: NLO_unitarity_likelihood_THDM
+
+  # Theoretical | SpecBit_THDM.cpp:2980 (perturbativity check on lambdas and scalar couplings)
+  - purpose:    LogLike
+    capability: perturbativity_likelihood_THDM
+
+  # Theoretical | SpecBit_THDM.cpp:3164 (perturbativity check on h0 mass loop-corrections)
+  - purpose:    LogLike
+    capability: h0_loop_order_corrections
+    function: check_h0_loop_order_corrections
+  
+  # Theoretical | SpecBit_THDM.cpp:2000 (perturbativity check on other scalar mass loop-corrections)
+  - purpose:    LogLike
+    capability: THDM_scalar_loop_order_corrections
+    function: check_THDM_scalar_loop_order_corrections
+
+  # ???? undocumented
+  - purpose:    LogLike
+    capability: THDM_scalar_masses
+    function: check_THDM_scalar_masses
+
+
+
+    # ????????????????????
+
+    # # SM nuisance parameter likelihoods
+    # - capability: lnL_t_mass
+    #   purpose:    LogLike
+
+    # - capability: lnL_mbmb
+    #   purpose:    LogLike
+
+    # - capability: lnL_mcmc
+    #   purpose:    LogLike
+
+    # - capability: lnL_light_quark_masses
+    #   purpose:    LogLike
+
+    # - capability: lnL_alpha_em
+    #   purpose:    LogLike
+
+    # - capability: lnL_alpha_s
+    #   purpose:    LogLike
+
+    # - capability: lnL_GF
+    #   purpose:  LogLike
+
+    # # Other observables
+    # - purpose:    Observable
+    #   capability: RD_oh2
+
+    # - purpose:    Observable
+    #   capability: mwimp
+
+    # - purpose:    Observable
+    #   capability: sigmav
+
+    # - purpose:    Observable
+    #   capability: sigma_SI_p
+
+    # - purpose:    Observable
+    #   capability: sigma_SI_n
+
+  # TODO: check extra Likelihoods from THDM.yaml
+
+  #################
+  # Observables
+  #################
+
+  # THDM parameters
+
+  - capability: THDM_spectrum_map
+    function: get_THDM_spectrum_as_map
+    purpose: Observable
+
+  # branching fractions
+
+  # - capability: all_BFs
+  #   purpose: Observable
+
+  # vacuum meta-stability discriminant
+
+  # Theoretical | another vacuum stability check (true or)
+  - capability: vacuum_global_minimum
+    function: check_vacuum_global_minimum
+    purpose: Observable  
+
+  # angles
+
+  - capability: sba
+    function: obs_sba
+    purpose: Observable
+
+  - capability: cba
+    function: obs_cba
+    purpose: Observable
+
+  - capability: ba
+    function: obs_ba
+    purpose: Observable
+
+  - capability: vev
+    function: obs_vev
+    purpose: Observable
+
+  # bsgamma
+
+  - capability: bsgamma
+    function: SI_bsgamma
+    purpose: Observable
+
+  # meson mixing
+
+  - capability: DeltaMs
+    function: SI_Delta_MBs
+    purpose: Observable
+
+  - capability: DeltaMd
+    function: SI_Delta_MBd
+    purpose: Observable
+
+    # RD
+
+  - capability: RD
+    function: SI_RD
+    purpose: Observable
+
+    # RDstar
+
+  - capability: RDstar
+    function: SI_RDstar
+    purpose: Observable
+    
+    # BDmunu
+
+  - capability: BDmunu
+    function: SI_BDmunu
+    purpose: Observable
+
+    # BDstarmunu
+
+  - capability: BDstarmunu
+    function: SI_BDstarmunu
+    purpose: Observable
+
+    # Btaunu
+
+  - capability: Btaunu
+    function: SI_Btaunu
+    purpose: Observable
+
+    # Dstaunu
+
+  - capability: Dstaunu
+    function: SI_Dstaunu
+    purpose: Observable
+
+    # Dsmunu
+
+  - capability: Dsmunu
+    function: SI_Dsmunu
+    purpose: Observable
+
+    # Dmunu
+
+  - capability: Dmunu
+    function: SI_Dmunu
+    purpose: Observable
+
+  #   # BKstarmumu_11_25
+
+  # - capability: BKstarmumu_11_25
+  #   function: SI_BKstarmumu_11_25
+  #   purpose: Observable
+
+  #   # BKstarmumu_25_40
+
+  # - capability: BKstarmumu_25_40
+  #   function: SI_BKstarmumu_25_40
+  #   purpose: Observable
+
+  #   # BKstarmumu_40_60
+
+  # - capability: BKstarmumu_40_60
+  #   function: SI_BKstarmumu_40_60
+  #   purpose: Observable
+
+  #   # BKstarmumu_60_80
+
+  # - capability: BKstarmumu_60_80
+  #   function: SI_BKstarmumu_60_80
+  #   purpose: Observable
+
+  #   # BKstarmumu_15_17
+
+  # - capability: BKstarmumu_15_17
+  #   function: SI_BKstarmumu_15_17
+  #   purpose: Observable
+
+  #   # BKstarmumu_17_19
+
+  # - capability: BKstarmumu_17_19
+  #   function: SI_BKstarmumu_17_19
+  #   purpose: Observable
+
+    # Bsmumu_untag
+
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+    purpose: Observable
+
+    # Bmumu
+
+  - capability: Bmumu
+    function: SI_Bmumu
+    purpose: Observable
+     
+
+Rules:
+
+  ##############################
+  # Likelihood/Observable Rules
+  ##############################
+
+  - capability: THDM_spectrum
+    function: get_THDM_spectrum
+
+  - capability: decay_rates
+    function: all_decays
+    module: DecayBit
+
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      printall: true 
+
+  - capability: THDM_scalar_masses
+    function: check_THDM_scalar_masses
+    options:
+      maximum_scalar_mass: 3000
+
+  - capability: perturbativity_likelihood_THDM
+    function: get_perturbativity_likelihood_THDM
+    options:
+      check_all_scales: true
+      simple_perturbativity: false
+
+  - capability: stability_likelihood_THDM
+    function: get_stability_likelihood_THDM
+    options:
+      check_all_scales: true
+
+  - capability: NLO_unitarity_likelihood_THDM
+    function: get_NLO_unitarity_likelihood_THDM
+    options:
+      check_correction_ratio: true
+      wave_function_corrections: true
+      gauge_corrections: true
+      yukawa_corrections: true
+
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_THDM
+
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_THDM
+
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_THDM
+
+  - capability: t_decay_rates
+    function: t_decays_THDM
+
+  - capability: HB_ModelParameters_neutral
+    function: THDM_ModelParameters_effc
+    module: ColliderBit
+
+  - capability: HB_ModelParameters_charged
+    function: THDM_ModelParameters_charged
+    module: ColliderBit
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+    module: SpecBit
+
+  - capability: SuperIso_modelinfo
+    function: SI_fill
+  
+  - capability: bsgamma
+    function: SI_bsgamma
+
+  - capability: DeltaMs
+    function: SI_Delta_MBs
+
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
+    module: FlavBit
+
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    [Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    [DecayBit] :  "DecayBit.log"
+    [DarkBit] :  "DarkBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "DepResolver.log"
+    [Scanner]:  "Scanner.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e8
+    model_invalid_for_lnlike_below_alt: -5e7
+    debug: false
+    
+  default_output_path: "/home/alex/gambitOutput/"
+  debug: false
