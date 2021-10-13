@@ -31,7 +31,7 @@
             "program": "/home/alex/Desktop/merge/gambit_thdm/gambit",
             "args": [
                 "-f",
-                "/home/alex/Desktop/merge/gambit_thdm/yaml_files/THDMIIatQ.yaml"
+                "/home/alex/Desktop/merge/gambit_thdm/yaml_files/THDMIatQ.yaml"
             ],
             "stopAtEntry": false,
             "cwd": "/home/alex/Desktop/merge/gambit_thdm/work",
