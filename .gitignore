@@ -33,7 +33,7 @@ a.out
 *.mod
 
 # Hidden files
-.*
+
 
 # Output data
 runs/*

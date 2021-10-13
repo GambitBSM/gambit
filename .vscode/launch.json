@@ -1,0 +1,52 @@
+{
+    "version": "2.0.0",
+    // "tasks": [
+    //     {
+    //         "type": "shell",
+    //         "label": "g++ build active file",
+    //         "command": "/usr/bin/g++",
+    //         "args": [
+    //             "-g",
+    //             "${file}",
+    //             "-o",
+    //             "${fileDirname}/${fileBasenameNoExtension}"
+    //         ],
+    //         "options": {
+    //             "cwd": "/usr/bin"
+    //         },
+    //         "problemMatcher": [
+    //             "$gcc"
+    //         ],
+    //         "group": {
+    //             "kind": "build",
+    //             "isDefault": true
+    //         }
+    //     }
+    // ],
+    "configurations": [
+        {
+            "name": "Debug_THDM_II",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/home/alex/Desktop/merge/gambit_thdm/gambit",
+            "args": [
+                "-f",
+                "/home/alex/Desktop/merge/gambit_thdm/yaml_files/THDMIIatQ.yaml"
+            ],
+            "stopAtEntry": false,
+            "cwd": "/home/alex/Desktop/merge/gambit_thdm/work",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // "preLaunchTask": "g++ build active file",
+            "miDebuggerPath": "/usr/bin/gdb"
+        }
+    ]
+}
