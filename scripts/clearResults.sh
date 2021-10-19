@@ -1,0 +1,1 @@
+rm -rf /home/alex/output/runs/*

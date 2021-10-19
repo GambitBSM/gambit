@@ -37,6 +37,7 @@
 
 namespace Gambit
 {
+  static int desired_points = -1;
 
   // Methods for Likelihood_Container class.
 
@@ -66,6 +67,9 @@ namespace Gambit
       debug            (iniFile.getValueOrDef<bool>(false, "debug") or iniFile.getValueOrDef<bool>(false, "likelihood", "debug"))
     #endif
   {
+
+    desired_points = iniFile.getValueOrDef<int>(121000, "NP");
+
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
     // Find subset of vertices that match requested purpose
@@ -128,9 +132,9 @@ namespace Gambit
     {
       #ifdef WITH_MPI
         GMPI::Comm COMM_WORLD;
-        std::cout << "MPI process rank: "<< COMM_WORLD.Get_rank() << std::endl;
+        // std::cout << "MPI process rank: "<< COMM_WORLD.Get_rank() << std::endl;
       #endif
-      cout << parstream.str();
+      // cout << parstream.str();
       // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
     }
     // Print the parameter point to the logs, even if not in debug mode
@@ -203,8 +207,14 @@ namespace Gambit
                              + "::" + dependencyResolver.get_functor(*it)->name();
         if (debug) logger() << LogTags::core << "Calculating l" << likelihood_tag << "." << EOM;
 
+        static int point_count = 0, invalid_count = 0;
+        static std::chrono::time_point<std::chrono::high_resolution_clock> startTime, currTime;
+
+        if (point_count == 0) startTime = std::chrono::high_resolution_clock::now();
+
         try
         {
+          ++point_count;
           // Set up debug output streams.
           std::ostringstream debug_to_cout;
           if (debug) debug_to_cout << "  L" << likelihood_tag << ": ";
@@ -265,6 +275,7 @@ namespace Gambit
         // Catch points that are invalid, either due to low like or pathology.  Skip the rest of the vertices if a point is invalid.
         catch(invalid_point_exception& e)
         {
+          ++invalid_count;
           logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << EOM;
           logger().leaving_module();
           lnlike = active_min_valid_lnlike;
@@ -273,9 +284,44 @@ namespace Gambit
           // If print_ivalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
-          if (debug) cout << "Point invalid." << endl;
+          // if (debug) cout << "Point invalid." << endl;
           break;
         }
+
+        currTime = std::chrono::high_resolution_clock::now();
+        double totalDur = std::chrono::duration<double>(currTime - startTime).count();
+
+        int mpirank = 0;
+
+        #ifdef WITH_MPI
+        GMPI::Comm COMM_WORLD;
+        mpirank = COMM_WORLD.Get_rank();
+        #endif
+
+        if (mpirank == 0 && (int)(totalDur*1000) % 3000 < totalDur*1000. / point_count )
+        {
+          auto time = [&](double secs)
+          {
+            int sec = secs;
+            int min = sec / 60;
+            int hour = min / 60;
+            int day = hour / 24;
+            sec %= 60;
+            min %= 60;
+            hour %= 24;
+
+            return std::to_string(day) + "d" + std::to_string(hour) + ":" + std::to_string(min) + ":" + std::to_string(sec);
+          };
+
+
+          double completedPer = (100.0*point_count)/desired_points;
+          double eta = ((totalDur * desired_points) / point_count - totalDur);
+
+          std::cerr << point_count << " / " << desired_points << "pts (" << (int)completedPer << "%)" << " | " << (point_count-invalid_count) << " valid | " << point_count / totalDur << " pts/sec | (eta " << time(eta) << " ) | duration " << time(totalDur) << std::endl;
+        }
+
+        
+
       }
 
 
