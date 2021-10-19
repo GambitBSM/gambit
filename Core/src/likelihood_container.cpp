@@ -68,7 +68,7 @@ namespace Gambit
     #endif
   {
 
-    desired_points = iniFile.getValueOrDef<int>(121000, "NP");
+    desired_points = iniFile.getValueOrDef<int>(200000, "NP");
 
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
@@ -290,6 +290,7 @@ namespace Gambit
 
         currTime = std::chrono::high_resolution_clock::now();
         double totalDur = std::chrono::duration<double>(currTime - startTime).count();
+        static double timer = 0;
 
         int mpirank = 0;
 
@@ -298,8 +299,10 @@ namespace Gambit
         mpirank = COMM_WORLD.Get_rank();
         #endif
 
-        if (mpirank == 0 && (int)(totalDur*1000) % 3000 < totalDur*1000. / point_count )
+        if (mpirank == 0 && totalDur > timer )
         {
+          timer += 20;
+
           auto time = [&](double secs)
           {
             int sec = secs;

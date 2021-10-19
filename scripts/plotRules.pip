@@ -15,7 +15,7 @@ plot_observables =                      ;Observables to make 2D plots of (EFN)
 -------------------------------
 ---Parsing---------------------
 
-parse_dir = '/home/alex/tmp/plotParse/'                   ;Directory to save parsing output in (EFN; default is to place parsed data in same folder as chains)
+parse_dir = '/home/user/tmp/plotParse/'                   ;Directory to save parsing output in (EFN; default is to place parsed data in same folder as chains)
 
 cut_on_invalid_observables = F              ;Cut on any invalid entries in an hdf5 file, not just the likelihood (defaults to false, meaning cut on likelihood only)
 
@@ -164,7 +164,7 @@ quantity_labels = 0:'-lnlike'\
 -------------------------------
 ---Scripting-------------------
 
-script_dir = '/home/alex/tmp/plotScripts/'                ;Directory to save scripts in (EFN; default is to place scripts in same folder as parse output)
+script_dir = '/home/user/tmp/plotScripts/'                ;Directory to save scripts in (EFN; default is to place scripts in same folder as parse output)
 
 legend_on_1D = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18                 ;1D plots that should include legends
 legend_locations_1D = 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18          ;Locations of legends for 1D plots (subset of twoD_plot_quantities)
