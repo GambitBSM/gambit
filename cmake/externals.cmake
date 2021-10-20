@@ -67,6 +67,10 @@ endif()
 # Arrange make scanners command (will be filled in from scanners.cmake)
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   add_custom_target(scanners)
+  add_custom_target(scanners_cmake_cmd
+    COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
 endif()
 
 # Add get-pippi target
@@ -273,6 +277,8 @@ function(set_as_default_version type name default)
   elseif (type STREQUAL "scanner") 
     # If scanner, also link cmake (${target}_cmake_cmd) and plugin (${target}_plugin) to ${target}.
     # The dependencies are: ${target} -> ${target}_plugin -> ${target}_cmake_cmd -> ${target}_${default}
+    # For scanners it is: ${types}s -> ${types}s_${target}_plugin -> ${types}s_cmake_cmd -> ${target}_${default}
+    add_custom_target(${target})
     add_custom_target(${target}_cmake_cmd
       COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -280,8 +286,10 @@ function(set_as_default_version type name default)
 
     if (TARGET ${target}_${default})
       add_dependencies(${target}_cmake_cmd ${target}_${default})
+      add_dependencies(${type}s_cmake_cmd ${target}_${default})
     else()
       add_dependencies(${target}_cmake_cmd .${target}_${default})
+      add_dependencies(${type}s_cmake_cmd .${target}_${default})
     endif()
     
     # If plugin name is added as optional variable.
@@ -290,16 +298,25 @@ function(set_as_default_version type name default)
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${ARGV3}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
+      add_custom_target(${type}s_${target}_plugin
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${ARGV3}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      )
     else()
       add_custom_target(${target}_plugin
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${target}_${default}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
+      add_custom_target(${type}s_${target}_plugin
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${target}_${default}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      )
     endif()
+    
     add_dependencies(${target}_plugin ${target}_cmake_cmd)
-    add_custom_target(${target})
     add_dependencies(${target} ${target}_plugin)
-    add_dependencies(${type}s ${target})
+    add_dependencies(${type}s_${target}_plugin ${type}s_cmake_cmd)
+    add_dependencies(${type}s ${type}s_${target}_plugin)
   else()
     add_custom_target(${target})
     if (TARGET ${target}_${default})
