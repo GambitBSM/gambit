@@ -1,21 +1,36 @@
 ##########################################################################
-## GAMBIT configuration for running a diver scan of the THDM
-## THDMSS
+## GAMBIT configuration for the following
+##
+## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
 ##
 ## Requires backends:
-## THDMC, SuperISO, HiggsBounds, HiggsSignals, HEPLike
+## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike
+## (for IDM only) sarah-spheno_idm, micromegas, vevacious
+##
+## Author: A.S. Woodcock
+## Date: 20/OCT/2021
+##
 ##########################################################################
+
+
+
+#################################
+##   MODEL PARAMETER RANGES    ##
+#################################
 
 Parameters:
 
   # all models below activated simultaneously
 
+  # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
+  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
   THDMIatQ:
+    # TODO: justify parameter ranges: perturbility ???
     lambda_1:
         range: [-0.5, 12.5664]
         prior_type: flat
@@ -40,6 +55,7 @@ Parameters:
     m12_2:
         ranges: [-1e6, -1e4, 1e4, 1e7]
         prior_type: double_log_flat_join
+    # todo justify ???
     tanb:
         range: [0,50]
         prior_type: flat # log
@@ -48,47 +64,46 @@ Parameters:
     QrunTo:
         fixed_value: 1000 # for comparison with other literature
 
-##############################
-# Printer setup
-##############################
+
+
+#################################
+##     PRINTER SELECTION       ##
+#################################
 
 Printer:
 
   # printer: ascii
-
   # options:
   #   buffer_length: 100
-  #   output_file: "scan_de10000.txt"
+  #   output_file: "scan.txt"
   #   output_path: default_output_path
 
-  # Select printer to use via string tag
-  printer: hdf5
+  # printer: hdf5
+  # options:
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
 
+  # unfortunately the new hdf5 scanner is buggy!
+  printer: hdf5_v1
   options:
     output_file: "scan.hdf5"
     group: "/data"
-    delete_file_on_restart: true
-    # buffer_length: 100
+    delete_file_on_restart: false
+    disable_combine_routines: true
 
-  # printer: hdf5_v1
 
-  # options:
-  #   # name of output file
-  #   output_file: "scan.hdf5"
-  #   group: "/data"
-  #   delete_file_on_restart: false
-  #   disable_combine_routines: true
-  #   # need to run  /home/alex/gambit_THDM_stable/Printers/scripts/combine_hdf5.py
 
-##############################
-# Scanner setup
-##############################
+#################################
+##     SCANNER SELECTION       ##
+#################################
 
 Scanner:
-  use_scanner: de
+
+  use_scanner: differentialEvolution
 
   scanners:
-    de:
+    differentialEvolution:
       plugin: diver
       like: LogLike
       NP: 300000
@@ -99,17 +114,121 @@ Scanner:
       plugin: random
       point_number: 1
       like:  LogLike
-
-      # No options to set, but still need the nodes at the moment...
       aux_printer_txt_options:
       aux_printer_stats_options:
       aux_printer_live_options:
 
+
+
+#################################
+##  OBSERVABLES / LIKELIHOODS  ##
+#################################
+
 ObsLikes:
 
-  ###########################
-  # Likelihoods from FlavBit.cpp / PrecisionBit.cpp / ColliderBit_Higgs.cpp
-  ###########################
+  #-------------------------------------#
+  #      THEORETICAL LIKELIHOODS        #
+  #-------------------------------------#
+
+  # Stability of the 2HDM Potential
+  # Applies the THDM stability constraints on the potential
+  # NOTE: This likelihood has two parts, described below
+  # (i) Applies strict stability constraint
+  # Likelihood type: Acceptance/Rejection
+  # (ii) If rejected, applies looser stabililty constraints
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: stability_likelihood_THDM
+
+  # Checks that the NLO scattering-matrix is unitary
+  # Calculates and applies limit on eigenvalues of matrix
+  # NOTE: This is always a subset of LO unitarity so it not needed
+  # Likelihood type: Half-Gaussian
+  # Only supports CP-conserving models
+  # Unitarity of the S-matrix at next leading order (includes leading order too)
+  - purpose:    LogLike
+    capability: NLO_unitarity_likelihood_THDM
+
+  # Calculates all quartic Higgs couplings in the physical
+  # basis & applies a 4pi perturbativity constraint on each
+  # Likelihood type: Half-Gaussian
+  # Perturbativity check on lambdas and scalar couplings
+  - purpose:    LogLike
+    capability: perturbativity_likelihood_THDM
+
+  # Perturbativity check on h0 mass loop-corrections
+  # Checks that loop corrections to the pole mass of mh0
+  # do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: h0_loop_order_corrections
+    function: check_h0_loop_order_corrections
+  
+  # Checks that loop corrections to the pole masses of mH0,
+  # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  # Perturbativity check on other scalar mass loop-corrections
+  - purpose:    LogLike
+    capability: THDM_scalar_loop_order_corrections
+    function: check_THDM_scalar_loop_order_corrections
+
+  # ???? undocumented
+  # - purpose:    LogLike
+  #   capability: THDM_scalar_masses
+  #   function: check_THDM_scalar_masses
+
+  #-------------------------------------#
+  #      COLLIDER LIKELIHOODS           #
+  #-------------------------------------#
+
+  ### NOTE
+  # LHC & LEP likelihoods
+  # Coupling Squared input structs are filled by colliderBit,
+  # then chi^2 are extracted directly from HS & HB
+
+  # HB 5beta likelihood
+  - capability: LEP_Higgs_LogLike
+    function: calc_HB_5_LEP_LogLike
+    purpose: LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
+
+  # HS 2beta likelihood
+  - capability: LHC_Higgs_LogLike
+    function: calc_HS_2_LHC_LogLike
+    purpose: LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
+
+  #-------------------------------------#
+  #      PRECISION LIKELIHOODS          #
+  #-------------------------------------#
+
+  # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # & fits to meausured values. S, T, U involve a correlation matrix.
+  # Includes low-energy notation described in arxiv::9407203.
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: oblique_parameters_likelihood_THDM
+
+  #-------------------------------------#
+  #      FLAVOR LIKELIHOODS             #
+  #-------------------------------------#
+
+  #### NOTE
+  # Flavor likelihoods imported from Superiso
+  # Superiso is given SLHA struct filled with THDM input
+  # & then likelihoods may be called as intended
 
   # FlavBit.cpp:2193 (b->s gamma via HEPLike)
   - purpose:    LogLike
@@ -139,113 +258,17 @@ ObsLikes:
   - purpose:    LogLike
     capability: LUV_LL # LUV_likelihood
 
-  # PrecisionBit.cpp:1166
-  - purpose:    LogLike
-    capability: oblique_parameters_likelihood_THDM
 
-  # ColliderBit_Higgs.cpp:840
-  - capability: LEP_Higgs_LogLike
-    function: calc_HB_5_LEP_LogLike
-    purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
-
-  # ColliderBit_Higgs.cpp:1091
-  - capability: LHC_Higgs_LogLike
-    function: calc_HS_2_LHC_LogLike
-    purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
-
-  ###########################
-  # Likelihoods from SpecBit_THDM.cpp
-  ###########################
-
-  # TODO: needs to be modified
-  # Theoretical | SpecBit_THDM.cpp:3026 (stability of the THDM PED)
-  - purpose:    LogLike
-    capability: stability_likelihood_THDM
-
-  # Theoretical | SpecBit_THDM.cpp:2927 (unitarity of the S-matrix at NLO)
-  - purpose:    LogLike
-    capability: NLO_unitarity_likelihood_THDM
-
-  # Theoretical | SpecBit_THDM.cpp:2980 (perturbativity check on lambdas and scalar couplings)
-  - purpose:    LogLike
-    capability: perturbativity_likelihood_THDM
-
-  # Theoretical | SpecBit_THDM.cpp:3164 (perturbativity check on h0 mass loop-corrections)
-  - purpose:    LogLike
-    capability: h0_loop_order_corrections
-    function: check_h0_loop_order_corrections
-  
-  # Theoretical | SpecBit_THDM.cpp:2000 (perturbativity check on other scalar mass loop-corrections)
-  - purpose:    LogLike
-    capability: THDM_scalar_loop_order_corrections
-    function: check_THDM_scalar_loop_order_corrections
-
-  # ???? undocumented
-  - purpose:    LogLike
-    capability: THDM_scalar_masses
-    function: check_THDM_scalar_masses
+  #-------------------------------------#
+  #      DARK MATTER LIKELIHOODS        #
+  #-------------------------------------#
 
 
 
-    # ????????????????????
+#################################
+##          OBSERVABLES        ##
+#################################
 
-    # # SM nuisance parameter likelihoods
-    # - capability: lnL_t_mass
-    #   purpose:    LogLike
-
-    # - capability: lnL_mbmb
-    #   purpose:    LogLike
-
-    # - capability: lnL_mcmc
-    #   purpose:    LogLike
-
-    # - capability: lnL_light_quark_masses
-    #   purpose:    LogLike
-
-    # - capability: lnL_alpha_em
-    #   purpose:    LogLike
-
-    # - capability: lnL_alpha_s
-    #   purpose:    LogLike
-
-    # - capability: lnL_GF
-    #   purpose:  LogLike
-
-    # # Other observables
-    # - purpose:    Observable
-    #   capability: RD_oh2
-
-    # - purpose:    Observable
-    #   capability: mwimp
-
-    # - purpose:    Observable
-    #   capability: sigmav
-
-    # - purpose:    Observable
-    #   capability: sigma_SI_p
-
-    # - purpose:    Observable
-    #   capability: sigma_SI_n
-
-  # TODO: check extra Likelihoods from THDM.yaml
-
-  #################
-  # Observables
-  #################
 
   # THDM parameters
 
@@ -396,11 +419,12 @@ ObsLikes:
     purpose: Observable
      
 
-Rules:
 
-  ##############################
-  # Likelihood/Observable Rules
-  ##############################
+#################################
+##  RULES FOR RESOLVING DEPS   ##
+#################################
+
+Rules:
 
   - capability: THDM_spectrum
     function: get_THDM_spectrum
@@ -476,6 +500,7 @@ Rules:
     module: FlavBit
 
 
+
 #########################
 # Logging setup
 #########################
@@ -493,6 +518,8 @@ Logger:
     [Dependency Resolver] :  "DepResolver.log"
     [Scanner]:  "Scanner.log"
 
+
+
 ##########################
 # Name/Value Section
 ##########################
@@ -504,5 +531,5 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -5e7
     debug: false
     
-  default_output_path: "/home/alex/gambitOutput/"
+  default_output_path: "runs/"
   debug: false
