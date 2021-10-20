@@ -367,9 +367,9 @@ namespace Gambit
         // Make sure nothing from previous run is contained
         result.clear();
 
-         // Set relevant inputs for the scenario of s-wave annihilating DM
-         result["DM_annihilation_cross_section"] = *Param["sigmav"];
-         result["DM_annihilation_mass"] = *Param["mass"];
+        // Set relevant inputs for the scenario of s-wave annihilating DM
+        result["DM_annihilation_cross_section"] = *Param["sigmav"];
+        result["DM_annihilation_mass"] = *Param["mass"];
 
         // Get the results from the DarkAges tables that hold extra information to be passed to the CLASS thermodynamics structure
         static DarkAges::Energy_injection_efficiency_table fz;
@@ -421,8 +421,34 @@ namespace Gambit
 
         // Copy fz to cache
         cached_fz = fz;
+
+        // If "sigmav" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["sigmav"] > 0.0)) result.clear();
       }
 
+      void set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot(pybind11::dict &result)
+      {
+        using namespace Pipes::set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot;
+
+        // Make sure nothing from previous run is contained
+        result.clear();
+
+        // Get the value for f_eff.
+        const double f_eff = *Dep::f_eff;
+
+        // Set relevant inputs for the scenario of s-wave annihilating DM
+        // Scale "sigmav" by "f_eff" as CLASS will implicitly asume f_eff=1.
+        result["DM_annihilation_cross_section"] = (*Param["sigmav"]) * f_eff;
+        result["DM_annihilation_mass"] = *Param["mass"];
+
+        // Tell CLASS to use the on-the-spot approximation;
+        result["f_eff_type"] = "on_the_spot";
+
+        // If "sigmav" or "f_eff" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["sigmav"] > 0.0  && f_eff > 0.0)) result.clear();
+      }
 
       /// Set the parameters for exoCLASS for a scenario with decaying dark matter.
       void set_classy_parameters_EnergyInjection_DecayingDM(pybind11::dict &result)
@@ -433,9 +459,8 @@ namespace Gambit
         result.clear();
 
         // Set relevant inputs for the scenario of decaying DM
-        const ModelParameters& NP_params = *Dep::DecayingDM_general_parameters;
-        result["DM_decay_tau"] = NP_params.at("lifetime");
-        result["DM_decay_fraction"] = NP_params.at("fraction");
+        result["DM_decay_tau"] = *Param["lifetime"];
+        result["DM_decay_fraction"] = *Param["fraction"];
 
         // Get the results from the DarkAges tables that hold extra information to be passed to the CLASS thermodynamics structure
         static DarkAges::Energy_injection_efficiency_table fz;
@@ -487,6 +512,34 @@ namespace Gambit
 
         // Copy fz to cache
         cached_fz = fz;
+
+        // If "fraction" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["fraction"] > 0.0)) result.clear();
+      }
+
+      /// Set the parameters for exoCLASS for a scenario with decaying dark matter.
+      void set_classy_parameters_EnergyInjection_DecayingDM_onSpot(pybind11::dict &result)
+      {
+        using namespace Pipes::set_classy_parameters_EnergyInjection_DecayingDM_onSpot;
+
+        // Make sure nothing from previous run is contained
+        result.clear();
+
+        // Get the value for f_eff.
+        const double f_eff = *Dep::f_eff;
+
+        // Set relevant inputs for the scenario of decaying DM
+        // Scale "fraction" by "f_eff" as CLASS will implicitly asume f_eff=1.
+        result["DM_decay_tau"] = *Param["lifetime"];
+        result["DM_decay_fraction"] = (*Param["fraction"]) * f_eff;
+
+        // Tell CLASS to use the on-the-spot approximation;
+        result["f_eff_type"] = "on_the_spot";
+
+        // If "fraction" or "f_eff" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["fraction"] > 0.0  && f_eff > 0.0)) result.clear();
       }
 
       /// Add all inputs for CLASS needed to produce the correct output to be

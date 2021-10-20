@@ -61,6 +61,7 @@
 #  \author Sanjay Bloor
 #          (sanjay.bloor12@imperial.ac.uk)
 #  \date 2017 May
+#  \date 2018 Sep
 #
 #  \author Ankit Beniwal
 #      (ankit.beniwal@adelaide.edu.au)
@@ -85,6 +86,29 @@
 #  \date 2020 Mar
 #
 #************************************************
+
+
+# Target for downloading castxml (required by BOSS)
+set(name "castxml")
+set(dir "${CMAKE_SOURCE_DIR}/Backends/scripts/BOSS/castxml")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(castxml_dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
+  set(castxml_dl_filename "castxml-macosx.tar.gz")
+else()
+  set(castxml_dl "https://data.kitware.com/api/v1/file/57b5dea08d777f10f2696379/download")
+  set(castxml_dl_filename "castxml-linux.tar.gz")
+endif()
+ExternalProject_Add(${name}
+  DOWNLOAD_COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${dir} ${CMAKE_COMMAND} ${CMAKE_DOWNLOAD_FLAGS} ${castxml_dl} ${castxml_dl_filename}
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+)
+set(rmstring "${CMAKE_BINARY_DIR}/${name}-prefix/src/${name}-stamp/${name}")
+add_custom_target(nuke-castxml COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-download-failed ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update || true
+                               COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
+add_dependencies(nuke-all nuke-castxml)
+set_target_properties(castxml PROPERTIES EXCLUDE_FROM_ALL 1)
 
 
 # Compiler flags for AlterBBN
@@ -133,20 +157,20 @@ endif()
 
 # CaptnGeneral
 set(name "capgen")
-set(ver "1.0")
+set(ver "2.1")
 set(lib "gencaplib")
-set(dl "https://github.com/aaronvincent/captngen/archive/${ver}.tar.gz")
-set(md5 "410034ac91593c6695a8ed1751a4214c")
+set(dl "https://github.com/aaronvincent/captngen/archive/refs/tags/${ver}.tar.gz")
+set(md5 "128871ed6f0b61330c3d18571f01f2ab")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
-    INSTALL_COMMAND ""
+  DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+  SOURCE_DIR ${dir}
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FOPT=${BACKEND_Fortran_FLAGS} MODULE=${FMODULE}
+  INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
@@ -828,6 +852,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
+    DEPENDS castxml
     DEPENDS ${pythia_depends_on}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -1291,6 +1316,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
+    DEPENDS castxml
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
@@ -1321,6 +1347,7 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
+    DEPENDS castxml
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
@@ -1370,7 +1397,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-          DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+          DOWNLOAD_COMMAND IGNORE_HTTP_CERTIFICATE=1 ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
           SOURCE_DIR ${dir}
           BUILD_IN_SOURCE 1
           CONFIGURE_COMMAND ""
@@ -1426,10 +1453,12 @@ set(Minuit_include "${PROJECT_SOURCE_DIR}/Backends/installed/${Minuit_name}/${Mi
 set(Minuit_lib "${PROJECT_SOURCE_DIR}/Backends/installed/${Minuit_name}/${Minuit_ver}/lib/")
 set(VPP_CMAKE_FLAGS -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR} -DBoost_INCLUDE_DIR=${Boost_INCLUDE_DIR} -DWITHIN_GAMBIT=True -DSILENT_MODE=TRUE -DMinuit_include=${Minuit_include} -DMinuit_lib=${Minuit_lib})
 set(VPP_FLAGS "${BACKEND_CXX_FLAGS} -Wno-unused-local-typedefs -I./include/ -I./include/LHPC/ -I${Boost_INCLUDE_DIR} -I${EIGEN3_INCLUDE_DIR} -I${Minuit_include}")
+set_compiler_warning("no-unused-parameter" VPP_FLAGS)
 set(BOSSregex "s#cpp)#cpp   source/BOSS_factory_VevaciousPlusPlus.cpp       source/BOSS_wrapperutils.cpp        source/BOSS_VevaciousPlusPlus.cpp)#g")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
+          DEPENDS castxml
           DEPENDS ${Minuit_name}_${Minuit_ver}
           DEPENDS phc_${phc_ver}
           DEPENDS hom4ps_${hom4ps_ver}
@@ -1470,6 +1499,26 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# DirectDM
+set(name "directdm")
+set(ver "2.2.0")
+set(dl "https://github.com/DirectDM/directdm-py/archive/v2.2.0.tar.gz")
+set(md5 "c22d26ae7bec44bbfe1eb5f4306a23e0")
+set(lib "libdirectdm")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # CalcHEP
 set(name "calchep")
@@ -2004,6 +2053,7 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
 
 # Alternative download command for getting unreleased things from the gambit_internal repository.
 # If you don't know what that is, you don't need to tinker with these.

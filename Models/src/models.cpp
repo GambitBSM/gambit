@@ -99,6 +99,28 @@ namespace Gambit
 
     }
 
+    /// Searches primary model functor list for specificed model
+    primary_model_functor* ModelFunctorClaw::getPrimaryModelFunctor(const std::string modelname, const primodel_vec& primaryModelFunctors) const
+    {
+      primary_model_functor* result;
+
+      // Find primary model functor with matching name
+      auto it = std::find_if(std::begin(primaryModelFunctors), std::end(primaryModelFunctors), 
+                 [&] (primary_model_functor* f) {return f->getcontentsPtr()->getModelName() == modelname;});
+
+      if(it != primaryModelFunctors.end())
+      {
+          result = *it;
+      }
+      else
+      {
+          std::stringstream err;
+          err<<"No primary model functor with model name "<<modelname<<" was found! Please check the input name for typos!";
+          model_error().raise(LOCAL_INFO,err.str());
+      }
+      return result;
+    }
+
     /// Return set of all models recognised by GAMBIT
     const std::set<str>& ModelFunctorClaw::get_allmodels() const { return allmodelnames; }
 

@@ -510,6 +510,13 @@ nuclear_params_sigmas_sigmal: |
 
    The same as nuclear_params_fnq, but with the replacement of the six quark content matrix elements by the matrix element sigma0 and the strange quark content of the nucleon sigmas. See the GAMBIT core paper for details and definitions.
 
+nuclear_params_ChPT: |
+
+   Model of nuclear matrix elements relevant for chiral perturbation theory in the context of direct detection. This is primarily designed for the interface with DirectDM, and the naming of the parameters corresponds to the one given in 1708.02678.
+
+nuclear_params_ChPT_sigmapiN: |
+   Model of nuclear matrix elements relevant for chiral perturbation theory in the context of direct detection. This is a daughter model of nuclear_params_ChPT where sigma(u,d)(p,n) are calculated in terms of sigmapiN
+
 nuclear_params_neutron_lifetime : |
 
    Model for the neutron lifetime (parameter name neutron_lifetime [s]).
@@ -607,6 +614,21 @@ RightHandedNeutrinos_diff: |
 
 StandardModel_mNudiff: |
    Daughter model of the StandardModel_SLHA2 where the masses of neutrinos have been substituted by mass differences and the absolute lightest neutrino mass.
+
+NREO_scalarDM: |
+   Non-relativistic effective operator model for scalar DM, coupling constants as defined in: https://arxiv.org/abs/1501.03729
+
+NREO_DiracDM: |
+   Non-relativistic effective operator model for Dirac DM, coupling constants as defined in: https://arxiv.org/abs/1501.03729
+
+NREO_MajoranaDM: |
+   Non-relativistic effective operator model for Majorana DM, coupling constants as defined in: https://arxiv.org/abs/1501.03729
+
+WIMP_sigmav: |
+   General A + Bv^2 parameterisation of WIMP self-annihilation to all SM two-body final states
+
+DMEFT: |
+   Effective field theory model of Dirac DM. The parameters of the model are the DM Mass, mchi, the new physics scale, Lambda, the MSbar running top mass, mtrunIN, and the dimensions I=5,6,7 Wilson coefficients, CIJ
 
 ############################
 # Cosmology related models #

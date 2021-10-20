@@ -265,7 +265,7 @@ MathTest_Gammafunc: |
    Test function for Mathematica backends for testing non-alphanumerical characters in function names.
 
 MathTest_deltabar: |
-   Test function for Mamthematica backends for tsting non-alphanumerical characters in variable names.
+   Test function for Mathematica backends for testing non-alphanumerical characters in variable names.
 
 a_cap: |
    Example function demonstrating the usage of capabilities within a model namespace.
@@ -279,6 +279,12 @@ large_print: |
 #-------------------------------------
 #  SpecBit
 #-------------------------------------
+
+#####  DMEFT  #####
+
+DMEFT_spectrum: |
+    The spectrum for the DMEFT model.
+
 
 #####  Scalar singlet Higgs-portal models  #####
 
@@ -532,6 +538,17 @@ IdentityAnalysisNumbers: |
 
 AllAnalysisNumbers: |
    Combined analysis numbers from all LHC analyses used in a scan.
+
+AllAnalysisNumbersUnmodified: |
+   A version of the AllAnalysisNumbers capability for use with ColliderBit analyses 
+   based on interpolated yields. AllAnalysisNumbersUnmodified is the collection
+   of all analysis numbers before any subsequent modificiation, e.g. due to 
+   EFT validity constraints.
+
+DMEFT_profiled_LHC_nuisance_params: |
+   Information on the result of profiling out the nuisance parameter 'a' in collider
+   signal predictions for the DMEFT model. This parameter is used to smoothly suppress 
+   signal predictions for MET bins with MET > Lambda.
 
 ALEPH_Selectron_LLike: |
    Compares the cross section times branching ratio
@@ -1176,8 +1193,17 @@ get_DD_couplings: |
 DD_couplings_fermionic_HP: |
    Provides WIMP mass and couplings to nucleons for Higgs-Portal models with fermionic DM.
 
+WIMP_properties: |
+   Container for WIMP properties: mass, spin and self-conjugate
+
 mwimp: |
    DM mass in GeV.
+
+spinwimpx2: |
+   Spin of DM x2
+
+wimp_sc: |
+   Is the DM candidate self conjugate
 
 sigmav: |
    Thermally averaged annihilation cross section <sigma v>, for v=0, in cm^3 s^-1.
@@ -2071,14 +2097,41 @@ lnL_SI_nuclear_parameters: |
 lnL_SD_nuclear_parameters: |
    The log-likehood for the spin-dependent nuclear parameters.
 
-SimYieldTable: |
-   Table of simulated particle yields.
+lnL_nuclear_parameters_ChPT: |
+   Log Likelihood for the nuisance parameters ChPT in DirectDM 2.2.0
 
-GA_missingFinalStates: |
-   Final states that are not avaialable with tabulated spectra.
+FullSimYieldTable: |
+   Table of all simulated particle yields.
+
+GA_SimYieldTable: |
+   Table of simulated gamma-ray yields.
+
+electron_SimYieldTable: |
+   Table of simulated electron yields.
+
+positron_SimYieldTable: |
+   Table of simulated positron yields.
+
+antiproton_SimYieldTable: |
+   Table of simulated antiproton yields.
+
+antideuteron_SimYieldTable: |
+   Table of simulated antideuteron yields.
 
 GA_Yield: |
    Calculate the gamma-ray yield from the process catalogue.
+
+electron_Yield: |
+   Calculate the electron yield from the process catalogue.
+
+positron_Yield: |
+   Calculate the positron yield from the process catalogue.
+
+antiproton_Yield: |
+   Calculate the antiproton yield from the process catalogue.
+
+antideuteron_Yield: |
+   Calculate the antideuteron yield from the process catalogue.
 
 DM_process: |
    Returns a string based on the nature of the DM process used for indirect detection (either annihilation or decay).
@@ -2095,11 +2148,25 @@ cascadeMC_DecayTable: |
 cascadeMC_gammaSpectra: |
    Gamma-ray spectrum from cascade decays.
 
+cascadeMC_electronSpectra: |
+   Electron spectrum from cascade decays.
+
+cascadeMC_positronSpectra: |
+   Positron spectrum from cascade decays.
+
+cascadeMC_antiprotonSpectra: |
+   Anti-proton spectrum from cascade decays.
+
+cascadeMC_antideuteronSpectra: |
+   Anti-deuteron spectrum from cascade decays.
+
 cascadeMC_LoopManagement: |
    Controls the loop for the cascade decay Monte Carlo simulation.
 
-cascadeMC_InitialState: |
-   The intial state for the cascade decay chain.
+cascadeMC_InitialStates: |
+   The set of initial states for the cascade decay chain, consisting of
+   those hard process final states for which one or more spectra (gammas,
+   positrons, pbars, etc) are not available already in tabulated form.
 
 cascadeMC_EventCount: |
    Event counter for cascade decays.
@@ -2254,11 +2321,27 @@ DarkSUSY5_PointInit_LocalHalo: |
 DarkSUSY_PointInit_LocalHalo: |
    Initialises Milky Way halo model parameters in DarkSUSY6+
 
-dump_GammaSpectrum: |
+dump_gammaSpectrum: |
    Dumps gamma-ray yield into ASCII table
+
+dump_electronSpectrum: |
+   Dumps electron yield into ASCII table
+
+dump_positronSpectrum: |
+   Dumps positron yield into ASCII table
+
+dump_antiprotonSpectrum: |
+   Dumps antiproton yield into ASCII table
+
+dump_antideuteronSpectrum: |
+   Dumps antideuteron yield into ASCII table
 
 UnitTest_DarkBit: |
    Prints various DarkBit results into YAML file.
+
+#-------------------------------
+# Direct Detection capabilities
+#-------------------------------
 
 DD_SetDetectorEmin: |
    Sets the minimum recoil energy relevant for a given direct detection experiment.
@@ -2280,6 +2363,15 @@ DDCalc_2_1_0_init: |
 
 DDCalc_2_2_0_init: |
    Initialises DDCalc 2.2.0.
+
+DDCalc_Couplings: |
+   Initialise DDCalc couplings from a given DM interaction basis.
+
+DD_nonrel_WCs: |
+   Non-relativistic Wilson coefficients
+
+DD_rel_WCs_flavscheme: |
+   Relativistic Wilson coefficients defined in the 5(or 4 or 3) flavscheme
 
 DD_Experiment: |
    The name of the DDcalc experiment corresponding to a specific experiment index.
@@ -2430,6 +2522,9 @@ SetWIMP_higgsportal: |
 
 SetWIMP_NREffectiveTheory: |
    Sets the WIMP parameters m, spin for a non-relativistic effective field theory.
+
+SetWIMP_NREFT_CPT: |
+   Sets the WIMP parameters m, spin for a non-relativistic effective field theory with corrections from CPT
 
 GetNRCoefficient: |
    Get the value of a given non-relativistic operator
@@ -3184,6 +3279,9 @@ lnL_mbmb : |
 lnL_t_mass : |
    Log-likelihood of the top quark pole mass.
 
+lnL_mtrun : |
+   Log-likelihood of the MSbar running top mass.
+
 lnL_Z_mass : |
    Log-likelihood of the Z boson pole mass.
 
@@ -3856,6 +3954,9 @@ supbar_r_decay_rates: |
 #  Model capabilities
 #-------------------------------------
 
+DMEFT_parameters: |
+   Parameters for the DMEFT model (see ./gambit DMEFT)
+
 Halo_Einasto_parameters: |
    Parameters of the Einasto halo profile (rho0, rhos, vrot, v0, vesc, rs, r_sun, alpha).
    See also ./gambit Halo_Einasto
@@ -4090,6 +4191,12 @@ nuclear_params_sigma0_sigmal_parameters: |
 nuclear_params_sigmas_sigmal_parameters: |
    Parameters for the model nuclear_params_sigmas_sigmal (see ./gambit nuclear_params_sigmas_sigmal)
 
+nuclear_params_ChPT_parameters: |
+   Parameters for the model nuclear_params_ChPT (see ./gambit nuclear_params_ChPT)
+
+nuclear_params_ChPT_sigmapiN_parameters: |
+   Parameters for the model nuclear_params_ChPT_sigmapiN (see ./gambit nuclear_params_ChPT_sigmapiN)
+
 nuclear_params_neutron_lifetime_parameters: |
    Model for the neutron lifetime.
    See ./gambit nuclear_params_neutron_lifetime for details.
@@ -4108,7 +4215,20 @@ ColliderBit_SLHA_scan_model_parameters: |
    Parameters for the ColliderBit dummy model ColliderBit_SLHA_scan_model.
    See ./gambit ColliderBit_SLHA_scan_model_parameters for details.
 
+NREO_scalarDM_parameters: |
+   Parameters for the model Non-Relativistic Effective Operator model of scalar dark matter
+   See ./gambit NREO_scalarDM for details
 
+NREO_DiracDM_parameters: |
+   Parameters for the model Non-Relativistic Effective Operator model of Dirac dark matter
+   See ./gambit NREO_DiracDM for details
+
+NREO_MajoranaDM_parameters: |
+   Parameters for the model Non-Relativistic Effective Operator model of Majorana dark matter
+   See ./gambit NREO_MajoranaDM for details
+
+WIMP_sigmav_parameters: |
+   Parameters for the WIMP_sigmav (see ./gambit WIMP_sigmav)
 
 #-------------------------------------
 #  FeynHiggs capabilities
@@ -4613,6 +4733,16 @@ DarkAges_1_2_0_init: |
 
 get_energy_injection_efficiency_table: |
    Get the energy injection efficiency table from the DarkAges frontend
+
+f_eff: |
+   Effective energy injection effeciency (constant used for on-the-spot approximation)
+
+p_ann: |
+   Annihilation rate (p_ann = f_eff * f^2 * <sv>/m)
+   Unit: cm^3 s^-1 GeV^-1
+
+lnL_p_ann: |
+   Profiled likelihood on p_ann
 
 #----------------------------
 #  CosmoBit Models
@@ -5339,8 +5469,8 @@ RHN_coupling_slide: |
 #  Capgen capabilities
 #-------------------------------------
 
-CaptnGeneral_1_0_init: |
-  Initialize Captn' general backend.
+CaptnGeneral_2_1_init: |
+  Initialize Captn' general 2.1 backend.
 
 captn_init: |
   Actually initialize Captn' general.
@@ -5350,6 +5480,108 @@ cap_sun_saturation: |
 
 cap_Sun_vnqn_isoscalar: |
   Compute v^n or q^n solar capture rate.
+
+captn_init_oper: |
+  Initalizes stuff specific to non-relativistic effective operator method
+
+captn_NREO: |
+  Computes capture rate using non-relativistic effective operator method
+
+captn_populate_array: |
+  Inserts the desired value for the constant picked by its indices
+
+c0_1_cap: |
+  The c^{0}_{1} coupling constant from arxiv 1501.03729
+
+c0_2_cap: |
+  The c^{0}_{2} coupling constant from arxiv 1501.03729
+
+c0_3_cap: |
+  The c^{0}_{3} coupling constant from arxiv 1501.03729
+
+c0_4_cap: |
+  The c^{0}_{4} coupling constant from arxiv 1501.03729
+
+c0_5_cap: |
+  The c^{0}_{5} coupling constant from arxiv 1501.03729
+
+c0_6_cap: |
+  The c^{0}_{6} coupling constant from arxiv 1501.03729
+
+c0_7_cap: |
+  The c^{0}_{7} coupling constant from arxiv 1501.03729
+
+c0_8_cap: |
+  The c^{0}_{8} coupling constant from arxiv 1501.03729
+
+c0_9_cap: |
+  The c^{0}_{9} coupling constant from arxiv 1501.03729
+
+c0_10_cap: |
+  The c^{0}_{10} coupling constant from arxiv 1501.03729
+
+c0_11_cap: |
+  The c^{0}_{11} coupling constant from arxiv 1501.03729
+
+c0_12_cap: |
+  The c^{0}_{12} coupling constant from arxiv 1501.03729
+
+c0_13_cap: |
+  The c^{0}_{13} coupling constant from arxiv 1501.03729
+
+c0_14_cap: |
+  The c^{0}_{14} coupling constant from arxiv 1501.03729
+
+c0_15_cap: |
+  The c^{0}_{15} coupling constant from arxiv 1501.03729
+
+c1_1_cap: |
+  The c^{1}_{1} coupling constant from arxiv 1501.03729
+
+c1_2_cap: |
+  The c^{1}_{2} coupling constant from arxiv 1501.03729
+
+c1_3_cap: |
+  The c^{1}_{3} coupling constant from arxiv 1501.03729
+
+c1_4_cap: |
+  The c^{1}_{4} coupling constant from arxiv 1501.03729
+
+c1_5_cap: |
+  The c^{1}_{5} coupling constant from arxiv 1501.03729
+
+c1_6_cap: |
+  The c^{1}_{6} coupling constant from arxiv 1501.03729
+
+c1_7_cap: |
+  The c^{1}_{7} coupling constant from arxiv 1501.03729
+
+c1_8_cap: |
+  The c^{1}_{8} coupling constant from arxiv 1501.03729
+
+c1_9_cap: |
+  The c^{1}_{9} coupling constant from arxiv 1501.03729
+
+c1_10_cap: |
+  The c^{1}_{10} coupling constant from arxiv 1501.03729
+
+c1_11_cap: |
+  The c^{1}_{11} coupling constant from arxiv 1501.03729
+
+c1_12_cap: |
+  The c^{1}_{12} coupling constant from arxiv 1501.03729
+
+c1_13_cap: |
+  The c^{1}_{13} coupling constant from arxiv 1501.03729
+
+c1_14_cap: |
+  The c^{1}_{14} coupling constant from arxiv 1501.03729
+
+c1_15_cap: |
+  The c^{1}_{15} coupling constant from arxiv 1501.03729
+
+jwimp: |
+  Spin of the Dark Matter particle created with map_to_cap() in NREO model.
 
 #-------------------------------------
 #  CalcHEP capabilities
@@ -5411,6 +5643,19 @@ Rivet_3_0_0_init: |
   Initialise Rivet backend
 
 
+#---------------------
+# DirecDM capabilities
+#---------------------
+
+DirectDM_2_2_0_init: |
+  Initialise the DirectDM backend
+
+get_NR_WCs_flav: |
+  Get Wilson Coefficients at 2 GeV in a quark flavour matching scheme.
+
+DirectDMNuisanceParameters: |
+  Extract the nuisance parameters for DirectDM as a map
+
 #--------------------------------
 #  Vacuum stability capabilities
 #--------------------------------
@@ -5444,7 +5689,6 @@ vevacious_1_0_init: |
 
 pass_spectrum_to_vevacious: |
     Adds all entries of the spectrum object (as SLHAea) that need to be passed to vevacious to an instance of type SpectrumEntriesForVevacious and returns this instance. The actual passing happens in the helper function exec_pass_spectrum_to_vevacious which gets executed every time before a vevacious call. Model dependent.
-
 
 #-------------------------------------
 #  ObjectivesBit capabilities

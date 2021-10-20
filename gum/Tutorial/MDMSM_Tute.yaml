@@ -2,7 +2,7 @@
 #
 #      GUM Tutorial - Majorana DM + scalar mediator (MDMSM)
 #
-#      Likelihoods for DM only! 
+#      Likelihoods for DM only!
 #
 #        - Direct detection: MicrOMEGAs + DDCalc
 #        - Indirect detection (Fermi) - CalcHEP + DarkSUSY + gamlike
@@ -17,7 +17,7 @@ Parameters:
 
   StandardModel_Higgs:
     mH: 125.09
-    
+
   MDMSM:
     mchi:
       range: [45, 10000]
@@ -30,7 +30,7 @@ Parameters:
       prior_type: log
     cY:
       range: [1e-4, 12.566]
-      prior_type: log 
+      prior_type: log
 
   # Default halo parameters for the example
   Halo_gNFW_rho0:
@@ -43,7 +43,7 @@ Parameters:
     alpha: 1
     beta: 3
     gamma: 1
-  
+
   # Nuclear matrix parameters.
   nuclear_params_sigmas_sigmal:
     sigmas: 43
@@ -68,19 +68,19 @@ Printer:
 
 
 ObsLikes:
-  
+
   # Relic density
   - capability: lnL_oh2
     purpose: LogLike
-  
+
   # Indirect detection
   - capability: lnL_FermiLATdwarfs
     purpose: LogLike
-  
+
   # Direct detection
   - capability: LUX_2016_LogLikelihood
     purpose: LogLike
-  
+
   - capability: XENON1T_2018_LogLikelihood
     purpose: LogLike
 
@@ -109,22 +109,22 @@ Rules:
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2
     function: lnL_oh2_upperlimit
-  
+
   # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
   - capability: lnL_FermiLATdwarfs
     function: lnL_FermiLATdwarfs_gamLike
-  
+
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
-  
+
   # Choose to rescale signals in direct and indirect detection by the relic density fraction
   - capability: RD_fraction
     function: RD_fraction_leq_one
 
-  # Choose to use DarkSUSY's yield tables for indirect detection
-  - capability: SimYieldTable
-    function: SimYieldTable_MicrOmegas
+  # Choose to use MicrOmegas yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_MicrOmegas
     options:
       allow_yield_extrapolation: true
 

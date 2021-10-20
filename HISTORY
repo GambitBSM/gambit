@@ -3,6 +3,26 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.1.0
+Feature release
+- Added routines for DM Effective Field Theory
+- Added support for non-renormalizable operators
+- Added citation references for backends and modules
+- Added functionality for using interpolated yields in ColliderBit
+- Added functionality for likelihood modifiers
+- Added energy injection efficiency to CosmoBit
+- Added generic interpolation routines
+- Extended cascades to include electrons, positrons, antiprotons and antideuterons
+- Support for Capt'n General 2.1
+- Support for DirectDM 2.2.0
+- Updated relic density values with 2018 results
+- Updated python scripts to python3 format
+- Discontinued support of Capt'n general 1.0
+- Fixed GSL config location in FlexibleSUSY build
+- Fixed electron mass in SUSY-HIT interface
+- Fixed decay routines in GUM
+- Increased Boost version requirement to 1.48
+
 v2.0.0
 Major feature release
 - Added GUM: autogeneration of GAMBIT code from lagrangians

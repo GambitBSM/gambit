@@ -340,71 +340,71 @@ int main()
     // ---- Gamma-ray yields ----
 
     // Initialize tabulated gamma-ray yields
-    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
-    SimYieldTable_DarkSUSY.reset_and_calculate();
+    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    GA_SimYieldTable_DarkSUSY.reset_and_calculate();
+    Combine_SimYields.resolveDependency(&GA_SimYieldTable_DarkSUSY);
+    // Here we need to establish the dependency chain from Combine_SimYields down to cascadeMC_gammaSpectra
+    // *before* Combine_SimYields runs in order for it to correctly realise that it needs to enable gammas.
+    cascadeMC_InitialStates.resolveDependency(&Combine_SimYields);
+    cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_InitialStates);
+    Combine_SimYields.reset_and_calculate();
 
     // Identify process as annihilation rather than decay
     DM_process_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     DM_process_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     DM_process_from_ProcessCatalog.reset_and_calculate();
 
-    // Collect missing final states for simulation in cascade MC
-    GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
-    GA_missingFinalStates.resolveDependency(&SimYieldTable_DarkSUSY);
-    GA_missingFinalStates.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
-    GA_missingFinalStates.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
-    GA_missingFinalStates.resolveDependency(&DM_process_from_ProcessCatalog);
-    GA_missingFinalStates.reset_and_calculate();
-
     // Infer for which type of final states particles MC should be performed
-    cascadeMC_FinalStates.setOption<std::vector<std::string>>("cMC_finalStates", daFunk::vec<std::string>("gamma"));
+    cascadeMC_FinalStates.setOption<std::vector<std::string>>("cMC_finalStates", daFunk::vec((std::string)"gamma"));
+    // Here we need to establish the dependency chain from cascadeMC_FinalStates down to cascadeMC_gammaSpectra
+    // *before* cascadeMC_FinalStates runs in order for it to correctly realise that it needs to enable gammas.
+    cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_FinalStates);
     cascadeMC_FinalStates.reset_and_calculate();
+
+    // Set up initial states for cascade MC
+    cascadeMC_InitialStates.resolveDependency(&cascadeMC_FinalStates);
+    cascadeMC_InitialStates.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    cascadeMC_InitialStates.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
+    cascadeMC_InitialStates.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
+    cascadeMC_InitialStates.resolveDependency(&DM_process_from_ProcessCatalog);
+    cascadeMC_InitialStates.reset_and_calculate();
 
     // Collect decay information for cascade MC
     cascadeMC_DecayTable.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
-    cascadeMC_DecayTable.resolveDependency(&SimYieldTable_DarkSUSY);
+    cascadeMC_DecayTable.resolveDependency(&Combine_SimYields);
     cascadeMC_DecayTable.reset_and_calculate();
 
     // Set up MC loop manager for cascade MC
-    cascadeMC_LoopManager.resolveDependency(&GA_missingFinalStates);
+    cascadeMC_LoopManager.resolveDependency(&cascadeMC_InitialStates);
     std::vector<functor*> nested_functions = initVector<functor*>(
-        &cascadeMC_InitialState, &cascadeMC_GenerateChain, &cascadeMC_Histograms, &cascadeMC_EventCount);
+        &cascadeMC_GenerateChain, &cascadeMC_Histograms, &cascadeMC_EventCount);
     cascadeMC_LoopManager.setNestedList(nested_functions);
 
-    // Set up initial state for cascade MC step
-    cascadeMC_InitialState.resolveDependency(&GA_missingFinalStates);
-    cascadeMC_InitialState.resolveLoopManager(&cascadeMC_LoopManager);
-
     // Perform MC step for cascade MC
-    cascadeMC_GenerateChain.resolveDependency(&cascadeMC_InitialState);
     cascadeMC_GenerateChain.resolveDependency(&cascadeMC_DecayTable);
     cascadeMC_GenerateChain.resolveLoopManager(&cascadeMC_LoopManager);
 
     // Generate histogram for cascade MC
-    cascadeMC_Histograms.resolveDependency(&cascadeMC_InitialState);
     cascadeMC_Histograms.resolveDependency(&cascadeMC_GenerateChain);
     cascadeMC_Histograms.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
-    cascadeMC_Histograms.resolveDependency(&SimYieldTable_DarkSUSY);
+    cascadeMC_Histograms.resolveDependency(&Combine_SimYields);
     cascadeMC_Histograms.resolveDependency(&cascadeMC_FinalStates);
     cascadeMC_Histograms.resolveLoopManager(&cascadeMC_LoopManager);
 
     // Check convergence of cascade MC
-    cascadeMC_EventCount.resolveDependency(&cascadeMC_InitialState);
     cascadeMC_EventCount.resolveLoopManager(&cascadeMC_LoopManager);
 
     // Start cascade MC loop
     cascadeMC_LoopManager.reset_and_calculate();
 
     // Infer gamma-ray spectra for recorded MC results
-    cascadeMC_gammaSpectra.resolveDependency(&GA_missingFinalStates);
-    cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_FinalStates);
     cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_Histograms);
     cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_EventCount);
     cascadeMC_gammaSpectra.reset_and_calculate();
 
     // Calculate total gamma-ray yield (cascade MC + tabulated results)
     GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
-    GA_AnnYield_General.resolveDependency(&SimYieldTable_DarkSUSY);
+    GA_AnnYield_General.resolveDependency(&GA_SimYieldTable_DarkSUSY);
     GA_AnnYield_General.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
     GA_AnnYield_General.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
     GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);

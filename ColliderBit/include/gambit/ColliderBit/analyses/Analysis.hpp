@@ -72,10 +72,10 @@ namespace Gambit
         const AnalysisData& get_results();
         /// An overload of get_results() with some additional consistency checks.
         const AnalysisData& get_results(str&);
-        /// Get a pointer to _results.
-        const AnalysisData* get_results_ptr();
-        /// Get a pointer to _results.
-        const AnalysisData* get_results_ptr(str&);
+        /// Get a (non-const!) pointer to _results.
+        AnalysisData* get_results_ptr();
+        /// An overload of get_results_ptr() with some additional consistency checks.
+        AnalysisData* get_results_ptr(str&);
         ///@}
 
         /// Scale by xsec per event.

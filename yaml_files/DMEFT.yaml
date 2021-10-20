@@ -1,0 +1,447 @@
+#######################################################################################################################################
+## GAMBIT configuration file for a Diver scan of the DMEFT model
+##
+## Constrains: relic density, gamma rays, solar neutrinos, CMB, direct detection, LHC likelihood (full and profile cut-off by default). 
+## 
+## 16 model parameters (mchi, Lambda, C61-64 and C71-C710 (WCs for Dim-6 & Dim-7 operators))
+## 8 nuisance parameters (mtrunIN, rho0, v0, vesc, sigmapiN, Deltas, gTs, rs2)
+########################################################################################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+     mH: 125.10 # PDG 2020 value
+
+  DMEFT:
+    # DM mass
+    mchi:
+      prior_type: log
+      range: [5.,1.5e5]
+    # Scale of new physics
+    Lambda:
+      prior_type: log
+      range: [20.,3.e5]
+    # EM interactions (only turn on at loop-level -- not concerned with these)
+    C51: 0.
+    C52: 0.
+    # Dim 6 -- qq chi chi bilinears
+    # vector vector
+    C61:
+      #range: [-1, 1] # Heavily constrained by direct detection
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # axial-vector vector
+    C62: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # vector axial-vector
+    C63: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # axial-vector axial-vector
+    C64: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # Dim 7 -- gluons
+    C71: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    C72: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    C73:
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    C74: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # Dim 7 -- Higgs induced bilinears
+    # Scalar scalar
+    C75: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # Pseudoscalar scalar
+    C76: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # Scalar pseudoscalar
+    C77: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # Pseudoscalar pseudoscalar
+    C78: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # Dim 7 -- tensor currents
+    # sigma sigma
+    C79: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # sigma*ig5 sigma
+    C710: 
+      #range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    # Top running mass - this overrides the SM top pole mass parameter
+    mtrunIN:
+      range: [157.05, 168.75]
+
+  # NFW profile
+  Halo_gNFW_rho0:
+    rho0:
+      range: [0.2, 0.8]
+    v0:
+      range: [216, 264]
+    vesc:
+      range: [453, 603]
+    vrot: 
+      same_as: Halo_gNFW_rho0::v0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+  # Chiral nuclear parameters for DirectDM
+  nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_scan.yaml
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+ObsLikes:
+
+  # Relic density
+  - capability: lnL_oh2
+    purpose:    LogLike
+
+  - capability: RD_oh2
+    purpose: Observable
+
+  # Direct detection
+  - capability: LUX_2016_LogLikelihood
+    purpose:    LogLike
+
+  - capability: XENON1T_2018_LogLikelihood
+    purpose:    LogLike
+
+  - capability: PandaX_2016_LogLikelihood
+    purpose:    LogLike
+
+  - capability: PandaX_2017_LogLikelihood
+    purpose:    LogLike
+
+  - capability: PICO_60_2017_LogLikelihood
+    purpose:    LogLike
+    
+  - capability: PICO_60_2019_LogLikelihood
+    purpose:    LogLike
+
+  - capability: CRESST_III_LogLikelihood
+    purpose:    LogLike
+
+  - capability: CRESST_II_LogLikelihood
+    purpose:    LogLike
+
+  - capability: CDMSlite_LogLikelihood
+    purpose:    LogLike
+
+  - capability: DarkSide_50_LogLikelihood
+    purpose:    LogLike
+
+  # Indirect detection
+  - capability: lnL_FermiLATdwarfs
+    purpose:    LogLike
+
+  - capability: sigmav
+    purpose:    Observable
+
+  - capability: IC79_loglike
+    purpose: LogLike
+
+  # Cosmo likelihoods and observables
+  - capability: lnL_p_ann
+    purpose: LogLike
+
+  - capability: p_ann
+    purpose: Observable
+
+  - capability: f_eff
+    purpose: Observable
+
+  # LHC likelihoods
+  - capability: LHC_Combined_LogLike
+    purpose:    LogLike
+    module:     ColliderBit
+    type: double
+
+    # Get details about the nuisance parameter 'a'
+    # Remove if using the function DMEFT_results_cutoff to fulfil AllAnalysisNumbers
+  - capability: DMEFT_profiled_LHC_nuisance_params
+    purpose:    Observable
+
+  ## Nuisance parameters
+  # DM Local Halo likelihoods
+  - capability: lnL_rho0
+    purpose: LogLike
+
+  - capability: lnL_v0
+    purpose: LogLike
+
+  - capability: lnL_vesc
+    purpose: LogLike
+
+  # Top running mass
+  - capability: lnL_mtrun
+    purpose:    LogLike
+
+  # DirectDM nuisance parameters 
+  - capability: lnL_nuclear_parameters_ChPT
+    purpose: LogLike
+    
+Rules:
+
+  # Relic density likelihood
+  - capability: lnL_oh2
+    # Choose to implement the relic density likelihood as an upper bound, not a detection
+    function: lnL_oh2_upperlimit
+    # Choose to implement the relic density likelihood as a detection
+    # function: lnL_oh2_Simple
+    options: # Planck 2018 values
+      oh2_obs: 0.120
+      oh2_obserr: 0.001
+      oh2_fractional_theory_err: 0.01
+
+    options: # Planck 2018 values
+      oh2_obs: 0.120
+      oh2_obserr: 0.001
+      oh2_fractional_theory_err: 0.01
+
+  # Choose to rescale signals in direct and indirect detection by the relic density fraction
+  - capability: RD_fraction
+    function: RD_fraction_leq_one
+    options: # Planck 2018 values
+      oh2_obs: 0.120
+
+  # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
+  # Consult the DarkBit manual for the required options in each case
+  - capability: RD_oh2
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
+    options:
+      # these options are identical for DS5 and DS6+ version
+      fast: 1  # 0: standard, 1: fast (default)
+    #function: RD_oh2_DarkSUSY_DS5
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
+    #  omtype: 1  # 0: no coann, 1: all coann (default)
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast
+    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
+
+  # Choose to set to zero yields out of range of the tables
+  - module: DarkBit
+    options:
+      out_of_range_zero_yield: true
+
+  # Choose to use DarkSUSY yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    #function: GA_SimYieldTable_DS5
+    function: GA_SimYieldTable_DarkSUSY
+    options:
+      allow_yield_extrapolation: true
+
+  # Also need to choose which tables to use for positrons,
+  # antideuterons, and antiprotons (or opt for empty tables)
+  - capability: positron_SimYieldTable
+    #function: positron_SimYieldTable_empty
+    function: positron_SimYieldTable_DarkSUSY
+
+  - capability: antiproton_SimYieldTable
+    #function: antiproton_SimYieldTable_empty
+    function: antiproton_SimYieldTable_DarkSUSY
+
+  - capability: antideuteron_SimYieldTable
+    #function: antideuteron_SimYieldTable_empty
+    function: antideuteron_SimYieldTable_DarkSUSY
+
+  # Take the electron yields directly from the positron yields
+  # (So far it is the only option, may change in the future)
+  - capability: electron_SimYieldTable
+    function: electron_SimYieldTable_from_positron_SimYieldTable
+
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+
+  - capability: electron_Yield
+    function: electron_AnnYield_General
+
+  - capability: positron_Yield
+    function: positron_AnnYield_General
+
+  - capability: capture_rate_Sun
+    function: capture_rate_Sun_NREO
+
+  # Tell DarkAges to calculate f_eff(z)
+  - capability: DarkAges_1_2_0_init
+    options:
+      f_eff_mode: true
+
+  # Calculate the constant f_eff by convolution of f_eff(z) with a weighting function
+  - capability: f_eff
+    function: f_eff_weighted
+
+  # Choose to get decay rates from DecayBit proper, not an SLHA file
+  - capability: decay_rates
+    function: all_decays
+
+  # Feed non-relativistic couplings into DDCalc
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_NR_WCs
+
+  # Choose 5 quark flavour scheme for DirectDM
+  - capability: DD_nonrel_WCs
+    function: DD_nonrel_WCs_flavscheme
+
+  # Use LHC analyses based on fast interpolation rather than on-the-fly MC simulation
+  - capability: RunMC
+    function: InterpolatedMCInfo 
+    module: ColliderBit
+    
+  - capability: LHC_Combined_LogLike
+    options:
+      # Do not use capped LHC loglike, change to true if desired
+      cap_loglike: false
+
+  - capability: LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      # covariance_marg_convthres_abs: 0.05
+      # covariance_marg_convthres_rel: 0.05
+      # covariance_nsamples_start: 100000
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6
+      nuisance_prof_verbosity: 0
+
+    # Signal yields for LHC analyses 
+  - capability: AllAnalysisNumbers
+    # Profile over the cut-off parameter for pT/ETmiss > Lambda
+    function: DMEFT_results_profiled
+    # Hard cut-off of the pT/ETmiss spectrum for pT/ETmiss > Lambda
+    # function: DMEFT_results_cutoff
+
+  # Profile nuisance parameter a for LHC likelihoods
+  # Remove or set a fixed value if using the function DMEFT_results_cutoff to fulfil AllAnalysisNumbers
+  - capability: DMEFT_profiled_LHC_nuisance_params
+    function: calc_DMEFT_profiled_LHC_nuisance_params
+    options:
+      # use_fixed_value_a: 1000.0  # This will switch off the profiling
+      init_values_a: [1.0, 2.0, 3.0]
+      range_a: [0.0, 4.0]
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.1
+      nuisance_prof_maxsteps: 15
+      nuisance_prof_convacc: 0.1
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6
+      nuisance_prof_verbosity: 0
+
+  ## Halo nuisances settings
+  # Set v0 to 240 +/- 8 km/s based on Reid et al [arXiv:1401.5377]
+  - capability: lnL_v0
+    function: lnL_v0_gaussian
+    options:
+      v0_obs: 240
+      v0_obserr: 8
+
+  # Set vesc to 528 +/- 25 km/s based on Gaia data [arXiv:1901.02016]
+  - capability: lnL_vesc
+    function: lnL_vesc_gaussian
+    options:
+      vesc_obs: 528
+      vesc_obserr: 25
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+Printer:
+
+  printer: hdf5
+  options:
+    output_file: "DMEFT.hdf5"
+    delete_file_on_restart: false
+    buffer_length: 100
+    group: "/DMEFT"
+
+Scanner:
+
+  use_scanner: diver
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+    diver:
+      plugin: diver
+      like: LogLike
+      NP: 50000
+      verbosity: 1
+      convthresh: 1E-5
+      lambdajDE: false
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+    print_invalid_points: false
+    debug: false
+
+  default_output_path: "runs/DMEFT/"
+
+  debug: false
+  print_timing_data: false

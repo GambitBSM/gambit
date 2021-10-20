@@ -22,7 +22,7 @@ def generate_bib_tags(output_opts,gum_math):
   bibtags = ""
   
   # GUM. TODO: Needs updating once published
-  bibtags += "    \"GUM\", // GUM 1.0 Paper. TODO: This needs to be updated once GUM is published\n"
+  bibtags += "    \"Bloor:2021gtp\", // GUM 1.0 Paper\n"
   
   # FeynRules
   if gum_math == 'feynrules':

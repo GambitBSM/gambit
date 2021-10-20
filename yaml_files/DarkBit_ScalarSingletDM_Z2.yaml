@@ -115,7 +115,7 @@ Printer:
   #  buffer_length: 10
   #  delete_file_on_restart: true
 
-  #printer: cout 
+  #printer: cout
 
 
 Scanner:
@@ -276,7 +276,7 @@ Rules:
     #function: RD_oh2_DS5_general
     function: RD_oh2_DS_general
     options:
-      # these options are identical for DS5 and DS6+ version 
+      # these options are identical for DS5 and DS6+ version
       fast: 0  # 0: standard, 1: fast (default when co-annihilations etc are involved)
     #function: RD_oh2_MicrOmegas
     #options:
@@ -297,27 +297,34 @@ Rules:
        version: "spectral_externalJ"
        # Other options are integral_fixedJ, integral_externalJ, and spectral_fixedJ
 
-  # Choose to use DarkSUSY DS5 or DS6 yield tables for indirect detection
-  - capability: SimYieldTable
-    #function: SimYieldTable_DS5
-    function: SimYieldTable_DarkSUSY
+  # Choose to use DarkSUSY DS5 or DS6 yield tables for gamma-ray indirect detection
+  - capability: GA_SimYieldTable
+    #function: GA_SimYieldTable_DS5
+    function: GA_SimYieldTable_DarkSUSY
     options:
        # options are identical for DS5 and DS6
        allow_yield_extrapolation:  false # Allow extrapolation beyond masses simulated in tables
 
   # Other options can be obtained by uncommenting the relevant lines below (and commenting the above)
-  #- capability: SimYieldTable
-  #  function: SimYieldTable_MicrOmegas
+  #- capability: GA_SimYieldTable
+  #  function: GA_SimYieldTable_MicrOmegas
   #    options:
   #     allow_yield_extrapolation:  false # Allow extrapolation beyond masses simulated in tables
 
-  # More options for determination of gamma ray yields
-  - function: GA_missingFinalStates # Finds final states for which tabulated spectra do not exist
+  # Choose to use DarkSUSY 6 yield tables for all other indirect detection channels
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
+
+  # More options for determination of indirect detection yields
+  - function: cascadeMC_InitialStates # Finds hard process final states for which tabulated spectra do not exist
     options:
        ignore_all: false
        ignore_two_body: false
        ignore_three_body: false
-
 
   # The model is annihilating DM, not decaying
   - capability: GA_Yield
@@ -336,6 +343,10 @@ Rules:
   - capability: DD_couplings
     function: DD_couplings_ScalarSingletDM_Z2
     #function: DD_couplings_MicrOmegas
+    
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
 
   # Nuclear SI Parameter Likelihoods (All values in MeV)
   - capability: lnL_SI_nuclear_parameters

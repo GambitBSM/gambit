@@ -886,7 +886,6 @@ namespace daFunk
             FunkDelta(std::string arg, double pos, double width) : pos(pos), width(width)
             {
                 arguments = vec(arg);
-                this->set_singularity("v", pos, width);
                 singularities[arg].push_back(std::pair<Funk, Funk>(cnst(pos), cnst(width)));
             }
 
@@ -1741,8 +1740,12 @@ namespace daFunk
                 std::vector<double> singlgrid = linspace(std::max(position-width*sigma, xmin), std::min(position+width*sigma, xmax), N);
                 result.insert(result.end(), singlgrid.begin(), singlgrid.end());
             }
-            std::sort(result.begin(), result.end());
         }
+        // Sort the values only once
+        std::sort(result.begin(), result.end());
+
+        // Only use unique values, i.e. do not resolve the same singularity twice.
+        result.erase(std::unique(result.begin(), result.end()), result.end());
 
         return result;
     }

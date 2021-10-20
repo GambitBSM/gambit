@@ -54,6 +54,7 @@ namespace Gambit
   const double m_neutron_amu = 1.0086649156;                    // neutron mass (amu)
   const double m_proton = m_proton_amu * atomic_mass_unit;      // proton mass (GeV/c^2)
   const double m_neutron = m_neutron_amu * atomic_mass_unit;    // neutron mass (GeV/c^2)
+  const double m_deuteron = 1.87561294257;                      // deuteron mass (GeV/c^2)
   const double m_electron = 0.5109989461e-3;                    // electron mass (GeV/c^2)
   const double alpha_EM = 7.2973525664e-3;                      // fine structure constant
 

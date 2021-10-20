@@ -1,0 +1,54 @@
+Dirac DMEFT
+ Parameters
+  Name         | Value       |> Comment                                                                <|
+Lambda         |0.1          |Scale of new physics                                                      |
+C51            |0.1          |Dimensionless Wilson coefficient for Q{5,1}                               |
+C52            |0.1          |Dimensionless Wilson coefficient for Q{5,2}                               |
+C61            |0.1          |Dimensionless Wilson coefficient for Q{6,1}                               |
+C62            |0.1          |Dimensionless Wilson coefficient for Q{6,2}                               |
+C63            |0.1          |Dimensionless Wilson coefficient for Q{6,3}                               |
+C64            |0.1          |Dimensionless Wilson coefficient for Q{6,4}                               |
+C71            |0.1          |Dimensionless Wilson coefficient for Q{7,1}                               |
+C72            |0.1          |Dimensionless Wilson coefficient for Q{7,2}                               |
+C73            |0.1          |Dimensionless Wilson coefficient for Q{7,3}                               |
+C74            |0.1          |Dimensionless Wilson coefficient for Q{7,4}                               |
+C75            |0.1          |Dimensionless Wilson coefficient for Q{7,5}                               |
+C76            |0.1          |Dimensionless Wilson coefficient for Q{7,6}                               |
+C77            |0.1          |Dimensionless Wilson coefficient for Q{7,7}                               |
+C78            |0.1          |Dimensionless Wilson coefficient for Q{7,8}                               |
+C79            |0.1          |Dimensionless Wilson coefficient for Q{7,9}                               |
+C710           |0.1          |Dimensionless Wilson coefficient for Q{7,10}                              |
+aEWM1          |127.9        |Inverse of the EW coupling constant at the Z pole                         |
+Gf             |0.0000116637 |Fermi constant                                                            |
+aS             |0.1184       |Strong coupling constant at the Z pole                                    |
+ymdo           |0.00504      |Down Yukawa mass                                                          |
+ymup           |0.00255      |Up Yukawa mass                                                            |
+yms            |0.101        |Strange Yukawa mass                                                       |
+ymc            |1.27         |Charm Yukawa mass                                                         |
+ymb            |4.7          |Bottom Yukawa mass                                                        |
+ymt            |172          |Top Yukawa mass                                                           |
+yme            |0.000511     |Electron Yukawa mass                                                      |
+ymm            |0.10566      |Muon Yukawa mass                                                          |
+ymtau          |1.777        |Tau Yukawa mass                                                           |
+cabi           |0.227736     |Cabibbo angle                                                             |
+GG             |1.21977796370|Strong coupling constant at the Z pole   This value will be ignored and ca|
+MZ             |91.1876      |Mass of G0.                                                               |
+Me             |0.000511     |Mass of e.                                                                |
+MMU            |0.10566      |Mass of mu.                                                               |
+MTA            |1.777        |Mass of ta.                                                               |
+MU             |0.00255      |Mass of u.                                                                |
+MC             |1.27         |Mass of c.                                                                |
+MT             |172          |Mass of t.                                                                |
+MD             |0.00504      |Mass of d.                                                                |
+MS             |0.101        |Mass of s.                                                                |
+MB             |4.7          |Mass of b.                                                                |
+mchi           |100.         |Mass of chi.                                                              |
+MH             |125          |Mass of H.                                                                |
+WZ             |2.4952       |Width of G0.                                                              |
+WW             |2.085        |Width of GP.                                                              |
+WT             |1.50833649   |Width of t.                                                               |
+WH             |0.00407      |Width of H.                                                               |
+E              |2.71828182845|The base of the natural logarithm.                                        |
+Pi             |3.14159265358|The circumference of a circle divided by the diameter.                    |
+Maux           |1            |Auxiliary mass parameter                                                  | 
+half           |0.5          |One divided by two                                                        | 

@@ -77,6 +77,5 @@
 #define CLASSLOAD_NEEDED(...)                             DUMMYARG(__VA_ARGS__)
 /// @}
 
-
 #endif // defined __module_macros_inmodule_hpp__
 

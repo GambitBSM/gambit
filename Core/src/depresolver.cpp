@@ -69,6 +69,9 @@
 // Debug flag
 //#define DEPRES_DEBUG
 
+// Verbose flag (not debug per se, just basic dependency resolution information)
+//#define VERBOSE_DEP_RES
+
 namespace Gambit
 {
 
@@ -1609,6 +1612,11 @@ namespace Gambit
         logger() << "Resolving ";
         logger() << printQuantityToBeResolved(quantity, toVertex) << endl << endl;
 
+        // Extra verbose output to terminal
+        #ifdef VERBOSE_DEP_RES
+        std::cout << "Resolving dependency "<<printQuantityToBeResolved(quantity, toVertex)<<"..." <<std::endl;
+        #endif
+
         // Check that ObsLike vertices have non-empty capability
         if ( toVertex == OBSLIKE_VERTEXID and quantity.first == "" )
         {
@@ -1632,6 +1640,11 @@ namespace Gambit
         logger() << "Resolved by: [";
         logger() << (*masterGraph[fromVertex]).name() << ", ";
         logger() << (*masterGraph[fromVertex]).origin() << "]" << endl;
+
+        // Extra verbose output to terminal
+        #ifdef VERBOSE_DEP_RES
+        std::cout << "   ...resolved by ["<<(*masterGraph[fromVertex]).name()<<", "<<(*masterGraph[fromVertex]).origin()<<"]"<<std::endl;
+        #endif
 
         // Check if we wanted to output this observable to the printer system.
         if ( toVertex==OBSLIKE_VERTEXID ) masterGraph[fromVertex]->setPrintRequirement(printme);

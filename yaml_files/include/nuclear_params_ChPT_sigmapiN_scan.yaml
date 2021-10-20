@@ -1,0 +1,39 @@
+#####################################################################################################################
+## Default values/ranges for nuclear_params_ChPT_sigmapiN parameters in DMEFT scans.
+##
+## Not a top-level configuration file! Instead, import this file, e.g.
+## Parameters:
+##   nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_scan.yaml
+##
+## This file runs a (3-sigma range) scan over the values of sigmapiN, Deltas, gTs and rs2.
+##
+## Default values from DirectDM v2.2.0: https://github.com/DirectDM/directdm-py/blob/master/directdm/num/num_input.py
+##
+## All values in GeV where units apply.
+#####################################################################################################################
+
+sigmapiN     : # 0.050
+               range: [0.005, 0.095]
+Bc5m         : -0.51e-3
+gA           : 1.2756
+mG           : 0.836
+sigmas       : 0.0529
+DeltauDeltad : 0.440
+Deltas       : # -0.035
+               range: [-0.062, -0.008]
+B0mu         : 0.0058
+B0md         : 0.0124
+B0ms         : 0.249
+# Nuclear dipole moments
+mup          : 2.793
+mun          : -1.913
+mus          : -0.036
+gTu          : 0.784
+gTd          : -0.204
+gTs          : # -0.027
+               range: [-0.075, 0.021]
+BT10up       : 3.0
+BT10dp       : 0.24
+BT10s        : 0.0
+rs2          : # -0.115
+               range: [-0.22, -0.01]

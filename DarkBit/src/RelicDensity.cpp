@@ -1138,5 +1138,16 @@ namespace Gambit
       logger() << LogTags::debug << "Fraction of dark matter that the scanned model accounts for: " << result << EOM;
     }
 
+    void RD_fraction_rescaled_LCDM(double &result)
+    {
+      using namespace Pipes::RD_fraction_rescaled_LCDM;
+
+      double oh2_obs = *Param["omega_b"];
+      double oh2_theory = *Dep::RD_oh2;
+
+      result = oh2_theory/oh2_obs;
+      logger() << LogTags::debug << "Fraction of dark matter that the scanned model accounts for: " << result << EOM;
+    }
+
   }
 }

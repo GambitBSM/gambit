@@ -172,6 +172,7 @@ namespace Gambit
       addParticle("nu_tau",   0.0,     1);
       addParticle("nubar_tau",0.0,     1);
 
+      // Meson, baryon and nuclear masses
       addParticle("pi0",   meson_masses.pi0,       0);
       addParticle("pi+",   meson_masses.pi_plus,   0);
       addParticle("pi-",   meson_masses.pi_minus,  0);
@@ -180,6 +181,12 @@ namespace Gambit
       addParticle("rho+",  meson_masses.rho_plus,  1);
       addParticle("rho-",  meson_masses.rho_minus, 1);
       addParticle("omega", meson_masses.omega,     1);
+      addParticle("p",     m_proton,               1);
+      addParticle("pbar",  m_proton,               1);
+      addParticle("n",     m_neutron,              1);
+      addParticle("nbar",  m_neutron,              1);
+      addParticle("D",     m_deuteron,             2);
+      addParticle("Dbar",  m_deuteron,             2);
 
 
       // Get MSSM masses
@@ -762,7 +769,7 @@ namespace Gambit
       {
         invalid_point().raise("Point invalidated for having charged LSP.");
       }
-      
+
       result = lsp.first;
     }
 
@@ -789,7 +796,7 @@ namespace Gambit
       {
         invalid_point().raise("Point invalidated for having charged LSP.");
       }
-      
+
       result = lsp.first;
     }
   }

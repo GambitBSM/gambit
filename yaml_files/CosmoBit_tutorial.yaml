@@ -492,9 +492,38 @@ Rules:
   # The options below are set to their default values
   - capability: DarkAges_1_2_0_init
     options:
-      f_eff_mode: false    # Calculate the single f_eff(z) rather than the full f_c(z) table? By default f_c(z) is calculated
+      f_eff_mode: true     # Calculate the single f_eff(z) rather than the full f_c(z) table? By default f_c(z) is calculated
       print_table: false   # Print the table to stdout. Useful for debugging
       z_max: 1.e7          # Constant continuation of efficiency table up to a given redshift. (f(z) = const. for 2.7e3 < z < z_max)
+
+  # Choose between the full f(z) treatment or "on the spot".
+  # In the latter case, f(z) is condensend into a single constant f_eff.
+  - capability: classy_parameters_EnergyInjection
+    #  -- Only for AnnihilatingDM_general (and its related models) --
+    #function: set_classy_parameters_EnergyInjection_AnnihilatingDM
+    function: set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot
+    #  -- Only for DecayingDM_general (and its related models) --
+    #function: set_classy_parameters_EnergyInjection_DecayingDM
+    #function: set_classy_parameters_EnergyInjection_DecayingDM_onSpot
+
+  # Choose how exactly f_eff should be calculated.
+  # NOTE. If choosing options a) or b), DarkAges *must* be operating in "f_eff_mode"
+  - capability: f_eff
+    # a) By convoultion of f_eff(z) with a weighting function W(z) [cf. https://arxiv.org/abs/1506.03811]
+    #  -- Only for AnnihilatingDM_general (and its related models) --
+    function: f_eff_weighted
+    # b) By taking the value of f_eff(z) at given redshift (z_eff).
+    # -- Applies for ALL energy injection models --
+    # Default values of z_eff: 600 for annihilation, 300 for decay (!experimental!)
+    #function: f_eff_at_z
+    #options:
+    #  z_eff: 600.0
+    # c) By using a user supplied constant
+    # -- Applies for ALL energy injection models --
+    # Default value of f_eff: 1.0
+    #function: f_eff_constant
+    #options:
+    #  f_eff: 0.3
 
 
   # ---- C.4) MontePython related settings -----

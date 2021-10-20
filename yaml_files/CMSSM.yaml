@@ -113,77 +113,77 @@ Scanner:
 ObsLikes:
 
     # LHC likelihoods
-    - purpose:    LogLike
-      capability: LHC_Combined_LogLike
+    - capability: LHC_Combined_LogLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
+    - capability: LHC_Higgs_LogLike
+      purpose:    LogLike
 
     # LEP likelihoods
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
+    - capability: LEP_Higgs_LogLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Selectron_LLike
+    - capability: ALEPH_Selectron_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Smuon_LLike
+    - capability: ALEPH_Smuon_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Stau_LLike
+    - capability: ALEPH_Stau_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Selectron_LLike
+    - capability: L3_Selectron_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Smuon_LLike
+    - capability: L3_Smuon_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Stau_LLike
+    - capability: L3_Stau_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Neutralino_Leptonic_LLike
+    - capability: L3_Neutralino_Leptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Chargino_Leptonic_LLike
+    - capability: L3_Chargino_Leptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Hadronic_LLike
+    - capability: OPAL_Chargino_Hadronic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_SemiLeptonic_LLike
+    - capability: OPAL_Chargino_SemiLeptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Leptonic_LLike
+    - capability: OPAL_Chargino_Leptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Neutralino_Hadronic_LLike
+    - capability: OPAL_Neutralino_Hadronic_LLike
+      purpose:    LogLike
 
     # Flavour physics likelihoods
-    - purpose:    LogLike
-      capability: b2ll_LL
+    - capability: b2ll_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: SL_LL
+    - capability: SL_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: b2sll_LL
+    - capability: b2sll_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: b2sgamma_LL
+    - capability: b2sgamma_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: LUV_LL
+    - capability: LUV_LL
+      purpose:    LogLike
 
     # Precision physics likelihoods
     - capability: lnL_W_mass
       purpose:    LogLike
 
     # - capability: lnL_sinW2_eff
-    #  purpose:    LogLike
+    #   purpose:    LogLike
 
-    #- capability: lnL_deltarho
-    #  purpose:    LogLike
+    # - capability: lnL_deltarho
+    #   purpose:    LogLike
 
     - capability:  lnL_gm2
       purpose:     LogLike
@@ -262,47 +262,47 @@ ObsLikes:
       purpose:    LogLike
 
     # Other observables
-    - purpose:    likelihood_details
-      capability: LHC_LogLike_per_analysis
+    - capability: LHC_LogLike_per_analysis
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: LHC_signals
+    - capability: LHC_signals
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: LHCEventLoopInfo
+    - capability: LHCEventLoopInfo
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: RD_oh2
+    - capability: RD_oh2
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: mwimp
+    - capability: mwimp
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigmav
+    - capability: sigmav
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SI_p
+    - capability: sigma_SI_p
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SI_n
+    - capability: sigma_SI_n
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SD_p
+    - capability: sigma_SD_p
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SD_n
+    - capability: sigma_SD_n
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: bsgamma
+    - capability: bsgamma
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: muon_gm2
+    - capability: muon_gm2
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: SLHA1_violation
+    - capability: SLHA1_violation
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: MSSM_spectrum
+    - capability: MSSM_spectrum
+      purpose:    Observable
       type:       map_str_dbl
 
 
@@ -392,12 +392,15 @@ Rules:
   - capability: lnL_FermiLATdwarfs
     function:  lnL_FermiLATdwarfs_gamLike
 
-  # Choose to use DarkSUSY yield tables for indirect detection
-  - capability: SimYieldTable
-    #function: SimYieldTable_DS5
-    function: SimYieldTable_DarkSUSY
-    options:
-      allow_yield_extrapolation: true
+  # Choose to use DarkSUSY 6 yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_DarkSUSY
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
 
   # The model is annihilating DM, not decaying
   - capability: GA_Yield
@@ -410,7 +413,11 @@ Rules:
     options:
       loop: true
     #function: DD_couplings_MicrOmegas
-
+    
+  # Select WIMP-nucleon couplings to pass to DDCalc
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
+    
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
@@ -584,6 +591,9 @@ Rules:
         antiktR: 0.4
         pythia_settings:
           - Print:quiet = on
+          - Next:numberCount = 0
+          - Random:setSeed = on
+          - Beams:eCM = 13000
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = on
@@ -591,6 +601,8 @@ Rules:
           - SUSY:all = on
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
@@ -629,9 +641,27 @@ Rules:
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
-      covariance_marg_convthres_abs: 0.05
-      covariance_marg_convthres_rel: 0.05
-      covariance_nsamples_start: 100000
+      # covariance_marg_convthres_abs: 0.05
+      # covariance_marg_convthres_rel: 0.05
+      # covariance_nsamples_start: 100000
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6
+      nuisance_prof_verbosity: 0
+
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: false
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
+      # skip_analyses:
+
 
 
 Logger:
@@ -661,6 +691,7 @@ KeyValues:
     # Choose a lower cutoff for the likelihood
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
+    print_invalid_points: true
 
   default_output_path: "runs/CMSSM/"
 

@@ -28,10 +28,15 @@
 ///  \author Felix Kahlhoefer
 ///          (felix.kahlhoefer@desy.de)
 ///  \date 2016 August
+///  \date 2020 May
 ///
 ///  \author Sebastian Wild
 ///          (felix.kahlhoefer@desy.de)
 ///  \date 2016 Aug
+///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2020 Feb, May
 ///
 ///  *********************************************
 
@@ -106,11 +111,87 @@ BE_INI_FUNCTION
   scan_level = false;
 
   // Set WIMP parameters
-  DM_nucleon_couplings DD_couplings = *Dep::DD_couplings;
+  DD_coupling_container couplings = *Dep::DDCalc_Couplings;
 
-  // Set DM parameters
-  DDCalc_SetWIMP_mG(WIMP, *Dep::mwimp, DD_couplings.gps,DD_couplings.gns,
-                                       DD_couplings.gpa,DD_couplings.gna);
+  // Initialise WIMP object with spin-independent/spin-dependent interactions only
+  if (couplings.coeff_structure == 1)
+  {
+    DM_nucleon_couplings DD_couplings = couplings.DM_nucleon_coeffs;
+
+    // Set DM parameters
+    DDCalc_SetWIMP_mG(WIMP, *Dep::mwimp, DD_couplings.gps,DD_couplings.gns,
+                                         DD_couplings.gpa,DD_couplings.gna);
+  }
+  // Initialise WIMP object with non-relativistic effective operator coupling structure
+  // Within this coefficient structure DDCalc can use one of 2 coupling structures internally:
+  // 1 (CPTbasis == 1):
+  //     NREFT_CPT coupling structure as used as output from DirectDM (see arXiv:1708.02678)
+  // 2 (CPTbasis == 0): 
+  //     NREffectiveTheory coupling structure as used in e.g. arXiv:1505.03117
+  else if (couplings.coeff_structure == 2)
+  {
+    NREO_DM_nucleon_couplings wilsonCoeffs = couplings.DD_nonrel_WCs;
+    int OpCoeff;
+
+    // Initialse WIMP object with NREFT_CPT coupling structure 
+    if( wilsonCoeffs.CPTbasis )
+    {
+
+      // Set the WIMP object in DDCalc to expect non-relativistic EFT coeffs.
+      DDCalc_SetWIMP_NREFT_CPT(WIMP, *Dep::mwimp, (double) *Dep::spinwimpx2/2.);
+    
+      // Loop through non-relativistic WCs and assign the correct coefficients to DDCalc WIMP object.
+
+      for (std::map<int, double>::iterator it = wilsonCoeffs.c0.begin(); it != wilsonCoeffs.c0.end(); it++ )
+      {
+        OpCoeff = it->first;
+        if( (OpCoeff >=1 && OpCoeff <= 23) || OpCoeff == 100 || OpCoeff == 104 )
+        { 
+          DDCalc_SetNRCoefficient(WIMP, OpCoeff, 0, it->second);
+        }
+        else { backend_error().raise(LOCAL_INFO, "Unknown operator coefficient " + std::to_string(it->first) + " (c0) given to DDCalc for NREFT_CPT."); }
+      }
+      for (std::map<int, double>::iterator it = wilsonCoeffs.c1.begin(); it != wilsonCoeffs.c1.end(); it++ )
+      {
+        OpCoeff = it->first;
+        if( (OpCoeff >=1 && OpCoeff <= 23) || OpCoeff == 100 || OpCoeff == 104 )
+        { 
+          DDCalc_SetNRCoefficient(WIMP, OpCoeff, 1, it->second);
+        }
+        else { backend_error().raise(LOCAL_INFO, "Unknown operator coefficient " + std::to_string(it->first) + " (c1) given to DDCalc for NREFT_CPT."); }
+      }
+    }
+    // Initialise WIMP object with NREffectiveTheory coupling structure 
+    else
+    {
+
+      // Set the WIMP object in DDCalc to expect non-relativistic EFT coeffs.
+      DDCalc_SetWIMP_NREffectiveTheory(WIMP, *Dep::mwimp, (double) *Dep::spinwimpx2/2.);
+    
+      // Loop through non-relativistic WCs and assign the correct coefficients to DDCalc WIMP object.
+      for (std::map<int, double>::iterator it = wilsonCoeffs.c0.begin(); it != wilsonCoeffs.c0.end(); it++ )
+      {
+        OpCoeff = it->first;
+        if( (OpCoeff >=3 && OpCoeff <= 15) || OpCoeff == 1 || OpCoeff == 17 || OpCoeff == 18 || OpCoeff == -1 || OpCoeff == -4 )
+        { 
+          DDCalc_SetNRCoefficient(WIMP, OpCoeff, 0, it->second);
+        }
+        else { backend_error().raise(LOCAL_INFO, "Unknown operator coefficient " + std::to_string(it->first) + " (c0) given to DDCalc for NREffectiveTheory."); }
+      }
+      for (std::map<int, double>::iterator it = wilsonCoeffs.c1.begin(); it != wilsonCoeffs.c1.end(); it++ )
+      {
+        OpCoeff = it->first;
+        if( (OpCoeff >=3 && OpCoeff <= 15) || OpCoeff == 1 || OpCoeff == 17 || OpCoeff == 18 || OpCoeff == -1 || OpCoeff == -4 )
+        { 
+          DDCalc_SetNRCoefficient(WIMP, OpCoeff, 1, it->second);
+        }
+        else { backend_error().raise(LOCAL_INFO, "Unknown operator coefficient " + std::to_string(it->first) + " (c1) given to DDCalc for NREffectiveTheory."); }
+      }
+
+    }
+  }
+  // If DDCalc doesn't know what to do...
+  else { backend_error().raise(LOCAL_INFO, "Unknown WIMP type given to DDCalc, with DD_coupling_container.coeff_structure = " + std::to_string(couplings.coeff_structure) + "."); }
 
   // Change halo parameters.
   bool halo_changed = false;

@@ -20,6 +20,7 @@
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2019 July
 ///  \date 2020 January
+///  \date 2021 March
 ///
 ///  *********************************************
 
@@ -132,8 +133,34 @@
         new_old_names["chi_file"]                      = "energy repartition coefficient file";
       }
 
-      // In the first batch, we will fix the names of the inputs.
-      // We will fix the entries itself, if needed, later.
+      // If the 'on-the-spot approximation' is used (i.e scosmo_input_dictult["f_eff_type"] == "on_the_spot")
+      // then replace this CLASS 3-compatible input to the respective inputs that can be understood by
+      // this version of ExoCLASS.
+      //
+      // Check whether there is actually any entry with key "f_eff_type"
+      if (cosmo_input_dict.attr("__contains__")("f_eff_type").cast<bool>())
+      {
+        // Only modify the dictionary if the value of "f_eff_type" is "on_the_spot"
+        std::string f_eff_type = cosmo_input_dict["f_eff_type"].cast<std::string>();
+        if (f_eff_type.compare("on_the_spot") == 0)
+        {
+          // Delete the "f_eff_type" entry.
+          cosmo_input_dict.attr("pop")("f_eff_type");
+
+          // Set the new entries
+          cosmo_input_dict["on the spot"] = "yes";
+          cosmo_input_dict["f_eff"] = "1.0"; // f_eff is already included in "sigmav" (or "fraction")
+
+          // Also set "chi_type" (if not already set by the user)
+          if ( !(cosmo_input_dict.attr("__contains__")("chi_type").cast<bool>()) )
+          {
+            cosmo_input_dict["chi_type"] = "CK_2004";
+          }
+        }
+      }
+
+      // Next we will fix the names of the keys.
+      // We will fix their values, if needed, later.
       for (const auto& item: new_old_names)
       {
         pybind11::str newkey = pybind11::str(item.first);

@@ -19,6 +19,8 @@
 #ifndef __util_macros_hpp__
 #define __util_macros_hpp__
 
+#include <unistd.h>
+
 #include "gambit/Utils/boost_fallbacks.hpp"
 #include "gambit/Utils/cats.hpp"
 #include "gambit/Utils/stringify.hpp"  // stringification macro
@@ -370,5 +372,24 @@ _110, _111, _112, _113, _114, _115, _116, _117, _118, _119, _120, _121, _122, _1
 #define MAKE_STATIC_SET(TYPE,NAME,TUPLE) \
    static const TYPE NAME##_array[] = BRACED_INIT_LIST(TUPLE); \
    static const std::set<TYPE> NAME(NAME##_array, Utils::endA( NAME##_array ));
+
+/// Macro to redirect stderr to /dev/null for a single function call,
+/// for use with particularly noisy external libraries
+#define CALL_WITH_SILENCED_STDERR(FUNCTION_CALL)    \
+  int fd;                                           \
+  fpos_t pos;                                       \
+  fflush(stderr);                                   \
+  fgetpos(stderr, &pos);                            \
+  fd = dup(fileno(stderr));                         \
+  freopen("/dev/null", "w", stderr);                \
+                                                    \
+  (FUNCTION_CALL);                                  \
+                                                    \
+  fflush(stderr);                                   \
+  dup2(fd, fileno(stderr));                         \
+  close(fd);                                        \
+  clearerr(stderr);                                 \
+  fsetpos(stderr, &pos);
+
 
 #endif //defined __util_macros_hpp__

@@ -315,6 +315,8 @@ namespace Gambit
       double mH = spec.get(Par::Pole_Mass,"h0_1");
       addParticle("S",        mS, 0)  // Scalar Singlet DM
       addParticle("h0_1",     mH, 0)  // SM-like Higgs
+
+      // Meson, baryon and nuclear masses
       addParticle("pi0",   meson_masses.pi0,       0)
       addParticle("pi+",   meson_masses.pi_plus,   0)
       addParticle("pi-",   meson_masses.pi_minus,  0)
@@ -323,6 +325,12 @@ namespace Gambit
       addParticle("rho+",  meson_masses.rho_plus,  1)
       addParticle("rho-",  meson_masses.rho_minus, 1)
       addParticle("omega", meson_masses.omega,     1)
+      addParticle("p",     m_proton,               1)
+      addParticle("pbar",  m_proton,               1)
+      addParticle("n",     m_neutron,              1)
+      addParticle("nbar",  m_neutron,              1)
+      addParticle("D",     m_deuteron,             2)
+      addParticle("Dbar",  m_deuteron,             2)
 
       // Get rid of convenience macros
       #undef getSMmass

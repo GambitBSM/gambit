@@ -266,9 +266,9 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
 endif()
 
 # Add some Fortran compiler flags
-if(CMAKE_Fortran_COMPILER MATCHES "gfortran*" OR CMAKE_Fortran_COMPILER MATCHES "f95*")
+if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none -ffixed-line-length-none -cpp")
-elseif(CMAKE_Fortran_COMPILER MATCHES "ifort*")
+elseif("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -extend-source -fpp")
 endif()
 

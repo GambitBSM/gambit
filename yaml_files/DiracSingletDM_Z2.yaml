@@ -133,29 +133,6 @@ ObsLikes:
 ##############################################################################################
 Rules:
 
-  # Use DDCalc 2.0.0
-  - capability: LUX.*
-    backends:
-    - {backend: DDCalc, version: 2.0.0}
-  - capability: XENON1T.*
-    backends:
-    - {backend: DDCalc, version: 2.0.0}
-  - capability: PandaX.*
-    backends:
-    - {backend: DDCalc, version: 2.0.0}
-  - capability: PICO.*
-    backends:
-    - {backend: DDCalc, version: 2.0.0}
-  - capability: CRESST.*
-    backends:
-    - {backend: DDCalc, version: 2.0.0}
-  - capability: CDMS.*
-    backends:
-    - {backend: DDCalc, version: 2.0.0}
-  - capability: DarkSide.*
-    backends:
-    - {backend: DDCalc, version: 2.0.0}
-
   # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
     #function: RD_oh2_DS5_general
@@ -214,16 +191,27 @@ Rules:
   - capability: RD_fraction
     function: RD_fraction_leq_one
 
-  # Choose to use DarkSUSY's yield tables for indirect detection
-  - capability: SimYieldTable
-    #function: SimYieldTable_DS5
-    function: SimYieldTable_DarkSUSY
-    options:
-      allow_yield_extrapolation: true
+  # Choose to use DarkSUSY 6 yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_DarkSUSY
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
 
   # Choose to compute decay rates from the DecayBit module
   - capability: decay_rates
     function: all_decays
+    
+  # Select non-relativistic couplings for DDCalc 2+ WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_NR_WCs
+
+  # Choose to use the non-relativistic version of the WCs instead of using DirectDM
+  - capability: DD_nonrel_WCs
+    function: DD_nonrel_WCs_DiracSingletDM_Z2 
 
   # Choose to obtain spectrum from the SpecBit module
   - capability: DiracSingletDM_Z2_spectrum

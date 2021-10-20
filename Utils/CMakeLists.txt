@@ -22,6 +22,10 @@
 #          (tomas.gonzalo@monash.edu)
 #  \date 2020 Feb, Dec
 #
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no
+#  \date 2021 Feb, Sep
+#
 #************************************************
 
 set(source_files src/ascii_table_reader.cpp
@@ -30,6 +34,8 @@ set(source_files src/ascii_table_reader.cpp
                  src/exceptions.cpp
                  src/file_lock.cpp
                  src/integration.cpp
+                 src/interp_collection.cpp
+                 src/lnlike_modifiers.cpp
                  src/mpiwrapper.cpp
                  src/new_mpi_datatypes.cpp
                  src/model_parameters.cpp
@@ -58,6 +64,8 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/exceptions.hpp
                  include/gambit/Utils/file_lock.hpp
                  include/gambit/Utils/integration.hpp
+                 include/gambit/Utils/interp_collection.hpp
+                 include/gambit/Utils/lnlike_modifiers.hpp
                  include/gambit/Utils/mpiwrapper.hpp
                  include/gambit/Utils/new_mpi_datatypes.hpp
                  include/gambit/Utils/factory_registry.hpp

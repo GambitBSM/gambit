@@ -5,14 +5,14 @@
 # New entries should look like:
 #
 #   - name: "X+"                         The name used within GAMBIT, in the particleDB.
-#     PDG_context: [10, 4]                 The PDG-context pair used for a single particle.
+#     PDG_context: [10, 4]               The PDG-context pair used for a single particle.
 #     conjugate: "X-"                    The name for the conjugate particle, also added to the particleDB.
 #     description: "New particle"        Optional - adds a C++ comment to particle_database.cpp. For readability.
-#     chargex3: 0                          Three times the electric charge.
-#     spinx2: 1                            Twice the spin.
-#     color:  3                            The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).
+#     chargex3: 0                        Three times the electric charge.
+#     spinx2: 1                          Twice the spin.
+#     color:  3                          The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).
 #     DecayBit:
-#       Decays: True                       Flag to show whether or not to include a particle's Decays in DecayBit.
+#       Decays: True                     Flag to show whether or not to include a particle's Decays in DecayBit.
 #       name: "X_plus"                   The name used as CAPABILITES in DecayBit_rollcall.hpp for the specific particle.
 #       conjugate: "X_minus"             And the name used for it's conjugate.
 #
@@ -126,6 +126,15 @@ OtherModels:
     spinx2: 0
 
   - PDG_context:
+    - 61
+    - 0
+    chargex3: 0
+    color: 1
+    description: NREO Scalar Singlet
+    name: phi
+    spinx2: 0
+
+  - PDG_context:
     - 9900002
     - 0
     chargex3: 0
@@ -135,12 +144,31 @@ OtherModels:
     spinx2: 1
 
   - PDG_context:
+    - 62
+    - 0
+    chargex3: 0
+    color: 1
+    description: NREO Dirac Singlet
+    name: chi
+    conjugate: chi~
+    spinx2: 1
+
+  - PDG_context:
     - 9900003
     - 0
     chargex3: 0
     color: 1
     description: Majorana Singlet
     name: X
+    spinx2: 1
+
+  - PDG_context:
+    - 63
+    - 0
+    chargex3: 0
+    color: 1
+    description: NREO Majorana Singlet
+    name: psi
     spinx2: 1
 
   - PDG_context:
@@ -504,6 +532,40 @@ StandardModel:
     description: Graviton
     name: G
     spinx2: 4
+
+  - PDG_context:
+    - 2212
+    - 0
+    chargex3: 3
+    color: 1
+    conjugate: pbar
+    description: proton
+    name: p
+    spinx2: 1
+
+  - DecayBit:
+      Decays: true
+      conjugate: neutron
+      name: neutron_bar
+    PDG_context:
+    - 2112
+    - 0
+    chargex3: 0
+    color: 1
+    conjugate: nbar
+    description: neutron
+    name: n
+    spinx2: 1
+
+  - PDG_context:
+    - 1000010020
+    - 0
+    chargex3: 3
+    color: 1
+    conjugate: Dbar
+    description: deuteron
+    name: D
+    spinx2: 2
 
   - DecayBit:
       Decays: true

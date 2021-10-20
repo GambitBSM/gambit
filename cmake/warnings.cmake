@@ -67,6 +67,6 @@ if(PYTHON_VERSION_MAJOR EQUAL 2)
 endif()
 
 # Set warnings to stop complaining about deprecated copies in Eigen
-if(EIGEN3_VERSION_MINOR LESS 4 AND EIGEN3_VERSION_PATCH LESS 8)
+if(EIGEN3_MAJOR_VERSION LESS 4 AND EIGEN3_MINOR_VERSION LESS 8)
   set_compiler_warning("no-deprecated-copy" CMAKE_CXX_FLAGS)
 endif()

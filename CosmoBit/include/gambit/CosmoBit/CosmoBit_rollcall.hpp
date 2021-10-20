@@ -21,6 +21,7 @@
 ///  \date 2017 Nov
 ///  \date 2018 Jan,Feb, Mar
 ///  \date 2019 Jan, Feb, June
+///  \date 2021 Mar
 ///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
@@ -82,6 +83,46 @@ START_MODULE
     #define FUNCTION energy_injection_spectrum_DecayingDM_mixture
     START_FUNCTION(DarkAges::Energy_injection_spectrum)
     ALLOW_MODELS(DecayingDM_mixture)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY f_eff
+  START_CAPABILITY
+    // Calculate f_eff by convolution with weighting functions
+    #define FUNCTION f_eff_weighted
+    START_FUNCTION(double)
+    ALLOW_MODELS(AnnihilatingDM_general) // Weighting function only known for s-wave annihilation
+    DEPENDENCY(energy_injection_efficiency, DarkAges::Energy_injection_efficiency_table)
+    #undef FUNCTION
+
+    // Calculate f_eff by taking f_eff(z) at given z
+    #define FUNCTION f_eff_at_z
+    START_FUNCTION(double)
+    ALLOW_MODELS(AnnihilatingDM_general,DecayingDM_general)
+    DEPENDENCY(energy_injection_efficiency, DarkAges::Energy_injection_efficiency_table)
+    #undef FUNCTION
+
+    // Set f_eff to a constant that the user can choose
+    #define FUNCTION f_eff_constant
+    START_FUNCTION(double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY p_ann
+  START_CAPABILITY
+    #define FUNCTION p_ann
+    START_FUNCTION(double)
+    ALLOW_MODELS(AnnihilatingDM_general)
+    DEPENDENCY(f_eff, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Profiled likelihood on p_ann = f_eff * f^2 * <sv> / m
+  #define CAPABILITY lnL_p_ann
+  START_CAPABILITY
+    #define FUNCTION lnL_p_ann_P18_TTTEEE_lowE_lensing_BAO
+    START_FUNCTION(double)
+    DEPENDENCY(p_ann, double)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -206,10 +247,22 @@ START_MODULE
       DEPENDENCY(energy_injection_efficiency, DarkAges::Energy_injection_efficiency_table)
       #undef FUNCTION
 
+      #define FUNCTION set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot
+      START_FUNCTION(pybind11::dict)
+      ALLOW_MODELS(AnnihilatingDM_general)
+      DEPENDENCY(f_eff, double)
+      #undef FUNCTION
+
       #define FUNCTION set_classy_parameters_EnergyInjection_DecayingDM
       START_FUNCTION(pybind11::dict)
       ALLOW_MODELS(DecayingDM_general)
       DEPENDENCY(energy_injection_efficiency, DarkAges::Energy_injection_efficiency_table)
+      #undef FUNCTION
+
+      #define FUNCTION set_classy_parameters_EnergyInjection_DecayingDM_onSpot
+      START_FUNCTION(pybind11::dict)
+      ALLOW_MODELS(DecayingDM_general)
+      DEPENDENCY(f_eff, double)
       #undef FUNCTION
     #undef CAPABILITY
 

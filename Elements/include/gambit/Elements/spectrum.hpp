@@ -45,7 +45,7 @@
 #include "gambit/Elements/subspectrum.hpp"
 #include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Models/partmap.hpp"
-
+#include "gambit/Models/safe_param_map.hpp"
 
 /// YAML overloads for mass cut and mass cut ratio constituents
 namespace YAML
