@@ -236,9 +236,25 @@ macro(add_error_target name)
     COMMAND exit 1)
 endmacro()
 
-# Link cmake to scanner: (${target}_cmake_cmd) and plugin (${target}_plugin) to ${target}.
+# Link cmake and plugin to scanner.
+# e.g., link (${target}_${ver}_cmake_cmd) and plugin (${target}_${ver}_plugin) to ${target}-${ver}.
 function(add_scanner_target target ver)
-  # The dependencies are: ${target} -> ${target}_plugin -> ${target}_cmake_cmd -> ${target}_${ver}
+  # Add clean and nuke
+  add_custom_target(clean-${target}-${ver})
+  if (TARGET clean-${target}_${ver})
+    add_dependencies(clean-${target}-${ver} clean-${target}_${ver})
+  else()
+    add_dependencies(clean-${target}-${ver} clean-.${target}_${ver})
+  endif()
+  
+  add_custom_target(nuke-${target}-${ver})
+  if (TARGET nuke-${target}_${ver})
+    add_dependencies(nuke-${target}-${ver} nuke-${target}_${ver})
+  else()
+    add_dependencies(nuke-${target}-${ver} nuke-.${target}_${ver})
+  endif()
+  
+  # The dependencies are: ${target}-${ver} -> ${target}_${ver}_plugin -> ${target}_${ver}_cmake_cmd -> ${target}_${ver}
   add_custom_target(${target}-${ver})
   add_custom_target(${target}_${ver}_cmake_cmd
     COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}
@@ -246,7 +262,7 @@ function(add_scanner_target target ver)
   )
 
   if (TARGET ${target}_${ver})
-    add_dependencies(${target}_${ver}_cmake_cmd ${target}_${var})
+    add_dependencies(${target}_${ver}_cmake_cmd ${target}_${ver})
   else()
     add_dependencies(${target}_${ver}_cmake_cmd .${target}_${ver})
   endif()
