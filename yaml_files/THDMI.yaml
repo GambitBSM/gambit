@@ -202,16 +202,16 @@ ObsLikes:
     # then chi^2 are extracted directly from HS & HB
 
     # # HB 5beta likelihood
-    - capability: LEP_Higgs_LogLike
-      function: calc_HB_5_LEP_LogLike
-      purpose: LogLike
-      dependencies:
-        - capability: HB_ModelParameters_neutral
-          function: THDM_ModelParameters_effc
-          module: ColliderBit
-        - capability: HB_ModelParameters_charged
-          function: THDM_ModelParameters_charged
-          module: ColliderBit
+    # - capability: LEP_Higgs_LogLike
+    #   function: calc_HB_5_LEP_LogLike
+    #   purpose: LogLike
+    #   dependencies:
+    #     - capability: HB_ModelParameters_neutral
+    #       function: THDM_ModelParameters_effc
+    #       module: ColliderBit
+    #     - capability: HB_ModelParameters_charged
+    #       function: THDM_ModelParameters_charged
+    #       module: ColliderBit
 
     # HS 2beta likelihood
     - capability: LHC_Higgs_LogLike
