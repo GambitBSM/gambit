@@ -57,6 +57,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver})
 endif()
 
 set(name "diver")
@@ -83,6 +84,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver})
 endif()
 
 set(name "diver")
@@ -109,6 +111,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver})
   set_as_default_version("scanner" ${name} ${ver})
 endif()
 
@@ -160,6 +163,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver} "polychord")
   set_as_default_version("scanner" ${name} ${ver} "polychord")
 endif()
 
@@ -205,6 +209,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver})
 endif()
 
 # MultiNest
@@ -243,6 +248,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver})
   set_as_default_version("scanner" ${name} ${ver})
 endif()
 
@@ -268,6 +274,7 @@ if(NOT ditched_${name}_${ver})
             COMMAND ${CMAKE_COMMAND} -E create_symlink ${build_dir}/MCMC/MCMC_Dict_rdict.pcm ${build_dir}/lib/MCMC_Dict_rdict.pcm
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver})
   set_as_default_version("scanner" ${name} ${ver})
 endif()
 
@@ -296,6 +303,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  add_scanner_target(${name} ${ver})
   set_as_default_version("scanner" ${name} ${ver})
 endif()
 

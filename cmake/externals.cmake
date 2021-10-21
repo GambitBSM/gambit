@@ -236,6 +236,38 @@ macro(add_error_target name)
     COMMAND exit 1)
 endmacro()
 
+# Link cmake to scanner: (${target}_cmake_cmd) and plugin (${target}_plugin) to ${target}.
+function(add_scanner_target target ver)
+  # The dependencies are: ${target} -> ${target}_plugin -> ${target}_cmake_cmd -> ${target}_${ver}
+  add_custom_target(${target}-${ver})
+  add_custom_target(${target}_${ver}_cmake_cmd
+    COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  )
+
+  if (TARGET ${target}_${ver})
+    add_dependencies(${target}_${ver}_cmake_cmd ${target}_${var})
+  else()
+    add_dependencies(${target}_${ver}_cmake_cmd .${target}_${ver})
+  endif()
+  
+  if (${ARGC} GREATER 2)
+    add_custom_target(${target}_${ver}_plugin
+      COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${ARGV2}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  else()
+    add_custom_target(${target}_${ver}_plugin
+      COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${target}_${ver}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  endif()
+
+  add_dependencies(${target}_${ver}_plugin ${target}_${ver}_cmake_cmd)
+  add_dependencies(${target}-${ver} ${target}_${ver}_plugin)
+    
+endfunction()
+
 # Function to set up a new target with a generic name of a backend/scanner and associate it with the default version
 function(set_as_default_version type name default)
 
@@ -275,46 +307,30 @@ function(set_as_default_version type name default)
   if (type STREQUAL "backend base (not functional alone)")
     add_error_target(${target})
   elseif (type STREQUAL "scanner") 
-    # If scanner, also link cmake (${target}_cmake_cmd) and plugin (${target}_plugin) to ${target}.
-    # The dependencies are: ${target} -> ${target}_plugin -> ${target}_cmake_cmd -> ${target}_${default}
-    # For scanners it is: ${types}s -> ${types}s_${target}_plugin -> ${types}s_cmake_cmd -> ${target}_${default}
+    # If scanner, also link cmake (${types}s_cmake_cmd) and plugin (${types}s_${target}_plugin) to ${types}s}.
+    # The dependencies are: ${types}s -> ${types}s_${target}_plugin -> ${types}s_cmake_cmd -> ${target}_${default}
     add_custom_target(${target})
-    add_custom_target(${target}_cmake_cmd
-      COMMAND ${CMAKE_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
-
+    add_dependencies(${target} ${target}-${default})
+    
     if (TARGET ${target}_${default})
-      add_dependencies(${target}_cmake_cmd ${target}_${default})
       add_dependencies(${type}s_cmake_cmd ${target}_${default})
     else()
-      add_dependencies(${target}_cmake_cmd .${target}_${default})
       add_dependencies(${type}s_cmake_cmd .${target}_${default})
     endif()
     
     # If plugin name is added as optional variable.
     if (${ARGC} GREATER 3)
-      add_custom_target(${target}_plugin
-        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${ARGV3}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      )
       add_custom_target(${type}s_${target}_plugin
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${ARGV3}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
     else()
-      add_custom_target(${target}_plugin
-        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${target}_${default}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-      )
       add_custom_target(${type}s_${target}_plugin
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${target}_${default}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
     endif()
     
-    add_dependencies(${target}_plugin ${target}_cmake_cmd)
-    add_dependencies(${target} ${target}_plugin)
     add_dependencies(${type}s_${target}_plugin ${type}s_cmake_cmd)
     add_dependencies(${type}s ${type}s_${target}_plugin)
   else()
