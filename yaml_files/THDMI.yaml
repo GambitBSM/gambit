@@ -56,7 +56,7 @@ Printer:
 
   # options:
   #   # name of output file
-  #   output_file: "scan_THDMI_HS_20000_18_OCT_2021.hdf5"
+  #   output_file: "scan.hdf5"
   #   group: "/data"
   #   delete_file_on_restart: true
 
@@ -214,16 +214,16 @@ ObsLikes:
           module: ColliderBit
 
     # HS 2beta likelihood
-    # - capability: LHC_Higgs_LogLike
-    #   function: calc_HS_2_LHC_LogLike
-    #   purpose: LogLike
-    #   dependencies:
-    #     - capability: HB_ModelParameters_neutral
-    #       function: THDM_ModelParameters_effc
-    #       module: ColliderBit
-    #     - capability: HB_ModelParameters_charged
-    #       function: THDM_ModelParameters_charged
-    #       module: ColliderBit
+    - capability: LHC_Higgs_LogLike
+      function: calc_HS_2_LHC_LogLike
+      purpose: LogLike
+      dependencies:
+        - capability: HB_ModelParameters_neutral
+          function: THDM_ModelParameters_effc
+          module: ColliderBit
+        - capability: HB_ModelParameters_charged
+          function: THDM_ModelParameters_charged
+          module: ColliderBit
 
     #################
     # Observables
