@@ -112,7 +112,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   add_scanner_target(${name} ${ver})
-  set_as_default_version("scanner" ${name} ${ver})
+  set_as_default_scanner_version(${name} ${ver})
 endif()
 
 # PolyChord
@@ -164,7 +164,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   add_scanner_target(${name} ${ver} "polychord")
-  set_as_default_version("scanner" ${name} ${ver} "polychord")
+  set_as_default_scanner_version(${name} ${ver} "polychord")
 endif()
 
 
@@ -249,7 +249,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   add_scanner_target(${name} ${ver})
-  set_as_default_version("scanner" ${name} ${ver})
+  set_as_default_scanner_version(${name} ${ver})
 endif()
 
 
@@ -275,7 +275,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   add_scanner_target(${name} ${ver})
-  set_as_default_version("scanner" ${name} ${ver})
+  set_as_default_scanner_version(${name} ${ver})
 endif()
 
 # minuit2
@@ -304,7 +304,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   add_scanner_target(${name} ${ver})
-  set_as_default_version("scanner" ${name} ${ver})
+  set_as_default_scanner_version(${name} ${ver})
 endif()
 
 # All other scanners are implemented natively in ScannerBit.

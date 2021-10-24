@@ -284,6 +284,53 @@ function(add_scanner_target target ver)
     
 endfunction()
 
+# Function to set up a new target with a generic name of a scanner and associate it with the default version
+function(set_as_default_scanner_version target default)
+
+  # Add clean targets for default version of hidden/unhidden target
+  add_custom_target(clean-${target})
+  if (TARGET clean-${target}_${default})
+    add_dependencies(clean-${target} clean-${target}_${default})
+  else()
+    add_dependencies(clean-${target} clean-.${target}_${default})
+  endif()
+
+  add_custom_target(nuke-${target})
+  if (TARGET nuke-${target}_${default})
+    add_dependencies(nuke-${target} nuke-${target}_${default})
+  else()
+    add_dependencies(nuke-${target} nuke-.${target}_${default})
+  endif()
+
+  # If scanner, also link cmake (${types}s_cmake_cmd) and plugin (${types}s_${target}_plugin) to ${types}s}.
+  # The dependencies are: ${types}s -> ${types}s_${target}_plugin -> ${types}s_cmake_cmd -> ${target}_${default}
+  add_custom_target(${target})
+  add_dependencies(${target} ${target}-${default})
+
+  if (TARGET ${target}_${default})
+    add_dependencies(scanners_cmake_cmd ${target}_${default})
+  else()
+    add_dependencies(scanners_cmake_cmd .${target}_${default})
+  endif()
+
+  # If plugin name is added as optional variable.
+  if (${ARGC} GREATER 2)
+    add_custom_target(scanners_${target}_plugin
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${ARGV2}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  else()
+    add_custom_target(scanners_${target}_plugin
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR} --target scanner_${target}_${default}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    )
+  endif()
+
+  add_dependencies(scanners_${target}_plugin scanners_cmake_cmd)
+  add_dependencies(scanners scanners_${target}_plugin)
+
+endfunction()
+
 # Function to set up a new target with a generic name of a backend/scanner and associate it with the default version
 function(set_as_default_version type name default)
 
