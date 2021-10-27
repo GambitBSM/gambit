@@ -29,42 +29,51 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
   # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
-  THDMIatQ:
-    # TODO: justify parameter ranges: perturbility ???
-    lambda_1:
-        range: [-0.5, 12.5664]
-        prior_type: flat
-    lambda_2:
-        range: [-0.5, 12.5664]
-        prior_type: flat
-    lambda_3:
-        range: [-12.5664, 12.5664]
-        prior_type: flat
-    lambda_4:
-        range: [-12.5664, 12.5664]
-        prior_type: flat
-    lambda_5:
-        range: [-12.5664, 12.5664]
-        prior_type: flat
-    # --- Assuming a CP-conserving THDM model ---
-    lambda_6:
-        fixed_value: 0.0
-    lambda_7:
-        fixed_value: 0.0
-    # -------------------------------------------
-    m12_2:
-        ranges: [-1e6, -1e4, 1e4, 1e7]
-        prior_type: double_log_flat_join
-    # todo justify ???
-    tanb:
-        range: [0,50]
-        prior_type: flat # log
-    Qin:
-        fixed_value: 91.1876 # = mZ
-    QrunTo:
-        fixed_value: 1000 # for comparison with other literature
+  THDMI:
 
+    lambda_1: -2.57385
+    lambda_2: 0.25609
+    lambda_3: 5.40354
+    lambda_4: 0.00422
+    lambda_5: 0.00422
+    lambda_6: 0
+    lambda_7: 0
+    m12_2: 12800
+    tanb: 50
 
+    # # TODO: justify parameter ranges: perturbility ???
+    # lambda_1:
+    #     range: [-0.5, 12.5664]
+    #     prior_type: flat
+    # lambda_2:
+    #     range: [-0.5, 12.5664]
+    #     prior_type: flat
+    # lambda_3:
+    #     range: [-12.5664, 12.5664]
+    #     prior_type: flat
+    # lambda_4:
+    #     range: [-12.5664, 12.5664]
+    #     prior_type: flat
+    # lambda_5:
+    #     range: [-12.5664, 12.5664]
+    #     prior_type: flat
+    # # --- Assuming a CP-conserving THDM model ---
+    # lambda_6:
+    #     fixed_value: 0.0
+    # lambda_7:
+    #     fixed_value: 0.0
+    # # -------------------------------------------
+    # m12_2:
+    #     ranges: [-1e6, -1e4, 1e4, 1e7]
+    #     prior_type: double_log_flat_join
+    # # todo justify ???
+    # tanb:
+    #     range: [0,50]
+    #     prior_type: flat # log
+    # Qin:
+    #     fixed_value: 91.1876 # = mZ
+    # QrunTo:
+    #     fixed_value: 1000 # for comparison with other literature
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -72,11 +81,11 @@ Parameters:
 
 Printer:
 
-  # printer: ascii
-  # options:
-  #   buffer_length: 100
-  #   output_file: "scan.txt"
-  #   output_path: default_output_path
+  printer: ascii
+  options:
+    buffer_length: 100
+    output_file: "scan.txt"
+    output_path: default_output_path
 
   # printer: hdf5
   # options:
@@ -84,13 +93,13 @@ Printer:
   #   group: "/data"
   #   delete_file_on_restart: true
 
-  # unfortunately the new hdf5 scanner is buggy!
-  printer: hdf5_v1
-  options:
-    output_file: "scan.hdf5"
-    group: "/data"
-    delete_file_on_restart: false
-    disable_combine_routines: true
+  # # unfortunately the new hdf5 scanner is buggy!
+  # printer: hdf5_v1
+  # options:
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: false
+  #   disable_combine_routines: true
 
 
 
@@ -100,7 +109,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: differentialEvolution
+  use_scanner: random
 
   scanners:
     differentialEvolution:
@@ -112,7 +121,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1
+      point_number: 10
       like:  LogLike
       aux_printer_txt_options:
       aux_printer_stats_options:
