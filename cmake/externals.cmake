@@ -74,21 +74,21 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   add_custom_target(scanners)
 endif()
 
-# Add get-pippi target
-set(name "pippi")
-set(dir "${CMAKE_SOURCE_DIR}/${name}")
-ExternalProject_Add(get-${name}
-  GIT_REPOSITORY https://github.com/patscott/pippi.git
-  SOURCE_DIR ${dir}
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-)
-set(rmstring "${CMAKE_BINARY_DIR}/get-${name}-prefix/src/get-${name}-stamp/get-${name}")
-add_custom_target(nuke-pippi COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-download-failed ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update ${rmstring}-gitclone-lastrun.txt || true
-                             COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
-add_dependencies(nuke-all nuke-pippi)
-set_target_properties(get-pippi PROPERTIES EXCLUDE_FROM_ALL 1)
+# # Add get-pippi target
+# set(name "pippi")
+# set(dir "${CMAKE_SOURCE_DIR}/${name}")
+# ExternalProject_Add(get-${name}
+#   GIT_REPOSITORY https://github.com/patscott/pippi.git
+#   SOURCE_DIR ${dir}
+#   CONFIGURE_COMMAND ""
+#   BUILD_COMMAND ""
+#   INSTALL_COMMAND ""
+# )
+# set(rmstring "${CMAKE_BINARY_DIR}/get-${name}-prefix/src/get-${name}-stamp/get-${name}")
+# add_custom_target(nuke-pippi COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-download-failed ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update ${rmstring}-gitclone-lastrun.txt || true
+#                              COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
+# add_dependencies(nuke-all nuke-pippi)
+# set_target_properties(get-pippi PROPERTIES EXCLUDE_FROM_ALL 1)
 
 # Macro to clear the build stamp manually for an external project
 macro(enable_auto_rebuild package)

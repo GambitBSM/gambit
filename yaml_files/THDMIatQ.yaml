@@ -531,5 +531,5 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -5e7
     debug: false
     
-  default_output_path: "runs/"
+  default_output_path: "../runs/"
   debug: false

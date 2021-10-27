@@ -25,16 +25,16 @@
     // ],
     "configurations": [
         {
-            "name": "Debug_THDM_II",
+            "name": "RUN it!",
             "type": "cppdbg",
             "request": "launch",
-            "program": "/home/alex/Desktop/merge/gambit_thdm/gambit",
+            "program": "${workspaceFolder}/gambit",
             "args": [
                 "-f",
-                "/home/alex/Desktop/merge/gambit_thdm/yaml_files/THDMIatQ.yaml"
+                "${workspaceFolder}/yaml_files/THDMIatQ.yaml"
             ],
             "stopAtEntry": false,
-            "cwd": "/home/alex/Desktop/merge/gambit_thdm/work",
+            "cwd": "${workspaceFolder}/work",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
