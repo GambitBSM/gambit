@@ -56,7 +56,7 @@ Printer:
 
   # options:
   #   # name of output file
-  #   output_file: "scan_THDMI_HS_20000_18_OCT_2021.hdf5"
+  #   output_file: "scan.hdf5"
   #   group: "/data"
   #   delete_file_on_restart: true
 
