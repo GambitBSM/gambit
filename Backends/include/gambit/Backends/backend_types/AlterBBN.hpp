@@ -154,6 +154,11 @@ namespace Gambit
       double table_rhoPD[2][NTABMAX];
       int size_table_rhoPD;
 
+      // Add the scaling function term for H(T)
+      int use_table_Fterm;
+      double table_Fterm[2][NTABMAX];
+      int size_table_Fterm;
+
       /*---------------------*/
       /* AlterBBN parameters */
       /*---------------------*/

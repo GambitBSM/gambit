@@ -22,16 +22,27 @@
 
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/ascii_dict_reader.hpp"
+#include "gambit/Utils/ascii_table_reader.hpp"
+#include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/CosmoBit/CosmoBit_rollcall.hpp"
 #include "gambit/CosmoBit/CosmoBit_types.hpp"
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_odeiv2.h>
 
 namespace Gambit
 {
 
   namespace CosmoBit
   {
+    // constants
+    const double G = 6.708609142443796e-39; /* Gn*pow(m_to_GeV,3.)*pow(g_to_GeV,-1.)*pow(s_to_GeV,-2.) Newton constant in GeV^-2 */
+    const double M_pl = Gambit::m_planck_red; // m_planck/sqrt(8.0*pi); reduced Planck mass (GeV)
+
     using namespace LogTags;
+
+    const double G_cgs = 6.674e-8; // Gravitational constant [cm³/g/s²]
 
     // Obtain the grid of phi(0) for a given M and mu by interpolating pre-calculated values
     // from the data file CosmoBit/data/phiOvals.dat
@@ -39,8 +50,6 @@ namespace Gambit
     {
       using namespace Pipes::interp_phi0;
       using namespace std;
-
-      const double M_pl = 2.453e18; // [Gev/c^2] reduced planck mass
 
       // Read in the data file on the first time the function calls
       static bool firsttime = true;
@@ -52,7 +61,7 @@ namespace Gambit
       if (firsttime == true){
         // Create a file stream for file to open the .dat file of phi0 values
         ifstream datafile;
-        str filename = runOptions->getValueOrDef<str>(GAMBIT_DIR "/CosmoBit/data/phi0vals.dat", "filepath");
+        str filename = runOptions->getValueOrDef<str>(GAMBIT_DIR "/CosmoBit/data/ModGrav/phi0vals.dat", "filepath");
         datafile.open(filename);
         if(!datafile.is_open()){
           CosmoBit_error().raise(LOCAL_INFO, "Failed to open file phi0vals.dat in specified directory.");
@@ -367,6 +376,117 @@ namespace Gambit
        }
 
        result = logl;
+    }
+
+
+    //------------- Functions to compute short range forces likelihoods -------------//
+    // capability to provide the Higgs-Nucleon coupling constant fN, such as described in arXiv:1306.4710
+    void func_Higgs_Nucleon_coupling_fN (Higgs_Nucleon_coupling_fN &result)
+    {
+      using namespace Pipes::func_Higgs_Nucleon_coupling_fN;
+
+      const double sigmas = *Param["sigmas"]*1e-3, sigmal = *Param["sigmal"]*1e-3; // nuclear parameters in GeV (model input in MeV)
+      const Spectrum SM = *Dep::SM_spectrum; // SM spectrum needed to get light quark masses
+
+      const double z = 1.49; // isospin breaking ratio
+      const double mu = SM.get(Par::mass1, "u_1"), md = SM.get(Par::mass1, "d_1"), ms = SM.get(Par::mass1, "d_2"); // light quark masses [GeV]
+      const double mn = Gambit::m_neutron, mp = Gambit::m_proton; // nucleon masses [GeV]
+
+      // intermediate quantities
+      const double ml = 0.5*(mu+md);
+      const double sigma0 = sigmal - sigmas*(2.*ml/ms);;
+      const double y = 1 - sigma0/sigmal;
+
+      std::vector<double> fu, fd, fs, mN = {mn, mp};
+
+      for (size_t i(0); i<mN.size(); ++i)
+      {
+        fu.push_back(mu/(mu+md)*sigmal/mN[i]*(2*z+y*(1-z))/(1+z));
+        fd.push_back(md/(mu+md)*sigmal/mN[i]*(2-y*(1-z))/(1+z));
+        fs.push_back(ms/(mu+md)*sigmal/mN[i]*y);
+      }
+
+      result.neutron =  2./9. + 7./9.*(fu[0]+fd[0]+fs[0]);
+      result.proton  =  2./9. + 7./9.*(fu[1]+fd[1]+fs[1]);
+    }
+
+    // Modified Inverse-Square Law (ISL) by adding a new Yukawa potential to the Newtonian gravitational potential: Vnew(r) = -(alpha*G*m1*m2)/r * exp(-r/lambda)
+    // where alpha is the strenght of the new force and lambda its range
+
+    // experimental parameters from Sushkov et al. 2011 arXiv:1108.2547
+    const double rhoAu = 19, rhoTi = 4.5, rhog = 2.6, dAu = 700e-8, dTi = 100e-8, R = 15.6; // in cgs units
+
+    // capability function returning the new force from the SuperRenormHP model for the experiment from Shuskov et al. 2011
+    // or the symmetron fifth force in casimir experiments from Elder et al. 2020
+    void New_Force_Sushkov2011_SuperRenormHP (daFunk::Funk &result)
+    {
+      using namespace Pipes::New_Force_Sushkov2011_SuperRenormHP;
+
+      if (ModelInUse("symmetron"))
+      {
+        const double powv = *Param["vval"], powmu = *Param["mu"];
+        double vval = pow(10, powv)*Gambit::m_planck_red, mu = pow(10, powmu);
+
+        double Rad = runOptions->getValueOrDef<double>(10, "roundplate_radius");; // sphere radius in cm
+        double muR = mu*Rad/Gambit::gev2cm; // dimensionless term
+        daFunk::Funk d = daFunk::var("d"); // separation between plates
+        daFunk::Funk mux = d*1e-6/(Gambit::gev2cm*1e-2)*mu+muR;
+
+        double GeV2Newtons = 8.19e5; // Newton/GeV^2
+
+        daFunk::Funk force = 4.*M_PI*vval*vval*muR/sqrt(2)*tanh(mux/sqrt(2))*pow(1./cosh(mux/sqrt(2)),2.0) * GeV2Newtons; // take neg of force??
+        result = force;
+      }
+      else
+      {
+        const double alpha = *Param["alpha"], lambda = *Param["lambda"]*1e2; // lambda in cm
+
+        daFunk::Funk d = daFunk::var("d");
+
+        daFunk::Funk force = 4*pow(pi, 2)*G_cgs*R*alpha*pow(lambda, 3)*exp(-d/lambda)*pow(rhoAu + (rhoTi-rhoAu)*exp(-dAu/lambda) + (rhog-rhoTi)*exp(-(dAu+dTi)/lambda), 2)*1e-5; // *1e-5 conversion from dyn(cgs) to N (SI)
+        result = force;
+      }
+
+    }
+
+    // capability function to compute the likelihood from Sushkov et al. 2011
+    void calc_lnL_ShortRangeForces_Sushkov2011 (double &result)
+    {
+      using namespace Pipes::calc_lnL_ShortRangeForces_Sushkov2011;
+
+      daFunk::Funk ForceNew = *Dep::New_Force_Sushkov2011*1e12; // new force in pN
+
+      static ASCIItableReader data = ASCIItableReader(GAMBIT_DIR "/CosmoBit/data/ModGrav/Sushkov2011.dat");
+      data.setcolnames({"distance", "Fres", "sigma", "binWidth"});
+      static std::vector<double> distance = data["distance"]; // [microns]
+      static std::vector<double> Fres = data["Fres"]; // [pN]
+      static std::vector<double> sigma = data["sigma"]; // [pN]
+      static std::vector<double> width = data["binWidth"]; // [microns]
+
+      std::vector<boost::shared_ptr<daFunk::FunkBase>> ForceNewBinned;
+      std::vector<boost::shared_ptr<daFunk::FunkBound>> FnewBound;
+
+      double d, delta;
+
+      for (size_t i(0); i<distance.size(); ++i)
+      {
+        d = distance[i]*1e-4;
+        delta = width[i]*1e-4;
+        ForceNewBinned.push_back(ForceNew->gsl_integration("d", d-delta/2, d+delta/2)/delta);
+        FnewBound.push_back(ForceNewBinned[i]->bind());
+      }
+
+      std::vector<double> likelihood;
+      double norm, Fnew;
+
+      for (size_t i(0); i<distance.size(); ++i)
+      {
+        norm = 1.; // we take the likelihood ratio to avoid having different normalizations accross the parameter space;
+        Fnew = FnewBound[i]->eval();
+        likelihood.push_back( (Fnew<Fres[i]) ? norm : norm*exp(-pow(Fres[i]-Fnew, 2)/pow(sigma[i], 2)) );
+      }
+
+      result = log(*std::min_element(likelihood.begin(), likelihood.end())); // we take the minimum likelihood, since we don't have the correlations between data bins
     }
 
   } // namespace CosmoBit

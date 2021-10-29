@@ -1076,7 +1076,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // A likelihood function vmax
+  // A likelihood function vmin
   #define CAPABILITY vmin_loglike
   START_CAPABILITY
     #define FUNCTION lnL_vmin
@@ -1085,6 +1085,31 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Capbailities for short range (fifth force) experiments
+  #define CAPABILITY lnL_ShortRangeForces_Sushkov2011
+  START_CAPABILITY
+    #define FUNCTION calc_lnL_ShortRangeForces_Sushkov2011
+    START_FUNCTION(double)
+    DEPENDENCY(New_Force_Sushkov2011, daFunk::Funk)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY get_Higgs_Nucleon_coupling_fN
+  START_CAPABILITY
+    #define FUNCTION func_Higgs_Nucleon_coupling_fN
+    START_FUNCTION(Higgs_Nucleon_coupling_fN)
+    ALLOW_MODEL(nuclear_params_sigmas_sigmal)
+    DEPENDENCY(SM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY New_Force_Sushkov2011
+  START_CAPABILITY
+    #define FUNCTION New_Force_Sushkov2011_SuperRenormHP
+    START_FUNCTION(daFunk::Funk)
+    ALLOW_MODELS(ModifiedGravityYukawa, symmetron)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 #undef MODULE
 #endif /* defined __CosmoBit_rollcall_hpp__ */

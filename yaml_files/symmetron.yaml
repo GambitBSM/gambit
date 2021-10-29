@@ -59,7 +59,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: multinest
 
   scanners:
 
@@ -77,8 +77,8 @@ Scanner:
       plugin: multinest
       like:  LogLike
       nlive: 5000
-      #tol: 0.0001
-      tol: 0.001
+      tol: 0.0001
+      # tol: 0.01
 
     mcmc:
       plugin: great
@@ -102,7 +102,7 @@ ObsLikes:
 
   - purpose:      LogLike
     capability:   lnL_ShortRangeForces_Sushkov2011
-    module:       DarkBit
+    module:       CosmoBit
     type:         double
 
   - purpose:      LogLike
@@ -129,6 +129,28 @@ Rules:
   - capability: vmin_loglike
     options:
         gravstrength: 1.0
+
+  - capability: New_Force_Sushkov2011
+    options:
+        roundplate_radius: 16.5 # in cm, Sushkov et al. 2011
+
+  # error calculation precision settings for AltterBBN
+  # (use failsafe 1 and 0 to speed up Helium abundance calculation for testing)
+  # (For more precise calculations, use 3 or 7)
+  # Here, we choose err: 0, as the error calculation is dictated by the rule below
+  - capability: AlterBBN_Input
+    options:
+      failsafe: 3
+      err: 0
+
+  # Fix relative error and covariance of helium-4 and deuterium abundances
+  - capability: BBN_abundances
+    options:
+      isotope_basis: [Yp, D]
+      correlation_matrix: [[+1.000e00, +1.524e-2],
+                           [+1.524e-2, +1.000e00]]
+      relative_errors: [1.348e-3, 1.596e-2]
+
 
 
 Logger:
