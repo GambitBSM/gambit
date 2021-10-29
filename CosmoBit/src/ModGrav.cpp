@@ -378,115 +378,157 @@ namespace Gambit
        result = logl;
     }
 
-
-    //------------- Functions to compute short range forces likelihoods -------------//
-    // capability to provide the Higgs-Nucleon coupling constant fN, such as described in arXiv:1306.4710
-    void func_Higgs_Nucleon_coupling_fN (Higgs_Nucleon_coupling_fN &result)
+    // Add GSL ODE solving functions for the modified MG-AlterBBN
+    /* Calculates the symmetron coupling function given the dimenionless field value phi,
+		mass (GeV), v (GeV) */
+    double Afunc(double phi, double mass, double vparam)
     {
-      using namespace Pipes::func_Higgs_Nucleon_coupling_fN;
-
-      const double sigmas = *Param["sigmas"]*1e-3, sigmal = *Param["sigmal"]*1e-3; // nuclear parameters in GeV (model input in MeV)
-      const Spectrum SM = *Dep::SM_spectrum; // SM spectrum needed to get light quark masses
-
-      const double z = 1.49; // isospin breaking ratio
-      const double mu = SM.get(Par::mass1, "u_1"), md = SM.get(Par::mass1, "d_1"), ms = SM.get(Par::mass1, "d_2"); // light quark masses [GeV]
-      const double mn = Gambit::m_neutron, mp = Gambit::m_proton; // nucleon masses [GeV]
-
-      // intermediate quantities
-      const double ml = 0.5*(mu+md);
-      const double sigma0 = sigmal - sigmas*(2.*ml/ms);;
-      const double y = 1 - sigma0/sigmal;
-
-      std::vector<double> fu, fd, fs, mN = {mn, mp};
-
-      for (size_t i(0); i<mN.size(); ++i)
-      {
-        fu.push_back(mu/(mu+md)*sigmal/mN[i]*(2*z+y*(1-z))/(1+z));
-        fd.push_back(md/(mu+md)*sigmal/mN[i]*(2-y*(1-z))/(1+z));
-        fs.push_back(ms/(mu+md)*sigmal/mN[i]*y);
-      }
-
-      result.neutron =  2./9. + 7./9.*(fu[0]+fd[0]+fs[0]);
-      result.proton  =  2./9. + 7./9.*(fu[1]+fd[1]+fs[1]);
+      return (1.+ pow(vparam*phi/mass,2.0)/2.);
     }
 
-    // Modified Inverse-Square Law (ISL) by adding a new Yukawa potential to the Newtonian gravitational potential: Vnew(r) = -(alpha*G*m1*m2)/r * exp(-r/lambda)
-    // where alpha is the strenght of the new force and lambda its range
-
-    // experimental parameters from Sushkov et al. 2011 arXiv:1108.2547
-    const double rhoAu = 19, rhoTi = 4.5, rhog = 2.6, dAu = 700e-8, dTi = 100e-8, R = 15.6; // in cgs units
-
-    // capability function returning the new force from the SuperRenormHP model for the experiment from Shuskov et al. 2011
-    // or the symmetron fifth force in casimir experiments from Elder et al. 2020
-    void New_Force_Sushkov2011_SuperRenormHP (daFunk::Funk &result)
+    /* Calculates the symmetron potential function given the dimensionless field value phi \
+    		mu (GeV), v (GeV) */
+    double Vfunc(double phi, double mu, double vparam)
     {
-      using namespace Pipes::New_Force_Sushkov2011_SuperRenormHP;
+      return (-0.5*pow(mu*vparam,2.0)*pow(phi,2.0) + 0.25*pow(mu*vparam,2.0)*pow(phi,4.0));
+    }
 
+    /* Calculates the symmetron potential function derivative wrt phi given mu (GeV),
+    		v (GeV) and dimensionless field value phi */
+    double Vderivfunc( double phi,double mu, double v)
+    {
+    		return -pow(mu*v,2.0)*phi +  pow(mu*v,2.0)*pow(phi,3.0);
+  	}
+
+    /* Calculates the parameter alpha(phi) = dlnA/dphi given dimenionless field value phi,
+    		mass (GeV), v (GeV) */
+    double alphafunc(double phi, double mass, double vparam)
+  	{
+  	  return (1./(1.+pow(vparam*phi/mass,2.0)/2.)*pow(vparam/mass,2.0)*phi);
+  	}
+
+    /* define the symmetron parameters for the ODE */
+    struct odeparameters {
+      double massparam; // mass parameter, GeV
+      double muparam; // mu parameter, GeV
+      double vparam; // v parameter, GeV
+      double phi0; // dimensionless field at present day for the given parameters
+    };
+
+    // Function to store the ODE as a first order system
+    // Solving for the field y as a function of temperature T
+    int func (double T, const double y[], double f[], void *params)
+    {
+      struct odeparameters * paramspointer = (struct odeparameters *) params;
+      double mass = paramspointer->massparam;
+      double mu = paramspointer->muparam;
+      double vval = paramspointer->vparam;
+      double phi0 = paramspointer->phi0;
+
+      double Aval = Afunc(y[0], mass, vval);
+      double Vval = Vfunc(y[0], mu, vval);
+      double Vderiv = Vderivfunc(y[0], mu, vval);
+      double Gstar = G*pow(Afunc(phi0, mass, vval),-2.)/(1+pow(alphafunc(phi0, mass, vval),2.));
+
+      double densitystar = pi*pi/15.*pow(T,4)*pow(Aval,4.); // assume only radiation
+      double omega = 1.0/(8.0*pi*Gstar*densitystar)*Vderiv/(M_pl*M_pl);
+      double eta = 1.0/(8.0*pi*Gstar*densitystar)*Vval/(M_pl*M_pl);
+
+      f[0] = y[1];
+      f[1] = (-omega-2.0/3.0*(1+3.0*eta)*y[1]*T)*(3.0-pow(y[1]*T,2.0))/(2.0*(1.0+eta)*T*T)+y[1]/(T);
+      return GSL_SUCCESS;
+    }
+
+    // Don't need a Jacobian so leave empty
+    int jac(double t, const double y[], double * dfdy, double dfdt[], void * params)
+    {
+      return GSL_SUCCESS;
+    }
+
+    void phiBBN(std::vector<double> &result)
+    {
+      using namespace Pipes::phiBBN;
+      using namespace std;
+
+      // define constants needed from AlterBBN
+      const int ntabmax = 1000;
+
+      double massparam, vparam, muparam, phi_0, phi_init;
+
+      // Put symmetron parameters back into GeV units
       if (ModelInUse("symmetron"))
       {
-        const double powv = *Param["vval"], powmu = *Param["mu"];
-        double vval = pow(10, powv)*Gambit::m_planck_red, mu = pow(10, powmu);
+        // Input parameters are given as powers so convert to GeV/c^2
+        double powmass = *Param["mass"];
+        massparam = pow(10, powmass)*M_pl;
+        double powv = *Param["vval"];
+        vparam = pow(10, powv)*M_pl;
+        double powmu = *Param["mu"];
+        muparam = pow(10, powmu);
 
-        double Rad = runOptions->getValueOrDef<double>(10, "roundplate_radius");; // sphere radius in cm
-        double muR = mu*Rad/Gambit::gev2cm; // dimensionless term
-        daFunk::Funk d = daFunk::var("d"); // separation between plates
-        daFunk::Funk mux = d*1e-6/(Gambit::gev2cm*1e-2)*mu+muR;
+        // Set other parameters
+        phi_0 = 1e-6; // set the present-day field constant for now but needs to be fixed
+        phi_init = *Param["phi_init"];
 
-        double GeV2Newtons = 8.19e5; // Newton/GeV^2
-
-        daFunk::Funk force = 4.*M_PI*vval*vval*muR/sqrt(2)*tanh(mux/sqrt(2))*pow(1./cosh(mux/sqrt(2)),2.0) * GeV2Newtons; // take neg of force??
-        result = force;
-      }
-      else
+      } else
       {
-        const double alpha = *Param["alpha"], lambda = *Param["lambda"]*1e2; // lambda in cm
-
-        daFunk::Funk d = daFunk::var("d");
-
-        daFunk::Funk force = 4*pow(pi, 2)*G_cgs*R*alpha*pow(lambda, 3)*exp(-d/lambda)*pow(rhoAu + (rhoTi-rhoAu)*exp(-dAu/lambda) + (rhog-rhoTi)*exp(-(dAu+dTi)/lambda), 2)*1e-5; // *1e-5 conversion from dyn(cgs) to N (SI)
-        result = force;
+         CosmoBit_error().raise(LOCAL_INFO,"Whoops, you are not scanning the model "
+          " symmetron! There is probably a bug CosmoBit_rollcall.hpp; this module "
+          " function should have ALLOW_MODELS(symmetron) defined.");
       }
 
-    }
+      // Set up solver
+      const gsl_odeiv2_step_type * T
+        = gsl_odeiv2_step_rkf45;
 
-    // capability function to compute the likelihood from Sushkov et al. 2011
-    void calc_lnL_ShortRangeForces_Sushkov2011 (double &result)
-    {
-      using namespace Pipes::calc_lnL_ShortRangeForces_Sushkov2011;
+      gsl_odeiv2_step * s
+        = gsl_odeiv2_step_alloc (T, 2);
+      gsl_odeiv2_control * c
+        = gsl_odeiv2_control_y_new (1e-10, 1e-10);
+      gsl_odeiv2_evolve * e
+        = gsl_odeiv2_evolve_alloc (2);
 
-      daFunk::Funk ForceNew = *Dep::New_Force_Sushkov2011*1e12; // new force in pN
+      struct odeparameters params = {massparam, muparam, vparam, phi_0};
+      gsl_odeiv2_system sys = {func, jac, 2, &params};
 
-      static ASCIItableReader data = ASCIItableReader(GAMBIT_DIR "/CosmoBit/data/ModGrav/Sushkov2011.dat");
-      data.setcolnames({"distance", "Fres", "sigma", "binWidth"});
-      static std::vector<double> distance = data["distance"]; // [microns]
-      static std::vector<double> Fres = data["Fres"]; // [pN]
-      static std::vector<double> sigma = data["sigma"]; // [pN]
-      static std::vector<double> width = data["binWidth"]; // [microns]
+      double x = -3e-3, xb = -1.07e-8; // radiation domination period, temperature domain in GeV
+      double h = 1e-6; // initial stepping interval
+      double y[2] = {phi_init, 0.0};
 
-      std::vector<boost::shared_ptr<daFunk::FunkBase>> ForceNewBinned;
-      std::vector<boost::shared_ptr<daFunk::FunkBound>> FnewBound;
+      // vectors to store the field and its derivatives in
+      int nlines = 0; // count the number of lines in field sln vec
+      int count =0; // if spacing is close enough we don't need to store every point
+      std::vector<double> table_phisolve (ntabmax*3, 0.0); // a vector to store the temperatures and field values
+      double tempold = 0.;
 
-      double d, delta;
 
-      for (size_t i(0); i<distance.size(); ++i)
+      while (x < xb)
       {
-        d = distance[i]*1e-4;
-        delta = width[i]*1e-4;
-        ForceNewBinned.push_back(ForceNew->gsl_integration("d", d-delta/2, d+delta/2)/delta);
-        FnewBound.push_back(ForceNewBinned[i]->bind());
-      }
+    		int status = gsl_odeiv2_evolve_apply (e, c, s, &sys, &x, xb, &h, y);
 
-      std::vector<double> likelihood;
-      double norm, Fnew;
+    		if (status != GSL_SUCCESS) {
+    			fprintf(stderr, "Solver error: GSL_SUCCESS not returned, routine ended at T = %.5e GeV \n", -x); break;
+    		}
+    		// fprintf (datafile, "%.5e  %.5e  %.5e \n", x, y[0], y[1]);
+    		if (nlines > ntabmax){
+    			fprintf(stderr, "No. points in field sln exceeds alterbbn's limit \n"); break;
+    		}
+    		else if (nlines < ntabmax && (count)%5==0 && fabs(tempold-x)>1.e-10){
+    			tempold = x;
+          table_phisolve.at(count*3+0) = -x; // field is solved in terms of negative temperature
+          table_phisolve.at(count*3+1) = y[0];
+          table_phisolve.at(count*3+2) = -y[1]; // derivative changes sign with temperature
+    			nlines ++;
+    		}
 
-      for (size_t i(0); i<distance.size(); ++i)
-      {
-        norm = 1.; // we take the likelihood ratio to avoid having different normalizations accross the parameter space;
-        Fnew = FnewBound[i]->eval();
-        likelihood.push_back( (Fnew<Fres[i]) ? norm : norm*exp(-pow(Fres[i]-Fnew, 2)/pow(sigma[i], 2)) );
-      }
+    		count ++;
+    	}
 
-      result = log(*std::min_element(likelihood.begin(), likelihood.end())); // we take the minimum likelihood, since we don't have the correlations between data bins
+    	gsl_odeiv2_evolve_free (e);
+    	gsl_odeiv2_control_free (c);
+    	gsl_odeiv2_step_free (s);
+
+      result = table_phisolve;
     }
 
   } // namespace CosmoBit
