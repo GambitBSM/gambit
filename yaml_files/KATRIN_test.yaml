@@ -1,0 +1,100 @@
+Parameters:
+
+  StandardModel_mNudiff:
+    alphainv:  1.27950000E+02 # alpha^{-1}(mZ)^MSbar !
+    GF      :  1.16637870E-05 # G_Fermi !
+    alphaS  :  1.18100000E-01 # alpha_s(mZ)^MSbar @
+    mZ      :  9.11876000E+01 # mZ(pole) !
+    mBmB    :  4.18000000E+00 # mb(mb)^MSbar #
+    mT      :  1.73340000E+02 # mtop(pole) $
+    mTau    :  1.77686000E+00 # mtau(pole) &
+    mE      :  5.10998946E-04 # melectron(pole) &
+    mMu     :  1.05658375E-01 # mmuon(pole) &
+    mD      :  4.70000000E-03 # md(2 GeV)^MSbar #
+    mU      :  2.20000000E-03 # mu(2 GeV)^MSbar #
+    mS      :  9.60000000E-02 # ms(2 GeV)^MSbar #
+    mCmC    :  1.28000000E+00 # mc(mc)^MSbar #
+    CKM_lambda  :  0.22537
+    CKM_A       :  0.814
+    CKM_rhobar  :  0.117
+    CKM_etabar  :  0.353
+    theta12 :  0.59027 # solar angle
+    theta23 :  0.84823 # atmospheric mixing angle
+    theta13 :  0.15010 #
+    delta13 :  3.85718 # Dirac CP-violating phase
+    alpha1  :  0       # first Majorana CP-violating phase
+    alpha2  :  0       # second CP-violating Majorana phase
+
+    # mass of lightest neutrino in eV
+    mNu_light:
+      prior_type: flat
+      range: [0.,3.]
+
+    # mass spliting dmNu21 in eV^2
+    dmNu21:
+      prior_type: flat
+      scale : 1e-5
+      range: [6.,9.]
+
+    # mass spliting dmNu3l in eV^2
+    # (NH) dmNu3l = dmNu31 > 0.0
+    # (IH) dmNu3l = dmNu32 < 0.0
+    dmNu3l:
+      prior_type: flat
+      scale : 1e-3
+      range: [2.2,2.8]
+
+Priors:
+
+Printer:
+  printer: cout
+
+Scanner:
+  use_scanner: random
+
+  scanners:
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 5
+
+ObsLikes:
+
+  - purpose:      LogLike
+    capability:   md21_md3l_NuFit_v4_1_lnL
+    type:         double
+
+  - purpose:      LogLike
+    capability:   KATRIN_mnu_KNM1_lnL
+    type:         double
+
+  - purpose:      LogLike
+    capability:   KATRIN_mnu_KNM2_lnL
+    type:         double
+
+#  - purpose:      LogLike
+#    capability:   KATRIN_mnu_combined_lnL
+#    type:         double
+
+  - purpose:      Observable
+    capability:   mNu_tot
+    type:         double
+
+  - purpose:      Observable
+    capability:   mnu_e_eff
+    type:         double
+
+Rules:
+
+Logger:
+  redirection:
+    [Default]      : "default.log"
+
+KeyValues:
+
+  debug: false
+
+  default_output_path: "runs/KATRIN_test"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6

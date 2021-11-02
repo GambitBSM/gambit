@@ -29,6 +29,11 @@
 ///  \author Julia Harz
 ///          (jharz@lpthe.jussieu.fr)
 ///  \date 2018 April
+///
+///  \author Patrick Stoecker
+///          (patrick.stoecker@kit.edu)
+///  \date 2021 October
+///
 ///  *********************************************
 
 
@@ -1131,6 +1136,39 @@ START_MODULE
     #define FUNCTION sum_mnu_lnL
     START_FUNCTION(double)
     ALLOW_MODEL(StandardModel_SLHA2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY mnu_e_eff
+  START_CAPABILITY
+    #define FUNCTION mnu_e_eff
+    START_FUNCTION(double)
+    DEPENDENCY(UPMNS, Eigen::Matrix3cd)
+    DEPENDENCY(m_nu, Eigen::Matrix3cd)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY KATRIN_mnu_KNM1_lnL
+  START_CAPABILITY
+    #define FUNCTION KATRIN_mnu_KNM1_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(mnu_e_eff, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY KATRIN_mnu_KNM2_lnL
+  START_CAPABILITY
+    #define FUNCTION KATRIN_mnu_KNM2_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(mnu_e_eff, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY KATRIN_mnu_combined_lnL
+  START_CAPABILITY
+    #define FUNCTION KATRIN_mnu_combined_lnL
+    START_FUNCTION(double)
+    DEPENDENCY(mnu_e_eff, double)
     #undef FUNCTION
   #undef CAPABILITY
 

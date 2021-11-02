@@ -17,6 +17,10 @@
 ///          (jharz@lpthe.jussieu.fr)
 ///  \date 2018 April
 ///
+///  \author Patrick Stoecker
+///          (patrick.stoecker@kit.edu)
+///  \date 2021 October
+///
 ///  *********************************************
 
 #define _USE_MATH_DEFINES
@@ -940,5 +944,89 @@ namespace Gambit
         invalid_point().raise(msg.str());
       }
     }
+
+    /// Calculates the effective (squared) mass of the electron neutrino (m_{\nu_e}^2)
+    /// as this is what is (will be) measured by KATRIN
+    ///
+    ///  mnu_e_eff = \Sum_i | U_ei |^2 * m_i^2
+    ///
+    void mnu_e_eff(double &result)
+    {
+      using namespace Pipes::mnu_e_eff;
+
+      const Eigen::Matrix3cd& mnu = *Dep::m_nu;
+      const Eigen::Matrix3cd& U = *Dep::UPMNS;
+
+      double sum = 0.0;
+
+      for(size_t i = 0; i < 3; ++i)
+      {
+        sum += pow(std::abs(U(0,i)), 2) * pow(1e9 * mnu(i,i).real(), 2);
+      }
+
+      result = sum;
+    }
+
+    /// Lnlike on the effective (squared) mass of the electron neutrino
+    /// based on the result of the KATRIN Neutrino Mass campaign 1 (KNM1)
+    /// [see 1909.06048]
+    void KATRIN_mnu_KNM1_lnL(double &result)
+    {
+      using namespace Pipes::KATRIN_mnu_KNM1_lnL;
+
+      const double prediction = *Dep::mnu_e_eff;
+
+      // Even though the distribution is asymmetric (sigmaUp = 0.9, sigmaDown = 1.1)
+      // the prediction will be positive for all practical purposes such that we will
+      // only implement the upper half of this asymmetric distribution.
+      const double observation = -1.0;
+      const double sigma = 0.9;
+
+      result = -0.5 * pow((prediction - observation)/sigma, 2);
+    }
+
+    /// Lnlike on the effective (squared) mass of the electron neutrino
+    /// based on the result of the KATRIN Neutrino Mass campaign 2 (KNM2)
+    /// [see 2105.08533]
+    void KATRIN_mnu_KNM2_lnL(double &result)
+    {
+      using namespace Pipes::KATRIN_mnu_KNM2_lnL;
+
+      const double prediction = *Dep::mnu_e_eff;
+
+      const double observation = 0.26;
+      const double sigma = 0.34;
+
+      result = -0.5 * pow((prediction - observation)/sigma, 2);
+    }
+
+    /// Lnlike on the effective (squared) mass of the electron neutrino, by
+    /// combining the KATRIN Neutrino Mass campaigns 1 and 2.
+    void KATRIN_mnu_combined_lnL(double &result)
+    {
+      using namespace Pipes::KATRIN_mnu_combined_lnL;
+
+      const double prediction = *Dep::mnu_e_eff;
+
+      /*
+      // This is the proper calculation of the combination of KNM1 and KNM2.
+      // But this can also be achieved by including both, 'KATRIN_mnu_KNM1'
+      // and 'KATRIN_mnu_KNM2', in the scan.
+      const double observation1 = -1.;
+      const double observation2 = 0.26;
+      const double sigma1 = 0.9;
+      const double sigma2 = 0.34;
+
+      const double observation = (observation1/pow(sigma1,2) + observation2/pow(sigma2,2)) / (1/pow(sigma1,2) + 1/pow(sigma2,2));
+      const double sigma = pow(1/pow(sigma1,2) + 1/pow(sigma2,2), -0.5);
+      */
+
+      // These are the values stated in 2105.08533 (no idea how they got there)
+      const double observation = 0.2;
+      const double sigma = 0.3;
+
+      result = -0.5 * pow((prediction - observation)/sigma, 2);
+    }
+
   }
 }
