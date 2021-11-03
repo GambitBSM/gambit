@@ -785,7 +785,18 @@ diff --git a/tools/evolver_ndf15.c b/tools/evolver_ndf15.c
 index 0d293723..a3e8d268 100644
 --- a/tools/evolver_ndf15.c
 +++ b/tools/evolver_ndf15.c
-@@ -1215,6 +1215,7 @@ int numjac(
+@@ -310,7 +310,9 @@ int evolver_ndf15(
+     if (fabs(absh-hmin)<100*eps){
+       /* If the stepsize has not changed */
+       if (at_hmin==_TRUE_){
+-    absh = abshlast;    /*required by stepsize recovery */
++        class_test(fabs(absh-abshlast) < eps, error_message,
++                   "Cannot recover the last successful stepsize. Solver gets stuck in an infinite loop");
++        absh = abshlast;    /*required by stepsize recovery */
+       }
+       at_hmin = _TRUE_;
+     }
+@@ -1215,6 +1217,7 @@ int numjac(
    double **dFdy,*fac;
    int *Ap=NULL, *Ai=NULL;
  
@@ -793,7 +804,7 @@ index 0d293723..a3e8d268 100644
    dFdy = jac->dfdy; /* Assign pointer to dfdy directly for easier notation. */
    fac = jac->jacvec;
    if (jac->use_sparse){
-@@ -1306,7 +1307,11 @@ int numjac(
+@@ -1306,7 +1309,11 @@ int numjac(
                 error_message,error_message);
  
      *nfe+=1;
@@ -806,7 +817,7 @@ index 0d293723..a3e8d268 100644
    }
  
  
-@@ -1405,6 +1410,7 @@ int numjac(
+@@ -1405,6 +1412,7 @@ int numjac(
            Fdiff_absrm = 0.0;
            for(i=1;i<=neq;i++){
              Fdiff_absrm = MAX(Fdiff_absrm,fabs(Fdiff_new));

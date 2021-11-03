@@ -301,3 +301,18 @@
    double * lnk;    /**< list of ln(k) values lnk[index_k] */
  
    double ** lnpk;  /**< depends on indices index_md, index_ic1, index_ic2, index_k as:
+diff --git a/tools/evolver_ndf15.c b/tools/evolver_ndf15.c
+index 790ced55..a09306d7 100755
+--- a/tools/evolver_ndf15.c
++++ b/tools/evolver_ndf15.c
+@@ -310,7 +310,9 @@ int evolver_ndf15(
+     if (fabs(absh-hmin)<100*eps){
+       /* If the stepsize has not changed */
+       if (at_hmin==_TRUE_){
+-	absh = abshlast;	/*required by stepsize recovery */
++        class_test(fabs(absh-abshlast) < eps, error_message,
++                   "Cannot recover the last successful stepsize. Solver gets stuck in an infinite loop");
++        absh = abshlast;    /*required by stepsize recovery */
+       }
+       at_hmin = _TRUE_;
+     }
