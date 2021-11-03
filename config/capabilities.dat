@@ -5355,6 +5355,18 @@ md3l_NuFit_v4_1_lnL: |
 md21_md3l_NuFit_v4_1_lnL: |
   2D log-likelihood of the 1-2 and 3-l (l= 1 for NO, 2 for IO) mass splittings with respect to NuFit v4.1 data
 
+mnu_e_eff: |
+  Calculates the effective (squared) mass of the electron neutrino (m_{\nu_e}^2)
+
+KATRIN_mnu_KNM1_lnL: |
+  Log-likelihood on the effective (squared) mass of the electron neutrino with respect to the meassurement of the KATRIN Neutrino Mass campaign 1 (KNM1)  [cf. 1909.06048]
+
+KATRIN_mnu_KNM2_lnL: |
+  Log-likelihood on the effective (squared) mass of the electron neutrino with respect to the meassurement of the KATRIN Neutrino Mass campaign 2 (KNM1)  [cf. 2105.08533]
+
+KATRIN_mnu_combined_lnL: |
+  Combined log-likelihood on the effective (squared) mass of the electron neutrino with respect to the meassurements of the KATRIN Neutrino Mass campaigns 1 (KNM1) and 2 (KNM2)
+
 sum_mnu_lnL: |
   Log-likelihood of the sum of light neutrino masses usign cosmological constraints
 
