@@ -1,0 +1,127 @@
+AlterBBN Version 2.2 (18th July 2019)
+--------------------------------------
+By Alexandre Arbey (alexandre.arbey@ens-lyon.fr), Jeremy Auffinger (jeremy.auffinger@ens-lyon.fr), Kevin Hickerson (kevinh@caltech.edu) and Espen Jenssen (EspenJenssen@hotmail.com)
+
+
+INTRODUCTION
+------------
+The most recent version of this program can be obtained from: 
+https://alterbbn.hepforge.org/
+
+This C code (in C99 standard) provides the calculation of the BBN abundance of the elements in different cosmological frameworks.
+
+The program has been tested on Linux, Mac and Windows machines with gcc, clang and icc.
+
+
+If you use AlterBBN to write a paper, please cite: 
+A. Arbey, arXiv:1106.1363 [astro-ph.CO], Comput. Phys. Commun. 183 (2012) 1822
+AND
+A. Arbey, J. Auffinger, K. P. Hickerson, E. S. Jenssen, arXiv:1806.11095 [astro-ph.CO].
+
+
+Installation and Compilation
+----------------------------
+- tar xzvf alterbbn_vX.X.tgz
+- cd alterbbn_vX.X
+- in Makefile, define your C compiler
+- compile with: make
+
+9 programs are available:
+- stand_cosmo.c: calculation of the abundances in the standard cosmological model
+- alter_eta.c: calculation in a scenario with a modified baryon-to-photon ratio
+- alter_etannutau.c: calculation in a scenario with a modified baryon-to-photon ratio, a different number of neutrinos and a modified neutron lifetime
+- alter_neutrinos.c: calculation in a scenario with a different number of neutrinos
+- alter_phi.c: calculation in a scenario with a decaying scalar field
+- alter_reheating.c: calculation in a model with modified expansion rate and reheating
+- alter_standmod.c: calculation in a model with modified expansion rate and entropy content
+- alter_wimps.c: calculation in a model where WIMPs can alter the nuclear rates
+- alter_neutron.c: calculation in a model that require precise alteration of neutron to proton beta rates
+
+Remark: if "Segmentation faults" are generated, please try to increase the stack size (ulimit -s unlimited).
+
+
+Included Files
+--------------
+- Procedures in src/
+bbn.c
+bbnrate.c
+bbn_constraints.c
+general.c
+cosmodel.c
+
+- Main programs
+stand_cosmo.c: calculation of the abundances in the standard cosmological model
+alter_eta.c: calculation in a scenario with a modified baryon-to-photon ratio
+alter_etannutau.c: calculation in a scenario with modified baryon-to-photon ratio, neutrino number and neutron lifetime
+alter_neutrinos.c: calculation in a scenario with a different number of neutrinos, and/or with degeneracy
+alter_phi.c: calculation in a scenario with a decaying scalar field
+alter_reheating.c: calculation in a model with modified expansion rate and reheating
+alter_standmod.c: calculation in a model with modified expansion rate and entropy content
+alter_wimps.c: calculation in a model where WIMPs can alter the nuclear rates
+alter_neutron.c: calculation in a model that require precise alteration of neutron to proton beta rates
+
+- Headers in src
+include.h: definitions and prototypes
+
+- src/sgStar_heff/: contains different tables of sgStar/heff.
+
+- Other
+Makefile(s)
+README
+
+
+History
+-------
+v2.2 - 07/18/2019 -     Changed constraint routines.
+			Corrected equivalent neutrino density derivative for non-WIMP scenarios (thanks to Felix Kahlhoefer and Patrick Stöcker).
+			Small improvements.
+
+v2.1 - 05/02/2019 -     Upgraded proton to neutron beta calculations.
+			Added a new executable for altering neutron beta rates, alter_neutron.
+			Repaired np beta code to correctly normalize to neutron lifetime.
+			Added Fermi functions to np beta rates.
+			Added Fierz interference term to np beta rates.
+			Improved neutrino decoupling.
+			Allowed scaling of samples used to compute np beta rates.
+			Precise calculation (failsafe=1) set as default.
+			New numerical integration methods added.
+			Interface with the REACLIB database added to expand the nuclear network.
+			Many improvements and small corrections.
+
+v2.0 - 06/29/2018 -     Extended nuclear network.
+			Several cases of WIMPs added.
+			Automatic error and correlation calculation added.
+			Scenario with decaying scalar field added.
+			Scenario with reheating added.
+			Multiprocessors option for faster error calculation.
+
+v1.4 - 06/28/2013 -     Added calculation of the errors, inspired by astro-ph/9803177 (thanks to S. Sarkar).
+			Routine prototypes modified.
+			Neutrino degeneracy added.
+
+v1.3 - 03/04/2012 -     Reaction rate moved to separate file bbnrate.c.
+			Evaluation of errors using low and high rates.
+			Several comments modified in the .c files (thanks to A. Mishra).
+
+v1.2 - 07/08/2011 -     Improved p <-> n reaction rate.
+
+v1.1 - 06/20/2011 -     Improved nuclear network.
+
+v1.0 - 06/02/2011 - 	First public release.
+
+
+LICENSE
+-------
+    AlterBBN Copyright (C) 2019 A. Arbey, J. Auffinger, K. Hickerson, E. Jenssen
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or any 
+    later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    See <http://www.gnu.org/licenses/>.  
