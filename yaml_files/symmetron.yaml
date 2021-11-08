@@ -115,6 +115,11 @@ ObsLikes:
     module:       CosmoBit
     type:         double
 
+  # # Likelihood from BBN; use deuterium (D) and Helium-4 (He4)
+  # - purpose:      LogLike
+  #   capability:   BBN_LogLike
+  #   sub_capabilities: [D, He4]
+
 Rules:
 
   # None required, since no module dependencies to be resolved.

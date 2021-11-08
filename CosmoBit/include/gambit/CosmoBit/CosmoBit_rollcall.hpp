@@ -893,6 +893,7 @@ START_MODULE
     MODEL_GROUP(cosmo,(LCDM, LCDM_theta, LCDM_zreio, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB))
     MODEL_GROUP(neutron,(nuclear_params_neutron_lifetime))
     ALLOW_MODEL_COMBINATION(cosmo,neutron)
+    ALLOW_MODELS(symmetron)
     DEPENDENCY(Neff_SM, double)
     MODEL_CONDITIONAL_DEPENDENCY(eta0,double,LCDM,LCDM_theta,LCDM_zreio)
     #undef FUNCTION

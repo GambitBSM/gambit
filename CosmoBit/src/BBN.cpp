@@ -102,12 +102,12 @@ namespace Gambit
         result["dNnu"] = dNurBBN;                                // dNnu: within AlterBBN scenarios in which the sum Nnu+dNnu is the same are identical
         result["eta0"] = *Param.at("eta_BBN");                // eta at the end of BBN
       }
-      else // at this point either LCDM or LCDM_theta are in use so we assume standard values for Nnu and dNnu
-      {
-        result["Nnu"] = *Dep::Neff_SM; // contribution from SM neutrinos
-        result["dNnu"] = 0.;           // no extra ur species in standard LCDM model
-        result["eta0"] = *Dep::eta0;  // assume etaBBN = eta0
-      }
+      // else // at this point either LCDM or LCDM_theta are in use so we assume standard values for Nnu and dNnu
+      // {
+      //   result["Nnu"] = *Dep::Neff_SM; // contribution from SM neutrinos
+      //   result["dNnu"] = 0.;           // no extra ur species in standard LCDM model
+      //   result["eta0"] = *Dep::eta0;  // assume etaBBN = eta0
+      // }
 
       // Adopt the default value for the neutron lifetime in seconds if is not passed as a model parameter
       if (ModelInUse("nuclear_params_neutron_lifetime"))
@@ -119,13 +119,36 @@ namespace Gambit
         result["neutron_lifetime"] = 879.4; // (PDG 2019 recommendation http://pdg.lbl.gov/2019/listings/rpp2019-list-n.pdf);
       }
 
+      // Set the symmetron parameters up in relicparam to calculate the field in alterbbn
+      if (ModelInUse("symmetron"))
+      {
+        result["Nnu"] = 3.046; // contribution from SM neutrinos default alterbbn value
+        result["dNnu"] = 0.;           // no extra ur species in standard LCDM model
+        result["eta0"] = 6.10e-10;  // assume etaBBN = eta0 default alterbbn value
+        result["mass"] = *Param["mass"];
+        result["mu"] = *Param["mu"];
+        result["vval"] = *Param["vval"];
+        result["phi_init"] = *Param["phi_init"];
+      }
+      else
+      {
+        result["mass"] = 0.;
+        result["mu"] = 0.;
+        result["vval"] = 0.;
+        result["phi_init"] = 0.;
+        result["Nnu"] = 3.046; // contribution from SM neutrinos default alterbbn value
+        result["dNnu"] = 0.;           // no extra ur species in standard LCDM model
+        result["eta0"] = 6.10e-10;  // assume etaBBN = eta0 default alterbbn value
+      }
+
       // Tell AlterBBN how to the method and precision to solve the differential equations (->failsafe)
       // and also tell it how thorough it should estimate the the theoretical uncertainties.
       result["failsafe"] = runOptions->getValueOrDef<double>(7,"failsafe");
       result["err"] = runOptions->getValueOrDef<double>(1,"err");
 
       logger() << "Set AlterBBN with parameters eta = " << result["eta0"] << ", Nnu = " << result["Nnu"] << ", dNnu = " << result["dNnu"] << ", neutron lifetime = " << result["neutron_lifetime"];
-      logger() << " and error params: failsafe = " << result["failsafe"] << ", err = " << result["err"] << EOM;
+      logger() << " and error params: failsafe = " << result["failsafe"] << ", err = " << result["err"];
+      logger() << " and symmetron params: mass = " << result["mass"] << ", mu = " << result["mu"] << ", vparam = " << result["vval"] << ", phi_init = " << result["phi_init"] << EOM;
     }
 
 

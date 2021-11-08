@@ -50,7 +50,7 @@ BE_NAMESPACE
   /// string set containing the name of all members of the AlterBBN relicparam structures that can currently
   /// be set with GAMBIT. If you add a new model and need to pass a different option to AlterBBN add e.g. "neutron_lifetime"
   /// here and in the function fill_cosmomodel below to modify the lifetime of the neutron
-  std::set<std::string> known_relicparam_options = {"eta0", "Nnu", "dNnu", "neutron_lifetime", "err","failsafe"};
+  std::set<std::string> known_relicparam_options = {"eta0", "Nnu", "dNnu", "neutron_lifetime", "mass", "mu", "vval", "phi_init", "err","failsafe"};
 
   /// Fill AlterBBN's relicparam with the entries from the AlterBBN_input
   void fill_cosmomodel(AlterBBN_2_2::relicparam * input_relicparam, map_str_dbl & AlterBBN_input)
@@ -85,25 +85,37 @@ BE_NAMESPACE
     if (AlterBBN_input.count("dNnu")){input_relicparam->dNnu = AlterBBN_input["dNnu"];}
     if (AlterBBN_input.count("neutron_lifetime")){input_relicparam->life_neutron = AlterBBN_input["neutron_lifetime"];}
 
+    // set symmetron parameters
+    if (AlterBBN_input.count("mass")){input_relicparam->mass = AlterBBN_input["mass"];}
+    if (AlterBBN_input.count("mu")){input_relicparam->mu = AlterBBN_input["mu"];}
+    if (AlterBBN_input.count("vval")){input_relicparam->vval = AlterBBN_input["vval"];}
+    if (AlterBBN_input.count("phi_init")){input_relicparam->phi_init = AlterBBN_input["phi_init"];}
+
     // set error handling related parameters
     if (AlterBBN_input.count("failsafe")){input_relicparam->failsafe = (int)AlterBBN_input["failsafe"];}
     if (AlterBBN_input.count("err")){input_relicparam->err = (int)AlterBBN_input["err"];}
+
+    // cout << "params passed into paramrelic ok " << endl;
   }
 
   /// calls the AlterBBN routine nucl_err with the filled relicparam structure. This will fill the array ratioH with
   /// all computed element abundances, and cov_ratioH with their errors & covariances
   int call_nucl_err(map_str_dbl &AlterBBN_input, double* ratioH, double* cov_ratioH )
   {
+    // cout << "before calling alterbbn functions" << endl;
     if (AlterBBN_input != prev_AlterBBN_input)
     {
       AlterBBN_2_2::relicparam input_relicparam;
       Init_cosmomodel(&input_relicparam); // initialise values of relicparam structure to their defaults
       fill_cosmomodel(&input_relicparam, AlterBBN_input); // fill strucutre with values contained in AlerBBN_input map which is filled in CosmoBit.ccp for different models
-  
+      Init_vecs(&input_relicparam); // initialise the rho_D and Ffunc vectors and related parameters to use in H
+
       nucl_err_res = nucl_err(&input_relicparam, ratioH, cov_ratioH);
       prev_ratioH = std::vector<double>(ratioH, ratioH+NNUC+1);
       prev_cov_ratioH = std::vector<double>(cov_ratioH, cov_ratioH+(NNUC+1)*(NNUC+1));
       prev_AlterBBN_input = AlterBBN_input;
+
+      // cout << "alterbbn functions called" << endl;
     }
     else
     {

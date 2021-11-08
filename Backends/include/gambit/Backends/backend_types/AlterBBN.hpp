@@ -154,10 +154,12 @@ namespace Gambit
       double table_rhoPD[2][NTABMAX];
       int size_table_rhoPD;
 
-      // Add the scaling function term for H(T)
-      int use_table_Fterm;
-      double table_Fterm[2][NTABMAX];
-      int size_table_Fterm;
+	// scalar field additions
+        int use_table_Ffunc;
+        double table_Ffunc[2][NTABMAX];
+        int size_table_Ffunc;
+
+        double mass, mu, vval, phi_init; // symmetron parameters fed in from GAMBIT
 
       /*---------------------*/
       /* AlterBBN parameters */

@@ -32,6 +32,7 @@
 LOAD_LIBRARY
 
 BE_FUNCTION(Init_cosmomodel, void, (AlterBBN_2_2::relicparam*), "Init_cosmomodel", "Init_cosmomodel")
+BE_FUNCTION(Init_vecs, void, (AlterBBN_2_2::relicparam*), "Init_vecs", "Init_vecs")
 BE_FUNCTION(nucl_err, int, (AlterBBN_2_2::relicparam*,double*,double*), "nucl_err", "nucl_err")
 
 BE_CONV_FUNCTION(get_NNUC, size_t, (), "get_NNUC")
