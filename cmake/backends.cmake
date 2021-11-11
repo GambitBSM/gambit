@@ -95,12 +95,12 @@ elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_C_COMPILER_ID}" STREQ
   endif()
 endif()
 
-# AlterBBN
+# AlterBBN with symmetron mods
 set(name "alterbbn")
 set(ver "2.2")
 set(lib "libbbn")
-set(dl "https://alterbbn.hepforge.org/downloads?f=alterbbn_v2.2.tgz")
-set(md5 "00441dde718ba00d3acbb2196a8a5439")
+set(dl "https://github.com/annamnliang/symmetron-alterbbn/archive/master.tar.gz")
+set(md5 "c17ea71889a4c4ea03b39df2a87fc2bd")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${name}_${ver}.diff")
 check_ditch_status(${name} ${ver} ${dir})
@@ -124,6 +124,36 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
+# # AlterBBN without symmetron mods (original)
+# set(name "alterbbn")
+# set(ver "2.2")
+# set(lib "libbbn")
+# set(dl "https://alterbbn.hepforge.org/downloads?f=alterbbn_v2.2.tgz")
+# set(md5 "00441dde718ba00d3acbb2196a8a5439")
+# set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+# set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${name}_${ver}.diff")
+# check_ditch_status(${name} ${ver} ${dir})
+# if(NOT ditched_${name}_${ver})
+#   ExternalProject_Add(${name}_${ver}
+#     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+#     SOURCE_DIR ${dir}
+#     BUILD_IN_SOURCE 1
+#     PATCH_COMMAND patch -p1 < ${patch}
+#     CONFIGURE_COMMAND ""
+#     BUILD_COMMAND sed ${dashi} -e "s#CC = gcc#CC = ${CMAKE_C_COMPILER}#g" Makefile
+#           COMMAND sed ${dashi} -e "s/CFLAGS= -O3 -pipe -fomit-frame-pointer -mtune=native -ffast-math -fno-finite-math-only/CFLAGS= ${AlterBBN_C_FLAGS}/g" Makefile
+#           COMMAND sed ${dashi} -e "s/CFLAGS_MP= -fopenmp/CFLAGS_MP= ${OpenMP_C_FLAGS}/g" Makefile
+#           COMMAND ${MAKE_PARALLEL}
+#           COMMAND ar x src/libbbn.a
+#           COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_C_COMPILER} ${OpenMP_C_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o ${lib}.so *.o" > make_so.sh
+#           COMMAND chmod u+x make_so.sh
+#           COMMAND ./make_so.sh
+#     INSTALL_COMMAND ""
+#   )
+#   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+#   set_as_default_version("backend" ${name} ${ver})
+# endif()
 
 # CaptnGeneral
 set(name "capgen")

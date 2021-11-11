@@ -697,8 +697,8 @@ int fill_params(double T, double Tnu, double phie, double h_eta, double a, doubl
 	}
 
 	double dTnu_dt,dT_dt;
-	if(isinf(dlna3_dTnu)) dTnu_dt=0.; else dTnu_dt=3.*H/dlna3_dTnu;
-	if(isinf(dlna3_dT)) dT_dt=0.; dT_dt=3.*H/dlna3_dT;
+    if(isinf(dlna3_dTnu) || isnan(dlna3_dTnu)) dTnu_dt=0.; else dTnu_dt=3.*H/dlna3_dTnu;
+    if(isinf(dlna3_dT) || isnan(dlna3_dT)) dT_dt=0.; else dT_dt=3.*H/dlna3_dT;
 
 	double dlnT_dt=dT_dt/T;
 	double dh_dt=-3.*h_eta*(H+dlnT_dt);
@@ -1101,6 +1101,7 @@ int nucl_single(struct relicparam* paramrelic, double ratioH[NNUC+1], struct err
         Y0[i]=Y[i];
         Y0b[i]=Y[i];
    }
+   Y[0] = 0.; // An unitialised value for Y[0] can lead to problems when building the a-matrix in "linearize". (This was observed with gcc-7.5.0 and openmpi-2.1.1)
 
 /* --------------------------------------- Integration part ------------------------------------------------------------ */
 
@@ -2363,7 +2364,7 @@ int nucl_err(struct relicparam* paramrelic, double ratioH[NNUC+1], double cov_ra
         if(nucl(paramrelic,ratioH_tmp)>0) return 0;
         paramrelic->err=0;
         if(nucl(paramrelic,ratioH)>0) return 0;
-        for(ie=1;ie<=NNUC;ie++) cov_ratioH[ie][ie]=fabs(ratioH_tmp[ie]-ratioH[ie]);
+        for(ie=1;ie<=NNUC;ie++) cov_ratioH[ie][ie]=pow(fabs(ratioH_tmp[ie]-ratioH[ie]),2);
     }
 
     else if(paramrelic->err==3)
