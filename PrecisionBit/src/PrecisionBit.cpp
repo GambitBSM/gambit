@@ -1092,6 +1092,92 @@ namespace Gambit
       return;
     }
 
+    /// Calculate a_mu_THDM_BSM using the gm2calc backend.
+    void GM2C_THDM(triplet<double> &result)
+    {
+      using namespace Pipes::GM2C_THDM;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      //const SubSpectrum& mssm = Dep::THDM_spectrum->get_HE();
+
+      #ifdef PRECISIONBIT_DEBUG
+        cout<<"Starting GM2C_THDM"<<endl;
+      #endif
+
+      gm2calc_default::gm2calc::THDM model;
+
+      try {
+        gm2calc_default::gm2calc::thdm::Mass_basis basis;
+        basis.yukawa_type = gm2calc::thdm::Yukawa_type::aligned;
+
+        basis.mh = spectrum.get(Par::Pole_Mass,"h0",1);
+        basis.mH = spectrum.get(Par::Pole_Mass,"h0",2);
+        basis.mA = spectrum.get(Par::Pole_Mass,"A0");
+        basis.mHp = spectrum.get(Par::Pole_Mass,"H+");
+        basis.lambda_6 = spectrum.get(Par::dimensionless,"lambda_6");
+        basis.lambda_7 = spectrum.get(Par::dimensionless,"lambda_7");
+        basis.tan_beta = spectrum.get(Par::dimensionless,"tanb");
+        basis.sin_beta_minus_alpha = sin(atan(basis.tanb)-spectrum.get(Par::dimensionless,"alpha"));
+        basis.m122 = spectrum.get(Par::mass1, "m12_2");
+        basis.zeta_u = spectrum.get(Par::dimensionless,"Yu2",2,2);
+        basis.zeta_d = spectrum.get(Par::dimensionless,"Yd2",2,2);
+        basis.zeta_l = spectrum.get(Par::dimensionless,"Ye2",2,2);
+        basis.Delta_u << spectrum.get(Par::dimensionless,"Yu2",1,1) - spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless,"Yu2",1,2), spectrum.get(Par::dimensionless,"Yu2",1,3),
+spectrum.get(Par::dimensionless,"Yu2",2,1), 0., spectrum.get(Par::dimensionless,"Yu2",2,3),
+spectrum.get(Par::dimensionless,"Yu2",3,1), spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless,"Yu2",3,3) - spectrum.get(Par::dimensionless,"Yu2",2,2);
+        basis.Delta_d << spectrum.get(Par::dimensionless,"Yd2",1,1) - spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless,"Yd2",1,2), spectrum.get(Par::dimensionless,"Yd2",1,3),
+spectrum.get(Par::dimensionless,"Yd2",2,1), 0., spectrum.get(Par::dimensionless,"Yd2",2,3),
+spectrum.get(Par::dimensionless,"Yd2",3,1), spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless,"Yd2",3,3) - spectrum.get(Par::dimensionless,"Yd2",2,2);
+        basis.Delta_l << spectrum.get(Par::dimensionless,"Yl2",1,1) - spectrum.get(Par::dimensionless,"Yl2",2,2), spectrum.get(Par::dimensionless,"Yl2",1,2), spectrum.get(Par::dimensionless,"Yl2",1,3),
+spectrum.get(Par::dimensionless,"Yl2",2,1), 0., spectrum.get(Par::dimensionless,"Yl2",2,3),
+spectrum.get(Par::dimensionless,"Yl2",3,1), spectrum.get(Par::dimensionless,"Yl2",3,2), spectrum.get(Par::dimensionless,"Yl2",3,3) - spectrum.get(Par::dimensionless,"Yu2",2,2);
+
+        gm2calc::SM sm;
+        sm.set_alpha_em_mz(sminputs.alphainv);
+        sm.set_mu(2, sminputs.mT);
+        sm.set_mu(1, sminputs.mCmC);
+        sm.set_mu(0, sminputs.mU);
+        sm.set_md(2, sminputs.mBmB);
+        sm.set_md(1, sminputs.mS);
+        sm.set_md(0, sminputs.mD);
+        sm.set_ml(2, sminputs.mTau);
+        sm.set_ml(1, sminputs.mMu);
+        sm.set_ml(0, sminputs.mE);
+        sm.set_ckm_from_wolfenstein(sminputs.CKM.lambda, sminputs.CKM.A, sminputs.CKM.rhobar, sminputs.CKM.etabar);
+
+        gm2calc::thdm::Config config;
+        config.force_output = false;
+        config.running_couplings = true;
+
+        const gm2calc_default::gm2calc::THDM model(basis, sm, config)
+
+        const double amu_bsm   = BEreq::gm2calc::calculate_amu_1loop(model) 
+                               + BEreq::gm2calc::calculate_amu_2loop(model);
+        const double delta_amu = BEreq::gm2calc::calculate_uncertainty_amu_2loop(model);
+
+      }
+      catch (const gm2calc_default::gm2calc::Error& e)
+      {
+        std::ostringstream err;
+        err << "gm2calc routine convert_to_onshell raised error: "
+        << e.what() << ".";
+        invalid_point().raise(err.str());
+      }
+      catch (...)
+      {
+        std::ostringstream err;
+        err << "gm2calc routine convert_to_onshell raised unspecified error.";
+        invalid_point().raise(err.str());
+      }
+
+      // Convert from a_mu to g-2
+      result.central = 2.0*amu_bsm;
+      result.upper = 2.0*delta_amu;
+      result.lower = 2.0*delta_amu;
+
+      return;
+    }
+
 
     /// Calculation of g-2 with SuperIso
     void SI_muon_gm2(triplet<double> &result)

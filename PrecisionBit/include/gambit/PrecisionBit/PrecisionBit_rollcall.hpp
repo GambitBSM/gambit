@@ -229,6 +229,19 @@ START_MODULE
     ALLOW_MODELS(MSSM30atQ, MSSM30atQ_mA, MSSM30atMGUT, MSSM30atMGUT_mA, NUHM2)
     #undef FUNCTION
 
+    #define FUNCTION GM2C_THDM
+    START_FUNCTION(triplet<double>)
+    NEEDS_CLASSES_FROM(gm2calc, default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    BACKEND_REQ(calculate_amu_1loop, (libgm2calc), double, (const gm2calc_default::gm2calc::THDM&))
+    BACKEND_REQ(calculate_amu_2loop, (libgm2calc), double, (const gm2calc_default::gm2calc::THDM&))
+    BACKEND_REQ(calculate_uncertainty_amu_1loop, (libgm2calc), double, (const gm2calc_default::gm2calc::THDM&))
+    BACKEND_REQ(calculate_uncertainty_amu_2loop, (libgm2calc), double, (const gm2calc_default::gm2calc::THDM&))
+    BACKEND_OPTION( (gm2calc), (libgm2calc) )
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
   // Observable: SM contribution to (g-2)_mu
