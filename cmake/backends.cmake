@@ -873,12 +873,12 @@ set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${Boost_INCLUDE_DIR} -I${PROJECT_SOURC
 # - Setup HepMC-specific additions
 option(PYTHIA_WITH_HEPMC "Pythia is compiled with HepMC" ON)
 if(EXCLUDE_HEPMC)
-  set(pythia_depends_on "")
+  set(pythia_depends_on "castxml")
   set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_nohepmc.dif")
   set(EXTRA_CONFIG "")
   set(BOSS_suffix "nohepmc")
 else()
-  set(pythia_depends_on "hepmc")
+  set(pythia_depends_on "hepmc;castxml")
   set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
   set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
   set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_LIB} -Wl,-rpath ${HEPMC_LIB} -lHepMC3")
@@ -890,7 +890,6 @@ endif()
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
-    DEPENDS castxml
     DEPENDS ${pythia_depends_on}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
