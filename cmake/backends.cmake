@@ -1681,6 +1681,45 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
+# hi_class, currently specific for Symmetron model
+set(name "hi_class")
+set(ver "2.6.3")
+set(sfver "2_6_3")
+set(lib "classy")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
+set(dl "https://github.com/miguelzuma/hi_class_public/archive/hi_class.zip")
+set(md5 "059c13bcfa8f08feff946a3f0356b417")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(ditch_if_absent "Python")
+set(required_modules "cython,numpy,scipy")
+check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
+if(NOT ditched_${name}_${ver})
+  check_python_modules(${name} ${ver} ${required_modules})
+  if(modules_missing_${name}_${ver})
+    inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    ExternalProject_Add(${name}_${ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      PATCH_COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
+      CONFIGURE_COMMAND ""
+      COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
+      COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
+      COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_GNU99_FLAGS} LDFLAG=${BACKEND_GNU99_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      COMMAND ${CMAKE_COMMAND} -E make_directory lib
+      COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
+      COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
+      COMMAND ${CMAKE_COMMAND} -E echo "from ${lib} import *" >> lib/${name}_${sfver}.py
+      INSTALL_COMMAND ""
+      COMMAND ${PYTHON_EXECUTABLE} ${patch}/../create_SDSSDR7_fid.py ${dir} ${sfver}
+    )
+  endif()
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
 # DarkAges
 # Add correct symlink flags for OSX
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
