@@ -1,7 +1,0 @@
-CC = /usr/bin/cc
-CFLAGS = -fPIC -fopenmp -std=c99 -fno-math-errno -funsafe-math-optimizations -fcx-limited-range -fomit-frame-pointer -I/usr/local/include
-CFLAGS_MP = -fopenmp
-MAKE = make
-AR = ar
-ARFLAGS = rcs
-LIBS = -lm -lgsl -lgslcblas

@@ -1,4 +1,0 @@
-#define NNUCMAX 45
-
-#define NNUCREACMAX 201
-
