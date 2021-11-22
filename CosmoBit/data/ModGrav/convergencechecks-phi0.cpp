@@ -13,7 +13,7 @@ https://my.mech.utah.edu/~pardyjak/me2040/Lect10_IterativeSolvers.pdf */
 using namespace std;
 
 // define constants
-#define M_pl 2.453e18 // [Gev/c^2] reduced planck mass
+#define M_pl 2.435363098e18 // [Gev/c^2] reduced planck mass
 #define hbar 6.2131e-47 // [kpc^2 Gev/c^2 s^-1]
 #define cconst 9.715e-12 // [kpc/s] speed of light
 #define Gconst 3.866e-63 // [kpc (Gev/c^2)^-1 (km/s)^2] gravitational const
