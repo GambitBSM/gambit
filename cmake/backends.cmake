@@ -1687,8 +1687,10 @@ set(ver "2.6.3")
 set(sfver "2_6_3")
 set(lib "classy")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
-set(dl "https://github.com/miguelzuma/hi_class_public/archive/hi_class.zip")
-set(md5 "059c13bcfa8f08feff946a3f0356b417")
+#set(dl "https://github.com/miguelzuma/hi_class_public/archive/hi_class.zip") # Normal Hi_class
+set(dl "https://github.com/annamnliang/hi_class_symmetron/archive/refs/heads/hi_class.zip") # Anna's branch
+#set(md5 "059c13bcfa8f08feff946a3f0356b417") # Normal Hi_class
+set(md5 "6e39b255e5453d17f1e6d19b03946336") # Anna's branch
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(ditch_if_absent "Python")
 set(required_modules "cython,numpy,scipy")

@@ -24,6 +24,10 @@ classy:
 
   exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
 
+# hi_class if included as a version of classy
+# hi_class:
+  hiclass_2.6.3:       ./Backends/installed/hi_class/2.6.3/lib/hi_class_2_6_3.py
+
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
 
