@@ -1,0 +1,137 @@
+##########################################################################
+##
+##      yaml file for testing hi_class
+##
+##########################################################################
+
+Parameters:
+
+  LCDM:
+    omega_b: 0.022
+    omega_cdm: 0.011
+    H0: 65.0
+    tau_reio: 0.1
+    T_cmb:
+      fixed_value: 2.72548
+
+  symmetron:
+    mass:
+      range: [-7, -3] #GeV
+    mu:
+      range: [-37, -20] # GeV
+    vval:
+      range: [-18, 0] # GeV
+    phi_init:
+      range: [2, 3] # unitless
+
+  # ====== B.2) Primordial power spectra & inflationary models =======
+  PowerLaw_ps:
+    ln10A_s: 3.0 # Hard set by me
+    n_s: 1.0 # Hard set by me
+    r: 0
+    N_pivot: 55
+
+  # ====== B.3) Neutrino Masses =======
+
+  StandardModel_mNudiff: !import include/StandardModel_mNudiff_NH_scan.yaml
+
+  # ====== B.4) Non-standard radiation content (optional) =======
+  dNurCMB:
+   dNur_CMB: 0.0 # Hard set by me
+
+  # ====== B.6) Cosmological nuisance parameters (depending on included likelihoods) =======
+
+  cosmo_nuisance_Planck_lite: !import include/Planck_2018/cosmo_nuisance_Planck_lite_flat.yaml
+
+  cosmo_nuisance_Pantheon:
+    M: -19 # Hard set by me
+
+  nuclear_params_neutron_lifetime:
+    neutron_lifetime: 885 # Hard set by me
+
+
+Priors:
+
+Printer:
+
+  printer: cout
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+    random:
+      plugin: random
+      point_number: 1
+      like:  LogLike
+
+ObsLikes:
+
+  # ---- 4.2) CMB -----
+  - purpose:      LogLike
+    capability:   Planck_lowl_loglike
+    function:     function_Planck_lowl_TTEE_2018_loglike
+
+
+  # ---- 4.3) Late-time cosmology: MontePython Likelihoods -----
+  - purpose:      LogLike
+    capability:   MP_Combined_LogLike
+    module:       CosmoBit
+    type:         double
+    sub_capabilities:
+      bao_smallz_2014: default
+      Pantheon: default
+
+  - purpose:          Observable
+    capability:       MP_LogLikes
+    type:             map_str_dbl
+    sub_capabilities: hst
+
+  # TODO: Chris Chang. My attepmt at adding the classy power spectrum output as an observable
+  - purpose: Observable
+    capability: unlensed_Cl_TT
+    function: class_get_unlensed_Cl_TT
+#    function: hi_class_get_unlensed_Cl_TT
+
+Rules:
+  # Need this but for hi_class
+  - capability: classy_input_params
+    function: set_classy_input_params
+    options:
+      log_classy_inputs: false
+      classy_dict:
+
+  - capability: classy_MPLike_input
+    function: set_classy_input_with_MPLike
+    module: CosmoBit
+
+  - capability: multimode_input_parameters
+    function: set_multimode_inputs
+    options:
+      k_pivot: 0.002
+      dlnk: 0.4
+      numsteps: 200
+      k_min: 1e-7
+      k_max: 1e6
+
+  - capability: classy_primordial_input
+    function: set_classy_parameters_parametrised_ps
+
+
+Logger:
+  redirection:
+    [Debug]        : "debug.log"
+    [Default]      : "default.log"
+    [CosmoBit]     : "CosmoBit.log"
+    [Dependency Resolver] : "dependencyresolver.log"
+    [Scanner]      : "Scanner.log"
+
+KeyValues:
+
+  debug: true
+
+  default_output_path: "runs/CosmoBit_tutorial"
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e30

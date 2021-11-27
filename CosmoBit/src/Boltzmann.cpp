@@ -50,7 +50,6 @@
 #include "gambit/CosmoBit/CosmoBit_rollcall.hpp"
 #include "gambit/CosmoBit/CosmoBit_types.hpp"
 
-
 namespace Gambit
 {
 
@@ -229,6 +228,90 @@ namespace Gambit
         // Depending on parametrisation, pass either Hubble or the acoustic scale
         if (ModelInUse("LCDM") or ModelInUse("LCDM_zreio")) result.add_entry("H0", *Param["H0"]);
         else result.add_entry("100*theta_s", *Param["100theta_s"]);
+
+
+
+
+        // Pass in the symmetron parameters to (specifically hi_class)
+        // TODO: Need a check that hi_class, not classy is being run.
+        if (ModelInUse("symmetron"))
+        {
+          // TODO: Evaluate what omega_symmetron to use
+        
+          // We are setting phi_prime_init to something very small
+          double phi_prime_init = 1.0e-10;
+          
+          // Push back each of the symmetron model parameters
+          result.add_entry("gravity_model", "symmetron");
+          
+          std::string parameters_smg;
+          parameters_smg = std::to_string(*Param["mass"]);
+          parameters_smg = parameters_smg + ",";
+          parameters_smg = parameters_smg + std::to_string(*Param["mu"]);
+          parameters_smg = parameters_smg + ",";
+          parameters_smg = parameters_smg + std::to_string(*Param["vval"]);
+          parameters_smg = parameters_smg + ",";
+          parameters_smg = parameters_smg + std::to_string(*Param["phi_init"]);
+          parameters_smg = parameters_smg + ",";
+          parameters_smg = parameters_smg + std::to_string(phi_prime_init);
+          
+          result.add_entry("parameters_smg", parameters_smg);
+          
+          // Other settings from symmetron.ini
+          result.add_entry("Omega_smg_debug", 1e-3); // TODO: This should be calculated from the guess equation from paper (changing from 1e-10 and 1e-3 changed the error message...)
+          result.add_entry("a_min_stability_test_smg", 1e-6 );
+          
+          result.add_entry("root", "output/symmetron_");
+          result.add_entry("output_background_smg", 10);
+          //result.add_entry("write parameters", "yeap"); // Should be in class
+          //result.add_entry("write background", "yup"); // Should be in class
+          //result.add_entry("write thermodynamics", "yeahh");  // Should be in class
+          //result.add_entry("input_verbose", 4);// Should be in class
+          //result.add_entry("background_verbose", 4);// Should be in class
+          //result.add_entry("output_verbose", 1);// Should be in class
+          //result.add_entry("thermodynamics_verbose", 1);// Should be in class
+          //result.add_entry("perturbations_verbose", 2);// Should be in class
+          //result.add_entry("spectra_verbose", 2);// Should be in class
+          
+          
+          // Settings from hi_class.ini
+          //result.add_entry("expansion_model", "lcdm"); // TODO: Adding these in seems to cause class to fail and throw an error
+          //result.add_entry("expansion_smg", 0.5);
+          result.add_entry("output_background_smg", 10);
+          result.add_entry("skip_stability_tests_smg", "no");
+          result.add_entry("cs2_safe_smg", 0.);
+          result.add_entry("D_safe_smg", 0.);
+          result.add_entry("ct2_safe_smg", 0.);
+          result.add_entry("M2_safe_smg", 0.);
+          result.add_entry("hubble_evolution", "y");
+          result.add_entry("hubble_friction", 3.);
+          result.add_entry("pert_initial_conditions_smg", "ext_field_attr");
+          result.add_entry("pert_ic_ini_z_ref_smg", 1e10);
+          result.add_entry("pert_ic_tolerance_smg", 2e-2 );
+          result.add_entry("pert_ic_regulator_smg", 1e-15);
+          result.add_entry("pert_qs_ic_tolerance_test_smg", 10);
+          result.add_entry("method_qs_smg", "fully_dynamic");
+          result.add_entry("z_fd_qs_smg", 10.);
+          result.add_entry("trigger_mass_qs_smg", 1.e3 );
+          result.add_entry("trigger_rad_qs_smg", 1.e3);
+          result.add_entry("eps_s_qs_smg", 0.01);
+          result.add_entry("n_min_qs_smg", 1e2 );
+          result.add_entry("n_max_qs_smg", 1e4);
+          result.add_entry("start_small_k_at_tau_c_over_tau_h", 1e-4);
+          result.add_entry("start_large_k_at_tau_h_over_tau_k", 1e-4);
+          result.add_entry("perturb_sampling_stepsize", 0.05);
+          result.add_entry("l_logstep", 1.045);
+          result.add_entry("l_linstep", 50);
+          //std::vector<std::string> output_requested = {"tCl","pCl","lCl","mPk"}; //TODO: I think this gets added below
+          //result.add_entry("output", output_requested);
+          //std::vector<double> k_output_values = {0.1,0.01,0.0001};
+          //result.add_entry("k_output_values", k_output_values);
+          
+        }
+
+
+
+
 
         // add energy-injection-related CLASS input parameters
         // Note: if one of the models below is in use, an "exo" version of CLASS needs

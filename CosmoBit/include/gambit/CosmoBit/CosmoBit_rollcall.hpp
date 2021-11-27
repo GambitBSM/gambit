@@ -279,7 +279,7 @@ START_MODULE
     START_CAPABILITY
       #define FUNCTION set_classy_input_params
       START_FUNCTION(Classy_input)
-      ALLOW_MODELS(LCDM,LCDM_theta,LCDM_zreio)
+      ALLOW_MODELS(LCDM,LCDM_theta,LCDM_zreio,symmetron)
       DEPENDENCY(classy_MPLike_input, pybind11::dict)
       DEPENDENCY(classy_NuMasses_Nur_input, pybind11::dict)
       DEPENDENCY(classy_primordial_input, pybind11::dict)
@@ -985,6 +985,7 @@ START_MODULE
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(parameter_dict_for_MPLike, pybind11::dict)
       DEPENDENCY(MP_objects, MPLike_objects_container)
+      
       BACKEND_REQ(check_likelihood_classy_combi,(mplike_tag), void,             (str&, str&))
       BACKEND_REQ(get_MP_loglike,               (mplike_tag), double,           (const MPLike_data_container&, pybind11::object&, std::string&))
       BACKEND_REQ(get_classy_backendDir,        (class_tag),  std::string,      ())

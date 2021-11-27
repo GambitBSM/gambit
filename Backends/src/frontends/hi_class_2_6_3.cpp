@@ -2,29 +2,19 @@
 //   *********************************************
 ///  \file
 ///
-///  Frontend source for the classy backend.
+///  Frontend source for the hi_class backend.
+///  This is largely copied from the classy_2.6.3 frontend
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
 ///
-///  \author Janina Renk
-///          (janina.renk@fysik.su.se)
-///  \date 2019 June
-///
-///  \author Sanjay Bloor
-///          (sanjay.bloor12@imperial.ac.uk)
-///  \date 2019 June
-///
-///  \author Patrick Stoecker
-///          (stoecker@physik.rwth-aachen.de)
-///  \date 2019 July
-///  \date 2021 January
+///  \author Christopher Chang
+///  \date 2021 November
 ///
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-//#include "gambit/Backends/frontends/classy_2_6_3.hpp"
 #include "gambit/Backends/frontends/hi_class_2_6_3.hpp"
 
 #ifdef HAVE_PYBIND11
@@ -214,6 +204,14 @@
       double Omega0_Lambda = cosmo.attr("Omega_Lambda")().cast<double>();
       return Omega0_Lambda;
     }
+    
+    // returns Omega_symmetron. This gets used as an input.
+    // TODO: What is this called in hi_class?
+    double class_get_Omega0_Symmetron()
+    {
+      double Omega0_sym = cosmo.attr("Omega_Symmetron")().cast<double>();
+      return Omega0_sym;
+    }
 
     // returns sound horizon at drag epoch
     double class_get_rs()
@@ -344,6 +342,16 @@ BE_INI_FUNCTION
       {
         // Try to run classy
         cosmo.attr("compute")();
+        
+        
+        // TODO: Get the value of omega_symmetron from this run, and then assign this and rerun it
+        // TODO: This won't work until classy has this attribute I can return (Cullan added this in)
+        //double omega_sym = class_get_Omega0_Symmetron();
+        cosmo_input_dict["Omega_smg_debug"] = 0.05;//omega_sym;
+        cosmo.attr("set")(cosmo_input_dict);
+        cosmo.attr("compute")();
+        
+        
         // reset counter when no exception is thrown.
         error_counter = 0;
         logger() << LogTags::info << "[classy_"<< STRINGIFY(VERSION) <<"] \"cosmo.compute\" was successful" << EOM;
@@ -353,6 +361,7 @@ BE_INI_FUNCTION
         std::ostringstream errMssg;
         errMssg << "Could not successfully execute cosmo.compute() in classy_"<< STRINGIFY(VERSION)<<"\n";
         std::string rawErrMessage(e.what());
+        // TODO: Chris Chang. We should be able to use something like this to catch and invalidate points if this doesn't happen already. I thikn unknown errors will just invalidate the point. (I might be wrong)
         // If the error is a CosmoSevereError raise an backend_error ...
         if (rawErrMessage.find("CosmoSevereError") != std::string::npos)
         {
