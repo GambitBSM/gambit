@@ -128,6 +128,19 @@ Rules:
     options:
       allow_yield_extrapolation: true
 
+  # Choose to get extra SimYieldTable information from DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
+    module: DarkBit
+    
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+    module: DarkBit
+    
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+    module: DarkBit
+
   # Choose to get late-universe sigma*v from the process catalog
   - capability: sigmav
     function: sigmav_late_universe
@@ -135,6 +148,11 @@ Rules:
   # This model has annihilating dark matter
   - capability: GA_Yield
     function: GA_AnnYield_General
+    
+  # Specify to DDCalc spin-independent/spin-dependent interactions only
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
+    module: DarkBit
 
 Scanner:
 
