@@ -275,7 +275,7 @@ if(NOT ditched_${name}_${ver})
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   add_scanner_target(${name} ${ver})
-  set_as_default_scanner_version(${name} ${ver})
+  set_as_default_scanner_version(${name} ${ver} "great")
 endif()
 
 # minuit2
