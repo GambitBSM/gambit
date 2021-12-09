@@ -1422,12 +1422,11 @@ namespace Gambit
         result.set_inputPath(inputspath);
 
         // Get the spectrum object for the MSSM
-        const Spectrum& fullspectrum = *myPipe::Dep::MSSM_spectrum;
-        const SubSpectrum& spectrumHE = fullspectrum.get_HE();
+        const Spectrum& spectrum = *myPipe::Dep::MSSM_spectrum;
 
         // Get the SLHAea::Coll object & scale from the spectrum
-        SLHAea::Coll slhaea = spectrumHE.getSLHAea(2);
-        double scale = spectrumHE.GetScale();
+        SLHAea::Coll slhaea = spectrum.getSLHAea(2);
+        double scale = spectrum.GetScale();
 
         result.set_scale(scale);
 

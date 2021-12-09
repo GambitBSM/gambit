@@ -53,8 +53,6 @@
 #include "gambit/Elements/halo_types.hpp"                                  // data types for DM halo properties
 #include "gambit/Elements/wimp_types.hpp"              			      // Containers for generic WIMP dark matter and annihilation properties
 
-#include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"         // Contains SpectrumParameter class (names and tags)
-
 #include "gambit/Backends/default_bossed_versions.hpp" 			   // Default versions of backends to use when employing BOSSed types
 #include "gambit/Backends/mathematica_variable.hpp"    			   // Wrapper type for Mathematica global variables
 #include "gambit/Backends/python_variable.hpp"         			   // Wrapper type for Python global variables

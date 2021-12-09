@@ -40,7 +40,7 @@ END_BE_NAMESPACE
 BE_NAMESPACE
 {
   // Convenience function to run SPheno and obtain the spectrum
-  int run_SPheno(Spectrum &spectrum, const Finputs &inputs)
+  int run_SPheno(Spectrum &spectrum, const SpectrumInputs &inputs)
   {
 
     try{ Set_All_Parameters_0(); }
@@ -59,14 +59,14 @@ BE_NAMESPACE
     if(*kont != 0)
        ErrorHandling(*kont);
 
-    spectrum = Spectrum_Out(inputs);
+    Spectrum_Out(spectrum, inputs);
 
     return *kont;
 
   }
 
   // Convenience function to convert internal SPheno variables into a Spectrum object
-  Spectrum Spectrum_Out(const Finputs &inputs)
+  void Spectrum_Out(Spectrum &spectrum, const SpectrumInputs &inputs)
   {
 
     SLHAstruct slha;
@@ -734,7 +734,7 @@ BE_NAMESPACE
   }
 
   // Function to read data from the Gambit inputs and fill SPheno internal variables
-  void ReadingData(const Finputs &inputs)
+  void ReadingData(const SpectrumInputs &inputs)
   {
 
     InitializeStandardModel(inputs.sminputs);
