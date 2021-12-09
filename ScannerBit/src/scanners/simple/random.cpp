@@ -44,7 +44,7 @@ scanner_plugin(random, version(1, 0, 0))
         rank = 0;
 #endif
     }
-    
+    // ~~~ 5 ~~~ (random sampler)
     int plugin_main ()
     {
         std::vector<double> a(dim);

@@ -1,203 +1,261 @@
 ##########################################################################
-## GAMBIT configuration for running a diver scan of the THDM
-## THDM Type II (with running)
+## GAMBIT configuration for the following
+##
+## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
 ##
 ## Requires backends:
-## THDMC, SuperISO, HiggsBounds, HiggsSignals, HEPLike
+## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike
+## (for IDM only) sarah-spheno_idm, micromegas, vevacious
+##
+## Author: A.S. Woodcock
+## Date: 20/OCT/2021
+##
 ##########################################################################
 
+
+
+#################################
+##   MODEL PARAMETER RANGES    ##
+#################################
+
 Parameters:
+
+  # all models below activated simultaneously
+
+  # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  
+  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
+  THDMI:
 
-  THDMIIatQ:
-      lambda_1:
-          range: [-0.5, 12.5664]
-          prior_type: flat
-      lambda_2:
-          range: [-0.5, 12.5664]
-          prior_type: flat
-      lambda_3:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      lambda_4:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      lambda_5:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      # --- Assuming a CP-conserving THDM model ---
-      lambda_6:
-          fixed_value: 0.0
-      lambda_7:
-          fixed_value: 0.0
-      # -------------------------------------------
-      m12_2:
-          ranges: [-1e6, -1e4, 1e4, 1e7]
-          prior_type: double_log_flat_join
-      tanb:
-          range: [0.1, 100]
-          prior_type: log
-      Qin:
-          fixed_value: 91.1876 # = mZ
-      QrunTo:
-          fixed_value: 1000 # for comparison with other literature
+    # -- POINT #1 --
+    # lambda_1: -2.57385
+    # lambda_2: 0.25609
+    # lambda_3: 5.40354
+    # lambda_4: 0.00422
+    # lambda_5: 0.00422
+    # lambda_6: 0
+    # lambda_7: 0
+    # m12_2: 12800
+    # tanb: 50
 
-##############################
-# Printer setup
-##############################
+    # -- POINT #2 --
+    # lambda_1: -165.17504
+    # lambda_2: 0.32113
+    # lambda_3: 51.67035
+    # lambda_4: 0.00422
+    # lambda_5: 0.00422
+    # lambda_6: 0
+    # lambda_7: 0
+    # m12_2: 12800
+    # tanb: 50
+
+    # -- POINT #3 --
+    # lambda_1: -837.85485
+    # lambda_2: 0.5902
+    # lambda_3: 101.93386
+    # lambda_4: 0.00422
+    # lambda_5: 0.00422
+    # lambda_6: 0
+    # lambda_7: 0
+    # m12_2: 12800
+    # tanb: 50
+    
+    # -- POINT #4 --
+    # lambda_1: -9.8888
+    # lambda_2: -0.50282
+    # lambda_3: -2.2235
+    # lambda_4: 2.63919
+    # lambda_5: 2.63919
+    # lambda_6: 0
+    # lambda_7: 0
+    # m12_2: 320000
+    # tanb: 2
+    
+    # -- POINT #5 --
+    # lambda_1: -6.50813
+    # lambda_2: -1.34799
+    # lambda_3: -0.63717
+    # lambda_4: 2.63919
+    # lambda_5: 2.63919
+    # lambda_6: 0
+    # lambda_7: 0
+    # m12_2: 320000
+    # tanb: 2
+    
+    # -- POINT #6 --
+    # lambda_1: -3.46167
+    # lambda_2: -2.1096
+    # lambda_3: 1.47066
+    # lambda_4: 2.63919
+    # lambda_5: 2.63919
+    # lambda_6: 0
+    # lambda_7: 0
+    # m12_2: 320000
+    # tanb: 2
+
+    # TODO: justify parameter ranges: perturbility ???
+    lambda_1:
+        range: [-0.5, 12.5664]
+        prior_type: flat
+    lambda_2:
+        range: [-0.5, 12.5664]
+        prior_type: flat
+    lambda_3:
+        range: [-12.5664, 12.5664]
+        prior_type: flat
+    lambda_4:
+        range: [-12.5664, 12.5664]
+        prior_type: flat
+    lambda_5:
+        range: [-12.5664, 12.5664]
+        prior_type: flat
+    # --- Assuming a CP-conserving THDM model ---
+    lambda_6:
+        fixed_value: 0.0
+    lambda_7:
+        fixed_value: 0.0
+    # -------------------------------------------
+    m12_2:
+        ranges: [-1e6, -1e4, 1e4, 1e7]
+        prior_type: double_log_flat_join
+    # todo justify ???
+    tanb:
+        range: [0,50]
+        prior_type: flat # log
+    # Qin:
+    #     fixed_value: 91.1876 # = mZ
+    # QrunTo:
+    #     fixed_value: 1000 # for comparison with other literature
+
+
+
+#################################
+##     PRINTER SELECTION       ##
+#################################
 
 Printer:
 
-  # Select printer to use via string tag
+  # printer: ascii
+  # options:
+  #   buffer_length: 100
+  #   output_file: "scan.txt"
+  #   # output_path: default_output_path
+
   printer: hdf5
-
   options:
-    # name of output file
-    output_file: "GAMBIT_THDMIIatQ_scan_output.hdf5"
+    output_file: "scan.hdf5"
     group: "/data"
-    delete_file_on_restart: false
+    delete_file_on_restart: true
+
+  # # unfortunately the new hdf5 scanner is buggy!
+  # printer: hdf5_v1
+  # options:
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: false
+  #   disable_combine_routines: true
 
 
-##############################
-# Scanner setup
-##############################
+
+#################################
+##     SCANNER SELECTION       ##
+#################################
 
 Scanner:
-  use_scanner: de
+
+  use_scanner: random
 
   scanners:
-    de:
-      plugin: diver
-      like: LogLike
-      NP: 20000
-      convthresh: 1e-5
-      verbosity: 1
 
     random:
       plugin: random
-      point_number: 10000
+      point_number: 10
       like:  LogLike
 
-      # No options to set, but still need the nodes at the moment...
+    differentialEvolution:
+      plugin: diver
+      like: LogLike
+      NP: 300000
+      convthresh: 1e-5
+      verbosity: 1
+
       aux_printer_txt_options:
       aux_printer_stats_options:
       aux_printer_live_options:
 
+
+
+#################################
+##  OBSERVABLES / LIKELIHOODS  ##
+#################################
+
 ObsLikes:
 
-  ###########################
-  # Likelihoods
-  ###########################
+  # #-------------------------------------#
+  # #      THEORETICAL LIKELIHOODS        #
+  # #-------------------------------------#
 
-  - purpose:    LogLike
-    capability: h0_loop_order_corrections
-    function: check_h0_loop_order_corrections
-
-  - purpose:    LogLike
-    capability: THDM_scalar_loop_order_corrections
-    function: check_THDM_scalar_loop_order_corrections
-
-  - purpose:    LogLike
-    capability: THDM_scalar_masses
-    function: check_THDM_scalar_masses
-
-  - purpose:    LogLike
-    capability: perturbativity_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: stability_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: NLO_unitarity_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: oblique_parameters_likelihood_THDM
-
-  - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood
-
-  - capability: deltaMB_LL
-    function: deltaMB_likelihood
-    purpose: LogLike
-
-  - capability: deltaMBd_LL
-    function: deltaMBd_likelihood
-    purpose: LogLike
-
-  - capability: b2ll_LL
-    function: b2ll_likelihood
-    purpose: LogLike
-
-  - capability: SL_LL
-    function: SL_likelihood
-    purpose: LogLike
-
-  - purpose:    LogLike
-    capability: LUV_LL
-
-  ## -------------------------------------------
-
-  # -------------------------
-  # OFF - Currently not working in combo with HS
-
+  # # Stability of the 2HDM Potential
+  # # Applies the THDM stability constraints on the potential
+  # # NOTE: This likelihood has two parts, described below
+  # # (i) Applies strict stability constraint
+  # # Likelihood type: Acceptance/Rejection
+  # # (ii) If rejected, applies looser stabililty constraints
+  # # Likelihood type: Half-Gaussian
   # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_LHCb
+  #   capability: stability_likelihood_THDM
 
+  # # Checks that the NLO scattering-matrix is unitary
+  # # Calculates and applies limit on eigenvalues of matrix
+  # # NOTE: This is always a subset of LO unitarity so it not needed
+  # # Likelihood type: Half-Gaussian
+  # # Only supports CP-conserving models
+  # # Unitarity of the S-matrix at next leading order (includes leading order too)
   # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_CMS
+  #   capability: NLO_unitarity_likelihood_THDM
 
+  # # Calculates all quartic Higgs couplings in the physical
+  # # basis & applies a 4pi perturbativity constraint on each
+  # # Likelihood type: Half-Gaussian
+  # # Perturbativity check on lambdas and scalar couplings
   # - purpose:    LogLike
-  #   capability: B2mumu_LogLikelihood_Atlas
+  #   capability: perturbativity_likelihood_THDM
 
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - Not using in final scan
-   
+  # # Perturbativity check on h0 mass loop-corrections
+  # # Checks that loop corrections to the pole mass of mh0
+  # # do not exceed 50% of the input mass at Qin
+  # # Likelihood type: Acceptance/Rejection
   # - purpose:    LogLike
-  #   capability: B2KstarmumuAng_LogLikelihood_Atlas
-
+  #   capability: h0_loop_order_corrections
+  #   function: check_h0_loop_order_corrections
+  
+  # # Checks that loop corrections to the pole masses of mH0,
+  # # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # # Likelihood type: Acceptance/Rejection
+  # # Perturbativity check on other scalar mass loop-corrections
   # - purpose:    LogLike
-  #   capability: B2KstarmumuAng_LogLikelihood_CMS
+  #   capability: THDM_scalar_loop_order_corrections
+  #   function: check_THDM_scalar_loop_order_corrections
 
+  # ???? undocumented
   # - purpose:    LogLike
-  #   capability: B2KstarmumuAng_LogLikelihood_Belle
+  #   capability: THDM_scalar_masses
+  #   function: check_THDM_scalar_masses
 
-  # - purpose:    LogLike
-  #   capability: B2KstarmumuBr_LogLikelihood_LHCb
+  #-------------------------------------#
+  #      COLLIDER LIKELIHOODS           #
+  #-------------------------------------#
 
-  # - purpose:    LogLike
-  #   capability: B2KmumuBr_LogLikelihood_LHCb
+  ### NOTE
+  # LHC & LEP likelihoods
+  # Coupling Squared input structs are filled by colliderBit,
+  # then chi^2 are extracted directly from HS & HB
 
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - Currently not working at all
-
-  # - purpose:    LogLike # 
-  #   capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - Need capability SuperIso_theory_covariance which is not on branch
-
-  # - purpose: LogLike
-  #   capability: RDRDstar_LogLikelihood
-
-  # - purpose: LogLike
-  #   capability: RKstar_LogLikelihood_LHCb
-
-  # -------------------------
-
-  ## -------------------------------------------
-
+  # HB 5beta likelihood
   - capability: LEP_Higgs_LogLike
     function: calc_HB_5_LEP_LogLike
     purpose: LogLike
@@ -209,6 +267,7 @@ ObsLikes:
         function: THDM_ModelParameters_charged
         module: ColliderBit
 
+  # HS 2beta likelihood
   - capability: LHC_Higgs_LogLike
     function: calc_HS_2_LHC_LogLike
     purpose: LogLike
@@ -220,9 +279,65 @@ ObsLikes:
         function: THDM_ModelParameters_charged
         module: ColliderBit
 
-  #################
-  # Observables
-  #################
+  #-------------------------------------#
+  #      PRECISION LIKELIHOODS          #
+  #-------------------------------------#
+
+  # # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # # & fits to meausured values. S, T, U involve a correlation matrix.
+  # # Includes low-energy notation described in arxiv::9407203.
+  # # Likelihood type: Half-Gaussian
+  # - purpose:    LogLike
+  #   capability: oblique_parameters_likelihood_THDM
+
+  #-------------------------------------#
+  #      FLAVOR LIKELIHOODS             #
+  #-------------------------------------#
+
+  # #### NOTE
+  # # Flavor likelihoods imported from Superiso
+  # # Superiso is given SLHA struct filled with THDM input
+  # # & then likelihoods may be called as intended
+
+  # # FlavBit.cpp:2193 (b->s gamma via HEPLike)
+  # - purpose:    LogLike
+  #   capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
+
+  # # FlavBit.cpp:2120 (B meson mass aysmmetry)
+  # - capability: deltaMB_LL
+  #   function: deltaMB_likelihood
+  #   purpose: LogLike
+
+  # # FlavBit.cpp:2156
+  # - capability: deltaMBd_LL
+  #   function: deltaMBd_likelihood
+  #   purpose: LogLike
+
+  # # FlavBit.cpp:2298
+  # - capability: b2ll_LL
+  #   function: b2ll_likelihood
+  #   purpose: LogLike
+
+  # # FlavBit.cpp:2435
+  # - capability: SL_LL
+  #   function: SL_likelihood
+  #   purpose: LogLike
+
+  # # FlavBit.cpp:3163
+  # - purpose:    LogLike
+  #   capability: LUV_LL # LUV_likelihood
+
+
+  #-------------------------------------#
+  #      DARK MATTER LIKELIHOODS        #
+  #-------------------------------------#
+
+
+
+#################################
+##          OBSERVABLES        ##
+#################################
+
 
   # THDM parameters
 
@@ -237,6 +352,7 @@ ObsLikes:
 
   # vacuum meta-stability discriminant
 
+  # Theoretical | another vacuum stability check (true or)
   - capability: vacuum_global_minimum
     function: check_vacuum_global_minimum
     purpose: Observable  
@@ -372,11 +488,12 @@ ObsLikes:
     purpose: Observable
      
 
-Rules:
 
-  ##############################
-  # Likelihood/Observable Rules
-  ##############################
+#################################
+##  RULES FOR RESOLVING DEPS   ##
+#################################
+
+Rules:
 
   - capability: THDM_spectrum
     function: get_THDM_spectrum
@@ -388,8 +505,8 @@ Rules:
   - capability: all_BFs
     function: get_decaytable_as_map
     options:
-      printall: true
-      
+      printall: true 
+
   - capability: THDM_scalar_masses
     function: check_THDM_scalar_masses
     options:
@@ -451,67 +568,6 @@ Rules:
     function: SI_Bsmumu_untag
     module: FlavBit
 
-  # -------------------------
-  # OFF - b2mumu likelihoods
-
-  # - capability: prediction_B2mumu
-  #   options:
-  #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  # - capability: B2mumu_LogLikelihood_.*
-  #   function: HEPLike_B2mumu_LogLikelihood_LHCb
-  #   options:
-  #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - b2kstar likelihoods
-
-  # - capability: prediction_B2KstarmumuAng_.*_Atlas
-  #   options:
-  #     obs_list: [FL, S3, S4, S5, S7, S8]
-  
-  # - capability: B2KstarmumuAng_LogLikelihood_Atlas
-  #   options:
-  #     obs_list: [FL, S3, S4, S5, S7, S8]
-
-  # - capability: prediction_B2KstarmumuAng_.*_Belle
-  #   options:
-  #     obs_list: [P4prime, P5prime]
-
-  # - capability: B2KstarmumuAng_LogLikelihood_Belle
-  #   options:
-  #     obs_list: [P4prime, P5prime]
-
-  # - capability: prediction_B2KstarmumuAng_.*_LHCb
-  #   options:
-  #     obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
-  
-  # - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
-  #   function: HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020
-  #   options:
-  #     obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]  
-
-  # - capability: prediction_B2KstarmumuAng_.*_CMS
-  #   options:
-  #     obs_list: [P1, P5prime] 
-
-  # - capability: B2KstarmumuAng_LogLikelihood_CMS
-  #   options:
-  #     obs_list: [P1, P5prime]
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - RK/RD star likelihoods
-
-  # - capability: SuperIso_theory_covariance
-  #   function: SI_theory_covariance
-
-  # -------------------------
 
 
 #########################
@@ -531,6 +587,8 @@ Logger:
     [Dependency Resolver] :  "DepResolver.log"
     [Scanner]:  "Scanner.log"
 
+
+
 ##########################
 # Name/Value Section
 ##########################
@@ -538,9 +596,19 @@ Logger:
 KeyValues:
 
   likelihood:
-    model_invalid_for_lnlike_below: -1e8
-    model_invalid_for_lnlike_below_alt: -5e7
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
     debug: false
-    
-  default_output_path: "runs/THDMIIatQ/"
-  debug: true
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "../runs/"
+  debug: false

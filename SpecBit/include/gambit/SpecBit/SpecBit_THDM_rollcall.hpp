@@ -13,8 +13,8 @@
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
 ///
-///   \author James McKay
-///  \ October 2016
+///  \author James McKay
+///  \date October 2016
 ///
 ///
 ///  *********************************************

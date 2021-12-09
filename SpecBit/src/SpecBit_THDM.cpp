@@ -354,7 +354,8 @@ namespace Gambit
         SpecBit_error().raise(LOCAL_INFO, msg.str());
       }
     }
-
+    
+    // ~~ 13 ~~ (get thdm spectrum)
     /// Get a Spectrum object wrapper for the THDM model
     void get_THDM_spectrum(Spectrum &result)
     {
@@ -459,7 +460,7 @@ namespace Gambit
         thdm_model.mC = basis["m_Hp"];
 
         //for debug reasons may choose to continue with negative mass
-        const bool continue_with_negative_mass = false;
+        const bool continue_with_negative_mass = false; // ~~ !!!!!!!
 
         if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_Hp"] < 0.0)
         {
@@ -847,6 +848,7 @@ namespace Gambit
     // checks a coupling for NaN
     void check_coupling(std::complex<double> var)
     {
+      // ~~ !!!!!!!!!!
       if (std::isnan(var.real()) || std::isnan(var.imag()))
       {
         std::ostringstream msg;
@@ -3898,7 +3900,8 @@ namespace Gambit
         }
       }
     }
-
+    
+    // ~~ 21 ~~ (get higgs couplings from THDMC)
     // Put together the Higgs couplings for the THDM, using 2HDMC
     void THDM_higgs_couplings_2HDMC(HiggsCouplingsTable &result)
     {

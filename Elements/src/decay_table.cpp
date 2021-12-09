@@ -300,10 +300,11 @@ namespace Gambit
     }
   }
 
+  // ~~ hidden ~~
   /// Make sure no NaNs have been passed to the DecayTable by nefarious backends
   void DecayTable::Entry::check_BF_validity(double BF, double error, std::multiset< std::pair<int,int> >& key) const
   {
-    if (Utils::isnan(BF) or Utils::isnan(error))
+    if ((Utils::isnan(BF) or Utils::isnan(error))) // ~~ !!!!!!!
     {
       std::ostringstream msg;
       msg << "NaN detected in attempt to set decay table branching fraction. " << endl

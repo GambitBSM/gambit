@@ -174,6 +174,104 @@
   #undef CAPABILITY
 
 
+
+  
+
+  #define CAPABILITY HS_TEST_RESULTS
+  START_CAPABILITY
+  
+    #define FUNCTION HiggsSignalsTest
+    START_FUNCTION(double)
+    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
+    DEPENDENCY(HB_ModelParameters_charged, hb_charged_ModelParameters)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+    ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+    BACKEND_REQ(HiggsBounds_neutral_input_properties_HS, (libhiggssignals), void,
+    (double*, double*, double*))
+    BACKEND_REQ(HiggsBounds_neutral_input_effC_HS, (libhiggssignals), void,
+    (double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, Farray<double, 1,3, 1,3>&))
+    BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggssignals), void,
+    (double*, Farray<double, 1,3, 1,3, 1,3>&, 
+    Farray<double, 1,3, 1,3>&, double*, double*, 
+    double*, Farray<double, 1,3>&))
+    BACKEND_REQ(HiggsBounds_charged_input_HS, (libhiggssignals), void,
+    (double*, double*, double*, double*,
+    double*, double*, double*, double*,
+    double*, double*, Farray<double, 1,3>&))
+    BACKEND_REQ(run_HiggsSignals, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+    BACKEND_REQ(run_HiggsSignals_LHC_Run1_combination, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+    BACKEND_REQ(run_HiggsSignals_STXS, (libhiggssignals), void, (double&, double&, double&, int&, double&))
+    BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
+    // BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
+    BACKEND_OPTION( (HiggsSignals, 2.5.0), (libhiggssignals) )
+    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY HS_TEST_CHANNEL_h_to_gaga
+  START_CAPABILITY
+    #define FUNCTION calc_HS_TEST_CHANNEL_h_to_gaga
+    START_FUNCTION(double)
+    DEPENDENCY(HS_TEST_RESULTS, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY HS_TEST_CHANNEL_h_to_ZZ
+  START_CAPABILITY
+    #define FUNCTION calc_HS_TEST_CHANNEL_h_to_ZZ
+    START_FUNCTION(double)
+    DEPENDENCY(HS_TEST_RESULTS, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY HS_TEST_CHANNEL_h_to_WW
+  START_CAPABILITY
+    #define FUNCTION calc_HS_TEST_CHANNEL_h_to_WW
+    START_FUNCTION(double)
+    DEPENDENCY(HS_TEST_RESULTS, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY HS_TEST_CHANNEL_h_to_tautau
+  START_CAPABILITY
+    #define FUNCTION calc_HS_TEST_CHANNEL_h_to_tautau
+    START_FUNCTION(double)
+    DEPENDENCY(HS_TEST_RESULTS, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY HS_TEST_CHANNEL_h_to_bb
+  START_CAPABILITY
+    #define FUNCTION calc_HS_TEST_CHANNEL_h_to_bb
+    START_FUNCTION(double)
+    DEPENDENCY(HS_TEST_RESULTS, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY HS_TEST_CHANNEL_h_to_mumu
+  START_CAPABILITY
+    #define FUNCTION calc_HS_TEST_CHANNEL_h_to_mumu
+    START_FUNCTION(double)
+    DEPENDENCY(HS_TEST_RESULTS, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY HS_TEST_CHANNEL_h_to_all
+  START_CAPABILITY
+    #define FUNCTION calc_HS_TEST_CHANNEL_h_to_all
+    START_FUNCTION(double)
+    DEPENDENCY(HS_TEST_RESULTS, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // Get an LHC Higgs chisq
   #define CAPABILITY LHC_Higgs_LogLike
   START_CAPABILITY

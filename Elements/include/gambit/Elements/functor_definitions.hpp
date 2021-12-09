@@ -82,7 +82,7 @@ namespace Gambit
     /// Getter indicating if the wrapped function's result should be printed
     template <typename TYPE>
     bool module_functor<TYPE>::requiresPrinting() const { return myPrintFlag; }
-
+    // ~~~ 10b ~~
     /// Calculate method
     /// (no loop-manager stuff here because only void specialisation can manage loops)
     template <typename TYPE>

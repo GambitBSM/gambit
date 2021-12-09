@@ -1686,7 +1686,7 @@ namespace Gambit
                                          Models::ModelFunctorClaw &claw)
     : module_functor_common(func_name, func_capability, result_type, origin_name, claw),
       myFunction (inputFunction) {}
-
+    // ~~~ 10 ~~
     /// Calculate method
     /// The "void" specialisation can potentially manage loops,
     /// so there are some extra switches in here to let the signal

@@ -11,7 +11,7 @@ rm -rf work/*
 
 # won't work on Gadi
 cd work && \
-mpiexec -np 48 ../gambit -rf ../yaml_files/THDMI.yaml > out.txt
+mpiexec -np 16 ../gambit -rf ../yaml_files/THDM_physical.yaml > out.txt
 
 # export I_MPI_DEBUG=5 && \
 # export OMP_NUM_THREADS=1 && \

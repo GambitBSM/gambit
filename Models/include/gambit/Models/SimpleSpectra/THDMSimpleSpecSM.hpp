@@ -28,6 +28,7 @@ namespace Gambit
 {     
    namespace Models
    {
+      // ~~ hidden ~~
       /// Simple extension of the SMHiggsSimpleSpec "model object"
       /// to include THDM parameters for models whwere there is no running.
       struct THDMModel

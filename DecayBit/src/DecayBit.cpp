@@ -121,10 +121,11 @@ namespace Gambit
       return m2 / (m2 - q2 -i*imag_term);
     }
 
-
+    // ~~ 14 ~~
     /// Check if a width is negative or suspiciously large and raise an error.
     void check_width(const str& info, double& w, bool raise_invalid_pt_negative_width = false, bool raise_invalid_pt_large_width = false)
     {
+      // ~~ !!!!!!!!
       if (Utils::isnan(w)) invalid_point().raise("Decay width is NaN!");
       // if (Utils::isnan(w)) DecayBit_error().raise(info, "Decay width is NaN!");
       if (w < 0)
@@ -3630,6 +3631,7 @@ namespace Gambit
   //   result = 0.0;
   // }
 
+    // helper function for grabbing higgs decays from THDMC
     void h_decays_THDM(DecayTable::Entry& result, THDM_spectrum_container& container, int h) {
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
 
@@ -3650,6 +3652,10 @@ namespace Gambit
       result.positive_error = 0; //narrow width
       result.negative_error = 0;
       result.width_in_GeV = decay_table_2hdmc.get_gammatot_h(h);
+
+      // use the arrays: particle_keys, antiparticle_keys to fill in the decay product strings
+      // set the BFs to zero if the total decay width is negative
+      // loop over two flavour (generation) indices
 
       // fill the GAMBIT decay table
       for(int f1=1; f1<4; f1++) {
@@ -3702,6 +3708,7 @@ namespace Gambit
     }
 
     enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
+    
     // model lookup map -> useful for looking up model info
     // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
     struct model_param {
@@ -3723,6 +3730,8 @@ namespace Gambit
       { "THDMflipped", model_param( false, flipped ) }
 		};
 
+    // ~~ 14 ~~ 
+    // get all decays for h0_1 (via THDMC)
     void h0_1_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::h0_1_decays_THDM;
       // set THDM model type
@@ -3739,8 +3748,10 @@ namespace Gambit
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       h_decays_THDM(result, container, 1);
    }
-
-   void h0_2_decays_THDM(DecayTable::Entry& result) {
+    
+    // ~~ 14 ~~ 
+    // get all decays for h0_2 (via THDMC)
+    void h0_2_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::h0_2_decays_THDM;
       // set THDM model type
       int y_type = -1;
@@ -3756,8 +3767,10 @@ namespace Gambit
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       h_decays_THDM(result, container, 2);
    }
-  
-   void A0_decays_THDM(DecayTable::Entry& result) {
+    
+    // ~~ 14 ~~ 
+    // get all decays for A0 (via THDMC)
+    void A0_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::A0_decays_THDM;
       // set THDM model type
       int y_type = -1;
@@ -3773,8 +3786,10 @@ namespace Gambit
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
       h_decays_THDM(result, container, 3);
    }
-
-   void Hpm_decays_THDM(DecayTable::Entry& result) {
+    
+    // ~~ 14 ~~ 
+    // get all decays for H+- (via THDMC)
+    void Hpm_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Hpm_decays_THDM;
       // set THDM model type
       int y_type = -1;
@@ -3791,7 +3806,8 @@ namespace Gambit
       h_decays_THDM(result, container, 4);
    }
 
-    /// Reference SM Higgs decays from 2HDMC: h0_1
+    // ~~ 14 ~~ 
+    /// Reference SM Higgs decays: h0_1 (via THDMC)
     void Ref_SM_Higgs_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Ref_SM_Higgs_decays_THDM;
       // set up container and fill BFs
@@ -3799,7 +3815,9 @@ namespace Gambit
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, 1, 0.0, 1);
       h_decays_THDM(result, container, 1);
     }
-    /// Reference SM Higgs decays from 2HDMC: h0_2
+    
+    // ~~ 14 ~~
+    /// Reference SM Higgs decays: h0_2 (via THDMC)
     void Ref_SM_other_Higgs_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Ref_SM_other_Higgs_decays_THDM;
       // set up container and fill BFs
@@ -3807,7 +3825,9 @@ namespace Gambit
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, 1, 0.0, 2);
       h_decays_THDM(result, container, 1);
     }
-    /// Reference SM Higgs decays from 2HDMC: A0
+    
+    // ~~ 14 ~~
+    /// Reference SM Higgs decays: A0 (via THDMC)
     void Ref_SM_A0_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Ref_SM_A0_decays_THDM;
       // set up container and fill BFs
@@ -3815,8 +3835,9 @@ namespace Gambit
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, 1, 0.0, 3);
       h_decays_THDM(result, container, 1);
     }
-   
-    /// THDM decays: t from 2HDMC
+    
+    // ~~ 14 ~~
+    // get all decays for top quark (via THDMC)
     void t_decays_THDM (DecayTable::Entry& result) {
       using namespace Pipes::t_decays_THDM;
       const Spectrum spec = *Dep::THDM_spectrum;
@@ -3873,7 +3894,9 @@ namespace Gambit
       result.set_BF(gamma_total_top_SM/gamma_total_top, 0.0, "W+", "b");
       check_width(LOCAL_INFO, result.width_in_GeV, true, true);
     }
-     /// @}
+    
+    
+    /// @}
 
 
 

@@ -36,7 +36,7 @@ void do_cleanup()
 /// Main GAMBIT program
 int main(int argc, char* argv[])
 {
-
+  // ~~~ 1 ~~
   std::set_terminate(terminator);
   cout << std::setprecision(Core().get_outprec());
 

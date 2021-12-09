@@ -82,7 +82,7 @@ namespace Gambit
                     
                     return 1;
                 }
-                
+                // ~~~ 4 ~~
                 ret operator() (const args&... params) 
                 {
                         return main(params...);
@@ -191,7 +191,7 @@ namespace Gambit
                 {
                     Plugin_Main_Interface_Base<ret (args...)>::enterMain(name, initPlugin(type, name, inputs...));
                 }
-                
+                // ~~~ 3 ~~
                 ret operator() (const args&... params)
                 {
                     return Plugin_Main_Interface_Base<ret (args...)>::operator()(params...);

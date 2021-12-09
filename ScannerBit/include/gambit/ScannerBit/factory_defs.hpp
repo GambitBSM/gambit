@@ -121,7 +121,7 @@ namespace Gambit
 
             virtual ret main(const args&...) = 0;
             virtual ~Function_Base(){}
-
+            // ~~~ 7 ~~
             ret operator () (const args&... params)
             {
                 Gambit::Scanner::Plugins::plugin_info.set_calculating(true);
@@ -318,7 +318,7 @@ namespace Gambit
             like_ptr(const like_ptr &in) : s_ptr (in){}
             //like_ptr(like_ptr &&in) : s_ptr (std::move(in)) {}
             like_ptr(void *in) : s_ptr(in) {}
-
+            // ~~~ 6 ~~
             double operator()(const std::vector<double> &vec)
             {
                 int rank = (*this)->getRank();

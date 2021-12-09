@@ -31,9 +31,10 @@
             "program": "${workspaceFolder}/gambit",
             "args": [
                 "-f",
-                "${workspaceFolder}/yaml_files/THDMIatQ.yaml"
+                "${workspaceFolder}/yaml_files/THDM_physical.yaml"
             ],
             "stopAtEntry": false,
+            "preLaunchTask":"clear_shit",
             "cwd": "${workspaceFolder}/work",
             "environment": [],
             "externalConsole": false,

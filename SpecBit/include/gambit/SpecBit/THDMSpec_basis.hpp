@@ -267,7 +267,7 @@ namespace Gambit
             std::cout << "THDM_Spec_helper throwing error: " << "Cannot fill_physical_THDM_basis" << std::endl; 
          }
     }
-      
+   //  ~~ hidden ~~
     inline void generate_THDM_spectrum_tree_level(std::map<std::string, double>& basis, const SMInputs& sminputs) {
          const double EMPTY = -1E10;
          // validate basis entries
