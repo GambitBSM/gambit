@@ -87,7 +87,7 @@ namespace Gambit
       
       // Import Spectrum objects
       const Spectrum& spec = *Dep::DMEFT_spectrum;
-      const SubSpectrum& SM = spec.get_LE();
+      const Spectrum& SM = *Dep::SM_spectrum;
       const SMInputs& SMI   = spec.get_SMInputs();
 
       // Get SM pole masses

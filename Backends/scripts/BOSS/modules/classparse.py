@@ -46,7 +46,8 @@ def run():
         infomsg.clearInfoMessages()
 
         # Generate dicts with different variations of the class name
-        class_name       = classutils.getClassNameDict(class_el)
+        # TODO: TG: Request template info for templated class
+        class_name       = classutils.getClassNameDict(class_el, add_template_info=True)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
 
         # Print current class
@@ -107,14 +108,19 @@ def run():
 
 
         # Treat the first specialization of a template class differently
-        if is_template and class_name['long'] not in template_done:
-            template_bracket, template_types = utils.getTemplateBracket(class_el)
-            
-            empty_templ_class_decl = ''
-            empty_templ_class_decl += classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, template_bracket, indent=cfg.indent)
-            empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, template_bracket, indent=cfg.indent)
+        # TODO: TG: I don't see why this is needed
+        #if is_template and class_name['long'] not in template_done:
+        #    template_bracket, template_types = utils.getTemplateBracket(class_el)
+        #    
+        #    empty_templ_class_decl = ''
+        #    empty_templ_class_decl += classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, template_bracket, indent=cfg.indent)
+        #    empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, template_bracket, indent=cfg.indent)
+        #
+        #    gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
 
-            gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
+        # TODO: TG: Only do each templated class once
+        if is_template and class_name['long'] in template_done:
+            continue;
 
 
         # Get template arguments for specialization, 
@@ -158,6 +164,12 @@ def run():
                                        original_file_content_nocomments, original_file_content,
                                        short_abstr_class_fname)
 
+        #
+        # Comment out member variables or types in the class definition
+        #
+
+        commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, 
+                                          original_file_content_nocomments)
 
 
         #
@@ -188,6 +200,11 @@ def run():
         generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
                               construct_assignment_operator, has_copy_constructor, copy_constructor_id)
 
+        #
+        # Generate a source file for definitions of the wrapper class
+        #
+
+        generateWrapperSource(class_el, class_name, abstr_class_name, namespaces)
 
         #
         # Construct utility functions for dealing with pointer-to-wrapper from Abstract class.
@@ -201,14 +218,14 @@ def run():
         # Add typedef to 'abstracttypedefs.hpp'
         #
 
-        addAbstractTypedefs(abstr_class_name, namespaces)
+        addAbstractTypedefs(abstr_class_name, namespaces, class_el)
 
 
         #
         # Add typedef to 'wrappertypdefs.hpp'
         #
 
-        addWrapperTypedefs(class_name, namespaces)
+        addWrapperTypedefs(class_name, namespaces, class_el)
 
 
         #
@@ -265,21 +282,18 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
     include_statements_code = '\n'.join(include_statements) + 2*'\n'
     class_decl += include_statements_code
 
-    # # Add include statement for the enum declaration header. Put this inside a #ifndef ... #endif block
-    # # to avoid multiple declaration when the abstract class header is included from the original class header. 
-    # enum_include_statement_code  = ''
-    # enum_include_statement_code += '#ifndef ENUMS_DECLARED\n'
-    # enum_include_statement_code += '#define ENUMS_DECLARED\n'
-    # enum_include_statement_code += '#include "' + gb.enum_decls_wrp_fname + cfg.header_extension + '"\n'
-    # # enum_include_statement_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.enum_decls_wrp_fname + cfg.header_extension) + '"\n'
-    # enum_include_statement_code += '#endif\n'
-    # enum_include_statement_code += '\n'
-    # class_decl += enum_include_statement_code
+    # Add include statement for the enum declaration header. 
+    if len(gb.enums_done) > 0 :
+        enum_include_statement_code  = ''
+        enum_include_statement_code += '#include "' + gb.enum_decls_wrp_fname + cfg.header_extension + '"\n'
+        enum_include_statement_code += '\n'
+        class_decl += enum_include_statement_code
 
     # Add the the code for the abstract class
     if (is_template == True) and (class_name['long'] in templ_spec_done):
         pass
     elif (is_template == True) and (class_name['long'] not in templ_spec_done):
+        spec_template_types = utils.getSpecTemplateTypes(class_el)
         class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
                                                          indent=cfg.indent, file_for_gambit=file_for_gambit, 
                                                          template_types=spec_template_types, 
@@ -332,8 +346,12 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_temp
 
         # - Prepare the template bracket string
         if src_is_specialization:
+            spec_template_types = utils.getSpecTemplateTypes(class_el)
             add_template_bracket = '<' + ','.join(spec_template_types) + '>'
+            # TODO: TG: Get actual bracket length
+            bracket_length = utils.getBracketLength(original_file_content_nocomments, class_name_pos)
         else:
+            template_bracket, template_types = utils.getTemplateBracket(class_el)
             add_template_bracket = '<' + ','.join(template_types) + '>'
 
 
@@ -343,7 +361,9 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_temp
         # - Calculate insert position
         insert_pos = class_name_pos + len(class_name['short'])
         if is_template and src_is_specialization:
-            insert_pos += len(add_template_bracket)
+            # TODO: TG: This fails is the template specialization uses the short name
+            #insert_pos += len(add_template_bracket)
+            insert_pos += bracket_length
 
         # - Generate code
         add_code = ' : public virtual ' + abstr_class_name['short']
@@ -355,10 +375,14 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_temp
 
         # - Get colon position
         if is_template and src_is_specialization:
-            temp_pos = class_name_pos + len(class_name['short']) + len(add_template_bracket)
+            # TODO: TG: This fails is the template specialization uses the short name
+            #temp_pos = class_name_pos + len(class_name['short']) + len(add_template_bracket)
+            temp_pos = class_name_pos + len(class_name['short']) + bracket_length
         else:
             temp_pos = class_name_pos + len(class_name['short'])
-        colon_pos = temp_pos + original_file_content_nocomments[temp_pos:newline_pos].find(':')
+        # TODO: TG: This fails if the colon is the next line
+        #colon_pos = temp_pos + original_file_content_nocomments[temp_pos:newline_pos].find(':')
+        colon_pos = temp_pos + original_file_content_nocomments[temp_pos:].find(':')
 
         # - Calculate insert position
         insert_pos = colon_pos + 1
@@ -424,7 +448,7 @@ def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_f
         include_code += '} '
 
     include_code += '\n'*has_namespace
-    include_code += use_indent + '#define ENUMS_DECLARED\n'
+    #include_code += use_indent + '#define ENUMS_DECLARED\n'
     include_code += use_indent + include_line + '\n'
     include_code += use_indent + '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.abstract_typedefs_fname + cfg.header_extension) +  '"\n'
     include_code += use_indent + '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.wrapper_typedefs_fname + cfg.header_extension) +  '"\n'
@@ -442,6 +466,34 @@ def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_f
     includes[original_file_name].append(include_line)
 
 # ====== END: addIncludesToOriginalClassFile ========
+
+
+
+# ======= commentMembersOfOriginalClassFile ========
+
+def commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, 
+                                      original_file_content_nocomments) :
+
+    if "members" in class_el.keys() :
+        for mem_id in class_el.get('members').split():
+            # If this member has been moved to the abstract class, comment it
+            for to_comment in gb.moved_to_abstract_class:
+                if mem_id == to_comment.get('id') :
+
+                    # Find position of member
+                    pos = classutils.findClassMemberPosition(class_el, to_comment, original_file_content_nocomments)
+    
+                    # Find where to add the comment tags
+                    rel_pos_start, rel_pos_end = utils.getBracketPositions(original_file_content_nocomments[pos:], delims=['{','}'])
+
+                    comment_start = pos
+                    comment_end = pos + rel_pos_end + 2
+
+                    # Register code
+                    gb.new_code[original_file_name]['code_tuples'].append( (comment_start, '/*') )
+                    gb.new_code[original_file_name]['code_tuples'].append( (comment_end, '*/') )
+
+# ======= END: commentMembersOfOriginalClassFile ========
 
 
 
@@ -739,6 +791,28 @@ def generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, sh
 # ====== END: generateWrapperHeader ========
 
 
+# ====== generateWrapperSource =======
+
+def generateWrapperSource(class_el, class_name, abstr_class_name, namespaces) :
+
+    # Set file name
+    wrapper_src_fname = gb.new_source_files[class_name['long']]['wrapper']
+
+    wrapper_src_path  = os.path.join(gb.boss_output_dir, wrapper_src_fname)
+
+    # Get code for the source file
+    wrapper_src_content = classutils.generateWrapperSourceCode(class_el, class_name, abstr_class_name, namespaces)
+
+    # Register code
+    if class_name['short'] in gb.needs_wrapper_source_file :
+        if wrapper_src_path not in gb.new_code.keys():
+            gb.new_code[wrapper_src_path] = {'code_tuples':[], 'add_include_guard':False}
+        gb.new_code[wrapper_src_path]['code_tuples'].append( (0, wrapper_src_content) )
+
+# ====== END: generateWrapperSource =======
+
+
+
 # ====== constrWrapperUtils ========
 
 # Construct functions for dealing with wrapper pointer from abstract class 
@@ -847,14 +921,27 @@ def constrWrapperUtils(class_name):
 
 # Add typedef to 'abstracttypedefs.hpp'
 
-def addAbstractTypedefs(abstr_class_name, namespaces):
+def addAbstractTypedefs(abstr_class_name, namespaces, class_el=None):
 
     indent = ' '*cfg.indent*len(namespaces)
     abstr_typedef_code  = ''
     abstr_typedef_code += utils.constrNamespace(namespaces, 'open', indent=cfg.indent)
 
     temp_namespace_list = [gb.gambit_backend_namespace] + namespaces
-    abstr_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + ' ' + abstr_class_name['short'] + ';\n'
+    
+    # TODO: TG: With templates we need aliases not typedefs
+    if class_el is not None and utils.isTemplateClass(class_el) :
+        templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
+        templ_vars = '<' + ','.join(templ_var_list) + '>'
+        # If it's a specialized template, construct the bracket
+        if templ_bracket == '<>' :
+            specs = utils.getSpecTemplateTypes(class_el)
+            templ_bracket = '<' + ','.join(['class T' + str(i+1) for i in range(len(specs))]) + '>'
+            templ_vars = '<' + ','.join(['T' + str(i+1) for i in range(len(specs))]) + '>'
+        abstr_typedef_code += indent + 'template ' + templ_bracket + '\n'
+        abstr_typedef_code += indent + 'using ' + abstr_class_name['short'] + ' = ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + templ_vars + ';\n'
+    else :
+        abstr_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + ' ' + abstr_class_name['short'] + ';\n'
 
     abstr_typedef_code += utils.constrNamespace(namespaces, 'close', indent=cfg.indent)
     abstr_typedef_code += '\n'
@@ -881,7 +968,7 @@ def addAbstractTypedefs(abstr_class_name, namespaces):
 
 # Add typedef to 'wrappertypdefs.hpp'
 
-def addWrapperTypedefs(class_name, namespaces):
+def addWrapperTypedefs(class_name, namespaces, class_el=None):
 
     short_wrapper_class_name = classutils.toWrapperType(class_name['short'])
 
@@ -891,7 +978,20 @@ def addWrapperTypedefs(class_name, namespaces):
     wrapper_typedef_code += utils.constrNamespace(namespaces,'open')
 
     temp_namespace_list = [gb.gambit_backend_namespace] + namespaces
-    wrapper_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + class_name['short'] + ' ' + short_wrapper_class_name + ';\n'
+
+    # TODO: TG: With templates we need aliases not typedefs
+    if class_el is not None and utils.isTemplateClass(class_el) :
+        templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
+        templ_vars = '<' + ','.join(templ_var_list) + '>'
+       # If it's a specialized template, construct the bracket
+        if templ_bracket == '<>' :
+            specs = utils.getSpecTemplateTypes(class_el)
+            templ_bracket = '<' + ','.join(['class T' + str(i+1) for i in range(len(specs))]) + '>'
+            templ_vars = '<' + ','.join(['T' + str(i+1) for i in range(len(specs))]) + '>'
+        wrapper_typedef_code += indent + 'template ' + templ_bracket + '\n'
+        wrapper_typedef_code += indent + 'using ' + short_wrapper_class_name + ' = ' + '::'.join(temp_namespace_list) + '::' + class_name['short'] + templ_vars + ';\n'
+    else :
+        wrapper_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + class_name['short'] + ' ' + short_wrapper_class_name + ';\n'
 
     wrapper_typedef_code += utils.constrNamespace(namespaces,'close')
     wrapper_typedef_code += '\n'

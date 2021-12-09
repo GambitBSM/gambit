@@ -11,6 +11,7 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2016 May, June
+///  \ðate 2019 Oct
 ///  \date 2020 Apr
 ///
 ///  *********************************************
@@ -24,8 +25,8 @@
 // Begin
 LOAD_LIBRARY
 
-// Allow for CMSSM, MSSM63atMGUT and MSSM63atQ
-BE_ALLOW_MODELS(CMSSM,MSSM63atMGUT,MSSM63atQ)
+// Allow for CMSSM, MSSM63atMGUT, MSSM63atQ, MSSM63atMGUT_lightgravitino and MSSM63atQ_lightgravitino
+BE_ALLOW_MODELS(CMSSM,MSSM63atMGUT,MSSM63atQ,MSSM63atMGUT_lightgravitino,MSSM63atQ_lightgravitino)
 
 // Functions
 BE_FUNCTION(Set_All_Parameters_0, void, (), ("__model_data_MOD_set_all_parameters_0", "__model_data_mp_set_all_parameters_0_"), "SPheno_internal")
@@ -285,9 +286,9 @@ BE_VARIABLE(ratioWoM, Freal8, ("__spheno_MOD_ratiowom", "spheno_mp_ratiowom_"), 
 BE_VARIABLE(CalcTBD, Flogical, ("__spheno_MOD_calctbd", "spheno_mp_calctbd_"), "SPheno_internal")
 
 // Convenience functions (registration)
-BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SPheno_MSSMspectrum")
-BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const Finputs&), "SPheno_internal")
-BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SPheno_internal")
+BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const SpectrumInputs&), "SPheno_MSSM_Spectrum")
+BE_CONV_FUNCTION(Spectrum_Out, void, (Spectrum&, const SpectrumInputs&), "SPheno_internal")
+BE_CONV_FUNCTION(ReadingData, void, (const SpectrumInputs&), "SPheno_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SPheno_internal")
 BE_CONV_FUNCTION(ErrorHandling, void, (const int&), "SPheno_internal")
 

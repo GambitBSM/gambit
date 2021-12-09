@@ -35,7 +35,7 @@ namespace Gambit
 
   /// Determine which higgs is most SM-like.
   /// Works only for 2 and 3 higgses (e.g. MSSM and NMSSM)
-  int SMlike_higgs_PDG_code(const SubSpectrum& spec)
+  int SMlike_higgs_PDG_code(const Spectrum& spec)
   {
 
     // Find out how many Higgses we have.

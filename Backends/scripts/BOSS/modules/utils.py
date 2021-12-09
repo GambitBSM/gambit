@@ -61,12 +61,12 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
         return is_loadable
 
     # - Check if class is a template class. BOSS cannot handle this yet.
-    if isTemplateClass(class_el):
-        is_loadable = False
-        if print_warning:
-            reason = "This is a template class. BOSS cannot yet handle this."
-            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
-        return is_loadable
+    #if isTemplateClass(class_el):
+    #    is_loadable = False
+    #    if print_warning:
+    #        reason = "This is a template class. BOSS cannot yet handle this."
+    #        infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
+    #    return is_loadable
 
     # - Check that class is complete (not only forward declared).
     if not isComplete(class_el):
@@ -151,13 +151,14 @@ def isKnownClass(el, class_name=None):
 
 # ====== isTemplateClass ========
 
-def isTemplateClass(class_el):
+def isTemplateClass(class_el, class_name=None):
 
     import modules.classutils as classutils
 
     is_template = False
 
-    class_name = classutils.getClassNameDict(class_el)
+    if class_name is None:
+        class_name = classutils.getClassNameDict(class_el)
 
     if '<' in class_name['long_templ']:
         is_template = True
@@ -306,38 +307,47 @@ def getTemplateBracket(el):
     file_content_nocomments = removeComments(file_content, insert_blanks=True)
 
     # Find index of the \n in line number line_number
-    count = 0
-    prev_pos = 0
-    for index,char in enumerate(file_content_nocomments):
-        if char=='\n':
-            count += 1
-        if count == line_number:
-            break
-        if char=='\n':         # STUPID HACK
-            prev_pos = index
-
-    newline_pos = index
-
+    # TODO: TG: I think this is better
+    file_content_list = file_content_nocomments.split('\n')
+    #count = 0
+    #prev_pos = 0
+    #for index,char in enumerate(file_content_nocomments):
+    #    if char=='\n':
+    #        count += 1
+    #    if count == line_number:
+    #        break
+    #    if char=='\n':         # STUPID HACK
+    #        prev_pos = index
+    #
+    #newline_pos = index
 
     # Find the template parameter bracket, e.g. <typename A, typename B>
-    search_content = file_content_nocomments[:newline_pos]
+    #search_content = file_content_nocomments[:newline_pos]
+    if "template" in file_content_list[line_number-1] :
+        search_content = file_content_list[line_number-1]
+    elif "template" in file_content_list[line_number-2] :
+        search_content = file_content_list[line_number-2]
+    else :
+        # This means there is no template, should never happen
+        return
+    template_bracket = '<' + search_content.split('<')[-1].split('>')[0] + '>'
 
-    start_pos = 0
-    end_pos = search_content.rfind('>')
-    if end_pos != -1:
-        balance = -1
-        for i in range(end_pos-1, -1, -1):
-            char = search_content[i]
-            if char == '>':
-                balance -= 1
-            elif char == '<':
-                balance += 1
-            if (balance == 0):
-                start_pos = i
-                break
-        template_bracket = search_content[start_pos:end_pos+1]
-    else:
-        template_bracket = '<>'
+    #start_pos = 0
+    #end_pos = search_content.rfind('>')
+    #if end_pos != -1:
+    #    balance = -1
+    #    for i in range(end_pos-1, -1, -1):
+    #        char = search_content[i]
+    #        if char == '>':
+    #            balance -= 1
+    #        elif char == '<':
+    #            balance += 1
+    #        if (balance == 0):
+    #            start_pos = i
+    #            break
+    #    template_bracket = search_content[start_pos:end_pos+1]
+    #else:
+    #    template_bracket = '<>'
 
     # print('TEMPLATE BRACKET: ', template_bracket)
 
@@ -371,7 +381,7 @@ def getSpecTemplateTypes(input_type, byname=False):
         # Classes and functions must be treated differently
         if el.tag in ['Class', 'Struct']:
             input_name = el.get('name')
-        elif el.tag in ['Function', 'Method', 'OperatorMethod', 'OperatorFunction']:
+        elif el.tag in ['Constructor', 'Function', 'Method', 'OperatorMethod', 'OperatorFunction']:
             namespaces_list = getNamespaces(el, include_self=True)
             input_name = '::'.join(namespaces_list)
         else:
@@ -645,11 +655,16 @@ def findType(el_input):
     found_function_pointer = False
     is_array = False
     array_limits = []
+    enum_values = []
 
     el = el_input
 
     if el.tag in ['FundamentalType', 'Class', 'Struct', 'Enumeration']:
         type_id = el.get('id')
+
+    if el.tag in ['Enumeration']:
+      for val in el:
+          enum_values.append(val.get('name'))
 
     elif el.tag in ['Constructor']:
         type_id = el.get('context')
@@ -720,10 +735,29 @@ def findType(el_input):
     type_dict['is_function_pointer'] = found_function_pointer
     type_dict['is_array']            = is_array
     type_dict['array_limits']        = tuple(array_limits)
+    type_dict['enum_values']         = enum_values
 
     return type_dict
 
 # ====== END: findType ========
+
+
+
+# ====== typeInList ======
+
+def typeInList(type_el, list_types) :
+
+    list_of_ids = []
+
+    for list_type in list_types :
+        list_of_ids.append(list_type.get('id'))
+
+    if type_el.get('id') in list_of_ids:
+        return True
+    else:
+        return False
+
+# ====== END: typeInList ======
 
 
 
@@ -743,6 +777,41 @@ def findNewLinePos(content, line_number):
 # ====== END: findNewLinePos ========
 
 
+# ====== getBracketLength =======
+
+def getBracketLength(content, line_number):
+
+    length = 0
+    count = 0
+    found_first_bracket = False
+    first_bracket_open = False
+    n_brackets = 0
+
+    while first_bracket_open or not found_first_bracket :
+
+        c = content[line_number+count]
+
+        if c == '<' and not found_first_bracket : 
+            found_first_bracket = True
+            first_bracket_open = True
+            n_brackets += 1
+
+        elif c == '<' and first_bracket_open :
+            n_brackets += 1
+
+        elif c == '>' and first_bracket_open :
+            n_brackets -= 1
+            if n_brackets == 0:
+                first_bracket_open = False
+
+        if first_bracket_open:
+            length += 1
+
+        count += 1
+
+    return length
+   
+# ====== END: getBracketLength =======
 
 # ====== getBracketPositions ========
 
@@ -992,9 +1061,13 @@ def isAcceptedType(input_el):
             is_accepted_type = True
 
     elif type_el.tag in ['FundamentalType', 'Enumeration']:
+        # Accept both the name with and without the namespace
+        if type_name in gb.accepted_types:
+            is_accepted_type = True
         type_name = type_el.get('name')
         if type_name in gb.accepted_types:
             is_accepted_type = True
+
 
     else:
         reason = "Cannot determine if XML element with id='%s' and tag '%s' corresponds to an accepted type. Assuming it does not." % (input_el.get('id'), input_el.tag)
@@ -1005,7 +1078,30 @@ def isAcceptedType(input_el):
 
 # ====== END: isAcceptedType ========
 
+# ====== isLoadedEnum =======
 
+def isLoadedEnum(enum_type, enum_name=None):
+
+    is_loaded_enum = False
+
+    #if the enum_name dict is passed as an argument, use it
+    if enum_name is not None:
+
+        if enum_name['long'] in cfg.load_enums:
+            is_loaded_enum = True
+
+    else:
+
+        type_dict = findType(enum_type)
+        type_el = type_dict['el']
+
+        if type_el.tag in ['Enumeration'] and type_dict['name'] in cfg.load_enums:
+            is_loaded_enum = True
+
+
+    return is_loaded_enum
+
+# ====== END: isLoadedEnum =======
 
 # ====== isLoadedClass ========
 
@@ -1111,11 +1207,21 @@ def constrAbsForwardDeclHeader(file_output_path):
 
         if is_template:
             template_bracket = getTemplateBracket(class_el)[0]
+            spec_template_types = getSpecTemplateTypes(class_el)
 
-        if is_template:
+            # TODO: TG: If it's a specialized template we declare the full template
+            if template_bracket == '<>' and len(spec_template_types) > 0:
+                temp_types = ['class T' + str(i+1) for i in range(len(spec_template_types))]
+                template_bracket = '<' + ','.join(temp_types) + '>'
+
             insert_code += full_indent + 'template ' + template_bracket + '\n'
             insert_code += full_indent + 'class ' + abstr_class_name['short'] + ';\n'
-            insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
+
+            # TODO: TG: Add the template specificiation
+            # TODO: Maybe no need to forward declare this
+            #if len(spec_template_types) > 0:
+            #    insert_code += full_indent + 'template <>\n';
+            #    insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
         else:
             insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
 
@@ -1157,9 +1263,11 @@ def constrWrpForwardDeclHeader(file_output_path):
     insert_code = ''
     tag_pos = current_code.find('__INSERT_CODE_HERE__')
 
-    for class_name in gb.loaded_classes_in_xml.keys():
+    current_namespaces = []
+    for class_name, class_el in gb.loaded_classes_in_xml.items():
 
         namespace, class_name_short = removeNamespace(class_name, return_namespace=True)
+        namespaces    = getNamespaces(class_el)
 
         if namespace == '':
             namespace_list = []
@@ -1167,17 +1275,49 @@ def constrWrpForwardDeclHeader(file_output_path):
             namespace_list = namespace.split('::')
 
         n_indents = len(namespace_list)
+        full_indent = ' '*n_indents*cfg.indent
 
 
-        # - Open namespace
-        insert_code += constrNamespace(namespace_list, 'open')
+        if namespaces != current_namespaces:
+            # close current namespace
+            insert_code += constrNamespace(current_namespaces, 'close', indent=cfg.indent)
+            # open new namespace
+            insert_code += constrNamespace(namespaces, 'open', indent=cfg.indent)
+            # update current namespace
+            current_namespaces = namespaces
 
         # - Forward declaration
-        insert_code += ' '*n_indents*cfg.indent + 'class ' + class_name_short + ';\n'
+        # TODO: TG: Added this for testing
+        if '<' in class_name_short:
+            is_template = True
+        else:
+            is_template = False
 
-        # - Close namespace
-        insert_code += constrNamespace(namespace_list, 'close')
+        if is_template:
+            template_bracket = getTemplateBracket(class_el)[0]
+            spec_template_types = getSpecTemplateTypes(class_el)
 
+            # TODO: TG: If it's a specialized template we declare the full template
+            if template_bracket == '<>' and len(spec_template_types) > 0:
+                temp_types = ['class T' + str(i+1) for i in range(len(spec_template_types))]
+                template_bracket = '<' + ','.join(temp_types) + '>'
+
+            insert_code += full_indent + 'template ' + template_bracket + '\n'
+            insert_code += full_indent + 'class ' + removeTemplateBracket(class_name_short) + ';\n'
+
+            # TODO: TG: Add the template specificiation
+            # TODO: Maybe no need to forward declare this
+            #if len(spec_template_types) > 0:
+            #    insert_code += full_indent + 'template <>\n';
+            #    insert_code += full_indent + 'class ' + class_name_short + ';\n'
+
+        else:
+            insert_code += full_indent + 'class ' + class_name_short + ';\n'
+
+
+    # Close current namespace
+    insert_code += constrNamespace(current_namespaces, 'close', indent=cfg.indent)
+    insert_code += '\n'
 
     new_code = current_code[:tag_pos] + insert_code + current_code[tag_pos:]
 
@@ -1193,6 +1333,7 @@ def constrWrpForwardDeclHeader(file_output_path):
 
 # ====== END: constrWrpForwardDeclHeader ========
 
+# ====== getParentContext ========
 
 
 # ====== getParentClasses ========
@@ -1633,7 +1774,7 @@ def identifyIncludedHeaders(content, only_native=True):
         # - Cut down to file name only
         check_file_name = os.path.basename(check_file_path)
 
-        # - Keep XML id if the corresponding file name mathces with an identified header
+        # - Keep XML id if the corresponding file name matches with an identified header
         if check_file_name in headers_in_file:
             return_dict[check_file_name] = file_el.get('id')
 
@@ -2118,7 +2259,7 @@ def constrLoadedTypesHeaderContent():
 
 # ====== constrEnumDeclHeader ========
 
-def constrEnumDeclHeader(enum_el_list, file_output_path):
+def constrEnumDeclHeader(file_output_path):
 
     import modules.classutils as classutils
 
@@ -2136,7 +2277,7 @@ def constrEnumDeclHeader(enum_el_list, file_output_path):
     insert_code = ''
     tag_pos = current_code.find('__INSERT_CODE_HERE__')
 
-    for enum_el in enum_el_list:
+    for enum_name, enum_el in gb.enum_dict.items():
 
         # Skip any enumerated type that is not native to the external code
         if not isNative(enum_el):
@@ -2335,12 +2476,13 @@ def pathSplitAll(path):
 def fillAcceptedTypesList():
 
     import modules.classutils as classutils
+    import modules.enumutils as enumutils
 
     # Sets to store type names
     fundamental_types = set()
     std_types         = set()
     known_classes     = set()
-    # enumeration_types = set()
+    enumeration_types = set()
     loaded_classes    = set()
 
     # Keep track of how many types have been checked
@@ -2356,7 +2498,7 @@ def fillAcceptedTypesList():
         new_fundamental_types   = []
         new_std_types           = []
         new_known_classes       = []
-        # new_enumeration_types   = []
+        new_enumeration_types   = []
         new_loaded_classes      = []
 
 
@@ -2415,14 +2557,6 @@ def fillAcceptedTypesList():
                 new_std_types.append(full_name)
 
 
-            # #
-            # # Enumeration type?
-            # #
-            # is_enumeration = isEnumeration(el)
-            # if is_enumeration:
-            #     new_enumeration_types.append( '::'.join( getNamespaces(el, include_self=True) ) )
-
-
             #
             # Loaded type?
             #
@@ -2430,6 +2564,22 @@ def fillAcceptedTypesList():
             if is_loaded_class:
                 new_loaded_classes.append(full_name)
 
+            #
+            # Enumeration type?
+            #
+            is_enumeration = isEnumeration(el)
+            if is_enumeration:
+
+                enum_name = enumutils.getEnumNameDict(el)
+
+                # If the parent is a loaded class, add it
+                parent = '::'.join(getNamespaces(el, include_self=False))
+                if parent and parent in cfg.load_classes:
+                    new_enumeration_types.append(full_name)
+
+                # If it is a loaded enum, add it
+                if isLoadedEnum(el, enum_name=enum_name) :
+                    new_enumeration_types.append(full_name)
 
 
         #
@@ -2438,7 +2588,7 @@ def fillAcceptedTypesList():
         fundamental_types = fundamental_types.union(set(new_fundamental_types))
         std_types         = std_types.union(set(new_std_types))
         known_classes     = known_classes.union(set(new_known_classes))
-        # enumeration_types = enumeration_types.union(set(new_enumeration_types))
+        enumeration_types = enumeration_types.union(set(new_enumeration_types))
         loaded_classes    = loaded_classes.union(set(new_loaded_classes))
 
 
@@ -2446,8 +2596,8 @@ def fillAcceptedTypesList():
     print('  - %i types classified.' % (type_counter))
 
     # Fill global list
-    gb.accepted_types = list(loaded_classes) + list(known_classes) + list(fundamental_types) + list(std_types)
-    # gb.accepted_types = list(loaded_classes) + list(fundamental_types) + list(std_types) + list(enumeration_types)
+    #gb.accepted_types = list(loaded_classes) + list(known_classes) + list(fundamental_types) + list(std_types)
+    gb.accepted_types = list(loaded_classes) + list(known_classes) +  list(fundamental_types) + list(std_types) + list(enumeration_types)
 
 # ====== END: fillAcceptedTypesList ========
 
@@ -2478,6 +2628,7 @@ def isProblematicType(el):
             pass
 
         else:
+
             for templ_arg in unpacked_template_args:
 
                 # Remove asterix and/or ampersand
@@ -2492,10 +2643,13 @@ def isProblematicType(el):
                 if type_el is not None:
 
                     # If this is a native type, the input type is problematic for BOSS
+                    # TODO: TG: Why? It should be fine
                     if isNative(type_el):
-
-                        is_problematic = True
+                    #
+                    #    is_problematic = True
                         return is_problematic
+                else :
+                    is_problematic = True
 
     return is_problematic
 
@@ -2647,6 +2801,7 @@ def clearGlobalXMLdicts():
     gb.typedef_dict.clear()
     gb.loaded_classes_in_xml.clear()
     gb.func_dict.clear()
+    gb.enum_dict.clear()
 
 # ====== END: clearGlobalXMLdicts ========
 
@@ -2658,6 +2813,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
     import modules.classutils as classutils
     import modules.funcutils as funcutils
+    import modules.enumutils as enumutils
 
     # Clear dicts
     clearGlobalXMLdicts()
@@ -2740,6 +2896,27 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 else:
                     pass
 
+        # Create an enum dictionary
+        if el.tag == 'Enumeration':
+
+            # Only accept native enumerations
+            if isNative(el):
+  
+                enum_name = enumutils.getEnumNameDict(el)
+
+                # Only take enumerations that are not members of a class or a struct
+                parent = gb.id_dict[el.get('context')]
+                if parent.tag in ('Class', 'Struct') :
+                    continue
+
+                # Check if we have done this function already
+                if enum_name in gb.enums_done:
+                    infomsg.EnumAlreadyDone( enum_name['long'] ).printMessage()
+                    continue
+
+                # If the enum is in the requested list of loaded enums, add it to the dict
+                if enum_name['long'] in cfg.load_enums:
+                    gb.enum_dict[enum_name['long']] = el
 
         # Update global dict: function name --> function xml element
         if el.tag == 'Function':
@@ -2779,6 +2956,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 wrapper_decl_header_fullpath = os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_decl' + cfg.header_extension )
                 wrapper_def_header_fullpath  = os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_def'  + cfg.header_extension )
 
+
                 gb.new_header_files[class_name_long] = {    'abstract': abstract_header_name,
                                                             'wrapper': wrapper_header_name,
                                                             'wrapper_decl': wrapper_decl_header_name,
@@ -2786,7 +2964,14 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                                                             'abstract_fullpath': abstract_header_fullpath,
                                                             'wrapper_fullpath': wrapper_header_fullpath,
                                                             'wrapper_decl_fullpath': wrapper_decl_header_fullpath,
-                                                            'wrapper_def_fullpath': wrapper_def_header_fullpath    }
+                                                            'wrapper_def_fullpath': wrapper_def_header_fullpath }
+
+            if class_name_long not in gb.new_source_files.keys():
+
+                wrapper_src_name        = gb.wrapper_source_prefix + class_name_short + cfg.source_extension
+
+                gb.new_source_files[class_name_long] = {    'wrapper': wrapper_src_name }
+
 
     #
     # END: Loop over all elements in this xml file

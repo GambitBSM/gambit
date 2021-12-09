@@ -18,8 +18,9 @@
 ///  \date   2018 Feb
 ///
 ///  \author Tomas Gonzalo
-///          (t.e.gonzalo@fys.uio.no)
+///          (tomas.gonzalo@monash.edu)
 ///  \date   2018 Feb
+///  \date   2019 Nov
 ///
 ///  *********************************************
 
@@ -1216,9 +1217,8 @@ namespace Gambit
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
       double max_mixing;
-      const SubSpectrum& mssm = spec.get_HE();
-      str sel_string = slhahelp::mass_es_from_gauge_es("~e_L", max_mixing, mssm);
-      str ser_string = slhahelp::mass_es_from_gauge_es("~e_R", max_mixing, mssm);
+      str sel_string = slhahelp::mass_es_from_gauge_es("~e_L", max_mixing, spec);
+      str ser_string = slhahelp::mass_es_from_gauge_es("~e_R", max_mixing, spec);
       const double mass_seL=spec.get(Par::Pole_Mass,sel_string);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_seR = spec.get(Par::Pole_Mass,ser_string);
@@ -1284,9 +1284,8 @@ namespace Gambit
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
       double max_mixing;
-      const SubSpectrum& mssm = spec.get_HE();
-      str smul_string = slhahelp::mass_es_from_gauge_es("~mu_L", max_mixing, mssm);
-      str smur_string = slhahelp::mass_es_from_gauge_es("~mu_R", max_mixing, mssm);
+      str smul_string = slhahelp::mass_es_from_gauge_es("~mu_L", max_mixing, spec);
+      str smur_string = slhahelp::mass_es_from_gauge_es("~mu_R", max_mixing, spec);
       const double mass_smuL=spec.get(Par::Pole_Mass,smul_string);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_smuR = spec.get(Par::Pole_Mass,smur_string);
@@ -1351,11 +1350,10 @@ namespace Gambit
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
-      const SubSpectrum& mssm = spec.get_HE();
       static const double tol = runOptions->getValueOrDef<double>(1e-5, "family_mixing_tolerance");
       static const bool pterror = runOptions->getValueOrDef<bool>(false, "family_mixing_tolerance_invalidates_point_only");
-      str stau1_string = slhahelp::mass_es_closest_to_family("~tau_1", mssm,tol,LOCAL_INFO,pterror);
-      str stau2_string = slhahelp::mass_es_closest_to_family("~tau_2", mssm,tol,LOCAL_INFO,pterror);
+      str stau1_string = slhahelp::mass_es_closest_to_family("~tau_1", spec,tol,LOCAL_INFO,pterror);
+      str stau2_string = slhahelp::mass_es_closest_to_family("~tau_2", spec,tol,LOCAL_INFO,pterror);
       const double mass_stau1=spec.get(Par::Pole_Mass,stau1_string);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_stau2 = spec.get(Par::Pole_Mass,stau2_string);
@@ -1422,9 +1420,8 @@ namespace Gambit
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
       double max_mixing;
-      const SubSpectrum& mssm = spec.get_HE();
-      str sel_string = slhahelp::mass_es_from_gauge_es("~e_L", max_mixing, mssm);
-      str ser_string = slhahelp::mass_es_from_gauge_es("~e_R", max_mixing, mssm);
+      str sel_string = slhahelp::mass_es_from_gauge_es("~e_L", max_mixing, spec);
+      str ser_string = slhahelp::mass_es_from_gauge_es("~e_R", max_mixing, spec);
       const double mass_seL=spec.get(Par::Pole_Mass,sel_string);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_seR = spec.get(Par::Pole_Mass,ser_string);
@@ -1491,9 +1488,8 @@ namespace Gambit
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
       double max_mixing;
-      const SubSpectrum& mssm = spec.get_HE();
-      str smul_string = slhahelp::mass_es_from_gauge_es("~mu_L", max_mixing, mssm);
-      str smur_string = slhahelp::mass_es_from_gauge_es("~mu_R", max_mixing, mssm);
+      str smul_string = slhahelp::mass_es_from_gauge_es("~mu_L", max_mixing, spec);
+      str smur_string = slhahelp::mass_es_from_gauge_es("~mu_R", max_mixing, spec);
       const double mass_smuL=spec.get(Par::Pole_Mass,smul_string);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_smuR = spec.get(Par::Pole_Mass,smur_string);
@@ -1559,11 +1555,10 @@ namespace Gambit
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
-      const SubSpectrum& mssm = spec.get_HE();
       static const double tol = runOptions->getValueOrDef<double>(1e-5, "family_mixing_tolerance");
       static const bool pterror = runOptions->getValueOrDef<bool>(false, "family_mixing_tolerance_invalidates_point_only");
-      str stau1_string = slhahelp::mass_es_closest_to_family("~tau_1", mssm,tol,LOCAL_INFO,pterror);
-      str stau2_string = slhahelp::mass_es_closest_to_family("~tau_2", mssm,tol,LOCAL_INFO,pterror);
+      str stau1_string = slhahelp::mass_es_closest_to_family("~tau_1", spec,tol,LOCAL_INFO,pterror);
+      str stau2_string = slhahelp::mass_es_closest_to_family("~tau_2", spec,tol,LOCAL_INFO,pterror);
       const double mass_stau1=spec.get(Par::Pole_Mass,stau1_string);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_stau2 = spec.get(Par::Pole_Mass,stau2_string);
@@ -2127,11 +2122,10 @@ namespace Gambit
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
-      const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", spec, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", spec, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", spec, tol, LOCAL_INFO, pt_error);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
       const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
@@ -2256,11 +2250,10 @@ namespace Gambit
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
-      const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", spec, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", spec, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", spec, tol, LOCAL_INFO, pt_error);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
       const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);
@@ -2403,11 +2396,10 @@ namespace Gambit
 
       const Spectrum& spec = *Dep::MSSM_spectrum;
 
-      const SubSpectrum& mssm = spec.get_HE();
       const DecayTable& decays = *Dep::decay_rates;
-      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", spec, tol, LOCAL_INFO, pt_error);
+      const str snumu = slhahelp::mass_es_from_gauge_es("~nu_mu_L", spec, tol, LOCAL_INFO, pt_error);
+      const str snutau = slhahelp::mass_es_from_gauge_es("~nu_tau_L", spec, tol, LOCAL_INFO, pt_error);
       const double mass_neut1 = spec.get(Par::Pole_Mass,1000022, 0);
       const double mass_char1 = spec.get(Par::Pole_Mass,1000024, 0);
       const double mass_char2 = spec.get(Par::Pole_Mass,1000037, 0);

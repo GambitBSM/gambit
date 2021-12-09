@@ -88,6 +88,9 @@ load_functions = [
     # 'Pythia8::m2(const Pythia8::Particle&, const Pythia8::Particle&)',
 ]
 
+load_enums = [
+]
+
 ditch = ['Pythia8::Pythia::initSLHA']
 
 
@@ -114,6 +117,12 @@ indent = 4
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
 known_classes = {"SLHAea::Coll" : "SLHAea/slhaea.h"}
+
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
 
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~

@@ -1,0 +1,152 @@
+##########################################################################
+## GAMBIT configuration for running a scan of the CMSSM using Diver.
+##
+## Includes likelihoods for LHC and LEP particle searches, LHC and LEP Higgs
+## searches (and LHC signal strengths), flavour physics, indirect and
+## direct dark matter detection, and electroweak precision observables.
+##
+## SM, nuclear matrix element and dark matter halo nuisance parameters
+## are included.
+##########################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_scan.yaml
+
+  # SUSY parameters.
+  CMSSM:
+    M0:
+      range: [50, 1e4]
+      prior_type: log
+    M12:
+      range: [50, 1e4]
+      prior_type: log
+    A0:
+      range: [-1e4, 1e4]
+      flat_start: -1e2
+      flat_end: 1e2
+      prior_type: double_log_flat_join
+    TanBeta:
+      range: [3.0, 70]
+    SignMu: 1
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+
+Printer:
+
+  printer: cout
+
+  #printer: hdf5
+
+  #options:
+  #  output_file: "CMSSM.hdf5"
+  #  group: "/CMSSM"
+
+  # printer: ascii
+  # options:
+  #  buffer_length: 1
+  #  delete_file_on_restart: true
+  #  output_file: "gambit_output.txt"
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 5000
+      tol: 0.1
+      updInt: 1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 19200
+      convthresh: 1e-5
+      verbosity: 1
+
+
+ObsLikes:
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+
+
+Rules:
+
+  # Tell all functions that are able to dump SLHA files to do so.
+  #- options:
+  #    drop_SLHA_file: true
+
+  # Globally permit maximal mixing between gauge and family eigenstates
+  - options:
+      gauge_mixing_tolerance: 0.5
+      family_mixing_tolerance: 0.5
+
+  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
+  - capability: unimproved_MSSM_spectrum
+    function: get_CMSSM_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+
+  # Choose where to get the precision spectrum from
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+    #function: make_MSSM_precision_spectrum_W
+    #function: make_MSSM_precision_spectrum_H_W
+    #function: make_MSSM_precision_spectrum_4H_W
+    # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
+    # or make_MSSM_precision_spectrum_H_W.
+    # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
+    # Choose to use the difference between the precision and spectrum generator predictions, along
+    # with the precision error estimate, to estimate the theoretical error on the prediction.
+    options:
+      Higgs_predictions_source: 1
+      Higgs_predictions_error_method: 4
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/SpecBit/"
+
+  debug: true

@@ -57,19 +57,17 @@ namespace Gambit
         {"~tau_L", "~tau_R"}
       };
 
-      // Subspectrum
-      const SubSpectrum& mssm = spec.get_HE();
       // PDG codes
       const int id1 = 1000000*l_chirality + 11 +2*(generation-1);
       const int id2 = -(1000000*lbar_chirality + 11 +2*(generation-1));
 
       // SM parameters
       const double mZ = spec.safeget(Par::Pole_Mass,23,0);
-      const double g2 = mssm.safeget(Par::dimensionless,"g2");
-      const double sinW2 = mssm.safeget(Par::dimensionless,"sinW2");
+      const double g2 = spec.safeget(Par::dimensionless,"g2");
+      const double sinW2 = spec.safeget(Par::dimensionless,"sinW2");
       const double alpha = 0.25*sinW2*g2*g2/pi;
       // MSSM parameters
-      const double tanb = mssm.safeget(Par::dimensionless,"tanbeta");
+      const double tanb = spec.safeget(Par::dimensionless,"tanbeta");
 
       // Get the mass eigenstate strings and 2x2 slepton generation mass mixing matrix
       str mass_es1, mass_es2;
@@ -82,14 +80,14 @@ namespace Gambit
         sleptonmix[0][1] = 0.0;
         sleptonmix[1][0] = 0.0;
         sleptonmix[1][1] = 1.0;
-        mass_es1 = slhahelp::mass_es_from_gauge_es(genmap[generation-1][l_chirality-1],    mssm, gtol, LOCAL_INFO, gpt_error);
-        mass_es2 = slhahelp::mass_es_from_gauge_es(genmap[generation-1][lbar_chirality-1], mssm, gtol, LOCAL_INFO, gpt_error);
+        mass_es1 = slhahelp::mass_es_from_gauge_es(genmap[generation-1][l_chirality-1],    spec, gtol, LOCAL_INFO, gpt_error);
+        mass_es2 = slhahelp::mass_es_from_gauge_es(genmap[generation-1][lbar_chirality-1], spec, gtol, LOCAL_INFO, gpt_error);
       }
       else
       {
         // Requested final states are family mass eigenstates.  Pass 2x2 family mass mixing matrix to low-level routine.
         str m_light, m_heavy;
-        std::vector<double> slepton4vec = slhahelp::family_state_mix_matrix("~e-", generation, m_light, m_heavy, mssm, ftol, LOCAL_INFO, fpt_error);
+        std::vector<double> slepton4vec = slhahelp::family_state_mix_matrix("~e-", generation, m_light, m_heavy, spec, ftol, LOCAL_INFO, fpt_error);
         mass_es1 = (l_chirality    == 1) ? m_light : m_heavy;
         mass_es2 = (lbar_chirality == 1) ? m_light : m_heavy;
         sleptonmix[0][0] = slepton4vec[0];
@@ -102,10 +100,10 @@ namespace Gambit
       //const double m2 = spec.safeget(Par::Pole_Mass,Models::ParticleDB().get_antiparticle(mass_es2));
       // until then
       const double m2 = spec.safeget(Par::Pole_Mass,mass_es2);
-      std::pair<double,double> m1_uncerts(mssm.safeget(Par::Pole_Mass_1srd_high, mass_es1),
-                                          mssm.safeget(Par::Pole_Mass_1srd_low,  mass_es1));
-      std::pair<double,double> m2_uncerts(mssm.safeget(Par::Pole_Mass_1srd_high, mass_es2),
-                                          mssm.safeget(Par::Pole_Mass_1srd_low,  mass_es2));
+      std::pair<double,double> m1_uncerts(spec.safeget(Par::Pole_Mass_1srd_high, mass_es1),
+                                          spec.safeget(Par::Pole_Mass_1srd_low,  mass_es1));
+      std::pair<double,double> m2_uncerts(spec.safeget(Par::Pole_Mass_1srd_high, mass_es2),
+                                          spec.safeget(Par::Pole_Mass_1srd_low,  mass_es2));
 
       // If the final state is kinematically inaccessible *even* if both masses
       // are 2simga lower than their central values, then return zero.
@@ -122,7 +120,7 @@ namespace Gambit
                                    spec.safeget(Par::Pole_Mass,1000025,0), spec.safeget(Par::Pole_Mass,1000035,0) };
       // Get the 4x4 neutralino mixing matrix
       MixMatrix neutmix(4,std::vector<double>(4));
-      for (int i=0; i<4; i++) for (int j=0; j<4; j++) neutmix[i][j] = mssm.safeget(Par::Pole_Mixing,"~chi0",i+1,j+1);
+      for (int i=0; i<4; i++) for (int j=0; j<4; j++) neutmix[i][j] = spec.safeget(Par::Pole_Mixing,"~chi0",i+1,j+1);
 
       // Convert neutralino mixing matrix to BFM convention
       SLHA2BFM_NN(neutmix, tanb, sinW2);
@@ -151,8 +149,6 @@ namespace Gambit
     void get_sigma_ee_chi00(triplet<double>& result, const double sqrts, const int chi_first, const int chi_second,
                             const double tol, const bool pt_error, const Spectrum& spec, const double gammaZ)
     {
-      // Subspectrum
-      const SubSpectrum& mssm = spec.get_HE();
 
       // PDG codes
       const int id1 = 1000021 + chi_first  + (chi_first  > 2 ? 1 + (chi_first -3)*9 : 0);
@@ -160,24 +156,24 @@ namespace Gambit
 
       // SM parameters
       const double mZ = spec.safeget(Par::Pole_Mass,23,0);
-      const double g2 = mssm.safeget(Par::dimensionless,"g2");
-      const double sinW2 = mssm.safeget(Par::dimensionless,"sinW2");
+      const double g2 = spec.safeget(Par::dimensionless,"g2");
+      const double sinW2 = spec.safeget(Par::dimensionless,"sinW2");
       const double alpha = 0.25*sinW2*g2*g2/pi;
 
       // MSSM parameters
-      const double tanb = mssm.safeget(Par::dimensionless,"tanbeta");
+      const double tanb = spec.safeget(Par::dimensionless,"tanbeta");
       // Get the mass eigenstates best corresponding to ~eL and ~eR.
-      const str mass_esL = slhahelp::mass_es_from_gauge_es("~e_L", mssm, tol, LOCAL_INFO, pt_error);
-      const str mass_esR = slhahelp::mass_es_from_gauge_es("~e_R", mssm, tol, LOCAL_INFO, pt_error);
+      const str mass_esL = slhahelp::mass_es_from_gauge_es("~e_L", spec, tol, LOCAL_INFO, pt_error);
+      const str mass_esR = slhahelp::mass_es_from_gauge_es("~e_R", spec, tol, LOCAL_INFO, pt_error);
       // Get the slepton masses
       const double mS[2] = {spec.safeget(Par::Pole_Mass,mass_esL), spec.safeget(Par::Pole_Mass,mass_esR)};
       // Get the neutralino masses
       const double m1 = spec.safeget(Par::Pole_Mass,id1,0);
       const double m2 = spec.safeget(Par::Pole_Mass,id2,0);
-      std::pair<double,double> m1_uncerts(mssm.safeget(Par::Pole_Mass_1srd_high, id1, 0),
-                                          mssm.safeget(Par::Pole_Mass_1srd_low,  id1, 0));
-      std::pair<double,double> m2_uncerts(mssm.safeget(Par::Pole_Mass_1srd_high, id2, 0),
-                                          mssm.safeget(Par::Pole_Mass_1srd_low,  id2, 0));
+      std::pair<double,double> m1_uncerts(spec.safeget(Par::Pole_Mass_1srd_high, id1, 0),
+                                          spec.safeget(Par::Pole_Mass_1srd_low,  id1, 0));
+      std::pair<double,double> m2_uncerts(spec.safeget(Par::Pole_Mass_1srd_high, id2, 0),
+                                          spec.safeget(Par::Pole_Mass_1srd_low,  id2, 0));
 
       // Just return zero if the final state is kinematically inaccessible
       // *even* if both masses are 2simga lower than their central values
@@ -191,7 +187,7 @@ namespace Gambit
 
       // Get the 4x4 neutralino mixing matrix
       MixMatrix neutmix(4,std::vector<double>(4));
-      for (int i=0; i<4; i++) for (int j=0; j<4; j++) neutmix[i][j] = mssm.safeget(Par::Pole_Mixing,"~chi0",i+1,j+1);
+      for (int i=0; i<4; i++) for (int j=0; j<4; j++) neutmix[i][j] = spec.safeget(Par::Pole_Mixing,"~chi0",i+1,j+1);
 
       // Convert neutralino mixing matrix to BFM convention
       SLHA2BFM_NN(neutmix, tanb, sinW2);
@@ -219,8 +215,6 @@ namespace Gambit
     void get_sigma_ee_chipm(triplet<double>& result, const double sqrts, const int chi_plus, const int chi_minus,
                             const double tol, const bool pt_error, const Spectrum& spec, const double gammaZ)
     {
-      // Subspectrum
-      const SubSpectrum& mssm = spec.get_HE();
 
       // PDG codes
       const int id1 = 1000023 + chi_plus + (chi_plus - 1)*12;
@@ -228,22 +222,22 @@ namespace Gambit
 
       // SM parameters
       const double mZ = spec.safeget(Par::Pole_Mass,23,0);
-      const double g2 = mssm.safeget(Par::dimensionless,"g2");
-      const double sinW2 = mssm.safeget(Par::dimensionless,"sinW2");
+      const double g2 = spec.safeget(Par::dimensionless,"g2");
+      const double sinW2 = spec.safeget(Par::dimensionless,"sinW2");
       const double alpha = 0.25*sinW2*g2*g2/pi;
 
       // MSSM parameters
       // Get the mass eigenstate best corresponding to ~nu_e_L.
-      const str mass_snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol, LOCAL_INFO, pt_error);
+      const str mass_snue = slhahelp::mass_es_from_gauge_es("~nu_e_L", spec, tol, LOCAL_INFO, pt_error);
       // Get the electron sneutrino mass
       const double msn = spec.safeget(Par::Pole_Mass,mass_snue);
       // Get the chargino masses
       const double m1 = spec.safeget(Par::Pole_Mass,id1,0);
       const double m2 = spec.safeget(Par::Pole_Mass,id2,0);
-      std::pair<double,double> m1_uncerts(mssm.safeget(Par::Pole_Mass_1srd_high, id1, 0),
-                                          mssm.safeget(Par::Pole_Mass_1srd_low,  id1, 0));
-      std::pair<double,double> m2_uncerts(mssm.safeget(Par::Pole_Mass_1srd_high, id2, 0),
-                                          mssm.safeget(Par::Pole_Mass_1srd_low,  id2, 0));
+      std::pair<double,double> m1_uncerts(spec.safeget(Par::Pole_Mass_1srd_high, id1, 0),
+                                          spec.safeget(Par::Pole_Mass_1srd_low,  id1, 0));
+      std::pair<double,double> m2_uncerts(spec.safeget(Par::Pole_Mass_1srd_high, id2, 0),
+                                          spec.safeget(Par::Pole_Mass_1srd_low,  id2, 0));
 
       // Just return zero if the final state is kinematically inaccessible
       // *even* if both masses are 2simga lower than their central values
@@ -260,8 +254,8 @@ namespace Gambit
       MixMatrix charginomixU(2,std::vector<double>(2));
       for (int i=0; i<2; i++) for (int j=0; j<2; j++)
       {
-        charginomixV[i][j] = mssm.safeget(Par::Pole_Mixing,"~chi+",i+1,j+1);
-        charginomixU[i][j] = mssm.safeget(Par::Pole_Mixing,"~chi-",i+1,j+1);
+        charginomixV[i][j] = spec.safeget(Par::Pole_Mixing,"~chi+",i+1,j+1);
+        charginomixU[i][j] = spec.safeget(Par::Pole_Mixing,"~chi-",i+1,j+1);
       }
 
       // Convert chargino mixing matrices to BFM convention

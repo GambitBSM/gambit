@@ -45,7 +45,9 @@ std_types_dict          = OrderedDict()
 typedef_dict            = OrderedDict()
 loaded_classes_in_xml   = OrderedDict()
 func_dict               = OrderedDict()
+enum_dict               = OrderedDict()
 new_header_files        = OrderedDict()
+new_source_files        = OrderedDict()
 accepted_types          = []
 std_headers_used        = []
 original_file_paths     = OrderedDict()
@@ -53,6 +55,7 @@ std_include_paths       = []
 
 functions_done          = []
 classes_done            = []
+enums_done              = []
 wr_func_names           = []
 
 factory_info            = OrderedDict()
@@ -63,13 +66,15 @@ function_file_dict      = OrderedDict()
 symbol_name_counter     = 1
 function_name_counter   = 1
 
-
+moved_to_abstract_class = []
+needs_wrapper_source_file = []
 
 backend_types_basedir = 'backend_types'
 backend_types_dir_complete = os.path.join(boss_output_dir, backend_types_basedir, gambit_backend_name_full)
 
 for_gambit_basedir = 'for_gambit'
-for_gambit_backend_types_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, backend_types_basedir, gambit_backend_name_full)
+for_gambit_backend_types_include_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, 'include', backend_types_basedir, gambit_backend_name_full)
+for_gambit_backend_types_source_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, 'source',  backend_types_basedir, gambit_backend_name_full)
 
 frontend_base_dir = 'frontends'
 frontend_dir_complete = os.path.join(boss_output_dir, frontend_base_dir)
@@ -83,6 +88,7 @@ wrapper_class_prefix = 'Wrapper_'
 
 abstr_header_prefix     = 'abstract_'
 wrapper_header_prefix   = 'wrapper_'
+wrapper_source_prefix   = wrapper_header_prefix
 general_src_file_prefix = 'BOSS_'
 factory_file_prefix     = general_src_file_prefix + 'factory_'
 function_files_prefix   = general_src_file_prefix + 'func_'

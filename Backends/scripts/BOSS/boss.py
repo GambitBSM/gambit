@@ -200,6 +200,8 @@ def main():
     import modules.classparse as classparse
     import modules.funcparse as funcparse
     import modules.funcutils as funcutils
+    import modules.enumparse as enumparse
+    import modules.enumutils as enumutils
     import modules.utils as utils
     import modules.filehandling as filehandling
     import modules.infomsg as infomsg
@@ -602,6 +604,13 @@ def main():
 
 
         #
+        # Parse enums
+        #
+
+        enumparse.run()
+
+
+        #
         # Parse classes
         #
 
@@ -631,12 +640,12 @@ def main():
         utils.constrWrpForwardDeclHeader(wrp_frwd_decls_header_path)
 
 
-        # #
-        # # Create header with declarations of all enum types
-        # #
+        #
+        # Create header with declarations of all enum types
+        #
 
-        # enum_decls_header_path = os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension)
-        # utils.constrEnumDeclHeader(root.findall('Enumeration'), enum_decls_header_path)
+        enum_decls_header_path = os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension)
+        utils.constrEnumDeclHeader(enum_decls_header_path)
 
 
     #
@@ -750,7 +759,9 @@ def main():
     # the correct namespace.
     #
 
-    construct_namespace_in_files = glob.glob(os.path.join(gb.backend_types_dir_complete,'*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_dir_complete,'*'))
+    construct_namespace_in_files = glob.glob(os.path.join(gb.backend_types_dir_complete,'*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_include_dir_complete,'*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_source_dir_complete,'*'))
+
+
 
     filehandling.replaceNamespaceTags(construct_namespace_in_files, gb.gambit_backend_namespace, '__START_GAMBIT_NAMESPACE__', '__END_GAMBIT_NAMESPACE__')
 
@@ -759,7 +770,9 @@ def main():
     # Run through all the generated files and remove tags that are no longer needed
     #
 
-    all_generated_files = glob.glob(os.path.join(gb.boss_output_dir,'*')) + glob.glob(os.path.join(gb.backend_types_dir_complete, '*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_dir_complete,'*'))
+    all_generated_files = glob.glob(os.path.join(gb.boss_output_dir,'*')) + glob.glob(os.path.join(gb.backend_types_dir_complete, '*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_include_dir_complete,'*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_source_dir_complete,'*'))
+
+
     remove_tags_list = [ '__START_GAMBIT_NAMESPACE__',
                          '__END_GAMBIT_NAMESPACE__',
                          '__INSERT_CODE_HERE__' ]
@@ -852,7 +865,7 @@ def main():
     print("       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name))
     print("    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name))
     print("    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT.")
-    print("    4. Copy the '%s' directory from '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_dir_complete))
+    print("    4. Copy the '%s' directory from '%s' and '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_include_dir_complete, gb.for_gambit_backend_types_source_dir_complete))
     print("    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path))
     print()
     print()

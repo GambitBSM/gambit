@@ -20,13 +20,13 @@
 ///
 ///  *********************************************
 
-#include "gambit/Elements/subspectrum.hpp"
+#include "gambit/Elements/spectrum.hpp"
 
 namespace Gambit
 {
 
   /// Determine which MSSM higgs is most SM-like.
   /// Needs expansion to work with non-MSSM (e.g. *HDM) models
-  int SMlike_higgs_PDG_code(const SubSpectrum&);
+  int SMlike_higgs_PDG_code(const Spectrum&);
 
 }

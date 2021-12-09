@@ -210,9 +210,6 @@ varex: |
 varex2: |
    Return value of a nasty variadic convenience function in libfirst.
 
-run_MSSMspectrum_test: |
-   Function to thest the Spectrum object for the MSSM.
-
 run_light_quark_test: |
    Tests the Standrad Model Spectrum wrapper (QedQcdWrapper).
 
@@ -378,7 +375,7 @@ SPheno_3_3_8_init: |
 SPheno_4_0_3_init: |
     Initalises SPheno 3.3.8 and sets the internal model type according to the one being scanned.
 
-SPheno_MSSMspectrum: |
+SPheno_MSSM_Spectrum: |
     Calculates and returns a MSSM spectrum object using SPheno.
 
 SPheno_internal: |
@@ -3182,9 +3179,18 @@ chargino_plus_1_decay_rates : |
 
 chargino_plus_1_decay_rates_SH : |
    Decays of the chargino+ 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
 
 chargino_plus_1_decay_rates_smallsplit : |
    Decays of the chargino+ 1 at small chargino--neutralino mass splittings.
+   Not including decays to gravitinos.
+
+chargino_plus_1_decay_rates_SH_or_smallsplit : |
+   Decays of the chargino+ 1, either calculated using SUSY-HIT or by DecayBit
+   in the case of small chargino--neutralino mass splittings. Not including decays to gravitinos.
+
+chargino_plus_1_decay_rates_gravitino : |
+   Decays of the chargino+ 1 to gravitinos.
 
 chargino_plus_2_decay_rates : |
    Decays of the chargino+ 2.
@@ -3209,6 +3215,13 @@ rho1450_decay_rates : |
 
 neutralino_1_decay_rates : |
    Decays of the neutralino 1.
+
+neutralino_1_decay_rates_SH : |
+   Decays of the neutralino 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_1_decay_rates_gravitino : |
+   Decays of the neutralino 1 to gravitinos.
 
 neutralino_2_decay_rates : |
    Decays of the neutralino 2.
@@ -4128,6 +4141,144 @@ NUHM2_parameters: |
 CMSSM_parameters: |
    Parameters for the model CMSSM (see ./gambit CMSSM)
 
+MSSM10atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM10atQ_lightgravitino (see ./gambit MSSM10atQ_lightgravitino)
+
+MSSM10atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM10atQ_mA_lightgravitino (see ./gambit MSSM10atQ_mA_lightgravitino)
+
+MSSM10batQ_lightgravitino_parameters: |
+   Parameters for the model MSSM10batQ_lightgravitino (see ./gambit MSSM10batQ_lightgravitino)
+
+MSSM10batQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM10batQ_mA_lightgravitino (see ./gambit MSSM10batQ_mA_lightgravitino)
+
+MSSM10catQ_lightgravitino_parameters: |
+   Parameters for the model MSSM10catQ_lightgravitino (see ./gambit MSSM10catQ_lightgravitino)
+
+MSSM10catQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM10catQ_mA_lightgravitino (see ./gambit MSSM10catQ_mA_lightgravitino)
+
+MSSM11atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM11atQ_lightgravitino (see ./gambit MSSM11atQ_lightgravitino)
+
+MSSM11atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM11atQ_mA_lightgravitino (see ./gambit MSSM11atQ_mA_lightgravitino)
+
+MSSM15atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM15atQ_lightgravitino (see ./gambit MSSM15atQ_lightgravitino)
+
+MSSM15atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM15atQ_mA_lightgravitino (see ./gambit MSSM15atQ_mA_lightgravitino)
+
+MSSM16atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM16atQ_lightgravitino (see ./gambit MSSM16atQ_lightgravitino)
+
+MSSM16atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM16atQ_mA_lightgravitino (see ./gambit MSSM16atQ_mA_lightgravitino)
+
+MSSM19atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM19atQ_lightgravitino (see ./gambit MSSM19atQ_lightgravitino)
+
+MSSM19atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM19atQ_mA_lightgravitino (see ./gambit MSSM19atQ_mA_lightgravitino)
+
+MSSM20atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMGUT_lightgravitino (see ./gambit MSSM20atMGUT_lightgravitino)
+
+MSSM20atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMGUT_mA_lightgravitino (see ./gambit MSSM20atMGUT_mA_lightgravitino)
+
+MSSM20atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMSUSY_lightgravitino (see ./gambit MSSM20atMSUSY_lightgravitino)
+
+MSSM20atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM20atMSUSY_mA_lightgravitino (see ./gambit MSSM20atMSUSY_mA_lightgravitino)
+
+MSSM20atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM20atQ_lightgravitino (see ./gambit MSSM20atQ_lightgravitino)
+
+MSSM20atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM20atQ_mA_lightgravitino (see ./gambit MSSM20atQ_mA_lightgravitino)
+
+MSSM24atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM24atQ_lightgravitino (see ./gambit MSSM24atQ_lightgravitino)
+
+MSSM24atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM24atQ_mA_lightgravitino (see ./gambit MSSM24atQ_mA_lightgravitino)
+
+MSSM25atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMGUT_lightgravitino (see ./gambit MSSM25atMGUT_lightgravitino)
+
+MSSM25atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMGUT_mA_lightgravitino (see ./gambit MSSM25atMGUT_mA_lightgravitino)
+
+MSSM25atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMSUSY_lightgravitino (see ./gambit MSSM25atMSUSY_lightgravitino)
+
+MSSM25atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM25atMSUSY_mA_lightgravitino (see ./gambit MSSM25atMSUSY_mA_lightgravitino)
+
+MSSM25atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM25atQ_lightgravitino (see ./gambit MSSM25atQ_lightgravitino)
+
+MSSM25atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM25atQ_mA_lightgravitino (see ./gambit MSSM25atQ_mA_lightgravitino)
+
+MSSM30atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMGUT_lightgravitino (see ./gambit MSSM30atMGUT_lightgravitino)
+
+MSSM30atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMGUT_mA_lightgravitino (see ./gambit MSSM30atMGUT_mA_lightgravitino)
+
+MSSM30atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMSUSY_lightgravitino (see ./gambit MSSM30atMSUSY_lightgravitino)
+
+MSSM30atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM30atMSUSY_mA_lightgravitino (see ./gambit MSSM30atMSUSY_mA_lightgravitino)
+
+MSSM30atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM30atQ_lightgravitino (see ./gambit MSSM30atQ_lightgravitino)
+
+MSSM30atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM30atQ_mA_lightgravitino (see ./gambit MSSM30atQ_mA_lightgravitino)
+
+MSSM63atMGUT_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMGUT_lightgravitino (see ./gambit MSSM63atMGUT_lightgravitino)
+
+MSSM63atMGUT_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMGUT_mA_lightgravitino (see ./gambit MSSM63atMGUT_mA_lightgravitino)
+
+MSSM63atMSUSY_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMSUSY_lightgravitino (see ./gambit MSSM63atMSUSY_lightgravitino)
+
+MSSM63atMSUSY_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM63atMSUSY_mA_lightgravitino (see ./gambit MSSM63atMSUSY_mA_lightgravitino)
+
+MSSM63atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM63atQ_lightgravitino (see ./gambit MSSM63atQ_lightgravitino)
+
+MSSM63atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM63atQ_mA_lightgravitino (see ./gambit MSSM63atQ_mA_lightgravitino)
+
+MSSM7atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM7atQ_lightgravitino (see ./gambit MSSM7atQ_lightgravitino)
+
+MSSM7atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM7atQ_mA_lightgravitino (see ./gambit MSSM7atQ_mA_lightgravitino)
+
+MSSM9atQ_lightgravitino_parameters: |
+   Parameters for the model MSSM9atQ_lightgravitino (see ./gambit MSSM9atQ_lightgravitino)
+
+MSSM9atQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM9atQ_mA_lightgravitino (see ./gambit MSSM9atQ_mA_lightgravitino)
+
+MSSM9batQ_lightgravitino_parameters: |
+   Parameters for the model MSSM9batQ_lightgravitino (see ./gambit MSSM9batQ_lightgravitino)
+
+MSSM9batQ_mA_lightgravitino_parameters: |
+   Parameters for the model MSSM9batQ_mA_lightgravitino (see ./gambit MSSM9batQ_mA_lightgravitino)
+
 NormalDist_parameters: |
    Parameters for the model NormalDist (see ./gambit NormalDist)
 
@@ -4229,6 +4380,7 @@ NREO_MajoranaDM_parameters: |
 
 WIMP_sigmav_parameters: |
    Parameters for the WIMP_sigmav (see ./gambit WIMP_sigmav)
+
 
 #-------------------------------------
 #  FeynHiggs capabilities

@@ -1,0 +1,58 @@
+diff -rupN FlexibleSUSY-2.0.1/models/CMSSM/module.mk ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/module.mk
+--- FlexibleSUSY-2.0.1/models/CMSSM/module.mk	2019-11-07 18:25:47.948761097 +1100
++++ ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/module.mk	2019-11-07 17:59:26.865791669 +1100
+@@ -276,7 +276,7 @@ endif
+ $(LLCMSSM_OBJ) $(LLCMSSM_LIB): \
+ 	CPPFLAGS += $(shell $(MATH_INC_PATHS) --math-cmd="$(MATH)" -I --librarylink --mathlink)
+ 
+-$(LIBCMSSM): $(LIBCMSSM_OBJ)
++$(LIBCMSSM): $(LIBCMSSM_OBJ) ${LIBFLEXI_OBJ}
+ 		$(MODULE_MAKE_LIB_CMD) $@ $^
+ 
+ $(DIR)/%.x: $(DIR)/%.o $(LIBCMSSM) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
+diff -rupN FlexibleSUSY-2.0.1/models/CMSSM/CMSSM_slha_io.hpp ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/CMSSM_slha_io.hpp
+--- FlexibleSUSY-2.0.1/models/CMSSM/CMSSM_slha_io.hpp	2019-11-07 18:25:47.944761049 +1100
++++ ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/CMSSM_slha_io.hpp	2019-11-07 17:59:26.869791718 +1100
+@@ -298,7 +298,7 @@ void CMSSM_slha_io::set_extra(
+             << FORMAT_ELEMENT(1, (MODELPARAMETER(Mu)), "Mu")
+             << FORMAT_ELEMENT(2, (MODELPARAMETER(vu)/MODELPARAMETER(vd)), "vu/vd")
+             << FORMAT_ELEMENT(3, (Sqrt(Sqr(MODELPARAMETER(vd)) + Sqr(MODELPARAMETER(vu)))), "Sqrt(Sqr(vd) + Sqr(vu))")
+-            << FORMAT_ELEMENT(4, (Sqr(M(Ah(1)))), "Sqr(M(Ah(2)))")
++            << FORMAT_ELEMENT(4, (Sqr(MODELPARAMETER(MAh)(1))), "Sqr(MAh(2))")
+             << FORMAT_ELEMENT(101, (MODELPARAMETER(BMu)), "BMu")
+             << FORMAT_ELEMENT(102, (MODELPARAMETER(vd)), "vd")
+             << FORMAT_ELEMENT(103, (MODELPARAMETER(vu)), "vu")
+diff -rupN FlexibleSUSY-2.0.1/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp
+--- FlexibleSUSY-2.0.1/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp	2019-11-07 18:25:47.948761097 +1100
++++ ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp	2019-11-07 18:25:02.160212783 +1100
+@@ -30,7 +30,7 @@ namespace softsusy { class QedQcd; }
+ 
+ namespace flexiblesusy {
+ 
+-class Two_scale;
++class Two_scale {};
+ 
+ template <>
+ class CMSSM_spectrum_generator<Two_scale>
+diff -rupN FlexibleSUSY-2.0.1/models/CMSSM/CMSSM_two_scale_susy_scale_constraint.cpp ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/CMSSM_two_scale_susy_scale_constraint.cpp
+--- FlexibleSUSY-2.0.1/models/CMSSM/CMSSM_two_scale_susy_scale_constraint.cpp	2019-11-07 18:25:47.948761097 +1100
++++ ../installed/flexiblesusy/2.0.1/CMSSM/models/CMSSM/CMSSM_two_scale_susy_scale_constraint.cpp	2019-11-07 17:59:26.869791718 +1100
+@@ -137,12 +137,13 @@ void CMSSM_susy_scale_constraint<Two_sca
+    check_model_ptr();
+ 
+    const auto ZU = MODELPARAMETER(ZU);
++   const auto MSu = MODELPARAMETER(MSu);
+ 
+-   scale = Sqrt(Power(M(Su(0)),Sqr(Abs(ZU(0,2))) + Sqr(Abs(ZU(0,5))))*Power(M(
+-      Su(1)),Sqr(Abs(ZU(1,2))) + Sqr(Abs(ZU(1,5))))*Power(M(Su(2)),Sqr(Abs(ZU(2,2)
+-      )) + Sqr(Abs(ZU(2,5))))*Power(M(Su(3)),Sqr(Abs(ZU(3,2))) + Sqr(Abs(ZU(3,5)))
+-      )*Power(M(Su(4)),Sqr(Abs(ZU(4,2))) + Sqr(Abs(ZU(4,5))))*Power(M(Su(5)),Sqr(
+-      Abs(ZU(5,2))) + Sqr(Abs(ZU(5,5)))));
++   scale = Sqrt(Power(MSu(0),Sqr(Abs(ZU(0,2))) + Sqr(Abs(ZU(0,5))))*Power(MSu(1),
++      Sqr(Abs(ZU(1,2))) + Sqr(Abs(ZU(1,5))))*Power(MSu(2),Sqr(Abs(ZU(2,2))) + Sqr(
++      Abs(ZU(2,5))))*Power(MSu(3),Sqr(Abs(ZU(3,2))) + Sqr(Abs(ZU(3,5))))*Power(MSu
++      (4),Sqr(Abs(ZU(4,2))) + Sqr(Abs(ZU(4,5))))*Power(MSu(5),Sqr(Abs(ZU(5,2))) +
++      Sqr(Abs(ZU(5,5)))));
+ 
+ 
+ }

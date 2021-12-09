@@ -94,7 +94,7 @@ namespace Gambit
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
       }
-      else if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
+      else if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ_lightgravitino") or ModelInUse("MSSM63atMGUT_lightgravitino"))
       {
         spectrum = Dep::MSSM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
@@ -298,10 +298,10 @@ namespace Gambit
       }
 
       // The following blocks will only appear for SUSY models so let's not waste time checking them if we're not scanning one of those.
-      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
+      if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ_lightgravitino") or ModelInUse("MSSM63atMGUT_lightgravitino"))
       {
         // The scale doesn't come through in MODSEL with all spectrum generators
-        result.Q = Dep::MSSM_spectrum->get_HE().GetScale();
+        result.Q = Dep::MSSM_spectrum->GetScale();
 
         if (!spectrum["ALPHA"].empty()) if (spectrum["ALPHA"].back().is_data_line()) result.alpha=SLHAea::to<double>(spectrum["ALPHA"].back().at(0));
 
@@ -458,7 +458,7 @@ namespace Gambit
       // If requested, override the SuperIso b pole mass with the SpecBit value and recompute the 1S b mass.
       if (runOptions->getValueOrDef<bool>(false, "take_b_pole_mass_from_spectrum"))
       {
-        if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
+        if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ_lightgravitino") or ModelInUse("MSSM63atMGUT_lightgravitino"))
         {
           result.mass_h0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_1");
         }

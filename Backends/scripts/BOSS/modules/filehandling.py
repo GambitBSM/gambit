@@ -8,6 +8,7 @@ from __future__ import print_function
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 import os
+import datetime
 import shutil
 import glob
 import pickle
@@ -84,14 +85,25 @@ def createOutputDirectories(selected_dirs=['all']):
             else:
                 raise
 
-    if ('for_gambit_backend_types_dir_complete' in selected_dirs) or ('all' in selected_dirs):
+    if ('for_gambit_backend_types_include_dir_complete' in selected_dirs) or ('all' in selected_dirs):
         try:
-            os.makedirs( gb.for_gambit_backend_types_dir_complete )
+            os.makedirs( gb.for_gambit_backend_types_include_dir_complete )
         except OSError as e:
             if e.errno == 17:
                 pass
             else:
                 raise
+
+
+    if ('for_gambit_backend_types_source_dir_complete' in selected_dirs) or ('all' in selected_dirs):
+        try:
+            os.makedirs( gb.for_gambit_backend_types_source_dir_complete )
+        except OSError as e:
+            if e.errno == 17:
+                pass
+            else:
+                raise
+
 
     if ('frontend_dir_complete' in selected_dirs) or ('all' in selected_dirs):
         try:
@@ -123,14 +135,18 @@ def moveFilesAround():
     # -- wrapper class headers
     files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_header_prefix + '*' + cfg.header_extension) )
 
+    # -- wrapper class source
+    files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
+
     # -- header with forward declarations for all abstract classes
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_abs_fname + cfg.header_extension) ]
 
     # -- header with forward declarations for all wrapper classes
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
-    # # -- header with copies of all enum type declarations
-    # files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    # -- header with copies of all enum type declarations
+    if len(gb.enums_done) > 0:
+        files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # -- identification.hpp
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
@@ -141,7 +157,7 @@ def moveFilesAround():
 
 
     #
-    # Copy files to gb.for_gambit_backend_types_dir_complete
+    # Copy files to gb.for_gambit_backend_types_include_dir_complete
     #
     files_list  = []
 
@@ -157,14 +173,27 @@ def moveFilesAround():
     # -- header with forward declarations for all wrapper classes
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
-    # # -- header with copies of all enum type declarations
-    # files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    # -- header with copies of all enum type declarations
+    if len(gb.enums_done) > 0 :
+        files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # -- identification.hpp
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
 
     for cp_source in files_list:
-        cp_target = os.path.join(gb.for_gambit_backend_types_dir_complete, os.path.basename(cp_source).rstrip('.FOR_GAMBIT'))
+        cp_target = os.path.join(gb.for_gambit_backend_types_include_dir_complete, os.path.basename(cp_source).rstrip('.FOR_GAMBIT'))
+        shutil.copy(cp_source, cp_target)
+
+#
+    # Copy files to gb.for_gambit_backend_types_source_dir_complete
+    #
+    files_list  = []
+
+    # -- wrapper class sources
+    files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
+
+    for cp_source in files_list:
+        cp_target = os.path.join(gb.for_gambit_backend_types_source_dir_complete, os.path.basename(cp_source).rstrip('.FOR_GAMBIT'))
         shutil.copy(cp_source, cp_target)
 
 
@@ -181,14 +210,18 @@ def moveFilesAround():
     # -- wrapper class headers
     files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_header_prefix + '*' + cfg.header_extension) )
 
+    # -- wrapper class source
+    files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
+
     # -- header with forward declarations for all abstract classes
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_abs_fname + cfg.header_extension) ]
 
     # -- header with forward declarations for all wrapper classes
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
-    # # -- header with copies of all enum type declarations
-    # files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    # -- header with copies of all enum type declarations
+    if len(gb.enums_done) > 0 :
+        files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # -- identification.hpp
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
@@ -212,8 +245,9 @@ def moveFilesAround():
     # # -- header with forward declarations for all wrapper classes
     # move_files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
-    # # # -- header with copies of all enum type declarations
-    # # move_files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    # # -- header with copies of all enum type declarations
+    # if len(gb.enums_done) > 0 :
+    #     move_files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # # -- identification.hpp
     # move_files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
@@ -446,12 +480,24 @@ def copyFilesToSourceTree(verbose=False):
     #   Will create a similar directory in the include path of the original source tree
     if len(gb.classes_done) > 0:
         source_dir = os.path.join(gb.boss_output_dir, gb.backend_types_basedir, gb.gambit_backend_name_full)
+
         target_dir = os.path.join(cfg.header_files_to, gb.backend_types_basedir, gb.gambit_backend_name_full)
         source_files = [ os.path.join(source_dir,f) for f in os.listdir(source_dir) if os.path.isfile( os.path.join(source_dir,f) ) ]
         for file_path in source_files:
             target_file_name = os.path.basename(file_path)
             cp_source = file_path
             cp_target = os.path.join(cfg.header_files_to, gb.backend_types_basedir, gb.gambit_backend_name_full, target_file_name)
+            source_target_tuples.append( (cp_source, cp_target) )
+            new_files.append(cp_target)
+
+    # - Add source file for the wrapper classes
+    for class_name in gb.classes_done:
+    
+        if class_name['short'] in gb.needs_wrapper_source_file :
+            wrapper_source_file_name= gb.wrapper_source_prefix + class_name['short'] + cfg.source_extension
+
+            cp_source = os.path.join(gb.for_gambit_backend_types_source_dir_complete, wrapper_source_file_name)
+            cp_target = os.path.join(cfg.src_files_to, wrapper_source_file_name)
             source_target_tuples.append( (cp_source, cp_target) )
             new_files.append(cp_target)
 
@@ -594,7 +640,7 @@ def createLoadedTypesHeader():
     loaded_types_header_content = utils.constrLoadedTypesHeaderContent()
 
     # Write to file
-    loaded_types_output_path = os.path.join(gb.for_gambit_backend_types_dir_complete, 'loaded_types.hpp')
+    loaded_types_output_path = os.path.join(gb.for_gambit_backend_types_include_dir_complete, 'loaded_types.hpp')
     f = open(loaded_types_output_path, 'w')
     f.write(loaded_types_header_content)
     f.close()
@@ -679,13 +725,29 @@ def createFrontendHeader(function_xml_files_dict):
 
             class_namespace, class_name_short = utils.removeNamespace(class_name['long'], return_namespace=True)
 
+            # TODO: TG: Check for templates
+            is_template = False
+            if '<' in class_name['long_templ']:
+                is_template = True
+                templ_bracket = class_name['templ_bracket']
+                templ_vars = class_name['templ_vars']
+
+            # TODO: TG: Modified for templates which use aliases, not typedefs
             if class_namespace == '':
-                class_typedef_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
+                if is_template:
+                    class_typedef_code += "template " + templ_bracket + '\n'
+                    class_typedef_code += "using " + class_name['short'] + ' = ' + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + templ_vars + ';\n'
+                else : 
+                    class_typedef_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
             else:
                 class_namespace_list = class_namespace.split('::')
 
                 class_typedef_code += utils.constrNamespace(class_namespace_list, 'open', indent=cfg.indent)
-                class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
+                if is_template:
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'template ' + templ_bracket + '\n'
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'using ' + class_name['short'] + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + templ_vars + ';\n'
+                else : 
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
                 class_typedef_code += utils.constrNamespace(class_namespace_list, 'close', indent=cfg.indent)
 
             class_typedef_code = utils.addIndentation(class_typedef_code, 3*cfg.indent)
@@ -750,6 +812,58 @@ def createFrontendHeader(function_xml_files_dict):
         be_function_macro_code += '"' + symbol + '"' + ', '
         be_function_macro_code += '"' + func_name['short'] + '"' + ')\n'
 
+    #
+    # Generate code for all global enum types
+    #
+
+    outer_namespace_list = ['Gambit', 'Backends', gb.gambit_backend_name_full]
+
+    enums_code  = ''
+    if len(gb.enums_done) > 0 :
+        enums_code += utils.constrNamespace(outer_namespace_list, 'open', indent=cfg.indent)
+
+    for enum_name in gb.enums_done :
+
+        enum_code = '' 
+        enum_namespace, enum_name_short = utils.removeNamespace(enum_name['long'], return_namespace=True)
+
+        if enum_namespace == '':
+            enum_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + enum_name['long'] + ' ' + enum_name['short'] + ';\n'
+            for val in enum_name['enum_values']:
+                enum_code += 'constexpr ' + enum_name['short'] + ' ' + val + ' = ::' + gb.gambit_backend_name_full + '::' + val + ';\n'
+        else:
+            enum_namespace_list = enum_namespace.split('::')
+
+            enum_code += utils.constrNamespace(enum_namespace_list, 'open', indent=cfg.indent)
+            enum_code += ' '*cfg.indent*len(enum_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + enum_name['long'] + ' ' + enum_name['short'] + ';\n'
+            for val in enum_name['enum_values']:
+                enum_code += ' '*cfg.indent*len(enum_namespace_list) + 'constexpr ' + enum_name['short'] + ' ' + val + ' = ::' + gb.gambit_backend_name_full + '::' + enum_namespace + '::' + val + ';\n'
+ 
+            enum_code += utils.constrNamespace(enum_namespace_list, 'close', indent=cfg.indent)
+
+        enum_code = utils.addIndentation(enum_code, 3*cfg.indent)
+        enums_code += enum_code
+
+    if len(gb.enums_done) > 0 :
+        enums_code += utils.constrNamespace(outer_namespace_list, 'close', indent=cfg.indent)
+
+
+    #
+    # Generate code for all the convenience functions
+    #
+
+    be_conv_function_macro_code = ''
+    for conv_func in cfg.convenience_functions:
+        be_conv_function_macro_code += 'BE_CONV_FUNCTION(' + conv_func['name'] + ', '
+        be_conv_function_macro_code += conv_func['returntype'] + ', '
+        be_conv_function_macro_code += '('
+        for i, argtype in enumerate(conv_func['argtypes']) :
+            be_conv_function_macro_code += argtype
+            if i < len(conv_func['argtypes']) - 1 :
+                be_conv_function_macro_code += ', '
+        be_conv_function_macro_code += '), '
+        be_conv_function_macro_code += '"' + conv_func['capname'] + '")\n'
+
 
     #
     # Generate code for the frontend header
@@ -759,9 +873,19 @@ def createFrontendHeader(function_xml_files_dict):
 
     # - Comment at beginning
     backend_name_and_version = cfg.gambit_backend_name + ' ' + cfg.gambit_backend_version
-    frontend_content += '//\n'
-    frontend_content += '// Frontend header generated by BOSS for GAMBIT backend %s.\n' % (backend_name_and_version)
-    frontend_content += '//\n'
+    frontend_content += '//   GAMBIT: Global and Modular BSM Inference Tool\n'\
+        '//   *********************************************\n'\
+        '///  \\file\n'\
+        '///\n'\
+        '///  Frontend header generated by BOSS for GAMBIT backend '+backend_name_and_version+'.\n'\
+        '///\n'\
+        '///  *********************************************\n'\
+        '///\n'\
+        '///  Authors (add name and date if you modify):\n'\
+        '///\n'\
+        '///  \\author The GAMBIT Collaboration\n'\
+        '///\n'\
+        '///  *********************************************\n'
 
     # - Include statement for the identification header
     frontend_content += '\n'
@@ -780,15 +904,23 @@ def createFrontendHeader(function_xml_files_dict):
     frontend_content += '// Functions\n'
     frontend_content += be_function_macro_code
 
+    # - Enums
+    frontend_content += '\n'
+    frontend_content += '// Enums\n'
+    frontend_content += enums_code
+
     # - Descriptions of different things that can go into a frontend header
+    frontend_content += '\n'
     frontend_content += '// Variables\n'
     frontend_content += '\n'
     frontend_content += '// Initialisation function (dependencies)\n'
     frontend_content += '\n'
     frontend_content += '// Convenience functions (registration)\n'
+    frontend_content += be_conv_function_macro_code
     frontend_content += '\n'
-    frontend_content += '// Initialisation function (definition)\n'
-    frontend_content += 'BE_INI_FUNCTION{} END_BE_INI_FUNCTION\n'
+    if cfg.ini_function_in_header :
+        frontend_content += '// Initialisation function (definition)\n'
+        frontend_content += 'BE_INI_FUNCTION{} END_BE_INI_FUNCTION\n'
     frontend_content += '\n'
     frontend_content += '// Convenience functions (definitions)\n'
 

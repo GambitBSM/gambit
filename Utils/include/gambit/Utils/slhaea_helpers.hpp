@@ -12,8 +12,8 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Ben Farmer
-///          (benjamin.farmer@monash.edu)
-///  \date 2015
+///          (benjamin.farmer@imperial.ac.uk)
+///  \date 2015, 2019 Oct
 ///
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
@@ -51,6 +51,8 @@ namespace Gambit
 
   /// Get an entry from an SLHAea object as a double, with some error checking
   double SLHAea_get(const SLHAstruct& slha, const str& block, const int index);
+  /// Get an entry with two indices from an SLHAea object as a double
+  double SLHAea_get(const SLHAstruct& slha, const str& block, const int index1, const int index2);
 
   /// Get an entry from an SLHAea object as a double; raise a warning and use a default value if the entry is missing
   double SLHAea_get(const SLHAstruct& slha, const str& block, const int index, const double defvalue);
@@ -62,12 +64,19 @@ namespace Gambit
   void SLHAea_delete_block(SLHAstruct& slha, const std::string& block);
 
   /// Check if a block exists in an SLHAea object
-  bool SLHAea_block_exists(SLHAstruct& slha, const str& block);
+  bool SLHAea_block_exists(const SLHAstruct& slha, const str& block);
   /// Check if a block exists in an SLHAea object, add it if not
   bool SLHAea_check_block(SLHAstruct& slha, const str& block);
   /// Check if a block exists in an SLHAea object, add it if not, and check if it has an entry at a given index
   bool SLHAea_check_block(SLHAstruct& slha, const str& block, const int index); /*, const bool overwrite)*/
   bool SLHAea_check_block(SLHAstruct& slha, const str& block, const int index1, const int index2);
+
+  /// Check if specific entries within a block exist (error if block doesn't exist; check that first when using this function!)
+  bool SLHAea_entry_exists(const SLHAstruct& slha, const str& block, const int index);
+  bool SLHAea_entry_exists(const SLHAstruct& slha, const str& block, const int index1, const int index2); 
+
+  /// Get the scale at which a block is defined (the Q= value)
+  double SLHAea_get_scale(const SLHAstruct& slha, const str& block);
 
   /// Write the SPINFO block with GAMBIT name and version number
   void SLHAea_add_GAMBIT_SPINFO(SLHAstruct& slha /*modify*/);
@@ -99,7 +108,6 @@ namespace Gambit
    }
    return;
   }
-
 
   /// Check if a line exists in an SLHAea block, then overwrite it if it does.  Otherwise add the line.
   template <class T>
@@ -146,7 +154,6 @@ namespace Gambit
       slha[block][""] << index1 << index2 << value << comment;
     }
   }
-
 
 
 }

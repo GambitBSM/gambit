@@ -32,6 +32,7 @@
 #
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
+#  \date 2019 Oct
 #  \date 2020 Nov
 #
 #************************************************
@@ -187,6 +188,8 @@ function(check_ditch_status name version dir)
     elseif ((arg STREQUAL "sqlite3") AND NOT SQLITE3_FOUND)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
+      set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "eigen") AND NOT EIGEN3_FOUND)
       set (itch "${itch}" "${name}_${version}")
     endif()
   endforeach()

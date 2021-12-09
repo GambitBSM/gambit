@@ -53,14 +53,14 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION SI_fill
     START_FUNCTION(parameters)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino, WC)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
     BACKEND_REQ(slha_adjust, (libsuperiso), void, (parameters*))
     BACKEND_REQ(mb_1S, (libsuperiso),double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 3.6), (libsuperiso) )
     DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(Z_decay_rates, DecayTable::Entry)
-    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, WC)
     #undef FUNCTION
   #undef CAPABILITY
@@ -490,7 +490,7 @@ START_MODULE
     START_FUNCTION(fh_FlavourObs)
     BACKEND_REQ(FHFlavour, (libfeynhiggs), void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
   #undef CAPABILITY
 

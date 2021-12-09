@@ -173,7 +173,7 @@ wrapper for FlexibleSUSY spectrum output). We will therefore not
 discuss it again here.
 
 Sometimes a new spectrum generators may generate the same particle and
-parameter content asn an existing spectrum generator, but using
+parameter content as an existing spectrum generator, but using
 different boundary conditions. In this case the existing Spectrum
 wrapper may be re-used. For example, suppose one wants to add the
 FlexibleSUSY model "lowMSSM", which generates an MSSM spectrum from

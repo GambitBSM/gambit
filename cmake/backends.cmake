@@ -53,6 +53,7 @@
 #  \date 2017 Nov
 #  \date 2019 June
 #  \date 2020 Apr
+#  \date 2019 Oct
 #
 #  \author James McKay
 #          (j.mckay14@imperial.ac.uk)
@@ -2053,6 +2054,105 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+
+# FlexibleSUSY flags and options, model independent
+set(name "flexiblesusy")
+# Always use -O2 for flexiblesusy to ensure fast spectrum generation.
+set(FS_CXX_FLAGS "${BACKEND_CXX_FLAGS} -Wno-missing-field-initializers")
+set(FS_Fortran_FLAGS "${BACKEND_Fortran_FLAGS}")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(FS_CXX_FLAGS "${FS_CXX_FLAGS} -O2")
+  set(FS_Fortran_FLAGS "${FS_Fortran_FLAGS} -O2")
+endif()
+# Determine compiler libraries needed by flexiblesusy.
+if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
+  set(flexiblesusy_compilerlibs "-lgfortran -lm")
+elseif(CMAKE_Fortran_COMPILER MATCHES "g77" OR CMAKE_Fortran_COMPILER MATCHES "f77")
+  set(flexiblesusy_compilerlibs "-lg2c -lm")
+elseif(CMAKE_Fortran_COMPILER MATCHES "ifort")
+  set(flexiblesusy_compilerlibs "-lifcore -limf -ldl -lintlc -lsvml")
+endif()
+set(flexiblesusy_LDFLAGS ${flexiblesusy_LDFLAGS} ${flexiblesusy_compilerlibs})
+# Silence the deprecated-declarations warnings comming from Eigen3
+set_compiler_warning("no-deprecated-declarations" FS_CXX_FLAGS)
+# Silence the unused parameter and variable warnings comming from FlexibleSUSY
+set_compiler_warning("no-unused-parameter" FS_CXX_FLAGS)
+set_compiler_warning("no-unused-variable" FS_CXX_FLAGS)
+# Construct the command to create the shared library
+set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} -shared -o")
+# FlexibleSUSY configure options
+set(FS_OPTIONS ${FS_OPTIONS}
+     --with-cxx=${CMAKE_CXX_COMPILER}
+     --with-cxxflags=${FS_CXX_FLAGS}
+     --with-shared-ldflags=${OpenMP_CXX_FLAGS}
+     --with-fc=${CMAKE_Fortran_COMPILER}
+     --with-fflags=${FS_Fortran_FLAGS}
+     --with-eigen-incdir=${EIGEN3_INCLUDE_DIR}
+     --with-boost-libdir=${Boost_LIBRARY_DIR}
+     --with-boost-incdir=${Boost_INCLUDE_DIR}
+     --disable-librarylink
+     --disable-meta
+     --enable-shared-libs
+     --with-shared-lib-ext=.so
+     --enable-threads
+     --with-shared-lib-cmd=${FS_SO_LINK_COMMAND}
+    #--enable-verbose flag causes verbose output at runtime as well. Maybe set it dynamically somehow in future.
+   )
+set(ditch_if_absent "Eigen")
+
+# FlexibleSUSY 2.0.1, CMSSM model
+set(model "CMSSM")
+set(ver "2.0.1")
+set(dl "https://flexiblesusy.hepforge.org/downloads/FlexibleSUSY-${ver}.tar.gz")
+set(md5 "5f928cf98e70409266d8c276c241632a")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/${model}")
+set(modelfiles "${PROJECT_SOURCE_DIR}/Models/data/FlexibleSUSY/${ver}/${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/patch_${name}_${ver}_${model}.dif")
+check_ditch_status(${name}_${model} ${ver} ${dir} ${ditch_if_absent})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+             COMMAND cp -r "${modelfiles}" "${dir}/models/"
+             COMMAND ${CMAKE_COMMAND} -E echo "" > ${dir}/config/config.h
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure ${FS_OPTIONS} --with-models=${model}
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} alllib
+    INSTALL_COMMAND ""
+  )
+  BOSS_backend("${name}_${model}" ${ver})
+  add_extra_targets("backend" ${name}_${model} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name}_${model} ${ver})
+endif()
+
+# FlexibleSUSY 2.4.0, CMSSM model
+set(model "CMSSM")
+set(ver "2.4.0")
+set(dl "https://flexiblesusy.hepforge.org/downloads/FlexibleSUSY-${ver}.tar.gz")
+set(md5 "585ce4e507268805a8d7ea04b70b5774")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/${model}")
+set(modelfiles "${PROJECT_SOURCE_DIR}/Models/data/FlexibleSUSY/${ver}/${model}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/patch_${name}_${ver}_${model}.dif")
+check_ditch_status(${name}_${model} ${ver} ${dir} ${ditch_if_absent})
+if(NOT ditched_${name}_${model}_${ver})
+  ExternalProject_add(${name}_${model}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
+             COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}/models"
+             COMMAND cp -r "${modelfiles}" "${dir}/models/"
+             COMMAND ${CMAKE_COMMAND} -E echo "" > ${dir}/config/config.h
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure ${FS_OPTIONS} --with-models=${model}
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} alllib
+    INSTALL_COMMAND ""
+  )
+  BOSS_backend("${name}_${model}" ${ver})
+  add_extra_targets("backend" ${name}_${model} ${ver} ${dir} ${dl} clean)
+  # TODO: not default while we test the 2.0.1 version
+  #set_as_default_version("backend" ${name}_${model} ${ver})
+endif()
 
 # Alternative download command for getting unreleased things from the gambit_internal repository.
 # If you don't know what that is, you don't need to tinker with these.

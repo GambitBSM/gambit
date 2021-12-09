@@ -2,8 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Helpers for using the spectrum and subspectrum
-///  classes.
+///  Helpers for using the spectrum classes.
 ///
 ///  *********************************************
 ///
@@ -54,6 +53,11 @@ namespace Gambit
           mass2,
           mass1,
           dimensionless,
+          /// 1/mass^d dimensions
+          imass1,
+          imass2,
+          imass3,
+          imass4,
           mass_eigenstate
       };
 
@@ -70,6 +74,10 @@ namespace Gambit
          vec.push_back(mass2);
          vec.push_back(mass1);
          vec.push_back(dimensionless);
+         vec.push_back(imass1);
+         vec.push_back(imass2);
+         vec.push_back(imass3);
+         vec.push_back(imass4);
          vec.push_back(mass_eigenstate);
          return vec;
       }
@@ -87,7 +95,11 @@ namespace Gambit
          name[mass2]           = "mass2";
          name[mass1]           = "mass1";
          name[dimensionless]   = "dimensionless";
-         name[mass_eigenstate] = "mass4";
+         name[imass1]          = "imass1";
+         name[imass2]          = "imass2";
+         name[imass3]          = "imass3";
+         name[imass4]          = "imass4";
+         name[mass_eigenstate] = "mass_eigenstate";
          return name;
       }
       static const std::map<Tags,std::string> toString = fill_map();

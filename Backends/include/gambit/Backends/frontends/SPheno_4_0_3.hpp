@@ -312,9 +312,9 @@ BE_VARIABLE(Chi0, Farray_particle23_1_4, ("__mssm_data_MOD_chi0", "mssm_data_mp_
 BE_VARIABLE(N, Farray_Fcomplex16_1_4_1_4, ("__model_data_MOD_n", "model_data_mp_n_"), "SPheno_internal")
 
 // Convenience functions (registration)
-BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const Finputs&), "SPheno_MSSMspectrum")
-BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const Finputs&), "SPheno_internal")
-BE_CONV_FUNCTION(ReadingData, void, (const Finputs&), "SPheno_internal")
+BE_CONV_FUNCTION(run_SPheno, int, (Spectrum&, const SpectrumInputs&), "SPheno_MSSM_Spectrum")
+BE_CONV_FUNCTION(Spectrum_Out, Spectrum, (const SpectrumInputs&), "SPheno_internal")
+BE_CONV_FUNCTION(ReadingData, void, (const SpectrumInputs&), "SPheno_internal")
 BE_CONV_FUNCTION(InitializeStandardModel, void, (const SMInputs&), "SPheno_internal")
 BE_CONV_FUNCTION(ErrorHandling, void, (const int&), "SPheno_internal")
 

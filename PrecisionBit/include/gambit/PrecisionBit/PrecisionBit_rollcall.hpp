@@ -59,18 +59,20 @@ START_MODULE
     BACKEND_REQ(FHConstraints, (libfeynhiggs), void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,
                 fh_real&,fh_real&,fh_real&,fh_real&,fh_real&,int&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
-    ALLOW_MODELS(MSSM30atQ, MSSM30atMGUT, NUHM2)
+    ALLOW_MODELS(MSSM30atQ, MSSM30atMGUT, MSSM30atQ_lightgravitino, MSSM30atMGUT_lightgravitino, NUHM2)
     #undef FUNCTION
   #undef CAPABILITY
 
   // Extractors for FeynHiggs EWK precision observables
-  QUICK_FUNCTION(PrecisionBit, muon_gm2,       NEW_CAPABILITY, FH_precision_gm2,      triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, deltarho,       NEW_CAPABILITY, FH_precision_deltarho, triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, prec_mw,        NEW_CAPABILITY, FH_precision_mw,       triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, prec_sinW2_eff, NEW_CAPABILITY, FH_precision_sinW2,    triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, edm_e,          NEW_CAPABILITY, FH_precision_edm_e,    double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, edm_n,          NEW_CAPABILITY, FH_precision_edm_n,    double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, edm_hg,         NEW_CAPABILITY, FH_precision_edm_hg,   double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
+  #define MSSM30etal (MSSM30atQ, MSSM30atMGUT, MSSM30atQ_lightgravitino, MSSM30atMGUT_lightgravitino, NUHM2)
+  QUICK_FUNCTION(PrecisionBit, muon_gm2,       NEW_CAPABILITY, FH_precision_gm2,      triplet<double>, MSSM30etal, (FH_Precision, fh_PrecisionObs))
+  QUICK_FUNCTION(PrecisionBit, deltarho,       NEW_CAPABILITY, FH_precision_deltarho, triplet<double>, MSSM30etal, (FH_Precision, fh_PrecisionObs))
+  QUICK_FUNCTION(PrecisionBit, prec_mw,        NEW_CAPABILITY, FH_precision_mw,       triplet<double>, MSSM30etal, (FH_Precision, fh_PrecisionObs))
+  QUICK_FUNCTION(PrecisionBit, prec_sinW2_eff, NEW_CAPABILITY, FH_precision_sinW2,    triplet<double>, MSSM30etal, (FH_Precision, fh_PrecisionObs))
+  QUICK_FUNCTION(PrecisionBit, edm_e,          NEW_CAPABILITY, FH_precision_edm_e,    double,          MSSM30etal, (FH_Precision, fh_PrecisionObs))
+  QUICK_FUNCTION(PrecisionBit, edm_n,          NEW_CAPABILITY, FH_precision_edm_n,    double,          MSSM30etal, (FH_Precision, fh_PrecisionObs))
+  QUICK_FUNCTION(PrecisionBit, edm_hg,         NEW_CAPABILITY, FH_precision_edm_hg,   double,          MSSM30etal, (FH_Precision, fh_PrecisionObs))
+  #undef MSSM30etal
 
   // Precision MSSM spectrum manufacturers
   #define CAPABILITY MSSM_spectrum
@@ -117,11 +119,11 @@ START_MODULE
   QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_VectorSingletDM_Z2_spectrum,   triplet<double>, (VectorSingletDM_Z2),                            (VectorSingletDM_Z2_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_DiracSingletDM_Z2_spectrum,    triplet<double>, (DiracSingletDM_Z2),                             (DiracSingletDM_Z2_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_MajoranaSingletDM_Z2_spectrum, triplet<double>, (MajoranaSingletDM_Z2),                          (MajoranaSingletDM_Z2_spectrum, Spectrum))
-  QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_MSSM_spectrum,                 triplet<double>, (MSSM63atQ, MSSM63atMGUT),                       (MSSM_spectrum, Spectrum))
+  QUICK_FUNCTION(PrecisionBit, mw, OLD_CAPABILITY, mw_from_MSSM_spectrum,                 triplet<double>, (MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino), (MSSM_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mh, NEW_CAPABILITY, mh_from_SM_spectrum,                   triplet<double>, (),                                              (SM_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mh, OLD_CAPABILITY, mh_from_ScalarSingletDM_Z2_spectrum,   triplet<double>, (ScalarSingletDM_Z2,ScalarSingletDM_Z2_running), (ScalarSingletDM_Z2_spectrum, Spectrum))
   QUICK_FUNCTION(PrecisionBit, mh, OLD_CAPABILITY, mh_from_ScalarSingletDM_Z3_spectrum,   triplet<double>, (ScalarSingletDM_Z3,ScalarSingletDM_Z3_running), (ScalarSingletDM_Z3_spectrum, Spectrum))
-  QUICK_FUNCTION(PrecisionBit, mh, OLD_CAPABILITY, mh_from_MSSM_spectrum,                 triplet<double>, (MSSM63atQ, MSSM63atMGUT),                       (MSSM_spectrum, Spectrum))
+  QUICK_FUNCTION(PrecisionBit, mh, OLD_CAPABILITY, mh_from_MSSM_spectrum,                 triplet<double>, (MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino), (MSSM_spectrum, Spectrum))
 
   // SM nuisance likelihoods
   QUICK_FUNCTION(PrecisionBit, lnL_Z_mass,   NEW_CAPABILITY, lnL_Z_mass,   double, (), (SMINPUTS, SMInputs))
@@ -201,7 +203,7 @@ START_MODULE
                                                         Farray<Fdouble,1,35>&,
                                                         Farray<Fdouble,1,35>&))
     BACKEND_OPTION( (SUSYPOPE, 0.2), (libSUSYPOPE) )
-    ALLOW_MODELS(MSSM30atQ, MSSM30atMGUT, NUHM2)
+    ALLOW_MODELS(MSSM30atQ, MSSM30atMGUT, MSSM30atQ_lightgravitino, MSSM30atMGUT_lightgravitino, NUHM2)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -226,7 +228,10 @@ START_MODULE
     BACKEND_REQ(calculate_amu_2loop, (libgm2calc), double, (const gm2calc_default::gm2calc::MSSMNoFV_onshell&))
     BACKEND_REQ(calculate_uncertainty_amu_2loop, (libgm2calc), double, (const gm2calc_default::gm2calc::MSSMNoFV_onshell&))
     BACKEND_OPTION( (gm2calc), (libgm2calc) )
-    ALLOW_MODELS(MSSM30atQ, MSSM30atQ_mA, MSSM30atMGUT, MSSM30atMGUT_mA, NUHM2)
+    ALLOW_MODELS(MSSM30atQ, MSSM30atQ_mA, MSSM30atMGUT, MSSM30atMGUT_mA,
+                 MSSM30atQ_lightgravitino, MSSM30atQ_mA_lightgravitino,
+                 MSSM30atMGUT_lightgravitino, MSSM30atMGUT_mA_lightgravitino,
+                 NUHM2)
     #undef FUNCTION
 
   #undef CAPABILITY

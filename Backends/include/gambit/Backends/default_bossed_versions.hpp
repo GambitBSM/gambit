@@ -16,6 +16,10 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Nov
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Oct
+///
 ///  *********************************************
 
 #pragma once
@@ -25,5 +29,6 @@
 #define  Default_gm2calc 1_3_0
 #define  Default_Pythia 8_212
 #define  Default_vevacious 1_0
+#define  Default_FlexibleSUSY_CMSSM 2_0_1
 
 // Defaults added by GUM (do not remove this comment).

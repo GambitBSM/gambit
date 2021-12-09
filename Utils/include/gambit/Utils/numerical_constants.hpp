@@ -25,7 +25,11 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2020 Jan
-//
+///
+///  \author Jeriek Van den Abeele
+///          (jeriekvda@fys.uio.no)
+///  \date 2018 Sep
+///
 ///  *********************************************
 
 #ifndef __numerical_constants_hpp__

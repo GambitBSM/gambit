@@ -34,6 +34,7 @@ include(cmake/standalones.cmake)
 
 # Add the main GAMBIT executable
 if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
+#TODO: remove this when BOSSed FS works
   if (NOT EXCLUDE_FLEXIBLESUSY)
     set(gambit_XTRA ${flexiblesusy_LDFLAGS})
   endif()
@@ -66,6 +67,7 @@ endif()
 # Add the ScannerBit standalone executable
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
+#TODO: remove this when BOSSed FS works
     if (NOT EXCLUDE_FLEXIBLESUSY)
       set(ScannerBit_XTRA ${flexiblesusy_LDFLAGS})
     endif()
@@ -77,6 +79,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
                                 ${GAMBIT_BASIC_COMMON_OBJECTS}
   )
   if(EXISTS "${PROJECT_SOURCE_DIR}/Elements/")
+#TODO: Remove this when BOSSed FS works
     if (NOT EXCLUDE_FLEXIBLESUSY)
       add_dependencies(ScannerBit_standalone flexiblesusy)
     endif()

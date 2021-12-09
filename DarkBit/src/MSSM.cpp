@@ -23,6 +23,10 @@
 ///  \date 2014 Oct
 ///  \date 2015 Jan, Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 Nov
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -48,7 +52,7 @@ namespace Gambit
      * indicating if point initialization was successful, which is essentially
      * always true for models that satisfy the dependency resolver.
      *
-     * Supported models: MSSM63atQ
+     * Supported models: MSSM63atQ, MSSM63atQ_lightgravitino
      */
 
     //////////////////////////////////////////////////////////////////////////
@@ -119,10 +123,9 @@ namespace Gambit
       ///////////////////////////
 
       // Import based on Spectrum objects
-      const Spectrum& matched_spectra = *Dep::MSSM_spectrum;
-      const SubSpectrum& spec = matched_spectra.get_HE();
-      const SubSpectrum& SM   = matched_spectra.get_LE();
-      const SMInputs& SMI  = matched_spectra.get_SMInputs();
+      const Spectrum& spec = *Dep::MSSM_spectrum;
+      const Spectrum& SM   = *Dep::SM_spectrum;
+      const SMInputs& SMI  = spec.get_SMInputs();
 
       // Get SM masses
       auto getSMmass = [&](str Name, int spinX2)

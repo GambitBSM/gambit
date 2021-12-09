@@ -1,0 +1,53 @@
+# Basic makefile for compiling Spectrum object standalone tests
+
+CXX=g++
+CXXFLAGS=-g --std=c++14\
+-fopenmp \
+-IModels/include \
+-IElements/include \
+-IUtils/include \
+-ILogs/include \
+-I/usr/local/include \
+-Icontrib/slhaea/include \
+-Icmake/include
+
+LIBS=-lyaml-cpp
+
+DEPS=tmp/spectrum.o \
+tmp/slhaea_helpers.o \
+tmp/mssm_slhahelp.o \
+tmp/exceptions.o \
+tmp/standalone_error_handlers.o \
+tmp/util_functions.o \
+tmp/file_lock.o \
+tmp/version.o \
+tmp/logger.o \
+tmp/logmaster.o \
+tmp/logging.o \
+tmp/particle_database.o \
+tmp/partmap.o \
+tmp/spectrum_contents.o \
+tmp/DiracSingletDM.o \
+tmp/MajoranaSingletDM.o \
+tmp/MDM.o \
+tmp/MSSM.o \
+tmp/ScalarSingletDM.o \
+tmp/SM.o \
+tmp/SMHiggs.o \
+tmp/SM_slha.o \
+tmp/VectorSingletDM.o \
+tmp/spectrum_object_tests.o
+
+VPATH=Elements/src \
+Utils/src \
+Logs/src \
+Models/src \
+Models/src/SpectrumContents \
+SpecBit/tests \
+
+tmp/%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+specbit_tests: tmp/spectrum_object_tests.o $(DEPS)
+	$(CXX) $(CXXFLAGS) -o test_spectrum_objects $(DEPS) $(LIBS)
+ 

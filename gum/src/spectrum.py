@@ -634,8 +634,8 @@ def write_spheno_spectrum_src(model_name, is_susy):
         towrite += (
             "\n"
             "// Only allow neutralino LSPs.\n"
-            "if (not has_neutralino_LSP(spectrum)) invalid_point().raise("
-            "\"Neutralino is not LSP.\");\n"
+            "std::vector<int> LSPs = {1000022};\n"
+            "check_LSP(spectrum, LSPs);\n"
         )
 
     towrite += "}\n"

@@ -24,20 +24,10 @@
 #include "gambit/Models/models/MSSM63atQ.hpp" // Must include models which are targets of translation functions
 
 // Forward declaration of needed types
-// Also declare a helper function for translating 'mA' MSSM parameterisations into the primary parameterisations,
-// and another for translating from scales MGUT and MSUSY to arbitrary scale Q
-// (function definition in MSSM63atX_mA.cpp and MSSM63atX.cpp respectively)
-
 namespace Gambit
 {
    class Spectrum;
    class SubSpectrum;
-
-   // Translation function for mA,mu parameterisation to mHu2,mHd2 parameterisation
-   void MSSM_mA_to_MSSM_mhud(const ModelParameters &myP, ModelParameters &targetP, const SubSpectrum& HE);
-
-   // Translation function for MSSM defined at RGE-determined scale (e.g. GUT, SUSY) to arbitrary scale Q
-   void MSSMatX_to_MSSMatQ(const ModelParameters &myP, ModelParameters &targetP, const SubSpectrum& HE);
 }
 
 /// FlexibleSUSY compatible general (63 parameters plus sign, plus input scale) MSSM parameterisation

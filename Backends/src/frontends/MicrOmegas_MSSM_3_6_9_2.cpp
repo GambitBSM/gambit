@@ -66,7 +66,7 @@ BE_INI_FUNCTION
     logger() << LogTags::debug << "Initializing MicrOmegas MSSM with ";
     logger() << "VWdecay: " << VWdecay << " VZdecay: " << VZdecay << EOM;
 
-    if (ModelInUse("MSSM63atQ"))
+    if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ_lightgravitino") or ModelInUse("MSSM63atMGUT_lightgravitino"))
     {
         // Write out an SLHA1 file, as required by Micromegas
         filename = "DarkBit_to_MicrOmegas_" + std::to_string(rank) + ".slha";

@@ -323,8 +323,6 @@ def constrWrapperBody(return_type, func_name, args, return_is_loaded_class, keyw
 
 def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warning=True):
 
-    # TODO: When BOSS starts accepting template functions, add a check for the template arguments
-
     import modules.classutils as classutils
 
     func_name = getFunctionNameDict(func_el)
@@ -333,12 +331,22 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
     if func_name['long_templ_args'] in cfg.ditch:
         return True
 
+    # TODO: When BOSS starts accepting template functions, add a check for the template arguments
+    # TODO: TG: Checking that the template arguments are not ignored
+    if utils.isTemplateFunction(func_el) :
+        spec_template_types = utils.getSpecTemplateTypes(func_el)
+        for template_type in spec_template_types:
+            if template_type in cfg.ditch:
+                return True
+
+
     # Ignore templated functions (BOSS cannot deal with that yet...)
-    if utils.isTemplateFunction(func_el):
-        if print_warning:
-            reason = "Templated function. BOSS cannot deal with this yet."
-            infomsg.IgnoredFunction(func_name['long_templ_args'], reason).printMessage()
-        return True
+    # TODO: TG: We kind of do now
+    #if utils.isTemplateFunction(func_el):
+    #    if print_warning:
+    #        reason = "Templated function. BOSS cannot deal with this yet."
+    #        infomsg.IgnoredFunction(func_name['long_templ_args'], reason).printMessage()
+    #    return True
 
 
     # Check if this is an operator function

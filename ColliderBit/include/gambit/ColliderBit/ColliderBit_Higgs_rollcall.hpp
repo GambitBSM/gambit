@@ -48,7 +48,7 @@
     #define FUNCTION MSSMLikeHiggs_ModelParameters
     START_FUNCTION(hb_ModelParameters)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
-    ALLOW_MODELS(MSSM63atMGUT, MSSM63atQ)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 

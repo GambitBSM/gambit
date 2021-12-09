@@ -20,6 +20,7 @@
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2018 Jan
+///  \date 2019 Nov
 ///
 ///  \author Marcin Chrzaszcz
 ///          (mchrzasz@cern.ch)
@@ -184,7 +185,7 @@ namespace Gambit
     /// @}
 
     /// Helper function to set W masses
-    void update_W_masses(SubSpectrum& HE, SubSpectrum& LE, const triplet<double>& prec_mw, bool allow_fallback)
+    void update_W_masses(Spectrum& spec, const triplet<double>& prec_mw, bool allow_fallback)
     {
       if (prec_mw.central <= 0.0 or Utils::isnan(prec_mw.central))
       {
@@ -192,16 +193,13 @@ namespace Gambit
         invalid_point().raise("Precison W mass NaN or <= 0.  To allow fallback to the unimproved value, "
                               "set option allow_fallback_to_unimproved_masses=true in your YAML file.");
       }
-      HE.set_override(Par::Pole_Mass, prec_mw.central, "W+", true); // "true" flag causes overrides to be written even if no native quantity exists to override.
-      HE.set_override(Par::Pole_Mass_1srd_high, prec_mw.upper/prec_mw.central, "W+", true);
-      HE.set_override(Par::Pole_Mass_1srd_low, prec_mw.lower/prec_mw.central, "W+", true);
-      LE.set_override(Par::Pole_Mass, prec_mw.central, "W+");  // No flag; W mass should definitely already exist in the LE spectrum.
-      LE.set_override(Par::Pole_Mass_1srd_high, prec_mw.upper/prec_mw.central, "W+", true);
-      LE.set_override(Par::Pole_Mass_1srd_low, prec_mw.lower/prec_mw.central, "W+", true);
+      spec.set(prec_mw.central, Par::Pole_Mass, "W+"); 
+      spec.set(prec_mw.upper/prec_mw.central, Par::Pole_Mass_1srd_high, "W+");
+      spec.set(prec_mw.lower/prec_mw.central, Par::Pole_Mass_1srd_low, "W+");
     }
 
     /// Helper function to set arbitrary number of H masses
-    void update_H_masses(SubSpectrum& HE, int n_higgs, const str* higgses, int central, int error, std::vector<triplet<double> >& MH, bool allow_fallback)
+    void update_H_masses(Spectrum& spec, int n_higgs, const str* higgses, int central, int error, std::vector<triplet<double> >& MH, bool allow_fallback)
     {
 
       for (int i = 0; i < n_higgs; ++i)
@@ -219,13 +217,13 @@ namespace Gambit
       //  2 = from spectrum calculator
       //  3 = mean of precision mass and mass from spectrum calculator
       std::vector<double> mh_s;
-      for (int i = 0; i < n_higgs; ++i) mh_s.push_back(HE.get(Par::Pole_Mass, higgses[i]));
+      for (int i = 0; i < n_higgs; ++i) mh_s.push_back(spec.get(Par::Pole_Mass, higgses[i]));
       double mh[n_higgs];
 
       #ifdef PRECISIONBIT_DEBUG
         for (int i = 0; i < n_higgs; i++) cout << "h masses, spectrum generator: "<< mh_s[i] << endl;
-        for (int i = 0; i < n_higgs; i++) cout << "h masses, spectrum generator error low: "<< HE.get(Par::Pole_Mass_1srd_low, higgses[i])*mh_s[i] << endl;
-        for (int i = 0; i < n_higgs; i++) cout << "h masses, spectrum generator error high: "<< HE.get(Par::Pole_Mass_1srd_high, higgses[i])*mh_s[i] << endl;
+        for (int i = 0; i < n_higgs; i++) cout << "h masses, spectrum generator error low: "<< spec.get(Par::Pole_Mass_1srd_low, higgses[i])*mh_s[i] << endl;
+        for (int i = 0; i < n_higgs; i++) cout << "h masses, spectrum generator error high: "<< spec.get(Par::Pole_Mass_1srd_high, higgses[i])*mh_s[i] << endl;
         for (int i = 0; i < n_higgs; i++) cout << "h masses, precision calculation: "<< MH[i].central << endl;
         for (int i = 0; i < n_higgs; i++) cout << "h masses, precision calculation error low: "<< MH[i].lower << endl;
         for (int i = 0; i < n_higgs; i++) cout << "h masses, precision calculation error high: "<< MH[i].upper << endl;
@@ -251,7 +249,7 @@ namespace Gambit
       }
       if (central != 2)
       {
-        for (int i = 0; i < n_higgs; i++) HE.set_override(Par::Pole_Mass, mh[i], higgses[i]);
+        for (int i = 0; i < n_higgs; i++) spec.set(mh[i], Par::Pole_Mass, higgses[i]);
       }
 
       // Uncertainties:
@@ -272,8 +270,8 @@ namespace Gambit
       {
         for (int i = 0; i < n_higgs; i++)
         {
-          double D_s_low = HE.get(Par::Pole_Mass_1srd_low, higgses[i])*mh_s[i];
-          double D_s_high = HE.get(Par::Pole_Mass_1srd_high, higgses[i])*mh_s[i];
+          double D_s_low = spec.get(Par::Pole_Mass_1srd_low, higgses[i])*mh_s[i];
+          double D_s_high = spec.get(Par::Pole_Mass_1srd_high, higgses[i])*mh_s[i];
           double D_p_low = MH[i].lower;
           double D_p_high = MH[i].upper;
           mh_low[i] = sqrt(D_s_low*D_s_low + D_p_low*D_p_low + D_g[i]*D_g[i]);
@@ -286,8 +284,8 @@ namespace Gambit
       {
         for (int i = 0; i < n_higgs; i++)
         {
-          double D_s_low = mh_s[i]*HE.get(Par::Pole_Mass_1srd_low, higgses[i]);
-          double D_s_high = mh_s[i]*HE.get(Par::Pole_Mass_1srd_high, higgses[i]);
+          double D_s_low = mh_s[i]*spec.get(Par::Pole_Mass_1srd_low, higgses[i]);
+          double D_s_high = mh_s[i]*spec.get(Par::Pole_Mass_1srd_high, higgses[i]);
           double D_p_low = MH[i].lower;
           double D_p_high = MH[i].upper;
           if (central == 1) // Using precision calculator mass as central value
@@ -425,8 +423,8 @@ namespace Gambit
       {
         for (int i = 0; i < n_higgs; i++)
         {
-          double D_s_low = mh_s[i]*HE.get(Par::Pole_Mass_1srd_low, higgses[i]);
-          double D_s_high = mh_s[i]*HE.get(Par::Pole_Mass_1srd_high, higgses[i]);
+          double D_s_low = mh_s[i]*spec.get(Par::Pole_Mass_1srd_low, higgses[i]);
+          double D_s_high = mh_s[i]*spec.get(Par::Pole_Mass_1srd_high, higgses[i]);
           if (central == 1) // Using precision calculator mass as central value
           {
             if (D_g[i] >= 0) // Precision calculator mass is higher than spectrum generator mass
@@ -478,13 +476,13 @@ namespace Gambit
       }
 
       // Finally, set the errors.
-      for (int i = 0; i < n_higgs; i++) HE.set_override(Par::Pole_Mass_1srd_low, mh_low[i]/mh[i], higgses[i], true);
-      for (int i = 0; i < n_higgs; i++) HE.set_override(Par::Pole_Mass_1srd_high, mh_high[i]/mh[i], higgses[i], true);
+      for (int i = 0; i < n_higgs; i++) spec.set( mh_low[i]/mh[i], Par::Pole_Mass_1srd_low, higgses[i]);
+      for (int i = 0; i < n_higgs; i++) spec.set(mh_high[i]/mh[i], Par::Pole_Mass_1srd_high, higgses[i]);
 
       #ifdef PRECISIONBIT_DEBUG
-        for (int i = 0; i < n_higgs; i++) cout << "h masses, central: "<< HE.get(Par::Pole_Mass, higgses[i])<< endl;
-        for (int i = 0; i < n_higgs; i++) cout << "h masses, fractional low: "<< HE.get(Par::Pole_Mass_1srd_low, higgses[i])<< endl;
-        for (int i = 0; i < n_higgs; i++) cout << "h masses, fractional high: " << HE.get(Par::Pole_Mass_1srd_high, higgses[i])<<endl;
+        for (int i = 0; i < n_higgs; i++) cout << "h masses, central: "<< spec.get(Par::Pole_Mass, higgses[i])<< endl;
+        for (int i = 0; i < n_higgs; i++) cout << "h masses, fractional low: "<< spec.get(Par::Pole_Mass_1srd_low, higgses[i])<< endl;
+        for (int i = 0; i < n_higgs; i++) cout << "h masses, fractional high: " << spec.get(Par::Pole_Mass_1srd_high, higgses[i])<<endl;
       #endif
     }
 
@@ -502,7 +500,7 @@ namespace Gambit
       using namespace Pipes::make_MSSM_precision_spectrum_W;
       improved_spec = *Dep::unimproved_MSSM_spectrum; // Does copy
       static bool allow_fallback = runOptions->getValueOrDef<bool>(false, "allow_fallback_to_unimproved_masses");
-      update_W_masses(improved_spec.get_HE(), improved_spec.get_LE(), *Dep::prec_mw, allow_fallback);
+      update_W_masses(improved_spec, *Dep::prec_mw, allow_fallback);
       improved_spec.drop_SLHAs_if_requested(runOptions, "GAMBIT_spectrum");
     }
 
@@ -511,7 +509,6 @@ namespace Gambit
     {
       using namespace Pipes::make_MSSM_precision_spectrum_H;
       improved_spec = *Dep::unimproved_MSSM_spectrum; // Does copy
-      SubSpectrum& HE = improved_spec.get_HE();
       static bool allow_fallback = runOptions->getValueOrDef<bool>(false, "allow_fallback_to_unimproved_masses");
 
       // Higgs masses
@@ -522,22 +519,22 @@ namespace Gambit
       //                                 std::pair<int,int>(37,0)};
       str higgses[1];
       std::vector< triplet<double> > MH = {*Dep::prec_mh};
-      int smlike_pdg = SMlike_higgs_PDG_code(HE);
+      int smlike_pdg = SMlike_higgs_PDG_code(improved_spec);
       if (smlike_pdg == 25) higgses[0] = "h0_1";
       else if (smlike_pdg == 35) higgses[0] = "h0_2";
       else PrecisionBit_error().raise(LOCAL_INFO, "Urecognised SM-like Higgs PDG code!");
       static int central = runOptions->getValueOrDef<int>(1, "Higgs_predictions_source");
       static int error = runOptions->getValueOrDef<int>(2, "Higgs_predictions_error_method");
-      update_H_masses(HE, 1, higgses, central, error, MH, allow_fallback);
+      update_H_masses(improved_spec, 1, higgses, central, error, MH, allow_fallback);
 
       // Save the identity/identities of the calculator(s) used for the central value.
       const str& p_calc = Dep::prec_mh.name();
       const str& p_orig = Dep::prec_mh.origin();
       const str& s_calc = Dep::unimproved_MSSM_spectrum.name();
       const str& s_orig = Dep::unimproved_MSSM_spectrum.origin();
-      if (central == 1) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+p_orig+"::"+p_calc, true);
-      if (central == 2) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+s_orig+"::"+s_calc, true);
-      if (central == 3) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+p_orig+"::"+p_calc+", "+s_orig+"::"+s_calc, true);
+      if (central == 1) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+p_orig+"::"+p_calc);
+      if (central == 2) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+s_orig+"::"+s_calc);
+      if (central == 3) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+p_orig+"::"+p_calc+", "+s_orig+"::"+s_calc);
 
       // Check if an SLHA file needs to be excreted.
       improved_spec.drop_SLHAs_if_requested(runOptions, "GAMBIT_spectrum");
@@ -549,12 +546,10 @@ namespace Gambit
     {
       using namespace Pipes::make_MSSM_precision_spectrum_H_W;
       improved_spec = *Dep::unimproved_MSSM_spectrum; // Does copy
-      SubSpectrum& HE = improved_spec.get_HE();
-      SubSpectrum& LE = improved_spec.get_LE();
       static bool allow_fallback = runOptions->getValueOrDef<bool>(false, "allow_fallback_to_unimproved_masses");
 
       // W mass
-      update_W_masses(HE, LE, *Dep::prec_mw, allow_fallback);
+      update_W_masses(improved_spec, *Dep::prec_mw, allow_fallback);
 
       // Higgs masses
       // FIXME switch to this once the setters take pdg pairs
@@ -564,22 +559,22 @@ namespace Gambit
       //                                 std::pair<int,int>(37,0)};
       str higgses[1];
       std::vector< triplet<double> > MH = {*Dep::prec_mh};
-      int smlike_pdg = SMlike_higgs_PDG_code(HE);
+      int smlike_pdg = SMlike_higgs_PDG_code(improved_spec);
       if (smlike_pdg == 25) higgses[0] = "h0_1";
       else if (smlike_pdg == 35) higgses[0] = "h0_2";
       else PrecisionBit_error().raise(LOCAL_INFO, "Urecognised SM-like Higgs PDG code!");
       static int central = runOptions->getValueOrDef<int>(1, "Higgs_predictions_source");
       static int error = runOptions->getValueOrDef<int>(2, "Higgs_predictions_error_method");
-      update_H_masses(HE, 1, higgses, central, error, MH, allow_fallback);
+      update_H_masses(improved_spec, 1, higgses, central, error, MH, allow_fallback);
 
       // Save the identity/identities of the calculator(s) used for the central value.
       const str& p_calc = Dep::prec_mh.name();
       const str& p_orig = Dep::prec_mh.origin();
       const str& s_calc = Dep::unimproved_MSSM_spectrum.name();
       const str& s_orig = Dep::unimproved_MSSM_spectrum.origin();
-      if (central == 1) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+p_orig+"::"+p_calc, true);
-      if (central == 2) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+s_orig+"::"+s_calc, true);
-      if (central == 3) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+p_orig+"::"+p_calc+", "+s_orig+"::"+s_calc, true);
+      if (central == 1) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+p_orig+"::"+p_calc);
+      if (central == 2) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+s_orig+"::"+s_calc);
+      if (central == 3) improved_spec.set(1.0,Par::dimensionless, "h mass from: "+p_orig+"::"+p_calc+", "+s_orig+"::"+s_calc);
 
       // Check if an SLHA file needs to be excreted.
       improved_spec.drop_SLHAs_if_requested(runOptions, "GAMBIT_spectrum");
@@ -591,12 +586,10 @@ namespace Gambit
     {
       using namespace Pipes::make_MSSM_precision_spectrum_4H_W;
       improved_spec = *Dep::unimproved_MSSM_spectrum; // Does copy
-      SubSpectrum& HE = improved_spec.get_HE();
-      SubSpectrum& LE = improved_spec.get_LE();
       static bool allow_fallback = runOptions->getValueOrDef<bool>(false, "allow_fallback_to_unimproved_masses");
 
       // W mass
-      update_W_masses(HE, LE, *Dep::prec_mw, allow_fallback);
+      update_W_masses(improved_spec, *Dep::prec_mw, allow_fallback);
 
       // Higgs masses
       // FIXME switch to this once the setters take pdg pairs
@@ -606,7 +599,7 @@ namespace Gambit
       //                                 std::pair<int,int>(37,0)};
       const str higgses[4] = {"h0_1", "h0_2", "A0", "H+"};
       std::vector< triplet<double> > MH;
-      int smlike_pdg = SMlike_higgs_PDG_code(HE);
+      int smlike_pdg = SMlike_higgs_PDG_code(improved_spec);
       if (smlike_pdg == 25)
       { //h0_1
         MH.push_back(*Dep::prec_mh);
@@ -623,7 +616,7 @@ namespace Gambit
 
       static int central = runOptions->getValueOrDef<int>(1, "Higgs_predictions_source");
       static int error = runOptions->getValueOrDef<int>(2, "Higgs_predictions_error_method");
-      update_H_masses(HE, 4, higgses, central, error, MH, allow_fallback);
+      update_H_masses(improved_spec, 4, higgses, central, error, MH, allow_fallback);
 
       // Save the identity/identities of the calculator(s) used for the central value.
       const str& p1_calc = Dep::prec_mh.name();
@@ -632,9 +625,9 @@ namespace Gambit
       const str& p2_orig = Dep::prec_HeavyHiggsMasses.origin();
       const str& s_calc = Dep::unimproved_MSSM_spectrum.name();
       const str& s_orig = Dep::unimproved_MSSM_spectrum.origin();
-      if (central == 1) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+p1_orig+"::"+p1_calc+", "+p2_orig+"::"+p2_calc, true);
-      if (central == 2) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+s_orig+"::"+s_calc, true);
-      if (central == 3) HE.set_override(Par::dimensionless, 1.0, "h mass from: "+p1_orig+"::"+p1_calc+", "+p2_orig+"::"+p2_calc+", "+s_orig+"::"+s_calc, true);
+      if (central == 1) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+p1_orig+"::"+p1_calc+", "+p2_orig+"::"+p2_calc);
+      if (central == 2) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+s_orig+"::"+s_calc);
+      if (central == 3) improved_spec.set(1.0, Par::dimensionless, "h mass from: "+p1_orig+"::"+p1_calc+", "+p2_orig+"::"+p2_calc+", "+s_orig+"::"+s_calc);
 
       // Check if an SLHA file needs to be excreted.
       improved_spec.drop_SLHAs_if_requested(runOptions, "GAMBIT_spectrum");
@@ -647,91 +640,91 @@ namespace Gambit
     void mw_from_SM_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mw_from_SM_spectrum;
-      const SubSpectrum& LE = Dep::SM_spectrum->get_LE();
-      result.central = LE.get(Par::Pole_Mass, "W+");;
-      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
-      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+      const Spectrum& spec = *Dep::SM_spectrum;
+      result.central = spec.get(Par::Pole_Mass, "W+");;
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, "W+");
     }
     void mw_from_ScalarSingletDM_Z2_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mw_from_ScalarSingletDM_Z2_spectrum;
-      const SubSpectrum& LE = Dep::ScalarSingletDM_Z2_spectrum->get_LE();
-      result.central = LE.get(Par::Pole_Mass, "W+");;
-      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
-      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+      const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum;
+      result.central = spec.get(Par::Pole_Mass, "W+");;
+      result.upper = result.central *spec.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, "W+");
     }
     void mw_from_ScalarSingletDM_Z3_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mw_from_ScalarSingletDM_Z3_spectrum;
-      const SubSpectrum& LE = Dep::ScalarSingletDM_Z3_spectrum->get_LE();
-      result.central = LE.get(Par::Pole_Mass, "W+");;
-      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
-      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+      const Spectrum& spec = *Dep::ScalarSingletDM_Z3_spectrum;
+      result.central = spec.get(Par::Pole_Mass, "W+");;
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, "W+");
     }
     void mw_from_VectorSingletDM_Z2_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mw_from_VectorSingletDM_Z2_spectrum;
-      const SubSpectrum& LE = Dep::VectorSingletDM_Z2_spectrum->get_LE();
-      result.central = LE.get(Par::Pole_Mass, "W+");
-      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
-      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+      const Spectrum& spec = *Dep::VectorSingletDM_Z2_spectrum;
+      result.central = spec.get(Par::Pole_Mass, "W+");
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, "W+");
     }
     void mw_from_MajoranaSingletDM_Z2_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mw_from_MajoranaSingletDM_Z2_spectrum;
-      const SubSpectrum& LE = Dep::MajoranaSingletDM_Z2_spectrum->get_LE();
-      result.central = LE.get(Par::Pole_Mass, "W+");
-      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
-      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+      const Spectrum& spec = *Dep::MajoranaSingletDM_Z2_spectrum;
+      result.central = spec.get(Par::Pole_Mass, "W+");
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, "W+");
     }
       void mw_from_DiracSingletDM_Z2_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mw_from_DiracSingletDM_Z2_spectrum;
-      const SubSpectrum& LE = Dep::DiracSingletDM_Z2_spectrum->get_LE();
-      result.central = LE.get(Par::Pole_Mass, "W+");
-      result.upper = result.central * LE.get(Par::Pole_Mass_1srd_high, "W+");
-      result.lower = result.central * LE.get(Par::Pole_Mass_1srd_low, "W+");
+      const Spectrum& spec = *Dep::DiracSingletDM_Z2_spectrum;
+      result.central = spec.get(Par::Pole_Mass, "W+");
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, "W+");
     }
     void mw_from_MSSM_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mw_from_MSSM_spectrum;
-      const SubSpectrum& HE = Dep::MSSM_spectrum->get_HE();
-      result.central = HE.get(Par::Pole_Mass, "W+");
-      result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, "W+");
-      result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, "W+");
+      const Spectrum& spec = *Dep::MSSM_spectrum;
+      result.central = spec.get(Par::Pole_Mass, "W+");
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, "W+");
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, "W+");
     }
     void mh_from_SM_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mh_from_SM_spectrum;
-      const SubSpectrum& HE = Dep::SM_spectrum->get_HE();
-      result.central = HE.get(Par::Pole_Mass, 25, 0);
-      result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, 25, 0);
-      result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, 25, 0);
+      const Spectrum& spec = *Dep::SM_spectrum;
+      result.central = spec.get(Par::Pole_Mass, 25, 0);
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, 25, 0);
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, 25, 0);
     }
     void mh_from_ScalarSingletDM_Z2_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mh_from_ScalarSingletDM_Z2_spectrum;
-      const SubSpectrum& HE = Dep::ScalarSingletDM_Z2_spectrum->get_HE();
-      result.central = HE.get(Par::Pole_Mass, 25, 0);
-      result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, 25, 0);
-      result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, 25, 0);
+      const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum;
+      result.central = spec.get(Par::Pole_Mass, 25, 0);
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, 25, 0);
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, 25, 0);
     }
     void mh_from_ScalarSingletDM_Z3_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mh_from_ScalarSingletDM_Z3_spectrum;
-      const SubSpectrum& HE = Dep::ScalarSingletDM_Z3_spectrum->get_HE();
-      result.central = HE.get(Par::Pole_Mass, 25, 0);
-      result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, 25, 0);
-      result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, 25, 0);
+      const Spectrum& spec = *Dep::ScalarSingletDM_Z3_spectrum;
+      result.central = spec.get(Par::Pole_Mass, 25, 0);
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, 25, 0);
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, 25, 0);
     }
     void mh_from_MSSM_spectrum(triplet<double> &result)
     {
       using namespace Pipes::mh_from_MSSM_spectrum;
-      const SubSpectrum& HE = Dep::MSSM_spectrum->get_HE();
-      int smlike_pdg = SMlike_higgs_PDG_code(HE);
-      result.central = HE.get(Par::Pole_Mass, smlike_pdg, 0);
-      result.upper = result.central * HE.get(Par::Pole_Mass_1srd_high, smlike_pdg, 0);
-      result.lower = result.central * HE.get(Par::Pole_Mass_1srd_low, smlike_pdg, 0);
+      const Spectrum& spec = *Dep::MSSM_spectrum;
+      int smlike_pdg = SMlike_higgs_PDG_code(spec);
+      result.central = spec.get(Par::Pole_Mass, smlike_pdg, 0);
+      result.upper = result.central * spec.get(Par::Pole_Mass_1srd_high, smlike_pdg, 0);
+      result.lower = result.central * spec.get(Par::Pole_Mass_1srd_low, smlike_pdg, 0);
     }
     /// @}
 
@@ -946,7 +939,7 @@ namespace Gambit
     void GM2C_SUSY(triplet<double> &result)
     {
       using namespace Pipes::GM2C_SUSY;
-      const SubSpectrum& mssm = Dep::MSSM_spectrum->get_HE();
+      const Spectrum& mssm = *Dep::MSSM_spectrum;
 
       gm2calc_default::gm2calc::MSSMNoFV_onshell model;
 

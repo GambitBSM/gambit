@@ -1,0 +1,49 @@
+diff -rupN FlexibleSUSY-2.4.0/models/CMSSM/module.mk ../installed/flexiblesusy/2.4.0/CMSSM/models/CMSSM/module.mk
+--- FlexibleSUSY-2.4.0/models/CMSSM/module.mk   2019-10-24 18:10:57.844321279 +1100
++++ ../installed/flexiblesusy/2.4.0/CMSSM/models/CMSSM/module.mk        2019-10-24 17:59:01.404294377 +1100
+@@ -276,7 +276,7 @@ endif
+ $(LLCMSSM_OBJ) $(LLCMSSM_LIB): \
+        CPPFLAGS += $(shell $(MATH_INC_PATHS) --math-cmd="$(MATH)" -I --librarylink --mathlink)
+
+-$(LIBCMSSM): $(LIBCMSSM_OBJ)
++$(LIBCMSSM): $(LIBCMSSM_OBJ) ${LIBFLEXI_OBJ}
+                $(MODULE_MAKE_LIB_CMD) $@ $^
+
+ $(DIR)/%.x: $(DIR)/%.o $(LIBCMSSM) $(LIBFLEXI) $(filter-out -%,$(LOOPFUNCLIBS))
+diff -rupN FlexibleSUSY-2.4.0/models/CMSSM/CMSSM_slha_io.hpp ../installed/flexiblesusy/2.4.0/CMSSM/models/CMSSM/CMSSM_slha_io.hpp
+--- FlexibleSUSY-2.4.0/models/CMSSM/CMSSM_slha_io.hpp	2019-10-17 13:08:10.038543025 +1100
++++ ../installed/flexiblesusy/2.4.0/CMSSM/models/CMSSM/CMSSM_slha_io.hpp	2019-10-17 13:07:22.685987821 +1100
+@@ -370,12 +370,14 @@ void CMSSM_slha_io::set_extra(
+  *
+  * @param models model classes
+  */
++/* Commented by GAMBIT
+ template <class... Ts>
+ void CMSSM_slha_io::set_spectrum(const std::tuple<Ts...>& models)
+ {
+    boost::fusion::for_each(models,
+                            [this](auto model) { this->set_spectrum(model); });
+ }
++*/
+ 
+ /**
+  * Stores the model (DR-bar) parameters, masses and mixing matrices in
+diff -rupN FlexibleSUSY-2.4.0/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp ../installed/flexiblesusy/2.4.0/CMSSM/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp
+--- FlexibleSUSY-2.4.0/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp	2019-10-17 13:08:10.042543071 +1100
++++ ../installed/flexiblesusy/2.4.0/CMSSM/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp	2019-10-17 13:08:06.478501238 +1100
+@@ -57,6 +57,14 @@ private:
+    void calculate_spectrum();
+ };
+ 
++class CMSSM_spectrum_generator_Two_scale : public CMSSM_spectrum_generator<Two_scale>
++{
++};
++
++class CMSSM_slha_Model_Two_scale : public CMSSM_slha<CMSSM<Two_scale> >
++{
++};
++
+ } // namespace flexiblesusy
+ 
+ #endif
+/CMSSM/CMSSM_two_scale_model.hpp ../installed/flexiblesusy/2.4.0/CMSSM/models/CMSSM/CMSSM_two_scale_model.hpp

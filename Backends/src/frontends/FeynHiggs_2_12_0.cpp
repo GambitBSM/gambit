@@ -57,10 +57,9 @@ BE_INI_FUNCTION
   scan_level = false;
 
   // retrieve MSSM_spectrum dependency
-  const Spectrum& fullspectrum = *Dep::unimproved_MSSM_spectrum;
-  const SMInputs& sminputs = fullspectrum.get_SMInputs();
-  const SubSpectrum& spec = fullspectrum.get_HE();
-  SLHAea::Coll slhaea = fullspectrum.getSLHAea(2);
+  const Spectrum& spec = *Dep::unimproved_MSSM_spectrum;
+  const SMInputs& sminputs = spec.get_SMInputs();
+  SLHAea::Coll slhaea = spec.getSLHAea(2);
 
   if (slhaea.find("SPINFO") == slhaea.end())
   {
@@ -91,7 +90,7 @@ BE_INI_FUNCTION
   fh_real ML = sminputs.mTau;    // tau mass
   fh_real MB = sminputs.mBmB;    // bottom mass at m_b
 
-  fh_real MW = fullspectrum.get(Par::Pole_Mass,"W+");  // W boson mass
+  fh_real MW = spec.get(Par::Pole_Mass,"W+");  // W boson mass
   fh_real MZ = sminputs.mZ;                        // Z boson mass
 
   // CKM input parameters in Wolfenstein parameterization
@@ -110,13 +109,13 @@ BE_INI_FUNCTION
         MW, MZ,
         CKMlambda, CKMA, CKMrhobar, CKMetabar);
 
-  fh_real MT = fullspectrum.get(Par::Pole_Mass,"t");                      // top quark mass
+  fh_real MT = spec.get(Par::Pole_Mass,"t");                      // top quark mass
   fh_real TB = SLHAea::to<double>( slhaea.at("MINPAR").at(3).at(1) ); // tan Beta
-  fh_real MA0 = fullspectrum.get(Par::Pole_Mass,"A0");   // masses of CP-odd and
+  fh_real MA0 = spec.get(Par::Pole_Mass,"A0");   // masses of CP-odd and
   fh_real MHp = -1.;                                                  // charged Higgs (only one should be given)
   if(MA0 <= 0.){
     MA0 = -1.;
-    MHp = fullspectrum.get(Par::Pole_Mass,"H+");
+    MHp = spec.get(Par::Pole_Mass,"H+");
   }
 
   // cout << "** Top Mass: " << MT << endl;

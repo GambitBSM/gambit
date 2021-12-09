@@ -28,7 +28,7 @@
 
 LOAD_LIBRARY
 
-BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atQ_lightgravitino)
 
 /* Next we use macros BE_VARIABLE and BE_FUNCTION to load pointers
  * (using dlsym) to the variables and functions within the library.

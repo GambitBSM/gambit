@@ -1,0 +1,9 @@
+#ifndef __wrapper_CMSSM_input_parameters_FlexibleSUSY_CMSSM_2_4_0_h__
+#define __wrapper_CMSSM_input_parameters_FlexibleSUSY_CMSSM_2_4_0_h__
+
+
+#include "wrapper_CMSSM_input_parameters_decl.h"
+#include "wrapper_CMSSM_input_parameters_def.h"
+
+
+#endif /* __wrapper_CMSSM_input_parameters_FlexibleSUSY_CMSSM_2_4_0_h__ */

@@ -403,7 +403,7 @@ BE_INI_FUNCTION
   else // Use the actual spectrum object.
   {
     // Make sure the spectrum object is at the SUSY scale
-    double scale = Dep::MSSM_spectrum->get_HE().GetScale();
+    double scale = Dep::MSSM_spectrum->GetScale();
     double susy_scale = Dep::MSSM_spectrum->get(Par::mass1, "susy_scale");
     // For some reason the precision on these is different, so they won't be exactly the same
     if (fabs(scale - susy_scale) > 1e-10) backend_error().raise(LOCAL_INFO, "MSSM_spectrum dependency is not at the SUSY scale.");
@@ -420,8 +420,8 @@ BE_INI_FUNCTION
     const static bool fpterror = runOptions->getValueOrDef<bool>(true, "family_mixing_tolerance_invalidates_point_only");
     const static str SLHA1_states[18] = {"~e_L", "~e_R", "~mu_L", "~mu_R", "~u_L", "~u_R", "~d_L", "~d_R", "~c_L",
                                          "~c_R", "~s_L", "~s_R", "~t_1", "~t_2", "~b_1", "~b_2", "~tau_1", "~tau_2"};
-    for (int i = 0; i < 12; i++) slhahelp::mass_es_from_gauge_es(SLHA1_states[i], Dep::MSSM_spectrum->get_HE(), gtol, LOCAL_INFO, gpterror);
-    for (int i = 12; i < 18; i++) slhahelp::mass_es_closest_to_family(SLHA1_states[i], Dep::MSSM_spectrum->get_HE(), ftol, LOCAL_INFO, fpterror);
+    for (int i = 0; i < 12; i++) slhahelp::mass_es_from_gauge_es(SLHA1_states[i], *Dep::MSSM_spectrum, gtol, LOCAL_INFO, gpterror);
+    for (int i = 12; i < 18; i++) slhahelp::mass_es_closest_to_family(SLHA1_states[i], *Dep::MSSM_spectrum, ftol, LOCAL_INFO, fpterror);
   }
 
   // Get the W and Z widths.

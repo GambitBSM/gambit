@@ -372,6 +372,7 @@ if(EIGEN3_FOUND)
 else()
   message("${BoldRed}   Eigen v3.1.0 or greater not found.  FlexibleSUSY and GM2Calc interfaces will be excluded.${ColourReset}")
   set(itch "${itch};gm2calc;flexiblesusy")
+#TODO: remove tis when BOSSed FS works
   message(FATAL_ERROR "\nFlexibleSUSY is currently included in the GAMBIT distribution, so in fact it cannot be ditched.  Please install Eigen3.\n(Note that this will change in future GAMBIT versions, where FlexibleSUSY will be a 'true' backend.)")
 endif()
 
@@ -675,6 +676,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   endif()
 endif()
 
+#TODO: Revmoe this when BOSSed FS works
 # If SpecBit is in use, make flexiblesusy a dependency of SpecBit
 if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   add_dependencies(SpecBit flexiblesusy)

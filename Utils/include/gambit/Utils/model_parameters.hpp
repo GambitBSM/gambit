@@ -5,31 +5,31 @@
 ///  Class for holding model parameters. Defines the
 ///  basic container and get/set functions for
 ///  the model parameters. Originally adapted from
-///  SUfit version (the connection is basically gone 
+///  SUfit version (the connection is basically gone
 ///  now though.)
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Johan Lundberg (SUfit version; model_types.hpp)
 ///  \date 2011 Jul - Aug
 ///
 ///  \author Ben Farmer
-///  \date 2013 May, Jun 
-///  \date 2014 Aug:  Went through and cut out some 
+///  \date 2013 May, Jun
+///  \date 2014 Aug:  Went through and cut out some
 ///                   stuff that seemed unused: removed
 ///                   the old ModelParametersBase class
 ///                   that didn't do much; removed the
 ///                   virtualisation since nothing derives
-///                   from this class at the moment; 
-///                   incorporated the proper error 
-///                   handling system; put class 
+///                   from this class at the moment;
+///                   incorporated the proper error
+///                   handling system; put class
 ///                   definitions into a seperate source file.
 ///  \date 2015 Aug:  Added copy_parameters_from function
 ///  \date 2019 Jul:  
 ///
-///  \author Pat Scott  
+///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2013 Oct
 ///  \date 2014 Jan, Nov
@@ -46,7 +46,8 @@
 #include <iostream>
 #include "gambit/Utils/export_symbols.hpp"
 
-namespace Gambit {
+namespace Gambit
+{
 
   // Model parameter map type; used by all models
   typedef std::map<std::string, double> parameterMap;
@@ -66,11 +67,11 @@ namespace Gambit {
 
       /// Constructor using vector of strings
       ModelParameters(const std::vector<std::string>&);
-    
+
       /// Constructor using array of char arrays
       ModelParameters(const char**);
-   
-      /// Get value of named parameter 
+
+      /// Get value of named parameter
       double getValue(std::string const & inkey) const;
 
       /// Check if a parameter exists in this object
@@ -78,7 +79,7 @@ namespace Gambit {
 
       /// Get values of all parameters
       const std::map<std::string, double>& getValues() const;
-   
+
       /// Get a const iterator to the first parameter map entry
       std::map<std::string, double>::const_iterator begin() const;
 
@@ -96,7 +97,7 @@ namespace Gambit {
 
       /// Set single parameter value
       void setValue(std::string const &inkey,double const&value);
-  
+
       /// Set many parameter values using a map
       void setValues(std::map<std::string,double> const &params_map, bool missing_is_error = true);
 
@@ -134,7 +135,7 @@ namespace Gambit {
       std::string getOutputName() const;
       void setModelName (const std::string&);
       void setOutputName(const std::string&);
- 
+
     private:
 
       /// Internal map representation of parameters and their values

@@ -26,6 +26,8 @@
 
 LOAD_LIBRARY
 
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atMGUT_lightgravitino, MSSM63atQ_lightgravitino)
+
 BE_FUNCTION(FHSetFlags, void, (int&,int&,int&,int&,int&,int&,int&,int&,int&,int&,int&), "fhsetflags_", "FHSetFlags")
 
 BE_FUNCTION(FHSetDebug, void, (int&), "fhsetdebug_", "FHSetDebug")

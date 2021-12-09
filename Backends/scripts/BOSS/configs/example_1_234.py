@@ -54,6 +54,9 @@ load_functions = [
     'SomeNamespace::foo(int, SomeNamespace::ClassTwo)'
 ]
 
+load_enums = [
+]
+
 ditch = []
 
 
@@ -80,6 +83,13 @@ indent = 4
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
 known_classes = {}
+
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = [
+]
+
+ini_function_in_header = True
 
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~

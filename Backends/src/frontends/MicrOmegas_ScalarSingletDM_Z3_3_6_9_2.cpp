@@ -43,8 +43,6 @@ BE_INI_FUNCTION
      char cdmName[10];
 
      const Spectrum& spec = *Dep::ScalarSingletDM_Z3_spectrum;
-     const SubSpectrum& he = spec.get_HE();
-     const SubSpectrum& le = spec.get_LE();
      const SMInputs& sminputs = spec.get_SMInputs();
 
      int VZdecayOpt, VWdecayOpt; // 0=no 3 body final states
@@ -63,11 +61,11 @@ BE_INI_FUNCTION
 
      double mS = spec.get(Par::Pole_Mass,"S");
      double mH = spec.get(Par::Pole_Mass,"h0_1");
-     double mW = le.get(Par::Pole_Mass, "W+");
-     double lambda = he.get(Par::dimensionless,"lambda_hS");
-     double mu3 = he.get(Par::mass1,"mu3");
+     double mW = spec.get(Par::Pole_Mass, "W+");
+     double lambda = spec.get(Par::dimensionless,"lambda_hS");
+     double mu3 = spec.get(Par::mass1,"mu3");
 
-//     double v = he.get(Par::mass1,"vev");
+//     double v = spec.get(Par::mass1,"vev");
 
      error = assignVal((char*)"MS", mS);
      if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set DM mass in"
