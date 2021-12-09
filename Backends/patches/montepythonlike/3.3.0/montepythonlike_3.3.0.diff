@@ -1,0 +1,2380 @@
+diff --git a/montepython/likelihoods/BK15/__init__.py b/montepython/likelihoods/BK15/__init__.py
+new file mode 100644
+index 0000000..0ddb15f
+--- /dev/null
++++ b/montepython/likelihoods/BK15/__init__.py
+@@ -0,0 +1,363 @@
++"""
++.. module:: BK15
++    :synopsis: BK15 likelihood
++
++.. moduleauthor:: Deanna C. Hooper <deanna.hooper@ulb.ac.be>, adapted from the BK14 version (Thomas Tram <thomas.tram@port.ac.uk>)
++Last updated Mar 25, 2020. Based on the Public Release of the BK2015 data (1810.05216) and the corresponding CosmoMC module.
++"""
++
++import numpy as np
++import pandas as pd
++import scipy.linalg as la
++import montepython.io_mp as io_mp
++import os
++from functools import reduce
++from montepython.likelihood_class import Likelihood_sn
++
++T_CMB = 2.72548        # CMB temperature
++h = 6.62606957e-34     # Planck's constant
++kB = 1.3806488e-23     # Boltzmann constant
++Ghz_Kelvin = h/kB*1e9  # GHz Kelvin conversion
++
++class BK15(Likelihood_sn):
++
++    def __init__(self, path, data, command_line):
++        # Unusual construction, since the data files are not distributed
++        # alongside BK15 (size problems)
++        try:
++            # Read the .dataset file specifying the data.
++            super(BK15, self).__init__(path, data, command_line)
++        except IOError:
++            raise io_mp.LikelihoodError(
++                "The BK15 data files were not found. Please download the "
++                "data from http://bicepkeck.org/bk15_2018_release.html"
++                ", extract it, and copy the BK15 folder inside"
++                "`BK15_cosmomc/data/` to `your_montepython/data/`")
++
++        # Require tensor modes from CLASS as well as nonlinear lensing.
++        # Nonlinearities enhance the B-mode power spectrum by more than 6%
++        # at l>100. (Even more at l>2000, but not relevant to BICEP.)
++        # See http://arxiv.org/abs/astro-ph/0601594.
++        arguments = {
++            'output': 'tCl pCl lCl',
++            'lensing': 'yes',
++            'modes': 's, t',
++            'l_max_scalars': 2000,
++            'k_max_tau0_over_l_max': 7.0,
++            'non linear':'HALOFIT' if self.do_nonlinear else '',
++            'accurate_lensing':1,
++            'l_max_tensors': self.cl_lmax}
++        self.need_cosmo_arguments(data, arguments)
++
++        map_names_used = self.map_names_used.split()
++        map_fields = self.map_fields.split()
++        map_names = self.map_names.split()
++        self.map_fields_used = [maptype for i, maptype in enumerate(map_fields) if map_names[i] in map_names_used]
++
++        nmaps = len(map_names_used)
++        ncrossmaps = nmaps*(nmaps+1)//2
++        nbins = int(self.nbins)
++
++        ## This constructs a different flattening of triangular matrices.
++        ## v = [m for n in range(nmaps) for m in range(n,nmaps)]
++        ## w = [m for n in range(nmaps) for m in range(nmaps-n)]
++        ## # Store the indices in a tuple of integer arrays for later use.
++        ## self.flat_to_diag = (np.array(v),np.array(w))
++
++        # We choose the tril_indices layout for flat indexing of the triangular matrix
++        self.flat_to_diag = np.tril_indices(nmaps)
++        self.diag_to_flat = np.zeros((nmaps,nmaps),dtype='int')
++        # It is now easy to generate an array with the corresponding flattened indices. (We only fill the lower triangular part.)
++        self.diag_to_flat[self.flat_to_diag] = list(range(ncrossmaps))
++
++        # Read in bandpasses
++        self.ReadBandpasses()
++
++        # Read window bins
++        self.window_data = np.zeros((int(self.nbins),int(self.cl_lmax),ncrossmaps))
++        # Retrieve mask and index permutation of windows:
++        indices, mask = self.GetIndicesAndMask(self.bin_window_in_order.split())
++        for k in range(nbins):
++            windowfile = os.path.join(self.data_directory, self.bin_window_files.replace('%u',str(k+1)))
++            #tmp = pd.read_table(windowfile,comment='#',sep=' ',header=None, index_col=0).to_numpy()
++            tmp = pd.read_csv(windowfile,comment='#',sep=' ',header=None, index_col=0).values
++            # Apply mask
++            tmp = tmp[:,mask]
++            # Permute columns and store this bin
++            self.window_data[k][:,indices] = tmp
++        # print 'window_data',self.window_data.shape
++
++        #Read covmat fiducial
++        # Retrieve mask and index permutation for a single bin.
++        indices, mask = self.GetIndicesAndMask(self.covmat_cl.split())
++        # Extend mask and indices. Mask just need to be copied, indices needs to be increased:
++        superindices = []
++        supermask = []
++        for k in range(nbins):
++            superindices += [idx+k*ncrossmaps for idx in indices]
++            supermask += list(mask)
++        supermask = np.array(supermask)
++
++        tmp = pd.read_csv(os.path.join(self.data_directory, self.covmat_fiducial),comment='#',sep=' ',header=None,skipinitialspace=True).values
++        # Apply mask:
++        tmp = tmp[:,supermask][supermask,:]
++        print('Covmat read with shape {}'.format(tmp.shape))
++        # Store covmat in correct order
++        self.covmat = np.zeros((nbins*ncrossmaps,nbins*ncrossmaps))
++        for index_tmp, index_covmat in enumerate(superindices):
++            self.covmat[index_covmat,superindices] = tmp[index_tmp,:]
++
++        #Compute inverse and store
++        self.covmat_inverse = la.inv(self.covmat)
++        # print 'covmat',self.covmat.shape
++        # print self.covmat_inverse
++
++        nbins = int(self.nbins)
++        # Read noise:
++        self.cl_noise_matrix = self.ReadMatrix(self.cl_noise_file,self.cl_noise_order)
++
++        # Read Chat and perhaps add noise:
++        self.cl_hat_matrix = self.ReadMatrix(self.cl_hat_file,self.cl_hat_order)
++        if not self.cl_hat_includes_noise:
++            for k in range(nbins):
++                self.cl_hat_matrix[k] += self.cl_noise_matrix[k]
++
++        # Read cl_fiducial and perhaps add noise:
++        self.cl_fiducial_sqrt_matrix = self.ReadMatrix(self.cl_fiducial_file,self.cl_fiducial_order)
++        if not self.cl_fiducial_includes_noise:
++            for k in range(nbins):
++                self.cl_fiducial_sqrt_matrix[k] += self.cl_noise_matrix[k]
++        # Now take matrix square root:
++        for k in range(nbins):
++            self.cl_fiducial_sqrt_matrix[k] = la.sqrtm(self.cl_fiducial_sqrt_matrix[k])
++
++
++    def ReadMatrix(self, filename, crossmaps):
++        """
++        Read matrices for each ell-bin for all maps inside crossmaps and
++        ordered in the same way as usedmaps. Returns list of matrices.
++
++        """
++        usedmaps = self.map_names_used.split()
++        nmaps = len(usedmaps)
++        # Get mask and indices
++        indices, mask = self.GetIndicesAndMask(crossmaps.split())
++        # Read matrix in packed format
++        A = pd.read_csv(os.path.join(self.data_directory, filename),comment='#',sep=' ',header=None, index_col=0).values
++        # Apply mask
++        A = A[:,mask]
++
++        # Create matrix for each bin and unpack A:
++        Mlist = []
++        # Loop over bins:
++        for k in range(int(self.nbins)):
++            M = np.zeros((nmaps,nmaps))
++            Mflat = np.zeros((nmaps*(nmaps+1)//2))
++            Mflat[indices] = A[k,:]
++            M[self.flat_to_diag] = Mflat
++            # Symmetrise M and append to list:
++            Mlist.append(M+M.T-np.diag(M.diagonal()))
++        return Mlist
++
++    def GetIndicesAndMask(self, crossmaplist):
++        """
++        Given a list of used maps and a list of available crossmaps, find a mask
++        for the used crossmaps, and for each used crossmap, compute the falttened
++        triangular index. We must allow map1 and map2 to be interchanged.
++        If someone finds a nicer way to do this, please email me.
++        """
++        usedmaps = self.map_names_used.split()
++        nmaps = len(usedmaps)
++        mask = np.array([False for i in range(len(crossmaplist))])
++
++        flatindex = []
++        for i, crossmap in enumerate(crossmaplist):
++            map1, map2 = crossmap.split('x')
++            if map1 in usedmaps and map2 in usedmaps:
++                index1 = usedmaps.index(map1)
++                index2 = usedmaps.index(map2)
++                # This calculates the flat index in a diagonal flattening:
++                # if index1 > index2:
++                #     flatindex.append((index1-index2)*(2*nmaps+1-index1+index2)/2+index2)
++                # else:
++                #     flatindex.append((index2-index1)*(2*nmaps+1-index2+index1)/2+index1)
++                # This calculates the flat index in the standard numpy.tril_indices() way:
++                if index1 > index2:
++                    flatindex.append(index1*(index1+1)//2+index2)
++                else:
++                    flatindex.append(index2*(index2+1)//2+index1)
++                mask[i] = True
++        return flatindex, mask
++
++    def ReadBandpasses(self):
++        """
++        Read bandpasses and compute some thermodynamic quantities.
++        Everything stored in the dictionary self.bandpasses.
++        """
++        #Read bandpasses
++        self.bandpasses = {}
++        map_fields = self.map_fields.split()
++        map_names = self.map_names.split()
++        map_names_used = self.map_names_used.split()
++        for key in map_names_used:
++            self.bandpasses[key] = {'field':map_fields[map_names.index(key)],'filename':getattr(self, 'bandpass['+key+']')}
++
++        for key, valdict in self.bandpasses.items():
++            tmp = np.loadtxt(os.path.join(self.data_directory, valdict['filename']))
++            #Frequency nu, response resp:
++            valdict['nu'] = tmp[:,0]
++            valdict['resp'] = tmp[:,1]
++            valdict['dnu'] = np.gradient(valdict['nu'])
++
++            # Calculate thermodynamic temperature conversion between this bandpass
++            # and pivot frequencies 353 GHz (used for dust) and 23 GHz (used for
++            # sync).
++            th_int = np.sum(valdict['dnu']*valdict['resp']*valdict['nu']**4*np.exp(Ghz_Kelvin*valdict['nu']/T_CMB)/(np.exp(Ghz_Kelvin*valdict['nu']/T_CMB)-1.)**2)
++            nu0=353.
++            th0 = nu0**4*np.exp(Ghz_Kelvin*nu0/T_CMB) / (np.exp(Ghz_Kelvin*nu0/T_CMB) - 1.)**2
++            valdict['th353'] = th_int / th0
++            nu0=23.
++            th0 = nu0**4*np.exp(Ghz_Kelvin*nu0/T_CMB) / (np.exp(Ghz_Kelvin*nu0/T_CMB) - 1.)**2
++            valdict['th023'] = th_int / th0
++            #print 'th353:', valdict['th353'], 'th023:', valdict['th023']
++
++
++    def loglkl(self, cosmo, data):
++        """
++        Compute negative log-likelihood using the Hamimeche-Lewis formalism, see
++        http://arxiv.org/abs/arXiv:0801.0554
++        """
++        # Define the matrix transform
++        def MatrixTransform(C, Chat, CfHalf):
++            # C is real and symmetric, so we can use eigh()
++            D, U = la.eigh(C)
++            D = np.abs(D)
++            S = np.sqrt(D)
++            # Now form B = C^{-1/2} Chat C^{-1/2}. I am using broadcasting to divide rows and columns
++            # by the eigenvalues, not sure if it is faster to form the matmul(S.T, S) matrix.
++            # B = U S^{-1} V^T Chat U S^{-1} U^T
++            B = np.dot(np.dot(U,np.dot(np.dot(U.T,Chat),U)/S[:,None]/S[None,:]),U.T)
++            # Now evaluate the matrix function g[B]:
++            D, U = la.eigh(B)
++            gD = np.sign(D-1.)*np.sqrt(2.*np.maximum(0.,D-np.log(D)-1.))
++            # Final transformation. U*gD = U*gD[None,:] done by broadcasting. Collect chain matrix multiplication using reduce.
++            M = reduce(np.dot, [CfHalf,U*gD[None,:],U.T,CfHalf.T])
++            #M = np.dot(np.dot(np.dot(CfHalf,U*gD[None,:]),U.T),Cfhalf.T)
++            return M
++
++        # Recover Cl_s from CLASS, which is a dictionary, with the method
++        # get_cl from the Likelihood class, because it already makes the
++        # conversion to uK^2.
++        dict_Cls = self.get_cl(cosmo, self.cl_lmax)
++        # Make short hand expressions and remove l=0.
++        ell = dict_Cls['ell'][1:]
++        DlEE = ell*(ell+1)*dict_Cls['ee'][1:]/(2*np.pi)
++        DlBB = ell*(ell+1)*dict_Cls['bb'][1:]/(2*np.pi)
++        # Update foreground model
++        self.UpdateForegroundModel(cosmo, data)
++        #Make names and fields into lists
++        map_names = self.map_names_used.split()
++        map_fields = self.map_fields_used
++        nmaps = len(map_names)
++        ncrossmaps = nmaps*(nmaps+1)//2
++        nbins = int(self.nbins)
++        # Initialise Cls matrix to zero:
++        Cls = np.zeros((nbins,nmaps,nmaps))
++        # Initialise the X vector:
++        X = np.zeros((nbins*ncrossmaps))
++        for i in range(nmaps):
++            for j in range(i+1):
++                #If EE or BB, add theoretical prediction including foreground:
++                if map_fields[i]==map_fields[j]=='E' or map_fields[i]==map_fields[j]=='B':
++                    map1 = map_names[i]
++                    map2 = map_names[j]
++                    dust = self.fdust[map1]*self.fdust[map2]
++                    sync = self.fsync[map1]*self.fsync[map2]
++                    dustsync = self.fdust[map1]*self.fsync[map2] + self.fdust[map2]*self.fsync[map1]
++                    # if EE spectrum, multiply foregrounds by the EE/BB ratio:
++                    if map_fields[i]=='E':
++                        dust = dust * self.EEtoBB_dust
++                        sync = sync * self.EEtoBB_sync
++                        dustsync = dustsync * np.sqrt(self.EEtoBB_dust*self.EEtoBB_sync)
++                        # Deep copy is important here, since we want to reuse DlXX for each map.
++                        DlXXwithforegound = np.copy(DlEE)
++                    else:
++                        DlXXwithforegound = np.copy(DlBB)
++                    # Finally add the foreground model:
++                    DlXXwithforegound += (dust*self.dustcoeff+sync*self.synccoeff+dustsync*self.dustsynccoeff)
++                    # Apply the binning using the window function:
++                    for k in range(nbins):
++                        Cls[k,i,j] = Cls[k,j,i] = np.dot(DlXXwithforegound,self.window_data[k,:,self.diag_to_flat[i,j]])
++        # Add noise contribution:
++        for k in range(nbins):
++            Cls[k,:,:] += self.cl_noise_matrix[k]
++            # Compute entries in X vector using the matrix transform
++            T = MatrixTransform(Cls[k,:,:], self.cl_hat_matrix[k], self.cl_fiducial_sqrt_matrix[k])
++            # Add flat version of T to the X vector
++            X[k*ncrossmaps:(k+1)*ncrossmaps] = T[self.flat_to_diag]
++        # Compute chi squared
++        chi2 = np.dot(X.T,np.dot(self.covmat_inverse,X))
++        return -0.5*chi2
++
++
++    def UpdateForegroundModel(self, cosmo, data):
++        """
++        Update the foreground model.
++        """
++        # Function to compute f_dust
++        def DustScaling(beta, Tdust, bandpass):
++            # Calculates greybody scaling of dust signal defined at 353 GHz to specified bandpass.
++            nu0 = 353 #Pivot frequency for dust (353 GHz).
++            # Integrate greybody scaling and thermodynamic temperature conversion across experimental bandpass.
++            gb_int = np.sum(bandpass['dnu']*bandpass['resp']*bandpass['nu']**(3+beta)/(np.exp(Ghz_Kelvin*bandpass['nu']/Tdust) - 1))
++            # Calculate values at pivot frequency.
++            gb0 = nu0**(3+beta) / (np.exp(Ghz_Kelvin*nu0/Tdust) - 1)
++            # Calculate and return dust scaling fdust.
++            return ((gb_int / gb0) / bandpass['th353'])
++
++        # Function to compute f_sync
++        def SyncScaling(beta, bandpass):
++            #Calculates power-law scaling of synchrotron signal defined at 150 GHz to specified bandpass.
++            nu0 = 23.0 # Pivot frequency for sync (23 GHz).
++            # Integrate power-law scaling and thermodynamic temperature conversion across experimental bandpass.
++            pl_int = np.sum( bandpass['dnu']*bandpass['resp']*bandpass['nu']**(2+beta))
++            # Calculate values at pivot frequency.
++            pl0 = nu0**(2+beta)
++            # Calculate and return dust scaling fsync.
++            return ((pl_int / pl0) / bandpass['th023'])
++
++
++        ellpivot = 80.
++        ell = np.arange(1,int(self.cl_lmax)+1)
++
++        # Convenience variables: store the nuisance parameters in short named variables
++        # for parname in self.use_nuisance:
++        #     evalstring = parname+" = data.mcmc_parameters['"+parname+"']['current']*data.mcmc_parameters['"+parname+"']['scale']"
++        #     print evalstring
++        BBdust = data.mcmc_parameters['BBdust']['current']*data.mcmc_parameters['BBdust']['scale']
++        BBsync = data.mcmc_parameters['BBsync']['current']*data.mcmc_parameters['BBsync']['scale']
++        BBalphadust = data.mcmc_parameters['BBalphadust']['current']*data.mcmc_parameters['BBalphadust']['scale']
++        BBbetadust = data.mcmc_parameters['BBbetadust']['current']*data.mcmc_parameters['BBbetadust']['scale']
++        BBTdust = data.mcmc_parameters['BBTdust']['current']*data.mcmc_parameters['BBTdust']['scale']
++        BBalphasync = data.mcmc_parameters['BBalphasync']['current']*data.mcmc_parameters['BBalphasync']['scale']
++        BBbetasync = data.mcmc_parameters['BBbetasync']['current']*data.mcmc_parameters['BBbetasync']['scale']
++        BBdustsynccorr = data.mcmc_parameters['BBdustsynccorr']['current']*data.mcmc_parameters['BBdustsynccorr']['scale']
++
++        # Store current EEtoBB conversion parameters.
++        self.EEtoBB_dust = data.mcmc_parameters['EEtoBB_dust']['current']*data.mcmc_parameters['EEtoBB_dust']['scale']
++        self.EEtoBB_sync = data.mcmc_parameters['EEtoBB_sync']['current']*data.mcmc_parameters['EEtoBB_sync']['scale']
++
++        # Compute fdust and fsync for each bandpass
++        self.fdust = {}
++        self.fsync = {}
++        for key, bandpass in self.bandpasses.items():
++            self.fdust[key] = DustScaling(BBbetadust, BBTdust, bandpass)
++            self.fsync[key] = SyncScaling(BBbetasync, bandpass)
++
++        # Computes coefficients such that the foreground model is simply
++        # dust*self.dustcoeff+sync*self.synccoeff+dustsync*self.dustsynccoeff
++        # These coefficients are independent of the map used,
++        # so we save some time by computing them here.
++        self.dustcoeff = BBdust*(ell/ellpivot)**BBalphadust
++        self.synccoeff = BBsync*(ell/ellpivot)**BBalphasync
++        self.dustsynccoeff = BBdustsynccorr*np.sqrt(BBdust*BBsync)*(ell/ellpivot)**(0.5*(BBalphadust+BBalphasync))
+diff --git a/montepython/likelihoods/BK15priors/BK15priors.data b/montepython/likelihoods/BK15priors/BK15priors.data
+new file mode 100644
+index 0000000..3b4426e
+--- /dev/null
++++ b/montepython/likelihoods/BK15priors/BK15priors.data
+@@ -0,0 +1,7 @@
++# Values for Hubble Space Telescope (following Astro-ph/1103.2976)
++BK15priors.use_nuisance = ['BBbetadust', 'BBbetasync']
++
++BK15priors.mean_BBbetadust = 1.59
++BK15priors.sigma_BBbetadust = 0.11
++BK15priors.mean_BBbetasync = -3.1
++BK15priors.sigma_BBbetasync = 0.3
+diff --git a/montepython/likelihoods/BK15priors/__init__.py b/montepython/likelihoods/BK15priors/__init__.py
+new file mode 100644
+index 0000000..8d96ef1
+--- /dev/null
++++ b/montepython/likelihoods/BK15priors/__init__.py
+@@ -0,0 +1,14 @@
++import os
++from montepython.likelihood_class import Likelihood_prior
++
++
++class BK15priors(Likelihood_prior):
++
++    # initialisation of the class is done within the parent Likelihood_prior. For
++    # this case, it does not differ, actually, from the __init__ method in
++    # Likelihood class.
++    def loglkl(self, cosmo, data):
++        BBbetadust = data.mcmc_parameters['BBbetadust']['current']*data.mcmc_parameters['BBbetadust']['scale']
++        BBbetasync = data.mcmc_parameters['BBbetasync']['current']*data.mcmc_parameters['BBbetasync']['scale']
++        loglkl = -0.5 * (BBbetadust - self.mean_BBbetadust) ** 2 / (self.sigma_BBbetadust ** 2) -0.5 * (BBbetasync - self.mean_BBbetasync) ** 2 / (self.sigma_BBbetasync ** 2)
++        return loglkl
+diff --git a/input/BK15.param b/input/BK15.param
+new file mode 100644
+index 0000000..8f7ac8f
+--- /dev/null
++++ b/input/BK15.param
+@@ -0,0 +1,78 @@
++# Example parameter file for using the BK15 likelihood, by D.C.Hooper.
++# Note that to use this likelihood, you first need to download the
++# data files from http://bicepkeck.org/bk15_2018_release.html and
++# move them to the directory data/BK15.
++
++#------Experiments to test (separated with commas)-----
++
++data.experiments=['BK15', 'BK15priors']
++
++data.over_sampling=[1, 20]
++
++#------ Parameter list -------
++# data.parameters[class name] = [mean, min, max, 1-sigma, scale, role]
++# - if min max irrelevant, put to -1 or None (if you want a boundary of -1, use -1.0)
++# - if fixed, put 1-sigma to 0
++# - if scale irrelevant, put to 1, otherwise to the appropriate factor
++# - role is either 'cosmo', 'nuisance' or 'derived'
++
++# Cosmological parameters list
++# BK data does not independently constrain the LCDM params, so for this example they are fixed
++
++data.parameters['r']             = [  0.06, 0.0, 0.5,   0.04,    1, 'cosmo']
++
++# List of nuisance params of BK15, with a description
++# dust power at ell=80, nu=353 GHz [uK^2]
++data.parameters['BBdust']         = [   3.,   0.,  15.,  0.1, 1, 'nuisance']
++# sync power at ell=80, nu=23 GHz [uK^2]
++data.parameters['BBsync']         = [   1.,   0.,  50.,   1., 1, 'nuisance']
++# dust spatial power spectrum power law index
++data.parameters['BBalphadust']    = [-0.42, -1.0,   0., 0.01, 1, 'nuisance']
++# dust SED power law index
++data.parameters['BBbetadust']     = [ 1.59, 1.04, 2.14, 0.02, 1, 'nuisance']
++# sync spatial power specturm power law index
++data.parameters['BBalphasync']    = [ -0.6, -1.0,   0., 0.01, 1, 'nuisance']
++# sync SED power law index
++data.parameters['BBbetasync']     = [ -3.1, -4.5, -2.0, 0.02, 1, 'nuisance']
++# correlation between dust and sync
++data.parameters['BBdustsynccorr'] = [  0.2, -1.0,  1.0, 0.01, 1, 'nuisance']
++# dust blackbody temperature [K] -- fixed / very insensitive to this
++data.parameters['BBTdust']        = [ 19.6, 19.6, 19.6,  0.0, 1, 'nuisance']
++# dust dust correlation ratio between 217 and 353 GHz, ell=80 --new
++data.parameters['Delta_dust']     = [  1.0,  1.0,  1.0,  0.0, 1, 'nuisance']
++# sync correlation ratio between 23 and 33 GHz, ell=80 --new
++data.parameters['Delta_sync']     = [  1.0,  1.0,  1.0,  0.0, 1, 'nuisance']
++# Band center errors, fixed to zero --new in BK15
++data.parameters['gamma_corr']     = [  0.0,  0.0,  0.0,  0.0, 1, 'nuisance']
++data.parameters['gamma_95']       = [  0.0,  0.0,  0.0,  0.0, 1, 'nuisance']
++data.parameters['gamma_150']      = [  0.0,  0.0,  0.0,  0.0, 1, 'nuisance']
++data.parameters['gamma_220']      = [  0.0,  0.0,  0.0,  0.0, 1, 'nuisance']
++# EE/BB ratios -- fixed / only used if E-modes are turned on
++data.parameters['EEtoBB_dust']    = [  2.0,  2.0,  2.0,    0, 1, 'nuisance']
++data.parameters['EEtoBB_sync']    = [  2.0,  2.0,  2.0,    0, 1, 'nuisance']
++
++
++# Derived parameter list
++#data.parameters['z_reio']       = [0,       -1, -1, 0,1,  'derived']
++#data.parameters['Omega_Lambda'] = [0,       -1, -1, 0,1,  'derived']
++
++
++# Fix cosmological parameter values to match Fig. 4 of BKVI
++data.cosmo_arguments['n_t'] = 0.
++data.cosmo_arguments['alpha_t'] = 0.
++data.cosmo_arguments['n_s'] = 0.9619123
++data.cosmo_arguments['omega_b'] = 0.0220323
++data.cosmo_arguments['omega_cdm'] = 0.1203761
++data.cosmo_arguments['tau_reio'] = 0.0924518
++data.cosmo_arguments['YHe'] = 0.2476949
++data.cosmo_arguments['H0'] = 67.00439
++#data.cosmo_arguments['100*theta_s'] = 1.0411
++data.cosmo_arguments['ln10^{10}A_s'] = 3.1
++
++
++#------ Mcmc parameters ----
++# Number of steps taken, by default (overwritten by the -N command)
++data.N=10
++# Number of accepted steps before writing to file the chain. Larger means less
++# access to disc, but this is not so much time consuming.
++data.write_step=5
+diff --git a/montepython/parser_mp.py b/montepython/parser_mp.py
+index 24a0370..a6b5a7f 100644
+--- a/montepython/parser_mp.py
++++ b/montepython/parser_mp.py
+@@ -21,6 +21,12 @@
+ import warnings
+ import io_mp
+ 
++# (JR) removed some routines related to parsing command line arguments which
++# are not python3 compatible. We don't need to parse any command line arguments
++# in GAMBIT so I just deleted them to avoid errors in likelihoods that 
++# import parser_mp. (kids and kv)
++# If these python3 issues are fixed in a later version of MP, this patch can be 
++# removed. 
+ 
+ # -- custom Argument Parser that throws an io_mp.ConfigurationError
+ # -- for unified look within montepython
+@@ -120,7 +126,7 @@
+         raise ap.ArgumentTypeError(msg)
+ 
+ 
+-def parse_docstring(docstring, key_symbol="<**>", description_symbol="<++>"):
++'''def parse_docstring(docstring, key_symbol="<**>", description_symbol="<++>"):
+     """
+     Extract from the docstring the keys and description, return it as a dict
+ 
+@@ -162,7 +168,7 @@
+         raise ValueError(msg.format(key_symbol, description_symbol))
+ 
+     helpdict = dict(zip(keys, descriptions))
+-    return helpdict
++    return helpdict'''
+ 
+ 
+ def custom_help(split_string="<++>"):
+@@ -245,51 +251,6 @@
+     return sparser
+ 
+ 
+-def get_dict_from_docstring(key_symbol="<**>", description_symbol="<++>"):
+-    """
+-    Create the decorator
+-
+-    Parameters
+-    ----------
+-    key_symbol : str
+-        identifies the key of a argument/option
+-    description_symbol: str
+-        identify the description of a argument/option
+-
+-    Returns
+-    ------
+-    wrapper: function
+-    """
+-    def wrapper(func):
+-        """
+-        Decorator that wraps the function that implement the parser, parses the
+-        `__doc__` and construct a dictionary with the help strings.  The
+-        dictionary is added as an attribute of `func` and can be accessed in
+-        the function
+-
+-        Parameters
+-        ----------
+-        func: function
+-            function with the docs to be parsed
+-
+-        Returns
+-        ------
+-        func: function
+-            function with the dictionary added. *key_symbol* and
+-            *description_symbol* strings are removed
+-        """
+-        docstring = func.__doc__
+-        helpdict = parse_docstring(
+-            docstring, key_symbol=key_symbol,
+-            description_symbol=description_symbol)
+-        func.helpdict = helpdict
+-        # remove markers
+-        docstring = docstring.replace(key_symbol, '')
+-        func.__doc__ = docstring.replace(description_symbol, '')
+-        return func
+-    return wrapper
+-
+-
+ def initialise_parser(**kwargs):
+     """
+     Create the argument parser and returns it
+@@ -317,714 +278,6 @@
+     return p
+ 
+ 
+-@get_dict_from_docstring()
+-def create_parser():
+-    """
+-    Definition of the parser command line options
+-
+-    The main parser has so far two subparsers, corresponding to the two main
+-    modes of operating the code, namely `run` and `info`. If you simply call
+-    :code:`python montepython/MontePython.py -h`, you will find only this piece
+-    of information. To go further, and find the command line options specific
+-    to these two submodes, one should then do: :code:`python
+-    montepython/MontePython.py run -h`, or :code:`info -h`.
+-
+-    All command line arguments are defined below, for each of the two
+-    subparsers. This function create the automatic help command.
+-
+-    Each flag outputs the following argument to a destination variable,
+-    specified by the `dest` keyword argument in the source code. Please check
+-    there to understand the variable names associated with each option.
+-
+-    Options
+-    -------
+-
+-    **run**
+-
+-        <**>-N<**> : int
+-            <++>number of steps in the chain<++> (**OBL**). Note that when
+-            running on a cluster, your run might be stopped before reaching
+-            this number.<++>
+-        <**>-o<**> : str
+-            <++>output folder<++> (**OBL**). For instance :code:`-o
+-            chains/myexperiments/mymodel`. Note that in this example, the
+-            folder :code:`chains/myexperiments` must already exist.<++>
+-        <**>-p<**> : str
+-            <++>input parameter file<++> (**OBL**). For example :code:`-p
+-            input/exoticmodel.param`.<++>
+-        <**>-c<**> : str
+-            <++>input covariance matrix<++> (*OPT*). A covariance matrix is
+-            created when analyzing previous runs.
+-
+-            Note that the list of parameters in the input covariance matrix and
+-            in the run do not necessarily coincide.<++>
+-        <**>-j<**> : str
+-            <++>jumping method<++> (`global`, `sequential` or `fast` (default))
+-            (*OPT*).
+-
+-            With the `global` method the code generates a new random direction
+-            at each step, with the `sequential` one it cycles over the
+-            eigenvectors of the proposal density (= input covariance matrix).
+-
+-            The `global` method the acceptance rate is usually lower but the
+-            points in the chains are less correlated. We recommend using the
+-            sequential method to get started in difficult cases, when the
+-            proposal density is very bad, in order to accumulate points and
+-            generate a covariance matrix to be used later with the `default`
+-            jumping method.
+-
+-            The `fast` method (default) implements the Cholesky decomposition
+-            presented in http://arxiv.org/abs/1304.4473 by Antony Lewis.<++>
+-        <**>-m<**> : str
+-            <++>sampling method<++>, by default 'MH' for Metropolis-Hastings,
+-            can be set to 'NS' for MultiNest (using Multinest wrapper
+-            PyMultiNest), 'PC' for PolyChord (using PolyChord wrapper
+-            PyPolyChord), 'CH' for Cosmo Hammer (using the Cosmo Hammer wrapper
+-            to emcee algorithm), and finally 'IS' for importance sampling.
+-
+-            Note that when running with Importance sampling, you need to
+-            specify a folder to start from.<++>
+-        <**>--update<**> : int
+-            <++>Enabled by default. Method for periodic update of the covariance
+-            matrix. Input: covmat update frequency for Metropolis Hastings.<++>
+-            If greater than zero, number of steps after which the proposal
+-            covariance matrix is updated automatically (recommended: 50). This
+-            number is then multiplied by the cycle length (N_slow + f_fast * N_fast),
+-            where N_slow is the number of slow parameters, f_fast is the over sampling
+-            for each fast block and N_fast is the number of parameters for each fast
+-            block. Leaving this option enabled should help speed up convergence.
+-            Can set to zero to disable, i.e. if starting from a good covmat.
+-
+-            The Markovian properties of the MCMC are maintained by the MontePython
+-            analyze module, which will only analyze steps after the last covariance
+-            matrix update.
+-
+-            Criteria for updating covariance matrix: max(R-1) between 0.4 and 3.
+-
+-            Note: the covmat saved to the folder is the last updated one.
+-            Use this covmat for restarting chains.<++>
+-        <**>--superupdate<**> : int
+-            <++>Disabled by default. Method for updating jumping factor and covariance
+-            matrix for Metropolis Hastings. Input: Number of steps to wait after updating
+-            the covmat before adapting the jumping factor. Enable to speed up convergence.<++>
+-            For optimizing the acceptance rate. If enabled, should be set to at
+-            least 20 (recommended: 20). This number is then multiplied by the cycle length
+-            (N_slow + f_fast * N_fast), where N_slow is the number of slow parameters, f_fast
+-            is the over sampling for each fast block and N_fast is the number of
+-            parameters for each fast block.
+-
+-            The Markovian properties of the MCMC are maintained by the MontePython
+-            analyze module, which will only analyze steps after the last covariance
+-            matrix update and last step where the jumping factor was changed.
+-
+-            Criteria for updating covariance matrix: max(R-1) between 0.4 and 3.
+-            Adapting jumping factor stops when above criteria is not fulfilled, plus
+-            the acceptance rate of (26 +/- 1) percent is achieved, and the jumping factor
+-            changed by less than 1 percent compared to the mean of the last superupdate
+-            times cycle length (N_slow + f_fast * N_fast) steps.
+-
+-            The target acceptance rate and tolerance for that criterium can be
+-            customized with --superupdate-ar and --superupdate-ar-tol.
+-
+-            Note: the covmat saved to the folder is the last updated one.
+-            Use this covmat for restarting chains (*OPT*).<++>
+-        <**>--superupdate-ar<**> : float
+-            <++>For use with --superupdate. Target acceptance rate.<++>
+-            For customizing superupdate (Default: 0.26) (*OPT*).<++>
+-        <**>--superupdate-ar-tol<**> : float
+-            <++>For use with --superupdate. Tolerance for target acceptance rate.<++>
+-            For customizing superupdate (Default: 0.01) (*OPT*).<++>
+-        <**>--adaptive<**> : int
+-            <++>Disabled by default. Method for continuous adaptation of covariance matrix
+-            and jumping factor. Input: Starting step for adaptive Metropolis Hastings.<++>
+-            If greater than zero, number of steps after which the proposal covariance
+-            matrix is updated automatically (recommended: 10*dimension) (*OPT*).
+-
+-            The Markovian properties of the MCMC is not guaranteed, but as the change
+-            of the covariance matrix and jumping factor is gradual and decreases over
+-            time, the ergodic properties of the chain remains.
+-
+-            Not compatible with multiple chains. TODO: Implement adaptive for MPI.(*OPT*)<++>
+-        <**>--adaptive-ts<**> : int
+-            <++>For use with --adaptive. Starting step for adapting the jumping factor.<++>
+-            For optimizing the acceptance rate (recommended: 100*dimension) (*OPT*).<++>
+-        <**>-f<**> : float
+-            <++>jumping factor<++> (>= 0, default to 2.4) (*OPT*).
+-
+-            The proposal density is given by the input covariance matrix (or a
+-            diagonal matrix with elements given by the square of the input
+-            sigma's) multiplied by the square of this factor. In other words, a
+-            typical jump will have an amplitude given by sigma times this
+-            factor.
+-
+-            The default is the famous factor 2.4, advertised by Dunkley
+-            et al. to be an optimal trade-off between high acceptance rate and
+-            high correlation of chain elements, at least for multivariate
+-            gaussian posterior probabilities. It can be a good idea to reduce
+-            this factor for very non-gaussian posteriors.
+-
+-            Using :code:`-f 0 -N 1` is a convenient way to get the likelihood
+-            exactly at the starting point passed in input.<++>
+-        <**>-T<**> : float
+-            <++>Sample from the probability distribution P^(1/T) instead of P.<++>
+-            (*OPT*)<++>
+-        <**>--conf<**> : str
+-            <++>configuration file<++> (default to `default.conf`) (*OPT*).
+-            This file contains the path to your cosmological module
+-            directory.<++>
+-        <**>--chain-number<**> : str
+-            <++>user-assigned number for the output chain<++>, to overcome the
+-            automatic one (*OPT*).
+-
+-            By default, the chains are named :code:`yyyy-mm-dd_N__i.txt` with
+-            year, month and day being extracted, :code:`N` being the number of
+-            steps, and :code:`i` an automatically updated index.
+-
+-            This means that running several times the code with the same
+-            command will create different chains automatically.
+-
+-            This option is a way to enforce a particular number :code:`i`.
+-            This can be useful when running on a cluster: for instance you may
+-            ask your script to use the job number as :code:`i`.<++>
+-        <**>-r<**> : str
+-            <++>restart from last point in chain<++>, to avoid the burn-in
+-            stage or increase sample size (*OPT*). You must pass the lowest
+-            index chains file, e.g. -r chains/test_run/1969-10-05_10000__1.txt .
+-            MontePython will then create copies of all chains index 1 through
+-            M (number of MPI processes) with new names including -N more steps
+-            1969-10-05_20000__1.txt etc. Once the chains have been copied
+-            the old chains can be moved to a backup folder or deleted. Note
+-            they will be automatically deleted at the completion of the run
+-            (if the desired number of steps passed with -N is reached). The
+-            old chains should not be included as a part of the analysis.<++>
+-        <**>-b<**> : str
+-            <++>start a new chain from the bestfit file<++> computed with
+-            analyze.  (*OPT*)<++>
+-        <**>--minimize<**> : None
+-            <++>Minimize the log likelihood before starting the engine or the fisher<++>.
+-            Instead of starting the chains or centering the Fisher calculation on the model
+-            passed through the input parameter file or through the .bestfit file, find the
+-            minimum of the log likelihood up to some tolerance<++>
+-        <**>--minimize-tol<**> : float
+-            <++>Tolerance for minimize algorithm<++>.
+-            Used by option --minimize (Default: 0.00001)<++>
+-        <**>--fisher<**> : None
+-            <++>Calculates the Fisher matrix, its inverse, and then stop<++>.
+-            The inverse Fisher matrix can be used as a proposal distribution covmat,
+-            or to make plots with Fisher ellipses.<++>
+-        <**>--fisher-asymmetric<**> : bool
+-            <++>Use asymmetric steps for Fisher matrix computation<++>,
+-            used by option --fisher (Default: False). Slows down computation.
+-            May help in cases where the parameter space boundary is reached.<++>
+-        <**>--fisher-step-it<**> : int
+-            <++>Have the Fisher matrix calculation iterate the step-size<++>.
+-            Used by option --fisher (Default: 10). The step-size will be
+-            interated until reaching the desired delta log-likelihood specified
+-            by --fisher-delta, within the tolerance given by --fisher-tol.<++>
+-        <**>--fisher-delta<**> : float
+-            <++>Target -deltaloglkl for fisher step iteration<++>.
+-            Used by option --fisher (Default: 0.1)<++>
+-        <**>--fisher-tol<**> : float
+-            <++>Tolerance for -deltaloglkl for fisher step iteration<++>.
+-            Used by option --fisher (Default: 0.05)<++>
+-        <**>--fisher-sym-lkl<**> : float
+-            <++>Threshold for when to assume a symmetric likelihood<++>.
+-            Used by option --fisher (Default: 0.1). Sets the threshold
+-            (in units of sigma) for when to switch to the symmetric
+-            likelihood assumption, i.e. do likelihood evaluations in
+-            one direction of parameter space (e.g. positive) and mirror
+-            the value for the other direction. Useful for parameters
+-            where the best fit of the likelihood is close to a boundary.
+-
+-            WARNING: causes problems if multiple parameters use the
+-            symmetric likelihood assumption. In this case we need to
+-            switch to a one-sided derivative computation (instead of
+-            two-sided with mirroring), which has not been implemented.<++>
+-        <**>--silent<**> : None
+-            <++>silence the standard output<++> (useful when running on
+-            clusters)<++>
+-        <**>--Der-target-folder<**> : str
+-            <++>Add additional derived params to this folder<++>. It has to be
+-            used in conjunction with `Der-param-list`, and the method set to
+-            Der: :code:`-m Der`. (*OPT*)<++>
+-        <**>--Der-param-list<**> : str
+-            <++>Specify a number of derived parameters to be added<++>. A
+-            complete example would be to add Omega_Lambda as a derived
+-            parameter:
+-            :code:`python montepython/MontePython.py run -o existing_folder
+-            -m Der --Der-target-folder non_existing_folder --Der-param-list
+-            Omega_Lambda`<++>
+-        <**>--IS-starting-folder<**> : str
+-            <++>Perform Importance Sampling from this folder or set of
+-            chains<++> (*OPT*)<++>
+-        <**>--stop-after-update<**> : bool
+-            <++>When using update mode, stop run after updating the covariant matrix.<++>
+-            Useful if you want to change settings after the first guess (*OPT*) (flag)<++>
+-        <**>--display-each-chi2<**> : bool
+-            <++>Shows the effective chi2 from each likelihood and the total.<++>
+-            Useful e.g. if you run at the bestfit point with -f 0 (flag)<++>
+-        <**>--parallel-chains<**> : bool
+-            <++>Option for when running parallel without MPI<++>.
+-            Informs the code you are running parallel chains. This
+-            information is useful if superupdate is enabled. Will
+-            use only one process to adapt the jumping factor.
+-            If relaunching in the same folder or restarting a run
+-            and the file jumping_factor.txt already exists it will
+-            cause all chains to be assigned as slaves. In this case
+-            instead note the value in jumping_factor.txt, delete the
+-            file, and pass the value with flag -f <value>. A warning
+-            may still appear, but you can safely disregard it.
+-            <++>
+-
+-        For MultiNest, PolyChord and Cosmo Hammer arguments, see
+-        :mod:`MultiNest`, :mod:`PolyChord` and :mod:`cosmo_hammer`.
+-
+-    **info**
+-
+-              Replaces the old **-info** command, which is deprecated but still
+-              available.
+-
+-        <**>files<**> : string/list of strings
+-            <++>you can specify either single files, or a complete folder<++>,
+-            for example :code:`info chains/my-run/2012-10-26*`, or :code:`info
+-            chains/my-run`.
+-
+-            If you specify several folders (or set of files), a comparison
+-            will be performed.<++>
+-        <**>--minimal<**> : None
+-            <++>use this flag to avoid computing the posterior
+-            distribution.<++> This will decrease the time needed for the
+-            analysis, especially when analyzing big folders.<++>
+-        <**>--bins<**> : int
+-            <++>number of bins in the histograms<++> used to derive posterior
+-            probabilities and credible intervals (default to 20). Decrease this
+-            number for smoother plots at the expense of masking details.<++>
+-        <**>-T<**> : float
+-            <++>Raise posteriors to the power T.<++>
+-            Interpret the chains as samples from the probability distribution
+-            P^(1/T) instead of P. (*OPT*)<++>
+-        <**>--no-mean<**> : None
+-            <++>Deprecated: remove the mean likelihood from the plot<++>. By
+-            default, when plotting marginalised 1D posteriors, the code does
+-            not show the mean likelihood per bin with dashed lines; this flag
+-            used to switches off the dashed lines.<++>
+-        <**>--plot-mean<**> : None
+-            <++>plot the mean likelihood from the plot<++>. By default, when
+-            plotting marginalised 1D posteriors, the code does not show the mean
+-            likelihood per bin with dashed lines; this flag switches on the
+-            dashed lines.<++>
+-        <**>--short-title-1d<**> : None
+-            <++>short 1D plot titles<++>. Remove mean and confidence limits above each 1D plots.<++>
+-        <**>--extra<**> : str
+-            <++>extra file to customize the output plots<++>. You can actually
+-            set all the possible options in this file, including line-width,
+-            ticknumber, ticksize, etc... You can specify four fields,
+-            `info.redefine` (dict with keys set to the previous variable, and
+-            the value set to a numerical computation that should replace this
+-            variable), `info.to_change` (dict with keys set to the old variable
+-            name, and value set to the new variable name), `info.to_plot` (list
+-            of variables with new names to plot), and `info.new_scales` (dict
+-            with keys set to the new variable names, and values set to the
+-            number by which it should be multiplied in the graph). For
+-            instance,
+-
+-            .. code::
+-
+-                info.to_change={'oldname1':'newname1','oldname2':'newname2',...}
+-                info.to_plot=['name1','name2','newname3',...]
+-                info.new_scales={'name1':number1,'name2':number2,...}
+-            <++>
+-        <**>--noplot<**> : bool
+-            <++>do not produce any plot, simply compute the posterior<++>
+-            (*OPT*) (flag)<++>
+-        <**>--noplot-2d<**> : bool
+-            <++>produce only the 1d posterior plot<++> (*OPT*) (flag)<++>
+-        <**>--noplot-2d-diag<**> : bool
+-            <++>produce 2d contours without 1d posterior plot<++> (*OPT*) (flag)<++>
+-        <**>--contours-only<**> : bool
+-            <++>do not fill the contours on the 2d plots<++> (*OPT*) (flag)<++>
+-        <**>--all<**> : None
+-            <++>output every subplot and data in separate files<++> (*OPT*)
+-            (flag)<++>
+-        <**>--ext<**> : str
+-            <++>change the extension for the output file. Any extension handled
+-            by :code:`matplotlib` can be used<++>. (`pdf` (default), `png`
+-            (faster))<++>
+-        <**>--num-columns-1d<**> : int
+-            <++>for 1d plot, number of plots per horizontal raw; if 'None' this is set automatically<++> (trying to approach a square plot).<++>
+-        <**>--fontsize<**> : int
+-            <++>desired fontsize<++> (default to 16)<++>
+-        <**>--ticksize<**> : int
+-            <++>desired ticksize<++> (default to 14)<++>
+-        <**>--line-width<**> : int
+-            <++>set line width<++> (default to 4)<++>
+-        <**>--decimal<**> : int
+-            <++>number of decimal places on ticks<++> (default to 3)<++>
+-        <**>--ticknumber<**> : int
+-            <++>number of ticks on each axis<++> (default to 3)<++>
+-        <**>--legend-style<**> : str
+-            <++>specify the style of the legend<++>, to choose from `sides` or
+-            `top`.<++>
+-        <**>--keep-non-markovian<**> : bool
+-            <++>Use this flag to keep the non-markovian part of the chains produced
+-            at the beginning of runs with --update and --superupdate mode (default: False)<++>
+-            This option is only relevant when the chains were produced with --update or --superupdate (*OPT*) (flag)<++>
+-        <**>--keep-only-markovian<**> : bool
+-            <++>Use this flag to keep only the truly markovian part of the chains produced
+-             with --superupdate mode, where the jumping factor has stopped adapting (default: False)<++>
+-            This option is only relevant when the chains were produced with --superupdate (*OPT*) (flag)<++>
+-        <**>--keep-fraction<**> : float
+-            <++>after burn-in removal, analyze only last fraction of each chain. (default: 1)<++>
+-            (between 0 and 1). Normally one would not use this for runs with --update mode,
+-            unless --keep-non-markovian is switched on (*OPT*)<++>
+-        <**>--want-covmat<**> : bool
+-            <++>calculate the covariant matrix when analyzing the chains. (default: False)<++>
+-            Warning: this will interfere with ongoing runs utilizing update mode (*OPT*) (flag)<++>
+-        <**>--gaussian-smoothing<**> : float
+-            <++>width of gaussian smoothing for plotting posteriors (default: 0.5)<++>,
+-            in units of bin size, increase for smoother data<++>
+-        <**>--interpolation-smoothing<**> : int
+-            <++>interpolation factor for plotting posteriors (default: 4)<++>,
+-            1 means no interpolation, increase for smoother curves<++>
+-        <**>--posterior-smoothing<**> : int
+-            <++>smoothing scheme for 1d posteriors (default: 5)<++>,
+-            0 means no smoothing, 1 means cubic interpolation, higher means fitting ln(L) with polynomial of order n<++>
+-        <**>--plot-fisher<**> : None
+-            <++>Tries to add Fisher ellipses to contour plots<++>,
+-            if a previous run has produced a Fisher matrix and stored it.<++>
+-        <**>--center-fisher<**> : None
+-            <++>Centers Fisher ellipse on bestfit of last set of chains,<++>,
+-            instead of the center values of the log.param<++>
+-
+-    Returns
+-    -------
+-    args : NameSpace
+-        parsed input arguments
+-
+-    """
+-    helpdict = create_parser.helpdict
+-    # Customized usage, for more verbosity concerning these subparsers options.
+-    usage = """%(prog)s [-h] [--version] {run,info} ... """
+-    usage += tw.dedent("""\n
+-        From more help on each of the subcommands, type:
+-        %(prog)s run -h
+-        %(prog)s info -h\n\n""")
+-
+-    # parser = ap.ArgumentParser(
+-    #parser = MpArgumentParser(
+-        #formatter_class=ap.ArgumentDefaultsHelpFormatter,
+-        #description='Monte Python, a Monte Carlo code in Python',
+-        #usage=usage)
+-    parser = initialise_parser(
+-        description='Monte Python, a Monte Carlo code in Python', usage=usage)
+-
+-    # -- add the subparsers
+-    subparser = parser.add_subparsers(dest='subparser_name')
+-
+-    ###############
+-    # run the MCMC
+-    runparser = add_subparser(subparser, 'run', help="run the MCMC chains")
+-
+-    # -- number of steps (OPTIONAL)
+-    runparser.add_argument('-N', help=helpdict['N'], type=positive_int,
+-                           dest='N')
+-    # -- output folder (OBLIGATORY)
+-    runparser.add_argument('-o', '--output', help=helpdict['o'], type=str,
+-                           dest='folder')
+-    # -- parameter file (OBLIGATORY)
+-    runparser.add_argument('-p', '--param', help=helpdict['p'],
+-                           type=existing_file, dest='param')
+-    # -- covariance matrix (OPTIONAL)
+-    runparser.add_argument('-c', '--covmat', help=helpdict['c'],
+-                           type=existing_file, dest='cov')
+-    # -- jumping method (OPTIONAL)
+-    runparser.add_argument('-j', '--jumping', help=helpdict['j'],
+-                           dest='jumping', default='fast',
+-                           choices=['global', 'sequential', 'fast'])
+-    # -- sampling method (OPTIONAL)
+-    runparser.add_argument('-m', '--method', help=helpdict['m'],
+-                           dest='method', default='MH',
+-                           choices=['MH', 'NS', 'PC', 'CH', 'IS', 'Der', 'Fisher'])
+-    # -- update Metropolis Hastings (OPTIONAL)
+-    runparser.add_argument('--update', help=helpdict['update'], type=int,
+-                           dest='update', default=50)
+-    # -- update Metropolis Hastings with an adaptive jumping factor (OPTIONAL)
+-    runparser.add_argument('--superupdate', help=helpdict['superupdate'], type=int,
+-                           dest='superupdate', default=0)
+-    # -- superupdate acceptance rate argument (OPTIONAL)
+-    runparser.add_argument('--superupdate-ar', help=helpdict['superupdate-ar'], type=float,
+-                           dest='superupdate_ar', default=0.26)
+-    # -- superupdate acceptance rate tolerance argument (OPTIONAL)
+-    runparser.add_argument('--superupdate-ar-tol', help=helpdict['superupdate-ar-tol'], type=float,
+-                           dest='superupdate_ar_tol', default=0.01)
+-    # -- adaptive jumping factor Metropolis Hastings (OPTIONAL)
+-    runparser.add_argument('--adaptive', help=helpdict['adaptive'], type=int,
+-                           dest='adaptive', default=0)
+-    # -- adaptive ts argument (OPTIONAL)
+-    runparser.add_argument('--adaptive-ts', help=helpdict['adaptive-ts'], type=int,
+-                           dest='adaptive_ts', default=1000)
+-
+-    # -- jumping factor (OPTIONAL)
+-    runparser.add_argument('-f', help=helpdict['f'], type=float,
+-                           dest='jumping_factor', default=2.4)
+-    # -- temperature (OPTIONAL)
+-    runparser.add_argument('-T', help=helpdict['T'], type=float,
+-                           dest='temperature', default=1.0)
+-    # -- minimize (OPTIONAL)
+-    runparser.add_argument('--minimize', help=helpdict['minimize'],
+-                           action='store_true')
+-    # -- minimize argument, minimization tolerance (OPTIONAL)
+-    runparser.add_argument('--minimize-tol', help=helpdict['minimize-tol'], type=float,
+-                           dest='minimize_tol', default=0.00001)
+-    # -- fisher (OPTIONAL)
+-    runparser.add_argument('--fisher', help=helpdict['fisher'],
+-                           action='store_true')
+-    # -- fisher argument (OPTIONAL)
+-    runparser.add_argument('--fisher-asymmetric', help=helpdict['fisher-asymmetric'],
+-                           dest='fisher_asymmetric',action='store_true')
+-    # -- fisher step iteration (OPTIONAL)
+-    runparser.add_argument('--fisher-step-it', help=helpdict['fisher-step-it'],
+-                           dest='fisher_step_it', default=10)
+-    # -- fisher step iteration argument, -deltaloglkl target (OPTIONAL)
+-    runparser.add_argument('--fisher-delta', help=helpdict['fisher-delta'], type=float,
+-                           dest='fisher_delta', default=0.1)
+-    # -- fisher step iteration argument, -deltaloglkl tolerance (OPTIONAL)
+-    runparser.add_argument('--fisher-tol', help=helpdict['fisher-tol'], type=float,
+-                           dest='fisher_tol', default=0.05)
+-    # -- fisher symmetric likelihood assumption threshold (OPTIONAL)
+-    runparser.add_argument('--fisher-sym-lkl', help=helpdict['fisher-sym-lkl'], type=float,
+-                           dest='fisher_sym_lkl', default=0.1)
+-    # -- configuration file (OPTIONAL)
+-    runparser.add_argument('--conf', help=helpdict['conf'],
+-                           type=str, dest='config_file',
+-                           default='default.conf')
+-    # -- arbitrary numbering of an output chain (OPTIONAL)
+-    runparser.add_argument('--chain-number', help=helpdict['chain-number'])
+-    # -- stop run after first successful update using --update (EXPERIMENTAL)
+-    runparser.add_argument('--stop-after-update', help=helpdict['stop-after-update'],
+-                           dest='stop_after_update', action='store_true')
+-    # display option
+-    runparser.add_argument('--display-each-chi2', help=helpdict['display-each-chi2'],
+-                           dest='display_each_chi2', action='store_true')
+-    # -- parallel chains without MPI (OPTIONAL)
+-    runparser.add_argument('--parallel-chains', help=helpdict['parallel-chains'],
+-                           action='store_true')
+-
+-    ###############
+-    # MCMC restart from chain or best fit file
+-    runparser.add_argument('-r', '--restart', help=helpdict['r'],
+-                           type=existing_file, dest='restart')
+-    runparser.add_argument('-b', '--bestfit', dest='bf', help=helpdict['b'],
+-                           type=existing_file)
+-
+-    ###############
+-    # Silence the output (no print on the console)
+-    runparser.add_argument('--silent', help=helpdict['silent'],
+-                           action='store_true')
+-    ###############
+-    # Adding new derived parameters to a run
+-    runparser.add_argument(
+-        '--Der-target-folder', dest="Der_target_folder",
+-        help=helpdict['Der-target-folder'], type=str, default='')
+-    runparser.add_argument(
+-        '--Der-param-list', dest='derived_parameters',
+-        help=helpdict['Der-param-list'], type=str, default='', nargs='+')
+-
+-    ###############
+-    # Importance Sampling Arguments
+-    runparser.add_argument(
+-        '--IS-starting-folder', dest='IS_starting_folder',
+-        help=helpdict['IS-starting-folder'], type=str, default='', nargs='+')
+-
+-    ###############
+-    # We need the following so the run does not crash if one of the external
+-    # samplers is not correctly installed despite not being used
+-    from contextlib import contextmanager
+-    import sys, os
+-
+-    @contextmanager
+-    def suppress_stdout():
+-        with open(os.devnull, "w") as devnull:
+-            old_stdout = sys.stdout
+-            sys.stdout = devnull
+-            try:
+-                yield
+-            finally:
+-                sys.stdout = old_stdout
+-
+-    ###############
+-    # MultiNest arguments (all OPTIONAL and ignored if not "-m=NS")
+-    # The default values of -1 mean to take the PyMultiNest default values
+-    try:
+-        with suppress_stdout():
+-            from MultiNest import NS_prefix, NS_user_arguments
+-        NSparser = runparser.add_argument_group(
+-            title="MultiNest",
+-            description="Run the MCMC chains using MultiNest"
+-            )
+-        for arg in NS_user_arguments:
+-            NSparser.add_argument('--'+NS_prefix+arg,
+-                                  default=-1,
+-                                  **NS_user_arguments[arg])
+-    except ImportError:
+-        # Not defined if not installed
+-        pass
+-    except:
+-        warnings.warn('PyMultiNest detected but MultiNest likely not installed correctly. '
+-                      'You can safely ignore this if not running with option -m NS')
+-
+-    ###############
+-    # PolyChord arguments (all OPTIONAL and ignored if not "-m=PC")
+-    # The default values of -1 mean to take the PyPolyChord default values
+-    try:
+-        with suppress_stdout():
+-             from PolyChord import PC_prefix, PC_user_arguments
+-        PCparser = runparser.add_argument_group(
+-            title="PolyChord",
+-            description="Run the MCMC chains using PolyChord"
+-            )
+-        for arg in PC_user_arguments:
+-            PCparser.add_argument('--'+PC_prefix+arg,
+-                                  default=-1,
+-                                  **PC_user_arguments[arg])
+-    except ImportError:
+-        # Not defined if not installed
+-        pass
+-    except:
+-        warnings.warn('PyPolyChord detected but PolyChord likely not installed correctly. '
+-                      'You can safely ignore this if not running with option -m PC')
+-
+-    ###############
+-    # CosmoHammer arguments (all OPTIONAL and ignored if not "-m=CH")
+-    # The default values of -1 mean to take the CosmoHammer default values
+-    try:
+-        with suppress_stdout():
+-            from cosmo_hammer import CH_prefix, CH_user_arguments
+-        CHparser = runparser.add_argument_group(
+-            title="CosmoHammer",
+-            description="Run the MCMC chains using the CosmoHammer framework")
+-        for arg in CH_user_arguments:
+-            CHparser.add_argument('--'+CH_prefix+arg,
+-                                  default=-1,
+-                                  **CH_user_arguments[arg])
+-    except ImportError:
+-        # Not defined if not installed
+-        pass
+-    except:
+-        warnings.warn('CosmoHammer detected but emcee likely not installed correctly. '
+-                      'You can safely ignore this if not running with option -m CH')
+-
+-    ###############
+-    # Information
+-    infoparser = add_subparser(subparser, 'info',
+-                               help="analyze the MCMC chains")
+-
+-    # -- folder to analyze
+-    infoparser.add_argument('files', help=helpdict['files'],
+-                            nargs='+')
+-    # Silence the output (no print on the console)
+-    infoparser.add_argument('--silent', help=helpdict['silent'],
+-                            action='store_true')
+-    # -- to only write the covmat and bestfit, without computing the posterior
+-    infoparser.add_argument('--minimal', help=helpdict['minimal'],
+-                            action='store_true')
+-    # -- number of bins (defaulting to 20)
+-    infoparser.add_argument('--bins', help=helpdict['bins'],
+-                            type=int, default=20)
+-    # -- temperature (OPTIONAL)
+-    infoparser.add_argument('-T', help=helpdict['T'], type=float,
+-                           dest='temperature', default=1.0)
+-    # -- deprecated: remove the mean-likelihood line
+-    infoparser.add_argument('--no-mean', help=helpdict['no-mean'],
+-                            dest='mean_likelihood_old', action='store_false')
+-    # -- plot the mean-likelihood line
+-    infoparser.add_argument('--plot-mean', help=helpdict['plot-mean'],
+-                            dest='mean_likelihood', action='store_true')
+-    # -- to remove the mean and 68% limits on top of each 1D plot
+-    infoparser.add_argument('--short-title-1d', help=helpdict['short-title-1d'],
+-                            dest='short_title_1d', action='store_true')
+-    # -- possible plot file describing custom commands
+-    infoparser.add_argument('--extra', help=helpdict['extra'],
+-                            dest='optional_plot_file', default='')
+-    # -- if you just want the covariance matrix, use this option
+-    infoparser.add_argument('--noplot', help=helpdict['noplot'],
+-                            dest='plot', action='store_false')
+-    # -- if you just want to output 1d posterior distributions (faster)
+-    infoparser.add_argument('--noplot-2d', help=helpdict['noplot-2d'],
+-                            dest='plot_2d', action='store_false')
+-    # -- if you just want to output triangle with 2d contours
+-    infoparser.add_argument('--noplot-2d-diag', help=helpdict['noplot-2d-diag'],
+-                            dest='plot_diag', action='store_false')
+-    # -- when plotting 2d posterior distribution, use contours and not contours
+-    # filled (might be useful when comparing several folders)
+-    infoparser.add_argument('--contours-only', help=helpdict['contours-only'],
+-                            dest='contours_only', action='store_true')
+-    # -- if you want to output every single subplots
+-    infoparser.add_argument('--all', help=helpdict['all'], dest='subplot',
+-                            action='store_true')
+-    # -- to change the extension used to output files (pdf is the default one,
+-    # but takes long, valid options are png and eps)
+-    infoparser.add_argument('--ext', help=helpdict['ext'],
+-                            type=str, dest='extension', default='pdf')
+-    # -- to set manually the number of plots per hoorizontal raw in 1d plot
+-    infoparser.add_argument('--num-columns-1d', help=helpdict['num-columns-1d'],
+-                            type=int, dest='num_columns_1d')
+-    # -- also analyze the non-markovian part of the chains
+-    infoparser.add_argument('--keep-non-markovian', help=helpdict['keep-non-markovian'],
+-                            dest='markovian', action='store_false')
+-    # -- force only analyzing the markovian part of the chains
+-    infoparser.add_argument('--keep-only-markovian', help=helpdict['keep-only-markovian'],
+-                            dest='only_markovian', action='store_true')
+-    # -- fraction of chains to be analyzed after burn-in removal (defaulting to 1.0)
+-    infoparser.add_argument('--keep-fraction', help=helpdict['keep-fraction'],
+-                            type=float, dest='keep_fraction', default=1.0)
+-    # -- calculate the covariant matrix when analyzing the chains
+-    infoparser.add_argument('--want-covmat', help=helpdict['want-covmat'],
+-                            dest='want_covmat', action='store_true')
+-    # -------------------------------------
+-    # Further customization
+-    # -- fontsize of plots (defaulting to 16)
+-    infoparser.add_argument('--fontsize', help=helpdict['fontsize'],
+-                            type=int, default=16)
+-    # -- ticksize of plots (defaulting to 14)
+-    infoparser.add_argument('--ticksize', help=helpdict['ticksize'],
+-                            type=int, default=14)
+-    # -- linewidth of 1d plots (defaulting to 4, 2 being a bare minimum for
+-    # legible graphs
+-    infoparser.add_argument('--line-width', help=helpdict['line-width'],
+-                            type=int, default=4)
+-    # -- number of decimal places that appear on the tick legend. If you want
+-    # to increase the number of ticks, you should reduce this number
+-    infoparser.add_argument('--decimal', help=helpdict['decimal'], type=int,
+-                            default=3)
+-    # -- number of ticks that appear on the graph.
+-    infoparser.add_argument('--ticknumber', help=helpdict['ticknumber'],
+-                            type=int, default=3)
+-    # -- legend type, to choose between top (previous style) to sides (new
+-    # style). It modifies the place where the name of the variable appear.
+-    infoparser.add_argument('--legend-style', help=helpdict['legend-style'],
+-                            type=str, choices=['sides', 'top'],
+-                            default='sides')
+-    # -- width of gaussian smoothing for plotting posteriors,
+-    # in units of bin size, increase for smoother data.
+-    infoparser.add_argument('--gaussian-smoothing', help=helpdict['gaussian-smoothing'],
+-                            type=float, default=0.5)
+-    # interpolation factor for plotting posteriors, 1 means no interpolation,
+-    # increase for smoother curves (it means that extra bins are created
+-    # and interpolated between computed bins)
+-    infoparser.add_argument('--interpolation-smoothing', help=helpdict['interpolation-smoothing'],
+-                            type=int, default=4)
+-    # -- plot Fisher ellipses
+-    infoparser.add_argument('--plot-fisher', help=helpdict['plot-fisher'],
+-                           dest='plot_fisher',action='store_true')
+-    infoparser.add_argument('--center-fisher', help=helpdict['center-fisher'],
+-                           dest='center_fisher',action='store_true')
+-
+-    infoparser.add_argument('--posterior-smoothing', help=helpdict['posterior-smoothing'],
+-                            type=int, default=5)
+-
+-    return parser
+-
+ 
+ def parse(custom_command=''):
+     """
+--- a/montepython/likelihood_class.py
++++ b/montepython/likelihood_class.py
+@@ -2049,7 +2049,10 @@ def loglkl(self, cosmo, data):
+                 P_lin = np.interp(self.kh, self.k_fid, P)
+ 
+         elif self.use_sdssDR7:
+-            kh = np.logspace(math.log(1e-3),math.log(1.0),num=(math.log(1.0)-math.log(1e-3))/0.01+1,base=math.exp(1.0)) # k in h/Mpc
++
++            # (JR) use geomspace as logspace gives differnt results in python3
++            kh = np.geomspace(1e-3,1,num=int((math.log(1.0)-math.log(1e-3))/0.01)+1)
++
+             # Rescale the scaling factor by the fiducial value for h divided by the sampled value
+             # h=0.701 was used for the N-body calibration simulations
+             scaling = scaling * (0.701/h)
+@@ -2488,7 +2491,10 @@ def read_matrix(self, path):
+             immediatly, though.
+ 
+         """
+-        from pandas import read_table
++        # (JR) fixed python 2/3 issues, read_table deprecated, 
++        #  use read_csv instead
++        from pandas import read_csv
++        
+         path = os.path.join(self.data_directory, path)
+         # The first line should contain the length.
+         with open(path, 'r') as text:
+@@ -2497,7 +2503,7 @@ def read_matrix(self, path):
+         # Note that this function does not require to skiprows, as it
+         # understands the convention of writing the length in the first
+         # line
+-        matrix = read_table(path).as_matrix().reshape((length, length))
++        matrix = read_csv(path).values.reshape((length, length))
+ 
+         return matrix
+ 
+@@ -2511,7 +2517,9 @@ def read_light_curve_parameters(self):
+             the covariance matrices stored in C00, etc...
+ 
+         """
+-        from pandas import read_table
++        # (JR) fixed python 2/3 issues when readin in matrix
++        from pandas import read_csv
++        
+         path = os.path.join(self.data_directory, self.data_file)
+ 
+         # Recover the names of the columns. The names '3rdvar' and 'd3rdvar'
+@@ -2521,8 +2529,9 @@ def read_light_curve_parameters(self):
+             names = [e.strip().replace('3rd', 'third')
+                      for e in clean_first_line.split()]
+ 
+-        lc_parameters = read_table(
++        lc_parameters = read_csv(
+             path, sep=' ', names=names, header=0, index_col=False)
++
+         return lc_parameters
+ 
+ 
+diff --git a/montepython/likelihoods/BK14/__init__.py b/montepython/likelihoods/BK14/__init__.py
+index eb9bf0d..2fe29f1 100644
+--- a/montepython/likelihoods/BK14/__init__.py
++++ b/montepython/likelihoods/BK14/__init__.py
+@@ -11,6 +11,7 @@
+ import montepython.io_mp as io_mp
+ import os
+ from montepython.likelihood_class import Likelihood_sn
++from functools import reduce # for python3 compatibility
+ 
+ T_CMB = 2.7255     #CMB temperature
+ h = 6.62606957e-34     #Planck's constant
+@@ -54,7 +55,7 @@ def __init__(self, path, data, command_line):
+         self.map_fields_used = [maptype for i, maptype in enumerate(map_fields) if map_names[i] in map_names_used]
+         
+         nmaps = len(map_names_used)
+-        ncrossmaps = nmaps*(nmaps+1)/2
++        ncrossmaps = nmaps*(nmaps+1)//2
+         nbins = int(self.nbins)
+ 
+         ## This constructs a different flattening of triangular matrices.
+@@ -78,7 +79,9 @@ def __init__(self, path, data, command_line):
+         indices, mask = self.GetIndicesAndMask(self.bin_window_in_order.split())
+         for k in range(nbins):
+             windowfile = os.path.join(self.data_directory, self.bin_window_files.replace('%u',str(k+1)))
+-            tmp = pd.read_table(windowfile,comment='#',sep=' ',header=None, index_col=0).as_matrix()
++            #tmp = pd.read_table(windowfile,comment='#',sep=' ',header=None, index_col=0).as_matrix()
++            # (JR) changed for python3 compatibility
++            tmp = pd.read_csv(windowfile,comment='#',sep=' ',header=None, index_col=0).values
+             # Apply mask
+             tmp = tmp[:,mask]
+             # Permute columns and store this bin
+@@ -96,7 +99,7 @@ def __init__(self, path, data, command_line):
+             supermask += list(mask)
+         supermask = np.array(supermask)
+         
+-        tmp = pd.read_table(os.path.join(self.data_directory, self.covmat_fiducial),comment='#',sep=' ',header=None,skipinitialspace=True).as_matrix()
++        tmp = pd.read_csv(os.path.join(self.data_directory, self.covmat_fiducial),comment='#',sep=' ',header=None,skipinitialspace=True).values
+         # Apply mask:
+         tmp = tmp[:,supermask][supermask,:]
+         print('Covmat read with shape',tmp.shape)
+@@ -141,7 +144,8 @@ def ReadMatrix(self, filename, crossmaps):
+         # Get mask and indices
+         indices, mask = self.GetIndicesAndMask(crossmaps.split())
+         # Read matrix in packed format
+-        A = pd.read_table(os.path.join(self.data_directory, filename),comment='#',sep=' ',header=None, index_col=0).as_matrix()
++        A = pd.read_csv(os.path.join(self.data_directory, filename),comment='#',sep=' ',header=None, index_col=0).values
++
+         # Apply mask
+         A = A[:,mask]
+ 
+@@ -257,7 +261,7 @@ def MatrixTransform(C, Chat, CfHalf):
+         map_names = self.map_names_used.split()
+         map_fields = self.map_fields_used
+         nmaps = len(map_names)
+-        ncrossmaps = nmaps*(nmaps+1)/2
++        ncrossmaps = nmaps*(nmaps+1)//2
+         nbins = int(self.nbins)
+         # Initialise Cls matrix to zero:
+         Cls = np.zeros((nbins,nmaps,nmaps))
+diff --git a/montepython/likelihoods/BK15/BK15.data b/montepython/likelihoods/BK15/BK15.data
+new file mode 100644
+index 0000000..25c6a2a
+diff --git a/montepython/likelihoods/CFHTLens/__init__.py b/montepython/likelihoods/CFHTLens/__init__.py
+index 07735c6..aa8b49e 100644
+--- a/montepython/likelihoods/CFHTLens/__init__.py
++++ b/montepython/likelihoods/CFHTLens/__init__.py
+@@ -8,7 +8,7 @@ def __init__(self, path, data, command_line):
+         Likelihood.__init__(self, path, data, command_line)
+ 
+         self.need_cosmo_arguments(data, {'output': 'mPk'})
+-        self.need_cosmo_arguments(data, {'P_k_max_h/Mpc': '1.'})
++        self.need_cosmo_arguments(data, {'P_k_max_h/Mpc': 1.})
+ 
+     # compute likelihood
+     def loglkl(self, cosmo, data):
+diff --git a/montepython/likelihoods/CFHTLens_correlation/__init__.py b/montepython/likelihoods/CFHTLens_correlation/__init__.py
+index 1b6761b..3a3315c 100644
+--- a/montepython/likelihoods/CFHTLens_correlation/__init__.py
++++ b/montepython/likelihoods/CFHTLens_correlation/__init__.py
+@@ -69,7 +69,7 @@ def __init__(self, path, data, command_line):
+                 raise io_mp.LikelihoodError("File not found:\n %s"%window_file_path)
+ 
+         # Read measurements of xi+ and xi-
+-        nt = (self.nbin)*(self.nbin+1)/2
++        nt = (self.nbin)*(self.nbin+1)//2
+         self.theta_bins = np.zeros(2*self.ntheta)
+         self.xi_obs = np.zeros(self.ntheta*nt*2)
+         xipm_file_path = os.path.join(
+@@ -249,7 +249,7 @@ def __init__(self, path, data, command_line):
+         self.alpha = np.zeros((self.nlmax, self.nzmax), 'float64')
+         if 'epsilon' in self.use_nuisance:
+             self.E_th_nu = np.zeros((self.nlmax, self.nzmax), 'float64')
+-        self.nbin_pairs = self.nbin*(self.nbin+1)/2
++        self.nbin_pairs = self.nbin*(self.nbin+1)//2
+         self.Cl_integrand = np.zeros((self.nzmax, self.nbin_pairs), 'float64')
+         self.Cl = np.zeros((self.nlmax, self.nbin_pairs), 'float64')
+         if self.theoretical_error != 0:
+@@ -430,6 +430,6 @@ def loglkl(self, cosmo, data):
+     # into 1D sums over one index with N(N+1)/2 possible values
+     def one_dim_index(self,Bin1,Bin2):
+         if Bin1 <= Bin2:
+-            return Bin2+self.nbin*Bin1-(Bin1*(Bin1+1))/2
++            return Bin2+self.nbin*Bin1-(Bin1*(Bin1+1))//2
+         else:
+-            return Bin1+self.nbin*Bin2-(Bin2*(Bin2+1))/2
++            return Bin1+self.nbin*Bin2-(Bin2*(Bin2+1))//2
+diff --git a/montepython/likelihoods/Pantheon/__init__.py b/montepython/likelihoods/Pantheon/__init__.py
+index 1c85222..c694b53 100644
+--- a/montepython/likelihoods/Pantheon/__init__.py
++++ b/montepython/likelihoods/Pantheon/__init__.py
+@@ -56,6 +56,34 @@ def __init__(self, path, data, command_line):
+         # Reading light-curve parameters from self.data_file (lcparam_full_long.txt)
+         self.light_curve_params = self.read_light_curve_parameters()
+ 
++        # (JR) the following steps can be computed in the initialisation step
++        #      as they do not depend on the point in parameter-space
++        #   -> likelihood evaluation is 30% faster
++        # Compute the covariance matrix
++        # The module numexpr is used for doing quickly the long multiplication
++        # of arrays (factor of 3 improvements over numpy). It is used as a
++        # replacement of blas routines cblas_dcopy and cblas_daxpy
++        # For numexpr to work, we need (seems like a bug, but anyway) to create
++        # local variables holding the arrays. This cost no time (it is a simple
++        # pointer assignment)
++        C00 = self.C00
++        covm = ne.evaluate("C00")
++
++        sn = self.light_curve_params
++
++        # Update the diagonal terms of the covariance matrix with the
++        # statistical error
++        covm += np.diag(sn.dmb**2)
++
++        # Whiten the residuals, in two steps
++        # 1) Compute the Cholesky decomposition of the covariance matrix, in
++        # place. This is a time expensive (0.015 seconds) part -> (JR) do it 
++        # in init step, then! needed to be done for each point in JLA likelihood, 
++        # but here alpha and beta are no nuisance params anymore and the covmat does
++        # not change  
++        self.cov = la.cholesky(covm, lower=True, overwrite_a=True)
++        # step 2) depends on point in parameter space -> done in loglkl calculation
++
+     def loglkl(self, cosmo, data):
+         """
+         Compute negative log-likelihood (eq.15 Betoule et al. 2014)
+@@ -78,16 +106,6 @@ def loglkl(self, cosmo, data):
+         M = (data.mcmc_parameters['M']['current'] *
+              data.mcmc_parameters['M']['scale'])
+ 
+-        # Compute the covariance matrix
+-        # The module numexpr is used for doing quickly the long multiplication
+-        # of arrays (factor of 3 improvements over numpy). It is used as a
+-        # replacement of blas routines cblas_dcopy and cblas_daxpy
+-        # For numexpr to work, we need (seems like a bug, but anyway) to create
+-        # local variables holding the arrays. This cost no time (it is a simple
+-        # pointer assignment)
+-        C00 = self.C00
+-        cov = ne.evaluate("C00")
+-
+         # Compute the residuals (estimate of distance moduli - exact moduli)
+         residuals = np.empty((size,))
+         sn = self.light_curve_params
+@@ -97,17 +115,8 @@ def loglkl(self, cosmo, data):
+         # Remove from the approximate moduli the one computed from CLASS
+         residuals -= moduli
+ 
+-        # Update the diagonal terms of the covariance matrix with the
+-        # statistical error
+-        cov += np.diag(sn.dmb**2)
+-
+-        # Whiten the residuals, in two steps
+-        # 1) Compute the Cholesky decomposition of the covariance matrix, in
+-        # place. This is a time expensive (0.015 seconds) part
+-        cov = la.cholesky(cov, lower=True, overwrite_a=True)
+-
+         # 2) Solve the triangular system, also time expensive (0.02 seconds)
+-        residuals = la.solve_triangular(cov, residuals, lower=True, check_finite=False)
++        residuals = la.solve_triangular(self.cov, residuals, lower=True, check_finite=False)
+ 
+         # Finally, compute the chi2 as the sum of the squared residuals
+         chi2 = (residuals**2).sum()
+diff --git a/montepython/likelihoods/WiggleZ/__init__.py b/montepython/likelihoods/WiggleZ/__init__.py
+index 18c20cb..b4e0dde 100644
+--- a/montepython/likelihoods/WiggleZ/__init__.py
++++ b/montepython/likelihoods/WiggleZ/__init__.py
+@@ -31,12 +31,12 @@ def __init__(self, path, data, command_line):
+ 
+         Likelihood.__init__(self, path, data, command_line)
+ 
+-        # This obscure command essentially creates dynamically 4 likelihoods,
+-        # respectively called WiggleZ_a, b, c and d, inheriting from
+-        # Likelihood_mpk.
+-        for elem in ['a', 'b', 'c', 'd']:
+-            exec("WiggleZ_%s = type('WiggleZ_%s', (Likelihood_mpk, ), {})" % \
+-                (elem, elem))
++        # (JR) initialise each element explicitly, for loop ini with exec()
++        # does not work with python3
++        WiggleZ_a = type('WiggleZ_a', (Likelihood_mpk, ), {})
++        WiggleZ_b = type('WiggleZ_b', (Likelihood_mpk, ), {})
++        WiggleZ_c = type('WiggleZ_c', (Likelihood_mpk, ), {})
++        WiggleZ_d = type('WiggleZ_d', (Likelihood_mpk, ), {})
+ 
+         # Initialize one after the other the four independent redshift bins (note:
+         # the order in the array self.redshift_bins_files) must be respected !
+diff --git a/montepython/likelihoods/bao_fs_boss_dr12/__init__.py b/montepython/likelihoods/bao_fs_boss_dr12/__init__.py
+index b3f5f85..104fb6a 100644
+--- a/montepython/likelihoods/bao_fs_boss_dr12/__init__.py
++++ b/montepython/likelihoods/bao_fs_boss_dr12/__init__.py
+@@ -15,8 +15,8 @@ def __init__(self, path, data, command_line):
+ 
+         # needed arguments in order to get sigma_8(z) up to z=1 with correct precision
+         self.need_cosmo_arguments(data, {'output': 'mPk'})
+-        self.need_cosmo_arguments(data, {'P_k_max_h/Mpc': '1.'})
+-        self.need_cosmo_arguments(data, {'z_max_pk': '1.'})
++        self.need_cosmo_arguments(data, {'P_k_max_h/Mpc': 1.})
++        self.need_cosmo_arguments(data, {'z_max_pk': 1.})
+ 
+         # are there conflicting experiments?
+         if 'bao_boss_aniso' in data.experiments:
+@@ -93,7 +93,7 @@ def loglkl(self, cosmo, data):
+ 
+         # compute chi squared
+         inv_cov_data = np.linalg.inv(self.cov_data)
+-        chi2 = np.log(np.dot(np.dot(data_array,inv_cov_data),data_array))
++        chi2 = np.dot(np.dot(data_array,inv_cov_data),data_array)
+ 
+         # return ln(L)
+         loglkl = - 0.5 * chi2
+diff --git a/montepython/likelihoods/bicep2/__init__.py b/montepython/likelihoods/bicep2/__init__.py
+index c67c19e..ae18d83 100644
+--- a/montepython/likelihoods/bicep2/__init__.py
++++ b/montepython/likelihoods/bicep2/__init__.py
+@@ -3,7 +3,9 @@
+ from montepython.likelihood_class import Likelihood
+ import montepython.io_mp as io_mp
+ # import the python package of the BICEP2 collaboration
+-import bicep_util as bu
++import sys 
++sys.path.append('.')
++from . import bicep_util as bu
+ 
+ 
+ class bicep2(Likelihood):
+diff --git a/montepython/likelihoods/bicep2/bicep_util.py b/montepython/likelihoods/bicep2/bicep_util.py
+index 770fd0f..f33200b 100644
+--- a/montepython/likelihoods/bicep2/bicep_util.py
++++ b/montepython/likelihoods/bicep2/bicep_util.py
+@@ -21,6 +21,11 @@
+ import numpy as np
+ from numpy import linalg as LA
+ from scipy.linalg import sqrtm
++import io_mp
++
++import sys
++if not sys.version_info[0] < 3:
++    from past.builtins import xrange
+ 
+ #####################################################################
+ def get_bpwf(exp='bicep1', root=''):
+@@ -43,7 +48,7 @@ def get_bpwf(exp='bicep1', root=''):
+         print('window functions must be in the root_directory/windows/')
+         print('bicep2 window functions available at http://bicepkeck.org/bicep2_2014_release')
+         print('bicep1 window functions available at bicep.rc.fas.harvard.edu/bicep1_3yr')
+-        raise IOError()
++        raise OSError()
+ 
+     # Initialize array so it's just like our Matlab version
+     bpwf_Cs_l = np.zeros([ncol, 9, 6])
+@@ -54,10 +59,10 @@ def get_bpwf(exp='bicep1', root=''):
+         try:
+             data = np.loadtxt(
+                 os.path.join(root, window_file))
+-        except IOError:
++        except OSError:
+             print("Error reading  %s." % window_file +
+                   "Make sure it is in root directory")
+-            raise IOError()
++            raise OSError()
+         bpwf_Cs_l[:, i, 0] = data[:, 1]   # TT -> TT
+         bpwf_Cs_l[:, i, 1] = data[:, 2]   # TE -> TE
+         bpwf_Cs_l[:, i, 2] = data[:, 3]   # EE -> EE
+@@ -163,8 +168,8 @@ def read_data_products_bandpowers(exp='bicep1', root=""):
+ 
+     values = list()
+     try:
+-        fin = file(os.path.join(root, file_in), 'r')
+-    except IOerror:
++        fin = open(os.path.join(root, file_in), 'r')
++    except OSError:
+         print("Error reading %s. Make sure it is in root directory" %file_in)
+     for line in fin:
+         if "#" not in line:
+@@ -203,7 +208,7 @@ def read_M(exp='bicep1', root=""):
+ 
+     try:
+         data = np.loadtxt(os.path.join(root, file_in))
+-    except IOError:
++    except OSError:
+         print("Error reading %s. Make sure it is in working directory" %file_in)
+ 
+     # HACK because file_in = "B2_3yr_bpcm_no-sysuncer_20140226.txt"  has different format
+@@ -255,7 +260,7 @@ def vecp(mat):
+ 
+     dim = mat.shape[0]
+ 
+-    vec = np.zeros((dim*(dim+1)/2))
++    vec = np.zeros((dim*(dim+1)//2))
+     counter = 0
+     for iDiag in range(0,dim):
+         vec[counter:counter+dim-iDiag] = np.diag(mat,iDiag)
+@@ -345,7 +350,7 @@ def init(experiment, field, root=""):
+ 
+     # initialize bandpower arrays
+     nf = len(field)
+-    dim = nf*(nf+1)/2
++    dim = nf*(nf+1)//2
+     C_l_hat = np.zeros((9, nf, nf))
+     C_fl = np.zeros((9, nf, nf))
+     N_l = np.zeros((9, nf, nf))
+diff --git a/montepython/likelihoods/kids450_cf_likelihood_public/__init__.py b/montepython/likelihoods/kids450_cf_likelihood_public/__init__.py
+index d67745c..e38b792 100644
+--- a/montepython/likelihoods/kids450_cf_likelihood_public/__init__.py
++++ b/montepython/likelihoods/kids450_cf_likelihood_public/__init__.py
+@@ -94,7 +94,7 @@ def __init__(self, path, data, command_line):
+         self.l = np.exp(self.dlnl * np.arange(self.nlmax))
+ 
+         self.nzbins = len(self.z_bins_min)
+-        self.nzcorrs = self.nzbins * (self.nzbins + 1) / 2
++        self.nzcorrs = self.nzbins * (self.nzbins + 1) // 2
+ 
+         # Create labels for loading of dn/dz-files:
+         self.zbin_labels = []
+@@ -796,6 +796,6 @@ def loglkl(self, cosmo, data):
+     # into 1D sums over one index with N(N+1)/2 possible values
+     def one_dim_index(self, Bin1, Bin2):
+         if Bin1 <= Bin2:
+-            return Bin2 + self.nzbins * Bin1 - (Bin1 * (Bin1 + 1)) / 2
++            return Bin2 + self.nzbins * Bin1 - (Bin1 * (Bin1 + 1)) // 2
+         else:
+-            return Bin1 + self.nzbins * Bin2 - (Bin2 * (Bin2 + 1)) / 2
++            return Bin1 + self.nzbins * Bin2 - (Bin2 * (Bin2 + 1)) // 2
+diff --git a/montepython/likelihoods/kids450_qe_likelihood_public/__init__.py b/montepython/likelihoods/kids450_qe_likelihood_public/__init__.py
+index 87d92c6..4f264e7 100755
+--- a/montepython/likelihoods/kids450_qe_likelihood_public/__init__.py
++++ b/montepython/likelihoods/kids450_qe_likelihood_public/__init__.py
+@@ -37,6 +37,7 @@ def __init__(self, path, data, command_line):
+         Likelihood.__init__(self, path, data, command_line)
+ 
+         # Check if the data can be found
++        print("Trying to read %s", self.data_directory+'Resetting_bias/parameters_B_mode_model.dat')
+         try:
+             fname = os.path.join(self.data_directory, 'Resetting_bias/parameters_B_mode_model.dat')
+             parser_mp.existing_file(fname)
+@@ -62,7 +63,7 @@ def __init__(self, path, data, command_line):
+         # number of z-bins
+         self.nzbins = len(self.redshift_bins)
+         # number of *unique* correlations between z-bins
+-        self.nzcorrs = self.nzbins * (self.nzbins + 1) / 2
++        self.nzcorrs = self.nzbins * (self.nzbins + 1) // 2
+ 
+         all_bands_EE_to_use = []
+         all_bands_BB_to_use = []
+diff --git a/montepython/likelihoods/kv450_cf_likelihood_public/__init__.py b/montepython/likelihoods/kv450_cf_likelihood_public/__init__.py
+index 24a0370..a6b5a7f 100644
+--- a/montepython/likelihoods/kv450_cf_likelihood_public/__init__.py
++++ b/montepython/likelihoods/kv450_cf_likelihood_public/__init__.py
+@@ -115,7 +115,7 @@ def __init__(self, path, data, command_line):
+         #print(self.l.min(), self.l.max(), self.l.shape)
+ 
+         self.nzbins = len(self.z_bins_min)
+-        self.nzcorrs = self.nzbins * (self.nzbins + 1) / 2
++        self.nzcorrs = self.nzbins * (self.nzbins + 1) // 2
+ 
+         # Create labels for loading of dn/dz-files:
+         self.zbin_labels = []
+@@ -449,8 +449,8 @@ def __load_public_data_vector(self):
+         """
+ 
+         # plus one for theta-column
+-        data_xip = np.zeros((self.ntheta, self.nzcorrs + 1))
+-        data_xim = np.zeros((self.ntheta, self.nzcorrs + 1))
++        data_xip = np.zeros(((self.ntheta), (self.nzcorrs) + 1))
++        data_xim = np.zeros(((self.ntheta), (self.nzcorrs) + 1))
+         idx_corr = 0
+         for zbin1 in xrange(self.nzbins):
+             for zbin2 in xrange(zbin1, self.nzbins):
+@@ -1310,6 +1310,6 @@ def loglkl(self, cosmo, data):
+     # into 1D sums over one index with N(N+1)/2 possible values
+     def one_dim_index(self, Bin1, Bin2):
+         if Bin1 <= Bin2:
+-            return Bin2 + self.nzbins * Bin1 - (Bin1 * (Bin1 + 1)) / 2
++            return Bin2 + self.nzbins * Bin1 - (Bin1 * (Bin1 + 1)) // 2
+         else:
+-            return Bin1 + self.nzbins * Bin2 - (Bin2 * (Bin2 + 1)) / 2
++            return Bin1 + self.nzbins * Bin2 - (Bin2 * (Bin2 + 1)) // 2
+diff --git a/montepython/likelihoods/sh0es/__init__.py b/montepython/likelihoods/sh0es/__init__.py
+new file mode 100644
+index 0000000..d68e868
+--- /dev/null
++++ b/montepython/likelihoods/sh0es/__init__.py
+@@ -0,0 +1,14 @@
++import os
++from montepython.likelihood_class import Likelihood_prior
++
++
++class sh0es(Likelihood_prior):
++
++    # initialisation of the class is done within the parent Likelihood_prior. For
++    # this case, it does not differ, actually, from the __init__ method in
++    # Likelihood class.
++    def loglkl(self, cosmo, data):
++
++        h = cosmo.h()
++        loglkl = -0.5 * (h - self.h) ** 2 / (self.sigma ** 2)
++        return loglkl
+diff --git a/montepython/likelihoods/sh0es/sh0es.data b/montepython/likelihoods/sh0es/sh0es.data
+new file mode 100644
+index 0000000..0313f02
+--- /dev/null
++++ b/montepython/likelihoods/sh0es/sh0es.data
+@@ -0,0 +1,4 @@
++# Values from the SH0ES collaboration
++# Updated to Riess et al. 2019 (arXiv:1903.07603)
++sh0es.h      = 0.7403
++sh0es.sigma  = 0.0142
+diff --git a/montepython/likelihoods/ska1_IM_band1/__init__.py b/montepython/likelihoods/ska1_IM_band1/__init__.py
+index 50285f8..af3c2b6 100644
+--- a/montepython/likelihoods/ska1_IM_band1/__init__.py
++++ b/montepython/likelihoods/ska1_IM_band1/__init__.py
+@@ -5,6 +5,7 @@
+ from numpy import newaxis as na
+ from math import exp, log, pi, log10
+ import scipy.integrate
++import io_mp
+ # Created by Tim Sprenger in 2017
+ 
+ try:
+@@ -23,17 +24,17 @@ def __init__(self, path, data, command_line):
+         self.need_cosmo_arguments(data, {'P_k_max_1/Mpc': 1.5*self.k_cut(self.zmax)})
+ 
+         # Compute non-linear power spectrum if requested
+-	if (self.use_halofit):
+-            	self.need_cosmo_arguments(data, {'non linear':'halofit'})
+-		print("Using halofit")
++        if (self.use_halofit):
++            self.need_cosmo_arguments(data, {'non linear':'halofit'})
++            print("Using halofit")
+ 
+         # Deduce the dz step from the number of bins and the edge values of z
+         self.dz = (self.zmax-self.zmin)/self.nbin
+ 
+-	# Compute new zmin and zmax which are bin centers
+-	# Need to be defined as edges if zmin can be close to z=0
+-	self.zmin += self.dz/2.
+-	self.zmax -= self.dz/2.
++        # Compute new zmin and zmax which are bin centers
++        # Need to be defined as edges if zmin can be close to z=0
++        self.zmin += self.dz/2.
++        self.zmax -= self.dz/2.
+ 
+         # self.z_mean will contain the central values
+         self.z_mean = np.linspace(self.zmin, self.zmax, num=self.nbin)
+@@ -54,7 +55,7 @@ def __init__(self, path, data, command_line):
+         # If the file exists, initialize the fiducial values, the spectrum will
+         # be read first, with k_size values of k and nbin values of z. Then,
+         # H_fid and D_A fid will be read (each with nbin values).
+-	# Then V_fid, b_21_fid and the fiducial errors on real space coordinates follow.
++        # Then V_fid, b_21_fid and the fiducial errors on real space coordinates follow.
+         self.fid_values_exist = False
+         self.pk_nl_fid = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+         if self.use_linear_rsd:
+@@ -62,10 +63,10 @@ def __init__(self, path, data, command_line):
+         self.H_fid = np.zeros(2*self.nbin+1, 'float64')
+         self.D_A_fid = np.zeros(2*self.nbin+1, 'float64')
+         self.V_fid = np.zeros(self.nbin, 'float64')
+-	self.b_21_fid = np.zeros(self.nbin, 'float64')
+-	self.sigma_A_fid = np.zeros(self.nbin, 'float64')
+-	self.sigma_B_fid = np.zeros(self.nbin, 'float64')
+-	self.sigma_NL_fid = 0.
++        self.b_21_fid = np.zeros(self.nbin, 'float64')
++        self.sigma_A_fid = np.zeros(self.nbin, 'float64')
++        self.sigma_B_fid = np.zeros(self.nbin, 'float64')
++        self.sigma_NL_fid = 0.
+ 
+         fid_file_path = os.path.join(self.data_directory, self.fiducial_file)
+         if os.path.exists(fid_file_path):
+@@ -98,17 +99,17 @@ def __init__(self, path, data, command_line):
+                     self.sigma_A_fid[index_z] = float(line.split()[0])
+                     self.sigma_B_fid[index_z] = float(line.split()[1])
+                     line = fid_file.readline()
+-		self.sigma_NL_fid = float(line)
++                self.sigma_NL_fid = float(line)
+ 
+         # Else the file will be created in the loglkl() function.
+         return
+ 
+     def k_cut(self, z,h=0.6693,n_s=0.9619):
+-	kcut = self.kmax*h
+-	# compute kmax according to highest redshift linear cutoff (1509.07562v2)
+-	if self.use_zscaling:
+-		kcut *= pow(1.+z,2./(2.+n_s))
+-	return kcut
++        kcut = self.kmax*h
++        # compute kmax according to highest redshift linear cutoff (1509.07562v2)
++        if self.use_zscaling:
++            kcut *= pow(1.+z,2./(2.+n_s))
++        return kcut
+ 
+     def loglkl(self, cosmo, data):
+ 
+@@ -125,46 +126,46 @@ def loglkl(self, cosmo, data):
+ 
+         # Compute V_survey, for each given redshift bin, which is the volume of
+         # a shell times the sky coverage (only fiducial needed):
+-	if self.fid_values_exist is False:
+-        	V_survey = np.zeros(self.nbin, 'float64')
+-        	for index_z in xrange(self.nbin):
+-           	 	V_survey[index_z] = 4./3.*pi*self.fsky*(
+-               			r[2*index_z+2]**3-r[2*index_z]**3)
++        if self.fid_values_exist is False:
++            V_survey = np.zeros(self.nbin, 'float64')
++            for index_z in xrange(self.nbin):
++           	    V_survey[index_z] = 4./3.*pi*self.fsky*(
++               	    r[2*index_z+2]**3-r[2*index_z]**3)
+ 
+         # At the center of each bin, compute the HI bias function,
+         # using formula from 1609.00019v1: b_0 + b_1*(1+z)^b_2
+-	if 'beta_0^IM' in self.use_nuisance:
+-        	b_HI = (self.b_0 + self.b_1*pow(1.+self.z_mean,self.b_2*data.mcmc_parameters['beta_1^IM']['current']*data.mcmc_parameters['beta_1^IM']['scale']))*data.mcmc_parameters['beta_0^IM']['current']*data.mcmc_parameters['beta_0^IM']['scale']
+-	else:
+-		b_HI = self.b_0 + self.b_1*pow(1.+self.z_mean,self.b_2)
+-
+-	# At the center of each bin, compute Omega_HI
+-	# using formula from 1609.00019v1: Om_0*(1+z)^Om_1
+-	if 'Omega_HI0' in self.use_nuisance:
+-		Omega_HI = data.mcmc_parameters['Omega_HI0']['current']*data.mcmc_parameters['Omega_HI0']['scale']*pow(1.+self.z_mean,data.mcmc_parameters['alpha_HI']['current']*data.mcmc_parameters['alpha_HI']['scale'])
+-	else:
+-		Omega_HI = self.Om_0*pow(1.+self.z_mean,self.Om_1)
+-
+-	# Compute the 21cm bias: b_21 = Delta_T_bar*b_HI in mK
+-	b_21 = np.zeros( (self.nbin),'float64')
+-	for index_z in xrange(self.nbin):
+-		b_21[index_z] = 189.*cosmo.Hubble(0.)*cosmo.h()/H[2*index_z+1]*(1.+self.z_mean[index_z])**2 *b_HI[index_z]*Omega_HI[index_z]
+-
+-    	# Compute freq.res. sigma_r = (1+z)^2/H*delta_nu/sqrt(8*ln2)/nu_21cm, nu in Mhz
+-	# Compute ang.res. sigma_perp = (1+z)^2*D_A*lambda_21cm/diameter/sqrt(8*ln2), diameter in m
+-	# combine into exp(-k^2*(mu^2*(sig_r^2-sig_perp^2)+sig_perp^2)) independent of cosmo
+-	# used as exp(-k^2*(mu^2*sigma_A+sigma_B)) all fiducial
+-	if self.fid_values_exist is False:
+-		sigma_A = np.zeros(self.nbin,'float64')
+-		sigma_B = np.zeros(self.nbin,'float64')
+-		sigma_A = ((1.+self.z_mean[:])**2/H[1::2]*self.delta_nu/np.sqrt(8.*np.log(2.))/self.nu0)**2 -(
+-			1./np.sqrt(8.*np.log(2.))*(1+self.z_mean[:])**2 * D_A[1::2]*2.111e-1/self.Diameter)**2
+-		sigma_B = (1./np.sqrt(8.*np.log(2.))*(1+self.z_mean[:])**2 * D_A[1::2]*2.111e-1/self.Diameter)**2
+-
+-	# sigma_NL in Mpc = nonlinear dispersion scale of RSD (1405.1452v2)
+-	sigma_NL = 0.0	# fiducial would be 7 but when kept constant that is more constraining than keeping 0
+-	if 'sigma_NL' in self.use_nuisance:
+-		sigma_NL = data.mcmc_parameters['sigma_NL']['current']*data.mcmc_parameters['sigma_NL']['scale']
++        if 'beta_0^IM' in self.use_nuisance:
++            b_HI = (self.b_0 + self.b_1*pow(1.+self.z_mean,self.b_2*data.mcmc_parameters['beta_1^IM']['current']*data.mcmc_parameters['beta_1^IM']['scale']))*data.mcmc_parameters['beta_0^IM']['current']*data.mcmc_parameters['beta_0^IM']['scale']
++        else:
++            b_HI = self.b_0 + self.b_1*pow(1.+self.z_mean,self.b_2)
++
++        # At the center of each bin, compute Omega_HI
++        # using formula from 1609.00019v1: Om_0*(1+z)^Om_1
++        if 'Omega_HI0' in self.use_nuisance:
++            Omega_HI = data.mcmc_parameters['Omega_HI0']['current']*data.mcmc_parameters['Omega_HI0']['scale']*pow(1.+self.z_mean,data.mcmc_parameters['alpha_HI']['current']*data.mcmc_parameters['alpha_HI']['scale'])
++        else:
++            Omega_HI = self.Om_0*pow(1.+self.z_mean,self.Om_1)
++
++        # Compute the 21cm bias: b_21 = Delta_T_bar*b_HI in mK
++        b_21 = np.zeros( (self.nbin),'float64')
++        for index_z in xrange(self.nbin):
++            b_21[index_z] = 189.*cosmo.Hubble(0.)*cosmo.h()/H[2*index_z+1]*(1.+self.z_mean[index_z])**2 *b_HI[index_z]*Omega_HI[index_z]
++
++        # Compute freq.res. sigma_r = (1+z)^2/H*delta_nu/sqrt(8*ln2)/nu_21cm, nu in Mhz
++        # Compute ang.res. sigma_perp = (1+z)^2*D_A*lambda_21cm/diameter/sqrt(8*ln2), diameter in m
++        # combine into exp(-k^2*(mu^2*(sig_r^2-sig_perp^2)+sig_perp^2)) independent of cosmo
++        # used as exp(-k^2*(mu^2*sigma_A+sigma_B)) all fiducial
++        if self.fid_values_exist is False:
++            sigma_A = np.zeros(self.nbin,'float64')
++            sigma_B = np.zeros(self.nbin,'float64')
++            sigma_A = ((1.+self.z_mean[:])**2/H[1::2]*self.delta_nu/np.sqrt(8.*np.log(2.))/self.nu0)**2 -(
++                1./np.sqrt(8.*np.log(2.))*(1+self.z_mean[:])**2 * D_A[1::2]*2.111e-1/self.Diameter)**2
++            sigma_B = (1./np.sqrt(8.*np.log(2.))*(1+self.z_mean[:])**2 * D_A[1::2]*2.111e-1/self.Diameter)**2
++
++        # sigma_NL in Mpc = nonlinear dispersion scale of RSD (1405.1452v2)
++        sigma_NL = 0.0	# fiducial would be 7 but when kept constant that is more constraining than keeping 0
++        if 'sigma_NL' in self.use_nuisance:
++            sigma_NL = data.mcmc_parameters['sigma_NL']['current']*data.mcmc_parameters['sigma_NL']['scale']
+ 
+         # If the fiducial model does not exists, recover the power spectrum and
+         # store it, then exit.
+@@ -197,8 +198,8 @@ def loglkl(self, cosmo, data):
+                 for index_z in xrange(self.nbin):
+                     fid_file.write('%.8g\n' % b_21[index_z])
+                 for index_z in xrange(self.nbin):
+-			fid_file.write('%.8g %.8g\n' % (sigma_A[index_z], sigma_B[index_z]))
+-		fid_file.write('%.8g\n' % sigma_NL)
++                    fid_file.write('%.8g %.8g\n' % (sigma_A[index_z], sigma_B[index_z]))
++                fid_file.write('%.8g\n' % sigma_NL)
+             print('\n')
+             warnings.warn(
+                 "Writing fiducial model in %s, for %s likelihood\n" % (
+@@ -214,20 +215,20 @@ def loglkl(self, cosmo, data):
+         # Compute the beta_fid function, for observed spectrum,
+         # beta_fid(k_fid,z) = 1/2b(z) * d log(P_nl_fid(k_fid,z))/d log a
+         #                   = -1/2b(z)* (1+z) d log(P_nl_fid(k_fid,z))/dz
+-	if self.use_linear_rsd:
++        if self.use_linear_rsd:
+             beta_fid = -0.5/self.b_21_fid*(1+self.z_mean)*np.log(
+-            	self.pk_lin_fid[:, 2::2]/self.pk_lin_fid[:, :-2:2])/self.dz
+-	else:
++                self.pk_lin_fid[:, 2::2]/self.pk_lin_fid[:, :-2:2])/self.dz
++        else:
+             beta_fid = -0.5/self.b_21_fid*(1+self.z_mean)*np.log(
+-            	self.pk_nl_fid[:, 2::2]/self.pk_nl_fid[:, :-2:2])/self.dz
++                self.pk_nl_fid[:, 2::2]/self.pk_nl_fid[:, :-2:2])/self.dz
+ 
+         # Compute the tilde P_fid(k_ref,z,mu) = H_fid(z)/D_A_fid(z)**2 ( 1 + beta_fid(k_fid,z)mu^2)^2 P_nl_fid(k_fid,z)exp(-k_fid^2*(mu_fid^2*sigma_A(z)+sigma_B(z)))
+         self.tilde_P_fid = np.zeros((self.k_size, self.nbin, self.mu_size),'float64')
+         self.tilde_P_fid = self.H_fid[na, 1::2, na]/(
+-            	self.D_A_fid[na, 1::2, na])**2*self.b_21_fid[na,:,na]**2*(
++                self.D_A_fid[na, 1::2, na])**2*self.b_21_fid[na,:,na]**2*(
+                 1. + beta_fid[:, :, na] * self.mu_fid[na, na, :]**2)**2 * (
+-            	self.pk_nl_fid[:, 1::2, na]) * np.exp(-self.k_fid[:,na,na]**2 *
+-		(self.mu_fid[na, na, :]**2*(self.sigma_A_fid[na,:,na]+self.sigma_NL_fid**2) + self.sigma_B_fid[na,:,na]))
++                self.pk_nl_fid[:, 1::2, na]) * np.exp(-self.k_fid[:,na,na]**2 *
++                (self.mu_fid[na, na, :]**2*(self.sigma_A_fid[na,:,na]+self.sigma_NL_fid**2) + self.sigma_B_fid[na,:,na]))
+ 
+         ######################
+         # TH PART
+@@ -239,11 +240,11 @@ def loglkl(self, cosmo, data):
+             for index_z in xrange(2*self.nbin+1):
+                 self.k[index_k,index_z,:] = np.sqrt((1.-self.mu_fid[:]**2)*self.D_A_fid[index_z]**2/D_A[index_z]**2 + self.mu_fid[:]**2*H[index_z]**2/self.H_fid[index_z]**2 )*self.k_fid[index_k]
+ 
+-	# Compute values of mu based on fiducial values:
+-	# mu^2 = mu_fid^2 / (mu_fid^2 + ((H_fid*D_A_fid)/(H*D_A))^2)*(1 - mu_fid^2))
+-	self.mu = np.zeros((self.nbin,self.mu_size),'float64')
+-	for index_z in xrange(self.nbin):
+-		self.mu[index_z,:] = np.sqrt(self.mu_fid[:]**2/(self.mu_fid[:]**2 + ((self.H_fid[2*index_z+1]*self.D_A_fid[2*index_z+1])/(D_A[2*index_z+1]*H[2*index_z+1]))**2 * (1.-self.mu_fid[:]**2)))
++        # Compute values of mu based on fiducial values:
++        # mu^2 = mu_fid^2 / (mu_fid^2 + ((H_fid*D_A_fid)/(H*D_A))^2)*(1 - mu_fid^2))
++        self.mu = np.zeros((self.nbin,self.mu_size),'float64')
++        for index_z in xrange(self.nbin):
++            self.mu[index_z,:] = np.sqrt(self.mu_fid[:]**2/(self.mu_fid[:]**2 + ((self.H_fid[2*index_z+1]*self.D_A_fid[2*index_z+1])/(D_A[2*index_z+1]*H[2*index_z+1]))**2 * (1.-self.mu_fid[:]**2)))
+ 
+         # Recover the non-linear power spectrum from the cosmological module on all
+         # the z_boundaries, to compute afterwards beta. This is pk_nl_th from the
+@@ -260,31 +261,31 @@ def loglkl(self, cosmo, data):
+         if self.use_linear_rsd:
+             pk_lin_th = cosmo.get_pk_cb_lin(self.k,self.z,self.k_size,2*self.nbin+1,self.mu_size)
+ 
+-	if self.UseTheoError :
+-        	# Recover the non_linear scale computed by halofit.
+-        	#self.k_sigma = np.zeros(2*self.nbin+1, 'float64')
+-            	#self.k_sigma = cosmo.nonlinear_scale(self.z,2*self.nbin+1)
+-
+-        	# Define the theoretical error envelope
+-        	self.alpha = np.zeros((self.k_size,self.nbin,self.mu_size),'float64')
+-		th_c1 = 0.75056
+-		th_c2 = 1.5120
+-		th_a1 = 0.014806
+-		th_a2 = 0.022047
+-       		for index_z in xrange(self.nbin):
+-		    k_z = cosmo.h()*pow(1.+self.z_mean[index_z],2./(2.+cosmo.n_s()))
+-		    for index_mu in xrange(self.mu_size):
+-		        for index_k in xrange(self.k_size):
+-		            if self.k[index_k,2*index_z+1,index_mu]/k_z<0.3:
+-	 	                self.alpha[index_k,index_z,index_mu] = th_a1*np.exp(th_c1*np.log10(self.k[index_k,2*index_z+1,index_mu]/k_z))
+-		            else:
+-		                self.alpha[index_k,index_z,index_mu] = th_a2*np.exp(th_c2*np.log10(self.k[index_k,2*index_z+1,index_mu]/k_z))
+-
+-		# Define fractional theoretical error variance R/P^2
+-		self.R_var = np.zeros((self.k_size,self.nbin,self.mu_size),'float64')
+-		for index_k in xrange(self.k_size):
+-	    	    for index_z in xrange(self.nbin):
+-	                self.R_var[index_k,index_z,:] = self.V_fid[index_z]/(2.*np.pi)**2*self.k_CorrLength_hMpc*cosmo.h()/self.z_CorrLength*self.dz*self.k_fid[index_k]**2*self.alpha[index_k,index_z,:]**2
++        if self.UseTheoError :
++            # Recover the non_linear scale computed by halofit.
++            #self.k_sigma = np.zeros(2*self.nbin+1, 'float64')
++            #self.k_sigma = cosmo.nonlinear_scale(self.z,2*self.nbin+1)
++
++            # Define the theoretical error envelope
++            self.alpha = np.zeros((self.k_size,self.nbin,self.mu_size),'float64')
++            th_c1 = 0.75056
++            th_c2 = 1.5120
++            th_a1 = 0.014806
++            th_a2 = 0.022047
++       	    for index_z in xrange(self.nbin):
++                k_z = cosmo.h()*pow(1.+self.z_mean[index_z],2./(2.+cosmo.n_s()))
++                for index_mu in xrange(self.mu_size):
++                    for index_k in xrange(self.k_size):
++                        if self.k[index_k,2*index_z+1,index_mu]/k_z<0.3:
++                            self.alpha[index_k,index_z,index_mu] = th_a1*np.exp(th_c1*np.log10(self.k[index_k,2*index_z+1,index_mu]/k_z))
++                        else:
++                            self.alpha[index_k,index_z,index_mu] = th_a2*np.exp(th_c2*np.log10(self.k[index_k,2*index_z+1,index_mu]/k_z))
++
++            # Define fractional theoretical error variance R/P^2
++            self.R_var = np.zeros((self.k_size,self.nbin,self.mu_size),'float64')
++            for index_k in xrange(self.k_size):
++                for index_z in xrange(self.nbin):
++                    self.R_var[index_k,index_z,:] = self.V_fid[index_z]/(2.*np.pi)**2*self.k_CorrLength_hMpc*cosmo.h()/self.z_CorrLength*self.dz*self.k_fid[index_k]**2*self.alpha[index_k,index_z,:]**2
+ 
+         # Compute the beta function for nl,
+         # beta(k,z) = 1/2b(z) * d log(P_nl_th (k,z))/d log a
+@@ -312,47 +313,47 @@ def loglkl(self, cosmo, data):
+                 2.*self.t_tot*3600.*self.nu0*1.e+6*self.N_dish*self.H_fid[2*index_z+1])
+ 
+         # finally compute chi2, for each z_mean
+-	if self.use_zscaling==0:
+-		# redshift dependent cutoff makes integration more complicated
+-        	chi2 = 0.0
+-		index_kmax = 0
+-		delta_mu = self.mu_fid[1] - self.mu_fid[0] # equally spaced
+-		integrand_low = 0.0
+-		integrand_hi = 0.0
+-
+-		for index_z in xrange(self.nbin):
+-			# uncomment printers to get contributions from individual redshift bins
+-			#printer1 = chi2*delta_mu
+-			# uncomment to display max. kmin (used to infer kmin~0.02):
+-			#kmin: #print("z=" + str(self.z_mean[index_z]) + " kmin=" + str(34.56/r[2*index_z+1]) + "\tor " + str(6.283/(r[2*index_z+2]-r[2*index_z])))
+-			for index_k in xrange(1,self.k_size):
+-				if ((self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[self.k_size-index_k]) > -1.e-6):
+-					index_kmax = self.k_size-index_k
+-					break
+-			integrand_low = self.integrand(0,index_z,0)*.5
+-			for index_k in xrange(1,index_kmax+1):
+-				integrand_hi = self.integrand(index_k,index_z,0)*.5
+-				chi2 += (integrand_hi+integrand_low)*.5*(self.k_fid[index_k]-self.k_fid[index_k-1])
+-				integrand_low = integrand_hi
+-			chi2 += integrand_low*(self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[index_kmax])
+-			for index_mu in xrange(1,self.mu_size-1):
+-				integrand_low = self.integrand(0,index_z,index_mu)
+-				for index_k in xrange(1,index_kmax+1):
+-					integrand_hi = self.integrand(index_k,index_z,index_mu)
+-					chi2 += (integrand_hi+integrand_low)*.5*(self.k_fid[index_k]-self.k_fid[index_k-1])
+-					integrand_low = integrand_hi
+-				chi2 += integrand_low*(self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[index_kmax])
+-			integrand_low = self.integrand(0,index_z,self.mu_size-1)*.5
+-			for index_k in xrange(1,index_kmax+1):
+-				integrand_hi = self.integrand(index_k,index_z,self.mu_size-1)*.5
+-				chi2 += (integrand_hi+integrand_low)*.5*(self.k_fid[index_k]-self.k_fid[index_k-1])
+-				integrand_low = integrand_hi
+-			chi2 += integrand_low*(self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[index_kmax])
+-			#printer2 = chi2*delta_mu-printer1
+-			#print("%s\t%s" % (self.z_mean[index_z], printer2))
+-		chi2 *= delta_mu
+-
+-	else:
++        if self.use_zscaling==0:
++            # redshift dependent cutoff makes integration more complicated
++            chi2 = 0.0
++            index_kmax = 0
++            delta_mu = self.mu_fid[1] - self.mu_fid[0] # equally spaced
++            integrand_low = 0.0
++            integrand_hi = 0.0
++
++            for index_z in xrange(self.nbin):
++                # uncomment printers to get contributions from individual redshift bins
++                #printer1 = chi2*delta_mu
++                # uncomment to display max. kmin (used to infer kmin~0.02):
++                #kmin: #print("z=" + str(self.z_mean[index_z]) + " kmin=" + str(34.56/r[2*index_z+1]) + "\tor " + str(6.283/(r[2*index_z+2]-r[2*index_z])))
++                for index_k in xrange(1,self.k_size):
++                    if ((self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[self.k_size-index_k]) > -1.e-6):
++                        index_kmax = self.k_size-index_k
++                        break
++                integrand_low = self.integrand(0,index_z,0)*.5
++                for index_k in xrange(1,index_kmax+1):
++                    integrand_hi = self.integrand(index_k,index_z,0)*.5
++                    chi2 += (integrand_hi+integrand_low)*.5*(self.k_fid[index_k]-self.k_fid[index_k-1])
++                    integrand_low = integrand_hi
++                chi2 += integrand_low*(self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[index_kmax])
++                for index_mu in xrange(1,self.mu_size-1):
++                    integrand_low = self.integrand(0,index_z,index_mu)
++                    for index_k in xrange(1,index_kmax+1):
++                        integrand_hi = self.integrand(index_k,index_z,index_mu)
++                        chi2 += (integrand_hi+integrand_low)*.5*(self.k_fid[index_k]-self.k_fid[index_k-1])
++                        integrand_low = integrand_hi
++                    chi2 += integrand_low*(self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[index_kmax])
++                integrand_low = self.integrand(0,index_z,self.mu_size-1)*.5
++                for index_k in xrange(1,index_kmax+1):
++                    integrand_hi = self.integrand(index_k,index_z,self.mu_size-1)*.5
++                    chi2 += (integrand_hi+integrand_low)*.5*(self.k_fid[index_k]-self.k_fid[index_k-1])
++                    integrand_low = integrand_hi
++                chi2 += integrand_low*(self.k_cut(self.z_mean[index_z],cosmo.h(),cosmo.n_s())-self.k_fid[index_kmax])
++                #printer2 = chi2*delta_mu-printer1
++                #print("%s\t%s" % (self.z_mean[index_z], printer2))
++            chi2 *= delta_mu
++
++        else:
+             chi2 = 0.0
+             mu_integrand_lo,mu_integrand_hi = 0.0,0.0
+             k_integrand  = np.zeros(self.k_size,'float64')
+@@ -369,7 +370,6 @@ def loglkl(self, cosmo, data):
+         if 'beta_0^IM' in self.use_nuisance:
+             chi2 += ((data.mcmc_parameters['beta_0^IM']['current']*data.mcmc_parameters['beta_0^IM']['scale']-1.)/self.bias_accuracy)**2
+             chi2 += ((data.mcmc_parameters['beta_1^IM']['current']*data.mcmc_parameters['beta_1^IM']['scale']-1.)/self.bias_accuracy)**2
+-
+         return - chi2/2.
+ 
+     def integrand(self,index_k,index_z,index_mu):
+diff --git a/montepython/likelihoods/ska1_IM_band1/__init__.py b/montepython/likelihoods/ska1_IM_band1/__init__.py
+index 50285f8..5117eaa 100644
+--- a/montepython/likelihoods/ska1_IM_band1/__init__.py
++++ b/montepython/likelihoods/ska1_IM_band1/__init__.py
+@@ -169,7 +169,9 @@ class ska1_IM_band1(Likelihood):
+         # If the fiducial model does not exists, recover the power spectrum and
+         # store it, then exit.
+         if self.fid_values_exist is False:
+-            pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             if self.use_linear_rsd:
+                 pk_lin = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             fid_file_path = os.path.join(
+@@ -203,7 +205,7 @@ class ska1_IM_band1(Likelihood):
+             warnings.warn(
+                 "Writing fiducial model in %s, for %s likelihood\n" % (
+                     self.data_directory+'/'+self.fiducial_file, self.name))
+-            return 1j
++            return 1j'''
+ 
+         # NOTE: Many following loops will be hidden in a very specific numpy
+         # expression, for (a more than significant) speed-up. All the following
+diff --git a/montepython/likelihoods/ska1_IM_band2/__init__.py b/montepython/likelihoods/ska1_IM_band2/__init__.py
+index 231efb3..747485e 100644
+--- a/montepython/likelihoods/ska1_IM_band2/__init__.py
++++ b/montepython/likelihoods/ska1_IM_band2/__init__.py
+@@ -169,7 +169,9 @@ class ska1_IM_band2(Likelihood):
+         # If the fiducial model does not exists, recover the power spectrum and
+         # store it, then exit.
+         if self.fid_values_exist is False:
+-            pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             if self.use_linear_rsd:
+                 pk_lin = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             fid_file_path = os.path.join(
+@@ -203,7 +205,7 @@ class ska1_IM_band2(Likelihood):
+             warnings.warn(
+                 "Writing fiducial model in %s, for %s likelihood\n" % (
+                     self.data_directory+'/'+self.fiducial_file, self.name))
+-            return 1j
++            return 1j'''
+ 
+         # NOTE: Many following loops will be hidden in a very specific numpy
+         # expression, for (a more than significant) speed-up. All the following
+diff --git a/montepython/likelihoods/ska1_lensing/__init__.py b/montepython/likelihoods/ska1_lensing/__init__.py
+index ef1cf92..a5833af 100644
+--- a/montepython/likelihoods/ska1_lensing/__init__.py
++++ b/montepython/likelihoods/ska1_lensing/__init__.py
+@@ -420,7 +420,9 @@ class ska1_lensing(Likelihood):
+ 
+         # Write fiducial model spectra if needed (exit in that case)
+         if self.fid_values_exist is False:
+-            # Store the values now, and exit.
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''# Store the values now, and exit.
+             fid_file_path = os.path.join(
+                 self.data_directory, self.fiducial_file)
+             with open(fid_file_path, 'w') as fid_file:
+@@ -437,7 +439,7 @@ class ska1_lensing(Likelihood):
+             warnings.warn(
+                 "Writing fiducial model in %s, for %s likelihood\n" % (
+                     self.data_directory+'/'+self.fiducial_file, self.name))
+-            return 1j
++            return 1j'''
+ 
+         # Now that the fiducial model is stored, we add the El to both Cl and
+         # Cl_fid (we create a new array, otherwise we would modify the
+diff --git a/montepython/likelihoods/ska1_pk/__init__.py b/montepython/likelihoods/ska1_pk/__init__.py
+index c7d5082..a6f925b 100644
+--- a/montepython/likelihoods/ska1_pk/__init__.py
++++ b/montepython/likelihoods/ska1_pk/__init__.py
+@@ -177,7 +177,9 @@ class ska1_pk(Likelihood):
+         # If the fiducial model does not exist, recover the power spectrum and
+         # store it, then exit.
+         if self.fid_values_exist is False:
+-            pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             if self.use_linear_rsd:
+                 pk_lin = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             fid_file_path = os.path.join(
+diff --git a/montepython/likelihoods/ska2_lensing/__init__.py b/montepython/likelihoods/ska2_lensing/__init__.py
+index 6e8be63..61a015d 100644
+--- a/montepython/likelihoods/ska2_lensing/__init__.py
++++ b/montepython/likelihoods/ska2_lensing/__init__.py
+@@ -419,7 +419,9 @@ class ska2_lensing(Likelihood):
+ 
+         # Write fiducial model spectra if needed (exit in that case)
+         if self.fid_values_exist is False:
+-            # Store the values now, and exit.
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''# Store the values now, and exit.
+             fid_file_path = os.path.join(
+                 self.data_directory, self.fiducial_file)
+             with open(fid_file_path, 'w') as fid_file:
+@@ -436,7 +438,7 @@ class ska2_lensing(Likelihood):
+             warnings.warn(
+                 "Writing fiducial model in %s, for %s likelihood\n" % (
+                     self.data_directory+'/'+self.fiducial_file, self.name))
+-            return 1j
++            return 1j'''
+ 
+         # Now that the fiducial model is stored, we add the El to both Cl and
+         # Cl_fid (we create a new array, otherwise we would modify the
+diff --git a/montepython/likelihoods/ska2_pk/__init__.py b/montepython/likelihoods/ska2_pk/__init__.py
+index 9075438..6fa3952 100644
+--- a/montepython/likelihoods/ska2_pk/__init__.py
++++ b/montepython/likelihoods/ska2_pk/__init__.py
+@@ -176,7 +176,9 @@ class ska2_pk(Likelihood):
+         # If the fiducial model does not exist, recover the power spectrum and
+         # store it, then exit.
+         if self.fid_values_exist is False:
+-            pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''pk = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             if self.use_linear_rsd:
+                 pk_lin = np.zeros((self.k_size, 2*self.nbin+1), 'float64')
+             fid_file_path = os.path.join(
+@@ -208,7 +210,7 @@ class ska2_pk(Likelihood):
+             warnings.warn(
+                 "Writing fiducial model in %s, for %s likelihood\n" % (
+                     self.data_directory+'/'+self.fiducial_file, self.name))
+-            return 1j
++            return 1j'''
+ 
+         # NOTE: Many following loops will be hidden in a very specific numpy
+         # expression, for (a more than significant) speed-up. All the following
+diff --git a/montepython/likelihoods/fake_desi/__init__.py b/montepython/likelihoods/fake_desi/__init__.py
+index 4ddf557..e4ac173 100644
+--- a/montepython/likelihoods/fake_desi/__init__.py
++++ b/montepython/likelihoods/fake_desi/__init__.py
+@@ -63,8 +63,9 @@ class fake_desi(Likelihood):
+         # Write fiducial model spectra if needed (return an imaginary number in
+         # that case)
+         if self.fid_values_exist is False:
+-
+-            # open file where fiducial model will be written and write header
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''# open file where fiducial model will be written and write header
+             fid_file = open(os.path.join(
+                 self.data_directory, self.fiducial_file), 'w')
+             fid_file.write('# Fiducial parameters')
+@@ -86,7 +87,7 @@ class fake_desi(Likelihood):
+                     self.type = np.append(self.type, self.error_type)
+                     self.relative_error = np.append(self.relative_error, 0.01 * sensitivity[i,self.error_column])
+             else:
+-                raise io_mp.LikelihoodError("Could not find file ",self.sensitivity)
++                raise io_mp.LikelihoodError("Could not find file ",self.sensitivity)'''
+ 
+         chi2 = 0.
+ 
+diff --git a/montepython/likelihoods/fake_desi_euclid_bao/__init__.py b/montepython/likelihoods/fake_desi_euclid_bao/__init__.py
+index a357ca5..cdca06b 100644
+--- a/montepython/likelihoods/fake_desi_euclid_bao/__init__.py
++++ b/montepython/likelihoods/fake_desi_euclid_bao/__init__.py
+@@ -88,8 +88,9 @@ class fake_desi_euclid_bao(Likelihood):
+ 
+         # If writing fiducial model is needed: read sensitivity (relative errors)
+         if self.fid_values_exist is False:
+-
+-            # open file where fiducial model will be written and write header
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''# open file where fiducial model will be written and write header
+             fid_file = open(os.path.join(
+                 self.data_directory, self.fiducial_file), 'w')
+             fid_file.write('# Fiducial parameters')
+@@ -119,7 +120,7 @@ class fake_desi_euclid_bao(Likelihood):
+                         relative_invcov22 = np.append(relative_invcov22, sensitivity[i,2])
+                         relative_invcov12 = np.append(relative_invcov12, sensitivity[i,3])
+             else:
+-                raise io_mp.LikelihoodError("Could not find file ",self.sensitivity)
++                raise io_mp.LikelihoodError("Could not find file ",self.sensitivity)'''
+ 
+         # in all cases: initialise chi2 and compute observables:
+         # angular distance da, radial distance dr,
+diff --git a/montepython/likelihoods/fake_desi_vol/__init__.py b/montepython/likelihoods/fake_desi_vol/__init__.py
+index 9df3412..c04bc37 100644
+--- a/montepython/likelihoods/fake_desi_vol/__init__.py
++++ b/montepython/likelihoods/fake_desi_vol/__init__.py
+@@ -64,8 +64,9 @@ class fake_desi_vol(Likelihood):
+         # Write fiducial model spectra if needed (return an imaginary number in
+         # that case)
+         if self.fid_values_exist is False:
+-
+-            # open file where fiducial model will be written and write header
++            # (JR) throw error as creation of fiducial file does not work with GAMBIT 
++            self.raise_fiducial_model_err()
++            '''# open file where fiducial model will be written and write header
+             fid_file = open(os.path.join(
+                 self.data_directory, self.fiducial_file), 'w')
+             fid_file.write('# Fiducial parameters')
+@@ -87,7 +88,7 @@ class fake_desi_vol(Likelihood):
+                     self.type = np.append(self.type, self.error_type)
+                     self.relative_error = np.append(self.relative_error, 0.01 * sensitivity[i,self.error_column])
+             else:
+-                raise io_mp.LikelihoodError("Could not find file ",self.sensitivity)
++                raise io_mp.LikelihoodError("Could not find file ",self.sensitivity)'''
+ 
+         chi2 = 0.
+
+diff --git a/montepython/sampler.py b/montepython/sampler.py
+index b4221ef..eb721d3 100644
+--- a/montepython/sampler.py
++++ b/montepython/sampler.py
+@@ -150,13 +150,13 @@ def read_args_from_bestfit(data, bestfit):
+             data.mcmc_parameters[elem]['last_accepted'] = \
+                 bestfit_values[bestfit_names.index(elem)] / \
+                 data.mcmc_parameters[elem]['scale']
+-            sys.stdout.write('from best-fit file : ', elem, ' = ')
++            sys.stdout.write('from best-fit file :  %s = ' %(elem))
+             print(bestfit_values[bestfit_names.index(elem)] / \
+                 data.mcmc_parameters[elem]['scale'])
+         else:
+             data.mcmc_parameters[elem]['last_accepted'] = \
+                 data.mcmc_parameters[elem]['initial'][0]
+-            sys.stdout.write('from input file    : ', elem, ' = ')
++            sys.stdout.write('from input file    :  %s = ' %(elem))
+             print(data.mcmc_parameters[elem]['initial'][0])
+
+

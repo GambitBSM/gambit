@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Feb
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #ifndef __ini_functions_core_hpp__
@@ -31,7 +35,7 @@ namespace Gambit
   class primary_model_functor;
 
   /// Register a module with the Core.
-  int register_module(str);
+  int register_module(str, str);
 
   /// Register a module functor with the Core.
   int register_module_functor_core(module_functor_common&);
@@ -40,7 +44,7 @@ namespace Gambit
   int register_model_functor_core(primary_model_functor&);
 
   /// Register a backend with the Core
-  int register_backend(str, str);
+  int register_backend(str, str, str);
 
   /// Register a backend functor with the Core
   int register_backend_functor(functor&);

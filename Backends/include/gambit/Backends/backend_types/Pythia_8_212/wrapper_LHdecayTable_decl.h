@@ -2,12 +2,12 @@
 #define __wrapper_LHdecayTable_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <vector>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_LHdecayTable.h"
 #include "wrapper_LHdecayChannel_decl.h"
-#include <vector>
-#include <string>
 
 #include "identification.hpp"
 
@@ -22,9 +22,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_LHdecayTable* (*__factory0)();
-                static Pythia8::Abstract_LHdecayTable* (*__factory1)(int);
-                static Pythia8::Abstract_LHdecayTable* (*__factory2)(int, double);
+                static Abstract_LHdecayTable* (*__factory0)();
+                static Abstract_LHdecayTable* (*__factory1)(int);
+                static Abstract_LHdecayTable* (*__factory2)(int, double);
         
                 // -- Other member variables: 
         
@@ -64,7 +64,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 LHdecayTable(int idIn, double widthIn);
         
                 // Special pointer-based constructor: 
-                LHdecayTable(Pythia8::Abstract_LHdecayTable* in);
+                LHdecayTable(Abstract_LHdecayTable* in);
         
                 // Copy constructor: 
                 LHdecayTable(const LHdecayTable& in);
@@ -76,7 +76,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~LHdecayTable();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_LHdecayTable* get_BEptr() const;
+                Abstract_LHdecayTable* get_BEptr() const;
         
         };
     }

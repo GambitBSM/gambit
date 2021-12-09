@@ -105,8 +105,8 @@ Printer:
 
   printer: hdf5
   options:
-    output_file: "MSSM7.hdf5"
-    group: "/MSSM7"
+    output_file: "ScalarSinglet_Z2.hdf5"
+    group: "/ScalarSinglet_Z2"
     delete_file_on_restart: true
 
   #printer: ascii
@@ -114,6 +114,8 @@ Printer:
   #  output_file: "ScalarSingletDM_Z2.txt"
   #  buffer_length: 10
   #  delete_file_on_restart: true
+
+  #printer: cout
 
 
 Scanner:
@@ -257,6 +259,10 @@ Rules:
        oh2_obs: 0.1188
     #function: RD_fraction_one # Do not rescale the local DM density
 
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
+
   # Choose whether MicrOmegas calculates decays widths for the MSSM internally using CalcHEP (internal_decays=true) or uses
   # values from the GAMBIT decay table (internal_decays=false).
   - function: MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init
@@ -264,12 +270,14 @@ Rules:
        VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
        VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
-  # Use DarkBit native calculator or MicrOmegas for the relic density?
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) or MicrOmegas for the relic density?
   # Consult the DarkBit manual for the required options in each case
   - capability: RD_oh2
-    function: RD_oh2_general
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
     options:
-      fast: 1  # 0: standard, 1: fast (defalt)
+      # these options are identical for DS5 and DS6+ version
+      fast: 0  # 0: standard, 1: fast (default when co-annihilations etc are involved)
     #function: RD_oh2_MicrOmegas
     #options:
     #  fast: 1  # 0: standard (default), 1: fast
@@ -289,33 +297,56 @@ Rules:
        version: "spectral_externalJ"
        # Other options are integral_fixedJ, integral_externalJ, and spectral_fixedJ
 
-  # Choose to use DarkSUSY yield tables for indirect detection
-  - capability: SimYieldTable
-    function: SimYieldTable_DarkSUSY
+  # Choose to use DarkSUSY DS5 or DS6 yield tables for gamma-ray indirect detection
+  - capability: GA_SimYieldTable
+    #function: GA_SimYieldTable_DS5
+    function: GA_SimYieldTable_DarkSUSY
     options:
+       # options are identical for DS5 and DS6
        allow_yield_extrapolation:  false # Allow extrapolation beyond masses simulated in tables
 
   # Other options can be obtained by uncommenting the relevant lines below (and commenting the above)
-  #- capability: SimYieldTable
-  #  function: SimYieldTable_MicrOmegas
+  #- capability: GA_SimYieldTable
+  #  function: GA_SimYieldTable_MicrOmegas
   #    options:
   #     allow_yield_extrapolation:  false # Allow extrapolation beyond masses simulated in tables
 
-  # More options for determination of gamma ray yields
-  - function: GA_missingFinalStates # Finds final states for which tabulated spectra do not exist
+  # Choose to use DarkSUSY 6 yield tables for all other indirect detection channels
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
+
+  # More options for determination of indirect detection yields
+  - function: cascadeMC_InitialStates # Finds hard process final states for which tabulated spectra do not exist
     options:
        ignore_all: false
        ignore_two_body: false
        ignore_three_body: false
 
-  - function: GA_AnnYield_General
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
     options:
        line_width: 0.03 # Relative line width used in gamma-ray spectra
+
+  # Use DS5 or DS6 (DS_genericWIMP) for calculating neutrino yields
+  - capability: nuyield_ptr
+    function: nuyield_from_DS
+    backends:
+    #  - {backend: DarkSUSY, version: 5.1.3}
+      - {backend: DarkSUSY_generic_wimp}
 
   # Use DarkBit or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
     function: DD_couplings_ScalarSingletDM_Z2
     #function: DD_couplings_MicrOmegas
+    
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
 
   # Nuclear SI Parameter Likelihoods (All values in MeV)
   - capability: lnL_SI_nuclear_parameters
@@ -384,9 +415,10 @@ Rules:
     options:
       nulike_speed: 3
 
+  # Choose to use DarkSUSY (5 or 6) rather than Capt'n General for calculating the capture rate of DM in the Sun
   - capability: capture_rate_Sun
+    #function: capture_rate_Sun_const_xsec_DS5
     function: capture_rate_Sun_const_xsec
-    module: DarkBit
 
   # Cascade decay MC options
   - function: cascadeMC_LoopManager

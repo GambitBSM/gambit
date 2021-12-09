@@ -163,7 +163,7 @@ namespace Gambit
     }
 
     /// Helper function to work out if the LSP is invisible, and if so, which particle it is.
-    std::vector<str> get_invisibles(const Spectrum& spec)
+    std::vector<std::pair<str,str>> get_invisibles(const Spectrum& spec)
     {
       // Get the lighter of the lightest neutralino and the lightest sneutrino
       std::pair<str,double> neutralino("~chi0_1", spec.get(Par::Pole_Mass,"~chi0",1));
@@ -180,8 +180,8 @@ namespace Gambit
                       spec.get(Par::Pole_Mass,"A0") > 2.*lnp.second);
 
       // Create a vector containing all invisible products of higgs decays.
-      if (inv_lsp) return initVector<str>(lnp.first);
-      return std::vector<str>();
+      if (inv_lsp) return initVector<std::pair<str,str>>(std::make_pair(lnp.first,lnp.first));
+      return std::vector<std::pair<str,str>>();
     }
 
 

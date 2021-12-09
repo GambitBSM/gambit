@@ -95,7 +95,6 @@ def main():
 
     (options, args) = parser.parse_args()
 
-
     # Print banner
     msg = '''\033[1m
 
@@ -234,6 +233,12 @@ def main():
     # add them to the list given in cfg.
     if options.cmdline_include_paths:
         cfg.include_paths = cfg.include_paths + options.cmdline_include_paths
+
+
+    # Remove any empty-string elements in the lists of input files and paths
+    cfg.input_files = list(filter(None, cfg.input_files))
+    cfg.include_paths = list(filter(None, cfg.include_paths))
+    cfg.base_paths = list(filter(None, cfg.base_paths))
 
 
     #
@@ -376,7 +381,7 @@ def main():
             root = tree.getroot()
 
             # Set the global xml id dict. (Needed by the functions called from utils.)
-            gb.id_dict = OrderedDict([ (el.get('id'), el) for el in root.getchildren() ])
+            gb.id_dict = OrderedDict([ (el.get('id'), el) for el in list(root) ])
 
             # Find all available classes
             for el in (root.findall('Class') + root.findall('Struct')):

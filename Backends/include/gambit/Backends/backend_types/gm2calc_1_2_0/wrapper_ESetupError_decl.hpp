@@ -2,11 +2,11 @@
 #define __wrapper_ESetupError_decl_gm2calc_1_2_0_hpp__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.hpp"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ESetupError.hpp"
 #include "wrapper_Error_decl.hpp"
-#include <string>
 
 #include "identification.hpp"
 
@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static gm2calc::Abstract_ESetupError* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
+            static Abstract_ESetupError* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
       
             // -- Other member variables: 
       
@@ -35,7 +35,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ESetupError(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& message_);
       
             // Special pointer-based constructor: 
-            ESetupError(gm2calc::Abstract_ESetupError* in);
+            ESetupError(Abstract_ESetupError* in);
       
             // Copy constructor: 
             ESetupError(const ESetupError& in);
@@ -47,7 +47,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~ESetupError();
       
             // Returns correctly casted pointer to Abstract class: 
-            gm2calc::Abstract_ESetupError* get_BEptr() const;
+            Abstract_ESetupError* get_BEptr() const;
       
       };
    }

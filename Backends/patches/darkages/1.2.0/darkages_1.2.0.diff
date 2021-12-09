@@ -1,0 +1,15 @@
+diff --git a/DarkAges/__init__.py b/DarkAges/__init__.py
+index 71be534..41d5648 100644
+--- a/DarkAges/__init__.py
++++ b/DarkAges/__init__.py
+@@ -79,7 +79,9 @@ def print_info(message):
+ 		Masked message to be printed in :obj:`stdout`.
+ 	"""
+ 
+-	print('#INFO: {0}'.format(message))
++	# Suppressed in GAMBIT (>=2.0.0)
++	# print('#INFO: {0}'.format(message))
++	return
+ 
+ def print_warning(message):
+ 	u"""Warning at critical behaviour of the code.

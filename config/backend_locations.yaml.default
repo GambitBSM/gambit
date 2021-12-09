@@ -10,18 +10,50 @@
 # absolute, those beginning with a period will
 # be interpreted as relative to the GAMBIT dir.
 
+AlterBBN:
+  2.2:         ./Backends/installed/alterbbn/2.2/libbbn.so
+
+CalcHEP:
+  3.6.27:      ./Backends/installed/calchep/3.6.27/lib/libcalchep.so
 
 CaptnGeneral:
   1.0:         ./Backends/installed/capgen/1.0/gencaplib.so
+  2.1:         ./Backends/installed/capgen/2.1/gencaplib.so
+
+classy:
+  2.6.3:       ./Backends/installed/classy/2.6.3/lib/classy_2_6_3.py
+  2.9.3:       ./Backends/installed/classy/2.9.3/lib/classy_2_9_3.py
+  2.9.4:       ./Backends/installed/classy/2.9.4/lib/classy_2_9_4.py
+
+  exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
+
+DarkAges:
+  1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
 
 DarkSUSY:
   5.1.3:       ./Backends/installed/darksusy/5.1.3/lib/libdarksusy.so
+
+DarkSUSY_MSSM:
+  6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
+  6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
+  6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_mssm.so
+  
+DarkSUSY_generic_wimp:
+  6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
+  6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
+  6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_generic_wimp.so
+
 
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so
   1.1.0:       ./Backends/installed/ddcalc/1.1.0/lib/libDDCalc.so
   1.2.0:       ./Backends/installed/ddcalc/1.2.0/lib/libDDCalc.so
   2.0.0:       ./Backends/installed/ddcalc/2.0.0/lib/libDDCalc.so
+  2.1.0:       ./Backends/installed/ddcalc/2.1.0/lib/libDDCalc.so
+  2.2.0:       ./Backends/installed/ddcalc/2.2.0/lib/libDDCalc.so
+
+DirectDM:
+  2.2.0:       ./Backends/installed/directdm/2.2.0/directdm
 
 FeynHiggs:
   2.11.2:      ./Backends/installed/feynhiggs/2.11.2/lib/libFH.so
@@ -47,6 +79,9 @@ HiggsBounds:
 HiggsSignals:
   1.4:         ./Backends/installed/higgssignals/1.4.0/lib/libhiggssignals.so
 
+hom4ps:
+  2.0:         ./Backends/installed/hom4ps/2.0/
+
 MicrOmegas_MSSM:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/MSSM/libmicromegas.so
 
@@ -65,18 +100,44 @@ MicrOmegas_MajoranaSingletDM_Z2:
 MicrOmegas_DiracSingletDM_Z2:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DiracSingletDM_Z2/libmicromegas.so
 
+MontePythonLike:
+  3.3.0:       ./Backends/installed/montepythonlike/3.3.0/montepython/MontePythonLike_3_3_0.py
+
+MultiModeCode:
+  2.0.0:       ./Backends/installed/multimodecode/2.0.0/lib/libmodecode.so
+
 nulike:
   1.0.4:       ./Backends/installed/nulike/1.0.4/lib/libnulike.so
   1.0.5:       ./Backends/installed/nulike/1.0.5/lib/libnulike.so
   1.0.6:       ./Backends/installed/nulike/1.0.6/lib/libnulike.so
   1.0.7:       ./Backends/installed/nulike/1.0.7/lib/libnulike.so
+  1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
+  1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
+
+# Work in progress:
+# Rivet:
+#   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
+
+# Work in progress:
+# Prospino:
+#   2.1:         ./Backends/installed/prospino/2.1/libprospino.so
+
+phc:
+  2.4.58:      ./Backends/installed/phc/2.4.58/
+
+plc:
+  3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
 
 Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
-  8.212.EM:    ./Backends/installed/pythia/8.212.EM/lib/libpythia8.so
+
+# Work in progress:
+# salami:
+#   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
 
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
+  4.0.3:       ./Backends/installed/spheno/4.0.3/lib/libSPheno.so
 
 SuperIso:
   3.6:         ./Backends/installed/superiso/3.6/libsuperiso.so
@@ -87,6 +148,12 @@ SUSY_HIT:
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m
 
+vevacious:
+  1.0:         ./Backends/installed/vevacious/1.0/lib/libVevaciousPlusPlus.so
+
+# Work in progress:
+# xsecBE:
+#   1.0.2:       ./Backends/installed/xsecBE/1.0.2/xsecBE_gambit.py
 
 # Example/debug backends
 
@@ -112,3 +179,4 @@ LibFarrayTest:
 
 libMathematicaTest:
   1.0:         ./Backends/examples/libMathematicaTest.m
+

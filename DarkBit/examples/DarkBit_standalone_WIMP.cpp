@@ -15,6 +15,8 @@
 ///  \date 2016 July
 ///  \author Sebastian Wild
 ///  \date 2016 Aug
+///  \date 2020
+///  \author Torsten Bringmann
 ///
 ///  *********************************************
 
@@ -29,11 +31,11 @@
 #include <boost/multi_array.hpp>
 
 using namespace DarkBit::Functown;     // Functors wrapping the module's actual module functions
-using namespace DarkBit::Accessors;    // Helper functions that provide some info about the module
 using namespace BackendIniBit::Functown;    // Functors wrapping the backend initialisation functions
 
-QUICK_FUNCTION(DarkBit, TH_ProcessCatalog, OLD_CAPABILITY, TH_ProcessCatalog_WIMP, DarkBit::TH_ProcessCatalog, ())
+QUICK_FUNCTION(DarkBit, TH_ProcessCatalog, OLD_CAPABILITY, TH_ProcessCatalog_WIMP, TH_ProcessCatalog, ())
 QUICK_FUNCTION(DarkBit, DarkMatter_ID, OLD_CAPABILITY, DarkMatter_ID_WIMP, std::string, ())
+QUICK_FUNCTION(DarkBit, DarkMatterConj_ID, OLD_CAPABILITY, DarkMatterConj_ID_WIMP, std::string, ())
 QUICK_FUNCTION(DarkBit, DD_couplings, OLD_CAPABILITY, DD_couplings_WIMP, DM_nucleon_couplings, ())
 
 
@@ -59,26 +61,46 @@ void dump_array_to_file(const std::string & filename, const
   file.close();
 }
 
-void dumpSpectrum(std::string filename, double mWIMP, double sv, std::vector<double> brList, double mPhi = -1)
+void dumpSpectrum(std::vector<std::string> filenames, double mWIMP, double sv, std::vector<double> brList, double mPhi = -1)
 {
   DarkMatter_ID_WIMP.reset_and_calculate();
+  DarkMatterConj_ID_WIMP.reset_and_calculate();
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.setOption<double>("mWIMP", mWIMP);
   TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
   if (mPhi != -1)
     TH_ProcessCatalog_WIMP.setOption<double>("mPhi", mPhi);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
+  DM_process_from_ProcessCatalog.reset_and_calculate();
   RD_fraction_one.reset_and_calculate();
-  SimYieldTable_DarkSUSY.reset_and_calculate();
-  SimYieldTable_MicrOmegas.reset_and_calculate();
-  GA_missingFinalStates.reset_and_calculate();
+  GA_SimYieldTable_MicrOmegas.reset_and_calculate();
+  GA_SimYieldTable_DarkSUSY.reset_and_calculate();
+  positron_SimYieldTable_DarkSUSY.reset_and_calculate();
+  electron_SimYieldTable_from_positron_SimYieldTable.reset_and_calculate();
+  antiproton_SimYieldTable_DarkSUSY.reset_and_calculate();
+  antideuteron_SimYieldTable_DarkSUSY.reset_and_calculate();
+  Combine_SimYields.reset_and_calculate();
   cascadeMC_FinalStates.reset_and_calculate();
+  cascadeMC_InitialStates.reset_and_calculate();
   cascadeMC_DecayTable.reset_and_calculate();
   cascadeMC_LoopManager.reset_and_calculate();
   cascadeMC_gammaSpectra.reset_and_calculate();
   GA_AnnYield_General.reset_and_calculate();
-  dump_GammaSpectrum.setOption<std::string>("filename", filename);
-  dump_GammaSpectrum.reset_and_calculate();
+  dump_gammaSpectrum.setOption<std::string>("filename", filenames[0]);
+  dump_gammaSpectrum.reset_and_calculate();
+  if (filenames.size() == 1) return;
+  cascadeMC_positronSpectra.reset_and_calculate();
+  positron_AnnYield_General.reset_and_calculate();
+  dump_positronSpectrum.setOption<std::string>("filename", filenames[1]);
+  dump_positronSpectrum.reset_and_calculate();
+  cascadeMC_antiprotonSpectra.reset_and_calculate();
+  antiproton_AnnYield_General.reset_and_calculate();
+  dump_antiprotonSpectrum.setOption<std::string>("filename", filenames[2]);
+  dump_antiprotonSpectrum.reset_and_calculate();
+  cascadeMC_antideuteronSpectra.reset_and_calculate();
+  antideuteron_AnnYield_General.reset_and_calculate();
+  dump_antideuteronSpectrum.setOption<std::string>("filename", filenames[3]);
+  dump_antideuteronSpectrum.reset_and_calculate();
 }
 
 // ---- Set up basic internal structures for direct & indirect detection ----
@@ -88,7 +110,7 @@ namespace Gambit
   namespace DarkBit
   {
 
-    void TH_ProcessCatalog_WIMP(DarkBit::TH_ProcessCatalog& result)
+    void TH_ProcessCatalog_WIMP(TH_ProcessCatalog& result)
     {
       using namespace Pipes::TH_ProcessCatalog_WIMP;
       using std::vector;
@@ -105,38 +127,44 @@ namespace Gambit
       // Import particle masses and couplings
       ///////////////////////////////////////
 
-#define addParticle(Name, Mass, spinX2)                                        \
-      catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
-      (Name , TH_ParticleProperty(Mass, spinX2)));
+      #define addParticle(Name, Mass, spinX2)                                        \
+        catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
+        (Name , TH_ParticleProperty(Mass, spinX2)));
 
-      /// Option mWIMP<double>: WIMP mass in GeV (required)
-      double mWIMP = runOptions->getValue<double>("mWIMP");
-      /// Option sv<double>: Cross-section in cm3/s (required)
-      double sv = runOptions->getValue<double>("sv");
-      double b = 0;  // defined as sv(v) = sv(v=0) + b*(sv=0)*v**2
-      /// Option brList<std::vector<double>>: List of branching ratios (required)
-      auto brList = runOptions->getValue<std::vector<double>>("brList");
-      /// Option mWIMP<double>: WIMP mass in GeV (required)
-      double mPhi = runOptions->getValueOrDef<double>(59.0, "mPhi");
+        /// Option mWIMP<double>: WIMP mass in GeV (required)
+        double mWIMP = runOptions->getValue<double>("mWIMP");
+        /// Option sv<double>: Cross-section in cm3/s (required)
+        double sv = runOptions->getValue<double>("sv");
+        double b = 0;  // defined as sv(v) = sv(v=0) + b*(sv=0)*v**2
+        /// Option brList<std::vector<double>>: List of branching ratios (required)
+        auto brList = runOptions->getValue<std::vector<double>>("brList");
+        /// Option mWIMP<double>: WIMP mass in GeV (required)
+        double mPhi = runOptions->getValueOrDef<double>(59.0, "mPhi");
 
-      addParticle("gamma", 0.0,  2)
-      addParticle("Z0", 91.2,  2)
-      addParticle("W+", 80.39, 2)
-      addParticle("W-", 80.39, 2)
-      addParticle("e+_3", 1.8,  1)
-      addParticle("e-_3", 1.8,  1)
-      addParticle("e+_1", 0.00051, 1)
-      addParticle("e-_1", 0.00051, 1)
-      addParticle("b", 4.9,  1)
-      addParticle("bbar", 4.9,  1)
-      addParticle("d_3", 4.9,  1)
-      addParticle("dbar_3", 4.9,  1)
+        addParticle("gamma", 0.0, 2)
+        addParticle("Z0", 91.2,  2)
+        addParticle("W+", 80.39, 2)
+        addParticle("W-", 80.39, 2)
+        addParticle("e+_3", 1.8,  1)
+        addParticle("e-_3", 1.8,  1)
+        addParticle("e+_1", 0.00051, 1)
+        addParticle("e-_1", 0.00051, 1)
+        addParticle("b", 4.9,  1)
+        addParticle("bbar", 4.9,  1)
+        addParticle("d_3", 4.9,  1)
+        addParticle("dbar_3", 4.9,  1)
+        addParticle("p", m_proton, 1)
+        addParticle("pbar", m_proton, 1)
+        addParticle("n", m_neutron, 1)
+        addParticle("nbar", m_neutron, 1)
+        addParticle("D", m_deuteron, 2)
+        addParticle("Dbar", m_deuteron, 2)
 
-      addParticle("WIMP", mWIMP,  0)
-      addParticle("phi",  mPhi,  0)
-      addParticle("phi1", 100.,  0)
-      addParticle("phi2", 100.,  0)
-#undef addParticle
+        addParticle("WIMP", mWIMP,  0)
+        addParticle("phi",  mPhi,  0)
+        addParticle("phi1", 100.,  0)
+        addParticle("phi2", 100.,  0)
+      #undef addParticle
 
       TH_Channel dec_channel(daFunk::vec<string>("gamma", "gamma"), daFunk::cnst(1.));
       process_dec.channelList.push_back(dec_channel);
@@ -200,6 +228,12 @@ namespace Gambit
       result = "WIMP";
     }
 
+    // Identifier for conjugate DM particle
+    void DarkMatterConj_ID_WIMP(std::string& result)
+    {
+      result = "WIMP";
+    }
+
     void DD_couplings_WIMP(DM_nucleon_couplings& result)
     {
       using namespace Pipes::DD_couplings_WIMP;
@@ -242,8 +276,9 @@ int main(int argc, char* argv[])
     std::cout << "      in <sigma v> / m_WIMP parameter space." << std::endl;
     std::cout << "  7: Outputs tables of direct detection likelihoods in sigma / m_WIMP parameter" << std::endl;
     std::cout << "      space." << std::endl;
-    std::cout << "  >=10: Outputs spectrum of gamma rays from WIMP annihilation to phi phi_2. The" << std::endl;
-    std::cout << "       mode value is m_phi while m_phi_2=100 GeV (dPhi_dE_FCMC_(mode).dat)" << std::endl;
+    std::cout << "  >=10: Outputs spectra of gamma rays, positrons, anti-protons and anti-deuterons from" << std::endl;
+    std::cout << "        WIMP annihilation to phi phi_2. The mode value is m_phi while m_phi_2=100 GeV." << std::endl;
+    std::cout << "        The output filenames are dPhi_dE_FCMC_(spectrum)_(mode).dat." << std::endl;
     std::cout << " N.B. Here dPhi/dE = sigma v / m_chi^2 * dN/dE" << std::endl;
     std::cout << "**************************************************************************************" << std::endl;
     std::cout << std::endl;
@@ -268,9 +303,9 @@ int main(int argc, char* argv[])
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY5.1.3"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 5.1.3 is missing!");
-    if (not Backends::backendInfo().works["gamLike1.0.0"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.0 is missing!");
-    if (not Backends::backendInfo().works["DDCalc2.0.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.0.0 is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.5"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.5 is missing!");
+    if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
+    if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
 
     // ---- Initialize models ----
@@ -304,50 +339,71 @@ int main(int argc, char* argv[])
     RD_fraction_one.reset_and_calculate();
 
     // Set up DDCalc backend initialization
-    Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-    Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment.setStatus(2);
-    Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-    DDCalc_2_0_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+    Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+    Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
+    Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+    DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
     // Assume for direct and indirect detection likelihoods that dark matter
     // density is always the measured one (despite relic density results)
-    DDCalc_2_0_0_init.resolveDependency(&RD_fraction_one);
-    DDCalc_2_0_0_init.resolveDependency(&mwimp_generic);
-    DDCalc_2_0_0_init.resolveDependency(&DD_couplings_WIMP);
+    DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
+    DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
+    DDCalc_2_2_0_init.resolveDependency(&DD_couplings_WIMP);
 
     // Initialize gamLike backend
-    gamLike_1_0_0_init.reset_and_calculate();
+    gamLike_1_0_1_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_5_1_3_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_2_5_init.reset_and_calculate();
 
     // Initialize MicrOmegas backend
     // The below allows us to initialise MicrOmegas_MSSM without a particular MSSM model.
     MicrOmegas_MSSM_3_6_9_2_init.notifyOfModel("Halo_Einasto");
     MicrOmegas_MSSM_3_6_9_2_init.reset_and_calculate();
 
-    // ---- Gamma-ray yields ----
+    // ---- Gamma-ray and other indirect detection yields ----
 
     // Initialize tabulated gamma-ray yields
-    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dshayield);
-    SimYieldTable_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::dNdE);
-    SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
-    SimYieldTable_MicrOmegas.setOption<bool>("allow_yield_extrapolation", true);
+    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    GA_SimYieldTable_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::dNdE);
+    GA_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
+    GA_SimYieldTable_MicrOmegas.setOption<bool>("allow_yield_extrapolation", true);
 
-    // Select SimYieldTable
-    //auto SimYieldTablePointer = &SimYieldTable_MicrOmegas;
-    auto SimYieldTablePointer = &SimYieldTable_DarkSUSY;
+    // Select whether to use DarkSUSY or MicrOmegas for simulated gamma-ray yields
+    //auto SimYieldTablePointer = &GA_SimYieldTable_MicrOmegas;
+    auto SimYieldTablePointer = &GA_SimYieldTable_DarkSUSY;
+    Combine_SimYields.resolveDependency(SimYieldTablePointer);
 
-    // Collect missing final states for simulation in cascade MC
-    GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_WIMP);
-    GA_missingFinalStates.resolveDependency(SimYieldTablePointer);
-    GA_missingFinalStates.resolveDependency(&DarkMatter_ID_WIMP);
+    // Choose DarkSUSY for e+, e-, pbar and Dbar yields
+    positron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    electron_SimYieldTable_from_positron_SimYieldTable.resolveDependency(&positron_SimYieldTable_DarkSUSY);
+    antiproton_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    antideuteron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    positron_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
+    antiproton_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
+    antideuteron_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
+    Combine_SimYields.resolveDependency(&positron_SimYieldTable_DarkSUSY);
+    Combine_SimYields.resolveDependency(&electron_SimYieldTable_from_positron_SimYieldTable);
+    Combine_SimYields.resolveDependency(&antiproton_SimYieldTable_DarkSUSY);
+    Combine_SimYields.resolveDependency(&antideuteron_SimYieldTable_DarkSUSY);
+
+    // Identify process as annihilation rather than decay
+    DM_process_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
+    DM_process_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
 
     // Infer for which type of final states particles MC should be performed
     cascadeMC_FinalStates.setOption<std::vector<std::string>>("cMC_finalStates", daFunk::vec((std::string)"gamma"));
 
+    // Set up initial states for cascade MC
+    cascadeMC_InitialStates.resolveDependency(&cascadeMC_FinalStates);
+    cascadeMC_InitialStates.resolveDependency(&DarkMatter_ID_WIMP);
+    cascadeMC_InitialStates.resolveDependency(&DarkMatterConj_ID_WIMP);
+    cascadeMC_InitialStates.resolveDependency(&TH_ProcessCatalog_WIMP);
+    cascadeMC_InitialStates.resolveDependency(&Combine_SimYields);
+    cascadeMC_InitialStates.resolveDependency(&DM_process_from_ProcessCatalog);
+
     // Collect decay information for cascade MC
     cascadeMC_DecayTable.resolveDependency(&TH_ProcessCatalog_WIMP);
-    cascadeMC_DecayTable.resolveDependency(SimYieldTablePointer);
+    cascadeMC_DecayTable.resolveDependency(&Combine_SimYields);
 
     // Set up MC loop manager for cascade MC
     cascadeMC_LoopManager.setOption<int>("cMC_maxEvents", 20000);
@@ -355,136 +411,166 @@ int main(int argc, char* argv[])
     cascadeMC_Histograms.setOption<double>("cMC_gammaRelError", .05);
     cascadeMC_Histograms.setOption<int>("cMC_numSpecSamples", 25);
     cascadeMC_Histograms.setOption<int>("cMC_NhistBins", 300);
-    cascadeMC_LoopManager.resolveDependency(&GA_missingFinalStates);
+    cascadeMC_LoopManager.resolveDependency(&cascadeMC_InitialStates);
     std::vector<functor*> nested_functions = initVector<functor*>(
-        &cascadeMC_InitialState, &cascadeMC_GenerateChain, &cascadeMC_Histograms, &cascadeMC_EventCount);
+        &cascadeMC_GenerateChain, &cascadeMC_Histograms, &cascadeMC_EventCount);
     cascadeMC_LoopManager.setNestedList(nested_functions);
 
-    // Set up initial state for cascade MC step
-    cascadeMC_InitialState.resolveDependency(&GA_missingFinalStates);
-    cascadeMC_InitialState.resolveLoopManager(&cascadeMC_LoopManager);
-    //cascadeMC_InitialState.reset_and_calculate();
-
     // Perform MC step for cascade MC
-    cascadeMC_GenerateChain.resolveDependency(&cascadeMC_InitialState);
     cascadeMC_GenerateChain.resolveDependency(&cascadeMC_DecayTable);
     cascadeMC_GenerateChain.resolveLoopManager(&cascadeMC_LoopManager);
-    //cascadeMC_GenerateChain.reset_and_calculate();
 
     // Generate histogram for cascade MC
-    cascadeMC_Histograms.resolveDependency(&cascadeMC_InitialState);
     cascadeMC_Histograms.resolveDependency(&cascadeMC_GenerateChain);
     cascadeMC_Histograms.resolveDependency(&TH_ProcessCatalog_WIMP);
-    cascadeMC_Histograms.resolveDependency(SimYieldTablePointer);
+    cascadeMC_Histograms.resolveDependency(&Combine_SimYields);
     cascadeMC_Histograms.resolveDependency(&cascadeMC_FinalStates);
     cascadeMC_Histograms.resolveLoopManager(&cascadeMC_LoopManager);
-    //cascadeMC_Histograms.reset_and_calculate();
 
     // Check convergence of cascade MC
-    cascadeMC_EventCount.resolveDependency(&cascadeMC_InitialState);
     cascadeMC_EventCount.resolveLoopManager(&cascadeMC_LoopManager);
-    //cascadeMC_EventCount.reset_and_calculate();
-
-    // Start cascade MC loop
 
     // Infer gamma-ray spectra for recorded MC results
-    cascadeMC_gammaSpectra.resolveDependency(&GA_missingFinalStates);
+    cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_InitialStates);
     cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_FinalStates);
     cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_Histograms);
     cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_EventCount);
 
+    // Infer positron spectra for recorded MC results
+    cascadeMC_positronSpectra.resolveDependency(&cascadeMC_InitialStates);
+    cascadeMC_positronSpectra.resolveDependency(&cascadeMC_FinalStates);
+    cascadeMC_positronSpectra.resolveDependency(&cascadeMC_Histograms);
+    cascadeMC_positronSpectra.resolveDependency(&cascadeMC_EventCount);
+    dump_positronSpectrum.resolveDependency(&positron_AnnYield_General);
+
+    // Infer anti-proton spectra for recorded MC results
+    cascadeMC_antiprotonSpectra.resolveDependency(&cascadeMC_InitialStates);
+    cascadeMC_antiprotonSpectra.resolveDependency(&cascadeMC_FinalStates);
+    cascadeMC_antiprotonSpectra.resolveDependency(&cascadeMC_Histograms);
+    cascadeMC_antiprotonSpectra.resolveDependency(&cascadeMC_EventCount);
+    dump_antiprotonSpectrum.resolveDependency(&antiproton_AnnYield_General);
+
+    // Infer anti-deuteron spectra for recorded MC results
+    cascadeMC_antideuteronSpectra.resolveDependency(&cascadeMC_InitialStates);
+    cascadeMC_antideuteronSpectra.resolveDependency(&cascadeMC_FinalStates);
+    cascadeMC_antideuteronSpectra.resolveDependency(&cascadeMC_Histograms);
+    cascadeMC_antideuteronSpectra.resolveDependency(&cascadeMC_EventCount);
+    dump_antideuteronSpectrum.resolveDependency(&antideuteron_AnnYield_General);
+
     // Calculate total gamma-ray yield (cascade MC + tabulated results)
     GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_WIMP);
-    GA_AnnYield_General.resolveDependency(SimYieldTablePointer);
+    GA_AnnYield_General.resolveDependency(&GA_SimYieldTable_DarkSUSY);
     GA_AnnYield_General.resolveDependency(&DarkMatter_ID_WIMP);
+    GA_AnnYield_General.resolveDependency(&DarkMatterConj_ID_WIMP);
     GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
+    dump_gammaSpectrum.resolveDependency(&GA_AnnYield_General);
 
-    dump_GammaSpectrum.resolveDependency(&GA_AnnYield_General);
+    // Calculate total positron yield (cascade MC + tabulated results)
+    positron_AnnYield_General.resolveDependency(&TH_ProcessCatalog_WIMP);
+    positron_AnnYield_General.resolveDependency(&positron_SimYieldTable_DarkSUSY);
+    positron_AnnYield_General.resolveDependency(&DarkMatter_ID_WIMP);
+    positron_AnnYield_General.resolveDependency(&DarkMatterConj_ID_WIMP);
+    positron_AnnYield_General.resolveDependency(&cascadeMC_positronSpectra);
+    dump_positronSpectrum.resolveDependency(&positron_AnnYield_General);
+
+    // Calculate total anti-proton yield (cascade MC + tabulated results)
+    antiproton_AnnYield_General.resolveDependency(&TH_ProcessCatalog_WIMP);
+    antiproton_AnnYield_General.resolveDependency(&antiproton_SimYieldTable_DarkSUSY);
+    antiproton_AnnYield_General.resolveDependency(&DarkMatter_ID_WIMP);
+    antiproton_AnnYield_General.resolveDependency(&DarkMatterConj_ID_WIMP);
+    antiproton_AnnYield_General.resolveDependency(&cascadeMC_antiprotonSpectra);
+    dump_antiprotonSpectrum.resolveDependency(&antiproton_AnnYield_General);
+
+    // Calculate total anti-deuteron yield (cascade MC + tabulated results)
+    antideuteron_AnnYield_General.resolveDependency(&TH_ProcessCatalog_WIMP);
+    antideuteron_AnnYield_General.resolveDependency(&antideuteron_SimYieldTable_DarkSUSY);
+    antideuteron_AnnYield_General.resolveDependency(&DarkMatter_ID_WIMP);
+    antideuteron_AnnYield_General.resolveDependency(&DarkMatterConj_ID_WIMP);
+    antideuteron_AnnYield_General.resolveDependency(&cascadeMC_antideuteronSpectra);
+    dump_antideuteronSpectrum.resolveDependency(&antideuteron_AnnYield_General);
 
     // Resolve Galactic halo requirements for gamLike
     set_gamLike_GC_halo.resolveDependency(&GalacticHalo_Einasto);
-    set_gamLike_GC_halo.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::set_halo_profile);
+    set_gamLike_GC_halo.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::set_halo_profile);
 
     // Calculate Fermi LAT dwarf likelihood
     lnL_FermiLATdwarfs_gamLike.resolveDependency(&GA_AnnYield_General);
+    lnL_FermiLATdwarfs_gamLike.resolveDependency(&DM_process_from_ProcessCatalog);
     // Assume for direct and indirect detection likelihoods that dark matter
     // density is always the measured one (despite relic density results)
     lnL_FermiLATdwarfs_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
     lnL_HESSGC_gamLike.resolveDependency(&GA_AnnYield_General);
+    lnL_HESSGC_gamLike.resolveDependency(&DM_process_from_ProcessCatalog);
     lnL_HESSGC_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_HESSGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_HESSGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
     lnL_CTAGC_gamLike.resolveDependency(&GA_AnnYield_General);
+    lnL_CTAGC_gamLike.resolveDependency(&DM_process_from_ProcessCatalog);
     lnL_CTAGC_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_CTAGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_CTAGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
     lnL_FermiGC_gamLike.resolveDependency(&GA_AnnYield_General);
+    lnL_FermiGC_gamLike.resolveDependency(&DM_process_from_ProcessCatalog);
     lnL_FermiGC_gamLike.resolveDependency(&RD_fraction_one);
-    lnL_FermiGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_0::Functown::lnL);
+    lnL_FermiGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
 
     // -- Calculate relic density --
+    // *any* of the models listed by "ALLOW_MODELS" in DarkBit_rollcall.hpp will work here
     RD_eff_annrate_from_ProcessCatalog.notifyOfModel("ScalarSingletDM_Z2");
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatterConj_ID_WIMP);
 
     RD_spectrum_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
-    RD_spectrum_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatterConj_ID_WIMP);
 
     RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_from_ProcessCatalog);
 
-    RD_oh2_general.resolveDependency(&RD_spectrum_ordered_func);
-    RD_oh2_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdthlim);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdtab);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdeqn);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdwintp);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::widths);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdmgev);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpth);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpars);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdswitch);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdlun);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdpadd);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rddof);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rderrors);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdtime);
-    RD_oh2_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::DSparticle_code);
 
+    RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
+    RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdpars);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdtime);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdcom);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdens);
+ 
 
     // ---- Calculate direct detection constraints ----
 
     // Calculate direct detection rates for LZ, PandaX 2017, Xenon 1T and PICO-60
-    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple);
-    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple);
-    PICO_60_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    PICO_60_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple);
-    XENON1T_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    XENON1T_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_CalcRates_simple);
+    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+    PICO_60_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    PICO_60_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+    XENON1T_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    XENON1T_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
 
     // Calculate direct detection likelihood for LZ, PandaX 2017, Xenon 1T and PICO-60
     LZ_GetLogLikelihood.resolveDependency(&LZ_Calc);
-    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood);
+    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
     PandaX_2017_GetLogLikelihood.resolveDependency(&PandaX_2017_Calc);
-    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood);
+    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
     XENON1T_2017_GetLogLikelihood.resolveDependency(&XENON1T_2017_Calc);
-    XENON1T_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    XENON1T_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood);
+    XENON1T_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    XENON1T_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
     PICO_60_2017_GetLogLikelihood.resolveDependency(&PICO_60_2017_Calc);
-    PICO_60_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    PICO_60_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_LogLikelihood);
+    PICO_60_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    PICO_60_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
 
     // Provide bin number in LZ
     LZ_GetBinSignal.resolveDependency(&LZ_Calc);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Experiment);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_Bins);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_0_0::Functown::DDCalc_BinSignal);
+    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Bins);
+    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_BinSignal);
 
     // Set generic WIMP mass object
     mwimp_generic.resolveDependency(&TH_ProcessCatalog_WIMP);
@@ -508,12 +594,12 @@ int main(int argc, char* argv[])
       // 5: e+ e-
       // 6: phi phi2
       // 7: gamma e+ e-
-      if (mode==5) dumpSpectrum("dPhi_dE5.dat", mass, sv*0.1, daFunk::vec<double>(0., 0., 0., 0., 0., 0., 0., 1.));
-      if (mode==0) dumpSpectrum("dPhi_dE0.dat", mass, sv, daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));
-      if (mode==1) dumpSpectrum("dPhi_dE1.dat", mass, sv, daFunk::vec<double>(0., 1., 0., 0., 0., 0., 0., 0.));
-      if (mode==2) dumpSpectrum("dPhi_dE2.dat", mass, sv, daFunk::vec<double>(0., 0., 1., 0., 0., 0., 0., 0.));
-      if (mode==3) dumpSpectrum("dPhi_dE3.dat", mass, sv, daFunk::vec<double>(0., 0., 0., 1., 0., 0., 0., 0.));
-      if (mode==4) dumpSpectrum("dPhi_dE4.dat", mass, sv, daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));
+      if (mode==5) dumpSpectrum({"dPhi_dE5.dat"}, mass, sv*0.1, daFunk::vec<double>(0., 0., 0., 0., 0., 0., 0., 1.));
+      if (mode==0) dumpSpectrum({"dPhi_dE0.dat"}, mass, sv, daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));
+      if (mode==1) dumpSpectrum({"dPhi_dE1.dat"}, mass, sv, daFunk::vec<double>(0., 1., 0., 0., 0., 0., 0., 0.));
+      if (mode==2) dumpSpectrum({"dPhi_dE2.dat"}, mass, sv, daFunk::vec<double>(0., 0., 1., 0., 0., 0., 0., 0.));
+      if (mode==3) dumpSpectrum({"dPhi_dE3.dat"}, mass, sv, daFunk::vec<double>(0., 0., 0., 1., 0., 0., 0., 0.));
+      if (mode==4) dumpSpectrum({"dPhi_dE4.dat"}, mass, sv, daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));
     }
 
     // Generate gamma-ray spectra for various masses
@@ -522,8 +608,14 @@ int main(int argc, char* argv[])
       std::cout << "Producing test spectra." << std::endl;
       double mass = 100.;
       double sv = 3e-26;
-      std::string filename = "dPhi_dE_FCMC_" + std::to_string(mode) + ".dat";
-      dumpSpectrum(filename, mass, sv, daFunk::vec<double>(0., 0., 0., 0., 0., 0., 1., 0.), mode);
+      std::vector<std::string> filenames =
+      {
+        "dPhi_dE_FCMC_gamma_" + std::to_string(mode) + ".dat",
+        "dPhi_dE_FCMC_positron_" + std::to_string(mode) + ".dat",
+        "dPhi_dE_FCMC_antiproton_" + std::to_string(mode) + ".dat",
+        "dPhi_dE_FCMC_antideuteron_" + std::to_string(mode) + ".dat"
+      };
+      dumpSpectrum(filenames, mass, sv, daFunk::vec<double>(0., 0., 0., 0., 0., 0., 1., 0.), mode);
     }
 
     // Systematic parameter maps annihilation
@@ -560,12 +652,15 @@ int main(int argc, char* argv[])
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
+          DM_process_from_ProcessCatalog.reset_and_calculate();
           RD_fraction_one.reset_and_calculate();
-          SimYieldTable_DarkSUSY.reset_and_calculate();
-          SimYieldTable_MicrOmegas.reset_and_calculate();
-          GA_missingFinalStates.reset_and_calculate();
+          GA_SimYieldTable_MicrOmegas.reset_and_calculate();
+          GA_SimYieldTable_DarkSUSY.reset_and_calculate();
+          Combine_SimYields.reset_and_calculate();
           cascadeMC_FinalStates.reset_and_calculate();
+          cascadeMC_InitialStates.reset_and_calculate();
           cascadeMC_DecayTable.reset_and_calculate();
           cascadeMC_LoopManager.reset_and_calculate();
           cascadeMC_gammaSpectra.reset_and_calculate();
@@ -609,12 +704,15 @@ int main(int argc, char* argv[])
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(0., 0., 0., 1., 0., 0., 0., 0.));
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
+          DM_process_from_ProcessCatalog.reset_and_calculate();
           RD_fraction_one.reset_and_calculate();
-          SimYieldTable_DarkSUSY.reset_and_calculate();
-          SimYieldTable_MicrOmegas.reset_and_calculate();
-          GA_missingFinalStates.reset_and_calculate();
+          GA_SimYieldTable_MicrOmegas.reset_and_calculate();
+          GA_SimYieldTable_DarkSUSY.reset_and_calculate();
+          Combine_SimYields.reset_and_calculate();
           cascadeMC_FinalStates.reset_and_calculate();
+          cascadeMC_InitialStates.reset_and_calculate();
           cascadeMC_DecayTable.reset_and_calculate();
           cascadeMC_LoopManager.reset_and_calculate();
           cascadeMC_gammaSpectra.reset_and_calculate();
@@ -640,12 +738,13 @@ int main(int argc, char* argv[])
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(0., 0., 0., 0., 0., 1., 0., 0.));
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
           RD_eff_annrate_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_ordered_func.reset_and_calculate();
-          RD_oh2_general.reset_and_calculate();
-          oh2 = RD_oh2_general(0);
+          RD_oh2_DS_general.reset_and_calculate();
+          oh2 = RD_oh2_DS_general(0);
           //std::cout << "Omega h^2 = " << oh2 << std::endl;
           oh2_array[i][j] = oh2;
         }
@@ -695,6 +794,7 @@ int main(int argc, char* argv[])
           reduced_mass = (m_list[i] * mN) / (mN + m_list[i]);
           g = sqrt(s_list[j]*pi/gev2cm2) / (reduced_mass);
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
           // Assume for direct and indirect detection likelihoods that dark matter
           // density is always the measured one (despite relic density results)
@@ -706,7 +806,7 @@ int main(int argc, char* argv[])
           DD_couplings_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
 
-          DDCalc_2_0_0_init.reset_and_calculate();
+          DDCalc_2_2_0_init.reset_and_calculate();
           LZ_Calc.reset_and_calculate();
           LZ_GetLogLikelihood.reset_and_calculate();
 
@@ -726,7 +826,7 @@ int main(int argc, char* argv[])
           Halo_primary_parameters->setValue("vesc", 544.);
           ExtractLocalMaxwellianHalo.reset_and_calculate();
 
-          DDCalc_2_0_0_init.reset_and_calculate();
+          DDCalc_2_2_0_init.reset_and_calculate();
           PICO_60_2017_Calc.reset_and_calculate();
           PICO_60_2017_GetLogLikelihood.reset_and_calculate();
           lnL4 = PICO_60_2017_GetLogLikelihood(0);
@@ -736,7 +836,7 @@ int main(int argc, char* argv[])
           //std::cout << "XENON1T_2017 SI lnL = " << lnL3 << std::endl;
           //std::cout << "PICO_60_2017 SI lnL = " << lnL4 << std::endl;
 
-          DDCalc_2_0_0_init.reset_and_calculate();
+          DDCalc_2_2_0_init.reset_and_calculate();
           LZ_Calc.reset_and_calculate();
           std::vector<double> events;
           LZ_GetBinSignal.reset_and_calculate();
@@ -782,6 +882,7 @@ int main(int argc, char* argv[])
           reduced_mass = (m_list[i] * m_proton) / (m_proton + m_list[i]);
           g = sqrt(s_list[j]*pi/(3*gev2cm2)) / (reduced_mass);
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
           RD_fraction_one.reset_and_calculate();
           DD_couplings_WIMP.setOption<double>("gps", 0.);
@@ -791,7 +892,7 @@ int main(int argc, char* argv[])
           DD_couplings_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
 
-          DDCalc_2_0_0_init.reset_and_calculate();
+          DDCalc_2_2_0_init.reset_and_calculate();
           LZ_Calc.reset_and_calculate();
           LZ_GetLogLikelihood.reset_and_calculate();
           XENON1T_2017_Calc.reset_and_calculate();
@@ -809,7 +910,7 @@ int main(int argc, char* argv[])
           Halo_primary_parameters->setValue("vesc", 544.);
           ExtractLocalMaxwellianHalo.reset_and_calculate();
 
-          DDCalc_2_0_0_init.reset_and_calculate();
+          DDCalc_2_2_0_init.reset_and_calculate();
           PICO_60_2017_Calc.reset_and_calculate();
           PICO_60_2017_GetLogLikelihood.reset_and_calculate();
           lnL4 = PICO_60_2017_GetLogLikelihood(0);

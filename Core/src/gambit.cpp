@@ -171,6 +171,9 @@ int main(int argc, char* argv[])
       // Set up the printer manager for redirection of scan output.
       Printers::PrinterManager printerManager(iniFile.getPrinterNode(),Core().resume);
 
+      // Assign printer manager to a global variable from which it can be retrieved in module functions that need it
+      set_global_printer_manager(&printerManager);
+
       // Set up dependency resolver
       DRes::DependencyResolver dependencyResolver(Core(), Models::ModelDB(), iniFile, Utils::typeEquivalencies(), *(printerManager.printerptr));
 
@@ -181,6 +184,9 @@ int main(int argc, char* argv[])
       if (rank == 0) cout << "Resolving dependencies and backend requirements.  Hang tight..." << endl;
       dependencyResolver.doResolution();
       if (rank == 0) cout << "...done!" << endl;
+ 
+      // Print the citation keys required for the used backends
+      if (rank == 0) dependencyResolver.printCitationKeys();
 
       // Check that all requested models are used for at least one computation
       Models::ModelDB().checkPrimaryModelFunctorUsage(Core().getActiveModelFunctors());
@@ -188,8 +194,8 @@ int main(int argc, char* argv[])
       // Report the proposed (output) functor evaluation order
       dependencyResolver.printFunctorEvalOrder(Core().show_runorder);
 
-      // If true, bail out (just wanted the run order, not a scan); otherwise, keep going.
-      if (not Core().show_runorder)
+      // If true, bail out (just wanted the run order or backend list, not a scan); otherwise, keep going.
+      if (not Core().show_runorder and not Core().show_backends)
       {
         //Define the likelihood container object for the scanner
         Likelihood_Container_Factory factory(Core(), dependencyResolver, iniFile, *(printerManager.printerptr));

@@ -1,0 +1,275 @@
+##########################################################################
+## GAMBIT configuration for testing mass spectrum generation for several
+## MSSM variants (CMSSM by default)
+##
+## Only requires SpecBit and PrecisionBit.
+##########################################################################
+
+# NB: If MSSMspectrum_test is chosen this example yaml file will use
+# flexiblesusy, so then make sure you have
+# built gambit with -DBUILD_FS_MODELS="CMSSM;MSSMatMGUT;MSSM"
+# If VS_likelihood and VS_result is chosen then make sure 
+# you have also installed the vevacious backend, i.e.
+# within the build directory run 'make vevacious'
+
+
+Parameters:
+
+  # SM parameters
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  # SUSY parameters
+  # Choose here the model and parameters to be tested, as well as the equivalent function below
+
+  CMSSM:
+    M0: 
+      range: [1500, 1600]
+    M12: 1001.79
+    A0: -4550.25
+    SignMu: 1
+    TanBeta: 20.3845
+
+#  MSSM30atMGUT:
+#
+#    mHu2: 15625
+#    mHd2: 15625
+#
+#    M1: 500
+#    M2: 500
+#    M3: 500
+#
+#    mq2_1: 15625.0
+#    mq2_2: 15625.0
+#    mq2_3: 15625.0
+#
+#    ml2_1: 15625.0
+#    ml2_2: 15625.0
+#    ml2_3: 15625.0
+#
+#    md2_1: 15625.0
+#    md2_2: 15625.0
+#    md2_3: 15625.0
+#
+#    mu2_1: 15625.0
+#    mu2_2: 15625.0
+#    mu2_3: 15625.0
+#
+#    me2_1: 15625.0
+#    me2_2: 15625.0
+#    me2_3: 15625.0
+#
+#    Ae_1: 0
+#    Ae_2: 0
+#    Ae_3: 0
+#    Ad_1: 0
+#    Ad_2: 0
+#    Ad_3: 0
+#    Au_1: 0
+#    Au_2: 0
+#    Au_3: 0
+#
+#    SignMu: 1
+#    TanBeta: 10
+
+#  MSSM25atQ:
+#
+#    Qin: 1.9422e+16
+#    SignMu: 1
+#    TanBeta: 10
+#    mHu2: 15625
+#    mHd2: 15625
+#
+#    M1: 500
+#    M2: 500
+#    M3: 500
+#
+#    mq2_1: 15625.0
+#    mq2_2: 15625.0
+#    mq2_3: 15625.0
+#
+#    ml2_1: 15625.0
+#    ml2_2: 15625.0
+#    ml2_3: 15625.0
+#
+#    md2_1: 15625.0
+#    md2_2: 15625.0
+#    md2_3: 15625.0
+#
+#    mu2_1: 15625.0
+#    mu2_2: 15625.0
+#    mu2_3: 15625.0
+#
+#    me2_1: 15625.0
+#    me2_2: 15625.0
+#    me2_3: 15625.0
+#
+#    Ae_12: 1000
+#    Ae_3: 0
+#    Ad_3: 0
+#    Au_3: 0
+
+
+Priors:
+
+  # None: all parameters are fixed
+
+
+Printer:
+
+  printer: ascii
+  options:
+    output_file: "SpecBit_test.txt"
+
+
+Scanner:
+
+  # Use trivial scanner toy_mcmc with the minumum number of points
+
+  use_scanner: toy_mcmc
+
+  scanners:
+    toy_mcmc:
+      plugin: toy_mcmc
+      point_number: 2
+      output_file:  output
+      like:  Likelihood
+
+
+ObsLikes:
+
+  # Require the SpecBit test functions
+  # Choose MSSMspectrum_test for test with FlexibleSUSY and SPheno_MSSM_test for test with SPheno
+  - purpose:      Test
+    capability:   run_MSSMspectrum_test
+    type:         bool
+    #function:     MSSMspectrum_test
+    function:     SPheno_MSSM_test
+
+  # Vacuum Stability Likelihood 
+  - capability:   VS_likelihood
+    purpose:      LogLike
+    sub_capabilities:   
+      global: [quantum]
+      nearest: [quantum]
+
+  # Print all vevacious results
+  - capability:   VS_results
+    purpose:      Obs
+
+  - purpose:    Observable
+    capability: SLHA1_violation
+
+  - purpose:    Observable
+    capability: MSSM_spectrum
+    type:       map_str_dbl
+
+Rules:
+
+  # Specify the rules to calculate the MSSM spectrum,
+  # i.e. the function specific to the model and spectrum calculator
+  - capability:    unimproved_MSSM_spectrum
+    type:         Spectrum
+    #function:     get_CMSSM_spectrum_FS
+    #function:     get_MSSMatMGUT_spectrum_FS
+    #function:     get_MSSMatQ_spectrum_FS
+    function:     get_MSSM_spectrum_SPheno
+    options:
+    # FlexibleSUSY options
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 1
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+   # SPheno options
+      n_run:                 30
+      delta_mass:            1.0e-4
+
+  # Choose where to get the precision spectrum from
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+    #function: make_MSSM_precision_spectrum_W
+    #function: make_MSSM_precision_spectrum_H_W
+    #function: make_MSSM_precision_spectrum_4H_W
+    # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
+    # or make_MSSM_precision_spectrum_H_W.
+    # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
+    # Choose to use the difference between the precision and spectrum generator predictions, along
+    # with the precision error estimate, to estimate the theoretical error on the prediction.
+    options:
+      Higgs_predictions_source: 1
+      Higgs_predictions_error_method: 4
+
+  # Make sure to use the next-to-latest version (2.11.3) of FeynHiggs for things that need it,
+  # as the latest version (2.12.0) is buggy.
+  # In practice, the easiest way to do this is just to not install / nuke the versions you don't want to use, e.g.
+  #  make nuke-feynhiggs_2_12_0
+  #  make nuke-feynhiggs_2_11_2
+  # In a future version of GAMBIT, it will possible to just do this here in the yaml file:
+  #- backend: FeynHiggs
+  #  version: 2.11.3
+  # If you want to do it from the yaml file now, you need to do this:
+  #- capability: FH_Couplings_output
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+  #- capability: FH_Precision
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+  # The following two rules only have an impact when using make_MSSM_precision_spectrum_H_W
+  #- capability: prec_HiggsMasses
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+  #- capability: FH_MSSMMasses
+  #  backends:
+  #  - {backend: FeynHiggs, version: 2.11.3}
+
+  # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
+  - capability: prec_mh
+    function: FH_HiggsMass
+    #function: SHD_HiggsMass
+
+  # pass settings to vevacious
+  - capability: initialize_vevacious
+    options:
+     # phc or hom4ps2 for homotopy continuation 
+     homotopy_backend: phc
+     where_to_save_input: output/Vevacious_iniFiles/
+     # Whether minuit focuses on speed or number of function calls
+     # possible values (fastest to slowest): 0, 1, 2  
+     minuit_strategy: 0
+     # If the path deformation takes longer than this number in seconds
+     # stop the calculation.
+     path_finding_timeout: 3600
+     # Resolutions for integration of equations of motion in overshoot
+     # undershoot procedure
+     radial_resolution_undershoot_overshoot: 0.005
+     PathResolution: 500
+
+Logger:
+
+  # Select the log files
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [SpecBit] : "SpecBit.log"
+
+
+KeyValues:
+
+  # Choose the output path
+  default_output_path: "runs/SpecBit_tests"
+
+  # Choose to use model spectific funtions during dependency resolution
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  # Choose a lower cutoff for the likelihood
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6

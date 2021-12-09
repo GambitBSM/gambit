@@ -13,6 +13,10 @@
 ///  \author Ben Farmer
 ///          (benjamin.farmer@fysik.su.se)
 ///    \date 2014 Sep - Dec, 2015 Jan - May
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date Jul 2020
 ///  
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)

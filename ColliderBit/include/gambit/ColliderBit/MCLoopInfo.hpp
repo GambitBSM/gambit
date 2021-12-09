@@ -30,11 +30,18 @@ namespace Gambit
     /// @brief Container for event loop status data and settings
     struct MCLoopInfo
     {
+     
+      // Event genration has been bypassed: Default = false
+      bool event_gen_BYPASS = false;
+
       /// Event generation has started
       bool event_generation_began;
 
+      /// Maximum allowed number of failed events has been reached
+      mutable bool exceeded_maxFailedEvents;
+
       /// Maximum allowed number of failed events has been reached and MC loop terminated
-      bool exceeded_maxFailedEvents;
+      mutable bool end_of_event_file;
 
       /// The names of all colliders
       std::vector<str> collider_names;
@@ -42,8 +49,11 @@ namespace Gambit
       /// Maximum allowable number of failed events before MC loop is terminated for each collider
       std::map<str,int> maxFailedEvents;
 
+      /// Invalidate points where number of failed events > maxFailedEvents? One bool for each collider
+      std::map<str,bool> invalidate_failed_points;
+
       /// Number of events generated for each collider
-      std::map<str,int> event_count;
+      mutable std::map<str,int> event_count;
 
       /// Convergence options for each collider
       std::map<str,convergence_settings> convergence_options;
@@ -64,6 +74,11 @@ namespace Gambit
       const int& current_maxFailedEvents() const;
       /// Get/set maximum allowable number of failed events before MC loop is terminated for the current collider
       int& current_maxFailedEvents();
+
+      /// Get invalidate_failed_points bool for the current collider
+      const bool& current_invalidate_failed_points() const;
+      /// Get/set invalidate_failed_points for the current collider
+      bool& current_invalidate_failed_points();
 
       /// Get the number of events generated for the current collider
       const int& current_event_count() const;
@@ -88,6 +103,12 @@ namespace Gambit
       /// Query whether any analyses exist for a given detector for the current collider
       bool current_analyses_exist_for(const str&) const;
 
+      /// Set exceeded_maxFailedEvents = true and decrement event counter by 1
+      void report_exceeded_maxFailedEvents() const;
+
+      /// Set end_of_event_file = true and decrement event counter by 1
+      void report_end_of_event_file() const;
+
       /// Reset flags
       void reset_flags();
 
@@ -98,6 +119,9 @@ namespace Gambit
 
         /// Iterator to the current maxFailedEvents
         std::map<str,int>::iterator _current_maxFailedEvents_it;
+
+        /// Iterator to the current invalidate_failed_points
+        std::map<str,bool>::iterator _current_invalidate_failed_points_it;
 
         /// Iterator to the current event count
         std::map<str,int>::iterator _current_event_count_it;

@@ -39,6 +39,10 @@
 ///          (sebastian.wild@ph.tum.de)
 ///  \date 2016 Aug
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -56,12 +60,62 @@ namespace Gambit
     //
     //////////////////////////////////////////////////////////////////////////
 
+    /// Retrieve the struct of WIMP properties
+    void WIMP_properties(WIMPprops &props)
+    {
+      using namespace Pipes::WIMP_properties;
+      props.name = *Dep::DarkMatter_ID;
+      props.spinx2 = Models::ParticleDB().get_spinx2(props.name);
+      props.sc = not Models::ParticleDB().has_antiparticle(props.name);
+      props.conjugate = props.sc ? props.name : *Dep::DarkMatterConj_ID;
+      if(props.conjugate != Models::ParticleDB().get_antiparticle(props.name))
+      {
+        DarkBit_error().raise(LOCAL_INFO, "WIMP conjugate name does not match the particle database, please change it.");
+      }
+
+      // Get wimp mass from relevant spectrum
+      if(ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
+        props.mass = Dep::MSSM_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("ScalarSingletDM_Z2_running"))
+        props.mass = Dep::ScalarSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("ScalarSingletDM_Z3_running"))
+        props.mass = Dep::ScalarSingletDM_Z3_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("VectorSingletDM_Z2"))
+        props.mass = Dep::VectorSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("MajoranaSingletDM_Z2"))
+        props.mass = Dep::MajoranaSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("DiracSingletDM_Z2"))
+        props.mass = Dep::DiracSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("AnnihilatingDM_mixture") or ModelInUse("DecayingDM_mixture"))
+        props.mass = *Param["mass"];
+      if(ModelInUse("NREO_scalarDM") or ModelInUse("NREO_MajoranaDM") or ModelInUse("NREO_DiracDM"))
+        props.mass = *Param["m"];
+      if(ModelInUse("MDM"))
+        props.mass = Dep::MDM_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("DMEFT"))
+        props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
+    }
+
     /// Retrieve the DM mass in GeV for generic models (GeV)
     void mwimp_generic(double &result)
     {
       using namespace Pipes::mwimp_generic;
-      result = Dep::TH_ProcessCatalog->getParticleProperty(*Dep::DarkMatter_ID).mass;
+      result = Dep::WIMP_properties->mass;
       if (result < 0.0) DarkBit_error().raise(LOCAL_INFO, "Negative WIMP mass detected.");
+    }
+
+    /// Retrieve the DM spin (times two) generic models
+    void spinwimpx2_generic(unsigned int &result)
+    {
+      using namespace Pipes::spinwimpx2_generic;
+      result = Dep::WIMP_properties->spinx2;
+    }
+
+    /// Retrieve whether or not the DM is self conjugate or not.
+    void wimp_sc_generic(bool &result)
+    {
+      using namespace Pipes::wimp_sc_generic;
+      result = Dep::WIMP_properties->sc;
     }
 
     /*! \brief Retrieve the total thermally-averaged annihilation cross-section
@@ -71,7 +125,8 @@ namespace Gambit
     {
       using namespace Pipes::sigmav_late_universe;
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
       result = 0.0;
       // Add all the regular channels
       for (std::vector<TH_Channel>::iterator it = annProc.channelList.begin();
@@ -80,13 +135,55 @@ namespace Gambit
         if ( it->nFinalStates == 2 )
         {
           // (sv)(v=0) for two-body final state
-          result += it->genRate->bind("v")->eval(0.);
+          double yield = it->genRate->bind("v")->eval(0.);
+          if (yield >= 0.) result += yield;
         }
       }
       // Add invisible contributions
-      result += annProc.genRateMisc->bind("v")->eval(0.);
+      double yield = annProc.genRateMisc->bind("v")->eval(0.);
+      if (yield >= 0.) result += yield;
     }
 
+    void sigmav_late_universe_MicrOmegas(double &result)
+    {
+      using namespace Pipes::sigmav_late_universe_MicrOmegas;
+
+      // set requested spectra to NULL since we don't need them
+      double * SpNe=NULL,*SpNm=NULL,*SpNl=NULL;
+      double * SpA=NULL,*SpE=NULL,*SpP=NULL;
+      int err;
+
+      // TODO: Add option to choose options for calculation from MicrOmegas (right now all effects are turned on)
+      result = BEreq::calcSpectrum(byVal(3),byVal(SpA),byVal(SpE),byVal(SpP),byVal(SpNe),byVal(SpNm),byVal(SpNl) ,byVal(&err));
+
+      if (err != 0 )
+      {
+         DarkBit_error().raise(LOCAL_INFO, "MicrOmegas spectrum calculation returned error code = " + std::to_string(err));
+      }
+
+    }
+
+    /// Information about the nature of the DM process in question (i.e. decay or annihilation) 
+    /// to use the correct scaling for ID in terms of the DM density, phase space, etc.
+    void DM_process_from_ProcessCatalog(std::string &result)
+    {
+      using namespace Pipes::DM_process_from_ProcessCatalog;
+      
+      // Only need to check this once.
+      static bool first = true;
+      if (first)
+      {
+        // Can we find a process that is a decay?
+        // (This logic used so that this capability does not depend on DarkMatterConj_ID)
+        const TH_Process* p = (*Dep::TH_ProcessCatalog).find(*Dep::DarkMatter_ID);
+
+        // If not, it's an annihilation.
+        if (p == NULL) result = "annihilation";
+        else result = "decay";
+        first = false;
+      }
+      
+    }
 
 
     //////////////////////////////////////////////////////////////////////////
@@ -174,8 +271,9 @@ namespace Gambit
       double oh2 = *Dep::RD_oh2;
 
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMid);
-      daFunk::Funk spectrum = (*Dep::GA_AnnYield)->set("v", 0.);
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+      TH_Process annProc = (*Dep::TH_ProcessCatalog).getProcess(DMid, DMbarid);
+      daFunk::Funk spectrum = (*Dep::GA_Yield)->set("v", 0.);
 
       std::ostringstream filename;
       /*

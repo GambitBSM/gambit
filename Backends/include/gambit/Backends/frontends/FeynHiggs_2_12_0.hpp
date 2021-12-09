@@ -22,6 +22,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 2.12.0
 #define SAFE_VERSION 2_12_0
+#define REFERENCE Bahl:2017aev,Bahl:2016brp,Hahn:2013ria,Frank:2006yh,Degrassi:2002fi,Heinemeyer:1998np,Heinemeyer:1998yj
 
 LOAD_LIBRARY
 

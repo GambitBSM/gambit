@@ -106,7 +106,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Wrappers for original constructors: 
-      inline gm2calc::MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems() :
+      inline MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems() :
          WrapperBase(__factory0())
       {
          get_BEptr()->set_wptr(this);
@@ -114,7 +114,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Special pointer-based constructor: 
-      inline gm2calc::MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(gm2calc::Abstract_MSSMNoFV_onshell_problems* in) :
+      inline MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(Abstract_MSSMNoFV_onshell_problems* in) :
          WrapperBase(in)
       {
          get_BEptr()->set_wptr(this);
@@ -122,7 +122,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Copy constructor: 
-      inline gm2calc::MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(const MSSMNoFV_onshell_problems& in) :
+      inline MSSMNoFV_onshell_problems::MSSMNoFV_onshell_problems(const MSSMNoFV_onshell_problems& in) :
          WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
       {
          get_BEptr()->set_wptr(this);
@@ -130,7 +130,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Assignment operator: 
-      inline gm2calc::MSSMNoFV_onshell_problems& MSSMNoFV_onshell_problems::operator=(const MSSMNoFV_onshell_problems& in)
+      inline MSSMNoFV_onshell_problems& MSSMNoFV_onshell_problems::operator=(const MSSMNoFV_onshell_problems& in)
       {
          if (this != &in)
          {
@@ -141,7 +141,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Destructor: 
-      inline gm2calc::MSSMNoFV_onshell_problems::~MSSMNoFV_onshell_problems()
+      inline MSSMNoFV_onshell_problems::~MSSMNoFV_onshell_problems()
       {
          if (get_BEptr() != 0)
          {
@@ -156,9 +156,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Returns correctly casted pointer to Abstract class: 
-      inline gm2calc::Abstract_MSSMNoFV_onshell_problems* gm2calc::MSSMNoFV_onshell_problems::get_BEptr() const
+      inline Abstract_MSSMNoFV_onshell_problems* gm2calc::MSSMNoFV_onshell_problems::get_BEptr() const
       {
-         return dynamic_cast<gm2calc::Abstract_MSSMNoFV_onshell_problems*>(BEptr);
+         return dynamic_cast<Abstract_MSSMNoFV_onshell_problems*>(BEptr);
       }
    }
    

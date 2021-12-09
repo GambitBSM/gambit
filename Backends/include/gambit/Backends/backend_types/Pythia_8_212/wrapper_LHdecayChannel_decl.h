@@ -2,11 +2,11 @@
 #define __wrapper_LHdecayChannel_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <vector>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_LHdecayChannel.h"
-#include <vector>
-#include <string>
 
 #include "identification.hpp"
 
@@ -21,9 +21,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_LHdecayChannel* (*__factory0)();
-                static Pythia8::Abstract_LHdecayChannel* (*__factory1)(double, int, ::std::vector<int, std::allocator<int> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
-                static Pythia8::Abstract_LHdecayChannel* (*__factory2)(double, int, ::std::vector<int, std::allocator<int> >);
+                static Abstract_LHdecayChannel* (*__factory0)();
+                static Abstract_LHdecayChannel* (*__factory1)(double, int, ::std::vector<int, std::allocator<int> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+                static Abstract_LHdecayChannel* (*__factory2)(double, int, ::std::vector<int, std::allocator<int> >);
         
                 // -- Other member variables: 
         
@@ -53,7 +53,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 LHdecayChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn);
         
                 // Special pointer-based constructor: 
-                LHdecayChannel(Pythia8::Abstract_LHdecayChannel* in);
+                LHdecayChannel(Abstract_LHdecayChannel* in);
         
                 // Copy constructor: 
                 LHdecayChannel(const LHdecayChannel& in);
@@ -65,7 +65,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~LHdecayChannel();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_LHdecayChannel* get_BEptr() const;
+                Abstract_LHdecayChannel* get_BEptr() const;
         
         };
     }

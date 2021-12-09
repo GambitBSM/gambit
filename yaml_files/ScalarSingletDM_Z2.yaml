@@ -53,6 +53,7 @@ Priors:
 
 Printer:
 
+  #printer: cout
   printer: hdf5
 
   options:
@@ -174,7 +175,6 @@ ObsLikes:
     - purpose:    Observable
       capability: sigma_SI_n
 
-
 Rules:
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
@@ -185,25 +185,46 @@ Rules:
   - capability: RD_fraction
     function: RD_fraction_leq_one
 
-  # Use the DarkBit native calculator for the relic density
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    function: RD_oh2_general
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
     options:
-      fast: 1
+      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
-  # Choose to use DarkSUSY yield tables for indirect detection
-  - capability: SimYieldTable
-    function: SimYieldTable_DarkSUSY
-    options:
-      allow_yield_extrapolation: true
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
+
+  # Choose to use DarkSUSY 6 yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_DarkSUSY
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
+
+  # Use DS5 or DS6 (DS_genericWIMP) for calculating neutrino yields
+  - capability: nuyield_ptr
+    function: nuyield_from_DS
+    backends:
+    #  - {backend: DarkSUSY, version: 5.1.3}
+      - {backend: DarkSUSY_generic_wimp}
 
   # Choose to use DarkSUSY for solar capture rate
   - capability: capture_rate_Sun
+    #function: capture_rate_Sun_const_xsec_DS5
     function: capture_rate_Sun_const_xsec
 
   # Use DarkBit's own calculations of the direct detection couplings
   - capability: DD_couplings
     function: DD_couplings_ScalarSingletDM_Z2
+    
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
@@ -212,6 +233,10 @@ Rules:
   # Choose to get the spectrum from SpecBit proper, not an SLHA file.
   - capability: ScalarSingletDM_Z2_spectrum
     function: get_ScalarSingletDM_Z2_spectrum
+
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
 
 Logger:
 

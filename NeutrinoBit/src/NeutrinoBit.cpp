@@ -9,9 +9,9 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Tomas Gonzalo
-///          (t.e.gonzalo@fys.uio.no)
+///          (tomas.gonzalo@monash.edu)
 ///  \date 2017 July
-///  \date 2018, 2019
+///  \date 2018, 2019, 2020
 ///
 ///  \author Julia Harz
 ///          (jharz@lpthe.jussieu.fr)
@@ -25,7 +25,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include <unsupported/Eigen/MatrixFunctions>
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Utils/statistics.hpp"
@@ -395,7 +398,6 @@ namespace Gambit
       }
     }
 
-    // Active neutrino likelihoods from digitised likelihood contours from NuFit (1811.05487)
     // Solar mixing angle \theta_{12}
     void theta12(double &result)
     {
@@ -403,10 +405,34 @@ namespace Gambit
       result = *Param["theta12"];
     }
 
-    // Nuisance likelihood on solar mixing angle 
-    void theta12_lnL(double &result)
+    // Atmospheric mixing angle \theta_{23} 
+    void theta23(double &result)
     {
-      using namespace Pipes::theta12_lnL;
+      using namespace Pipes::theta23;
+      result = *Param["theta23"];
+    }
+
+    // Reactor mixing angle \theta_{13}
+    void theta13(double &result)
+    {
+      using namespace Pipes::theta13;
+      result = *Param["theta13"];
+    }
+
+    // CP violating phase
+    void deltaCP(double &result)
+    {
+      using namespace Pipes::deltaCP;
+      result = *Param["delta13"];
+    }
+
+    // Active neutrino likelihoods from digitised likelihood contours from NuFit
+    // v4.1 from 1811.05487
+    // v3.2 from 1611.01514
+    // Nuisance likelihood on solar mixing angle 
+    void theta12_NuFit_v3_2_lnL(double &result)
+    {
+      using namespace Pipes::theta12_NuFit_v3_2_lnL;
 
       static double low_lim = 0.170;  
       static double upp_lim = 0.830;  
@@ -424,30 +450,56 @@ namespace Gambit
       {
          if (*Dep::ordering == 1) // Normal ordering
          {    
-           static NeutrinoInterpolator spline_t12_n("NeutrinoBit/data/T12n.csv");
+           static NeutrinoInterpolator spline_t12_n("NeutrinoBit/data/NuFit_v3.2/T12n.csv");
  
            result = -0.5*spline_t12_n.eval(pow(sin(*Dep::theta12),2));
          }
          else if (*Dep::ordering == 0) // Inverted ordering
          {
-           static NeutrinoInterpolator spline_t12_i("NeutrinoBit/data/T12i.csv");
+           static NeutrinoInterpolator spline_t12_i("NeutrinoBit/data/NuFit_v3.2/T12i.csv");
  
            result = -0.5*spline_t12_i.eval(pow(sin(*Dep::theta12),2));
          }
       }
     }
     
-    // Atmospheric mixing angle \theta_{23} 
-    void theta23(double &result)
+    void theta12_NuFit_v4_1_lnL(double &result)
     {
-      using namespace Pipes::theta23;
-      result = *Param["theta23"];
-    }
+      using namespace Pipes::theta12_NuFit_v4_1_lnL;
 
+      static double low_lim = 0.170;  
+      static double upp_lim = 0.830;  
+
+      // Invalidate outside the ranges
+      if ((pow(sin(*Dep::theta12),2) < low_lim) or (pow(sin(*Dep::theta12),2) > upp_lim))
+      {
+        std::ostringstream msg;
+        msg << "theta12 outside NuFit range; point is invalidated by active neutrino constraint.";
+        logger() << msg.str() << EOM;
+        invalid_point().raise(msg.str());
+        return;
+      }
+      else
+      {
+         if (*Dep::ordering == 1) // Normal ordering
+         {    
+           static NeutrinoInterpolator spline_t12_n("NeutrinoBit/data/NuFit_v4.1/T12n.csv");
+ 
+           result = -0.5*spline_t12_n.eval(pow(sin(*Dep::theta12),2));
+         }
+         else if (*Dep::ordering == 0) // Inverted ordering
+         {
+           static NeutrinoInterpolator spline_t12_i("NeutrinoBit/data/NuFit_v4.1/T12i.csv");
+ 
+           result = -0.5*spline_t12_i.eval(pow(sin(*Dep::theta12),2));
+         }
+      }
+    }
+ 
     // Nuisance likelihood on atmospheric mixing angle
-    void theta23_lnL(double &result)
+    void theta23_NuFit_v3_2_lnL(double &result)
     {
-      using namespace Pipes::theta23_lnL;
+      using namespace Pipes::theta23_NuFit_v3_2_lnL;
 
       static double low_lim = 0.250;  
       static double upp_lim = 0.750;  
@@ -465,30 +517,57 @@ namespace Gambit
       {
         if (*Dep::ordering == 1) // Normal ordering
         {
-          static NeutrinoInterpolator spline_t23_n("NeutrinoBit/data/T23n.csv");
+          static NeutrinoInterpolator spline_t23_n("NeutrinoBit/data/NuFit_v3.2/T23n.csv");
 
           result = -0.5*spline_t23_n.eval(pow(sin(*Dep::theta23),2));
         }
         else if (*Dep::ordering == 0) // Inverted ordering
         {
-          static NeutrinoInterpolator spline_t23_i("NeutrinoBit/data/T23i.csv");
+          static NeutrinoInterpolator spline_t23_i("NeutrinoBit/data/NuFit_v3.2/T23i.csv");
  
           result = -0.5*spline_t23_i.eval(pow(sin(*Dep::theta23),2));
         }
       }
     }
     
-    // Reactor mixing angle \theta_{13}
-    void theta13(double &result)
+    // Nuisance likelihood on atmospheric mixing angle
+    void theta23_NuFit_v4_1_lnL(double &result)
     {
-      using namespace Pipes::theta13;
-      result = *Param["theta13"];
-    }
+      using namespace Pipes::theta23_NuFit_v4_1_lnL;
 
+      static double low_lim = 0.250;  
+      static double upp_lim = 0.750;  
+      
+      // Invalidate outside the ranges
+      if  ((pow(sin(*Dep::theta23),2) < low_lim)  or (pow(sin(*Dep::theta23),2) > upp_lim)) 
+      {
+        std::ostringstream msg;
+        msg << "theta23 outside NuFit range; point is invalidated by active neutrino constraint.";
+        logger() << msg.str() << EOM;
+        invalid_point().raise(msg.str());
+        return;
+      }     
+      else
+      {
+        if (*Dep::ordering == 1) // Normal ordering
+        {
+          static NeutrinoInterpolator spline_t23_n("NeutrinoBit/data/NuFit_v4.1/T23n.csv");
+
+          result = -0.5*spline_t23_n.eval(pow(sin(*Dep::theta23),2));
+        }
+        else if (*Dep::ordering == 0) // Inverted ordering
+        {
+          static NeutrinoInterpolator spline_t23_i("NeutrinoBit/data/NuFit_v4.1/T23i.csv");
+ 
+          result = -0.5*spline_t23_i.eval(pow(sin(*Dep::theta23),2));
+        }
+      }
+    }
+ 
     // Nuisance likelihood on reactor mixing angle
-    void theta13_lnL(double &result)
+    void theta13_NuFit_v3_2_lnL(double &result)
     {
-      using namespace Pipes::theta13_lnL;
+      using namespace Pipes::theta13_NuFit_v3_2_lnL;
 
       static double low_lim = 0.00;  
       static double upp_lim = 0.07;  
@@ -506,30 +585,57 @@ namespace Gambit
       {
         if (*Dep::ordering == 1) // Normal ordering
         {
-          static NeutrinoInterpolator spline_t13_n("NeutrinoBit/data/T13n.csv");
+          static NeutrinoInterpolator spline_t13_n("NeutrinoBit/data/NuFit_v3.2/T13n.csv");
 
           result = -0.5*spline_t13_n.eval(pow(sin(*Dep::theta13),2));
         }
         else if (*Dep::ordering == 0) // Inverted ordering
         {
-          static NeutrinoInterpolator spline_t13_i("NeutrinoBit/data/T13i.csv");
+          static NeutrinoInterpolator spline_t13_i("NeutrinoBit/data/NuFit_v3.2/T13i.csv");
 
           result = -0.5*spline_t13_i.eval(pow(sin(*Dep::theta13),2));
         }
       }
     }    
     
-    // CP violating phase
-    void deltaCP(double &result)
+    // Nuisance likelihood on reactor mixing angle
+    void theta13_NuFit_v4_1_lnL(double &result)
     {
-      using namespace Pipes::deltaCP;
-      result = *Param["delta13"];
-    }
+      using namespace Pipes::theta13_NuFit_v4_1_lnL;
 
+      static double low_lim = 0.00;  
+      static double upp_lim = 0.07;  
+      
+      // Invalidate outside ranges
+      if  ((pow(sin(*Dep::theta13),2) < low_lim) or (pow(sin(*Dep::theta13),2) > upp_lim))
+      {
+          std::ostringstream msg;
+          msg << "theta13 outside NuFit range; point is invalidated by active neutrino constraint.";
+          logger() << msg.str() << EOM;
+          invalid_point().raise(msg.str());
+          return;
+      }
+      else
+      {
+        if (*Dep::ordering == 1) // Normal ordering
+        {
+          static NeutrinoInterpolator spline_t13_n("NeutrinoBit/data/NuFit_v4.1/T13n.csv");
+
+          result = -0.5*spline_t13_n.eval(pow(sin(*Dep::theta13),2));
+        }
+        else if (*Dep::ordering == 0) // Inverted ordering
+        {
+          static NeutrinoInterpolator spline_t13_i("NeutrinoBit/data/NuFit_v4.1/T13i.csv");
+
+          result = -0.5*spline_t13_i.eval(pow(sin(*Dep::theta13),2));
+        }
+      }
+    }    
+ 
     // Nuisance likelihood on CP violating phase
-    void deltaCP_lnL(double &result)
+    void deltaCP_NuFit_v3_2_lnL(double &result)
     {
-      using namespace Pipes::deltaCP_lnL;
+      using namespace Pipes::deltaCP_NuFit_v3_2_lnL;
 
       static double low_lim = -180;  
       static double upp_lim = 360;  
@@ -547,23 +653,57 @@ namespace Gambit
       {
         if (*Dep::ordering == 1) // Normal ordering
         {
-          static NeutrinoInterpolator spline_CP_n("NeutrinoBit/data/CPn.csv");
+          static NeutrinoInterpolator spline_CP_n("NeutrinoBit/data/NuFit_v3.2/DCPn.csv");
 
           result = -0.5*spline_CP_n.eval((*Dep::deltaCP*360.0)/(2.0*M_PI));
         }
         else if (*Dep::ordering == 0) // Inverted ordering
         {
-          static NeutrinoInterpolator spline_CP_i("NeutrinoBit/data/CPi.csv");
+          static NeutrinoInterpolator spline_CP_i("NeutrinoBit/data/NuFit_v3.2/DCPi.csv");
 
           result = -0.5*spline_CP_i.eval((*Dep::deltaCP*360.0)/(2.0*M_PI));
         }
       }
     }
     
-    // Nuisance likelihood on solar mass splitting
-    void md21_lnL(double &result)
+    // Nuisance likelihood on CP violating phase
+    void deltaCP_NuFit_v4_1_lnL(double &result)
     {
-      using namespace Pipes::md21_lnL;
+      using namespace Pipes::deltaCP_NuFit_v4_1_lnL;
+
+      static double low_lim = -180;  
+      static double upp_lim = 360;  
+      
+      // Invalidate outside ranges
+      if  (((*Dep::deltaCP*360.0)/(2.0*M_PI) < low_lim) or ((*Dep::deltaCP*360.0)/(2.0*M_PI) > upp_lim))
+      {
+        std::ostringstream msg;
+        msg << "deltaCP outside NuFit range; point is invalidated by active neutrino constraint.";
+        logger() << msg.str() << EOM;
+        invalid_point().raise(msg.str());
+        return;
+      }
+      else
+      {
+        if (*Dep::ordering == 1) // Normal ordering
+        {
+          static NeutrinoInterpolator spline_CP_n("NeutrinoBit/data/NuFit_v4.1/CPn.csv");
+
+          result = -0.5*spline_CP_n.eval((*Dep::deltaCP*360.0)/(2.0*M_PI));
+        }
+        else if (*Dep::ordering == 0) // Inverted ordering
+        {
+          static NeutrinoInterpolator spline_CP_i("NeutrinoBit/data/NuFit_v4.1/CPi.csv");
+
+          result = -0.5*spline_CP_i.eval((*Dep::deltaCP*360.0)/(2.0*M_PI));
+        }
+      }
+    }
+
+    // Nuisance likelihood on solar mass splitting
+    void md21_NuFit_v3_2_lnL(double &result)
+    {
+      using namespace Pipes::md21_NuFit_v3_2_lnL;
 
       static double low_lim = -6.0;  
       static double upp_lim = -3.0;  
@@ -582,14 +722,50 @@ namespace Gambit
         if (*Dep::ordering == 1) // Normal ordering
         {    
           // Removed highly disfavoured local minima to avoid confusing scans
-          static NeutrinoInterpolator spline_md21_n("NeutrinoBit/data/DMS1n.csv");
+          static NeutrinoInterpolator spline_md21_n("NeutrinoBit/data/NuFit_v3.2/DMS1n.csv");
 
           result = -0.5*spline_md21_n.eval(log10(*Dep::md21 * pow(10,18)));
         }
         else if (*Dep::ordering == 0) // Inverted ordering
         {
           // Removed highly disfavoured local minima to avoid confusing scans
-          static NeutrinoInterpolator spline_md21_i("NeutrinoBit/data/DMS1i.csv");
+          static NeutrinoInterpolator spline_md21_i("NeutrinoBit/data/NuFit_v3.2/DMS1i.csv");
+
+          result = -0.5*spline_md21_i.eval(log10(*Dep::md21 * pow(10,18)));
+        }
+      }
+    }  
+ 
+    // Nuisance likelihood on solar mass splitting
+    void md21_NuFit_v4_1_lnL(double &result)
+    {
+      using namespace Pipes::md21_NuFit_v4_1_lnL;
+
+      static double low_lim = -6.0;  
+      static double upp_lim = -3.0;  
+      
+      // Invalidate outside ranges
+      if  ((log10(*Dep::md21 * pow(10,18)) < low_lim) or (log10(*Dep::md21 * pow(10,18)) > upp_lim) or (*Dep::md21 * pow(10,18)<0))
+      {
+          std::ostringstream msg;
+          msg << "md12 outside NuFit range; point is invalidated by active neutrino constraint.";
+          logger() << msg.str() << EOM;
+          invalid_point().raise(msg.str());
+          return;
+      }   
+      else
+      {
+        if (*Dep::ordering == 1) // Normal ordering
+        {    
+          // Removed highly disfavoured local minima to avoid confusing scans
+          static NeutrinoInterpolator spline_md21_n("NeutrinoBit/data/NuFit_v4.1/DMS1n.csv");
+
+          result = -0.5*spline_md21_n.eval(log10(*Dep::md21 * pow(10,18)));
+        }
+        else if (*Dep::ordering == 0) // Inverted ordering
+        {
+          // Removed highly disfavoured local minima to avoid confusing scans
+          static NeutrinoInterpolator spline_md21_i("NeutrinoBit/data/NuFit_v4.1/DMS1i.csv");
 
           result = -0.5*spline_md21_i.eval(log10(*Dep::md21 * pow(10,18)));
         }
@@ -597,9 +773,9 @@ namespace Gambit
     }  
  
     // Nuisance likelihood on atmospheric mass splitting
-    void md3l_lnL(double &result)
+    void md3l_NuFit_v3_2_lnL(double &result)
     {
-      using namespace Pipes::md3l_lnL;
+      using namespace Pipes::md3l_NuFit_v3_2_lnL;
 
       static double low_lim_n = 0.2;  
       static double upp_lim_n = 7.0; 
@@ -619,7 +795,7 @@ namespace Gambit
         }
         else
         {
-          static NeutrinoInterpolator spline_md31_n("NeutrinoBit/data/DMAn.csv");
+          static NeutrinoInterpolator spline_md31_n("NeutrinoBit/data/NuFit_v3.2/DMAn.csv");
 
           result = -0.5*spline_md31_n.eval(*Dep::md31 * pow(10,21));
         }
@@ -637,12 +813,113 @@ namespace Gambit
         }
         else
         {
-          static NeutrinoInterpolator spline_md32_i("NeutrinoBit/data/DMAi.csv");
+          static NeutrinoInterpolator spline_md32_i("NeutrinoBit/data/NuFit_v3.2/DMAi.csv");
 
           result = -0.5*spline_md32_i.eval(*Dep::md32 * pow(10,21));
         }
         
       }     
+    }
+
+    // Nuisance likelihood on atmospheric mass splitting
+    void md3l_NuFit_v4_1_lnL(double &result)
+    {
+      using namespace Pipes::md3l_NuFit_v4_1_lnL;
+
+      static double low_lim_n = 0.2;  
+      static double upp_lim_n = 7.0; 
+      static double low_lim_i = -7.0;  
+      static double upp_lim_i = -0.2; 
+          
+      if (*Dep::ordering == 1) // Normal ordering
+      {
+        // Invalidate outside ranges
+        if ((*Dep::md31 * pow(10,21) < low_lim_n) or (*Dep::md31 * pow(10,21) > upp_lim_n))
+        {
+          std::ostringstream msg;
+          msg << "md31 outside NuFit range; point is invalidated by active neutrino constraint.";
+          logger() << msg.str() << EOM;
+          invalid_point().raise(msg.str());
+          return;
+        }
+        else
+        {
+          static NeutrinoInterpolator spline_md31_n("NeutrinoBit/data/NuFit_v4.1/DMAn.csv");
+
+          result = -0.5*spline_md31_n.eval(*Dep::md31 * pow(10,21));
+        }
+      }
+      else if (*Dep::ordering == 0) // Inverted ordering
+      {
+        // Invalidate outside ranges
+        if ((*Dep::md32 * pow(10,21) < low_lim_i) or (*Dep::md32 * pow(10,21) > upp_lim_i))
+        {
+          std::ostringstream msg;
+          msg << "md32 outside NuFit range; point is invalidated by active neutrino constraint.";
+          logger() << msg.str() << EOM;
+          invalid_point().raise(msg.str());
+          return;
+        }
+        else
+        {
+          static NeutrinoInterpolator spline_md32_i("NeutrinoBit/data/NuFit_v4.1/DMAi.csv");
+
+          result = -0.5*spline_md32_i.eval(*Dep::md32 * pow(10,21));
+        }
+        
+      }     
+    }
+
+    // NuFit 2D likelihood for the solar and atmospheric mass splittings
+    void md21_md3l_NuFit_v4_1_lnL(double &result)
+    {
+      using namespace Pipes::md21_md3l_NuFit_v4_1_lnL;
+
+      static double low_lim_n = 0.2;
+      static double upp_lim_n = 7.0;
+      static double low_lim_i = -7.0;
+      static double upp_lim_i = -0.2;
+      static double low_lim = -6.0;
+      static double upp_lim = -3.0;
+
+      // Invalidate outside ranges
+      if  ((log10(*Dep::md21 * pow(10,18)) < low_lim) or (log10(*Dep::md21 * pow(10,18)) > upp_lim) or (*Dep::md21 * pow(10,18)<0))
+      {
+          std::ostringstream msg;
+          msg << "md12 outside NuFit range; point is invalidated by active neutrino constraint.";
+          logger() << msg.str() << EOM;
+          invalid_point().raise(msg.str());
+          return;
+      }
+      if (*Dep::ordering == 1 and ((*Dep::md31 * pow(10,21) < low_lim_n) or (*Dep::md31 * pow(10,21) > upp_lim_n)))
+      {
+          std::ostringstream msg;
+          msg << "md31 outside NuFit range; point is invalidated by active neutrino constraint.";
+          logger() << msg.str() << EOM;
+          invalid_point().raise(msg.str());
+          return;
+      }
+      if (*Dep::ordering == 0 and ((*Dep::md32 * pow(10,21) < low_lim_i) or (*Dep::md32 * pow(10,21) > upp_lim_i)))
+      {
+          std::ostringstream msg;
+          msg << "md32 outside NuFit range; point is invalidated by active neutrino constraint.";
+          logger() << msg.str() << EOM;
+          invalid_point().raise(msg.str());
+          return;
+      }
+
+      if (*Dep::ordering == 1) // Normal ordering
+      {
+          static NeutrinoInterpolator2D spline_md21_md31_n("NeutrinoBit/data/NuFit_v4.1/DMSDMAn.csv");
+
+          result = -0.5*spline_md21_md31_n.eval(log10(*Dep::md21 * 1e18), *Dep::md31 * 1e21);
+      }
+      else if (*Dep::ordering == 0) // Inverted ordering
+      {
+          static NeutrinoInterpolator2D spline_md21_md32_i("NeutrinoBit/data/NuFit_v4.1/DMSDMAi.csv");
+
+          result = -0.5*spline_md21_md32_i.eval(log10(*Dep::md21 * 1e18), *Dep::md32 * 1e21);
+      }
     }
 
     // Limit on the sum of neutrino likelihoods from Planck (1502.01589)

@@ -3,7 +3,7 @@
 """Combine data from several hdf5 files created by HDF5Printer into a single file"""
 import signal
 def sigint_handler(signum, frame):
-    print 'CTRL+C is blocked while the HDF5Printer combine script runs! Signal received, but ignored.'
+    print('CTRL+C is blocked while the HDF5Printer combine script runs! Signal received, but ignored.')
 signal.signal(signal.SIGINT, sigint_handler)
 
 from hdf5tools import *
@@ -19,11 +19,11 @@ bufferlength = 100                # Must match setting in hdf5printer.hpp
 max_ppidpairs = 10*bufferlength   #   "  "
 
 def usage():
-   print "  Usage: python combine_hdf5.py <path-to-target-hdf5-file> <root group in hdf5 files> <tmp file 1> <tmp file 2> ..."
-   print
-   print "  Attempts to combine the data in a group of hdf5 files produced by HDF5Printer in separate processes during a GAMBIT run."
-   print "  Use --delete_tmp flag to delete input files upon successful combination."
-   print "  Use --runchecks flag to run some extra validity checks on the input and output data (warning: may be slow for large datasets)"
+   print("  Usage: python combine_hdf5.py <path-to-target-hdf5-file> <root group in hdf5 files> <tmp file 1> <tmp file 2> ...")
+   print()
+   print("  Attempts to combine the data in a group of hdf5 files produced by HDF5Printer in separate processes during a GAMBIT run.")
+   print("  Use --delete_tmp flag to delete input files upon successful combination.")
+   print("  Use --runchecks flag to run some extra validity checks on the input and output data (warning: may be slow for large datasets)")
    exit(1)
 
 #====Begin "main"=================================
@@ -50,13 +50,13 @@ tmp_files = sys.argv[3:]
 N = len(tmp_files)
 RA_group = group + "/RA"
 
-print "Working directory: ", (os.getcwd())
-print "Target combined filename:", outfname
-print "Root group: ", group
-print "Number of files to combine: ", N
-print "Files to combine: ", tmp_files
-print ""
-print "Analysing input files..."
+print("Working directory: ", (os.getcwd()))
+print("Target combined filename:", outfname)
+print("Root group: ", group)
+print("Number of files to combine: ", N)
+print("Files to combine: ", tmp_files)
+print("")
+print("Analysing input files...")
 
 files = {}
 
@@ -68,13 +68,13 @@ RA_lengths = [0 for i in range(N)]
 fnames = tmp_files
 
 for i,fname in enumerate(fnames):
-   print "   Opening: {0}".format(fname)
+   print("   Opening: {0}".format(fname))
    f = h5py.File(fname,'r')
    files[fname] = f
    if runchecks:
-      print "Checking temporary file for duplicates..."
+      print("Checking temporary file for duplicates...")
       check_for_duplicates(f,group)
-   print "      Analysing..."
+   print("      Analysing...")
    datasets = []
    tmp_dset_metadata = {}
    tmp_RA_dset_metadata = {}
@@ -92,44 +92,44 @@ for i,fname in enumerate(fnames):
       RA_lengths[i] = 0
       # No RA data in this file, but that's ok, it happens sometimes.
       #raise ValueError("File '{0}' does not contain the group '{1}!'".format(fname,RA_group))
-   print "      ...done"
+   print("      ...done")
 
-print "sync_lengths: ", sync_lengths
+print("sync_lengths: ", sync_lengths)
 total_sync_length = sum(sync_lengths)
 
 # Make sure all sync dsets have the same length
 
-print "Sync dsets:"
+print("Sync dsets:")
 for i,fname in enumerate(fnames):
-   print " In {0}".format(fname)
+   print(" In {0}".format(fname))
    if len(sync_dsets[i])==0:
-      print "   - None"
+      print("   - None")
    else:
       for item in sorted(sync_dsets[i]):
-         print "   - ", item
-      print "   sync_length = {0}".format(sync_lengths[i])
+         print("   - ", item)
+      print("   sync_length = {0}".format(sync_lengths[i]))
 
-print "RA dsets:"
+print("RA dsets:")
 for i,fname in enumerate(fnames):
-   print " In {0}".format(fname)
+   print(" In {0}".format(fname))
    if len(RA_dsets[i])==0:
-      print "   - None"
+      print("   - None")
    else:
       for item in sorted(RA_dsets[i]):
-         print "   - ", item
-      print "   RA_length = {0}".format(RA_lengths[i])
+         print("   - ", item)
+      print("   RA_length = {0}".format(RA_lengths[i]))
 
-print "Combined sync length = ", total_sync_length
+print("Combined sync length = ", total_sync_length)
 
-print "Opening file for adding combined data:"
-print "   {0}".format(outfname)
+print("Opening file for adding combined data:")
+print("   {0}".format(outfname))
 fout = h5py.File(outfname,'a')
 
 if not group in fout:
    gout = fout.create_group(group)
 else:
    if runchecks:
-      print "Checking existing combined output for duplicates..."
+      print("Checking existing combined output for duplicates...")
       check_for_duplicates(fout,group)
    gout = fout[group]
 
@@ -138,21 +138,21 @@ existing_dsets = {}
 dsetlengths = {}
 for name in gout:
    if isinstance(gout[name],h5py.Dataset):
-      print "   Accessing existing dset:", name
+      print("   Accessing existing dset:", name)
       existing_dsets[name] = gout[name]
       dsetlengths[name]   = gout[name].shape[0]
 
 # check that the existing dsets have a consistent length
 if len(dsetlengths)!=0:
    init_output_length = check_lengths(dsetlengths)
-   print "Existing datasets have length ", init_output_length
+   print("Existing datasets have length ", init_output_length)
 else:
    init_output_length = 0
 
 
 # Resize the existing dsets to accommodate the new data
 for dsetname,dset in existing_dsets.items():
-   print "   Extending existing dset '{0}' to length {1}+{2}={3} to accommodate new data...".format(dsetname,init_output_length,total_sync_length,init_output_length+total_sync_length)
+   print("   Extending existing dset '{0}' to length {1}+{2}={3} to accommodate new data...".format(dsetname,init_output_length,total_sync_length,init_output_length+total_sync_length))
    dset.resize((init_output_length+total_sync_length,))
 
 # Create dataset to match every sync and RA dataset
@@ -161,14 +161,14 @@ all_sync_dsets = set([]).union(*sync_dsets)
 all_RA_dsets   = set([]).union(*RA_dsets)
 for dsetname,dt in sorted(all_sync_dsets):
    if not dsetname in gout:
-      print "   Creating empty dset:", dsetname
+      print("   Creating empty dset:", dsetname)
       target_dsets[dsetname] = gout.create_dataset(dsetname, (init_output_length+total_sync_length,), chunks=(chunksize,), dtype=dt, maxshape=(None,))
    else:
       target_dsets[dsetname] = gout[dsetname]
 for dsetname,dt in sorted(all_RA_dsets):
    if not dsetname in RA_dsets_exclude:
       if not dsetname in gout:
-         print "   Creating empty dset:", dsetname
+         print("   Creating empty dset:", dsetname)
          target_dsets[dsetname] = gout.create_dataset(dsetname, (init_output_length+total_sync_length,), chunks=(chunksize,), dtype=dt, maxshape=(None,))
       else:
          target_dsets[dsetname] = gout[dsetname]
@@ -176,16 +176,16 @@ for dsetname,dt in sorted(all_RA_dsets):
 # Copy data from separate sync datasets into combined datasets
 nextempty=init_output_length
 for fname in fnames:
-   print "Copying sync data from file:"
-   print "   {0}".format(fname)
-   print "to file:"
-   print "   {0}".format(outfname)
+   print("Copying sync data from file:")
+   print("   {0}".format(fname))
+   print("to file:")
+   print("   {0}".format(outfname))
    fin = files[fname]
 
    if runchecks:
-     print "Checking {0}[{1}] for duplicate entries".format(fname,group)
+     print("Checking {0}[{1}] for duplicate entries".format(fname,group))
      check_for_duplicates(fin,group)
-     print "No duplicates, proceeding with copy"
+     print("No duplicates, proceeding with copy")
 
    dset_length=None
    for itemname in fin[group]:
@@ -197,10 +197,10 @@ for fname in fnames:
          #Do the copy
          copy_dset_whole(item,gout[itemname],nextempty)
    if(dset_length==None):
-      print "No sync dsets found! Nothing copied!"
+      print("No sync dsets found! Nothing copied!")
    else:
       if runchecks:
-         print "Re-checking combined file for duplicates..."
+         print("Re-checking combined file for duplicates...")
          check_for_duplicates(fout,group)
       nextempty+=dset_length
 
@@ -208,10 +208,10 @@ for fname in fnames:
 for fname in fnames:
    fin = files[fname]
    if RA_group in fin and "RA_MPIrank" in fin[RA_group]:
-      print "RA data detected in file:"
-      print "   {0}".format(fname)
-      print "Copying it to file:"
-      print "   {0}".format(outfname)
+      print("RA data detected in file:")
+      print("   {0}".format(fname))
+      print("Copying it to file:")
+      print("   {0}".format(outfname))
 
       # Get write targets
       dset_length=fin[RA_group]["RA_MPIrank"].shape[0]
@@ -228,7 +228,7 @@ for fname in fnames:
          mpiranks_isvalid_in = np.array(fin[RA_group]["RA_MPIrank_isvalid"][imin:imax],dtype=np.bool)
 
          mask_in = (pointIDs_isvalid_in & mpiranks_isvalid_in)
-         print "...{0} scheduled RA writes found.".format(np.sum(mask_in))
+         print("...{0} scheduled RA writes found.".format(np.sum(mask_in)))
 
          # convert entries to single values to facilitate fast comparison
          IDs_in = cantor_pairing(pointIDs_in[mask_in],mpiranks_in[mask_in])
@@ -256,7 +256,7 @@ for fname in fnames:
          mpiranks_isvalid_out = np.array(fout[group]["MPIrank_isvalid"][:],dtype=np.bool)
 
          mask_out = (pointIDs_isvalid_out & mpiranks_isvalid_out)
-         print "...{0} possible RA targets found.".format(np.sum(mask_out))
+         print("...{0} possible RA targets found.".format(np.sum(mask_out)))
 
          # convert entries to single values to facilitate fast comparison
          IDs_out = cantor_pairing(
@@ -268,17 +268,17 @@ for fname in fnames:
             raise ValueError("Error while computing cantor pairing for RA to SYNC matching! Integer overflow detected, so matching will fail! Please increase the size of the integer type used!")
 
          if runchecks:
-            print "   checking output selection for duplicate keys..."
+            print("   checking output selection for duplicate keys...")
             ids  = IDs_out
             pid  = pointIDs_out[mask_out]
             rank = mpiranks_out[mask_out]
             for ID,p,r in zip(ids,pid,rank):
                Nmatches = np.sum(ID==ids)
                if Nmatches>1:
-                  print "   Warning!", ID, "is duplicated {0} times!".format(Nmatches)
+                  print("   Warning!", ID, "is duplicated {0} times!".format(Nmatches))
                   Match = np.sum((p==pid) & (r==rank))
                   if Match>1:
-                    print "   ...MPIrank/pointID duplicate count: ", Match
+                    print("   ...MPIrank/pointID duplicate count: ", Match)
 
          # Find which IDs in the output dataset are write targets
          target_mask_small = np.in1d(IDs_out,IDs_in)
@@ -293,22 +293,22 @@ for fname in fnames:
          target_mask[maskindices] = True
 
          if runchecks:
-            print "   Double-checking that all selected input dset entries have matching targets in the output dsets..."
+            print("   Double-checking that all selected input dset entries have matching targets in the output dsets...")
             for ID,pid,rank in zip(IDs_in,pointIDs_in[mask_in],mpiranks_in[mask_in]):
                if ID not in IDs_out: #[target_mask_small]:
-                  print "   Warning! No target for ID {0} found in output selection! ({1},{2})".format(ID,pid,rank)
+                  print("   Warning! No target for ID {0} found in output selection! ({1},{2})".format(ID,pid,rank))
                   indexid = np.where( (np.array(IDs_out)==ID) )
                   index   = np.where( (np.array(pointIDs_out[mask_out])==pid) &
                                       (np.array(mpiranks_out[mask_out])==rank) )
-                  print "index of match by ID       = ", indexid
-                  print "index of match by pid,rank = ", index
-                  print "pid,rank =",pid,rank
-                  print "pointID? ", pointIDs_out[mask_out][index]
-                  print "valid? ",   pointIDs_isvalid_out[mask_out][index]
-                  print "rank? ",  mpiranks_out[mask_out][index]
-                  print "valid? ", mpiranks_isvalid_out[mask_out][index]
-                  print "cantor =", cantor_pairing(pid,rank)
-                  print "cantor==ID? ", cantor_pairing(pid,rank)==ID
+                  print("index of match by ID       = ", indexid)
+                  print("index of match by pid,rank = ", index)
+                  print("pid,rank =",pid,rank)
+                  print("pointID? ", pointIDs_out[mask_out][index])
+                  print("valid? ",   pointIDs_isvalid_out[mask_out][index])
+                  print("rank? ",  mpiranks_out[mask_out][index])
+                  print("valid? ", mpiranks_isvalid_out[mask_out][index])
+                  print("cantor =", cantor_pairing(pid,rank))
+                  print("cantor==ID? ", cantor_pairing(pid,rank)==ID)
 
 
          # Number of "true" elements in target mask should match number of elements in 'in' arrays (after masking)
@@ -364,17 +364,17 @@ for fname in fnames:
          ## print x2[indices]
          ## \endcode
 
-         print "   Sorting input data to match order in output selection..."
+         print("   Sorting input data to match order in output selection...")
          xsort = np.argsort(IDs_in)
          yindex = np.searchsorted(IDs_in[xsort], IDs_out[target_mask_small])
          fancyindices = xsort[yindex]
 
          if runchecks:
-            print "   Checking that matching of input data to output selection has succeeded..."
-            print yindex[:10]
+            print("   Checking that matching of input data to output selection has succeeded...")
+            print(yindex[:10])
             for k,(i,j) in enumerate(zip(IDs_out[target_mask_small][:100],IDs_in[fancyindices[:100]])):
               if i!=j:
-                print "   Warning! Mismatch found. At position {0}, input ID ({1}) != output ID ({2})".format(k,i,j)
+                print("   Warning! Mismatch found. At position {0}, input ID ({1}) != output ID ({2})".format(k,i,j))
                 #print i,j
                 #print IDs_out[k-1:k+2]
                 #print IDs_in[fancyindices[k-1:k+2]]
@@ -395,20 +395,20 @@ for fname in fnames:
                if indset.dtype!=outdset.dtype:
                   raise ValueError("Type mismatch detected between dataset {0} in file {1} (dtype={2}), and matching dataset in output file {3} (dtype={3})".format(itemname,fname,indset.dtype,outfname,outdset.dtype))
                #can't do the fancy list-indexing directly on the hdf5 dataset (the boolean assignment should be ok though)
-               print "   Copying RA data for dataset", itemname
+               print("   Copying RA data for dataset", itemname)
                outdset[target_mask] = indset[mask_in][fancyindices]
 
 # DEBUGGING
 # Check for duplicates in combined output
 if runchecks:
-   print "Checking final combined output for duplicates..."
+   print("Checking final combined output for duplicates...")
    check_for_duplicates(fout,group)
 
 # If everything has been successful, delete the temporary files
 if delete_tmp:
-   print "Deleting temporary HDF5 files..."
+   print("Deleting temporary HDF5 files...")
    for fname in fnames:
-      print "   {0}".format(fname)
+      print("   {0}".format(fname))
       os.remove(fname)
 
-print "Data combination completed"
+print("Data combination completed")

@@ -1,0 +1,28 @@
+## Minimal .gum (YAML) file for GUM.
+
+math:
+  # Name of Mathematica package, either 'feynrules' or 'sarah'
+  package: feynrules
+  # package: sarah
+  # Name of Model within that package. This will also be the name of the GAMBIT model.
+  model: SingletDM_test
+  restriction: DiagonalCKM
+  lagrangian: LTotal
+
+# PDG code of the DM candidate.
+wimp_candidate: 9900001
+
+# Outputs for GUM to hook up to GAMBIT
+output:
+  calchep: true
+  pythia: true
+
+# Options for the outputs.
+output_options:
+  pythia:
+    collider_processes:
+      # - p p > ~S ~S
+      - p p > ~S ~S j
+      - p p > ~S ~S a
+      - p p > ~S ~S Z
+      - p p > ~S ~S h

@@ -111,7 +111,7 @@ namespace Gambit
         // Get options required to construct a reader object that can read
         // the previous output of this printer.
         Options resume_reader_options();
- 
+
         /// Ask the printer for the highest ID number known for a given rank
         /// process (needed for resuming, so the scanner can resume assigning
         /// point ID from this value.
@@ -152,7 +152,7 @@ namespace Gambit
         #define DECLARE_PRINT(r,data,i,elem) void _print(elem const&, const std::string&, const int, const uint, const ulong);
         BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , ASCII_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , ASCII_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , ASCII_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
         ///@}

@@ -32,7 +32,6 @@
 
 #include "SLHAea/slhaea.h"
 
-
 /// YAML overloads for mass cut and mass cut ratio constituents
 namespace YAML
 {

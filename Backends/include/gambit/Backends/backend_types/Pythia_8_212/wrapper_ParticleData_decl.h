@@ -2,6 +2,9 @@
 #define __wrapper_ParticleData_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <string>
+#include <ostream>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ParticleData.h"
@@ -9,9 +12,6 @@
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Couplings_decl.h"
-#include <string>
-#include <ostream>
-#include <vector>
 #include "wrapper_ParticleDataEntry_decl.h"
 #include <map>
 
@@ -28,7 +28,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_ParticleData* (*__factory0)();
+                static Abstract_ParticleData* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -280,6 +280,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void rescaleBR(int idIn);
         
+                void setResonancePtr(int idIn, Pythia8::ResonanceWidths* resonancePtrIn);
+        
                 void resInit(int idIn);
         
                 double resWidth(int idIn, double mHat, int idInFlav, bool openOnly, bool setBR);
@@ -322,7 +324,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ParticleData();
         
                 // Special pointer-based constructor: 
-                ParticleData(Pythia8::Abstract_ParticleData* in);
+                ParticleData(Abstract_ParticleData* in);
         
                 // Copy constructor: 
                 ParticleData(const ParticleData& in);
@@ -334,7 +336,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~ParticleData();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_ParticleData* get_BEptr() const;
+                Abstract_ParticleData* get_BEptr() const;
         
         };
     }

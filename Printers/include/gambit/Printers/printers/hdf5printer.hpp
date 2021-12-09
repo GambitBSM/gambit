@@ -58,6 +58,7 @@ namespace Gambit
 
     // Parameter controlling the length of all the standard buffers
     static const std::size_t BUFFERLENGTH = 100; // Change to 10000 or something. Currently cannot change this dynamically though, sorry.
+
     /// Max number of PPIDpairs to be tracked
     /// i.e. chunks of RA output longer than this can potentially contain multiple writes to the same point.
     /// It is up to the combine script to apply the last scheduled write preferentially.
@@ -158,7 +159,7 @@ namespace Gambit
         // Get options required to construct a reader object that can read
         // the previous output of this printer.
         Options resume_reader_options();
- 
+
         ///@}
 
         ///@{ Print functions
@@ -166,7 +167,7 @@ namespace Gambit
         #define DECLARE_PRINT(r,data,i,elem) void _print(elem const&, const std::string&, const int, const uint, const ulong);
         BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
         ///@}

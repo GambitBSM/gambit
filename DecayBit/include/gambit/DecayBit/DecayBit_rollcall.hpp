@@ -50,6 +50,7 @@
 
 
 #define MODULE DecayBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
   #define CAPABILITY t_decay_rates
@@ -273,6 +274,7 @@ START_MODULE
     BACKEND_REQ(cb_sd_stop2body, (sh_reqd), sd_stop2body_type)
     BACKEND_REQ(cb_sd_stoploop, (sh_reqd), sd_stoploop_type)
     BACKEND_REQ(cb_sd_stop3body, (sh_reqd), sd_stop3body_type)
+    BACKEND_REQ(cb_sd_stop4body, (sh_reqd), sd_stop4body_type)
     BACKEND_OPTION( (SUSY_HIT), (sh_reqd) )
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
@@ -763,12 +765,13 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino, MSSM63atMGUT_lightgravitino)
     #undef FUNCTION
 
+
   #undef CAPABILITY
 
-#define CAPABILITY decay_rates
+  #define CAPABILITY decay_rates
     START_CAPABILITY
 
-#define FUNCTION all_decays_from_SLHA
+    #define FUNCTION all_decays_from_SLHA
     START_FUNCTION(DecayTable)
     #undef FUNCTION
 
@@ -854,6 +857,13 @@ START_MODULE
 
   #undef CAPABILITY
 
+  #define CAPABILITY all_BFs
+  START_CAPABILITY
+    #define FUNCTION get_decaytable_as_map
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(decay_rates, DecayTable)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   #define CAPABILITY SLHA1_violation
   START_CAPABILITY
@@ -965,6 +975,7 @@ START_MODULE
 
   #undef CAPABILITY
 
+#undef REFERENCE
 #undef MODULE
 
 // SM decay rate functions

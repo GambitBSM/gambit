@@ -34,16 +34,17 @@
 ///
 ///  *********************************************
 
+#include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
 // #define COLLIDERBIT_DEBUG
+#define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
 
 namespace Gambit
 {
 
   namespace ColliderBit
   {
-
 
     /// LHC Loop Manager
     void operateLHCLoop(MCLoopInfo& result)
@@ -52,8 +53,8 @@ namespace Gambit
       static std::streambuf *coutbuf = std::cout.rdbuf(); // save cout buffer for running the loop quietly
 
       #ifdef COLLIDERBIT_DEBUG
-      cout << debug_prefix() << endl;
-      cout << debug_prefix() << "~~~~ New point! ~~~~" << endl;
+        cout << DEBUG_PREFIX << endl;
+        cout << DEBUG_PREFIX << "~~~~ New point! ~~~~" << endl;
       #endif
 
       // Retrieve run options from the YAML file (or standalone code)
@@ -87,6 +88,7 @@ namespace Gambit
           result.convergence_options[collider].all_analyses_must_converge = colOptions.getValueOrDef<bool>(false, "all_analyses_must_converge");
           result.convergence_options[collider].all_SR_must_converge       = colOptions.getValueOrDef<bool>(false, "all_SR_must_converge");
           result.maxFailedEvents[collider]                                = colOptions.getValueOrDef<int>(1, "maxFailedEvents");
+          result.invalidate_failed_points[collider]                       = colOptions.getValueOrDef<bool>(false, "invalidate_failed_points");
           stoppingres[collider]                                           = colOptions.getValueOrDef<int>(200, "events_between_convergence_checks");
           result.analyses[collider]                                       = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "analyses");
           result.event_count[collider]                                    = 0;
@@ -123,27 +125,52 @@ namespace Gambit
         result.current_event_count() = 0;
 
         #ifdef COLLIDERBIT_DEBUG
-        cout << debug_prefix() << "operateLHCLoop: Current collider is " << collider << ".";
+          cout << DEBUG_PREFIX << "operateLHCLoop: Current collider is " << collider << "." << endl;
         #endif
 
         piped_invalid_point.check();
         Loop::reset();
+
+        // Do the single-thread part of the collider initialization
         #ifdef COLLIDERBIT_DEBUG
-        cout << debug_prefix() << "operateLHCLoop: Will execute COLLIDER_INIT" << endl;
+          cout << DEBUG_PREFIX << "operateLHCLoop: Will execute COLLIDER_INIT" << endl;
         #endif
         Loop::executeIteration(COLLIDER_INIT);
-
         // Any problem during COLLIDER_INIT step?
         piped_warnings.check(ColliderBit_warning());
         piped_errors.check(ColliderBit_error());
+        piped_invalid_point.check();
+
+        // Do the OMP parallelized part of the collider initialization
+        #ifdef COLLIDERBIT_DEBUG
+          cout << DEBUG_PREFIX << "operateLHCLoop: Will execute COLLIDER_INIT_OMP" << endl;
+        #endif
+        #pragma omp parallel
+        {
+          Loop::executeIteration(COLLIDER_INIT_OMP);
+        }
+        // Any problems during the COLLIDER_INIT_OMP step?
+        piped_warnings.check(ColliderBit_warning());
+        piped_errors.check(ColliderBit_error());
+        piped_invalid_point.check();
+
+        // Execute the sigle-thread iteration XSEC_CALCULATION 
+        #ifdef COLLIDERBIT_DEBUG
+          cout << DEBUG_PREFIX << "operateLHCLoop: Will execute XSEC_CALCULATION" << endl;
+        #endif
+        Loop::executeIteration(XSEC_CALCULATION);
+        // Any problems during the XSEC_CALCULATION step?
+        piped_warnings.check(ColliderBit_warning());
+        piped_errors.check(ColliderBit_error());
+        piped_invalid_point.check();
 
         //
-        // OMP parallelized sections begin here
+        // The main OMP parallelized sections begin here
         //
         #ifdef COLLIDERBIT_DEBUG
-        cout << debug_prefix() << "operateLHCLoop: Will execute START_SUBPROCESS";
+          cout << DEBUG_PREFIX << "operateLHCLoop: Will execute START_SUBPROCESS" << endl;
         #endif
-        int currentEvent = 0;
+        result.current_event_count() = 0;
         #pragma omp parallel
         {
           Loop::executeIteration(START_SUBPROCESS);
@@ -151,56 +178,84 @@ namespace Gambit
         // Any problems during the START_SUBPROCESS step?
         piped_warnings.check(ColliderBit_warning());
         piped_errors.check(ColliderBit_error());
+        piped_invalid_point.check();
 
         // Convergence loop
-        while(currentEvent < max_nEvents.at(collider) and not *Loop::done)
+        while(result.current_event_count() < max_nEvents.at(collider) and not *Loop::done)
         {
           int eventCountBetweenConvergenceChecks = 0;
-
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "Starting main event loop.  Will do " << stoppingres.at(collider) << " events before testing convergence." << endl;
+            cout << DEBUG_PREFIX << "Starting main event loop.  Will do " << stoppingres.at(collider) << " events before testing convergence." << endl;
           #endif
 
           // Main event loop
+          result.event_generation_began = true;
           #pragma omp parallel
           {
             while(eventCountBetweenConvergenceChecks < stoppingres.at(collider) and
-                  currentEvent < max_nEvents.at(collider) and
+                  result.current_event_count() < max_nEvents.at(collider) and
                   not *Loop::done and
+                  not result.end_of_event_file and
                   not result.exceeded_maxFailedEvents and
-                  not piped_warnings.inquire("exceeded maxFailedEvents") and
                   not piped_errors.inquire()
                   )
             {
-              result.event_generation_began = true;
-              try
+              bool thread_do_iteration = true;
+              int thread_my_iteration;
+
+              // Increment counters before executing the corresponding event loop iteration, 
+              // to stop other threads from starting any event iterations beyond max_nEvents.
+              #pragma omp critical
               {
-                Loop::executeIteration(currentEvent);
-                currentEvent++;
-                eventCountBetweenConvergenceChecks++;
+                if(result.current_event_count() < max_nEvents.at(collider))
+                {
+                  result.current_event_count()++;
+                  thread_my_iteration = result.current_event_count();
+                  eventCountBetweenConvergenceChecks++;
+                }
+                else
+                {
+                  thread_do_iteration = false;
+                }
               }
-              catch (std::domain_error& e)
+              
+              if(thread_do_iteration)
               {
-                cout << "\n   Continuing to the next event...\n\n";
+                try
+                {
+                  // Execute event loop iteration
+                  Loop::executeIteration(thread_my_iteration);
+                }
+                catch (std::domain_error& e)
+                {
+                  cout << "\n   Caught std::domain_error. Continuing to the next event...\n\n";
+                  // Decrement counters since the event iteration failed
+                  #pragma omp critical
+                  {
+                    result.current_event_count()--;
+                    eventCountBetweenConvergenceChecks--;
+                  }
+                }
               }
-            }
-          }
-          // Update the flag indicating if there have been warnings raised about exceeding the maximum allowed number of failed events
-          result.exceeded_maxFailedEvents = result.exceeded_maxFailedEvents or piped_warnings.inquire("exceeded maxFailedEvents");
+
+            } // end while loop
+
+          } // end omp parallel block
 
           // Any problems during the main event loop?
           piped_warnings.check(ColliderBit_warning());
           piped_errors.check(ColliderBit_error());
+          piped_invalid_point.check();
 
           #ifdef COLLIDERBIT_DEBUG
-          cout << debug_prefix() << "Did " << eventCountBetweenConvergenceChecks << " events of " << currentEvent << " simulated so far." << endl;
+            cout << DEBUG_PREFIX << "Did " << eventCountBetweenConvergenceChecks << " events of " << result.current_event_count() << " simulated so far." << endl;
           #endif
 
           // Break convergence loop if too many events fail
           if(result.exceeded_maxFailedEvents) break;
 
           // Don't bother with convergence stuff if we haven't passed the minimum number of events yet
-          if (currentEvent >= min_nEvents.at(collider))
+          if (result.current_event_count() >= min_nEvents.at(collider))
           {
             #pragma omp parallel
             {
@@ -215,17 +270,12 @@ namespace Gambit
             piped_warnings.check(ColliderBit_warning());
             piped_errors.check(ColliderBit_error());
           }
+
         }
 
-        // Store the number of generated events
-        result.current_event_count() = currentEvent;
-
-        // Break collider loop if too many events have failed
-        if(result.exceeded_maxFailedEvents)
-        {
-          logger() << LogTags::debug << "Too many failed events during event generation." << EOM;
-          break;
-        }
+        #ifdef COLLIDERBIT_DEBUG
+          cerr << DEBUG_PREFIX << "Final event count: current_event_count() = " << result.current_event_count() << endl;
+        #endif
 
         #pragma omp parallel
         {
@@ -234,21 +284,30 @@ namespace Gambit
         // Any problems during the END_SUBPROCESS step?
         piped_warnings.check(ColliderBit_warning());
         piped_errors.check(ColliderBit_error());
+        piped_invalid_point.check();
 
         //
         // OMP parallelized sections end here
         //
 
         Loop::executeIteration(COLLIDER_FINALIZE);
+
+        // Any problems during the COLLIDER_FINALIZE step?
+        piped_warnings.check(ColliderBit_warning());
+        piped_errors.check(ColliderBit_error());
+        piped_invalid_point.check();
       }
 
       // Nicely thank the loop for being quiet, and restore everyone's vocal chords
       if (silenceLoop) std::cout.rdbuf(coutbuf);
 
-      // Check for exceptions
+      Loop::executeIteration(BASE_FINALIZE);
+
+      // Any problems during the BASE_FINALIZE step?
+      piped_warnings.check(ColliderBit_warning());
+      piped_errors.check(ColliderBit_error());
       piped_invalid_point.check();
 
-      Loop::executeIteration(BASE_FINALIZE);
     }
 
 
@@ -276,9 +335,9 @@ namespace Gambit
       result.clear();
 
       #ifdef COLLIDERBIT_DEBUG
-        cout << debug_prefix() << "CollectAnalyses: Dep::ATLASAnalysisNumbers->size()    = " << Dep::ATLASAnalysisNumbers->size() << endl;
-        cout << debug_prefix() << "CollectAnalyses: Dep::CMSAnalysisNumbers->size()      = " << Dep::CMSAnalysisNumbers->size() << endl;
-        cout << debug_prefix() << "CollectAnalyses: Dep::IdentityAnalysisNumbers->size() = " << Dep::IdentityAnalysisNumbers->size() << endl;
+        cout << DEBUG_PREFIX << "CollectAnalyses: Dep::ATLASAnalysisNumbers->size()    = " << Dep::ATLASAnalysisNumbers->size() << endl;
+        cout << DEBUG_PREFIX << "CollectAnalyses: Dep::CMSAnalysisNumbers->size()      = " << Dep::CMSAnalysisNumbers->size() << endl;
+        cout << DEBUG_PREFIX << "CollectAnalyses: Dep::IdentityAnalysisNumbers->size() = " << Dep::IdentityAnalysisNumbers->size() << endl;
       #endif
 
       // Add results
@@ -304,22 +363,22 @@ namespace Gambit
 
 
       // #ifdef COLLIDERBIT_DEBUG
-      // cout << debug_prefix() << "CollectAnalyses: Current size of 'result': " << result.size() << endl;
-      // if (result.size() > 0)
-      // {
-      //   cout << debug_prefix() << "CollectAnalyses: Will loop through 'result'..." << endl;
-      //   for (auto& adp : result)
+      //   cout << DEBUG_PREFIX << "CollectAnalyses: Current size of 'result': " << result.size() << endl;
+      //   if (result.size() > 0)
       //   {
-      //     cout << debug_prefix() << "CollectAnalyses: 'result' contains AnalysisData pointer to " << adp << endl;
-      //     cout << debug_prefix() << "CollectAnalyses: -- Will now loop over all signal regions in " << adp << endl;
-      //     for (auto& sr : adp->srdata)
+      //     cout << DEBUG_PREFIX << "CollectAnalyses: Will loop through 'result'..." << endl;
+      //     for (auto& adp : result)
       //     {
-      //       cout << debug_prefix() << "CollectAnalyses: -- " << adp << " contains signal region: " << sr.sr_label << ", n_signal = " << sr.n_signal << ", n_signal_at_lumi = " << n_signal_at_lumi << endl;
+      //       cout << DEBUG_PREFIX << "CollectAnalyses: 'result' contains AnalysisData pointer to " << adp << endl;
+      //       cout << DEBUG_PREFIX << "CollectAnalyses: -- Will now loop over all signal regions in " << adp << endl;
+      //       for (auto& sr : adp->srdata)
+      //       {
+      //         cout << DEBUG_PREFIX << "CollectAnalyses: -- " << adp << " contains signal region: " << sr.sr_label << ", n_sig_MC = " << sr.n_sig_MC << ", n_sig_scaled = " << n_sig_scaled << endl;
+      //       }
+      //       cout << DEBUG_PREFIX << "CollectAnalyses: -- Done looping over signal regions in " << adp << endl;
       //     }
-      //     cout << debug_prefix() << "CollectAnalyses: -- Done looping over signal regions in " << adp << endl;
+      //     cout << DEBUG_PREFIX << "CollectAnalyses: ...Done looping through 'result'." << endl;
       //   }
-      //   cout << debug_prefix() << "CollectAnalyses: ...Done looping through 'result'." << endl;
-      // }
       // #endif
     }
 

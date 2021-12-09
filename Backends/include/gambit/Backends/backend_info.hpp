@@ -51,9 +51,9 @@
 #ifdef HAVE_PYBIND11
   namespace pybind11
   {
-    class module;
     class scoped_interpreter;
   }
+  #include <pybind11/pybind11.h>
 #endif
 
 

@@ -1,0 +1,12 @@
+diff -rupN plc_3.0_pristine/waf_tools/try_ifort.py plc_3.0/waf_tools/try_ifort.py
+--- plc_3.0_pristine/waf_tools/try_ifort.py	2020-03-18 21:12:56.686186090 +1000
++++ plc_3.0/waf_tools/try_ifort.py	2020-03-18 21:15:55.340618887 +1000
+@@ -101,7 +101,7 @@ def ifort_conf(ctx):
+         ctx.env.append_value("LIBPATH_fc_runtime",pth)
+         ctx.env.append_value("RPATH_fc_runtime",pth)
+     
+-    ctx.env.append_value("LIB_fc_runtime",list(rl)+["pthread"])
++    ctx.env.append_value("LIB_fc_runtime",list(rl)+["pthread","ifcore"])
+     ctx.end_msg(True)
+   show_linkline(ctx)
+   ctx.env.has_ifort = True

@@ -171,42 +171,42 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::Hist::Hist() :
+        inline Hist::Hist() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn) :
+        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn) :
             WrapperBase(__factory1(titleIn, nBinIn, xMinIn, xMaxIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn) :
+        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn) :
             WrapperBase(__factory2(titleIn, nBinIn, xMinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn) :
+        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn) :
             WrapperBase(__factory3(titleIn, nBinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn) :
+        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn) :
             WrapperBase(__factory4(titleIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, const Pythia8::Hist& h) :
+        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, const Pythia8::Hist& h) :
             WrapperBase(__factory5(titleIn, h))
         {
             get_BEptr()->set_wptr(this);
@@ -214,7 +214,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Hist::Hist(Pythia8::Abstract_Hist* in) :
+        inline Hist::Hist(Abstract_Hist* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -222,7 +222,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Hist::Hist(const Hist& in) :
+        inline Hist::Hist(const Hist& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -230,7 +230,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Hist& Hist::operator=(const Hist& in)
+        inline Hist& Hist::operator=(const Hist& in)
         {
             if (this != &in)
             {
@@ -241,7 +241,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Hist::~Hist()
+        inline Hist::~Hist()
         {
             if (get_BEptr() != 0)
             {
@@ -256,9 +256,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Hist* Pythia8::Hist::get_BEptr() const
+        inline Abstract_Hist* Pythia8::Hist::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Hist*>(BEptr);
+            return dynamic_cast<Abstract_Hist*>(BEptr);
         }
     }
     

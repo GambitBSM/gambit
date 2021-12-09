@@ -2,13 +2,13 @@
 #define __wrapper_Particle_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <vector>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_Particle.h"
 #include "wrapper_Vec4_decl.h"
 #include "wrapper_ParticleDataEntry_decl.h"
-#include <vector>
-#include <string>
 
 #include "identification.hpp"
 
@@ -23,26 +23,26 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Particle* (*__factory0)();
-                static Pythia8::Abstract_Particle* (*__factory1)(int, int, int, int, int, int, int, int, double, double, double, double, double, double, double);
-                static Pythia8::Abstract_Particle* (*__factory2)(int, int, int, int, int, int, int, int, double, double, double, double, double, double);
-                static Pythia8::Abstract_Particle* (*__factory3)(int, int, int, int, int, int, int, int, double, double, double, double, double);
-                static Pythia8::Abstract_Particle* (*__factory4)(int, int, int, int, int, int, int, int, double, double, double, double);
-                static Pythia8::Abstract_Particle* (*__factory5)(int, int, int, int, int, int, int, int, double, double, double);
-                static Pythia8::Abstract_Particle* (*__factory6)(int, int, int, int, int, int, int, int, double, double);
-                static Pythia8::Abstract_Particle* (*__factory7)(int, int, int, int, int, int, int, int, double);
-                static Pythia8::Abstract_Particle* (*__factory8)(int, int, int, int, int, int, int, int);
-                static Pythia8::Abstract_Particle* (*__factory9)(int, int, int, int, int, int, int);
-                static Pythia8::Abstract_Particle* (*__factory10)(int, int, int, int, int, int);
-                static Pythia8::Abstract_Particle* (*__factory11)(int, int, int, int, int);
-                static Pythia8::Abstract_Particle* (*__factory12)(int, int, int, int);
-                static Pythia8::Abstract_Particle* (*__factory13)(int, int, int);
-                static Pythia8::Abstract_Particle* (*__factory14)(int, int);
-                static Pythia8::Abstract_Particle* (*__factory15)(int);
-                static Pythia8::Abstract_Particle* (*__factory16)(int, int, int, int, int, int, int, int, Pythia8::Vec4, double, double, double);
-                static Pythia8::Abstract_Particle* (*__factory17)(int, int, int, int, int, int, int, int, Pythia8::Vec4, double, double);
-                static Pythia8::Abstract_Particle* (*__factory18)(int, int, int, int, int, int, int, int, Pythia8::Vec4, double);
-                static Pythia8::Abstract_Particle* (*__factory19)(int, int, int, int, int, int, int, int, Pythia8::Vec4);
+                static Abstract_Particle* (*__factory0)();
+                static Abstract_Particle* (*__factory1)(int, int, int, int, int, int, int, int, double, double, double, double, double, double, double);
+                static Abstract_Particle* (*__factory2)(int, int, int, int, int, int, int, int, double, double, double, double, double, double);
+                static Abstract_Particle* (*__factory3)(int, int, int, int, int, int, int, int, double, double, double, double, double);
+                static Abstract_Particle* (*__factory4)(int, int, int, int, int, int, int, int, double, double, double, double);
+                static Abstract_Particle* (*__factory5)(int, int, int, int, int, int, int, int, double, double, double);
+                static Abstract_Particle* (*__factory6)(int, int, int, int, int, int, int, int, double, double);
+                static Abstract_Particle* (*__factory7)(int, int, int, int, int, int, int, int, double);
+                static Abstract_Particle* (*__factory8)(int, int, int, int, int, int, int, int);
+                static Abstract_Particle* (*__factory9)(int, int, int, int, int, int, int);
+                static Abstract_Particle* (*__factory10)(int, int, int, int, int, int);
+                static Abstract_Particle* (*__factory11)(int, int, int, int, int);
+                static Abstract_Particle* (*__factory12)(int, int, int, int);
+                static Abstract_Particle* (*__factory13)(int, int, int);
+                static Abstract_Particle* (*__factory14)(int, int);
+                static Abstract_Particle* (*__factory15)(int);
+                static Abstract_Particle* (*__factory16)(int, int, int, int, int, int, int, int, Pythia8::Vec4, double, double, double);
+                static Abstract_Particle* (*__factory17)(int, int, int, int, int, int, int, int, Pythia8::Vec4, double, double);
+                static Abstract_Particle* (*__factory18)(int, int, int, int, int, int, int, int, Pythia8::Vec4, double);
+                static Abstract_Particle* (*__factory19)(int, int, int, int, int, int, int, int, Pythia8::Vec4);
         
                 // -- Other member variables: 
         
@@ -363,7 +363,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Particle(int idIn, int statusIn, int mother1In, int mother2In, int daughter1In, int daughter2In, int colIn, int acolIn, Pythia8::Vec4 pIn);
         
                 // Special pointer-based constructor: 
-                Particle(Pythia8::Abstract_Particle* in);
+                Particle(Abstract_Particle* in);
         
                 // Copy constructor: 
                 Particle(const Particle& in);
@@ -375,7 +375,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Particle();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Particle* get_BEptr() const;
+                Abstract_Particle* get_BEptr() const;
         
         };
     }

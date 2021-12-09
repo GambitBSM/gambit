@@ -1,0 +1,196 @@
+#################################################################################################
+#
+#      GUM Tutorial - Majorana DM + scalar mediator (MDMSM)
+#
+#      Likelihoods for DM only!
+#
+#        - Direct detection: MicrOMEGAs + DDCalc
+#        - Indirect detection (Fermi) - CalcHEP + DarkSUSY + gamlike
+#        - Relic density: MicrOMEGAs
+#
+#################################################################################################
+
+
+Parameters:
+  # Default SM values
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+    mH: 125.09
+
+  MDMSM:
+    mchi:
+      range: [45, 10000]
+      prior_type: log
+    mY:
+      range: [45, 10000]
+      prior_type: log
+    gchi:
+      range: [1e-4, 12.566]
+      prior_type: log
+    cY:
+      range: [1e-4, 12.566]
+      prior_type: log
+
+  # Default halo parameters for the example
+  Halo_gNFW_rho0:
+    rho0: 0.3
+    v0: 240
+    vesc: 533
+    vrot: 240
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+  # Nuclear matrix parameters.
+  nuclear_params_sigmas_sigmal:
+    sigmas: 43
+    sigmal: 58
+    deltau: 0.842
+    deltad: -0.427
+    deltas: -0.085
+
+Priors:
+
+  # All priors are simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: hdf5
+
+  options:
+    output_file: "MDMSM.hdf5"
+    delete_file_on_restart: true
+    group: "/MDMSM"
+
+
+ObsLikes:
+
+  # Relic density
+  - capability: lnL_oh2
+    purpose: LogLike
+
+  # Indirect detection
+  - capability: lnL_FermiLATdwarfs
+    purpose: LogLike
+
+  # Direct detection
+  - capability: LUX_2016_LogLikelihood
+    purpose: LogLike
+
+  - capability: XENON1T_2018_LogLikelihood
+    purpose: LogLike
+
+  # Other observables
+  - capability: RD_oh2
+    purpose:    Observable
+
+  - capability: mwimp
+    purpose:    Observable
+
+  - capability: sigmav
+    purpose:    Observable
+
+  - capability: sigma_SI_p
+    purpose:    Observable
+
+  - capability: sigma_SI_n
+    purpose:    Observable
+
+Rules:
+
+  # Use the DarkBit native calculator for the relic density
+  - capability: RD_oh2
+    function: RD_oh2_MicrOmegas
+
+  # Choose to implement the relic density likelihood as an upper bound, not a detection
+  - capability: lnL_oh2
+    function: lnL_oh2_upperlimit
+
+  # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
+  - capability: lnL_FermiLATdwarfs
+    function: lnL_FermiLATdwarfs_gamLike
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+
+  # Choose to rescale signals in direct and indirect detection by the relic density fraction
+  - capability: RD_fraction
+    function: RD_fraction_leq_one
+
+  # Choose to use MicrOmegas yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_MicrOmegas
+    options:
+      allow_yield_extrapolation: true
+
+  # Choose to get extra SimYieldTable information from DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
+    module: DarkBit
+    
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+    module: DarkBit
+    
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+    module: DarkBit
+
+  # Choose to get late-universe sigma*v from the process catalog
+  - capability: sigmav
+    function: sigmav_late_universe
+
+  # This model has annihilating dark matter
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+    
+  # Specify to DDCalc spin-independent/spin-dependent interactions only
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
+    module: DarkBit
+
+Scanner:
+
+  use_scanner: de
+
+  scanners:
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 10000
+      convthresh: 1e-3
+      verbosity: 1
+
+    jswarm:
+      plugin: jswarm
+      like: LogLike
+      NP: 10000
+      convthresh: 1e-4
+
+Logger:
+
+  redirection:
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [DarkBit] : "DarkBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/MDMSM"
+
+  debug: true

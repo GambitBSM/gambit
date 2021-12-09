@@ -135,7 +135,7 @@ BE_NAMESPACE
     settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_at, Options->getValueOrDef<int>(1,"higgs_2loop_correction_at_at"));
     settings.set(Spectrum_generator_settings::higgs_2loop_correction_atau_atau, Options->getValueOrDef<int>(1,"higgs_2loop_correction_atau_atau"));
     settings.set(Spectrum_generator_settings::top_pole_qcd_corrections, Options->getValueOrDef<int>(1,"top_pole_qcd_corrections"));
-    settings.set(Spectrum_generator_settings::beta_zero_threshold, Options->getValueOrDef<int>(1.000000000e-14,"beta_zero_threshold"));
+    settings.set(Spectrum_generator_settings::beta_zero_threshold, Options->getValueOrDef<double>(1.000000000e-14,"beta_zero_threshold"));
     settings.set(Spectrum_generator_settings::calculate_observables, Options->getValueOrDef<int>(0,"calculate_observables")); // 
     settings.set(Spectrum_generator_settings::pole_mass_scale, Options->getValueOrDef<int>(0,"pole_mass_scale")); // Zero means use SUSYScale, otherwise gives scale for pole mass calculation. Mostly used for estimation of errors so unlikely to be used a sgeneral setting chosen in yaml file.
     settings.set(Spectrum_generator_settings::eft_pole_mass_scale, Options->getValueOrDef<int>(0,"eftPoleMassScale")); // Zero means use Mt. Otherwise sets the scale of the pole mass calculation in the EFT in GeV.Mostly used for estimation of errors so unlikely to be used a sgeneral setting chosen in yaml file

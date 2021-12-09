@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
 ///  \date 2013 June 2013
@@ -24,6 +24,10 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2014 Mar
 ///
+///  \author Markus Prim
+///          (markus.prim@kit.edu)
+///  \date 2020 April
+///
 ///  *********************************************
 
 #ifndef __yaml_options_hpp__
@@ -31,11 +35,11 @@
 
 #include <vector>
 #include <sstream>
-#include <utility>
 
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/yaml_variadic_functions.hpp"
+#include "gambit/Utils/yaml_node_utility.hpp"
 
 namespace Gambit
 {
@@ -53,7 +57,7 @@ namespace Gambit
 
       /// Copy constructor
       Options(const YAML::Node &options) : options(options) {}
-      
+
       /// Move constructor
       Options(YAML::Node &&options) : options(std::move(options)) {}
 
@@ -81,7 +85,7 @@ namespace Gambit
         {
           try
           {
-            result = node.as<TYPE>();
+            result = NodeUtility::getNode<TYPE>(node);
           }
           catch(YAML::Exception& e)
           {
@@ -95,9 +99,9 @@ namespace Gambit
               nodestr = "<Couldn't even convert to string!>";
             }
             std::ostringstream os;
-            os << "Error retrieving options entry for [" << stringifyVariadic(keys...) 
+            os << "Error retrieving options entry for [" << stringifyVariadic(keys...)
                << "] as type " << typeid(TYPE).name() << " (template parameter: see below). String form of node value was: "
-               << nodestr << std::endl 
+               << nodestr << std::endl
                << "YAML message follows: " << std::endl
                << e.what();
             utils_error().raise(LOCAL_INFO,os.str());
@@ -123,9 +127,9 @@ namespace Gambit
         return result;
       }
       /// @}
-    
 
-      /// Basic setter, for adding extra options 
+
+      /// Basic setter, for adding extra options
       /// @{
       template<typename KEYTYPE, typename VALTYPE>
       void setValue(const KEYTYPE &key, const VALTYPE &val)
@@ -134,6 +138,25 @@ namespace Gambit
          return;
       }
       /// @}
+
+      /**
+       * @brief Get a `std::vector` of a particular type
+       *
+       * If the entry is a scalar rather than a vector, try to convert it to a size one
+       * `std::vector`
+       */
+      template<typename TYPE>
+      std::vector<TYPE> getVector(std::string key) const
+      {
+        if (getNode(key).IsScalar())
+        {
+          return {getValue<TYPE>(key)};
+        } 
+        else
+        {
+          return getValue<std::vector<TYPE>>(key);
+        }
+      }
 
       /// Retrieve values from key-value pairs in options node.
       /// Works for an arbitrary set of input keys (of any type), and returns
@@ -156,7 +179,7 @@ namespace Gambit
       }
 
       /// Retrieve values from all key-value pairs in options node.
-      /// Returns all values are as strings.
+      /// Returns all keys as strings.
       const std::vector<str> getNames() const
       {
         std::vector<str> result;
@@ -183,8 +206,8 @@ namespace Gambit
           return Options(node);
         }
       }
-           
-      /// Retrieve raw YAML node 
+
+      /// Retrieve raw YAML node
       template<typename... args>
       YAML::Node getNode(const args&... keys) const
       {
@@ -197,7 +220,7 @@ namespace Gambit
         }
         return node;
       }
-      
+
       /// Get YAML node from file
       template<typename... args>
       YAML::Node loadFromFile(const args&... keys) const
@@ -215,12 +238,12 @@ namespace Gambit
       /// Return begin and end of options
       YAML::const_iterator begin() const { return options.begin(); }
       YAML::const_iterator end() const { return options.end(); }
-      
+
     private:
 
       YAML::Node options;
-
   };
+
 
 }
 

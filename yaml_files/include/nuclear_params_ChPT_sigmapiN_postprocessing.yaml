@@ -1,0 +1,50 @@
+#####################################################################################################################
+## Default settings for nuclear_params_ChPT_sigmapiN parameters in postprocessing of DMEFT scans.
+##
+## Not a top-level configuration file! Instead, import this file, e.g.
+## Parameters:
+##   nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_postprocessing.yaml
+##
+#####################################################################################################################
+
+sigmapiN:
+  prior_type: none
+Bc5m:
+  prior_type: none
+gA:
+  prior_type: none
+mG:
+  prior_type: none
+sigmas:
+  prior_type: none
+DeltauDeltad:
+  prior_type: none
+Deltas:
+  prior_type: none
+B0mu:
+  prior_type: none
+B0md:
+  prior_type: none
+B0ms:
+  prior_type: none
+# Nuclear dipole moments
+mup:
+  prior_type: none
+mun:
+  prior_type: none
+mus:
+  prior_type: none
+gTu:
+  prior_type: none
+gTd:
+  prior_type: none
+gTs:
+  prior_type: none
+BT10up:
+  prior_type: none
+BT10dp:
+  prior_type: none
+BT10s:
+  prior_type: none
+rs2:
+  prior_type: none

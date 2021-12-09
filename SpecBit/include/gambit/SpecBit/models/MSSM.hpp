@@ -27,7 +27,6 @@
 #ifndef __SpecBit_MSSM_hpp__
 #define __SpecBit_MSSM_hpp__
 
-
   /// @{ Functions to supply particle spectra in various forms
 
   // This capability supplies the physical mass spectrum of the MSSM plus running
@@ -41,9 +40,8 @@
     START_FUNCTION(Spectrum)
     ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
     DEPENDENCY(SMINPUTS, SMInputs)
-    BACKEND_REQ(SPheno_MSSM_Spectrum, (MSSMspectrum), int, (Spectrum&, const SpectrumInputs&) )
-    BACKEND_OPTION((SPheno, 3.3.8), (MSSMspectrum))
-    BACKEND_OPTION((SARAHSPheno_MSSM, 4.0.3), (MSSMspectrum))
+    BACKEND_REQ(SPheno_MSSM_Spectrum, (libSPheno), int, (Spectrum&, const SpectrumInputs&) )
+    BACKEND_OPTION((SPheno, 3.3.8, 4.0.3), (libSPheno))
     #undef FUNCTION
 
     // ==========================
@@ -198,6 +196,14 @@
     #define FUNCTION get_MSSM_spectrum_as_SLHAea_SLHA2
     START_FUNCTION(SLHAstruct)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
+    #undef FUNCTION
+
+    // ===============================
+    // Get MSSM spectrum from previous GAMBIT output via the postprocessor scanner
+    #define FUNCTION get_MSSM_spectrum_from_postprocessor
+    START_FUNCTION(Spectrum)
+    ALLOW_MODELS(MSSM63atMGUT,MSSM63atMGUT_mA,MSSM63atQ,MSSM63atQ_mA) // Needed for tanbeta(mZ)_DRbar only
+    DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to create full Spectrum object
     #undef FUNCTION
 
     // ==============================

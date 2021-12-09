@@ -2,12 +2,12 @@
 #define __wrapper_MSSMNoFV_onshell_problems_decl_gm2calc_1_3_0_hpp__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.hpp"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_MSSMNoFV_onshell_problems.hpp"
 #include <string>
 #include <ostream>
 #include <vector>
+#include "forward_decls_wrapper_classes.hpp"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_MSSMNoFV_onshell_problems.hpp"
 
 #include "identification.hpp"
 
@@ -22,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static gm2calc::Abstract_MSSMNoFV_onshell_problems* (*__factory0)();
+            static Abstract_MSSMNoFV_onshell_problems* (*__factory0)();
       
             // -- Other member variables: 
       
@@ -70,7 +70,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             MSSMNoFV_onshell_problems();
       
             // Special pointer-based constructor: 
-            MSSMNoFV_onshell_problems(gm2calc::Abstract_MSSMNoFV_onshell_problems* in);
+            MSSMNoFV_onshell_problems(Abstract_MSSMNoFV_onshell_problems* in);
       
             // Copy constructor: 
             MSSMNoFV_onshell_problems(const MSSMNoFV_onshell_problems& in);
@@ -82,7 +82,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~MSSMNoFV_onshell_problems();
       
             // Returns correctly casted pointer to Abstract class: 
-            gm2calc::Abstract_MSSMNoFV_onshell_problems* get_BEptr() const;
+            Abstract_MSSMNoFV_onshell_problems* get_BEptr() const;
       
       };
    }

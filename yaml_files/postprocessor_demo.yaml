@@ -56,8 +56,10 @@ Scanner:
 
     postprocessor:
       plugin: postprocessor
-      #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0)
-       # Name of the new global likelihood contribution.
+      #version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0) 
+      # Turn off extra log output to track what the postprocessor is doing (won't be output unless debug: true anyway though)
+      #verbose_logging: false
+      # Name of the new global likelihood contribution.
       like: New_LogLike
       # Name of the combined new+old likelihood
       reweighted_like: Comb_LogLike
@@ -133,7 +135,8 @@ Logger:
     [Default]      : "default.log"
     [ExampleBit_A] : "ExampleBit_A.log"
     [Scanner]      : "Scanner.log"
-
+    [Debug]        : "debug.log"
+    [Scanner,Debug]: "Scanner_debug.log"
 
 KeyValues:
 
@@ -144,6 +147,8 @@ KeyValues:
     seed: -1
 
   print_timing_data: false
+
+  debug: true 
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

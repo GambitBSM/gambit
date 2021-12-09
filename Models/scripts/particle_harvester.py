@@ -7,8 +7,8 @@
 #  Particle harvesting script.
 #  Generates particle_database.hpp
 #
-#  This script parses the particle_database.yaml
-#  file and adds the correct particle macros to
+#  This script parses the particle_database.yaml 
+#  file and adds the correct particle macros to 
 #  the particle database .cpp file.
 #
 #*********************************************
@@ -33,14 +33,14 @@ exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 comp
 
 def create_entry(macro, particle_list):
 
-  '''Create the correct entry to add to particle_database.cpp. The
+  '''Create the correct entry to add to particle_database.cpp. The 
   argument "macro" should be one of the macros in particle_macros.hpp.'''
-
-  # Output to add to the particle database.
+  
+  # Output to add to the particle database. 
   output = "\n      "
-
+  
   for i in range(0, len(particle_list)):
-
+  
     entry = particle_list[i]
   
     PDG = entry['PDG_context']
@@ -74,9 +74,9 @@ def create_entry(macro, particle_list):
       color = entry['color']
 
     # If we do not recognise the color assignment, throw an error
-    if color not in [-1, 1, 3, 6, 8]: 
-      print('Color for particle with name {}').format(entry['name'])
-      print('given as {}. GAMBIT only knows [1, 3, 6, 8].').format(color)
+    if color not in [-1, 1, 3, 6, 8]:
+      print(('Color for particle with name {}').format(entry['name']))
+      print(('given as {}. GAMBIT only knows [1, 3, 6, 8].').format(color))
       print('Please check particle_database.yaml.')
       sys.exit()
 
@@ -101,22 +101,21 @@ def create_entry(macro, particle_list):
   return output
 
 def main(argv):
-
+    
   with open("./config/particle_database.yaml", "r") as f:
 
     try:
-      yaml_loader = yaml.full_load if hasattr(yaml, 'full_load') else yaml.load
-      data = yaml_loader(f)
+      data = yaml.safe_load(f)
     except yaml.YAMLerror as exc:
       print (exc)
-
+      
     # These correspond to the five macros in particle_macros.hpp.
     SM_particles = data['StandardModel']['Particles']   # add_SM_particle
     SM_sets = data['StandardModel']['Sets']             # add_SM_partcle_set
     BSM_particles = data['OtherModels']['Particles']    # add_particle
     BSM_sets = data['OtherModels']['Sets']              # add_particle_set
     Generic = data['OtherModels']['Generic']            # add_generic_particle
-
+    
   towrite = "\
 //   GAMBIT: Global and Modular BSM Inference Tool\n\
 //   *********************************************\n\
@@ -157,16 +156,16 @@ namespace Gambit                                  \n\
                                                   \n\
     void define_particles(partmap* particles)     \n\
     {                                             \n"
-  towrite+= create_entry("add_SM_particle", SM_particles)
-
+  towrite+= create_entry("add_SM_particle", SM_particles)  
+    
   towrite+= create_entry("add_SM_particle_set", SM_sets)
-
+  
   towrite+= create_entry("add_particle", BSM_particles)
-
+  
   towrite+= create_entry("add_particle_set", BSM_sets)
 
   towrite+= create_entry("add_generic_particle", Generic)
-
+  
   towrite+="                                      \n\
     }                                             \n\
                                                   \n\

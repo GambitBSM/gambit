@@ -25,12 +25,12 @@ namespace MCUtils {
   //@{
 
   /// Convert a HepMC FourVector to a FastJet PseudoJet
-  inline fastjet::PseudoJet mk_pseudojet(const HepMC::FourVector& p4) {
+  inline fastjet::PseudoJet mk_pseudojet(const HepMC3::FourVector& p4) {
     return fastjet::PseudoJet(p4.px(), p4.py(), p4.pz(), p4.e());
   }
 
   /// Convert a HepMC GenParticle to a FastJet PseudoJet
-  inline fastjet::PseudoJet mk_pseudojet(const HepMC::GenParticle* gp) {
+  inline fastjet::PseudoJet mk_pseudojet(const HepMC3::GenParticle* gp) {
     fastjet::PseudoJet pj = mk_pseudojet(gp->momentum());
     //pj.set_user_info(new HepMCInfo(p));
     return pj;
@@ -39,7 +39,7 @@ namespace MCUtils {
   /// Convert a vector of HepMC GenParticles to a vector of FastJet PseudoJets
   inline std::vector<fastjet::PseudoJet> mk_pseudojets(const GenParticlesC& gps) {
     std::vector<fastjet::PseudoJet> pjs;
-    for (const HepMC::GenParticle* gp : gps) {
+    for (const HepMC3::GenParticle* gp : gps) {
       pjs.push_back( mk_pseudojet(gp) );
     }
     return pjs;
@@ -60,7 +60,7 @@ namespace MCUtils {
 
 
   /// Construct pT-sorted jets using the @a alg measure with jet @a R parameter, and min pT @a ptmin (in MeV)
-  inline std::vector<fastjet::PseudoJet> get_jets(const HepMC::GenEvent* evt, double R, double ptmin,
+  inline std::vector<fastjet::PseudoJet> get_jets(const HepMC3::GenEvent* evt, double R, double ptmin,
                                                   fastjet::JetAlgorithm alg=fastjet::antikt_algorithm) {
     /// @todo Convert to use get_jet_inputs
     return HEPUtils::get_jets(mk_pseudojets(get_stable(evt)), R, ptmin, alg);

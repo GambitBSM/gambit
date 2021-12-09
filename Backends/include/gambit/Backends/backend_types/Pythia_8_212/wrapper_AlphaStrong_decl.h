@@ -19,7 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_AlphaStrong* (*__factory0)();
+                static Abstract_AlphaStrong* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -63,7 +63,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 AlphaStrong();
         
                 // Special pointer-based constructor: 
-                AlphaStrong(Pythia8::Abstract_AlphaStrong* in);
+                AlphaStrong(Abstract_AlphaStrong* in);
         
                 // Copy constructor: 
                 AlphaStrong(const AlphaStrong& in);
@@ -75,7 +75,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~AlphaStrong();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_AlphaStrong* get_BEptr() const;
+                Abstract_AlphaStrong* get_BEptr() const;
         
         };
     }

@@ -19,10 +19,13 @@
 #ifndef __SpecBit_rollcall_hpp__
 #define __SpecBit_rollcall_hpp__
 
+#include "gambit/SpecBit/SpecBit_types.hpp"
+
 #define MODULE SpecBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
-// Predefine capabilities that appear in more than one model, to avoid ordering problems
+  // Predefine capabilities that appear in more than one model, to avoid ordering problems
   #define CAPABILITY Higgs_Couplings
   START_CAPABILITY
   #undef CAPABILITY
@@ -31,16 +34,34 @@ START_MODULE
   START_CAPABILITY
   #undef CAPABILITY
 
-#include "gambit/SpecBit/models/DiracSingletDM.hpp"
-#include "gambit/SpecBit/models/MajoranaSingletDM.hpp"
-#include "gambit/SpecBit/models/MDM.hpp"
-#include "gambit/SpecBit/models/MSSM.hpp"
-#include "gambit/SpecBit/models/ScalarSingletDM.hpp"
-#include "gambit/SpecBit/models/SM.hpp"
-#include "gambit/SpecBit/models/VectorSingletDM.hpp"
+  /// Module function declarations for model SM
+  #include "gambit/SpecBit/models/SM.hpp"
 
-#include "gambit/SpecBit/SpecBit_VS_rollcall.hpp"
+  /// Module function declarations for model MSSM
+  #include "gambit/SpecBit/models/MSSM.hpp"
 
+  /// Module function declarations for model ScalarSingletDM
+  #include "gambit/SpecBit/models/ScalarSingletDM.hpp"
+
+  /// Module function declarations for model VectorSingletDM
+  #include "gambit/SpecBit/models/VectorSingletDM.hpp"
+
+  /// Module function declarations for model MajoranaSingletDM
+  #include "gambit/SpecBit/models/MajoranaSingletDM.hpp"
+
+  /// Module function declarations for model DiracSingletDM
+  #include "gambit/SpecBit/models/DiracSingletDM.hpp"
+
+  /// Module function declarations for model MDM
+  #include "gambit/SpecBit/models/MDM.hpp"
+
+  /// Module function declarations for model DMEFT
+  #include "gambit/SpecBit/models/DMEFT.hpp"
+  
+  // TODO: Still to fix
+  #include "gambit/SpecBit/SpecBit_VS_rollcall.hpp"
+
+#undef REFERENCE
 #undef MODULE
 
 #endif /* defined(__SpecBit_rollcall_hpp__) */

@@ -24,6 +24,7 @@
 #define BACKENDLANG CXX
 #define VERSION 1.1
 #define SAFE_VERSION 1_1
+#define REFERENCE GAMBIT:2017yxo
 
 // Begin
 LOAD_LIBRARY

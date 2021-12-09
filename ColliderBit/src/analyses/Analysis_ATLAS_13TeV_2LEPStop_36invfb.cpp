@@ -24,18 +24,30 @@ namespace Gambit {
   namespace ColliderBit {
 
 
-    bool sortByPT_j(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
-    bool sortByPT_l(HEPUtils::Particle* lep1, HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT()); }
+    bool sortByPT_j(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
+    bool sortByPT_l(const HEPUtils::Particle* lep1, const HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT()); }
 
     class Analysis_ATLAS_13TeV_2LEPStop_36invfb : public Analysis {
     private:
 
         // Numbers passing cuts
-        int _SRASF120, _SRADF120, _SRASF140, _SRADF140, _SRASF160, _SRADF160, _SRASF180, _SRADF180;
-        int _SRBSF120, _SRBDF120, _SRBSF140, _SRBDF140;
-        int _SRCSF110, _SRCDF110;
-        //int _SR3BodyTSF, _SR3BodyTDF, _SR3BodyWSF, _SR3BodyWDF;
-        int _SR4b;
+        std::map<string, EventCounter> _counters = {
+            {"SRASF120", EventCounter("SRASF120")},
+            {"SRADF120", EventCounter("SRADF120")},
+            {"SRASF140", EventCounter("SRASF140")},
+            {"SRADF140", EventCounter("SRADF140")},
+            {"SRASF160", EventCounter("SRASF160")},
+            {"SRADF160", EventCounter("SRADF160")},
+            {"SRASF180", EventCounter("SRASF180")},
+            {"SRADF180", EventCounter("SRADF180")},
+            {"SRBSF120", EventCounter("SRBSF120")},
+            {"SRBDF120", EventCounter("SRBDF120")},
+            {"SRBSF140", EventCounter("SRBSF140")},
+            {"SRBDF140", EventCounter("SRBDF140")},
+            {"SRCSF110", EventCounter("SRCSF110")},
+            {"SRCDF110", EventCounter("SRCDF110")},
+            {"SR4b", EventCounter("SR4b")},
+        };
 
         // Cut Flow
         vector<int> cutFlowVector;
@@ -47,11 +59,11 @@ namespace Gambit {
         // ofstream Savelep2;
 
         // Jet overlap removal
-        void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+        void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
             //Routine to do jet-lepton check
             //Discards jets if they are within DeltaRMax of a lepton
 
-            vector<HEPUtils::Jet*> Survivors;
+            vector<const HEPUtils::Jet*> Survivors;
 
             for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
                 bool overlap = false;
@@ -73,11 +85,11 @@ namespace Gambit {
         }
 
         // Lepton overlap removal
-        void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec, double DeltaRMax) {
+        void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax) {
             //Routine to do lepton-jet check
             //Discards leptons if they are within DeltaRMax of a jet
 
-            vector<HEPUtils::Particle*> Survivors;
+            vector<const HEPUtils::Particle*> Survivors;
 
             for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
                 bool overlap = false;
@@ -109,13 +121,6 @@ namespace Gambit {
             set_analysis_name("ATLAS_13TeV_2LEPStop_36invfb");
             set_luminosity(36.1);
 
-            _SRASF120=0; _SRADF120=0; _SRASF140=0; _SRADF140=0;
-            _SRASF160=0; _SRADF160=0; _SRASF180=0; _SRADF180=0;
-            _SRBSF120=0; _SRBDF120=0; _SRBSF140=0; _SRBDF140=0;
-            _SRCSF110=0; _SRCDF110=0;
-            //_SR3BodyTSF=0; _SR3BodyTDF=0; _SR3BodyWSF=0; _SR3BodyWDF=0;
-            _SR4b=0;
-
             NCUTS= 66;
 
             // //debug
@@ -136,9 +141,9 @@ namespace Gambit {
             HEPUtils::P4 ptot = event->missingmom();
 
             // Baseline lepton objects
-            vector<HEPUtils::Particle*> blElectrons, blMuons;              // Used for SR-2body and SR-3body
-            vector<HEPUtils::Particle*> baselineElectrons, baselineMuons;  // Used for SR-4body
-            for (HEPUtils::Particle* electron : event->electrons()) {
+            vector<const HEPUtils::Particle*> blElectrons, blMuons;              // Used for SR-2body and SR-3body
+            vector<const HEPUtils::Particle*> baselineElectrons, baselineMuons;  // Used for SR-4body
+            for (const HEPUtils::Particle* electron : event->electrons()) {
             // Same with the code snippet, not the experimental report
                 if (electron->pT() > 10. && electron->abseta() < 2.47) blElectrons.push_back(electron);
                 if (electron->pT() > 7. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
@@ -156,8 +161,8 @@ namespace Gambit {
             const std::vector<double>  b = {0,10000.};
             const vector<double> cMu={0.89};
             HEPUtils::BinnedFn2D<double> _eff2dMu(a,b,cMu);
-            for (HEPUtils::Particle* muon : event->muons()) {
-                bool hasTrig=has_tag(_eff2dMu, muon->eta(), muon->pT());
+            for (const HEPUtils::Particle* muon : event->muons()) {
+                bool hasTrig=has_tag(_eff2dMu, muon->abseta(), muon->pT());
             // Same with the code snippet, not the experimental report
                 if (muon->pT() > 10. && muon->abseta() < 2.5 && hasTrig) blMuons.push_back(muon);
                 if (muon->pT() > 7. && muon->abseta() < 2.5 && hasTrig) baselineMuons.push_back(muon);
@@ -168,9 +173,9 @@ namespace Gambit {
             ATLAS::applyMuonEff(baselineMuons);
 
             // Jets
-            vector<HEPUtils::Jet*> blJets;          // Used for SR-2body and SR-3body
-            vector<HEPUtils::Jet*> baselineJets;    // Used for SR-4body
-            for (HEPUtils::Jet* jet : event->jets()) {
+            vector<const HEPUtils::Jet*> blJets;          // Used for SR-2body and SR-3body
+            vector<const HEPUtils::Jet*> baselineJets;    // Used for SR-4body
+            for (const HEPUtils::Jet* jet : event->jets()) {
                 if (jet->pT() > 20. && fabs(jet->eta()) < 2.8) blJets.push_back(jet);
                 if (jet->pT() > 20. && fabs(jet->eta()) < 2.8) baselineJets.push_back(jet);
             }
@@ -184,14 +189,14 @@ namespace Gambit {
             LeptonJetOverlapRemoval(baselineMuons,baselineJets,0.4);
 
             //Signal Jet
-            vector<HEPUtils::Jet*> sgJets;                  // Used for SR-2body and SR-3body
-            vector<HEPUtils::Jet*> signalJets;              // Used for SR-4body
-            for (HEPUtils::Jet* jet : blJets) {
+            vector<const HEPUtils::Jet*> sgJets;                  // Used for SR-2body and SR-3body
+            vector<const HEPUtils::Jet*> signalJets;              // Used for SR-4body
+            for (const HEPUtils::Jet* jet : blJets) {
                 if (jet->pT() > 20. && fabs(jet->eta()) < 2.5) {
                     sgJets.push_back(jet);
                 }
             }
-            for (HEPUtils::Jet* jet : baselineJets) {
+            for (const HEPUtils::Jet* jet : baselineJets) {
                 if (jet->pT() > 25. && fabs(jet->eta()) < 2.5) {
                     signalJets.push_back(jet);
                 }
@@ -199,27 +204,27 @@ namespace Gambit {
 
 
             //Signal Leptons
-            vector<HEPUtils::Particle*> sgElectrons, sgLeptons;          // Used for SR-2body and SR-3body
-            vector<HEPUtils::Particle*> signalLeptons;  // Used for SR-4body
-            for (HEPUtils::Particle* electron : blElectrons) {
+            vector<const HEPUtils::Particle*> sgElectrons, sgLeptons;          // Used for SR-2body and SR-3body
+            vector<const HEPUtils::Particle*> signalLeptons;  // Used for SR-4body
+            for (const HEPUtils::Particle* electron : blElectrons) {
                 if (electron->pT() > 10. && fabs(electron->eta()) < 2.47){
                     sgElectrons.push_back(electron);
                 }
             }
             ATLAS::applyMediumIDElectronSelectionR2(sgElectrons);
-            for (HEPUtils::Particle* electron : sgElectrons) {
+            for (const HEPUtils::Particle* electron : sgElectrons) {
                 sgLeptons.push_back(electron);
             }
-            for (HEPUtils::Particle* muon : blMuons) {
+            for (const HEPUtils::Particle* muon : blMuons) {
                 if (muon->pT() > 10. && fabs(muon->eta()) < 2.4){
                     sgLeptons.push_back(muon);
                 }
             }
             ATLAS::applyMediumIDElectronSelectionR2(baselineElectrons);
-            for (HEPUtils::Particle* electron : baselineElectrons) {
+            for (const HEPUtils::Particle* electron : baselineElectrons) {
                 signalLeptons.push_back(electron);
             }
-            for (HEPUtils::Particle* muon : baselineMuons) {
+            for (const HEPUtils::Particle* muon : baselineMuons) {
                 signalLeptons.push_back(muon);
             }
 
@@ -231,16 +236,16 @@ namespace Gambit {
             std::sort(sgLeptons.begin(), sgLeptons.end(), sortByPT_l);
 
             // Function used to get b jets
-            vector<HEPUtils::Jet*> sgbJets;                  // Used for SR-2body and SR-3body
-            vector<HEPUtils::Jet*> sgJetsGt25;               // Used for SR-2body
+            vector<const HEPUtils::Jet*> sgbJets;                  // Used for SR-2body and SR-3body
+            vector<const HEPUtils::Jet*> sgJetsGt25;               // Used for SR-2body
             //const std::vector<double>  a = {0,10.};
             //const std::vector<double>  b = {0,10000.};
             const std::vector<double> c = {0.77};
             HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-            for (HEPUtils::Jet* jet :sgJets) {
+            for (const HEPUtils::Jet* jet :sgJets) {
                 if (jet->pT() > 25.) {
                     sgJetsGt25.push_back(jet);
-                    bool hasTag=has_tag(_eff2d, jet->eta(), jet->pT());
+                    bool hasTag=has_tag(_eff2d, jet->abseta(), jet->pT());
                     if(jet->btag() && hasTag && jet->pT() > 25.) sgbJets.push_back(jet);
                 }
             }
@@ -278,7 +283,7 @@ namespace Gambit {
             bool cC_METGt200    =false;
             bool cC_MT2110      =false;
 
-	    //Lepton Num
+            //Lepton Num
             if(sgLeptons.size() == 2){
 
                 // Opposite sign leptons, pT(l1,l2)>25,20GeV, mll>20GeV
@@ -401,8 +406,8 @@ namespace Gambit {
                     const std::vector<double>  b = {0,10000.};
                     const std::vector<double> c = {0.7};
                     HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);*/
-                    bool j1Tag=has_tag(_eff2d, signalJets.at(0)->eta(), signalJets.at(0)->pT());
-                    bool j2Tag=has_tag(_eff2d, signalJets.at(1)->eta(), signalJets.at(1)->pT());
+                    bool j1Tag=has_tag(_eff2d, signalJets.at(0)->abseta(), signalJets.at(0)->pT());
+                    bool j2Tag=has_tag(_eff2d, signalJets.at(1)->abseta(), signalJets.at(1)->pT());
                     if (!(signalJets.at(0)->btag()&&j1Tag&&signalJets.at(1)->btag()&&j2Tag)) c4_2bjetveto=true;
                 }
             }
@@ -542,25 +547,25 @@ namespace Gambit {
             }
             // signal region
 
-            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2120 ) _SRASF120++;
-            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2120 ) _SRADF120++;
-            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2140 ) _SRASF140++;
-            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2140 ) _SRADF140++;
-            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2160 ) _SRASF160++;
-            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2160 ) _SRADF160++;
-            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2180 ) _SRASF180++;
-            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2180 ) _SRADF180++;
+            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2120 ) _counters.at("SRASF120").add_event(event);
+            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2120 ) _counters.at("SRADF120").add_event(event);
+            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2140 ) _counters.at("SRASF140").add_event(event);
+            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2140 ) _counters.at("SRADF140").add_event(event);
+            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2160 ) _counters.at("SRASF160").add_event(event);
+            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2160 ) _counters.at("SRADF160").add_event(event);
+            if (   cABC_SF  && cA_mllGt111 && cA_nobjet && CA_R2l2j && cA_deltaX && cA_MT2180 ) _counters.at("SRASF180").add_event(event);
+            if ( (!cABC_SF)                && cA_nobjet             && cA_deltaX && cA_MT2180 ) _counters.at("SRADF180").add_event(event);
 
-            if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2120 ) _SRBSF120++;
-            if ( (!cABC_SF)                && cBC_nbnj && cB_DelBoost && cB_MT2120 ) _SRBDF120++;
-            if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2140 ) _SRBSF140++;
-            if ( (!cABC_SF)                && cBC_nbnj && cB_DelBoost && cB_MT2140 ) _SRBDF140++;
+            if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2120 ) _counters.at("SRBSF120").add_event(event);
+            if ( (!cABC_SF)                && cBC_nbnj && cB_DelBoost && cB_MT2120 ) _counters.at("SRBDF120").add_event(event);
+            if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cB_DelBoost && cB_MT2140 ) _counters.at("SRBSF140").add_event(event);
+            if ( (!cABC_SF)                && cBC_nbnj && cB_DelBoost && cB_MT2140 ) _counters.at("SRBDF140").add_event(event);
 
-            if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110 ) _SRCSF110++;
-            if ( (!cABC_SF) &&                cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110 ) _SRCDF110++;
+            if (   cABC_SF  && cBC_mllExMz && cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110 ) _counters.at("SRCSF110").add_event(event);
+            if ( (!cABC_SF) &&                cBC_nbnj && cC_njGt2 && cC_R2lGt1o2 && cC_METGt200 && cC_MT2110 ) _counters.at("SRCDF110").add_event(event);
 
 
-            if (c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l && c4_2bjetveto) _SR4b++;
+            if (c4_METOSlepton && c4_mllGt10 && c4_SoftLepton && c4_Jet1PtGt150 && c4_Jet3PtMET && c4_R2l4j && c4_R2l && c4_2bjetveto) _counters.at("SR4b").add_event(event);
         return;
 
         }
@@ -571,27 +576,14 @@ namespace Gambit {
             const Analysis_ATLAS_13TeV_2LEPStop_36invfb* specificOther
                 = dynamic_cast<const Analysis_ATLAS_13TeV_2LEPStop_36invfb*>(other);
 
+            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
             if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
             for (int j=0; j<NCUTS; j++)
             {
                 cutFlowVector[j] += specificOther->cutFlowVector[j];
                 cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
             }
-
-            _SRASF120 += specificOther->_SRASF120;
-            _SRASF140 += specificOther->_SRASF140;
-            _SRADF140 += specificOther->_SRADF140;
-            _SRASF160 += specificOther->_SRASF160;
-            _SRADF160 += specificOther->_SRADF160;
-            _SRASF180 += specificOther->_SRASF180;
-            _SRADF180 += specificOther->_SRADF180;
-            _SRBSF120 += specificOther->_SRBSF120;
-            _SRBDF120 += specificOther->_SRBDF120;
-            _SRBSF140 += specificOther->_SRBSF140;
-            _SRBDF140 += specificOther->_SRBDF140;
-            _SRCSF110 += specificOther->_SRCSF110;
-            _SRCDF110 += specificOther->_SRCDF110;
-            _SR4b += specificOther->_SR4b;
         }
 
 
@@ -611,161 +603,37 @@ namespace Gambit {
             // }
             // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
+
+            // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+
             // signal regin 2-body A
-            SignalRegionData results_SRASF120;
-            results_SRASF120.sr_label = "SRASF120";
-            results_SRASF120.n_observed = 22.;
-            results_SRASF120.n_background = 20.0;
-            results_SRASF120.background_sys = 4.6;
-            results_SRASF120.signal_sys = 0.;
-            results_SRASF120.n_signal = _SRASF120;
-            add_result(results_SRASF120);
-
-            SignalRegionData results_SRADF120;
-            results_SRADF120.sr_label = "SRADF120";
-            results_SRADF120.n_observed = 27.;
-            results_SRADF120.n_background = 23.8;
-            results_SRADF120.background_sys = 4.2;
-            results_SRADF120.signal_sys = 0.;
-            results_SRADF120.n_signal = _SRADF120;
-            add_result(results_SRADF120);
-
-            SignalRegionData results_SRASF140;
-            results_SRASF140.sr_label = "SRASF140";
-            results_SRASF140.n_observed = 6.;
-            results_SRASF140.n_background = 11.0;
-            results_SRASF140.background_sys = 2.5;
-            results_SRASF140.signal_sys = 0.;
-            results_SRASF140.n_signal = _SRASF140;
-            add_result(results_SRASF140);
-
-            SignalRegionData results_SRADF140;
-            results_SRADF140.sr_label = "SRADF140";
-            results_SRADF140.n_observed = 6.;
-            results_SRADF140.n_background = 10.8;
-            results_SRADF140.background_sys = 2.1;
-            results_SRADF140.signal_sys = 0.;
-            results_SRADF140.n_signal = _SRADF140;
-            add_result(results_SRADF140);
-
-            SignalRegionData results_SRASF160;
-            results_SRASF160.sr_label = "SRASF160";
-            results_SRASF160.n_observed = 10.;
-            results_SRASF160.n_background = 5.6;
-            results_SRASF160.background_sys = 1.8;
-            results_SRASF160.signal_sys = 0.;
-            results_SRASF160.n_signal = _SRASF160;
-            add_result(results_SRASF160);
-
-            SignalRegionData results_SRADF160;
-            results_SRADF160.sr_label = "SRADF160";
-            results_SRADF160.n_observed = 7.;
-            results_SRADF160.n_background = 6.4;
-            results_SRADF160.background_sys = 1.3;
-            results_SRADF160.signal_sys = 0.;
-            results_SRADF160.n_signal = _SRADF160;
-            add_result(results_SRADF160);
-
-            SignalRegionData results_SRASF180;
-            results_SRASF180.sr_label = "SRASF180";
-            results_SRASF180.n_observed = 16.;
-            results_SRASF180.n_background = 12.3;
-            results_SRASF180.background_sys = 2.6;
-            results_SRASF180.signal_sys = 0.;
-            results_SRASF180.n_signal = _SRASF180;
-            add_result(results_SRASF180);
-
-            SignalRegionData results_SRADF180;
-            results_SRADF180.sr_label = "SRADF180";
-            results_SRADF180.n_observed = 8.;
-            results_SRADF180.n_background = 5.4;
-            results_SRADF180.background_sys = 1.7;
-            results_SRADF180.signal_sys = 0.;
-            results_SRADF180.n_signal = _SRADF180;
-            add_result(results_SRADF180);
-
+            add_result(SignalRegionData(_counters.at("SRASF120"), 22., { 20.0, 4.6}));
+            add_result(SignalRegionData(_counters.at("SRADF120"), 27., { 23.8, 4.2}));
+            add_result(SignalRegionData(_counters.at("SRASF140"), 6., { 11.0, 2.5}));
+            add_result(SignalRegionData(_counters.at("SRADF140"), 6., { 10.8, 2.1}));
+            add_result(SignalRegionData(_counters.at("SRASF160"), 10., { 5.6, 1.8}));
+            add_result(SignalRegionData(_counters.at("SRADF160"), 7., { 6.4, 1.3}));
+            add_result(SignalRegionData(_counters.at("SRASF180"), 16., { 12.3, 2.6}));
+            add_result(SignalRegionData(_counters.at("SRADF180"), 8., { 5.4, 1.7}));
             // signal regin 2-body B
-            SignalRegionData results_SRBSF120;
-            results_SRBSF120.sr_label = "SRBSF120";
-            results_SRBSF120.n_observed = 17.;
-            results_SRBSF120.n_background = 16.3;
-            results_SRBSF120.background_sys = 6.2;
-            results_SRBSF120.signal_sys = 0.;
-            results_SRBSF120.n_signal = _SRBSF120;
-            add_result(results_SRBSF120);
-
-            SignalRegionData results_SRBDF120;
-            results_SRBDF120.sr_label = "SRBDF120";
-            results_SRBDF120.n_observed = 13.;
-            results_SRBDF120.n_background = 16.1;
-            results_SRBDF120.background_sys = 5.3;
-            results_SRBDF120.signal_sys = 0.;
-            results_SRBDF120.n_signal = _SRBDF120;
-            add_result(results_SRBDF120);
-
-            SignalRegionData results_SRBSF140;
-            results_SRBSF140.sr_label = "SRBSF140";
-            results_SRBSF140.n_observed = 9.;
-            results_SRBSF140.n_background = 7.4;
-            results_SRBSF140.background_sys = 1.1;
-            results_SRBSF140.signal_sys = 0.;
-            results_SRBSF140.n_signal = _SRBSF140;
-            add_result(results_SRBSF140);
-
-            SignalRegionData results_SRBDF140;
-            results_SRBDF140.sr_label = "SRBDF140";
-            results_SRBDF140.n_observed = 7.;
-            results_SRBDF140.n_background = 4.8;
-            results_SRBDF140.background_sys = 1.0;
-            results_SRBDF140.signal_sys = 0.;
-            results_SRBDF140.n_signal = _SRBDF140;
-            add_result(results_SRBDF140);
-
+            add_result(SignalRegionData(_counters.at("SRBSF120"), 17., { 16.3, 6.2}));
+            add_result(SignalRegionData(_counters.at("SRBDF120"), 13., { 16.1, 5.3}));
+            add_result(SignalRegionData(_counters.at("SRBSF140"), 9., { 7.4, 1.1}));
+            add_result(SignalRegionData(_counters.at("SRBDF140"), 7., { 4.8, 1.0}));
             // signal regin 2-body C
-            SignalRegionData results_SRCSF110;
-            results_SRCSF110.sr_label = "SRCSF110";
-            results_SRCSF110.n_observed = 11.;
-            results_SRCSF110.n_background = 5.3;
-            results_SRCSF110.background_sys = 1.8;
-            results_SRCSF110.signal_sys = 0.;
-            results_SRCSF110.n_signal = _SRCSF110;
-            add_result(results_SRCSF110);
-
-            SignalRegionData results_SRCDF110;
-            results_SRCDF110.sr_label = "SRCDF110";
-            results_SRCDF110.n_observed = 7.;
-            results_SRCDF110.n_background = 3.8;
-            results_SRCDF110.background_sys = 1.5;
-            results_SRCDF110.signal_sys = 0.;
-            results_SRCDF110.n_signal = _SRCDF110;
-            add_result(results_SRCDF110);
-
-
+            add_result(SignalRegionData(_counters.at("SRCSF110"), 11., { 5.3, 1.8}));
+            add_result(SignalRegionData(_counters.at("SRCDF110"), 7., { 3.8, 1.5}));
             // signal regin 4-body
-            SignalRegionData results_SR4b;
-            results_SR4b.sr_label = "SR4b";
-            results_SR4b.n_observed = 30.;
-            results_SR4b.n_background = 28.;
-            results_SR4b.background_sys = 6.;
-            results_SR4b.signal_sys = 0.;
-            results_SR4b.n_signal = _SR4b;
-            add_result(results_SR4b);
+            add_result(SignalRegionData(_counters.at("SR4b"), 30., { 28., 6.}));
+
             return;
         }
 
     protected:
       void analysis_specific_reset() {
-	_SRASF120=0; _SRADF120=0; _SRASF140=0; _SRADF140=0;
-	_SRASF160=0; _SRADF160=0; _SRASF180=0; _SRADF180=0;
-	_SRBSF120=0; _SRBDF120=0; _SRBSF140=0; _SRBDF140=0;
-	_SRCSF110=0; _SRCDF110=0;
-	//_SR3BodyTSF=0; _SR3BodyTDF=0; _SR3BodyWSF=0; _SR3BodyWDF=0;
-	_SR4b=0;
-
+        for (auto& pair : _counters) { pair.second.reset(); }
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
-
-
 
     };
 

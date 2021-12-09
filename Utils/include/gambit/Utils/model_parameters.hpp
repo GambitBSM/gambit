@@ -27,6 +27,7 @@
 ///                   handling system; put class
 ///                   definitions into a seperate source file.
 ///  \date 2015 Aug:  Added copy_parameters_from function
+///  \date 2019 Jul:  
 ///
 ///  \author Pat Scott
 ///          (p.scott@imperial.ac.uk)
@@ -72,6 +73,9 @@ namespace Gambit
 
       /// Get value of named parameter
       double getValue(std::string const & inkey) const;
+
+      /// Check if a parameter exists in this object
+      bool has(const std::string&) const;
 
       /// Get values of all parameters
       const std::map<std::string, double>& getValues() const;

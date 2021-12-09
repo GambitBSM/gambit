@@ -26,6 +26,8 @@
 ///
 ///  *********************************************
 
+#include "gambit/Utils/slhaea_helpers.hpp"
+
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
@@ -33,6 +35,10 @@
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
 #include "gambit/SpecBit/RegisteredSpectra.hpp"
+
+// TODO: Breaks modularity?
+#include "gambit/Printers/printermanager.hpp" // Needed by get_MSSM_spectrum_from_postprocessor to access reader object
+#include "gambit/Printers/baseprinter.hpp" // Needed by get_MSSM_spectrum_from_postprocessor to use reader object
 
 // Switch for debug mode
 //#define SPECBIT_DEBUG
@@ -813,6 +819,60 @@ namespace Gambit
       spectrum = Pipes::get_MSSM_spectrum_as_SLHAea_SLHA2::Dep::unimproved_MSSM_spectrum->getSLHAea(2);
     }
 
+    /// Get pre-computed MSSM spectrum from previous output file
+    /// This function ONLY works when the scan is driven by the postprocessor!
+    /// This is because it relies on the global reader object created by the
+    /// postprocessor to retrieve output.
+    void get_MSSM_spectrum_from_postprocessor(Spectrum& result)
+    {
+      namespace myPipe = Pipes::get_MSSM_spectrum_from_postprocessor;
+      const SMInputs& sminputs = *myPipe::Dep::SMINPUTS; // Retrieve dependency on SLHAstruct
+
+      // Retrieve the spectrum from whatever the point the global reader object is pointed at.
+      // This should be the same point that the postprocessor has retrieved the
+      // current set of ModelParameters from.
+      // Will throw an error if no reader object exists, i.e. if the postprocessor is not
+      // driving this scan.
+      
+      // Retrieve MSSM spectrum info into an SLHAea object 
+      MSSM_SLHAstruct mssm_in; // Special type to trigger specialised MSSM retrieve routine
+      bool mssm_is_valid = get_pp_reader().retrieve(mssm_in,"MSSM_spectrum");
+
+      // Check if a valid spectrum was retrived
+      // (if the required datasets don't exist an error will be thrown,
+      //  so this is just checking that the spectrum was computed for
+      //  the current input point)
+      if(not (mssm_is_valid)) invalid_point().raise("Postprocessor: precomputed spectrum was set 'invalid' for this point");
+       
+      // Dump spectrum to output for testing
+      SLHAstruct mssm = mssm_in; // Only this type has stream overloads etc. defined
+
+      // Turns out we don't generically save tan_beta(mZ)_DRbar, so need to extract
+      // this from model parameters (it is always an input, so we should have it in those)
+      double tbmZ = *myPipe::Param.at("TanBeta");
+      SLHAea_add(mssm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");        
+
+      // Create full Spectrum object
+      result = Spectrum(mssm,sminputs,NULL,mass_cut,mass_ratio_cut);
+
+      // SpectrumContents struct
+      SpectrumContents::MSSM mssm_contents;
+
+      // Create spectrum object
+      // Get the scale from the MSOFT block
+      spectrum = Spectrum(mssm, mssm_contents, SLHAea_get_scale(mssm, "MSOFT"), false);
+
+      // Neutralino is canonical LSP
+      std::vector<int> LSPs = {1000022};
+
+      // No sneaking in charged LSPs via SLHA, jävlar.
+      check_LSP(spectrum, LSPs);
+
+      // Retrieve any mass cuts
+      spectrum.check_mass_cuts(*myPipe::runOptions);
+
+    }
+
     // Convert an unimproved_MSSM_spectrum into a standard map so that it can be printed
     void get_unimproved_MSSM_spectrum_as_map (std::map<std::string,double>& specmap)
     {
@@ -1109,8 +1169,19 @@ namespace Gambit
       MReal DeltaMHiggs = BEreq::SUSYHD_DeltaMHiggs(parameterList);
 
       result.central = MHiggs;
-      result.upper = DeltaMHiggs;
-      result.lower = DeltaMHiggs;
+
+      bool use_SHD_uncertainty = runOptions->getValueOrDef<bool>(true, "use_SHD_uncertainty");
+
+      if(use_SHD_uncertainty)
+      {
+        result.upper = DeltaMHiggs;
+        result.lower = DeltaMHiggs;
+      }
+      else
+      {
+        result.upper = 0.0;
+        result.lower = 0.0;
+      }
 
     }
 
@@ -1198,6 +1269,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
       // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex MSSM!
       result.CP[0] = 1;  //h0_1

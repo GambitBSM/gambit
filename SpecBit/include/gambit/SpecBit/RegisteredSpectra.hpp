@@ -50,6 +50,7 @@ namespace Gambit
     struct VectorSingletDM_Z2   : Contents { VectorSingletDM_Z2(); };
     struct MajoranaSingletDM_Z2 : Contents { MajoranaSingletDM_Z2(); };
     struct DiracSingletDM_Z2    : Contents { DiracSingletDM_Z2(); };
+    struct DMEFT                : SubSpectrumContents { DMEFT(); };
 
   }
 }
