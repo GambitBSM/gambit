@@ -25,6 +25,7 @@
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
+#include "gambit/Utils/util_functions.hpp"
 
 namespace Gambit
 {
