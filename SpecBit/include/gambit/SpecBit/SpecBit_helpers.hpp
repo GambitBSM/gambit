@@ -61,7 +61,7 @@ namespace Gambit
     void add_extra_MSSM_parameter_combinations(std::map<std::string,double>&, const Spectrum&);
 
     /// Helper function to work out if the LSP is invisible, and if so, which particle it is.
-    std::vector<str> get_invisibles(const Spectrum& spec);
+    std::vector<std::pair<str,str>> get_invisibles(const Spectrum& spec);
   
     // @}
 

@@ -51,6 +51,7 @@ namespace Gambit
     addParameter(Par::dimensionless, "Ye", m3x3, "YE", 1);
     addParameter(Par::Pole_Mass, "chi", scalar, "MASS", 62);
     addParameter(Par::Pole_Mass, "h0_1", scalar, "MASS", 25);
+    addParameter(Par::mass1, "mtrunIN", scalar, "MRUN", 6);
     
   } // namespace Models
 } // namespace Gambit

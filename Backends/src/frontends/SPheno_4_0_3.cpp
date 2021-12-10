@@ -17,8 +17,7 @@
 
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/SPheno_4_0_3.hpp"
-#include "gambit/Elements/spectrum_factories.hpp"
-#include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"
+#include "gambit/Elements/spectrum.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/util_functions.hpp"

@@ -21,7 +21,7 @@
 #include "gambit/Models/partmap.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Elements/spectrum_contents.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_functions.hpp"
 

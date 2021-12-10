@@ -17,11 +17,9 @@
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_macros.hpp"
+#include "gambit/SpecBit/RegisteredSpectra.hpp"
 #include "gambit/SpecBit/SpecBit_rollcall.hpp"
 #include "gambit/SpecBit/SpecBit_helpers.hpp"
-#include "gambit/SpecBit/QedQcdWrapper.hpp"
-#include "gambit/Models/SimpleSpectra/DMEFTSimpleSpec.hpp"
-#include "gambit/Models/SimpleSpectra/SMHiggsSimpleSpec.hpp"
 
 namespace Gambit
 {
@@ -36,41 +34,51 @@ namespace Gambit
       namespace myPipe = Pipes::get_DMEFT_spectrum;
       const SMInputs& sminputs = *myPipe::Dep::SMINPUTS;
       
-      // Initialise model object 
-      Models::DMEFTModel DMEFTmodel;
-      
+      // Initialise an SLHAea object to carry the Dirac plus Higgs sector information
+      SLHAea::Coll slha;
+      SLHAea_add_block(slha, "MASS");
+      SLHAea_add_block(slha, "VEVS");
+      SLHAea_add_block(slha, "WISLON");
+      SLHAea_add_block(slha, "SINTHETAW");
+      SLHAea_add_block(slha, "GAUGE");
+      SLHAea_add_block(slha, "YD");
+      SLHAea_add_block(slha, "YU");
+      SLHAea_add_block(slha, "YE");
+
       // BSM parameters
-      DMEFTmodel.DMEFT_Lambda = *myPipe::Param.at("Lambda");
-      DMEFTmodel.DMEFT_C51 = *myPipe::Param.at("C51");
-      DMEFTmodel.DMEFT_C52 = *myPipe::Param.at("C52");
-      DMEFTmodel.DMEFT_C61 = *myPipe::Param.at("C61");
-      DMEFTmodel.DMEFT_C62 = *myPipe::Param.at("C62");
-      DMEFTmodel.DMEFT_C63 = *myPipe::Param.at("C63");
-      DMEFTmodel.DMEFT_C64 = *myPipe::Param.at("C64");
-      DMEFTmodel.DMEFT_C71 = *myPipe::Param.at("C71");
-      DMEFTmodel.DMEFT_C72 = *myPipe::Param.at("C72");
-      DMEFTmodel.DMEFT_C73 = *myPipe::Param.at("C73");
-      DMEFTmodel.DMEFT_C74 = *myPipe::Param.at("C74");
-      DMEFTmodel.DMEFT_C75 = *myPipe::Param.at("C75");
-      DMEFTmodel.DMEFT_C76 = *myPipe::Param.at("C76");
-      DMEFTmodel.DMEFT_C77 = *myPipe::Param.at("C77");
-      DMEFTmodel.DMEFT_C78 = *myPipe::Param.at("C78");
-      DMEFTmodel.DMEFT_C79 = *myPipe::Param.at("C79");
-      DMEFTmodel.DMEFT_C710 = *myPipe::Param.at("C710");
+      double Lambda = *myPipe::Param.at("Lambda");
+      slha["WILSON"][""] << 1 << Lambda << "# lambda";
+      slha["WILSON"][""] << 2 << *myPipe::Param.at("C51") <<  "# C_{51}";
+      slha["WILSON"][""] << 3 << *myPipe::Param.at("C52") <<  "# C_{52}";
+      slha["WILSON"][""] << 4 << *myPipe::Param.at("C61") <<  "# C_{61}";
+      slha["WILSON"][""] << 5 << *myPipe::Param.at("C62") <<  "# C_{62}";
+      slha["WILSON"][""] << 6 << *myPipe::Param.at("C63") <<  "# C_{63}";
+      slha["WILSON"][""] << 7 << *myPipe::Param.at("C64") <<  "# C_{64}";
+      slha["WILSON"][""] << 8 << *myPipe::Param.at("C71") <<  "# C_{71}";
+      slha["WILSON"][""] << 9 << *myPipe::Param.at("C72") <<  "# C_{72}";
+      slha["WILSON"][""] << 10 << *myPipe::Param.at("C73") <<  "# C_{73}";
+      slha["WILSON"][""] << 11 << *myPipe::Param.at("C74") <<  "# C_{74}";
+      slha["WILSON"][""] << 12 << *myPipe::Param.at("C75") <<  "# C_{75}";
+      slha["WILSON"][""] << 13 << *myPipe::Param.at("C76") <<  "# C_{76}";
+      slha["WILSON"][""] << 14 << *myPipe::Param.at("C77") <<  "# C_{77}";
+      slha["WILSON"][""] << 15 << *myPipe::Param.at("C78") <<  "# C_{78}";
+      slha["WILSON"][""] << 16 << *myPipe::Param.at("C79") <<  "# C_{79}";
+      slha["WILSON"][""] << 17 << *myPipe::Param.at("C710") <<  "# C_{710}";
       // Pole mass inputs (mh is a nuiisance parameter?)
-      DMEFTmodel.DMEFT_chi_Pole_Mass = *myPipe::Param.at("mchi");
-      DMEFTmodel.DMEFT_h0_1_Pole_Mass = *myPipe::Param.at("mH");
+      double m_chi = *myPipe::Param.at("mchi"); 
+      slha["MASS"][""] << 62 << m_chi << "# m_chi";
+      slha["MASS"][""] << 25 << *myPipe::Param.at("mH") << "# m_H";
       // running top mass input, must be standard model msbar mt(mt)
-      DMEFTmodel.mtrun = *myPipe::Param.at("mtrunIN");
+      slha["MRUN"][""] << 6 << *myPipe::Param.at("mtrunIN") << "# m_t (MSbar)";
       // Invalidate point if the EFT is violated for DM annihilation i.e. 2*m_DM > Lambda
       // Default: true
       if (myPipe::runOptions->getValueOrDef<bool>(true,"impose_EFT_validity"))
       {
-        if (DMEFTmodel.DMEFT_Lambda < (2*DMEFTmodel.DMEFT_chi_Pole_Mass))
+        if (Lambda < (2*m_chi))
         {
           std::ostringstream msg;
-          msg << "Parameter point [mchi, Lambda] = [" << DMEFTmodel.DMEFT_chi_Pole_Mass << " GeV, "
-              << DMEFTmodel.DMEFT_Lambda << " GeV] does not satisfy the EFT.";
+          msg << "Parameter point [mchi, Lambda] = [" << m_chi << " GeV, "
+              << Lambda << " GeV] does not satisfy the EFT.";
           invalid_point().raise(msg.str());
         }
       }
@@ -84,32 +92,38 @@ namespace Gambit
       double e = pow( 4*pi*( alpha_em ),0.5);
       double vev = 1. / sqrt(sqrt(2.)*sminputs.GF);
       
+      // Standard model
+      slha["SINTHETAW"][""] << 1 << sinW2 << "# sinW2";
+      slha["VEVS"][""] << 1 <<  vev << "# vev";
+
       // Gauge couplings
-      DMEFTmodel.vev = vev;
-      DMEFTmodel.g1 = e / sqrt(sinW2);
-      DMEFTmodel.g2 = e / sqrt(cosW2);
-      DMEFTmodel.g3 = pow( 4*pi*( sminputs.alphaS ),0.5);
-      
+      slha["GAUGE"][""] << 1 << e / sqrt(cosW2) << "# g1";
+      slha["GAUGE"][""] << 2 << e / sqrt(sinW2) << "# g2";
+      slha["GAUGE"][""] << 3 << pow( 4*pi*( sminputs.alphaS ),0.5) << "# g3";
+
       // Yukawas
       double sqrt2v = pow(2.0,0.5)/vev;
-      DMEFTmodel.Yu[0][0] = sqrt2v * sminputs.mU;
-      DMEFTmodel.Yu[1][1] = sqrt2v * sminputs.mCmC;
-      // top quark is treated at one-loop with different running and pole mass
-      DMEFTmodel.Yu[2][2] = sqrt2v * DMEFTmodel.mtrun;
-      DMEFTmodel.Ye[0][0] = sqrt2v * sminputs.mE;
-      DMEFTmodel.Ye[1][1] = sqrt2v * sminputs.mMu;
-      DMEFTmodel.Ye[2][2] = sqrt2v * sminputs.mTau;
-      DMEFTmodel.Yd[0][0] = sqrt2v * sminputs.mD;
-      DMEFTmodel.Yd[1][1] = sqrt2v * sminputs.mS;
-      DMEFTmodel.Yd[2][2] = sqrt2v * sminputs.mBmB;
+      slha["YU"][""] << 1 << 1 << sqrt2v * sminputs.mU << "# Yu(1,1)";
+      slha["YU"][""] << 2 << 2 << sqrt2v * sminputs.mCmC << "# Yu(2,2)";
+      slha["YU"][""] << 3 << 3 << sqrt2v * sminputs.mT << "# Yu(3,3)";
+      slha["YE"][""] << 1 << 1 << sqrt2v * sminputs.mE << "# Ye(1,1)";
+      slha["YE"][""] << 2 << 2 << sqrt2v * sminputs.mMu << "# Ye(2,2)";
+      slha["YE"][""] << 3 << 3 << sqrt2v * sminputs.mTau << "# Ye(3,3)";
+      slha["YD"][""] << 1 << 1 << sqrt2v * sminputs.mD << "# Yd(1,1)";
+      slha["YD"][""] << 2 << 2 << sqrt2v * sminputs.mS << "# Yd(2,2)";
+      slha["YD"][""] << 3 << 3 << sqrt2v * sminputs.mBmB << "# Yd(3,3)";
 
-      // Create a SubSpectrum object wrapper
-      Models::DMEFTSimpleSpec spec(DMEFTmodel);
-      
+      // SpectrumContents struct
+      SpectrumContents::DMEFT dmeft;
+
+      // Create spectrum object
+      // Take mZ as the spectrum scale
+      result = Spectrum(slha, dmeft, sminputs.mZ, false);
+
       // Retrieve any mass cuts
-      static const Spectrum::mc_info mass_cut = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
-      static const Spectrum::mr_info mass_ratio_cut = myPipe::runOptions->getValueOrDef<Spectrum::mr_info>(Spectrum::mr_info(), "mass_ratio_cut");
+      result.check_mass_cuts(*myPipe::runOptions);
 
+      // TODO: TG: I don't know what to do with this in the new setting, Peter, can you have a look?
       // We have decided to calculate mT pole from the input running mt
       // using only one-loop QCD corrections
       // See footnote 9 https://link.springer.com/article/10.1007/JHEP11(2019)150
@@ -121,87 +135,25 @@ namespace Gambit
       // https://link.springer.com/article/10.1007/JHEP11(2019)150
       // which we also validated numerically
       
-      const double alpha_S_mtop = sminputs.alphaS;
+      //const double alpha_S_mtop = sminputs.alphaS;
       // Now extract pole mass from running mass
-      const double mtop_MSBAR_mtop = DMEFTmodel.mtrun; // must be SM MSbar mt(mt)
-      const double mtop_pole = mtop_MSBAR_mtop * (1. + 4. / 3.
-						  * alpha_S_mtop / M_PI);
+      //const double mtop_MSBAR_mtop = DMEFTmodel.mtrun; // must be SM MSbar mt(mt)
+      //const double mtop_pole = mtop_MSBAR_mtop * (1. + 4. / 3.
+			//			  * alpha_S_mtop / M_PI);
 
       // Make a local sminputs so we can change pole mT to the one we calculated
-      SMInputs localsminputs = sminputs;
-      localsminputs.mT = mtop_pole;
+      //SMInputs localsminputs = sminputs;
+      //localsminputs.mT = mtop_pole;
       // We don't supply a LE subspectrum here; an SMSimpleSpec will therefore be automatically created from 'localsminputs'
-      result = Spectrum(spec,localsminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
+      //result = Spectrum(spec,localsminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
 
     }
 
-    // Declaration: print spectrum out
-    void fill_map_from_DMEFT_spectrum(std::map<std::string,double>&, const Spectrum&);
-    
     void get_DMEFT_spectrum_as_map(std::map<std::string,double>& specmap)
     {
       namespace myPipe = Pipes::get_DMEFT_spectrum_as_map;
       const Spectrum& spec(*myPipe::Dep::DMEFT_spectrum);
-      fill_map_from_DMEFT_spectrum(specmap, spec);
-    }
-    
-    void fill_map_from_DMEFT_spectrum(std::map<std::string, double>& specmap, const Spectrum& spec)
-    {
-      /// Use SpectrumContents routines to automate
-      static const SpectrumContents::DMEFT contents;
-      static const std::vector<SpectrumParameter> required_parameters = contents.all_parameters();
-      
-      for(std::vector<SpectrumParameter>::const_iterator it = required_parameters.begin(); it != required_parameters.end(); ++it)
-      {
-        const Par::Tags        tag   = it->tag();
-        const std::string      name  = it->name();
-        const std::vector<int> shape = it->shape();
-        
-        // Scalar case
-        if(shape.size()==1 and shape[0]==1)
-        {
-          std::ostringstream label;
-          label << name <<" "<< Par::toString.at(tag);
-          specmap[label.str()] = spec.get_HE().get(tag,name);
-        }
-        // Vector case
-        else if(shape.size()==1 and shape[0]>1)
-        {
-          for(int i = 1; i<=shape[0]; ++i)
-          {
-            std::ostringstream label;
-            label << name <<"_"<<i<<" "<< Par::toString.at(tag);
-            specmap[label.str()] = spec.get_HE().get(tag,name,i);
-          }
-        }
-        // Matrix case
-        else if(shape.size()==2)
-        {
-          for(int i = 1; i<=shape[0]; ++i)
-          {
-            for(int j = 1; j<=shape[0]; ++j)
-            {
-              std::ostringstream label;
-              label << name <<"_("<<i<<","<<j<<") "<<Par::toString.at(tag);
-              specmap[label.str()] = spec.get_HE().get(tag,name,i,j);
-            }
-          }
-        }
-        // Deal with all other cases
-        else
-        {
-          // ERROR
-          std::ostringstream errmsg;
-          errmsg << "Invalid parameter received while converting DMEFT_spectrum to map of strings!";
-          errmsg << "Problematic parameter was: "<< tag <<", " << name << ", shape="<< shape;
-          utils_error().forced_throw(LOCAL_INFO,errmsg.str());
-        }
-
-        // Include the pole mass of the top (which is a derived parameter and not in SpectrumContents::DMEFT)
-        std::ostringstream label;
-        label << "t" <<" "<< Par::toString.at(Par::Pole_Mass);
-        specmap[label.str()] = spec.get(Par::Pole_Mass,"t");
-      }
+      fill_map_from_spectrum<SpectrumContents::DMEFT>(specmap, spec);
     }
     
   }
