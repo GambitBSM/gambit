@@ -2526,7 +2526,6 @@ def fillAcceptedTypesList():
             if isProblematicType(el):
                 continue
 
-
             # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it 
             # starts with 'std', which is not enough if the template args are not valid
             # If template, check the arguments are accepted
@@ -2644,11 +2643,10 @@ def isProblematicType(el):
                 if type_el is not None:
 
                     # If this is a native type, the input type is problematic for BOSS
-                    # TODO: TG: Why? It should be fine
                     if isNative(type_el):
-                    #
-                    #    is_problematic = True
-                        is_problematic = is_problematic
+
+                        is_problematic = True
+                        return is_problematic
 
     return is_problematic
 

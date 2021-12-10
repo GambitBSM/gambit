@@ -10,7 +10,6 @@
 #include "wrapper_Couplings_decl.h"
 #include "wrapper_ResonanceWidths_decl.h"
 #include "wrapper_ParticleDataEntry_decl.h"
-#include <map>
 
 #include "identification.hpp"
 
