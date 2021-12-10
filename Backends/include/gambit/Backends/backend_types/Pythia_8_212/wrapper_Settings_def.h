@@ -4,7 +4,6 @@
 #include <string>
 #include <ostream>
 #include <vector>
-#include <map>
 #include "wrapper_Info_decl.h"
 
 #include "identification.hpp"

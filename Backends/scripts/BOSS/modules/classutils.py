@@ -1646,7 +1646,6 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
     decl_code += '\n'
     # decl_code += indent + 'private:\n'
     decl_code += 2*indent + '// Returns correctly casted pointer to Abstract class: \n'
-    decl_code += 2*indent + abstr_class_name['short'] +'* get_BEptr() const;\n'
     # TODO: TG: Abstract class should be templated
     decl_code += 2*indent + abstr_class_name['short'] 
     if is_template: 
