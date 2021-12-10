@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Class defining the parameters that SubSpectrum
+///  Class defining the parameters that Spectrum
 ///  objects providing DMEFT
 ///  spectrum data must provide.
 ///
@@ -14,14 +14,13 @@
 ///                                                
 ///  ********************************************* 
 
-#include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
+#include "gambit/SpecBit/RegisteredSpectra.hpp"
 
 namespace Gambit
 {
   SpectrumContents::DMEFT::DMEFT()
+   : Contents("DMEFT")
   {
-    setName("DMEFT");
-    
     std::vector<int> scalar = initVector(1); // i.e. get(Par::Tag, "name")
     std::vector<int> m3x3   = initVector(3,3); // i.e. get(Par::Tag, "name", i, j)
     
@@ -42,11 +41,11 @@ namespace Gambit
     addParameter(Par::dimensionless, "C78", scalar, "WILSON", 15);
     addParameter(Par::dimensionless, "C79", scalar, "WILSON", 16);
     addParameter(Par::dimensionless, "C710", scalar, "WILSON", 17);
-    addParameter(Par::mass1, "vev", scalar);
+    addParameter(Par::mass1, "vev", scalar, "VEVS", 1);
     addParameter(Par::dimensionless, "g1", scalar, "GAUGE", 1);
     addParameter(Par::dimensionless, "g2", scalar, "GAUGE", 2);
     addParameter(Par::dimensionless, "g3", scalar, "GAUGE", 3);
-    addParameter(Par::dimensionless, "sinW2", scalar);
+    addParameter(Par::dimensionless, "sinW2", scalar, "SINTHETAW", 1);
     addParameter(Par::dimensionless, "Yd", m3x3, "YD", 1);
     addParameter(Par::dimensionless, "Yu", m3x3, "YU", 1);
     addParameter(Par::dimensionless, "Ye", m3x3, "YE", 1);

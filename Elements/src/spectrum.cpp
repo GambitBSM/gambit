@@ -26,7 +26,7 @@
 
 #include <sstream>
 #include "gambit/Elements/spectrum.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/file_lock.hpp"
 #include "gambit/Utils/stream_overloads.hpp"

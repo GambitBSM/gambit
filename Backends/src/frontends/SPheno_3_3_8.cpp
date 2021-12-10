@@ -700,13 +700,6 @@ BE_NAMESPACE
       }
 
     //Create Spectrum object
-    // TODO: Is this correct? Should the scale be either an input or the gut scale?
-    double scale;
-    if(inputs.param.find("Qin") != inputs.param.end())
-      scale = *inputs.param.at("Qin");
-    else
-      scale = *m_GUT;
-
     double scale = *Q_in;
     spectrum = Spectrum(slha, inputs.contents, scale);
 
