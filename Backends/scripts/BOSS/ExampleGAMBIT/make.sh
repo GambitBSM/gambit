@@ -1,0 +1,1 @@
+g++ examplegambit.cpp -ldl -o examplegambit.exe
