@@ -1,0 +1,16 @@
+#include <iostream>
+#include "functions.hpp"
+
+namespace SomeNamespace
+{
+
+  // A dummy function that modifies a ClassTwo instance
+  void modify_instance(int j_in, ClassTwo& ct_in)
+  {
+    std::cout << "modify_instance: arg 1: j_in = " << j_in << ", arg 2: ct_in = ref-to-ClassTwo instance at " << &ct_in << std::endl;
+
+    ct_in.j = j_in;
+  }
+
+}
+
