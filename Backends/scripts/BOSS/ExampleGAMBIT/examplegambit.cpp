@@ -3,6 +3,15 @@
 #include <iostream>
 
 
+// Dummy definitions of some GAMBIT macros that the BOSSed code expects should exist
+#define ALREADY_LOADED(BE) 0
+#define SET_DEFAULT_VERSION_FOR_LOADING_TYPES(BACKENDNAME, SAFE_VERSION, DEFAULT)  This code will never be generated when ALREADY_LOADED is 0
+
+// Include the BOSS-generated headers
+#include "gambit/Backends/backend_types/ExampleBackend_1_234/loaded_types.hpp"
+
+
+// Main program
 int main()
 {
 
