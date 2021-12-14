@@ -20,7 +20,7 @@ public:
   void some_method(int);
 
   // Some other method, defined right here
-  void some_other_method_(int i_in)
+  void some_other_method(int i_in)
   {
     std::cout << "ClassOne::some_other_method: arg 1: i_in = " << i_in << std::endl;
   }
