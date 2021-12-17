@@ -1152,6 +1152,26 @@ namespace Gambit
 	      ghjtautau_p[i] = -((*Param["CtauHm"])*cosThTau + (*Param["CtauHp"])*sinThTau)*vev*vev*vev/Lambda/Lambda/mtau/sqrt(2.);
 	      ghjtautau_s[i] = 1.-((*Param["CtauHp"])*cosThTau - (*Param["CtauHm"])*sinThTau)*vev*vev*vev/Lambda/Lambda/mtau/sqrt(2.);
 
+
+	      ghjuu_p[i] = -((*Param["CuHm"]))*vev*vev*vev/Lambda/Lambda/mu/sqrt(2.);
+	      ghjuu_s[i] = 1.-((*Param["CuHp"]))*vev*vev*vev/Lambda/Lambda/mu/sqrt(2.);
+	      ghjdd_p[i] = -((*Param["CdHm"]))*vev*vev*vev/Lambda/Lambda/md/sqrt(2.);
+	      ghjdd_s[i] = 1.-((*Param["CdHp"]))*vev*vev*vev/Lambda/Lambda/md/sqrt(2.);
+	      ghjss_p[i] = -((*Param["CsHm"]))*vev*vev*vev/Lambda/Lambda/ms/sqrt(2.);
+	      ghjss_s[i] = 1.-((*Param["CsHp"]))*vev*vev*vev/Lambda/Lambda/ms/sqrt(2.);
+	      ghjcc_p[i] = -((*Param["CcHm"]))*vev*vev*vev/Lambda/Lambda/mc/sqrt(2.);
+	      ghjcc_s[i] = 1.-((*Param["CcHp"]))*vev*vev*vev/Lambda/Lambda/mc/sqrt(2.);
+	      ghjbb_p[i] = -((*Param["CbHm"]))*vev*vev*vev/Lambda/Lambda/mb/sqrt(2.);
+	      ghjbb_s[i] = 1.-((*Param["CbHp"]))*vev*vev*vev/Lambda/Lambda/mb/sqrt(2.);
+	      ghjtt_p[i] = -((*Param["CtHm"]))*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
+	      ghjtt_s[i] = 1.-((*Param["CtHp"]))*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
+	      ghjee_p[i] = -((*Param["CeHm"]))*vev*vev*vev/Lambda/Lambda/me/sqrt(2.);
+	      ghjee_s[i] = 1.-((*Param["CeHp"]))*vev*vev*vev/Lambda/Lambda/me/sqrt(2.);
+	      ghjmumu_p[i] = -((*Param["CmuHm"]))*vev*vev*vev/Lambda/Lambda/mmu/sqrt(2.);
+	      ghjmumu_s[i] = 1.-((*Param["CmuHp"]))*vev*vev*vev/Lambda/Lambda/mmu/sqrt(2.);
+	      ghjtautau_p[i] = -((*Param["CtauHm"]))*vev*vev*vev/Lambda/Lambda/mtau/sqrt(2.);
+	      ghjtautau_s[i] = 1.-((*Param["CtauHp"]))*vev*vev*vev/Lambda/Lambda/mtau/sqrt(2.);
+
 //	      double TbR = (*Param["CbHp"]);//* 2*sqrt(2.)*mb*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CbHp"],2)+pow(*Param["CbHm"],2));
 //	      double TbI = (*Param["CbHm"]);//* 2*sqrt(2.)*mb*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CbHp"],2)+pow(*Param["CbHm"],2));
 //	      double ysmOverysq = (1+TbR)*(1+TbR) + TbI*TbI;
@@ -1286,7 +1306,7 @@ namespace Gambit
 
       // Run the main subroutines
      // BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
-      BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
+     BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       result = -0.5*(

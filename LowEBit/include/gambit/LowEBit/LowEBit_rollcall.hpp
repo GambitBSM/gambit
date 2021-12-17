@@ -179,6 +179,10 @@ START_CAPABILITY
     #define FUNCTION lnL_EDM_199Hg_step
     START_FUNCTION(double)
     DEPENDENCY(EDM_dia, double)
+    DEPENDENCY(CEDM_q, dq)
+    ALLOW_MODELS(diaEDMme)
+    ALLOW_MODELS(CPVYukawas)
+
     #undef FUNCTION
 #undef CAPABILITY
 

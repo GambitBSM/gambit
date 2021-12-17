@@ -306,12 +306,19 @@ namespace Gambit
 	}
 	void initialise(double muH, double Lambda,bool hadronic){
 		static bool first = true;
+		cout << "hadronic: ";
+		if (hadronic){cout << "true";}
+		else{cout << "false";}
+		cout << endl;
 		if(first){
 		  std::fstream wcinit("/home/dskodras/gambitgit/LowEBit/src/WCinits1.dat", std::ios::app);
 		  if (wcinit.is_open()){std::cout << "opened" << std::endl;}
 		  else {std::cout << "failed" << std::endl;return;}
 		  Ce3list(muH,Lambda);
-		  if(hadronic){
+		  cout << "muh,lambda,hadronic" << muH << Lambda << hadronic << endl;
+		  //if(hadronic){
+		  if(true){
+			  cout << "rge..." << endl;
 			  Cu3list(muH,Lambda);
 			  Cd3list(muH,Lambda);
 			  Cs3list(muH,Lambda);
@@ -335,6 +342,7 @@ namespace Gambit
 		  cout  << qmasses[5] << endl;
 		  cout << "gsat2GeV: " << gsat2GeV << endl;
 		  if (wcinit.is_open()){
+			wcinit << "gsat2GeV" << gsat2GeV << "\n";
 			wcinit << "quark masses at 2GeV. 1loop alpha_s running";
 			for(int i=0;i<6;i++){wcinit << i << ": " << qmasses[i] << "; ";}
 			wcinit << "\nValues for respective WCs at 2GeV. Each value stands for an isolated contribution by a specific fermion (0=e,1=mu,2=tau,3=u,4=d,5=s,6=c,7=b,8=t) where the others are\n \
@@ -436,6 +444,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  double gf = GF;
 		  double vev = 1/sqrt((sqrt(2.)*gf));
 		  double Lambda = 1000.0;
+
 		  initialise(Mh,Lambda,true);
 //		  double me = 5.11E-4;
 //		  masses at Mh: The cpv phases (sin and cos below) are established at Mh
@@ -468,7 +477,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  // Wilson Coefficients at hadronic scale.
 		  // C3q(2GeV) = Cq3[0]*CeH(Lambda) + Cq3[1]*CmuH(Lambda) + ... + Cq3[9]*CtH(Lambda);
 
-		  double CqH[9] = {
+/*		  double CqH[9] = {
 			  (*Param["CeHm"])*cosThE + (*Param["CeHp"]*sinThE),
 			  (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"]*sinThMu),
 			  (*Param["CtauHm"])*cosThTau + (*Param["CtauHp"]*sinThTau),
@@ -478,6 +487,18 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 			  (*Param["CcHm"])*cosThC + (*Param["CcHp"]*sinThC),
 			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
 			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT)
+		  		  };
+*/
+		  double CqH[9] = {
+			  (*Param["CeHm"]),
+			  (*Param["CmuHm"]),
+			  (*Param["CtauHm"]),
+			  (*Param["CuHm"]),
+			  (*Param["CdHm"]),
+			  (*Param["CsHm"]),
+			  (*Param["CcHm"]),
+			  (*Param["CbHm"]),
+			  (*Param["CtHm"])
 		  		  };
 
 
@@ -501,6 +522,8 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		std::cout << "CdHp: " << (*Param["CdHp"]) << std::endl;
 		std::cout << "CtHm: " << (*Param["CtHm"]) << std::endl;
 		std::cout << "CtHp: " << (*Param["CtHp"]) << std::endl;
+		std::cout << "sinThU: " << sinThU << std::endl;
+		std::cout << "mu(mH): " << mu << std::endl;
 		std::cout << "CuHodd: " << CqH[3] << std::endl;
 		std::cout << "CdHodd: " << CqH[4] << std::endl;
 		std::cout << "sinThD: " << sinThD << std::endl;
@@ -509,14 +532,14 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		std::cout << "Cut3rge: " << Cu3[8] << std::endl;
 		std::cout << "Cdd3rge: " << Cd3[4] << std::endl;
 		std::cout << "Cdt3rge: " << Cd3[8] << std::endl;
-		std::cout << "Cuu3rge: " << Cu3[3] << std::endl;
-		std::cout << "Cut3rge: " << Cu3[8] << std::endl;
-		std::cout << "Cdd3rge: " << Cd3[4] << std::endl;
-		std::cout << "Cdt3rge: " << Cd3[8] << std::endl;
+		std::cout << "Cuu4rge: " << Cu4[3] << std::endl;
+		std::cout << "Cut4rge: " << Cu4[8] << std::endl;
+		std::cout << "Cdd4rge: " << Cd4[4] << std::endl;
+		std::cout << "Cdt4rge: " << Cd4[8] << std::endl;
 		std::cout << "Cwtrge: " << Cw[8] << std::endl;
-		std::cout << "Cu3*CqHcombined: " << result.Cu[1] << std::endl;
+		std::cout << "Cu3*CqHcombined (result.Cu3): " << result.Cu[1] << std::endl;
 		std::cout << "Cd3*CqHcombined: " << result.Cd[1] << std::endl;
-		std::cout << "Cu4*CqHcombined: " << result.Cu[2] << std::endl;
+		std::cout << "Cu4*CqHcombined (result.Cu4): " << result.Cu[2] << std::endl;
 		std::cout << "Cd4*CqHcombined: " << result.Cd[2] << std::endl;
 		std::cout << "Cwcombined: " << result.Cw[1] << std::endl;
 
@@ -579,7 +602,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 //		  	dne.close();
 
 //		  int sampleStyle = 2; //1: CuHm variable + CuHp fixed, 2: CuHmcos+CuHpsin variable together, but CuHm serves as variable
-		  double ClH[9] = {
+/*		  double ClH[9] = {
 			  (*Param["CeHm"])*cosThE + (*Param["CeHp"]*sinThE),
 			  (*Param["CmuHm"])*cosThMu + (*Param["CmuHp"]*sinThMu),
 			  (*Param["CtauHm"])*cosThTau + (*Param["CtauHp"]*sinThTau),
@@ -590,6 +613,22 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 			  (*Param["CcHm"])*cosThC + (*Param["CcHp"]*sinThC),
 			  (*Param["CbHm"])*cosThB + (*Param["CbHp"]*sinThB),
 			  (*Param["CtHm"])*cosThT + (*Param["CtHp"]*sinThT) //cosThT
+		//	  (*Param["CbHm"])*2*sqrt(2)*mb*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CbHp"],2) + pow(*Param["CbHm"],2)),
+		//	  (*Param["CtHm"])*2*sqrt(2)*mt*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CtHp"],2) + pow(*Param["CtHm"],2)) 
+				  //paramter from 2003.00099
+		  		  };
+*/
+		  double ClH[9] = {
+			  (*Param["CeHm"]),
+			  (*Param["CmuHm"]),
+			  (*Param["CtauHm"]),
+//			  (*Param["CtauHm"])*2*sqrt(2)*mtau*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CtauHp"],2) + pow(*Param["CtauHm"],2)),
+			  (*Param["CuHm"]),
+			  (*Param["CdHm"]),
+			  (*Param["CsHm"]),
+			  (*Param["CcHm"]),
+			  (*Param["CbHm"]),
+			  (*Param["CtHm"]) //cosThT
 		//	  (*Param["CbHm"])*2*sqrt(2)*mb*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CbHp"],2) + pow(*Param["CbHm"],2)),
 		//	  (*Param["CtHm"])*2*sqrt(2)*mt*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CtHp"],2) + pow(*Param["CtHm"],2)) 
 				  //paramter from 2003.00099
@@ -678,6 +717,8 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
          result.d = -sqrt(2.)*gf/pow(gsat2GeV,2)*md*c.Cd[2]*gev2cm;
          result.s = -sqrt(2.)*gf/pow(gsat2GeV,2)*ms*c.Cs[2]*gev2cm;
          result.w = sqrt(2.)*gf/pow(gsat2GeV,2)*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
+	 std::cout << "Cu4(2GeV): " << c.Cu[2] << std::endl;
+	 std::cout << "Cd4(2GeV): " << c.Cd[2] << std::endl;
 	 std::cout << "cdu: " << result.u << std::endl;
 	 std::cout << "cdd: " << result.d << std::endl;
 	 std::cout << "cds: " << result.s << std::endl;
@@ -752,25 +793,25 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
          dq dEDM = *Dep::EDM_q;
          dq dCEDM = *Dep::CEDM_q;
 
-/*	 cout << "nEDM comparisons: " << endl;
+	 cout << "nEDM comparisons: " << endl;
 	 cout << "uCEDM: " << dCEDM.u*(*Param["rhoU"]) << endl;
 	 cout << "dCEDM: " << dCEDM.d*(*Param["rhoD"]) << endl;
-	 cout << "uEDM: " << dCEDM.u*(*Param["gTu"])/e << endl;
-	 cout << "dEDM: " << dCEDM.d*(*Param["gTd"])/e << endl;
-	 cout << "sEDM: " << dCEDM.s*(*Param["gTs"])/e << endl;
+	 cout << "uEDM: " << dEDM.u*(*Param["gTu"])/e << endl;
+	 cout << "dEDM: " << dEDM.d*(*Param["gTd"])/e << endl;
+	 cout << "sEDM: " << dEDM.s*(*Param["gTs"])/e << endl;
 	 cout << "wEDM: " << 25E-3*dCEDM.w << endl;
-*/
+
          result = ((*Param["rhoD"])*dCEDM.d+(*Param["rhoU"])*dCEDM.u)
             + ((*Param["gTu"])*dEDM.u + (*Param["gTd"])*dEDM.d
 			+ (*Param["gTs"])*dEDM.s )/e
 			+ 25E-3*dCEDM.w // CEDMs are in cm, EDMs are in e cm, the 25E-3 is valid if w is given in GeV
 			;
-	 std::cout << "dneutron/e: " << result << std::endl;
+	 std::cout << "dneutron: " << result << std::endl;
       }
 	  void lnL_EDM_n_gaussianOverall(double &result)
 	  {
 			using namespace Pipes::lnL_EDM_n_gaussianOverall;
-			double mu = 0., sig = 2.2E-26;//mu=-0.0E-26 , sig: 1.5(stat)+0.7(sys)
+			double mu = 0., sig = 1.1E-26;// 2103.01898 //mu=-0.0E-26 , sig: 1.5(stat)+0.7(sys)
 			// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
 			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
 			// likelihood accordingly?
@@ -786,8 +827,11 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 //			}
 //		  	dne.close();
 	
-//		  	cout << "gaussian result_EDM_n: " << result << endl;
+			cout << "EDM_n: " << *Dep::EDM_n << endl;
+		  	cout << "gaussian result_EDM_n: " << result << endl;
+			cout << "exp(lnL): " << pow(2.71,result) << endl;
 			cnt++;
+
 			cout << "sample: " << cnt << endl;
 	  }
 
@@ -889,7 +933,8 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       // Calculation of 199Hg EDM from quark and CEDMs in e cm
       {
          using namespace Pipes::EDM_199Hg_quark;
-		 double gPiNN = 13.17;
+		 double gPiNN = 13.5;
+	 	 double e = sqrt(4.*pi*aMZ);
 	  // CSchiff_Xe = -2.6;			1308.6283 averaging over multiple calculations
 	  // a0_Hg + b_Hg= 0.028(26);	1308.6283 averaging over multiple calculations
 	  // a1_Hg = 0.032(59);			1308.6283 averaging over multiple calculations
@@ -897,26 +942,36 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
          dq dCEDM = *Dep::CEDM_q;
          dl dEDM = *Dep::EDM_l;
 	  // 2.(+4 -1) 
-         result = 2.0E-3 * (*Param["CSchiff_Hg"]) * gPiNN * 
-			 ((*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) + (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d)) 
+         result = 1.0E-3  * 
+		 	(*Param["CSchiff_Hg"]) * gPiNN * 
+			 (0.5*(*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) + 2*(*Param["a1_Hg"])*(dCEDM.u - dCEDM.d)) 
 			 + *Param["ae_Hg"]*dEDM.e
 			 ;
 //	 result = -1.8E-4 * (4)*(dCEDM.u - dCEDM.d);
 	 cout << "cdu: " << dCEDM.u << endl;	 
 	 cout << "cdd: " << dCEDM.d << endl;	 
-	 cout << "g0: " << (*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) << endl;
-	 cout << "g1: " << (*Param["a1_Hg"])*(dCEDM.u - dCEDM.d) << endl;
+	 cout << "g0: " << 0.5*(*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) << endl;
+	 cout << "g1: " << 2*(*Param["a1_Hg"])*(dCEDM.u - dCEDM.d) << endl;
 	 cout << "de: " << dEDM.e << endl;	 
 	 cout << "ge: " << *Param["ae_Hg"]*dEDM.e << endl;	 
 //	 cout << "d_e: " << dEDM.e << endl;	 
-//	 cout << "dHg: " << result << endl;
+	 cout << "dHg: " << result << endl;
+	 cout << "approx dHg: " << 1.0E-3*2.8*13.5*((0.01*0.5 + 0.02*2)*dCEDM.u) << endl;
       }
 
       void lnL_EDM_199Hg_step(double &result)
       // Step function likelihood for 199Hg EDM (TODO: improve this!!!!!)
       {
     	  using namespace Pipes::lnL_EDM_199Hg_step;
-    		  double sig = 4.23E-30; //1601.04339
+		  dq dCEDM = *Dep::CEDM_q;
+
+		  double cdu = dCEDM.u;
+		  double cdd = dCEDM.d;
+
+
+    		  double sig = 3.12E-30; //1601.04339
+	//	  double sigth = sqrt(9.8206E-5*cdd*cdd - 1.91416E-4*cdu*cdd + 9.84159E-5*cdu*cdu); //table.V 1710.02504
+		  double sigth = 0.;
 		  double mu = 0.; //2.2E-30; //1601.04339
 	//	  double offset = 7.4E-30;//90% CL limit from arXiv:hep-ex/0602020
 	//	  double value = *Dep::EDM_dia;
@@ -933,8 +988,9 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 		  }
 */			//gaussian overall:
 		  	mu = 0.;
-			result = -1./2*pow((*Dep::EDM_dia - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
+			result = -1./2*pow((*Dep::EDM_dia - mu),2)/(pow(sig,2)+pow(sigth,2));//std::log(2*pi) + 2*std::log(sig) 
 		  	cout << "gaussian result_EDM_dia: " << result << endl;
+			cout << "cdu,cdd,sigth: " << cdu << ", " << cdd << ", " << sigth << endl;
 
       }
 
