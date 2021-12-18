@@ -12,5 +12,13 @@ namespace SomeNamespace
     ct_in.j = j_in;
   }
 
+
+  // Return two ints as a vector<int>
+  std::vector<int> return_as_vector(int a, int b)
+  {
+    std::vector<int> vec = std::vector<int>{a,b};
+    return vec;
+  }
+
 }
 

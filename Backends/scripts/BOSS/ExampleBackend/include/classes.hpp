@@ -39,9 +39,6 @@ namespace SomeNamespace
     int j;
   };
 
-  // A dummy function that modifies a ClassTwo instance. Defined in functions.cpp.
-  void modify_instance(int, ClassTwo&);
-
 }
 
 

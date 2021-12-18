@@ -54,7 +54,8 @@ load_classes = [
 ]
 
 load_functions = [
-    'SomeNamespace::modify_instance(int, SomeNamespace::ClassTwo&)'
+    'SomeNamespace::modify_instance(int, SomeNamespace::ClassTwo&)',
+    'SomeNamespace::return_as_vector(int, int)',
 ]
 
 load_enums = [
@@ -73,7 +74,7 @@ wrap_inherited_members = False
 header_extension = '.hpp'
 source_extension = '.cpp'
 
-indent = 4
+indent = 2
 
 
 # ~~~~~ Information about other known types ~~~~~
