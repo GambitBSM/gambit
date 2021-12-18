@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <sstream>
+#include <vector>
 
 
 // 
@@ -25,6 +26,30 @@ union voidptr_voidfptr
 };
 
 
+// A small helper function that returns a voidptr_voidfptr to a library symbol,
+// given a library pointer and symbol name as input
+voidptr_voidfptr get_vptr(void* phandle, std::string library_symbol)
+{
+  voidptr_voidfptr psym;
+
+  std::cout << "get_vptr: Trying to connect to the library symbol " << library_symbol << std::endl;
+  psym.ptr = dlsym(phandle, library_symbol.c_str());
+
+  if (psym.ptr)
+  {
+    std::cout << "get_vptr: All good. The returned pointer " << psym.ptr << " should point to the library symbol " << library_symbol << std::endl;
+  }
+  else
+  {
+    std::cout << "get_vptr: No good. Got a NULL pointer." << std::endl; 
+    RUNTIME_ERROR
+  }
+
+  return psym;
+}
+
+
+
 
 //
 // Include the BOSS-generated headers
@@ -34,6 +59,8 @@ union voidptr_voidfptr
 
 // Let's simplfy things a bit
 using namespace ExampleBackend_1_234;
+
+
 
 
 // 
@@ -89,25 +116,8 @@ int main()
   // 
 
 
-  // 1) Create a void (function) pointer
-  voidptr_voidfptr psym;
-
-  // 2) Connect it to the correct library symbol
-  const std::string library_symbol = "Factory_ClassOne_0__BOSS_1";
-
-  std::cout << "Trying to connect to the library symbol " << library_symbol << std::endl;
-
-  psym.ptr = dlsym(phandle, library_symbol.c_str());
-
-  if (psym.ptr)
-  {
-    std::cout << "All good. psym.ptr = " << psym.ptr << " is should now point to the library symbol " << library_symbol << std::endl;
-  }
-  else
-  {
-    std::cout << "No good. psym.ptr is NULL." << std::endl; 
-    RUNTIME_ERROR
-  }
+  // Steps 1) and 2) are taken care of by the helper function get_vptr
+  voidptr_voidfptr psym = get_vptr(phandle, "Factory_ClassOne_0__BOSS_1");
 
   // 3) Recast to a function pointer "fptr" of type Abstract_ClassOne*(*)()
   Abstract_ClassOne*(*factory_fptr)();
@@ -118,10 +128,39 @@ int main()
   Abstract_ClassOne* myptr = factory_fptr();
   std::cout << "myptr = " << myptr << " should now point to a OneClass instance. Let's try to use it..." << std::endl;
 
-
   myptr->some_method(10);
   myptr->some_other_method(20);
 
+
+
+
+  // 
+  // And now let's load a global function by hand
+  // 
+
+  std::cout << std::endl;
+  std::cout << "Now attempting to load the function SomeNamespace::return_as_vector(int,int)" << std::endl;
+
+  // Steps 1) and 2) done with helper function get_vptr
+  voidptr_voidfptr psym_2 = get_vptr(phandle, "_ZN13SomeNamespace16return_as_vectorEii");
+  // voidptr_voidfptr psym_2 = get_vptr(phandle, "return_as_vector__BOSS_4");
+
+  // 3) Recast to a function pointer of type std::vector<int>(*)(int,int)
+  std::vector<int>(*fptr)(int,int);
+  fptr = reinterpret_cast< std::vector<int>(*)(int,int) >(psym_2.fptr);
+
+  // 4) Call the function and check that it returns what we expect
+
+  auto i1 = 1;
+  auto i2 = 2;
+  std::vector<int> returned_vec = fptr(i1,i2);
+
+  std::cout << "returned_vec.size() : " << returned_vec.size() << std::endl;
+  std::cout << "returned_vec.at(0) : " << returned_vec.at(0) << std::endl;
+  std::cout << "returned_vec.at(1) : " << returned_vec.at(1) << std::endl;
+
+
+  // All done
   return 0;
 }
 
