@@ -120,7 +120,7 @@ int main()
 
 
   myptr->some_method(10);
-  myptr->some_other_method_(20);
+  myptr->some_other_method(20);
 
   return 0;
 }
