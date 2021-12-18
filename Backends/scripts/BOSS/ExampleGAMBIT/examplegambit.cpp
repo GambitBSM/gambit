@@ -143,21 +143,42 @@ int main()
 
   // Steps 1) and 2) done with helper function get_vptr
   voidptr_voidfptr psym_2 = get_vptr(phandle, "_ZN13SomeNamespace16return_as_vectorEii");
-  // voidptr_voidfptr psym_2 = get_vptr(phandle, "return_as_vector__BOSS_4");
 
-  // 3) Recast to a function pointer of type std::vector<int>(*)(int,int)
-  std::vector<int>(*fptr)(int,int);
-  fptr = reinterpret_cast< std::vector<int>(*)(int,int) >(psym_2.fptr);
+  // 3) Recast to a function pointer of correct type
+  std::vector<int>(*return_as_vector_fptr)(int,int);
+  return_as_vector_fptr = reinterpret_cast< std::vector<int>(*)(int,int) >(psym_2.fptr);
 
   // 4) Call the function and check that it returns what we expect
-
-  auto i1 = 1;
-  auto i2 = 2;
-  std::vector<int> returned_vec = fptr(i1,i2);
+  std::vector<int> returned_vec = return_as_vector_fptr(1, 2);
 
   std::cout << "returned_vec.size() : " << returned_vec.size() << std::endl;
   std::cout << "returned_vec.at(0) : " << returned_vec.at(0) << std::endl;
   std::cout << "returned_vec.at(1) : " << returned_vec.at(1) << std::endl;
+
+
+
+  // 
+  // Once more, now with return_as_vector_2(int,int&) which has a reference-to-int argument
+  // 
+
+  std::cout << std::endl;
+  std::cout << "Now attempting to load the function SomeNamespace::return_as_vector_2(int,int&)" << std::endl;
+
+  // Steps 1) and 2) done with helper function get_vptr
+  voidptr_voidfptr psym_3 = get_vptr(phandle, "_ZN13SomeNamespace18return_as_vector_2EiRi");
+
+  // 3) Recast to a function pointer of correct type
+  std::vector<int>(*return_as_vector_2_fptr)(int,int&);
+  return_as_vector_2_fptr = reinterpret_cast< std::vector<int>(*)(int,int&) >(psym_3.fptr);
+
+  // 4) Call the function and check that it returns what we expect
+
+  int input = 2;
+  std::vector<int> returned_vec_2 = return_as_vector_2_fptr(1, input);
+
+  std::cout << "returned_vec_2.size() : " << returned_vec_2.size() << std::endl;
+  std::cout << "returned_vec_2.at(0) : " << returned_vec_2.at(0) << std::endl;
+  std::cout << "returned_vec_2.at(1) : " << returned_vec_2.at(1) << std::endl;
 
 
   // All done
