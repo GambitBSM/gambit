@@ -57,6 +57,7 @@ load_functions = [
     'SomeNamespace::modify_instance(int, SomeNamespace::ClassTwo&)',
     'SomeNamespace::return_as_vector(int, int)',
     'SomeNamespace::return_as_vector_2(int, int&)',
+    # 'SomeNamespace::return_as_vector_with_clock()',
 ]
 
 load_enums = [

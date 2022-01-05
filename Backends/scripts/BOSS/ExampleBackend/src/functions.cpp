@@ -1,5 +1,7 @@
 #include <iostream>
 #include "functions.hpp"
+// #include <fstream>
+#include <ctime>
 
 namespace SomeNamespace
 {
@@ -24,6 +26,16 @@ namespace SomeNamespace
   std::vector<int> return_as_vector_2(int a, int& b)
   {
     std::vector<int> vec = std::vector<int>{a,b};
+    return vec;
+  }
+
+
+  std::vector<clock_t> return_as_vector_with_clock()
+  {
+    clock_t c = clock();
+    std::vector<clock_t> vec; 
+    vec.push_back(c);
+    // = std::vector<std::filebuf>{fb};
     return vec;
   }
 

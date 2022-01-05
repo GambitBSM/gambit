@@ -2,6 +2,8 @@
 #define __classes_hpp__
 
 #include <iostream>
+#include <vector>
+#include <ctime>
 
 
 // A dummy class
@@ -24,6 +26,8 @@ public:
   {
     std::cout << "ClassOne::some_other_method: arg 1: i_in = " << i_in << std::endl;
   }
+
+  std::vector<clock_t> return_as_vector_with_clock();
 
 };
 
