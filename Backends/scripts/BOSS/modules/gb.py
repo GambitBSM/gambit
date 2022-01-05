@@ -295,7 +295,7 @@ std_headers = {
     "std::pair"                     : "<utility>",
     "std::piecewise_construct_t"    : "<utility>",
     "std::integer_sequence"         : "<utility>",
-    "clock_t"                       : "<ctime>",  # _Anders
+    "clock_t"                       : "<ctime>",
     # "time_t"                        : "<ctime>",
     # "tm"                            : "<ctime>",
     "std::chrono::duration"                 : "<chrono>",
