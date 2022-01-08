@@ -788,6 +788,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 # Pythia
+# 8.212
 set(name "pythia")
 set(ver "8.212")
 set(lib "libpythia8")
@@ -864,8 +865,53 @@ if(NOT ditched_${name}_${ver})
   )
   BOSS_backend(${name} ${ver} ${BOSS_suffix})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+#  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+
+# Pythia 8.306
+set(name "pythia")
+set(ver "8.306")
+set(lib "libpythia8")
+set(dl "https://pythia.org/download/pythia83/pythia8306.tgz")
+set(md5 "5728d1d8bc7b3b9e421ad619910a0bb3")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+
+# - Setup HepMC-specific additions
+option(PYTHIA_WITH_HEPMC "Pythia is compiled with HepMC" ON)
+if(EXCLUDE_HEPMC)
+  set(pythia_depends_on "")
+  set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}_nohepmc.dif")
+  set(EXTRA_CONFIG "")
+  set(BOSS_suffix "nohepmc")
+else()
+  set(pythia_depends_on "hepmc")
+  set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+  set(pythia_CXXFLAGS "${pythia_CXXFLAGS} -I${HEPMC_PATH}/local/include -I${HEPMC_PATH}/interfaces/pythia8/include")
+  set(pythia_CXX_SHARED_FLAGS "${pythia_CXX_SHARED_FLAGS}  -L${HEPMC_LIB} -Wl,-rpath ${HEPMC_LIB} -lHepMC3")
+  set(EXTRA_CONFIG "--with-hepmc3=${HEPMC_PATH}/local")
+  set(BOSS_suffix "")
+endif()
+
+# - Actual configure and compile commands
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS castxml
+    DEPENDS ${pythia_depends_on}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
+    INSTALL_COMMAND ""
+  )
+  BOSS_backend(${name} ${ver} ${BOSS_suffix})
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
 
 
 # Nulike
