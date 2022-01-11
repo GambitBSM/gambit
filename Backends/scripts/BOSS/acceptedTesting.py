@@ -27,6 +27,12 @@ def isKnownClass(el, class_name=None):
     elif isInList(class_name['long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
         is_known = True
 
+    # if not a is_known type
+    if not is_known:
+        return is_known
+    else:
+        if not is_templated:
+
     return is_known
 
 
@@ -111,3 +117,174 @@ def isEnumeration(el):
         is_enumeration = True
 
     return is_enumeration
+
+
+def initGlobalXMLdicts(xml_path, id_and_name_only=False):
+
+    import modules.classutils as classutils
+    import modules.funcutils as funcutils
+    import modules.enumutils as enumutils
+
+    # Clear dicts
+    # clearGlobalXMLdicts()
+
+    # Set some global dicts directly
+    gb.id_dict = copy.deepcopy(gb.all_id_dict[xml_path])
+    gb.name_dict = copy.deepcopy(gb.all_name_dict[xml_path])
+
+    # Stop here?
+    if id_and_name_only:
+        return
+
+    #
+    # Loop over all elements in this xml file
+    # to fill the remaining dicts. (The order is important!)
+    #
+
+    for xml_id, el in gb.id_dict.items():
+
+        # Update global dict: file name --> file xml element
+        if el.tag == 'File':
+            gb.file_dict[el.get('name')] = el
+
+        # Update global dict: std type --> type xml element
+        if isStdType(el):
+            class_name = classutils.getClassNameDict(el)
+            gb.std_types_dict[class_name['long_templ']] = el
+
+        # Update global dict of loaded classes in this xml file: class name --> class xml element
+        if el.tag in ['Class', 'Struct']:
+
+            try:
+                class_name = classutils.getClassNameDict(el)
+            except KeyError:
+                continue
+
+            # Check if we have done this class already
+            if class_name in gb.classes_done:
+                infomsg.ClassAlreadyDone(
+                    class_name['long_templ']).printMessage()
+                continue
+
+            # Check that class is requested
+            if (class_name['long_templ'] in cfg.load_classes):
+
+                # Check that class is complete
+                if isComplete(el):
+
+                    # Store class xml element
+                    gb.loaded_classes_in_xml[class_name['long_templ']] = el
+
+        # Update global dict: typedef name --> typedef xml element
+        if el.tag == 'Typedef':
+
+            # Only accept native typedefs:
+            if isNative(el):
+
+                typedef_name = el.get('name')
+
+                type_dict = findType(el)
+                type_el = type_dict['el']
+
+                # If underlying type is a fundamental or standard type, accept it right away
+                if isFundamental(type_el) or isStdType(type_el):
+                    gb.typedef_dict[typedef_name] = el
+
+                # If underlying type is a class/struct, check if it's acceptable
+                elif type_el.tag in ['Class', 'Struct']:
+
+                    type_name = classutils.getClassNameDict(type_el)
+
+                    if type_name['long_templ'] in cfg.load_classes:
+                        gb.typedef_dict[typedef_name] = el
+
+                # If neither fundamental or class/struct, ignore it.
+                else:
+                    pass
+
+        # Create an enum dictionary
+        if el.tag == 'Enumeration':
+
+            # Only accept native enumerations
+            if isNative(el):
+
+                enum_name = enumutils.getEnumNameDict(el)
+
+                # Only take enumerations that are not members of a class or a struct
+                parent = gb.id_dict[el.get('context')]
+                if parent.tag in ('Class', 'Struct'):
+                    continue
+
+                # Check if we have done this function already
+                if enum_name in gb.enums_done:
+                    infomsg.EnumAlreadyDone(enum_name['long']).printMessage()
+                    continue
+
+                # If the enum is in the requested list of loaded enums, add it to the dict
+                if enum_name['long'] in cfg.load_enums:
+                    gb.enum_dict[enum_name['long']] = el
+
+        # Update global dict: function name --> function xml element
+        if el.tag == 'Function':
+
+            try:
+                func_name = funcutils.getFunctionNameDict(el)
+            except KeyError:
+                continue
+
+            # Check if we have done this function already
+            if func_name in gb.functions_done:
+                infomsg.FunctionAlreadyDone(
+                    func_name['long_templ_args']).printMessage()
+                continue
+
+            if func_name['long_templ_args'] in cfg.load_functions:
+                gb.func_dict[func_name['long_templ_args']] = el
+
+        # Add entries to global dict: new header files
+        if el in gb.loaded_classes_in_xml.values():
+
+            class_name = classutils.getClassNameDict(el)
+
+            class_name_short = class_name['short']
+            class_name_long = class_name['long']
+
+            if class_name_long not in gb.new_header_files.keys():
+
+                abstract_header_name = gb.abstr_header_prefix + \
+                    class_name_short + cfg.header_extension
+                wrapper_header_name = gb.wrapper_header_prefix + \
+                    class_name_short + cfg.header_extension
+                wrapper_decl_header_name = gb.wrapper_header_prefix + \
+                    class_name_short + '_decl' + cfg.header_extension
+                wrapper_def_header_name = gb.wrapper_header_prefix + \
+                    class_name_short + '_def' + cfg.header_extension
+
+                abstract_header_fullpath = os.path.join(
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.abstr_header_prefix + class_name_short + cfg.header_extension)
+                wrapper_header_fullpath = os.path.join(
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + cfg.header_extension)
+                wrapper_decl_header_fullpath = os.path.join(
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_decl' + cfg.header_extension)
+                wrapper_def_header_fullpath = os.path.join(
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_def' + cfg.header_extension)
+
+                gb.new_header_files[class_name_long] = {'abstract': abstract_header_name,
+                                                        'wrapper': wrapper_header_name,
+                                                        'wrapper_decl': wrapper_decl_header_name,
+                                                        'wrapper_def': wrapper_def_header_name,
+                                                        'abstract_fullpath': abstract_header_fullpath,
+                                                        'wrapper_fullpath': wrapper_header_fullpath,
+                                                        'wrapper_decl_fullpath': wrapper_decl_header_fullpath,
+                                                        'wrapper_def_fullpath': wrapper_def_header_fullpath}
+
+            if class_name_long not in gb.new_source_files.keys():
+
+                wrapper_src_name = gb.wrapper_source_prefix + \
+                    class_name_short + cfg.source_extension
+
+                gb.new_source_files[class_name_long] = {
+                    'wrapper': wrapper_src_name}
+
+
+xml_file = 'BOSS_temp/ExampleBackend_1_234/tempfile_0_classes_hpp.xml'

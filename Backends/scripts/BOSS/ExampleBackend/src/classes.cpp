@@ -7,6 +7,11 @@ void ClassOne::some_method(int i_in)
 }
 
 
+clock_t ClassOne::return_clock_t() {
+  clock_t c = clock();
+  return c;
+}
+
 std::vector<int> ClassOne::return_as_vector_with_int()
 {
   std::vector<int> vec = std::vector<int>{1,2};

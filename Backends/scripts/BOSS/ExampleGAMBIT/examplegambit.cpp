@@ -4,7 +4,12 @@
 #include <stdexcept>
 #include <sstream>
 #include <vector>
-
+#include <chrono>
+#include <thread>
+#include <ctime>
+#include <stdlib.h>
+#include <cstdlib>
+#include <math.h>
 
 // 
 // Various useful definitions
@@ -49,7 +54,13 @@ voidptr_voidfptr get_vptr(void* phandle, std::string library_symbol)
 }
 
 
-
+  void foo(int Z) {
+    for (int i = 0; i < Z; i++) {
+        std::cout << "Thread using function"
+               " pointer as callable\n";
+    }
+    std::this_thread::sleep_until(std::chrono::system_clock::now() + std::chrono::seconds(1));
+  }
 
 //
 // Include the BOSS-generated headers
@@ -181,6 +192,34 @@ int main()
   std::cout << "returned_vec_2.at(1) : " << returned_vec_2.at(1) << std::endl;
 
 
+
+  //
+  // Testing the return_clock_t function in class.hpp
+  //
+  
+  // Steps 1) and 2) done with helper function get_vptr
+  voidptr_voidfptr psym_4 = get_vptr(phandle, "_ZN8ClassOne14return_clock_tEv");
+  
+  // 3) cast the function pointer of correct type
+  clock_t(*return_clock_t_fptr)();
+  return_clock_t_fptr = reinterpret_cast< clock_t(*)() >(psym_4.fptr);
+  
+  // 4) Call the function and check that it returns what we expect
+  
+  clock_t start_time = clock();
+  std::cout << "time of now " << return_clock_t_fptr() / CLOCKS_PER_SEC << std::endl;
+  
+  std::thread th1(foo,1);
+  
+  th1.join();
+  
+  double sink;
+  for(size_t i=0; i<3141592 * 10; ++i)
+      sink+=sin(i)+cos(i)+sin(i)+tan(i);
+  clock_t end_time = clock();
+  std::cout << "time eclipsed " << (double)(return_clock_t_fptr() - start_time) / CLOCKS_PER_SEC << std::endl;
+  std::cout << "time eclipsed " << (double)(end_time - start_time) / CLOCKS_PER_SEC << std::endl;
+  
   // All done
   return 0;
 }
