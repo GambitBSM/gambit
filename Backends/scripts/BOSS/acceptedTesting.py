@@ -114,58 +114,59 @@ def isEnumeration(el):
     return is_enumeration
 """
 
-# Function assumes a valid input
-def topBracketLevels(string):
-    stack = []
-    bracketPairs = []
-    for i, c in enumerate(string):
-        if c == '<':
-            stack.append(i)
-        elif c == '>':
-            assert(len(stack) != 0)
-
-            top = stack.pop()
-            if len(stack) == 0:
-                # This was the outermost pair, add them to my list of brackets
-                bracketPairs.append((top, i))
-    
-    assert(len(stack) == 0)
-    
-    return bracketPairs
-
 def recursiveTest(typeName, typeList):
+    typeName = typeName.lstrip(' ').rstrip(' ')
+    
+    # Create required lists to store info
     stack = []
     bracketPairs = []
     commaLocs = []
-    for i, c in enumerate(typeName):
-        if c == '<':
+
+    # For index and character in typeName
+    for i, ch in enumerate(typeName):
+        if ch == '<':
+            # If it's an opening bracket append the index
             stack.append(i)
-        elif c == '>':
+        elif ch == '>':
+            # If it's a closing bracket,
+            # assert that there's at least one corresponding opening bracket
             assert(len(stack) != 0)
 
+            # Remove corresponding opening bracket and add it to pair
+            # of brackets if it's the outermost bracket
             top = stack.pop()
             if len(stack) == 0:
-                # This was the outermost pair, add them to my list of brackets
                 bracketPairs.append((top, i))
-        elif c == ',' and len(stack) == 0:
-            # There's a comma outside of '<...>'
+        elif ch == ',' and len(stack) == 0:
+            # There's a comma outside of all the '<...>'
             commaLocs.append(i)
-    
-    numBracketPairs = len(bracketPairs)
+
+    # Again, assert that every opening bracket had a closing bracket
     assert(len(stack) == 0)
 
     if len(commaLocs) != 0:
+        # If there are commas outside the brackets,
+        # split the string based on the commas and try calling the function again
+        commaLocs.append(len(typeName))
         prevComma = -1
         for comma in commaLocs:
-            seperatedType = typeName[prevComma + 1:comma].lstrip(' ').rstrip(' ')
+            # seperatedType is the substring between the previous comma and this comma,
+            # without the leading/lagging spaces
+            seperatedType = typeName[prevComma + 1:comma]
+            prevComma = comma
+            
+            # Call the function again on this substring
             recursiveTest(seperatedType, typeList)
-        seperatedType = typeName[commaLocs[-1] + 1:].lstrip(' ').rstrip(' ')
-        recursiveTest(seperatedType, typeList)
     else:
-        typeList.append(typeName)
+        # There were no annoying commas, search deeper into the next bracket.
+        # If you think about it, there can be at most 1 pair of bracket here.
+        if not typeName.isdigit():
+            typeList.append(typeName)
+        
         # Iterate through each bracket and search them
         for (lo, hi) in bracketPairs:
-            recursiveTest(typeName[lo + 1:hi], typeList)
+            insideBrackets = typeName[lo + 1:hi]
+            recursiveTest(insideBrackets, typeList)
 
 if __name__ == '__main__':
     list1 = []
@@ -196,6 +197,46 @@ if __name__ == '__main__':
     print('All types in std::map<std::vector<int>, std::pair<std::string, bool>>')
     recursiveTest('std::map<std::vector<int>, std::pair<std::string, bool>>', list4)
     print(list4)
+    print()
+    print("--------------------------------")
+    print()
+
+    
+    list5 = []
+    print('All types in std::array<int, 3>')
+    recursiveTest('std::array<int, 3>', list5)
+    print(list5)
+    print()
+    print("--------------------------------")
+    print()
+
+    
+
+    
+    list6 = []
+    print('All types in   std::vector<   int  >   ')
+    recursiveTest('  std::vector<   int  >   ', list6)
+    print(list6)
+    print()
+    print("--------------------------------")
+    print()
+
+    
+    
+    list7 = []
+    print('All types in std::map < bool                          ,  char  >  ')
+    recursiveTest('std::map < bool                          ,  char  >  ', list7)
+    print(list7)
+    print()
+    print("--------------------------------")
+    print()
+
+    
+
+    list8 = []
+    print('All types in std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>')
+    recursiveTest('std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>', list8)
+    print(list8)
     print()
     print("--------------------------------")
     print()
