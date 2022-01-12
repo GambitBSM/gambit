@@ -120,27 +120,6 @@ def isEnumeration(el):
     return is_enumeration
 """
 
-# Function assumes a valid input
-
-
-def topBracketLevels(string):
-    stack = []
-    bracketPairs = []
-    for i, c in enumerate(string):
-        if c == '<':
-            stack.append(i)
-        elif c == '>':
-            assert(len(stack) != 0)
-
-            top = stack.pop()
-            if len(stack) == 0:
-                # This was the outermost pair, add them to my list of brackets
-                bracketPairs.append((top, i))
-
-    assert(len(stack) == 0)
-
-    return bracketPairs
-
 
 def recursiveTest(typeName, typeList):
     typeName = typeName.lstrip(' ').rstrip(' ')
@@ -169,7 +148,7 @@ def recursiveTest(typeName, typeList):
             # There's a comma outside of all the '<...>'
             commaLocs.append(i)
 
-    numBracketPairs = len(bracketPairs)
+    # Again, assert that every opening bracket had a closing bracket
     assert(len(stack) == 0)
 
     if len(commaLocs) != 0:
@@ -178,8 +157,12 @@ def recursiveTest(typeName, typeList):
         commaLocs.append(len(typeName))
         prevComma = -1
         for comma in commaLocs:
-            seperatedType = typeName[prevComma +
-                                     1:comma].lstrip(' ').rstrip(' ')
+            # seperatedType is the substring between the previous comma and this comma,
+            # without the leading/lagging spaces
+            seperatedType = typeName[prevComma + 1:comma]
+            prevComma = comma
+
+            # Call the function again on this substring
             recursiveTest(seperatedType, typeList)
     else:
         # There were no annoying commas, search deeper into the next bracket.
@@ -191,37 +174,6 @@ def recursiveTest(typeName, typeList):
         for (lo, hi) in bracketPairs:
             insideBrackets = typeName[lo + 1:hi]
             recursiveTest(insideBrackets, typeList)
-
-
-def next_level(typeName):
-    stack = []
-    bracketPairs = []
-    commaLocs = []
-    for i, c in enumerate(typeName):
-        if c == '<':
-            stack.append(i)
-        elif c == '>':
-            assert(len(stack) != 0)
-
-            top = stack.pop()
-            if len(stack) == 0:
-                # This was the outermost pair, add them to my list of brackets
-                bracketPairs.append((top, i))
-        elif c == ',' and len(stack) == 0:
-            # There's a comma outside of '<...>'
-            commaLocs.append(i)
-
-    numBracketPairs = len(bracketPairs)
-    assert(len(stack) == 0)
-
-    seperatedType = []
-    if len(commaLocs) != 0:
-        prevComma = -1
-        seperatedType = typeName[commaLocs[-1] + 1:].lstrip(' ').rstrip(' ')
-        return seperatedType
-    else:
-        for (lo, hi) in bracketPairs:
-            return typeName[lo + 1:hi]
 
 
 if __name__ == '__main__':
@@ -257,3 +209,42 @@ if __name__ == '__main__':
     print()
     print("--------------------------------")
     print()
+
+    list5 = []
+    print('All types in std::array<int, 3>')
+    recursiveTest('std::array<int, 3>', list5)
+    print(list5)
+    print()
+    print("--------------------------------")
+    print()
+
+    list6 = []
+    print('All types in   std::vector<   int  >   ')
+    recursiveTest('  std::vector<   int  >   ', list6)
+    print(list6)
+    print()
+    print("--------------------------------")
+    print()
+
+    list7 = []
+    print('All types in std::map < bool                          ,  char  >  ')
+    recursiveTest(
+        'std::map < bool                          ,  char  >  ', list7)
+    print(list7)
+    print()
+    print("--------------------------------")
+    print()
+
+    list8 = []
+    print('All types in std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>')
+    recursiveTest(
+        'std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>', list8)
+    print(list8)
+    print()
+    print("--------------------------------")
+    print()
+
+    print(next_level("std::map<std::vector<int>, bool>"))
+["std::map<std::vector<int>, bool>"]
+["std::vector<int>", "bool", ""]
+[""]
