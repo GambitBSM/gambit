@@ -178,6 +178,37 @@ def recursiveTest(typeName, typeList):
             recursiveTest(typeName[lo + 1:hi], typeList)
 
 
+def next_level(typeName):
+    stack = []
+    bracketPairs = []
+    commaLocs = []
+    for i, c in enumerate(typeName):
+        if c == '<':
+            stack.append(i)
+        elif c == '>':
+            assert(len(stack) != 0)
+
+            top = stack.pop()
+            if len(stack) == 0:
+                # This was the outermost pair, add them to my list of brackets
+                bracketPairs.append((top, i))
+        elif c == ',' and len(stack) == 0:
+            # There's a comma outside of '<...>'
+            commaLocs.append(i)
+
+    numBracketPairs = len(bracketPairs)
+    assert(len(stack) == 0)
+
+    seperatedType = []
+    if len(commaLocs) != 0:
+        prevComma = -1
+        seperatedType = typeName[commaLocs[-1] + 1:].lstrip(' ').rstrip(' ')
+        return seperatedType
+    else:
+        for (lo, hi) in bracketPairs:
+            return typeName[lo + 1:hi]
+
+
 if __name__ == '__main__':
     list1 = []
     print('All types in int')
@@ -211,3 +242,14 @@ if __name__ == '__main__':
     print()
     print("--------------------------------")
     print()
+
+    list5 = []
+    print('All types in std::map<int, double>')
+    recursiveTest(
+        'std::map<int, double>', list5)
+    print(list5)
+    print()
+    print("--------------------------------")
+    print()
+
+    print(next_level("std::vector<int>, std::pair<std::string, bool>"))
