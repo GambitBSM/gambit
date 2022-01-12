@@ -120,31 +120,6 @@ def isEnumeration(el):
     return is_enumeration
 """
 
-<<<<<<< HEAD
-=======
-# Function assumes a valid input
-
-
-def topBracketLevels(string):
-    stack = []
-    bracketPairs = []
-    for i, c in enumerate(string):
-        if c == '<':
-            stack.append(i)
-        elif c == '>':
-            assert(len(stack) != 0)
-
-            top = stack.pop()
-            if len(stack) == 0:
-                # This was the outermost pair, add them to my list of brackets
-                bracketPairs.append((top, i))
-
-    assert(len(stack) == 0)
-
-    return bracketPairs
-
-
->>>>>>> ee0d45306f26b9ddcccda354a38742443c847118
 def recursiveTest(typeName, typeList):
     typeName = typeName.lstrip(' ').rstrip(' ')
     
@@ -172,11 +147,7 @@ def recursiveTest(typeName, typeList):
             # There's a comma outside of all the '<...>'
             commaLocs.append(i)
 
-<<<<<<< HEAD
     # Again, assert that every opening bracket had a closing bracket
-=======
-    numBracketPairs = len(bracketPairs)
->>>>>>> ee0d45306f26b9ddcccda354a38742443c847118
     assert(len(stack) == 0)
 
     if len(commaLocs) != 0:
@@ -185,17 +156,12 @@ def recursiveTest(typeName, typeList):
         commaLocs.append(len(typeName))
         prevComma = -1
         for comma in commaLocs:
-<<<<<<< HEAD
             # seperatedType is the substring between the previous comma and this comma,
             # without the leading/lagging spaces
             seperatedType = typeName[prevComma + 1:comma]
             prevComma = comma
             
             # Call the function again on this substring
-=======
-            seperatedType = typeName[prevComma +
-                                     1:comma].lstrip(' ').rstrip(' ')
->>>>>>> ee0d45306f26b9ddcccda354a38742443c847118
             recursiveTest(seperatedType, typeList)
     else:
         # There were no annoying commas, search deeper into the next bracket.
@@ -242,7 +208,6 @@ if __name__ == '__main__':
     print()
     print("--------------------------------")
     print()
-<<<<<<< HEAD
 
     
     list5 = []
@@ -284,5 +249,3 @@ if __name__ == '__main__':
     print("--------------------------------")
     print()
 
-=======
->>>>>>> ee0d45306f26b9ddcccda354a38742443c847118
