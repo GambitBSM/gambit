@@ -13,39 +13,39 @@
 #
 
 #
-# *** Special note for OS X *** 
-# 
+# *** Special note for OS X ***
+#
 # BOSS will most likely fail if 'g++' points to the Clang compiler.
-# Install GNU g++ and point the castxml_cc variable below the GNU 
-# g++ executable.   
+# Install GNU g++ and point the castxml_cc variable below the GNU
+# g++ executable.
 #
 
-castxml_cc_id  = 'gnu'      # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
-castxml_cc     = 'g++'      # Name a specific compiler: 'g++', 'cl', ...
-castxml_cc_opt = '-std=c++11'         # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
+castxml_cc_id = 'gnu'      # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
+castxml_cc = 'g++'      # Name a specific compiler: 'g++', 'cl', ...
+# Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
+castxml_cc_opt = '-std=c++11'
 
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name      = 'ExampleBackend'
-gambit_backend_version   = '1.234'
+gambit_backend_name = 'ExampleBackend'
+gambit_backend_version = '1.234'
 gambit_backend_reference = ''
-gambit_base_namespace    = ''
+gambit_base_namespace = ''
 
 
 # ~~~~~ Information about the external code ~~~~~
 
 # Use either absolute paths or paths relative to the main BOSS directory.
-input_files   = [
+input_files = [
     'ExampleBackend/include/classes.hpp',
     'ExampleBackend/include/functions.hpp',
 ]
 include_paths = ['ExampleBackend/include']
-base_paths    = ['ExampleBackend']
+base_paths = ['ExampleBackend']
 
 header_files_to = 'ExampleBackend/include'
-src_files_to    = 'ExampleBackend/src'
-
+src_files_to = 'ExampleBackend/src'
 
 
 load_classes = [
@@ -57,6 +57,7 @@ load_functions = [
     'SomeNamespace::modify_instance(int, SomeNamespace::ClassTwo&)',
     'SomeNamespace::return_as_vector(int, int)',
     'SomeNamespace::return_as_vector_2(int, int&)',
+    # 'ClassOne::return_clock_t()',
     # 'SomeNamespace::return_as_vector_with_clock()',
 ]
 
@@ -69,7 +70,7 @@ ditch = []
 auto_detect_stdlib_paths = False
 
 
-load_parent_classes    = False
+load_parent_classes = False
 wrap_inherited_members = False
 
 
@@ -115,4 +116,3 @@ ini_function_in_header = True
 
 pragmas_begin = []
 pragmas_end = []
-

@@ -13,8 +13,10 @@ public:
 
   int i;
   double d;
-  std::vector<clock_t> my_vec_clock;
-
+  
+  // Decalring it as a member variable
+//   std::vector<clock_t> my_vec_clock;
+  
   // Constructor
   ClassOne() {}
 
@@ -26,6 +28,9 @@ public:
   {
     std::cout << "ClassOne::some_other_method: arg 1: i_in = " << i_in << std::endl;
   }
+
+  // Testing methods which returns a clock instead
+  clock_t return_clock_t();
 
   // Testing methods that return vectors
 
