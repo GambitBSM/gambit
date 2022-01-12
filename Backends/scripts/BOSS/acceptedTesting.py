@@ -273,7 +273,7 @@ if __name__ == '__main__':
     print("--------------------------------")
     print()
 
-    print(next_level("std::map<std::vector<int>, bool>"))
-["std::map<std::vector<int>, bool>"]
-["std::vector<int>", "bool", ""]
-[""]
+    # print(next_level("std::map<std::vector<int>, bool>"))
+# ["std::map<std::vector<int>, bool>"]
+# ["std::vector<int>", "bool", ""]
+# [""]
