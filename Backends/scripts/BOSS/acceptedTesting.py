@@ -144,27 +144,51 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
     # Again, assert that every opening bracket had a closing bracket
     assert(len(stack) == 0)
 
-# Unfished function
-def stripWhitespace(string):
+def removeCharsInRange(string, lo, hi):
+    assert(lo <= hi and lo >= 0 and hi < len(string))
+    return string[0:lo] + string[hi + 1:]
+
+
+def removeThisSpace(ch1, ch2):
+    return (ch1 in ('<', '>', ',')) or (ch2 in ('<', '>', ','))
+
+# Unfinished function
+def stripWhitespace(string):    
+    # Strip the whitespace to the left and right
+    string = string.lstrip(' ').rstrip(' ')
+
+    # Return if empty
     if string == '':
         return ''
     
-    # Strip the whitespace to the left and right
-    string = string.lstrip(' ').rstrip(' ')
+    # Now have a non-empty string with no leading
+    # or lagging spaces
+    unnecessarySpaces = True
+    while unnecessarySpaces:
+        unnecessarySpaces = False
+        lastNonSpaceIndex = 0
+        lastNonSpaceCharacter = string[0]
+        for i, ch in enumerate(string):
+            if ch != ' ':
+                # Check if the last non-space
+                # and now has anything between it
+                if i - lastNonSpaceIndex > 1 and removeThisSpace(ch, lastNonSpaceCharacter):
+                    # Must remove the middle bit
+                    string = removeCharsInRange(string, lastNonSpaceIndex + 1, i - 1)
+                    unnecessarySpaces = True
+                    break
+                
+                # Update the new indexes
+                lastNonSpaceIndex = i
+                lastNonSpaceCharacter = ch
     
-    lastNonSpaceIndex = 0
-    lastNonSpaceCharacter = None
-    for i, ch in enumerate(string):
-        if ch != ' ':
-            lastNonSpaceIndex = i
-            lastNonSpaceCharacter = ch
-        else:            
-            print('owo')
+    return string
             
 
 def recursiveTest(typeName):
     # Need a function to strip
-    typeName = typeName.lstrip(' ').rstrip(' ')
+    typeName = stripWhitespace(typeName)
+    print(f"recursiveTest called on and filtered to: {typeName}")
     
     # Create required lists to store info
     typeNameBracketLocs = []
@@ -183,7 +207,7 @@ def recursiveTest(typeName):
         # Is templated
         # Grab the locations of the outer brackets
         (lo, hi) = typeNameBracketLocs[0]
-        strippedType = typeName[:lo].rstrip(' ')
+        strippedType = typeName[:lo]
 
         print(f"{strippedType} is templated, go deeper")
 
@@ -204,7 +228,7 @@ def recursiveTest(typeName):
             # For each comma, get the substring between this comma and the last one
             # and strip it for leading/lagging whitespace.
             # Then, add it to the list of section
-            insideBracketsSections.append(insideBrackets[prevComma + 1:comma].lstrip(' ').rstrip(' '))
+            insideBracketsSections.append(insideBrackets[prevComma + 1:comma])
             prevComma = comma
         
         for section in insideBracketsSections:
@@ -264,4 +288,3 @@ if __name__ == '__main__':
     print()
     print("--------------------------------")
     print()
-
