@@ -143,39 +143,54 @@ def topBracketLevels(string):
 
 
 def recursiveTest(typeName, typeList):
+    typeName = typeName.lstrip(' ').rstrip(' ')
+
+    # Create required lists to store info
     stack = []
     bracketPairs = []
     commaLocs = []
-    for i, c in enumerate(typeName):
-        if c == '<':
+
+    # For index and character in typeName
+    for i, ch in enumerate(typeName):
+        if ch == '<':
+            # If it's an opening bracket append the index
             stack.append(i)
-        elif c == '>':
+        elif ch == '>':
+            # If it's a closing bracket,
+            # assert that there's at least one corresponding opening bracket
             assert(len(stack) != 0)
 
+            # Remove corresponding opening bracket and add it to pair
+            # of brackets if it's the outermost bracket
             top = stack.pop()
             if len(stack) == 0:
-                # This was the outermost pair, add them to my list of brackets
                 bracketPairs.append((top, i))
-        elif c == ',' and len(stack) == 0:
-            # There's a comma outside of '<...>'
+        elif ch == ',' and len(stack) == 0:
+            # There's a comma outside of all the '<...>'
             commaLocs.append(i)
 
     numBracketPairs = len(bracketPairs)
     assert(len(stack) == 0)
 
     if len(commaLocs) != 0:
+        # If there are commas outside the brackets,
+        # split the string based on the commas and try calling the function again
+        commaLocs.append(len(typeName))
         prevComma = -1
         for comma in commaLocs:
             seperatedType = typeName[prevComma +
                                      1:comma].lstrip(' ').rstrip(' ')
             recursiveTest(seperatedType, typeList)
-        seperatedType = typeName[commaLocs[-1] + 1:].lstrip(' ').rstrip(' ')
-        recursiveTest(seperatedType, typeList)
     else:
-        typeList.append(typeName)
+        # There were no annoying commas, search deeper into the next bracket.
+        # If you think about it, there can be at most 1 pair of bracket here.
+        if not typeName.isdigit():
+            typeList.append(typeName)
+
         # Iterate through each bracket and search them
         for (lo, hi) in bracketPairs:
-            recursiveTest(typeName[lo + 1:hi], typeList)
+            insideBrackets = typeName[lo + 1:hi]
+            recursiveTest(insideBrackets, typeList)
 
 
 def next_level(typeName):
@@ -242,14 +257,3 @@ if __name__ == '__main__':
     print()
     print("--------------------------------")
     print()
-
-    list5 = []
-    print('All types in std::map<int, double>')
-    recursiveTest(
-        'std::map<int, double>', list5)
-    print(list5)
-    print()
-    print("--------------------------------")
-    print()
-
-    print(next_level("std::vector<int>, std::pair<std::string, bool>"))
