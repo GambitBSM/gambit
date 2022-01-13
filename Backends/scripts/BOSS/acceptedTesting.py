@@ -1,6 +1,5 @@
 """
 def isKnownClass(el, class_name=None):
-
     import modules.classutils as classutils
 
     is_known = False
@@ -36,26 +35,12 @@ def isKnownClass(el, class_name=None):
 
     return is_known
 
-
-def isFundamental(el):
-
-    is_fundamental = False
-    # TODO: ZELUN MARK add exception check of long, long long, short, short short, unsigned long, unsigned short
-    if el.tag == 'FundamentalType':
-        is_fundamental = True
-
-    return is_fundamental
-
-
 def isStdType(el, class_name=None):
-
     # Makes use of global variables:  base_paths
-
     is_std = False
     can_check_tags = ['Class', 'Struct', 'Union', 'Enumeration']
 
     if el.tag in can_check_tags:
-
         # Use the optional class_name dict?
         if class_name is not None:
             if len(class_name['long_templ']) >= 5:
@@ -108,17 +93,15 @@ def isLoadedClass(input_type, byname=False, class_name=None):
                     is_loaded_class = True
 
     return is_loaded_class
-
+"""
 
 def isEnumeration(el):
+    return el.tag == 'Enumeration'
 
-    is_enumeration = False
-
-    if el.tag == 'Enumeration':
-        is_enumeration = True
-
-    return is_enumeration
-"""
+def isFundamental(el):
+    has_fundamental_tag = (el.tag == 'FundamentalType')
+    is_exception = (el.attrib['name'] in ('long', 'long long', 'short', 'short short', 'unsigned long', 'unsigned short'))
+    return has_fundamental_tag or is_exception
 
 def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
     stack = []
@@ -245,6 +228,11 @@ def recursiveTest(typeName):
                 return False
         
         return True
+
+# std::vector<long int,bool>
+# 'const wchar_t *'
+# 'char const (&)[44]'
+
 
 if __name__ == '__main__':
     print('All types in int')
