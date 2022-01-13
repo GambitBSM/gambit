@@ -103,6 +103,7 @@ def isFundamental(el):
     is_exception = (el.attrib['name'] in ('long', 'long long', 'short', 'short short', 'unsigned long', 'unsigned short'))
     return has_fundamental_tag or is_exception
 
+
 def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
     stack = []
     # For index and character in typeName
@@ -127,6 +128,7 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
     # Again, assert that every opening bracket had a closing bracket
     assert(len(stack) == 0)
 
+
 def removeCharsInRange(string, lo, hi):
     assert(lo <= hi and lo >= 0 and hi < len(string))
     return string[0:lo] + string[hi + 1:]
@@ -135,17 +137,19 @@ def removeCharsInRange(string, lo, hi):
 def removeThisSpace(ch1, ch2):
     return (ch1 in ('<', '>', ',')) or (ch2 in ('<', '>', ','))
 
+
 def isAcceptedType(typeName):
     return typeName in ('int', 'std::vector', 'bool', 'char', 'std::map')
 
-def stripWhitespace(string):    
+
+def stripWhitespace(string):
     # Strip the whitespace to the left and right
     string = string.lstrip(' ').rstrip(' ')
 
     # Return if empty
     if string == '':
         return ''
-    
+
     # Now have a non-empty string with no leading
     # or lagging spaces
     unnecessarySpaces = True
@@ -159,32 +163,34 @@ def stripWhitespace(string):
                 # and now has anything between it
                 if i - lastNonSpaceIndex > 1 and removeThisSpace(ch, lastNonSpaceCharacter):
                     # Must remove the middle bit
-                    string = removeCharsInRange(string, lastNonSpaceIndex + 1, i - 1)
+                    string = removeCharsInRange(
+                        string, lastNonSpaceIndex + 1, i - 1)
                     unnecessarySpaces = True
                     break
-                
+
                 # Update the new indexes
                 lastNonSpaceIndex = i
                 lastNonSpaceCharacter = ch
-    
+
     return string
-            
+
 
 def recursiveTest(typeName):
     # Need a function to strip
     typeName = stripWhitespace(typeName)
     print(f"recursiveTest called on and filtered to: {typeName}")
-    
+
     # Create required lists to store info
     typeNameBracketLocs = []
     typeNameCommaLocs = []
-    findOutsideBracketsAndCommas(typeName, typeNameBracketLocs, typeNameCommaLocs)
-    
+    findOutsideBracketsAndCommas(
+        typeName, typeNameBracketLocs, typeNameCommaLocs)
+
     # If there are more than 1 angle brackets pair on the outermost level
     # OR there are any commas outside angle brackets there's a problem
     assert(len(typeNameBracketLocs) <= 1)
     assert(len(typeNameCommaLocs) == 0)
-    
+
     if (len(typeNameBracketLocs) == 0):
         # Not templated
         print(f"{typeName} isn't templated, stop here")
@@ -208,7 +214,8 @@ def recursiveTest(typeName):
         # We want to separate it into 'int' and 'bool' before we go any deeper
         insideBracketsBracketLocs = []
         insideBracketsCommaLocs = []
-        findOutsideBracketsAndCommas(insideBrackets, insideBracketsBracketLocs, insideBracketsCommaLocs)
+        findOutsideBracketsAndCommas(
+            insideBrackets, insideBracketsBracketLocs, insideBracketsCommaLocs)
 
         insideBracketsCommaLocs.append(len(insideBrackets))
         prevComma = -1
@@ -226,13 +233,16 @@ def recursiveTest(typeName):
             # Second section = '3', which isn't a type so we don't want to recurse on
             if not section.isdigit() and not recursiveTest(section):
                 return False
-        
+
         return True
 
+<<<<<<< HEAD
 # std::vector<long int,bool>
 # 'const wchar_t *'
 # 'char const (&)[44]'
 
+=======
+>>>>>>> 2b5b019387850bed298cfbd618d6acf26292780e
 
 if __name__ == '__main__':
     print('All types in int')
@@ -278,7 +288,8 @@ if __name__ == '__main__':
     print()
 
     print('All types in std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>')
-    print(recursiveTest('std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>'))
+    print(recursiveTest(
+        'std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>'))
     print()
     print("--------------------------------")
     print()
