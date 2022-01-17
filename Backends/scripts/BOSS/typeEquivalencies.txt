@@ -1,0 +1,23 @@
+[['short', 'short int', 'signed short', 'signed short int',
+'int short', 'short signed', 'signed int short', 'short signed int', 'short int signed', 'int signed short', 'int short signed'],
+
+['unsigned short', 'unsigned short int'
+'short unsigned', 'unsigned int short', 'short unsigned int', 'short int unsigned', 'int short unsigned', 'int unsigned short'],
+
+['int', 'signed', 'signed int',
+'int signed'],
+
+['unsigned', 'unsigned int',
+'int unsigned'],
+
+['long', 'long int', 'signed long', 'signed long int',
+'int long', 'long signed', 'signed int long', 'long signed int', 'long int signed', 'int long signed', 'int signed long'],
+
+['unsigned long', 'unsigned long int',
+'long unsigned', 'unsigned int long', 'long unsigned int', 'long int unsigned', 'int long unsigned', 'int unsigned long'],
+
+['long long', 'long long int', 'signed long long', 'signed long long int',
+'long int long', 'int long long', 'long signed long', 'long long signed', 'signed long int long', 'signed int long long', 'long long signed int', 'long long int signed', 'long signed long int', 'long signed int long', 'long int long signed', 'long int signed long', 'int long long signed', 'int long signed long', 'int signed long long'],
+
+['unsigned long long', 'unsigned long long int',
+'long unsigned long', 'long long unsigned', 'unsigned long int long', 'unsigned int long long', 'long long unsigned int', 'long long int unsigned', 'long unsigned long int', 'long unsigned int long', 'long int long unsigned', 'long int unsigned long', 'int long long unsigned', 'int long unsigned long', 'int unsigned long long']]

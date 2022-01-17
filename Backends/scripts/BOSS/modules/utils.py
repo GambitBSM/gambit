@@ -2493,12 +2493,8 @@ def fillAcceptedTypesList():
     import modules.classutils as classutils
     import modules.enumutils as enumutils
 
-    # Sets to store type names
-    fundamental_types = set()
-    std_types = set()
-    known_classes = set()
-    enumeration_types = set()
-    loaded_classes = set()
+    # Set to store type names
+    all_types = set()
 
     # Keep track of how many types have been checked
     type_counter = 0
@@ -2508,14 +2504,6 @@ def fillAcceptedTypesList():
     # Collect names of all fundamental, std, enumeration, known and loaded types that are acceptable
     #
     for xml_file in gb.all_id_dict.keys():
-
-        # Reset some variables for each new xml file
-        new_fundamental_types = []
-        new_std_types = []
-        new_known_classes = []
-        new_enumeration_types = []
-        new_loaded_classes = []
-
         initGlobalXMLdicts(xml_file)
 
         #
@@ -2523,47 +2511,48 @@ def fillAcceptedTypesList():
         #
 
         for full_name, el in gb.name_dict.items():
+            if validType(full_name):
+                # JOEL: Is this the member function to use for sets?
+                all_types.append(full_name)
+
             # ZELUN:MARK if full name
 
             # Only consider types
-            if el.tag not in ['Class', 'Struct', 'FundamentalType', 'Enumeration']:
+            if el.tag not in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
                 continue
-
-            # ZELUN:MARK
-            if full_name == "std::vector<long, std::allocator<long> >" or full_name == "std::vector<int, std::allocator<int> >":
-                print(f"stop at this line")
-
-            with open('name_dict.txt', 'a') as reader:
-                print(f"{full_name}", file=reader)
-
+            
+            
             type_counter += 1
             if type_counter % 500 == 0:
-                print('  - %i types classified...' % (type_counter))
+                print(f"  - {type_counter} types classified...")
 
             # To save a bit of time, construct class name dict once and pass to remaining checks
-            class_name = classutils.getClassNameDict(el)
+            # class_name = classutils.getClassNameDict(el)
+
+
+
+
+            # JOEL: Come back to this???
+            # Need to read it fully
 
             # Skip problematic types
-            if isProblematicType(el):
-                print(f"{full_name} isProblematicType")
-                continue
+
+            # JOEL: Commented out isProblematicType - as discussed in meeting
+            # if isProblematicType(el):
+            #     continue
 
             # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it
             # starts with 'std', which is not enough if the template args are not valid
             # If template, check the arguments are accepted
-            if not isTemplateWithValidArgs(el, class_name=class_name):
-                print(f"{full_name} isTemplateWithValidArgs")
-                continue
 
-            # std::vector<int> -> std type not known not fundamental pass the test of std
-            # std::vector<loadedclasess> should be allowed
+            # JOEL: Commented out isTemplateWithValidArgs - as discussed in meeting
+            # if not isTemplateWithValidArgs(el, class_name=class_name):
+            #     continue
 
             #
             # Known class?
             #
-            is_known_class = isKnownClass(el, class_name=class_name)
-            if is_known_class:
-                print(f"{full_name} isKnownClass")
+            if isKnownClass(el, class_name=class_name):
                 new_known_classes.append(full_name)
 
             # Skip incomplete types
@@ -2575,34 +2564,25 @@ def fillAcceptedTypesList():
             #
             # Fundamental type?
             #
-            is_fundamental = isFundamental(el)
-            if is_fundamental:
-                print(f"{full_name} is_fundamental")
+            if isFundamental(el):
                 new_fundamental_types.append(full_name)
 
+            #
             # Std type?
             #
-            is_std_type = isStdType(el, class_name=class_name)
-            if is_std_type:
-                print(f"{full_name} is_std_type")
+            if isStdType(el, class_name=class_name):
                 new_std_types.append(full_name)
 
             #
             # Loaded type?
             #
-            is_loaded_class = isLoadedClass(
-                el, byname=False, class_name=class_name)
-            if is_loaded_class:
-                print(f"{full_name} is_loaded_class")
+            if isLoadedClass(el, byname=False, class_name=class_name):
                 new_loaded_classes.append(full_name)
 
             #
             # Enumeration type?
             #
-            is_enumeration = isEnumeration(el)
-            if is_enumeration:
-
-                print(f"{full_name} is_enumeration")
+            if isEnumeration(el):
                 enum_name = enumutils.getEnumNameDict(el)
 
                 # If the parent is a loaded class, add it
@@ -2614,25 +2594,119 @@ def fillAcceptedTypesList():
                 if isLoadedEnum(el, enum_name=enum_name):
                     new_enumeration_types.append(full_name)
 
-        #
-        # Update sets of types
-        #
-        fundamental_types = fundamental_types.union(set(new_fundamental_types))
-        std_types = std_types.union(set(new_std_types))
-        known_classes = known_classes.union(set(new_known_classes))
-        enumeration_types = enumeration_types.union(set(new_enumeration_types))
-        loaded_classes = loaded_classes.union(set(new_loaded_classes))
-
     # Print final number of types classified
-    print('  - %i types classified.' % (type_counter))
+    print(f"  - {type_counter} types classified.")
 
     # Fill global list
-    #gb.accepted_types = list(loaded_classes) + list(known_classes) + list(fundamental_types) + list(std_types)
-    gb.accepted_types = list(loaded_classes) + list(known_classes) + \
-        list(fundamental_types) + list(std_types) + list(enumeration_types)
-
+    gb.accepted_types = list(all_types)
 
 # ====== END: fillAcceptedTypesList ========
+
+
+# ====== validType ========
+
+def validType(typeName):
+    # Need a function to strip
+    typeName = typeName.strip()
+
+    # Create required lists to store info
+    typeNameBracketLocs = []
+    typeNameCommaLocs = []
+    findOutsideBracketsAndCommas(typeName, typeNameBracketLocs, typeNameCommaLocs)
+
+    # If there are more than 1 angle brackets pair on the outermost level
+    # OR there are any commas outside angle brackets there's a problem
+    numBracketPairs = len(typeNameBracketLocs)
+    assert(numBracketPairs <= 1)
+    assert(len(typeNameCommaLocs) == 0)
+
+    if (numBracketPairs == 0):
+        # Not templated
+        return isNonTemplatedTypeValid(typeName)
+    else:
+        # Is templated
+        # Grab the locations of the outer brackets
+        (lo, hi) = typeNameBracketLocs[0]
+        strippedType = typeName[:lo]
+
+        if not isTemplatedTypeValid(strippedType):
+            return False
+
+        insideBrackets = typeName[lo + 1:hi]
+
+        # Strip the commas between insideBrackets if there are any,
+        # E.g., if typeName = 'std::map<int, bool>'
+        # insideBrackets = 'int, bool'
+        # We want to separate it into 'int' and 'bool' before we go any deeper
+        insideBracketsBracketLocs = []
+        insideBracketsCommaLocs = []
+        findOutsideBracketsAndCommas(insideBrackets, insideBracketsBracketLocs, insideBracketsCommaLocs)
+
+        insideBracketsCommaLocs.append(len(insideBrackets))
+        prevComma = -1
+        for comma in insideBracketsCommaLocs:
+            # For each comma, get the substring between this comma and the last one
+            # and strip it for leading/lagging whitespace.
+            # Then, add it to the list of section
+            section = insideBrackets[prevComma + 1:comma]
+            prevComma = comma
+
+            # Recurse through each section unless it's a digit
+            # E.g., typeName = 'std::array<int, 3>'
+            # insideBrackets = 'int, 3'
+            # The first section = 'int', which we want to recurse on
+            # Second section = '3', which isn't a type so we don't want to recurse on
+            if not section.isdigit() and not validType(section):
+                return False
+
+        return True
+
+# ====== END: validType ========
+
+
+# ====== isNonTemplatedTypeValid ========
+
+def isNonTemplatedTypeValid(typeName):
+    return True
+
+# ====== END: isNonTemplatedTypeValid ========
+
+
+# ====== isTemplatedTypeValid ========
+
+def isTemplatedTypeValid(typeName):
+    return (len(typeName) >= 5) and (typeName[:5] == 'std::') 
+
+# ====== END: isTemplatedTypeValid ========
+
+
+# ====== findOutsideBracketsAndCommas ========
+
+def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
+    stack = []
+    # For index and character in typeName
+    for i, ch in enumerate(string):
+        if ch == '<':
+            # If it's an opening bracket append the index
+            stack.append(i)
+        elif ch == '>':
+            # If it's a closing bracket,
+            # assert that there's at least one corresponding opening bracket
+            assert(len(stack) != 0)
+
+            # Remove corresponding opening bracket and add it to pair
+            # of brackets if it's the outermost bracket
+            top = stack.pop()
+            if len(stack) == 0:
+                bracketLocs.append((top, i))
+        elif ch == ',' and len(stack) == 0:
+            # There's a comma outside of all the '<...>'
+            commaLocs.append(i)
+
+    # Again, assert that every opening bracket had a closing bracket
+    assert(len(stack) == 0)
+
+# ====== END: findOutsideBracketsAndCommas ========
 
 
 # ====== isProblematicType ========
@@ -2852,9 +2926,11 @@ def xmlFilesToDicts(xml_files):
 
             # Determine name
             if 'name' in el.keys():
-                namespaces_list = getNamespaces(
-                    el, include_self=True, xml_file_name=xml_file)
+                namespaces_list = getNamespaces(el, include_self=True, xml_file_name=xml_file)
                 full_name = '::'.join(namespaces_list)
+
+                # JOEL: Have added this line to strip whitespace from the full_name key
+                full_name = full_name.strip()
             else:
                 # Skip elements that don't have a name
                 continue

@@ -96,13 +96,103 @@ def isLoadedClass(input_type, byname=False, class_name=None):
 """
 
 def isEnumeration(el):
+    # Check if castxml has tagged it as an enumeration
     return el.tag == 'Enumeration'
 
 def isFundamental(el):
-    has_fundamental_tag = (el.tag == 'FundamentalType')
-    is_exception = (el.attrib['name'] in ('long', 'long long', 'short', 'short short', 'unsigned long', 'unsigned short'))
-    return has_fundamental_tag or is_exception
+    # Check if either castxml has correctly tagged it as fundamental
+    # OR it's missed it and it's fundamental since it treats for example, 
+    # 'long' and 'long int' as different things (even though they're the same) - and only 'long int' is fundamental.
+    return (el.tag == 'FundamentalType') or\
+    (el.attrib['name'] in ('short', 'short int', 'signed short', 'signed short int', 'unsigned short',
+    'int', 'signed', 'signed int',
+    'unsigned', 'unsigned int',
+    'long', 'long int', 'signed long', 'signed long int',
+    'unsigned long', 'unsigned long int',
+    'long long', 'long long int', 'signed long long', 'signed long long int',
+    'unsigned long long', 'unsigned long long int'))
+    # JOEL: Is this list what we want? Is it missing anything? And this is kinda messy, a new file would possibly help?
+    # Also, for the list, does castxml give these names? Confused with for example 
 
+# ====== validType ========
+
+def validType(typeName):
+    # Need a function to strip
+    typeName = stripWhitespace(typeName)
+    print(f"typeName = {typeName}")
+
+    # Create required lists to store info
+    typeNameBracketLocs = []
+    typeNameCommaLocs = []
+    findOutsideBracketsAndCommas(typeName, typeNameBracketLocs, typeNameCommaLocs)
+
+    # If there are more than 1 angle brackets pair on the outermost level
+    # OR there are any commas outside angle brackets there's a problem
+    numBracketPairs = len(typeNameBracketLocs)
+    assert(numBracketPairs <= 1)
+    assert(len(typeNameCommaLocs) == 0)
+
+    if numBracketPairs == 0:
+        # Not templated
+        return isNonTemplatedTypeValid(typeName)
+    else:
+        # Is templated
+        # Grab the locations of the outer brackets
+        (lo, hi) = typeNameBracketLocs[0]
+        strippedType = typeName[:lo]
+
+        if not isTemplatedTypeValid(strippedType):
+            return False
+
+        insideBrackets = typeName[lo + 1:hi]
+
+        # Strip the commas between insideBrackets if there are any,
+        # E.g., if typeName = 'std::map<int, bool>'
+        # insideBrackets = 'int, bool'
+        # We want to separate it into 'int' and 'bool' before we go any deeper
+        insideBracketsBracketLocs = []
+        insideBracketsCommaLocs = []
+        findOutsideBracketsAndCommas(insideBrackets, insideBracketsBracketLocs, insideBracketsCommaLocs)
+
+        insideBracketsCommaLocs.append(len(insideBrackets))
+        prevComma = -1
+        for comma in insideBracketsCommaLocs:
+            # For each comma, get the substring between this comma and the last one
+            # and strip it for leading/lagging whitespace.
+            # Then, add it to the list of section
+            section = insideBrackets[prevComma + 1:comma]
+            prevComma = comma
+
+            # Recurse through each section unless it's a digit
+            # E.g., typeName = 'std::array<int, 3>'
+            # insideBrackets = 'int, 3'
+            # The first section = 'int', which we want to recurse on
+            # Second section = '3', which isn't a type so we don't want to recurse on
+            if not section.isdigit() and not validType(section):
+                return False
+
+        return True
+
+# ====== END: validType ========
+
+
+# ====== isNonTemplatedTypeValid ========
+
+def isNonTemplatedTypeValid(typeName):
+    return True
+
+# ====== END: isNonTemplatedTypeValid ========
+
+
+# ====== isTemplatedTypeValid ========
+
+def isTemplatedTypeValid(typeName):
+    return True
+
+# ====== END: isTemplatedTypeValid ========
+
+
+# ====== findOutsideBracketsAndCommas ========
 
 def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
     stack = []
@@ -128,19 +218,27 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
     # Again, assert that every opening bracket had a closing bracket
     assert(len(stack) == 0)
 
+# ====== END: findOutsideBracketsAndCommas ========
+
+
+# ====== removeCharsInRange ========
 
 def removeCharsInRange(string, lo, hi):
     assert(lo <= hi and lo >= 0 and hi < len(string))
     return string[0:lo] + string[hi + 1:]
 
+# ====== END: removeCharsInRange ========
+
+
+# ====== removeThisSpace ========
 
 def removeThisSpace(ch1, ch2):
-    return (ch1 in ('<', '>', ',')) or (ch2 in ('<', '>', ','))
+    return not (ch1.isalpha() and ch2.isalpha())
+
+# ====== END: removeThisSpace ========
 
 
-def isAcceptedType(typeName):
-    return typeName in ('int', 'std::vector', 'bool', 'char', 'std::map')
-
+# ====== stripWhitespace ========
 
 def stripWhitespace(string):
     # Strip the whitespace to the left and right
@@ -163,8 +261,7 @@ def stripWhitespace(string):
                 # and now has anything between it
                 if i - lastNonSpaceIndex > 1 and removeThisSpace(ch, lastNonSpaceCharacter):
                     # Must remove the middle bit
-                    string = removeCharsInRange(
-                        string, lastNonSpaceIndex + 1, i - 1)
+                    string = removeCharsInRange(string, lastNonSpaceIndex + 1, i - 1)
                     unnecessarySpaces = True
                     break
 
@@ -174,121 +271,164 @@ def stripWhitespace(string):
 
     return string
 
+import re
 
-def recursiveTest(typeName):
-    # Need a function to strip
-    typeName = stripWhitespace(typeName)
-    print(f"recursiveTest called on and filtered to: {typeName}")
+def stripWhitespace(string):
+    # Strip the whitespace to the left and right
+    string = string.lstrip(' ').rstrip(' ')
 
-    # Create required lists to store info
-    typeNameBracketLocs = []
-    typeNameCommaLocs = []
-    findOutsideBracketsAndCommas(
-        typeName, typeNameBracketLocs, typeNameCommaLocs)
+    # Return if empty
+    if string == '':
+        return ''
+    
+    # Now we have no leading/lagging spaces.
 
-    # If there are more than 1 angle brackets pair on the outermost level
-    # OR there are any commas outside angle brackets there's a problem
-    assert(len(typeNameBracketLocs) <= 1)
-    assert(len(typeNameCommaLocs) == 0)
+    # Find all matches to each regular expression
+    # p = re.compile(r"[A-Z]{4}[0-9]{4}")
+    # return bool(p.match(string))
 
-    if (len(typeNameBracketLocs) == 0):
-        # Not templated
-        print(f"{typeName} isn't templated, stop here")
-        return isAcceptedType(typeName)
-    else:
-        # Is templated
-        # Grab the locations of the outer brackets
-        (lo, hi) = typeNameBracketLocs[0]
-        strippedType = typeName[:lo]
+    f = open("name_dict.txt", "r")
+    fileContents = f.read()
+    # Find all instances of two closing brackets together
 
-        print(f"{strippedType} is templated, go deeper")
+    # Note - All closing brackets when they're in this form
+    # have exactly 1 space, unless they have type std::is_constructible
+    # as the outermost template?    
+    # std::is_constructible<std::allocator<char>>
+    # std::is_constructible<std::allocator<wchar_t>>
+    # std::is_constructible<std::allocator<char16_t>>
+    # std::is_constructible<std::allocator<char32_t>>
+    # Produces 1223 matches
+    # 16 are '>>'
+    # 1207 are '> >'
+    # Total of 1207 spaces
 
-        if not isAcceptedType(strippedType):
-            return False
+    # All ampersands fall into a few categories
+    # '&' - 604 and always have 1 space before
+    # '&&' - 224 and always have 1 space before
+    # '(&)' - 16 and always have 1 space before
+    # '*&' - 64 and always have 1 space before
+    # '*&&' - 112 and always have 1 space before
+    # Total of 1020 spaces
 
-        insideBrackets = typeName[lo + 1:hi]
+    # Always exactly 1 space before an *
+    # Total of 708 (new) spaces since some of these are getting double counted from '*&' and '*&&'
 
-        # Strip the commas between insideBrackets if there are any,
-        # E.g., if typeName = 'std::map<int, bool>'
-        # insideBrackets = 'int, bool'
-        # We want to separate it into 'int' and 'bool' before we go any deeper
-        insideBracketsBracketLocs = []
-        insideBracketsCommaLocs = []
-        findOutsideBracketsAndCommas(
-            insideBrackets, insideBracketsBracketLocs, insideBracketsCommaLocs)
+    # Always exactly 1 space after a ,
+    # Total of 3007 spaces
 
-        insideBracketsCommaLocs.append(len(insideBrackets))
-        prevComma = -1
-        for comma in insideBracketsCommaLocs:
-            # For each comma, get the substring between this comma and the last one
-            # and strip it for leading/lagging whitespace.
-            # Then, add it to the list of section
-            section = insideBrackets[prevComma + 1:comma]
-            prevComma = comma
+    # There are also 1031 matches when there are two word characters seperated by a space
+    # Ie, in regex it's of the form "\w \w"
 
-            # Recurse through each section unless it's a digit
-            # E.g., typeName = 'std::array<int, 3>'
-            # insideBrackets = 'int, 3'
-            # The first section = 'int', which we want to recurse on
-            # Second section = '3', which isn't a type so we don't want to recurse on
-            if not section.isdigit() and not recursiveTest(section):
-                return False
+    spaces = re.compile(r" \n")
+    matches = re.finditer(spaces, fileContents)
+    
+    # allSpacesIndexes = set()    
+    # spacesCounter = 0
+    # discardedSpaces = 0
+    # for match in allSpacesMatches:
+    #     lo = match.start()
+    #     allSpacesIndexes.add(lo)
+    #     spacesCounter += 1
+# 
+    # allUnaccountedSpaces = allSpacesIndexes
+# 
+    # allSpaceAmpersand = re.compile(r" &")
+    # allSpaceAmpersandMatches = re.finditer(allSpaceAmpersand, fileContents)
+    # for match in allSpaceAmpersandMatches:
+    #     lo = match.start()
+    #     allUnaccountedSpaces.discard(lo)
+    #     discardedSpaces += 1
+# 
+    # allSpaceAsterisk = re.compile(r" \*")
+    # allSpaceAsteriskMatches = re.finditer(allSpaceAsterisk, fileContents)
+    # for match in allSpaceAsteriskMatches:
+    #     lo = match.start()
+    #     allUnaccountedSpaces.discard(lo)
+    #     discardedSpaces += 1
+    # 
+    # allSpaceBracketsAmpersand = re.compile(r" (&)")
+    # allSpaceBracketsAmpersandMatches = re.finditer(allSpaceBracketsAmpersand, fileContents)
+    # for match in allSpaceBracketsAmpersandMatches:
+    #     lo = match.start()
+    #     allUnaccountedSpaces.discard(lo)
+    #     discardedSpaces += 1
+    # 
+    # allMultiWordTypes = re.compile(r"\w \w")
+    # allMultiWordTypesMatches = re.finditer(allMultiWordTypes, fileContents)
+    # for match in allMultiWordTypesMatches:
+    #     lo = match.start()
+    #     allUnaccountedSpaces.discard(lo + 1)
+    #     discardedSpaces += 1
+    # 
+    # allCommas = re.compile(r", ")
+    # allCommasMatches = re.finditer(allCommas, fileContents)
+    # for match in allCommasMatches:
+    #     lo = match.start()
+    #     allUnaccountedSpaces.discard(lo + 1)
+    #     discardedSpaces += 1
+    # 
+    # allAngles = re.compile(r"> >")
+    # allAnglesMatches = re.finditer(allAngles, fileContents)
+    # for match in allAnglesMatches:
+    #     lo = match.start()
+    #     allUnaccountedSpaces.discard(lo + 1)
+    #     discardedSpaces += 1
+    
+    counter = 0
+    for index in matches:
+        counter += 1
+        print(f"{counter}: [{fileContents[index - 1:index + 4]}]")
+    print(len(allSpacesIndexes))
+    print(f"There were {spacesCounter} matches and {discardedSpaces} discarded")
 
-        return True
-
-<<<<<<< HEAD
-# std::vector<long int,bool>
-# 'const wchar_t *'
-# 'char const (&)[44]'
-
-=======
->>>>>>> 2b5b019387850bed298cfbd618d6acf26292780e
+# ====== END: stripWhitespace ========
 
 if __name__ == '__main__':
     print('All types in int')
-    print(recursiveTest('int'))
+    print(validType('int'))
     print()
     print("--------------------------------")
     print()
 
     print('All types in std::vector<int>')
-    print(recursiveTest('std::vector<int>'))
+    print(validType('std::vector<int>'))
     print()
     print("--------------------------------")
     print()
 
     print('All types in std::map<std::vector<int>, bool>')
-    print(recursiveTest('std::map<std::vector<int>, bool>'))
+    print(validType('std::map<std::vector<int>, bool>'))
     print()
     print("--------------------------------")
     print()
 
     print('All types in std::map<std::vector<int>, std::pair<std::string, bool>>')
-    print(recursiveTest('std::map<std::vector<int>, std::pair<std::string, bool>>'))
+    print(validType('std::map<std::vector<int>, std::pair<std::string, bool>>'))
     print()
     print("--------------------------------")
     print()
 
     print('All types in std::array<int, 3>')
-    print(recursiveTest('std::array<int, 3>'))
+    print(validType('std::array<int, 3>'))
     print()
     print("--------------------------------")
     print()
 
     print('All types in   std::vector<   int  >   ')
-    print(recursiveTest('  std::vector<   int  >   '))
+    print(validType('  std::vector<   int  >   '))
     print()
     print("--------------------------------")
     print()
 
     print('All types in std::map < bool                          ,  char  >  ')
-    print(recursiveTest('std::map < bool                          ,  char  >  '))
+    print(validType('std::map < bool                          ,  char  >  '))
     print()
     print("--------------------------------")
     print()
 
     print('All types in std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>')
-    print(recursiveTest(
+    print(validType(
         'std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>'))
     print()
     print("--------------------------------")
