@@ -2515,8 +2515,6 @@ def fillAcceptedTypesList():
                 # JOEL: Is this the member function to use for sets?
                 all_types.append(full_name)
 
-            # ZELUN:MARK if full name
-
             # Only consider types
             if el.tag not in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
                 continue
@@ -2526,7 +2524,7 @@ def fillAcceptedTypesList():
                 print(f"  - {type_counter} types classified...")
 
             # To save a bit of time, construct class name dict once and pass to remaining checks
-            # class_name = classutils.getClassNameDict(el)
+            class_name = classutils.getClassNameDict(el)
 
             # JOEL: Come back to this???
             # Need to read it fully
@@ -2549,7 +2547,7 @@ def fillAcceptedTypesList():
             # Known class?
             #
             if isKnownClass(el, class_name=class_name):
-                new_known_classes.append(full_name)
+                all_types.append(full_name)
 
             # Skip incomplete types
             # TODO: incomplete test should be test in other tests
@@ -2561,19 +2559,19 @@ def fillAcceptedTypesList():
             # Fundamental type?
             #
             if isFundamental(el):
-                new_fundamental_types.append(full_name)
+                all_types.append(full_name)
 
             #
             # Std type?
             #
             if isStdType(el, class_name=class_name):
-                new_std_types.append(full_name)
+                all_types.append(full_name)
 
             #
             # Loaded type?
             #
             if isLoadedClass(el, byname=False, class_name=class_name):
-                new_loaded_classes.append(full_name)
+                all_types.append(full_name)
 
             #
             # Enumeration type?
@@ -2584,11 +2582,11 @@ def fillAcceptedTypesList():
                 # If the parent is a loaded class, add it
                 parent = '::'.join(getNamespaces(el, include_self=False))
                 if parent and parent in cfg.load_classes:
-                    new_enumeration_types.append(full_name)
+                    all_types.append(full_name)
 
                 # If it is a loaded enum, add it
                 if isLoadedEnum(el, enum_name=enum_name):
-                    new_enumeration_types.append(full_name)
+                    all_types.append(full_name)
 
     # Print final number of types classified
     print(f"  - {type_counter} types classified.")
