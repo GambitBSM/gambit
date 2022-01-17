@@ -260,6 +260,7 @@ def isStdType(el, class_name=None):
 
         elif 'name' in el.keys():
             namespaces_list = getNamespaces(el, include_self=True)
+            print(el.keys())
             if namespaces_list[0] == 'std':
                 is_std = True
 
@@ -2493,12 +2494,16 @@ def fillAcceptedTypesList():
     import modules.classutils as classutils
     import modules.enumutils as enumutils
 
+    import acceptedTesting
     # Sets to store type names
     fundamental_types = set()
     std_types = set()
     known_classes = set()
     enumeration_types = set()
     loaded_classes = set()
+
+    # ZELUN
+    all_accepted_types = set()
 
     # Keep track of how many types have been checked
     type_counter = 0
@@ -2507,121 +2512,126 @@ def fillAcceptedTypesList():
     #
     # Collect names of all fundamental, std, enumeration, known and loaded types that are acceptable
     #
-    for xml_file in gb.all_id_dict.keys():
+    with open("name_type.txt", "a") as f:
+        for xml_file in gb.all_id_dict.keys():
 
-        # Reset some variables for each new xml file
-        new_fundamental_types = []
-        new_std_types = []
-        new_known_classes = []
-        new_enumeration_types = []
-        new_loaded_classes = []
+            # Reset some variables for each new xml file
+            new_fundamental_types = []
+            new_std_types = []
+            new_known_classes = []
+            new_enumeration_types = []
+            new_loaded_classes = []
 
-        initGlobalXMLdicts(xml_file)
-
-        #
-        # Loop over all named elements in the xml file
-        #
-
-        for full_name, el in gb.name_dict.items():
-            # ZELUN:MARK if full name
-
-            # Only consider types
-            if el.tag not in ['Class', 'Struct', 'FundamentalType', 'Enumeration']:
-                continue
-
-            # ZELUN:MARK
-            if full_name == "std::vector<long, std::allocator<long> >" or full_name == "std::vector<int, std::allocator<int> >":
-                print(f"stop at this line")
-
-            with open('name_dict.txt', 'a') as reader:
-                print(f"{full_name}", file=reader)
-
-            type_counter += 1
-            if type_counter % 500 == 0:
-                print('  - %i types classified...' % (type_counter))
-
-            # To save a bit of time, construct class name dict once and pass to remaining checks
-            class_name = classutils.getClassNameDict(el)
-
-            # Skip problematic types
-            if isProblematicType(el):
-                print(f"{full_name} isProblematicType")
-                continue
-
-            # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it
-            # starts with 'std', which is not enough if the template args are not valid
-            # If template, check the arguments are accepted
-            if not isTemplateWithValidArgs(el, class_name=class_name):
-                print(f"{full_name} isTemplateWithValidArgs")
-                continue
-
-            # std::vector<int> -> std type not known not fundamental pass the test of std
-            # std::vector<loadedclasess> should be allowed
+            initGlobalXMLdicts(xml_file)
 
             #
-            # Known class?
+            # Loop over all named elements in the xml file
             #
-            is_known_class = isKnownClass(el, class_name=class_name)
-            if is_known_class:
-                print(f"{full_name} isKnownClass")
-                new_known_classes.append(full_name)
 
-            # Skip incomplete types
-            # TODO: incomplete test should be test in other tests
-            # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
-                # print(f"{full_name} incomplete")
-                # continue
+            for full_name, el in gb.name_dict.items():
+                # ZELUN:MARK if full name
+
+                # Only consider types
+                if el.tag not in ['Class', 'Struct', 'FundamentalType', 'Enumeration']:
+                    continue
+
+                # ZELUN:MARK
+                # if full_name in ('long', 'long long', 'short', 'short short', 'unsigned long', 'unsigned short', "long unsigned int"):
+                    # print(f"stop at this line")
+                if full_name == "std::vector<long, std::allocator<long> >" or full_name == "std::vector<int, std::allocator<int> >":
+                    print(f"stop at this line")
+
+                type_counter += 1
+                if type_counter % 500 == 0:
+                    print('  - %i types classified...' % (type_counter))
+
+                # To save a bit of time, construct class name dict once and pass to remaining checks
+                class_name = classutils.getClassNameDict(el)
+
+                # ZELUN
+                # Rewritten Testing Logic for accepted types
+
+                # Skip problematic types
+                if isProblematicType(el):
+                    print(f"{full_name} isProblematicType", file=f)
+                    continue
+
+                # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it
+                # starts with 'std', which is not enough if the template args are not valid
+                # If template, check the arguments are accepted
+                if not isTemplateWithValidArgs(el, class_name=class_name):
+                    print(f"{full_name} isTemplateWithValidArgs", file=f)
+                    continue
+
+                # std::vector<int> -> std type not known not fundamental pass the test of std
+                # std::vector<loadedclasess> should be allowed
+
+                #
+                # Known class?
+                #
+                is_known_class = isKnownClass(el, class_name=class_name)
+                if is_known_class:
+                    print(f"{full_name} isKnownClass", file=f)
+                    new_known_classes.append(full_name)
+
+                # Skip incomplete types
+                # TODO: incomplete test should be test in other tests
+                # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
+                    # print(f"{full_name} incomplete")
+                    # continue
+
+                #
+                # Fundamental type?
+                #
+                is_fundamental = isFundamental(el)
+                if is_fundamental:
+                    print(f"{full_name} is_fundamental", file=f)
+                    new_fundamental_types.append(full_name)
+
+                # Std type?
+                #
+                is_std_type = isStdType(el, class_name=class_name)
+                if is_std_type:
+                    print(f"{full_name} is_std_type", file=f)
+                    new_std_types.append(full_name)
+
+                #
+                # Loaded type?
+                #
+                is_loaded_class = isLoadedClass(
+                    el, byname=False, class_name=class_name)
+                if is_loaded_class:
+                    print(f"{full_name} is_loaded_class", file=f)
+                    new_loaded_classes.append(full_name)
+
+                #
+                # Enumeration type?
+                #
+                is_enumeration = isEnumeration(el)
+                if is_enumeration:
+
+                    print(f"{full_name} is_enumeration", file=f)
+                    enum_name = enumutils.getEnumNameDict(el)
+
+                    # If the parent is a loaded class, add it
+                    parent = '::'.join(getNamespaces(el, include_self=False))
+                    if parent and parent in cfg.load_classes:
+                        new_enumeration_types.append(full_name)
+
+                    # If it is a loaded enum, add it
+                    if isLoadedEnum(el, enum_name=enum_name):
+                        new_enumeration_types.append(full_name)
 
             #
-            # Fundamental type?
+            # Update sets of types
             #
-            is_fundamental = isFundamental(el)
-            if is_fundamental:
-                print(f"{full_name} is_fundamental")
-                new_fundamental_types.append(full_name)
-
-            # Std type?
-            #
-            is_std_type = isStdType(el, class_name=class_name)
-            if is_std_type:
-                print(f"{full_name} is_std_type")
-                new_std_types.append(full_name)
-
-            #
-            # Loaded type?
-            #
-            is_loaded_class = isLoadedClass(
-                el, byname=False, class_name=class_name)
-            if is_loaded_class:
-                print(f"{full_name} is_loaded_class")
-                new_loaded_classes.append(full_name)
-
-            #
-            # Enumeration type?
-            #
-            is_enumeration = isEnumeration(el)
-            if is_enumeration:
-
-                print(f"{full_name} is_enumeration")
-                enum_name = enumutils.getEnumNameDict(el)
-
-                # If the parent is a loaded class, add it
-                parent = '::'.join(getNamespaces(el, include_self=False))
-                if parent and parent in cfg.load_classes:
-                    new_enumeration_types.append(full_name)
-
-                # If it is a loaded enum, add it
-                if isLoadedEnum(el, enum_name=enum_name):
-                    new_enumeration_types.append(full_name)
-
-        #
-        # Update sets of types
-        #
-        fundamental_types = fundamental_types.union(set(new_fundamental_types))
-        std_types = std_types.union(set(new_std_types))
-        known_classes = known_classes.union(set(new_known_classes))
-        enumeration_types = enumeration_types.union(set(new_enumeration_types))
-        loaded_classes = loaded_classes.union(set(new_loaded_classes))
+            fundamental_types = fundamental_types.union(
+                set(new_fundamental_types))
+            std_types = std_types.union(set(new_std_types))
+            known_classes = known_classes.union(set(new_known_classes))
+            enumeration_types = enumeration_types.union(
+                set(new_enumeration_types))
+            loaded_classes = loaded_classes.union(set(new_loaded_classes))
 
     # Print final number of types classified
     print('  - %i types classified.' % (type_counter))

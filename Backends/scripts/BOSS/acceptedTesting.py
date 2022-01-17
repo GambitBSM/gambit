@@ -95,12 +95,15 @@ def isLoadedClass(input_type, byname=False, class_name=None):
     return is_loaded_class
 """
 
+
 def isEnumeration(el):
     return el.tag == 'Enumeration'
 
+
 def isFundamental(el):
     has_fundamental_tag = (el.tag == 'FundamentalType')
-    is_exception = (el.attrib['name'] in ('long', 'long long', 'short', 'short short', 'unsigned long', 'unsigned short'))
+    is_exception = (el.attrib['name'] in (
+        'long', 'long long', 'short', 'short short', 'unsigned long', 'unsigned short'))
     return has_fundamental_tag or is_exception
 
 
@@ -236,13 +239,6 @@ def recursiveTest(typeName):
 
         return True
 
-<<<<<<< HEAD
-# std::vector<long int,bool>
-# 'const wchar_t *'
-# 'char const (&)[44]'
-
-=======
->>>>>>> 2b5b019387850bed298cfbd618d6acf26292780e
 
 if __name__ == '__main__':
     print('All types in int')
