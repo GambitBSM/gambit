@@ -4,6 +4,20 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
+#include <map>
+typedef int* int2;
+typedef int2** int3;
+typedef int3& int4;
+typedef int4&& int5;
+typedef int Data;
+
+struct Node {
+    Data d;
+    struct Node* next;
+};
+
+typedef struct Node* List_2;
+
 
 // A dummy class
 class ClassOne
@@ -12,7 +26,13 @@ class ClassOne
 public:
 
   int i;
+  int& i_2 = i;
   double d;
+  long int li;
+  long li_1;
+  unsigned long li_2;
+  short short li_3;
+  std::map<int, std::vector<unsigned long int>> testing_Var;
   
   // Decalring it as a member variable
 //   std::vector<clock_t> my_vec_clock;

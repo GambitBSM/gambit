@@ -17,6 +17,7 @@ from operator import itemgetter
 import os
 import copy
 
+
 import modules.active_cfg as active_cfg
 exec("import configs." + active_cfg.module_name + " as cfg")
 
@@ -2489,9 +2490,9 @@ def pathSplitAll(path):
 # ====== fillAcceptedTypesList ========
 
 def fillAcceptedTypesList():
-
     import modules.classutils as classutils
     import modules.enumutils as enumutils
+    import sys
 
     # Set to store type names
     all_types = set()
@@ -2499,16 +2500,36 @@ def fillAcceptedTypesList():
     # Keep track of how many types have been checked
     type_counter = 0
     print()
+    # for xml_file in gb.all_id_dict.keys():
+    # print(f"XML file {xml_file}")
+    # initGlobalXMLdicts(xml_file)
+    # for keys in gb.typedef_dict.keys():
+    #     print(keys)
+    #     print(
+    #         f" el name {gb.final_typedef_dict[keys].get('name')}")
+    # print(gb.all_name_dict[keys])
+    # print(f" final {gb.final_typedef_dict}")
+    # print(f" normal {gb.typedef_dict}")
+    # some_dict = OrderedDict()
+    # some_dict['a'] = 'Something'
+    # print(some_dict)
 
     #
     # Collect names of all fundamental, std, enumeration, known and loaded types that are acceptable
     #
     for xml_file in gb.all_id_dict.keys():
         initGlobalXMLdicts(xml_file)
+        print(gb.final_typedef_dict)
+        # print(gb.final_typedef_dict['int3'])
+        try:
+            print(f" int3 {gb.all_name_dict[xml_file]['int3']}")
+        except:
+            print(gb.all_name_dict)
 
         #
         # Loop over all named elements in the xml file
         #
+        continue
 
         for full_name, el in gb.name_dict.items():
             if validType(full_name):
@@ -2590,7 +2611,7 @@ def fillAcceptedTypesList():
 
     # Print final number of types classified
     print(f"  - {type_counter} types classified.")
-
+    sys.exit()
     # Fill global list
     gb.accepted_types = list(all_types)
 
@@ -2660,18 +2681,56 @@ def validType(typeName):
 # ====== END: validType ========
 
 
+# ====== isAcceptedEnum ========
+
+def isAcceptedEnum(el):
+    import modules.enumutils as enumutils
+
+    if isEnumeration(el):
+        enum_name = enumutils.getEnumNameDict(el)
+
+        parent = '::'.join(getNamespaces(el, include_self=False))
+        # If it is a loaded enum, add it
+        # If the parent is a loaded class, add it
+        if (parent and parent in cfg.load_classes) or isLoadedEnum(el, enum_name=enum_name):
+            return True
+    return False
+
+
+# ====== END: isAcceptedEnum ========
+
+
 # ====== isNonTemplatedTypeValid ========
 
 def isNonTemplatedTypeValid(typeName):
-    return True
+    import modules.classutils as classutils
+    # Here we need checks of
+    # stdtype,
+    # Fundamental, StdType, KnownClass, LoadedClass or LoadedEnum
+    try:
+        el = gb.all_name_dict[typeName]
+        class_name = classutils.getClassNameDict(el)
+    except:
+        # if std at the start or if the string correpsond to a fundamental type
+        # Covert the typedef to the fundamental type
+        pass
+    return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
 
 # ====== END: isNonTemplatedTypeValid ========
 
 
 # ====== isTemplatedTypeValid ========
 
+
 def isTemplatedTypeValid(typeName):
-    return (len(typeName) >= 5) and (typeName[:5] == 'std::')
+    import modules.classutils as classutils
+    # Here we need checks of
+    # stdtype,
+    # Fundamental, StdType, KnownClass, LoadedClass or LoadedEnum
+    el = gb.all_name_dict[typeName]
+    class_name = classutils.getClassNameDict(el)
+    return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
+    # return (len(typeName) >= 5) and (typeName[:5] == 'std::')
 
 # ====== END: isTemplatedTypeValid ========
 
@@ -3019,7 +3078,6 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
             # Only accept native typedefs:
             if isNative(el):
-
                 typedef_name = el.get('name')
 
                 type_dict = findType(el)
@@ -3027,15 +3085,20 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
                 # If underlying type is a fundamental or standard type, accept it right away
                 if isFundamental(type_el) or isStdType(type_el):
+                    # Zelun: Modified to see if it shows the end level type in this dict \
                     gb.typedef_dict[typedef_name] = el
+                    gb.final_typedef_dict[typedef_name] = type_el
 
                 # If underlying type is a class/struct, check if it's acceptable
                 elif type_el.tag in ['Class', 'Struct']:
 
                     type_name = classutils.getClassNameDict(type_el)
 
+                    print("debug line ")
                     if type_name['long_templ'] in cfg.load_classes:
                         gb.typedef_dict[typedef_name] = el
+                        # Zelun: Modified to see if it shows the end level type in this dict \
+                        gb.final_typedef_dict[typedef_name] = type_el
 
                 # If neither fundamental or class/struct, ignore it.
                 else:
