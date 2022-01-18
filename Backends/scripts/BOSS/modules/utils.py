@@ -2715,7 +2715,6 @@ def isNonTemplatedTypeValid(typeName, xml_file):
         # Check if typeName is already known
         el = gb.all_name_dict[xml_file][typeName]
         if (el.tag == 'Typedef'):
-            pass
             # getting the endtype el
             el = gb.final_typedef_dict[typeName]
 
