@@ -2641,15 +2641,14 @@ def validType(typeName, xml_file):
 
     if (numBracketPairs == 0):
         # Not templated
-        return isNonTemplatedTypeValid(typeName, xml_file)
+        return isTypeValid(typeName, xml_file)
     else:
         # Is templated
         # Grab the locations of the outer brackets
         (lo, hi) = typeNameBracketLocs[0]
         strippedType = typeName[:lo]
 
-        #  Zelun: double check on whether to use isNonTemplatedTypeValid or isTemplatedTypeValid
-        if not isNonTemplatedTypeValid(strippedType, xml_file):
+        if not isTypeValid(strippedType, xml_file):
             return False
 
         insideBrackets = typeName[lo + 1:hi]
@@ -2704,9 +2703,9 @@ def isAcceptedEnum(el):
 # ====== END: isAcceptedEnum ========
 
 
-# ====== isNonTemplatedTypeValid ========
+# ====== isTypeValid ========
 
-def isNonTemplatedTypeValid(typeName, xml_file):
+def isTypeValid(typeName, xml_file):
     import modules.classutils as classutils
     # Here we need checks of
     # stdtype,
@@ -2714,38 +2713,20 @@ def isNonTemplatedTypeValid(typeName, xml_file):
     try:
         # Check if typeName is already known
         el = gb.all_name_dict[xml_file][typeName]
-        if (el.tag == 'Typedef'):
+        if el.tag == 'Typedef':
             # getting the endtype el
             el = gb.final_typedef_dict[typeName]
 
-            class_name = classutils.getClassNameDict(el)
-        elif el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
+        if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
 
         return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
 
     except:
-        # if std at the start or if the string correpsond to a fundamental type
-        # Covert the typedef to the fundamental type
-        pass
+        # If std at the start or if the string corresponds to a fundamental type that we know
+        return (len(typeName) > 5 and typeName[:5] == 'std::') or (typeName in gb.fundamental_equiv_list)
 
-# ====== END: isNonTemplatedTypeValid ========
-
-
-# ====== isTemplatedTypeValid ========
-
-
-def isTemplatedTypeValid(typeName):
-    import modules.classutils as classutils
-    # Here we need checks of
-    # stdtype,
-    # Fundamental, StdType, KnownClass, LoadedClass or LoadedEnum
-    el = gb.all_name_dict[typeName]
-    class_name = classutils.getClassNameDict(el)
-    return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
-    # return (len(typeName) >= 5) and (typeName[:5] == 'std::')
-
-# ====== END: isTemplatedTypeValid ========
+# ====== END: isTypeValid ========
 
 
 # ====== findOutsideBracketsAndCommas ========
