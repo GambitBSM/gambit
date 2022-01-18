@@ -2519,12 +2519,12 @@ def fillAcceptedTypesList():
     #
     for xml_file in gb.all_id_dict.keys():
         initGlobalXMLdicts(xml_file)
-        print(gb.final_typedef_dict)
+        # print(gb.final_typedef_dict)
         # print(gb.final_typedef_dict['int3'])
-        try:
-            print(f" int3 {gb.all_name_dict[xml_file]['int3']}")
-        except:
-            print(gb.all_name_dict)
+        # try:
+        #     print(f" int3 {gb.all_name_dict[xml_file]['int3']}")
+        # except:
+        #     print(gb.all_name_dict)
 
         #
         # Loop over all named elements in the xml file
@@ -2633,7 +2633,7 @@ def validType(typeName, xml_file):
     # OR there are any commas outside angle brackets there's a problem
     numBracketPairs = len(typeNameBracketLocs)
     if (numBracketPairs > 1 or len(typeNameCommaLocs) != 0):
-        print(f"problematic {typeName} \n")
+        print(f"Problematic: {typeName}\n")
         return False
     # assert(numBracketPairs <= 1)
 
@@ -2676,7 +2676,7 @@ def validType(typeName, xml_file):
             # insideBrackets = 'int, 3'
             # The first section = 'int', which we want to recurse on
             # Second section = '3', which isn't a type so we don't want to recurse on
-            if not section.isdigit() and not validType(section):
+            if not section.isdigit() and not validType(section, xml_file):
                 return False
 
         return True
@@ -2743,7 +2743,7 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
             # assert that there's at least one corresponding opening bracket
             # assert(len(stack) != 0)
             if (len(stack) == 0):
-                print(f"problematic {string} \n")
+                print(f"Problematic: {string}\n")
                 return False
 
             # Remove corresponding opening bracket and add it to pair
@@ -2758,7 +2758,7 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
 
     # Again, assert that every opening bracket had a closing bracket
     if (len(stack) != 0):
-        print(f"problematic {string} \n")
+        print(f"Problematic: {string}\n")
     # assert(len(stack) == 0)
 
 
