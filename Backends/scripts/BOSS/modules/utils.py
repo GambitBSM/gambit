@@ -2529,12 +2529,12 @@ def fillAcceptedTypesList():
         #
         # Loop over all named elements in the xml file
         #
-        continue
 
         for full_name, el in gb.name_dict.items():
-            if validType(full_name):
+            # print(f"Full_name {full_name}")
+            if validType(full_name, xml_file):
                 # JOEL: Is this the member function to use for sets?
-                all_types.append(full_name)
+                all_types.add(full_name)
 
             # Only consider types
             if el.tag not in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
@@ -2567,51 +2567,50 @@ def fillAcceptedTypesList():
             #
             # Known class?
             #
-            if isKnownClass(el, class_name=class_name):
-                all_types.append(full_name)
+            # if isKnownClass(el, class_name=class_name):
+            #     all_types.append(full_name)
 
             # Skip incomplete types
             # TODO: incomplete test should be test in other tests
             # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
-                # print(f"{full_name} incomplete")
-                # continue
+            # print(f"{full_name} incomplete")
+            # continue
 
             #
             # Fundamental type?
             #
-            if isFundamental(el):
-                all_types.append(full_name)
+            # if isFundamental(el):
+            #     all_types.append(full_name)
 
             #
             # Std type?
             #
-            if isStdType(el, class_name=class_name):
-                all_types.append(full_name)
+            # if isStdType(el, class_name=class_name):
+            #     all_types.append(full_name)
 
             #
             # Loaded type?
             #
-            if isLoadedClass(el, byname=False, class_name=class_name):
-                all_types.append(full_name)
+            # if isLoadedClass(el, byname=False, class_name=class_name):
+            #     all_types.append(full_name)
 
             #
             # Enumeration type?
             #
-            if isEnumeration(el):
-                enum_name = enumutils.getEnumNameDict(el)
+            # if isEnumeration(el):
+            #     enum_name = enumutils.getEnumNameDict(el)
 
-                # If the parent is a loaded class, add it
-                parent = '::'.join(getNamespaces(el, include_self=False))
-                if parent and parent in cfg.load_classes:
-                    all_types.append(full_name)
+            #     # If the parent is a loaded class, add it
+            #     parent = '::'.join(getNamespaces(el, include_self=False))
+            #     if parent and parent in cfg.load_classes:
+            #         all_types.append(full_name)
 
-                # If it is a loaded enum, add it
-                if isLoadedEnum(el, enum_name=enum_name):
-                    all_types.append(full_name)
+            #     # If it is a loaded enum, add it
+            #     if isLoadedEnum(el, enum_name=enum_name):
+            #         all_types.append(full_name)
 
     # Print final number of types classified
     print(f"  - {type_counter} types classified.")
-    sys.exit()
     # Fill global list
     gb.accepted_types = list(all_types)
 
@@ -2620,7 +2619,7 @@ def fillAcceptedTypesList():
 
 # ====== validType ========
 
-def validType(typeName):
+def validType(typeName, xml_file):
     # Need a function to strip
     typeName = typeName.strip()
 
@@ -2633,19 +2632,24 @@ def validType(typeName):
     # If there are more than 1 angle brackets pair on the outermost level
     # OR there are any commas outside angle brackets there's a problem
     numBracketPairs = len(typeNameBracketLocs)
-    assert(numBracketPairs <= 1)
-    assert(len(typeNameCommaLocs) == 0)
+    if (numBracketPairs > 1 or len(typeNameCommaLocs) != 0):
+        print(f"problematic {typeName} \n")
+        return False
+    # assert(numBracketPairs <= 1)
+
+    # assert(len(typeNameCommaLocs) == 0)
 
     if (numBracketPairs == 0):
         # Not templated
-        return isNonTemplatedTypeValid(typeName)
+        return isNonTemplatedTypeValid(typeName, xml_file)
     else:
         # Is templated
         # Grab the locations of the outer brackets
         (lo, hi) = typeNameBracketLocs[0]
         strippedType = typeName[:lo]
 
-        if not isTemplatedTypeValid(strippedType):
+        #  Zelun: double check on whether to use isNonTemplatedTypeValid or isTemplatedTypeValid
+        if not isNonTemplatedTypeValid(strippedType, xml_file):
             return False
 
         insideBrackets = typeName[lo + 1:hi]
@@ -2702,19 +2706,29 @@ def isAcceptedEnum(el):
 
 # ====== isNonTemplatedTypeValid ========
 
-def isNonTemplatedTypeValid(typeName):
+def isNonTemplatedTypeValid(typeName, xml_file):
     import modules.classutils as classutils
     # Here we need checks of
     # stdtype,
     # Fundamental, StdType, KnownClass, LoadedClass or LoadedEnum
     try:
-        el = gb.all_name_dict[typeName]
-        class_name = classutils.getClassNameDict(el)
+        # Check if typeName is already known
+        el = gb.all_name_dict[xml_file][typeName]
+        if (el.tag == 'Typedef'):
+            pass
+            # getting the endtype el
+            el = gb.final_typedef_dict[typeName]
+
+            class_name = classutils.getClassNameDict(el)
+        elif el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
+            class_name = classutils.getClassNameDict(el)
+
+        return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
+
     except:
         # if std at the start or if the string correpsond to a fundamental type
         # Covert the typedef to the fundamental type
         pass
-    return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
 
 # ====== END: isNonTemplatedTypeValid ========
 
@@ -2747,11 +2761,15 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
         elif ch == '>':
             # If it's a closing bracket,
             # assert that there's at least one corresponding opening bracket
-            assert(len(stack) != 0)
+            # assert(len(stack) != 0)
+            if (len(stack) == 0):
+                print(f"problematic {string} \n")
+                return False
 
             # Remove corresponding opening bracket and add it to pair
             # of brackets if it's the outermost bracket
             top = stack.pop()
+
             if len(stack) == 0:
                 bracketLocs.append((top, i))
         elif ch == ',' and len(stack) == 0:
@@ -2759,7 +2777,10 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
             commaLocs.append(i)
 
     # Again, assert that every opening bracket had a closing bracket
-    assert(len(stack) == 0)
+    if (len(stack) != 0):
+        print(f"problematic {string} \n")
+    # assert(len(stack) == 0)
+
 
 # ====== END: findOutsideBracketsAndCommas ========
 

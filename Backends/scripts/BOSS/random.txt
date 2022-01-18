@@ -16,6 +16,9 @@ problematic __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>::rebin
 problematic __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>::rebind<char32_t> 
 problematic __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > 
 problematic __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > > 
+problematic __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long> 
+
+
 
 
 problematic std::basic_istream<char, std::char_traits<char> >::>> 
@@ -25,11 +28,6 @@ problematic std::basic_ostream<wchar_t, std::char_traits<wchar_t> >::<<
 problematic std::error_category::< 
 problematic std::reverse_iterator<std::_Bit_const_iterator>::-> 
 problematic std::reverse_iterator<std::_Bit_iterator>::-> 
-
-
-
-
-problematic __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long> 
 problematic __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >::-> 
 problematic __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >::-> 
 problematic __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >::-> 
@@ -40,8 +38,15 @@ problematic __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t,
 problematic __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >::-> 
 problematic __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >::-> 
 problematic __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >::-> 
+
+
+
+# Huge long name space problem at the rebind
 problematic __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::other 
 problematic __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::other 
+
+
+
 problematic std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>::_Base_key_compare 
 problematic std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>::_Rb_tree_impl 
 problematic __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long>::other 
@@ -125,3 +130,9 @@ problematic __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned lo
 problematic std::>= 
 problematic std::<= 
 problematic std::> 
+
+
+
+
+std::vector<int>::otherstuff 
+#The otherstuff bit here would be ignored
