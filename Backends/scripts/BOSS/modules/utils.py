@@ -2716,7 +2716,7 @@ def isTypeValid(typeName, xml_file):
         if el.tag == 'Typedef':
             # getting the endtype el
             el = gb.final_typedef_dict[typeName]
-        
+
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
 
