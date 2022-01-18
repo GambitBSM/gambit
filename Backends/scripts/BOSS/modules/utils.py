@@ -2714,21 +2714,18 @@ def isNonTemplatedTypeValid(typeName, xml_file):
     try:
         # Check if typeName is already known
         el = gb.all_name_dict[xml_file][typeName]
-        if (el.tag == 'Typedef'):
-            pass
+        if el.tag == 'Typedef':
             # getting the endtype el
             el = gb.final_typedef_dict[typeName]
-
-            class_name = classutils.getClassNameDict(el)
-        elif el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
+        
+        if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
 
         return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
 
     except:
-        # if std at the start or if the string correpsond to a fundamental type
-        # Covert the typedef to the fundamental type
-        pass
+        # If std at the start or if the string corresponds to a fundamental type that we know
+        return (len(typeName) > 5 and typeName[:5] == 'std::') or (typeName in gb.fundamental_equiv_list)
 
 # ====== END: isNonTemplatedTypeValid ========
 
