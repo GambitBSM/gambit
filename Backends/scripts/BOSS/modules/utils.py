@@ -2542,7 +2542,7 @@ def fillAcceptedTypesList():
                     print(f"  - {type_counter} types classified...")
             elif el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
                 with open("nonAcceptedList.txt", "a") as f:
-                    print(f"{full_name}", file=f)
+                    print(f"{full_name}\n\n", file=f)
                 # To save a bit of time, construct class name dict once and pass to remaining checks
                 # class_name = classutils.getClassNameDict(el)
 
@@ -2684,6 +2684,7 @@ def validType(typeName, xml_file):
             # insideBrackets = 'int, 3'
             # The first section = 'int', which we want to recurse on
             # Second section = '3', which isn't a type so we don't want to recurse on
+            section = section.strip()
             if not (section.isdigit() or section == 'false' or section == 'true') and not validType(section, xml_file):
                 return False
 
@@ -2729,19 +2730,31 @@ def isTypeValid(typeName, xml_file):
         # Check if we can accept if based on the element and class name
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
-            return isFundamental(el) or\
+            return_bool = isFundamental(el) or\
             isStdType(el, class_name=class_name) or\
             isKnownClass(el, class_name=class_name) or\
             isLoadedClass(el,  byname=False, class_name=class_name) or\
             isAcceptedEnum(el)
+            if not return_bool:
+                with open("nonAcceptedList.txt", "a") as f:
+                    print(f"Not of any of the 5 types {typeName}", file=f)
+
+            return return_bool
         else:
             # We can't accept, it's not a type!
+            with open("nonAcceptedList.txt", "a") as f:
+                print(f"Not of class and blah {typeName}", file=f)
             return False
 
     except:
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
-        return (len(trimmed_type_name) > 5 and trimmed_type_name[:5] == 'std::') or (trimmed_type_name in gb.fundamental_equiv_list)
+        return_bool = (len(trimmed_type_name) > 5 and trimmed_type_name[:5] == 'std::') or \
+            (trimmed_type_name in gb.fundamental_equiv_list)
+        if not return_bool:
+            with open("nonAcceptedList.txt", "a") as f:
+                print(f"no corresponding element not std not funda {typeName}", file=f)
+        return return_bool
 
 # ====== END: isTypeValid ========
 
