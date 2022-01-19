@@ -2531,6 +2531,8 @@ def fillAcceptedTypesList():
         #
 
         for full_name, el in gb.name_dict.items():
+            if full_name == "__gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>":
+                print("stop here")
             if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration') and validType(full_name, xml_file):
                 # JOEL: Is this the member function to use for sets?
                 all_types.add(full_name)
@@ -2538,7 +2540,9 @@ def fillAcceptedTypesList():
                 type_counter += 1
                 if type_counter % 500 == 0:
                     print(f"  - {type_counter} types classified...")
-
+            elif el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
+                with open("nonAcceptedList.txt", "a") as f:
+                    print(f"{full_name}", file=f)
                 # To save a bit of time, construct class name dict once and pass to remaining checks
                 # class_name = classutils.getClassNameDict(el)
 
@@ -2603,7 +2607,7 @@ def fillAcceptedTypesList():
                 #     # If it is a loaded enum, add it
                 #     if isLoadedEnum(el, enum_name=enum_name):
                 #         all_types.append(full_name)
-
+            
     # Print final number of types classified
     print(f"  - {type_counter} types classified.")
     # Fill global list
@@ -2726,10 +2730,10 @@ def isTypeValid(typeName, xml_file):
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
             return isFundamental(el) or\
-                isStdType(el, class_name=class_name) or\
-                isKnownClass(el, class_name=class_name) or\
-                isLoadedClass(el,  byname=False, class_name=class_name) or\
-                isAcceptedEnum(el)
+            isStdType(el, class_name=class_name) or\
+            isKnownClass(el, class_name=class_name) or\
+            isLoadedClass(el,  byname=False, class_name=class_name) or\
+            isAcceptedEnum(el)
         else:
             # We can't accept, it's not a type!
             return False
