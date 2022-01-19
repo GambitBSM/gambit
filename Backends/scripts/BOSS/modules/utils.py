@@ -2531,85 +2531,78 @@ def fillAcceptedTypesList():
         #
 
         for full_name, el in gb.name_dict.items():
-            # print(f"Full_name {full_name}")
-            if validType(full_name, xml_file):
+            if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration') and validType(full_name, xml_file):
                 # JOEL: Is this the member function to use for sets?
                 all_types.add(full_name)
-            else:
-                with open("./debugging.txt", "a") as f:
-                    print(full_name, file=f)
-            # Only consider types
-            if el.tag not in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
-                continue
 
-            type_counter += 1
-            if type_counter % 500 == 0:
-                print(f"  - {type_counter} types classified...")
+                type_counter += 1
+                if type_counter % 500 == 0:
+                    print(f"  - {type_counter} types classified...")
 
-            # To save a bit of time, construct class name dict once and pass to remaining checks
-            class_name = classutils.getClassNameDict(el)
+                # To save a bit of time, construct class name dict once and pass to remaining checks
+                # class_name = classutils.getClassNameDict(el)
 
-            # JOEL: Come back to this???
-            # Need to read it fully
+                # JOEL: Come back to this???
+                # Need to read it fully
 
-            # Skip problematic types
+                # Skip problematic types
 
-            # JOEL: Commented out isProblematicType - as discussed in meeting
-            # if isProblematicType(el):
-            #     continue
+                # JOEL: Commented out isProblematicType - as discussed in meeting
+                # if isProblematicType(el):
+                #     continue
 
-            # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it
-            # starts with 'std', which is not enough if the template args are not valid
-            # If template, check the arguments are accepted
+                # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it
+                # starts with 'std', which is not enough if the template args are not valid
+                # If template, check the arguments are accepted
 
-            # JOEL: Commented out isTemplateWithValidArgs - as discussed in meeting
-            # if not isTemplateWithValidArgs(el, class_name=class_name):
-            #     continue
+                # JOEL: Commented out isTemplateWithValidArgs - as discussed in meeting
+                # if not isTemplateWithValidArgs(el, class_name=class_name):
+                #     continue
 
-            #
-            # Known class?
-            #
-            # if isKnownClass(el, class_name=class_name):
-            #     all_types.append(full_name)
+                #
+                # Known class?
+                #
+                # if isKnownClass(el, class_name=class_name):
+                #     all_types.append(full_name)
 
-            # Skip incomplete types
-            # TODO: incomplete test should be test in other tests
-            # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
-            # print(f"{full_name} incomplete")
-            # continue
+                # Skip incomplete types
+                # TODO: incomplete test should be test in other tests
+                # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
+                # print(f"{full_name} incomplete")
+                # continue
 
-            #
-            # Fundamental type?
-            #
-            # if isFundamental(el):
-            #     all_types.append(full_name)
+                #
+                # Fundamental type?
+                #
+                # if isFundamental(el):
+                #     all_types.append(full_name)
 
-            #
-            # Std type?
-            #
-            # if isStdType(el, class_name=class_name):
-            #     all_types.append(full_name)
+                #
+                # Std type?
+                #
+                # if isStdType(el, class_name=class_name):
+                #     all_types.append(full_name)
 
-            #
-            # Loaded type?
-            #
-            # if isLoadedClass(el, byname=False, class_name=class_name):
-            #     all_types.append(full_name)
+                #
+                # Loaded type?
+                #
+                # if isLoadedClass(el, byname=False, class_name=class_name):
+                #     all_types.append(full_name)
 
-            #
-            # Enumeration type?
-            #
-            # if isEnumeration(el):
-            #     enum_name = enumutils.getEnumNameDict(el)
+                #
+                # Enumeration type?
+                #
+                # if isEnumeration(el):
+                #     enum_name = enumutils.getEnumNameDict(el)
 
-            #     # If the parent is a loaded class, add it
-            #     parent = '::'.join(getNamespaces(el, include_self=False))
-            #     if parent and parent in cfg.load_classes:
-            #         all_types.append(full_name)
+                #     # If the parent is a loaded class, add it
+                #     parent = '::'.join(getNamespaces(el, include_self=False))
+                #     if parent and parent in cfg.load_classes:
+                #         all_types.append(full_name)
 
-            #     # If it is a loaded enum, add it
-            #     if isLoadedEnum(el, enum_name=enum_name):
-            #         all_types.append(full_name)
+                #     # If it is a loaded enum, add it
+                #     if isLoadedEnum(el, enum_name=enum_name):
+                #         all_types.append(full_name)
 
     # Print final number of types classified
     print(f"  - {type_counter} types classified.")
@@ -2654,8 +2647,13 @@ def validType(typeName, xml_file):
         (lo, hi) = typeNameBracketLocs[0]
         strippedType = typeName[:lo]
 
+        # Check if the outer type is valid.
+        # E.g. if typeName was std::vector<int>, check if std::vector is valid.
+        # After that, check if the template brackets are empty.
         if not isTypeValid(strippedType, xml_file):
             return False
+        elif hi - lo == 1:
+            return True
 
         insideBrackets = typeName[lo + 1:hi]
 
@@ -2682,7 +2680,7 @@ def validType(typeName, xml_file):
             # insideBrackets = 'int, 3'
             # The first section = 'int', which we want to recurse on
             # Second section = '3', which isn't a type so we don't want to recurse on
-            if not section.isdigit() and not validType(section, xml_file):
+            if not (section.isdigit() or section == 'false' or section == 'true') and not validType(section, xml_file):
                 return False
 
         return True
@@ -2713,28 +2711,30 @@ def isAcceptedEnum(el):
 
 def isTypeValid(typeName, xml_file):
     import modules.classutils as classutils
-    # Here we need checks of
-    # stdtype,
-    # Fundamental, StdType, KnownClass, LoadedClass or LoadedEnum
     try:
-        # Check if typeName is already known
+        # Check if typeName already has an element we can use
         el = gb.all_name_dict[xml_file][typeName]
+
+        # If it did have an element, check if it's a typedef
         if el.tag == 'Typedef':
-            # getting the endtype el
+            # Find the final type
             el = gb.final_typedef_dict[typeName]
 
+        # Check if we can accept if based on the element and class name
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
+            return isFundamental(el) or\
+                isStdType(el, class_name=class_name) or\
+                isKnownClass(el, class_name=class_name) or\
+                isLoadedClass(el,  byname=False, class_name=class_name) or\
+                isAcceptedEnum(el)
         else:
+            # We can't accept, it's not a type!
             return False
 
-        #
-        # if el.tag in ("Function", "Method"):
-        #     return False
-        return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
-
     except:
-        # If std at the start or if the string corresponds to a fundamental type that we know
+        # We couldn't find the element.
+        # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
         return (len(typeName) > 5 and typeName[:5] == 'std::') or (typeName in gb.fundamental_equiv_list)
 
 # ====== END: isTypeValid ========
