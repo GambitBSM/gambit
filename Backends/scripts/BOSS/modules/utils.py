@@ -2707,14 +2707,16 @@ def isAcceptedEnum(el):
 
 def isTypeValid(typeName, xml_file):
     import modules.classutils as classutils
+
+    trimmed_type_name = getBasicTypeName(typeName)
     try:
         # Check if typeName already has an element we can use
-        el = gb.all_name_dict[xml_file][typeName]
+        el = gb.all_name_dict[xml_file][trimmed_type_name]
 
         # If it did have an element, check if it's a typedef
         if el.tag == 'Typedef':
             # Find the final type
-            el = gb.final_typedef_dict[typeName]
+            el = gb.final_typedef_dict[trimmed_type_name]
 
         # Check if we can accept if based on the element and class name
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
@@ -2732,7 +2734,7 @@ def isTypeValid(typeName, xml_file):
     except:
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
-        return (len(typeName) > 5 and typeName[:5] == 'std::') or (typeName in gb.fundamental_equiv_list)
+        return (len(trimmed_type_name) > 5 and trimmed_type_name[:5] == 'std::') or (trimmed_type_name in gb.fundamental_equiv_list)
 
 # ====== END: isTypeValid ========
 
