@@ -2750,8 +2750,7 @@ def isTypeValid(typeName, xml_file):
     except:
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
-        return_bool =  or\
-            (trimmed_type_name in gb.fundamental_equiv_list)
+        return_bool = withinNamespace(typeName, 'std::') or (trimmed_type_name in gb.fundamental_equiv_list)
         if not return_bool:
             with open("nonAcceptedList.txt", "a") as f:
                 print(f"no corresponding element not std not funda {typeName}", file=f)
