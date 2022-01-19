@@ -538,6 +538,8 @@ if __name__ == '__main__':
     # print()
     # print("--------------------------------")
     # print()
-    print(getBasicTypeName(' char const (&)[44]'))
+    print(getBasicTypeName('std::map<int, bool>'))
     print(getBasicTypeName('char[44]'))
+    print(getBasicTypeName('std::basic_ostream<char> *'))
+    
     # r"(&)[]"

@@ -2730,6 +2730,7 @@ def isTypeValid(typeName, xml_file):
         # Check if we can accept if based on the element and class name
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
+
             return_bool = isFundamental(el) or\
             isStdType(el, class_name=class_name) or\
             isKnownClass(el, class_name=class_name) or\
@@ -2749,7 +2750,7 @@ def isTypeValid(typeName, xml_file):
     except:
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
-        return_bool = (len(trimmed_type_name) > 5 and trimmed_type_name[:5] == 'std::') or \
+        return_bool =  or\
             (trimmed_type_name in gb.fundamental_equiv_list)
         if not return_bool:
             with open("nonAcceptedList.txt", "a") as f:
@@ -2757,6 +2758,29 @@ def isTypeValid(typeName, xml_file):
         return return_bool
 
 # ====== END: isTypeValid ========
+
+# ====== withinAcceptedNamespaces ========
+
+def withinAcceptedNamespaces(type_name, accepted_namespaces):
+    for namespace in accepted_namespaces:
+        if withinNamespace(type_name, namespace):
+            return True
+    
+    return False
+
+# ====== END: withinAcceptedNamespaces ========
+
+
+
+
+# ====== withinNamespace ========
+
+def withinNamespace(type_name, namespace):
+    length = len(namespace)
+    return len(type_name) > length and type_name[:length] == length
+
+
+# ====== END: withinNamespace ========
 
 
 # ====== findOutsideBracketsAndCommas ========
