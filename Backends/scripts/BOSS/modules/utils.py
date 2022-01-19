@@ -2608,6 +2608,10 @@ def fillAcceptedTypesList():
     print(f"  - {type_counter} types classified.")
     # Fill global list
     gb.accepted_types = list(all_types)
+    with open("./accepted_List.txt", "a") as f:
+        for types in gb.accepted_types:
+            print(types, file=f)
+
 
 # ====== END: fillAcceptedTypesList ========
 
@@ -2647,7 +2651,7 @@ def validType(typeName, xml_file):
         # E.g. if typeName was std::vector<int>, check if std::vector is valid.
         # After that, check if the template brackets are empty.
         if not isTypeValid(strippedType, xml_file):
-            return False        
+            return False
         elif hi - lo == 1:
             return True
 
@@ -2721,12 +2725,11 @@ def isTypeValid(typeName, xml_file):
         # Check if we can accept if based on the element and class name
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
-
             return isFundamental(el) or\
-            isStdType(el, class_name=class_name) or\
-            isKnownClass(el, class_name=class_name) or\
-            isLoadedClass(el,  byname=False, class_name=class_name) or\
-            isAcceptedEnum(el)
+                isStdType(el, class_name=class_name) or\
+                isKnownClass(el, class_name=class_name) or\
+                isLoadedClass(el,  byname=False, class_name=class_name) or\
+                isAcceptedEnum(el)
         else:
             # We can't accept, it's not a type!
             return False
@@ -3105,7 +3108,6 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
                     type_name = classutils.getClassNameDict(type_el)
 
-                    print("debug line ")
                     if type_name['long_templ'] in cfg.load_classes:
                         gb.typedef_dict[typedef_name] = el
                         # Zelun: Modified to see if it shows the end level type in this dict \
