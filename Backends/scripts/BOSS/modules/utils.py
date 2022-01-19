@@ -2535,7 +2535,9 @@ def fillAcceptedTypesList():
             if validType(full_name, xml_file):
                 # JOEL: Is this the member function to use for sets?
                 all_types.add(full_name)
-
+            else:
+                with open("./debugging.txt", "a") as f:
+                    print(full_name, file=f)
             # Only consider types
             if el.tag not in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
                 continue
@@ -2613,6 +2615,10 @@ def fillAcceptedTypesList():
     print(f"  - {type_counter} types classified.")
     # Fill global list
     gb.accepted_types = list(all_types)
+    with open("./accepted_List.txt", "a") as f:
+        for types in gb.accepted_types:
+            print(types, file=f)
+
 
 # ====== END: fillAcceptedTypesList ========
 
@@ -2719,7 +2725,12 @@ def isTypeValid(typeName, xml_file):
 
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
+        else:
+            return False
 
+        #
+        # if el.tag in ("Function", "Method"):
+        #     return False
         return isFundamental(el) or isStdType(el, class_name=class_name) or isKnownClass(el, class_name=class_name) or isLoadedClass(el,  byname=False, class_name=class_name) or isAcceptedEnum(el)
 
     except:
@@ -3095,7 +3106,6 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
                     type_name = classutils.getClassNameDict(type_el)
 
-                    print("debug line ")
                     if type_name['long_templ'] in cfg.load_classes:
                         gb.typedef_dict[typedef_name] = el
                         # Zelun: Modified to see if it shows the end level type in this dict \
