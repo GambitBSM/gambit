@@ -2776,7 +2776,7 @@ def withinAcceptedNamespaces(type_name, accepted_namespaces):
 
 def withinNamespace(type_name, namespace):
     length = len(namespace)
-    return len(type_name) > length and type_name[:length] == length
+    return len(type_name) > length and type_name[:length] == namespace
 
 
 # ====== END: withinNamespace ========
