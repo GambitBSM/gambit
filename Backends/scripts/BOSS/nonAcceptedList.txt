@@ -1,504 +1,1187 @@
+Not of any of the 5 types _IO_FILE
 _IO_FILE
+
+
+Not of any of the 5 types __locale_struct
 __locale_struct
+
+
+Not of any of the 5 types tm
 tm
+
+
+Not of any of the 5 types lconv
 lconv
+
+
+Not of any of the 5 types timespec
 timespec
+
+
+Not of any of the 5 types sched_param
 sched_param
+
+
+Not of any of the 5 types timeval
 timeval
+
+
+Not of any of the 5 types timex
 timex
+
+
+Not of any of the 5 types itimerspec
 itimerspec
+
+
+Not of any of the 5 types sigevent
 sigevent
+
+
+Not of any of the 5 types __pthread_internal_list
 __pthread_internal_list
+
+
+Not of any of the 5 types __pthread_internal_slist
 __pthread_internal_slist
+
+
+Not of any of the 5 types __pthread_mutex_s
 __pthread_mutex_s
+
+
+Not of any of the 5 types __pthread_rwlock_arch_t
 __pthread_rwlock_arch_t
+
+
+Not of any of the 5 types __pthread_cond_s
 __pthread_cond_s
+
+
+Not of any of the 5 types _pthread_cleanup_buffer
 _pthread_cleanup_buffer
+
+
+Not of any of the 5 types __pthread_cleanup_frame
 __pthread_cleanup_frame
+
+
+Not of any of the 5 types __pthread_cleanup_class
 __pthread_cleanup_class
+
+
+Not of any of the 5 types __jmp_buf_tag
 __jmp_buf_tag
+
+
+Not of any of the 5 types random_data
 random_data
+
+
+Not of any of the 5 types drand48_data
 drand48_data
+
+
+Not of any of the 5 types _G_fpos_t
 _G_fpos_t
+
+
+Not of any of the 5 types _G_fpos64_t
 _G_fpos64_t
+
+
+Not of any of the 5 types _IO_marker
 _IO_marker
+
+
+Not of any of the 5 types _IO_codecvt
 _IO_codecvt
+
+
+Not of any of the 5 types _IO_wide_data
 _IO_wide_data
+
+
+Not of any of the 5 types _IO_cookie_io_functions_t
 _IO_cookie_io_functions_t
+
+
+Not of any of the 5 types obstack
 obstack
+
+
+Not of any of the 5 types __NSConstantString_tag
 __NSConstantString_tag
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<char, char, __mbstate_t>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<wchar_t, char, __mbstate_t>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<char16_t, char, __mbstate_t>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<char32_t, char, __mbstate_t>
-std::__copy_move<false, false, std::random_access_iterator_tag>
-std::__copy_move<true, false, std::random_access_iterator_tag>
-std::__copy_move<false, true, std::random_access_iterator_tag>
-std::__copy_move_backward<false, false, std::random_access_iterator_tag>
-std::__copy_move_backward<true, false, std::random_access_iterator_tag>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char *, std::basic_string<char> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char *, std::basic_string<char> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
-std::integral_constant<bool, true>
-std::integral_constant<bool, false>
-std::integral_constant<unsigned long, 0>
-std::integral_constant<unsigned long, 2>
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<char>, false>, std::is_default_constructible<std::allocator<char> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, false>, std::is_default_constructible<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > > > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::less<int>, false>, std::is_default_constructible<std::less<int> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::_Rb_tree_key_compare<std::less<int> >, false>, std::is_default_constructible<std::_Rb_tree_key_compare<std::less<int> > > >
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::conditional<false, std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >, std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> > >
-std::conditional<false, std::__not_<std::extent<unsigned long, 0> >, std::is_array<unsigned long> >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<wchar_t>, false>, std::is_default_constructible<std::allocator<wchar_t> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<char16_t>, false>, std::is_default_constructible<std::allocator<char16_t> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<char32_t>, false>, std::is_default_constructible<std::allocator<char32_t> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<unsigned long>, false>, std::is_default_constructible<std::allocator<unsigned long> > >
-std::__and_<std::is_default_constructible<std::allocator<char> >, std::__is_nt_default_constructible_impl<std::allocator<char>, false> >
-std::__and_<std::is_default_constructible<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > > >, std::__is_nt_default_constructible_impl<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, false> >
-std::__and_<std::is_default_constructible<std::_Rb_tree_key_compare<std::less<int> > >, std::__is_nt_default_constructible_impl<std::_Rb_tree_key_compare<std::less<int> >, false> >
-std::__and_<std::is_default_constructible<std::less<int> >, std::__is_nt_default_constructible_impl<std::less<int>, false> >
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::__and_<std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> >, std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
-std::__and_<std::is_array<unsigned long>, std::__not_<std::extent<unsigned long, 0> > >
-std::__and_<std::is_default_constructible<std::allocator<wchar_t> >, std::__is_nt_default_constructible_impl<std::allocator<wchar_t>, false> >
-std::__and_<std::is_default_constructible<std::allocator<char16_t> >, std::__is_nt_default_constructible_impl<std::allocator<char16_t>, false> >
-std::__and_<std::is_default_constructible<std::allocator<char32_t> >, std::__is_nt_default_constructible_impl<std::allocator<char32_t>, false> >
-std::__and_<std::is_default_constructible<std::allocator<unsigned long> >, std::__is_nt_default_constructible_impl<std::allocator<unsigned long>, false> >
-std::__not_<std::extent<unsigned long, 0> >
+
+
+no corresponding element not std not fundamental nullptr_t
 std::__is_null_pointer_helper<nullptr_t>
-std::extent<unsigned long, 0>
-std::__is_destructible_safe<unsigned long, false, true>
-std::__is_move_constructible_impl<std::basic_ostream<char> *, true>
-std::__is_move_constructible_impl<char, true>
-std::__is_move_constructible_impl<bool, true>
-std::__is_move_constructible_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_move_constructible_impl<wchar_t, true>
-std::__is_move_constructible_impl<long, true>
-std::__is_nt_default_constructible_impl<std::allocator<char>, false>
-std::__is_nt_default_constructible_impl<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, false>
-std::__is_nt_default_constructible_impl<std::_Rb_tree_key_compare<std::less<int> >, false>
-std::__is_nt_default_constructible_impl<std::less<int>, false>
-std::__is_nt_default_constructible_impl<std::allocator<wchar_t>, false>
-std::__is_nt_default_constructible_impl<std::allocator<char16_t>, false>
-std::__is_nt_default_constructible_impl<std::allocator<char32_t>, false>
-std::__is_nt_default_constructible_impl<std::allocator<unsigned long>, false>
-std::__is_nothrow_copy_constructible_impl<std::less<int>, true>
-std::__is_nothrow_copy_constructible_impl<const unsigned long *, true>
-std::__is_nothrow_copy_constructible_impl<unsigned long *, true>
-std::__is_nothrow_move_constructible_impl<std::basic_ostream<char> *, true>
-std::__is_nothrow_move_constructible_impl<char, true>
-std::__is_nothrow_move_constructible_impl<bool, true>
-std::__is_nothrow_move_constructible_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_nothrow_move_constructible_impl<wchar_t, true>
-std::__is_nothrow_move_constructible_impl<long, true>
-std::__is_copy_assignable_impl<std::_Rb_tree_node_base *, true>
-std::__is_copy_assignable_impl<const int, true>
-std::__is_copy_assignable_impl<unsigned long, true>
-std::__is_move_assignable_impl<std::_Rb_tree_node_base *, true>
-std::__is_move_assignable_impl<const int, true>
-std::__is_move_assignable_impl<std::basic_ostream<char> *, true>
-std::__is_move_assignable_impl<char, true>
-std::__is_move_assignable_impl<bool, true>
-std::__is_move_assignable_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_move_assignable_impl<wchar_t, true>
-std::__is_move_assignable_impl<long, true>
-std::__is_nt_move_assignable_impl<std::basic_ostream<char> *, true>
-std::__is_nt_move_assignable_impl<char, true>
-std::__is_nt_move_assignable_impl<bool, true>
-std::__is_nt_move_assignable_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_nt_move_assignable_impl<wchar_t, true>
-std::__is_nt_move_assignable_impl<long, true>
-std::__is_nt_move_assignable_impl<std::less<int>, true>
-std::__is_convertible_helper<std::_Rb_tree_node_base *const &, std::_Rb_tree_node_base *, false>
-std::__is_convertible_helper<int &&, std::_Rb_tree_node_base *, false>
-std::__is_convertible_helper<std::random_access_iterator_tag, std::input_iterator_tag, false>
-std::__cv_selector<unsigned int, false, false>
-std::__cv_selector<unsigned short, false, false>
-std::__cv_selector<int, false, false>
-std::__cv_selector<short, false, false>
-std::__match_cv_qualifiers<wchar_t, unsigned int, false, false>
-std::__match_cv_qualifiers<char16_t, unsigned short, false, false>
-std::__match_cv_qualifiers<char32_t, unsigned int, false, false>
-std::__match_cv_qualifiers<unsigned int, int, false, false>
-std::__match_cv_qualifiers<unsigned short, short, false, false>
-std::__make_unsigned_selector<wchar_t, false, true>
-std::__make_unsigned_selector<char16_t, false, true>
-std::__make_unsigned_selector<char32_t, false, true>
-std::__make_unsigned_selector<wchar_t, true, false>
-std::__make_unsigned_selector<char16_t, true, false>
-std::__make_unsigned_selector<char32_t, true, false>
-std::__make_signed_selector<wchar_t, false, true>
-std::__make_signed_selector<unsigned int, true, false>
-std::__make_signed_selector<char16_t, false, true>
-std::__make_signed_selector<unsigned short, true, false>
-std::__make_signed_selector<char32_t, false, true>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::fpos<__mbstate_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__aligned_membuf
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<char>, char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<char16_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<char32_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<float>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<long double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<float>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<long double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<float>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<long double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__enable_if
 __gnu_cxx::__enable_if<false, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__enable_if
 __gnu_cxx::__enable_if<true, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<int>, __gnu_cxx::__numeric_traits_floating<int> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<float>, __gnu_cxx::__numeric_traits_floating<float> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<double>, __gnu_cxx::__numeric_traits_floating<double> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<long double>, __gnu_cxx::__numeric_traits_floating<long double> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<unsigned long>, __gnu_cxx::__numeric_traits_floating<unsigned long> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<char>, __gnu_cxx::__numeric_traits_floating<char> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, unsigned long, unsigned long long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<short>, __gnu_cxx::__numeric_traits_floating<short> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<long>, __gnu_cxx::__numeric_traits_floating<long> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<signed char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<long long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<bool>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned long long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<bool>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__promote
 __gnu_cxx::__promote<long double, false>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__promote
 __gnu_cxx::__promote<double, false>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__promote
 __gnu_cxx::__promote<float, false>
+
+
+Not of any of the 5 types __cxxabiv1::__cxa_refcounted_exception
 __cxxabiv1::__cxa_refcounted_exception
+
+
+Not of any of the 5 types __cxxabiv1::__forced_unwind
 __cxxabiv1::__forced_unwind
+
+
+Not of any of the 5 types __cxxabiv1::__class_type_info
 __cxxabiv1::__class_type_info
+
+
+Not of any of the 5 types __va_list_tag
 __va_list_tag
+
+
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >::
-std::__make_unsigned_selector_base::__select<4, std::__make_unsigned_selector_base::_List<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long>, false>
-std::__make_unsigned_selector_base::__select<4, std::__make_unsigned_selector_base::_List<unsigned short, unsigned int, unsigned long, unsigned long long>, false>
-std::__make_unsigned_selector_base::__select<4, std::__make_unsigned_selector_base::_List<unsigned int, unsigned long, unsigned long long>, true>
-std::__make_unsigned_selector_base::__select<2, std::__make_unsigned_selector_base::_List<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long>, false>
-std::__make_unsigned_selector_base::__select<2, std::__make_unsigned_selector_base::_List<unsigned short, unsigned int, unsigned long, unsigned long long>, true>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__aligned_membuf
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::_Tp2
-__gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>
-__gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>::rebind<wchar_t>
-__gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>::rebind<char16_t>
-__gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>::rebind<char32_t>
-__gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
-__gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
-__gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long>
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_less_iter
 __gnu_cxx::__ops::_Iter_less_iter
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_less_val
 __gnu_cxx::__ops::_Iter_less_val
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Val_less_iter
 __gnu_cxx::__ops::_Val_less_iter
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_equal_to_iter
 __gnu_cxx::__ops::_Iter_equal_to_iter
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_equal_to_val
 __gnu_cxx::__ops::_Iter_equal_to_val
+
+
+Not of any of the 5 types __locale_data
 __locale_data
+
+
+Not of any of the 5 types _IO_FILE
 _IO_FILE
+
+
+Not of any of the 5 types __locale_struct
 __locale_struct
+
+
+Not of any of the 5 types tm
 tm
+
+
+Not of any of the 5 types lconv
 lconv
+
+
+Not of any of the 5 types timespec
 timespec
+
+
+Not of any of the 5 types sched_param
 sched_param
+
+
+Not of any of the 5 types timeval
 timeval
+
+
+Not of any of the 5 types timex
 timex
+
+
+Not of any of the 5 types itimerspec
 itimerspec
+
+
+Not of any of the 5 types sigevent
 sigevent
+
+
+Not of any of the 5 types __pthread_internal_list
 __pthread_internal_list
+
+
+Not of any of the 5 types __pthread_internal_slist
 __pthread_internal_slist
+
+
+Not of any of the 5 types __pthread_mutex_s
 __pthread_mutex_s
+
+
+Not of any of the 5 types __pthread_rwlock_arch_t
 __pthread_rwlock_arch_t
+
+
+Not of any of the 5 types __pthread_cond_s
 __pthread_cond_s
+
+
+Not of any of the 5 types _pthread_cleanup_buffer
 _pthread_cleanup_buffer
+
+
+Not of any of the 5 types __pthread_cleanup_frame
 __pthread_cleanup_frame
+
+
+Not of any of the 5 types __pthread_cleanup_class
 __pthread_cleanup_class
+
+
+Not of any of the 5 types __jmp_buf_tag
 __jmp_buf_tag
+
+
+Not of any of the 5 types random_data
 random_data
+
+
+Not of any of the 5 types drand48_data
 drand48_data
+
+
+Not of any of the 5 types _G_fpos_t
 _G_fpos_t
+
+
+Not of any of the 5 types _G_fpos64_t
 _G_fpos64_t
+
+
+Not of any of the 5 types _IO_marker
 _IO_marker
+
+
+Not of any of the 5 types _IO_codecvt
 _IO_codecvt
+
+
+Not of any of the 5 types _IO_wide_data
 _IO_wide_data
+
+
+Not of any of the 5 types _IO_cookie_io_functions_t
 _IO_cookie_io_functions_t
+
+
+Not of any of the 5 types obstack
 obstack
+
+
+Not of any of the 5 types __NSConstantString_tag
 __NSConstantString_tag
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<char, char, __mbstate_t>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<wchar_t, char, __mbstate_t>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<char16_t, char, __mbstate_t>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::codecvt<char32_t, char, __mbstate_t>
+
+
+no corresponding element not std not fundamental __mbstate_t
 std::fpos<__mbstate_t>
-std::__copy_move<false, false, std::random_access_iterator_tag>
-std::__copy_move<true, false, std::random_access_iterator_tag>
-std::__copy_move<false, true, std::random_access_iterator_tag>
-std::__copy_move_backward<false, false, std::random_access_iterator_tag>
-std::__copy_move_backward<true, false, std::random_access_iterator_tag>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char *, std::basic_string<char> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char *, std::basic_string<char> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::reverse_iterator<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
-std::integral_constant<bool, true>
-std::integral_constant<bool, false>
-std::integral_constant<unsigned long, 0>
-std::integral_constant<unsigned long, 2>
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<char>, false>, std::is_default_constructible<std::allocator<char> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, false>, std::is_default_constructible<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > > > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::less<int>, false>, std::is_default_constructible<std::less<int> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::_Rb_tree_key_compare<std::less<int> >, false>, std::is_default_constructible<std::_Rb_tree_key_compare<std::less<int> > > >
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::conditional<false, std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >, std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> > >
-std::conditional<false, std::__not_<std::extent<unsigned long, 0> >, std::is_array<unsigned long> >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<wchar_t>, false>, std::is_default_constructible<std::allocator<wchar_t> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<char16_t>, false>, std::is_default_constructible<std::allocator<char16_t> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<char32_t>, false>, std::is_default_constructible<std::allocator<char32_t> > >
-std::conditional<true, std::__is_nt_default_constructible_impl<std::allocator<unsigned long>, false>, std::is_default_constructible<std::allocator<unsigned long> > >
-std::__and_<std::is_default_constructible<std::allocator<char> >, std::__is_nt_default_constructible_impl<std::allocator<char>, false> >
-std::__and_<std::is_default_constructible<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > > >, std::__is_nt_default_constructible_impl<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, false> >
-std::__and_<std::is_default_constructible<std::_Rb_tree_key_compare<std::less<int> > >, std::__is_nt_default_constructible_impl<std::_Rb_tree_key_compare<std::less<int> >, false> >
-std::__and_<std::is_default_constructible<std::less<int> >, std::__is_nt_default_constructible_impl<std::less<int>, false> >
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::__and_<std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> >, std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
+
+
+no corresponding element not std not fundamental char const (&)[44]
 std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
-std::__and_<std::is_array<unsigned long>, std::__not_<std::extent<unsigned long, 0> > >
-std::__and_<std::is_default_constructible<std::allocator<wchar_t> >, std::__is_nt_default_constructible_impl<std::allocator<wchar_t>, false> >
-std::__and_<std::is_default_constructible<std::allocator<char16_t> >, std::__is_nt_default_constructible_impl<std::allocator<char16_t>, false> >
-std::__and_<std::is_default_constructible<std::allocator<char32_t> >, std::__is_nt_default_constructible_impl<std::allocator<char32_t>, false> >
-std::__and_<std::is_default_constructible<std::allocator<unsigned long> >, std::__is_nt_default_constructible_impl<std::allocator<unsigned long>, false> >
-std::__not_<std::extent<unsigned long, 0> >
+
+
+no corresponding element not std not fundamental nullptr_t
 std::__is_null_pointer_helper<nullptr_t>
-std::extent<unsigned long, 0>
-std::__is_destructible_safe<unsigned long, false, true>
-std::__is_move_constructible_impl<std::basic_ostream<char> *, true>
-std::__is_move_constructible_impl<char, true>
-std::__is_move_constructible_impl<bool, true>
-std::__is_move_constructible_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_move_constructible_impl<wchar_t, true>
-std::__is_move_constructible_impl<long, true>
-std::__is_nt_default_constructible_impl<std::allocator<char>, false>
-std::__is_nt_default_constructible_impl<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, false>
-std::__is_nt_default_constructible_impl<std::_Rb_tree_key_compare<std::less<int> >, false>
-std::__is_nt_default_constructible_impl<std::less<int>, false>
-std::__is_nt_default_constructible_impl<std::allocator<wchar_t>, false>
-std::__is_nt_default_constructible_impl<std::allocator<char16_t>, false>
-std::__is_nt_default_constructible_impl<std::allocator<char32_t>, false>
-std::__is_nt_default_constructible_impl<std::allocator<unsigned long>, false>
-std::__is_nothrow_copy_constructible_impl<std::less<int>, true>
-std::__is_nothrow_copy_constructible_impl<const unsigned long *, true>
-std::__is_nothrow_copy_constructible_impl<unsigned long *, true>
-std::__is_nothrow_move_constructible_impl<std::basic_ostream<char> *, true>
-std::__is_nothrow_move_constructible_impl<char, true>
-std::__is_nothrow_move_constructible_impl<bool, true>
-std::__is_nothrow_move_constructible_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_nothrow_move_constructible_impl<wchar_t, true>
-std::__is_nothrow_move_constructible_impl<long, true>
-std::__is_copy_assignable_impl<std::_Rb_tree_node_base *, true>
-std::__is_copy_assignable_impl<const int, true>
-std::__is_copy_assignable_impl<unsigned long, true>
-std::__is_move_assignable_impl<std::_Rb_tree_node_base *, true>
-std::__is_move_assignable_impl<const int, true>
-std::__is_move_assignable_impl<std::basic_ostream<char> *, true>
-std::__is_move_assignable_impl<char, true>
-std::__is_move_assignable_impl<bool, true>
-std::__is_move_assignable_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_move_assignable_impl<wchar_t, true>
-std::__is_move_assignable_impl<long, true>
-std::__is_nt_move_assignable_impl<std::basic_ostream<char> *, true>
-std::__is_nt_move_assignable_impl<char, true>
-std::__is_nt_move_assignable_impl<bool, true>
-std::__is_nt_move_assignable_impl<std::basic_ostream<wchar_t> *, true>
-std::__is_nt_move_assignable_impl<wchar_t, true>
-std::__is_nt_move_assignable_impl<long, true>
-std::__is_nt_move_assignable_impl<std::less<int>, true>
-std::__is_convertible_helper<std::_Rb_tree_node_base *const &, std::_Rb_tree_node_base *, false>
-std::__is_convertible_helper<int &&, std::_Rb_tree_node_base *, false>
-std::__is_convertible_helper<std::random_access_iterator_tag, std::input_iterator_tag, false>
-std::__cv_selector<unsigned int, false, false>
-std::__cv_selector<unsigned short, false, false>
-std::__cv_selector<int, false, false>
-std::__cv_selector<short, false, false>
-std::__match_cv_qualifiers<wchar_t, unsigned int, false, false>
-std::__match_cv_qualifiers<char16_t, unsigned short, false, false>
-std::__match_cv_qualifiers<char32_t, unsigned int, false, false>
-std::__match_cv_qualifiers<unsigned int, int, false, false>
-std::__match_cv_qualifiers<unsigned short, short, false, false>
-std::__make_unsigned_selector<wchar_t, false, true>
-std::__make_unsigned_selector<char16_t, false, true>
-std::__make_unsigned_selector<char32_t, false, true>
-std::__make_unsigned_selector<wchar_t, true, false>
-std::__make_unsigned_selector<char16_t, true, false>
-std::__make_unsigned_selector<char32_t, true, false>
-std::__make_signed_selector<wchar_t, false, true>
-std::__make_signed_selector<unsigned int, true, false>
-std::__make_signed_selector<char16_t, false, true>
-std::__make_signed_selector<unsigned short, true, false>
-std::__make_signed_selector<char32_t, false, true>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__aligned_membuf
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<char>, char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__alloc_traits
 __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<char16_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<char32_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::new_allocator
 __gnu_cxx::new_allocator<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<float>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<long double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_integer
 __gnu_cxx::__numeric_traits_integer<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<float>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<long double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits_floating
 __gnu_cxx::__numeric_traits_floating<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<float>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<long double>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__numeric_traits
 __gnu_cxx::__numeric_traits<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__enable_if
 __gnu_cxx::__enable_if<false, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__enable_if
 __gnu_cxx::__enable_if<true, std::vector<unsigned long, std::allocator<unsigned long> > >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<long>, __gnu_cxx::__numeric_traits_floating<long> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<int>, __gnu_cxx::__numeric_traits_floating<int> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<float>, __gnu_cxx::__numeric_traits_floating<float> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<double>, __gnu_cxx::__numeric_traits_floating<double> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<long double>, __gnu_cxx::__numeric_traits_floating<long double> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<unsigned long>, __gnu_cxx::__numeric_traits_floating<unsigned long> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<char>, __gnu_cxx::__numeric_traits_floating<char> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, unsigned long, unsigned long long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__conditional_type
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<short>, __gnu_cxx::__numeric_traits_floating<short> >
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<signed char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<long long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<bool>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__add_unsigned
 __gnu_cxx::__add_unsigned<wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned char>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned short>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned int>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<unsigned long long>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<bool>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__remove_unsigned
 __gnu_cxx::__remove_unsigned<wchar_t>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__promote
 __gnu_cxx::__promote<long double, false>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__promote
 __gnu_cxx::__promote<double, false>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__promote
 __gnu_cxx::__promote<float, false>
+
+
+Not of any of the 5 types __cxxabiv1::__cxa_refcounted_exception
 __cxxabiv1::__cxa_refcounted_exception
+
+
+Not of any of the 5 types __cxxabiv1::__forced_unwind
 __cxxabiv1::__forced_unwind
+
+
+Not of any of the 5 types __cxxabiv1::__class_type_info
 __cxxabiv1::__class_type_info
+
+
+Not of any of the 5 types __va_list_tag
 __va_list_tag
+
+
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>
-std::__make_unsigned_selector_base::__select<4, std::__make_unsigned_selector_base::_List<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long>, false>
-std::__make_unsigned_selector_base::__select<4, std::__make_unsigned_selector_base::_List<unsigned short, unsigned int, unsigned long, unsigned long long>, false>
-std::__make_unsigned_selector_base::__select<4, std::__make_unsigned_selector_base::_List<unsigned int, unsigned long, unsigned long long>, true>
-std::__make_unsigned_selector_base::__select<2, std::__make_unsigned_selector_base::_List<unsigned char, unsigned short, unsigned int, unsigned long, unsigned long long>, false>
-std::__make_unsigned_selector_base::__select<2, std::__make_unsigned_selector_base::_List<unsigned short, unsigned int, unsigned long, unsigned long long>, true>
+
+
+no corresponding element not std not fundamental __gnu_cxx::__normal_iterator
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >::
+
+
+no corresponding element not std not fundamental __gnu_cxx::__aligned_membuf
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::_Tp2
+
+
 __gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>
+
+
 __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>::rebind<wchar_t>
+
+
 __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>::rebind<char16_t>
+
+
 __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>::rebind<char32_t>
+
+
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
+
+
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
+
+
 __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long>
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_less_iter
 __gnu_cxx::__ops::_Iter_less_iter
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_less_val
 __gnu_cxx::__ops::_Iter_less_val
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Val_less_iter
 __gnu_cxx::__ops::_Val_less_iter
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_equal_to_iter
 __gnu_cxx::__ops::_Iter_equal_to_iter
+
+
+Not of any of the 5 types __gnu_cxx::__ops::_Iter_equal_to_val
 __gnu_cxx::__ops::_Iter_equal_to_val
+
+
+Not of any of the 5 types __locale_data
 __locale_data
+
+
