@@ -2538,7 +2538,7 @@ def fillAcceptedTypesList():
                 type_counter += 1
                 if type_counter % 500 == 0:
                     print(f"  - {type_counter} types classified...")
-
+                
                 # To save a bit of time, construct class name dict once and pass to remaining checks
                 # class_name = classutils.getClassNameDict(el)
 
