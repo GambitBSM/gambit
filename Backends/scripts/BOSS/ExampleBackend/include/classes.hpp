@@ -31,7 +31,6 @@ public:
   long int li;
   long li_1;
   unsigned long li_2;
-  short short li_3;
   std::map<int, std::vector<unsigned long int>> testing_Var;
   
   // Decalring it as a member variable
