@@ -393,53 +393,151 @@ def stripWhitespace(string):
 
 # ====== END: stripWhitespace ========
 
+def getBasicTypeName(type_name):
+
+    # If type name contains a template brackets
+    if '<' in type_name:
+
+        type_name_notempl, templ_bracket = removeTemplateBracket(
+            type_name, return_bracket=True)
+        before_bracket, after_bracket = type_name.rsplit(templ_bracket, 1)
+
+        if (len(after_bracket) > 0) and (after_bracket[0] == ' '):
+            space_after_bracket = True
+        else:
+            space_after_bracket = False
+
+        # Remove asterix and/or ampersand
+        before_bracket = before_bracket.replace('*', '').replace('&', '')
+        after_bracket = after_bracket.replace('*', '').replace('&', '')
+
+        # Remove 'const' and 'volatile'
+        before_bracket_list = before_bracket.split()
+        before_bracket_list = [
+            item for item in before_bracket_list if item != 'const']
+        before_bracket_list = [
+            item for item in before_bracket_list if item != 'volatile']
+        before_bracket = ' '.join(before_bracket_list)
+
+        after_bracket_list = after_bracket.split()
+        after_bracket_list = [
+            item for item in after_bracket_list if item != 'const']
+        after_bracket_list = [
+            item for item in after_bracket_list if item != 'volatile']
+        after_bracket = ' '.join(after_bracket_list)
+
+        basic_type_name = before_bracket + templ_bracket + \
+            ' '*space_after_bracket + after_bracket
+
+    # If no template bracket
+    else:
+
+        basic_type_name = type_name
+
+        # Remove asterix and/or ampersand
+        basic_type_name = basic_type_name.replace('*', '').replace('&', '')
+
+        # Remove 'const' and 'volatile'
+        basic_type_name_list = basic_type_name.split()
+        basic_type_name_list = [
+            item for item in basic_type_name_list if item != 'const']
+        basic_type_name_list = [
+            item for item in basic_type_name_list if item != 'volatile']
+        basic_type_name = ' '.join(basic_type_name_list)
+
+    # Return result
+    return basic_type_name
+
+def removeTemplateBracket(type_name, return_bracket=False):
+
+    if ('<' in type_name) and ('>' in type_name):
+
+        r_pos = type_name.rfind('>')
+
+        if r_pos <= 0:
+            raise Exception(
+                "Unbalanced template brackets in type name '%s'" % type_name)
+
+        pos = r_pos-1
+        count = 1
+        while pos > -1:
+            if type_name[pos] == '>':
+                count += 1
+            elif type_name[pos] == '<':
+                count -= 1
+
+            if count == 0:
+                break
+
+            pos -= 1
+
+        if count != 0:
+            raise Exception(
+                "Unbalanced template brackets in type name '%s'" % type_name)
+
+        l_pos = pos
+
+        type_name_notempl = type_name[:l_pos] + type_name[r_pos+1:]
+        template_bracket = type_name[l_pos:r_pos+1]
+
+    else:
+        type_name_notempl = type_name
+        template_bracket = ''
+
+    if return_bracket:
+        return type_name_notempl, template_bracket
+    else:
+        return type_name_notempl
 
 if __name__ == '__main__':
-    print('All types in int')
-    print(validType('int'))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in int')
+    # print(validType('int'))
+    # print()
+    # print("--------------------------------")
+    # print()
 
-    print('All types in std::vector<int>')
-    print(validType('std::vector<int>'))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in std::vector<int>')
+    # print(validType('std::vector<int>'))
+    # print()
+    # print("--------------------------------")
+    # print()
 
-    print('All types in std::map<std::vector<int>, bool>')
-    print(validType('std::map<std::vector<int>, bool>'))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in std::map<std::vector<int>, bool>')
+    # print(validType('std::map<std::vector<int>, bool>'))
+    # print()
+    # print("--------------------------------")
+    # print()
 
-    print('All types in std::map<std::vector<int>, std::pair<std::string, bool>>')
-    print(validType('std::map<std::vector<int>, std::pair<std::string, bool>>'))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in std::map<std::vector<int>, std::pair<std::string, bool>>')
+    # print(validType('std::map<std::vector<int>, std::pair<std::string, bool>>'))
+    # print()
+    # print("--------------------------------")
+    # print()
 
-    print('All types in std::array<int, 3>')
-    print(validType('std::array<int, 3>'))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in std::array<int, 3>')
+    # print(validType('std::array<int, 3>'))
+    # print()
+    # print("--------------------------------")
+    # print()
 
-    print('All types in   std::vector<   int  >   ')
-    print(validType('  std::vector<   int  >   '))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in   std::vector<   int  >   ')
+    # print(validType('  std::vector<   int  >   '))
+    # print()
+    # print("--------------------------------")
+    # print()
 
-    print('All types in std::map < bool                          ,  char  >  ')
-    print(validType('std::map < bool                          ,  char  >  '))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in std::map < bool                          ,  char  >  ')
+    # print(validType('std::map < bool                          ,  char  >  '))
+    # print()
+    # print("--------------------------------")
+    # print()
 
-    print('All types in std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>')
-    print(validType(
-        'std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>'))
-    print()
-    print("--------------------------------")
-    print()
+    # print('All types in std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>')
+    # print(validType(
+    #     'std::array<  std::vector< std::map<std::pair<bool,   std::string>,some_templated_type<T ,char>>>,3>'))
+    # print()
+    # print("--------------------------------")
+    # print()
+    print(getBasicTypeName(' char const (&)[44]'))
+    print(getBasicTypeName('char[44]'))
+    # r"(&)[]"
