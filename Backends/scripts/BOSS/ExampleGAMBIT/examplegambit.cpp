@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <math.h>
+// #include "../ExampleBackend/include/classes.hpp"
 
 // 
 // Various useful definitions
@@ -128,7 +129,7 @@ int main()
 
 
   // Steps 1) and 2) are taken care of by the helper function get_vptr
-  voidptr_voidfptr psym = get_vptr(phandle, "Factory_ClassOne_0__BOSS_1");
+  voidptr_voidfptr psym = get_vptr(phandle, "Factory_ClassOne_0__BOSS_2");
 
   // 3) Recast to a function pointer "fptr" of type Abstract_ClassOne*(*)()
   Abstract_ClassOne*(*factory_fptr)();
@@ -220,7 +221,45 @@ int main()
   std::cout << "time eclipsed " << (double)(return_clock_t_fptr() - start_time) / CLOCKS_PER_SEC << std::endl;
   std::cout << "time eclipsed " << (double)(end_time - start_time) / CLOCKS_PER_SEC << std::endl;
   
-  // All done
+  
+  
+  
+  
+  // Testing the return_clock_t function in class.hpp
+  //
+  
+  // Steps 1) and 2) done with helper function get_vptr
+  voidptr_voidfptr psym_5 = get_vptr(phandle, "_ZN8ClassOne27return_as_vector_with_clockEv");
+  
+  // 3) cast the function pointer of correct type
+  std::vector<clock_t>(*return_vector_clock_t_fptr)();
+  return_vector_clock_t_fptr = reinterpret_cast< std::vector<clock_t>(*)() >(psym_5.fptr);
+  
+  // 4) Call the function and check that it returns what we expect
+  
+  clock_t start_time_2 = clock();
+  std::cout << "time of now " << return_vector_clock_t_fptr()[0] / CLOCKS_PER_SEC << std::endl;
+  std::cout << "time of now " << start_time_2 / CLOCKS_PER_SEC << std::endl;
+
+  // Testing the return_clock_t function in class.hpp
+  //
+  
+  // Steps 1) and 2) done with helper function get_vptr
+  
+  voidptr_voidfptr psym_6 = get_vptr(phandle, "_ZN13SomeNamespace22return_as_classOne_vecEdi");
+  
+  // 3) cast the function pointer of correct type
+  std::vector<ClassOne>(*return_as_class_one)(double, int);
+  return_as_class_one = reinterpret_cast< std::vector<ClassOne>(*)(double, int) >(psym_6.fptr);
+  
+  // 4) Call the function and check that it returns what we expect
+  
+  std::cout << "double is " << return_as_class_one(9.99, 20)[0].d << std::endl;
+  std::cout << "int is " << return_as_class_one(9.99, 22)[0].i << std::endl;
+  // std::cout << "time of now " << start_time_2 / CLOCKS_PER_SEC << std::endl;
+
+
+  // // All done
   return 0;
 }
 
