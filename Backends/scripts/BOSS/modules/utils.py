@@ -100,13 +100,10 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
 # ====== isFundamental ========
 
 def isFundamental(el):
-
-    is_fundamental = False
-    # TODO: ZELUN MARK add exception check of long, long long, short, short short, unsigned long, unsigned short
     if el.tag == 'FundamentalType':
-        is_fundamental = True
-
-    return is_fundamental
+        return True
+    else:
+        return False
 
 # ====== END: isFundamental ========
 
@@ -114,35 +111,26 @@ def isFundamental(el):
 # ====== isKnownClass ========
 
 def isKnownClass(el, class_name=None):
-
     import modules.classutils as classutils
-
-    is_known = False
 
     type_dict = findType(el)
     type_el = type_dict['el']
 
-    # - Any known class should have a "name" XML entry
+    # Any known class should have a "name" XML entry
     if not 'name' in type_el.keys():
-        is_known = False
-        return is_known
+        return False
 
     # Get class_name dict if it is not passed in as an argument
     if class_name is None:
         class_name = classutils.getClassNameDict(type_el)
 
-    # Check if standard library class
-    if isStdType(el, class_name=class_name):
-        is_known = True
-        return is_known
+    # Check if standard library class OR if listed among the user-specified known types
+    if isStdType(el, class_name=class_name) or\
+    isInList(class_name['long_templ'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
+    isInList(class_name['long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
+        return True
 
-    # Check if listed among the user-specified known types
-    if isInList(class_name['long_templ'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
-        is_known = True
-    elif isInList(class_name['long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
-        is_known = True
-
-    return is_known
+    return False
 
 # ====== END: isKnownClass ========
 
@@ -150,18 +138,15 @@ def isKnownClass(el, class_name=None):
 # ====== isTemplateClass ========
 
 def isTemplateClass(class_el, class_name=None):
-
     import modules.classutils as classutils
-
-    is_template = False
 
     if class_name is None:
         class_name = classutils.getClassNameDict(class_el)
 
     if '<' in class_name['long_templ']:
-        is_template = True
-
-    return is_template
+        return True
+    else:
+        return False
 
 # ====== END: isTemplateClass ========
 
@@ -169,18 +154,15 @@ def isTemplateClass(class_el, class_name=None):
 # ====== isTemplateFunction ========
 
 def isTemplateFunction(func_el):
-
     import modules.funcutils as funcutils
-
-    is_template = False
 
     func_name = funcutils.getFunctionNameDict(func_el)
 
     # ZELUN:MARK Why is template check logic like this?
     if '<' in func_name['long_templ']:
-        is_template = True
-
-    return is_template
+        return True
+    else:
+        return False
 
 # ====== END: isTemplateFunction ========
 
@@ -188,13 +170,10 @@ def isTemplateFunction(func_el):
 # ====== isEnumeration ========
 
 def isEnumeration(el):
-
-    is_enumeration = False
-
     if el.tag == 'Enumeration':
-        is_enumeration = True
-
-    return is_enumeration
+        return True
+    else:
+        return False
 
 # ====== END: isEnumeration ========
 
@@ -202,19 +181,15 @@ def isEnumeration(el):
 # ====== isNative ========
 
 def isNative(el):
-
     # Makes use of global variables:  base_paths
-
-    is_native = False
-    can_check_tags = ['Class', 'Constructor', 'Converter', 'Destructor', 'Enumeration',
+    can_check_tags = ('Class', 'Constructor', 'Converter', 'Destructor', 'Enumeration',
                       'Field', 'File', 'Function', 'Method', 'OperatorFunction',
-                      'OperatorMethod', 'Struct', 'Typedef', 'Union', 'Variable']
+                      'OperatorMethod', 'Struct', 'Typedef', 'Union', 'Variable')
 
-    cannot_check_tags = ['Unimplemented']
+    cannot_check_tags = ('Unimplemented')
 
     if el.tag == 'FundamentalType':
-        is_native = False
-
+        return False
     elif el.tag in can_check_tags:
 
         if el.tag == 'File':
@@ -223,21 +198,17 @@ def isNative(el):
             file_el = gb.id_dict[el.get('file')]
 
         check_path = file_el.get('name')
-
-        is_native = False
+        
         for accepted_path in cfg.base_paths:
             if accepted_path in os.path.dirname(check_path):
-                is_native = True
-                break
+                return True
+        
+        return False
 
     elif el.tag in cannot_check_tags:
-        pass
-
+        return False
     else:
-        raise Exception('Cannot check whether XML element with id="%s" and tag "%s" is native.' % (
-            el.get('id'), el.tag))
-
-    return is_native
+        raise Exception(f"Cannot check whether XML element with id=({el.get('id')}) and tag=({el.tag}) is native.")
 
 # ====== END: isNative ========
 
@@ -245,29 +216,20 @@ def isNative(el):
 # ====== isStdType ========
 
 def isStdType(el, class_name=None):
-
     # Makes use of global variables:  base_paths
-
-    is_std = False
-    can_check_tags = ['Class', 'Struct', 'Union', 'Enumeration']
-
-    if el.tag in can_check_tags:
+    if el.tag in ('Class', 'Struct', 'Union', 'Enumeration'):
 
         # Use the optional class_name dict?
         if class_name is not None:
-            if len(class_name['long_templ']) >= 5:
-                if class_name['long_templ'][0:5] == 'std::':
-                    is_std = True
+            if len(class_name['long_templ']) >= 5 and class_name['long_templ'][0:5] == 'std::':
+                return True
 
         elif 'name' in el.keys():
             namespaces_list = getNamespaces(el, include_self=True)
             if namespaces_list[0] == 'std':
-                is_std = True
-
-    else:
-        is_std = False
-
-    return is_std
+                return True
+    
+    return False
 
 # ====== END: isStdType ========
 
@@ -275,13 +237,10 @@ def isStdType(el, class_name=None):
 # ====== isConstFunction ========
 
 def isConstFunction(func_el):
-
-    is_const_func = False
-
     if ('const' in func_el.keys()) and (func_el.get('const') == '1'):
-        is_const_func = True
-
-    return is_const_func
+        return True
+    else:
+        return False
 
 # ====== END: isConstFunction ========
 
@@ -2490,84 +2449,35 @@ def pathSplitAll(path):
 # ====== fillAcceptedTypesList ========
 
 def fillAcceptedTypesList():
-    import modules.classutils as classutils
-    import modules.enumutils as enumutils
-    import sys
-
     # Set to store type names
     all_types = set()
 
     # Keep track of how many types have been checked
     type_counter = 0
+
     print()
-    # for xml_file in gb.all_id_dict.keys():
-    # print(f"XML file {xml_file}")
-    # initGlobalXMLdicts(xml_file)
-    # for keys in gb.typedef_dict.keys():
-    #     print(keys)
-    #     print(
-    #         f" el name {gb.final_typedef_dict[keys].get('name')}")
-    # print(gb.all_name_dict[keys])
-    # print(f" final {gb.final_typedef_dict}")
-    # print(f" normal {gb.typedef_dict}")
-    # some_dict = OrderedDict()
-    # some_dict['a'] = 'Something'
-    # print(some_dict)
 
     #
     # Collect names of all fundamental, std, enumeration, known and loaded types that are acceptable
     #
     for xml_file in gb.all_id_dict.keys():
         initGlobalXMLdicts(xml_file)
-        # print(gb.final_typedef_dict)
-        # print(gb.final_typedef_dict['int3'])
-        # try:
-        #     print(f" int3 {gb.all_name_dict[xml_file]['int3']}")
-        # except:
-        #     print(gb.all_name_dict)
-
-        #
-        # Loop over all named elements in the xml file
-        #
 
         for full_name, el in gb.name_dict.items():
-            if full_name == "__gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>":
-                print("stop here")
             if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration') and validType(full_name, xml_file):
-                # JOEL: Is this the member function to use for sets?
+                # It's accepted so add it to the set
                 all_types.add(full_name)
 
+                # Keep track of number of types and print out information for every 500 types classified
                 type_counter += 1
                 if type_counter % 500 == 0:
                     print(f"  - {type_counter} types classified...")
+
             elif el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
+                # Print statement for debugging.
+                # Print anything that castxml considers a type but our program rejects
                 with open("nonAcceptedList.txt", "a") as f:
                     print(f"{full_name}\n\n", file=f)
-                # To save a bit of time, construct class name dict once and pass to remaining checks
-                # class_name = classutils.getClassNameDict(el)
-
-                # JOEL: Come back to this???
-                # Need to read it fully
-
-                # Skip problematic types
-
-                # JOEL: Commented out isProblematicType - as discussed in meeting
-                # if isProblematicType(el):
-                #     continue
-
-                # TODO: TG: Needed here cause isKnownClass uses isStdType and this just checks that it
-                # starts with 'std', which is not enough if the template args are not valid
-                # If template, check the arguments are accepted
-
-                # JOEL: Commented out isTemplateWithValidArgs - as discussed in meeting
-                # if not isTemplateWithValidArgs(el, class_name=class_name):
-                #     continue
-
-                #
-                # Known class?
-                #
-                # if isKnownClass(el, class_name=class_name):
-                #     all_types.append(full_name)
 
                 # Skip incomplete types
                 # TODO: incomplete test should be test in other tests
@@ -2575,38 +2485,6 @@ def fillAcceptedTypesList():
                 # print(f"{full_name} incomplete")
                 # continue
 
-                #
-                # Fundamental type?
-                #
-                # if isFundamental(el):
-                #     all_types.append(full_name)
-
-                #
-                # Std type?
-                #
-                # if isStdType(el, class_name=class_name):
-                #     all_types.append(full_name)
-
-                #
-                # Loaded type?
-                #
-                # if isLoadedClass(el, byname=False, class_name=class_name):
-                #     all_types.append(full_name)
-
-                #
-                # Enumeration type?
-                #
-                # if isEnumeration(el):
-                #     enum_name = enumutils.getEnumNameDict(el)
-
-                #     # If the parent is a loaded class, add it
-                #     parent = '::'.join(getNamespaces(el, include_self=False))
-                #     if parent and parent in cfg.load_classes:
-                #         all_types.append(full_name)
-
-                #     # If it is a loaded enum, add it
-                #     if isLoadedEnum(el, enum_name=enum_name):
-                #         all_types.append(full_name)
             
     # Print final number of types classified
     print(f"  - {type_counter} types classified.")
@@ -2622,70 +2500,71 @@ def fillAcceptedTypesList():
 
 # ====== validType ========
 
-def validType(typeName, xml_file):
-    # Need a function to strip
-    typeName = typeName.strip()
-    typeNameLen = len(typeName)
-    if typeNameLen >= 2 and typeName[-2:] == '::':
+def validType(type_name, xml_file):
+    # Strip the type name and find the length
+    # to save time recomputing later
+    type_name = type_name.strip()
+    type_name_len = len(type_name)
+
+    # Check if it ends with '::'. If it doesn, reject it instantly
+    if type_name_len >= 2 and type_name[-2:] == '::':
         return False
 
-    # Create required lists to store info
-    typeNameBracketLocs = []
-    typeNameCommaLocs = []
-    findOutsideBracketsAndCommas(
-        typeName, typeNameBracketLocs, typeNameCommaLocs)
+    # Create required lists to store info on bracket/comma locations
+    type_name_bracket_locs = []
+    type_name_comma_locs = []
+    try:
+        findOutsideBracketsAndCommas(type_name, type_name_bracket_locs, type_name_comma_locs)
+    except:
+        return False
 
     # If there are more than 1 angle brackets pair on the outermost level
     # OR there are any commas outside angle brackets there's a problem
-    numBracketPairs = len(typeNameBracketLocs)
-    if (numBracketPairs > 1 or len(typeNameCommaLocs) != 0):
-        print(f"Problematic: {typeName}\n")
+    num_bracket_pairs = len(type_name_bracket_locs)
+    if num_bracket_pairs > 1 or len(type_name_comma_locs) != 0:
         return False
-    # assert(numBracketPairs <= 1)
 
-    # assert(len(typeNameCommaLocs) == 0)
-
-    if (numBracketPairs == 0):
+    if num_bracket_pairs == 0:
         # Not templated
-        return isTypeValid(typeName, xml_file)
+        return isTypeValid(type_name, xml_file)
     else:
         # Is templated
         # Grab the locations of the outer brackets
-        (lo, hi) = typeNameBracketLocs[0]
-        strippedType = typeName[:lo]
+        (lo, hi) = type_name_bracket_locs[0]
+        stripped_type = type_name[:lo]
 
-        # Check if the outer type is valid.
-        # E.g. if typeName was std::vector<int>, check if std::vector is valid.
-        # Then check if the closing angle bracket is the final character in typeName. If not, it's not valid.
-        # After that, check if the template brackets are empty.
-        if not isTypeValid(strippedType, xml_file) or hi != typeNameLen - 1:
+        if not isTypeValid(stripped_type, xml_file) or hi != type_name_len - 1:
+            # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
             return False
         elif hi - lo == 1:
+            # The template brackets are empty and the outer type must be valid since it got to the elif, so accept
             return True
 
-        insideBrackets = typeName[lo + 1:hi]
+        inside_brackets = type_name[lo + 1:hi]
 
-        # Strip the commas between insideBrackets if there are any,
-        # E.g., if typeName = 'std::map<int, bool>'
-        # insideBrackets = 'int, bool'
+        # Strip the commas between inside_brackets if there are any,
+        # E.g., if type_name = 'std::map<int, bool>'
+        # inside_brackets = 'int, bool'
         # We want to separate it into 'int' and 'bool' before we go any deeper
-        insideBracketsBracketLocs = []
-        insideBracketsCommaLocs = []
-        findOutsideBracketsAndCommas(
-            insideBrackets, insideBracketsBracketLocs, insideBracketsCommaLocs)
+        inside_brackets_bracket_locs = []
+        inside_brackets_comma__locs = []
+        try:
+            findOutsideBracketsAndCommas(inside_brackets, inside_brackets_bracket_locs, inside_brackets_comma__locs)
+        except:
+            return False
 
-        insideBracketsCommaLocs.append(len(insideBrackets))
-        prevComma = -1
-        for comma in insideBracketsCommaLocs:
+        inside_brackets_comma__locs.append(len(inside_brackets))
+        prev_comma = -1
+        for comma in inside_brackets_comma__locs:
             # For each comma, get the substring between this comma and the last one
             # and strip it for leading/lagging whitespace.
             # Then, add it to the list of section
-            section = insideBrackets[prevComma + 1:comma]
-            prevComma = comma
+            section = inside_brackets[prev_comma + 1:comma]
+            prev_comma = comma
 
             # Recurse through each section unless it's a digit
-            # E.g., typeName = 'std::array<int, 3>'
-            # insideBrackets = 'int, 3'
+            # E.g., type_name = 'std::array<int, 3>'
+            # inside_brackets = 'int, 3'
             # The first section = 'int', which we want to recurse on
             # Second section = '3', which isn't a type so we don't want to recurse on
             section = section.strip()
@@ -2706,10 +2585,12 @@ def isAcceptedEnum(el):
         enum_name = enumutils.getEnumNameDict(el)
 
         parent = '::'.join(getNamespaces(el, include_self=False))
+
         # If it is a loaded enum, add it
         # If the parent is a loaded class, add it
         if (parent and parent in cfg.load_classes) or isLoadedEnum(el, enum_name=enum_name):
             return True
+
     return False
 
 
@@ -2718,17 +2599,18 @@ def isAcceptedEnum(el):
 
 # ====== isTypeValid ========
 
-def isTypeValid(typeName, xml_file):
+def isTypeValid(type_name, xml_file):
     import modules.classutils as classutils
 
-    trimmed_type_name = getBasicTypeName(typeName)
+    trimmed_type_name = getBasicTypeName(type_name)
+    
     try:
-        # Check if typeName already has an element we can use
+        # Check if type_name already has an element we can use
         el = gb.all_name_dict[xml_file][trimmed_type_name]
 
         # If it did have an element, check if it's a typedef
         if el.tag == 'Typedef':
-            # Find the final type
+            # Find the final type that the typedef(s) leads to
             el = gb.final_typedef_dict[trimmed_type_name]
 
         # Check if we can accept if based on the element and class name
@@ -2740,24 +2622,30 @@ def isTypeValid(typeName, xml_file):
             isKnownClass(el, class_name=class_name) or\
             isLoadedClass(el,  byname=False, class_name=class_name) or\
             isAcceptedEnum(el)
+            
+            # Debugging print, get rid of later. Also get rid of return_bool
             if not return_bool:
                 with open("nonAcceptedList.txt", "a") as f:
-                    print(f"Not of any of the 5 types {typeName}", file=f)
+                    print(f"Not of any of the 5 types {type_name}", file=f)
 
             return return_bool
         else:
             # We can't accept, it's not a type!
-            with open("nonAcceptedList.txt", "a") as f:
-                print(f"Not of class and blah {typeName}", file=f)
-            return False
 
+            # Debugging print, get rid of later
+            with open("nonAcceptedList.txt", "a") as f:
+                print(f"Not of class and blah {type_name}", file=f)
+            
+            return False
     except:
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
-        return_bool = withinNamespace(typeName, 'std::') or (trimmed_type_name in gb.fundamental_equiv_list)
+        return_bool = withinNamespace(type_name, 'std::') or (trimmed_type_name in gb.fundamental_equiv_list)
+
+        # Debugging print, get rid of later. Also get rid of return_bool
         if not return_bool:
             with open("nonAcceptedList.txt", "a") as f:
-                print(f"no corresponding element not std not funda {typeName}", file=f)
+                print(f"no corresponding element not std not funda {type_name}", file=f)
         return return_bool
 
 # ====== END: isTypeValid ========
@@ -2765,6 +2653,8 @@ def isTypeValid(typeName, xml_file):
 # ====== withinAcceptedNamespaces ========
 
 def withinAcceptedNamespaces(type_name, accepted_namespaces):
+    # Check if this type_name is within any namespaces that we're
+    # just automatically accepting everything within.
     for namespace in accepted_namespaces:
         if withinNamespace(type_name, namespace):
             return True
@@ -2774,13 +2664,11 @@ def withinAcceptedNamespaces(type_name, accepted_namespaces):
 # ====== END: withinAcceptedNamespaces ========
 
 
-
-
 # ====== withinNamespace ========
 
 def withinNamespace(type_name, namespace):
-    length = len(namespace)
-    return len(type_name) > length and type_name[:length] == namespace
+    namespace_length = len(namespace)
+    return len(type_name) > namespace_length and type_name[:namespace_length] == namespace
 
 
 # ====== END: withinNamespace ========
@@ -2790,7 +2678,7 @@ def withinNamespace(type_name, namespace):
 
 def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
     stack = []
-    # For index and character in typeName
+    # For index and character in type_name
     for i, ch in enumerate(string):
         if ch == '<':
             # If it's an opening bracket append the index
@@ -2798,10 +2686,8 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
         elif ch == '>':
             # If it's a closing bracket,
             # assert that there's at least one corresponding opening bracket
-            # assert(len(stack) != 0)
             if (len(stack) == 0):
-                print(f"Problematic: {string}\n")
-                return False
+                raise Exception('Invalid template brackets')
 
             # Remove corresponding opening bracket and add it to pair
             # of brackets if it's the outermost bracket
@@ -2815,8 +2701,7 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
 
     # Again, assert that every opening bracket had a closing bracket
     if (len(stack) != 0):
-        print(f"Problematic: {string}\n")
-    # assert(len(stack) == 0)
+        raise Exception('Invalid template brackets')
 
 
 # ====== END: findOutsideBracketsAndCommas ========
