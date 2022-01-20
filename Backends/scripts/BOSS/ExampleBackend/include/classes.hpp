@@ -37,7 +37,7 @@ public:
 //   std::vector<clock_t> my_vec_clock;
   
   // Constructor
-  ClassOne():d{10.01}, i{22} { }
+  ClassOne():d{10.01}, i{22} {}
 
   ClassOne(double first, int second):d{first}, i{second} {}
 
