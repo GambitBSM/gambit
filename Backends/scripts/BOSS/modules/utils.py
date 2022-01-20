@@ -2531,7 +2531,7 @@ def fillAcceptedTypesList():
         #
 
         for full_name, el in gb.name_dict.items():
-            if full_name == "__gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>":
+            if full_name == "std::conditional<false, std::__and_<std::__is_convertible_to_basic_istream<std::basic_istream<char> &>, std::__is_extractable<std::basic_istream<char> &, char &, void> >, std::__not_<std::is_lvalue_reference<std::basic_istream<char> &> > >":
                 print("stop here")
             if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration') and validType(full_name, xml_file):
                 # JOEL: Is this the member function to use for sets?
@@ -2627,6 +2627,8 @@ def validType(typeName, xml_file):
     typeName = typeName.strip()
     typeNameLen = len(typeName)
     if typeNameLen >= 2 and typeName[-2:] == '::':
+        with open("nonAcceptedList.txt", "a") as f:
+            print(f"Ending with :: {typeName}", file=f)
         return False
 
     # Create required lists to store info
@@ -2639,7 +2641,8 @@ def validType(typeName, xml_file):
     # OR there are any commas outside angle brackets there's a problem
     numBracketPairs = len(typeNameBracketLocs)
     if (numBracketPairs > 1 or len(typeNameCommaLocs) != 0):
-        print(f"Problematic: {typeName}\n")
+        with open("nonAcceptedList.txt", "a") as f:
+            print(f"Problematic: {typeName}", file=f)
         return False
     # assert(numBracketPairs <= 1)
 
@@ -2658,6 +2661,7 @@ def validType(typeName, xml_file):
         # E.g. if typeName was std::vector<int>, check if std::vector is valid.
         # Then check if the closing angle bracket is the final character in typeName. If not, it's not valid.
         # After that, check if the template brackets are empty.
+
         if not isTypeValid(strippedType, xml_file) or hi != typeNameLen - 1:
             return False
         elif hi - lo == 1:
