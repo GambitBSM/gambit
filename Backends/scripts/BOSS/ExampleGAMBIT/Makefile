@@ -1,6 +1,6 @@
 # Build examplegambit.exe
 examplegambit:
-	g++ examplegambit.cpp -ldl -o examplegambit.exe -I./include
+	g++ -pthread examplegambit.cpp -ldl -o examplegambit.exe -I./include
 
 
 # Delete all BOSS-related files
