@@ -27,5 +27,11 @@ namespace SomeNamespace
     return vec;
   }
 
+  std::vector<ClassOne> return_as_classOne_vec(double first, int second) {
+    ClassOne class_test = ClassOne(first, second);
+    std::vector<ClassOne> vec = std::vector<ClassOne>{class_test};
+    return vec;
+  }
+
 }
 

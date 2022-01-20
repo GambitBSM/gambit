@@ -49,7 +49,6 @@ src_files_to = 'ExampleBackend/src'
 
 manual_accepted_types = ['nullptr_t', '__mbstate_t']
 
-
 manual_accepted_namespaces = ['std']
 
 load_classes = [

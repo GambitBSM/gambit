@@ -37,7 +37,9 @@ public:
 //   std::vector<clock_t> my_vec_clock;
   
   // Constructor
-  ClassOne() {}
+  ClassOne():d{10.01}, i{22} {}
+
+  ClassOne(double first, int second):d{first}, i{second} {}
 
   // Some method, defined in classes.cpp
   void some_method(int);
@@ -63,13 +65,14 @@ public:
 
 namespace SomeNamespace
 {
-
   // Another dummy class
   class ClassTwo
   {
   public:
     int j;
+    // std::vector<ClassOne> loading_test;
   };
+  
 
 }
 

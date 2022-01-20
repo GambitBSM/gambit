@@ -17,6 +17,8 @@ namespace SomeNamespace
   // Same as return_as_vector, but now with one reference argument
   std::vector<int> return_as_vector_2(int, int&);
 
+  std::vector<ClassOne> return_as_classOne_vec();
+
 }
 
 
