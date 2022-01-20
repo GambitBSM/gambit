@@ -19,6 +19,8 @@ namespace SomeNamespace
 
   std::vector<ClassOne> return_as_classOne_vec();
 
+  std::vector<ClassOne> return_as_classOne_vec(double first, int second);
+
 }
 
 
