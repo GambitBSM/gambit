@@ -2503,7 +2503,7 @@ def fillAcceptedTypesList():
 def validType(type_name, xml_file):
     # Strip the type name and find the length
     # to save time recomputing later
-    type_name = type_name.strip()
+    type_name = getBasicTypeName(type_name).strip()
     type_name_len = len(type_name)
 
     # Check if it ends with '::'. If it doesn, reject it instantly
