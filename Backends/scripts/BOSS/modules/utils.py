@@ -2508,6 +2508,8 @@ def validType(type_name, xml_file):
 
     # Check if it ends with '::'. If it doesn, reject it instantly
     if type_name_len >= 2 and type_name[-2:] == '::':
+        with open("nonAcceptedList.txt", "a") as f:
+            print(f"last 2 char as :: {type_name}", file=f)
         return False
 
     # Create required lists to store info on bracket/comma locations
@@ -2516,12 +2518,16 @@ def validType(type_name, xml_file):
     try:
         findOutsideBracketsAndCommas(type_name, type_name_bracket_locs, type_name_comma_locs)
     except:
+        with open("nonAcceptedList.txt", "a") as f:
+            print(f"findOutsideBracketsAndCommas {type_name}", file=f)
         return False
 
     # If there are more than 1 angle brackets pair on the outermost level
     # OR there are any commas outside angle brackets there's a problem
     num_bracket_pairs = len(type_name_bracket_locs)
     if num_bracket_pairs > 1 or len(type_name_comma_locs) != 0:
+        with open("nonAcceptedList.txt", "a") as f:
+            print(f"comma and bracket locations {type_name}", file=f)
         return False
 
     if num_bracket_pairs == 0:
@@ -2536,6 +2542,8 @@ def validType(type_name, xml_file):
         #  ZELUN hi != type_name_len - 1 breaking type with & as the last char
         if not isTypeValid(stripped_type, xml_file) or hi != type_name_len - 1:
             # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
+            with open("nonAcceptedList.txt", "a") as f:
+                    print(f"> not the last char {type_name}", file=f)
             return False
         elif hi - lo == 1:
             # The template brackets are empty and the outer type must be valid since it got to the elif, so accept
@@ -2552,6 +2560,8 @@ def validType(type_name, xml_file):
         try:
             findOutsideBracketsAndCommas(inside_brackets, inside_brackets_bracket_locs, inside_brackets_comma__locs)
         except:
+            with open("nonAcceptedList.txt", "a") as f:
+                print(f"findOutsideBracketsAndCommas222 {type_name}", file=f)
             return False
 
         inside_brackets_comma__locs.append(len(inside_brackets))
@@ -2570,6 +2580,8 @@ def validType(type_name, xml_file):
             # Second section = '3', which isn't a type so we don't want to recurse on
             section = section.strip()
             if not (section.isdigit() or section == 'false' or section == 'true') and not validType(section, xml_file):
+                with open("nonAcceptedList.txt", "a") as f:
+                    print(f"digit true false {type_name}", file=f)
                 return False
 
         return True
@@ -2641,7 +2653,8 @@ def isTypeValid(type_name, xml_file):
     except:
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
-        return_bool = withinNamespace(type_name, 'std::') or (trimmed_type_name in gb.fundamental_equiv_list)
+        return_bool = withinAcceptedNamespaces(type_name) or (trimmed_type_name in gb.fundamental_equiv_list) or\
+            trimmed_type_name in cfg.manual_accepted_types
 
         # Debugging print, get rid of later. Also get rid of return_bool
         if not return_bool:
@@ -2653,11 +2666,11 @@ def isTypeValid(type_name, xml_file):
 
 # ====== withinAcceptedNamespaces ========
 
-def withinAcceptedNamespaces(type_name, accepted_namespaces):
+def withinAcceptedNamespaces(type_name):
     # Check if this type_name is within any namespaces that we're
     # just automatically accepting everything within.
-    for namespace in accepted_namespaces:
-        if withinNamespace(type_name, namespace):
+    for namespace in cfg.manual_accepted_namespaces:
+        if withinNamespace(type_name, namespace + "::"):
             return True
     
     return False

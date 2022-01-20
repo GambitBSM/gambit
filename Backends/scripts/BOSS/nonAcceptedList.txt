@@ -114,425 +114,521 @@ Not of any of the 5 types __NSConstantString_tag
 __NSConstantString_tag
 
 
+last 2 char as :: std::
 std::
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
 std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
 
 
-no corresponding element not std not funda __mbstate_t
-std::codecvt<char, char, __mbstate_t>
-
-
-no corresponding element not std not funda __mbstate_t
-std::codecvt<wchar_t, char, __mbstate_t>
-
-
-no corresponding element not std not funda __mbstate_t
-std::codecvt<char16_t, char, __mbstate_t>
-
-
-no corresponding element not std not funda __mbstate_t
-std::codecvt<char32_t, char, __mbstate_t>
-
-
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const char *, std::basic_string<char> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char *, std::basic_string<char> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<char *, std::basic_string<char> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char *, std::basic_string<char> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::__iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 std::__iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::__iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 std::__iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+digit true false std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
+digit true false std::conditional<false, std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >, std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> > >
 std::conditional<false, std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >, std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> > >
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+digit true false std::__and_<std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> >, std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 std::__and_<std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> >, std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+digit true false std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 
 
-no corresponding element not std not funda nullptr_t
-std::__is_null_pointer_helper<nullptr_t>
-
-
+> not the last char std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl
+digit true false std::remove_reference<std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl &>
 std::remove_reference<std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl &>
 
 
-no corresponding element not std not funda __mbstate_t
-std::fpos<__mbstate_t>
-
-
 no corresponding element not std not funda __gnu_cxx::__aligned_membuf
+> not the last char __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<char>, char>
 __gnu_cxx::__alloc_traits<std::allocator<char>, char>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>
 __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>
 __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>
 __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>
 __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<char>
 __gnu_cxx::new_allocator<char>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<wchar_t>
 __gnu_cxx::new_allocator<wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<char16_t>
 __gnu_cxx::new_allocator<char16_t>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<char32_t>
 __gnu_cxx::new_allocator<char32_t>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::new_allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<unsigned long>
 __gnu_cxx::new_allocator<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
 __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
 __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
 __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
 __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<int>
 __gnu_cxx::__numeric_traits_integer<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<float>
 __gnu_cxx::__numeric_traits_integer<float>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<double>
 __gnu_cxx::__numeric_traits_integer<double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<long double>
 __gnu_cxx::__numeric_traits_integer<long double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<unsigned long>
 __gnu_cxx::__numeric_traits_integer<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<char>
 __gnu_cxx::__numeric_traits_integer<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<short>
 __gnu_cxx::__numeric_traits_integer<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<long>
 __gnu_cxx::__numeric_traits_integer<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<int>
 __gnu_cxx::__numeric_traits_floating<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<float>
 __gnu_cxx::__numeric_traits_floating<float>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<double>
 __gnu_cxx::__numeric_traits_floating<double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<long double>
 __gnu_cxx::__numeric_traits_floating<long double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<unsigned long>
 __gnu_cxx::__numeric_traits_floating<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<char>
 __gnu_cxx::__numeric_traits_floating<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<short>
 __gnu_cxx::__numeric_traits_floating<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<long>
 __gnu_cxx::__numeric_traits_floating<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<int>
 __gnu_cxx::__numeric_traits<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<float>
 __gnu_cxx::__numeric_traits<float>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<double>
 __gnu_cxx::__numeric_traits<double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<long double>
 __gnu_cxx::__numeric_traits<long double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<unsigned long>
 __gnu_cxx::__numeric_traits<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<char>
 __gnu_cxx::__numeric_traits<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<short>
 __gnu_cxx::__numeric_traits<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<long>
 __gnu_cxx::__numeric_traits<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__enable_if
+> not the last char __gnu_cxx::__enable_if<false, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__enable_if<false, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__enable_if
+> not the last char __gnu_cxx::__enable_if<true, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__enable_if<true, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<int>, __gnu_cxx::__numeric_traits_floating<int> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<int>, __gnu_cxx::__numeric_traits_floating<int> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<float>, __gnu_cxx::__numeric_traits_floating<float> >
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<float>, __gnu_cxx::__numeric_traits_floating<float> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<double>, __gnu_cxx::__numeric_traits_floating<double> >
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<double>, __gnu_cxx::__numeric_traits_floating<double> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<long double>, __gnu_cxx::__numeric_traits_floating<long double> >
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<long double>, __gnu_cxx::__numeric_traits_floating<long double> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<unsigned long>, __gnu_cxx::__numeric_traits_floating<unsigned long> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<unsigned long>, __gnu_cxx::__numeric_traits_floating<unsigned long> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<char>, __gnu_cxx::__numeric_traits_floating<char> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<char>, __gnu_cxx::__numeric_traits_floating<char> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, unsigned long, unsigned long long>
 __gnu_cxx::__conditional_type<true, unsigned long, unsigned long long>
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<short>, __gnu_cxx::__numeric_traits_floating<short> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<short>, __gnu_cxx::__numeric_traits_floating<short> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<long>, __gnu_cxx::__numeric_traits_floating<long> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<long>, __gnu_cxx::__numeric_traits_floating<long> >
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<char>
 __gnu_cxx::__add_unsigned<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<signed char>
 __gnu_cxx::__add_unsigned<signed char>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<short>
 __gnu_cxx::__add_unsigned<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<int>
 __gnu_cxx::__add_unsigned<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<long>
 __gnu_cxx::__add_unsigned<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<long long>
 __gnu_cxx::__add_unsigned<long long>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<bool>
 __gnu_cxx::__add_unsigned<bool>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<wchar_t>
 __gnu_cxx::__add_unsigned<wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<char>
 __gnu_cxx::__remove_unsigned<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned char>
 __gnu_cxx::__remove_unsigned<unsigned char>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned short>
 __gnu_cxx::__remove_unsigned<unsigned short>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned int>
 __gnu_cxx::__remove_unsigned<unsigned int>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned long>
 __gnu_cxx::__remove_unsigned<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned long long>
 __gnu_cxx::__remove_unsigned<unsigned long long>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<bool>
 __gnu_cxx::__remove_unsigned<bool>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<wchar_t>
 __gnu_cxx::__remove_unsigned<wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__promote
+> not the last char __gnu_cxx::__promote<long double, false>
 __gnu_cxx::__promote<long double, false>
 
 
 no corresponding element not std not funda __gnu_cxx::__promote
+> not the last char __gnu_cxx::__promote<double, false>
 __gnu_cxx::__promote<double, false>
 
 
 no corresponding element not std not funda __gnu_cxx::__promote
+> not the last char __gnu_cxx::__promote<float, false>
 __gnu_cxx::__promote<float, false>
 
 
@@ -552,214 +648,284 @@ Not of any of the 5 types __va_list_tag
 __va_list_tag
 
 
+> not the last char std::map<int, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::value_compare
 std::map<int, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::value_compare
 
 
+> not the last char std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Reuse_or_alloc_node
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Reuse_or_alloc_node
 
 
+> not the last char std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Alloc_node
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Alloc_node
 
 
+comma and bracket locations std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>
 
 
+> not the last char std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl_data
 std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl_data
 
 
+> not the last char std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl
 std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl
 
 
+> not the last char std::vector<unsigned long, std::allocator<unsigned long> >::_Temporary_value
 std::vector<unsigned long, std::allocator<unsigned long> >::_Temporary_value
 
 
+> not the last char std::basic_istream<char, std::char_traits<char> >::sentry
 std::basic_istream<char, std::char_traits<char> >::sentry
 
 
+> not the last char std::basic_istream<wchar_t, std::char_traits<wchar_t> >::sentry
 std::basic_istream<wchar_t, std::char_traits<wchar_t> >::sentry
 
 
+> not the last char std::basic_ostream<char, std::char_traits<char> >::sentry
 std::basic_ostream<char, std::char_traits<char> >::sentry
 
 
+> not the last char std::basic_ostream<wchar_t, std::char_traits<wchar_t> >::sentry
 std::basic_ostream<wchar_t, std::char_traits<wchar_t> >::sentry
 
 
+last 2 char as :: std::__num_base::
 std::__num_base::
 
 
+last 2 char as :: std::ios_base::
 std::ios_base::
 
 
+last 2 char as :: std::locale::
 std::locale::
 
 
+> not the last char std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider
 std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider
 
 
+> not the last char std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >::_Alloc_hider
 std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >::_Alloc_hider
 
 
+> not the last char std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >::_Alloc_hider
 std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >::_Alloc_hider
 
 
+> not the last char std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >::_Alloc_hider
 std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >::_Alloc_hider
 
 
+last 2 char as :: std::__are_same<float, float>::
 std::__are_same<float, float>::
 
 
+last 2 char as :: std::__are_same<float, double>::
 std::__are_same<float, double>::
 
 
+last 2 char as :: std::__are_same<double, float>::
 std::__are_same<double, float>::
 
 
+last 2 char as :: std::__are_same<double, double>::
 std::__are_same<double, double>::
 
 
+last 2 char as :: std::__are_same<long double, float>::
 std::__are_same<long double, float>::
 
 
+last 2 char as :: std::__are_same<long double, double>::
 std::__are_same<long double, double>::
 
 
+last 2 char as :: std::__are_same<const unsigned long *, unsigned long *>::
 std::__are_same<const unsigned long *, unsigned long *>::
 
 
+last 2 char as :: std::__are_same<unsigned long, unsigned long>::
 std::__are_same<unsigned long, unsigned long>::
 
 
+last 2 char as :: std::__are_same<unsigned long *, unsigned long *>::
 std::__are_same<unsigned long *, unsigned long *>::
 
 
+last 2 char as :: std::__is_void<void>::
 std::__is_void<void>::
 
 
+last 2 char as :: std::__is_integer<bool>::
 std::__is_integer<bool>::
 
 
+last 2 char as :: std::__is_integer<char>::
 std::__is_integer<char>::
 
 
+last 2 char as :: std::__is_integer<signed char>::
 std::__is_integer<signed char>::
 
 
+last 2 char as :: std::__is_integer<unsigned char>::
 std::__is_integer<unsigned char>::
 
 
+last 2 char as :: std::__is_integer<wchar_t>::
 std::__is_integer<wchar_t>::
 
 
+last 2 char as :: std::__is_integer<char16_t>::
 std::__is_integer<char16_t>::
 
 
+last 2 char as :: std::__is_integer<char32_t>::
 std::__is_integer<char32_t>::
 
 
+last 2 char as :: std::__is_integer<short>::
 std::__is_integer<short>::
 
 
+last 2 char as :: std::__is_integer<unsigned short>::
 std::__is_integer<unsigned short>::
 
 
+last 2 char as :: std::__is_integer<int>::
 std::__is_integer<int>::
 
 
+last 2 char as :: std::__is_integer<unsigned int>::
 std::__is_integer<unsigned int>::
 
 
+last 2 char as :: std::__is_integer<long>::
 std::__is_integer<long>::
 
 
+last 2 char as :: std::__is_integer<unsigned long>::
 std::__is_integer<unsigned long>::
 
 
+last 2 char as :: std::__is_integer<long long>::
 std::__is_integer<long long>::
 
 
+last 2 char as :: std::__is_integer<unsigned long long>::
 std::__is_integer<unsigned long long>::
 
 
+last 2 char as :: std::__is_integer<long double>::
 std::__is_integer<long double>::
 
 
+last 2 char as :: std::__is_integer<double>::
 std::__is_integer<double>::
 
 
+last 2 char as :: std::__is_integer<float>::
 std::__is_integer<float>::
 
 
+last 2 char as :: std::__is_integer<char *>::
 std::__is_integer<char *>::
 
 
+last 2 char as :: std::__is_integer<wchar_t *>::
 std::__is_integer<wchar_t *>::
 
 
+last 2 char as :: std::__is_integer<char16_t *>::
 std::__is_integer<char16_t *>::
 
 
+last 2 char as :: std::__is_integer<char32_t *>::
 std::__is_integer<char32_t *>::
 
 
+last 2 char as :: std::__is_floating<float>::
 std::__is_floating<float>::
 
 
+last 2 char as :: std::__is_floating<double>::
 std::__is_floating<double>::
 
 
+last 2 char as :: std::__is_floating<long double>::
 std::__is_floating<long double>::
 
 
+last 2 char as :: std::__is_pointer<const unsigned long *>::
 std::__is_pointer<const unsigned long *>::
 
 
+last 2 char as :: std::__is_pointer<unsigned long *>::
 std::__is_pointer<unsigned long *>::
 
 
+last 2 char as :: std::__is_char<char>::
 std::__is_char<char>::
 
 
+last 2 char as :: std::__is_char<wchar_t>::
 std::__is_char<wchar_t>::
 
 
+last 2 char as :: std::__is_byte<char>::
 std::__is_byte<char>::
 
 
+last 2 char as :: std::__is_byte<signed char>::
 std::__is_byte<signed char>::
 
 
+last 2 char as :: std::__is_byte<unsigned char>::
 std::__is_byte<unsigned char>::
 
 
+last 2 char as :: std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >::
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >::
 
 
+last 2 char as :: std::__is_move_iterator<unsigned long *>::
 std::__is_move_iterator<unsigned long *>::
 
 
 no corresponding element not std not funda __gnu_cxx::__aligned_membuf
+> not the last char __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::_Tp2
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::_Tp2
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>
 __gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>::rebind<wchar_t>
 __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>::rebind<wchar_t>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>::rebind<char16_t>
 __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>::rebind<char16_t>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>::rebind<char32_t>
 __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>::rebind<char32_t>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long>
 __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long>
 
 
@@ -904,424 +1070,520 @@ __NSConstantString_tag
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
 std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
 
 
-no corresponding element not std not funda __mbstate_t
-std::codecvt<char, char, __mbstate_t>
-
-
-no corresponding element not std not funda __mbstate_t
-std::codecvt<wchar_t, char, __mbstate_t>
-
-
-no corresponding element not std not funda __mbstate_t
-std::codecvt<char16_t, char, __mbstate_t>
-
-
-no corresponding element not std not funda __mbstate_t
-std::codecvt<char32_t, char, __mbstate_t>
-
-
-no corresponding element not std not funda __mbstate_t
-std::fpos<__mbstate_t>
-
-
+last 2 char as :: std::
 std::
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const char *, std::basic_string<char> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char *, std::basic_string<char> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<char *, std::basic_string<char> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char *, std::basic_string<char> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::reverse_iterator<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::reverse_iterator<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::__iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 std::__iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::__iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 std::__iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >, void>
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::iterator_traits<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::iterator_traits<__gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+digit true false std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
+digit true false std::conditional<false, std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >, std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> > >
 std::conditional<false, std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >, std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> > >
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+digit true false std::__and_<std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> >, std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 std::__and_<std::__not_<std::is_lvalue_reference<std::basic_ostream<char> &> >, std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 
 
 no corresponding element not std not funda char ()[44]
+digit true false std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void>
+digit true false std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 std::__and_<std::__is_convertible_to_basic_ostream<std::basic_ostream<char> &>, std::__is_insertable<std::basic_ostream<char> &, char const (&)[44], void> >
 
 
-no corresponding element not std not funda nullptr_t
-std::__is_null_pointer_helper<nullptr_t>
-
-
+> not the last char std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl
+digit true false std::remove_reference<std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl &>
 std::remove_reference<std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl &>
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
+digit true false std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__aligned_membuf
+> not the last char __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<char>, char>
 __gnu_cxx::__alloc_traits<std::allocator<char>, char>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>
 __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>
 __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>
 __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >, std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 
 
 no corresponding element not std not funda __gnu_cxx::__alloc_traits
+> not the last char __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>
 __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<char>
 __gnu_cxx::new_allocator<char>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<wchar_t>
 __gnu_cxx::new_allocator<wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<char16_t>
 __gnu_cxx::new_allocator<char16_t>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<char32_t>
 __gnu_cxx::new_allocator<char32_t>
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::new_allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 __gnu_cxx::new_allocator<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 
 
 no corresponding element not std not funda __gnu_cxx::new_allocator
+> not the last char __gnu_cxx::new_allocator<unsigned long>
 __gnu_cxx::new_allocator<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
 __gnu_cxx::__normal_iterator<char *, std::basic_string<char> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
 __gnu_cxx::__normal_iterator<const char *, std::basic_string<char> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
 __gnu_cxx::__normal_iterator<wchar_t *, std::basic_string<wchar_t> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
 __gnu_cxx::__normal_iterator<const wchar_t *, std::basic_string<wchar_t> >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 __gnu_cxx::__normal_iterator<char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 __gnu_cxx::__normal_iterator<const char16_t *, std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 __gnu_cxx::__normal_iterator<char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 __gnu_cxx::__normal_iterator<const char32_t *, std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__normal_iterator<unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__normal_iterator
+> not the last char __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<long>
 __gnu_cxx::__numeric_traits_integer<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<int>
 __gnu_cxx::__numeric_traits_integer<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<float>
 __gnu_cxx::__numeric_traits_integer<float>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<double>
 __gnu_cxx::__numeric_traits_integer<double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<long double>
 __gnu_cxx::__numeric_traits_integer<long double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<unsigned long>
 __gnu_cxx::__numeric_traits_integer<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<char>
 __gnu_cxx::__numeric_traits_integer<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_integer
+> not the last char __gnu_cxx::__numeric_traits_integer<short>
 __gnu_cxx::__numeric_traits_integer<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<long>
 __gnu_cxx::__numeric_traits_floating<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<int>
 __gnu_cxx::__numeric_traits_floating<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<float>
 __gnu_cxx::__numeric_traits_floating<float>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<double>
 __gnu_cxx::__numeric_traits_floating<double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<long double>
 __gnu_cxx::__numeric_traits_floating<long double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<unsigned long>
 __gnu_cxx::__numeric_traits_floating<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<char>
 __gnu_cxx::__numeric_traits_floating<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits_floating
+> not the last char __gnu_cxx::__numeric_traits_floating<short>
 __gnu_cxx::__numeric_traits_floating<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<long>
 __gnu_cxx::__numeric_traits<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<int>
 __gnu_cxx::__numeric_traits<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<float>
 __gnu_cxx::__numeric_traits<float>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<double>
 __gnu_cxx::__numeric_traits<double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<long double>
 __gnu_cxx::__numeric_traits<long double>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<unsigned long>
 __gnu_cxx::__numeric_traits<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<char>
 __gnu_cxx::__numeric_traits<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__numeric_traits
+> not the last char __gnu_cxx::__numeric_traits<short>
 __gnu_cxx::__numeric_traits<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__enable_if
+> not the last char __gnu_cxx::__enable_if<false, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__enable_if<false, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__enable_if
+> not the last char __gnu_cxx::__enable_if<true, std::vector<unsigned long, std::allocator<unsigned long> > >
 __gnu_cxx::__enable_if<true, std::vector<unsigned long, std::allocator<unsigned long> > >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<long>, __gnu_cxx::__numeric_traits_floating<long> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<long>, __gnu_cxx::__numeric_traits_floating<long> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<int>, __gnu_cxx::__numeric_traits_floating<int> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<int>, __gnu_cxx::__numeric_traits_floating<int> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<float>, __gnu_cxx::__numeric_traits_floating<float> >
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<float>, __gnu_cxx::__numeric_traits_floating<float> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<double>, __gnu_cxx::__numeric_traits_floating<double> >
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<double>, __gnu_cxx::__numeric_traits_floating<double> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<long double>, __gnu_cxx::__numeric_traits_floating<long double> >
 __gnu_cxx::__conditional_type<false, __gnu_cxx::__numeric_traits_integer<long double>, __gnu_cxx::__numeric_traits_floating<long double> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<unsigned long>, __gnu_cxx::__numeric_traits_floating<unsigned long> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<unsigned long>, __gnu_cxx::__numeric_traits_floating<unsigned long> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<char>, __gnu_cxx::__numeric_traits_floating<char> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<char>, __gnu_cxx::__numeric_traits_floating<char> >
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, unsigned long, unsigned long long>
 __gnu_cxx::__conditional_type<true, unsigned long, unsigned long long>
 
 
 no corresponding element not std not funda __gnu_cxx::__conditional_type
+> not the last char __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<short>, __gnu_cxx::__numeric_traits_floating<short> >
 __gnu_cxx::__conditional_type<true, __gnu_cxx::__numeric_traits_integer<short>, __gnu_cxx::__numeric_traits_floating<short> >
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<char>
 __gnu_cxx::__add_unsigned<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<signed char>
 __gnu_cxx::__add_unsigned<signed char>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<short>
 __gnu_cxx::__add_unsigned<short>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<int>
 __gnu_cxx::__add_unsigned<int>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<long>
 __gnu_cxx::__add_unsigned<long>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<long long>
 __gnu_cxx::__add_unsigned<long long>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<bool>
 __gnu_cxx::__add_unsigned<bool>
 
 
 no corresponding element not std not funda __gnu_cxx::__add_unsigned
+> not the last char __gnu_cxx::__add_unsigned<wchar_t>
 __gnu_cxx::__add_unsigned<wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<char>
 __gnu_cxx::__remove_unsigned<char>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned char>
 __gnu_cxx::__remove_unsigned<unsigned char>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned short>
 __gnu_cxx::__remove_unsigned<unsigned short>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned int>
 __gnu_cxx::__remove_unsigned<unsigned int>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned long>
 __gnu_cxx::__remove_unsigned<unsigned long>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<unsigned long long>
 __gnu_cxx::__remove_unsigned<unsigned long long>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<bool>
 __gnu_cxx::__remove_unsigned<bool>
 
 
 no corresponding element not std not funda __gnu_cxx::__remove_unsigned
+> not the last char __gnu_cxx::__remove_unsigned<wchar_t>
 __gnu_cxx::__remove_unsigned<wchar_t>
 
 
 no corresponding element not std not funda __gnu_cxx::__promote
+> not the last char __gnu_cxx::__promote<long double, false>
 __gnu_cxx::__promote<long double, false>
 
 
 no corresponding element not std not funda __gnu_cxx::__promote
+> not the last char __gnu_cxx::__promote<double, false>
 __gnu_cxx::__promote<double, false>
 
 
 no corresponding element not std not funda __gnu_cxx::__promote
+> not the last char __gnu_cxx::__promote<float, false>
 __gnu_cxx::__promote<float, false>
 
 
@@ -1341,214 +1603,284 @@ Not of any of the 5 types __va_list_tag
 __va_list_tag
 
 
+> not the last char std::map<int, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::value_compare
 std::map<int, std::vector<unsigned long, std::allocator<unsigned long> >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::value_compare
 
 
+> not the last char std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Reuse_or_alloc_node
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Reuse_or_alloc_node
 
 
+> not the last char std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Alloc_node
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Alloc_node
 
 
+comma and bracket locations std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>
 std::_Rb_tree<int, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > >, std::_Select1st<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::less<int>, std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >::_Rb_tree_impl<std::less<int>, true>
 
 
+> not the last char std::basic_istream<char, std::char_traits<char> >::sentry
 std::basic_istream<char, std::char_traits<char> >::sentry
 
 
+> not the last char std::basic_istream<wchar_t, std::char_traits<wchar_t> >::sentry
 std::basic_istream<wchar_t, std::char_traits<wchar_t> >::sentry
 
 
+> not the last char std::basic_ostream<char, std::char_traits<char> >::sentry
 std::basic_ostream<char, std::char_traits<char> >::sentry
 
 
+> not the last char std::basic_ostream<wchar_t, std::char_traits<wchar_t> >::sentry
 std::basic_ostream<wchar_t, std::char_traits<wchar_t> >::sentry
 
 
+last 2 char as :: std::__num_base::
 std::__num_base::
 
 
+last 2 char as :: std::ios_base::
 std::ios_base::
 
 
+last 2 char as :: std::locale::
 std::locale::
 
 
+> not the last char std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider
 std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider
 
 
+> not the last char std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >::_Alloc_hider
 std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> >::_Alloc_hider
 
 
+> not the last char std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >::_Alloc_hider
 std::basic_string<char16_t, std::char_traits<char16_t>, std::allocator<char16_t> >::_Alloc_hider
 
 
+> not the last char std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >::_Alloc_hider
 std::basic_string<char32_t, std::char_traits<char32_t>, std::allocator<char32_t> >::_Alloc_hider
 
 
+> not the last char std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl_data
 std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl_data
 
 
+> not the last char std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl
 std::_Vector_base<unsigned long, std::allocator<unsigned long> >::_Vector_impl
 
 
+> not the last char std::vector<unsigned long, std::allocator<unsigned long> >::_Temporary_value
 std::vector<unsigned long, std::allocator<unsigned long> >::_Temporary_value
 
 
+last 2 char as :: std::__are_same<float, float>::
 std::__are_same<float, float>::
 
 
+last 2 char as :: std::__are_same<float, double>::
 std::__are_same<float, double>::
 
 
+last 2 char as :: std::__are_same<double, float>::
 std::__are_same<double, float>::
 
 
+last 2 char as :: std::__are_same<double, double>::
 std::__are_same<double, double>::
 
 
+last 2 char as :: std::__are_same<long double, float>::
 std::__are_same<long double, float>::
 
 
+last 2 char as :: std::__are_same<long double, double>::
 std::__are_same<long double, double>::
 
 
+last 2 char as :: std::__are_same<const unsigned long *, unsigned long *>::
 std::__are_same<const unsigned long *, unsigned long *>::
 
 
+last 2 char as :: std::__are_same<unsigned long, unsigned long>::
 std::__are_same<unsigned long, unsigned long>::
 
 
+last 2 char as :: std::__are_same<unsigned long *, unsigned long *>::
 std::__are_same<unsigned long *, unsigned long *>::
 
 
+last 2 char as :: std::__is_void<void>::
 std::__is_void<void>::
 
 
+last 2 char as :: std::__is_integer<bool>::
 std::__is_integer<bool>::
 
 
+last 2 char as :: std::__is_integer<char>::
 std::__is_integer<char>::
 
 
+last 2 char as :: std::__is_integer<signed char>::
 std::__is_integer<signed char>::
 
 
+last 2 char as :: std::__is_integer<unsigned char>::
 std::__is_integer<unsigned char>::
 
 
+last 2 char as :: std::__is_integer<wchar_t>::
 std::__is_integer<wchar_t>::
 
 
+last 2 char as :: std::__is_integer<char16_t>::
 std::__is_integer<char16_t>::
 
 
+last 2 char as :: std::__is_integer<char32_t>::
 std::__is_integer<char32_t>::
 
 
+last 2 char as :: std::__is_integer<short>::
 std::__is_integer<short>::
 
 
+last 2 char as :: std::__is_integer<unsigned short>::
 std::__is_integer<unsigned short>::
 
 
+last 2 char as :: std::__is_integer<int>::
 std::__is_integer<int>::
 
 
+last 2 char as :: std::__is_integer<unsigned int>::
 std::__is_integer<unsigned int>::
 
 
+last 2 char as :: std::__is_integer<long>::
 std::__is_integer<long>::
 
 
+last 2 char as :: std::__is_integer<unsigned long>::
 std::__is_integer<unsigned long>::
 
 
+last 2 char as :: std::__is_integer<long long>::
 std::__is_integer<long long>::
 
 
+last 2 char as :: std::__is_integer<unsigned long long>::
 std::__is_integer<unsigned long long>::
 
 
+last 2 char as :: std::__is_integer<long double>::
 std::__is_integer<long double>::
 
 
+last 2 char as :: std::__is_integer<double>::
 std::__is_integer<double>::
 
 
+last 2 char as :: std::__is_integer<float>::
 std::__is_integer<float>::
 
 
+last 2 char as :: std::__is_integer<char *>::
 std::__is_integer<char *>::
 
 
+last 2 char as :: std::__is_integer<wchar_t *>::
 std::__is_integer<wchar_t *>::
 
 
+last 2 char as :: std::__is_integer<char16_t *>::
 std::__is_integer<char16_t *>::
 
 
+last 2 char as :: std::__is_integer<char32_t *>::
 std::__is_integer<char32_t *>::
 
 
+last 2 char as :: std::__is_floating<float>::
 std::__is_floating<float>::
 
 
+last 2 char as :: std::__is_floating<double>::
 std::__is_floating<double>::
 
 
+last 2 char as :: std::__is_floating<long double>::
 std::__is_floating<long double>::
 
 
+last 2 char as :: std::__is_pointer<const unsigned long *>::
 std::__is_pointer<const unsigned long *>::
 
 
+last 2 char as :: std::__is_pointer<unsigned long *>::
 std::__is_pointer<unsigned long *>::
 
 
+last 2 char as :: std::__is_char<char>::
 std::__is_char<char>::
 
 
+last 2 char as :: std::__is_char<wchar_t>::
 std::__is_char<wchar_t>::
 
 
+last 2 char as :: std::__is_byte<char>::
 std::__is_byte<char>::
 
 
+last 2 char as :: std::__is_byte<signed char>::
 std::__is_byte<signed char>::
 
 
+last 2 char as :: std::__is_byte<unsigned char>::
 std::__is_byte<unsigned char>::
 
 
+last 2 char as :: std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >::
 std::__is_move_iterator<__gnu_cxx::__normal_iterator<const unsigned long *, std::vector<unsigned long, std::allocator<unsigned long> > > >::
 
 
+last 2 char as :: std::__is_move_iterator<unsigned long *>::
 std::__is_move_iterator<unsigned long *>::
 
 
 no corresponding element not std not funda __gnu_cxx::__aligned_membuf
+> not the last char __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::_Tp2
 __gnu_cxx::__aligned_membuf<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::_Tp2
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>
 __gnu_cxx::__alloc_traits<std::allocator<char>, char>::rebind<char>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>::rebind<wchar_t>
 __gnu_cxx::__alloc_traits<std::allocator<wchar_t>, wchar_t>::rebind<wchar_t>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>::rebind<char16_t>
 __gnu_cxx::__alloc_traits<std::allocator<char16_t>, char16_t>::rebind<char16_t>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>::rebind<char32_t>
 __gnu_cxx::__alloc_traits<std::allocator<char32_t>, char32_t>::rebind<char32_t>
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 __gnu_cxx::__alloc_traits<std::allocator<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >, std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > >::rebind<std::_Rb_tree_node<std::pair<const int, std::vector<unsigned long, std::allocator<unsigned long> > > > >
 
 
+comma and bracket locations __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long>
 __gnu_cxx::__alloc_traits<std::allocator<unsigned long>, unsigned long>::rebind<unsigned long>
 
 

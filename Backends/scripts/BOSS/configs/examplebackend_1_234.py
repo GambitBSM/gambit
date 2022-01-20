@@ -47,16 +47,22 @@ base_paths = ['ExampleBackend']
 header_files_to = 'ExampleBackend/include'
 src_files_to = 'ExampleBackend/src'
 
+manual_accepted_types = ['nullptr_t', '__mbstate_t']
+
+
+manual_accepted_namespaces = ['std']
 
 load_classes = [
     'ClassOne',
     'SomeNamespace::ClassTwo',
+    'Node'
 ]
 
 load_functions = [
     'SomeNamespace::modify_instance(int, SomeNamespace::ClassTwo&)',
     'SomeNamespace::return_as_vector(int, int)',
     'SomeNamespace::return_as_vector_2(int, int&)',
+    'SomeNamespace::return_as_classOne_vec()',
     # 'ClassOne::return_clock_t()',
     # 'SomeNamespace::return_as_vector_with_clock()',
 ]
