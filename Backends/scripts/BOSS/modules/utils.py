@@ -2626,6 +2626,8 @@ def validType(typeName, xml_file):
     # Need a function to strip
     typeName = typeName.strip()
     typeNameLen = len(typeName)
+    if typeNameLen >= 2 and typeName[-2:] == '::':
+        return False
 
     # Create required lists to store info
     typeNameBracketLocs = []
@@ -2656,7 +2658,7 @@ def validType(typeName, xml_file):
         # E.g. if typeName was std::vector<int>, check if std::vector is valid.
         # Then check if the closing angle bracket is the final character in typeName. If not, it's not valid.
         # After that, check if the template brackets are empty.
-        if not isTypeValid(strippedType, xml_file) or hi != typeNameLen - 1 or (typeNameLen >= 2 and typeName[-2:] == '::'):
+        if not isTypeValid(strippedType, xml_file) or hi != typeNameLen - 1:
             return False
         elif hi - lo == 1:
             return True
