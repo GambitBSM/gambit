@@ -5,19 +5,6 @@
 #include <vector>
 #include <ctime>
 #include <map>
-typedef int* int2;
-typedef int2** int3;
-typedef int3& int4;
-typedef int4&& int5;
-typedef int Data;
-
-struct Node {
-    Data d;
-    struct Node* next;
-};
-
-typedef struct Node* List_2;
-
 
 // A dummy class
 class ClassOne

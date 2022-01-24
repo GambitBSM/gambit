@@ -44,7 +44,7 @@ def run():
 
         # Clear all info messages
         infomsg.clearInfoMessages()
-
+        print(f"HELLO!!!! {class_name_long}")
         # Generate dicts with different variations of the class name
         # TODO: TG: Request template info for templated class
         class_name       = classutils.getClassNameDict(class_el, add_template_info=True)
@@ -120,7 +120,7 @@ def run():
 
         # TODO: TG: Only do each templated class once
         if is_template and class_name['long'] in template_done:
-            continue;
+            continue
 
 
         # Get template arguments for specialization, 
