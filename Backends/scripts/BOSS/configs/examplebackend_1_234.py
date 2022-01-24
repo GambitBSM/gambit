@@ -55,7 +55,6 @@ manual_accepted_namespaces = ['std']
 load_classes = [
     'ClassOne',
     'SomeNamespace::ClassTwo',
-    'Node',
     'ClassThree',
     'ClassFour'
 ]
