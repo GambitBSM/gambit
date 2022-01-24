@@ -276,16 +276,16 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
     include_statements_code = '\n'.join(include_statements) + 2*'\n'
     class_decl += include_statements_code
 
-    # # Add include statement for the enum declaration header. Put this inside a #ifndef ... #endif block
-    # # to avoid multiple declaration when the abstract class header is included from the original class header. 
-    # enum_include_statement_code  = ''
-    # enum_include_statement_code += '#ifndef ENUMS_DECLARED\n'
-    # enum_include_statement_code += '#define ENUMS_DECLARED\n'
-    # enum_include_statement_code += '#include "' + gb.enum_decls_wrp_fname + cfg.header_extension + '"\n'
-    # # enum_include_statement_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.enum_decls_wrp_fname + cfg.header_extension) + '"\n'
-    # enum_include_statement_code += '#endif\n'
-    # enum_include_statement_code += '\n'
-    # class_decl += enum_include_statement_code
+    # Add include statement for the enum declaration header. Put this inside a #ifndef ... #endif block
+    # to avoid multiple declaration when the abstract class header is included from the original class header. 
+    enum_include_statement_code  = ''
+    #enum_include_statement_code += '#ifndef ENUMS_DECLARED\n'
+    #enum_include_statement_code += '#define ENUMS_DECLARED\n'
+    enum_include_statement_code += '#include "' + gb.enum_decls_wrp_fname + cfg.header_extension + '"\n'
+    # enum_include_statement_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.enum_decls_wrp_fname + cfg.header_extension) + '"\n'
+    #enum_include_statement_code += '#endif\n'
+    enum_include_statement_code += '\n'
+    class_decl += enum_include_statement_code
 
     # Add the the code for the abstract class
     if (is_template == True) and (class_name['long'] in templ_spec_done):
@@ -435,7 +435,7 @@ def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_f
         include_code += '} '
 
     include_code += '\n'*has_namespace
-    include_code += use_indent + '#define ENUMS_DECLARED\n'
+    #include_code += use_indent + '#define ENUMS_DECLARED\n'
     include_code += use_indent + include_line + '\n'
     include_code += use_indent + '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.abstract_typedefs_fname + cfg.header_extension) +  '"\n'
     include_code += use_indent + '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.wrapper_typedefs_fname + cfg.header_extension) +  '"\n'

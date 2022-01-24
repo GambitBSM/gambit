@@ -316,7 +316,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
                     ptr_members_for_init.append(variable_name)
 
         #
-        # If an enumeration class add this to the abstract class
+        # If an enumeration type add this to the abstract class
         #
         elif el.tag in ('Enumeration') :
             class_decl += '\n'

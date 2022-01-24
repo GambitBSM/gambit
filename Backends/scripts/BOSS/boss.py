@@ -205,6 +205,8 @@ def main():
     import modules.classparse as classparse
     import modules.funcparse as funcparse
     import modules.funcutils as funcutils
+    import modules.enumparse as enumparse
+    import modules.enumutils as enumutils
     import modules.utils as utils
     import modules.filehandling as filehandling
     import modules.infomsg as infomsg
@@ -621,6 +623,12 @@ def main():
 
 
         #
+        # Parse enums
+        #
+
+        enumparse.run()
+
+        #
         # Create header with forward declarations of all abstract classes
         #
 
@@ -636,12 +644,12 @@ def main():
         utils.constrWrpForwardDeclHeader(wrp_frwd_decls_header_path)
 
 
-        # #
-        # # Create header with declarations of all enum types
-        # #
+        #
+        # Create header with declarations of all enum types
+        #
 
-        # enum_decls_header_path = os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension)
-        # utils.constrEnumDeclHeader(root.findall('Enumeration'), enum_decls_header_path)
+        enum_decls_header_path = os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension)
+        utils.constrEnumDeclHeader(enum_decls_header_path)
 
 
     #

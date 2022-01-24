@@ -45,6 +45,7 @@ std_types_dict          = OrderedDict()
 typedef_dict            = OrderedDict()
 loaded_classes_in_xml   = OrderedDict()
 func_dict               = OrderedDict()
+enum_dict               = OrderedDict()
 new_header_files        = OrderedDict()
 new_source_files        = OrderedDict()
 accepted_types          = []
@@ -54,6 +55,7 @@ std_include_paths       = []
 
 functions_done          = []
 classes_done            = []
+enums_done              = []
 wr_func_names           = []
 
 factory_info            = OrderedDict()
