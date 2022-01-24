@@ -2004,7 +2004,7 @@ def constrWrapperSrc(class_name, abstr_class_name,  indent=' '*cfg.indent) :
         if utils.getNamespaces(abstr_type)[-1] == class_name['short'] :
             # get the type
             abstr_type_dict = utils.findType(abstr_type)
-            abstr_type_name = utils.removeNamespace(abstr_type_dict['name'])
+            abstr_type_name = abstr_type_dict['name']
             abstr_type_enum_values = abstr_type_dict['enum_values']
 
             # Add code 
@@ -2198,9 +2198,12 @@ def generateWrapperSourceCode(class_el, class_name, abstr_class_name, namespaces
 
     # Insert include statements needed by GAMBIT 
     backend_undef_incl_statement  = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
-    identification_incl_statement = '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.bakend_types_basedir, gambit_backend_name_full, 'identification.hpp') + '"\n'
+    incl_statement = '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name['short'] + cfg.header_extension) + '"\n'
+    incl_statement += '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.backend_types_basedir, gb.gambit_backend_name_full, 'identification.hpp') + '"\n'
+ 
+ 
 
-    src_code = identification_incl_statement + src_code + '\n' + backend_undef_incl_statement
+    src_code = incl_statement + src_code + '\n' + backend_undef_incl_statement
     
     # Return code
     return src_code
