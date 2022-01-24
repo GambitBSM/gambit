@@ -2198,7 +2198,7 @@ def generateWrapperSourceCode(class_el, class_name, abstr_class_name, namespaces
 
     # Insert include statements needed by GAMBIT 
     backend_undef_incl_statement  = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
-    identification_incl_statement = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'identification.hpp' + '"\n'
+    identification_incl_statement = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'identification.hpp') + '"\n'
 
     src_code = identification_incl_statement + src_code + '\n' + backend_undef_incl_statement
     
