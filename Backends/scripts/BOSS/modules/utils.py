@@ -2458,7 +2458,6 @@ def fillAcceptedTypesList():
             is_enumeration = isEnumeration(el)
             if is_enumeration:
                 parent = '::'.join(getNamespaces(el, include_self=False))
-                if parent :
                 if parent and parent in new_loaded_classes:
                     new_enumeration_types.append(full_name)
 
