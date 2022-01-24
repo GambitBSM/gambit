@@ -19,7 +19,7 @@ import modules.infomsg as infomsg
 
 
 
-# ====== getClassNameDict ========
+# ====== getEnumNameDict ========
 
 def getEnumNameDict(enum_el):
 

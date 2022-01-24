@@ -88,6 +88,9 @@ load_functions = [
     # 'Pythia8::m2(const Pythia8::Particle&, const Pythia8::Particle&)',
 ]
 
+load_enums = [
+]
+
 ditch = ['Pythia8::Pythia::initSLHA']
 
 

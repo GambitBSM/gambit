@@ -54,6 +54,9 @@ load_functions = [
     'SomeNamespace::foo(int, SomeNamespace::ClassTwo)'
 ]
 
+load_enums = [
+]
+
 ditch = []
 
 

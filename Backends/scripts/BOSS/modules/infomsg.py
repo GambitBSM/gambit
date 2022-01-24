@@ -78,6 +78,17 @@ class FunctionAlreadyDone(InfoMessage):
         if bool(reason): self.msg += " (%s)" % reason
         InfoMessage.__init__(self)
 
+class EnumAlreadyDone(InfoMessage):
+
+    msg = "Enum '%s' is already done."
+    tags_done = set()
+
+    def __init__(self, tag, reason=''):
+        self.tag = tag
+        self.msg = self.__class__.msg % (tag)
+        if bool(reason): self.msg += " (%s)" % reason
+        InfoMessage.__init__(self)
+
 
 class ParentClassIgnored(InfoMessage):
 

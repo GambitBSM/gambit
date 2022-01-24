@@ -144,7 +144,8 @@ def moveFilesAround():
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
     # -- header with copies of all enum type declarations
-    files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    if len(gb.enums_done) > 0:
+        files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # -- identification.hpp
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
@@ -172,7 +173,8 @@ def moveFilesAround():
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
     # -- header with copies of all enum type declarations
-    files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    if len(gb.enums_done) > 0 :
+        files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # -- identification.hpp
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
@@ -217,7 +219,8 @@ def moveFilesAround():
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
     # -- header with copies of all enum type declarations
-    files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    if len(gb.enums_done) > 0 :
+        files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # -- identification.hpp
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
@@ -242,7 +245,8 @@ def moveFilesAround():
     # move_files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_wrp_fname + cfg.header_extension) ]
 
     # # -- header with copies of all enum type declarations
-    # move_files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
+    # if len(gb.enums_done) > 0 :
+    #     move_files_list += [ os.path.join(gb.boss_output_dir, gb.enum_decls_wrp_fname + cfg.header_extension) ]
 
     # # -- identification.hpp
     # move_files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
@@ -791,6 +795,56 @@ def createFrontendHeader(function_xml_files_dict):
         be_function_macro_code += '"' + symbol + '"' + ', '
         be_function_macro_code += '"' + func_name['short'] + '"' + ')\n'
 
+    #
+    # Generate code for all global enum types
+    #
+
+    outer_namespace_list = ['Gambit', 'Backends', gb.gambit_backend_name_full]
+
+    enums_code  = ''
+    enums_code += utils.constrNamespace(outer_namespace_list, 'open', indent=cfg.indent)
+
+    for enum_name in gb.enums_done :
+
+        enum_code = '' 
+        enum_namespace, enum_name_short = utils.removeNamespace(enum_name['long'], return_namespace=True)
+
+        if enum_namespace == '':
+            enum_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + enum_name['long'] + ' ' + enum_name['short'] + ';\n'
+            for val in enum_name['enum_values']:
+                enum_code += 'constexpr ' + enum_name['short'] + ' ' + val + ' = ::' + gb.gambit_backend_name_full + '::' + val + ';\n'
+        else:
+            enum_namespace_list = enum_namespace.split('::')
+
+            enum_code += utils.constrNamespace(enum_namespace_list, 'open', indent=cfg.indent)
+            enum_code += ' '*cfg.indent*len(enum_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + enum_name['long'] + ' ' + enum_name['short'] + ';\n'
+            for val in enum_name['enum_values']:
+                enum_code += ' '*cfg.indent*len(enum_namespace_list) + 'constexpr ' + enum_name['short'] + ' ' + val + ' = ::' + gb.gambit_backend_name_full + '::' + enum_namespace + '::' + val + ';\n'
+ 
+            enum_code += utils.constrNamespace(enum_namespace_list, 'close', indent=cfg.indent)
+
+        enum_code = utils.addIndentation(enum_code, 3*cfg.indent)
+        enums_code += enum_code
+
+    enums_code += utils.constrNamespace(outer_namespace_list, 'close', indent=cfg.indent)
+
+
+    #
+    # Generate code for all the convenience functions
+    #
+
+    be_conv_function_macro_code = ''
+    for conv_func in cfg.convenience_functions:
+        be_conv_function_macro_code += 'BE_CONV_FUNCTION(' + conv_func['name'] + ', '
+        be_conv_function_macro_code += conv_func['returntype'] + ', '
+        be_conv_function_macro_code += '('
+        for i, argtype in enumerate(conv_func['argtypes']) :
+            be_conv_function_macro_code += argtype
+            if i < len(conv_func['argtypes']) - 1 :
+                be_conv_function_macro_code += ', '
+        be_conv_function_macro_code += '), '
+        be_conv_function_macro_code += '"' + conv_func['capname'] + '")\n'
+
 
     #
     # Generate code for the frontend header
@@ -831,7 +885,13 @@ def createFrontendHeader(function_xml_files_dict):
     frontend_content += '// Functions\n'
     frontend_content += be_function_macro_code
 
+    # - Enums
+    frontend_content += '\n'
+    frontend_content += '// Enums\n'
+    frontend_content += enums_code
+
     # - Descriptions of different things that can go into a frontend header
+    frontend_content += '\n'
     frontend_content += '// Variables\n'
     frontend_content += '\n'
     frontend_content += '// Initialisation function (dependencies)\n'

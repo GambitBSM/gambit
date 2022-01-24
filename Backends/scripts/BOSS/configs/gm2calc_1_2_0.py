@@ -75,6 +75,9 @@ load_functions = [
   'gm2calc::calculate_uncertainty_amu_2loop(const gm2calc::MSSMNoFV_onshell&)'
 ]
 
+load_enums = [
+]
+
 ditch = []
 
 

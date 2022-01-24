@@ -1033,7 +1033,30 @@ def isAcceptedType(input_el):
 
 # ====== END: isAcceptedType ========
 
+# ====== isLoadedEnum =======
 
+def isLoadedEnum(enum_type, enum_name=None):
+
+    is_loaded_enum = False
+
+    #if the enum_name dict is passed as an argument, use it
+    if enum_name is not None:
+
+        if enum_name['long'] in cfg.load_enums:
+            is_loaded_enum = True
+
+    else:
+
+        type_dict = findType(enum_type)
+        type_el = type_dict['el']
+
+        if type_el.tag in ['Enumeration'] and type_dict['name'] in cfg.load_enums:
+            is_loaded_enum = True
+
+
+    return is_loaded_enum
+
+# ====== END: isLoadedEnum =======
 
 # ====== isLoadedClass ========
 
@@ -2364,6 +2387,7 @@ def pathSplitAll(path):
 def fillAcceptedTypesList():
 
     import modules.classutils as classutils
+    import modules.enumutils as enumutils
 
     # Sets to store type names
     fundamental_types = set()
@@ -2454,12 +2478,18 @@ def fillAcceptedTypesList():
             #
             # Enumeration type?
             #
-            # TG: for now consider only enumerations that belong to a loaded class
-            # TODO: changed my mind, all are allowed
             is_enumeration = isEnumeration(el)
             if is_enumeration:
-            #    parent = '::'.join(getNamespaces(el, include_self=False))
-            #    if parent and parent in new_loaded_classes:
+
+                enum_name = enumutils.getEnumNameDict(el)
+
+                # If the parent is a loaded class, add it
+                parent = '::'.join(getNamespaces(el, include_self=False))
+                if parent and parent in cfg.load_classes:
+                    new_enumeration_types.append(full_name)
+
+                # If it is a loaded enum, add it
+                if isLoadedEnum(el, enum_name=enum_name) :
                     new_enumeration_types.append(full_name)
 
 
@@ -2690,6 +2720,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
     import modules.classutils as classutils
     import modules.funcutils as funcutils
+    import modules.enumutils as enumutils
 
     # Clear dicts
     clearGlobalXMLdicts()
@@ -2778,13 +2809,21 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
             # Only accept native enumerations
             if isNative(el):
   
-                enum_name = el.get('name')
+                enum_name = enumutils.getEnumNameDict(el)
 
                 # Only take enumerations that are not members of a class or a struct
                 parent = gb.id_dict[el.get('context')]
-                if not parent.tag in ('Class', 'Struct') :
+                if parent.tag in ('Class', 'Struct') :
+                    continue
 
-                    gb.enum_dict[enum_name] = el
+                # Check if we have done this function already
+                if enum_name in gb.enums_done:
+                    infomsg.EnumAlreadyDone( enum_name['long'] ).printMessage()
+                    continue
+
+                # If the enum is in the requested list of loaded enums, add it to the dict
+                if enum_name['long'] in cfg.load_enums:
+                    gb.enum_dict[enum_name['long']] = el
 
         # Update global dict: function name --> function xml element
         if el.tag == 'Function':

@@ -131,12 +131,9 @@ def addIncludesDeclAndCommentsToOriginalEnumFile(enum_el, enum_name, namespaces,
     # Find enum name position in the original file
     enum_name_pos = enumutils.findEnumNamePosition(enum_el, original_file_content_nocomments)
 
-    print(enum_name_pos)
-    print(original_file_content[enum_name_pos])
     # Find insert position
     #insert_pos = original_file_content_nocomments[:enum_name_pos].rfind('enum')
     insert_pos = enum_name_pos
-    print(insert_pos)
     # - Adjust for the indentation
     use_indent = ''
     while insert_pos > 0:
@@ -146,7 +143,6 @@ def addIncludesDeclAndCommentsToOriginalEnumFile(enum_el, enum_name, namespaces,
             insert_pos -= 1
         else:
             break
-    print(insert_pos)
 
     # Construct code
     include_code = ''

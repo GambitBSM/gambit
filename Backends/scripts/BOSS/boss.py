@@ -609,6 +609,13 @@ def main():
 
 
         #
+        # Parse enums
+        #
+
+        enumparse.run()
+
+
+        #
         # Parse classes
         #
 
@@ -621,12 +628,6 @@ def main():
 
         funcparse.run()
 
-
-        #
-        # Parse enums
-        #
-
-        enumparse.run()
 
         #
         # Create header with forward declarations of all abstract classes
