@@ -75,25 +75,6 @@ def createOutputDirectories(selected_dirs=['all']):
             else:
                 raise
 
-    if ('backend_types_src_basedir' in selected_dirs) or ('all' in selected_dirs):
-        if gb.backend_types_basedir != '':
-            try:
-                os.makedirs( os.path.join(gb.boss_output_dir, gb.backend_types_src_basedir) )
-            except OSError as e:
-                if e.errno == 17:
-                    pass
-                else:
-                    raise
-    if ('backend_types_src_dir_complete' in selected_dirs) or ('all' in selected_dirs):
-        try:
-            os.makedirs( gb.backend_types_src_dir_complete )
-        except OSError as e:
-            if e.errno == 17:
-                pass
-            else:
-                raise
-
-
     if ('for_gambit_basedir' in selected_dirs) or ('all' in selected_dirs):
         try:
             os.makedirs( gb.for_gambit_basedir )
@@ -103,18 +84,19 @@ def createOutputDirectories(selected_dirs=['all']):
             else:
                 raise
 
-    if ('for_gambit_backend_types_dir_complete' in selected_dirs) or ('all' in selected_dirs):
+    if ('for_gambit_backend_types_include_dir_complete' in selected_dirs) or ('all' in selected_dirs):
         try:
-            os.makedirs( gb.for_gambit_backend_types_dir_complete )
+            os.makedirs( gb.for_gambit_backend_types_include_dir_complete )
         except OSError as e:
             if e.errno == 17:
                 pass
             else:
                 raise
 
-    if ('for_gambit_backend_types_src_dir_complete' in selected_dirs) or ('all' in selected_dirs):
+
+    if ('for_gambit_backend_types_source_dir_complete' in selected_dirs) or ('all' in selected_dirs):
         try:
-            os.makedirs( gb.for_gambit_backend_types_src_dir_complete )
+            os.makedirs( gb.for_gambit_backend_types_source_dir_complete )
         except OSError as e:
             if e.errno == 17:
                 pass
@@ -152,6 +134,9 @@ def moveFilesAround():
     # -- wrapper class headers
     files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_header_prefix + '*' + cfg.header_extension) )
 
+    # -- wrapper class source
+    files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
+
     # -- header with forward declarations for all abstract classes
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_abs_fname + cfg.header_extension) ]
 
@@ -168,21 +153,9 @@ def moveFilesAround():
         cp_target = os.path.join(gb.backend_types_dir_complete, os.path.basename(cp_source))
         shutil.copy(cp_source, cp_target)
 
-    #
-    # Copy files to gb.backend_types_src_dir_complete
-    #
-    files_list  = []
-
-    # -- wrapper class sourced
-    files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
-
-    for cp_source in files_list:
-        cp_target = os.path.join(gb.backend_types_src_dir_complete, os.path.basename(cp_source))
-        shutil.copy(cp_source, cp_target)
-
 
     #
-    # Copy files to gb.for_gambit_backend_types_dir_complete
+    # Copy files to gb.for_gambit_backend_types_include_dir_complete
     #
     files_list  = []
 
@@ -205,11 +178,11 @@ def moveFilesAround():
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
 
     for cp_source in files_list:
-        cp_target = os.path.join(gb.for_gambit_backend_types_dir_complete, os.path.basename(cp_source).rstrip('.FOR_GAMBIT'))
+        cp_target = os.path.join(gb.for_gambit_backend_types_include_dir_complete, os.path.basename(cp_source).rstrip('.FOR_GAMBIT'))
         shutil.copy(cp_source, cp_target)
 
-    #
-    # Copy files to gb.for_gambit_backend_types_src_dir_complete
+#
+    # Copy files to gb.for_gambit_backend_types_source_dir_complete
     #
     files_list  = []
 
@@ -217,8 +190,10 @@ def moveFilesAround():
     files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
 
     for cp_source in files_list:
-        cp_target = os.path.join(gb.for_gambit_backend_types_src_dir_complete, os.path.basename(cp_source).rstrip('.FOR_GAMBIT'))
+        cp_target = os.path.join(gb.for_gambit_backend_types_source_dir_complete, os.path.basename(cp_source).rstrip('.FOR_GAMBIT'))
         shutil.copy(cp_source, cp_target)
+
+
 
     #
     # Delete files from gb.boss_output_dir
@@ -232,6 +207,9 @@ def moveFilesAround():
     # -- wrapper class headers
     files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_header_prefix + '*' + cfg.header_extension) )
 
+    # -- wrapper class source
+    files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
+
     # -- header with forward declarations for all abstract classes
     files_list += [ os.path.join(gb.boss_output_dir, gb.frwd_decls_abs_fname + cfg.header_extension) ]
 
@@ -243,9 +221,6 @@ def moveFilesAround():
 
     # -- identification.hpp
     files_list += [ os.path.join(gb.boss_output_dir, 'identification.hpp') ]
-
-    # -- wrapper class source
-    files_list += glob.glob( os.path.join(gb.boss_output_dir, gb.wrapper_source_prefix + '*' + cfg.source_extension) )
 
     for rm_target in files_list:
         os.remove(rm_target)
@@ -512,12 +487,13 @@ def copyFilesToSourceTree(verbose=False):
     # - Add source file for the wrapper classes
     for class_name in gb.classes_done:
 
-        wrapper_source_file_name= gb.wrapper_source_prefix + class_name['short'] + cfg.source_extension
+        if class_name in gb.needs_wrapper_source_file :
+            wrapper_source_file_name= gb.wrapper_source_prefix + class_name['short'] + cfg.source_extension
 
-        cp_source = os.path.join(gb.boss_output_dir, wrapper_source_file_name)
-        cp_target = os.path.join(cfg.src_files_to, wrapper_source_file_name)
-        source_target_tuples.append( (cp_source, cp_target) )
-        new_files.append(cp_target)
+            cp_source = os.path.join(gb.boss_output_dir, wrapper_source_file_name)
+            cp_target = os.path.join(cfg.src_files_to, wrapper_source_file_name)
+            source_target_tuples.append( (cp_source, cp_target) )
+            new_files.append(cp_target)
 
 
     # - Add all manipulated original files
@@ -658,7 +634,7 @@ def createLoadedTypesHeader():
     loaded_types_header_content = utils.constrLoadedTypesHeaderContent()
 
     # Write to file
-    loaded_types_output_path = os.path.join(gb.for_gambit_backend_types_dir_complete, 'loaded_types.hpp')
+    loaded_types_output_path = os.path.join(gb.for_gambit_backend_types_include_dir_complete, 'loaded_types.hpp')
     f = open(loaded_types_output_path, 'w')
     f.write(loaded_types_header_content)
     f.close()

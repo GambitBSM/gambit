@@ -65,15 +65,14 @@ symbol_name_counter     = 1
 function_name_counter   = 1
 
 moved_to_abstract_class = []
+needs_wrapper_source_file = []
 
-backend_types_basedir = 'include/backend_types'
-backend_types_src_basedir = 'src/backend_types'
+backend_types_basedir = 'backend_types'
 backend_types_dir_complete = os.path.join(boss_output_dir, backend_types_basedir, gambit_backend_name_full)
-backend_types_src_dir_complete = os.path.join(boss_output_dir, backend_types_src_basedir, gambit_backend_name_full)
 
 for_gambit_basedir = 'for_gambit'
-for_gambit_backend_types_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, backend_types_basedir, gambit_backend_name_full)
-for_gambit_backend_types_src_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, backend_types_src_basedir, gambit_backend_name_full)
+for_gambit_backend_types_include_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, 'include', backend_types_basedir, gambit_backend_name_full)
+for_gambit_backend_types_source_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, 'source',  backend_types_basedir, gambit_backend_name_full)
 
 frontend_base_dir = 'frontends'
 frontend_dir_complete = os.path.join(boss_output_dir, frontend_base_dir)

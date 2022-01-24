@@ -2013,6 +2013,10 @@ def constrWrapperSrc(class_name, abstr_class_name,  indent=' '*cfg.indent) :
                 for val in abstr_type_enum_values :
                     src_code += 2*indent + "constexpr " + abstr_type_name + ' ' + class_name['short'] + '::' + val + ';\n'
 
+                # Add this to a global variable to know whether we need to write the source file
+                gb.needs_wrapper_source_file.append(class_name['short'])
+
+
 
     # Add namespace
     namespace, class_name_short = utils.removeNamespace(class_name['long'], return_namespace=True)
