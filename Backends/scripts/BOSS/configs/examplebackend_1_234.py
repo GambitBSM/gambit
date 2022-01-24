@@ -54,8 +54,6 @@ manual_accepted_namespaces = ['std']
 load_classes = [
     'ClassOne',
     'SomeNamespace::ClassTwo',
-    'ClassThree',
-    'ClassFour'
 ]
 
 load_functions = [
