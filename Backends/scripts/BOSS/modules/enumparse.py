@@ -35,9 +35,6 @@ def run():
     # Clear the module-level dict that keeps track of include statements
     includes.clear()
 
-    # Reset the offset
-    offset = 0
-
 
     #
     # Loop over all enums
@@ -86,18 +83,13 @@ def run():
             includes[original_file_name] = []
 
 
-        # Generate code for #include statements in orginal header/source file 
+        # Generate code for #include statements, declarations of enum values
+        # and comments in orginal header/source file 
         #
 
-        offset += addIncludesToOriginalEnumFile(enum_el, enum_name, namespaces, original_file_name,
-                                       original_file_content_nocomments, original_file_content, offset)
-
-        #
-        # Comment out member variables or types in the enums definition
-        #
-
-        commentMembersOfOriginalEnumFile(enum_el, original_file_name, original_file_content,
-                                          original_file_content_nocomments, offset)
+        addIncludesDeclAndCommentsToOriginalEnumFile(enum_el, enum_name,
+                                       namespaces, original_file_name,
+                                       original_file_content_nocomments, original_file_content)
 
         #
         # Keep track of enums done
@@ -117,12 +109,12 @@ def run():
 
 
 
-# ====== addIncludesToOriginalEnumFile ========
+# ====== addIncludesDeclAndCommentsToOriginalEnumFile ========
 
 # Generate code for #include statements in orginal header/source file
 
-def addIncludesToOriginalEnumFile(enum_el, enum_name, namespaces, original_file_name,
-                                   original_file_content_nocomments, original_file_content, offset) :
+def addIncludesDeclAndCommentsToOriginalEnumFile(enum_el, enum_name, namespaces, original_file_name,
+                                   original_file_content_nocomments, original_file_content) :
 
     # Generate include statement for enum declaration header
     include_line = '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.enum_decls_wrp_fname + cfg.header_extension ) + '"'
@@ -154,8 +146,6 @@ def addIncludesToOriginalEnumFile(enum_el, enum_name, namespaces, original_file_
             insert_pos -= 1
         else:
             break
-    insert_pos += offset
-    print(offset)
     print(insert_pos)
 
     # Construct code
@@ -180,42 +170,22 @@ def addIncludesToOriginalEnumFile(enum_el, enum_name, namespaces, original_file_
     for val in enum_name['enum_values'] :
        include_code += 'constexpr ' + enum_name['short'] + ' ' + val + ' = ' + gb.gambit_backend_name_full + '::' + enum_name['long'] + '::' + val + ';\n'
 
-    # Set the offset for future enums
-    offset = len(include_code)
-
-    print(include_line)
-    print(offset)
+    # Find where to add the comment tags
+    rel_pos_start, rel_pos_end = utils.getBracketPositions(original_file_content_nocomments[insert_pos:], delims=['{','}'])
+ 
+    # Add comments
+    include_code += '/*'
+    comment_end = insert_pos + rel_pos_end + 2
 
     # Register code
     gb.new_code[original_file_name]['code_tuples'].append( (insert_pos, include_code) )
+    gb.new_code[original_file_name]['code_tuples'].append( (comment_end, '*/') )
 
     # Register include line
     if add_include_line : 
         includes[original_file_name].append(include_line)
 
-    return offset
-
-# ====== END: addIncludesToOriginalEnumFile ========
 
 
-
-# ======= commentMembersOfOriginalEnumFile ========
-
-def commentMembersOfOriginalEnumFile(enum_el, original_file_name, original_file_content,
-                                      original_file_content_nocomments, offset) :
-
-    # Find position of enum
-    pos = enumutils.findEnumNamePosition(enum_el, original_file_content_nocomments)
-
-    # Find where to add the comment tags
-    rel_pos_start, rel_pos_end = utils.getBracketPositions(original_file_content_nocomments[pos:], delims=['{','}'])
-
-    comment_start = pos
-    comment_end = pos + rel_pos_end + 2
-
-    # Register code
-    gb.new_code[original_file_name]['code_tuples'].append( (comment_start + offset, '/*') )
-    gb.new_code[original_file_name]['code_tuples'].append( (comment_end + offset, '*/') )
-
-# ======= END: commentMembersOfOriginalEnumFile ========
+# ====== END: addIncludesDeclAndCommentsToOriginalEnumFile ========
 
