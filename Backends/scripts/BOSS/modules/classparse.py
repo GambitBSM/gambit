@@ -791,9 +791,10 @@ def generateWrapperSource(class_el, class_name, abstr_class_name, namespaces) :
     wrapper_src_content = classutils.generateWrapperSourceCode(class_el, class_name, abstr_class_name, namespaces)
 
     # Register code
-    if wrapper_src_path not in gb.new_code.keys():
-        gb.new_code[wrapper_src_path] = {'code_tuples':[], 'add_include_guard':False}
-    gb.new_code[wrapper_src_path]['code_tuples'].append( (0, wrapper_src_content) )
+    if class_name['short'] in gb.needs_wrapper_source_file :
+        if wrapper_src_path not in gb.new_code.keys():
+            gb.new_code[wrapper_src_path] = {'code_tuples':[], 'add_include_guard':False}
+        gb.new_code[wrapper_src_path]['code_tuples'].append( (0, wrapper_src_content) )
 
 # ====== END: generateWrapperSource =======
 

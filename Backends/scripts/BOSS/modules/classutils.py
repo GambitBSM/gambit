@@ -1239,12 +1239,11 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             # If its an enumeration, add all values as static constexpr members
             if abstr_type.tag in ['Enumeration'] :
                 for val in abstr_type_enum_values :
-                    decl_code += 2*indent + "static constexpr " + abstr_type_name + ' ' + val + ' = ' + abstr_class_name['long'] + '::' + val + ';\n'
+                    decl_code += 2*indent + "static constexpr " + abstr_type_name + ' ' + val + ' = ' + abstr_class_name['long'] + '::' + val + ';\n\n'
 
     #
     # Variables:
     #
-    decl_code += '\n'
     decl_code += 2*indent + '// Member variables: \n'
 
     # Add a static function pointer for each factory function

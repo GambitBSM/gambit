@@ -1221,6 +1221,7 @@ def constrWrpForwardDeclHeader(file_output_path):
 
 # ====== END: constrWrpForwardDeclHeader ========
 
+# ====== getParentContext ========
 
 
 # ====== getParentClasses ========
@@ -2444,22 +2445,22 @@ def fillAcceptedTypesList():
 
 
             #
-            # Enumeration type?
-            #
-            # TODO: why enumeration types get the whole namespace?
-            is_enumeration = isEnumeration(el)
-            if is_enumeration:
-                new_enumeration_types.append(full_name)
-                #new_enumeration_types.append( '::'.join( getNamespaces(el, include_self=True) ) )
-
-
-            #
             # Loaded type?
             #
             is_loaded_class = isLoadedClass(el, byname=False, class_name=class_name)
             if is_loaded_class:
                 new_loaded_classes.append(full_name)
 
+            #
+            # Enumeration type?
+            #
+            # TG: for now consider only enumerations that belong to a loaded class
+            is_enumeration = isEnumeration(el)
+            if is_enumeration:
+                parent = '::'.join(getNamespaces(el, include_self=False))
+                if parent :
+                if parent and parent in new_loaded_classes:
+                    new_enumeration_types.append(full_name)
 
 
         #
