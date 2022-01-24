@@ -51,6 +51,7 @@ manual_accepted_types = ['nullptr_t', '__mbstate_t']
 
 manual_accepted_namespaces = ['std']
 
+# JOEL: Do we want to be able to say 'ClassThree' or is it acceptable to be saying 'ClassThree<double>'?
 load_classes = [
     'ClassOne',
     'SomeNamespace::ClassTwo',

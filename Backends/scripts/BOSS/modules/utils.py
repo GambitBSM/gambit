@@ -2654,7 +2654,12 @@ def isTypeValid(type_name, xml_file):
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
         return_bool = withinAcceptedNamespaces(type_name) or (trimmed_type_name in gb.fundamental_equiv_list) or\
-            trimmed_type_name in cfg.manual_accepted_types
+            (trimmed_type_name in cfg.manual_accepted_types) or (type_name in cfg.load_classes)
+
+        # JOEL: Long term, we probably want '... or (trimmed_type_name in cfg.load_classes)' instead since
+        # ideally the config file would allow you to have the name of a generic templated type and it
+        # includes ALL of them. Ie, you'd write 'ClassThree' in load_classes in the config file, not
+        # 'ClassThree<double>, ClassThree<int>, ClassThree<...>, ...' for usability.
 
         # Debugging print, get rid of later. Also get rid of return_bool
         if not return_bool:
