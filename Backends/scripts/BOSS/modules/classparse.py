@@ -41,7 +41,6 @@ def run():
     #
     
     for class_name_long, class_el in gb.loaded_classes_in_xml.items():
-
         # Clear all info messages
         infomsg.clearInfoMessages()
         print(f"HELLO!!!! {class_name_long}")

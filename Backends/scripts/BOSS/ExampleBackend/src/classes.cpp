@@ -26,3 +26,37 @@ std::vector<clock_t> ClassOne::return_as_vector_with_clock()
   vec.push_back(c);
   return vec;
 }
+
+T ClassThree::pop()
+{
+  T top = stack.back()
+  stack.pop_back();
+  return top;
+}
+
+void ClassThree::push(T& item)
+{
+  stack.push_back(item);
+}
+
+int ClassThree::size()
+{
+  return stack.size();
+}
+
+T ClassFour::pop()
+{
+  T top = stack.back()
+  stack.pop_back();
+  return top;
+}
+
+void ClassFour::push(T& item)
+{
+  stack.push_back(item);
+}
+
+int ClassFour::size()
+{
+  return stack.size();
+}

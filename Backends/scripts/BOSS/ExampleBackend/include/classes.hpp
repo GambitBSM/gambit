@@ -6,12 +6,35 @@
 #include <ctime>
 #include <map>
 
+template <typename T>
+class ClassThree {
+public:
+  T pop();
+  void push(T item);
+  int size();
+
+private:
+  std::vector<T> stack;
+  int curr_size;
+};
+
+template <class T>
+class ClassFour {
+public:
+  T pop();
+  void push(T item);
+  int size();
+
+private:
+  std::vector<T> stack;
+  int curr_size;
+};
+
 // A dummy class
 class ClassOne
 {
 
 public:
-
   int i;
   int& i_2 = i;
   double d;
@@ -19,12 +42,16 @@ public:
   long li_1;
   unsigned long li_2;
   std::map<int, std::vector<unsigned long int>> testing_Var;
+
+  // Specify a type for ClassThree and ClassFour
+  ClassThree<double> class_3;
+  ClassFour<char> class_4;
   
   // Decalring it as a member variable
-//   std::vector<clock_t> my_vec_clock;
+  //   std::vector<clock_t> my_vec_clock;
   
   // Constructor
-  ClassOne():d{10.01}, i{22} {}
+  ClassOne() : d{10.01}, i{22} {}
 
   ClassOne(double first, int second):d{first}, i{second} {}
 
@@ -47,8 +74,6 @@ public:
   std::vector<clock_t> return_as_vector_with_clock();
 
 };
-
-
 
 namespace SomeNamespace
 {
