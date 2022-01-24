@@ -755,7 +755,8 @@ def main():
     # the correct namespace.
     #
 
-    construct_namespace_in_files = glob.glob(os.path.join(gb.backend_types_dir_complete,'*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_dir_complete,'*'))
+    construct_namespace_in_files = glob.glob(os.path.join(gb.backend_types_dir_complete,'*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_dir_complete,'*')) + glob.glob(os.path.join(gb.backend_types_src_dir_complete,'*')) + glob.glob(os.path.join(gb.for_gambit_backend_types_src_dir_complete,'*'))
+
 
     filehandling.replaceNamespaceTags(construct_namespace_in_files, gb.gambit_backend_namespace, '__START_GAMBIT_NAMESPACE__', '__END_GAMBIT_NAMESPACE__')
 

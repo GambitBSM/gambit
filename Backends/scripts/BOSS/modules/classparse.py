@@ -194,6 +194,11 @@ def run():
         generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
                               construct_assignment_operator, has_copy_constructor, copy_constructor_id)
 
+        #
+        # Generate a source file for definitions of the wrapper class
+        #
+
+        generateWrapperSource(class_el, class_name, abstr_class_name, namespaces)
 
         #
         # Construct utility functions for dealing with pointer-to-wrapper from Abstract class.
@@ -771,6 +776,27 @@ def generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, sh
     gb.new_code[wrapper_header_path]['code_tuples'].append( (0, wrapper_header_content) )
 
 # ====== END: generateWrapperHeader ========
+
+
+# ====== generateWrapperSource =======
+
+def generateWrapperSource(class_el, class_name, abstr_class_name, namespaces) :
+
+    # Set file name
+    wrapper_src_fname = gb.new_source_files[class_name['long']]['wrapper']
+
+    wrapper_src_path  = os.path.join(gb.boss_output_dir, wrapper_src_fname)
+
+    # Get code for the source file
+    wrapper_src_content = classutils.generateWrapperSourceCode(class_el, class_name, abstr_class_name, namespaces)
+
+    # Register code
+    if wrapper_src_path not in gb.new_code.keys():
+        gb.new_code[wrapper_src_path] = {'code_tuples':[], 'add_include_guard':False}
+    gb.new_code[wrapper_src_path]['code_tuples'].append( (0, wrapper_src_content) )
+
+# ====== END: generateWrapperSource =======
+
 
 
 # ====== constrWrapperUtils ========

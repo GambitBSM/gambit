@@ -1236,10 +1236,10 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             decl_code += indent + 'public:\n'
             decl_code += 2*indent + 'typedef ' + abstr_class_name['long'] + '::' + abstr_type_name + ' ' + abstr_type_name + ';\n'
 
-            # If its an enumeration, add all values as static members
+            # If its an enumeration, add all values as static constexpr members
             if abstr_type.tag in ['Enumeration'] :
                 for val in abstr_type_enum_values :
-                    decl_code += 2*indent + abstr_type_name + ' ' + val + ' = ' + abstr_class_name['long'] + '::' + val + ';\n'
+                    decl_code += 2*indent + "static constexpr " + abstr_type_name + ' ' + val + ' = ' + abstr_class_name['long'] + '::' + val + ';\n'
 
     #
     # Variables:
@@ -1992,6 +1992,50 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
 
 
+# ======= constrWrapperSrc ========
+
+def constrWrapperSrc(class_name, abstr_class_name,  indent=' '*cfg.indent) :
+
+    src_code =''
+
+    #
+    # For enumerations moved to the abstract class, redefinitions are needed in a source file
+    #
+    for abstr_type in gb.moved_to_abstract_class:
+        if utils.getNamespaces(abstr_type)[-1] == class_name['short'] :
+            # get the type
+            abstr_type_dict = utils.findType(abstr_type)
+            abstr_type_name = utils.removeNamespace(abstr_type_dict['name'])
+            abstr_type_enum_values = abstr_type_dict['enum_values']
+
+            # Add code 
+            if abstr_type.tag in ['Enumeration'] :
+                for val in abstr_type_enum_values :
+                    src_code += 2*indent + "constexpr " + abstr_type_name + ' ' + class_name['short'] + '::' + val + ';\n'
+
+
+    # Add namespace
+    namespace, class_name_short = utils.removeNamespace(class_name['long'], return_namespace=True)
+
+    if namespace == '':
+        namespace_list = []
+    else:
+        namespace_list = namespace.split('::')
+
+    n_indents = len(namespace_list)
+
+    src_code_with_ns  = ''
+    src_code_with_ns += utils.constrNamespace(namespace_list,'open')
+    src_code_with_ns += utils.addIndentation(src_code, cfg.indent*n_indents)
+    src_code_with_ns += utils.constrNamespace(namespace_list,'close')
+
+    return src_code_with_ns
+
+
+# ======= END: constrWrapperSrc ========
+
+
+
 # ====== pureVirtualMembers ========
 
 def pureVirtualMembers(class_el):
@@ -2129,6 +2173,36 @@ def generateWrapperHeaderCode(class_el, class_name, abstr_class_name, namespaces
     return decl_code, def_code
 
 # ====== END: generateWrapperHeaderCode ========
+
+
+# ====== generateWrapperSourceCode ========
+
+def generateWrapperSourceCode(class_el, class_name, abstr_class_name, namespaces) :
+
+     # This generates a source file for the wrapper class that contains the redefinitions of static members of class, for compatibility with C++11/14
+
+     # Useful variables
+    indent = ' '*cfg.indent
+
+    #
+    # Start code generation
+    #
+
+    src_code = constrWrapperSrc(class_name, abstr_class_name, indent=indent)
+
+    # Insert tags for the GAMBIT namespace
+    src_code = '\n__START_GAMBIT_NAMESPACE__\n' + src_code + '\n__END_GAMBIT_NAMESPACE__\n'
+
+    # Insert include statements needed by GAMBIT 
+    backend_undef_incl_statement  = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
+    identification_incl_statement = '#include "' + 'identification.hpp' + '"\n'
+
+    src_code = identification_incl_statement + src_code + '\n' + backend_undef_incl_statement
+    
+    # Return code
+    return src_code
+
+# ====== END: generateWrapperSourceCode
 
 
 

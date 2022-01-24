@@ -2809,6 +2809,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 wrapper_decl_header_fullpath = os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_decl' + cfg.header_extension )
                 wrapper_def_header_fullpath  = os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_def'  + cfg.header_extension )
 
+
                 gb.new_header_files[class_name_long] = {    'abstract': abstract_header_name,
                                                             'wrapper': wrapper_header_name,
                                                             'wrapper_decl': wrapper_decl_header_name,
@@ -2816,7 +2817,14 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                                                             'abstract_fullpath': abstract_header_fullpath,
                                                             'wrapper_fullpath': wrapper_header_fullpath,
                                                             'wrapper_decl_fullpath': wrapper_decl_header_fullpath,
-                                                            'wrapper_def_fullpath': wrapper_def_header_fullpath    }
+                                                            'wrapper_def_fullpath': wrapper_def_header_fullpath }
+
+            if class_name_long not in gb.new_source_files.keys():
+
+                wrapper_src_name        = gb.wrapper_source_prefix + class_name_short + cfg.source_extension
+
+                gb.new_source_files[class_name_long] = {    'wrapper': wrapper_src_name }
+
 
     #
     # END: Loop over all elements in this xml file
