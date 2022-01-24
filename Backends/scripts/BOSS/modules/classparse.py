@@ -41,7 +41,6 @@ def run():
     #
     
     for class_name_long, class_el in gb.loaded_classes_in_xml.items():
-
         # Clear all info messages
         infomsg.clearInfoMessages()
 
@@ -120,7 +119,7 @@ def run():
 
         # TODO: TG: Only do each templated class once
         if is_template and class_name['long'] in template_done:
-            continue;
+            continue
 
 
         # Get template arguments for specialization, 
