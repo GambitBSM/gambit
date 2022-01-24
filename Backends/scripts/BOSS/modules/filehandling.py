@@ -833,17 +833,18 @@ def createFrontendHeader(function_xml_files_dict):
     # Generate code for all the convenience functions
     #
 
-    be_conv_function_macro_code = ''
-    for conv_func in cfg.convenience_functions:
-        be_conv_function_macro_code += 'BE_CONV_FUNCTION(' + conv_func['name'] + ', '
-        be_conv_function_macro_code += conv_func['returntype'] + ', '
-        be_conv_function_macro_code += '('
-        for i, argtype in enumerate(conv_func['argtypes']) :
-            be_conv_function_macro_code += argtype
-            if i < len(conv_func['argtypes']) - 1 :
-                be_conv_function_macro_code += ', '
-        be_conv_function_macro_code += '), '
-        be_conv_function_macro_code += '"' + conv_func['capname'] + '")\n'
+    # TODO: To be uncomment when the conveninence function stuff is merged
+    #be_conv_function_macro_code = ''
+    #for conv_func in cfg.convenience_functions:
+    #    be_conv_function_macro_code += 'BE_CONV_FUNCTION(' + conv_func['name'] + ', '
+    #    be_conv_function_macro_code += conv_func['returntype'] + ', '
+    #    be_conv_function_macro_code += '('
+    #    for i, argtype in enumerate(conv_func['argtypes']) :
+    #        be_conv_function_macro_code += argtype
+    #        if i < len(conv_func['argtypes']) - 1 :
+    #            be_conv_function_macro_code += ', '
+    #    be_conv_function_macro_code += '), '
+    #    be_conv_function_macro_code += '"' + conv_func['capname'] + '")\n'
 
 
     #

@@ -59,6 +59,9 @@ load_classes = [
 load_functions = [
 ]
 
+load_enums = [
+]
+
 ditch = []
 
 
