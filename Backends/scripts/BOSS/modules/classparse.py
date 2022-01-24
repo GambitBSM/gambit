@@ -458,7 +458,8 @@ def commentMembersOfOriginalClassFile(class_el, original_file_name, original_fil
 
     if "members" in class_el.keys() :
         for mem_id in class_el.get('members').split():
-            for to_comment in gb.marked_for_deletion:
+            # If this member has been moved to the abstract class, comment it
+            for to_comment in gb.moved_to_abstract_class:
                 if mem_id == to_comment.get('id') :
 
                     # Find position of member

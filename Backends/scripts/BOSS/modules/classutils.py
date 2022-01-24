@@ -323,11 +323,12 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             class_decl += constrEnumDecl(el, indent=indent, n_indents=n_indents+2)
 
             # add this to a list of locally defined types
-            locally_defined_types.append(el)
+            if not el in locally_defined_types :
+                locally_defined_types.append(el)
 
             # mark this type for deletion in the original file
-            if not el in gb.marked_for_deletion : 
-                gb.marked_for_deletion.append(el)
+            if not el in gb.moved_to_abstract_class : 
+                gb.moved_to_abstract_class.append(el)
 
         #
         # Ignore element
@@ -1380,6 +1381,10 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
         return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
+        # If return type was move to abstract class, change namespace
+        if utils.typeInList(return_type_el, gb.moved_to_abstract_class) :
+            return_type = abstr_class_name['long'] + "::" + utils.removeNamespace(return_type)
+
 
         # If return type is a known class, add '::' for absolute namespace.
         if (not return_is_loaded) and utils.isKnownClass(return_type_el):
@@ -1392,6 +1397,12 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
         # Arguments
         args = funcutils.getArgs(func_el)
+
+        # If any of the arg types was move to the abstract class, change namespace
+        for arg in args:
+            if utils.typeInList(arg, gb.moved_to_abstract_class) :
+                arg_type = abstr_class_name['long'] + "::" + utils.removeNamespace(arg.get('type'))
+                arg['type'] =  arg_type
 
         # One function for each set of default arguments
         n_overloads = funcutils.numberOfDefaultArgs(func_el)
@@ -1599,6 +1610,9 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
         return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
+        # If return type was move to abstract class, change namespace
+        if utils.typeInList(return_type_el, gb.moved_to_abstract_class) :
+            return_type = abstr_class_name['long'] + "::" +  utils.removeNamespace(return_type)
 
         # If return type is a known class, add '::' for absolute namespace.
         if (not return_is_loaded) and utils.isKnownClass(return_type_el):
@@ -1612,6 +1626,12 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
         # Arguments
         args = funcutils.getArgs(func_el)
+
+        # If any of the arg types was move to the abstract class, change namespace
+        for arg in args:
+            if utils.typeInList(arg, gb.moved_to_abstract_class) :
+                arg_type = abstr_class_name['long'] + "::" + utils.removeNamespace(arg.get('type'))
+                arg['type'] =  arg_type
 
 
         # One function for each set of default arguments
