@@ -56,7 +56,7 @@ load_classes = [
     'ClassOne',
     'SomeNamespace::ClassTwo',
     'ClassThree<double>',
-    'ClassFour<char>'
+    'aRandomNamespace::ClassFour<char>'
 ]
 
 load_functions = [

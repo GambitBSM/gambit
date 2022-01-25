@@ -44,19 +44,19 @@ int ClassThree::size()
   return stack.size();
 }
 
-T ClassFour::pop()
+T aRandomNamespace::ClassFour::pop()
 {
   T top = stack.back()
   stack.pop_back();
   return top;
 }
 
-void ClassFour::push(T& item)
+void aRandomNamespace::ClassFour::push(T& item)
 {
   stack.push_back(item);
 }
 
-int ClassFour::size()
+int aRandomNamespace::ClassFour::size()
 {
   return stack.size();
 }
