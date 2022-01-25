@@ -4,10 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
-#include <map>
+#include <map> 
 
-template <typename T>
-class ClassThree {
+template <typename T> class ClassThree {
 public:
   T pop();
   void push(T item);
