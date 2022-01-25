@@ -105,7 +105,7 @@ def main():
   ========================================
     \033[0m'''
     # msg = utils.modifyText(msg,'bold')
-    print( msg)
+    print(msg)
 
 
     # Check for conflicting options
