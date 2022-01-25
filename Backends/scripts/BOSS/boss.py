@@ -480,10 +480,8 @@ def main():
 
                 # If a requested class is loadable, set the entry in is_loadable to True
                 if full_name in cfg.load_classes:
-
                     if utils.isLoadable(el, print_warning=False):
                         is_loadable[full_name] = True
-
 
     # Remove from cfg.load_classes those that are not loadable
     for full_name in is_loadable.keys():
@@ -528,7 +526,8 @@ def main():
     # Fill the gb.accepted_types list
     #
     utils.fillAcceptedTypesList()
-
+    # ZELUN MARK
+    # sys.exit()
 
     #
     # Remove from cfg.load_functions all functions that are not loadable

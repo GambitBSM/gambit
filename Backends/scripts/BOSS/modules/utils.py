@@ -273,7 +273,7 @@ def getTemplateBracket(el):
     #newline_pos = index
 
     # Find the template parameter bracket, e.g. <typename A, typename B>
-    #search_content = file_content_nocomments[:newline_pos]
+    # search_content = file_content_nocomments[:newline_pos]
     if "template" in file_content_list[line_number-1]:
         search_content = file_content_list[line_number-1]
     elif "template" in file_content_list[line_number-2]:
