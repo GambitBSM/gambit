@@ -45,7 +45,6 @@ def run():
         infomsg.clearInfoMessages()
         
         # Generate dicts with different variations of the class name
-        # TODO: TG: Request template info for templated class
         class_name       = classutils.getClassNameDict(class_el, add_template_info=True)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
 
@@ -58,41 +57,34 @@ def run():
 
 
         # Make list of all types used in this class
-        all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
+        # all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
 
         # Set a bunch of generally useful variables 
         original_class_file_el   = gb.id_dict[class_el.get('file')]
         original_file_name       = original_class_file_el.get('name')
         original_file_name_base  = os.path.basename(original_file_name)
-        original_class_file_dir  = os.path.split(original_file_name)[0]
+        # original_class_file_dir  = os.path.split(original_file_name)[0]
         extras_src_file_name     = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['short'] + cfg.source_extension)
 
         short_abstr_class_fname  = gb.new_header_files[class_name['long']]['abstract']
         abstr_class_fname        = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
 
-        # namespaces    = class_name['long'].split('::')[:-1]
         namespaces    = utils.getNamespaces(class_el, include_self=False)
-        has_namespace = bool(len(namespaces))
+        # has_namespace = bool(len(namespaces))
 
         has_copy_constructor, copy_constructor_id         = classutils.checkCopyConstructor(class_el, return_id=True)
         has_assignment_operator, assignment_is_artificial = classutils.checkAssignmentOperator(class_el)
-        
-        if has_assignment_operator or assignment_is_artificial:
-            construct_assignment_operator = True
-        else:
-            construct_assignment_operator = False
 
+        construct_assignment_operator = (has_assignment_operator or assignment_is_artificial)
 
         # Register paths of original files in global dict
         gb.original_file_paths[original_file_name_base] = original_file_name
-
 
         # Read content of original class file
         f = open(original_file_name, 'r')
         original_file_content = f.read()
         f.close()
         original_file_content_nocomments = utils.removeComments(original_file_content, insert_blanks=True)
-
 
         # Prepare entries in gb.new_code and includes
         if abstr_class_fname not in gb.new_code.keys():
@@ -105,22 +97,18 @@ def run():
         if extras_src_file_name not in gb.new_code.keys():
             gb.new_code[extras_src_file_name] = {'code_tuples':[], 'add_include_guard':False}
 
-
         # Treat the first specialization of a template class differently
         # TODO: TG: I don't see why this is needed
-        #if is_template and class_name['long'] not in template_done:
-        #    template_bracket, template_types = utils.getTemplateBracket(class_el)
-        #    
-        #    empty_templ_class_decl = ''
-        #    empty_templ_class_decl += classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, template_bracket, indent=cfg.indent)
-        #    empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, template_bracket, indent=cfg.indent)
-        #
-        #    gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
+        # JOEL: uncommented this if statement
+        # if is_template and class_name['long'] not in template_done:
+        #     empty_templ_class_decl = classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
+        #     empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
+        # 
+        #     gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
 
         # TODO: TG: Only do each templated class once
         if is_template and class_name['long'] in template_done:
             continue
-
 
         # Get template arguments for specialization, 
         # and check that they are acceptable

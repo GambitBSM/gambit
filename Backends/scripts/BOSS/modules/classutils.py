@@ -1247,7 +1247,6 @@ def getClassNameDict(class_el, abstract=False, add_template_info=False):
     class_name['short']       = class_name['short_templ'].split('<',1)[0]
     class_name['namespace']   = '::'.join(namespaces_list[:-1])
 
-    # TODO: TG: Add template info when requested
     if add_template_info and utils.isTemplateClass(class_el):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
