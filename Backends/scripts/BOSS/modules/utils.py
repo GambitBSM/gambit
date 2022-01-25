@@ -246,7 +246,6 @@ def isConstFunction(func_el):
 def getTemplateBracket(el):
     import re
     from collections import deque
-
     src_file_name = gb.id_dict[el.get('file')].get('name')
     line_number = int(el.get('line'))
 
@@ -257,7 +256,7 @@ def getTemplateBracket(el):
 
     # Trim out the first line_number lines from the file content
     file_content_list = file_content_nocomments.split('\n')
-    trimmed_file_content = '\n'.join(file_content_list[:line_number + 1])
+    trimmed_file_content = '\n'.join(file_content_list[:line_number])
 
     # Match the pattern
     template_pattern = re.compile(r"template(\s)*<(.|\s)+?>")
@@ -266,11 +265,11 @@ def getTemplateBracket(el):
     # Find the last match
     q = deque(all_matches, maxlen=1)
     last_match = q.pop()
-    lo = last_match.start()
-    hi = last_match.end()
+    last_match_lo = last_match.start()
+    last_match_hi = last_match.end()
 
     # Find the template parameter bracket, e.g. <typename A, typename B>
-    template = ''.join((filter(lambda c: c != '\n', trimmed_file_content[lo:hi + 1])))
+    template = trimmed_file_content[last_match_lo:last_match_hi].replace('\n', ' ')
     template_bracket = template[template.index('<'):]
 
     # Isolate only the template variable names (last word in each entry)
@@ -280,11 +279,6 @@ def getTemplateBracket(el):
         temp_var_list = template_bracket[1:-1].split(',')
         temp_var_list = [e.strip() for e in temp_var_list]
         temp_var_list = [e.split()[-1] for e in temp_var_list]
-
-
-    print(f"Bracket = ({template_bracket})")
-    print(f"Var list = ({temp_var_list})")
-    print()
 
     # Return result
     return template_bracket, temp_var_list

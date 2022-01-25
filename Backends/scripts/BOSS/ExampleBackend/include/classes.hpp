@@ -6,7 +6,12 @@
 #include <ctime>
 #include <map> 
 
-template <typename T> class ClassThree {
+template
+<
+typename
+T
+>         
+class ClassThree {
 public:
   T pop();
   void push(T item);
@@ -17,17 +22,28 @@ private:
   int curr_size;
 };
 
-template <class T>
-class ClassFour {
-public:
-  T pop();
-  void push(T item);
-  int size();
 
-private:
-  std::vector<T> stack;
-  int curr_size;
-};
+namespace aRandomNamespace {
+  template
+  <
+  class              
+  
+  T
+  
+  
+  
+  >  
+  class ClassFour {
+  public:
+    T pop();
+    void push(T item);
+    int size();
+
+  private:
+    std::vector<T> stack;
+    int curr_size;
+  };
+}
 
 // A dummy class
 class ClassOne
@@ -44,7 +60,7 @@ public:
 
   // Specify a type for ClassThree and ClassFour
   ClassThree<double> class_3;
-  ClassFour<char> class_4;
+  aRandomNamespace::ClassFour<char> class_4;
   
   // Decalring it as a member variable
   //   std::vector<clock_t> my_vec_clock;
