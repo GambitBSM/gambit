@@ -123,15 +123,13 @@ def run():
         # For the backend: Construct code for the abstract class header file and register it
         #
         
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
+        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
 
         #
         # For GAMBIT: Construct code for the abstract class header file and register it
         #
         
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
+        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
 
 
 
@@ -139,24 +137,20 @@ def run():
         # Add abstract class to inheritance list of original class
         #
 
-        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template,
-                                     original_file_name, original_file_content_nocomments)
+        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template, original_file_name, original_file_content_nocomments)
         
 
         #
         # Generate code for #include statements in orginal header/source file 
         #
 
-        addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, 
-                                       original_file_content_nocomments, original_file_content,
-                                       short_abstr_class_fname)
+        addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
 
         #
         # Comment out member variables or types in the class definition
         #
 
-        commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, 
-                                          original_file_content_nocomments)
+        commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, original_file_content_nocomments)
 
 
         #
@@ -167,10 +161,7 @@ def run():
         # Declarations go in the original class header while implementations go in a separate source file.
         #
 
-        generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces,
-                                     original_file_name, original_file_content_nocomments, 
-                                     original_class_file_el, extras_src_file_name,
-                                     has_copy_constructor, construct_assignment_operator)
+        generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces, original_file_name, original_file_content_nocomments, original_class_file_el, extras_src_file_name, has_copy_constructor, construct_assignment_operator)
         
 
         #
@@ -184,8 +175,7 @@ def run():
         # Generate a header containing the GAMBIT wrapper class
         #
 
-        generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
-                              construct_assignment_operator, has_copy_constructor, copy_constructor_id)
+        generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname, construct_assignment_operator, has_copy_constructor, copy_constructor_id)
 
         #
         # Generate a source file for definitions of the wrapper class
