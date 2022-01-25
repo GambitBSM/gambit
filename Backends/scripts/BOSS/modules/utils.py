@@ -139,14 +139,10 @@ def isKnownClass(el, class_name=None):
 
 def isTemplateClass(class_el, class_name=None):
     import modules.classutils as classutils
-
     if class_name is None:
         class_name = classutils.getClassNameDict(class_el)
 
-    if '<' in class_name['long_templ']:
-        return True
-    else:
-        return False
+    return '<' in class_name['long_templ']
 
 # ====== END: isTemplateClass ========
 
@@ -248,6 +244,8 @@ def isConstFunction(func_el):
 # ====== getTemplateBracket ========
 
 def getTemplateBracket(el):
+    import re
+    from collections import deque
 
     src_file_name = gb.id_dict[el.get('file')].get('name')
     line_number = int(el.get('line'))
@@ -257,50 +255,23 @@ def getTemplateBracket(el):
     f.close()
     file_content_nocomments = removeComments(file_content, insert_blanks=True)
 
-    # Find index of the \n in line number line_number
-    # TODO: TG: I think this is better
+    # Trim out the first line_number lines from the file content
     file_content_list = file_content_nocomments.split('\n')
-    #count = 0
-    #prev_pos = 0
-    # for index,char in enumerate(file_content_nocomments):
-    #    if char=='\n':
-    #        count += 1
-    #    if count == line_number:
-    #        break
-    #    if char=='\n':         # STUPID HACK
-    #        prev_pos = index
-    #
-    #newline_pos = index
+    trimmed_file_content = '\n'.join(file_content_list[:line_number + 1])
+
+    # Match the pattern
+    template_pattern = re.compile(r"template(\s)*<(.|\s)+?>")
+    all_matches = template_pattern.finditer(trimmed_file_content)
+
+    # Find the last match
+    q = deque(all_matches, maxlen=1)
+    last_match = q.pop()
+    lo = last_match.start()
+    hi = last_match.end()
 
     # Find the template parameter bracket, e.g. <typename A, typename B>
-    #search_content = file_content_nocomments[:newline_pos]
-    if "template" in file_content_list[line_number-1]:
-        search_content = file_content_list[line_number-1]
-    elif "template" in file_content_list[line_number-2]:
-        search_content = file_content_list[line_number-2]
-    else:
-        # This means there is no template, should never happen
-        return
-    template_bracket = '<' + search_content.split('<')[-1].split('>')[0] + '>'
-
-    #start_pos = 0
-    #end_pos = search_content.rfind('>')
-    # if end_pos != -1:
-    #    balance = -1
-    #    for i in range(end_pos-1, -1, -1):
-    #        char = search_content[i]
-    #        if char == '>':
-    #            balance -= 1
-    #        elif char == '<':
-    #            balance += 1
-    #        if (balance == 0):
-    #            start_pos = i
-    #            break
-    #    template_bracket = search_content[start_pos:end_pos+1]
-    # else:
-    #    template_bracket = '<>'
-
-    # print('TEMPLATE BRACKET: ', template_bracket)
+    template = ''.join((filter(lambda c: c != '\n', trimmed_file_content[lo:hi + 1])))
+    template_bracket = template[template.index('<'):]
 
     # Isolate only the template variable names (last word in each entry)
     if template_bracket == '<>':
@@ -309,6 +280,11 @@ def getTemplateBracket(el):
         temp_var_list = template_bracket[1:-1].split(',')
         temp_var_list = [e.strip() for e in temp_var_list]
         temp_var_list = [e.split()[-1] for e in temp_var_list]
+
+
+    print(f"Bracket = ({template_bracket})")
+    print(f"Var list = ({temp_var_list})")
+    print()
 
     # Return result
     return template_bracket, temp_var_list
@@ -2501,6 +2477,13 @@ def fillAcceptedTypesList():
 # ====== validType ========
 
 def validType(type_name, xml_file):
+    # JOEL: Long term, we probably want '... or (trimmed_type_name in cfg.load_classes)' instead since
+    # ideally the config file would allow you to have the name of a generic templated type and it
+    # includes ALL of them. Ie, you'd write 'ClassThree' in load_classes in the config file, not
+    # 'ClassThree<double>, ClassThree<int>, ClassThree<...>, ...' for usability.
+    if type_name in cfg.load_classes:
+        return True
+
     # Strip the type name and find the length
     # to save time recomputing later
     type_name = getBasicTypeName(type_name).strip()
@@ -2654,12 +2637,7 @@ def isTypeValid(type_name, xml_file):
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
         return_bool = withinAcceptedNamespaces(type_name) or (trimmed_type_name in gb.fundamental_equiv_list) or\
-            (trimmed_type_name in cfg.manual_accepted_types) or (type_name in cfg.load_classes)
-
-        # JOEL: Long term, we probably want '... or (trimmed_type_name in cfg.load_classes)' instead since
-        # ideally the config file would allow you to have the name of a generic templated type and it
-        # includes ALL of them. Ie, you'd write 'ClassThree' in load_classes in the config file, not
-        # 'ClassThree<double>, ClassThree<int>, ClassThree<...>, ...' for usability.
+            (trimmed_type_name in cfg.manual_accepted_types)
 
         # Debugging print, get rid of later. Also get rid of return_bool
         if not return_bool:
