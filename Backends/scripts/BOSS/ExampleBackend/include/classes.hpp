@@ -28,7 +28,8 @@ namespace aRandomNamespace {
   <
   class              
   
-  T
+  T, class
+  U
   
   
   
@@ -42,6 +43,7 @@ namespace aRandomNamespace {
   private:
     std::vector<T> stack;
     int curr_size;
+    U testing_var;
   };
 }
 
@@ -60,7 +62,7 @@ public:
 
   // Specify a type for ClassThree and ClassFour
   ClassThree<double> class_3;
-  aRandomNamespace::ClassFour<char> class_4;
+  aRandomNamespace::ClassFour<char, int> class_4;
   
   // Decalring it as a member variable
   //   std::vector<clock_t> my_vec_clock;
