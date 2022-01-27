@@ -15,7 +15,7 @@ import modules.utils as utils
 import modules.classutils as classutils
 import modules.funcutils as funcutils
 import modules.infomsg as infomsg
-
+import re
 #
 # Module-level globals
 #
@@ -150,6 +150,8 @@ def run():
         #
         # Add abstract class to inheritance list of original class
         #
+        if bool(re.match(".*classes.hpp", original_file_name)):
+            print("stop") 
 
         addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template,
                                      original_file_name, original_file_content_nocomments)
@@ -459,6 +461,8 @@ def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_f
     include_code += '\n'*has_namespace
 
     # Register code
+
+        
     gb.new_code[original_file_name]['code_tuples'].append( (insert_pos, include_code) )
 
     # Register include line

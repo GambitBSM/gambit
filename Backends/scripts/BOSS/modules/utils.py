@@ -246,6 +246,7 @@ def isConstFunction(func_el):
 def getTemplateBracket(el):
     import re
     from collections import deque
+
     src_file_name = gb.id_dict[el.get('file')].get('name')
     line_number = int(el.get('line'))
 
@@ -279,6 +280,9 @@ def getTemplateBracket(el):
         temp_var_list = template_bracket[1:-1].split(',')
         temp_var_list = [e.strip() for e in temp_var_list]
         temp_var_list = [e.split()[-1] for e in temp_var_list]
+
+    print(f"template_bracket {template_bracket}")
+    print(f"template_var_list {temp_var_list}")
 
     # Return result
     return template_bracket, temp_var_list

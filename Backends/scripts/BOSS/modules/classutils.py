@@ -126,6 +126,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl += utils.constrNamespace(namespaces, 'open')
 
     # - If this class is a template specialization, add 'template <>' at the top
+    # 
     # TODO: TG: If it's a for full template, add the full bracket
     if is_template == True:
         class_decl += ' '*n_indents*indent + 'template ' + templ_bracket + '\n'
