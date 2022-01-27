@@ -45,7 +45,6 @@ def run():
         infomsg.clearInfoMessages()
         
         # Generate dicts with different variations of the class name
-        # TODO: TG: Request template info for templated class
         class_name       = classutils.getClassNameDict(class_el, add_template_info=True)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
 
@@ -58,41 +57,34 @@ def run():
 
 
         # Make list of all types used in this class
-        all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
+        # all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
 
         # Set a bunch of generally useful variables 
         original_class_file_el   = gb.id_dict[class_el.get('file')]
         original_file_name       = original_class_file_el.get('name')
         original_file_name_base  = os.path.basename(original_file_name)
-        original_class_file_dir  = os.path.split(original_file_name)[0]
+        # original_class_file_dir  = os.path.split(original_file_name)[0]
         extras_src_file_name     = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['short'] + cfg.source_extension)
 
         short_abstr_class_fname  = gb.new_header_files[class_name['long']]['abstract']
         abstr_class_fname        = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
 
-        # namespaces    = class_name['long'].split('::')[:-1]
         namespaces    = utils.getNamespaces(class_el, include_self=False)
-        has_namespace = bool(len(namespaces))
+        # has_namespace = bool(len(namespaces))
 
         has_copy_constructor, copy_constructor_id         = classutils.checkCopyConstructor(class_el, return_id=True)
         has_assignment_operator, assignment_is_artificial = classutils.checkAssignmentOperator(class_el)
-        
-        if has_assignment_operator or assignment_is_artificial:
-            construct_assignment_operator = True
-        else:
-            construct_assignment_operator = False
 
+        construct_assignment_operator = (has_assignment_operator or assignment_is_artificial)
 
         # Register paths of original files in global dict
         gb.original_file_paths[original_file_name_base] = original_file_name
-
 
         # Read content of original class file
         f = open(original_file_name, 'r')
         original_file_content = f.read()
         f.close()
         original_file_content_nocomments = utils.removeComments(original_file_content, insert_blanks=True)
-
 
         # Prepare entries in gb.new_code and includes
         if abstr_class_fname not in gb.new_code.keys():
@@ -105,22 +97,17 @@ def run():
         if extras_src_file_name not in gb.new_code.keys():
             gb.new_code[extras_src_file_name] = {'code_tuples':[], 'add_include_guard':False}
 
-
         # Treat the first specialization of a template class differently
         # TODO: TG: I don't see why this is needed
-        #if is_template and class_name['long'] not in template_done:
-        #    template_bracket, template_types = utils.getTemplateBracket(class_el)
-        #    
-        #    empty_templ_class_decl = ''
-        #    empty_templ_class_decl += classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, template_bracket, indent=cfg.indent)
-        #    empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, template_bracket, indent=cfg.indent)
-        #
-        #    gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
+        # if is_template and class_name['long'] not in template_done:
+        #     empty_templ_class_decl = classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
+        #     empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
+        # 
+        #     gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
 
         # TODO: TG: Only do each templated class once
         if is_template and class_name['long'] in template_done:
             continue
-
 
         # Get template arguments for specialization, 
         # and check that they are acceptable
@@ -135,15 +122,13 @@ def run():
         # For the backend: Construct code for the abstract class header file and register it
         #
         
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
+        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
 
         #
         # For GAMBIT: Construct code for the abstract class header file and register it
         #
         
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, 
-                                      has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
+        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
 
 
 
@@ -153,24 +138,20 @@ def run():
         if bool(re.match(".*classes.hpp", original_file_name)):
             print("stop") 
 
-        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template,
-                                     original_file_name, original_file_content_nocomments)
+        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template, original_file_name, original_file_content_nocomments)
         
 
         #
         # Generate code for #include statements in orginal header/source file 
         #
 
-        addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, 
-                                       original_file_content_nocomments, original_file_content,
-                                       short_abstr_class_fname)
+        addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
 
         #
         # Comment out member variables or types in the class definition
         #
 
-        commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, 
-                                          original_file_content_nocomments)
+        commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content, original_file_content_nocomments)
 
 
         #
@@ -181,10 +162,7 @@ def run():
         # Declarations go in the original class header while implementations go in a separate source file.
         #
 
-        generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces,
-                                     original_file_name, original_file_content_nocomments, 
-                                     original_class_file_el, extras_src_file_name,
-                                     has_copy_constructor, construct_assignment_operator)
+        generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces, original_file_name, original_file_content_nocomments, original_class_file_el, extras_src_file_name, has_copy_constructor, construct_assignment_operator)
         
 
         #
@@ -198,8 +176,7 @@ def run():
         # Generate a header containing the GAMBIT wrapper class
         #
 
-        generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
-                              construct_assignment_operator, has_copy_constructor, copy_constructor_id)
+        generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname, construct_assignment_operator, has_copy_constructor, copy_constructor_id)
 
         #
         # Generate a source file for definitions of the wrapper class
@@ -261,17 +238,14 @@ def run():
 
 # Construct code for the abstract class header file and register it
 
-def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template,
-                                  has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
-
+def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
     if file_for_gambit:
         abstr_class_fname = abstr_class_fname + '.FOR_GAMBIT'
 
     class_decl = ''
 
     # Add include statements
-    include_statements  = []
-    include_statements += ['#include <cstddef>']
+    include_statements  = ['#include <cstddef>']
     if gb.debug_mode or file_for_gambit: 
         include_statements += ['#include <iostream>']
     include_statements += ['#include "' + os.path.join(gb.gambit_backend_incl_dir, 'abstractbase.hpp') + '"']
@@ -289,17 +263,16 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         enum_include_statement_code += '#include "' + gb.enum_decls_wrp_fname + cfg.header_extension + '"\n'
         enum_include_statement_code += '\n'
         class_decl += enum_include_statement_code
+    
+    if abstr_class_fname == 'BOSS_output/ExampleBackend_1_234/abstract_ClassFour.hpp' or abstr_class_fname == 'BOSS_output/ExampleBackend_1_234/abstract_ClassThree.hpp':
+        print('stop')
 
     # Add the the code for the abstract class
-    if (is_template == True) and (class_name['long'] in templ_spec_done):
+    if is_template and (class_name['long'] in templ_spec_done):
         pass
-    elif (is_template == True) and (class_name['long'] not in templ_spec_done):
+    elif is_template and (class_name['long'] not in templ_spec_done):
         spec_template_types = utils.getSpecTemplateTypes(class_el)
-        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
-                                                         indent=cfg.indent, file_for_gambit=file_for_gambit, 
-                                                         template_types=spec_template_types, 
-                                                         has_copy_constructor=has_copy_constructor,
-                                                         construct_assignment_operator=construct_assignment_operator)
+        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=cfg.indent, file_for_gambit=file_for_gambit, template_types=spec_template_types, has_copy_constructor=has_copy_constructor, construct_assignment_operator=construct_assignment_operator)
         class_decl += '\n'
     else:
         class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 

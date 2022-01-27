@@ -89,7 +89,6 @@ def constrTemplForwDecl(class_name_short, namespaces, template_bracket, indent=4
 # ====== constrAbstractClassDecl ========
 
 def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, template_types=[], has_copy_constructor=True, construct_assignment_operator=True):
-
     n_indents = len(namespaces)
 
     # Check template_types argument:
@@ -100,11 +99,12 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             is_specification = True
             templ_bracket = '<>'
             templ_vars = '<' + ','.join(template_types) + '>'
-        else :
+        else:
             is_specification = False
-            templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
-            templ_vars = '<' + ','.join(templ_var_list) + '>'
+            templ_bracket = class_name['templ_bracket']
+            templ_vars = class_name['templ_vars']
     else:
+        is_specification = False
         is_template = False
 
 
@@ -119,16 +119,14 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     #
     # Construct the abstract class declaration
     #
-    
-    class_decl = ''
 
     # - Construct the beginning of the namespaces
-    class_decl += utils.constrNamespace(namespaces, 'open')
+    class_decl = utils.constrNamespace(namespaces, 'open')
 
     # - If this class is a template specialization, add 'template <>' at the top
     # 
     # TODO: TG: If it's a for full template, add the full bracket
-    if is_template == True:
+    if is_template:
         class_decl += ' '*n_indents*indent + 'template ' + templ_bracket + '\n'
 
     # - Construct the declaration line, with inheritance of abstract classes
@@ -188,10 +186,10 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
         #
         # Add code based on what element type this is
         #
-        if el.tag in ['Constructor', 'Destructor']:
+        if el.tag in ('Constructor', 'Destructor'):
             pass   # (An empty virtual destructor will be added later)
 
-        elif el.tag in ['Method', 'OperatorMethod']:
+        elif el.tag in ('Method', 'OperatorMethod'):
 
             # Check if this is an operator function
             is_operator = False
@@ -525,58 +523,23 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl = '\n__START_GAMBIT_NAMESPACE__\n\n' + class_decl + '\n__END_GAMBIT_NAMESPACE__\n'
 
 
+    # JOEL: The following if statement, for ClassThree, adds these lines:
+    # // Forward declaration for wrapper_creator.
+    # template <>
+    # CAT_3(BACKENDNAME,_,SAFE_VERSION)::ClassThree<double>* wrapper_creator<double>(CAT_3(BACKENDNAME,_,SAFE_VERSION)::Abstract_ClassThree<double>*);
+    #
+    # There needs to be another line before this which looks like this so there's actually a templated function to override:
+    # template <typename T>
+    # CAT3(BACKENDNAME,,SAFE_VERSION)::ClassThree<T>* wrapper_creator(CAT3(BACKENDNAME,,SAFE_VERSION)::Abstract_ClassThree<T>);
+    #
+    # The same idea applies for the next 2 if statements also which is labeled with JOEL.
+
     # - Add forward declaration of wrapper_creator function (needed by the 'destructor pattern')
     if not file_for_gambit:
-        frwd_decl_creator  = '\n'
-        frwd_decl_creator += '// Forward declaration for wrapper_creator.\n'
-        # TODO: TG: Needs templates everywhere
         if is_template:
-            frwd_decl_creator += 'template ' + templ_bracket + '\n'
-            frwd_decl_creator += gb.gambit_backend_namespace + '::' + class_name['long'] + templ_vars + '* wrapper_creator'
-            if is_specification:
-                frwd_decl_creator += templ_vars
-            frwd_decl_creator += '(' + gb.gambit_backend_namespace + '::' + abstr_class_name['long'] + templ_vars + '*);\n'
-        else : 
-            frwd_decl_creator += gb.gambit_backend_namespace + '::' + class_name['long'] + '* wrapper_creator(' + gb.gambit_backend_namespace + '::' + abstr_class_name['long'] + '*);\n'
-        # frwd_decl_creator += 'void wrapper_creator(' + gb.gambit_backend_namespace + '::' + abstr_class_name['long'] + '*);\n'
-        frwd_decl_creator += '\n'
-
-        class_decl = frwd_decl_creator + class_decl
-
-
-    # - Add forward declaration of wrapper_deleter function (needed by the 'destructor pattern')
-    if not file_for_gambit:
-        frwd_decl_deleter  = '\n'
-        frwd_decl_deleter += '// Forward declaration needed by the destructor pattern.\n'
-        # TODO: TG: Forward declarations neeed full templates
-        if is_template:
-            frwd_decl_deleter += 'template ' + templ_bracket + '\n'
-            frwd_decl_deleter += 'void wrapper_deleter'
-            if is_specification:
-                frwd_decl_deleter += templ_vars
-            frwd_decl_deleter += '(' + gb.gambit_backend_namespace + '::' + class_name['long'] + templ_vars + '*);\n'
-        else :
-            frwd_decl_deleter += 'void wrapper_deleter(' + gb.gambit_backend_namespace + '::' + class_name['long'] + '*);\n'
-        frwd_decl_deleter += '\n'
-
-        class_decl = frwd_decl_deleter + class_decl
-
-    # - Add forward declaration of set_delete_BEptr function (needed by the 'destructor pattern')
-    if not file_for_gambit:
-        frwd_decl_setdel  = '\n'
-        frwd_decl_setdel += '// Forward declaration needed by the destructor pattern.\n'
-        # TODO: TG: Needs templates everywhere
-        if is_template:
-            frwd_decl_setdel += 'template ' + templ_bracket + '\n'
-            frwd_decl_setdel += 'void set_delete_BEptr'
-            if is_specification:
-                frwd_decl_setdel += templ_vars
-            frwd_decl_setdel += '(' + gb.gambit_backend_namespace + '::' + class_name['long'] + templ_vars + '*, bool);\n'
-        else :
-            frwd_decl_setdel += 'void set_delete_BEptr(' + gb.gambit_backend_namespace + '::' + class_name['long'] + '*, bool);\n'
-        frwd_decl_setdel += '\n'
-
-        class_decl = frwd_decl_setdel + class_decl
+            class_decl = forwardDeclGenerator(is_template, is_specification, class_name, abstr_class_name, templ_bracket=templ_bracket, templ_vars=templ_vars) + class_decl
+        else:
+            class_decl = forwardDeclGenerator(is_template, is_specification, class_name, abstr_class_name) + class_decl
 
 
     # Insert include statements needed by GAMBIT
@@ -591,6 +554,68 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 # ====== END: constrAbstractClassDecl ========
 
 
+# ====== forwardDeclGenerator ========
+
+def forwardDeclGenerator(is_template, is_specification, class_name, abstr_class_name, templ_bracket=None, templ_vars=None):
+    # Add the declaration for the wrapper_creator
+    # If it's a specification, add the fully templated version beforehand so it has something to override
+    frwd_decl_creator  = '\n// Forward declaration for wrapper_creator.\n'
+    if is_specification:
+        frwd_decl_creator += f"template {class_name['templ_bracket']}\n{gb.gambit_backend_namespace}::{class_name['long']}{class_name['templ_vars']}* wrapper_creator"
+        frwd_decl_creator += f"({gb.gambit_backend_namespace}::{abstr_class_name['long']}{class_name['templ_vars']}*);\n\n"
+
+    # Add the normal declaration
+    if is_template:
+        frwd_decl_creator += f"template {templ_bracket}\n{gb.gambit_backend_namespace}::{class_name['long']}{templ_vars}* wrapper_creator"
+        if is_specification:
+            frwd_decl_creator += templ_vars
+        frwd_decl_creator += f"({gb.gambit_backend_namespace}::{abstr_class_name['long']}{templ_vars}*);\n"
+    else : 
+        frwd_decl_creator += f"{gb.gambit_backend_namespace}::{class_name['long']}* wrapper_creator({gb.gambit_backend_namespace}::{abstr_class_name['long']}*);\n"
+    frwd_decl_creator += '\n'
+    
+
+
+    # Add the declaration for the wrapper_deleter
+    # If it's a specification, add the fully templated version beforehand so it has something to override
+    frwd_decl_deleter  = '\n// Forward declaration needed by the destructor pattern.\n'
+    if is_specification:
+        frwd_decl_deleter += f"template {class_name['templ_bracket']}\nvoid wrapper_deleter"
+        frwd_decl_deleter += f"({gb.gambit_backend_namespace}::{class_name['long']}{class_name['templ_vars']}*);\n\n"
+
+    # Add the normal declaration
+    if is_template:
+        frwd_decl_deleter += f"template {templ_bracket}\nvoid wrapper_deleter"
+        if is_specification:
+            frwd_decl_deleter += templ_vars
+        frwd_decl_deleter += f"({gb.gambit_backend_namespace}::{class_name['long']}{templ_vars}*);\n"
+    else :
+        frwd_decl_deleter += f"void wrapper_deleter({gb.gambit_backend_namespace}::{class_name['long']}*);\n"
+    frwd_decl_deleter += '\n'
+    
+
+
+    # Add the declaration for set_delete_BEptr
+    # If it's a specification, add the fully templated version beforehand so it has something to override
+    frwd_decl_setdel  = '\n// Forward declaration needed by the destructor pattern.\n'
+    if is_specification:
+        frwd_decl_setdel += f"template {class_name['templ_bracket']}\nvoid set_delete_BEptr"
+        frwd_decl_setdel += f"({gb.gambit_backend_namespace}::{class_name['long']}{class_name['templ_vars']}*, bool);\n\n"
+
+    # Add the normal declaration
+    if is_template:
+        frwd_decl_setdel += f"template {templ_bracket}\nvoid set_delete_BEptr"
+        if is_specification:
+            frwd_decl_setdel += templ_vars
+        frwd_decl_setdel += f"({gb.gambit_backend_namespace}::{class_name['long']}{templ_vars}*, bool);\n"
+    else :
+        frwd_decl_setdel += f"void set_delete_BEptr({gb.gambit_backend_namespace}::{class_name['long']}*, bool);\n"
+    frwd_decl_setdel += '\n'
+
+    # Return all 3
+    return frwd_decl_setdel + frwd_decl_deleter + frwd_decl_creator
+
+# ====== END: forwardDeclGenerator ========
 
 # ====== getAcceptableConstructors ========
 
@@ -1248,7 +1273,6 @@ def getClassNameDict(class_el, abstract=False, add_template_info=False):
     class_name['short']       = class_name['short_templ'].split('<',1)[0]
     class_name['namespace']   = '::'.join(namespaces_list[:-1])
 
-    # TODO: TG: Add template info when requested
     if add_template_info and utils.isTemplateClass(class_el):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
