@@ -289,7 +289,6 @@ def getTemplateBracket(el):
 # ====== getSpecTemplateTypes ========
 
 def getSpecTemplateTypes(input_type, byname=False):
-
     # If input is a string
     if byname:
         input_name = input_type
@@ -299,9 +298,9 @@ def getSpecTemplateTypes(input_type, byname=False):
         el = input_type
 
         # Classes and functions must be treated differently
-        if el.tag in ['Class', 'Struct']:
+        if el.tag in ('Class', 'Struct'):
             input_name = el.get('name')
-        elif el.tag in ['Constructor', 'Function', 'Method', 'OperatorMethod', 'OperatorFunction']:
+        elif el.tag in ('Constructor', 'Function', 'Method', 'OperatorMethod', 'OperatorFunction'):
             namespaces_list = getNamespaces(el, include_self=True)
             input_name = '::'.join(namespaces_list)
         else:
@@ -314,8 +313,7 @@ def getSpecTemplateTypes(input_type, byname=False):
     while ">>" in input_name:
         input_name = input_name.replace(">>", "> >")
 
-    input_name_no_templ, templ_bracket = removeTemplateBracket(
-        input_name, return_bracket=True)
+    input_name_no_templ, templ_bracket = removeTemplateBracket(input_name, return_bracket=True)
     spec_types = templ_bracket.strip().lstrip('<').rstrip('>').strip()
 
     # Identify the correct commas
@@ -324,10 +322,10 @@ def getSpecTemplateTypes(input_type, byname=False):
     for i, c in enumerate(spec_types):
         if c == '<':
             balance += 1
-        if c == '>':
+        elif c == '>':
             balance -= 1
 
-        if (balance == 0) and (c == ','):
+        elif (balance == 0) and (c == ','):
             pos.append(i)
 
     # Construct list of arguments
@@ -335,7 +333,7 @@ def getSpecTemplateTypes(input_type, byname=False):
     prev_p = 0
     for p in pos:
         spec_types_list.append(spec_types[prev_p:p].strip())
-        prev_p = p+1
+        prev_p = p + 1
     spec_types_list.append(spec_types[prev_p:].strip())
 
     # Return result

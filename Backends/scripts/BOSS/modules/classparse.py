@@ -99,7 +99,6 @@ def run():
 
         # Treat the first specialization of a template class differently
         # TODO: TG: I don't see why this is needed
-        # JOEL: uncommented this if statement
         # if is_template and class_name['long'] not in template_done:
         #     empty_templ_class_decl = classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
         #     empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
@@ -237,17 +236,14 @@ def run():
 
 # Construct code for the abstract class header file and register it
 
-def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template,
-                                  has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
-
+def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
     if file_for_gambit:
         abstr_class_fname = abstr_class_fname + '.FOR_GAMBIT'
 
     class_decl = ''
 
     # Add include statements
-    include_statements  = []
-    include_statements += ['#include <cstddef>']
+    include_statements  = ['#include <cstddef>']
     if gb.debug_mode or file_for_gambit: 
         include_statements += ['#include <iostream>']
     include_statements += ['#include "' + os.path.join(gb.gambit_backend_incl_dir, 'abstractbase.hpp') + '"']
@@ -265,17 +261,16 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         enum_include_statement_code += '#include "' + gb.enum_decls_wrp_fname + cfg.header_extension + '"\n'
         enum_include_statement_code += '\n'
         class_decl += enum_include_statement_code
+    
+    if abstr_class_fname == 'BOSS_output/ExampleBackend_1_234/abstract_ClassFour.hpp' or abstr_class_fname == 'BOSS_output/ExampleBackend_1_234/abstract_ClassThree.hpp':
+        print('stop')
 
     # Add the the code for the abstract class
-    if (is_template == True) and (class_name['long'] in templ_spec_done):
+    if is_template and (class_name['long'] in templ_spec_done):
         pass
-    elif (is_template == True) and (class_name['long'] not in templ_spec_done):
+    elif is_template and (class_name['long'] not in templ_spec_done):
         spec_template_types = utils.getSpecTemplateTypes(class_el)
-        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
-                                                         indent=cfg.indent, file_for_gambit=file_for_gambit, 
-                                                         template_types=spec_template_types, 
-                                                         has_copy_constructor=has_copy_constructor,
-                                                         construct_assignment_operator=construct_assignment_operator)
+        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=cfg.indent, file_for_gambit=file_for_gambit, template_types=spec_template_types, has_copy_constructor=has_copy_constructor, construct_assignment_operator=construct_assignment_operator)
         class_decl += '\n'
     else:
         class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
