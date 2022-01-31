@@ -1,3 +1,6 @@
+#ifndef __boss__classes_ExampleBackend_1_234_hpp__
+#define __boss__classes_ExampleBackend_1_234_hpp__
+
 #ifndef __classes_hpp__
 #define __classes_hpp__
 
@@ -6,12 +9,13 @@
 #include <ctime>
 #include <map> 
 
-template
-<
-typename
-T
->         
-class ClassThree {
+
+
+#include "backend_types/ExampleBackend_1_234/abstract_ClassThree.hpp"
+#include "gambit/Backends/abstracttypedefs.hpp"
+#include "gambit/Backends/wrappertypedefs.hpp"
+template <typename T>         
+class ClassThree : public virtual Abstract_ClassThree<T> {
 public:
   T pop();
   void push(T item);
@@ -20,90 +24,31 @@ public:
 private:
   std::vector<T> stack;
   int curr_size;
-};
 
-
-namespace aRandomNamespace {
-  template
-  <
-  class              
-  
-  T, class
-  U
-  
-  
-  
-  >  
-  class ClassFour {
   public:
-    T pop();
-    void push(T item);
-    int size();
+    Abstract_ClassThree* pointer_copy__BOSS();
 
-  private:
-    std::vector<T> stack;
-    int curr_size;
-    U testing_var;
-  };
-}
+    using Abstract_ClassThree::pointer_assign__BOSS;
+    void pointer_assign__BOSS(Abstract_ClassThree* in);
 
-// A dummy class
-class ClassOne
-{
-
-public:
-  int i;
-  int& i_2 = i;
-  double d;
-  long int li;
-  long li_1;
-  unsigned long li_2;
-  std::map<int, std::vector<unsigned long int>> testing_Var;
-
-  // Specify a type for ClassThree and ClassFour
-  ClassThree<double> class_3;
-  aRandomNamespace::ClassFour<char, int> class_4;
-  
-  // Decalring it as a member variable
-  //   std::vector<clock_t> my_vec_clock;
-  
-  // Constructor
-  ClassOne() : d{10.01}, i{22} {}
-
-  ClassOne(double first, int second):d{first}, i{second} {}
-
-  // Some method, defined in classes.cpp
-  void some_method(int);
-
-  // Some other method, defined right here
-  void some_other_method(int i_in)
-  {
-    std::cout << "ClassOne::some_other_method: arg 1: i_in = " << i_in << std::endl;
-  }
-
-  // Testing methods which returns a clock instead
-  clock_t return_clock_t();
-
-  // Testing methods that return vectors
-
-  std::vector<int> return_as_vector_with_int();
-
-  std::vector<clock_t> return_as_vector_with_clock();
 
 };
 
-namespace SomeNamespace
-{
-  // Another dummy class
-  class ClassTwo
-  {
+// Instantiate a <double> specialization of ClassThree:
+#include "backend_types/ExampleBackend_1_234/abstract_Dummy.hpp"
+#include "gambit/Backends/abstracttypedefs.hpp"
+#include "gambit/Backends/wrappertypedefs.hpp"
+class Dummy : public virtual Abstract_Dummy {
+  ClassThree<double> var;
+
   public:
-    int j;
-    // std::vector<ClassOne> loading_test;
-  };
-  
+    Abstract_Dummy* pointer_copy__BOSS();
 
-}
+    using Abstract_Dummy::pointer_assign__BOSS;
+    void pointer_assign__BOSS(Abstract_Dummy* in);
 
+
+};
 
 #endif
+#endif /* __boss__classes_ExampleBackend_1_234_hpp__ */

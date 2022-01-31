@@ -53,33 +53,23 @@ manual_accepted_namespaces = ['std']
 
 # JOEL: Do we want to be able to say 'ClassThree' or is it acceptable to be saying 'ClassThree<double>'?
 load_classes = [
-    'ClassOne',
-    'SomeNamespace::ClassTwo',
     'ClassThree<double>',
-    'aRandomNamespace::ClassFour<char>'
+    'Dummy'
 ]
 
 load_functions = [
-    'SomeNamespace::modify_instance(int, SomeNamespace::ClassTwo&)',
     'SomeNamespace::return_as_vector(int, int)',
-    'SomeNamespace::return_as_vector_2(int, int&)',
-    'SomeNamespace::return_as_classOne_vec()',
-    # 'ClassOne::return_clock_t()',
-    # 'SomeNamespace::return_as_vector_with_clock()',
+    'SomeNamespace::return_as_vector_2(int, int&)'
 ]
 
-load_enums = [
-]
+load_enums = []
 
 ditch = []
 
-
 auto_detect_stdlib_paths = False
-
 
 load_parent_classes = False
 wrap_inherited_members = False
-
 
 header_extension = '.hpp'
 source_extension = '.cpp'
@@ -100,8 +90,7 @@ known_classes = {}
 
 # ~~~~~ Declarations to be added to the frontend header file ~~~~~
 
-convenience_functions = [
-]
+convenience_functions = []
 
 ini_function_in_header = True
 
