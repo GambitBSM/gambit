@@ -1429,7 +1429,30 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
         var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
         
+        
+        
         var_type      = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
+
+        if is_template:
+            # Assume that there is only one thing on the function line
+            src_file_name = gb.id_dict[var_el.get('file')].get('name')
+            line_num = int(var_el.get('line'))
+
+            with open(src_file_name, 'r') as f:
+                contents = f.read()
+
+            # Split by line and get the function's line
+            lines = contents.split('\n')
+            func_line = lines[line_num - 1]
+
+            # Strip the whitespace to the right and get the first element
+            var_type = func_line.lstrip(' ').split(' ')[0]
+        else:
+            var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
+
+
+
+
 
         var_is_loaded_class = utils.isLoadedClass(var_el)
         var_is_known_class  = utils.isKnownClass(var_el)

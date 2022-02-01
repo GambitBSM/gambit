@@ -260,6 +260,8 @@ def getTemplateBracket(el):
     trimmed_file_content = '\n'.join(file_content_list[:line_number])
 
     # Match the pattern
+    # TODO: Zelun the regex doesn't work for nested template brakets, defined on same line
+    # eg. template <typename T, template <typename TT> V>, template class ClassThree<double>
     template_pattern = re.compile(r"template(\s)*<(.|\s)+?>")
     all_matches = template_pattern.finditer(trimmed_file_content)
 
@@ -740,7 +742,6 @@ def getBracketLength(content, line_number):
 
 
 def getBracketPositions(content, delims=['{', '}']):
-
     # Input:
     # - Content string
     # - List of left and right delimiters
