@@ -692,18 +692,18 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
         argc = 1
         for i in range(len(args)):
             if args[i]['name'] == '':
-                args[i]['name'] = 'arg_' + str(argc)
+                args[i]['name'] = f"arg_{argc}"
                 argc += 1
 
         # Generate one factory function for each set of default arguments
-        for remove_n_args in range(n_overloads+1):
+        for remove_n_args in range(n_overloads + 1):
 
             # Check that the constructor is acceptable
             if funcutils.ignoreFunction(el, limit_pointerness=True, remove_n_args=remove_n_args):
                 continue
 
             # - Factory function name
-            factory_name = 'Factory_' + class_name['short'] + '_' + str(counter)
+            factory_name = f"Factory_{class_name['short']}_{counter}"
             if len(template_types) > 0:
                 factory_name += '_' + '_'.join(template_types)
             factory_name += gb.code_suffix + '_' + str(gb.symbol_name_counter)
@@ -730,14 +730,27 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
                 return_type = toWrapperType(class_name['short'], include_namespace=True)
             else:
                 return_type = toAbstractType(class_name['short'], add_pointer=True, include_namespace=True)
+                        
+            # Try and add template brackets if there are any
+            template_bracket = f"<{','.join(template_types)}>"
+            try:
+                last_index = len(return_type) - 1
+                while return_type[last_index].isalnum() or return_type[last_index] == '_':
+                    last_index -= 1
+                
+                template_bracket = f"<{','.join(template_types)}>"
+                return_type = f"{return_type[:last_index]}{template_bracket}{return_type[last_index:]}"
+            except:
+                pass
+
             func_def += return_type + ' ' + factory_name + args_bracket + '\n'
 
             # Generate body
             func_def += '{' + '\n'
             if use_wrapper_return:
-                func_def += indent*' ' + 'return ' + return_type + '( new ' + class_name['long'] + args_bracket_notypes + ' );' + '\n'
+                func_def += indent*' ' + 'return ' + return_type + '( new ' + class_name['long'] + template_bracket + args_bracket_notypes + ' );' + '\n'
             else:
-                func_def += indent*' ' + 'return new ' + class_name['short'] + args_bracket_notypes + ';' + '\n'
+                func_def += indent*' ' + 'return new ' + class_name['short'] + template_bracket + args_bracket_notypes + ';' + '\n'
             func_def += '}' + 2*'\n'
 
             # Add info to global dict with factory function info
@@ -1160,7 +1173,7 @@ def checkCopyConstructor(class_el, return_id=False):
 
 # ====== toWrapperType ========
 
-def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False, include_namespace=False, include_global_namespace=False ):
+def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False, include_namespace=False, include_global_namespace=False):
 
     type_name = input_type_name
 
@@ -1192,8 +1205,8 @@ def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False
         short_type_name = short_type_name + '&'*is_ref
 
     # Return result
-    if (include_namespace) and (namespace != ''):
-        return namespace + '::' + short_type_name
+    if include_namespace and (namespace != ''):
+        return f"{namespace}::{short_type_name}"
     else:
         return short_type_name
 
