@@ -118,6 +118,7 @@ def run():
                     raise Exception("The template specialization type '" + template_type + "' for class " + class_name['long'] + " is not among accepted types.")
 
 
+        print("break point")
         #
         # For the backend: Construct code for the abstract class header file and register it
         #
@@ -135,8 +136,7 @@ def run():
         #
         # Add abstract class to inheritance list of original class
         #
-        if bool(re.match(".*classes.hpp", original_file_name)):
-            print("stop") 
+        
 
         addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template, original_file_name, original_file_content_nocomments)
         
