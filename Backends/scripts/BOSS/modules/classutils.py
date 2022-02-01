@@ -1571,6 +1571,10 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             return_kw_str = return_kw_str.replace('const', '')
 
         # Arguments
+        # TODO: JOEL - If this current class is templated, this following list
+        # of args isn't valid since, for example, if we have a templated type on T
+        # that's specified on double, the args will come back as doubles not Ts.
+        # Need to add in functionality to deal with this.
         args = funcutils.getArgs(func_el)
 
         # If any of the arg types was move to the abstract class, change namespace
@@ -1751,10 +1755,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     wrapper_class_name = toWrapperType(class_name['long'], include_namespace=True)
 
     # TODO: TG: Check if class is template
-    is_template = False
-    if class_el is not None and utils.isTemplateClass(class_el) :
-        is_template = True
-        templ_brackets, templ_vars = utils.getTemplateBracket(class_el)
+    is_template = (class_el is not None and utils.isTemplateClass(class_el))
 
     # Functions:
     def_code += '\n'
@@ -1764,11 +1765,11 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     # and overloaded versions of functions with default value arguments
 
     for func_el in class_functions:
+        if is_template:
+            def_code += f"template {class_name['templ_bracket']}\n"
 
         # Check if this is an operator function
-        is_operator = False
-        if func_el.tag == 'OperatorMethod':
-            is_operator = True
+        is_operator = (func_el.tag == 'OperatorMethod')
 
         # Check if this function makes use of any loaded types
         uses_loaded_type = funcutils.usesLoadedType(func_el)
@@ -1876,7 +1877,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
                 if is_const:
                     # TODO: TG: Not sure if needed, added for completion
                     if is_template: 
-                        get_BEptr_call = 'const_cast<const ' + abstr_class_name['short'] + '<' + ','.join(templ_vars) + '>*>(get_BEptr())'
+                        get_BEptr_call = 'const_cast<const ' + abstr_class_name['short'] + '<' + ','.join(class_name['templ_vars']) + '>*>(get_BEptr())'
                     else :
                         get_BEptr_call = 'const_cast<const ' + abstr_class_name['short'] +'*>(get_BEptr())'
                 else:
@@ -2029,16 +2030,20 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
     if temp_code != '':
         def_code += '\n'
-        def_code += '// Wrappers for original constructors: \n'    
+        def_code += '// Wrappers for original constructors: \n'
+        if is_template:
+            def_code += f"template {class_name['templ_bracket']}\n" 
         def_code += temp_code
 
 
     # Add special constructor based on abstract class pointer.
     def_code += '// Special pointer-based constructor: \n'
-    # TODO: TG: Abstract class should be templated
+    # TODO: TG: Abstract class should be templated    
+    if is_template:
+        def_code += f"template {class_name['templ_bracket']}\n"
     def_code += do_inline*'inline ' + class_name['short'] + '::' + class_name['short'] + '(' + abstr_class_name['short'] 
     if is_template:
-        def_code += '<' + ','.join(templ_vars) + '>'
+        def_code += '<' + ','.join(class_name['templ_vars']) + '>'
     def_code += '* in) :\n'
 
     parent_class_init_list = ''
@@ -2083,6 +2088,8 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     if has_copy_constructor:
         def_code += '\n'
         def_code += '// Copy constructor: \n'
+        if is_template:            
+            def_code += f"template {class_name['templ_bracket']}\n"
         def_code += do_inline*'inline ' + class_name['short'] + '::' + class_name['short'] + '(const ' + class_name['short'] +'& in) :\n'
 
         parent_class_init_list = ''
@@ -2106,7 +2113,9 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     #
     if construct_assignment_operator:
         def_code += '\n'
-        def_code += '// Assignment operator: \n'
+        def_code += '// Assignment operator: \n'        
+        if is_template:            
+            def_code += f"template {class_name['templ_bracket']}\n"
         def_code += do_inline*'inline ' + class_name['short'] + '& ' + class_name['short'] + '::operator=(const ' + class_name['short'] +'& in)\n'
         def_code += '{\n'
         def_code +=   indent + 'if (this != &in)\n'
@@ -2121,7 +2130,9 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     # Add destructor
     #
     def_code += '\n'
-    def_code += '// Destructor: \n'
+    def_code += '// Destructor: \n'    
+    if is_template:            
+        def_code += f"template {class_name['templ_bracket']}\n"
     def_code += do_inline*'inline ' + class_name['short'] + '::~' + class_name['short'] + '()\n'
     def_code += '{\n'
     if gb.debug_mode:
@@ -2146,16 +2157,18 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     #
     def_code += '\n'
     def_code += '// Returns correctly casted pointer to Abstract class: \n'
+    if is_template:            
+        def_code += f"template {class_name['templ_bracket']}\n"
     # TODO: TG: Abstract class should be templated
     def_code += do_inline*'inline ' + abstr_class_name['short'] 
     if is_template: 
-        def_code += '<' + ','.join(templ_vars) + '>'
+        def_code += '<' + ','.join(class_name['templ_vars']) + '>'
     def_code += '* ' + class_name['long'] + '::get_BEptr() const\n'
     def_code += '{\n'
     # TODO: TG: Abstract class should be templated
     def_code += indent + 'return dynamic_cast<' + abstr_class_name['short']
     if is_template:
-        def_code += '<' + ','.join(templ_vars) + '>'
+        def_code += '<' + ','.join(class_name['templ_vars']) + '>'
     def_code += '*>(BEptr);\n'
     def_code += '}\n'
 

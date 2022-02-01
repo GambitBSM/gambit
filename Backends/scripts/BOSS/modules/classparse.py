@@ -547,14 +547,12 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
             if method_access != current_access:
                 declaration_code += ' '*(len(namespaces)+1)*cfg.indent + method_access +':\n'
                 current_access = method_access
-            declaration_code += classutils.constrWrapperFunction(method_el, indent=cfg.indent, n_indents=len(namespaces)+2, 
-                                                                 remove_n_args=remove_n_args, only_declaration=True)
+            declaration_code += classutils.constrWrapperFunction(method_el, indent=cfg.indent, n_indents=len(namespaces)+2, remove_n_args=remove_n_args, only_declaration=True)
             declaration_code += '\n'
 
             
             # The implementation goes into a new source file
-            implementation_code += classutils.constrWrapperFunction(method_el, indent=cfg.indent, n_indents=0, 
-                                                                    remove_n_args=remove_n_args, include_full_namespace=True)
+            implementation_code += classutils.constrWrapperFunction(method_el, indent=cfg.indent, n_indents=0, remove_n_args=remove_n_args, include_full_namespace=True)
             implementation_code += 2*'\n'
 
     # - Register code
@@ -576,14 +574,12 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
         for remove_n_args in range(n_overloads+1):
 
             # Put declaration in original class
-            operator_declaration_code += classutils.constrWrapperFunction(operator_el, indent=cfg.indent, n_indents=len(namespaces)+2, 
-                                                                          remove_n_args=remove_n_args, only_declaration=True)
+            operator_declaration_code += classutils.constrWrapperFunction(operator_el, indent=cfg.indent, n_indents=len(namespaces)+2, remove_n_args=remove_n_args, only_declaration=True)
             operator_declaration_code += '\n'
 
 
             # Put implementation in a new source file
-            operator_implementation_code += classutils.constrWrapperFunction(operator_el, indent=cfg.indent, n_indents=0, 
-                                                                             remove_n_args=remove_n_args, include_full_namespace=True)
+            operator_implementation_code += classutils.constrWrapperFunction(operator_el, indent=cfg.indent, n_indents=0, remove_n_args=remove_n_args, include_full_namespace=True)
             operator_implementation_code += 2*'\n'
 
 
@@ -602,13 +598,11 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
         for var_el in member_variables:
 
             # Put declaration in original code
-            ref_func_declaration_code += classutils.constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indents=n_indents+2, 
-                                                                              only_declaration=True, add_return_type_suffix=True)
+            ref_func_declaration_code += classutils.constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True, add_return_type_suffix=True)
             ref_func_declaration_code += '\n'
 
             # Put implementation in a new source file
-            ref_func_implementation_code += classutils.constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indents=0,
-                                                                                 include_full_namespace=True, add_return_type_suffix=True) 
+            ref_func_implementation_code += classutils.constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True, add_return_type_suffix=True) 
             ref_func_implementation_code += '\n'
 
 
