@@ -14,11 +14,13 @@ public:
   T pop();
   void push(T item);
   int size();
-
+  T var;
+  
 private:
   std::vector<T> stack;
   int curr_size;
 };
+
 
 // Instantiate a <double> specialization of ClassThree:
 class Dummy {
