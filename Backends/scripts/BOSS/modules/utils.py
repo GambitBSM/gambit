@@ -1086,8 +1086,7 @@ def constrAbsForwardDeclHeader(file_output_path):
         initial_code = f.read()
         f.close()
         initial_code_tuple = (0, initial_code)
-        gb.new_code[file_output_path] = {'code_tuples': [
-            initial_code_tuple], 'add_include_guard': True}
+        gb.new_code[file_output_path] = {'code_tuples': [initial_code_tuple], 'add_include_guard': True}
 
     current_code = gb.new_code[file_output_path]['code_tuples'][0][1]
 
@@ -1107,11 +1106,9 @@ def constrAbsForwardDeclHeader(file_output_path):
 
         if namespaces != current_namespaces:
             # close current namespace
-            insert_code += constrNamespace(current_namespaces,
-                                           'close', indent=cfg.indent)
+            insert_code += constrNamespace(current_namespaces, 'close', indent=cfg.indent)
             # open new namespace
-            insert_code += constrNamespace(namespaces,
-                                           'open', indent=cfg.indent)
+            insert_code += constrNamespace(namespaces, 'open', indent=cfg.indent)
             # update current namespace
             current_namespaces = namespaces
 
@@ -1130,8 +1127,7 @@ def constrAbsForwardDeclHeader(file_output_path):
 
             # TODO: TG: If it's a specialized template we declare the full template
             if template_bracket == '<>' and len(spec_template_types) > 0:
-                temp_types = ['class T' + str(i+1)
-                              for i in range(len(spec_template_types))]
+                temp_types = ['class T' + str(i + 1) for i in range(len(spec_template_types))]
                 template_bracket = '<' + ','.join(temp_types) + '>'
 
             insert_code += full_indent + 'template ' + template_bracket + '\n'
