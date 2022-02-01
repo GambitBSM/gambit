@@ -652,6 +652,8 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
     constructor_elements = getAcceptableConstructors(class_el, skip_copy_constructors=skip_copy_constructors)
 
+    num_template_types = len(template_types)
+
     # If no public constructors are found, return nothing
     if len(constructor_elements) == 0:
         reason = "No public constructors."
@@ -704,7 +706,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
             # - Factory function name
             factory_name = f"Factory_{class_name['short']}_{counter}"
-            if len(template_types) > 0:
+            if num_template_types > 0:
                 factory_name += '_' + '_'.join(template_types)
             factory_name += gb.code_suffix + '_' + str(gb.symbol_name_counter)
             gb.symbol_name_counter += 1
@@ -732,16 +734,17 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
                 return_type = toAbstractType(class_name['short'], add_pointer=True, include_namespace=True)
                         
             # Try and add template brackets if there are any
-            template_bracket = f"<{','.join(template_types)}>"
-            try:
+            if num_template_types > 0:
+                # Find the last index of a char that isn't '*' or '_'
+                template_bracket = f"<{','.join(template_types)}>"
                 last_index = len(return_type) - 1
                 while return_type[last_index].isalnum() or return_type[last_index] == '_':
                     last_index -= 1
                 
-                template_bracket = f"<{','.join(template_types)}>"
+                # Modify return_type so that it now has template brackets
                 return_type = f"{return_type[:last_index]}{template_bracket}{return_type[last_index:]}"
-            except:
-                pass
+            else:
+                template_bracket = ''
 
             func_def += return_type + ' ' + factory_name + args_bracket + '\n'
 
