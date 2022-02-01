@@ -8,6 +8,7 @@
 from __future__ import print_function
 from collections import OrderedDict
 import os
+import re
 
 # import modules.cfg as cfg
 import modules.active_cfg as active_cfg
@@ -1428,11 +1429,9 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
        
 
         var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
-        
-        
-        
-        var_type      = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
+        # JOEL: There's this is else block and one more that's very similar
+        # that works on return_type instead of var_type. Is this methodology sufficient??
         if is_template:
             # Assume that there is only one thing on the function line
             src_file_name = gb.id_dict[var_el.get('file')].get('name')
@@ -1441,18 +1440,17 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             with open(src_file_name, 'r') as f:
                 contents = f.read()
 
-            # Split by line and get the function's line
+            # Split by line and get the function's line and strip whitespace
             lines = contents.split('\n')
-            func_line = lines[line_num - 1]
+            func_line = lines[line_num - 1].strip()
 
-            # Strip the whitespace to the right and get the first element
-            var_type = func_line.lstrip(' ').split(' ')[0]
+            pat = re.compile(rf"[\s]*{re.escape(var_el.get('name'))}[\s]*;")
+
+            # Split get the first element
+            match_lo_index = re.search(pat, func_line).start()
+            var_type = func_line[:match_lo_index]
         else:
             var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
-
-
-
-
 
         var_is_loaded_class = utils.isLoadedClass(var_el)
         var_is_known_class  = utils.isKnownClass(var_el)
@@ -1545,13 +1543,16 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
             with open(src_file_name, 'r') as f:
                 contents = f.read()
-            
-            # Split by line and get the function's line
-            lines = contents.split('\n')
-            func_line = lines[line_num - 1]
 
-            # Strip the whitespace to the right and get the first element
-            return_type = func_line.lstrip(' ').split(' ')[0]
+            # Split by line and get the function's line and strip whitespace
+            lines = contents.split('\n')
+            func_line = lines[line_num - 1].strip()
+
+            pat = re.compile(rf"[\s]*{re.escape(func_el.get('name'))}[\s]*\(")
+
+            # Split get the first element
+            match_lo_index = re.search(pat, func_line).start()
+            return_type = func_line[:match_lo_index]
         else:
             return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
