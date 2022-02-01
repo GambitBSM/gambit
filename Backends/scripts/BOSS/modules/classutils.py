@@ -1548,6 +1548,10 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             return_kw_str = return_kw_str.replace('const', '')
 
         # Arguments
+        # TODO: JOEL - If this current class is templated, this following list
+        # of args isn't valid since, for example, if we have a templated type on T
+        # that's specified on double, the args will come back as doubles not Ts.
+        # Need to add in functionality to deal with this.
         args = funcutils.getArgs(func_el)
 
         # If any of the arg types was move to the abstract class, change namespace
