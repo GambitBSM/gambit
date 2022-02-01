@@ -1304,9 +1304,8 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
     wrapper_class_name = toWrapperType(class_name['long'], include_namespace=True)
 
     # TODO: TG: Check if class is template
-    is_template = False
-    if class_el is not None and utils.isTemplateClass(class_el):
-        is_template = True
+    is_template = (class_el is not None and utils.isTemplateClass(class_el))
+    if is_template:
         templ_brackets, templ_vars = utils.getTemplateBracket(class_el)
 
     # Construct inheritance line 
@@ -1510,9 +1509,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             current_access = accessor
 
         # Check if this is an operator function
-        is_operator = False
-        if func_el.tag == 'OperatorMethod':
-            is_operator = True
+        is_operator = (func_el.tag == 'OperatorMethod')
 
         # Check if this function makes use of any loaded types
         uses_loaded_type = funcutils.usesLoadedType(func_el)
@@ -1523,7 +1520,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         else:
             func_name = func_el.get('name')
 
-        # Skip the assignment operator (we implement out own later on)
+        # Skip the assignment operator (we implement our own later on)
         if func_name == 'operator=':
             continue
 
@@ -1541,7 +1538,22 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         
         return_is_loaded    = utils.isLoadedClass(return_type_el)
 
-        return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
+        if is_template:
+            # Assume that there is only one thing on the function line
+            src_file_name = gb.id_dict[func_el.get('file')].get('name')
+            line_num = int(func_el.get('line'))
+
+            with open(src_file_name, 'r') as f:
+                contents = f.read()
+            
+            # Split by line and get the function's line
+            lines = contents.split('\n')
+            func_line = lines[line_num - 1]
+
+            # Strip the whitespace to the right and get the first element
+            return_type = func_line.lstrip(' ').split(' ')[0]
+        else:
+            return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         # If return type was moved to abstract class, change namespace
         # TODO: TG: I think this should use the template specificiation
