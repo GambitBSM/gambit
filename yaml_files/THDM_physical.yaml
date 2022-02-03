@@ -28,7 +28,7 @@ Parameters:
   # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
-  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
+  # Select model: THDMI_pyhsical, THDMII_physical
   THDMI_physical:
         m_h: 125.10
             # range: [30,130] #[125.0, 126.0]
@@ -127,9 +127,12 @@ Scanner:
 
 ObsLikes:
 
-  # #-------------------------------------#
-  # #      THEORETICAL LIKELIHOODS        #
-  # #-------------------------------------#
+  #-------------------------------------#
+  #      THEORETICAL LIKELIHOODS        #
+  #-------------------------------------#
+
+  # - purpose: LogLike
+  #   capability: higgs_mass_likelihood
 
   # Stability of the 2HDM Potential
   # Applies the THDM stability constraints on the potential
@@ -141,20 +144,20 @@ ObsLikes:
   - purpose:    LogLike
     capability: stability_likelihood_THDM
 
-  # # Checks that the NLO scattering-matrix is unitary
-  # # Calculates and applies limit on eigenvalues of matrix
-  # # NOTE: This is always a subset of LO unitarity so it not needed
-  # # Likelihood type: Half-Gaussian
-  # # Only supports CP-conserving models
-  # # Unitarity of the S-matrix at next leading order (includes leading order too)
+  # Checks that the NLO scattering-matrix is unitary
+  # Calculates and applies limit on eigenvalues of matrix
+  # NOTE: This is always a subset of LO unitarity so it not needed
+  # Likelihood type: Half-Gaussian
+  # Only supports CP-conserving models
+  # Unitarity of the S-matrix at next leading order (includes leading order too)
   - purpose:    LogLike
     # capability: unitarity_likelihood_THDM
     capability: NLO_unitarity_likelihood_THDM
 
-  # # Calculates all quartic Higgs couplings in the physical
-  # # basis & applies a 4pi perturbativity constraint on each
-  # # Likelihood type: Half-Gaussian
-  # # Perturbativity check on lambdas and scalar couplings
+  # Calculates all quartic Higgs couplings in the physical
+  # basis & applies a 4pi perturbativity constraint on each
+  # Likelihood type: Half-Gaussian
+  # Perturbativity check on lambdas and scalar couplings
   - purpose:    LogLike
     capability: perturbativity_likelihood_THDM
 
@@ -273,34 +276,6 @@ ObsLikes:
 
 
   # THDM parameters
-
-  # - capability: cbaa
-  #   function: obs_cbaa
-  #   purpose: LogLike
-
-  # - capability: HS_TEST_RESULTS
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_gaga
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_ZZ
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_WW
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_tautau
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_bb
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_mumu
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_all
-  #   purpose: Observable
 
   - capability: THDM_spectrum_map
     function: get_THDM_spectrum_as_map
@@ -456,6 +431,32 @@ ObsLikes:
 
 Rules:
 
+  - capability: LHC_Higgs_LogLike
+    function: calc_HS_2_LHC_LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
+
+  - capability: HB_ModelParameters_neutral
+    function: THDM_ModelParameters_effc
+    dependencies:
+      - capability: Higgs_Couplings
+        function: THDM_higgs_couplings_2HDMC
+        module: SpecBit
+
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+    module: SpecBit
+    dependencies: # !!
+      - capability: Higgs_decay_rates
+        function: h0_1_decays_THDM
+        module: DecayBit
+
   - capability: THDM_spectrum
     function: get_THDM_spectrum
 
@@ -511,10 +512,10 @@ Rules:
   - capability: HB_ModelParameters_charged
     function: THDM_ModelParameters_charged
     module: ColliderBit
-
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_2HDMC
-    module: SpecBit
+    dependencies: # !!
+      - capability: Higgs_Couplings
+        function: THDM_higgs_couplings_2HDMC
+        module: SpecBit
 
   - capability: SuperIso_modelinfo
     function: SI_fill
@@ -528,7 +529,6 @@ Rules:
   - capability: Bsmumu_untag
     function: SI_Bsmumu_untag
     module: FlavBit
-
 
 
 #########################

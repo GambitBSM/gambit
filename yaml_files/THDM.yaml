@@ -28,76 +28,8 @@ Parameters:
   # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
-  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM THDMI_smartBasis
+  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM, or THDMI_smartBasis
   THDMI:
-
-      # -- POINT #1 --
-      # lambda_1: -2.57385
-      # lambda_2: 0.25609
-      # lambda_3: 5.40354
-      # lambda_4: 0.00422
-      # lambda_5: 0.00422
-      # lambda_6: 0
-      # lambda_7: 0
-      # m12_2: 12800
-      # tanb: 50
-
-      # -- POINT #2 --
-      # lambda_1: -165.17504
-      # lambda_2: 0.32113
-      # lambda_3: 51.67035
-      # lambda_4: 0.00422
-      # lambda_5: 0.00422
-      # lambda_6: 0
-      # lambda_7: 0
-      # m12_2: 12800
-      # tanb: 50
-
-      # -- POINT #3 --
-      # lambda_1: -837.85485
-      # lambda_2: 0.5902
-      # lambda_3: 101.93386
-      # lambda_4: 0.00422
-      # lambda_5: 0.00422
-      # lambda_6: 0
-      # lambda_7: 0
-      # m12_2: 12800
-      # tanb: 50
-
-      # -- POINT #4 --
-      # lambda_1: -9.8888
-      # lambda_2: -0.50282
-      # lambda_3: -2.2235
-      # lambda_4: 2.63919
-      # lambda_5: 2.63919
-      # lambda_6: 0
-      # lambda_7: 0
-      # m12_2: 320000
-      # tanb: 2
-
-      # -- POINT #5 --
-      # lambda_1: -6.50813
-      # lambda_2: -1.34799
-      # lambda_3: -0.63717
-      # lambda_4: 2.63919
-      # lambda_5: 2.63919
-      # lambda_6: 0
-      # lambda_7: 0
-      # m12_2: 320000
-      # tanb: 2
-
-      # -- POINT #6 --
-      # lambda_1: -3.46167
-      # lambda_2: -2.1096
-      # lambda_3: 1.47066
-      # lambda_4: 2.63919
-      # lambda_5: 2.63919
-      # lambda_6: 0
-      # lambda_7: 0
-      # m12_2: 320000
-      # tanb: 2
-
-      # TODO: justify parameter ranges: perturbility ???
       lambda_1:
           range: [-0.5, 12.5664]
           prior_type: flat
@@ -130,6 +62,7 @@ Parameters:
       tanb:
           range: [0.01, 50]
           prior_type: log
+
       # Qin:
       #     fixed_value: 91.1876 # = mZ
       # QrunTo:
@@ -198,13 +131,12 @@ Scanner:
 
 ObsLikes:
 
-  # #-------------------------------------#
-  # #      THEORETICAL LIKELIHOODS        #
-  # #-------------------------------------#
+  #-------------------------------------#
+  #      THEORETICAL LIKELIHOODS        #
+  #-------------------------------------#
 
   # - purpose: LogLike
   #   capability: higgs_mass_likelihood
-
 
   # Stability of the 2HDM Potential
   # Applies the THDM stability constraints on the potential
@@ -223,8 +155,8 @@ ObsLikes:
   # Only supports CP-conserving models
   # Unitarity of the S-matrix at next leading order (includes leading order too)
   - purpose:    LogLike
-    capability: unitarity_likelihood_THDM
-    # capability: NLO_unitarity_likelihood_THDM
+    # capability: unitarity_likelihood_THDM
+    capability: NLO_unitarity_likelihood_THDM
 
   # Calculates all quartic Higgs couplings in the physical
   # basis & applies a 4pi perturbativity constraint on each
@@ -348,34 +280,6 @@ ObsLikes:
 
 
   # THDM parameters
-
-  # - capability: cbaa
-  #   function: obs_cbaa
-  #   purpose: LogLike
-
-  # - capability: HS_TEST_RESULTS
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_gaga
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_ZZ
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_WW
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_tautau
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_bb
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_mumu
-  #   purpose: Observable
-
-  # - capability: HS_TEST_CHANNEL_h_to_all
-  #   purpose: Observable
 
   - capability: THDM_spectrum_map
     function: get_THDM_spectrum_as_map
@@ -629,7 +533,6 @@ Rules:
   - capability: Bsmumu_untag
     function: SI_Bsmumu_untag
     module: FlavBit
-
 
 
 #########################

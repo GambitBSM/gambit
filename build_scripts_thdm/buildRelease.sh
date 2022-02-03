@@ -1,4 +1,4 @@
-echo "creating a release build of gambit..." && \
+echo "creating a release build of gambit/THDM..." && \
 cd .. && \
 (mkdir build || true ) && \
 cd build && \
