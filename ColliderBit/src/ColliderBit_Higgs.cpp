@@ -31,6 +31,10 @@
 ///          (ankit.beniwal@uclouvain.be)
 ///  \date 2020 Jul
 ///
+///  \author A.S. Woodcock
+///          (alex.woodcock@outlook.com)
+///  \date   Feb 2022
+///
 ///  *********************************************
 
 #include <cmath>
@@ -45,12 +49,6 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
-
-#include "gambit/Models/SimpleSpectra/SMHiggsSimpleSpec.hpp"
-#include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
-#include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
-#include "gambit/SpecBit/THDMSpec.hpp"
-#include "gambit/SpecBit/THDMSpec_basis.hpp"
 #include "gambit/Core/point_counter.hpp"
 
 
@@ -61,59 +59,6 @@ namespace Gambit
 
   namespace ColliderBit
   {
-
-
-    // --------------------------------------------------
-    // declarations for convenience
-    enum yukawa_type
-    {
-      type_I = 1,
-      type_II,
-      lepton_specific,
-      flipped,
-      type_III
-    };
-    enum particle_type
-    {
-      h0 = 1,
-      H0,
-      A0,
-      G0,
-      Hp,
-      Hm,
-      Gp,
-      Gm
-    };
-    struct physical_basis_input
-    {
-      double mh, mH, mC, mA, mG, mGC, beta, lambda6, lambda7, m122, alpha;
-    };
-
-    // model lookup map -> useful for looking up model info
-    // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
-    struct model_param
-    {
-      bool is_model_at_Q;
-      yukawa_type model_y_type;
-      // constructor
-      model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
-    };
-
-    std::map<std::string, model_param> THDM_model_lookup_map = {
-        {"THDMatQ", model_param(true, type_III)},
-        {"THDM", model_param(false, type_III)},
-        {"THDMIatQ", model_param(true, type_I)},
-        {"THDMI", model_param(false, type_I)},
-        {"THDMIIatQ", model_param(true, type_II)},
-        {"THDMII", model_param(false, type_II)},
-        {"THDMLSatQ", model_param(true, lepton_specific)},
-        {"THDMLS", model_param(false, lepton_specific)},
-        {"THDMflippedatQ", model_param(true, flipped)},
-        {"THDMflipped", model_param(false, flipped)}};
-    // --------------------------------------------------
-
-
-    
 
     /// Helper function to set HiggsBounds/Signals parameters cross-section ratios from a GAMBIT HiggsCouplingsTable
     void set_CS_neutral(hb_neutral_ModelParameters_part &result, const HiggsCouplingsTable& couplings, int nNeutral)
@@ -1159,419 +1104,10 @@ namespace Gambit
 
     }
     
-    struct HS_Test_Results
-    {
-      double HS_Channel_h_to_gaga_LogLike { 0.0 };
-      double HS_Channel_h_to_ZZ_LogLike { 0.0 };
-      double HS_Channel_h_to_WW_LogLike { 0.0 };
-      double HS_Channel_h_to_tautau_LogLike { 0.0 };
-      double HS_Channel_h_to_bb_LogLike { 0.0 };
-      double HS_Channel_h_to_mumu_LogLike { 0.0 };
-      double HS_Channel_h_to_all_LogLike { 0.0 };
-    };
-
-    static HS_Test_Results* hs_results { nullptr };
-
-    enum DecayChannels
-    {
-      gaga,   // (loop) h -> (3 diagrams) -> gamma+gamma
-      ZZ,     // h -> ZZ
-      WW,     // h -> WW
-      tautau, // h -> tau+tau
-      bb,     // h -> bb -> ?
-      mumu,   // h -> mu+mu
-      // missing (loop) h -> .. -> Z+gamma
-      nDecayChannels
-    };
-
-    enum ProductionChannels
-    {
-      ggF, // (loop) gluon-gluon fusion ( gg -> fff* -> h )
-      VBF, // vector boson fusion ( qq -> qqVV* -> qqh )
-      Wh,  // Associated production / Higgsstrahlung ( qq -> W* -> Wh )
-      Zh,  // Associated production / Higgsstrahlung ( qq -> W* -> Zh )
-      // missing: (tree) gg -> ... -> hZ
-      tth, // qq -> (3 diagrams) -> tth, gg -> (3 diagrams) -> tth
-      // missing: (tree) qq -> ... -> bbh
-      // missing: (tree) gg -> ... -> bbh
-      // pp,  // ??
-      // missing: (tree) qq -> ... -> thb
-      // missing: (tree) bq -> ... -> thq
-      // missing: (tree) bq -> (2 diagrams) -> thW
-      nProductionChannels
-    };
-
-    double sq(const double x) 
-    {
-      return x*x;
-    }
-  
-
-    // calculates the higgs signal strengths
-    // for comparison with HiggsSignals backend
-    void HiggsSignalsTest(double &result)
-    {
-      // get deps
-
-      using namespace Pipes::HiggsSignalsTest;
-
-      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
-      int yukawa_type = -1;
-      bool is_at_Q = false;
-      for (auto const &THDM_model : THDM_model_lookup_map)
-      {
-        // model match was found: set values based on matched model
-        if (ModelInUse(THDM_model.first))
-        {
-          is_at_Q = THDM_model.second.is_model_at_Q;
-          yukawa_type = THDM_model.second.model_y_type;
-          break;
-        }
-      }
-
-      // give higgs indicies names
-      enum neutral_higgs_indicies {
-          light_higgs, heavy_higgs, CP_odd_higgs, NUMBER_OF_NEUTRAL_HIGGS
-      };
-
-      hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
-      hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
-      const HiggsCouplingsTable::hp_decay_array_type& hp_widths = Dep::Higgs_Couplings->get_charged_decays_array(1);
-      const HiggsCouplingsTable::h0_decay_array_type& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array(3);
-      const Spectrum fullspectrum = *Dep::THDM_spectrum;
-      //const DecayTable::Entry& decays = *Dep::Higgs_decay_rates;
-      const SubSpectrum &spec = fullspectrum.get_HE();
-      THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
-
-      // Set up neutral Higgses
-      static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-
-      const SubSpectrum& he = fullspectrum.get_HE();
-
-
-      // extract 2HDM parameters
-      double alpha = container.he->get(Par::dimensionless, "alpha");
-      double beta  = container.he->get(Par::dimensionless, "beta");
-      double m122  = container.he->get(Par::mass1, "m12_2");
-      double mHp2  = sq(container.he->get(Par::Pole_Mass, "H+"));
-      double mh2   = sq(container.he->get(Par::Pole_Mass, "h0_1"));
-      double mH2   = sq(container.he->get(Par::Pole_Mass, "h0_2"));
-      double mA2   = sq(container.he->get(Par::Pole_Mass, "A0"));
-      // double C_gSM = 0.0;
-
-      // SM branching ratios
-
-      double BR_hbb_sm = 0.575;
-      double BR_hWW_sm = 0.216;
-      double BR_hgg_sm = 0.0856;
-      double BR_htautau_sm = 0.0630;
-      double BR_hcc_sm = 0.0290;
-      double BR_hZZ_sm = 0.0267;
-      double BR_hgaga_sm = 0.00228;
-      double BR_hZga_sm = 0.00155;
-      double BR_hmumu_sm = 0.00022;
-      double Gamma_total_sm = 4.1e-3; // GeV
-
-      // sm production cross sections (for sqrt(s) = 13 TeV)
-
-      double CS_ggF_sm = 48.517; // pb
-      double CS_VBF_sm = 3.779;
-      double CS_WH_sm = 1.369;
-      double CS_ZH_sm = 0.8824;
-      double CS_ttH_sm = 0.5065;
-      double CS_bbH_sm = 0.4863;
-      double CS_total_sm = 22.3;
-
-      // extract relevant branching ratios
-
-      double BR_hbb = h0_widths[light_higgs]->BF("b","bbar");
-      double BR_hWW = h0_widths[light_higgs]->BF("W+","W-");
-      double BR_hgg = h0_widths[light_higgs]->BF("g","g");
-      double BR_htautau = h0_widths[light_higgs]->BF("tau+","tau-");
-      double BR_hcc = h0_widths[light_higgs]->BF("c","cbar");
-      double BR_hZZ = h0_widths[light_higgs]->BF("Z0","Z0");
-      double BR_hgaga = h0_widths[light_higgs]->BF("gamma","gamma");
-      double BR_hZga = h0_widths[light_higgs]->BF("Z0","gamma");
-      double BR_hmumu = h0_widths[light_higgs]->BF("mu+","mu-");
-      double Gamma_total = h0_widths[light_higgs]->width_in_GeV; // GeV
-
-      // extract relevant cross-sections
-
-      // extract relevant couplings
-
-      // number of decay channels
-      int nDecay = DecayChannels::nDecayChannels; 
-
-      // number of production channels
-      int nProd = ProductionChannels::nProductionChannels;
-
-      // the higgs signals to be calculated
-      std::vector<std::vector<double>> HS ( nDecay, std::vector<double>(nProd, 0.0) );
-      std::vector<double> HS_total (nDecay, 0.0 );
-
-      // the SM branching ratios for each decay mode
-      std::vector<double> BR_SM ( nDecay, 0.0 );
-
-      // the 2HDM scaling factors
-      std::vector<double> kappa ( nDecay+nProd, 0.0 );
-
-      // fill in the scalaing factors (tree-level relations) Type-I only
-      // defined as the relevant decay rate/cross-section normalized to the SM value
-      // we are assuming mh = 125.09 GeV, sqrt(s) = 8 TeV
-      // to leading order these are given by the ratio of the relevant couplings (or effective couplings)
-
-      double k_huu = cos(alpha) / sin(beta);
-      double k_hdd = cos(alpha) / sin(beta);
-      double k_hee = cos(alpha) / sin(beta);
-      double k_hvv = cos(alpha) / sin(beta);
-      double k_hWW = sin(beta-alpha);
-      double k_hZZ = sin(beta-alpha);
-
-      double a1 = m122/(sin(beta)*cos(beta)*mHp2);
-      double a2 = mh2/mHp2;
-
-      double k_hgg = sqrt((BR_hgg*Gamma_total)/(BR_hgg_sm*Gamma_total_sm)); // from P.181(Corre)
-      double k_hgaga = sqrt((BR_hgaga*Gamma_total)/(BR_hgaga_sm*Gamma_total_sm)); // from P.181(Corre)
-
-      double k_hgaga_wei = 1+((-1.0/3.0) * (1-a1)-(1/90)*(23-8*a1)*a2-(1/1440)*(73-9*a1)*a2*a2) * (1/6.53); // Wei's paper
-      // double k_hgg = sqrt(1.06*sq(k_huu) + 0.01*sq(k_hdd) - 0.07*k_huu*k_hdd + 0.74*sq(k_hWW) + 0.26*sq(k_hZZ)); // effective coupling from Higgs paper
-      // double k_hgaga = sqrt(1.59*sq(k_hWW) + 0.07*sq(k_huu) - 0.66*k_hWW*k_huu); // effective coupling from Higgs paper
-
-      // Resolved scaling factors
-
-      double sigma_ggF = k_hgg;
-      double sigma_VBF = 0.74*sq(k_hWW) + 0.26*sq(k_hZZ);
-      double sigma_WH = sq(k_hWW);
-      double sigma_qqZH = sq(k_hZZ);
-      double sigma_ggZH = 2.27*sq(k_hZZ) + 0.37*sq(k_huu) - 1.64*k_huu*k_hZZ;
-      double sigma_ttH = sq(k_huu);
-      double sigma_tHW = 0.;
-      double sigma_tHq = 0.;
-      double sigma_bbH = sq(k_hdd);
-
-      double Gamma_ZZ = sq(k_hZZ);
-      double Gamma_WW = sq(k_hWW);
-      double Gamma_gaga = sq(k_hgaga);
-      double Gamma_tautau = sq(k_hee);
-      double Gamma_bb = sq(k_hdd);
-      double Gamma_mumu = sq(k_hee);
-
-
-      // calculate the signal strengths (\mu_i == ( \sigma_i * \Gamma_i)^2HDM / ( \sigma_i * \Gamma_i)^SM)
-      // here we implicitly assume we can use the NWA (narrow width approximation)
-      // Higgs-signal-strength[Decay][Production]
-
-      HS[gaga][ggF]   = sq(k_hgg)*BR_hgaga/BR_hgaga_sm;
-      HS[ZZ][ggF]     = sq(k_hgg)*BR_hZZ/BR_hZZ_sm;
-      HS[WW][ggF]     = sq(k_hgg)*BR_hWW/BR_hWW_sm;
-      HS[tautau][ggF] = sq(k_hgg)*BR_htautau/BR_htautau_sm;
-      HS[bb][ggF]     = sq(k_hgg)*BR_hbb/BR_hbb_sm;
-      HS[mumu][ggF]   = sq(k_hgg)*BR_hmumu/BR_hmumu_sm;
-
-      HS[gaga][VBF]   = sq(k_hWW)*BR_hgaga/BR_hgaga_sm;
-      HS[ZZ][VBF]     = sq(k_hWW)*BR_hZZ/BR_hZZ_sm;
-      HS[WW][VBF]     = sq(k_hWW)*BR_hWW/BR_hWW_sm;
-      HS[tautau][VBF] = sq(k_hWW)*BR_htautau/BR_htautau_sm;
-      HS[bb][VBF]     = sq(k_hWW)*BR_hbb/BR_hbb_sm;
-      HS[mumu][VBF]   = sq(k_hWW)*BR_hmumu/BR_hmumu_sm;
-
-      for (const auto& hs : HS[gaga]) HS_total[gaga] += hs;
-      for (const auto& hs : HS[ZZ]) HS_total[ZZ] += hs;
-      for (const auto& hs : HS[WW]) HS_total[WW] += hs;
-      for (const auto& hs : HS[tautau]) HS_total[tautau] += hs;
-      for (const auto& hs : HS[bb]) HS_total[bb] += hs;
-      for (const auto& hs : HS[mumu]) HS_total[mumu] += hs;
-
-      // calculate the likelihood components
-
-      std::vector<std::vector<double>> HS_exp ( nDecay , std::vector<double>(nProd, 1.0) );
-      std::vector<double> HS_exp_total ( nDecay, 1.0 );
-
-      std::vector<std::vector<double>> HS_exp_corr ( nDecay , std::vector<double>(nProd, 10.0) );
-      std::vector<double> HS_exp_total_corr ( nDecay, 10.0 );
-
-      // HS_exp_total[gaga]   = 1.14;
-      // HS_exp_total[ZZ]     = 1.29;
-      // HS_exp_total[WW]     = 0.0;
-      // HS_exp_total[tautau] = 0.79;
-      // HS_exp_total[bb]     = 2.3;
-      // HS_exp_total[mumu]   = 0.0;
-
-      // HS_exp_total_corr[gaga]   = 0.0;
-      // HS_exp_total_corr[ZZ]     = 0.0;
-      // HS_exp_total_corr[WW]     = 0.0;
-      // HS_exp_total_corr[tautau] = 0.0;
-      // HS_exp_total_corr[bb]     = 0.0;
-      // HS_exp_total_corr[mumu]   = 0.0;
-      
-      HS_exp[gaga][ggF] = 1.10;
-      HS_exp[gaga][VBF] = 1.30;
-      HS_exp[gaga][Wh]  = 0.50;
-      HS_exp[gaga][Zh]  = 0.50;
-      HS_exp[gaga][tth] = 2.20;
-      
-      HS_exp[ZZ][ggF] = 1.13;
-      HS_exp[ZZ][VBF] = 0.10;
-      // HS_exp[ZZ][Wh]  = 1.0;
-      // HS_exp[ZZ][Zh]  = 1.0;
-      HS_exp[ZZ][tth] = 1.15;
-      
-      HS_exp[WW][ggF] = 0.84;
-      HS_exp[WW][VBF] = 1.20;
-      HS_exp[WW][Wh]  = 1.60;
-      HS_exp[WW][Zh]  = 5.90;
-      HS_exp[WW][tth] = 5.00;
-      
-      HS_exp[tautau][ggF] = 1.00;
-      HS_exp[tautau][VBF] = 1.30;
-      HS_exp[tautau][Wh]  = -1.40;
-      HS_exp[tautau][Zh]  = 2.20;
-      HS_exp[tautau][tth] = -1.90;
-      
-      // HS_exp[bb][ggF] = 1.0;
-      // HS_exp[bb][VBF] = 1.0;
-      HS_exp[bb][Wh]  = 1.00;
-      HS_exp[bb][Zh]  = 0.40;
-      // HS_exp[bb][tth] = 1.0;
-      
-      // HS_exp[mumu][ggF] = 1.0;
-      // HS_exp[mumu][VBF] = 1.0;
-      // HS_exp[mumu][Wh]  = 1.0;
-      // HS_exp[mumu][Zh]  = 1.0;
-      // HS_exp[mumu][tth] = 1.0;
-
-
-
-
-
-      HS_exp_corr[gaga][ggF] = 0.23;
-      HS_exp_corr[gaga][VBF] = 0.50;
-      HS_exp_corr[gaga][Wh]  = 1.30;
-      HS_exp_corr[gaga][Zh]  = 3.00;
-      HS_exp_corr[gaga][tth] = 1.60;
-      
-      HS_exp_corr[ZZ][ggF] = 0.34;
-      HS_exp_corr[ZZ][VBF] = 1.10;
-      // HS_exp_corr[ZZ][Wh]  = 1.0;
-      // HS_exp_corr[ZZ][Zh]  = 1.0;
-      HS_exp_corr[ZZ][tth] = 0.99;
-      
-      HS_exp_corr[WW][ggF] = 0.17;
-      HS_exp_corr[WW][VBF] = 0.40;
-      HS_exp_corr[WW][Wh]  = 1.20;
-      HS_exp_corr[WW][Zh]  = 2.60;
-      HS_exp_corr[WW][tth] = 1.80;
-      
-      HS_exp_corr[tautau][ggF] = 0.60;
-      HS_exp_corr[tautau][VBF] = 0.40;
-      HS_exp_corr[tautau][Wh]  = 1.40;
-      HS_exp_corr[tautau][Zh]  = 2.20;
-      HS_exp_corr[tautau][tth] = 3.70;
-      
-      // HS_exp_corr[bb][ggF] = 1.0;
-      // HS_exp_corr[bb][VBF] = 1.0;
-      HS_exp_corr[bb][Wh]  = 0.50;
-      HS_exp_corr[bb][Zh]  = 0.40;
-      // HS_exp_corr[bb][tth] = 1.0;
-      
-      // HS_exp_corr[mumu][ggF] = 1.0;
-      // HS_exp_corr[mumu][VBF] = 1.0;
-      // HS_exp_corr[mumu][Wh]  = 1.0;
-      // HS_exp_corr[mumu][Zh]  = 1.0;
-      // HS_exp_corr[mumu][tth] = 1.0;
-
-
-      std::vector<std::vector<double>> HS_LogLike ( nDecay , std::vector<double>(nProd, 0.0) );
-
-      for (size_t d=0; d<HS_LogLike.size(); ++d)
-      {
-        for (size_t p=0; p<HS_LogLike[0].size(); ++p)
-        {
-          // skip if some entries are missing
-
-          if (!(p == ggF || p == VBF)) continue;
-          if (d == mumu) continue;
-          if (p == ZZ && d == Wh) continue;
-          if (p == ZZ && d == Zh) continue;
-          if (p == bb && d == ggF) continue;
-          if (p == bb && d == VBF) continue;
-          if (p == bb && d == tth) continue;
-
-          HS_LogLike[d][p] = -0.5 * sq((HS[d][p] - HS_exp[d][p]) / HS_exp_corr[d][p]);
-        }
-      }
-
-      // fill in the results struct
-
-      if (hs_results == nullptr)
-        hs_results = new HS_Test_Results;
-
-      hs_results->HS_Channel_h_to_gaga_LogLike = 0.0;
-      hs_results->HS_Channel_h_to_ZZ_LogLike = 0.0;
-      hs_results->HS_Channel_h_to_WW_LogLike = 0.0;
-      hs_results->HS_Channel_h_to_tautau_LogLike = 0.0;
-      hs_results->HS_Channel_h_to_bb_LogLike = 0.0;
-      hs_results->HS_Channel_h_to_mumu_LogLike = 0.0;
-      hs_results->HS_Channel_h_to_all_LogLike = 0.0;
-
-      for (auto& hs : HS_LogLike[gaga]) hs_results->HS_Channel_h_to_gaga_LogLike += hs;
-      for (auto& hs : HS_LogLike[ZZ]) hs_results->HS_Channel_h_to_ZZ_LogLike += hs;
-      for (auto& hs : HS_LogLike[WW]) hs_results->HS_Channel_h_to_WW_LogLike += hs;
-      for (auto& hs : HS_LogLike[tautau]) hs_results->HS_Channel_h_to_tautau_LogLike += hs;
-      for (auto& hs : HS_LogLike[bb]) hs_results->HS_Channel_h_to_bb_LogLike += hs;
-      for (auto& hs : HS_LogLike[mumu]) hs_results->HS_Channel_h_to_mumu_LogLike += hs;
-      for (auto& d : HS_LogLike) 
-        for (auto& hs : d) 
-          hs_results->HS_Channel_h_to_all_LogLike += hs;
-
-      result = 1.0;
-
-    }
-    
-    void calc_HS_TEST_CHANNEL_h_to_gaga(double& result)
-    {
-      result = hs_results->HS_Channel_h_to_gaga_LogLike;
-    }
-    
-    void calc_HS_TEST_CHANNEL_h_to_ZZ(double& result)
-    {
-      result = hs_results->HS_Channel_h_to_ZZ_LogLike;
-    }
-    
-    void calc_HS_TEST_CHANNEL_h_to_WW(double& result)
-    {
-      result = hs_results->HS_Channel_h_to_WW_LogLike;
-    }
-    
-    void calc_HS_TEST_CHANNEL_h_to_tautau(double& result)
-    {
-      result = hs_results->HS_Channel_h_to_tautau_LogLike;
-    }
-    
-    void calc_HS_TEST_CHANNEL_h_to_mumu(double& result)
-    {
-      result = hs_results->HS_Channel_h_to_mumu_LogLike;
-    }
-    
-    void calc_HS_TEST_CHANNEL_h_to_bb(double& result)
-    {
-      result = hs_results->HS_Channel_h_to_bb_LogLike;
-    }
-    
-    void calc_HS_TEST_CHANNEL_h_to_all(double& result)
-    {
-      result = hs_results->HS_Channel_h_to_all_LogLike;
-    }
-
     // ~~ 26 ~~ (get HiggsSignals LL)
     /// Get an LHC chisq from HiggsSignals (v2 beta)
     void calc_HS_2_LHC_LogLike(double &result)
     {
-      // result = 1.0;
-      // return; // !!!!!!
-
-
       static point_counter count("HiggsSignals LL"); count.count();
       static point_counter count2("HiggsSignals NaN/inf"); count2.count();
 
@@ -1581,7 +1117,7 @@ namespace Gambit
       hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
-      const int nNeutral = 3; // !!!!
+      const int nNeutral = 3;
 
       // - put Higgs branching ratios into a Fortran array
 
@@ -1631,58 +1167,38 @@ namespace Gambit
 
       BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
-      // std::cout << "mh2" << ModelParam.Mh[1] << std::endl;
-      // std::cout << "mh3" << ModelParam.Mh[2] << std::endl;
-
       // add uncertainties to cross-sections and branching ratios
       // double dCS[5] = {0.,0.,0.,0.,0.};
       // double dBR[5] = {0.,0.,0.,0.,0.};
       // BEreq::setup_rate_uncertainties(dCS,dBR);
 
-      // - run HiggsSignals
-      // int mode = 1; // 1- peak-centered chi2 method (recommended)
-      double csqmu, csqmh, csqtot, Pvalue;
+      // chi-squared values for: mu == rate observable, mh == mass observable, both combined
+
+      double csqmu, csqmh, csqtot, Pvalue; 
       double csqmu1, csqmh1, csqtot1, Pvalue1;
       double csqmu2, csqmh2, csqtot2, Pvalue2;
       int nobs, nobs1, nobs2;
 
-      // Run the main subroutines
+      // - run HiggsSignals
+
+      // legacy peak-centered method
       BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
+      // LHC run1 (using combined ATLAS + CMS dataset)
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
+      // uses new Simplified Template Cross Section (STXS) measurements
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       // std::cout << " " << csqmu << " " << csqmu1 << " " << csqmu2 << " " << csqmh << " " << csqmh1 << " " << csqmh2 << std::endl;
 
-
-      // // std::cout << "csqmu " << csqmu << std::endl;
-      // // std::cout << "csqmh " << csqmh << std::endl;
-      // // std::cout << "csqmu1 " << csqmu1 << std::endl;
-      // // std::cout << "csqmh1 " << csqmh1 << std::endl;
-      // // std::cout << "csqmu2 " << csqmu2 << std::endl;
-      // // std::cout << "csqmh2 " << csqmh2 << std::endl;
-
-      // result = -0.5*(csqmu1+csqmu);
-
-      // if (SMHiggsMassOnly) 
-      //   result = -0.5*(csqmh + csqmh1 + csqmh2);
-      // else
+      if (SMHiggsMassOnly) 
+        result = -0.5*(csqmh + csqmh1 + csqmh2);
+      else
         result = -0.5*(csqtot + csqtot1 + csqtot2);
 
-      // std::cout << "mh1  " << ModelParam.Mh[0] << "  | massLL:  " <<  -0.5*(csqmh + csqmh1 + csqmh2) << "  | muLL:  " <<  -0.5*(csqmu + csqmu1 + csqmu2) << std::endl;
+      // - count number of invalid points
 
-      // std::cout << "csqmh: " << csqmh << '\n';
-      // std::cout << "csqmh1: " << csqmh1 << '\n';
-      // std::cout << "csqmh2: " << csqmh2 << '\n';
-      // std::cout << "csqmu: " << csqmu << '\n';
-      // std::cout << "csqmu1: " << csqmu1 << '\n';
-      // std::cout << "csqmu2: " << csqmu2 << '\n';
-
-      // result = csqmh1; // !!!!!
       if (csqmu > 45 || csqmu1 > 100 || csqmu2 > 300)
-      {
         count.count_invalid();
-      }
-
 
       if (std::isnan(result) || std::isinf(result))
       {

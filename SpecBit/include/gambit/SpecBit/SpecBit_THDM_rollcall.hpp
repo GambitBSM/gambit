@@ -9,6 +9,10 @@
 ///
 ///  Authors (add name and date if you modify):
 ///
+///  \author A.S. Woodcock
+///          (alex.woodcock@outlook.com)
+///  \date   Feb 2022
+///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
@@ -67,9 +71,9 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY cbaa
+#define CAPABILITY kill_cba_zero
 START_CAPABILITY
-  #define FUNCTION obs_cbaa
+  #define FUNCTION obs_kill_cba_zero
   START_FUNCTION(double)
   DEPENDENCY(THDM_spectrum, Spectrum)
   #undef FUNCTION

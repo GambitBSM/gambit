@@ -1,6 +1,29 @@
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
+///  \file
+///
+///  point counter
+///
+///  *********************************************
+///
+///  Authors
+///  =======
+///
+///  (add name and date if you modify)
+///
+///  \author A.S. Woodcock
+///          (alex.woodcock@outlook.com)
+///  \date 2022 Feb
+///
+///  *********************************************
+
 #ifndef POINT_COUNTER_HPP
 #define POINT_COUNTER_HPP
 
+#include <string>
+#include <iostream>
+#include <chrono>
+#include <cstdint>
 
 class point_counter
 {
@@ -26,8 +49,8 @@ public:
 
     if (timer < totalDur && point_count > 0)
     {
-      timer += 20;
-      std::cout << std::setw(20) << name << " failed: " << failed_count << "/" << point_count << " (" << (100*failed_count)/point_count << "%)\n";
+      timer += 60;
+      std::cerr << std::setw(60) << name << " failed: " << failed_count << "/" << point_count << " (" << (100*failed_count)/point_count << "%)\n";
     }
 
     ++point_count;

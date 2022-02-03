@@ -11,6 +11,11 @@
 ///
 ///  Authors (add name and date if you modify):
 ///
+///
+///  \author A.S. Woodcock
+///          (alex.woodcock@outlook.com)
+///  \date   Feb 2022
+///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Oct
@@ -3622,7 +3627,7 @@ namespace Gambit
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
-    // - alignment likelihood
+    // - higgs mass likelihood
     // ---------------------------------------------------------------------
     void higgs_mass_LL(double& result)
     {
@@ -3813,15 +3818,9 @@ namespace Gambit
       result = sin(beta - alpha);
     }
 
-    double obs_cbaa(double &result)
+    double obs_kill_cba_zero(double &result)
     {
-      using namespace Pipes::obs_cbaa;
-
-      // const Spectrum spec = *Dep::THDM_spectrum;
-      // std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-      // const double beta = he->get(Par::dimensionless, "beta");
-      // const double alpha = he->get(Par::dimensionless, "alpha");
-      // result = cos(beta - alpha);
+      using namespace Pipes::obs_kill_cba_zero;
 
       const Spectrum spec = *Dep::THDM_spectrum;
       std::unique_ptr<SubSpectrum> he = spec.clone_HE();

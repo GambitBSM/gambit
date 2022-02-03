@@ -1,22 +1,19 @@
-//  GAMBIT: Global and Modular BSM Inference Tool
-//  *********************************************
-//
-//  Two Higgs Doublet Model
-//  *********************************************
-//
-//  Authors
-//  =======
-//
-//  (add name and date if you modify)
-//
-//  James McKay
-//    November 2016
-//
-//  Filip Rajec 
-//    filip.rajec@adelaide.edu.au
-//    Feb 2019
-//
-//  *********************************************
+///  GAMBIT: Global and Modular BSM Inference Tool
+///  *********************************************
+///
+///  Two Higgs Doublet Model
+///  *********************************************
+///
+///  Authors
+///  =======
+///
+///  (add name and date if you modify)
+///
+/// \author A.S. Woodcock
+///         (alex.woodcock@outlook.com)
+/// \date   Feb 2019
+///
+///  *********************************************
 
 #ifndef __THDMIatQ_smartBasis_hpp__
 #define __THDMIatQ_smartBasis_hpp__

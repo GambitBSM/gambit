@@ -301,7 +301,7 @@ namespace Gambit
     }
   }
 
-  // ~~ hidden ~~
+  // ~~ hidden constraint ~~
   /// Make sure no NaNs have been passed to the DecayTable by nefarious backends
   void DecayTable::Entry::check_BF_validity(double BF, double error, std::multiset< std::pair<int,int> >& key) const
   {

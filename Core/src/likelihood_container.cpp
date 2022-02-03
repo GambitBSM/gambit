@@ -26,6 +26,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
 ///
+/// \author A.S. Woodcock
+///         (alex.woodcock@outlook.com)
+/// \date 2022 Feb
+///
 ///  *********************************************
 
 #include "gambit/Core/likelihood_container.hpp"
@@ -68,7 +72,7 @@ namespace Gambit
     #endif
   {
 
-    desired_points = iniFile.getValueOrDef<int>(200000, "NP");
+    // desired_points = iniFile.getValueOrDef<int>(200000, "NP");
 
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
@@ -134,7 +138,7 @@ namespace Gambit
         GMPI::Comm COMM_WORLD;
         // std::cout << "MPI process rank: "<< COMM_WORLD.Get_rank() << std::endl;
       #endif
-      // cout << parstream.str();
+      // cout << parstream.str(); // sorry but this creates too much spam
       // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
     }
     // Print the parameter point to the logs, even if not in debug mode
@@ -207,9 +211,9 @@ namespace Gambit
                              + "::" + dependencyResolver.get_functor(*it)->name();
         if (debug) logger() << LogTags::core << "Calculating l" << likelihood_tag << "." << EOM;
 
+        // TODO: could probably use the above timers...
         static int point_count = 0, invalid_count = 0;
         static std::chrono::time_point<std::chrono::high_resolution_clock> startTime, currTime;
-
         if (point_count == 0) startTime = std::chrono::high_resolution_clock::now();
 
         try
@@ -275,7 +279,7 @@ namespace Gambit
         // Catch points that are invalid, either due to low like or pathology.  Skip the rest of the vertices if a point is invalid.
         catch(invalid_point_exception& e)
         {
-          ++invalid_count;
+          ++invalid_count; // TODO: this doesn't catch all of them...
           logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << EOM;
           logger().leaving_module();
           lnlike = active_min_valid_lnlike;
@@ -288,6 +292,7 @@ namespace Gambit
           break;
         }
 
+        // TODO: move this crap elsewhere
         currTime = std::chrono::high_resolution_clock::now();
         double totalDur = std::chrono::duration<double>(currTime - startTime).count();
         static double timer = 0;
