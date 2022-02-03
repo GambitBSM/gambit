@@ -8,7 +8,6 @@
 from __future__ import print_function
 from collections import OrderedDict
 import os
-import re
 
 # import modules.cfg as cfg
 import modules.active_cfg as active_cfg
@@ -18,6 +17,7 @@ import modules.funcutils as funcutils
 import modules.utils as utils
 import modules.exceptions as exceptions
 import modules.infomsg as infomsg
+import re
 
 
 # ====== getAbstractClassName ========
@@ -183,6 +183,8 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             class_decl += ' '*(n_indents+1)*indent
             class_decl += element_access + ':' +'\n'
             current_access = element_access
+        
+        # if 
 
         #
         # Add code based on what element type this is
@@ -1446,25 +1448,10 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
         var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
 
-        # JOEL: There's this is else block and one more that's very similar
-        # that works on return_type instead of var_type. Is this methodology sufficient??
+        # JOEL: Check if this class is templated, if not use the regular method.
+        # If it is, must go to the config folder and grab that type
         if is_template:
-            # Assume that there is only one thing on the function line
-            src_file_name = gb.id_dict[var_el.get('file')].get('name')
-            line_num = int(var_el.get('line'))
-
-            with open(src_file_name, 'r') as f:
-                contents = f.read()
-
-            # Split by line and get the function's line and strip whitespace
-            lines = contents.split('\n')
-            func_line = lines[line_num - 1].strip()
-
-            pat = re.compile(rf"[\s]*{re.escape(var_el.get('name'))}[\s]*;")
-
-            # Split get the first element
-            match_lo_index = re.search(pat, func_line).start()
-            var_type = func_line[:match_lo_index]
+            var_type = getTemplatedMemberVariableType(class_name, var_el)
         else:
             var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
@@ -1552,23 +1539,16 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         
         return_is_loaded    = utils.isLoadedClass(return_type_el)
 
+
+        
+        # if is_template:
+        #     var_type = getTemplatedMemberVariableType(class_name, var_el)
+        # else:
+        #     var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
+        
         if is_template:
-            # Assume that there is only one thing on the function line
-            src_file_name = gb.id_dict[func_el.get('file')].get('name')
-            line_num = int(func_el.get('line'))
-
-            with open(src_file_name, 'r') as f:
-                contents = f.read()
-
-            # Split by line and get the function's line and strip whitespace
-            lines = contents.split('\n')
-            func_line = lines[line_num - 1].strip()
-
-            pat = re.compile(rf"[\s]*{re.escape(func_el.get('name'))}[\s]*\(")
-
-            # Split get the first element
-            match_lo_index = re.search(pat, func_line).start()
-            return_type = func_line[:match_lo_index]
+            method_type_dict = getTemplatedMethodTypes(class_name, func_el)
+            return_type = method_type_dict['return']
         else:
             return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
@@ -2261,7 +2241,79 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
 # ====== END: constrWrapperDef ========
 
+# ======= getTemplatedMemberVariableType ========
 
+def getTemplatedMemberVariableType(class_name, var_el):
+    # Get the list of member variables and the variable we're searching for's name
+    short_class_name = class_name['short']
+    vars = cfg.load_templated_members[short_class_name]['vars']
+    searching_var = var_el.get('name')
+
+    # Split by line and get the function's line and strip whitespace
+    pat = re.compile(rf"[\s]+{re.escape(searching_var)}[\s]*$")
+
+    # Try and find our var in vars
+    for var in vars:
+        m = re.search(pat, var)
+        if bool(m):
+            # Found it!
+            # Get the type from the front
+            lo = m.start()
+            return var[:lo]
+    
+    # If it wasn't found, there's a problem
+    # Raise an error to tell the user to add it to the config if they want it
+    raise Exception(f"{searching_var} wasn't found in the load_templated_members list in the config file")
+
+# ======= END: getTemplatedMemberVariableType ========
+
+# ======= getTemplatedMethodTypes ========
+
+def getTemplatedMethodTypes(class_name, func_el):
+    # Get return variable ready
+    method_types = {'return': None, 'args': None}
+
+    # Get the list of member variables and the variable we're searching for's name
+    short_class_name = class_name['short']
+    methods = cfg.load_templated_members[short_class_name]['methods']
+    searching_method = func_el.get('name')
+
+    # Split by line and get the function's line and strip whitespace
+    pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+
+    # Try and find our var in vars
+    for method in methods:
+        m = re.search(pat, method)
+        if bool(m):
+            # Found it!
+            # Get the type from the front
+            lo = m.start()
+            hi = m.end()
+            
+            # Put the return type into the return variable
+            method_types['return'] = method[:lo]
+
+            # Find the last ')'
+            last_bracket_index = max([i for i, ltr in enumerate(method) if ltr == ')'])
+            
+            # Find the args
+            brackets = method[hi:last_bracket_index]
+            args = brackets.split(',')
+
+            # For each argument in the brackets, add it to method_types['args']
+            method_types['args'] = []
+            for arg in args:
+                method_types['args'].append(arg.strip())
+            
+            # Return
+            print(f"Type information for {searching_method} = {method_types}")
+            return method_types
+    
+    # If it wasn't found, there's a problem
+    # Raise an error to tell the user to add it to the config if they want it
+    raise Exception(f"{searching_method} wasn't found in the load_templated_members list in the config file")
+
+# ======= END: getTemplatedMethodTypes ========
 
 # ======= constrWrapperSrc ========
 
