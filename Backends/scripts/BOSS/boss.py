@@ -29,18 +29,6 @@ from optparse import OptionParser
 # ====== main ========
 
 def main():
-
-    # print()
-    # print()
-    # print('  ========================================')
-    # print('  ||                                    ||')
-    # print('  ||  BOSS - Backend-On-a-Stick-Script  ||')
-    # print('  ||                                    ||')
-    # print('  ========================================')
-    # print()
-    # print()
-
-
     # Parse command line arguments and options
     usage_string = "Usage: %prog [options] <config module>"
     usage_string += "\n\n"

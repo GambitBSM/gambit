@@ -39,7 +39,7 @@ gambit_base_namespace = ''
 # Use either absolute paths or paths relative to the main BOSS directory.
 input_files = [
     'ExampleBackend/include/classes.hpp',
-    'ExampleBackend/include/functions.hpp',
+    'ExampleBackend/include/functions.hpp'
 ]
 include_paths = ['ExampleBackend/include']
 base_paths = ['ExampleBackend']
@@ -47,15 +47,23 @@ base_paths = ['ExampleBackend']
 header_files_to = 'ExampleBackend/include'
 src_files_to = 'ExampleBackend/src'
 
-manual_accepted_types = ['nullptr_t', '__mbstate_t']
+manual_accepted_types = [
+    'nullptr_t',
+    '__mbstate_t'
+]
 
-manual_accepted_namespaces = ['std']
+manual_accepted_namespaces = [
+    'std'
+]
 
-# JOEL: Do we want to be able to say 'ClassThree' or is it acceptable to be saying 'ClassThree<double>'?
 load_classes = [
     'ClassThree<double>',
     'Dummy'
 ]
+
+load_templated_members = {
+    'ClassThree': {'vars': ['T var'], 'methods': ['T pop()', 'void push(T)', 'int size()', 'void push(T, A, B, C)']}
+}
 
 load_functions = [
     'SomeNamespace::return_as_vector(int, int)',
