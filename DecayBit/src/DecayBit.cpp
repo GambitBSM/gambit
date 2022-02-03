@@ -57,6 +57,7 @@
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Core/point_counter.hpp"
 
 #include <string>
 #include <map>
@@ -125,11 +126,19 @@ namespace Gambit
     /// Check if a width is negative or suspiciously large and raise an error.
     void check_width(const str& info, double& w, bool raise_invalid_pt_negative_width = false, bool raise_invalid_pt_large_width = false)
     {
+      static point_counter count("NaN decay width"); count.count();
+      static point_counter count2("negative decay width"); count2.count();
+      static point_counter count3("ultra large decay width"); count3.count();
       // ~~ !!!!!!!!
-      if (Utils::isnan(w)) invalid_point().raise("Decay width is NaN!");
+      if (Utils::isnan(w)) 
+      {
+        count.count_invalid();
+        invalid_point().raise("Decay width is NaN!");
+      }
       // if (Utils::isnan(w)) DecayBit_error().raise(info, "Decay width is NaN!");
       if (w < 0)
       {
+        count2.count_invalid();
         str nwiderr("Negative width returned!");
         if (raise_invalid_pt_negative_width)
           invalid_point().raise(nwiderr);
@@ -138,6 +147,7 @@ namespace Gambit
       }
       if (w > 1e7)
       {
+        count3.count_invalid();
         str lwiderr("Suspiciously large width returned: "+std::to_string(w)+" GeV");
         if (raise_invalid_pt_large_width)
           invalid_point().raise(lwiderr);

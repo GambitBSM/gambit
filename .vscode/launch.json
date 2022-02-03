@@ -31,7 +31,9 @@
             "program": "${workspaceFolder}/gambit",
             "args": [
                 "-f",
-                "${workspaceFolder}/yaml_files/THDM_physical.yaml"
+                "${workspaceFolder}/yaml_files/THDM.yaml",
+                // ">",
+                // "out.txt"
             ],
             "stopAtEntry": false,
             "preLaunchTask":"clear_shit",

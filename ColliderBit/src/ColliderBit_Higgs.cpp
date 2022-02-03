@@ -51,6 +51,7 @@
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpecSM.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
 #include "gambit/SpecBit/THDMSpec_basis.hpp"
+#include "gambit/Core/point_counter.hpp"
 
 
 // #define COLLIDERBIT_DEBUG
@@ -1204,7 +1205,8 @@ namespace Gambit
     {
       return x*x;
     }
-    
+  
+
     // calculates the higgs signal strengths
     // for comparison with HiggsSignals backend
     void HiggsSignalsTest(double &result)
@@ -1409,7 +1411,7 @@ namespace Gambit
       HS_exp[gaga][Zh]  = 0.50;
       HS_exp[gaga][tth] = 2.20;
       
-      HS_exp[ZZ][ggF] = 0.00;
+      HS_exp[ZZ][ggF] = 1.13;
       HS_exp[ZZ][VBF] = 0.10;
       // HS_exp[ZZ][Wh]  = 1.0;
       // HS_exp[ZZ][Zh]  = 1.0;
@@ -1566,8 +1568,12 @@ namespace Gambit
     /// Get an LHC chisq from HiggsSignals (v2 beta)
     void calc_HS_2_LHC_LogLike(double &result)
     {
-      result = 1.0;
-      return; // !!!!!!
+      // result = 1.0;
+      // return; // !!!!!!
+
+
+      static point_counter count("HiggsSignals LL"); count.count();
+      static point_counter count2("HiggsSignals NaN/inf"); count2.count();
 
       using namespace Pipes::calc_HS_2_LHC_LogLike;
       const bool SMHiggsMassOnly = runOptions->getValueOrDef<bool>(false, "sm_higgs_mass_only");
@@ -1625,6 +1631,9 @@ namespace Gambit
 
       BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
 
+      // std::cout << "mh2" << ModelParam.Mh[1] << std::endl;
+      // std::cout << "mh3" << ModelParam.Mh[2] << std::endl;
+
       // add uncertainties to cross-sections and branching ratios
       // double dCS[5] = {0.,0.,0.,0.,0.};
       // double dBR[5] = {0.,0.,0.,0.,0.};
@@ -1642,6 +1651,9 @@ namespace Gambit
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
+      // std::cout << " " << csqmu << " " << csqmu1 << " " << csqmu2 << " " << csqmh << " " << csqmh1 << " " << csqmh2 << std::endl;
+
+
       // // std::cout << "csqmu " << csqmu << std::endl;
       // // std::cout << "csqmh " << csqmh << std::endl;
       // // std::cout << "csqmu1 " << csqmu1 << std::endl;
@@ -1649,13 +1661,34 @@ namespace Gambit
       // // std::cout << "csqmu2 " << csqmu2 << std::endl;
       // // std::cout << "csqmh2 " << csqmh2 << std::endl;
 
-      if (SMHiggsMassOnly) 
-        result = -0.5*(csqmh + csqmh1 + csqmh2);
-      else
+      // result = -0.5*(csqmu1+csqmu);
+
+      // if (SMHiggsMassOnly) 
+      //   result = -0.5*(csqmh + csqmh1 + csqmh2);
+      // else
         result = -0.5*(csqtot + csqtot1 + csqtot2);
 
+      // std::cout << "mh1  " << ModelParam.Mh[0] << "  | massLL:  " <<  -0.5*(csqmh + csqmh1 + csqmh2) << "  | muLL:  " <<  -0.5*(csqmu + csqmu1 + csqmu2) << std::endl;
+
+      // std::cout << "csqmh: " << csqmh << '\n';
+      // std::cout << "csqmh1: " << csqmh1 << '\n';
+      // std::cout << "csqmh2: " << csqmh2 << '\n';
+      // std::cout << "csqmu: " << csqmu << '\n';
+      // std::cout << "csqmu1: " << csqmu1 << '\n';
+      // std::cout << "csqmu2: " << csqmu2 << '\n';
+
+      // result = csqmh1; // !!!!!
+      if (csqmu > 45 || csqmu1 > 100 || csqmu2 > 300)
+      {
+        count.count_invalid();
+      }
+
+
       if (std::isnan(result) || std::isinf(result))
+      {
+        count2.count_invalid();
         invalid_point().raise("NaN or infinite HS likelihood, point invalidated!");
+      }
 
     }
 

@@ -28,109 +28,112 @@ Parameters:
   # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
-  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
+  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM THDMI_smartBasis
   THDMI:
 
-    # -- POINT #1 --
-    # lambda_1: -2.57385
-    # lambda_2: 0.25609
-    # lambda_3: 5.40354
-    # lambda_4: 0.00422
-    # lambda_5: 0.00422
-    # lambda_6: 0
-    # lambda_7: 0
-    # m12_2: 12800
-    # tanb: 50
+      # -- POINT #1 --
+      # lambda_1: -2.57385
+      # lambda_2: 0.25609
+      # lambda_3: 5.40354
+      # lambda_4: 0.00422
+      # lambda_5: 0.00422
+      # lambda_6: 0
+      # lambda_7: 0
+      # m12_2: 12800
+      # tanb: 50
 
-    # -- POINT #2 --
-    # lambda_1: -165.17504
-    # lambda_2: 0.32113
-    # lambda_3: 51.67035
-    # lambda_4: 0.00422
-    # lambda_5: 0.00422
-    # lambda_6: 0
-    # lambda_7: 0
-    # m12_2: 12800
-    # tanb: 50
+      # -- POINT #2 --
+      # lambda_1: -165.17504
+      # lambda_2: 0.32113
+      # lambda_3: 51.67035
+      # lambda_4: 0.00422
+      # lambda_5: 0.00422
+      # lambda_6: 0
+      # lambda_7: 0
+      # m12_2: 12800
+      # tanb: 50
 
-    # -- POINT #3 --
-    # lambda_1: -837.85485
-    # lambda_2: 0.5902
-    # lambda_3: 101.93386
-    # lambda_4: 0.00422
-    # lambda_5: 0.00422
-    # lambda_6: 0
-    # lambda_7: 0
-    # m12_2: 12800
-    # tanb: 50
-    
-    # -- POINT #4 --
-    # lambda_1: -9.8888
-    # lambda_2: -0.50282
-    # lambda_3: -2.2235
-    # lambda_4: 2.63919
-    # lambda_5: 2.63919
-    # lambda_6: 0
-    # lambda_7: 0
-    # m12_2: 320000
-    # tanb: 2
-    
-    # -- POINT #5 --
-    # lambda_1: -6.50813
-    # lambda_2: -1.34799
-    # lambda_3: -0.63717
-    # lambda_4: 2.63919
-    # lambda_5: 2.63919
-    # lambda_6: 0
-    # lambda_7: 0
-    # m12_2: 320000
-    # tanb: 2
-    
-    # -- POINT #6 --
-    # lambda_1: -3.46167
-    # lambda_2: -2.1096
-    # lambda_3: 1.47066
-    # lambda_4: 2.63919
-    # lambda_5: 2.63919
-    # lambda_6: 0
-    # lambda_7: 0
-    # m12_2: 320000
-    # tanb: 2
+      # -- POINT #3 --
+      # lambda_1: -837.85485
+      # lambda_2: 0.5902
+      # lambda_3: 101.93386
+      # lambda_4: 0.00422
+      # lambda_5: 0.00422
+      # lambda_6: 0
+      # lambda_7: 0
+      # m12_2: 12800
+      # tanb: 50
 
-    # TODO: justify parameter ranges: perturbility ???
-    lambda_1:
-        range: [-0.5, 12.5664]
-        prior_type: flat
-    lambda_2:
-        range: [-0.5, 12.5664]
-        prior_type: flat
-    lambda_3:
-        range: [-12.5664, 12.5664]
-        prior_type: flat
-    lambda_4:
-        range: [-12.5664, 12.5664]
-        prior_type: flat
-    lambda_5:
-        range: [-12.5664, 12.5664]
-        prior_type: flat
-    # --- Assuming a CP-conserving THDM model ---
-    lambda_6:
-        fixed_value: 0.0
-    lambda_7:
-        fixed_value: 0.0
-    # -------------------------------------------
-    m12_2:
-        ranges: [-1e6, -1e4, 1e4, 1e7]
-        prior_type: double_log_flat_join
-    # todo justify ???
-    tanb:
-        range: [0,50]
-        prior_type: flat # log
-    # Qin:
-    #     fixed_value: 91.1876 # = mZ
-    # QrunTo:
-    #     fixed_value: 1000 # for comparison with other literature
+      # -- POINT #4 --
+      # lambda_1: -9.8888
+      # lambda_2: -0.50282
+      # lambda_3: -2.2235
+      # lambda_4: 2.63919
+      # lambda_5: 2.63919
+      # lambda_6: 0
+      # lambda_7: 0
+      # m12_2: 320000
+      # tanb: 2
 
+      # -- POINT #5 --
+      # lambda_1: -6.50813
+      # lambda_2: -1.34799
+      # lambda_3: -0.63717
+      # lambda_4: 2.63919
+      # lambda_5: 2.63919
+      # lambda_6: 0
+      # lambda_7: 0
+      # m12_2: 320000
+      # tanb: 2
+
+      # -- POINT #6 --
+      # lambda_1: -3.46167
+      # lambda_2: -2.1096
+      # lambda_3: 1.47066
+      # lambda_4: 2.63919
+      # lambda_5: 2.63919
+      # lambda_6: 0
+      # lambda_7: 0
+      # m12_2: 320000
+      # tanb: 2
+
+      # TODO: justify parameter ranges: perturbility ???
+      lambda_1:
+          range: [-0.5, 12.5664]
+          prior_type: flat
+      lambda_2:
+          range: [-0.5, 12.5664]
+          prior_type: flat
+      lambda_3:
+          range: [-12.5664, 12.5664]
+          prior_type: flat
+      lambda_4:
+          range: [-12.5664, 12.5664]
+          prior_type: flat
+      lambda_5:
+          range: [-12.5664, 12.5664]
+          prior_type: flat
+      # --- Assuming a CP-conserving THDM model ---
+      lambda_6:
+          fixed_value: 0.0
+      lambda_7:
+          fixed_value: 0.0
+      # -------------------------------------------
+      m12_2:
+          ranges: [-1e6, -1e4, 1e4, 1e6]
+          prior_type: double_log_flat_join
+
+      # cosba_distorted:
+      #     range: [-1.0, 1.0]
+      #     prior_type: flat
+
+      tanb:
+          range: [0.01, 50]
+          prior_type: log
+      # Qin:
+      #     fixed_value: 91.1876 # = mZ
+      # QrunTo:
+      #     fixed_value: 1000 # for comparison with other literature
 
 
 #################################
@@ -145,19 +148,19 @@ Printer:
   #   output_file: "scan.txt"
   #   # output_path: default_output_path
 
-  printer: hdf5
-  options:
-    output_file: "scan.hdf5"
-    group: "/data"
-    delete_file_on_restart: true
-
-  # # unfortunately the new hdf5 scanner is buggy!
-  # printer: hdf5_v1
+  # printer: hdf5
   # options:
   #   output_file: "scan.hdf5"
   #   group: "/data"
-  #   delete_file_on_restart: false
-  #   disable_combine_routines: true
+  #   delete_file_on_restart: true
+
+  # # unfortunately the new hdf5 scanner is buggy!
+  printer: hdf5_v1
+  options:
+    output_file: "scan.hdf5"
+    group: "/data"
+    delete_file_on_restart: false
+    disable_combine_routines: true
 
 
 
@@ -167,21 +170,21 @@ Printer:
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: differentialEvolution
 
   scanners:
 
     random:
       plugin: random
-      point_number: 10
+      point_number: 2000000
       like:  LogLike
 
     differentialEvolution:
       plugin: diver
       like: LogLike
-      NP: 300000
+      NP: 200000
       convthresh: 1e-5
-      verbosity: 1
+      verbosity: 0
 
       aux_printer_txt_options:
       aux_printer_stats_options:
@@ -199,31 +202,36 @@ ObsLikes:
   # #      THEORETICAL LIKELIHOODS        #
   # #-------------------------------------#
 
-  # # Stability of the 2HDM Potential
-  # # Applies the THDM stability constraints on the potential
-  # # NOTE: This likelihood has two parts, described below
-  # # (i) Applies strict stability constraint
-  # # Likelihood type: Acceptance/Rejection
-  # # (ii) If rejected, applies looser stabililty constraints
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: stability_likelihood_THDM
+  # - purpose: LogLike
+  #   capability: higgs_mass_likelihood
 
-  # # Checks that the NLO scattering-matrix is unitary
-  # # Calculates and applies limit on eigenvalues of matrix
-  # # NOTE: This is always a subset of LO unitarity so it not needed
-  # # Likelihood type: Half-Gaussian
-  # # Only supports CP-conserving models
-  # # Unitarity of the S-matrix at next leading order (includes leading order too)
-  # - purpose:    LogLike
-  #   capability: NLO_unitarity_likelihood_THDM
 
-  # # Calculates all quartic Higgs couplings in the physical
-  # # basis & applies a 4pi perturbativity constraint on each
-  # # Likelihood type: Half-Gaussian
-  # # Perturbativity check on lambdas and scalar couplings
-  # - purpose:    LogLike
-  #   capability: perturbativity_likelihood_THDM
+  # Stability of the 2HDM Potential
+  # Applies the THDM stability constraints on the potential
+  # NOTE: This likelihood has two parts, described below
+  # (i) Applies strict stability constraint
+  # Likelihood type: Acceptance/Rejection
+  # (ii) If rejected, applies looser stabililty constraints
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: stability_likelihood_THDM
+
+  # Checks that the NLO scattering-matrix is unitary
+  # Calculates and applies limit on eigenvalues of matrix
+  # NOTE: This is always a subset of LO unitarity so it not needed
+  # Likelihood type: Half-Gaussian
+  # Only supports CP-conserving models
+  # Unitarity of the S-matrix at next leading order (includes leading order too)
+  - purpose:    LogLike
+    capability: unitarity_likelihood_THDM
+    # capability: NLO_unitarity_likelihood_THDM
+
+  # Calculates all quartic Higgs couplings in the physical
+  # basis & applies a 4pi perturbativity constraint on each
+  # Likelihood type: Half-Gaussian
+  # Perturbativity check on lambdas and scalar couplings
+  - purpose:    LogLike
+    capability: perturbativity_likelihood_THDM
 
   # # Perturbativity check on h0 mass loop-corrections
   # # Checks that loop corrections to the pole mass of mh0
@@ -256,16 +264,16 @@ ObsLikes:
   # then chi^2 are extracted directly from HS & HB
 
   # HB 5beta likelihood
-  - capability: LEP_Higgs_LogLike
-    function: calc_HB_5_LEP_LogLike
-    purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
+  # - capability: LEP_Higgs_LogLike
+  #   function: calc_HB_5_LEP_LogLike
+  #   purpose: LogLike
+  #   dependencies:
+  #     - capability: HB_ModelParameters_neutral
+  #       function: THDM_ModelParameters_effc
+  #       module: ColliderBit
+  #     - capability: HB_ModelParameters_charged
+  #       function: THDM_ModelParameters_charged
+  #       module: ColliderBit
 
   # HS 2beta likelihood
   - capability: LHC_Higgs_LogLike
@@ -341,21 +349,49 @@ ObsLikes:
 
   # THDM parameters
 
+  # - capability: cbaa
+  #   function: obs_cbaa
+  #   purpose: LogLike
+
+  # - capability: HS_TEST_RESULTS
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_gaga
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_ZZ
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_WW
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_tautau
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_bb
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_mumu
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_all
+  #   purpose: Observable
+
   - capability: THDM_spectrum_map
     function: get_THDM_spectrum_as_map
     purpose: Observable
 
   # branching fractions
 
-  - capability: all_BFs
-    purpose: Observable
+  # - capability: all_BFs
+  #   purpose: Observable
 
   # vacuum meta-stability discriminant
 
   # Theoretical | another vacuum stability check (true or)
-  - capability: vacuum_global_minimum
-    function: check_vacuum_global_minimum
-    purpose: Observable  
+  # - capability: vacuum_global_minimum
+  #   function: check_vacuum_global_minimum
+  #   purpose: Observable  
 
   # angles
 
@@ -375,69 +411,69 @@ ObsLikes:
     function: obs_vev
     purpose: Observable
 
-  # bsgamma
+  # # bsgamma
 
-  - capability: bsgamma
-    function: SI_bsgamma
-    purpose: Observable
+  # - capability: bsgamma
+  #   function: SI_bsgamma
+  #   purpose: Observable
 
-  # meson mixing
+  # # meson mixing
 
-  - capability: DeltaMs
-    function: SI_Delta_MBs
-    purpose: Observable
+  # - capability: DeltaMs
+  #   function: SI_Delta_MBs
+  #   purpose: Observable
 
-  - capability: DeltaMd
-    function: SI_Delta_MBd
-    purpose: Observable
+  # - capability: DeltaMd
+  #   function: SI_Delta_MBd
+  #   purpose: Observable
 
-    # RD
+  #   # RD
 
-  - capability: RD
-    function: SI_RD
-    purpose: Observable
+  # - capability: RD
+  #   function: SI_RD
+  #   purpose: Observable
 
-    # RDstar
+  #   # RDstar
 
-  - capability: RDstar
-    function: SI_RDstar
-    purpose: Observable
+  # - capability: RDstar
+  #   function: SI_RDstar
+  #   purpose: Observable
     
-    # BDmunu
+  #   # BDmunu
 
-  - capability: BDmunu
-    function: SI_BDmunu
-    purpose: Observable
+  # - capability: BDmunu
+  #   function: SI_BDmunu
+  #   purpose: Observable
 
-    # BDstarmunu
+  #   # BDstarmunu
 
-  - capability: BDstarmunu
-    function: SI_BDstarmunu
-    purpose: Observable
+  # - capability: BDstarmunu
+  #   function: SI_BDstarmunu
+  #   purpose: Observable
 
-    # Btaunu
+  #   # Btaunu
 
-  - capability: Btaunu
-    function: SI_Btaunu
-    purpose: Observable
+  # - capability: Btaunu
+  #   function: SI_Btaunu
+  #   purpose: Observable
 
-    # Dstaunu
+  #   # Dstaunu
 
-  - capability: Dstaunu
-    function: SI_Dstaunu
-    purpose: Observable
+  # - capability: Dstaunu
+  #   function: SI_Dstaunu
+  #   purpose: Observable
 
-    # Dsmunu
+  #   # Dsmunu
 
-  - capability: Dsmunu
-    function: SI_Dsmunu
-    purpose: Observable
+  # - capability: Dsmunu
+  #   function: SI_Dsmunu
+  #   purpose: Observable
 
-    # Dmunu
+  #   # Dmunu
 
-  - capability: Dmunu
-    function: SI_Dmunu
-    purpose: Observable
+  # - capability: Dmunu
+  #   function: SI_Dmunu
+  #   purpose: Observable
 
   #   # BKstarmumu_11_25
 
@@ -475,17 +511,17 @@ ObsLikes:
   #   function: SI_BKstarmumu_17_19
   #   purpose: Observable
 
-    # Bsmumu_untag
+  #   # Bsmumu_untag
 
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
-    purpose: Observable
+  # - capability: Bsmumu_untag
+  #   function: SI_Bsmumu_untag
+  #   purpose: Observable
 
-    # Bmumu
+  #   # Bmumu
 
-  - capability: Bmumu
-    function: SI_Bmumu
-    purpose: Observable
+  # - capability: Bmumu
+  #   function: SI_Bmumu
+  #   purpose: Observable
      
 
 
@@ -494,6 +530,32 @@ ObsLikes:
 #################################
 
 Rules:
+
+  - capability: LHC_Higgs_LogLike
+    function: calc_HS_2_LHC_LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
+
+  - capability: HB_ModelParameters_neutral
+    function: THDM_ModelParameters_effc
+    dependencies:
+      - capability: Higgs_Couplings
+        function: THDM_higgs_couplings_2HDMC
+        module: SpecBit
+
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+    module: SpecBit
+    dependencies: # !!
+      - capability: Higgs_decay_rates
+        function: h0_1_decays_THDM
+        module: DecayBit
 
   - capability: THDM_spectrum
     function: get_THDM_spectrum
@@ -550,10 +612,10 @@ Rules:
   - capability: HB_ModelParameters_charged
     function: THDM_ModelParameters_charged
     module: ColliderBit
-
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_2HDMC
-    module: SpecBit
+    dependencies: # !!
+      - capability: Higgs_Couplings
+        function: THDM_higgs_couplings_2HDMC
+        module: SpecBit
 
   - capability: SuperIso_modelinfo
     function: SI_fill

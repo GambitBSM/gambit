@@ -434,4 +434,13 @@ def getChainData(filename, cut_all_invalid=None, requested_cols=None, assignment
     # Flip 'em.
     data = np.array(data.T, dtype=np.float64)
 
+  # out = open('data.txt','w')
+  # for item in column_names:
+  #   out.write("%s\n" % item)
+  # for row in data:
+  #   out.write("\n")
+  #   for cell in row:
+  #     out.write("%s " % cell)
+  # out.close()
+
   return (data, column_names, lookup_key, all_best_fit_data)

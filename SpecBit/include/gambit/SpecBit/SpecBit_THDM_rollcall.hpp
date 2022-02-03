@@ -51,6 +51,30 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+#define CAPABILITY higgs_mass_likelihood
+START_CAPABILITY
+  #define FUNCTION higgs_mass_LL
+
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+
+  #undef FUNCTION
+#undef CAPABILITY
+
+#define CAPABILITY cbaa
+START_CAPABILITY
+  #define FUNCTION obs_cbaa
+  START_FUNCTION(double)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  #undef FUNCTION
+#undef CAPABILITY
+
 #define CAPABILITY cba
 START_CAPABILITY
   #define FUNCTION obs_cba

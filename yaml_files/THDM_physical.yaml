@@ -30,17 +30,17 @@ Parameters:
   
   # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
   THDMI_physical:
-        m_h:
-            range: [125.0, 126.0]
-            prior_type: flat
+        m_h: 125.10
+            # range: [30,130] #[125.0, 126.0]
+            # prior_type: flat
         m_H:
-            range: [130.0, 5000.0]
+            range: [130.0, 1700.0] # 5000
             prior_type: flat
         m_A:
-            range: [130.0, 5000.0]
+            range: [130.0, 1700.0]
             prior_type: flat
         m_Hp:
-            range: [130.0, 5000.0]
+            range: [130.0, 1700.0]
             prior_type: flat
         # --- Assuming a CP-conserving THDM model ---
         lambda_6:
@@ -49,13 +49,16 @@ Parameters:
             fixed_value: 0.0
         # -------------------------------------------
         m12_2:
-            ranges: [-1e6, -1e4, 1e4, 1e6]
-            prior_type: double_log_flat_join
+            range: [0, 20000]
+            # prior_type: flat
+            # ranges: [-1e6, -1e4, 1e4, 1e6]
+            # ranges: [-1e2, 0, 1e4, 5e5]
+            # prior_type: double_log_flat_join
         tanb:
-            range: [0.0, 100]
-            prior_type: flat
+            range: [0.01, 50]
+            prior_type: log
         sba:
-            range: [0.0, 0.9]
+            range: [-1.0, 1.0]
             prior_type: flat
         # Qin:
         #     fixed_value: 91.1876 # = mZ
@@ -102,7 +105,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 10
+      point_number: 2000000
       like:  LogLike
 
     differentialEvolution:
@@ -128,15 +131,15 @@ ObsLikes:
   # #      THEORETICAL LIKELIHOODS        #
   # #-------------------------------------#
 
-  # # Stability of the 2HDM Potential
-  # # Applies the THDM stability constraints on the potential
-  # # NOTE: This likelihood has two parts, described below
-  # # (i) Applies strict stability constraint
-  # # Likelihood type: Acceptance/Rejection
-  # # (ii) If rejected, applies looser stabililty constraints
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: stability_likelihood_THDM
+  # Stability of the 2HDM Potential
+  # Applies the THDM stability constraints on the potential
+  # NOTE: This likelihood has two parts, described below
+  # (i) Applies strict stability constraint
+  # Likelihood type: Acceptance/Rejection
+  # (ii) If rejected, applies looser stabililty constraints
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: stability_likelihood_THDM
 
   # # Checks that the NLO scattering-matrix is unitary
   # # Calculates and applies limit on eigenvalues of matrix
@@ -144,15 +147,16 @@ ObsLikes:
   # # Likelihood type: Half-Gaussian
   # # Only supports CP-conserving models
   # # Unitarity of the S-matrix at next leading order (includes leading order too)
-  # - purpose:    LogLike
-  #   capability: NLO_unitarity_likelihood_THDM
+  - purpose:    LogLike
+    # capability: unitarity_likelihood_THDM
+    capability: NLO_unitarity_likelihood_THDM
 
   # # Calculates all quartic Higgs couplings in the physical
   # # basis & applies a 4pi perturbativity constraint on each
   # # Likelihood type: Half-Gaussian
   # # Perturbativity check on lambdas and scalar couplings
-  # - purpose:    LogLike
-  #   capability: perturbativity_likelihood_THDM
+  - purpose:    LogLike
+    capability: perturbativity_likelihood_THDM
 
   # # Perturbativity check on h0 mass loop-corrections
   # # Checks that loop corrections to the pole mass of mh0
@@ -270,29 +274,33 @@ ObsLikes:
 
   # THDM parameters
 
-  - capability: HS_TEST_RESULTS
-    purpose: Observable
+  # - capability: cbaa
+  #   function: obs_cbaa
+  #   purpose: LogLike
 
-  - capability: HS_TEST_CHANNEL_h_to_gaga
-    purpose: Observable
+  # - capability: HS_TEST_RESULTS
+  #   purpose: Observable
 
-  - capability: HS_TEST_CHANNEL_h_to_ZZ
-    purpose: Observable
+  # - capability: HS_TEST_CHANNEL_h_to_gaga
+  #   purpose: Observable
 
-  - capability: HS_TEST_CHANNEL_h_to_WW
-    purpose: Observable
+  # - capability: HS_TEST_CHANNEL_h_to_ZZ
+  #   purpose: Observable
 
-  - capability: HS_TEST_CHANNEL_h_to_tautau
-    purpose: Observable
+  # - capability: HS_TEST_CHANNEL_h_to_WW
+  #   purpose: Observable
 
-  - capability: HS_TEST_CHANNEL_h_to_bb
-    purpose: Observable
+  # - capability: HS_TEST_CHANNEL_h_to_tautau
+  #   purpose: Observable
 
-  - capability: HS_TEST_CHANNEL_h_to_mumu
-    purpose: Observable
+  # - capability: HS_TEST_CHANNEL_h_to_bb
+  #   purpose: Observable
 
-  - capability: HS_TEST_CHANNEL_h_to_all
-    purpose: Observable
+  # - capability: HS_TEST_CHANNEL_h_to_mumu
+  #   purpose: Observable
+
+  # - capability: HS_TEST_CHANNEL_h_to_all
+  #   purpose: Observable
 
   - capability: THDM_spectrum_map
     function: get_THDM_spectrum_as_map

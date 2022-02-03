@@ -56,6 +56,7 @@
 #include "flexiblesusy/models/THDM_LS/THDM_LS_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 #include "flexiblesusy/src/problems.hpp"
+#include "gambit/Core/point_counter.hpp"
 
 // Other headers
 // GSL
@@ -100,13 +101,15 @@ std::ostream &operator<<(std::ostream &os, const std::vector<T> &vec)
 }
 #endif
 
-// begin gambit namespace
+
+point_counter::time_point point_counter::startTime = std::chrono::high_resolution_clock::now();
+
+
 namespace Gambit
 {
-
-  // begin specbit namespace
   namespace SpecBit
   {
+
     // extra namespace declarations
     using namespace LogTags;
     using namespace flexiblesusy;
@@ -462,8 +465,11 @@ namespace Gambit
         //for debug reasons may choose to continue with negative mass
         const bool continue_with_negative_mass = false; // ~~ !!!!!!!
 
+        static point_counter count("non-physical mass"); count.count();
+
         if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_Hp"] < 0.0)
         {
+          count.count_invalid();
           std::ostringstream msg;
           msg << "Negative mass encountered. Point invalidated." << std::endl;
           if (!continue_with_negative_mass)
@@ -657,6 +663,9 @@ namespace Gambit
       }
     }
 
+
+
+
     /// @{ helper functions to unwrap parameters from the spectrum and help with calculations
     //  ============================================================
 
@@ -848,9 +857,12 @@ namespace Gambit
     // checks a coupling for NaN
     void check_coupling(std::complex<double> var)
     {
+      static point_counter count("NaN coupling"); count.count();
+
       // ~~ !!!!!!!!!!
       if (std::isnan(var.real()) || std::isnan(var.imag()))
       {
+        count.count_invalid();
         std::ostringstream msg;
         msg << "SpecBit warning (non-fatal) a coupling has evaluated to NaN." << std::endl;
         SpecBit_warning().raise(LOCAL_INFO, msg.str());
@@ -3414,7 +3426,7 @@ namespace Gambit
       //set constraint values
       //-----------------------------
       // all values < 8*PI for unitarity conditions
-      const double unitarity_upper_limit = 8 * M_PI; // 8 pi using conditions given in ivanov paper (used by 2hdmc)
+      const double unitarity_upper_limit = 8 * M_PI; // !!!! 8 pi using conditions given in ivanov paper (used by 2hdmc)
       const double sigma = 0.1;
       //-----------------------------
       //calculate the total error of each point
@@ -3424,6 +3436,10 @@ namespace Gambit
         if (abs(eachEig) > unitarity_upper_limit)
           error += abs(eachEig) - unitarity_upper_limit;
       }
+
+      static point_counter count("unitarity LL"); count.count();
+      if (error > 0.0) count.count_invalid();
+
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
@@ -3435,7 +3451,7 @@ namespace Gambit
 
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container, wave_function_corrections, gauge_corrections, yukawa_corrections);
 
-      const double unitarity_upper_limit = 0.50;
+      const double unitarity_upper_limit = 0.50; // !!!!
       const double sigma = 0.01;
       double error = 0.0;
       double error_ratio = 0.0;
@@ -3479,6 +3495,11 @@ namespace Gambit
         }
       }
 
+      static point_counter count("NLO unitarity LL"); count.count();
+      if (error > 0.0) count.count_invalid();
+      static point_counter count2("NLO/LO unitarity ratio LL"); count2.count();
+      if (error_ratio > 0.0) count2.count_invalid();
+
       return Stats::gaussian_upper_limit(error + error_ratio, 0.0, 0.0, sigma, false);
     }
 
@@ -3501,6 +3522,10 @@ namespace Gambit
         if (abs(each_lambda) > perturbativity_upper_limit)
           error += abs(each_lambda) - perturbativity_upper_limit;
       }
+
+      static point_counter count("simple perturbativity LL"); count.count();
+      if (error > 0.0) count.count_invalid();
+
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
@@ -3511,7 +3536,7 @@ namespace Gambit
     {
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
-      const double perturbativity_upper_limit = 4 * M_PI;
+      const double perturbativity_upper_limit = 4 * M_PI; // !!!!!
       const double sigma = 0.1;
       //-----------------------------
       double error = 0.0;
@@ -3544,6 +3569,10 @@ namespace Gambit
           }
         }
       }
+
+      static point_counter count("perturbativity LL"); count.count();
+      if (error > 0.0) count.count_invalid();
+
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
@@ -3587,10 +3616,53 @@ namespace Gambit
         }
       }
 
+      static point_counter count("stability LL"); count.count();
+      if (error > 0.0) count.count_invalid();
+
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
     // - alignment likelihood
+    // ---------------------------------------------------------------------
+    void higgs_mass_LL(double& result)
+    {
+      using namespace Pipes::higgs_mass_LL;
+
+      // get THDM yukawa type and find out if it is a FS spectrum (at Q)
+      int yukawa_type = -1;
+      bool is_at_Q = false;
+      for (auto const &THDM_model : THDM_model_lookup_map)
+      {
+        // model match was found: set values based on matched model
+        if (ModelInUse(THDM_model.first))
+        {
+          is_at_Q = THDM_model.second.is_model_at_Q;
+          yukawa_type = THDM_model.second.model_y_type;
+          break;
+        }
+      }
+      // create container
+      THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
+
+      // const Spectrum spec = *Dep::THDM_spectrum;
+      // std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+      // const double mh_pole = he->get(Par::Pole_Mass, "m_h");
+
+      constexpr double mh = 125.10; // experimental value of Higgs mass measured by others GeV
+      constexpr double mh_err = 0.14; // uncertainty GeV
+
+      double mh_diff = std::max(0.0, std::abs(mh_pole - mh) - mh_err*20);
+
+      result = -10 * mh_diff / (1.0*mh_err);
+
+
+      // std::cout << "mass: " << mh_pole << "  | LL: " << result << std::endl;
+    }
+
+        // - alignment likelihood
     // ---------------------------------------------------------------------
     double alignment_likelihood_THDM(THDM_spectrum_container &container)
     {
@@ -3739,6 +3811,25 @@ namespace Gambit
       const double beta = he->get(Par::dimensionless, "beta");
       const double alpha = he->get(Par::dimensionless, "alpha");
       result = sin(beta - alpha);
+    }
+
+    double obs_cbaa(double &result)
+    {
+      using namespace Pipes::obs_cbaa;
+
+      // const Spectrum spec = *Dep::THDM_spectrum;
+      // std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+      // const double beta = he->get(Par::dimensionless, "beta");
+      // const double alpha = he->get(Par::dimensionless, "alpha");
+      // result = cos(beta - alpha);
+
+      const Spectrum spec = *Dep::THDM_spectrum;
+      std::unique_ptr<SubSpectrum> he = spec.clone_HE();
+      const double beta = he->get(Par::dimensionless, "beta");
+      const double alpha = he->get(Par::dimensionless, "alpha");
+
+      double cba = std::cos(beta-alpha);
+      result = std::log(1e-20 + (1.0 - std::exp(-10.0*cba*cba)));
     }
 
     void obs_cba(double &result)
@@ -4033,6 +4124,7 @@ namespace Gambit
         {
           result.C_hiZ[h - 1][h2 - 1] = (couplings.vhh[2][h][h2].real()) / (g / 2. / costw);
         }
+
       }
     }
 
