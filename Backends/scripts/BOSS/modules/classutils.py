@@ -1567,7 +1567,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         # Need to add in functionality to deal with this.
 
         if is_template:
-            method_type_dict = getTemplatedMethodTypes(class_name, func_el)
+            method_type_dict = getTemplatedMethodTypes(func_el, class_name)
             args_type = method_type_dict['args']
             args_bracket = '(' +  ', '.join(args_type) + ')'
         else:
