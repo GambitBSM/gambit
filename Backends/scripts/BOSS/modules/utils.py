@@ -1437,25 +1437,36 @@ def getAllTypesInClass(class_el, include_parents=False):
 # ====== getMemberElements ========
 
 def getMemberElements(el, include_artificial=False):
+    import modules.classutils as classutils
+    # Decide if it's templated
+    is_templated = isTemplateClass(el)
 
     member_elements = []
 
     if 'members' in el.keys():
         for mem_id in el.get('members').split():
             mem_el = gb.id_dict[mem_id]
+            
+            if mem_el.tag in ['Method', 'OperatorMethod', 'Field', 'Variable'] and 'name' in mem_el.keys():
+                namespaces_list = getNamespaces(mem_el, include_self=True)
+                full_name = '::'.join(namespaces_list)
+                if full_name in cfg.ditch:
+                    continue
 
-            # Check if this member element should be ditched
-            if mem_el.tag in ['Method', 'OperatorMethod', 'Field', 'Variable']:
-                if 'name' in mem_el.keys():
-                    namespaces_list = getNamespaces(mem_el, include_self=True)
-                    full_name = '::'.join(namespaces_list)
-                    if full_name in cfg.ditch:
-                        continue
-
-            if include_artificial:
-                member_elements.append(mem_el)
+            # If it's templated, look for the elements in the config file. If not in config file, we don't want it.
+            # Else, do normal operation
+            if is_templated:
+                # Look for this member in cfg.load_templated_members
+                short_class_name = el.get('name').split('<', 1)[0]
+                # print(f"Looking for {mem_el.get('name')} in {short_class_name}")
+                if classutils.foundMatchingMethod(short_class_name, mem_el):
+                    # print(f"Adding {mem_el.get('name')} to member_elements")
+                    member_elements.append(mem_el)
             else:
-                if not 'artificial' in mem_el.keys():
+                # Check if this member element should be ditched
+                if include_artificial:
+                    member_elements.append(mem_el)
+                elif not 'artificial' in mem_el.keys():
                     member_elements.append(mem_el)
 
     return member_elements
