@@ -1572,48 +1572,54 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         # of args isn't valid since, for example, if we have a templated type on T
         # that's specified on double, the args will come back as doubles not Ts.
         # Need to add in functionality to deal with this.
-        args = funcutils.getArgs(func_el)
 
-        # If any of the arg types was move to the abstract class, change namespace
-        # TODO: TG: I think this should use the template specification
-        for arg in args:
-            if utils.typeInList(arg, gb.moved_to_abstract_class) :
-                arg_type = abstr_class_name['long_templ'] + "::" + utils.removeNamespace(arg.get('type'))
-                arg['type'] =  arg_type
+        if is_template:
+            method_type_dict = getTemplatedMethodTypes(class_name, func_el)
+            args_type = method_type_dict['args']
+            args_bracket = '(' +  ', '.join(args_type) + ')'
+        else:
+            args = funcutils.getArgs(func_el)
 
-        # One function for each set of default arguments
-        n_overloads = funcutils.numberOfDefaultArgs(func_el)
-        for remove_n_args in range(n_overloads+1):
+            # If any of the arg types was move to the abstract class, change namespace
+            # TODO: TG: I think this should use the template specification
+            for arg in args:
+                if utils.typeInList(arg, gb.moved_to_abstract_class) :
+                    arg_type = abstr_class_name['long_templ'] + "::" + utils.removeNamespace(arg.get('type'))
+                    arg['type'] =  arg_type
 
-            # Check that the function is acceptable
-            if funcutils.ignoreFunction(func_el, remove_n_args=remove_n_args):
-                continue
+            # One function for each set of default arguments
+            n_overloads = funcutils.numberOfDefaultArgs(func_el)
+            for remove_n_args in range(n_overloads+1):
 
-            if remove_n_args == 0:
-                use_args = args
-            else:
-                use_args = args[:-remove_n_args]
+                # Check that the function is acceptable
+                if funcutils.ignoreFunction(func_el, remove_n_args=remove_n_args):
+                    continue
 
-            # Argument bracket
-            args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
-
-            # Name of function to call (in abstract class)
-            if is_operator:
-                if uses_loaded_type:
-                    call_func_name = 'operator_' + gb.operator_names[func_el.get('name')] + gb.code_suffix
+                if remove_n_args == 0:
+                    use_args = args
                 else:
-                    call_func_name = 'operator' + func_el.get('name')    
-            else:
-                # call_func_name = func_name + gb.code_suffix
-                if uses_loaded_type or (remove_n_args>0):
-                    call_func_name = func_name + gb.code_suffix 
+                    use_args = args[:-remove_n_args]
+
+                # Argument bracket
+                args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
+
+                # Name of function to call (in abstract class)
+                if is_operator:
+                    if uses_loaded_type:
+                        call_func_name = 'operator_' + gb.operator_names[func_el.get('name')] + gb.code_suffix
+                    else:
+                        call_func_name = 'operator' + func_el.get('name')    
                 else:
-                    call_func_name = func_name
+                    # call_func_name = func_name + gb.code_suffix
+                    if uses_loaded_type or (remove_n_args>0):
+                        call_func_name = func_name + gb.code_suffix 
+                    else:
+                        call_func_name = func_name
 
 
-            # Write declaration line
-            decl_code += 2*indent + return_kw_str + return_type + ' ' + func_name + args_bracket + is_const*' const' + ';\n'
-            decl_code += '\n'
+        # Write declaration line
+        decl_code += 2*indent + return_kw_str + return_type + ' ' + func_name + args_bracket + is_const*' const' + ';\n'
+        decl_code += '\n'
 
 
     #
