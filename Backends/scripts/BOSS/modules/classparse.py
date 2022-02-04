@@ -533,13 +533,13 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
             continue
 
         # Generate wrapper code
-        for remove_n_args in range(n_overloads+1):
+        for remove_n_args in range(n_overloads + 1):
             
             # Check that function is acceptable
             if funcutils.ignoreFunction(method_el, remove_n_args=remove_n_args):
                 continue
 
-            if (remove_n_args==0) and (not uses_native_type):
+            if (remove_n_args == 0) and (not uses_native_type):
                 continue
 
             # The declaration is put inside the original class

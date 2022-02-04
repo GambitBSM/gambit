@@ -1456,12 +1456,16 @@ def getMemberElements(el, include_artificial=False):
             # If it's templated, look for the elements in the config file. If not in config file, we don't want it.
             # Else, do normal operation
             if is_templated:
+                # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
+
                 # Look for this member in cfg.load_templated_members
                 short_class_name = el.get('name').split('<', 1)[0]
-                # print(f"Looking for {mem_el.get('name')} in {short_class_name}")
                 if classutils.foundMatchingMethod(short_class_name, mem_el):
-                    # print(f"Adding {mem_el.get('name')} to member_elements")
+                    # If found, append it
                     member_elements.append(mem_el)
+                else:
+                    # Didn't find it, give this info to the user
+                    print(f"{mem_el.get('name')} was not found in config file -> load_templated_members")
             else:
                 # Check if this member element should be ditched
                 if include_artificial:
@@ -1487,15 +1491,11 @@ def getMemberFunctions(class_el, include_artificial=False, include_inherited=Fal
     # If include_inherited=True, append all (native) parent classes
     # the list 'all_classes'
     if include_inherited:
-        parent_classes = getAllParentClasses(
-            class_el, only_loaded_classes=True)
-        all_classes = all_classes + parent_classes
+        all_classes += getAllParentClasses(class_el, only_loaded_classes=True)
 
     # Get all member elements
     for el in all_classes:
-        class_members = getMemberElements(
-            el, include_artificial=include_artificial)
-        all_members = all_members + class_members
+        all_members += getMemberElements(el, include_artificial=include_artificial)
 
     # Extract only regular member functions (no variables, constructors, destructors, ...)
     for mem_el in all_members:
