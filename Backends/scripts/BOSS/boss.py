@@ -514,8 +514,6 @@ def main():
     # Fill the gb.accepted_types list
     #
     utils.fillAcceptedTypesList()
-    # ZELUN MARK
-    # sys.exit()
 
     #
     # Remove from cfg.load_functions all functions that are not loadable
@@ -614,7 +612,6 @@ def main():
         #
         # Create header with forward declarations of all abstract classes
         #
-
         abs_frwd_decls_header_path = os.path.join(gb.boss_output_dir, gb.frwd_decls_abs_fname + cfg.header_extension)
         utils.constrAbsForwardDeclHeader(abs_frwd_decls_header_path)
 
