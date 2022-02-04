@@ -62,7 +62,7 @@ load_classes = [
 ]
 
 load_templated_members = {
-    'ClassThree': {'vars': ['T var'], 'methods': ['T pop()', 'void push(T item)', 'int size()', 'void push(T item, A item2, B item3, C item4)', 'void push (T item, T item2)']}
+    'ClassThree': {'vars': ['T var'], 'methods': ['T pop()', 'void push(T)', 'int size()']}
 }
 
 load_functions = [

@@ -1451,7 +1451,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         # JOEL: Check if this class is templated, if not use the regular method.
         # If it is, must go to the config folder and grab that type
         if is_template:
-            var_type = getTemplatedMemberVariableType(class_name, var_el)
+            var_type = getTemplatedMemberVariableType(var_el, class_name=class_name)
         else:
             var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
@@ -1538,16 +1538,9 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         return_kw_str  = ' '.join(return_type_kw) + ' '*bool(len(return_type_kw))
         
         return_is_loaded    = utils.isLoadedClass(return_type_el)
-
-
-        
-        # if is_template:
-        #     var_type = getTemplatedMemberVariableType(class_name, var_el)
-        # else:
-        #     var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
         
         if is_template:
-            method_type_dict = getTemplatedMethodTypes(class_name, func_el)
+            method_type_dict = getTemplatedMethodTypes(func_el, class_name=class_name)
             return_type = method_type_dict['return']
         else:
             return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
@@ -1762,10 +1755,6 @@ def classNameTemplate(class_name):
 
 
 # ====== END: classNameTemplate ========
-
-
-
-
 
 
 # ====== constrWrapperDef ========
@@ -2249,9 +2238,12 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
 # ======= getTemplatedMemberVariableType ========
 
-def getTemplatedMemberVariableType(class_name, var_el):
+def getTemplatedMemberVariableType(var_el, class_name=None, short_class_name=None):
+    assert((class_name is not None) or (short_class_name is not None))
+    if short_class_name is None:
+        short_class_name = class_name['short']
+
     # Get the list of member variables and the variable we're searching for's name
-    short_class_name = class_name['short']
     vars = cfg.load_templated_members[short_class_name]['vars']
     searching_var = var_el.get('name')
 
@@ -2275,22 +2267,30 @@ def getTemplatedMemberVariableType(class_name, var_el):
 
 # ======= getTemplatedMethodTypes ========
 
-def getTemplatedMethodTypes(class_name, func_el):
-    # Get return variable ready
+def getTemplatedMethodTypes(func_el, class_name=None, short_class_name=None):
+    assert((class_name is not None) or (short_class_name is not None))
+    if short_class_name is None:
+        short_class_name = class_name['short']
+    
+    # Get return ready
     method_types = {'return': None, 'args': None}
 
-    # Get the list of member variables and the variable we're searching for's name
-    short_class_name = class_name['short']
+    # Get the list of member methods and the method we're searching for's name
+    
     methods = cfg.load_templated_members[short_class_name]['methods']
     searching_method = func_el.get('name')
 
     # Split by line and get the function's line and strip whitespace
     pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
 
-    # Try and find our var in vars
+    # Try and find our method in methods
     for method in methods:
         m = re.search(pat, method)
         if bool(m):
+            # JOEL: TODO: Better checks for whether this match is correct. Currently, we just go
+            # with the first match we find which won't work in cases where a function is overloaded
+            # E.g. 'T min(T, T)' and 'T min(T, T, T)' would just totally break this
+
             # Found it!
             # Get the type from the front
             lo = m.start()
@@ -2312,7 +2312,7 @@ def getTemplatedMethodTypes(class_name, func_el):
                 method_types['args'].append(arg.strip())
             
             # Return
-            print(f"Type information for {searching_method} = {method_types}")
+            # print(f"Type information for {searching_method} = {method_types}")
             return method_types
     
     # If it wasn't found, there's a problem
@@ -2321,11 +2321,29 @@ def getTemplatedMethodTypes(class_name, func_el):
 
 # ======= END: getTemplatedMethodTypes ========
 
+# ======= foundMatchingMethod ========
+
+def foundMatchingMethod(short_class_name, el):
+    try:
+        # Try and see if we can find the method types or variable types. If we can, it must exist
+        if el.tag in ('OperatorMethod', 'Method', 'Constructor', 'Destructor'):
+            # Must be a method
+            getTemplatedMethodTypes(el, short_class_name=short_class_name)
+        else:
+            # Must be a member variable
+            getTemplatedMemberVariableType(el, short_class_name=short_class_name)
+        
+        # If it got here, there was no exception
+        return True
+    except:
+        return False
+
+# ======= END: foundMatchingMethod ========
+
 # ======= constrWrapperSrc ========
 
-def constrWrapperSrc(class_name, abstr_class_name,  indent=' '*cfg.indent) :
-
-    src_code =''
+def constrWrapperSrc(class_name, abstr_class_name,  indent=' '*cfg.indent):
+    src_code = ''
 
     # TODO: TG: I am not sure what to do with templates here
 
@@ -2395,8 +2413,7 @@ def pureVirtualMembers(class_el):
 
 # Generate a header file with a GAMBIT wrapper class.
 
-def generateWrapperHeaderCode(class_el, class_name, abstr_class_name, namespaces, 
-                          short_abstr_class_fname,
+def generateWrapperHeaderCode(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
                           construct_assignment_operator, has_copy_constructor,
                           copy_constructor_id=''):
 
@@ -2630,9 +2647,3 @@ def isAcceptedMemberVariable(mem_el):
     return is_accepted
 
 # ====== END: isAcceptedMemberVariable ========
-
-
-
-
-
-
