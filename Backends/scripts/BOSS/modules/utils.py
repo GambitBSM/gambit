@@ -283,9 +283,6 @@ def getTemplateBracket(el):
         temp_var_list = [e.strip() for e in temp_var_list]
         temp_var_list = [e.split()[-1] for e in temp_var_list]
 
-    print(f"template_bracket {template_bracket}")
-    print(f"template_var_list {temp_var_list}")
-
     # Return result
     return template_bracket, temp_var_list
 
@@ -1459,12 +1456,13 @@ def getMemberElements(el, include_artificial=False):
                 # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
 
                 # Look for this member in cfg.load_templated_members
-                if classutils.foundMatchingMembers(classutils.getClassNameDict(el), mem_el):
+                class_name = classutils.getClassNameDict(el)
+                if classutils.foundMatchingMembers(class_name, mem_el):
                     # If found, append it
                     member_elements.append(mem_el)
                 else:
                     # Didn't find it, give this info to the user
-                    print(f"{mem_el.get('name')} was not found in config file -> load_templated_members")
+                    print(f"{mem_el.get('name')} was not found in the config file in load_templated_members")
             else:
                 # Check if this member element should be ditched
                 if include_artificial:

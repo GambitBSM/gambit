@@ -66,9 +66,6 @@ def run():
 
         short_abstr_class_fname  = gb.new_header_files[class_name['long']]['abstract']
         abstr_class_fname        = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
-        if bool(re.match('BOSS_ClassThree.cpp', original_file_name)) or bool(re.match('BOSS_ClassThree.cpp', extras_src_file_name)) \
-        or bool(re.match('BOSS_ClassThree.cpp', short_abstr_class_fname)) or bool(re.match('BOSS_ClassThree.cpp', abstr_class_fname)):
-            print("stop")
         namespaces    = utils.getNamespaces(class_el, include_self=False)
         # has_namespace = bool(len(namespaces))
 
@@ -117,8 +114,6 @@ def run():
                 if (template_type not in gb.accepted_types):
                     raise Exception("The template specialization type '" + template_type + "' for class " + class_name['long'] + " is not among accepted types.")
 
-
-        print("break point")
         #
         # For the backend: Construct code for the abstract class header file and register it
         #
@@ -263,9 +258,6 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         enum_include_statement_code += '#include "' + gb.enum_decls_wrp_fname + cfg.header_extension + '"\n'
         enum_include_statement_code += '\n'
         class_decl += enum_include_statement_code
-    
-    if abstr_class_fname == 'BOSS_output/ExampleBackend_1_234/abstract_ClassFour.hpp' or abstr_class_fname == 'BOSS_output/ExampleBackend_1_234/abstract_ClassThree.hpp':
-        print('stop')
 
     # Add the the code for the abstract class
     if is_template and (class_name['long'] in templ_spec_done):
