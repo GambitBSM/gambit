@@ -7,32 +7,30 @@
 from __future__ import print_function
 import tempfile
 import shlex
-import modules.infomsg as infomsg
-import modules.exceptions as exceptions
-import subprocess
-import modules.gb as gb
-import xml.etree.ElementTree as ET
-from collections import OrderedDict
-from operator import itemgetter
 import os
 import copy
-
-
+from operator import itemgetter
+from collections import OrderedDict
+from collections import deque
+import xml.etree.ElementTree as ET
+import subprocess
+import re
+import modules.infomsg as infomsg
+import modules.exceptions as exceptions
+import modules.gb as gb
+import modules.classutils as classutils
+import modules.funcutils as funcutils
+import modules.enumutils as enumutils
 import modules.active_cfg as active_cfg
+
 exec("import configs." + active_cfg.module_name + " as cfg")
 
 
 # ====== isComplete ========
 
 def isComplete(class_el):
-
-    is_complete = True
-
     # Check that class is complete (not only forward declared):
-    if ('incomplete' in class_el.keys()) and (class_el.get('incomplete') == '1'):
-        is_complete = False
-
-    return is_complete
+    return (not 'incomplete' in class_el.keys()) or not (class_el.get('incomplete') == '1')
 
 # ====== END: isComplete ========
 
@@ -40,22 +38,15 @@ def isComplete(class_el):
 # ====== isLoadable ========
 
 def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
-
-    import modules.classutils as classutils
-
-    is_loadable = True
-
     # - Any loadable class should have a "name" XML entry
     if not 'name' in class_el.keys():
-        is_loadable = False
-        return is_loadable
+        return False
 
     class_name = classutils.getClassNameDict(class_el)
 
     # - Check if class should be ditched. If yes, return right away.
     if class_name['long_templ'] in cfg.ditch:
-        is_loadable = False
-        return is_loadable
+        return False
 
     # - Check if class is a template class. BOSS cannot handle this y
     # if isTemplateClass(class_el):
@@ -67,32 +58,26 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
 
     # - Check that class is complete (not only forward declared).
     if not isComplete(class_el):
-        is_loadable = False
         if print_warning:
-            reason = "Class is incomplete, at least based on XML file %s" % (
-                gb.xml_file_name)
-            infomsg.ClassNotLoadable(
-                class_name['long_templ'], reason).printMessage()
-        return is_loadable
+            reason = f"Class is incomplete, at least based on XML file {gb.xml_file_name}"
+            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
+        return False
 
     # - Check that class has at least one public constructor.
-    constructor_elements = classutils.getAcceptableConstructors(
-        class_el, skip_copy_constructors=True)
-    if len(constructor_elements) == 0:
-        is_loadable = False
+    constructor_elements = classutils.getAcceptableConstructors(class_el, skip_copy_constructors=True)
+    if not constructor_elements:
         if print_warning:
             reason = "No (acceptable) public constructors identified."
-            infomsg.ClassNotLoadable(
-                class_name['long_templ'], reason).printMessage()
-        return is_loadable
+            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
+        return False
 
     # - Check for pure virtual members.
     if check_pure_virtual_members:
         pure_virtual_members = classutils.pureVirtualMembers(class_el)
-        if len(pure_virtual_members) > 0:
+        if pure_virtual_members:
             gb.contains_pure_virtual_members.append(class_name['long_templ'])
 
-    return is_loadable
+    return True
 
 # ====== END: isLoadable ========
 
@@ -100,10 +85,7 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
 # ====== isFundamental ========
 
 def isFundamental(el):
-    if el.tag == 'FundamentalType':
-        return True
-    else:
-        return False
+    return el.tag == 'FundamentalType'
 
 # ====== END: isFundamental ========
 
@@ -111,8 +93,6 @@ def isFundamental(el):
 # ====== isKnownClass ========
 
 def isKnownClass(el, class_name=None):
-    import modules.classutils as classutils
-
     type_dict = findType(el)
     type_el = type_dict['el']
 
@@ -125,12 +105,9 @@ def isKnownClass(el, class_name=None):
         class_name = classutils.getClassNameDict(type_el)
 
     # Check if standard library class OR if listed among the user-specified known types
-    if isStdType(el, class_name=class_name) or\
-    isInList(class_name['long_templ'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
-    isInList(class_name['long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
-        return True
-
-    return False
+    return isStdType(el, class_name=class_name) or\
+           isInList(class_name['long_templ'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
+           isInList(class_name['long'], cfg.known_classes.keys(), return_index=False, ignore_whitespace=True)
 
 # ====== END: isKnownClass ========
 
@@ -138,7 +115,6 @@ def isKnownClass(el, class_name=None):
 # ====== isTemplateClass ========
 
 def isTemplateClass(class_el, class_name=None):
-    import modules.classutils as classutils
     if class_name is None:
         class_name = classutils.getClassNameDict(class_el)
 
@@ -150,15 +126,10 @@ def isTemplateClass(class_el, class_name=None):
 # ====== isTemplateFunction ========
 
 def isTemplateFunction(func_el):
-    import modules.funcutils as funcutils
-
     func_name = funcutils.getFunctionNameDict(func_el)
 
     # ZELUN:MARK Why is template check logic like this?
-    if '<' in func_name['long_templ']:
-        return True
-    else:
-        return False
+    return '<' in func_name['long_templ']
 
 # ====== END: isTemplateFunction ========
 
@@ -166,10 +137,7 @@ def isTemplateFunction(func_el):
 # ====== isEnumeration ========
 
 def isEnumeration(el):
-    if el.tag == 'Enumeration':
-        return True
-    else:
-        return False
+    return el.tag == 'Enumeration'
 
 # ====== END: isEnumeration ========
 
@@ -186,7 +154,8 @@ def isNative(el):
 
     if el.tag == 'FundamentalType':
         return False
-    elif el.tag in can_check_tags:
+
+    if el.tag in can_check_tags:
 
         if el.tag == 'File':
             file_el = el
@@ -201,10 +170,10 @@ def isNative(el):
 
         return False
 
-    elif el.tag in cannot_check_tags:
+    if el.tag in cannot_check_tags:
         return False
-    else:
-        raise Exception(f"Cannot check whether XML element with id=({el.get('id')}) and tag=({el.tag}) is native.")
+
+    raise Exception(f"Cannot check whether XML element with id=({el.get('id')}) and tag=({el.tag}) is native.")
 
 # ====== END: isNative ========
 
@@ -233,10 +202,7 @@ def isStdType(el, class_name=None):
 # ====== isConstFunction ========
 
 def isConstFunction(func_el):
-    if ('const' in func_el.keys()) and (func_el.get('const') == '1'):
-        return True
-    else:
-        return False
+    return ('const' in func_el.keys()) and (func_el.get('const') == '1')
 
 # ====== END: isConstFunction ========
 
@@ -244,9 +210,6 @@ def isConstFunction(func_el):
 # ====== getTemplateBracket ========
 
 def getTemplateBracket(el):
-    import re
-    from collections import deque
-
     src_file_name = gb.id_dict[el.get('file')].get('name')
     line_number = int(el.get('line'))
 
@@ -307,8 +270,7 @@ def getSpecTemplateTypes(input_type, byname=False):
             namespaces_list = getNamespaces(el, include_self=True)
             input_name = '::'.join(namespaces_list)
         else:
-            raise Exception(
-                "Don't know how to get template types from XML element with tag: %s" % el.tag)
+            raise Exception("Don't know how to get template types from XML element with tag: %s" % el.tag)
 
     # Standardize the spacing between template brackets to simplify the parsing
     while "<<" in input_name:
@@ -342,8 +304,8 @@ def getSpecTemplateTypes(input_type, byname=False):
     # Return result
     if spec_types_list == ['']:
         return []
-    else:
-        return spec_types_list
+
+    return spec_types_list
 
 # ====== END: getSpecTemplateTypes ========
 
@@ -384,8 +346,8 @@ def getAllTemplateTypes(type_name):
         type_name_parts.append(short_type_name)
         if namespace == "":
             break
-        else:
-            current_type_name = namespace
+
+        current_type_name = namespace
 
     all_template_types = []
     for type_part in type_name_parts:
@@ -402,15 +364,10 @@ def getBasicTypeName(type_name):
 
     # If type name contains a template brackets
     if '<' in type_name:
-
-        type_name_notempl, templ_bracket = removeTemplateBracket(
-            type_name, return_bracket=True)
+        type_name_notempl, templ_bracket = removeTemplateBracket(type_name, return_bracket=True)
         before_bracket, after_bracket = type_name.rsplit(templ_bracket, 1)
 
-        if (len(after_bracket) > 0) and (after_bracket[0] == ' '):
-            space_after_bracket = True
-        else:
-            space_after_bracket = False
+        space_after_bracket = (len(after_bracket) > 0 and after_bracket[0] == ' ')
 
         # Remove asterix and/or ampersand
         before_bracket = before_bracket.replace('*', '').replace('&', '')
@@ -418,17 +375,13 @@ def getBasicTypeName(type_name):
 
         # Remove 'const' and 'volatile'
         before_bracket_list = before_bracket.split()
-        before_bracket_list = [
-            item for item in before_bracket_list if item != 'const']
-        before_bracket_list = [
-            item for item in before_bracket_list if item != 'volatile']
+        before_bracket_list = [item for item in before_bracket_list if item != 'const']
+        before_bracket_list = [item for item in before_bracket_list if item != 'volatile']
         before_bracket = ' '.join(before_bracket_list)
 
         after_bracket_list = after_bracket.split()
-        after_bracket_list = [
-            item for item in after_bracket_list if item != 'const']
-        after_bracket_list = [
-            item for item in after_bracket_list if item != 'volatile']
+        after_bracket_list = [item for item in after_bracket_list if item != 'const']
+        after_bracket_list = [item for item in after_bracket_list if item != 'volatile']
         after_bracket = ' '.join(after_bracket_list)
 
         basic_type_name = before_bracket + templ_bracket + \
@@ -459,7 +412,6 @@ def getBasicTypeName(type_name):
 # ====== removeComments ========
 
 def removeComments(content, insert_blanks=False):
-
     # Prepare list for storing tuples of the form: (start_position, stop_position)
     content_lenght = len(content)
     comment_sections = []
@@ -471,26 +423,25 @@ def removeComments(content, insert_blanks=False):
     # -- One-line comments
     temp_startpos = 0
     while True:
-
         # Find start of comment
         search_pos = content[temp_startpos:].find('//')
         if search_pos == -1:
             break
+
+        comment_start = temp_startpos + search_pos
+
+        # Find end of comment
+        search_pos = content[comment_start:].find('\n')
+        if search_pos == -1:
+            comment_end = content_lenght - 1
         else:
-            comment_start = temp_startpos + search_pos
+            comment_end = comment_start + search_pos
 
-            # Find end of comment
-            search_pos = content[comment_start:].find('\n')
-            if search_pos == -1:
-                comment_end = content_lenght - 1
-            else:
-                comment_end = comment_start + search_pos
+        # Store positions
+        comment_sections.append((comment_start, comment_end))
 
-            # Store positions
-            comment_sections.append((comment_start, comment_end))
-
-            # Update loop variable
-            temp_startpos = comment_end
+        # Update loop variable
+        temp_startpos = comment_end
 
     # -- Multi-line comments
     temp_startpos = 0
@@ -502,8 +453,9 @@ def removeComments(content, insert_blanks=False):
         # Are we done?
         if search_pos == -1:
             break
+
         # Check for the potentially confusing case of comments starting with "//*"
-        elif (search_pos > 0) and (content[search_pos-1] == '/'):
+        if (search_pos > 0) and (content[search_pos-1] == '/'):
             # This is really a single-line comment which has been dealt with above,
             # so we don't add it to the list of comment positions
             comment_start = temp_startpos + search_pos
@@ -514,6 +466,7 @@ def removeComments(content, insert_blanks=False):
                 comment_end = comment_start + search_pos
             # Update loop variable
             temp_startpos = comment_end
+
         # Now for the proper multi-line comments
         else:
             comment_start = temp_startpos + search_pos
@@ -532,37 +485,34 @@ def removeComments(content, insert_blanks=False):
             temp_startpos = comment_end
 
     # Sort comment_sections from last to first, depending on stop position
-    comment_sections = sorted(
-        comment_sections, key=itemgetter(1), reverse=True)
+    comment_sections = sorted(comment_sections, key=itemgetter(1), reverse=True)
 
     # Remove comments
     prev_start_pos = 0
     prev_stop_pos = 0
 
     for start_pos, stop_pos in comment_sections:
-        new_lenght = len(content)
-
         # Skip if the current comment was contained within the previous removed comment
         if (start_pos > prev_start_pos) and (stop_pos < prev_stop_pos):
             continue
+
         # If not, go on to remove comment
+        # Insert whitespace?
+        if not insert_blanks:
+            content = content.replace(content[start_pos:stop_pos+1], '')
         else:
-            # Insert whitespace?
-            if insert_blanks == False:
-                content = content.replace(content[start_pos:stop_pos+1], '')
-            else:
-                # Construct string of spaces and newlines to replace comments
-                insert_string = ''
-                for char in content[start_pos:stop_pos+1]:
-                    insert_string += ' '*(char != '\n') + '\n'*(char == '\n')
+            # Construct string of spaces and newlines to replace comments
+            insert_string = ''
+            for char in content[start_pos:stop_pos+1]:
+                insert_string += ' '*(char != '\n') + '\n'*(char == '\n')
 
-                # Perform replacement
-                content = content.replace(
-                    content[start_pos:stop_pos+1], insert_string)
+            # Perform replacement
+            content = content.replace(
+                content[start_pos:stop_pos+1], insert_string)
 
-            # Update loop variables
-            prev_start_pos = start_pos
-            prev_stop_pos = stop_pos
+        # Update loop variables
+        prev_start_pos = start_pos
+        prev_stop_pos = stop_pos
 
     return content
 
@@ -572,7 +522,6 @@ def removeComments(content, insert_blanks=False):
 # ====== findType ========
 
 def findType(el_input):
-
     # check_keywords = ['const']
     # additional_keywords = []
 
@@ -669,16 +618,12 @@ def findType(el_input):
 # ====== typeInList ======
 
 def typeInList(type_el, list_types):
-
     list_of_ids = []
 
     for list_type in list_types:
         list_of_ids.append(list_type.get('id'))
 
-    if type_el.get('id') in list_of_ids:
-        return True
-    else:
-        return False
+    return type_el.get('id') in list_of_ids
 
 # ====== END: typeInList ======
 
@@ -688,11 +633,11 @@ def typeInList(type_el, list_types):
 def findNewLinePos(content, line_number):
     count = 0
     for index, char in enumerate(content):
+        newline_pos = index
         if char == '\n':
             count += 1
         if count == line_number:
             break
-    newline_pos = index
 
     return newline_pos
 
@@ -779,11 +724,10 @@ def getBracketPositions(content, delims=['{', '}']):
 
     # If brackets did not balance, raise exception
     if not balance:
-        raise ValueError(
-            "No matching right delimiter for the first left delimiter.")
+        raise ValueError("No matching right delimiter for the first left delimiter.")
+
     # Else, return the found bracket positions
-    else:
-        return [l_pos, r_pos]
+    return [l_pos, r_pos]
 
 # ====== END: getBracketPositions ========
 
@@ -891,8 +835,8 @@ def removeTemplateBracket(type_name, return_bracket=False):
 
     if return_bracket:
         return type_name_notempl, template_bracket
-    else:
-        return type_name_notempl
+
+    return type_name_notempl
 
 # ====== END: removeTemplateBracket ========
 
@@ -912,8 +856,8 @@ def removeNamespace(type_name, return_namespace=False):
 
     if return_namespace:
         return namespace, new_type_name
-    else:
-        return new_type_name
+
+    return new_type_name
 
 # ====== END: removeNamespace ========
 
@@ -929,8 +873,8 @@ def removeArgumentBracket(func_signature, return_args_bracket=False):
 
     if return_args_bracket:
         return func_signature_noargs, args_bracket
-    else:
-        return func_signature_noargs
+
+    return func_signature_noargs
 
 # ====== END: removeArgumentBracket ========
 
@@ -944,8 +888,8 @@ def isAcceptedType(input_el):
     type_dict = findType(input_el)
     type_el = type_dict['el']
     type_name = type_dict['name']
-    pointerness = type_dict['pointerness']
-    is_ref = type_dict['is_reference']
+    # pointerness = type_dict['pointerness']
+    # is_ref = type_dict['is_reference']
     is_array = type_dict['is_array']
     array_limits = type_dict['array_limits']
 
@@ -1061,23 +1005,9 @@ def isLoadedClass(input_type, byname=False, class_name=None):
 # ====== END: isLoadedClass ========
 
 
-# ====== isParentOfLoadedType ========
-
-def isParentOfLoadedType(input_el):
-
-    is_parent = False
-
-    return is_parent
-
-# ====== END: isParentOfLoadedType ========
-
-
 # ====== constrAbsForwardDeclHeader ========
 
 def constrAbsForwardDeclHeader(file_output_path):
-
-    import modules.classutils as classutils
-
     # If this is the first time this function is executed, read initial code from header_templates/ folder
     if file_output_path not in gb.new_code.keys():
         f = open(gb.boss_dir+'/header_templates/standard_header_template.hpp')
@@ -1096,8 +1026,8 @@ def constrAbsForwardDeclHeader(file_output_path):
 
         # print([class_name_full], [class_name_full.split('<',1)[0]], [class_name_full.split('<',1)[0].rsplit('::',1)[-1]])
         namespaces = getNamespaces(class_el)
-        has_namespace = bool(len(namespaces))
-        namespace_str = '::'.join(namespaces) + '::'*has_namespace
+        # has_namespace = bool(len(namespaces))
+        # namespace_str = '::'.join(namespaces) + '::'*has_namespace
 
         # class_name       = classutils.getClassNameDict(class_el)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
@@ -1114,10 +1044,7 @@ def constrAbsForwardDeclHeader(file_output_path):
         n_indents = len(namespaces)
         full_indent = ' '*n_indents*cfg.indent
 
-        if '<' in abstr_class_name['long_templ']:
-            is_template = True
-        else:
-            is_template = False
+        is_template = ('<' in abstr_class_name['long_templ'])
 
         if is_template:
             template_bracket = getTemplateBracket(class_el)[0]
@@ -1162,9 +1089,6 @@ def constrAbsForwardDeclHeader(file_output_path):
 # ====== constrWrpForwardDeclHeader ========
 
 def constrWrpForwardDeclHeader(file_output_path):
-
-    import modules.classutils as classutils
-
     # If this is the first time this function is executed, read initial code from header_templates/ folder
     if file_output_path not in gb.new_code.keys():
         f = open(gb.boss_dir+'/header_templates/standard_header_template.hpp')
@@ -1206,10 +1130,7 @@ def constrWrpForwardDeclHeader(file_output_path):
 
         # - Forward declaration
         # TODO: TG: Added this for testing
-        if '<' in class_name_short:
-            is_template = True
-        else:
-            is_template = False
+        is_template = ('<' in class_name_short)
 
         if is_template:
             template_bracket = getTemplateBracket(class_el)[0]
@@ -1257,9 +1178,6 @@ def constrWrpForwardDeclHeader(file_output_path):
 # ====== getParentClasses ========
 
 def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=False):
-
-    import modules.classutils as classutils
-
     parent_classes = []
 
     sub_el_list = class_el.findall('Base')
@@ -1270,38 +1188,39 @@ def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=Fa
 
         if (only_loaded_classes) and (not isLoadedClass(base_el)):
             continue
-        elif (only_native_classes) and (not isNative(base_el)):
+
+        if (only_native_classes) and (not isNative(base_el)):
             continue
-        else:
-            base_access = sub_el.get('access')
-            base_virtual = bool(int(sub_el.get('virtual')))
 
-            base_name_dict = classutils.getClassNameDict(base_el)
-            abstr_base_name_dict = classutils.getClassNameDict(
-                base_el, abstract=True)
+        base_access = sub_el.get('access')
+        base_virtual = bool(int(sub_el.get('virtual')))
 
-            is_accepted_type = isAcceptedType(base_el)
-            is_native = isNative(base_el)
-            is_fundamental = isFundamental(base_el)
-            is_std = isStdType(base_el)
-            is_loaded_class = isLoadedClass(base_el)
+        base_name_dict = classutils.getClassNameDict(base_el)
+        abstr_base_name_dict = classutils.getClassNameDict(
+            base_el, abstract=True)
 
-            temp_dict = OrderedDict([])
-            temp_dict['class_name'] = base_name_dict
-            temp_dict['abstr_class_name'] = abstr_base_name_dict
-            temp_dict['wrapper_name'] = classutils.toWrapperType(
-                base_name_dict['long'])
-            temp_dict['access'] = base_access
-            temp_dict['virtual'] = base_virtual
-            temp_dict['id'] = base_id
+        is_accepted_type = isAcceptedType(base_el)
+        is_native = isNative(base_el)
+        is_fundamental = isFundamental(base_el)
+        is_std = isStdType(base_el)
+        is_loaded_class = isLoadedClass(base_el)
 
-            temp_dict['accepted'] = is_accepted_type
-            temp_dict['native'] = is_native
-            temp_dict['fundamental'] = is_fundamental
-            temp_dict['std'] = is_std
-            temp_dict['loaded'] = is_loaded_class
+        temp_dict = OrderedDict([])
+        temp_dict['class_name'] = base_name_dict
+        temp_dict['abstr_class_name'] = abstr_base_name_dict
+        temp_dict['wrapper_name'] = classutils.toWrapperType(
+            base_name_dict['long'])
+        temp_dict['access'] = base_access
+        temp_dict['virtual'] = base_virtual
+        temp_dict['id'] = base_id
 
-            parent_classes.append(temp_dict)
+        temp_dict['accepted'] = is_accepted_type
+        temp_dict['native'] = is_native
+        temp_dict['fundamental'] = is_fundamental
+        temp_dict['std'] = is_std
+        temp_dict['loaded'] = is_loaded_class
+
+        parent_classes.append(temp_dict)
 
     return parent_classes
 
@@ -1311,9 +1230,6 @@ def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=Fa
 # ====== getAllParentClasses ========
 
 def getAllParentClasses(class_el, only_native_classes=True, only_loaded_classes=False, return_dicts=False, reverse_order=False):
-
-    import modules.classutils as classutils
-
     parent_classes = []
     done_parent_classes = []
 
@@ -1330,46 +1246,47 @@ def getAllParentClasses(class_el, only_native_classes=True, only_loaded_classes=
 
                 if only_loaded_classes and not isLoadedClass(parent_class_el):
                     continue
-                elif only_native_classes and not isNative(parent_class_el):
+
+                if only_native_classes and not isNative(parent_class_el):
                     continue
-                else:
-                    if parent_class_el not in done_parent_classes:
-                        temp_class_list.append(parent_class_el)
-                        if return_dicts:
-                            base_name_dict = classutils.getClassNameDict(
-                                parent_class_el)
-                            abstr_base_name_dict = classutils.getClassNameDict(
-                                parent_class_el, abstract=True)
 
-                            is_accepted_type = isAcceptedType(parent_class_el)
-                            is_native = isNative(parent_class_el)
-                            is_fundamental = isFundamental(parent_class_el)
-                            is_std = isStdType(parent_class_el)
-                            is_loaded_class = isLoadedClass(parent_class_el)
+                if parent_class_el not in done_parent_classes:
+                    temp_class_list.append(parent_class_el)
+                    if return_dicts:
+                        base_name_dict = classutils.getClassNameDict(
+                            parent_class_el)
+                        abstr_base_name_dict = classutils.getClassNameDict(
+                            parent_class_el, abstract=True)
 
-                            temp_dict = OrderedDict([])
-                            temp_dict['class_name'] = base_name_dict
-                            temp_dict['abstr_class_name'] = abstr_base_name_dict
-                            temp_dict['wrapper_name'] = classutils.toWrapperType(
-                                base_name_dict['long'])
-                            temp_dict['id'] = parent_class_id
+                        is_accepted_type = isAcceptedType(parent_class_el)
+                        is_native = isNative(parent_class_el)
+                        is_fundamental = isFundamental(parent_class_el)
+                        is_std = isStdType(parent_class_el)
+                        is_loaded_class = isLoadedClass(parent_class_el)
 
-                            temp_dict['accepted'] = is_accepted_type
-                            temp_dict['native'] = is_native
-                            temp_dict['fundamental'] = is_fundamental
-                            temp_dict['std'] = is_std
-                            temp_dict['loaded'] = is_loaded_class
+                        temp_dict = OrderedDict([])
+                        temp_dict['class_name'] = base_name_dict
+                        temp_dict['abstr_class_name'] = abstr_base_name_dict
+                        temp_dict['wrapper_name'] = classutils.toWrapperType(
+                            base_name_dict['long'])
+                        temp_dict['id'] = parent_class_id
 
-                            parent_classes.append(temp_dict)
-                            done_parent_classes.append(parent_class_el)
-                        else:
-                            parent_classes.append(parent_class_el)
-                            done_parent_classes.append(parent_class_el)
+                        temp_dict['accepted'] = is_accepted_type
+                        temp_dict['native'] = is_native
+                        temp_dict['fundamental'] = is_fundamental
+                        temp_dict['std'] = is_std
+                        temp_dict['loaded'] = is_loaded_class
+
+                        parent_classes.append(temp_dict)
+                        done_parent_classes.append(parent_class_el)
+                    else:
+                        parent_classes.append(parent_class_el)
+                        done_parent_classes.append(parent_class_el)
 
     if reverse_order:
         return parent_classes[::-1]
-    else:
-        return parent_classes
+
+    return parent_classes
 
 # ====== END: getAllParentClasses ========
 
@@ -1377,15 +1294,11 @@ def getAllParentClasses(class_el, only_native_classes=True, only_loaded_classes=
 # ====== getAllTypesInClass ========
 
 def getAllTypesInClass(class_el, include_parents=False):
-
-    import modules.classutils as classutils
-    import modules.funcutils as funcutils
-
     all_types = []
 
     check_member_elements = getMemberElements(class_el)
 
-    class_id = class_el.get('id')
+    # class_id = class_el.get('id')
     for mem_el in check_member_elements:
 
         if mem_el.tag in ['Constructor', 'Destructor', 'Method', 'OperatorMethod']:
@@ -1434,7 +1347,6 @@ def getAllTypesInClass(class_el, include_parents=False):
 # ====== getMemberElements ========
 
 def getMemberElements(el, include_artificial=False):
-    import modules.classutils as classutils
     # Decide if it's templated
     is_templated = isTemplateClass(el)
 
@@ -1478,9 +1390,6 @@ def getMemberElements(el, include_artificial=False):
 # ====== getMemberFunctions ========
 
 def getMemberFunctions(class_el, include_artificial=False, include_inherited=False, only_accepted=True, limit_pointerness=True, include_operators=False):
-
-    import modules.funcutils as funcutils
-
     all_classes = [class_el]
     all_members = []
     all_functions = []
@@ -1496,7 +1405,7 @@ def getMemberFunctions(class_el, include_artificial=False, include_inherited=Fal
 
     # Extract only regular member functions (no variables, constructors, destructors, ...)
     for mem_el in all_members:
-        if (mem_el.tag == 'Method' or (include_operators == True and mem_el.tag == 'OperatorMethod')) and (mem_el.get('access') == 'public'):
+        if (mem_el.tag == 'Method' or (include_operators and mem_el.tag == 'OperatorMethod')) and (mem_el.get('access') == 'public'):
 
             if only_accepted and funcutils.ignoreFunction(mem_el, limit_pointerness=limit_pointerness):
                 method_name = mem_el.get('name')
@@ -1507,8 +1416,7 @@ def getMemberFunctions(class_el, include_artificial=False, include_inherited=Fal
                 infomsg.IgnoredFunction(method_name, reason).printMessage()
                 continue
 
-            else:
-                all_functions.append(mem_el)
+            all_functions.append(mem_el)
 
     return all_functions
 
@@ -1518,13 +1426,9 @@ def getMemberFunctions(class_el, include_artificial=False, include_inherited=Fal
 # ====== getAllTypesInFunction ========
 
 def getAllTypesInFunction(func_el):
-
-    import modules.classutils as classutils
-    import modules.funcutils as funcutils
-
     all_types = []
 
-    func_id = func_el.get('id')
+    # func_id = func_el.get('id')
 
     if func_el.tag in ['Function', 'Constructor']:
         args_list = funcutils.getArgs(func_el)
@@ -1540,7 +1444,6 @@ def getAllTypesInFunction(func_el):
             all_types.append(arg_type_dict)
 
     if ('type' in func_el.keys()) or ('returns' in func_el.keys()) or (func_el.tag == 'Constructor' and 'context' in func_el.keys()):
-
         mem_type_dict = findType(func_el)
         type_el = mem_type_dict['el']
 
@@ -1678,9 +1581,9 @@ def identifyIncludedHeaders(content, only_native=True):
             # Skip standard headers (of the form: #include <FILENAME>)
             if header_file_name[0] == '<':
                 continue
-            else:
-                header_file_name = header_file_name.strip('"')
-                headers_in_file.append(os.path.basename(header_file_name))
+
+            header_file_name = header_file_name.strip('"')
+            headers_in_file.append(os.path.basename(header_file_name))
         else:
             continue
 
@@ -1807,7 +1710,6 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
     # Determine what include statements to generate:
 
     for type_dict in all_types:
-
         type_el = type_dict['el']
         type_name = type_dict['class_name']
 
@@ -1834,12 +1736,9 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                 type_file_id = type_el.get('file')
                 type_line_number = int(type_el.get('line'))
 
-                if ('incomplete' in type_el.keys() and type_el.get('incomplete') == '1'):
-                    is_incomplete = True
-                else:
-                    is_incomplete = False
+                is_incomplete = ('incomplete' in type_el.keys() and type_el.get('incomplete') == '1')
 
-                if (type_file_id in included_headers_dict.values()):
+                if type_file_id in included_headers_dict.values():
                     type_definition_found = True
                 elif (type_file_id == input_el.get('file')) and (type_line_number < start_line_number):
                     type_definition_found = True
@@ -1850,53 +1749,53 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                     # This must be a case of a type that is only forward declared. Don't include any header (as this will typically lead to a 'header loop').
                     continue
 
-                elif (type_definition_found) and (forward_declared == 'only'):
+                if (type_definition_found) and (forward_declared == 'only'):
                     # This must be a case of a type that *is* fully declared, so we ignore it if forward_declared=='only'.
                     continue
-                else:
-                    if convert_loaded_to == 'none':
 
-                        type_file_el = gb.id_dict[type_file_id]
-                        type_file_full_path = type_file_el.get('name')
+                if convert_loaded_to == 'none':
 
-                        # If the xml element we have for the type is only for a forward declaration
-                        # we must search all other xml files for the complete type declaration.
-                        if is_incomplete:
-                            for xml_file_name in gb.all_name_dict.keys():
-                                try:
-                                    new_type_el = gb.all_name_dict[xml_file_name][type_name['long_templ']]
-                                except KeyError:
-                                    new_type_el = None
+                    type_file_el = gb.id_dict[type_file_id]
+                    type_file_full_path = type_file_el.get('name')
 
-                                if new_type_el is not None:
-                                    if 'incomplete' not in new_type_el.keys():
-                                        new_type_file_id = new_type_el.get(
-                                            'file')
-                                        new_type_file_el = gb.all_id_dict[xml_file_name][new_type_file_id]
-                                        # Set new header path and break the loop
-                                        type_file_full_path = new_type_file_el.get(
-                                            'name')
-                                        break
+                    # If the xml element we have for the type is only for a forward declaration
+                    # we must search all other xml files for the complete type declaration.
+                    if is_incomplete:
+                        for xml_file_name in gb.all_name_dict.keys():
+                            try:
+                                new_type_el = gb.all_name_dict[xml_file_name][type_name['long_templ']]
+                            except KeyError:
+                                new_type_el = None
 
-                        if isHeader(type_file_el):
-                            use_path = shortenHeaderPath(type_file_full_path)
-                            include_statements.append(
-                                '#include "' + use_path + '"')
+                            if new_type_el is not None:
+                                if 'incomplete' not in new_type_el.keys():
+                                    new_type_file_id = new_type_el.get(
+                                        'file')
+                                    new_type_file_el = gb.all_id_dict[xml_file_name][new_type_file_id]
+                                    # Set new header path and break the loop
+                                    type_file_full_path = new_type_file_el.get(
+                                        'name')
+                                    break
 
-                        else:
-                            reason = "Found declaration of loaded type '%s' in file '%s', but this file is not recognized as a header file." % (
-                                type_name['long_templ'], type_file_full_path)
-                            infomsg.NoIncludeStatementGenerated(
-                                type_name['long_templ'], reason).printMessage()
+                    if isHeader(type_file_el):
+                        use_path = shortenHeaderPath(type_file_full_path)
+                        include_statements.append(
+                            '#include "' + use_path + '"')
 
                     else:
-                        if use_full_path:
-                            header_key = convert_loaded_to + '_fullpath'
-                        else:
-                            header_key = convert_loaded_to
+                        reason = "Found declaration of loaded type '%s' in file '%s', but this file is not recognized as a header file." % (
+                            type_name['long_templ'], type_file_full_path)
+                        infomsg.NoIncludeStatementGenerated(
+                            type_name['long_templ'], reason).printMessage()
 
-                        include_statements.append(
-                            '#include "' + gb.new_header_files[type_name['long']][header_key] + '"')
+                else:
+                    if use_full_path:
+                        header_key = convert_loaded_to + '_fullpath'
+                    else:
+                        header_key = convert_loaded_to
+
+                    include_statements.append(
+                        '#include "' + gb.new_header_files[type_name['long']][header_key] + '"')
 
             elif isStdType(type_el):
                 if type_name['long'] in gb.std_headers:
@@ -2013,11 +1912,9 @@ def constrNamespaceFromTags(content, new_namespace, open_tag, close_tag):
             # No tags found. Do nothing more.
             # return content
             break
-        elif (open_pos == -1) or (close_pos == -1):
-            raise Exception('Matching pair of namespace tags %s and %s not found in given content.' % (
-                open_tag, close_tag))
-        else:
-            pass
+
+        if (open_pos == -1) or (close_pos == -1):
+            raise Exception('Matching pair of namespace tags %s and %s not found in given content.' % (open_tag, close_tag))
 
         # Split content into three parts
         content_before = prev_content[:open_pos]
@@ -2049,7 +1946,6 @@ def constrNamespaceFromTags(content, new_namespace, open_tag, close_tag):
 # ====== replaceCodeTags ========
 
 def replaceCodeTags(input, file_input=False, write_file=False):
-
     # Input is either a file name or a string with content
     if file_input:
         f = open(input, 'r')
@@ -2060,14 +1956,14 @@ def replaceCodeTags(input, file_input=False, write_file=False):
 
     # Replace various tags in template code with code specific for the current backend
     new_content = new_content.replace(
-        '__BACKEND_NAME__',  cfg.gambit_backend_name)
+        '__BACKEND_NAME__', cfg.gambit_backend_name)
     new_content = new_content.replace(
-        '__BACKEND_VERSION__',  cfg.gambit_backend_version)
+        '__BACKEND_VERSION__', cfg.gambit_backend_version)
     new_content = new_content.replace(
-        '__BACKEND_SAFE_VERSION__',  gb.gambit_backend_safeversion)
+        '__BACKEND_SAFE_VERSION__', gb.gambit_backend_safeversion)
     new_content = new_content.replace(
-        '__BACKEND_REFERENCE__',  cfg.gambit_backend_reference)
-    new_content = new_content.replace('__CODE_SUFFIX__',  gb.code_suffix)
+        '__BACKEND_REFERENCE__', cfg.gambit_backend_reference)
+    new_content = new_content.replace('__CODE_SUFFIX__', gb.code_suffix)
 
     new_content = new_content.replace('__PATH_TO_FRWD_DECLS_ABS_CLASSES_HEADER__', os.path.join(
         gb.backend_types_basedir, gb.gambit_backend_name_full, gb.frwd_decls_abs_fname + cfg.header_extension))
@@ -2124,8 +2020,7 @@ def constrLoadedTypesHeaderContent():
 
             class_line = '  (( /*class*/'
 
-            namespace, class_name_short = removeNamespace(
-                class_name['long'], return_namespace=True)
+            namespace, class_name_short = removeNamespace(class_name['long'], return_namespace=True)
 
             if namespace == '':
                 namespace_list = []
@@ -2214,9 +2109,6 @@ def constrLoadedTypesHeaderContent():
 # ====== constrEnumDeclHeader ========
 
 def constrEnumDeclHeader(file_output_path):
-
-    import modules.classutils as classutils
-
     # If this is the first time this function is executed, read initial code from header_templates/ folder
     if file_output_path not in gb.new_code.keys():
         f = open(gb.boss_dir+'/header_templates/standard_header_template.hpp')
@@ -2338,7 +2230,7 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
         p.wait()
     except subprocess.CalledProcessError as e:
         did_fail = True
-        error_message = e.message
+        error_message = e.output
 
     # Reset environment variables
     if 'gnu' in cfg.castxml_cc_id:
@@ -2351,7 +2243,7 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
     output_tmpfile.close()
 
     # Any error that did not result in a CalledProcessError?
-    if (p.returncode != 0):
+    if p.returncode != 0:
         did_fail = True
 
     if did_fail:
@@ -2369,8 +2261,7 @@ def castxmlRunner(input_file_path, include_paths_list, xml_output_path, use_cast
 
     # If it fails with the syste-wide castxml binary, try again with the local one
     if (did_fail and use_castxml_path == castxml_system_path and gb.has_castxml_local):
-        print('  ' + modifyText('Will retry with castxml binary in ' +
-              castxml_local_path, 'yellow'))
+        print('  ' + modifyText('Will retry with castxml binary in ' + castxml_local_path, 'yellow'))
         did_fail = False
         use_castxml_path = castxml_local_path
         castxmlRunner(input_file_path, include_paths_list,
@@ -2403,20 +2294,18 @@ def pathSplitAll(path):
 
     current_path = path
     while True:
-
         parts = os.path.split(current_path)
 
         if parts[0] == current_path:  # Stopping criterion for absolute paths
             all_parts.insert(0, parts[0])
             break
 
-        elif parts[1] == current_path:  # Stopping criterion for relative paths
+        if parts[1] == current_path:  # Stopping criterion for relative paths
             all_parts.insert(0, parts[1])
             break
 
-        else:
-            current_path = parts[0]
-            all_parts.insert(0, parts[1])
+        current_path = parts[0]
+        all_parts.insert(0, parts[1])
 
     return all_parts
 
@@ -2492,8 +2381,6 @@ def validType(type_name, xml_file):
 
     # Check if it ends with '::'. If it doesn, reject it instantly
     if type_name_len >= 2 and type_name[-2:] == '::':
-        with open("nonAcceptedList.txt", "a") as f:
-            print(f"last 2 char as :: {type_name}", file=f)
         return False
 
     # Create required lists to store info on bracket/comma locations
@@ -2501,74 +2388,65 @@ def validType(type_name, xml_file):
     type_name_comma_locs = []
     try:
         findOutsideBracketsAndCommas(type_name, type_name_bracket_locs, type_name_comma_locs)
-    except:
-        with open("nonAcceptedList.txt", "a") as f:
-            print(f"findOutsideBracketsAndCommas {type_name}", file=f)
+    except BracketError:
         return False
 
     # If there are more than 1 angle brackets pair on the outermost level
     # OR there are any commas outside angle brackets there's a problem
     num_bracket_pairs = len(type_name_bracket_locs)
     if num_bracket_pairs > 1 or len(type_name_comma_locs) != 0:
-        with open("nonAcceptedList.txt", "a") as f:
-            print(f"comma and bracket locations {type_name}", file=f)
         return False
 
     if num_bracket_pairs == 0:
         # Not templated
         return isTypeValid(type_name, xml_file)
-    else:
-        # Is templated
-        # Grab the locations of the outer brackets
-        (lo, hi) = type_name_bracket_locs[0]
-        stripped_type = type_name[:lo]
 
-        #  ZELUN hi != type_name_len - 1 breaking type with & as the last char
-        if not isTypeValid(stripped_type, xml_file) or hi != type_name_len - 1:
-            # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
-            with open("nonAcceptedList.txt", "a") as f:
-                    print(f"> not the last char {type_name}", file=f)
-            return False
-        elif hi - lo == 1:
-            # The template brackets are empty and the outer type must be valid since it got to the elif, so accept
-            return True
+    # Is templated
+    # Grab the locations of the outer brackets
+    (lo, hi) = type_name_bracket_locs[0]
+    stripped_type = type_name[:lo]
 
-        inside_brackets = type_name[lo + 1:hi]
+    #  ZELUN hi != type_name_len - 1 breaking type with & as the last char
+    if not isTypeValid(stripped_type, xml_file) or hi != type_name_len - 1:
+        # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
+        return False
 
-        # Strip the commas between inside_brackets if there are any,
-        # E.g., if type_name = 'std::map<int, bool>'
-        # inside_brackets = 'int, bool'
-        # We want to separate it into 'int' and 'bool' before we go any deeper
-        inside_brackets_bracket_locs = []
-        inside_brackets_comma__locs = []
-        try:
-            findOutsideBracketsAndCommas(inside_brackets, inside_brackets_bracket_locs, inside_brackets_comma__locs)
-        except:
-            with open("nonAcceptedList.txt", "a") as f:
-                print(f"findOutsideBracketsAndCommas222 {type_name}", file=f)
-            return False
-
-        inside_brackets_comma__locs.append(len(inside_brackets))
-        prev_comma = -1
-        for comma in inside_brackets_comma__locs:
-            # For each comma, get the substring between this comma and the last one
-            # and strip it for leading/lagging whitespace.
-            # Then, add it to the list of section
-            section = inside_brackets[prev_comma + 1:comma]
-            prev_comma = comma
-
-            # Recurse through each section unless it's a digit
-            # E.g., type_name = 'std::array<int, 3>'
-            # inside_brackets = 'int, 3'
-            # The first section = 'int', which we want to recurse on
-            # Second section = '3', which isn't a type so we don't want to recurse on
-            section = section.strip()
-            if not (section.isdigit() or section == 'false' or section == 'true') and not validType(section, xml_file):
-                with open("nonAcceptedList.txt", "a") as f:
-                    print(f"digit true false {type_name}", file=f)
-                return False
-
+    if hi - lo == 1:
+        # The template brackets are empty and the outer type must be valid since it got to the elif, so accept
         return True
+
+    inside_brackets = type_name[lo + 1:hi]
+
+    # Strip the commas between inside_brackets if there are any,
+    # E.g., if type_name = 'std::map<int, bool>'
+    # inside_brackets = 'int, bool'
+    # We want to separate it into 'int' and 'bool' before we go any deeper
+    inside_brackets_bracket_locs = []
+    inside_brackets_comma__locs = []
+    try:
+        findOutsideBracketsAndCommas(inside_brackets, inside_brackets_bracket_locs, inside_brackets_comma__locs)
+    except BracketError:
+        return False
+
+    inside_brackets_comma__locs.append(len(inside_brackets))
+    prev_comma = -1
+    for comma in inside_brackets_comma__locs:
+        # For each comma, get the substring between this comma and the last one
+        # and strip it for leading/lagging whitespace.
+        # Then, add it to the list of section
+        section = inside_brackets[prev_comma + 1:comma]
+        prev_comma = comma
+
+        # Recurse through each section unless it's a digit
+        # E.g., type_name = 'std::array<int, 3>'
+        # inside_brackets = 'int, 3'
+        # The first section = 'int', which we want to recurse on
+        # Second section = '3', which isn't a type so we don't want to recurse on
+        section = section.strip()
+        if not (section.isdigit() or section == 'false' or section == 'true') and not validType(section, xml_file):
+            return False
+
+    return True
 
 # ====== END: validType ========
 
@@ -2576,8 +2454,6 @@ def validType(type_name, xml_file):
 # ====== isAcceptedEnum ========
 
 def isAcceptedEnum(el):
-    import modules.enumutils as enumutils
-
     if isEnumeration(el):
         enum_name = enumutils.getEnumNameDict(el)
 
@@ -2597,8 +2473,6 @@ def isAcceptedEnum(el):
 # ====== isTypeValid ========
 
 def isTypeValid(type_name, xml_file):
-    import modules.classutils as classutils
-
     trimmed_type_name = getBasicTypeName(type_name)
 
     try:
@@ -2617,7 +2491,7 @@ def isTypeValid(type_name, xml_file):
             return_bool = isFundamental(el) or\
             isStdType(el, class_name=class_name) or\
             isKnownClass(el, class_name=class_name) or\
-            isLoadedClass(el,  byname=False, class_name=class_name) or\
+            isLoadedClass(el, byname=False, class_name=class_name) or\
             isAcceptedEnum(el)
 
             # Debugging print, get rid of later. Also get rid of return_bool
@@ -2626,25 +2500,14 @@ def isTypeValid(type_name, xml_file):
                     print(f"Not of any of the 5 types {type_name}", file=f)
 
             return return_bool
-        else:
-            # We can't accept, it's not a type!
 
-            # Debugging print, get rid of later
-            with open("nonAcceptedList.txt", "a") as f:
-                print(f"Not of class and blah {type_name}", file=f)
-
-            return False
-    except:
+        # We can't accept, it's not a type!
+        return False
+    except KeyError:
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
-        return_bool = withinAcceptedNamespaces(type_name) or (trimmed_type_name in gb.fundamental_equiv_list) or\
+        return withinAcceptedNamespaces(type_name) or (trimmed_type_name in gb.fundamental_equiv_list) or\
             (trimmed_type_name in cfg.manual_accepted_types)
-
-        # Debugging print, get rid of later. Also get rid of return_bool
-        if not return_bool:
-            with open("nonAcceptedList.txt", "a") as f:
-                print(f"no corresponding element not std not funda {type_name}", file=f)
-        return return_bool
 
 # ====== END: isTypeValid ========
 
@@ -2671,10 +2534,12 @@ def withinNamespace(type_name, namespace):
 
 # ====== END: withinNamespace ========
 
+class BracketError(Exception):
+    pass
 
 # ====== findOutsideBracketsAndCommas ========
 
-def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
+def findOutsideBracketsAndCommas(string, bracket_locs, comma_locs):
     stack = []
     # For index and character in type_name
     for i, ch in enumerate(string):
@@ -2684,22 +2549,22 @@ def findOutsideBracketsAndCommas(string, bracketLocs, commaLocs):
         elif ch == '>':
             # If it's a closing bracket,
             # assert that there's at least one corresponding opening bracket
-            if (len(stack) == 0):
-                raise Exception('Invalid template brackets')
+            if not stack:
+                raise BracketError('Invalid template brackets')
 
             # Remove corresponding opening bracket and add it to pair
             # of brackets if it's the outermost bracket
             top = stack.pop()
 
-            if len(stack) == 0:
-                bracketLocs.append((top, i))
+            if not stack:
+                bracket_locs.append((top, i))
         elif ch == ',' and len(stack) == 0:
             # There's a comma outside of all the '<...>'
-            commaLocs.append(i)
+            comma_locs.append(i)
 
     # Again, assert that every opening bracket had a closing bracket
-    if (len(stack) != 0):
-        raise Exception('Invalid template brackets')
+    if stack:
+        raise BracketError('Invalid template brackets')
 
 
 # ====== END: findOutsideBracketsAndCommas ========
@@ -2809,9 +2674,6 @@ def isTemplateWithValidArgs(el, class_name=None):
 # Adds parent classes to cfg.load_classes.
 
 def addParentClasses():
-
-    import modules.classutils as classutils
-
     for xml_file in gb.all_id_dict.keys():
 
         # If new xml file, initialise global dicts
@@ -2821,25 +2683,21 @@ def addParentClasses():
 
         # Loop over all named elements in the xml file
         for full_name, el in gb.name_dict.items():
+            if el.tag in ['Class', 'Struct'] and isLoadedClass(el):
+                parents_el_list = getAllParentClasses(
+                    el, only_native_classes=True)
 
-            if el.tag in ['Class', 'Struct']:
+                for parent_el in parents_el_list:
 
-                if isLoadedClass(el):
+                    # Skip classes that are not loadable (incomplete, abstract, ...)
+                    if not isLoadable(el, print_warning=True):
+                        continue
 
-                    parents_el_list = getAllParentClasses(
-                        el, only_native_classes=True)
+                    class_name = classutils.getClassNameDict(parent_el)
 
-                    for parent_el in parents_el_list:
-
-                        # Skip classes that are not loadable (incomplete, abstract, ...)
-                        if not isLoadable(el, print_warning=True):
-                            continue
-
-                        class_name = classutils.getClassNameDict(parent_el)
-
-                        # - Update cfg.load_classes
-                        if class_name['long_templ'] not in cfg.load_classes:
-                            cfg.load_classes.append(class_name['long_templ'])
+                    # - Update cfg.load_classes
+                    if class_name['long_templ'] not in cfg.load_classes:
+                        cfg.load_classes.append(class_name['long_templ'])
 
 # ====== END: addParentClasses ========
 
@@ -2849,9 +2707,6 @@ def addParentClasses():
 # Adds parent classes to cfg.load_classes.
 
 def fillParentsOfLoadedClassesList():
-
-    import modules.classutils as classutils
-
     messages = []
 
     for xml_file in gb.all_id_dict.keys():
@@ -2864,32 +2719,30 @@ def fillParentsOfLoadedClassesList():
         # Loop over all named elements in the xml file
         for full_name, el in gb.name_dict.items():
 
-            if el.tag in ['Class', 'Struct']:
+            if el.tag in ['Class', 'Struct'] and isLoadedClass(el):
 
-                if isLoadedClass(el):
+                parents_el_list = getAllParentClasses(
+                    el, only_native_classes=True)
 
-                    parents_el_list = getAllParentClasses(
-                        el, only_native_classes=True)
+                for parent_el in parents_el_list:
 
-                    for parent_el in parents_el_list:
+                    # Skip classes that are not loadable (incomplete, abstract, ...)
+                    if not isLoadable(parent_el, print_warning=True, check_pure_virtual_members=False):
+                        continue
 
-                        # Skip classes that are not loadable (incomplete, abstract, ...)
-                        if not isLoadable(parent_el, print_warning=True, check_pure_virtual_members=False):
-                            continue
+                    class_name = classutils.getClassNameDict(parent_el)
 
-                        class_name = classutils.getClassNameDict(parent_el)
+                    # Append to gb.parents_of_loaded_classes
+                    if class_name['long_templ'] not in gb.parents_of_loaded_classes:
+                        gb.parents_of_loaded_classes.append(
+                            class_name['long_templ'])
 
-                        # Append to gb.parents_of_loaded_classes
-                        if class_name['long_templ'] not in gb.parents_of_loaded_classes:
-                            gb.parents_of_loaded_classes.append(
-                                class_name['long_templ'])
-
-                        # Print info
-                        msg = '  - %s is parent of %s.' % (
-                            class_name['long_templ'], full_name)
-                        if msg not in messages:
-                            print(msg)
-                            messages.append(msg)
+                    # Print info
+                    msg = '  - %s is parent of %s.' % (
+                        class_name['long_templ'], full_name)
+                    if msg not in messages:
+                        print(msg)
+                        messages.append(msg)
 
 # ====== END: fillParentsOfLoadedClassesList ========
 
@@ -2959,11 +2812,6 @@ def clearGlobalXMLdicts():
 # ====== initGlobalXMLdicts ========
 
 def initGlobalXMLdicts(xml_path, id_and_name_only=False):
-
-    import modules.classutils as classutils
-    import modules.funcutils as funcutils
-    import modules.enumutils as enumutils
-
     # Clear dicts
     clearGlobalXMLdicts()
 
@@ -3006,8 +2854,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 continue
 
             # Check that class is requested
-            if (class_name['long_templ'] in cfg.load_classes):
-
+            if class_name['long_templ'] in cfg.load_classes:
                 # Check that class is complete
                 if isComplete(el):
 
@@ -3139,7 +2986,6 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 # ====== identifyStdIncludePaths ========
 
 def identifyStdIncludePaths():
-
     # Shell command: Pipe an include statement to the compiler and use
     # verbose mode to print the header search paths.
     command = 'echo "#include <iostream>" | ' + cfg.castxml_cc + ' -v -x c++ -c -'
@@ -3151,12 +2997,11 @@ def identifyStdIncludePaths():
     error_message = ''
     output_tmpfile = tempfile.TemporaryFile()
     try:
-        p = subprocess.Popen(shlex.split(command),
-                             stdout=output_tmpfile, stderr=output_tmpfile)
+        p = subprocess.Popen(shlex.split(command), stdout=output_tmpfile, stderr=output_tmpfile)
         p.wait()
     except subprocess.CalledProcessError as e:
         did_fail = True
-        error_message = e.message
+        error_message = e.output
 
     # Reset environment variables
     if 'gnu' in cfg.castxml_cc_id:
@@ -3186,8 +3031,7 @@ def identifyStdIncludePaths():
             print()
         raise Exception('Shell command failed')
 
-    else:
-        print('  ' + modifyText('Command finished successfully.', 'green'))
+    print('  ' + modifyText('Command finished successfully.', 'green'))
     print()
 
     std_include_paths = []
@@ -3241,8 +3085,8 @@ def isInList(search_entry, search_list, return_index=True, ignore_whitespace=Tru
         i = search_list.index(search_entry)
         if return_index:
             return True, i
-        else:
-            return True
+
+        return True
     except ValueError:
         pass
 
@@ -3254,16 +3098,16 @@ def isInList(search_entry, search_list, return_index=True, ignore_whitespace=Tru
             i = search_list_no_ws.index(search_entry_no_ws)
             if return_index:
                 return True, i
-            else:
-                return True
+
+            return True
         except ValueError:
             pass
 
     # Entry not found
     if return_index:
         return False, -1
-    else:
-        return False
+
+    return False
 
 # ====== END: isInList ========
 
