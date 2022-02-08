@@ -1459,7 +1459,7 @@ def getMemberElements(el, include_artificial=False):
                 # Look for this member in cfg.load_templated_members
                 short_class_name = el.get('name').split('<', 1)[0]
                 # print(f"Looking for {mem_el.get('name')} in {short_class_name}")
-                if classutils.foundMatchingMethod(short_class_name, mem_el):
+                if classutils.foundMatchingMembers(short_class_name, mem_el):
                     # print(f"Adding {mem_el.get('name')} to member_elements")
                     member_elements.append(mem_el)
             else:
