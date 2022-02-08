@@ -1,19 +1,19 @@
 diff -rupN pythia8306_original/include/Pythia8/Event.h pythia8306_patched/include/Pythia8/Event.h
 --- pythia8306_original/include/Pythia8/Event.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/Event.h	2022-02-06 12:01:24.000000000 +0100
++++ pythia8306_patched/include/Pythia8/Event.h	2022-02-08 20:01:31.378140631 +0100
 @@ -480,7 +480,8 @@ public:
  
    // List the particles in an event.
    void list(bool showScaleAndVertex = false,
 -    bool showMothersAndDaughters = false, int precision = 3) const;
 +    bool showMothersAndDaughters = false, int precision = 3, ostream& os = cout) const;
-+  void list(ostream& os = cout) const { list(false, true, 3, os); }
++  void list(ostream& os, int precision) const { list(false, true, precision, os); }
  
    // Remove last n entries.
    void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();
 diff -rupN pythia8306_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia8306_patched/include/Pythia8/GAMBIT_hepmc_writer.h
 --- pythia8306_original/include/Pythia8/GAMBIT_hepmc_writer.h	1970-01-01 01:00:00.000000000 +0100
-+++ pythia8306_patched/include/Pythia8/GAMBIT_hepmc_writer.h	2022-01-07 19:41:56.000000000 +0100
++++ pythia8306_patched/include/Pythia8/GAMBIT_hepmc_writer.h	2022-02-08 19:55:30.458734041 +0100
 @@ -0,0 +1,99 @@
 +#ifndef Pythia8_GAMBIT_hepmc_writer_H
 +#define Pythia8_GAMBIT_hepmc_writer_H
@@ -116,7 +116,7 @@ diff -rupN pythia8306_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia8306_
 +#endif // Pythia8_GAMBIT_hepmc_writer_H
 diff -rupN pythia8306_original/include/Pythia8/PartonDistributions.h pythia8306_patched/include/Pythia8/PartonDistributions.h
 --- pythia8306_original/include/Pythia8/PartonDistributions.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/PartonDistributions.h	2022-01-17 16:21:47.000000000 +0100
++++ pythia8306_patched/include/Pythia8/PartonDistributions.h	2022-02-08 19:55:30.462734035 +0100
 @@ -383,7 +383,7 @@ public:
  
    // Constructor.
@@ -155,7 +155,7 @@ diff -rupN pythia8306_original/include/Pythia8/PartonDistributions.h pythia8306_
      {init( iFit, pdfdataPath, infoPtr);}
 diff -rupN pythia8306_original/include/Pythia8/ProcessLevel.h pythia8306_patched/include/Pythia8/ProcessLevel.h
 --- pythia8306_original/include/Pythia8/ProcessLevel.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/ProcessLevel.h	2022-01-17 16:12:14.000000000 +0100
++++ pythia8306_patched/include/Pythia8/ProcessLevel.h	2022-02-08 19:55:30.458734041 +0100
 @@ -45,7 +45,7 @@ public:
  
    // Initialization.
@@ -167,7 +167,7 @@ diff -rupN pythia8306_original/include/Pythia8/ProcessLevel.h pythia8306_patched
    void setLHAPtr( LHAupPtr lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
 diff -rupN pythia8306_original/include/Pythia8/Pythia.h pythia8306_patched/include/Pythia8/Pythia.h
 --- pythia8306_original/include/Pythia8/Pythia.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/Pythia.h	2022-02-06 11:44:52.000000000 +0100
++++ pythia8306_patched/include/Pythia8/Pythia.h	2022-02-08 20:01:00.894198477 +0100
 @@ -73,7 +73,13 @@ public:
    // object instead of XML files (to speed up multiple initialisations).
    Pythia(Settings& settingsIn, ParticleData& particleDataIn,
@@ -178,7 +178,7 @@ diff -rupN pythia8306_original/include/Pythia8/Pythia.h pythia8306_patched/inclu
 +  // This is a bit silly, but needed for compatibility with the interface to Pythia 8.212
 +  // If this is removed, a change to the corresponding call in ColliderBit is needed
 +  Pythia(ParticleData& particleDataIn, Settings& settingsIn,
-+    bool printBanner = true) : Pythia(settingsIn, particleDataIn, printBanner);
++    bool printBanner = true) : Pythia(settingsIn, particleDataIn, printBanner) { }
 +  
    // Constructor taking input from streams instead of files.
    Pythia( istream& settingsStrings, istream& particleDataStrings,
@@ -194,7 +194,7 @@ diff -rupN pythia8306_original/include/Pythia8/Pythia.h pythia8306_patched/inclu
    bool next();
 diff -rupN pythia8306_original/include/Pythia8/SusyLesHouches.h pythia8306_patched/include/Pythia8/SusyLesHouches.h
 --- pythia8306_original/include/Pythia8/SusyLesHouches.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/SusyLesHouches.h	2022-01-04 19:14:22.000000000 +0100
++++ pythia8306_patched/include/Pythia8/SusyLesHouches.h	2022-02-08 19:55:30.458734041 +0100
 @@ -15,6 +15,12 @@
  
  #include "Pythia8/PythiaStdlib.h"
@@ -247,7 +247,7 @@ diff -rupN pythia8306_original/include/Pythia8/SusyLesHouches.h pythia8306_patch
  
 diff -rupN pythia8306_original/include/Pythia8Plugins/GeneratorInput.h pythia8306_patched/include/Pythia8Plugins/GeneratorInput.h
 --- pythia8306_original/include/Pythia8Plugins/GeneratorInput.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8Plugins/GeneratorInput.h	2022-01-04 18:54:34.000000000 +0100
++++ pythia8306_patched/include/Pythia8Plugins/GeneratorInput.h	2022-02-08 19:55:30.462734035 +0100
 @@ -196,1044 +196,6 @@ private:
  
  };
@@ -1295,7 +1295,7 @@ diff -rupN pythia8306_original/include/Pythia8Plugins/GeneratorInput.h pythia830
  
 diff -rupN pythia8306_original/include/Pythia8Plugins/JetMatching.h pythia8306_patched/include/Pythia8Plugins/JetMatching.h
 --- pythia8306_original/include/Pythia8Plugins/JetMatching.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8Plugins/JetMatching.h	2022-01-04 18:46:31.000000000 +0100
++++ pythia8306_patched/include/Pythia8Plugins/JetMatching.h	2022-02-08 19:55:30.462734035 +0100
 @@ -365,1684 +365,6 @@ private:
  
  };
@@ -2983,13 +2983,13 @@ diff -rupN pythia8306_original/include/Pythia8Plugins/JetMatching.h pythia8306_p
  
 diff -rupN pythia8306_original/src/Event.cc pythia8306_patched/src/Event.cc
 --- pythia8306_original/src/Event.cc	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/src/Event.cc	2022-02-06 12:01:25.000000000 +0100
++++ pythia8306_patched/src/Event.cc	2022-02-08 20:33:18.799009508 +0100
 @@ -706,15 +706,15 @@ void Event::remove(int iFirst, int iLast
  // Print an event.
  
  void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
 -  int precision) const {
-+  int precision, ostream& os = cout) const {
++  int precision, ostream& os) const {
  
    // Header.
 -  cout << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
@@ -3079,7 +3079,7 @@ diff -rupN pythia8306_original/src/Event.cc pythia8306_patched/src/Event.cc
  }
 diff -rupN pythia8306_original/src/GeneratorInput.cc pythia8306_patched/src/GeneratorInput.cc
 --- pythia8306_original/src/GeneratorInput.cc	1970-01-01 01:00:00.000000000 +0100
-+++ pythia8306_patched/src/GeneratorInput.cc	2022-01-04 18:52:41.000000000 +0100
++++ pythia8306_patched/src/GeneratorInput.cc	2022-02-08 19:55:30.514733968 +0100
 @@ -0,0 +1,1048 @@
 +#include "Pythia8Plugins/GeneratorInput.h"
 +
@@ -4131,7 +4131,7 @@ diff -rupN pythia8306_original/src/GeneratorInput.cc pythia8306_patched/src/Gene
 +} // end namespace Pythia8
 diff -rupN pythia8306_original/src/JetMatching.cc pythia8306_patched/src/JetMatching.cc
 --- pythia8306_original/src/JetMatching.cc	1970-01-01 01:00:00.000000000 +0100
-+++ pythia8306_patched/src/JetMatching.cc	2022-01-04 18:46:57.000000000 +0100
++++ pythia8306_patched/src/JetMatching.cc	2022-02-08 19:55:30.522733957 +0100
 @@ -0,0 +1,1687 @@
 +#include "Pythia8Plugins/JetMatching.h"
 +
@@ -5822,7 +5822,7 @@ diff -rupN pythia8306_original/src/JetMatching.cc pythia8306_patched/src/JetMatc
 +} // end namespace Pythia8
 diff -rupN pythia8306_original/src/ProcessLevel.cc pythia8306_patched/src/ProcessLevel.cc
 --- pythia8306_original/src/ProcessLevel.cc	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/src/ProcessLevel.cc	2022-01-17 16:11:54.000000000 +0100
++++ pythia8306_patched/src/ProcessLevel.cc	2022-02-08 19:55:30.522733957 +0100
 @@ -7,6 +7,21 @@
  
  #include "Pythia8/ProcessLevel.h"
@@ -5945,7 +5945,7 @@ diff -rupN pythia8306_original/src/ProcessLevel.cc pythia8306_patched/src/Proces
      if (containerPtrs[iContainer]->newSigmaMax()) {
 diff -rupN pythia8306_original/src/Pythia.cc pythia8306_patched/src/Pythia.cc
 --- pythia8306_original/src/Pythia.cc	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/src/Pythia.cc	2022-01-17 16:06:42.000000000 +0100
++++ pythia8306_patched/src/Pythia.cc	2022-02-08 19:55:30.518733963 +0100
 @@ -469,7 +469,7 @@ bool Pythia::setPDFBPtr( PDFPtr pdfBPtrI
  
  // Routine to initialize with the variable values of the Beams kind.
@@ -5966,7 +5966,7 @@ diff -rupN pythia8306_original/src/Pythia.cc pythia8306_patched/src/Pythia.cc
        return false;
 diff -rupN pythia8306_original/src/ResonanceDecays.cc pythia8306_patched/src/ResonanceDecays.cc
 --- pythia8306_original/src/ResonanceDecays.cc	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/src/ResonanceDecays.cc	2022-01-04 20:07:17.000000000 +0100
++++ pythia8306_patched/src/ResonanceDecays.cc	2022-02-08 19:55:30.518733963 +0100
 @@ -192,12 +192,17 @@ bool ResonanceDecays::pickMasses() {
      mSumMin     += mMinBW[i];
    }
@@ -5991,7 +5991,7 @@ diff -rupN pythia8306_original/src/ResonanceDecays.cc pythia8306_patched/src/Res
      double wtMax = 2. * sqrtpos(1. - mSum*mSum / m2Mother);
 diff -rupN pythia8306_original/src/SusyLesHouches.cc pythia8306_patched/src/SusyLesHouches.cc
 --- pythia8306_original/src/SusyLesHouches.cc	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/src/SusyLesHouches.cc	2022-01-04 20:01:10.000000000 +0100
++++ pythia8306_patched/src/SusyLesHouches.cc	2022-02-08 19:55:30.518733963 +0100
 @@ -20,23 +20,34 @@ namespace Pythia8 {
  int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
    bool useDecayIn) {
