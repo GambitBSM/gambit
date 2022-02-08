@@ -32,14 +32,12 @@ includes = OrderedDict()
 # Main function for parsing classes
 
 def run():
-
     # Clear the module-level dict that keeps track of include statements
     includes.clear()
 
     #
     # Loop over all classes 
     #
-    
     for class_name_long, class_el in gb.loaded_classes_in_xml.items():
         # Clear all info messages
         infomsg.clearInfoMessages()
