@@ -824,9 +824,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False, is_template=False):
 
     # Check if this is an operator function
-    is_operator = False
-    if method_el.tag == 'OperatorMethod':
-        is_operator = True
+    is_operator = (method_el.tag == 'OperatorMethod')
 
     # If operator, check that we have a name for it
     if (is_operator) and (method_el.get('name') not in gb.operator_names.keys()):
@@ -864,10 +862,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
         args = args[:-remove_n_args]
 
     # Check constness (in the following sense: "double someFunction() const", i.e. a function that does not modify member variables.)
-    if ('const' in method_el.keys()) and (method_el.get('const')=='1'):
-        is_const = True
-    else:
-        is_const = False
+    is_const = ('const' in method_el.keys()) and (method_el.get('const') == '1')
 
     # Construct wrapper function name
     w_func_name = funcutils.constrWrapperName(method_el, include_full_namespace=include_full_namespace)
