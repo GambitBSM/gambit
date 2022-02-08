@@ -1459,8 +1459,7 @@ def getMemberElements(el, include_artificial=False):
                 # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
 
                 # Look for this member in cfg.load_templated_members
-                short_class_name = el.get('name').split('<', 1)[0]
-                if classutils.foundMatchingMethod(short_class_name, mem_el):
+                if classutils.foundMatchingMembers(classutils.getClassNameDict(el), mem_el):
                     # If found, append it
                     member_elements.append(mem_el)
                 else:
