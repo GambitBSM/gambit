@@ -821,7 +821,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
 # ====== constrWrapperFunction ========
 
-def constrWrapperFunction(method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False):
+def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False, is_template=False):
 
     # Check if this is an operator function
     is_operator = (method_el.tag == 'OperatorMethod')
@@ -838,6 +838,8 @@ def constrWrapperFunction(method_el, indent=cfg.indent, n_indents=0, remove_n_ar
 
 
     # Function return type
+    if is_template:
+        foundMatchingMembers()
 
     return_type_dict = utils.findType( gb.id_dict[method_el.get('returns')] )
     return_el     = return_type_dict['el']
@@ -846,6 +848,7 @@ def constrWrapperFunction(method_el, indent=cfg.indent, n_indents=0, remove_n_ar
     return_kw     = return_type_dict['cv_qualifiers']
     
     return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
+    # FIXME: ZELUN
     return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
 
@@ -1446,7 +1449,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         # JOEL: Check if this class is templated, if not use the regular method.
         # If it is, must go to the config folder and grab that type
         if is_template:
-            var_type = getTemplatedMemberVariableType(var_el, class_name=class_name)
+            var_type = getTemplatedMemberVariableType(var_el, class_name)
         else:
             var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
@@ -2231,12 +2234,15 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
 # ====== END: constrWrapperDef ========
 
+
+# Custom Error type to catch in function foundMatching Members 
+class UnfoundMember(Exception):
+    pass
+
 # ======= getTemplatedMemberVariableType ========
 
-def getTemplatedMemberVariableType(var_el, class_name=None, short_class_name=None):
-    assert((class_name is not None) or (short_class_name is not None))
-    if short_class_name is None:
-        short_class_name = class_name['short']
+def getTemplatedMemberVariableType(var_el, class_name):
+    short_class_name = class_name['short']
 
     # Get the list of member variables and the variable we're searching for's name
     vars = cfg.load_templated_members[short_class_name]['vars']
@@ -2256,24 +2262,33 @@ def getTemplatedMemberVariableType(var_el, class_name=None, short_class_name=Non
     
     # If it wasn't found, there's a problem
     # Raise an error to tell the user to add it to the config if they want it
-    raise Exception(f"{searching_var} wasn't found in the load_templated_members list in the config file")
+    raise UnfoundMember(f"{searching_var} wasn't found in the load_templated_members list in the config file")
 
 # ======= END: getTemplatedMemberVariableType ========
 
+
+
 # ======= getTemplatedMethodTypes ========
 
-def getTemplatedMethodTypes(func_el, class_name=None, short_class_name=None):
-    assert((class_name is not None) or (short_class_name is not None))
-    if short_class_name is None:
-        short_class_name = class_name['short']
+def getTemplatedMethodTypes(func_el, class_name):
+    short_class_name = class_name['short']
     
+    # Getting the specified templated types from the classname  
+    specified_templated_types = class_name['short_templ'].split('<', 1)[1].split('>', 1)[0].split(',')
+    for index, template_type in enumerate(specified_templated_types):
+        specified_templated_types[index] = template_type.strip()
+
     # Get return ready
     method_types = {'return': None, 'args': None}
 
     # Get the list of member methods and the method we're searching for's name
     
     methods = cfg.load_templated_members[short_class_name]['methods']
+    xml_args_info = funcutils.getArgs(func_el)
     searching_method = func_el.get('name')
+    # This is for the case where the function has the same name but the argument does not match exactly
+    # in the config file and these functions will be printed on the command line
+    possible_matches = []
 
     # Split by line and get the function's line and strip whitespace
     pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
@@ -2305,6 +2320,22 @@ def getTemplatedMethodTypes(func_el, class_name=None, short_class_name=None):
             method_types['args'] = []
             for arg in args:
                 method_types['args'].append(arg.strip())
+
+            # TODO: After getting the args check if the number of arguments matched 
+            if len(method_types['args']) != len(xml_args_info):
+                continue
+            
+            # looping through all the var checking 1 by 1 using name and type
+            # if different continue
+            same_args = True
+            for i, j in zip(method_types['args'], xml_args_info):
+                if i != j['type'] and j['type'] not in specified_templated_types:
+                    possible_matches.append(method)
+                    same_args = False
+                    break
+            
+            if not same_args:
+                continue
             
             # Return
             # print(f"Type information for {searching_method} = {method_types}")
@@ -2312,28 +2343,29 @@ def getTemplatedMethodTypes(func_el, class_name=None, short_class_name=None):
     
     # If it wasn't found, there's a problem
     # Raise an error to tell the user to add it to the config if they want it
-    raise Exception(f"{searching_method} wasn't found in the load_templated_members list in the config file")
+    raise UnfoundMember(
+        f"{searching_method} wasn't found in the load_templated_members list in the config file. Do you mean these functions {possible_matches} instead?")
 
 # ======= END: getTemplatedMethodTypes ========
 
-# ======= foundMatchingMethod ========
+# ======= foundMatchingMembers ========
 
-def foundMatchingMethod(short_class_name, el):
+def foundMatchingMembers(class_name, el):
     try:
         # Try and see if we can find the method types or variable types. If we can, it must exist
         if el.tag in ('OperatorMethod', 'Method', 'Constructor', 'Destructor'):
             # Must be a method
-            getTemplatedMethodTypes(el, short_class_name=short_class_name)
+            getTemplatedMethodTypes(el, class_name)
         else:
             # Must be a member variable
-            getTemplatedMemberVariableType(el, short_class_name=short_class_name)
+            getTemplatedMemberVariableType(el, class_name)
         
         # If it got here, there was no exception
         return True
-    except:
+    except UnfoundMember:
         return False
 
-# ======= END: foundMatchingMethod ========
+# ======= END: foundMatchingMembers ========
 
 # ======= constrWrapperSrc ========
 
