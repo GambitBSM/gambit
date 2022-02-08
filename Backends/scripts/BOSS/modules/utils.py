@@ -194,11 +194,11 @@ def isNative(el):
             file_el = gb.id_dict[el.get('file')]
 
         check_path = file_el.get('name')
-        
+
         for accepted_path in cfg.base_paths:
             if accepted_path in os.path.dirname(check_path):
                 return True
-        
+
         return False
 
     elif el.tag in cannot_check_tags:
@@ -224,7 +224,7 @@ def isStdType(el, class_name=None):
             namespaces_list = getNamespaces(el, include_self=True)
             if namespaces_list[0] == 'std':
                 return True
-    
+
     return False
 
 # ====== END: isStdType ========
@@ -1443,7 +1443,7 @@ def getMemberElements(el, include_artificial=False):
     if 'members' in el.keys():
         for mem_id in el.get('members').split():
             mem_el = gb.id_dict[mem_id]
-            
+
             if mem_el.tag in ['Method', 'OperatorMethod', 'Field', 'Variable'] and 'name' in mem_el.keys():
                 namespaces_list = getNamespaces(mem_el, include_self=True)
                 full_name = '::'.join(namespaces_list)
@@ -2462,7 +2462,7 @@ def fillAcceptedTypesList():
                 # print(f"{full_name} incomplete")
                 # continue
 
-            
+
     # Print final number of types classified
     print(f"  - {type_counter} types classified.")
     # Fill global list
@@ -2600,7 +2600,7 @@ def isTypeValid(type_name, xml_file):
     import modules.classutils as classutils
 
     trimmed_type_name = getBasicTypeName(type_name)
-    
+
     try:
         # Check if type_name already has an element we can use
         el = gb.all_name_dict[xml_file][trimmed_type_name]
@@ -2619,7 +2619,7 @@ def isTypeValid(type_name, xml_file):
             isKnownClass(el, class_name=class_name) or\
             isLoadedClass(el,  byname=False, class_name=class_name) or\
             isAcceptedEnum(el)
-            
+
             # Debugging print, get rid of later. Also get rid of return_bool
             if not return_bool:
                 with open("nonAcceptedList.txt", "a") as f:
@@ -2632,7 +2632,7 @@ def isTypeValid(type_name, xml_file):
             # Debugging print, get rid of later
             with open("nonAcceptedList.txt", "a") as f:
                 print(f"Not of class and blah {type_name}", file=f)
-            
+
             return False
     except:
         # We couldn't find the element.
@@ -2656,7 +2656,7 @@ def withinAcceptedNamespaces(type_name):
     for namespace in cfg.manual_accepted_namespaces:
         if withinNamespace(type_name, namespace + "::"):
             return True
-    
+
     return False
 
 # ====== END: withinAcceptedNamespaces ========
