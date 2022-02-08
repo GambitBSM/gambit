@@ -2346,8 +2346,12 @@ def getTemplatedMethodTypes(func_el, class_name):
     
     # If it wasn't found, there's a problem
     # Raise an error to tell the user to add it to the config if they want it
-    raise UnfoundMember(
-        f"{searching_method} wasn't found in the load_templated_members list in the config file. Do you mean these functions {possible_matches} instead?")
+    if len(possible_matches) == 1:
+        print(f"{searching_method} wasn't found in the load_templated_members list in the config file. But this is the only possible matches {possible_matches[0]} so we accept it for now please make a change if you wish not to accept it")
+        return method_types
+    else:  
+        raise UnfoundMember(
+            f"{searching_method} wasn't found in the load_templated_members list in the config file. Do you mean these functions {possible_matches} instead?")
 
 # ======= END: getTemplatedMethodTypes ========
 
