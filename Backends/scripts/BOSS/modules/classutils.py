@@ -2314,7 +2314,10 @@ def getTemplatedMethodTypes(func_el, class_name):
             
             # Find the args
             brackets = method[hi:last_bracket_index]
-            args = brackets.split(',')
+            if len(brackets) == 0:
+                args = []
+            else:
+                args = brackets.split(',')
 
             # For each argument in the brackets, add it to method_types['args']
             method_types['args'] = []
