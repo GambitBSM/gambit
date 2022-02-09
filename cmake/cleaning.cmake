@@ -126,4 +126,5 @@ add_custom_target(nuke-BOSS COMMAND ${CMAKE_COMMAND} -E remove_directory Backend
                             COMMAND ${CMAKE_COMMAND} -E remove Backends/scripts/BOSS/castxml*.tar.gz)
 add_custom_target(nuke-backends DEPENDS clean-backend-download clean-backend-install)
 add_custom_target(nuke-scanners DEPENDS clean-scanner-download clean-scanner-install)
-add_custom_target(nuke-all DEPENDS distclean nuke-contrib nuke-backends nuke-scanners nuke-BOSS)
+add_custom_target(nuke-datasets)
+add_custom_target(nuke-all DEPENDS distclean nuke-contrib nuke-backends nuke-scanners nuke-datasets nuke-BOSS)

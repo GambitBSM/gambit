@@ -44,6 +44,10 @@
 #          (stoecker@physik.rwth-aachen.de)
 #  \date 2020 Aug
 #
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2022 Feb
+#
 #************************************************
 
 # Constants
@@ -62,13 +66,19 @@ if [ $(( ${force_axel} + ${force_wget} + ${force_curl})) -gt 1 ]; then
   exit 1
 fi
 
+# If version number ($8) is set to "none", don't add "_version-number" to the file and path names
+version=_$8
+if [ "$8" = "none" ]; then
+  version=""
+fi
+
 # Download
 axel_worked=0
 suffix=$($2 -E echo $4 | grep -o '\(zip\|tar.gz\|tgz\)')
 if [ ! -z ${sufix} ]; then
   suffix=$($2 -E echo $4 | sed 's#.*\.##g')
 fi
-filename=$7_$8.${suffix}
+filename=$7${version}.${suffix}
 $2 -E make_directory $1 >/dev/null
 
 # Perform download only if the tarball does not already exist (e.g. it was moved there manually)
@@ -150,7 +160,7 @@ if [ "$5" != "none" ]; then
       $2 -E cmake_echo_color --red --bold  "Deleting downloaded file."
       # Delete the file if the md5 is bad, and make a stamp saying so, as cmake does not actually check if DOWNLOAD_COMMAND fails.
       $2 -E remove $1/${filename}
-      $2 -E touch $7_$8-stamp/$7_$8-download-failed
+      $2 -E touch $7${version}-stamp/$7${version}-download-failed
       exit 1
     fi
   }
