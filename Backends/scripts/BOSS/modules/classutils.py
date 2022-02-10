@@ -895,7 +895,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     if only_declaration:
         pass
     else:
-        w_func_body = funcutils.constrWrapperBody(return_type, func_name, args, return_is_loaded_class, keywords=return_kw)
+        w_func_body = funcutils.constrWrapperBody(return_type, func_name, args, return_is_loaded_class)
 
     # Combine code and add indentation
     wrapper_code  = ''
