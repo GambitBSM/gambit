@@ -120,7 +120,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
                         use_name = f"*{arg_dict['name']}.get_BEptr()"
                     elif arg_dict['type'].count('*') == 1:
                         use_name = f"(*{arg_dict['name']}).get_BEptr()"
-                    
+
                     args_seq += f"dynamic_cast< {cast_to_type} >({use_name})"
                 else:
                     args_seq += f"dynamic_cast< {cast_to_type} >({arg_dict['name']})"
