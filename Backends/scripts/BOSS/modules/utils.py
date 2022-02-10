@@ -127,8 +127,6 @@ def isTemplateClass(class_el, class_name=None):
 
 def isTemplateFunction(func_el):
     func_name = funcutils.getFunctionNameDict(func_el)
-
-    # ZELUN:MARK Why is template check logic like this?
     return '<' in func_name['long_templ']
 
 # ====== END: isTemplateFunction ========
@@ -224,7 +222,7 @@ def getTemplateBracket(el):
 
     # Match the pattern
     # TODO: Zelun the regex doesn't work for nested template brakets, defined on same line
-    # eg. template <typename T, template <typename TT> V>, template class ClassThree<double>
+    # eg. template <typename T1, template <typename T2> T3>, template class ClassThree<double>
     template_pattern = re.compile(r"template(\s)*<(.|\s)+?>")
     all_matches = template_pattern.finditer(trimmed_file_content)
 
@@ -1364,8 +1362,6 @@ def getMemberElements(el, include_artificial=False):
             # If it's templated, look for the elements in the config file. If not in config file, we don't want it.
             # Else, do normal operation
             if is_templated:
-                # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
-
                 # Look for this member in cfg.load_templated_members
                 class_name = classutils.getClassNameDict(el)
                 if classutils.foundMatchingMembers(class_name, mem_el):
@@ -2360,10 +2356,6 @@ def fillAcceptedTypesList():
 # ====== validType ========
 
 def validType(type_name, xml_file):
-    # JOEL: Long term, we probably want '... or (trimmed_type_name in cfg.load_classes)' instead since
-    # ideally the config file would allow you to have the name of a generic templated type and it
-    # includes ALL of them. Ie, you'd write 'ClassThree' in load_classes in the config file, not
-    # 'ClassThree<double>, ClassThree<int>, ClassThree<...>, ...' for usability.
     if type_name in cfg.load_classes:
         return True
 
@@ -2398,8 +2390,7 @@ def validType(type_name, xml_file):
     # Grab the locations of the outer brackets
     (lo, hi) = type_name_bracket_locs[0]
     stripped_type = type_name[:lo]
-
-    #  ZELUN hi != type_name_len - 1 breaking type with & as the last char
+    
     if not isTypeValid(stripped_type, xml_file) or hi != type_name_len - 1:
         # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
         return False
@@ -2764,8 +2755,7 @@ def xmlFilesToDicts(xml_files):
                 namespaces_list = getNamespaces(
                     el, include_self=True, xml_file_name=xml_file)
                 full_name = '::'.join(namespaces_list)
-
-                # JOEL: Have added this line to strip whitespace from the full_name key
+                
                 full_name = full_name.strip()
             else:
                 # Skip elements that don't have a name
@@ -2859,7 +2849,6 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
                 # If underlying type is a fundamental or standard type, accept it right away
                 if isFundamental(type_el) or isStdType(type_el):
-                    # Zelun: Modified to see if it shows the end level type in this dict \
                     gb.typedef_dict[typedef_name] = el
                     gb.final_typedef_dict[typedef_name] = type_el
 
@@ -2870,7 +2859,6 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
                     if type_name['long_templ'] in cfg.load_classes:
                         gb.typedef_dict[typedef_name] = el
-                        # Zelun: Modified to see if it shows the end level type in this dict \
                         gb.final_typedef_dict[typedef_name] = type_el
 
                 # If neither fundamental or class/struct, ignore it.

@@ -347,7 +347,7 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
 
         # Find out if argument type is base type of any accepted type
 
-        # TODO: JOEL: Commented out some parts because is_parent_of_accepted and arg_class_name are never used
+        # Commented out some parts because is_parent_of_accepted and arg_class_name are never used
         # is_parent_of_accepted = False
         # if utils.isNative(arg_el):
             # arg_class_name = classutils.getClassNameDict(arg_el)

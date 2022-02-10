@@ -207,6 +207,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             # Check if this member function makes use of loaded types
             uses_loaded_type = funcutils.usesLoadedType(el)
 
+            # TODO: JOEL: Something like this would follow the same structure as 'constrWrapperFunction', and also every other place this is repeated
             return_type_dict = utils.findType( gb.id_dict[el.get('returns')] )
             return_el     = return_type_dict['el']
             pointerness   = return_type_dict['pointerness']
@@ -522,16 +523,16 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl = '\n__START_GAMBIT_NAMESPACE__\n\n' + class_decl + '\n__END_GAMBIT_NAMESPACE__\n'
 
 
-    # JOEL: The following if statement, for ClassThree, adds these lines:
+    # TODO: JOEL: The following if statement, for ClassThree, adds these lines:
     # // Forward declaration for wrapper_creator.
     # template <>
     # CAT_3(BACKENDNAME,_,SAFE_VERSION)::ClassThree<double>* wrapper_creator<double>(CAT_3(BACKENDNAME,_,SAFE_VERSION)::Abstract_ClassThree<double>*);
     #
     # There needs to be another line before this which looks like this so there's actually a templated function to override:
     # template <typename T>
-    # CAT3(BACKENDNAME,,SAFE_VERSION)::ClassThree<T>* wrapper_creator(CAT3(BACKENDNAME,,SAFE_VERSION)::Abstract_ClassThree<T>);
+    # CAT3(BACKENDNAME,_,SAFE_VERSION)::ClassThree<T>* wrapper_creator(CAT3(BACKENDNAME,,SAFE_VERSION)::Abstract_ClassThree<T>);
     #
-    # The same idea applies for the next 2 if statements also which is labeled with JOEL.
+    # The same idea applies for the next 2 if statements
 
     # - Add forward declaration of wrapper_creator function (needed by the 'destructor pattern')
     if not file_for_gambit:
@@ -831,40 +832,43 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     else:
         func_name = method_el.get('name')
 
-
-    # Function return type
-    if is_template:
-        pass
-        # TODO: ZELUN fix this section fill in the arguments for the function
-        # foundMatchingMembers()
-
-    return_type_dict = utils.findType( gb.id_dict[method_el.get('returns')] )
+    return_type_dict = utils.findType(gb.id_dict[method_el.get('returns')])
     return_el     = return_type_dict['el']
     pointerness   = return_type_dict['pointerness']
     is_ref        = return_type_dict['is_reference']
-    return_kw     = return_type_dict['cv_qualifiers']
+    return_kw     = return_type_dict['cv_qualifiers']   
 
-    # return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
-    return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
-
+    # Check constness (in the following sense: "double someFunction() const", i.e. a function that does not modify member variables.)
+    is_const = ('const' in method_el.keys()) and (method_el.get('const') == '1')
 
     return_is_loaded_class = utils.isLoadedClass(return_el)
 
-    # Function arguments (get list of dicts with argument info)
-    args = funcutils.getArgs(method_el)
+    # Function return type
+    # TODO: JOEL: Make sure this actually works, not sure what exactly needs to be done in the 'if' and what in the 'else'.
+    # Ie there might be too much/too little done in this if/else.
+    # My thoughts are to just leave everything as is for now and only change what return_type and args are
+    if is_template:
+        # Get the function's types from config file
+        class_name = getClassNameDict(class_el, add_template_info=True)
+        func_types = getTemplatedMethodTypes(method_el, class_name)
+
+        return_type = func_types['return']
+        args = func_types['args']
+    else:
+        # return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
+        return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
+
+        # Function arguments (get list of dicts with argument info)
+        args = funcutils.getArgs(method_el)
 
     # Remove arguments when creating overloaded versions (for dealing with default argument values)
     if remove_n_args > 0:
         args = args[:-remove_n_args]
 
-    # Check constness (in the following sense: "double someFunction() const", i.e. a function that does not modify member variables.)
-    is_const = ('const' in method_el.keys()) and (method_el.get('const') == '1')
-
     # Construct wrapper function name
     w_func_name = funcutils.constrWrapperName(method_el, include_full_namespace=include_full_namespace)
     # if remove_n_args > 0:
     #     w_func_name += '_overload_' + str(remove_n_args)
-
 
     # Choose wrapper return type
     if return_is_loaded_class:
@@ -1441,9 +1445,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
 
         var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
-
-        # JOEL: Check if this class is templated, if not use the regular method.
-        # If it is, must go to the config folder and grab that type
+        
         if is_template:
             var_type = getTemplatedMemberVariableType(var_el, class_name)
         else:
@@ -1555,11 +1557,6 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             return_kw_str = return_kw_str.replace('const', '')
 
         # Arguments
-        # TODO: JOEL - If this current class is templated, this following list
-        # of args isn't valid since, for example, if we have a templated type on T
-        # that's specified on double, the args will come back as doubles not Ts.
-        # Need to add in functionality to deal with this.
-
         if is_template:
             method_type_dict = getTemplatedMethodTypes(func_el, class_name)
             args_type = method_type_dict['args']
@@ -2271,6 +2268,8 @@ def getTemplatedMemberVariableType(var_el, class_name):
 # ======= getTemplatedMethodTypes ========
 
 def getTemplatedMethodTypes(func_el, class_name):
+    # TODO: JOEL: Make sure that class_name['templ_vars'] and the config file agree with each other
+
     short_class_name = class_name['short']
 
     # Getting the specified templated types from the classname
@@ -2297,9 +2296,8 @@ def getTemplatedMethodTypes(func_el, class_name):
     for method in methods:
         m = re.search(pat, method)
         if bool(m):
-            # JOEL: TODO: Better checks for whether this match is correct. Currently, we just go
-            # with the first match we find which won't work in cases where a function is overloaded
-            # E.g. 'T min(T, T)' and 'T min(T, T, T)' would just totally break this
+            # TODO: JOEL: Do some proper testing where there are functions of the same name
+            # E.g. 'T min(T, T)' and 'T min(T, T, T)' should work, but hasn't been properly tested
 
             # Found it!
             # Get the type from the front
@@ -2323,8 +2321,7 @@ def getTemplatedMethodTypes(func_el, class_name):
             method_types['args'] = []
             for arg in args:
                 method_types['args'].append(arg.strip())
-
-            # TODO: After getting the args check if the number of arguments matched
+                
             if len(method_types['args']) != len(xml_args_info):
                 continue
 

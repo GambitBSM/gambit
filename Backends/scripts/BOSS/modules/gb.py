@@ -43,8 +43,6 @@ contains_pure_virtual_members = []
 file_dict = OrderedDict()
 std_types_dict = OrderedDict()
 typedef_dict = OrderedDict()
-# Zelun adding another global dictionary to store the end level types of typedefs
-# name -> final_type_element
 final_typedef_dict = OrderedDict()
 loaded_classes_in_xml = OrderedDict()
 func_dict = OrderedDict()
