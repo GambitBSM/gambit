@@ -4,12 +4,10 @@
 #                             #
 ###############################
 
-
-from ast import Or
 from collections import OrderedDict
 import os
-
 import modules.active_cfg as active_cfg
+
 exec("import configs." + active_cfg.module_name + " as cfg")
 
 
@@ -79,10 +77,10 @@ backend_types_dir_complete = os.path.join(
     boss_output_dir, backend_types_basedir, gambit_backend_name_full)
 
 for_gambit_basedir = 'for_gambit'
-for_gambit_backend_types_include_dir_complete = os.path.join(
-    boss_output_dir, for_gambit_basedir, 'include', backend_types_basedir, gambit_backend_name_full)
-for_gambit_backend_types_source_dir_complete = os.path.join(
-    boss_output_dir, for_gambit_basedir, 'source',  backend_types_basedir, gambit_backend_name_full)
+for_gambit_backend_types_include_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, 'include',
+                                                             backend_types_basedir, gambit_backend_name_full)
+for_gambit_backend_types_source_dir_complete = os.path.join(boss_output_dir, for_gambit_basedir, 'source',
+                                                            backend_types_basedir, gambit_backend_name_full)
 
 frontend_base_dir = 'frontends'
 frontend_dir_complete = os.path.join(boss_output_dir, frontend_base_dir)
@@ -149,35 +147,35 @@ operator_names = {
     "%": "percent",
     "&": "ampersand",
     "++": "plus_plus",
-          "--": "minus_minus",
-          "+=": "plus_equal",
-          "-=": "minus_equal",
-          "*=": "asterix_equal",
-          "/=": "slash_equal",
-          "%=": "percent_equal",
-          "&=": "ampersand_equal",
-          "|=": "bar_equal",
-          "^=": "caret_equal",
+    "--": "minus_minus",
+    "+=": "plus_equal",
+    "-=": "minus_equal",
+    "*=": "asterix_equal",
+    "/=": "slash_equal",
+    "%=": "percent_equal",
+    "&=": "ampersand_equal",
+    "|=": "bar_equal",
+    "^=": "caret_equal",
     "<<=": "double_angle_bracket_left_equal",
     ">>=": "double_angle_bracket_right_equal",
-          "[]": "square_bracket_pair",
-          "()": "round_bracket_pair",
-          "==": "double_equal",
-          "!=": "exclamation_equal",
-          ">": "angle_bracket_right",
-          "<": "angle_bracket_left",
-          ">=": "angle_bracket_right_equal",
-          "<=": "angle_bracket_left_equal",
-          "!": "exclamation",
-          "&&": "double_ampersand",
-          "|": "bar",
-          "^": "caret",
-          "<<": "double_angle_bracket_left",
-          ">>": "double_angle_bracket_right",
-          "->": "arrow",
-         "->*": "arrow_asterix",
-          ",": "comma",
-         "new": "new",
+    "[]": "square_bracket_pair",
+    "()": "round_bracket_pair",
+    "==": "double_equal",
+    "!=": "exclamation_equal",
+    ">": "angle_bracket_right",
+    "<": "angle_bracket_left",
+    ">=": "angle_bracket_right_equal",
+    "<=": "angle_bracket_left_equal",
+    "!": "exclamation",
+    "&&": "double_ampersand",
+    "|": "bar",
+    "^": "caret",
+    "<<": "double_angle_bracket_left",
+    ">>": "double_angle_bracket_right",
+    "->": "arrow",
+    "->*": "arrow_asterix",
+    ",": "comma",
+    "new": "new",
     "new[]": "new_square_bracket_pair",
     "delete": "delete",
     "delete[]": "delete_square_bracket_pair",
@@ -267,28 +265,13 @@ std_headers = {
     "std::add_const": "<type_traits>",
     "std::add_volatile": "<type_traits>",
     "std::add_cv": "<type_traits>",
-    "std::remove_const": "<type_traits>",
-    "std::remove_volatile": "<type_traits>",
-    "std::remove_cv": "<type_traits>",
-    "std::add_const": "<type_traits>",
-    "std::add_volatile": "<type_traits>",
-    "std::add_cv": "<type_traits>",
-    "std::remove_reference": "<type_traits>",
-    "std::add_lvalue_reference": "<type_traits>",
-    "std::add_rvalue_reference": "<type_traits>",
     "std::remove_reference": "<type_traits>",
     "std::add_lvalue_reference": "<type_traits>",
     "std::add_rvalue_reference": "<type_traits>",
     "std::make_signed": "<type_traits>",
     "std::make_unsigned": "<type_traits>",
-    "std::make_signed": "<type_traits>",
-    "std::make_unsigned": "<type_traits>",
     "std::remove_extent": "<type_traits>",
     "std::remove_all_extents": "<type_traits>",
-    "std::remove_extent": "<type_traits>",
-    "std::remove_all_extents": "<type_traits>",
-    "std::remove_pointer": "<type_traits>",
-    "std::add_pointer": "<type_traits>",
     "std::remove_pointer": "<type_traits>",
     "std::add_pointer": "<type_traits>",
     "std::aligned_storage": "<type_traits>",
@@ -298,14 +281,7 @@ std_headers = {
     "std::common_type": "<type_traits>",
     "std::underlying_type": "<type_traits>",
     "std::result_of": "<type_traits>",
-    "std::aligned_storage": "<type_traits>",
     "std::aligned_union": "<type_traits>",
-    "std::decay": "<type_traits>",
-    "std::enable_if": "<type_traits>",
-    "std::conditional": "<type_traits>",
-    "std::common_type": "<type_traits>",
-    "std::underlying_type": "<type_traits>",
-    "std::result_of": "<type_traits>",
     "std::bitset": "<bitset>",
     "std::function": "<functional>",
     "std::mem_fn": "<functional>",
