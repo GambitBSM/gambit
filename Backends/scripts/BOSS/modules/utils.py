@@ -270,7 +270,7 @@ def getSpecTemplateTypes(input_type, byname=False):
             namespaces_list = getNamespaces(el, include_self=True)
             input_name = '::'.join(namespaces_list)
         else:
-            raise Exception("Don't know how to get template types from XML element with tag: %s" % el.tag)
+            raise Exception(f"Don't know how to get template types from XML element with tag: {el.tag}")
 
     # Standardize the spacing between template brackets to simplify the parsing
     while "<<" in input_name:
@@ -341,8 +341,7 @@ def getAllTemplateTypes(type_name):
     current_type_name = type_name
     while True:
 
-        namespace, short_type_name = removeNamespace(
-            current_type_name, return_namespace=True)
+        namespace, short_type_name = removeNamespace(current_type_name, return_namespace=True)
         type_name_parts.append(short_type_name)
         if namespace == "":
             break
@@ -2339,17 +2338,11 @@ def fillAcceptedTypesList():
                 if type_counter % 500 == 0:
                     print(f"  - {type_counter} types classified...")
 
-            elif el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
-                # Print statement for debugging.
-                # Print anything that castxml considers a type but our program rejects
-                with open("nonAcceptedList.txt", "a") as f:
-                    print(f"{full_name}\n\n", file=f)
-
-                # Skip incomplete types
-                # TODO: incomplete test should be test in other tests
-                # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
-                # print(f"{full_name} incomplete")
-                # continue
+        # Skip incomplete types, not sure where it goes??
+        # TODO: incomplete test should be test in other tests
+        # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
+        # print(f"{full_name} incomplete")
+        # continue
 
 
     # Print final number of types classified
@@ -2488,18 +2481,11 @@ def isTypeValid(type_name, xml_file):
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
             class_name = classutils.getClassNameDict(el)
 
-            return_bool = isFundamental(el) or\
-            isStdType(el, class_name=class_name) or\
-            isKnownClass(el, class_name=class_name) or\
-            isLoadedClass(el, byname=False, class_name=class_name) or\
-            isAcceptedEnum(el)
-
-            # Debugging print, get rid of later. Also get rid of return_bool
-            if not return_bool:
-                with open("nonAcceptedList.txt", "a") as f:
-                    print(f"Not of any of the 5 types {type_name}", file=f)
-
-            return return_bool
+            return isFundamental(el) or\
+                   isStdType(el, class_name=class_name) or\
+                   isKnownClass(el, class_name=class_name) or\
+                   isLoadedClass(el, byname=False, class_name=class_name) or\
+                   isAcceptedEnum(el)
 
         # We can't accept, it's not a type!
         return False
@@ -2507,7 +2493,7 @@ def isTypeValid(type_name, xml_file):
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
         return withinAcceptedNamespaces(type_name) or (trimmed_type_name in gb.fundamental_equiv_list) or\
-            (trimmed_type_name in cfg.manual_accepted_types)
+               (trimmed_type_name in cfg.manual_accepted_types)
 
 # ====== END: isTypeValid ========
 
