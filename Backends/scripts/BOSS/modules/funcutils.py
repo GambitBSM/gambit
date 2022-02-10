@@ -468,7 +468,7 @@ def getFunctionNameDict(func_el):
     # Check that the 'name' XML entry exists.
     xml_id = func_el.get('id')
     if 'name' not in func_el.keys():
-        raise KeyError('XML element %s does not contain the key "name".' % (xml_id))
+        raise KeyError(f'XML element {xml_id} does not contain the key "name".')
 
     # Get information about the return type.
     return_type_dict = utils.findType(func_el)
