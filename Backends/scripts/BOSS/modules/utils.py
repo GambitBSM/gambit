@@ -1362,14 +1362,19 @@ def getMemberElements(el, include_artificial=False):
             # If it's templated, look for the elements in the config file. If not in config file, we don't want it.
             # Else, do normal operation
             if is_templated:
+                # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
+
                 # Look for this member in cfg.load_templated_members
                 class_name = classutils.getClassNameDict(el)
-                if classutils.foundMatchingMembers(class_name, mem_el):
+                if include_artificial and 'artificial' in mem_el.keys():
+                    member_elements.append(mem_el)
+                elif classutils.foundMatchingMembers(class_name, mem_el) and (include_artificial or 'artificial' not in mem_el.keys()):
                     # If found, append it
                     member_elements.append(mem_el)
                 else:
                     # Didn't find it, give this info to the user
-                    print(f"{mem_el.get('name')} was not found in the config file in load_templated_members")
+                    print(
+                        f"{mem_el.get('name')} was not found in the config file in load_templated_members")
             else:
                 # Check if this member element should be ditched
                 if include_artificial:
