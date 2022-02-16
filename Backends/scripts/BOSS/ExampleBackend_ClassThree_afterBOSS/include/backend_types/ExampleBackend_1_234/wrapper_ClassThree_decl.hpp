@@ -13,21 +13,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 {
   
   
-  template<typename T>
-  class ClassThree : public WrapperBase
+  template<>
+  class ClassThree<double> : public WrapperBase
   {
       // Member variables: 
     public:
       // -- Static factory pointers: 
-      static Abstract_ClassThree<T>* (*__factory0)();
+      static Abstract_ClassThree<double>* (*__factory0)();
   
       // -- Other member variables: 
   
       // Member functions: 
     public:
-      T pop();
+      double pop();
   
-      void push(T item);
+      void push(double item);
   
       int size();
   
@@ -37,7 +37,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       ClassThree();
   
       // Special pointer-based constructor: 
-      ClassThree(Abstract_ClassThree<T>* in);
+      ClassThree(Abstract_ClassThree<double>* in);
   
       // Copy constructor: 
       ClassThree(const ClassThree& in);
@@ -49,10 +49,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       ~ClassThree();
   
       // Returns correctly casted pointer to Abstract class: 
-      Abstract_ClassThree<T>* get_BEptr() const;
+      Abstract_ClassThree<double>* get_BEptr() const;
   
   };
   
+
+  // 
+  // Anders: Repeat everything above for any other specializations, e.g. ClassThree<int>
+  // 
+
 }
 
 

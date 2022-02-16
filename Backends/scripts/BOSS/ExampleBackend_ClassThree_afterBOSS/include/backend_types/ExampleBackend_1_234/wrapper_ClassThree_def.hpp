@@ -10,28 +10,24 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   
   // Member functions: 
-  template <typename T>
-  inline T ClassThree<T>::pop()
+  inline double ClassThree<double>::pop()
   {
     return get_BEptr()->pop();
   }
   
-  template <typename T>
-  inline void ClassThree<T>::push(T item)
+  inline void ClassThree<double>::push(double item)
   {
     get_BEptr()->push(item);
   }
   
-  template <typename T>
-  inline int ClassThree<T>::size()
+  inline int ClassThree<double>::size()
   {
     return get_BEptr()->size();
   }
   
   
   // Wrappers for original constructors: 
-  template <typename T>
-  inline ClassThree<T>::ClassThree() :
+  inline ClassThree<double>::ClassThree() :
     WrapperBase(__factory0())
   {
     get_BEptr()->set_wptr(this);
@@ -39,8 +35,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Special pointer-based constructor: 
-  template <typename T>
-  inline ClassThree<T>::ClassThree(Abstract_ClassThree<T>* in) :
+  inline ClassThree<double>::ClassThree(Abstract_ClassThree<double>* in) :
     WrapperBase(in)
   {
     get_BEptr()->set_wptr(this);
@@ -48,8 +43,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Copy constructor: 
-  template <typename T>
-  inline ClassThree<T>::ClassThree(const ClassThree& in) :
+  inline ClassThree<double>::ClassThree(const ClassThree& in) :
     WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
   {
     get_BEptr()->set_wptr(this);
@@ -57,8 +51,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Assignment operator: 
-  template <typename T>
-  inline ClassThree<T>& ClassThree<T>::operator=(const ClassThree& in)
+  inline ClassThree<double>& ClassThree<double>::operator=(const ClassThree& in)
   {
     if (this != &in)
     {
@@ -69,8 +62,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   
   // Destructor: 
-  template <typename T>
-  inline ClassThree<T>::~ClassThree()
+  inline ClassThree<double>::~ClassThree()
   {
     if (get_BEptr() != 0)
     {
@@ -85,11 +77,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Returns correctly casted pointer to Abstract class: 
-  template <typename T>
-  inline Abstract_ClassThree<T>* ClassThree<T>::get_BEptr() const
+  inline Abstract_ClassThree<double>* ClassThree<double>::get_BEptr() const
   {
-    return dynamic_cast<Abstract_ClassThree<T>*>(BEptr);
+    return dynamic_cast<Abstract_ClassThree<double>*>(BEptr);
   }
+
+
+  // 
+  // Anders: Repeat everything above for any other specializations, e.g. ClassThree<int>
+  // 
   
 }
 
