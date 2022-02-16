@@ -88,7 +88,6 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
     for arg in args:
         # We must create a new copy since we may be altering the content later
         arg_dict = OrderedDict(arg)
-
         if arg_dict['loaded_class'] and (add_namespace_to_loaded != ''):
             add_namespaces = add_namespace_to_loaded.split('::')
             arg_dict['type_namespaces'] = add_namespaces + arg_dict['type_namespaces']

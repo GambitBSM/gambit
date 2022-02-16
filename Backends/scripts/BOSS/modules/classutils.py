@@ -1402,6 +1402,17 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
                 use_args = args
             else:
                 use_args = args[:-remove_n_args]
+            
+            if is_template:
+                method_type_dict = getTemplatedMethodTypes(
+                    constr_el, class_name=class_name)
+                for i, j in enumerate(zip(use_args, method_type_dict['args'])):
+                    if len(j[1].split()) == 2:
+                        config_arg_name = j[1].split()[1]
+                    else:
+                        config_arg_name = 'not_match'
+                    if j[0]['name'] == config_arg_name:
+                        use_args[i]['type'] = j[1].split()[0]
 
             args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
@@ -1584,6 +1595,16 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
                 else:
                     use_args = args[:-remove_n_args]
 
+                if is_template:
+                    method_type_dict = getTemplatedMethodTypes(
+                    func_el, class_name=class_name)
+                    for i, j in enumerate(zip(use_args, method_type_dict['args'])):
+                        if len(j[1].split()) == 2:
+                            config_arg_name = j[1].split()[1]
+                        else:
+                            config_arg_name = 'not_match'
+                        if j[0]['name'] == config_arg_name:
+                            use_args[i]['type'] = j[1].split()[0]
                 # Argument bracket
                 args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
 
@@ -1640,13 +1661,26 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             # Check that the constructor is acceptable
             if funcutils.ignoreFunction(constr_el, limit_pointerness=True, remove_n_args=remove_n_args):
                 continue
-
+            
+            
             if remove_n_args == 0:
                 use_args         = args
                 # factory_use_args = factory_args
             else:
                 use_args         = args[:-remove_n_args]
                 # factory_use_args = factory_args[:-remove_n_args]
+
+            if is_template:
+                method_type_dict = getTemplatedMethodTypes(
+                    constr_el, class_name=class_name)
+                for i, j in enumerate(zip(use_args, method_type_dict['args'])):
+                    if len(j[1].split()) == 2:
+                        config_arg_name = j[1].split()[1]
+                    else:
+                        config_arg_name = 'not_match'
+                    if j[0]['name'] == config_arg_name:
+                        use_args[i]['type'] = j[1].split()[0]
+                                
 
             args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
 
@@ -2279,18 +2313,27 @@ def getTemplatedMethodTypes(func_el, class_name):
 
     # Get return ready
     method_types = {'return': None, 'args': None}
-
-    # Get the list of member methods and the method we're searching for's name
-
-    methods = cfg.load_templated_members[short_class_name]['methods']
     xml_args_info = funcutils.getArgs(func_el)
     searching_method = func_el.get('name')
-    # This is for the case where the function has the same name but the argument does not match exactly
-    # in the config file and these functions will be printed on the command line
-    possible_matches = []
+
+
+    # Get the list of member methods and the method we're searching for's name
+    if func_el.tag == 'Constructor':
+        methods = cfg.load_templated_members[short_class_name]['Constructor']
+        pat = re.compile(rf"[\s]*{re.escape(searching_method)}[\s]*\(")
+    elif func_el.tag == 'OperatorMethod':
+        methods = cfg.load_templated_members[short_class_name]['OperatorMethod']
+        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+    elif func_el.tag == 'Method':
+        methods = cfg.load_templated_members[short_class_name]['methods']
+        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+    # For cases when it is a destructor
+    else:
+        methods = cfg.load_templated_members[short_class_name]['methods']
+        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+
 
     # Split by line and get the function's line and strip whitespace
-    pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
 
     # Try and find our method in methods
     for method in methods:
@@ -2305,7 +2348,11 @@ def getTemplatedMethodTypes(func_el, class_name):
             hi = m.end()
 
             # Put the return type into the return variable
-            method_types['return'] = method[:lo]
+            # TODO: Operator Methods might have a type that is not the bottom type
+            if func_el.tag == 'Constructor' or func_el.tag == 'Destructor':
+                method_types['return'] = ''
+            else:
+                method_types['return'] = method[:lo]
 
             # Find the last ')'
             last_bracket_index = max([i for i, ltr in enumerate(method) if ltr == ')'])
@@ -2329,8 +2376,7 @@ def getTemplatedMethodTypes(func_el, class_name):
             # if different continue
             same_args = True
             for i, j in zip(method_types['args'], xml_args_info):
-                if i != j['type'] and j['type'] not in specified_templated_types:
-                    possible_matches.append(method)
+                if i != j['type'] and i != (j['type'] + ' ' +j['name']) and j['type'] not in specified_templated_types:
                     same_args = False
                     break
 
@@ -2343,22 +2389,24 @@ def getTemplatedMethodTypes(func_el, class_name):
 
     # If it wasn't found, there's a problem
     # Raise an error to tell the user to add it to the config if they want it
-    if len(possible_matches) == 1:
-        print(f"{searching_method} wasn't found in the load_templated_members list in the config file. But this is the only possible matches {possible_matches[0]} so we accept it for now please make a change if you wish not to accept it")
-        return method_types
-    else:
-        raise UnfoundMember(
-            f"{searching_method} wasn't found in the load_templated_members list in the config file. Do you mean these functions {possible_matches} instead?")
+    raise UnfoundMember(
+        f"{searching_method} wasn't found in the load_templated_members list in the config file.")
 
 # ======= END: getTemplatedMethodTypes ========
 
 # ======= foundMatchingMembers ========
 
 def foundMatchingMembers(class_name, el):
+    """
+    This function is responsible in finding if there's any matching member inside the config file
+    for a templated class
+    """
     try:
         # Try and see if we can find the method types or variable types. If we can, it must exist
         if el.tag in ('OperatorMethod', 'Method', 'Constructor', 'Destructor'):
             # Must be a method
+            if el.tag == 'Constructor':
+                print("this is a constructor")
             getTemplatedMethodTypes(el, class_name)
         else:
             # Must be a member variable

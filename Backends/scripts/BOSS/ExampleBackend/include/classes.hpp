@@ -15,7 +15,11 @@ public:
   void push(T item);
   int size();
   T var;
-  
+  T min(T,T,T);
+  ClassThree(T second): var{second} {}
+  ClassThree(int first): curr_size{first} {}
+
+
 private:
   std::vector<T> stack;
   int curr_size;
