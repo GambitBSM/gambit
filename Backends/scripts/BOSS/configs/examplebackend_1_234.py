@@ -63,7 +63,7 @@ load_classes = [
 
 # ZELUN: When the argument has a name in the original hpp file then supply that argument in
 load_templated_members = {
-    'ClassThree': {'vars': ['T var'], 'methods': ['K pop()',  'T pop()', 'void push(T)', 'int size()', 'T min(T,T,T)'], 'Constructor': ['ClassThree(T second)', 'ClassThree(int first)'], 'OperatorMethod': []}
+    'ClassThree': {'vars': ['T var'], 'methods': ['T pop()', 'void push(T)', 'int size()', 'T min(T,T,T)'], 'Constructor': ['ClassThree(T second)', 'ClassThree(int first)'], 'OperatorMethod': []}
 }
 
 load_functions = [

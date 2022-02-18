@@ -264,15 +264,27 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         pass
     elif is_template and (class_name['long'] not in templ_spec_done):
         spec_template_types = utils.getSpecTemplateTypes(class_el)
-        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=cfg.indent, file_for_gambit=file_for_gambit, template_types=spec_template_types, has_copy_constructor=has_copy_constructor, construct_assignment_operator=construct_assignment_operator)
+        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
+                                                         indent=cfg.indent, file_for_gambit=file_for_gambit, 
+                                                         template_types=spec_template_types,
+                                                         has_copy_constructor=has_copy_constructor, 
+                                                         construct_assignment_operator=construct_assignment_operator, specialized_version=False)
         class_decl += '\n'
     else:
         class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces,
                                                          indent=cfg.indent, file_for_gambit=file_for_gambit,
                                                          has_copy_constructor=has_copy_constructor,
-                                                         construct_assignment_operator=construct_assignment_operator)
+                                                         construct_assignment_operator=construct_assignment_operator, specialized_version=False)
         class_decl += '\n'
 
+    # TODO:ZELUN this is how I am adding the specialzied version of Abstract_Classes with a optional argument for 
+    # specialized version if not wanted in the future can just delete it or comment it out
+    class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces,
+                                                     indent=cfg.indent, file_for_gambit=file_for_gambit,
+                                                     template_types=spec_template_types,
+                                                     has_copy_constructor=has_copy_constructor,
+                                                     construct_assignment_operator=construct_assignment_operator, specialized_version=True)
+    class_decl += '\n'
     # - Register code
     gb.new_code[abstr_class_fname]['code_tuples'].append((-1, class_decl))
 

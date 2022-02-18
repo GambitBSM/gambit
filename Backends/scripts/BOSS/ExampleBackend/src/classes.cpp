@@ -23,3 +23,7 @@ int ClassThree<T>::size()
 {
   return stack.size();
 }
+
+
+// Instantiate a <double> specialization of ClassThree:
+template class ClassThree<double>;

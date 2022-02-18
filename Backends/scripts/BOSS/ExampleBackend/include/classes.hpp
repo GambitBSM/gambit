@@ -14,11 +14,6 @@ public:
   T pop();
   void push(T item);
   int size();
-  T var;
-  T min(T,T,T);
-  ClassThree(T second): var{second} {}
-  ClassThree(int first): curr_size{first} {}
-
 
 private:
   std::vector<T> stack;
@@ -26,9 +21,6 @@ private:
 };
 
 
-// Instantiate a <double> specialization of ClassThree:
-class Dummy {
-  ClassThree<double> var;
-};
+static ClassThree<double> __BOSS_dummy_ClassThree_double_instance__;
 
 #endif
