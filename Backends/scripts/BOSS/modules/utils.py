@@ -2350,9 +2350,11 @@ def fillAcceptedTypesList():
     print(f"  - {type_counter} types classified.")
     # Fill global list
     gb.accepted_types = list(all_types)
-    with open("./accepted_List.txt", "a") as f:
-        for types in gb.accepted_types:
-            print(types, file=f)
+    # TODO:ZELUN if need to debug accepted types in the program 
+    # This print lines here could be helpful
+    # with open("./accepted_List.txt", "a") as f:
+    #     for types in gb.accepted_types:
+    #         print(types, file=f)
 
 
 # ====== END: fillAcceptedTypesList ========
