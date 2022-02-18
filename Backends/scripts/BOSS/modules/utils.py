@@ -1365,9 +1365,6 @@ def getMemberElements(el, include_artificial=False):
                 # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
 
                 # Look for this member in cfg.load_templated_members
-                # TODO: debugging line delete this later
-                if mem_el.get('name') == 'ClassThree':
-                    print("debug line")
                 class_name = classutils.getClassNameDict(el)
                 if include_artificial and 'artificial' in mem_el.keys():
                     member_elements.append(mem_el)

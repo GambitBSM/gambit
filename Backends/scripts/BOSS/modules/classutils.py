@@ -264,8 +264,6 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             # One overloaded version for each set of default arguments
             for remove_n_args in range(n_overloads+1):
 
-                # TODO:Zelun not too sure how to fit the case when it is a operator and uses_loaded_types
-                # like in the code section below for non-templated types
                 if is_template and not specialized_version:
                     w_func_name = el.get('name')
                     w_args_bracket_nonames = '(' + ', '.join(args) + ')'
@@ -2471,8 +2469,6 @@ def foundMatchingMembers(class_name, el):
         # Try and see if we can find the method types or variable types. If we can, it must exist
         if el.tag in ('OperatorMethod', 'Method', 'Constructor', 'Destructor'):
             # Must be a method
-            if el.tag == 'Constructor':
-                print("this is a constructor")
             getTemplatedMethodTypes(el, class_name)
         else:
             # Must be a member variable
