@@ -1403,17 +1403,6 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             else:
                 use_args = args[:-remove_n_args]
             
-            if is_template:
-                method_type_dict = getTemplatedMethodTypes(
-                    constr_el, class_name=class_name)
-                for i, j in enumerate(zip(use_args, method_type_dict['args'])):
-                    if len(j[1].split()) == 2:
-                        config_arg_name = j[1].split()[1]
-                    else:
-                        config_arg_name = 'not_match'
-                    if j[0]['name'] == config_arg_name:
-                        use_args[i]['type'] = j[1].split()[0]
-
             args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
             # Factory pointer name
@@ -1595,16 +1584,6 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
                 else:
                     use_args = args[:-remove_n_args]
 
-                if is_template:
-                    method_type_dict = getTemplatedMethodTypes(
-                    func_el, class_name=class_name)
-                    for i, j in enumerate(zip(use_args, method_type_dict['args'])):
-                        if len(j[1].split()) == 2:
-                            config_arg_name = j[1].split()[1]
-                        else:
-                            config_arg_name = 'not_match'
-                        if j[0]['name'] == config_arg_name:
-                            use_args[i]['type'] = j[1].split()[0]
                 # Argument bracket
                 args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
 
@@ -1669,18 +1648,6 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             else:
                 use_args         = args[:-remove_n_args]
                 # factory_use_args = factory_args[:-remove_n_args]
-
-            if is_template:
-                method_type_dict = getTemplatedMethodTypes(
-                    constr_el, class_name=class_name)
-                for i, j in enumerate(zip(use_args, method_type_dict['args'])):
-                    if len(j[1].split()) == 2:
-                        config_arg_name = j[1].split()[1]
-                    else:
-                        config_arg_name = 'not_match'
-                    if j[0]['name'] == config_arg_name:
-                        use_args[i]['type'] = j[1].split()[0]
-                                
 
             args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
 
