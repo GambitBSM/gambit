@@ -279,6 +279,7 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
 
     # TODO:ZELUN this is how I am adding the specialzied version of Abstract_Classes with a optional argument for 
     # specialized version if not wanted in the future can just delete it or comment it out
+    # Cuurent works for only 1 specialization
     class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces,
                                                      indent=cfg.indent, file_for_gambit=file_for_gambit,
                                                      template_types=spec_template_types,

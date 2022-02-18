@@ -1372,9 +1372,10 @@ def getMemberElements(el, include_artificial=False):
                     # If found, append it
                     member_elements.append(mem_el)
                 else:
-                    # Didn't find it, give this info to the user
-                    print(
-                        f"{mem_el.get('name')} was not found in the config file in load_templated_members")
+                    if not ('artificial' in mem_el.keys() and not include_artificial):
+                        # Didn't find it, give this info to the use
+                        print(
+                            f"{mem_el.get('name')} was not found in the config file in load_templated_members")
             else:
                 # Check if this member element should be ditched
                 if include_artificial:
