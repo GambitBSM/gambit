@@ -1732,7 +1732,9 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
         decl_code += 2*indent + class_name['short'] + '(const ' + class_name['short'] +'& in);\n'
 
     # Add wrappers for all operators except the artificial ones which were filtered out prior
-    # TODO: subject to change don't think this is working 100% the way we want it to
+    # TODO: ZELUN subject to change
+    # This is used to load the operators in wrapper_decl however I am not exactly sure about the 
+    # format we want it in so it is still subject to update
     temp_code = ''
     current_access = ''
     for oper_el in class_operators:
