@@ -173,7 +173,7 @@ double LoopFunctions::C4q(char q, double muW, double Lambda, double Ctil_u, doub
 
     double res = std::pow(vev,3)/(std::sqrt(2) * std::pow(Lambda,2))*(
         + as51lMh*as51lMh/(8*pi*pi) * 1/mt * Ctil_t * xth*DTPHI(1/(4*xth))
-        + as51lMh*as51lMh/(8*pi*pi) * 1/mq * Ctilq * xth*((2*xth-1)*DTPHI(1/(4*xth)) - 2*(2+std::log(xth)) )
+        + as51lMh*as51lMh/(8*pi*pi) * 1/mq * Ctilq * xth*(-(2*xth-1)*DTPHI(1/(4*xth)) + 2*(2+std::log(xth)) )
 	+ as51lMh*aMZ/(96*pi*pi*cw2) * 1/mq * Ctilq * (2*Qq*Qq*sw2 + pm*Qq)*
 		(
 		(3*xhz*xhz*xhz - 18*xhz*xhz + 24*xhz)*DTPHI(xhz/4) + 6*xhz*(1+2*std::log(xhz))

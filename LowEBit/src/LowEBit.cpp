@@ -716,7 +716,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
          result.u = -sqrt(2.)*gf/pow(gsat2GeV,2)*mu*c.Cu[2]*gev2cm;
          result.d = -sqrt(2.)*gf/pow(gsat2GeV,2)*md*c.Cd[2]*gev2cm;
          result.s = -sqrt(2.)*gf/pow(gsat2GeV,2)*ms*c.Cs[2]*gev2cm;
-         result.w = sqrt(2.)*gf/pow(gsat2GeV,2)*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
+         result.w = sqrt(2.)*gf/pow(gsat2GeV,1)*c.Cw[1]*gev2cm; //Ow = -1/3 gs f GGG. A 1/2 stays outside the dipole. Therefore the 2/3
 	 std::cout << "Cu4(2GeV): " << c.Cu[2] << std::endl;
 	 std::cout << "Cd4(2GeV): " << c.Cd[2] << std::endl;
 	 std::cout << "cdu: " << result.u << std::endl;
@@ -810,8 +810,21 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
       }
 	  void lnL_EDM_n_gaussianOverall(double &result)
 	  {
+
+  	
 			using namespace Pipes::lnL_EDM_n_gaussianOverall;
+		  dq dCEDM = *Dep::CEDM_q;
+		  dq dEDM = *Dep::EDM_q;
+
+
+		  double cdu = dCEDM.u;
+		  double cdd = dCEDM.d;
+		  double w = dCEDM.w;
+		  double du = dEDM.u;
+		  double dd = dEDM.d;
+
 			double mu = 0., sig = 1.1E-26;// 2103.01898 //mu=-0.0E-26 , sig: 1.5(stat)+0.7(sys)
+    	 		double e = sqrt(4.*pi*aMZ);
 			// mu and sig from arXiv:hep-ex/0602020 (sig is systematic and stat. errors added in quadrature)
 			// TODO: Systematic error is supposed to be uniformly distributed, not Gaussian -- adjust this
 			// likelihood accordingly?
@@ -819,7 +832,9 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 			//
 
 	
-			result = -1./2*pow((*Dep::EDM_n - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
+			double sigThHad = sqrt(0.3025*(cdd+0.5*cdu)*(cdd+0.5*cdu) + 0.0009*dd*dd/e + 0.00025*du*du/e + 0.000153*w*w);
+			sigThHad = 0.;
+			result = -1./2*pow((*Dep::EDM_n - mu),2)/(sig*sig + sigThHad*sigThHad);//std::log(2*pi) + 2*std::log(sig) 
 //			std::fstream dne("/home/dskodras/gambitgit/LowEBit/src/dne.dat", std::ios::app);
 //		  	if (dne.is_open()){
 //				dne << "dne: " << *Dep::EDM_n << "\n";
@@ -941,22 +956,36 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 	
          dq dCEDM = *Dep::CEDM_q;
          dl dEDM = *Dep::EDM_l;
+	 double nEDM = *Dep::EDM_n;
 	  // 2.(+4 -1) 
-         result = 1.0E-3  * 
+	 result = 
+	 	- 3.8E-4 * (0.5*(dCEDM.u+dCEDM.d) + 4*(dCEDM.u-dCEDM.d))
+		- 2.8E-4 * 1.895 * nEDM 
+		+ 1.0E-2 * dEDM.e
+		;
+	 cout << "cdu: " << dCEDM.u << endl;	 
+	 cout << "cdd: " << dCEDM.d << endl;	 
+	 cout << "schiff.u: " << -3.8e-4 * 0.5*dCEDM.u + 4*dCEDM.u;
+	 cout << "schiff.d: " << -3.8e-4 * 0.5*dCEDM.d - 4*dCEDM.d;
+	 cout << "nEDM: " << nEDM;
+	 // nEDM = d_n/e
+/*         result = 1.0E-3  * 
 		 	(*Param["CSchiff_Hg"]) * gPiNN * 
 			 (0.5*(*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) + 2*(*Param["a1_Hg"])*(dCEDM.u - dCEDM.d)) 
 			 + *Param["ae_Hg"]*dEDM.e
+			 + -2.8E-4 * 1.895 * nEDM //nEDM = d_n/e
+*/
 			 ;
-//	 result = -1.8E-4 * (4)*(dCEDM.u - dCEDM.d);
+/*	 result = -1.8E-4 * (4)*(dCEDM.u - dCEDM.d);
 	 cout << "cdu: " << dCEDM.u << endl;	 
 	 cout << "cdd: " << dCEDM.d << endl;	 
 	 cout << "g0: " << 0.5*(*Param["a0_Hg"])*(dCEDM.u + dCEDM.d) << endl;
 	 cout << "g1: " << 2*(*Param["a1_Hg"])*(dCEDM.u - dCEDM.d) << endl;
 	 cout << "de: " << dEDM.e << endl;	 
 	 cout << "ge: " << *Param["ae_Hg"]*dEDM.e << endl;	 
-//	 cout << "d_e: " << dEDM.e << endl;	 
+	 cout << "d_e: " << dEDM.e << endl;	 
 	 cout << "dHg: " << result << endl;
-	 cout << "approx dHg: " << 1.0E-3*2.8*13.5*((0.01*0.5 + 0.02*2)*dCEDM.u) << endl;
+	 cout << "approx dHg: " << 1.0E-3*2.8*13.5*((0.01*0.5 + 0.02*2)*dCEDM.u) << endl;*/
       }
 
       void lnL_EDM_199Hg_step(double &result)
