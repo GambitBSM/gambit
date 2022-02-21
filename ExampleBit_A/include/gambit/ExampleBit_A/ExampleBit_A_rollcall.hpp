@@ -169,6 +169,19 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Similar to the above test function, but using a Python backend
+  // _Anders
+  #ifdef HAVE_PYBIND11
+    #define CAPABILITY normaldist_loglike_python
+    START_CAPABILITY
+      #define FUNCTION lnL_gaussian_python
+      START_FUNCTION(double)
+      ALLOW_MODELS(NormalDist)
+      BACKEND_REQ(lnL_gaussian_libthird_capability, (), double, (PyDict&))
+      #undef FUNCTION
+    #undef CAPABILITY
+  #endif
+
 
   // Tester that shows how to retrieve pointers to backend functions
   #define CAPABILITY function_pointer

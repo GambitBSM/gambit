@@ -226,6 +226,44 @@ namespace Gambit
     }
 
 
+    /// Similar to the lnL_gaussian function above, but implemented in a Python backend
+    // _Anders
+    #ifdef HAVE_PYBIND11
+      void lnL_gaussian_python (double &result)
+      {
+        using namespace Pipes::lnL_gaussian_python;
+
+        double loglTotal = 0.;
+
+        if (ModelInUse("NormalDist"))
+        {
+          double mu = *Param["mu"];
+          double sigma = *Param["sigma"];
+
+          if(Utils::isnan(mu) or Utils::isnan(sigma))
+          {
+            ExampleBit_A_error().raise(LOCAL_INFO,"NaN detected in input parameters for model"
+            " NormalDist! This may indicate a bug in the scanner plugin you are using.");
+          }
+
+          PyDict input_dict;
+          input_dict["mu"] = mu;
+          input_dict["sigma"] = sigma;
+
+          loglTotal = BEreq::lnL_gaussian_libthird_capability(input_dict);
+        }
+        else
+        {
+           ExampleBit_A_error().raise(LOCAL_INFO,"Whoops, you are not scanning the model "
+            " NormalDist! There is probably a bug ExampleBit_A_rollcall.hpp; this module "
+            " function should have ALLOW_MODELS(NormalDist) defined.");
+        }
+
+        result = loglTotal;
+      }
+    #endif
+
+
     /// \name Loopmanager Examples
     /// Some example functions for using loops within the dependency structure
     /// @{

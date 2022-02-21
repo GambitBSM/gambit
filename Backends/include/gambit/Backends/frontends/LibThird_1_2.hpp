@@ -43,6 +43,8 @@ BE_FUNCTION(initialize, void, (int), "initialize", "initialize_capability")
 BE_FUNCTION(someFunction, void, (), "someFunction", "someFunction")
 BE_FUNCTION(returnResult, double, (), "returnResult","returnResult_capability")
 
+BE_FUNCTION(lnL_gaussian_libthird, double, (PyDict&), "lnL_gaussian_libthird","lnL_gaussian_libthird_capability")
+
 /* We have now created the following:
  *
  * - Function pointers
