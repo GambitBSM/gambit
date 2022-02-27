@@ -1190,6 +1190,9 @@ namespace Gambit
 
 	      double WCeven[9] = {ghjee_s[i], ghjmumu_s[i], ghjtautau_s[i], ghjuu_s[i], ghjdd_s[i], ghjss_s[i], ghjcc_s[i], ghjbb_s[i], ghjtt_s[i]};
 	      double WCodd[9] = {ghjee_p[i], ghjmumu_p[i], ghjtautau_p[i], ghjuu_p[i], ghjdd_p[i], ghjss_p[i], ghjcc_p[i], ghjbb_p[i], ghjtt_p[i]};
+//	      double WCeven[9] = {ghjee_s[i], ghjmumu_s[i], ghjtautau_s[i], ghjuu_s[i], ghjdd_s[i], ghjss_s[i], ghjcc_s[i], 1.0, ghjtt_s[i]}; //test for interference b-t
+//	      double WCodd[9] = {ghjee_p[i], ghjmumu_p[i], ghjtautau_p[i], ghjuu_p[i], ghjdd_p[i], ghjss_p[i], ghjcc_p[i], 0.0, ghjtt_p[i]};
+
 	      ghjWW[i] = 1.; //even if SMEFT contributions are loop suppressed, the BR is large. Should we include them?
 	      ghjZZ[i] = 1.;
 	      ghjZga[i] = 1.;
@@ -1305,12 +1308,12 @@ namespace Gambit
       int nobs, nobs1, nobs2;
 
       // Run the main subroutines
-     // BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
+     BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
      BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
-      BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
+     BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       result = -0.5*(
-//		     + csqtot 
+		     + csqtot 
 		     + csqtot1 
 		     + csqtot2
 		     );
