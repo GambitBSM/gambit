@@ -38,7 +38,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"
 #include "gambit/Utils/stream_overloads.hpp" // Just for more convenient output to logger
 #include "gambit/Utils/util_macros.hpp"
@@ -640,31 +640,6 @@ namespace Gambit
     }
     
     
-    /// Check that the spectrum has a neutralino LSP.
-    bool has_neutralino_LSP(const Spectrum& result)
-    {
-      double msqd  = result.get(Par::Pole_Mass, 1000001, 0);
-      double msqu  = result.get(Par::Pole_Mass, 1000002, 0);
-      double msl   = result.get(Par::Pole_Mass, 1000011, 0);
-      double msneu = result.get(Par::Pole_Mass, 1000012, 0);
-      double mglui = result.get(Par::Pole_Mass, 1000021, 0);
-      double mchi0 = std::abs(result.get(Par::Pole_Mass, 1000022, 0));
-      double mchip = std::abs(result.get(Par::Pole_Mass, 1000024, 0));
-
-      return mchi0 < mchip &&
-             mchi0 < mglui &&
-             mchi0 < msl   &&
-             mchi0 < msneu &&
-             mchi0 < msqu  &&
-             mchi0 < msqd;
-    }
-    /// Helper to work with pointer
-    bool has_neutralino_LSP(const Spectrum* result)
-    {
-      return has_neutralino_LSP(*result);
-    }
-
-
     /// @} End module convenience functions
 
 
@@ -696,11 +671,11 @@ namespace Gambit
       // Get the spectrum from the Backend
       myPipe::BEreq::SPheno_MSSMspectrum(spectrum, inputs);
 
-      // Get the SLHA struct from the spectrum object
-      SLHAstruct slha = spectrum.getSLHAea(1);
+      // Only allow neutralino LSPs.
+      if (not has_neutralino_LSP(spectrum)) invalid_point().raise("Neutralino is not LSP.");
 
-      // Convert into a spectrum object
-      spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
+      // Drop SLHA files if requested
+      spectrum.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
     }
 
@@ -726,11 +701,11 @@ namespace Gambit
      fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
      result = run_FS_spectrum_generator<MSSMatMSUSYEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+     // Only allow neutralino LSPs.
+     if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
 
-      // Drop SLHA files if requested
-      result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+     // Drop SLHA files if requested
+     result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
   }
   #endif
@@ -757,11 +732,11 @@ namespace Gambit
      fill_MSSM63_input_altnames(input,myPipe::Param); // Fill the rest
      result = run_FS_spectrum_generator<MSSMEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+     // Only allow neutralino LSPs.
+     if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
 
-      // Drop SLHA files if requested
-      result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+     // Drop SLHA files if requested
+     result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
    }
    #endif
@@ -793,11 +768,11 @@ namespace Gambit
      fill_MSSM63_input_altnames(input,myPipe::Param);
      result = run_FS_spectrum_generator<MSSMEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+     // Only allow neutralino LSPs.
+     if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
 
-      // Drop SLHA files if requested
-      result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+     // Drop SLHA files if requested
+     result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
    }
    #endif
@@ -845,7 +820,7 @@ namespace Gambit
       result = run_FS_spectrum_generator<CMSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
       // Only allow neutralino LSPs.
-      //if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
 
       // Drop SLHA files if requested
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
@@ -873,7 +848,7 @@ namespace Gambit
       }
       fill_MSSM63_input(input,myPipe::Param);
       result = run_FS_spectrum_generator<MSSM_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
-    if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
       result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
     }
     #endif
@@ -952,11 +927,11 @@ namespace Gambit
      fill_MSSM63_input(input,myPipe::Param); // Fill the rest
      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+     // Only allow neutralino LSPs.
+     if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
 
-      // Drop SLHA files if requested
-      result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+     // Drop SLHA files if requested
+     result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
    }
    #endif
@@ -1008,11 +983,11 @@ namespace Gambit
      fill_MSSM63_input(input,myPipe::Param); // Fill the rest
      result = run_FS_spectrum_generator<MSSMatMGUTEFTHiggs_mAmu_interface<ALGORITHM1>>(input,sminputs,*myPipe::runOptions,myPipe::Param);
 
-      // Only allow neutralino LSPs.
-      if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
+     // Only allow neutralino LSPs.
+     if (not has_neutralino_LSP(result)) invalid_point().raise("Neutralino is not LSP.");
 
-      // Drop SLHA files if requested
-      result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
+     // Drop SLHA files if requested
+     result.drop_SLHAs_if_requested(myPipe::runOptions, "GAMBIT_unimproved_spectrum");
 
    }
    #endif
@@ -1144,7 +1119,6 @@ namespace Gambit
       // For example; add this to your input SLHAstruct:
       input_slha["GAMBIT"][""] << "BLOCK" << "GAMBIT";
       input_slha["GAMBIT"][""] <<      1  << 1e99 << "# Input scale";
-      std::cout << input_slha << std::endl; // test.
 
       // Retrieve any mass cuts
       static const Spectrum::mc_info mass_cut = myPipe::runOptions->getValueOrDef<Spectrum::mc_info>(Spectrum::mc_info(), "mass_cut");
@@ -1217,7 +1191,6 @@ namespace Gambit
        if(not (mssm_is_valid and sm_is_valid)) invalid_point().raise("Postprocessor: precomputed spectrum was set 'invalid' for this point");
        
        // Dump spectrum to output for testing
-       //std::cerr<<"Dumping retrieved spectrum!"<<std::endl;
        SLHAstruct mssm = mssm_in; // Only this type has stream overloads etc. defined
        SLHAstruct sm = sm_in; 
 
@@ -1226,9 +1199,6 @@ namespace Gambit
        double tbmZ = *myPipe::Param.at("TanBeta");
        SLHAea_add(mssm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");        
        SLHAea_add(sm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");        
-
-       //std::cerr<<mssm<<std::endl;
-       //std::cerr<<"Dump complete!"<<std::endl;
 
        // Retrieve any mass cuts (could just cut with postprocessor, but I
        // guess can leave this feature in for compatibility with usage
@@ -1512,7 +1482,7 @@ namespace Gambit
 
 
     /// Helper function to work out if the LSP is invisible, and if so, which particle it is.
-    std::vector<str> get_invisibles(const SubSpectrum& spec)
+    std::vector<std::pair<str,str>> get_invisibles(const SubSpectrum& spec)
     {
       // Get the lighter of the lightest neutralino and the lightest sneutrino
       std::pair<str,double> neutralino("~chi0_1", spec.get(Par::Pole_Mass,"~chi0",1));
@@ -1529,8 +1499,8 @@ namespace Gambit
                       spec.get(Par::Pole_Mass,"A0") > 2.*lnp.second);
 
       // Create a vector containing all invisible products of higgs decays.
-      if (inv_lsp) return initVector<str>(lnp.first);
-      return std::vector<str>();
+      if (inv_lsp) return initVector<std::pair<str,str>>(std::make_pair(lnp.first,lnp.first));
+      return std::vector<std::pair<str,str>>();
     }
 
     /// Put together the Higgs couplings for the MSSM, from partial widths only
@@ -1543,6 +1513,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
       // Set the CP of the Higgs states.  Note that this would need to be more sophisticated to deal with the complex MSSM!
       result.CP[0] = 1;  //h0_1
@@ -1792,6 +1766,15 @@ namespace Gambit
       const str gs_sMuR = slhahelp::mass_es_from_gauge_es("~mu_R", mssm, tol,
                                                          LOCAL_INFO, pt_error);
       specmap["msmuonR"] = mssm.get(Par::Pole_Mass,gs_sMuR);
+      const str gs_snu1 = slhahelp::mass_es_from_gauge_es("~nu_e_L", mssm, tol,
+                                                         LOCAL_INFO, pt_error);
+      specmap["msnue"] = mssm.get(Par::Pole_Mass,gs_snu1);
+      const str gs_snu2 = slhahelp::mass_es_from_gauge_es("~nu_mu_L", mssm, tol,
+                                                         LOCAL_INFO, pt_error);
+      specmap["msnumu"] = mssm.get(Par::Pole_Mass,gs_snu2);
+      const str gs_snu3 = slhahelp::mass_es_from_gauge_es("~nu_tau_L", mssm, tol,
+                                                         LOCAL_INFO, pt_error);
+      specmap["msnutau"] = mssm.get(Par::Pole_Mass,gs_snu3);
 
     }
 
@@ -1858,14 +1841,12 @@ namespace Gambit
            std::ostringstream label;
            label << name <<" "<< Par::toString.at(tag);
            specmap[label.str()] = subspec.get(tag,name);
-           //std::cout << label.str() <<", " << subspec.has(tag,name,overrides_only) << "," << subspec.has(tag,name,ignore_overrides) << std::endl; // debugging
            // Check again ignoring overrides (if the value has an override defined)
            if(subspec.has(tag,name,overrides_only) and
               subspec.has(tag,name,ignore_overrides))
            {
              label << " (unimproved)";
              specmap[label.str()] = subspec.get(tag,name,ignore_overrides);
-             //std::cout << label.str() << ": " << specmap[label.str()];
            }
          }
          // Check vector case
@@ -1875,14 +1856,12 @@ namespace Gambit
              std::ostringstream label;
              label << name <<"_"<<i<<" "<< Par::toString.at(tag);
              specmap[label.str()] = subspec.get(tag,name,i);
-             //std::cout << label.str() <<", " << subspec.has(tag,name,i,overrides_only) << "," << subspec.has(tag,name,i,ignore_overrides) << std::endl; // debugging
              // Check again ignoring overrides
              if(subspec.has(tag,name,i,overrides_only) and
                 subspec.has(tag,name,i,ignore_overrides))
              {
                label << " (unimproved)";
                specmap[label.str()] = subspec.get(tag,name,i,ignore_overrides);
-               //std::cout << label.str() << ": " << specmap[label.str()];
              }
            }
          }
@@ -2000,8 +1979,19 @@ namespace Gambit
       MReal DeltaMHiggs = BEreq::SUSYHD_DeltaMHiggs(parameterList);
 
       result.central = MHiggs;
-      result.upper = DeltaMHiggs;
-      result.lower = DeltaMHiggs;
+
+      bool use_SHD_uncertainty = runOptions->getValueOrDef<bool>(true, "use_SHD_uncertainty");
+
+      if(use_SHD_uncertainty)
+      {
+        result.upper = DeltaMHiggs;
+        result.lower = DeltaMHiggs;
+      }
+      else
+      {
+        result.upper = 0.0;
+        result.lower = 0.0;
+      }
 
     }
 

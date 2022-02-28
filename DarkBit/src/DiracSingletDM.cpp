@@ -22,6 +22,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date Sep 2018
 ///
+///  \author Felix Kahlhofer
+///          (kahlhoefer@physik.rwth-aachen.de)
+///  \date 2020 May
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -200,6 +204,7 @@ namespace Gambit
     };
 
     void DarkMatter_ID_DiracSingletDM(std::string & result) { result = "F"; }
+    void DarkMatterConj_ID_DiracSingletDM(std::string & result) { result = "F"; }
 
     /// Direct detection couplings for the DiracSingletDM_Z2 model.
     void DD_nonrel_WCs_DiracSingletDM_Z2(NREO_DM_nucleon_couplings &result)
@@ -223,42 +228,47 @@ namespace Gambit
       double app = lambda*fp*m_proton*sinXI/pow(mh,2);
       double apn = lambda*fn*m_neutron*sinXI/pow(mh,2);
       
-      //result["cNR1p"] = fsp;
-      //result["cNR1n"] = fsn;
-      //result["cNR11p"] = app*m_proton/mass;
-      //result["cNR11n"] = apn*m_proton/mass;
-
-      // We now use the isoscalar/isovector basis of couplings (because DDCalc and CaptnGeneral use it)
-      // TODO: Check conventions are consistent everywhere!
-      // I am assuming those of 1203.3542 are used, i.e.
-      // c0 = cp + cn
-      // c1 = cp - cn
-      // --->
-      // cp = 0.5*(c0 + c1)
-      // cn = 0.5*(c0 - c2)
       result.c0[1] = fsp + fsn;
       result.c1[1] = fsp - fsn;
       result.c0[11] = (app + apn)*m_proton/mass;
       result.c1[11] = (app - apn)*m_proton/mass;
+      result.CPTbasis = 0;
       
-    } // function DD_couplings_DiracSingletDM_Z2
+    }
     
     /// Relativistic Wilson Coefficients for direct detection, 
-    /// defined above the EW scale
-    void DD_rel_WCs_EW_DiracSingletDM_Z2(map_str_dbl &result)
+    /// defined in the flavour scheme
+    void DD_rel_WCs_flavscheme_DiracSingletDM_Z2(map_str_dbl &result)
     {
-      using namespace Pipes::DD_rel_WCs_EW_DiracSingletDM_Z2;
+      using namespace Pipes::DD_rel_WCs_flavscheme_DiracSingletDM_Z2;
 
       // Get values of non-relativistic operators from Spectrum
       Spectrum spec = *Dep::DiracSingletDM_Z2_spectrum;
 
       double lambda = spec.get(Par::dimensionless, "lF");
       double xi = spec.get(Par::dimensionless, "xi");
+      double mh = spec.get(Par::Pole_Mass, "h0_1");
 
-      // lambda*cos(xi) XXHH
-      result["C53"] = lambda*std::cos(xi);
-      // lambda*sin(xi) iXg5XHH
-      result["C57"] = lambda*std::sin(xi);
+      // Contribution from integrating out top quark comes from
+      // Eqs. (92--94) of arXiv:1809.03506
+      double prefactor = lambda / pow(mh, 2);
+
+      // Gluon operators
+      result["C71"] = prefactor*std::cos(xi);
+      result["C72"] = prefactor*std::sin(xi);
+
+      // Quark operators (scalar mediator)
+      result["C75d"]  = -prefactor*std::cos(xi);
+      result["C75u"]  = -prefactor*std::cos(xi);
+      result["C75s"]  = -prefactor*std::cos(xi);
+      result["C75c"]  = -prefactor*std::cos(xi);
+      result["C75b"]  = -prefactor*std::cos(xi);
+
+      result["C76d"]  = -prefactor*std::sin(xi);
+      result["C76u"]  = -prefactor*std::sin(xi);
+      result["C76s"]  = -prefactor*std::sin(xi);
+      result["C76c"]  = -prefactor*std::sin(xi);
+      result["C76b"]  = -prefactor*std::sin(xi);
     }
 
     /// Set up process catalog for the DiracSingletDM_Z2 model.
@@ -341,6 +351,8 @@ namespace Gambit
       double mH = spec.get(Par::Pole_Mass,"h0_1");
       addParticle("F",        mF, 1)  // Dirac DM
       addParticle("h0_1",     mH, 0)  // SM-like Higgs
+
+      // Meson, baryon and nuclear masses
       addParticle("pi0",   meson_masses.pi0,       0)
       addParticle("pi+",   meson_masses.pi_plus,   0)
       addParticle("pi-",   meson_masses.pi_minus,  0)
@@ -349,6 +361,12 @@ namespace Gambit
       addParticle("rho+",  meson_masses.rho_plus,  1)
       addParticle("rho-",  meson_masses.rho_minus, 1)
       addParticle("omega", meson_masses.omega,     1)
+      addParticle("p",     m_proton,               1)
+      addParticle("pbar",  m_proton,               1)
+      addParticle("n",     m_neutron,              1)
+      addParticle("nbar",  m_neutron,              1)
+      addParticle("D",     m_deuteron,             2)
+      addParticle("Dbar",  m_deuteron,             2)
 
       // Get rid of convenience macros
       #undef getSMmass

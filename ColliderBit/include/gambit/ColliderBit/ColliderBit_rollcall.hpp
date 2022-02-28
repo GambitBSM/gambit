@@ -32,7 +32,9 @@
 #pragma once
 
 #define MODULE ColliderBit
+#define REFERENCE GAMBIT:2017qxg
 START_MODULE
+#undef REFERENCE
 #undef MODULE
 
 #include "gambit/Elements/shared_types.hpp"
@@ -41,4 +43,3 @@ START_MODULE
 #include "gambit/ColliderBit/ColliderBit_LEP_rollcall.hpp"
 #include "gambit/ColliderBit/ColliderBit_MC_rollcall.hpp"
 #include "gambit/ColliderBit/ColliderBit_models_rollcall.hpp"
-//#include "gambit/ColliderBit/ColliderBit_InterpolatedYields_rollcall.hpp" // no longer needed

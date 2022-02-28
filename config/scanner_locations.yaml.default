@@ -18,8 +18,10 @@ multinest:
     - lib: ./ScannerBit/installed/multinest/3.11/libnest3.so
 
 polychord:
-  1.16:
-    - lib: ./ScannerBit/installed/polychord/1.16/lib/libchord.so
+  1.17.1:
+    - lib: ./ScannerBit/installed/polychord/1.17.1/lib/libchord.so
+  1.18.2:
+    - lib: ./ScannerBit/installed/polychord/1.18.2/lib/libchord.so
 
 diver:
   1.0.0:
@@ -35,3 +37,9 @@ great:
     - headers: ./ScannerBit/installed/great/1.0.0/Manager/include
     - headers: ./ScannerBit/installed/great/1.0.0/MCMC/include
     - headers: ./ScannerBit/installed/great/1.0.0/fparser4.5.1
+
+minuit2:
+  6.23.01:
+    - lib: ./ScannerBit/installed/minuit2/6.23.01/lib/libMinuit2.so
+    - lib: ./ScannerBit/installed/minuit2/6.23.01/lib/libMinuit2Math.so
+    - headers: ./ScannerBit/installed/minuit2/6.23.01/inc/

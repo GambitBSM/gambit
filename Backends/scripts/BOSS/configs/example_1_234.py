@@ -27,9 +27,10 @@ castxml_cc_opt = ''         # Additional option string passed to the compiler in
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'Example'
-gambit_backend_version = '1.234'
-gambit_base_namespace  = ''
+gambit_backend_name      = 'Example'
+gambit_backend_version   = '1.234'
+gambit_backend_reference = ''
+gambit_base_namespace    = ''
 
 
 # ~~~~~ Information about the external code ~~~~~

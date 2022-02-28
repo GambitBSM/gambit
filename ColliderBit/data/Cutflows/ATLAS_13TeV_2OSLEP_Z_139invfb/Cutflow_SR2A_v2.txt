@@ -1,9 +1,0 @@
-ATLAS 2 opposite sign leptons at the Z peak 13 TeV cut-flow:
-                                        285000    100%      - 
-Pass Trigger                              1978      1%      1%
-Pass Third leading lepton pT < 20 GeV     1328      0%     67%
-Pass |mll - mZ| < 15 GeV                  1206      0%     91%
-Pass Leading jet pT > 150 GeV              572      0%     47%
-Pass MET > 200 GeV                         332      0%     58%
-Pass pTll < 50 GeV                          43      0%     13%
-

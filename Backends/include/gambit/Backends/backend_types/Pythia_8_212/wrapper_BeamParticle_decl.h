@@ -2,6 +2,9 @@
 #define __wrapper_BeamParticle_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <ostream>
+#include <vector>
+#include <utility>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_BeamParticle.h"
@@ -10,10 +13,7 @@
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Vec4_decl.h"
-#include <ostream>
 #include "wrapper_Event_decl.h"
-#include <vector>
-#include <utility>
 
 #include "identification.hpp"
 
@@ -28,7 +28,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_BeamParticle* (*__factory0)();
+                static Abstract_BeamParticle* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -150,7 +150,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 BeamParticle();
         
                 // Special pointer-based constructor: 
-                BeamParticle(Pythia8::Abstract_BeamParticle* in);
+                BeamParticle(Abstract_BeamParticle* in);
         
                 // Copy constructor: 
                 BeamParticle(const BeamParticle& in);
@@ -162,7 +162,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~BeamParticle();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_BeamParticle* get_BEptr() const;
+                Abstract_BeamParticle* get_BEptr() const;
         
         };
     }

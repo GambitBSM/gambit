@@ -194,6 +194,7 @@ namespace Gambit
     };
 
     void DarkMatter_ID_ScalarSingletDM(std::string & result) { result = "S"; }
+    void DarkMatterConj_ID_ScalarSingletDM(std::string & result) { result = "S"; }
 
     /// Common code for different scalar singlet direct detection coupling routines
     void get_ScalarSingletDM_DD_couplings(const Spectrum &spec, DM_nucleon_couplings &result, Models::safe_param_map<safe_ptr<const double> > &Param)
@@ -314,6 +315,8 @@ namespace Gambit
       double mH = spec.get(Par::Pole_Mass,"h0_1");
       addParticle("S",        mS, 0)  // Scalar Singlet DM
       addParticle("h0_1",     mH, 0)  // SM-like Higgs
+
+      // Meson, baryon and nuclear masses
       addParticle("pi0",   meson_masses.pi0,       0)
       addParticle("pi+",   meson_masses.pi_plus,   0)
       addParticle("pi-",   meson_masses.pi_minus,  0)
@@ -322,6 +325,12 @@ namespace Gambit
       addParticle("rho+",  meson_masses.rho_plus,  1)
       addParticle("rho-",  meson_masses.rho_minus, 1)
       addParticle("omega", meson_masses.omega,     1)
+      addParticle("p",     m_proton,               1)
+      addParticle("pbar",  m_proton,               1)
+      addParticle("n",     m_neutron,              1)
+      addParticle("nbar",  m_neutron,              1)
+      addParticle("D",     m_deuteron,             2)
+      addParticle("Dbar",  m_deuteron,             2)
 
       // Get rid of convenience macros
       #undef getSMmass

@@ -30,7 +30,7 @@ exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 comp
 def main(argv):
 
     model_headers=set([])
-    exclude_models=set([])
+    ignore_model_headers=["SUSY.hpp", "SUSY_extras.hpp"]
 
     # Handle command line options
     verbose = False
@@ -39,18 +39,15 @@ def main(argv):
     except getopt.GetoptError:
         print('Usage: collider_harvestor.py [flags]')
         print(' flags:')
-        print('        -v                   : More verbose output')
-        print('        -x model1,model2,... : Exclude model1, model2, etc.')
+        print('        -v : More verbose output')
         sys.exit(2)
     for opt, arg in opts:
       if opt in ('-v','--verbose'):
         verbose = True
         print('collider_harvester.py: verbose=True')
-      elif opt in ('-x','--exclude-models'):
-        exclude_models.update(neatsplit(",",arg))
 
     # Get list of models to include in ColliderBit_model_rollcall.hpp
-    model_headers.update(retrieve_generic_headers(verbose,"./ColliderBit/include/gambit/ColliderBit/models","model",exclude_models))
+    model_headers.update(retrieve_generic_headers(verbose,"./ColliderBit/include/gambit/ColliderBit/models","model", set()))
 
     if verbose:
         print("ColliderBit model headers identified:")
@@ -114,13 +111,24 @@ namespace Gambit                                  \n\
                                                   \n\
     /// Typedefs for each Pythia collider         \n\
     /// @{                                        \n\
-    typedef Py8Collider<Pythia_default::Pythia8::Pythia, Pythia_default::Pythia8::Event> Py8Collider_defaultversion;\n"
+    #ifdef EXCLUDE_HEPMC                          \n\
+      typedef Py8Collider<Pythia_default::Pythia8::Pythia, Pythia_default::Pythia8::Event, void> Py8Collider_defaultversion;\n"
 
     for h in model_headers:
-        if h != "SUSY.hpp":
+        if h not in ignore_model_headers:
             m = re.sub(".hpp", "", h)
-            towrite+='    typedef Py8Collider<Pythia_{0}_default::Pythia8::Pythia, Pythia_{0}_default::Pythia8::Event> Py8Collider_{0}_defaultversion;\n'.format(m)
-    towrite+="    /// @}\n\n  }\n}\n"
+            towrite+='      typedef Py8Collider<Pythia_{0}_default::Pythia8::Pythia, Pythia_{0}_default::Pythia8::Event, void> Py8Collider_{0}_defaultversion;\n'.format(m)
+
+    towrite+= "\
+    #else                                         \n\
+      typedef Py8Collider<Pythia_default::Pythia8::Pythia, Pythia_default::Pythia8::Event, Pythia_default::Pythia8::GAMBIT_hepmc_writer> Py8Collider_defaultversion;\n"
+
+    for h in model_headers:
+        if h not in ignore_model_headers:
+            m = re.sub(".hpp", "", h)
+            towrite+='      typedef Py8Collider<Pythia_{0}_default::Pythia8::Pythia, Pythia_{0}_default::Pythia8::Event, Pythia_{0}_default::Pythia8::GAMBIT_hepmc_writer> Py8Collider_{0}_defaultversion;\n'.format(m)
+
+    towrite+="    #endif\n    /// @}\n\n  }\n}\n"
 
     with open("./ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp","w") as f:
         f.write(towrite)

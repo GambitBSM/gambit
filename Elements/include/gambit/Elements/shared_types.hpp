@@ -23,10 +23,6 @@
 ///          (c.weniger@uva.nl)
 ///  \date 2014 Mar
 ///
-///  \author Anders Kvellestad
-///          (anderkve@fys.uio.no)
-///  \date 2014 Oct
-///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@imperial.ac.uk)
 ///  \date 2015 Apr, 2019 Jul
@@ -49,15 +45,15 @@
 #include "gambit/Utils/model_parameters.hpp"           			   // Definitions required to understand model parameter objects
 #include "gambit/Utils/numerical_constants.hpp"        			   // Centralised constants header
 
-#include "gambit/Models/SpectrumContents/subspectrum_contents.hpp" // Contains SpectrumParameter class (names and tags)
-#include "gambit/Elements/sminputs.hpp"                			   // Struct carrying SMINPUTS block (SLHA2)
-#include "gambit/Elements/spectrum.hpp"                			   // Carries BSM plus Standard Model spectrum info
-#include "gambit/Elements/decay_table.hpp"             			   // Decay table class (carries particle decay info)
-#include "gambit/Elements/higgs_couplings_table.hpp"   			   // Higgs couplings table class (carries couplings info for entire Higgs sector)
-#include "gambit/Elements/slhaea_helpers.hpp"          			   // Contains SLHAea reader/writer class alias
-#include "gambit/Elements/halo_types.hpp"              			   // data types for DM halo properties
-#include "gambit/Elements/wimp_props.hpp"              			   // Containers for generic WIMP dark matter properties
-#include "gambit/Elements/wimp_annihilation.hpp"       			   // Containers for generic parameterisation of WIMP annihilations to SM particles 
+#include "gambit/Elements/sminputs.hpp"                                    // Struct carrying SMINPUTS block (SLHA2)
+#include "gambit/Elements/spectrum.hpp"                                    // Carries BSM plus Standard Model spectrum info
+#include "gambit/Elements/decay_table.hpp"                                 // Decay table class (carries particle decay info)
+#include "gambit/Elements/higgs_couplings_table.hpp"                       // Higgs couplings table class (carries couplings info for entire Higgs sector)
+#include "gambit/Elements/slhaea_spec_helpers.hpp"                         // Contains SLHAea reader/writer class alias
+#include "gambit/Elements/halo_types.hpp"                                  // data types for DM halo properties
+#include "gambit/Elements/wimp_types.hpp"              			      // Containers for generic WIMP dark matter and annihilation properties
+
+#include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"         // Contains SpectrumParameter class (names and tags)
 
 #include "gambit/Backends/default_bossed_versions.hpp" 			   // Default versions of backends to use when employing BOSSed types
 #include "gambit/Backends/mathematica_variable.hpp"    			   // Wrapper type for Mathematica global variables
@@ -78,5 +74,3 @@ namespace Gambit
 
 
 #endif //__shared_types_hpp__
-
-

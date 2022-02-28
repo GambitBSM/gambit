@@ -1,10 +1,10 @@
 #ifndef __wrapper_SlowJet_def_Pythia_8_212_h__
 #define __wrapper_SlowJet_def_Pythia_8_212_h__
 
-#include "wrapper_Event_decl.h"
-#include "wrapper_Vec4_decl.h"
 #include <ostream>
 #include <vector>
+#include "wrapper_Event_decl.h"
+#include "wrapper_Vec4_decl.h"
 
 #include "identification.hpp"
 
@@ -137,35 +137,35 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn, double etaMaxIn, int selectIn, int massSetIn) :
+        inline SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn, double etaMaxIn, int selectIn, int massSetIn) :
             WrapperBase(__factory0(powerIn, Rin, pTjetMinIn, etaMaxIn, selectIn, massSetIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn, double etaMaxIn, int selectIn) :
+        inline SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn, double etaMaxIn, int selectIn) :
             WrapperBase(__factory1(powerIn, Rin, pTjetMinIn, etaMaxIn, selectIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn, double etaMaxIn) :
+        inline SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn, double etaMaxIn) :
             WrapperBase(__factory2(powerIn, Rin, pTjetMinIn, etaMaxIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn) :
+        inline SlowJet::SlowJet(int powerIn, double Rin, double pTjetMinIn) :
             WrapperBase(__factory3(powerIn, Rin, pTjetMinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::SlowJet::SlowJet(int powerIn, double Rin) :
+        inline SlowJet::SlowJet(int powerIn, double Rin) :
             WrapperBase(__factory4(powerIn, Rin))
         {
             get_BEptr()->set_wptr(this);
@@ -173,7 +173,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::SlowJet::SlowJet(Pythia8::Abstract_SlowJet* in) :
+        inline SlowJet::SlowJet(Abstract_SlowJet* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -181,7 +181,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::SlowJet::SlowJet(const SlowJet& in) :
+        inline SlowJet::SlowJet(const SlowJet& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -189,7 +189,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::SlowJet& SlowJet::operator=(const SlowJet& in)
+        inline SlowJet& SlowJet::operator=(const SlowJet& in)
         {
             if (this != &in)
             {
@@ -200,7 +200,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::SlowJet::~SlowJet()
+        inline SlowJet::~SlowJet()
         {
             if (get_BEptr() != 0)
             {
@@ -215,9 +215,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_SlowJet* Pythia8::SlowJet::get_BEptr() const
+        inline Abstract_SlowJet* Pythia8::SlowJet::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_SlowJet*>(BEptr);
+            return dynamic_cast<Abstract_SlowJet*>(BEptr);
         }
     }
     

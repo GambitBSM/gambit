@@ -21,6 +21,10 @@
 ///        (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 Sep
 ///
+///  \author Anders Kvellestad
+///        (anders.kvellestad@fys.uio.no)
+///  \date 2021 Jul
+///
 ///
 ///
 ///***********************************************
@@ -39,9 +43,6 @@
 
 /// Compiler supports C++17 features
 #cmakedefine COMPILER_SUPPORTS_CXX17 1
-
-/// Found regex in STL
-#cmakedefine HAVE_REGEX_H 1
 
 /// Found link.h in system paths
 #cmakedefine HAVE_LINK_H 1
@@ -74,6 +75,9 @@
 
 /// Path to RestFrames include directory
 #cmakedefine RESTFRAMES_INCLUDE "@RESTFRAMES_INCLUDE@"
+
+/// Suppress specific compiler warnings from external libraries
+#cmakedefine SUPPRESS_LIBRARY_WARNINGS 1
 
 /// Version info
 /// @{

@@ -14,9 +14,6 @@
 ///                                                
 ///  ********************************************* 
 
-#ifndef __DMEFT_contents_hpp__
-#define __DMEFT_contents_hpp__
-
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 
 namespace Gambit
@@ -58,4 +55,3 @@ namespace Gambit
     
   } // namespace Models
 } // namespace Gambit
-#endif

@@ -53,12 +53,12 @@
 #include "gambit/Utils/ascii_table_reader.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/integration.hpp"
 
 #include <string>
 #include <map>
 #include <complex>
 #include <functional>
-#include <gsl/gsl_integration.h>
 
 #define pow2(a) ((a)*(a))          // Get speedy
 #define pow3(a) ((a)*(a)*(a))
@@ -76,36 +76,6 @@ namespace Gambit
 
     /// \name Helper functions for DecayBit
     /// @{
-
-    /// Unwrapper for passing std::function to GSL integrator
-    /// Based on example from https://martin-ueding.de/articles/cpp-lambda-into-gsl/index.html
-    double unwrap(double x, void *p)
-    {
-      auto fp = static_cast<std::function<double(double)> *>(p);
-      return (*fp)(x);
-    }
-
-    /// Integrate a std::function using GSL cquad
-    double integrate_cquad(std::function<double(double)> ftor, double a, double b, double abseps, double releps)
-    {
-      double result = 0.0;
-      gsl_integration_cquad_workspace * gsl_ws = gsl_integration_cquad_workspace_alloc(100);
-
-      gsl_function F;
-      F.function = unwrap;
-      F.params = &ftor;
-
-      gsl_integration_cquad(&F, a, b, abseps, releps, gsl_ws, &result, NULL, NULL);
-      gsl_integration_cquad_workspace_free(gsl_ws);
-
-      // Check result
-      if (Utils::isnan(result))
-      {
-        invalid_point().raise("Integration returned NaN.");
-      }
-
-      return result;
-    }
 
     /// Square root of the standard kinematic function lambda(a,b,c)
     double sqrt_lambda(double a, double b, double c) { return sqrt(pow2(a+b-c) - 4*a*b); }
@@ -1008,6 +978,8 @@ namespace Gambit
       using namespace Pipes::stop_1_decays;
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
+      static const bool allow_offshell_modes = runOptions->getValueOrDef<bool>(true, "allow_offshell_modes_in_decay_table");
+      
       result.calculator = BEreq::cb_sd_stopwidth.origin();
       result.calculator_version = BEreq::cb_sd_stopwidth.version();
 
@@ -1058,6 +1030,23 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stop3body->brstelsbnu(1,1) : 0.0), 0.0, psn.isb1, "mu+", "nu_mu");
       result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stop3body->brstelsbnu(1,2) : 0.0), 0.0, psn.isb2, "mu+", "nu_mu");
 
+      if (BEreq::cb_sd_stop4body->br4bodoffshelltau > BEreq::cb_sd_stop3body->brstopw(1,1))
+      {
+        // Take the total 4-body BR(~t_1 -->  ~chi0_1 b f f') and assign to the off-shell mode BR(~t_1 -->  ~chi0_1 b W(*))
+        if(allow_offshell_modes)
+        {      
+          result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "W+");
+        }
+        // This is a temp solution
+        else
+        {
+          result.set_BF((result.width_in_GeV > 0 ? 0.1071 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "e+", "nu_e");
+          result.set_BF((result.width_in_GeV > 0 ? 0.1063 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "mu+", "nu_mu");
+          result.set_BF((result.width_in_GeV > 0 ? 0.1138 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "tau+", "nu_tau");
+          result.set_BF((result.width_in_GeV > 0 ? 0.6741 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "hadron", "hadron");
+        }
+      }
+      
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
@@ -2281,6 +2270,10 @@ namespace Gambit
       using namespace Pipes::chargino_plus_1_decays_smallsplit;
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
+      // Option for requiring a bit more mass difference before switching on a decay channel.
+      // Can help avoid problems with chargino decays in Pythia (due to Pythia's MSAFETY checks).
+      static const double m_safety = runOptions->getValueOrDef<double>(0.0, "m_safety");
+
       // Get spectrum objects
       const Spectrum& spec = *Dep::MSSM_spectrum;
       const SubSpectrum& mssm = spec.get_HE();
@@ -2292,6 +2285,7 @@ namespace Gambit
       const double m_C = abs(m_C_signed);
 
       const double delta_m = m_C - m_N;
+      const double delta_m_safety = m_C - (m_N + m_safety);
 
       // If the chargino--neutralino mass difference is large,
       // the calculations in this module function should not be used.
@@ -2383,8 +2377,8 @@ namespace Gambit
         };
 
         // Perform integrations
-        double N_el_nu_I1 = integrate_cquad(N_el_nu_integrand_1, pow2(m_N+m_el), m_C2, 0, 1e-2);
-        double N_el_nu_I2 = integrate_cquad(N_el_nu_integrand_2, m_el2, pow2(m_C-m_N), 0, 1e-2);
+        double N_el_nu_I1 = Utils::integrate_cquad(N_el_nu_integrand_1, pow2(m_N+m_el), m_C2, 0, 1e-2);
+        double N_el_nu_I2 = Utils::integrate_cquad(N_el_nu_integrand_2, m_el2, pow2(m_C-m_N), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_el+_nu"] = (1.*G_F2/pow3(2*pi)) * ( m_C*(O11L2 + O11R2)*N_el_nu_I1 - 2.*m_N*O11L*O11R*N_el_nu_I2 );
@@ -2409,8 +2403,8 @@ namespace Gambit
         };
 
         // Perform integrations
-        double N_mu_nu_I1 = integrate_cquad(N_mu_nu_integrand_1, pow2(m_N+m_mu), m_C2, 0, 1e-2);
-        double N_mu_nu_I2 = integrate_cquad(N_mu_nu_integrand_2, m_mu2, pow2(m_C-m_N), 0, 1e-2);
+        double N_mu_nu_I1 = Utils::integrate_cquad(N_mu_nu_integrand_1, pow2(m_N+m_mu), m_C2, 0, 1e-2);
+        double N_mu_nu_I2 = Utils::integrate_cquad(N_mu_nu_integrand_2, m_mu2, pow2(m_C-m_N), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_mu+_nu"] = (1.*G_F2/pow3(2*pi)) * ( m_C*(O11L2 + O11R2)*N_mu_nu_I1 - 2.*m_N*O11L*O11R*N_mu_nu_I2 );
@@ -2420,7 +2414,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+
       //
       partial_widths["N_pi+"] = 0.0;
-      if (delta_m > m_pi)
+      if (delta_m_safety > m_pi)
       {
         double k_pi = sqrt_lambda(m_C2,m_N2,m_pi2) / (2*m_C);
         partial_widths["N_pi+"] = ( (f_pi2 * G_F2 * k_pi / (4. * pi * m_C2)) *
@@ -2432,7 +2426,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0
       //
       partial_widths["N_pi+_pi0"] = 0.0;
-      if (delta_m > 2*m_pi)
+      if (delta_m_safety > 2*m_pi)
       {
         // Define a helper function
         std::function<std::complex<double>(double)> F = [&beta,&m_rho_02,&gamma_rho_0,&m_rho_prime2,&gamma_rho_prime](double q2)
@@ -2448,7 +2442,7 @@ namespace Gambit
         };
 
         // Perform integration
-        double N_2pi_I = integrate_cquad(N_2pi_integrand, 4*m_pi2, pow2(delta_m), 0, 1e-2);
+        double N_2pi_I = Utils::integrate_cquad(N_2pi_integrand, 4*m_pi2, pow2(delta_m), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_pi+_pi0"] = G_F2 / (192. * pow3(pi) * pow3(m_C)) * N_2pi_I;
@@ -2458,7 +2452,7 @@ namespace Gambit
       // Channel: ~chi+_1 --> ~chi0_1 pi+ pi0 pi0
       //
       partial_widths["N_pi+_pi0_pi0"] = 0.0;
-      if (delta_m > 3*m_pi)
+      if (delta_m_safety > 3*m_pi)
       {
         // Define a helper function
         std::function<double(double)> g = [&m_pi,&m_pi2,&m_rho_0](double q2)
@@ -2486,7 +2480,7 @@ namespace Gambit
         };
 
         // Perform integration
-        double N_3pi_I = integrate_cquad(N_3pi_integrand, 9*m_pi2, pow2(delta_m), 0, 1e-2);
+        double N_3pi_I = Utils::integrate_cquad(N_3pi_integrand, 9*m_pi2, pow2(delta_m), 0, 1e-2);
 
         // Put everything together
         partial_widths["N_pi+_pi0_pi0"] = G_F2 / (6912. * pow(pi,5) * pow3(m_C) * f_pi2) * N_3pi_I;
@@ -2715,13 +2709,13 @@ namespace Gambit
           // Split integration by hand to avoid pole
           double I;
           if(dm < m_tau)
-            I = integrate_cquad(integ_3b, 0, 1, 0, 1e-2);
+            I = Utils::integrate_cquad(integ_3b, 0, 1, 0, 1e-2);
           else
           {
             double pole = (pow2(dm)-pow2(m_tau))/(pow2(dm)-pow2(m_pi));
             double eps = 1E-15;
-            double I1 = integrate_cquad(integ_3b, 0, pole-eps, 0, 1e-2);
-            double I2 = integrate_cquad(integ_3b, pole-eps, 1, 0, 1e-2);
+            double I1 = Utils::integrate_cquad(integ_3b, 0, pole-eps, 0, 1e-2);
+            double I2 = Utils::integrate_cquad(integ_3b, pole-eps, 1, 0, 1e-2);
             I = I1 + I2;
           }
 
@@ -2759,13 +2753,13 @@ namespace Gambit
           // Split integration by hand to avoid pole
           double I;
           if(dm < m_tau)
-            I = integrate_cquad(integ_4b, 0, 1, 0, 1e-2);
+            I = Utils::integrate_cquad(integ_4b, 0, 1, 0, 1e-2);
           else
           {
             double pole = (pow2(dm)-pow2(m_tau))/(pow2(dm)-pow2(m_l));
             double eps = 1E-15;
-            double I1 = integrate_cquad(integ_4b, 0, pole-eps, 0, 1e-2);
-            double I2 = integrate_cquad(integ_4b, pole-eps, 1, 0, 1e-2);
+            double I1 = Utils::integrate_cquad(integ_4b, 0, pole-eps, 0, 1e-2);
+            double I2 = Utils::integrate_cquad(integ_4b, pole-eps, 1, 0, 1e-2);
             I = I1 + I2;
           }
 
@@ -3057,6 +3051,7 @@ namespace Gambit
       decays("rho+") = *Dep::rho_plus_decay_rates;  // Add the rho+ decays.
       decays("rho-") = *Dep::rho_minus_decay_rates; // Add the rho- decays.
       decays("omega") = *Dep::omega_decay_rates;    // Add the omega meson decays.
+      
 
       // MSSM-specific
       if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))

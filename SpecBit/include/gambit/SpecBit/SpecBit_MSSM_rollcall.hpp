@@ -43,7 +43,7 @@
 #define __SpecBit_MSSM_hpp__
 
 // Include this here so that typedef for SLHAstruct gets passed on to standalone codes which use these module functions
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
   /// @{ Functions to supply particle spectra in various forms
 
@@ -63,7 +63,7 @@
     ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
     DEPENDENCY(SMINPUTS, SMInputs)
     BACKEND_REQ(SPheno_MSSMspectrum, (libSPheno), int, (Spectrum&, const Finputs&) )
-    BACKEND_OPTION((SPheno, 3.3.8), (libSPheno))
+    BACKEND_OPTION((SPheno, 3.3.8, 4.0.3), (libSPheno))
     #undef FUNCTION
 
     /// Get MSSM spectrum from CMSSM boundary conditions

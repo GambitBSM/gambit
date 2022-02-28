@@ -39,6 +39,7 @@
 #include <vector>
 #include <chrono>
 
+#include "gambit/Utils/PID_pair.hpp"
 #include "gambit/ColliderBit/MCLoopInfo.hpp"
 #include "gambit/ColliderBit/MC_convergence.hpp"
 #include "gambit/ColliderBit/xsec.hpp"
@@ -56,7 +57,6 @@
 /// TODO: see if we can use this one:
 //#include "gambit/ColliderBit/limits/L3SmallDeltaMGauginoLimits.hpp"
 
-#include "LHEF.h"
 #include "HEPUtils/Event.h"
 
 namespace Gambit
@@ -67,7 +67,7 @@ namespace Gambit
 
     /// @brief Container for data from multiple analyses and SRs
     typedef std::vector<AnalysisData> AnalysisNumbers;
-    typedef std::vector<const AnalysisData*> AnalysisDataPointers;
+    typedef std::vector<AnalysisData*> AnalysisDataPointers;
 
     /// @brief Container for loglike information for an analysis
     struct AnalysisLogLikes
@@ -99,6 +99,29 @@ namespace Gambit
 
     /// @brief Typedef for a str-SLHAstruct pair, to pass around SLHA filenames + content
     typedef std::pair<std::string,SLHAstruct> pair_str_SLHAstruct;
+
+    /// @brief Typedefs related to cross-sections 
+    // Note: 
+    // The 'iipair' name below refers to the typedef std::pair<int,int> iipair 
+    // declared in Utils/include/gambit/Utils/util_types.hpp
+
+    typedef std::vector<std::pair<int,int>> vec_iipair;
+    typedef std::vector<PID_pair> vec_PID_pair;
+
+    typedef std::multimap<int,std::pair<int,int>> multimap_int_iipair;
+    typedef std::multimap<int,PID_pair> multimap_int_PID_pair;
+
+    typedef std::multimap<PID_pair,int> multimap_PID_pair_int;
+
+    typedef std::map<int,xsec_container> map_int_xsec;
+    typedef std::map<int,process_xsec_container> map_int_process_xsec;
+
+    typedef std::map<std::pair<int,int>,PID_pair_xsec_container> map_iipair_PID_pair_xsec;
+    typedef std::map<PID_pair,PID_pair_xsec_container> map_PID_pair_PID_pair_xsec;
+
+    /// @brief Typedef for a std::function that sets the weight for the input HEPUtils::Event
+    typedef HEPUtils::Event HEPUtils_Event;  // Extra typedef to avoid macro problem with namespaces
+    typedef std::function<void(HEPUtils_Event&, const BaseCollider*)> EventWeighterFunctionType;
   }
 }
 

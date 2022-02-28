@@ -129,10 +129,6 @@ namespace Gambit {
       /// Define many new parameters at once via an array of char arrays
       void _definePars(const char** array);
 
-      /// Initialise object contents from a pre-defined model
-      /// (i.e. from a pre-existing primary_parameters functor)
-      void initialize_as(const std::string modelname, const std::string outputname);
-
       /// Getters/setters for model and output names
       std::string getModelName() const;
       std::string getOutputName() const;

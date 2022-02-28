@@ -34,11 +34,11 @@ namespace Gambit
     protected:
 
       // Counters for the number of accepted events for each signal region
-      std::map<string,double> _numSR = {
-        {"SR1A", 0},
-        {"SR1B", 0},
-        {"SR2A", 0},
-        {"SR2B", 0},
+      std::map<string, EventCounter> _counters = {
+        {"SR1A", EventCounter("SR1A")},
+        {"SR1B", EventCounter("SR1B")},
+        {"SR2A", EventCounter("SR2A")},
+        {"SR2B", EventCounter("SR2B")},
       };
 
        vector<Cutflow> _cutflow;
@@ -50,12 +50,12 @@ namespace Gambit
 
       struct ptComparison
       {
-        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
       struct ptJetComparison
       {
-        bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
 
@@ -69,8 +69,8 @@ namespace Gambit
 
         set_analysis_name("ATLAS_13TeV_2OSLEP_Z_139invfb");
         set_luminosity(139);
-        
-        
+
+
         str cutflow_name = "ATLAS 2 opposite sign leptons at the Z peak 13 TeV";
         vector<str> SR1A = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 4", "MET > 250 GeV", "mT23l > 100 GeV"};
         vector<str> SR1B = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 5", "MET > 150 GeV", "pTll > 150 GeV", "Leading b-tagged jet pT > 100 GeV"};
@@ -78,9 +78,9 @@ namespace Gambit
         vector<str> SR2B = {"Trigger", "Third leading lepton pT < 60 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "MET > 350 GeV", "pTll > 150 GeV"};
         _cutflow = { Cutflow(cutflow_name, SR1A),
                      Cutflow(cutflow_name, SR1B),
-                     Cutflow(cutflow_name, SR2A), 
+                     Cutflow(cutflow_name, SR2A),
                      Cutflow(cutflow_name, SR2B) };
-	//_test = {0,0,0,0,0};
+        //_test = {0,0,0,0,0};
         //_test2 = 0;
 
       }
@@ -89,12 +89,12 @@ namespace Gambit
       {
 
         // Baseline objects
-        vector<HEPUtils::Particle*> baselineElectrons;
-        vector<HEPUtils::Particle*> baselineMuons;
-        vector<HEPUtils::Particle*> baselineTaus;
-        vector<HEPUtils::Jet*> baselineJets;
-        vector<HEPUtils::Jet*> baselineBJets;
-        vector<HEPUtils::Jet*> baselineNonBJets;
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        vector<const HEPUtils::Particle*> baselineMuons;
+        vector<const HEPUtils::Particle*> baselineTaus;
+        vector<const HEPUtils::Jet*> baselineJets;
+        vector<const HEPUtils::Jet*> baselineBJets;
+        vector<const HEPUtils::Jet*> baselineNonBJets;
 
         // Missing momentum and energy
         HEPUtils::P4 ptot = event->missingmom();
@@ -108,7 +108,7 @@ namespace Gambit
           _cutflow[i].fillinit();
 
         // Electron candidates are reconstructed from isolated electromagnetic calorimeter energy deposits matched to ID tracks and are required to have |η| < 2.47, a transverse momentum pT > 4.5 GeV, and to pass the “LooseAndBLayer” requirement in arXiv: 1902.04655 [hep-ex].
-        for (HEPUtils::Particle* electron : event->electrons())
+        for (const HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT()>4.5 && electron->abseta()<2.47) baselineElectrons.push_back(electron);
         }
@@ -117,8 +117,8 @@ namespace Gambit
         // Loose electron ID selection
         ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
 
-        // Muon candidates are reconstructed in the region |η| < 2.4 from muon spectrometer tracks matching ID tracks. Candidate muons must have pT > 4 GeV and pass the medium identification requirements defined in arXiv: 1603.05598 [hep-ex]. 
-        for (HEPUtils::Particle* muon : event->muons())
+        // Muon candidates are reconstructed in the region |η| < 2.4 from muon spectrometer tracks matching ID tracks. Candidate muons must have pT > 4 GeV and pass the medium identification requirements defined in arXiv: 1603.05598 [hep-ex].
+        for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT()>4. && muon->abseta()<2.4) baselineMuons.push_back(muon);
         }
@@ -131,10 +131,10 @@ namespace Gambit
 
 
         // Only jet candidates with pT > 20 GeV and |η| < 2.8 are considered in the analysis
-        // Jets with pT < 120 GeV and |η| < 2.8 have an efficiency of 90% 
+        // Jets with pT < 120 GeV and |η| < 2.8 have an efficiency of 90%
         // Mising:  cut based on detector noise and non-collision backgrounds
         double jet_eff = 0.9;
-        for (HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets())
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
             if( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);
@@ -164,7 +164,7 @@ namespace Gambit
         // Find b-jets
         // Copied from ATLAS_13TeV_3b_24invfb
         double btag = 0.77; double cmisstag = 1/16.; double misstag = 1./113.;
-        for (HEPUtils::Jet* jet : baselineJets) {
+        for (const HEPUtils::Jet* jet : baselineJets) {
           // Tag
           if( jet->btag() && random_bool(btag) ) baselineBJets.push_back(jet);
           // Misstag c-jet
@@ -176,22 +176,22 @@ namespace Gambit
         }
 
         // Signal objects
-        vector<HEPUtils::Jet*> signalJets = baselineJets;
-        vector<HEPUtils::Jet*> signalBJets = baselineBJets;
-        vector<HEPUtils::Particle*> signalElectrons = baselineElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Jet*> signalJets = baselineJets;
+        vector<const HEPUtils::Jet*> signalBJets = baselineBJets;
+        vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> signalLeptons;
 
         // Signal electrons must satisfy the “medium” identification requirement as defined in arXiv: 1902.04655 [hep-ex]
         ATLAS::applyElectronIDEfficiency2019(signalElectrons, "Medium");
 
 
         // Signal muons must have pT > 5 GeV.
-        for (HEPUtils::Particle* signalMuon : baselineMuons)
+        for (const HEPUtils::Particle* signalMuon : baselineMuons)
         {
           if (signalMuon->pT() > 5.) signalMuons.push_back(signalMuon);
         }
-         
+
         // Missing: we need track information for isolation criteria for signal leptons
 
         // Fill signal leptons
@@ -217,12 +217,12 @@ namespace Gambit
         size_t nSignalBJets = signalBJets.size();
 
         // Get SFOS pairs
-        vector<vector<HEPUtils::Particle*>> SFOSpairs = getSFOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> SFOSpairs = getSFOSpairs(signalLeptons);
 
         // Get SFOS pairs masses and pTs
         vector<double> SFOSpair_masses;
         vector<double> SFOSpair_pTs;
-        for (vector<HEPUtils::Particle*> pair : SFOSpairs)
+        for (vector<const HEPUtils::Particle*> pair : SFOSpairs)
         {
           SFOSpair_masses.push_back( (pair.at(0)->mom() + pair.at(1)->mom()).m() );
           SFOSpair_pTs.push_back( (pair.at(0)->mom() + pair.at(1)->mom()).pT() );
@@ -240,13 +240,13 @@ namespace Gambit
         }
 
         // Combine all preselection cuts
-        preselection = nSignalLeptons >= 3 && SFOSpairs.size() >= 1 && signalLeptons.at(0)->pT() > 40. && signalLeptons.at(1)->pT() > 20. && Zlike;     
+        preselection = nSignalLeptons >= 3 && SFOSpairs.size() >= 1 && signalLeptons.at(0)->pT() > 40. && signalLeptons.at(1)->pT() > 20. && Zlike;
 
         // Construct the mT23l variable for the pair of SFOS with invariant mass closest to mZ and highest pT lepton not in the pair
-        vector<HEPUtils::Particle*> SFOSpairClosestToMZ;
+        vector<const HEPUtils::Particle*> SFOSpairClosestToMZ;
         double mll =  0;
         // Find the SFOS pair high inv mass closest to mZ
-        for (vector<HEPUtils::Particle*> pair: SFOSpairs)
+        for (vector<const HEPUtils::Particle*> pair: SFOSpairs)
         {
           if( fabs( (pair.at(0)->mom() + pair.at(1)->mom()).m() - mZ ) < fabs(mll - mZ) )
           {
@@ -264,14 +264,14 @@ namespace Gambit
         double mT23l = 0.0;
         if(nSignalLeptons >= 3 and SFOSpairClosestToMZ.size() == 2)
         {
-          HEPUtils::Particle* thirdLepton;
+          const HEPUtils::Particle* thirdLepton;
           if(signalLeptons.at(0) != SFOSpairClosestToMZ.at(0) && signalLeptons.at(0) != SFOSpairClosestToMZ.at(1))
             thirdLepton = signalLeptons.at(0);
           else if(signalLeptons.at(1) != SFOSpairClosestToMZ.at(0) && signalLeptons.at(1) != SFOSpairClosestToMZ.at(1))
             thirdLepton = signalLeptons.at(1);
           else
             thirdLepton = signalLeptons.at(2);
- 
+
           double pa[3] = { mll, (SFOSpairClosestToMZ.at(0)->mom() + SFOSpairClosestToMZ.at(1)->mom()).px(), (SFOSpairClosestToMZ.at(0)->mom() + SFOSpairClosestToMZ.at(1)->mom()).py() };
           double pb[3] = { 0, thirdLepton->mom().px(), thirdLepton->mom().py() };
           double pmiss[3] = { met, ptot.px(), ptot.py() };
@@ -297,8 +297,8 @@ namespace Gambit
         // mT23l                            >100       -       -       -    // done
 
         // SR1A
-        if (preselection && 
-            signalLeptons.at(2)->pT() > 20. && 
+        if (preselection &&
+            signalLeptons.at(2)->pT() > 20. &&
             nSignalJets >= 4 && signalJets.at(3)->pT() > 30. &&
             nSignalBJets >= 1 && signalBJets.at(0)->pT() > 30. &&
             // -
@@ -306,50 +306,50 @@ namespace Gambit
             met > 250. &&
             // -
             mT23l > 100.
-           ) 
-          _numSR["SR1A"]++;
+           )
+          _counters.at("SR1A").add_event(event);
 
         // SR1B
-        if (preselection && 
-            signalLeptons.at(2)->pT() > 20. && 
+        if (preselection &&
+            signalLeptons.at(2)->pT() > 20. &&
             nSignalJets >= 5 && signalJets.at(4)->pT() > 30. &&
             nSignalBJets >= 1 && signalBJets.at(0)->pT() > 30. &&
             // -
-            signalBJets.at(0)->pT() > 100. && 
+            signalBJets.at(0)->pT() > 100. &&
             met > 150. &&
             pTll > 150.
             // -
-           ) 
-          _numSR["SR1B"]++;
+           )
+          _counters.at("SR1B").add_event(event);
 
         // SR2A
-        if (preselection && 
-            signalLeptons.at(2)->pT() < 20. && 
-            nSignalJets >= 3 && signalJets.at(2)->pT() > 30. && 
+        if (preselection &&
+            signalLeptons.at(2)->pT() < 20. &&
+            nSignalJets >= 3 && signalJets.at(2)->pT() > 30. &&
             // -
             signalJets.at(0)->pT() > 150. &&
             // -
             met > 200. &&
-            pTll < 50. 
+            pTll < 50.
             // -
-           ) 
-          _numSR["SR2A"]++;
+           )
+          _counters.at("SR2A").add_event(event);
 
         // SR2B
-        if (preselection && 
-            signalLeptons.at(2)->pT() < 60. && 
+        if (preselection &&
+            signalLeptons.at(2)->pT() < 60. &&
             nSignalJets >= 3 && signalJets.at(2)->pT() > 30. &&
             nSignalBJets >= 1 && signalBJets.at(0)->pT() > 30. &&
            // -
            // -
-           met > 350. && 
+           met > 350. &&
            pTll > 150.
            // -
-           ) 
-          _numSR["SR2B"]++;
+           )
+          _counters.at("SR2B").add_event(event);
 
         // Cutflows
-        
+
         // Fill cutflow with preselection trigger as defined by ATLAS
         //if(nSignalLeptons >= 3) _test[0]++;
         //if(nSignalLeptons >= 3 && nSignalJets >= 3 && signalJets.at(2)->pT() > 30.) _test[1]++;
@@ -373,7 +373,7 @@ namespace Gambit
               SR[i] = false;
           if(signalLeptons.at(2)->pT() < 20)
             _cutflow[2].fill(2);
-          else SR[2] = false; 
+          else SR[2] = false;
           if(signalLeptons.at(2)->pT() < 60)
             _cutflow[3].fill(2);
           else SR[3] = false;
@@ -382,8 +382,8 @@ namespace Gambit
           // Z peak
           for(int i=0; i<4; i++)
             if(Zlike)
-             _cutflow[i].fill(3, SR[i]);  
-            else SR[i] = false; 
+             _cutflow[i].fill(3, SR[i]);
+            else SR[i] = false;
 
           // 4
           // nbtagged jets (pT > 30 GeV)
@@ -453,22 +453,17 @@ namespace Gambit
         const Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb* specificOther
                 = dynamic_cast<const Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb*>(other);
 
-        for (auto& el : _numSR)
-        {
-          el.second += specificOther->_numSR.at(el.first);
-        }
-
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()
       {
 
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR1A", 3., {_numSR["SR1A"], 0.}, {5.4, 0.7}));
-        add_result(SignalRegionData("SR1B", 14., {_numSR["SR1B"], 0.}, {12.8, 1.6}));
-        add_result(SignalRegionData("SR2A", 3., {_numSR["SR2A"], 0.}, {5.7, 1.7}));
-        add_result(SignalRegionData("SR2B", 6., {_numSR["SR2B"], 0.}, {5.4, 0.8}));
+        add_result(SignalRegionData(_counters.at("SR1A"), 3., {5.4, 0.7}));
+        add_result(SignalRegionData(_counters.at("SR1B"), 14., {12.8, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR2A"), 3., {5.7, 1.7}));
+        add_result(SignalRegionData(_counters.at("SR2B"), 6., {5.4, 0.8}));
 
         #ifdef CHECK_CUTFLOW
           cout << _cutflow << endl;
@@ -487,7 +482,7 @@ namespace Gambit
     protected:
       void analysis_specific_reset()
       {
-        for (auto& el : _numSR) { el.second = 0.;}
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };

@@ -25,6 +25,10 @@
 ///          (janina.renk@fysik.su.se)
 ///  \date 2019 July, Dec
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Sep
+///
 ///  *********************************************
 
 #ifndef __SpecBit_VS_rollcall_hpp__
@@ -115,96 +119,96 @@
     #undef FUNCTION
   #undef CAPABILITY
 
-  /******************************************/
-  /* Vacuum stability likelihoods & results */
-  /******************************************/
+  /***********************************/
+  /* Vacuum stability with Vevacious */
+  /***********************************/
 
-  /// Tunnelling likelihood using global minimum as panic vacuum
-  #define CAPABILITY VS_likelihood_global
+  /// Create a string set containing a list with all panic vacua for the 
+  /// vacuum stability likelihood VS_likelihood
+  #define CAPABILITY panic_vacua
   START_CAPABILITY
-    #define FUNCTION get_likelihood_VS_global
-      START_FUNCTION(double)
-      DEPENDENCY(check_vacuum_stability_global, SpecBit::VevaciousResultContainer)
+    #define FUNCTION set_panic_vacua
+    START_FUNCTION(std::set<std::string>)
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// Tunnelling likelihood using nearest minimum as panic vacuum
-  #define CAPABILITY VS_likelihood_nearest
+  /// Create a string set containing a list of all tunnelling strategies for the
+  /// vacuum stability likelihood VS_likelihood
+  #define CAPABILITY tunnelling_strategy
   START_CAPABILITY
-    #define FUNCTION get_likelihood_VS_nearest
-      START_FUNCTION(double)
-      DEPENDENCY(check_vacuum_stability_nearest, SpecBit::VevaciousResultContainer)
+    #define FUNCTION set_tunnelling_strategy
+    START_FUNCTION(std::set<std::string>)
     #undef FUNCTION
   #undef CAPABILITY
-  
-  /// Get all vevacious results from a global run as str to dbl map to print them
-  #define CAPABILITY VS_results_global
+
+  /// Tunnelling likelihood (including contributions set by panic_vacua)
+  #define CAPABILITY VS_likelihood
   START_CAPABILITY
-    #define FUNCTION get_VS_results_global
+    #define FUNCTION get_likelihood_VS
+      START_FUNCTION(double)
+      DEPENDENCY(check_vacuum_stability, SpecBit::VevaciousResultContainer)
+      DEPENDENCY(compare_panic_vacua, map_str_str)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Get all vevacious results from a vevacious run as str to dbl map to print them
+  #define CAPABILITY VS_results
+  START_CAPABILITY
+    #define FUNCTION get_VS_results
       START_FUNCTION(map_str_dbl)
-      DEPENDENCY(check_vacuum_stability_global, SpecBit::VevaciousResultContainer)
+      DEPENDENCY(check_vacuum_stability, SpecBit::VevaciousResultContainer)
+      DEPENDENCY(compare_panic_vacua, map_str_str)
     #undef FUNCTION
   #undef CAPABILITY
     
-  /// Get all vevacious results from a nearest run as str to dbl map to print them
-  #define CAPABILITY VS_results_nearest
-  START_CAPABILITY
-    #define FUNCTION get_VS_results_nearest
-      START_FUNCTION(map_str_dbl)
-      DEPENDENCY(check_vacuum_stability_nearest, SpecBit::VevaciousResultContainer)
-    #undef FUNCTION
-  #undef CAPABILITY
-  
-  /**********************/
-  /* VEVACIOUS ROUTINES */
-  /**********************/
-
-  /// Model dependent -- just tells vevacious the name and locations of the ini files
-  /// for each model, since they might not be just <MODELNAME>.vin, etc.
-  #define CAPABILITY vevacious_file_location
-  START_CAPABILITY
-    #define FUNCTION vevacious_file_location_MSSM
-    START_FUNCTION(map_str_str)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  // Initialize vevacious with a set of YAML runOptions.
+  /// Initialize vevacious with a set of YAML runOptions.
   #define CAPABILITY init_vevacious
   START_CAPABILITY
     #define FUNCTION initialize_vevacious
     START_FUNCTION(std::string)
     DEPENDENCY(vevacious_file_location, map_str_str)
+    DEPENDENCY(tunnelling_strategy,std::set<std::string>)
     #undef FUNCTION
   #undef CAPABILITY
-   
+
+  /// If tunnelling to global and nearest vacuum are requested, this
+  /// capability compares if the two vacua are the same. 
+  /// Return true if they coincide, false if not.
+  #define CAPABILITY compare_panic_vacua
+  START_CAPABILITY
+    #define FUNCTION compare_panic_vacua
+    START_FUNCTION(map_str_str)
+    DEPENDENCY(panic_vacua,std::set<std::string>)
+    DEPENDENCY(tunnelling_strategy,std::set<std::string>)
+    DEPENDENCY(pass_spectrum_to_vevacious, SpecBit::SpectrumEntriesForVevacious)
+    NEEDS_CLASSES_FROM(vevacious, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   /// Function for computing the stability of the scalar potential w.r.t. global minimum. Model independent. 
   /// Just works with a filled instance of SpectrumEntriesForVevacious for the respective Model.
   /// calls two non-rollcalled helper functions: helper_run_vevacious & helper_catch_vevacious
-  #define CAPABILITY check_vacuum_stability_global
+  #define CAPABILITY check_vacuum_stability
   START_CAPABILITY
-    #define FUNCTION check_vacuum_stability_vevacious_global
+    #define FUNCTION check_vacuum_stability_vevacious
     START_FUNCTION(SpecBit::VevaciousResultContainer)
-    // should eventually get the number of implemented pathFinders in vevacious in a non-hard coded way # todo
-    //BACKEND_REQ(get_pathFinder_number,(vevtag), int, ())
+    DEPENDENCY(compare_panic_vacua,map_str_str)
     DEPENDENCY(pass_spectrum_to_vevacious, SpecBit::SpectrumEntriesForVevacious)
     DEPENDENCY(init_vevacious, std::string)
     NEEDS_CLASSES_FROM(vevacious, default)
   #undef FUNCTION
   #undef CAPABILITY
-  
-  /// Function for computing the stability of the scalar potential w.r.t to nearest minimum. Model independent. 
-  /// Just works with a filled instance of SpectrumEntriesForVevacious for the respective Model.
-  /// calls two non-rollcalled helper functions: helper_run_vevacious & helper_catch_vevacious
-  #define CAPABILITY check_vacuum_stability_nearest
+
+  /// Model dependent capabilities
+
+  /// Name and locations of the ini files for Vevacious
+  /// for each model, since they might not be just <MODELNAME>.vin, etc.
+  #define CAPABILITY vevacious_file_location
   START_CAPABILITY
-    #define FUNCTION check_vacuum_stability_vevacious_nearest
-    START_FUNCTION(SpecBit::VevaciousResultContainer)
-    // should eventually get the number of implemented pathFinders in vevacious in a non-hard coded way # todo
-    //BACKEND_REQ(get_pathFinder_number,(vevtag), int, ())
-    DEPENDENCY(pass_spectrum_to_vevacious, SpecBit::SpectrumEntriesForVevacious)
-    DEPENDENCY(init_vevacious, std::string)
-    NEEDS_CLASSES_FROM(vevacious, default)
-  #undef FUNCTION
+    #define FUNCTION vevacious_file_location_MSSM
+    START_FUNCTION(map_str_str)
+    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   /// Function to create an object of type SpectrumEntriesForVevacious, holding all spectrum entries
@@ -216,10 +220,9 @@
 
   #define FUNCTION prepare_pass_MSSM_spectrum_to_vevacious
     START_FUNCTION(SpecBit::SpectrumEntriesForVevacious)
-    DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
+    DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(init_vevacious, std::string)
-    // (JR) I don't know which models should or should not be allowed here, best to check with Eliel # todo
-    ALLOW_MODELS(MSSM, CMSSM, NUHM2) 
+    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ) 
   #undef FUNCTION
   #undef CAPABILITY
 

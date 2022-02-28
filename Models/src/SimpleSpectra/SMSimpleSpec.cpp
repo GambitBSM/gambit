@@ -80,6 +80,8 @@ namespace Gambit
 
       double SMea::get_MPhoton_pole()   const { return 0.; }
       double SMea::get_MGluon_pole()    const { return 0.; }
+      double SMea::get_MPhoton()        const { return 0.; }
+      double SMea::get_MGluon()         const { return 0.; }
        
       // In SLHA the W mass is an output, though some spectrum generator authors
       // allow it as a non-standard entry in SMINPUTS. Here we will stick to
@@ -94,7 +96,26 @@ namespace Gambit
       double SMea::get_md() const { return getdata("SMINPUTS",21); }
       double SMea::get_mu() const { return getdata("SMINPUTS",22); }
       double SMea::get_ms() const { return getdata("SMINPUTS",23); }
+
+      double SMea::get_mD(int i) const
+      {
+        if     (i==1) { return getdata("SMINPUTS",21); }
+        else if(i==2) { return getdata("SMINPUTS",23); }
+        else if(i==3) { return getdata("SMINPUTS",5); }
+        else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_mU! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
+      }
    
+      double SMea::get_mU(int i) const
+      {
+        if     (i==1) { return getdata("SMINPUTS",22); }
+        else if(i==2) { return getdata("SMINPUTS",24); }
+        else if(i==3) { return getdata("SMINPUTS",6); }
+        else { utils_error().raise(LOCAL_INFO,"Invalid index input to get_mD! Please check index range limits in wrapper SubSpectrum class!"); return -1; } // Should not return.
+      }
+   
+      double SMea::get_alpha()   const { return 1.0/getdata("SMINPUTS",1); }
+      double SMea::get_alphaS()  const { return getdata("SMINPUTS",3); }
+ 
       // Gauge couplings not provided since they cannot be provided at the same
       // scale. If you want the SLHA definition gauge couplings, you can extract them
       // from the SLHAea object yourself, or use the SMInputs object which comes
@@ -139,20 +160,43 @@ namespace Gambit
       {
          GetterMaps map_collection; 
 
+         typedef MTget::FInfo1 FInfo1;
+
+         // Can't use c++11 initialiser lists, se have to initialise the index sets like this.
+         static const int i123v[] = {1,2,3};
+         static const std::set<int> i123(i123v, Utils::endA(i123v));
+
+
          /// Fill for mass1 map 
          {
             MTget::fmap0 tmp_map;
 
-            tmp_map["u_1"]  = &SMea::get_mu; // u
-            tmp_map["d_1"]  = &SMea::get_md; // d
-            tmp_map["d_2"]  = &SMea::get_ms; // s
+            tmp_map["gamma"] = &SMea::get_MPhoton;
+            tmp_map["g"] = &SMea::get_MGluon;
+
+            //tmp_map["u_1"]  = &SMea::get_mu; // u
+            //tmp_map["d_1"]  = &SMea::get_md; // d
+            //tmp_map["d_2"]  = &SMea::get_ms; // s
 
             // Nearest flavour 'aliases' for the SM mass eigenstates
             tmp_map["u"]  = &SMea::get_mu; // u
             tmp_map["d"]  = &SMea::get_md; // d
             tmp_map["s"]  = &SMea::get_ms; // s
 
+            tmp_map["e-_3"]= &SMea::get_Mtau_pole; // tau
+            tmp_map["e-_2"]= &SMea::get_Mmuon_pole; // mu
+            tmp_map["e-_1"]= &SMea::get_Melectron_pole;
+
             map_collection[Par::mass1].map0 = tmp_map;
+         }
+
+         {
+            MTget::fmap1 tmp_map;
+            tmp_map["d"] =    FInfo1( &Model::get_mD, i123 );
+            tmp_map["u"] =    FInfo1( &Model::get_mU, i123 );
+            //tmp_map["e-"] =   FInfo1( &Model::get_me, i123456 );
+
+            map_collection[Par::mass1].map1 = tmp_map;
          }
 
          /// Fill Pole_mass map (from Model object)
@@ -208,6 +252,16 @@ namespace Gambit
   
               map_collection[Par::Pole_Mixing].map0 = tmp_map;
             }
+
+            {
+              MTget::fmap0 tmp_map;
+
+              tmp_map["alpha"] = &SMea::get_alpha;
+              tmp_map["alphaS"] = &SMea::get_alphaS;
+
+              map_collection[Par::dimensionless].map0 = tmp_map;
+            }
+
          }
 
          return map_collection;

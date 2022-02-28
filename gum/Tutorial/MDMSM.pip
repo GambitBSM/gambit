@@ -1,7 +1,7 @@
 -------------------------------
 ---Common fields---------------             ;EFN = empty for none
 
-main_chain = 'MDMSM.hdf5:/MDMSM'          ;Filename of chain to operate on.  For a group in an hdf5 file, something like 'myfile.hdf5:/group'
+main_chain = '../../runs/MDMSM/samples/MDMSM.hdf5:/MDMSM'          ;Filename of chain to operate on.  For a group in an hdf5 file, something like 'myfile.hdf5:/group'
 comparison_chain =                          ;Filename of secondary chain to operate on, for comparison (EFN)
 
 do_posterior_pdf = F                        ;Parse, script or plot posterior pdfs
@@ -10,6 +10,7 @@ oneD_contour_levels = 68.3 95.4             ;Contour levels to plot in 1D plots 
 twoD_contour_levels = 68.3 95.4             ;Contour levels to plot in 2D plots (EFN; script operation ignores actual values)
 oneD_plot_quantities = 1 2 3 4 5 6 7         ;Parameters/observables to construct 1D plots of (EFN)
 twoD_plot_quantities = {1,2}, {3,1}, {4,1}, {1,5}, {1,200}, {1,201}, {4,2}, {3,2}, {2,5}, {2,200}, {2,201},  {4,3}, {3,5}, {3,200}, {3,201}, {4,5}, {4,200}, {4,201}      ;Parameters/observable combinations to make 2D plots of (EFN)
+plot_observables =                          ;Observables to plot (EFN)
 
 -------------------------------
 ---Parsing---------------------

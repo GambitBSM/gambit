@@ -2,15 +2,19 @@
 #define __wrapper_Pythia_decl_Pythia_8_212_h__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.h"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_Pythia.h"
 #include <string>
-#include "wrapper_ParticleData_decl.h"
-#include "wrapper_Settings_decl.h"
 #include <istream>
 #include <vector>
 #include <ostream>
+#include <sstream>
+#include "forward_decls_wrapper_classes.h"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_Pythia.h"
+#include "wrapper_ParticleData_decl.h"
+#include "wrapper_Settings_decl.h"
+#include "wrapper_UserHooks_decl.h"
+#include "wrapper_SigmaProcess_decl.h"
+#include "wrapper_ResonanceWidths_decl.h"
 #include "wrapper_Event_decl.h"
 #include "wrapper_Info_decl.h"
 #include "wrapper_Rndm_decl.h"
@@ -20,7 +24,6 @@
 #include "wrapper_BeamParticle_decl.h"
 #include "wrapper_PartonLevel_decl.h"
 #include "wrapper_SigmaTotal_decl.h"
-#include <sstream>
 
 #include "identification.hpp"
 
@@ -35,11 +38,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Pythia* (*__factory0)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool);
-                static Pythia8::Abstract_Pythia* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
-                static Pythia8::Abstract_Pythia* (*__factory2)();
-                static Pythia8::Abstract_Pythia* (*__factory3)(Pythia8::ParticleData&, Pythia8::Settings&, bool);
-                static Pythia8::Abstract_Pythia* (*__factory4)(Pythia8::ParticleData&, Pythia8::Settings&);
+                static Abstract_Pythia* (*__factory0)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool);
+                static Abstract_Pythia* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+                static Abstract_Pythia* (*__factory2)();
+                static Abstract_Pythia* (*__factory3)(Pythia8::ParticleData&, Pythia8::Settings&, bool);
+                static Abstract_Pythia* (*__factory4)(Pythia8::ParticleData&, Pythia8::Settings&);
         
                 // -- Other member variables: 
             public:
@@ -75,6 +78,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 bool readFile();
         
                 bool readFile(::std::basic_istream<char, std::char_traits<char> >& is, int subrun);
+        
+                bool setUserHooksPtr(Pythia8::UserHooks* userHooksPtrIn);
+        
+                bool setResonancePtr(Pythia8::ResonanceWidths* resonancePtrIn);
         
                 bool init(::std::basic_ostream<char, std::char_traits<char> >& os);
         
@@ -120,10 +127,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Pythia(Pythia8::ParticleData& particleDataIn, Pythia8::Settings& settingsIn);
         
                 // Special pointer-based constructor: 
-                Pythia(Pythia8::Abstract_Pythia* in);
-        
-                // Copy constructor: 
-                Pythia(const Pythia& in);
+                Pythia(Abstract_Pythia* in);
         
                 // Assignment operator: 
                 Pythia& operator=(const Pythia& in);
@@ -132,7 +136,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Pythia();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Pythia* get_BEptr() const;
+                Abstract_Pythia* get_BEptr() const;
         
         };
     }

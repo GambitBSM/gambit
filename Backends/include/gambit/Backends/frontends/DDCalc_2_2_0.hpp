@@ -31,6 +31,7 @@
 ///  \author Felix Kahlhoefer
 ///          (felix.kahlhoefer@desy.de)
 ///  \date 2016 Aug
+///  \date 2020 May
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
@@ -43,6 +44,7 @@
 #define BACKENDLANG Fortran
 #define VERSION 2.2.0
 #define SAFE_VERSION 2_2_0
+#define REFERENCE GAMBIT:2017fax,GAMBIT:2018eea
 
 // Load it
 LOAD_LIBRARY
@@ -111,15 +113,6 @@ BE_FUNCTION(DARWIN_Init,         int, (), "C_DDCalc_darwin_init",         "DARWI
 // values are already set via DDCalc_InitHalo routine, so it need not be called at all if the default values are to be used.
 BE_FUNCTION(DDCalc_SetSHM, void, (const int&, const double&, const double&, const double&, const double&), "C_DDCalc_ddcalc_setshm", "SetSHM")
 
-// Set the WIMP mass and couplings for the Higgs portal DM models.
-//    *higgsportal:  mass, fsp, fsn, app, apn
-//  Units: mass [GeV]; f [GeV^-2] = pure scalar coupling; a [GeV^-2] = pure pseudoscalar coupling
-// Convention: f = G/2 where G is the effective 4 vertex DM-nucleon coupling.
-BE_FUNCTION(DDCalc_SetWIMP_higgsportal, void, (const int&, const double&, const double&, const double&, const double&, const double&), "C_DDCalc_ddcalc_setwimp_higgsportal", "SetWIMP_higgsportal")
-
-// Get the WIMP mass and couplings for the Higgs portal DM models.
-BE_FUNCTION(DDCalc_GetWIMP_higgsportal, void, (const int&, double&, double&, double&, double&, double&), "C_DDCalc_ddcalc_getwimp_higgsportal", "GetWIMP_higgsportal")
-
 // Set the WIMP mass and couplings/cross-sections for standard SI/SD scattering.
 // There are three versions, depending on how the couplings are specified:
 //   * mfa:    mass, fp, fn, ap, an
@@ -152,11 +145,29 @@ BE_FUNCTION(DDCalc_GetWIMP_msigma, void, (const int&,double&,double&,double&,dou
 //    This function can be called for WIMPs initialised via either SetWIMP_NREffectiveTheory or SetWIMP_NREFT_CPT, keeping in mind the different conventions
 //    Arguments are:
 //  (1) the WIMP index
-//  (2) The operator index, i.e. an integer specifying the non-relativistic operator, e.g. 6 for O_6.
-//      Note that the numbering scheme of the operators differs for WIMPs initialised via SetWIMP_NREffectiveTheory and via SetWIMP_NREFT_CPT
+//  (2) The operator index, i.e. an integer specifying the non-relativistic operator, e.g. 6 for O_6, using the following numbering scheme:
+//  For WIMPs initialised via SetWIMP_NREffectiveTheory:
+//  i = 1, 3-15, 17 & 18 correspond to the standard non-relativistic operators from arXiv:1505.03117 (note that O_2 and O_16 are not included)
+//  i = -1: q^2 O_1
+//  i = -4: q^2 O_4
+//  For WIMPs initialisd via SetWIMP_NREFT_CPT:
+//  i = 1-12 correspond to the standard non-relativistic operators from arXiv:1203.3542 (see also arXiv:1708.02678, note that the operator O_2 is included)
+//  i = 13: 1/(mpi^2 + q^2) O_6
+//  i = 14: 1/(meta^2 + q^2) O_6
+//  i = 15: q^2/(mpi^2 + q^2) O_6
+//  i = 16: q^2/(meta^2 + q^2) O_6
+//  i = 17: 1/(mpi^2 + q^2) O_10
+//  i = 18: 1/(meta^2 + q^2) O_10
+//  i = 19: q^2/(mpi^2 + q^2) O_10
+//  i = 20: q^2/(meta^2 + q^2) O_10
+//  i = 21: 1/q^2 O_5
+//  i = 22: 1/q^2 O_6
+//  i = 23: 1/q^2 O_11
+//  i = 100: q^2 O_1
+//  i = 104: q^2 O_4
 //  (3) An isospin index: For WIMPs initialised via SetWIMP_NREffectiveTheory 0 stands for the isoscalar and 1 for the isovector component of the operator
 //                        For WIMPs initialised via SetWIMP_NREFT_CPT 0 stands for the proton and 1 for the neutron component of the operator
-//  (4) The desired value of the operator coefficient in units GeV^(-2)
+//  (4) The desired value of the operator coefficient in units GeV^-n, where n = 2 for the standard non-relativistic operators and n = 0, 2 or 4 for operators with explicit momentum pre-factors
 
 BE_FUNCTION(DDCalc_SetWIMP_NREffectiveTheory, void, (const int&,const double&,const double&), "C_DDCalc_ddcalc_setwimp_nreffectivetheory", "SetWIMP_NREffectiveTheory")
 BE_FUNCTION(DDCalc_SetWIMP_NREFT_CPT, void, (const int&,const double&,const double&), "C_DDCalc_ddcalc_setwimp_nreft_cpt", "SetWIMP_NREFT_CPT")
@@ -166,8 +177,8 @@ BE_FUNCTION(DDCalc_SetNRCoefficient, void, (const int&,const int&,const int&,con
 // Arguments are:
 //   (1) the WIMP index
 //   (2) the operator index (see description fir SetNRCoefficient above)
-//   (3) gives the value of the isoscalar (for WIMP type 'NREffectiveTheory') or the proton (for WIMP type 'NREFT_CPT') component of the operator, in units GeV^(-2)
-//   (4) gives the value of the isovector (for WIMP type 'NREffectiveTheory') or the neutron (for WIMP type 'NREFT_CPT') component of the operator, in units GeV^(-2)
+//   (3) gives the value of the isoscalar (for WIMP type 'NREffectiveTheory') or the proton (for WIMP type 'NREFT_CPT') component of the operator, in units GeV^-n (see above)
+//   (4) gives the value of the isovector (for WIMP type 'NREffectiveTheory') or the neutron (for WIMP type 'NREFT_CPT') component of the operator, in units GeV^-n (see above)
 BE_FUNCTION(DDCalc_GetNRCoefficient, void, (const int&,const int&,double&,double&), "C_DDCalc_ddcalc_getnrcoefficient", "GetNRCoefficient")
 
 

@@ -13,3 +13,4 @@ wimp_candidate: 6666635
 # Outputs for GUM to hook up to GAMBIT
 output:
   calchep: True
+  spheno: True

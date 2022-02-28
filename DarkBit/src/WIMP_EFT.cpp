@@ -22,6 +22,18 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Jul
 ///
+///  \author Felix Kahlhofer
+///          (kahlhoefer@physik.rwth-aachen.de)
+///  \date 2020 May
+///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@uclouvain.be)
+///  \date 2020 Dec
+///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #include <boost/make_shared.hpp>
@@ -67,7 +79,6 @@ namespace Gambit
          */
         double sv(std::string channel, double mass, double A, double B, double v)
         {
-          // Note: Valid for mass > 45 GeV
 
           // Hardcoded minimum velocity avoids NaN results.
           // Pat didn't like the hardcoded velocity
@@ -75,12 +86,6 @@ namespace Gambit
 
           double s = 4*mass*mass/(1-v*v/4);
           double sqrt_s = sqrt(s);
-          if ( sqrt_s < 90 )
-          {
-            piped_invalid_point.request(
-                "WIMP_EFT_DM sigmav called with sqrt_s < 90 GeV.");
-            return 0;
-          }
 
           if ( channel == "hh" )
           {
@@ -120,31 +125,19 @@ namespace Gambit
     void DarkMatter_ID_EFT(std::string& result)
     {
        using namespace Pipes::DarkMatter_ID_EFT;
-       result = Dep::WIMP_properties->name;
+       if(ModelInUse("NREO_scalarDM")) result = "phi";
+       if(ModelInUse("NREO_MajoranaDM")) result = "psi";
+       if(ModelInUse("NREO_DiracDM")) result = "chi";
     }
 
-    /// WIMP spin property extractor
-    void jwimpx2_from_WIMPprops(unsigned int& result)
+    /// DarkMatterConj_ID string for generic EFT dark matter 
+    void DarkMatterConj_ID_EFT(std::string& result)
     {
-       using namespace Pipes::jwimpx2_from_WIMPprops;
-       result = Dep::WIMP_properties->spinx2;
+       using namespace Pipes::DarkMatterConj_ID_EFT;
+       if(ModelInUse("NREO_scalarDM")) result = "phi";
+       if(ModelInUse("NREO_MajoranaDM")) result = "psi";
+       if(ModelInUse("NREO_DiracDM")) result = "chi~";
     }
-
-    /// WIMP mass property extractor
-    void mwimp_from_WIMPprops(double& result)
-    {
-       using namespace Pipes::mwimp_from_WIMPprops;
-       result = Dep::WIMP_properties->mass;
-    }
-
-    /// WIMP self conjugacy extractor
-    void wimp_sc_from_WIMPprops(bool& result)
-    {
-       using namespace Pipes::wimp_sc_from_WIMPprops;
-       result = Dep::WIMP_properties->sc;
-    }
-
-
 
     //////////////////////////////////////////////////////////////////////////
     //
@@ -156,6 +149,7 @@ namespace Gambit
     {
        using namespace Pipes::NREO_couplings_from_parameters;
        NREO_couplings = NREO_DM_nucleon_couplings(Param); // Constructor takes care of the parameter copying for us
+       NREO_couplings.CPTbasis = 0;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -169,29 +163,11 @@ namespace Gambit
        using namespace Pipes::NREO_from_DD_couplings;
        DM_nucleon_couplings ddc = *Dep::DD_couplings;
 
-       // TODO! I have not been able to find the exact conventions
-       // used in DDcalc vs the NREO model. I think it is just this:
-       // c0 = 0.5*(cp+cn)
-       // c1 = 0.5*(cp-cn)
-       // so that 
-       // cp = c0 + c1
-       // cn = c0 - c1
-       // Change if needed!
-
-       // From Catena & Schwabe (2015) (arXiv 1501.03729, bottom of page 5):
-       // cp = (c0 + c1)/2
-       // cn = (c0 - c1)/2
-       // so
-       // c0 = cp + cn
-       // c1 = cp - cn
-       // I've implemented the change to the factor of 2
-    
-       // Compute non-zero isospin basis couplings from DM_nucleon_couplings entries
-       // TODO: I also did this from memory, should check I got the operator numbers right
        NREO_couplings.c0[1] = (ddc.gps + ddc.gns);
        NREO_couplings.c1[1] = (ddc.gps - ddc.gns);
        NREO_couplings.c0[4] = (ddc.gpa + ddc.gna);
        NREO_couplings.c1[4] = (ddc.gpa - ddc.gna);
+       NREO_couplings.CPTbasis = 0;
     }
 
     /* Non-relativistic Wilson Coefficients, model independent */
@@ -238,47 +214,6 @@ namespace Gambit
       result = BEreq::get_NR_WCs_flav(relativistic_WCs, mDM, scheme, DM_type, inputs);
     }
 
-    /// Obtain the non-relativistic Wilson Coefficients from a set of model
-    /// specific relativistic Wilson Coefficients from DirectDM in the
-    /// unbroken SM phase. NR WCs defined at 2 GeV.
-    void DD_nonrel_WCs_EW(NREO_DM_nucleon_couplings &result)
-    {
-      using namespace Pipes::DD_nonrel_WCs_EW;
-
-      // Specify the scale that the Lagrangian is defined at
-      double scale = runOptions->getValue<double>("scale");
-      // Hypercharge of DM
-      double Ychi = runOptions->getValue<double>("Ychi");
-      // SU(2) dimension of DM
-      double dchi = runOptions->getValue<int>("dchi");
-
-      // Obtain spin of DM particle, plus identify whether DM is self-conjugate
-      double mDM = Dep::WIMP_properties->mass;
-      unsigned int sDM  = Dep::WIMP_properties->spinx2;
-      bool is_SC = Dep::WIMP_properties->sc;
-
-      // Set DM_type based on the spin and & conjugacy of DM
-      std::string DM_type;
-
-      // Fermion case: set DM_type to Majorana or Dirac
-      if (sDM == 1) { is_SC ? DM_type = "M" : DM_type = "D"; }
-      // Scalar case: set DM type to real or complex
-      else if (sDM == 0) { is_SC ? DM_type = "R" : DM_type = "C"; }
-      // Vector etc. DM not supported by DirectDM
-      else DarkBit_error().raise(LOCAL_INFO, "DD_nonrel_WCs_EW only usable for spin-0 and spin-1/2 DM.");
-
-      // Relativistic Wilson Coefficients
-      map_str_dbl relativistic_WCs = *Dep::DD_rel_WCs_EW;
-
-      // Nuisance params
-      map_str_dbl inputs = *Dep::DirectDMNuisanceParameters;
-
-      // Get non-relativistic coefficients
-      /// TODO - How to get hypercharge and SU(2) dimension for these fields!?
-      /// Currently just comes from the YAML file. GUM? Process Catalogue?
-      result = BEreq::get_NR_WCs_EW(relativistic_WCs, mDM, dchi, Ychi, scale, DM_type, inputs);
-    }
-
     /// Module function providing nuisance parameters for
     /// to be passed to DirectDM directly from the model parameters.
     void ExtractDirectDMNuisanceParameters(map_str_dbl &result)
@@ -306,36 +241,38 @@ namespace Gambit
       // Then top it up with parameters from nuclear_params_ChPT.
       result["gA"]      = *Param["gA"];
       result["mG"]      = *Param["mG"];
+      
       result["sigmaup"] = *Param["sigmaup"];
       result["sigmadp"] = *Param["sigmadp"];
       result["sigmaun"] = *Param["sigmaun"];
       result["sigmadn"] = *Param["sigmadn"];
       result["sigmas"]  = *Param["sigmas"];
-      // Set p and n equal
-      result["Deltaup"] = *Param["Deltaup"];
-      result["Deltaun"] = *Param["Deltaup"];
-      // Set p and n equal
-      result["Deltadp"] = *Param["Deltadp"];
-      result["Deltadn"] = *Param["Deltadp"];
-      result["Deltas"]  = *Param["Deltas"];
+
+      result["DeltauDeltad"] = *Param["DeltauDeltad"];
+      result["Deltas"]       = *Param["Deltas"];
+
       result["B0mu"]    = *Param["B0mu"];
       result["B0md"]    = *Param["B0md"];
       result["B0ms"]    = *Param["B0ms"];
+
       result["mup"]     = *Param["mup"];
       result["mun"]     = *Param["mun"];
-      result["ap"]      = *Param["ap"];
-      result["an"]      = *Param["an"];
-      result["F2sp"]    = *Param["F2sp"];
+      result["mus"]     = *Param["mus"];
+
       result["gTu"]     = *Param["gTu"];
       result["gTd"]     = *Param["gTd"];
       result["gTs"]     = *Param["gTs"];
-      // Set p and n equal
+
+      // Note! Setting BT10dn equal to BT10up
       result["BT10up"]  = *Param["BT10up"];
-      result["BT10un"]  = *Param["BT10up"];
-      // Set p and n equal
+      result["BT10dn"]  = *Param["BT10up"];
+
+      // Note! Setting BT10un equal to BT10dp
       result["BT10dp"]  = *Param["BT10dp"];
-      result["BT10dn"]  = *Param["BT10dp"];
-      result["BT10s"]   = *Param["BT10s"];      
+      result["BT10un"]  = *Param["BT10dp"];
+
+      result["BT10s"]   = *Param["BT10s"];
+      result["rs2"]     = *Param["rs2"];
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -357,15 +294,27 @@ namespace Gambit
 
       // Select initial state particles from particle database
       std::string DMstr = Dep::WIMP_properties->name;
+      std::string DMbarstr = Dep::WIMP_properties->conjugate;
       double WIMP_mass = Dep::WIMP_properties->mass;
       unsigned int WIMP_spinx2 = Dep::WIMP_properties->spinx2;
 
       // Create container for annihilation processes for dark matter initial state
-      TH_Process process_ann(DMstr, DMstr);
+      TH_Process process_ann(DMstr, DMbarstr);
 
       // Explicitly state that Dirac DM is not self-conjugate to add extra
       // factors of 1/2 where necessary
       process_ann.isSelfConj = Dep::WIMP_properties->sc;
+
+      /// Generic parameterisation of WIMP self-annihilation cross-section to various SM two-body final states
+      WIMP_annihilation annihilationProps;
+      std::vector<std::string> finalstates {"bb", "WW", "cc", "tautau", "ZZ", "tt", "hh"};
+      for(auto channel = finalstates.begin(); channel!=finalstates.end(); ++channel)
+      {
+        std::string A("A_");
+        std::string B("B_");
+        annihilationProps.setA(*channel,*Param[A+*channel]);
+        annihilationProps.setB(*channel,*Param[B+*channel]);
+      }
 
       ///////////////////////////////////////
       // Import particle masses and couplings
@@ -435,6 +384,10 @@ namespace Gambit
 
       // Dark matter
       addParticle(DMstr, WIMP_mass, WIMP_spinx2)
+      if (not process_ann.isSelfConj)
+      {
+        addParticle(DMbarstr, WIMP_mass, WIMP_spinx2)
+      }
 
       // Get rid of convenience macros
       #undef getSMmass
@@ -446,9 +399,6 @@ namespace Gambit
 
       // Import decay table from DecayBit
       const DecayTable* tbl = &(*Dep::decay_rates);
-
-      // Save Higgs width for later
-      double gammaH = tbl->at("h0_1").width_in_GeV;
 
       // Set of imported decays
       std::set<string> importedDecays;
@@ -487,8 +437,8 @@ namespace Gambit
           // Include final states that are open for T~m/20
           if ( WIMP_mass*2 > mtot_final*0.5 )
           {
-            double A = Dep::generic_WIMP_sigmav->A(channel[i]);
-            double B = Dep::generic_WIMP_sigmav->B(channel[i]);
+            double A = annihilationProps.A(channel[i]);
+            double B = annihilationProps.B(channel[i]);
             daFunk::Funk kinematicFunction = daFunk::funcM(wimpDM,
                 &WIMP_EFT_DM::sv, channel[i], WIMP_mass, A, B, daFunk::var("v"));
             TH_Channel new_channel(

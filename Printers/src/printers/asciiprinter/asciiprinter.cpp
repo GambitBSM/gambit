@@ -293,6 +293,10 @@ namespace Gambit
          printer_error().raise(LOCAL_INFO, err.str());
       }
 
+      // Do not write suspicious points to buffer as this will require extending the dataset, which is not possible in ascii
+      if (functor_labels[0] == "Suspicious Point Code")
+        return;
+ 
       // Assign to buffer, adding keys if needed
       buffer[bkey].data[vID] = functor_data;
 

@@ -22,14 +22,6 @@ namespace Gambit
 
   typedef double REAL; 
   
-  struct txtListStr
-  {  
-    struct txtListStr *next;
-    char  *txt;
-  };
-
-  typedef txtListStr *txtList;
-
   struct colorBasis
   { 
     int pow; 

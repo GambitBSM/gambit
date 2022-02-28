@@ -17,10 +17,11 @@
 ///                                                  
 ///  ********************************************* 
 
+#include "boost/make_shared.hpp"
+
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 #include "gambit/Utils/ascii_table_reader.hpp"
-#include "boost/make_shared.hpp"
 #include "gambit/DarkBit/DarkBit_utils.hpp"
 
 namespace Gambit
@@ -35,13 +36,10 @@ namespace Gambit
       ~DMEFT() {};
       
       // Annihilation cross-section. sigmav is a pointer to a CalcHEP backend function.
-      double sv(str channel, DecayTable& tbl, double (*sigmav)(str&, std::vector<str>&, std::vector<str>&, double&, double&, const DecayTable&), double v_rel)
+      double sv(str channel, DecayTable& tbl, double (*sigmav)(str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&), double v_rel)
       {
         /// Returns sigma*v for a given channel.
         double GeV2tocm3s1 = gev2cm2*s2cm;
-        
-        /// Hard-coded for now -- CalcHEP frontend needs this removing anyway, it doesn't use it.
-        double QCD_coupling = 1.0;
         
         // CalcHEP args
         str model = "DMEFT"; // CalcHEP model name
@@ -56,7 +54,7 @@ namespace Gambit
         if (channel == "g, g") out = {"g", "g"};
         
         // Check the channel has been filled
-        if (out.size() > 1) return sigmav(model, in, out, QCD_coupling, v_rel, tbl)*GeV2tocm3s1;
+        if (out.size() > 1) return sigmav(model, in, out, v_rel, tbl)*GeV2tocm3s1;
         else return 0;
       }
       
@@ -68,14 +66,18 @@ namespace Gambit
       using namespace Pipes::TH_ProcessCatalog_DMEFT;
       using std::vector;
       using std::string;
+
+      // WIMP and conjugate names
+      str chi = Dep::WIMP_properties->name;
+      str chib = Dep::WIMP_properties->conjugate;
       
       // Initialize empty catalog, main annihilation process
       TH_ProcessCatalog catalog;
-      TH_Process process_ann("chi", "chi");
+      TH_Process process_ann(chi, chib);
       
       // Explicitly state that Dirac DM is not self-conjugate to add extra 
       // factors of 1/2 where necessary
-      process_ann.isSelfConj = false;
+      process_ann.isSelfConj = Dep::WIMP_properties->sc;
       
       // Import particle masses 
       
@@ -87,7 +89,7 @@ namespace Gambit
       const Spectrum& spec = *Dep::DMEFT_spectrum;
       const SubSpectrum& SM = spec.get_LE();
       const SMInputs& SMI   = spec.get_SMInputs();
-      
+
       // Get SM pole masses
       getSMmass("e-_1",     1)
       getSMmass("e+_1",     1)
@@ -136,7 +138,8 @@ namespace Gambit
       
       // DMEFT-specific masses
       double mchi = spec.get(Par::Pole_Mass, "chi");
-      addParticle("chi", mchi, 1);
+      addParticle(chi, mchi, 1);
+      addParticle(chib, mchi, 1);
       addParticle("h0_1", spec.get(Par::Pole_Mass, "h0_1"), 0);
       
       // Get rid of convenience macros
@@ -174,19 +177,18 @@ namespace Gambit
       for (unsigned int i = 0; i < channels.size(); ++i)
       {
         double mtot_final = 
-        catalog.getParticleProperty(p1[i]).mass + 
-        catalog.getParticleProperty(p2[i]).mass;  
+          catalog.getParticleProperty(p1[i]).mass + 
+          catalog.getParticleProperty(p2[i]).mass;  
         if (mchi*2 > mtot_final*0.5)
         {
           daFunk::Funk kinematicFunction = daFunk::funcM(pc, &DMEFT::sv, channels[i], tbl, 
-          BEreq::CH_Sigma_V.pointer(), daFunk::var("v"));
+            BEreq::CH_Sigma_V.pointer(), daFunk::var("v"));
           TH_Channel new_channel(daFunk::vec<string>(p1[i], p2[i]), kinematicFunction);
           process_ann.channelList.push_back(new_channel);
         }
         if (mchi*2 > mtot_final)
         {
-          process_ann.resonances_thresholds.threshold_energy.
-          push_back(mtot_final);
+          process_ann.resonances_thresholds.threshold_energy.push_back(mtot_final);
         }
       }
       
@@ -200,6 +202,8 @@ namespace Gambit
     
     void DarkMatter_ID_DMEFT(std::string& result){ result = "chi"; }
 
+    void DarkMatterConj_ID_DMEFT(std::string& result){ result = "chi~"; }
+
     /// Relativistic Wilson Coefficients for direct detection
     /// DMEFT basis is the same as that used in DirectDM
     void DD_rel_WCs_flavscheme_DMEFT(map_str_dbl& result)
@@ -207,6 +211,7 @@ namespace Gambit
       using namespace Pipes::DD_rel_WCs_flavscheme_DMEFT;
 
       const Spectrum& spec = *Dep::DMEFT_spectrum;
+      const SMInputs& sminputs = *Dep::SMINPUTS;
 
       // In our model the Wilson coefficients are dimensionless
       double Lambda = spec.get(Par::mass1, "Lambda");
@@ -304,17 +309,17 @@ namespace Gambit
       result["C710c"] = C710/pow(Lambda, 3.);
       result["C710b"] = C710/pow(Lambda, 3.);
 
-      // If Lambda > m_t then we include corrections
-      double mt = spec.get(Par::Pole_Mass, "t");
-      if(Lambda > mt) 
+      // use the running top mass at Q=mt, which is an input
+      double mtatmt = spec.get(Par::mass1,"mtrun");
+      
+      // If Lambda > m_t(m_t) then we include corrections
+      if(Lambda > mtatmt)
       {
         // 1. Loop induced coupling to dim-5 
         //    operators to dim-7, see:
         // https://arxiv.org/pdf/1302.4454.pdf
-        const SMInputs& sminputs = spec.get_SMInputs();
-        double e = pow(4*pi/sminputs.alphainv, 0.5);
-        double lamovermt2 = pow(Lambda, 2.)/pow(mt, 2.);
-        double prefactor = (2*e)/(4*pow(pi,2.))/lamovermt2*log(lamovermt2);
+        double lamovermt2 = pow(Lambda, 2.)/pow(mtatmt, 2.);
+        double prefactor = -4/lamovermt2*log(lamovermt2);
         result["C51"] += prefactor*C79/Lambda;
         result["C52"] += prefactor*C710/Lambda;
 
@@ -324,6 +329,30 @@ namespace Gambit
         result["C72"] -= C76/pow(Lambda, 3.);
         result["C73"] += C77/pow(Lambda, 3.);
         result["C74"] += C78/pow(Lambda, 3.);
+
+        // 3. Mixing of O_3^6 into O_1^6, see:
+        // https://arxiv.org/pdf/1402.1173.pdf
+        // Use tree level relations for sw2 and vev
+        double sw2 = 1 - pow(sminputs.mW,2) / pow(sminputs.mZ,2);
+        double vev = 1.0 / sqrt(sqrt(2)*sminputs.GF); 
+        double prefactoru = (8.*sw2-3.)/2. * pow(mtatmt/(2.*vev*pi), 2.) * log(1/lamovermt2);
+        double prefactord = (3.-4.*sw2)/2. * pow(mtatmt/(2.*vev*pi), 2.) * log(1/lamovermt2);
+
+        double C61u = C61/pow(Lambda, 2.) + prefactoru * C63/pow(Lambda, 2.);
+        double C61d = C61/pow(Lambda, 2.) + prefactord * C63/pow(Lambda, 2.);
+
+        // The following bit is intended to make it easier for the scanner to find points for which direct detection constraints are satisfied
+        // by adding a flavour-independent term to C61u and C61d such that the resulting couplings are Xe-phobic (f_n / f_p = -0.7).
+        // This step should be commented out if C61 is not varied in the scans.
+
+        double IVratio = -1.125;
+
+        double C61uIV = IVratio/(IVratio-1.)*(C61u-C61d);
+        double C61dIV = 1./(IVratio-1.)*(C61u-C61d);
+
+        result["C61d"] = C61dIV;
+        result["C61u"] = C61uIV;
+
       }
 
     } // DD_rel_WCs_flavscheme_DMEFT

@@ -21,6 +21,7 @@
 #define BACKENDLANG Python
 #define VERSION 1.2
 #define SAFE_VERSION 1_2
+#define REFERENCE GAMBIT:2017yxo
 
 /* The following macro imports the module in the Python interpreter
  * when this header file is included somewhere. */

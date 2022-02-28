@@ -15,6 +15,10 @@
 ///          (benjamin.farmer@monash.edu.au)
 ///  \date 2017 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Dec
+///
 ///  *********************************************
 
 #include "gambit/Printers/baseprinter.hpp"
@@ -23,6 +27,7 @@
 #include "gambit/Printers/printers/hdf5printer/hdf5tools.hpp"
 #include "gambit/Printers/printers/hdf5printer/DataSetInterfaceScalar.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
 #include <boost/preprocessor/seq/for_each_i.hpp>
 
@@ -127,7 +132,7 @@ namespace Gambit
         #define DECLARE_RETRIEVE(r,data,i,elem) bool _retrieve(elem&, const std::string&, const uint, const ulong);
         BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_RETRIEVABLE_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_BACKEND_TYPES)
         #endif
         #undef DECLARE_RETRIEVE
 

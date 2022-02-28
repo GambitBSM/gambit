@@ -29,13 +29,16 @@ try:
 
   be_name = sys.argv[1]
   be_ver = sys.argv[2]
+  if len(sys.argv) > 2:
+    gambit_dir = sys.argv[3]
 
 except IndexError:
-  CustomError("Wrong number of arguments.\n    Usage: " + os.path.basename(__file__) + " <be_name> <be_ver>")
+  CustomError("Wrong number of arguments.\n    Usage: " + os.path.basename(__file__) + " <be_name> <be_ver> [<gambit_dir>]")
 
 # Extract the model and path names
 if len(be_name.split('_')) > 1 :
-  be_model = be_name.split('_')[1]
+  be_model = '_'.join(be_name.split('_')[1::])
+  be_model_no_underscore = be_model.replace('_','')
 else :
   CustomError("Wrong name of backend.")
 
@@ -52,13 +55,16 @@ safe_ver = "_".join(safe_ver)
 
 # Get path to SPheno file
 this_path = os.path.dirname(os.path.abspath(__file__))
-IO_file = this_path + '/../installed/' + be_path + '/' + be_ver + '/' + be_model + '/' + be_model + '/InputOutput_' + be_model + '.f90'
+if gambit_dir:
+  IO_file = gambit_dir + '/Backends/installed/' + be_path + '/' + be_ver + '/' + be_model + '/' + be_model_no_underscore + '/InputOutput_' + be_model_no_underscore + '.f90'
+else:
+  IO_file = this_path + '/../installed/' + be_path + '/' + be_ver + '/' + be_model + '/' + be_model_no_underscore + '/InputOutput_' + be_model_no_underscore + '.f90'
 
 if not os.path.exists(IO_file) :
   CustomError("File doesn't exist.")
 
 # Get path to output decay file
-decay_file = this_path + '/../data/' + be_name + '_' + safe_ver + '_decays_info.dat'
+decay_file = this_path + '/' + be_name + '_' + safe_ver + '_decays_info.dat'
 
 # Initialisation
 pdgs = {}
@@ -106,15 +112,24 @@ with open(IO_file, 'r') as f_in, open(decay_file, 'w') as f_out:
       # Start reading decays
       decays = True
       count = 0
- 
+
       # get particle
       subline = line.split('.')[0]
       part = subline[7::]
 
+      decaypdg = int(pdgs[part])
+      if decaypdg < 0:
+          decaypdg = -decaypdg
+          part = "-"+part
+
       # print block entry
       f_out.write(
-        'DECAY        ' +  str(abs(int(pdgs[part]))) + '     0.0000000E+00   # ' + names[part] + '\n'
+        'DECAY        ' +  str(decaypdg) + '     0.0000000E+00   # ' + names[part] + '\n'
         '#    INDEX  NDA      ID1      ID2     CORRF\n')
+
+    # Ignore 1 loop decays
+    if line.startswith("If(gT1L") :
+      decays = False
 
     # Get indices
     if "Do gt" in line and decays:
@@ -128,11 +143,13 @@ with open(IO_file, 'r') as f_in, open(decay_file, 'w') as f_out:
     # Get daugthers
     if line.startswith("CurrentPDG") and decays :
 
+      print line
       ndaughters = int(line[10])
       daughters = []
  
       for i in range(ndaughters):
         daughter = line.split("=")[1][:-2]
+        print daughter
         if daughter[1] == '-' :
           daughters.append('-'+daughter[5:])
         else :
@@ -201,7 +218,7 @@ with open(IO_file, 'r') as f_in, open(decay_file, 'w') as f_out:
         
 
     # Key to stop reading decays
-    if "! Information needed by MadGraph" in line :
+    if line.startswith('End Subroutine LesHouches_Out'):
       decays = False
       print "Decay table for " + be_model + " model finished!"
 

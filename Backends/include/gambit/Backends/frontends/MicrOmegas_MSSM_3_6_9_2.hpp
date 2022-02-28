@@ -20,6 +20,7 @@
 #define BACKENDLANG CC
 #define VERSION 3.6.9.2
 #define SAFE_VERSION 3_6_9_2
+#define REFERENCE Belanger:2001fz,Belanger:2004yn,Belanger:2006is,Belanger:2008sj,Belanger:2010gh,Belanger:2013oya,Belanger:2014vza
 
 LOAD_LIBRARY
 
@@ -38,6 +39,7 @@ BE_FUNCTION(cleanDecayTable, void, (), "cleanDecayTable", "cleanDecayTable", (MS
 BE_FUNCTION(nucleonAmplitudes, int, (double(*)(double,double,double,double), double*, double*, double*, double*), "nucleonAmplitudes", "nucleonAmplitudes", (MSSM63atQ))
 BE_FUNCTION(FeScLoop, double, (double, double, double, double), "FeScLoop", "FeScLoop", (MSSM63atQ))
 BE_FUNCTION(calcScalarQuarkFF, void, (double, double, double, double), "calcScalarQuarkFF", "calcScalarQuarkFF", (MSSM63atQ))
+BE_FUNCTION(calcSpectrum, double, (int, double*, double*, double*, double*, double*, double*, int*), "calcSpectrum", "calcSpectrum")
 
 BE_FUNCTION(mInterp, int, (double,int,int,double*) , "mInterp", "mInterp")
 BE_FUNCTION(zInterp, double, (double,double*) , "zInterp", "zInterp")

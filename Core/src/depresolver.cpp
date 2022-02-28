@@ -26,9 +26,14 @@
 ///  \date 2013 Sep
 ///
 ///  \author Tomas Gonzalo
-///          (t.e.gonzalo@fys.uio.no)
+///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2017 June
 ///        2019 May
+///        2021 Sep
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
 ///
 ///  *********************************************
 
@@ -36,6 +41,8 @@
 #include "gambit/Models/models.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/bibtex_functions.hpp"
+#include "gambit/Utils/citation_keys.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
@@ -43,11 +50,10 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
-#ifdef HAVE_REGEX_H
-  #include <regex>
-#endif
+#include <regex>
 
 #include <boost/format.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #ifdef HAVE_GRAPHVIZ
   #include <boost/graph/graphviz.hpp>
 #endif
@@ -64,7 +70,7 @@
 //#define DEPRES_DEBUG
 
 // Verbose flag (not debug per se, just basic dependency resolution information)
-#define VERBOSE_DEP_RES
+//#define VERBOSE_DEP_RES
 
 namespace Gambit
 {
@@ -250,29 +256,23 @@ namespace Gambit
     }
 
     // Check whether s1 (wildcard + regex allowed) matches s2
-    bool stringComp(const str & s1, const str & s2, bool
-                   #ifdef HAVE_REGEX_H
-                     with_regex
-                   #endif
-                   )
+    bool stringComp(const str & s1, const str & s2, bool with_regex)
     {
       if ( s1 == s2 ) return true;
       if ( s1 == "" ) return true;
       if ( s1 == "*" ) return true;
-      #ifdef HAVE_REGEX_H
-        try
-        {
-          if (with_regex) if (std::regex_match(s2, std::regex(s1))) return true;
-        }
-        catch (std::regex_error & err)
-        {
-          std::ostringstream errmsg;
-          errmsg << "ERROR during regex string comparison." << std::endl;
-          errmsg << "  Comparing regular expression: " << s1 << std::endl;
-          errmsg << "  with test string: " << s2 << std::endl;
-          dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
-        }
-      #endif
+      try
+      {
+        if (with_regex) if (std::regex_match(s2, std::regex(s1))) return true;
+      }
+      catch (std::regex_error & err)
+      {
+        std::ostringstream errmsg;
+        errmsg << "ERROR during regex string comparison." << std::endl;
+        errmsg << "  Comparing regular expression: " << s1 << std::endl;
+        errmsg << "  with test string: " << s2 << std::endl;
+        dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
+      }
       return false;
     }
 
@@ -281,10 +281,13 @@ namespace Gambit
     {
       bool match1, match2;
       // Loop over all the default versions of BOSSed backends and replace any corresponding *_default leading namespace with the explicit version.
-      for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
+      if ((s1.find("_default") != std::string::npos) || (s2.find("_default") != std::string::npos))
       {
-        s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
-        s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
+        for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
+        {
+          s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
+          s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
+        }
       }
       // Does it just match?
       if (stringComp(s1, s2, with_regex)) return true;
@@ -410,6 +413,15 @@ namespace Gambit
       {
         SortedParentVertices[*it] = getSortedParentVertices(*it, masterGraph, function_order);
       }
+
+      // Print list of backends required
+      if (boundCore->show_backends)
+      {
+        printRequiredBackends();
+      }
+
+      // Get BibTeX key entries for backends, modules, etc
+      getCitationKeys();
 
       // Done
     }
@@ -574,6 +586,82 @@ namespace Gambit
       logger() << LogTags::dependency_resolver << ss.str() << EOM;
     }
 
+    // Print the list of required backends
+    void DependencyResolver::printRequiredBackends()
+    {
+      // Lists the required backends, indicating where several backends
+      // can fulfil the same requirement
+      std::stringstream ss;
+
+      ss << endl << "Required backends to run file " << boundIniFile->filename() << std::endl;
+      ss << "At least one backend candidate per row is required" << std::endl;
+      ss << "--------------------------------------------------" << std::endl << std::endl;
+
+      for(auto reqs : backendsRequired)
+      {
+        for(auto backend : reqs)
+        {
+          ss << boost::format("%-25s")%("("+backend.first+", "+backend.second+")");
+        }
+        ss << std::endl;
+      }
+      ss << std::endl;
+
+      // Print to terminal
+      std::cout << ss.str();
+
+      // Print to logs
+      logger() << LogTags::dependency_resolver << ss.str() << EOM;
+    }
+
+    // Print the BibTeX citation keys
+    void DependencyResolver::printCitationKeys()
+    {
+
+      // If the list is empty do not print anything
+      if(citationKeys.empty()) return;
+
+      std::stringstream ss;
+
+      // Location of the bibtex file
+      str bibtex_file_location = boundIniFile->getValueOrDef<str>(GAMBIT_DIR "/config/bibtex_entries.bib", "dependency_resolution", "bibtex_file_location");
+
+      ss << "The scan you are about to run uses backends. Please make sure to cite all of them in your work." << std::endl;
+
+      // Create a list of entries in the bibtex file
+      BibTeX bibtex_file(bibtex_file_location);
+      std::vector<str> entries = bibtex_file.getBibTeXEntries();
+
+      // Make sure that each key has an entry on the bibtex file
+      for(const auto& key : citationKeys)
+      {
+        // Now find each key in the list of entries
+        if(std::find(entries.begin(), entries.end(), key) == entries.end())
+        {
+          std::ostringstream errmsg;
+          errmsg << "The reference with key " << key << " cannot be found in the bibtex file " << bibtex_file_location << endl;
+          errmsg << "Please make sure that the bibtex file contains the relevant bibtex entries." << endl;
+          dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
+        }
+      }
+
+      // Drop a bibtex file with the citation entries
+      str bibtex_output_file = boundIniFile->getValueOrDef<str>("GAMBIT.bib", "dependency_resolution", "bibtex_output_file");
+      bibtex_file.dropBibTeXFile(citationKeys, bibtex_output_file);
+
+      // Drop a sample TeX file citing all backens
+      str tex_output_file = boundIniFile->getValueOrDef<str>("GAMBIT.tex", "dependency_resolution", "tex_output_file");
+      bibtex_file.dropTeXFile(citationKeys, tex_output_file, bibtex_output_file);
+
+      ss << "You can find the list of references to include in " << bibtex_output_file << ". And and example TeX file in " << tex_output_file << std::endl << std::endl;
+
+      // Print to terminal
+      std::cout << ss.str();
+
+      // Print to logs
+      logger() << LogTags::dependency_resolver << ss.str() << EOM;
+
+    }
 
     //
     // Runtime
@@ -875,6 +963,9 @@ namespace Gambit
     // (i.e. give it the list of functors that need printing)
     void DependencyResolver::initialisePrinter()
     {
+      // Send the state of the "print_unitcube" flag to the printer
+      boundPrinter->set_printUnitcube(print_unitcube);
+
       std::vector<int> functors_to_print;
       graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
       //IndexMap index = get(vertex_index, masterGraph); // Now done in the constructor
@@ -966,11 +1057,10 @@ namespace Gambit
       #endif
 
       const IniParser::ObservablesType & entries = boundIniFile->getRules();
-      //entries = boundIniFile->getObservables();
       for (IniParser::ObservablesType::const_iterator it =
           entries.begin(); it != entries.end(); ++it)
       {
-        if ( moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs) )
+        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs))
         {
           #ifdef DEPRES_DEBUG
             cout << "Getting option from: " << it->capability << " " << it->type << endl;
@@ -1005,8 +1095,63 @@ namespace Gambit
           }
         }
       }
-      Options myOptions(nodes);
-      return myOptions;
+      return Options(nodes);
+    }
+
+    /// Collect sub-capabilities
+    Options DependencyResolver::collectSubCaps(const DRes::VertexID & vertex)
+    {
+      #ifdef DEPRES_DEBUG
+        cout << "Searching for subcaps of " << masterGraph[vertex]->capability() << endl;
+      #endif
+
+      YAML::Node nodes;
+      const IniParser::ObservablesType& entries = boundIniFile->getObservables();
+
+      // Iterate over the ObsLikes entries
+      for (auto it = entries.begin(); it != entries.end(); ++it)
+      {
+        // Select only those entries that match the current graph vertex (i.e. module function)
+        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs) and not it->subcaps.IsNull())
+        {
+          #ifdef DEPRES_DEBUG
+            cout << "Found subcaps for " << it->capability << " " << it->type << " " << it->module << ":" << endl;
+          #endif
+          // The user has given just a single entry as a subcap
+          if (it->subcaps.IsScalar())
+          {
+            str key = it->subcaps.as<str>();
+            if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+            nodes[key] = YAML::Node();
+          }
+          // The user has passed a simple list of subcaps
+          else if (it->subcaps.IsSequence())
+          {
+            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            {
+              if (not jt->IsScalar())
+               dependency_resolver_error().raise(LOCAL_INFO,"Attempt to pass map using sequence syntax for subcaps of "+it->capability+".");
+              str key = jt->as<str>();
+              if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+              nodes[key] = YAML::Node();
+            }
+          }
+          // The user has passed some more complicated subcap structure than just a list of strings
+          else if (it->subcaps.IsMap())
+          {
+            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            {
+              str key = jt->first.as<str>();
+              if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
+              nodes[key] = jt->second.as<YAML::Node>();
+            }
+          }
+          #ifdef DEPRES_DEBUG
+            cout << nodes << endl;
+          #endif
+        }
+      }
+      return Options(nodes);
     }
 
     /// Resolve dependency
@@ -1042,6 +1187,13 @@ namespace Gambit
           // Add vertex to appropriate candidate list
           if (masterGraph[*vi]->status() > 0)
             vertexCandidates.push_back(*vi);
+          // If we only want the list of backends, also add vertex for ini function
+          else if (masterGraph[*vi]->status() == -4 and boundCore->show_backends)
+            vertexCandidates.push_back(*vi);
+          // If we only want the list of backends, also add disabled backends whose classes are needed
+          else if (masterGraph[*vi]->status() == -3 and boundCore->show_backends)
+            vertexCandidates.push_back(*vi);
+          // Otherwise
           else
             disabledVertexCandidates.push_back(*vi);
         }
@@ -1231,7 +1383,9 @@ namespace Gambit
         str errmsg = "None of the vertex candidates for";
         errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
         errmsg += "\nfulfills all rules in the YAML file.";
-        errmsg += "\nPlease check your YAML file for contradictory rules.";
+        errmsg += "\nPlease check your YAML file for contradictory rules, and";
+        errmsg += "\nensure that you have built GAMBIT in the first place with";
+        errmsg += "\nall of the components that you are trying to use.";
         dependency_resolver_error().raise(LOCAL_INFO,errmsg);
       }
 
@@ -1432,10 +1586,13 @@ namespace Gambit
       #endif
 
       // Read ini entries
-      use_regex    = boundIniFile->getValueOrDef<bool>(false, "dependency_resolution", "use_regex");
-      print_timing = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
-      if ( use_regex )    logger() << "Using regex for string comparison." << endl;
-      if ( print_timing ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
+      use_regex      = boundIniFile->getValueOrDef<bool>(true,  "dependency_resolution", "use_regex");
+      print_timing   = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
+      print_unitcube = boundIniFile->getValueOrDef<bool>(false, "print_unitcube");
+
+      if ( use_regex      ) logger() << "Using regex for string comparison." << endl;
+      if ( print_timing   ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
+      if ( print_unitcube ) logger() << "Printing of unitCubeParameters will be enabled." << EOM;
 
       //
       // Main loop: repeat until dependency queue is empty
@@ -1548,6 +1705,8 @@ namespace Gambit
           str to_lmtype = (*masterGraph[toVertex]).loopManagerType();
           str from_lmcap = (*masterGraph[fromVertex]).loopManagerCapability();
           str from_lmtype = (*masterGraph[fromVertex]).loopManagerType();
+          bool is_same_lmcap = to_lmcap == from_lmcap;
+          bool is_same_lmtype = to_lmtype == "any" or from_lmtype == "any" or to_lmtype == from_lmtype;
           if (to_lmcap != "none")
           {
             // This function runs nested.  Check if its loop manager has been resolved yet.
@@ -1556,9 +1715,7 @@ namespace Gambit
               // toVertex's loop manager has not yet been determined.
               // Add the edge to the list to deal with when the loop manager dependency is resolved,
               // as long as toVertex and fromVertex cannot end up inside the same loop.
-              if (to_lmcap != from_lmcap or
-                  (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
-                 )
+              if (!is_same_lmcap or !is_same_lmtype)
               {
                 if (edges_to_force_on_manager.find(toVertex) == edges_to_force_on_manager.end())
                  edges_to_force_on_manager[toVertex] = std::set<DRes::VertexID>();
@@ -1574,12 +1731,8 @@ namespace Gambit
               // fromVertex as an edge of the manager.
               str name = (*masterGraph[toVertex]).loopManagerName();
               str origin = (*masterGraph[toVertex]).loopManagerOrigin();
-              if (name != (*masterGraph[fromVertex]).name() and
-                  origin != (*masterGraph[fromVertex]).origin() and
-                  (to_lmcap != from_lmcap or
-                   (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
-                  )
-                 )
+              bool is_itself = (name == (*masterGraph[fromVertex]).name() and origin == (*masterGraph[fromVertex]).origin());
+              if (!is_itself and (!is_same_lmcap or !is_same_lmtype) )
               {
                 // Hunt through the edges of toVertex and find the one that corresponds to its loop manager.
                 graph_traits<DRes::MasterGraphType>::in_edge_iterator ibegin, iend;
@@ -1608,12 +1761,16 @@ namespace Gambit
         }
         else // if output vertex
         {
-          //iniEntry = NULL;
-          //boost::tie(iniEntry, fromVertex) = resolveDependency(toVertex, quantity);
           iniEntry = findIniEntry(quantity, boundIniFile->getObservables(), "ObsLike");
           outInfo.vertex = fromVertex;
           outInfo.iniEntry = iniEntry;
           outputVertexInfos.push_back(outInfo);
+          // Don't need subcaps during dry-run
+          if (not boundCore->show_runorder)
+          {
+            Options mySubCaps = collectSubCaps(fromVertex);
+            masterGraph[fromVertex]->notifyOfSubCaps(mySubCaps);
+          }
         }
 
         // If fromVertex is new, activate it
@@ -1622,6 +1779,7 @@ namespace Gambit
           logger() << LogTags::dependency_resolver << "Activate new module function" << endl;
           masterGraph[fromVertex]->setStatus(2); // activate node
           resolveVertexBackend(fromVertex);
+          resolveVertexClassLoading(fromVertex);
 
           // Don't need options during dry-run, so skip this (just to simplify terminal output)
           if(not boundCore->show_runorder)
@@ -1801,6 +1959,12 @@ namespace Gambit
                 // It has, so resolve the backend requirement with that function and add it to the list of successful resolutions.
                 resolveRequirement(solution,vertex);
                 previous_successes.push_back(solution);
+
+                // If *req is in remaining_reqs, remove it
+                if (remaining_reqs.find(*req) != remaining_reqs.end())
+                {
+                  remaining_reqs.erase(*req);
+                }
               }
               else // No valid solution found, but deferral has been suggested - so defer resolution of this group until later.
               {
@@ -1918,6 +2082,13 @@ namespace Gambit
           if (permitted and not disabled)
           {
             // add it to the overall vertex candidate list
+            vertexCandidates.push_back(*itf);
+            // if it has an inifile entry, add it to the candidate list with inifile entries
+            if (entryExists) vertexCandidatesWithIniEntry.push_back(*itf);
+          }
+          else if (permitted and boundCore->show_backends) // If the backend is able and we only want to show the list of backends
+          {
+             // add it to the overall vertex candidate list
             vertexCandidates.push_back(*itf);
             // if it has an inifile entry, add it to the candidate list with inifile entries
             if (entryExists) vertexCandidatesWithIniEntry.push_back(*itf);
@@ -2123,20 +2294,53 @@ namespace Gambit
         }
 
         // Still more than one candidate, so the game is up.
-        if (vertexCandidates.size() > 1)
+        // Don't worry about too many candidates if we only want the list of required backends
+        if (vertexCandidates.size() > 1 and not boundCore->show_backends)
         {
           str errmsg = "Found too many candidates for backend requirement ";
           if (reqs.size() == 1) errmsg += reqs.begin()->first + " (" + reqs.begin()->second + ")";
           else errmsg += "group " + group;
           errmsg += " of module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name()
            + "\nViable candidates are:\n" + printGenericFunctorList(vertexCandidates);
+          errmsg += "\nIf you don't need all the above backends, you can resolve the ambiguity simply by";
+          errmsg += "\nuninstalling the backends you don't use.";
+          errmsg += "\n\nAlternatively, you can add an entry in your YAML file that selects which backend";
+          errmsg += "\nthe module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name() + " should use. A YAML file entry";
+          errmsg += "\nthat selects e.g. the first candidate above could read\n";
+          errmsg += "\n  - capability: "+masterGraph[vertex]->capability();
+          errmsg += "\n    function: "+masterGraph[vertex]->name();
+          errmsg += "\n    backends:";
+          errmsg += "\n      - {backend: "+vertexCandidates.at(0)->origin()+", version: "+vertexCandidates.at(0)->version()+"}\n";
           dependency_resolver_error().raise(LOCAL_INFO,errmsg);
         }
       }
 
+      // Store the resolved backend requirements
+      std::vector<sspair> resolvedBackends;
+      for(auto vertex : vertexCandidates)
+      {
+        sspair backend(vertex->origin(), vertex->version());
+        resolvedBackends.push_back(backend);
+      }
+
+      bool found = false;
+      for(auto br = backendsRequired.begin(); br != backendsRequired.end(); ++br)
+      {
+        found = true;
+        for(auto backend : resolvedBackends)
+        {
+          if(std::find(br->begin(), br->end(), backend) == br->end())
+            found = false;
+        }
+        if(found) break;
+      }
+      if(not found)
+      {
+        backendsRequired.push_back(resolvedBackends);
+      }
+
       // Just one candidate.  Jackpot.
       return vertexCandidates[0];
-
     }
 
     /// Resolve a backend requirement of a specific module function using a specific backend function.
@@ -2149,6 +2353,112 @@ namespace Gambit
       logger() << EOM;
     }
 
+    // Resolve a dependency on backend classes
+    void DependencyResolver::resolveVertexClassLoading(VertexID vertex)
+    {
+      // If there are no backend class loading requirements, and thus nothing to do, return.
+      if ((*masterGraph[vertex]).backendclassloading().size() == 0) return;
+
+      // If the backend is not present, this vertex has already been disabled, so from now just assume it hasn't
+      // Unless the list of required backends is requested, in which case it is enabled, but it won't run a scan, so no worries
+
+      // Add to the logger
+      logger() << LogTags::dependency_resolver << "Doing backend class loading resolution..." << EOM;
+
+      // Add the backends to list of required backends
+      std::vector<sspair> resolvedBackends; 
+      for(auto backend : (*masterGraph[vertex]).backendclassloading())
+        resolvedBackends.push_back(backend);
+
+      bool found = false;
+      for(auto br = backendsRequired.begin(); br != backendsRequired.end(); ++br)
+      {
+        found = true;
+        for(auto backend : resolvedBackends)
+        {
+          if(std::find(br->begin(), br->end(), backend) == br->end())
+            found = false;
+        }
+        if(found) break;
+      }
+      if(not found)
+      {
+        backendsRequired.push_back(resolvedBackends);
+      }
+
+    }
+
+    // Get BibTeX citation keys for backends, modules, etc
+    void DependencyResolver::getCitationKeys()
+    {
+      // First add the necessary citation keys to use GAMBIT
+      citationKeys.insert(citationKeys.end(), gambit_citation_keys.begin(), gambit_citation_keys.end());
+
+      // Get the keys for the required backends
+      for(auto backend : backendsRequired)
+      {
+        str bibkey = "";
+
+        // Run over references of loaded backends
+        for(auto beref : boundCore->getBackendCitationKeys())
+        {
+          str origin = beref.first.first;
+          str version = beref.first.second;
+          if (backend[0].first == origin and backend[0].second == version)
+          {
+            bibkey = beref.second;
+            if (bibkey != "" and bibkey != "REFERENCE")
+            {
+              logger() << LogTags::dependency_resolver << "Found bibkey for backend " << origin << " version " << version << ": " << bibkey << EOM;
+              BibTeX::addCitationKey(citationKeys, bibkey);
+            }
+          }
+        }
+        if (bibkey == "" or bibkey == "REFERENCE")
+        {
+          std::ostringstream errmsg;
+          errmsg << "Missing reference for backend " << backend[0].first << "(" << backend[0].second << ")." << endl;
+          errmsg << "Please add the bibkey to the frontend header, and full bibtex entry to ";
+          errmsg << boundIniFile->getValueOrDef<str>("config/bibtex_entries.bib", "dependecy_resolution", "bibtex_file_location") << "." << endl;
+          dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
+        }
+      }
+
+      // Now look over activated vertices in the mastergraph and add any references to module, module functions, etc
+      std::vector<VertexID> order = getObsLikeOrder();
+      for (std::vector<VertexID>::const_iterator
+                  vi  = order.begin();
+                  vi != order.end(); ++vi)
+      {
+        std::set<VertexID> parents;
+        getParentVertices(*vi, masterGraph, parents);
+        parents.insert(*vi);
+        for (std::set<VertexID>::const_iterator
+                  vi2  = parents.begin();
+                  vi2 != parents.end(); ++vi2)
+
+        {
+ 
+          // Add citation key for used modules
+          for(const auto &key : boundCore->getModuleCitationKeys())
+          {
+            if(key.first == masterGraph[*vi2]->origin())
+            {
+              BibTeX::addCitationKey(citationKeys, key.second);
+            }
+          }
+
+          // Add citation key for specific module functions
+          if(masterGraph[*vi2]->citationKey() != "")
+          {
+            BibTeX::addCitationKey(citationKeys, masterGraph[*vi2]->citationKey());
+          }
+
+        }
+
+      }
+
+    }
 
   }
 

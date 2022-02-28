@@ -64,6 +64,10 @@ namespace Gambit
            double get_TYu(int i, int j) const;
            double get_TYe(int i, int j) const;
 
+           double get_ad(int i, int j) const;
+           double get_au(int i, int j) const;
+           double get_ae(int i, int j) const;
+
            double get_Yd(int i, int j) const;
            double get_Yu(int i, int j) const;
            double get_Ye(int i, int j) const;

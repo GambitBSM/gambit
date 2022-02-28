@@ -9,6 +9,9 @@
 ## are included.
 ##########################################################################
 
+# NB: This example yaml file uses flexiblesusy, so make sure you have
+# built gambit with -DBUILD_FS_MODELS="CMSSM"
+
 
 Parameters:
 
@@ -66,8 +69,9 @@ Priors:
 
 Printer:
 
-  printer: hdf5
+  # printer: cout
 
+  printer: hdf5
   options:
     output_file: "CMSSM.hdf5"
     group: "/CMSSM"
@@ -83,6 +87,13 @@ Scanner:
   use_scanner: de
 
   scanners:
+
+    # Useful for testing
+    random:
+      plugin: random
+      like:  LogLike
+      point_number: 1
+      output_file: output
 
     multinest:
       plugin: multinest
@@ -102,77 +113,77 @@ Scanner:
 ObsLikes:
 
     # LHC likelihoods
-    - purpose:    LogLike
-      capability: LHC_Combined_LogLike
+    - capability: LHC_Combined_LogLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
+    - capability: LHC_Higgs_LogLike
+      purpose:    LogLike
 
     # LEP likelihoods
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
+    - capability: LEP_Higgs_LogLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Selectron_LLike
+    - capability: ALEPH_Selectron_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Smuon_LLike
+    - capability: ALEPH_Smuon_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Stau_LLike
+    - capability: ALEPH_Stau_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Selectron_LLike
+    - capability: L3_Selectron_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Smuon_LLike
+    - capability: L3_Smuon_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Stau_LLike
+    - capability: L3_Stau_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Neutralino_Leptonic_LLike
+    - capability: L3_Neutralino_Leptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Chargino_Leptonic_LLike
+    - capability: L3_Chargino_Leptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Hadronic_LLike
+    - capability: OPAL_Chargino_Hadronic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_SemiLeptonic_LLike
+    - capability: OPAL_Chargino_SemiLeptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Leptonic_LLike
+    - capability: OPAL_Chargino_Leptonic_LLike
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Neutralino_Hadronic_LLike
+    - capability: OPAL_Neutralino_Hadronic_LLike
+      purpose:    LogLike
 
     # Flavour physics likelihoods
-    - purpose:    LogLike
-      capability: b2ll_LL
+    - capability: b2ll_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: SL_LL
+    - capability: SL_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: b2sll_LL
+    - capability: b2sll_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: b2sgamma_LL
+    - capability: b2sgamma_LL
+      purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: LUV_LL
+    - capability: LUV_LL
+      purpose:    LogLike
 
     # Precision physics likelihoods
     - capability: lnL_W_mass
       purpose:    LogLike
 
-    #- capability: lnL_sinW2_eff
-    #  purpose:    LogLike
+    # - capability: lnL_sinW2_eff
+    #   purpose:    LogLike
 
-    #- capability: lnL_deltarho
-    #  purpose:    LogLike
+    # - capability: lnL_deltarho
+    #   purpose:    LogLike
 
     - capability:  lnL_gm2
       purpose:     LogLike
@@ -251,47 +262,47 @@ ObsLikes:
       purpose:    LogLike
 
     # Other observables
-    - purpose:    likelihood_details
-      capability: LHC_LogLike_per_analysis
+    - capability: LHC_LogLike_per_analysis
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: LHC_signals
+    - capability: LHC_signals
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: LHCEventLoopInfo
+    - capability: LHCEventLoopInfo
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: RD_oh2
+    - capability: RD_oh2
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: mwimp
+    - capability: mwimp
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigmav
+    - capability: sigmav
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SI_p
+    - capability: sigma_SI_p
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SI_n
+    - capability: sigma_SI_n
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SD_p
+    - capability: sigma_SD_p
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: sigma_SD_n
+    - capability: sigma_SD_n
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: bsgamma
+    - capability: bsgamma
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: muon_gm2
+    - capability: muon_gm2
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: SLHA1_violation
+    - capability: SLHA1_violation
+      purpose:    Observable
 
-    - purpose:    Observable
-      capability: MSSM_spectrum
+    - capability: MSSM_spectrum
+      purpose:    Observable
       type:       map_str_dbl
 
 
@@ -301,9 +312,17 @@ Rules:
   #- options:
   #    drop_SLHA_file: true
 
-  # Choose to use DarkSUSY rather than Capt'n General for calculating the capture rate of DM in the Sun
+  # Choose to use DarkSUSY 6 rather than Capt'n General for calculating the capture rate of DM in the Sun
   - capability: capture_rate_Sun
+    #function: capture_rate_Sun_const_xsec_DS5
     function: capture_rate_Sun_const_xsec
+
+  # If you have multiple versions of DarkSUSY installed, you can pick which one to provide
+  # the backend requirements to the function nuyield_from_DS
+  # - capability: nuyield_ptr
+  #   function: nuyield_from_DS
+  #   backends:
+  #     - {backend: DarkSUSY_MSSM, version: 6.2.2}
 
   # Globally permit maximal mixing between gauge and family eigenstates
   - options:
@@ -334,35 +353,68 @@ Rules:
   - capability: RD_fraction
     function: RD_fraction_leq_one
 
-  # Use DarkSUSY, MicrOmegas or the DarkBit native calculator for the relic density?
+  # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
+  # Consult the DarkBit manual for the required options in each case
   - capability: RD_oh2
-    function: RD_oh2_general
-    #function: RD_oh2_DarkSUSY
-    #function: RD_oh2_MicrOmegas
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
     options:
-      # for all calculations
-      fast: 1
-      # used by RD_oh2_DarkSUSY only
-      omtype: 1
-      # used by RD_oh2_MicrOmegas only
-      Beps: 1e-5
+      # these options are identical for DS5 and DS6+ version
+      fast: 1  # 0: standard, 1: fast (default)
+    #function: RD_oh2_DarkSUSY_DS5
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
+    #  omtype: 1  # 0: no coann, 1: all coann (default)
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast
+    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
+  - capability: RD_eff_annrate
+    # function: RD_eff_annrate_DS5_MSSM
+    function: RD_eff_annrate_DS_MSSM
+  # ...and get the dependency RD_spectrum from RD_spectrum_MSSM
+  - capability: RD_spectrum
+    #function: RD_spectrum_SUSY_DS5
+    function: RD_spectrum_MSSM
+
+  # Choose module function to provide the TH_ProcessCatalog
+  - capability: TH_ProcessCatalog
+    #function: TH_ProcessCatalog_DS5_MSSM # For DarkSUSY 5
+    function: TH_ProcessCatalog_DS_MSSM   # For DarkSUSY 6
+
+  # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
+  - capability: sigmav
+    function: sigmav_late_universe
 
   # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
   - capability: lnL_FermiLATdwarfs
     function:  lnL_FermiLATdwarfs_gamLike
 
-  # Choose to use DarkSUSY yield tables for indirect detection
-  - capability: SimYieldTable
-    function: SimYieldTable_DarkSUSY
-    options:
-      allow_yield_extrapolation: true
+  # Choose to use DarkSUSY 6 yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_DarkSUSY
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
+
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
 
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
-    function: DD_couplings_DarkSUSY
+    #function: DD_couplings_DarkSUSY_DS5
+    function: DD_couplings_DarkSUSY_MSSM
+    options:
+      loop: true
     #function: DD_couplings_MicrOmegas
     
-  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  # Select WIMP-nucleon couplings to pass to DDCalc
   - capability: DDCalc_Couplings
     function: DDCalc_Couplings_WIMP_nucleon
     
@@ -509,9 +561,23 @@ Rules:
   - capability: HardScatteringEvent
     function: generateEventPythia
 
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia
+    options:
+      slha_version: 2
+      write_summary_to_log: false
+
   # Choose to where to get cross-sections from
-  - capability: CrossSection
-    function: getMCxsec
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+  # Choose to generate events with Pythia on the fly (rather than reading them in)
+  - capability: HardScatteringEvent
+    function: generateEventPythia
 
   # Choose Monte Carlo event simulator and options.
   - capability: HardScatteringSim
@@ -525,6 +591,9 @@ Rules:
         antiktR: 0.4
         pythia_settings:
           - Print:quiet = on
+          - Next:numberCount = 0
+          - Random:setSeed = on
+          - Beams:eCM = 13000
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = on
@@ -532,20 +601,8 @@ Rules:
           - SUSY:all = on
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
-
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
@@ -584,9 +641,27 @@ Rules:
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
-      covariance_marg_convthres_abs: 0.05
-      covariance_marg_convthres_rel: 0.05
-      covariance_nsamples_start: 100000
+      # covariance_marg_convthres_abs: 0.05
+      # covariance_marg_convthres_rel: 0.05
+      # covariance_nsamples_start: 100000
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6
+      nuisance_prof_verbosity: 0
+
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: false
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
+      # skip_analyses:
+
 
 
 Logger:
@@ -608,10 +683,18 @@ KeyValues:
   dependency_resolution:
     prefer_model_specific_functions: true
 
+  rng:
+    generator: ranlux48
+    seed: -1
+
   likelihood:
+    # Choose a lower cutoff for the likelihood
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
+    print_invalid_points: true
 
   default_output_path: "runs/CMSSM/"
 
-  debug: true
+  debug: false
+
+

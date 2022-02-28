@@ -5,31 +5,37 @@ GAMBIT steering files
 Functionality/configuration demos and minimal examples
 ------------------------------------------------------
 
-spartan.yaml                     --- Simplest example of using GAMBIT: a toy-model MultiNest scan
-spartan_NUHM1.yaml               --- Simple example of using GAMBIT in a random scan of NUHM1 params
+spartan.yaml                                     --- Simplest example of using GAMBIT: a toy-model MultiNest scan
+spartan_NUHM1.yaml                               --- Simple example of using GAMBIT in a random scan of NUHM1 params
 
-postprocessor_demo.yaml          --- Simple example of using the postprocessor scanner to add a new likelihood component
+postprocessor_demo.yaml                          --- Simple example of using the postprocessor scanner to add a new likelihood component
 
-ColliderBit_CMSSM.yaml           --- LEP and LHC direct search observables in a MultiNest scan of the CMSSM
-ColliderBit_ExternalModel.yaml   --- LHC likelihood demo on a single point of a Pythia external model
+ColliderBit_CMSSM.yaml                           --- LEP and LHC direct search observables in a MultiNest scan of the CMSSM
+ColliderBit_ExternalModel.yaml                   --- LHC likelihood demo on a single point of a Pythia external model
 
-DarkBit_MSSM7.yaml               --- DM constraint demo with a MultiNest scan of the MSSM7 model
-DarkBit_ScalarSingletDM_Z2.yaml  --- DarkBit demo with a simple of MultiNest scan of Singlet DM model
+DarkBit_MSSM7.yaml                               --- DM constraint demo with a MultiNest scan of the MSSM7 model
+DarkBit_ScalarSingletDM_Z2.yaml                  --- DarkBit demo with a simple of MultiNest scan of Singlet DM model
 
-DecayBit_MSSM20.yaml             --- Test of DecayBit, printing out a decay table for MSSM20 at a single model point
-DecayBit_ScalarSingletDM_Z2.yaml --- Test of DecayBit, printing out a decay table for Singlet DM at 10 model points
+DecayBit_MSSM20.yaml                             --- Test of DecayBit, printing out a decay table for MSSM20 at a single model point
+DecayBit_ScalarSingletDM_Z2.yaml                 --- Test of DecayBit, printing out a decay table for Singlet DM at 10 model points
 
-FlavBit_CMSSM.yaml               --- Flavour physics fits to CMSSM with Diver scan
+FlavBit_CMSSM.yaml                               --- Flavour physics fits to CMSSM with Diver scan
 
-PrecisionBit_MSSM20.yaml         --- Precision EW observable demo on a single MSSM20 point
+PrecisionBit_MSSM20.yaml                         --- Precision EW observable demo on a single MSSM20 point
 
-ScannerBit.yaml                  --- Example of configuring the scanner system
+ScannerBit.yaml                                  --- Example of configuring the scanner system
 
-SpecBit_MSSM.yaml                --- Single-point test of mass spectrum generation in MSSM sub-models
-SpecBit_vacuum_stability.yaml    --- 50x50 grid scan of vacuum stability in [mT,mH]
+SpecBit_MSSM.yaml                                --- Single-point test of mass spectrum generation in MSSM sub-models
+SpecBit_ScalarSingletDM_vacuum_stability.yaml    --- 50x50 grid scan of vacuum stability in [mT,mH]
 
-Mathematica_test.yaml            --- Simple example demonstrating the use of Mathematica backends
-Python_test.yaml                 --- Simple example demonstrating the use of Python backends
+Mathematica_test.yaml                            --- Simple example demonstrating the use of Mathematica backends
+Python_test.yaml                                 --- Simple example demonstrating the use of Python backends
+
+CosmoBit_quickStart.yaml                         --- Quickstart example for CosmoBit
+CosmoBit_tutorial.yaml                           --- Tutorial file for using CosmoBit
+CosmoBit_Planck_polychord.yaml                   --- Validation of Planck likelihoods with Polychord as sampler
+
+ObjectivesBit_minuit2.yaml                       --- Test of ObjectivesBit, optmising with minuit2
 
 
 Physics model scan configurations
@@ -47,6 +53,9 @@ MajoranaSingletDM_Z2.yaml --- Diver scan of Majorana singlet Higgs-portal DM mod
 VectorSingletDM_Z2.yaml   --- Diver scan of Vector singlet Higgs-portal DM model with Z2 symmetry
 WC.yaml                   --- MultiNest scan of flavour physics Wilson Coeffs
 WC_lite.yaml              --- A lightweight version of WC.yaml, with less observables and parameters
+QCDAxions.yaml            --- Scan of a QCD axion model
+RHN.yaml                  --- Diver scan of a right-handed neutrino model
+DMEFT.yaml                --- Diver scan of the effective field theory of DM
 
 
 Plotting examples
@@ -58,8 +67,22 @@ spartan.pip               --- plot the results of spartan.yaml with pippi
 Config fragments containing parameters for inclusion in other steering files
 ----------------------------------------------------------------------------
 
-StandardModel_SLHA2_defaults.yaml
-StandardModel_SLHA2_scan.yaml
+StandardModel_SLHA2_defaults.yaml                    --- Defaults for StandardModel_SLHA2 parameters
+StandardModel_SLHA2_scan.yaml                        --- Defaults for StandardModel_SLHA2 paramaters for MSSM scans
+StandardModel_SLHA2_scan_HP.yaml                     --- Defaults for StandardModel_SLHA2 paramaters for HP scans
+StandardModel_SLHA2_postprocessing.yaml              --- Defaults for StandardModel_SLHA2 paramaters for postprocessing
+StandardModel_SLHA2_Planckbaseline.yaml              --- Defaults for StandardModel_SLHA2 paramaters with Planck baseline for neutrino masses
+StandardModel_mNudiff_NH_scan.yaml                   --- Defaults for StandardModel_SLHA2 paramaters with differential neutrino masses in normal hierarchy
+StandardModel_mNudiff_IH_scan.yaml                   --- Defaults for StandardModel_SLHA2 paramaters with differential neutrino masses in inverted hierarchy
+nuclear_params_ChPT_sigmapiN_fixed.yaml              --- Defaults for nuclear_params_ChPT_sigmapiN parameters
+nuclear_params_ChPT_sigmapiN_scan.yaml               --- Defaults for nuclear_params_ChPT_sigmapiN parameters in DMEFT scans
+nuclear_params_ChPT_sigmapiN_postprocessing.yaml     --- Defaults for nuclear_params_ChPT_sigmapiN parameters in postprocessing of DMEFT scans
+cosmo_nuisance_Planck_lite_flat.yaml                 --- Nuisance parameters for Planck Lite likelihood, flat prior
+cosmo_nuisance_Planck_lite_gauss.yaml                --- Nuisance parameters for Planck Lite likelihood, gaussian prior
+cosmo_nuisance_Planck_TT_flat.yaml                   --- Nuisance parameters for Planck TT likelihood, flat prior
+cosmo_nuisance_Planck_TT_gauss.yaml                  --- Nuisance parameters for Planck TT likelihood, gaussian prior
+cosmo_nuisance_Planck_TTTEEE_flat.yaml               --- Nuisance parameters for Planck TTTEEE likelihood, flat prior
+cosmo_nuisance_Planck_TTTEEE_gauss.yaml              --- Nuisance parameters for Planck TTTEEE likelihood, gaussian prior
 
 
 Files used for unit testing

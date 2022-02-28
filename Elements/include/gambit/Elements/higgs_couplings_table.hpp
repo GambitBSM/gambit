@@ -27,26 +27,19 @@ namespace Gambit
   /// GAMBIT native higgs coupling table class.
   class HiggsCouplingsTable
   {
-    public:
-
-      /// The maximal Higgs sector manageable by this class; update as needed.
-      /// @{
-      const static int max_neutral_higgses = 3;
-      const static int max_charged_higgses = 1;
-      /// @}
 
     private:
 
       /// SM neutral higgs decays
       /// @{
-      const DecayTable::Entry* neutral_decays_SM_array[max_neutral_higgses];
+      std::vector<const DecayTable::Entry*> neutral_decays_SM_array;
       std::map<str, const DecayTable::Entry&> neutral_decays_SM_map;
       /// @}
 
       /// BSM higgs decays
       /// @{
-      const DecayTable::Entry* neutral_decays_array[max_neutral_higgses];
-      const DecayTable::Entry* charged_decays_array[max_charged_higgses];
+      std::vector<const DecayTable::Entry*> neutral_decays_array;
+      std::vector<const DecayTable::Entry*> charged_decays_array;
       std::map<str, const DecayTable::Entry&> neutral_decays_map;
       std::map<str, const DecayTable::Entry&> charged_decays_map;
       /// @}
@@ -54,45 +47,60 @@ namespace Gambit
       /// t decays (as t can decay to h)
       const DecayTable::Entry* t_decays;
 
+      /// Number of neutral Higgs bosons
+      int n_neutral_higgses;
+
+      /// Number of charged Higgs bosons
+      int n_charged_higgses;
+
     public:
 
-      /// Types to make returning decay arrays easier
-      /// @{
-      typedef const DecayTable::Entry* h0_decay_array_type[max_neutral_higgses];
-      typedef const DecayTable::Entry* hp_decay_array_type[max_charged_higgses];
-      /// @}
-
       /// CP of neutral higgses
-      double CP[max_neutral_higgses];
+      std::vector<double> CP;
 
       /// Particles that higgses can decay invisibly to
-      std::vector<str> invisibles;
+      std::vector<std::pair<str,str>> invisibles;
 
       /// Effective couplings for neutral higgses
       /// @{
-      double C_WW2[max_neutral_higgses];
-      double C_ZZ2[max_neutral_higgses];
-      double C_tt2[max_neutral_higgses];
-      double C_bb2[max_neutral_higgses];
-      double C_cc2[max_neutral_higgses];
-      double C_tautau2[max_neutral_higgses];
-      double C_gaga2[max_neutral_higgses];
-      double C_gg2[max_neutral_higgses];
-      double C_mumu2[max_neutral_higgses];
-      double C_Zga2[max_neutral_higgses];
-      double C_ss2[max_neutral_higgses];
-      double C_hiZ2[max_neutral_higgses][max_neutral_higgses];
+      std::vector<double> C_WW2;
+      std::vector<double> C_ZZ2;
+      std::vector<double> C_tt2;
+      std::vector<double> C_bb2;
+      std::vector<double> C_cc2;
+      std::vector<double> C_tautau2;
+      std::vector<double> C_gaga2;
+      std::vector<double> C_gg2;
+      std::vector<double> C_mumu2;
+      std::vector<double> C_Zga2;
+      std::vector<double> C_ss2;
+      std::vector<std::vector<double>> C_hiZ2;
       /// @}
 
       /// Constructor
-      HiggsCouplingsTable();
+      HiggsCouplingsTable() {};
+
+      /// Set the number of neutral Higgses
+      void set_n_neutral_higgs(int);
+
+      /// Set the number of charged Higgses
+      void set_n_charged_higgs(int);
+
+      /// Retrieve number of neutral higgses
+      int get_n_neutral_higgs() const;
+
+      /// Retrieve number of charged higgses
+      int get_n_charged_higgs() const;
+
+      /// Set all effective couplings to 1
+      void set_effective_couplings_to_unity();
 
       /// Compute a neutral higgs effective coupling from the current two-body neutral higgs decays
       /// @{
       template <typename T>
       double compute_effective_coupling(int index, const T& p1, const T& p2)
       {
-        if (index > max_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_neutral_higgses.");
+        if (index > n_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_neutral_higgses.");
         // If channel is missing from either SM or BSM decays, return unity.
         if (!neutral_decays_SM_array[index]->has_channel(p1, p2) or !neutral_decays_array[index]->has_channel(p1, p2)) return 1.;
         double smwidth = neutral_decays_SM_array[index]->width_in_GeV;
@@ -130,13 +138,13 @@ namespace Gambit
 
       /// Retrieve decay sets
       /// @{
-      const h0_decay_array_type& get_neutral_decays_SM_array(int) const;
+      const std::vector<const DecayTable::Entry*>& get_neutral_decays_SM_array() const;
       const DecayTable::Entry& get_neutral_decays_SM(int) const;
       const DecayTable::Entry& get_neutral_decays_SM(const str&) const;
-      const h0_decay_array_type& get_neutral_decays_array(int) const;
+      const std::vector<const DecayTable::Entry*>& get_neutral_decays_array() const;
       const DecayTable::Entry& get_neutral_decays(int) const;
       const DecayTable::Entry& get_neutral_decays(const str&) const;
-      const hp_decay_array_type& get_charged_decays_array(int) const;
+      const std::vector<const DecayTable::Entry*>& get_charged_decays_array() const;
       const DecayTable::Entry& get_charged_decays(int) const;
       const DecayTable::Entry& get_charged_decays(const str&) const;
       const DecayTable::Entry& get_t_decays() const;

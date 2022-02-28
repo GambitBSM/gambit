@@ -197,17 +197,6 @@ namespace Gambit
      }
    }
 
-   /// Initialise object contents from a pre-defined model
-   /// (i.e. from a pre-existing primary_parameters functor)
-   void ModelParameters::initialize_as(const std::string modelname, const std::string outputname)
-   {
-      // Access global database of primary_model_functors.
-      // Won't work outside of a GAMBIT run! TODO: Add some sort of check for this?
-      primary_model_functor* functor = Models::ModelDB().getPrimaryModelFunctor(modelname,Core().getPrimaryModelFunctors());
-      (*this) = *(functor->getcontentsPtr()); // Copy ModelParameters object from primary_model_functor.
-      setOutputName(outputname); // Record origin (no longer primary_model_functor!) for informative error messages.
-   }
-
    /// Getters/setters for model and output names
    std::string ModelParameters::getModelName() const  { return modelname; }
    std::string ModelParameters::getOutputName() const { return outputname; }

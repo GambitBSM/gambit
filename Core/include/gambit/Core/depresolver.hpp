@@ -21,6 +21,11 @@
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
+///  \date 2021 Sep
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
 ///
 ///  *********************************************
 
@@ -128,6 +133,15 @@ namespace Gambit
         /// Pretty print function evaluation order
         void printFunctorEvalOrder(bool toterminal=false);
 
+        /// Print the list of required backends
+        void printRequiredBackends();
+
+        /// Collect the citation keys for backends, modules, etc
+        void getCitationKeys();
+
+        // Print citation keys
+        void printCitationKeys();
+
         /// Retrieve the order in which target vertices are to be evaluated.
         std::vector<VertexID> getObsLikeOrder();
 
@@ -196,6 +210,9 @@ namespace Gambit
         /// Derive options from ini-entries
         Options collectIniOptions(const DRes::VertexID & vertex);
 
+        /// Collect sub-capabilities
+        Options collectSubCaps(const DRes::VertexID & vertex);
+
         /// Generate full dependency tree
         void generateTree(std::queue<QueueEntry> parQueue);
 
@@ -216,6 +233,9 @@ namespace Gambit
 
         /// Main function for resolution of backend requirements
         void resolveVertexBackend(VertexID);
+
+        /// Function for resolution of backends that need class loading
+        void resolveVertexClassLoading(VertexID);
 
         /// Find backend function matching any one of a number of capability-type pairs.
         functor* solveRequirement(std::set<sspair>, const IniParser::ObservableType*, VertexID, std::vector<functor*>, bool, str group="none");
@@ -265,6 +285,12 @@ namespace Gambit
         /// to be passed on to its loop manager when it is selected
         std::map<VertexID, std::set<VertexID>> edges_to_force_on_manager;
 
+        // Backends required to fullfil dependencies
+        std::vector<std::vector<sspair> > backendsRequired;
+
+        // List of BibTeX keys
+        std::vector<str> citationKeys;
+
         /// Indices associated with graph vertices (used by printers to identify functors)
         IndexMap index;
 
@@ -274,6 +300,8 @@ namespace Gambit
         /// Global flag for triggering printing of timing data
         bool print_timing = false;
 
+        /// Global flag for triggering printing of unitCubeParameters
+        bool print_unitcube = false;
   };
   }
 }

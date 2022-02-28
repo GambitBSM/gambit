@@ -12,42 +12,38 @@
 ///
 ///  \author Sanjay Bloor
 ///         (sanjay.bloor12@imperial.ac.uk)
-///  \date Oct 2019
-///                                                
+///  \date 2019 Oct
+///
+///  \author Patrick Stöcker
+///          (patrick.stoecker@kit.edu)
+///  \date 2021 Mar, Sep
+///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  ********************************************* 
 
 #ifndef __DMEFT_hpp__
 #define __DMEFT_hpp__
+
+// Make sure that AnnihilatingDM_general is declared first
+#include "gambit/Models/models/CosmoEnergyInjection.hpp"
 
 #define MODEL DMEFT
   START_MODEL
 
   DEFINEPARS(Lambda, C51, C52, C61, C62, C63, C64, C71, C72)
   DEFINEPARS(C73, C74, C75, C76, C77, C78, C79, C710, mchi)
+  DEFINEPARS(mtrunIN)
 
-  #define CAPABILITY WIMP_properties
-  START_CAPABILITY
-     #define FUNCTION DMEFT_WIMP_properties
-     START_FUNCTION(WIMPprops)
-     ALLOW_MODELS(DMEFT)
-     #undef FUNCTION
-  #undef CAPABILITY
-  
-  // Define the module functions
-  namespace Gambit {
-    namespace Models {
-      namespace MODEL {
-        void DMEFT_WIMP_properties(WIMPprops& result)
-        {
-            using namespace Pipes::DMEFT_WIMP_properties;
-            result.mass   = *Param["mchi"];
-            result.spinx2 = 1;
-            result.sc     = false;
-            result.name   = "chi";
-        } 
-      }
-    }
-  }
+  // In order to enable CMB constraints create a friendship relation
+  // to the s-wave annihilation "marker" model AnnihilatingDM_general
+  INTERPRET_AS_X_FUNCTION(AnnihilatingDM_general,DMEFT_to_AnnihilatingDM_general)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,mwimp,double)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,wimp_sc,bool)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,sigmav,double)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,RD_fraction,double)
 
 #undef MODEL
 

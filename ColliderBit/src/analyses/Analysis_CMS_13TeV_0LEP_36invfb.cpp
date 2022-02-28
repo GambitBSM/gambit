@@ -2,7 +2,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "Eigen/Eigen"
 
 namespace Gambit {
   namespace ColliderBit {
@@ -22,8 +21,23 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       // Numbers passing cuts
+      std::map<string, EventCounter> _counters = {
+        {"SR1", EventCounter("SR1")},
+        {"SR2", EventCounter("SR2")},
+        {"SR3", EventCounter("SR3")},
+        {"SR4", EventCounter("SR4")},
+        {"SR5", EventCounter("SR5")},
+        {"SR6", EventCounter("SR6")},
+        {"SR7", EventCounter("SR7")},
+        {"SR8", EventCounter("SR8")},
+        {"SR9", EventCounter("SR9")},
+        {"SR10", EventCounter("SR10")},
+        {"SR11", EventCounter("SR11")},
+        {"SR12", EventCounter("SR12")},
+      };
+
       static const size_t NUMSR = 12; //160;
-      double _srnums[NUMSR];
+
       Cutflow _cutflow;
 
       Analysis_CMS_13TeV_0LEP_36invfb() :
@@ -31,8 +45,6 @@ namespace Gambit {
       {
         set_analysis_name("CMS_13TeV_0LEP_36invfb");
         set_luminosity(35.9);
-
-        for (size_t i = 0; i < NUMSR; ++i) _srnums[i] = 0;
       }
 
 
@@ -69,8 +81,8 @@ namespace Gambit {
 
 
         // Get baseline electrons
-        vector<Particle*> baseelecs;
-        for (Particle* electron : event->electrons())
+        vector<const Particle*> baseelecs;
+        for (const Particle* electron : event->electrons())
           if (electron->pT() > 10. && electron->abseta() < 2.5)
             baseelecs.push_back(electron);
 
@@ -78,8 +90,8 @@ namespace Gambit {
         CMS::applyElectronEff(baseelecs);
 
         // Get baseline muons
-        vector<Particle*> basemuons;
-        for (Particle* muon : event->muons())
+        vector<const Particle*> basemuons;
+        for (const Particle* muon : event->muons())
           if (muon->pT() > 10. && muon->abseta() < 2.4)
             basemuons.push_back(muon);
 
@@ -185,7 +197,7 @@ namespace Gambit {
         // iht -= 1; //< change from the paper's indexing scheme to C++ zero-indexed
         // const size_t ibin = 40*inj + 10*inbj + (size_t)iht;
         // if (ibin >= NUMSR) throw std::runtime_error("ibin out of range");
-        // _srnums[ibin] += 1;
+        // _srnums[ibin] += event->weight();
 
 
         // Fill aggregate SR bins
@@ -198,18 +210,18 @@ namespace Gambit {
           if (btagged) nbjets += 1;
         }
 
-        if (njets >= 2 && nbjets == 0 && ht >=  500 && htmiss >= 500) _srnums[ 0] += 1;
-        if (njets >= 3 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 1] += 1;
-        if (njets >= 5 && nbjets == 0 && ht >=  500 && htmiss >= 500) _srnums[ 2] += 1;
-        if (njets >= 5 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 3] += 1;
-        if (njets >= 9 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _srnums[ 4] += 1;
-        if (njets >= 2 && nbjets >= 2 && ht >=  500 && htmiss >= 500) _srnums[ 5] += 1;
-        if (njets >= 3 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _srnums[ 6] += 1;
-        if (njets >= 5 && nbjets >= 3 && ht >=  500 && htmiss >= 500) _srnums[ 7] += 1;
-        if (njets >= 5 && nbjets >= 2 && ht >= 1500 && htmiss >= 750) _srnums[ 8] += 1;
-        if (njets >= 9 && nbjets >= 3 && ht >=  750 && htmiss >= 750) _srnums[ 9] += 1;
-        if (njets >= 7 && nbjets >= 1 && ht >=  300 && htmiss >= 300) _srnums[10] += 1;
-        if (njets >= 5 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _srnums[11] += 1;
+        if (njets >= 2 && nbjets == 0 && ht >=  500 && htmiss >= 500) _counters.at("SR1").add_event(event);
+        if (njets >= 3 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _counters.at("SR2").add_event(event);
+        if (njets >= 5 && nbjets == 0 && ht >=  500 && htmiss >= 500) _counters.at("SR3").add_event(event);
+        if (njets >= 5 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _counters.at("SR4").add_event(event);
+        if (njets >= 9 && nbjets == 0 && ht >= 1500 && htmiss >= 750) _counters.at("SR5").add_event(event);
+        if (njets >= 2 && nbjets >= 2 && ht >=  500 && htmiss >= 500) _counters.at("SR6").add_event(event);
+        if (njets >= 3 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _counters.at("SR7").add_event(event);
+        if (njets >= 5 && nbjets >= 3 && ht >=  500 && htmiss >= 500) _counters.at("SR8").add_event(event);
+        if (njets >= 5 && nbjets >= 2 && ht >= 1500 && htmiss >= 750) _counters.at("SR9").add_event(event);
+        if (njets >= 9 && nbjets >= 3 && ht >=  750 && htmiss >= 750) _counters.at("SR10").add_event(event);
+        if (njets >= 7 && nbjets >= 1 && ht >=  300 && htmiss >= 300) _counters.at("SR11").add_event(event);
+        if (njets >= 5 && nbjets >= 1 && ht >=  750 && htmiss >= 750) _counters.at("SR12").add_event(event);
 
       }
 
@@ -217,33 +229,33 @@ namespace Gambit {
       void combine(const Analysis* other)
       {
         const Analysis_CMS_13TeV_0LEP_36invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_0LEP_36invfb*>(other);
-        for (size_t i = 0; i < NUMSR; ++i) _srnums[i] += specificOther->_srnums[i];
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {
-//        cout << _cutflow << endl;
 
-        static const double OBSNUM[NUMSR] = {
-          7838, 71, 819, 25,   1,   216, 123, 17,    6,  0, 890, 48
-        };
-        static const double BKGNUM[NUMSR] = {
-          7584, 55.2, 806, 23.0, 0.6, 196, 113, 19.5, 4.4, 0, 969, 42.2
-        };
-        static const double BKGERR[NUMSR] = { // these quadrature sums are partially guesstimated, to minimise pain!
-          sqrt(63*63+370*370), sqrt(6.2*6.2+5.3*5.3), sqrt(19*19+38*38), sqrt(3.8*3.8+2.7*2.7), sqrt(1.1*1.1+0.2*0.2), sqrt(13*13+15*15), sqrt(8*8+10*10), sqrt(5.2*5.2+3.2*3.2), sqrt(2.8*2.8+0.6*0.6), 1.3, sqrt(23*23+57*57), sqrt(5.7*5.7+4.0*4.0) //< quad sums of upper limits
-        };
-        for (size_t ibin = 0; ibin < NUMSR; ++ibin) {
-          stringstream ss; ss << "sr-" << ibin;
-          add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {_srnums[ibin],  0.}, {BKGNUM[ibin], BKGERR[ibin]}));
-        }
+        // The bkg errors are quad sums of upper limits
+        add_result(SignalRegionData(_counters.at("SR1"), 7838., {7584., sqrt(63*63+370*370)} ));
+        add_result(SignalRegionData(_counters.at("SR2"), 71., {55.2, sqrt(6.2*6.2+5.3*5.3)} ));
+        add_result(SignalRegionData(_counters.at("SR3"), 819., {806., sqrt(19*19+38*38)} ));
+        add_result(SignalRegionData(_counters.at("SR4"), 25., {23.0, sqrt(3.8*3.8+2.7*2.7)} ));
+        add_result(SignalRegionData(_counters.at("SR5"), 1., {0.6, sqrt(1.1*1.1+0.2*0.2)} ));
+        add_result(SignalRegionData(_counters.at("SR6"), 216., {196., sqrt(13*13+15*15)} ));
+        add_result(SignalRegionData(_counters.at("SR7"), 123., {113., sqrt(8*8+10*10)} ));
+        add_result(SignalRegionData(_counters.at("SR8"), 17., {19.5, sqrt(5.2*5.2+3.2*3.2)} ));
+        add_result(SignalRegionData(_counters.at("SR9"), 6., {4.4, sqrt(2.8*2.8+0.6*0.6)} ));
+        add_result(SignalRegionData(_counters.at("SR10"), 0., {0., sqrt(1.3*1.3+0.*0.)} ));
+        add_result(SignalRegionData(_counters.at("SR11"), 890., {969., sqrt(23*23+57*57)} ));
+        add_result(SignalRegionData(_counters.at("SR12"), 48., {42.2, sqrt(5.7*5.7+4.0*4.0)} ));
+
       }
 
 
     protected:
       void analysis_specific_reset() {
-        for(size_t i=0;i<NUMSR;i++) { _srnums[i]=0; }
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };

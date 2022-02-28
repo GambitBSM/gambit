@@ -1,6 +1,11 @@
 #ifndef __abstract_BeamParticle_Pythia_8_212_h__
 #define __abstract_BeamParticle_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <ostream>
+#include <vector>
+#include <utility>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
@@ -9,12 +14,7 @@
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Vec4_decl.h"
-#include <ostream>
 #include "wrapper_Event_decl.h"
-#include <vector>
-#include <utility>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

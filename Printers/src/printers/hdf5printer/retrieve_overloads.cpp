@@ -52,7 +52,7 @@ namespace Gambit
      bool HDF5Reader::RETRIEVEFROM(longlong, long)
      bool HDF5Reader::RETRIEVEFROM(ulonglong, ulong)
      #undef RETRIEVEFROM
- 
+
      // Bools can't quite use the template function directly, since there
      // are some issues with bools and MPI/HDF5 types. Easier to just convert
      // the bool to an int first (this is how they are printed in the first place anyway).
@@ -353,12 +353,8 @@ namespace Gambit
         LABELNXN(3,"~nu","Pole_Mixing","SNUMIX")
 
         // SCALARMIX, PSEUDOSCALARMIX, CHARGEMIX
-        // TODO: These are not SLHA! However we seem to
-        // require them at the moment in our
-        // MSSMSimpleSpec constructor. This is not
-        // good, but things will change in
-        // the SpecBit redesign so I am not going
-        // fix it until then.
+        // TODO: These are not SLHA! Will be
+        // changed after SpecBit redesign
         LABELNXN(2,"h0","Pole_Mixing","SCALARMIX")
         LABELNXN(2,"A0","Pole_Mixing","PSEUDOSCALARMIX")
         LABELNXN(2,"H+","Pole_Mixing","CHARGEMIX")
@@ -377,7 +373,6 @@ namespace Gambit
         #undef LABEL3X3DIAG
 
         // GAUGE
-        //labels_to_SLHA["g1"] = SLHAcombo("dimensionless", "TEMP", 3); // Convert to g'
         labels_to_SLHA["g2"] = SLHAcombo("dimensionless", "GAUGE", 2);
         labels_to_SLHA["g3"] = SLHAcombo("dimensionless", "GAUGE", 3);
 
@@ -398,56 +393,53 @@ namespace Gambit
            OUT = SLHAea_get(out,"TEMP",TEMP_INDEX); \
         }
 
-        // Another manual intervention is required for mA2. Seems we didn't used to save this.
-        // But again, we can compute it from other stuff: m^2_A=[m3^2/cosBsinB],
-        // where m3^2 is what we call BMu (or small b).
-        // Need tanb for this too.
+        // Manually compute tanb and mA2
         double vd,vu,BMu;
         GETPAR(vd,"vd","mass1",1)
         GETPAR(vu,"vu","mass1",2)
         GETPAR(BMu,"BMu","mass2",4)
 
-        double tb = vu/vd;
-        double cb = cos(atan(tb));
-        double c2b = cos(2*atan(tb));
-        double sb = sin(atan(tb));
-        double vev = sqrt(vu*vu + vd*vd);
-        double mA2 = BMu / (cb*sb);
+        const double tb = vu/vd;
+        const double cb = cos(atan(tb));
+        const double c2b = cos(2*atan(tb));
+        const double sb = sin(atan(tb));
+        const double vev = sqrt(vu*vu + vd*vd);
+        const double mA2 = BMu / (cb*sb);
 
         double g1,g2,gprime;
         GETPAR(g1,"g1","dimensionless",31)
         GETPAR(g2,"g2","dimensionless",32)
         gprime = g1*sqrt(3./5.);
 
-        double sin2thetaW;
-        sin2thetaW = (gprime*gprime) / (gprime*gprime + g2*g2);
+        const double sin2thetaW = (gprime*gprime) / (gprime*gprime + g2*g2);
 
-        double MZ,Mt; // Tree level Z and top masses
-        double TYu3,yt,At; // 3rd gen trilinear and Yukawa
+        double TYu3,yt; // 3rd gen trilinear and Yukawa
         GETPAR(TYu3,"TYu_(3,3)","mass1",41)
         GETPAR(yt,"Yu_(3,3)","dimensionless",42)
-        At = TYu3 / yt;
+        const double At = TYu3 / yt;
 
-        MZ = (1/2.)*sqrt(gprime*gprime + g2*g2)*vev;
-        Mt = yt*vu/sqrt(2.);        
+        // Tree level Z and top masses, needed for MSUSY reconstruction
+        // for old data sets where the scale was not saved in output
+        const double MZ = (1/2.)*sqrt(gprime*gprime + g2*g2)*vev;
+        const double Mt = yt*vu/sqrt(2.);
 
-        double Mu,Xt;
+        double Mu;
         GETPAR(Mu,"Mu","mass1",51)
-        //Xt = At - Mu / (sqrt(2.)*tb);
-        Xt = At - Mu / tb; // Not sure if sqrt(2.) should be there in MSSM case.
+        // stop mixing parameter
+        const double Xt = At - Mu / tb;
 
         double mq2_3, mu2_3;
         GETPAR(mq2_3,"mq2_(3,3)","mass2",20)
         GETPAR(mu2_3,"mu2_(3,3)","mass2",21)
 
-        double A, B, m2st1, m2st2;
-        A = mq2_3 + mu2_3 + 0.5*MZ*MZ*c2b + 2*Mt*Mt;
-        B = mq2_3 - mu2_3 + (0.5-(4./3.)*sin2thetaW)*MZ*MZ*c2b;
-        m2st1 = 0.5*(A - sqrt(B*B + 4*Mt*Mt*Xt*Xt));
-        m2st2 = 0.5*(A + sqrt(B*B + 4*Mt*Mt*Xt*Xt));
+        // reconstruct stop masses
+        const double A = mq2_3 + mu2_3 + 0.5*MZ*MZ*c2b + 2*Mt*Mt;
+        const double B = mq2_3 - mu2_3 + (0.5-(4./3.)*sin2thetaW)*MZ*MZ*c2b;
+        const double m2st1 = 0.5*(A - sqrt(B*B + 4*Mt*Mt*Xt*Xt));
+        const double m2st2 = 0.5*(A + sqrt(B*B + 4*Mt*Mt*Xt*Xt));
 
-        double MSUSY; // assuming no family mixing
-        MSUSY = sqrt(sqrt(m2st1)*sqrt(m2st2));
+        // assuming no family mixing
+        const double MSUSY = sqrt(sqrt(m2st1)*sqrt(m2st2));
         #undef GETPAR
 
         // Read the "scale" entry, since we need to add this info to the block
@@ -456,60 +448,22 @@ namespace Gambit
         bool found(true);
         retrieve_and_add_to_SLHAea(out, found, spec_type, "scale(Q)", SLHAcombo("", "TEMP", 0), all_dataset_labels, rank, pointID);
         if(not found)
-        //if(true) // Testing
         {
            // In some older datasets we forgot to add the scale to the output.
            // For now we will assume the spectrum was output by FlexibleSUSY, in which case
            // the running parameters will be defined at the SUSY scale (geometric mean of
-           // DRbar stop masses). TODO: Set this behvaiour with an option, maybe? Not sure how though.
-           
-           // TODO: This should come from the DRbar squark mass matrices, but I need to check with Peter
-           // how it should be calculated. For now I will used the stop pole masses, for testing. TODO: actually
-           // I cannot even easily tell which ones are the stop pole masses. They are probably the lightest two though,
-           // so I will just assume that for now.
-
-           // double ms1=1e99,ms2=1e99;
-           // for(int i=1; i<=6; i++)
-           // {
-           //     std::stringstream ss;
-           //     ss<<"~u_"<<i;
-           //     bool found_temp(true);
-           //     retrieve_and_add_to_SLHAea(out, found_temp, spec_type, ss.str(), SLHAcombo("Pole_Mass", "TEMP", 100+i), all_dataset_labels, rank, pointID);
-           //     if(not found_temp)
-           //     {
-           //         std::ostringstream err;
-           //         err<<"Failed to find "<<ss.str()<<" (Pole_Mass) need for scale calculation!";
-           //         printer_error().raise(LOCAL_INFO,err.str());
-           //     }
-           //     double m = SLHAea_get(out,"TEMP",100+i);
-           //     std::cout<<ss.str()<<" mass:"<<m<<std::endl;
-           //     if(m<ms1)
-           //     {
-           //         ms2 = ms1;
-           //         ms1 = m;
-           //     } 
-           //     else if(m<ms2)
-           //     {
-           //         ms2 = m;
-           //     }
-           // }
-           // double scale_pole = sqrt(ms1*ms2);   
+           // DRbar stop masses). TODO: Set this behaviour with an option, maybe? Not sure how though.
            
            // Proper calculation of DRbar stop masses, from https://arxiv.org/pdf/0904.2169.pdf Eq. 29 (with non-MSSM bits removed)
-           // We assume that there is no flavour/family mixing, which I think is true
-           // for all our scans so far, maybe even in the full MSSM63. TODO: Make sure that scale is output if we do have this mixing
-           // in the future!
+           // We assume that there is no flavour/family mixing, which is true for all our scans so far.
+           // TODO: Make sure that scale is output if we do have this mixing in the future!
            // Retrieve extra needed values first
            scale = MSUSY;
-           //std::cout<<"MSUSY(pole) ="<<scale_pole<<std::endl;
-           //std::cout<<"MSUSY(DRbar)="<<scale<<std::endl;
-           // pole version seems plausibly close to DRbar, so hopefully that means it is correct. TODO: should test explicitly
         } 
         else
         { 
            scale = SLHAea_get(out,"TEMP",0);
         } 
-        //std::cout<<"scale(Q)="<<SLHAea_get(out,"TEMP",0)<<std::endl;
 
         // Add blocks that require scale info
         SLHAea_add_block(out, "GAUGE", scale);
@@ -584,11 +538,13 @@ namespace Gambit
      bool HDF5Reader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
-    #ifndef SCANNER_STANDALONE // All the types inside HDF5_MODULE_BACKEND_TYPES need to go inside this def guard.
+     #ifndef SCANNER_STANDALONE // All the types inside HDF5_BACKEND_TYPES need to go inside this def guard.
 
        bool HDF5Reader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool HDF5Reader::_retrieve(Flav_KstarMuMu_obs& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+       bool HDF5Reader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #endif

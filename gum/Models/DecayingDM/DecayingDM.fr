@@ -1,0 +1,61 @@
+(* Simple decaying DM model, with a scalar DM particle 'S0' decaying to SM fermion pairs. *) 
+
+M$ModelName = "Decaying scalar DM";
+
+M$Information = {
+  Authors      -> {"S. Bloor"},
+  Version      -> "1.0",
+  Date         -> "22. 10. 2020",
+  Institutions -> {"Imperial College London"},
+  Emails       -> {"sanjay.bloor12@imperial.ac.uk"},
+  URLs         -> {"http://gambit.hepforge.org"}
+};
+
+
+M$InteractionOrderHierarchy = { {QCD, 1},  {QED, 2},  {NP, 1} };
+M$InteractionOrderLimit     = { {QCD, 99}, {QED, 99}, {NP, 2} }; 
+
+(* ************************** *)
+(* **** Particle classes **** *)
+(* ************************** *)
+
+M$ClassesDescription = {
+  
+  S[4] == {
+    ClassName        -> S0,
+    SelfConjugate    -> True,
+    Mass             -> {mS0, 1000.},
+    Width            -> {wS0, 1.},
+    PropagatorLabel  -> "S0",
+    PropagatorType   -> D,
+    PropagatorArrow  -> None,
+    PDG              -> 51,
+    ParticleName     -> "~S0",
+    FullName         -> "Scalar decaying DM candidate"
+  }
+
+};
+
+
+(* ************************** *)
+(* *****   Parameters   ***** *)
+(* ************************** *)
+
+M$Parameters = {
+
+  lamS == {
+    ParameterType    -> External,
+    ComplexParameter -> False,
+    InteractionOrder -> {NP, 1},
+    BlockName        -> DMINT,
+    OrderBlock       -> 1,
+    Value            -> 1.,
+    TeX              -> Subscript[\[Lambda],S],
+    Description      -> "DM-mediator coupling"
+  }
+
+ };
+
+(********************* The Lagrangian *********************)
+
+LDDM:= 1/2 del[S0, mu] del[S0,mu] -1/2 mS0^2 S0^2 + ExpandIndices[lamS S0 * (dqbar.dq + uqbar.uq + lbar.l)];

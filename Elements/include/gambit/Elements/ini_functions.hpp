@@ -58,13 +58,56 @@ namespace Gambit
   int copy_parameters(model_functor&, model_functor&, bool, str="", str="");
 
   /// Register a model functor.
-  int register_model_functor(std::map<str, bool(*)()>, std::map<str, str>, bool(*)(), str, str);
+  int register_model_functor(std::map<str, bool(*)()>, std::map<str, str>, bool(*)(), const str&, const str&);
 
   /// Create a log tag for a new module.
   int register_module_with_log(str);
 
   /// Register a function with a module.
-  int register_function(module_functor_common&, bool, safe_ptr<bool>*, std::map<str,str>&, std::map<str, bool(*)()>&, bool(&)(), safe_ptr<Options>&);
+  int register_function(module_functor_common&, bool, safe_ptr<bool>*, safe_ptr<Options>&,
+                        safe_ptr<std::set<sspair>>&, safe_ptr<Options>&);
+
+  /// Register the fact that a module function needs to run nested
+  int register_function_nesting(module_functor_common&, omp_safe_ptr<long long>&, const str&, const str&);
+
+  /// Register that a module function is compatible with a single model
+  int register_model_singly(module_functor_common&, const str&);
+
+  /// Register a model group with a functor
+  int register_model_group(module_functor_common&, const str&, const str&);
+
+  /// Register a backend requirement for a module function
+  int register_backend_requirement(module_functor_common&, const str&, const str&,
+   const str&, bool, const str&, const str&, void(*)(functor*));
+
+  /// Register a combination of models as allowed with a functor
+  int register_model_combination(module_functor_common&, const str&);
+
+  /// Register a dependency of a module function
+  int register_dependency(module_functor_common&, const str&, const str&,
+   void(*)(functor*, module_functor_common*));
+
+  /// Register a conditional dependency of a module function
+  int register_conditional_dependency(module_functor_common&, const str&, const str&);
+
+  /// Register a model parameters dependency of a module function
+  int register_model_parameter_dependency(module_functor_common&, const str&, const str&,
+   void(*resolver)(functor*, module_functor_common*));
+
+  /// Register a model-conditional dependency of a module function
+  int register_model_conditional_dependency(module_functor_common&, const str&,
+   const str&, void(*)(functor*, module_functor_common*));
+
+  /// Register a backend-conditional dependency of a module function
+  int register_backend_conditional_dependency(module_functor_common&, const str&, const str&,
+   const str&, const str&, void(*)(functor*, module_functor_common*));
+
+  /// Apply a backend-matching rule
+  int apply_backend_matching_rule(module_functor_common&, const str&);
+
+  /// Apply a backend option rule
+  int apply_backend_option_rule(module_functor_common&, const str&, const str&);
+
 
   namespace slhahelp
   {

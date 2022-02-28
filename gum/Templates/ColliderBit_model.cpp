@@ -12,10 +12,8 @@
 ///
 ///  *********************************************
 
-#include "gambit/ColliderBit/getColliderPythia.hpp"
-#include "gambit/ColliderBit/generateEventColliderPythia.hpp"
-#include "gambit/ColliderBit/getBuckFast.hpp"
-#include "gambit/ColliderBit/smearEvent.hpp"
+#include "gambit/ColliderBit/getPy8Collider.hpp"
+#include "gambit/ColliderBit/generateEventPy8Collider.hpp"
 
 
 namespace Gambit
@@ -23,22 +21,15 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    // Get spectrum and decays for Pythia
+    GET_SPECTRUM_AND_DECAYS_FOR_PYTHIA_NONSUSY(getSpectrumAndDecaysForPythia_@MODEL@, @MODEL@_spectrum)
+
     // Get Monte Carlo event generator
-    GET_SPECIFIC_PYTHIA(getPythia_@MODEL@, Pythia_@MODEL@_default, @MODEL@_spectrum, _@MODEL@, NOT_SUSY)
+    GET_SPECIFIC_PYTHIA(getPythia_@MODEL@, Pythia_@MODEL@_default, _@MODEL@)
     GET_PYTHIA_AS_BASE_COLLIDER(getPythia_@MODEL@AsBase)
 
     // Run event generator
-    GET_PYTHIA_EVENT(generateEventPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event)
-
-    // Get detector simulations
-    GET_BUCKFAST_AS_BASE_DETECTOR(getBuckFastATLASPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event, ATLAS)
-    GET_BUCKFAST_AS_BASE_DETECTOR(getBuckFastCMSPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event, CMS)
-    GET_BUCKFAST_AS_BASE_DETECTOR(getBuckFastIdentityPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event, Identity)
-
-    // Run detector simulations
-    SMEAR_EVENT(smearEventATLAS_@MODEL@, ATLAS)
-    SMEAR_EVENT(smearEventCMS_@MODEL@, CMS)
-    SMEAR_EVENT(copyEvent_@MODEL@, Identity)
+    GET_PYTHIA_EVENT(generateEventPythia_@MODEL@)
 
   }
 }

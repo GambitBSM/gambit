@@ -1,5 +1,5 @@
-//   GUM: GAMBIT Universal Models
-//   **********************************
+//   GUM: GAMBIT Universal Model Macine
+//   ***********************************
 ///  \file
 ///
 ///  Declarations of Feynrules class

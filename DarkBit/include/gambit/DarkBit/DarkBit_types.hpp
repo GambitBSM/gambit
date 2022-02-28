@@ -26,10 +26,11 @@
 ///  \date 2013 Jun
 ///
 ///  \author Pat Scott
-///          (patscott@physics.mcgill.ca)
+///          (pat.scott@uq.edu.au)
 ///  \date 2013 Oct
 ///  \date 2014 Jan, Apr
 ///  \date 2015 Mar
+///  \date 2020 Dec
 ///
 ///  \author Lars A. Dal
 ///          (l.a.dal@fys.uio.no)
@@ -63,19 +64,10 @@
 #include "gambit/DarkBit/ProcessCatalog.hpp"
 #include "gambit/Elements/daFunk.hpp"
 #include "gambit/Models/safe_param_map.hpp"
+#include "gambit/Utils/yaml_options.hpp"
 
 namespace Gambit
 {
-  class ModelParameters;
-
-  // TODO: Cannot use this forward declaration, because
-  // module_harvester.py does not know when namespaces
-  // end, and assumes that they never do! Including
-  // full header instead.
-  //namespace Models {
-  //  template<typename T> class safe_param_map;
-  //}
-
   namespace DarkBit
   {
 
@@ -122,6 +114,8 @@ namespace Gambit
       std::vector<RD_coannihilating_particle> coannihilatingParticles;
       std::vector<TH_Resonance> resonances;
       std::vector<double> threshold_energy;
+      std::string particle_index_type;
+      bool isSelfConj;
     };
 
 
@@ -152,15 +146,24 @@ namespace Gambit
     /// Annihilation/decay channel
     struct SimYieldChannel
     {
-        SimYieldChannel(daFunk::Funk dNdE, std::string p1, std::string p2,
-            std::string finalState, double Ecm_min, double Ecm_max);
+        SimYieldChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2,
+            const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions);
         daFunk::Funk dNdE;
         daFunk::BoundFunk dNdE_bound;  // Pre-bound version for use in e.g. cascade decays
         std::string p1;
         std::string p2;
         std::string finalState;
+        double finalStateMass;
         double Ecm_min;
         double Ecm_max;
+    };
+
+    /// Result of SimYieldTable::checkChannel
+    enum class SimYieldChannelCheck
+    {
+      success,            // The check succeeded.
+      duplication,        // The channel is already in the SimYieldTable
+      monochromatic_line  // The channel is a monochromatic line (pi==finalState)
     };
 
     /// \brief Channel container
@@ -169,22 +172,26 @@ namespace Gambit
     {
         public:
             SimYieldTable();
-            void addChannel(daFunk::Funk dNdE, std::string p1, std::string p2, std::string finalState, double Ecm_min, double Ecm_max);
-            void addChannel(daFunk::Funk dNdE, std::string p1, std::string finalState, double Ecm_min, double Ecm_max);
-            bool hasChannel(std::string p1, std::string p2, std::string finalState) const;
-            bool hasChannel(std::string p1, std::string finalState) const;
-            bool hasAnyChannel(std::string p1) const;
-            bool hasAnyChannel(std::string p1, std::string p2) const;
-            const SimYieldChannel& getChannel(std::string p1, std::string p2, std::string finalState) const;
-            daFunk::Funk operator()(std::string p1, std::string p2, std::string finalState, double Ecm) const;
-            daFunk::Funk operator()(std::string p1, std::string finalState, double Ecm) const;
-            daFunk::Funk operator()(std::string p1, std::string p2, std::string finalState) const;
-            daFunk::Funk operator()(std::string p1, std::string finalState) const;
+            void addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions);
+            void addChannel(daFunk::Funk dNdE, const std::string& p1, const std::string& finalState, double Ecm_min, double Ecm_max, safe_ptr<Options> runOptions);
+            void addChannel(SimYieldChannel channel);
+            void replaceFinalState(const std::string& oldFinalState, const std::string& newFinalState);
+            void donateChannels(SimYieldTable& receiver) const;
+            bool hasChannel(const std::string& p1, const std::string& p2, const std::string& finalState) const;
+            bool hasChannel(const std::string& p1, const std::string& finalState) const;
+            bool hasAnyChannel(const std::string& p1) const;
+            bool hasAnyChannel(const std::string& p1, const std::string& p2) const;
+            const SimYieldChannel& getChannel(const std::string& p1, const std::string& p2, const std::string& finalState) const;
+            daFunk::Funk operator()(const std::string& p1, const std::string& p2, const std::string& finalState, double Ecm) const;
+            daFunk::Funk operator()(const std::string& p1, const std::string& finalState, double Ecm) const;
+            daFunk::Funk operator()(const std::string& p1, const std::string& p2, const std::string& finalState) const;
+            daFunk::Funk operator()(const std::string& p1, const std::string& finalState) const;
 
         private:
             SimYieldChannel dummy_channel;
             std::vector<SimYieldChannel> channel_list;
-            int findChannel(std::string p1, std::string p2, std::string finalState) const;
+            int findChannel(const std::string& p1, const std::string& p2, const std::string& finalState) const;
+            SimYieldChannelCheck checkChannel(const std::string& p1, const std::string& p2, const std::string& finalState) const;
     };
 
 

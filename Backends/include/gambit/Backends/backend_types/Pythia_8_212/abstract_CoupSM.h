@@ -1,6 +1,8 @@
 #ifndef __abstract_CoupSM_Pythia_8_212_h__
 #define __abstract_CoupSM_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
@@ -8,8 +10,6 @@
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_AlphaStrong_decl.h"
 #include "wrapper_AlphaEM_decl.h"
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

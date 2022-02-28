@@ -16,6 +16,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2016 Oct
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Mar
+///
 ///  *********************************************
 
 #include "gambit/Models/SimpleSpectra/SLHASimpleSpec.hpp"
@@ -105,6 +109,19 @@ namespace Gambit
            utils_error().raise(LOCAL_INFO,errmsg.str());
          }
          return output;
+      }
+
+      // Check if block and entry exist, 1 index
+      bool SLHAeaModel::checkdata(const std::string& block, int i) const
+      {
+        if (data.find(block) == data.end()) return false;
+
+        SLHAea::Block::key_type key(1);
+        key[0] = std::to_string(i);
+        if (data.at(block).find(key) != data.at(block).end())
+          return true;
+
+        return false;
       }
 
       /// @}

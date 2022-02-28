@@ -1,3 +1,4 @@
+
 //   GAMBIT: Global and Modular BSM Inference Tool
 //   *********************************************
 ///  \file
@@ -30,6 +31,10 @@
 ///  \author Lars A. Dal
 ///          (l.a.dal@fys.uio.no)
 ///  \date 2015 Jan
+///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
 ///
 ///  *********************************************
 
@@ -202,6 +207,7 @@ namespace Gambit
                                                                              str origin_name,
                                                                              str origin_version,
                                                                              str origin_safe_version,
+                                                                             str citation_key,
                                                                              Models::ModelFunctorClaw &claw)
     : functor (func_name, func_capability, result_type, origin_name, claw),
       myFunction (inputFunction),
@@ -210,6 +216,8 @@ namespace Gambit
     {
       myVersion = origin_version;
       mySafeVersion = origin_safe_version;
+      myCitationKey = citation_key;
+
       // Determine LogTag number
       myLogTag = Logging::str2tag(myOrigin);
       // Or in the case where we prefer to include the version number in the LogTag too
@@ -267,9 +275,10 @@ namespace Gambit
                                                                        str origin_name,
                                                                        str origin_version,
                                                                        str safe_version,
+                                                                       str citation_key,
                                                                        Models::ModelFunctorClaw &claw)
     : backend_functor_common<TYPE(*)(ARGS...), TYPE, ARGS...>(inputFunction, func_name,
-      func_capability, result_type, origin_name, origin_version, safe_version, claw) {}
+      func_capability, result_type, origin_name, origin_version, safe_version, citation_key, claw) {}
 
     /// Operation (execute function and return value)
     template <typename TYPE, typename... ARGS>
@@ -293,9 +302,10 @@ namespace Gambit
                                                                        str origin_name,
                                                                        str origin_version,
                                                                        str safe_version,
+                                                                       str citation_key,
                                                                        Models::ModelFunctorClaw &claw)
     : backend_functor_common<void(*)(ARGS...), void, ARGS...>(inputFunction, func_name,
-      func_capability, result_type, origin_name, origin_version, safe_version, claw) {}
+      func_capability, result_type, origin_name, origin_version, safe_version, citation_key, claw) {}
 
     /// Operation (execute function and return value)
     template <typename... ARGS>
@@ -312,9 +322,9 @@ namespace Gambit
     template <typename TYPE, typename... ARGS>
     backend_functor<typename variadic_ptr<TYPE,ARGS...>::type, TYPE, ARGS...>::backend_functor
      (typename variadic_ptr<TYPE,ARGS...>::type inputFunction, str func_name, str func_capability, str result_type,
-     str origin_name, str origin_version, str safe_version, Models::ModelFunctorClaw &claw)
+     str origin_name, str origin_version, str safe_version, str citation_key, Models::ModelFunctorClaw &claw)
     : backend_functor_common<typename variadic_ptr<TYPE,ARGS...>::type, TYPE, ARGS...>(inputFunction, func_name,
-      func_capability, result_type, origin_name, origin_version, safe_version, claw) {}
+      func_capability, result_type, origin_name, origin_version, safe_version, citation_key, claw) {}
 
     // Actual variadic backend functor class method definitions for TYPE=void
 
@@ -322,9 +332,9 @@ namespace Gambit
     template <typename... ARGS>
     backend_functor<typename variadic_ptr<void,ARGS...>::type, void, ARGS...>::backend_functor
      (typename variadic_ptr<void,ARGS...>::type inputFunction, str func_name, str func_capability, str result_type,
-     str origin_name, str origin_version, str safe_version, Models::ModelFunctorClaw &claw)
+     str origin_name, str origin_version, str safe_version, str citation_key, Models::ModelFunctorClaw &claw)
     : backend_functor_common<typename variadic_ptr<void,ARGS...>::type, void, ARGS...>(inputFunction, func_name,
-      func_capability, result_type, origin_name, origin_version, safe_version, claw) {}
+      func_capability, result_type, origin_name, origin_version, safe_version, citation_key, claw) {}
 
 }
 

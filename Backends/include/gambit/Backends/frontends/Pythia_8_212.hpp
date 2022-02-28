@@ -14,7 +14,15 @@ namespace Gambit
         {
             namespace Pythia8
             {
+                typedef ::Pythia_8_212::Pythia8::GAMBIT_hepmc_writer GAMBIT_hepmc_writer;
+            }
+            namespace Pythia8
+            {
                 typedef ::Pythia_8_212::Pythia8::Pythia Pythia;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::UserHooks UserHooks;
             }
             namespace Pythia8
             {
@@ -27,6 +35,10 @@ namespace Gambit
             namespace Pythia8
             {
                 typedef ::Pythia_8_212::Pythia8::ParticleDecays ParticleDecays;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::SigmaProcess SigmaProcess;
             }
             namespace Pythia8
             {
@@ -67,6 +79,10 @@ namespace Gambit
             namespace Pythia8
             {
                 typedef ::Pythia_8_212::Pythia8::Couplings Couplings;
+            }
+            namespace Pythia8
+            {
+                typedef ::Pythia_8_212::Pythia8::ResonanceWidths ResonanceWidths;
             }
             namespace Pythia8
             {

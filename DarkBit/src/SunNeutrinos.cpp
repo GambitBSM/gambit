@@ -34,7 +34,7 @@ namespace Gambit
 
   namespace DarkBit
   {
- 
+
     //////////////////////////////////////////////////////////////////////////
     //
     //            Neutrino telescope likelihoods and observables
@@ -42,7 +42,26 @@ namespace Gambit
     //////////////////////////////////////////////////////////////////////////
 
     /*! \brief Capture rate of regular dark matter in the Sun (no v-dependent
-     *         or q-dependent cross-sections) (s^-1).
+     *         or q-dependent cross-sections) (s^-1). DarkSUSY 5 version.
+     */
+    void capture_rate_Sun_const_xsec_DS5(double &result)
+    {
+      using namespace Pipes::capture_rate_Sun_const_xsec_DS5;
+
+      if (BEreq::cap_Sun_v0q0_isoscalar.origin()=="DarkSUSY")
+        if(!(*Dep::DarkSUSY5_PointInit_LocalHalo))
+          DarkBit_error().raise(LOCAL_INFO,"DarkSUSY halo model not initialized!");
+
+      // When calculating the solar capture rate, DarkSUSY assumes that the
+      // proton and neutron scattering cross-sections are the same; we
+      // assume that whichever backend has been hooked up here does so too.
+
+      result = BEreq::cap_Sun_v0q0_isoscalar(*Dep::mwimp, *Dep::sigma_SI_p, *Dep::sigma_SD_p);
+
+    }
+
+    /*! \brief Capture rate of regular dark matter in the Sun (no v-dependent
+     *         or q-dependent cross-sections) (s^-1). DarkSUSY 6 version.
      */
     void capture_rate_Sun_const_xsec(double &result)
     {
@@ -52,14 +71,15 @@ namespace Gambit
         if(!(*Dep::DarkSUSY_PointInit_LocalHalo))
           DarkBit_error().raise(LOCAL_INFO,"DarkSUSY halo model not initialized!");
 
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+      double rho0 = LocalHaloParameters.rho0;
+      double rho0_eff = (*Dep::RD_fraction)*rho0;
+
       // When calculating the solar capture rate, DarkSUSY assumes that the
       // proton and neutron scattering cross-sections are the same; we
       // assume that whichever backend has been hooked up here does so too.
-      result = BEreq::cap_Sun_v0q0_isoscalar(
-          *Dep::mwimp, *Dep::sigma_SI_p, *Dep::sigma_SD_p);
 
-      //cout << "mwimp" << *Dep::mwimp << "sigma_SI_p: " << *Dep::sigma_SI_p << " sigma_SD_p: " << *Dep::sigma_SD_p << "result: " << result << "\n";
-      //cout << "capture rate via capture_rate_Sun_const_xsec = " << result << "\n";
+      result = BEreq::cap_Sun_v0q0_isoscalar(*Dep::mwimp, rho0_eff, *Dep::sigma_SI_p, *Dep::sigma_SD_p);
 
     }
 
@@ -71,7 +91,7 @@ namespace Gambit
       double resultSI;
       double maxcap;
 
-      BEreq::cap_sun_saturation(*Dep::mwimp,maxcap);
+      maxcap = BEreq::cap_sun_saturation(*Dep::mwimp);
       BEreq::cap_Sun_v0q0_isoscalar(*Dep::mwimp,*Dep::sigma_SD_p,*Dep::sigma_SI_p,resultSD,resultSI);
       result = resultSI + resultSD;
 
@@ -79,9 +99,6 @@ namespace Gambit
       {
         result = maxcap;
       }
-
-      //cout << "mwimp" << *Dep::mwimp << "sigma_SI_p: " << *Dep::sigma_SI_p << " sigma_SD_p: " << *Dep::sigma_SD_p << "result: " << result << "\n";
-      //cout << "capture rate via capture_rate_Sun_const_xsec_capgen = " << result << "\n";
 
     }
 
@@ -101,7 +118,7 @@ namespace Gambit
       const int nelems = 29;
       double maxcap;
 
-      BEreq::cap_sun_saturation(*Dep::mwimp,maxcap);
+      maxcap = BEreq::cap_sun_saturation(*Dep::mwimp);
 
       resultSI = 0e0;
       resultSD = 0e0;
@@ -119,7 +136,7 @@ namespace Gambit
           vpow =  (iterator->first).second/2;
 
           //Capture
-          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,1,qpow,vpow,capped);
+          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,1,qpow,vpow,*Dep::spinwimpx2/2.,capped);
           resultSD = resultSD+capped;
         }
       }
@@ -135,7 +152,7 @@ namespace Gambit
           vpow =  (iterator->first).second/2;
 
           //Capture
-          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,nelems,qpow,vpow,capped);
+          BEreq::cap_Sun_vnqn_isoscalar(*Dep::mwimp,iterator->second,nelems,qpow,vpow,*Dep::spinwimpx2/2.,capped);
           resultSI = resultSI+capped;
         }
       }
@@ -149,30 +166,21 @@ namespace Gambit
         result = maxcap;
       }
 
-      //cout << "capture rate via capture_rate_Sun_vnqn = " << result << "\n";
-
     }
-/*
-    // couplingNumber and isoSpin are the indicies of a FORTRAN array to fill
-    // note: in FORTRAN indices start at 1, not 0 like C++
-    void populate_captureArray(double val, int couplingNumber, int isospin)
-    {
-      using namespace Pipes::populate_captureArray;
-      BEreq::populate_array(val, couplingNumber, isospin);
-    }
-*/
 
     //Capture rate for Non-Relataivistic Effective Operator (NREO)
     void capture_rate_Sun_NREO(double &result)
     {
-      cout << "Starting capture_rate_Sun_NREO ..." << endl;
+      #ifdef DARKBIT_DEBUG
+        cout << "Starting capture_rate_Sun_NREO ..." << endl;
+      #endif
       using namespace Pipes::capture_rate_Sun_NREO;
 
       double capped;
       double maxcap;
       const int niso = 16;
 
-      BEreq::cap_sun_saturation(Dep::WIMP_properties->mass,maxcap);
+      maxcap = BEreq::cap_sun_saturation(Dep::WIMP_properties->mass);
 
       /*
       use pipe to access parameters of model (0c1...1c15) here (3.2.3 of gambit paper)
@@ -180,41 +188,34 @@ namespace Gambit
       for loop through C++ array of [0c1,0c2,...] (initialized by INI in captn_gen.cpp)
       call populate Array with the value found in the C++ array and the position in the C++ array
       */
-      // cout << "The capability grabbed via Pipes, *Dep::c0_1_cap: " << *Dep::c0_1_cap << endl;
-      // bjf> Modified to use a custom object to carry these couplings (makes for a better 
-      // dependency structure)
-      cout << "DD_nonrel_WCs capabilitiy grabbed via Pipes, e.g. Dep::DD_nonrel_WCs->c(0,1) " << Dep::DD_nonrel_WCs->c(0,1) << endl;
-      
+
       int coupleNum;
-      for(int j=0; j<15; j++)
+      int maxCouplingIndex;
+      if (Dep::DD_nonrel_WCs->CPTbasis == 0) // if we are using the NREffectiveTheory basis
+      {
+        maxCouplingIndex = 15;
+      }
+      else if (Dep::DD_nonrel_WCs->CPTbasis == 1) // if we are using the NREFT_CPT basis
+      {
+        maxCouplingIndex = 12;
+      }
+      for(int j=0; j<maxCouplingIndex; j++)
       {
         coupleNum = j + 1; // this is the coupling number, ranges 1 to 15 (but not 2)
         if (coupleNum != 2) // 2 is not an allowed coupling constant
         {
-          BEreq::populate_array(Dep::DD_nonrel_WCs->c(0,coupleNum), coupleNum, 0);
-          BEreq::populate_array(Dep::DD_nonrel_WCs->c(1,coupleNum), coupleNum, 1);
+          BEreq::captn_populate_array(Dep::DD_nonrel_WCs->c0.at(coupleNum), coupleNum, 0);
+          BEreq::captn_populate_array(Dep::DD_nonrel_WCs->c1.at(coupleNum), coupleNum, 1);
         }
       }
-      
+
 
       /*
       Code to sum over all elements in solar model simultaneously.
-      The fourth parameter tells captn_NREO which of the 16 elements to sum over,
-       any other integer (than 1 to 16) tells it to sum over all elements together.
+      The third parameter tells captn_NREO how many isotopes to sum over,
+      of which captn is currently set up to sum the 16 from arxiv:1501.03729.
       */
-      //cout << "Before calling captn_NREO, capped: " << capped << endl;
-      BEreq::captn_NREO(Dep::WIMP_properties->mass,Dep::WIMP_properties->spinx2/2.,niso,0,capped);
-      cout << "From captn_NREO;" << endl << "mwimp: " << Dep::WIMP_properties->mass << "GeV" << endl << "capped: " << capped << " captures/second" << endl;
-
-      /// Loop to sum over each element in solar model individually.
-      /*
-      double isoCapped = 0e0;
-      for(int iso=1; iso<(niso+1); iso++)
-      {
-        BEreq::captn_NREO(*Dep::mwimp,jx,nsio,iso,isoCapped);
-        capped += isoCapped;
-      }
-      */
+      BEreq::captn_NREO(Dep::WIMP_properties->mass,Dep::WIMP_properties->spinx2/2.,niso,capped);
 
       result = capped;
 
@@ -238,7 +239,12 @@ namespace Gambit
       double T_Sun_core = 1.35e-6; // Sun's core temperature (GeV)
 
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+
+      // Make sure that we're not trying to work with decaying DM.
+      const TH_Process* p = Dep::TH_ProcessCatalog->find(DMid, DMbarid);
+      if (p == NULL) DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet by the DarkBit neutrino routines.");
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
 
       // Add all the regular channels
       for (std::vector<TH_Channel>::iterator it = annProc.channelList.begin();
@@ -256,7 +262,7 @@ namespace Gambit
 
       double ca = sigmav/6.6e28 * pow(*Dep::mwimp/20.0, 1.5);
       // Scale the annihilation rate down by a factor of two if the DM is not self-conjugate
-      if (not (*Dep::TH_ProcessCatalog).getProcess(*Dep::DarkMatter_ID, *Dep::DarkMatter_ID).isSelfConj) ca *= 0.5;
+      if (not (*Dep::TH_ProcessCatalog).getProcess(*Dep::DarkMatter_ID, *Dep::DarkMatterConj_ID).isSelfConj) ca *= 0.5;
       result = pow(*Dep::capture_rate_Sun * ca, -0.5);
 
       // std::cout << "v = " << sqrt(2.0*T_Sun_core/(*Dep::mwimp)) << " and sigmav inside equilibration_time_Sun = " << sigmav << std::endl;
@@ -283,9 +289,9 @@ namespace Gambit
       double Higgs_mass_charged;
 
       // Set annihilation branching fractions
-      // TODO: needs to be fixed once BFs are available directly from TH_Process
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
       // the missing channel
       const std::vector<str> adhoc_chan = initVector<str>("W-", "H+");
@@ -359,7 +365,6 @@ namespace Gambit
           LOCAL_INFO, "H- decays exist in process catalog but not H+.");
 
       // Set the neutral Higgs decay branching fractions
-      // TODO: needs to be fixed once BFs are available directly from TH_Process
       for (int i=0; i<3; i++)       // Loop over the three neutral Higgs
       {
 
@@ -506,7 +511,7 @@ namespace Gambit
       #endif
 
       // Set up DarkSUSY to do neutrino yields for this particular WIMP
-      BEreq::nuyield_setup(annihilation_bf, Higgs_decay_BFs_neutral,
+      BEreq::DS_nuyield_setup(annihilation_bf, Higgs_decay_BFs_neutral,
           Higgs_decay_BFs_charged, Higgs_masses_neutral,
           Higgs_mass_charged, *Dep::mwimp);
 
@@ -529,191 +534,6 @@ namespace Gambit
       #endif
 
     }
-
-    /// grabbed from ScalarSingletDM.cpp
-    /// Set up process catalog for Z2 scalar singlet DM.
-    // void TH_ProcessCatalog_NREO(DarkBit::TH_ProcessCatalog &result)
-    // {
-    //   using namespace Pipes::TH_ProcessCatalog_NREO;
-    //   using std::vector;
-    //   using std::string;
-
-    //   // Initialize empty catalog and main annihilation process
-    //   TH_ProcessCatalog catalog;
-    //   TH_Process process_ann("S", "S");
-
-    //   // Explicitly state that Z2 Scalar DM is self-conjugate
-    //   process_ann.isSelfConj = true;
-
-    //   ///////////////////////////////////////
-    //   // Import particle masses and couplings
-    //   ///////////////////////////////////////
-
-    //   // Convenience macros
-    //   #define getSMmass(Name, spinX2)                                           \
-    //    catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
-    //    (Name , TH_ParticleProperty(SM.get(Par::Pole_Mass,Name), spinX2)));
-    //   #define addParticle(Name, Mass, spinX2)                                   \
-    //    catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
-    //    (Name , TH_ParticleProperty(Mass, spinX2)));
-
-    //   // Import Spectrum objects
-    //   const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum; /////////// need my own spectrum?
-    //   const SubSpectrum& he = spec.get_HE();
-    //   const SubSpectrum& SM = spec.get_LE();
-    //   const SMInputs& SMI   = spec.get_SMInputs();
-
-    //   // Import couplings
-    //   double lambda = he.get(Par::dimensionless,"lambda_hS");
-    //   double v = he.get(Par::mass1,"vev");
-
-    //   // Get SM pole masses
-    //   getSMmass("e-_1",     1)
-    //   getSMmass("e+_1",     1)
-    //   getSMmass("e-_2",     1)
-    //   getSMmass("e+_2",     1)
-    //   getSMmass("e-_3",     1)
-    //   getSMmass("e+_3",     1)
-    //   getSMmass("Z0",     2)
-    //   getSMmass("W+",     2)
-    //   getSMmass("W-",     2)
-    //   getSMmass("g",      2)
-    //   getSMmass("gamma",  2)
-    //   getSMmass("u_3",      1)
-    //   getSMmass("ubar_3",   1)
-    //   getSMmass("d_3",      1)
-    //   getSMmass("dbar_3",   1)
-
-    //   // Pole masses not available for the light quarks.
-    //   addParticle("u_1"   , SMI.mU,  1) // mu(2 GeV)^MS-bar, not pole mass
-    //   addParticle("ubar_1", SMI.mU,  1) // mu(2 GeV)^MS-bar, not pole mass
-    //   addParticle("d_1"   , SMI.mD,  1) // md(2 GeV)^MS-bar, not pole mass
-    //   addParticle("dbar_1", SMI.mD,  1) // md(2 GeV)^MS-bar, not pole mass
-    //   addParticle("u_2"   , SMI.mCmC,1) // mc(mc)^MS-bar, not pole mass
-    //   addParticle("ubar_2", SMI.mCmC,1) // mc(mc)^MS-bar, not pole mass
-    //   addParticle("d_2"   , SMI.mS,  1) // ms(2 GeV)^MS-bar, not pole mass
-    //   addParticle("dbar_2", SMI.mS,  1) // ms(2 GeV)^MS-bar, not pole mass
-    //   double alpha_s = SMI.alphaS;      // alpha_s(mZ)^MSbar
-
-    //   // Masses for neutrino flavour eigenstates. Set to zero.
-    //   // (presently not required)
-    //   addParticle("nu_e",     0.0, 1)
-    //   addParticle("nubar_e",  0.0, 1)
-    //   addParticle("nu_mu",    0.0, 1)
-    //   addParticle("nubar_mu", 0.0, 1)
-    //   addParticle("nu_tau",   0.0, 1)
-    //   addParticle("nubar_tau",0.0, 1)
-
-    //   // Higgs-sector masses
-    //   double mS = spec.get(Par::Pole_Mass,"S");
-    //   double mH = spec.get(Par::Pole_Mass,"h0_1");
-    //   addParticle("S",        mS, 0)  // Scalar Singlet DM
-    //   addParticle("h0_1",     mH, 0)  // SM-like Higgs
-    //   addParticle("pi0",   meson_masses.pi0,       0)
-    //   addParticle("pi+",   meson_masses.pi_plus,   0)
-    //   addParticle("pi-",   meson_masses.pi_minus,  0)
-    //   addParticle("eta",   meson_masses.eta,       0)
-    //   addParticle("rho0",  meson_masses.rho0,      1)
-    //   addParticle("rho+",  meson_masses.rho_plus,  1)
-    //   addParticle("rho-",  meson_masses.rho_minus, 1)
-    //   addParticle("omega", meson_masses.omega,     1)
-
-    //   // Get rid of convenience macros
-    //   #undef getSMmass
-    //   #undef addParticle
-
-
-    //   /////////////////////////////
-    //   // Import Decay information
-    //   /////////////////////////////
-
-    //   // Import decay table from DecayBit
-    //   const DecayTable* tbl = &(*Dep::decay_rates);
-
-    //   // Save Higgs width for later
-    //   double gammaH = tbl->at("h0_1").width_in_GeV;
-
-    //   // Set of imported decays
-    //   std::set<string> importedDecays;
-
-    //   // Minimum branching ratio to include
-    //   double minBranching = 0;
-
-    //   // Import relevant decays (only Higgs and subsequent decays)
-    //   using DarkBit_utils::ImportDecays;
-    //   // Notes: Virtual Higgs decays into offshell W+W- final states are not
-    //   // imported.  All other channels are correspondingly rescaled.  Decay
-    //   // into SS final states is accounted for, leading to zero photons.
-    //   ImportDecays("h0_1", catalog, importedDecays, tbl, minBranching,
-    //       daFunk::vec<std::string>("Z0", "W+", "W-", "e+_2", "e-_2", "e+_3", "e-_3"));
-
-    //   // Instantiate new ScalarSingletDM object
-    //   auto singletDM = boost::make_shared<ScalarSingletDM>(&catalog, gammaH, v, alpha_s, 0.0);
-
-    //   // Populate annihilation channel list and add thresholds to threshold
-    //   // list.
-    //   // (remark: the lowest threshold is here = 2*mS, whereas in DS-internal
-    //   // conventions, this lowest threshold is not listed)
-    //   process_ann.resonances_thresholds.threshold_energy.push_back(2*mS);
-    //   auto channel =
-    //     daFunk::vec<string>("bb", "WW", "cc", "tautau", "ZZ", "tt", "hh");
-    //   auto p1 =
-    //     daFunk::vec<string>("d_3",   "W+", "u_2",   "e+_3", "Z0", "u_3",   "h0_1");
-    //   auto p2 =
-    //     daFunk::vec<string>("dbar_3","W-", "ubar_2","e-_3", "Z0", "ubar_3","h0_1");
-    //   {
-    //     for ( unsigned int i = 0; i < channel.size(); i++ )
-    //     {
-    //       double mtot_final =
-    //         catalog.getParticleProperty(p1[i]).mass +
-    //         catalog.getParticleProperty(p2[i]).mass;
-    //       // Include final states that are open for T~m/20
-    //       if ( mS*2 > mtot_final*0.5 )
-    //       {
-    //         daFunk::Funk kinematicFunction = daFunk::funcM(singletDM,
-    //             &ScalarSingletDM::sv, channel[i], lambda, mS, daFunk::var("v"));
-    //         TH_Channel new_channel(
-    //             daFunk::vec<string>(p1[i], p2[i]), kinematicFunction
-    //             );
-    //         process_ann.channelList.push_back(new_channel);
-    //       }
-    //       if ( mS*2 > mtot_final )
-    //       {
-    //         process_ann.resonances_thresholds.threshold_energy.
-    //           push_back(mtot_final);
-    //       }
-    //     }
-    //   }
-
-    //   // Populate resonance list
-    //   if ( mH >= mS*2 ) process_ann.resonances_thresholds.resonances.
-    //       push_back(TH_Resonance(mH, gammaH));
-
-    //   catalog.processList.push_back(process_ann);
-
-    //   // Validate
-    //   catalog.validate();
-
-
-    //   #ifdef DARKBIT_DEBUG
-    //     // get DarkBit computed vSigma total
-    //     // so we can compare with that from MO
-    //     ScalarSingletDM test = *singletDM;
-    //     int nc = 7;
-    //     double total = 0;
-    //     for (int ii=0; ii < nc ; ii++)
-    //     {
-    //       total = total + test.sv(channel[ii], lambda, mS, 0.0);
-    //     }
-    //     cout << " --- Testing process catalouge --- " << endl;
-    //     cout << "Total sigma V from process catalouge = " << total << endl;
-    //     cout << " ---------- " << endl;
-    //   #endif
-
-
-
-    //   result = catalog;
-    // } // function TH_ProcessCatalog_NREO
 
     /// \brief Likelihood calculators for different IceCube event samples
     /// These functions all include the likelihood of the background-only model for the respective sample.
@@ -945,46 +765,86 @@ namespace Gambit
 #endif
     }
 
-    /// Function to set Local Halo Parameters in DarkSUSY
+    /// Function to set Local Halo Parameters in DarkSUSY (DS5 only)
+    void DarkSUSY5_PointInit_LocalHalo_func(bool &result)
+    {
+      using namespace Pipes::DarkSUSY5_PointInit_LocalHalo_func;
+
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+
+      double rho0 = LocalHaloParameters.rho0;
+      double rho0_eff = (*Dep::RD_fraction)*rho0;
+      double vrot = LocalHaloParameters.vrot;
+      double vd_3d = sqrt(3./2.)*LocalHaloParameters.v0;
+      double vesc = LocalHaloParameters.vesc;
+      /// Option v_earth<double>: Keplerian velocity of the Earth around the Sun in km/s (default 29.78)
+      double v_earth = runOptions->getValueOrDef<double>(29.78, "v_earth");
+
+      BEreq::dshmcom->rho0 = rho0;
+      BEreq::dshmcom->v_sun = vrot;
+      BEreq::dshmcom->v_earth = v_earth;
+      BEreq::dshmcom->rhox = rho0_eff;
+
+      BEreq::dshmframevelcom->v_obs = vrot;
+
+      BEreq::dshmisodf->vd_3d = vd_3d;
+      BEreq::dshmisodf->vgalesc = vesc;
+
+      BEreq::dshmnoclue->vobs = vrot;
+
+      logger() << LogTags::debug
+               << "Updating DarkSUSY halo parameters:" << std::endl
+               << "    rho0 [GeV/cm^3] = " << rho0 << std::endl
+               << "    rho0_eff [GeV/cm^3] = " << rho0_eff << std::endl
+               << "    v_sun [km/s]  = " << vrot<< std::endl
+               << "    v_earth [km/s]  = " << v_earth << std::endl
+               << "    v_obs [km/s]  = " << vrot << std::endl
+               << "    vd_3d [km/s]  = " << vd_3d << std::endl
+               << "    v_esc [km/s]  = " << vesc << EOM;
+
+      result = true;
+
+      return;
+    }
+
+    /// Function to set Local Halo Parameters in DarkSUSY (DS 6)
     void DarkSUSY_PointInit_LocalHalo_func(bool &result)
     {
-        using namespace Pipes::DarkSUSY_PointInit_LocalHalo_func;
+      using namespace Pipes::DarkSUSY_PointInit_LocalHalo_func;
 
-          LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
+      LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
 
-          double rho0 = LocalHaloParameters.rho0;
-          double rho0_eff = (*Dep::RD_fraction)*rho0;
-          double vrot = LocalHaloParameters.vrot;
-          double vd_3d = sqrt(3./2.)*LocalHaloParameters.v0;
-          double vesc = LocalHaloParameters.vesc;
-          /// Option v_earth<double>: Keplerian velocity of the Earth around the Sun in km/s (default 29.78)
-          double v_earth = runOptions->getValueOrDef<double>(29.78, "v_earth");
+      double rho0 = LocalHaloParameters.rho0;
+      double vrot = LocalHaloParameters.vrot;
+      double vd_3d = sqrt(3./2.)*LocalHaloParameters.v0;
+      double vesc = LocalHaloParameters.vesc;
+      /// Option v_earth<double>: Keplerian velocity of the Earth around the Sun in km/s (default 29.78)
+      double v_earth = runOptions->getValueOrDef<double>(29.78, "v_earth");
 
-          BEreq::dshmcom->rho0 = rho0;
-          BEreq::dshmcom->v_sun = vrot;
-          BEreq::dshmcom->v_earth = v_earth;
-          BEreq::dshmcom->rhox = rho0_eff;
+      BEreq::dshmcom->rho0 = rho0;
+      BEreq::dshmcom->v_sun = vrot;
+      BEreq::dshmcom->v_earth = v_earth;
 
-          BEreq::dshmframevelcom->v_obs = vrot;
+      BEreq::dshmframevelcom->v_obs = vrot;
 
-          BEreq::dshmisodf->vd_3d = vd_3d;
-          BEreq::dshmisodf->vgalesc = vesc;
+      BEreq::dshmisodf->vd_3d = vd_3d;
+      BEreq::dshmisodf->vgalesc = vesc;
 
-          BEreq::dshmnoclue->vobs = vrot;
+      BEreq::dshmnoclue->vobs = vrot;
 
-          logger() << LogTags::debug
-                   << "Updating DarkSUSY halo parameters:" << std::endl
-                   << "    rho0 [GeV/cm^3] = " << rho0 << std::endl
-                   << "    rho0_eff [GeV/cm^3] = " << rho0_eff << std::endl
-                   << "    v_sun [km/s]  = " << vrot<< std::endl
-                   << "    v_earth [km/s]  = " << v_earth << std::endl
-                   << "    v_obs [km/s]  = " << vrot << std::endl
-                   << "    vd_3d [km/s]  = " << vd_3d << std::endl
-                   << "    v_esc [km/s]  = " << vesc << EOM;
+      logger() << LogTags::debug
+               << "Updating DarkSUSY halo parameters:" << std::endl
+               << "    rho0 [GeV/cm^3] = " << rho0 << std::endl
+               << "    v_sun [km/s]  = " << vrot<< std::endl
+               << "    v_earth [km/s]  = " << v_earth << std::endl
+               << "    v_obs [km/s]  = " << vrot << std::endl
+               << "    vd_3d [km/s]  = " << vd_3d << std::endl
+               << "    v_esc [km/s]  = " << vesc << EOM;
 
-          result = true;
+      result = true;
 
-          return;
+      return;
     }
+
   }
 }

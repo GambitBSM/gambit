@@ -45,6 +45,7 @@
 
 
 #define MODULE DecayBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
   #define CAPABILITY t_decay_rates
@@ -268,6 +269,7 @@ START_MODULE
     BACKEND_REQ(cb_sd_stop2body, (sh_reqd), sd_stop2body_type)
     BACKEND_REQ(cb_sd_stoploop, (sh_reqd), sd_stoploop_type)
     BACKEND_REQ(cb_sd_stop3body, (sh_reqd), sd_stop3body_type)
+    BACKEND_REQ(cb_sd_stop4body, (sh_reqd), sd_stop4body_type)
     BACKEND_OPTION( (SUSY_HIT), (sh_reqd) )
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
@@ -700,6 +702,7 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
+
   #undef CAPABILITY
 
   #define CAPABILITY decay_rates
@@ -908,6 +911,7 @@ START_MODULE
 
   #undef CAPABILITY
 
+#undef REFERENCE
 #undef MODULE
 
 // SM decay rate functions

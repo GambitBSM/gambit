@@ -33,11 +33,16 @@ add_library(first SHARED examples/libfirst.cpp)
 add_library(fortran SHARED examples/libfortran.f90)
 add_library(FarrayTest SHARED examples/libFarrayTest.f90)
 
+# make sure they get built with the backends
+add_dependencies(Backends first)
+add_dependencies(Backends fortran)
+add_dependencies(Backends FarrayTest)
+
 # add dependencies to fix build order and avoid warnings about missing include dirs
 if(NOT EXCLUDE_RESTFRAMES)
   add_dependencies(first restframes)
   add_dependencies(fortran restframes)
-  add_dependencies(FarrayTest restframes)  
+  add_dependencies(FarrayTest restframes)
 endif()
 if(NOT EXCLUDE_FLEXIBLESUSY)
   add_dependencies(first flexiblesusy)

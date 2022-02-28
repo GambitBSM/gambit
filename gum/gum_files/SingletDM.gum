@@ -7,7 +7,7 @@ math:
   # Name of Model within that package. This will also be the name of the GAMBIT model.
   model: SingletDM_test
   restriction: DiagonalCKM
-  #lagrangian: LSM + LScalar
+  lagrangian: LTotal
 
 # PDG code of the DM candidate.
 wimp_candidate: 9900001
@@ -16,9 +16,13 @@ wimp_candidate: 9900001
 output:
   calchep: true
   pythia: true
-  collider_processes:
-    - p p > ~S ~S
-    - p p > ~S ~S j
-    - p p > ~S ~S a
-    - p p > ~S ~S Z
-    - p p > ~S ~S h
+
+# Options for the outputs.
+output_options:
+  pythia:
+    collider_processes:
+      # - p p > ~S ~S
+      - p p > ~S ~S j
+      - p p > ~S ~S a
+      - p p > ~S ~S Z
+      - p p > ~S ~S h
