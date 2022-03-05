@@ -27,3 +27,25 @@ int ClassThree<T>::size()
 
 // Instantiate a <double> specialization of ClassThree:
 template class ClassThree<double>;
+
+
+
+
+double ClassFour::pop()
+{
+  double top = stack.back();
+  stack.pop_back();
+  return top;
+}
+
+
+void ClassFour::push(double item)
+{
+  stack.push_back(item);
+}
+
+
+int ClassFour::size()
+{
+  return stack.size();
+}

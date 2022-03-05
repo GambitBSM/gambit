@@ -264,28 +264,43 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         pass
     elif is_template and (class_name['long'] not in templ_spec_done):
         spec_template_types = utils.getSpecTemplateTypes(class_el)
-        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
-                                                         indent=cfg.indent, file_for_gambit=file_for_gambit, 
-                                                         template_types=spec_template_types,
-                                                         has_copy_constructor=has_copy_constructor, 
-                                                         construct_assignment_operator=construct_assignment_operator, specialized_version=False)
-        class_decl += '\n'
+
+        current_code = ""
+        current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
+                                                          indent=cfg.indent, file_for_gambit=file_for_gambit, 
+                                                          template_types=spec_template_types,
+                                                          has_copy_constructor=has_copy_constructor, 
+                                                          construct_assignment_operator=construct_assignment_operator, 
+                                                          specialized_version=False,
+                                                          add_gambit_namespace=False,
+                                                          add_gambit_include_statements=False,
+                                                          current_code=current_code)
+        current_code += '\n\n'
+
+        # AK: This currently adds a declaration for the current specialization right after the general template
+        #     - What happens for multiple specializations? Looks like the general template will be repeated...
+        #     - The code in constrAbstractClassDecl related to the add_gambit_namespace and add_gambit_include_statements
+        #       can probably be extracted and put in this function instead. Then constrAbstractClassDecl should *only*
+        #       generate code for the actual class declaration, not any surrounding code.
+        current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
+                                                          indent=cfg.indent, file_for_gambit=file_for_gambit, 
+                                                          template_types=spec_template_types,
+                                                          has_copy_constructor=has_copy_constructor, 
+                                                          construct_assignment_operator=construct_assignment_operator, 
+                                                          specialized_version=True,
+                                                          add_gambit_namespace=True,
+                                                          add_gambit_include_statements=True,
+                                                          current_code=current_code)
+        current_code += '\n'
+        class_decl += current_code
+
     else:
         class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces,
                                                          indent=cfg.indent, file_for_gambit=file_for_gambit,
                                                          has_copy_constructor=has_copy_constructor,
-                                                         construct_assignment_operator=construct_assignment_operator, specialized_version=False)
+                                                         construct_assignment_operator=construct_assignment_operator)
         class_decl += '\n'
 
-    # TODO:ZELUN this is how I am adding the specialzied version of Abstract_Classes with a optional argument for 
-    # specialized version if not wanted in the future can just delete it or comment it out
-    # Cuurent works for only 1 specialization
-    class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces,
-                                                     indent=cfg.indent, file_for_gambit=file_for_gambit,
-                                                     template_types=spec_template_types,
-                                                     has_copy_constructor=has_copy_constructor,
-                                                     construct_assignment_operator=construct_assignment_operator, specialized_version=True)
-    class_decl += '\n'
     # - Register code
     gb.new_code[abstr_class_fname]['code_tuples'].append((-1, class_decl))
 

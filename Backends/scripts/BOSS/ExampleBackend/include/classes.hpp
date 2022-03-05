@@ -20,7 +20,21 @@ private:
   int curr_size;
 };
 
-
 static ClassThree<double> __BOSS_dummy_ClassThree_double_instance__;
+
+
+
+class ClassFour {
+public:
+  double pop();
+  void push(double item);
+  int size();
+
+private:
+  std::vector<double> stack;
+  int curr_size;
+};
+
+
 
 #endif

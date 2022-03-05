@@ -58,6 +58,7 @@ manual_accepted_namespaces = [
 
 load_classes = [
     'ClassThree<double>',
+    'ClassFour',
 ]
 
 # ZELUN: When the argument has a name in the original hpp file then supply that argument in

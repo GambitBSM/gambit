@@ -92,8 +92,10 @@ def constrTemplForwDecl(class_name_short, namespaces, template_bracket, indent=4
 
 # ====== constrAbstractClassDecl ========
 
-def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, template_types=[], has_copy_constructor=True, construct_assignment_operator=True, specialized_version=False):
+def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, template_types=[], has_copy_constructor=True, construct_assignment_operator=True, specialized_version=False, add_gambit_namespace=True, add_gambit_include_statements=True, current_code=""):
     n_indents = len(namespaces)
+
+    class_decl = current_code
 
     # Check template_types argument:
     # TODO: TG: Need the full bracket for unspecified templates
@@ -125,7 +127,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     #
 
     # - Construct the beginning of the namespaces
-    class_decl = utils.constrNamespace(namespaces, 'open')
+    class_decl += utils.constrNamespace(namespaces, 'open')
 
     # - If this class is a template specialization, add 'template <>' at the top
     #
@@ -383,9 +385,9 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             for parent_dict in parent_classes:
                 if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
                     class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['abstr_class_name']['long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
-            class_decl += constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2, specialized_version=specialized_version, template_types=template_types)
+            class_decl += constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2, is_template=is_template, specialized_version=specialized_version, template_types=template_types)
         if has_copy_constructor:
-            class_decl += constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2, specialized_version=specialized_version, template_types=template_types)
+            class_decl += constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2, is_template=is_template, specialized_version=specialized_version, template_types=template_types)
 
     # - Construct code needed for 'destructor pattern' (abstract class and wrapper class must can delete each other)
     class_decl += '\n'
@@ -548,8 +550,9 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl += utils.constrNamespace(namespaces, 'close')
 
 
-    # Insert tags for the GAMBIT namespace
-    class_decl = '\n__START_GAMBIT_NAMESPACE__\n\n' + class_decl + '\n__END_GAMBIT_NAMESPACE__\n'
+    if add_gambit_namespace:
+        # Insert tags for the GAMBIT namespace
+        class_decl = '\n__START_GAMBIT_NAMESPACE__\n\n' + class_decl + '\n__END_GAMBIT_NAMESPACE__\n'
 
 
     # TODO: JOEL: The following if statement, for ClassThree, adds these lines:
@@ -573,10 +576,11 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
 
     # Insert include statements needed by GAMBIT
-    backend_undef_incl_statement  = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
-    identification_incl_statement = '#include "' + 'identification.hpp' + '"\n'
+    if add_gambit_include_statements:
+        backend_undef_incl_statement  = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
+        identification_incl_statement = '#include "' + 'identification.hpp' + '"\n'
 
-    class_decl = identification_incl_statement + class_decl + '\n' + backend_undef_incl_statement
+        class_decl = identification_incl_statement + class_decl + '\n' + backend_undef_incl_statement
 
 
     return class_decl
@@ -1061,7 +1065,7 @@ def constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indent
 
 # ====== constrPtrCopyFunc ========
 
-def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, specialized_version=False, template_types=[]):
+def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, is_template=False, specialized_version=False, template_types=[]):
 
     func_name = 'pointer_copy' + gb.code_suffix
     class_name = class_name_short
@@ -1080,16 +1084,22 @@ def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtua
 
     ptr_code = ''
     if virtual:
-        if not specialized_version:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + full_class_name['templ_vars'] + '*' + ' ' + func_name + '() =0;\n'
+        if is_template:
+            if not specialized_version:
+                ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + full_class_name['templ_vars'] + '*' + ' ' + func_name + '() =0;\n'
+            else:
+                ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + '<' + ', '.join(template_types) + '>' + '*' + ' ' + func_name + '() =0;\n'
         else:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + '<' + ', '.join(template_types) + '>' + '*' + ' ' + func_name + '() =0;\n'
+            ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + '*' + ' ' + func_name + '() =0;\n'
     else:
-        if not specialized_version:
-            ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + full_class_name['templ_vars'] + '*' + ' ' + func_name + '()'
+        if is_template:
+            if not specialized_version:
+                ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + full_class_name['templ_vars'] + '*' + ' ' + func_name + '()'
+            else:
+                ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + '<' + \
+                    ', '.join(template_types) + '>' + '*' + ' ' + func_name + '()'
         else:
-            ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + '<' + \
-                ', '.join(template_types) + '>' + '*' + ' ' + func_name + '()'
+            ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + '*' + ' ' + func_name + '()'
 
         if only_declaration:
             ptr_code += ';\n'
@@ -1108,7 +1118,7 @@ def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtua
 
 # ====== constrPtrAssignFunc ========
 
-def constrPtrAssignFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, specialized_version=False, template_types=[]):
+def constrPtrAssignFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, is_template=False, specialized_version=False, template_types=[]):
 
     func_name  = 'pointer_assign' + gb.code_suffix
     class_name = class_name_short
@@ -1127,21 +1137,28 @@ def constrPtrAssignFunc(class_el, abstr_class_name_short, class_name_short, virt
     ptr_code = ''
 
     if virtual:
-        if not specialized_version:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + full_class_name['templ_vars'] + '*) =0;\n'
+        if is_template:
+            if not specialized_version:
+                ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + full_class_name['templ_vars'] + '*) =0;\n'
+            else:
+                ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + \
+                    '(' + abstr_class_name + \
+                    '<' + ', '.join(template_types) + '>' + '*) =0;\n'
         else:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + \
-                '(' + abstr_class_name + \
-                '<' + ', '.join(template_types) + '>' + '*) =0;\n'
+            ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + '*) =0;\n'
 
     else:
-        if not specialized_version:
-            ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + \
-                '(' + abstr_class_name + full_class_name['templ_vars'] + '* in)'
+        if is_template:
+            if not specialized_version:
+                ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + \
+                    '(' + abstr_class_name + full_class_name['templ_vars'] + '* in)'
+            else:
+                ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + \
+                    '(' + abstr_class_name + \
+                    '<' + ', '.join(template_types) + '>' + '* in)'
         else:
-            ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + \
-                '(' + abstr_class_name + \
-                '<' + ', '.join(template_types) + '>' + '* in)'
+            ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name + '* in)'
+
         if only_declaration:
             ptr_code += ';\n'
         else:
