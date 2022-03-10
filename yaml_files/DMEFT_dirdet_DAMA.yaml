@@ -11,10 +11,10 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
   StandardModel_Higgs:
-     mH: 125.09
+    mH: 125.09
 
   # Direct detection
-  nuclear_params_ChPT: !import include/nuclear_params_ChPT_defaults.yaml
+  nuclear_params_ChPT_sigmapiN: !import include/nuclear_params_ChPT_sigmapiN_fixed.yaml
 
   DMEFT:
     # DM mass
@@ -68,6 +68,7 @@ Parameters:
     # sigma*ig5 sigma
     C710: 0.
     #  range: [-12.56637, 12.56637]
+    mtrunIN: 162.9
 
   # NFW with standard & central values for prelims
   Halo_gNFW_rho0:
@@ -80,6 +81,12 @@ Parameters:
     alpha: 1
     beta: 3
     gamma: 1
+
+  DAMA_xsec:
+    sigmap_SI: 0
+    sigmap_SD: 0
+      #range: [1e-2, 1]
+    sigman_SD: 0
 
 
 Priors:
@@ -95,6 +102,13 @@ Printer:
     delete_file_on_restart: true
     buffer_length: 10000
 
+  # printer: hdf5
+  # options:
+  #   output_file: "DAMA_TEST.hdf5"
+  #   group: "/DAMA_TEST"
+  #   buffer_length: 1000
+  #   delete_file_on_restart: true
+
 Scanner:
 
   use_scanner: random
@@ -106,20 +120,19 @@ Scanner:
       point_number: 10
       like:  LogLike
 
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 10
+
 ObsLikes:
 
   # Direct detection
-  - capability: LUX_2016_LogLikelihood
-    purpose:    LogLike
-
-  - capability: XENON1T_2018_LogLikelihood
-    purpose:    LogLike
-   
-  - capability: DAMA_LogLikelihood_mod
+  - capability: DAMA_LogLikelihood_mod # (see also DAMA_LogLikelihood_mod_xsec_test)
     purpose:    LogLike
 
   - capability: DD_rel_WCs_flavscheme
-    purpose:    observable
+    purpose:    Observable
 
 Rules:
 
@@ -129,17 +142,11 @@ Rules:
   - capability: DDCalc_Couplings
     function: DDCalc_Couplings_NR_WCs
 
-  - capability: mwimp
-    function: mwimp_from_WIMPprops
-
-  - capability: wimp_sc
-    function: wimp_sc_from_WIMPprops
-
-  - capability: spinwimpx2
-    function: jwimpx2_from_WIMPprops
-
   - capability: DD_nonrel_WCs
     function: DD_nonrel_WCs_flavscheme
+
+  - capability: DD_rel_WCs_flavscheme
+    function: DD_rel_WCs_flavscheme_DMEFT
 
 Logger:
 
@@ -148,7 +155,6 @@ Logger:
     [Default] : "default.log"
     [DecayBit] : "DecayBit.log"
     [PrecisionBit] : "PrecisionBit.log"
-    [ColliderBit] : "ColliderBit.log"
     [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
 
@@ -163,5 +169,4 @@ KeyValues:
 
   default_output_path: "runs/DMEFT_dirdet/"
 
-  debug: false
-
+  debug: true

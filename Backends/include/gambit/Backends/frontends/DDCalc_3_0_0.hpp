@@ -40,6 +40,10 @@
 ///          (streetlg@mail.uc.edu)
 ///  \date 2020 Apr
 ///
+///  \author Ankit Beniwal
+///          (ankit.beniwal@kcl.ac.uk)
+///  \date 2022 Mar
+///
 ///  *********************************************
 
 // Identify backend
@@ -47,6 +51,7 @@
 #define BACKENDLANG Fortran
 #define VERSION 3.0.0
 #define SAFE_VERSION 3_0_0
+#define REFERENCE GAMBIT:2017fax,GAMBIT:2018eea
 
 // Load it
 LOAD_LIBRARY
