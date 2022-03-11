@@ -2,7 +2,6 @@
 #define __abstract_ClassThree_ExampleBackend_1_234_hpp__
 
 #include <cstddef>
-#include <vector>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hpp"
 #include "forward_decls_wrapper_classes.hpp"
