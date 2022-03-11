@@ -14,7 +14,7 @@ Parameters:
      mH: 125.09
 
   # Direct detection
-  nuclear_params_ChPT:
+  nuclear_params_ChPT_sigmapiN:
     sigmapiN     : 0.050
     Bc5m         : -0.51e-3
     gA           : 1.2723
@@ -40,7 +40,8 @@ Parameters:
   DMEFT:
     # DM mass
     mchi:
-      range: [1,100]
+      range: [5,100]
+      prior_type: log
     # Scale of new physics
     Lambda: 1000.
     # EM interactions (only turn on at loop-level -- not concerned with these)
@@ -48,8 +49,9 @@ Parameters:
     C52: 0.
     # Dim 6 -- qq chi chi bilinears
     # vector vector
-    C61: 0.
-    #  range: [0, 12.56637]
+    C61:
+      range: [1e-2, 1.6]
+      prior_type: log
     #  range: [-12.56637, 12.56637]
     # axial-vector vector
     C62: 0.
@@ -89,11 +91,12 @@ Parameters:
     # sigma*ig5 sigma
     C710: 0.
     #  range: [-12.56637, 12.56637]
+    mtrunIN: 162.9
 
   DAMA_xsec:
     sigmap_SI: 0
-    sigmap_SD:       
-      range: [1e-2,1]
+    sigmap_SD: 0   
+      #range: [1e-2,1]
     sigman_SD: 0
 
 
@@ -126,7 +129,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: square_grid
+  use_scanner: diver
 
   scanners:
 
@@ -134,11 +137,18 @@ Scanner:
       plugin: square_grid
       like: LogLike
       grid_pts: 100
+    
+    diver: 
+      plugin: diver
+      like: LogLike
+      NP: 100
+      convthresh: 1E-1
+      lambdajDE: false
 
 ObsLikes:
 
   # Direct detection
-  - capability: DAMA_LogLikelihood_mod_xsec_test
+  - capability: DAMA_LogLikelihood_mod #DAMA_LogLikelihood_mod_xsec_test
     purpose:    LogLike
 
 Rules:
@@ -148,15 +158,6 @@ Rules:
 
   - capability: DDCalc_Couplings
     function: DDCalc_Couplings_NR_WCs
-
-  - capability: mwimp
-    function: mwimp_from_WIMPprops
-
-  - capability: wimp_sc
-    function: wimp_sc_from_WIMPprops
-
-  - capability: spinwimpx2
-    function: jwimpx2_from_WIMPprops
 
   - capability: DD_nonrel_WCs
     function: DD_nonrel_WCs_flavscheme
@@ -168,7 +169,6 @@ Logger:
     [Default] : "default.log"
     [DecayBit] : "DecayBit.log"
     [PrecisionBit] : "PrecisionBit.log"
-    [ColliderBit] : "ColliderBit.log"
     [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
 
@@ -183,5 +183,5 @@ KeyValues:
 
   default_output_path: "runs/DAMA_TEST/"
 
-  debug: false
+  debug: true
 
