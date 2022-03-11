@@ -268,10 +268,8 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         current_code = ""
         current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
                                                           indent=cfg.indent, file_for_gambit=file_for_gambit, 
-                                                          template_types=spec_template_types,
                                                           has_copy_constructor=has_copy_constructor, 
                                                           construct_assignment_operator=construct_assignment_operator, 
-                                                          specialized_version=False,
                                                           add_gambit_namespace=False,
                                                           add_gambit_include_statements=False,
                                                           current_code=current_code)
@@ -282,15 +280,15 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         #     - The code in constrAbstractClassDecl related to the add_gambit_namespace and add_gambit_include_statements
         #       can probably be extracted and put in this function instead. Then constrAbstractClassDecl should *only*
         #       generate code for the actual class declaration, not any surrounding code.
-        current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
-                                                          indent=cfg.indent, file_for_gambit=file_for_gambit, 
-                                                          template_types=spec_template_types,
-                                                          has_copy_constructor=has_copy_constructor, 
-                                                          construct_assignment_operator=construct_assignment_operator, 
-                                                          specialized_version=True,
-                                                          add_gambit_namespace=True,
-                                                          add_gambit_include_statements=True,
-                                                          current_code=current_code)
+        #current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
+        #                                                  indent=cfg.indent, file_for_gambit=file_for_gambit, 
+        #                                                  template_types=spec_template_types,
+        #                                                  has_copy_constructor=has_copy_constructor, 
+        #                                                  construct_assignment_operator=construct_assignment_operator, 
+        #                                                  specialized_version=True,
+        #                                                  add_gambit_namespace=True,
+        #                                                  add_gambit_include_statements=True,
+        #                                                  current_code=current_code)
         current_code += '\n'
         class_decl += current_code
 

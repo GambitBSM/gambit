@@ -92,25 +92,20 @@ def constrTemplForwDecl(class_name_short, namespaces, template_bracket, indent=4
 
 # ====== constrAbstractClassDecl ========
 
-def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, template_types=[], has_copy_constructor=True, construct_assignment_operator=True, specialized_version=False, add_gambit_namespace=True, add_gambit_include_statements=True, current_code=""):
+def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, has_copy_constructor=True, construct_assignment_operator=True, add_gambit_namespace=True, add_gambit_include_statements=True, current_code=""):
     n_indents = len(namespaces)
 
     class_decl = current_code
 
     # Check template_types argument:
-    # TODO: TG: Need the full bracket for unspecified templates
     if utils.isTemplateClass(class_el):
         is_template = True
-        if len(template_types) > 0:
-            is_specification = True
-            templ_bracket = class_name['templ_bracket']
-            templ_vars = class_name['templ_vars']
-        else:
-            is_specification = False
-            templ_bracket = '<>'
-            templ_vars = '<' + ','.join(template_types) + '>'
+        is_specialization = class_name['is_specialization']
+        templ_bracket = class_name['templ_bracket']
+        templ_vars = class_name['templ_vars']
+        empty_bracket = class_name['empty_bracket']
     else:
-        is_specification = False
+        is_specialization = False
         is_template = False
 
 
@@ -130,12 +125,12 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl += utils.constrNamespace(namespaces, 'open')
 
     # - If this class is a template specialization, add 'template <>' at the top
-    #
-    # TODO: TG: If it's a for full template, add the full bracket
-    if is_template and not specialized_version:
+    # - If this class is a full template, add template bracket
+    if is_template and not is_specialization:
         class_decl += ' '*n_indents*indent + 'template ' + templ_bracket + '\n'
-    elif is_template and specialized_version:
-        class_decl += ' '*n_indents*indent + 'template ' + '<>' + '\n'
+    elif is_template and is_specialization:
+        class_decl += ' '*n_indents*indent + 'template ' + empty_bracket + '\n'
+
     # - Construct the declaration line, with inheritance of abstract classes
     inheritance_line = ''
     for parent_dict in parent_classes:
@@ -163,11 +158,9 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
 
     class_decl += ' '*n_indents*indent
-    # TODO: TG: Only add for template specifications
-    if is_template and is_specification and not specialized_version:
+    # Only add template tag for template specifications
+    if is_template and is_specialization:
         class_decl += 'class ' + abstr_class_name['short'] + templ_vars + inheritance_line + '\n'
-    elif is_template and is_specification and specialized_version:
-        class_decl += 'class ' + abstr_class_name['short'] + '<' + ', '.join(template_types) + '>' + inheritance_line + '\n'
     else:
         class_decl += 'class ' + abstr_class_name['short'] + inheritance_line + '\n'
 
@@ -223,7 +216,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
             return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
             
-            if is_template and not specialized_version:
+            if is_template and not is_specialization:
                 func_types = getTemplatedMethodTypes(el, class_name)
 
                 return_type = func_types['return']
@@ -266,7 +259,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             # One overloaded version for each set of default arguments
             for remove_n_args in range(n_overloads+1):
 
-                if is_template and not specialized_version:
+                if is_template and not is_specialization:
                     w_func_name = el.get('name')
                     w_args_bracket_nonames = '(' + ', '.join(args) + ')'
                 else:
@@ -385,36 +378,26 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             for parent_dict in parent_classes:
                 if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
                     class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['abstr_class_name']['long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
-            class_decl += constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2, is_template=is_template, specialized_version=specialized_version, template_types=template_types)
+            class_decl += constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
         if has_copy_constructor:
-            class_decl += constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2, is_template=is_template, specialized_version=specialized_version, template_types=template_types)
+            class_decl += constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
 
     # - Construct code needed for 'destructor pattern' (abstract class and wrapper class must can delete each other)
     class_decl += '\n'
     class_decl += ' '*(n_indents+1)*indent + 'private:\n'
-    # TODO: TG: Wrapper class needs to be templated
-    class_decl +=  ' '*(n_indents+2)*indent +  class_name['short']
-    if is_template and not specialized_version:
-        class_decl += templ_vars
-    elif is_template and specialized_version:
-        class_decl += '<' + ','.join(template_types) + '>'
+    # Wrapper class needs to be templated
+    wrapper_class_name = class_name['short']
+    if is_template:
+        wrapper_class_name += templ_vars
+
+    class_decl +=  ' '*(n_indents+2)*indent +  wrapper_class_name
 
     class_decl += '* wptr;\n'
     class_decl += ' '*(n_indents+2)*indent + 'bool delete_wrapper;\n'
     class_decl += ' '*(n_indents+1)*indent + 'public:\n'
-    # TODO: TG: Wrapper class needs to be templated
-    class_decl += ' '*(n_indents+2)*indent + class_name['short']
-    if is_template and not specialized_version:
-        class_decl += templ_vars
-    elif is_template and specialized_version:
-        class_decl += '<' + ','.join(template_types) + '>'
+    class_decl += ' '*(n_indents+2)*indent + wrapper_class_name
     class_decl += '* get_wptr() { return wptr; }\n'
-    # TODO: TG: Wrapper class needs to be templated
-    class_decl += ' '*(n_indents+2)*indent + 'void set_wptr(' + class_name['short']
-    if is_template and not specialized_version:
-        class_decl += templ_vars
-    elif is_template and specialized_version:
-        class_decl += '<' + ','.join(template_types) + '>'
+    class_decl += ' '*(n_indents+2)*indent + 'void set_wptr(' + wrapper_class_name
     class_decl += '* wptr_in) { wptr = wptr_in; }\n'
     class_decl += ' '*(n_indents+2)*indent + 'bool get_delete_wrapper() { return delete_wrapper; }\n'
     class_decl += ' '*(n_indents+2)*indent + 'void set_delete_wrapper(bool del_wrp_in) { delete_wrapper = del_wrp_in; }\n'
@@ -479,8 +462,10 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
         class_decl += ' '*(n_indents+2)*indent + '{\n'
         class_decl += ' '*(n_indents+3)*indent + 'if (wptr == 0)\n'
         class_decl += ' '*(n_indents+3)*indent + '{\n'
-        class_decl += ' '*(n_indents+4)*indent + 'wptr = wrapper_creator(this);\n'
-        # class_decl += ' '*(n_indents+4)*indent + 'wrapper_creator(this);\n'
+        class_decl += ' '*(n_indents+4)*indent + 'wptr = wrapper_creator'
+        if is_template:
+            class_decl += templ_vars
+        class_decl += '(this);\n'
         class_decl += ' '*(n_indents+4)*indent + 'delete_wrapper = true;\n'
         class_decl += ' '*(n_indents+3)*indent + '}\n'
         class_decl += ' '*(n_indents+2)*indent + '}\n'
@@ -488,12 +473,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
     # - Function get_init_wptr()
     class_decl += '\n'
-    # TODO: TG: Wrapper class needs to be templated
-    class_decl += ' '*(n_indents+2)*indent + class_name['short']
-    if is_template and not specialized_version:
-        class_decl += templ_vars
-    elif is_template and specialized_version:
-        class_decl += '<' + ','.join(template_types) + '>'
+    class_decl += ' '*(n_indents+2)*indent + wrapper_class_name
     class_decl += '* get_init_wptr()\n'
     class_decl += ' '*(n_indents+2)*indent + '{\n'
     class_decl += ' '*(n_indents+3)*indent + 'init_wrapper();\n'
@@ -502,12 +482,7 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
     # - Function get_init_wref()
     class_decl += '\n'
-    # TODO: TG: Wrapper class needs to be templated
-    class_decl += ' '*(n_indents+2)*indent + class_name['short']
-    if is_template and not specialized_version:
-        class_decl += templ_vars
-    elif is_template and specialized_version:
-        class_decl += '<' + ','.join(template_types) + '>'
+    class_decl += ' '*(n_indents+2)*indent + wrapper_class_name
     class_decl += '& get_init_wref()\n'
     class_decl += ' '*(n_indents+2)*indent + '{\n'
     class_decl += ' '*(n_indents+3)*indent + 'init_wrapper();\n'
@@ -526,10 +501,16 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             class_decl += ' '*(n_indents+3)*indent + 'std::cerr << "DEBUG: " << this << " ' + abstr_class_name['short'] + ' dtor (BEGIN)" << std::endl;\n'
         class_decl += ' '*(n_indents+3)*indent + 'if (wptr != 0)\n'
         class_decl += ' '*(n_indents+3)*indent + '{\n'
-        class_decl += ' '*(n_indents+4)*indent + 'set_delete_BEptr(wptr, false);\n'
+        class_decl += ' '*(n_indents+4)*indent + 'set_delete_BEptr'
+        if is_template:
+            class_decl += templ_vars
+        class_decl += '(wptr, false);\n'
         class_decl += ' '*(n_indents+4)*indent + 'if (delete_wrapper == true)\n'
         class_decl += ' '*(n_indents+4)*indent + '{\n'
-        class_decl += ' '*(n_indents+5)*indent + 'wrapper_deleter(wptr);\n'
+        class_decl += ' '*(n_indents+5)*indent + 'wrapper_deleter'
+        if is_template:
+            class_decl += templ_vars
+        class_decl += '(wptr);\n'
         class_decl += ' '*(n_indents+5)*indent + 'wptr = 0;\n'
         # Set wptr = 0 in all parent classes as well
         for parent_dict in all_parent_classes:
@@ -555,24 +536,9 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
         class_decl = '\n__START_GAMBIT_NAMESPACE__\n\n' + class_decl + '\n__END_GAMBIT_NAMESPACE__\n'
 
 
-    # TODO: JOEL: The following if statement, for ClassThree, adds these lines:
-    # // Forward declaration for wrapper_creator.
-    # template <>
-    # CAT_3(BACKENDNAME,_,SAFE_VERSION)::ClassThree<double>* wrapper_creator<double>(CAT_3(BACKENDNAME,_,SAFE_VERSION)::Abstract_ClassThree<double>*);
-    #
-    # There needs to be another line before this which looks like this so there's actually a templated function to override:
-    # template <typename T>
-    # CAT3(BACKENDNAME,_,SAFE_VERSION)::ClassThree<T>* wrapper_creator(CAT3(BACKENDNAME,,SAFE_VERSION)::Abstract_ClassThree<T>);
-    #
-    # The same idea applies for the next 2 if statements
-
     # - Add forward declaration of wrapper_creator function (needed by the 'destructor pattern')
     if not file_for_gambit:
-        if is_template:
-            if not specialized_version:
-                class_decl = forwardDeclGenerator(is_template, is_specification, class_name, abstr_class_name, templ_bracket=templ_bracket, templ_vars=templ_vars) + class_decl
-        else:
-            class_decl = forwardDeclGenerator(is_template, is_specification, class_name, abstr_class_name) + class_decl
+            class_decl = forwardDeclGenerator(class_el, class_name, abstr_class_name) + class_decl
 
 
     # Insert include statements needed by GAMBIT
@@ -590,60 +556,42 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
 # ====== forwardDeclGenerator ========
 
-def forwardDeclGenerator(is_template, is_specification, class_name, abstr_class_name, templ_bracket=None, templ_vars=None):
-    # Add the declaration for the wrapper_creator
-    # If it's a specification, add the fully templated version beforehand so it has something to override
-    frwd_decl_creator  = '\n// Forward declaration for wrapper_creator.\n'
-    if is_specification:
-        frwd_decl_creator += f"template {class_name['templ_bracket']}\n{gb.gambit_backend_namespace}::{class_name['long']}{class_name['templ_vars']}* wrapper_creator"
-        frwd_decl_creator += f"({gb.gambit_backend_namespace}::{abstr_class_name['long']}{class_name['templ_vars']}*);\n\n"
+def forwardDeclGenerator(class_el, class_name, abstr_class_name):
 
-    # Add the normal declaration
+    is_template = utils.isTemplateClass(class_el, class_name)
+
+    # Add the declaration for the wrapper_creator
     if is_template:
-        frwd_decl_creator += f"template {templ_bracket}\n{gb.gambit_backend_namespace}::{class_name['long']}{templ_vars}* wrapper_creator"
-        if is_specification:
-            frwd_decl_creator += templ_vars
-        frwd_decl_creator += f"({gb.gambit_backend_namespace}::{abstr_class_name['long']}{templ_vars}*);\n"
+        frwd_decl_creator = 'template '+class_name['templ_bracket']+'\n'+gb.gambit_backend_namespace+'::'+class_name['long']+class_name['templ_vars']+'* wrapper_creator'
+        if class_name['is_specialization']:
+            frwd_decl_creator += class_name['templ_vars']
+        frwd_decl_creator += '('+gb.gambit_backend_namespace+'::'+abstr_class_name['long']+class_name['templ_vars']+'*);\n'
     else :
-        frwd_decl_creator += f"{gb.gambit_backend_namespace}::{class_name['long']}* wrapper_creator({gb.gambit_backend_namespace}::{abstr_class_name['long']}*);\n"
+        frwd_decl_creator = gb.gambit_backend_namespace+'::'+class_name['long']+'* wrapper_creator('+gb.gambit_backend_namespace+'::'+abstr_class_name['long']+'*);\n'
     frwd_decl_creator += '\n'
 
 
 
     # Add the declaration for the wrapper_deleter
-    # If it's a specification, add the fully templated version beforehand so it has something to override
-    frwd_decl_deleter  = '\n// Forward declaration needed by the destructor pattern.\n'
-    if is_specification:
-        frwd_decl_deleter += f"template {class_name['templ_bracket']}\nvoid wrapper_deleter"
-        frwd_decl_deleter += f"({gb.gambit_backend_namespace}::{class_name['long']}{class_name['templ_vars']}*);\n\n"
-
-    # Add the normal declaration
     if is_template:
-        frwd_decl_deleter += f"template {templ_bracket}\nvoid wrapper_deleter"
-        if is_specification:
-            frwd_decl_deleter += templ_vars
-        frwd_decl_deleter += f"({gb.gambit_backend_namespace}::{class_name['long']}{templ_vars}*);\n"
+        frwd_decl_deleter = 'template '+class_name['templ_bracket']+'\nvoid wrapper_deleter'
+        if class_name['is_specialization']:
+            frwd_decl_deleter += class_name['templ_vars']
+        frwd_decl_deleter += '('+gb.gambit_backend_namespace+'::'+class_name['long']+class_name['templ_vars']+'*);\n'
     else :
-        frwd_decl_deleter += f"void wrapper_deleter({gb.gambit_backend_namespace}::{class_name['long']}*);\n"
+        frwd_decl_deleter = 'void wrapper_deleter('+gb.gambit_backend_namespace+'::'+class_name['long']+'*);\n'
     frwd_decl_deleter += '\n'
 
 
 
     # Add the declaration for set_delete_BEptr
-    # If it's a specification, add the fully templated version beforehand so it has something to override
-    frwd_decl_setdel  = '\n// Forward declaration needed by the destructor pattern.\n'
-    if is_specification:
-        frwd_decl_setdel += f"template {class_name['templ_bracket']}\nvoid set_delete_BEptr"
-        frwd_decl_setdel += f"({gb.gambit_backend_namespace}::{class_name['long']}{class_name['templ_vars']}*, bool);\n\n"
-
-    # Add the normal declaration
     if is_template:
-        frwd_decl_setdel += f"template {templ_bracket}\nvoid set_delete_BEptr"
-        if is_specification:
-            frwd_decl_setdel += templ_vars
-        frwd_decl_setdel += f"({gb.gambit_backend_namespace}::{class_name['long']}{templ_vars}*, bool);\n"
+        frwd_decl_setdel = 'template '+class_name['templ_bracket']+'\nvoid set_delete_BEptr'
+        if class_name['is_specialization']:
+            frwd_decl_setdel += class_name['templ_vars']
+        frwd_decl_setdel += '('+gb.gambit_backend_namespace+'::'+class_name['long']+class_name['templ_vars']+'*, bool);\n'
     else :
-        frwd_decl_setdel += f"void set_delete_BEptr({gb.gambit_backend_namespace}::{class_name['long']}*, bool);\n"
+        frwd_decl_setdel = 'void set_delete_BEptr('+gb.gambit_backend_namespace+'::'+class_name['long']+'*, bool);\n'
     frwd_decl_setdel += '\n'
 
     # Return all 3
@@ -1065,13 +1013,14 @@ def constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indent
 
 # ====== constrPtrCopyFunc ========
 
-def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, is_template=False, specialized_version=False, template_types=[]):
+def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
 
     func_name = 'pointer_copy' + gb.code_suffix
     class_name = class_name_short
     abstr_class_name = abstr_class_name_short
 
-    full_class_name = getClassNameDict(class_el, add_template_info=True)
+    class_dict = getClassNameDict(class_el, add_template_info=True)
+    is_template = utils.isTemplateClass(class_el, class_dict)
 
     if include_full_namespace:
         namespaces_with_self = utils.getNamespaces(class_el, include_self=True)
@@ -1085,19 +1034,12 @@ def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtua
     ptr_code = ''
     if virtual:
         if is_template:
-            if not specialized_version:
-                ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + full_class_name['templ_vars'] + '*' + ' ' + func_name + '() =0;\n'
-            else:
-                ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + '<' + ', '.join(template_types) + '>' + '*' + ' ' + func_name + '() =0;\n'
+            ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + class_dict['templ_vars'] + '*' + ' ' + func_name + '() =0;\n'
         else:
             ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + '*' + ' ' + func_name + '() =0;\n'
     else:
         if is_template:
-            if not specialized_version:
-                ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + full_class_name['templ_vars'] + '*' + ' ' + func_name + '()'
-            else:
-                ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + '<' + \
-                    ', '.join(template_types) + '>' + '*' + ' ' + func_name + '()'
+            ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + class_dict['templ_vars'] + '*' + ' ' + func_name + '()'
         else:
             ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + '*' + ' ' + func_name + '()'
 
@@ -1118,13 +1060,15 @@ def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtua
 
 # ====== constrPtrAssignFunc ========
 
-def constrPtrAssignFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, is_template=False, specialized_version=False, template_types=[]):
+def constrPtrAssignFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
 
     func_name  = 'pointer_assign' + gb.code_suffix
     class_name = class_name_short
     abstr_class_name = abstr_class_name_short
 
-    full_class_name = getClassNameDict(class_el, add_template_info=True)
+    class_dict = getClassNameDict(class_el, add_template_info=True)
+    is_template = utils.isTemplateClass(class_el, class_dict)
+
     if include_full_namespace:
         namespaces_with_self = utils.getNamespaces(class_el, include_self=True)
         namespaces           = utils.getNamespaces(class_el)
@@ -1138,24 +1082,13 @@ def constrPtrAssignFunc(class_el, abstr_class_name_short, class_name_short, virt
 
     if virtual:
         if is_template:
-            if not specialized_version:
-                ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + full_class_name['templ_vars'] + '*) =0;\n'
-            else:
-                ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + \
-                    '(' + abstr_class_name + \
-                    '<' + ', '.join(template_types) + '>' + '*) =0;\n'
+            ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + class_dict['templ_vars'] + '*) =0;\n'
         else:
             ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + '*) =0;\n'
 
     else:
         if is_template:
-            if not specialized_version:
-                ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + \
-                    '(' + abstr_class_name + full_class_name['templ_vars'] + '* in)'
-            else:
-                ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + \
-                    '(' + abstr_class_name + \
-                    '<' + ', '.join(template_types) + '>' + '* in)'
+            ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name + class_dict['templ_vars'] + '* in)'
         else:
             ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name + '* in)'
 
@@ -1364,6 +1297,8 @@ def getClassNameDict(class_el, abstract=False, add_template_info=False):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
+        class_name['is_specialization'] = 'typename' not in templ_bracket and 'class' not in templ_bracket
+        class_name['empty_bracket'] = '<>'
 
     if abstract:
         abstr_class_name = {}
