@@ -1373,9 +1373,11 @@ def getMemberElements(el, include_artificial=False):
                     member_elements.append(mem_el)
                 else:
                     if not ('artificial' in mem_el.keys() and not include_artificial):
-                        # Didn't find it, give this info to the use
-                        print(
-                            f"{mem_el.get('name')} was not found in the config file in load_templated_members")
+                        # Didn't find it, give this info to the user
+                        if mem_el.tag in ('Method', 'OperatorMethod'):
+                            infomsg.IgnoredMemberFunction(mem_el.get('name') ).printMessage()
+                        elif (mem_el.tag in ('Field', 'Variable')):
+                            infomsg.IgnoredMemberVariable(mem_el.get('name') ).printMessage()
             else:
                 # Check if this member element should be ditched
                 if include_artificial:
