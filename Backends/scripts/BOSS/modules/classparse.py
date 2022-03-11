@@ -118,13 +118,13 @@ def run():
         # For the backend: Construct code for the abstract class header file and register it
         #
 
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
+        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
 
         #
         # For GAMBIT: Construct code for the abstract class header file and register it
         #
 
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
+        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
 
 
 
@@ -133,7 +133,7 @@ def run():
         #
 
 
-        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template, original_file_name, original_file_content_nocomments)
+        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, original_file_name, original_file_content_nocomments)
 
 
         #
@@ -233,7 +233,7 @@ def run():
 
 # Construct code for the abstract class header file and register it
 
-def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, is_template, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
+def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
     if file_for_gambit:
         abstr_class_fname = abstr_class_fname + '.FOR_GAMBIT'
 
@@ -260,10 +260,10 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         class_decl += enum_include_statement_code
 
     # Add the the code for the abstract class
+    is_template = utils.isTemplateClass(class_el,class_name)
     if is_template and (class_name['long'] in templ_spec_done):
         pass
     elif is_template and (class_name['long'] not in templ_spec_done):
-        spec_template_types = utils.getSpecTemplateTypes(class_el)
 
         current_code = ""
         current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
@@ -275,21 +275,6 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
                                                           current_code=current_code)
         current_code += '\n\n'
 
-        # AK: This currently adds a declaration for the current specialization right after the general template
-        #     - What happens for multiple specializations? Looks like the general template will be repeated...
-        #     - The code in constrAbstractClassDecl related to the add_gambit_namespace and add_gambit_include_statements
-        #       can probably be extracted and put in this function instead. Then constrAbstractClassDecl should *only*
-        #       generate code for the actual class declaration, not any surrounding code.
-        #current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
-        #                                                  indent=cfg.indent, file_for_gambit=file_for_gambit, 
-        #                                                  template_types=spec_template_types,
-        #                                                  has_copy_constructor=has_copy_constructor, 
-        #                                                  construct_assignment_operator=construct_assignment_operator, 
-        #                                                  specialized_version=True,
-        #                                                  add_gambit_namespace=True,
-        #                                                  add_gambit_include_statements=True,
-        #                                                  current_code=current_code)
-        current_code += '\n'
         class_decl += current_code
 
     else:
@@ -310,7 +295,7 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
 
 # Add abstract class to inheritance list of original class
 
-def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_template,
+def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name,
                                  original_file_name, original_file_content_nocomments):
 
     # Find positions in the original file
@@ -320,6 +305,7 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, is_temp
 
 
     # Special preparations for template classes:
+    is_template = utils.isTemplateClass(class_el, class_name)
     if is_template:
 
         # - Determine whether this is the source for the general template
@@ -646,7 +632,10 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
             ptr_declaration_code += '\n'
 
         if construct_assignment_operator:
-            ptr_declaration_code += ' '*cfg.indent*(n_indents+2) + 'using ' + abstr_class_name['short'] + '::pointer_assign' + gb.code_suffix + ';\n'
+            ptr_declaration_code += ' '*cfg.indent*(n_indents+2) + 'using ' + abstr_class_name['short']
+            if utils.isTemplateClass(class_el, class_name):
+              ptr_declaration_code += class_name['templ_vars']
+            ptr_declaration_code += '::pointer_assign' + gb.code_suffix + ';\n'
             ptr_declaration_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
 
         ptr_implementation_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, 'identification.hpp') + '"\n'
