@@ -2809,6 +2809,9 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
     if id_and_name_only:
         return
 
+    # Get a list of all the long_templ class names in gb.classes_done
+    long_templ_class_names_done = [ class_name['long_templ'] for class_name in gb.classes_done ]
+
     #
     # Loop over all elements in this xml file
     # to fill the remaining dicts. (The order is important!)
@@ -2833,10 +2836,9 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
             except KeyError:
                 continue
 
-            # Check if we have done this class already
-            if class_name in gb.classes_done:
-                infomsg.ClassAlreadyDone(
-                    class_name['long_templ']).printMessage()
+            # if class_name in gb.classes_done:
+            if class_name['long_templ'] in long_templ_class_names_done:
+                infomsg.ClassAlreadyDone(class_name['long_templ']).printMessage()
                 continue
 
             # Check that class is requested
