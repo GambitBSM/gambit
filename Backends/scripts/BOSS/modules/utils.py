@@ -1021,12 +1021,9 @@ def constrAbsForwardDeclHeader(file_output_path):
     current_namespaces = []
     for class_name_long, class_el in gb.loaded_classes_in_xml.items():
 
-        # print([class_name_full], [class_name_full.split('<',1)[0]], [class_name_full.split('<',1)[0].rsplit('::',1)[-1]])
         namespaces = getNamespaces(class_el)
-        # has_namespace = bool(len(namespaces))
-        # namespace_str = '::'.join(namespaces) + '::'*has_namespace
 
-        # class_name       = classutils.getClassNameDict(class_el)
+        class_name       = classutils.getClassNameDict(class_el, add_template_info=True)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
 
         if namespaces != current_namespaces:
@@ -1041,26 +1038,14 @@ def constrAbsForwardDeclHeader(file_output_path):
         n_indents = len(namespaces)
         full_indent = ' '*n_indents*cfg.indent
 
-        is_template = ('<' in abstr_class_name['long_templ'])
+        is_template = isTemplateClass(class_el, class_name)
 
-        if is_template:
-            template_bracket = getTemplateBracket(class_el)[0]
-            spec_template_types = getSpecTemplateTypes(class_el)
+        if is_template and not class_name['is_specialization']:
 
-            # TODO: TG: If it's a specialized template we declare the full template
-            if template_bracket == '<>' and len(spec_template_types) > 0:
-                temp_types = ['class T' + str(i + 1) for i in range(len(spec_template_types))]
-                template_bracket = '<' + ','.join(temp_types) + '>'
-
-            insert_code += full_indent + 'template ' + template_bracket + '\n'
+            insert_code += full_indent + 'template ' + class_name['templ_bracket'] + '\n'
             insert_code += full_indent + 'class ' + \
                 abstr_class_name['short'] + ';\n'
 
-            # TODO: TG: Add the template specificiation
-            # TODO: Maybe no need to forward declare this
-            # if len(spec_template_types) > 0:
-            #    insert_code += full_indent + 'template <>\n';
-            #    insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
         else:
             insert_code += full_indent + 'class ' + \
                 abstr_class_name['short_templ'] + ';\n'
