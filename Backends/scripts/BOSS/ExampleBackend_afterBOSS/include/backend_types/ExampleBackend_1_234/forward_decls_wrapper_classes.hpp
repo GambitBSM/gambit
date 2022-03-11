@@ -11,9 +11,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   template <typename T>
   class ClassThree;
   class ClassFour;
-  
-  template <>
-  class ClassThree<double>;
+
   
   
   
