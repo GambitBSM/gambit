@@ -39,5 +39,29 @@ static ClassThree<double> __BOSS_dummy_ClassThree_double_instance__;
 
 
 
+#include "backend_types/ExampleBackend_1_234/abstract_ClassFour.hpp"
+#include "gambit/Backends/abstracttypedefs.hpp"
+#include "gambit/Backends/wrappertypedefs.hpp"
+class ClassFour : public virtual Abstract_ClassFour {
+public:
+  double pop();
+  void push(double item);
+  int size();
+
+private:
+  std::vector<double> stack;
+  int curr_size;
+
+  public:
+    Abstract_ClassFour* pointer_copy__BOSS();
+
+    using Abstract_ClassFour::pointer_assign__BOSS;
+    void pointer_assign__BOSS(Abstract_ClassFour* in);
+
+
+};
+
+
+
 #endif
 #endif /* __boss__classes_ExampleBackend_1_234_hpp__ */
