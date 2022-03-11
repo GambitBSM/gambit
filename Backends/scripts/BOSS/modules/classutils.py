@@ -103,7 +103,6 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
         is_specialization = class_name['is_specialization']
         templ_bracket = class_name['templ_bracket']
         templ_vars = class_name['templ_vars']
-        empty_bracket = class_name['empty_bracket']
     else:
         is_specialization = False
         is_template = False
@@ -126,10 +125,8 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
 
     # - If this class is a template specialization, add 'template <>' at the top
     # - If this class is a full template, add template bracket
-    if is_template and not is_specialization:
+    if is_template:
         class_decl += ' '*n_indents*indent + 'template ' + templ_bracket + '\n'
-    elif is_template and is_specialization:
-        class_decl += ' '*n_indents*indent + 'template ' + empty_bracket + '\n'
 
     # - Construct the declaration line, with inheritance of abstract classes
     inheritance_line = ''
@@ -1298,7 +1295,6 @@ def getClassNameDict(class_el, abstract=False, add_template_info=False):
         class_name['templ_bracket'] = templ_bracket
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
         class_name['is_specialization'] = 'typename' not in templ_bracket and 'class' not in templ_bracket
-        class_name['empty_bracket'] = '<>'
 
     if abstract:
         abstr_class_name = {}
