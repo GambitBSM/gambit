@@ -34,7 +34,7 @@
 #include <numeric>
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
-#include "gambit/ScannerBit/scanners/polychord/polychord.hpp"
+#include "gambit/ScannerBit/scanners/polychord_1.17.1/polychord.hpp"
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/util_functions.hpp"
 

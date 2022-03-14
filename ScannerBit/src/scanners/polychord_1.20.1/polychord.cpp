@@ -2,7 +2,7 @@
 //  *********************************************
 ///  \file
 ///
-///  ScannerBit interface to PolyChord 1.18.2
+///  ScannerBit interface to PolyChord 1.20.1
 ///
 ///  *********************************************
 ///
@@ -14,12 +14,11 @@
 ///
 ///  \author Will Handley
 ///          (wh260@cam.ac.uk)
-///  \date May 2018
+///  \date May 2018, June 2021, Mar 2022
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date May 2020
-///  \date Jan 2021
 ///
 ///  *********************************************
 
@@ -35,7 +34,7 @@
 #include <numeric>
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
-#include "gambit/ScannerBit/scanners/polychord_1.18.2/polychord.hpp"
+#include "gambit/ScannerBit/scanners/polychord_1.20.1/polychord.hpp"
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
@@ -57,7 +56,7 @@ typedef Gambit::Scanner::like_ptr scanPtr;
 /// Interface to ScannerBit
 /// =================================================
 
-scanner_plugin(polychord, version(1, 18, 2))
+scanner_plugin(polychord, version(1, 20, 1))
 {
    // An error is thrown if any of the following entries are not present in the inifile (none absolutely required for PolyChord).
    reqd_inifile_entries();
@@ -149,14 +148,9 @@ scanner_plugin(polychord, version(1, 18, 2))
       unsigned int nfast = i-nslow;
       if (nfast>0) settings.grade_dims.push_back(nfast);
 
-      if (nslow>0 and nfast>0)
-      {
-          // Specify the fraction of time to spend in the slow parameters.
-          double frac_slow = get_inifile_value<double>("frac_slow",0.75);
-          settings.grade_frac = std::vector<double>({frac_slow, 1-frac_slow});
-      }
-      else if (nslow==0) // In the unusual case of all fast parameters, there's only one grade.
-          nslow = nfast;
+      // In the unusual case of all fast parameters, there's only one grade. 
+      if (nslow==0) {nslow = nfast; nfast=0;}
+
       // ---------- End computation of ordering for fast and slow parameters
 
       // PolyChord algorithm options.
@@ -182,9 +176,19 @@ scanner_plugin(polychord, version(1, 18, 2))
       settings.write_resume = outfile;
       settings.read_resume = resume_mode;
       settings.compression_factor = get_inifile_value<double>("compression_factor",0.36787944117144233);
+      settings.synchronous = get_inifile_value<bool>("synchronous", true); // Whether to run in synchronous parallelisation mode
       settings.base_dir = get_inifile_value<std::string>("default_output_path")+"PolyChord";
       settings.file_root = get_inifile_value<std::string>("root", "native");
       settings.seed = get_inifile_value<int>("seed",-1);
+
+      if (nslow>0 and nfast>0)
+      {
+          // Specify the fraction of time to spend in the slow parameters.
+          //double frac_slow = get_inifile_value<double>("frac_slow",0.75);
+          //settings.grade_frac = std::vector<double>({frac_slow, 1-frac_slow});
+          double oversample_fast = get_inifile_value<double>("oversample_fast",30.0); 
+          settings.grade_frac = std::vector<double>({settings.num_repeats*1.0, oversample_fast*nfast});
+      }
 
       Gambit::Utils::ensure_path_exists(settings.base_dir);
       Gambit::Utils::ensure_path_exists(settings.base_dir + "/clusters/");
