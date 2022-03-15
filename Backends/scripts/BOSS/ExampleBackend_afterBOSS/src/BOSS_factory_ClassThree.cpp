@@ -11,6 +11,10 @@ Abstract_ClassThree<double>* Factory_ClassThree_0_double__BOSS_1()
   return new ClassThree<double>();
 }
 
+Abstract_ClassThree<int>* Factory_ClassThree_0_int__BOSS_2()
+{
+  return new ClassThree<int>();
+}
 
 }
 

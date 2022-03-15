@@ -1,5 +1,5 @@
-#ifndef __wrapper_ClassThree_def_ExampleBackend_1_234_hpp__
-#define __wrapper_ClassThree_def_ExampleBackend_1_234_hpp__
+#ifndef __wrapper_ClassFour_def_ExampleBackend_1_234_hpp__
+#define __wrapper_ClassFour_def_ExampleBackend_1_234_hpp__
 
 #include <vector>
 
@@ -10,28 +10,24 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   
   // Member functions: 
-  template <typename T>
-  inline T ClassThree<T>::pop()
+  inline double ClassFour::pop()
   {
     return get_BEptr()->pop();
   }
   
-  template <typename T>
-  inline void ClassThree<T>::push(T item)
+  inline void ClassFour::push(double item)
   {
     get_BEptr()->push(item);
   }
   
-  template <typename T>
-  inline int ClassThree<T>::size()
+  inline int ClassFour::size()
   {
     return get_BEptr()->size();
   }
   
   
   // Wrappers for original constructors: 
-  template <typename T>
-  inline ClassThree<T>::ClassThree() :
+  inline ClassFour::ClassFour() :
     WrapperBase(__factory0())
   {
     get_BEptr()->set_wptr(this);
@@ -39,8 +35,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Special pointer-based constructor: 
-  template <typename T>
-  inline ClassThree<T>::ClassThree(Abstract_ClassThree<T>* in) :
+  inline ClassFour::ClassFour(Abstract_ClassFour* in) :
     WrapperBase(in)
   {
     get_BEptr()->set_wptr(this);
@@ -48,8 +43,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Copy constructor: 
-  template <typename T>
-  inline ClassThree<T>::ClassThree(const ClassThree& in) :
+  inline ClassFour::ClassFour(const ClassFour& in) :
     WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
   {
     get_BEptr()->set_wptr(this);
@@ -57,8 +51,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Assignment operator: 
-  template <typename T>
-  inline ClassThree<T>& ClassThree<T>::operator=(const ClassThree& in)
+  inline ClassFour& ClassFour::operator=(const ClassFour& in)
   {
     if (this != &in)
     {
@@ -69,8 +62,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   
   // Destructor: 
-  template <typename T>
-  inline ClassThree<T>::~ClassThree()
+  inline ClassFour::~ClassFour()
   {
     if (get_BEptr() != 0)
     {
@@ -85,18 +77,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   }
   
   // Returns correctly casted pointer to Abstract class: 
-  template <typename T>
-  inline Abstract_ClassThree<T>* ClassThree<T>::get_BEptr() const
+  inline Abstract_ClassFour* ClassFour::get_BEptr() const
   {
-    return dynamic_cast<Abstract_ClassThree<T>*>(BEptr);
+    return dynamic_cast<Abstract_ClassFour*>(BEptr);
   }
   
-  // static ClassThree<double> dummy_static_classthree_double;
-
 }
-
 
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_ClassThree_def_ExampleBackend_1_234_hpp__ */
+#endif /* __wrapper_ClassFour_def_ExampleBackend_1_234_hpp__ */

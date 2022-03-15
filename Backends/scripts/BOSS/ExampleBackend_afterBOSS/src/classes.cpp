@@ -26,3 +26,21 @@ int ClassThree<T>::size()
   return stack.size();
 }
 
+double ClassFour::pop()
+{
+  double top = stack.back();
+  stack.pop_back();
+  return top;
+}
+
+
+void ClassFour::push(double item)
+{
+  stack.push_back(item);
+}
+
+
+int ClassFour::size()
+{
+  return stack.size();
+}

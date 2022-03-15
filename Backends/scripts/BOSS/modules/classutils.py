@@ -1314,17 +1314,15 @@ def getClassNameDict(class_el, abstract=False, add_template_info=False):
 
 # ====== constrWrapperDecl ========
 
-def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, class_operators, construct_assignment_operator, has_copy_constructor, indent=' '*cfg.indent, class_el=None):
+def constrWrapperDecl(class_el, class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, class_operators, construct_assignment_operator, has_copy_constructor, indent=' '*cfg.indent):
 
     decl_code = ''
 
     # short_wrapper_class_name = toWrapperType(class_name['short'])
     # wrapper_class_name = toWrapperType(class_name['long'], include_namespace=True)
 
-    # TODO: TG: Check if class is template
-    is_template = (class_el is not None and utils.isTemplateClass(class_el))
-    if is_template:
-        templ_brackets, templ_vars = utils.getTemplateBracket(class_el)
+    # Check if class is template
+    is_template = utils.isTemplateClass(class_el, class_name)
 
     # Construct inheritance line
     inheritance_line = ''
@@ -1345,10 +1343,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
     # Class declaration line
     decl_code += '\n'
-    # TODO: TG: Make the wrapper class templated too
-    if is_template:
-        decl_code += 'template' + templ_brackets + '\n'
-    decl_code += 'class ' + class_name['short'] + inheritance_line + '\n'
+    decl_code += 'class ' + class_name['short_templ'] + inheritance_line + '\n'
 
     # Class body
     decl_code += '{\n'
@@ -1410,10 +1405,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             factory_ptr_name = '__factory' + str(factory_counter)
 
             # Construct factory pointer code
-            # TODO: TG: Not sure if here matters, but if templated, the abstract class should be too
-            decl_code += 2*indent + 'static ' + abstr_class_name['short']
-            if is_template:
-                decl_code += '<' + ','.join(templ_vars) + '>'
+            decl_code += 2*indent + 'static ' + abstr_class_name['short_templ']
             decl_code += '* (*' + factory_ptr_name + ')' + args_bracket + ';\n'
 
             # Increment factory counter
@@ -1543,7 +1535,6 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         # If return type was moved to abstract class, change namespace
-        # TODO: TG: I think this should use the template specificiation
         if utils.typeInList(return_type_el, gb.moved_to_abstract_class) :
             return_type = abstr_class_name['long_templ'] + "::" + utils.removeNamespace(return_type)
 
@@ -1566,7 +1557,6 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
             args = funcutils.getArgs(func_el)
 
             # If any of the arg types was move to the abstract class, change namespace
-            # TODO: TG: I think this should use the template specification
             for arg in args:
                 if utils.typeInList(arg, gb.moved_to_abstract_class) :
                     arg_type = abstr_class_name['long_templ'] + "::" + utils.removeNamespace(arg.get('type'))
@@ -1665,10 +1655,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
     # Add special constructor based on abstract pointer
     decl_code += 2*indent + '// Special pointer-based constructor: \n'
-    # TODO: TG: Abstract class should be templated
-    decl_code += 2*indent + class_name['short'] + '(' + abstr_class_name['short']
-    if is_template:
-        decl_code += '<' + ','.join(templ_vars) + '>'
+    decl_code += 2*indent + class_name['short'] + '(' + abstr_class_name['short_templ']
     decl_code += '* in);\n'
     # decl_code += 2*indent + class_name['short'] + '(const ' + abstr_class_name['long'] +'* in);\n'
 
@@ -1746,10 +1733,7 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
     decl_code += '\n'
     # decl_code += indent + 'private:\n'
     decl_code += 2*indent + '// Returns correctly casted pointer to Abstract class: \n'
-    # TODO: TG: Abstract class should be templated
-    decl_code += 2*indent + abstr_class_name['short']
-    if is_template:
-        decl_code += '<' + ','.join(templ_vars) + '>'
+    decl_code += 2*indent + abstr_class_name['short_templ']
     decl_code += '* get_BEptr() const;\n'
 
 
@@ -1780,34 +1764,17 @@ def constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class
 
 
 
-# ====== classNameTemplate ========
-
-
-def classNameTemplate(class_name):
-    try:
-        if class_name['templ_vars'] != '':
-            class_name_short = class_name['short'] + class_name['templ_vars']
-        else:
-            class_name_short = class_name['short']
-    except:
-        class_name_short = class_name['short']
-    return class_name_short
-
-
-# ====== END: classNameTemplate ========
-
-
 # ====== constrWrapperDef ========
 
-def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, construct_assignment_operator, has_copy_constructor, indent=' '*cfg.indent, do_inline=False, class_el=None):
+def constrWrapperDef(class_el, class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, construct_assignment_operator, has_copy_constructor, indent=' '*cfg.indent, do_inline=False):
 
     def_code = ''
 
     short_wrapper_class_name = toWrapperType(class_name['short'])
     # wrapper_class_name = toWrapperType(class_name['long'], include_namespace=True)
 
-    # TODO: TG: Check if class is template
-    is_template = (class_el is not None and utils.isTemplateClass(class_el))
+    # Check if class is template
+    is_template = utils.isTemplateClass(class_el, class_name)
 
     # Functions:
     def_code += '\n'
@@ -1817,8 +1784,6 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     # and overloaded versions of functions with default value arguments
 
     for func_el in class_functions:
-        if is_template:
-            def_code += f"template {class_name['templ_bracket']}\n"
 
         # Check if this is an operator function
         is_operator = (func_el.tag == 'OperatorMethod')
@@ -1851,31 +1816,31 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
         return_is_loaded    = utils.isLoadedClass(return_type_el)
 
-        if is_template:
-            # Assume that there is only one thing on the function line
-            src_file_name = gb.id_dict[func_el.get('file')].get('name')
-            line_num = int(func_el.get('line'))
+        # TODO: I don't know why this is here
+        #if is_template:
+        #    # Assume that there is only one thing on the function line
+        #    src_file_name = gb.id_dict[func_el.get('file')].get('name')
+        #    line_num = int(func_el.get('line'))
 
-            with open(src_file_name, 'r') as f:
-                contents = f.read()
+        #    with open(src_file_name, 'r') as f:
+        #        contents = f.read()
 
-            # Split by line and get the function's line
-            lines = contents.split('\n')
-            func_line = lines[line_num - 1]
+        #    # Split by line and get the function's line
+        #    lines = contents.split('\n')
+        #    func_line = lines[line_num - 1]
 
-            # Strip the whitespace to the right and get the first element
-            return_type = func_line.lstrip(' ').split(' ')[0]
-        else:
-            return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
+        #    # Strip the whitespace to the right and get the first element
+        #    return_type = func_line.lstrip(' ').split(' ')[0]
+        #else:
+        return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
-            # If return type was moved to abstract class, change namespace
-            # TODO: TG: I think this should use the template specification
-            if utils.typeInList(return_type_el, gb.moved_to_abstract_class) :
-                return_type = abstr_class_name['long_templ'] + "::" +  utils.removeNamespace(return_type)
+        # If return type was moved to abstract class, change namespace
+        if utils.typeInList(return_type_el, gb.moved_to_abstract_class) :
+            return_type = abstr_class_name['long_templ'] + "::" +  utils.removeNamespace(return_type)
 
-            # If return type is a known class, add '::' for absolute namespace.
-            if (not return_is_loaded) and utils.isKnownClass(return_type_el):
-                return_type = '::' + return_type
+        # If return type is a known class, add '::' for absolute namespace.
+        if (not return_is_loaded) and utils.isKnownClass(return_type_el):
+            return_type = '::' + return_type
 
 
 
@@ -1888,7 +1853,6 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
         args = funcutils.getArgs(func_el)
 
         # If any of the arg types was move to the abstract class, change namespace
-        # TODO: TG: I think this should use the template specification
         for arg in args:
             if utils.typeInList(arg, gb.moved_to_abstract_class) :
                 arg_type = abstr_class_name['long_templ'] + "::" + utils.removeNamespace(arg.get('type'))
@@ -1924,10 +1888,8 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
                     call_func_name = func_name
 
 
-            class_name_short = classNameTemplate(class_name)
             # Write declaration line
-
-            def_code += do_inline*'inline ' + return_kw_str + return_type + ' ' + class_name_short + '::' + func_name + args_bracket + is_const*' const' + '\n'
+            def_code += do_inline*'inline ' + return_kw_str + return_type + ' ' + class_name['short_templ'] + '::' + func_name + args_bracket + is_const*' const' + '\n'
 
             # Write function body
             def_code += '{\n'
@@ -1945,11 +1907,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
                 # return_type_simple     = return_type.replace('*','').replace('&','')
 
                 if is_const:
-                    # TODO: TG: Not sure if needed, added for completion
-                    if is_template:
-                        get_BEptr_call = 'const_cast<const ' + abstr_class_name['short'] + '<' + ','.join(class_name['templ_vars']) + '>*>(get_BEptr())'
-                    else :
-                        get_BEptr_call = 'const_cast<const ' + abstr_class_name['short'] +'*>(get_BEptr())'
+                    get_BEptr_call = 'const_cast<const ' + abstr_class_name['short_templ'] +'*>(get_BEptr())'
                 else:
                     get_BEptr_call = 'get_BEptr()'
 
@@ -2076,9 +2034,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
             # Factory pointer name
             factory_ptr_name = '__factory' + str(factory_counter)
 
-            class_name_short = classNameTemplate(class_name)
-
-            temp_code += 'inline ' + class_name_short + '::' + class_name['short'] + args_bracket + ' :\n'
+            temp_code += 'inline ' + class_name['short_templ'] + '::' + class_name['short'] + args_bracket + ' :\n'
 
             parent_class_init_list = ''
             # parent_class_init_list += indent + 'WrapperBase(' + factory_ptr_name + args_bracket_notypes + '),\n'
@@ -2103,20 +2059,11 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     if temp_code != '':
         def_code += '\n'
         def_code += '// Wrappers for original constructors: \n'
-        if is_template:
-            def_code += f"template {class_name['templ_bracket']}\n"
         def_code += temp_code
-
-    class_name_short = classNameTemplate(class_name)
 
     # Add special constructor based on abstract class pointer.
     def_code += '// Special pointer-based constructor: \n'
-    # TODO: TG: Abstract class should be templated
-    if is_template:
-        def_code += f"template {class_name['templ_bracket']}\n"
-    def_code += do_inline*'inline ' + class_name_short + '::' + class_name['short'] + '(' + abstr_class_name['short']
-    if is_template:
-        def_code += class_name['templ_vars']
+    def_code += do_inline*'inline ' + class_name['short_templ'] + '::' + class_name['short'] + '(' + abstr_class_name['short_templ']
     def_code += '* in) :\n'
 
     parent_class_init_list = ''
@@ -2136,9 +2083,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
 
     # # Const version of constructor from abstract class pointer
     # TODO: TG: Might not be needed but added for completion
-    # def_code += do_inline*'inline ' + class_name['long'] + '::' + class_name['short'] + '(const ' + abstr_class_name['long']
-    # if is_template:
-    #     def_code += '<' + ','.join(templ_vars) + '>'
+    # def_code += do_inline*'inline ' + class_name['long_templ'] + '::' + class_name['short'] + '(const ' + abstr_class_name['long_templ']
     # def_code += '* in) :\n'
 
     # parent_class_init_list = ''
@@ -2161,9 +2106,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     if has_copy_constructor:
         def_code += '\n'
         def_code += '// Copy constructor: \n'
-        if is_template:
-            def_code += f"template {class_name['templ_bracket']}\n"
-        def_code += do_inline*'inline ' + class_name_short + '::' + class_name['short'] + '(const ' + class_name['short'] +'& in) :\n'
+        def_code += do_inline*'inline ' + class_name['short_templ'] + '::' + class_name['short'] + '(const ' + class_name['short'] +'& in) :\n'
 
         parent_class_init_list = ''
         # parent_class_init_list += indent + 'WrapperBase(in.get_BEptr()->pointer_copy' + gb.code_suffix + '()),\n'
@@ -2187,9 +2130,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     if construct_assignment_operator:
         def_code += '\n'
         def_code += '// Assignment operator: \n'
-        if is_template:
-            def_code += f"template {class_name['templ_bracket']}\n"
-        def_code += do_inline*'inline ' + class_name_short + '& ' + class_name_short + '::operator=(const ' + class_name['short'] +'& in)\n'
+        def_code += do_inline*'inline ' + class_name['short_templ'] + '& ' + class_name['short_templ'] + '::operator=(const ' + class_name['short'] +'& in)\n'
         def_code += '{\n'
         def_code +=   indent + 'if (this != &in)\n'
         def_code +=   indent + '{\n'
@@ -2204,9 +2145,7 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     #
     def_code += '\n'
     def_code += '// Destructor: \n'
-    if is_template:
-        def_code += f"template {class_name['templ_bracket']}\n"
-    def_code += do_inline*'inline ' + class_name_short + '::~' + class_name['short'] + '()\n'
+    def_code += do_inline*'inline ' + class_name['short_templ'] + '::~' + class_name['short'] + '()\n'
     def_code += '{\n'
     if gb.debug_mode:
         def_code += indent + 'std::cerr << "DEBUG: " << this << " ' + short_wrapper_class_name + ' dtor (BEGIN)" << std::endl;\n'
@@ -2228,29 +2167,14 @@ def constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_
     #
     # Add get_BEptr function
     #
-    try:
-        if class_name['templ_vars'] != '':
-            class_name_long = class_name['long'] + \
-            class_name['templ_vars']
-        else:
-            class_name_long = class_name['long']
-    except:
-        class_name_long = class_name['long']
-
     def_code += '\n'
     def_code += '// Returns correctly casted pointer to Abstract class: \n'
     if is_template:
         def_code += f"template {class_name['templ_bracket']}\n"
-    # TODO: TG: Abstract class should be templated
-    def_code += do_inline*'inline ' + abstr_class_name['short']
-    if is_template:
-        def_code += class_name['templ_vars']
-    def_code += '* ' + class_name_long + '::get_BEptr() const\n'
+    def_code += do_inline*'inline ' + abstr_class_name['short_templ']
+    def_code += '* ' + class_name['long_templ'] + '::get_BEptr() const\n'
     def_code += '{\n'
-    # TODO: TG: Abstract class should be templated
-    def_code += indent + 'return dynamic_cast<' + abstr_class_name['short']
-    if is_template:
-        def_code += class_name['templ_vars']
+    def_code += indent + 'return dynamic_cast<' + abstr_class_name['short_templ']
     def_code += '*>(BEptr);\n'
     def_code += '}\n'
 
@@ -2548,8 +2472,8 @@ def generateWrapperHeaderCode(class_el, class_name, abstr_class_name, namespaces
     # Start code generation
     #
 
-    decl_code = constrWrapperDecl(class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, class_operators, construct_assignment_operator, has_copy_constructor, indent=indent, class_el=class_el)
-    def_code  = constrWrapperDef(class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, construct_assignment_operator, has_copy_constructor, indent=indent, do_inline=True, class_el=class_el)
+    decl_code = constrWrapperDecl(class_el, class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, class_operators, construct_assignment_operator, has_copy_constructor, indent=indent)
+    def_code  = constrWrapperDef(class_el, class_name, abstr_class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, construct_assignment_operator, has_copy_constructor, indent=indent, do_inline=True)
 
     # Insert tags for the GAMBIT namespace
     decl_code = '\n__START_GAMBIT_NAMESPACE__\n' + decl_code + '\n__END_GAMBIT_NAMESPACE__\n'

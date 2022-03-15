@@ -87,7 +87,7 @@ int main()
   // 
 
   // Path to shared lib
-  const std::string path = "../ExampleBackend_ClassThree_afterBOSS/libexamplebackend.so";
+  const std::string path = "../ExampleBackend_afterBOSS/libexamplebackend.so";
 
   // Try loading it with dlopen
   std::cout << "Trying to load library at " << path << std::endl;
@@ -140,15 +140,35 @@ int main()
   std::cout << "myptr = " << myptr << " should now point to a ClassThree<double> instance. Let's try to use it..." << std::endl;
 
   std::cout << "myptr->size(): " << myptr->size() << std::endl;
-  std::cout << "Adding 1.0, 2.0 and 3.0 using myptr->push(...)" << std::endl;
-  myptr->push(1.);
-  myptr->push(2.);
-  myptr->push(3.);
+  std::cout << "Adding 1.1, 2.1 and 3.1 using myptr->push(...)" << std::endl;
+  myptr->push(1.1);
+  myptr->push(2.1);
+  myptr->push(3.1);
   std::cout << "myptr->size(): " << myptr->size() << std::endl;
   
   std::cout << "myptr->pop(): " << myptr->pop() << std::endl;
   std::cout << "myptr->pop(): " << myptr->pop() << std::endl;
   std::cout << "myptr->pop(): " << myptr->pop() << std::endl;
+
+  // Now repeat steps for int specialization
+  voidptr_voidfptr psym_int = get_vptr(phandle, "Factory_ClassThree_0_int__BOSS_2");
+  Abstract_ClassThree<int>*(*factory_fptr_int)();
+  factory_fptr_int = reinterpret_cast< Abstract_ClassThree<int>*(*)() >(psym_int.fptr);
+
+  Abstract_ClassThree<int>* myptr_int = factory_fptr_int();
+  std::cout << "myptr_int = " << myptr_int << " should now point to a ClassThree<int> instance. Let's try to use it..." << std::endl;
+
+  std::cout << "myptr_int->size(): " << myptr_int->size() << std::endl;
+  std::cout << "Adding 1.1, 2.1 and 3.1 using myptr_int->push(...)" << std::endl;
+  myptr_int->push(1.1);
+  myptr_int->push(2.1);
+  myptr_int->push(3.1);
+  std::cout << "myptr_int->size(): " << myptr_int->size() << std::endl;
+  
+  std::cout << "myptr_int->pop(): " << myptr_int->pop() << std::endl;
+  std::cout << "myptr_int->pop(): " << myptr_int->pop() << std::endl;
+  std::cout << "myptr_int->pop(): " << myptr_int->pop() << std::endl;
+  
 
   // All done
   return 0;

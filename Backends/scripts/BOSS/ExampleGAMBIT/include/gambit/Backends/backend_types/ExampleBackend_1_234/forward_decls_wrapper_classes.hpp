@@ -10,10 +10,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   template <typename T>
   class ClassThree;
+  class ClassFour;
+
   
-  // Anders: Had to comment out this to avoid errors about ClassThree<double> being incomplete...
-  // template <>
-  // class ClassThree<double>;
+  
   
 }
 
