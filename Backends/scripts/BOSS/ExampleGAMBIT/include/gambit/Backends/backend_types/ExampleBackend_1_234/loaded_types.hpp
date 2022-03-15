@@ -8,7 +8,6 @@
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define ExampleBackend_1_234_all_data \
   (( /*class*/(ClassThree),    /*constructors*/(("Factory_ClassThree_0_double__BOSS_1",())) )) \
-#define ExampleBackend_1_234_all_data \
   (( /*class*/(ClassFour),    /*constructors*/(("Factory_ClassFour_0__BOSS_2",())) )) \
 
 // If the default version has been loaded, set it as default.
