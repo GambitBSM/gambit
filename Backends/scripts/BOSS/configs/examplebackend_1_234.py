@@ -58,6 +58,7 @@ manual_accepted_namespaces = [
 
 load_classes = [
     'ClassThree<double>',
+    'ClassThree<int>',
     'ClassFour',
 ]
 

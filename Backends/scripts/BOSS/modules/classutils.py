@@ -375,9 +375,9 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             for parent_dict in parent_classes:
                 if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
                     class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['abstr_class_name']['long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
-            class_decl += constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
+            class_decl += constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=True, indent=indent, n_indents=n_indents+2)
         if has_copy_constructor:
-            class_decl += constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=True, indent=indent, n_indents=n_indents+2)
+            class_decl += constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=True, indent=indent, n_indents=n_indents+2)
 
     # - Construct code needed for 'destructor pattern' (abstract class and wrapper class must can delete each other)
     class_decl += '\n'
@@ -626,11 +626,12 @@ def getAcceptableConstructors(class_el, skip_copy_constructors=False):
 def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[], skip_copy_constructors=False, use_wrapper_return=False, use_wrapper_args=False, add_include_statements=True, add_signatures_comment=True):
 
     # Replace '*' and '&' in list of template types
-    template_types = [e.replace('*','P').replace('&','R') for e in template_types]
+    is_template = utils.isTemplateClass(class_el, class_name)
+    if is_template:
+      template_types = [e.replace('*','P').replace('&','R') for e in class_name['templ_types']]
 
     constructor_elements = getAcceptableConstructors(class_el, skip_copy_constructors=skip_copy_constructors)
 
-    num_template_types = len(template_types)
 
     # If no public constructors are found, return nothing
     if len(constructor_elements) == 0:
@@ -684,7 +685,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
             # - Factory function name
             factory_name = f"Factory_{class_name['short']}_{counter}"
-            if num_template_types > 0:
+            if is_template:
                 factory_name += '_' + '_'.join(template_types)
             factory_name += gb.code_suffix + '_' + str(gb.symbol_name_counter)
             gb.symbol_name_counter += 1
@@ -707,31 +708,32 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
             # Generate declaration line:
             if use_wrapper_return:
-                return_type = toWrapperType(class_name['short'], include_namespace=True)
+                return_type = toWrapperType(class_name['short_templ'], include_namespace=True)
             else:
-                return_type = toAbstractType(class_name['short'], add_pointer=True, include_namespace=True)
+                return_type = toAbstractType(class_name['short_templ'], add_pointer=True, include_namespace=True)
 
-            # Try and add template brackets if there are any
-            if num_template_types > 0:
-                # Find the last index of a char that isn't '*' or '_'
-                template_bracket = f"<{','.join(template_types)}>"
-                last_index = len(return_type) - 1
-                while return_type[last_index].isalnum() or return_type[last_index] == '_':
-                    last_index -= 1
-
-                # Modify return_type so that it now has template brackets
-                return_type = f"{return_type[:last_index]}{template_bracket}{return_type[last_index:]}"
-            else:
-                template_bracket = ''
+            # TODO: Obsolete?
+            ## Try and add template brackets if there are any
+            #if num_template_types > 0:
+            #    # Find the last index of a char that isn't '*' or '_'
+            #    template_bracket = f"<{','.join(template_types)}>"
+            #    last_index = len(return_type) - 1
+            #    while return_type[last_index].isalnum() or return_type[last_index] == '_':
+            #        last_index -= 1
+            #
+            #    # Modify return_type so that it now has template brackets
+            #    return_type = f"{return_type[:last_index]}{template_bracket}{return_type[last_index:]}"
+            #else:
+            #    template_bracket = ''
 
             func_def += return_type + ' ' + factory_name + args_bracket + '\n'
 
             # Generate body
             func_def += '{' + '\n'
             if use_wrapper_return:
-                func_def += indent*' ' + 'return ' + return_type + '( new ' + class_name['long'] + template_bracket + args_bracket_notypes + ' );' + '\n'
+                func_def += indent*' ' + 'return ' + return_type + '( new ' + class_name['long_templ'] + args_bracket_notypes + ' );' + '\n'
             else:
-                func_def += indent*' ' + 'return new ' + class_name['short'] + template_bracket + args_bracket_notypes + ';' + '\n'
+                func_def += indent*' ' + 'return new ' + class_name['short_templ'] + args_bracket_notypes + ';' + '\n'
             func_def += '}' + 2*'\n'
 
             # Add info to global dict with factory function info
@@ -828,7 +830,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     # My thoughts are to just leave everything as is for now and only change what return_type and args are
     if is_template:
         # Get the function's types from config file
-        class_name = getClassNameDict(class_el, add_template_info=True)
+        class_name = getClassNameDict(class_el)
         func_types = getTemplatedMethodTypes(method_el, class_name)
 
         return_type = func_types['return']
@@ -1010,42 +1012,37 @@ def constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indent
 
 # ====== constrPtrCopyFunc ========
 
-def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
+def constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
 
     func_name = 'pointer_copy' + gb.code_suffix
-    class_name = class_name_short
-    abstr_class_name = abstr_class_name_short
+    class_name_short = class_name['short']
+    abstr_class_name_short = abstr_class_name['short']
 
-    class_dict = getClassNameDict(class_el, add_template_info=True)
-    is_template = utils.isTemplateClass(class_el, class_dict)
+    is_template = utils.isTemplateClass(class_el, class_name)
+    ptr_code = ''
 
     if include_full_namespace:
-        namespaces_with_self = utils.getNamespaces(class_el, include_self=True)
-        namespaces           = utils.getNamespaces(class_el)
-        if len(namespaces_with_self) > 0:
-            func_name = '::'.join(namespaces_with_self) + '::' + func_name
+        namespaces = utils.getNamespaces(class_el)
         if len(namespaces) > 0:
-            abstr_class_name = '::'.join(namespaces) + '::' + abstr_class_name
-            class_name = '::'.join(namespaces) + '::' + class_name
+            abstr_class_name_short = '::'.join(namespaces) + '::' + abstr_class_name_short
+            class_name_short = '::'.join(namespaces) + '::' + class_name_short
+        if is_template:
+            ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
+            abstr_class_name_short += class_name['templ_vars']
+            class_name_short += class_name['templ_vars']
+        func_name = class_name_short + "::" + func_name
 
-    ptr_code = ''
     if virtual:
-        if is_template:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + class_dict['templ_vars'] + '*' + ' ' + func_name + '() =0;\n'
-        else:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name + '*' + ' ' + func_name + '() =0;\n'
+        ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name_short + '*' + ' ' + func_name + '() =0;\n'
     else:
-        if is_template:
-            ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + class_dict['templ_vars'] + '*' + ' ' + func_name + '()'
-        else:
-            ptr_code += ' '*cfg.indent*n_indents + abstr_class_name + '*' + ' ' + func_name + '()'
+        ptr_code += ' '*cfg.indent*n_indents + abstr_class_name_short + '*' + ' ' + func_name + '()'
 
         if only_declaration:
             ptr_code += ';\n'
         else:
             ptr_code += '\n'
             ptr_code += ' '*cfg.indent*n_indents + '{\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + abstr_class_name + '* new_ptr = new ' + class_name_short + '(*this);\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + abstr_class_name_short + '* new_ptr = new ' + class_name_short + '(*this);\n'
             ptr_code += ' '*cfg.indent*(n_indents+1) + 'return new_ptr;\n'
             ptr_code += ' '*cfg.indent*n_indents + '}\n'
 
@@ -1057,44 +1054,39 @@ def constrPtrCopyFunc(class_el, abstr_class_name_short, class_name_short, virtua
 
 # ====== constrPtrAssignFunc ========
 
-def constrPtrAssignFunc(class_el, abstr_class_name_short, class_name_short, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
+def constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
 
     func_name  = 'pointer_assign' + gb.code_suffix
-    class_name = class_name_short
-    abstr_class_name = abstr_class_name_short
+    class_name_short = class_name['short']
+    abstr_class_name_short = abstr_class_name['short']
 
-    class_dict = getClassNameDict(class_el, add_template_info=True)
-    is_template = utils.isTemplateClass(class_el, class_dict)
-
-    if include_full_namespace:
-        namespaces_with_self = utils.getNamespaces(class_el, include_self=True)
-        namespaces           = utils.getNamespaces(class_el)
-        if len(namespaces_with_self) > 0:
-            func_name = '::'.join(namespaces_with_self) + '::' + func_name
-        if len(namespaces) > 0:
-            abstr_class_name = '::'.join(namespaces) + '::' + abstr_class_name
-            class_name = '::'.join(namespaces) + '::' + class_name
-
+    is_template = utils.isTemplateClass(class_el, class_name)
     ptr_code = ''
 
-    if virtual:
+    if include_full_namespace:
+        namespaces = utils.getNamespaces(class_el)
+        if len(namespaces) > 0:
+            abstr_class_name_short = '::'.join(namespaces) + '::' + abstr_class_name_short
+            class_name_short = '::'.join(namespaces) + '::' + class_name_short
         if is_template:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + class_dict['templ_vars'] + '*) =0;\n'
-        else:
-            ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name + '*) =0;\n'
+            ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
+            abstr_class_name_short += class_name['templ_vars']
+            class_name_short += class_name['templ_vars']
+        func_name = class_name_short + "::" + func_name
+
+
+    if virtual:
+        ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name_short + '*) =0;\n'
 
     else:
-        if is_template:
-            ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name + class_dict['templ_vars'] + '* in)'
-        else:
-            ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name + '* in)'
+        ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name_short + '* in)'
 
         if only_declaration:
             ptr_code += ';\n'
         else:
             ptr_code += '\n'
             ptr_code += ' '*cfg.indent*n_indents + '{\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + gb.gambit_backend_namespace + '::' + class_name + '* wptr_temp = ' + abstr_class_name + '::get_wptr();\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + gb.gambit_backend_namespace + '::' + class_name_short + '* wptr_temp = ' + abstr_class_name_short + '::get_wptr();\n'
             ptr_code += ' '*cfg.indent*(n_indents+1) + '*this = *dynamic_cast<' + class_name_short + '*>(in);\n'
             ptr_code += ' '*cfg.indent*(n_indents+1) + abstr_class_name_short + '::set_wptr(wptr_temp);\n'
             ptr_code += ' '*cfg.indent*n_indents + '}\n'
@@ -1274,7 +1266,7 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
 
 # ====== getClassNameDict ========
 
-def getClassNameDict(class_el, abstract=False, add_template_info=False):
+def getClassNameDict(class_el, abstract=False):
 
     class_name = {}
 
@@ -1290,10 +1282,12 @@ def getClassNameDict(class_el, abstract=False, add_template_info=False):
     class_name['short']       = class_name['short_templ'].split('<',1)[0]
     class_name['namespace']   = '::'.join(namespaces_list[:-1])
 
-    if add_template_info and utils.isTemplateClass(class_el):
+    # Get template info, but only for loaded classes
+    if '<' in class_name['short_templ'] and utils.isLoadedClass(class_el):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
+        class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
         class_name['is_specialization'] = 'typename' not in templ_bracket and 'class' not in templ_bracket
 
     if abstract:

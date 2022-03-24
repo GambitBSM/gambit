@@ -43,7 +43,7 @@ def run():
         infomsg.clearInfoMessages()
 
         # Generate dicts with different variations of the class name
-        class_name = classutils.getClassNameDict(class_el, add_template_info=True)
+        class_name = classutils.getClassNameDict(class_el)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
 
         # Print current class
@@ -103,68 +103,86 @@ def run():
         #     gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
 
         # TODO: TG: Only do each templated class once
+        #if is_template and class_name['long'] in template_done:
+        #    continue
+
+        # If the template specialization is already done, skip
+        if is_template and class_name['long_templ'] in templ_spec_done:
+          pass
+
+        # If the generic template is already done, skip for abstract classes
+        skip_templ = False
         if is_template and class_name['long'] in template_done:
-            continue
+          skip_templ = True
 
         # Get template arguments for specialization,
         # and check that they are acceptable
-        if is_template and class_name['long'] not in templ_spec_done:
-            spec_template_types = utils.getSpecTemplateTypes(class_el)
-            for template_type in spec_template_types:
-                if template_type not in gb.accepted_types:
-                    raise Exception("The template specialization type '" + template_type + "' for class " + class_name['long'] + " is not among accepted types.")
+        #if is_template and class_name['long'] not in templ_spec_done:
+        #    spec_template_types = utils.getSpecTemplateTypes(class_el)
+        #    for template_type in spec_template_types:
+        #        if template_type not in gb.accepted_types:
+        #            raise Exception("The template specialization type '" + template_type + "' for class " + class_name['long'] + " is not among accepted types.")
 
-        #
-        # For the backend: Construct code for the abstract class header file and register it
-        #
+        if not skip_templ:
 
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
+          #
+          # For the backend: Construct code for the abstract class header file and register it
+          #
 
-        #
-        # For GAMBIT: Construct code for the abstract class header file and register it
-        #
+          constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
 
-        constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
+          #
+          # For GAMBIT: Construct code for the abstract class header file and register it
+          #
 
-
-
-        #
-        # Add abstract class to inheritance list of original class
-        #
+          constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
 
 
-        addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, original_file_name, original_file_content_nocomments)
+          #
+          # Add abstract class to inheritance list of original class
+          #
+
+          addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, original_file_name, original_file_content_nocomments)
 
 
-        #
-        # Generate code for #include statements in orginal header/source file
-        #
+          #
+          # Generate code for #include statements in orginal header/source file
+          #
 
-        addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
+          addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
 
-        #
-        # Comment out member variables or types in the class definition
-        #
+          #
+          # Comment out member variables or types in the class definition
+          #
 
-        commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content_nocomments)
+          commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content_nocomments)
 
 
-        #
-        # Generate additional member functions in the original class:
-        # - Abstract class versions of member functions that make use of loaded types.
-        # - Extra versions of functions that use default value arguments.
-        # - Functions for returning references to public member variables.
-        # Declarations go in the original class header while implementations go in a separate source file.
-        #
+          #
+          # Generate additional member functions in the original class:
+          # - Abstract class versions of member functions that make use of loaded types.
+          # - Extra versions of functions that use default value arguments.
+          # - Functions for returning references to public member variables.
+          # Declarations go in the original class header while implementations go in a separate source file.
+          #
 
-        generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces, original_file_name, original_file_content_nocomments, original_class_file_el, extras_src_file_name, has_copy_constructor, construct_assignment_operator)
+          generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces, original_file_name, original_file_content_nocomments, original_class_file_el, extras_src_file_name, has_copy_constructor, construct_assignment_operator)
 
+
+          #
+          # Construct utility functions for dealing with pointer-to-wrapper from Abstract class.
+          # ('wrapper_creator', 'wrapper_deleter', 'set_delete_BEptr')
+          #
+
+          constrWrapperUtils(class_el, class_name)
+
+        # From here on, it should be done per specialization
 
         #
         # Generate factory functions source file
         #
 
-        generateFactoryFunctions(class_el, class_name, is_template)
+        generateFactoryFunctions(class_el, class_name, add_include_statements=not skip_templ)
 
 
         #
@@ -178,13 +196,6 @@ def run():
         #
 
         generateWrapperSource(class_el, class_name, abstr_class_name, namespaces)
-
-        #
-        # Construct utility functions for dealing with pointer-to-wrapper from Abstract class.
-        # ('wrapper_creator', 'wrapper_deleter', 'set_delete_BEptr')
-        #
-
-        constrWrapperUtils(class_name)
 
 
         #
@@ -215,8 +226,8 @@ def run():
         if is_template:
             if class_name['long'] not in template_done:
                 template_done.append(class_name['long'])
-            if class_name['long'] not in templ_spec_done:
-                templ_spec_done.append(class_name['long'])
+            if class_name['long_templ'] not in templ_spec_done:
+                templ_spec_done.append(class_name['long_templ'])
 
 
         print()
@@ -628,7 +639,7 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
             ptr_declaration_code += ' '*cfg.indent*(n_indents+1) + 'public:\n'
 
         if has_copy_constructor:
-            ptr_declaration_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
+            ptr_declaration_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
             ptr_declaration_code += '\n'
 
         if construct_assignment_operator:
@@ -636,15 +647,15 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
             if utils.isTemplateClass(class_el, class_name):
               ptr_declaration_code += class_name['templ_vars']
             ptr_declaration_code += '::pointer_assign' + gb.code_suffix + ';\n'
-            ptr_declaration_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
+            ptr_declaration_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
 
         ptr_implementation_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, 'identification.hpp') + '"\n'
         ptr_implementation_code += '\n'
         if has_copy_constructor:
-            ptr_implementation_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
+            ptr_implementation_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
             ptr_implementation_code += '\n'
         if construct_assignment_operator:
-            ptr_implementation_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name['short'], class_name['short'], virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
+            ptr_implementation_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
             ptr_implementation_code += '\n'
         ptr_implementation_code += '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
 
@@ -678,7 +689,7 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
 
 # Generate factory functions source file
 
-def generateFactoryFunctions(class_el, class_name, is_template):
+def generateFactoryFunctions(class_el, class_name, add_include_statements=True):
     # If class contains pure virtual members, do not generate any factory functions
     if class_name['long_templ'] in gb.contains_pure_virtual_members:
         reason = "Contains pure virtual member functions."
@@ -686,13 +697,7 @@ def generateFactoryFunctions(class_el, class_name, is_template):
         return
 
     # Generate factory file content
-    factory_file_content = ''
-
-    if is_template:
-        spec_template_types = utils.getSpecTemplateTypes(class_el)
-        factory_file_content += classutils.constrFactoryFunctionCode(class_el, class_name, indent=cfg.indent, template_types=spec_template_types, skip_copy_constructors=True, use_wrapper_return=False, use_wrapper_args=True)
-    else:
-        factory_file_content += classutils.constrFactoryFunctionCode(class_el, class_name, indent=cfg.indent, skip_copy_constructors=True, use_wrapper_return=False, use_wrapper_args=True)
+    factory_file_content = classutils.constrFactoryFunctionCode(class_el, class_name, indent=cfg.indent, skip_copy_constructors=True, use_wrapper_return=False, use_wrapper_args=True, add_include_statements=add_include_statements)
     factory_file_content += '\n'
 
     # If no file content has been generated (no public constructors), return without doing anything
@@ -787,7 +792,7 @@ def generateWrapperSource(class_el, class_name, abstr_class_name, namespaces):
 # Construct functions for dealing with wrapper pointer from abstract class
 # ('wrapper_creator', 'wrapper_deleter', 'set_delete_BEptr')
 
-def constrWrapperUtils(class_name):
+def constrWrapperUtils(class_el, class_name):
 
     wrapper_class_name = classutils.toWrapperType(class_name['long'], include_namespace=True)
     abstr_class_name = classutils.toAbstractType(class_name['long'], include_namespace=True)
@@ -798,6 +803,11 @@ def constrWrapperUtils(class_name):
     wr_utils_decl = ''
     wr_utils_impl = ''
 
+    is_template = utils.isTemplateClass(class_el, class_name)
+
+    if is_template:
+        wrapper_class_name += class_name['templ_vars']
+        abstr_class_name += class_name['templ_vars']
 
     #
     # wrapper_creator
@@ -805,29 +815,18 @@ def constrWrapperUtils(class_name):
 
     # Function declaration
     wr_utils_decl = '\n'
+    if is_template:
+        wr_utils_decl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_decl += wrapper_class_name + '* wrapper_creator(' + abstr_class_name + '*);\n'
 
     # Function implementation
     wr_utils_impl = '\n'
+    if is_template:
+        wr_utils_impl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_impl += wrapper_class_name + '* wrapper_creator(' + abstr_class_name + '* abs_ptr)\n'
     wr_utils_impl += '{\n'
     wr_utils_impl += ' '*cfg.indent + 'return new ' + wrapper_class_name + '(abs_ptr);\n'
     wr_utils_impl += '}\n'
-
-    # #
-    # # wrapper_creator
-    # #
-
-    # # Function declaration
-    # wr_utils_decl  = '\n'
-    # wr_utils_decl += 'void wrapper_creator(' + abstr_class_name + '*);\n'
-
-    # # Function implementation
-    # wr_utils_impl  = '\n'
-    # wr_utils_impl += 'void wrapper_creator(' + abstr_class_name + '* abs_ptr)\n'
-    # wr_utils_impl += '{\n'
-    # wr_utils_impl += ' '*cfg.indent + 'abs_ptr->set_wptr( new ' + wrapper_class_name + '(abs_ptr) );\n'
-    # wr_utils_impl += '}\n'
 
 
     #
@@ -836,10 +835,14 @@ def constrWrapperUtils(class_name):
 
     # Function declaration
     wr_utils_decl += '\n'
+    if is_template:
+        wr_utils_decl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_decl += 'void wrapper_deleter(' + wrapper_class_name + '*);\n'
 
     # Function implementation
     wr_utils_impl += '\n'
+    if is_template:
+        wr_utils_impl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_impl += 'void wrapper_deleter(' + wrapper_class_name + '* wptr)\n'
     wr_utils_impl += '{\n'
     wr_utils_impl += ' '*cfg.indent + 'wptr->set_delete_BEptr(false);\n'
@@ -853,10 +856,14 @@ def constrWrapperUtils(class_name):
 
     # Function declaration
     wr_utils_decl += '\n'
+    if is_template:
+        wr_utils_decl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_decl += 'void set_delete_BEptr(' + wrapper_class_name + '*, bool);\n'
 
     # Function implementation
     wr_utils_impl += '\n'
+    if is_template:
+        wr_utils_impl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_impl += 'void set_delete_BEptr(' + wrapper_class_name + '* wptr, bool setting)\n'
     wr_utils_impl += '{\n'
     wr_utils_impl += ' '*cfg.indent + 'wptr->set_delete_BEptr(setting);\n'

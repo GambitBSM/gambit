@@ -1023,7 +1023,7 @@ def constrAbsForwardDeclHeader(file_output_path):
 
         namespaces = getNamespaces(class_el)
 
-        class_name       = classutils.getClassNameDict(class_el, add_template_info=True)
+        class_name       = classutils.getClassNameDict(class_el)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
 
         if namespaces != current_namespaces:

@@ -21,7 +21,7 @@ private:
 };
 
 static ClassThree<double> __BOSS_dummy_ClassThree_double_instance__;
-
+static ClassThree<int> _BOSS_dummy_ClassThree_int_instance__;
 
 
 class ClassFour {
