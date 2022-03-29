@@ -281,8 +281,6 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
                                                           indent=cfg.indent, file_for_gambit=file_for_gambit, 
                                                           has_copy_constructor=has_copy_constructor, 
                                                           construct_assignment_operator=construct_assignment_operator, 
-                                                          add_gambit_namespace=False,
-                                                          add_gambit_include_statements=False,
                                                           current_code=current_code)
         current_code += '\n\n'
 

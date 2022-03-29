@@ -92,7 +92,8 @@ def constrTemplForwDecl(class_name_short, namespaces, template_bracket, indent=4
 
 # ====== constrAbstractClassDecl ========
 
-def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, has_copy_constructor=True, construct_assignment_operator=True, add_gambit_namespace=True, add_gambit_include_statements=True, current_code=""):
+def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, indent=4, file_for_gambit=False, has_copy_constructor=True, construct_assignment_operator=True, current_code=""):
+
     n_indents = len(namespaces)
 
     class_decl = current_code
@@ -375,9 +376,9 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
             for parent_dict in parent_classes:
                 if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
                     class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['abstr_class_name']['long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
-            class_decl += constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=True, indent=indent, n_indents=n_indents+2)
+            class_decl += constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True)
         if has_copy_constructor:
-            class_decl += constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=True, indent=indent, n_indents=n_indents+2)
+            class_decl += constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True)
 
     # - Construct code needed for 'destructor pattern' (abstract class and wrapper class must can delete each other)
     class_decl += '\n'
@@ -528,22 +529,20 @@ def constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
     class_decl += utils.constrNamespace(namespaces, 'close')
 
 
-    if add_gambit_namespace:
-        # Insert tags for the GAMBIT namespace
-        class_decl = '\n__START_GAMBIT_NAMESPACE__\n\n' + class_decl + '\n__END_GAMBIT_NAMESPACE__\n'
+    # Insert tags for the GAMBIT namespace
+    class_decl = '\n__START_GAMBIT_NAMESPACE__\n\n' + class_decl + '\n__END_GAMBIT_NAMESPACE__\n'
 
 
     # - Add forward declaration of wrapper_creator function (needed by the 'destructor pattern')
     if not file_for_gambit:
-            class_decl = forwardDeclGenerator(class_el, class_name, abstr_class_name) + class_decl
+        class_decl = forwardDeclGenerator(class_el, class_name, abstr_class_name) + class_decl
 
 
     # Insert include statements needed by GAMBIT
-    if add_gambit_include_statements:
-        backend_undef_incl_statement  = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
-        identification_incl_statement = '#include "' + 'identification.hpp' + '"\n'
+    backend_undef_incl_statement  = '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
+    identification_incl_statement = '#include "' + 'identification.hpp' + '"\n'
 
-        class_decl = identification_incl_statement + class_decl + '\n' + backend_undef_incl_statement
+    class_decl = identification_incl_statement + class_decl + '\n' + backend_undef_incl_statement
 
 
     return class_decl
@@ -1021,15 +1020,17 @@ def constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=False, ind
     is_template = utils.isTemplateClass(class_el, class_name)
     ptr_code = ''
 
+    if is_template:
+       if not only_declaration:
+           ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
+       abstr_class_name_short += class_name['templ_vars']
+       class_name_short += class_name['templ_vars']
+
     if include_full_namespace:
         namespaces = utils.getNamespaces(class_el)
         if len(namespaces) > 0:
             abstr_class_name_short = '::'.join(namespaces) + '::' + abstr_class_name_short
             class_name_short = '::'.join(namespaces) + '::' + class_name_short
-        if is_template:
-            ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
-            abstr_class_name_short += class_name['templ_vars']
-            class_name_short += class_name['templ_vars']
         func_name = class_name_short + "::" + func_name
 
     if virtual:
@@ -1063,15 +1064,17 @@ def constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=False, i
     is_template = utils.isTemplateClass(class_el, class_name)
     ptr_code = ''
 
+    if is_template:
+       if not only_declaration:
+           ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
+       abstr_class_name_short += class_name['templ_vars']
+       class_name_short += class_name['templ_vars']
+
     if include_full_namespace:
         namespaces = utils.getNamespaces(class_el)
         if len(namespaces) > 0:
             abstr_class_name_short = '::'.join(namespaces) + '::' + abstr_class_name_short
             class_name_short = '::'.join(namespaces) + '::' + class_name_short
-        if is_template:
-            ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
-            abstr_class_name_short += class_name['templ_vars']
-            class_name_short += class_name['templ_vars']
         func_name = class_name_short + "::" + func_name
 
 
