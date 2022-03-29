@@ -1340,6 +1340,8 @@ def constrWrapperDecl(class_el, class_name, abstr_class_name, loaded_parent_clas
 
     # Class declaration line
     decl_code += '\n'
+    if is_template:
+      decl_code += 'template <>\n'
     decl_code += 'class ' + class_name['short_templ'] + inheritance_line + '\n'
 
     # Class body
@@ -1436,10 +1438,10 @@ def constrWrapperDecl(class_el, class_name, abstr_class_name, loaded_parent_clas
 
         var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
         
-        if is_template:
-            var_type = getTemplatedMemberVariableType(var_el, class_name)
-        else:
-            var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
+        #if is_template:
+        #    var_type = getTemplatedMemberVariableType(var_el, class_name)
+        #else:
+        var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         var_is_loaded_class = utils.isLoadedClass(var_el)
         var_is_known_class  = utils.isKnownClass(var_el)
@@ -1525,11 +1527,11 @@ def constrWrapperDecl(class_el, class_name, abstr_class_name, loaded_parent_clas
 
         return_is_loaded    = utils.isLoadedClass(return_type_el)
 
-        if is_template:
-            method_type_dict = getTemplatedMethodTypes(func_el, class_name=class_name)
-            return_type = method_type_dict['return']
-        else:
-            return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
+        #if is_template:
+        #    method_type_dict = getTemplatedMethodTypes(func_el, class_name=class_name)
+        #    return_type = method_type_dict['return']
+        #else:
+        return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         # If return type was moved to abstract class, change namespace
         if utils.typeInList(return_type_el, gb.moved_to_abstract_class) :
@@ -1546,11 +1548,12 @@ def constrWrapperDecl(class_el, class_name, abstr_class_name, loaded_parent_clas
             return_kw_str = return_kw_str.replace('const', '')
 
         # Arguments
-        if is_template:
-            method_type_dict = getTemplatedMethodTypes(func_el, class_name)
-            args_type = method_type_dict['args']
-            args_bracket = '(' +  ', '.join(args_type) + ')'
-        else:
+        #if is_template:
+        #    method_type_dict = getTemplatedMethodTypes(func_el, class_name)
+        #    args_type = method_type_dict['args']
+        #    args_bracket = '(' +  ', '.join(args_type) + ')'
+        #else:
+        if True:
             args = funcutils.getArgs(func_el)
 
             # If any of the arg types was move to the abstract class, change namespace
@@ -2166,8 +2169,6 @@ def constrWrapperDef(class_el, class_name, abstr_class_name, loaded_parent_class
     #
     def_code += '\n'
     def_code += '// Returns correctly casted pointer to Abstract class: \n'
-    if is_template:
-        def_code += f"template {class_name['templ_bracket']}\n"
     def_code += do_inline*'inline ' + abstr_class_name['short_templ']
     def_code += '* ' + class_name['long_templ'] + '::get_BEptr() const\n'
     def_code += '{\n'

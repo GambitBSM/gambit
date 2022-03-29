@@ -87,7 +87,8 @@ int main()
   // 
 
   // Path to shared lib
-  const std::string path = "../ExampleBackend_afterBOSS/libexamplebackend.so";
+  //const std::string path = "../ExampleBackend_afterBOSS/libexamplebackend.so";
+  const std::string path = "../ExampleBackend/libexamplebackend.so";
 
   // Try loading it with dlopen
   std::cout << "Trying to load library at " << path << std::endl;
