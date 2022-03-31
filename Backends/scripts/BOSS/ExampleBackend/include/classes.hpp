@@ -39,7 +39,7 @@ template <typename T>
 class ClassFive;
 
 template<>
-class ClassFive<ClassFour> : public ClassThree<ClassFour>
+class ClassFive<ClassFour>
 {
 public:
   ClassFour pop();

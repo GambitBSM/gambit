@@ -70,12 +70,16 @@ class ClassFive;
 #include "gambit/Backends/abstracttypedefs.hpp"
 #include "gambit/Backends/wrappertypedefs.hpp"
 template<>
-class ClassFive<ClassFour> : public virtual Abstract_ClassFive<ClassFour>, public ClassThree<ClassFour>
+class ClassFive<ClassFour> : public virtual Abstract_ClassFive<ClassFour>
 {
 public:
   ClassFour pop();
   void push(ClassFour item);
   int size();
+
+private:
+  std::vector<ClassFour> stack;
+  int curr_size;
 
   public:
     Abstract_ClassFive<ClassFour>* pointer_copy__BOSS();

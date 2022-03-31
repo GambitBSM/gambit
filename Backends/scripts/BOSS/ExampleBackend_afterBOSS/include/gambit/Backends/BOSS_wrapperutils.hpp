@@ -22,13 +22,13 @@ void wrapper_deleter(Wrapper_ClassFour*);
 
 void set_delete_BEptr(Wrapper_ClassFour*, bool);
 
-template <>
-Wrapper_ClassFive<ClassFour>* wrapper_creator(Abstract_ClassFive<ClassFour>*);
+template <typename T1>
+Wrapper_ClassFive<T1>* wrapper_creator(Abstract_ClassFive<T1>*);
 
-template <>
-void wrapper_deleter(Wrapper_ClassFive<ClassFour>*);
+template <typename T1>
+void wrapper_deleter(Wrapper_ClassFive<T1>*);
 
-template <>
-void set_delete_BEptr(Wrapper_ClassFive<ClassFour>*, bool);
+template <typename T1>
+void set_delete_BEptr(Wrapper_ClassFive<T1>*, bool);
 
 #endif /* __BOSS_wrapperutils_ExampleBackend_1_234_hpp__ */

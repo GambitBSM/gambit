@@ -13,7 +13,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   // Wrappers for original constructors: 
   inline ClassFive<ClassFour>::ClassFive() :
-    ClassThree(__factory0())
+    WrapperBase(__factory0())
   {
     get_BEptr()->set_wptr(this);
     get_BEptr()->set_delete_wrapper(false);
@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   // Special pointer-based constructor: 
   inline ClassFive<ClassFour>::ClassFive(Abstract_ClassFive<ClassFour>* in) :
-    ClassThree(in)
+    WrapperBase(in)
   {
     get_BEptr()->set_wptr(this);
     get_BEptr()->set_delete_wrapper(false);
@@ -29,7 +29,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   // Copy constructor: 
   inline ClassFive<ClassFour>::ClassFive(const ClassFive& in) :
-    ClassThree(in.get_BEptr()->pointer_copy__BOSS())
+    WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
   {
     get_BEptr()->set_wptr(this);
     get_BEptr()->set_delete_wrapper(false);

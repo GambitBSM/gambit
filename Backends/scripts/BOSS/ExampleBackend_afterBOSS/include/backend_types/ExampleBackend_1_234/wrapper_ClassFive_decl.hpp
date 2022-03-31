@@ -5,7 +5,6 @@
 #include "forward_decls_wrapper_classes.hpp"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ClassFive.hpp"
-#include "wrapper_ClassThree_decl.hpp"
 
 #include "identification.hpp"
 
@@ -14,7 +13,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   
   template <>
-  class ClassFive<ClassFour> : public ClassThree
+  class ClassFive<ClassFour> : public WrapperBase
   {
       // Member variables: 
     public:

@@ -33,22 +33,23 @@ void wrapper_deleter(Wrapper_ClassFour* wptr)
 void set_delete_BEptr(Wrapper_ClassFour* wptr, bool setting)
 {
   wptr->set_delete_BEptr(setting);
-
-template <>
-Wrapper_ClassFive<ClassFour>* wrapper_creator(Abstract_ClassFive<ClassFour>* abs_ptr)
-{
-  return new Wrapper_ClassFive<ClassFour>(abs_ptr);
 }
 
-template <>
-void wrapper_deleter(Wrapper_ClassFive<ClassFour>* wptr)
+template <typename T1>
+Wrapper_ClassFive<T1>* wrapper_creator(Abstract_ClassFive<T1>* abs_ptr)
+{
+  return new Wrapper_ClassFive<T1>(abs_ptr);
+}
+
+template <typename T1>
+void wrapper_deleter(Wrapper_ClassFive<T1>* wptr)
 {
   wptr->set_delete_BEptr(false);
   delete wptr;
 }
 
-template <>
-void set_delete_BEptr(Wrapper_ClassFive<ClassFour>* wptr, bool setting)
+template <typename T1>
+void set_delete_BEptr(Wrapper_ClassFive<T1>* wptr, bool setting)
 {
   wptr->set_delete_BEptr(setting);
 }

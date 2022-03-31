@@ -5,7 +5,6 @@
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hpp"
 #include "forward_decls_wrapper_classes.hpp"
-#include "wrapper_ClassThree_decl.hpp"
 
 #include "identification.hpp"
 template <typename T1>
@@ -23,11 +22,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   
   template <typename T1>
-  class Abstract_ClassFive : virtual public Abstract_ClassThree<T1>
+  class Abstract_ClassFive : public virtual AbstractBase
   {
   
     public:
-      using Abstract_ClassThree<T1>::pointer_assign__BOSS;
       virtual void pointer_assign__BOSS(Abstract_ClassFive<T1>*) =0;
       virtual Abstract_ClassFive<T1>* pointer_copy__BOSS() =0;
   
@@ -47,8 +45,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         delete_wrapper = false;
       }
   
-      Abstract_ClassFive(const Abstract_ClassFive& in) : 
-        Abstract_ClassThree<T1>(in)
+      Abstract_ClassFive(const Abstract_ClassFive& in)
       {
         wptr = 0;
         delete_wrapper = false;
@@ -86,13 +83,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
           {
             wrapper_deleter<T1>(wptr);
             wptr = 0;
-            Abstract_ClassThree<T1>::set_wptr(0);
             delete_wrapper = false;
           }
         }
       }
   };
-  
+
 }
 
 
