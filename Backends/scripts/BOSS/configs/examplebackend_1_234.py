@@ -60,6 +60,8 @@ load_classes = [
     'ClassThree<double>',
     'ClassThree<int>',
     'ClassFour',
+    'ClassThree<ClassFour>',
+    'ClassFive<ClassFour>',
 ]
 
 # ZELUN: When the argument has a name in the original hpp file then supply that argument in

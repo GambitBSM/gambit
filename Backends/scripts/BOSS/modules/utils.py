@@ -223,7 +223,7 @@ def getTemplateBracket(el):
     # Match the pattern
     # TODO: Zelun the regex doesn't work for nested template brakets, defined on same line
     # eg. template <typename T1, template <typename T2> T3>, template class ClassThree<double>
-    template_pattern = re.compile(r"template(\s)*<(.|\s)+?>")
+    template_pattern = re.compile(r"template(\s)*<(.|\s)*?>")
     all_matches = template_pattern.finditer(trimmed_file_content)
 
     # Find the last match
@@ -238,7 +238,7 @@ def getTemplateBracket(el):
 
     # Isolate only the template variable names (last word in each entry)
     if template_bracket == '<>':
-        temp_var_list = []
+        temp_var_list = ('<'.join(el.get('name').split('<')[1:])[:-1]).split(',')
     else:
         temp_var_list = template_bracket[1:-1].split(',')
         temp_var_list = [e.strip() for e in temp_var_list]
@@ -1018,6 +1018,7 @@ def constrAbsForwardDeclHeader(file_output_path):
     insert_code = ''
     tag_pos = current_code.find('__INSERT_CODE_HERE__')
 
+    done_classes = []
     current_namespaces = []
     for class_name_long, class_el in gb.loaded_classes_in_xml.items():
 
@@ -1025,6 +1026,9 @@ def constrAbsForwardDeclHeader(file_output_path):
 
         class_name       = classutils.getClassNameDict(class_el)
         abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
+
+        if class_name['short'] in done_classes:
+            continue
 
         if namespaces != current_namespaces:
             # close current namespace
@@ -1040,15 +1044,24 @@ def constrAbsForwardDeclHeader(file_output_path):
 
         is_template = isTemplateClass(class_el, class_name)
 
-        if is_template and not class_name['is_specialization']:
+        if is_template:
 
-            insert_code += full_indent + 'template ' + class_name['templ_bracket'] + '\n'
-            insert_code += full_indent + 'class ' + \
-                abstr_class_name['short'] + ';\n'
+            templ_bracket = class_name['templ_bracket']
+
+            # For specialized templates we still need to make the forward declaration with a generic template
+            # Since it doesn't really matter the actual template tag at this stage, just make up one
+            if class_name['is_specialization']:
+                templ_bracket = '<' + ','.join(['typename T' + str(i) for i in range(len(class_name['templ_var_list']))]) + '>'
+
+       
+            insert_code += full_indent + 'template ' + templ_bracket + '\n'
+
+            insert_code += full_indent + 'class ' + abstr_class_name['short'] + ';\n'
 
         else:
-            insert_code += full_indent + 'class ' + \
-                abstr_class_name['short_templ'] + ';\n'
+            insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
+
+        done_classes.append(class_name['short'])
 
     # Close current namespace
     insert_code += constrNamespace(current_namespaces,
@@ -1085,11 +1098,17 @@ def constrWrpForwardDeclHeader(file_output_path):
     insert_code = ''
     tag_pos = current_code.find('__INSERT_CODE_HERE__')
 
+    done_classes = []
     current_namespaces = []
-    for class_name, class_el in gb.loaded_classes_in_xml.items():
+    for class_name_long, class_el in gb.loaded_classes_in_xml.items():
+
+        class_name       = classutils.getClassNameDict(class_el)
+
+        if class_name['short'] in done_classes:
+            continue
 
         namespace, class_name_short = removeNamespace(
-            class_name, return_namespace=True)
+            class_name_long, return_namespace=True)
         namespaces = getNamespaces(class_el)
 
         if namespace == '':
@@ -1111,31 +1130,28 @@ def constrWrpForwardDeclHeader(file_output_path):
             current_namespaces = namespaces
 
         # - Forward declaration
-        # TODO: TG: Added this for testing
-        is_template = ('<' in class_name_short)
+
+        is_template = isTemplateClass(class_el, class_name)
 
         if is_template:
-            template_bracket = getTemplateBracket(class_el)[0]
-            spec_template_types = getSpecTemplateTypes(class_el)
 
-            # TODO: TG: If it's a specialized template we declare the full template
-            if template_bracket == '<>' and len(spec_template_types) > 0:
-                temp_types = ['class T' + str(i+1)
-                              for i in range(len(spec_template_types))]
-                template_bracket = '<' + ','.join(temp_types) + '>'
+            templ_bracket = class_name['templ_bracket']
 
-            insert_code += full_indent + 'template ' + template_bracket + '\n'
-            insert_code += full_indent + 'class ' + \
-                removeTemplateBracket(class_name_short) + ';\n'
+            # For specialized templates we still need to make the forward declaration with a generic template
+            # Since it doesn't really matter the actual template tag at this stage, just make up one
+            if class_name['is_specialization']:
+                templ_bracket = '<' + ','.join(['typename T' + str(i+1) for i in range(len(class_name['templ_var_list']))]) + '>'
 
-            # TODO: TG: Add the template specificiation
-            # TODO: Maybe no need to forward declare this
-            # if len(spec_template_types) > 0:
-            #    insert_code += full_indent + 'template <>\n';
-            #    insert_code += full_indent + 'class ' + class_name_short + ';\n'
+
+            insert_code += full_indent + 'template ' + templ_bracket + '\n'
+
+            insert_code += full_indent + 'class ' + class_name['short'] + ';\n'
 
         else:
-            insert_code += full_indent + 'class ' + class_name_short + ';\n'
+            insert_code += full_indent + 'class ' + class_name["short"] + ';\n'
+
+        done_classes.append(class_name['short'])
+
 
     # Close current namespace
     insert_code += constrNamespace(current_namespaces,

@@ -6,4 +6,7 @@ using Abstract_ClassThree = CAT_3(BACKENDNAME,_,SAFE_VERSION)::Abstract_ClassThr
 
 typedef CAT_3(BACKENDNAME,_,SAFE_VERSION)::Abstract_ClassFour Abstract_ClassFour;
 
+template <typename T1>
+using Abstract_ClassFive = CAT_3(BACKENDNAME,_,SAFE_VERSION)::Abstract_ClassFive<T1>;
+
 #include "gambit/Backends/backend_undefs.hpp"

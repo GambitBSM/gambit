@@ -176,6 +176,20 @@ def run():
 
           constrWrapperUtils(class_el, class_name)
 
+          #
+          # Add typedef to 'abstracttypedefs.hpp'
+          #
+
+          addAbstractTypedefs(class_el, class_name, abstr_class_name, namespaces)
+
+
+          #
+          # Add typedef to 'wrappertypdefs.hpp'
+          #
+
+          addWrapperTypedefs(class_name, namespaces, class_el)
+
+
         # From here on, it should be done per specialization
 
         #
@@ -198,18 +212,6 @@ def run():
         generateWrapperSource(class_el, class_name, abstr_class_name, namespaces)
 
 
-        #
-        # Add typedef to 'abstracttypedefs.hpp'
-        #
-
-        addAbstractTypedefs(abstr_class_name, namespaces, class_el)
-
-
-        #
-        # Add typedef to 'wrappertypdefs.hpp'
-        #
-
-        addWrapperTypedefs(class_name, namespaces, class_el)
 
 
         #
@@ -895,7 +897,7 @@ def constrWrapperUtils(class_el, class_name):
 
 # Add typedef to 'abstracttypedefs.hpp'
 
-def addAbstractTypedefs(abstr_class_name, namespaces, class_el=None):
+def addAbstractTypedefs(class_el, class_name, abstr_class_name, namespaces):
 
     indent = ' '*cfg.indent*len(namespaces)
     abstr_typedef_code = ''
@@ -903,17 +905,15 @@ def addAbstractTypedefs(abstr_class_name, namespaces, class_el=None):
 
     temp_namespace_list = [gb.gambit_backend_namespace] + namespaces
 
-    # TODO: TG: With templates we need aliases not typedefs
-    if class_el is not None and utils.isTemplateClass(class_el):
-        templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
-        templ_vars = '<' + ','.join(templ_var_list) + '>'
-        # If it's a specialized template, construct the bracket
-        if templ_bracket == '<>':
-            specs = utils.getSpecTemplateTypes(class_el)
-            templ_bracket = '<' + ','.join(['class T' + str(i+1) for i in range(len(specs))]) + '>'
-            templ_vars = '<' + ','.join(['T' + str(i+1) for i in range(len(specs))]) + '>'
+    # With templates we need aliases not typedefs
+    if class_el is not None and utils.isTemplateClass(class_el,class_name):
+        templ_bracket = class_name['templ_bracket']
+        templ_vars = class_name['templ_vars']
         abstr_typedef_code += indent + 'template ' + templ_bracket + '\n'
-        abstr_typedef_code += indent + 'using ' + abstr_class_name['short'] + ' = ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + templ_vars + ';\n'
+        if not class_name['is_specialization']:
+          abstr_typedef_code += indent + 'using ' + abstr_class_name['short'] + ' = ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + templ_vars + ';\n'
+        else:
+          abstr_typedef_code += indent + 'using ' + abstr_class_name['short_templ'] + ' = ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short_templ'] + ';\n'
     else:
         abstr_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + ' ' + abstr_class_name['short'] + ';\n'
 
@@ -952,15 +952,10 @@ def addWrapperTypedefs(class_name, namespaces, class_el=None):
 
     temp_namespace_list = [gb.gambit_backend_namespace] + namespaces
 
-    # TODO: TG: With templates we need aliases not typedefs
+    # With templates we need aliases not typedefs
     if class_el is not None and utils.isTemplateClass(class_el):
-        templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
-        templ_vars = '<' + ','.join(templ_var_list) + '>'
-       # If it's a specialized template, construct the bracket
-        if templ_bracket == '<>':
-            specs = utils.getSpecTemplateTypes(class_el)
-            templ_bracket = '<' + ','.join(['class T' + str(i+1) for i in range(len(specs))]) + '>'
-            templ_vars = '<' + ','.join(['T' + str(i+1) for i in range(len(specs))]) + '>'
+        templ_bracket = class_name['templ_bracket']
+        templ_vars = class_name['templ_vars']
         wrapper_typedef_code += indent + 'template ' + templ_bracket + '\n'
         wrapper_typedef_code += indent + 'using ' + short_wrapper_class_name + ' = ' + '::'.join(temp_namespace_list) + '::' + class_name['short'] + templ_vars + ';\n'
     else:

@@ -63,6 +63,33 @@ private:
 
 };
 
+template <typename T>
+class ClassFive;
+
+#include "backend_types/ExampleBackend_1_234/abstract_ClassFive.hpp"
+#include "gambit/Backends/abstracttypedefs.hpp"
+#include "gambit/Backends/wrappertypedefs.hpp"
+template<>
+class ClassFive<ClassFour> : public virtual Abstract_ClassFive<ClassFour>, public ClassThree<ClassFour>
+{
+public:
+  ClassFour pop();
+  void push(ClassFour item);
+  int size();
+
+  public:
+    Abstract_ClassFive<ClassFour>* pointer_copy__BOSS();
+
+    using Abstract_ClassFive<ClassFour>::pointer_assign__BOSS;
+    void pointer_assign__BOSS(Abstract_ClassFive<ClassFour>* in);
+
+
+  public:
+    Abstract_ClassFour* pop__BOSS();
+
+    void push__BOSS(Abstract_ClassFour&);
+
+};
 
 
 #endif

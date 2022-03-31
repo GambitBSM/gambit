@@ -1290,6 +1290,7 @@ def getClassNameDict(class_el, abstract=False):
         templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
         class_name['templ_bracket'] = templ_bracket
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
+        class_name['templ_var_list'] = templ_var_list
         class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
         class_name['is_specialization'] = 'typename' not in templ_bracket and 'class' not in templ_bracket
 
@@ -2208,6 +2209,9 @@ class UnfoundMember(Exception):
 def getTemplatedMemberVariableType(var_el, class_name):
     short_class_name = class_name['short']
 
+    if short_class_name not in cfg.load_templated_members.keys():
+        raise UnfoundMember(f"Class {short_class_name} wasn't found in the load_templated_mebmers list in the confg file")
+
     # Get the list of member variables and the variable we're searching for's name
     vars = cfg.load_templated_members[short_class_name]['vars']
     searching_var = var_el.get('name')
@@ -2238,6 +2242,10 @@ def getTemplatedMethodTypes(func_el, class_name):
     # TODO: JOEL: Make sure that class_name['templ_vars'] and the config file agree with each other
 
     short_class_name = class_name['short']
+
+    if short_class_name not in cfg.load_templated_members.keys():
+        raise UnfoundMember(f"Class {short_class_name} wasn't found in the load_templated_mebmers list in the confg file")
+
 
     # Getting the specified templated types from the classname
     specified_templated_types = class_name['short_templ'].split('<', 1)[1].split('>', 1)[0].split(',')

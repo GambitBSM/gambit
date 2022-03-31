@@ -35,6 +35,16 @@ private:
   int curr_size;
 };
 
+template <typename T>
+class ClassFive;
 
+template<>
+class ClassFive<ClassFour> : public ClassThree<ClassFour>
+{
+public:
+  ClassFour pop();
+  void push(ClassFour item);
+  int size();
+};
 
 #endif
