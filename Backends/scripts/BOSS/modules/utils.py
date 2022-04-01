@@ -237,7 +237,9 @@ def getTemplateBracket(el):
     template_bracket = template[template.index('<'):]
 
     # Isolate only the template variable names (last word in each entry)
+    is_specialization = False
     if template_bracket == '<>':
+        is_specialization = True
         temp_var_list = ('<'.join(el.get('name').split('<')[1:])[:-1]).split(',')
     else:
         temp_var_list = template_bracket[1:-1].split(',')
@@ -245,7 +247,7 @@ def getTemplateBracket(el):
         temp_var_list = [e.split()[-1] for e in temp_var_list]
 
     # Return result
-    return template_bracket, temp_var_list
+    return template_bracket, temp_var_list, is_specialization
 
 # ====== END: getTemplateBracket ========
 
@@ -2843,7 +2845,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 continue
 
             # Check that class is requested
-            if class_name['long_templ'] in cfg.load_classes:
+            if class_name['long_templ_orig'] in cfg.load_classes:
                 # Check that class is complete
                 if isComplete(el):
 

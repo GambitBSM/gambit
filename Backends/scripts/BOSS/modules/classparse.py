@@ -94,22 +94,6 @@ def run():
         if extras_src_file_name not in gb.new_code.keys():
             gb.new_code[extras_src_file_name] = {'code_tuples':[], 'add_include_guard':False}
 
-        # Treat the first specialization of a template class differently
-        # TODO: TG: I don't see why this is needed
-        # if is_template and class_name['long'] not in template_done:
-        #     empty_templ_class_decl = classutils.constrEmptyTemplClassDecl(abstr_class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
-        #     empty_templ_class_decl += classutils.constrTemplForwDecl(class_name['short'], namespaces, class_name['templ_bracket'], indent=cfg.indent)
-        #
-        #     gb.new_code[abstr_class_fname]['code_tuples'].append( (0, empty_templ_class_decl) )
-
-        # TODO: TG: Only do each templated class once
-        #if is_template and class_name['long'] in template_done:
-        #    continue
-
-        # If the template specialization is already done, skip
-        if is_template and class_name['long_templ'] in templ_spec_done:
-          pass
-
         # If the generic template is already done, skip for abstract classes
         skip_templ = False
         if is_template and class_name['long'] in template_done:
@@ -210,7 +194,6 @@ def run():
         #
 
         generateWrapperSource(class_el, class_name, abstr_class_name, namespaces)
-
 
 
 
@@ -317,58 +300,23 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name,
 
     # Special preparations for template classes:
     is_template = utils.isTemplateClass(class_el, class_name)
-    if is_template:
-
-        # - Determine whether this is the source for the general template
-        #   or for a specialization (look for '<' after class name)
-        temp_pos = class_name_pos + len(class_name['short'])
-        while True:
-            next_char = original_file_content_nocomments[temp_pos]
-            if next_char not in [' ', '\t', '\n']:
-                break
-
-            temp_pos += 1
-
-        src_is_specialization = (next_char == '<')
-
-        # - Prepare the template bracket string
-        if src_is_specialization:
-            spec_template_types = utils.getSpecTemplateTypes(class_el)
-            add_template_bracket = '<' + ','.join(spec_template_types) + '>'
-            # TODO: TG: Get actual bracket length
-            bracket_length = utils.getBracketLength(original_file_content_nocomments, class_name_pos)
-        else:
-            template_bracket, template_types = utils.getTemplateBracket(class_el)
-            add_template_bracket = '<' + ','.join(template_types) + '>'
-
 
     # If no previous parent classes:
     if ('bases' not in class_el.keys()) and (class_name['long'] not in added_parent):
 
         # - Calculate insert position
         insert_pos = class_name_pos + len(class_name['short'])
-        if is_template and src_is_specialization:
-            # TODO: TG: This fails is the template specialization uses the short name
-            #insert_pos += len(add_template_bracket)
-            insert_pos += bracket_length
 
         # - Generate code
         add_code = ' : public virtual ' + abstr_class_name['short']
         if is_template:
-            add_code += add_template_bracket
+            add_code += class_name['templ_vars']
 
     # If there are previous parent classes
     else:
 
         # - Get colon position
-        if is_template and src_is_specialization:
-            # TODO: TG: This fails is the template specialization uses the short name
-            #temp_pos = class_name_pos + len(class_name['short']) + len(add_template_bracket)
-            temp_pos = class_name_pos + len(class_name['short']) + bracket_length
-        else:
-            temp_pos = class_name_pos + len(class_name['short'])
-        # TODO: TG: This fails if the colon is the next line
-        #colon_pos = temp_pos + original_file_content_nocomments[temp_pos:newline_pos].find(':')
+        temp_pos = class_name_pos + len(class_name['short'])
         colon_pos = temp_pos + original_file_content_nocomments[temp_pos:].find(':')
 
         # - Calculate insert position
@@ -377,7 +325,7 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name,
         # - Generate code
         add_code = ' public virtual ' + abstr_class_name['short']
         if is_template:
-            add_code += add_template_bracket
+            add_code += class_name['templ_vars']
         add_code += ','
 
     # - Register new code

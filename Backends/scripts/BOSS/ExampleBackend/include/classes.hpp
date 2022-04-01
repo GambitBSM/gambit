@@ -35,6 +35,8 @@ private:
   int curr_size;
 };
 
+static ClassThree<ClassFour> _BOSS_dummy_ClassThree_ClassFour_instance__;
+
 template <typename T>
 class ClassFive;
 
@@ -45,6 +47,11 @@ public:
   ClassFour pop();
   void push(ClassFour item);
   int size();
+
+private:
+  std::vector<ClassFour> stack;
+  int curr_size;
+
 };
 
 #endif

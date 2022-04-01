@@ -1285,14 +1285,25 @@ def getClassNameDict(class_el, abstract=False):
     class_name['short']       = class_name['short_templ'].split('<',1)[0]
     class_name['namespace']   = '::'.join(namespaces_list[:-1])
 
+    class_name['long_templ_orig'] = class_name['long_templ']
+    class_name['long_orig'] = class_name['long']
+    class_name['short_templ_orig'] = class_name['short_templ']
+    class_name['short_orig'] = class_name['short']
+
     # Get template info, but only for loaded classes
     if '<' in class_name['short_templ'] and utils.isLoadedClass(class_el):
-        templ_bracket, templ_var_list = utils.getTemplateBracket(class_el)
-        class_name['templ_bracket'] = templ_bracket
-        class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
-        class_name['templ_var_list'] = templ_var_list
-        class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
-        class_name['is_specialization'] = 'typename' not in templ_bracket and 'class' not in templ_bracket
+        templ_bracket, templ_var_list, is_specialization = utils.getTemplateBracket(class_el)
+        if not is_specialization:
+            class_name['templ_bracket'] = templ_bracket
+            class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
+            class_name['templ_var_list'] = templ_var_list
+            class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
+            class_name['is_specialization'] = 'typename' not in templ_bracket and 'class' not in templ_bracket
+        else:
+          class_name['long_templ'] = class_name['long'] + '__' + '_'.join(templ_var_list)
+          class_name['long'] = class_name['long'] + '__' + '_'.join(templ_var_list)
+          class_name['short_templ'] = class_name['short'] + '__' + '_'.join(templ_var_list)
+          class_name['short'] = class_name['short'] + '__' + '_'.join(templ_var_list)
 
     if abstract:
         abstr_class_name = {}
@@ -2601,9 +2612,9 @@ def findClassNamePosition(class_el, file_content_nocomments):
     # Find position of class name
     search_limit = newline_pos
     while search_limit > -1:
-        class_name_pos = file_content_nocomments[:search_limit].rfind(class_name['short'])
+        class_name_pos = file_content_nocomments[:search_limit].rfind(class_name['short_orig'])
         pre_char  = file_content_nocomments[class_name_pos-1]
-        post_char = file_content_nocomments[class_name_pos+len(class_name['short'])]
+        post_char = file_content_nocomments[class_name_pos+len(class_name['short_orig'])]
         if (pre_char in [' ','\n','\t']) and (post_char in [' ', ':', '\n', '<', '{']):
             break
         else:
