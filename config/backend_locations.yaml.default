@@ -26,6 +26,7 @@ classy:
 
 Contur:
   2.1.1:       ./Backends/installed/contur/2.1.1/contur/init_by_GAMBIT.py
+  2.2.1:       ./Backends/installed/contur/2.2.1/contur/init_by_GAMBIT.py
 
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0

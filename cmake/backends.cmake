@@ -1735,6 +1735,8 @@ set(ver "3.1.5")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
 set(md5 "7f3397b16386c0bfcb49420c2eb395b1")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(RIVET_PATH "${dir}")
+set(RIVET_BUILD_COMMAND "${RIVET_PATH}/bin/rivet-build")
 set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
 set(hepmc_name "hepmc")
@@ -1786,9 +1788,9 @@ endif()
 
 # Contur
 set(name "contur")
-set(ver "2.1.1")
+set(ver "2.2.1")
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
-set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
+set(md5 "b8b33df49c36f4ca8242b335e29274e5")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
@@ -1819,12 +1821,14 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import run_analysis" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from run import arg_utils" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from data import static_db" >> ${init_file}
+                COMMAND ${CMAKE_COMMAND} -E echo "from data import data_objects" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from io import StringIO" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "from rivet import addAnalysisLibPath, addAnalysisDataPath" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
-      BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
+      BUILD_COMMAND CONTUR_ROOT=${dir} ${MAKE_PARALLEL} "data/DB/analyses.db" && chmod +x ${RIVET_PATH}/bin/rivet-build && ${RIVET_PATH}/bin/rivet-build ${dir}/data/Rivet/Rivet-ConturOverload.so --std=c++14 ${dir}/data/Rivet/ATLAS_2018_I1698006.cc
+      #BUILD_COMMAND CONTUR_ROOT=${dir} PATH="${RIVET_PATH}/BIN:$PATH" ${MAKE_PARALLEL} "minimal"
       INSTALL_COMMAND ""
     )
   endif()
