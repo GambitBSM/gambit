@@ -51,7 +51,7 @@ def run():
         print('  ' + utils.modifyText('Class:', 'underline') + ' ' + class_name['long_templ'])
 
         # Check if this is a template class
-        is_template = utils.isTemplateClass(class_el)
+        is_template = utils.isTemplateClass(class_name)
 
 
         # Make list of all types used in this class
@@ -64,7 +64,7 @@ def run():
         # original_class_file_dir  = os.path.split(original_file_name)[0]
         extras_src_file_name = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['short'] + cfg.source_extension)
 
-        short_abstr_class_fname = gb.new_header_files[class_name['long']]['abstract']
+        short_abstr_class_fname = gb.new_header_files[class_name['wrp_long']]['abstract']
         abstr_class_fname = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
         namespaces = utils.getNamespaces(class_el, include_self=False)
         # has_namespace = bool(len(namespaces))
@@ -113,27 +113,27 @@ def run():
           # For the backend: Construct code for the abstract class header file and register it
           #
 
-          constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
+          constrAbstractClassHeaderCode(class_el, class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False)
 
           #
           # For GAMBIT: Construct code for the abstract class header file and register it
           #
 
-          constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
+          constrAbstractClassHeaderCode(class_el, class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True)
 
 
           #
           # Add abstract class to inheritance list of original class
           #
 
-          addAbsClassToInheritanceList(class_el, class_name, abstr_class_name, original_file_name, original_file_content_nocomments)
+          addAbsClassToInheritanceList(class_el, class_name, original_file_name, original_file_content_nocomments)
 
 
           #
           # Generate code for #include statements in orginal header/source file
           #
 
-          addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
+          addIncludesToOriginalClassFile(class_el, class_name, namespaces, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
 
           #
           # Comment out member variables or types in the class definition
@@ -150,7 +150,7 @@ def run():
           # Declarations go in the original class header while implementations go in a separate source file.
           #
 
-          generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces, original_file_name, original_file_content_nocomments, original_class_file_el, extras_src_file_name, has_copy_constructor, construct_assignment_operator)
+          generateClassMemberInterface(class_el, class_name, namespaces, original_file_name, original_file_content_nocomments, original_class_file_el, extras_src_file_name, has_copy_constructor, construct_assignment_operator)
 
 
           #
@@ -164,7 +164,7 @@ def run():
           # Add typedef to 'abstracttypedefs.hpp'
           #
 
-          addAbstractTypedefs(class_el, class_name, abstr_class_name, namespaces)
+          addAbstractTypedefs(class_el, class_name, namespaces)
 
 
           #
@@ -187,13 +187,13 @@ def run():
         # Generate a header containing the GAMBIT wrapper class
         #
 
-        generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname, construct_assignment_operator, has_copy_constructor, copy_constructor_id)
+        generateWrapperHeader(class_el, class_name, namespaces, short_abstr_class_fname, construct_assignment_operator, has_copy_constructor, copy_constructor_id)
 
         #
         # Generate a source file for definitions of the wrapper class
         #
 
-        generateWrapperSource(class_el, class_name, abstr_class_name, namespaces)
+        generateWrapperSource(class_el, class_name, namespaces)
 
 
 
@@ -229,7 +229,7 @@ def run():
 
 # Construct code for the abstract class header file and register it
 
-def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
+def constrAbstractClassHeaderCode(class_el, class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=False):
     if file_for_gambit:
         abstr_class_fname = abstr_class_fname + '.FOR_GAMBIT'
 
@@ -256,13 +256,13 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         class_decl += enum_include_statement_code
 
     # Add the the code for the abstract class
-    is_template = utils.isTemplateClass(class_el,class_name)
+    is_template = utils.isTemplateClass(class_name)
     if is_template and (class_name['long'] in templ_spec_done):
         pass
     elif is_template and (class_name['long'] not in templ_spec_done):
 
         current_code = ""
-        current_code = classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces, 
+        current_code = classutils.constrAbstractClassDecl(class_el, class_name, namespaces, 
                                                           indent=cfg.indent, file_for_gambit=file_for_gambit, 
                                                           has_copy_constructor=has_copy_constructor, 
                                                           construct_assignment_operator=construct_assignment_operator, 
@@ -272,7 +272,7 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
         class_decl += current_code
 
     else:
-        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, abstr_class_name, namespaces,
+        class_decl += classutils.constrAbstractClassDecl(class_el, class_name, namespaces,
                                                          indent=cfg.indent, file_for_gambit=file_for_gambit,
                                                          has_copy_constructor=has_copy_constructor,
                                                          construct_assignment_operator=construct_assignment_operator)
@@ -289,7 +289,7 @@ def constrAbstractClassHeaderCode(class_el, class_name, abstr_class_name, namesp
 
 # Add abstract class to inheritance list of original class
 
-def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name,
+def addAbsClassToInheritanceList(class_el, class_name,
                                  original_file_name, original_file_content_nocomments):
 
     # Find positions in the original file
@@ -299,16 +299,19 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name,
 
 
     # Special preparations for template classes:
-    is_template = utils.isTemplateClass(class_el, class_name)
+    is_template = utils.isTemplateClass(class_name)
 
     # If no previous parent classes:
     if ('bases' not in class_el.keys()) and (class_name['long'] not in added_parent):
 
         # - Calculate insert position
-        insert_pos = class_name_pos + len(class_name['short'])
+        if is_template:
+            insert_pos = class_name_pos + len(class_name['short'])
+        else:
+            insert_pos = class_name_pos + len(class_name['short_templ'])
 
         # - Generate code
-        add_code = ' : public virtual ' + abstr_class_name['short']
+        add_code = ' : public virtual ' + class_name['abstr_short']
         if is_template:
             add_code += class_name['templ_vars']
 
@@ -316,14 +319,17 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name,
     else:
 
         # - Get colon position
-        temp_pos = class_name_pos + len(class_name['short'])
+        if is_template:
+            temp_pos = class_name_pos + len(class_name['short'])
+        else:
+            temp_pos = class_name_pos + len(class_name['short_templ'])
         colon_pos = temp_pos + original_file_content_nocomments[temp_pos:].find(':')
 
         # - Calculate insert position
         insert_pos = colon_pos + 1
 
         # - Generate code
-        add_code = ' public virtual ' + abstr_class_name['short']
+        add_code = ' public virtual ' + class_name['abstr_short']
         if is_template:
             add_code += class_name['templ_vars']
         add_code += ','
@@ -342,7 +348,7 @@ def addAbsClassToInheritanceList(class_el, class_name, abstr_class_name,
 
 # Generate code for #include statements in orginal header/source file
 
-def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_file_name,
+def addIncludesToOriginalClassFile(class_el, class_name, namespaces, original_file_name,
                                    original_file_content_nocomments, original_file_content,
                                    short_abstr_class_fname):
 
@@ -359,9 +365,11 @@ def addIncludesToOriginalClassFile(class_el, namespaces, is_template, original_f
     # Find class name position in the original file
     class_name_pos = classutils.findClassNamePosition(class_el, original_file_content_nocomments)
 
+    is_template = utils.isTemplateClass(class_name)
+    is_specialization = utils.isSpecialization(class_name)
 
     # Find insert position
-    if is_template:
+    if is_template or is_specialization:
         insert_pos = original_file_content_nocomments[:class_name_pos].rfind('template')
     else:
         insert_pos = max(original_file_content_nocomments[:class_name_pos].rfind('class'), original_file_content_nocomments[:class_name_pos].rfind('struct'))
@@ -440,7 +448,7 @@ def commentMembersOfOriginalClassFile(class_el, original_file_name, original_fil
 # - Functions for returning references to public member variables.
 # Declarations go in the original class header while implementations go in a separate source file.
 
-def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespaces,
+def generateClassMemberInterface(class_el, class_name, namespaces,
                                  original_file_name, original_file_content_nocomments,
                                  original_class_file_el, extras_src_file_name,
                                  has_copy_constructor, construct_assignment_operator):
@@ -452,7 +460,6 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
     member_methods = []
     member_variables = []
     member_operators = []
-    # is_template = utils.isTemplateClass(class_el)
 
     if 'members' in class_el.keys():
         for mem_id in class_el.get('members').split():
@@ -587,23 +594,23 @@ def generateClassMemberInterface(class_el, class_name, abstr_class_name, namespa
             ptr_declaration_code += ' '*cfg.indent*(n_indents+1) + 'public:\n'
 
         if has_copy_constructor:
-            ptr_declaration_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
+            ptr_declaration_code += classutils.constrPtrCopyFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
             ptr_declaration_code += '\n'
 
         if construct_assignment_operator:
-            ptr_declaration_code += ' '*cfg.indent*(n_indents+2) + 'using ' + abstr_class_name['short']
-            if utils.isTemplateClass(class_el, class_name):
+            ptr_declaration_code += ' '*cfg.indent*(n_indents+2) + 'using ' + class_name['abstr_short']
+            if utils.isTemplateClass(class_name):
               ptr_declaration_code += class_name['templ_vars']
             ptr_declaration_code += '::pointer_assign' + gb.code_suffix + ';\n'
-            ptr_declaration_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
+            ptr_declaration_code += classutils.constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True)
 
         ptr_implementation_code += '#include "' + os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, 'identification.hpp') + '"\n'
         ptr_implementation_code += '\n'
         if has_copy_constructor:
-            ptr_implementation_code += classutils.constrPtrCopyFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
+            ptr_implementation_code += classutils.constrPtrCopyFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
             ptr_implementation_code += '\n'
         if construct_assignment_operator:
-            ptr_implementation_code += classutils.constrPtrAssignFunc(class_el, abstr_class_name, class_name, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
+            ptr_implementation_code += classutils.constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True)
             ptr_implementation_code += '\n'
         ptr_implementation_code += '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
 
@@ -654,7 +661,7 @@ def generateFactoryFunctions(class_el, class_name, add_include_statements=True):
 
     # Generate factory file name
     dir_name = gb.boss_output_dir
-    factory_file_name = os.path.join(dir_name, gb.factory_file_prefix + class_name['short'] + cfg.source_extension)
+    factory_file_name = os.path.join(dir_name, gb.factory_file_prefix + class_name['wrp_short'] + cfg.source_extension)
 
     # Register code
     if factory_file_name not in gb.new_code.keys():
@@ -672,25 +679,25 @@ def generateFactoryFunctions(class_el, class_name, add_include_statements=True):
 
 # Generate a header containing the GAMBIT wrapper class
 
-def generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
+def generateWrapperHeader(class_el, class_name, namespaces, short_abstr_class_fname,
                           construct_assignment_operator, has_copy_constructor, copy_constructor_id):
 
     # Set file names and paths
-    wrapper_decl_header_fname = gb.new_header_files[class_name['long']]['wrapper_decl']
-    wrapper_def_header_fname = gb.new_header_files[class_name['long']]['wrapper_def']
-    wrapper_header_fname = gb.new_header_files[class_name['long']]['wrapper']
+    wrapper_decl_header_fname = gb.new_header_files[class_name['wrp_long']]['wrapper_decl']
+    wrapper_def_header_fname = gb.new_header_files[class_name['wrp_long']]['wrapper_def']
+    wrapper_header_fname = gb.new_header_files[class_name['wrp_long']]['wrapper']
 
     wrapper_decl_header_path = os.path.join(gb.boss_output_dir, wrapper_decl_header_fname)
     wrapper_def_header_path = os.path.join(gb.boss_output_dir, wrapper_def_header_fname)
     wrapper_header_path = os.path.join(gb.boss_output_dir, wrapper_header_fname)
 
     # Get code for the declaration and implementation headers
-    wrapper_decl_header_content, wrapper_def_header_content = classutils.generateWrapperHeaderCode(class_el, class_name, abstr_class_name, namespaces, short_abstr_class_fname,
+    wrapper_decl_header_content, wrapper_def_header_content = classutils.generateWrapperHeaderCode(class_el, class_name, namespaces, short_abstr_class_fname,
                                                                                                    construct_assignment_operator, has_copy_constructor, copy_constructor_id=copy_constructor_id)
 
     # Code for the overall header file
-    wrapper_decl_header_include_path = gb.new_header_files[class_name['long']]['wrapper_decl']
-    wrapper_def_header_include_path = gb.new_header_files[class_name['long']]['wrapper_def']
+    wrapper_decl_header_include_path = gb.new_header_files[class_name['wrp_long']]['wrapper_decl']
+    wrapper_def_header_include_path = gb.new_header_files[class_name['wrp_long']]['wrapper_def']
     wrapper_header_content = '\n'
     wrapper_header_content += '#include "' + wrapper_decl_header_include_path + '"\n'
     wrapper_header_content += '#include "' + wrapper_def_header_include_path + '"\n'
@@ -715,18 +722,18 @@ def generateWrapperHeader(class_el, class_name, abstr_class_name, namespaces, sh
 
 # ====== generateWrapperSource =======
 
-def generateWrapperSource(class_el, class_name, abstr_class_name, namespaces):
+def generateWrapperSource(class_el, class_name, namespaces):
 
     # Set file name
-    wrapper_src_fname = gb.new_source_files[class_name['long']]['wrapper']
+    wrapper_src_fname = gb.new_source_files[class_name['wrp_long']]['wrapper']
 
     wrapper_src_path = os.path.join(gb.boss_output_dir, wrapper_src_fname)
 
     # Get code for the source file
-    wrapper_src_content = classutils.generateWrapperSourceCode(class_el, class_name, abstr_class_name, namespaces)
+    wrapper_src_content = classutils.generateWrapperSourceCode(class_el, class_name, namespaces)
 
     # Register code
-    if class_name['short'] in gb.needs_wrapper_source_file:
+    if class_name['wrp_short'] in gb.needs_wrapper_source_file:
         if wrapper_src_path not in gb.new_code.keys():
             gb.new_code[wrapper_src_path] = {'code_tuples':[], 'add_include_guard':False}
         gb.new_code[wrapper_src_path]['code_tuples'].append((0, wrapper_src_content))
@@ -742,16 +749,16 @@ def generateWrapperSource(class_el, class_name, abstr_class_name, namespaces):
 
 def constrWrapperUtils(class_el, class_name):
 
-    wrapper_class_name = classutils.toWrapperType(class_name['long'], include_namespace=True)
-    abstr_class_name = classutils.toAbstractType(class_name['long'], include_namespace=True)
+    wrapper_class_name = classutils.toWrapperType(class_name['wrp_long'], include_namespace=True)
+    abstr_class_name = classutils.toAbstractType(class_name['wrp_long'], include_namespace=True)
 
     # Include statement for the header file
-    wrapper_include_statement_decl = '#include "' + gb.new_header_files[class_name['long']]['wrapper_fullpath'] + '"\n'
+    wrapper_include_statement_decl = '#include "' + gb.new_header_files[class_name['wrp_long']]['wrapper_fullpath'] + '"\n'
 
     wr_utils_decl = ''
     wr_utils_impl = ''
 
-    is_template = utils.isTemplateClass(class_el, class_name)
+    is_template = utils.isTemplateClass(class_name)
 
     if is_template:
         wrapper_class_name += class_name['templ_vars']
@@ -845,7 +852,7 @@ def constrWrapperUtils(class_el, class_name):
 
 # Add typedef to 'abstracttypedefs.hpp'
 
-def addAbstractTypedefs(class_el, class_name, abstr_class_name, namespaces):
+def addAbstractTypedefs(class_el, class_name, namespaces):
 
     indent = ' '*cfg.indent*len(namespaces)
     abstr_typedef_code = ''
@@ -854,16 +861,13 @@ def addAbstractTypedefs(class_el, class_name, abstr_class_name, namespaces):
     temp_namespace_list = [gb.gambit_backend_namespace] + namespaces
 
     # With templates we need aliases not typedefs
-    if class_el is not None and utils.isTemplateClass(class_el,class_name):
+    if class_el is not None and utils.isTemplateClass(class_name):
         templ_bracket = class_name['templ_bracket']
         templ_vars = class_name['templ_vars']
         abstr_typedef_code += indent + 'template ' + templ_bracket + '\n'
-        if not class_name['is_specialization']:
-          abstr_typedef_code += indent + 'using ' + abstr_class_name['short'] + ' = ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + templ_vars + ';\n'
-        else:
-          abstr_typedef_code += indent + 'using ' + abstr_class_name['short_templ'] + ' = ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short_templ'] + ';\n'
+        abstr_typedef_code += indent + 'using ' + class_name['abstr_short'] + ' = ' + '::'.join(temp_namespace_list) + '::' + class_name['abstr_short'] + templ_vars + ';\n'
     else:
-        abstr_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + abstr_class_name['short'] + ' ' + abstr_class_name['short'] + ';\n'
+        abstr_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + class_name['abstr_short'] + ' ' + class_name['abstr_short'] + ';\n'
 
     abstr_typedef_code += utils.constrNamespace(namespaces, 'close', indent=cfg.indent)
     abstr_typedef_code += '\n'
@@ -891,7 +895,7 @@ def addAbstractTypedefs(class_el, class_name, abstr_class_name, namespaces):
 # Add typedef to 'wrappertypdefs.hpp'
 
 def addWrapperTypedefs(class_name, namespaces, class_el=None):
-    short_wrapper_class_name = classutils.toWrapperType(class_name['short'])
+    short_wrapper_class_name = classutils.toWrapperType(class_name['wrp_short'])
 
     indent = ' '*cfg.indent*len(namespaces)
 
@@ -901,13 +905,13 @@ def addWrapperTypedefs(class_name, namespaces, class_el=None):
     temp_namespace_list = [gb.gambit_backend_namespace] + namespaces
 
     # With templates we need aliases not typedefs
-    if class_el is not None and utils.isTemplateClass(class_el):
+    if class_el is not None and utils.isTemplateClass(class_name):
         templ_bracket = class_name['templ_bracket']
         templ_vars = class_name['templ_vars']
         wrapper_typedef_code += indent + 'template ' + templ_bracket + '\n'
-        wrapper_typedef_code += indent + 'using ' + short_wrapper_class_name + ' = ' + '::'.join(temp_namespace_list) + '::' + class_name['short'] + templ_vars + ';\n'
+        wrapper_typedef_code += indent + 'using ' + short_wrapper_class_name + ' = ' + '::'.join(temp_namespace_list) + '::' + class_name['wrp_short'] + templ_vars + ';\n'
     else:
-        wrapper_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + class_name['short'] + ' ' + short_wrapper_class_name + ';\n'
+        wrapper_typedef_code += indent + 'typedef ' + '::'.join(temp_namespace_list) + '::' + class_name['wrp_short'] + ' ' + short_wrapper_class_name + ';\n'
 
     wrapper_typedef_code += utils.constrNamespace(namespaces, 'close')
     wrapper_typedef_code += '\n'

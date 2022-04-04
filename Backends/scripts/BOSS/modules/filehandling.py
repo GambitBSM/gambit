@@ -493,8 +493,8 @@ def copyFilesToSourceTree(verbose=False):
     # - Add source file for the wrapper classes
     for class_name in gb.classes_done:
     
-        if class_name['short'] in gb.needs_wrapper_source_file :
-            wrapper_source_file_name= gb.wrapper_source_prefix + class_name['short'] + cfg.source_extension
+        if class_name['wrp_short'] in gb.needs_wrapper_source_file :
+            wrapper_source_file_name= gb.wrapper_source_prefix + class_name['wrp_short'] + cfg.source_extension
 
             cp_source = os.path.join(gb.for_gambit_backend_types_source_dir_complete, wrapper_source_file_name)
             cp_target = os.path.join(cfg.src_files_to, wrapper_source_file_name)
@@ -513,7 +513,7 @@ def copyFilesToSourceTree(verbose=False):
     # - Add factory source files
     for class_name in gb.classes_done:
 
-        factory_source_fname_short = gb.factory_file_prefix + class_name['short'] + cfg.source_extension
+        factory_source_fname_short = gb.factory_file_prefix + class_name['wrp_short'] + cfg.source_extension
 
         cp_source = os.path.join(gb.boss_output_dir, factory_source_fname_short)
         cp_target = os.path.join(cfg.src_files_to, factory_source_fname_short)
@@ -538,7 +538,7 @@ def copyFilesToSourceTree(verbose=False):
     # - Add 'extras' source files (containing implementations for the helper functions that BOSS adds to the original classes)
     for class_name in gb.classes_done:
 
-        extra_source_fname_short = gb.general_src_file_prefix + class_name['short'] + cfg.source_extension
+        extra_source_fname_short = gb.general_src_file_prefix + class_name['wrp_short'] + cfg.source_extension
 
         cp_source = os.path.join(gb.boss_output_dir, extra_source_fname_short)
         cp_target = os.path.join(cfg.src_files_to, extra_source_fname_short)
@@ -717,7 +717,7 @@ def createFrontendHeader(function_xml_files_dict):
     # Loop over all classes
     for class_name in gb.classes_done:
 
-        if not class_name['long'] in gb.factory_info.keys():
+        if not class_name['wrp_long'] in gb.factory_info.keys():
             continue
         else:
 
@@ -725,29 +725,23 @@ def createFrontendHeader(function_xml_files_dict):
 
             class_namespace, class_name_short = utils.removeNamespace(class_name['long'], return_namespace=True)
 
-            # TODO: TG: Check for templates
-            is_template = False
-            if '<' in class_name['long_templ']:
-                is_template = True
-                templ_bracket = class_name['templ_bracket']
-                templ_vars = class_name['templ_vars']
+            is_template = utils.isTemplateClass(class_name)
 
-            # TODO: TG: Modified for templates which use aliases, not typedefs
             if class_namespace == '':
                 if is_template:
-                    class_typedef_code += "template " + templ_bracket + '\n'
-                    class_typedef_code += "using " + class_name['short'] + ' = ' + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + templ_vars + ';\n'
+                    class_typedef_code += "template " + class_name['templ_bracket'] + '\n'
+                    class_typedef_code += "using " + class_name['wrp_short'] + ' = ' + '::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + class_name['templ_vars'] + ';\n'
                 else : 
-                    class_typedef_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
+                    class_typedef_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + ' ' + class_name['wrp_short'] + ';\n'
             else:
                 class_namespace_list = class_namespace.split('::')
 
                 class_typedef_code += utils.constrNamespace(class_namespace_list, 'open', indent=cfg.indent)
                 if is_template:
-                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'template ' + templ_bracket + '\n'
-                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'using ' + class_name['short'] + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + templ_vars + ';\n'
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'template ' + class_name['templ_bracket'] + '\n'
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'using ' + class_name['wrp_short'] + '::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + class_name['templ_vars'] + ';\n'
                 else : 
-                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + ' ' + class_name['wrp_short'] + ';\n'
                 class_typedef_code += utils.constrNamespace(class_namespace_list, 'close', indent=cfg.indent)
 
             class_typedef_code = utils.addIndentation(class_typedef_code, 3*cfg.indent)

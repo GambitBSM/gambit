@@ -50,21 +50,21 @@ int ClassFour::size()
   return stack.size();
 }
 
-ClassFour ClassFive::pop()
+ClassFour ClassFive<ClassFour>::pop()
 {
-  double top = stack.back();
+  ClassFour top = stack.back();
   stack.pop_back();
   return top;
 }
 
 
-void ClassFive::push(ClassFour item)
+void ClassFive<ClassFour>::push(ClassFour item)
 {
   stack.push_back(item);
 }
 
 
-int ClassFive::size()
+int ClassFive<ClassFour>::size()
 {
   return stack.size();
 }

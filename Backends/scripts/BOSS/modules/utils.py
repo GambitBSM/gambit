@@ -48,14 +48,6 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
     if class_name['long_templ'] in cfg.ditch:
         return False
 
-    # - Check if class is a template class. BOSS cannot handle this y
-    # if isTemplateClass(class_el):
-    #    is_loadable = False
-    #    if print_warning:
-    #        reason = "This is a template class. BOSS cannot yet handle this."
-    #        infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
-    #    return is_loadable
-
     # - Check that class is complete (not only forward declared).
     if not isComplete(class_el):
         if print_warning:
@@ -114,13 +106,19 @@ def isKnownClass(el, class_name=None):
 
 # ====== isTemplateClass ========
 
-def isTemplateClass(class_el, class_name=None):
-    if class_name is None:
-        class_name = classutils.getClassNameDict(class_el)
+def isTemplateClass(class_name):
 
-    return '<' in class_name['long_templ']
+    return class_name['is_template']
 
 # ====== END: isTemplateClass ========
+
+# ====== isSpecialization =======
+
+def isSpecialization(class_name):
+
+    return class_name['is_specialization']
+
+# ====== END: isSpecialization =======
 
 
 # ====== isTemplateFunction ========
@@ -1027,9 +1025,8 @@ def constrAbsForwardDeclHeader(file_output_path):
         namespaces = getNamespaces(class_el)
 
         class_name       = classutils.getClassNameDict(class_el)
-        abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
 
-        if class_name['short'] in done_classes:
+        if class_name['abstr_short'] in done_classes:
             continue
 
         if namespaces != current_namespaces:
@@ -1044,26 +1041,20 @@ def constrAbsForwardDeclHeader(file_output_path):
         n_indents = len(namespaces)
         full_indent = ' '*n_indents*cfg.indent
 
-        is_template = isTemplateClass(class_el, class_name)
+        is_template = isTemplateClass(class_name)
 
         if is_template:
 
             templ_bracket = class_name['templ_bracket']
 
-            # For specialized templates we still need to make the forward declaration with a generic template
-            # Since it doesn't really matter the actual template tag at this stage, just make up one
-            if class_name['is_specialization']:
-                templ_bracket = '<' + ','.join(['typename T' + str(i) for i in range(len(class_name['templ_var_list']))]) + '>'
-
-       
             insert_code += full_indent + 'template ' + templ_bracket + '\n'
 
-            insert_code += full_indent + 'class ' + abstr_class_name['short'] + ';\n'
+            insert_code += full_indent + 'class ' + class_name['abstr_short'] + ';\n'
 
         else:
-            insert_code += full_indent + 'class ' + abstr_class_name['short_templ'] + ';\n'
+            insert_code += full_indent + 'class ' + class_name['abstr_short_templ'] + ';\n'
 
-        done_classes.append(class_name['short'])
+        done_classes.append(class_name['abstr_short'])
 
     # Close current namespace
     insert_code += constrNamespace(current_namespaces,
@@ -1106,7 +1097,7 @@ def constrWrpForwardDeclHeader(file_output_path):
 
         class_name       = classutils.getClassNameDict(class_el)
 
-        if class_name['short'] in done_classes:
+        if class_name['wrp_short'] in done_classes:
             continue
 
         namespace, class_name_short = removeNamespace(
@@ -1133,26 +1124,20 @@ def constrWrpForwardDeclHeader(file_output_path):
 
         # - Forward declaration
 
-        is_template = isTemplateClass(class_el, class_name)
+        is_template = isTemplateClass(class_name)
 
         if is_template:
 
             templ_bracket = class_name['templ_bracket']
 
-            # For specialized templates we still need to make the forward declaration with a generic template
-            # Since it doesn't really matter the actual template tag at this stage, just make up one
-            if class_name['is_specialization']:
-                templ_bracket = '<' + ','.join(['typename T' + str(i+1) for i in range(len(class_name['templ_var_list']))]) + '>'
-
-
             insert_code += full_indent + 'template ' + templ_bracket + '\n'
 
-            insert_code += full_indent + 'class ' + class_name['short'] + ';\n'
+            insert_code += full_indent + 'class ' + class_name['wrp_short'] + ';\n'
 
         else:
-            insert_code += full_indent + 'class ' + class_name["short"] + ';\n'
+            insert_code += full_indent + 'class ' + class_name["wrp_short"] + ';\n'
 
-        done_classes.append(class_name['short'])
+        done_classes.append(class_name['wrp_short'])
 
 
     # Close current namespace
@@ -1196,8 +1181,6 @@ def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=Fa
         base_virtual = bool(int(sub_el.get('virtual')))
 
         base_name_dict = classutils.getClassNameDict(base_el)
-        abstr_base_name_dict = classutils.getClassNameDict(
-            base_el, abstract=True)
 
         is_accepted_type = isAcceptedType(base_el)
         is_native = isNative(base_el)
@@ -1207,7 +1190,6 @@ def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=Fa
 
         temp_dict = OrderedDict([])
         temp_dict['class_name'] = base_name_dict
-        temp_dict['abstr_class_name'] = abstr_base_name_dict
         temp_dict['wrapper_name'] = classutils.toWrapperType(
             base_name_dict['long'])
         temp_dict['access'] = base_access
@@ -1348,7 +1330,10 @@ def getAllTypesInClass(class_el, include_parents=False):
 
 def getMemberElements(el, include_artificial=False):
     # Decide if it's templated
-    is_templated = isTemplateClass(el)
+
+    class_name = classutils.getClassNameDict(el)
+
+    is_templated = isTemplateClass(class_name)
 
     member_elements = []
 
@@ -1368,7 +1353,6 @@ def getMemberElements(el, include_artificial=False):
                 # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
 
                 # Look for this member in cfg.load_templated_members
-                class_name = classutils.getClassNameDict(el)
                 if include_artificial and 'artificial' in mem_el.keys():
                     member_elements.append(mem_el)
                 elif classutils.foundMatchingMembers(class_name, mem_el) and (include_artificial or 'artificial' not in mem_el.keys()):
@@ -2017,7 +2001,7 @@ def constrLoadedTypesHeaderContent():
     # Loop over all classes
     for class_name in gb.classes_done:
 
-        if not class_name['long'] in gb.factory_info.keys():
+        if not class_name['wrp_long'] in gb.factory_info.keys():
             reason = "Probably there are no public and accepted constructors."
             infomsg.NoLoadedTypesEntry(
                 class_name['long'], reason).printMessage()
@@ -2040,7 +2024,7 @@ def constrLoadedTypesHeaderContent():
 
             class_line += '    /*constructors*/'
 
-            for info_dict in gb.factory_info[class_name['long']]:
+            for info_dict in gb.factory_info[class_name['wrp_long']]:
                 class_line += '(("' + info_dict['name'] + \
                     '",' + info_dict['args_bracket'] + ')) '
 
@@ -2070,11 +2054,11 @@ def constrLoadedTypesHeaderContent():
         incl_statements_code += pragma_directive.strip() + '\n'
 
     for class_name in gb.classes_done:
-        if class_name['long'] in gb.factory_info.keys():
+        if class_name['wrp_long'] in gb.factory_info.keys():
             namespace, class_name_short = removeNamespace(
-                class_name['long'], return_namespace=True)
+                class_name['wrp_long'], return_namespace=True)
             incl_statements_code += '#include "' + gb.wrapper_header_prefix + \
-                class_name['short'] + cfg.header_extension + '"\n'
+                class_name['wrp_short'] + cfg.header_extension + '"\n'
     incl_statements_code += '#include "identification.hpp"\n'
 
     for pragma_directive in cfg.pragmas_end:
@@ -2608,57 +2592,6 @@ def isProblematicType(el):
 # ====== END: isProblematicType ========
 
 
-# ====== isTemplateWithValidAgs =======
-
-def isTemplateWithValidArgs(el, class_name=None):
-
-    valid_template = True
-
-    if el.tag in ['Class', 'Struct', 'Union', 'Enumeration']:
-
-        if class_name is not None:
-            full_name = class_name['long_templ']
-        elif 'name' in el.keys():
-            full_name = el.get('name')
-        else:
-            return valid_template
-
-        template_args = getAllTemplateTypes(full_name)
-
-        for templ_arg in template_args:
-
-            # Remove asterix and/or ampersand
-            base_templ_arg = getBasicTypeName(templ_arg)
-
-            # If the argument is a number skip
-            if base_templ_arg.isdigit():
-                continue
-
-            # Get the element from the name dictionary
-            try:
-                type_el = gb.name_dict[base_templ_arg]
-            except KeyError:
-                type_el = None
-
-            # If the type is not in the dict, it's probably an std type
-            if type_el is None and "std" in base_templ_arg[0:5]:
-                continue
-
-            # If the type is a template, check recursively
-            if type_el is not None and isTemplateClass(type_el) and not isTemplateWithValidArgs(type_el):
-                valid_template = False
-                return valid_template
-
-            # If the type is not in the dict, is not known, loaded, fundamental or another std type, the type is not valid
-            if type_el is None or not (isFundamental(type_el) or isKnownClass(type_el) or isLoadedClass(type_el) or isStdType(type_el)):
-                valid_template = False
-                return valid_template
-
-    return valid_template
-
-# ====== END: isTemplateWithValidArgs =======
-
-
 # ====== addParentClasses ========
 
 # Adds parent classes to cfg.load_classes.
@@ -2845,7 +2778,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 continue
 
             # Check that class is requested
-            if class_name['long_templ_orig'] in cfg.load_classes:
+            if class_name['long_templ'] in cfg.load_classes:
                 # Check that class is complete
                 if isComplete(el):
 
@@ -2924,8 +2857,8 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
             class_name = classutils.getClassNameDict(el)
 
-            class_name_short = class_name['short']
-            class_name_long = class_name['long']
+            class_name_short = class_name['wrp_short']
+            class_name_long = class_name['wrp_long']
 
             if class_name_long not in gb.new_header_files.keys():
 
