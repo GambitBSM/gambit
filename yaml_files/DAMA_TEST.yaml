@@ -40,7 +40,7 @@ Parameters:
   DMEFT:
     # DM mass
     mchi:
-      range: [5,100]
+      range: [5, 100]
       prior_type: log
     # Scale of new physics
     Lambda: 1000.
@@ -49,10 +49,8 @@ Parameters:
     C52: 0.
     # Dim 6 -- qq chi chi bilinears
     # vector vector
-    C61:
-      range: [1e-2, 1.6]
-      prior_type: log
-    #  range: [-12.56637, 12.56637]
+    C61: 0.
+    # #  range: [-12.56637, 12.56637]
     # axial-vector vector
     C62: 0.
     #  range: [-12.56637, 12.56637]
@@ -94,15 +92,16 @@ Parameters:
     mtrunIN: 162.9
 
   DAMA_xsec:
-    sigmap_SI: 0
-    sigmap_SD: 0   
-      #range: [1e-2,1]
+    sigmap_SI:
+      range: [1e-6, 1e-3]
+      prior_type: log
+    sigmap_SD: 0
     sigman_SD: 0
 
 
   # NFW with standard & central values for prelims
   Halo_gNFW_rho0:
-    rho0: 0.4
+    rho0: 0.3
     v0: 235.0
     vesc: 550.0
     vrot: 235.0
@@ -123,7 +122,7 @@ Printer:
   options:
     output_file: "DAMA_TEST.hdf5"
     group: "/DAMA_TEST"
-    buffer_length: 1000
+    buffer_length: 10
     delete_file_on_restart: true
 
 
@@ -138,6 +137,11 @@ Scanner:
       like: LogLike
       grid_pts: 100
     
+    random: 
+      plugin: random
+      like: LogLike
+      point_number: 100
+
     diver: 
       plugin: diver
       like: LogLike
@@ -148,7 +152,7 @@ Scanner:
 ObsLikes:
 
   # Direct detection
-  - capability: DAMA_LogLikelihood_mod #DAMA_LogLikelihood_mod_xsec_test
+  - capability: DAMA_LogLikelihood_mod_xsec_test
     purpose:    LogLike
 
 Rules:
