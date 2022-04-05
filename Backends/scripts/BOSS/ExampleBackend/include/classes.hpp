@@ -15,6 +15,12 @@ public:
   void push(T item);
   int size();
 
+  bool equal(T item1, T item2);
+
+  ClassThree<T> operator+(ClassThree<T>& other);
+
+  T test;
+
 private:
   std::vector<T> stack;
   int curr_size;
@@ -29,6 +35,8 @@ public:
   double pop();
   void push(double item);
   int size();
+
+  ClassFour operator+(ClassFour& other);
 
 private:
   std::vector<double> stack;

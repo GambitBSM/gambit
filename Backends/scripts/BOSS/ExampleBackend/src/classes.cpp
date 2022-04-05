@@ -24,6 +24,21 @@ int ClassThree<T>::size()
   return stack.size();
 }
 
+template <typename T>
+bool ClassThree<T>::equal(T item1, T item2)
+{
+  return item1 == item2;
+}
+
+template <typename T>
+ClassThree<T> ClassThree<T>::operator+(ClassThree<T> & other)
+{
+  ClassThree<T> result;
+  for(int i=0; i<curr_size; ++i)
+    result.push(pop() + other.pop());
+
+  return result;
+}
 
 // Instantiate a <double> specialization of ClassThree:
 template class ClassThree<double>;
@@ -49,6 +64,16 @@ int ClassFour::size()
 {
   return stack.size();
 }
+
+ClassFour ClassFour::operator+(ClassFour &other)
+{
+  ClassFour result;
+  for(int i=0; i<curr_size; ++i)
+    result.push(pop() + other.pop());
+
+  return result;
+}
+
 
 ClassFour ClassFive<ClassFour>::pop()
 {

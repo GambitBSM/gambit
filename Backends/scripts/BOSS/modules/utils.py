@@ -354,6 +354,23 @@ def getAllTemplateTypes(type_name):
 
 # ====== END: getAllTemplateTypes ========
 
+# ====== getTemplatedSignature ========
+
+def getTemplatedSignature(el):
+
+    src_file_name = gb.id_dict[el.get('file')].get('name')
+    line_number = int(el.get('line'))
+
+    f = open(src_file_name, 'r')
+    file_content = f.read()
+    f.close()
+
+    # Extract the signature of the variable or method
+    signature = file_content.split('\n')[line_number-1]
+
+    return signature
+
+# ======  END: getTemplatedSignature =========
 
 # ====== getBasicTypeName ========
 
@@ -963,7 +980,7 @@ def isLoadedEnum(enum_type, enum_name=None):
 # ====== isLoadedClass ========
 
 
-def isLoadedClass(input_type, byname=False, class_name=None):
+def isLoadedClass(input_type, byname=False, class_name=None, bybasename=False):
 
     is_loaded_class = False
 
@@ -975,18 +992,22 @@ def isLoadedClass(input_type, byname=False, class_name=None):
 
     else:
 
-        if byname:
+        if byname or bybasename:
             type_name = input_type
 
             # Remove '*' and '&'
             type_name = type_name.replace('*', '').replace('&', '')
 
             # Remove template bracket
-            type_name = type_name.split('<')[0]
+            if bybasename:
+              type_name = type_name.split('<')[0]
 
             # Check against cfg.load_classes
-            if type_name in cfg.load_classes:
-                is_loaded_class = True
+            for load_class in cfg.load_classes:
+                if bybasename:
+                    load_class = load_class.split('<')[0]
+                if type_name == load_class:
+                    is_loaded_class = True
 
         else:
             type_dict = findType(input_type)

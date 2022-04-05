@@ -60,14 +60,9 @@ load_classes = [
     'ClassThree<double>',
     'ClassThree<int>',
     'ClassFour',
-    'ClassThree<ClassFour>',
+    #'ClassThree<ClassFour>',
     'ClassFive<ClassFour>',
 ]
-
-# ZELUN: When the argument has a name in the original hpp file then supply that argument in
-load_templated_members = {
-    'ClassThree': {'vars': ['T var'], 'methods': ['T pop()', 'void push(T)', 'int size()', 'T min(T,T,T)'], 'Constructor': ['ClassThree(T second)', 'ClassThree(int first)'], 'OperatorMethod': []}
-}
 
 load_functions = [
     'SomeNamespace::return_as_vector(int, int)',

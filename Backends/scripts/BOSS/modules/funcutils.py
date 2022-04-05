@@ -71,6 +71,77 @@ def getArgs(func_el):
 
 # ======== END: getArgs ========
 
+# ======== makeTemplateArgs ============
+
+def makeTemplateArgs(args):
+
+    # Returns a list of dicts for the template arguments
+    # containing the following keywords:
+    #
+    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class',
+    #   'known_class', 'type_namespaces', 'default', 'function_pointer'
+    #
+
+    args_out = []
+
+    argc = 0
+    for arg in args:
+       
+        arg_dict = OrderedDict()
+        arg = arg.strip()
+
+        # If there is a = sign, there is a default value
+        arg_dict['default'] = ('=' in arg)
+        if '=' in arg:
+          arg = arg.split('=')[:-1].strip()
+
+        # No way of know if it is a native, fundamental or known class
+        # TODO: Add some test?
+        arg_dict['native'] = False
+        arg_dict['fundamental'] = False
+        arg_dict['known_class'] = False
+
+        # Assume it is not an enumeration
+        # TODO: Add some test?
+        arg_dict['enumeration'] = False
+
+        # Look for const or volatile qualifiers at the start
+        arg_dict['kw'] = []
+        if arg.startswith('const'):
+            arg_dict['kw'].append('const')
+            arg = arg[5:].strip()
+        if arg.startswith('volatile'):
+            arg_dict['kw'].append('volatile')
+            arg = arg[8:].strip()
+
+        # Now the type is at the front
+        # If there are multiple elements, and no template tag
+        # the last one is the name. Otherwise make up one
+        arg_split = arg.split()
+        if len(arg_split) > 1 and '>' not in arg_split[-1]:
+            arg_dict['name'] = arg_split[-1]
+            arg = (' '.join(arg_split[:-1])).strip()
+        else:
+            arg_dict['name'] = 'arg_' + str(argc)
+            argc+=1
+
+        # What's left is the final type
+        arg_dict['type'] = arg
+        arg_dict['type_namespaces'] = ''
+
+        # If there are brackets () it is a function pointer
+        arg_dict['function_pointer'] = '(' in arg
+
+        # If type is a loaded class, tag it as loaded and native
+        arg_dict['loaded_class'] = utils.isLoadedClass(arg, bybasename=True)
+        arg_dict['native'] = utils.isLoadedClass(arg, bybasename=True)
+
+        args_out.append(arg_dict)
+
+    return args_out
+
+
+# ======== END: makeTemplateArgs =======
 
 # ======== constrArgsBracket ========
 
@@ -104,7 +175,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
                         cast_to_type = '::'.join(namespaces) + '::' + cast_to_type
 
                 # If argument type is not pointer or reference, add a reference operator '&'
-                check_type = cast_to_type.split('<')[0]
+                check_type = cast_to_type
                 if ('*' not in check_type) and ('&' not in check_type):
                     cast_to_type = cast_to_type + '&'
 
@@ -204,7 +275,8 @@ def constrWrapperArgs(args, add_ref=False, convert_loaded_to_abstract=True):
     # The dict entry 'id' does not make sense for arguments that are translated from
     # native to abstract type
     for arg_dict in w_args:
-        del arg_dict['id']
+        if 'id' in arg_dict:
+            del arg_dict['id']
 
     for arg_dict in w_args:
         if arg_dict['native'] and not arg_dict['enumeration']:

@@ -564,11 +564,13 @@ def generateClassMemberInterface(class_el, class_name, namespaces,
         for var_el in member_variables:
 
             # Put declaration in original code
-            ref_func_declaration_code += classutils.constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indents=n_indents+2, only_declaration=True, add_return_type_suffix=True)
+            ref_func_declaration_code += classutils.constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent, n_indents=n_indents+2,
+                                         only_declaration=True, add_return_type_suffix=True)
             ref_func_declaration_code += '\n'
 
             # Put implementation in a new source file
-            ref_func_implementation_code += classutils.constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indents=0, include_full_namespace=True, add_return_type_suffix=True)
+            ref_func_implementation_code += classutils.constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent, n_indents=0, 
+                                            include_full_namespace=True, add_return_type_suffix=True)
             ref_func_implementation_code += '\n'
 
 

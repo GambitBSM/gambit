@@ -27,7 +27,6 @@ exec("import configs." + active_cfg.module_name + " as cfg")
 
 def getAbstractClassName(input_name, prefix=gb.abstr_class_prefix, short=False):
 
-    # TODO: TG: remove template brackets from name
     input_name_no_templ, templ_bracket = utils.removeTemplateBracket(input_name, return_bracket=True)
     if '::' in input_name_no_templ:
         namespaces, short_class_name = input_name_no_templ.rsplit('::',1)
@@ -44,50 +43,6 @@ def getAbstractClassName(input_name, prefix=gb.abstr_class_prefix, short=False):
         return abstract_class_name
 
 # ====== END: getAbstractClassName ========
-
-
-# ====== constrEmptyTemplClassDecl ========
-
-def constrEmptyTemplClassDecl(abstr_class_name_short, namespaces, template_bracket, indent=4):
-
-    n_indents  = len(namespaces)
-    class_decl = ''
-
-    class_decl += utils.constrNamespace(namespaces, 'open')
-
-    class_decl += ' '*n_indents*indent + 'template ' + template_bracket + '\n'
-    class_decl += ' '*n_indents*indent + 'class ' + abstr_class_name_short + ' {};\n'
-
-    class_decl += utils.constrNamespace(namespaces, 'close')
-
-    class_decl += '\n'
-
-    return class_decl
-
-# ====== END: constrEmptyTemplClassDecl ========
-
-
-
-# ====== constrTemplForwDecl ========
-
-def constrTemplForwDecl(class_name_short, namespaces, template_bracket, indent=4):
-
-    n_indents = len(namespaces)
-    forw_decl = ''
-
-    forw_decl += utils.constrNamespace(namespaces, 'open')
-
-    forw_decl += ' '*n_indents*indent + 'template ' + template_bracket + '\n'
-    forw_decl += ' '*n_indents*indent + 'class ' + class_name_short + ';\n'
-
-    forw_decl += utils.constrNamespace(namespaces, 'close')
-
-    forw_decl += '\n'
-
-    return forw_decl
-
-# ====== END: constrTemplForwDecl ========
-
 
 
 # ====== constrAbstractClassDecl ========
@@ -176,8 +131,6 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
             class_decl += element_access + ':' +'\n'
             current_access = element_access
 
-        # if
-
         #
         # Add code based on what element type this is
         #
@@ -217,13 +170,13 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
                 args = funcutils.getArgs(el)
                 return_name = return_type_dict['name']
                 return_type   = return_name + '*'*pointerness + '&'*is_ref
-                # If any of the arg types is a locally defined type, remove all namespaces
-                for arg in args:
-                    if utils.typeInList(arg, locally_defined_types):
-                        arg_type = utils.removeNamespace(arg.get('type'))
-                        arg['type'] = arg_type
+            # If any of the arg types is a locally defined type, remove all namespaces
+            for arg in args:
+                if utils.typeInList(arg, locally_defined_types):
+                    arg_type = utils.removeNamespace(arg.get('type'))
+                    arg['type'] = arg_type
 
-                w_args = funcutils.constrWrapperArgs(args, add_ref=True)
+            w_args = funcutils.constrWrapperArgs(args, add_ref=True)
 
 
             # If return type is a locally defined type, remove all namespaces
@@ -251,10 +204,11 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
             # One overloaded version for each set of default arguments
             for remove_n_args in range(n_overloads+1):
 
-                if is_template:
-                    w_func_name = el.get('name')
-                    w_args_bracket_nonames = '(' + ', '.join(args) + ')'
-                else:
+                #if is_template:
+                #    w_func_name = el.get('name')
+                #    w_args_bracket_nonames = '(' + ', '.join(args) + ')'
+                #else:
+                if True:
                     if remove_n_args == 0:
                         use_w_args = w_args
                     else:
@@ -315,7 +269,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
         elif (el.tag in ('Field', 'Variable')) and (el.get('access') == 'public') and isAcceptedMemberVariable(el):
 
             class_decl += '\n'
-            class_decl += constrVariableRefFunction(el, virtual=True, indent=indent, n_indents=n_indents+2)
+            class_decl += constrVariableRefFunction(el, class_el, virtual=True, indent=indent, n_indents=n_indents+2)
 
             # For member variables that are of type pointer-to-loaded-class, create a pointer-to-wrapper-class member variable
             if utils.isLoadedClass(el):
@@ -326,7 +280,12 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
                 is_ref      = el_type_dict['is_reference']
 
                 if (pointerness > 0) and (not is_ref):
-                    el_type       = el_type_dict['name'] + '*'*pointerness
+
+                    # If class is templated, pull type from file
+                    if is_template:
+                        el_type = getTemplatedMemberVariableType(el)
+                    else:
+                        el_type       = el_type_dict['name'] + '*'*pointerness
                     variable_name = el.get('name') + gb.code_suffix
 
                     class_decl += ' '*(n_indents+2)*indent + el_type + ' ' + variable_name + ';\n'
@@ -699,20 +658,6 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
             else:
                 return_type = toAbstractType(class_name['wrp_short_templ'], add_pointer=True, include_namespace=True)
 
-            # TODO: Obsolete?
-            ## Try and add template brackets if there are any
-            #if num_template_types > 0:
-            #    # Find the last index of a char that isn't '*' or '_'
-            #    template_bracket = f"<{','.join(template_types)}>"
-            #    last_index = len(return_type) - 1
-            #    while return_type[last_index].isalnum() or return_type[last_index] == '_':
-            #        last_index -= 1
-            #
-            #    # Modify return_type so that it now has template brackets
-            #    return_type = f"{return_type[:last_index]}{template_bracket}{return_type[last_index:]}"
-            #else:
-            #    template_bracket = ''
-
             func_def += return_type + ' ' + factory_name + args_bracket + '\n'
 
             # Generate body
@@ -785,7 +730,10 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
 # ====== constrWrapperFunction ========
 
-def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False, is_template=False):
+def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False):
+
+    class_name = getClassNameDict(class_el)
+    is_template = utils.isTemplateClass(class_name)
 
     # Check if this is an operator function
     is_operator = (method_el.tag == 'OperatorMethod')
@@ -812,12 +760,8 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     return_is_loaded_class = utils.isLoadedClass(return_el)
 
     # Function return type
-    # TODO: JOEL: Make sure this actually works, not sure what exactly needs to be done in the 'if' and what in the 'else'.
-    # Ie there might be too much/too little done in this if/else.
-    # My thoughts are to just leave everything as is for now and only change what return_type and args are
     if is_template:
         # Get the function's types from config file
-        class_name = getClassNameDict(class_el)
         func_types = getTemplatedMethodTypes(method_el, class_name)
 
         return_type = func_types['return']
@@ -834,9 +778,15 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
         args = args[:-remove_n_args]
 
     # Construct wrapper function name
-    w_func_name = funcutils.constrWrapperName(method_el, include_full_namespace=include_full_namespace)
-    # if remove_n_args > 0:
-    #     w_func_name += '_overload_' + str(remove_n_args)
+    if is_template:
+      w_func_name = funcutils.constrWrapperName(method_el, include_full_namespace=False)
+      if include_full_namespace:
+          namespaces = utils.getNamespaces(method_el)
+          namespaces[-1] = class_name['short'] + class_name['templ_vars']
+          if len(namespaces) > 0:
+              w_func_name = '::'.join(namespaces) + '::' + w_func_name
+    else:
+      w_func_name = funcutils.constrWrapperName(method_el, include_full_namespace=include_full_namespace)
 
     # Choose wrapper return type
     if return_is_loaded_class:
@@ -852,7 +802,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
 
 
     # Construct list of arguments for wrapper function
-    w_args = funcutils.constrWrapperArgs(args, add_ref=True)
+    w_args = funcutils.constrWrapperArgs(args, add_ref=True, convert_loaded_to_abstract=True)
 
     # Construct bracket with input arguments for wrapper function
     if only_declaration:
@@ -874,6 +824,8 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     if only_declaration:
         wrapper_code += utils.addIndentation(w_func_line, n_indents*indent) + ';\n'
     else:
+        if is_template:
+            wrapper_code += 'template ' + class_name['templ_bracket'] + '\n'
         wrapper_code += utils.addIndentation(w_func_line, n_indents*indent) + '\n'
         wrapper_code += utils.addIndentation(w_func_body, n_indents*indent) + '\n'
 
@@ -909,12 +861,13 @@ def constrEnumDecl(enum_el, indent=cfg.indent, n_indents=0):
 
 # ====== constrVariableRefFunction ========
 
-def constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False,
+def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False,
                               include_full_namespace=False, add_return_type_suffix=False):
 
     func_code = ''
 
     var_name = var_el.get('name')
+    class_name = getClassNameDict(class_el)
 
     var_type_dict    = utils.findType( var_el )
     var_type_name    = var_type_dict['name']
@@ -927,7 +880,14 @@ def constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indent
     var_array_limits_str = ''.join([ '[%i]' % i for i in var_array_limits ])
 
     var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
-    var_type   = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
+
+    is_template = utils.isTemplateClass(class_name)
+
+    # If class is templated, pull type from file
+    if is_template:
+        var_type = getTemplatedMemberVariableType(var_el)
+    else:
+        var_type   = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
     # pointerness, is_ref = utils.pointerAndRefCheck(var_el)
 
@@ -936,6 +896,8 @@ def constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indent
     if include_full_namespace:
         namespaces = utils.getNamespaces(var_el)
         if len(namespaces) > 0:
+            if is_template:
+                namespaces[-1] = class_name['short'] + class_name['templ_vars']
             ref_method_name = '::'.join(namespaces) + '::' + ref_method_name
 
 
@@ -970,6 +932,10 @@ def constrVariableRefFunction(var_el, virtual=False, indent=cfg.indent, n_indent
             func_code += 'virtual ' + var_kw_str + return_type + ' ' + ref_method_name + '() =0;\n'
 
     else:
+
+        if is_template and not only_declaration:
+            func_code += 'template ' + class_name['templ_bracket'] + '\n'
+
         if is_array:
             func_code += var_kw_str + return_type + ' (&' + ref_method_name + '())' + var_array_limits_str
         else:
@@ -1435,9 +1401,6 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 
         var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
         
-        #if is_template:
-        #    var_type = getTemplatedMemberVariableType(var_el, class_name)
-        #else:
         var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         var_is_loaded_class = utils.isLoadedClass(var_el)
@@ -1524,10 +1487,6 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 
         return_is_loaded    = utils.isLoadedClass(return_type_el)
 
-        #if is_template:
-        #    method_type_dict = getTemplatedMethodTypes(func_el, class_name=class_name)
-        #    return_type = method_type_dict['return']
-        #else:
         return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         # If return type was moved to abstract class, change namespace
@@ -1545,53 +1504,46 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
             return_kw_str = return_kw_str.replace('const', '')
 
         # Arguments
-        # TODO: Check if needed
-        #if is_template:
-        #    method_type_dict = getTemplatedMethodTypes(func_el, class_name)
-        #    args_type = method_type_dict['args']
-        #    args_bracket = '(' +  ', '.join(args_type) + ')'
-        #else:
-        if True:
-            args = funcutils.getArgs(func_el)
+        args = funcutils.getArgs(func_el)
 
-            # If any of the arg types was move to the abstract class, change namespace
-            for arg in args:
-                if utils.typeInList(arg, gb.moved_to_abstract_class) :
-                    arg_type = class_name['abstr_long_templ'] + "::" + utils.removeNamespace(arg.get('type'))
-                    arg['type'] =  arg_type
+        # If any of the arg types was move to the abstract class, change namespace
+        for arg in args:
+            if utils.typeInList(arg, gb.moved_to_abstract_class) :
+                arg_type = class_name['abstr_long_templ'] + "::" + utils.removeNamespace(arg.get('type'))
+                arg['type'] =  arg_type
 
-            # One function for each set of default arguments
-            n_overloads = funcutils.numberOfDefaultArgs(func_el)
-            for remove_n_args in range(n_overloads+1):
+        # One function for each set of default arguments
+        n_overloads = funcutils.numberOfDefaultArgs(func_el)
+        for remove_n_args in range(n_overloads+1):
 
-                # Check that the function is acceptable
-                if funcutils.ignoreFunction(func_el, remove_n_args=remove_n_args):
-                    continue
+            # Check that the function is acceptable
+            if funcutils.ignoreFunction(func_el, remove_n_args=remove_n_args):
+                continue
 
-                if remove_n_args == 0:
-                    use_args = args
+            if remove_n_args == 0:
+                use_args = args
+            else:
+                use_args = args[:-remove_n_args]
+
+            # Argument bracket
+            args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
+
+            # Name of function to call (in abstract class)
+            if is_operator:
+                if uses_loaded_type:
+                    pass
+                    # call_func_name = 'operator_' + gb.operator_names[func_el.get('name')] + gb.code_suffix
                 else:
-                    use_args = args[:-remove_n_args]
-
-                # Argument bracket
-                args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
-
-                # Name of function to call (in abstract class)
-                if is_operator:
-                    if uses_loaded_type:
-                        pass
-                        # call_func_name = 'operator_' + gb.operator_names[func_el.get('name')] + gb.code_suffix
-                    else:
-                        pass
-                        # call_func_name = 'operator' + func_el.get('name')
-                else:
+                    pass
+                    # call_func_name = 'operator' + func_el.get('name')
+            else:
+                # call_func_name = func_name + gb.code_suffix
+                if uses_loaded_type or (remove_n_args>0):
+                    pass
                     # call_func_name = func_name + gb.code_suffix
-                    if uses_loaded_type or (remove_n_args>0):
-                        pass
-                        # call_func_name = func_name + gb.code_suffix
-                    else:
-                        pass
-                        # call_func_name = func_name
+                else:
+                    pass
+                    # call_func_name = func_name
 
 
         # Write declaration line
@@ -1668,45 +1620,46 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
     # TODO: ZELUN subject to change
     # This is used to load the operators in wrapper_decl however I am not exactly sure about the 
     # format we want it in so it is still subject to update
-    temp_code = ''
-    current_access = ''
-    for oper_el in class_operators:
-
-        # Accessor
-        accessor = oper_el.get('access')
-        if accessor != current_access:
-            temp_code += indent + accessor + ':\n'
-            current_access = accessor
-
-        # Identify arguments
-        args = funcutils.getArgs(oper_el)
-        factory_args = funcutils.constrWrapperArgs(args, add_ref=True)
-
-        # If default arguments are use, we need overloaded constructors to connect to the overloaded
-        # factory function pointers
-        n_overloads = funcutils.numberOfDefaultArgs(oper_el)
-
-        # One constructor for each set of default arguments
-        for remove_n_args in range(n_overloads+1):
-
-            # Check that the constructor is acceptable
-            if funcutils.ignoreFunction(oper_el, limit_pointerness=True, remove_n_args=remove_n_args):
-                continue
-
-            if remove_n_args == 0:
-                use_args = args
-                # factory_use_args = factory_args
-            else:
-                use_args = args[:-remove_n_args]
-                # factory_use_args = factory_args[:-remove_n_args]
-
-            args_bracket = funcutils.constrArgsBracket(
-                use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
-
-            temp_code += 2*indent + class_name['wrp_short'] + '& ' + 'operator ' + oper_el.get('name') + args_bracket + ';\n'
-
-    if temp_code != '':
-        decl_code += temp_code + '\n'
+    # TODO: I'm pretty sure this shouldn't be here, operators are treated as normal methods
+#    temp_code = ''
+#    current_access = ''
+#    for oper_el in class_operators:
+#
+#        # Accessor
+#        accessor = oper_el.get('access')
+#        if accessor != current_access:
+#            temp_code += indent + accessor + ':\n'
+#            current_access = accessor
+#
+#        # Identify arguments
+#        args = funcutils.getArgs(oper_el)
+#        factory_args = funcutils.constrWrapperArgs(args, add_ref=True)
+#
+#        # If default arguments are use, we need overloaded constructors to connect to the overloaded
+#        # factory function pointers
+#        n_overloads = funcutils.numberOfDefaultArgs(oper_el)
+#
+#        # One constructor for each set of default arguments
+#        for remove_n_args in range(n_overloads+1):
+#
+#            # Check that the constructor is acceptable
+#            if funcutils.ignoreFunction(oper_el, limit_pointerness=True, remove_n_args=remove_n_args):
+#                continue
+#
+#            if remove_n_args == 0:
+#                use_args = args
+#                # factory_use_args = factory_args
+#            else:
+#                use_args = args[:-remove_n_args]
+#                # factory_use_args = factory_args[:-remove_n_args]
+#
+#            args_bracket = funcutils.constrArgsBracket(
+#                use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
+#
+#            temp_code += 2*indent + class_name['wrp_short'] + '& ' + 'operator ' + oper_el.get('name') + args_bracket + ';\n'
+#
+#    if temp_code != '':
+#        decl_code += temp_code + '\n'
     #
     # Add assignment operator
     #
@@ -2202,31 +2155,23 @@ class UnfoundMember(Exception):
 
 # ======= getTemplatedMemberVariableType ========
 
-def getTemplatedMemberVariableType(var_el, class_name):
-    short_class_name = class_name['short']
+def getTemplatedMemberVariableType(var_el):
 
-    if short_class_name not in cfg.load_templated_members.keys():
-        raise UnfoundMember(f"Class {short_class_name} wasn't found in the load_templated_mebmers list in the confg file")
-
-    # Get the list of member variables and the variable we're searching for's name
-    vars = cfg.load_templated_members[short_class_name]['vars']
+    var = utils.getTemplatedSignature(var_el)
     searching_var = var_el.get('name')
 
-    # Split by line and get the function's line and strip whitespace
-    pat = re.compile(rf"[\s]+{re.escape(searching_var)}[\s]*$")
-
-    # Try and find our var in vars
-    for var in vars:
-        m = re.search(pat, var)
-        if bool(m):
-            # Found it!
-            # Get the type from the front
-            lo = m.start()
-            return var[:lo]
+    # Match the variable name
+    # TODO: This does not work if the variable is not the first on a list
+    pat = re.compile(rf"[\s]+{re.escape(searching_var)}[\s]*[,;=].*")
+    m = re.search(pat, var)
+    if bool(m):
+        # Found it!
+        # Get the type from the front and strip the whitespaces
+        lo = m.start()
+        return var[:lo].strip()
 
     # If it wasn't found, there's a problem
-    # Raise an error to tell the user to add it to the config if they want it
-    raise UnfoundMember(f"{searching_var} wasn't found in the load_templated_members list in the config file")
+    raise UnfoundMember(f"{searching_var} wasn't found in the original file")
 
 # ======= END: getTemplatedMemberVariableType ========
 
@@ -2235,7 +2180,6 @@ def getTemplatedMemberVariableType(var_el, class_name):
 # ======= getTemplatedMethodTypes ========
 
 def getTemplatedMethodTypes(func_el, class_name):
-    # TODO: JOEL: Make sure that class_name['templ_vars'] and the config file agree with each other
 
     short_class_name = class_name['short']
 
@@ -2244,7 +2188,7 @@ def getTemplatedMethodTypes(func_el, class_name):
 
 
     # Getting the specified templated types from the classname
-    specified_templated_types = class_name['short_templ'].split('<', 1)[1].split('>', 1)[0].split(',')
+    specified_templated_types = class_name['templ_types']
     specified_templated_types.append(class_name['short_templ'])
 
     for index, template_type in enumerate(specified_templated_types):
@@ -2255,82 +2199,73 @@ def getTemplatedMethodTypes(func_el, class_name):
     xml_args_info = funcutils.getArgs(func_el)
     searching_method = func_el.get('name')
 
+    # Get the signature of the function we are looking for
+    method = utils.getTemplatedSignature(func_el)
+    # If the line corresponds to the declaration of the class, it means
+    # that this is undeclared constructor or assignment operator, so do nothing
+    if method.startswith("class") or method.startswith("struct"):
+        return {}
 
-    # Get the list of member methods and the method we're searching for's name
+    # Select the pattern to extract the types
     if func_el.tag == 'Constructor':
-        methods = cfg.load_templated_members[short_class_name]['Constructor']
         pat = re.compile(rf"[\s]*{re.escape(searching_method)}[\s]*\(")
     elif func_el.tag == 'OperatorMethod':
-        methods = cfg.load_templated_members[short_class_name]['OperatorMethod']
-        pat = re.compile(rf"{re.escape(searching_method)}[\s]*\(")
+        pat = re.compile(rf"operator{re.escape(searching_method)}[\s]*\(")
     elif func_el.tag == 'Method':
-        methods = cfg.load_templated_members[short_class_name]['methods']
         pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
     # For cases when it is a destructor
     else:
-        methods = cfg.load_templated_members[short_class_name]['methods']
         pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
 
 
-    # Split by line and get the function's line and strip whitespace
+    m = re.search(pat, method)
+    if bool(m):
 
-    # Try and find our method in methods
-    for method in methods:
-        m = re.search(pat, method)
-        if bool(m):
-            # TODO: JOEL: Do some proper testing where there are functions of the same name
-            # E.g. 'T min(T, T)' and 'T min(T, T, T)' should work, but hasn't been properly tested
+        # Found it!
+        # Get the type from the front
+        lo = m.start()
+        hi = m.end()
 
-            # Found it!
-            # Get the type from the front
-            lo = m.start()
-            hi = m.end()
+        # Put the return type into the return variable
+        # TODO: Operator Methods might have a type that is not the bottom type
+        if func_el.tag == 'Constructor' or func_el.tag == 'Destructor':
+            method_types['return'] = ''
+        else:
+            method_types['return'] = method[:lo].strip()
 
-            # Put the return type into the return variable
-            # TODO: Operator Methods might have a type that is not the bottom type
-            if func_el.tag == 'Constructor' or func_el.tag == 'Destructor':
-                method_types['return'] = ''
-            else:
-                method_types['return'] = method[:lo]
+        # Find the last ')'
+        last_bracket_index = max([i for i, ltr in enumerate(method) if ltr == ')'])
 
-            # Find the last ')'
-            last_bracket_index = max([i for i, ltr in enumerate(method) if ltr == ')'])
+        # Find the args
+        brackets = method[hi:last_bracket_index]
+        if not brackets:
+            args = []
+        else:
+            args = brackets.split(',')
 
-            # Find the args
-            brackets = method[hi:last_bracket_index]
-            if not brackets:
-                args = []
-            else:
-                args = brackets.split(',')
+        # Parse each arg into a dictionary and add it to method_types
+        method_types['args'] = funcutils.makeTemplateArgs(args)
+            
+        if len(method_types['args']) != len(xml_args_info):
+            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
 
-            # For each argument in the brackets, add it to method_types['args']
-            method_types['args'] = []
-            for arg in args:
-                method_types['args'].append(arg.strip())
-                
-            if len(method_types['args']) != len(xml_args_info):
-                continue
+        # looping through all the var checking 1 by 1 using name and type
+        same_args = True
+        for i, j in zip(method_types['args'], xml_args_info):
+            
+            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and utils.getBasicTypeName(j['type']) not in specified_templated_types:
+                same_args = False
+                break
 
-            # looping through all the var checking 1 by 1 using name and type
-            # if different continue
-            same_args = True
-            for i, j in zip(method_types['args'], xml_args_info):
-                
-                if i != j['type'] and i != (j['type'] + ' ' +j['name']) and utils.getBasicTypeName(j['type']) not in specified_templated_types:
-                    same_args = False
-                    break
+        if not same_args:
+            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
 
-            if not same_args:
-                continue
-
-            # Return
-            # print(f"Type information for {searching_method} = {method_types}")
-            return method_types
+        # Return
+        return method_types
 
     # If it wasn't found, there's a problem
-    # Raise an error to tell the user to add it to the config if they want it
     raise UnfoundMember(
-        f"{searching_method} wasn't found in the load_templated_members list in the config file.")
+        f"{searching_method} wasn't found in the original file.")
 
 # ======= END: getTemplatedMethodTypes ========
 
@@ -2338,8 +2273,8 @@ def getTemplatedMethodTypes(func_el, class_name):
 
 def foundMatchingMembers(class_name, el):
     """
-    This function is responsible in finding if there's any matching member inside the config file
-    for a templated class
+    This function is responsible in finding if there's any matching member 
+    in the original file for a templated class
     """
     try:
         # Try and see if we can find the method types or variable types. If we can, it must exist
@@ -2348,7 +2283,7 @@ def foundMatchingMembers(class_name, el):
             getTemplatedMethodTypes(el, class_name)
         else:
             # Must be a member variable
-            getTemplatedMemberVariableType(el, class_name)
+            getTemplatedMemberVariableType(el)
 
         # If it got here, there was no exception
         return True
