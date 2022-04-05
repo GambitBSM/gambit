@@ -1373,7 +1373,7 @@ def getMemberElements(el, include_artificial=False):
             if is_templated:
                 # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
 
-                # Look for this member in cfg.load_templated_members
+                # Look for this member in the original file
                 if include_artificial and 'artificial' in mem_el.keys():
                     member_elements.append(mem_el)
                 elif classutils.foundMatchingMembers(class_name, mem_el) and (include_artificial or 'artificial' not in mem_el.keys()):

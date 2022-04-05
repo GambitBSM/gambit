@@ -15,8 +15,6 @@ public:
   void push(T item);
   int size();
 
-  bool equal(T item1, T item2);
-
   ClassThree<T> operator+(ClassThree<T>& other);
 
   T test;

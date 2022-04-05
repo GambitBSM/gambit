@@ -25,12 +25,6 @@ int ClassThree<T>::size()
 }
 
 template <typename T>
-bool ClassThree<T>::equal(T item1, T item2)
-{
-  return item1 == item2;
-}
-
-template <typename T>
 ClassThree<T> ClassThree<T>::operator+(ClassThree<T> & other)
 {
   ClassThree<T> result;

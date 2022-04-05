@@ -2183,10 +2183,6 @@ def getTemplatedMethodTypes(func_el, class_name):
 
     short_class_name = class_name['short']
 
-    if short_class_name not in cfg.load_templated_members.keys():
-        raise UnfoundMember(f"Class {short_class_name} wasn't found in the load_templated_mebmers list in the confg file")
-
-
     # Getting the specified templated types from the classname
     specified_templated_types = class_name['templ_types']
     specified_templated_types.append(class_name['short_templ'])
