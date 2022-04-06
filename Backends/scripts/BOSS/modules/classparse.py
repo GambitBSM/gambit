@@ -21,7 +21,6 @@ exec("import configs." + active_cfg.module_name + " as cfg")
 # Module-level globals
 #
 template_done = []
-templ_spec_done = []
 added_parent = []
 
 includes = OrderedDict()
@@ -98,14 +97,6 @@ def run():
         skip_templ = False
         if is_template and class_name['long'] in template_done:
           skip_templ = True
-
-        # Get template arguments for specialization,
-        # and check that they are acceptable
-        #if is_template and class_name['long'] not in templ_spec_done:
-        #    spec_template_types = utils.getSpecTemplateTypes(class_el)
-        #    for template_type in spec_template_types:
-        #        if template_type not in gb.accepted_types:
-        #            raise Exception("The template specialization type '" + template_type + "' for class " + class_name['long'] + " is not among accepted types.")
 
         if not skip_templ:
 
@@ -211,8 +202,6 @@ def run():
         if is_template:
             if class_name['long'] not in template_done:
                 template_done.append(class_name['long'])
-            if class_name['long_templ'] not in templ_spec_done:
-                templ_spec_done.append(class_name['long_templ'])
 
 
         print()
@@ -257,10 +246,7 @@ def constrAbstractClassHeaderCode(class_el, class_name, namespaces, has_copy_con
 
     # Add the the code for the abstract class
     is_template = utils.isTemplateClass(class_name)
-    if is_template and (class_name['long'] in templ_spec_done):
-        pass
-    elif is_template and (class_name['long'] not in templ_spec_done):
-
+    if is_template:
         current_code = ""
         current_code = classutils.constrAbstractClassDecl(class_el, class_name, namespaces, 
                                                           indent=cfg.indent, file_for_gambit=file_for_gambit, 

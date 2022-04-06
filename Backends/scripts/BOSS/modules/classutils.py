@@ -166,6 +166,8 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
                 return_type = func_types['return']
                 args = func_types['args']
+
+
             else:
                 args = funcutils.getArgs(el)
                 return_name = return_type_dict['name']
@@ -2183,13 +2185,6 @@ def getTemplatedMethodTypes(func_el, class_name):
 
     short_class_name = class_name['short']
 
-    # Getting the specified templated types from the classname
-    specified_templated_types = class_name['templ_types']
-    specified_templated_types.append(class_name['short_templ'])
-
-    for index, template_type in enumerate(specified_templated_types):
-        specified_templated_types[index] = template_type.strip()
-
     # Get return ready
     method_types = {'return': None, 'args': None}
     xml_args_info = funcutils.getArgs(func_el)
@@ -2249,7 +2244,7 @@ def getTemplatedMethodTypes(func_el, class_name):
         same_args = True
         for i, j in zip(method_types['args'], xml_args_info):
             
-            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and utils.getBasicTypeName(j['type']) not in specified_templated_types:
+            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and  utils.getBasicTypeName(j['type']) not in class_name['templ_types'] and utils.getBasicTypeName(j['type']) != class_name['short_templ']:
                 same_args = False
                 break
 
