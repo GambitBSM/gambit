@@ -95,15 +95,24 @@ def makeTemplateArgs(args):
         if '=' in arg:
           arg = arg.split('=')[:-1].strip()
 
-        # No way of know if it is a native, fundamental or known class
-        # TODO: Add some test?
-        arg_dict['native'] = False
+        # I don't think we care if this is fundamental or an enumeration
         arg_dict['fundamental'] = False
-        arg_dict['known_class'] = False
-
-        # Assume it is not an enumeration
-        # TODO: Add some test?
         arg_dict['enumeration'] = False
+
+        # Default is no specific type
+        arg_dict['native'] = False
+        arg_dict['known_class'] = False
+        arg_dict['enumeration'] = False
+        arg_dict['loaded_class'] = False
+
+        # Is it a known class?
+        if utils.isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
+           utils.isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
+            arg_dict['known_class'] = True
+
+        # If type is a loaded class, tag it as loaded and native
+        arg_dict['loaded_class'] = utils.isLoadedClass(arg, bybasename=True)
+        arg_dict['native'] = utils.isLoadedClass(arg, bybasename=True)
 
         # Look for const or volatile qualifiers at the start
         arg_dict['kw'] = []
@@ -131,10 +140,6 @@ def makeTemplateArgs(args):
 
         # If there are brackets () it is a function pointer
         arg_dict['function_pointer'] = '(' in arg
-
-        # If type is a loaded class, tag it as loaded and native
-        arg_dict['loaded_class'] = utils.isLoadedClass(arg, bybasename=True)
-        arg_dict['native'] = utils.isLoadedClass(arg, bybasename=True)
 
         args_out.append(arg_dict)
 

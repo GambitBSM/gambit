@@ -153,7 +153,6 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
             uses_loaded_type = funcutils.usesLoadedType(el)
 
             return_type_dict = utils.findType( gb.id_dict[el.get('returns')] )
-            # TODO: JOEL: Something like this would follow the same structure as 'constrWrapperFunction', and also every other place this is repeated
             return_el     = return_type_dict['el']
             pointerness   = return_type_dict['pointerness']
             is_ref        = return_type_dict['is_reference']
@@ -371,12 +370,14 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
     # - Copy constructor
     # -- Construct code for calling copy constructors of *all* parent classes.
     #    (Required because this is the copy ctor of an abstract base class.)
-    # TODO: TG: Some templated stuff might be needed here too, but I haven't done it
     all_parent_classes = utils.getAllParentClasses(class_el, only_loaded_classes=True, return_dicts=True, reverse_order=True)
     parent_cctors_line = ''
     for parent_dict in all_parent_classes:
         if parent_dict['loaded']:
-            parent_cctors_line += parent_dict['class_name']['abstr_long_templ'] + '(in), '
+            if is_template:
+                parent_cctors_line += parent_dict['class_name']['abstr_long'] + class_name['templ_vars'] + '(in), '
+            else:
+                parent_cctors_line += parent_dict['class_name']['abstr_long_templ'] + '(in), '
         elif parent_dict['fundamental'] or parent_dict['std']:
             reason = 'Avoid inheritance ambiguity.'
             infomsg.ParentClassIgnored(class_name['abstr_short'], parent_dict['class_name']['long_templ'], reason).printMessage()
@@ -1177,7 +1178,6 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
     # FIXME:
     # Should this function also translate template argument types?
     # Example: TypeA<TypeB>  -->  Abstract__TypeA<Abstract__TypeB>
-    # TODO: TG: I think it should just return the generic templated type TypeA<T>
 
     type_name = input_type_name
 
@@ -1768,22 +1768,6 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
 
         return_is_loaded    = utils.isLoadedClass(return_type_el)
 
-        # TODO: I don't know why this is here
-        #if is_template:
-        #    # Assume that there is only one thing on the function line
-        #    src_file_name = gb.id_dict[func_el.get('file')].get('name')
-        #    line_num = int(func_el.get('line'))
-
-        #    with open(src_file_name, 'r') as f:
-        #        contents = f.read()
-
-        #    # Split by line and get the function's line
-        #    lines = contents.split('\n')
-        #    func_line = lines[line_num - 1]
-
-        #    # Strip the whitespace to the right and get the first element
-        #    return_type = func_line.lstrip(' ').split(' ')[0]
-        #else:
         return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         # If return type was moved to abstract class, change namespace
@@ -2218,7 +2202,6 @@ def getTemplatedMethodTypes(func_el, class_name):
         hi = m.end()
 
         # Put the return type into the return variable
-        # TODO: Operator Methods might have a type that is not the bottom type
         if func_el.tag == 'Constructor' or func_el.tag == 'Destructor':
             method_types['return'] = ''
         else:
@@ -2244,7 +2227,9 @@ def getTemplatedMethodTypes(func_el, class_name):
         same_args = True
         for i, j in zip(method_types['args'], xml_args_info):
             
-            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and  utils.getBasicTypeName(j['type']) not in class_name['templ_types'] and utils.getBasicTypeName(j['type']) != class_name['short_templ']:
+            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and\
+               utils.getBasicTypeName(j['type']) not in class_name['templ_types'] and\
+               utils.getBasicTypeName(j['type']) != class_name['short_templ']:
                 same_args = False
                 break
 

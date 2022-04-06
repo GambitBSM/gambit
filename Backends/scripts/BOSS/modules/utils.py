@@ -1368,11 +1368,9 @@ def getMemberElements(el, include_artificial=False):
                 if full_name in cfg.ditch:
                     continue
 
-            # If it's templated, look for the elements in the config file. If not in config file, we don't want it.
+            # If it's templated, look for the elements in the original file to find their templated declaration
             # Else, do normal operation
             if is_templated:
-                # JOEL: TODO: Make these checks more robust... not sure how, but as is it's quite easy to break
-
                 # Look for this member in the original file
                 if include_artificial and 'artificial' in mem_el.keys():
                     member_elements.append(mem_el)
@@ -2361,11 +2359,6 @@ def fillAcceptedTypesList():
     print(f"  - {type_counter} types classified.")
     # Fill global list
     gb.accepted_types = list(all_types)
-    # TODO:ZELUN if need to debug accepted types in the program 
-    # This print lines here could be helpful
-    # with open("./accepted_List.txt", "a") as f:
-    #     for types in gb.accepted_types:
-    #         print(types, file=f)
 
 
 # ====== END: fillAcceptedTypesList ========
