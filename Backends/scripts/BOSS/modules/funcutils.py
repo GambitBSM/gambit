@@ -93,7 +93,7 @@ def makeTemplateArgs(args):
         # If there is a = sign, there is a default value
         arg_dict['default'] = ('=' in arg)
         if '=' in arg:
-          arg = arg.split('=')[:-1].strip()
+          arg = arg.split('=')[0].strip()
 
         # I don't think we care if this is fundamental or an enumeration
         arg_dict['fundamental'] = False
