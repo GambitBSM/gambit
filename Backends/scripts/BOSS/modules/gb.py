@@ -120,6 +120,16 @@ fundamental_equiv_list = (
     'unsigned long long', 'unsigned long long int', 'long unsigned long', 'long long unsigned', 'unsigned long int long', 'unsigned int long long', 'long long unsigned int', 'long long int unsigned', 'long unsigned long int', 'long unsigned int long', 'long int long unsigned', 'long int unsigned long', 'int long long unsigned', 'int long unsigned long', 'int unsigned long long'
 )
 
+# Default accepted types and namespaces
+default_accepted_namespaces = (
+    'std',
+)
+
+default_accepted_types = (
+    'nullptr_t',
+    '__mbstate_t'
+)
+
 # Text modifications
 textmods = {
     'blue': '\033[34m',

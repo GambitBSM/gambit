@@ -2495,7 +2495,7 @@ def isTypeValid(type_name, xml_file):
         # We couldn't find the element.
         # Check if it's part of the std:: namespace or corresponds to a fundamental type that we know
         return withinAcceptedNamespaces(type_name) or (trimmed_type_name in gb.fundamental_equiv_list) or\
-               (trimmed_type_name in cfg.manual_accepted_types)
+               (trimmed_type_name in gb.default_accepted_types)
 
 # ====== END: isTypeValid ========
 
@@ -2504,7 +2504,7 @@ def isTypeValid(type_name, xml_file):
 def withinAcceptedNamespaces(type_name):
     # Check if this type_name is within any namespaces that we're
     # just automatically accepting everything within.
-    for namespace in cfg.manual_accepted_namespaces:
+    for namespace in gb.default_accepted_namespaces:
         if withinNamespace(type_name, namespace + "::"):
             return True
 
