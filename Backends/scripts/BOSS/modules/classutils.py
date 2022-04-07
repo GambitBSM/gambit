@@ -1291,9 +1291,9 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
     for parent_dict in loaded_parent_classes:
         inheritance_line += 'virtual '*parent_dict['virtual'] + parent_dict['access'] + ' '
         if parent_dict['class_name']['namespace'] == class_name['namespace'] :
-            inheritance_line += parent_dict['class_name']['wrp_short'] + ', '
+            inheritance_line += parent_dict['class_name']['wrp_short_templ'] + ', '
         else :
-            inheritance_line += parent_dict['class_name']['wrp_long'] + ', '
+            inheritance_line += parent_dict['class_name']['wrp_long_templ'] + ', '
     inheritance_line = inheritance_line.rstrip(', ')
 
     # If no other parent classes, add WrapperBase
@@ -1975,7 +1975,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
             parent_class_init_list = ''
             # parent_class_init_list += indent + 'WrapperBase(' + factory_ptr_name + args_bracket_notypes + '),\n'
             for parent_dict in loaded_parent_classes:
-                parent_class_init_list += indent + parent_dict['class_name']['wrp_short'] + '(' + factory_ptr_name + args_bracket_notypes + '),\n'
+                parent_class_init_list += indent + parent_dict['class_name']['wrp_short_templ'] + '(' + factory_ptr_name + args_bracket_notypes + '),\n'
             if parent_class_init_list == '':
                 parent_class_init_list += indent + 'WrapperBase(' + factory_ptr_name + args_bracket_notypes + '),\n'
 
@@ -2005,7 +2005,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
     parent_class_init_list = ''
     # parent_class_init_list += indent + 'WrapperBase(in),\n'
     for parent_dict in loaded_parent_classes:
-        parent_class_init_list += indent + parent_dict['class_name']['wrp_short'] + '(in),\n'
+        parent_class_init_list += indent + parent_dict['class_name']['wrp_short_templ'] + '(in),\n'
     if parent_class_init_list == '':
         parent_class_init_list += indent + 'WrapperBase(in),\n'
 
@@ -2047,7 +2047,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
         parent_class_init_list = ''
         # parent_class_init_list += indent + 'WrapperBase(in.get_BEptr()->pointer_copy' + gb.code_suffix + '()),\n'
         for parent_dict in loaded_parent_classes:
-            parent_class_init_list += indent + parent_dict['class_name']['wrp_short'] + '(in.get_BEptr()->pointer_copy' + gb.code_suffix + '()),\n'
+            parent_class_init_list += indent + parent_dict['class_name']['wrp_short_templ'] + '(in.get_BEptr()->pointer_copy' + gb.code_suffix + '()),\n'
         if parent_class_init_list == '':
             parent_class_init_list += indent + 'WrapperBase(in.get_BEptr()->pointer_copy' + gb.code_suffix + '()),\n'
 

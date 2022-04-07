@@ -60,4 +60,33 @@ private:
 
 };
 
+// // class ClassSix : public ClassFour
+// class ClassSix : public ClassFive<ClassFour>
+// {
+// public:
+//   int pop2();
+//   void push2(int item);
+//   int size2();
+
+// private:
+//   std::vector<int> stack2;
+//   int curr_size2;
+// };
+
+template <typename T>
+class ClassSeven : public ClassThree<T>
+{
+public:
+  T pop2();
+  void push2(T item);
+  int size2();
+
+private:
+  std::vector<T> stack2;
+  int curr_size2;
+};
+
+static ClassSeven<double> __BOSS_dummy_ClassSeven_double_instance__;
+
+
 #endif

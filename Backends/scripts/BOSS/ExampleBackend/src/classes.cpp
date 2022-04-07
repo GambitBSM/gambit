@@ -87,3 +87,50 @@ int ClassFive<ClassFour>::size()
 {
   return stack.size();
 }
+
+
+
+// int ClassSix::pop2()
+// {
+//   int top = stack2.back();
+//   stack2.pop_back();
+//   return top;
+// }
+
+
+// void ClassSix::push2(int item)
+// {
+//   stack2.push_back(item);
+// }
+
+
+// int ClassSix::size2()
+// {
+//   return stack2.size();
+// }
+
+
+
+template <typename T>
+T ClassSeven<T>::pop2()
+{
+  T top = stack2.back();
+  stack2.pop_back();
+  return top;
+}
+
+
+template <typename T>
+void ClassSeven<T>::push2(T item)
+{
+  stack2.push_back(item);
+}
+
+
+template <typename T>
+int ClassSeven<T>::size2()
+{
+  return stack2.size();
+}
+
+
