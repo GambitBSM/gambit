@@ -53,7 +53,7 @@ load_classes = [
     'ClassFour',
     #'ClassThree<ClassFour>',
     'ClassFive<ClassFour>',
-    # 'ClassSix<double>',
+    'ClassSix',
     'ClassSeven<double>',
 ]
 

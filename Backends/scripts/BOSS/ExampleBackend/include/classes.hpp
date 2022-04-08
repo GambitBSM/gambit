@@ -43,6 +43,7 @@ private:
 
 static ClassThree<ClassFour> _BOSS_dummy_ClassThree_ClassFour_instance__;
 
+
 template <typename T>
 class ClassFive;
 
@@ -60,18 +61,19 @@ private:
 
 };
 
-// // class ClassSix : public ClassFour
-// class ClassSix : public ClassFive<ClassFour>
-// {
-// public:
-//   int pop2();
-//   void push2(int item);
-//   int size2();
 
-// private:
-//   std::vector<int> stack2;
-//   int curr_size2;
-// };
+class ClassSix : public ClassFive<ClassFour>
+{
+public:
+  int pop2();
+  void push2(int item);
+  int size2();
+
+private:
+  std::vector<int> stack2;
+  int curr_size2;
+};
+
 
 template <typename T>
 class ClassSeven : public ClassThree<T>

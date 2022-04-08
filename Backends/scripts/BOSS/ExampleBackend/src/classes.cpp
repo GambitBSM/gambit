@@ -90,24 +90,24 @@ int ClassFive<ClassFour>::size()
 
 
 
-// int ClassSix::pop2()
-// {
-//   int top = stack2.back();
-//   stack2.pop_back();
-//   return top;
-// }
+int ClassSix::pop2()
+{
+  int top = stack2.back();
+  stack2.pop_back();
+  return top;
+}
 
 
-// void ClassSix::push2(int item)
-// {
-//   stack2.push_back(item);
-// }
+void ClassSix::push2(int item)
+{
+  stack2.push_back(item);
+}
 
 
-// int ClassSix::size2()
-// {
-//   return stack2.size();
-// }
+int ClassSix::size2()
+{
+  return stack2.size();
+}
 
 
 

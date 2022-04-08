@@ -1803,8 +1803,12 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                     else:
                         header_key = convert_loaded_to
 
-                    include_statements.append(
-                        '#include "' + gb.new_header_files[type_name['long']][header_key] + '"')
+                    if convert_loaded_to in ['wrapper', 'wrapper_decl', 'wrapper_def'] and type_name['is_specialization']:
+                        include_statements.append(
+                            '#include "' + gb.new_header_files[type_name['wrp_long_templ']][header_key] + '"')
+                    else:
+                        include_statements.append(
+                            '#include "' + gb.new_header_files[type_name['long']][header_key] + '"')
 
             elif isStdType(type_el):
                 if type_name['long'] in gb.std_headers:
