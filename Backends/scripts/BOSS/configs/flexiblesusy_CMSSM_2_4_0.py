@@ -29,6 +29,7 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 gambit_backend_name    = 'FlexibleSUSY_CMSSM'
 gambit_backend_version = '2.4.0'
+gambit_backend_reference = 'Athron:2017fvs'
 gambit_base_namespace  = ''
 
 
