@@ -64,7 +64,7 @@ namespace Gambit
       LogNormal(const std::vector<std::string>&, const Options&);
 
       // Transformation from unit interval to the Log-Normal
-      void transform(const std::vector <double> &unitpars, std::unordered_map<std::string, double> &outputMap) const
+      void transform(const std::vector <double> &unitpars, std::unordered_map<std::string, double> &outputMap) const override
       {
         std::vector<double> vec(unitpars.size());
 
@@ -112,7 +112,7 @@ namespace Gambit
         return u;
       }
 
-      double operator()(const std::vector<double> &vec) const
+      double operator()(const std::vector<double> &vec) const override
       {
         static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
         std::vector<double> log_vec;

@@ -27,9 +27,9 @@
 
 #ifndef EXCLUDE_HEPMC
 
-using namespace std;
-
 #include <iostream>
+
+using namespace std;
 
 #include "gambit/ColliderBit/lhef2heputils.hpp"
 

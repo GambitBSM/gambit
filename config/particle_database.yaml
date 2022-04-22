@@ -117,6 +117,15 @@ OtherModels:
     spinx2: 0
 
   - PDG_context:
+    - 9900000
+    - 0
+    chargex3: 0
+    color: 1
+    description: WIMP
+    name: WIMP
+    spinx2: 0
+
+  - PDG_context:
     - 9900001
     - 0
     chargex3: 0

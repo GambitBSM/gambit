@@ -272,7 +272,7 @@ namespace Gambit {
                     muons.push_back(muon);
             }
 
-            double HT;
+            double HT = 0.;
             // Jets
             vector<const HEPUtils::Jet*> candJets;
             for (const HEPUtils::Jet* jet : event->jets()) {

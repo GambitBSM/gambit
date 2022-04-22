@@ -261,10 +261,10 @@ namespace Gambit {
         dphi_min = min(dphi_min,dphi_jetmet3);
 
         //Calculate meff (all jets with pT>20 GeV, and met)
-        double meff = met;
-        for (const HEPUtils::Jet* jet : signalJets) {
-          if(jet->pT()>20.)meff += jet->pT();
-        }
+        //double meff = met; (Unused)
+        //for (const HEPUtils::Jet* jet : signalJets) { (Unused)
+        //  if(jet->pT()>20.)meff += jet->pT(); (Unused)
+        //} (Unused)
         double meff2 = met; double meff3 = met; int nummeff=0;
         for (const HEPUtils::Jet* jet : signalJets) {
           nummeff++;

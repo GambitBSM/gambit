@@ -354,7 +354,7 @@ namespace Gambit
       {
         fill_analysis_info_map();
 
-        for (const std::pair<str,const DMEFT_analysis_info&>& aname_ainfo_pair : analysis_info_map)
+        for (const std::pair<str,const DMEFT_analysis_info&> aname_ainfo_pair : analysis_info_map)
         {
           // Extract analysis name and use it to create an AnalysisData element in the analysis_data_map
           str aname = aname_ainfo_pair.first;
@@ -374,7 +374,7 @@ namespace Gambit
       // Loop over the analyses registered in the analysis_info_map
       // 
 
-      for (const std::pair<str,const DMEFT_analysis_info&>& aname_ainfo_pair : analysis_info_map)
+      for (const std::pair<str,const DMEFT_analysis_info&> aname_ainfo_pair : analysis_info_map)
       {
         // Extract analysis name and reference to the analysis_info instance
         str aname = aname_ainfo_pair.first;
@@ -797,8 +797,10 @@ namespace Gambit
 
 
     /// A target function for the GSL optimiser
-    void _gsl_target_func(const size_t n, const double* a, void* fparams, double* fval)
+    void _gsl_target_func(const size_t /* n */ , const double* a, void* fparams, double* fval)
     {
+      // Note: We don't use the first argument, it's just there for the GSL/multimin interface
+
       double total_loglike = 0.0;
 
       // Cast fparams to correct type

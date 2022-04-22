@@ -807,9 +807,6 @@ namespace Gambit
       // Use the naive sum of SR loglikes for analyses without known correlations?
       static const bool combine_nocovar_SRs = runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
 
-      // Fix the profiling/marginalising function according to the option
-      auto marg_prof_fn = USE_MARG ? marg_loglike_cov : profile_loglike_cov;
-
       // Clear the result map
       result.clear();
 
@@ -820,8 +817,6 @@ namespace Gambit
         // AnalysisData for this analysis
         const AnalysisData& adata = *(Dep::AllAnalysisNumbers->at(analysis));
         const std::string ananame = adata.analysis_name;
-        const size_t nSR = adata.size();
-        const bool has_covar = adata.srcov.rows() > 0;
 
         #ifdef COLLIDERBIT_DEBUG
         std::streamsize stream_precision = cout.precision();  // get current precision
@@ -871,7 +866,7 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC loglikes per analysis: ";
 
-      for (const std::pair<str,AnalysisLogLikes>& pair : *Dep::LHC_LogLikes)
+      for (const std::pair<str,AnalysisLogLikes> pair : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair.first;
         const AnalysisLogLikes& analysis_loglikes = pair.second;
@@ -892,14 +887,14 @@ namespace Gambit
       std::stringstream summary_line;
       summary_line << "LHC loglikes per SR: ";
 
-      for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      for (const std::pair<str,AnalysisLogLikes> pair_i : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
 
         summary_line << analysis_name << ": ";
 
-        for (const std::pair<str,double>& pair_j : analysis_loglikes.sr_loglikes)
+        for (const std::pair<str,double> pair_j : analysis_loglikes.sr_loglikes)
         {
           const str& sr_label = pair_j.first;
           const double& sr_loglike = pair_j.second;
@@ -923,7 +918,7 @@ namespace Gambit
     void get_LHC_LogLike_SR_labels(map_str_str& result)
     {
       using namespace Pipes::get_LHC_LogLike_per_SR;
-      for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      for (const std::pair<str,AnalysisLogLikes> pair_i : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
@@ -943,7 +938,7 @@ namespace Gambit
       summary_line << "LHC loglike SR indices: ";
 
       // Loop over analyses
-      for (const std::pair<str,AnalysisLogLikes>& pair_i : *Dep::LHC_LogLikes)
+      for (const std::pair<str,AnalysisLogLikes> pair_i : *Dep::LHC_LogLikes)
       {
         const str& analysis_name = pair_i.first;
         const AnalysisLogLikes& analysis_loglikes = pair_i.second;
