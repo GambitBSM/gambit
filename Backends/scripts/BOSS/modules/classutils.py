@@ -1017,40 +1017,51 @@ def constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, 
 
     func_name  = 'pointer_assign' + gb.code_suffix
 
-    is_template = utils.isTemplateClass(class_name)
-    ptr_code = ''
-
-    if is_template:
-       if not only_declaration:
-           ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
-       abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
-       class_name_short = class_name['short'] + class_name['templ_vars']
+    # Some shorthand variable names for different cases
+    use_abstr_class_name = ''
+    use_class_name = ''
+    use_wrp_class = ''
+    if class_name['is_template']:
+        use_abstr_class_name = class_name['abstr_short'] + class_name['templ_vars']
+        use_class_name = class_name['short'] + class_name['templ_vars']
+        use_wrp_class = class_name['wrp_short'] + class_name['templ_vars']
+    elif class_name['is_specialization']:
+        use_abstr_class_name = class_name['abstr_short']
+        use_class_name = class_name['short_templ']
+        use_wrp_class = class_name['wrp_short']
     else:
-        class_name_short = class_name['short_templ']
-        abstr_class_name_short = class_name['abstr_short']
+        use_abstr_class_name = class_name['abstr_short']
+        use_class_name = class_name['short']
+        use_wrp_class = class_name['wrp_short']
 
     if include_full_namespace:
         namespaces = utils.getNamespaces(class_el)
         if len(namespaces) > 0:
-            abstr_class_name_short = '::'.join(namespaces) + '::' + abstr_class_name_short
-            class_name_short = '::'.join(namespaces) + '::' + class_name_short
-        func_name = class_name_short + "::" + func_name
+            use_abstr_class_name = '::'.join(namespaces) + '::' + use_abstr_class_name
+            use_class_name = '::'.join(namespaces) + '::' + use_class_name
+            use_wrp_class = '::'.join(namespaces) + '::' + use_wrp_class
+        func_name = use_class_name + "::" + func_name
 
+    # Now generate the code
+    ptr_code = ''
+
+    if (class_name['is_template']) and (not only_declaration):
+       ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
 
     if virtual:
-        ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name_short + '*) =0;\n'
+        ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + use_abstr_class_name + '*) =0;\n'
 
     else:
-        ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name_short + '* in)'
+        ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + use_abstr_class_name + '* in)'
 
         if only_declaration:
             ptr_code += ';\n'
         else:
             ptr_code += '\n'
             ptr_code += ' '*cfg.indent*n_indents + '{\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + gb.gambit_backend_namespace + '::' + class_name_short + '* wptr_temp = ' + abstr_class_name_short + '::get_wptr();\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + '*this = *dynamic_cast<' + class_name_short + '*>(in);\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + abstr_class_name_short + '::set_wptr(wptr_temp);\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + gb.gambit_backend_namespace + '::' + use_wrp_class + '* wptr_temp = ' + use_abstr_class_name + '::get_wptr();\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + '*this = *dynamic_cast<' + use_class_name + '*>(in);\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + use_abstr_class_name + '::set_wptr(wptr_temp);\n'
             ptr_code += ' '*cfg.indent*n_indents + '}\n'
 
     return ptr_code

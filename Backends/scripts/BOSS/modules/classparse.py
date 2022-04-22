@@ -61,7 +61,7 @@ def run():
         original_file_name = original_class_file_el.get('name')
         original_file_name_base = os.path.basename(original_file_name)
         # original_class_file_dir  = os.path.split(original_file_name)[0]
-        extras_src_file_name = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['short'] + cfg.source_extension)
+        extras_src_file_name = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['wrp_short'] + cfg.source_extension)
 
         short_abstr_class_fname = gb.new_header_files[class_name['wrp_long']]['abstract']
         abstr_class_fname = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
