@@ -11,7 +11,9 @@
 ///          (a.liang1@uqconnect.edu.au)
 ///  \date 2021 Aug
 ///  *********************************************
-
+ 
+// TODO: Temporarily disabled until project is ready
+/*
 #include <string>
 #include <iostream>
 #include <cmath>
@@ -371,3 +373,4 @@ namespace Gambit
 
   } // namespace CosmoBit
 } // namespace Gambit
+*/

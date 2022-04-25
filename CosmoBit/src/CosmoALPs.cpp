@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  CosmoBit routines relating to axions and 
+///  CosmoBit routines relating to axions and
 ///  axion-like particles.
 ///
 ///  *********************************************
@@ -207,7 +207,7 @@ namespace Gambit
         err << "The choice of f0_thermal (" << f0_thermal;
         err << ") is in contradiction with the minimum dark matter fraction f0_min (";
         err << f0_min << ") produced via Primakoff processes.";
-        invalid_point().raise(err.str());
+        //invalid_point().raise(err.str());
       }
 
       // Compute the total fraction of DM in ALPs at production

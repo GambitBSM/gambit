@@ -84,10 +84,10 @@
 
 Parameters:
 #======== Input parameter declarations =======
-#  In this section the models to be scanned over are specified. You can 
-#  set all model parameters here or import another yaml file containing them. 
+#  In this section the models to be scanned over are specified. You can
+#  set all model parameters here or import another yaml file containing them.
 #
-#  => for more details check out chapter 6.2 of the GAMBIT code paper (https://arxiv.org/abs/1705.07908) 
+#  => for more details check out chapter 6.2 of the GAMBIT code paper (https://arxiv.org/abs/1705.07908)
 #  => for the definition of all models introduced with CosmoBit, check Appendix B of the CosmoBit
 #     module paper (GAMBIT Cosmology Workgroup, Renk, et al. arXiv:2009.xxxxx )
 #

@@ -755,6 +755,8 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+// TODO: Temporarily disabled until project is ready
+/*
   /// energy density of dark energy today
   #define CAPABILITY Omega0_Lambda
     START_CAPABILITY
@@ -763,6 +765,7 @@ START_MODULE
       BACKEND_REQ(class_get_Omega0_Lambda,(class_tag),double,())
     #undef FUNCTION
   #undef CAPABILITY
+*/
 
   /// energy density of all matter components today
   #define CAPABILITY Omega0_m
@@ -1051,7 +1054,8 @@ START_MODULE
 
   // --------------------
   // Modified gravity models - symmetron
-
+  // TODO: Temporarily disabled until project is ready
+/*
   // Obtain a value for phi(0) given mass and mu
   #define CAPABILITY phi0_interpolation
   START_CAPABILITY
@@ -1118,7 +1122,7 @@ START_MODULE
     ALLOW_MODELS(symmetron)
     #undef FUNCTION
   #undef CAPABILITY
-
+*/
 
 #undef REFERENCE
 #undef MODULE

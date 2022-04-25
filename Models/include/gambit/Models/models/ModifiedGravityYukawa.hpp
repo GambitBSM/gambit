@@ -17,6 +17,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #ifndef __ModifiedGravityYukawa_hpp__
 #define __ModifiedGravityYukawa_hpp__
 
@@ -28,3 +30,4 @@
 #undef MODEL
 
 #endif
+*/

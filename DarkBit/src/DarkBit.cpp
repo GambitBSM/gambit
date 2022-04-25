@@ -247,6 +247,8 @@ namespace Gambit
     //
     //////////////////////////////////////////////////////////////////////////
 
+// TODO: Temporarily disabled until project is ready
+/*
     /// Module function providing the branching ratio of the decay S -> e-_1 e+_1
     void DecDM_branching_el(double &result)
     {
@@ -288,7 +290,7 @@ namespace Gambit
         }
       }
     }
-
+*/
     //////////////////////////////////////////////////////////////////////////
     //
     //                          DarkBit Unit Test

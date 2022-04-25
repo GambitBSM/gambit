@@ -18,6 +18,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #ifndef __SuperRenormHPSimpleSpec_hpp__
 #define __SuperRenormHPSimpleSpec_hpp__
 
@@ -134,3 +136,4 @@ namespace Gambit
 } // end Gambit namespace
 
 #endif
+*/

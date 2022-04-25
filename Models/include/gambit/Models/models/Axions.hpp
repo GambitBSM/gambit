@@ -30,7 +30,7 @@
   DEFINEPARS(gagg,gaee,gaN,fa,ma0,Tchi,beta,thetai)
   DEFINEPARS(f0_thermal, T_R)
   MAP_TO_CAPABILITY(gagg,gagg)
-  
+
   // Friendship with "DecayingDM_photon" (Mapping is defined in Axions.cpp)
   // (Energy injection into CMB)
   INTERPRET_AS_X_FUNCTION(DecayingDM_photon,GeneralCosmoALP_to_DecayingDM_photon)

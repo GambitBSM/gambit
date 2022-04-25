@@ -199,7 +199,7 @@ BE_INI_FUNCTION
       AC_models = py::module::import( (module_name + ".models").c_str() );
 
       // Set the reference temperature to 10 MeV
-      T0 = 10.0;
+      T0 = 0.01;
     }
   
   #endif

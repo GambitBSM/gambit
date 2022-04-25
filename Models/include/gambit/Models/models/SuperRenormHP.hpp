@@ -14,6 +14,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #ifndef __SuperRenormHP_hpp__
 #define __SuperRenormHP_hpp__
 
@@ -40,3 +42,4 @@
 #undef MODEL
 
 #endif
+*/

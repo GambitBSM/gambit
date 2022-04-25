@@ -4388,6 +4388,10 @@ CosmoALP_parameters: |
    Parameters of the CosmoALP model (Cagg, fa, ma0, thetai, f0_thermal, T_R).
    See ./gambit CosmoALP
 
+CosmoALP_gg_tau_parameters: |
+   Parameters of the CosmoALP_gg_tau model (tau, fa, ma0, Tchi, beta thetai, f0_thermal, T_R).
+   See ./gambit CosmoALP_gg_tau
+
 GeneralCosmoALP_parameters: |
    Parameters of the GeneralCosmoALP model (gagg, gaee, gaN, fa, ma0, Tchi, beta, thetai, f0_thermal, T_R).
    See ./gambit GeneralCosmoALP
@@ -4979,6 +4983,9 @@ cosmo_nuisance_Planck_TT_parameters: |
 cosmo_nuisance_Planck_lite_parameters: |
   See model parameters in config/models.dat
 
+cosmo_nuisance_SpectralDistortions_parameters: |
+      Cosmological nuisance parameters for spectral distortions, i.e. FIRAS, PIXIE and PRISM. See ./gambit cosmo_nuisance_SpectralDistortions for more details.
+
 cosmo_nuisance_dummy_parameters: |
    Dummy model for cosmological nuisance parameters that can be used by new MontePython likelihoods. This model has 10 parameters, more can be added anytime to Models/include/gambit/Models/models/CosmoNuisanceModels.hpp.
    See ./gambit cosmo_nuisance_dummy for more details.
@@ -4992,6 +4999,9 @@ T_cmb: |
 
 T_ncdm: |
    Returns the neutrino temperature in units of Tcmb.
+
+omega_cdm: |
+    Returns the cold DM density.
 
 n0_g: |
    Returns the number density of photons today, n_0^gamma, in cm^-3.
@@ -5221,12 +5231,21 @@ p_ann: |
 lnL_p_ann: |
    Profiled likelihood on p_ann
 
+gagg: |
+   ALP-photon coupling.
+
 # -----------
 # ACROPOLIS
 # -----------
 
 Acropolis_1_2_1_init: |
     Initialise ACROPOLIS (v1.2.1)
+
+set_input_params: |
+    Sets the input parametes for Acropolis.
+
+abundance_photodissociation_decay: |
+    Computes the abundances after photodissociation.
 
 # -----------
 # AlterBBN
@@ -5250,8 +5269,14 @@ Init_cosmomodel: |
 get_NNUC: |
     Return global AlterBBN parameter NNUC (# computed element abundances).
 
+call_nucl: |
+    Backend convenience function to set all inputs for call to AlterBBN's nucl_err function to calculation BBN abundances.
+
 call_nucl_err: |
     Backend convenience function to set all inputs for call to AlterBBN's nucl_err function to calculation BBN abundances + errors.
+
+nucl: |
+    AlterBBN function that computes element abundances during BBN.
 
 nucl_err: |
     AlterBBN function that computes element abundances and their covariance during BBN.

@@ -15,6 +15,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #ifndef __SpecBit_SuperRenormHP_hpp__
 #define __SpecBit_SuperRenormHP_hpp__
 
@@ -33,12 +35,13 @@
     ALLOW_MODEL_COMBINATION(higgs, singlet)
     #undef FUNCTION
 
-    /* // Convert spectrum into a standard map so that it can be printed */
-    /* #define FUNCTION get_ScalarSingletDM_Z2_spectrum_as_map */
-    /* START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input */
-    /* DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum) */
-    /* #undef FUNCTION */
+    // // Convert spectrum into a standard map so that it can be printed
+    // #define FUNCTION get_ScalarSingletDM_Z2_spectrum_as_map
+    // START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
+    // DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum)
+    // #undef FUNCTION
 
   #undef CAPABILITY
 
 #endif
+*/
