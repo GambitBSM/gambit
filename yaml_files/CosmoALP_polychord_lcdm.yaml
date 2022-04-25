@@ -6,6 +6,9 @@
 ## \author Tomas Gonzalo
 ##         (gonzalo@physik.rwth-aachen.de)
 ##
+## \author Will Handley
+##         (wh260@cam.ac.uk)
+##
 ######################################################
 
 
@@ -40,15 +43,9 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_Planckbaseline.yaml
 
   CosmoALP_gg_tau:
-    tau:
-      range: [1e4, 1e13]
-      prior_type: log
-    ma0:
-      range: [1e3, 2e8]
-      prior_type: log
-    f0_thermal:
-      range: [1e-12, 1e2]
-      prior_type: log
+    tau: 1e12
+    ma0: 2e8
+    f0_thermal: 1e-12
     fa: 1e9
     thetai: 0.0
     T_R: 5.0
@@ -76,11 +73,10 @@ Priors:
 
 Printer:
 
-  printer: cout
+  printer: none
 
 Scanner:
-
-  use_scanner: diver
+  use_scanner: polychord
 
   scanners:
 
@@ -97,6 +93,13 @@ Scanner:
       NP: 20000
       jDE: true
       lambdajDE: false
+
+    polychord:
+      plugin: polychord
+      like:  LogLike
+      nlive: 1000
+      tol: 1e-10
+      print_parameters_in_native_output: true
 
 ObsLikes:
 
@@ -250,7 +253,7 @@ KeyValues:
 
   debug: false
 
-  default_output_path: "runs/CosmoALP"
+  default_output_path: "runs/CosmoALP_bayesian_lcdm"
 
   likelihood:
     model_invalid_for_lnlike_below: -1e9
