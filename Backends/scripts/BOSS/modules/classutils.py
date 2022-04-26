@@ -23,26 +23,157 @@ import modules.active_cfg as active_cfg
 exec("import configs." + active_cfg.module_name + " as cfg")
 
 
-# ====== getAbstractClassName ========
+# ====== isLoadable ========
 
-def getAbstractClassName(input_name, prefix=gb.abstr_class_prefix, short=False):
+def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
+    # - Any loadable class should have a "name" XML entry
+    if not 'name' in class_el.keys():
+        return False
 
-    input_name_no_templ, templ_bracket = utils.removeTemplateBracket(input_name, return_bracket=True)
-    if '::' in input_name_no_templ:
-        namespaces, short_class_name = input_name_no_templ.rsplit('::',1)
-        abstract_class_name = namespaces + '::' + gb.abstr_class_prefix + short_class_name
-    else:
-        abstract_class_name = gb.abstr_class_prefix + input_name_no_templ
+    class_name = utils.getClassNameDict(class_el)
 
-    if short:
-        abstract_class_name = abstract_class_name.rsplit('::',1)[-1]
+    # - Check if class should be ditched. If yes, return right away.
+    if class_name['long_templ'] in cfg.ditch:
+        return False
 
-    if templ_bracket:
-        return abstract_class_name + templ_bracket
-    else:
-        return abstract_class_name
+    # - Check that class is complete (not only forward declared).
+    if not utils.isComplete(class_el):
+        if print_warning:
+            reason = f"Class is incomplete, at least based on XML file {gb.xml_file_name}"
+            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
+        return False
 
-# ====== END: getAbstractClassName ========
+    # - Check that class has at least one public constructor.
+    constructor_elements = getAcceptableConstructors(class_el, skip_copy_constructors=True)
+    if not constructor_elements:
+        if print_warning:
+            reason = "No (acceptable) public constructors identified."
+            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
+        return False
+
+    # - Check for pure virtual members.
+    if check_pure_virtual_members:
+        pure_virtual_members = pureVirtualMembers(class_el)
+        if pure_virtual_members:
+            gb.contains_pure_virtual_members.append(class_name['long_templ'])
+
+    return True
+
+# ====== END: isLoadable ========
+
+
+# ====== getMemberFunctions ========
+
+def getMemberFunctions(class_el, include_artificial=False, include_inherited=False, only_accepted=True, limit_pointerness=True, include_operators=False):
+    all_classes = [class_el]
+    all_members = []
+    all_functions = []
+
+    # If include_inherited=True, append all (native) parent classes
+    # the list 'all_classes'
+    if include_inherited:
+        all_classes += utils.getAllParentClasses(class_el, only_loaded_classes=True)
+
+    # Get all member elements
+    for el in all_classes:
+        all_members += utils.getMemberElements(el, include_artificial=include_artificial)
+
+    # Extract only regular member functions (no variables, constructors, destructors, ...)
+    for mem_el in all_members:
+        if (mem_el.tag == 'Method' or (include_operators and mem_el.tag == 'OperatorMethod')) and (mem_el.get('access') == 'public'):
+
+            if only_accepted and funcutils.ignoreFunction(mem_el, limit_pointerness=limit_pointerness):
+                method_name = mem_el.get('name')
+                if mem_el.tag == 'OperatorMethod':
+                    method_name = 'operator' + method_name
+
+                reason = "Makes use of a non-accepted type."
+                infomsg.IgnoredFunction(method_name, reason).printMessage()
+                continue
+
+            all_functions.append(mem_el)
+
+    return all_functions
+
+# ====== END: getMemberFunctions ========
+
+
+# ====== addParentClasses ========
+
+# Adds parent classes to cfg.load_classes.
+
+def addParentClasses():
+    for xml_file in gb.all_id_dict.keys():
+
+        # If new xml file, initialise global dicts
+        if xml_file != gb.xml_file_name:
+            gb.xml_file_name = xml_file
+            utils.initGlobalXMLdicts(xml_file, id_and_name_only=True)
+
+        # Loop over all named elements in the xml file
+        for full_name, el in gb.name_dict.items():
+            if el.tag in ['Class', 'Struct'] and utils.isLoadedClass(el):
+                parents_el_list = utils.getAllParentClasses(
+                    el, only_native_classes=True)
+
+                for parent_el in parents_el_list:
+
+                    # Skip classes that are not loadable (incomplete, abstract, ...)
+                    if not isLoadable(el, print_warning=True):
+                        continue
+
+                    class_name = utils.getClassNameDict(parent_el)
+
+                    # - Update cfg.load_classes
+                    if class_name['long_templ'] not in cfg.load_classes:
+                        cfg.load_classes.append(class_name['long_templ'])
+
+# ====== END: addParentClasses ========
+
+
+# ====== fillParentsOfLoadedClassesList ========
+
+# Adds parent classes to cfg.load_classes.
+
+def fillParentsOfLoadedClassesList():
+    messages = []
+
+    for xml_file in gb.all_id_dict.keys():
+
+        # If new xml file, initialise global dicts
+        if xml_file != gb.xml_file_name:
+            gb.xml_file_name = xml_file
+            utils.initGlobalXMLdicts(xml_file, id_and_name_only=True)
+
+        # Loop over all named elements in the xml file
+        for full_name, el in gb.name_dict.items():
+
+            if el.tag in ['Class', 'Struct'] and utils.isLoadedClass(el):
+
+                parents_el_list = utils.getAllParentClasses(
+                    el, only_native_classes=True)
+
+                for parent_el in parents_el_list:
+
+                    # Skip classes that are not loadable (incomplete, abstract, ...)
+                    if not isLoadable(parent_el, print_warning=True, check_pure_virtual_members=False):
+                        continue
+
+                    class_name = utils.getClassNameDict(parent_el)
+
+                    # Append to gb.parents_of_loaded_classes
+                    if class_name['long_templ'] not in gb.parents_of_loaded_classes:
+                        gb.parents_of_loaded_classes.append(
+                            class_name['long_templ'])
+
+                    # Print info
+                    msg = '  - %s is parent of %s.' % (
+                        class_name['long_templ'], full_name)
+                    if msg not in messages:
+                        print(msg)
+                        messages.append(msg)
+
+# ====== END: fillParentsOfLoadedClassesList ========
 
 
 # ====== constrAbstractClassDecl ========
@@ -161,14 +292,14 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
             return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
             
             if is_template:
-                func_types = getTemplatedMethodTypes(el, class_name)
+                func_types = utils.getTemplatedMethodTypes(el, class_name)
 
                 return_type = func_types['return']
                 args = func_types['args']
 
 
             else:
-                args = funcutils.getArgs(el)
+                args = utils.getArgs(el)
                 return_name = return_type_dict['name']
                 return_type   = return_name + '*'*pointerness + '&'*is_ref
             # If any of the arg types is a locally defined type, remove all namespaces
@@ -216,7 +347,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
                         use_w_args = w_args[:-remove_n_args]
 
 
-                    w_args_bracket_nonames = funcutils.constrArgsBracket(use_w_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+                    w_args_bracket_nonames = utils.constrArgsBracket(use_w_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
                     if is_operator:
                         if uses_loaded_type:
@@ -241,12 +372,12 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
                     if return_is_loaded:
                         if is_ref:
-                            # w_return_type = toWrapperType(return_type, include_namespace=True, include_global_namespace=True)
-                            w_return_type = toAbstractType(return_type, include_namespace=True)
+                            # w_return_type = utils.toWrapperType(return_type, include_namespace=True, include_global_namespace=True)
+                            w_return_type = utils.toAbstractType(return_type, include_namespace=True)
                         elif (not is_ref) and (pointerness > 0):
-                            w_return_type = toAbstractType(return_type, include_namespace=True)
+                            w_return_type = utils.toAbstractType(return_type, include_namespace=True)
                         else:
-                            w_return_type = toAbstractType(return_type, include_namespace=True, add_pointer=True, remove_reference=True)
+                            w_return_type = utils.toAbstractType(return_type, include_namespace=True, add_pointer=True, remove_reference=True)
                     else:
                         w_return_type = return_type
 
@@ -284,7 +415,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
                     # If class is templated, pull type from file
                     if is_template:
-                        el_type = getTemplatedMemberVariableType(el)
+                        el_type = utils.getTemplatedMemberVariableType(el)
                     else:
                         el_type       = el_type_dict['name'] + '*'*pointerness
                     variable_name = el.get('name') + gb.code_suffix
@@ -610,7 +741,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
         n_overloads = funcutils.numberOfDefaultArgs(el)
 
         # Identify arguments
-        args = funcutils.getArgs(el)
+        args = utils.getArgs(el)
 
         # Translate argument type of loaded classes
         if use_wrapper_args:
@@ -648,18 +779,18 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
             # Construct bracket with input arguments
             if use_wrapper_args:
-                args_bracket         = funcutils.constrArgsBracket(use_w_args, include_namespace=True, use_wrapper_class=True)
-                args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_type=False, cast_to_original=True, wrapper_to_pointer=True)
+                args_bracket         = utils.constrArgsBracket(use_w_args, include_namespace=True, use_wrapper_class=True)
+                args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_type=False, cast_to_original=True, wrapper_to_pointer=True)
             else:
-                args_bracket         = funcutils.constrArgsBracket(use_w_args, include_namespace=True)
-                args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_type=False, cast_to_original=True)
-            args_bracket_nonames = funcutils.constrArgsBracket(use_args, include_namespace=True, include_arg_type=True, include_arg_name=False, add_namespace_to_loaded='my_ns')
+                args_bracket         = utils.constrArgsBracket(use_w_args, include_namespace=True)
+                args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_type=False, cast_to_original=True)
+            args_bracket_nonames = utils.constrArgsBracket(use_args, include_namespace=True, include_arg_type=True, include_arg_name=False, add_namespace_to_loaded='my_ns')
 
             # Generate declaration line:
             if use_wrapper_return:
-                return_type = toWrapperType(class_name['wrp_short_templ'], include_namespace=True)
+                return_type = utils.toWrapperType(class_name['wrp_short_templ'], include_namespace=True)
             else:
-                return_type = toAbstractType(class_name['wrp_short_templ'], add_pointer=True, include_namespace=True)
+                return_type = utils.toAbstractType(class_name['wrp_short_templ'], add_pointer=True, include_namespace=True)
 
             func_def += return_type + ' ' + factory_name + args_bracket + '\n'
 
@@ -735,7 +866,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
 def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False):
 
-    class_name = getClassNameDict(class_el)
+    class_name = utils.getClassNameDict(class_el)
     is_template = utils.isTemplateClass(class_name)
 
     # Check if this is an operator function
@@ -765,7 +896,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     # Function return type
     if is_template:
         # Get the function's types from config file
-        func_types = getTemplatedMethodTypes(method_el, class_name)
+        func_types = utils.getTemplatedMethodTypes(method_el, class_name)
 
         return_type = func_types['return']
         args = func_types['args']
@@ -774,7 +905,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
         return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         # Function arguments (get list of dicts with argument info)
-        args = funcutils.getArgs(method_el)
+        args = utils.getArgs(method_el)
 
     # Remove arguments when creating overloaded versions (for dealing with default argument values)
     if remove_n_args > 0:
@@ -794,11 +925,11 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     # Choose wrapper return type
     if return_is_loaded_class:
         if (pointerness == 0) and (is_ref):
-            w_return_type = toAbstractType(return_type, include_namespace=True)
+            w_return_type = utils.toAbstractType(return_type, include_namespace=True)
         elif (pointerness == 0) and (not is_ref):
-            w_return_type = toAbstractType(return_type, include_namespace=True, add_pointer=True, remove_reference=True)
+            w_return_type = utils.toAbstractType(return_type, include_namespace=True, add_pointer=True, remove_reference=True)
         else:
-            w_return_type = toAbstractType(return_type, include_namespace=True)
+            w_return_type = utils.toAbstractType(return_type, include_namespace=True)
 
     else:
         w_return_type = return_type
@@ -809,9 +940,9 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
 
     # Construct bracket with input arguments for wrapper function
     if only_declaration:
-        w_args_bracket = funcutils.constrArgsBracket(w_args, include_arg_name=False, include_namespace=True)
+        w_args_bracket = utils.constrArgsBracket(w_args, include_arg_name=False, include_namespace=True)
     else:
-        w_args_bracket = funcutils.constrArgsBracket(w_args, include_namespace=True)
+        w_args_bracket = utils.constrArgsBracket(w_args, include_namespace=True)
 
     # Construct declaration line for wrapper function
     w_func_line = funcutils.constrDeclLine(w_return_type, w_func_name, w_args_bracket, keywords=return_kw, is_const=is_const)
@@ -870,7 +1001,7 @@ def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent
     func_code = ''
 
     var_name = var_el.get('name')
-    class_name = getClassNameDict(class_el)
+    class_name = utils.getClassNameDict(class_el)
 
     var_type_dict    = utils.findType( var_el )
     var_type_name    = var_type_dict['name']
@@ -888,7 +1019,7 @@ def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent
 
     # If class is templated, pull type from file
     if is_template:
-        var_type = getTemplatedMemberVariableType(var_el)
+        var_type = utils.getTemplatedMemberVariableType(var_el)
     else:
         var_type   = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
@@ -907,10 +1038,10 @@ def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent
     var_is_loaded_class = utils.isLoadedClass(var_el)
 
     if (var_is_loaded_class) and (pointerness == 0):
-        return_type = toAbstractType(var_type)
+        return_type = utils.toAbstractType(var_type)
     elif (var_is_loaded_class) and (pointerness == 1) and (add_return_type_suffix):
-        return_type   = toWrapperType(var_type, include_namespace=include_full_namespace)
-        var_type_name = toWrapperType(var_type_name, include_namespace=include_full_namespace)
+        return_type   = utils.toWrapperType(var_type, include_namespace=include_full_namespace)
+        var_type_name = utils.toWrapperType(var_type_name, include_namespace=include_full_namespace)
     else:
         return_type = var_type
 
@@ -1092,7 +1223,7 @@ def checkAssignmentOperator(class_el):
             if (return_type == 'void') or (return_type_id == class_el.get('id')):
 
                 # Check that the only argument is another class instance
-                args = funcutils.getArgs(mem_el)
+                args = utils.getArgs(mem_el)
                 if (len(args) == 1) and (args[0]['id'] == class_el.get('id')):
 
                     found_assignment_operator = True
@@ -1124,7 +1255,7 @@ def checkCopyConstructor(class_el, return_id=False):
                 return found_copy_constructor, copy_constr_id
 
             # Check that the only argument is another class instance
-            args = funcutils.getArgs(mem_el)
+            args = utils.getArgs(mem_el)
             if (len(args) == 1) and (args[0]['id'] == class_el.get('id')):
 
                 found_copy_constructor = True
@@ -1138,161 +1269,14 @@ def checkCopyConstructor(class_el, return_id=False):
 # ====== END: checkCopyConstructor ========
 
 
-
-# ====== toWrapperType ========
-
-def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False, include_namespace=False, include_global_namespace=False):
-
-    type_name = input_type_name
-
-    # Search for '*' and '&'
-    n_pointers = type_name.count('*')
-    is_ref     = bool('&' in type_name)
-
-    # Remove '*' and '&'
-    type_name = type_name.replace('*','').replace('&','')
-
-    # Split into namespace, short_type_name
-    namespace, short_type_name = utils.removeNamespace(type_name, return_namespace=True)
-
-    if include_global_namespace:
-        namespace = '::' + namespace
-
-    # Insert wrapper class prefix
-    short_type_name = gb.wrapper_class_prefix + short_type_name
-
-    # Add '*' and '&'
-    if remove_pointers:
-        pass
-    else:
-        short_type_name = short_type_name + '*'*n_pointers
-
-    if remove_reference:
-        pass
-    else:
-        short_type_name = short_type_name + '&'*is_ref
-
-    # Return result
-    if include_namespace and (namespace != ''):
-        return f"{namespace}::{short_type_name}"
-    else:
-        return short_type_name
-
-# ====== END: toWrapperType ========
-
-
-
-# ====== toAbstractType ========
-
-def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, remove_reference=False, remove_pointers=False, input_type_el=None):
-
-    # FIXME:
-    # Should this function also translate template argument types?
-    # Example: TypeA<TypeB>  -->  Abstract__TypeA<Abstract__TypeB>
-
-    type_name = input_type_name
-
-    # Remove template bracket
-    type_name_notempl = utils.removeTemplateBracket(type_name)
-
-    # Search for '*' and '&'
-    n_pointers = type_name_notempl.count('*')
-    is_ref     = bool('&' in type_name_notempl)
-
-    # Get namespace
-    namespace, type_name_short = utils.removeNamespace(type_name, return_namespace=True)
-
-    if is_ref and remove_reference:
-        type_name_short = type_name_short.replace('&','')
-
-    if (n_pointers > 0) and remove_pointers:
-        type_name_short = type_name_short.replace('*','')
-
-    if namespace == '':
-        type_name = gb.abstr_class_prefix + type_name_short
-    else:
-        type_name = (namespace+'::')*include_namespace  + gb.abstr_class_prefix + type_name_short
-
-    # If it is a template add the bracket
-    if input_type_el is not None:
-        class_name = getClassNameDict(input_type_el)
-        if utils.isTemplateClass(class_name):
-            type_name += class_name['templ_vars']
-
-    if add_pointer:
-        if is_ref and not remove_reference:
-            type_name = type_name.rstrip('&') + '*&'
-        else:
-            type_name = type_name + '*'
-
-    # Return result
-    return type_name
-
-# ====== END: toAbstractType ========
-
-
-
-# ====== getClassNameDict ========
-
-def getClassNameDict(class_el, abstract=False):
-
-    class_name = {}
-
-    xml_id = class_el.get('id')
-    if 'name' not in class_el.keys():
-        raise KeyError('XML element %s does not contain the key "name".' % (xml_id))
-
-    namespaces_list = utils.getNamespaces(class_el, include_self=True)
-    class_name['long_templ'] = '::'.join(namespaces_list)
-
-    class_name['long']        = class_name['long_templ'].split('<',1)[0]
-    class_name['short_templ'] = class_el.get('name')
-    class_name['short']       = class_name['short_templ'].split('<',1)[0]
-    class_name['namespace']   = '::'.join(namespaces_list[:-1])
-
-    class_name['wrp_long_templ'] = class_name['long_templ']
-    class_name['wrp_long'] = class_name['long']
-    class_name['wrp_short_templ'] = class_name['short_templ']
-    class_name['wrp_short'] = class_name['short']
-
-    class_name['is_template'] = False
-    class_name['is_specialization'] = False
-
-    # Get template info, but only for loaded classes
-    if '<' in class_name['short_templ'] and utils.isLoadedClass(class_el):
-        templ_bracket, templ_var_list, is_specialization = utils.getTemplateBracket(class_el)
-        if not is_specialization:
-            class_name['templ_bracket'] = templ_bracket
-            class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
-            class_name['templ_var_list'] = templ_var_list
-            class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
-            class_name['is_template' ] = True
-        else:
-          class_name['wrp_long_templ'] = class_name['long'] + '__' + '_'.join(templ_var_list)
-          class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_var_list)
-          class_name['wrp_short_templ'] = class_name['short'] + '__' + '_'.join(templ_var_list)
-          class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_var_list)
-          class_name['is_specialization'] = True
-
-    class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
-    class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
-    class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix, short=True)
-    class_name['abstr_short']       = class_name['abstr_short_templ'].split('<',1)[0]
-
-    return class_name
-
-# ====== END: getClassNameDict ========
-
-
-
 # ====== constrWrapperDecl ========
 
 def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variables, class_functions, class_constructors, class_operators, construct_assignment_operator, has_copy_constructor, indent=' '*cfg.indent):
 
     decl_code = ''
 
-    # short_wrapper_class_name = toWrapperType(class_name['short'])
-    # wrapper_class_name = toWrapperType(class_name['long'], include_namespace=True)
+    # short_wrapper_class_name = utils.toWrapperType(class_name['short'])
+    # wrapper_class_name = utils.toWrapperType(class_name['long'], include_namespace=True)
 
     # Check if class is template
     is_template = utils.isTemplateClass(class_name)
@@ -1360,7 +1344,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 
         # Identify arguments, translate argument type of loaded classes
         # and construct the argument bracket
-        args = funcutils.getArgs(constr_el)
+        args = utils.getArgs(constr_el)
 
         # One factory function pointer for each set of default arguments
         for remove_n_args in range(n_overloads+1):
@@ -1374,7 +1358,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
             else:
                 use_args = args[:-remove_n_args]
             
-            args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+            args_bracket = utils.constrArgsBracket(use_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
             # Factory pointer name
             factory_ptr_name = '__factory' + str(factory_counter)
@@ -1517,7 +1501,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
             return_kw_str = return_kw_str.replace('const', '')
 
         # Arguments
-        args = funcutils.getArgs(func_el)
+        args = utils.getArgs(func_el)
 
         # If any of the arg types was move to the abstract class, change namespace
         for arg in args:
@@ -1539,7 +1523,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
                 use_args = args[:-remove_n_args]
 
             # Argument bracket
-            args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
+            args_bracket = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
 
             # Name of function to call (in abstract class)
             if is_operator:
@@ -1559,9 +1543,9 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
                     # call_func_name = func_name
 
 
-        # Write declaration line
-        decl_code += 2*indent + return_kw_str + return_type + ' ' + func_name + args_bracket + is_const*' const' + ';\n'
-        decl_code += '\n'
+           # Write declaration line
+            decl_code += 2*indent + return_kw_str + return_type + ' ' + func_name + args_bracket + is_const*' const' + ';\n'
+            decl_code += '\n'
 
 
     #
@@ -1581,7 +1565,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
             current_access = accessor
 
         # Identify arguments
-        args = funcutils.getArgs(constr_el)
+        args = utils.getArgs(constr_el)
         factory_args = funcutils.constrWrapperArgs(args, add_ref=True)
 
         # If default arguments are use, we need overloaded constructors to connect to the overloaded
@@ -1603,7 +1587,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
                 use_args         = args[:-remove_n_args]
                 # factory_use_args = factory_args[:-remove_n_args]
 
-            args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
+            args_bracket = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
 
             temp_code += 2*indent + class_name['wrp_short'] + args_bracket + ';\n'
 
@@ -1645,7 +1629,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 #            current_access = accessor
 #
 #        # Identify arguments
-#        args = funcutils.getArgs(oper_el)
+#        args = utils.getArgs(oper_el)
 #        factory_args = funcutils.constrWrapperArgs(args, add_ref=True)
 #
 #        # If default arguments are use, we need overloaded constructors to connect to the overloaded
@@ -1666,7 +1650,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 #                use_args = args[:-remove_n_args]
 #                # factory_use_args = factory_args[:-remove_n_args]
 #
-#            args_bracket = funcutils.constrArgsBracket(
+#            args_bracket = utils.constrArgsBracket(
 #                use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
 #
 #            temp_code += 2*indent + class_name['wrp_short'] + '& ' + 'operator ' + oper_el.get('name') + args_bracket + ';\n'
@@ -1733,8 +1717,8 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
 
     def_code = ''
 
-    short_wrapper_class_name = toWrapperType(class_name['wrp_short'])
-    # wrapper_class_name = toWrapperType(class_name['long'], include_namespace=True)
+    short_wrapper_class_name = utils.toWrapperType(class_name['wrp_short'])
+    # wrapper_class_name = utils.toWrapperType(class_name['long'], include_namespace=True)
 
     # Check if class is template
     is_template = utils.isTemplateClass(class_name)
@@ -1786,6 +1770,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
             return_type = class_name['abstr_long_templ'] + "::" +  utils.removeNamespace(return_type)
 
         # If return type is a known class, add '::' for absolute namespace.
+        return_type_name = utils.getClassNameDict(return_type_el)
         if (not return_is_loaded) and utils.isKnownClass(return_type_el):
             return_type = '::' + return_type
 
@@ -1797,7 +1782,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
             return_kw_str = return_kw_str.replace('const', '')
 
         # Arguments
-        args = funcutils.getArgs(func_el)
+        args = utils.getArgs(func_el)
 
         # If any of the arg types was move to the abstract class, change namespace
         for arg in args:
@@ -1820,7 +1805,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
                 use_args = args[:-remove_n_args]
 
             # Arguments bracket
-            args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
+            args_bracket = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True)
 
             # Name of function to call (in abstract class)
             if is_operator:
@@ -1846,11 +1831,11 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
             else:
                 def_code += indent + 'return '
 
-            args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=True)
+            args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=True)
 
             if return_is_loaded:
 
-                abs_return_type_simple = toAbstractType(return_type, include_namespace=True, remove_reference=True, remove_pointers=True)
+                abs_return_type_simple = utils.toAbstractType(return_type, include_namespace=True, remove_reference=True, remove_pointers=True)
                 # return_type_simple     = return_type.replace('*','').replace('&','')
 
                 if is_const:
@@ -1920,8 +1905,8 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
 
         var_is_loaded_class = utils.isLoadedClass(var_type_el)
 
-        # wrapper_type_name = toWrapperType(var_type, remove_reference=True, remove_pointers=True, include_namespace=True)
-        # var_abstr_class_name = getClassNameDict(var_type_el, abstract=True)
+        # wrapper_type_name = utils.toWrapperType(var_type, remove_reference=True, remove_pointers=True, include_namespace=True)
+        # var_abstr_class_name = utils.getClassNameDict(var_type_el, abstract=True)
         # var_wrapper_base_class_name = 'WrapperBase<' + var_abstr_class_name['long'] + '>'
 
         # # FIXME: At the moment there are problems with member variables that are pointer-to-loaded-class. For now, skip them:
@@ -1953,7 +1938,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
     for constr_el in class_constructors:
 
         # Identify arguments
-        args = funcutils.getArgs(constr_el)
+        args = utils.getArgs(constr_el)
         # factory_args = funcutils.constrWrapperArgs(args, add_ref=True)
 
         # If default arguments are used, we need overloaded constructors to connect to the overloaded
@@ -1974,9 +1959,9 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
                 use_args         = args[:-remove_n_args]
                 # factory_use_args = factory_args[:-remove_n_args]
 
-            args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
-            args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=False)
-            # factory_args_bracket = funcutils.constrArgsBracket(factory_use_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+            args_bracket = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=False)
+            args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=False)
+            # factory_args_bracket = utils.constrArgsBracket(factory_use_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
             # Factory pointer name
             factory_ptr_name = '__factory' + str(factory_counter)
@@ -2146,139 +2131,6 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
 # ====== END: constrWrapperDef ========
 
 
-# Custom Error type to catch in function foundMatching Members
-class UnfoundMember(Exception):
-    pass
-
-# ======= getTemplatedMemberVariableType ========
-
-def getTemplatedMemberVariableType(var_el):
-
-    var = utils.getTemplatedSignature(var_el)
-    searching_var = var_el.get('name')
-
-    # Match the variable name
-    # TODO: This does not work if the variable is not the first on a list
-    pat = re.compile(rf"[\s]+{re.escape(searching_var)}[\s]*[,;=].*")
-    m = re.search(pat, var)
-    if bool(m):
-        # Found it!
-        # Get the type from the front and strip the whitespaces
-        lo = m.start()
-        return var[:lo].strip()
-
-    # If it wasn't found, there's a problem
-    raise UnfoundMember(f"{searching_var} wasn't found in the original file")
-
-# ======= END: getTemplatedMemberVariableType ========
-
-
-
-# ======= getTemplatedMethodTypes ========
-
-def getTemplatedMethodTypes(func_el, class_name):
-
-    short_class_name = class_name['short']
-
-    # Get return ready
-    method_types = {'return': None, 'args': None}
-    xml_args_info = funcutils.getArgs(func_el)
-    searching_method = func_el.get('name')
-
-    # Get the signature of the function we are looking for
-    method = utils.getTemplatedSignature(func_el)
-    # If the line corresponds to the declaration of the class, it means
-    # that this is undeclared constructor or assignment operator, so do nothing
-    if method.startswith("class") or method.startswith("struct"):
-        return {}
-
-    # Select the pattern to extract the types
-    if func_el.tag == 'Constructor':
-        pat = re.compile(rf"[\s]*{re.escape(searching_method)}[\s]*\(")
-    elif func_el.tag == 'OperatorMethod':
-        pat = re.compile(rf"operator{re.escape(searching_method)}[\s]*\(")
-    elif func_el.tag == 'Method':
-        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
-    # For cases when it is a destructor
-    else:
-        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
-
-
-    m = re.search(pat, method)
-    if bool(m):
-
-        # Found it!
-        # Get the type from the front
-        lo = m.start()
-        hi = m.end()
-
-        # Put the return type into the return variable
-        if func_el.tag == 'Constructor' or func_el.tag == 'Destructor':
-            method_types['return'] = ''
-        else:
-            method_types['return'] = method[:lo].strip()
-
-        # Find the last ')'
-        last_bracket_index = max([i for i, ltr in enumerate(method) if ltr == ')'])
-
-        # Find the args
-        brackets = method[hi:last_bracket_index]
-        if not brackets:
-            args = []
-        else:
-            args = brackets.split(',')
-
-        # Parse each arg into a dictionary and add it to method_types
-        method_types['args'] = funcutils.makeTemplateArgs(args)
-            
-        if len(method_types['args']) != len(xml_args_info):
-            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
-
-        # looping through all the var checking 1 by 1 using name and type
-        same_args = True
-        for i, j in zip(method_types['args'], xml_args_info):
-            
-            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and\
-               utils.getBasicTypeName(j['type']) not in class_name['templ_types'] and\
-               utils.getBasicTypeName(j['type']) != class_name['short_templ']:
-                same_args = False
-                break
-
-        if not same_args:
-            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
-
-        # Return
-        return method_types
-
-    # If it wasn't found, there's a problem
-    raise UnfoundMember(
-        f"{searching_method} wasn't found in the original file.")
-
-# ======= END: getTemplatedMethodTypes ========
-
-# ======= foundMatchingMembers ========
-
-def foundMatchingMembers(class_name, el):
-    """
-    This function is responsible in finding if there's any matching member 
-    in the original file for a templated class
-    """
-    try:
-        # Try and see if we can find the method types or variable types. If we can, it must exist
-        if el.tag in ('OperatorMethod', 'Method', 'Constructor', 'Destructor'):
-            # Must be a method
-            getTemplatedMethodTypes(el, class_name)
-        else:
-            # Must be a member variable
-            getTemplatedMemberVariableType(el)
-
-        # If it got here, there was no exception
-        return True
-    except UnfoundMember:
-        return False
-
-# ======= END: foundMatchingMembers ========
-
 # ======= constrWrapperSrc ========
 
 def constrWrapperSrc(class_name, indent=' '*cfg.indent):
@@ -2359,7 +2211,7 @@ def generateWrapperHeaderCode(class_el, class_name, namespaces, short_abstr_clas
 
     # Useful lists
     class_variables    = []
-    class_functions    = utils.getMemberFunctions(class_el, include_artificial=False, include_inherited=cfg.wrap_inherited_members,
+    class_functions    = getMemberFunctions(class_el, include_artificial=False, include_inherited=cfg.wrap_inherited_members,
                                                             only_accepted=True, limit_pointerness=True, include_operators=True)
     class_constructors = []
     class_operators = []
@@ -2508,7 +2360,7 @@ def generateWrapperSourceCode(class_el, class_name, namespaces) :
 
 def findClassNamePosition(class_el, file_content_nocomments):
 
-    class_name = getClassNameDict(class_el)
+    class_name = utils.getClassNameDict(class_el)
 
     # Find the index of the \n after the first line of the class declaration
     line_number = int(class_el.get('line'))

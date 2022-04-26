@@ -18,12 +18,399 @@ import re
 import modules.infomsg as infomsg
 import modules.exceptions as exceptions
 import modules.gb as gb
-import modules.classutils as classutils
-import modules.funcutils as funcutils
-import modules.enumutils as enumutils
 import modules.active_cfg as active_cfg
 
 exec("import configs." + active_cfg.module_name + " as cfg")
+
+
+# ====== getAbstractClassName ========
+
+def getAbstractClassName(input_name, prefix=gb.abstr_class_prefix, short=False):
+
+    input_name_no_templ, templ_bracket = removeTemplateBracket(input_name, return_bracket=True)
+    if '::' in input_name_no_templ:
+        namespaces, short_class_name = input_name_no_templ.rsplit('::',1)
+        abstract_class_name = namespaces + '::' + gb.abstr_class_prefix + short_class_name
+    else:
+        abstract_class_name = gb.abstr_class_prefix + input_name_no_templ
+
+    if short:
+        abstract_class_name = abstract_class_name.rsplit('::',1)[-1]
+
+    if templ_bracket:
+        return abstract_class_name + templ_bracket
+    else:
+        return abstract_class_name
+
+# ====== END: getAbstractClassName ========
+
+
+# ====== getClassNameDict ========
+
+def getClassNameDict(class_el, abstract=False):
+
+    class_name = {}
+
+    xml_id = class_el.get('id')
+    if 'name' not in class_el.keys():
+        raise KeyError('XML element %s does not contain the key "name".' % (xml_id))
+
+    namespaces_list = getNamespaces(class_el, include_self=True)
+    class_name['long_templ'] = '::'.join(namespaces_list)
+
+    class_name['long']        = class_name['long_templ'].split('<',1)[0]
+    class_name['short_templ'] = class_el.get('name')
+    class_name['short']       = class_name['short_templ'].split('<',1)[0]
+    class_name['namespace']   = '::'.join(namespaces_list[:-1])
+
+    class_name['wrp_long_templ'] = class_name['long_templ']
+    class_name['wrp_long'] = class_name['long']
+    class_name['wrp_short_templ'] = class_name['short_templ']
+    class_name['wrp_short'] = class_name['short']
+
+    class_name['is_template'] = False
+    class_name['is_specialization'] = False
+
+    # Get template info, but only for loaded classes
+    if '<' in class_name['short_templ'] and isLoadedClass(class_el):
+        templ_bracket, templ_var_list, is_specialization = getTemplateBracket(class_el)
+        if not is_specialization:
+            class_name['templ_bracket'] = templ_bracket
+            class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
+            class_name['templ_var_list'] = templ_var_list
+            class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
+            class_name['is_template' ] = True
+        else:
+          class_name['wrp_long_templ'] = class_name['long'] + '__' + '_'.join(templ_var_list)
+          class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_var_list)
+          class_name['wrp_short_templ'] = class_name['short'] + '__' + '_'.join(templ_var_list)
+          class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_var_list)
+          class_name['is_specialization'] = True
+
+    class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
+    class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
+    class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix, short=True)
+    class_name['abstr_short']       = class_name['abstr_short_templ'].split('<',1)[0]
+
+    return class_name
+
+# ====== END: getClassNameDict ========
+
+
+# ====== getFunctionNameDict ========
+
+def getFunctionNameDict(func_el):
+    func_name = OrderedDict()
+
+    # Check that the 'name' XML entry exists.
+    xml_id = func_el.get('id')
+    if 'name' not in func_el.keys():
+        raise KeyError(f'XML element {xml_id} does not contain the key "name".')
+
+    # Get information about the return type.
+    return_type_dict = findType(func_el)
+    # return_el = return_type_dict['el']
+    pointerness = return_type_dict['pointerness']
+    is_ref = return_type_dict['is_reference']
+    # return_kw = return_type_dict['cv_qualifiers']
+
+    # return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
+
+    return_type = return_type_dict['name'] + '*' * pointerness + '&' * is_ref
+
+    # Get information about the arguments
+    args = getArgs(func_el)
+
+    #
+    # Start filling the name dict
+    #
+
+    func_name['short_templ'] = func_el.get('name')
+
+    namespaces_list = getNamespaces(func_el, include_self=True)
+    func_name['long_templ'] = '::'.join(namespaces_list)
+
+    func_name['short'], template_bracket = removeTemplateBracket(func_name['short_templ'], return_bracket=True)
+    func_name['long'], template_bracket = removeTemplateBracket(func_name['long_templ'], return_bracket=True)
+
+    # Construct argument bracket
+    args_bracket = constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+    func_name['long_templ_args'] = func_name['long_templ'] + args_bracket
+    func_name['short_templ_args'] = func_name['short_templ'] + args_bracket
+
+    # Add return type
+    func_name['long_templ_return_args'] = return_type + ' ' + func_name['long_templ_args']
+
+    return func_name
+
+# ====== END: getFunctionNameDict ========
+
+
+# ====== getEnumNameDict ========
+
+def getEnumNameDict(enum_el):
+
+    enum_name = {}
+
+    xml_id = enum_el.get('id')
+    if 'name' not in enum_el.keys():
+        raise KeyError('XML element %s does not contain the key "name".' % (xml_id))
+
+    namespaces_list = getNamespaces(enum_el, include_self=True)
+    enum_name['long'] = '::'.join(namespaces_list)
+    enum_name['short'] = enum_el.get('name')
+    enum_name['namespace']   = '::'.join(namespaces_list[:-1])
+
+    enum_values= []
+    for val in enum_el:
+        enum_values.append(val.get('name'))
+    enum_name['enum_values'] = enum_values
+
+    return enum_name
+
+# ====== END: getEnumNameDict ========
+
+
+
+# ====== toWrapperType ========
+
+def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False, include_namespace=False, include_global_namespace=False):
+
+    type_name = input_type_name
+
+    # Search for '*' and '&'
+    n_pointers = type_name.count('*')
+    is_ref     = bool('&' in type_name)
+
+    # Remove '*' and '&'
+    type_name = type_name.replace('*','').replace('&','')
+
+    # Split into namespace, short_type_name
+    namespace, short_type_name = removeNamespace(type_name, return_namespace=True)
+
+    if include_global_namespace:
+        namespace = '::' + namespace
+
+    # Insert wrapper class prefix
+    short_type_name = gb.wrapper_class_prefix + short_type_name
+
+    # Add '*' and '&'
+    if remove_pointers:
+        pass
+    else:
+        short_type_name = short_type_name + '*'*n_pointers
+
+    if remove_reference:
+        pass
+    else:
+        short_type_name = short_type_name + '&'*is_ref
+
+    # Return result
+    if include_namespace and (namespace != ''):
+        return f"{namespace}::{short_type_name}"
+    else:
+        return short_type_name
+
+# ====== END: toWrapperType ========
+
+
+
+# ====== toAbstractType ========
+
+def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, remove_reference=False, remove_pointers=False, input_type_el=None):
+
+    # FIXME:
+    # Should this function also translate template argument types?
+    # Example: TypeA<TypeB>  -->  Abstract__TypeA<Abstract__TypeB>
+
+    type_name = input_type_name
+
+    # Remove template bracket
+    type_name_notempl = removeTemplateBracket(type_name)
+
+    # Search for '*' and '&'
+    n_pointers = type_name_notempl.count('*')
+    is_ref     = bool('&' in type_name_notempl)
+
+    # Get namespace
+    namespace, type_name_short = removeNamespace(type_name, return_namespace=True)
+
+    if is_ref and remove_reference:
+        type_name_short = type_name_short.replace('&','')
+
+    if (n_pointers > 0) and remove_pointers:
+        type_name_short = type_name_short.replace('*','')
+
+    if namespace == '':
+        type_name = gb.abstr_class_prefix + type_name_short
+    else:
+        type_name = (namespace+'::')*include_namespace  + gb.abstr_class_prefix + type_name_short
+
+    # If it is a template add the bracket
+    if input_type_el is not None:
+        class_name = getClassNameDict(input_type_el)
+        if isTemplateClass(class_name):
+            type_name += class_name['templ_vars']
+
+    if add_pointer:
+        if is_ref and not remove_reference:
+            type_name = type_name.rstrip('&') + '*&'
+        else:
+            type_name = type_name + '*'
+
+    # Return result
+    return type_name
+
+# ====== END: toAbstractType ========
+
+
+# ======== getArgs ========
+
+def getArgs(func_el):
+
+    #
+    # Returns a list with one dict per argument.
+    # Each dict contains the following keywords:
+    #
+    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class',
+    #   'known_class', 'type_namespaces', 'default', 'function_pointer'
+    #
+
+    args = []
+    argc = 1
+    for sub_el in list(func_el):
+        if sub_el.tag == 'Argument':
+
+            arg_dict = OrderedDict()
+            if 'name' in sub_el.keys():
+                arg_dict['name'] = sub_el.get('name')
+            else:
+                arg_dict['name'] = 'arg_' + str(argc)
+                argc += 1
+
+            arg_type_dict = findType(sub_el)
+            pointerness = arg_type_dict['pointerness']
+            is_ref = arg_type_dict['is_reference']
+            arg_kw = arg_type_dict['cv_qualifiers']
+            arg_id = arg_type_dict['id']
+            arg_type_el = arg_type_dict['el']
+            is_func_ptr = arg_type_dict['is_function_pointer']
+
+            arg_type = arg_type_dict['name'] + '*'*pointerness + '&'*is_ref
+
+            arg_dict['type'] = arg_type
+            arg_dict['kw'] = arg_kw
+            arg_dict['id'] = arg_id
+            arg_dict['function_pointer'] = is_func_ptr
+
+            arg_dict['native'] = isNative(arg_type_el)
+            arg_dict['fundamental'] = isFundamental(arg_type_el)
+            arg_dict['enumeration'] = isEnumeration(arg_type_el)
+            arg_dict['loaded_class'] = isLoadedClass(arg_type_el)
+            arg_dict['known_class'] = isKnownClass(arg_type_el)
+            arg_dict['type_namespaces'] = getNamespaces(arg_type_el)
+
+            arg_dict['default'] = ('default' in sub_el.keys())
+
+            args.append(arg_dict)
+
+    return args
+
+# ======== END: getArgs ========
+
+# ======== constrArgsBracket ========
+
+def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, include_namespace=False,
+                      cast_to_original=False, use_wrapper_class=False, wrapper_to_pointer=False,
+                      add_namespace_to_loaded=''):
+
+    #
+    # Requires a list of dicts as input, as returned by 'getArgs' or 'constrWrapperArgs'.
+    #
+
+    # Construct bracket with input arguments
+    args_seq = ''
+    # argc = 1
+    for arg in args:
+        # We must create a new copy since we may be altering the content later
+        arg_dict = OrderedDict(arg)
+        if arg_dict['loaded_class'] and (add_namespace_to_loaded != ''):
+            add_namespaces = add_namespace_to_loaded.split('::')
+            arg_dict['type_namespaces'] = add_namespaces + arg_dict['type_namespaces']
+            arg_dict['type'] = f"{add_namespace_to_loaded}::{arg_dict['type']}"
+
+        if include_arg_name and cast_to_original:
+            if arg_dict['loaded_class']:
+                # We assume that arg_dict['type'] *is* the original type!
+                cast_to_type = arg_dict['type']
+
+                if include_namespace:
+                    namespaces = arg_dict['type_namespaces']
+                    if len(namespaces) > 0:
+                        cast_to_type = '::'.join(namespaces) + '::' + cast_to_type
+
+                # If argument type is not pointer or reference, add a reference operator '&'
+                check_type = cast_to_type
+                if ('*' not in check_type) and ('&' not in check_type):
+                    cast_to_type = cast_to_type + '&'
+
+                # Add qualifiers
+                if len(arg_dict['kw']) > 0:
+                    qualifiers = ' '.join(arg_dict['kw'])
+                    cast_to_type = f"{qualifiers} {cast_to_type}"
+
+                # Determine what argument name to use (arg_name or *arg_name.get_BEptr() or ...)
+                if wrapper_to_pointer:
+                    if arg_dict['type'].count('*') == 0:
+                        use_name = f"*{arg_dict['name']}.get_BEptr()"
+                    elif arg_dict['type'].count('*') == 1:
+                        use_name = f"(*{arg_dict['name']}).get_BEptr()"
+
+                    args_seq += f"dynamic_cast< {cast_to_type} >({use_name})"
+                else:
+                    args_seq += f"dynamic_cast< {cast_to_type} >({arg_dict['name']})"
+            else:
+                args_seq += arg_dict['name']
+        else:
+            if include_arg_type:
+                args_seq += ''.join([kw+' ' for kw in arg_dict['kw']])
+
+                if use_wrapper_class and arg_dict['loaded_class']:
+                    args_seq += toWrapperType(arg_dict['type'], include_namespace=include_namespace)
+                else:
+                    if include_namespace:
+                        # If known class, add '::' for absolute namespace
+                        if arg_dict['known_class']:
+                            args_seq += '::' + arg_dict['type']
+                        else:
+                            args_seq += arg_dict['type']
+                    else:
+                        args_seq += removeNamespace(arg_dict['type'])
+
+            if include_arg_type and include_arg_name:
+                args_seq += ' '
+
+            if include_arg_name:
+                if isLoadedClass(arg_dict['type'], byname=True) and wrapper_to_pointer:
+                    if arg_dict['type'].count('*') == 0:
+                        args_seq += f"*{arg_dict['name']}.get_BEptr()"
+                    elif arg_dict['type'].count('*') == 1:
+                        args_seq += f"(*{arg_dict['name']}).get_BEptr()"
+                    else:
+                        raise Exception('constrArgsBracket cannot presently deal with arguments of type pointer-to-pointer for wrapper classes.')
+                else:
+                    args_seq += arg_dict['name']
+
+        args_seq += ', '
+
+    args_seq = args_seq.rstrip(', ')
+    args_seq = args_seq.strip()
+    args_bracket = f"({args_seq})"
+
+    return args_bracket
+
+# ======== END: constrArgsBracket ========
+
 
 
 # ====== isComplete ========
@@ -33,45 +420,6 @@ def isComplete(class_el):
     return (not 'incomplete' in class_el.keys()) or not (class_el.get('incomplete') == '1')
 
 # ====== END: isComplete ========
-
-
-# ====== isLoadable ========
-
-def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
-    # - Any loadable class should have a "name" XML entry
-    if not 'name' in class_el.keys():
-        return False
-
-    class_name = classutils.getClassNameDict(class_el)
-
-    # - Check if class should be ditched. If yes, return right away.
-    if class_name['long_templ'] in cfg.ditch:
-        return False
-
-    # - Check that class is complete (not only forward declared).
-    if not isComplete(class_el):
-        if print_warning:
-            reason = f"Class is incomplete, at least based on XML file {gb.xml_file_name}"
-            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
-        return False
-
-    # - Check that class has at least one public constructor.
-    constructor_elements = classutils.getAcceptableConstructors(class_el, skip_copy_constructors=True)
-    if not constructor_elements:
-        if print_warning:
-            reason = "No (acceptable) public constructors identified."
-            infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
-        return False
-
-    # - Check for pure virtual members.
-    if check_pure_virtual_members:
-        pure_virtual_members = classutils.pureVirtualMembers(class_el)
-        if pure_virtual_members:
-            gb.contains_pure_virtual_members.append(class_name['long_templ'])
-
-    return True
-
-# ====== END: isLoadable ========
 
 
 # ====== isFundamental ========
@@ -94,7 +442,7 @@ def isKnownClass(el, class_name=None):
 
     # Get class_name dict if it is not passed in as an argument
     if class_name is None:
-        class_name = classutils.getClassNameDict(type_el)
+        class_name = getClassNameDict(type_el)
 
     # Check if standard library class OR if listed among the user-specified known types
     return isStdType(el, class_name=class_name) or\
@@ -124,7 +472,7 @@ def isSpecialization(class_name):
 # ====== isTemplateFunction ========
 
 def isTemplateFunction(func_el):
-    func_name = funcutils.getFunctionNameDict(func_el)
+    func_name = getFunctionNameDict(func_el)
     return '<' in func_name['long_templ']
 
 # ====== END: isTemplateFunction ========
@@ -371,6 +719,195 @@ def getTemplatedSignature(el):
     return signature
 
 # ======  END: getTemplatedSignature =========
+
+
+# Custom Error type to catch in function foundMatching Members
+class UnfoundMember(Exception):
+    pass
+
+# ======= getTemplatedMemberVariableType ========
+
+def getTemplatedMemberVariableType(var_el):
+
+    var = getTemplatedSignature(var_el)
+    searching_var = var_el.get('name')
+
+    # Match the variable name
+    # TODO: This does not work if the variable is not the first on a list
+    pat = re.compile(rf"[\s]+{re.escape(searching_var)}[\s]*[,;=].*")
+    m = re.search(pat, var)
+    if bool(m):
+        # Found it!
+        # Get the type from the front and strip the whitespaces
+        lo = m.start()
+        return var[:lo].strip()
+
+    # If it wasn't found, there's a problem
+    raise UnfoundMember(f"{searching_var} wasn't found in the original file")
+
+# ======= END: getTemplatedMemberVariableType ========
+
+
+
+# ======= getTemplatedMethodTypes ========
+
+def getTemplatedMethodTypes(func_el, class_name):
+
+    short_class_name = class_name['short']
+
+    # Get return ready
+    method_types = {'return': None, 'args': None}
+    xml_args_info = getArgs(func_el)
+    searching_method = func_el.get('name')
+
+    # Get the signature of the function we are looking for
+    method = getTemplatedSignature(func_el)
+    # If the line corresponds to the declaration of the class, it means
+    # that this is undeclared constructor or assignment operator, so do nothing
+    if method.startswith("class") or method.startswith("struct"):
+        return {}
+
+    # Select the pattern to extract the types
+    if func_el.tag == 'Constructor':
+        pat = re.compile(rf"[\s]*{re.escape(searching_method)}[\s]*\(")
+    elif func_el.tag == 'OperatorMethod':
+        pat = re.compile(rf"operator{re.escape(searching_method)}[\s]*\(")
+    elif func_el.tag == 'Method':
+        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+    # For cases when it is a destructor
+    else:
+        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+
+
+    m = re.search(pat, method)
+    if bool(m):
+
+        # Found it!
+        # Get the type from the front
+        lo = m.start()
+        hi = m.end()
+
+        # Put the return type into the return variable
+        if func_el.tag == 'Constructor' or func_el.tag == 'Destructor':
+            method_types['return'] = ''
+        else:
+            method_types['return'] = method[:lo].strip()
+
+        # Find the last ')'
+        last_bracket_index = max([i for i, ltr in enumerate(method) if ltr == ')'])
+
+        # Find the args
+        brackets = method[hi:last_bracket_index]
+        if not brackets:
+            args = []
+        else:
+            args = brackets.split(',')
+
+        # Parse each arg into a dictionary and add it to method_types
+        method_types['args'] = makeTemplateArgs(args)
+            
+        if len(method_types['args']) != len(xml_args_info):
+            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
+
+        # looping through all the var checking 1 by 1 using name and type
+        same_args = True
+        for i, j in zip(method_types['args'], xml_args_info):
+            
+            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and\
+               getBasicTypeName(j['type']) not in class_name['templ_types'] and\
+               getBasicTypeName(j['type']) != class_name['short_templ']:
+                same_args = False
+                break
+
+        if not same_args:
+            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
+
+        # Return
+        return method_types
+
+    # If it wasn't found, there's a problem
+    raise UnfoundMember(
+        f"{searching_method} wasn't found in the original file.")
+
+# ======= END: getTemplatedMethodTypes ========
+
+# ======== makeTemplateArgs ============
+
+def makeTemplateArgs(args):
+
+    # Returns a list of dicts for the template arguments
+    # containing the following keywords:
+    #
+    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class',
+    #   'known_class', 'type_namespaces', 'default', 'function_pointer'
+    #
+
+    args_out = []
+
+    argc = 0
+    for arg in args:
+       
+        arg_dict = OrderedDict()
+        arg = arg.strip()
+
+        # If there is a = sign, there is a default value
+        arg_dict['default'] = ('=' in arg)
+        if '=' in arg:
+          arg = arg.split('=')[0].strip()
+
+        # I don't think we care if this is fundamental or an enumeration
+        arg_dict['fundamental'] = False
+        arg_dict['enumeration'] = False
+
+        # Default is no specific type
+        arg_dict['native'] = False
+        arg_dict['known_class'] = False
+        arg_dict['enumeration'] = False
+        arg_dict['loaded_class'] = False
+
+        # Is it a known class?
+        if isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
+           isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
+            arg_dict['known_class'] = True
+
+        # If type is a loaded class, tag it as loaded and native
+        arg_dict['loaded_class'] = isLoadedClass(arg, bybasename=True)
+        arg_dict['native'] = isLoadedClass(arg, bybasename=True)
+
+        # Look for const or volatile qualifiers at the start
+        arg_dict['kw'] = []
+        if arg.startswith('const'):
+            arg_dict['kw'].append('const')
+            arg = arg[5:].strip()
+        if arg.startswith('volatile'):
+            arg_dict['kw'].append('volatile')
+            arg = arg[8:].strip()
+
+        # Now the type is at the front
+        # If there are multiple elements, and no template tag
+        # the last one is the name. Otherwise make up one
+        arg_split = arg.split()
+        if len(arg_split) > 1 and '>' not in arg_split[-1]:
+            arg_dict['name'] = arg_split[-1]
+            arg = (' '.join(arg_split[:-1])).strip()
+        else:
+            arg_dict['name'] = 'arg_' + str(argc)
+            argc+=1
+
+        # What's left is the final type
+        arg_dict['type'] = arg
+        arg_dict['type_namespaces'] = ''
+
+        # If there are brackets () it is a function pointer
+        arg_dict['function_pointer'] = '(' in arg
+
+        args_out.append(arg_dict)
+
+    return args_out
+
+
+# ======== END: makeTemplateArgs =======
+
 
 # ====== getBasicTypeName ========
 
@@ -1045,7 +1582,7 @@ def constrAbsForwardDeclHeader(file_output_path):
 
         namespaces = getNamespaces(class_el)
 
-        class_name       = classutils.getClassNameDict(class_el)
+        class_name       = getClassNameDict(class_el)
 
         if class_name['abstr_short'] in done_classes:
             continue
@@ -1116,7 +1653,7 @@ def constrWrpForwardDeclHeader(file_output_path):
     current_namespaces = []
     for class_name_long, class_el in gb.loaded_classes_in_xml.items():
 
-        class_name       = classutils.getClassNameDict(class_el)
+        class_name       = getClassNameDict(class_el)
 
         if class_name['wrp_short'] in done_classes:
             continue
@@ -1201,7 +1738,7 @@ def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=Fa
         base_access = sub_el.get('access')
         base_virtual = bool(int(sub_el.get('virtual')))
 
-        base_name_dict = classutils.getClassNameDict(base_el)
+        base_name_dict = getClassNameDict(base_el)
 
         is_accepted_type = isAcceptedType(base_el)
         is_native = isNative(base_el)
@@ -1211,7 +1748,7 @@ def getParentClasses(class_el, only_native_classes=False, only_loaded_classes=Fa
 
         temp_dict = OrderedDict([])
         temp_dict['class_name'] = base_name_dict
-        temp_dict['wrapper_name'] = classutils.toWrapperType(
+        temp_dict['wrapper_name'] = toWrapperType(
             base_name_dict['long'])
         temp_dict['access'] = base_access
         temp_dict['virtual'] = base_virtual
@@ -1256,9 +1793,9 @@ def getAllParentClasses(class_el, only_native_classes=True, only_loaded_classes=
                 if parent_class_el not in done_parent_classes:
                     temp_class_list.append(parent_class_el)
                     if return_dicts:
-                        base_name_dict = classutils.getClassNameDict(
+                        base_name_dict = getClassNameDict(
                             parent_class_el)
-                        abstr_base_name_dict = classutils.getClassNameDict(
+                        abstr_base_name_dict = getClassNameDict(
                             parent_class_el, abstract=True)
 
                         is_accepted_type = isAcceptedType(parent_class_el)
@@ -1270,7 +1807,7 @@ def getAllParentClasses(class_el, only_native_classes=True, only_loaded_classes=
                         temp_dict = OrderedDict([])
                         temp_dict['class_name'] = base_name_dict
                         temp_dict['abstr_class_name'] = abstr_base_name_dict
-                        temp_dict['wrapper_name'] = classutils.toWrapperType(
+                        temp_dict['wrapper_name'] = toWrapperType(
                             base_name_dict['long'])
                         temp_dict['id'] = parent_class_id
 
@@ -1305,11 +1842,11 @@ def getAllTypesInClass(class_el, include_parents=False):
     for mem_el in check_member_elements:
 
         if mem_el.tag in ['Constructor', 'Destructor', 'Method', 'OperatorMethod']:
-            args_list = funcutils.getArgs(mem_el)
+            args_list = getArgs(mem_el)
             for arg_dict in args_list:
 
                 arg_type_el = gb.id_dict[arg_dict['id']]
-                arg_type_name = classutils.getClassNameDict(arg_type_el)
+                arg_type_name = getClassNameDict(arg_type_el)
 
                 arg_type_dict = OrderedDict([])
                 arg_type_dict['class_name'] = arg_type_name
@@ -1322,7 +1859,7 @@ def getAllTypesInClass(class_el, include_parents=False):
             mem_type_dict = findType(mem_el)
             type_el = mem_type_dict['el']
 
-            type_name = classutils.getClassNameDict(type_el)
+            type_name = getClassNameDict(type_el)
 
             type_dict = OrderedDict([])
             type_dict['class_name'] = type_name
@@ -1352,7 +1889,7 @@ def getAllTypesInClass(class_el, include_parents=False):
 def getMemberElements(el, include_artificial=False):
     # Decide if it's templated
 
-    class_name = classutils.getClassNameDict(el)
+    class_name = getClassNameDict(el)
 
     is_templated = isTemplateClass(class_name)
 
@@ -1374,7 +1911,7 @@ def getMemberElements(el, include_artificial=False):
                 # Look for this member in the original file
                 if include_artificial and 'artificial' in mem_el.keys():
                     member_elements.append(mem_el)
-                elif classutils.foundMatchingMembers(class_name, mem_el) and (include_artificial or 'artificial' not in mem_el.keys()):
+                elif foundMatchingMembers(class_name, mem_el) and (include_artificial or 'artificial' not in mem_el.keys()):
                     # If found, append it
                     member_elements.append(mem_el)
                 else:
@@ -1396,40 +1933,29 @@ def getMemberElements(el, include_artificial=False):
 # ====== END: getMemberElements ========
 
 
-# ====== getMemberFunctions ========
+# ======= foundMatchingMembers ========
 
-def getMemberFunctions(class_el, include_artificial=False, include_inherited=False, only_accepted=True, limit_pointerness=True, include_operators=False):
-    all_classes = [class_el]
-    all_members = []
-    all_functions = []
+def foundMatchingMembers(class_name, el):
+    """
+    This function is responsible in finding if there's any matching member 
+    in the original file for a templated class
+    """
+    try:
+        # Try and see if we can find the method types or variable types. If we can, it must exist
+        if el.tag in ('OperatorMethod', 'Method', 'Constructor', 'Destructor'):
+            # Must be a method
+            getTemplatedMethodTypes(el, class_name)
+        else:
+            # Must be a member variable
+            getTemplatedMemberVariableType(el)
 
-    # If include_inherited=True, append all (native) parent classes
-    # the list 'all_classes'
-    if include_inherited:
-        all_classes += getAllParentClasses(class_el, only_loaded_classes=True)
+        # If it got here, there was no exception
+        return True
+    except UnfoundMember:
+        return False
 
-    # Get all member elements
-    for el in all_classes:
-        all_members += getMemberElements(el, include_artificial=include_artificial)
+# ======= END: foundMatchingMembers ========
 
-    # Extract only regular member functions (no variables, constructors, destructors, ...)
-    for mem_el in all_members:
-        if (mem_el.tag == 'Method' or (include_operators and mem_el.tag == 'OperatorMethod')) and (mem_el.get('access') == 'public'):
-
-            if only_accepted and funcutils.ignoreFunction(mem_el, limit_pointerness=limit_pointerness):
-                method_name = mem_el.get('name')
-                if mem_el.tag == 'OperatorMethod':
-                    method_name = 'operator' + method_name
-
-                reason = "Makes use of a non-accepted type."
-                infomsg.IgnoredFunction(method_name, reason).printMessage()
-                continue
-
-            all_functions.append(mem_el)
-
-    return all_functions
-
-# ====== END: getMemberFunctions ========
 
 
 # ====== getAllTypesInFunction ========
@@ -1440,11 +1966,11 @@ def getAllTypesInFunction(func_el):
     # func_id = func_el.get('id')
 
     if func_el.tag in ['Function', 'Constructor']:
-        args_list = funcutils.getArgs(func_el)
+        args_list = getArgs(func_el)
         for arg_dict in args_list:
 
             arg_type_el = gb.id_dict[arg_dict['id']]
-            arg_type_name = classutils.getClassNameDict(arg_type_el)
+            arg_type_name = getClassNameDict(arg_type_el)
 
             arg_type_dict = OrderedDict([])
             arg_type_dict['class_name'] = arg_type_name
@@ -1456,7 +1982,7 @@ def getAllTypesInFunction(func_el):
         mem_type_dict = findType(func_el)
         type_el = mem_type_dict['el']
 
-        type_name = classutils.getClassNameDict(type_el)
+        type_name = getClassNameDict(type_el)
 
         type_dict = OrderedDict([])
         type_dict['class_name'] = type_name
@@ -1679,7 +2205,7 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
     start_file_content = ''.join(start_file_content)
     start_file.close()
 
-    # Identify included header files from this file (utils.identifyIncludedHeaders returns a dict of the form {header_file_name: xml_id})
+    # Identify included header files from this file (identifyIncludedHeaders returns a dict of the form {header_file_name: xml_id})
     included_headers_dict = identifyIncludedHeaders(
         start_file_content, only_native=True)
 
@@ -1855,6 +2381,8 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
     return include_statements
 
 # ====== END: getIncludeStatements ========
+
+
 
 
 # ====== getOriginalHeaderPath ========
@@ -2454,7 +2982,7 @@ def validType(type_name, xml_file):
 
 def isAcceptedEnum(el):
     if isEnumeration(el):
-        enum_name = enumutils.getEnumNameDict(el)
+        enum_name = getEnumNameDict(el)
 
         parent = '::'.join(getNamespaces(el, include_self=False))
 
@@ -2485,7 +3013,7 @@ def isTypeValid(type_name, xml_file):
 
         # Check if we can accept if based on the element and class name
         if el.tag in ('Class', 'Struct', 'FundamentalType', 'Enumeration'):
-            class_name = classutils.getClassNameDict(el)
+            class_name = getClassNameDict(el)
 
             return isFundamental(el) or\
                    isStdType(el, class_name=class_name) or\
@@ -2609,85 +3137,6 @@ def isProblematicType(el):
 
 # ====== END: isProblematicType ========
 
-
-# ====== addParentClasses ========
-
-# Adds parent classes to cfg.load_classes.
-
-def addParentClasses():
-    for xml_file in gb.all_id_dict.keys():
-
-        # If new xml file, initialise global dicts
-        if xml_file != gb.xml_file_name:
-            gb.xml_file_name = xml_file
-            initGlobalXMLdicts(xml_file, id_and_name_only=True)
-
-        # Loop over all named elements in the xml file
-        for full_name, el in gb.name_dict.items():
-            if el.tag in ['Class', 'Struct'] and isLoadedClass(el):
-                parents_el_list = getAllParentClasses(
-                    el, only_native_classes=True)
-
-                for parent_el in parents_el_list:
-
-                    # Skip classes that are not loadable (incomplete, abstract, ...)
-                    if not isLoadable(el, print_warning=True):
-                        continue
-
-                    class_name = classutils.getClassNameDict(parent_el)
-
-                    # - Update cfg.load_classes
-                    if class_name['long_templ'] not in cfg.load_classes:
-                        cfg.load_classes.append(class_name['long_templ'])
-
-# ====== END: addParentClasses ========
-
-
-# ====== fillParentsOfLoadedClassesList ========
-
-# Adds parent classes to cfg.load_classes.
-
-def fillParentsOfLoadedClassesList():
-    messages = []
-
-    for xml_file in gb.all_id_dict.keys():
-
-        # If new xml file, initialise global dicts
-        if xml_file != gb.xml_file_name:
-            gb.xml_file_name = xml_file
-            initGlobalXMLdicts(xml_file, id_and_name_only=True)
-
-        # Loop over all named elements in the xml file
-        for full_name, el in gb.name_dict.items():
-
-            if el.tag in ['Class', 'Struct'] and isLoadedClass(el):
-
-                parents_el_list = getAllParentClasses(
-                    el, only_native_classes=True)
-
-                for parent_el in parents_el_list:
-
-                    # Skip classes that are not loadable (incomplete, abstract, ...)
-                    if not isLoadable(parent_el, print_warning=True, check_pure_virtual_members=False):
-                        continue
-
-                    class_name = classutils.getClassNameDict(parent_el)
-
-                    # Append to gb.parents_of_loaded_classes
-                    if class_name['long_templ'] not in gb.parents_of_loaded_classes:
-                        gb.parents_of_loaded_classes.append(
-                            class_name['long_templ'])
-
-                    # Print info
-                    msg = '  - %s is parent of %s.' % (
-                        class_name['long_templ'], full_name)
-                    if msg not in messages:
-                        print(msg)
-                        messages.append(msg)
-
-# ====== END: fillParentsOfLoadedClassesList ========
-
-
 # ====== xmlFilesToDicts ========
 
     #
@@ -2779,14 +3228,14 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
         # Update global dict: std type --> type xml element
         if isStdType(el):
-            class_name = classutils.getClassNameDict(el)
+            class_name = getClassNameDict(el)
             gb.std_types_dict[class_name['long_templ']] = el
 
         # Update global dict of loaded classes in this xml file: class name --> class xml element
         if el.tag in ['Class', 'Struct']:
 
             try:
-                class_name = classutils.getClassNameDict(el)
+                class_name = getClassNameDict(el)
             except KeyError:
                 continue
 
@@ -2821,7 +3270,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
                 # If underlying type is a class/struct, check if it's acceptable
                 elif type_el.tag in ['Class', 'Struct']:
 
-                    type_name = classutils.getClassNameDict(type_el)
+                    type_name = getClassNameDict(type_el)
 
                     if type_name['long_templ'] in cfg.load_classes:
                         gb.typedef_dict[typedef_name] = el
@@ -2837,7 +3286,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
             # Only accept native enumerations
             if isNative(el):
 
-                enum_name = enumutils.getEnumNameDict(el)
+                enum_name = getEnumNameDict(el)
 
                 # Only take enumerations that are not members of a class or a struct
                 parent = gb.id_dict[el.get('context')]
@@ -2857,7 +3306,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
         if el.tag == 'Function':
 
             try:
-                func_name = funcutils.getFunctionNameDict(el)
+                func_name = getFunctionNameDict(el)
             except KeyError:
                 continue
 
@@ -2873,7 +3322,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
         # Add entries to global dict: new header files
         if el in gb.loaded_classes_in_xml.values():
 
-            class_name = classutils.getClassNameDict(el)
+            class_name = getClassNameDict(el)
 
             class_name_short = class_name['wrp_short']
             class_name_long = class_name['wrp_long']

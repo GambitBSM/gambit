@@ -49,7 +49,7 @@ def run():
         enum_i = len(gb.enums_done)
 
         # Generate dict with different variations of the enum name
-        enum_name = enumutils.getEnumNameDict(enum_el)
+        enum_name = utils.getEnumNameDict(enum_el)
 
 
         # Print current enum

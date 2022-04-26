@@ -380,7 +380,7 @@ def main():
             for el in (root.findall('Class') + root.findall('Struct')):
 
                 try:
-                    class_name = classutils.getClassNameDict(el)
+                    class_name = utils.getClassNameDict(el)
                 except KeyError:
                     continue
 
@@ -393,7 +393,7 @@ def main():
             for el in root.findall('Function'):
 
                 try:
-                    func_name = funcutils.getFunctionNameDict(el)
+                    func_name = utils.getFunctionNameDict(el)
                 except KeyError:
                     continue
 
@@ -447,7 +447,7 @@ def main():
     #
 
     if cfg.load_parent_classes:
-        utils.addParentClasses()
+        classutils.addParentClasses()
 
 
     #
@@ -473,7 +473,7 @@ def main():
 
                 # If a requested class is loadable, set the entry in is_loadable to True
                 if full_name in cfg.load_classes:
-                    if utils.isLoadable(el, print_warning=False):
+                    if classutils.isLoadable(el, print_warning=False):
                         is_loadable[full_name] = True
 
     # Remove from cfg.load_classes those that are not loadable
@@ -503,7 +503,7 @@ def main():
                     el = None
 
                 if el is not None:
-                    utils.isLoadable(el, print_warning=True)
+                    classutils.isLoadable(el, print_warning=True)
                 else:
                     reason = "Class not found."
                     infomsg.ClassNotLoadable(full_name, reason).printMessage()
@@ -512,7 +512,7 @@ def main():
     #
     # Fill the gb.parents_of_loaded_classes list
     #
-    utils.fillParentsOfLoadedClassesList()
+    classutils.fillParentsOfLoadedClassesList()
 
 
     #
@@ -540,7 +540,7 @@ def main():
 
                 # Get function name
                 try:
-                    func_name = funcutils.getFunctionNameDict(el)
+                    func_name = utils.getFunctionNameDict(el)
                     func_name_long_templ_args = func_name['long_templ_args']
                 except KeyError:
                     func_name_long_templ_args = 'UNKNOWN_NAME'
