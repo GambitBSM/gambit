@@ -1038,7 +1038,7 @@ START_MODULE
     ALLOW_MODELS(VectorSingletDM_Z2, MajoranaSingletDM_Z2, DiracSingletDM_Z2)
     ALLOW_MODELS(AnnihilatingDM_mixture, DecayingDM_mixture)
     ALLOW_MODELS(NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM)
-    ALLOW_MODELS(MDM, DMEFT)
+    ALLOW_MODELS(MDM, DMEFT, DMEFT_3flavour)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1175,6 +1175,11 @@ START_MODULE
       DEPENDENCY(DMEFT_spectrum, Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
       ALLOW_JOINT_MODEL(DMEFT, DAMA_xsec)
+      #undef FUNCTION
+
+      #define FUNCTION DD_rel_WCs_flavscheme_DMEFT_3flavour
+      START_FUNCTION(map_str_dbl)
+      ALLOW_MODEL(DMEFT_3flavour)
       #undef FUNCTION
 
       #define FUNCTION DD_rel_WCs_flavscheme_DiracSingletDM_Z2
@@ -2083,6 +2088,10 @@ START_MODULE
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMEFT)
     #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMEFT_3flavour
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMEFT_3flavour)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY DarkMatterConj_ID
@@ -2122,6 +2131,10 @@ START_MODULE
     #define FUNCTION DarkMatterConj_ID_DMEFT
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMEFT_3flavour
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMEFT_3flavour)
     #undef FUNCTION
   #undef CAPABILITY
 

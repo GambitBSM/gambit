@@ -94,6 +94,8 @@ namespace Gambit
         props.mass = Dep::MDM_spectrum->get(Par::Pole_Mass, props.name);
       if(ModelInUse("DMEFT"))
         props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
+      if(ModelInUse("DMEFT_3flavour"))
+        props.mass = *Param["mchi"];
     }
 
     /// Retrieve the DM mass in GeV for generic models (GeV)

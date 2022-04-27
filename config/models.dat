@@ -630,6 +630,9 @@ WIMP_sigmav: |
 DMEFT: |
    Effective field theory model of Dirac DM. The parameters of the model are the DM Mass, mchi, the new physics scale, Lambda, the MSbar running top mass, mtrunIN, and the dimensions I=5,6,7 Wilson coefficients, CIJ
 
+DMEFT_3flavour: |
+   Effective field theory model of Dirac DM in the 3-flavour scheme (Lambda = 2 GeV). The parameters of the model are the DM Mass, mchi and the dimensions I=5,6 Wilson coefficients, CIJ(u) and CIJ(d).
+
 ############################
 # Cosmology related models #
 ############################
