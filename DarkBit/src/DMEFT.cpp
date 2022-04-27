@@ -345,13 +345,13 @@ namespace Gambit
         // by adding a flavour-independent term to C61u and C61d such that the resulting couplings are Xe-phobic (f_n / f_p = -0.7).
         // This step should be commented out if C61 is not varied in the scans.
 
-        double IVratio = -1.125;
+        // double IVratio = -1.125;
 
-        double C61uIV = IVratio/(IVratio-1.)*(C61u-C61d);
-        double C61dIV = 1./(IVratio-1.)*(C61u-C61d);
+        // double C61uIV = IVratio/(IVratio-1.)*(C61u-C61d);
+        // double C61dIV = 1./(IVratio-1.)*(C61u-C61d);
 
-        result["C61d"] = C61dIV;
-        result["C61u"] = C61uIV;
+        result["C61d"] = C61d;
+        result["C61u"] = C61u;
 
       }
 
