@@ -17,6 +17,7 @@
 
 #include "gambit/Core/gambit.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/parallelapireport.hpp"
 
 
 using namespace Gambit;
@@ -36,7 +37,7 @@ void do_cleanup()
 /// Main GAMBIT program
 int main(int argc, char* argv[])
 {
-
+  
   std::set_terminate(terminator);
   cout << std::setprecision(Core().get_outprec());
 
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
       /// Create an MPI communicator group for use by error handlers
       GMPI::Comm errorComm;
       errorComm.dup(MPI_COMM_WORLD,"errorComm"); // duplicates the COMM_WORLD context
-      const int ERROR_TAG=1;         // Tag for error messages
+      c onst int ERROR_TAG=1;         // Tag for error messages
       errorComm.mytag = ERROR_TAG;
       signaldata().set_MPI_comm(&errorComm); // Provide a communicator for signal handling routines to use.
       /// Create an MPI communicator group for ScannerBit to use
@@ -115,16 +116,13 @@ int main(int argc, char* argv[])
       if (rank == 0)
       {
         cout << endl << "Starting GAMBIT" << endl;
-        cout << "----------" << endl;
-        #ifdef WITH_MPI
-        cout << "Running in MPI-parallel mode with "<<size<<" processes" << endl;
-        #else
-        cout << "WARNING! Running in SERIAL (no MPI) mode! Recompile with -DWITH_MPI=1 for MPI parallelisation" << endl;
-        #endif
-        cout << "----------" << endl;
-        cout << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << endl;
-        if(Core().found_inifile) cout << "YAML file: "<< filename << endl;
+        cout << LogParallelAPI()<<endl;
       }
+      #ifdef WITH_MPI
+      logger() << core << MPILogBinding(report_comm) << EOM;
+      #else 
+      logger() << core << LogBinding(report_comm) <<EOM;
+      #endif
 
       std::vector<std::string> arguments(argv, argv + argc);
       logger() << core << "Command invoked: ";
