@@ -89,7 +89,7 @@ Parameters:
     mtrunIN: 162.9
 
   DAMA_xsec: 
-    sigmap_SI: 0
+    sigmap_SI: 0 #8.24e-6
     sigmap_SD: 0
     sigman_SD: 0
 
@@ -147,7 +147,7 @@ Scanner:
 ObsLikes:
 
   # Direct detection
-  - capability: DAMA_LogLikelihood_mod
+  - capability: DAMA_LogLikelihood_mod #_xsec_test
     purpose:    LogLike
 
 Rules:
@@ -180,7 +180,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/DAMA_TEST/"
+  default_output_path: "runs/DAMA_TEST_BF/"
 
   debug: true
 
