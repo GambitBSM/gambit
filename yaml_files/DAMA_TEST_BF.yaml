@@ -113,12 +113,12 @@ Priors:
 
 Printer:
 
-  printer: hdf5
-  options:
-    output_file: "DAMA_TEST.hdf5"
-    group: "/DAMA_TEST"
-    buffer_length: 10
-    delete_file_on_restart: true
+  printer: cout
+#  options:
+#    output_file: "DAMA_TEST.hdf5"
+#    group: "/DAMA_TEST"
+#    buffer_length: 10
+#    delete_file_on_restart: true
 
 
 Scanner:
