@@ -104,8 +104,10 @@ Scanner:
       plugin: polychord
       like:  LogLike
       nlive: 1000
+      nprior: 40000
       tol: 1e-10
       print_parameters_in_native_output: true
+      logzero: -1e10
 
 ObsLikes:
 

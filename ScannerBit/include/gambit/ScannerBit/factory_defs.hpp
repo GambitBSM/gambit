@@ -94,6 +94,10 @@ namespace Gambit
             /// Variable to specify whether the scanner plugin should control the shutdown process
             bool _scanner_can_quit;
 
+
+            int _invalidcode;
+
+
             virtual void deleter(Function_Base <ret (args...)> *in) const
             {
                 delete in;
@@ -102,7 +106,7 @@ namespace Gambit
             virtual const std::type_info & type() const {return typeid(ret (args...));}
 
         public:
-            Function_Base(double offset = 0.) : myRealRank(0), purpose_offset(offset), use_alternate_min_LogL(false), _scanner_can_quit(false)
+            Function_Base(double offset = 0.) : myRealRank(0), purpose_offset(offset), use_alternate_min_LogL(false), _scanner_can_quit(false), _invalidcode(0)
             {
                 #ifdef WITH_MPI
                 GMPI::Comm world;
@@ -171,6 +175,9 @@ namespace Gambit
 
             /// Check whether likelihood container is supposed to control early shutdown of scan
             bool scanner_can_quit() { return _scanner_can_quit; }
+
+            int get_invalidcode() { return _invalidcode; }
+            void set_invalidcode(int code) {_invalidcode = code;}
 
             /// Tell log-likelihood function (defined by driver code) to switch to an alternate value for the minimum
             /// log-likelihood. Called by e.g. MultiNest scanner plugin.

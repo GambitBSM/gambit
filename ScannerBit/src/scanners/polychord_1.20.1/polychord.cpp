@@ -98,7 +98,7 @@ scanner_plugin(polychord, version(1, 20, 1))
       gl0 = gl0 + offset;
 
       // Retrieve whether the scanned parameters should be added to the native output and determine nderived
-      int nderived = 2;
+      int nderived = 3;
       if (get_inifile_value<bool>("print_parameters_in_native_output", false)) nderived += ma;
 
       // Initialise polychord settings
@@ -328,7 +328,7 @@ namespace Gambit {
          // Done! (lnew will be used by PolyChord to guide the search)
 
          // Get the transformed parameters and add them as derived parameters
-         if (nderived > 2)
+         if (nderived > 3)
          {
            std::unordered_map<std::string,double> param_map;
            boundLogLike->getPrior().transform(unitpars, param_map);
@@ -344,7 +344,8 @@ namespace Gambit {
          // Get, set and ouptut the process rank and this point's ID
          int myrank  = boundLogLike->getRank(); // MPI rank of this process
          int pointID = boundLogLike->getPtID();   // point ID number
-         int invalidationcode = boundLogLike->invalidcode;   // point ID number
+         int invalidationcode = boundLogLike->get_invalidcode();  // invalidation code
+         phi[nderived - 3] = invalidationcode;
          phi[nderived - 2] = myrank;
          phi[nderived - 1] = pointID;
 

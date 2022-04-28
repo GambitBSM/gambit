@@ -68,7 +68,6 @@ namespace Gambit
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
     invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
-    invalidcode(0),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -160,6 +159,7 @@ namespace Gambit
 
     double lnlike = 0;
     bool point_invalidated = false;
+    set_invalidcode(0);
 
     // Check for signals from the scanner to switch to an alternate minimum log likelihood value. TODO: could let scanner plugin set the actual value?
     static bool switch_done(false); // Disable this check once the switch occurs
@@ -289,7 +289,7 @@ namespace Gambit
           if(!print_invalid_points)
             printer.disable();
           printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());
-          invalidcode = invalidcodeID;
+          set_invalidcode(e.invalidcode);
           if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
           break;
         }
@@ -317,6 +317,7 @@ namespace Gambit
           {
             logger() << LogTags::core << "Additional observable invalidated by " << e.thrower()->origin()
                      << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
+            set_invalidcode(e.invalidcode);
           }
         }
       }
