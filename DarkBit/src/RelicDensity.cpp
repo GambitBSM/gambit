@@ -52,7 +52,7 @@ namespace Gambit
       if ( DMid != "~chi0_1" )
       {
         invalid_point().raise(
-            "RD_spectrum_MSSM requires DMid to be ~chi0_1.");
+            "RD_spectrum_MSSM requires DMid to be ~chi0_1.",329);
       }
       // Neutralino DM is self-conjugate
       result.isSelfConj = true;
@@ -424,7 +424,7 @@ namespace Gambit
       if ( specres.particle_index_type != "DarkSUSY" )
       {
         invalid_point().raise("RD_annrate_DS5prep_func is only optimized for use with "
-         "DarkSUSY5 and requires internal particle IDs. Try RD_annrate_DSprep_MSSM_func instead!");
+         "DarkSUSY5 and requires internal particle IDs. Try RD_annrate_DSprep_MSSM_func instead!",330);
       }
 
       //write model-dependent info about coannihilating particles to DS common blocks
@@ -486,7 +486,7 @@ namespace Gambit
 
       if (specres.particle_index_type != "DarkSUSY" && specres.particle_index_type != "PDG")
       {
-        invalid_point().raise("RD_annrate_DSprep_MSSM_func requires PDG or internal DS codes!");
+        invalid_point().raise("RD_annrate_DSprep_MSSM_func requires PDG or internal DS codes!",331);
       }
 
       //write model-dependent info about coannihilating particles to DS common blocks
@@ -690,7 +690,7 @@ namespace Gambit
       // Check whether DarkSUSY threw an error
       if (ierr == 1024)
       {
-        invalid_point().raise("DarkSUSY invariant rate tabulation timed out.");
+        invalid_point().raise("DarkSUSY invariant rate tabulation timed out.",332);
       }
       else if(ierr != 0)
       {
@@ -920,7 +920,7 @@ namespace Gambit
       // Check whether DarkSUSY threw an error
       if (BEreq::rderrors->rderr != 0)
       {
-        if (BEreq::rderrors->rderr == 1024) invalid_point().raise("DarkSUSY invariant rate tabulation timed out.");
+        if (BEreq::rderrors->rderr == 1024) invalid_point().raise("DarkSUSY invariant rate tabulation timed out.",333);
         else DarkBit_error().raise(LOCAL_INFO, "DarkSUSY invariant rate tabulation failed.");
       }
 
@@ -1026,7 +1026,7 @@ namespace Gambit
       // Check whether DarkSUSY threw an error
       if (BEreq::rderrors->rderr != 0)
       {
-        if (BEreq::rderrors->rderr == 1024) invalid_point().raise("DarkSUSY invariant rate tabulation timed out.");
+        if (BEreq::rderrors->rderr == 1024) invalid_point().raise("DarkSUSY invariant rate tabulation timed out.",334);
         else DarkBit_error().raise(LOCAL_INFO, "DarkSUSY relic density calculation failed.");
       }
 

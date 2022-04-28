@@ -485,7 +485,7 @@ namespace Gambit
         if (this->flag)
         {
           this->flag = false;  // Reset...
-          invalid_point().raise(this->message);  // ...and throw.
+          invalid_point().raise(this->message,288);  // ...and throw.
         }
       }
       else

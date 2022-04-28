@@ -87,7 +87,7 @@ namespace Gambit
       {
         std::ostringstream err;
         err << "BEreq::FHConstraints raised error flag: " << error << ".";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),273);
       }
 
       // Just scrub this point now if it's more than 7 sigma off in mW,
@@ -101,7 +101,7 @@ namespace Gambit
             << "Deviation from observed value: " << std::abs(mw_central_observed - MWMSSM) << "." << endl
             << "1 sigma uncertainty on observed value: " << sqrt(obserrsq + theoryerrsq) << "." << endl
             << "Invalidating immediately to prevent downstream instability.";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),274);
         //PrecisionBit_error().raise(LOCAL_INFO, err.str());
       }
 
@@ -115,7 +115,7 @@ namespace Gambit
         err << "Sin^2 thetaW_effective is less than zero." << endl
             << "Value computed by FeynHiggs: " << SW2MSSM << endl
             << "Invalidating immediately to prevent downstream instability.";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),275);
         //PrecisionBit_error().raise(LOCAL_INFO, err.str());
       }
 
@@ -190,7 +190,7 @@ namespace Gambit
       {
         if (allow_fallback) return;
         invalid_point().raise("Precison W mass NaN or <= 0.  To allow fallback to the unimproved value, "
-                              "set option allow_fallback_to_unimproved_masses=true in your YAML file.");
+                              "set option allow_fallback_to_unimproved_masses=true in your YAML file.",276);
       }
       HE.set_override(Par::Pole_Mass, prec_mw.central, "W+", true); // "true" flag causes overrides to be written even if no native quantity exists to override.
       HE.set_override(Par::Pole_Mass_1srd_high, prec_mw.upper/prec_mw.central, "W+", true);
@@ -210,7 +210,7 @@ namespace Gambit
         {
           if (allow_fallback) return;
           invalid_point().raise("Precison "+higgses[i]+" mass NaN or <= 0.  To allow fallback to the unimproved value, "
-                                "set option allow_fallback_to_unimproved_masses=true in your YAML file.");
+                                "set option allow_fallback_to_unimproved_masses=true in your YAML file.",277);
         }
       }
 
@@ -1052,7 +1052,7 @@ namespace Gambit
           std::ostringstream err;
           err << "gm2calc routine convert_to_onshell raised error: "
               << model.get_problems().get_problems() << ".";
-          invalid_point().raise(err.str());
+          invalid_point().raise(err.str(),278);
         }
         /// check for warnings
         if( model.get_problems().have_warning() == true) {
@@ -1070,13 +1070,13 @@ namespace Gambit
         std::ostringstream err;
         err << "gm2calc routine convert_to_onshell raised error: "
         << e.what() << ".";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),279);
       }
       catch (...)
       {
         std::ostringstream err;
         err << "gm2calc routine convert_to_onshell raised unspecified error.";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),280);
       }
 
       const double error = BEreq::calculate_uncertainty_amu_2loop(model);

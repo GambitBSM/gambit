@@ -1791,9 +1791,9 @@ namespace Gambit
       // Check (a) Tosc vs T_R: The oscillations start well after the end of inflation.
       //       (b) Compare energy densities: The axion energy density doesn't dominate at Tosc (i.e. also not before)
       //       (c) fa/sqrt(2) vs T_R: PQ symmetry breaking happened before the end of inflation
-      //if (fabs(thetai) > 0 && Tosc > T_R) { invalid_point().raise("Axion oscillations start during reheating."); };
-      //if ( m_planck_red/M_SQRT3 < fa*(1.0-gsl_sf_cos(thetai)) ) { invalid_point().raise("Axions dominate the energy budget of the Universe before oscillations begin: Axion = inflaton."); };
-      //if (1.0E+3*fa/M_SQRT2 < T_R) { invalid_point().raise("PQ symmetry only breaks after inflation."); };
+      //if (fabs(thetai) > 0 && Tosc > T_R) { invalid_point().raise("Axion oscillations start during reheating.",326); };
+      //if ( m_planck_red/M_SQRT3 < fa*(1.0-gsl_sf_cos(thetai)) ) { invalid_point().raise("Axions dominate the energy budget of the Universe before oscillations begin: Axion = inflaton.",327); };
+      //if (1.0E+3*fa/M_SQRT2 < T_R) { invalid_point().raise("PQ symmetry only breaks after inflation.",328); };
 
       // Only do computations if thetai > 0.
       result = 0.0;

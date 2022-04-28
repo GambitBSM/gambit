@@ -71,7 +71,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "Parameter point [mchi, Lambda] = [" << DMEFTmodel.DMEFT_chi_Pole_Mass << " GeV, "
               << DMEFTmodel.DMEFT_Lambda << " GeV] does not satisfy the EFT.";
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),104);
         }
       }
       else {}

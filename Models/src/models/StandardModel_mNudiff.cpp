@@ -59,7 +59,7 @@
        std::string ErrMssg = "There is a conflicting parameter choice of ";
        ErrMssg += "\"mNu_light\", \"dmNu21\", and \"dmNu3l\"   in \"StandardModel_mNudiff\" ";
        ErrMssg +=  "such that the neutrino masses in \"StandardModel_SLHA2\" cannot be set properly.";
-       invalid_point().raise(ErrMssg.c_str());
+       invalid_point().raise(ErrMssg.c_str(),293);
      }
   }
 

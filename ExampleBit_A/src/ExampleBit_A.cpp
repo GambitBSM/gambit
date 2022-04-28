@@ -91,7 +91,7 @@ namespace Gambit
         //Example of how to raise an error from a module function.
         //ExampleBit_A_error().raise(LOCAL_INFO,"Damn, this integer event count is bad.");
         //Example of how to declare a point invalid.
-        invalid_point().raise("I don't like this point.");
+        invalid_point().raise("I don't like this point.",289);
       }
       // Example of how to check if computation of another capability depends on this one at all.
       cout << "My name is nevents_pred_rounded, and I am " <<
@@ -182,7 +182,7 @@ namespace Gambit
           if(sigma==0.)
           {
              // likelihood is nan if sigma=0, so the point is invalid.
-             invalid_point().raise("NormalDist::sigma = 0; likelihood is NaN, point invalid.");
+             invalid_point().raise("NormalDist::sigma = 0; likelihood is NaN, point invalid.",290);
           }
 
           loglTotal += logf(samples[i], mu, sigma);
@@ -200,7 +200,7 @@ namespace Gambit
       double x = 1.0-runOptions->getValueOrDef<double>(1., "probability_of_validity");
       if (Random::draw() < x)
       {
-        invalid_point().raise("I don't like this point.");
+        invalid_point().raise("I don't like this point.",291);
       }
 
       // Artificially slow down likelihood evaluations
@@ -307,7 +307,7 @@ namespace Gambit
       // Test loggers during parallel block
       logger() << "Thread "<<omp_get_thread_num()<<": Running exampleEventGen in iteration "<<*Loop::iteration<<EOM;
 
-      //if (result > 2.0) invalid_point().raise("This point is annoying.");
+      //if (result > 2.0) invalid_point().raise("This point is annoying.",292);
     }
 
     /// Rounds an event count to the nearest integer

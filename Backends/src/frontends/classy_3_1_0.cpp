@@ -373,7 +373,7 @@ BE_INI_FUNCTION
           {
             last_point_invalid = true;
             backend_warning().raise(LOCAL_INFO,errMssg.str());
-            invalid_point().raise(errMssg.str());
+            invalid_point().raise(errMssg.str(),183);
           }
           else
           {
@@ -391,7 +391,7 @@ BE_INI_FUNCTION
           cout << "An unspecified error occurred during compute() in classy_"<< STRINGIFY(VERSION) <<":\n";
           cout << rawErrMessage;
           cout << "\n(This point gets invalidated) " << endl;
-          invalid_point().raise(errMssg.str());
+          invalid_point().raise(errMssg.str(),184);
         }
       }
       //std::cout << "Trying to print power spectrum..." << std::endl;
@@ -406,7 +406,7 @@ BE_INI_FUNCTION
       {
         std::ostringstream errMssg;
         errMssg << "Last computed point was deemed invalid, so shall this one be. " << std::endl;
-        invalid_point().raise(errMssg.str());
+        invalid_point().raise(errMssg.str(),185);
       }
       // CLASS did not recompute -> save this information in cosmo container, so MontePython
       // (and potentially other backends) has access to this information and can skip

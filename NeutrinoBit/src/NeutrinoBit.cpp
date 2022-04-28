@@ -90,14 +90,14 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Wrong ordering";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),249);
       }
       else if(ord == 0 and *Dep::ordering == 1)
       {
         std::ostringstream msg;
         msg << "Wrong ordering";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),250);
       }
 
     }
@@ -218,7 +218,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Casas-Ibarra parametrization is undefined for M_I = 0";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),251);
       }
 
       M_twid(0,0) = sqrt(M_I(0,0)  * (1.0 - (pow(M_I(0,0),2.0)*l_M(M_I(0,0),mZ,mH)/pow(vev,2.0))));
@@ -279,7 +279,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Invalid R order";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),252);
       }
 
       // CI Theta matrix
@@ -297,7 +297,7 @@ namespace Gambit
             std::ostringstream msg;
             msg << "Casas-Ibarra parametrization breaks down for parameter point";
             logger() << msg.str() << EOM;
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),253);
           }
         }
 
@@ -307,7 +307,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Casas-Ibarra parametrization breaks down for parameter point";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),254);
       }
     }
 
@@ -443,7 +443,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "theta12 outside NuFit range; point is invalidated by active neutrino constraint.";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),255);
         return;
       }
       else
@@ -476,7 +476,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "theta12 outside NuFit range; point is invalidated by active neutrino constraint.";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),256);
         return;
       }
       else
@@ -510,7 +510,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "theta23 outside NuFit range; point is invalidated by active neutrino constraint.";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),257);
         return;
       }     
       else
@@ -544,7 +544,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "theta23 outside NuFit range; point is invalidated by active neutrino constraint.";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),258);
         return;
       }     
       else
@@ -578,7 +578,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "theta13 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),259);
           return;
       }
       else
@@ -612,7 +612,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "theta13 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),260);
           return;
       }
       else
@@ -646,7 +646,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "deltaCP outside NuFit range; point is invalidated by active neutrino constraint.";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),261);
         return;
       }
       else
@@ -680,7 +680,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "deltaCP outside NuFit range; point is invalidated by active neutrino constraint.";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),262);
         return;
       }
       else
@@ -714,7 +714,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md12 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),263);
           return;
       }   
       else
@@ -750,7 +750,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md12 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),264);
           return;
       }   
       else
@@ -790,7 +790,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md31 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),265);
           return;
         }
         else
@@ -808,7 +808,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md32 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),266);
           return;
         }
         else
@@ -839,7 +839,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md31 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),267);
           return;
         }
         else
@@ -857,7 +857,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md32 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),268);
           return;
         }
         else
@@ -888,7 +888,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md12 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),269);
           return;
       }
       if (*Dep::ordering == 1 and ((*Dep::md31 * pow(10,21) < low_lim_n) or (*Dep::md31 * pow(10,21) > upp_lim_n)))
@@ -896,7 +896,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md31 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),270);
           return;
       }
       if (*Dep::ordering == 0 and ((*Dep::md32 * pow(10,21) < low_lim_i) or (*Dep::md32 * pow(10,21) > upp_lim_i)))
@@ -904,7 +904,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "md32 outside NuFit range; point is invalidated by active neutrino constraint.";
           logger() << msg.str() << EOM;
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),271);
           return;
       }
 
@@ -937,7 +937,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Sum of neutrino masses over the cosmological limit";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),272);
       }
     }
   }

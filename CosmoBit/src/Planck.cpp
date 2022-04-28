@@ -338,7 +338,7 @@ namespace Gambit
         std::ostringstream err;
         err << "EE lowl Planck likelihood is problematic, with value " << EE;
         logger() << err.str() << EOM;
-        invalid_point().raise(err.str(),999);
+        invalid_point().raise(err.str(),216);
       }
       tmp_result += EE;
 

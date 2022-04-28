@@ -96,7 +96,7 @@ namespace Gambit
       {
         str nwiderr("Negative width returned!");
         if (raise_invalid_pt_negative_width)
-          invalid_point().raise(nwiderr);
+          invalid_point().raise(nwiderr,281);
         else
           DecayBit_error().raise(info, nwiderr);
       }
@@ -104,7 +104,7 @@ namespace Gambit
       {
         str lwiderr("Suspiciously large width returned: "+std::to_string(w)+" GeV");
         if (raise_invalid_pt_large_width)
-          invalid_point().raise(lwiderr);
+          invalid_point().raise(lwiderr,282);
         else
           DecayBit_error().raise(info, lwiderr);
       }
@@ -114,7 +114,7 @@ namespace Gambit
     void compute_SM_higgs_decays(DecayTable::Entry& result, double mh)
     {
       // Just kill off the point if the Higgs is < 1 GeV in mass.
-      if (mh < 1.) invalid_point().raise("Neutral higgs with mass < 1 GeV");
+      if (mh < 1.) invalid_point().raise("Neutral higgs with mass < 1 GeV",283);
       // If it's more than 16 TeV, just calculate as if it has a mass of 16 TeV.  The BFs will
       // be the same (2/3 WW, 1/3 Z), the width will just be underestimated.  At this mass though,
       // that shouldn't impact anything.
@@ -469,7 +469,7 @@ namespace Gambit
         std::stringstream msg;
         msg << "Computed Higgs mass is " << mh << "; This is outside of the accurate range for "
             << "tables from the LHCHiggsXSWG, which is " << minmass << "--" << maxmass << " GeV.";
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),284);
       }
       compute_SM_higgs_decays(result, mh);
     }
@@ -3171,7 +3171,7 @@ namespace Gambit
             {
               std::stringstream msg;
               msg << "Charged particle " << particle_name << " is stable. Decay width = " << width << " GeV.";
-              invalid_point().raise(msg.str());
+              invalid_point().raise(msg.str(),285);
             }
           }
         }
@@ -3184,7 +3184,7 @@ namespace Gambit
           {
               std::stringstream msg;
               msg << "Particle " << map_entry.first.first << " has a negative width = " << width << " GeV.";
-              invalid_point().raise(msg.str());
+              invalid_point().raise(msg.str(),286);
           }
         }
 

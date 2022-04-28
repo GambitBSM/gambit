@@ -96,14 +96,14 @@ namespace Gambit
               std::ostringstream msg;
               msg << "Parameter point [mX, lX_s] = [" << majoranamodel.MajoranaPoleMass << " GeV, "
                   << gs << "/GeV] does not satisfy the EFT validity constraint.";
-              invalid_point().raise(msg.str());
+              invalid_point().raise(msg.str(),133);
             }
             if (gp >= (4*pi)/(2*majoranamodel.MajoranaPoleMass))
             {
               std::ostringstream msg;
               msg << "Parameter point [mX, lX_ps] = [" << majoranamodel.MajoranaPoleMass << " GeV, "
                   << gp << "/GeV] does not satisfy the EFT validity constraint.";
-              invalid_point().raise(msg.str());
+              invalid_point().raise(msg.str(),134);
             }
           }
         }
@@ -115,7 +115,7 @@ namespace Gambit
             std::ostringstream msg;
             msg << "Parameter point [mX, lX] = [" << majoranamodel.MajoranaPoleMass << " GeV, "
                 << majoranamodel.MajoranaLambda << "/GeV] does not satisfy the EFT validity constraint.";
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),135);
           }
         }
       }

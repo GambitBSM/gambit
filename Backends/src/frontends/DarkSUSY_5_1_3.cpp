@@ -137,13 +137,13 @@ BE_INI_FUNCTION
     if (unphys < 0)
     {
       backend_warning().raise(LOCAL_INFO, "Model point is theoretically inconsistent (DarkSUSY).");
-      invalid_point().raise("Model point is theoretically inconsistent (DarkSUSY).");
+      invalid_point().raise("Model point is theoretically inconsistent (DarkSUSY).",143);
       mssm_result = false;
     }
     else if (unphys > 0)
     {
       backend_warning().raise(LOCAL_INFO, "Neutralino is not the LSP (DarkSUSY).");
-      invalid_point().raise("Neutralino is not the LSP (DarkSUSY).");
+      invalid_point().raise("Neutralino is not the LSP (DarkSUSY).",144);
       mssm_result = false;
     }
     else if (hwarning != 0)
@@ -238,7 +238,7 @@ BE_INI_FUNCTION
   {
     backend_warning().raise(LOCAL_INFO,
         "DarkSUSY point initialization failed.");
-    invalid_point().raise("DarkSUSY point initialization failed.");
+    invalid_point().raise("DarkSUSY point initialization failed.",145);
   }
 
 }

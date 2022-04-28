@@ -269,7 +269,7 @@ namespace Gambit
       double x = 1.0-runOptions->getValueOrDef<double>(1., "probability_of_validity");
       if (Random::draw() < x)
       {
-        invalid_point().raise("I don't like this point.");
+        invalid_point().raise("I don't like this point.",217);
       }
 
       // Artificially slow down likelihood evaluations
@@ -313,7 +313,7 @@ namespace Gambit
       double x = 1.0-runOptions->getValueOrDef<double>(1., "probability_of_validity");
       if (Random::draw() < x)
       {
-        invalid_point().raise("I don't like this point.");
+        invalid_point().raise("I don't like this point.",218);
       }
 
       // Artificially slow down likelihood evaluations

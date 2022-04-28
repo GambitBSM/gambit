@@ -89,7 +89,7 @@ BE_NAMESPACE
       std::string err = "Calling \"plc_loglike_" + name + "\" was not successful.\n";
       char forwardedErr[4096];
       stringError(byVal(forwardedErr), plc_Error);
-      invalid_point().raise(err + forwardedErr);
+      invalid_point().raise(err + forwardedErr,186);
     }
     else
     {

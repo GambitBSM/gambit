@@ -247,7 +247,7 @@ namespace Gambit
            str full_context = LOCAL_INFO + " called from " + context;
            if (pterror)
            {
-             invalid_point().raise(errmsg+"  Raised at: "+full_context);
+             invalid_point().raise(errmsg+"  Raised at: "+full_context,319);
            }
            else
            {
@@ -349,7 +349,7 @@ namespace Gambit
            str full_context = LOCAL_INFO + " called from " + context;
            if (pterror)
            {
-             invalid_point().raise(errmsg+"  Raised at: "+full_context);
+             invalid_point().raise(errmsg+"  Raised at: "+full_context,320);
            }
            else
            {
@@ -539,7 +539,7 @@ namespace Gambit
           str full_context = LOCAL_INFO + " called from " + context;
           if (pterror)
           {
-            invalid_point().raise(errmsg+"  Raised at: "+full_context);
+            invalid_point().raise(errmsg+"  Raised at: "+full_context,321);
           }
           else
           {
@@ -564,7 +564,7 @@ namespace Gambit
           str full_context = LOCAL_INFO + " called from " + context;
           if (pterror)
           {
-            invalid_point().raise(errmsg+"  Raised at: "+full_context);
+            invalid_point().raise(errmsg+"  Raised at: "+full_context,322);
           }
           else
           {
@@ -746,7 +746,7 @@ namespace Gambit
            str full_context = LOCAL_INFO + " called from " + context;
            if (pterror)
            {
-             invalid_point().raise(errmsg+"  Raised at: "+full_context);
+             invalid_point().raise(errmsg+"  Raised at: "+full_context,323);
            }
            else
            {
@@ -1054,7 +1054,7 @@ namespace Gambit
           << "The requested tolerance is " << tol*100 << " => too much sfermion mixing to assume that this is a pure gauge eigenstate.";
        if (pt_error_on_mixing_failure)
        {
-         invalid_point().raise(ss.str());
+         invalid_point().raise(ss.str(),324);
        }
        else
        {
@@ -1099,7 +1099,7 @@ namespace Gambit
           << "% => too much inter-family sfermion mixing to assume that this is a pure family state.";
        if (pt_error_on_mixing_failure)
        {
-         invalid_point().raise(ss.str());
+         invalid_point().raise(ss.str(),325);
        }
        else
        {

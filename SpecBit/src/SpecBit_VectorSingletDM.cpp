@@ -85,7 +85,7 @@ namespace Gambit
           std::ostringstream msg;
           msg << "Parameter point [mV, lambda_hV] = [" << vectormodel.VectorPoleMass << " GeV, "
               << vectormodel.VectorLambda << "] does not satisfy the perturbative unitarity constraint.";
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),101);
         }
       }
       else {}

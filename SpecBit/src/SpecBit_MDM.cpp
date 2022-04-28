@@ -122,7 +122,7 @@ namespace Gambit
             // see: contrib/MassSpectra/flexiblesusy/src/problems.hpp
             std::ostringstream msg;
             problems.print_problems(msg);
-            invalid_point().raise(msg.str()); //TODO: This message isn't ending up in the logs.
+            invalid_point().raise(msg.str(),130); //TODO: This message isn't ending up in the logs.
          }
       }
 			double QEWSB  = *input_Param.at("QEWSB");
@@ -267,7 +267,7 @@ namespace Gambit
           #ifdef SPECBIT_DEBUG
             cout << "Spectrum not perturbative up to scale = " << check_perturb_scale <<  endl;
           #endif
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),131);
         }
       }
 
@@ -297,7 +297,7 @@ namespace Gambit
 		  {
 			  std::ostringstream msg;
         msg << "Scalar mass larger than 10^20 GeV " << std::endl;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),132);
       }
 
 		  double b = 20.0;

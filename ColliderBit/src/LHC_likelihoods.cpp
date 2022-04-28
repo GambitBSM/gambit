@@ -703,25 +703,25 @@ namespace Gambit
           {
             std::stringstream msg;
             msg << "Computation of ll_b_exp for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),342);
           }
           if (Utils::isnan(ll_b_obs))
           {
             std::stringstream msg;
             msg << "Computation of ll_b_obs for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),343);
           }
           if (Utils::isnan(ll_sb_exp))
           {
             std::stringstream msg;
             msg << "Computation of ll_sb_exp for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),344);
           }
           if (Utils::isnan(ll_sb_obs))
           {
             std::stringstream msg;
             msg << "Computation of ll_sb_obs for signal region " << srData.sr_label << " in analysis " << ananame << " returned NaN" << endl;
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),345);
           }
 
           // Update the running best-expected-exclusion detail
@@ -787,7 +787,7 @@ namespace Gambit
                 << ",  n_sig_MC_sys = " << srData.n_sig_MC_sys
                 << endl;
           }
-          invalid_point().raise(msg.str());
+          invalid_point().raise(msg.str(),346);
         }
       }
 

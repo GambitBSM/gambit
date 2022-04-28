@@ -107,7 +107,7 @@ namespace Gambit
       if ( DMid != "~chi0_1" )
       {
         invalid_point().raise(
-            "TH_ProcessCatalog_DS5_MSSM requires DMid to be ~chi0_1.");
+            "TH_ProcessCatalog_DS5_MSSM requires DMid to be ~chi0_1.",336);
       }
 
       // Instantiate new empty ProcessCatalog
@@ -431,7 +431,7 @@ namespace Gambit
       if ( DMid != "~chi0_1" )
       {
         invalid_point().raise(
-            "TH_ProcessCatalog_DS_MSSM requires DMid to be ~chi0_1.");
+            "TH_ProcessCatalog_DS_MSSM requires DMid to be ~chi0_1.",337);
       }
 
       // Instantiate new empty ProcessCatalog
@@ -767,7 +767,7 @@ namespace Gambit
 
       if (lsp == msqd or lsp == msqu or lsp == msl or lsp == mglui or lsp == mchip)
       {
-        invalid_point().raise("Point invalidated for having charged LSP.");
+        invalid_point().raise("Point invalidated for having charged LSP.",338);
       }
 
       result = lsp.first;
@@ -794,7 +794,7 @@ namespace Gambit
 
       if (lsp == msqd or lsp == msqu or lsp == msl or lsp == mglui or lsp == mchip)
       {
-        invalid_point().raise("Point invalidated for having charged LSP.");
+        invalid_point().raise("Point invalidated for having charged LSP.",339);
       }
 
       result = lsp.first;

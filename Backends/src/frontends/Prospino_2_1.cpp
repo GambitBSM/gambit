@@ -310,7 +310,7 @@ BE_INI_FUNCTION
     std::string prospino_dir = Backends::backendInfo().path_dir(STRINGIFY(BACKENDNAME), STRINGIFY(VERSION));
     Fstring<500> prospino_dir_in = prospino_dir.c_str();
     try{ prospino_gb_init(prospino_dir_in); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),181); }
   }
   scan_level = false;
 
@@ -546,7 +546,7 @@ BE_NAMESPACE
                     ps.final_state_in, ps.ipart1_in, ps.ipart2_in, ps.isquark1_in, ps.isquark2_in,
                     unimass, lowmass_mod, uu_in, vv_in, bw_in, mst_in, msb_in, msl_in);
     }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),182); }
 
     // Fill the result map with the content of prospino_result
     map_str_dbl result;

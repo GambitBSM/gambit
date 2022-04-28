@@ -96,14 +96,14 @@ namespace Gambit
               std::ostringstream msg;
               msg << "Parameter point [mF, lF_s] = [" << diracmodel.DiracPoleMass << " GeV, "
                   << gs << "/GeV] does not satisfy the EFT validity constraint.";
-              invalid_point().raise(msg.str());
+              invalid_point().raise(msg.str(),127);
             }
             if (gp >= (4*pi)/(2*diracmodel.DiracPoleMass))
             {
               std::ostringstream msg;
               msg << "Parameter point [mF, lF_ps] = [" << diracmodel.DiracPoleMass << " GeV, "
                   << gp << "/GeV] does not satisfy the EFT validity constraint.";
-              invalid_point().raise(msg.str());
+              invalid_point().raise(msg.str(),128);
             }
           }
         }
@@ -115,7 +115,7 @@ namespace Gambit
             std::ostringstream msg;
             msg << "Parameter point [mF, lF] = [" << diracmodel.DiracPoleMass << " GeV, "
                 << diracmodel.DiracLambda << "/GeV] does not satisfy the EFT validity constraint.";
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),129);
           }
         }
       }

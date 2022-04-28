@@ -53,7 +53,7 @@ namespace Gambit
       // Check result
       if (Utils::isnan(result))
       {
-        invalid_point().raise("Integration returned NaN.");
+        invalid_point().raise("Integration returned NaN.",287);
       }
 
       return result;

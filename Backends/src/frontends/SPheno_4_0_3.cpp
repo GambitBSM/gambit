@@ -44,7 +44,7 @@ BE_NAMESPACE
   {
 
     try{ Set_All_Parameters_0(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),187); }
 
     ReadingData(inputs);
 
@@ -54,7 +54,7 @@ BE_NAMESPACE
     *ratioWoM = 0.0;
 
     try{ SPheno_Main(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),188); }
 
     if(*kont != 0)
        ErrorHandling(*kont);
@@ -73,7 +73,7 @@ BE_NAMESPACE
 
     Freal8 Q;
     try{ Q = sqrt(GetRenormalizationScale()); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),189); }
 
     // TODO: Chi masses are not rotated, I think. Check
 
@@ -204,10 +204,10 @@ BE_NAMESPACE
     {
       Flogical False = false;
       try{ Switch_to_superCKM(*Y_d,*Y_u,*A_d,*A_u,*M2_D,*M2_Q,*M2_U,*Ad_sckm,*Au_sckm,*M2D_sckm,*M2Q_sckm,*M2U_sckm,False,*RSdown,*RSup,RDsq_ckm,RUsq_ckm,CKM_Q,Yd,Yu); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),190); }
 
       try{ Switch_to_superPMNS(*Y_l,id3C,*A_l,*M2_E,*M2_L,*Al_pmns,*M2E_pmns,*M2L_pmns,False,*RSlepton,*RSneut,RSl_pmns,RSn_pmns,PMNS_Q,Yl); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),191); }
 
     }
     else
@@ -548,7 +548,7 @@ BE_NAMESPACE
         std::stringstream message;
         message << "Error in spectrum generator: mass of " << Models::ParticleDB().long_name(std::pair<int,int>(stoi((*it)[0]),0)) << " is NaN";
         logger() << message.str() << EOM;
-        invalid_point().raise(message.str());
+        invalid_point().raise(message.str(),192);
       }
     }
 
@@ -739,7 +739,7 @@ BE_NAMESPACE
 
     InitializeStandardModel(inputs.sminputs);
     try{ InitializeLoopFunctions(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),193); }
 
     *ErrorLevel = -1;
     *GenerationMixing = false;
@@ -747,7 +747,7 @@ BE_NAMESPACE
     *L_CS = false;
 
     try{ Set_All_Parameters_0(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),194); }
 
     *TwoLoopRGE = true;
 
@@ -797,7 +797,7 @@ BE_NAMESPACE
     {
       Freal8 scale = 1.0E6;  // SPA convention is 1 TeV
       try {SetRGEScale(scale); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),195); }
     }
 
     // 3, External_Spectrum
@@ -838,7 +838,7 @@ BE_NAMESPACE
     if(GUTScale > 0.0)
     {
       try{ SetGUTScale(GUTScale); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),196); }
     }
 
     // 32, requires strict unification, StrictUnification
@@ -846,7 +846,7 @@ BE_NAMESPACE
     if(StrictUnification)
     {
       try{ SetStrictUnification(StrictUnification); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),197); }
     }
 
     // 34, precision of mass calculation, delta_mass
@@ -863,7 +863,7 @@ BE_NAMESPACE
     if(YukawaScheme == 1 or YukawaScheme == 2)
     {
       try{ SetYukawaScheme(YukawaScheme); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),198); }
     }
 
     // 38, set looplevel of RGEs, TwoLoopRGE
@@ -923,7 +923,7 @@ BE_NAMESPACE
     if(Use_bsstep_instead_of_rkqs)
     {
       try{ Set_Use_bsstep_instead_of_rkqs(Use_bsstep_instead_of_rkqs); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),199); }
     }
 
     // 101, use rzextr instead of pzextr
@@ -931,7 +931,7 @@ BE_NAMESPACE
     if(Use_rzextr_instead_of_pzextr)
     {
       try{ Set_Use_rzextr_instead_of_pzextr(Use_rzextr_instead_of_pzextr); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),200); }
     }
 
     // 110, write output for LHC observables
@@ -1278,7 +1278,7 @@ BE_NAMESPACE
       (*mf_u_mZ)(i) = 0.0;
     }
     try{ CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),201); }
 
     // PMNS matrix
     *theta_12 = sminputs.PMNS.theta12;
@@ -1336,7 +1336,7 @@ BE_NAMESPACE
       message = "GAMBIT caught an error in SPheno. Check the SPheno output for more info.";
 
     logger() << message << EOM;
-    invalid_point().raise(message);
+    invalid_point().raise(message,202);
 
     return ;
 
@@ -1360,7 +1360,7 @@ BE_INI_FUNCTION
     *ErrorHandler_cptr = & CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler);
 
     try{ Set_All_Parameters_0(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),203); }
 
     /****************/
     /* Block MODSEL */
@@ -1378,7 +1378,7 @@ BE_INI_FUNCTION
     {
       str message = "Model not recognised";
       logger() << message << EOM;
-      invalid_point().raise(message);
+      invalid_point().raise(message,204);
     }
 
   }

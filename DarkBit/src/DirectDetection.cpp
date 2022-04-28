@@ -409,7 +409,7 @@ namespace Gambit
       {                                                                            \
         /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */     \
         /* TODO: Raise a proper error here -- NaNs should be fixed. */             \
-        invalid_point().raise("Got NaN value from DDCalc! This need fixing!");     \
+        invalid_point().raise("Got NaN value from DDCalc! This need fixing!",335);     \
       }                                                                            \
       result = temp_result;                                                        \
     }

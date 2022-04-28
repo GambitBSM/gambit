@@ -373,7 +373,7 @@ BE_INI_FUNCTION
           if ( max_errors < 0 || error_counter <= max_errors )
           {
             backend_warning().raise(LOCAL_INFO,errMssg.str());
-            invalid_point().raise(errMssg.str());
+            invalid_point().raise(errMssg.str(),214);
           }
           else
           {
@@ -390,7 +390,7 @@ BE_INI_FUNCTION
           cout << "An unspecified error occurred during compute() in classy_"<< STRINGIFY(VERSION) <<":\n";
           cout << rawErrMessage;
           cout << "\n(This point gets invalidated) " << endl;
-          invalid_point().raise(errMssg.str());
+          invalid_point().raise(errMssg.str(),215);
         }
       }
       //std::cout << "Trying to print power spectrum..." << std::endl;

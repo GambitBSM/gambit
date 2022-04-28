@@ -44,7 +44,7 @@ namespace Gambit
 
       if (counter >= filenames.size())
       {
-        invalid_point().raise("No more SLHA files. My work is done.");
+        invalid_point().raise("No more SLHA files. My work is done.",340);
         result = std::make_pair("", SLHAstruct());
       }
       else
@@ -292,7 +292,7 @@ namespace Gambit
       if (m_st1 > 1100.)  discard_point = true;
 
       // Discard point?
-      if (discard_point) invalid_point().raise("Point discarded by susy_spectrum_scan_guide.");
+      if (discard_point) invalid_point().raise("Point discarded by susy_spectrum_scan_guide.",341);
 
     }
 

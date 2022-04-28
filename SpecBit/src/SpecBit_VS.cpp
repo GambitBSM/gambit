@@ -92,7 +92,7 @@ namespace Gambit
       // if any condition not satisfied set bad likelihood and invalidate point
       if ( lambda_hs < 0 || lambda_s < 0 || check < 0 || check_2 < 0)
       {
-        invalid_point().raise("Electroweak vacuum is unstable at low scale.");
+        invalid_point().raise("Electroweak vacuum is unstable at low scale.",102);
         result = -1e100;
       }
     }
@@ -418,7 +418,7 @@ namespace Gambit
 
       if (vs_tuple.flag)
       {
-        invalid_point().raise("Couplings are non-perturbative before scale of vacuum instability");
+        invalid_point().raise("Couplings are non-perturbative before scale of vacuum instability",103);
         result = -1e100;
       }
       else

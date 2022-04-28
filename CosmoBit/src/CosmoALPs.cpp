@@ -85,7 +85,7 @@ namespace Gambit
         std::ostringstream err;
         err << "ALP lifetime (" << result << " [s]) is outside of the permitted range";
         err << " [" << cut_below << ", " << cut_above << "].";
-        invalid_point().raise(err.str(),983);
+        invalid_point().raise(err.str(),234);
       }
     }
 
@@ -207,7 +207,7 @@ namespace Gambit
         err << "The choice of f0_thermal (" << f0_thermal;
         err << ") is in contradiction with the minimum dark matter fraction f0_min (";
         err << f0_min << ") produced via Primakoff processes.";
-        //invalid_point().raise(err.str());
+        //invalid_point().raise(err.str(),235);
       }
 
       // Compute the total fraction of DM in ALPs at production
@@ -219,7 +219,7 @@ namespace Gambit
       {
         std::ostringstream err;
         err << "ALPs are over-abundant (n_a > n_cdm) at t = 10^12 s. (n_a/n_cdm = "<< xi_at_rec <<")";
-        invalid_point().raise(err.str(),982);
+        invalid_point().raise(err.str(),236);
       }
 
       result = xi_ini;
@@ -353,7 +353,7 @@ namespace Gambit
             err << "Failed at iteration " << i+1;
             err << " at table index " << j << " (t =" << t << ", T = " << T[0] <<").\n";
             err << "Point will be invalidated.";
-            invalid_point().raise(err.str(),981);
+            invalid_point().raise(err.str(),237);
           }
           T_grid[j] = T[0];
         }
@@ -394,7 +394,7 @@ namespace Gambit
         std::ostringstream err;
         err << "Computation of dNeffCMB and etaBBN for GeneralCosmoALP model did not converge after n = "<< i <<" iterations. ";
         err << "You can increase the maximum number of iterations with the run Option 'max_iter'. Invalidating point.";
-        invalid_point().raise(err.str(),980);
+        invalid_point().raise(err.str(),238);
       }
 
       // Save "eta_ratio"

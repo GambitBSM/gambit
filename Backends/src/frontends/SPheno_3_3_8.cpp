@@ -54,7 +54,7 @@ BE_NAMESPACE
     *ratioWoM = 0.0;
 
     try{ SPheno_Main(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),155); }
 
     if(*kont != 0)
       ErrorHandling(*kont);
@@ -72,7 +72,7 @@ BE_NAMESPACE
 
     Freal8 Q;
     try{ Q = sqrt(GetRenormalizationScale()); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),156); }
 
     // Spectrum generator information
     SLHAea_add_block(slha, "SPINFO");
@@ -176,7 +176,7 @@ BE_NAMESPACE
     {
       Flogical True = true;
       try{ Switch_to_superCKM(*Y_d_0,*Y_u_0,*A_d_0,*A_u_0,*M2_D_0,*M2_Q_0,*M2_U_0,*Ad_sckm,*Au_sckm,*M2D_sckm,*M2Q_sckm,*M2U_sckm,True,*RSdown,*RSup,RDsq_ckm,RUsq_ckm,CKM_Q,Yd,Yu); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),157); }
       for(int i=1; i<=3; i++)
       {
         Yl(i) = (*Y_l_0)(i,i).re;
@@ -254,10 +254,10 @@ BE_NAMESPACE
     {
       Flogical False = false;
       try{ Switch_to_superCKM(*Y_d,*Y_u,*A_d,*A_u,*M2_D,*M2_Q,*M2_U,*Ad_sckm,*Au_sckm,*M2D_sckm,*M2Q_sckm,*M2U_sckm,False,*RSdown,*RSup,RDsq_ckm,RUsq_ckm,CKM_Q,Yd,Yu); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),158); }
 
       try{ Switch_to_superPMNS(*Y_l,id3C,*A_l,*M2_E,*M2_L,*Al_pmns,*M2E_pmns,*M2L_pmns,False,*RSlepton,*RSneut,RSl_pmns,RSn_pmns,PMNS_Q,Yl); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),159); }
 
     }
     else
@@ -725,7 +725,7 @@ BE_NAMESPACE
 
     InitializeStandardModel(inputs.sminputs);
     try{ InitializeLoopFunctions(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),160); }
 
     *ErrorLevel = -1;
     *GenerationMixing = false;
@@ -733,7 +733,7 @@ BE_NAMESPACE
     *L_CS = false;
 
     try{ Set_All_Parameters_0(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),161); }
 
     // necessary to exclude right handed neutrinos from RGEs
     // is set to positive in the corresponding model
@@ -819,7 +819,7 @@ BE_NAMESPACE
     if(YukawaScheme == 1 or YukawaScheme == 2)
     {
       try{ SetYukawaScheme(YukawaScheme); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),162); }
     }
 
     // 38, set looplevel of RGEs, TwoLoopRGE
@@ -1246,7 +1246,7 @@ BE_NAMESPACE
     (*CKM)(3,3) = c23 * c13;
 
     try{ CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),163); }
 
     // PMNS matrix
     *theta_12 = sminputs.PMNS.theta12;
@@ -1304,7 +1304,7 @@ BE_NAMESPACE
       message = "GAMBIT caught an error in SPheno. Check the SPheno output for more info.";
 
     logger() << message << EOM;
-    invalid_point().raise(message);
+    invalid_point().raise(message,164);
 
     return ;
 
@@ -1321,21 +1321,21 @@ BE_INI_FUNCTION
     *ErrCan = 0;
 
     try{ Set_All_Parameters_0(); }
-    catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+    catch(std::runtime_error& e) { invalid_point().raise(e.what(),165); }
 
     // Set up model, same as Block MODSEL
     if((*ModelInUse)("CMSSM"))
     {
       *HighScaleModel = "mSUGRA";
       try {SetHighScaleModel("SUGRA"); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),166); }
 
     }
     else
     {
       *HighScaleModel = "SUGRA"; // SUGRA
       try {SetHighScaleModel("SUGRA"); }
-      catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
+      catch(std::runtime_error& e) { invalid_point().raise(e.what(),167); }
 
     }
 

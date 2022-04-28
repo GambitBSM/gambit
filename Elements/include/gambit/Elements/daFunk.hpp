@@ -1423,7 +1423,7 @@ namespace daFunk
               if ( omp_get_level() == 0 )  // Outside of OMP blocks
               {
                   Gambit::utils_warning().raise(LOCAL_INFO, "daFunk::RaiseInvalidPoint says: " + msg);
-                  Gambit::invalid_point().raise("daFunk::RaiseInvalidPoint says: " + msg);
+                  Gambit::invalid_point().raise("daFunk::RaiseInvalidPoint says: " + msg,316);
               }
               else  // Inside OMP blocks
               {

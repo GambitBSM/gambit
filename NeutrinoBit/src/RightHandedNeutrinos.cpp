@@ -2042,7 +2042,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),239);
       }
     }
 
@@ -2071,7 +2071,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),240);
       }
  
     }
@@ -2101,7 +2101,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),241);
       }
  
     }
@@ -2131,7 +2131,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),242);
       }
  
     }
@@ -2161,7 +2161,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),243);
       }
  
     }
@@ -2191,7 +2191,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),244);
       }
  
     }
@@ -2221,7 +2221,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),245);
       }
  
     }
@@ -2251,7 +2251,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),246);
       }
  
     }
@@ -2281,7 +2281,7 @@ namespace Gambit
         std::ostringstream msg;
         msg << "Coupling outside of given limits";
         logger() << msg.str() << EOM;
-        invalid_point().raise(msg.str());
+        invalid_point().raise(msg.str(),247);
       }
  
     }
@@ -2317,7 +2317,7 @@ namespace Gambit
             std::ostringstream msg;
             msg << "Yukawas not perturbative; point invalidated.";
             logger() << msg.str() << EOM;
-            invalid_point().raise(msg.str());
+            invalid_point().raise(msg.str(),248);
             return ;
           }
     }

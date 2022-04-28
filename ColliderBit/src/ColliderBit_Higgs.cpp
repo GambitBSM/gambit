@@ -572,7 +572,7 @@ namespace Gambit
       {
         std::ostringstream err;
         err << "BEreq::FHHiggsProd raised error flag for Tevatron: " << error << ".";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),347);
       }
       for(int i = 0; i < 52; i++) HiggsProd.prodxs_Tev[i] = prodxs(i+1);
       // LHC7
@@ -583,7 +583,7 @@ namespace Gambit
       {
         std::ostringstream err;
         err << "BEreq::FHHiggsProd raised error flag for LHC7: " << error << ".";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),348);
       }
       for(int i = 0; i < 52; i++) HiggsProd.prodxs_LHC7[i] = prodxs(i+1);
       // LHC8
@@ -594,7 +594,7 @@ namespace Gambit
       {
         std::ostringstream err;
         err << "BEreq::FHHiggsProd raised error flag for LHC8: " << error << ".";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),349);
       }
       for(int i = 0; i < 52; i++) HiggsProd.prodxs_LHC8[i] = prodxs(i+1);
 

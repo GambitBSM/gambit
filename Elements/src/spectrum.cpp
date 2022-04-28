@@ -184,7 +184,7 @@ namespace Gambit
          #ifdef SPECTRUM_DEBUG
            cout << "Actual value: " << m << endl;
          #endif
-         if (m < low or m > high) invalid_point().raise(p + " failed requested mass cut.");
+         if (m < low or m > high) invalid_point().raise(p + " failed requested mass cut.",317);
        }
      }
      if (mass_ratio_cuts != NULL and not mass_ratio_cuts->empty())
@@ -213,7 +213,7 @@ namespace Gambit
          #ifdef SPECTRUM_DEBUG
            cout << "Actual value: " << mratio << endl;
          #endif
-         if (mratio < low or mratio > high) invalid_point().raise(p1 + "/" + p2 +" failed requested mass ratio cut.");
+         if (mratio < low or mratio > high) invalid_point().raise(p1 + "/" + p2 +" failed requested mass ratio cut.",318);
        }
      }
      }

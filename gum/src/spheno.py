@@ -1352,7 +1352,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "ReadingData(inputs);\n"
             "\n"
             "try{ SPheno_Main(); }\n"
-            "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"
+            "catch(std::runtime_error e) { invalid_point().raise(e.what(),294); }\n"
             "\n"
             "if(*kont != 0)\n"
             "  ErrorHandling(*kont);\n"
@@ -1527,7 +1527,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "\n"
             "// Call SPheno's function to calculate decays\n"
             "try{{ {0} }}\n"
-            "catch(std::runtime_error e) {{ invalid_point().raise(e.what()); }}\n"
+            "catch(std::runtime_error e) {{ invalid_point().raise(e.what(),295); }}\n"
             "\n"
             "// Check for errors\n"
             "if(*kont != 0)\n"
@@ -1733,7 +1733,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "\n"
             "Freal8 Q;\n"
             "try{ Q = sqrt(GetRenormalizationScale()); }\n"
-            "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"
+            "catch(std::runtime_error e) { invalid_point().raise(e.what(),296); }\n"
             "\n"
     )
     if flags["SupersymmetricModel"] and any([particle.alt_name.startswith("Chi") for particle in particles]):
@@ -1856,9 +1856,9 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
           '// Convert to super-CKM and super-PMNS variables\n'\
           'Flogical False = false;\n'\
           'try{ Switch_to_superCKM(*Yd, *Yu, *Td, *Tu, *md2, *mq2, *mu2, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm,mu2_ckm, False, ZD_ckm, ZU_ckm, *ZD, *ZU, CKM_Q, Yd_ckm, Yu_ckm); }\n'\
-          'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+          'catch(std::runtime_error e) { invalid_point().raise(e.what(),297); }\n'\
           'try{ Switch_to_superPMNS(Ye_transpose, id3C, *Te, *me2, *ml2, Te_pmns, me2_pmns, ml2_pmns, False, ZE_pmns, ZV_pmns, *ZE, *ZV, PMNS_Q, Ye_pmns); }\n'\
-          'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+          'catch(std::runtime_error e) { invalid_point().raise(e.what(),298); }\n'\
           '\n'\
           '// Save rotated values to old variables\n'\
           '*Yd = Yd_ckm;\n'\
@@ -2025,7 +2025,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "<< Models::ParticleDB().long_name(std::pair<int,int>(stoi((*it)[0]),0))"
             " << \" is NaN\";\n"
             "logger() << message.str() << EOM;\n"
-            "invalid_point().raise(message.str());\n"
+            "invalid_point().raise(message.str(),299);\n"
             "}\n"
             "}\n"
             "\n"
@@ -2270,13 +2270,13 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "\n"\
       "InitializeStandardModel(inputs.sminputs);\n"\
       "try{ InitializeLoopFunctions(); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error e) { invalid_point().raise(e.what(),300); }\n"\
       "\n"\
       "*ErrorLevel = -1;\n"\
       "//*GenerationMixing = true;\n"\
       "\n"\
       "try{ Set_All_Parameters_0(); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error e) { invalid_point().raise(e.what(),301); }\n"\
       "\n"\
       "*TwoLoopRGE = true;\n"\
       "\n"\
@@ -2324,7 +2324,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       '{\n'\
       'Freal8 scale = 1.0E6;  // SPA convention is 1 TeV\n'\
       'try {SetRGEScale(scale); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error e) { invalid_point().raise(e.what(),302); }\n'\
       '}\n'\
       '\n'\
       '// 3, External_Spectrum\n'\
@@ -2418,7 +2418,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'if(GUTScale > 0.0)\n'\
       '{\n'\
       'try{ SetGUTScale(GUTScale); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error e) { invalid_point().raise(e.what(),303); }\n'\
       '}\n'\
       '\n'\
       '// 32, requires strict unification, StrictUnification\n'\
@@ -2426,7 +2426,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'if(StrictUnification)\n'\
       '{\n'\
       'try{ SetStrictUnification(StrictUnification); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error e) { invalid_point().raise(e.what(),304); }\n'\
       '}\n'\
       '\n'\
       '// 33, setting a fixed renormalization scale\n'\
@@ -2435,7 +2435,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       '{\n'\
       'RGEScale *= RGEScale;\n'\
       'try{ SetRGEScale(RGEScale); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error e) { invalid_point().raise(e.what(),305); }\n'\
       '}\n'\
       '\n'\
       '// 34, precision of mass calculation, delta_mass\n'\
@@ -2452,7 +2452,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'if(YukawaScheme == 1 or YukawaScheme == 2)\n'\
       '{\n'\
       'try{ SetYukawaScheme(YukawaScheme); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error e) { invalid_point().raise(e.what(),306); }\n'\
       '}\n'\
       '\n'\
       '// 38, set looplevel of RGEs, TwoLoopRGE\n'\
@@ -3016,7 +3016,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       '(*mf_u_mZ)(i) = 0.0;\n'\
       '}\n'\
       'try{ CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error e) { invalid_point().raise(e.what(),307); }\n'\
       'if(*kont != 0)\n'\
       'ErrorHandling(*kont);\n'\
       '\n'\
@@ -3051,7 +3051,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'message = "GAMBIT caught an error in SPheno. Check the SPheno output for more info.";\n'\
       '\n'\
       'logger() << message << EOM;\n'\
-      'invalid_point().raise(message);\n'\
+      'invalid_point().raise(message,308);\n'\
       '\n'\
       'return ;\n'\
       '\n'\
@@ -3111,7 +3111,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'str message = "Unable to open decays info file " + decays_file;\n'\
       'logger() << message << EOM;\n'\
       'backend_error().raise(LOCAL_INFO, message);\n'\
-      '// invalid_point().raise(message);\n'\
+      '// invalid_point().raise(message,309);\n'\
       '}\n'\
       '}\n'\
       '\n'\
@@ -3148,7 +3148,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "*ErrorHandler_cptr = & CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler);\n"\
       "\n"\
       "try{ Set_All_Parameters_0(); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error e) { invalid_point().raise(e.what(),310); }\n"\
       "\n"\
       "/****************/\n"\
       "/* Block MODSEL */\n"\
@@ -3163,7 +3163,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "{\n"\
       "  str message = \"Model not recognised\";\n"\
       "  logger() << message << EOM;\n"\
-      "  invalid_point().raise(message);\n"\
+      "  invalid_point().raise(message,311);\n"\
       "}\n"\
       " \n"\
       "// GAMBIT default behaviour\n"\
@@ -3175,20 +3175,20 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "// Reset RGE scale\n"\
       "*Qin = -1;\n"\
       "try{ SetRGEScale(*Qin); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"
+      "catch(std::runtime_error e) { invalid_point().raise(e.what(),312); }\n"
     if flags["SupersymmetricModel"] :
       towrite += "*Qin = 1.0E3;  // Default value if there's no input\n"
     else :
       towrite += "*Qin = 1.0E6;  // Default value if there's no input\n"
     towrite += "Freal8 scale_sq = pow(*Qin, 2);\n"\
       "try{ SetRenormalizationScale(scale_sq); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error e) { invalid_point().raise(e.what(),313); }\n"\
       "if(Param.find(\"Qin\") != Param.end())\n"\
       "{ \n"\
       "*Qin = *Param.at(\"Qin\");\n"\
       "scale_sq = pow(*Qin,2);\n"\
       "try{ SetRGEScale(scale_sq); } \n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error e) { invalid_point().raise(e.what(),314); }\n"\
       "}\n"\
       "\n"\
       "// Reset the global flag that indicates whether or not BRs have been computed yet or not for this parameter point.\n"\
