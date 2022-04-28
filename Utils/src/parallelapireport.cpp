@@ -36,6 +36,8 @@
 #include <unistd.h>
 #include <sys/sysinfo.h>
 
+#include <omp.h>
+
 #include "gambit/Utils/parallelapireport.hpp"
 
 namespace profiling_util {
@@ -139,9 +141,9 @@ namespace profiling_util {
             }
             s += "\n";
             s += "OpenMP Target : ";
-            s += "Number of devices "+ std::to_string(numdevices);
-            s += "Default device "+ std::to_string(defaultdevice);
-            s += "Number of Compute Units "+ std::to_string(ninfo[1]);
+            s += "Number of devices " + std::to_string(numdevices);
+            s += "Default device " + std::to_string(defaultdevice);
+            s += "Number of Compute Units " + std::to_string(ninfo[1]);
         }
 #endif
         s += "\n";
@@ -182,18 +184,13 @@ namespace profiling_util {
 
     std::string ReportBinding(
 #ifdef WITH_MPI 
-        std::string func, std::string line, GMPI::Comm &comm
+        std::string func, std::string line, Gambit::GMPI::Comm &comm
 #else
         std::string func, std::string line
 #endif
     )
     {
         std::string binding_report;
-        int ThisTask=0, NProcs=1;
-#ifdef WITH_MPI 
-        NProcs = comm.Get_size();
-        ThisTask = comm.Get_rank();
-#endif
         binding_report = "Core Binding " + where_called(func,line);
         binding_report += "\n ======== \n";
         cpu_set_t coremask;
@@ -204,11 +201,11 @@ namespace profiling_util {
         std::string result;
         result = "\t On node " + std::string(hnbuf) + " : ";
 #ifdef WITH_MPI
-        result += " MPI Comm "+ comm.GetName() + " Rank " + std::to_string(ThisTask) + " : ";
+        result += " MPI Comm "+ comm.Get_name() + " Rank " + std::to_string(comm.Get_rank()) + " : ";
 #endif
 #ifdef _OPENMP
         #pragma omp parallel \
-        default(none) shared(binding_report, hnbuf, ThisTask) \
+        default(none) shared(binding_report, hnbuf) \
         private(coremask, clbuf) \
         firstprivate(result)
 #endif
@@ -260,18 +257,17 @@ namespace profiling_util {
 
     /// return binding as called within openmp region, MPI aware 
 #ifdef WITH_MPI 
-    std::string MPIReportThreadAffinity(std::string func, std::string line, GMPI::Comm &comm)
+    std::string MPIReportThreadAffinity(std::string func, std::string line, Gambit::GMPI::Comm &comm)
     {
         std::string result;
-        int ThisTask=0, NProcs=1;
         cpu_set_t coremask;
         char clbuf[7 * CPU_SETSIZE], hnbuf[64];
         memset(hnbuf, 0, sizeof(hnbuf));
         memset(clbuf, 0, sizeof(clbuf));
         (void)gethostname(hnbuf, sizeof(hnbuf));
-        result = "Thread affinity report " where_called(func,line);
+        result = "Thread affinity report " + where_called(func,line);
         result += "::\t On node " + std::string(hnbuf) + " : ";
-        result += " MPI Comm "+ comm.GetName() + " Rank " + std::to_string(comm.Get_rank()) + " : ";
+        result += " MPI Comm "+ comm.Get_name() + " Rank " + std::to_string(comm.Get_rank()) + " : ";
         (void)sched_getaffinity(0, sizeof(coremask), &coremask);
         cpuset_to_cstr(&coremask, clbuf);
         int thread = 0, level = 1;

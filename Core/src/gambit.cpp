@@ -119,9 +119,10 @@ int main(int argc, char* argv[])
         cout << LogParallelAPI()<<endl;
       }
       #ifdef WITH_MPI
-      logger() << core << MPILogBinding(report_comm) << EOM;
+      GMPI::Comm temp_comm;
+      logger() << core << MPILogBinding(temp_comm) << EOM;
       #else 
-      logger() << core << LogBinding(report_comm) <<EOM;
+      logger() << core << LogBinding() <<EOM;
       #endif
 
       std::vector<std::string> arguments(argv, argv + argc);

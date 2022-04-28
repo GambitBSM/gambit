@@ -23,8 +23,12 @@
 #  \date 2020 Feb, Dec
 #
 #  \author Anders Kvellestad
-#          (anders.kvellestad@fys.uio.no
+#          (anders.kvellestad@fys.uio.no)
 #  \date 2021 Feb, Sep
+#
+#  \author Pascal Jahan Elahi
+#          (pascal.elahi@pawsey.org.au)
+#  \date 2022 Aprile
 #
 #************************************************
 
@@ -39,6 +43,7 @@ set(source_files src/ascii_table_reader.cpp
                  src/mpiwrapper.cpp
                  src/new_mpi_datatypes.cpp
                  src/model_parameters.cpp
+                 src/parallelapireport.cpp
                  src/screen_print_utils.cpp
                  src/signal_handling.cpp
                  src/signal_helpers.cpp
@@ -72,6 +77,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/local_info.hpp
                  include/gambit/Utils/model_parameters.hpp
                  include/gambit/Utils/numerical_constants.hpp
+                 include/gambit/Utils/parallelapireport.hpp
                  include/gambit/Utils/safebool.hpp
                  include/gambit/Utils/screen_print_utils.hpp
                  include/gambit/Utils/signal_handling.hpp
