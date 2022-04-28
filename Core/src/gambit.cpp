@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
       /// Create an MPI communicator group for use by error handlers
       GMPI::Comm errorComm;
       errorComm.dup(MPI_COMM_WORLD,"errorComm"); // duplicates the COMM_WORLD context
-      c onst int ERROR_TAG=1;         // Tag for error messages
+      const int ERROR_TAG=1;         // Tag for error messages
       errorComm.mytag = ERROR_TAG;
       signaldata().set_MPI_comm(&errorComm); // Provide a communicator for signal handling routines to use.
       /// Create an MPI communicator group for ScannerBit to use
