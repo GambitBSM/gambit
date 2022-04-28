@@ -238,7 +238,7 @@ namespace Gambit
       catch(std::runtime_error &e)
       {
         logger() << e.what() << EOM;
-        invalid_point().raise(e.what());
+        invalid_point().raise(e.what(),990);
       }
 
       // If there's an error, pass it to the helper function and invalidate the point.
@@ -246,7 +246,7 @@ namespace Gambit
       {
         std::string message = multimode_error_handling(observables.err);
         logger() << message << EOM;
-        invalid_point().raise(message);
+        invalid_point().raise(message,989);
       }
 
       // Fill up the GAMBIT primordial power spectrum object from the outputs.
@@ -304,14 +304,14 @@ namespace Gambit
       catch(std::runtime_error &e)
       {
         logger() << e.what() << EOM;
-        invalid_point().raise(e.what());
+        invalid_point().raise(e.what(),988);
       }
       // If there's an error, pass it to the helper function and invalidate the point.
       if(observables.err != 0)
       {
         std::string message = multimode_error_handling(observables.err);
         logger() << message << EOM;
-        invalid_point().raise(message);
+        invalid_point().raise(message,987);
       }
 
       // Set the parameters of the PowerLaw_ps model from the outputs.

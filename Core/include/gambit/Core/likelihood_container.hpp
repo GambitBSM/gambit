@@ -123,6 +123,8 @@ namespace Gambit
 
       /// Use this to modify the total likelihood function before passing it to the scanner
       double purposeModifier(double lnlike);
+
+      int invalidcode;
   };
 
   // Register the Likelihood Container as an available target function for ScannerBit.  The first argument

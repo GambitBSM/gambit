@@ -68,6 +68,7 @@ namespace Gambit
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
     invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
+    invalidcode(0),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -288,6 +289,7 @@ namespace Gambit
           if(!print_invalid_points)
             printer.disable();
           printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());
+          invalidcode = invalidcodeID;
           if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
           break;
         }

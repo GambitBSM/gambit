@@ -344,6 +344,7 @@ namespace Gambit {
          // Get, set and ouptut the process rank and this point's ID
          int myrank  = boundLogLike->getRank(); // MPI rank of this process
          int pointID = boundLogLike->getPtID();   // point ID number
+         int invalidationcode = boundLogLike->invalidcode;   // point ID number
          phi[nderived - 2] = myrank;
          phi[nderived - 1] = pointID;
 

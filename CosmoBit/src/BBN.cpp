@@ -409,7 +409,7 @@ namespace Gambit
       {
         std::ostringstream err;
         err << "AlterBBN calculation for primordial element abundances failed. Invalidating Point.";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),986);
       }
 
       // If the uncertainties are to be taken as difference of high/low values, compute the high and low abundances
@@ -624,7 +624,7 @@ namespace Gambit
             {
               std::ostringstream err;
               err << "Unphysical uncertainties. Invalidating Point.";
-              invalid_point().raise(err.str());
+              invalid_point().raise(err.str(),985);
             }
           }
         }
@@ -633,7 +633,7 @@ namespace Gambit
       {
         std::ostringstream err;
         err << "Deuterium abundance is too small. Invalidating Point.";
-        invalid_point().raise(err.str());
+        invalid_point().raise(err.str(),984);
       }
 
       static bool first = true;

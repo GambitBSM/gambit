@@ -82,7 +82,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the TT spectrum.");
+          invalid_point().raise("Found a negative value in the TT spectrum.",998);
         }
       }
     }
@@ -105,7 +105,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the EE spectrum.");
+          invalid_point().raise("Found a negative value in the EE spectrum.",997);
         }
       }
     }
@@ -121,7 +121,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the BB spectrum.");
+          invalid_point().raise("Found a negative value in the BB spectrum.",996);
         }
       }
     }
@@ -137,7 +137,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the PhiPhi spectrum.");
+          invalid_point().raise("Found a negative value in the PhiPhi spectrum.",995);
         }
       }
     }
@@ -155,7 +155,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the TT spectrum.");
+          invalid_point().raise("Found a negative value in the TT spectrum.",994);
         }
       }
     }
@@ -178,7 +178,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the EE spectrum.");
+          invalid_point().raise("Found a negative value in the EE spectrum.",993);
         }
       }
     }
@@ -194,7 +194,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the BB spectrum.");
+          invalid_point().raise("Found a negative value in the BB spectrum.",992);
         }
       }
     }
@@ -210,7 +210,7 @@ namespace Gambit
       {
         if (*it < 0.0)
         {
-          invalid_point().raise("Found a negative value in the PhiPhi spectrum.");
+          invalid_point().raise("Found a negative value in the PhiPhi spectrum.",991);
         }
       }
     }
