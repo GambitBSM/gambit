@@ -28,7 +28,7 @@
 LOAD_LIBRARY
 
 // Forward declaration of custom return type (defined in gambit/Backends/backend_types/DDCalc.hpp)
-namespace Gambit { class NREO_DM_nucleon_couplings; }
+namespace Gambit { struct NREO_DM_nucleon_couplings; }
 
 BE_CONV_FUNCTION(get_NR_WCs_flav, NREO_DM_nucleon_couplings, (map_str_dbl&, double&, int&, std::string&, map_str_dbl&), "get_NR_WCs_flav")
 

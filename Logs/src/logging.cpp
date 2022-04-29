@@ -274,7 +274,7 @@ namespace Gambit
       }
       #endif
       // Check error bits on stream and throw exception in anything is bad
-      if( my_stream.fail() | my_stream.bad() )
+      if( my_stream.fail() || my_stream.bad() )
       {
         std::ostringstream ss;
         ss << "IO error while constructing StdLogger! Error bit on in supplied ostream.";
@@ -298,7 +298,7 @@ namespace Gambit
       }
       #endif
       // Check error bits on stream and throw exception in anything is bad
-      if( my_stream.fail() | my_stream.bad() )
+      if( my_stream.fail() || my_stream.bad() )
       {
          std::ostringstream ss;
          #ifdef WITH_MPI

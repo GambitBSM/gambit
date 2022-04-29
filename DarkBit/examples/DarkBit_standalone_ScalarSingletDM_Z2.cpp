@@ -176,8 +176,12 @@ int main()
     RD_fraction_one.reset_and_calculate();
 
     // Set generic WIMP mass object
-    mwimp_generic.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
-    mwimp_generic.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    WIMP_properties.notifyOfModel("ScalarSingletDM_Z2");
+    WIMP_properties.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    WIMP_properties.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
+    WIMP_properties.resolveDependency(&createSpectrum);
+    WIMP_properties.reset_and_calculate();
+    mwimp_generic.resolveDependency(&WIMP_properties);
     mwimp_generic.reset_and_calculate();
 
     // Set generic annihilation rate in late universe (v->0 limit)
@@ -315,12 +319,16 @@ int main()
     Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
     Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
 
+    // Calculate DD couplings for DDCalc
+    DDCalc_Couplings_WIMP_nucleon.resolveDependency(&DD_couplings_ScalarSingletDM_Z2);
+    DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
+
     DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
     DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
     DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
     // Choose one of the two below lines to determine where the couplings used in the likelihood
     // calculation come from
-    DDCalc_2_2_0_init.resolveDependency(&DD_couplings_ScalarSingletDM_Z2);
+    DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
     //DDCalc_2_2_0_init.resolveDependency(&DD_couplings_MicrOmegas);
     DDCalc_2_2_0_init.reset_and_calculate();
 
@@ -340,7 +348,7 @@ int main()
     // ---- Gamma-ray yields ----
 
     // Initialize tabulated gamma-ray yields
-    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
     GA_SimYieldTable_DarkSUSY.reset_and_calculate();
     Combine_SimYields.resolveDependency(&GA_SimYieldTable_DarkSUSY);
     // Here we need to establish the dependency chain from Combine_SimYields down to cascadeMC_gammaSpectra

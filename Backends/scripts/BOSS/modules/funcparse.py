@@ -43,7 +43,7 @@ def run():
         func_i = len(gb.functions_done)
 
         # Generate dict with different variations of the function name
-        func_name = funcutils.getFunctionNameDict(func_el)
+        func_name = utils.getFunctionNameDict(func_el)
 
 
         # Print current function
@@ -231,7 +231,7 @@ def generateFunctionWrapperClassVersion(func_el, wr_func_name, namespaces, n_ove
 
 
     # Arguments
-    args = funcutils.getArgs(func_el)
+    args = utils.getArgs(func_el)
 
 
     # One function for each set of default arguments
@@ -248,14 +248,14 @@ def generateFunctionWrapperClassVersion(func_el, wr_func_name, namespaces, n_ove
             use_args = args[:-remove_n_args]
 
         # Argument bracket
-        args_bracket = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=True)
+        args_bracket = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=True, include_namespace=True, use_wrapper_class=True)
 
         # Name of original function to call
         call_func_name = func_name
 
         # Convert return type if loaded class
         if utils.isLoadedClass(return_el):
-            wrapper_return_type = classutils.toWrapperType(return_type, remove_reference=True)
+            wrapper_return_type = utils.toWrapperType(return_type, remove_reference=True)
         else:
             wrapper_return_type = return_type
 
@@ -271,12 +271,12 @@ def generateFunctionWrapperClassVersion(func_el, wr_func_name, namespaces, n_ove
         else:
             new_code += indent + 'return '
 
-        # args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=True)
-        args_bracket_notypes = funcutils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, cast_to_original=True, wrapper_to_pointer=True)
+        # args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=True)
+        args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, cast_to_original=True, wrapper_to_pointer=True)
 
         if return_is_loaded: 
 
-            abs_return_type_simple = classutils.toAbstractType(return_type, include_namespace=True, remove_reference=True, remove_pointers=True)
+            abs_return_type_simple = utils.toAbstractType(return_type, include_namespace=True, remove_reference=True, remove_pointers=True)
             wrapper_return_type_simple = wrapper_return_type.replace('*','').replace('&','')
 
             if is_ref:  # Return-by-reference

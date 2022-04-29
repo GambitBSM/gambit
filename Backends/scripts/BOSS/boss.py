@@ -74,6 +74,11 @@ def main():
                       dest="cmdline_include_paths",
                       help="Add PATH to the list of paths used by CastXML to search for included header files.",
                       metavar="PATH")
+    parser.add_option("--no-instructions",
+                      action="store_true",
+                      dest="no_instructions_flag",
+                      default=False,
+                      help="When BOSS finishes, don't print the instructions for manually connecting the BOSS-generated output to GAMBIT.")
     # parser.add_option("-G", "--to-gambit",
     #                   dest="main_gambit_path",
     #                   default="",
@@ -375,7 +380,7 @@ def main():
             for el in (root.findall('Class') + root.findall('Struct')):
 
                 try:
-                    class_name = classutils.getClassNameDict(el)
+                    class_name = utils.getClassNameDict(el)
                 except KeyError:
                     continue
 
@@ -388,7 +393,7 @@ def main():
             for el in root.findall('Function'):
 
                 try:
-                    func_name = funcutils.getFunctionNameDict(el)
+                    func_name = utils.getFunctionNameDict(el)
                 except KeyError:
                     continue
 
@@ -442,7 +447,7 @@ def main():
     #
 
     if cfg.load_parent_classes:
-        utils.addParentClasses()
+        classutils.addParentClasses()
 
 
     #
@@ -468,7 +473,7 @@ def main():
 
                 # If a requested class is loadable, set the entry in is_loadable to True
                 if full_name in cfg.load_classes:
-                    if utils.isLoadable(el, print_warning=False):
+                    if classutils.isLoadable(el, print_warning=False):
                         is_loadable[full_name] = True
 
     # Remove from cfg.load_classes those that are not loadable
@@ -498,7 +503,7 @@ def main():
                     el = None
 
                 if el is not None:
-                    utils.isLoadable(el, print_warning=True)
+                    classutils.isLoadable(el, print_warning=True)
                 else:
                     reason = "Class not found."
                     infomsg.ClassNotLoadable(full_name, reason).printMessage()
@@ -507,7 +512,7 @@ def main():
     #
     # Fill the gb.parents_of_loaded_classes list
     #
-    utils.fillParentsOfLoadedClassesList()
+    classutils.fillParentsOfLoadedClassesList()
 
 
     #
@@ -535,7 +540,7 @@ def main():
 
                 # Get function name
                 try:
-                    func_name = funcutils.getFunctionNameDict(el)
+                    func_name = utils.getFunctionNameDict(el)
                     func_name_long_templ_args = func_name['long_templ_args']
                 except KeyError:
                     func_name_long_templ_args = 'UNKNOWN_NAME'
@@ -841,18 +846,21 @@ def main():
     #
 
     print()
-    print( utils.modifyText('Done!','bold'))
-    print()
-    print("  To prepare this backend for use with GAMBIT, do the following:")
-    print()
-    print("    1. BOSS has added new source files to '%s' and new header files to '%s'." % (cfg.src_files_to, cfg.header_files_to))
-    print("       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name))
-    print("    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name))
-    print("    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT.")
-    print("    4. Copy the '%s' directory from '%s' and '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_include_dir_complete, gb.for_gambit_backend_types_source_dir_complete))
-    print("    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path))
+    print( utils.modifyText('BOSS done!','bold'))
     print()
     print()
+
+    if not options.no_instructions_flag:
+        print("  To prepare this backend for use with GAMBIT, do the following:")
+        print()
+        print("    1. BOSS has added new source files to '%s' and new header files to '%s'." % (cfg.src_files_to, cfg.header_files_to))
+        print("       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name))
+        print("    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name))
+        print("    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT.")
+        print("    4. Copy the '%s' directory from '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_dir_complete))
+        print("    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path))
+        print()
+        print()
 
 # ====== END: main ========
 

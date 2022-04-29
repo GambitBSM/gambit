@@ -1,0 +1,147 @@
+diff -rupN vevacious_pristine/CMakeLists.txt vevacious/CMakeLists.txt
+--- vevacious_pristine/CMakeLists.txt	2022-01-10 16:40:58.420250624 +0100
++++ vevacious/CMakeLists.txt	2022-01-10 16:41:16.756223022 +0100
+@@ -238,7 +238,7 @@ else()
+     set(Minuit_lib "${PROJECT_SOURCE_DIR}/${Minuit_name}/${Minuit_ver}/lib/")
+ endif()
+ 
+-target_link_libraries(VevaciousPlusPlus ${Minuit_lib}/libMinuit2.a)
++target_link_libraries(VevaciousPlusPlus ${Minuit_lib}/libMinuit2.so)
+ 
+ 
+ 
+@@ -252,7 +252,7 @@ add_library(VevaciousPlusPlus-lib SHARED
+ 
+ # Linking to minuit
+ 
+-target_link_libraries(VevaciousPlusPlus-lib ${Minuit_lib}/libMinuit2.a)
++target_link_libraries(VevaciousPlusPlus-lib ${Minuit_lib}/libMinuit2.so)
+ 
+ add_dependencies(VevaciousPlusPlus-lib objlib)
+
+diff -rupN vevacious_pristine/source/VevaciousPlusPlus.cpp vevacious/source/VevaciousPlusPlus.cpp
+--- vevacious_pristine/source/VevaciousPlusPlus.cpp	2022-01-10 18:22:32.739503947 +0100
++++ vevacious/sourceVevaciousPlusPlus.cpp	2022-01-10 18:24:58.256447328 +0100
+@@ -172,11 +172,11 @@ namespace VevaciousPlusPlus
+     time_t stageStartTime;
+     time_t stageEndTime;
+     time( &runStartTime );
+-    std::cout
+-    << std::endl
+-    << "Running \"" << newInput << "\" starting at "
+-    << ctime( &runStartTime );
+-    std::cout << std::endl;
++    //std::cout
++    //<< std::endl
++    //<< "Running \"" << newInput << "\" starting at "
++    //<< ctime( &runStartTime );
++    //std::cout << std::endl;
+ 
+     time( &stageStartTime );
+     lagrangianParameterManager->NewParameterPoint( newInput );
+@@ -197,11 +197,11 @@ namespace VevaciousPlusPlus
+     // std::cout<< "Nearest: "<< minima.second[0] << ", " << minima.second[1] << std::endl;
+ 
+     time( &stageEndTime );
+-    std::cout << std::endl
+-    << "Minimization of potential took " << difftime( stageEndTime,
+-                                                      stageStartTime )
+-    << " seconds, finished at " << ctime( &stageEndTime );
+-    std::cout << std::endl;
++    //std::cout << std::endl
++    //<< "Minimization of potential took " << difftime( stageEndTime,
++    //                                                  stageStartTime )
++    //<< " seconds, finished at " << ctime( &stageEndTime );
++    //std::cout << std::endl;
+ 
+     if( potentialMinimizer->DsbVacuumIsMetastable() )
+     {
+@@ -211,27 +211,27 @@ namespace VevaciousPlusPlus
+                                                potentialMinimizer->DsbVacuum(),
+                                            potentialMinimizer->PanicVacuum() );
+       time( &stageEndTime );
+-      std::cout << std::endl
+-      << "Tunneling calculation took " << difftime( stageEndTime,
+-                                                    stageStartTime )
+-      << " seconds, finished at " << ctime( &stageEndTime );
+-      std::cout << std::endl;
+-      std::cout << std::endl;
++      //std::cout << std::endl
++      //<< "Tunneling calculation took " << difftime( stageEndTime,
++      //                                              stageStartTime )
++      //<< " seconds, finished at " << ctime( &stageEndTime );
++      //std::cout << std::endl;
++      //std::cout << std::endl;
+     }
+ 
+     WarningLogger::SetWarningRecord( NULL );
+     PrepareResultsAsXml();
+-    std::cout
+-    << std::endl
+-    << "Result:" << std::endl << resultsFromLastRunAsXml;
+-    std::cout << std::endl;
++    //std::cout
++    //<< std::endl
++    //<< "Result:" << std::endl << resultsFromLastRunAsXml;
++    //std::cout << std::endl;
+ 
+     time( &runEndTime );
+-    std::cout << std::endl
+-    << "Total running time was " << difftime( runEndTime,
+-                                              runStartTime )
+-    << " seconds, finished at " << ctime( &runEndTime );
+-    std::cout << std::endl;
++    //std::cout << std::endl
++    //<< "Total running time was " << difftime( runEndTime,
++    //                                          runStartTime )
++    //<< " seconds, finished at " << ctime( &runEndTime );
++    //std::cout << std::endl;
+     if( newInput == "global" || newInput == "nearest" || newInput == "internal" ){lagrangianParameterManager->ClearParameterPoint(); }
+   }
+   
+@@ -244,11 +244,11 @@ namespace VevaciousPlusPlus
+     time_t stageStartTime;
+     time_t stageEndTime;
+     time( &runStartTime );
+-    std::cout
+-    << std::endl
+-    << "Running vacua analysis only, \"" << newInput << "\" starting at "
+-    << ctime( &runStartTime );
+-    std::cout << std::endl;
++    //std::cout
++    //<< std::endl
++    //<< "Running vacua analysis only, \"" << newInput << "\" starting at "
++    //<< ctime( &runStartTime );
++    //std::cout << std::endl;
+ 
+     time( &stageStartTime );
+     lagrangianParameterManager->NewParameterPoint( newInput );
+@@ -269,11 +269,11 @@ namespace VevaciousPlusPlus
+     // std::cout<< "Nearest: "<< minima.second[0] << ", " << minima.second[1] << std::endl;
+ 
+     time( &stageEndTime );
+-    std::cout << std::endl
+-    << "Minimization of potential took " << difftime( stageEndTime,
+-                                                      stageStartTime )
+-    << " seconds, finished at " << ctime( &stageEndTime );
+-    std::cout << std::endl;
++    //std::cout << std::endl
++    //<< "Minimization of potential took " << difftime( stageEndTime,
++    //                                                  stageStartTime )
++    //<< " seconds, finished at " << ctime( &stageEndTime );
++    //std::cout << std::endl;
+ 
+   
+     if( newInput == "global" || newInput == "nearest" || newInput == "internal" ){lagrangianParameterManager->ClearParameterPoint(); }
+@@ -444,8 +444,8 @@ namespace VevaciousPlusPlus
+         << warningMessagesToReport[ messageIndex ] << '#' << "\n";
+       }
+     }
+-    std::cout << std::endl << "Wrote results in SLHA format at end of file \""
+-    << lhaFilename << "\"." << std::endl;
++    //std::cout << std::endl << "Wrote results in SLHA format at end of file \""
++    //<< lhaFilename << "\"." << std::endl;
+   }
+ 
+   // This creates a new LagrangianParameterManager and a new
+

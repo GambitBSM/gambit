@@ -42,8 +42,8 @@ def run():
         infomsg.clearInfoMessages()
 
         # Generate dicts with different variations of the class name
-        class_name = classutils.getClassNameDict(class_el)
-        abstr_class_name = classutils.getClassNameDict(class_el, abstract=True)
+        class_name = utils.getClassNameDict(class_el)
+        abstr_class_name = utils.getClassNameDict(class_el, abstract=True)
 
         # Print current class
         print()
@@ -54,14 +54,14 @@ def run():
 
 
         # Make list of all types used in this class
-        # all_types_in_class = utils.getAllTypesInClass(class_el, include_parents=True)
+        # all_types_in_class = classutils.getAllTypesInClass(class_el, include_parents=True)
 
         # Set a bunch of generally useful variables
         original_class_file_el = gb.id_dict[class_el.get('file')]
         original_file_name = original_class_file_el.get('name')
         original_file_name_base = os.path.basename(original_file_name)
         # original_class_file_dir  = os.path.split(original_file_name)[0]
-        extras_src_file_name = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['short'] + cfg.source_extension)
+        extras_src_file_name = os.path.join(gb.boss_output_dir, gb.general_src_file_prefix + class_name['wrp_short'] + cfg.source_extension)
 
         short_abstr_class_fname = gb.new_header_files[class_name['wrp_long']]['abstract']
         abstr_class_fname = os.path.join(gb.boss_output_dir, short_abstr_class_fname)
@@ -737,8 +737,8 @@ def generateWrapperSource(class_el, class_name, namespaces):
 
 def constrWrapperUtils(class_el, class_name):
 
-    wrapper_class_name = classutils.toWrapperType(class_name['wrp_long'], include_namespace=True)
-    abstr_class_name = classutils.toAbstractType(class_name['wrp_long'], include_namespace=True)
+    wrapper_class_name = utils.toWrapperType(class_name['wrp_long'], include_namespace=True)
+    abstr_class_name = utils.toAbstractType(class_name['wrp_long'], include_namespace=True)
 
     # Include statement for the header file
     wrapper_include_statement_decl = '#include "' + gb.new_header_files[class_name['wrp_long']]['wrapper_fullpath'] + '"\n'
@@ -883,7 +883,7 @@ def addAbstractTypedefs(class_el, class_name, namespaces):
 # Add typedef to 'wrappertypdefs.hpp'
 
 def addWrapperTypedefs(class_name, namespaces, class_el=None):
-    short_wrapper_class_name = classutils.toWrapperType(class_name['wrp_short'])
+    short_wrapper_class_name = utils.toWrapperType(class_name['wrp_short'])
 
     indent = ' '*cfg.indent*len(namespaces)
 

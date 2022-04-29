@@ -110,8 +110,8 @@ if [ ! -f $1/${filename} ]; then
           1) $2 -E cmake_echo_color --red --bold  "Generic error code" ;;
           2) $2 -E cmake_echo_color --red --bold  "Parse error" ;;
           3) $2 -E cmake_echo_color --red --bold  "File I/O error" ;;
-          4) $2 -E cmake_echo_color --red --bold  "Network failure. Check url of the backend" ;;
-          5) $2 -E cmake_echo_color --red --bold  "Expired or wrong certificate. To download backend insecurely, use 'IGNORE_HTTP_CERTIFICATE=1 make <backend>'" ;;
+          4) $2 -E cmake_echo_color --red --bold  "Network failure. Check URL of the backend/scanner." ;;
+          5) $2 -E cmake_echo_color --red --bold  "Expired or wrong certificate. To download backend/scanner insecurely, use 'IGNORE_HTTP_CERTIFICATE=1 make <backend/scanner>'" ;;
           6) $2 -E cmake_echo_color --red --bold  "Authentication error" ;;
           7) $2 -E cmake_echo_color --red --bold  "Protocol error" ;;
           8) $2 -E cmake_echo_color --red --bold  "Server issued error response" ;;

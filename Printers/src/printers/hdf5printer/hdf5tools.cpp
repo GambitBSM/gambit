@@ -788,7 +788,7 @@ namespace Gambit {
                out = h5v2_type<elem>(); \
             }
 
-          int out;
+          int out = -1;
           if(h5type==-1)
           {
               std::ostringstream errmsg;

@@ -19,7 +19,6 @@ exec("import configs." + active_cfg.module_name + " as cfg")
 
 import modules.gb as gb
 import modules.utils as utils
-import modules.funcutils as funcutils
 
 
 # ====== createOutputDirectories ========
@@ -792,8 +791,8 @@ def createFrontendHeader(function_xml_files_dict):
         return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         # Construct argument bracket
-        args = funcutils.getArgs(wr_func_el)
-        args_bracket = funcutils.constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+        args = utils.getArgs(wr_func_el)
+        args_bracket = utils.constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
         # Get mangled symbol
         # symbol = wr_func_el.get('mangled')

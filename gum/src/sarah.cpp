@@ -808,6 +808,7 @@ namespace GUM
         // If it's a mixing block then save it as as such 
         else if (LHblock && ismixing && !sphenodeps)
         {
+
             std::string shape;
             std::vector<std::string> shapesize;
 
@@ -821,8 +822,10 @@ namespace GUM
             get_from_math(shapesize);
 
             // If it's a phase, then it's a scalar
-            if(shapesize.size())
+            if(shapesize.size() == 2)
               shape = "m" + shapesize[0] + "x" + shapesize[1];
+            else if(shapesize.size() == 1)
+              shape = "v" + shapesize[0];
             else
               shape = "scalar";
             
@@ -837,6 +840,7 @@ namespace GUM
         // Save to the SPheno dependencies
         else if (LHblock && sphenodeps)
         {
+
           // If there's a SPheno dep., use Mathematica's terrible CForm output.
           // We'll amend this in GUM -- string replacement is nicer in Python :-)
           command = "DependenceSPheno /. pdgum[[" + std::to_string(i+1) + ",2]] // CForm // ToString";
@@ -988,7 +992,6 @@ namespace GUM
             if(par[1] == paramname)
             {
               command = "Real /. pdgum[[" + std::to_string(i+1) + ", 2]] // ToString";
-              std::cout << command << std::endl;
               send_to_math(command);
               std::string entry;
               get_from_math(entry);
@@ -1186,16 +1189,18 @@ namespace GUM
       if(is_list)
       {
         std::vector<std::string> tadpoles;
-        command = "ParametersToSolveTadpoles";
+        command = "ToString/@ParametersToSolveTadpoles";
         send_to_math(command);
         get_from_math(tadpoles);
 
         for(auto param = parameters.begin(); param != parameters.end(); param++)
           for(auto tp : tadpoles)
+          {
             if (param->name() == tp or param->alt_name() == tp)
             {
               param->set_output(true);
             }
+          }
       }
     }
     catch (std::runtime_error &e)
@@ -1601,7 +1606,9 @@ namespace GUM
           {"SupersymmetricModel",false}, 
           {"OnlyLowEnergySPheno", false},
           {"UseHiggs2LoopMSSM", false},
-          {"SA`AddOneLoopDecay", false}
+          {"SA`AddOneLoopDecay", false},
+          {"WriteCKMBasis", false},
+          {"WritePMNSBasis", false}
         };
         model.get_flags(flags);
 

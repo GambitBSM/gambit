@@ -12,235 +12,8 @@ import modules.infomsg as infomsg
 import modules.utils as utils
 import modules.gb as gb
 import modules.active_cfg as active_cfg
-import modules.classutils as classutils
 
 exec("import configs." + active_cfg.module_name + " as cfg")
-
-
-# ======== getArgs ========
-
-def getArgs(func_el):
-
-    #
-    # Returns a list with one dict per argument.
-    # Each dict contains the following keywords:
-    #
-    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class',
-    #   'known_class', 'type_namespaces', 'default', 'function_pointer'
-    #
-
-    args = []
-    argc = 1
-    for sub_el in list(func_el):
-        if sub_el.tag == 'Argument':
-
-            arg_dict = OrderedDict()
-            if 'name' in sub_el.keys():
-                arg_dict['name'] = sub_el.get('name')
-            else:
-                arg_dict['name'] = 'arg_' + str(argc)
-                argc += 1
-
-            arg_type_dict = utils.findType(sub_el)
-            pointerness = arg_type_dict['pointerness']
-            is_ref = arg_type_dict['is_reference']
-            arg_kw = arg_type_dict['cv_qualifiers']
-            arg_id = arg_type_dict['id']
-            arg_type_el = arg_type_dict['el']
-            is_func_ptr = arg_type_dict['is_function_pointer']
-
-            arg_type = arg_type_dict['name'] + '*'*pointerness + '&'*is_ref
-
-            arg_dict['type'] = arg_type
-            arg_dict['kw'] = arg_kw
-            arg_dict['id'] = arg_id
-            arg_dict['function_pointer'] = is_func_ptr
-
-            arg_dict['native'] = utils.isNative(arg_type_el)
-            arg_dict['fundamental'] = utils.isFundamental(arg_type_el)
-            arg_dict['enumeration'] = utils.isEnumeration(arg_type_el)
-            arg_dict['loaded_class'] = utils.isLoadedClass(arg_type_el)
-            arg_dict['known_class'] = utils.isKnownClass(arg_type_el)
-            arg_dict['type_namespaces'] = utils.getNamespaces(arg_type_el)
-
-            arg_dict['default'] = ('default' in sub_el.keys())
-
-            args.append(arg_dict)
-
-    return args
-
-# ======== END: getArgs ========
-
-# ======== makeTemplateArgs ============
-
-def makeTemplateArgs(args):
-
-    # Returns a list of dicts for the template arguments
-    # containing the following keywords:
-    #
-    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class',
-    #   'known_class', 'type_namespaces', 'default', 'function_pointer'
-    #
-
-    args_out = []
-
-    argc = 0
-    for arg in args:
-       
-        arg_dict = OrderedDict()
-        arg = arg.strip()
-
-        # If there is a = sign, there is a default value
-        arg_dict['default'] = ('=' in arg)
-        if '=' in arg:
-          arg = arg.split('=')[0].strip()
-
-        # I don't think we care if this is fundamental or an enumeration
-        arg_dict['fundamental'] = False
-        arg_dict['enumeration'] = False
-
-        # Default is no specific type
-        arg_dict['native'] = False
-        arg_dict['known_class'] = False
-        arg_dict['enumeration'] = False
-        arg_dict['loaded_class'] = False
-
-        # Is it a known class?
-        if utils.isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
-           utils.isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
-            arg_dict['known_class'] = True
-
-        # If type is a loaded class, tag it as loaded and native
-        arg_dict['loaded_class'] = utils.isLoadedClass(arg, bybasename=True)
-        arg_dict['native'] = utils.isLoadedClass(arg, bybasename=True)
-
-        # Look for const or volatile qualifiers at the start
-        arg_dict['kw'] = []
-        if arg.startswith('const'):
-            arg_dict['kw'].append('const')
-            arg = arg[5:].strip()
-        if arg.startswith('volatile'):
-            arg_dict['kw'].append('volatile')
-            arg = arg[8:].strip()
-
-        # Now the type is at the front
-        # If there are multiple elements, and no template tag
-        # the last one is the name. Otherwise make up one
-        arg_split = arg.split()
-        if len(arg_split) > 1 and '>' not in arg_split[-1]:
-            arg_dict['name'] = arg_split[-1]
-            arg = (' '.join(arg_split[:-1])).strip()
-        else:
-            arg_dict['name'] = 'arg_' + str(argc)
-            argc+=1
-
-        # What's left is the final type
-        arg_dict['type'] = arg
-        arg_dict['type_namespaces'] = ''
-
-        # If there are brackets () it is a function pointer
-        arg_dict['function_pointer'] = '(' in arg
-
-        args_out.append(arg_dict)
-
-    return args_out
-
-
-# ======== END: makeTemplateArgs =======
-
-# ======== constrArgsBracket ========
-
-def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, include_namespace=False,
-                      cast_to_original=False, use_wrapper_class=False, wrapper_to_pointer=False,
-                      add_namespace_to_loaded=''):
-
-    #
-    # Requires a list of dicts as input, as returned by 'getArgs' or 'constrWrapperArgs'.
-    #
-
-    # Construct bracket with input arguments
-    args_seq = ''
-    # argc = 1
-    for arg in args:
-        # We must create a new copy since we may be altering the content later
-        arg_dict = OrderedDict(arg)
-        if arg_dict['loaded_class'] and (add_namespace_to_loaded != ''):
-            add_namespaces = add_namespace_to_loaded.split('::')
-            arg_dict['type_namespaces'] = add_namespaces + arg_dict['type_namespaces']
-            arg_dict['type'] = f"{add_namespace_to_loaded}::{arg_dict['type']}"
-
-        if include_arg_name and cast_to_original:
-            if arg_dict['loaded_class']:
-                # We assume that arg_dict['type'] *is* the original type!
-                cast_to_type = arg_dict['type']
-
-                if include_namespace:
-                    namespaces = arg_dict['type_namespaces']
-                    if len(namespaces) > 0:
-                        cast_to_type = '::'.join(namespaces) + '::' + cast_to_type
-
-                # If argument type is not pointer or reference, add a reference operator '&'
-                check_type = cast_to_type
-                if ('*' not in check_type) and ('&' not in check_type):
-                    cast_to_type = cast_to_type + '&'
-
-                # Add qualifiers
-                if len(arg_dict['kw']) > 0:
-                    qualifiers = ' '.join(arg_dict['kw'])
-                    cast_to_type = f"{qualifiers} {cast_to_type}"
-
-                # Determine what argument name to use (arg_name or *arg_name.get_BEptr() or ...)
-                if wrapper_to_pointer:
-                    if arg_dict['type'].count('*') == 0:
-                        use_name = f"*{arg_dict['name']}.get_BEptr()"
-                    elif arg_dict['type'].count('*') == 1:
-                        use_name = f"(*{arg_dict['name']}).get_BEptr()"
-
-                    args_seq += f"dynamic_cast< {cast_to_type} >({use_name})"
-                else:
-                    args_seq += f"dynamic_cast< {cast_to_type} >({arg_dict['name']})"
-            else:
-                args_seq += arg_dict['name']
-        else:
-            if include_arg_type:
-                args_seq += ''.join([kw+' ' for kw in arg_dict['kw']])
-
-                if use_wrapper_class and arg_dict['loaded_class']:
-                    args_seq += classutils.toWrapperType(
-                        arg_dict['type'], include_namespace=include_namespace)
-                else:
-                    if include_namespace:
-                        # If known class, add '::' for absolute namespace
-                        if arg_dict['known_class']:
-                            args_seq += '::' + arg_dict['type']
-                        else:
-                            args_seq += arg_dict['type']
-                    else:
-                        args_seq += utils.removeNamespace(arg_dict['type'])
-
-            if include_arg_type and include_arg_name:
-                args_seq += ' '
-
-            if include_arg_name:
-                if utils.isLoadedClass(arg_dict['type'], byname=True) and wrapper_to_pointer:
-                    if arg_dict['type'].count('*') == 0:
-                        args_seq += f"*{arg_dict['name']}.get_BEptr()"
-                    elif arg_dict['type'].count('*') == 1:
-                        args_seq += f"(*{arg_dict['name']}).get_BEptr()"
-                    else:
-                        raise Exception('funcutils.constrArgsBracket cannot presently deal with arguments of type pointer-to-pointer for wrapper classes.')
-                else:
-                    args_seq += arg_dict['name']
-
-        args_seq += ', '
-
-    args_seq = args_seq.rstrip(', ')
-    args_seq = args_seq.strip()
-    args_bracket = f"({args_seq})"
-
-    return args_bracket
-
-# ======== END: constrArgsBracket ========
 
 
 # ======== constrWrapperName ========
@@ -288,7 +61,7 @@ def constrWrapperArgs(args, add_ref=False, convert_loaded_to_abstract=True):
             if arg_dict['loaded_class']:
 
                 if convert_loaded_to_abstract:
-                    arg_dict['type'] = classutils.toAbstractType(arg_dict['type'])
+                    arg_dict['type'] = utils.toAbstractType(arg_dict['type'])
 
                 if add_ref:
                     if ('&' not in arg_dict['type']) and ('*' not in arg_dict['type']):
@@ -332,7 +105,7 @@ def constrWrapperBody(return_type, func_name, args, return_is_loaded_class):
     pointerness, is_ref = utils.pointerAndRefCheck(return_type, byname=True)
 
     # Generate bracket for calling original function
-    args_bracket_notypes = constrArgsBracket(args, include_arg_type=False, cast_to_original=True)
+    args_bracket_notypes = utils.constrArgsBracket(args, include_arg_type=False, cast_to_original=True)
 
     w_func_body = ''
     w_func_body += '{\n'
@@ -371,7 +144,7 @@ def constrWrapperBody(return_type, func_name, args, return_is_loaded_class):
 # ======== ignoreFunction ========
 
 def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warning=True):
-    func_name = getFunctionNameDict(func_el)
+    func_name = utils.getFunctionNameDict(func_el)
 
     # Should this function be ditched?
     if func_name['long_templ_args'] in cfg.ditch:
@@ -410,7 +183,7 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
             return True
 
     # Check argument types
-    args = getArgs(func_el)
+    args = utils.getArgs(func_el)
 
     # use_n_args = len(args) - remove_n_args
 
@@ -426,7 +199,7 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
         # Commented out some parts because is_parent_of_accepted and arg_class_name are never used
         # is_parent_of_accepted = False
         # if utils.isNative(arg_el):
-            # arg_class_name = classutils.getClassNameDict(arg_el)
+            # arg_class_name = utils.getClassNameDict(arg_el)
             # if arg_class_name['long_templ'] in gb.parents_of_loaded_classes:
                 # is_parent_of_accepted = True
 
@@ -474,7 +247,7 @@ def usesNativeType(func_el):
     return_type_dict = utils.findType(func_el)
     return_is_native = utils.isNative(return_type_dict['el'])
 
-    args = getArgs(func_el)
+    args = utils.getArgs(func_el)
     is_arg_native = [arg_dict['native'] for arg_dict in args]
 
     return (return_is_native) or (True in is_arg_native)
@@ -488,7 +261,7 @@ def usesLoadedType(func_el):
     return_type_dict = utils.findType(func_el)
     return_is_loaded = utils.isLoadedClass(return_type_dict['el'])
 
-    args = getArgs(func_el)
+    args = utils.getArgs(func_el)
     is_arg_loaded = [arg_dict['loaded_class'] for arg_dict in args]
 
     return (return_is_loaded) or (True in is_arg_loaded)
@@ -501,7 +274,7 @@ def usesLoadedType(func_el):
 def numberOfDefaultArgs(func_el):
     n_def_args = 0
 
-    args = getArgs(func_el)
+    args = utils.getArgs(func_el)
     for arg_dict in args:
         if arg_dict['default']:
             n_def_args += 1
@@ -521,7 +294,7 @@ def constrExternFuncDecl(func_el):
         '*' * return_type_dict['pointerness'] + \
         '&' * return_type_dict['is_reference']
 
-    func_name = getFunctionNameDict(func_el)
+    func_name = utils.getFunctionNameDict(func_el)
 
     namespaces = utils.getNamespaces(func_el)
     n_indents = len(namespaces)
@@ -536,50 +309,3 @@ def constrExternFuncDecl(func_el):
 # ======== END: constrExternFuncDecl ========
 
 
-# ====== getFunctionNameDict ========
-
-def getFunctionNameDict(func_el):
-    func_name = OrderedDict()
-
-    # Check that the 'name' XML entry exists.
-    xml_id = func_el.get('id')
-    if 'name' not in func_el.keys():
-        raise KeyError(f'XML element {xml_id} does not contain the key "name".')
-
-    # Get information about the return type.
-    return_type_dict = utils.findType(func_el)
-    # return_el = return_type_dict['el']
-    pointerness = return_type_dict['pointerness']
-    is_ref = return_type_dict['is_reference']
-    # return_kw = return_type_dict['cv_qualifiers']
-
-    # return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
-
-    return_type = return_type_dict['name'] + '*' * pointerness + '&' * is_ref
-
-    # Get information about the arguments
-    args = getArgs(func_el)
-
-    #
-    # Start filling the name dict
-    #
-
-    func_name['short_templ'] = func_el.get('name')
-
-    namespaces_list = utils.getNamespaces(func_el, include_self=True)
-    func_name['long_templ'] = '::'.join(namespaces_list)
-
-    func_name['short'], template_bracket = utils.removeTemplateBracket(func_name['short_templ'], return_bracket=True)
-    func_name['long'], template_bracket = utils.removeTemplateBracket(func_name['long_templ'], return_bracket=True)
-
-    # Construct argument bracket
-    args_bracket = constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
-    func_name['long_templ_args'] = func_name['long_templ'] + args_bracket
-    func_name['short_templ_args'] = func_name['short_templ'] + args_bracket
-
-    # Add return type
-    func_name['long_templ_return_args'] = return_type + ' ' + func_name['long_templ_args']
-
-    return func_name
-
-# ====== END: getFunctionNameDict ========
