@@ -857,7 +857,7 @@ def main():
         print("       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name))
         print("    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name))
         print("    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT.")
-        print("    4. Copy the '%s' directory from '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_dir_complete))
+        print("    4. Copy the '%s' directory from '%s' and '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_include_dir_complete, gb.for_gambit_backend_types_source_dir_complete))
         print("    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path))
         print()
         print()
