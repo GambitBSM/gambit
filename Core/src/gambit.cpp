@@ -94,18 +94,9 @@ int main(int argc, char* argv[])
       Scanner::Plugins::plugin_info.initMPIdata(&scanComm);
       /// MPI rank for use in error messages;
       int rank = scanComm.Get_rank();
-      int size = scanComm.Get_size();
      #else
       int rank = 0;
-      //int size = 0; // Unused if not WITH_MPI
      #endif
-
-    // Check number of OpenMP threads used
-    int n_omp_threads = 1;
-    #pragma omp parallel
-    {
-      if(omp_get_thread_num()==0) n_omp_threads = omp_get_num_threads();
-    }
 
     try
     {
@@ -119,10 +110,10 @@ int main(int argc, char* argv[])
         cout << LogParallelAPI()<<endl;
       }
       #ifdef WITH_MPI
-      GMPI::Comm temp_comm;
-      logger() << core << MPILogBinding(temp_comm) << EOM;
+      // limit scope of temp_comm
+      {GMPI::Comm temp_comm; cout << MPILogBinding(temp_comm) << endl;}
       #else 
-      logger() << core << LogBinding() <<EOM;
+      cout << LogBinding() << endl;
       #endif
 
       std::vector<std::string> arguments(argv, argv + argc);
@@ -131,12 +122,8 @@ int main(int argc, char* argv[])
       logger() << endl;
       logger() << core << "Starting GAMBIT" << EOM;
       logger() << core;
-      #ifdef WITH_MPI
-      logger() << "Running in MPI-parallel mode with "<<size<<" processes" << endl;
-      #else
-      logger() << "WARNING! Running in SERIAL (no MPI) mode!" << endl;
-      #endif 
-      logger() << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << EOM;
+      logger() << core << LogParallelAPI()<< EOM;
+
       if( Core().resume ) logger() << core << "Attempting to resume scan..." << EOM;
       logger() << core << "Registered module functors [Core().getModuleFunctors().size()]: ";
       logger() << Core().getModuleFunctors().size() << endl;

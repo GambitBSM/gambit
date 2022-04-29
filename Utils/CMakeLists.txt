@@ -28,7 +28,7 @@
 #
 #  \author Pascal Jahan Elahi
 #          (pascal.elahi@pawsey.org.au)
-#  \date 2022 Aprile
+#  \date 2022 April
 #
 #************************************************
 
