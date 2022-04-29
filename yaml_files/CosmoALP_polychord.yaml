@@ -107,7 +107,7 @@ Scanner:
       nprior: 40000
       tol: 1e-10
       print_parameters_in_native_output: true
-      logzero: -1e10
+      logzero: -1e101
 
 ObsLikes:
 
@@ -264,4 +264,4 @@ KeyValues:
   default_output_path: "runs/CosmoALP_bayesian"
 
   likelihood:
-    model_invalid_for_lnlike_below: -1e9
+    model_invalid_for_lnlike_below: -1e100

@@ -98,8 +98,10 @@ Scanner:
       plugin: polychord
       like:  LogLike
       nlive: 1000
+      nprior: 40000
       tol: 1e-10
       print_parameters_in_native_output: true
+      logzero: -1e101
 
 ObsLikes:
 
@@ -253,7 +255,7 @@ KeyValues:
 
   debug: false
 
-  default_output_path: "runs/CosmoALP_bayesian_lcdm"
+  default_output_path: "runs/CosmoALP_bayesian"
 
   likelihood:
-    model_invalid_for_lnlike_below: -1e9
+    model_invalid_for_lnlike_below: -1e100
