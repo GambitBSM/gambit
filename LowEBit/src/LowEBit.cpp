@@ -316,8 +316,8 @@ namespace Gambit
 		  else {std::cout << "failed" << std::endl;return;}
 		  Ce3list(muH,Lambda);
 		  cout << "muh,lambda,hadronic" << muH << Lambda << hadronic << endl;
-		  //if(hadronic){
-		  if(true){
+		  if(hadronic){
+//		  if(true){
 			  cout << "rge..." << endl;
 			  Cu3list(muH,Lambda);
 			  Cd3list(muH,Lambda);
@@ -760,6 +760,7 @@ shut down. The running of the WCs is done in 4- and 5-flavour theory, where the 
 				result = 0.0;
 			}
 			else{result = 1.0E10;}
+			result = -1./2*pow((abs(*Dep::EDM_para) - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
 			result = -1./2*pow((abs(*Dep::EDM_para) - mu)/(sig),2);//std::log(2*pi) + 2*std::log(sig) 
 			cout << "edm:" << abs(*Dep::EDM_para) << endl;
 		  	cout << "gaussian result_EDM_ThO: " << result << endl;

@@ -27,6 +27,7 @@
 	// Quark Yukawas
 	DEFINEPARS(CuHm, CuHp, CdHm, CdHp, CsHm, CsHp)
 	DEFINEPARS(CcHm, CcHp, CbHm, CbHp, CtHm, CtHp)
+	//DEFINEPARS(C8bHm, C8bHp)
 
 	// Lepton Yukawas
 	DEFINEPARS(CeHm, CeHp, CmuHm, CmuHp, CtauHm, CtauHp)

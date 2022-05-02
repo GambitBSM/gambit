@@ -46,6 +46,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
+#include "gambit/ColliderBit/TauDataInterpolator.hpp"
 
 // #define COLLIDERBIT_DEBUG
 
@@ -984,6 +985,7 @@ namespace Gambit
     static std::complex<double> CPoddKapPreGam[9];
     static std::complex<double> CPevenKapPreGlu[9];
     static std::complex<double> CPoddKapPreGlu[9];
+    static TauDataInterpolator inpl("/home/dskodras/gambitgit/ColliderBit/include/gambit/ColliderBit/HEPData_filled.csv");;
     void initialize(){
 	static bool first = true;
 	if(first){
@@ -1162,15 +1164,21 @@ namespace Gambit
 	      ghjcc_p[i] = -((*Param["CcHm"]))*vev*vev*vev/Lambda/Lambda/mc/sqrt(2.);
 	      ghjcc_s[i] = 1.-((*Param["CcHp"]))*vev*vev*vev/Lambda/Lambda/mc/sqrt(2.);
 	      ghjbb_p[i] = -((*Param["CbHm"]))*vev*vev*vev/Lambda/Lambda/mb/sqrt(2.);
-	      ghjbb_s[i] = 1.-((*Param["CbHp"]))*vev*vev*vev/Lambda/Lambda/mb/sqrt(2.);
+	      ghjbb_s[i] = 1.
+		      - ((*Param["CbHp"]))*vev*vev*vev/Lambda/Lambda/mb/sqrt(2.)
+		      - ((*Param["C8bHp"]))*vev*vev*vev*vev*vev/Lambda/Lambda/Lambda/Lambda/mb/sqrt(2.);
 	      ghjtt_p[i] = -((*Param["CtHm"]))*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
 	      ghjtt_s[i] = 1.-((*Param["CtHp"]))*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
 	      ghjee_p[i] = -((*Param["CeHm"]))*vev*vev*vev/Lambda/Lambda/me/sqrt(2.);
 	      ghjee_s[i] = 1.-((*Param["CeHp"]))*vev*vev*vev/Lambda/Lambda/me/sqrt(2.);
 	      ghjmumu_p[i] = -((*Param["CmuHm"]))*vev*vev*vev/Lambda/Lambda/mmu/sqrt(2.);
 	      ghjmumu_s[i] = 1.-((*Param["CmuHp"]))*vev*vev*vev/Lambda/Lambda/mmu/sqrt(2.);
+	      ghjtautau_p[i] = *Param["CtauHm"];
 	      ghjtautau_p[i] = -((*Param["CtauHm"]))*vev*vev*vev/Lambda/Lambda/mtau/sqrt(2.);
+	      ghjtautau_s[i] = *Param["CtauHp"];
 	      ghjtautau_s[i] = 1.-((*Param["CtauHp"]))*vev*vev*vev/Lambda/Lambda/mtau/sqrt(2.);
+
+
 
 //	      double TbR = (*Param["CbHp"]);//* 2*sqrt(2.)*mb*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CbHp"],2)+pow(*Param["CbHm"],2));
 //	      double TbI = (*Param["CbHm"]);//* 2*sqrt(2.)*mb*Lambda*Lambda/vev/vev/vev/(pow(1+*Param["CbHp"],2)+pow(*Param["CbHm"],2));
@@ -1240,9 +1248,15 @@ namespace Gambit
 	double SMBR_Hmumu =  2.2445999999999995E-004;
 	double SMBR_Hgamgam =  2.3094600000000002E-003;
 
+	double SMBR_Huu = 0.58950599999999986 * mu*mu/mb/mb ;
+	double SMBR_Hdd = 0.58950599999999986 * md*md/mb/mb;
+	double SMBR_Hee = 2.2445999999999995E-004 * me*me/mmu/mmu;
 
       for(int i = 0; i<Hneut; i++){
 	     GammaTot[i] = GammaTot[i] * (1. 
+			     + (pow(ghjuu_p[i],2) + pow(ghjuu_s[i],2) - 1.)*SMBR_Huu
+			     + (pow(ghjdd_p[i],2) + pow(ghjdd_s[i],2) - 1.)*SMBR_Hdd
+			     + (pow(ghjee_p[i],2) + pow(ghjee_s[i],2) - 1.)*SMBR_Hee
 			     + (pow(ghjss_p[i],2) + pow(ghjss_s[i],2) - 1.)*SMBR_Hss  //HiggsSignals: ghjff_p**2 -> ghjff_p**2 * 1./(1.-4*mf**2/mh**2)
 			     + (pow(ghjcc_p[i],2) + pow(ghjcc_s[i],2) - 1.)*SMBR_Hcc
 			     + (pow(ghjbb_p[i],2) + pow(ghjbb_s[i],2) - 1.)*SMBR_Hbb
@@ -1300,6 +1314,12 @@ namespace Gambit
       cout << "GammaTot: " << GammaTot[0] << endl;
 */
 
+
+      // tau mixing angle analysis
+      cout << "debug51" << endl;
+      double chi2tau = 0;
+      chi2tau = inpl.interpolateAtXY(ghjtautau_s[0], ghjtautau_p[0]);
+
             // run HiggsSignals
 //      int mode = 1; // 1- peak-centered chi2 method (recommended) - not needed in HS-2.5.0 anymore
       double csqmu, csqmh, csqtot, Pvalue;
@@ -1308,7 +1328,7 @@ namespace Gambit
       int nobs, nobs1, nobs2;
 
       // Run the main subroutines
- //    BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
+//     BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
      BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
      BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
@@ -1316,11 +1336,13 @@ namespace Gambit
 //		     + csqtot 
 		     + csqtot1 
 		     + csqtot2
+		     + chi2tau
 		     );
       cout 
 	      << "csqtot: " << csqtot 
 	      << "csqtot1: " << csqtot1 
 	      <<"csqtot2: " << csqtot2 
+	      <<"chi2tau: " << chi2tau
 	      <<" result: " << result << endl;
     }
       //BEreq::HiggsSignals_neutral_input_MassUncertainty(&ModelParam.deltaMh[0]);
