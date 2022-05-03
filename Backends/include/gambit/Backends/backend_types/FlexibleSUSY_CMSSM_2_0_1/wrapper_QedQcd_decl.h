@@ -19,7 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static softsusy::Abstract_QedQcd* (*__factory0)();
+                static Abstract_QedQcd* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -109,7 +109,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 QedQcd();
         
                 // Special pointer-based constructor: 
-                QedQcd(softsusy::Abstract_QedQcd* in);
+                QedQcd(Abstract_QedQcd* in);
         
                 // Copy constructor: 
                 QedQcd(const QedQcd& in);
@@ -121,7 +121,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~QedQcd();
         
                 // Returns correctly casted pointer to Abstract class: 
-                softsusy::Abstract_QedQcd* get_BEptr() const;
+                Abstract_QedQcd* get_BEptr() const;
         
         };
     }

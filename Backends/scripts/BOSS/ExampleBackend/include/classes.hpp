@@ -89,6 +89,7 @@ private:
 };
 
 static ClassSeven<double> __BOSS_dummy_ClassSeven_double_instance__;
+static ClassSeven<int> __BOSS_dummy_ClassSeven_int_instance__;
 
 
 #endif

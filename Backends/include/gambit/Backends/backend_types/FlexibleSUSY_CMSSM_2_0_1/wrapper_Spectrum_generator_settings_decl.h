@@ -2,10 +2,11 @@
 #define __wrapper_Spectrum_generator_settings_decl_FlexibleSUSY_CMSSM_2_0_1_h__
 
 #include <cstddef>
+#include <string>
+#include <array>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_Spectrum_generator_settings.h"
-#include <string>
 
 #include "identification.hpp"
 
@@ -85,7 +86,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static flexiblesusy::Abstract_Spectrum_generator_settings* (*__factory0)();
+                static Abstract_Spectrum_generator_settings* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -105,7 +106,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Spectrum_generator_settings();
         
                 // Special pointer-based constructor: 
-                Spectrum_generator_settings(flexiblesusy::Abstract_Spectrum_generator_settings* in);
+                Spectrum_generator_settings(Abstract_Spectrum_generator_settings* in);
         
                 // Copy constructor: 
                 Spectrum_generator_settings(const Spectrum_generator_settings& in);
@@ -117,7 +118,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Spectrum_generator_settings();
         
                 // Returns correctly casted pointer to Abstract class: 
-                flexiblesusy::Abstract_Spectrum_generator_settings* get_BEptr() const;
+                Abstract_Spectrum_generator_settings* get_BEptr() const;
         
         };
     }

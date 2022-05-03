@@ -1,7 +1,6 @@
-#ifndef __wrapper_Spectrum_generator_settings_def_FlexibleSUSY_CMSSM_2_0_1_h__
-#define __wrapper_Spectrum_generator_settings_def_FlexibleSUSY_CMSSM_2_0_1_h__
+#ifndef __wrapper_Physical_input_def_FlexibleSUSY_CMSSM_2_0_1_h__
+#define __wrapper_Physical_input_def_FlexibleSUSY_CMSSM_2_0_1_h__
 
-#include <string>
 #include <array>
 
 #include "identification.hpp"
@@ -13,29 +12,24 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline double Spectrum_generator_settings::get(flexiblesusy::Abstract_Spectrum_generator_settings::Settings arg_1) const
+        inline double Physical_input::get(flexiblesusy::Abstract_Physical_input::Input arg_1) const
         {
             return get_BEptr()->get(arg_1);
         }
         
-        inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > Spectrum_generator_settings::get_description(flexiblesusy::Abstract_Spectrum_generator_settings::Settings arg_1) const
-        {
-            return get_BEptr()->get_description(arg_1);
-        }
-        
-        inline void Spectrum_generator_settings::set(flexiblesusy::Abstract_Spectrum_generator_settings::Settings arg_1, double arg_2)
+        inline void Physical_input::set(flexiblesusy::Abstract_Physical_input::Input arg_1, double arg_2)
         {
             get_BEptr()->set(arg_1, arg_2);
         }
         
-        inline void Spectrum_generator_settings::reset()
+        inline void Physical_input::reset()
         {
             get_BEptr()->reset();
         }
         
         
         // Wrappers for original constructors: 
-        inline Spectrum_generator_settings::Spectrum_generator_settings() :
+        inline Physical_input::Physical_input() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -43,7 +37,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Spectrum_generator_settings::Spectrum_generator_settings(Abstract_Spectrum_generator_settings* in) :
+        inline Physical_input::Physical_input(Abstract_Physical_input* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -51,7 +45,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Spectrum_generator_settings::Spectrum_generator_settings(const Spectrum_generator_settings& in) :
+        inline Physical_input::Physical_input(const Physical_input& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -59,7 +53,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Spectrum_generator_settings& Spectrum_generator_settings::operator=(const Spectrum_generator_settings& in)
+        inline Physical_input& Physical_input::operator=(const Physical_input& in)
         {
             if (this != &in)
             {
@@ -70,7 +64,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Spectrum_generator_settings::~Spectrum_generator_settings()
+        inline Physical_input::~Physical_input()
         {
             if (get_BEptr() != 0)
             {
@@ -85,9 +79,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Abstract_Spectrum_generator_settings* flexiblesusy::Spectrum_generator_settings::get_BEptr() const
+        inline Abstract_Physical_input* flexiblesusy::Physical_input::get_BEptr() const
         {
-            return dynamic_cast<Abstract_Spectrum_generator_settings*>(BEptr);
+            return dynamic_cast<Abstract_Physical_input*>(BEptr);
         }
     }
     
@@ -96,4 +90,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_Spectrum_generator_settings_def_FlexibleSUSY_CMSSM_2_0_1_h__ */
+#endif /* __wrapper_Physical_input_def_FlexibleSUSY_CMSSM_2_0_1_h__ */

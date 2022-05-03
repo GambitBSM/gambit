@@ -209,7 +209,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline softsusy::QedQcd::QedQcd() :
+        inline QedQcd::QedQcd() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -217,7 +217,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline softsusy::QedQcd::QedQcd(softsusy::Abstract_QedQcd* in) :
+        inline QedQcd::QedQcd(Abstract_QedQcd* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -225,7 +225,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline softsusy::QedQcd::QedQcd(const QedQcd& in) :
+        inline QedQcd::QedQcd(const QedQcd& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -233,7 +233,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline softsusy::QedQcd& QedQcd::operator=(const QedQcd& in)
+        inline QedQcd& QedQcd::operator=(const QedQcd& in)
         {
             if (this != &in)
             {
@@ -244,7 +244,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline softsusy::QedQcd::~QedQcd()
+        inline QedQcd::~QedQcd()
         {
             if (get_BEptr() != 0)
             {
@@ -259,9 +259,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline softsusy::Abstract_QedQcd* softsusy::QedQcd::get_BEptr() const
+        inline Abstract_QedQcd* softsusy::QedQcd::get_BEptr() const
         {
-            return dynamic_cast<softsusy::Abstract_QedQcd*>(BEptr);
+            return dynamic_cast<Abstract_QedQcd*>(BEptr);
         }
     }
     

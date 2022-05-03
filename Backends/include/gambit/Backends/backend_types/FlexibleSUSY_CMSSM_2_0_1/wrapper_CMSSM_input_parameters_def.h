@@ -14,7 +14,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         // Member functions: 
         
         // Wrappers for original constructors: 
-        inline flexiblesusy::CMSSM_input_parameters::CMSSM_input_parameters() :
+        inline CMSSM_input_parameters::CMSSM_input_parameters() :
             WrapperBase(__factory0()),
             m0( get_BEptr()->m0_ref__BOSS()),
             m12( get_BEptr()->m12_ref__BOSS()),
@@ -27,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline flexiblesusy::CMSSM_input_parameters::CMSSM_input_parameters(flexiblesusy::Abstract_CMSSM_input_parameters* in) :
+        inline CMSSM_input_parameters::CMSSM_input_parameters(Abstract_CMSSM_input_parameters* in) :
             WrapperBase(in),
             m0( get_BEptr()->m0_ref__BOSS()),
             m12( get_BEptr()->m12_ref__BOSS()),
@@ -40,7 +40,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline flexiblesusy::CMSSM_input_parameters::CMSSM_input_parameters(const CMSSM_input_parameters& in) :
+        inline CMSSM_input_parameters::CMSSM_input_parameters(const CMSSM_input_parameters& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
             m0( get_BEptr()->m0_ref__BOSS()),
             m12( get_BEptr()->m12_ref__BOSS()),
@@ -53,7 +53,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline flexiblesusy::CMSSM_input_parameters& CMSSM_input_parameters::operator=(const CMSSM_input_parameters& in)
+        inline CMSSM_input_parameters& CMSSM_input_parameters::operator=(const CMSSM_input_parameters& in)
         {
             if (this != &in)
             {
@@ -64,7 +64,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline flexiblesusy::CMSSM_input_parameters::~CMSSM_input_parameters()
+        inline CMSSM_input_parameters::~CMSSM_input_parameters()
         {
             if (get_BEptr() != 0)
             {
@@ -79,9 +79,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline flexiblesusy::Abstract_CMSSM_input_parameters* flexiblesusy::CMSSM_input_parameters::get_BEptr() const
+        inline Abstract_CMSSM_input_parameters* flexiblesusy::CMSSM_input_parameters::get_BEptr() const
         {
-            return dynamic_cast<flexiblesusy::Abstract_CMSSM_input_parameters*>(BEptr);
+            return dynamic_cast<Abstract_CMSSM_input_parameters*>(BEptr);
         }
     }
     

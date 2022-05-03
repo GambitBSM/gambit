@@ -1,7 +1,7 @@
-#ifndef __wrapper_Two_scale_def_FlexibleSUSY_CMSSM_2_0_1_h__
-#define __wrapper_Two_scale_def_FlexibleSUSY_CMSSM_2_0_1_h__
+#ifndef __wrapper_Error_def_FlexibleSUSY_CMSSM_2_0_1_h__
+#define __wrapper_Error_def_FlexibleSUSY_CMSSM_2_0_1_h__
 
-
+#include <string>
 
 #include "identification.hpp"
 
@@ -12,9 +12,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
+        inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > Error::what() const
+        {
+            return get_BEptr()->what();
+        }
+        
         
         // Wrappers for original constructors: 
-        inline Two_scale::Two_scale() :
+        inline Error::Error() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -22,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Two_scale::Two_scale(Abstract_Two_scale* in) :
+        inline Error::Error(Abstract_Error* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -30,7 +35,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Two_scale::Two_scale(const Two_scale& in) :
+        inline Error::Error(const Error& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -38,7 +43,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Two_scale& Two_scale::operator=(const Two_scale& in)
+        inline Error& Error::operator=(const Error& in)
         {
             if (this != &in)
             {
@@ -49,7 +54,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Two_scale::~Two_scale()
+        inline Error::~Error()
         {
             if (get_BEptr() != 0)
             {
@@ -64,9 +69,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Abstract_Two_scale* flexiblesusy::Two_scale::get_BEptr() const
+        inline Abstract_Error* flexiblesusy::Error::get_BEptr() const
         {
-            return dynamic_cast<Abstract_Two_scale*>(BEptr);
+            return dynamic_cast<Abstract_Error*>(BEptr);
         }
     }
     
@@ -75,4 +80,4 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
 
 #include "gambit/Backends/backend_undefs.hpp"
 
-#endif /* __wrapper_Two_scale_def_FlexibleSUSY_CMSSM_2_0_1_h__ */
+#endif /* __wrapper_Error_def_FlexibleSUSY_CMSSM_2_0_1_h__ */

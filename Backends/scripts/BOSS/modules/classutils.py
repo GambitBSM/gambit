@@ -218,7 +218,10 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
     for parent_dict in parent_classes:
 
         if parent_dict['loaded']:
-            inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['abstr_long_templ'] + ', '
+            if is_template:
+                inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['abstr_long'] + templ_vars + ', '
+            else:
+                inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['abstr_long_templ'] + ', '
 
         elif parent_dict['fundamental'] or parent_dict['std']:
             # inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['long_templ'] + ', '
@@ -460,7 +463,10 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
         if construct_assignment_operator:
             for parent_dict in parent_classes:
                 if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
-                    class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
+                    if is_template:
+                        class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long'] + templ_vars + '::pointer_assign' + gb.code_suffix + ';\n'
+                    else:
+                        class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
             class_decl += constrPtrAssignFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True)
         if has_copy_constructor:
             class_decl += constrPtrCopyFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True)
@@ -600,7 +606,11 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
         # Set wptr = 0 in all parent classes as well
         for parent_dict in all_parent_classes:
             if parent_dict['loaded']:
-                class_decl += ' '*(n_indents+5)*indent + parent_dict['class_name']['abstr_long_templ'] + '::set_wptr(0);\n'
+                if is_template:
+                    class_decl += ' '*(n_indents+5)*indent + parent_dict['class_name']['abstr_long'] + templ_vars + '::set_wptr(0);\n'
+                else:
+                    class_decl += ' '*(n_indents+5)*indent + parent_dict['class_name']['abstr_long_templ'] + '::set_wptr(0);\n'
+
         class_decl += ' '*(n_indents+5)*indent + 'delete_wrapper = false;\n'
         class_decl += ' '*(n_indents+4)*indent + '}\n'
         class_decl += ' '*(n_indents+3)*indent + '}\n'

@@ -12,7 +12,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         class Abstract_Two_scale;
         class Abstract_CMSSM_input_parameters;
+        template <class T>
+        class Abstract_CMSSM_spectrum_generator_interface;
         class Abstract_Spectrum_generator_settings;
+        class Abstract_Spectrum_generator_problems;
+        class Abstract_Physical_input;
+        class Abstract_CMSSM_parameter_getter;
+        class Abstract_Error;
     }
     namespace softsusy
     {

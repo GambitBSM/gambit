@@ -1,12 +1,13 @@
 #ifndef __abstract_Spectrum_generator_settings_FlexibleSUSY_CMSSM_2_0_1_h__
 #define __abstract_Spectrum_generator_settings_FlexibleSUSY_CMSSM_2_0_1_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <array>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <string>
-#include <cstddef>
-#include <iostream>
 
 #include "enum_decl_copies.h"
 

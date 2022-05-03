@@ -19,7 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static flexiblesusy::Abstract_CMSSM_input_parameters* (*__factory0)();
+                static Abstract_CMSSM_input_parameters* (*__factory0)();
         
                 // -- Other member variables: 
             public:
@@ -36,7 +36,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 CMSSM_input_parameters();
         
                 // Special pointer-based constructor: 
-                CMSSM_input_parameters(flexiblesusy::Abstract_CMSSM_input_parameters* in);
+                CMSSM_input_parameters(Abstract_CMSSM_input_parameters* in);
         
                 // Copy constructor: 
                 CMSSM_input_parameters(const CMSSM_input_parameters& in);
@@ -48,7 +48,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~CMSSM_input_parameters();
         
                 // Returns correctly casted pointer to Abstract class: 
-                flexiblesusy::Abstract_CMSSM_input_parameters* get_BEptr() const;
+                Abstract_CMSSM_input_parameters* get_BEptr() const;
         
         };
     }

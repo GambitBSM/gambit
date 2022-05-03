@@ -810,17 +810,20 @@ def getTemplatedMethodTypes(func_el, class_name):
             raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
 
         # looping through all the var checking 1 by 1 using name and type
-        same_args = True
-        for i, j in zip(method_types['args'], xml_args_info):
-            
-            if i['type'] != j['type'] and i['type'] != (j['type'] + ' ' +j['name']) and\
-               getBasicTypeName(j['type']) not in class_name['templ_types'] and\
-               getBasicTypeName(j['type']) != class_name['short_templ']:
-                same_args = False
-                break
+        # TODO: This causes more problems that it solves
+        #same_args = True
+        #for i, j in zip(method_types['args'], xml_args_info):
+        #    
+        #    if i['type'] != j['type'] and i['type'] != removeNamespace(j['type']) and\
+        #       i['type'] != (j['type'] + ' ' +j['name']) and\
+        #       i['type'] != (removeNamespace(j['type']) + ' ' +j['name']) and\
+        #       getBasicTypeName(j['type']) not in class_name['templ_types'] and\
+        #       getBasicTypeName(j['type']) != class_name['short_templ']:
+        #        same_args = False
+        #        break
 
-        if not same_args:
-            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
+        #if not same_args:
+        #    raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
 
         # Return
         return method_types
@@ -844,7 +847,7 @@ def makeTemplateArgs(args):
 
     args_out = []
 
-    argc = 0
+    argc = 1
     for arg in args:
        
         arg_dict = OrderedDict()
