@@ -295,7 +295,7 @@ namespace Gambit
            errmsg<<"Error getting scale for block "<<block<<": block definition line is not long enough to have a scale defined!"<<std::endl;
            utils_error().raise(LOCAL_INFO,errmsg.str());
         }
-        else if(Utils::toUpper(l.at(2))!="Q=")
+        else if(toUpper(l.at(2))!="Q=")
         {
            std::ostringstream errmsg;
            errmsg<<"Error getting scale for block "<<block<<": no scale definition found!"<<std::endl;
