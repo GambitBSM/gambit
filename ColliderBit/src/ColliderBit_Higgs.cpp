@@ -1166,7 +1166,8 @@ namespace Gambit
 	      ghjbb_p[i] = -((*Param["CbHm"]))*vev*vev*vev/Lambda/Lambda/mb/sqrt(2.);
 	      ghjbb_s[i] = 1.
 		      - ((*Param["CbHp"]))*vev*vev*vev/Lambda/Lambda/mb/sqrt(2.)
-		      - ((*Param["C8bHp"]))*vev*vev*vev*vev*vev/Lambda/Lambda/Lambda/Lambda/mb/sqrt(2.);
+		      //- ((*Param["C8bHp"]))*vev*vev*vev*vev*vev/Lambda/Lambda/Lambda/Lambda/mb/sqrt(2.)
+		      ;
 	      ghjtt_p[i] = -((*Param["CtHm"]))*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
 	      ghjtt_s[i] = 1.-((*Param["CtHp"]))*vev*vev*vev/Lambda/Lambda/mt/sqrt(2.);
 	      ghjee_p[i] = -((*Param["CeHm"]))*vev*vev*vev/Lambda/Lambda/me/sqrt(2.);
