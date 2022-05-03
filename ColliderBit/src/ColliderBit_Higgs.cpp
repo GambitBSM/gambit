@@ -507,7 +507,7 @@ namespace Gambit
      
     }
     
-    // ~~ 24 ~~ (fill THDM model params for HB)
+
     // fills THDM neutral model input for HB 5
     void THDM_ModelParameters_effc(hb_neutral_ModelParameters_effc &result)
     {
@@ -579,7 +579,7 @@ namespace Gambit
         #endif
     }
     
-    // ~~ 25 ~~ (fill in charged model in put for HB)
+
     // fills THDM charged model input for HB 4/5
     void THDM_ModelParameters_charged(hb_charged_ModelParameters &result) {
         using namespace Pipes::THDM_ModelParameters_charged;
@@ -1104,7 +1104,7 @@ namespace Gambit
 
     }
     
-    // ~~ 26 ~~ (get HiggsSignals LL)
+
     /// Get an LHC chisq from HiggsSignals (v2 beta)
     void calc_HS_2_LHC_LogLike(double &result)
     {
@@ -1174,7 +1174,7 @@ namespace Gambit
 
       // chi-squared values for: mu == rate observable, mh == mass observable, both combined
 
-      double csqmu, csqmh, csqtot, Pvalue; 
+      double csqmu, csqmh, csqtot, Pvalue;
       double csqmu1, csqmh1, csqtot1, Pvalue1;
       double csqmu2, csqmh2, csqtot2, Pvalue2;
       int nobs, nobs1, nobs2;

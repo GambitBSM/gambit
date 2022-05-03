@@ -301,13 +301,13 @@ namespace Gambit
     }
   }
 
-  // ~~ hidden constraint ~~
+
   /// Make sure no NaNs have been passed to the DecayTable by nefarious backends
   void DecayTable::Entry::check_BF_validity(double BF, double error, std::multiset< std::pair<int,int> >& key) const
   {
     static point_counter count("NaN BR or BR err"); count.count();
 
-    if ((Utils::isnan(BF) or Utils::isnan(error))) // ~~ !!!!!!!
+    if ((Utils::isnan(BF) or Utils::isnan(error)))
     {
       count.count_invalid();
 

@@ -1,21 +1,21 @@
-///  GAMBIT: Global and Modular BSM Inference Tool
-///  *********************************************
-///
-///  Model Header
-///  Two Higgs Doublet Model: Type I
-///
-///  *********************************************
-///
-///  Authors
-///  =======
-///
-///  (add name and date if you modify)
-///
-/// \author A.S. Woodcock
-///         (alex.woodcock@outlook.com)
-/// \date   Feb 2022
-///
-///  *********************************************
+//  GAMBIT: Global and Modular BSM Inference Tool
+//  *********************************************
+//
+//  Model Header
+//  Two Higgs Doublet Model: Type I
+//
+//  *********************************************
+//
+//  Authors
+//  =======
+//
+//  (add name and date if you modify)
+//
+// \author A.S. Woodcock
+//         (alex.woodcock@outlook.com)
+// \date   Feb 2022
+//
+//  *********************************************
 
 #ifndef __THDMI_smartBasis_hpp__
 #define __THDMI_smartBasis_hpp__

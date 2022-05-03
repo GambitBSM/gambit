@@ -457,7 +457,9 @@ namespace Gambit
         model_dbase.push_back(model);
       }
 
-      if(missing_flag)
+      int mpirank = GET_RANK;
+
+      if(missing_flag && mpirank == 0)
       {
         // Warn user of missing descriptions
         cout << "Descriptions are missing for the following models:" << endl;
@@ -495,7 +497,9 @@ namespace Gambit
     void gambit_core::check_capability_descriptions()
     {
 
-      if (missing_capability_description)
+      int mpirank = GET_RANK;
+
+      if (missing_capability_description && mpirank == 0)
       {
         cout << "Descriptions are missing for the following capabilities:" << endl;
         for (std::vector<capability_info>::const_iterator it = capability_dbase.begin(); it != capability_dbase.end(); ++it)

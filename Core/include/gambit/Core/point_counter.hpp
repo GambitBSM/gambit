@@ -25,6 +25,13 @@
 #include <chrono>
 #include <cstdint>
 
+#ifdef WITH_MPI
+#include "gambit/Utils/mpiwrapper.hpp"
+#define GET_RANK ::Gambit::GMPI::Comm().Get_rank()
+#else
+#define GET_RANK 0
+#endif
+
 class point_counter
 {
 
@@ -44,13 +51,15 @@ public:
   
   void count()
   {
+    if (GET_RANK != 0) return;
+
     time_point currTime = std::chrono::high_resolution_clock::now();
     double totalDur = std::chrono::duration<double>(currTime - startTime).count();
 
     if (timer < totalDur && point_count > 0)
     {
-      timer += 60;
-      std::cerr << std::setw(60) << name << " failed: " << failed_count << "/" << point_count << " (" << (100*failed_count)/point_count << "%)\n";
+      timer += 40;
+      std::cerr << std::setw(30) << name << " failed: " << failed_count << "/" << point_count << " (" << (100*failed_count)/point_count << "%)\n";
     }
 
     ++point_count;

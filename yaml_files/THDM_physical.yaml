@@ -28,42 +28,36 @@ Parameters:
   # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
-  # Select model: THDMI_pyhsical, THDMII_physical
+  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
   THDMI_physical:
-        m_h: 125.10
-            # range: [30,130] #[125.0, 126.0]
-            # prior_type: flat
-        m_H:
-            range: [130.0, 1700.0] # 5000
-            prior_type: flat
-        m_A:
-            range: [130.0, 1700.0]
-            prior_type: flat
-        m_Hp:
-            range: [130.0, 1700.0]
-            prior_type: flat
-        # --- Assuming a CP-conserving THDM model ---
-        lambda_6:
-            fixed_value: 0.0
-        lambda_7:
-            fixed_value: 0.0
-        # -------------------------------------------
-        m12_2:
-            range: [0, 20000]
-            # prior_type: flat
-            # ranges: [-1e6, -1e4, 1e4, 1e6]
-            # ranges: [-1e2, 0, 1e4, 5e5]
-            # prior_type: double_log_flat_join
-        tanb:
-            range: [0.01, 50]
-            prior_type: log
-        sba:
-            range: [-1.0, 1.0]
-            prior_type: flat
-        # Qin:
-        #     fixed_value: 91.1876 # = mZ
-        # QrunTo:
-        #     fixed_value: 1000 # for comparison with other literature
+    m_h: 
+      fixed_value: 125.10
+    m_H:
+      range: [130.0, 4000]
+      prior_type: flat
+    m_A:
+      range: [130.0, 4000]
+      prior_type: flat
+    m_Hp:
+      range: [130.0, 4000]
+      prior_type: flat
+    lambda_6:
+      fixed_value: 0.0
+    lambda_7:
+       fixed_value: 0.0
+    m12_2:
+      ranges: [-1e6, -1e4, 1e4, 1e6]
+      prior_type: double_log_flat_join
+    tanb:
+      range: [0.01, 50]
+      prior_type: log
+    sba:
+      range: [-1.0, 1.0]
+      prior_type: flat
+    #~0Qin:
+    #~0  fixed_value: 91.1876 # = mZ
+    #~0QrunTo:
+    #~0   fixed_value: 1000 # for comparison with other literature
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -111,7 +105,7 @@ Scanner:
     differentialEvolution:
       plugin: diver
       like: LogLike
-      NP: 200000
+      NP: 100000
       convthresh: 1e-5
       verbosity: 0
 
@@ -127,12 +121,9 @@ Scanner:
 
 ObsLikes:
 
-  #-------------------------------------#
-  #      THEORETICAL LIKELIHOODS        #
-  #-------------------------------------#
-
-  # - purpose: LogLike
-  #   capability: higgs_mass_likelihood
+  # #-------------------------------------#
+  # #      THEORETICAL LIKELIHOODS        #
+  # #-------------------------------------#
 
   # Stability of the 2HDM Potential
   # Applies the THDM stability constraints on the potential
@@ -144,20 +135,20 @@ ObsLikes:
   - purpose:    LogLike
     capability: stability_likelihood_THDM
 
-  # Checks that the NLO scattering-matrix is unitary
-  # Calculates and applies limit on eigenvalues of matrix
-  # NOTE: This is always a subset of LO unitarity so it not needed
-  # Likelihood type: Half-Gaussian
-  # Only supports CP-conserving models
-  # Unitarity of the S-matrix at next leading order (includes leading order too)
+  # # Checks that the NLO scattering-matrix is unitary
+  # # Calculates and applies limit on eigenvalues of matrix
+  # # NOTE: This is always a subset of LO unitarity so it not needed
+  # # Likelihood type: Half-Gaussian
+  # # Only supports CP-conserving models
+  # # Unitarity of the S-matrix at next leading order (includes leading order too)
   - purpose:    LogLike
-    # capability: unitarity_likelihood_THDM
-    capability: NLO_unitarity_likelihood_THDM
+    capability: unitarity_likelihood_THDM
+    # capability: NLO_unitarity_likelihood_THDM
 
-  # Calculates all quartic Higgs couplings in the physical
-  # basis & applies a 4pi perturbativity constraint on each
-  # Likelihood type: Half-Gaussian
-  # Perturbativity check on lambdas and scalar couplings
+  # # Calculates all quartic Higgs couplings in the physical
+  # # basis & applies a 4pi perturbativity constraint on each
+  # # Likelihood type: Half-Gaussian
+  # # Perturbativity check on lambdas and scalar couplings
   - purpose:    LogLike
     capability: perturbativity_likelihood_THDM
 
@@ -192,16 +183,16 @@ ObsLikes:
   # then chi^2 are extracted directly from HS & HB
 
   # HB 5beta likelihood
-  # - capability: LEP_Higgs_LogLike
-  #   function: calc_HB_5_LEP_LogLike
-  #   purpose: LogLike
-  #   dependencies:
-  #     - capability: HB_ModelParameters_neutral
-  #       function: THDM_ModelParameters_effc
-  #       module: ColliderBit
-  #     - capability: HB_ModelParameters_charged
-  #       function: THDM_ModelParameters_charged
-  #       module: ColliderBit
+  - capability: LEP_Higgs_LogLike
+    function: calc_HB_5_LEP_LogLike
+    purpose: LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
 
   # HS 2beta likelihood
   - capability: LHC_Higgs_LogLike
@@ -214,6 +205,14 @@ ObsLikes:
       - capability: HB_ModelParameters_charged
         function: THDM_ModelParameters_charged
         module: ColliderBit
+
+  # helps guide the scanner towards mh ~ 125 GeV. Needed to improve scan performance
+  - purpose: LogLike
+    capability: higgs_mass_likelihood
+
+  # helps guide the scanner to positive masses. Needed to improve performance
+  - purpose: LogLike
+    capability: scalar_mass_range_likelihood
 
   #-------------------------------------#
   #      PRECISION LIKELIHOODS          #
@@ -283,8 +282,8 @@ ObsLikes:
 
   # branching fractions
 
-  # - capability: all_BFs
-  #   purpose: Observable
+  - capability: all_BFs
+    purpose: Observable
 
   # vacuum meta-stability discriminant
 
@@ -431,32 +430,6 @@ ObsLikes:
 
 Rules:
 
-  - capability: LHC_Higgs_LogLike
-    function: calc_HS_2_LHC_LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
-
-  - capability: HB_ModelParameters_neutral
-    function: THDM_ModelParameters_effc
-    dependencies:
-      - capability: Higgs_Couplings
-        function: THDM_higgs_couplings_2HDMC
-        module: SpecBit
-
-
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_2HDMC
-    module: SpecBit
-    dependencies: # !!
-      - capability: Higgs_decay_rates
-        function: h0_1_decays_THDM
-        module: DecayBit
-
   - capability: THDM_spectrum
     function: get_THDM_spectrum
 
@@ -512,10 +485,10 @@ Rules:
   - capability: HB_ModelParameters_charged
     function: THDM_ModelParameters_charged
     module: ColliderBit
-    dependencies: # !!
-      - capability: Higgs_Couplings
-        function: THDM_higgs_couplings_2HDMC
-        module: SpecBit
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+    module: SpecBit
 
   - capability: SuperIso_modelinfo
     function: SI_fill
@@ -556,7 +529,12 @@ Logger:
 
 KeyValues:
 
+  required_points: 50000 # first MPI rank
+  required_valid_points: 9000 # first MPI rank
+  required_scan_duration: 360 # in seconds
+
   likelihood:
+    print_invalid_points: false
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5
     debug: false

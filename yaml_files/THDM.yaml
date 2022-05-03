@@ -29,7 +29,8 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
   # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM, or THDMI_smartBasis
-  THDMI:
+  THDMIatQ:
+
       lambda_1:
           range: [-0.5, 12.5664]
           prior_type: flat
@@ -45,28 +46,20 @@ Parameters:
       lambda_5:
           range: [-12.5664, 12.5664]
           prior_type: flat
-      # --- Assuming a CP-conserving THDM model ---
       lambda_6:
           fixed_value: 0.0
       lambda_7:
           fixed_value: 0.0
-      # -------------------------------------------
       m12_2:
           ranges: [-1e6, -1e4, 1e4, 1e6]
           prior_type: double_log_flat_join
-
-      # cosba_distorted:
-      #     range: [-1.0, 1.0]
-      #     prior_type: flat
-
       tanb:
           range: [0.01, 50]
           prior_type: log
-
-      # Qin:
-      #     fixed_value: 91.1876 # = mZ
-      # QrunTo:
-      #     fixed_value: 1000 # for comparison with other literature
+      Qin:
+          fixed_value: 91.1876 # = mZ
+      QrunTo:
+          fixed_value: 1000 # for comparison with other literature
 
 
 #################################
@@ -87,7 +80,7 @@ Printer:
   #   group: "/data"
   #   delete_file_on_restart: true
 
-  # # unfortunately the new hdf5 scanner is buggy!
+  # # unfortunately the new hdf5 printer is buggy!
   printer: hdf5_v1
   options:
     output_file: "scan.hdf5"
@@ -109,13 +102,13 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 2000000
+      point_number: 20000000
       like:  LogLike
 
     differentialEvolution:
       plugin: diver
       like: LogLike
-      NP: 200000
+      NP: 20000000
       convthresh: 1e-5
       verbosity: 0
 
@@ -131,9 +124,9 @@ Scanner:
 
 ObsLikes:
 
-  #-------------------------------------#
-  #      THEORETICAL LIKELIHOODS        #
-  #-------------------------------------#
+  # #-------------------------------------#
+  # #      THEORETICAL LIKELIHOODS        #
+  # #-------------------------------------#
 
   # - purpose: LogLike
   #   capability: higgs_mass_likelihood
@@ -155,8 +148,8 @@ ObsLikes:
   # Only supports CP-conserving models
   # Unitarity of the S-matrix at next leading order (includes leading order too)
   - purpose:    LogLike
-    # capability: unitarity_likelihood_THDM
     capability: NLO_unitarity_likelihood_THDM
+    # capability: unitarity_likelihood_THDM
 
   # Calculates all quartic Higgs couplings in the physical
   # basis & applies a 4pi perturbativity constraint on each
@@ -165,26 +158,30 @@ ObsLikes:
   - purpose:    LogLike
     capability: perturbativity_likelihood_THDM
 
-  # # Perturbativity check on h0 mass loop-corrections
-  # # Checks that loop corrections to the pole mass of mh0
-  # # do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
-  # - purpose:    LogLike
-  #   capability: h0_loop_order_corrections
-  #   function: check_h0_loop_order_corrections
+  # Perturbativity check on h0 mass loop-corrections
+  # Checks that loop corrections to the pole mass of mh0
+  # do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: h0_loop_order_corrections
+    function: check_h0_loop_order_corrections
   
-  # # Checks that loop corrections to the pole masses of mH0,
-  # # mA0, mHpm do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
-  # # Perturbativity check on other scalar mass loop-corrections
-  # - purpose:    LogLike
-  #   capability: THDM_scalar_loop_order_corrections
-  #   function: check_THDM_scalar_loop_order_corrections
+  # Checks that loop corrections to the pole masses of mH0,
+  # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  # Perturbativity check on other scalar mass loop-corrections
+  - purpose:    LogLike
+    capability: THDM_scalar_loop_order_corrections
+    function: check_THDM_scalar_loop_order_corrections
 
-  # ???? undocumented
-  # - purpose:    LogLike
-  #   capability: THDM_scalar_masses
-  #   function: check_THDM_scalar_masses
+  # enforces an upper limit on the heavy scalar masses from the yaml
+  # these are specified by the run options (given below):
+  # (*) maximum_scalar_mass
+  # (*) minimum_scalar_mass
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: THDM_scalar_masses
+    function: check_THDM_scalar_masses
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -196,16 +193,16 @@ ObsLikes:
   # then chi^2 are extracted directly from HS & HB
 
   # HB 5beta likelihood
-  # - capability: LEP_Higgs_LogLike
-  #   function: calc_HB_5_LEP_LogLike
-  #   purpose: LogLike
-  #   dependencies:
-  #     - capability: HB_ModelParameters_neutral
-  #       function: THDM_ModelParameters_effc
-  #       module: ColliderBit
-  #     - capability: HB_ModelParameters_charged
-  #       function: THDM_ModelParameters_charged
-  #       module: ColliderBit
+  - capability: LEP_Higgs_LogLike
+    function: calc_HB_5_LEP_LogLike
+    purpose: LogLike
+    dependencies:
+      - capability: HB_ModelParameters_neutral
+        function: THDM_ModelParameters_effc
+        module: ColliderBit
+      - capability: HB_ModelParameters_charged
+        function: THDM_ModelParameters_charged
+        module: ColliderBit
 
   # HS 2beta likelihood
   - capability: LHC_Higgs_LogLike
@@ -219,16 +216,24 @@ ObsLikes:
         function: THDM_ModelParameters_charged
         module: ColliderBit
 
+  # helps guide the scanner towards mh ~ 125 GeV. Needed to improve scan performance
+  - purpose: LogLike
+    capability: higgs_mass_likelihood
+
+  # helps guide the scanner to positive masses. Needed to improve performance
+  - purpose: LogLike
+    capability: scalar_mass_range_likelihood
+
   #-------------------------------------#
   #      PRECISION LIKELIHOODS          #
   #-------------------------------------#
 
-  # # Calculates the electroweak precision parameters, S, T, U, V, W, X
-  # # & fits to meausured values. S, T, U involve a correlation matrix.
-  # # Includes low-energy notation described in arxiv::9407203.
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: oblique_parameters_likelihood_THDM
+  # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # & fits to meausured values. S, T, U involve a correlation matrix.
+  # Includes low-energy notation described in arxiv::9407203.
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: oblique_parameters_likelihood_THDM
 
   #-------------------------------------#
   #      FLAVOR LIKELIHOODS             #
@@ -239,33 +244,33 @@ ObsLikes:
   # # Superiso is given SLHA struct filled with THDM input
   # # & then likelihoods may be called as intended
 
-  # # FlavBit.cpp:2193 (b->s gamma via HEPLike)
-  # - purpose:    LogLike
-  #   capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
+  # FlavBit.cpp:2193 (b->s gamma via HEPLike)
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
 
-  # # FlavBit.cpp:2120 (B meson mass aysmmetry)
-  # - capability: deltaMB_LL
-  #   function: deltaMB_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2120 (B meson mass aysmmetry)
+  - capability: deltaMB_LL
+    function: deltaMB_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:2156
-  # - capability: deltaMBd_LL
-  #   function: deltaMBd_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2156
+  - capability: deltaMBd_LL
+    function: deltaMBd_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:2298
-  # - capability: b2ll_LL
-  #   function: b2ll_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2298
+  - capability: b2ll_LL
+    function: b2ll_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:2435
-  # - capability: SL_LL
-  #   function: SL_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2435
+  - capability: SL_LL
+    function: SL_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:3163
-  # - purpose:    LogLike
-  #   capability: LUV_LL # LUV_likelihood
+  # FlavBit.cpp:3163
+  - purpose:    LogLike
+    capability: LUV_LL # LUV_likelihood
 
 
   #-------------------------------------#
@@ -560,7 +565,12 @@ Logger:
 
 KeyValues:
 
+  required_points: 2000000 # first MPI rank
+  required_valid_points: 200000 # first MPI rank
+  required_scan_duration: 300 # in seconds
+
   likelihood:
+    print_invalid_points: false
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5
     debug: false

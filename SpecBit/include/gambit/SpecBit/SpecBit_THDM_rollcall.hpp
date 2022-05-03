@@ -26,10 +26,10 @@
 #ifndef __SpecBit_THDM_hpp__
 #define __SpecBit_THDM_hpp__
 
-#define CAPABILITY THDM_spectrum
-START_CAPABILITY
 // Create Spectrum object from SMInputs structs, SM Higgs parameters,
 // and the THDM parameters
+#define CAPABILITY THDM_spectrum
+START_CAPABILITY
   #define FUNCTION get_THDM_spectrum
     START_FUNCTION(Spectrum)
     DEPENDENCY(SMINPUTS, SMInputs)
@@ -38,15 +38,44 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// Convert spectrum into a standard map so that it can be printed
 #define CAPABILITY THDM_spectrum_map
 START_CAPABILITY
-  // Convert spectrum into a standard map so that it can be printed
   #define FUNCTION get_THDM_spectrum_as_map
-    START_FUNCTION(map_str_dbl) // Just a string to double map. Can't have commas in macro input
+    START_FUNCTION(map_str_dbl)
     DEPENDENCY(THDM_spectrum, Spectrum)
   #undef FUNCTION
 #undef CAPABILITY
 
+// guides scanner towards mh = 125 GeV, used to improve perf of HS
+#define CAPABILITY higgs_mass_likelihood
+START_CAPABILITY
+  #define FUNCTION higgs_mass_LL
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+  #undef FUNCTION
+#undef CAPABILITY
+
+// guide scanner towards mass range for each heavy scalar, specified in YAML file
+#define CAPABILITY scalar_mass_range_likelihood
+START_CAPABILITY
+  #define FUNCTION get_scalar_mass_range_likelihood
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+  #undef FUNCTION
+#undef CAPABILITY
+
+// Observable: sin(beta-alpha)
 #define CAPABILITY sba
 START_CAPABILITY
   #define FUNCTION obs_sba
@@ -55,30 +84,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-#define CAPABILITY higgs_mass_likelihood
-START_CAPABILITY
-  #define FUNCTION higgs_mass_LL
-
-  START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  
-  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
-
-  #undef FUNCTION
-#undef CAPABILITY
-
-#define CAPABILITY kill_cba_zero
-START_CAPABILITY
-  #define FUNCTION obs_kill_cba_zero
-  START_FUNCTION(double)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  #undef FUNCTION
-#undef CAPABILITY
-
+// Observable: cos(beta-alpha)
 #define CAPABILITY cba
 START_CAPABILITY
   #define FUNCTION obs_cba
@@ -87,6 +93,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// Observable: beta-alpha
 #define CAPABILITY ba
 START_CAPABILITY
   #define FUNCTION obs_ba
@@ -95,6 +102,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// Observable: Higgs VEV
 #define CAPABILITY vev
 START_CAPABILITY
   #define FUNCTION obs_vev
@@ -103,6 +111,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// Leading-Order unitarity constraint
 #define CAPABILITY unitarity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_unitarity_likelihood_THDM
@@ -115,6 +124,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// Next-to-Leading-Order unitarity constraint
 #define CAPABILITY NLO_unitarity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_NLO_unitarity_likelihood_THDM
@@ -127,6 +137,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// perturbativity constraint
 #define CAPABILITY perturbativity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_perturbativity_likelihood_THDM
@@ -135,7 +146,6 @@ START_CAPABILITY
   DEPENDENCY(THDM_spectrum, Spectrum)
   ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  // physical models are checked in this likelihood so must be allowed
   ALLOW_MODEL(THDMI_physical, THDMII_physical, THDMLS_physical, THDMflipped_physical)     
   ALLOW_MODEL(THDMI_physicalatQ, THDMII_physicalatQ, THDMLS_physicalatQ, THDMflipped_physicalatQ)
   BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
@@ -143,6 +153,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// vacuum stability constraint
 #define CAPABILITY stability_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_stability_likelihood_THDM
@@ -156,6 +167,8 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// guide scanner so that sba ~ 0.99 to 1.00, which is the alignment limit
+// Note: unneccesary since sampling density is actually much higher towards alignment limit
 #define CAPABILITY alignment_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_alignment_likelihood_THDM
@@ -168,6 +181,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// another vacuum stability check (true / false)
 #define CAPABILITY vacuum_global_minimum
 START_CAPABILITY
   #define FUNCTION check_vacuum_global_minimum
@@ -180,6 +194,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// checks that the corrections to h0 are perturbative (hard-cutoff)
 #define CAPABILITY h0_loop_order_corrections
 START_CAPABILITY
   #define FUNCTION check_h0_loop_order_corrections
@@ -192,6 +207,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// identicle to h0_loop_order_corrections... perhaps a bug
 #define CAPABILITY THDM_scalar_loop_order_corrections
 START_CAPABILITY
   #define FUNCTION check_THDM_scalar_loop_order_corrections
@@ -204,6 +220,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
+// enforces an upper limit on the heavy scalar masses from the yaml
 #define CAPABILITY THDM_scalar_masses
 START_CAPABILITY
   #define FUNCTION check_THDM_scalar_masses
@@ -216,7 +233,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// Generalised Higgs couplings
+// THDM Higgs couplings from partial widths only
 #define CAPABILITY Higgs_Couplings
   #define FUNCTION THDM_higgs_couplings_pwid
   START_FUNCTION(HiggsCouplingsTable)
@@ -234,6 +251,7 @@ START_CAPABILITY
   ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
   #undef FUNCTION
 
+  // THDM Higgs couplings from THDMC
   #define FUNCTION THDM_higgs_couplings_2HDMC
   START_FUNCTION(HiggsCouplingsTable)
   NEEDS_CLASSES_FROM(THDMC,default)

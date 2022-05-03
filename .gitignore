@@ -113,3 +113,4 @@ contrib/MassSpectra/flexiblesusy/models/THDM_I**
 contrib/MassSpectra/flexiblesusy/models/THDM_II**
 contrib/MassSpectra/flexiblesusy/models/THDM_LS**
 work/**
+scripts/**

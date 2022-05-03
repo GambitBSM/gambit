@@ -621,7 +621,7 @@ namespace Gambit
       }
       return sorted;
     }
-    // ~~~ 9 ~~
+
     // Evaluates ObsLike vertex, and everything it depends on, and prints results
     void DependencyResolver::calcObsLike(VertexID vertex)
     {

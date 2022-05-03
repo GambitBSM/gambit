@@ -94,6 +94,12 @@ namespace Gambit
       /// Run in likelihood debug mode?
       bool debug;
 
+
+      int required_points = -1;
+      int required_valid_points = -1;
+      int required_scan_duration = -1;
+
+
     public:
 
       /// Constructor

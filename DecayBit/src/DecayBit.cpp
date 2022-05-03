@@ -122,14 +122,13 @@ namespace Gambit
       return m2 / (m2 - q2 -i*imag_term);
     }
 
-    // ~~ 14 ~~
     /// Check if a width is negative or suspiciously large and raise an error.
     void check_width(const str& info, double& w, bool raise_invalid_pt_negative_width = false, bool raise_invalid_pt_large_width = false)
     {
       static point_counter count("NaN decay width"); count.count();
       static point_counter count2("negative decay width"); count2.count();
       static point_counter count3("ultra large decay width"); count3.count();
-      // ~~ !!!!!!!!
+
       if (Utils::isnan(w)) 
       {
         count.count_invalid();
@@ -3740,7 +3739,6 @@ namespace Gambit
       { "THDMflipped", model_param( false, flipped ) }
 		};
 
-    // ~~ 14 ~~ 
     // get all decays for h0_1 (via THDMC)
     void h0_1_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::h0_1_decays_THDM;
@@ -3759,7 +3757,6 @@ namespace Gambit
       h_decays_THDM(result, container, 1);
    }
     
-    // ~~ 14 ~~ 
     // get all decays for h0_2 (via THDMC)
     void h0_2_decays_THDM(DecayTable::Entry& result) {
      using namespace Pipes::h0_2_decays_THDM;
@@ -3778,7 +3775,6 @@ namespace Gambit
       h_decays_THDM(result, container, 2);
    }
     
-    // ~~ 14 ~~ 
     // get all decays for A0 (via THDMC)
     void A0_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::A0_decays_THDM;
@@ -3797,7 +3793,6 @@ namespace Gambit
       h_decays_THDM(result, container, 3);
    }
     
-    // ~~ 14 ~~ 
     // get all decays for H+- (via THDMC)
     void Hpm_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Hpm_decays_THDM;
@@ -3816,7 +3811,6 @@ namespace Gambit
       h_decays_THDM(result, container, 4);
    }
 
-    // ~~ 14 ~~ 
     /// Reference SM Higgs decays: h0_1 (via THDMC)
     void Ref_SM_Higgs_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Ref_SM_Higgs_decays_THDM;
@@ -3826,7 +3820,6 @@ namespace Gambit
       h_decays_THDM(result, container, 1);
     }
     
-    // ~~ 14 ~~
     /// Reference SM Higgs decays: h0_2 (via THDMC)
     void Ref_SM_other_Higgs_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Ref_SM_other_Higgs_decays_THDM;
@@ -3836,7 +3829,6 @@ namespace Gambit
       h_decays_THDM(result, container, 1);
     }
     
-    // ~~ 14 ~~
     /// Reference SM Higgs decays: A0 (via THDMC)
     void Ref_SM_A0_decays_THDM(DecayTable::Entry& result) {
       using namespace Pipes::Ref_SM_A0_decays_THDM;
@@ -3846,7 +3838,6 @@ namespace Gambit
       h_decays_THDM(result, container, 1);
     }
     
-    // ~~ 14 ~~
     // get all decays for top quark (via THDMC)
     void t_decays_THDM (DecayTable::Entry& result) {
       using namespace Pipes::t_decays_THDM;

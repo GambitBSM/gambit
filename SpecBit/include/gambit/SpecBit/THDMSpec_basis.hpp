@@ -18,7 +18,7 @@
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
 ///
-///  *****************************å****************
+///  **********************************************
 
 #include "gambit/SpecBit/THDMSpec.hpp"
 

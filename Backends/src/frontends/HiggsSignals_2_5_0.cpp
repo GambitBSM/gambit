@@ -30,7 +30,7 @@
 #include "gambit/Backends/frontends/HiggsSignals_2_5_0.hpp"
 #include "gambit/Utils/file_lock.hpp"
 #include "gambit/Core/cleanup.hpp"
-// ~~ 23 ~~ (init HiggsSignals)
+
 BE_INI_FUNCTION
 {
 

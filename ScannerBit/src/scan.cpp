@@ -129,7 +129,7 @@ namespace Gambit
                 Plugins::plugin_info.printer_prior(*printerInterface, *prior);
             }   
         }
-        // ~~~ 2 ~~
+
         int Scan_Manager::Run()
         {
             std::vector<std::string> pluginNames;

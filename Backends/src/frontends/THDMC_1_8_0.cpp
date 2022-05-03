@@ -166,7 +166,7 @@ BE_NAMESPACE
 
 }
 END_BE_NAMESPACE
-// ~~ 11 ~~ (THDMC init)
+
 // Initialisation function (definition)
 BE_INI_FUNCTION
 {
