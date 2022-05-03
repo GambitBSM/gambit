@@ -823,7 +823,7 @@ namespace Gambit
     /// This function ONLY works when the scan is driven by the postprocessor!
     /// This is because it relies on the global reader object created by the
     /// postprocessor to retrieve output.
-    void get_MSSM_spectrum_from_postprocessor(Spectrum& result)
+    void get_MSSM_spectrum_from_postprocessor(Spectrum& spectrum)
     {
       namespace myPipe = Pipes::get_MSSM_spectrum_from_postprocessor;
       const SMInputs& sminputs = *myPipe::Dep::SMINPUTS; // Retrieve dependency on SLHAstruct
@@ -851,9 +851,6 @@ namespace Gambit
       // this from model parameters (it is always an input, so we should have it in those)
       double tbmZ = *myPipe::Param.at("TanBeta");
       SLHAea_add(mssm, "MINPAR", 3, tbmZ, "tan beta (mZ)_DRbar");        
-
-      // Create full Spectrum object
-      result = Spectrum(mssm,sminputs,NULL,mass_cut,mass_ratio_cut);
 
       // SpectrumContents struct
       SpectrumContents::MSSM mssm_contents;

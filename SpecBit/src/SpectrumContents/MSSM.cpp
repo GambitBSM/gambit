@@ -23,13 +23,13 @@
 #ifndef __mssmcontents_hpp__
 #define __mssmcontents_hpp__
 
-#include "gambit/Elements/slhaea_helpers.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
 #include "gambit/SpecBit/RegisteredSpectra.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "SLHAea/slhaea.h"
 
-namespace Gambit {
+namespace Gambit
+{
 
   /// Helper function for sorting int, double pairs according to the double
   bool orderer (std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; }

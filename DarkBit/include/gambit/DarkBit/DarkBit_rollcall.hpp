@@ -1137,15 +1137,13 @@ START_MODULE
       BACKEND_REQ(nucleonAmplitudes, (gimmemicro), int, (double(*)(double,double,double,double), double*, double*, double*, double*))
       BACKEND_REQ(FeScLoop, (gimmemicro), double, (double, double, double, double))
       BACKEND_REQ(MOcommon, (gimmemicro), MicrOmegas::MOcommonSTR)
-      ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq,
-                             MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino,
-                             MSSM63atMGUT_lightgravitino,
+      ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq, MSSM63atQ,
+                             MSSM63atQ_lightgravitino,
                              ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                              ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
                              VectorSingletDM_Z2, DMEFT)
       MODEL_GROUP(group1, (nuclear_params_fnq))
-      MODEL_GROUP(group2, (MSSM63atQ, MSSM63atMGUT, MSSM63atQ_lightgravitino,
-                           MSSM63atMGUT_lightgravitino,
+      MODEL_GROUP(group2, (MSSM63atQ, MSSM63atQ_lightgravitino,
                            ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                            ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
                            VectorSingletDM_Z2, DMEFT))

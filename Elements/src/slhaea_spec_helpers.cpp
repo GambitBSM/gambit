@@ -28,6 +28,7 @@
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Elements/spectrum.hpp"
+#include "gambit/Models/partmap.hpp"
 
 namespace Gambit
 {

@@ -17,8 +17,7 @@
 
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/SPheno_4_0_3.hpp"
-#include "gambit/Elements/spectrum_factories.hpp"
-#include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"
+#include "gambit/Elements/spectrum.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -715,22 +714,8 @@ BE_NAMESPACE
       }
 
     //Create Spectrum object
-    static const Spectrum::mc_info mass_cut;
-    static const Spectrum::mr_info mass_ratio_cut;
-    Spectrum spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
-
-    // Add the high scale and susy scale variables by hand
-    double high_scale;
-    if(inputs.param.find("Qin") != inputs.param.end())
-      high_scale = *inputs.param.at("Qin");
-    else
-      high_scale = *m_GUT;
-    double susy_scale = Q;
-    spectrum.get_HE().set_override(Par::mass1, high_scale, "high_scale", true);
-    spectrum.get_HE().set_override(Par::mass1, susy_scale, "susy_scale", true);
-
-    return spectrum;
-
+    double scale = *Q_in;
+    spectrum = Spectrum(slha, inputs.contents, scale);
   }
 
   // Function to read data from the Gambit inputs and fill SPheno internal variables

@@ -50,7 +50,7 @@
 #include <set>
 
 #include "gambit/Elements/spectrum.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Utils/util_types.hpp"
 
 namespace Gambit
