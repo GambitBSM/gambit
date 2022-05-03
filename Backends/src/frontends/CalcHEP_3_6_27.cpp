@@ -110,7 +110,7 @@ BE_INI_FUNCTION
     static const SpectrumContents::ScalarSingletDM_Z2 ScalarSingletDM_Z2_contents;
 
     // Obtain list of all parameters within model
-    static const std::vector<SpectrumParameter> ScalarSingletDM_Z2_params = ScalarSingletDM_Z2_contents.all_parameters();
+    static const std::vector<Parameter> ScalarSingletDM_Z2_params = ScalarSingletDM_Z2_contents.all_parameters();
 
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum;
@@ -124,7 +124,7 @@ BE_INI_FUNCTION
    static const SpectrumContents::DMEFT DMEFT_contents;
    
    // Obtain list of all parameters within model
-   static const std::vector<SpectrumParameter> DMEFT_params = DMEFT_contents.all_parameters();
+   static const std::vector<Parameter> DMEFT_params = DMEFT_contents.all_parameters();
    
    // Obtain spectrum information to pass to CalcHEP
    const Spectrum& spec = *Dep::DMEFT_spectrum;
@@ -211,7 +211,7 @@ BE_NAMESPACE
 
   /// Takes all parameters in a model, and assigns them by
   /// value to the appropriate CalcHEP parameter names.
-  void Assign_All_Values(const Spectrum& spec, std::vector<SpectrumParameter> params)
+  void Assign_All_Values(const Spectrum& spec, std::vector<Parameter> params)
   {
     // Iterate through the expected spectrum parameters of the model. Pass the value of pole masses
     // to CalcHEP from the spectrum, by PDG code.
