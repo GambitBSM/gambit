@@ -25,6 +25,7 @@
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
+#include "gambit/Utils/util_functions.hpp"
 
 namespace Gambit
 {
@@ -295,7 +296,7 @@ namespace Gambit
            errmsg<<"Error getting scale for block "<<block<<": block definition line is not long enough to have a scale defined!"<<std::endl;
            utils_error().raise(LOCAL_INFO,errmsg.str());
         }
-        else if(toUpper(l.at(2))!="Q=")
+        else if(Utils::toUpper(l.at(2))!="Q=")
         {
            std::ostringstream errmsg;
            errmsg<<"Error getting scale for block "<<block<<": no scale definition found!"<<std::endl;
