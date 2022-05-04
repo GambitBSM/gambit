@@ -140,7 +140,7 @@ Priors:
 
 Printer:
 
-  printer: hdf5
+  printer: hdf5_v1
   options:
     output_file: "DAMA_TEST.hdf5"
     group: "/DAMA_TEST"
@@ -209,5 +209,5 @@ KeyValues:
 
   default_output_path: "runs/DAMA_TEST/"
 
-  debug: true
+  debug: false
 
