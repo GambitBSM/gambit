@@ -79,6 +79,26 @@ void MODEL_NAMESPACE::GeneralALP_to_GeneralCosmoALP (const ModelParameters &mypa
 }
 #undef MODEL
 
+#define MODEL CosmoALP_gg_tau
+void MODEL_NAMESPACE::CosmoALP_gg_tau_to_GeneralCosmoALP (const ModelParameters &myparams, ModelParameters &parentparams)
+{
+    logger()<<"Running interpret_as_parent calculations for CosmoALP_gg_tau -> GeneralCosmoALP ..."<<EOM;
+
+    // Compute coupling out of the lifetime and mass
+    parentparams.setValue("gagg", sqrt(64e27 * pi * hbar/myparams["tau"] / pow(myparams["ma0"],3)) );
+    // Set matter couplings to 0
+    parentparams.setValue("gaee", 0.0);
+    parentparams.setValue("gaN", 0.0);
+    parentparams.setValue("fa", myparams["fa"]);
+    parentparams.setValue("ma0", myparams["ma0"]);
+    parentparams.setValue("Tchi", myparams["Tchi"]);
+    parentparams.setValue("beta", myparams["beta"]);
+    parentparams.setValue("thetai", myparams["thetai"]);
+    parentparams.setValue("f0_thermal", myparams["f0_thermal"]);
+    parentparams.setValue("T_R", myparams["T_R"]);
+}
+#undef MODEL
+
 #define MODEL QCDAxion
 void MODEL_NAMESPACE::QCDAxion_to_GeneralALP (const ModelParameters &myparams, ModelParameters &parentparams)
 {

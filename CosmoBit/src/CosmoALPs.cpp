@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  CosmoBit routines relating to axions and 
+///  CosmoBit routines relating to axions and
 ///  axion-like particles.
 ///
 ///  *********************************************
@@ -50,6 +50,7 @@
 #include "gambit/CosmoBit/CosmoBit_types.hpp"
 #include "gambit/CosmoBit/CosmoBit_utils.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Utils/interp_collection.hpp"
 
 namespace Gambit
 {
@@ -89,9 +90,9 @@ namespace Gambit
     }
 
     /// Compute the abundance of ALPs expected from thermal production via Primakoff processes
-    void minimum_abundance_ALP(double& result)
+    void minimum_abundance_ALP_analytical(double& result)
     {
-      using namespace Pipes::minimum_abundance_ALP;
+      using namespace Pipes::minimum_abundance_ALP_analytical;
 
       double gagg = *Param["gagg"];                 // Read axion-photon coupling in GeV^-1
       double T_R_in_GeV = 1e-3 * (*Param["T_R"]);   // Read reheating temperature in MeV and convert it to GeV
@@ -104,6 +105,69 @@ namespace Gambit
 
     }
 
+    /// Abundance of ALPs expected from thermal production via Primakoff processes as calculated by micrOMEGAs
+    void minimum_abundance_ALP_numerical(double& result)
+    {
+      using namespace Pipes::minimum_abundance_ALP_numerical;
+      using Interpolator2D = Utils::interp2d_collection;
+
+      double gagg = *Param["gagg"];                 // Read axion-photon coupling in GeV^-1
+      double T_R_in_GeV = 1e-3 * (*Param["T_R"]);   // Read reheating temperature in MeV and convert it to GeV
+      double m_a_in_GeV = 1e-9 * (*Param["ma0"]);   // Read ALP mass in GeV
+      double m_a_in_eV = (*Param["ma0"]);
+
+      static Interpolator2D oh2_a_grid(
+        "oh2_a_grid",
+        GAMBIT_DIR "/DarkBit/data/Oh2_ALP_freeze-in.dat",
+        { "m_a","T_R","oh2_a"}
+      );
+
+      double m_a_min = oh2_a_grid.x_min;
+      double m_a_max = oh2_a_grid.x_max;
+      double T_R_min = oh2_a_grid.y_min;
+      double T_R_max = oh2_a_grid.y_max;
+
+      // Check whether T_R is inside the interpolation range.
+      if (T_R_in_GeV < T_R_min || T_R_in_GeV > T_R_max)
+      {
+        std::ostringstream err;
+        err << "The input for T_R (" << T_R_in_GeV;
+        err << " GeV) is outside of the interpolation range ";
+        err << "[" << T_R_min << "GeV, " << T_R_max << " GeV].";
+        CosmoBit_error().raise(LOCAL_INFO,err.str());
+      }
+
+      // Check whether m_a is inside the interpolation range.
+      // (Check only if the mass is too high. For small masses,
+      // the result can be scaled, see below)
+      if (m_a_in_GeV > m_a_max)
+      {
+        std::ostringstream err;
+        err << "The input for ma0 (" << m_a_in_GeV;
+        err << " GeV) is outside of the interpolation range ";
+        err << "[" << m_a_min << "GeV, " << m_a_max << " GeV].";
+        CosmoBit_error().raise(LOCAL_INFO,err.str());
+      }
+
+      // If the mass is below m_a_min the result can be easily scaled
+      // as Omega_a h^2 ~ m_a for m_a << T_R.
+      double scale = m_a_in_GeV <= m_a_min ? m_a_in_GeV/m_a_min : 1.0;
+      double mass_to_use = m_a_in_GeV <= m_a_min ? m_a_min : m_a_in_GeV;
+
+      // The grid assumes a fixed coupling gagg == 1e-8 Gev^-1.
+      // The final result scales trivially Omega_a h^2 ~ gagg^2.
+      scale *= pow(gagg/1e-8,2);
+
+      double omega_a_h2 = oh2_a_grid.eval(mass_to_use, T_R_in_GeV) * scale;
+
+      // Translate omega_a_h2 into Ya
+      const double rho0_crit_by_h2 = 3.*pow(m_planck_red*1e9,2) * pow((1e5*1e9*hbar/Mpc_SI),2);
+      double rho0_a = omega_a_h2 * rho0_crit_by_h2;
+      double ssm0 = CosmoBit_utils::entropy_density_SM(2.7255);
+
+      result = rho0_a / m_a_in_eV / ssm0; // Ya0 = n0_a / ssm0 = rho0_a / (ma * ssm0)
+    }
+
     /// Compute the minimal fraction of dark matter in ALPs expected from thermal production via Primakoff processes
     void minimum_fraction_ALP(double& result)
     {
@@ -112,14 +176,13 @@ namespace Gambit
       const double rho0_crit_by_h2 = 3.*pow(m_planck_red*1e9,2) * pow((1e5*1e9*hbar/Mpc_SI),2); // rho0_crit/(h^2)
 
       double ma0 = *Param["ma0"];                    // non-thermal ALP mass in eV
-      double T = *Param["T_cmb"];                        // CMB temperature in K
       double omega_cdm = *Param["omega_cdm"];        // omega_cdm = Omega_cdm * h^2
 
       // Consistency check: if the ALP abundance from all thermal processes is less than that expected just from Primakoff processes, invalidate this point.
       double Ya0_min = *Dep::minimum_abundance;
-      double ssm0 = CosmoBit_utils::entropy_density_SM(T);           // SM entropy density today in eV^3 (cf. footnote 24 of PDG2018-Astrophysical parameters)
-      double rho0_cdm = omega_cdm * rho0_crit_by_h2; // rho0_cdm = Omega_cdm * rho0_crit;
-      double rho0_min = Ya0_min * ma0 * ssm0;        // energy density of axions today in eV^4
+      double ssm0 = CosmoBit_utils::entropy_density_SM(2.7255);  // SM entropy density today in eV^3 (cf. footnote 24 of PDG2018-Astrophysical parameters)
+      double rho0_cdm = omega_cdm * rho0_crit_by_h2;             // rho0_cdm = Omega_cdm * rho0_crit;
+      double rho0_min = Ya0_min * ma0 * ssm0;                    // energy density of axions today in eV^4
       result = rho0_min / rho0_cdm;
     }
 
@@ -144,7 +207,7 @@ namespace Gambit
         err << "The choice of f0_thermal (" << f0_thermal;
         err << ") is in contradiction with the minimum dark matter fraction f0_min (";
         err << f0_min << ") produced via Primakoff processes.";
-        invalid_point().raise(err.str());
+        //invalid_point().raise(err.str());
       }
 
       // Compute the total fraction of DM in ALPs at production
@@ -236,8 +299,8 @@ namespace Gambit
       double max_iter = runOptions->getValueOrDef<int>(10,"max_iter"); // maximum number of iterations before error message is thrown if result not converged
       size_t grid_size = runOptions->getValueOrDef<int>(3000,"grid_size"); // number of (logarithmic) grid points in t
 
-      double t0 = runOptions->getValueOrDef<double>(1e4,"t_initial"); // initial time in seconds
-      double tf0 = runOptions->getValueOrDef<double>(1e12,"t_final"); // final time in seconds (for 0th iteration)
+      double t0 = runOptions->getValueOrDef<double>(1e3,"t_initial"); // initial time in seconds
+      double tf0 = runOptions->getValueOrDef<double>(2e12,"t_final"); // final time in seconds (for 0th iteration)
 
       // Get values for r and dNur at BBN
       double rBBN = *Param["r_BBN"];
@@ -281,7 +344,8 @@ namespace Gambit
         // Loop over all time steps in 't_grid' and update 'T_grid' accordingly
         for (size_t j = 0; j < grid_size; ++j)
         {
-          int status = gsl_odeiv2_driver_apply (d, &t, t_grid[j], T);
+          double tj = t_grid[j] >= t ? t_grid[j] : t;
+          int status = gsl_odeiv2_driver_apply (d, &t, tj, T);
           if (status != GSL_SUCCESS)
           {
             std::ostringstream err;

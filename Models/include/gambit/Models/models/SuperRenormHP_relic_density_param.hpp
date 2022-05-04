@@ -13,6 +13,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #ifndef __SuperRenormHP_relic_density_param_hpp__
 #define __SuperRenormHP_relic_density_param_hpp__
 
@@ -22,4 +24,4 @@
 #undef MODEL
 
 #endif
-
+*/

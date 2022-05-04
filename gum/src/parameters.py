@@ -218,29 +218,36 @@ def add_masses_to_params(parameters, bsm_particle_list, gambit_pdgs, add_higgs):
 ## SARAH ##
 ###########
 
-def sarah_part_to_gum_part(sarah_bsm):
+def sarah_part_to_gum_part(particles):
     """
     Converts all SARAH::SARAHParticle to GUM::Particle.
     """
     
+    sm_list = []
     bsm_list = []
     add_higgs = False
 
-    all_pdgs = [x.pdg() for x in sarah_bsm]
+    all_pdgs = [x.pdg() for x in particles]
     # If the SM higgs included but not a second Higgs, 
     # then we want a dependency on StandardModel_Higgs.
     # If it is a 2+HDM then we don't.
     if 25 in all_pdgs and 35 not in all_pdgs: 
         add_higgs = True
     
-    for i in range(len(sarah_bsm)):
-        part = sarah_bsm[i]            
-        bsm_list.append(Particle(part.name(), part.antiname(),
-                        part.spinX2(), part.pdg(), 
-                        part.mass(), part.chargeX3(), part.color(), 
-                        part.alt_name(), part.alt_mass(), part.tree_mass()))
+    for i in range(len(particles)):
+        part = particles[i]
+        if particles[i].SM():
+            sm_list.append(Particle(part.name(), part.antiname(),
+                            part.spinX2(), part.pdg(),
+                            part.mass(), part.chargeX3(), part.color(),
+                            part.alt_name(), part.alt_mass(), part.tree_mass()))
+        else:
+            bsm_list.append(Particle(part.name(), part.antiname(),
+                            part.spinX2(), part.pdg(),
+                            part.mass(), part.chargeX3(), part.color(),
+                            part.alt_name(), part.alt_mass(), part.tree_mass()))
     
-    return bsm_list, add_higgs
+    return sm_list, bsm_list, add_higgs
 
 def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
                  particles, boundary_conditions):
@@ -417,9 +424,12 @@ def sort_params_by_block(parameters, mixings):
         shape = par.shape
 
         matrix = False
+        vector = False
         if shape:
             if shape.startswith('m'): 
                 matrix = True
+            elif shape.startswith('v'):
+                vector = True
 
         try:
           mixings[par.name]
@@ -440,7 +450,13 @@ def sort_params_by_block(parameters, mixings):
                              "outputname": par.name }
             params_by_block[par.block] = newentry
 
-        # If it's not a matrix and is a new block, then create the entry
+        # If it's not a matrix, it could be a vector, and it will be a new block
+        elif vector:
+            newentry = { "vector": shape[1:],
+                         "outputname": par.name }
+            params_by_block[par.block] = newentry
+
+        # If it's not a matrix or a vector and is a new block, then create the entry
         elif par.block not in params_by_block:
             newentry = { par.index : par.name }
             params_by_block[par.block] = newentry

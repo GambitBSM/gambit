@@ -75,7 +75,7 @@ namespace Gambit
 
       // Get wimp mass from relevant spectrum
       if(ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
-        props.mass = Dep::MSSM_spectrum->get(Par::Pole_Mass, props.name);
+        props.mass = abs(Dep::MSSM_spectrum->get(Par::Pole_Mass, props.name));
       if(ModelInUse("ScalarSingletDM_Z2_running"))
         props.mass = Dep::ScalarSingletDM_Z2_spectrum->get(Par::Pole_Mass, props.name);
       if(ModelInUse("ScalarSingletDM_Z3_running"))
@@ -247,6 +247,8 @@ namespace Gambit
     //
     //////////////////////////////////////////////////////////////////////////
 
+// TODO: Temporarily disabled until project is ready
+/*
     /// Module function providing the branching ratio of the decay S -> e-_1 e+_1
     void DecDM_branching_el(double &result)
     {
@@ -288,7 +290,7 @@ namespace Gambit
         }
       }
     }
-
+*/
     //////////////////////////////////////////////////////////////////////////
     //
     //                          DarkBit Unit Test

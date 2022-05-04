@@ -17,12 +17,12 @@
 ///  \date 2017 Nov
 ///
 ///  \author Patrick Stoecker
-///          (stoecker@physik.rwth-aachen.de)
+///          (patrick.stoecker@kit.edu)
 ///  \date 2017 Nov
 ///  \date 2018 Jan,Feb, Mar
 ///  \date 2019 Jan, Feb, June
 ///  \date 2020 Nov
-///  \date 2021 Jan, Mar, Apr
+///  \date 2021 Jan, Mar, Apr, Sep
 ///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
@@ -109,7 +109,12 @@ START_MODULE
   /// minimal Freeze-in abundance of axion-like particles, produced via Primakoff processes
   #define CAPABILITY minimum_abundance
   START_CAPABILITY
-    #define FUNCTION minimum_abundance_ALP
+    #define FUNCTION minimum_abundance_ALP_analytical
+    START_FUNCTION(double)
+    ALLOW_MODELS(GeneralCosmoALP)
+    #undef FUNCTION
+
+    #define FUNCTION minimum_abundance_ALP_numerical
     START_FUNCTION(double)
     ALLOW_MODELS(GeneralCosmoALP)
     #undef FUNCTION
@@ -254,7 +259,7 @@ START_MODULE
     ALLOW_MODEL(StandardModel_SLHA2)
     ALLOW_MODEL_DEPENDENCE(etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
     MODEL_GROUP(group1, StandardModel_SLHA2)
-    MODEL_GROUP(gorup2, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
+    MODEL_GROUP(group2, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
     ALLOW_MODEL_COMBINATION(group1, group2)
     DEPENDENCY(Neff_SM, double)
     #undef FUNCTION
@@ -916,9 +921,26 @@ START_MODULE
     START_FUNCTION(BBN_container)
     DEPENDENCY(AlterBBN_Input, map_str_dbl)
     BACKEND_REQ(call_nucl_err, (alterbbn_tag), int, (map_str_dbl&,double*,double*))
+    BACKEND_REQ(call_nucl, (alterbbn_tag), int, (map_str_dbl&,double*))
     BACKEND_REQ(get_NNUC, (alterbbn_tag), size_t, ())
     BACKEND_REQ(get_abund_map_AlterBBN, (alterbbn_tag), map_str_int, ())
     FORCE_SAME_BACKEND(alterbbn_tag)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// First attempt to do something useful with the "Acropolis" backend
+  #define CAPABILITY BBN_abundances_photodissociation
+  START_CAPABILITY
+    #define FUNCTION BBN_abundances_photodissociation_decayingDM
+    START_FUNCTION(BBN_container)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
+    ALLOW_MODELS(DecayingDM_mixture)
+    MODEL_GROUP(cosmo,(LCDM, LCDM_theta, LCDM_zreio))
+    MODEL_GROUP(decay,(DecayingDM_mixture))
+    ALLOW_MODEL_COMBINATION(cosmo,decay)
+    DEPENDENCY(BBN_abundances, BBN_container)
+    BACKEND_REQ(set_input_params, (), void, (bool,int,int,double))
+    BACKEND_REQ(abundance_photodissociation_decay, (), void, (double*,double*,double*,double*,double,double,double,double,double,int))
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -928,6 +950,7 @@ START_MODULE
     #define FUNCTION extract_helium_abundance
     START_FUNCTION(double)
     DEPENDENCY(BBN_abundances, BBN_container)
+    MODEL_CONDITIONAL_DEPENDENCY(BBN_abundances_photodissociation, BBN_container, DecayingDM_mixture)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -939,6 +962,7 @@ START_MODULE
     #define FUNCTION compute_BBN_LogLike
     START_FUNCTION(double)
     DEPENDENCY(BBN_abundances, BBN_container)
+    MODEL_CONDITIONAL_DEPENDENCY(BBN_abundances_photodissociation, BBN_container, DecayingDM_mixture)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1027,7 +1051,8 @@ START_MODULE
 
   // --------------------
   // Modified gravity models - symmetron
-
+  // TODO: Temporarily disabled until project is ready
+/*
   // Obtain a value for phi(0) given mass and mu
   #define CAPABILITY phi0_interpolation
   START_CAPABILITY
@@ -1094,7 +1119,7 @@ START_MODULE
     ALLOW_MODELS(symmetron)
     #undef FUNCTION
   #undef CAPABILITY
-
+*/
 
 #undef REFERENCE
 #undef MODULE

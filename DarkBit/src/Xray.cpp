@@ -18,6 +18,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_errno.h>
@@ -40,8 +42,7 @@ namespace Gambit
     //      Auxillary functions and classes for interpolation      //
     /////////////////////////////////////////////////////////////////
 
-    /*! \brief Generic one-dimensional integration container for linear interpolation and cubic splines.
-     */
+    // \brief Generic one-dimensional integration container for linear interpolation and cubic splines.
 
     // XrayInterpolator class: Provides a general 1-D interpolation container based on the gsl library.
     // Can be declared static for efficiency & easy one-time initialisation of interpolating functions.
@@ -477,7 +478,7 @@ namespace Gambit
       switch(m_experimentMap[m_experiment])
       {
         case 1 :
-          /* return 4.8e-8*pow(E/100e3,-1.55) + 6.6e-8*exp(-(E-50e3)/7.5e3); */
+          // return 4.8e-8*pow(E/100e3,-1.55) + 6.6e-8*exp(-(E-50e3)/7.5e3);
           return 1.6e-7*exp(-(E-50e3)/7.7e3) + 0.92e-7*pow(E/100e3, -1.79) + 0.34e-7*pow(E/100e3, -0.95)*exp(-(E-100e3)/3411e3) + 67.3e-7/E;
           break;
 
@@ -531,7 +532,7 @@ namespace Gambit
       switch(m_experimentMap[m_experiment])
       {
         case 1 :
-          /* return sqrt(pow(pow(E/100e3,-1.55),2)*pow(0.6e-5,2) + pow(4.8e-8*1.55*pow(E/100e3,-2.55),2)*pow(0.25,2) + exp(-2*(E-50e3)/7.5e3)*pow(0.5e-8, 2.) + pow(6.6e-8, 2.)*pow((E-50e3)/pow(7.5e3, 2.), 2.)*exp(-2*(E-50e3)/7.5e3)*pow(1e3, 2.)); */
+          // return sqrt(pow(pow(E/100e3,-1.55),2)*pow(0.6e-5,2) + pow(4.8e-8*1.55*pow(E/100e3,-2.55),2)*pow(0.25,2) + exp(-2*(E-50e3)/7.5e3)*pow(0.5e-8, 2.) + pow(6.6e-8, 2.)*pow((E-50e3)/pow(7.5e3, 2.), 2.)*exp(-2*(E-50e3)/7.5e3)*pow(1e3, 2.));
           return sqrt( pow(14.6e-4/E, 2) + pow(1.6e-7*(E-50e3)/7.7e3, 2) * pow(0.7e3, 2) * exp(-2.*(E-50e3)/7.7e3) + pow(0.4e-7, 2) * exp(-2.*(E-50e3)/7.7e3) + pow(0.34e-7*pow(E/100e3, -0.95), 2) * pow((E-100e3)/3411e3, 2) * exp(-(E-100e3)/3411e3) * pow(2371e3, 2));
           break;
 
@@ -1140,7 +1141,7 @@ namespace Gambit
       for ( size_t i = 0; i<r.size(); i++ )
       {
         rho.push_back(profile->bind("r")->eval(r[i]));
-        /* rho.push_back(pow(profile->bind("r")->eval(r[i]), 2)); */
+        // rho.push_back(pow(profile->bind("r")->eval(r[i]), 2));
       }
 
       std::vector<double> phi_pre;
@@ -1162,7 +1163,7 @@ namespace Gambit
 
       result = J;
 
-      /* std::cout << "J = " << result/r_sun/rho_sun << std::endl; */
+      // std::cout << "J = " << result/r_sun/rho_sun << std::endl;
     }
 
     void calc_lnL_HEAO(double &result)
@@ -1218,3 +1219,4 @@ namespace Gambit
     }
   }
 }
+*/

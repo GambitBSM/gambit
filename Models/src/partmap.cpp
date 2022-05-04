@@ -323,7 +323,7 @@ namespace Gambit
     /// @{
     bool partmap::has_spinx2(std::pair<int, int> pdgpr) const
     {
-      return has_spinx2(pdg_pair(long_name(pdgpr)));
+      return has_spinx2(long_name(pdgpr));
     }    
     bool partmap::has_spinx2(int pdg_code, int context) const
     {
@@ -395,7 +395,7 @@ namespace Gambit
     /// @{
     bool partmap::has_chargex3(std::pair<int, int> pdgpr) const
     {
-      return has_chargex3(pdg_pair(long_name(pdgpr)));
+      return has_chargex3(long_name(pdgpr));
     }    
     bool partmap::has_chargex3(int pdg_code, int context) const
     {
@@ -467,7 +467,7 @@ namespace Gambit
     /// @{
     bool partmap::has_color(std::pair<int, int> pdgpr) const
     {
-      return has_color(pdg_pair(long_name(pdgpr)));
+      return has_color(long_name(pdgpr));
     }    
     bool partmap::has_color(int pdg_code, int context) const
     {

@@ -58,7 +58,7 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"~S","~S"}] = std::vector< std::vector<str> >{ {"d'", "D'"}, {"u", "U"}, {"B", "b"}, {"h", "h"}, {"e", "E"}, {"Z", "Z"}, {"c", "C"}, {"s'", "S'"}, {"m", "M"}, {"t", "T"}, {"W+", "W-"}, {"ta+", "ta-"} };
       model = "ScalarSingletDM_Z2";
     }
-    
+
     if (ModelInUse("DMEFT"))
     {
       BEpath = backendDir + "/../models/DMEFT";
@@ -123,13 +123,13 @@ BE_INI_FUNCTION
   {
    // Obtain model contents
    static const SpectrumContents::DMEFT DMEFT_contents;
-   
+
    // Obtain list of all parameters within model
    static const std::vector<SpectrumParameter> DMEFT_params = DMEFT_contents.all_parameters();
-   
+
    // Obtain spectrum information to pass to CalcHEP
    const Spectrum& spec = *Dep::DMEFT_spectrum;
-   
+
    Assign_All_Values(spec, DMEFT_params);
   }
 
@@ -172,8 +172,8 @@ BE_NAMESPACE
     numout* cc = getMEcode(twidth, UG, process, excludeVirtual, excludeOut, libname);
 
     // Release all memory allocated by "new" before returning
-    delete process;
-    delete libname;
+    delete[] process;
+    delete[] libname;
 
     return cc;
   }
@@ -261,7 +261,8 @@ BE_NAMESPACE
         // Scalar case
         if (it->shape().size()==1 and it->shape()[0] == 1)
         {
-          char *chepname = const_cast<char*> ( it->name().c_str() );
+          str name = it->name();
+          char *chepname = const_cast<char*> ( name.c_str() );
           Assign_Value(chepname, HE.get(it->tag(), it->name()));
         }
         // Vector case
@@ -430,10 +431,10 @@ BE_NAMESPACE
     double prefactor = p/(8*pi*Msquared);
 
     // Release all memory allocated by "new" before returning
-    delete libname;
-    delete inbound;
-    delete outbound_1;
-    delete outbound_2;
+    delete[] libname;
+    delete[] inbound;
+    delete[] outbound_1;
+    delete[] outbound_2;
 
     // Return partial width
     return prefactor*matElement;
@@ -513,11 +514,11 @@ BE_NAMESPACE
     numout* cc = getMEcode(twidth, UG, process, excludeVirtual, excludeOut, libname);
 
     // Release all memory allocated by "new" before returning
-    delete libname;
-    delete inbound_1;
-    delete inbound_2;
-    delete outbound_1;
-    delete outbound_2;
+    delete[] libname;
+    delete[] inbound_1;
+    delete[] inbound_2;
+    delete[] outbound_1;
+    delete[] outbound_2;
 
     // Export numerical values of parameters to link to dynamical code
     err=passParameters(cc);

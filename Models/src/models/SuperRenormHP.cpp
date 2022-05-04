@@ -14,13 +14,14 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #include <cmath>
 
 #include "gambit/Models/model_macros.hpp"
 #include "gambit/Models/model_helpers.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
-#include "gambit/DarkBit/DarkBit_types.hpp"
 
 #include "gambit/Models/models/SuperRenormHP.hpp"
 
@@ -62,3 +63,4 @@ void MODEL_NAMESPACE::SuperRenormHP_to_DecayingDM_mixture (const ModelParameters
 }
 #undef FRIEND
 #undef MODEL
+*/

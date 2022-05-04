@@ -13,6 +13,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #ifndef __SuperRenormHP_solar_neutrino_hpp__
 #define __SuperRenormHP_solar_neutrino_hpp__
 
@@ -23,3 +25,4 @@
 #undef MODEL
 
 #endif
+*/

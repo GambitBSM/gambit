@@ -26,6 +26,10 @@
 ///          (pat.scott@uq.edu.au)
 ///  \date 2020 Apr
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2022 Jan
+///
 ///  *********************************************
 
 #include <sstream>
@@ -111,6 +115,16 @@ BE_NAMESPACE
       for (size_t i=0;i<(NNUC+1)*(NNUC+1);i++) cov_ratioH[i] = prev_cov_ratioH[i];
     }
     return nucl_err_res;
+  }
+
+  /// calls the AlterBBN routine nucl_err with the filled relicparam structure. This will fill the array ratioH with
+  /// all computed element abundances, but without their errors & covariances
+  int call_nucl(map_str_dbl &AlterBBN_input, double *ratioH)
+  {
+    AlterBBN_2_2::relicparam input_relicparam;
+    Init_cosmomodel(&input_relicparam); // initialise values of relicparam structure to their defaults
+    fill_cosmomodel(&input_relicparam, AlterBBN_input); // fill strucutre with values contained in AlerBBN_input map which is filled in CosmoBit.ccp for different models
+    return !nucl(&input_relicparam, ratioH); // nucl returns 1 if there is an error and 0 otherwise, the opposite of nucl_err, so negate the return value
   }
 
   /// return the NNUC -- global parameter of AlterBBN specifying the number of

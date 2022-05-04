@@ -1,3 +1,5 @@
+//   GAMBIT: Global and Modular BSM Inference Tool
+//   *********************************************
 ///  \file
 ///
 ///  Super Renormalizable Higgs Portal DM specific module functions for DarkBit
@@ -12,6 +14,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #include <algorithm>
 #include <cmath>
 #include <math.h>
@@ -53,8 +57,8 @@ namespace Gambit
     //                                                                //
     ////////////////////////////////////////////////////////////////////
 
-    /*! \brief Supporting classes and functions for the Higgs Portal DM module.
-    */
+    // \brief Supporting classes and functions for the Higgs Portal DM module.
+    
 
     //------------- Numerical constants and other useful things -------------//
 
@@ -83,7 +87,7 @@ namespace Gambit
 
     // cosmological constants
     const double s0(2891); // current entropy density [1/cm³]
-    /* const double rhoC(4.84e3); // current critical density [eV/cm³] */
+    // const double rhoC(4.84e3); // current critical density [eV/cm³]
 
     // astrophysical constants
     const double r0(26.2225e21); // Sun's distance from the galactic center [cm]
@@ -443,7 +447,7 @@ namespace Gambit
       addParticle("ubar_2", SMI.mCmC,1) // mc(mc)^MS-bar, not pole mass
       addParticle("d_2"   , SMI.mS,  1) // ms(2 GeV)^MS-bar, not pole mass
       addParticle("dbar_2", SMI.mS,  1) // ms(2 GeV)^MS-bar, not pole mass
-      /* double alpha_s = SMI.alphaS;      // alpha_s(mZ)^MSbar */
+      // double alpha_s = SMI.alphaS;      // alpha_s(mZ)^MSbar
 
       // Masses for neutrino flavour eigenstates. Set to zero.
       // (presently not required)
@@ -517,7 +521,7 @@ namespace Gambit
       catalog.processList.push_back(process_dec);
 
       // Validate
-      /* catalog.validate(); */
+      // catalog.validate();
 
       result = catalog;
     } // function TH_ProcessCatalog_SuperRenormHP
@@ -789,3 +793,4 @@ namespace Gambit
 
   }
 }
+*/

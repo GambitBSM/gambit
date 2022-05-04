@@ -17,6 +17,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #include "gambit/Elements/spectrum_helpers.hpp"
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 
@@ -34,3 +36,4 @@ namespace Gambit
   }
 
 }
+*/

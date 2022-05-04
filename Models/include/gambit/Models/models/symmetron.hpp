@@ -14,6 +14,8 @@
 ///  *********************************************
 
 
+// TODO: Temporarily disabled until project is ready
+/*
 #ifndef __symmetron_hpp__
 #define __symmetron_hpp__
 
@@ -23,4 +25,5 @@
   DEFINEPARS(mass, mu, vval, phi_init)
 #undef MODEL
 
-#endif /* defined(__symmetron_hpp__) */
+#endif // defined(__symmetron_hpp__)
+*/

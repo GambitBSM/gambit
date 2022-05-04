@@ -101,12 +101,10 @@ namespace Gambit
 
     void recursiveImport(const YAML::Node& node, const std::string& filename)
     {
-      int import_counter = 0;
       int last_import_counter = 0;
       for ( int i = 0; i < 10; ++i)
       {
         last_import_counter = importRound(node,filename);
-        import_counter += last_import_counter;
       }
       if (last_import_counter > 0)
       {

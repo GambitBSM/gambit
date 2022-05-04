@@ -132,7 +132,7 @@ namespace Gambit
                   const SLHAea::Coll* slhaea=nullptr, std::ostream& os=std::cout)
         {
           // Settings acquired externally (ex from a gambit yaml file)
-          for(const auto command : externalSettings) _pythiaSettings.push_back(command);
+          for(const str& command : externalSettings) _pythiaSettings.push_back(command);
 
           if (!_pythiaBase)
           {
@@ -140,7 +140,7 @@ namespace Gambit
           }
 
           // Pass all settings to _pythiaBase
-          for(const auto command : _pythiaSettings) _pythiaBase->readString(command);
+          for(const str& command : _pythiaSettings) _pythiaBase->readString(command);
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;
@@ -150,7 +150,7 @@ namespace Gambit
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
           // Read command again to get SM decay table change from yaml file
-          for(const auto command : _pythiaSettings)
+          for(const str& command : _pythiaSettings)
           {
             _pythiaInstance->readString(command);
           }
@@ -166,7 +166,7 @@ namespace Gambit
                              const SLHAea::Coll* slhaea=nullptr, std::ostream& os=std::cout)
         {
           // Settings acquired externally (for example, from a gambit yaml file)
-          for(const auto command : externalSettings) _pythiaSettings.push_back(command);
+          for(const str& command : externalSettings) _pythiaSettings.push_back(command);
 
           if (!_pythiaBase)
           {
@@ -174,7 +174,7 @@ namespace Gambit
           }
 
           // Pass all settings to _pythiaBase
-          for(const auto command : _pythiaSettings) _pythiaBase->readString(command);
+          for(const str& command : _pythiaSettings) _pythiaBase->readString(command);
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;

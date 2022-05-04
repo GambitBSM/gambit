@@ -29,7 +29,8 @@
   //                 f0_thermal [dimensionless], T_R [MeV]
   DEFINEPARS(gagg,gaee,gaN,fa,ma0,Tchi,beta,thetai)
   DEFINEPARS(f0_thermal, T_R)
-  
+  MAP_TO_CAPABILITY(gagg,gagg)
+
   // Friendship with "DecayingDM_photon" (Mapping is defined in Axions.cpp)
   // (Energy injection into CMB)
   INTERPRET_AS_X_FUNCTION(DecayingDM_photon,GeneralCosmoALP_to_DecayingDM_photon)
@@ -60,6 +61,17 @@
   DEFINEPARS(gagg,gaee,gaN,fa,ma0,Tchi,beta,thetai)
   // Translation to parent, all defined in Axions.cpp:
   INTERPRET_AS_PARENT_FUNCTION(GeneralALP_to_GeneralCosmoALP)
+#undef PARENT
+#undef MODEL
+
+// General Cosmo ALP model with only couplings to photons and parametrized with lifetime
+#define MODEL CosmoALP_gg_tau
+#define PARENT GeneralCosmoALP
+  START_MODEL
+  DEFINEPARS(tau,fa,ma0,Tchi,beta,thetai)
+  DEFINEPARS(f0_thermal, T_R)
+  // Translation to parent, all defined in Axions.cpp:
+  INTERPRET_AS_PARENT_FUNCTION(CosmoALP_gg_tau_to_GeneralCosmoALP)
 #undef PARENT
 #undef MODEL
 

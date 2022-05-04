@@ -306,12 +306,14 @@ START_MODULE
         DEPENDENCY(T_cmb, double)
     #undef FUNCTION
 
+// TODO: Temporarily disabled until project is ready
+/*
     #define FUNCTION RD_oh2_SuperRenormHP
       START_FUNCTION(double)
         DEPENDENCY(DM_relic_density, double)
         ALLOW_MODEL(SuperRenormHP)
     #undef FUNCTION
-
+*/
   #undef CAPABILITY
 
 
@@ -873,12 +875,16 @@ START_MODULE
       START_FUNCTION(int)
       DEPENDENCY(antiproton_Yield, daFunk::Funk)
     #undef FUNCTION
+
+// TODO: Temporarily disabled until project is ready
+/*
     #define FUNCTION TH_ProcessCatalog_SuperRenormHP
       START_FUNCTION(TH_ProcessCatalog)
       DEPENDENCY(decay_rates, DecayTable)
       DEPENDENCY(SuperRenormHP_spectrum, Spectrum)
       ALLOW_MODEL(SuperRenormHP)
     #undef FUNCTION
+*/
   #undef CAPABILITY
 
 
@@ -923,6 +929,8 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+// TODO: Temporarily disabled until project is ready
+/*
   #define CAPABILITY lnL_Xray_WISPy
   START_CAPABILITY
     #define FUNCTION compute_lnL_Xray_WISPy
@@ -958,6 +966,7 @@ START_MODULE
     ALLOW_MODEL(DecayingDM_mixture)
     #undef FUNCTION
   #undef CAPABILITY
+*/
 
   #define CAPABILITY lnL_FermiLATdwarfs
   START_CAPABILITY
@@ -1920,7 +1929,11 @@ START_MODULE
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_ScalarSingletDM
     START_FUNCTION(std::string)
-    ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running, SuperRenormHP)
+    ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3, ScalarSingletDM_Z3_running)
+// TODO: Temporarily disabled until project is ready
+/*
+    ALLOW_MODEL(SuperRenormHP)
+*/
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_VectorSingletDM
     START_FUNCTION(std::string)
@@ -2239,6 +2252,9 @@ START_MODULE
 
   // Super Renormalizable Higgs Portal DM relative observables and likelihoods -----------------
 
+// TODO: Temporarily disabled until project is ready
+/*
+
   #define CAPABILITY DM_relic_density
   START_CAPABILITY
     #define FUNCTION SuperRenormHP_relic_density
@@ -2429,7 +2445,10 @@ START_MODULE
     DEPENDENCY(SM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
+*/
 
+// TODO: Temporarily disabled until project is ready
+/*
   #define CAPABILITY New_Force_Sushkov2011
   START_CAPABILITY
     #define FUNCTION New_Force_Sushkov2011_SuperRenormHP
@@ -2437,6 +2456,6 @@ START_MODULE
     ALLOW_MODELS(ModifiedGravityYukawa, symmetron)
     #undef FUNCTION
   #undef CAPABILITY
-
+*/
 #undef REFERENCE
 #undef MODULE

@@ -203,6 +203,7 @@ namespace Gambit
   /// Add a new module to modules list
   void gambit_core::registerModule(str module, str ref)
   {
+    modules.insert(module);
     if(ref == "REFERENCE")
       module_citation_keys[module] = "";
     else

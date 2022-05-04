@@ -295,6 +295,7 @@ BE_INI_FUNCTION
     }
 
     static bool first_run = true;
+    static bool last_point_invalid = false;
 
     if(first_run)
     {
@@ -315,6 +316,9 @@ BE_INI_FUNCTION
     // .. if so there is no need to recompute the results. If not, clean structure, re-fill input & re-compute
     if(not equal or first_run)
     {
+      // If the computation starts, then it doesn't matter that the last point was invalid
+      last_point_invalid = false;
+
       // Clean CLASS (the equivalent of the struct_free() in the `main` of CLASS -- don't want a memory leak, do we
       cosmo.attr("struct_cleanup")();
 
@@ -339,6 +343,7 @@ BE_INI_FUNCTION
       {
         // Try to run classy
         cosmo.attr("compute")();
+
         // reset counter when no exception is thrown.
         error_counter = 0;
         logger() << LogTags::info << "[classy_"<< STRINGIFY(VERSION) <<"] \"cosmo.compute\" was successful" << EOM;
@@ -366,6 +371,7 @@ BE_INI_FUNCTION
           errMssg << rawErrMessage;
           if ( max_errors < 0 || error_counter <= max_errors )
           {
+            last_point_invalid = true;
             backend_warning().raise(LOCAL_INFO,errMssg.str());
             invalid_point().raise(errMssg.str());
           }
@@ -379,6 +385,7 @@ BE_INI_FUNCTION
         // any other error (which shouldn't occur) gets also caught as invalid point.
         else
         {
+          last_point_invalid = true;
           errMssg << "Caught an unspecified error:"<<endl;
           errMssg << rawErrMessage;
           cout << "An unspecified error occurred during compute() in classy_"<< STRINGIFY(VERSION) <<":\n";
@@ -395,6 +402,12 @@ BE_INI_FUNCTION
     else
     {
       logger() << LogTags::info << "[classy_"<< STRINGIFY(VERSION) <<"] \"cosmo.compute\" was skipped, input was identical to previously computed point" << EOM;
+      if(last_point_invalid)
+      {
+        std::ostringstream errMssg;
+        errMssg << "Last computed point was deemed invalid, so shall this one be. " << std::endl;
+        invalid_point().raise(errMssg.str());
+      }
       // CLASS did not recompute -> save this information in cosmo container, so MontePython
       // (and potentially other backends) has access to this information and can skip
       // their computations as well

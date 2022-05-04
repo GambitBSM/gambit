@@ -17,6 +17,8 @@
 ///
 ///  *********************************************
 
+// TODO: Temporarily disabled until project is ready
+/*
 #include <string>
 #include <sstream>
 
@@ -72,4 +74,4 @@ namespace Gambit
 
   } // end namespace SpecBit
 } // end namespace Gambit
-
+*/

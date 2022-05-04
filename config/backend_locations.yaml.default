@@ -10,6 +10,9 @@
 # absolute, those beginning with a period will
 # be interpreted as relative to the GAMBIT dir.
 
+Acropolis:
+  1.2.1:       ./Backends/installed/acropolis/1.2.1/acropolis
+
 AlterBBN:
   2.2:         ./Backends/installed/alterbbn/2.2/libbbn.so
 

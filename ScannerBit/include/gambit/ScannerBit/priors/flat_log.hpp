@@ -214,7 +214,7 @@ namespace Gambit
 
             // Transformation from unit interval to specified range
             // (need to use vectors to be compatible with BasePrior virtual function)
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string,double> &output) const
+            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string,double> &output) const override
             {
                 output[myparameter] = (T::inv(unitpars[0]*(upper-lower) + lower)-shift_out)/scale_out;
             }
@@ -227,7 +227,7 @@ namespace Gambit
                 return {u};
             }
 
-            double operator()(const std::vector<double> &vec) const {return T::prior(vec[0]*scale+shift)*scale;}
+            double operator()(const std::vector<double> &vec) const override {return T::prior(vec[0]*scale+shift)*scale;}
         };
 
         LOAD_PRIOR(log, RangePrior1D<logprior>)

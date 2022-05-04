@@ -233,7 +233,7 @@ namespace Gambit
       const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
       // Pick the correct spectrum and specify the Higgses
-      dep_bucket<Spectrum>* spectrum_dependency;  
+      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       std::vector<str> Higgses;
 
       if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ")) 

@@ -43,8 +43,8 @@ input_files   = [
 include_paths = [
                   '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include',
                   '../../../contrib/slhaea/include',
-                  '../../../contrib/HepMC3-3.1.1/local/include',
-                  '../../../contrib/HepMC3-3.1.1/interfaces/pythia8/include'
+                  '../../../contrib/HepMC3-3.2.5/local/include',
+                  '../../../contrib/HepMC3-3.2.5/interfaces/pythia8/include'
                 ]
 base_paths    = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/']
 
@@ -84,7 +84,7 @@ load_classes = [
     'Pythia8::SusyLesHouches',
     'Pythia8::UserHooks',
     'Pythia8::Vec4',
-    # 
+    #
     'Pythia8::GAMBIT_hepmc_writer'
 ]
 
