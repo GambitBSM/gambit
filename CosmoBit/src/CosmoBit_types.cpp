@@ -11,7 +11,7 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Patrick Stoecker
-///          (patrick.stoecker@kit.edu)
+///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2017 Nov
 ///  \date 2021 Sep
 ///

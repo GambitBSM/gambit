@@ -78,7 +78,7 @@
 #  \data 2018 Jun
 #
 #  \author Patrick Stöcker
-#          (patrick.stoecker@kit.edu)
+#          (stoecker@physik.rwth-aachen.de)
 #  \date 2019 Aug
 #  \date 2021 Sep
 #

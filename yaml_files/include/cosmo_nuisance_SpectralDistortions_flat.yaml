@@ -3,7 +3,7 @@
 ##
 ## Flat priors on all parameters except 'sd_y_reio_nuisance' (fixed to 1.77e-6)
 ##
-## Patrick Stoecker <patrick.stoecker@kit.edu>
+## Patrick Stoecker <stoecker@physik.rwth-aachen.de>
 ## 2021, Oct
 ##########################################################################
 

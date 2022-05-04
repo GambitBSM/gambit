@@ -16,7 +16,7 @@
 ///  \date 2018 Aug - Sep
 ///
 ///  \author Patrick Stoecker
-///          (patrick.stoecker@kit.edu)
+///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2017 Nov
 ///  \date 2018 Jan - May
 ///  \date 2019 Jan, Feb, June, Nov
