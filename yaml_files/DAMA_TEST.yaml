@@ -14,34 +14,57 @@ Parameters:
      mH: 125.09
 
   # Direct detection
-  nuclear_params_ChPT_sigmapiN:
-    sigmapiN     : 0.050
-    Bc5m         : -0.51e-3
-    gA           : 1.2723
-    mG           : 0.848
-    sigmas       : 0.0413
-    DeltauDeltad : 0.521
-    Deltas       : -0.031
-    B0mu         : 0.0061
-    B0md         : 0.0133
-    B0ms         : 0.268
-    # Nuclear dipole moments
-    mup          : 2.793
-    mun          : -1.913
-    mus          : -0.064
-    gTu          : 0.794
-    gTd          : -0.204
-    gTs          : 3.2e-4
-    BT10up       : 3.0
-    BT10dp       : 0.24
-    BT10s        : 0.0
-    rs2          : -0.115
+  # nuclear_params_ChPT_sigmapiN:
+  #   sigmapiN     : 0.050
+  #   Bc5m         : -0.51e-3
+  #   gA           : 1.2723
+  #   mG           : 0.848
+  #   sigmas       : 0.0413
+  #   DeltauDeltad : 0.521
+  #   Deltas       : -0.031
+  #   B0mu         : 0.0061
+  #   B0md         : 0.0133
+  #   B0ms         : 0.268
+  #   # Nuclear dipole moments
+  #   mup          : 2.793
+  #   mun          : -1.913
+  #   mus          : -0.064
+  #   gTu          : 0.794
+  #   gTd          : -0.204
+  #   gTs          : 3.2e-4
+  #   BT10up       : 3.0
+  #   BT10dp       : 0.24
+  #   BT10s        : 0.0
+  #   rs2          : -0.115
+
+  nuclear_params_ChPT:
+    B0md: 0.00133
+    B0ms: 0.268
+    B0mu: 0.0061
+    BT10dp: 0.24
+    BT10s: 0.0
+    BT10up: 3.0
+    DeltauDeltad: 0.521 # equals Deltadp + Deltaup in BF file
+    Deltas: -0.031
+    gA: 1.2723
+    gTd: -0.204
+    gTs: 0.00032
+    gTu: 0.794
+    mG: 0.848
+    mun: -1.913 # an = mun
+    mup: 2.793 # ap = mup - 1
+    mus: -0.064  # equals F2sp in BF file
+    sigmadn: 0.036
+    sigmadp: 0.032
+    sigmas: 0.0413
+    sigmaun: 0.015
+    sigmaup: 0.017
+    rs2: -0.115 # NOT in BF file
 
   DMEFT:
     # DM mass
     mchi:
       range: [5, 100]
-      prior_type: log
     # Scale of new physics
     Lambda: 1000.
     # EM interactions (only turn on at loop-level -- not concerned with these)
@@ -49,8 +72,9 @@ Parameters:
     C52: 0.
     # Dim 6 -- qq chi chi bilinears
     # vector vector
-    C61: 0.
-    # #  range: [-12.56637, 12.56637]
+    C61:
+      range: [3.162e-2, 1.58]
+      prior_type: log
     # axial-vector vector
     C62: 0.
     #  range: [-12.56637, 12.56637]
@@ -92,16 +116,14 @@ Parameters:
     mtrunIN: 162.9
 
   DAMA_xsec:
-    sigmap_SI:
-      range: [1e-6, 1e-3]
-      prior_type: log
+    sigmap_SI: 0
     sigmap_SD: 0
     sigman_SD: 0
 
 
   # NFW with standard & central values for prelims
   Halo_gNFW_rho0:
-    rho0: 0.3
+    rho0: 0.4
     v0: 235.0
     vesc: 550.0
     vrot: 235.0
@@ -152,7 +174,7 @@ Scanner:
 ObsLikes:
 
   # Direct detection
-  - capability: DAMA_LogLikelihood_mod_xsec_test
+  - capability: DAMA_LogLikelihood_mod
     purpose:    LogLike
 
 Rules:
