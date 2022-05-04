@@ -255,7 +255,7 @@ KeyValues:
 
   debug: false
 
-  default_output_path: "runs/CosmoALP_bayesian"
+  default_output_path: "runs/CosmoALP_bayesian_lcdm"
 
   likelihood:
     model_invalid_for_lnlike_below: -1e100
