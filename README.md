@@ -65,7 +65,8 @@ GAMBIT is built using the CMake system. The following libraries and packages mus
 
 COMPULSORY:
 
- - g++/gfortran 5.1 or greater, or icpc/ifort 15.0.2 or greater
+ - gcc >= 5.1 / llvm clang >= 10 / AppleClang >= 13 / icc >= 15.0.2
+ - gfortran >= 5.1 / ifort >=15.0.2
  - Cmake 2.8.12 or greater
  - Python 2.7 or greater (Python 3 is supported)
  - Python modules: yaml, future, os, re, datetime, sys, getopt, shutil and itertools.
@@ -91,12 +92,12 @@ OPTIONAL:
     - Boost.Filesystem
     - Boost.System
  - Python modules:
-    - h5py (for use of the hdf5 printer)
     - Cython (required for using the classy backend)
     - scipy (required for using the MontePython or DarkAges backends)
     - numpy 1.12 or greater (required for using the classy or DarkAges backends)
     - dill (required for using the DarkAges backend)
     - pandas, numexpr (required for using the MontePython backend)
+    - h5py (required to use hdf5 utilities located in gambit/Printers/scripts)
 
 Memory requirements
 --
@@ -109,7 +110,7 @@ Building with optimisation enabled (e.g. using -DCMAKE_BUILD_TYPE=Release) may r
 Building GAMBIT
 --
 
-The basic build instructions are below.
+The basic build instructions are below.  GAMBIT supports Linux and Mac OSX.  On Windows, you can run it thorugh the Linux subsystem or Cygwin.  A full walkthrough of how to install all dependencies and build GAMBIT with AppleClang on OSX can be found in the file README_OSX.md.
 
 Note that cmake will fail to find some dependencies on some systems without guidance. More information is provided in the Core paper. For a list of commonly used cmake options, see the file CMAKE_FLAGS.md. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
 

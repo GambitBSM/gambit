@@ -45,9 +45,10 @@ def banner() :
          "\n"\
          " Documentation and details for GUM\n"\
          " can be found at\n"\
-         "   S. Bloor et al, arXiv:2107.00030\n"\
+         "   S. Bloor et al, arXiv:2107.00030,\n"\
+         "   Eur. Phys. J. C 81 (2021), 1103\n"\
          "\n"\
-         " *********************************\n"\
+         " ***********************************\n"\
          "\n"
 
 
@@ -56,8 +57,8 @@ class Particle:
     Particle class for internal use in GUM.
     """
 
-    def __init__(self, name, antiname, spinx2, pdg_code, mass_name, 
-                 chargex3, color, 
+    def __init__(self, name, antiname, spinx2, pdg_code, mass_name,
+                 chargex3, color,
                  alt_name = None, alt_mass_name = None, tree_mass = None):
 
         self.name = name
@@ -95,11 +96,11 @@ def pdg_to_particle(pdg_code, pdg_dict):
     Returns the particle name from the PDG code, from either
     a GAMBIT or CalcHEP dict, wrapped in quotation marks.
     """
-    
+
     for name, pdg_val in iteritems(pdg_dict) :
         if pdg_code == pdg_val:
             return name
-        
+
     # If not found -> return None & deal with this on case-by-case
     return None
 
@@ -131,12 +132,12 @@ class SpectrumParameter:
     in SpecBit and in Models.
     """
 
-    def __init__(self, name, tag, block=None, index=1, 
+    def __init__(self, name, tag, block=None, index=1,
                  shape=None, fullname=None,
                  sm=False, gb_input=None,
                  alt_name=None, bcs=None,
-                 is_output=False, is_real=False, 
-                 fullparticlename = None, 
+                 is_output=False, is_real=False,
+                 fullparticlename = None,
                  default = 0.1):
 
         self.name = name
@@ -163,37 +164,37 @@ class SpectrumParameter:
         else:
             self.alt_name = alt_name
         self.bcs = bcs
-          
+
 class BackendReq:
     """
     Backend requirement class for rollcall files. Assumes default
-    behaviour is a BE_VARIABLE requiring no arguments. 
+    behaviour is a BE_VARIABLE requiring no arguments.
     """
-    
-    def __init__(self, capability, cpptype, tags=[], variable=True, 
+
+    def __init__(self, capability, cpptype, tags=[], variable=True,
                  args=[]):
         self.capability = capability
         self.cpptype = cpptype
         self.args = args
         self.tags = tags
-        
+
         if variable:
             self.var = True
             self.args = None
         elif not variable:
             self.var = False
             self.args = args
-        
+
 
 class Dependency:
     """
     Dependency class used for rollcall files.
     """
-    
+
     def __init__(self, name, cpptype):
         self.name = name
         self.cpptype = cpptype
-      
+
 # Block & enable printing
 def blockPrint():
     sys.stdout = open(os.devnull, 'w')

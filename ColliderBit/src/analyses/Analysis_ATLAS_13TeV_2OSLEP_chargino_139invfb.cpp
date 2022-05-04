@@ -210,10 +210,10 @@ namespace Gambit
         }
 
         // Scalar sum of the transverse momenta from all the reconstructed hard objects
-        double HT = 0.0;
-        for (const HEPUtils::Jet* j : candJets) HT += j->pT();
-        for (const HEPUtils::Particle* e : electrons) HT += e->pT();
-        for (const HEPUtils::Particle* mu : muons) HT += mu->pT();
+        //double HT = 0.0; (Unused)
+        //for (const HEPUtils::Jet* j : candJets) HT += j->pT(); (Unused)
+        //for (const HEPUtils::Particle* e : electrons) HT += e->pT(); (Unused)
+        //for (const HEPUtils::Particle* mu : muons) HT += mu->pT(); (Unused)
 
         // Overlap removal
         JetLeptonOverlapRemoval(candJets,electrons,0.2);
