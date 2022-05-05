@@ -115,8 +115,8 @@ Printer:
 
   printer: cout
 #  options:
-#    output_file: "DAMA_TEST.hdf5"
-#    group: "/DAMA_TEST"
+#    output_file: "DMEFT_dirdet_DAMA_BF.hdf5"
+#    group: "/DMEFT_dirdet_DAMA_BF"
 #    buffer_length: 10
 #    delete_file_on_restart: true
 
@@ -180,7 +180,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/DAMA_TEST_BF/"
+  default_output_path: "runs/DMEFT_dirdet_DAMA_BF/"
 
   debug: true
 
