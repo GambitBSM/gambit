@@ -156,7 +156,7 @@ BE_VARIABLE(AoY_u, Farray_Fcomplex16_1_3_1_3, ("__model_data_MOD_aoy_u", "model_
 BE_VARIABLE(At_save, Fcomplex16, ("__model_data_MOD_at_save", "model_data_mp_at_save_"), "SPheno_internal")
 BE_VARIABLE(Ab_save, Fcomplex16, ("__model_data_MOD_ab_save", "model_data_mp_ab_save_"), "SPheno_internal")
 BE_VARIABLE(Atau_save, Fcomplex16, ("__model_data_MOD_ab_save", "model_data_mp_ab_save_"), "SPheno_internal")
-//BE_VARIABLE(Q_in, Freal8, ("__spheno_MOD_q_in", "spheno_mp_q_in_"), "SPheno_internal")*/
+BE_VARIABLE(Q_in, Freal8, ("__spheno_MOD_q_in", "spheno_mp_q_in_"), "SPheno_internal")
 BE_VARIABLE(M2_H, Farray_Freal8_1_2, ("__model_data_MOD_m2_h", "model_data_mp_m2_h_"), "SPheno_internal")
 BE_VARIABLE(Au_sckm, Farray_Fcomplex16_1_3_1_3, ("__model_data_MOD_au_sckm", "model_data_mp_au_sckm_"), "SPheno_internal")
 BE_VARIABLE(Ad_sckm, Farray_Fcomplex16_1_3_1_3, ("__model_data_MOD_ad_sckm", "model_data_mp_ad_sckm_"), "SPheno_internal")

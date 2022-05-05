@@ -22,6 +22,7 @@
 #include "gambit/Models/partmap.hpp"
 #include "gambit/Backends/frontends/CalcHEP_3_6_27.hpp"
 #include "gambit/Elements/decay_table.hpp"
+#include "gambit/Elements/spectrum_contents.hpp"
 
 #include "gambit/Utils/mpiwrapper.hpp"
 
@@ -106,28 +107,22 @@ BE_INI_FUNCTION
 
   if (ModelInUse("ScalarSingletDM_Z2"))
   {
-    // Obtain model contents
-    static const SpectrumContents::ScalarSingletDM_Z2 ScalarSingletDM_Z2_contents;
-
-    // Obtain list of all parameters within model
-    static const std::vector<Parameter> ScalarSingletDM_Z2_params = ScalarSingletDM_Z2_contents.all_parameters();
-
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum;
+
+    // Obtain list of all parameters within model
+    static const std::vector<SpectrumContents::Parameter> ScalarSingletDM_Z2_params = spec.get_SpectrumContents().all_parameters();
 
     Assign_All_Values(spec, ScalarSingletDM_Z2_params);
   }
 
   if (ModelInUse("DMEFT"))
   {
-   // Obtain model contents
-   static const SpectrumContents::DMEFT DMEFT_contents;
-
-   // Obtain list of all parameters within model
-   static const std::vector<Parameter> DMEFT_params = DMEFT_contents.all_parameters();
-   
    // Obtain spectrum information to pass to CalcHEP
    const Spectrum& spec = *Dep::DMEFT_spectrum;
+
+   // Obtain list of all parameters within model
+   static const std::vector<SpectrumContents::Parameter> DMEFT_params = spec.get_SpectrumContents().all_parameters();
 
    Assign_All_Values(spec, DMEFT_params);
   }
@@ -211,7 +206,7 @@ BE_NAMESPACE
 
   /// Takes all parameters in a model, and assigns them by
   /// value to the appropriate CalcHEP parameter names.
-  void Assign_All_Values(const Spectrum& spec, std::vector<Parameter> params)
+  void Assign_All_Values(const Spectrum& spec, std::vector<SpectrumContents::Parameter> params)
   {
     // Iterate through the expected spectrum parameters of the model. Pass the value of pole masses
     // to CalcHEP from the spectrum, by PDG code.
@@ -258,9 +253,14 @@ BE_NAMESPACE
         // Scalar case
         if (it->shape().size()==1 and it->shape()[0] == 1)
         {
+<<<<<<< HEAD
           str name = it->name();
           char *chepname = const_cast<char*> ( name.c_str() );
           Assign_Value(chepname, HE.get(it->tag(), it->name()));
+=======
+          char *chepname = const_cast<char*> ( it->name().c_str() );
+          Assign_Value(chepname, spec.get(it->tag(), it->name()));
+>>>>>>> SpecBit_redesign_dev_rebase
         }
         // Vector case
         else if (it->shape().size()==1 and it->shape()[0] > 1)

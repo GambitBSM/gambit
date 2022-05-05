@@ -43,7 +43,7 @@ BE_CONV_FUNCTION(generate_decay_code, numout*, (str, str, std::vector<str>), "ge
 BE_CONV_FUNCTION(generate_xsec_code, numout*, (str, std::vector<str>, std::vector<str>), "generate_xsec_code")
 BE_CONV_FUNCTION(CH_Decay_Width, double, (str&, str&, std::vector<str>&), "CH_Decay_Width")
 BE_CONV_FUNCTION(CH_Sigma_V, double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&), "CH_Sigma_V")
-BE_CONV_FUNCTION(Assign_All_Values, void, (const Spectrum&, std::vector<Parameter>), "Assign_All_Values")
+BE_CONV_FUNCTION(Assign_All_Values, void, (const Spectrum&, std::vector<SpectrumContents::Parameter>), "Assign_All_Values")
 BE_CONV_FUNCTION(Assign_Widths, void, (const DecayTable&), "Assign_Widths")
 BE_CONV_FUNCTION(Assign_Value, void, (char*, double), "Assign_Value")
 

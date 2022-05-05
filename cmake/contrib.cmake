@@ -175,8 +175,8 @@ elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
 endif()
 
 set(name "hepmc")
-set(ver "3.1.1")
-set(dir "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
+set(ver "3.2.5")
+set(HEPMC_PATH "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
 if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
   message("   HepMC v${ver} will be downloaded and installed when building GAMBIT.")
@@ -199,21 +199,19 @@ else()
   message("   ColliderBit Solo (CBS) will be deactivated.")
   message("   Pythia will not drop HepMC files.")
   message("   Backends depending on HepMC (e.g. Rivet) will be disabled.")
-  nuke_ditched_contrib_content(${name} ${dir})
+  nuke_ditched_contrib_content(${name} ${HEPMC_PATH})
   set(EXCLUDE_HEPMC TRUE)
 endif()
 
 if(NOT EXCLUDE_HEPMC)
-  set(lib "HepMC3_static")
-  set(md5 "a9cfc6e95eff5c13a0a5a9311ad75aa7")
+  set(lib "HepMC3")
+  set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
   set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
-  set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
-  include_directories("${dir}/include")
+  include_directories("${HEPMC_PATH}/local/include")
+
+  set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib -l${lib}")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_PATH}/local/lib")
   set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-  set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
-  set(HEPMC_PATH "${dir}")
-  set(HEPMC_LIB "${dir}/local/lib")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
 
   # Silence some compiler warnings coming from HepMC
   set_compiler_warning("no-unused-parameter" HEPMC_CXX_FLAGS)
@@ -221,17 +219,16 @@ if(NOT EXCLUDE_HEPMC)
   set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
 
   ExternalProject_Add(${name}
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    CMAKE_COMMAND ${CMAKE_COMMAND}  ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
-    BUILD_COMMAND ${MAKE_PARALLEL} install
-    INSTALL_COMMAND ""
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
+    SOURCE_DIR ${HEPMC_PATH}
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=OFF -DHEPMC3_BUILD_STATIC_LIBS=OFF
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}
+    INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
-  # Add target
-  #add_custom_target(${name})
+
   # Add clean-hepmc and nuke-hepmc
-  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
 endif()
 
 

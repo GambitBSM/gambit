@@ -50,9 +50,9 @@ namespace Gambit
     const str cc = "::";
     std::regex rgx1(ns), rgx2("my_ns"+cc), rgx3(cc+"\\("), rgx4(cc+"$");
     s = std::regex_replace(s, rgx1, cc);
-    s = std::regex_replace(s, rgx2, "");
-    s = std::regex_replace(s, rgx3, "(");
-    s = std::regex_replace(s, rgx4, "");
+    s = std::regex_replace(s, rgx2, str(""));
+    s = std::regex_replace(s, rgx3, str("("));
+    s = std::regex_replace(s, rgx4, str(""));
     return s;
   }
 

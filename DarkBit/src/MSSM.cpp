@@ -446,10 +446,9 @@ namespace Gambit
       ///////////////////////////
 
       // Import based on Spectrum objects
-      const Spectrum& matched_spectra = *Dep::MSSM_spectrum;
-      const SubSpectrum& spec = matched_spectra.get_HE();
-      const SubSpectrum& SM   = matched_spectra.get_LE();
-      const SMInputs& SMI  = matched_spectra.get_SMInputs();
+      const Spectrum& spec = *Dep::MSSM_spectrum;
+      const Spectrum& SM   = *Dep::SM_spectrum;
+      const SMInputs& SMI  = spec.get_SMInputs();
 
       // Get SM masses
       auto getSMmass = [&](str Name, int spinX2)

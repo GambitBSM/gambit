@@ -60,9 +60,8 @@ namespace Gambit
       result.particle_index_type = "PDG";
 
       // Import based on Spectrum objects
-      const Spectrum& matched_spectra = *Dep::MSSM_spectrum;
-      const SubSpectrum& spec = matched_spectra.get_HE();
-      const SubSpectrum& SMspec = matched_spectra.get_LE();
+      const Spectrum& spec = *Dep::MSSM_spectrum;
+      const Spectrum& SMspec = *Dep::SM_spectrum;
       // Import based on decay table from DecayBit
       const DecayTable* myDecays = &(*Dep::decay_rates);
 
