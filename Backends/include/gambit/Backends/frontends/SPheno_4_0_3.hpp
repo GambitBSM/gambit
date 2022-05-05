@@ -208,6 +208,7 @@ BE_VARIABLE(kont, Finteger, ("__spheno_MOD_kont", "spheno_mp_kont_"), "SPheno_in
 BE_VARIABLE(epsI, Freal8, ("__spheno_MOD_epsi", "spheno_mp_epsi_"), "SPheno_internal")
 BE_VARIABLE(deltaM, Freal8, ("__spheno_MOD_deltam", "spheno_mp_deltam_"), "SPheno_internal")
 BE_VARIABLE(m_GUT, Freal8, ("__spheno_MOD_m_gut", "spheno_mp_m_gut_"), "SPheno_internal")
+BE_VARIABLE(Q_in, Freal8, ("__spheno_MOD_q_in", "spheno_mp_q_in_"), "SPheno_internal")
 
 // InputOutput.f90
 BE_VARIABLE(Calc_Mass, Flogical, ("__inputoutput_MOD_calc_mass", "inputoutput_mp_calc_mass_"), "SPheno_internal")

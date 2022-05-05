@@ -147,6 +147,7 @@ START_MODULE
     #define FUNCTION RD_spectrum_MSSM
       START_FUNCTION(RD_spectrum_type)
       DEPENDENCY(MSSM_spectrum, Spectrum)
+      DEPENDENCY(SM_spectrum, Spectrum)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(decay_rates,DecayTable)
     #undef FUNCTION
