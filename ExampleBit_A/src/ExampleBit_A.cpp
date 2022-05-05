@@ -219,7 +219,7 @@ namespace Gambit
       // Example use of suspicious point exception with a 1% chance, specifying message, integer code and whether to print to cout
       if (Random::draw() < 0.01)
       {
-        Suspicious_point_exception().raise("This point is suspicious for some reason.",66,true);
+        Suspicious_point_exception().raise("This is a demo for using suspicious points.",66,true);
       }
 
       result = loglTotal;

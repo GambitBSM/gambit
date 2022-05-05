@@ -623,6 +623,15 @@ def parse_sarah_model_file(model_name, outputs):
         # Copy the files to the SARAH directory, then we should be good to go
         copy_tree(gumdir, sarahdir)
 
+    # Read the model name used by SARAH
+    sarah_model_name = model_name
+    with open(sarah_file_path, 'r') as f:
+        for line in f.readlines():
+            if line.startswith("Model`Name"):
+                match = re.search(r'Model`Name\s*=\s*"(.*)";', line)
+                if match is not None:
+                    sarah_model_name = match[1]
+
     # Read the inputs in
     paramfile = sarahdir + "/parameters.m"
     partfile = sarahdir + "/particles.m"
@@ -1071,3 +1080,4 @@ def parse_sarah_model_file(model_name, outputs):
                                 "internally defined. Please update your SARAH "
                                 "file.").format(parameter))
 
+    return sarah_model_name

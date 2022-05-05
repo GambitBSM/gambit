@@ -75,9 +75,9 @@ namespace Gambit
 
             FixedPrior(const std::string &name, double value) : BasePrior(name), value(1, value), iter(0) {}
             
-            std::vector<std::string> getShownParameters() const {return std::vector<std::string>();}
+            std::vector<std::string> getShownParameters() const override {return std::vector<std::string>();}
 
-            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
+            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const override
             {
                 for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
                 {
@@ -164,9 +164,9 @@ namespace Gambit
                 param_names.push_back(name_in);
             }
             
-            std::vector<std::string> getShownParameters() const {return std::vector<std::string>();}
+            std::vector<std::string> getShownParameters() const override {return std::vector<std::string>();}
 
-            void transform (const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
+            void transform (const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const override
             {
                 double value = outputMap[name];
 

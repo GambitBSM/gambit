@@ -64,7 +64,7 @@ namespace Gambit
     };
 
     // Forward declaration
-    class SLHAcombo;
+    struct SLHAcombo;
 
     /// Keeps track of vertex buffers local to a retrieve function
     /// Similar to the buffer manager for HDF5Printer. I considered

@@ -21,7 +21,7 @@
 ///  \date 2020 Apr
 ///
 ///  \author Patrick Stoecker
-///          (patrick.stoecker@kit.edu)
+///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2021 Sep
 ///
 ///  *********************************************

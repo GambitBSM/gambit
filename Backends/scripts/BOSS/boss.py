@@ -86,6 +86,11 @@ def main():
                       dest="cmdline_include_paths",
                       help="Add PATH to the list of paths used by CastXML to search for included header files.",
                       metavar="PATH")
+    parser.add_option("--no-instructions",
+                      action="store_true",
+                      dest="no_instructions_flag",
+                      default=False,
+                      help="When BOSS finishes, don't print the instructions for manually connecting the BOSS-generated output to GAMBIT.")
     # parser.add_option("-G", "--to-gambit",
     #                   dest="main_gambit_path",
     #                   default="",
@@ -844,18 +849,21 @@ def main():
     #
 
     print()
-    print( utils.modifyText('Done!','bold'))
-    print()
-    print("  To prepare this backend for use with GAMBIT, do the following:")
-    print()
-    print("    1. BOSS has added new source files to '%s' and new header files to '%s'." % (cfg.src_files_to, cfg.header_files_to))
-    print("       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name))
-    print("    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name))
-    print("    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT.")
-    print("    4. Copy the '%s' directory from '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_dir_complete))
-    print("    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path))
+    print( utils.modifyText('BOSS done!','bold'))
     print()
     print()
+
+    if not options.no_instructions_flag:
+        print("  To prepare this backend for use with GAMBIT, do the following:")
+        print()
+        print("    1. BOSS has added new source files to '%s' and new header files to '%s'." % (cfg.src_files_to, cfg.header_files_to))
+        print("       Make sure that these are included when building '%s'." % (cfg.gambit_backend_name))
+        print("    2. Build a shared library (.so) from the '%s' source code that BOSS has edited." % (cfg.gambit_backend_name))
+        print("    3. Set the correct path to this library in the 'backends_locations.yaml' file in GAMBIT.")
+        print("    4. Copy the '%s' directory from '%s' to the 'backend_types' directory within GAMBIT." % (gb.gambit_backend_name_full, gb.for_gambit_backend_types_dir_complete))
+        print("    5. Copy the file '%s' from '%s' to the GAMBIT 'frontends' directory." % (gb.frontend_fname, gb.frontend_path))
+        print()
+        print()
 
 # ====== END: main ========
 
