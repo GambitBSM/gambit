@@ -1125,24 +1125,27 @@ def constrPtrCopyFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_
         class_name_short = class_name['short_templ']
         abstr_class_name_short = class_name['abstr_short']
 
+    class_name_long = class_name_short
+    abstr_class_name_long = abstr_class_name_short
+
     if include_full_namespace:
         namespaces = utils.getNamespaces(class_el)
         if len(namespaces) > 0:
-            abstr_class_name_short = '::'.join(namespaces) + '::' + abstr_class_name_short
-            class_name_short = '::'.join(namespaces) + '::' + class_name_short
-        func_name = class_name_short + "::" + func_name
+            abstr_class_name_long = '::'.join(namespaces) + '::' + abstr_class_name_short
+            class_name_long = '::'.join(namespaces) + '::' + class_name_short
+        func_name = class_name_long + "::" + func_name
 
     if virtual:
-        ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name_short + '*' + ' ' + func_name + '() =0;\n'
+        ptr_code += ' '*cfg.indent*n_indents + 'virtual '+ abstr_class_name_long + '*' + ' ' + func_name + '() =0;\n'
     else:
-        ptr_code += ' '*cfg.indent*n_indents + abstr_class_name_short + '*' + ' ' + func_name + '()'
+        ptr_code += ' '*cfg.indent*n_indents + abstr_class_name_long + '*' + ' ' + func_name + '()'
 
         if only_declaration:
             ptr_code += ';\n'
         else:
             ptr_code += '\n'
             ptr_code += ' '*cfg.indent*n_indents + '{\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + abstr_class_name_short + '* new_ptr = new ' + class_name_short + '(*this);\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + abstr_class_name_long + '* new_ptr = new ' + class_name_short + '(*this);\n'
             ptr_code += ' '*cfg.indent*(n_indents+1) + 'return new_ptr;\n'
             ptr_code += ' '*cfg.indent*n_indents + '}\n'
 
@@ -1159,29 +1162,26 @@ def constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, 
     func_name  = 'pointer_assign' + gb.code_suffix
 
     # Some shorthand variable names for different cases
-    use_abstr_class_name = ''
-    use_class_name = ''
-    use_wrp_class = ''
     if class_name['is_template']:
-        use_abstr_class_name = class_name['abstr_short'] + class_name['templ_vars']
-        use_class_name = class_name['short'] + class_name['templ_vars']
-        use_wrp_class = class_name['wrp_short'] + class_name['templ_vars']
-    elif class_name['is_specialization']:
-        use_abstr_class_name = class_name['abstr_short']
-        use_class_name = class_name['short_templ']
-        use_wrp_class = class_name['wrp_short']
+        abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
+        class_name_short = class_name['short'] + class_name['templ_vars']
+        wrp_class_name_short = class_name['wrp_short'] + class_name['templ_vars']
     else:
-        use_abstr_class_name = class_name['abstr_short']
-        use_class_name = class_name['short']
-        use_wrp_class = class_name['wrp_short']
+        abstr_class_name_short = class_name['abstr_short_templ']
+        class_name_short = class_name['short_templ']
+        wrp_class_name_short = class_name['wrp_short_templ']
+
+    abstr_class_name_long = abstr_class_name_short
+    class_name_long = class_name_short
+    wrp_class_name_long = wrp_class_name_short
 
     if include_full_namespace:
         namespaces = utils.getNamespaces(class_el)
         if len(namespaces) > 0:
-            use_abstr_class_name = '::'.join(namespaces) + '::' + use_abstr_class_name
-            use_class_name = '::'.join(namespaces) + '::' + use_class_name
-            use_wrp_class = '::'.join(namespaces) + '::' + use_wrp_class
-        func_name = use_class_name + "::" + func_name
+            abstr_class_name_long = '::'.join(namespaces) + '::' + abstr_class_name_short
+            class_name_long = '::'.join(namespaces) + '::' + class_name_short
+            wrp_class_name_long = '::'.join(namespaces) + '::' + wrp_class_name_short
+        func_name = class_name_long + "::" + func_name
 
     # Now generate the code
     ptr_code = ''
@@ -1190,19 +1190,19 @@ def constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, 
        ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
 
     if virtual:
-        ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + use_abstr_class_name + '*) =0;\n'
+        ptr_code += ' '*cfg.indent*n_indents + 'virtual void ' + func_name + '(' + abstr_class_name_long + '*) =0;\n'
 
     else:
-        ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + use_abstr_class_name + '* in)'
+        ptr_code += ' '*cfg.indent*n_indents + 'void ' + func_name + '(' + abstr_class_name_long + '* in)'
 
         if only_declaration:
             ptr_code += ';\n'
         else:
             ptr_code += '\n'
             ptr_code += ' '*cfg.indent*n_indents + '{\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + gb.gambit_backend_namespace + '::' + use_wrp_class + '* wptr_temp = ' + use_abstr_class_name + '::get_wptr();\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + '*this = *dynamic_cast<' + use_class_name + '*>(in);\n'
-            ptr_code += ' '*cfg.indent*(n_indents+1) + use_abstr_class_name + '::set_wptr(wptr_temp);\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + gb.gambit_backend_namespace + '::' + wrp_class_name_long + '* wptr_temp = ' + abstr_class_name_long + '::get_wptr();\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + '*this = *dynamic_cast<' + class_name_short + '*>(in);\n'
+            ptr_code += ' '*cfg.indent*(n_indents+1) + abstr_class_name_short + '::set_wptr(wptr_temp);\n'
             ptr_code += ' '*cfg.indent*n_indents + '}\n'
 
     return ptr_code

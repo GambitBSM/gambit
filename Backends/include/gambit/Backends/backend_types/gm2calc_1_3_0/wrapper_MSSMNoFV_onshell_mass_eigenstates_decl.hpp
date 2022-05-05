@@ -62,9 +62,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             int solve_ewsb();
       
-            ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name() const;
+            ::std::basic_string<char> name() const;
       
-            void print(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const;
+            void print(::std::basic_ostream<char>& arg_1) const;
       
             double get_MVG() const;
       
@@ -104,125 +104,125 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double get_MSvtL() const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSd() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSd() const;
       
             double get_MSd(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSu() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSu() const;
       
             double get_MSu(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSe() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSe() const;
       
             double get_MSe(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSm() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSm() const;
       
             double get_MSm(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MStau() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MStau() const;
       
             double get_MStau(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSs() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSs() const;
       
             double get_MSs(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSc() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSc() const;
       
             double get_MSc(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSb() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSb() const;
       
             double get_MSb(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSt() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MSt() const;
       
             double get_MSt(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_Mhh() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_Mhh() const;
       
             double get_Mhh(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MAh() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MAh() const;
       
             double get_MAh(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MHpm() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MHpm() const;
       
             double get_MHpm(int i) const;
       
-            const ::Eigen::Array<double, 4, 1, 0, 4, 1>& get_MChi() const;
+            const ::Eigen::Array<double, 4, 1, 0>& get_MChi() const;
       
             double get_MChi(int i) const;
       
-            const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MCha() const;
+            const ::Eigen::Array<double, 2, 1, 0>& get_MCha() const;
       
             double get_MCha(int i) const;
       
             double get_MVWm() const;
       
-            ::Eigen::Array<double, 1, 1, 0, 1, 1> get_MChargedHiggs() const;
+            ::Eigen::Array<double, 1, 1, 0> get_MChargedHiggs() const;
       
-            ::Eigen::Array<double, 1, 1, 0, 1, 1> get_MPseudoscalarHiggs() const;
+            ::Eigen::Array<double, 1, 1, 0> get_MPseudoscalarHiggs() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZD() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZD() const;
       
             double get_ZD(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZU() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZU() const;
       
             double get_ZU(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZE() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZE() const;
       
             double get_ZE(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZM() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZM() const;
       
             double get_ZM(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZTau() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZTau() const;
       
             double get_ZTau(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZS() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZS() const;
       
             double get_ZS(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZC() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZC() const;
       
             double get_ZC(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZB() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZB() const;
       
             double get_ZB(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZT() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZT() const;
       
             double get_ZT(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZH() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZH() const;
       
             double get_ZH(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZA() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZA() const;
       
             double get_ZA(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZP() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_ZP() const;
       
             double get_ZP(int i, int k) const;
       
-            const ::Eigen::Matrix<std::complex<double>, 4, 4, 0, 4, 4>& get_ZN() const;
+            const ::Eigen::Matrix<std::complex<double>, 4, 4, 0>& get_ZN() const;
       
             const ::std::complex<double>& get_ZN(int i, int k) const;
       
-            const ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& get_UM() const;
+            const ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& get_UM() const;
       
             const ::std::complex<double>& get_UM(int i, int k) const;
       
-            const ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& get_UP() const;
+            const ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& get_UP() const;
       
             const ::std::complex<double>& get_UP(int i, int k) const;
       
@@ -306,59 +306,59 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void calculate_MSvtL();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sd() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sd() const;
       
             void calculate_MSd();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Su() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Su() const;
       
             void calculate_MSu();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Se() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Se() const;
       
             void calculate_MSe();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sm() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sm() const;
       
             void calculate_MSm();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Stau() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Stau() const;
       
             void calculate_MStau();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Ss() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Ss() const;
       
             void calculate_MSs();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sc() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sc() const;
       
             void calculate_MSc();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sb() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sb() const;
       
             void calculate_MSb();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_St() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_St() const;
       
             void calculate_MSt();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_hh() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_hh() const;
       
             void calculate_Mhh();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Ah() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Ah() const;
       
             void calculate_MAh();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Hpm() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Hpm() const;
       
             void calculate_MHpm();
       
-            ::Eigen::Matrix<double, 4, 4, 0, 4, 4> get_mass_matrix_Chi() const;
+            ::Eigen::Matrix<double, 4, 4, 0> get_mass_matrix_Chi() const;
       
             void calculate_MChi();
       
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Cha() const;
+            ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Cha() const;
       
             void calculate_MCha();
       

@@ -2177,6 +2177,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}_${model}/${ver}/patch_
 check_ditch_status(${name}_${model} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_add(${name}_${model}_${ver}
+    DEPENDS castxml
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
              COMMAND cp -r "${modelfiles}" "${dir}/models/"
              COMMAND ${CMAKE_COMMAND} -E echo "" > ${dir}/config/config.h
@@ -2203,6 +2204,7 @@ set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}_${model}/${ver}/patch_
 check_ditch_status(${name}_${model} ${ver} ${dir} ${ditch_if_absent})
 if(NOT ditched_${name}_${model}_${ver})
   ExternalProject_add(${name}_${model}_${ver}
+    DEPENDS castxml
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir}
              COMMAND ${CMAKE_COMMAND} -E make_directory "${dir}/models"
              COMMAND cp -r "${modelfiles}" "${dir}/models/"

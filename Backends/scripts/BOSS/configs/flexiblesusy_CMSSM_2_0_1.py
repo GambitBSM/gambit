@@ -67,8 +67,8 @@ load_classes = [
     'flexiblesusy::CMSSM_input_parameters',
     'flexiblesusy::CMSSM_parameter_getter',
     'flexiblesusy::Two_scale',
-    'flexiblesusy::CMSSM_spectrum_generator<flexiblesusy::Two_scale>',
-    'flexiblesusy::CMSSM_spectrum_generator_interface<flexiblesusy::Two_scale>',
+    'flexiblesusy::CMSSM_spectrum_generator<Two_scale>',
+    'flexiblesusy::CMSSM_spectrum_generator_interface<Two_scale>',
     'flexiblesusy::CMSSM_slha_Model_Two_scale'
 ]
 

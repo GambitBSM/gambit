@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual void print(::std::basic_ostream<char, std::char_traits<char> >&) const =0;
+            virtual void print(::std::basic_ostream<char>&) const =0;
    
             virtual void clear() =0;
    
@@ -29,15 +29,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual double get_scale() const =0;
    
-            virtual void set_Yd(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&) =0;
+            virtual void set_Yd(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Yd(int, int, double) =0;
    
-            virtual void set_Ye(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&) =0;
+            virtual void set_Ye(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Ye(int, int, double) =0;
    
-            virtual void set_Yu(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&) =0;
+            virtual void set_Yu(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Yu(int, int, double) =0;
    
@@ -53,15 +53,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void set_vu(double) =0;
    
-            virtual const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Yd() const =0;
+            virtual const ::Eigen::Matrix<double, 3, 3, 0>& get_Yd() const =0;
    
             virtual double get_Yd(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ye() const =0;
+            virtual const ::Eigen::Matrix<double, 3, 3, 0>& get_Ye() const =0;
    
             virtual double get_Ye(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Yu() const =0;
+            virtual const ::Eigen::Matrix<double, 3, 3, 0>& get_Yu() const =0;
    
             virtual double get_Yu(int, int) const =0;
    

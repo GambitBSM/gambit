@@ -14,7 +14,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         // Member functions: 
         
         // Wrappers for original constructors: 
-        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn) :
+        inline Parm::Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn) :
             WrapperBase(__factory0(nameIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -28,7 +28,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn) :
+        inline Parm::Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn) :
             WrapperBase(__factory1(nameIn, defaultIn, hasMinIn, hasMaxIn, minIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -42,7 +42,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn) :
+        inline Parm::Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn) :
             WrapperBase(__factory2(nameIn, defaultIn, hasMinIn, hasMaxIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -56,7 +56,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn, bool hasMinIn) :
+        inline Parm::Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn) :
             WrapperBase(__factory3(nameIn, defaultIn, hasMinIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -70,7 +70,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn, double defaultIn) :
+        inline Parm::Parm(::std::basic_string<char> nameIn, double defaultIn) :
             WrapperBase(__factory4(nameIn, defaultIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),
@@ -84,7 +84,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Parm::Parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nameIn) :
+        inline Parm::Parm(::std::basic_string<char> nameIn) :
             WrapperBase(__factory5(nameIn)),
             name( get_BEptr()->name_ref__BOSS()),
             valNow( get_BEptr()->valNow_ref__BOSS()),

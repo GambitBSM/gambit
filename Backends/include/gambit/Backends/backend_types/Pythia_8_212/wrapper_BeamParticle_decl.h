@@ -98,7 +98,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 int append(int iPos, int idIn, double x);
         
-                void list(::std::basic_ostream<char, std::char_traits<char> >& os) const;
+                void list(::std::basic_ostream<char>& os) const;
         
                 void list() const;
         
@@ -112,7 +112,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool remnantFlavours(Pythia8::Event& event);
         
-                bool remnantColours(Pythia8::Event& event, ::std::vector<int, std::allocator<int> >& colFrom, ::std::vector<int, std::allocator<int> >& colTo);
+                bool remnantColours(Pythia8::Event& event, ::std::vector<int>& colFrom, ::std::vector<int>& colTo);
         
                 double xRemnant(int i);
         
@@ -140,9 +140,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void setInitialCol(Pythia8::Event& event);
         
-                void updateCol(::std::vector<std::pair<int, int>, std::allocator<std::pair<int, int> > > colourChanges);
+                void updateCol(::std::vector<std::pair<int, int>> colourChanges);
         
-                ::std::vector<std::pair<int, int>, std::allocator<std::pair<int, int> > > getColUpdates();
+                ::std::vector<std::pair<int, int>> getColUpdates();
         
         
                 // Wrappers for original constructors: 

@@ -2905,12 +2905,17 @@ def validType(type_name, xml_file):
     if type_name in cfg.load_classes:
         return True
 
+    if "Eigen::Array" in type_name:
+      out = True
+    else:
+      out = False
+
     # Strip the type name and find the length
     # to save time recomputing later
     type_name = getBasicTypeName(type_name).strip()
     type_name_len = len(type_name)
 
-    # Check if it ends with '::'. If it doesn, reject it instantly
+    # Check if it ends with '::'. If it does, reject it instantly
     if type_name_len >= 2 and type_name[-2:] == '::':
         return False
 
@@ -2936,8 +2941,8 @@ def validType(type_name, xml_file):
     # Grab the locations of the outer brackets
     (lo, hi) = type_name_bracket_locs[0]
     stripped_type = type_name[:lo]
-    
-    if not isTypeValid(stripped_type, xml_file) or hi != type_name_len - 1:
+   
+    if not isTypeValid(type_name, xml_file) or hi != type_name_len - 1:
         # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
         return False
 

@@ -253,14 +253,8 @@ BE_NAMESPACE
         // Scalar case
         if (it->shape().size()==1 and it->shape()[0] == 1)
         {
-<<<<<<< HEAD
-          str name = it->name();
-          char *chepname = const_cast<char*> ( name.c_str() );
-          Assign_Value(chepname, HE.get(it->tag(), it->name()));
-=======
           char *chepname = const_cast<char*> ( it->name().c_str() );
           Assign_Value(chepname, spec.get(it->tag(), it->name()));
->>>>>>> SpecBit_redesign_dev_rebase
         }
         // Vector case
         else if (it->shape().size()==1 and it->shape()[0] > 1)

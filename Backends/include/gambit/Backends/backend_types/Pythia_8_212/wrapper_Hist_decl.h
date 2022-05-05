@@ -23,27 +23,27 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 // -- Static factory pointers: 
                 static Abstract_Hist* (*__factory0)();
-                static Abstract_Hist* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double, double);
-                static Abstract_Hist* (*__factory2)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double);
-                static Abstract_Hist* (*__factory3)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
-                static Abstract_Hist* (*__factory4)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
-                static Abstract_Hist* (*__factory5)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, const Pythia8::Hist&);
+                static Abstract_Hist* (*__factory1)(::std::basic_string<char>, int, double, double);
+                static Abstract_Hist* (*__factory2)(::std::basic_string<char>, int, double);
+                static Abstract_Hist* (*__factory3)(::std::basic_string<char>, int);
+                static Abstract_Hist* (*__factory4)(::std::basic_string<char>);
+                static Abstract_Hist* (*__factory5)(::std::basic_string<char>, const Pythia8::Hist&);
         
                 // -- Other member variables: 
         
                 // Member functions: 
             public:
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn);
+                void book(::std::basic_string<char> titleIn, int nBinIn, double xMinIn, double xMaxIn);
         
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn);
+                void book(::std::basic_string<char> titleIn, int nBinIn, double xMinIn);
         
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn);
+                void book(::std::basic_string<char> titleIn, int nBinIn);
         
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn);
+                void book(::std::basic_string<char> titleIn);
         
                 void book();
         
-                void name(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn);
+                void name(::std::basic_string<char> titleIn);
         
                 void name();
         
@@ -53,19 +53,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void fill(double x);
         
-                void table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder, bool xMidBin) const;
+                void table(::std::basic_ostream<char>& os, bool printOverUnder, bool xMidBin) const;
         
-                void table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder) const;
+                void table(::std::basic_ostream<char>& os, bool printOverUnder) const;
         
-                void table(::std::basic_ostream<char, std::char_traits<char> >& os) const;
+                void table(::std::basic_ostream<char>& os) const;
         
                 void table() const;
         
-                void table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder, bool xMidBin) const;
+                void table(::std::basic_string<char> fileName, bool printOverUnder, bool xMidBin) const;
         
-                void table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder) const;
+                void table(::std::basic_string<char> fileName, bool printOverUnder) const;
         
-                void table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName) const;
+                void table(::std::basic_string<char> fileName) const;
         
                 double getBinContent(int iBin) const;
         
@@ -99,11 +99,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Wrappers for original constructors: 
             public:
                 Hist();
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, const Pythia8::Hist& h);
+                Hist(::std::basic_string<char> titleIn, int nBinIn, double xMinIn, double xMaxIn);
+                Hist(::std::basic_string<char> titleIn, int nBinIn, double xMinIn);
+                Hist(::std::basic_string<char> titleIn, int nBinIn);
+                Hist(::std::basic_string<char> titleIn);
+                Hist(::std::basic_string<char> titleIn, const Pythia8::Hist& h);
         
                 // Special pointer-based constructor: 
                 Hist(Abstract_Hist* in);

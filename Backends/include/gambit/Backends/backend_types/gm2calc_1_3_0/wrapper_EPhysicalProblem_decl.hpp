@@ -21,18 +21,18 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static Abstract_EPhysicalProblem* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
+            static Abstract_EPhysicalProblem* (*__factory0)(const ::std::basic_string<char>&);
       
             // -- Other member variables: 
       
             // Member functions: 
          public:
-            ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > what() const;
+            ::std::basic_string<char> what() const;
       
       
             // Wrappers for original constructors: 
          public:
-            EPhysicalProblem(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& message_);
+            EPhysicalProblem(const ::std::basic_string<char>& message_);
       
             // Special pointer-based constructor: 
             EPhysicalProblem(Abstract_EPhysicalProblem* in);

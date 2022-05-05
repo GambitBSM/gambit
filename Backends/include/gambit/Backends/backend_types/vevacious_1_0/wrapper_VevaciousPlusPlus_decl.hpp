@@ -22,23 +22,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Abstract_VevaciousPlusPlus* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
+                static Abstract_VevaciousPlusPlus* (*__factory0)(const ::std::basic_string<char>&);
         
                 // -- Other member variables: 
         
                 // Member functions: 
             public:
-                void RunPoint(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& newInput);
+                void RunPoint(const ::std::basic_string<char>& newInput);
         
-                ::std::pair<std::vector<double, std::allocator<double> >, std::vector<double, std::allocator<double> > > GetPanicVacua();
+                ::std::pair<std::vector<double>, std::vector<double>> GetPanicVacua();
         
-                ::std::pair<std::vector<double, std::allocator<double> >, std::vector<double, std::allocator<double> > > RunVacua(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& newInput);
+                ::std::pair<std::vector<double>, std::vector<double>> RunVacua(const ::std::basic_string<char>& newInput);
         
-                void ReadLhaBlock(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& uppercaseBlockName, const double scale, const ::std::vector<std::pair<int, double>, std::allocator<std::pair<int, double> > >& parameters, const int dimension);
+                void ReadLhaBlock(const ::std::basic_string<char>& uppercaseBlockName, const double scale, const ::std::vector<std::pair<int, double>>& parameters, const int dimension);
         
-                void WriteResultsAsXmlFile(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& xmlFilename);
+                void WriteResultsAsXmlFile(const ::std::basic_string<char>& xmlFilename);
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > GetResultsAsString();
+                ::std::basic_string<char> GetResultsAsString();
         
                 double GetLifetimeInSeconds();
         
@@ -46,18 +46,18 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 double GetThermalDecayWidth();
         
-                ::std::vector<double, std::allocator<double> > GetThresholdAndActions();
+                ::std::vector<double> GetThresholdAndActions();
         
-                ::std::vector<double, std::allocator<double> > GetThermalThresholdAndActions();
+                ::std::vector<double> GetThermalThresholdAndActions();
         
-                void AppendResultsToLhaFile(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& lhaFilename, const bool writeWarnings);
+                void AppendResultsToLhaFile(const ::std::basic_string<char>& lhaFilename, const bool writeWarnings);
         
-                void AppendResultsToLhaFile(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& lhaFilename);
+                void AppendResultsToLhaFile(const ::std::basic_string<char>& lhaFilename);
         
         
                 // Wrappers for original constructors: 
             public:
-                VevaciousPlusPlus(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& initializationFileName);
+                VevaciousPlusPlus(const ::std::basic_string<char>& initializationFileName);
         
                 // Special pointer-based constructor: 
                 VevaciousPlusPlus(Abstract_VevaciousPlusPlus* in);

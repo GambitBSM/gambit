@@ -44,15 +44,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void addChannel(Pythia8::LHdecayChannel channelIn);
         
-                void addChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > cIn);
+                void addChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn, ::std::basic_string<char> cIn);
         
-                void addChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn);
+                void addChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn);
         
                 int size();
         
                 double getBrat(int iChannel);
         
-                ::std::vector<int, std::allocator<int> > getIdDa(int iChannel);
+                ::std::vector<int> getIdDa(int iChannel);
         
                 Pythia8::LHdecayChannel getChannel(int iChannel);
         

@@ -44,36 +44,36 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             double& MSveL;
             double& MSvmL;
             double& MSvtL;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSd;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSu;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSe;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSm;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MStau;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSs;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSc;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSb;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSt;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& Mhh;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MAh;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MHpm;
-            ::Eigen::Array<double, 4, 1, 0, 4, 1>& MChi;
-            ::Eigen::Array<double, 2, 1, 0, 2, 1>& MCha;
+            ::Eigen::Array<double, 2, 1, 0>& MSd;
+            ::Eigen::Array<double, 2, 1, 0>& MSu;
+            ::Eigen::Array<double, 2, 1, 0>& MSe;
+            ::Eigen::Array<double, 2, 1, 0>& MSm;
+            ::Eigen::Array<double, 2, 1, 0>& MStau;
+            ::Eigen::Array<double, 2, 1, 0>& MSs;
+            ::Eigen::Array<double, 2, 1, 0>& MSc;
+            ::Eigen::Array<double, 2, 1, 0>& MSb;
+            ::Eigen::Array<double, 2, 1, 0>& MSt;
+            ::Eigen::Array<double, 2, 1, 0>& Mhh;
+            ::Eigen::Array<double, 2, 1, 0>& MAh;
+            ::Eigen::Array<double, 2, 1, 0>& MHpm;
+            ::Eigen::Array<double, 4, 1, 0>& MChi;
+            ::Eigen::Array<double, 2, 1, 0>& MCha;
             double& MVWm;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZD;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZU;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZE;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZM;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZTau;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZS;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZC;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZB;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZT;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZH;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZA;
-            ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZP;
-            ::Eigen::Matrix<std::complex<double>, 4, 4, 0, 4, 4>& ZN;
-            ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& UM;
-            ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& UP;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZD;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZU;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZE;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZM;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZTau;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZS;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZC;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZB;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZT;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZH;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZA;
+            ::Eigen::Matrix<double, 2, 2, 0>& ZP;
+            ::Eigen::Matrix<std::complex<double>, 4, 4, 0>& ZN;
+            ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& UM;
+            ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& UP;
       
             // Member functions: 
          public:
@@ -83,7 +83,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void convert_to_slha();
       
-            void print(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const;
+            void print(::std::basic_ostream<char>& arg_1) const;
       
       
             // Wrappers for original constructors: 

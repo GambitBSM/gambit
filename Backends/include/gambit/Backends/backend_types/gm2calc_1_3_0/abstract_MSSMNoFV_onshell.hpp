@@ -29,11 +29,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void set_alpha_thompson(double) =0;
    
-            virtual void set_Ae(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&) =0;
+            virtual void set_Ae(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
    
-            virtual void set_Au(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&) =0;
+            virtual void set_Au(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
    
-            virtual void set_Ad(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&) =0;
+            virtual void set_Ad(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Ae(unsigned int, unsigned int, double) =0;
    
@@ -57,11 +57,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual double get_vev() const =0;
    
-            virtual const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ae() const =0;
+            virtual const ::Eigen::Matrix<double, 3, 3, 0>& get_Ae() const =0;
    
-            virtual const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Au() const =0;
+            virtual const ::Eigen::Matrix<double, 3, 3, 0>& get_Au() const =0;
    
-            virtual const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ad() const =0;
+            virtual const ::Eigen::Matrix<double, 3, 3, 0>& get_Ad() const =0;
    
             virtual double get_Ae(unsigned int, unsigned int) const =0;
    
@@ -95,23 +95,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual double get_MA0() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USe() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USe() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USm() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USm() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_UStau() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_UStau() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USu() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USu() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USd() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USd() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USc() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USc() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USs() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USs() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USb() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USb() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USt() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_USt() const =0;
    
             virtual void convert_to_onshell(double, unsigned int) =0;
    

@@ -22,17 +22,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual void RunPoint(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) =0;
+                virtual void RunPoint(const ::std::basic_string<char>&) =0;
     
-                virtual ::std::pair<std::vector<double, std::allocator<double> >, std::vector<double, std::allocator<double> > > GetPanicVacua() =0;
+                virtual ::std::pair<std::vector<double>, std::vector<double>> GetPanicVacua() =0;
     
-                virtual ::std::pair<std::vector<double, std::allocator<double> >, std::vector<double, std::allocator<double> > > RunVacua(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) =0;
+                virtual ::std::pair<std::vector<double>, std::vector<double>> RunVacua(const ::std::basic_string<char>&) =0;
     
-                virtual void ReadLhaBlock(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&, const double, const ::std::vector<std::pair<int, double>, std::allocator<std::pair<int, double> > >&, const int) =0;
+                virtual void ReadLhaBlock(const ::std::basic_string<char>&, const double, const ::std::vector<std::pair<int, double>>&, const int) =0;
     
-                virtual void WriteResultsAsXmlFile(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) =0;
+                virtual void WriteResultsAsXmlFile(const ::std::basic_string<char>&) =0;
     
-                virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > GetResultsAsString() =0;
+                virtual ::std::basic_string<char> GetResultsAsString() =0;
     
                 virtual double GetLifetimeInSeconds() =0;
     
@@ -40,13 +40,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual double GetThermalDecayWidth() =0;
     
-                virtual ::std::vector<double, std::allocator<double> > GetThresholdAndActions() =0;
+                virtual ::std::vector<double> GetThresholdAndActions() =0;
     
-                virtual ::std::vector<double, std::allocator<double> > GetThermalThresholdAndActions() =0;
+                virtual ::std::vector<double> GetThermalThresholdAndActions() =0;
     
-                virtual void AppendResultsToLhaFile(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&, const bool) =0;
+                virtual void AppendResultsToLhaFile(const ::std::basic_string<char>&, const bool) =0;
     
-                virtual void AppendResultsToLhaFile__BOSS(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&) =0;
+                virtual void AppendResultsToLhaFile__BOSS(const ::std::basic_string<char>&) =0;
     
     
             private:
