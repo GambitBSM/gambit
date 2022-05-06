@@ -27,10 +27,14 @@
 
 LOAD_LIBRARY
 
-// Forward declaration of custom return type (defined in gambit/Backends/backend_types/DDCalc.hpp)
-namespace Gambit { class NREO_DM_nucleon_couplings; }
+#ifdef HAVE_PYBIND11
 
-BE_CONV_FUNCTION(get_NR_WCs_flav, NREO_DM_nucleon_couplings, (map_str_dbl&, double&, int&, std::string&, map_str_dbl&), "get_NR_WCs_flav")
+  // Forward declaration of custom return type (defined in gambit/Backends/backend_types/DDCalc.hpp)
+  namespace Gambit { struct NREO_DM_nucleon_couplings; }
+
+  BE_CONV_FUNCTION(get_NR_WCs_flav, NREO_DM_nucleon_couplings, (map_str_dbl&, double&, int&, std::string&, map_str_dbl&), "get_NR_WCs_flav")
+
+#endif 
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

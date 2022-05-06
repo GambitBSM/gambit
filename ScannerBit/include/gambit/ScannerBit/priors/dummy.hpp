@@ -36,7 +36,7 @@ namespace Gambit
             {
             }
 
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string, double> &outputMap) const
+            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string, double> &outputMap) const override
             {
                 auto it_vec = unitpars.begin();
                 for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
@@ -66,7 +66,7 @@ namespace Gambit
             {
             }
 
-            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
+            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const override
             {
                 for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
                 {

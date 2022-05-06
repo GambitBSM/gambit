@@ -55,10 +55,15 @@ namespace Gambit
     {
       TH_resonances_thresholds() {}
 
-      TH_resonances_thresholds(const TH_resonances_thresholds & copy) :
+      TH_resonances_thresholds(const TH_resonances_thresholds& copy) :
         resonances(copy.resonances), threshold_energy(copy.threshold_energy) {}
 
-      TH_resonances_thresholds(const std::vector<TH_Resonance> & resonances,
+      TH_resonances_thresholds operator= (const TH_resonances_thresholds& orig)
+      {
+        return TH_resonances_thresholds(orig);
+      }
+
+      TH_resonances_thresholds(const std::vector<TH_Resonance>& resonances,
           const std::vector<double> & thresholds) :
         resonances(resonances), threshold_energy(thresholds) {}
 

@@ -12,7 +12,7 @@
 ///  (add name and date if you modify)
 ///
 ///  \author Patrick Stöcker
-///          (patrick.stoecker@kit.edu)
+///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2019 Feb
 ///  \date 2021 Sep
 ///

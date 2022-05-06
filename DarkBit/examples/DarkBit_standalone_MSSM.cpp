@@ -355,6 +355,7 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS5_MSSM.resolveDependency(&createSpectrum);
       TH_ProcessCatalog_DS5_MSSM.resolveDependency(&createDecays);
       TH_ProcessCatalog_DS5_MSSM.resolveDependency(&DarkMatter_ID_MSSM);
+      TH_ProcessCatalog_DS5_MSSM.resolveDependency(&DarkMatterConj_ID_MSSM);
       TH_ProcessCatalog_DS5_MSSM.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dssigmav);
       TH_ProcessCatalog_DS5_MSSM.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsIBffdxdy);
       TH_ProcessCatalog_DS5_MSSM.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsIBhhdxdy);
@@ -364,8 +365,12 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS5_MSSM.reset_and_calculate();
 
       // Set generic WIMP mass object
-      mwimp_generic.resolveDependency(&TH_ProcessCatalog_DS5_MSSM);
-      mwimp_generic.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.notifyOfModel("MSSM30atQ");
+      WIMP_properties.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.resolveDependency(&DarkMatterConj_ID_MSSM);
+      WIMP_properties.resolveDependency(&createSpectrum);
+      WIMP_properties.reset_and_calculate();
+      mwimp_generic.resolveDependency(&WIMP_properties);
       mwimp_generic.reset_and_calculate();
 
       // Set generic annihilation rate in late universe (v->0 limit)
@@ -393,6 +398,10 @@ int main(int argc, char* argv[])
       DD_couplings_DarkSUSY_DS5.setOption<bool>("pole", false);
       DD_couplings_DarkSUSY_DS5.reset_and_calculate();
 
+      // Calculate DD couplings for DDCalc
+      DDCalc_Couplings_WIMP_nucleon.resolveDependency(&DD_couplings_DarkSUSY_DS5);
+      DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
+
       // Initialize DDCalc backend
       Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
       Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
@@ -400,7 +409,7 @@ int main(int argc, char* argv[])
       DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
       DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
       DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DD_couplings_DarkSUSY_DS5);
+      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
       DDCalc_2_2_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
@@ -680,6 +689,7 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&createSpectrum);
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&createDecays);
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&DarkMatter_ID_MSSM);
+      TH_ProcessCatalog_DS_MSSM.resolveDependency(&DarkMatterConj_ID_MSSM);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_1_1::Functown::dssigmav0);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_1_1::Functown::dssigmav0tot);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_1_1::Functown::dsIBffdxdy);
@@ -690,8 +700,12 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS_MSSM.reset_and_calculate();
 
       // Set generic WIMP mass object
-      mwimp_generic.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
-      mwimp_generic.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.notifyOfModel("MSSM30atQ");
+      WIMP_properties.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.resolveDependency(&DarkMatterConj_ID_MSSM);
+      WIMP_properties.resolveDependency(&createSpectrum);
+      WIMP_properties.reset_and_calculate();
+      mwimp_generic.resolveDependency(&WIMP_properties);
       mwimp_generic.reset_and_calculate();
 
       // Set generic annihilation rate in late universe (v->0 limit)
@@ -805,6 +819,10 @@ int main(int argc, char* argv[])
       DD_couplings_DarkSUSY_MSSM.setOption<bool>("pole", false);
       DD_couplings_DarkSUSY_MSSM.reset_and_calculate();
 
+      // Calculate DD couplings for DDCalc
+      DDCalc_Couplings_WIMP_nucleon.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+      DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
+
       // Initialize DDCalc backend
       Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
       Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
@@ -812,7 +830,7 @@ int main(int argc, char* argv[])
       DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
       DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
       DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
       DDCalc_2_2_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
@@ -999,6 +1017,7 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&createSpectrum);
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&createDecays);
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&DarkMatter_ID_MSSM);
+      TH_ProcessCatalog_DS_MSSM.resolveDependency(&DarkMatterConj_ID_MSSM);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_2::Functown::dssigmav0);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_2::Functown::dssigmav0tot);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_2::Functown::dsIBffdxdy);
@@ -1009,8 +1028,12 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS_MSSM.reset_and_calculate();
 
       // Set generic WIMP mass object
-      mwimp_generic.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
-      mwimp_generic.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.notifyOfModel("MSSM30atQ");
+      WIMP_properties.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.resolveDependency(&DarkMatterConj_ID_MSSM);
+      WIMP_properties.resolveDependency(&createSpectrum);
+      WIMP_properties.reset_and_calculate();
+      mwimp_generic.resolveDependency(&WIMP_properties);
       mwimp_generic.reset_and_calculate();
 
       // Set generic annihilation rate in late universe (v->0 limit)
@@ -1124,6 +1147,10 @@ int main(int argc, char* argv[])
       DD_couplings_DarkSUSY_MSSM.setOption<bool>("pole", false);
       DD_couplings_DarkSUSY_MSSM.reset_and_calculate();
 
+      // Calculate DD couplings for DDCalc
+      DDCalc_Couplings_WIMP_nucleon.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+      DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
+
       // Initialize DDCalc backend
       Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
       Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
@@ -1131,7 +1158,7 @@ int main(int argc, char* argv[])
       DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
       DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
       DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
       DDCalc_2_2_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
@@ -1316,6 +1343,7 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&createSpectrum);
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&createDecays);
       TH_ProcessCatalog_DS_MSSM.resolveDependency(&DarkMatter_ID_MSSM);
+      TH_ProcessCatalog_DS_MSSM.resolveDependency(&DarkMatterConj_ID_MSSM);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dssigmav0);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dssigmav0tot);
       TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsIBffdxdy);
@@ -1326,13 +1354,18 @@ int main(int argc, char* argv[])
       TH_ProcessCatalog_DS_MSSM.reset_and_calculate();
 
       // Set generic WIMP mass object
-      mwimp_generic.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
-      mwimp_generic.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.notifyOfModel("MSSM30atQ");
+      WIMP_properties.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.resolveDependency(&DarkMatterConj_ID_MSSM);
+      WIMP_properties.resolveDependency(&createSpectrum);
+      WIMP_properties.reset_and_calculate();
+      mwimp_generic.resolveDependency(&WIMP_properties);
       mwimp_generic.reset_and_calculate();
 
       // Set generic annihilation rate in late universe (v->0 limit)
       sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       sigmav_late_universe.resolveDependency(&DarkMatter_ID_MSSM);
+      sigmav_late_universe.resolveDependency(&DarkMatterConj_ID_MSSM);
       sigmav_late_universe.reset_and_calculate();
       // Save the result
       results["sigmav0"][current_backend] = sigmav_late_universe(0);
@@ -1420,6 +1453,7 @@ int main(int argc, char* argv[])
       // Calculate Fermi LAT dwarf likelihood
       lnL_FermiLATdwarfs_gamLike.resolveDependency(&GA_AnnYield_General);
       lnL_FermiLATdwarfs_gamLike.resolveDependency(&RD_fraction_one);
+      lnL_FermiLATdwarfs_gamLike.resolveDependency(&DM_process_from_ProcessCatalog);
       lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
       lnL_FermiLATdwarfs_gamLike.reset_and_calculate();
       // Save the result
@@ -1439,6 +1473,10 @@ int main(int argc, char* argv[])
       DD_couplings_DarkSUSY_MSSM.setOption<bool>("pole", false);
       DD_couplings_DarkSUSY_MSSM.reset_and_calculate();
 
+      // Calculate DD couplings for DDCalc
+      DDCalc_Couplings_WIMP_nucleon.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+      DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
+
       // Initialize DDCalc backend
       Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
       Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
@@ -1446,7 +1484,7 @@ int main(int argc, char* argv[])
       DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
       DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
       DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
       DDCalc_2_2_0_init.reset_and_calculate();
 
       // Calculate direct detection rates for LUX 2016
@@ -1489,6 +1527,7 @@ int main(int argc, char* argv[])
       // Infer WIMP equilibration time in Sun
       equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       equilibration_time_Sun.resolveDependency(&DarkMatter_ID_MSSM);
+      equilibration_time_Sun.resolveDependency(&DarkMatterConj_ID_MSSM);
       equilibration_time_Sun.resolveDependency(&mwimp_generic);
       equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
       equilibration_time_Sun.reset_and_calculate();
@@ -1503,6 +1542,7 @@ int main(int argc, char* argv[])
       nuyield_from_DS.resolveDependency(&mwimp_generic);
       nuyield_from_DS.resolveDependency(&sigmav_late_universe);
       nuyield_from_DS.resolveDependency(&DarkMatter_ID_MSSM);
+      nuyield_from_DS.resolveDependency(&DarkMatterConj_ID_MSSM);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsgenericwimp_nusetup);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::neutrino_yield);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::DS_neutral_h_decay_channels);
@@ -1618,6 +1658,19 @@ int main(int argc, char* argv[])
       DD_couplings_MicrOmegas.setOption<bool>("box", true);
       DD_couplings_MicrOmegas.reset_and_calculate();
 
+      // Calculate DD couplings for DDCalc
+      DDCalc_Couplings_WIMP_nucleon.resolveDependency(&DD_couplings_MicrOmegas);
+      DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
+
+      // Set generic WIMP mass object
+      WIMP_properties.notifyOfModel("MSSM30atQ");
+      WIMP_properties.resolveDependency(&DarkMatter_ID_MSSM);
+      WIMP_properties.resolveDependency(&DarkMatterConj_ID_MSSM);
+      WIMP_properties.resolveDependency(&createSpectrum);
+      WIMP_properties.reset_and_calculate();
+      mwimp_generic.resolveDependency(&WIMP_properties);
+      mwimp_generic.reset_and_calculate();
+
       // Initialize DDCalc backend
       Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
       Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
@@ -1625,7 +1678,7 @@ int main(int argc, char* argv[])
       DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
       DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
       DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-      DDCalc_2_2_0_init.resolveDependency(&DD_couplings_MicrOmegas);
+      DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
       DDCalc_2_2_0_init.reset_and_calculate();
 
 

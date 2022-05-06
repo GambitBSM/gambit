@@ -59,10 +59,10 @@ namespace Gambit
             
             CompositePrior(const std::vector<std::string> &params, const Options &options);
             
-            inline std::vector<std::string> getShownParameters() const { return shown_param_names; }
+            inline std::vector<std::string> getShownParameters() const override { return shown_param_names; }
             
             // Transformation from unit hypercube to physical parameters
-            void transform(const std::vector<double> &unitPars, std::unordered_map<std::string,double> &outputMap) const
+            void transform(const std::vector<double> &unitPars, std::unordered_map<std::string,double> &outputMap) const override
             {
                 std::vector<double>::const_iterator unit_it = unitPars.begin(), unit_next;
                 for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
