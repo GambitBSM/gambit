@@ -357,7 +357,7 @@ ObsLikes:
 
   # Print lithium-7 abundance + error
   - purpose:      Observable
-    capability:   BBN_abundances
+    capability:   primordial_abundances_BBN
     sub_capabilities: [Li7]
 
   # Available neutron lifetime likelihoods (only turn either of these on if varying the neutron lifetime)
@@ -447,7 +447,7 @@ Rules:
   # Relative uncertainties can be passed vie 'relative_errors' (If not present, uncertainties are derived from the AlterBBN results)
   # Alternatively to relative uncertainties, the absloute uncertainties can be passed via 'absolute_errors' (This is mutually exclusive with 'relative_errors')
   # The correlation matrix can be passed via 'correlation_matrix' (If not present, the correlation matrix is assumed to be a unit matrix)
-  - capability: BBN_abundances
+  - capability: primordial_abundances_BBN
     options:
       isotope_basis: [Yp, D, He3, Be7, Li7]
       correlation_matrix: [[+1.000e00, +1.524e-2, +2.667e-2, +2.303e-2, +2.429e-2],

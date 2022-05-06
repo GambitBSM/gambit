@@ -755,6 +755,8 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+// TODO: Temporarily disabled until project is ready
+/*
   /// energy density of dark energy today
   #define CAPABILITY Omega0_Lambda
     START_CAPABILITY
@@ -763,6 +765,7 @@ START_MODULE
       BACKEND_REQ(class_get_Omega0_Lambda,(class_tag),double,())
     #undef FUNCTION
   #undef CAPABILITY
+*/
 
   /// energy density of all matter components today
   #define CAPABILITY Omega0_m
@@ -915,9 +918,9 @@ START_MODULE
 
   /// compute primordial element abundances (and theoretical errors &
   /// covariances if requested) as predicted from BBN
-  #define CAPABILITY BBN_abundances
+  #define CAPABILITY primordial_abundances_BBN
   START_CAPABILITY
-    #define FUNCTION compute_BBN_abundances
+    #define FUNCTION compute_primordial_abundances_BBN
     START_FUNCTION(BBN_container)
     DEPENDENCY(AlterBBN_Input, map_str_dbl)
     BACKEND_REQ(call_nucl_err, (alterbbn_tag), int, (map_str_dbl&,double*,double*))
@@ -928,17 +931,25 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// First attempt to do something useful with the "Acropolis" backend
-  #define CAPABILITY BBN_abundances_photodissociation
+  /// Compute the primordial abundances today
+  /// These contain effects from photodisintegration if relevant
+  #define CAPABILITY primordial_abundances
   START_CAPABILITY
-    #define FUNCTION BBN_abundances_photodissociation_decayingDM
+
+    #define FUNCTION primordial_abundances_LCDM
     START_FUNCTION(BBN_container)
     ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
-    ALLOW_MODELS(DecayingDM_mixture)
+    DEPENDENCY(primordial_abundances_BBN, BBN_container)
+    #undef FUNCTION
+
+    #define FUNCTION primordial_abundances_decayingDM
+    START_FUNCTION(BBN_container)
+    ALLOW_MODEL_DEPENDENCE(LCDM, LCDM_theta, LCDM_zreio)
+    ALLOW_MODEL_DEPENDENCE(DecayingDM_mixture)
     MODEL_GROUP(cosmo,(LCDM, LCDM_theta, LCDM_zreio))
     MODEL_GROUP(decay,(DecayingDM_mixture))
     ALLOW_MODEL_COMBINATION(cosmo,decay)
-    DEPENDENCY(BBN_abundances, BBN_container)
+    DEPENDENCY(primordial_abundances_BBN, BBN_container)
     BACKEND_REQ(set_input_params, (), void, (bool,int,int,double))
     BACKEND_REQ(abundance_photodissociation_decay, (), void, (double*,double*,double*,double*,double,double,double,double,double,int))
     #undef FUNCTION
@@ -949,8 +960,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION extract_helium_abundance
     START_FUNCTION(double)
-    DEPENDENCY(BBN_abundances, BBN_container)
-    MODEL_CONDITIONAL_DEPENDENCY(BBN_abundances_photodissociation, BBN_container, DecayingDM_mixture)
+    DEPENDENCY(primordial_abundances, BBN_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -961,8 +971,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION compute_BBN_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(BBN_abundances, BBN_container)
-    MODEL_CONDITIONAL_DEPENDENCY(BBN_abundances_photodissociation, BBN_container, DecayingDM_mixture)
+    DEPENDENCY(primordial_abundances, BBN_container)
     #undef FUNCTION
   #undef CAPABILITY
 

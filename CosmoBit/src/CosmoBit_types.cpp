@@ -32,9 +32,6 @@
 ///
 ///  *********************************************
 
-#include <string>
-#include <cstring>
-
 #include "gambit/CosmoBit/CosmoBit_types.hpp"
 
 #define GSL_SPLINE_TYPE gsl_interp_linear

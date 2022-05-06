@@ -63,10 +63,10 @@
 #ifndef __DarkBit_types_hpp__
 #define __DarkBit_types_hpp__
 
-#include "gambit/Backends/backend_types/nulike.hpp"
 #include "gambit/DarkBit/decay_chain.hpp"
 #include "gambit/DarkBit/SimpleHist.hpp"
 #include "gambit/DarkBit/ProcessCatalog.hpp"
+#include "gambit/Elements/shared_types.hpp"
 #include "gambit/Elements/daFunk.hpp"
 #include "gambit/Models/safe_param_map.hpp"
 #include "gambit/Utils/yaml_options.hpp"

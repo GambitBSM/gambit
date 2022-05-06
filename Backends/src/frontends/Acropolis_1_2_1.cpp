@@ -198,7 +198,7 @@ BE_INI_FUNCTION
       std::string module_name = AC.attr("__name__").cast<std::string>();
       AC_models = py::module::import( (module_name + ".models").c_str() );
 
-      // Set the reference temperature to 10 MeV
+      // Set the reference temperature to 0.01 MeV
       T0 = 0.01;
     }
   

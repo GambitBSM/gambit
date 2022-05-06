@@ -302,6 +302,8 @@ namespace Gambit
 
     /// Energy densities *today* (Omega0)
 
+// TODO: Temporarily disabled until project is ready
+/*
     /// Dark Energy
     void get_Omega0_Lambda_classy(double& result)
     {
@@ -309,7 +311,7 @@ namespace Gambit
 
       result = BEreq::class_get_Omega0_Lambda();
     }
-
+*/
     /// Matter
     void get_Omega0_m_classy(double& result)
     {

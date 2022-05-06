@@ -78,27 +78,19 @@
 /// \author Patrick Stöcker
 ///         (stoecker@physik.rwth-aachen.de)
 /// \date 2019 Sep
-/// \date 2021 Jan
+/// \date 2021 Jan, Sep
 ///
 /// \author Anders Kvellestad
 ///         (anders.kvellestad@fys.uio.no)
 /// \date 2020 Feb
 ///
-///  \author Anders Kvellestad
-///          (anders.kvellestad@fys.uio.no)
-///  \date 2020 Feb
+/// \author Jonathan Cornell
+///         (jonathancornell@weber.edu)
+/// \date 2013 - 2020
 ///
-///  \author Jonathan Cornell
-///          (jonathancornell@weber.edu)
-///  \date 2013 - 2020
-///
-///  \author Patrick Stoecker
-///          (stoecker@physik.rwth-aachen.de)
-///  \date 2021 Mar
-///
-///  \author Tomas Gonzalo
-///          (gonzalo@physik.rwth-aachen.de)
-///  \date 2021 Sep
+/// \author Tomas Gonzalo
+///         (gonzalo@physik.rwth-aachen.de)
+/// \date 2021 Sep
 ///
 /// \author Iñigo Saez Casares
 ///          (inigo.saez_casares@ens-paris-saclay.fr)

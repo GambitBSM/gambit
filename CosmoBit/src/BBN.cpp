@@ -252,9 +252,9 @@ namespace Gambit
     }
 
     /// Compute elemental abundances from BBN
-    void compute_BBN_abundances(BBN_container &result)
+    void compute_primordial_abundances_BBN(BBN_container &result)
     {
-      using namespace Pipes::compute_BBN_abundances;
+      using namespace Pipes::compute_primordial_abundances_BBN;
 
       // Global variable of AlterBBN (# computed element abundances)
       const static size_t NNUC = BEreq::get_NNUC();
@@ -337,7 +337,7 @@ namespace Gambit
         result.set_active_isotopes(std::set<str>(v.begin(), v.end()));
         if (result.get_active_isotopes().empty())
         {
-          str err = "No relevant sub-capabilities found for compute_BBN_abundances.  Please specify elements to\n"
+          str err = "No relevant sub-capabilities found for compute_primordial_abundances_BBN.  Please specify elements to\n"
                     "compute abundances for in the ObsLikes section of your yaml file as in e.g.\n"
                     "  sub_capabilities: [He4, D, Li7]";
           CosmoBit_error().raise(LOCAL_INFO, err);
@@ -463,9 +463,19 @@ namespace Gambit
 
     }
 
-    void BBN_abundances_photodissociation_decayingDM(BBN_container &result)
+    // Dummy function to return the primordial abundances unchanged from BBN
+    // This is the case in vanilla LCDM
+    void primordial_abundances_LCDM(BBN_container &result)
     {
-      using namespace Pipes::BBN_abundances_photodissociation_decayingDM;
+      using namespace Pipes::primordial_abundances_LCDM;
+      result = *Dep::primordial_abundances_BBN;
+    }
+
+    // Compute the primordial abundances including the effects of photodisintegration
+    // from a decaying DM component.
+    void primordial_abundances_decayingDM(BBN_container &result)
+    {
+      using namespace Pipes::primordial_abundances_decayingDM;
 
       // Get all the relevant parameters from the decayingDM_mixture model
       const double m_in_MeV = 1e3*(*Param["mass"]);
@@ -495,7 +505,7 @@ namespace Gambit
         byVal(runOptions->getValueOrDef<double>(1e-3, "eps")) // default: 1e-3, fast: 1e-2, aggresive: 1e-1
       );
 
-      result = *Dep::BBN_abundances;
+      result = *Dep::primordial_abundances_BBN;
 
       std::vector<double> abundances_pre(niso,0.0);
       std::vector<double> covariance_pre(niso*niso,0.0);
@@ -575,10 +585,7 @@ namespace Gambit
     void extract_helium_abundance(double &result)
     {
       using namespace Pipes::extract_helium_abundance;
-      if(ModelInUse("DecayingDM_mixture"))
-        result = Dep::BBN_abundances_photodissociation->get_BBN_abund("He4");
-      else
-        result = Dep::BBN_abundances->get_BBN_abund("He4");
+      result = Dep::primordial_abundances->get_BBN_abund("He4");
     }
 
     /// Compute the overall log-likelihood from BBN
@@ -590,12 +597,7 @@ namespace Gambit
       int ii = 0;
       int ie,je,s;
 
-      BBN_container BBN_res = *Dep::BBN_abundances; // Fill BBN_container with abundance results from AlterBBN
-      // If the dark matter can decay, it may cause dissociation, then use the corrected abundances
-      if(ModelInUse("DecayingDM_mixture"))
-      {
-        BBN_res = *Dep::BBN_abundances_photodissociation;
-      }
+      BBN_container BBN_res = *Dep::primordial_abundances; // Fill BBN_container with the values of primordial abundances today
 
       const std::map<std::string, int>& abund_map = BBN_res.get_abund_map();
       const int niso = BBN_res.get_NNUC();

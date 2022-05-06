@@ -62,7 +62,6 @@
 #include <cmath>
 #include <sstream>
 
-#include "gambit/Backends/backend_types/nulike.hpp"
 #include "gambit/DarkBit/DarkBit_types.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/cmake/cmake_variables.hpp"

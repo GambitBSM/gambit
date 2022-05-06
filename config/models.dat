@@ -580,6 +580,19 @@ CosmoALP : |
    f0_thermal           - Fraction of total CDM in ALPs produced thermally (at production) [dimensionless]
    T_R                  - Reheating temperature [MeV]
 
+CosmoALP_gg_tau : |
+
+   Specialised version of GeneralCosmoALP for cosmological applications, without ALP-electron coupling and ALP-nuclen coupling (gaee=gaN=0). The ALP-photon coupling (gagg) is replaced by the ALP lifetime (tau).
+
+   tau                  - ALP lifetime [s]
+   fa                   - ALP decay constant scale [GeV]
+   ma0                  - ALP mass (at zero temperature) [eV]
+   Tchi                 - Critical temperature below which the axion mass is constant [MeV]
+   beta                 - Exponent of the temperature scaling of the axion mass above Tchi [dimensionless]
+   thetai               - Initial misalignment angle [dimensionless]
+   f0_thermal           - Fraction of total CDM in ALPs produced thermally (at production) [dimensionless]
+   T_R                  - Reheating temperature [MeV]
+
 GeneralALP: |
 
    A general model for an axion-like particle with the possibility of having a temperature-dependent mass.
@@ -1066,6 +1079,26 @@ cosmo_nuisance_Planck_lite: |
    Planck likelihood for high-l TT-spectrum (marginalized) with 1 nuissance parameter.
 
    A_planck            - the Planck absolute calibration.
+
+cosmo_nuisance_SpectralDistortions: |
+   Cosmological nuisance parameters for spectral distortions, i.e. FIRAS, PIXIE and PRISM
+
+   sd_delta_T          - temperature shift
+   sd_T_D              - thermal dust temperature
+   sd_beta_D           - thermal dust spectral index
+   sd_A_D              - thermal dust amplitude
+   sd_T_CIB            - Cosmic Infrared Background temperature
+   sd_beta_CIB         - Cosmic Infrared Background spectral index
+   sd_A_CIB            - Cosmic Infrared Background amplitude
+   sd_alpha_sync       - synchrotron emissions spectral index
+   sd_omega_sync       - synchrotron emissions spectral curvature
+   sd_A_sync           - synchrotron emissions amplitude
+   sd_T_e              - free-free dust emission temperature
+   sd_EM               - free-free dust emission measure
+   sd_nu_p_spin        - spinning dust emission frequency
+   sd_A_spin           - spinning dust emission amplitude
+   sd_A_CO             - integrated CO emission amplitude
+   sd_y_reio_nuisance  - reionization
 
 #
 # Energy injection models
