@@ -82,14 +82,15 @@ public:
   T pop2();
   void push2(T item);
   int size2();
+  void get_stack(std::vector<ClassFour>&);
 
 private:
   std::vector<T> stack2;
   int curr_size2;
+  std::vector<ClassFour> stack3;
 };
 
 static ClassSeven<double> __BOSS_dummy_ClassSeven_double_instance__;
 static ClassSeven<int> __BOSS_dummy_ClassSeven_int_instance__;
-
 
 #endif

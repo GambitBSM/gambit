@@ -233,7 +233,7 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
     is_ref     = bool('&' in type_name_notempl)
 
     # Get namespace
-    namespace, type_name_short = removeNamespace(type_name, return_namespace=True)
+    namespace, type_name_short = removeNamespace(type_name_notempl, return_namespace=True)
 
     if is_ref and remove_reference:
         type_name_short = type_name_short.replace('&','')
@@ -241,16 +241,28 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
     if (n_pointers > 0) and remove_pointers:
         type_name_short = type_name_short.replace('*','')
 
-    if namespace == '':
-        type_name = gb.abstr_class_prefix + type_name_short
-    else:
-        type_name = (namespace+'::')*include_namespace  + gb.abstr_class_prefix + type_name_short
+    if isLoadedClass(type_name, byname=True):
+        if namespace == '':
+            type_name = gb.abstr_class_prefix + type_name_short
+        else:
+            type_name = (namespace+'::')*include_namespace  + gb.abstr_class_prefix + type_name_short
+    else: 
+        if namespace == '':
+            type_name = type_name_short
+        else:
+            type_name = (namespace+'::')*include_namespace  + type_name_short
 
-    # If it is a template add the bracket
-    if input_type_el is not None:
-        class_name = getClassNameDict(input_type_el)
-        if isTemplateClass(class_name):
-            type_name += class_name['templ_vars']
+    # If it is a template add the bracket making all template args abstract if needed
+    unpacked_template_args = getAllTemplateTypes(input_type_name)
+    args = []
+    for arg in unpacked_template_args:
+        if isLoadedClass(arg, byname=True):
+            args.append(toAbstractType(arg))
+        else:
+            args.append(arg)
+    if len(args) > 0:
+        type_name = type_name[:-n_pointers-(1 if is_ref else 0)] + "<" + ",".join(args) + ">"
+        type_name += input_type_name[-n_pointers-(1 if is_ref else 0)]
 
     if add_pointer:
         if is_ref and not remove_reference:

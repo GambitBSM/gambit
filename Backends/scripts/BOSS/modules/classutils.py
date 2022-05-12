@@ -339,29 +339,24 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
             # One overloaded version for each set of default arguments
             for remove_n_args in range(n_overloads+1):
 
-                #if is_template:
-                #    w_func_name = el.get('name')
-                #    w_args_bracket_nonames = '(' + ', '.join(args) + ')'
-                #else:
-                if True:
-                    if remove_n_args == 0:
-                        use_w_args = w_args
+                if remove_n_args == 0:
+                    use_w_args = w_args
+                else:
+                    use_w_args = w_args[:-remove_n_args]
+
+
+                w_args_bracket_nonames = utils.constrArgsBracket(use_w_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+
+                if is_operator:
+                    if uses_loaded_type:
+                        w_func_name = 'operator_' + gb.operator_names[el.get('name')] + gb.code_suffix
                     else:
-                        use_w_args = w_args[:-remove_n_args]
-
-
-                    w_args_bracket_nonames = utils.constrArgsBracket(use_w_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
-
-                    if is_operator:
-                        if uses_loaded_type:
-                            w_func_name = 'operator_' + gb.operator_names[el.get('name')] + gb.code_suffix
-                        else:
-                            w_func_name = 'operator' + el.get('name')
+                        w_func_name = 'operator' + el.get('name')
+                else:
+                    if uses_loaded_type or (remove_n_args>0):
+                        w_func_name = el.get('name') + gb.code_suffix
                     else:
-                        if uses_loaded_type or (remove_n_args>0):
-                            w_func_name = el.get('name') + gb.code_suffix
-                        else:
-                            w_func_name = el.get('name')
+                        w_func_name = el.get('name')
 
                 #
                 # If the method makes use of a loaded class, construct a pair of wrapper methods.
