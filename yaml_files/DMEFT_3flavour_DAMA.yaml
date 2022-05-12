@@ -1,6 +1,6 @@
-##########################################################################
-## Best fit (BF) point for DAMA in (C61, mchi) plane as sent by J. Cornell
-##########################################################################
+##################################################################################################################
+## YAML file for running a scan of dimension-6 Wilson coefficients using the DAMA log-likelihood.
+##################################################################################################################
 
 
 Parameters:
@@ -35,27 +35,40 @@ Parameters:
 
   DMEFT_3flavour:
     # DM mass
-    mchi: 52.015903815
+    mchi: 
+      range: [5, 100]
     # EM interactions
     C51: 0.
     C52: 0.
     # Dim 6 -- qq chi chi bilinears
     # vector vector
-    C61u: 3.73041e-7
-    C61d: 3.73041e-7
-    # #  range: [-12.56637, 12.56637]
+    C61u: 
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+    C61d: 
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
     # axial-vector vector
-    C62u: 0.
-    C62d: 0.
-    #  range: [-12.56637, 12.56637]
+    C62u:
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+    C62d:
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join    
     # vector axial-vector
-    C63u: 0.
-    C63d: 0.
-    #  range: [-12.56637, 12.56637]
+    C63u:
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
+    C63d:
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
     # axial-vector axial-vector
-    C64u: 0.
-    C64d: 0.
-    #  range: [-12.56637, 12.56637]
+    C64u:
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join    
+    C64d:
+      range: [-12.56637, 12.56637]
+      prior_type: double_log_flat_join
 
   # NFW with standard & central values for prelims
   Halo_gNFW_rho0:
@@ -76,17 +89,18 @@ Priors:
 
 Printer:
 
-  printer: cout
-#  options:
-#    output_file: "DAMA_TEST.hdf5"
-#    group: "/DAMA_TEST"
-#    buffer_length: 10
-#    delete_file_on_restart: true
+  printer: hdf5_v1
+
+  options:
+    output_file: "DMEFT_3flavour_DAMA.hdf5"
+    group: "/DMEFT_3flavour_DAMA"
+    buffer_length: 10
+    delete_file_on_restart: true
 
 
 Scanner:
 
-  use_scanner: square_grid
+  use_scanner: diver
 
   scanners:
 
@@ -109,14 +123,11 @@ Scanner:
 
 ObsLikes:
 
-  # Direct detection
+  # Direct detection likelihoods
   - capability: DAMA_LogLikelihood_mod
     purpose:    LogLike
 
 Rules:
-
-  - options:
-      flavs: 3
 
   - capability: RD_fraction
     function: RD_fraction_one
@@ -126,6 +137,8 @@ Rules:
 
   - capability: DD_nonrel_WCs
     function: DD_nonrel_WCs_flavscheme
+    options:
+      flavs: 3
 
 Logger:
 
@@ -146,7 +159,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
 
-  default_output_path: "runs/DAMA_TEST/"
+  default_output_path: "runs/DMEFT_3flavour_DAMA/"
 
   debug: true
 
