@@ -51,32 +51,32 @@ Parameters:
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # axial-vector vector
-    C62u:
+    C62u: 0
       # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C62d:
+      # prior_type: double_log_flat_join
+      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    C62d: 0
       # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      # prior_type: double_log_flat_join
+      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # vector axial-vector
-    C63u:
+    C63u: 0
       # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C63d:
+      # prior_type: double_log_flat_join
+      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    C63d: 0
       # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      # prior_type: double_log_flat_join
+      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # axial-vector axial-vector
-    C64u:
+    C64u: 0
       # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C64d:
+      # prior_type: double_log_flat_join
+      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+    C64d: 0
       # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      # prior_type: double_log_flat_join
+      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
 
   # NFW with standard & central values for prelims
   Halo_gNFW_rho0:
