@@ -3177,40 +3177,40 @@ namespace Gambit
       static point_counter countM("metastability LL"); countM.count();
 
       //do the full check first - if fails continue with chi^2 calculation to guide scanner
-      // if (container.THDM_object->check_stability())
-      //   return 0.0;
-
-      const double sqrt_lam12 = sqrt(lambda[1] * lambda[2]);
-
-      if (std::isnan(sqrt_lam12)) 
+      if (!container.THDM_object->check_stability())
       {
-        count.count_invalid();
-        return -L_MAX;
+        const double sqrt_lam12 = sqrt(lambda[1] * lambda[2]);
+
+        if (std::isnan(sqrt_lam12)) 
+        {
+          count.count_invalid();
+          return -L_MAX;
+        }
+
+        if (lambda[1] < 0.0)
+          error += abs(lambda[1]);
+
+        if (lambda[2] < 0.0)
+          error += abs(lambda[2]);
+
+        if (lambda[3] < -sqrt_lam12)
+          error += abs(lambda[3] - (-sqrt_lam12));
+
+        // TODO: check expressions below..
+
+        if (lambda[6] == 0.0 || lambda[7] == 0.0)
+        {
+          if (lambda[3] + lambda[4] - abs(lambda[5]) < -sqrt_lam12)
+            error += abs(lambda[3] + lambda[4] - abs(lambda[5]) - (-sqrt_lam12));
+        }
+        else
+        {
+          if (lambda[3] + lambda[4] - lambda[5] < -sqrt_lam12)
+            error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt_lam12));
+        }
+
+        if (error > 0.0) count.count_invalid();
       }
-
-      if (lambda[1] < 0.0)
-        error += abs(lambda[1]);
-
-      if (lambda[2] < 0.0)
-        error += abs(lambda[2]);
-
-      if (lambda[3] < -sqrt_lam12)
-        error += abs(lambda[3] - (-sqrt_lam12));
-
-      // TODO: check expressions below..
-
-      if (lambda[6] == 0.0 || lambda[7] == 0.0)
-      {
-        if (lambda[3] + lambda[4] - abs(lambda[5]) < -sqrt_lam12)
-          error += abs(lambda[3] + lambda[4] - abs(lambda[5]) - (-sqrt_lam12));
-      }
-      else
-      {
-        if (lambda[3] + lambda[4] - lambda[5] < -sqrt_lam12)
-          error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt_lam12));
-      }
-
-      if (error > 0.0) count.count_invalid();
 
       // check meta-stability
       if (!global_minimum_discriminant_THDM(container) && checkMeta)
