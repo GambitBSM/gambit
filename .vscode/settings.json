@@ -75,6 +75,7 @@
         "future": "cpp",
         "hash_map": "cpp",
         "hash_set": "cpp",
-        "slist": "cpp"
+        "slist": "cpp",
+        "shared_mutex": "cpp"
     }
 }

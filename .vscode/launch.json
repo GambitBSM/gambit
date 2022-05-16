@@ -32,8 +32,8 @@
             "args": [
                 "-f",
                 "${workspaceFolder}/yaml_files/THDM.yaml",
-                // ">",
-                // "out.txt"
+                ">",
+                "out.txt"
             ],
             "stopAtEntry": false,
             "preLaunchTask":"clear_shit",

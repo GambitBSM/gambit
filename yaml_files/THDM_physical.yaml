@@ -1,18 +1,18 @@
 ##########################################################################
-## GAMBIT configuration for the following
-##
-## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM
-##
-## Includes all compatible likelihoods:
-## Theoretical, experimental & flavor
-##
-## Requires backends:
-## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike
-## (for IDM only) sarah-spheno_idm, micromegas, vevacious
-##
-## Author: A.S. Woodcock
-## Date: 20/OCT/2021
-##
+## GAMBIT configuration for the following                               ##
+##                                                                      ##
+## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM               ##
+##                                                                      ##
+## Includes all compatible likelihoods:                                 ##
+## Theoretical, experimental & flavor                                   ##
+##                                                                      ##
+## Requires backends:                                                   ##
+## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike                  ##
+## (for IDM only) sarah-spheno_idm, micromegas, vevacious               ##
+##                                                                      ##
+## Author: A.S. Woodcock                                                ##
+## Date: 20/OCT/2021                                                    ##
+##                                                                      ##
 ##########################################################################
 
 
@@ -77,7 +77,7 @@ Printer:
   #   group: "/data"
   #   delete_file_on_restart: true
 
-  # # unfortunately the new hdf5 scanner is buggy!
+  # # unfortunately the new hdf5 printer is buggy!
   printer: hdf5_v1
   options:
     output_file: "scan.hdf5"
@@ -125,6 +125,11 @@ ObsLikes:
   # #      THEORETICAL LIKELIHOODS        #
   # #-------------------------------------#
 
+
+  # only keeps points that correspond to hidden higgs scenario (hard-cutoff)
+  # - purpose: LogLike
+  #   capability: hidden_higgs_scenario_likelihood
+
   # Stability of the 2HDM Potential
   # Applies the THDM stability constraints on the potential
   # NOTE: This likelihood has two parts, described below
@@ -168,10 +173,16 @@ ObsLikes:
   #   capability: THDM_scalar_loop_order_corrections
   #   function: check_THDM_scalar_loop_order_corrections
 
-  # ???? undocumented
+  # enforces an upper limit on the heavy scalar masses from the yaml
+  # these are specified by the run options (given below):
+  # (*) maximum_scalar_mass
+  # (*) minimum_scalar_mass
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: THDM_scalar_masses
+    function: check_THDM_scalar_masses
   # - purpose:    LogLike
-  #   capability: THDM_scalar_masses
-  #   function: check_THDM_scalar_masses
+  #   capability: positive_scalar_mass_likelihood
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -211,6 +222,7 @@ ObsLikes:
     capability: higgs_mass_likelihood
 
   # helps guide the scanner to positive masses. Needed to improve performance
+  # for now the range is hard-coded
   - purpose: LogLike
     capability: scalar_mass_range_likelihood
 
@@ -258,7 +270,7 @@ ObsLikes:
   #   function: SL_likelihood
   #   purpose: LogLike
 
-  # # FlavBit.cpp:3163
+  # # FlavBit.cpp:3163 (lepton universality)
   # - purpose:    LogLike
   #   capability: LUV_LL # LUV_likelihood
 
@@ -274,25 +286,11 @@ ObsLikes:
 #################################
 
 
-  # THDM parameters
+  # --- THDM parameters
 
   - capability: THDM_spectrum_map
     function: get_THDM_spectrum_as_map
     purpose: Observable
-
-  # branching fractions
-
-  - capability: all_BFs
-    purpose: Observable
-
-  # vacuum meta-stability discriminant
-
-  # Theoretical | another vacuum stability check (true or)
-  # - capability: vacuum_global_minimum
-  #   function: check_vacuum_global_minimum
-  #   purpose: Observable  
-
-  # angles
 
   - capability: sba
     function: obs_sba
@@ -309,6 +307,21 @@ ObsLikes:
   - capability: vev
     function: obs_vev
     purpose: Observable
+
+  # --- branching fractions
+
+  # - capability: all_BFs
+  #   purpose: Observable
+
+  # --- vacuum meta-stability discriminant
+
+  # OBSOLETE
+  # Theoretical | another vacuum stability check (true or)
+  # - capability: vacuum_global_minimum
+  #   function: check_vacuum_global_minimum
+  #   purpose: Observable  
+
+  # --- flavour observables
 
   # # bsgamma
 
@@ -450,18 +463,20 @@ Rules:
   - capability: perturbativity_likelihood_THDM
     function: get_perturbativity_likelihood_THDM
     options:
-      check_all_scales: true
+      check_other_scale: 1000.0
       simple_perturbativity: false
 
   - capability: stability_likelihood_THDM
     function: get_stability_likelihood_THDM
     options:
-      check_all_scales: true
+      check_other_scale: 1000.0
+      #~Icheck_metastability: true
 
   - capability: NLO_unitarity_likelihood_THDM
     function: get_NLO_unitarity_likelihood_THDM
     options:
-      check_correction_ratio: true
+      #~Gcheck_correction_ratio: true
+      check_other_scale: 1000.0
       wave_function_corrections: true
       gauge_corrections: true
       yukawa_corrections: true
@@ -529,9 +544,9 @@ Logger:
 
 KeyValues:
 
-  required_points: 50000 # first MPI rank
-  required_valid_points: 9000 # first MPI rank
-  required_scan_duration: 360 # in seconds
+  required_points: 2000000 # first MPI rank
+  required_valid_points: 200000 # first MPI rank
+  required_scan_duration: 300 # in seconds
 
   likelihood:
     print_invalid_points: false

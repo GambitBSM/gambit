@@ -11,14 +11,14 @@
 ///
 ///  \author A.S. Woodcock
 ///          (alex.woodcock@outlook.com)
-///  \date   Feb 2022
+///  \date   May 2022
 ///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
-///  \date 2020 Apr
+///  \date   2020 Apr
 ///
 ///  \author James McKay
-///  \date October 2016
+///  \date   October 2016
 ///
 ///
 ///  *********************************************
@@ -47,7 +47,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// guides scanner towards mh = 125 GeV, used to improve perf of HS
+// guides scanner towards mh = 125 GeV, used to improve perf. of HS
 #define CAPABILITY higgs_mass_likelihood
 START_CAPABILITY
   #define FUNCTION higgs_mass_LL
@@ -61,10 +61,38 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// guide scanner towards mass range for each heavy scalar, specified in YAML file
+// guide scanner towards mass range for each heavy scalar, specified in YAML file (soft-cutoff)
 #define CAPABILITY scalar_mass_range_likelihood
 START_CAPABILITY
   #define FUNCTION get_scalar_mass_range_likelihood
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+  #undef FUNCTION
+#undef CAPABILITY
+
+// enforces positive scalar mass (hard-cutoff)
+#define CAPABILITY positive_scalar_mass_likelihood
+START_CAPABILITY
+  #define FUNCTION positive_scalar_mass_LL
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+  #undef FUNCTION
+#undef CAPABILITY
+
+// only keeps points that correspond to hidden higgs scenario (hard-cutoff)
+#define CAPABILITY hidden_higgs_scenario_likelihood
+START_CAPABILITY
+  #define FUNCTION hidden_higgs_scenario_LL
   START_FUNCTION(double)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)

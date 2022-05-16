@@ -1,18 +1,18 @@
 ##########################################################################
-## GAMBIT configuration for the following
-##
-## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM
-##
-## Includes all compatible likelihoods:
-## Theoretical, experimental & flavor
-##
-## Requires backends:
-## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike
-## (for IDM only) sarah-spheno_idm, micromegas, vevacious
-##
-## Author: A.S. Woodcock
-## Date: 20/OCT/2021
-##
+## GAMBIT configuration for the following                               ##
+##                                                                      ##
+## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM               ##
+##                                                                      ##
+## Includes all compatible likelihoods:                                 ##
+## Theoretical, experimental & flavor                                   ##
+##                                                                      ##
+## Requires backends:                                                   ##
+## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike                  ##
+## (for IDM only) sarah-spheno_idm, micromegas, vevacious               ##
+##                                                                      ##
+## Author: A.S. Woodcock                                                ##
+## Date: 20/OCT/2021                                                    ##
+##                                                                      ##
 ##########################################################################
 
 
@@ -128,8 +128,10 @@ ObsLikes:
   # #      THEORETICAL LIKELIHOODS        #
   # #-------------------------------------#
 
+
+  # only keeps points that correspond to hidden higgs scenario (hard-cutoff)
   # - purpose: LogLike
-  #   capability: higgs_mass_likelihood
+  #   capability: hidden_higgs_scenario_likelihood
 
   # Stability of the 2HDM Potential
   # Applies the THDM stability constraints on the potential
@@ -148,8 +150,9 @@ ObsLikes:
   # Only supports CP-conserving models
   # Unitarity of the S-matrix at next leading order (includes leading order too)
   - purpose:    LogLike
+  #   capability: unitarity_likelihood_THDM
     capability: NLO_unitarity_likelihood_THDM
-    # capability: unitarity_likelihood_THDM
+
 
   # Calculates all quartic Higgs couplings in the physical
   # basis & applies a 4pi perturbativity constraint on each
@@ -182,6 +185,8 @@ ObsLikes:
   - purpose:    LogLike
     capability: THDM_scalar_masses
     function: check_THDM_scalar_masses
+  # - purpose:    LogLike
+  #   capability: positive_scalar_mass_likelihood
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -221,6 +226,7 @@ ObsLikes:
     capability: higgs_mass_likelihood
 
   # helps guide the scanner to positive masses. Needed to improve performance
+  # for now the range is hard-coded
   - purpose: LogLike
     capability: scalar_mass_range_likelihood
 
@@ -239,10 +245,10 @@ ObsLikes:
   #      FLAVOR LIKELIHOODS             #
   #-------------------------------------#
 
-  # #### NOTE
-  # # Flavor likelihoods imported from Superiso
-  # # Superiso is given SLHA struct filled with THDM input
-  # # & then likelihoods may be called as intended
+  #### NOTE
+  # Flavor likelihoods imported from Superiso
+  # Superiso is given SLHA struct filled with THDM input
+  # & then likelihoods may be called as intended
 
   # FlavBit.cpp:2193 (b->s gamma via HEPLike)
   - purpose:    LogLike
@@ -268,7 +274,7 @@ ObsLikes:
     function: SL_likelihood
     purpose: LogLike
 
-  # FlavBit.cpp:3163
+  # FlavBit.cpp:3163 (lepton universality)
   - purpose:    LogLike
     capability: LUV_LL # LUV_likelihood
 
@@ -277,6 +283,7 @@ ObsLikes:
   #      DARK MATTER LIKELIHOODS        #
   #-------------------------------------#
 
+  # TODO
 
 
 #################################
@@ -284,25 +291,11 @@ ObsLikes:
 #################################
 
 
-  # THDM parameters
+  # --- THDM parameters
 
   - capability: THDM_spectrum_map
     function: get_THDM_spectrum_as_map
     purpose: Observable
-
-  # branching fractions
-
-  # - capability: all_BFs
-  #   purpose: Observable
-
-  # vacuum meta-stability discriminant
-
-  # Theoretical | another vacuum stability check (true or)
-  # - capability: vacuum_global_minimum
-  #   function: check_vacuum_global_minimum
-  #   purpose: Observable  
-
-  # angles
 
   - capability: sba
     function: obs_sba
@@ -319,6 +312,21 @@ ObsLikes:
   - capability: vev
     function: obs_vev
     purpose: Observable
+
+  # --- branching fractions
+
+  # - capability: all_BFs
+  #   purpose: Observable
+
+  # --- vacuum meta-stability discriminant
+
+  # OBSOLETE
+  # Theoretical | another vacuum stability check (true or)
+  # - capability: vacuum_global_minimum
+  #   function: check_vacuum_global_minimum
+  #   purpose: Observable  
+
+  # --- flavour observables
 
   # # bsgamma
 
@@ -440,32 +448,6 @@ ObsLikes:
 
 Rules:
 
-  - capability: LHC_Higgs_LogLike
-    function: calc_HS_2_LHC_LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
-
-  - capability: HB_ModelParameters_neutral
-    function: THDM_ModelParameters_effc
-    dependencies:
-      - capability: Higgs_Couplings
-        function: THDM_higgs_couplings_2HDMC
-        module: SpecBit
-
-
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_2HDMC
-    module: SpecBit
-    dependencies: # !!
-      - capability: Higgs_decay_rates
-        function: h0_1_decays_THDM
-        module: DecayBit
-
   - capability: THDM_spectrum
     function: get_THDM_spectrum
 
@@ -486,18 +468,20 @@ Rules:
   - capability: perturbativity_likelihood_THDM
     function: get_perturbativity_likelihood_THDM
     options:
-      check_all_scales: true
+      check_other_scale: 1000.0
       simple_perturbativity: false
 
   - capability: stability_likelihood_THDM
     function: get_stability_likelihood_THDM
     options:
-      check_all_scales: true
+      check_other_scale: 1000.0
+      #~Icheck_metastability: true
 
   - capability: NLO_unitarity_likelihood_THDM
     function: get_NLO_unitarity_likelihood_THDM
     options:
-      check_correction_ratio: true
+      #~Gcheck_correction_ratio: true
+      check_other_scale: 1000.0
       wave_function_corrections: true
       gauge_corrections: true
       yukawa_corrections: true
@@ -521,10 +505,10 @@ Rules:
   - capability: HB_ModelParameters_charged
     function: THDM_ModelParameters_charged
     module: ColliderBit
-    dependencies: # !!
-      - capability: Higgs_Couplings
-        function: THDM_higgs_couplings_2HDMC
-        module: SpecBit
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+    module: SpecBit
 
   - capability: SuperIso_modelinfo
     function: SI_fill
@@ -538,6 +522,7 @@ Rules:
   - capability: Bsmumu_untag
     function: SI_Bsmumu_untag
     module: FlavBit
+
 
 
 #########################

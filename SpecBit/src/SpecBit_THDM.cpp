@@ -2879,8 +2879,10 @@ namespace Gambit
       std::complex<double> a11_even_minus = 1.0 / (32.0 * M_PI) * (B20 + B21 - sqrt(pow((B20 - B21), 2) + 4. * pow(B22, 2)));
       std::complex<double> a11_odd = 1.0 / (32.0 * M_PI) * (2. * B30);
 
-      return {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
+      std::vector<std::complex<double>> result =  {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
               a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
+    
+      return result;
     }
     
 
@@ -2892,7 +2894,7 @@ namespace Gambit
       // Note: only compatible with Z-2 aligned models
 
       std::vector<double> lambda;
-      std::vector<std::complex<double>> lo_eigenvalues;
+    
       lambda = get_lambdas_from_spectrum(container);
       check_Z2(lambda[6], lambda[7], "get_LO_scattering_eigenvalues_ordered");
 
@@ -2913,8 +2915,10 @@ namespace Gambit
       std::complex<double> a21_even_minus = 1.0 / 2.0 * (lambda[1] + lambda[2] - sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[5], 2)));
       std::complex<double> a21_odd = lambda[3] + lambda[4];
 
-      return {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
+      std::vector<std::complex<double>> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
               a01_even_minus, a01_odd_plus, a01_odd_minus, a20_odd, a21_even_plus, a21_even_minus, a21_odd};
+
+      return lo_eigenvalues;
     }
 
     // these are not ordered and depend on the order than Eigen gives which is not guarenteed
@@ -3017,7 +3021,7 @@ namespace Gambit
       
       // all values < 8*PI for unitarity conditions (see ivanov paper)
       constexpr double unitarity_upper_limit = 8 * M_PI;
-      constexpr double sigma = 0.1;
+      constexpr double sigma = 0.05;
       
       //calculate the total error of each point
       double error = 0.0;
@@ -3038,8 +3042,8 @@ namespace Gambit
       const std::complex<double> i(0.0, 1.0);
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container, wave_function_corrections, gauge_corrections, yukawa_corrections);
 
-      const double unitarity_upper_limit = 0.50;
-      const double sigma = 0.01;
+      constexpr double unitarity_upper_limit = 0.50;
+      constexpr double sigma = 0.05;
       double error = 0.0;
       double error_ratio = 0.0;
 
@@ -3057,6 +3061,7 @@ namespace Gambit
         // std::cout << nlo_eig_names[counter_nlo] << ": " << eig << " | " << abs(eig - i / 2) << std::endl;
         // counter_nlo++;
       }
+
       if (check_correction_ratio)
       {
         std::vector<std::complex<double>> LO_eigenvalues = get_LO_scattering_eigenvalues_ordered(container);
@@ -3094,7 +3099,7 @@ namespace Gambit
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
       const double perturbativity_upper_limit = 4 * M_PI;
-      const double sigma = 0.1;
+      const double sigma = 0.05;
       //-----------------------------
       double error = 0.0;
       std::vector<double> lambda = get_lambdas_from_spectrum(container);
@@ -3116,8 +3121,8 @@ namespace Gambit
     {
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
-      const double perturbativity_upper_limit = 4 * M_PI; // !!!!!
-      const double sigma = 0.1;
+      const double perturbativity_upper_limit = 4 * M_PI;
+      const double sigma = 0.05;
       //-----------------------------
       double error = 0.0;
       double previous_coupling = 0.0;
@@ -3156,53 +3161,68 @@ namespace Gambit
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
+    double global_minimum_discriminant_THDM(THDM_spectrum_container &container);
+
     // - stability likelihood
-    double stability_likelihood_THDM(THDM_spectrum_container &container)
+    double stability_likelihood_THDM(THDM_spectrum_container &container, bool checkMeta)
     {
       std::vector<double> lambda(8);
       double m122, tanb;
-      const double sigma = 0.01;
+      const double sigma = 0.05;
       double error = 0.;
 
       container.THDM_object->get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tanb);
 
-      //do the full check first - if fails continue with chi^2 calculation to guide scanner
-      if (!container.THDM_object->check_stability())
-      {
-        if (lambda[1] < 0.0)
-          error += abs(lambda[1]);
-        if (lambda[2] < 0.0)
-          error += abs(lambda[2]);
+      static point_counter count("stability LL"); count.count();
+      static point_counter countM("metastability LL"); countM.count();
 
-        if (std::isnan(sqrt(lambda[1] * lambda[2])))
-        {
-          return -L_MAX;
-        }
-        else
-        {
-          if (lambda[3] < -sqrt(lambda[1] * lambda[2]))
-            error += abs(lambda[3] - (-sqrt(lambda[1] * lambda[2])));
-          if (lambda[6] == 0.0 || lambda[7] == 0.0)
-          {
-            if (lambda[3] + lambda[4] - abs(lambda[5]) < -sqrt(lambda[1] * lambda[2]))
-              error += abs(lambda[3] + lambda[4] - abs(lambda[5]) - (-sqrt(lambda[1] * lambda[2])));
-          }
-          else
-          {
-            if (lambda[3] + lambda[4] - lambda[5] < -sqrt(lambda[1] * lambda[2]))
-              error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt(lambda[1] * lambda[2])));
-          }
-        }
+      //do the full check first - if fails continue with chi^2 calculation to guide scanner
+      // if (container.THDM_object->check_stability())
+      //   return 0.0;
+
+      const double sqrt_lam12 = sqrt(lambda[1] * lambda[2]);
+
+      if (std::isnan(sqrt_lam12)) 
+      {
+        count.count_invalid();
+        return -L_MAX;
       }
 
-      static point_counter count("stability LL"); count.count();
+      if (lambda[1] < 0.0)
+        error += abs(lambda[1]);
+
+      if (lambda[2] < 0.0)
+        error += abs(lambda[2]);
+
+      if (lambda[3] < -sqrt_lam12)
+        error += abs(lambda[3] - (-sqrt_lam12));
+
+      // TODO: check expressions below..
+
+      if (lambda[6] == 0.0 || lambda[7] == 0.0)
+      {
+        if (lambda[3] + lambda[4] - abs(lambda[5]) < -sqrt_lam12)
+          error += abs(lambda[3] + lambda[4] - abs(lambda[5]) - (-sqrt_lam12));
+      }
+      else
+      {
+        if (lambda[3] + lambda[4] - lambda[5] < -sqrt_lam12)
+          error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt_lam12));
+      }
+
       if (error > 0.0) count.count_invalid();
+
+      // check meta-stability
+      if (!global_minimum_discriminant_THDM(container) && checkMeta)
+      {
+        countM.count_invalid();
+        return -L_MAX;
+      }
 
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
     // - alignment likelihood
-    // ---------------------------------------------------------------------
     double alignment_likelihood_THDM(THDM_spectrum_container &container)
     {
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a = container.he->get(Par::dimensionless, "alpha");
@@ -3221,7 +3241,7 @@ namespace Gambit
     // calculates the global minimum discriminant D
     // D>0 is a necessary & sufficient condition to have a global minimum
     // Z2-aligned models only
-    // ---------------------------------------------------------------------
+    // returns 1 if the condition is not met (meta-unstable), otherwise 0
     double global_minimum_discriminant_THDM(THDM_spectrum_container &container)
     {
       const double lambda1 = container.he->get(Par::mass1, "lambda_1");
@@ -3231,15 +3251,20 @@ namespace Gambit
       const double tb = container.he->get(Par::dimensionless, "tanb");
       const double m12_2 = container.he->get(Par::mass1, "m12_2");
 
-      // check that model is Z2 conserving
+      // for now we just skip non Z2 models
       if (!check_Z2(lambda6, lambda7, "global_minimum_discriminant_THDM"))
         return 0.0;
+
+      // NOTE: the discriminant below is itself sufficient, we don't need to check for the existance of multiple minima first
+      // NOTE: using pow(x,0.25) is about 6x slower than sqrt(sqrt(x))
 
       // minimization conditions to recover m11^2 and m22^2
       const double m11_2 = container.he->get(Par::mass1, "m11_2"); //m12_2*tb - 1/(2*v2)*(lambda1*cb2 + (lambda3+lambda4+lambda5)*sb2 + 3*lambda6*sb*cb + lambda7*sb2*tb);
       const double m22_2 = container.he->get(Par::mass1, "m22_2"); //m12_2*ctb - 1/(2*v2)*(lambda2*sb2 + (lambda3+lambda4+lambda5)*cb2 + lambda6*cb2*ctb + 3*lambda7*sb*cb);
 
+      // TODO: seems like an imaginary k is invalid?
       const std::complex<double> k = pow((std::complex<double>(lambda1) / std::complex<double>(lambda2)), 0.25);
+      
       // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
       const std::complex<double> discriminant = m12_2 * (m11_2 - pow(k, 2) * m22_2) * (tb - k);
 
@@ -3264,7 +3289,6 @@ namespace Gambit
     }
 
     // - loop correction constraint on h0
-    // ---------------------------------------------------------------------
     double loop_correction_mass_splitting_h0_THDM(THDM_spectrum_container &container)
     {
       const double mh_running = container.he->get(Par::mass1, "h0", 1), mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
@@ -3276,7 +3300,6 @@ namespace Gambit
     }
 
     // - loop correction constraint on H0
-    // ---------------------------------------------------------------------
     double loop_correction_mass_splitting_H0_THDM(THDM_spectrum_container &container)
     {
       const double mh_running = container.he->get(Par::mass1, "h0", 2), mh_pole = container.he->get(Par::Pole_Mass, "h0", 2);
@@ -3288,7 +3311,6 @@ namespace Gambit
     }
 
     // - loop correction constraint on A0
-    // ---------------------------------------------------------------------
     double loop_correction_mass_splitting_A0_THDM(THDM_spectrum_container &container)
     {
       const double mh_running = container.he->get(Par::mass1, "A0"), mh_pole = container.he->get(Par::Pole_Mass, "A0");
@@ -3300,7 +3322,6 @@ namespace Gambit
     }
 
     // - loop correction constraint on H+/H-
-    // ---------------------------------------------------------------------
     double loop_correction_mass_splitting_Hpm_THDM(THDM_spectrum_container &container)
     {
       const double mh_running = container.he->get(Par::mass1, "H+"), mh_pole = container.he->get(Par::Pole_Mass, "H+");
@@ -3312,7 +3333,6 @@ namespace Gambit
     }
 
     // - loop correction constraint on H0,A0 & H+/H-
-    // ---------------------------------------------------------------------
     double loop_correction_mass_splitting_scalar_THDM(THDM_spectrum_container &container)
     {
       double loglike = loop_correction_mass_splitting_H0_THDM(container);
@@ -3321,7 +3341,7 @@ namespace Gambit
       return loglike;
     }
 
-    // enforces an upper limit on the heavy scalar masses from the yaml
+    // - enforces an upper limit on the heavy scalar masses from the yaml
     double scalar_masses_THDM(THDM_spectrum_container &container, const double min_scalar_mass, const double max_scalar_mass)
     {
       const double mH0 = container.he->get(Par::Pole_Mass, "h0", 2);
@@ -3453,13 +3473,14 @@ namespace Gambit
     {
       using namespace Pipes::get_stability_likelihood_THDM;
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = stability_likelihood_THDM;
+      std::function<double(THDM_spectrum_container &, bool)> likelihood_function = stability_likelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
       // evaluate loglike
-      const double loglike = likelihood_function(container);
+      bool checkMeta = runOptions->getValueOrDef<bool>(false, "check_metastability");
+      const double loglike = likelihood_function(container,checkMeta);
       // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
@@ -3470,7 +3491,7 @@ namespace Gambit
           // get likelihood at check_other_scale
           THDM_spectrum_container container_at_scale;
           BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
-          loglike_at_Q = likelihood_function(container_at_scale);
+          loglike_at_Q = likelihood_function(container_at_scale,checkMeta);
         }
         else
         {
@@ -3521,7 +3542,7 @@ namespace Gambit
     {
       using namespace Pipes::check_vacuum_global_minimum;
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = alignment_likelihood_THDM; // BUG???
+      std::function<double(THDM_spectrum_container &)> likelihood_function = global_minimum_discriminant_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
@@ -3565,7 +3586,7 @@ namespace Gambit
       // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
+      if (is_at_Q && check_other_scale > 0.0)
       {
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
@@ -3581,7 +3602,7 @@ namespace Gambit
     {
       using namespace Pipes::check_THDM_scalar_loop_order_corrections;
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = loop_correction_mass_splitting_h0_THDM;
+      std::function<double(THDM_spectrum_container &)> likelihood_function = loop_correction_mass_splitting_scalar_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
@@ -3591,7 +3612,7 @@ namespace Gambit
       // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
+      if (is_at_Q && check_other_scale > 0.0)
       {
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
@@ -3620,7 +3641,7 @@ namespace Gambit
       // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
+      if (is_at_Q && check_other_scale > 0.0)
       {
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
@@ -3631,6 +3652,36 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
+    // LIKELIHOOD: allows us to consider points only for the Hidden higgs scenario
+    void hidden_higgs_scenario_LL(double& result)
+    {
+      using namespace Pipes::hidden_higgs_scenario_LL;
+
+      THDM_spectrum_container container;
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
+      const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
+      constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
+      constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
+      double model_invalid_for_lnlike_below = -1e6;
+
+      double mass_err_h = std::abs(mh_pole - mh_exp);
+      double mass_err_H = std::abs(mH_pole - mh_exp);
+      result = 0;
+
+      // we need mass_err_H < mass_err_h for Hidden Higgs scenario
+      
+      if (mass_err_h < mass_err_H)
+      {
+        result = -L_MAX;
+      }
+
+      // count failure rate
+      static point_counter count("Hidden higgs"); count.count();
+      if (result < -1.0) count.count_invalid();
+    }
+
+    // TODO: might also be useful to scan only the hidden higgs scenario
     // LIKELIHOOD: guides scanner towards mh = 125 GeV. Use to improve performance of HiggsSignals
     void higgs_mass_LL(double& result)
     {
@@ -3639,24 +3690,49 @@ namespace Gambit
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
+      const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
       constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
       constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
       double model_invalid_for_lnlike_below = -1e6;
 
+      // get the Higgs mass diff, considering the possibility of a Hidden higgs scenario
+      double mass_err = std::min(std::abs(mh_pole - mh_exp), std::abs(mH_pole - mh_exp));
 
-      // result = -10 * std::max(0.0, std::abs(mh_pole - mh) - mh_err*20) / (1.0*mh_err);
-
-      // scale it so that going 200 GeV above/below the measured higgs mass hits the threshold to bail on the point
-      // no penalty if we are within 2 GeV of exp. value
-      result = model_invalid_for_lnlike_below * (std::max(0.0, std::abs(mh_pole - mh_exp) - 10.0) / 300);
-
-      // std::cerr << "result A:  " << result << std::endl;
+      // scale it so that going 300 GeV above/below the measured higgs mass hits the threshold to bail on the point
+      // no penalty if we are within 10 GeV of exp. value
+      result = model_invalid_for_lnlike_below * (std::max(0.0,mass_err - 10.0) / 300);
       
       // count failure rate
       static point_counter count("h-mass-125"); count.count();
       if (result < -1.0) count.count_invalid();
     }
 
+    // LIKELIHOOD: ensures all scalar masses are positive (hard cut-off)
+    void positive_scalar_mass_LL(double& result)
+    {
+      using namespace Pipes::positive_scalar_mass_LL;
+      
+      THDM_spectrum_container container;
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      
+      const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
+      const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
+      const double mHp_pole = container.he->get(Par::Pole_Mass, "H+");
+      const double mA_pole = container.he->get(Par::Pole_Mass, "A0");
+
+      static point_counter count("positive scalar masses"); count.count();
+
+      if (mh_pole < 0 || mH_pole < 0 || mHp_pole < 0 || mA_pole < 0)
+      {
+        result = -L_MAX;
+        count.count_invalid();
+      }
+      else
+        result = 0;
+    }
+
+    // TODO: should we check running mass instead?
+    // TODO: all mass range likelihoods should be combined into 1 likelihood
     // LIKELIHOOD: guide scanner towards mass range for each heavy scalar, specified in YAML file
     void get_scalar_mass_range_likelihood(double& result)
     {
@@ -3998,15 +4074,6 @@ namespace Gambit
       }
     }
 
-    void fill_map_from_THDMspectrum(std::map<std::string, double> &specmap, const Spectrum &thdmspec);
-
-    void get_THDM_spectrum_as_map(std::map<std::string, double> &specmap)
-    {
-      namespace myPipe = Pipes::get_THDM_spectrum_as_map;
-      const Spectrum &thdmspec(*myPipe::Dep::THDM_spectrum);
-      fill_map_from_THDMspectrum(specmap, thdmspec);
-    }
-
     void fill_map_from_THDMspectrum(std::map<std::string, double> &specmap, const Spectrum &thdmspec)
     {
       /// Add everything... use spectrum contents routines to automate task
@@ -4062,6 +4129,13 @@ namespace Gambit
           utils_error().forced_throw(LOCAL_INFO, errmsg.str());
         }
       }
+    }
+
+    void get_THDM_spectrum_as_map(std::map<std::string, double> &specmap)
+    {
+      namespace myPipe = Pipes::get_THDM_spectrum_as_map;
+      const Spectrum &thdmspec(*myPipe::Dep::THDM_spectrum);
+      fill_map_from_THDMspectrum(specmap, thdmspec);
     }
 
   }
