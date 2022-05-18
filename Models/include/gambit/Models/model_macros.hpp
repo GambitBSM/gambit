@@ -76,7 +76,6 @@
   #define CLASSLOAD_NEEDED(BACKEND, VERSION)               CORE_CLASSLOAD_NEEDED(BACKEND, VERSION, IS_MODEL)
 #else
   #include "gambit/Elements/module_macros_inmodule_defs.hpp"
-  #include "gambit/Elements/shared_types.hpp"
   #define START_MODEL                                       MODULE_START_MODEL
   #define DEFINEPARS(...)                                   /* Do nothing */
   #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)           /* Do nothing */

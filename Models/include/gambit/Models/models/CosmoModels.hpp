@@ -61,6 +61,7 @@
   START_MODEL
   DEFINEPARS(T_cmb,omega_b,omega_cdm,100theta_s,tau_reio)
   MAP_TO_CAPABILITY(T_cmb,T_cmb)
+  MAP_TO_CAPABILITY(omega_cdm, omega_cdm)
 #undef MODEL
 
 // Vanilla ΛCDM.
@@ -71,6 +72,7 @@
   DEFINEPARS(T_cmb,omega_b,omega_cdm,H0,z_reio)
   MAP_TO_CAPABILITY(T_cmb,T_cmb)
   MAP_TO_CAPABILITY(H0, H0)
+  MAP_TO_CAPABILITY(omega_cdm, omega_cdm)
 #undef MODEL
 
 /* CMB + BBN */

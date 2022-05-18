@@ -16,6 +16,7 @@
 ///  \date 2019 Feb, May - July
 ///  \date 2020 Sept, Dec
 ///  \date 2021 Jan
+///  \date 2022 May
 ///
 ///  *********************************************
 
@@ -1781,19 +1782,11 @@ namespace Gambit
       double thetai = *Param["thetai"];
       double fa = *Param["fa"];
       double Tosc = *Dep::AxionOscillationTemperature;
-      //double T_R = *Param["T_R"];
 
       if ( (thetai<-pi) || (thetai>3.0*pi) ) { DarkBit_error().raise(LOCAL_INFO, "ERROR! The parameter 'thetai' should be chosen from the interval [-pi,3pi]."); }
 
       // If thetai in (pi,3pi): map it back to its equivalent value in (-pi,pi]. This is to allow sampling around pi and easier averaging.
       if (thetai>pi) { thetai = thetai - 2.0*pi; }
-
-      // Check (a) Tosc vs T_R: The oscillations start well after the end of inflation.
-      //       (b) Compare energy densities: The axion energy density doesn't dominate at Tosc (i.e. also not before)
-      //       (c) fa/sqrt(2) vs T_R: PQ symmetry breaking happened before the end of inflation
-      //if (fabs(thetai) > 0 && Tosc > T_R) { invalid_point().raise("Axion oscillations start during reheating."); };
-      //if ( m_planck_red/M_SQRT3 < fa*(1.0-gsl_sf_cos(thetai)) ) { invalid_point().raise("Axions dominate the energy budget of the Universe before oscillations begin: Axion = inflaton."); };
-      //if (1.0E+3*fa/M_SQRT2 < T_R) { invalid_point().raise("PQ symmetry only breaks after inflation."); };
 
       // Only do computations if thetai > 0.
       result = 0.0;
@@ -2077,6 +2070,8 @@ namespace Gambit
       const double sigma_10s = 0.2;
       const double sigma_223s = 0.59333;
 
+      // Conversion and decay constraints are based on the same data but never apply at the same time.
+      // Pick the larger value of the ratio/stronger of the two constraints, as this will always be the relevant one.
       double ratio = std::max(f_10s/sigma_10s, f_223s/sigma_223s);
 
       result = -0.5*ratio*ratio;

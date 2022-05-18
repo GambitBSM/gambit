@@ -526,6 +526,12 @@ namespace Gambit
                }
             }
 
+            // If the input_dataset_index dataset is present, recompute it
+            if( (*it) == "input_dataset_index")
+            {
+              is_new = false;
+            }
+
             if(is_new)
             {
                data_labels_copy.insert(*it); // Not otherwise printed; schedule for copying

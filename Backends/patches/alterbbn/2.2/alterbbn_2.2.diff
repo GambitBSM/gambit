@@ -19,7 +19,7 @@
  
  /* --------------------------------------- Integration part ------------------------------------------------------------ */    
  
-@@ -2356,12 +2357,31 @@
+@@ -2356,10 +2357,12 @@ int nucl_err(struct relicparam* paramrel
      else if(paramrelic->err==1||paramrelic->err==2)
      {
  		double ratioH_tmp[NNUC+1];
@@ -32,23 +32,4 @@
 +        paramrelic->err=err;
      }
      
-+    else if(paramrelic->err==-12)
-+    {
-+        double ratioH_tmp_1[NNUC+1], ratioH_tmp_2[NNUC+1];
-+        paramrelic->err=1;
-+        if(nucl(paramrelic,ratioH_tmp_1)>0) return 0;
-+        paramrelic->err=2;
-+        if(nucl(paramrelic,ratioH_tmp_2)>0) return 0;
-+        paramrelic->err=0;
-+        if(nucl(paramrelic,ratioH)>0) return 0;
-+        for(ie=1;ie<=NNUC;ie++)
-+        {
-+            double diff = max( fabs(ratioH_tmp_1[ie]-ratioH[ie]), fabs(ratioH_tmp_2[ie]-ratioH[ie]) );
-+            cov_ratioH[ie][ie]=pow(diff,2);
-+        }
-+        paramrelic->err=-12;
-+    }
-+
      else if(paramrelic->err==3)
-     {
- 		int optfail=0;

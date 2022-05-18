@@ -52,7 +52,6 @@ LOAD_LIBRARY
   BE_CONV_FUNCTION(class_get_Da, double, (double), "class_get_Da")
   BE_CONV_FUNCTION(class_get_Dl, double, (double), "class_get_Dl")
   BE_CONV_FUNCTION(class_get_Hz, double, (double), "class_get_Hz")
-  BE_CONV_FUNCTION(class_get_tz, double, (double), "class_get_tz")
 
   BE_CONV_FUNCTION(class_get_lensed_cl, std::vector<double>, (str), "class_get_lensed_cl")
   BE_CONV_FUNCTION(class_get_unlensed_cl, std::vector<double>, (str), "class_get_unlensed_cl")

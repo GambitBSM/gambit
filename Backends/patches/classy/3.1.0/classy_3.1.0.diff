@@ -302,6 +302,18 @@ index e253d384..58be4d4c 100644
    double * lnk;    /**< list of ln(k) values lnk[index_k] */
  
    double ** lnpk;  /**< depends on indices index_md, index_ic1, index_ic2, index_k as:
+diff --git a/python/cclassy.pxd b/python/cclassy.pxd
+index be49fa68..92910f86 100644
+--- a/python/cclassy.pxd
++++ b/python/cclassy.pxd
+@@ -58,6 +58,7 @@ cdef extern from "class.h":
+     cdef struct background:
+         ErrorMsg error_message
+         int bg_size
++        int index_bg_time
+         int index_bg_ang_distance
+         int index_bg_lum_distance
+         int index_bg_conf_distance
 diff --git a/python/classy.pyx b/python/classy.pyx
 index b61a20e9..748ad4bb 100644
 --- a/python/classy.pyx
@@ -328,7 +340,51 @@ index b61a20e9..748ad4bb 100644
          self.allocated = False
          self.computed = False
          self._pars = {}
-@@ -1191,6 +1204,21 @@ cdef class Class:
+@@ -1158,6 +1171,43 @@ cdef class Class:
+         self.compute(["background"])
+         return self.ba.age
+ 
++    # ADDED by PSt.
++    def proper_time(self, z):
++        """
++        proper_time(z)
++
++        Return the proper time (in Mpc, assuming c=1) at given redshift.
++
++        .. note::
++
++            Returned value has unit Mpc
++
++        Parameters
++        ----------
++        z : float
++                Desired redshift
++        """
++        cdef double tau
++        cdef int last_index #junk
++        cdef double * pvecback
++        cpdef double t
++
++        self.compute(["background"])
++
++        pvecback = <double*> calloc(self.ba.bg_size,sizeof(double))
++
++        if background_tau_of_z(&self.ba,z,&tau)==_FAILURE_:
++            raise CosmoSevereError(self.ba.error_message)
++
++        if background_at_tau(&self.ba,tau,long_info,inter_normal,&last_index,pvecback)==_FAILURE_:
++            raise CosmoSevereError(self.ba.error_message)
++
++        t = pvecback[self.ba.index_bg_time]
++
++        free(pvecback)
++
++        return t
++
+     def h(self):
+         return self.ba.h
+ 
+@@ -1191,6 +1241,21 @@ cdef class Class:
      def omega_b(self):
          return self.ba.Omega0_b * self.ba.h * self.ba.h
  

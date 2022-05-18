@@ -57,15 +57,7 @@ diff --git a/python/cclassy.pxd b/python/cclassy.pxd
 index c7593d15..ca9702e4 100644
 --- a/python/cclassy.pxd
 +++ b/python/cclassy.pxd
-@@ -33,6 +33,7 @@ cdef extern from "class.h":
-     cdef struct background:
-         ErrorMsg error_message
-         int bg_size
-+        int index_bg_time
-         int index_bg_ang_distance
-         int index_bg_lum_distance
-         int index_bg_conf_distance
-@@ -62,6 +63,7 @@ cdef extern from "class.h":
+@@ -62,6 +62,7 @@ cdef extern from "class.h":
          double cs2_fld
          double Omega0_ur
          double Omega0_dcdmdr
@@ -99,51 +91,7 @@ index fae0dd04..a8020991 100644
          self.ready = False
          self.allocated = False
          self._pars = {}
-@@ -1000,6 +1013,43 @@ cdef class Class:
-         self.compute(["background"])
-         return self.ba.age
- 
-+    # ADDED by PSt.
-+    def proper_time(self, z):
-+        """
-+        proper_time(z)
-+
-+        Return the proper time (in Mpc, assuming c=1) at given redshift.
-+
-+        .. note::
-+
-+            Returned value has unit Mpc
-+
-+        Parameters
-+        ----------
-+        z : float
-+                Desired redshift
-+        """
-+        cdef double tau
-+        cdef int last_index #junk
-+        cdef double * pvecback
-+        cpdef double t
-+
-+        self.compute(["background"])
-+
-+        pvecback = <double*> calloc(self.ba.bg_size,sizeof(double))
-+
-+        if background_tau_of_z(&self.ba,z,&tau)==_FAILURE_:
-+            raise CosmoSevereError(self.ba.error_message)
-+
-+        if background_at_tau(&self.ba,tau,self.ba.long_info,self.ba.inter_normal,&last_index,pvecback)==_FAILURE_:
-+            raise CosmoSevereError(self.ba.error_message)
-+
-+        t = pvecback[self.ba.index_bg_time]
-+
-+        free(pvecback)
-+
-+        return t
-+
-     def h(self):
-         return self.ba.h
- 
-@@ -1016,8 +1066,10 @@ cdef class Class:
+@@ -1016,8 +1029,10 @@ cdef class Class:
      # This is commented because in the current form it only applies
      # to minimal LambdaCDM.
      # On would need to add contributions from ncdm, ddmdr, etc.
@@ -156,7 +104,7 @@ index fae0dd04..a8020991 100644
  
      def Omega_Lambda(self):
          return self.ba.Omega0_lambda
-@@ -1028,6 +1080,21 @@ cdef class Class:
+@@ -1028,6 +1043,21 @@ cdef class Class:
      def Omega_b(self):
          return self.ba.Omega0_b
  
@@ -178,7 +126,7 @@ index fae0dd04..a8020991 100644
      def omega_b(self):
          return self.ba.Omega0_b * self.ba.h * self.ba.h
  
-@@ -1046,6 +1113,10 @@ cdef class Class:
+@@ -1046,6 +1076,10 @@ cdef class Class:
          self.compute(["thermodynamics"])
          return self.th.rs_d
  

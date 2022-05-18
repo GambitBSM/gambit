@@ -2046,7 +2046,7 @@ def constrLoadedTypesHeaderContent():
             class_line += '    /*constructors*/'
 
             for info_dict in gb.factory_info[ class_name['long'] ]:
-                class_line += '(("' + info_dict['name'] + '",' + info_dict['args_bracket'] + ')) '
+                class_line += '(("' + info_dict['name'] + '",' + info_dict['args_bracket'].replace(' ::', ' ').replace('(::', '(') + ')) '
 
             class_line += ')) \\'
             class_lines.append(class_line)
