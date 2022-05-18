@@ -936,9 +936,8 @@ START_MODULE
   #define CAPABILITY primordial_abundances
   START_CAPABILITY
 
-    #define FUNCTION primordial_abundances_LCDM
+    #define FUNCTION primordial_abundances
     START_FUNCTION(BBN_container)
-    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
     DEPENDENCY(primordial_abundances_BBN, BBN_container)
     #undef FUNCTION
 
@@ -951,7 +950,7 @@ START_MODULE
     ALLOW_MODEL_COMBINATION(cosmo,decay)
     DEPENDENCY(primordial_abundances_BBN, BBN_container)
     BACKEND_REQ(set_input_params, (), void, (bool,int,int,double))
-    BACKEND_REQ(abundance_photodissociation_decay, (), void, (double*,double*,double*,double*,double,double,double,double,double,int))
+    BACKEND_REQ(abundance_photodisintegration_decay, (), void, (double*,double*,double*,double*,double,double,double,double,double,int))
     #undef FUNCTION
   #undef CAPABILITY
 

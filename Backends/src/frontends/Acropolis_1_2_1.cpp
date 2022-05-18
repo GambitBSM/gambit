@@ -127,7 +127,7 @@
       py::module::import("acropolis.nucl").attr("eps") = py::float_(eps); // default: 1e-3, fast: 1e-2, aggresive: 1e-1
     }
 
-    void abundance_photodissociation_decay(double* ratioH_pre, double* cov_ratioH_pre, double* ratioH_post, double* cov_ratioH_post, double mass, double tau, double N0a, double BR_el, double BR_ph, int niso)
+    void abundance_photodisintegration_decay(double* ratioH_pre, double* cov_ratioH_pre, double* ratioH_post, double* cov_ratioH_post, double mass, double tau, double N0a, double BR_el, double BR_ph, int niso)
     {
       #ifdef ACROPOLIS_DEBUG
         std::cout << "[ACROPOLIS] Invoking 'DecayModel' with (mass, tau, T0, N0a, BR_el, BR_ph) = ";

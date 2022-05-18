@@ -32,7 +32,7 @@ LOAD_LIBRARY
 #ifdef HAVE_PYBIND11
 
   BE_CONV_FUNCTION(set_input_params, void, (bool,int,int,double), "set_input_params")
-  BE_CONV_FUNCTION(abundance_photodissociation_decay, void,(double*,double*,double*,double*,double,double,double,double,double,int), "abundance_photodissociation_decay")
+  BE_CONV_FUNCTION(abundance_photodisintegration_decay, void,(double*,double*,double*,double*,double,double,double,double,double,int), "abundance_photodisintegration_decay")
 
 #endif
 

@@ -464,10 +464,9 @@ namespace Gambit
     }
 
     // Dummy function to return the primordial abundances unchanged from BBN
-    // This is the case in vanilla LCDM
-    void primordial_abundances_LCDM(BBN_container &result)
+    void primordial_abundances(BBN_container &result)
     {
-      using namespace Pipes::primordial_abundances_LCDM;
+      using namespace Pipes::primordial_abundances;
       result = *Dep::primordial_abundances_BBN;
     }
 
@@ -520,16 +519,16 @@ namespace Gambit
       std::vector<double> abundances_post(niso,0.0);
       std::vector<double> covariance_post(niso*niso,0.0);
 
-      BEreq::abundance_photodissociation_decay(abundances_pre.data(),
-                                               covariance_pre.data(),
-                                               abundances_post.data(),
-                                               covariance_post.data(),
-                                               byVal(m_in_MeV),
-                                               byVal(tau),
-                                               byVal(N0a),
-                                               byVal(BR_el),
-                                               byVal(BR_ph),
-                                               byVal(niso));
+      BEreq::abundance_photodisintegration_decay(abundances_pre.data(),
+                                                 covariance_pre.data(),
+                                                 abundances_post.data(),
+                                                 covariance_post.data(),
+                                                 byVal(m_in_MeV),
+                                                 byVal(tau),
+                                                 byVal(N0a),
+                                                 byVal(BR_el),
+                                                 byVal(BR_ph),
+                                                 byVal(niso));
 
       for(int i=0; i !=niso; ++i)
       {
@@ -540,7 +539,7 @@ namespace Gambit
         }
       }
 
-      // If there are higher and lower abundances, apply photodissociation on them too
+      // If there are higher and lower abundances, apply photodisintegration on them too
       // and take the uncertainty as the largest difference
       if(result.has_BBN_abund_upper() or result.has_BBN_abund_lower())
       {
@@ -548,28 +547,28 @@ namespace Gambit
         std::vector<double> abundances_lower_post(niso,0.0);
 
         for(int i=0; i !=niso; ++i) abundances_pre[i] = result.get_BBN_abund_upper(i+1);
-        BEreq::abundance_photodissociation_decay(abundances_pre.data(),
-                                                 covariance_pre.data(),
-                                                 abundances_upper_post.data(),
-                                                 covariance_post.data(),
-                                                 byVal(m_in_MeV),
-                                                 byVal(tau),
-                                                 byVal(N0a),
-                                                 byVal(BR_el),
-                                                 byVal(BR_ph),
-                                                 byVal(niso));
+        BEreq::abundance_photodisintegration_decay(abundances_pre.data(),
+                                                   covariance_pre.data(),
+                                                   abundances_upper_post.data(),
+                                                   covariance_post.data(),
+                                                   byVal(m_in_MeV),
+                                                   byVal(tau),
+                                                   byVal(N0a),
+                                                   byVal(BR_el),
+                                                   byVal(BR_ph),
+                                                   byVal(niso));
 
         for(int i=0; i !=niso; ++i) abundances_pre[i] = result.get_BBN_abund_lower(i+1);
-        BEreq::abundance_photodissociation_decay(abundances_pre.data(),
-                                                 covariance_pre.data(),
-                                                 abundances_lower_post.data(),
-                                                 covariance_post.data(),
-                                                 byVal(m_in_MeV),
-                                                 byVal(tau),
-                                                 byVal(N0a),
-                                                 byVal(BR_el),
-                                                 byVal(BR_ph),
-                                                 byVal(niso));
+        BEreq::abundance_photodisintegration_decay(abundances_pre.data(),
+                                                   covariance_pre.data(),
+                                                   abundances_lower_post.data(),
+                                                   covariance_post.data(),
+                                                   byVal(m_in_MeV),
+                                                   byVal(tau),
+                                                   byVal(N0a),
+                                                   byVal(BR_el),
+                                                   byVal(BR_ph),
+                                                   byVal(niso));
 
         for(int i=0; i !=niso; ++i)
         {

@@ -38,6 +38,9 @@
 
   BE_NAMESPACE
   {
+    // use convenience function to cast a numpy array into a std::vector
+    using Backends::cast_np_to_std;
+
     pybind11::object static cosmo;
     // save input dictionary from CLASS run from
     // previously computed point
@@ -106,16 +109,14 @@
     std::vector<double> class_get_lensed_cl(std::string spectype)
     {
       // Get dictionary containing all (lensed) Cl spectra
-      pybind11::dict cl_dict = cosmo.attr("lensed_cl")();
+      map_str_pyobj cl_dict = cosmo.attr("lensed_cl")().cast<map_str_pyobj>();
 
       // Get only the relevant Cl as np array and steal the pointer to its data.
-      pybind11::object cl_array_obj = cl_dict[pybind11::cast<str>(spectype)];
+      pybind11::object cl_array_obj = cl_dict[spectype];
       pybind11::array_t<double> cl_array = pybind11::cast<pybind11::array_t<double>>(cl_array_obj);
-      auto cl_ptr = cl_array.data();
-      size_t len = cl_array.size();
 
       // Create the vector to return
-      std::vector<double> result(cl_ptr, (cl_ptr+len));
+      std::vector<double> result = cast_np_to_std(cl_array);
 
       // cl = 0 for l = 0,1
       result.at(0) = 0.;
@@ -128,16 +129,14 @@
     std::vector<double> class_get_unlensed_cl(std::string spectype)
     {
       // Get dictionary containing the raw (unlensed) Cl spectra
-      pybind11::dict cl_dict = cosmo.attr("raw_cl")();
+      map_str_pyobj cl_dict = cosmo.attr("raw_cl")().cast<map_str_pyobj>();
 
       // Get only the relevant Cl as np array and steal the pointer to its data.
-      pybind11::object cl_array_obj = cl_dict[pybind11::cast<str>(spectype)];
+      pybind11::object cl_array_obj = cl_dict[spectype];
       pybind11::array_t<double> cl_array = pybind11::cast<pybind11::array_t<double>>(cl_array_obj);
-      auto cl_ptr = cl_array.data();
-      size_t len = cl_array.size();
 
       // Create the vector to return
-      std::vector<double> result(cl_ptr, (cl_ptr+len));
+      std::vector<double> result = cast_np_to_std(cl_array);
 
       // cl = 0 for l = 0,1
       result.at(0) = 0.;
@@ -181,6 +180,13 @@
     {
       double H_z = cosmo.attr("Hubble")(z).cast<double>();
       return H_z;
+    }
+
+    // Returns time at given redshift (in Mpc)
+    double class_get_tz(double z)
+    {
+      double t_in_Mpc = cosmo.attr("proper_time")(z).cast<double>();
+      return t_in_Mpc;
     }
 
     // returns Omega radiation today

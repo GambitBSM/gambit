@@ -5244,8 +5244,8 @@ Acropolis_1_2_1_init: |
 set_input_params: |
     Sets the input parametes for Acropolis.
 
-abundance_photodissociation_decay: |
-    Computes the abundances after photodissociation.
+abundance_photodisintegration_decay: |
+    Computes the abundances of primordial elements after photodisintegration by a decaying particle.
 
 # -----------
 # AlterBBN

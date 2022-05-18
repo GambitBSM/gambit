@@ -148,7 +148,7 @@ ObsLikes:
   # As D and He4 are used for BBN_LogLike, they are automatically included.
   # Here we also include Helium-3 and Lithium-7
   - purpose:      Observable
-    capability:   primordial_abundances_BBN
+    capability:   primordial_abundances
     sub_capabilities:
       - He3
       - Li7

@@ -50,7 +50,7 @@
 
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
-#include "gambit/Elements/shared_types.hpp"
+#include "gambit/Backends/backend_types/MontePythonLike.hpp"
 
 #include <gsl/gsl_spline.h>
 
