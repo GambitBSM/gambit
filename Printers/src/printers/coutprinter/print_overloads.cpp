@@ -60,6 +60,8 @@ namespace Gambit
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, std::complex<double>)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_const_str_map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_intpair_dbl)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, triplet<double>)
@@ -68,6 +70,7 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, DM_nucleon_couplings_fermionic_HP)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(coutPrinter, FlavBit::flav_prediction)
     #endif
 
     /// @}

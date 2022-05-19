@@ -1,0 +1,293 @@
+#########################################################################
+## GAMBIT configuration for running a single random point of the GTHDM
+## THDM_prueba
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## THDMC, SuperISO, HEPlike
+##########################################################################
+
+
+Parameters:
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+    sba: 0.9999999528467435
+    yl2_re_32: 0.4478006840007356
+    yu2_re_33: 0.9614648400766777
+    yu2_re_32: 0.5442751940232391
+    mC2: 6058843.170159216
+    tanb: 3.17221761519669
+    yl2_re_22: 0.0007684904609991383
+    lambda6: 0.0
+    lambda7: 0.0
+    m12_2: 3268186.5009249127
+    mA2: 6058843.170159216
+    mH2: 6058843.170159216
+    mh2: 15647.5
+    yd2_im_11: 0.0
+    yd2_im_12: 0.0
+    yd2_im_13: 0.0
+    yd2_im_21: 0.0
+    yd2_im_22: 0.0
+    yd2_im_23: 0.0
+    yd2_im_31: 0.0
+    yd2_im_32: 0.0
+    yd2_im_33: 0.0
+    yd2_re_11: 0.0
+    yd2_re_12: 0.0
+    yd2_re_13: 0.0
+    yd2_re_21: 0.0
+    yd2_re_22: -0.04978775464377502
+    yd2_re_23: -0.003778976876698384
+    yd2_re_31: 0.0
+    yd2_re_32: -0.003778976876698384
+    yd2_re_33: 0.022674582016875486
+    yl2_im_11: 0.0
+    yl2_im_12: 0.0
+    yl2_im_13: 0.0
+    yl2_im_21: 0.0
+    yl2_im_22: 0.0
+    yl2_im_23: 0.0
+    yl2_im_31: 0.0
+    yl2_im_32: 0.0
+    yl2_im_33: 0.0
+    yl2_re_11: 0.0
+    yl2_re_12: 0.0
+    yl2_re_13: 0.0
+    yl2_re_21: 0.0
+    yl2_re_23: 0.4478006840007356
+    yl2_re_31: 0.0
+    yl2_re_33: 0.21572456575504173
+    yu2_im_11: 0.0
+    yu2_im_12: 0.0
+    yu2_im_13: 0.0
+    yu2_im_21: 0.0
+    yu2_im_22: 0.0
+    yu2_im_23: 0.0
+    yu2_im_31: 0.0
+    yu2_im_32: 0.0
+    yu2_im_33: 0.0
+    yu2_re_11: 0.0
+    yu2_re_12: 0.0
+    yu2_re_13: 0.0
+    yu2_re_21: 0.0
+    yu2_re_22: -0.08731207054670698
+    yu2_re_23: 0.5442751940232391
+    yu2_re_31: 0.0
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    #### NOTE
+    # Flavour likelihoods 
+
+    # B->s,gamma likelihood (using HEPlike)
+    - capability: b2sgamma_LogLikelihood
+      function: HEPLike_b2sgamma_LogLikelihood
+      purpose: LogLike
+
+    # B->mu,mu likelihood
+    - capability: b2ll_LL
+      function: b2ll_likelihood
+      purpose: LogLike
+
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Atlas
+   
+    # 7 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_CMS
+
+    # 4 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Belle
+
+    # 6 observables 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
+   # 6 observables
+    - purpose:    LogLike
+      capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+   # 2 obs, low and high q2
+    - purpose:    LogLike
+      capability: Bs2phimumuBr_LogLikelihood
+
+   # 6 observables, different bins compared to Kstar
+    - purpose:    LogLike
+      capability: B2KmumuBr_LogLikelihood_LHCb
+
+    #################
+    # Observables
+    #################
+
+    # Print spectrum as a map
+    - capability: THDM_spectrum
+      purpose: Observable
+      type: map_str_dbl
+
+    - capability: DeltaC7
+      function: calculate_DeltaC7
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9
+      function: calculate_DeltaC9
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10
+      function: calculate_DeltaC10
+      module: FlavBit
+      purpose: Observable
+
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+      module: FlavBit
+      purpose: Observable
+
+    - capability: prediction_b2sgamma
+      function: SuperIso_prediction_b2sgamma
+      module: FlavBit
+      purpose: Observable
+
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+
+    - capability: b2ll_M
+      function: b2ll_measurements
+      dependencies:
+        - capability: Bsmumu_untag
+          function: SI_Bsmumu_untag
+          module: FlavBit
+
+    - capability: b2sll_M
+      function: b2sll_measurements
+
+    - capability: prediction_Bs2phimumuBr_*
+      options:
+        obs_list: [Bs2phimumuBr]
+
+    - capability: prediction_B2KstarmumuBr_*
+      options:
+        obs_list: [B2KstarmumuBr]
+
+    - capability: prediction_B2KmumuBr_*
+      options:
+        obs_list: [B2KmumuBr]
+
+    - capability: prediction_B2KstarmumuAng_.*_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: prediction_B2KstarmumuAng_.*_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_LHCb
+      options:
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+
+    - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      options:
+        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+    - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+      options:
+        obs_list: [A3, A4, A5, A6, A7, A8, A9]
+
+
+##############################
+# Printer setup
+##############################
+
+Printer:
+
+  # Select printer to use via string tag
+  printer: cout
+
+  options:
+    # name of output file
+    output_file: "THDM_TEST.hdf5"
+    group: "/THDM_TEST"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    [Default] :  "Default.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDM_TEST/"
+  debug: false
+

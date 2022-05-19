@@ -1,0 +1,234 @@
+#########################################################################
+## GAMBIT configuration for running one likelihhod for the GTHDM
+## GTHDM_DeltaMs_test      
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## SuperISO
+##########################################################################
+
+
+Parameters:
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+    sba:
+      range: [0.99995,1.000000]
+      prior_type: flat
+    lambda6: 0.0
+    lambda7: 0.0
+    mC2:
+      range: [3240000.0,9000000.0]
+      prior_type: flat
+    m12_2:
+      range: [1440000.0,6250000.0]
+      prior_type: flat
+    mA2:
+      range: [3240000.0,9000000.0]
+      prior_type: flat
+    mH2:
+      range: [3240000.0,9000000.0]
+      prior_type: flat
+    tanb:  #3.17221761519669
+      range: [0.5, 5]
+      prior_type: flat
+    mh2: 15647.5
+    yd2_im_11: 0.0
+    yd2_im_12: 0.0
+    yd2_im_13: 0.0
+    yd2_im_21: 0.0
+    yd2_im_22: 0.0
+    yd2_im_23: 0.0
+    yd2_im_31: 0.0
+    yd2_im_32: 0.0
+    yd2_im_33: 0.0
+    yd2_re_11: 0
+    yd2_re_12: 0
+    yd2_re_13: 0
+    yd2_re_21: 0
+    yd2_re_22:
+      range: [-0.05, 0.05]
+      prior_type: flat
+    yd2_re_23:
+      range: [-0.05, 0.05]
+      prior_type: flat
+    yd2_re_31: 0
+    yd2_re_32:
+      same_as: THDM_physical::yd2_re_23
+    yd2_re_33:
+      range: [-0.1, 0.1]
+      prior_type: flat
+    yl2_im_11: 0.0
+    yl2_im_12: 0.0
+    yl2_im_13: 0.0
+    yl2_im_21: 0.0
+    yl2_im_22: 0.0
+    yl2_im_23: 0.0
+    yl2_im_31: 0.0
+    yl2_im_32: 0.0
+    yl2_im_33: 0.0
+    yl2_re_11: 0.0
+    yl2_re_12: 0.0
+    yl2_re_13: 0.0
+    yl2_re_21: 0.0
+    yl2_re_22:
+      range: [-0.5, 0.5]
+      prior_type: flat
+    yl2_re_23:
+      range: [-1.0, 1.0]
+      prior_type: flat
+    yl2_re_31: 0
+    yl2_re_32:
+      same_as: THDM_physical::yl2_re_23
+    yl2_re_33:
+      range: [-1.0, 1.0]
+      prior_type: flat
+    yu2_im_11: 0.0
+    yu2_im_12: 0.0
+    yu2_im_13: 0.0
+    yu2_im_21: 0.0
+    yu2_im_22: 0.0
+    yu2_im_23: 0.0
+    yu2_im_31: 0.0
+    yu2_im_32: 0.0
+    yu2_im_33: 0.0
+    yu2_re_11: 0
+    yu2_re_12: 0
+    yu2_re_13: 0
+    yu2_re_21: 0
+    yu2_re_22:
+      range: [-0.5, 0.5]
+      prior_type: flat
+    yu2_re_23:
+      range: [-2.0, 2.0]
+      prior_type: flat
+    yu2_re_31: 0
+    yu2_re_32:
+      range: [-2.0, 0]
+      prior_type: flat
+    yu2_re_33:
+      range: [0, 2.0]
+      prior_type: flat
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    #### NOTE 
+    ##Other Likelihoods
+
+    - capability: deltaMB_LL
+      function: deltaMB_likelihood
+      purpose: LogLike
+
+    # LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
+    #- capability: gmu_ge_lnL
+    #  function: gmu_ge_likelihood
+    #  purpose: LogLike
+
+    #- capability: B2Kllp_lnL
+    #  function: B2Kllp_likelihood
+    #  purpose: LogLike
+
+    #################
+    # Observables
+    #################
+
+    - capability: DeltaMs
+      function: THDM_Delta_MBs
+      purpose: Observable
+
+    #- capability: B2Ktautau
+    #  function: SI_BRBKtautau
+    #  module: FlavBit
+    #  purpose: Observable
+
+    #- capability: gmu_ge
+    #  function: THDM_gmu_ge
+    #  module: FlavBit
+    #  purpose: Observable
+
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+    - options:
+        use_SM_covariance: false
+
+# Printer setup
+##############################
+
+Printer:
+
+  printer: hdf5
+  options:
+    output_file: "GTHDM_Delta.hdf5"
+    group: "/GTHDM_Delta"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: de
+
+  scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 3000
+      convthresh: 1e-3
+      verbosity: 1
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 2000
+      tol: 0.001
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    #[Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    #[PrecisionBit] :  "PrecisionBit.log"
+    #[SpecBit] :  "SpecBit.log"
+    #[Dependency Resolver] :  "DepResolver.log"
+    #[Scanner]:  "Scanner.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+    print_invalid_points: false
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  default_output_path: "runs/GTHDM_Delta/"
+  debug: false

@@ -3314,6 +3314,9 @@ muon_gm2: |
 muon_gm2_SM: |
    The SM contribution to g−2 of the muon.
 
+muon_gm2_Exp: |
+   The experimental measurement of g−2 of the muon.
+
 lnL_sinW2_eff : |
    Log-likelihood of the effective leptonic weak mixing angle sin^2 θ_W,eff.
 
@@ -3536,6 +3539,21 @@ SuperIso_4_1_init : |
 SuperIso_modelinfo : |
    SuperIso internal model information.
 
+h2bs: |
+   The branching ratio BR(h->bs).
+
+t2ch: |
+   The branching ratio BR(t->ch).
+
+t2ch_LL: |
+   Log-likelihood for BR(t->ch).
+
+h2taumu: |
+   The branching ratio BR(h->taumu).
+
+h2taumu_LL: |
+   Log-likelihood for BR(h->taumu).
+
 b2ll_LL : |
    Log-likelihood for BR(Bd-> μ+ μ-) and BR(Bs-> μ+ μ-).
 
@@ -3650,6 +3668,9 @@ mueAu: |
 muePb: |
    Calculates the ratio for mu-e conversion in lead wrt capture
 
+gmu_ge: |
+   Calculates the ratio g_mu over g_e representing lepton universality in tau decays/
+
 l2lgamma_lnL: |
    Log-likelihood for l -> l gamma processes
 
@@ -3658,6 +3679,9 @@ l2lll_lnL: |
 
 mu2e_lnL: |
    Log-likelihood for mu - e conversion in nucleii
+
+gmu_ge_lnL: |
+   Log-likelihood for g_mu over g_e/
 
 
 #-------------------------------------

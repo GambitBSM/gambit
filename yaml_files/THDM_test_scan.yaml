@@ -1,0 +1,211 @@
+#########################################################################
+## GAMBIT configuration for running a single random point of the GTHDM
+## THDM_debug	
+##
+## Includes all compatible likelihoods:
+## Theoretical, experimental & flavor
+##
+## Requires backends:
+## THDMC, SuperISO, HEPlike
+##########################################################################
+
+
+Parameters:
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+    lambda6: 0
+    lambda7: 0
+    m12_2: 1537600.0 #1562500.0
+    mA2: 3240000
+    mC2: 3240000
+    mH2: 3240000
+    mh2: 15647.5 #125.09^2
+    sba: 1.0
+    tanb: 1.0
+    yd2_im_11: 0
+    yd2_im_12: 0
+    yd2_im_13: 0
+    yd2_im_21: 0
+    yd2_im_22: 0
+    yd2_im_23: 0
+    yd2_im_31: 0
+    yd2_im_32: 0
+    yd2_im_33: 0
+    yd2_re_11: 0 #0.0000190887
+    yd2_re_12: 0
+    yd2_re_13: 0
+    yd2_re_21: 0
+    yd2_re_22: 0 #0.000389896
+    yd2_re_23: 0
+    yd2_re_31: 0
+    yd2_re_32: 0
+    yd2_re_33: 0 #0.01697672105
+    yl2_im_11: 0
+    yl2_im_12: 0
+    yl2_im_13: 0
+    yl2_im_21: 0
+    yl2_im_22: 0
+    yl2_im_23: 0
+    yl2_im_31: 0
+    yl2_im_32: 0
+    yl2_im_33: 0
+    yl2_re_11: 0 #2.07538e-06
+    yl2_re_12: 0
+    yl2_re_13: 0
+    yl2_re_21: 0
+    yl2_re_22: 0 #0.000429121
+    yl2_re_23: 0
+    yl2_re_31: 0
+    yl2_re_32: 0
+    yl2_re_33: 0 #0.00721657
+    yu2_im_11: 0
+    yu2_im_12: 0
+    yu2_im_13: 0
+    yu2_im_21: 0
+    yu2_im_22: 0
+    yu2_im_23: 0
+    yu2_im_31: 0
+    yu2_im_32: 0
+    yu2_im_33: 0
+    yu2_re_11: 0 #8.93512e-06
+    yu2_re_12: 0
+    yu2_re_13: 0
+    yu2_re_21: 0
+    yu2_re_22: 0 #0.00519861
+    yu2_re_23: 0
+    yu2_re_31: 0
+    yu2_re_32: 0
+    yu2_re_33: 2 #0.70400593957
+
+# Printer setup
+##############################
+
+Printer:
+
+  # Select printer to use via string tag
+  printer: cout
+
+  options:
+    # name of output file
+    output_file: "THDM_TEST.hdf5"
+    group: "/THDM_TEST"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 5000
+      convthresh: 1e-5
+      verbosity: 1
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    #Tree level Yukawas perturbativity
+
+    # # B->Kllp 
+    - capability: B2Kllp_lnL
+      function: B2Kllp_likelihood
+      purpose: LogLike
+
+     # # Bs->llp 
+    - capability: Bs2llp_lnL
+      function: Bs2llp_likelihood
+      purpose: LogLike
+
+    #################
+    # Observables
+    #################
+
+    - capability: DeltaC9_tautau
+      function: calculate_DeltaC9_tautau
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10_tautau
+      function: calculate_DeltaC10_tautau
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC9_tautau_Prime
+      function: calculate_DeltaC9_tautau_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC10_tautau_Prime
+      function: calculate_DeltaC10_tautau_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: B2Ktautau
+      function: SI_BRBKtautau
+      module: FlavBit
+      purpose: Observable
+
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    [Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    # [PrecisionBit] :  "PrecisionBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "DepResolver.log"
+    [Scanner]:  "Scanner.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  #By default, errors are fatal and warnings non-fatal
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDM_TEST/"
+  debug: false
+

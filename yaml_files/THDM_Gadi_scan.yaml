@@ -13,69 +13,113 @@
 Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   THDM_physical:
-    lambda6: 0
-    lambda7: 0
-    m12_2: 1537600.0 #1562500.0
-    mA2: 3240000
-    mC2: 3240000
-    mH2: 3240000
-    mh2: 15647.5 #125.09^2
-    sba: 0.9999
-    tanb: 1.0
-    yd2_im_11: 0
-    yd2_im_12: 0
-    yd2_im_13: 0
-    yd2_im_21: 0
-    yd2_im_22: 0
-    yd2_im_23: 0
-    yd2_im_31: 0
-    yd2_im_32: 0
-    yd2_im_33: 0
-    yd2_re_11: 0 #0.0000190887
-    yd2_re_12: 0
-    yd2_re_13: 0
-    yd2_re_21: 0
-    yd2_re_22: 0 #0.000389896
-    yd2_re_23: 0.001
-    yd2_re_31: 0
-    yd2_re_32: 0.001
-    yd2_re_33: -0.1 #0.01697672105
-    yl2_im_11: 0
-    yl2_im_12: 0
-    yl2_im_13: 0
-    yl2_im_21: 0
-    yl2_im_22: 0
-    yl2_im_23: 0
-    yl2_im_31: 0
-    yl2_im_32: 0
-    yl2_im_33: 0
-    yl2_re_11: 0 #2.07538e-06
-    yl2_re_12: 0
-    yl2_re_13: 0
-    yl2_re_21: 0
-    yl2_re_22: 0.01 #0.000429121
-    yl2_re_23: 0.01
-    yl2_re_31: 0
-    yl2_re_32: 0.01
-    yl2_re_33: 0.2 #0.00721657
-    yu2_im_11: 0
-    yu2_im_12: 0
-    yu2_im_13: 0
-    yu2_im_21: 0
-    yu2_im_22: 0
-    yu2_im_23: 0
-    yu2_im_31: 0
-    yu2_im_32: 0
-    yu2_im_33: 0
-    yu2_re_11: 0 #8.93512e-06
-    yu2_re_12: 0
-    yu2_re_13: 0
-    yu2_re_21: 0
-    yu2_re_22: 0 #0.00519861
-    yu2_re_23: 0.01
-    yu2_re_31: 0
-    yu2_re_32: -0.2
-    yu2_re_33: 2 #0.70400593957
+        mh2:
+             fixed_value: 15647.5 # 125.09^2
+        mC2:
+            range: [250000.0, 9000000.0]
+            prior_type: flat
+        mA2:
+            range: [250000.0, 9000000.0]
+            prior_type: flat
+        mH2:
+            range: [250000.0, 9000000.0]
+            prior_type: flat
+        # --- Assuming a CP-conserving THDM model ---
+        lambda6:
+            fixed_value: 0.0
+        lambda7:
+            fixed_value: 0.0
+        # -------------------------------------------
+        m12_2:
+            range: [-2560000.0, 2560000.0]
+            prior_type: flat
+        tanb:
+            range: [0.02, 50]
+            prior_type: log
+        sba:
+            range: [-1.000, 1.0000]
+            prior_type: flat
+        # ------------------Yukawas-------------------
+        yu2_re_11: 0
+        yu2_re_12: 0
+        yu2_re_13: 0
+        yu2_re_21: 0
+        yu2_re_22:
+            range: [-0.1, 0.1]
+            prior_type: flat
+        yu2_re_23:
+            range: [-2.0, 2.0]
+            prior_type: flat
+        yu2_re_31: 0
+        yu2_re_32:
+            same_as: THDM_physical::yu2_re_23
+        yu2_re_33:
+            range: [0.6, 1.2]
+            prior_type: flat
+        # -------------------------------------------
+        yd2_im_11: 0
+        yd2_im_12: 0
+        yd2_im_13: 0
+        yd2_im_21: 0
+        yd2_im_22: 0
+        yd2_im_23: 0
+        yd2_im_31: 0
+        yd2_im_32: 0
+        yd2_im_33: 0
+        # -------------------------------------------
+        yd2_re_11: 0
+        yd2_re_12: 0
+        yd2_re_13: 0
+        yd2_re_21: 0
+        yd2_re_22:
+            range: [-0.05, 0.05]
+            prior_type: flat
+        yd2_re_23:
+            range: [-0.05, 0.05]
+            prior_type: flat
+        yd2_re_31: 0
+        yd2_re_32:
+            same_as: THDM_physical::yd2_re_23
+        yd2_re_33:
+            range: [-0.1, 0.1]
+            prior_type: flat
+        # -------------------------------------------
+        yd2_im_11: 0
+        yd2_im_12: 0
+        yd2_im_13: 0
+        yd2_im_21: 0
+        yd2_im_22: 0
+        yd2_im_23: 0
+        yd2_im_31: 0
+        yd2_im_32: 0
+        yd2_im_33: 0
+        # -------------------------------------------
+        yl2_re_11: 0
+        yl2_re_12: 0
+        yl2_re_13: 0
+        yl2_re_21: 0
+        yl2_re_22: 0
+            range: [-0.5, 0.5]
+            prior_type: flat
+        yl2_re_23:
+            range: [-0.5, 0.5]
+            prior_type: flat
+        yl2_re_31:
+        yl2_re_32:
+            same_as: THDM_physical::yl2_re_23
+        yl2_re_33:
+            range: [-0.5, 0.5]
+            prior_type: flat
+        # -------------------------------------------
+        yl2_im_11: 0
+        yl2_im_12: 0
+        yl2_im_13: 0
+        yl2_im_21: 0
+        yl2_im_22: 0
+        yl2_im_23: 0
+        yl2_im_31: 0
+        yl2_im_32: 0
+        yl2_im_33: 0 
 
 # Printer setup
 ##############################
@@ -87,8 +131,8 @@ Printer:
 
   options:
     # name of output file
-    output_file: "THDM_TEST.hdf5"
-    group: "/THDM_TEST"
+    output_file: "THDM_Gadi.hdf5"
+    group: "/THDM_Gadi"
     delete_file_on_restart: true
 
 
@@ -98,7 +142,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: de
 
   scanners:
 
@@ -108,12 +152,6 @@ Scanner:
       NP: 5000
       convthresh: 1e-5
       verbosity: 1
-
-    random:
-      plugin: random
-      like: LogLike
-      point_number: 1
-
 
 ObsLikes:
 
@@ -227,6 +265,38 @@ ObsLikes:
       function: BDtaunu_likelihood
       purpose: LogLike
 
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Atlas
+   
+    # 7 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_CMS
+
+    # 4 observables all q2 range 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_Belle
+
+    # 6 observables 
+    - purpose:    LogLike
+      capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+
+    # 6 observables, HEPLike LogLikelihood B -> K* mu mu Angular CP assymetry
+    - purpose: LogLike
+      capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+
+   # 6 observables
+    - purpose:    LogLike
+      capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+   # 2 obs, low and high q2
+    - purpose:    LogLike
+      capability: Bs2phimumuBr_LogLikelihood
+
+   # 6 observables, different bins compared to Kstar
+    - purpose:    LogLike
+      capability: B2KmumuBr_LogLikelihood_LHCb
+
     # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
     - purpose: LogLike
       capability: LUV_LL
@@ -245,39 +315,22 @@ ObsLikes:
       function: deltaMB_likelihood
       purpose: LogLike
 
-    # # h2taumu_LL
-    - capability: h2taumu_LL
-      function: h2taumu_likelihood
-      purpose: LogLike
-
-    # # t2ch_LL
-    - capability: t2ch_LL
-      function: t2ch_likelihood
-      purpose: LogLike
+    #Not is use because LL function does not support correlations yet
+    #- purpose:    LogLike
+    #  capability: RDRDstar_LogLikelihood
 
     #################
     # Observables
     #################
 
     # Print spectrum as a map
-    #- capability: THDM_spectrum
-     # purpose: Observable
-      #type: map_str_dbl
-
-    - capability: Bc_lifetime
-      function: THDM_Bc_lifetime
+    - capability: THDM_spectrum
       purpose: Observable
+      type: map_str_dbl
 
-    - capability: h2taumu
-      function: THDM_h2taumu
-      purpose: Observable
-
-    - capability: t2ch
-      function: THDM_t2ch
-      purpose: Observable
-
-    - capability: h2bs
-      function: THDM_h2bs
+    - capability: DeltaC2
+      function: calculate_DeltaC2
+      module: FlavBit
       purpose: Observable
 
     - capability: DeltaMs
@@ -291,6 +344,16 @@ ObsLikes:
 
     - capability: DeltaC7_Prime
       function: calculate_DeltaC7_Prime
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC8
+      function: calculate_DeltaC8
+      module: FlavBit
+      purpose: Observable
+
+    - capability: DeltaC8_Prime
+      function: calculate_DeltaC8_Prime
       module: FlavBit
       purpose: Observable
 
@@ -314,38 +377,23 @@ ObsLikes:
       module: FlavBit
       purpose: Observable
 
-    - capability: RD
-      function: THDM_RD
+    - capability: DeltaCQ1
+      function: calculate_DeltaCQ1
       module: FlavBit
       purpose: Observable
 
-    - capability: RDstar
-      function: THDM_RDstar
+    - capability: DeltaCQ2
+      function: calculate_DeltaCQ2
       module: FlavBit
       purpose: Observable
 
-    - capability: Btaunu
-      function: THDM_Btaunu
+    - capability: DeltaCQ1_Prime
+      function: calculate_DeltaCQ1_Prime
       module: FlavBit
       purpose: Observable
 
-    - capability: Rmu
-      function: THDM_Rmu
-      module: FlavBit
-      purpose: Observable
-
-    - capability: Dstaunu
-      function: THDM_Dstaunu
-      module: FlavBit
-      purpose: Observable
-
-    - capability: Dsmunu
-      function: THDM_Dsmunu
-      module: FlavBit
-      purpose: Observable
-
-    - capability: Dmunu
-      function: THDM_Dmunu
+    - capability: DeltaCQ2_Prime
+      function: calculate_DeltaCQ2_Prime
       module: FlavBit
       purpose: Observable
 
@@ -390,20 +438,56 @@ Rules:
       function: get_unitarity_likelihood_THDM
       #function: unitarity_lambdas_LL #Does not use the backend THDMC
 
-    # -------------------------------------------
-
-   # Specifies effc coupling input for HB/HS
-    #- capability: HB_ModelParameters_neutral
-    #  function: THDM_ModelParameters_effc
-    #  module: ColliderBit
-
-    - capability: Higgs_Couplings
-      function: THDM_higgs_couplings_2HDMC
-      module: SpecBit
-    # -------------------------------------------
-
     - capability: DeltaMs
       function: THDM_Delta_MBs
+
+    - capability: prediction_Bs2phimumuBr_*
+      options:
+        obs_list: [Bs2phimumuBr]
+
+    - capability: prediction_B2KstarmumuBr_*
+      options:
+        obs_list: [B2KstarmumuBr]
+
+    - capability: prediction_B2KmumuBr_*
+      options:
+        obs_list: [B2KmumuBr]
+
+    - capability: prediction_B2KstarmumuAng_.*_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Atlas
+      options:
+        obs_list: [FL, S3, S4, S5, S7, S8]
+
+    - capability: prediction_B2KstarmumuAng_.*_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_CMS
+      options:
+        obs_list: [P1, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: B2KstarmumuAng_LogLikelihood_Belle
+      options:
+        obs_list: [P4prime, P5prime]
+
+    - capability: prediction_B2KstarmumuAng_.*_LHCb
+      options:
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+
+    - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      options:
+        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+    - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+      options:
+        obs_list: [A3, A4, A5, A6, A7, A8, A9]
 
     - capability: SuperIso_modelinfo
       function: SI_fill
@@ -473,6 +557,6 @@ KeyValues:
     dependency_resolver_warning: non-fatal
     core_warning: fatal
 
-  default_output_path: "runs/THDM_TEST/"
+  default_output_path: "runs/THDM_Gadi/"
   debug: false
 

@@ -914,6 +914,46 @@ namespace Gambit
       result.lower = result.upper;
     }
 
+    /// g-2 in SM from Muon g-2 Theory Initiative White Paper arXiv:2006.04822
+    void gm2_SM_WhitePaper(triplet<double> &result)
+    {
+      result.central = 2.0 * 11659181.0e-10;
+      result.upper = 2.0 * 4.3e-10;
+      result.lower = result.upper;
+    }
+
+    /// g-2 in SM using Budapest-Marseille-Wuppertal lattice value arXiv:2002.12347
+    void gm2_SM_BMW(triplet<double> &result)
+    {
+      result.central = 2.0 * 11659195.4e-10;
+      result.upper = 2.0 * 5.8e-10;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the BNL experiment from hep-ex/0602035
+    void gm2_Exp_BNL(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592089e-11;
+      result.upper = 2.0 * 63e-11;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the FNAL experiment from hep-ex/2104.03281
+    void gm2_Exp_FNAL(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592040e-11;
+      result.upper = 2.0 * 54e-11;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the FNAL+BNL experiment from hep-ex/2104.03281
+    void gm2_Exp_WorldAverage(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592061e-11;
+      result.upper = 2.0 * 41e-11;
+      result.lower = result.upper;
+    }
+
     /// g-2 likelihood
     void lnL_gm2(double &result)
     {
@@ -924,9 +964,8 @@ namespace Gambit
       double amu_bsm_error = 0.5*std::max(Dep::muon_gm2->upper, Dep::muon_gm2->lower);
       double amu_theory = amu_sm + amu_bsm;
       double amu_theory_err = sqrt(Gambit::Utils::sqr(amu_sm_error) + Gambit::Utils::sqr(amu_bsm_error));
-      // From hep-ex/2104.03281 (Fermilab muon g-2 contribution)
-      double amu_exp = 116592061e-11;
-      double amu_exp_error = 41e-11;
+      double amu_exp = 0.5*Dep::muon_gm2_Exp->central;
+      double amu_exp_error = 0.5*std::max(Dep::muon_gm2_Exp->upper, Dep::muon_gm2_Exp->lower);
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(amu_theory, amu_exp, amu_theory_err, amu_exp_error, profile);
@@ -1127,13 +1166,13 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int f = 0, l = 1, lp = 1;
 
-      const double Alpha = 1/(sminputs.alphainv);
-      const double alpha = spectrum.get(Par::dimensionless,"alpha");
+      const double Alpha_em = 1/(sminputs.alphainv); //fine structure constant
+      const double alpha_h = spectrum.get(Par::dimensionless,"alpha"); //Higgs mixing angle
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
       const double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      const double cab = cos(alpha-beta);
+      const double vev = spectrum.get(Par::mass1, "vev");
+      const double cab = cos(alpha_h-beta);
       const double mW = sminputs.mW;
       const double mZ = sminputs.mZ;
       const double mE = sminputs.mE;
@@ -1183,21 +1222,21 @@ namespace Gambit
       const std::complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
       const std::complex<double> Vcb(A*lambda*lambda,0);
       const std::complex<double> Vtb(1,0);
-      const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
       const double xitc = Ytc/cosb;
-      const double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      const double xiss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
       const double xisb = Ysb/cosb;
-      const double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
       const double xiemu = Yemu/cosb;
       const double ximue = Ymue/cosb;
       const double xietau = Yetau/cosb;
       const double xitaue = Ytaue/cosb;
-      const double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
       const double ximutau = Ymutau/cosb;
       const double xitaumu = Ytaumu/cosb;
-      const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
@@ -1237,8 +1276,8 @@ namespace Gambit
           //}
           //else
           //{
-            A1L=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
-            A1R=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+            A1L=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
+            A1R=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
             Aloop1L += A1L;
             Aloop1R += A1R;
           //}
@@ -1248,8 +1287,8 @@ namespace Gambit
       // Need to remove the SM Higgs contribution
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       // Alternatively could use: 1607.06292, eqn (32)
-      std::complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
-      std::complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, v, 0.);
+      std::complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, vev, 0.);
+      std::complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1R(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, vev, 0.);
 
       // Two loop amplitude
       const std::vector<double> Qf = {-1.,-1./3.,2./3.};
@@ -1265,19 +1304,19 @@ namespace Gambit
       { 
         for (int lf=0; lf<=2; ++lf)
         {
-          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, phi, mMu, mlf, mphi[phi], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, v, cab, mW, mZ, Alpha);
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, phi, mMu, mlf, mphi[phi], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, vev, cab, mW, mZ, Alpha_em);
         }
       }
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       for (int lf=0; lf<=2; ++lf)
       {
-        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, v, 0., mW, mZ, Alpha);
+        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, vev, 0., mW, mZ, Alpha_em);
       }
 
       const std::vector<double> couplingphiCC = { \
-      (-(mh*mh-2.*mHp*mHp) * cos(alpha-3.*beta) * sin(2.*beta) + cos(alpha+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*v*v), \
-      (-(mH*mH-2.*mHp*mHp) * sin(alpha-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha + beta)) / sin(2.*beta) / (2.*v*v), \
+      (-(mh*mh-2.*mHp*mHp) * cos(alpha_h-3.*beta) * sin(2.*beta) + cos(alpha_h+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*vev*vev), \
+      (-(mH*mH-2.*mHp*mHp) * sin(alpha_h-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha_h + beta)) / sin(2.*beta) / (2.*vev*vev), \
       0.};
       const std::vector<double> couplingphiWW = {sqrt(1-pow(cab,2)), cab, 0.};
       const std::vector<std::complex<double>> couplingphiCW = { std::complex<double> (cab,0.),  std::complex<double> (-sqrt(1-pow(cab,2)),0.), std::complex<double> (0.,-1.)};
@@ -1290,23 +1329,25 @@ namespace Gambit
         // Superseded by gm2mu_loop2f by neutral boson contributions
         //for (int lf=0; lf<=2; ++lf)
         //{
-        //  Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], v, cab, Alpha);
+        //  Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], vev, cab, Alpha_em);
         //}
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, v, cab, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, v, cab, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, v, cab, mW, mZ, Alpha);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, sw2, v, cab, mW, mZ, Alpha);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, vev, cab, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, vev, cab, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
       }
       // Superseded by gm2mu_loop2f by charged boson contributions
-      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, sw2, v, cab, mW, mZ, Alpha);
+      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
-      Aloop2SMBZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, 0, mMu, mW, mphi[0], couplingphiWW[0], xi_L, VCKM, v, 0., Alpha);
+      Aloop2SMBZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, 0, mMu, mW, mphi[0], couplingphiWW[0], xi_L, VCKM, vev, 0., Alpha_em);
 
       //Bosonic contribution
       // 3-boson contributions suppressed and neglected
 
       result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() - Aloop2SMf.real() + Aloop2BZ.real() - Aloop2SMBZ.real();
+      //convert to g-2 for the likelihood
+      result.central = 2. * result.central;
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
 

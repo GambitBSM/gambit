@@ -520,6 +520,18 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Observable: BR(B+ ->K+ tau tau)
+  #define CAPABILITY B2Ktautau
+  START_CAPABILITY
+    #define FUNCTION SI_BRBKtautau
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(BRBKtautau_CONV, (libsuperiso), double, (const parameters*, double, double))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
 // Bs2llp likelihood
   #define CAPABILITY B2Kllp_lnL
   START_CAPABILITY
@@ -527,6 +539,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(B2Kmue, double)
     DEPENDENCY(B2Ktaumu, double)
+    DEPENDENCY(B2Ktautau, double)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -561,10 +574,6 @@ START_MODULE
     DEPENDENCY(RKstarnunu, double)
     #undef FUNCTION
   #undef CAPABILITY 
-
- // ---------------------------------
- //  Wilson coefficients in the GTHDM
- // ---------------------------------
 
 //C2 in the general THDM capability
   #define CAPABILITY DeltaC2
@@ -709,16 +718,100 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY  
 
-//  End of WCs in the GTHDM
-// -------------------------------
-  
+// WCs for tautau processes
+
+  #define CAPABILITY DeltaC9_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DeltaC10_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY DeltaC9_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC9_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//C10' in the general THDM capability
+  #define CAPABILITY DeltaC10_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaC10_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//CQ1 in the general THDM capability
+  #define CAPABILITY DeltaCQ1_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+//CQ2 in the general THDM capability
+  #define CAPABILITY DeltaCQ2_tautau
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2_tautau
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  //CQ1_Prime in the general THDM capability
+  #define CAPABILITY DeltaCQ1_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ1_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  //CQ2_Prime in the general THDM capability
+  #define CAPABILITY DeltaCQ2_tautau_Prime
+  START_CAPABILITY
+    #define FUNCTION calculate_DeltaCQ2_tautau_Prime
+    START_FUNCTION(std::complex<double>)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
   START_CAPABILITY
     #define FUNCTION SI_fill
     START_FUNCTION(parameters)
     ALLOW_MODELS(THDM, THDMatQ)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC, WC_LR, WC_LUV)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
     BACKEND_REQ(slha_adjust, (libsuperiso), void, (parameters*))
     // TODO: Why do you need mcmc from the pole mass, if mcmc is given in sminputs?
@@ -728,7 +821,7 @@ START_MODULE
     DEPENDENCY(W_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(Z_decay_rates, DecayTable::Entry)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
-    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, WC, WC_LR, WC_LUV)
+    MODEL_CONDITIONAL_DEPENDENCY(SM_spectrum, Spectrum, GWC)
     MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC2, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaC7, std::complex<double>, THDM, THDMatQ)
@@ -743,6 +836,14 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2, std::complex<double>,  THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_Prime, std::complex<double>, THDM, THDMatQ)
     MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_tautau, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_tautau, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC9_tautau_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaC10_tautau_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_tautau, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau, std::complex<double>,  THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ1_tautau_Prime, std::complex<double>, THDM, THDMatQ)
+    MODEL_CONDITIONAL_DEPENDENCY(DeltaCQ2_tautau_Prime, std::complex<double>, THDM, THDMatQ)
    #undef FUNCTION
   #undef CAPABILITY
 
@@ -1462,7 +1563,19 @@ START_MODULE
     #undef FUNCTION
    #undef CAPABILITY
 
-  // Observable: BR(B->D tau nu)/BR(B->D e nu)
+  // Observable: BR(B->D e nu)/BR(B->D mu nu)
+  #define CAPABILITY RDemu
+  START_CAPABILITY
+     //Function for the general THDM
+    #define FUNCTION THDM_RDemu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(B->D tau nu)/BR(B->D mu nu)
   #define CAPABILITY RD
   START_CAPABILITY
     #define FUNCTION SI_RD
@@ -1480,7 +1593,7 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: BR(B->D tau nu)/BR(B->D e nu)
+  // Observable: BR(B->D tau nu)/BR(B->D mu nu)
   #define CAPABILITY RDstar
   START_CAPABILITY
     #define FUNCTION SI_RDstar
@@ -1576,6 +1689,18 @@ START_MODULE
     #undef FUNCTION
     //Function for the general THDM
     #define FUNCTION THDM_Dmunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(D->tau nu)
+  #define CAPABILITY Dtaunu
+  START_CAPABILITY
+    //Function for the general THDM
+    #define FUNCTION THDM_Dtaunu
     START_FUNCTION(double)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
@@ -1917,10 +2042,43 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
+
+ // Observable: BR(h->bs)
+  #define CAPABILITY h2bs
+  START_CAPABILITY
+    #define FUNCTION THDM_h2bs
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+ // Observable: BR(t->ch)
+  #define CAPABILITY t2ch
+  START_CAPABILITY
+    #define FUNCTION THDM_t2ch
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
   
   //###############################################
   // Lepton Flavour Violation
   //###############################################
+
+  // Observable: BR(h->tau mu)
+  #define CAPABILITY h2taumu
+  START_CAPABILITY
+    #define FUNCTION THDM_h2taumu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Observable: mu -> e gamma
   #define CAPABILITY muegamma
@@ -2175,6 +2333,24 @@ START_MODULE
   //  Likelihoods
   //###############################################
 
+  // h->tau mu likelihood
+  #define CAPABILITY h2taumu_LL
+  START_CAPABILITY
+    #define FUNCTION h2taumu_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(h2taumu, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // t->ch likelihood
+  #define CAPABILITY t2ch_LL
+  START_CAPABILITY
+    #define FUNCTION t2ch_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(t2ch, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // B meson mass aysmmetry likelihood
   #define CAPABILITY deltaMB_LL
   START_CAPABILITY
@@ -2307,6 +2483,8 @@ START_MODULE
     DEPENDENCY(Dstaunu, double)
     DEPENDENCY(Dsmunu, double)
     DEPENDENCY(Dmunu, double)
+    DEPENDENCY(Dtaunu, double)
+    DEPENDENCY(RDemu, double)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2380,7 +2558,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION Flavio_test
     START_FUNCTION(double)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, WC)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC)
     BACKEND_REQ(sm_prediction_CONV, (needs_flavio), double, (std::string) )
     BACKEND_OPTION( (Flavio, 0.30.0), (needs_flavio) )
     #undef FUNCTION

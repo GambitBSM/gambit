@@ -122,6 +122,12 @@
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
+    #define FUNCTION simple_perturbativity_lambdas_LL
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODEL(THDM, THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY perturbativity_yukawas_LL

@@ -415,7 +415,7 @@ set(lib "libsuperiso")
 set(dl "http://www.physik.uzh.ch/~mchrzasz/${name}_v${ver}_flavbit4.tar.gz")
 set(md5 "7222b6aba544de14975fe19945758e6e")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -423,7 +423,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
-    PATCH_COMMAND cd .. && patch -s -p0 < ${patch}/superiso.patch
+    PATCH_COMMAND cd .. && patch -p0 < ${patch}
     # ----------
     # does not work on my build
     # ----------

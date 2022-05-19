@@ -47,7 +47,7 @@
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 June-December
-///  \date 2021 Jan-May
+///  \date 2021 Jan-Sep
 //
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
@@ -237,7 +237,7 @@ namespace Gambit
 
       SLHAstruct spectrum;
       // Obtain SLHAea object from spectrum
-      if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV") )
+      if (ModelInUse("GWC"))
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
       }
@@ -252,7 +252,7 @@ namespace Gambit
         // Obtain SLHAea object
         spectrum = Dep::THDM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
-        SLHAea_add(spectrum,"MODSEL",1, 10, "THDM", false);
+        SLHAea_add(spectrum,"MODSEL",1, -3, "THDM", false);
       }
       else
       {
@@ -262,7 +262,6 @@ namespace Gambit
       BEreq::Init_param(&result);
 
       int ie,je;
-
       result.model=-1;
       if (!spectrum["MODSEL"].empty())
       {
@@ -341,11 +340,11 @@ namespace Gambit
             if (spectrum["MINPAR"][4].is_data_line()) result.sign_mu=SLHAea::to<double>(spectrum["MINPAR"][4][1]);
             break;
          
-          case 10:
+          case -3:
           
             // THDM model parameter
             if(spectrum["FMODSEL"][1].is_data_line()) result.THDM_model=(SLHAea::to<int>(spectrum["FMODSEL"][1][1]) - 30);
-            if (result.THDM_model == 0) result.THDM_model=10;
+            if (result.THDM_model == 0) result.THDM_model=-3;
             if(spectrum["FMODSEL"][5].is_data_line()) result.CPV=SLHAea::to<int>(spectrum["FMODSEL"][5][1]);
             if(spectrum["MINPAR"][3].is_data_line())  result.tan_beta=SLHAea::to<double>(spectrum["MINPAR"][3][1]);
             if(spectrum["MINPAR"][18].is_data_line()) result.m12=SLHAea::to<double>(spectrum["MINPAR"][18][1]);
@@ -621,7 +620,7 @@ namespace Gambit
          if (spectrum["TE"][max(ie,je)].is_data_line()) result.TE[ie][je]=SLHAea::to<double>(spectrum["TE"].at(ie,je)[2]);
       }
 
-      else if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV") )
+      else if (ModelInUse("GWC"))
       {
         // The Higgs mass doesn't come through in the SLHAea object, as that's only for SLHA2 SM inputs.
         result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
@@ -652,14 +651,14 @@ namespace Gambit
         {
           result.mass_h0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
-        else if (ModelInUse("WC") || ModelInUse("WC_LUV") || ModelInUse("WC_LR") )
+        else if (ModelInUse("GWC"))
         {
           result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
         result.mass_b_1S = BEreq::mb_1S(&result);
       }
 
-      if (ModelInUse("WC"))
+      if (ModelInUse("GWC"))
       {
 
         // Tell SuperIso to do its Wilson coefficient calculations for the SM.
@@ -668,78 +667,31 @@ namespace Gambit
         result.SM = 1;
 
         // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
-        result.Re_DeltaC7  = *Param["Re_DeltaC7"];
-        result.Im_DeltaC7  = *Param["Im_DeltaC7"];
-        result.Re_DeltaC9  = *Param["Re_DeltaC9"];
-        result.Im_DeltaC9  = *Param["Im_DeltaC9"];
-        result.Re_DeltaC10 = *Param["Re_DeltaC10"];
-        result.Im_DeltaC10 = *Param["Im_DeltaC10"];
-        result.Re_DeltaCQ1 = *Param["Re_DeltaCQ1"];
-        result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1"];
-        result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2"];
-        result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
 
-        /* Lines below are valid only in the flavour universal case
-           deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
-           deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
+        // Fill the flavour independent too, for backwards compatibility
+        result.Re_DeltaC7  = *Param["Re_DeltaC7_mu"];
+        result.Im_DeltaC7  = *Param["Im_DeltaC7_mu"];
+        result.Re_DeltaC9  = *Param["Re_DeltaC9_mu"];
+        result.Im_DeltaC9  = *Param["Im_DeltaC9_mu"];
+        result.Re_DeltaC10 = *Param["Re_DeltaC10_mu"];
+        result.Im_DeltaC10 = *Param["Im_DeltaC10_mu"];
+        result.Re_DeltaCQ1 = *Param["Re_DeltaCQ1_mu"];
+        result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1_mu"];
+        result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2_mu"];
+        result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2_mu"];
 
-        result.deltaC[7]=result.deltaC[17]=result.deltaC[27]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
-        result.deltaC[9]=result.deltaC[19]=result.deltaC[29]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
-        result.deltaC[10]=result.deltaC[20]=result.deltaC[30]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
+        result.Re_DeltaC7_Prime  = *Param["Re_DeltaC7_mu_Prime"];
+        result.Im_DeltaC7_Prime  = *Param["Im_DeltaC7_mu_Prime"];
+        result.Re_DeltaC9_Prime  = *Param["Re_DeltaC9_mu_Prime"];
+        result.Im_DeltaC9_Prime  = *Param["Im_DeltaC9_mu_Prime"];
+        result.Re_DeltaC10_Prime = *Param["Re_DeltaC10_mu_Prime"];
+        result.Im_DeltaC10_Prime = *Param["Im_DeltaC10_mu_Prime"];
+        result.Re_DeltaCQ1_Prime = *Param["Re_DeltaCQ1_mu_Prime"];
+        result.Im_DeltaCQ1_Prime = *Param["Im_DeltaCQ1_mu_Prime"];
+        result.Re_DeltaCQ2_Prime = *Param["Re_DeltaCQ2_mu_Prime"];
+        result.Im_DeltaCQ2_Prime = *Param["Im_DeltaCQ2_mu_Prime"];
 
-        result.deltaCQ[1]=result.deltaCQ[3]=result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
-        result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
-      }
-      if (ModelInUse("WC_LR"))
-      {
-          result.SM = 1;
-
-          result.Re_DeltaC7  = *Param["Re_DeltaC7"];
-          result.Im_DeltaC7  = *Param["Im_DeltaC7"];
-          result.Re_DeltaC9  = *Param["Re_DeltaC9"];
-          result.Im_DeltaC9  = *Param["Im_DeltaC9"];
-          result.Re_DeltaC10 = *Param["Re_DeltaC10"];
-          result.Im_DeltaC10 = *Param["Im_DeltaC10"];
-          result.Re_DeltaCQ1 = *Param["Re_DeltaCQ1"];
-          result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1"];
-          result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2"];
-          result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
-
-          result.Re_DeltaC7_Prime  = *Param["Re_DeltaC7_Prime"];
-          result.Im_DeltaC7_Prime  = *Param["Im_DeltaC7_Prime"];
-          result.Re_DeltaC9_Prime  = *Param["Re_DeltaC9_Prime"];
-          result.Im_DeltaC9_Prime  = *Param["Im_DeltaC9_Prime"];
-          result.Re_DeltaC10_Prime = *Param["Re_DeltaC10_Prime"];
-          result.Im_DeltaC10_Prime = *Param["Im_DeltaC10_Prime"];
-          result.Re_DeltaCQ1_Prime = *Param["Re_DeltaCQ1_Prime"];
-          result.Im_DeltaCQ1_Prime = *Param["Im_DeltaCQ1_Prime"];
-          result.Re_DeltaCQ2_Prime = *Param["Re_DeltaCQ2_Prime"];
-          result.Im_DeltaCQ2_Prime = *Param["Im_DeltaCQ2_Prime"];
-          // left handed:
-          result.deltaC[7]=result.deltaC[17]=result.deltaC[27]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
-          result.deltaC[9]=result.deltaC[19]=result.deltaC[29]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
-          result.deltaC[10]=result.deltaC[20]=result.deltaC[30]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
-
-          result.deltaCQ[1]=result.deltaCQ[3]=result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
-          result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
-
-          // right handed:
-          result.deltaCp[7]=result.deltaCp[17]=result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime);
-          result.deltaCp[9]=result.deltaCp[19]=result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9_Prime, result.Im_DeltaC9_Prime);
-          result.deltaCp[10]=result.deltaCp[20]=result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10_Prime, result.Im_DeltaC10_Prime);
-
-
-
-          result.deltaCQp[1]=result.deltaCQp[3]=result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_Prime, result.Im_DeltaCQ1_Prime);
-          result.deltaCQp[2]=result.deltaCQp[4]=result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_Prime, result.Im_DeltaCQ2_Prime);
-
-        }
-
-      else if (ModelInUse("WC_LUV"))
-      {
-        result.SM = 1;
-
-        // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
+        // Flavour dependent WCs
         result.Re_DeltaC7_mu  = *Param["Re_DeltaC7_mu"];
         result.Im_DeltaC7_mu  = *Param["Im_DeltaC7_mu"];
         result.Re_DeltaC9_mu  = *Param["Re_DeltaC9_mu"];
@@ -773,10 +725,44 @@ namespace Gambit
         result.Re_DeltaCQ2_tau = *Param["Re_DeltaCQ2_tau"];
         result.Im_DeltaCQ2_tau = *Param["Im_DeltaCQ2_tau"];
 
+        result.Re_DeltaC7_mu_Prime  = *Param["Re_DeltaC7_mu_Prime"];
+        result.Im_DeltaC7_mu_Prime  = *Param["Im_DeltaC7_mu_Prime"];
+        result.Re_DeltaC9_mu_Prime  = *Param["Re_DeltaC9_mu_Prime"];
+        result.Im_DeltaC9_mu_Prime  = *Param["Im_DeltaC9_mu_Prime"];
+        result.Re_DeltaC10_mu_Prime = *Param["Re_DeltaC10_mu_Prime"];
+        result.Im_DeltaC10_mu_Prime = *Param["Im_DeltaC10_mu_Prime"];
+        result.Re_DeltaCQ1_mu_Prime = *Param["Re_DeltaCQ1_mu_Prime"];
+        result.Im_DeltaCQ1_mu_Prime = *Param["Im_DeltaCQ1_mu_Prime"];
+        result.Re_DeltaCQ2_mu_Prime = *Param["Re_DeltaCQ2_mu_Prime"];
+        result.Im_DeltaCQ2_mu_Prime = *Param["Im_DeltaCQ2_mu_Prime"];
+
+        result.Re_DeltaC7_e_Prime  = *Param["Re_DeltaC7_e_Prime"];
+        result.Im_DeltaC7_e_Prime  = *Param["Im_DeltaC7_e_Prime"];
+        result.Re_DeltaC9_e_Prime  = *Param["Re_DeltaC9_e_Prime"];
+        result.Im_DeltaC9_e_Prime  = *Param["Im_DeltaC9_e_Prime"];
+        result.Re_DeltaC10_e_Prime = *Param["Re_DeltaC10_e_Prime"];
+        result.Im_DeltaC10_e_Prime = *Param["Im_DeltaC10_e_Prime"];
+        result.Re_DeltaCQ1_e_Prime = *Param["Re_DeltaCQ1_e_Prime"];
+        result.Im_DeltaCQ1_e_Prime = *Param["Im_DeltaCQ1_e_Prime"];
+        result.Re_DeltaCQ2_e_Prime = *Param["Re_DeltaCQ2_e_Prime"];
+        result.Im_DeltaCQ2_e_Prime = *Param["Im_DeltaCQ2_e_Prime"];
+
+        result.Re_DeltaC7_tau_Prime  = *Param["Re_DeltaC7_tau_Prime"];
+        result.Im_DeltaC7_tau_Prime  = *Param["Im_DeltaC7_tau_Prime"];
+        result.Re_DeltaC9_tau_Prime  = *Param["Re_DeltaC9_tau_Prime"];
+        result.Im_DeltaC9_tau_Prime  = *Param["Im_DeltaC9_tau_Prime"];
+        result.Re_DeltaC10_tau_Prime = *Param["Re_DeltaC10_tau_Prime"];
+        result.Im_DeltaC10_tau_Prime = *Param["Im_DeltaC10_tau_Prime"];
+        result.Re_DeltaCQ1_tau_Prime = *Param["Re_DeltaCQ1_tau_Prime"];
+        result.Im_DeltaCQ1_tau_Prime = *Param["Im_DeltaCQ1_tau_Prime"];
+        result.Re_DeltaCQ2_tau_Prime = *Param["Re_DeltaCQ2_tau_Prime"];
+        result.Im_DeltaCQ2_tau_Prime = *Param["Im_DeltaCQ2_tau_Prime"];
+
         /* Lines below are valid in the flavour NON-universal case
            deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
            deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
 
+        // left handed:
         result.deltaC[7]=std::complex<double>(result.Re_DeltaC7_mu, result.Im_DeltaC7_mu);
         result.deltaC[9]=std::complex<double>(result.Re_DeltaC9_mu, result.Im_DeltaC9_mu);
         result.deltaC[10]=std::complex<double>(result.Re_DeltaC10_mu, result.Im_DeltaC10_mu);
@@ -789,16 +775,38 @@ namespace Gambit
         result.deltaCQ[3]=std::complex<double>(result.Re_DeltaCQ1_e, result.Im_DeltaCQ1_e);
         result.deltaCQ[4]=std::complex<double>(result.Re_DeltaCQ2_e, result.Im_DeltaCQ2_e);
 
-
         result.deltaC[27]=std::complex<double>(result.Re_DeltaC7_tau, result.Im_DeltaC7_tau);
         result.deltaC[29]=std::complex<double>(result.Re_DeltaC9_tau, result.Im_DeltaC9_tau);
         result.deltaC[30]=std::complex<double>(result.Re_DeltaC10_tau, result.Im_DeltaC10_tau);
         result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1_tau, result.Im_DeltaCQ1_tau);
         result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2_tau, result.Im_DeltaCQ2_tau);
 
+
+        // right handed:
+        result.deltaCp[7]=std::complex<double>(result.Re_DeltaC7_mu_Prime, result.Im_DeltaC7_mu_Prime);
+        result.deltaCp[9]=std::complex<double>(result.Re_DeltaC9_mu_Prime, result.Im_DeltaC9_mu_Prime);
+        result.deltaCp[10]=std::complex<double>(result.Re_DeltaC10_mu_Prime, result.Im_DeltaC10_mu_Prime);
+        result.deltaCQp[1]=std::complex<double>(result.Re_DeltaCQ1_mu_Prime, result.Im_DeltaCQ1_mu_Prime);
+        result.deltaCQp[2]=std::complex<double>(result.Re_DeltaCQ2_mu_Prime, result.Im_DeltaCQ2_mu_Prime);
+
+        result.deltaCp[17]=std::complex<double>(result.Re_DeltaC7_e_Prime, result.Im_DeltaC7_e_Prime);
+        result.deltaCp[19]=std::complex<double>(result.Re_DeltaC9_e_Prime, result.Im_DeltaC9_e_Prime);
+        result.deltaCp[20]=std::complex<double>(result.Re_DeltaC10_e_Prime, result.Im_DeltaC10_e_Prime);
+        result.deltaCQp[3]=std::complex<double>(result.Re_DeltaCQ1_e_Prime, result.Im_DeltaCQ1_e_Prime);
+        result.deltaCQp[4]=std::complex<double>(result.Re_DeltaCQ2_e_Prime, result.Im_DeltaCQ2_e_Prime);
+
+        result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_tau_Prime, result.Im_DeltaC7_tau_Prime);
+        result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9_tau_Prime, result.Im_DeltaC9_tau_Prime);
+        result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10_tau_Prime, result.Im_DeltaC10_tau_Prime);
+        result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_tau_Prime, result.Im_DeltaCQ1_tau_Prime);
+        result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_tau_Prime, result.Im_DeltaCQ2_tau_Prime);
+
       }
-      if (ModelInUse("THDMatQ"))
+      if (ModelInUse("THDM"))
       {
+        result.SM = 1;
+        result.THDM_model = -3; //force SI to read the THDM as an EFT
+        //cout<<"ModelInUse('THDM'), Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
         result.Re_DeltaC2  = Dep::DeltaC2->real();
         result.Im_DeltaC2  = Dep::DeltaC2->imag();
         result.Re_DeltaC7  = Dep::DeltaC7->real();
@@ -813,6 +821,15 @@ namespace Gambit
         result.Im_DeltaCQ1 = Dep::DeltaCQ1->imag();
         result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
         result.Im_DeltaCQ2 = Dep::DeltaCQ2->imag();
+
+        result.deltaC[2]=std::complex<double>(result.Re_DeltaC2, result.Im_DeltaC2);
+        result.deltaC[7]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
+        result.deltaC[8]=std::complex<double>(result.Re_DeltaC8, result.Im_DeltaC8);
+        result.deltaC[9]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
+        result.deltaC[10]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
+        result.deltaCQ[1]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
+        result.deltaCQ[2]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
+
         // Prime WCs
         result.Re_DeltaC7_Prime  = Dep::DeltaC7_Prime->real();
         result.Im_DeltaC7_Prime  = Dep::DeltaC7_Prime->imag();
@@ -820,11 +837,38 @@ namespace Gambit
         result.Im_DeltaC8_Prime  = Dep::DeltaC8_Prime->imag();
         result.Re_DeltaC9_Prime  = Dep::DeltaC9_Prime->real();
         result.Im_DeltaC9_Prime  = Dep::DeltaC9_Prime->imag();
-        
+        result.Im_DeltaC10_Prime = Dep::DeltaC10_Prime->imag();
         result.Re_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->real();
         result.Im_DeltaCQ1_Prime = Dep::DeltaCQ1_Prime->imag();
         result.Re_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->real();
         result.Im_DeltaCQ2_Prime = Dep::DeltaCQ2_Prime->imag();
+
+        result.deltaCp[7]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime);
+        result.deltaCp[8]=std::complex<double>(result.Re_DeltaC8_Prime, result.Im_DeltaC8_Prime);
+        result.deltaCp[9]=std::complex<double>(result.Re_DeltaC9_Prime, result.Im_DeltaC9_Prime);
+        result.deltaCp[10]=std::complex<double>(result.Re_DeltaC10_Prime, result.Im_DeltaC10_Prime);
+        result.deltaCQp[1]=std::complex<double>(result.Re_DeltaCQ1_Prime, result.Im_DeltaCQ1_Prime);
+        result.deltaCQp[2]=std::complex<double>(result.Re_DeltaCQ2_Prime, result.Im_DeltaCQ2_Prime);
+
+        //tautau WCs
+        result.Re_DeltaC9_tau  = Dep::DeltaC9_tautau->real();
+        result.Im_DeltaC9_tau  = Dep::DeltaC9_tautau->imag();
+        result.Re_DeltaC10_tau = Dep::DeltaC10_tautau->real();
+        result.Im_DeltaC10_tau = Dep::DeltaC10_tautau->imag();
+        result.Re_DeltaCQ1_tau = Dep::DeltaCQ1_tautau->real();
+        result.Im_DeltaCQ1_tau = Dep::DeltaCQ1_tautau->imag();
+        result.Re_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->real();
+        result.Im_DeltaCQ2_tau = Dep::DeltaCQ2_tautau->imag();
+        // tautau Prime WCs
+        result.Re_DeltaC9_tau_Prime  = Dep::DeltaC9_tautau_Prime->real();
+        result.Im_DeltaC9_tau_Prime  = Dep::DeltaC9_tautau_Prime->imag();
+        result.Re_DeltaC10_tau_Prime = Dep::DeltaC10_tautau_Prime->real();
+        result.Im_DeltaC10_tau_Prime = Dep::DeltaC10_tautau_Prime->imag();
+        result.Re_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->real();
+        result.Im_DeltaCQ1_tau_Prime = Dep::DeltaCQ1_tautau_Prime->imag();
+        result.Re_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->real();
+        result.Im_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->imag();
+
       }     
       if (flav_debug) cout<<"Finished SI_fill"<<endl;
     }   
@@ -836,7 +880,7 @@ namespace Gambit
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
       const double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double cba = cos(beta-alpha), sba = sin(beta-alpha);
       const double mW = (*sminputspointer)->mW;
       const double mZ = (*sminputspointer)->mZ;
@@ -913,8 +957,8 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 1;
-
-      result = THDM_DeltaCQ_NP(1, l, lp, sminputs, sminputspointer, spectrum);
+      std::complex<double> DeltaCQ1=THDM_DeltaCQ_NP(1, l, lp, sminputs, sminputspointer, spectrum);
+      result = DeltaCQ1;
     }
    
    
@@ -952,6 +996,52 @@ namespace Gambit
       result = THDM_DeltaCQ_NP(4, l, lp, sminputs, sminputspointer, spectrum);
     }
 
+  /// Delta CQ1_tautau at tree level for the general THDM
+    void calculate_DeltaCQ1_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ1_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(1, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+
+    void calculate_DeltaCQ1_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ1_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(3, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+    void calculate_DeltaCQ2_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ2_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(2, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+
+   void calculate_DeltaCQ2_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaCQ2_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaCQ_NP(4, l, lp, sminputs, sminputspointer, spectrum);
+    }
 
     //Green functios for Delta C7 in THDM
     double F7_1(double t)
@@ -987,7 +1077,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1025,7 +1115,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1064,7 +1154,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1102,7 +1192,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1112,18 +1202,18 @@ namespace Gambit
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_tc = Ytc/cosb;
+      double xi_ct = Yct/cosb;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
 
       std::complex<double> C7p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
-               +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2));
+               +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2));
 
       result = C7p0;
 
@@ -1137,7 +1227,7 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -1147,18 +1237,18 @@ namespace Gambit
       //Yukawa couplings
       double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
       double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xi_sb = Ysb/cosb;
-      double xi_tc = Ytc/cosb;
+      double xi_ct = Yct/cosb;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
 
       std::complex<double> C8p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_3(pow(mT/mHp,2))
-                 +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_tc) + Vtb*conj(xi_tt))*F7_4(pow(mT/mHp,2));
+                 +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_4(pow(mT/mHp,2));
 
 
       result = C8p0;
@@ -1211,7 +1301,7 @@ namespace Gambit
     {
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double cosb = cos(beta);
       const double mMu = (*sminputspointer)->mMu;
       const double mTau = (*sminputspointer)->mTau;
@@ -1277,17 +1367,22 @@ namespace Gambit
 
       std::complex<double> C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));  
 
+      std::complex<double> C9_mub = (2/(4*sqrt(2)*27*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*
+                                      (Vcb*conj(xi_cc) + Vtb*conj(xi_tc))*(19+12*log(pow(mBmB/mHp,2)));
+
       std::complex<double> C10_Ztotal = (1/(4*SW*SW-1))*(C9_Z+C9_Zmix);
 
       std::complex<double> C10_Box = C9_Box; 
 
       std::complex<double> C9p_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*DHp(pow(mT/mHp,2));
 
-      std::complex<double> C9p_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
+      std::complex<double> C9p_Z = ((1-4*SW*SW)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
  
       std::complex<double> C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss))*BHpp(pow(mT/mHp,2)); 
 
-      std::complex<double> C10p_Z = (1/(4*SW*SW-1))*C9p_Z;
+      std::complex<double> C9p_mub = (2/(4*sqrt(2)*27*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vcb*xi_bb + Vcs*xi_sb)*(Vcb*xi_bs + Vcs*xi_ss))*(19+12*log(pow(mBmB/mHp,2)));
+
+      std::complex<double> C10p_Z = -(1/(1-4*SW*SW))*C9p_Z;
 
       std::complex<double> C10p_Box = C9p_Box;
 
@@ -1301,7 +1396,7 @@ namespace Gambit
       switch(wc)
       {
         case 9:
-           return  C9_gamma + C9_Z + C9_Zmix + C9_Box;
+           return  C9_gamma + C9_Z + C9_Zmix + C9_Box + C9_mub;
            break;
 
         case 10:
@@ -1309,7 +1404,7 @@ namespace Gambit
            break;
 
         case 11://C9prime
-           return  C9p_gamma + C9p_Z + C9p_Box;//C9p_Zmix contribution is suppressed by the strange quark mass
+           return  C9p_gamma + C9p_Z + C9p_Box + C9p_mub;//C9p_Zmix contribution is suppressed by the strange quark mass
            break;
 
         case 12://C10prime
@@ -1354,7 +1449,7 @@ namespace Gambit
       result = THDM_DeltaC_NP(9, l, lp, sminputs, sminputspointer, spectrum);
     }
 
-      /// Delta C10 from the general THDM
+    /// Delta C10 from the general THDM
     void calculate_DeltaC10(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10;
@@ -1387,6 +1482,55 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 1;
+
+      result = THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+   /// Delta C9 tautau from the general THDM
+    void calculate_DeltaC9_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC9_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaC_NP(9, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+      /// Delta C10 tautau from the general THDM
+    void calculate_DeltaC10_tautau(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC10_tautau;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaC_NP(10, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+
+    /// Delta C9' tautau from the general THDM
+    void calculate_DeltaC9_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC9_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
+
+      result = THDM_DeltaC_NP(11, l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+    /// Delta C10' tautau from the general THDM
+    void calculate_DeltaC10_tautau_Prime(std::complex<double> &result)
+    {
+      using namespace Pipes::calculate_DeltaC10_tautau_Prime;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int l = 2, lp = 2;
 
       result = THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum);
     }
@@ -1549,8 +1693,26 @@ namespace Gambit
       result = THDM_B2Kllp(l, lp, sminputs, sminputspointer, spectrum);
     }
 
+    /// Branching ratio B+ ->K+ tau tau
+    void SI_BRBKtautau(double &result)
+    {
+      using namespace Pipes::SI_BRBKtautau;
+      if (flav_debug) cout<<"Starting SI_BRBKtautau"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      double mB = 5.27926;
+      double mK = 0.493677;
+      const double mTau = Dep::SMINPUTS->mTau;
+      double Q2min = 4*mTau*mTau;
+      double Q2max = pow(mB-mK,2);
+      result=BEreq::BRBKtautau_CONV(&param,byVal(Q2min),byVal(Q2max));
+
+      if (flav_debug) printf("BR(B=->K+ tau tau)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SI_BRBKtautau"<<endl;
+    }
+
     ///  B-> D tau nu distributions in GTHDM
-    double THDM_dGammaBDlnu(double gs, double q2)
+    double THDM_dGammaBDlnu(std::complex<double> gs, std::complex<double> gsmutau, double q2)
     {
 	  const double mB = 5.27961;
 	  const double mD = 1.870;
@@ -1591,10 +1753,10 @@ namespace Gambit
 	  double Hs_T=-sqrt(lambda_D)/(mB+mD)*F_T;
 	
 
-	  double dGamma_dq2=std::norm(pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*pow(1.-ml*ml/q2,2.)*
-	  (pow(1.+C_V1+C_V2,2.)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
-	  +3./2.*pow(gs,2.)*Hs_S*Hs_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
-	  +3.*(1.+C_V1+C_V2)*conj(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
+	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*std::norm(1.-ml*ml/q2)*
+	  (std::norm(1.+C_V1+C_V2)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
+	  +3./2.*(std::norm(gs)+std::norm(gsmutau))*Hs_S*Hs_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
+	  +3.*(1.+C_V1+C_V2)*real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
 	  -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0));
 	
 	
@@ -1603,7 +1765,7 @@ namespace Gambit
     }
                 
     ///  B->D* tau nu distributions in GTHDM
-    double THDM_dGammaBDstarlnu(double gp, double q2)
+    double THDM_dGammaBDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, double q2)
     {
       
 	  const double mB = 5.27961;
@@ -1660,11 +1822,11 @@ namespace Gambit
 	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
 	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 	  
-	  double dGamma_dq2=std::norm(pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
-	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+	  ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*pow(gp,2.)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-	  +3.*(1.+C_V1-C_V2)*(gp)*ml/sqrt(q2)*H_S*H_Vt
+	  +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
 	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 	  
@@ -1673,7 +1835,7 @@ namespace Gambit
     
      
     ///  B->D* tau nu distribution for FLDstar
-    double THDM_dFLDstar(double gp, double q2)
+    double THDM_dFLDstar(std::complex<double> gp, std::complex<double> gpmutau, double q2)
     {
       
 	  const double mB = 5.27961;
@@ -1730,11 +1892,11 @@ namespace Gambit
 	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
 	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 	  
-	  double dGamma_dq2=std::norm(pow(GF*Vcb,2.)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*pow(1.-ml*ml/q2,2.)*
-	  ((pow(1.+C_V1,2.)+pow(C_V2,2.))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+	  ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
 	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*pow(gp,2.)*H_S*H_S+8.*pow(C_T,2.)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-	  +3.*(1.+C_V1-C_V2)*(gp)*ml/sqrt(q2)*H_S*H_Vt
+	  +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
 	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
 	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 	  
@@ -1743,7 +1905,7 @@ namespace Gambit
     
 
     //Partial decay width for B->D l nu computed with Simpson's rule
-    double Gamma_BDlnu(double gs, int n)
+    double Gamma_BDlnu(std::complex<double> gs, std::complex<double> gsmutau, int n)
     {
       const double a = 1.77686*1.77686;//mTau^2
       const double b = 3.40961*3.40961;//(mB-mD)^2	
@@ -1751,18 +1913,18 @@ namespace Gambit
       double sum_odds = 0.0;
       for (int i = 1; i < n; i += 2)
       {
-        sum_odds += THDM_dGammaBDlnu(gs, a + i * h);
+        sum_odds += THDM_dGammaBDlnu(gs, gsmutau, a + i * h);
       }
       double sum_evens = 0.0;
       for (int i = 2; i < n; i += 2)
       {
-        sum_evens += THDM_dGammaBDlnu(gs, a + i * h);
+        sum_evens += THDM_dGammaBDlnu(gs, gsmutau, a + i * h);
       }
-      return (THDM_dGammaBDlnu(gs, a) + THDM_dGammaBDlnu(gs, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
+      return (THDM_dGammaBDlnu(gs, gsmutau, a) + THDM_dGammaBDlnu(gs, gsmutau, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
     }
       
     //Partial decay width for B->D* l nu computed with Simpson's rule
-    double Gamma_BDstarlnu(double gp, int n)
+    double Gamma_BDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, int n)
     {
       const double a = 1.77686*1.77686;//mTau^2
       const double b = 3.27261*3.27261;//(mB-mDs)^2      
@@ -1770,18 +1932,18 @@ namespace Gambit
       double sum_odds = 0.0;
       for (int i = 1; i < n; i += 2)
       {
-        sum_odds += THDM_dGammaBDstarlnu(gp, a + i * h);
+        sum_odds += THDM_dGammaBDstarlnu(gp, gpmutau, a + i * h);
       }
       double sum_evens = 0.0;
       for (int i = 2; i < n; i += 2)
       {
-        sum_evens += THDM_dGammaBDstarlnu(gp, a + i * h);
+        sum_evens += THDM_dGammaBDstarlnu(gp, gpmutau, a + i * h);
       }
-      return (THDM_dGammaBDstarlnu(gp, a) + THDM_dGammaBDstarlnu(gp, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
+      return (THDM_dGammaBDstarlnu(gp, gpmutau, a) + THDM_dGammaBDstarlnu(gp, gpmutau, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
     }
 
     //Partial decay width for B->D* l nu for lambda_Dstar=0 computed with Simpson's rule
-    double GammaDstar_BDstarlnu(double gp, int n)
+    double GammaDstar_BDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, int n)
     {
       const double a = 1.77686*1.77686;//mTau^2
       const double b = 3.27261*3.27261;//(mB-mDs)^2      
@@ -1789,20 +1951,20 @@ namespace Gambit
       double sum_odds = 0.0;
       for (int i = 1; i < n; i += 2)
       {
-        sum_odds += THDM_dFLDstar(gp, a + i * h);
+        sum_odds += THDM_dFLDstar(gp, gpmutau, a + i * h);
       }
       double sum_evens = 0.0;
       for (int i = 2; i < n; i += 2)
       {
-        sum_evens += THDM_dFLDstar(gp, a + i * h);
+        sum_evens += THDM_dFLDstar(gp, gpmutau, a + i * h);
       }
-      return (THDM_dFLDstar(gp, a) + THDM_dFLDstar(gp, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
+      return (THDM_dFLDstar(gp, gpmutau, a) + THDM_dFLDstar(gp, gpmutau, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
     }
 
    // FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma
-    double GammaDstar_Gamma(double gp)
+    double GammaDstar_Gamma(std::complex<double> gp, std::complex<double> gpmutau)
     { 
-      double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, 13)/Gamma_BDstarlnu(gp, 13);
+      double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, gpmutau, 13)/Gamma_BDstarlnu(gp, gpmutau, 13);
       
       return GammaDstar_Gamma;
     }
@@ -1812,23 +1974,24 @@ namespace Gambit
     {
       using namespace Pipes::THDM_FLDstar;
       if (flav_debug) cout<<"Starting THDM_FLDstarlnu"<<endl;
-      
+
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-     
+
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
-      const double mTau = Dep::SMINPUTS->mTau;
-      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
@@ -1837,13 +2000,18 @@ namespace Gambit
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2); 
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*std::norm((Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2));
-      double CLcb = 2.*std::norm((Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*conj(xitautau)/pow(mHp,2));
-      double gp =  (CRcb - CLcb)/CSMcb; 
-      result = GammaDstar_Gamma(gp);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
+
+      result = GammaDstar_Gamma(gp,gpmutau);
       if (flav_debug) printf("Gamma(B->D* tau nu)/Gamma=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_FLDstar"<<endl;
     }
@@ -1852,38 +2020,42 @@ namespace Gambit
     // Normalized partial decay width  dGamma(B->D l nu)/dq2/Gamma
     void THDM_dGammaBDlnu_Gamma(double q2min, double q2max, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double &result)
     {
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      const double mTau = (*sminputspointer)->mTau;
-      const double mBmB = (*sminputspointer)->mBmB;
-      const double mCmC = (*sminputspointer)->mCmC;
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double mTau = (*sminputspointer)->mTau;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mCmC = (*sminputspointer)->mCmC;
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xitc = Ytc/cosb;
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      
-      double CRcb = -2.*std::norm((Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2));
-      double CLcb = 2.*std::norm((Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*conj(xitautau)/pow(mHp,2));
-      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      double ximutau = Ymutau/cosb;
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gs =  (CRcb + CLcb)/CSMcb;
+      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
 
-      double gs =  (CRcb + CLcb)/CSMcb;
       double q2 = (q2min + q2max)/2;	 
 
-      double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, q2)/Gamma_BDlnu(gs, 15);
+      double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, gsmutau, q2)/Gamma_BDlnu(gs, gsmutau, 15);
       
       result = dGamma_dq2_Gamma;
     }
@@ -1891,38 +2063,41 @@ namespace Gambit
     // Normalized partial decay width  dGamma(B->D* l nu)/dq2/Gamma
     void THDM_dGammaBDstarlnu_Gamma(double q2min, double q2max, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double &result)
     {
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      const double mTau = (*sminputspointer)->mTau;
-      const double mBmB = (*sminputspointer)->mBmB;
-      const double mCmC = (*sminputspointer)->mCmC;
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double mTau = (*sminputspointer)->mTau;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mCmC = (*sminputspointer)->mCmC;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xitc = Ytc/cosb;
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-
-      double CRcb = -2.*std::norm((Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2));
-      double CLcb = 2.*std::norm((Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*conj(xitautau)/pow(mHp,2));
-      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
-
-      double gp =  (CRcb - CLcb)/CSMcb;
+      double ximutau = Ymutau/cosb;
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp = (CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
       double q2 = (q2min + q2max)/2;
 
-      double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, q2)/Gamma_BDstarlnu(gp, 13);
+      double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, gpmutau, q2)/Gamma_BDstarlnu(gp, gpmutau, 13);
 
       result = dGamma_dq2_Gamma;
 
@@ -2604,8 +2779,7 @@ namespace Gambit
     {
       using namespace Pipes::THDM_gmu_ge;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -2622,10 +2796,9 @@ namespace Gambit
       double xi_taumu = Ytaumu/cosb;
       double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       double R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
-      double Roff = ((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);
-      //cout<<"D = "<<D<<endl;
+      double Roff = 2*((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);//The 2 factor accounts for tau mu and mu tau neutrinos
       
-      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R+Roff));               
+      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R));
     }           
       
     /// Fill SuperIso nuisance structure
@@ -3071,7 +3244,7 @@ namespace Gambit
       const double life_B = 1.638e-12;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double Vus = lambda;
       const double Vub = 3.55e-3;
@@ -3085,9 +3258,10 @@ namespace Gambit
       double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
       double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
       
-      double Deltaij = (pow(m_B,2)*X13*(Z33+Z32))/(pow(mHp,2)*Vub);
+      double Deltaij = (pow(m_B,2)*X13*(Z33))/(pow(mHp,2)*Vub);
+      double Deltataumu = (pow(m_B,2)*X13*(Z32))/(pow(mHp,2)*Vub);
    
-      double prediction = (pow(1 - Deltaij,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
+      double prediction = (pow(1 - Deltaij,2)+pow(Deltataumu,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
       result = prediction;
       //result.central_values["B2taunu"] = prediction;
       if (flav_debug) cout << "BR(Bu->tau nu) = " << prediction << endl;
@@ -3119,7 +3293,7 @@ namespace Gambit
       const double life_Ds = 5.e-13;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
@@ -3129,7 +3303,7 @@ namespace Gambit
       const double mS = Dep::SMINPUTS->mS;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
@@ -3139,9 +3313,10 @@ namespace Gambit
       double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
       double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
       
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33+Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      double Deltataumu = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
 
-      result = (pow(1 - Deltaij,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+      result = (pow(1 - Deltaij,2)+pow(Deltataumu,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(Ds->tau nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dstaunu" << endl;
@@ -3172,7 +3347,7 @@ namespace Gambit
       const double life_Ds = 5.e-13;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
@@ -3182,7 +3357,7 @@ namespace Gambit
       const double mS = Dep::SMINPUTS->mS;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
@@ -3191,8 +3366,10 @@ namespace Gambit
       double X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
       double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22+Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-      result = ((pow(1 - Deltaij,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      double Deltamutau = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+
+      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(Ds->mu nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dsmunu" << endl;
@@ -3223,24 +3400,60 @@ namespace Gambit
       const double life_D = 1.040e-12;
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double Vcd = -lambda;
       const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
       const double mMu = Dep::SMINPUTS->mMu;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
       double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3); 
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
       double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      double Deltaij = (pow(m_D,2)*Y21*(Z22+Z23))/(pow(mHp,2)*Vcd);
-      result = ((pow(1 - Deltaij,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+      double Deltaij = (pow(m_D,2)*Y21*(Z22))/(pow(mHp,2)*Vcd);
+      double Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
+
+      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
   
       if (flav_debug) cout << "BR(D->mu nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dmunu" << endl;
+    }
+
+    /// Br D->tau nu in gTHDM
+    void THDM_Dtaunu(double &result)
+    {
+      using namespace Pipes::THDM_Dtaunu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double m_D = 1.86961;//All values are taken from SuperIso 3.6
+      const double f_D = 0.2135;
+      const double hbar = 6.582119514e-25;
+      const double life_D = 1.040e-12;
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double Vcd = -lambda;
+      const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mCmC = Dep::SMINPUTS->mCmC;
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
+      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mTau);
+      double Deltaij = (pow(m_D,2)*Y21*(Z33))/(pow(mHp,2)*Vcd);
+      double Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
+
+      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+
+      if (flav_debug) cout << "BR(D->tau nu) = " << result << endl;
+      if (flav_debug) cout << "Finished THDM_Dtaunu" << endl;
     }
     
     /// Br B -> D tau nu
@@ -3358,7 +3571,56 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_RD*"<<endl;
     }
 
-   ///  B-> D tau nu / B-> D e nu decays in THDM
+    ///  B-> D e nu / B-> D mu nu decays in THDM
+    void THDM_RDemu(double &result)
+    {
+      using namespace Pipes::THDM_RDemu;
+      if (flav_debug) cout<<"Starting THDM_RDemu"<<endl;
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      const double mCmC = Dep::SMINPUTS->mCmC;
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
+      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
+      
+      result = 1/(0.9964+0.175*real(gsmumu)+1.46*(norm(gsmumu)+norm(gsmutau)));
+      
+      if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_RDemu"<<endl;
+    }
+
+
+   ///  B-> D tau nu / B-> D mu nu decays in THDM
     void THDM_RD(double &result)
     {
       using namespace Pipes::THDM_RD;
@@ -3375,11 +3637,14 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mMu = Dep::SMINPUTS->mMu;
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
@@ -3388,44 +3653,53 @@ namespace Gambit
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*std::norm((Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2));
-      double CLcb = 2.*std::norm((Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*conj(xitautau)/pow(mHp,2));
-      double gs =  (CRcb + CLcb)/CSMcb; 
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gs =  (CRcb + CLcb)/CSMcb; 
+      std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
+      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
       
-      double RDSM = 0.299;
-      
-      result = RDSM*(1+1.5*real(gs)+1.0*norm(gs));
+      result = (1+1.5*real(gs)+1.0*(norm(gs)+norm(gsmutau)))/(3.34+4.795*(norm(gsmumu)+norm(gsmutau)));
 
-      if (flav_debug) printf("BR(B->D tau nu)/BR(B->D e nu)=%.3e\n",result);
+      if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_RD"<<endl;
     }
 
 
-    ///  B->D* tau nu / B-> D* e nu decays in THDM
+    ///  B->D* tau nu / B-> D* mu nu decays in THDM
     void THDM_RDstar(double &result)
     {
       using namespace Pipes::THDM_RDstar;
       if (flav_debug) cout<<"Starting THDM_RDstar"<<endl;
-      
+
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      
+
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mMu = Dep::SMINPUTS->mMu;
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
@@ -3434,19 +3708,23 @@ namespace Gambit
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*std::norm((Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2));
-      double CLcb = 2.*std::norm((Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*conj(xitautau)/pow(mHp,2));
-      
-      double gp =  (CRcb - CLcb)/CSMcb; 
-      
-      double RDstarSM = 0.252;
-      
-      result = RDstarSM*(1+0.12*real(gp)+0.05*norm(gp));
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmumu =  (CRcbmumu - CLcbmumu)/CSMcb;
+      std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
 
-      if (flav_debug) printf("BR(B->D tau nu)/BR(B->D e nu)=%.3e\n",result);
+      result = (1+0.12*real(gp)+0.05*(norm(gp)+norm(gpmutau)))/(3.89+0.246*(norm(gpmumu)+norm(gpmutau)));
+      if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_RDstar"<<endl;
     }
 
@@ -3467,12 +3745,16 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
-      const double mC = Dep::SMINPUTS->mCmC;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const double m_Bc = 6.2749;//Values taken from SuperIso 3.6
+      const double f_Bc = 0.434;
+      const double hbar = 6.582119514e-25;
+      const double mCmC = Dep::SMINPUTS->mCmC;
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
       double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
@@ -3481,19 +3763,21 @@ namespace Gambit
       double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
       double xisb = Ysb/cosb;
       double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      const double m_Bc = 6.2749;//Values taken from SuperIso 3.6
-      const double f_Bc = 0.434;
-      // TODO: Don't hard code this again, use the one in Utils/numerical_constants
-      const double hbar = 6.582119514e-25;
-      const double mCmC = Dep::SMINPUTS->mCmC;
+      double ximutau = Ymutau/cosb;
       double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
       double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      double CRcb = -2.*std::norm((Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2));
-      double CLcb = 2.*std::norm((Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*conj(xitautau)/pow(mHp,2));
-      double gp =  (CRcb - CLcb)/CSMcb;
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
+
+      std::complex<double> factor = {(m_Bc*m_Bc/(mTau*(mBmB+mCmC))),0};
+      std::complex<double> one = {1,0};
       const double Gamma_Bc_SM = (hbar/(0.52e-12)); //Theoretical value in GeV^-1 from 1611.06676
-      const double Gamma_Bc_exp = (hbar/(0.507e-12)); //experimental value in GeV^-1
-      double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(pow(1 +(m_Bc*m_Bc/(mTau*(mBmB+mC)))*gp,2));
+      const double Gamma_Bc_exp = (hbar/(0.510e-12)); //experimental value in GeV^-1
+      double BR_Bc_THDM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi))*(norm(one + factor*gp)+norm(factor*gpmutau));
       double BR_Bc_SM = (1/Gamma_Bc_exp)*((m_Bc*pow(f_Bc,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Bc,2),2)*pow(Vcb,2))/(8.*pi));
       double Gamma_Bc_THDM = (BR_Bc_THDM-BR_Bc_SM)*Gamma_Bc_exp;
       result = hbar/(Gamma_Bc_SM + Gamma_Bc_THDM);
@@ -3521,7 +3805,6 @@ namespace Gambit
     {
       using namespace Pipes::THDM_Rmu;
       if (flav_debug) cout<<"Starting THDM_Rmu"<<endl;
-      SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double delta_em = -0.0070;//All values taken from SuperIso 3.6
       const double m_pi = 0.13957;
@@ -3531,7 +3814,7 @@ namespace Gambit
       const double life_K=1.2380e-8; 
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      const double v = spectrum.get(Par::mass1, "vev");
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double Vud = 1. - 0.5*pow(lambda,2);
       const double Vus = lambda;
@@ -3545,9 +3828,10 @@ namespace Gambit
       double X12 = (v*(sqrt(1 + pow(tanb,2))*Vub*Ysb + Vus*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
       double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
       double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu); 
-      double Deltaij = (pow(m_K,2)*X12*(Z22+Z23))/(pow(mHp,2)*Vus);
+      double Deltaij = (pow(m_K,2)*X12*(Z22))/(pow(mHp,2)*Vus);
+      double Deltamutau = (pow(m_K,2)*X12*(Z23))/(pow(mHp,2)*Vus);
       double leptonFactor = pow((1 - pow(mMu,2)/pow(m_K,2))/(1 - pow(mMu,2)/pow(m_pi,2)),2);
-      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(1 - Deltaij,2));
+      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(1 - Deltaij,2)+pow(Deltamutau,2));
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu) in THDM =%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_Rmu"<<endl;
@@ -3941,6 +4225,94 @@ namespace Gambit
       if (flav_debug) cout<<"Finished THDM_Delta_MBs"<<endl;
     }
 
+    /// BR(h->bs) at tree level for the general THDM from JHEP02(2020)147
+    void THDM_h2bs(double &result)
+    {
+      using namespace Pipes::THDM_h2bs;
+      if (flav_debug) cout<<"Starting THDM_h2bs"<<endl;
+
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double mBs = 5.36689;// values from 1602.03560
+      const double fBs = 0.2303;
+      const double Bag2 = 0.806;
+      const double Bag3 = 1.10;
+      const double Bag4 = 1.022;
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double cba = cos(beta-alpha);
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      const double mS = Dep::SMINPUTS->mS;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      //double mA = spectrum.get(Par::Pole_Mass,"A0");
+      const double U22 = 1.41304;//From JHEP02(2020)147
+      const double U32 = -0.0516513;
+      const double U44 = 1.79804;
+      const double b2 = -1.6666;
+      const double b3 = 0.3333;
+      const double b4 = 2.0;
+      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      double xi_bs = Ybs/cosb;
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xi_sb = Ysb/cosb;
+      double M12_NP = -(0.125)*((pow(fBs,2)*pow(mBs, 3))/(pow(mBmB+ mS, 2)))*(0.25*pow(cba,2)*(pow(1/mh, 2) - pow(1/mH, 2))*((U22*Bag2*b2 + U32*Bag3*b3)*(pow(xi_bs, 2) + pow(xi_sb, 2)) + 2*U44*Bag4*b4*xi_sb*xi_bs) + pow(1/mH, 2)*U44*Bag4*b4*xi_sb*xi_bs);
+      result = 2*abs(M12_NP);
+      const double A = (pow(fBs,2)*pow(mBs,3)/(4*pow(mBmB+mS,2)));
+      const double Gammah = 4.07e-3;
+      const double factor = 2.2; //Factor extracted from JHEP02(2020)147 eq.4.18
+      double BRhbs = ((3*pow(mh, 3)*pow(mH, 2))/(16*pi*Gammah*(pow(mH, 2) - pow(mh, 2))))*(1/(A*abs(U22*Bag2*b2 + U32*Bag3*b3 + factor*U44*Bag4*b4)));
+      result*= BRhbs;
+      if (flav_debug) printf("BR(h->bs)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_h2bs"<<endl;
+    }
+
+    /// BR(t->ch) at tree level for the general THDM from JHEP02(2020)147
+    void THDM_t2ch(double &result)
+    {
+      using namespace Pipes::THDM_t2ch;
+      if (flav_debug) cout<<"Starting THDM_t2ch"<<endl;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double cba = cos(beta-alpha);
+      const double mT = Dep::SMINPUTS->mT;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      double xi_ct = Yct/cosb;
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double xi_tc = Ytc/cosb;
+      const double Gamma = 1.42;//From PDG 2021 in GeV
+      result = (1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2);
+      if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;
+    }
+
+    /// BR(h->taumu) at tree level for the general THDM from JHEP, 06:119, 2019 (ArXiv:1903.10440)
+    void THDM_h2taumu(double &result)
+    {
+      using namespace Pipes::THDM_h2taumu;
+      if (flav_debug) cout<<"Starting THDM_h2taumu"<<endl;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      double alpha = spectrum.get(Par::dimensionless,"alpha");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      double cba = cos(beta-alpha);
+      const double mTau = Dep::SMINPUTS->mTau;
+      double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      double xi_mutau = Ymutau/cosb;
+      double xi_taumu = Ytaumu/cosb;
+      const double Gamma = 0.0032;//From PDG 2021 in GeV
+      result = (1/Gamma)*(3*mh*pow(cba,2)/(8*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2);
+      if (flav_debug) printf("BR(h->taumu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_h2taumu"<<endl;
+    }
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FH_FlavourObs(fh_FlavourObs &result)
@@ -4348,7 +4720,81 @@ namespace Gambit
       if (flav_debug) cout<<"delta0_ll"<<endl;
     }
 
-    /// Likelihood for Delta Ms
+    /// Likelihood for t->ch
+    void t2ch_likelihood(double &result)
+    {
+      using namespace Pipes::t2ch_likelihood;
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[1];
+      double theory[1];
+
+      if (first)
+      {
+        // Read in experimental measurements
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_t2ch");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 1; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::t2ch;
+     if(flav_debug) cout << "BR(t -> c h) = " << theory[0] << endl;
+
+     result = 0;
+     for (int i = 0; i < 1; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
+    /// Likelihood for h->taumu
+    void h2taumu_likelihood(double &result)
+    {
+      using namespace Pipes::h2taumu_likelihood;
+      static bool first = true;
+      static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
+      static double th_err[1];
+      double theory[1];
+
+      if (first)
+      {
+        // Read in experimental measurements
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        fread.read_yaml_measurement("flav_data.yaml", "BR_h2taumu");
+
+        fread.initialise_matrices();
+        cov_exp=fread.get_exp_cov();
+        value_exp=fread.get_exp_value();
+
+        for (int i = 0; i < 1; ++i)
+          th_err[i] = fread.get_th_err()(i,0).first;
+
+        // Init over.
+        first = false;
+      }
+
+     theory[0] = *Dep::h2taumu;
+     if(flav_debug) cout << "BR(h -> tau mu) = " << theory[0] << endl;
+
+     result = 0;
+     for (int i = 0; i < 1; ++i)
+       result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
+
+    }
+
+     /// Likelihood for Delta Ms
     void deltaMB_likelihood(double &result)
     {
       using namespace Pipes::deltaMB_likelihood;
@@ -4571,7 +5017,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=9;//8;
+      const int n_experiments=9;//11;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -4590,9 +5036,9 @@ namespace Gambit
         // B-> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
         // B-> D mu nu
-        fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
+        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
         // B-> D* mu nu
-        fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
+        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
         // RD
         fread.read_yaml_measurement("flav_data.yaml", "RD");
         // RDstar
@@ -4603,9 +5049,13 @@ namespace Gambit
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dsmunu");
         // D -> mu nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dmunu");
+        // D -> tau nu
+        fread.read_yaml_measurement("flav_data.yaml", "BR_Dtaunu");
          // R_mu
         fread.read_yaml_measurement("flav_data.yaml", "R_mu");
-       
+         // RDemu
+        fread.read_yaml_measurement("flav_data.yaml", "RDemu");
+
         fread.initialise_matrices();
         pmc.cov_exp=fread.get_exp_cov();
         pmc.value_exp=fread.get_exp_value();
@@ -4626,34 +5076,38 @@ namespace Gambit
       }
 
       // R(D) is calculated assuming isospin symmetry
-      double theory[9];//[8];
+      double theory[9];//[11];
       // B-> tau nu SI
       theory[0] = *Dep::Btaunu;
       // B-> D mu nu
-      theory[1] = *Dep::BDmunu;
+      //theory[1] = *Dep::BDmunu;
       // B-> D* mu nu
-      theory[2] = *Dep::BDstarmunu;
+      //theory[2] = *Dep::BDstarmunu;
       // RD
-      theory[3] = *Dep::RD;
+      theory[1] = *Dep::RD;
       // RDstar
-      theory[4] = *Dep::RDstar;
+      theory[2] = *Dep::RDstar;
       // Ds-> tau nu
-      theory[5] = *Dep::Dstaunu;
+      theory[3] = *Dep::Dstaunu;
       // Ds -> mu nu
-      theory[6] = *Dep::Dsmunu;
+      theory[4] = *Dep::Dsmunu;
       // D -> mu nu
-      theory[7] =*Dep::Dmunu;
+      theory[5] =*Dep::Dmunu;
+      // D -> tau nu
+      theory[6] =*Dep::Dtaunu;
       //R_mu
-      theory[8] =*Dep::Rmu;
+      theory[7] =*Dep::Rmu;
+      //RDemu
+      theory[8] =*Dep::RDemu;
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];
         pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
       }
       // Add in the correlations between B-> D mu nu and RD
-      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
+      //pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
       // Add in the correlations between B-> D* mu nu and RD*
-      pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
+      //pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)
@@ -4816,16 +5270,16 @@ namespace Gambit
       result /= Dep::tau_minus_decay_rates->width_in_GeV;
     }
 
-// BR(l -> l' gamma) for the GTHDM from 1511.08880
-    void THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double &result)
+    // BR(l -> l' gamma) for the GTHDM from 1511.08880
+    double THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double BRltolpnunu)
     {
-      const double Alpha = 1/(sminputs.alphainv);
-      const double alpha = spectrum.get(Par::dimensionless,"alpha");
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double alpha_h = spectrum.get(Par::dimensionless,"alpha");
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
       const double cosb = cos(beta);
-      const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
-      const double cab = cos(alpha-beta);
+      const double vev = spectrum.get(Par::mass1, "vev");
+      const double cab = cos(alpha_h-beta);
       const double mE = (*sminputspointer)->mE;
       const double mMu = (*sminputspointer)->mMu;
       const double mTau = (*sminputspointer)->mTau;
@@ -4874,23 +5328,23 @@ namespace Gambit
       const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
       const complex<double> Vcb(A*lambda*lambda,0);
       const complex<double> Vtb(1,0);
-      const double xitt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      const double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
       const double xitc = Ytc/cosb;
       const double xict = Yct/cosb;
-      const double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      const double xiss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
       const double xisb = Ysb/cosb;
       const double xibs = Ybs/cosb;
-      const double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
       const double xiemu = Yemu/cosb;
       const double ximue = Ymue/cosb;
       const double xietau = Yetau/cosb;
       const double xitaue = Ytaue/cosb;
-      const double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
       const double ximutau = Ymutau/cosb;
       const double xitaumu = Ytaumu/cosb;
-      const double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
@@ -4903,8 +5357,8 @@ namespace Gambit
               0, xitc, xitt;
 
       xi_D << 0,   0,    0,
-              0, xiss, xibs,
-              0, xisb, xibb;
+              0, xiss, xisb,
+              0, xibs, xibb;
 
       const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
 
@@ -4924,8 +5378,8 @@ namespace Gambit
       {
         for (int li = 0; li <=2; ++li)
         {
-          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
-          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, v, cab);
+          Aloop1L += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
         }
       }
 
@@ -4943,8 +5397,8 @@ namespace Gambit
       {
         for (int lf=0; lf<=2; ++lf)
         {
-          Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
-          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, v, cab);
+          Aloop2fL += -((Nc[lf]*Qf[lf]*Alpha_em)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fL(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, vev, cab);
+          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha_em)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, vev, cab);
          }
       }
       //Bosonic contribution
@@ -4955,13 +5409,13 @@ namespace Gambit
        const complex<double> sab(sqrt(1-cab*cab),0);
        const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
        const vector<complex<double>> angle = {sab,Cab};
-       Aloop2bL += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bL(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
-       Aloop2bR += (Alpha/(16*pow(pi,3)*ml[l]*v))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, v, cab, mW, mZ);
+       Aloop2bL += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bL(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
+       Aloop2bR += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
       }
 
-      result = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
-      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
-      result *= BRtautomununu*48*pow(pi,3)*Alpha/pow(sminputs.GF,2);
+
+      double NormAs = norm(Aloop1L+Aloop2fL+Aloop2bL) + norm(Aloop1R+Aloop2fR+Aloop2bR);
+      return NormAs*BRltolpnunu*48*pow(pi,3)*Alpha_em/pow(sminputs.GF,2);
     }
 
     // BR(mu -> e  gamma) for gTHDM from 1511.08880
@@ -4972,8 +5426,9 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 0;
+      const double BRmutoenunu = 100./100.;//BR(mu->e nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
+      result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRmutoenunu);
     }
 
     // BR(tau -> e gamma) for gTHDM from 1511.08880
@@ -4984,8 +5439,9 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 0;
+      const double BRtautoenunu = 17.82/100.;//BR(tau->e nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
+      result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautoenunu);
     }
 
     // BR(tau -> mu gamma) for gTHDM from 1511.08880
@@ -4996,8 +5452,9 @@ namespace Gambit
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 1;
+      const double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
 
-      THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, result);
+      result = THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu);
     }
 
     // General contribution to l_\alpha^- -> l_\beta^- l_\gamma^- l_\delta^+ from RHNs
@@ -5188,7 +5645,7 @@ namespace Gambit
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
-      double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+      double v = spectrum.get(Par::mass1, "vev");
       double cab = cos(alpha-beta);
       double mE = sminputs.mE;
       double mMu = sminputs.mMu;
@@ -5274,9 +5731,158 @@ namespace Gambit
          }
        }
 
-      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2018
+      double BRtautomununu = 17.39/100;//BR(tau->mu nu nu) from PDG 2020
       return (BRtautomununu/(32*pow(sminputs.GF,2)))*l2lll;
     }
+
+    // charged boxes diagrams for tau to 3 mu in the GTHDM
+    double THDM_box_l2lll(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
+    {
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double alpha_h = spectrum.get(Par::dimensionless,"alpha");
+      const double tanb = spectrum.get(Par::dimensionless,"tanb");
+      const double beta = atan(tanb);
+      const double cosb = cos(beta);
+      const double vev = spectrum.get(Par::mass1, "vev");
+      const double cab = cos(alpha_h-beta);
+      const double mE = (*sminputspointer)->mE;
+      const double mMu = (*sminputspointer)->mMu;
+      const double mTau = (*sminputspointer)->mTau;
+      const double mNu1 = (*sminputspointer)->mNu1;
+      const double mNu2 = (*sminputspointer)->mNu2;
+      const double mNu3 = (*sminputspointer)->mNu3;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mS = (*sminputspointer)->mS;
+      const double mCmC = (*sminputspointer)->mCmC;
+      const double mT = (*sminputspointer)->mT;
+      const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      const double mA = spectrum.get(Par::Pole_Mass,"A0");
+      const double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      const vector<double> mphi = {mh, mH, mA, mHp};
+      const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      const double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      const double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      const double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
+      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      const double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
+      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      const double rhobar = (*sminputspointer)->CKM.rhobar;
+      const double etabar = (*sminputspointer)->CKM.etabar;
+      const complex<double> Vud(1 - (1/2)*lambda*lambda);
+      const complex<double> Vcd(-lambda,0);
+      const complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const complex<double> Vus(lambda,0);
+      const complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      const complex<double> Vts(-A*lambda*lambda,0);
+      const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const complex<double> Vcb(A*lambda*lambda,0);
+      const complex<double> Vtb(1,0);
+      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
+      const double xitc = Ytc/cosb;
+      const double xict = Yct/cosb;
+      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
+      const double xisb = Ysb/cosb;
+      const double xibs = Ybs/cosb;
+      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
+      const double xiemu = Yemu/cosb;
+      const double ximue = Ymue/cosb;
+      const double xietau = Yetau/cosb;
+      const double xitaue = Ytaue/cosb;
+      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
+      const double ximutau = Ymutau/cosb;
+      const double xitaumu = Ytaumu/cosb;
+      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
+
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+
+      xi_U << 0,   0,    0,
+              0, xicc, xict,
+              0, xitc, xitt;
+
+      xi_D << 0,   0,    0,
+              0, xiss, xisb,
+              0, xibs, xibb;
+
+      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
+
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+
+      int f = 0;
+
+      // One loop amplitude
+      complex<double> Aloop1R = 0;
+      //Charged higgs contributions are being neglected
+      //no longer
+      for (int phi=0; phi<=3; ++phi)
+      {
+        for (int li = 0; li <=2; ++li)
+        {
+          Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
+        }
+      }
+
+      /// Two loop amplitude
+      const double mW = (*sminputspointer)->mW;
+      const double mZ = (*sminputspointer)->mZ;
+      const double sw2 = 1 - pow(mW/mZ,2);
+      const vector<double> Qf = {2./3.,-1./3.,-1.};
+      const vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
+      const vector<double> Nc = {3.,3.,1.};
+      //Fermionic contribution
+      complex<double> Aloop2fR = 0;
+      for (int phi=0; phi<=2; ++phi)
+      {
+        for (int lf=0; lf<=2; ++lf)
+        {
+          Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha_em)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, vev, cab);
+         }
+      }
+      //Bosonic contribution
+      complex<double> Aloop2bR = 0;
+      for (int phi=0; phi<=1; ++phi)
+      {
+       const complex<double> sab(sqrt(1-cab*cab),0);
+       const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
+       const vector<complex<double>> angle = {sab,Cab};
+       Aloop2bR += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
+      }
+      complex<double> I(0,1);
+      //g2 coupling
+      double g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
+      //g4 coupling
+      double g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
+
+      double C2 = norm(g2)/16 + norm(g4);
+      double C7 = (pi*Alpha_em/(sqrt(2)*sminputs.GF))*g4*real(conj(I)*(Aloop1R+Aloop2fR+Aloop2bR));
+
+      return 2*C2+16*C7;
+    }
+
 
 
     // Contribution to mu -> e e e from THDM
@@ -5285,10 +5891,17 @@ namespace Gambit
       using namespace Pipes::THDM_mueee;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
 
-      int e = 0, mu = 1;
-      result =  THDM_l2lll(mu, e, e, e, sminputs,spectrum);
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double mE = (*sminputspointer)->mE;
+      const double mMu = (*sminputspointer)->mMu;
 
+      const int l = 1, lp = 0;
+      const double BRmutoenunu = 100./100.;//BR(mu->e nu nu) from PDG 2020
+      const double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mMu/mE,2))-11./4);
+
+      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRmutoenunu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRmutoenunu);
     }
 
     // Contribution to tau -> e e e from THDM
@@ -5297,10 +5910,17 @@ namespace Gambit
       using namespace Pipes::THDM_taueee;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
 
-      int e = 0, tau = 2;
-      result =  THDM_l2lll(tau, e, e, e, sminputs, spectrum);
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double mE = (*sminputspointer)->mE;
+      const double mTau = (*sminputspointer)->mTau;
 
+      const int l = 2, lp = 0;
+      const double BRtautoenunu = 17.82/100.;//BR(tau->e nu nu) from PDG 2020
+      const double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mTau/mE,2))-11./4);
+
+      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRtautoenunu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautoenunu);
     }
 
     // Contribution to tau -> mu mu mu from THDM
@@ -5309,9 +5929,17 @@ namespace Gambit
       using namespace Pipes::THDM_taumumumu;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
 
-      int mu = 1, tau = 2;
-      result =  THDM_l2lll(tau, mu, mu, mu, sminputs, spectrum);
+      const double Alpha_em = 1/(sminputs.alphainv);
+      const double mMu = (*sminputspointer)->mMu;
+      const double mTau = (*sminputspointer)->mTau;
+
+      const int l = 2, lp = 1;
+      const double BRtautomununu = 17.39/100.;//BR(tau->mu nu nu) from PDG 2020
+      const double dipoleconst = (Alpha_em/(3*pi))*(log(pow(mTau/mMu,2))-11./4);
+
+      result = THDM_l2lll(l, lp, lp, lp, sminputs, spectrum) + (dipoleconst/BRtautomununu)*THDM_llpgamma(l, lp, sminputs, sminputspointer, spectrum, BRtautomununu) + THDM_box_l2lll(l, lp, sminputs, sminputspointer,spectrum);
 
     }
 
@@ -5584,8 +6212,8 @@ namespace Gambit
       
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
-      static double th_err[2];
-      double theory[2];
+      static double th_err[3];
+      double theory[3];
       
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
@@ -5598,12 +6226,14 @@ namespace Gambit
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKtaumu");
         // B+-> K+ mu+- e-+ 
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKmue");
-        
+        // B+-> K+ tau+ tau-
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BKtautau");
+
         fread.initialise_matrices();
         cov_exp=fread.get_exp_cov();
         value_exp=fread.get_exp_value();
         
-        for (int i = 0; i < 2; ++i)
+        for (int i = 0; i < 3; ++i)
           th_err[i] = fread.get_th_err()(i,0).first;
         
         // Init over.
@@ -5614,14 +6244,16 @@ namespace Gambit
      if(flav_debug) cout << "B ->K tau mu = " << theory[0] << endl;
      theory[1] = *Dep::B2Kmue;
      if(flav_debug) cout << "B ->K mu e = " << theory[1] << endl;
+     theory[2] = *Dep::B2Ktautau;
+     if(flav_debug) cout << "B ->K tau tau = " << theory[2] << endl;
 
      result = 0;
-     for (int i = 0; i < 2; ++i)
+     for (int i = 0; i < 3; ++i)
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
 
     }
 
- /// Likelihood for  RKnunu and RKstarnunu
+    /// Likelihood for  RKnunu and RKstarnunu
     void RK_RKstarnunu_likelihood(double &result)
     { 
       using namespace Pipes::RK_RKstarnunu_likelihood;
@@ -6066,19 +6698,19 @@ namespace Gambit
         first = false;
       }
       const std::vector<double> theory{*Dep::RD, *Dep::RDstar};
-      result = nDimGaussian.GetLogLikelihood(theory /* , theory_covariance */);
+      result = nDimGaussian.GetLogLikelihood(theory /*, theory_covariance */);
       // TODO: SuperIso is not ready to give correlations for these observables. So currently we fall back to the old way.
       //       Below code is for future reference.
       // static const std::vector<std::string> observables{
-      //   "RD",
-      //   "RDstar"
+      //  "RD",
+      // "RDstar"
       // };
 
-      // flav_prediction prediction = *Dep::prediction_RDRDstar;
-      // flav_observable_map theory = prediction.central_values;
-      // flav_covariance_map theory_covariance = prediction.covariance;
+      //flav_prediction prediction = *Dep::prediction_RDRDstar;
+      //flav_observable_map theory = prediction.central_values;
+      //flav_covariance_map theory_covariance = prediction.covariance;
 
-      // result = nDimGaussian.GetLogLikelihood(get_obs_theory(observables), get_obs_covariance(observables));
+      //result = nDimGaussian.GetLogLikelihood(get_obs_theory(observables), get_obs_covariance(observables));
       if (flav_debug) std::cout << "HEPLike_RDRDstar_LogLikelihood result: " << result << std::endl;
     }
 

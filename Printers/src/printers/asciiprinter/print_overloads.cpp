@@ -96,46 +96,19 @@ namespace Gambit
       addtobuffer(values, labels, IDcode, thread, pointID);
     }
 
-    void asciiPrinter::_print(map_str_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
-    {
-      std::vector<std::string> names;
-      std::vector<double> vdvalue;
-      names.reserve(value.size());
-      vdvalue.reserve(value.size());
-      for (map_str_dbl::const_iterator it = value.begin(); it != value.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::"<<it->first;
-        names.push_back( ss.str() );
-        vdvalue.push_back( it->second );
-      }
-      addtobuffer(vdvalue,names,IDcode,thread,pointID);
-    }
-
-    void asciiPrinter::_print(map_intpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
-    {
-      std::vector<std::string> channels;
-      std::vector<double> vdvalue;
-      channels.reserve(value.size());
-      vdvalue.reserve(value.size());
-      for (map_intpair_dbl::const_iterator it = value.begin(); it != value.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::"<<it->first.first<<it->first.second;
-        channels.push_back( ss.str() );
-        vdvalue.push_back( it->second );
-      }
-      addtobuffer(vdvalue,channels,IDcode,thread,pointID);
-    }
-
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, triplet<double>)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_intpair_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_map_const_str_dbl)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings_fermionic_HP)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, FlavBit::flav_prediction)
     #endif
 
     /// @}
