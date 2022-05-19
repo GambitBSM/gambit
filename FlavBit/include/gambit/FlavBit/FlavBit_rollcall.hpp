@@ -575,10 +575,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY 
 
- // ---------------------------------
- //  Wilson coefficients in the GTHDM
- // ---------------------------------
-
 //C2 in the general THDM capability
   #define CAPABILITY DeltaC2
   START_CAPABILITY
@@ -732,8 +728,8 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY   
-  
+  #undef CAPABILITY
+
   #define CAPABILITY DeltaC10_tautau
   START_CAPABILITY
     #define FUNCTION calculate_DeltaC10_tautau
@@ -743,7 +739,7 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
-  
+
   #define CAPABILITY DeltaC9_tautau_Prime
   START_CAPABILITY
     #define FUNCTION calculate_DeltaC9_tautau_Prime
@@ -752,8 +748,8 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY   
-  
+  #undef CAPABILITY
+
 //C10' in the general THDM capability
   #define CAPABILITY DeltaC10_tautau_Prime
   START_CAPABILITY
@@ -763,8 +759,8 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY        
-  
+  #undef CAPABILITY
+
 //CQ1 in the general THDM capability
   #define CAPABILITY DeltaCQ1_tautau
   START_CAPABILITY
@@ -774,7 +770,7 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY        
+  #undef CAPABILITY
 
 //CQ2 in the general THDM capability
   #define CAPABILITY DeltaCQ2_tautau
@@ -785,7 +781,7 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY 
+  #undef CAPABILITY
 
   //CQ1_Prime in the general THDM capability
   #define CAPABILITY DeltaCQ1_tautau_Prime
@@ -796,7 +792,7 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY        
+  #undef CAPABILITY
 
   //CQ2_Prime in the general THDM capability
   #define CAPABILITY DeltaCQ2_tautau_Prime
@@ -807,13 +803,8 @@ START_MODULE
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY  
+  #undef CAPABILITY
 
-
-// -------------------------------
-//    End of WCs in the GTHDM
-// -------------------------------
-  
   // Initialisation capability (fill the SuperIso structure)
   #define CAPABILITY SuperIso_modelinfo
   START_CAPABILITY
@@ -2485,8 +2476,8 @@ START_MODULE
     START_FUNCTION(FlavBit::predictions_measurements_covariances)
     DEPENDENCY(RD, double)
     DEPENDENCY(RDstar, double)
-    //DEPENDENCY(BDmunu, double)
-    //DEPENDENCY(BDstarmunu, double)
+    DEPENDENCY(BDmunu, double)
+    DEPENDENCY(BDstarmunu, double)
     DEPENDENCY(Btaunu, double)
     DEPENDENCY(Rmu, double)
     DEPENDENCY(Dstaunu, double)

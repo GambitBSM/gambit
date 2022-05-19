@@ -1171,7 +1171,7 @@ namespace Gambit
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
       const double beta = atan(tanb);
       const double cosb = cos(beta);
-      const double vev = spectrum.get(Par::mass1, "vev");  
+      const double vev = spectrum.get(Par::mass1, "vev");
       const double cab = cos(alpha_h-beta);
       const double mW = sminputs.mW;
       const double mZ = sminputs.mZ;

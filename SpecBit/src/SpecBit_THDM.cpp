@@ -3196,7 +3196,7 @@ namespace Gambit
 
         result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
-      
+
     //LO unitarity function without 2HDMC
     void unitarity_lambdas_LL(double &result)
     {   

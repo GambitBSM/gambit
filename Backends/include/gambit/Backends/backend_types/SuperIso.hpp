@@ -285,7 +285,7 @@ namespace Gambit
     double Im_DeltaCQ1_Prime = 0.;
     double Re_DeltaCQ2_Prime = 0.;
     double Im_DeltaCQ2_Prime = 0.;
- 
+
     double Re_DeltaC7_mu = 0.;
     double Im_DeltaC7_mu = 0.;
     double Re_DeltaC9_mu = 0.;
@@ -351,8 +351,6 @@ namespace Gambit
     double Im_DeltaCQ1_tau_Prime = 0.;
     double Re_DeltaCQ2_tau_Prime = 0.;
     double Im_DeltaCQ2_tau_Prime = 0.;
-
-   
 
   };
 

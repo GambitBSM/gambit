@@ -15,8 +15,8 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
-///  \author Tomas Gonzalo  
+///
+///  \author Tomas Gonzalo
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 June
 ///
@@ -35,7 +35,7 @@ void MODEL_NAMESPACE::WC_to_GWC (const ModelParameters &myP, ModelParameters &ta
 {
 
    logger()<<"Running interpret_as_parent calculations for WC --> GWC."<<LogTags::info<<EOM;
-     
+
    // Set everything to zero first
    for(auto par : targetP.getKeys())
      targetP.setValue(par, 0.0);
@@ -85,7 +85,7 @@ void MODEL_NAMESPACE::WC_LUV_to_GWC (const ModelParameters &myP, ModelParameters
 {
 
    logger()<<"Running interpret_as_parent calculations for WC_LUV --> GWC."<<LogTags::info<<EOM;
-     
+
    // Set everything to zero first
    for(auto par : targetP.getKeys())
      targetP.setValue(par, 0.0);
@@ -104,7 +104,7 @@ void MODEL_NAMESPACE::WC_LR_to_GWC (const ModelParameters &myP, ModelParameters 
 {
 
    logger()<<"Running interpret_as_parent calculations for WC_LR --> GWC."<<LogTags::info<<EOM;
-     
+
    // Set everything to zero first
    for(auto par : targetP.getKeys())
      targetP.setValue(par, 0.0);

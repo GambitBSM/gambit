@@ -240,7 +240,6 @@ namespace Gambit
       if (ModelInUse("GWC"))
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
-        cout<<spectrum<<endl;
       }
       else if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
       {
@@ -253,7 +252,6 @@ namespace Gambit
         // Obtain SLHAea object
         spectrum = Dep::THDM_spectrum->getSLHAea(2);
         // Add the MODSEL block if it is not provided by the spectrum object.
-      //SLHAea_add(spectrum,"MODSEL",1, 10, "THDM", false); 
         SLHAea_add(spectrum,"MODSEL",1, -3, "THDM", false);
       }
       else
@@ -692,7 +690,7 @@ namespace Gambit
         result.Im_DeltaCQ1_Prime = *Param["Im_DeltaCQ1_mu_Prime"];
         result.Re_DeltaCQ2_Prime = *Param["Re_DeltaCQ2_mu_Prime"];
         result.Im_DeltaCQ2_Prime = *Param["Im_DeltaCQ2_mu_Prime"];
- 
+
         // Flavour dependent WCs
         result.Re_DeltaC7_mu  = *Param["Re_DeltaC7_mu"];
         result.Im_DeltaC7_mu  = *Param["Im_DeltaC7_mu"];
@@ -804,11 +802,10 @@ namespace Gambit
         result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_tau_Prime, result.Im_DeltaCQ2_tau_Prime);
 
       }
-     // if (ModelInUse("THDMatQ"))
-      if (ModelInUse("THDM"))//Gambit was not going inside this conditional with THDMatQ
+      if (ModelInUse("THDM"))
       {
-        result.SM = 1; 
-        result.THDM_model = -3; //force SI to read the THDM as an EFT 
+        result.SM = 1;
+        result.THDM_model = -3; //force SI to read the THDM as an EFT
         //cout<<"ModelInUse('THDM'), Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
         result.Re_DeltaC2  = Dep::DeltaC2->real();
         result.Im_DeltaC2  = Dep::DeltaC2->imag();
@@ -824,7 +821,7 @@ namespace Gambit
         result.Im_DeltaCQ1 = Dep::DeltaCQ1->imag();
         result.Re_DeltaCQ2 = Dep::DeltaCQ2->real();
         result.Im_DeltaCQ2 = Dep::DeltaCQ2->imag();
-        
+
         result.deltaC[2]=std::complex<double>(result.Re_DeltaC2, result.Im_DeltaC2);
         result.deltaC[7]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
         result.deltaC[8]=std::complex<double>(result.Re_DeltaC8, result.Im_DeltaC8);
@@ -832,7 +829,7 @@ namespace Gambit
         result.deltaC[10]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
         result.deltaCQ[1]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
         result.deltaCQ[2]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
-     
+
         // Prime WCs
         result.Re_DeltaC7_Prime  = Dep::DeltaC7_Prime->real();
         result.Im_DeltaC7_Prime  = Dep::DeltaC7_Prime->imag();
@@ -961,12 +958,6 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 1;
       std::complex<double> DeltaCQ1=THDM_DeltaCQ_NP(1, l, lp, sminputs, sminputspointer, spectrum);
-    //Auxiliary conditional to invalidate points with fabs(real(DeltaCQ1))>0.1
-    //  if (fabs(real(DeltaCQ1))>0.1)
-    //  {
-    //    cout<<"Before invalidation, DeltaCQ1>0.12"<<endl;
-    //    invalid_point().raise("Model point with DeltaCQ1>0.1");
-    //  }
       result = DeltaCQ1;
     }
    
@@ -1377,7 +1368,7 @@ namespace Gambit
       std::complex<double> C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));  
 
       std::complex<double> C9_mub = (2/(4*sqrt(2)*27*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*
-                                      (Vcb*conj(xi_cc) + Vtb*conj(xi_tc))*(19+12*log(pow(mBmB/mHp,2)));      
+                                      (Vcb*conj(xi_cc) + Vtb*conj(xi_tc))*(19+12*log(pow(mBmB/mHp,2)));
 
       std::complex<double> C10_Ztotal = (1/(4*SW*SW-1))*(C9_Z+C9_Zmix);
 
@@ -1458,7 +1449,7 @@ namespace Gambit
       result = THDM_DeltaC_NP(9, l, lp, sminputs, sminputspointer, spectrum);
     }
 
-      /// Delta C10 from the general THDM
+    /// Delta C10 from the general THDM
     void calculate_DeltaC10(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10;
@@ -1707,9 +1698,9 @@ namespace Gambit
     {
       using namespace Pipes::SI_BRBKtautau;
       if (flav_debug) cout<<"Starting SI_BRBKtautau"<<endl;
-     
+
       parameters const& param = *Dep::SuperIso_modelinfo;
-      double mB = 5.27926;    
+      double mB = 5.27926;
       double mK = 0.493677;
       const double mTau = Dep::SMINPUTS->mTau;
       double Q2min = 4*mTau*mTau;
@@ -1983,7 +1974,7 @@ namespace Gambit
     {
       using namespace Pipes::THDM_FLDstar;
       if (flav_debug) cout<<"Starting THDM_FLDstarlnu"<<endl;
- 
+
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
 
@@ -2019,7 +2010,7 @@ namespace Gambit
       std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
       std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
       std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
-     
+
       result = GammaDstar_Gamma(gp,gpmutau);
       if (flav_debug) printf("Gamma(B->D* tau nu)/Gamma=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_FLDstar"<<endl;
@@ -2807,7 +2798,7 @@ namespace Gambit
       double R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
       double Roff = 2*((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);//The 2 factor accounts for tau mu and mu tau neutrinos
       
-      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R));               
+      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R));
     }           
       
     /// Fill SuperIso nuisance structure
@@ -3580,9 +3571,9 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_RD*"<<endl;
     }
 
-   ///  B-> D e nu / B-> D mu nu decays in THDM
+    ///  B-> D e nu / B-> D mu nu decays in THDM
     void THDM_RDemu(double &result)
-    { 
+    {
       using namespace Pipes::THDM_RDemu;
       if (flav_debug) cout<<"Starting THDM_RDemu"<<endl;
       
@@ -3689,15 +3680,15 @@ namespace Gambit
     {
       using namespace Pipes::THDM_RDstar;
       if (flav_debug) cout<<"Starting THDM_RDstar"<<endl;
-      
+
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      
+
       const double lambda = Dep::SMINPUTS->CKM.lambda;
       const double A = Dep::SMINPUTS->CKM.A;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4); 
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       double tanb = spectrum.get(Par::dimensionless,"tanb");
       double beta = atan(tanb);
       double cosb = cos(beta);
@@ -4099,7 +4090,6 @@ namespace Gambit
       if (flav_debug) cout<<"Starting SI_RK"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      //cout<<"Inside SI_RK, RK_CONV ="<<BEreq::RK_CONV(&param,1.0,6.0)<<endl;
       result=BEreq::RK_CONV(&param,1.0,6.0);
 
       if (flav_debug) printf("RK=%.3e\n",result);
@@ -4235,7 +4225,7 @@ namespace Gambit
       if (flav_debug) cout<<"Finished THDM_Delta_MBs"<<endl;
     }
 
-     /// BR(h->bs) at tree level for the general THDM from JHEP02(2020)147
+    /// BR(h->bs) at tree level for the general THDM from JHEP02(2020)147
     void THDM_h2bs(double &result)
     {
       using namespace Pipes::THDM_h2bs;
@@ -4267,7 +4257,7 @@ namespace Gambit
       double xi_bs = Ybs/cosb;
       double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
       double xi_sb = Ysb/cosb;
-      double M12_NP = -(0.125)*((pow(fBs,2)*pow(mBs, 3))/(pow(mBmB+ mS, 2)))*(0.25*pow(cba,2)*(pow(1/mh, 2) - pow(1/mH, 2))*((U22*Bag2*b2 + U32*Bag3*b3)*(pow(xi_bs, 2) + pow(xi_sb, 2)) + 2*U44*Bag4*b4*xi_sb*xi_bs) + pow(1/mH, 2)*U44*Bag4*b4*xi_sb*xi_bs); 
+      double M12_NP = -(0.125)*((pow(fBs,2)*pow(mBs, 3))/(pow(mBmB+ mS, 2)))*(0.25*pow(cba,2)*(pow(1/mh, 2) - pow(1/mH, 2))*((U22*Bag2*b2 + U32*Bag3*b3)*(pow(xi_bs, 2) + pow(xi_sb, 2)) + 2*U44*Bag4*b4*xi_sb*xi_bs) + pow(1/mH, 2)*U44*Bag4*b4*xi_sb*xi_bs);
       result = 2*abs(M12_NP);
       const double A = (pow(fBs,2)*pow(mBs,3)/(4*pow(mBmB+mS,2)));
       const double Gammah = 4.07e-3;
@@ -4296,12 +4286,12 @@ namespace Gambit
       double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
       double xi_tc = Ytc/cosb;
       const double Gamma = 1.42;//From PDG 2021 in GeV
-      result = (1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2); 
+      result = (1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2);
       if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;      
+      if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;
     }
 
-   /// BR(h->taumu) at tree level for the general THDM from JHEP, 06:119, 2019 (ArXiv:1903.10440)
+    /// BR(h->taumu) at tree level for the general THDM from JHEP, 06:119, 2019 (ArXiv:1903.10440)
     void THDM_h2taumu(double &result)
     {
       using namespace Pipes::THDM_h2taumu;
@@ -4797,7 +4787,7 @@ namespace Gambit
 
      theory[0] = *Dep::h2taumu;
      if(flav_debug) cout << "BR(h -> tau mu) = " << theory[0] << endl;
-     
+
      result = 0;
      for (int i = 0; i < 1; ++i)
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
@@ -5062,7 +5052,7 @@ namespace Gambit
         // D -> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Dtaunu");
          // R_mu
-        fread.read_yaml_measurement("flav_data.yaml", "R_mu");       
+        fread.read_yaml_measurement("flav_data.yaml", "R_mu");
          // RDemu
         fread.read_yaml_measurement("flav_data.yaml", "RDemu");
 
@@ -5280,7 +5270,7 @@ namespace Gambit
       result /= Dep::tau_minus_decay_rates->width_in_GeV;
     }
 
-// BR(l -> l' gamma) for the GTHDM from 1511.08880
+    // BR(l -> l' gamma) for the GTHDM from 1511.08880
     double THDM_llpgamma(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, double BRltolpnunu)
     {
       const double Alpha_em = 1/(sminputs.alphainv);
@@ -5745,9 +5735,9 @@ namespace Gambit
       return (BRtautomununu/(32*pow(sminputs.GF,2)))*l2lll;
     }
 
-// charged boxes diagrams for tau to 3 mu in the GTHDM 
+    // charged boxes diagrams for tau to 3 mu in the GTHDM
     double THDM_box_l2lll(int l, int lp, SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum)
-    { 
+    {
       const double Alpha_em = 1/(sminputs.alphainv);
       const double alpha_h = spectrum.get(Par::dimensionless,"alpha");
       const double tanb = spectrum.get(Par::dimensionless,"tanb");
@@ -5820,42 +5810,42 @@ namespace Gambit
       const double ximutau = Ymutau/cosb;
       const double xitaumu = Ytaumu/cosb;
       const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
-      
+
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
-      
+
       xi_L << xiee,  xiemu,  xietau,
               ximue, ximumu, ximutau,
               xitaue, xitaumu, xitautau;
-      
+
       xi_U << 0,   0,    0,
               0, xicc, xict,
               0, xitc, xitt;
-      
+
       xi_D << 0,   0,    0,
               0, xiss, xisb,
               0, xibs, xibb;
-      
+
       const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
-      
+
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,
               Vcd, Vcs, Vcb,
               Vtd, Vts, Vtb;
-      
+
       int f = 0;
-      
+
       // One loop amplitude
       complex<double> Aloop1R = 0;
       //Charged higgs contributions are being neglected
       //no longer
       for (int phi=0; phi<=3; ++phi)
-      { 
+      {
         for (int li = 0; li <=2; ++li)
-        { 
+        {
           Aloop1R += (1/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
         }
       }
-      
+
       /// Two loop amplitude
       const double mW = (*sminputspointer)->mW;
       const double mZ = (*sminputspointer)->mZ;
@@ -5863,12 +5853,12 @@ namespace Gambit
       const vector<double> Qf = {2./3.,-1./3.,-1.};
       const vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
       const vector<double> Nc = {3.,3.,1.};
-      //Fermionic contribution 
+      //Fermionic contribution
       complex<double> Aloop2fR = 0;
       for (int phi=0; phi<=2; ++phi)
-      { 
+      {
         for (int lf=0; lf<=2; ++lf)
-        { 
+        {
           Aloop2fR += -((Nc[lf]*Qf[lf]*Alpha_em)/(8*pow(pi,3))/(ml[l]*mlf[lf]))*Amplitudes::A_loop2fR(f, lf, l, lp, phi, ml[l], mlf[lf], mphi[phi], mZ, Qf[lf], QfZ[lf], xi_f[lf], xi_L, VCKM, sw2, vev, cab);
          }
       }
@@ -5886,10 +5876,10 @@ namespace Gambit
       double g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
       //g4 coupling
       double g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
-     
-      double C2 = norm(g2)/16 + norm(g4); 
+
+      double C2 = norm(g2)/16 + norm(g4);
       double C7 = (pi*Alpha_em/(sqrt(2)*sminputs.GF))*g4*real(conj(I)*(Aloop1R+Aloop2fR+Aloop2bR));
-     
+
       return 2*C2+16*C7;
     }
 
@@ -6236,8 +6226,8 @@ namespace Gambit
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKtaumu");
         // B+-> K+ mu+- e-+ 
         fread.read_yaml_measurement("flav_data.yaml", "BR_BKmue");
-        // B+-> K+ tau+ tau- 
-        fread.read_yaml_measurement("flav_data.yaml", "BR_BKtautau");        
+        // B+-> K+ tau+ tau-
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BKtautau");
 
         fread.initialise_matrices();
         cov_exp=fread.get_exp_cov();
@@ -6263,7 +6253,7 @@ namespace Gambit
 
     }
 
- /// Likelihood for  RKnunu and RKstarnunu
+    /// Likelihood for  RKnunu and RKstarnunu
     void RK_RKstarnunu_likelihood(double &result)
     { 
       using namespace Pipes::RK_RKstarnunu_likelihood;
@@ -6711,10 +6701,10 @@ namespace Gambit
       result = nDimGaussian.GetLogLikelihood(theory /*, theory_covariance */);
       // TODO: SuperIso is not ready to give correlations for these observables. So currently we fall back to the old way.
       //       Below code is for future reference.
-     // static const std::vector<std::string> observables{
-       //  "RD",
-        // "RDstar"
-     // };
+      // static const std::vector<std::string> observables{
+      //  "RD",
+      // "RDstar"
+      // };
 
       //flav_prediction prediction = *Dep::prediction_RDRDstar;
       //flav_observable_map theory = prediction.central_values;
