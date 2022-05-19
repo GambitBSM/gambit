@@ -264,16 +264,6 @@ BE_NAMESPACE
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
     Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
 
-    //Code to check out WCs from the SM:
-    //double alphas_mub=alphas_running(mu_b,param->mass_top_pole,param->mass_b_pole,param);
-    //double alpha_em = 1./133.;
-
-    // for(int i=7;i<11;++i)
-    // {
-     // cout<<"SuperIso C(mu_b)["<<i<<"] = "<<C0b[i]+alphas_mub/4./pi*C1b[i]+pow(alphas_mub/4./pi,2.)*C2b[i]<<endl;
-     // cout<<"Before modify_WC, C(mu_b)["<<i<<"] = "<<C0b[i]+alphas_mub/4./pi*C1b[i]+pow(alphas_mub/4./pi,2.)*C2b[i]+alpha_em/4./pi*C1b[i]+alphas_mub*alpha_em*pow(1/(4.*pi),2.)*C2b[i]<<endl;
-    // }
-
     modify_WC(param, C0b, CQ0b);
     modify_WCP(param, Cpb, CQpb);
 
