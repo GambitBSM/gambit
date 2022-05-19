@@ -1,7 +1,7 @@
 ##########################################################################
 ## GAMBIT configuration for the following                               ##
 ##                                                                      ##
-## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM               ##
+## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, IDM                      ##
 ##                                                                      ##
 ## Includes all compatible likelihoods:                                 ##
 ## Theoretical, experimental & flavor                                   ##
@@ -28,8 +28,8 @@ Parameters:
   # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
-  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, or IDM
-  THDMI_physical:
+  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, IDM
+  THDMI_physicalatQ:
     m_h: 
       fixed_value: 125.10
     m_H:
@@ -54,10 +54,10 @@ Parameters:
     sba:
       range: [-1.0, 1.0]
       prior_type: flat
-    #~0Qin:
-    #~0  fixed_value: 91.1876 # = mZ
-    #~0QrunTo:
-    #~0   fixed_value: 1000 # for comparison with other literature
+    Qin:
+      fixed_value: 91.1876 # = mZ
+    QrunTo:
+      fixed_value: 1000 # for comparison with other literature
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -140,49 +140,52 @@ ObsLikes:
   - purpose:    LogLike
     capability: stability_likelihood_THDM
 
-  # # Checks that the NLO scattering-matrix is unitary
-  # # Calculates and applies limit on eigenvalues of matrix
-  # # NOTE: This is always a subset of LO unitarity so it not needed
-  # # Likelihood type: Half-Gaussian
-  # # Only supports CP-conserving models
-  # # Unitarity of the S-matrix at next leading order (includes leading order too)
+  # Checks that the NLO scattering-matrix is unitary
+  # Calculates and applies limit on eigenvalues of matrix
+  # NOTE: This is always a subset of LO unitarity so it not needed
+  # Likelihood type: Half-Gaussian
+  # Only supports CP-conserving models
+  # Unitarity of the S-matrix at next leading order (includes leading order too)
   - purpose:    LogLike
-    capability: unitarity_likelihood_THDM
-    # capability: NLO_unitarity_likelihood_THDM
+  #   capability: unitarity_likelihood_THDM
+    capability: NLO_unitarity_likelihood_THDM
 
-  # # Calculates all quartic Higgs couplings in the physical
-  # # basis & applies a 4pi perturbativity constraint on each
-  # # Likelihood type: Half-Gaussian
-  # # Perturbativity check on lambdas and scalar couplings
+
+  # Calculates all quartic Higgs couplings in the physical
+  # basis & applies a 4pi perturbativity constraint on each
+  # Likelihood type: Half-Gaussian
+  # Perturbativity check on lambdas and scalar couplings
   - purpose:    LogLike
     capability: perturbativity_likelihood_THDM
 
-  # # Perturbativity check on h0 mass loop-corrections
-  # # Checks that loop corrections to the pole mass of mh0
-  # # do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
-  # - purpose:    LogLike
-  #   capability: h0_loop_order_corrections
-  #   function: check_h0_loop_order_corrections
+  # Perturbativity check on h0 mass loop-corrections
+  # Checks that loop corrections to the pole mass of mh0
+  # do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: h0_loop_order_corrections
+    function: check_h0_loop_order_corrections
   
-  # # Checks that loop corrections to the pole masses of mH0,
-  # # mA0, mHpm do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
-  # # Perturbativity check on other scalar mass loop-corrections
-  # - purpose:    LogLike
-  #   capability: THDM_scalar_loop_order_corrections
-  #   function: check_THDM_scalar_loop_order_corrections
+  # Checks that loop corrections to the pole masses of mH0,
+  # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  # Perturbativity check on other scalar mass loop-corrections
+  - purpose:    LogLike
+    capability: THDM_scalar_loop_order_corrections
+    function: check_THDM_scalar_loop_order_corrections
 
-  # enforces an upper limit on the heavy scalar masses from the yaml
+  # enforces a mass range for heavy scalars from the yaml
   # these are specified by the run options (given below):
+  # can be used as eight a soft or had cutoff 
   # (*) maximum_scalar_mass
   # (*) minimum_scalar_mass
+  # (*) soft_maximum_scalar_mass
+  # (*) soft_minimum_scalar_mass
   # Likelihood type: Acceptance/Rejection
   - purpose:    LogLike
     capability: THDM_scalar_masses
     function: check_THDM_scalar_masses
-  # - purpose:    LogLike
-  #   capability: positive_scalar_mass_likelihood
+
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -218,67 +221,65 @@ ObsLikes:
         module: ColliderBit
 
   # helps guide the scanner towards mh ~ 125 GeV. Needed to improve scan performance
+  # only use in combination with HiggsSignals
   - purpose: LogLike
     capability: higgs_mass_likelihood
 
-  # helps guide the scanner to positive masses. Needed to improve performance
-  # for now the range is hard-coded
-  - purpose: LogLike
-    capability: scalar_mass_range_likelihood
 
   #-------------------------------------#
   #      PRECISION LIKELIHOODS          #
   #-------------------------------------#
 
-  # # Calculates the electroweak precision parameters, S, T, U, V, W, X
-  # # & fits to meausured values. S, T, U involve a correlation matrix.
-  # # Includes low-energy notation described in arxiv::9407203.
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: oblique_parameters_likelihood_THDM
+  # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # & fits to meausured values. S, T, U involve a correlation matrix.
+  # Includes low-energy notation described in arxiv::9407203.
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: oblique_parameters_likelihood_THDM
 
   #-------------------------------------#
   #      FLAVOR LIKELIHOODS             #
   #-------------------------------------#
 
-  # #### NOTE
-  # # Flavor likelihoods imported from Superiso
-  # # Superiso is given SLHA struct filled with THDM input
-  # # & then likelihoods may be called as intended
+  #### NOTE
+  # Flavor likelihoods imported from Superiso
+  # Superiso is given SLHA struct filled with THDM input
+  # & then likelihoods may be called as intended
 
-  # # FlavBit.cpp:2193 (b->s gamma via HEPLike)
-  # - purpose:    LogLike
-  #   capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
+  # FlavBit.cpp:2193 (b->s gamma via HEPLike)
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
 
-  # # FlavBit.cpp:2120 (B meson mass aysmmetry)
-  # - capability: deltaMB_LL
-  #   function: deltaMB_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2120 (B meson mass aysmmetry)
+  - capability: deltaMB_LL
+    function: deltaMB_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:2156
-  # - capability: deltaMBd_LL
-  #   function: deltaMBd_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2156
+  - capability: deltaMBd_LL
+    function: deltaMBd_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:2298
-  # - capability: b2ll_LL
-  #   function: b2ll_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2298
+  - capability: b2ll_LL
+    function: b2ll_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:2435
-  # - capability: SL_LL
-  #   function: SL_likelihood
-  #   purpose: LogLike
+  # FlavBit.cpp:2435
+  - capability: SL_LL
+    function: SL_likelihood
+    purpose: LogLike
 
-  # # FlavBit.cpp:3163 (lepton universality)
-  # - purpose:    LogLike
-  #   capability: LUV_LL # LUV_likelihood
+  # FlavBit.cpp:3163 (lepton universality)
+  - purpose:    LogLike
+    capability: LUV_LL # LUV_likelihood
 
 
   #-------------------------------------#
   #      DARK MATTER LIKELIHOODS        #
   #-------------------------------------#
 
+  # TODO
 
 
 #################################
@@ -458,7 +459,10 @@ Rules:
   - capability: THDM_scalar_masses
     function: check_THDM_scalar_masses
     options:
-      maximum_scalar_mass: 3000
+      minimum_scalar_mass: 0
+      soft_minimum_scalar_mass: 125
+      soft_maximum_scalar_mass: 3000
+      maximum_scalar_mass: 10000
 
   - capability: perturbativity_likelihood_THDM
     function: get_perturbativity_likelihood_THDM
@@ -519,6 +523,7 @@ Rules:
     module: FlavBit
 
 
+
 #########################
 # Logging setup
 #########################
@@ -549,6 +554,8 @@ KeyValues:
   required_scan_duration: 300 # in seconds
 
   likelihood:
+    print_points_to_cout: true
+    print_perf_stats: true
     print_invalid_points: false
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5

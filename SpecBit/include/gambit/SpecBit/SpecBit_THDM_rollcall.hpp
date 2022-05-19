@@ -47,62 +47,6 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// guides scanner towards mh = 125 GeV, used to improve perf. of HS
-#define CAPABILITY higgs_mass_likelihood
-START_CAPABILITY
-  #define FUNCTION higgs_mass_LL
-  START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
-  #undef FUNCTION
-#undef CAPABILITY
-
-// guide scanner towards mass range for each heavy scalar, specified in YAML file (soft-cutoff)
-#define CAPABILITY scalar_mass_range_likelihood
-START_CAPABILITY
-  #define FUNCTION get_scalar_mass_range_likelihood
-  START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
-  #undef FUNCTION
-#undef CAPABILITY
-
-// enforces positive scalar mass (hard-cutoff)
-#define CAPABILITY positive_scalar_mass_likelihood
-START_CAPABILITY
-  #define FUNCTION positive_scalar_mass_LL
-  START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
-  #undef FUNCTION
-#undef CAPABILITY
-
-// only keeps points that correspond to hidden higgs scenario (hard-cutoff)
-#define CAPABILITY hidden_higgs_scenario_likelihood
-START_CAPABILITY
-  #define FUNCTION hidden_higgs_scenario_LL
-  START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
-  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
-  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
-  #undef FUNCTION
-#undef CAPABILITY
-
 // Observable: sin(beta-alpha)
 #define CAPABILITY sba
 START_CAPABILITY
@@ -139,7 +83,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// Leading-Order unitarity constraint
+// LIKELIHOOD: Leading-Order unitarity constraint (soft-cutoff)
 #define CAPABILITY unitarity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_unitarity_likelihood_THDM
@@ -152,7 +96,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// Next-to-Leading-Order unitarity constraint
+// LIKELIHOOD: Next-to-Leading-Order unitarity constraint (soft-cutoff)
 #define CAPABILITY NLO_unitarity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_NLO_unitarity_likelihood_THDM
@@ -165,7 +109,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// perturbativity constraint
+// LIKELIHOOD: perturbativity constraint (soft-cutoff)
 #define CAPABILITY perturbativity_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_perturbativity_likelihood_THDM
@@ -181,7 +125,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// vacuum stability constraint
+// LIKELIHOOD: vacuum stability + meta-stability constraint (soft+hard cutoff)
 #define CAPABILITY stability_likelihood_THDM
 START_CAPABILITY
   #define FUNCTION get_stability_likelihood_THDM
@@ -195,7 +139,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// guide scanner so that sba ~ 0.99 to 1.00, which is the alignment limit
+// LIKELIHOOD: guide scanner so that sba ~ 0.99 to 1.00, which is the alignment limit (soft-cutoff)
 // Note: unneccesary since sampling density is actually much higher towards alignment limit
 #define CAPABILITY alignment_likelihood_THDM
 START_CAPABILITY
@@ -209,7 +153,8 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// another vacuum stability check (true / false)
+// OBSERVABLE: checks for vacuum meta-stability (T/F)
+// Note: obsolete as it can now be done in the stability constraint
 #define CAPABILITY vacuum_global_minimum
 START_CAPABILITY
   #define FUNCTION check_vacuum_global_minimum
@@ -222,7 +167,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// checks that the corrections to h0 are perturbative (hard-cutoff)
+// LIKELIHOOD: checks that the corrections to h0 are perturbative (hard-cutoff)
 #define CAPABILITY h0_loop_order_corrections
 START_CAPABILITY
   #define FUNCTION check_h0_loop_order_corrections
@@ -235,7 +180,7 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// identicle to h0_loop_order_corrections... perhaps a bug
+// LIKELIHOOD: checks that the corrections to H0,A0,Hp are perturbative (hard-cutoff)
 #define CAPABILITY THDM_scalar_loop_order_corrections
 START_CAPABILITY
   #define FUNCTION check_THDM_scalar_loop_order_corrections
@@ -248,7 +193,35 @@ START_CAPABILITY
   #undef FUNCTION
 #undef CAPABILITY
 
-// enforces an upper limit on the heavy scalar masses from the yaml
+// LIKELIHOOD: only keeps points that correspond to hidden higgs scenario (hard-cutoff)
+#define CAPABILITY hidden_higgs_scenario_likelihood
+START_CAPABILITY
+  #define FUNCTION hidden_higgs_scenario_LL
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+  #undef FUNCTION
+#undef CAPABILITY
+
+// LIKELIHOOD: guides scanner towards mh = 125 GeV, used to improve performance of HS (soft-cutoff)
+#define CAPABILITY higgs_mass_likelihood
+START_CAPABILITY
+  #define FUNCTION higgs_mass_LL
+  START_FUNCTION(double)
+  NEEDS_CLASSES_FROM(THDMC,default)
+  DEPENDENCY(THDM_spectrum, Spectrum)
+  ALLOW_MODEL(THDM, THDMI, THDMII, THDMLS, THDMflipped)     
+  ALLOW_MODEL(THDMatQ, THDMIatQ, THDMIIatQ, THDMLSatQ, THDMflippedatQ)
+  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+  #undef FUNCTION
+#undef CAPABILITY
+
+// LIKELIHOOD: mass range for each heavy scalar, specified in YAML file (soft-cutoff)
 #define CAPABILITY THDM_scalar_masses
 START_CAPABILITY
   #define FUNCTION check_THDM_scalar_masses

@@ -1,7 +1,7 @@
 ##########################################################################
 ## GAMBIT configuration for the following                               ##
 ##                                                                      ##
-## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM               ##
+## Models: THDMI, THDMII, THDMIatQ, THDMIIatQ, IDM                      ##
 ##                                                                      ##
 ## Includes all compatible likelihoods:                                 ##
 ## Theoretical, experimental & flavor                                   ##
@@ -28,7 +28,7 @@ Parameters:
   # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
   
-  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, GTHDM, IDM, or THDMI_smartBasis
+  # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, IDM
   THDMIatQ:
 
       lambda_1:
@@ -102,13 +102,13 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 20000000
+      point_number: 2000000
       like:  LogLike
 
     differentialEvolution:
       plugin: diver
       like: LogLike
-      NP: 20000000
+      NP: 100000
       convthresh: 1e-5
       verbosity: 0
 
@@ -177,16 +177,18 @@ ObsLikes:
     capability: THDM_scalar_loop_order_corrections
     function: check_THDM_scalar_loop_order_corrections
 
-  # enforces an upper limit on the heavy scalar masses from the yaml
+  # enforces a mass range for heavy scalars from the yaml
   # these are specified by the run options (given below):
+  # can be used as eight a soft or had cutoff 
   # (*) maximum_scalar_mass
   # (*) minimum_scalar_mass
+  # (*) soft_maximum_scalar_mass
+  # (*) soft_minimum_scalar_mass
   # Likelihood type: Acceptance/Rejection
   - purpose:    LogLike
     capability: THDM_scalar_masses
     function: check_THDM_scalar_masses
-  # - purpose:    LogLike
-  #   capability: positive_scalar_mass_likelihood
+
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -222,13 +224,10 @@ ObsLikes:
         module: ColliderBit
 
   # helps guide the scanner towards mh ~ 125 GeV. Needed to improve scan performance
+  # only use in combination with HiggsSignals
   - purpose: LogLike
     capability: higgs_mass_likelihood
 
-  # helps guide the scanner to positive masses. Needed to improve performance
-  # for now the range is hard-coded
-  - purpose: LogLike
-    capability: scalar_mass_range_likelihood
 
   #-------------------------------------#
   #      PRECISION LIKELIHOODS          #
@@ -463,7 +462,10 @@ Rules:
   - capability: THDM_scalar_masses
     function: check_THDM_scalar_masses
     options:
-      maximum_scalar_mass: 3000
+      minimum_scalar_mass: 0
+      soft_minimum_scalar_mass: 125
+      soft_maximum_scalar_mass: 3000
+      maximum_scalar_mass: 10000
 
   - capability: perturbativity_likelihood_THDM
     function: get_perturbativity_likelihood_THDM
@@ -555,6 +557,8 @@ KeyValues:
   required_scan_duration: 300 # in seconds
 
   likelihood:
+    print_points_to_cout: true
+    print_perf_stats: true
     print_invalid_points: false
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5

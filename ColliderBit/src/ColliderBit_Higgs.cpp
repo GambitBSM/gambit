@@ -49,7 +49,6 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
-#include "gambit/Core/point_counter.hpp"
 
 
 // #define COLLIDERBIT_DEBUG
@@ -1108,9 +1107,6 @@ namespace Gambit
     /// Get an LHC chisq from HiggsSignals (v2 beta)
     void calc_HS_2_LHC_LogLike(double &result)
     {
-      static point_counter count("HiggsSignals LL"); count.count();
-      static point_counter count2("HiggsSignals NaN/inf"); count2.count();
-
       using namespace Pipes::calc_HS_2_LHC_LogLike;
       const bool SMHiggsMassOnly = runOptions->getValueOrDef<bool>(false, "sm_higgs_mass_only");
 
@@ -1172,7 +1168,7 @@ namespace Gambit
       // double dBR[5] = {0.,0.,0.,0.,0.};
       // BEreq::setup_rate_uncertainties(dCS,dBR);
 
-      // chi-squared values for: mu == rate observable, mh == mass observable, both combined
+      // chi-squared values for: mu == rate observable, mh == mass observable, tot == both combined
 
       double csqmu, csqmh, csqtot, Pvalue;
       double csqmu1, csqmh1, csqtot1, Pvalue1;
@@ -1181,7 +1177,7 @@ namespace Gambit
 
       // - run HiggsSignals
 
-      // legacy peak-centered method
+      // peak-centered method using Higgs signal strength measurements
       BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
       // LHC run1 (using combined ATLAS + CMS dataset)
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
@@ -1195,14 +1191,8 @@ namespace Gambit
       else
         result = -0.5*(csqtot + csqtot1 + csqtot2);
 
-      // - count number of invalid points
-
-      if (csqmu > 45 || csqmu1 > 100 || csqmu2 > 300)
-        count.count_invalid();
-
       if (std::isnan(result) || std::isinf(result))
       {
-        count2.count_invalid();
         invalid_point().raise("NaN or infinite HS likelihood, point invalidated!");
       }
 

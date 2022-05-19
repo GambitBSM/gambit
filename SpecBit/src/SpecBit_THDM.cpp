@@ -14,11 +14,11 @@
 ///
 ///  \author A.S. Woodcock
 ///          (alex.woodcock@outlook.com)
-///  \date   Feb 2022
+///  \date   May 2022
 ///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
-///  \date 2020 Oct
+///  \date   2020 Oct
 ///
 ///  *********************************************
 
@@ -3092,7 +3092,7 @@ namespace Gambit
       return Stats::gaussian_upper_limit(error + error_ratio, 0.0, 0.0, sigma, false);
     }
 
-    // - perturbativity likelihood (simple) (only checks that couplings are less than 4pi)
+    // - perturbativity likelihood (simple) (only checks that lambdas are less than 4pi)
     double perturbativity_likelihood_simple_THDM(THDM_spectrum_container &container)
     {
       // check lambda_i (generic couplings)
@@ -3110,6 +3110,7 @@ namespace Gambit
           error += abs(each_lambda) - perturbativity_upper_limit;
       }
 
+      // count failure rate
       static point_counter count("simple perturbativity LL"); count.count();
       if (error > 0.0) count.count_invalid();
 
@@ -3161,6 +3162,7 @@ namespace Gambit
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
+    // forward declaration
     double global_minimum_discriminant_THDM(THDM_spectrum_container &container);
 
     // - stability likelihood
@@ -3225,15 +3227,20 @@ namespace Gambit
     // - alignment likelihood
     double alignment_likelihood_THDM(THDM_spectrum_container &container)
     {
+      // sin(b-a) = 1 in alignment limit - the tolerance gives the distance from alignment limit:
+      
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a = container.he->get(Par::dimensionless, "alpha");
       double sba = sin(b - a);
-      //-----------------------------
-      // sin(b-a) = 1 in alignment limit - the tolerance gives the distance from alignment limit:
+      
       const double sba_tolerance = 0.01;
       const double sigma = 0.1;
-      //-----------------------------
-      // loglike function
-      return Stats::gaussian_upper_limit((1.0 - sba), sba_tolerance, 0.0, sigma, false);
+      const double error = 1.0 - sba;
+      
+      // count failure rate
+      static point_counter count("alignment LL"); count.count();
+      if (error > sba_tolerance) count.count_invalid();
+
+      return Stats::gaussian_upper_limit(error, sba_tolerance, 0.0, sigma, false);
     }
 
     // - vacuum metastability constraint
@@ -3294,8 +3301,15 @@ namespace Gambit
       const double mh_running = container.he->get(Par::mass1, "h0", 1), mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running * 0.5;
+
+      // count failure rate
+      static point_counter count("higgs mass pert"); count.count();
+
       if (mh_splitting > lower_limit)
+      {
+        count.count_invalid();
         return -L_MAX;
+      }
       return 0.0;
     }
 
@@ -3338,28 +3352,70 @@ namespace Gambit
       double loglike = loop_correction_mass_splitting_H0_THDM(container);
       loglike += loop_correction_mass_splitting_A0_THDM(container);
       loglike += loop_correction_mass_splitting_Hpm_THDM(container);
+
+      // count failure rate
+      static point_counter count("heavy scalar mass pert"); count.count();
+      if (loglike < -1.0) count.count_invalid();
+
       return loglike;
     }
 
     // - enforces an upper limit on the heavy scalar masses from the yaml
-    double scalar_masses_THDM(THDM_spectrum_container &container, const double min_scalar_mass, const double max_scalar_mass)
+    double scalar_masses_THDM(THDM_spectrum_container &container, double min_mass, double max_mass, double soft_min_mass, double soft_max_mass)
     {
+      // Note: the lower limit is applied to H0 whereas the upper limit is applied to H0 and h0
+      //       this prevents exclusion of the Hidden Higgs scenario
+      
+      const double mh0 = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mH0 = container.he->get(Par::Pole_Mass, "h0", 2);
-      if (mH0 < min_scalar_mass || mH0 > max_scalar_mass)
-        return -L_MAX;
       const double mA0 = container.he->get(Par::Pole_Mass, "A0");
-      if (mA0 < min_scalar_mass || mA0 > max_scalar_mass)
-        return -L_MAX;
       const double mHp = container.he->get(Par::Pole_Mass, "H+");
-      if (mHp < min_scalar_mass || mHp > max_scalar_mass)
-        return -L_MAX;
-      return 0;
+
+      // Note: we always apply a soft-cutoff of at least 0.1 GeV
+      soft_max_mass = std::min(max_mass-0.1,soft_max_mass);
+      soft_min_mass = std::max(min_mass+0.1,soft_min_mass);
+      const double scale_upper = max_mass - soft_max_mass;
+      const double scale_lower = soft_min_mass - min_mass;
+
+      // we want the likelihood to allow masses in the range (soft_min_mass, soft_max_mass)
+      // and to completely cut: mass < min_mass OR mass > max_mass
+      // in between these, the likelihood falls off linearly towards model_invalid_for_lnlike_below
+
+      double result = 0;
+      if (std::isfinite(soft_min_mass) && std::isfinite(min_mass))
+      {
+        result += std::max(0.,(soft_min_mass - mH0)) / scale_lower;
+        result += std::max(0.,(soft_min_mass - mHp)) / scale_lower;
+        result += std::max(0.,(soft_min_mass - mA0)) / scale_lower;
+      }
+
+      if(std::isfinite(soft_max_mass) && std::isfinite(max_mass))
+      {
+        result += std::max(0.,(mH0 - soft_max_mass)) / scale_upper;
+        result += std::max(0.,(mHp - soft_max_mass)) / scale_upper;
+        result += std::max(0.,(mA0 - soft_max_mass)) / scale_upper;
+        result += std::max(0.,(mh0 - soft_max_mass)) / scale_upper;
+      }
+
+      // scale it such that a value of 1 is the invalid point cutoff
+      constexpr double model_invalid_for_lnlike_below = -1e6;
+      result *= model_invalid_for_lnlike_below; 
+
+      // ensure we bail on the point if any mass is negative
+      if (mh0 < std::min(min_mass,0.0) || mH0 < min_mass || mHp < min_mass || mA0 < min_mass)
+        result = -L_MAX;
+
+      // count failure rate
+      static point_counter count("scalar-mass-range"); count.count();
+      if (result < -1.0) count.count_invalid();
+
+      return result;
     }
 
 
     // =============== likelihood functions ================
 
-    // LIKELIHOOD: Leading-Order unitarity constraint
+    // LIKELIHOOD: Leading-Order unitarity constraint (soft-cutoff)
     void get_unitarity_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_unitarity_likelihood_THDM;
@@ -3393,7 +3449,7 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: Next-to-Leading-Order unitarity constraint
+    // LIKELIHOOD: Next-to-Leading-Order unitarity constraint (soft-cutoff)
     void get_NLO_unitarity_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_NLO_unitarity_likelihood_THDM;
@@ -3434,7 +3490,7 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: perturbativity constraint
+    // LIKELIHOOD: perturbativity constraint (soft-cutoff)
     void get_perturbativity_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_perturbativity_likelihood_THDM;
@@ -3468,7 +3524,7 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: vacuum stability constraint
+    // LIKELIHOOD: vacuum stability + meta-stability constraint (soft+hard cutoff)
     void get_stability_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_stability_likelihood_THDM;
@@ -3503,7 +3559,7 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: guide scanner so that sba ~ 0.99 to 1.00
+    // LIKELIHOOD: guide scanner so that sba ~ 0.99 to 1.00, which is the alignment limit (soft-cutoff)
     void get_alignment_likelihood_THDM(double &result)
     {
       using namespace Pipes::get_alignment_likelihood_THDM;
@@ -3537,7 +3593,7 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: another vacuum stability check
+    // OBSERVABLE: checks for vacuum meta-stability (T/F)
     void check_vacuum_global_minimum(int &result)
     {
       using namespace Pipes::check_vacuum_global_minimum;
@@ -3571,7 +3627,7 @@ namespace Gambit
       result = (loglike && loglike_at_Q);
     }
 
-    // LIKELIHOOD: checks that the corrections to h0 are perturbative
+    // LIKELIHOOD: checks that the corrections to h0 are perturbative (hard-cutoff)
     void check_h0_loop_order_corrections(double &result)
     {
       using namespace Pipes::check_h0_loop_order_corrections;
@@ -3597,7 +3653,7 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: identicle to above ... maybe a BUG
+    // LIKELIHOOD: checks that the corrections to H0,A0,Hp are perturbative (hard-cutoff)
     void check_THDM_scalar_loop_order_corrections(double &result)
     {
       using namespace Pipes::check_THDM_scalar_loop_order_corrections;
@@ -3623,36 +3679,7 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: enforces an upper limit on the heavy scalar masses
-    void check_THDM_scalar_masses(double &result)
-    {
-      using namespace Pipes::check_THDM_scalar_masses;
-      // define likelihood function to use
-      std::function<double(THDM_spectrum_container &, const double, const double)> likelihood_function = scalar_masses_THDM;
-      // create container
-      THDM_spectrum_container container;
-      // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
-      const double infinity = std::numeric_limits<double>::infinity();
-      const double max_scalar_mass = runOptions->getValueOrDef<double>(infinity, "maximum_scalar_mass");
-      const double min_scalar_mass = runOptions->getValueOrDef<double>(-1.0*infinity, "minimum_scalar_mass");
-      // evaluate loglike
-      const double loglike = likelihood_function(container, min_scalar_mass, max_scalar_mass);
-      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
-      double loglike_at_Q = L_MAX;
-      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (is_at_Q && check_other_scale > 0.0)
-      {
-        // get likelihood at check_other_scale
-        THDM_spectrum_container container_at_scale;
-        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
-        loglike_at_Q = likelihood_function(container_at_scale, min_scalar_mass, max_scalar_mass);
-      }
-      // return the worse performing likelihood
-      result = std::min(loglike, loglike_at_Q);
-    }
-
-    // LIKELIHOOD: allows us to consider points only for the Hidden higgs scenario
+    // LIKELIHOOD: only keeps points that correspond to hidden higgs scenario (hard-cutoff)
     void hidden_higgs_scenario_LL(double& result)
     {
       using namespace Pipes::hidden_higgs_scenario_LL;
@@ -3681,8 +3708,7 @@ namespace Gambit
       if (result < -1.0) count.count_invalid();
     }
 
-    // TODO: might also be useful to scan only the hidden higgs scenario
-    // LIKELIHOOD: guides scanner towards mh = 125 GeV. Use to improve performance of HiggsSignals
+    // LIKELIHOOD: guides scanner towards mh = 125 GeV. Use to improve performance of HiggsSignals (soft-cutoff)
     void higgs_mass_LL(double& result)
     {
       using namespace Pipes::higgs_mass_LL;
@@ -3707,71 +3733,37 @@ namespace Gambit
       if (result < -1.0) count.count_invalid();
     }
 
-    // LIKELIHOOD: ensures all scalar masses are positive (hard cut-off)
-    void positive_scalar_mass_LL(double& result)
+    // LIKELIHOOD: mass range for each heavy scalar, specified in YAML file (soft-cutoff)
+    void check_THDM_scalar_masses(double &result)
     {
-      using namespace Pipes::positive_scalar_mass_LL;
-      
+      using namespace Pipes::check_THDM_scalar_masses;
+      // define likelihood function to use
+      std::function<double(THDM_spectrum_container &, const double, const double, const double, const double)> likelihood_function = scalar_masses_THDM;
+      // create container
       THDM_spectrum_container container;
+      // initialise container at Qin - this is where the 2HDMC is configured
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
+      constexpr double infinity = std::numeric_limits<double>::infinity();
       
-      const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
-      const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
-      const double mHp_pole = container.he->get(Par::Pole_Mass, "H+");
-      const double mA_pole = container.he->get(Par::Pole_Mass, "A0");
+      const double max_scalar_mass = runOptions->getValueOrDef<double>(infinity, "maximum_scalar_mass");
+      const double min_scalar_mass = runOptions->getValueOrDef<double>(-1.0*infinity, "minimum_scalar_mass");
+      const double soft_max_scalar_mass = runOptions->getValueOrDef<double>(max_scalar_mass, "soft_maximum_scalar_mass");
+      const double soft_min_scalar_mass = runOptions->getValueOrDef<double>(min_scalar_mass, "soft_minimum_scalar_mass");
 
-      static point_counter count("positive scalar masses"); count.count();
-
-      if (mh_pole < 0 || mH_pole < 0 || mHp_pole < 0 || mA_pole < 0)
+      // evaluate loglike
+      const double loglike = likelihood_function(container, min_scalar_mass, max_scalar_mass, soft_max_scalar_mass, soft_max_scalar_mass);
+      // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
+      double loglike_at_Q = L_MAX;
+      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
+      if (is_at_Q && check_other_scale > 0.0)
       {
-        result = -L_MAX;
-        count.count_invalid();
+        // get likelihood at check_other_scale
+        THDM_spectrum_container container_at_scale;
+        BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
+        loglike_at_Q = likelihood_function(container_at_scale, min_scalar_mass, max_scalar_mass, soft_max_scalar_mass, soft_max_scalar_mass);
       }
-      else
-        result = 0;
-    }
-
-    // TODO: should we check running mass instead?
-    // TODO: all mass range likelihoods should be combined into 1 likelihood
-    // LIKELIHOOD: guide scanner towards mass range for each heavy scalar, specified in YAML file
-    void get_scalar_mass_range_likelihood(double& result)
-    {
-      using namespace Pipes::get_scalar_mass_range_likelihood;
-      
-      THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(yukawa_type), 0.0, 0);
-      
-      // const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
-      const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
-      const double mHp_pole = container.he->get(Par::Pole_Mass, "H+");
-      const double mA_pole = container.he->get(Par::Pole_Mass, "A0");
-      
-      constexpr double mass_min = 130;  // GeV
-      constexpr double mass_max = 5000; // GeV
-      constexpr double scale_upper = 1000;
-      constexpr double scale_lower = 300;
-      constexpr double model_invalid_for_lnlike_below = -1e6;
-
-      // we want the likelihood to allow masses in the range (mass_min, mass_max)
-      // and to completely cut: mass < mass_min-scale_lower OR mass > mass_max+scale_upper
-      // in between these the likelihood falls off linearly towards model_invalid_for_lnlike_below
-
-      result = 0;
-      result += std::max(0.,(mass_min - mH_pole))  / scale_lower;
-      result += std::max(0.,(mass_min - mHp_pole)) / scale_lower;
-      result += std::max(0.,(mass_min - mA_pole))  / scale_lower;
-      result += std::max(0.,(mH_pole  - mass_max)) / scale_upper;
-      result += std::max(0.,(mHp_pole - mass_max)) / scale_upper;
-      result += std::max(0.,(mA_pole  - mass_max)) / scale_upper;
-
-      // scale it such that a value of 1 is the invalid point cutoff
-      result *= model_invalid_for_lnlike_below; 
-
-      // std::cerr << "result B:  " << result << std::endl;
-
-      // count failure rate
-      static point_counter count("heavy-scalar-mass-range"); count.count();
-      if (result < -1.0) count.count_invalid();
+      // return the worse performing likelihood
+      result = std::min(loglike, loglike_at_Q);
     }
 
 

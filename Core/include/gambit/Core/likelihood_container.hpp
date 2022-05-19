@@ -73,6 +73,12 @@ namespace Gambit
       /// Switch to print or not print invalid points to the output file
       bool print_invalid_points;
 
+      /// option to print each point to cout in real time
+      bool print_points_to_cout;
+
+      /// option to print performance stats to cout in real time
+      bool print_perf_stats;
+
       /// Map of return types of target functors
       std::map<DRes::VertexID,str> return_types;
 

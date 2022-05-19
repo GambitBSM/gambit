@@ -26,9 +26,9 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
 ///
-/// \author A.S. Woodcock
-///         (alex.woodcock@outlook.com)
-/// \date 2022 Feb
+///  \author A.S. Woodcock
+///          (alex.woodcock@outlook.com)
+///  \date   2022 May
 ///
 ///  *********************************************
 
@@ -41,10 +41,6 @@
 
 namespace Gambit
 {
-
-  // TODO: fix it
-  static int desired_points = -1;
-
   // Methods for Likelihood_Container class.
 
   /// Constructor
@@ -59,6 +55,8 @@ namespace Gambit
     active_min_valid_lnlike (min_valid_lnlike), // can be switched to the alternate value by the scanner
     // why does it default to true?
     print_invalid_points    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
+    print_points_to_cout    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_points_to_cout")),
+    print_perf_stats    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_perf_stats")),
     intralooptime_label     ("Runtime(ms) intraloop"),
     interlooptime_label     ("Runtime(ms) interloop"),
     totallooptime_label     ("Runtime(ms) totalloop"),
@@ -140,12 +138,18 @@ namespace Gambit
     // Print out the MPI rank and values of the parameters for this point if in debug mode.
     if (debug)
     {
+      int mpirank = 0;
       #ifdef WITH_MPI
-        GMPI::Comm COMM_WORLD;
-        // std::cout << "MPI process rank: "<< COMM_WORLD.Get_rank() << std::endl;
+      GMPI::Comm COMM_WORLD;
+      mpirank = COMM_WORLD.Get_rank();
       #endif
-      // cout << parstream.str(); // sorry but this creates too much spam
-      // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
+
+      if (print_points_to_cout && mpirank == 0)
+      {
+        cout << parstream.str();
+      }
+
+      logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
     }
     // Print the parameter point to the logs, even if not in debug mode
     // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
@@ -156,6 +160,12 @@ namespace Gambit
   /// Evaluate total likelihood function
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
+    int mpirank = 0;
+    #ifdef WITH_MPI
+    GMPI::Comm COMM_WORLD;
+    mpirank = COMM_WORLD.Get_rank();
+    #endif
+
     logger() << LogTags::core << LogTags::debug << "Entered Likelihood_Container::main" << EOM;
 
     double lnlike = 0;
@@ -297,7 +307,7 @@ namespace Gambit
           // If print_ivalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
-          // if (debug) cout << "Point invalid." << endl;
+          if (debug && print_points_to_cout) cout << "Point invalid." << endl;
 
           // exit loop and skip other LLs. Why not move try out of loop?
           break;
@@ -350,11 +360,7 @@ namespace Gambit
       double totalDur = std::chrono::duration<double>(currTime - startTime).count();
       static double timer = 0;
 
-      int mpirank = 0;
-      #ifdef WITH_MPI
-      GMPI::Comm COMM_WORLD;
-      mpirank = COMM_WORLD.Get_rank();
-      #endif
+
 
       auto time = [&](double secs)
       {
@@ -369,7 +375,7 @@ namespace Gambit
         return std::to_string(day) + "d" + std::to_string(hour) + ":" + std::to_string(min) + ":" + std::to_string(sec);
       };
 
-      if (mpirank == 0 && totalDur > timer )
+      if (mpirank == 0 && totalDur > timer && print_perf_stats)
       {
         timer += 20;
 
