@@ -18,11 +18,17 @@
 ///  \author Cristian Sierra
 ///  \date 2021 April
 ///
+///  \author Tomas Gonzalo
+///  \date 2022 May
+///
 ///  *********************************************
 
 
 #ifndef __SuperIso_types_hpp__
 #define __SuperIso_types_hpp__
+
+
+#include "gambit/Utils/util_types.hpp"
 
 namespace Gambit
 {
@@ -495,6 +501,17 @@ namespace Gambit
     double S9;
     double q2_min;
     double q2_max;
+  };
+
+  /// Maps for holding SI observables and covariance matrix.
+  typedef map_const_str_dbl flav_observable_map;
+  typedef map_const_str_map_const_str_dbl flav_covariance_map;
+
+  /// Flavour observables structure holding central values and covariances.
+  struct flav_prediction
+  {
+    flav_observable_map central_values;
+    flav_covariance_map covariance;
   };
 
 }

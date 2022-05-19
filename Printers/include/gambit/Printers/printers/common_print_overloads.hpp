@@ -206,7 +206,7 @@ namespace Gambit
 
       // Flav predictions print overload
       template<typename P>
-      void _common_print(P& printer, FlavBit::flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
         std::map<std::string, double> map;
 
