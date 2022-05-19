@@ -35,6 +35,7 @@ using namespace BackendIniBit::Functown;    // Functors wrapping the backend ini
 
 QUICK_FUNCTION(DarkBit, TH_ProcessCatalog, OLD_CAPABILITY, TH_ProcessCatalog_WIMP, TH_ProcessCatalog, ())
 QUICK_FUNCTION(DarkBit, DarkMatter_ID, OLD_CAPABILITY, DarkMatter_ID_WIMP, std::string, ())
+QUICK_FUNCTION(DarkBit, DarkMatterConj_ID, OLD_CAPABILITY, DarkMatterConj_ID_WIMP, std::string, ())
 QUICK_FUNCTION(DarkBit, DD_couplings, OLD_CAPABILITY, DD_couplings_WIMP, DM_nucleon_couplings, ())
 
 
@@ -63,12 +64,14 @@ void dump_array_to_file(const std::string & filename, const
 void dumpSpectrum(std::string filename, double mWIMP, double sv, std::vector<double> brList, double mPhi = -1)
 {
   DarkMatter_ID_WIMP.reset_and_calculate();
+  DarkMatterConj_ID_WIMP.reset_and_calculate();
   TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", brList);
   TH_ProcessCatalog_WIMP.setOption<double>("mWIMP", mWIMP);
   TH_ProcessCatalog_WIMP.setOption<double>("sv", sv);
   if (mPhi != -1)
     TH_ProcessCatalog_WIMP.setOption<double>("mPhi", mPhi);
   TH_ProcessCatalog_WIMP.reset_and_calculate();
+  DM_process_from_ProcessCatalog.reset_and_calculate();
   RD_fraction_one.reset_and_calculate();
   SimYieldTable_DarkSUSY.reset_and_calculate();
   SimYieldTable_MicrOmegas.reset_and_calculate();
@@ -106,38 +109,38 @@ namespace Gambit
       // Import particle masses and couplings
       ///////////////////////////////////////
 
-#define addParticle(Name, Mass, spinX2)                                        \
-      catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
-      (Name , TH_ParticleProperty(Mass, spinX2)));
+      #define addParticle(Name, Mass, spinX2)                                        \
+        catalog.particleProperties.insert(std::pair<string, TH_ParticleProperty> \
+        (Name , TH_ParticleProperty(Mass, spinX2)));
 
-      /// Option mWIMP<double>: WIMP mass in GeV (required)
-      double mWIMP = runOptions->getValue<double>("mWIMP");
-      /// Option sv<double>: Cross-section in cm3/s (required)
-      double sv = runOptions->getValue<double>("sv");
-      double b = 0;  // defined as sv(v) = sv(v=0) + b*(sv=0)*v**2
-      /// Option brList<std::vector<double>>: List of branching ratios (required)
-      auto brList = runOptions->getValue<std::vector<double>>("brList");
-      /// Option mWIMP<double>: WIMP mass in GeV (required)
-      double mPhi = runOptions->getValueOrDef<double>(59.0, "mPhi");
+        /// Option mWIMP<double>: WIMP mass in GeV (required)
+        double mWIMP = runOptions->getValue<double>("mWIMP");
+        /// Option sv<double>: Cross-section in cm3/s (required)
+        double sv = runOptions->getValue<double>("sv");
+        double b = 0;  // defined as sv(v) = sv(v=0) + b*(sv=0)*v**2
+        /// Option brList<std::vector<double>>: List of branching ratios (required)
+        auto brList = runOptions->getValue<std::vector<double>>("brList");
+        /// Option mWIMP<double>: WIMP mass in GeV (required)
+        double mPhi = runOptions->getValueOrDef<double>(59.0, "mPhi");
 
-      addParticle("gamma", 0.0,  2)
-      addParticle("Z0", 91.2,  2)
-      addParticle("W+", 80.39, 2)
-      addParticle("W-", 80.39, 2)
-      addParticle("e+_3", 1.8,  1)
-      addParticle("e-_3", 1.8,  1)
-      addParticle("e+_1", 0.00051, 1)
-      addParticle("e-_1", 0.00051, 1)
-      addParticle("b", 4.9,  1)
-      addParticle("bbar", 4.9,  1)
-      addParticle("d_3", 4.9,  1)
-      addParticle("dbar_3", 4.9,  1)
+        addParticle("gamma", 0.0,  2)
+        addParticle("Z0", 91.2,  2)
+        addParticle("W+", 80.39, 2)
+        addParticle("W-", 80.39, 2)
+        addParticle("e+_3", 1.8,  1)
+        addParticle("e-_3", 1.8,  1)
+        addParticle("e+_1", 0.00051, 1)
+        addParticle("e-_1", 0.00051, 1)
+        addParticle("b", 4.9,  1)
+        addParticle("bbar", 4.9,  1)
+        addParticle("d_3", 4.9,  1)
+        addParticle("dbar_3", 4.9,  1)
 
-      addParticle("WIMP", mWIMP,  0)
-      addParticle("phi",  mPhi,  0)
-      addParticle("phi1", 100.,  0)
-      addParticle("phi2", 100.,  0)
-#undef addParticle
+        addParticle("WIMP", mWIMP,  0)
+        addParticle("phi",  mPhi,  0)
+        addParticle("phi1", 100.,  0)
+        addParticle("phi2", 100.,  0)
+      #undef addParticle
 
       TH_Channel dec_channel(daFunk::vec<string>("gamma", "gamma"), daFunk::cnst(1.));
       process_dec.channelList.push_back(dec_channel);
@@ -197,6 +200,12 @@ namespace Gambit
 
     // Identifier for DM particle
     void DarkMatter_ID_WIMP(std::string& result)
+    {
+      result = "WIMP";
+    }
+
+    // Identifier for conjugate DM particle
+    void DarkMatterConj_ID_WIMP(std::string& result)
     {
       result = "WIMP";
     }
@@ -269,7 +278,7 @@ int main(int argc, char* argv[])
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.2"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.2 is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.5"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.5 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
@@ -319,7 +328,7 @@ int main(int argc, char* argv[])
     gamLike_1_0_1_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_generic_wimp_6_2_2_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_2_5_init.reset_and_calculate();
 
     // Initialize MicrOmegas backend
     // The below allows us to initialise MicrOmegas_MSSM without a particular MSSM model.
@@ -329,7 +338,7 @@ int main(int argc, char* argv[])
     // ---- Gamma-ray yields ----
 
     // Initialize tabulated gamma-ray yields
-    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
     SimYieldTable_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::dNdE);
     SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     SimYieldTable_MicrOmegas.setOption<bool>("allow_yield_extrapolation", true);
@@ -338,10 +347,16 @@ int main(int argc, char* argv[])
     //auto SimYieldTablePointer = &SimYieldTable_MicrOmegas;
     auto SimYieldTablePointer = &SimYieldTable_DarkSUSY;
 
+    // Identify process as annihilation rather than decay
+    DM_process_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
+    DM_process_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
+
     // Collect missing final states for simulation in cascade MC
     GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_WIMP);
     GA_missingFinalStates.resolveDependency(SimYieldTablePointer);
     GA_missingFinalStates.resolveDependency(&DarkMatter_ID_WIMP);
+    GA_missingFinalStates.resolveDependency(&DarkMatterConj_ID_WIMP);
+    GA_missingFinalStates.resolveDependency(&DM_process_from_ProcessCatalog);
 
     // Infer for which type of final states particles MC should be performed
     cascadeMC_FinalStates.setOption<std::vector<std::string>>("cMC_finalStates", daFunk::vec((std::string)"gamma"));
@@ -398,6 +413,7 @@ int main(int argc, char* argv[])
     GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_WIMP);
     GA_AnnYield_General.resolveDependency(SimYieldTablePointer);
     GA_AnnYield_General.resolveDependency(&DarkMatter_ID_WIMP);
+    GA_AnnYield_General.resolveDependency(&DarkMatterConj_ID_WIMP);
     GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
 
     dump_GammaSpectrum.resolveDependency(&GA_AnnYield_General);
@@ -431,20 +447,22 @@ int main(int argc, char* argv[])
     RD_eff_annrate_from_ProcessCatalog.notifyOfModel("ScalarSingletDM_Z2");
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatterConj_ID_WIMP);
 
     RD_spectrum_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_WIMP);
-    RD_spectrum_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_WIMP);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatterConj_ID_WIMP);
 
     RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_from_ProcessCatalog);
 
-      
+
     RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
     RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdpars);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdtime);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdcom);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdstart);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdens);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdpars);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdtime);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdcom);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdens);
  
 
     // ---- Calculate direct detection constraints ----
@@ -553,7 +571,9 @@ int main(int argc, char* argv[])
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
+          DM_process_from_ProcessCatalog.reset_and_calculate();
           RD_fraction_one.reset_and_calculate();
           SimYieldTable_DarkSUSY.reset_and_calculate();
           SimYieldTable_MicrOmegas.reset_and_calculate();
@@ -602,7 +622,9 @@ int main(int argc, char* argv[])
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(0., 0., 0., 1., 0., 0., 0., 0.));
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
+          DM_process_from_ProcessCatalog.reset_and_calculate();
           RD_fraction_one.reset_and_calculate();
           SimYieldTable_DarkSUSY.reset_and_calculate();
           SimYieldTable_MicrOmegas.reset_and_calculate();
@@ -633,6 +655,7 @@ int main(int argc, char* argv[])
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(0., 0., 0., 0., 0., 1., 0., 0.));
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
           RD_eff_annrate_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_from_ProcessCatalog.reset_and_calculate();
@@ -688,6 +711,7 @@ int main(int argc, char* argv[])
           reduced_mass = (m_list[i] * mN) / (mN + m_list[i]);
           g = sqrt(s_list[j]*pi/gev2cm2) / (reduced_mass);
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
           // Assume for direct and indirect detection likelihoods that dark matter
           // density is always the measured one (despite relic density results)
@@ -775,6 +799,7 @@ int main(int argc, char* argv[])
           reduced_mass = (m_list[i] * m_proton) / (m_proton + m_list[i]);
           g = sqrt(s_list[j]*pi/(3*gev2cm2)) / (reduced_mass);
           DarkMatter_ID_WIMP.reset_and_calculate();
+          DarkMatterConj_ID_WIMP.reset_and_calculate();
           TH_ProcessCatalog_WIMP.reset_and_calculate();
           RD_fraction_one.reset_and_calculate();
           DD_couplings_WIMP.setOption<double>("gps", 0.);

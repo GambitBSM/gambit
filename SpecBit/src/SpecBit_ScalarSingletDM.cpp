@@ -580,6 +580,9 @@ namespace Gambit
       else SpecBit_error().raise(LOCAL_INFO, "No valid model for ScalarSingletDM_higgs_couplings_pwid.");
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
 
+      // Set the number of Higgses
+      result.set_n_neutral_higgs(1);
+      result.set_n_charged_higgs(0);
       // Set the CP of the Higgs.
       result.CP[0] = 1;
       // Set the decays
@@ -588,7 +591,7 @@ namespace Gambit
 
       // Identify the singlet as the only possible invisible particle
       if (spec.get(Par::Pole_Mass, "S") * 2.0 < spec.get(Par::Pole_Mass, "h0_1"))
-        result.invisibles = initVector<str>("S");
+        result.invisibles = initVector<std::pair<str,str>>(std::make_pair("S","S"));
       else
         result.invisibles.clear();
       // Leave all the effective couplings for all neutral higgses set to unity (done at construction).

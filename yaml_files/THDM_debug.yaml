@@ -390,6 +390,18 @@ Rules:
       function: get_unitarity_likelihood_THDM
       #function: unitarity_lambdas_LL #Does not use the backend THDMC
 
+    # -------------------------------------------
+
+   # Specifies effc coupling input for HB/HS
+    #- capability: HB_ModelParameters_neutral
+    #  function: THDM_ModelParameters_effc
+    #  module: ColliderBit
+
+    - capability: Higgs_Couplings
+      function: THDM_higgs_couplings_2HDMC
+      module: SpecBit
+    # -------------------------------------------
+
     - capability: DeltaMs
       function: THDM_Delta_MBs
 

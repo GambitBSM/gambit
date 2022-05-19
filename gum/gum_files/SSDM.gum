@@ -1,0 +1,16 @@
+## Minimal .gum (YAML) file for GUM.
+# Testing SSDM with SARAH
+
+math:
+  # Name of Mathematica package, either 'feynrules' or 'sarah'
+  package: sarah
+  # Name of Model within that package. This will also be the name of the GAMBIT model.
+  model: SSDM
+
+# PDG code of the DM candidate.
+wimp_candidate: 6666635
+
+# Outputs for GUM to hook up to GAMBIT
+output:
+  calchep: True
+  spheno: True

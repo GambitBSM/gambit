@@ -181,7 +181,12 @@ namespace Gambit
       double T_Sun_core = 1.35e-6; // Sun's core temperature (GeV)
 
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+
+      // Make sure that we're not trying to work with decaying DM.
+      const TH_Process* p = Dep::TH_ProcessCatalog->find(DMid, DMbarid);
+      if (p == NULL) DarkBit_error().raise(LOCAL_INFO, "Sorry, decaying DM is not supported yet by the DarkBit neutrino routines.");
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
 
       // Add all the regular channels
       for (std::vector<TH_Channel>::iterator it = annProc.channelList.begin();
@@ -199,7 +204,7 @@ namespace Gambit
 
       double ca = sigmav/6.6e28 * pow(*Dep::mwimp/20.0, 1.5);
       // Scale the annihilation rate down by a factor of two if the DM is not self-conjugate
-      if (not (*Dep::TH_ProcessCatalog).getProcess(*Dep::DarkMatter_ID, *Dep::DarkMatter_ID).isSelfConj) ca *= 0.5;
+      if (not (*Dep::TH_ProcessCatalog).getProcess(*Dep::DarkMatter_ID, *Dep::DarkMatterConj_ID).isSelfConj) ca *= 0.5;
       result = pow(*Dep::capture_rate_Sun * ca, -0.5);
 
       // std::cout << "v = " << sqrt(2.0*T_Sun_core/(*Dep::mwimp)) << " and sigmav inside equilibration_time_Sun = " << sigmav << std::endl;
@@ -227,7 +232,8 @@ namespace Gambit
 
       // Set annihilation branching fractions
       std::string DMid = *Dep::DarkMatter_ID;
-      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMid);
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
       std::vector< std::vector<str> > neutral_channels = BEreq::get_DS_neutral_h_decay_channels();
       // the missing channel
       const std::vector<str> adhoc_chan = initVector<str>("W-", "H+");

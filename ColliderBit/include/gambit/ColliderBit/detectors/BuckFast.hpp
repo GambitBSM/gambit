@@ -1,3 +1,20 @@
+//   GAMBIT: Global and Modular BSM Inference Tool
+//  *********************************************
+///  \file
+///
+///  BuckFast simple smearing detector sim.
+///
+///  *********************************************
+///
+///  Authors (add name and date if you modify):
+///
+///  \author Andy Buckley
+///  \author Anders Kvellestad
+///  \author Pat Scott
+///  \author Martin White
+///
+///  *********************************************
+
 #pragma once
 
 #include "gambit/ColliderBit/detectors/BaseDetector.hpp"
@@ -13,16 +30,10 @@ namespace Gambit
   {
 
     /// A base class for BuckFast simple smearing simulations within ColliderBit.
-    template<typename EventT>
-    class BuckFast : public BaseDetector<EventT>
+    class BuckFast : public BaseDetector
     {
 
       public:
-
-        /// Chooses between parton only and full event conversion.
-        bool partonOnly;
-        ///The jet radius used for the anti-kt jet clustering.
-        double antiktR;
 
         /// Pointers to actual detector response functions
         /// @{
@@ -32,23 +43,13 @@ namespace Gambit
         void(*smearJets)(std::vector<HEPUtils::Jet*>&);
         /// @}
 
-        /// A converter for a Pythia8::Event which considers all final state particles.
-        /// @note Also performs the jet clustering algorithm.
-        void convertParticleEvent(const EventT&, HEPUtils::Event&) const;
-
-        /// A converter for a Pythia8::Event which considers only partonic final states.
-        /// @note Also performs the jet clustering algorithm.
-        void convertPartonEvent(const EventT&, HEPUtils::Event&) const;
-
         /// Process an event with BuckFast
-        void processEvent(const EventT&, HEPUtils::Event&) const;
+        void processEvent(HEPUtils::Event&) const;
 
         ///@}
 
         /// Constructor
-        BuckFast() : partonOnly(false)
-                   , antiktR(0.4)
-                   , smearElectronEnergy(NULL)
+        BuckFast() : smearElectronEnergy(NULL)
                    , smearMuonMomentum(NULL)
                    , smearTaus(NULL)
                    , smearJets(NULL)
@@ -63,11 +64,8 @@ namespace Gambit
         /// Settings parsing and initialization for any sub-class.
         virtual void init(const std::vector<std::string>&) {};
 
-        /// General init for any collider of this type - no settings version.
+        /// General init for any collider of this type.
         virtual void init() {};
-
-        /// Settings parsing and initialization for sub-classes with parton and jet radius settings only.
-        void init(bool parton, double R) { partonOnly=parton; antiktR=R; };
 
         ///@}
 

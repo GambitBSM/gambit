@@ -1,12 +1,12 @@
 #ifndef __wrapper_SLHAinterface_def_Pythia_8_212_h__
 #define __wrapper_SLHAinterface_def_Pythia_8_212_h__
 
+#include <sstream>
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Couplings_decl.h"
 #include "wrapper_ParticleData_decl.h"
-#include <sstream>
 #include "wrapper_SusyLesHouches_decl.h"
 #include "wrapper_CoupSUSY_decl.h"
 
@@ -41,7 +41,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::SLHAinterface::SLHAinterface() :
+        inline SLHAinterface::SLHAinterface() :
             WrapperBase(__factory0()),
             slha( get_BEptr()->slha_ref__BOSS().get_init_wref()),
             coupSUSY( get_BEptr()->coupSUSY_ref__BOSS().get_init_wref()),
@@ -52,7 +52,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::SLHAinterface::SLHAinterface(Pythia8::Abstract_SLHAinterface* in) :
+        inline SLHAinterface::SLHAinterface(Abstract_SLHAinterface* in) :
             WrapperBase(in),
             slha( get_BEptr()->slha_ref__BOSS().get_init_wref()),
             coupSUSY( get_BEptr()->coupSUSY_ref__BOSS().get_init_wref()),
@@ -63,7 +63,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::SLHAinterface::SLHAinterface(const SLHAinterface& in) :
+        inline SLHAinterface::SLHAinterface(const SLHAinterface& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS()),
             slha( get_BEptr()->slha_ref__BOSS().get_init_wref()),
             coupSUSY( get_BEptr()->coupSUSY_ref__BOSS().get_init_wref()),
@@ -74,7 +74,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::SLHAinterface& SLHAinterface::operator=(const SLHAinterface& in)
+        inline SLHAinterface& SLHAinterface::operator=(const SLHAinterface& in)
         {
             if (this != &in)
             {
@@ -85,7 +85,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::SLHAinterface::~SLHAinterface()
+        inline SLHAinterface::~SLHAinterface()
         {
             if (get_BEptr() != 0)
             {
@@ -100,9 +100,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_SLHAinterface* Pythia8::SLHAinterface::get_BEptr() const
+        inline Abstract_SLHAinterface* Pythia8::SLHAinterface::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_SLHAinterface*>(BEptr);
+            return dynamic_cast<Abstract_SLHAinterface*>(BEptr);
         }
     }
     

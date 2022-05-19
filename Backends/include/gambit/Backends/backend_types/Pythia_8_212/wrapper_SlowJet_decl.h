@@ -2,13 +2,13 @@
 #define __wrapper_SlowJet_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <ostream>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_SlowJet.h"
 #include "wrapper_Event_decl.h"
 #include "wrapper_Vec4_decl.h"
-#include <ostream>
-#include <vector>
 
 #include "identification.hpp"
 
@@ -23,11 +23,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_SlowJet* (*__factory0)(int, double, double, double, int, int);
-                static Pythia8::Abstract_SlowJet* (*__factory1)(int, double, double, double, int);
-                static Pythia8::Abstract_SlowJet* (*__factory2)(int, double, double, double);
-                static Pythia8::Abstract_SlowJet* (*__factory3)(int, double, double);
-                static Pythia8::Abstract_SlowJet* (*__factory4)(int, double);
+                static Abstract_SlowJet* (*__factory0)(int, double, double, double, int, int);
+                static Abstract_SlowJet* (*__factory1)(int, double, double, double, int);
+                static Abstract_SlowJet* (*__factory2)(int, double, double, double);
+                static Abstract_SlowJet* (*__factory3)(int, double, double);
+                static Abstract_SlowJet* (*__factory4)(int, double);
         
                 // -- Other member variables: 
         
@@ -91,7 +91,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 SlowJet(int powerIn, double Rin);
         
                 // Special pointer-based constructor: 
-                SlowJet(Pythia8::Abstract_SlowJet* in);
+                SlowJet(Abstract_SlowJet* in);
         
                 // Copy constructor: 
                 SlowJet(const SlowJet& in);
@@ -103,7 +103,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~SlowJet();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_SlowJet* get_BEptr() const;
+                Abstract_SlowJet* get_BEptr() const;
         
         };
     }

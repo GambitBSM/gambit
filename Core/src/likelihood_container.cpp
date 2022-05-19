@@ -61,6 +61,7 @@ namespace Gambit
     intraloopID(Printers::get_main_param_id(intralooptime_label)),
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
+    invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -266,15 +267,17 @@ namespace Gambit
         // Catch points that are invalid, either due to low like or pathology.  Skip the rest of the vertices if a point is invalid.
         catch(invalid_point_exception& e)
         {
-          logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << EOM;
+          logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
           logger().leaving_module();
           lnlike = active_min_valid_lnlike;
           compute_aux = false;
           point_invalidated = true;
+          int rankinv = printer.getRank();
           // If print_ivalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
-          if (debug) cout << "Point invalid." << endl;
+          printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());
+          if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
           break;
         }
       }
@@ -300,7 +303,7 @@ namespace Gambit
           catch(Gambit::invalid_point_exception& e)
           {
             logger() << LogTags::core << "Additional observable invalidated by " << e.thrower()->origin()
-                     << "::" << e.thrower()->name() << ": " << e.message() << EOM;
+                     << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
           }
         }
       }

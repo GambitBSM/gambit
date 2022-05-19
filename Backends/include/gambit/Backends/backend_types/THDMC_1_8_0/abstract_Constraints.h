@@ -1,14 +1,14 @@
 #ifndef __abstract_Constraints_THDMC_1_8_0_h__
 #define __abstract_Constraints_THDMC_1_8_0_h__
 
+#include <cstddef>
+#include <iostream>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
 #include "wrapper_THDM_decl.h"
 #include "wrapper_SM_decl.h"
 #include "wrapper_DecayTableTHDM_decl.h"
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

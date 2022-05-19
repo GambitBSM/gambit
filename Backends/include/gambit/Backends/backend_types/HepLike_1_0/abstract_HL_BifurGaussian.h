@@ -1,13 +1,13 @@
 #ifndef __abstract_HL_BifurGaussian_HepLike_1_0_h__
 #define __abstract_HL_BifurGaussian_HepLike_1_0_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <string>
 #include "wrapper_HL_Gaussian_decl.h"
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

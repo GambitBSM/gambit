@@ -12,6 +12,10 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2015 Apr
 #
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020 Dec
+#
 #  \author Douglas Jacob
 #          (douglas.jacob@monash.edu)
 #  \date 2020 Dec
@@ -27,7 +31,7 @@ set(source_files src/decay_table.cpp
                  src/loop_functions.cpp
                  src/mssm_slhahelp.cpp
                  src/thdm_slhahelp.cpp
-                 src/slhaea_helpers.cpp
+                 src/slhaea_spec_helpers.cpp
                  src/sminputs.cpp
                  src/smlike_higgs.cpp
                  src/spectrum.cpp
@@ -55,7 +59,7 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/thdm_slhahelp.hpp
                  include/gambit/Elements/safety_bucket.hpp
                  include/gambit/Elements/shared_types.hpp
-                 include/gambit/Elements/slhaea_helpers.hpp
+                 include/gambit/Elements/slhaea_spec_helpers.hpp
                  include/gambit/Elements/sminputs.hpp
                  include/gambit/Elements/smlike_higgs.hpp
                  include/gambit/Elements/spectrum.hpp

@@ -116,12 +116,11 @@ ini_function_in_header = True
 # the BOSS-generated headers in GAMBIT.
 
 pragmas_begin = [
-    '#pragma GCC diagnostic push',
-    '#pragma GCC diagnostic ignored "-Wdeprecated-declarations"',
+    '#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"', # Contains pragmas to suppress warnings from Eigen
 ]
 
 pragmas_end = [
-    '#pragma GCC diagnostic pop'
+    '#include "gambit/Utils/end_ignore_warnings.hpp"', # Restores the warning settings
 ]
 
 

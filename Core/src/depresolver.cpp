@@ -1597,6 +1597,8 @@ namespace Gambit
           str to_lmtype = (*masterGraph[toVertex]).loopManagerType();
           str from_lmcap = (*masterGraph[fromVertex]).loopManagerCapability();
           str from_lmtype = (*masterGraph[fromVertex]).loopManagerType();
+          bool is_same_lmcap = to_lmcap == from_lmcap;
+          bool is_same_lmtype = to_lmtype == "any" or from_lmtype == "any" or to_lmtype == from_lmtype;
           if (to_lmcap != "none")
           {
             // This function runs nested.  Check if its loop manager has been resolved yet.
@@ -1605,9 +1607,7 @@ namespace Gambit
               // toVertex's loop manager has not yet been determined.
               // Add the edge to the list to deal with when the loop manager dependency is resolved,
               // as long as toVertex and fromVertex cannot end up inside the same loop.
-              if (to_lmcap != from_lmcap or
-                  (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
-                 )
+              if (!is_same_lmcap or !is_same_lmtype)
               {
                 if (edges_to_force_on_manager.find(toVertex) == edges_to_force_on_manager.end())
                  edges_to_force_on_manager[toVertex] = std::set<DRes::VertexID>();
@@ -1623,12 +1623,8 @@ namespace Gambit
               // fromVertex as an edge of the manager.
               str name = (*masterGraph[toVertex]).loopManagerName();
               str origin = (*masterGraph[toVertex]).loopManagerOrigin();
-              if (name != (*masterGraph[fromVertex]).name() and
-                  origin != (*masterGraph[fromVertex]).origin() and
-                  (to_lmcap != from_lmcap or
-                   (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
-                  )
-                 )
+              bool is_itself = (name == (*masterGraph[fromVertex]).name() and origin == (*masterGraph[fromVertex]).origin());
+              if (!is_itself and (!is_same_lmcap or !is_same_lmtype) )
               {
                 // Hunt through the edges of toVertex and find the one that corresponds to its loop manager.
                 graph_traits<DRes::MasterGraphType>::in_edge_iterator ibegin, iend;

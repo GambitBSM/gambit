@@ -1,0 +1,14 @@
+# Input GUM file for a Decaying DM model
+
+math:
+    package: feynrules
+    model: DecayingDM
+    base_model: SM
+    restriction: DiagonalCKM
+    lagrangian: LDDM + LSM
+
+decaying_dm_candidate: 51
+
+output:
+    calchep: true
+    micromegas: true

@@ -1,8 +1,8 @@
 #ifndef __wrapper_THDM_def_THDMC_1_8_0_h__
 #define __wrapper_THDM_def_THDMC_1_8_0_h__
 
-#include "wrapper_SM_decl.h"
 #include <complex>
+#include "wrapper_SM_decl.h"
 
 #include "identification.hpp"
 

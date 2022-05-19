@@ -171,6 +171,9 @@ int main(int argc, char* argv[])
       // Set up the printer manager for redirection of scan output.
       Printers::PrinterManager printerManager(iniFile.getPrinterNode(),Core().resume);
 
+      // Assign printer manager to a global variable from which it can be retrieved in module functions that need it
+      set_global_printer_manager(&printerManager);
+
       // Set up dependency resolver
       DRes::DependencyResolver dependencyResolver(Core(), Models::ModelDB(), iniFile, Utils::typeEquivalencies(), *(printerManager.printerptr));
 

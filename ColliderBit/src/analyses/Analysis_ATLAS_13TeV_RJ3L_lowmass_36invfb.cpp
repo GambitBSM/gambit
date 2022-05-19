@@ -37,9 +37,9 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    bool sortByPT_RJ3L(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
-    bool sortLepByPT_RJ3L(HEPUtils::Particle* lep1, HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT());}
-    //bool sortByMass(HEPUtils::Jet* jet1, HEPUtils::Jet* jet2) { return (jet1->mass() > jet2->mass()); }
+    bool sortByPT_RJ3L(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
+    bool sortLepByPT_RJ3L(const HEPUtils::Particle* lep1, const HEPUtils::Particle* lep2) { return (lep1->pT() > lep2->pT());}
+    //bool sortByMass(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->mass() > jet2->mass()); }
 
     bool SortLeptons(const pair<TLorentzVector,int> lv1, const pair<TLorentzVector,int> lv2)
     //bool VariableConstruction::SortLeptons(const lep lv1, const lep lv2)
@@ -57,14 +57,16 @@ namespace Gambit {
 
     protected:
       // Numbers passing cuts
-      int _num2L2JHIGH;
-      int _num2L2JINT;
-      int _num2L2JLOW;
-      int _num2L2JCOMP;
-      int _num3LHIGH;
-      int _num3LINT;
-      int _num3LLOW;
-      int _num3LCOMP;
+      std::map<string, EventCounter> _counters = {
+        {"2L2JHIGH", EventCounter("2L2JHIGH")},
+        {"2L2JINT", EventCounter("2L2JINT")},
+        {"2L2JLOW", EventCounter("2L2JLOW")},
+        {"2L2JCOMP", EventCounter("2L2JCOMP")},
+        {"3LHIGH", EventCounter("3LHIGH")},
+        {"3LINT", EventCounter("3LINT")},
+        {"3LLOW", EventCounter("3LLOW")},
+        {"3LCOMP", EventCounter("3LCOMP")},
+      };
 
     private:
 
@@ -189,11 +191,11 @@ namespace Gambit {
 
       // Debug histos
 
-      void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
         //Routine to do jet-lepton check
         //Discards jets if they are within DeltaRMax of a lepton
 
-        vector<HEPUtils::Jet*> Survivors;
+        vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
           bool overlap = false;
@@ -214,11 +216,11 @@ namespace Gambit {
         return;
       }
 
-      void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec, double DeltaRMax) {
+      void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax) {
         //Routine to do lepton-jet check
         //Discards leptons if they are within DeltaRMax of a jet
 
-        vector<HEPUtils::Particle*> Survivors;
+        vector<const HEPUtils::Particle*> Survivors;
 
         for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
           bool overlap = false;
@@ -249,15 +251,6 @@ namespace Gambit {
 
         set_analysis_name("ATLAS_13TeV_RJ3L_lowmass_36invfb");
         set_luminosity(36.);
-
-        _num2L2JHIGH=0;
-        _num2L2JINT=0;
-        _num2L2JLOW=0;
-        _num2L2JCOMP=0;
-        _num3LHIGH=0;
-        _num3LINT=0;
-        _num3LLOW=0;
-        _num3LCOMP=0;
 
         NCUTS=70;
 
@@ -612,16 +605,16 @@ namespace Gambit {
         ETMiss.SetXYZ(ptot.px(),ptot.py(),0.0);
 
         // Baseline lepton objects
-        vector<HEPUtils::Particle*> baselineElectrons, baselineMuons, baselineTaus;
+        vector<const HEPUtils::Particle*> baselineElectrons, baselineMuons, baselineTaus;
 
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Apply electron efficiency
         ATLAS::applyElectronEff(baselineElectrons);
 
-        for (HEPUtils::Particle* muon : event->muons()) {
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && muon->abseta() < 2.4) baselineMuons.push_back(muon);
         }
 
@@ -629,23 +622,22 @@ namespace Gambit {
         ATLAS::applyMuonEff(baselineMuons);
 
         // Photons
-        vector<HEPUtils::Particle*> signalPhotons;
-        for (HEPUtils::Particle* photon : event->photons()) {
+        vector<const HEPUtils::Particle*> signalPhotons;
+        for (const HEPUtils::Particle* photon : event->photons()) {
           signalPhotons.push_back(photon);
         }
 
 
         // No taus used in 13 TeV analysis?
-        //for (HEPUtils::Particle* tau : event->taus()) {
+        //for (const HEPUtils::Particle* tau : event->taus()) {
           //if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         //}
         //ATLAS::applyTauEfficiencyR1(baselineTaus);
 
 
         // Jets
-        vector<HEPUtils::Jet*> bJets;
-        vector<HEPUtils::Jet*> nonBJets;
-        vector<HEPUtils::Jet*> trueBJets; //for debugging
+        vector<const HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> nonBJets;
 
         // Get b jets
         /// @note We assume that b jets have previously been 100% tagged
@@ -653,28 +645,16 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (HEPUtils::Jet* jet : event->jets()) {
-          bool hasTag=has_tag(_eff2d, jet->eta(), jet->pT());
+        for (const HEPUtils::Jet* jet : event->jets()) {
+          bool hasTag=has_tag(_eff2d, jet->abseta(), jet->pT());
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.4) {
-            if(jet->btag() && hasTag && fabs(jet->eta()) < 2.4 && jet->pT() > 20.){
+            if(jet->btag() && hasTag){
               bJets.push_back(jet);
             } else {
               nonBJets.push_back(jet);
             }
           }
         }
-
-
-        // Overlap removal
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Particle*> signalLeptons;
-        vector<HEPUtils::Particle*> electronsForVeto;
-        vector<HEPUtils::Particle*> muonsForVeto;
-
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> signalBJets;
-        vector<HEPUtils::Jet*> signalNonBJets;
 
         // Overlap removal is the same as the 8 TeV analysis
         JetLeptonOverlapRemoval(nonBJets,baselineElectrons,0.2);
@@ -683,21 +663,37 @@ namespace Gambit {
         LeptonJetOverlapRemoval(baselineMuons,nonBJets,0.4);
         LeptonJetOverlapRemoval(baselineMuons,bJets,0.4);
 
+        // Fill a jet-pointer-to-bool map to make it easy to check
+        // if a given jet is treated as a b-jet in this analysis
+        map<const HEPUtils::Jet*,bool> analysisBtags;
+        for (const HEPUtils::Jet* jet : bJets) {
+          analysisBtags[jet] = true;
+        }
+        for (const HEPUtils::Jet* jet : nonBJets) {
+          analysisBtags[jet] = false;
+        }
 
-        // Also we have already sorted jets by their b tag properties, so reset the b tag variable for each jet to the right category
-        // i.e. this was previously 100% true for true b jets then the efficiency map was applied above
-        for (HEPUtils::Jet* jet : bJets) {
-          jet->set_btag(true);
+        // Signal object containers
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> electronsForVeto;
+        vector<const HEPUtils::Particle*> muonsForVeto;
+
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> signalBJets;
+        vector<const HEPUtils::Jet*> signalNonBJets;
+
+        for (const HEPUtils::Jet* jet : bJets) {
+          // pT > 20 and |eta| < 2.4 already required for jets in bJets
           signalJets.push_back(jet);
           signalBJets.push_back(jet);
         }
 
-        for (HEPUtils::Jet* jet : nonBJets) {
-          if(jet->pT() > 20. && fabs(jet->eta()) < 2.4) {
-            jet->set_btag(false);
-            signalJets.push_back(jet);
-            signalNonBJets.push_back(jet);
-          }
+        for (const HEPUtils::Jet* jet : nonBJets) {
+          // pT > 20 and |eta| < 2.4 already required for jets in nonBJets
+          signalJets.push_back(jet);
+          signalNonBJets.push_back(jet);
         }
 
         //Put signal jets in pT order
@@ -705,12 +701,12 @@ namespace Gambit {
         std::sort(signalBJets.begin(), signalBJets.end(), sortByPT_RJ3L);
         std::sort(signalNonBJets.begin(), signalNonBJets.end(), sortByPT_RJ3L);
 
-        for (HEPUtils::Particle* electron : baselineElectrons) {
+        for (const HEPUtils::Particle* electron : baselineElectrons) {
           signalElectrons.push_back(electron);
           signalLeptons.push_back(electron);
         }
 
-        for (HEPUtils::Particle* muon : baselineMuons) {
+        for (const HEPUtils::Particle* muon : baselineMuons) {
           signalMuons.push_back(muon);
           signalLeptons.push_back(muon);
         }
@@ -1075,7 +1071,7 @@ namespace Gambit {
           temp.second = lepton_charge;
           //temp.third = lepton_origin->at(lep_signal_index[ilep]);
           //temp.fourth = lepton_type->at(lep_signal_index[ilep]);
-          //temp = make_tuple(tlv_temp,lepton_charge->at(lep_signal_index[ilep]),lepton_origin->at(lep_signal_index_[ilep]),lepton_type->at(lepton_signal_index[ilep]));
+          //temp = make_tuple(tlv_temp,lepton_charge->at(lep_signal_index[ilep]),lepton_origin->at(lep_signal_index_[ilep]),lepton_type->at(lepton_sig_index[ilep]));
           myLeptons.push_back(temp);
         }
 
@@ -1638,10 +1634,10 @@ namespace Gambit {
           for(int i = 0; i < int(signalJets.size()); i++){
             if(JETS_comb->GetFrame(jetID[i]) == *J_comb){
               m_NjS++;
-              if(signalJets[i]->btag()) m_NbS++;
+              if( analysisBtags.at(signalJets[i]) ) m_NbS++;
             } else {
               m_NjISR++;
-              if(signalJets[i]->btag()) m_NbISR++;
+              if( analysisBtags.at(signalJets[i]) ) m_NbISR++;
             }
           }
 
@@ -2083,22 +2079,22 @@ namespace Gambit {
 
         // Now apply the signal region cuts
 
-        if(m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2 && m_mll>80. && m_mll<100. && m_mjj>60. && m_mjj<100. && m_R_minH2P_minH3P>0.8 && m_RPT_HT5PP< 0.05 && m_dphiVP>0.3 && m_dphiVP<2.8 && m_H5PP>800.)_num2L2JHIGH++;
+        if(m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2 && m_mll>80. && m_mll<100. && m_mjj>60. && m_mjj<100. && m_R_minH2P_minH3P>0.8 && m_RPT_HT5PP< 0.05 && m_dphiVP>0.3 && m_dphiVP<2.8 && m_H5PP>800.) _counters.at("2L2JHIGH").add_event(event);
 
-        if(m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2 && m_mll>80. && m_mll<100. && m_mjj>60. && m_mjj<100. && m_R_minH2P_minH3P>0.8 && m_RPT_HT5PP<0.05 && m_dphiVP>0.6 && m_dphiVP<2.6 && m_H5PP>600.)_num2L2JINT++;
+        if(m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()>=2 && m_mll>80. && m_mll<100. && m_mjj>60. && m_mjj<100. && m_R_minH2P_minH3P>0.8 && m_RPT_HT5PP<0.05 && m_dphiVP>0.6 && m_dphiVP<2.6 && m_H5PP>600.) _counters.at("2L2JINT").add_event(event);
 
 
-        if(m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()==2 && m_mll>80. && m_mll<100. && m_mjj>70. && m_mjj<90. && m_H2PP/m_H5PP>0.35 && m_H2PP/m_H5PP<0.6 && m_RPT_HT5PP<0.05 && m_minDphi>2.4 && m_H5PP>400.)_num2L2JLOW++;
+        if(m_is2Lep2Jet && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && signalJets.size()==2 && m_mll>80. && m_mll<100. && m_mjj>70. && m_mjj<90. && m_H2PP/m_H5PP>0.35 && m_H2PP/m_H5PP<0.6 && m_RPT_HT5PP<0.05 && m_minDphi>2.4 && m_H5PP>400.) _counters.at("2L2JLOW").add_event(event);
 
-        if(m_is2L2JInt && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && m_NjS==2 && m_NjISR>0 && m_MZ>80. && m_MZ<100. &&  m_MJ>50. && m_MJ<110. && m_dphiISRI>2.8 && m_RISR > 0.40 && m_RISR < 0.75 && m_PTISR > 180. && m_PTI > 100. && m_PTCM < 20.)_num2L2JCOMP++;
+        if(m_is2L2JInt && m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign) && m_lept1Pt>25. && m_lept2Pt>25. && m_jet1Pt>30. && m_jet2Pt>30. && signalBJets.size()==0 && m_NjS==2 && m_NjISR>0 && m_MZ>80. && m_MZ<100. &&  m_MJ>50. && m_MJ<110. && m_dphiISRI>2.8 && m_RISR > 0.40 && m_RISR < 0.75 && m_PTISR > 180. && m_PTI > 100. && m_PTCM < 20.) _counters.at("2L2JCOMP").add_event(event);
 
-        if(m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>60. && m_lept3Pt>40. && signalBJets.size()==0 && signalJets.size()<3 && m_mll>75. && m_mll<105. && m_mTW>150. && m_HT4PP/m_H4PP > 0.75 && m_R_minH2P_minH3P>0.8 && m_H4PP > 550. && m_RPT_HT4PP < 0.2)_num3LHIGH++;
+        if(m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>60. && m_lept3Pt>40. && signalBJets.size()==0 && signalJets.size()<3 && m_mll>75. && m_mll<105. && m_mTW>150. && m_HT4PP/m_H4PP > 0.75 && m_R_minH2P_minH3P>0.8 && m_H4PP > 550. && m_RPT_HT4PP < 0.2) _counters.at("3LHIGH").add_event(event);
 
-        if(m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>50. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()<3 && m_mll>75. && m_mll<105. && m_mTW>130. && m_HT4PP/m_H4PP > 0.8 && m_R_minH2P_minH3P>0.75 && m_H4PP > 450. && m_RPT_HT4PP < 0.15)_num3LINT++;
+        if(m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>50. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()<3 && m_mll>75. && m_mll<105. && m_mTW>130. && m_HT4PP/m_H4PP > 0.8 && m_R_minH2P_minH3P>0.75 && m_H4PP > 450. && m_RPT_HT4PP < 0.15) _counters.at("3LINT").add_event(event);
 
-        if(m_is3LInt && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>25. && m_lept2Pt>25. && m_lept3Pt>20. && signalBJets.size()==0 && signalJets.size()<4 && m_mll>75. && m_mll<105. && m_mTW>100. && m_dphiISRI>2.0 && m_RISR>0.55 && m_RISR<1.0 && m_PTISR>100. && m_PTI>80. && m_PTCM<25.)_num3LCOMP++;
+        if(m_is3LInt && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>25. && m_lept2Pt>25. && m_lept3Pt>20. && signalBJets.size()==0 && signalJets.size()<4 && m_mll>75. && m_mll<105. && m_mTW>100. && m_dphiISRI>2.0 && m_RISR>0.55 && m_RISR<1.0 && m_PTISR>100. && m_PTI>80. && m_PTCM<25.) _counters.at("3LCOMP").add_event(event);
 
-        if(m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>40. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()==0 && m_mll>75. && m_mll<105. && m_mTW>100. && m_HT4PP/m_H4PP > 0.9 && m_H4PP > 250. && m_RPT_HT4PP < 0.05)_num3LLOW++;
+        if(m_is3Lep && (((m_lept1sign*m_lept2sign<0 && abs(m_lept1sign)==abs(m_lept2sign)) || (m_lept1sign*m_lept3sign<0 && abs(m_lept1sign)==abs(m_lept3sign)) || (m_lept2sign*m_lept3sign<0 && abs(m_lept2sign)==abs(m_lept3sign)))) && m_lept1Pt>60. && m_lept2Pt>40. && m_lept3Pt>30. && signalBJets.size()==0 && signalJets.size()==0 && m_mll>75. && m_mll<105. && m_mTW>100. && m_HT4PP/m_H4PP > 0.9 && m_H4PP > 250. && m_RPT_HT4PP < 0.05) _counters.at("3LLOW").add_event(event);
 
         return;
 
@@ -2110,6 +2106,8 @@ namespace Gambit {
         const Analysis_ATLAS_13TeV_RJ3L_lowmass_36invfb* specificOther
           = dynamic_cast<const Analysis_ATLAS_13TeV_RJ3L_lowmass_36invfb*>(other);
 
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
         if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
 
         for (int j=0; j<NCUTS; j++)
@@ -2118,7 +2116,6 @@ namespace Gambit {
           cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
         }
 
-        _num3LLOW+= specificOther->_num3LLOW;
       }
 
 
@@ -2138,15 +2135,15 @@ namespace Gambit {
           }
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 */
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("2L2JHIGH", 0,  {_num2L2JHIGH,  0.}, {1.9, 0.8}));
-        add_result(SignalRegionData("2L2JINT",  1,  {_num2L2JINT,   0.}, {2.4, 0.9}));
-        add_result(SignalRegionData("2L2JLOW",  19, {_num2L2JLOW,   0.}, {8.4, 5.8}));
-        add_result(SignalRegionData("2L2JCOMP", 11, {_num2L2JCOMP,  0.}, {2.7, 2.7}));
-        add_result(SignalRegionData("3LHIGH",   2,  {_num3LHIGH,    0.}, {1.1, 0.5}));
-        add_result(SignalRegionData("3LINT",    1,  {_num3LINT,     0.}, {2.3, 0.5}));
-        add_result(SignalRegionData("3LLOW",    20, {_num3LLOW,     0.}, {10., 2.0}));
-        add_result(SignalRegionData("3LCOMP",   12, {_num3LCOMP,    0.}, {3.9, 1.0}));
+
+        add_result(SignalRegionData(_counters.at("2L2JHIGH"), 0,  {1.9, 0.8}));
+        add_result(SignalRegionData(_counters.at("2L2JINT"),  1,  {2.4, 0.9}));
+        add_result(SignalRegionData(_counters.at("2L2JLOW"),  19, {8.4, 5.8}));
+        add_result(SignalRegionData(_counters.at("2L2JCOMP"), 11, {2.7, 2.7}));
+        add_result(SignalRegionData(_counters.at("3LHIGH"),   2,  {1.1, 0.5}));
+        add_result(SignalRegionData(_counters.at("3LINT"),    1,  {2.3, 0.5}));
+        add_result(SignalRegionData(_counters.at("3LLOW"),    20, {10., 2.0}));
+        add_result(SignalRegionData(_counters.at("3LCOMP"),   12, {3.9, 1.0}));
 
         return;
       }
@@ -2154,14 +2151,8 @@ namespace Gambit {
 
     protected:
       void analysis_specific_reset() {
-        _num2L2JHIGH=0;
-        _num2L2JINT=0;
-        _num2L2JLOW=0;
-        _num2L2JCOMP=0;
-        _num3LHIGH=0;
-        _num3LINT=0;
-        _num3LLOW=0;
-        _num3LCOMP=0;
+
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
@@ -2180,10 +2171,10 @@ namespace Gambit {
         set_analysis_name("ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb");
       }
       virtual void collect_results() {
-        add_result(SignalRegionData("2L2JHIGH", 0,  {_num2L2JHIGH,  0.}, {1.9, 0.8}));
-        add_result(SignalRegionData("2L2JINT",  1,  {_num2L2JINT,   0.}, {2.4, 0.9}));
-        add_result(SignalRegionData("2L2JLOW",  19, {_num2L2JLOW,   0.}, {8.4, 5.8}));
-        add_result(SignalRegionData("2L2JCOMP", 11, {_num2L2JCOMP,  0.}, {2.7, 2.7}));
+        add_result(SignalRegionData(_counters.at("2L2JHIGH"), 0,  {1.9, 0.8}));
+        add_result(SignalRegionData(_counters.at("2L2JINT"),  1,  {2.4, 0.9}));
+        add_result(SignalRegionData(_counters.at("2L2JLOW"),  19, {8.4, 5.8}));
+        add_result(SignalRegionData(_counters.at("2L2JCOMP"), 11, {2.7, 2.7}));
       }
 
     };
@@ -2196,10 +2187,10 @@ namespace Gambit {
         set_analysis_name("ATLAS_13TeV_RJ3L_3Lep_36invfb");
       }
       virtual void collect_results() {
-        add_result(SignalRegionData("3LHIGH",   2,  {_num3LHIGH,    0.}, {1.1, 0.5}));
-        add_result(SignalRegionData("3LINT",    1,  {_num3LINT,     0.}, {2.3, 0.5}));
-        add_result(SignalRegionData("3LLOW",    20, {_num3LLOW,     0.}, {10., 2.0}));
-        add_result(SignalRegionData("3LCOMP",   12, {_num3LCOMP,    0.}, {3.9, 1.0}));
+        add_result(SignalRegionData(_counters.at("3LHIGH"),   2,  {1.1, 0.5}));
+        add_result(SignalRegionData(_counters.at("3LINT"),    1,  {2.3, 0.5}));
+        add_result(SignalRegionData(_counters.at("3LLOW"),    20, {10., 2.0}));
+        add_result(SignalRegionData(_counters.at("3LCOMP"),   12, {3.9, 1.0}));
       }
 
     };

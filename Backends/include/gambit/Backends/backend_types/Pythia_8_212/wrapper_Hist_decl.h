@@ -2,12 +2,12 @@
 #define __wrapper_Hist_decl_Pythia_8_212_h__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.h"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_Hist.h"
 #include <string>
 #include <ostream>
 #include <vector>
+#include "forward_decls_wrapper_classes.h"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_Hist.h"
 
 #include "identification.hpp"
 
@@ -22,12 +22,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Hist* (*__factory0)();
-                static Pythia8::Abstract_Hist* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double, double);
-                static Pythia8::Abstract_Hist* (*__factory2)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double);
-                static Pythia8::Abstract_Hist* (*__factory3)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
-                static Pythia8::Abstract_Hist* (*__factory4)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
-                static Pythia8::Abstract_Hist* (*__factory5)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, const Pythia8::Hist&);
+                static Abstract_Hist* (*__factory0)();
+                static Abstract_Hist* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double, double);
+                static Abstract_Hist* (*__factory2)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double);
+                static Abstract_Hist* (*__factory3)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
+                static Abstract_Hist* (*__factory4)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+                static Abstract_Hist* (*__factory5)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, const Pythia8::Hist&);
         
                 // -- Other member variables: 
         
@@ -106,7 +106,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, const Pythia8::Hist& h);
         
                 // Special pointer-based constructor: 
-                Hist(Pythia8::Abstract_Hist* in);
+                Hist(Abstract_Hist* in);
         
                 // Copy constructor: 
                 Hist(const Hist& in);
@@ -118,7 +118,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Hist();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Hist* get_BEptr() const;
+                Abstract_Hist* get_BEptr() const;
         
         };
     }

@@ -52,12 +52,13 @@ set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Ba
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Core/include/gambit/Core/module_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_types_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/module_functor_types.hpp")
+set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/elements_extras.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Printers/include/gambit/Printers/printer_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/cmake/include/gambit/cmake/cmake_variables.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/priors_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit/test_function_rollcall.hpp")
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/ColliderBit_models_rollcall.hpp")
-set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/colliders/ColliderPythia_typedef.hpp")
+set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/ColliderBit/include/gambit/ColliderBit/colliders/Pythia8/Py8Collider_typedefs.hpp")
 
 # Arrange for the removal of generated source files with "make clean"
 set(clean_files ${clean_files} "${PROJECT_SOURCE_DIR}/Models/src/particle_database.cpp")
@@ -121,6 +122,8 @@ add_custom_target(clean-backend-install COMMAND ${CMAKE_COMMAND} -E remove_direc
 add_custom_target(clean-scanner-download COMMAND ${CMAKE_COMMAND} -E remove_directory ScannerBit/downloaded WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 add_custom_target(clean-scanner-install COMMAND ${CMAKE_COMMAND} -E remove_directory ScannerBit/installed WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 add_custom_target(nuke-contrib)
+add_custom_target(nuke-BOSS COMMAND ${CMAKE_COMMAND} -E remove_directory Backends/scripts/BOSS/castxml WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                            COMMAND ${CMAKE_COMMAND} -E remove Backends/scripts/BOSS/castxml*.tar.gz)
 add_custom_target(nuke-backends DEPENDS clean-backend-download clean-backend-install)
 add_custom_target(nuke-scanners DEPENDS clean-scanner-download clean-scanner-install)
-add_custom_target(nuke-all DEPENDS distclean nuke-contrib nuke-backends nuke-scanners)
+add_custom_target(nuke-all DEPENDS distclean nuke-contrib nuke-backends nuke-scanners nuke-BOSS)

@@ -24,6 +24,8 @@
 #ifndef __SpecBit_rollcall_hpp__
 #define __SpecBit_rollcall_hpp__
 
+#include "gambit/SpecBit/SpecBit_types.hpp"
+
 #define MODULE SpecBit
 START_MODULE
 
@@ -45,7 +47,7 @@ START_MODULE
   #include "gambit/SpecBit/SpecBit_MSSM_rollcall.hpp"
 
   #include "gambit/SpecBit/SpecBit_VS_rollcall.hpp"
-
+  
   /// Module function declarations for SpecBit_ScalarSingletDM.cpp
   #include "gambit/SpecBit/SpecBit_ScalarSingletDM_rollcall.hpp"
 
@@ -66,6 +68,7 @@ START_MODULE
 
   /// Module function declarations for SpecBit_tests.cpp (new tests)
   #include "gambit/SpecBit/SpecBit_tests_rollcall.hpp"
+  
 
   /// For SpecBit testing only
   //#include "gambit/SpecBit/SpecBit_sandbox_rollcall.hpp"

@@ -318,7 +318,10 @@ Rules:
        ignore_two_body: false
        ignore_three_body: false
 
-  - function: GA_AnnYield_General
+
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
     options:
        line_width: 0.03 # Relative line width used in gamma-ray spectra
 

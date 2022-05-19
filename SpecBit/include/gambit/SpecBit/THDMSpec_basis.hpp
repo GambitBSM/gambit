@@ -318,11 +318,13 @@ namespace Gambit
          double mA_2 = mC_2 - 0.5*v2*(Lambda5 - Lambda4);
          double s2ba = -2.*Lambda6*v2, c2ba = -(mA_2+(Lambda5-Lambda1)*v2);
          double ba = 0.5*atan2(s2ba,c2ba);
-         basis["sba"] = sin(ba);
          double alpha = beta - ba;
             if (alpha>M_PI/2.0) {
                alpha =  alpha-M_PI;
             }
+         // fill basis
+         basis["sba"] = sin(ba);
+         basis["beta"] = beta;
          basis["alpha"] = alpha;
     }
 

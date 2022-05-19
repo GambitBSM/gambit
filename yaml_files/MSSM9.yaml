@@ -376,6 +376,10 @@ Rules:
     options:
       allow_yield_extrapolation: true
 
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
     #function: DD_couplings_DarkSUSY_DS5
@@ -510,9 +514,16 @@ Rules:
     module: ColliderBit
 
   # Choose to get cross-sections from the Monte Carlo
-  - capability: CrossSection
-    function: getMCxsec
-    module: ColliderBit
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+  # Choose to generate events with Pythia on the fly (rather than reading them in)
+  - capability: HardScatteringEvent
+    function: generateEventPythia
 
   # Choose ATLAS detector simulation and options.
   - capability: ATLASDetectorSim

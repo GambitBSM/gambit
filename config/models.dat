@@ -53,6 +53,9 @@ demo_CAP: |
 TestModel1D: |
    A one-dimensional test model, typically used for debugging simple prior transformations, or when a dummy model is required (as in the external model example in ColliderBit).
 
+demo_CAP: |
+   A test model for a demonstration of the use of ordinary module functions directly in a model namespace.
+
 MSSM63atQ: |
    The most general formulation of the CP-conserving MSSM, with C terms set to zero due to their usual irrelevance in (known) SUSY-breaking schemes. The parameters are:
 
@@ -1186,3 +1189,28 @@ DecayingDM_electron: |
    mass        - mass of the dark matter candidate [in GeV]
    lifetime    - lifetime of said DM candidate [in s]
    fraction    - fraction of how much the decaying DM component contributes to all DM.
+
+#
+# Simple SLHA-based models used for validation of ColliderBit analyses
+#
+
+ColliderBit_SLHA_scan_model: |
+
+   Dummy model for doing a ColliderBit-only scan based on replacing SLHA file entries.
+   See ColliderBit/examples/ColliderBit_SLHA_scan_model.yaml for an example yaml file
+   that uses this model.
+
+   m1                        - parameter that can replace a SLHA BLOCK MASS entry
+   m2                        - parameter that can replace a SLHA BLOCK MASS entry
+   br1                       - parameter that can replace a SLHA DECAY branching ratio entry
+   br2                       - parameter that can replace a SLHA DECAY branching ratio entry
+   cross_section_fb          - total cross-section [in fb]
+   cross_section_uncert_fb   - uncertainty on total cross-section [in fb]
+
+ColliderBit_SLHA_file_model: |
+
+   Dummy model for doing a ColliderBit-only scan over a set of SLHA files.
+   See ColliderBit/examples/ColliderBit_SLHA_file_model.yaml for an example 
+   yaml file that uses this model.
+
+   dummy    - a dummy parameter, not used for anything

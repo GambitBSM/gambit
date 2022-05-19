@@ -27,9 +27,11 @@
 
 #ifdef HAVE_PYBIND11
 
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/stl.h>
   #include <pybind11/stl_bind.h>
   #include <pybind11/functional.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 
   BE_NAMESPACE
   {

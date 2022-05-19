@@ -58,7 +58,7 @@ namespace Gambit
        void ISendToAll(); // Send this code to all processes (non-blocking)
        void Wait(); // Ensure all processes have received this message (completes the send; must follow ISendToAll at some point)
        void setComm(GMPI::Comm* const); // Set MPI communicator to use
-     private:      
+     private:
        int mpisize;
        int myrank;
        int mycode;

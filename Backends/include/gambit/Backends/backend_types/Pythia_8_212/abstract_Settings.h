@@ -1,15 +1,15 @@
 #ifndef __abstract_Settings_Pythia_8_212_h__
 #define __abstract_Settings_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
+#include <ostream>
+#include <vector>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
 #include "wrapper_Info_decl.h"
-#include <string>
-#include <ostream>
-#include <vector>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

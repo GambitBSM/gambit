@@ -231,6 +231,10 @@ Rules:
     options:
       impose_EFT_validity: true
 
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
+
 ##############################################################################################
 Printer:
 

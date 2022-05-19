@@ -203,6 +203,7 @@ namespace Gambit
     };
 
     void DarkMatter_ID_MajoranaSingletDM(std::string & result) { result = "X"; }
+    void DarkMatterConj_ID_MajoranaSingletDM(std::string & result) { result = "X"; }
 
     /// Direct detection couplings for the MajoranaSingletDM_Z2 model.
     void DD_couplings_MajoranaSingletDM_Z2(DM_nucleon_couplings_fermionic_HP &result)

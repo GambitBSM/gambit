@@ -99,7 +99,7 @@ int main()
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.2"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 6.2.2 for a generic WIMP is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.5"]) backend_error().raise(LOCAL_INFO, "DarkSUSY 6.2.5 for a generic WIMP is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_ScalarSingletDM_Z23.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for ScalarSingletDM_Z2 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
@@ -162,6 +162,8 @@ int main()
     // Set identifier for DM particle
     DarkMatter_ID_ScalarSingletDM.notifyOfModel("ScalarSingletDM_Z2");
     DarkMatter_ID_ScalarSingletDM.reset_and_calculate();
+    DarkMatterConj_ID_ScalarSingletDM.notifyOfModel("ScalarSingletDM_Z2");
+    DarkMatterConj_ID_ScalarSingletDM.reset_and_calculate();
 
     // Set up process catalog
     TH_ProcessCatalog_ScalarSingletDM_Z2.notifyOfModel("ScalarSingletDM_Z2");
@@ -181,6 +183,7 @@ int main()
     // Set generic annihilation rate in late universe (v->0 limit)
     sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     sigmav_late_universe.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    sigmav_late_universe.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
     sigmav_late_universe.reset_and_calculate();
 
     // ---- Initialize backends ----
@@ -205,15 +208,15 @@ int main()
     MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_generic_wimp_6_2_2_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_2_5_init.reset_and_calculate();
 
     // Initialize DarkSUSY Local Halo Model
     DarkSUSY_PointInit_LocalHalo_func.resolveDependency(&ExtractLocalMaxwellianHalo);
     DarkSUSY_PointInit_LocalHalo_func.resolveDependency(&RD_fraction_one);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmcom);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmisodf);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmframevelcom);
-    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dshmnoclue);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmcom);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmisodf);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmframevelcom);
+    DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dshmnoclue);
     DarkSUSY_PointInit_LocalHalo_func.reset_and_calculate();
 
     // ---- Relic density ----
@@ -231,10 +234,12 @@ int main()
     // Relic density calculation with GAMBIT (DarkSUSY Boltzmann solver)
     RD_spectrum_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     RD_spectrum_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    RD_spectrum_from_ProcessCatalog.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
     RD_spectrum_from_ProcessCatalog.reset_and_calculate();
 
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    RD_eff_annrate_from_ProcessCatalog.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
     RD_eff_annrate_from_ProcessCatalog.reset_and_calculate();
 
     RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_from_ProcessCatalog);
@@ -242,11 +247,11 @@ int main()
 
     RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
     RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdpars);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::rdtime);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdcom);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdstart);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsrdens);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdpars);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdtime);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdcom);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdens);
     RD_oh2_DS_general.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
     RD_oh2_DS_general.reset_and_calculate();
 
@@ -335,15 +340,21 @@ int main()
     // ---- Gamma-ray yields ----
 
     // Initialize tabulated gamma-ray yields
-    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsanyield_sim);
+    SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
     SimYieldTable_DarkSUSY.reset_and_calculate();
+
+    // Identify process as annihilation rather than decay
+    DM_process_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
+    DM_process_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    DM_process_from_ProcessCatalog.reset_and_calculate();
 
     // Collect missing final states for simulation in cascade MC
     GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     GA_missingFinalStates.resolveDependency(&SimYieldTable_DarkSUSY);
     GA_missingFinalStates.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    GA_missingFinalStates.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
+    GA_missingFinalStates.resolveDependency(&DM_process_from_ProcessCatalog);
     GA_missingFinalStates.reset_and_calculate();
-
 
     // Infer for which type of final states particles MC should be performed
     cascadeMC_FinalStates.setOption<std::vector<std::string>>("cMC_finalStates", daFunk::vec<std::string>("gamma"));
@@ -395,12 +406,14 @@ int main()
     GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     GA_AnnYield_General.resolveDependency(&SimYieldTable_DarkSUSY);
     GA_AnnYield_General.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    GA_AnnYield_General.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
     GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
     GA_AnnYield_General.reset_and_calculate();
 
     // Calculate Fermi LAT dwarf likelihood
     lnL_FermiLATdwarfs_gamLike.resolveDependency(&GA_AnnYield_General);
     lnL_FermiLATdwarfs_gamLike.resolveDependency(&RD_fraction_one);
+    lnL_FermiLATdwarfs_gamLike.resolveDependency(&DM_process_from_ProcessCatalog);
     lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
     lnL_FermiLATdwarfs_gamLike.reset_and_calculate();
 
@@ -413,7 +426,7 @@ int main()
     capture_rate_Sun_const_xsec.resolveDependency(&sigma_SI_p_simple);
     capture_rate_Sun_const_xsec.resolveDependency(&sigma_SD_p_simple);
     capture_rate_Sun_const_xsec.resolveDependency(&RD_fraction_one);
-    capture_rate_Sun_const_xsec.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dssenu_capsuntab);
+    capture_rate_Sun_const_xsec.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dssenu_capsuntab);
     capture_rate_Sun_const_xsec.resolveDependency(&ExtractLocalMaxwellianHalo);
     capture_rate_Sun_const_xsec.resolveDependency(&DarkSUSY_PointInit_LocalHalo_func);
     capture_rate_Sun_const_xsec.reset_and_calculate();
@@ -421,6 +434,7 @@ int main()
     // Infer WIMP equilibration time in Sun
     equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_ScalarSingletDM_Z2);
     equilibration_time_Sun.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
+    equilibration_time_Sun.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
     equilibration_time_Sun.resolveDependency(&mwimp_generic);
     equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
     equilibration_time_Sun.reset_and_calculate();
@@ -435,10 +449,11 @@ int main()
     nuyield_from_DS.resolveDependency(&mwimp_generic);
     nuyield_from_DS.resolveDependency(&sigmav_late_universe);
     nuyield_from_DS.resolveDependency(&DarkMatter_ID_ScalarSingletDM);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::dsgenericwimp_nusetup);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::neutrino_yield);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::DS_neutral_h_decay_channels);
-    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_2::Functown::DS_charged_h_decay_channels);
+    nuyield_from_DS.resolveDependency(&DarkMatterConj_ID_ScalarSingletDM);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsgenericwimp_nusetup);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::neutrino_yield);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::DS_neutral_h_decay_channels);
+    nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::DS_charged_h_decay_channels);
     nuyield_from_DS.reset_and_calculate();
 
     // Calculate number of events at IceCube

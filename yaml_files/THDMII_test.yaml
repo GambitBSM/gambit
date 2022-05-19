@@ -13,25 +13,25 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
   THDMIIatQ:
-      lambda_1:
+      lambda1:
           range: [-0.5, 12.5664]
           prior_type: flat
-      lambda_2:
+      lambda2:
           range: [-0.5, 12.5664]
           prior_type: flat
-      lambda_3:
+      lambda3:
           range: [-12.5664, 12.5664]
           prior_type: flat
-      lambda_4:
+      lambda4:
           range: [-12.5664, 12.5664]
           prior_type: flat
-      lambda_5:
+      lambda5:
           range: [-12.5664, 12.5664]
           prior_type: flat
       # --- Assuming a CP-conserving THDM model ---
-      lambda_6:
+      lambda6:
           fixed_value: 0.0
-      lambda_7:
+      lambda7:
           fixed_value: 0.0
       # -------------------------------------------
       m12_2:
@@ -42,8 +42,6 @@ Parameters:
           prior_type: log
       Qin:
           fixed_value: 91.1876 # = mZ
-      QrunTo:
-          fixed_value: 750 # for comparison with other literature
 
 ##############################
 # Printer setup
@@ -192,8 +190,8 @@ ObsLikes:
 
   # spectrum observables
 
-  - capability: THDM_spectrum_map
-    function: get_THDM_spectrum_as_map
+  - capability: THDM_spectrum
+    type: map_str_dbl
     purpose: Observable
 
   - capability: sba
@@ -206,7 +204,6 @@ ObsLikes:
 
   - capability: ba
     function: obs_ba
-    purpose: Observable
 
   # interesting flavour observables
 
@@ -230,9 +227,6 @@ Rules:
   ##############################
   # Likelihood/Observable Rules
   ##############################
-
-  - capability: THDM_spectrum
-    function: get_THDM_spectrum
 
   - capability: decay_rates
     function: all_decays

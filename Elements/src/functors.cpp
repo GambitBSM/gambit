@@ -816,6 +816,17 @@ namespace Gambit
             acknowledgeInvalidation(e,*it);
             if (omp_get_level()==0) throw(e); // If not in an OpenMP parallel block, inform of invalidation and throw onwards
           }
+          catch (halt_loop_exception& e)
+          {
+            // Skip the rest of the iteration, without trying to evaluate the rest of the loop, and wrap it up.
+            breakLoop();
+            break;
+          }
+          catch (invalid_loop_iteration_exception& e)
+          {
+            // Just skip on to the next iteration, without trying to evaluate the rest of the loop.
+            break;
+          }
         }
       }
     }

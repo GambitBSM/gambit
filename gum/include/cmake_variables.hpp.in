@@ -1,0 +1,39 @@
+//   GUM: GAMBIT Universal Model Machine
+//   ***********************************
+///  \file
+///
+///  Global variables for GUM,
+///  passed down from cmake.
+///
+///  **********************************
+///
+///  \author Sanjay Bloor
+///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2018, 2019, 2020
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020
+///
+///  ***********************************
+
+#ifndef __cmake_variables_hpp__
+#define __cmake_variables_hpp__
+
+// GUM main directory
+#cmakedefine GUM_DIR "@GUM_DIR@"
+
+/// Found Mathematica
+#cmakedefine HAVE_MATHEMATICA 1
+#cmakedefine MATHEMATICA_WSTP_H "@Mathematica_WSTP_INCLUDE_DIR@/wstp.h"
+#cmakedefine MATHEMATICA_KERNEL "@Mathematica_KERNEL_EXECUTABLE@"
+
+/// Found FeynRules
+#cmakedefine HAVE_FEYNRULES 1
+#cmakedefine FEYNRULES_PATH "@FEYNRULES_PATH@"
+
+/// Found SARAH
+#cmakedefine HAVE_SARAH 1
+#cmakedefine SARAH_PATH "@SARAH_PATH@"
+
+#endif //// #defined__cmake_variables_hpp__

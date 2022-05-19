@@ -246,6 +246,8 @@ int main(int argc, char* argv[])
     // Set identifier for DM particle
     DarkMatter_ID_MSSM.resolveDependency(&createSpectrum);
     DarkMatter_ID_MSSM.reset_and_calculate();
+    DarkMatterConj_ID_MSSM.resolveDependency(&createSpectrum);
+    DarkMatterConj_ID_MSSM.reset_and_calculate();
 
     // Assume for direct and indirect detection likelihoods that dark matter
     // density is always the measured one (regardless of relic density results)
@@ -315,13 +317,13 @@ int main(int argc, char* argv[])
       RD_annrate_DS5prep_func.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::rdmgev);
       RD_annrate_DS5prep_func.reset_and_calculate();
 
-      RD_eff_annrate_DS_MSSM.notifyOfModel("MSSM30atQ");
-      RD_eff_annrate_DS_MSSM.resolveDependency(&RD_annrate_DS5prep_func);
-      RD_eff_annrate_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsanwx);
-      RD_eff_annrate_DS_MSSM.reset_and_calculate();
+      RD_eff_annrate_DS5_MSSM.notifyOfModel("MSSM30atQ");
+      RD_eff_annrate_DS5_MSSM.resolveDependency(&RD_annrate_DS5prep_func);
+      RD_eff_annrate_DS5_MSSM.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsanwx);
+      RD_eff_annrate_DS5_MSSM.reset_and_calculate();
 
       RD_oh2_DS5_general.resolveDependency(&RD_spectrum_ordered_func);
-      RD_oh2_DS5_general.resolveDependency(&RD_eff_annrate_DS_MSSM);
+      RD_oh2_DS5_general.resolveDependency(&RD_eff_annrate_DS5_MSSM);
       RD_oh2_DS5_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdthlim);
       RD_oh2_DS5_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdtab);
       RD_oh2_DS5_general.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsrdeqn);
@@ -369,6 +371,7 @@ int main(int argc, char* argv[])
       // Set generic annihilation rate in late universe (v->0 limit)
       sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_DS5_MSSM);
       sigmav_late_universe.resolveDependency(&DarkMatter_ID_MSSM);
+      sigmav_late_universe.resolveDependency(&DarkMatterConj_ID_MSSM);
       sigmav_late_universe.reset_and_calculate();
       // Save the result
       results["sigmav0"][current_backend] = sigmav_late_universe(0);
@@ -432,10 +435,17 @@ int main(int argc, char* argv[])
       SimYieldTable_DS5.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dshayield);
       SimYieldTable_DS5.reset_and_calculate();
 
+      // Identify process as annihilation rather than decay
+      DM_process_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+      DM_process_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_MSSM);
+      DM_process_from_ProcessCatalog.reset_and_calculate();
+
       // Collect missing final states for simulation in cascade MC
       GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_DS5_MSSM);
       GA_missingFinalStates.resolveDependency(&SimYieldTable_DS5);
       GA_missingFinalStates.resolveDependency(&DarkMatter_ID_MSSM);
+      GA_missingFinalStates.resolveDependency(&DarkMatterConj_ID_MSSM);
+      GA_missingFinalStates.resolveDependency(&DM_process_from_ProcessCatalog);
       GA_missingFinalStates.reset_and_calculate();
 
       // Infer for which type of final states particles MC should be performed
@@ -494,6 +504,7 @@ int main(int argc, char* argv[])
       GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_DS5_MSSM);
       GA_AnnYield_General.resolveDependency(&SimYieldTable_DS5);
       GA_AnnYield_General.resolveDependency(&DarkMatter_ID_MSSM);
+      GA_AnnYield_General.resolveDependency(&DarkMatterConj_ID_MSSM);
       GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
       GA_AnnYield_General.reset_and_calculate();
 
@@ -524,6 +535,7 @@ int main(int argc, char* argv[])
       // Infer WIMP equilibration time in Sun
       equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_DS5_MSSM);
       equilibration_time_Sun.resolveDependency(&DarkMatter_ID_MSSM);
+      equilibration_time_Sun.resolveDependency(&DarkMatterConj_ID_MSSM);
       equilibration_time_Sun.resolveDependency(&mwimp_generic);
       equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec_DS5);
       equilibration_time_Sun.reset_and_calculate();
@@ -538,6 +550,7 @@ int main(int argc, char* argv[])
       nuyield_from_DS.resolveDependency(&mwimp_generic);
       nuyield_from_DS.resolveDependency(&sigmav_late_universe);
       nuyield_from_DS.resolveDependency(&DarkMatter_ID_MSSM);
+      nuyield_from_DS.resolveDependency(&DarkMatterConj_ID_MSSM);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::dsgenericwimp_nusetup);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::neutrino_yield);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_5_1_3::Functown::DS_neutral_h_decay_channels);
@@ -682,6 +695,7 @@ int main(int argc, char* argv[])
       // Set generic annihilation rate in late universe (v->0 limit)
       sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       sigmav_late_universe.resolveDependency(&DarkMatter_ID_MSSM);
+      sigmav_late_universe.resolveDependency(&DarkMatterConj_ID_MSSM);
       sigmav_late_universe.reset_and_calculate();
       // Save the result
       results["sigmav0"][current_backend] = sigmav_late_universe(0);
@@ -693,10 +707,17 @@ int main(int argc, char* argv[])
       SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_1_1::Functown::dsanyield_sim);
       SimYieldTable_DarkSUSY.reset_and_calculate();
 
+      // Identify process as annihilation rather than decay
+      DM_process_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+      DM_process_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_MSSM);
+      DM_process_from_ProcessCatalog.reset_and_calculate();
+
       // Collect missing final states for simulation in cascade MC
       GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       GA_missingFinalStates.resolveDependency(&SimYieldTable_DarkSUSY);
       GA_missingFinalStates.resolveDependency(&DarkMatter_ID_MSSM);
+      GA_missingFinalStates.resolveDependency(&DarkMatterConj_ID_MSSM);
+      GA_missingFinalStates.resolveDependency(&DM_process_from_ProcessCatalog);
       GA_missingFinalStates.reset_and_calculate();
 
       // Infer for which type of final states particles MC should be performed
@@ -749,6 +770,7 @@ int main(int argc, char* argv[])
       GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       GA_AnnYield_General.resolveDependency(&SimYieldTable_DarkSUSY);
       GA_AnnYield_General.resolveDependency(&DarkMatter_ID_MSSM);
+      GA_AnnYield_General.resolveDependency(&DarkMatterConj_ID_MSSM);
       GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
       GA_AnnYield_General.reset_and_calculate();
 
@@ -829,6 +851,7 @@ int main(int argc, char* argv[])
       // Infer WIMP equilibration time in Sun
       equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       equilibration_time_Sun.resolveDependency(&DarkMatter_ID_MSSM);
+      equilibration_time_Sun.resolveDependency(&DarkMatterConj_ID_MSSM);
       equilibration_time_Sun.resolveDependency(&mwimp_generic);
       equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
       equilibration_time_Sun.reset_and_calculate();
@@ -843,6 +866,7 @@ int main(int argc, char* argv[])
       nuyield_from_DS.resolveDependency(&mwimp_generic);
       nuyield_from_DS.resolveDependency(&sigmav_late_universe);
       nuyield_from_DS.resolveDependency(&DarkMatter_ID_MSSM);
+      nuyield_from_DS.resolveDependency(&DarkMatterConj_ID_MSSM);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_1_1::Functown::dsgenericwimp_nusetup);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_1_1::Functown::neutrino_yield);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_1_1::Functown::DS_neutral_h_decay_channels);
@@ -988,6 +1012,7 @@ int main(int argc, char* argv[])
       // Set generic annihilation rate in late universe (v->0 limit)
       sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       sigmav_late_universe.resolveDependency(&DarkMatter_ID_MSSM);
+      sigmav_late_universe.resolveDependency(&DarkMatterConj_ID_MSSM);
       sigmav_late_universe.reset_and_calculate();
       // Save the result
       results["sigmav0"][current_backend] = sigmav_late_universe(0);
@@ -999,10 +1024,17 @@ int main(int argc, char* argv[])
       SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_2::Functown::dsanyield_sim);
       SimYieldTable_DarkSUSY.reset_and_calculate();
 
+      // Identify process as annihilation rather than decay
+      DM_process_from_ProcessCatalog.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+      DM_process_from_ProcessCatalog.resolveDependency(&DarkMatter_ID_MSSM);
+      DM_process_from_ProcessCatalog.reset_and_calculate();
+
       // Collect missing final states for simulation in cascade MC
       GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       GA_missingFinalStates.resolveDependency(&SimYieldTable_DarkSUSY);
       GA_missingFinalStates.resolveDependency(&DarkMatter_ID_MSSM);
+      GA_missingFinalStates.resolveDependency(&DarkMatterConj_ID_MSSM);
+      GA_missingFinalStates.resolveDependency(&DM_process_from_ProcessCatalog);
       GA_missingFinalStates.reset_and_calculate();
 
       // Infer for which type of final states particles MC should be performed
@@ -1055,6 +1087,7 @@ int main(int argc, char* argv[])
       GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       GA_AnnYield_General.resolveDependency(&SimYieldTable_DarkSUSY);
       GA_AnnYield_General.resolveDependency(&DarkMatter_ID_MSSM);
+      GA_AnnYield_General.resolveDependency(&DarkMatterConj_ID_MSSM);
       GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
       GA_AnnYield_General.reset_and_calculate();
 
@@ -1066,6 +1099,7 @@ int main(int argc, char* argv[])
       // Calculate Fermi LAT dwarf likelihood
       lnL_FermiLATdwarfs_gamLike.resolveDependency(&GA_AnnYield_General);
       lnL_FermiLATdwarfs_gamLike.resolveDependency(&RD_fraction_one);
+      lnL_FermiLATdwarfs_gamLike.resolveDependency(&DM_process_from_ProcessCatalog);
       lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
       lnL_FermiLATdwarfs_gamLike.reset_and_calculate();
       // Save the result
@@ -1135,6 +1169,7 @@ int main(int argc, char* argv[])
       // Infer WIMP equilibration time in Sun
       equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
       equilibration_time_Sun.resolveDependency(&DarkMatter_ID_MSSM);
+      equilibration_time_Sun.resolveDependency(&DarkMatterConj_ID_MSSM);
       equilibration_time_Sun.resolveDependency(&mwimp_generic);
       equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
       equilibration_time_Sun.reset_and_calculate();
@@ -1149,6 +1184,7 @@ int main(int argc, char* argv[])
       nuyield_from_DS.resolveDependency(&mwimp_generic);
       nuyield_from_DS.resolveDependency(&sigmav_late_universe);
       nuyield_from_DS.resolveDependency(&DarkMatter_ID_MSSM);
+      nuyield_from_DS.resolveDependency(&DarkMatterConj_ID_MSSM);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_2::Functown::dsgenericwimp_nusetup);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_2::Functown::neutrino_yield);
       nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_2::Functown::DS_neutral_h_decay_channels);
@@ -1197,6 +1233,310 @@ int main(int argc, char* argv[])
       results["IceCube_79_lnL"][current_backend] = IC79_loglike(0);
 
     }  // End of DarkSUSY_MSSM 6.2.2 calculations
+
+
+      //
+      // ======= Perform all calculations for backend DarkSUSY_MSSM 6.2.5 =======
+      //
+
+      current_backend = "DarkSUSY_MSSM6.2.5";
+
+      if (not Backends::backendInfo().works[current_backend])
+      {
+        backends_not_built.push_back(current_backend);
+      }
+      else
+      {
+        // Initialize DarkSUSY 6 MSSM backend
+        DarkSUSY_MSSM_6_2_5_init.notifyOfModel("MSSM30atQ");
+        DarkSUSY_MSSM_6_2_5_init.resolveDependency(&createSpectrum);
+        DarkSUSY_MSSM_6_2_5_init.resolveDependency(&createDecays);
+        if (decays) DarkSUSY_MSSM_6_2_5_init.setOption<bool>("use_dsSLHAread", false);
+        else DarkSUSY_MSSM_6_2_5_init.setOption<bool>("use_dsSLHAread", true);
+        DarkSUSY_MSSM_6_2_5_init.reset_and_calculate();
+
+        // Initialize DarkSUSY 6 Local Halo Model
+        DarkSUSY_PointInit_LocalHalo_func.resolveDependency(&ExtractLocalMaxwellianHalo);
+        DarkSUSY_PointInit_LocalHalo_func.resolveDependency(&RD_fraction_one);
+        DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dshmcom);
+        DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dshmisodf);
+        DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dshmframevelcom);
+        DarkSUSY_PointInit_LocalHalo_func.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dshmnoclue);
+        DarkSUSY_PointInit_LocalHalo_func.reset_and_calculate();
+
+        // Relic density calculation with GAMBIT routines and DarkSUSY 6:
+        RD_spectrum_MSSM.resolveDependency(&createDecays);
+        RD_spectrum_MSSM.resolveDependency(&createSpectrum);
+        RD_spectrum_MSSM.resolveDependency(&DarkMatter_ID_MSSM);
+        // Below true if charginos and neutralinos are included in coannihilations:
+        RD_spectrum_MSSM.setOption<bool>("CoannCharginosNeutralinos", true);
+        // Below true if sfermions are included in coannihilations:
+        RD_spectrum_MSSM.setOption<bool>("CoannSfermions", true);
+        // Maximum sparticle mass to be icluded in coannihilations, in units of DM mass:
+        RD_spectrum_MSSM.setOption<double>("CoannMaxMass", 1.6);
+        RD_spectrum_MSSM.reset_and_calculate();
+
+        RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_MSSM);
+        RD_spectrum_ordered_func.reset_and_calculate();
+
+        RD_annrate_DSprep_MSSM_func.resolveDependency(&RD_spectrum_ordered_func);
+        RD_annrate_DSprep_MSSM_func.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsancoann);
+        RD_annrate_DSprep_MSSM_func.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::DSparticle_code);
+        RD_annrate_DSprep_MSSM_func.reset_and_calculate();
+
+        RD_eff_annrate_DS_MSSM.notifyOfModel("MSSM30atQ");
+        RD_eff_annrate_DS_MSSM.resolveDependency(&RD_annrate_DSprep_MSSM_func);
+        RD_eff_annrate_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsanwx);
+        RD_eff_annrate_DS_MSSM.reset_and_calculate();
+
+        RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
+        RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_DS_MSSM);
+        RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::rdpars);
+        RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::rdtime);
+        RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsrdcom);
+        RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsrdstart);
+        RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsrdens);
+        RD_oh2_DS_general.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
+        RD_oh2_DS_general.reset_and_calculate();
+        // Save the result
+        results["oh2"][current_backend] = RD_oh2_DS_general(0);
+
+        lnL_oh2_Simple.resolveDependency(&RD_oh2_DS_general);
+        lnL_oh2_Simple.reset_and_calculate();
+        // Save the result
+        results["oh2_lnL"][current_backend] = lnL_oh2_Simple(0);
+
+
+        // Set up process catalog based on DarkSUSY annihilation rates
+        TH_ProcessCatalog_DS_MSSM.resolveDependency(&createSpectrum);
+        TH_ProcessCatalog_DS_MSSM.resolveDependency(&createDecays);
+        TH_ProcessCatalog_DS_MSSM.resolveDependency(&DarkMatter_ID_MSSM);
+        TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dssigmav0);
+        TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dssigmav0tot);
+        TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsIBffdxdy);
+        TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsIBhhdxdy);
+        TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsIBwhdxdy);
+        TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsIBwwdxdy);
+        TH_ProcessCatalog_DS_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::IBintvars);
+        TH_ProcessCatalog_DS_MSSM.reset_and_calculate();
+
+        // Set generic WIMP mass object
+        mwimp_generic.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        mwimp_generic.resolveDependency(&DarkMatter_ID_MSSM);
+        mwimp_generic.reset_and_calculate();
+
+        // Set generic annihilation rate in late universe (v->0 limit)
+        sigmav_late_universe.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        sigmav_late_universe.resolveDependency(&DarkMatter_ID_MSSM);
+        sigmav_late_universe.reset_and_calculate();
+        // Save the result
+        results["sigmav0"][current_backend] = sigmav_late_universe(0);
+
+
+        // ---- Gamma-ray yields ----
+
+        // Initialize tabulated gamma-ray yields
+        SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsanyield_sim);
+        SimYieldTable_DarkSUSY.reset_and_calculate();
+
+        // Collect missing final states for simulation in cascade MC
+        GA_missingFinalStates.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        GA_missingFinalStates.resolveDependency(&SimYieldTable_DarkSUSY);
+        GA_missingFinalStates.resolveDependency(&DarkMatter_ID_MSSM);
+        GA_missingFinalStates.reset_and_calculate();
+
+        // Infer for which type of final states particles MC should be performed
+        cascadeMC_FinalStates.setOption<std::vector<std::string>>("cMC_finalStates", daFunk::vec<std::string>("gamma"));
+        cascadeMC_FinalStates.reset_and_calculate();
+
+        // Collect decay information for cascade MC
+        cascadeMC_DecayTable.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        cascadeMC_DecayTable.resolveDependency(&SimYieldTable_DarkSUSY);
+        cascadeMC_DecayTable.reset_and_calculate();
+
+        // Set up MC loop manager for cascade MC
+        cascadeMC_LoopManager.resolveDependency(&GA_missingFinalStates);
+        std::vector<functor*> nested_functions = initVector<functor*>(
+                &cascadeMC_InitialState, &cascadeMC_GenerateChain, &cascadeMC_Histograms, &cascadeMC_EventCount);
+        cascadeMC_LoopManager.setNestedList(nested_functions);
+
+        // Set up initial state for cascade MC step
+        cascadeMC_InitialState.resolveDependency(&GA_missingFinalStates);
+        cascadeMC_InitialState.resolveLoopManager(&cascadeMC_LoopManager);
+
+        // Perform MC step for cascade MC
+        cascadeMC_GenerateChain.resolveDependency(&cascadeMC_InitialState);
+        cascadeMC_GenerateChain.resolveDependency(&cascadeMC_DecayTable);
+        cascadeMC_GenerateChain.resolveLoopManager(&cascadeMC_LoopManager);
+
+        // Generate histogram for cascade MC
+        cascadeMC_Histograms.resolveDependency(&cascadeMC_InitialState);
+        cascadeMC_Histograms.resolveDependency(&cascadeMC_GenerateChain);
+        cascadeMC_Histograms.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        cascadeMC_Histograms.resolveDependency(&SimYieldTable_DarkSUSY);
+        cascadeMC_Histograms.resolveDependency(&cascadeMC_FinalStates);
+        cascadeMC_Histograms.resolveLoopManager(&cascadeMC_LoopManager);
+
+        // Check convergence of cascade MC
+        cascadeMC_EventCount.resolveDependency(&cascadeMC_InitialState);
+        cascadeMC_EventCount.resolveLoopManager(&cascadeMC_LoopManager);
+
+        // Start cascade MC loop
+        cascadeMC_LoopManager.reset_and_calculate();
+
+        // Infer gamma-ray spectra for recorded MC results
+        cascadeMC_gammaSpectra.resolveDependency(&GA_missingFinalStates);
+        cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_FinalStates);
+        cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_Histograms);
+        cascadeMC_gammaSpectra.resolveDependency(&cascadeMC_EventCount);
+        cascadeMC_gammaSpectra.reset_and_calculate();
+
+        // Calculate total gamma-ray yield (cascade MC + tabulated results)
+        GA_AnnYield_General.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        GA_AnnYield_General.resolveDependency(&SimYieldTable_DarkSUSY);
+        GA_AnnYield_General.resolveDependency(&DarkMatter_ID_MSSM);
+        GA_AnnYield_General.resolveDependency(&cascadeMC_gammaSpectra);
+        GA_AnnYield_General.reset_and_calculate();
+
+        // Dump spectrum into file
+        dump_GammaSpectrum.resolveDependency(&GA_AnnYield_General);
+        dump_GammaSpectrum.setOption<std::string>("filename", current_backend + "_" + outname_dNdE_spectrum);
+        dump_GammaSpectrum.reset_and_calculate();
+
+        // Calculate Fermi LAT dwarf likelihood
+        lnL_FermiLATdwarfs_gamLike.resolveDependency(&GA_AnnYield_General);
+        lnL_FermiLATdwarfs_gamLike.resolveDependency(&RD_fraction_one);
+        lnL_FermiLATdwarfs_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
+        lnL_FermiLATdwarfs_gamLike.reset_and_calculate();
+        // Save the result
+        results["FermiLAT_dwarfsph_lnL"][current_backend] = lnL_FermiLATdwarfs_gamLike(0);
+
+
+       // ---- Direct detection and IceCube limits ----
+
+        // Calculate DD couplings with DarkSUSY
+        DD_couplings_DarkSUSY_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::DD_couplings);
+        DD_couplings_DarkSUSY_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::ddcomlegacy);
+        DD_couplings_DarkSUSY_MSSM.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::ddmssmcom);
+        // The below calculates the DD couplings using the full 1 loop calculation of
+        // Drees Nojiri Phys.Rev. D48 (1993) 3483
+        DD_couplings_DarkSUSY_MSSM.setOption<bool>("loop", true);
+        // Setting the below to false approximates the squark propagator as 1/m_sq^2 to avoid poles.
+        DD_couplings_DarkSUSY_MSSM.setOption<bool>("pole", false);
+        DD_couplings_DarkSUSY_MSSM.reset_and_calculate();
+
+        // Initialize DDCalc backend
+        Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+        Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
+        Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+        DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+        DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
+        DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
+        DDCalc_2_2_0_init.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+        DDCalc_2_2_0_init.reset_and_calculate();
+
+        // Calculate direct detection rates for LUX 2016
+        LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+        LUX_2016_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+        LUX_2016_Calc.reset_and_calculate();
+
+        // Calculate direct detection likelihood for LUX 2016
+        LUX_2016_GetLogLikelihood.resolveDependency(&LUX_2016_Calc);
+        LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
+        LUX_2016_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+        LUX_2016_GetLogLikelihood.reset_and_calculate();
+        // Save the result
+        results["LUX_2016_lnL"][current_backend] = LUX_2016_GetLogLikelihood(0);
+
+
+        sigma_SI_p_simple.resolveDependency(&mwimp_generic);
+        sigma_SI_p_simple.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+        sigma_SI_p_simple.reset_and_calculate();
+        // Save the result
+        results["sigma_SI_p"][current_backend] = sigma_SI_p_simple(0);
+
+        sigma_SD_p_simple.resolveDependency(&mwimp_generic);
+        sigma_SD_p_simple.resolveDependency(&DD_couplings_DarkSUSY_MSSM);
+        sigma_SD_p_simple.reset_and_calculate();
+        // Save the result
+        results["sigma_SD_p"][current_backend] = sigma_SD_p_simple(0);
+
+
+        // Infer WIMP capture rate in Sun
+        capture_rate_Sun_const_xsec.resolveDependency(&mwimp_generic);
+        capture_rate_Sun_const_xsec.resolveDependency(&sigma_SI_p_simple);
+        capture_rate_Sun_const_xsec.resolveDependency(&sigma_SD_p_simple);
+        capture_rate_Sun_const_xsec.resolveDependency(&RD_fraction_one);
+        capture_rate_Sun_const_xsec.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dssenu_capsuntab);
+        capture_rate_Sun_const_xsec.resolveDependency(&ExtractLocalMaxwellianHalo);
+        capture_rate_Sun_const_xsec.resolveDependency(&DarkSUSY_PointInit_LocalHalo_func);
+        capture_rate_Sun_const_xsec.reset_and_calculate();
+
+        // Infer WIMP equilibration time in Sun
+        equilibration_time_Sun.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        equilibration_time_Sun.resolveDependency(&DarkMatter_ID_MSSM);
+        equilibration_time_Sun.resolveDependency(&mwimp_generic);
+        equilibration_time_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
+        equilibration_time_Sun.reset_and_calculate();
+
+        // Infer WIMP annihilation rate in Sun
+        annihilation_rate_Sun.resolveDependency(&equilibration_time_Sun);
+        annihilation_rate_Sun.resolveDependency(&capture_rate_Sun_const_xsec);
+        annihilation_rate_Sun.reset_and_calculate();
+
+        // Infer neutrino yield from Sun
+        nuyield_from_DS.resolveDependency(&TH_ProcessCatalog_DS_MSSM);
+        nuyield_from_DS.resolveDependency(&mwimp_generic);
+        nuyield_from_DS.resolveDependency(&sigmav_late_universe);
+        nuyield_from_DS.resolveDependency(&DarkMatter_ID_MSSM);
+        nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::dsgenericwimp_nusetup);
+        nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::neutrino_yield);
+        nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::DS_neutral_h_decay_channels);
+        nuyield_from_DS.resolveBackendReq(&Backends::DarkSUSY_MSSM_6_2_5::Functown::DS_charged_h_decay_channels);
+        nuyield_from_DS.reset_and_calculate();
+
+
+        // Calculate number of events at IceCube
+        IC79WH_full.resolveDependency(&mwimp_generic);
+        IC79WH_full.resolveDependency(&annihilation_rate_Sun);
+        IC79WH_full.resolveDependency(&nuyield_from_DS);
+        IC79WH_full.resolveBackendReq(&Backends::nulike_1_0_9::Functown::nulike_bounds);
+        IC79WH_full.reset_and_calculate();
+        IC79WL_full.resolveDependency(&mwimp_generic);
+        IC79WL_full.resolveDependency(&annihilation_rate_Sun);
+        IC79WL_full.resolveDependency(&nuyield_from_DS);
+        IC79WL_full.resolveBackendReq(&Backends::nulike_1_0_9::Functown::nulike_bounds);
+        IC79WL_full.reset_and_calculate();
+        IC79SL_full.resolveDependency(&mwimp_generic);
+        IC79SL_full.resolveDependency(&annihilation_rate_Sun);
+        IC79SL_full.resolveDependency(&nuyield_from_DS);
+        IC79SL_full.resolveBackendReq(&Backends::nulike_1_0_9::Functown::nulike_bounds);
+        IC79SL_full.reset_and_calculate();
+
+        // Calculate IceCube likelihood
+        IC79WH_bgloglike.resolveDependency(&IC79WH_full);
+        IC79WH_bgloglike.reset_and_calculate();
+        IC79WH_loglike.resolveDependency(&IC79WH_full);
+        IC79WH_loglike.reset_and_calculate();
+        IC79WL_bgloglike.resolveDependency(&IC79WL_full);
+        IC79WL_bgloglike.reset_and_calculate();
+        IC79WL_loglike.resolveDependency(&IC79WL_full);
+        IC79WL_loglike.reset_and_calculate();
+        IC79SL_bgloglike.resolveDependency(&IC79SL_full);
+        IC79SL_bgloglike.reset_and_calculate();
+        IC79SL_loglike.resolveDependency(&IC79SL_full);
+        IC79SL_loglike.reset_and_calculate();
+        IC79_loglike.resolveDependency(&IC79WH_bgloglike);
+        IC79_loglike.resolveDependency(&IC79WH_loglike);
+        IC79_loglike.resolveDependency(&IC79WL_bgloglike);
+        IC79_loglike.resolveDependency(&IC79WL_loglike);
+        IC79_loglike.resolveDependency(&IC79SL_bgloglike);
+        IC79_loglike.resolveDependency(&IC79SL_loglike);
+        IC79_loglike.reset_and_calculate();
+        // Save the result
+        results["IceCube_79_lnL"][current_backend] = IC79_loglike(0);
+
+      }  // End of DarkSUSY_MSSM 6.2.5 calculations
 
 
 

@@ -1,14 +1,14 @@
 #ifndef __abstract_DecayTableTHDM_THDMC_1_8_0_h__
 #define __abstract_DecayTableTHDM_THDMC_1_8_0_h__
 
+#include <cstddef>
+#include <iostream>
+#include <complex>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
 #include "wrapper_THDM_decl.h"
 #include "wrapper_SM_decl.h"
-#include <complex>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

@@ -58,10 +58,10 @@ namespace Gambit
       run(e);
     }
 
-    /// Return the integrated luminosity (in inverse pb).
+    /// Return the integrated luminosity.
     double Analysis::luminosity() const { return _luminosity; }
 
-    /// Set the integrated luminosity (in inverse pb).
+    /// Set the integrated luminosity.
     void Analysis::set_luminosity(double lumi) { _luminosity_is_set = true; _luminosity = lumi; }
 
     /// Set the analysis name
@@ -136,7 +136,7 @@ namespace Gambit
       assert(factor >= 0);
       for (SignalRegionData& sr : _results)
       {
-        sr.n_signal_at_lumi = factor * sr.n_signal;
+        sr.n_sig_scaled = factor * sr.n_sig_MC;
       }
       _is_scaled = true;
     }
@@ -145,12 +145,13 @@ namespace Gambit
     void Analysis::add(Analysis* other)
     {
       if (_results.empty()) collect_results();
+      if (this == other) return;
       const AnalysisData otherResults = other->get_results();
       /// @todo Access by name, including merging disjoint region sets?
       assert(otherResults.size() == _results.size());
       for (size_t i = 0; i < _results.size(); ++i)
       {
-        _results[i].n_signal += otherResults[i].n_signal;
+        _results[i].n_sig_MC += otherResults[i].n_sig_MC;
       }
       combine(other);
     }

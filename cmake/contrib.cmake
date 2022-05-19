@@ -17,6 +17,10 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2014 Nov, Dec
 #
+# \author Tomas Gonzalo
+#         (tomas.gonzalo@monash.edu)
+# \dae 2019 June
+#
 #************************************************
 
 include(ExternalProject)
@@ -153,6 +157,10 @@ if(NOT EXCLUDE_RESTFRAMES)
   add_contrib_clean_and_nuke(${name} ${dir} distclean)
 endif()
 
+#contrib/LHEF
+set(LHEF_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/LHEF")
+include_directories("${LHEF_INCLUDE_DIR}")
+
 #contrib/HepMC3; include only if ColliderBit is in use and WITH_HEPMC=ON.
 option(WITH_HEPMC "Compile with HepMC enabled" OFF)
 if(NOT WITH_HEPMC)
@@ -169,15 +177,24 @@ if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
   message("   HepMC v${ver} will be downloaded and installed when building GAMBIT.")
   message("   ColliderBit Solo (CBS) will be activated.")
-  if(EXCLUDE_ROOT)
-    set(HEPMC3_ROOTIO FALSE)
+  if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/Pythia_8_212/abstract_GAMBIT_hepmc_writer.h")
+    message("   Pythia can now drop HepMC files.")
   else()
-    set(HEPMC3_ROOTIO TRUE)
+    message("${BoldRed}   Pythia has already been compiled without HepMC so the main gambit build will fail. Please nuke Pythia before compiling gambit.${ColourReset}")
+  endif()
+  message("   Backends depending on HepMC will be enabled.")
+  if(NOT ROOT_FOUND)
+    message("   No ROOT found, ROOT-IO in HepMC will be deactivated.")
+    set(HEPMC3_ROOTIO OFF)
+  else()
+    set(HEPMC3_ROOTIO ON)
   endif()
   set(EXCLUDE_HEPMC FALSE)
 else()
   message("   HepMC-dependent functions in ColliderBit will be deactivated.")
   message("   ColliderBit Solo (CBS) will be deactivated.")
+  message("   Pythia will not drop HepMC files.")
+  message("   Backends depending on HepMC (e.g. Rivet) will be disabled.")
   nuke_ditched_contrib_content(${name} ${dir})
   set(EXCLUDE_HEPMC TRUE)
 endif()
@@ -188,19 +205,31 @@ if(NOT EXCLUDE_HEPMC)
   set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
   set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
   include_directories("${dir}/include")
+  set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
+  set(HEPMC_PATH "${dir}")
+  set(HEPMC_LIB "${dir}/local/lib")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
+
+  # Silence some compiler warnings coming from HepMC
+  set_compiler_warning("no-unused-parameter" HEPMC_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" HEPMC_CXX_FLAGS)
+  set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
+
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
-    CMAKE_COMMAND ${CMAKE_COMMAND} ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${BACKEND_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO}
+    CMAKE_COMMAND ${CMAKE_COMMAND}  ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
     BUILD_COMMAND ${MAKE_PARALLEL}
-    INSTALL_COMMAND ""
+    INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
+  # Add target
+  #add_custom_target(${name})
   # Add clean-hepmc and nuke-hepmc
   add_contrib_clean_and_nuke(${name} ${dir} clean)
 endif()
+
 
 #contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
@@ -211,6 +240,15 @@ add_gambit_library(fjcore OPTION OBJECT
                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+
+#contrib/multimin
+set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
+include_directories("${multimin_INCLUDE_DIR}")
+add_gambit_library(multimin OPTION OBJECT
+                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/multimin/src/multimin.cpp
+                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/multimin/include/multimin/multimin.hpp)
+set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:multimin>)
+
 
 #contrib/MassSpectra; include only if SpecBit is in use and if
 #BUILD_FS_MODELS is set to something other than "" or "None" or "none"
@@ -241,6 +279,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Silence the deprecated-declarations warnings coming from Eigen3
   set_compiler_warning("no-deprecated-declarations" FS_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FS_CXX_FLAGS)
 
   # Silence the mass of compiler warnings coming from FlexibleSUSY
   set_compiler_warning("no-unused-parameter" FS_CXX_FLAGS)

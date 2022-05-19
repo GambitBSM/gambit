@@ -15,6 +15,10 @@
 ///          (benjamin.farmer@monash.edu.au)
 ///  \date 2017 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Dec
+///
 ///  *********************************************
 
 #include "gambit/Printers/baseprinter.hpp"
@@ -23,6 +27,7 @@
 #include "gambit/Printers/printers/hdf5printer/hdf5tools.hpp"
 #include "gambit/Printers/printers/hdf5printer/DataSetInterfaceScalar.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
 #include <boost/preprocessor/seq/for_each_i.hpp>
 
@@ -57,6 +62,9 @@ namespace Gambit
        // Default constructor, data uninitialised!
        BuffPair() {}
     };
+
+    // Forward declaration
+    class SLHAcombo;
 
     /// Keeps track of vertex buffers local to a retrieve function
     /// Similar to the buffer manager for HDF5Printer. I considered
@@ -122,7 +130,7 @@ namespace Gambit
         /// Retrieve functions
         using BaseReader::_retrieve; // Tell compiler we are using some of the base class overloads of this on purpose.
         #define DECLARE_RETRIEVE(r,data,i,elem) bool _retrieve(elem&, const std::string&, const uint, const ulong);
-        BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_TYPES)
+        BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_RETRIEVABLE_TYPES)
         #ifndef SCANNER_STANDALONE
           BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_BACKEND_TYPES)
         #endif
@@ -196,6 +204,9 @@ namespace Gambit
            return selected_buffer.isvalid.get_entry(dset_index);
         }
 
+        /// Extra helper function for spectrum retrieval
+        bool retrieve_and_add_to_SLHAea(SLHAstruct& out, bool& found, const std::string& spec_type, const std::string& entry, const SLHAcombo& item, const std::set<std::string>& all_dataset_labels, const uint rank, const ulong pointID);
+ 
     };
 
     /// Buffer retrieve function

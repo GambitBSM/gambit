@@ -43,20 +43,20 @@ namespace Gambit {
         // - application of basic pT and eta cuts
 
         // Baseline electrons
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && fabs(electron->eta()) < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Baseline muons
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && fabs(muon->eta()) < 2.4) baselineMuons.push_back(muon);
         }
 
         // Baseline jets
-        vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.5) baselineJets.push_back(jet);
         }
 
@@ -75,7 +75,7 @@ namespace Gambit {
         // Increment number of events passing signal region cuts
         // Dummy signal region: need 2 jets, met > 150 and no leptons
 
-        if((nElectrons+nMuons)==0 && nJets==2 && met>150.)_numSR++;
+        if((nElectrons+nMuons)==0 && nJets==2 && met>150.) _numSR += event->weight();
 
       }
 
@@ -93,15 +93,9 @@ namespace Gambit {
         // Now fill a results object with the result for our signal region
         // We have made up a number of observed events
         // We have also made up a number of predicted background events (with a made up uncertainty)
-        SignalRegionData results_SR;
-        results_SR.sr_label = "SR"; // label must be unique for each signal region
-        results_SR.n_observed = 100.; // set number of observed events (in LHC paper)
-        results_SR.n_background = 95.; // set number of predicted background events (in LHC paper)
-        results_SR.background_sys = 9.5; // set background uncertainty (in LHC paper)
-        results_SR.signal_sys = 0.; // set signal uncertainty
-        results_SR.n_signal = _numSR; // set this to number of signal events incremented in the analysis above
-        add_result(results_SR);
 
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+        add_result(SignalRegionData("SR", 100., {_numSR, 0.}, {95., 9.5}));
       }
 
 

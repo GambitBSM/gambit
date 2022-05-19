@@ -2,7 +2,6 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
-#include "Eigen/Eigen"
 
 namespace Gambit {
   namespace ColliderBit {
@@ -13,7 +12,7 @@ namespace Gambit {
 
     /// @brief CMS Run 2 0-lepton jet+MET SUSY analysis, with 13/fb of data
     ///
-    /// Based on:
+    /// Based on: CMS-SUS-16-014,  http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-16-014/index.html
     ///
     class Analysis_CMS_13TeV_0LEP_13invfb : public Analysis {
     public:
@@ -22,8 +21,23 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       // Numbers passing cuts
+      std::map<string, EventCounter> _counters = {
+        {"SR1", EventCounter("SR1")},
+        {"SR2", EventCounter("SR2")},
+        {"SR3", EventCounter("SR3")},
+        {"SR4", EventCounter("SR4")},
+        {"SR5", EventCounter("SR5")},
+        {"SR6", EventCounter("SR6")},
+        {"SR7", EventCounter("SR7")},
+        {"SR8", EventCounter("SR8")},
+        {"SR9", EventCounter("SR9")},
+        {"SR10", EventCounter("SR10")},
+        {"SR11", EventCounter("SR11")},
+        {"SR12", EventCounter("SR12")},
+      };
+
       static const size_t NUMSR = 12; //160;
-      double _srnums[NUMSR];
+
       Cutflow _cutflow;
 
       Analysis_CMS_13TeV_0LEP_13invfb() :
@@ -31,8 +45,6 @@ namespace Gambit {
       {
         set_analysis_name("CMS_13TeV_0LEP_13invfb");
         set_luminosity(12.9);
-
-        for (size_t i = 0; i < NUMSR; ++i) _srnums[i] = 0;
       }
 
 
@@ -69,8 +81,8 @@ namespace Gambit {
 
 
         // Get baseline electrons
-        vector<Particle*> baseelecs;
-        for (Particle* electron : event->electrons())
+        vector<const Particle*> baseelecs;
+        for (const Particle* electron : event->electrons())
           if (electron->pT() > 10. && electron->abseta() < 2.5)
             baseelecs.push_back(electron);
 
@@ -78,8 +90,8 @@ namespace Gambit {
         CMS::applyElectronEff(baseelecs);
 
         // Get baseline muons
-        vector<Particle*> basemuons;
-        for (Particle* muon : event->muons())
+        vector<const Particle*> basemuons;
+        for (const Particle* muon : event->muons())
           if (muon->pT() > 10. && muon->abseta() < 2.4)
             basemuons.push_back(muon);
 
@@ -185,7 +197,7 @@ namespace Gambit {
         // iht -= 1; //< change from the paper's indexing scheme to C++ zero-indexed
         // const size_t ibin = 40*inj + 10*inbj + (size_t)iht;
         // if (ibin >= NUMSR) throw std::runtime_error("ibin out of range");
-        // _srnums[ibin] += 1;
+        // _srnums[ibin] += event->weight();
 
 
         // Fill aggregate SR bins
@@ -197,18 +209,18 @@ namespace Gambit {
           const bool btagged = Random::draw() < (j->btag() ? 0.55 : j->ctag() ? 0.12 : 0.016);
           if (btagged) nbj += 1;
         }
-        if (nj >= 3 && nbj == 0 && ht >  500 && htmiss > 500) _srnums[ 0] += 1;
-        if (nj >= 3 && nbj == 0 && ht > 1500 && htmiss > 750) _srnums[ 1] += 1;
-        if (nj >= 5 && nbj == 0 && ht >  500 && htmiss > 500) _srnums[ 2] += 1;
-        if (nj >= 5 && nbj == 0 && ht > 1500 && htmiss > 750) _srnums[ 3] += 1;
-        if (nj >= 9 && nbj == 0 && ht > 1500 && htmiss > 750) _srnums[ 4] += 1;
-        if (nj >= 3 && nbj >= 2 && ht >  500 && htmiss > 500) _srnums[ 5] += 1;
-        if (nj >= 3 && nbj >= 1 && ht >  750 && htmiss > 750) _srnums[ 6] += 1;
-        if (nj >= 5 && nbj >= 3 && ht >  500 && htmiss > 500) _srnums[ 7] += 1;
-        if (nj >= 5 && nbj >= 2 && ht > 1500 && htmiss > 750) _srnums[ 8] += 1;
-        if (nj >= 9 && nbj >= 3 && ht >  750 && htmiss > 750) _srnums[ 9] += 1;
-        if (nj >= 7 && nbj >= 1 && ht >  300 && htmiss > 300) _srnums[10] += 1;
-        if (nj >= 5 && nbj >= 1 && ht >  750 && htmiss > 750) _srnums[11] += 1;
+        if (nj >= 3 && nbj == 0 && ht >  500 && htmiss > 500) _counters.at("SR1").add_event(event);
+        if (nj >= 3 && nbj == 0 && ht > 1500 && htmiss > 750) _counters.at("SR2").add_event(event);
+        if (nj >= 5 && nbj == 0 && ht >  500 && htmiss > 500) _counters.at("SR3").add_event(event);
+        if (nj >= 5 && nbj == 0 && ht > 1500 && htmiss > 750) _counters.at("SR4").add_event(event);
+        if (nj >= 9 && nbj == 0 && ht > 1500 && htmiss > 750) _counters.at("SR5").add_event(event);
+        if (nj >= 3 && nbj >= 2 && ht >  500 && htmiss > 500) _counters.at("SR6").add_event(event);
+        if (nj >= 3 && nbj >= 1 && ht >  750 && htmiss > 750) _counters.at("SR7").add_event(event);
+        if (nj >= 5 && nbj >= 3 && ht >  500 && htmiss > 500) _counters.at("SR8").add_event(event);
+        if (nj >= 5 && nbj >= 2 && ht > 1500 && htmiss > 750) _counters.at("SR9").add_event(event);
+        if (nj >= 9 && nbj >= 3 && ht >  750 && htmiss > 750) _counters.at("SR10").add_event(event);
+        if (nj >= 7 && nbj >= 1 && ht >  300 && htmiss > 300) _counters.at("SR11").add_event(event);
+        if (nj >= 5 && nbj >= 1 && ht >  750 && htmiss > 750) _counters.at("SR12").add_event(event);
 
       }
 
@@ -216,45 +228,33 @@ namespace Gambit {
       void combine(const Analysis* other)
       {
         const Analysis_CMS_13TeV_0LEP_13invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_0LEP_13invfb*>(other);
-        for (size_t i = 0; i < NUMSR; ++i) _srnums[i] += specificOther->_srnums[i];
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {
-//        cout << _cutflow << endl;
 
-        static const double OBSNUM[NUMSR] = {
-          // 5180, 1780, 146, 2834, 2819, 202, 1070,  93, 134, 11, 1009, 411, 35, 512, 607, 47, 200, 27, 30, 4,   195, 77,  2,  65, 109,  9,   22,   6,   2,   1,    10,    3,  0,    3,   12,   2,   2,   0,   0,   0,
-          // 334,   603,  93,  163,  734, 121,  149,  76,  32,  4,  164, 309, 43,  58, 293, 52,  54, 26,  6, 0,    54,133,  4,  11,  97, 14,    9,   9,   4,   1,    11,   13,  4,    1,   13,   3,   1,   2,   0,   0,
-          // 8,      69,  27,    3,   78,  35,   14,  22,   3,  2,    6,  55, 26,   2,  42, 14,   9, 10,  1,  2,    2, 28, 13,   1,  23, 12,    2,   3,   1,   1,    2,     4,  4,    0,    1,   3,   1,   1,   0,   0,
-          // 0,       3,   4,    0,    2,   4,    0,   3,   0,  1,    0,   2,  3,   0,   6,  4,   0,  3,  0,  1,    0,  9,  3,   0,   0,  3,    0,   1,   0,   0,    0,     3,  2,    0,    2,   3,   0,   2,   0,   0//,
-          1614, 18, 306, 7,   1,   71, 54, 7,    2,  0, 316, 17
-        };
-        static const double BKGNUM[NUMSR] = {
-          // 4942, 1671, 140, 2722, 2768, 205,  979, 104, 124,  7, 1081, 412, 38, 551, 563, 50, 181, 24, 22, 1.2, 164, 82, 6.2, 70, 116, 10.9, 19.6, 4.4, 2.2, 0.19, 13.6, 8.6, 1.03, 5.1, 11.0, 1.0, 1.3, 0.3, 0.2, 0.01,
-          // 316,   566, 104,  111,  644, 129,  160,  60,  23, 7.5, 151, 279, 54,  46, 265, 53,  48, 24,  8, 2.7,  51,132, 19,  18, 105, 17,   12,   6.7, 1.5, 0.3,  3.4,  22,   2.5, 0.96,12.9, 4.7, 0.8, 0.5, 0.36,0.02,
-          // 6.6,    68,  36,  2.4,   76,  40,   11,  16,  1.2, 1.2, 3.8, 58, 20,  1.7, 65, 25,   7, 16, 1.4,0.25, 1.2,44,  9,  0.4, 30, 16,    1.6, 4.5, 0.7, 0.5,  0.15, 14,   3.2, 0.1,  5,   4.8, 0.4, 1.7, 0.06,0.03,
-          // 0,       3,   8,   0 ,  2.4, 9.8, 0.13, 2.8,  0.2, 0.2, 0.05, 5,  7,   0, 3.5, 6.4, 0.1,2.5, 0,  0,    0, 3.2, 7.2, 0,  2.1, 4.5,  0.3, 2.7,  0,   0,    0,   0.4,  1.8,  0,   1.3, 1.3,  0,  0.3, 0,   0//,
-          1498, 15.9, 284, 8.9, 0.17, 63.3, 41.4, 4.2, 0.9, 0, 385, 15.9
-        };
-        static const double BKGERR[NUMSR] = { // these quadrature sums are partially guesstimated, to minimise pain!
-          // 280,   119,  17,  153,  149,  22,  71,  13,  20,  2.6,  84,  39,  6,  48,  46, 7.6, 19,  5, 4.4,1.4,  21, 12, 2.8, 12, 14.5, 3.6,  4.5, 2.4, 1.7, 1.4,   5.1, 3.5, 2.0,  3.5,  4.5, 1.5, 2.0, 1.5, 1.5, 1.3,
-          // 30,     45,  15,   13,   43,  15,  14,   9,  4.6, 2.5,  16,  25,  8,   7,  25, 7,   6.5,4.7,2.2,1.5,  8.3,15, 4.6,  5, 13,   3.7,  3.2, 2.2, 1.3, 1,     2.1, 5,   1.7,  1.9,  3.5, 2.3, 1.4, 1.2, 1.1, 1.0,
-          // 2.4,     9,   7,   1.9,  10,  6,    3,  3.5, 1.2, 1.3,   2,   7,  4.5, 2,  10, 4,   2.1, 5, 1.3, 1,   1.2,7.6,2.5, 1.5, 5,   5,    1.3,   2, 1.2, 1.2,   1.1, 4,   1.6,  1.3,  2.1, 2,   1,   1.5, 1,   1,
-          // 1,       2,   3,    1,   1.5, 5.2, 1.2, 1.5, 1.2, 1,     1,   2,  2.5, 1,  1.7,2.3, 1.3,1.6,1.2, 1,   1,  1.5,2.6,  1,  1.4, 1.9,  1.5, 1.8, 1.2, 1,     1,   1,   1.4,  1,    1.3, 1.2, 1.3, 1.2, 1.2, 1
-          99.7, 3.91, 21.6, 2.86, 0.98, 11.2, 8.24, 4.24, 2.60, 1.60, 33.0, 5.47 //< quad sums of upper limits
-        };
-        for (size_t ibin = 0; ibin < NUMSR; ++ibin) {
-          stringstream ss; ss << "sr-" << ibin;
-          add_result(SignalRegionData(ss.str(), OBSNUM[ibin], {_srnums[ibin],  0.}, {BKGNUM[ibin], BKGERR[ibin]}));
-        }
+        // The bkg errors are the quad sums of upper limits
+        add_result(SignalRegionData(_counters.at("SR1"), 1614., {1498., 99.7} ));
+        add_result(SignalRegionData(_counters.at("SR2"), 18., {15.9, 3.91} ));
+        add_result(SignalRegionData(_counters.at("SR3"), 306., {284., 21.6} ));
+        add_result(SignalRegionData(_counters.at("SR4"), 7., {8.9, 2.86} ));
+        add_result(SignalRegionData(_counters.at("SR5"), 1., {0.17, 0.98} ));
+        add_result(SignalRegionData(_counters.at("SR6"), 71., {63.3, 11.2} ));
+        add_result(SignalRegionData(_counters.at("SR7"), 54., {41.4, 8.24} ));
+        add_result(SignalRegionData(_counters.at("SR8"), 7., {4.2, 4.24} ));
+        add_result(SignalRegionData(_counters.at("SR9"), 2., {0.9, 2.60} ));
+        add_result(SignalRegionData(_counters.at("SR10"), 0., {0., 1.60} ));
+        add_result(SignalRegionData(_counters.at("SR11"), 316., {385., 33.0} ));
+        add_result(SignalRegionData(_counters.at("SR12"), 17., {15.9, 5.47} ));
+
       }
 
 
     protected:
       void analysis_specific_reset() {
-        for(size_t i=0;i<NUMSR;i++) { _srnums[i]=0; }
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };

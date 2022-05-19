@@ -35,8 +35,10 @@
 #ifndef __NeutrinoBit_rollcall_hpp__
 #define __NeutrinoBit_rollcall_hpp__
 
+#include "gambit/Utils/begin_ignore_warnings_eigen.hpp"
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
+#include "gambit/Utils/end_ignore_warnings.hpp"
 
 #define MODULE NeutrinoBit
 START_MODULE

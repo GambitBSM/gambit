@@ -294,6 +294,11 @@ namespace Gambit
      return result;
    }
 
+   bool Spectrum::has(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const
+   {
+     return (HE->has(partype,mass,index1,index2) or LE->has(partype,mass,index1,index2));
+   }
+
    double Spectrum::get(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const
    {
      double result(-1);
@@ -303,15 +308,14 @@ namespace Gambit
      { result = LE->get(partype,mass,index1,index2); }
      else
      {
-        std::ostringstream errmsg;
-        errmsg << "Error retrieving particle spectrum data!" << std::endl;
-        errmsg << "No pole mass with string reference '"<<mass<<"' and indices '"<<index1<<"' and '" << index2 << "' could be found in either LE or HE SubSpectrum!" <<std::endl;
-        utils_error().raise(LOCAL_INFO,errmsg.str());
+       std::ostringstream errmsg;
+       errmsg << "Error retrieving particle spectrum data!" << std::endl;
+       errmsg << "No pole mixing with string reference '"<<mass<<"' and indices '"<<index1<<"','"<<index2<<"' could be found in either LE or HE SubSepctrum!" << std::endl;
+       utils_error().raise(LOCAL_INFO,errmsg.str());
      }
      // [[noreturn]]
      return result;
    }
-
 
    /// @{ PDB getter/checker overloads
 
