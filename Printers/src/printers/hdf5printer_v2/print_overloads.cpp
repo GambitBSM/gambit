@@ -63,15 +63,12 @@ namespace Gambit
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, std::vector<double>)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_dbl)
-    USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_const_str_dbl)
-    USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_map_str_dbl)
-    USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_const_str_map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_intpair_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, triplet<double>)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, DM_nucleon_couplings)
-      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, FlavBit::flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, BBN_container)
     #endif
 

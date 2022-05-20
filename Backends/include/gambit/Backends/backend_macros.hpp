@@ -165,9 +165,6 @@ namespace Gambit                                                            \
 /* Register the factory functions for all classes loaded by this backend. */\
 BOOST_PP_IIF(DO_CLASSLOADING, LOAD_ALL_FACTORIES, )                         \
                                                                             \
-/* Only do the rest if this is not a data-only backend */                   \
-BOOST_PP_IF(DATA_ONLY, ,                                                    \
-                                                                            \
 /* Register the initialisation function for this backend */                 \
 CORE_START_CAPABILITY(BackendIniBit,                                        \
  CAT_4(BACKENDNAME,_,SAFE_VERSION,_init), NOT_MODEL)                        \
@@ -189,7 +186,6 @@ namespace Gambit                                                            \
     }                                                                       \
   }                                                                         \
 }                                                                           \
-)
 
 
 /// Register this backend with the Core if not running in standalone mode.

@@ -37,6 +37,7 @@
 
 #define SQL_BACKEND_TYPES             \
   (DM_nucleon_couplings)              \
+  (Flav_KstarMuMu_obs)                \
   (BBN_container)                     \
 
 

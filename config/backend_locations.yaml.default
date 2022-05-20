@@ -45,16 +45,7 @@ DarkSUSY_generic_wimp:
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_generic_wimp.so
 
 SuperIso:
-  4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
-
-Flavio:
-  0.30.0:      ./Backends/installed/Flavio/0.30.0/flavio/flavio
-
-HepLike:
-  1.1:         ./Backends/installed/heplike/1.1/libHEPLike.so
-
-HepLikeData:
-  1.1:         ./Backends/installed/heplikedata/1.1
+  3.6:         ./Backends/installed/superiso/3.6/libsuperiso.so
 
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so

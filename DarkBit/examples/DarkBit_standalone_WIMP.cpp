@@ -30,8 +30,6 @@
 
 #include <boost/multi_array.hpp>
 
-//#define DARKBIT_STANDALONE_WIMP_DEBUG
-
 using namespace DarkBit::Functown;     // Functors wrapping the module's actual module functions
 using namespace BackendIniBit::Functown;    // Functors wrapping the backend initialisation functions
 
@@ -676,10 +674,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
           TH_ProcessCatalog_WIMP.setOption<double>("sv", sv_list[j]);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
-          #endif
+          //std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));
           TH_ProcessCatalog_WIMP.reset_and_calculate();
@@ -697,37 +692,22 @@ int main(int argc, char* argv[])
           lnL_FermiLATdwarfs_gamLike.setOption<std::string>("version", "pass8");
           lnL_FermiLATdwarfs_gamLike.reset_and_calculate();
           lnL = lnL_FermiLATdwarfs_gamLike(0);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Fermi dwarf likelihood: " << lnL << std::endl;
-          #endif
-
+          //std::cout << "Fermi dwarf likelihood: " << lnL << std::endl;
           lnL_b_array[i][j] = lnL;
           lnL_HESSGC_gamLike.setOption<std::string>("version", "integral_fixedJ");
           lnL_HESSGC_gamLike.reset_and_calculate();
           lnL = lnL_HESSGC_gamLike(0);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "HESS GC likelihood: " << lnL << std::endl;
-          #endif
-
+          //std::cout << "HESS GC likelihood: " << lnL << std::endl;
           lnL_b_array2[i][j] = lnL;
           lnL_CTAGC_gamLike.reset_and_calculate();
           lnL = lnL_CTAGC_gamLike(0);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "CTA GC likelihood: " << lnL << std::endl;
-          #endif
-
+          //std::cout << "CTA GC likelihood: " << lnL << std::endl;
           lnL_b_array3[i][j] = lnL;
           lnL_FermiGC_gamLike.setOption<std::string>("version", "fixedJ");
           lnL_FermiGC_gamLike.reset_and_calculate();
           lnL = lnL_FermiGC_gamLike(0);
           lnL_b_array4[i][j] = lnL;
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Fermi GC likelihood: " << lnL << std::endl;
-          #endif
+          //std::cout << "Fermi GC likelihood: " << lnL << std::endl;
         }
       }
 
@@ -748,10 +728,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
           TH_ProcessCatalog_WIMP.setOption<double>("sv", sv_list[j]);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
-          #endif
+          //std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(0., 0., 0., 1., 0., 0., 0., 0.));
           TH_ProcessCatalog_WIMP.reset_and_calculate();
@@ -768,11 +745,7 @@ int main(int argc, char* argv[])
           GA_AnnYield_General.reset_and_calculate();
           lnL_FermiLATdwarfs_gamLike.reset_and_calculate();
           lnL = lnL_FermiLATdwarfs_gamLike(0);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Fermi LAT likelihood: " << lnL << std::endl;
-          #endif
-
+          //std::cout << "Fermi LAT likelihood: " << lnL << std::endl;
           lnL_tau_array[i][j] = lnL;
         }
       }
@@ -791,10 +764,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
           TH_ProcessCatalog_WIMP.setOption<double>("sv", sv_list[j]);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
-          #endif
+          //std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
 
           TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(0., 0., 0., 0., 0., 1., 0., 0.));
           TH_ProcessCatalog_WIMP.reset_and_calculate();
@@ -803,11 +773,7 @@ int main(int argc, char* argv[])
           RD_spectrum_ordered_func.reset_and_calculate();
           RD_oh2_DS_general.reset_and_calculate();
           oh2 = RD_oh2_DS_general(0);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Omega h^2 = " << oh2 << std::endl;
-          #endif
-
+          //std::cout << "Omega h^2 = " << oh2 << std::endl;
           oh2_array[i][j] = oh2;
         }
       }
@@ -820,6 +786,7 @@ int main(int argc, char* argv[])
     {
       std::cout << "Producing direct detection test maps." << std::endl;
       double lnL1, lnL2, lnL3, lnL4;
+      int nbins;
       double g, reduced_mass;
       //int mBins = 300;
       //int sBins = 200;
@@ -855,11 +822,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.setOption<double>("mWIMP", m_list[i]);
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Parameters: " << m_list[i] << " " << s_list[j] << std::endl;
-          #endif
-
+          //std::cout << "Parameters: " << m_list[i] << " " << s_list[j] << std::endl;
           reduced_mass = (m_list[i] * mN) / (mN + m_list[i]);
           g = sqrt(s_list[j]*pi/gev2cm2) / (reduced_mass);
           TH_ProcessCatalog_WIMP.reset_and_calculate();
@@ -899,26 +862,23 @@ int main(int argc, char* argv[])
           PICO_60_2019_GetLogLikelihood.reset_and_calculate();
           lnL4 = PICO_60_2019_GetLogLikelihood(0);
 
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "LZ SI lnL = " << lnL1 << std::endl;
-            std::cout << "PandaX_2017 SI lnL = " << lnL2 << std::endl;
-            std::cout << "XENON1T_2018 SI lnL = " << lnL3 << std::endl;
-            std::cout << "PICO_60_2019 SI lnL = " << lnL4 << std::endl;
-          #endif
+          //std::cout << "LZ SI lnL = " << lnL1 << std::endl;
+          //std::cout << "PandaX_2017 SI lnL = " << lnL2 << std::endl;
+          //std::cout << "XENON1T_2018 SI lnL = " << lnL3 << std::endl;
+          //std::cout << "PICO_60_2019 SI lnL = " << lnL4 << std::endl;
 
           DDCalc_2_2_0_init.reset_and_calculate();
           LZ_Calc.reset_and_calculate();
           std::vector<double> events;
           LZ_GetBinSignal.reset_and_calculate();
           events = LZ_GetBinSignal(0);
-
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            int nbins = events.size();
-            std::cout << "Number of LZ bins: " << nbins << std::endl;
-            std::cout << "Predicted signal: ";
-            for (auto x : events) std::cout << x << " ";
-            std::cout << std::endl;
-          #endif
+          nbins = events.size();
+          //std::cout << "Number of LZ bins: " << nbins << std::endl;
+          //std::cout << "Predicted signal: ";
+          //for (int ibin=0;ibin<=nbins-1;ibin++) {
+          //  std::cout << events[ibin] << " ";
+          //}
+          //std::cout << std::endl;
 
           lnL_array1[i][j] = lnL1;
           lnL_array2[i][j] = lnL2;
@@ -953,9 +913,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.setOption<double>("mWIMP", m_list[i]);
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "Parameters: " << m_list[i] << " " << s_list[j] << std::endl;
-          #endif
+          //std::cout << "Parameters: " << m_list[i] << " " << s_list[j] << std::endl;
           reduced_mass = (m_list[i] * m_proton) / (m_proton + m_list[i]);
           g = sqrt(s_list[j]*pi/(3*gev2cm2)) / (reduced_mass);
           TH_ProcessCatalog_WIMP.reset_and_calculate();
@@ -990,12 +948,10 @@ int main(int argc, char* argv[])
           PICO_60_2019_GetLogLikelihood.reset_and_calculate();
           lnL4 = PICO_60_2019_GetLogLikelihood(0);
 
-          #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "LZ SD lnL = " << lnL1 << std::endl;
-            std::cout << "PandaX_2017 SD lnL = " << lnL2 << std::endl;
-            std::cout << "XENON1T_2018 SD lnL = " << lnL3 << std::endl;
-            std::cout << "PICO_60_2019 SD lnL = " << lnL4 << std::endl;
-          #endif
+          //std::cout << "LZ SD lnL = " << lnL1 << std::endl;
+          //std::cout << "PandaX_2017 SD lnL = " << lnL2 << std::endl;
+          //std::cout << "XENON1T_2018 SD lnL = " << lnL3 << std::endl;
+          //std::cout << "PICO_60_2019 SD lnL = " << lnL4 << std::endl;
 
           lnL_array1[i][j] = lnL1;
           lnL_array2[i][j] = lnL2;
