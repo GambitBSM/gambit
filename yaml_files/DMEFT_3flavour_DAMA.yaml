@@ -36,20 +36,19 @@ Parameters:
   DMEFT_3flavour:
     # DM mass
     mchi: 
-      range: [5, 100]
+      range: [1, 1000]
+      prior_type: log
     # EM interactions
     C51: 0.
     C52: 0.
     # Dim 6 -- qq chi chi bilinears
     # vector vector
     C61u: 
-      # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      ranges: [1e-8, 1e-7]
+      prior_type: log
     C61d: 
-      # range: [-12.56637, 12.56637]
-      prior_type: double_log_flat_join
-      ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      ranges: [1e-8, 1e-7]
+      prior_type: log
     # axial-vector vector
     C62u: 0
       # range: [-12.56637, 12.56637]
