@@ -44,10 +44,10 @@ Parameters:
     # Dim 6 -- qq chi chi bilinears
     # vector vector
     C61u: 
-      ranges: [1e-8, 1e-7]
+      range: [1e-8, 1e-7]
       prior_type: log
     C61d: 
-      ranges: [1e-8, 1e-7]
+      range: [1e-8, 1e-7]
       prior_type: log
     # axial-vector vector
     C62u: 0
