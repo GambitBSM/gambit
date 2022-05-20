@@ -94,35 +94,26 @@ Scanner:
 
 ObsLikes:
 
+  # Likelihoods
   - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood
+    capability: b2ll_LL
+
+  #- purpose:    LogLike
+  #  capability: b2sll_LL
 
   - purpose:    LogLike
-    capability: B2mumu_LogLikelihood_Atlas
-    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  - purpose:    LogLike
-    capability: B2mumu_LogLikelihood_CMS
-    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  - purpose:    LogLike
-    capability: B2mumu_LogLikelihood_LHCb
-    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+    capability: b2sgamma_LL
 
 
 Rules:
 
-  # Use SM theory covariance matrix for every point
-  - capability: flav_theory_covariance
-    function: SuperIso_theory_covariance_SM
-
   # Use SuperIso instead of FeynHiggs for b->sgamma
-  - capability: prediction_b2sgamma
-    function: SuperIso_prediction_b2sgamma
+  - capability: bsgamma
+    function: SI_bsgamma
 
   # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: prediction_B2mumu
-    function: SuperIso_prediction_B2mumu
+  - capability: Bsmumu_untag
+    function: SI_Bsmumu_untag
 
 
 Logger:

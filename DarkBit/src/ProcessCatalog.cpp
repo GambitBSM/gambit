@@ -24,7 +24,6 @@
 namespace Gambit {
   namespace DarkBit {
 
-
     // TH_ParticleProperty definitions
 
     TH_ParticleProperty::TH_ParticleProperty(double mass, unsigned int spin2)

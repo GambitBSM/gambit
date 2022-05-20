@@ -33,5 +33,8 @@
 #include "gambit/ScannerBit/scannerbit.hpp"
 #include "gambit/ScannerBit/priors_rollcall.hpp"
 
+//#include "gambit/Printers/printer_rollcall.hpp" // Load up all the available printers
+
+
 #endif //__gambit_main_hpp__
 
