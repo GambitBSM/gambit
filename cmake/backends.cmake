@@ -368,11 +368,13 @@ set(ver "1.2")
 set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "a198174600f56258e90c3d84b6e362bd")
+set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_directory "${patchdir}/data" "${dir}/data/"
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ""
