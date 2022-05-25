@@ -50,9 +50,6 @@
 #include "gambit/Models/models/THDMflipped_hybrid_lambda1atQ.hpp"
 #include "gambit/Models/models/THDMflipped_hybrid_lambda2atQ.hpp"
 
-#include "gambit/Models/models/THDMI_smartBasis.hpp"
-#include "gambit/Models/models/THDMIatQ_smartBasis.hpp"
-
 #include "gambit/Models/models/THDMI.hpp"
 #include "gambit/Models/models/THDMIatQ.hpp"
 #include "gambit/Models/models/THDMII.hpp"
@@ -69,8 +66,6 @@
 
 using namespace Gambit::Utils;
 
-// -- smart basis translations --
-
 inline double sq(double v)
 {
   return v*v;
@@ -80,159 +75,6 @@ inline double cube(double v)
 {
   return v*v*v;
 }
-
-// Need to define MODEL and FRIEND in order for helper macros to work correctly
-#define MODEL  THDMI_smartBasis
-#define FRIEND THDMI
-
-// Translation function definition
-void MODEL_NAMESPACE::THDMI_smartBasis_to_THDMI(const ModelParameters &myP, ModelParameters &targetP)
-{
-  USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMI_smartBasis --> THDMI"<<LogTags::info<<EOM;
-
-  // - calculate cosba
-
-  // the distorted cosba
-  double x = myP.getValue("cosba_distorted");
-  // // spline input points
-  // static const std::vector<double> xj = { -1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0 };
-  // // spline output points
-  // static const std::vector<double> fj = { -1.0, -0.1, -0.01, 0.0, 0.01, 0.1, 1.0 };
-  // // splie coeffs
-  // static const std::vector<double> cj = { 0, -4.5657, 2.4648, -2.7352, 0, 2.7352, -2.4648 };
-  // // calc cubic spline
-  // double cosba = cj[0] + cj[1]*x;
-  // for (size_t i = 2; i<cj.size(); ++i) cosba += cube(abs(x - xj[i-1])) * cj[i];
-  // cosba = std::min(1.0,cosba);
-  // cosba = std::max(-1.0,cosba);
-
-  double cosba = x; // !!!!!!!
-
-  // - calculate m122
-
-  const double GF = Dep::SMINPUTS->GF;
-  const double v2 = 1./(sqrt(2)*GF);
-  double lam1 = myP.getValue("lambda_1");
-  double lam2 = myP.getValue("lambda_2");
-  double lam3 = myP.getValue("lambda_3");
-  double lam4 = myP.getValue("lambda_4");
-  double lam5 = myP.getValue("lambda_5");
-  double lam6 = myP.getValue("lambda_6");
-  double lam7 = myP.getValue("lambda_7");
-  double tanb = myP.getValue("tanb");
-
-  double beta = atan(tanb);
-  double alpha = beta - acos(cosba);
-  double cosb2 = sq(cos(beta));
-  double sinb2 = sq(sin(beta));
-  double sin2b = sin(2*beta);
-  double cot2b = 1.0/tan(2*beta);
-  double tan2a = tan(2*alpha);
-
-  double m12_2 = v2 * ( (lam1*cosb2 - lam2*sinb2)*tan2a - (lam3+lam4+lam5)*sin2b ) / (2*tan2a*cot2b - 2);
-
-  // std::cout << "m12_2: " << m12_2 << std::endl;
-  // std::cout << "cosba: " << cosba << std::endl;
-  // std::cout << "cosba_d: " << x << std::endl;
-
-
-  // - set generic basis
-
-  targetP.setValue("lambda_1", lam1 );
-  targetP.setValue("lambda_2", lam2 );
-  targetP.setValue("lambda_3", lam3 );
-  targetP.setValue("lambda_4", lam4 );
-  targetP.setValue("lambda_5", lam5 );
-  targetP.setValue("lambda_6", lam6 );
-  targetP.setValue("lambda_7", lam7 );
-  targetP.setValue("m12_2", m12_2 );
-  targetP.setValue("tanb", tanb );
-
-  // Done! Check that everything is ok if desired.
-  #ifdef THDM_DBUG
-    std::cout << "THDMI_smartBasis parameters:" << myP << std::endl;
-    std::cout << "THDMI parameters   :" << targetP << std::endl;
-  #endif
-}
-
-#undef FRIEND
-#undef MODEL
-
-#define MODEL  THDMIatQ_smartBasis
-#define FRIEND THDMIatQ
-
-// Translation function definition
-void MODEL_NAMESPACE::THDMIatQ_smartBasis_to_THDMIatQ(const ModelParameters &myP, ModelParameters &targetP)
-{
-  USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as FRIEND" function
-  logger()<<"Running interpret_as_FRIEND calculations for THDMIatQ_smartBasis --> THDMIatQ"<<LogTags::info<<EOM;
-
-    // - calculate cosba
-
-  // the distorted cosba
-  double x = myP.getValue("cosba_distorted");
-  // spline input points
-  static const std::vector<double> xj = { -1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0 };
-  // spline output points
-  static const std::vector<double> fj = { -1.0, -0.1, -0.01, 0.0, 0.01, 0.1, 1.0 };
-  // splie coeffs
-  static const std::vector<double> cj = { 0, -4.5657, 2.4648, -2.7352, 0, 2.7352, -2.4648 };
-  // calc cubic spline
-  double cosba = cj[0] + cj[1]*x;
-  for (size_t i = 2; i<cj.size(); ++i) cosba += cube(abs(x - xj[i-1])) * cj[i];
-  cosba = std::min(1.0,cosba);
-  cosba = std::max(-1.0,cosba);
-
-  // - calculate m122
-
-  const double GF = Dep::SMINPUTS->GF;
-  const double v2 = 1./(sqrt(2)*GF);
-  double lam1 = myP.getValue("lambda_1");
-  double lam2 = myP.getValue("lambda_2");
-  double lam3 = myP.getValue("lambda_3");
-  double lam4 = myP.getValue("lambda_4");
-  double lam5 = myP.getValue("lambda_5");
-  double lam6 = myP.getValue("lambda_6");
-  double lam7 = myP.getValue("lambda_7");
-  double tanb = myP.getValue("tanb");
-
-  double beta = atan(tanb);
-  double alpha = beta - acos(cosba);
-  double cosb2 = sq(cos(beta));
-  double sinb2 = sq(sin(beta));
-  double sin2b = sin(2*beta);
-  double cot2b = 1.0/tan(2*beta);
-  double tan2a = tan(2*alpha);
-
-  double m12_2 = v2 * ( (lam1*cosb2 - lam2*sinb2)*tan2a - (lam3+lam4+lam5)*sin2b ) / (2*tan2a*cot2b - 2);
-
-  // - set generic basis
-
-  targetP.setValue("lambda_1", lam1 );
-  targetP.setValue("lambda_2", lam2 );
-  targetP.setValue("lambda_3", lam3 );
-  targetP.setValue("lambda_4", lam4 );
-  targetP.setValue("lambda_5", lam5 );
-  targetP.setValue("lambda_6", lam6 );
-  targetP.setValue("lambda_7", lam7 );
-  targetP.setValue("m12_2", m12_2 );
-  targetP.setValue("tanb", tanb );
-
-
-  targetP.setValue("Qin", myP.getValue("Qin") );
-  targetP.setValue("QrunTo", myP.getValue("QrunTo") );
-
-  // Done! Check that everything is ok if desired.
-  #ifdef THDM_DBUG
-    std::cout << "THDMIatQ_smartBasis parameters:" << myP << std::endl;
-    std::cout << "THDMIatQ parameters   :" << targetP << std::endl;
-  #endif
-}
-
-#undef FRIEND
-#undef MODEL
-
 
 // Need to define MODEL and FRIEND in order for helper macros to work correctly
 #define MODEL  THDMI_hybrid_lambda1

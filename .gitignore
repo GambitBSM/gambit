@@ -33,7 +33,7 @@ a.out
 *.mod
 
 # Hidden files
-
+.vscode**
 
 # Output data
 runs/*

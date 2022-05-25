@@ -249,9 +249,10 @@ ObsLikes:
   # Superiso is given SLHA struct filled with THDM input
   # & then likelihoods may be called as intended
 
-  # FlavBit.cpp:2193 (b->s gamma via HEPLike)
-  - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
+  #  OFF - seems to be thowing bad file exception
+  # # FlavBit.cpp:2193 (b->s gamma via HEPLike)
+  # - purpose:    LogLike
+  #   capability: b2sgamma_LogLikelihood # b2sgamma_likelihood
 
   # FlavBit.cpp:2120 (B meson mass aysmmetry)
   - capability: deltaMB_LL
@@ -477,12 +478,12 @@ Rules:
     function: get_stability_likelihood_THDM
     options:
       check_other_scale: 1000.0
-      #~Icheck_metastability: true
+      check_metastability: true
 
   - capability: NLO_unitarity_likelihood_THDM
     function: get_NLO_unitarity_likelihood_THDM
     options:
-      #~Gcheck_correction_ratio: true
+      check_correction_ratio: true
       check_other_scale: 1000.0
       wave_function_corrections: true
       gauge_corrections: true

@@ -3365,7 +3365,7 @@ namespace Gambit
     {
       // Note: the lower limit is applied to H0 whereas the upper limit is applied to H0 and h0
       //       this prevents exclusion of the Hidden Higgs scenario
-      
+
       const double mh0 = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mH0 = container.he->get(Par::Pole_Mass, "h0", 2);
       const double mA0 = container.he->get(Par::Pole_Mass, "A0");
@@ -3690,22 +3690,32 @@ namespace Gambit
       const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
       constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
       constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
-      double model_invalid_for_lnlike_below = -1e6;
 
       double mass_err_h = std::abs(mh_pole - mh_exp);
       double mass_err_H = std::abs(mH_pole - mh_exp);
       result = 0;
 
+      // OFF - it doesn't work
       // we need mass_err_H < mass_err_h for Hidden Higgs scenario
       
-      if (mass_err_h < mass_err_H)
-      {
-        result = -L_MAX;
-      }
+      // if (mass_err_h < mass_err_H)
+      // {
+      //   result = -L_MAX;
+      // }
+
+      // weight that pushes mH to 125 Gev
+      result += std::max(0.0, mass_err_H - 10.0) / 1000.0;
+
+      // weight that pushes mass_err_H < mass_err_h
+      result += std::max(0.0, mass_err_H - mass_err_h) / 20000.0;
+
+      constexpr double model_invalid_for_lnlike_below = -1e6;
+      result *= model_invalid_for_lnlike_below; 
 
       // count failure rate
       static point_counter count("Hidden higgs"); count.count();
       if (result < -1.0) count.count_invalid();
+
     }
 
     // LIKELIHOOD: guides scanner towards mh = 125 GeV. Use to improve performance of HiggsSignals (soft-cutoff)
@@ -3726,11 +3736,19 @@ namespace Gambit
 
       // scale it so that going 300 GeV above/below the measured higgs mass hits the threshold to bail on the point
       // no penalty if we are within 10 GeV of exp. value
-      result = model_invalid_for_lnlike_below * (std::max(0.0,mass_err - 10.0) / 300);
+      result = model_invalid_for_lnlike_below * (std::max(0.0,mass_err - 10.0) / 800);
       
       // count failure rate
       static point_counter count("h-mass-125"); count.count();
       if (result < -1.0) count.count_invalid();
+
+      static double best = -1e99;
+
+      if (result >= best)
+      {
+        best = result;
+        std::cerr << "result: " << result << " | mh0: " << mh_pole << " | mH0: " << mH_pole << std::endl;
+      }
     }
 
     // LIKELIHOOD: mass range for each heavy scalar, specified in YAML file (soft-cutoff)
@@ -3751,7 +3769,7 @@ namespace Gambit
       const double soft_min_scalar_mass = runOptions->getValueOrDef<double>(min_scalar_mass, "soft_minimum_scalar_mass");
 
       // evaluate loglike
-      const double loglike = likelihood_function(container, min_scalar_mass, max_scalar_mass, soft_max_scalar_mass, soft_max_scalar_mass);
+      const double loglike = likelihood_function(container, min_scalar_mass, max_scalar_mass, soft_min_scalar_mass, soft_max_scalar_mass);
       // note that we may also check SpecBit's likelihoods at a different scale: check_other_scale
       double loglike_at_Q = L_MAX;
       double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
@@ -3760,7 +3778,7 @@ namespace Gambit
         // get likelihood at check_other_scale
         THDM_spectrum_container container_at_scale;
         BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(yukawa_type), byVal(check_other_scale), 0);
-        loglike_at_Q = likelihood_function(container_at_scale, min_scalar_mass, max_scalar_mass, soft_max_scalar_mass, soft_max_scalar_mass);
+        loglike_at_Q = likelihood_function(container_at_scale, min_scalar_mass, max_scalar_mass, soft_min_scalar_mass, soft_max_scalar_mass);
       }
       // return the worse performing likelihood
       result = std::min(loglike, loglike_at_Q);
