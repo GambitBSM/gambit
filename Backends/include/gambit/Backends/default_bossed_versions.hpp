@@ -24,8 +24,8 @@
 
 #define  Default_gm2calc 1_3_0
 #define  Default_Pythia 8_212
+#define  Default_HepLike 1_2
 #define  Default_vevacious 1_0
-#define  Default_HepLike 1_0
 #define  Default_THDMC 1_8_0
 
 // Defaults added by GUM (do not remove this comment).

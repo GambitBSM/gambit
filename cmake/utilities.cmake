@@ -683,13 +683,21 @@ macro(BOSS_backend_full name backend_version BOSS_includes_ROOT ${ARGN})
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
       set(BOSS_castxml_cc "")
     endif()
+
+    # TODO: I updated the download links for castxml, but this should be removed once master is merged in as this is done in backends.cmake there
     if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-      set(castxml_dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
-      set(castxml_dl_filename "castxml-macosx.tar.gz")
+      if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm64")
+        set(castxml_dl "https://data.kitware.com/api/v1/file/606cff072fa25629b9688ac6/download")
+        set(castxml_dl_filename "castxml-macos-arm64.tar.gz")
+      else()
+        set(castxml_dl "https://data.kitware.com/api/v1/file/622961284acac99f42134a6a/download")
+        set(castxml_dl_filename "castxml-macosx.tar.gz")
+      endif()
     else()
-      set(castxml_dl "https://data.kitware.com/api/v1/file/57b5dea08d777f10f2696379/download")
+      set(castxml_dl "https://data.kitware.com/api/v1/file/622961384acac99f42134a8a/download")
       set(castxml_dl_filename "castxml-linux.tar.gz")
     endif()
+
     ExternalProject_Add_Step(${name}_${ver} BOSS
       # Check for castxml binaries and download if they do not exist
       COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${CMAKE_DOWNLOAD_FLAGS} ${castxml_dl} ${castxml_dl_filename}
