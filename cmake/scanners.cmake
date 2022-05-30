@@ -274,6 +274,7 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -N <SOURCE_DIR>/MultiNest_v${ver}/posterior.F90 -i ${PROJECT_SOURCE_DIR}/ScannerBit/patches/multinest/${ver}/posterior.F90.patch
     CONFIGURE_COMMAND sed ${dashi} -e "s#nested.o[[:space:]]*$#nested.o cwrapper.o#g"
                                    -e "s#-o[[:space:]]*\\(\\$\\)(LIBS)[[:space:]]*\\$@[[:space:]]*\\$^#-o \\$\\(LIBS\\)\\$@ \\$^ ${mnLAPACK}#g"
                                    -e "s#default:#.NOTPARALLEL:${nl}${nl}default:#"
