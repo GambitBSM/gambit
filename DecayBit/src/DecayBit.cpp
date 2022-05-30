@@ -3140,8 +3140,8 @@ namespace Gambit
           // Spit out the full decay table in SLHA1 and SLHA2 formats.
           str prefix   = runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
           str filename = runOptions->getValueOrDef<str>("GAMBIT_decays", "SLHA_output_filename");
-          decays.writeSLHAfile(1,prefix+filename+".slha1",false,psn);
-          decays.writeSLHAfile(2,prefix+filename+".slha2",false,psn);
+          decays.writeSLHAfile(1,prefix+filename+"_decay.slha1",false,psn);
+          decays.writeSLHAfile(2,prefix+filename+"_decay.slha2",false,psn);
         }
 
         /// Invalidate MSSM points that have a stable charged particle?
@@ -3197,8 +3197,10 @@ namespace Gambit
         if (runOptions->getValueOrDef<bool>(false, "drop_SLHA_file"))
         {
           // Spit out the full decay table in SLHA1 and SLHA2 formats.
+          str prefix   = runOptions->getValueOrDef<str>("", "SLHA_output_prefix");
           str filename = runOptions->getValueOrDef<str>("GAMBIT_decays", "SLHA_output_filename");
-          decays.writeSLHAfile(2,filename+".slha",false);
+          decays.writeSLHAfile(1,prefix+filename+"_decay.slha1",false);
+          decays.writeSLHAfile(2,prefix+filename+"_decay.slha2",false);
         }
 
       }
