@@ -36,43 +36,49 @@ Parameters:
   DMEFT_3flavour:
     # DM mass
     mchi: 
-      range: [1, 1000]
+      range: [2, 200]
       prior_type: log
     # EM interactions
-    C51: 0.
-    C52: 0.
+    C51: 
+      range: [-5.0265e-5, 5.0265e-5]
+    C52: 
+      range: [-5.0265e-5, 5.0265e-5]
     # Dim 6 -- qq chi chi bilinears
     # vector vector
     C61u: 
-      range: [1e-8, 1e-7]
-      prior_type: log
+      range: [-5.0265e-5, 5.0265e-5]
     C61d: 
-      range: [1e-8, 1e-7]
-      prior_type: log
+      range: [-5.0265e-5, 5.0265e-5]
     # axial-vector vector
-    C62u: 0
+    C62u:
+      range: [-5.0265e-5, 5.0265e-5]
       # range: [-12.56637, 12.56637]
       # prior_type: double_log_flat_join
       # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C62d: 0
+    C62d:
+      range: [-5.0265e-5, 5.0265e-5]
       # range: [-12.56637, 12.56637]
       # prior_type: double_log_flat_join
       # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # vector axial-vector
-    C63u: 0
+    C63u:
+      range: [-5.0265e-5, 5.0265e-5]
       # range: [-12.56637, 12.56637]
       # prior_type: double_log_flat_join
       # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C63d: 0
+    C63d:
+      range: [-5.0265e-5, 5.0265e-5]
       # range: [-12.56637, 12.56637]
       # prior_type: double_log_flat_join
       # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # axial-vector axial-vector
-    C64u: 0
+    C64u:
+      range: [-5.0265e-5, 5.0265e-5]
       # range: [-12.56637, 12.56637]
       # prior_type: double_log_flat_join
       # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C64d: 0
+    C64d:
+      range: [-5.0265e-5, 5.0265e-5]
       # range: [-12.56637, 12.56637]
       # prior_type: double_log_flat_join
       # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
@@ -124,8 +130,8 @@ Scanner:
     diver: 
       plugin: diver
       like: LogLike
-      NP: 1
-      convthresh: 1E-1
+      NP: 10000
+      convthresh: 1E-3
       lambdajDE: false
 
 ObsLikes:
@@ -168,5 +174,5 @@ KeyValues:
 
   default_output_path: "runs/DMEFT_3flavour_DAMA/"
 
-  debug: true
+  debug: false
 
