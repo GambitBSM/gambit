@@ -192,7 +192,7 @@ namespace Gambit
             // Stick entry into the SLHAea object
             SLHAea_check_block(out, block); // Make sure block exists first
             if(indices.size()==1)
-            { 
+            {
                 SLHAea_add(out, block, indices.at(0), value, entry+" ("+tag+")");
             }
             else if(indices.size()==2)
@@ -203,10 +203,10 @@ namespace Gambit
             {
                 std::ostringstream err;
                 err<<"Received invalid number of target SLHA indices for dataset: "<<dataset_label.str()<<std::endl<<"Indices were: "<<indices;
-                printer_error().raise(LOCAL_INFO,err.str()); 
+                printer_error().raise(LOCAL_INFO,err.str());
             }
         }
-        return tmp_is_valid; 
+        return tmp_is_valid;
      }
 
      /// Retrieve (SLHA-only) SM spectrum information as an SLHAea object
@@ -215,7 +215,7 @@ namespace Gambit
         SLHAstruct& out(out_main); // Interpret as ordinary SLHAea base class to get operator[] etc
         bool is_valid = true;
         std::map<std::string,SLHAcombo> labels_to_SLHA;
- 
+
         // Read all dataset labels into a structure that we can search quickly
         std::set<std::string> all_dataset_labels = get_all_labels();
 
@@ -264,13 +264,13 @@ namespace Gambit
         bool is_valid = true;
 
         // Rather than iterate through the datasets, we know what entries we need to find, so we will just
-        // directly look for them. 
+        // directly look for them.
         // TODO: We can automate this after the SpecBit redesign, and probably
         // just use the spectrum "setter" functions to insert this data directly into Spectrum objects.
         // Unfortunately those don't exist in the current SimpleSpectrum objects, but they will exist after
         // the redesign.
         std::map<std::string,SLHAcombo> labels_to_SLHA;
- 
+
         // MASS
         labels_to_SLHA["A0"     ] = SLHAcombo("Pole_Mass", "MASS", 36);
         labels_to_SLHA["H+"     ] = SLHAcombo("Pole_Mass", "MASS", 37);
@@ -307,23 +307,23 @@ namespace Gambit
         labels_to_SLHA["~nu_3"  ] = SLHAcombo("Pole_Mass", "MASS", 1000016);
         // Standard Model masses. Turns out we do need to retrieve these, since
         // they might have shifted from SMINPUTS in the spectrum generation process.
-        
-        
+
+
         // MSOFT
         labels_to_SLHA["M1"  ] = SLHAcombo("mass1", "MSOFT", 1);
         labels_to_SLHA["M2"  ] = SLHAcombo("mass1", "MSOFT", 2);
         labels_to_SLHA["M3"  ] = SLHAcombo("mass1", "MSOFT", 3);
         labels_to_SLHA["mHd2"] = SLHAcombo("mass2", "MSOFT", 21);
         labels_to_SLHA["mHu2"] = SLHAcombo("mass2", "MSOFT", 22);
-    
+
         // HMIX
         labels_to_SLHA["Mu"]  = SLHAcombo("mass1", "HMIX", 1);
         // Need these two for Higgs vev and tanbeta. Not SLHA, so store in TEMP block temporarily.
         //labels_to_SLHA["vd"]  = SLHAcombo("mass1", "TEMP", 1);
         //labels_to_SLHA["vu"]  = SLHAcombo("mass1", "TEMP", 2);
         //labels_to_SLHA["mA2"] = SLHAcombo("mass2", "HMIX", 4);
- 
-        // TD, TU, TE 
+
+        // TD, TU, TE
         #define LABELNXN(N,baseentry,tag,block) \
           for(int i=1; i<=N; i++){ for(int j=1; j<=N; j++) { \
             std::stringstream entry; \
@@ -345,7 +345,7 @@ namespace Gambit
         LABELNXN(4,"~chi0","Pole_Mixing","NMIX")
         LABELNXN(2,"~chi-","Pole_Mixing","UMIX")
         LABELNXN(2,"~chi+","Pole_Mixing","VMIX")
-    
+
         // USQMIX, DSQMIX, SELMIX, SNUMIX
         LABELNXN(6,"~u","Pole_Mixing","USQMIX")
         LABELNXN(6,"~d","Pole_Mixing","DSQMIX")
@@ -453,17 +453,17 @@ namespace Gambit
            // For now we will assume the spectrum was output by FlexibleSUSY, in which case
            // the running parameters will be defined at the SUSY scale (geometric mean of
            // DRbar stop masses). TODO: Set this behaviour with an option, maybe? Not sure how though.
-           
+
            // Proper calculation of DRbar stop masses, from https://arxiv.org/pdf/0904.2169.pdf Eq. 29 (with non-MSSM bits removed)
            // We assume that there is no flavour/family mixing, which is true for all our scans so far.
            // TODO: Make sure that scale is output if we do have this mixing in the future!
            // Retrieve extra needed values first
            scale = MSUSY;
-        } 
+        }
         else
-        { 
+        {
            scale = SLHAea_get(out,"TEMP",0);
-        } 
+        }
 
         // Add blocks that require scale info
         SLHAea_add_block(out, "GAUGE", scale);
@@ -480,7 +480,7 @@ namespace Gambit
         SLHAea_add_block(out, "MSU2", scale);
         SLHAea_add_block(out, "MSE2", scale);
         SLHAea_add_block(out, "MSOFT", scale);
-        
+
         // Automatically extract and add the rest of the entries
         for(auto it=labels_to_SLHA.begin(); it!=labels_to_SLHA.end(); ++it)
         {
@@ -524,7 +524,7 @@ namespace Gambit
               }}
            }
         }
-        
+
         return is_valid;
      }
 
@@ -533,16 +533,22 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_str_map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_const_str_map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(triplet<double>& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #ifndef SCANNER_STANDALONE // All the types inside HDF5_BACKEND_TYPES need to go inside this def guard.
 
        bool HDF5Reader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
-       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-       bool HDF5Reader::_retrieve(Flav_KstarMuMu_obs& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool HDF5Reader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }

@@ -1572,15 +1572,41 @@ namespace Gambit
         /// Report whether this printer prints in synchronised or 'random' mode
         bool get_sync(const Options& options);
 
-        /// Helper print function
-        // Used to reduce repetition in definitions of virtual function overloads
-        // (useful since there is no automatic type conversion possible)
+        /// Helper print functions
+        /// Used to reduce repetition in definitions of virtual function overloads
+        /// (useful since there is no automatic type conversion possible)
+        /// @{
+
         template<class T>
         void basic_print(T const& value, const std::string& label, const unsigned int mpirank, const unsigned long pointID)
         {
             // Forward the print information on to the master buffer manager object
             buffermaster.schedule_print<T>(value,label,mpirank,pointID);
         }
+
+        template<typename T>
+        void print_map_str_dbl(const T& map, const std::string& label, const unsigned int mpirank, const unsigned long pointID)
+        {
+          for (typename T::const_iterator it = map.begin(); it != map.end(); it++)
+          {
+            std::stringstream ss;
+            ss<<label<<"::"<<it->first;
+            basic_print(it->second,ss.str(),mpirank,pointID);
+          }
+        }
+
+        template<typename T>
+        void print_map_str_map_str_dbl(const T& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+        {
+          for (typename T::const_iterator it = map.begin(); it != map.end(); it++)
+          {
+            std::stringstream ss;
+            ss<<label<<"::"<<it->first;
+            _print(it->second,ss.str(),vID,mpirank,pointID);
+          }
+        }
+
+        /// @}
 
     };
 

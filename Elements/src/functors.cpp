@@ -390,6 +390,15 @@ namespace Gambit
       return safe_ptr<Options>(&myOptions);
     }
 
+    /// Notify the functor about a string in YAML that contains the sub-capability information (for use in standalones)
+    void functor::notifyOfSubCaps(const str& subcap_string)
+    {
+      YAML::Node subcap_node_simple = YAML::Load(subcap_string);
+      YAML::Node subcap_node_complex;
+      for (auto x : subcap_node_simple) subcap_node_complex[x.as<str>()] = YAML::Node();
+      notifyOfSubCaps(subcap_node_complex);
+    }
+
     /// Notify the functor about an instance of the options class that contains sub-capability information
     void functor::notifyOfSubCaps(const Options& subcaps)
     {
@@ -945,7 +954,7 @@ namespace Gambit
     std::set<sspair> module_functor_common::backendclassloading()
     {
       std::set<sspair> backends;
-       
+
       for(auto backend : required_classloading_backends)
       {
         for(auto version : backend.second)

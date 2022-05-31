@@ -88,6 +88,13 @@ namespace Gambit
       return ensure_path_exists(GAMBIT_DIR "/scratch/run_time/machine_" + std::to_string(gethostid()) + master_procID + "/");
     }
 
+    /// Convert all instances of "p" in a string to "."
+    str p2dot(str s)
+    {
+      boost::replace_all(s, "p", ".");
+      return s;
+    }
+
     /// Split a string into a vector of strings using a delimiter,
     /// and remove any whitespace around the delimiters.
     std::vector<str> delimiterSplit(str s, str delim)

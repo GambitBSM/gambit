@@ -21,21 +21,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual void setChannel(double, int, ::std::vector<int, std::allocator<int> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void setChannel(double, int, ::std::vector<int>, ::std::basic_string<char>) =0;
     
-                virtual void setChannel__BOSS(double, int, ::std::vector<int, std::allocator<int> >) =0;
+                virtual void setChannel__BOSS(double, int, ::std::vector<int>) =0;
     
                 virtual void setBrat(double) =0;
     
-                virtual void setIdDa(::std::vector<int, std::allocator<int> >) =0;
+                virtual void setIdDa(::std::vector<int>) =0;
     
                 virtual double getBrat() =0;
     
                 virtual int getNDa() =0;
     
-                virtual ::std::vector<int, std::allocator<int> > getIdDa() =0;
+                virtual ::std::vector<int> getIdDa() =0;
     
-                virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > getComment() =0;
+                virtual ::std::basic_string<char> getComment() =0;
     
             public:
                 virtual void pointer_assign__BOSS(Abstract_LHdecayChannel*) =0;

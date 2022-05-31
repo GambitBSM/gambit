@@ -1413,6 +1413,7 @@ namespace Gambit
       }
       errmsg += "as an untargeted rule (in the Rules or ObsLike section):\n";
       errmsg += "\n  - capability: "+masterGraph[vertexCandidates[0]]->capability();
+      errmsg += "\n    type: "+masterGraph[vertexCandidates[0]]->type();
       errmsg += "\n    function: "+masterGraph[vertexCandidates[0]]->name();
       errmsg += "\n    module: " +masterGraph[vertexCandidates[0]]->origin() +"\n";
       if ( toVertex == OBSLIKE_VERTEXID )
@@ -2310,7 +2311,10 @@ namespace Gambit
           errmsg += "\n  - capability: "+masterGraph[vertex]->capability();
           errmsg += "\n    function: "+masterGraph[vertex]->name();
           errmsg += "\n    backends:";
-          errmsg += "\n      - {backend: "+vertexCandidates.at(0)->origin()+", version: "+vertexCandidates.at(0)->version()+"}\n";
+          errmsg += "\n      - {capability: "+vertexCandidates.at(0)->capability()+", type: "
+                                             +vertexCandidates.at(0)->type()+", backend: "
+                                             +vertexCandidates.at(0)->origin()+", version: "
+                                             +vertexCandidates.at(0)->version()+"}\n";
           dependency_resolver_error().raise(LOCAL_INFO,errmsg);
         }
       }
@@ -2366,7 +2370,7 @@ namespace Gambit
       logger() << LogTags::dependency_resolver << "Doing backend class loading resolution..." << EOM;
 
       // Add the backends to list of required backends
-      std::vector<sspair> resolvedBackends; 
+      std::vector<sspair> resolvedBackends;
       for(auto backend : (*masterGraph[vertex]).backendclassloading())
         resolvedBackends.push_back(backend);
 
@@ -2438,7 +2442,7 @@ namespace Gambit
                   vi2 != parents.end(); ++vi2)
 
         {
- 
+
           // Add citation key for used modules
           for(const auto &key : boundCore->getModuleCitationKeys())
           {

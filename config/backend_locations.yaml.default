@@ -38,14 +38,20 @@ DarkSUSY_MSSM:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_mssm.so
-  
+
 DarkSUSY_generic_wimp:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_generic_wimp.so
 
 SuperIso:
-  3.6:         ./Backends/installed/superiso/3.6/libsuperiso.so
+  4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
+
+HepLike:
+  1.2:         ./Backends/installed/heplike/1.2/libHEPLike.so
+
+HepLikeData:
+  1.2:         ./Backends/installed/heplikedata/1.2
 
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so

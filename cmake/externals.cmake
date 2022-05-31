@@ -74,6 +74,7 @@ set(name "pippi")
 set(dir "${CMAKE_SOURCE_DIR}/${name}")
 ExternalProject_Add(get-${name}
   GIT_REPOSITORY https://github.com/patscott/pippi.git
+  GIT_TAG v2.2
   SOURCE_DIR ${dir}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""

@@ -6,7 +6,7 @@ math:
   # package: sarah
   # Name of Model within that package. This will also be the name of the GAMBIT model.
   model: SingletDM_test
-  restriction: DiagonalCKM
+  restrictions: DiagonalCKM
   lagrangian: LTotal
 
 # PDG code of the DM candidate.

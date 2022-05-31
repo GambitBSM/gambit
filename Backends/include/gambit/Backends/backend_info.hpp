@@ -200,6 +200,9 @@ namespace Gambit
         /// Load a backend library written in C, C++ or Fortran
         void loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool with_BOSS);
 
+        /// Load a backend data library
+        void loadLibrary_data(const str&, const str&, const str&);
+
         #ifdef HAVE_MATHEMATICA
           /// Load WSTP for Mathematica backends
           void loadLibrary_Mathematica(const str&, const str&, const str&);

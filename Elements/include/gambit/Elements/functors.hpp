@@ -282,6 +282,9 @@ namespace Gambit
       /// Return a safe pointer to the options that this functor is supposed to run with (e.g. from the ini file).
       safe_ptr<Options> getOptions();
 
+      /// Notify the functor about a string in YAML that contains the sub-capability information (for use in standalones)
+      void notifyOfSubCaps(const str&);
+
       /// Notify the functor about an instance of the options class that contains sub-capability information
       void notifyOfSubCaps(const Options&);
 

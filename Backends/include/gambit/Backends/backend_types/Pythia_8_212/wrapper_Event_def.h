@@ -17,17 +17,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void Event::init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn)
+        inline void Event::init(::std::basic_string<char> headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn)
         {
             get_BEptr()->init__BOSS(headerIn, (*particleDataPtrIn).get_BEptr(), startColTagIn);
         }
         
-        inline void Event::init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn, Pythia8::ParticleData* particleDataPtrIn)
+        inline void Event::init(::std::basic_string<char> headerIn, Pythia8::ParticleData* particleDataPtrIn)
         {
             get_BEptr()->init__BOSS(headerIn, (*particleDataPtrIn).get_BEptr());
         }
         
-        inline void Event::init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn)
+        inline void Event::init(::std::basic_string<char> headerIn)
         {
             get_BEptr()->init__BOSS(headerIn);
         }
@@ -192,12 +192,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS();
         }
         
-        inline void Event::list(::std::basic_ostream<char, std::char_traits<char> >& os, int precision) const
+        inline void Event::list(::std::basic_ostream<char>& os, int precision) const
         {
             get_BEptr()->list(os, precision);
         }
         
-        inline void Event::list(::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Event::list(::std::basic_ostream<char>& os) const
         {
             get_BEptr()->list__BOSS(os);
         }
@@ -217,12 +217,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS(showScaleAndVertex);
         }
         
-        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char, std::char_traits<char> >& os, int precision) const
+        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char>& os, int precision) const
         {
             get_BEptr()->list(showScaleAndVertex, showMothersAndDaughters, os, precision);
         }
         
-        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char>& os) const
         {
             get_BEptr()->list__BOSS(showScaleAndVertex, showMothersAndDaughters, os);
         }
@@ -302,7 +302,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->scaleSecond();
         }
         
-        inline ::std::vector<int, std::allocator<int> > Event::daughterList(int i) const
+        inline ::std::vector<int> Event::daughterList(int i) const
         {
             return get_BEptr()->daughterList(i);
         }
@@ -402,7 +402,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->restoreJunctionSize();
         }
         
-        inline void Event::listJunctions(::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Event::listJunctions(::std::basic_ostream<char>& os) const
         {
             get_BEptr()->listJunctions(os);
         }

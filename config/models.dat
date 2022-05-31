@@ -498,6 +498,14 @@ WC: |
 
    An implementation of the standard effective field theory for the study of rare meson decays, based on the decomposition of the effective Hamiltonian into a linear combination of interactions specified with Wilson coefficients. This model incorporates enhancements and suppressions to the real and imaginary parts of the Wilson coefficients of the effective operators O7 , O9 , O10 , Q1 and Q2 (see the GAMBIT core paper for details and definitions).
 
+WC_LUV: |
+
+   Identical to the WC model, but with different Wilson Coefficients for coupling to each generation of leptons, so as to permit lepton flavour universality violation (LUV).
+
+WC_LR: |
+
+   Identical to the WC model, but also with primed versions of the different Wilson Coefficients.
+
 nuclear_params_fnq: |
 
    This model contains the nuclear matrix elements that parameterise the quark content of protons and neutrons, plus parameters that describe the spin content of the proton.
@@ -1198,7 +1206,7 @@ ColliderBit_SLHA_scan_model: |
 ColliderBit_SLHA_file_model: |
 
    Dummy model for doing a ColliderBit-only scan over a set of SLHA files.
-   See ColliderBit/examples/ColliderBit_SLHA_file_model.yaml for an example 
+   See ColliderBit/examples/ColliderBit_SLHA_file_model.yaml for an example
    yaml file that uses this model.
 
    dummy    - a dummy parameter, not used for anything

@@ -14,6 +14,7 @@
 ///  \date 2015 Feb
 ///  \date 2016 Jul
 ///  \date 2018 Jan
+///  \date 2019 Aug
 ///
 ///  \author Marcin Chrzaszcz
 ///  \date 2015 May
@@ -23,20 +24,39 @@
 ///  \date 2016 August
 ///  \date 2016 October
 ///  \date 2018 Jan
+///  \date 2020 Jan
+///  \date 2020 Feb
+///  \date 2020 May
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2013 Nov
 ///
 ///  \author Pat Scott
-///          (p.scott@imperial.ac.uk)
+///          (pat.scott@uq.edu.au)
 ///  \date 2015 May, June
 ///  \date 2016 Aug
 ///  \date 2017 March
+///  \date 2019 Oct
+///  \date 2020 Feb
 ///
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 July
+///
+///  \author Jihyun Bhom
+///          (jihyun.bhom@ifj.edu.pl)
+///  \date 2019 July
+///  \date 2019 Nov
+///  \date 2019 Dec
+///  \date 2020 Jan
+///  \date 2020 Feb
+///
+///  \author Markus Prim
+///          (markus.prim@kit.edu)
+///  \date 2019 Aug
+///  \date 2019 Nov
+///  \date 2020 Jan
 ///
 ///  *********************************************
 
@@ -49,15 +69,44 @@
 #include "gambit/FlavBit/FlavBit_rollcall.hpp"
 #include "gambit/FlavBit/FlavBit_types.hpp"
 #include "gambit/FlavBit/Flav_reader.hpp"
-#include "gambit/FlavBit/Kstarmumu_theory_err.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
 #include "gambit/FlavBit/flav_loop_functions.hpp"
-#include "gambit/Elements/spectrum.hpp"
+#include "gambit/Elements/translator.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
 
+
 //#define FLAVBIT_DEBUG
 //#define FLAVBIT_DEBUG_LL
+
+namespace YAML
+{
+  template<>
+  /// YAML conversion structure for SuperIso SM nuisance data
+  struct convert<Gambit::nuiscorr>
+  {
+    static Node encode(const Gambit::nuiscorr& rhs)
+    {
+      Node node;
+      node.push_back(rhs.obs1);
+      node.push_back(rhs.obs2);
+      node.push_back(rhs.value);
+      return node;
+    }
+    static bool decode(const Node& node, Gambit::nuiscorr& rhs)
+    {
+      if(!node.IsSequence() || node.size() != 3) return false;
+      std::string obs1 = node[0].as<std::string>();
+      std::string obs2 = node[1].as<std::string>();
+      obs1.resize(49);
+      obs2.resize(49);
+      strcpy(rhs.obs1, obs1.c_str());
+      strcpy(rhs.obs2, obs2.c_str());
+      rhs.value = node[2].as<double>();
+      return true;
+    }
+  };
+}
 
 namespace Gambit
 {
@@ -82,15 +131,107 @@ namespace Gambit
       false;
     #endif
 
-    /// Fill SuperIso model info structure
-    void SI_fill(parameters &result)
+    /// FlavBit observable name translator
+    Utils::translator translate_flav_obs(GAMBIT_DIR "/FlavBit/data/observables_key.yaml");
+
+    /// Some constants used in SuperIso likelihoods
+    const int ncorrnuis = 463;
+    const nuiscorr (&nuiscorr_help(nuiscorr (&arr)[ncorrnuis], const std::vector<nuiscorr>& v))[ncorrnuis] { std::copy(v.begin(), v.end(), arr); return arr; }
+    nuiscorr arr[ncorrnuis];
+    const nuiscorr (&corrnuis)[ncorrnuis] = nuiscorr_help(arr, YAML::LoadFile(GAMBIT_DIR "/FlavBit/data/SM_nuisance_correlations.yaml")["correlation_matrix"].as<std::vector<nuiscorr>>());
+
+    /// Print function for FlavBit predictions
+    void print(flav_prediction prediction , vector<std::string > names)
     {
-      using namespace Pipes::SI_fill;
+      for(unsigned i=0; i<names.size(); i++)
+      {
+        cout<<names[i]<<": "<<prediction.central_values[names[i]]<<endl;
+      }
+      cout<<"Covariance:"<<endl;
+      for( unsigned i=0; i<names.size(); i++)
+      {
+        stringstream row;
+        for( unsigned j=0; j<names.size(); j++)
+        {
+          row<<(prediction.covariance)[names[i]]  [names[j]]<<" ";
+        }
+        cout<<row.str()<<endl;
+      }
+    }
+
+    /// Translate B->K*ll observables from theory to LHCb convention
+    void Kstarll_Theory2Experiment_translation(flav_observable_map& prediction, int generation)
+    {
+      // Only works for ll = ee and ll = mumu
+      if (generation < 1 or generation > 2)
+       FlavBit_error().raise(LOCAL_INFO, "Kstarll_Theory2Experiment_translation called with generation not 1 or 2");
+      const vector<std::string> all_names[2] = {{"AT_Im"} , {"S4", "S7", "S9"}};
+      const vector<std::string>& names = all_names[generation-1];
+      for (unsigned i=0; i < names.size(); i++)
+      {
+        auto search = prediction.find(names[i]);
+        if (search != prediction.end())
+        {
+          prediction[names[i]]=(-1.)*prediction[names[i]];
+        }
+      }
+    }
+
+    /// Translate B->K*ll covariances from theory to LHCb convention
+    void Kstarll_Theory2Experiment_translation(flav_covariance_map& prediction, int generation)
+    {
+      // Only works for ll = ee and ll = mumu
+      if (generation < 1 or generation > 2)
+       FlavBit_error().raise(LOCAL_INFO, "Kstarll_Theory2Experiment_translation called with generation not 1 or 2");
+
+      const vector<std::string> names[2] = {{"AT_Im"} , {"S4", "S7", "S9"}};
+      vector<std::string> names_exist;
+
+      for (unsigned i=0; i < names[generation-1].size(); i++)
+      {
+        auto search_i = prediction.find(names[generation-1][i]);
+        if (search_i != prediction.end()) names_exist.push_back(names[generation-1][i]);
+      }
+      //changing the rows:
+      for (unsigned i=0; i <  names_exist.size(); i++)
+      {
+        string name1=names_exist[i];
+        std::map<const std::string, double> row=prediction[name1];
+        for (std::map<const std::string, double>::iterator it=row.begin(); it !=row.end(); it++)
+        {
+          prediction[name1][it->first]=(-1.)*prediction[name1][it->first];
+        }
+      }
+      // changing the columns:
+      for (flav_covariance_map::iterator it=prediction.begin(); it !=prediction.end(); it++)
+      {
+        string name_columns=it->first;
+        for (unsigned i=0; i <  names_exist.size(); i++)
+        {
+          string name1=names_exist[i];
+          prediction[name_columns][name1]=(-1)*prediction[name_columns][name1];
+        }
+      }
+    }
+
+    /// Find the path to the latest installed version of the HepLike data
+    str path_to_latest_heplike_data()
+    {
+      std::vector<str> working_data = Backends::backendInfo().working_versions("HepLikeData");
+      if (working_data.empty()) FlavBit_error().raise(LOCAL_INFO, "No working HepLikeData installations detected.");
+      std::sort(working_data.begin(), working_data.end());
+      return Backends::backendInfo().corrected_path("HepLikeData", working_data.back());
+    }
+
+    /// Fill SuperIso model info structure
+    void SuperIso_fill(parameters &result)
+    {
+      using namespace Pipes::SuperIso_fill;
       using namespace std;
 
       SLHAstruct spectrum;
       // Obtain SLHAea object from spectrum
-      if (ModelInUse("WC"))
+      if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV") )
       {
         spectrum = Dep::SM_spectrum->getSLHAea(2);
       }
@@ -132,16 +273,16 @@ namespace Gambit
         if (spectrum["SMINPUTS"][4].is_data_line()) result.mass_Z=SLHAea::to<double>(spectrum["SMINPUTS"][4][1]);
         if (spectrum["SMINPUTS"][5].is_data_line()) result.mass_b=SLHAea::to<double>(spectrum["SMINPUTS"][5][1]);
         if (spectrum["SMINPUTS"][6].is_data_line()) result.mass_top_pole=SLHAea::to<double>(spectrum["SMINPUTS"][6][1]);
-        if (spectrum["SMINPUTS"][7].is_data_line()) result.mass_tau=SLHAea::to<double>(spectrum["SMINPUTS"][7][1]);
-        if (spectrum["SMINPUTS"][8].is_data_line()) result.mass_nutau2=SLHAea::to<double>(spectrum["SMINPUTS"][8][1]);
-        if (spectrum["SMINPUTS"][11].is_data_line()) result.mass_e2=SLHAea::to<double>(spectrum["SMINPUTS"][11][1]);
-        if (spectrum["SMINPUTS"][12].is_data_line()) result.mass_nue2=SLHAea::to<double>(spectrum["SMINPUTS"][12][1]);
-        if (spectrum["SMINPUTS"][13].is_data_line()) result.mass_mu2=SLHAea::to<double>(spectrum["SMINPUTS"][13][1]);
-        if (spectrum["SMINPUTS"][14].is_data_line()) result.mass_numu2=SLHAea::to<double>(spectrum["SMINPUTS"][14][1]);
-        if (spectrum["SMINPUTS"][21].is_data_line()) result.mass_d2=SLHAea::to<double>(spectrum["SMINPUTS"][21][1]);
-        if (spectrum["SMINPUTS"][22].is_data_line()) result.mass_u2=SLHAea::to<double>(spectrum["SMINPUTS"][22][1]);
-        if (spectrum["SMINPUTS"][23].is_data_line()) result.mass_s2=SLHAea::to<double>(spectrum["SMINPUTS"][23][1]);
-        if (spectrum["SMINPUTS"][24].is_data_line()) result.mass_c2=SLHAea::to<double>(spectrum["SMINPUTS"][24][1]);
+        if (spectrum["SMINPUTS"][7].is_data_line()) result.mass_tau_pole=SLHAea::to<double>(spectrum["SMINPUTS"][7][1]);
+        if (spectrum["SMINPUTS"][8].is_data_line()) result.mass_nut=SLHAea::to<double>(spectrum["SMINPUTS"][8][1]);
+        if (spectrum["SMINPUTS"][11].is_data_line()) result.mass_e=SLHAea::to<double>(spectrum["SMINPUTS"][11][1]);
+        if (spectrum["SMINPUTS"][12].is_data_line()) result.mass_nue=SLHAea::to<double>(spectrum["SMINPUTS"][12][1]);
+        if (spectrum["SMINPUTS"][13].is_data_line()) result.mass_mu=SLHAea::to<double>(spectrum["SMINPUTS"][13][1]);
+        if (spectrum["SMINPUTS"][14].is_data_line()) result.mass_num=SLHAea::to<double>(spectrum["SMINPUTS"][14][1]);
+        if (spectrum["SMINPUTS"][21].is_data_line()) result.mass_d=SLHAea::to<double>(spectrum["SMINPUTS"][21][1]);
+        if (spectrum["SMINPUTS"][22].is_data_line()) result.mass_u=SLHAea::to<double>(spectrum["SMINPUTS"][22][1]);
+        if (spectrum["SMINPUTS"][23].is_data_line()) result.mass_s=SLHAea::to<double>(spectrum["SMINPUTS"][23][1]);
+        if (spectrum["SMINPUTS"][24].is_data_line()) result.mass_c=SLHAea::to<double>(spectrum["SMINPUTS"][24][1]);result.scheme_c_mass=1;
       }
 
       if (!spectrum["VCKMIN"].empty())
@@ -243,7 +384,7 @@ namespace Gambit
         if (spectrum["MASS"][1].is_data_line()) result.mass_d=SLHAea::to<double>(spectrum["MASS"][1][1]);
         if (spectrum["MASS"][2].is_data_line()) result.mass_u=SLHAea::to<double>(spectrum["MASS"][2][1]);
         if (spectrum["MASS"][3].is_data_line()) result.mass_s=SLHAea::to<double>(spectrum["MASS"][3][1]);
-        if (spectrum["MASS"][4].is_data_line()) result.mass_c=SLHAea::to<double>(spectrum["MASS"][4][1]);
+        if (spectrum["MASS"][4].is_data_line()) result.mass_c_pole=SLHAea::to<double>(spectrum["MASS"][4][1]);
         if (spectrum["MASS"][6].is_data_line()) result.mass_t=SLHAea::to<double>(spectrum["MASS"][6][1]);
         if (spectrum["MASS"][11].is_data_line()) result.mass_e=SLHAea::to<double>(spectrum["MASS"][11][1]);
         if (spectrum["MASS"][12].is_data_line()) result.mass_nue=SLHAea::to<double>(spectrum["MASS"][12][1]);
@@ -441,12 +582,19 @@ namespace Gambit
          if (spectrum["TE"][max(ie,je)].is_data_line()) result.TE[ie][je]=SLHAea::to<double>(spectrum["TE"].at(ie,je)[2]);
       }
 
-      else if (ModelInUse("WC"))
+      else if (ModelInUse("WC")  || ModelInUse("WC_LR") || ModelInUse("WC_LUV") )
       {
         // The Higgs mass doesn't come through in the SLHAea object, as that's only for SLHA2 SM inputs.
         result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
         // Set the scale.
         result.Q = result.mass_Z;
+      }
+
+      if(byVal(result.mass_c_pole)>0.&&byVal(result.scheme_c_mass)<0)
+      {
+        if(byVal(result.mass_c_pole)<1.5) result.mass_c=BEreq::mcmc_from_pole(byVal(result.mass_c_pole),1,&result);
+        else if(byVal(result.mass_c_pole)<1.75) result.mass_c=BEreq::mcmc_from_pole(byVal(result.mass_c_pole),2,&result);
+        else result.mass_c=BEreq::mcmc_from_pole(byVal(result.mass_c_pole),3,&result);
       }
 
       BEreq::slha_adjust(&result);
@@ -455,6 +603,9 @@ namespace Gambit
       result.width_Z = Dep::Z_decay_rates->width_in_GeV;
       result.width_W = Dep::W_plus_decay_rates->width_in_GeV;
 
+      for(int ie=1;ie<=30;ie++) result.deltaC[ie]=result.deltaCp[ie]=0.;
+      for(int ie=1;ie<=6;ie++) result.deltaCQ[ie]=result.deltaCQp[ie]=0.;
+
       // If requested, override the SuperIso b pole mass with the SpecBit value and recompute the 1S b mass.
       if (runOptions->getValueOrDef<bool>(false, "take_b_pole_mass_from_spectrum"))
       {
@@ -462,7 +613,7 @@ namespace Gambit
         {
           result.mass_h0 = Dep::MSSM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
-        else if (ModelInUse("WC"))
+        else if (ModelInUse("WC") || ModelInUse("WC_LUV") || ModelInUse("WC_LR") )
         {
           result.mass_h0 = Dep::SM_spectrum->get(Par::Pole_Mass, "h0_1");
         }
@@ -478,8 +629,6 @@ namespace Gambit
         result.SM = 1;
 
         // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
-        // SuperIso can actually only handle real O_7, O_9 and O_10 too, so the imaginary
-        // parts of those operators get ignored in subsequent calculations.
         result.Re_DeltaC7  = *Param["Re_DeltaC7"];
         result.Im_DeltaC7  = *Param["Im_DeltaC7"];
         result.Re_DeltaC9  = *Param["Re_DeltaC9"];
@@ -491,133 +640,516 @@ namespace Gambit
         result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2"];
         result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
 
+        /* Lines below are valid only in the flavour universal case
+           deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
+           deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
+
+        result.deltaC[7]=result.deltaC[17]=result.deltaC[27]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
+        result.deltaC[9]=result.deltaC[19]=result.deltaC[29]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
+        result.deltaC[10]=result.deltaC[20]=result.deltaC[30]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
+
+        result.deltaCQ[1]=result.deltaCQ[3]=result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
+        result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
       }
 
-      if (flav_debug) cout<<"Finished SI_fill"<<endl;
+      if (ModelInUse("WC_LR"))
+      {
+        result.SM = 1;
+
+        result.Re_DeltaC7  = *Param["Re_DeltaC7"];
+        result.Im_DeltaC7  = *Param["Im_DeltaC7"];
+        result.Re_DeltaC9  = *Param["Re_DeltaC9"];
+        result.Im_DeltaC9  = *Param["Im_DeltaC9"];
+        result.Re_DeltaC10 = *Param["Re_DeltaC10"];
+        result.Im_DeltaC10 = *Param["Im_DeltaC10"];
+        result.Re_DeltaCQ1 = *Param["Re_DeltaCQ1"];
+        result.Im_DeltaCQ1 = *Param["Im_DeltaCQ1"];
+        result.Re_DeltaCQ2 = *Param["Re_DeltaCQ2"];
+        result.Im_DeltaCQ2 = *Param["Im_DeltaCQ2"];
+
+        result.Re_DeltaC7_Prime  = *Param["Re_DeltaC7_Prime"];
+        result.Im_DeltaC7_Prime  = *Param["Im_DeltaC7_Prime"];
+        result.Re_DeltaC9_Prime  = *Param["Re_DeltaC9_Prime"];
+        result.Im_DeltaC9_Prime  = *Param["Im_DeltaC9_Prime"];
+        result.Re_DeltaC10_Prime = *Param["Re_DeltaC10_Prime"];
+        result.Im_DeltaC10_Prime = *Param["Im_DeltaC10_Prime"];
+        result.Re_DeltaCQ1_Prime = *Param["Re_DeltaCQ1_Prime"];
+        result.Im_DeltaCQ1_Prime = *Param["Im_DeltaCQ1_Prime"];
+        result.Re_DeltaCQ2_Prime = *Param["Re_DeltaCQ2_Prime"];
+        result.Im_DeltaCQ2_Prime = *Param["Im_DeltaCQ2_Prime"];
+
+        // left handed:
+        result.deltaC[7]=result.deltaC[17]=result.deltaC[27]=std::complex<double>(result.Re_DeltaC7, result.Im_DeltaC7);
+        result.deltaC[9]=result.deltaC[19]=result.deltaC[29]=std::complex<double>(result.Re_DeltaC9, result.Im_DeltaC9);
+        result.deltaC[10]=result.deltaC[20]=result.deltaC[30]=std::complex<double>(result.Re_DeltaC10, result.Im_DeltaC10);
+        result.deltaCQ[1]=result.deltaCQ[3]=result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1, result.Im_DeltaCQ1);
+        result.deltaCQ[2]=result.deltaCQ[4]=result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2, result.Im_DeltaCQ2);
+
+        // right handed:
+        result.deltaCp[7]=result.deltaCp[17]=result.deltaCp[27]=std::complex<double>(result.Re_DeltaC7_Prime, result.Im_DeltaC7_Prime);
+        result.deltaCp[9]=result.deltaCp[19]=result.deltaCp[29]=std::complex<double>(result.Re_DeltaC9_Prime, result.Im_DeltaC9_Prime);
+        result.deltaCp[10]=result.deltaCp[20]=result.deltaCp[30]=std::complex<double>(result.Re_DeltaC10_Prime, result.Im_DeltaC10_Prime);
+        result.deltaCQp[1]=result.deltaCQp[3]=result.deltaCQp[5]=std::complex<double>(result.Re_DeltaCQ1_Prime, result.Im_DeltaCQ1_Prime);
+        result.deltaCQp[2]=result.deltaCQp[4]=result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_Prime, result.Im_DeltaCQ2_Prime);
+      }
+
+      else if (ModelInUse("WC_LUV"))
+      {
+        result.SM = 1;
+
+        // So far our model only deals with 5 operators: O_7, O_9, O_10, Q_1 and Q_2.
+        result.Re_DeltaC7_mu  = *Param["Re_DeltaC7_mu"];
+        result.Im_DeltaC7_mu  = *Param["Im_DeltaC7_mu"];
+        result.Re_DeltaC9_mu  = *Param["Re_DeltaC9_mu"];
+        result.Im_DeltaC9_mu  = *Param["Im_DeltaC9_mu"];
+        result.Re_DeltaC10_mu = *Param["Re_DeltaC10_mu"];
+        result.Im_DeltaC10_mu = *Param["Im_DeltaC10_mu"];
+        result.Re_DeltaCQ1_mu = *Param["Re_DeltaCQ1_mu"];
+        result.Im_DeltaCQ1_mu = *Param["Im_DeltaCQ1_mu"];
+        result.Re_DeltaCQ2_mu = *Param["Re_DeltaCQ2_mu"];
+        result.Im_DeltaCQ2_mu = *Param["Im_DeltaCQ2_mu"];
+
+        result.Re_DeltaC7_e  = *Param["Re_DeltaC7_e"];
+        result.Im_DeltaC7_e  = *Param["Im_DeltaC7_e"];
+        result.Re_DeltaC9_e  = *Param["Re_DeltaC9_e"];
+        result.Im_DeltaC9_e  = *Param["Im_DeltaC9_e"];
+        result.Re_DeltaC10_e = *Param["Re_DeltaC10_e"];
+        result.Im_DeltaC10_e = *Param["Im_DeltaC10_e"];
+        result.Re_DeltaCQ1_e = *Param["Re_DeltaCQ1_e"];
+        result.Im_DeltaCQ1_e = *Param["Im_DeltaCQ1_e"];
+        result.Re_DeltaCQ2_e = *Param["Re_DeltaCQ2_e"];
+        result.Im_DeltaCQ2_e = *Param["Im_DeltaCQ2_e"];
+
+        result.Re_DeltaC7_tau  = *Param["Re_DeltaC7_tau"];
+        result.Im_DeltaC7_tau  = *Param["Im_DeltaC7_tau"];
+        result.Re_DeltaC9_tau  = *Param["Re_DeltaC9_tau"];
+        result.Im_DeltaC9_tau  = *Param["Im_DeltaC9_tau"];
+        result.Re_DeltaC10_tau = *Param["Re_DeltaC10_tau"];
+        result.Im_DeltaC10_tau = *Param["Im_DeltaC10_tau"];
+        result.Re_DeltaCQ1_tau = *Param["Re_DeltaCQ1_tau"];
+        result.Im_DeltaCQ1_tau = *Param["Im_DeltaCQ1_tau"];
+        result.Re_DeltaCQ2_tau = *Param["Re_DeltaCQ2_tau"];
+        result.Im_DeltaCQ2_tau = *Param["Im_DeltaCQ2_tau"];
+
+        /* Lines below are valid in the flavour NON-universal case
+           deltaC[1..10] = Cmu[1..10], deltaC[11..20] = Ce[1..10], deltaC[21..30] = Ctau[1..10]
+           deltaCQ[1,2] = CQmu[1,2], deltaCQ[1,2] = CQe[1,2], deltaCQ[1,2] = CQtau[1,2] */
+
+        result.deltaC[7]=std::complex<double>(result.Re_DeltaC7_mu, result.Im_DeltaC7_mu);
+        result.deltaC[9]=std::complex<double>(result.Re_DeltaC9_mu, result.Im_DeltaC9_mu);
+        result.deltaC[10]=std::complex<double>(result.Re_DeltaC10_mu, result.Im_DeltaC10_mu);
+        result.deltaCQ[1]=std::complex<double>(result.Re_DeltaCQ1_mu, result.Im_DeltaCQ1_mu);
+        result.deltaCQ[2]=std::complex<double>(result.Re_DeltaCQ2_mu, result.Im_DeltaCQ2_mu);
+
+        result.deltaC[17]=std::complex<double>(result.Re_DeltaC7_e, result.Im_DeltaC7_e);
+        result.deltaC[19]=std::complex<double>(result.Re_DeltaC9_e, result.Im_DeltaC9_e);
+        result.deltaC[20]=std::complex<double>(result.Re_DeltaC10_e, result.Im_DeltaC10_e);
+        result.deltaCQ[3]=std::complex<double>(result.Re_DeltaCQ1_e, result.Im_DeltaCQ1_e);
+        result.deltaCQ[4]=std::complex<double>(result.Re_DeltaCQ2_e, result.Im_DeltaCQ2_e);
+
+        result.deltaC[27]=std::complex<double>(result.Re_DeltaC7_tau, result.Im_DeltaC7_tau);
+        result.deltaC[29]=std::complex<double>(result.Re_DeltaC9_tau, result.Im_DeltaC9_tau);
+        result.deltaC[30]=std::complex<double>(result.Re_DeltaC10_tau, result.Im_DeltaC10_tau);
+        result.deltaCQ[5]=std::complex<double>(result.Re_DeltaCQ1_tau, result.Im_DeltaCQ1_tau);
+        result.deltaCQ[6]=std::complex<double>(result.Re_DeltaCQ2_tau, result.Im_DeltaCQ2_tau);
+      }
+
+      if (flav_debug) cout<<"Finished SuperIso_fill"<<endl;
     }
 
-
-    /// Br b-> s gamma decays
-    void SI_bsgamma(double &result)
+    /// Fill SuperIso nuisance structure
+    void SuperIso_nuisance_fill(nuisance &nuislist)
     {
-      using namespace Pipes::SI_bsgamma;
-      if (flav_debug) cout<<"Starting SI_bsgamma"<<endl;
+      using namespace Pipes::SuperIso_nuisance_fill;
+      if (flav_debug) cout<<"Starting SuperIso_nuisance_fill"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      double E_cut=1.6;
-      result=BEreq::bsgamma_CONV(&param, byVal(E_cut));
 
-      if (flav_debug) printf("BR(b->s gamma)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_bsgamma"<<endl;
+      BEreq::set_nuisance(&nuislist);
+      BEreq::set_nuisance_value_from_param(&nuislist,&param);
+
+      /* Here the nuisance parameters which should not be used for the correlation calculation have to be given a zero standard deviation.
+         E.g. nuislist.mass_b.dev=0.; */
+
+      if (flav_debug) cout<<"Finished SuperIso_nuisance_fill"<<endl;
     }
 
-
-    /// Br Bs->mumu decays for the untagged case (CP-averaged)
-    void SI_Bsmumu_untag(double &result)
+    /// Reorder a FlavBit observables list to match ordering expected by HEPLike
+    void update_obs_list(std::vector<str>& obs_list, const std::vector<str>& HL_obs_list)
     {
-      using namespace Pipes::SI_Bsmumu_untag;
-      if (flav_debug) cout<<"Starting SI_Bsmumu_untag"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      int flav=2;
-      result=BEreq::Bsll_untag_CONV(&param, byVal(flav));
-
-      if (flav_debug) printf("BR(Bs->mumu)_untag=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Bsmumu_untag"<<endl;
+      std::vector<str> FB_obs_list = translate_flav_obs("HEPLike", "FlavBit", HL_obs_list);
+      std::vector<str> temp;
+      for (auto it = FB_obs_list.begin(); it != FB_obs_list.end(); ++it)
+      {
+        if (std::find(obs_list.begin(), obs_list.end(), *it) != obs_list.end())
+        {
+          temp.push_back(*it);
+        }
+      }
+      obs_list = temp;
     }
 
-
-    /// Br Bs->ee decays for the untagged case (CP-averaged)
-    void SI_Bsee_untag(double &result)
+    /// Extract central values of the given observables from the central value map.
+    std::vector<double> get_obs_theory(const flav_prediction& prediction, const std::vector<std::string>& observables)
     {
-      using namespace Pipes::SI_Bsee_untag;
-      if (flav_debug) cout<<"Starting SI_Bsee_untag"<<endl;
+      if(flav_debug) std::cout<<"In get_obs_theory() function"<<std::endl;
+      std::vector<double> obs_theory;
+      obs_theory.reserve(observables.size());
+      for (unsigned int i = 0; i < observables.size(); ++i)
+      {
+        if(flav_debug) std::cout<<"Trying to find: "<<observables[i]<<std::endl;
+        obs_theory.push_back(prediction.central_values.at(observables[i]));
+      }
+      return obs_theory;
+    };
 
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      int flav=1;
-      result=BEreq::Bsll_untag_CONV(&param, byVal(flav));
-
-      if (flav_debug) printf("BR(Bs->ee)_untag=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Bsee_untag"<<endl;
-    }
-
-
-    /// Br B0->mumu decays
-    void SI_Bmumu(double &result)
+    /// Extract covariance matrix of the given observables from the covariance map.
+    boost::numeric::ublas::matrix<double> get_obs_covariance(const flav_prediction& prediction, const std::vector<std::string>& observables)
     {
-      using namespace Pipes::SI_Bmumu;
-      if (flav_debug) cout<<"Starting SI_Bmumu"<<endl;
+      boost::numeric::ublas::matrix<double> obs_covariance(observables.size(), observables.size());
+      for (unsigned int i = 0; i < observables.size(); ++i)
+      {
+        for (unsigned int j = 0; j < observables.size(); ++j)
+        {
+          obs_covariance(i, j) = prediction.covariance.at(observables[i]).at(observables[j]);
+        }
+      }
+      return obs_covariance;
+    };
 
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      int flav=2;
-      result=BEreq::Bll_CONV(&param, byVal(flav));
+    /// Helper function to avoid code duplication.
+    void SuperIso_prediction_helper(const std::vector<std::string>& FB_obslist, const std::vector<std::string>& SI_obslist, flav_prediction& result,
+                                    const parameters& param, const nuisance& nuislist,
+                                    void (*get_predictions_nuisance)(char**, int*, double**, const parameters*, const nuisance*),
+                                    void (*observables)(int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*),
+                                    void (*convert_correlation)(nuiscorr*, int, double**, char**, int),
+                                    void (*get_th_covariance_nuisance)(double***, char**, int*, const parameters*, const nuisance*, double**),
+                                    bool useSMCovariance,
+                                    bool SMCovarianceCached
+                                    )
+    {
+      if (flav_debug)
+      {
+        cout << "Starting SuperIso_prediction" << std::endl;
+        cout << "Changing convention. Before:"<<endl;
+        print(result,{"S3", "S4", "S5", "S8", "S9", "AT_Im"});
+      }
 
-      if (flav_debug) printf("BR(B->mumu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Bmumu"<<endl;
+      int nObservables = SI_obslist.size();
+      if (flav_debug) std::cout<<"Observables: "<<std::endl;
+
+      char obsnames[nObservables][50];
+      for(int iObservable = 0; iObservable < nObservables; iObservable++)
+      {
+        strcpy(obsnames[iObservable], SI_obslist[iObservable].c_str());
+        if( flav_debug) std::cout<<SI_obslist[iObservable].c_str()<<std::endl;
+      }
+
+      // ---------- CENTRAL VALUES ----------
+      double *result_central;
+
+      // Reserve memory
+      result_central = (double *) calloc(nObservables, sizeof(double));
+
+      // Needed for SuperIso backend
+      get_predictions_nuisance((char**)obsnames, &nObservables, &result_central, &param, &nuislist);
+
+      // Compute the central values
+      for(int iObservable = 0; iObservable < nObservables; ++iObservable)
+      {
+        result.central_values[FB_obslist[iObservable]] = result_central[iObservable];
+      }
+
+      // Free memory
+      free(result_central);
+      result_central = NULL;
+
+      if (flav_debug)
+      {
+        for(int iObservable = 0; iObservable < nObservables; ++iObservable)
+        {
+          printf("%s=%.4e\n", obsnames[iObservable], result.central_values[FB_obslist[iObservable]]);
+        }
+      }
+
+      //Switch the observables to LHCb convention
+      Kstarll_Theory2Experiment_translation(result.central_values, 1);
+      Kstarll_Theory2Experiment_translation(result.central_values, 2);
+
+      // If we need to compute the covariance, either because we're doing it for every point or we haven't cached the SM value, do it.
+      if (not useSMCovariance or not SMCovarianceCached)
+      {
+
+        // ---------- COVARIANCE ----------
+        static bool first = true;
+        static const int nNuisance=161;
+        static char namenuisance[nNuisance+1][50];
+        static double **corr=(double  **) malloc((nNuisance+1)*sizeof(double *));  // Nuisance parameter correlations
+
+        if (first)
+        {
+          observables(0, NULL, 0, NULL, NULL, &nuislist, (char **)namenuisance, &param); // Initialization of namenuisance
+
+          // Reserve memory
+          for(int iObservable = 0; iObservable <= nNuisance; ++iObservable)
+          {
+            corr[iObservable]=(double *) malloc((nNuisance+1)*sizeof(double));
+          }
+
+          // Needed for SuperIso backend
+          convert_correlation((nuiscorr *)corrnuis, byVal(ncorrnuis), (double **)corr, (char **)namenuisance, byVal(nNuisance));
+
+          first = false;
+        }
+
+        double **result_covariance;
+
+        if (useSMCovariance)
+        {
+          // Copy the parameters and set all Wilson Coefficients to 0 (SM values)
+          parameters param_SM = param;
+          for(int ie=1;ie<=30;ie++)
+          {
+            param_SM.deltaC[ie]=0.;
+            param_SM.deltaCp[ie]=0.;
+          }
+          for(int ie=1;ie<=6;ie++)
+          {
+            param_SM.deltaCQ[ie]=0.;
+            param_SM.deltaCQp[ie]=0.;
+          }
+          // Use the SM values of the parameters to calculate the SM theory covariance.
+          get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param_SM, &nuislist, (double **)corr);
+        }
+        else
+        {
+          // Calculate covariance at the new physics point.
+          get_th_covariance_nuisance(&result_covariance, (char**)obsnames, &nObservables, &param, &nuislist, (double **)corr);
+        }
+
+        // Fill the covariance matrix in the result structure
+        for(int iObservable=0; iObservable < nObservables; ++iObservable)
+        {
+          for(int jObservable = 0; jObservable < nObservables; ++jObservable)
+          {
+            result.covariance[FB_obslist[iObservable]][FB_obslist[jObservable]] = result_covariance[iObservable][jObservable];
+          }
+        }
+
+        //Switch the covariances to LHCb convention
+        Kstarll_Theory2Experiment_translation(result.covariance, 1);
+        Kstarll_Theory2Experiment_translation(result.covariance, 2);
+
+        // We are not freeing the memory because we made the variable static.
+        // Just keeping this for reference on how to clean up the allocated
+        // memory in case of non-static calculation of **corr.
+        // Free memory
+        //for(int iObservable = 0; iObservable <= nNuisance; ++iObservable) free(corr[iObservable]);
+        //free(corr);
+      }
+
+      if (flav_debug)
+      {
+        for(int iObservable=0; iObservable < nObservables; ++iObservable)
+        {
+          for(int jObservable = iObservable; jObservable < nObservables; ++jObservable)
+          {
+            printf("Covariance %s - %s: %.4e\n",
+              obsnames[iObservable], obsnames[jObservable], result.covariance[FB_obslist[iObservable]][FB_obslist[jObservable]]);
+           }
+        }
+        cout << "Changing convention. After:"<<endl;
+        print(result,{"S3", "S4", "S5", "S8", "S9", "AT_Im"});
+        std::cout << "Finished SuperIso_prediction" << std::endl;
+      }
+
     }
+
+
+    #define THE_REST(bins)                                          \
+      static const std::vector<str> SI_obslist =                    \
+       translate_flav_obs("FlavBit", "SuperIso", FB_obslist,        \
+       Utils::p2dot(bins));                                         \
+      static bool use_SM_covariance =                               \
+       runOptions->getValueOrDef<bool>(false, "use_SM_covariance"); \
+      static bool SM_covariance_cached = false;                     \
+      SuperIso_prediction_helper(                                   \
+        FB_obslist,                                                 \
+        SI_obslist,                                                 \
+        result,                                                     \
+        *Dep::SuperIso_modelinfo,                                   \
+        *Dep::SuperIso_nuisance,                                    \
+        BEreq::get_predictions_nuisance.pointer(),                  \
+        BEreq::observables.pointer(),                               \
+        BEreq::convert_correlation.pointer(),                       \
+        BEreq::get_th_covariance_nuisance.pointer(),                \
+        use_SM_covariance,                                          \
+        SM_covariance_cached                                        \
+    );                                                              \
+    SM_covariance_cached = true;
+
+    #define SI_SINGLE_PREDICTION_FUNCTION(name)                          \
+    void CAT(SuperIso_prediction_,name)(flav_prediction& result)         \
+    {                                                                    \
+      using namespace CAT(Pipes::SuperIso_prediction_,name);             \
+      static const std::vector<str> FB_obslist = {#name};                \
+      THE_REST("")                                                       \
+    }                                                                    \
+
+    #define SI_SINGLE_PREDICTION_FUNCTION_BINS(name,bins)                \
+    void CAT_3(SuperIso_prediction_,name,bins)(flav_prediction& result)  \
+    {                                                                    \
+      using namespace CAT_3(Pipes::SuperIso_prediction_,name,bins);      \
+      static const std::vector<str> FB_obslist = {#name};                \
+      THE_REST(#bins)                                                    \
+    }                                                                    \
+
+    #define SI_MULTI_PREDICTION_FUNCTION(name)                           \
+    void CAT(SuperIso_prediction_,name)(flav_prediction& result)         \
+    {                                                                    \
+      using namespace CAT(Pipes::SuperIso_prediction_,name);             \
+      static const std::vector<str> FB_obslist =                         \
+       Downstream::subcaps->getNames();                                  \
+      if (FB_obslist.empty()) FlavBit_error().raise(LOCAL_INFO,          \
+       "Missing subcapabilities for SuperIso_prediction_"#name".");      \
+      THE_REST("")                                                       \
+    }                                                                    \
+
+    #define SI_MULTI_PREDICTION_FUNCTION_BINS(name,bins,exp)             \
+    void CAT_4(SuperIso_prediction_,name,bins,exp)(flav_prediction&      \
+     result)                                                             \
+    {                                                                    \
+      using namespace CAT_4(Pipes::SuperIso_prediction_,name,bins,exp);  \
+      static const std::vector<str> FB_obslist =                         \
+       Downstream::subcaps->getNames();                                  \
+      if (FB_obslist.empty()) FlavBit_error().raise(LOCAL_INFO,          \
+       "Missing subcapabilities for SuperIso_prediction_"#name".");      \
+      THE_REST(#bins)                                                    \
+    }                                                                    \
+
+    SI_SINGLE_PREDICTION_FUNCTION(B2taunu)
+    SI_SINGLE_PREDICTION_FUNCTION(b2sgamma)
+
+    SI_SINGLE_PREDICTION_FUNCTION(B2Kstargamma)
+    SI_SINGLE_PREDICTION_FUNCTION(BRBXsmumu_lowq2)
+    SI_SINGLE_PREDICTION_FUNCTION(BRBXsmumu_highq2)
+    SI_SINGLE_PREDICTION_FUNCTION(AFBBXsmumu_lowq2)
+    SI_SINGLE_PREDICTION_FUNCTION(AFBBXsmumu_highq2)
+
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(Bs2phimumuBr,_1_6)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(Bs2phimumuBr,_15_19)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_0p1_0p98)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_1p1_2p5)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_2p5_4)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_4_6)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_6_8)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KstarmumuBr,_15_19)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_0p05_2)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_2_4p3)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_4p3_8p68)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_14p18_16)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_16_18)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_18_22)
+    // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
+    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RK_LHCb,_1p1_6)
+    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_0p045_1p1)
+    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_1p1_6)
+
+    // The sub-capabilities that may be received from likelihood functions in order to feed them valid observables are listed
+    // below. In principle though, these functions will accept as sub-capabilities *any* recognised SuperIso observable names.
+    // The recognised observable names can be found in the check_nameobs function in src/chi2.c in SuperIso.
+    SI_MULTI_PREDICTION_FUNCTION(B2mumu)                                // Typical subcaps: BRuntag_Bsmumu, BR_Bdmumu
+    //SI_MULTI_PREDICTION_FUNCTION(RDRDstar)                            // TODO: Typical subcaps: RD, RDstar
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_0p1_2,_Atlas)     // Typical subcaps: FL, S3, S4, S5, S7, S8
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_2_4,_Atlas)       // Typical subcaps: FL, S3, S4, S5, S7, S8
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_4_8,_Atlas)       // Typical subcaps: FL, S3, S4, S5, S7, S8
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_1_2,_CMS)         // Typical subcaps: P1, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_2_4p3,_CMS)       // Typical subcaps: P1, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_4p3_6,_CMS)       // Typical subcaps: P1, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_6_8p68,_CMS)      // Typical subcaps: P1, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_10p09_12p86,_CMS) // Typical subcaps: P1, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_14p18_16,_CMS)    // Typical subcaps: P1, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_16_19,_CMS)       // Typical subcaps: P1, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_0p1_4,_Belle)     // Typical subcaps: P4prime, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_4_8,_Belle)       // Typical subcaps: P4prime, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_10p9_12p9,_Belle) // Typical subcaps: P4prime, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_14p18_19,_Belle)  // Typical subcaps: P4prime, P5prime
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_0p1_0p98,_LHCb)   // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_1p1_2p5,_LHCb)    // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_2p5_4,_LHCb)      // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_4_6,_LHCb)        // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_6_8,_LHCb)        // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstarmumuAng,_15_19,_LHCb)      // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9
+    SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstareeAng,_0p0008_0p257,_LHCb) // Typical subcaps: FLee, AT_Re, AT_2, AT_Im
+
+    #undef SI_PRED_HELPER_CALL
+    #undef SI_SINGLE_PREDICTION_FUNCTION
+    #undef SI_SINGLE_PREDICTION_FUNCTION_BINS
+    #undef SI_MULTI_PREDICTION_FUNCTION
+    #undef SI_MULTI_PREDICTION_FUNCTION_BINS
 
 
     /// Br B->tau nu_tau decays
-    void SI_Btaunu(double &result)
+    void SuperIso_prediction_Btaunu(double &result)
     {
-      using namespace Pipes::SI_Btaunu;
-      if (flav_debug) cout<<"Starting SI_Btaunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_Btaunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_Btaunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Btaunu(&param);
 
       if (flav_debug) printf("BR(B->tau nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Btaunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_Btaunu"<<endl;
     }
 
 
     /// Br B->D_s tau nu
-    void SI_Dstaunu(double &result)
+    void SuperIso_prediction_Dstaunu(double &result)
     {
-      using namespace Pipes::SI_Dstaunu;
-      if (flav_debug) cout<<"Starting SI_Dstaunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_Dstaunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_Dstaunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Dstaunu(&param);
 
       if (flav_debug) printf("BR(Ds->tau nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Dstaunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_Dstaunu"<<endl;
     }
 
 
     /// Br B->D_s mu nu
-    void SI_Dsmunu(double &result)
+    void SuperIso_prediction_Dsmunu(double &result)
     {
-      using namespace Pipes::SI_Dsmunu;
-      if (flav_debug) cout<<"Starting SI_Dsmunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_Dsmunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_Dsmunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Dsmunu(&param);
 
       if (flav_debug) printf("BR(Ds->mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Dsmunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_Dsmunu"<<endl;
     }
 
 
     /// Br D -> mu nu
-    void SI_Dmunu(double &result)
+    void SuperIso_prediction_Dmunu(double &result)
     {
-      using namespace Pipes::SI_Dmunu;
-      if (flav_debug) cout<<"Starting SI_Dmunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_Dmunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_Dmunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Dmunu(&param);
 
       if (flav_debug) printf("BR(D->mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Dmunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_Dmunu"<<endl;
     }
 
 
     /// Br B -> D tau nu
-    void SI_BDtaunu(double &result)
+    void SuperIso_prediction_BDtaunu(double &result)
     {
-      using namespace Pipes::SI_BDtaunu;
-      if (flav_debug) cout<<"Starting SI_BDtaunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_BDtaunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_BDtaunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -631,15 +1163,15 @@ namespace Gambit
       result=BEreq::BRBDlnu(byVal(gen_tau_D), byVal( charge_tau_D), byVal(q2_min_tau_D), byVal(q2_max_tau_D), byVal(obs_tau_D), &param);
 
       if (flav_debug) printf("BR(B-> D tau nu )=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_BDtaunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_BDtaunu"<<endl;
     }
 
 
     /// Br B -> D mu nu
-    void SI_BDmunu(double &result)
+    void SuperIso_prediction_BDmunu(double &result)
     {
-      using namespace Pipes::SI_BDmunu;
-      if (flav_debug) cout<<"Starting SI_BDmunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_BDmunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_BDmunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -653,15 +1185,15 @@ namespace Gambit
       result= BEreq::BRBDlnu(byVal(gen_mu_D), byVal( charge_mu_D), byVal(q2_min_mu_D), byVal(q2_max_mu_D), byVal(obs_mu_D), &param);
 
       if (flav_debug) printf("BR(B->D mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_BDmunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_BDmunu"<<endl;
     }
 
 
     /// Br B -> D* tau nu
-    void SI_BDstartaunu(double &result)
+    void SuperIso_prediction_BDstartaunu(double &result)
     {
-      using namespace Pipes::SI_BDstartaunu;
-      if (flav_debug) cout<<"Starting SI_BDstartaunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_BDstartaunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_BDstartaunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -670,20 +1202,20 @@ namespace Gambit
       double q2_max_tau_Dstar = 10.67;   //(5.279-2.01027)*(5.279-2.01027);
       int gen_tau_Dstar        =3;
       int charge_tau_Dstar     =1;// D* is the charged version
-      double obs_tau_Dstar[3];
+      double obs_tau_Dstar[4];
 
       result= BEreq::BRBDstarlnu(byVal(gen_tau_Dstar), byVal( charge_tau_Dstar), byVal(q2_min_tau_Dstar), byVal(q2_max_tau_Dstar), byVal(obs_tau_Dstar), &param);
 
       if (flav_debug) printf("BR(B->Dstar tau nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_BDstartaunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_BDstartaunu"<<endl;
     }
 
 
     /// Br B -> D* mu nu
-    void SI_BDstarmunu(double &result)
+    void SuperIso_prediction_BDstarmunu(double &result)
     {
-      using namespace Pipes::SI_BDstarmunu;
-      if (flav_debug) cout<<"Starting SI_BDstarmunu"<<endl;
+      using namespace Pipes::SuperIso_prediction_BDstarmunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_BDstarmunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -692,227 +1224,124 @@ namespace Gambit
       double q2_max_mu_Dstar = 10.67;   //(5.279-2.01027)*(5.279-2.01027);
       int gen_mu_Dstar        =2;
       int charge_mu_Dstar     =1;// D* is the charged version
-      double obs_mu_Dstar[3];
+      double obs_mu_Dstar[4];
 
       result=BEreq::BRBDstarlnu(byVal(gen_mu_Dstar), byVal( charge_mu_Dstar), byVal(q2_min_mu_Dstar), byVal(q2_max_mu_Dstar), byVal(obs_mu_Dstar), &param);
 
       if (flav_debug) printf("BR(B->Dstar mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_BDstarmunu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_BDstarmunu"<<endl;
     }
 
 
     ///  B-> D tau nu / B-> D e nu decays
-    void SI_RD(double &result)
+    void SuperIso_prediction_RD(double &result)
     {
-      using namespace Pipes::SI_RD;
-      if (flav_debug) cout<<"Starting SI_RD"<<endl;
+      using namespace Pipes::SuperIso_prediction_RD;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_RD"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::BDtaunu_BDenu(&param);
 
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D e nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_RD"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_RD"<<endl;
     }
 
 
     ///  B->D* tau nu / B-> D* e nu decays
-    void SI_RDstar(double &result)
+    void SuperIso_prediction_RDstar(double &result)
     {
-      using namespace Pipes::SI_RDstar;
-      if (flav_debug) cout<<"Starting SI_RDstart"<<endl;
+      using namespace Pipes::SuperIso_prediction_RDstar;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_RDstar"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::BDstartaunu_BDstarenu(&param);
 
       if (flav_debug) printf("BR(B->D* tau nu)/BR(B->D* e nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_RD*"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_RD*"<<endl;
     }
 
 
     /// B->K mu nu / B-> pi mu nu
-    void SI_Rmu(double &result)
+    void SuperIso_prediction_Rmu(double &result)
     {
-      using namespace Pipes::SI_Rmu;
-      if (flav_debug) cout<<"Starting SI_Rmu"<<endl;
+      using namespace Pipes::SuperIso_prediction_Rmu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_Rmu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Kmunu_pimunu(&param);
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Rmu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_Rmu"<<endl;
     }
 
 
     /// 2-to-3-body decay ratio for semileptonic K and pi decays
-    void SI_Rmu23(double &result)
+    void SuperIso_prediction_Rmu23(double &result)
     {
-      using namespace Pipes::SI_Rmu23;
-      if (flav_debug) cout<<"Starting SI_Rmu23"<<endl;
+      using namespace Pipes::SuperIso_prediction_Rmu23;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_Rmu23"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Rmu23(&param);
 
       if (flav_debug) printf("Rmu23=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_Rmu23"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_Rmu23"<<endl;
     }
 
 
     /// Delta_0 (CP-averaged isospin asymmetry of B -> K* gamma)
-    void SI_delta0(double &result)
+    void SuperIso_prediction_delta0(double &result)
     {
-      using namespace Pipes::SI_delta0;
-      if (flav_debug) cout<<"Starting SI_delta0"<<endl;
+      using namespace Pipes::SuperIso_prediction_delta0;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_delta0"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::delta0_CONV(&param);
+      result=BEreq::modified_delta0(&param);
 
       if (flav_debug) printf("Delta0(B->K* gamma)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_delta0"<<endl;
-    }
-
-
-    /// Inclusive branching fraction B -> X_s mu mu at low q^2
-    void SI_BRBXsmumu_lowq2(double &result)
-    {
-      using namespace Pipes::SI_BRBXsmumu_lowq2;
-      if (flav_debug) cout<<"Starting SI_BRBXsmumu_lowq2"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::BRBXsmumu_lowq2_CONV(&param);
-
-      if (flav_debug) printf("BR(B->Xs mu mu)_lowq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_BRBXsmumu_lowq2"<<endl;
-    }
-
-
-    /// Inclusive branching fraction B -> X_s mu mu at high q^2
-    void SI_BRBXsmumu_highq2(double &result)
-    {
-      using namespace Pipes::SI_BRBXsmumu_highq2;
-      if (flav_debug) cout<<"Starting SI_BRBXsmumu_highq2"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::BRBXsmumu_highq2_CONV(&param);
-
-      if (flav_debug) printf("BR(B->Xs mu mu)_highq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_BRBXsmumu_highq2"<<endl;
-    }
-
-
-    /// Forward-backward asymmetry of B -> X_s mu mu at low q^2
-    void SI_A_BXsmumu_lowq2(double &result)
-    {
-      using namespace Pipes::SI_A_BXsmumu_lowq2;
-      if (flav_debug) cout<<"Starting SI_A_BXsmumu_lowq2"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::A_BXsmumu_lowq2_CONV(&param);
-
-      if (flav_debug) printf("AFB(B->Xs mu mu)_lowq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_A_BXsmumu_lowq2"<<endl;
-    }
-
-
-    /// Forward-backward asymmetry of B -> X_s mu mu at high q^2
-    void SI_A_BXsmumu_highq2(double &result)
-    {
-      using namespace Pipes::SI_A_BXsmumu_highq2;
-      if (flav_debug) cout<<"Starting SI_A_BXsmumu_highq2"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::A_BXsmumu_highq2_CONV(&param);
-
-      if (flav_debug) printf("AFB(B->Xs mu mu)_highq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_A_BXsmumu_highq2"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_delta0"<<endl;
     }
 
 
     /// Zero crossing of the forward-backward asymmetry of B -> X_s mu mu
-    void SI_A_BXsmumu_zero(double &result)
+    void SuperIso_prediction_A_BXsmumu_zero(double &result)
     {
-      using namespace Pipes::SI_A_BXsmumu_zero;
-      if (flav_debug) cout<<"Starting SI_A_BXsmumu_zero"<<endl;
+      using namespace Pipes::SuperIso_prediction_A_BXsmumu_zero;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_A_BXsmumu_zero"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::A_BXsmumu_zero_CONV(&param);
+      result=BEreq::A_BXsmumu_zero(&param);
 
       if (flav_debug) printf("AFB(B->Xs mu mu)_zero=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_A_BXsmumu_zero"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_A_BXsmumu_zero"<<endl;
     }
 
 
     /// Inclusive branching fraction B -> X_s tau tau at high q^2
-    void SI_BRBXstautau_highq2(double &result)
+    void SuperIso_prediction_BRBXstautau_highq2(double &result)
     {
-      using namespace Pipes::SI_BRBXstautau_highq2;
-      if (flav_debug) cout<<"Starting SI_BRBXstautau_highq2"<<endl;
+      using namespace Pipes::SuperIso_prediction_BRBXstautau_highq2;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_BRBXstautau_highq2"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::BRBXstautau_highq2_CONV(&param);
+      result=BEreq::BRBXstautau_highq2(&param);
 
       if (flav_debug) printf("BR(B->Xs tau tau)_highq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_BRBXstautau_highq2"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_BRBXstautau_highq2"<<endl;
     }
 
 
     /// Forward-backward asymmetry of B -> X_s tau tau at high q^2
-    void SI_A_BXstautau_highq2(double &result)
+    void SuperIso_prediction_A_BXstautau_highq2(double &result)
     {
-      using namespace Pipes::SI_A_BXstautau_highq2;
-      if (flav_debug) cout<<"Starting SI_A_BXstautau_highq2"<<endl;
+      using namespace Pipes::SuperIso_prediction_A_BXstautau_highq2;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_A_BXstautau_highq2"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::A_BXstautau_highq2_CONV(&param);
+      result=BEreq::A_BXstautau_highq2(&param);
 
       if (flav_debug) printf("AFB(B->Xs tau tau)_highq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_A_BXstautau_highq2"<<endl;
-    }
-
-
-    /// B-> K* mu mu observables in different q^2 bins
-    /// @{
-    #define DEFINE_BKSTARMUMU(Q2MIN, Q2MAX, Q2MIN_TAG, Q2MAX_TAG)                         \
-    void CAT_4(SI_BKstarmumu_,Q2MIN_TAG,_,Q2MAX_TAG)(Flav_KstarMuMu_obs &result)          \
-    {                                                                                       \
-      using namespace Pipes::CAT_4(SI_BKstarmumu_,Q2MIN_TAG,_,Q2MAX_TAG);                 \
-      if (flav_debug) cout<<"Starting " STRINGIFY(CAT_4(SI_BKstarmumu_,Q2MIN_TAG,_,Q2MAX_TAG))<<endl; \
-      parameters const& param = *Dep::SuperIso_modelinfo;                                   \
-      result=BEreq::BKstarmumu_CONV(&param, Q2MIN, Q2MAX);                                \
-      if (flav_debug) cout<<"Finished " STRINGIFY(CAT_4(SI_BKstarmumu_,Q2MIN_TAG,_,Q2MAX_TAG))<<endl; \
-    }
-    DEFINE_BKSTARMUMU(1.1, 2.5, 11, 25)
-    DEFINE_BKSTARMUMU(2.5, 4.0, 25, 40)
-    DEFINE_BKSTARMUMU(4.0, 6.0, 40, 60)
-    DEFINE_BKSTARMUMU(6.0, 8.0, 60, 80)
-    DEFINE_BKSTARMUMU(15., 17., 15, 17)
-    DEFINE_BKSTARMUMU(17., 19., 17, 19)
-    /// @}
-    #undef DEFINE_BKSTARMUMU
-
-    /// RK* in low q^2
-    void SI_RKstar_0045_11(double &result)
-    {
-      using namespace Pipes::SI_RKstar_0045_11;
-      if (flav_debug) cout<<"Starting SI_RKstar_0045_11"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RKstar_CONV(&param,0.045,1.1);
-
-      if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_RKstar_0045_11"<<endl;
-    }
-
-    /// RK* in intermediate q^2
-    void SI_RKstar_11_60(double &result)
-    {
-      using namespace Pipes::SI_RKstar_11_60;
-      if (flav_debug) cout<<"Starting SI_RKstar_11_60"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RKstar_CONV(&param,1.1,6.0);
-
-      if (flav_debug) printf("RK*_intermq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_RKstar_11_60"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_A_BXstautau_highq2"<<endl;
     }
 
     // RK* for RHN, using same approximations as RK, low q^2
@@ -987,19 +1416,6 @@ namespace Gambit
 
     }
 
-    /// RK between 1 and 6 GeV^2
-    void SI_RK(double &result)
-    {
-      using namespace Pipes::SI_RK;
-      if (flav_debug) cout<<"Starting SI_RK"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RK_CONV(&param,1.0,6.0);
-
-      if (flav_debug) printf("RK=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_RK"<<endl;
-    }
-
     /// RK for RHN
     void RHN_RK(double &result)
     {
@@ -1036,40 +1452,40 @@ namespace Gambit
     }
 
     /// Isospin asymmetry of B-> K* mu mu
-    void SI_AI_BKstarmumu(double &result)
+    void SuperIso_prediction_AI_BKstarmumu(double &result)
     {
-      using namespace Pipes::SI_AI_BKstarmumu;
-      if (flav_debug) cout<<"Starting SI_AI_BKstarmumu"<<endl;
+      using namespace Pipes::SuperIso_prediction_AI_BKstarmumu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_AI_BKstarmumu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::SI_AI_BKstarmumu_CONV(&param);
+      result=BEreq::modified_AI_BKstarmumu(&param);
 
       if (flav_debug) printf("A_I(B->K* mu mu)_lowq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_AI_BKstarmumu"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_AI_BKstarmumu"<<endl;
     }
 
 
     /// Zero crossing of isospin asymmetry of B-> K* mu mu
-    void SI_AI_BKstarmumu_zero(double &result)
+    void SuperIso_prediction_AI_BKstarmumu_zero(double &result)
     {
-      using namespace Pipes::SI_AI_BKstarmumu_zero;
+      using namespace Pipes::SuperIso_prediction_AI_BKstarmumu_zero;
 
-      if (flav_debug) cout<<"Starting SI_AI_BKstarmumu_zero"<<endl;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_AI_BKstarmumu_zero"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::SI_AI_BKstarmumu_zero_CONV(&param);
+      result=BEreq::modified_AI_BKstarmumu_zero(&param);
 
       if (flav_debug) printf("A_I(B->K* mu mu)_zero=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SI_AI_BKstarmumu_zero"<<endl;
+      if (flav_debug) cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<<endl;
     }
 
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
-    void FH_FlavourObs(fh_FlavourObs &result)
+    void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
     {
-      using namespace Pipes::FH_FlavourObs;
+      using namespace Pipes::FeynHiggs_FlavourObs;
 
-      if (flav_debug) cout<<"Starting FH_FlavourObs"<<endl;
+      if (flav_debug) cout<<"Starting FeynHiggs_FlavourObs"<<endl;
 
       fh_real bsgMSSM;     // B -> Xs gamma in MSSM
       fh_real bsgSM;       // B -> Xs gamma in SM
@@ -1083,7 +1499,7 @@ namespace Gambit
            deltaMsMSSM, deltaMsSM,
            bsmumuMSSM, bsmumuSM);
 
-      fh_FlavourObs FlavourObs;
+      fh_FlavourObs_container FlavourObs;
       FlavourObs.Bsg_MSSM = bsgMSSM;
       FlavourObs.Bsg_SM = bsgSM;
       FlavourObs.deltaMs_MSSM = deltaMsMSSM;
@@ -1092,180 +1508,25 @@ namespace Gambit
       FlavourObs.Bsmumu_SM = bsmumuSM;
 
       result = FlavourObs;
-      if (flav_debug) cout<<"Finished FH_FlavourObs"<<endl;
+      if (flav_debug) cout<<"Finished FeynHiggs_FlavourObs"<<endl;
     }
 
 
     ///These functions extract observables from a FeynHiggs flavour result
     ///@{
-    void FH_bsgamma(double &result)
+    void FeynHiggs_prediction_bsgamma(double &result)
     {
-      result = Pipes::FH_bsgamma::Dep::FH_FlavourObs->Bsg_MSSM;
+      result = Pipes::FeynHiggs_prediction_bsgamma::Dep::FlavourObs->Bsg_MSSM;
     }
-    void FH_Bsmumu (double &result)
+    void FeynHiggs_prediction_Bsmumu (double &result)
     {
-      result = Pipes::FH_Bsmumu::Dep::FH_FlavourObs->Bsmumu_MSSM;
+      result = Pipes::FeynHiggs_prediction_Bsmumu::Dep::FlavourObs->Bsmumu_MSSM;
     }
-    void FH_DeltaMs(double &result)
+    void FeynHiggs_prediction_DeltaMs(double &result)
     {
-      result = Pipes::FH_DeltaMs::Dep::FH_FlavourObs->deltaMs_MSSM;
+      result = Pipes::FeynHiggs_prediction_DeltaMs::Dep::FlavourObs->deltaMs_MSSM;
     }
     ///@}
-
-
-    /// Measurements for electroweak penguin decays
-    void b2sll_measurements(predictions_measurements_covariances &pmc)
-    {
-      using namespace Pipes::b2sll_measurements;
-
-      static bool first = true;
-      static int n_experiments;
-
-      if (flav_debug) cout<<"Starting b2sll_measurements function"<<endl;
-      if (flav_debug and first) cout <<"Initialising Flav Reader in b2sll_measurements"<<endl;
-
-      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
-      if (first)
-      {
-        pmc.LL_name="b2sll_likelihood";
-
-        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-        fread.debug_mode(flav_debug);
-
-        const vector<string> observablesn = {"FL", "AFB", "S3", "S4", "S5", "S7", "S8", "S9"};
-        const vector<string> observablesq = {"1.1-2.5", "2.5-4", "4-6", "6-8", "15-17", "17-19"};
-        vector<string> observables;
-        for (unsigned i=0;i<observablesq.size();++i)
-        {
-          for (unsigned j=0;j<observablesn.size();++j)
-          {
-            observables.push_back(observablesn[j]+"_B0Kstar0mumu_"+observablesq[i]);
-          }
-        }
-
-        for (unsigned i=0;i<observables.size();++i)
-        {
-          fread.read_yaml_measurement("flav_data.yaml", observables[i]);
-        }
-
-        fread.initialise_matrices();
-        pmc.cov_exp = fread.get_exp_cov();
-        pmc.value_exp = fread.get_exp_value();
-        pmc.cov_th = Kstarmumu_theory_err().get_th_cov(observables);
-        n_experiments = pmc.cov_th.size1();
-        pmc.value_th.resize(n_experiments,1);
-        pmc.dim=n_experiments;
-
-        // We assert that the experiments and the observables are the same size
-        assert(pmc.value_exp.size1() == observables.size());
-
-        // Init out.
-        first = false;
-      }
-
-      pmc.value_th(0,0)=Dep::BKstarmumu_11_25->FL;
-      pmc.value_th(1,0)=Dep::BKstarmumu_11_25->AFB;
-      pmc.value_th(2,0)=Dep::BKstarmumu_11_25->S3;
-      pmc.value_th(3,0)=Dep::BKstarmumu_11_25->S4;
-      pmc.value_th(4,0)=Dep::BKstarmumu_11_25->S5;
-      pmc.value_th(5,0)=Dep::BKstarmumu_11_25->S7;
-      pmc.value_th(6,0)=Dep::BKstarmumu_11_25->S8;
-      pmc.value_th(7,0)=Dep::BKstarmumu_11_25->S9;
-
-      pmc.value_th(8,0)=Dep::BKstarmumu_25_40->FL;
-      pmc.value_th(9,0)=Dep::BKstarmumu_25_40->AFB;
-      pmc.value_th(10,0)=Dep::BKstarmumu_25_40->S3;
-      pmc.value_th(11,0)=Dep::BKstarmumu_25_40->S4;
-      pmc.value_th(12,0)=Dep::BKstarmumu_25_40->S5;
-      pmc.value_th(13,0)=Dep::BKstarmumu_25_40->S7;
-      pmc.value_th(14,0)=Dep::BKstarmumu_25_40->S8;
-      pmc.value_th(15,0)=Dep::BKstarmumu_25_40->S9;
-
-      pmc.value_th(16,0)=Dep::BKstarmumu_40_60->FL;
-      pmc.value_th(17,0)=Dep::BKstarmumu_40_60->AFB;
-      pmc.value_th(18,0)=Dep::BKstarmumu_40_60->S3;
-      pmc.value_th(19,0)=Dep::BKstarmumu_40_60->S4;
-      pmc.value_th(20,0)=Dep::BKstarmumu_40_60->S5;
-      pmc.value_th(21,0)=Dep::BKstarmumu_40_60->S7;
-      pmc.value_th(22,0)=Dep::BKstarmumu_40_60->S8;
-      pmc.value_th(23,0)=Dep::BKstarmumu_40_60->S9;
-
-      pmc.value_th(24,0)=Dep::BKstarmumu_60_80->FL;
-      pmc.value_th(25,0)=Dep::BKstarmumu_60_80->AFB;
-      pmc.value_th(26,0)=Dep::BKstarmumu_60_80->S3;
-      pmc.value_th(27,0)=Dep::BKstarmumu_60_80->S4;
-      pmc.value_th(28,0)=Dep::BKstarmumu_60_80->S5;
-      pmc.value_th(29,0)=Dep::BKstarmumu_60_80->S7;
-      pmc.value_th(30,0)=Dep::BKstarmumu_60_80->S8;
-      pmc.value_th(31,0)=Dep::BKstarmumu_60_80->S9;
-
-      pmc.value_th(32,0)=Dep::BKstarmumu_15_17->FL;
-      pmc.value_th(33,0)=Dep::BKstarmumu_15_17->AFB;
-      pmc.value_th(34,0)=Dep::BKstarmumu_15_17->S3;
-      pmc.value_th(35,0)=Dep::BKstarmumu_15_17->S4;
-      pmc.value_th(36,0)=Dep::BKstarmumu_15_17->S5;
-      pmc.value_th(37,0)=Dep::BKstarmumu_15_17->S7;
-      pmc.value_th(38,0)=Dep::BKstarmumu_15_17->S8;
-      pmc.value_th(39,0)=Dep::BKstarmumu_15_17->S9;
-
-      pmc.value_th(40,0)=Dep::BKstarmumu_17_19->FL;
-      pmc.value_th(41,0)=Dep::BKstarmumu_17_19->AFB;
-      pmc.value_th(42,0)=Dep::BKstarmumu_17_19->S3;
-      pmc.value_th(43,0)=Dep::BKstarmumu_17_19->S4;
-      pmc.value_th(44,0)=Dep::BKstarmumu_17_19->S5;
-      pmc.value_th(45,0)=Dep::BKstarmumu_17_19->S7;
-      pmc.value_th(46,0)=Dep::BKstarmumu_17_19->S8;
-      pmc.value_th(47,0)=Dep::BKstarmumu_17_19->S9;
-
-      pmc.diff.clear();
-      for (int i=0;i<n_experiments;++i)
-      {
-        pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
-      }
-
-      if (flav_debug) cout<<"Finished b2sll_measurements function"<<endl;
-    }
-
-
-    /// Likelihood for electroweak penguin decays
-    void b2sll_likelihood(double &result)
-    {
-      using namespace Pipes::b2sll_likelihood;
-
-      if (flav_debug) cout<<"Starting b2sll_likelihood"<<endl;
-
-      // Get experimental measurements
-      predictions_measurements_covariances pmc=*Dep::b2sll_M;
-
-      // Get experimental covariance
-      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
-
-      // adding theory and experimenta covariance
-      cov+=pmc.cov_th;
-
-      //calculating a diff
-      vector<double> diff;
-      diff=pmc.diff;
-      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
-      InvertMatrix(cov, cov_inv);
-
-      double Chi2=0;
-
-      for (int i=0; i < pmc.dim; ++i)
-      {
-        for (int j=0; j<pmc.dim; ++j)
-        {
-          Chi2+= diff[i] * cov_inv(i,j)*diff[j] ;
-        }
-      }
-
-      result=-0.5*Chi2;
-
-      if (flav_debug) cout<<"Finished b2sll_likelihood"<<endl;
-      if (flav_debug_LL) cout<<"Likelihood result b2sll_likelihood : "<< result<<endl;
-
-    }
-
 
     /// Likelihood for Delta Ms
     void deltaMB_likelihood(double &result)
@@ -1293,7 +1554,7 @@ namespace Gambit
       if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_DeltaMs_err << " " << th_err << endl;
 
       // Now we do the stuff that actually depends on the parameters
-      double theory_prediction = *Dep::DeltaMs;
+      double theory_prediction = *Dep::prediction_DeltaMs;
       double theory_DeltaMs_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
       if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_DeltaMs_err<<endl;
 
@@ -1302,152 +1563,6 @@ namespace Gambit
 
       result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_DeltaMs_err, exp_DeltaMs_err, profile);
     }
-
-
-    /// Likelihood for b->s gamma
-    void b2sgamma_likelihood(double &result)
-    {
-      using namespace Pipes::b2sgamma_likelihood;
-
-      static bool th_err_absolute, first = true;
-      static double exp_meas, exp_b2sgamma_err, th_err;
-
-      if (flav_debug) cout << "Starting b2sgamma_measurements"<<endl;
-
-      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
-      if (first)
-      {
-        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-        fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in b2sgamma_measurements"<<endl;
-        fread.read_yaml_measurement("flav_data.yaml", "BR_b2sgamma");
-        fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
-        exp_meas = fread.get_exp_value()(0,0);
-        exp_b2sgamma_err = sqrt(fread.get_exp_cov()(0,0));
-        th_err = fread.get_th_err()(0,0).first;
-        th_err_absolute = fread.get_th_err()(0,0).second;
-        first = false;
-      }
-
-      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_b2sgamma_err << " " << th_err << endl;
-
-      // Now we do the stuff that actually depends on the parameters
-      double theory_prediction = *Dep::bsgamma;
-      double theory_b2sgamma_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_b2sgamma_err<<endl;
-
-      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
-      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
-
-      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_b2sgamma_err, exp_b2sgamma_err, profile);
-    }
-
-
-    /// Measurements for rare purely leptonic B decays
-    void b2ll_measurements(predictions_measurements_covariances &pmc)
-    {
-      using namespace Pipes::b2ll_measurements;
-
-      static bool bs2mumu_err_absolute, b2mumu_err_absolute, first = true;
-      static double theory_bs2mumu_err, theory_b2mumu_err;
-
-      if (flav_debug) cout<<"Starting b2ll_measurements"<<endl;
-
-      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
-      if (first)
-      {
-        pmc.LL_name="b2ll_likelihood";
-
-        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-        fread.debug_mode(flav_debug);
-
-        if (flav_debug) cout<<"Initiated Flav reader in b2ll_measurements"<<endl;
-        fread.read_yaml_measurement("flav_data.yaml", "BR_Bs2mumu");
-        fread.read_yaml_measurement("flav_data.yaml", "BR_B02mumu");
-        if (flav_debug) cout<<"Finished reading b->mumu data"<<endl;
-
-        fread.initialise_matrices();
-
-        theory_bs2mumu_err = fread.get_th_err()(0,0).first;
-        theory_b2mumu_err = fread.get_th_err()(1,0).first;
-        bs2mumu_err_absolute = fread.get_th_err()(0,0).second;
-        b2mumu_err_absolute = fread.get_th_err()(1,0).second;
-
-        pmc.value_exp=fread.get_exp_value();
-        pmc.cov_exp=fread.get_exp_cov();
-
-        pmc.value_th.resize(2,1);
-        pmc.cov_th.resize(2,2);
-
-        pmc.dim=2;
-
-        // Init over and out.
-        first = false;
-      }
-
-      // Get theory prediction
-      pmc.value_th(0,0)=*Dep::Bsmumu_untag;
-      pmc.value_th(1,0)=*Dep::Bmumu;
-
-      // Compute error on theory prediction and populate the covariance matrix
-      double theory_bs2mumu_error = theory_bs2mumu_err * (bs2mumu_err_absolute ? 1.0 : *Dep::Bsmumu_untag);
-      double theory_b2mumu_error = theory_b2mumu_err * (b2mumu_err_absolute ? 1.0 : *Dep::Bmumu);
-      pmc.cov_th(0,0)=theory_bs2mumu_error*theory_bs2mumu_error;
-      pmc.cov_th(0,1)=0.;
-      pmc.cov_th(1,0)=0.;
-      pmc.cov_th(1,1)=theory_b2mumu_error*theory_b2mumu_error;
-
-      // Save the differences between theory and experiment
-      pmc.diff.clear();
-      for (int i=0;i<2;++i)
-      {
-        pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
-      }
-
-      if (flav_debug) cout<<"Finished b2ll_measurements"<<endl;
-
-    }
-
-
-    /// Likelihood for rare purely leptonic B decays
-    void b2ll_likelihood(double &result)
-    {
-      using namespace Pipes::b2ll_likelihood;
-
-      if (flav_debug) cout<<"Starting b2ll_likelihood"<<endl;
-
-      predictions_measurements_covariances pmc = *Dep::b2ll_M;
-
-      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
-
-      // adding theory and experimental covariance
-      cov+=pmc.cov_th;
-
-      //calculating a diff
-      vector<double> diff;
-      diff=pmc.diff;
-
-      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
-      InvertMatrix(cov, cov_inv);
-
-      // calculating the chi2
-      double Chi2=0;
-
-      for (int i=0; i < pmc.dim; ++i)
-      {
-        for (int j=0; j<pmc.dim; ++j)
-        {
-          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
-        }
-      }
-
-      result=-0.5*Chi2;
-
-      if (flav_debug) cout<<"Finished b2ll_likelihood"<<endl;
-      if (flav_debug_LL) cout<<"Likelihood result b2ll_likelihood : "<< result<<endl;
-
-    }
-
 
     /// Measurements for tree-level leptonic and semileptonic B decays
     void SL_measurements(predictions_measurements_covariances &pmc)
@@ -2030,7 +2145,6 @@ namespace Gambit
       complex<double> g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR;
       RHN_mue_FF(sminputs, mnu, U, *Param["mH"], g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR);
 
-
       // Parameters for Pb, from Table 1 in 1209.2679 for Pb
       double Z = 82, N = 126;
       double Zeff = 34., Fp = 0.15;
@@ -2038,8 +2152,8 @@ namespace Gambit
       double GammaCapt = 13.45e6 * hbar;
 
       result = (pow(sminputs.GF,2)*pow(sminputs.mMu,5)*pow(Zeff,4)*pow(Fp,2)) / (8.*pow(pi,4)*pow(sminputs.alphainv,3)*Z*GammaCapt) * (norm((Z+N)*(g0VL + g0SL) + (Z-N)*(g1VL + g1SL)) + norm((Z+N)*(g0VR + g0SR) + (Z-N)*(g1VR + g1SR)));
-
     }
+
 
     /// Likelihood for l -> l gamma processes
     void l2lgamma_likelihood(double &result)
@@ -2204,116 +2318,744 @@ namespace Gambit
 
     }
 
-    /// Measurements for LUV in b->sll
-    void LUV_measurements(predictions_measurements_covariances &pmc)
+    /// HEPLike LogLikelihood RD RDstar
+    // TODO: Recognised sub-capabilities:
+    //    RD
+    //    RDstar
+    void HEPLike_RDRDstar_LogLikelihood(double& result)
     {
-      using namespace Pipes::LUV_measurements;
+      using namespace Pipes::HEPLike_RDRDstar_LogLikelihood;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/HFLAV_18/Semileptonic/RD_RDstar.yaml";
+      static HepLike_default::HL_nDimGaussian nDimGaussian(inputfile);
+      static bool first = true;
+      if (first)
+      {
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        nDimGaussian.Read();
+        first = false;
+      }
+
+      // TODO: SuperIso is not ready to give correlations for these observables. So currently we fall back to the old way.
+      //       Below code is for future reference.
+      // static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      // flav_prediction prediction = *Dep::prediction_RDRDstar;
+      // flav_observable_map theory = prediction.central_values;
+      // flav_covariance_map theory_covariance = prediction.covariance;
+
+      // result = nDimGaussian.GetLogLikelihood(get_obs_theory(prediction, obs_list), get_obs_covariance(prediction, obs_list));
+      const std::vector<double> theory{*Dep::RD, *Dep::RDstar};
+      result = nDimGaussian.GetLogLikelihood(theory /* , theory_covariance */);
+      if (flav_debug) std::cout << "HEPLike_RDRDstar_LogLikelihood result: " << result << std::endl;
+    }
+
+    /// HEPLike single-observable likelihood
+    #define HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(name, file)                            \
+    void CAT_3(HEPLike_,name,_LogLikelihood)(double &result)                      \
+    {                                                                             \
+      using namespace CAT_3(Pipes::HEPLike_,name,_LogLikelihood);                 \
+      static const std::string inputfile = path_to_latest_heplike_data() + file;  \
+      static HepLike_default::HL_Gaussian gaussian(inputfile);                    \
+      static bool first = true;                                                   \
+                                                                                  \
+      if (first)                                                                  \
+      {                                                                           \
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " <<      \
+         inputfile << endl;                                                       \
+        gaussian.Read();                                                          \
+        first = false;                                                            \
+      }                                                                           \
+                                                                                  \
+      double theory = CAT(Dep::prediction_,name)->central_values.begin()->second; \
+      double theory_variance = CAT(Dep::prediction_,name)->covariance.begin()->   \
+       second.begin()->second;                                                    \
+      result = gaussian.GetLogLikelihood(theory, theory_variance);                \
+                                                                                  \
+      if (flav_debug) std::cout << "HEPLike_" << #name                            \
+       << "_LogLikelihood result: " << result << std::endl;                       \
+    }                                                                             \
+
+    HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(b2sgamma, "/data/HFLAV_18/RD/b2sgamma.yaml")
+    HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(B2Kstargamma, "/data/HFLAV_18/RD/B2Kstar_gamma_BR.yaml")
+    HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(B2taunu, "/data/PDG/Semileptonic/B2TauNu.yaml")
+
+    /// HEPLike LogLikelihood B -> ll (CMS)
+    /// Recognised sub-capabilities:
+    ///    BRuntag_Bsmumu
+    ///    BR_Bdmumu
+    void HEPLike_B2mumu_LogLikelihood_CMS(double &result)
+    {
+      using namespace Pipes::HEPLike_B2mumu_LogLikelihood_CMS;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/CMS/RD/B2MuMu/CMS-PAS-BPH-16-004.yaml";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static HepLike_default::HL_nDimLikelihood nDimLikelihood(inputfile);
       static bool first = true;
 
-      static double theory_RKstar_0045_11_err, theory_RKstar_11_60_err, theory_RK_err;
-      if (flav_debug) cout<<"Starting LUV_measurements"<<endl;
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
-      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      {
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        nDimLikelihood.Read();
+        update_obs_list(obs_list, nDimLikelihood.GetObservables());
+        first = false;
+      }
+
+      /* nDimLikelihood does not support theory errors */
+      result = nDimLikelihood.GetLogLikelihood(get_obs_theory(*Dep::prediction_B2mumu, obs_list));
+
+      if (flav_debug) std::cout << "HEPLike_B2mumu_LogLikelihood_CMS result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> ll (ATLAS)
+    /// Recognised sub-capabilities:
+    ///    BRuntag_Bsmumu
+    ///    BR_Bdmumu
+    void HEPLike_B2mumu_LogLikelihood_Atlas(double &result)
+    {
+      using namespace Pipes::HEPLike_B2mumu_LogLikelihood_Atlas;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/ATLAS/RD/B2MuMu/CERN-EP-2018-291.yaml";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static HepLike_default::HL_nDimLikelihood nDimLikelihood(inputfile);
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        nDimLikelihood.Read();
+        update_obs_list(obs_list, nDimLikelihood.GetObservables());
+        first = false;
+      }
+
+      /* nDimLikelihood does not support theory errors */
+      result = nDimLikelihood.GetLogLikelihood(get_obs_theory(*Dep::prediction_B2mumu, obs_list));
+
+      if (flav_debug) std::cout << "HEPLike_B2mumu_LogLikelihood_Atlas result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> ll (LHCb)
+    /// Recognised sub-capabilities:
+    ///    BRuntag_Bsmumu
+    ///    BR_Bdmumu
+    void HEPLike_B2mumu_LogLikelihood_LHCb(double &result)
+    {
+      using namespace Pipes::HEPLike_B2mumu_LogLikelihood_LHCb;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/B2MuMu/CERN-EP-2017-100.yaml";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static HepLike_default::HL_nDimLikelihood nDimLikelihood(inputfile);
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        nDimLikelihood.Read();
+        update_obs_list(obs_list, nDimLikelihood.GetObservables());
+        first = false;
+      }
+
+      /* nDimLikelihood does not support theory errors */
+      result = nDimLikelihood.GetLogLikelihood(get_obs_theory(*Dep::prediction_B2mumu, obs_list));
+
+      if (flav_debug) std::cout << "HEPLike_B2mumu_LogLikelihood_LHCb result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> K* mu mu Angluar (ATLAS)
+    /// Recognised sub-capabilities:
+    ///   FL
+    ///   S3
+    ///   S4
+    ///   S5
+    ///   S7
+    ///   S8
+    void HEPLike_B2KstarmumuAng_LogLikelihood_Atlas(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_Atlas;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/ATLAS/RD/Bd2KstarMuMu_Angular/CERN-EP-2017-161_q2_";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian = {
+        HepLike_default::HL_nDimGaussian(inputfile + "0.1_2.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "2.0_4.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "4.0_8.0.yaml"),
+      };
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < nDimGaussian.size(); ++i)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << i << endl;
+          nDimGaussian[i].Read();
+        }
+        update_obs_list(obs_list, nDimGaussian[0].GetObservables());
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_B2KstarmumuAng_0p1_2_Atlas,
+        *Dep::prediction_B2KstarmumuAng_2_4_Atlas,
+        *Dep::prediction_B2KstarmumuAng_4_8_Atlas,
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < nDimGaussian.size(); i++)
+      {
+        result += nDimGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
+      }
+      if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_Atlas result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> K* mu mu Angular (CMS)
+    /// Recognised sub-capabilities:
+    ///   P1
+    ///   P5prime
+    void HEPLike_B2KstarmumuAng_LogLikelihood_CMS(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_CMS;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/CMS/RD/Bd2KstarMuMu_Angular/CERN-EP-2017-240_q2_";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian = {
+        HepLike_default::HL_nDimBifurGaussian(inputfile+"1.0_2.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile+"2.0_4.3.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile+"4.3_6.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile+"6.0_8.68.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile+"10.09_12.86.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile+"14.18_16.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile+"16.0_19.0.yaml")
+      };
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << i << endl;
+          nDimBifurGaussian[i].Read();
+        }
+        update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_B2KstarmumuAng_1_2_CMS,
+        *Dep::prediction_B2KstarmumuAng_2_4p3_CMS,
+        *Dep::prediction_B2KstarmumuAng_4p3_6_CMS,
+        *Dep::prediction_B2KstarmumuAng_6_8p68_CMS,
+        *Dep::prediction_B2KstarmumuAng_10p09_12p86_CMS,
+        *Dep::prediction_B2KstarmumuAng_14p18_16_CMS,
+        *Dep::prediction_B2KstarmumuAng_16_19_CMS
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+      {
+        result += nDimBifurGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
+      }
+
+      if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_CMS result: " << result << std::endl;
+    }
+
+
+    /// HEPLike LogLikelihood B -> K* mu mu Angular (Belle)
+    /// Recognised sub-capabilities:
+    ///   P4prime
+    ///   P5prime
+    void HEPLike_B2KstarmumuAng_LogLikelihood_Belle(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_Belle;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/Belle/RD/Bd2KstarMuMu_Angular/KEK-2016-54_q2_";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian = {
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "0.1_4.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "4.0_8.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "10.09_12.9.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "14.18_19.0.yaml"),
+      };
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << i << endl;
+          nDimBifurGaussian[i].Read();
+        }
+        update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction =
+      {
+        *Dep::prediction_B2KstarmumuAng_0p1_4_Belle,
+        *Dep::prediction_B2KstarmumuAng_4_8_Belle,
+        *Dep::prediction_B2KstarmumuAng_10p9_12p9_Belle,
+        *Dep::prediction_B2KstarmumuAng_14p18_19_Belle,
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+      {
+        result += nDimBifurGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
+      }
+
+      if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_Belle result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> K* ell ell Angular (Belle)
+    /// Recognised sub-capabilities:
+    ///   P4prime
+    ///   P5prime
+    void HEPLike_B2KstarellellAng_LogLikelihood_Belle(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KstarellellAng_LogLikelihood_Belle;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/Belle/RD/Bd2KstarEllEll_Angular/KEK-2016-54_q2_";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian =
+      {
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "0.1_4.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "4.0_8.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "10.09_12.9.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "14.18_19.0.yaml"),
+      };
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << i << endl;
+          nDimBifurGaussian[i].Read();
+        }
+        update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction =
+      {
+        *Dep::prediction_B2KstarmumuAng_0p1_4_Belle,
+        *Dep::prediction_B2KstarmumuAng_4_8_Belle,
+        *Dep::prediction_B2KstarmumuAng_10p9_12p9_Belle,
+        *Dep::prediction_B2KstarmumuAng_14p18_19_Belle,
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+      {
+        result += nDimBifurGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
+      }
+
+      if (flav_debug) std::cout << "HEPLike_B2KstarellellAng_LogLikelihood_Belle result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
+    /// Recognised sub-capabilities:
+    ///   FL
+    ///   AFB
+    ///   S3
+    ///   S4
+    ///   S5
+    ///   S7
+    ///   S8
+    ///   S9
+    void HEPLike_B2KstarmumuAng_LogLikelihood_LHCb(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/PH-EP-2015-314_q2_";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian = {
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "0.1_0.98.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "1.1_2.5.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "2.5_4.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "4.0_6.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "6.0_8.0.yaml"),
+        HepLike_default::HL_nDimBifurGaussian(inputfile + "15.0_19.yaml"),
+      };
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << i << endl;
+          nDimBifurGaussian[i].Read();
+        }
+        update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_B2KstarmumuAng_0p1_0p98_LHCb,
+        *Dep::prediction_B2KstarmumuAng_1p1_2p5_LHCb,
+        *Dep::prediction_B2KstarmumuAng_2p5_4_LHCb,
+        *Dep::prediction_B2KstarmumuAng_4_6_LHCb,
+        *Dep::prediction_B2KstarmumuAng_6_8_LHCb,
+        *Dep::prediction_B2KstarmumuAng_15_19_LHCb,
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < nDimBifurGaussian.size(); i++)
+      {
+        result += nDimBifurGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
+      }
+
+      if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_LHCb result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
+    /// Recognised sub-capabilities:
+    ///   FL
+    ///   AFB
+    ///   S3
+    ///   S4
+    ///   S5
+    ///   S7
+    ///   S8
+    ///   S9
+    void HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/CERN-EP-2020-027_q2_";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian = {
+        HepLike_default::HL_nDimGaussian(inputfile + "0.1_0.98.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "1.1_2.5.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "2.5_4.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "4.0_6.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "6.0_8.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "15.0_19.0.yaml"),
+      };
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < nDimGaussian.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << i << endl;
+          nDimGaussian[i].Read();
+        }
+        update_obs_list(obs_list, nDimGaussian[0].GetObservables());
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_B2KstarmumuAng_0p1_0p98_LHCb,
+        *Dep::prediction_B2KstarmumuAng_1p1_2p5_LHCb,
+        *Dep::prediction_B2KstarmumuAng_2p5_4_LHCb,
+        *Dep::prediction_B2KstarmumuAng_4_6_LHCb,
+        *Dep::prediction_B2KstarmumuAng_6_8_LHCb,
+        *Dep::prediction_B2KstarmumuAng_15_19_LHCb,
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < nDimGaussian.size(); i++)
+      {
+        result += nDimGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
+      }
+
+      if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_LHCb 2020 result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> K* e e Angular low q2 (LHCb)
+    /// Recognised sub-capabilities:
+    ///   FLee
+    ///   AT_Re
+    ///   AT_2
+    ///   AT_Im
+    void HEPLike_B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarEE_Angular/CERN-EP-2020-176.yaml";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+      static HepLike_default::HL_nDimGaussian nDimGaussian(inputfile);
+      static bool first = true;
+      if (first)
+      {
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        nDimGaussian.Read();
+        first = false;
+      }
+      flav_prediction prediction = *Dep::prediction_B2KstareeAng_0p0008_0p257_LHCb;
+      if (flav_debug)
+      {
+        std::cout<<"Have prediction"<<std::endl;
+        for (unsigned int i=0; i <obs_list.size(); i++)
+        {
+          std::cout<<obs_list[i]<<std::endl;
+        }
+      }
+
+      result = nDimGaussian.GetLogLikelihood(get_obs_theory(prediction, obs_list), get_obs_covariance(prediction, obs_list));
+
+      if (flav_debug) std::cout << "HEPLike_B2KstareeAng_Lowq_LogLikelihood result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood Bu -> K*+ mu mu Angular (LHCb)
+    /// Recognised sub-capabilities:
+    ///   FL
+    ///   AFB
+    ///   S3
+    ///   S4
+    ///   S5
+    ///   S7
+    ///   S8
+    ///   S9
+    void HEPLike_Bu2KstarmumuAng_LogLikelihood_LHCb_2020(double &result)
+    {
+      using namespace Pipes::HEPLike_Bu2KstarmumuAng_LogLikelihood_LHCb_2020;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bu2KstarMuMu_Angular/CERN-EP-2020-239_q2_";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian = {
+        HepLike_default::HL_nDimGaussian(inputfile + "0.1_0.98.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "1.1_2.5.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "2.5_4.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "4.0_6.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "6.0_8.0.yaml"),
+        HepLike_default::HL_nDimGaussian(inputfile + "15.0_19.0.yaml"),
+      };
+
+      static bool first = true;
       if (first)
         {
-          pmc.LL_name="LUV_likelihood";
-
-          Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-          fread.debug_mode(flav_debug);
-
-          if (flav_debug) cout<<"Initiated Flav reader in LUV_measurements"<<endl;
-          fread.read_yaml_measurement("flav_data.yaml", "RKstar_0045_11");
-          fread.read_yaml_measurement("flav_data.yaml", "RKstar_11_60");
-          fread.read_yaml_measurement("flav_data.yaml", "RK");
-
-          if (flav_debug) cout<<"Finished reading LUV data"<<endl;
-
-          fread.initialise_matrices();
-
-          theory_RKstar_0045_11_err = fread.get_th_err()(0,0).first;
-          theory_RKstar_11_60_err = fread.get_th_err()(1,0).first;
-          theory_RK_err = fread.get_th_err()(2,0).first;
-
-          pmc.value_exp=fread.get_exp_value();
-          pmc.cov_exp=fread.get_exp_cov();
-
-          pmc.value_th.resize(3,1);
-          pmc.cov_th.resize(3,3);
-
-          pmc.dim=3;
-
-          // Init over and out.
+          for (unsigned int i = 0; i < nDimGaussian.size(); i++)
+            {
+              if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << i << endl;
+              nDimGaussian[i].Read();
+            }
+          update_obs_list(obs_list, nDimGaussian[0].GetObservables());
           first = false;
         }
 
-      // Get theory prediction
-      pmc.value_th(0,0)=*Dep::RKstar_0045_11;
-      pmc.value_th(1,0)=*Dep::RKstar_11_60;
-      pmc.value_th(2,0)=*Dep::RK;
+      std::vector<flav_prediction> prediction =
+      {
+        *Dep::prediction_B2KstarmumuAng_0p1_0p98_LHCb,
+        *Dep::prediction_B2KstarmumuAng_1p1_2p5_LHCb,
+        *Dep::prediction_B2KstarmumuAng_2p5_4_LHCb,
+        *Dep::prediction_B2KstarmumuAng_4_6_LHCb,
+        *Dep::prediction_B2KstarmumuAng_6_8_LHCb,
+        *Dep::prediction_B2KstarmumuAng_15_19_LHCb,
+      };
 
-      // Compute error on theory prediction and populate the covariance matrix
-      pmc.cov_th(0,0)=theory_RKstar_0045_11_err;
-      pmc.cov_th(0,1)=0.;
-      pmc.cov_th(0,2)=0.;
-      pmc.cov_th(1,0)=0.;
-      pmc.cov_th(1,1)=theory_RKstar_11_60_err;
-      pmc.cov_th(1,2)=0.;
-      pmc.cov_th(2,0)=0.;
-      pmc.cov_th(2,1)=0.;
-      pmc.cov_th(2,2)=theory_RK_err;
+      result = 0;
+      for (unsigned int i = 0; i < nDimGaussian.size(); i++)
+      {
+        result += nDimGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list),
+         get_obs_covariance(prediction[i], obs_list));
+      }
 
-
-
-      // Save the differences between theory and experiment
-      pmc.diff.clear();
-      for (int i=0;i<3;++i)
-        {
-          pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
-        }
-
-      if (flav_debug) cout<<"Finished LUV_measurements"<<endl;
-
-
+      if (flav_debug) std::cout << "HEPLike_Bu2KstarmumuAng_LogLikelihood_LHCb 2020 result: " << result << std::endl;
     }
-    /// Likelihood  for LUV in b->sll
-    void LUV_likelihood(double &result)
+
+    /// HEPLike LogLikelihood B -> K* mu mu Br (LHCb)
+    void HEPLike_B2KstarmumuBr_LogLikelihood_LHCb(double &result)
     {
-      using namespace Pipes::LUV_likelihood;
+      using namespace Pipes::HEPLike_B2KstarmumuBr_LogLikelihood_LHCb;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Br/CERN-EP-2016-141_q2_";
+      static std::vector<HepLike_default::HL_BifurGaussian> BifurGaussian = {
+        HepLike_default::HL_BifurGaussian(inputfile + "0.1_0.98.yaml"),
+        HepLike_default::HL_BifurGaussian(inputfile + "1.1_2.5.yaml"),
+        HepLike_default::HL_BifurGaussian(inputfile + "2.5_4.yaml"),
+        HepLike_default::HL_BifurGaussian(inputfile + "4_6.yaml"),
+        HepLike_default::HL_BifurGaussian(inputfile + "6_8.yaml"),
+        HepLike_default::HL_BifurGaussian(inputfile + "15_19.yaml")
+      };
 
-      if (flav_debug) cout<<"Starting LUV_likelihood"<<endl;
-
-      predictions_measurements_covariances pmc = *Dep::LUV_M;
-
-      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
-
-      // adding theory and experimental covariance
-      cov+=pmc.cov_th;
-
-      //calculating a diff
-      vector<double> diff;
-      diff=pmc.diff;
-
-      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
-      InvertMatrix(cov, cov_inv);
-
-      double Chi2=0;
-      for (int i=0; i < pmc.dim; ++i)
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < BifurGaussian.size(); i++)
         {
-          for (int j=0; j<pmc.dim; ++j)
-            {
-              Chi2+= diff[i] * cov_inv(i,j)*diff[j];
-            }
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << i << endl;
+          BifurGaussian[i].Read();
         }
+        first = false;
+      }
 
-      result=-0.5*Chi2;
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_B2KstarmumuBr_0p1_0p98,
+        *Dep::prediction_B2KstarmumuBr_1p1_2p5,
+        *Dep::prediction_B2KstarmumuBr_2p5_4,
+        *Dep::prediction_B2KstarmumuBr_4_6,
+        *Dep::prediction_B2KstarmumuBr_6_8,
+        *Dep::prediction_B2KstarmumuBr_15_19
+      };
 
-      if (flav_debug) cout<<"Finished LUV_likelihood"<<endl;
+      result = 0;
 
-      if (flav_debug_LL) cout<<"Likelihood result LUV_likelihood  : "<< result<<endl;
+      for (unsigned int i = 0; i < BifurGaussian.size(); i++)
+      {
+        double theory = prediction[i].central_values.begin()->second;
+        double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        result += BifurGaussian[i].GetLogLikelihood(theory, theory_variance);
+      }
 
+      if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_LHCb result: " << result << std::endl;
+    }
+
+    /// HEPLike LogLikelihood B -> K+ mu mu Br (LHCb)
+    void HEPLike_B2KmumuBr_LogLikelihood_LHCb(double &result)
+    {
+      using namespace Pipes::HEPLike_B2KmumuBr_LogLikelihood_LHCb;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/B2KMuMu_Br/CERN-PH-EP-2012-263_q2_";
+      static std::vector<HepLike_default::HL_Gaussian> Gaussian = {
+        HepLike_default::HL_Gaussian(inputfile + "0.05_2.yaml"),
+        HepLike_default::HL_Gaussian(inputfile + "2_4.3.yaml"),
+        HepLike_default::HL_Gaussian(inputfile + "4.3_8.68.yaml"),
+        HepLike_default::HL_Gaussian(inputfile + "14.18_16.yaml"),
+        HepLike_default::HL_Gaussian(inputfile + "16_18.yaml"),
+        HepLike_default::HL_Gaussian(inputfile + "18_22.yaml")
+      };
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < Gaussian.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << i << endl;
+          Gaussian[i].Read();
+        }
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_B2KmumuBr_0p05_2,
+        *Dep::prediction_B2KmumuBr_2_4p3,
+        *Dep::prediction_B2KmumuBr_4p3_8p68,
+        *Dep::prediction_B2KmumuBr_14p18_16,
+        *Dep::prediction_B2KmumuBr_16_18,
+        *Dep::prediction_B2KmumuBr_18_22
+      };
+
+      result = 0;
+
+      for (unsigned int i = 0; i < Gaussian.size(); i++)
+      {
+        double theory = prediction[i].central_values.begin()->second;
+        double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        result += Gaussian[i].GetLogLikelihood(theory, theory_variance);
+      }
+
+      if (flav_debug) std::cout << "HEPLike_B2KmumuBR_LogLikelihood_LHCb result: " << result << std::endl;
     }
 
 
+    void HEPLike_Bs2phimumuBr_LogLikelihood(double &result)
+    {
+      using namespace Pipes::HEPLike_Bs2phimumuBr_LogLikelihood;
+
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bs2PhiMuMu_Br/CERN-PH-EP-2015-145_";
+      static std::vector<HepLike_default::HL_BifurGaussian> BifurGaussian = {
+        HepLike_default::HL_BifurGaussian(inputfile + "1_6.yaml"),
+        HepLike_default::HL_BifurGaussian(inputfile + "15_19.yaml")
+      };
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < BifurGaussian.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << i << endl;
+          BifurGaussian[i].Read();
+        }
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_Bs2phimumuBr_1_6,
+        *Dep::prediction_Bs2phimumuBr_15_19
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < BifurGaussian.size(); i++)
+      {
+        double theory = prediction[i].central_values.begin()->second;
+        double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        result += BifurGaussian[i].GetLogLikelihood(theory, theory_variance);
+      }
+
+      if (flav_debug) std::cout << "HEPLike_Bs2phimumuBr_LogLikelihood result: " << result << std::endl;
+    }
+
+
+    void HEPLike_RK_LogLikelihood(double &result)
+    {
+      using namespace Pipes::HEPLike_RK_LogLikelihood;
+
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Rk/CERN-EP-2019-043.yaml";
+      static HepLike_default::HL_ProfLikelihood ProfLikelihood(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        ProfLikelihood.Read();
+
+        first = false;
+      }
+
+      flav_prediction prediction = *Dep::prediction_RK_LHCb_1p1_6;
+
+      const double theory = prediction.central_values.begin()->second;
+      const double theory_variance = prediction.covariance.begin()->second.begin()->second;
+      result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
+
+      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood result: " << result << std::endl;
+    }
+
+
+    void HEPLike_RKstar_LogLikelihood_LHCb(double &result)
+    {
+
+      using namespace Pipes::HEPLike_RKstar_LogLikelihood_LHCb;
+
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/RKstar/CERN-EP-2017-100_q2_";
+      static std::vector<HepLike_default::HL_ProfLikelihood> ProfLikelihood = {
+        HepLike_default::HL_ProfLikelihood(inputfile + "0.045_1.1.yaml"),
+        HepLike_default::HL_ProfLikelihood(inputfile + "1.1_6.yaml")
+      };
+
+      static bool first = true;
+      if (first)
+      {
+        for (unsigned int i = 0; i < ProfLikelihood.size(); i++)
+        {
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << i << endl;
+          ProfLikelihood[i].Read();
+        }
+        first = false;
+      }
+
+      std::vector<flav_prediction> prediction = {
+        *Dep::prediction_RKstar_LHCb_0p045_1p1,
+        *Dep::prediction_RKstar_LHCb_1p1_6
+      };
+
+      result = 0;
+      for (unsigned int i = 0; i < ProfLikelihood.size(); i++)
+      {
+        const double theory = prediction[i].central_values.begin()->second;
+        const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
+      }
+
+      if (flav_debug) std::cout << "HEPLike_RKstar_LogLikelihood_LHCb result: " << result << std::endl;
+
+    }
 
   }
 }

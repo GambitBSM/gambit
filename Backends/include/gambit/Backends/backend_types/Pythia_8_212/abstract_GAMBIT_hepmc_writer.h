@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual void init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool, bool) =0;
+                virtual void init(::std::basic_string<char>, bool, bool) =0;
     
                 virtual void write_event_HepMC3__BOSS(Pythia8::Abstract_Pythia*) =0;
     

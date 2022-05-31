@@ -281,13 +281,27 @@ def fill_gum_object(data):
                         "# <--- Desired PDG code here.\n"))
 
     # FeynRules restriction files
-    restriction = None
-    if 'restriction' in math and mathpackage == 'feynrules':
-        restriction = math['restriction']
-
+    restriction_str = None
+    if 'restrictions' in math and mathpackage == 'feynrules':
+        restrictions = math['restrictions']
+        
+        if (restrictions == None):
+          raise GumError(("\n\nYou have asked for a restriction to be applied "
+                        "but not supplied a restriction file name! "
+                        "Please fill or remove the restrictions entry in your .gum file\n"))
+        
+        # If only a single entry was given, treat this as if it were a list.
+        if (type(restrictions) != list):
+            restrictions = [restrictions]
+        
+        # Convert the list to a single string
+        restriction_str = ""
+        for rst in restrictions:
+            restriction_str += rst + ","
+            
     gum_info = Inputs(gambit_model, base_model, mathpackage, 
                       wimp_candidate, invisibles, decaying_dm,
-                      mathname, lagrangian, restriction)
+                      mathname, lagrangian, restriction_str)
 
     print("Parse successful.")
 

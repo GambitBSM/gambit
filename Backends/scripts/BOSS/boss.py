@@ -286,6 +286,7 @@ def main():
     # Check if backend source tree has already been BOSSed. (Look for the backend_undefs.hpp header file.)
     #
     check_file = os.path.join(cfg.header_files_to, gb.gambit_backend_incl_dir, 'backend_undefs.hpp')
+    print('File: ', check_file)
     if os.path.isfile(check_file):
         print()
         print( utils.modifyText('The backend source tree seems to already have been BOSSed.','yellow'))

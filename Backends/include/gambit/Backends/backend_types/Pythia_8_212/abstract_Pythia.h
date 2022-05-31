@@ -38,33 +38,33 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool) =0;
+                virtual bool readString(::std::basic_string<char>, bool) =0;
     
-                virtual bool readString__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual bool readString__BOSS(::std::basic_string<char>) =0;
     
-                virtual bool readFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool, int) =0;
+                virtual bool readFile(::std::basic_string<char>, bool, int) =0;
     
-                virtual bool readFile__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool) =0;
+                virtual bool readFile__BOSS(::std::basic_string<char>, bool) =0;
     
-                virtual bool readFile__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual bool readFile__BOSS(::std::basic_string<char>) =0;
     
-                virtual bool readFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int) =0;
+                virtual bool readFile(::std::basic_string<char>, int) =0;
     
-                virtual bool readFile(::std::basic_istream<char, std::char_traits<char> >&, bool, int) =0;
+                virtual bool readFile(::std::basic_istream<char>&, bool, int) =0;
     
-                virtual bool readFile__BOSS(::std::basic_istream<char, std::char_traits<char> >&, bool) =0;
+                virtual bool readFile__BOSS(::std::basic_istream<char>&, bool) =0;
     
-                virtual bool readFile__BOSS(::std::basic_istream<char, std::char_traits<char> >&) =0;
+                virtual bool readFile__BOSS(::std::basic_istream<char>&) =0;
     
                 virtual bool readFile__BOSS() =0;
     
-                virtual bool readFile(::std::basic_istream<char, std::char_traits<char> >&, int) =0;
+                virtual bool readFile(::std::basic_istream<char>&, int) =0;
     
                 virtual bool setUserHooksPtr__BOSS(Pythia8::Abstract_UserHooks*) =0;
     
                 virtual bool setResonancePtr__BOSS(Pythia8::Abstract_ResonanceWidths*) =0;
     
-                virtual bool init(::std::basic_ostream<char, std::char_traits<char> >&) =0;
+                virtual bool init(::std::basic_ostream<char>&) =0;
     
                 virtual bool init__BOSS() =0;
     
@@ -82,7 +82,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool forceRHadronDecays() =0;
     
-                virtual void LHAeventList(::std::basic_ostream<char, std::char_traits<char> >&) =0;
+                virtual void LHAeventList(::std::basic_ostream<char>&) =0;
     
                 virtual void LHAeventList__BOSS() =0;
     
@@ -90,13 +90,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void stat() =0;
     
-                virtual bool flag(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual bool flag(::std::basic_string<char>) =0;
     
-                virtual int mode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual int mode(::std::basic_string<char>) =0;
     
-                virtual double parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual double parm(::std::basic_string<char>) =0;
     
-                virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > word(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual ::std::basic_string<char> word(::std::basic_string<char>) =0;
     
                 virtual Pythia8::Abstract_Event& process_ref__BOSS() =0;
     

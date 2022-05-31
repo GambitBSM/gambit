@@ -123,7 +123,7 @@ namespace Gambit
         void disable(int n=-1)
         {
           if(printer_enabled)
-            printer_cooldown = n;   
+            printer_cooldown = n;
           printer_enabled = false;
         }
 
@@ -152,7 +152,7 @@ namespace Gambit
                    const uint rank,
                    const ulong pointID)
         {
-          if(printer_enabled) _print(in, label, rank, pointID);
+          if(printer_enabled) _print(in, label, get_param_id(label), rank, pointID);
           if(printer_cooldown > 0) printer_cooldown--; // if there's a cooldown, reduce it afer printing
           if(!printer_cooldown) printer_enabled = true; // if cooldown has ended, re-enable printer
         }
@@ -183,20 +183,9 @@ namespace Gambit
               << "you are using (see documentation for GAMBIT printers)."
               << "\n  Available info for this print attempt..."
               << "\n   Label      : " << label
-              << "\n   vertexID   : " << vertexID
-              << "\n   Type       : " << STRINGIFY(T);
+              << "\n   vertexID   : " << vertexID;
           printer_error().raise(LOCAL_INFO,err.str());
         }
-
-        /// Same for overloaded function
-        template<typename T>
-        void _print(T const& in, const std::string& label,
-                    const uint rank,
-                    const ulong pointID)
-        {
-           _print(in,label,rank,pointID);
-        }
-
 
         // Virtual print methods for base printer classes
         #define VPRINT(r,data,elem)                                   \
@@ -211,17 +200,8 @@ namespace Gambit
               << "\nclass the current printer comes from)"            \
               << "\n  Dumping available info..."                      \
               << "\n   Label      : " << label                        \
-              << "\n   vertexID   : " << vertexID                     \
-              << "\n   Type       : " << STRINGIFY(elem);             \
+              << "\n   vertexID   : " << vertexID;                    \
           printer_error().raise(LOCAL_INFO,err.str());                \
-        }                                                             \
-                                                                      \
-        /* version that assigns vertexID automatically */             \
-        virtual void _print(elem const& in, const std::string& label, \
-                           const uint rank,                           \
-                           const ulong pointID)                       \
-        {                                                             \
-           _print(in,label,get_param_id(label),rank,pointID);         \
         }
 
         #define ADD_VIRTUAL_PRINTS(TYPES) BOOST_PP_SEQ_FOR_EACH(VPRINT, , TYPES)
@@ -319,8 +299,8 @@ namespace Gambit
           if(pt==nullpoint)
           {
              valid = false;
-          } 
-          else 
+          }
+          else
           {
              valid = retrieve(out, label, pt.rank, pt.pointID);
           }
@@ -354,8 +334,8 @@ namespace Gambit
           if(pt==nullpoint)
           {
              valid = false;
-          } 
-          else 
+          }
+          else
           {
              valid = retrieve_and_print(in_label, out_label, printer, pt.rank, pt.pointID);
           }
@@ -389,8 +369,7 @@ namespace Gambit
               << "to define a retrieve function for it in whatever printer "
               << "you are using (see documentation for GAMBIT printers)."
               << "\n  Available info for this retrieve attempt..."
-              << "\n   Label      : " << label
-              << "\n   Type       : " << STRINGIFY(T);
+              << "\n   Label      : " << label;
           printer_error().raise(LOCAL_INFO,err.str());
           return false;
         }
@@ -409,8 +388,7 @@ namespace Gambit
               << "\ndefined for this retrieval type (for whatever printer"  \
               << "\nclass the current printer comes from)"                  \
               << "\n  Dumping available info..."                            \
-              << "\n   Label      : " << label                              \
-              << "\n   Type       : " << STRINGIFY(elem);                   \
+              << "\n   Label      : " << label;                              \
           printer_warning().raise(LOCAL_INFO,err.str());                    \
           return false;                                                     \
         }
