@@ -24,17 +24,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual Pythia8::Abstract_Hist& operator_equal__BOSS(const Pythia8::Abstract_Hist&) =0;
     
-                virtual void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double, double) =0;
+                virtual void book(::std::basic_string<char>, int, double, double) =0;
     
-                virtual void book__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double) =0;
+                virtual void book__BOSS(::std::basic_string<char>, int, double) =0;
     
-                virtual void book__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int) =0;
+                virtual void book__BOSS(::std::basic_string<char>, int) =0;
     
-                virtual void book__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void book__BOSS(::std::basic_string<char>) =0;
     
                 virtual void book__BOSS() =0;
     
-                virtual void name(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void name(::std::basic_string<char>) =0;
     
                 virtual void name__BOSS() =0;
     
@@ -44,19 +44,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void fill__BOSS(double) =0;
     
-                virtual void table(::std::basic_ostream<char, std::char_traits<char> >&, bool, bool) const =0;
+                virtual void table(::std::basic_ostream<char>&, bool, bool) const =0;
     
-                virtual void table__BOSS(::std::basic_ostream<char, std::char_traits<char> >&, bool) const =0;
+                virtual void table__BOSS(::std::basic_ostream<char>&, bool) const =0;
     
-                virtual void table__BOSS(::std::basic_ostream<char, std::char_traits<char> >&) const =0;
+                virtual void table__BOSS(::std::basic_ostream<char>&) const =0;
     
                 virtual void table__BOSS() const =0;
     
-                virtual void table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool, bool) const =0;
+                virtual void table(::std::basic_string<char>, bool, bool) const =0;
     
-                virtual void table__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool) const =0;
+                virtual void table__BOSS(::std::basic_string<char>, bool) const =0;
     
-                virtual void table__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) const =0;
+                virtual void table__BOSS(::std::basic_string<char>) const =0;
     
                 virtual double getBinContent(int) const =0;
     

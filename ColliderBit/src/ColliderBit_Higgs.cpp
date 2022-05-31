@@ -236,14 +236,14 @@ namespace Gambit
       dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       std::vector<str> Higgses;
 
-      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ")) 
+      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
       {
         spectrum_dependency = &Dep::MSSM_spectrum;
         Higgses = initVector<str>("h0_1", "h0_2", "A0");
       }
-      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");  
+      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");
 
-          
+
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
       static const std::vector<str> sHneut(Higgses);
 
@@ -554,13 +554,13 @@ namespace Gambit
     }
 
     /// Higgs production cross-sections from FeynHiggs.
-    void FH_HiggsProd(fh_HiggsProd &result)
+    void FeynHiggs_HiggsProd(fh_HiggsProd_container &result)
     {
-      using namespace Pipes::FH_HiggsProd;
+      using namespace Pipes::FeynHiggs_HiggsProd;
 
       Farray<fh_real, 1,52> prodxs;
 
-      fh_HiggsProd HiggsProd;
+      fh_HiggsProd_container HiggsProd;
       int error;
       fh_real sqrts;
 

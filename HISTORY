@@ -3,6 +3,22 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.2.0
+Feature release
+- Added support for cosmological ALPs
+- Added new backend ACROPOLIS 1.2.1
+- Added new backend HepLike 1.2
+- Added support for MontePython 3.5
+- Added support for class 3.1
+- Added support for SuperIso 4.1
+- Upgraded FlavBit to support likelihoods and data import from HepLike
+- Full support for Clang and AppleClang on both x86 and arm64 (M1)
+- Updated dependency buckets with check for activated dependencies
+- Upgrade GUM to work with a broader range of SARAH models
+- Upgrade GUM to work with multiple restriction files
+- Upgrade BOSS to use latest versions of castxml
+- Various other small bugfixes
+
 v2.1.2
 Bugfix release
 - Fixed clashing versions of Minuit2

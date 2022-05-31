@@ -122,7 +122,6 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, triplet<double>)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
-      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
     #endif
 

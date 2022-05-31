@@ -16,6 +16,14 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date Sep 2016
 ///
+///  \author Nazila Mahmoudi
+///          (nazila@cern.ch)
+///  \date Aug 2019
+///
+///  \author Markus Prim
+///          (markus.prim@cern.ch)
+///  \date Oct 2020
+///
 ///  *********************************************
 
 // Always required in any standalone module main file
@@ -103,7 +111,7 @@ int main(int argc, char** argv)
     // Notify all module functions that care of the model being scanned.
     createSpectrum.notifyOfModel("MSSM30atQ");
     relabelSpectrum.notifyOfModel("MSSM30atQ");
-    SI_fill.notifyOfModel("MSSM30atQ");
+    SuperIso_fill.notifyOfModel("MSSM30atQ");
 
     // Arrange the spectrum chain
     relabelSpectrum.resolveDependency(&createSpectrum);
@@ -112,99 +120,107 @@ int main(int argc, char** argv)
     // Have to resolve dependencies by hand
     // deltaMB_likelihood depends on:
     //    - deltaMs
-    deltaMB_likelihood.resolveDependency(&FH_DeltaMs);
+    deltaMB_likelihood.resolveDependency(&FeynHiggs_prediction_DeltaMs);
 
-    // FH_deltaMs depends on:
-    //    - FH_FlavourObs
-    FH_DeltaMs.resolveDependency(&FH_FlavourObs);
+    // FeynHiggs_prediction_DeltaMs depends on:
+    //    - FeynHiggs_FlavourObs
+    FeynHiggs_prediction_DeltaMs.resolveDependency(&FeynHiggs_FlavourObs);
 
-    // FH_FlavourObs has only one backend requirement:
+    // FeynHiggs_FlavourObs has only one backend requirement:
     //    - FHFlavour
-    FH_FlavourObs.resolveBackendReq(&Backends::FeynHiggs_2_11_3::Functown::FHFlavour);
+    FeynHiggs_FlavourObs.resolveBackendReq(&Backends::FeynHiggs_2_11_3::Functown::FHFlavour);
 
     // The FeynHiggs initialisation function depends on:
     //    - unimproved_MSSM_spectrum
     FeynHiggs_2_11_3_init.resolveDependency(&createSpectrum);
 
-    // Set up the b2sll_LL likelihood
-    // Have to resolve dependencies by hand
-    // b2sll_likelihood depends on:
-    //    - b2sll_M
-    b2sll_likelihood.resolveDependency(&b2sll_measurements);
+    // Set up the HEPLike_B2KstarmumuAng_LogLikelihood_LHCb likelihood
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.notifyOfSubCaps("[FL, AFB, S3, S4, S5, S7, S8, S9]");
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.resolveDependency(&SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb);
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.resolveDependency(&SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb);
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.resolveDependency(&SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb);
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.resolveDependency(&SuperIso_prediction_B2KstarmumuAng_4_6_LHCb);
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.resolveDependency(&SuperIso_prediction_B2KstarmumuAng_6_8_LHCb);
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.resolveDependency(&SuperIso_prediction_B2KstarmumuAng_15_19_LHCb);
 
-    //SI_fill needs on:
+    //SuperIso_fill needs:
     //   - BEreq Init_param
     //   - BEreq slha_adjust
+    //   - BEreq mcmc_from_pole
     //   - BEreq mb_1S
     //   - MSSM_spectrum (or SM_spectrum)
     //   - W_plus_decay_rates
     //   - Z_decay_rates
-    SI_fill.resolveDependency(&relabelSpectrum);
-    SI_fill.resolveDependency(&GammaZ);
-    SI_fill.resolveDependency(&GammaW);
-    SI_fill.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Init_param);
-    SI_fill.resolveBackendReq(&Backends::SuperIso_3_6::Functown::slha_adjust);
-    SI_fill.resolveBackendReq(&Backends::SuperIso_3_6::Functown::mb_1S);
+    SuperIso_fill.resolveDependency(&relabelSpectrum);
+    SuperIso_fill.resolveDependency(&GammaZ);
+    SuperIso_fill.resolveDependency(&GammaW);
+    SuperIso_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Init_param);
+    SuperIso_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::slha_adjust);
+    SuperIso_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::mcmc_from_pole);
+    SuperIso_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::mb_1S);
 
-    // b2sll_measurements depends on:
-    //   - BKstarmumu_11_25
-    //   - BKstarmumu_25_40
-    //   - BKstarmumu_40_60
-    //   - BKstarmumu_60_80
-    //   - BKstarmumu_15_17
-    //   - BKstarmumu_17_19
-    b2sll_measurements.resolveDependency(&SI_BKstarmumu_11_25);
-    b2sll_measurements.resolveDependency(&SI_BKstarmumu_25_40);
-    b2sll_measurements.resolveDependency(&SI_BKstarmumu_40_60);
-    b2sll_measurements.resolveDependency(&SI_BKstarmumu_60_80);
-    b2sll_measurements.resolveDependency(&SI_BKstarmumu_15_17);
-    b2sll_measurements.resolveDependency(&SI_BKstarmumu_17_19);
+    //SuperIso_nuisance_fill needs:
+    //    - BEreq set_nuisance
+    //    - BEreq set_nuisance_value_from_param
+    //    - SuperIso_fill
+    SuperIso_nuisance_fill.resolveDependency(&SuperIso_fill);
+    SuperIso_nuisance_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::set_nuisance);
+    SuperIso_nuisance_fill.resolveBackendReq(&Backends::SuperIso_4_1::Functown::set_nuisance_value_from_param);
 
     // Now resolve dependencies of the BKstar mu mu measurements
-    // Each depends on:
-    // - SI_fill
-    // Each has a BE requirement on:
-    // - BKstarmumu_CONV (from SuperIso)
-    SI_BKstarmumu_11_25.resolveDependency(&SI_fill);
-    SI_BKstarmumu_11_25.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
-    SI_BKstarmumu_25_40.resolveDependency(&SI_fill);
-    SI_BKstarmumu_25_40.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
-    SI_BKstarmumu_40_60.resolveDependency(&SI_fill);
-    SI_BKstarmumu_40_60.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
-    SI_BKstarmumu_60_80.resolveDependency(&SI_fill);
-    SI_BKstarmumu_60_80.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
-    SI_BKstarmumu_15_17.resolveDependency(&SI_fill);
-    SI_BKstarmumu_15_17.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
-    SI_BKstarmumu_17_19.resolveDependency(&SI_fill);
-    SI_BKstarmumu_17_19.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BKstarmumu_CONV);
+    SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
 
-    // Now do the b2ll likelihood
-    b2ll_likelihood.resolveDependency(&b2ll_measurements);
+    SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
 
-    // b2ll_measurements depends on:
-    // - Bsmumu_untag
-    // - Bmumu
-    b2ll_measurements.resolveDependency(&SI_Bsmumu_untag);
-    b2ll_measurements.resolveDependency(&SI_Bmumu);
+    SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
 
-    // Resolve dependencies of SI_Bsmumu_untag
-    // These are:
-    //  - SI_fill
-    // Plus BE reqs:
-    //  - Bsll_untag_CONV
-    SI_Bsmumu_untag.resolveDependency(&SI_fill);
-    SI_Bsmumu_untag.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Bsll_untag_CONV);
+    SuperIso_prediction_B2KstarmumuAng_4_6_LHCb.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_B2KstarmumuAng_4_6_LHCb.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_B2KstarmumuAng_4_6_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_B2KstarmumuAng_4_6_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_B2KstarmumuAng_4_6_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_B2KstarmumuAng_4_6_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
 
-    // Resolve dependencies of SI_Bmumu
-    // These are:
-    //  - SI_fill
-    // Plus BE reqs:
-    // - Bmumu
-    // - CW_calculator
-    // - C_calculator_base1
-    // - CQ_calculator
-    SI_Bmumu.resolveDependency(&SI_fill);
-    SI_Bmumu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Bll_CONV);
+    SuperIso_prediction_B2KstarmumuAng_6_8_LHCb.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_B2KstarmumuAng_6_8_LHCb.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_B2KstarmumuAng_6_8_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_B2KstarmumuAng_6_8_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_B2KstarmumuAng_6_8_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_B2KstarmumuAng_6_8_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
+
+    SuperIso_prediction_B2KstarmumuAng_15_19_LHCb.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_B2KstarmumuAng_15_19_LHCb.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_B2KstarmumuAng_15_19_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_B2KstarmumuAng_15_19_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_B2KstarmumuAng_15_19_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_B2KstarmumuAng_15_19_LHCb.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
+
+    // Now do the HEPLike_B2mumu_LogLikelihood_LHCb
+    HEPLike_B2mumu_LogLikelihood_LHCb.notifyOfSubCaps("[BRuntag_Bsmumu, BR_Bdmumu]");
+    HEPLike_B2mumu_LogLikelihood_LHCb.resolveDependency(&SuperIso_prediction_B2mumu);
+
+    // Resolve dependencies of SuperIso_prediction_B2mumu
+    SuperIso_prediction_B2mumu.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_B2mumu.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_B2mumu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_B2mumu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_B2mumu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_B2mumu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
 
     // Now do the semi-leptonic likelihood SL_LL
     // This depends on:
@@ -221,84 +237,87 @@ int main(int argc, char** argv)
     // - Dstaunu
     // - Dsmunu
     // - Dmunu
-    SL_measurements.resolveDependency(&SI_RD);
-    SL_measurements.resolveDependency(&SI_RDstar);
-    SL_measurements.resolveDependency(&SI_BDmunu);
-    SL_measurements.resolveDependency(&SI_BDstarmunu);
-    SL_measurements.resolveDependency(&SI_Btaunu);
-    SL_measurements.resolveDependency(&SI_Dsmunu);
-    SL_measurements.resolveDependency(&SI_Dstaunu);
-    SL_measurements.resolveDependency(&SI_Dmunu);
+    SL_measurements.resolveDependency(&SuperIso_prediction_RD);
+    SL_measurements.resolveDependency(&SuperIso_prediction_RDstar);
+    SL_measurements.resolveDependency(&SuperIso_prediction_BDmunu);
+    SL_measurements.resolveDependency(&SuperIso_prediction_BDstarmunu);
+    SL_measurements.resolveDependency(&SuperIso_prediction_Btaunu);
+    SL_measurements.resolveDependency(&SuperIso_prediction_Dsmunu);
+    SL_measurements.resolveDependency(&SuperIso_prediction_Dstaunu);
+    SL_measurements.resolveDependency(&SuperIso_prediction_Dmunu);
 
     // Resolve all of the individual dependencies and backend reqs
     // These are:
-    // - SI_fill
+    // - SuperIso_fill
     // BE Req: BDtaunu, etc
-    SI_Btaunu.resolveDependency(&SI_fill);
-    SI_Btaunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Btaunu);
-    SI_BDtaunu.resolveDependency(&SI_fill);
-    SI_BDtaunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BRBDlnu);
-    SI_RD.resolveDependency(&SI_fill);
-    SI_RD.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BDtaunu_BDenu);
-    SI_RDstar.resolveDependency(&SI_fill);
-    SI_RDstar.resolveBackendReq(&Backends::SuperIso_3_6::Functown::BDstartaunu_BDstarenu);
-    SI_Dstaunu.resolveDependency(&SI_fill);
-    SI_Dstaunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Dstaunu);
-    SI_Dsmunu.resolveDependency(&SI_fill);
-    SI_Dsmunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Dsmunu);
-    SI_Dmunu.resolveDependency(&SI_fill);
-    SI_Dmunu.resolveBackendReq(&Backends::SuperIso_3_6::Functown::Dmunu);
+    SuperIso_prediction_Btaunu.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_Btaunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Btaunu);
+    SuperIso_prediction_BDtaunu.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_BDtaunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BRBDlnu);
+    SuperIso_prediction_RD.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_RD.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BDtaunu_BDenu);
+    SuperIso_prediction_RDstar.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_RDstar.resolveBackendReq(&Backends::SuperIso_4_1::Functown::BDstartaunu_BDstarenu);
+    SuperIso_prediction_Dstaunu.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_Dstaunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Dstaunu);
+    SuperIso_prediction_Dsmunu.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_Dsmunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Dsmunu);
+    SuperIso_prediction_Dmunu.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_Dmunu.resolveBackendReq(&Backends::SuperIso_4_1::Functown::Dmunu);
 
     // Now resolve dependencies for the b->sgamma likelihoods
-    b2sgamma_likelihood.resolveDependency(&SI_bsgamma);
+    HEPLike_b2sgamma_LogLikelihood.resolveDependency(&SuperIso_prediction_b2sgamma);
 
-    // Resolve dependencies and backend requirements of SI_bsgamma:
-    // - SI_fill
-    // Plus BE reqs:
-    // - bsgamma_CONV
-    SI_bsgamma.resolveDependency(&SI_fill);
-    SI_bsgamma.resolveBackendReq(&Backends::SuperIso_3_6::Functown::bsgamma_CONV);
-
-    // Double-check which backend requirements have been filled with what
-    std::cout << std::endl << "My function SI_fill has had its backend requirement on Init_param filled by:" << std::endl;
-    std::cout << FlavBit::Pipes::SI_fill::BEreq::Init_param.origin() << "::";
-    std::cout << FlavBit::Pipes::SI_fill::BEreq::Init_param.name() << std::endl;
-    std::cout << std::endl << "My function SI_fill has had its backend requirement on slha_adjust filled by:" << std::endl;
-    std::cout << FlavBit::Pipes::SI_fill::BEreq::slha_adjust.origin() << "::";
-    std::cout << FlavBit::Pipes::SI_fill::BEreq::slha_adjust.name() << std::endl;
+    // Resolve dependencies and backend requirements of SuperIso_prediction_b2sgamma:
+    SuperIso_prediction_b2sgamma.resolveDependency(&SuperIso_fill);
+    SuperIso_prediction_b2sgamma.resolveDependency(&SuperIso_nuisance_fill);
+    SuperIso_prediction_b2sgamma.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_predictions_nuisance);
+    SuperIso_prediction_b2sgamma.resolveBackendReq(&Backends::SuperIso_4_1::Functown::observables);
+    SuperIso_prediction_b2sgamma.resolveBackendReq(&Backends::SuperIso_4_1::Functown::convert_correlation);
+    SuperIso_prediction_b2sgamma.resolveBackendReq(&Backends::SuperIso_4_1::Functown::get_th_covariance_nuisance);
 
     // Double-check which backend requirements have been filled with what
-    std::cout << std::endl << "My function SI_Bmumu  has had its backend requirement on Bll_CONV filled by:" << std::endl;
-    std::cout << FlavBit::Pipes::SI_Bmumu::BEreq::Bll_CONV.origin() << "::";
-    std::cout << FlavBit::Pipes::SI_Bmumu::BEreq::Bll_CONV.name() << std::endl;
+    std::cout << std::endl << "My function SuperIso_fill has had its backend requirement on Init_param filled by:" << std::endl;
+    std::cout << FlavBit::Pipes::SuperIso_fill::BEreq::Init_param.origin() << "::";
+    std::cout << FlavBit::Pipes::SuperIso_fill::BEreq::Init_param.name() << std::endl;
+    std::cout << std::endl << "My function SuperIso_fill has had its backend requirement on slha_adjust filled by:" << std::endl;
+    std::cout << FlavBit::Pipes::SuperIso_fill::BEreq::slha_adjust.origin() << "::";
+    std::cout << FlavBit::Pipes::SuperIso_fill::BEreq::slha_adjust.name() << std::endl;
+
+    // Double-check which backend requirements have been filled with what
+    std::cout << std::endl << "My function SuperIso_prediction_B2mumu  has had its backend requirements filled by:" << std::endl;
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::get_predictions_nuisance.origin() << "::";
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::get_predictions_nuisance.name() << std::endl;
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::observables.origin() << "::";
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::observables.name() << std::endl;
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::convert_correlation.origin() << "::";
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::convert_correlation.name() << std::endl;
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::get_th_covariance_nuisance.origin() << "::";
+    std::cout << FlavBit::Pipes::SuperIso_prediction_B2mumu::BEreq::get_th_covariance_nuisance.name() << std::endl;
 
     // Double-check which dependencies have been filled with whatever (not every combination is shown)
-    std::cout << std::endl << "My function SI_fill has had its dependency on MSSM_spectrum filled by:" << endl;
-    std::cout << FlavBit::Pipes::SI_fill::Dep::MSSM_spectrum.origin() << "::";
-    std::cout << FlavBit::Pipes::SI_fill::Dep::MSSM_spectrum.name() << std::endl;
+    std::cout << std::endl << "My function SuperIso_fill has had its dependency on MSSM_spectrum filled by:" << endl;
+    std::cout << FlavBit::Pipes::SuperIso_fill::Dep::MSSM_spectrum.origin() << "::";
+    std::cout << FlavBit::Pipes::SuperIso_fill::Dep::MSSM_spectrum.name() << std::endl;
 
-    std::cout << std::endl << "My function b2sll_likelihood has had its dependency on b2sll_M filled by:" << endl;
-    std::cout << FlavBit::Pipes::b2sll_likelihood::Dep::b2sll_M.origin() << "::";
-    std::cout << FlavBit::Pipes::b2sll_likelihood::Dep::b2sll_M.name() << std::endl;
-
-    std::cout << std::endl << "My function b2sll_measurements has had its dependency on BKstarmumu_11_25 filled by:" << endl;
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_11_25.origin() << "::";
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_11_25.name() << std::endl;
-    std::cout << std::endl << "My function b2sll_measurements has had its dependency on BKstarmumu_25_40 filled by:" << endl;
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_25_40.origin() << "::";
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_25_40.name() << std::endl;
-    std::cout << std::endl << "My function b2sll_measurements has had its dependency on BKstarmumu_40_60 filled by:" << endl;
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_40_60.origin() << "::";
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_40_60.name() << std::endl;
-    std::cout << std::endl << "My function b2sll_measurements has had its dependency on BKstarmumu_60_80 filled by:" << endl;
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_60_80.origin() << "::";
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_60_80.name() << std::endl;
-    std::cout << std::endl << "My function b2sll_measurements has had its dependency on BKstarmumu_15_17 filled by:" << endl;
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_15_17.origin() << "::";
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_15_17.name() << std::endl;
-    std::cout << std::endl << "My function b2sll_measurements has had its dependency on BKstarmumu_17_19 filled by:" << endl;
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_17_19.origin() << "::";
-    std::cout << FlavBit::Pipes::b2sll_measurements::Dep::BKstarmumu_17_19.name() << std::endl;
+    std::cout << std::endl << "My function HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020 has had its dependency on BKstarmumu_11_25 filled by:" << endl;
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_0p1_0p98_LHCb.origin() << "::";
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_0p1_0p98_LHCb.name() << std::endl;
+    std::cout << std::endl << "My function HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020 has had its dependency on BKstarmumu_25_40 filled by:" << endl;
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_1p1_2p5_LHCb.origin() << "::";
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_1p1_2p5_LHCb.name() << std::endl;
+    std::cout << std::endl << "My function HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020 has had its dependency on BKstarmumu_40_60 filled by:" << endl;
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_2p5_4_LHCb.origin() << "::";
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_2p5_4_LHCb.name() << std::endl;
+    std::cout << std::endl << "My function HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020 has had its dependency on BKstarmumu_60_80 filled by:" << endl;
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_2p5_4_LHCb.origin() << "::";
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_2p5_4_LHCb.name() << std::endl;
+    std::cout << std::endl << "My function HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020 has had its dependency on BKstarmumu_15_17 filled by:" << endl;
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_6_8_LHCb.origin() << "::";
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_6_8_LHCb.name() << std::endl;
+    std::cout << std::endl << "My function HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020 has had its dependency on BKstarmumu_17_19 filled by:" << endl;
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_15_19_LHCb.origin() << "::";
+    std::cout << FlavBit::Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020::Dep::prediction_B2KstarmumuAng_15_19_LHCb.name() << std::endl;
 
     // Now we start the actual calculations (which we would loop over if doing a scan).
     double loglike;
@@ -309,60 +328,55 @@ int main(int argc, char** argv)
     relabelSpectrum.reset_and_calculate();
 
     // Initialise the backends
-    SuperIso_3_6_init.reset_and_calculate();
+    SuperIso_4_1_init.reset_and_calculate();
     FeynHiggs_2_11_3_init.reset_and_calculate();
 
     // Now call the module functions in an appropriate order
-    SI_fill.reset_and_calculate();
+    SuperIso_fill.reset_and_calculate();
+    SuperIso_nuisance_fill.reset_and_calculate();
 
     // Calculate the B meson mass asymmetry likelihood
-    FH_FlavourObs.reset_and_calculate();
-    FH_DeltaMs.reset_and_calculate();
+    FeynHiggs_FlavourObs.reset_and_calculate();
+    FeynHiggs_prediction_DeltaMs.reset_and_calculate();
     deltaMB_likelihood.reset_and_calculate();
     loglike = deltaMB_likelihood(0);
     std::cout << std::endl << "B meson mass asymmetry log-likelihood: " << loglike << std::endl;
 
     // Calculate the B -> ll likelihood
-    SI_Bsmumu_untag.reset_and_calculate();
-    SI_Bmumu.reset_and_calculate();
-    b2ll_measurements.reset_and_calculate();
-    b2ll_likelihood.reset_and_calculate();
-    loglike = b2ll_likelihood(0);
-    std::cout << "Fully leptonic B decays (B->ll) joint log-likelihood: " << loglike << std::endl;
+    SuperIso_prediction_B2mumu.reset_and_calculate();
+    HEPLike_B2mumu_LogLikelihood_LHCb.reset_and_calculate();
+    loglike = HEPLike_B2mumu_LogLikelihood_LHCb(0);
+    std::cout << "Fully leptonic B decays (B->ll) joint log-likelihood from LHCb results: " << loglike << std::endl;
 
     // Calculate the B -> Xs ll likelihood
-    SI_BKstarmumu_11_25.reset_and_calculate();
-    SI_BKstarmumu_25_40.reset_and_calculate();
-    SI_BKstarmumu_40_60.reset_and_calculate();
-    SI_BKstarmumu_60_80.reset_and_calculate();
-    SI_BKstarmumu_15_17.reset_and_calculate();
-    SI_BKstarmumu_17_19.reset_and_calculate();
-    b2sll_measurements.reset_and_calculate();
-    b2sll_likelihood.reset_and_calculate();
-    loglike = b2sll_likelihood(0);
-    std::cout << "Leptonic penguin B decays (B->X_s ll) joint log-likelihood: " << loglike << std::endl;
+    SuperIso_prediction_B2KstarmumuAng_0p1_0p98_LHCb.reset_and_calculate();
+    SuperIso_prediction_B2KstarmumuAng_1p1_2p5_LHCb.reset_and_calculate();
+    SuperIso_prediction_B2KstarmumuAng_2p5_4_LHCb.reset_and_calculate();
+    SuperIso_prediction_B2KstarmumuAng_4_6_LHCb.reset_and_calculate();
+    SuperIso_prediction_B2KstarmumuAng_6_8_LHCb.reset_and_calculate();
+    SuperIso_prediction_B2KstarmumuAng_15_19_LHCb.reset_and_calculate();
+    HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020.reset_and_calculate();
+    loglike = HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020(0);
+    std::cout << "Leptonic penguin B decays (B->X_s ll) joint log-likelihood from 2020 LHCb results: " << loglike << std::endl;
 
     // Calculate the semi-leptonic (SL) likelihood
-    SI_Btaunu.reset_and_calculate();
-    SI_BDtaunu.reset_and_calculate();
-    SI_RD.reset_and_calculate();
-    SI_RDstar.reset_and_calculate();
-    SI_Dstaunu.reset_and_calculate();
-    SI_Dsmunu.reset_and_calculate();
-    SI_Dmunu.reset_and_calculate();
+    SuperIso_prediction_Btaunu.reset_and_calculate();
+    SuperIso_prediction_BDtaunu.reset_and_calculate();
+    SuperIso_prediction_RD.reset_and_calculate();
+    SuperIso_prediction_RDstar.reset_and_calculate();
+    SuperIso_prediction_Dstaunu.reset_and_calculate();
+    SuperIso_prediction_Dsmunu.reset_and_calculate();
+    SuperIso_prediction_Dmunu.reset_and_calculate();
     SL_measurements.reset_and_calculate();
     SL_likelihood.reset_and_calculate();
     loglike = SL_likelihood(0);
     std::cout << "Semi-leptonic B decays (B->D l nu) joint log-likelihood: " << loglike << std::endl;
 
     // Calculate the B -> X_s gamma likelihood
-    SI_bsgamma.reset_and_calculate();
-    b2sgamma_likelihood.reset_and_calculate();
-    loglike = b2sgamma_likelihood(0);
+    SuperIso_prediction_b2sgamma.reset_and_calculate();
+    HEPLike_b2sgamma_LogLikelihood.reset_and_calculate();
+    loglike = HEPLike_b2sgamma_LogLikelihood(0);
     std::cout << "B->X_s gamma log-likelihood: " << loglike << std::endl;
-
-    std::cout << endl;
-
   }
 
   catch (std::exception& e)

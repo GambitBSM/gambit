@@ -24,6 +24,7 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Backends/backend_info.hpp"
+#include "gambit/Utils/util_functions.hpp"
 #include "gambit/Logs/logger.hpp"
 
 #ifdef HAVE_MATHEMATICA
@@ -363,6 +364,10 @@ namespace Gambit
       {
         loadLibrary_C_CXX_Fortran(be, ver, sv, with_BOSS);
       }
+      else if (lang == "DATA" or lang == "Data")
+      {
+        loadLibrary_data(be, ver, sv);
+      }
       else
       {
         std::ostringstream err;
@@ -382,6 +387,27 @@ namespace Gambit
     return 0;
   }
 
+  /// Load a data-only backend library.
+  void Backends::backend_info::loadLibrary_data(const str& be, const str& ver, const str& sv)
+  {
+    const str path = corrected_path(be,ver);
+    link_versions(be, ver, sv);
+    classloader[be+ver] = false;
+    needsMathematica[be+ver] = false;
+    needsPython[be+ver] = false;
+
+    if (Utils::file_exists(path))
+    {
+      logger() << "Succeeded in locating data library at " << path << "."
+               << LogTags::backends << LogTags::info << EOM;
+      works[be+ver] = true;
+    }
+    else
+    {
+      backend_warning().raise(LOCAL_INFO,"Failed to locate data library at " + path + ".");
+      works[be+ver] = false;
+    }
+  }
 
   /// Load a backend library written in C, C++ or Fortran.
   void Backends::backend_info::loadLibrary_C_CXX_Fortran(const str& be, const str& ver, const str& sv, bool with_BOSS)

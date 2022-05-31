@@ -24,7 +24,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->setPtr__BOSS((*infoPtrIn).get_BEptr());
         }
         
-        inline void SLHAinterface::init(Pythia8::Settings& settings, Pythia8::Rndm* rndmPtr, Pythia8::Couplings* couplingsPtrIn, Pythia8::ParticleData* particleDataPtr, bool& useSHLAcouplings, ::std::basic_stringstream<char, std::char_traits<char>, std::allocator<char> >& ParticleDataBuffer)
+        inline void SLHAinterface::init(Pythia8::Settings& settings, Pythia8::Rndm* rndmPtr, Pythia8::Couplings* couplingsPtrIn, Pythia8::ParticleData* particleDataPtr, bool& useSHLAcouplings, ::std::basic_stringstream<char>& ParticleDataBuffer)
         {
             get_BEptr()->init__BOSS(*settings.get_BEptr(), (*rndmPtr).get_BEptr(), (*couplingsPtrIn).get_BEptr(), (*particleDataPtr).get_BEptr(), useSHLAcouplings, ParticleDataBuffer);
         }

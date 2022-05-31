@@ -38,8 +38,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Abstract_Pythia* (*__factory0)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool);
-                static Abstract_Pythia* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+                static Abstract_Pythia* (*__factory0)(::std::basic_string<char>, bool);
+                static Abstract_Pythia* (*__factory1)(::std::basic_string<char>);
                 static Abstract_Pythia* (*__factory2)();
                 static Abstract_Pythia* (*__factory3)(Pythia8::ParticleData&, Pythia8::Settings&, bool);
                 static Abstract_Pythia* (*__factory4)(Pythia8::ParticleData&, Pythia8::Settings&);
@@ -57,33 +57,33 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 // Member functions: 
             public:
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > arg_1, bool warn);
+                bool readString(::std::basic_string<char> arg_1, bool warn);
         
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > arg_1);
+                bool readString(::std::basic_string<char> arg_1);
         
-                bool readFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool warn, int subrun);
+                bool readFile(::std::basic_string<char> fileName, bool warn, int subrun);
         
-                bool readFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool warn);
+                bool readFile(::std::basic_string<char> fileName, bool warn);
         
-                bool readFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName);
+                bool readFile(::std::basic_string<char> fileName);
         
-                bool readFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, int subrun);
+                bool readFile(::std::basic_string<char> fileName, int subrun);
         
-                bool readFile(::std::basic_istream<char, std::char_traits<char> >& is, bool warn, int subrun);
+                bool readFile(::std::basic_istream<char>& is, bool warn, int subrun);
         
-                bool readFile(::std::basic_istream<char, std::char_traits<char> >& is, bool warn);
+                bool readFile(::std::basic_istream<char>& is, bool warn);
         
-                bool readFile(::std::basic_istream<char, std::char_traits<char> >& is);
+                bool readFile(::std::basic_istream<char>& is);
         
                 bool readFile();
         
-                bool readFile(::std::basic_istream<char, std::char_traits<char> >& is, int subrun);
+                bool readFile(::std::basic_istream<char>& is, int subrun);
         
                 bool setUserHooksPtr(Pythia8::UserHooks* userHooksPtrIn);
         
                 bool setResonancePtr(Pythia8::ResonanceWidths* resonancePtrIn);
         
-                bool init(::std::basic_ostream<char, std::char_traits<char> >& os);
+                bool init(::std::basic_ostream<char>& os);
         
                 bool init();
         
@@ -101,7 +101,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool forceRHadronDecays();
         
-                void LHAeventList(::std::basic_ostream<char, std::char_traits<char> >& os);
+                void LHAeventList(::std::basic_ostream<char>& os);
         
                 void LHAeventList();
         
@@ -109,19 +109,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void stat();
         
-                bool flag(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > key);
+                bool flag(::std::basic_string<char> key);
         
-                int mode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > key);
+                int mode(::std::basic_string<char> key);
         
-                double parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > key);
+                double parm(::std::basic_string<char> key);
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > word(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > key);
+                ::std::basic_string<char> word(::std::basic_string<char> key);
         
         
                 // Wrappers for original constructors: 
             public:
-                Pythia(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > xmlDir, bool printBanner);
-                Pythia(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > xmlDir);
+                Pythia(::std::basic_string<char> xmlDir, bool printBanner);
+                Pythia(::std::basic_string<char> xmlDir);
                 Pythia();
                 Pythia(Pythia8::ParticleData& particleDataIn, Pythia8::Settings& settingsIn, bool printBanner);
                 Pythia(Pythia8::ParticleData& particleDataIn, Pythia8::Settings& settingsIn);

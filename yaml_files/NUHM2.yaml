@@ -76,8 +76,6 @@ Priors:
 Printer:
 
   printer: hdf5
-  #printer: ascii
-
   options:
     output_file: "NUHM2.hdf5"
     group: "/NUHM2"
@@ -106,198 +104,237 @@ Scanner:
 
 ObsLikes:
 
-    # LHC likelihoods
-    - purpose:    LogLike
-      capability: LHC_Combined_LogLike
+  # LHC likelihoods
+  - capability: LHC_Combined_LogLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: LHC_Higgs_LogLike
+  - capability: LHC_Higgs_LogLike
+    purpose:    LogLike
 
-    # LEP likelihoods
-    - purpose:    LogLike
-      capability: LEP_Higgs_LogLike
+  # LEP likelihoods
+  - capability: LEP_Higgs_LogLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Selectron_LLike
+  - capability: ALEPH_Selectron_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Smuon_LLike
+  - capability: ALEPH_Smuon_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: ALEPH_Stau_LLike
+  - capability: ALEPH_Stau_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Selectron_LLike
+  - capability: L3_Selectron_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Smuon_LLike
+  - capability: L3_Smuon_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Stau_LLike
+  - capability: L3_Stau_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Neutralino_Leptonic_LLike
+  - capability: L3_Neutralino_Leptonic_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: L3_Chargino_Leptonic_LLike
+  - capability: L3_Chargino_Leptonic_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Hadronic_LLike
+  - capability: OPAL_Chargino_Hadronic_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_SemiLeptonic_LLike
+  - capability: OPAL_Chargino_SemiLeptonic_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Chargino_Leptonic_LLike
+  - capability: OPAL_Chargino_Leptonic_LLike
+    purpose:    LogLike
 
-    - purpose:    LogLike
-      capability: OPAL_Neutralino_Hadronic_LLike
+  - capability: OPAL_Neutralino_Hadronic_LLike
+    purpose:    LogLike
 
-    # Flavour physics likelihoods
-    - purpose:    LogLike
-      capability: b2ll_LL
+  # Flavour physics likelihoods
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood
 
-    - purpose:    LogLike
-      capability: SL_LL
+  - purpose:    LogLike
+    capability: B2Kstargamma_LogLikelihood
 
-    - purpose:    LogLike
-      capability: b2sll_LL
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_Atlas
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-    - purpose:    LogLike
-      capability: b2sgamma_LL
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_CMS
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-    - purpose:    LogLike
-      capability: LUV_LL
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_LHCb
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-    # Precision physics likelihoods
-    - capability: lnL_W_mass
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    sub_capabilities: [FL, S3, S4, S5, S7, S8]
 
-    #- capability: lnL_sinW2_eff
-    #  purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_CMS
+    sub_capabilities: [P1, P5prime]
 
-    #- capability: lnL_deltarho
-    #  purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KstarellellAng_LogLikelihood_Belle
+    sub_capabilities: [P4prime, P5prime]
 
-    - capability:  lnL_gm2
-      purpose:     LogLike
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-    # Dark matter likelihoods
-    - capability: lnL_oh2
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-    - capability: lnL_FermiLATdwarfs
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
-    - capability: XENON100_2012_LogLikelihood
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: SL_LL
 
-    - capability: XENON1T_2018_LogLikelihood
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KstarmumuBr_LogLikelihood_LHCb
 
-    - capability: LUX_2016_LogLikelihood
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: Bs2phimumuBr_LogLikelihood
 
-    - capability: PandaX_2016_LogLikelihood
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_LHCb
 
-    - capability: PandaX_2017_LogLikelihood
-      purpose:    LogLike
+  # Precision physics likelihoods
+  - capability: lnL_W_mass
+    purpose:    LogLike
 
-    - capability: PICO_2L_LogLikelihood
-      purpose:    LogLike
+  # - capability: lnL_sinW2_eff
+  #   purpose:    LogLike
 
-    - capability: PICO_60_LogLikelihood
-      purpose:    LogLike
+  # - capability: lnL_deltarho
+  #   purpose:    LogLike
 
-    - capability: PICO_60_2017_LogLikelihood
-      purpose:    LogLike
+  - capability:  lnL_gm2
+    purpose:     LogLike
 
-    - capability: SuperCDMS_2014_LogLikelihood
-      purpose:    LogLike
+  # Dark matter likelihoods
+  - capability: lnL_oh2
+    purpose:    LogLike
 
-    - capability: SIMPLE_2014_LogLikelihood
-      purpose:    LogLike
+  - capability: lnL_FermiLATdwarfs
+    purpose:    LogLike
 
-    - capability: IC79_loglike
-      purpose:    LogLike
+  - capability: XENON100_2012_LogLikelihood
+    purpose:    LogLike
 
-    # SI nuclear nuisance parameter likelihood
-    - capability: lnL_SI_nuclear_parameters
-      purpose:    LogLike
+  - capability: XENON1T_2018_LogLikelihood
+    purpose:    LogLike
 
-    # DM Local Halo likelihoods
-    - capability: lnL_rho0
-      purpose: LogLike
+  - capability: LUX_2016_LogLikelihood
+    purpose:    LogLike
 
-    #- capability: lnL_vrot
-    #  purpose: LogLike
+  - capability: PandaX_2016_LogLikelihood
+    purpose:    LogLike
 
-    #- capability: lnL_v0
-    #  purpose: LogLike
+  - capability: PandaX_2017_LogLikelihood
+    purpose:    LogLike
 
-    #- capability: lnL_vesc
-    #  purpose: LogLike
+  - capability: PICO_2L_LogLikelihood
+    purpose:    LogLike
 
-    # SM nuisance parameter likelihoods
-    - capability: lnL_t_mass
-      purpose:    LogLike
+  - capability: PICO_60_LogLikelihood
+    purpose:    LogLike
 
-    - capability: lnL_mbmb
-      purpose:    LogLike
+  - capability: PICO_60_2017_LogLikelihood
+    purpose:    LogLike
 
-    #- capability: lnL_light_quark_masses
-    #  purpose:    LogLike
+  - capability: SuperCDMS_2014_LogLikelihood
+    purpose:    LogLike
 
-    #- capability: lnL_alpha_em
-    #  purpose:    LogLike
+  - capability: SIMPLE_2014_LogLikelihood
+    purpose:    LogLike
 
-    - capability: lnL_alpha_s
-      purpose:    LogLike
+  - capability: IC79_loglike
+    purpose:    LogLike
 
-    # Other observables
-    - purpose:    likelihood_details
-      capability: LHC_LogLike_per_analysis
+  # SI nuclear nuisance parameter likelihood
+  - capability: lnL_SI_nuclear_parameters
+    purpose:    LogLike
 
-    - purpose:    Observable
-      capability: LHC_signals
+  # DM Local Halo likelihoods
+  - capability: lnL_rho0
+    purpose: LogLike
 
-    - purpose:    Observable
-      capability: LHCEventLoopInfo
+  #- capability: lnL_vrot
+  #  purpose: LogLike
 
-    - purpose:    Observable
-      capability: RD_oh2
+  #- capability: lnL_v0
+  #  purpose: LogLike
 
-    - purpose:    Observable
-      capability: mwimp
+  #- capability: lnL_vesc
+  #  purpose: LogLike
 
-    - purpose:    Observable
-      capability: sigmav
+  # SM nuisance parameter likelihoods
+  - capability: lnL_t_mass
+    purpose:    LogLike
 
-    - purpose:    Observable
-      capability: sigma_SI_p
+  - capability: lnL_mbmb
+    purpose:    LogLike
 
-    - purpose:    Observable
-      capability: sigma_SI_n
+  #- capability: lnL_light_quark_masses
+  #  purpose:    LogLike
 
-    - purpose:    Observable
-      capability: sigma_SD_p
+  #- capability: lnL_alpha_em
+  #  purpose:    LogLike
 
-    - purpose:    Observable
-      capability: sigma_SD_n
+  - capability: lnL_alpha_s
+    purpose:    LogLike
 
-    - purpose:    Observable
-      capability: bsgamma
+  # Other observables
+  - capability: LHC_LogLike_per_analysis
+    purpose:    Observable
 
-    - purpose:    Observable
-      capability: muon_gm2
+  - capability: LHC_signals
+    purpose:    Observable
 
-    - purpose:    Observable
-      capability: SLHA1_violation
+  - capability: LHCEventLoopInfo
+    purpose:    Observable
 
-    - purpose:    Observable
-      capability: MSSM_spectrum
-      type:       map_str_dbl
+  - capability: RD_oh2
+    purpose:    Observable
+
+  - capability: mwimp
+    purpose:    Observable
+
+  - capability: sigmav
+    purpose:    Observable
+
+  - capability: sigma_SI_p
+    purpose:    Observable
+
+  - capability: sigma_SI_n
+    purpose:    Observable
+
+  - capability: sigma_SD_p
+    purpose:    Observable
+
+  - capability: sigma_SD_n
+    purpose:    Observable
+
+  - capability: prediction_b2sgamma
+    purpose:    Observable
+
+  - capability: muon_gm2
+    purpose:    Observable
+
+  - capability: SLHA1_violation
+    purpose:    Observable
+
+  - capability: MSSM_spectrum
+    purpose:    Observable
+    type:       map_str_dbl
 
 
 Rules:
@@ -324,13 +361,17 @@ Rules:
   - capability: muon_gm2_SM
     function: gm2_SM_ee
 
+  # Use SM theory covariance matrix for every point
+  - capability: flav_theory_covariance
+    function: SuperIso_theory_covariance_SM
+
   # Use SuperIso instead of FeynHiggs for b->sgamma
-  - capability: bsgamma
-    function: SI_bsgamma
+  - capability: prediction_b2sgamma
+    function: SuperIso_prediction_b2sgamma
 
   # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
+  - capability: SuperIso_prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2
@@ -400,8 +441,8 @@ Rules:
     options:
       loop: true
     #function: DD_couplings_MicrOmegas
-    
-  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+
+  # Select WIMP-nucleon couplings to pass to DDCalc
   - capability: DDCalc_Couplings
     function: DDCalc_Couplings_WIMP_nucleon
 
@@ -455,21 +496,21 @@ Rules:
   #- capability: FH_Couplings_output
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: FH_Precision
+  #- capability: Precision
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
   # The following two rules only have an impact when using make_MSSM_precision_spectrum_H_W
   #- capability: prec_HiggsMasses
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: FH_MSSMMasses
+  #- capability: MSSMMasses
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
 
   # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
   - capability: prec_mh
-    function: FH_HiggsMass
-    #function: SHD_HiggsMass
+    function: FeynHiggs_HiggsMass
+    #function: SUSYHD_HiggsMass
 
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
   - capability: Reference_SM_Higgs_decay_rates
@@ -492,7 +533,7 @@ Rules:
   # Choose where to get the Higgs couplings from
   - capability: Higgs_Couplings
     function: MSSM_higgs_couplings_pwid
-    #function: MSSM_higgs_couplings_FH
+    #function: MSSM_higgs_couplings_FeynHiggs
 
   # Experimental values to be used in nuclear parameter likelihoods (all values in MeV)
   - capability: lnL_SI_nuclear_parameters
@@ -544,6 +585,53 @@ Rules:
       ms_central: 95.E-03
       ms_error: 5.E-03
 
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia
+    options:
+      slha_version: 2
+      write_summary_to_log: false
+
+  # Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+  # Choose to generate events with Pythia on the fly (rather than reading them in)
+  - capability: HardScatteringEvent
+    function: generateEventPythia
+
+  # Choose Monte Carlo event simulator and options.
+  - capability: HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        partonOnly: false
+        antiktR: 0.4
+        pythia_settings:
+          - Print:quiet = on
+          - Next:numberCount = 0
+          - Random:setSeed = on
+          - Beams:eCM = 13000
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
     function: operateLHCLoop
@@ -576,78 +664,32 @@ Rules:
         # - ATLAS_13TeV_1LEPStop_36invfb
         # The last two analyses depend on ROOT.
 
-  # Choose Monte Carlo event simulator and options.
-  - capability:  HardScatteringSim
-    type: ColliderPythia_defaultversion
-    function: getPythia
-    options:
-      LHC_13TeV:
-        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
-        xsec_veto: 0.028
-        pythia_settings:
-          - Print:quiet = on
-          - PartonLevel:MPI = off
-          - PartonLevel:ISR = on
-          - PartonLevel:FSR = on
-          - HadronLevel:all = on
-          - SUSY:all = on
-          - TauDecays:mode = 0
-          - TimeShower:pTmin = 2
-
-  - capability: HardScatteringSim
-    type: const BaseCollider*
-    function: getPythiaAsBase
-    module: ColliderBit
-
-  # Choose to get cross-sections from the Monte Carlo
-  - capability: TotalCrossSection
-    function: getEvGenCrossSection_as_base
-
-  # Just use unweighted cross-sections
-  - capability: EventWeighterFunction
-    function: setEventWeight_unity
-
-  # Choose to generate events with Pythia on the fly (rather than reading them in)
-  - capability: HardScatteringEvent
-    function: generateEventPythia
-
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV:
-        partonOnly: false
-        antiktR: 0.4
-
-  # Choose ATLAS smearing function
-  - capability: ATLASSmearedEvent
-    function: smearEventATLAS
-    module: ColliderBit
-
-  # Choose CMS smearing function
-  - capability: CMSSmearedEvent
-    function: smearEventCMS
-    module: ColliderBit
-
-  # Choose copied event function
-  - capability: CopiedEvent
-    function: copyEvent
-    module: ColliderBit
-
-  # Choose which type of marginalised Poisson likelihood to use for LHC likelihoods
+  # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
-      covariance_marg_convthres_abs: 0.05
-      covariance_marg_convthres_rel: 0.05
-      covariance_nsamples_start: 100000
+      # covariance_marg_convthres_abs: 0.05
+      # covariance_marg_convthres_rel: 0.05
+      # covariance_nsamples_start: 100000
+      use_covariances: true
+      combine_SRs_without_covariances: false
+      use_marginalising: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-5
+      nuisance_prof_method: 6
+      nuisance_prof_verbosity: 0
+
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: false
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
+      # skip_analyses:
+
 
 
 Logger:

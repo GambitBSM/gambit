@@ -36,7 +36,7 @@
 ///  This stuff should be removed when FlexibleSUSY becomes a "real"
 ///  backend. The preprocessor variables are created automatically in
 ///  cmake/contrib.cmake as part of the FlexibleSUSY configuration process.
-///  Note that these #if checks are in both this header AND these 
+///  Note that these #if checks are in both this header AND these
 ///  source files which define the corresponding module functions.
 ///
 #ifndef __SpecBit_MSSM_hpp__
@@ -138,7 +138,7 @@
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
-     
+
 
     // ==============================
     // MSSM parameterised by mA and mu (instead of mHu2 and mHd2) at SUSY scale
@@ -267,10 +267,10 @@
 
 
   // FeynHiggs SUSY masses and mixings
-  #define CAPABILITY FH_MSSMMasses
+  #define CAPABILITY MSSMMasses
   START_CAPABILITY
-    #define FUNCTION FH_MSSMMasses
-    START_FUNCTION(fh_MSSMMassObs)
+    #define FUNCTION FeynHiggs_MSSMMasses
+    START_FUNCTION(fh_MSSMMassObs_container)
     BACKEND_REQ(FHGetPara, (libfeynhiggs), void, (int&,int&,
                 Farray<fh_real, 1,2, 1,5, 1,3>&, Farray<fh_complex, 1,2, 1,2, 1,5, 1,3>&,
                 Farray<fh_real, 1,6, 1,5>&, Farray<fh_complex, 1,36, 1,5>&,
@@ -284,10 +284,10 @@
   #undef CAPABILITY
 
   // Higgs masses and mixings with theoretical uncertainties
-  #define CAPABILITY FH_HiggsMasses
+  #define CAPABILITY HiggsMasses
   START_CAPABILITY
-    #define FUNCTION FH_AllHiggsMasses
-    START_FUNCTION(fh_HiggsMassObs)
+    #define FUNCTION FeynHiggs_AllHiggsMasses
+    START_FUNCTION(fh_HiggsMassObs_container)
     BACKEND_REQ(FHHiggsCorr, (libfeynhiggs), void, (int&, Farray< fh_real,1,4>&, fh_complex&,
                 Farray<fh_complex, 1,3, 1,3>&,
                 Farray<fh_complex, 1,3, 1,3>&))
@@ -303,14 +303,14 @@
   #define CAPABILITY prec_mh
   START_CAPABILITY
 
-    #define FUNCTION FH_HiggsMass
+    #define FUNCTION FeynHiggs_HiggsMass
     START_FUNCTION(triplet<double>)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
-    DEPENDENCY(FH_HiggsMasses, fh_HiggsMassObs)
+    DEPENDENCY(HiggsMasses, fh_HiggsMassObs_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
-    #define FUNCTION SHD_HiggsMass
+    #define FUNCTION SUSYHD_HiggsMass
     START_FUNCTION(triplet<double>)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
     BACKEND_REQ(SUSYHD_MHiggs, (), MReal, (const MList<MReal>&))
@@ -323,18 +323,18 @@
   // Non-SM-like, charged and CP-odd Higgs masses with theoretical uncertainties
   #define CAPABILITY prec_HeavyHiggsMasses
   START_CAPABILITY
-    #define FUNCTION FH_HeavyHiggsMasses
+    #define FUNCTION FeynHiggs_HeavyHiggsMasses
     START_FUNCTION(map_int_triplet_dbl)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
-    DEPENDENCY(FH_HiggsMasses, fh_HiggsMassObs)
+    DEPENDENCY(HiggsMasses, fh_HiggsMassObs_container)
     #undef FUNCTION
   #undef CAPABILITY
 
   // Higgs couplings information directly computed by FeynHiggs
   #define CAPABILITY FH_Couplings_output
   START_CAPABILITY
-    #define FUNCTION FH_Couplings
-    START_FUNCTION(fh_Couplings)
+    #define FUNCTION FeynHiggs_Couplings
+    START_FUNCTION(fh_Couplings_container)
     BACKEND_REQ(FHSelectUZ, (libfeynhiggs), void, (int&,int&,int&,int&))
     BACKEND_REQ(FHCouplings, (libfeynhiggs), void, (int&, Farray< fh_complex,1,681>&,
                                                     Farray< fh_complex,1,231>&,
@@ -362,7 +362,7 @@
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
-    #define FUNCTION MSSM_higgs_couplings_FH
+    #define FUNCTION MSSM_higgs_couplings_FeynHiggs
     START_FUNCTION(HiggsCouplingsTable)
     DEPENDENCY(MSSM_spectrum, Spectrum)
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
@@ -373,7 +373,7 @@
     DEPENDENCY(A0_decay_rates, DecayTable::Entry)
     DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(t_decay_rates, DecayTable::Entry)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 

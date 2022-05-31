@@ -6,7 +6,7 @@ math:
     model: MDMSM
     base_model: SM
     lagrangian: LDM + LSM
-    restriction: DiagonalCKM
+    restrictions: DiagonalCKM
 
 wimp_candidate: 52
 

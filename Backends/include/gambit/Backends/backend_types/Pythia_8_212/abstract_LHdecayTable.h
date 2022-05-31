@@ -36,15 +36,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void addChannel__BOSS(Pythia8::Abstract_LHdecayChannel&) =0;
     
-                virtual void addChannel(double, int, ::std::vector<int, std::allocator<int> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void addChannel(double, int, ::std::vector<int>, ::std::basic_string<char>) =0;
     
-                virtual void addChannel__BOSS(double, int, ::std::vector<int, std::allocator<int> >) =0;
+                virtual void addChannel__BOSS(double, int, ::std::vector<int>) =0;
     
                 virtual int size() =0;
     
                 virtual double getBrat(int) =0;
     
-                virtual ::std::vector<int, std::allocator<int> > getIdDa(int) =0;
+                virtual ::std::vector<int> getIdDa(int) =0;
     
                 virtual Pythia8::Abstract_LHdecayChannel* getChannel__BOSS(int) =0;
     

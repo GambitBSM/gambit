@@ -30,7 +30,7 @@
 LOAD_LIBRARY
 
 // Set models that this backend can be used with.  If absent, all models are allowed.
-BE_ALLOW_MODELS(NUHM1,ScalarSingletDM_Z3,WC)
+BE_ALLOW_MODELS(NUHM1,ScalarSingletDM_Z3,WC,CMSSM)
 
 // Functions
 BE_FUNCTION(initialize, void, (int), "_Z10initializei", "initialize_capability")
@@ -74,7 +74,7 @@ BE_INI_FUNCTION
     *SomeDouble = 2.1;
     logger() << "Initialised someDouble to " << *SomeDouble << EOM;
   }
-  logger() << "M0 in libfirst v1.1 initialisation function: " << *Param["M0"] << EOM;
+  if (ModelInUse("CMSSM")) logger() << "M0 in libfirst v1.1 initialisation function: " << *Param["M0"] << EOM;
   awesomenessByAnders(*Dep::nevents);
 }
 END_BE_INI_FUNCTION

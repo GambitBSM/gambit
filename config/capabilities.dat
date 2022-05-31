@@ -6,8 +6,9 @@
 # are lacking descriptions those will be reported too.
 # This is then merged with internally known information
 # to create a centralised database of capability
-# information.
-# This is found in the file "<insert name here>"
+# information. The merged file is "central_capabilities.dat",
+# which can be found in the scratch directory of each
+# GAMBIT run.
 #
 # Note: Yaml syntax for multi-line strings is this:
 #
@@ -363,14 +364,14 @@ unimproved_MSSM_spectrum: |
 SM_subspectrum: |
     Return the standard model subspectrum object from the MSSM_spectrum
 
-FH_MSSMMasses: |
-    SUSY masses and mixings, as computed by FeynHiggs.
+MSSMMasses: |
+    SUSY masses and mixings (e.g. as computed by FeynHiggs).
 
-FH_HiggsMasses: |
-    Higgs masses and mixings with theoretical uncertainties, as computed by FeynHiggs.
+HiggsMasses: |
+    Higgs masses and mixings with theoretical uncertainties (as e.g. computed by FeynHiggs).
 
 Higgs_Couplings: |
-    Higgs couplings, as computed by FeynHiggs
+    Higgs couplings (as e.g. computed by FeynHiggs).
 
 SPheno_3_3_8_init: |
     Initalises SPheno 3.3.8 and sets the internal model type according to the one being scanned.
@@ -540,14 +541,14 @@ AllAnalysisNumbers: |
    Combined analysis numbers from all LHC analyses used in a scan.
 
 AllAnalysisNumbersUnmodified: |
-   A version of the AllAnalysisNumbers capability for use with ColliderBit analyses 
+   A version of the AllAnalysisNumbers capability for use with ColliderBit analyses
    based on interpolated yields. AllAnalysisNumbersUnmodified is the collection
-   of all analysis numbers before any subsequent modificiation, e.g. due to 
+   of all analysis numbers before any subsequent modificiation, e.g. due to
    EFT validity constraints.
 
 DMEFT_profiled_LHC_nuisance_params: |
    Information on the result of profiling out the nuisance parameter 'a' in collider
-   signal predictions for the DMEFT model. This parameter is used to smoothly suppress 
+   signal predictions for the DMEFT model. This parameter is used to smoothly suppress
    signal predictions for MET bins with MET > Lambda.
 
 ALEPH_Selectron_LLike: |
@@ -3357,8 +3358,8 @@ mw : |
 mh : |
    The SM-like Higgs boson pole mass.
 
-FH_Precision : |
-   Precision observable tableau, as calculated with FeynHiggs.
+Precision : |
+   Precision observable tableau (e.g. as calculated with FeynHiggs).
 
 SP_PrecisionObs : |
    Precision observable tableau, as calculated with SUSY-POPE.
@@ -3405,7 +3406,7 @@ lnL_deltarho : |
 
 
 #-------------------------------------
-#  FlavBit capabilities
+#  FlavBit, SuperIso and HepLike capabilities
 #-------------------------------------
 
 AI_BKstarmumu : |
@@ -3426,25 +3427,13 @@ A_BXsll_zero : |
 A_BXsmumu_highq2 : |
    The integrated forward-backward asymmetry of B->Xs μ+ μ- in the high-q2 bin.
 
-A_BXsmumu_highq2_CONV : |
-   The Wilson coefficients and the integrated forward-backward asymmetry of B->Xs μ+ μ- in the high-q2 bin.
-
 A_BXsmumu_lowq2 : |
    The integrated forward-backward asymmetry of B->Xs μ+ μ- in the low-q2 bin.
 
-A_BXsmumu_lowq2_CONV : |
-   The Wilson coefficients and the integrated forward-backward asymmetry of B->Xs μ+ μ- in the low-q2 bin.
-
-A_BXsmumu_zero : |
-   The zero crossing of the forward-backward asymmetry of B->Xs μ+ μ-.
-
-A_BXsmumu_zero_CONV : |
+A_BXsmumu_zero: |
    The Wilson coefficients and the zero crossing of the forward-backward asymmetry of B->Xs μ+ μ-.
 
 A_BXstautau_highq2 : |
-   The integrated forward-backward asymmetry of B->Xs tau+ tau- in the high-q2 bin.
-
-A_BXstautau_highq2_CONV : |
    The Wilson coefficients and the integrated forward-backward asymmetry of B->Xs tau+ tau- in the high-q2 bin.
 
 BDmunu : |
@@ -3489,9 +3478,6 @@ BKstarmumu_15_17 : |
 BKstarmumu_17_19 : |
    The integrated differential cross-section and angular observables of B-> K* μ+ μ- for q2 between 17 and 19 GeV^2.
 
-BKstarmumu_CONV : |
-   The Wilson coefficients and the integrated differential cross-section and angular observables of B-> K* μ+ μ-.
-
 BRBKll : |
    The differential cross-section and angular observables of B-> K l+ l-.
 
@@ -3504,22 +3490,13 @@ BRBXsll_highq2 : |
 BRBXsll_lowq2 : |
    The branching ratio B-> Xs l+ l- in the low-q2 bin.
 
-BRBXsmumu_highq2 : |
+prediction_BRBXsmumu_highq2 : |
    The branching ratio B-> Xs μ+ μ- in the high-q2 bin.
 
-BRBXsmumu_highq2_CONV : |
-   The Wilson coefficients and the branching ratio B-> Xs μ+ μ- in the high-q2 bin.
-
-BRBXsmumu_lowq2 : |
+prediction_BRBXsmumu_lowq2 : |
    The branching ratio B-> Xs μ+ μ- in the low-q2 bin.
 
-BRBXsmumu_lowq2_CONV : |
-   The Wilson coefficients and the branching ratio B-> Xs μ+ μ- in the low-q2 bin.
-
 BRBXstautau_highq2 : |
-   The branching ratio B-> Xs tau+ tau- in the low-q2 bin.
-
-BRBXstautau_highq2_CONV : |
    The Wilson coefficients and the branching ratio B-> Xs tau+ tau- in the low-q2 bin.
 
 BRBsphill : |
@@ -3527,9 +3504,6 @@ BRBsphill : |
 
 Bll : |
    The branching ratio of Bd-> l+ l-.
-
-Bll_CONV : |
-   The Wilson coefficients and the branching ratio of Bd-> l+ l-.
 
 Blnu : |
    The branching ratio of B-> l nu.
@@ -3542,9 +3516,6 @@ Bsee_untag : |
 
 Bsll_untag : |
    The untagged branching ratio of Bs-> l+ l-.
-
-Bsll_untag_CONV : |
-   The Wilson coefficients and the untagged branching ratio of Bs-> l+ l-.
 
 Bsmumu : |
    The branching ratio of Bs-> μ+ μ-.
@@ -3570,7 +3541,7 @@ C_calculator_base2 : |
 Cprime_calculator : |
    The primed Wilson coefficients.
 
-DeltaMs : |
+prediction_DeltaMs : |
    The Bs meson mass difference.
 
 Dmunu : |
@@ -3597,10 +3568,10 @@ Rmu : |
 Rmu23 : |
    The Rmu23 observable related to K-> mu nu and pi-> mu nu.
 
-SI_AI_BKstarmumu_CONV : |
+modified_AI_BKstarmumu : |
    The Wilson coefficients and the isospin asymmetry in B-> K* μ+ μ-.
 
-SI_AI_BKstarmumu_zero_CONV : |
+modified_AI_BKstarmumu_zero : |
    The Wilson coefficients and the zero crossing of isospin asymmetry in B-> K* μ+ μ-.
 
 SL_LL : |
@@ -3609,32 +3580,14 @@ SL_LL : |
 SL_M : |
   Measurements related to the tree-level leptonic and semileptonic B and D decays.
 
-SuperIso_3_6_init : |
-   Initalise SuperIso v3.6.
+SuperIso_4_1_init : |
+   Initalise SuperIso v4.1.
 
 SuperIso_modelinfo : |
    SuperIso internal model information.
 
-b2ll_LL : |
-   Log-likelihood for BR(Bd-> μ+ μ-) and BR(Bs-> μ+ μ-).
-
-b2ll_M : |
-   Measurements related to BR(Bd-> μ+ μ-) and BR(Bs-> μ+ μ-).
-
-b2sgamma_LL : |
-   Log-likelihood for inclusive branching ratio of B-> Xs gamma.
-
-b2sll_LL : |
-   Log-likelihood for B-> K* μ+ μ- observables.
-
-b2sll_M : |
-   Measurements for B-> K* μ+ μ- observables.
-
 bsgamma : |
    The inclusive branching ratio of B-> Xs gamma with a photon energy cut of 1.6 GeV.
-
-bsgamma_CONV : |
-   The Wilson coefficients and the inclusive branching ratio of B-> Xs gamma.
 
 bsgamma_Ecut : |
    The inclusive branching ratio of B-> Xs gamma with a photon energy cut Ecut.
@@ -3642,23 +3595,14 @@ bsgamma_Ecut : |
 delta0 : |
    The isospin asymmetry of B-> K* gamma.
 
+modified_delta0 : |
+   Wilson coefficients and the isospin asymmetry of B-> K* gamma.
+
 deltaMB_LL : |
    Log-likelihood for the Bs meson mass difference.
 
 mb_1S : |
    The 1S bottom quark mass.
-
-SUSYPOPE_0_2_init: |
-   Initialize SUSYPOPE backend
-
-CalcObs_SUSYPOPE: |
-   Calculate precision observables using SUSYPOPE
-
-SetFlags_SUSYPOPE: |
-   Set internal flags for SUSYPOPE
-
-SetPara_SUSYPOPE: |
-   Set internal parameters for SUSYPOPE
 
 Init_param : |
    Initialiases the SuperIso parameter structure.
@@ -3678,17 +3622,11 @@ LUV_M :  |
 RK :  |
    Calculation R_K in 1-6GeVGeV
 
-RK_CONV:  |
-   Conv function from SuperIso to calculate the R_K
-
 RKstar_0045_11:  |
    Calculation R_K* in 0.045-1.1GeVGeV
 
 RKstar_11_60:  |
    Calculation R_K* in 1.1 -  6.0 GeVGeV
-
-RKstar_CONV:  |
-   Conv function from SuperIso to calculate the R_K*
 
 muegamma: |
    Calculates the BF for the mu- -> e- gamma process
@@ -3737,6 +3675,237 @@ l2lll_lnL: |
 
 mu2e_lnL: |
    Log-likelihood for mu - e conversion in nucleii
+
+B2KmumuBr_LogLikelihood_LHCb: |
+   Log-likelihood for B->K mu mu with LHCb
+
+B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020:
+   Log-likelihood for B->K* e e from 2020 LHCb analysis
+
+B2KstarellellAng_LogLikelihood_Belle: |
+   Log-likelihood for B->K* l l from Belle
+
+B2Kstargamma_LogLikelihood: |
+   Log-likelihood for B->K* gamma
+
+B2KstarmumuAng_LogLikelihood_Atlas: |
+   Log-likelihood for B->K* mu mu angular analysis by ATLAS
+
+B2KstarmumuAng_LogLikelihood_Belle: |
+   Log-likelihood for B->K* mu mu angular analysis by Belle
+
+B2KstarmumuAng_LogLikelihood_CMS: |
+   Log-likelihood for B->K* mu mu angular analysis by CMS
+
+B2KstarmumuAng_LogLikelihood_LHCb: |
+   Log-likelihood for B->K* mu mu angular analysis by LHCb
+
+B2KstarmumuAng_LogLikelihood_LHCb_2020: |
+   Log-likelihood for B->K* mu mu angular analysis by LHCb in 2020
+
+B2KstarmumuBr_LogLikelihood_LHCb: |
+   Log-likelihood for branching fraction for B->K* mu mu by LHCb
+
+Bu2KstarmumuAng_LogLikelihood_LHCb_2020: |
+   Log-likelihood for B_u->K* mu mu angular analysis by LHCb in 2020
+
+B2mumu_LogLikelihood_Atlas: |
+   Log-likelihood for B-> mu mu by ATLAS
+
+B2mumu_LogLikelihood_CMS: |
+   Log-likelihood for B-> mu mu by CMS
+
+B2mumu_LogLikelihood_LHCb: |
+   Log-likelihood for B-> mu mu by LHCb
+
+B2taunu_LogLikelihood: |
+   Log-likelihood for B-> tau nu
+
+Bs2phimumuBr_LogLikelihood: |
+   Log-likelihood for branching fraction of B_s-> phi mu mu
+
+HepLike_1_2_init: |
+   Initialise HepLike
+
+RDRDstar_LogLikelihood: |
+   Incomplete likelihood for RD and RD*
+
+RK_LogLikelihood: |
+   Incomplete likelihood for RK
+
+RKstar_LogLikelihood_LHCb: |
+   Incomplete likelihood for RK*
+
+SuperIso_nuisance: |
+   SuperIso nuiscance parameter data
+
+b2sgamma_LogLikelihood: |
+   Log-likelihood for b->s gamma
+
+set_nuisance: |
+   SuperIso function related to theory correlations
+
+set_nuisance_value_from_param: |
+   SuperIso function related to theory correlations
+
+convert_correlation: |
+   SuperIso function related to theory correlations
+
+get_predictions_nuisance: |
+   SuperIso function related to theory correlations
+
+get_th_covariance_nuisance: |
+   SuperIso function related to theory correlations
+
+make_obslist: |
+   SuperIso function related to theory correlations
+
+mcmc_from_pole: |
+   Charm mass mc at scale mc in MSbar scheme, computed from the pole mass
+
+observables: |
+   SuperIso function that computes any observable known to the backend.
+
+sm_prediction: |
+   Flavio function for getting the Standard Model prediction for an observable
+
+modified_sm_prediction: |
+   Convenience function version of Flavio function for getting the Standard Model prediction for an observable
+
+prediction_B2Kstargamma: |
+   Theoretical prediction for B->K* gamma
+
+prediction_b2sgamma: |
+   Theoretical prediction for b->s gamma
+
+prediction_AFBBXsmumu_highq2: |
+   Theoretical prediction for forward-backwards asymmetry of branching ratio for B->X_s mu mu, in high q^2 bins
+
+prediction_AFBBXsmumu_lowq2: |
+   Theoretical prediction for forward-backwards asymmetry of branching ratio for B->X_s mu mu, in low q^2 bins
+
+prediction_B2KmumuBr_0p05_2: |
+   Theoretical prediction for branching ratio of B->K mu mu, for q2 between 0.5 and 2 GeV^2
+
+prediction_B2KmumuBr_2_4p3: |
+   Theoretical prediction for branching ratio of B->K mu mu, for q2 between 2 and 4.3 GeV^2
+
+prediction_B2KmumuBr_4p3_8p68: |
+   Theoretical prediction for branching ratio of B->K mu mu, for q2 between 4.3 and 8.68 GeV^2
+
+prediction_B2KmumuBr_14p18_16: |
+   Theoretical prediction for branching ratio of B->K mu mu, for q2 between 14.18 and 16 GeV^2
+
+prediction_B2KmumuBr_16_18: |
+   Theoretical prediction for branching ratio of B->K mu mu, for q2 between 16 and 18 GeV^2
+
+prediction_B2KmumuBr_18_22: |
+   Theoretical prediction for branching ratio of B->K mu mu, for q2 between 18 and 22 GeV^2
+
+prediction_B2KstareeAng_0p0008_0p257_LHCb: |
+   Theoretical prediction for B->K* e e, for q2 between 0.0008 and 0.257 GeV^2 (relevant for LHCb analysis)
+
+prediction_B2KstarmumuAng_0p1_0p98_LHCb: |
+   Theoretical prediction for B->K* mu mu, for q2 between 0.1 and 0.98 GeV^2 (relevant for LHCb analysis)
+
+prediction_B2KstarmumuAng_1p1_2p5_LHCb: |
+   Theoretical prediction for B->K* mu mu, for q2 between 1.1 and 2.5 GeV^2 (relevant for LHCb analysis)
+
+prediction_B2KstarmumuAng_2p5_4_LHCb: |
+   Theoretical prediction for B->K* mu mu, for q2 between 2.5 and 4 GeV^2 (relevant for LHCb analysis)
+
+prediction_B2KstarmumuAng_4_6_LHCb: |
+   Theoretical prediction for B->K* mu mu, for q2 between 4 and 6 GeV^2 (relevant for LHCb analysis)
+
+prediction_B2KstarmumuAng_6_8_LHCb: |
+   Theoretical prediction for B->K* mu mu, for q2 between 6 and 8 GeV^2 (relevant for LHCb analysis)
+
+prediction_B2KstarmumuAng_15_19_LHCb: |
+   Theoretical prediction for B->K* mu mu, for q2 between 15 and 19 GeV^2 (relevant for LHCb analysis)
+
+prediction_B2KstarmumuAng_0p1_2_Atlas: |
+   Theoretical prediction for B->K* mu mu, for q2 between 0.1 and 2 GeV^2 (relevant for ATLAS analysis)
+
+prediction_B2KstarmumuAng_2_4_Atlas: |
+   Theoretical prediction for B->K* mu mu, for q2 between 2 and 4 GeV^2 (relevant for ATLAS analysis)
+
+prediction_B2KstarmumuAng_4_8_Atlas: |
+   Theoretical prediction for B->K* mu mu, for q2 between 4 and 8 GeV^2 (relevant for ATLAS analysis)
+
+prediction_B2KstarmumuAng_0p1_4_Belle: |
+   Theoretical prediction for B->K* mu mu, for q2 between 0.1 and 4 GeV^2 (relevant for Belle analysis)
+
+prediction_B2KstarmumuAng_4_8_Belle: |
+   Theoretical prediction for B->K* mu mu, for q2 between 4 and 8 GeV^2 (relevant for Belle analysis)
+
+prediction_B2KstarmumuAng_10p9_12p9_Belle: |
+   Theoretical prediction for B->K* mu mu, for q2 between 10.9 and 12.9 GeV^2 (relevant for Belle analysis)
+
+prediction_B2KstarmumuAng_14p18_19_Belle: |
+   Theoretical prediction for B->K* mu mu, for q2 between 14.18 and 19 GeV^2 (relevant for Belle analysis)
+
+prediction_B2KstarmumuAng_1_2_CMS: |
+   Theoretical prediction for B->K* mu mu, for q2 between 1 and 2 GeV^2 (relevant for CMS analysis)
+
+prediction_B2KstarmumuAng_2_4p3_CMS: |
+   Theoretical prediction for B->K* mu mu, for q2 between 2 and 4.3 GeV^2 (relevant for CMS analysis)
+
+prediction_B2KstarmumuAng_4p3_6_CMS: |
+   Theoretical prediction for B->K* mu mu, for q2 between 4.3 and 6 GeV^2 (relevant for CMS analysis)
+
+prediction_B2KstarmumuAng_6_8p68_CMS: |
+   Theoretical prediction for B->K* mu mu, for q2 between 6 and 8.68 GeV^2 (relevant for CMS analysis)
+
+prediction_B2KstarmumuAng_10p09_12p86_CMS: |
+   Theoretical prediction for B->K* mu mu, for q2 between 10.09 and 12.86 GeV^2 (relevant for CMS analysis)
+
+prediction_B2KstarmumuAng_14p18_16_CMS: |
+   Theoretical prediction for B->K* mu mu, for q2 between 14.18 and 16 GeV^2 (relevant for CMS analysis)
+
+prediction_B2KstarmumuAng_16_19_CMS: |
+   Theoretical prediction for B->K* mu mu, for q2 between 16 and 19 GeV^2 (relevant for CMS analysis)
+
+prediction_B2KstarmumuBr_0p1_0p98: |
+   Theoretical prediction of the branching fraction of B->K* mu mu, for q2 between 0.1 and 0.98 GeV^2
+
+prediction_B2KstarmumuBr_1p1_2p5: |
+   Theoretical prediction of the branching fraction of B->K* mu mu, for q2 between 1.1 and 2.5 GeV^2
+
+prediction_B2KstarmumuBr_2p5_4: |
+   Theoretical prediction of the branching fraction of B->K* mu mu, for q2 between 2.5 and 4 GeV^2
+
+prediction_B2KstarmumuBr_4_6: |
+   Theoretical prediction of the branching fraction of B->K* mu mu, for q2 between 4 and 6 GeV^2
+
+prediction_B2KstarmumuBr_6_8: |
+   Theoretical prediction of the branching fraction of B->K* mu mu, for q2 between 6 and 8 GeV^2
+
+prediction_B2KstarmumuBr_15_19: |
+   Theoretical prediction of the branching fraction of B->K* mu mu, for q2 between 15 and 19 GeV^2
+
+prediction_B2mumu: |
+   Theoretical prediction for B-> mu mu
+
+prediction_B2taunu: |
+   Theoretical prediction for B-> tau nu
+
+prediction_Bs2phimumuBr_1_6: |
+   Theoretical prediction of the branching fraction of B_s->phi mu mu, for q2 between 1 and 6 GeV^2
+
+prediction_Bs2phimumuBr_15_19: |
+   Theoretical prediction of the branching fraction of B_s->phi mu mu, for q2 between 15 and 19 GeV^2
+
+prediction_RDRDstar: |
+   Theoretical prediction of the ratios R_D and R_D*
+
+prediction_RK_LHCb_1p1_6: |
+   Theoretical prediction of the ratio R_K, for q2 between 1.1 and 6 GeV^2 (relevant for LHCb analysis)
+
+prediction_RKstar_LHCb_0p045_1p1: |
+   Theoretical prediction of the ratio R_K*, for q2 between 0.045 and 1.1 GeV^2 (relevant for LHCb analysis)
+
+prediction_RKstar_LHCb_1p1_6: |
+   Theoretical prediction of the ratio R_K*, for q2 between 1.1 and 6 GeV^2 (relevant for LHCb analysis)
 
 
 #-------------------------------------
@@ -4236,6 +4405,12 @@ TestModel1D_parameters: |
 WC_parameters: |
    Parameters for the model WC (see ./gambit WC)
 
+WC_LR_parameters: |
+   Primary parameters for WC_LR model (see ./gambit WC_LR)
+
+WC_LUV_parameters: |
+   Primary parameter for WC_LUV model (see ./gambit WC_LUV)
+
 mSUGRA_parameters: |
    Parameters for the model mSUGRA (see ./gambit mSUGRA)
 
@@ -4304,34 +4479,50 @@ FHConstraints: |
    FeynHiggs precision constraint observables.
 
 FHCouplings: |
+   FeynHiggs particle couplings.
 
 FHFlavour: |
+   FeynHiggs flavour observables.
 
 FHGetPara: |
+   Get FeynHiggs parameters.
 
 FHHiggsCorr: |
+   FeynHiggs Higgs masses.
 
 FHHiggsProd: |
+   FeynHiggs Higgs production.
 
 FHSelectUZ: |
+   Select Higgs mixing scheme to use and whether or not to use resummed masses in the corresponding couplings in FeynHiggs.
 
 FHSetDebug: |
+   Set FeynHiggs debugging level.
 
 FHSetFlags: |
+   Set FeynHiggs flags. Must be called before any other FeynHiggs functions.
 
 FHSetLFV: |
+   Set lepton flavour violation parameters in FeynHiggs.
 
 FHSetNMFV: |
+   Set non-minimal flavour violation parameters in FeynHiggs.
 
 FHSetPara: |
+   Set FeynHiggs parameters.
 
 FHSetSMPara: |
+   Set FeynHiggs Standard Model parameters.
 
 FHUncertainties: |
+   Return FeynHiggs guesses for theoretical uncertainties on Higgs masses.
 
 FH_Couplings_output: |
+   The output from having computed FHCouplings with FeynHiggs.
 
-FH_FlavourObs: |
+FlavourObs: |
+   FeynHiggs flavour observables, packaged up for use as a dependency.
+
 
 #----------------------------
 #  gamLike capabilities
@@ -5884,7 +6075,7 @@ eggbox: |
   Multi-dimensional eggbox function. Test problem 2 from https://arxiv.org/abs/1306.2144
 
 rastrigin: |
-  Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function 
+  Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function
 
 beale: |
   Two-dimensional Beale function.

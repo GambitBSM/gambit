@@ -180,7 +180,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->append__BOSS(iPos, idIn, x);
         }
         
-        inline void BeamParticle::list(::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void BeamParticle::list(::std::basic_ostream<char>& os) const
         {
             get_BEptr()->list(os);
         }
@@ -215,7 +215,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->remnantFlavours__BOSS(*event.get_BEptr());
         }
         
-        inline bool BeamParticle::remnantColours(Pythia8::Event& event, ::std::vector<int, std::allocator<int> >& colFrom, ::std::vector<int, std::allocator<int> >& colTo)
+        inline bool BeamParticle::remnantColours(Pythia8::Event& event, ::std::vector<int>& colFrom, ::std::vector<int>& colTo)
         {
             return get_BEptr()->remnantColours__BOSS(*event.get_BEptr(), colFrom, colTo);
         }
@@ -285,12 +285,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->setInitialCol__BOSS(*event.get_BEptr());
         }
         
-        inline void BeamParticle::updateCol(::std::vector<std::pair<int, int>, std::allocator<std::pair<int, int> > > colourChanges)
+        inline void BeamParticle::updateCol(::std::vector<std::pair<int, int>> colourChanges)
         {
             get_BEptr()->updateCol(colourChanges);
         }
         
-        inline ::std::vector<std::pair<int, int>, std::allocator<std::pair<int, int> > > BeamParticle::getColUpdates()
+        inline ::std::vector<std::pair<int, int>> BeamParticle::getColUpdates()
         {
             return get_BEptr()->getColUpdates();
         }

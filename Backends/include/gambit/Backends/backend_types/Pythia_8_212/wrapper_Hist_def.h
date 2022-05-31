@@ -14,22 +14,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn)
+        inline void Hist::book(::std::basic_string<char> titleIn, int nBinIn, double xMinIn, double xMaxIn)
         {
             get_BEptr()->book(titleIn, nBinIn, xMinIn, xMaxIn);
         }
         
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn)
+        inline void Hist::book(::std::basic_string<char> titleIn, int nBinIn, double xMinIn)
         {
             get_BEptr()->book__BOSS(titleIn, nBinIn, xMinIn);
         }
         
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn)
+        inline void Hist::book(::std::basic_string<char> titleIn, int nBinIn)
         {
             get_BEptr()->book__BOSS(titleIn, nBinIn);
         }
         
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn)
+        inline void Hist::book(::std::basic_string<char> titleIn)
         {
             get_BEptr()->book__BOSS(titleIn);
         }
@@ -39,7 +39,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->book__BOSS();
         }
         
-        inline void Hist::name(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn)
+        inline void Hist::name(::std::basic_string<char> titleIn)
         {
             get_BEptr()->name(titleIn);
         }
@@ -64,17 +64,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->fill__BOSS(x);
         }
         
-        inline void Hist::table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder, bool xMidBin) const
+        inline void Hist::table(::std::basic_ostream<char>& os, bool printOverUnder, bool xMidBin) const
         {
             get_BEptr()->table(os, printOverUnder, xMidBin);
         }
         
-        inline void Hist::table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder) const
+        inline void Hist::table(::std::basic_ostream<char>& os, bool printOverUnder) const
         {
             get_BEptr()->table__BOSS(os, printOverUnder);
         }
         
-        inline void Hist::table(::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Hist::table(::std::basic_ostream<char>& os) const
         {
             get_BEptr()->table__BOSS(os);
         }
@@ -84,17 +84,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->table__BOSS();
         }
         
-        inline void Hist::table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder, bool xMidBin) const
+        inline void Hist::table(::std::basic_string<char> fileName, bool printOverUnder, bool xMidBin) const
         {
             get_BEptr()->table(fileName, printOverUnder, xMidBin);
         }
         
-        inline void Hist::table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder) const
+        inline void Hist::table(::std::basic_string<char> fileName, bool printOverUnder) const
         {
             get_BEptr()->table__BOSS(fileName, printOverUnder);
         }
         
-        inline void Hist::table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName) const
+        inline void Hist::table(::std::basic_string<char> fileName) const
         {
             get_BEptr()->table__BOSS(fileName);
         }
@@ -178,35 +178,35 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn) :
+        inline Hist::Hist(::std::basic_string<char> titleIn, int nBinIn, double xMinIn, double xMaxIn) :
             WrapperBase(__factory1(titleIn, nBinIn, xMinIn, xMaxIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn) :
+        inline Hist::Hist(::std::basic_string<char> titleIn, int nBinIn, double xMinIn) :
             WrapperBase(__factory2(titleIn, nBinIn, xMinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn) :
+        inline Hist::Hist(::std::basic_string<char> titleIn, int nBinIn) :
             WrapperBase(__factory3(titleIn, nBinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn) :
+        inline Hist::Hist(::std::basic_string<char> titleIn) :
             WrapperBase(__factory4(titleIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, const Pythia8::Hist& h) :
+        inline Hist::Hist(::std::basic_string<char> titleIn, const Pythia8::Hist& h) :
             WrapperBase(__factory5(titleIn, h))
         {
             get_BEptr()->set_wptr(this);

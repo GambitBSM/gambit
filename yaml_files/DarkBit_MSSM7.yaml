@@ -552,8 +552,8 @@ Rules:
 
   # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
   - capability: prec_mh
-    function: FH_HiggsMass
-    #function: SHD_HiggsMass
+    function: FeynHiggs_HiggsMass
+    #function: SUSYHD_HiggsMass
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates

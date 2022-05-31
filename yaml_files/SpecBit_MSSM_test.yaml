@@ -8,7 +8,7 @@
 # NB: If MSSMspectrum_test is chosen this example yaml file will use
 # flexiblesusy, so then make sure you have
 # built gambit with -DBUILD_FS_MODELS="CMSSM;MSSMatMGUT;MSSM"
-# If VS_likelihood and VS_result is chosen then make sure 
+# If VS_likelihood and VS_result is chosen then make sure
 # you have also installed the vevacious backend, i.e.
 # within the build directory run 'make vevacious'
 
@@ -22,7 +22,7 @@ Parameters:
   # Choose here the model and parameters to be tested, as well as the equivalent function below
 
   CMSSM:
-    M0: 
+    M0:
       range: [1500, 1600]
     M12: 1001.79
     A0: -4550.25
@@ -145,10 +145,10 @@ ObsLikes:
     #function:     MSSMspectrum_test
     function:     SPheno_MSSM_test
 
-  # Vacuum Stability Likelihood 
+  # Vacuum Stability Likelihood
   - capability:   VS_likelihood
     purpose:      LogLike
-    sub_capabilities:   
+    sub_capabilities:
       global: [quantum]
       nearest: [quantum]
 
@@ -219,30 +219,30 @@ Rules:
   #- capability: FH_Couplings_output
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: FH_Precision
+  #- capability: Precision
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
   # The following two rules only have an impact when using make_MSSM_precision_spectrum_H_W
   #- capability: prec_HiggsMasses
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: FH_MSSMMasses
+  #- capability: MSSMMasses
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
 
   # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
   - capability: prec_mh
-    function: FH_HiggsMass
-    #function: SHD_HiggsMass
+    function: FeynHiggs_HiggsMass
+    #function: SUSYHD_HiggsMass
 
   # pass settings to vevacious
   - capability: initialize_vevacious
     options:
-     # phc or hom4ps2 for homotopy continuation 
+     # phc or hom4ps2 for homotopy continuation
      homotopy_backend: phc
      where_to_save_input: output/Vevacious_iniFiles/
      # Whether minuit focuses on speed or number of function calls
-     # possible values (fastest to slowest): 0, 1, 2  
+     # possible values (fastest to slowest): 0, 1, 2
      minuit_strategy: 0
      # If the path deformation takes longer than this number in seconds
      # stop the calculation.

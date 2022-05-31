@@ -51,7 +51,6 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, triplet<double>)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, DM_nucleon_couplings)
-      USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, BBN_container)
     #endif
 

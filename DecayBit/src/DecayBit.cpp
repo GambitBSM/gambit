@@ -142,7 +142,7 @@ namespace Gambit
     }
 
     /// Set neutral h decays computed by FeynHiggs
-    void set_FH_neutral_h_decay(DecayTable::Entry& result, int iH, const fh_Couplings& FH_input, const mass_es_pseudonyms& psn, bool invalidate, bool SM)
+    void set_FH_neutral_h_decay(DecayTable::Entry& result, int iH, const fh_Couplings_container& FH_input, const mass_es_pseudonyms& psn, bool invalidate, bool SM)
     {
       // Set the array and its offset according to whether we want the SM or BSM decays
       const fh_real* widths = SM ? FH_input.gammas_sm : FH_input.gammas;
@@ -491,9 +491,9 @@ namespace Gambit
     }
 
     /// Reference SM Higgs decays from FeynHiggs: h0_1
-    void Ref_SM_Higgs_decays_FH(DecayTable::Entry& result)
+    void Ref_SM_Higgs_decays_FeynHiggs(DecayTable::Entry& result)
     {
-      using namespace Pipes::Ref_SM_Higgs_decays_FH;
+      using namespace Pipes::Ref_SM_Higgs_decays_FeynHiggs;
       const SubSpectrum& spec = Dep::MSSM_spectrum->get_HE();
       int higgs = (SMlike_higgs_PDG_code(spec) == 25 ? 1 : 2);
       bool invalidate = runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width");
@@ -529,10 +529,10 @@ namespace Gambit
 
     /// FeynHiggs MSSM decays: t
     /// Reference for total width: 2017 PDG
-    void FH_t_decays (DecayTable::Entry& result)
+    void FeynHiggs_t_decays (DecayTable::Entry& result)
     {
-      using namespace Pipes::FH_t_decays;
-      fh_Couplings FH_input = *Pipes::FH_t_decays::Dep::FH_Couplings_output;
+      using namespace Pipes::FeynHiggs_t_decays;
+      fh_Couplings_container FH_input = *Pipes::FeynHiggs_t_decays::Dep::FH_Couplings_output;
       result.calculator = FH_input.calculator;
       result.calculator_version = FH_input.calculator_version;
       result.width_in_GeV = 1.41;
@@ -544,39 +544,39 @@ namespace Gambit
     }
 
     /// FeynHiggs MSSM decays: h0_1
-    void FH_MSSM_h0_1_decays (DecayTable::Entry& result)
+    void FeynHiggs_MSSM_h0_1_decays (DecayTable::Entry& result)
     {
-      using namespace Pipes::FH_MSSM_h0_1_decays;
+      using namespace Pipes::FeynHiggs_MSSM_h0_1_decays;
       bool invalidate = runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width");
       set_FH_neutral_h_decay(result, 1, *Dep::FH_Couplings_output, *(Dep::SLHA_pseudonyms), invalidate, false);
     }
 
     /// FeynHiggs MSSM decays: h0_2
-    void FH_h0_2_decays (DecayTable::Entry& result)
+    void FeynHiggs_h0_2_decays (DecayTable::Entry& result)
     {
-      using namespace Pipes::FH_h0_2_decays;
+      using namespace Pipes::FeynHiggs_h0_2_decays;
       bool invalidate = runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width");
       set_FH_neutral_h_decay(result, 2, *Dep::FH_Couplings_output, *(Dep::SLHA_pseudonyms), invalidate, false);
     }
 
     /// FeynHiggs MSSM decays: A0
-    void FH_A0_decays (DecayTable::Entry& result)
+    void FeynHiggs_A0_decays (DecayTable::Entry& result)
     {
-      using namespace Pipes::FH_A0_decays;
+      using namespace Pipes::FeynHiggs_A0_decays;
       bool invalidate = runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width");
       set_FH_neutral_h_decay(result, 3, *Dep::FH_Couplings_output, *(Dep::SLHA_pseudonyms), invalidate, false);
     }
 
     /// FeynHiggs MSSM decays: H+
-    void FH_H_plus_decays (DecayTable::Entry& result)
+    void FeynHiggs_H_plus_decays (DecayTable::Entry& result)
     {
-      using namespace Pipes::FH_H_plus_decays;
+      using namespace Pipes::FeynHiggs_H_plus_decays;
 
       // Get the mass pseudonyms for the gauge eigenstates
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
       // unpack FeynHiggs Couplings
-      fh_Couplings FH_input = *Dep::FH_Couplings_output;
+      fh_Couplings_container FH_input = *Dep::FH_Couplings_output;
       result.calculator = FH_input.calculator;
       result.calculator_version = FH_input.calculator_version;
       // Set the total charged Higgs width
@@ -979,7 +979,7 @@ namespace Gambit
       mass_es_pseudonyms psn = *(Dep::SLHA_pseudonyms);
 
       static const bool allow_offshell_modes = runOptions->getValueOrDef<bool>(true, "allow_offshell_modes_in_decay_table");
-      
+
       result.calculator = BEreq::cb_sd_stopwidth.origin();
       result.calculator_version = BEreq::cb_sd_stopwidth.version();
 
@@ -1034,7 +1034,7 @@ namespace Gambit
       {
         // Take the total 4-body BR(~t_1 -->  ~chi0_1 b f f') and assign to the off-shell mode BR(~t_1 -->  ~chi0_1 b W(*))
         if(allow_offshell_modes)
-        {      
+        {
           result.set_BF((result.width_in_GeV > 0 ? BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "W+");
         }
         // This is a temp solution
@@ -1046,7 +1046,7 @@ namespace Gambit
           result.set_BF((result.width_in_GeV > 0 ? 0.6741 * BEreq::cb_sd_stop4body->br4bodoffshelltau : 0.0), 0.0, "~chi0_1", "b", "hadron", "hadron");
         }
       }
-      
+
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
@@ -3051,7 +3051,7 @@ namespace Gambit
       decays("rho+") = *Dep::rho_plus_decay_rates;  // Add the rho+ decays.
       decays("rho-") = *Dep::rho_minus_decay_rates; // Add the rho- decays.
       decays("omega") = *Dep::omega_decay_rates;    // Add the omega meson decays.
-      
+
 
       // MSSM-specific
       if (ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
@@ -3067,7 +3067,7 @@ namespace Gambit
             Dep::H_plus_decay_rates->calculator == "FeynHiggs" or
             Dep::t_decay_rates->calculator == "FeynHiggs")
         {
-          if (not Dep::MSSM_spectrum->get_HE().has(Par::dimensionless, "h mass from: SpecBit::FH_HiggsMass, SpecBit::FH_HeavyHiggsMasses"))
+          if (not Dep::MSSM_spectrum->get_HE().has(Par::dimensionless, "h mass from: SpecBit::FeynHiggs_HiggsMass, SpecBit::FeynHiggs_HeavyHiggsMasses"))
            DecayBit_error().raise(LOCAL_INFO, "You must use Higgs masses from FeynHiggs if you choose to use FeynHiggs "
                                               "to calculate h or t decays.\nPlease modify your yaml file accordingly.");
         }
@@ -3236,7 +3236,7 @@ namespace Gambit
       std::vector<std::vector<str> > bfs;
       std::string channel;
       double BF = 0.0;
-      
+
       // If the user specifies "printall" -- then print everything.
       bool printall = runOptions->getValueOrDef(false, "printall");
       if (printall)
@@ -3262,7 +3262,7 @@ namespace Gambit
       {
 
         std::string decaypart = row.front();
-        const DecayTable::Entry entry = tbl->at(decaypart); 
+        const DecayTable::Entry entry = tbl->at(decaypart);
 
         // If the entry is a single particle, then add every BF for this channel
         if ( row.size() == 1 )
@@ -3271,12 +3271,12 @@ namespace Gambit
           {
             BF = it->second.first;
 
-            std::multiset< std::pair<int,int> > ch = it->first;              
+            std::multiset< std::pair<int,int> > ch = it->first;
             std::vector<str> chan;
 
             // Create a vector of final states by particle name.
             for (auto it2 = ch.begin(); it2 != ch.end(); ++it2) chan.push_back(Models::ParticleDB().partmap::long_name(*it2));
-            
+
             // Write the name of the output channel.
             channel = row[0] + "->" + chan[0] + "+" + chan[1];
 
@@ -3298,7 +3298,7 @@ namespace Gambit
           map[channel] = BF;
         }
 
-        // 3-body decays channel-by-channel 
+        // 3-body decays channel-by-channel
         // (SB: I don't think we have these yet. But if/when we do, they will be supported)
         else if (row.size() == 4 )
         {
@@ -3580,7 +3580,7 @@ namespace Gambit
       double gamma_inv = gamma_nu.central;
       const double tau_nu = 0.5 * (gamma_nu.upper + gamma_nu.lower);
       double tau = tau_nu;
- 
+
       if(ModelInUse("MSSM63atQ") or ModelInUse("MSSM63atMGUT"))
       {
         const triplet<double> gamma_chi_0 = *Dep::Z_gamma_chi_0;
@@ -3592,7 +3592,7 @@ namespace Gambit
       }
 
       lnL = Stats::gaussian_loglikelihood(gamma_inv, SM_Z::gamma_inv.mu, tau, SM_Z::gamma_inv.sigma, false);
-   
+
     }
 
     void Z_gamma_nu_2l(triplet<double>& gamma)
@@ -3634,7 +3634,7 @@ namespace Gambit
         Eigen::Matrix3cd ThetaNorm = *Dep::SeesawI_Theta * Dep::SeesawI_Theta->adjoint();
 
         // Z -> nu nu with RHN mixing
-        Z_inv_width = Z_to_nu*( std::norm(VnuNorm(0,0)) + std::norm(VnuNorm(0,1)) + std::norm(VnuNorm(0,2)) 
+        Z_inv_width = Z_to_nu*( std::norm(VnuNorm(0,0)) + std::norm(VnuNorm(0,1)) + std::norm(VnuNorm(0,2))
                               + std::norm(VnuNorm(1,0)) + std::norm(VnuNorm(1,1)) + std::norm(VnuNorm(1,2))
                               + std::norm(VnuNorm(2,0)) + std::norm(VnuNorm(2,1)) + std::norm(VnuNorm(2,2)) );
 

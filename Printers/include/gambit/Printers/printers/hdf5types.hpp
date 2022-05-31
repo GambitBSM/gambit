@@ -22,30 +22,35 @@
 #ifndef __HDF5TYPES__
 #define __HDF5TYPES__
 
-#define HDF5_TYPES          \
-  (int)                     \
-  (uint)                    \
-  (long)                    \
-  (ulong)                   \
-  (longlong)                \
-  (ulonglong)               \
-  (float)                   \
-  (double)                  \
-  (std::vector<double>)     \
-  (bool)                    \
-  (map_str_dbl)             \
-  (ModelParameters)         \
-  (triplet<double>)         \
-  (map_intpair_dbl)         
+#include "gambit/Elements/module_types_rollcall.hpp"
+
+#define HDF5_TYPES                     \
+  (int)                                \
+  (uint)                               \
+  (long)                               \
+  (ulong)                              \
+  (longlong)                           \
+  (ulonglong)                          \
+  (float)                              \
+  (double)                             \
+  (std::vector<double>)                \
+  (bool)                               \
+  (map_str_dbl)                        \
+  (map_str_map_str_dbl)                \
+  (map_const_str_dbl)                  \
+  (map_const_str_map_const_str_dbl)    \
+  (ModelParameters)                    \
+  (triplet<double>)                    \
+  (map_intpair_dbl)                    \
+  (flav_prediction)                    \
 
 #define HDF5_RETRIEVABLE_TYPES \
   HDF5_TYPES \
   (MSSM_SLHAstruct) \
   (SMslha_SLHAstruct)
 
-#define HDF5_BACKEND_TYPES            \
-  (DM_nucleon_couplings)              \
-  (Flav_KstarMuMu_obs)                \
-  (BBN_container)                     \
+#define HDF5_BACKEND_TYPES             \
+  (DM_nucleon_couplings)               \
+  (BBN_container)                      \
 
 #endif

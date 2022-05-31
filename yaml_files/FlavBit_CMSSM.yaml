@@ -40,7 +40,6 @@ Priors:
 Printer:
 
   printer: hdf5
-
   options:
     output_file: "CMSSM.hdf5"
     group: "/CMSSM"
@@ -70,28 +69,67 @@ Scanner:
 
 ObsLikes:
 
-    # Flavour physics likelihoods
-    - purpose:    LogLike
-      capability: b2ll_LL
+  # Flavour physics likelihoods
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood
 
-    - purpose:    LogLike
-      capability: SL_LL
+  - purpose:    LogLike
+    capability: B2Kstargamma_LogLikelihood
 
-    - purpose:    LogLike
-      capability: b2sll_LL
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_Atlas
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-    - purpose:    LogLike
-      capability: b2sgamma_LL
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_CMS
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-    - purpose:    LogLike
-      capability: LUV_LL
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_LHCb
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-    # SM nuisance parameter likelihoods
-    - capability: lnL_t_mass
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    sub_capabilities: [FL, S3, S4, S5, S7, S8]
 
-    - capability: lnL_alpha_s
-      purpose:    LogLike
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_CMS
+    sub_capabilities: [P1, P5prime]
+
+  - purpose:    LogLike
+    capability: B2KstarellellAng_LogLikelihood_Belle
+    sub_capabilities: [P4prime, P5prime]
+
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - purpose:    LogLike
+    capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  - purpose:    LogLike
+    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+  - purpose:    LogLike
+    capability: SL_LL
+
+  - purpose:    LogLike
+    capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+  - purpose:    LogLike
+    capability: Bs2phimumuBr_LogLikelihood
+
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_LHCb
+
+  # SM nuisance parameter likelihoods
+  - purpose:    LogLike
+    capability: lnL_t_mass
+
+  - purpose:    LogLike
+    capability: lnL_alpha_s
 
 
 Rules:
@@ -113,40 +151,31 @@ Rules:
   - capability: muon_gm2_SM
     function: gm2_SM_ee
 
+  # Use SM theory covariance matrix for every point
+  - capability: flav_theory_covariance
+    function: SuperIso_theory_covariance_SM
+
   # Use SuperIso instead of FeynHiggs for b->sgamma
-  - capability: bsgamma
-    function: SI_bsgamma
+  - capability: prediction_b2sgamma
+    function: SuperIso_prediction_b2sgamma
 
   # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: Bsmumu_untag
-    function: SI_Bsmumu_untag
+  - capability: SuperIso_prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
 
-  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
-  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
-  - capability: unimproved_MSSM_spectrum
-    function: get_CMSSM_spectrum_FS
-    options:
-      precision_goal:        1.0e-4
-      max_iterations:        0
-      calculate_sm_masses:   false
-      pole_mass_loop_order:  2
-      ewsb_loop_order:       2
-      beta_loop_order:       2
-      threshold_corrections_loop_order: 2
-      use_higgs_2loop_at_as: true
-      use_higgs_2loop_ab_as: true
-      use_higgs_2loop_at_at: true
-      use_higgs_2loop_atau_atau: true
-      invalid_point_fatal: false
-
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum
     type: Spectrum
     function: make_MSSM_precision_spectrum_none
+
+  # Choose where the spectrum should come from
+  - capability: unimproved_MSSM_spectrum
+    #function: get_MSSM_spectrum_SPheno
+    function: get_CMSSM_spectrum_FS
 
 
 Logger:

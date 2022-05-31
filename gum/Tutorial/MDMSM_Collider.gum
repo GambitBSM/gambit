@@ -5,7 +5,7 @@ math:
     package: feynrules
     model: MDMSM
     base_model: SM
-    restriction: DiagonalCKM
+    restrictions: DiagonalCKM
     lagrangian: LDM + LSM
 
 wimp_candidate: 52
