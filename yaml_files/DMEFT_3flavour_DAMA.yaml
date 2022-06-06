@@ -40,48 +40,40 @@ Parameters:
       prior_type: log
     # EM interactions
     C51: 
-      range: [-5.0265e-5, 5.0265e-5]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
     C52: 
-      range: [-5.0265e-5, 5.0265e-5]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
     # Dim 6 -- qq chi chi bilinears
     # vector vector
     C61u: 
-      range: [-5.0265e-5, 5.0265e-5]
+      prior_type: double_log_flat_join
+      ranges: [-1e-4, -1e-06, 1e-06, 1e-4]
     C61d: 
-      range: [-5.0265e-5, 5.0265e-5]
+      prior_type: double_log_flat_join
+      ranges: [-1e-4, -1e-06, 1e-06, 1e-4]
     # axial-vector vector
     C62u:
-      range: [-5.0265e-5, 5.0265e-5]
-      # range: [-12.56637, 12.56637]
-      # prior_type: double_log_flat_join
-      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
     C62d:
-      range: [-5.0265e-5, 5.0265e-5]
-      # range: [-12.56637, 12.56637]
-      # prior_type: double_log_flat_join
-      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
     # vector axial-vector
     C63u:
-      range: [-5.0265e-5, 5.0265e-5]
-      # range: [-12.56637, 12.56637]
-      # prior_type: double_log_flat_join
-      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
     C63d:
-      range: [-5.0265e-5, 5.0265e-5]
-      # range: [-12.56637, 12.56637]
-      # prior_type: double_log_flat_join
-      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
     # axial-vector axial-vector
     C64u:
-      range: [-5.0265e-5, 5.0265e-5]
-      # range: [-12.56637, 12.56637]
-      # prior_type: double_log_flat_join
-      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
     C64d:
-      range: [-5.0265e-5, 5.0265e-5]
-      # range: [-12.56637, 12.56637]
-      # prior_type: double_log_flat_join
-      # ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
 
   # NFW with standard & central values for prelims
   Halo_gNFW_rho0:
