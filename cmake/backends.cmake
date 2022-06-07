@@ -1158,9 +1158,10 @@ endif()
 
 
 # Ditch all FeynHiggs if using gfortran 10 or later, as it won't compile
-if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
-  set(itch "${itch}" "feynhiggs")
-endif()
+# MJW: how do we ditch earlier feynhiggs versions that won't compile with gfortran10 or later?
+#if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+#  set(itch "${itch}" "feynhiggs")
+#endif()
 
 # FeynHiggs
 set(name "feynhiggs")
@@ -1217,7 +1218,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
+  #set_as_default_version("backend" ${name} ${ver})
 endif()
 
 set(name "feynhiggs")
@@ -1248,6 +1249,39 @@ if(NOT ditched_${name}_${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
 endif()
 
+# MJW: there is some funkiness in getting the latest config to work
+# Need to pass in fPIC for CFLAGS and CXXFLAGS
+# This won't work for FFLAGS - need to put it last in the argument list
+# This is achieved below using sed: is there a better way?
+set(name "feynhiggs")
+set(ver "2.18.1")
+set(lib "libFH")
+set(dl "http://wwwth.mpp.mpg.de/members/heinemey/feynhiggs/newversion/FeynHiggs-${ver}.tar.gz")
+set(md5 "f2e87b79f4a360d48c84c39534e144c2")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(FH_Fortran_FLAGS "-std=legacy ${BACKEND_Fortran_FLAGS_NO_BUILD_OPTIMISATIONS}") #For skipping -O2, which seems to cause issues
+set(FH_C_FLAGS "${BACKEND_C_FLAGS_NO_BUILD_OPTIMISATIONS}")             #For skipping -O2, which seems to cause issues
+set(FH_CXX_FLAGS "${BACKEND_CXX_FLAGS_NO_BUILD_OPTIMISATIONS}")         #For skipping -O2, which seems to cause issues
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    # Fix bug preventing the use of array bounds checking.
+    CONFIGURE_COMMAND sed ${dashi} -e "s#ComplexType spi_(2, 6:7, nvec, 1)#ComplexType spi_(2, 6:7, nvec, LEGS)#g" src/Decays/VecSet.F
+              COMMAND sed ${dashi} -e "s#\$(GM2FULL)#\$(GM2FULL) -fPIC#g" configure
+              COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FFLAGS=${FH_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=-fPIC CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=-fPIC
+    BUILD_COMMAND ${MAKE_PARALLEL} 
+          COMMAND ${CMAKE_COMMAND} -E make_directory lib
+          COMMAND ${CMAKE_COMMAND} -E echo "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${FH_Fortran_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -o lib/${lib}.so build/*.o" > make_so.sh
+          COMMAND chmod u+x make_so.sh
+          COMMAND ./make_so.sh
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # HiggsBounds tables
 set(name "higgsbounds_tables")
