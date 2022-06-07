@@ -1577,7 +1577,13 @@ set(BOSSregex "s#cpp)#cpp   source/BOSS_factory_VevaciousPlusPlus.cpp       sour
 set(FLAGSregex1 "s#_FLAGS} -O3 -fPIC#_FLAGS}#g")
 set(FLAGSregex2 "s#_FLAGS} -Wall -Wno-unused-local-typedefs -O3 -fPIC -fopenmp#_FLAGS}#g")
 check_ditch_status(${name} ${ver} ${dir})
-if(NOT ditched_${name}_${ver})
+if(ditched_${Minuit_name}_${Minuit_ver} AND NOT ditched_${name}_${ver})
+  message(WARNING "Ditching vevacious as it depends on minuit2, which was ditched")
+elseif(ditched_phc_${phc_ver} AND NOT ditched_${name}_${ver})
+  message(WARNING "Ditching vevacious as it depends on phc, which was ditched")
+elseif(ditched_hom4ps_${hom4ps_ver} AND NOT ditched_${name}_${ver})
+  message(WARNING "Ditching vevacious as it depends on hom4ps, which was ditched")
+elseif(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
           DEPENDS ${Minuit_name}_${Minuit_ver}
           DEPENDS phc_${phc_ver}
