@@ -39,7 +39,7 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
     # - Check that class is complete (not only forward declared).
     if not utils.isComplete(class_el):
         if print_warning:
-            reason = f"Class is incomplete, at least based on XML file {gb.xml_file_name}"
+            reason = "Class is incomplete, at least based on XML file {0}".format(gb.xml_file_name)
             infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
         return False
 
@@ -758,7 +758,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
         argc = 1
         for i in range(len(args)):
             if args[i]['name'] == '':
-                args[i]['name'] = f"arg_{argc}"
+                args[i]['name'] = "arg_{0}".format(argc)
                 argc += 1
 
         # Generate one factory function for each set of default arguments
@@ -769,7 +769,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
                 continue
 
             # - Factory function name
-            factory_name = f"Factory_{class_name['wrp_short']}_{counter}"
+            factory_name = "Factory_{0}_{1}".format(class_name['wrp_short'],counter)
             if is_template:
                 factory_name += '_' + '_'.join(template_types)
             factory_name += gb.code_suffix + '_' + str(gb.symbol_name_counter)

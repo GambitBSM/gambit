@@ -179,7 +179,7 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
         return_el = return_type_dict['el']
         if not utils.isAcceptedType(return_el):
             if print_warning:
-                reason = f"Non-accepted return type '{return_type}'."
+                reason = "Non-accepted return type '{0}'.".format(return_type)
                 infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
             return True
 
@@ -206,7 +206,7 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
 
         if arg_dict['function_pointer']:
             if print_warning:
-                reason = f"Function pointer type argument, '{arg_dict['name']}'."
+                reason = "Function pointer type argument, '{0}'.".format(arg_dict['name'])
                 infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
             return True
 
