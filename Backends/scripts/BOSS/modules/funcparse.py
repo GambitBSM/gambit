@@ -266,11 +266,6 @@ def generateFunctionWrapperClassVersion(func_el, wr_func_name, namespaces, n_ove
         indent = ' '*cfg.indent
         new_code += '{\n'
 
-        if return_type == 'void':
-            new_code += indent
-        else:
-            new_code += indent + 'return '
-
         # args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, wrapper_to_pointer=True)
         args_bracket_notypes = utils.constrArgsBracket(use_args, include_arg_name=True, include_arg_type=False, cast_to_original=True, wrapper_to_pointer=True)
 
@@ -280,15 +275,20 @@ def generateFunctionWrapperClassVersion(func_el, wr_func_name, namespaces, n_ove
             wrapper_return_type_simple = wrapper_return_type.replace('*','').replace('&','')
 
             if is_ref:  # Return-by-reference
-                new_code += 'reference_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
+                new_code += indent + 'return reference_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
 
             elif (not is_ref) and (pointerness > 0):  # Return-by-pointer
-                new_code += 'pointer_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
+                new_code += indent + 'return pointer_returner< ' + wrapper_return_type_simple + ', ' + abs_return_type_simple +  ' >( ' + call_func_name + args_bracket_notypes + ' );\n'
             
             else:  # Return-by-value
-                new_code += wrapper_return_type + '( ' + call_func_name + args_bracket_notypes + ' );\n'
+                new_code += indent + return_type + '* ptr = new ' + return_type + '( ' + call_func_name + args_bracket_notypes + ' );\n'
+                new_code += indent + 'return ' + wrapper_return_type + '( ptr );\n'
         
         else:                
+            if return_type == 'void':
+                new_code += indent
+            else:
+                new_code += indent + 'return '
             new_code += call_func_name + args_bracket_notypes + ';\n'
 
         new_code += '}\n'

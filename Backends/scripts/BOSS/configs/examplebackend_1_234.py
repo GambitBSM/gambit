@@ -60,7 +60,8 @@ load_classes = [
 
 load_functions = [
     'SomeNamespace::return_as_vector(int, int)',
-    'SomeNamespace::return_as_vector_2(int, int&)'
+    'SomeNamespace::return_as_vector_2(int, int&)',
+    'SomeNamespace::return_a_ClassFour_instance()',
 ]
 
 load_enums = []
