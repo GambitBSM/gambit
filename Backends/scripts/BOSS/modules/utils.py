@@ -105,7 +105,7 @@ def getFunctionNameDict(func_el):
     # Check that the 'name' XML entry exists.
     xml_id = func_el.get('id')
     if 'name' not in func_el.keys():
-        raise KeyError(f'XML element {xml_id} does not contain the key "name".')
+        raise KeyError('XML element {0} does not contain the key "name".'.format(xml_id))
 
     # Get information about the return type.
     return_type_dict = findType(func_el)
@@ -207,7 +207,7 @@ def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False
 
     # Return result
     if include_namespace and (namespace != ''):
-        return f"{namespace}::{short_type_name}"
+        return "{0}::{1}".format(namespace,short_type_name)
     else:
         return short_type_name
 
@@ -349,7 +349,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
         if (arg_dict['loaded_class'] or arg_dict['uses_loaded_class']) and (add_namespace_to_loaded != ''):
             add_namespaces = add_namespace_to_loaded.split('::')
             arg_dict['type_namespaces'] = add_namespaces + arg_dict['type_namespaces']
-            arg_dict['type'] = f"{add_namespace_to_loaded}::{arg_dict['type']}"
+            arg_dict['type'] = "{0}::{1}".format(add_namespace_to_loaded,arg_dict['type'])
 
         if include_arg_name and cast_to_original:
             if arg_dict['loaded_class'] or arg_dict['uses_loaded_class']:
@@ -369,18 +369,18 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
                 # Add qualifiers
                 if len(arg_dict['kw']) > 0:
                     qualifiers = ' '.join(arg_dict['kw'])
-                    cast_to_type = f"{qualifiers} {cast_to_type}"
+                    cast_to_type = "{0} {1}".format(qualifiers,cast_to_type)
 
                 # Determine what argument name to use (arg_name or *arg_name.get_BEptr() or ...)
                 if wrapper_to_pointer:
                     if arg_dict['type'].count('*') == 0:
-                        use_name = f"*{arg_dict['name']}.get_BEptr()"
+                        use_name = "*{0}.get_BEptr()".format(arg_dict['name'])
                     elif arg_dict['type'].count('*') == 1:
-                        use_name = f"(*{arg_dict['name']}).get_BEptr()"
+                        use_name = "(*{0}).get_BEptr()".format(arg_dict['name'])
 
-                    args_seq += f"dynamic_cast< {cast_to_type} >({use_name})"
+                    args_seq += "dynamic_cast< {0} >({1})".format(cast_to_type,use_name)
                 else:
-                    args_seq += f"dynamic_cast< {cast_to_type} >({arg_dict['name']})"
+                    args_seq += "dynamic_cast< {0} >({1})".format(cast_to_type,arg_dict['name'])
             else:
                 args_seq += arg_dict['name']
         else:
@@ -405,9 +405,9 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
             if include_arg_name:
                 if isLoadedClass(arg_dict['type'], byname=True) and wrapper_to_pointer:
                     if arg_dict['type'].count('*') == 0:
-                        args_seq += f"*{arg_dict['name']}.get_BEptr()"
+                        args_seq += "*{0}.get_BEptr()".format(arg_dict['name'])
                     elif arg_dict['type'].count('*') == 1:
-                        args_seq += f"(*{arg_dict['name']}).get_BEptr()"
+                        args_seq += "(*{0}).get_BEptr()".format(arg_dict['name'])
                     else:
                         raise Exception('constrArgsBracket cannot presently deal with arguments of type pointer-to-pointer for wrapper classes.')
                 else:
@@ -417,7 +417,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
 
     args_seq = args_seq.rstrip(', ')
     args_seq = args_seq.strip()
-    args_bracket = f"({args_seq})"
+    args_bracket = "({0})".format(args_seq)
 
     return args_bracket
 
@@ -529,7 +529,7 @@ def isNative(el):
     if el.tag in cannot_check_tags:
         return False
 
-    raise Exception(f"Cannot check whether XML element with id=({el.get('id')}) and tag=({el.tag}) is native.")
+    raise Exception("Cannot check whether XML element with id=({0}) and tag=({1}) is native.".format(el.get('id'),el.tag))
 
 # ====== END: isNative ========
 
@@ -628,7 +628,7 @@ def getSpecTemplateTypes(input_type, byname=False):
             namespaces_list = getNamespaces(el, include_self=True)
             input_name = '::'.join(namespaces_list)
         else:
-            raise Exception(f"Don't know how to get template types from XML element with tag: {el.tag}")
+            raise Exception("Don't know how to get template types from XML element with tag: {0}".format(el.tag))
 
     # Standardize the spacing between template brackets to simplify the parsing
     while "<<" in input_name:
@@ -746,7 +746,7 @@ def getTemplatedMemberVariableType(var_el):
 
     # Match the variable name
     # TODO: This does not work if the variable is not the first on a list
-    pat = re.compile(rf"[\s]+{re.escape(searching_var)}[\s]*[,;=].*")
+    pat = re.compile(r"[\s]+{0}[\s]*[,;=].*".format(re.escape(searching_var)))
     m = re.search(pat, var)
     if bool(m):
         # Found it!
@@ -755,7 +755,7 @@ def getTemplatedMemberVariableType(var_el):
         return var[:lo].strip()
 
     # If it wasn't found, there's a problem
-    raise UnfoundMember(f"{searching_var} wasn't found in the original file")
+    raise UnfoundMember("{0} wasn't found in the original file".format(searching_var))
 
 # ======= END: getTemplatedMemberVariableType ========
 
@@ -781,14 +781,14 @@ def getTemplatedMethodTypes(func_el, class_name):
 
     # Select the pattern to extract the types
     if func_el.tag == 'Constructor':
-        pat = re.compile(rf"[\s]*{re.escape(searching_method)}[\s]*\(")
+        pat = re.compile(r"[\s]*{0}[\s]*\(".format(re.escape(searching_method)))
     elif func_el.tag == 'OperatorMethod':
-        pat = re.compile(rf"operator{re.escape(searching_method)}[\s]*\(")
+        pat = re.compile(r"operator{0}[\s]*\(".format(re.escape(searching_method)))
     elif func_el.tag == 'Method':
-        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+        pat = re.compile(r"[\s]+{0}[\s]*\(".format(re.escape(searching_method)))
     # For cases when it is a destructor
     else:
-        pat = re.compile(rf"[\s]+{re.escape(searching_method)}[\s]*\(")
+        pat = re.compile(r"[\s]+{0}[\s]*\(".format(re.escape(searching_method)))
 
 
     m = re.search(pat, method)
@@ -819,7 +819,7 @@ def getTemplatedMethodTypes(func_el, class_name):
         method_types['args'] = makeTemplateArgs(args)
             
         if len(method_types['args']) != len(xml_args_info):
-            raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
+            raise UnfoundMember("Arguments of {0} are incorrect".format(searching_method))
 
         # looping through all the var checking 1 by 1 using name and type
         # TODO: This causes more problems that it solves
@@ -835,14 +835,13 @@ def getTemplatedMethodTypes(func_el, class_name):
         #        break
 
         #if not same_args:
-        #    raise UnfoundMember(f"Arguments of {searching_method} are incorrect")
+        #    raise UnfoundMember("Arguments of {0} are incorrect".format(searching_method))
 
         # Return
         return method_types
 
     # If it wasn't found, there's a problem
-    raise UnfoundMember(
-        f"{searching_method} wasn't found in the original file.")
+    raise UnfoundMember("{0} wasn't found in the original file.".format(searching_method))
 
 # ======= END: getTemplatedMethodTypes ========
 
@@ -2913,17 +2912,17 @@ def fillAcceptedTypesList():
                 # Keep track of number of types and print out information for every 500 types classified
                 type_counter += 1
                 if type_counter % 500 == 0:
-                    print(f"  - {type_counter} types classified...")
+                    print("  - {0} types classified...".format(type_counter))
 
         # Skip incomplete types, not sure where it goes??
         # TODO: incomplete test should be test in other tests
         # if ('incomplete' in el.keys()) and (el.get('incomplete') == '1'):
-        # print(f"{full_name} incomplete")
+        # print("{0} incomplete".format(full_name))
         # continue
 
 
     # Print final number of types classified
-    print(f"  - {type_counter} types classified.")
+    print("  - {0} types classified.".format(type_counter))
     # Fill global list
     gb.accepted_types = list(all_types)
 
