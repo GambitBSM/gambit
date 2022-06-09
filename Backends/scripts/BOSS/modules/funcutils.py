@@ -57,8 +57,8 @@ def constrWrapperArgs(args, add_ref=False, convert_loaded_to_abstract=True):
             del arg_dict['id']
 
     for arg_dict in w_args:
-        if arg_dict['native'] and not arg_dict['enumeration']:
-            if arg_dict['loaded_class']:
+        unpacked_template_args = utils.getAllTemplateTypes(arg_dict['type'])
+        if not arg_dict['enumeration'] and (arg_dict['loaded_class']  or arg_dict['uses_loaded_class']):
 
                 if convert_loaded_to_abstract:
                     arg_dict['type'] = utils.toAbstractType(arg_dict['type'])
@@ -178,7 +178,7 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
         return_el = return_type_dict['el']
         if not utils.isAcceptedType(return_el):
             if print_warning:
-                reason = f"Non-accepted return type '{return_type}'."
+                reason = "Non-accepted return type '{0}'.".format(return_type)
                 infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
             return True
 
@@ -205,7 +205,7 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
 
         if arg_dict['function_pointer']:
             if print_warning:
-                reason = f"Function pointer type argument, '{arg_dict['name']}'."
+                reason = "Function pointer type argument, '{0}'.".format(arg_dict['name'])
                 infomsg.IgnoredFunction(is_operator*'operator'+func_name['long_templ_args'], reason).printMessage()
             return True
 
@@ -260,11 +260,14 @@ def usesNativeType(func_el):
 def usesLoadedType(func_el):
     return_type_dict = utils.findType(func_el)
     return_is_loaded = utils.isLoadedClass(return_type_dict['el'])
+    return_uses_loaded = utils.usesLoadedClass(return_type_dict['el'])
 
     args = utils.getArgs(func_el)
-    is_arg_loaded = [arg_dict['loaded_class'] for arg_dict in args]
+    args_are_loaded = False
+    for arg_dict in args:
+      args_are_loaded = args_are_loaded or arg_dict['loaded_class'] or arg_dict['uses_loaded_class']
 
-    return (return_is_loaded) or (True in is_arg_loaded)
+    return (return_is_loaded) or (return_uses_loaded) or (args_are_loaded)
 
 # ======== END: usesLoadedType ========
 

@@ -39,7 +39,7 @@ def isLoadable(class_el, print_warning=False, check_pure_virtual_members=True):
     # - Check that class is complete (not only forward declared).
     if not utils.isComplete(class_el):
         if print_warning:
-            reason = f"Class is incomplete, at least based on XML file {gb.xml_file_name}"
+            reason = "Class is incomplete, at least based on XML file {0}".format(gb.xml_file_name)
             infomsg.ClassNotLoadable(class_name['long_templ'], reason).printMessage()
         return False
 
@@ -339,29 +339,24 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
             # One overloaded version for each set of default arguments
             for remove_n_args in range(n_overloads+1):
 
-                #if is_template:
-                #    w_func_name = el.get('name')
-                #    w_args_bracket_nonames = '(' + ', '.join(args) + ')'
-                #else:
-                if True:
-                    if remove_n_args == 0:
-                        use_w_args = w_args
+                if remove_n_args == 0:
+                    use_w_args = w_args
+                else:
+                    use_w_args = w_args[:-remove_n_args]
+
+
+                w_args_bracket_nonames = utils.constrArgsBracket(use_w_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+
+                if is_operator:
+                    if uses_loaded_type:
+                        w_func_name = 'operator_' + gb.operator_names[el.get('name')] + gb.code_suffix
                     else:
-                        use_w_args = w_args[:-remove_n_args]
-
-
-                    w_args_bracket_nonames = utils.constrArgsBracket(use_w_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
-
-                    if is_operator:
-                        if uses_loaded_type:
-                            w_func_name = 'operator_' + gb.operator_names[el.get('name')] + gb.code_suffix
-                        else:
-                            w_func_name = 'operator' + el.get('name')
+                        w_func_name = 'operator' + el.get('name')
+                else:
+                    if uses_loaded_type or (remove_n_args>0):
+                        w_func_name = el.get('name') + gb.code_suffix
                     else:
-                        if uses_loaded_type or (remove_n_args>0):
-                            w_func_name = el.get('name') + gb.code_suffix
-                        else:
-                            w_func_name = el.get('name')
+                        w_func_name = el.get('name')
 
                 #
                 # If the method makes use of a loaded class, construct a pair of wrapper methods.
@@ -375,7 +370,6 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
                     if return_is_loaded:
                         if is_ref:
-                            # w_return_type = utils.toWrapperType(return_type, include_namespace=True, include_global_namespace=True)
                             w_return_type = utils.toAbstractType(return_type, include_namespace=True)
                         elif (not is_ref) and (pointerness > 0):
                             w_return_type = utils.toAbstractType(return_type, include_namespace=True)
@@ -763,7 +757,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
         argc = 1
         for i in range(len(args)):
             if args[i]['name'] == '':
-                args[i]['name'] = f"arg_{argc}"
+                args[i]['name'] = "arg_{0}".format(argc)
                 argc += 1
 
         # Generate one factory function for each set of default arguments
@@ -774,7 +768,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
                 continue
 
             # - Factory function name
-            factory_name = f"Factory_{class_name['wrp_short']}_{counter}"
+            factory_name = "Factory_{0}_{1}".format(class_name['wrp_short'],counter)
             if is_template:
                 factory_name += '_' + '_'.join(template_types)
             factory_name += gb.code_suffix + '_' + str(gb.symbol_name_counter)

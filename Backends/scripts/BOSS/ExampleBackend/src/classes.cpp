@@ -133,4 +133,8 @@ int ClassSeven<T>::size2()
   return stack2.size();
 }
 
-
+template <typename T>
+void ClassSeven<T>::get_stack(std::vector<ClassFour>& stack)
+{
+  stack = stack3;
+}

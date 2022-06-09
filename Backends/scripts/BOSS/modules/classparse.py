@@ -453,7 +453,7 @@ def generateClassMemberInterface(class_el, class_name, namespaces,
             if not 'artificial' in el.keys() and el.get('access') == 'public':
                 if el.tag == 'Method':
                     member_methods.append(el)
-                elif el.tag == 'OperatorMethod' and funcutils.usesNativeType(el):
+                elif el.tag == 'OperatorMethod' and funcutils.usesLoadedType(el):
                     member_operators.append(el)
                 elif el.tag in ('Field', 'Variable') and classutils.isAcceptedMemberVariable(el):
                     member_variables.append(el)
@@ -477,10 +477,10 @@ def generateClassMemberInterface(class_el, class_name, namespaces,
         n_overloads = funcutils.numberOfDefaultArgs(method_el)
 
         # Check for native types
-        uses_native_type = funcutils.usesNativeType(method_el)
+        uses_loaded_type = funcutils.usesLoadedType(method_el)
 
         # If no native types are used and no arguments have default values, we don't need a wrapper
-        if (not uses_native_type) and (n_overloads == 0):
+        if (not uses_loaded_type) and (n_overloads == 0):
             continue
 
         # Generate wrapper code
@@ -490,7 +490,7 @@ def generateClassMemberInterface(class_el, class_name, namespaces,
             if funcutils.ignoreFunction(method_el, remove_n_args=remove_n_args):
                 continue
 
-            if (remove_n_args == 0) and (not uses_native_type):
+            if (remove_n_args == 0) and (not uses_loaded_type):
                 continue
 
             # The declaration is put inside the original class
