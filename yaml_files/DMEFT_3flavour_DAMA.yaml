@@ -122,7 +122,7 @@ Scanner:
     diver: 
       plugin: diver
       like: LogLike
-      NP: 10000
+      NP: 12000
       convthresh: 1E-3
       lambdajDE: false
 
@@ -131,6 +131,9 @@ ObsLikes:
   # Direct detection likelihoods
   - capability: DAMA_LogLikelihood_mod
     purpose:    LogLike
+
+  - capability: XENON1T_2018_LogLikelihood
+    purpose: LogLike
 
 Rules:
 
@@ -163,6 +166,11 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -5e5
     model_invalid_for_lnlike_below_alt: -1e5
+    # use_lnlike_modifier: gaussian
+    # lnlike_modifiers:
+    #gaussian:
+    #    mu: -7.805   # = -4.715 (known best-fit) - 3.09 (2-sigma threshold)
+    #    sigma: 0.5
 
   default_output_path: "runs/DMEFT_3flavour_DAMA/"
 
