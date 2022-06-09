@@ -370,7 +370,6 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
                     if return_is_loaded:
                         if is_ref:
-                            # w_return_type = utils.toWrapperType(return_type, include_namespace=True, include_global_namespace=True)
                             w_return_type = utils.toAbstractType(return_type, include_namespace=True)
                         elif (not is_ref) and (pointerness > 0):
                             w_return_type = utils.toAbstractType(return_type, include_namespace=True)

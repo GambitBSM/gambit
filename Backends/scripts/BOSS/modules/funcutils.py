@@ -58,8 +58,7 @@ def constrWrapperArgs(args, add_ref=False, convert_loaded_to_abstract=True):
 
     for arg_dict in w_args:
         unpacked_template_args = utils.getAllTemplateTypes(arg_dict['type'])
-        if not arg_dict['enumeration'] and (arg_dict['loaded_class']  or\
-           any([utils.isLoadedClass(arg, byname=True) for arg in unpacked_template_args])):
+        if not arg_dict['enumeration'] and (arg_dict['loaded_class']  or arg_dict['uses_loaded_class']):
 
                 if convert_loaded_to_abstract:
                     arg_dict['type'] = utils.toAbstractType(arg_dict['type'])
@@ -261,21 +260,14 @@ def usesNativeType(func_el):
 def usesLoadedType(func_el):
     return_type_dict = utils.findType(func_el)
     return_is_loaded = utils.isLoadedClass(return_type_dict['el'])
-
-    # Get all nested template arguments to find out if there are loaded classes there
-    unpacked_template_args = utils.getAllTemplateTypes(return_type_dict['name'])
-    return_is_loaded = return_is_loaded or any([utils.isLoadedClass(arg, byname=True) for arg in unpacked_template_args])
+    return_uses_loaded = utils.usesLoadedClass(return_type_dict['el'])
 
     args = utils.getArgs(func_el)
     args_are_loaded = False
     for arg_dict in args:
-      args_are_loaded = args_are_loaded or arg_dict['loaded_class']
+      args_are_loaded = args_are_loaded or arg_dict['loaded_class'] or arg_dict['uses_loaded_class']
 
-      # Get all nested template arguments to find out if there are loaded classes there
-      unpacked_template_args = utils.getAllTemplateTypes(arg_dict['type'])
-      args_are_loaded = args_are_loaded or any([utils.isLoadedClass(arg, byname=True) for arg in unpacked_template_args])
-   
-    return (return_is_loaded) or (args_are_loaded)
+    return (return_is_loaded) or (return_uses_loaded) or (args_are_loaded)
 
 # ======== END: usesLoadedType ========
 

@@ -219,10 +219,6 @@ def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False
 
 def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, remove_reference=False, remove_pointers=False, input_type_el=None):
 
-    # FIXME:
-    # Should this function also translate template argument types?
-    # Example: TypeA<TypeB>  -->  Abstract__TypeA<Abstract__TypeB>
-
     type_name = input_type_name
 
     # Remove template bracket
@@ -241,7 +237,7 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
     if (n_pointers > 0) and remove_pointers:
         type_name_short = type_name_short.replace('*','')
 
-    if isLoadedClass(type_name, byname=True):
+    if isLoadedClass(type_name, bybasename=True):
         if namespace == '':
             type_name = gb.abstr_class_prefix + type_name_short
         else:
@@ -261,8 +257,11 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
         else:
             args.append(arg)
     if len(args) > 0:
-        type_name = type_name[:-n_pointers-(1 if is_ref else 0)] + "<" + ",".join(args) + ">"
-        type_name += input_type_name[-n_pointers-(1 if is_ref else 0)]
+        if is_ref or n_pointers > 0:
+            type_name = type_name[:-n_pointers-(1 if is_ref else 0)] + "<" + ",".join(args) + ">"
+            type_name += input_type_name[-n_pointers-(1 if is_ref else 0)]
+        else:
+            type_name += "<" + ",".join(args) + ">"
 
     if add_pointer:
         if is_ref and not remove_reference:
@@ -284,7 +283,7 @@ def getArgs(func_el):
     # Returns a list with one dict per argument.
     # Each dict contains the following keywords:
     #
-    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class',
+    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class', 'uses_loaded_class',
     #   'known_class', 'type_namespaces', 'default', 'function_pointer'
     #
 
@@ -319,6 +318,7 @@ def getArgs(func_el):
             arg_dict['fundamental'] = isFundamental(arg_type_el)
             arg_dict['enumeration'] = isEnumeration(arg_type_el)
             arg_dict['loaded_class'] = isLoadedClass(arg_type_el)
+            arg_dict['uses_loaded_class'] = usesLoadedClass(arg_type_el)
             arg_dict['known_class'] = isKnownClass(arg_type_el)
             arg_dict['type_namespaces'] = getNamespaces(arg_type_el)
 
@@ -346,13 +346,13 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
     for arg in args:
         # We must create a new copy since we may be altering the content later
         arg_dict = OrderedDict(arg)
-        if arg_dict['loaded_class'] and (add_namespace_to_loaded != ''):
+        if (arg_dict['loaded_class'] or arg_dict['uses_loaded_class']) and (add_namespace_to_loaded != ''):
             add_namespaces = add_namespace_to_loaded.split('::')
             arg_dict['type_namespaces'] = add_namespaces + arg_dict['type_namespaces']
             arg_dict['type'] = f"{add_namespace_to_loaded}::{arg_dict['type']}"
 
         if include_arg_name and cast_to_original:
-            if arg_dict['loaded_class']:
+            if arg_dict['loaded_class'] or arg_dict['uses_loaded_class']:
                 # We assume that arg_dict['type'] *is* the original type!
                 cast_to_type = arg_dict['type']
 
@@ -387,7 +387,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
             if include_arg_type:
                 args_seq += ''.join([kw+' ' for kw in arg_dict['kw']])
 
-                if use_wrapper_class and arg_dict['loaded_class']:
+                if use_wrapper_class and (arg_dict['loaded_class'] or arg_dict['uses_loaded_class']):
                     args_seq += toWrapperType(arg_dict['type'], include_namespace=include_namespace)
                 else:
                     if include_namespace:
@@ -853,7 +853,7 @@ def makeTemplateArgs(args):
     # Returns a list of dicts for the template arguments
     # containing the following keywords:
     #
-    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class',
+    #   'name', 'type', 'kw', 'id', 'native', 'fundamental', 'enumeration', 'loaded_class', 'uses_loaded_class'
     #   'known_class', 'type_namespaces', 'default', 'function_pointer'
     #
 
@@ -887,6 +887,7 @@ def makeTemplateArgs(args):
 
         # If type is a loaded class, tag it as loaded and native
         arg_dict['loaded_class'] = isLoadedClass(arg, bybasename=True)
+        arg_dict['uses_loaded_class'] = usesLoadedClass(arg, byname=True)
         arg_dict['native'] = isLoadedClass(arg, bybasename=True)
 
         # Look for const or volatile qualifiers at the start
@@ -1574,6 +1575,25 @@ def isLoadedClass(input_type, byname=False, class_name=None, bybasename=False):
 
 # ====== END: isLoadedClass ========
 
+# ======= usesLoadedClass ========
+
+def usesLoadedClass(input_type, byname=False):
+
+    if byname:
+        input_type_name = input_type
+    else:
+        type_dict = findType(input_type)
+        type_el = type_dict['el']
+        input_type_name = type_dict['name']
+
+    if '<' in input_type_name:
+        unpacked_template_args = getAllTemplateTypes(input_type_name)
+
+        return any([isLoadedClass(arg, byname=True) for arg in unpacked_template_args])
+
+    else:
+        return False
+   
 
 # ====== constrAbsForwardDeclHeader ========
 
