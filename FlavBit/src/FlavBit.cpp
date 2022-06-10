@@ -5017,7 +5017,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=9;//11;
+      const int n_experiments=11;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -5036,9 +5036,9 @@ namespace Gambit
         // B-> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
         // B-> D mu nu
-        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
         // B-> D* mu nu
-        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
         // RD
         fread.read_yaml_measurement("flav_data.yaml", "RD");
         // RDstar
@@ -5076,38 +5076,38 @@ namespace Gambit
       }
 
       // R(D) is calculated assuming isospin symmetry
-      double theory[9];//[11];
+      double theory[11];
       // B-> tau nu SI
       theory[0] = *Dep::Btaunu;
       // B-> D mu nu
-      //theory[1] = *Dep::BDmunu;
+      theory[1] = *Dep::BDmunu;
       // B-> D* mu nu
-      //theory[2] = *Dep::BDstarmunu;
+      theory[2] = *Dep::BDstarmunu;
       // RD
-      theory[1] = *Dep::RD;
+      theory[3] = *Dep::RD;
       // RDstar
-      theory[2] = *Dep::RDstar;
+      theory[4] = *Dep::RDstar;
       // Ds-> tau nu
-      theory[3] = *Dep::Dstaunu;
+      theory[5] = *Dep::Dstaunu;
       // Ds -> mu nu
-      theory[4] = *Dep::Dsmunu;
+      theory[6] = *Dep::Dsmunu;
       // D -> mu nu
-      theory[5] =*Dep::Dmunu;
+      theory[7] =*Dep::Dmunu;
       // D -> tau nu
-      theory[6] =*Dep::Dtaunu;
+      theory[8] =*Dep::Dtaunu;
       //R_mu
-      theory[7] =*Dep::Rmu;
+      theory[9] =*Dep::Rmu;
       //RDemu
-      theory[8] =*Dep::RDemu;
+      theory[10] =*Dep::RDemu;
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];
         pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
       }
       // Add in the correlations between B-> D mu nu and RD
-      //pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
+      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
       // Add in the correlations between B-> D* mu nu and RD*
-      //pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
+      pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)
