@@ -3,9 +3,8 @@
 
 #include <cstddef>
 #include <string>
-#include <vector>
 #include <ostream>
-#include <map>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ParticleData.h"
@@ -45,8 +44,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 bool reInit(::std::basic_string<char> startFile, bool xmlFormat);
         
                 bool reInit(::std::basic_string<char> startFile);
-        
-                void initWidths(::std::vector<Pythia8::ResonanceWidths *> resonancePtrs);
         
                 bool readXML(::std::basic_string<char> inFile, bool reset);
         

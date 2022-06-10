@@ -2,7 +2,6 @@
 #define __wrapper_ParticleDataEntry_def_Pythia_8_212_h__
 
 #include <string>
-#include <vector>
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_DecayChannel_decl.h"
 #include "wrapper_ResonanceWidths_decl.h"

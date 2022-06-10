@@ -1550,6 +1550,9 @@ def isLoadedClass(input_type, byname=False, class_name=None, bybasename=False):
             # Remove '*' and '&'
             type_name = type_name.replace('*', '').replace('&', '')
 
+            # Remove whitespaces
+            type_name = type_name.strip()
+
             # Remove template bracket
             if bybasename:
               type_name = type_name.split('<')[0]

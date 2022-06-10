@@ -4,9 +4,8 @@
 #include <cstddef>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <ostream>
-#include <map>
+#include <vector>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
@@ -40,8 +39,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 virtual bool reInit(::std::basic_string<char>, bool) =0;
     
                 virtual bool reInit__BOSS(::std::basic_string<char>) =0;
-    
-                virtual void initWidths(::std::vector<Pythia8::ResonanceWidths *>) =0;
     
                 virtual bool readXML(::std::basic_string<char>, bool) =0;
     

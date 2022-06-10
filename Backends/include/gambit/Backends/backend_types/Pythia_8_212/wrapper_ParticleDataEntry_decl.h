@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include <string>
-#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ParticleDataEntry.h"

@@ -6,7 +6,6 @@
 #include <string>
 #include <ostream>
 #include <vector>
-#include <map>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"

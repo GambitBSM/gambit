@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <iostream>
 #include <string>
-#include <vector>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"

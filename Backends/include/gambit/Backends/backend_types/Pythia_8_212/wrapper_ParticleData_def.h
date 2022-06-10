@@ -2,9 +2,8 @@
 #define __wrapper_ParticleData_def_Pythia_8_212_h__
 
 #include <string>
-#include <vector>
 #include <ostream>
-#include <map>
+#include <vector>
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Rndm_decl.h"
@@ -49,11 +48,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         inline bool ParticleData::reInit(::std::basic_string<char> startFile)
         {
             return get_BEptr()->reInit__BOSS(startFile);
-        }
-        
-        inline void ParticleData::initWidths(::std::vector<Pythia8::ResonanceWidths *> resonancePtrs)
-        {
-            get_BEptr()->initWidths(resonancePtrs);
         }
         
         inline bool ParticleData::readXML(::std::basic_string<char> inFile, bool reset)
