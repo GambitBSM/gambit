@@ -58,7 +58,7 @@ def constrWrapperArgs(args, add_ref=False, convert_loaded_to_abstract=True):
 
     for arg_dict in w_args:
         unpacked_template_args = utils.getAllTemplateTypes(arg_dict['type'])
-        if not arg_dict['enumeration'] and (arg_dict['loaded_class']  or arg_dict['uses_loaded_class']):
+        if not arg_dict['enumeration'] and (arg_dict['loaded_class'] or arg_dict['uses_loaded_class']):
 
                 if convert_loaded_to_abstract:
                     arg_dict['type'] = utils.toAbstractType(arg_dict['type'])

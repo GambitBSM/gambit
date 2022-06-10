@@ -237,7 +237,7 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
     if (n_pointers > 0) and remove_pointers:
         type_name_short = type_name_short.replace('*','')
 
-    if isLoadedClass(type_name, bybasename=True):
+    if isLoadedClass(type_name, bybasename=True) or isLoadedClass(type_name.split("__")[0], bybasename=True):
         if namespace == '':
             type_name = gb.abstr_class_prefix + type_name_short
         else:
@@ -2982,6 +2982,11 @@ def validType(type_name, xml_file):
         return True
 
     inside_brackets = type_name[lo + 1:hi]
+
+    # If the type contains a loaded clases as template argument, it is not valid
+    # We do not know how to deal with these types
+    if usesLoadedClass(type_name, byname=True):
+      return False
 
     # Strip the commas between inside_brackets if there are any,
     # E.g., if type_name = 'std::map<int, bool>'

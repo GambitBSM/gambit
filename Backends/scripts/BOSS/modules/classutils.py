@@ -369,9 +369,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
                     #
 
                     if return_is_loaded:
-                        if is_ref:
-                            w_return_type = utils.toAbstractType(return_type, include_namespace=True)
-                        elif (not is_ref) and (pointerness > 0):
+                        if is_ref or (pointerness > 0):
                             w_return_type = utils.toAbstractType(return_type, include_namespace=True)
                         else:
                             w_return_type = utils.toAbstractType(return_type, include_namespace=True, add_pointer=True, remove_reference=True)
@@ -792,9 +790,9 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
             # Generate declaration line:
             if use_wrapper_return:
-                return_type = utils.toWrapperType(class_name['wrp_short_templ'], include_namespace=True)
+                return_type = class_name['wrp_short_templ']
             else:
-                return_type = utils.toAbstractType(class_name['wrp_short_templ'], add_pointer=True, include_namespace=True)
+                return_type = class_name['abstr_short_templ'] + '*'
 
             func_def += return_type + ' ' + factory_name + args_bracket + '\n'
 
