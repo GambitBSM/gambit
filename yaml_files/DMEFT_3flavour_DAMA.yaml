@@ -128,12 +128,40 @@ Scanner:
 
 ObsLikes:
 
-  # Direct detection likelihoods
+  # DAMA Annual Modulation likelihood
   - capability: DAMA_LogLikelihood_mod
     purpose:    LogLike
 
+  # Direct detection likelihoods
+  - capability: LUX_2016_LogLikelihood
+    purpose:    LogLike
+
   - capability: XENON1T_2018_LogLikelihood
-    purpose: LogLike
+    purpose:    LogLike
+
+  - capability: PandaX_2016_LogLikelihood
+    purpose:    LogLike
+
+  - capability: PandaX_2017_LogLikelihood
+    purpose:    LogLike
+
+  - capability: PICO_60_2017_LogLikelihood
+    purpose:    LogLike
+
+  - capability: PICO_60_2019_LogLikelihood
+    purpose:    LogLike
+
+  - capability: CRESST_III_LogLikelihood
+    purpose:    LogLike
+
+  - capability: CRESST_II_LogLikelihood
+    purpose:    LogLike
+
+  - capability: CDMSlite_LogLikelihood
+    purpose:    LogLike
+
+  - capability: DarkSide_50_LogLikelihood
+    purpose:    LogLike
 
 Rules:
 
