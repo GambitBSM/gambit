@@ -1,0 +1,178 @@
+##################################################################################################################
+## YAML file for running a scan of dimension-6 Wilson coefficients using the DAMA log-likelihood.
+##################################################################################################################
+
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  # Direct detection
+  nuclear_params_ChPT:
+    B0md: 0.00133
+    B0ms: 0.268
+    B0mu: 0.0061
+    BT10dp: 0.24
+    BT10s: 0.0
+    BT10up: 3.0
+    DeltauDeltad: 0.521 # equals Deltadp + Deltaup in BF file
+    Deltas: -0.031
+    gA: 1.2723
+    gTd: -0.204
+    gTs: 0.00032
+    gTu: 0.794
+    mG: 0.848
+    mun: -1.913 # an = mun
+    mup: 2.793 # ap = mup - 1
+    mus: -0.064  # equals F2sp in BF file
+    sigmadn: 0.036
+    sigmadp: 0.032
+    sigmas: 0.0413
+    sigmaun: 0.015
+    sigmaup: 0.017
+    rs2: -0.115 # NOT in BF file
+
+  DMEFT_3flavour:
+    # DM mass
+    mchi: 
+      range: [2, 200]
+      prior_type: log
+    # EM interactions
+    C51: 
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+    C52: 
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+    # Dim 6 -- qq chi chi bilinears
+    # vector vector
+    C61u: 
+      prior_type: double_log_flat_join
+      ranges: [-1e-4, -1e-06, 1e-06, 1e-4]
+    C61d: 
+      prior_type: double_log_flat_join
+      ranges: [-1e-4, -1e-06, 1e-06, 1e-4]
+    # axial-vector vector
+    C62u:
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+    C62d:
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+    # vector axial-vector
+    C63u:
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+    C63d:
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+    # axial-vector axial-vector
+    C64u:
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+    C64d:
+      prior_type: double_log_flat_join
+      ranges: [-1e-2, -1e-06, 1e-06, 1e-2]
+
+  # NFW with standard & central values for prelims
+  Halo_gNFW_rho0:
+    rho0: 0.4
+    v0: 235.0
+    vesc: 550.0
+    vrot: 235.0
+    rs: 20.0
+    r_sun: 8.5
+    alpha: 1
+    beta: 3
+    gamma: 1
+
+
+Priors:
+
+  # All the priors are simple for this scan, so they are specified directly in the Parameters section.
+
+Printer:
+
+  printer: hdf5_v1
+
+  options:
+    output_file: "DMEFT_3flavour_DAMA.hdf5"
+    group: "/DMEFT_3flavour_DAMA"
+    buffer_length: 10
+    delete_file_on_restart: true
+
+
+Scanner:
+
+  use_scanner: diver
+
+  scanners:
+
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 1
+    
+    random: 
+      plugin: random
+      like: LogLike
+      point_number: 100
+
+    diver: 
+      plugin: diver
+      like: LogLike
+      NP: 12000
+      convthresh: 1E-3
+      lambdajDE: false
+
+ObsLikes:
+
+  # Direct detection likelihoods
+  #- capability: DAMA_LogLikelihood_mod
+  #  purpose:    LogLike
+
+  - capability: XENON1T_2018_LogLikelihood
+    purpose: LogLike
+
+Rules:
+
+  - capability: RD_fraction
+    function: RD_fraction_one
+
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_NR_WCs
+
+  - capability: DD_nonrel_WCs
+    function: DD_nonrel_WCs_flavscheme
+    options:
+      flavs: 3
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [PrecisionBit] : "PrecisionBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+    # use_lnlike_modifier: gaussian
+    # lnlike_modifiers:
+    #gaussian:
+    #    mu: -7.805   # = -4.715 (known best-fit) - 3.09 (2-sigma threshold)
+    #    sigma: 0.5
+
+  default_output_path: "runs/DMEFT_3flavour_DAMA/"
+
+  debug: false
+
