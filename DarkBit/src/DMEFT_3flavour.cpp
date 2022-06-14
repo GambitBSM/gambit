@@ -50,12 +50,15 @@ namespace Gambit
       // In our model the Wilson coefficients are dimensionless
       // The new-physics scale is fixed to 2 GeV
       double Lambda = 2;
+
       double C51  = *Param["C51"];
       double C52  = *Param["C52"];
+      
       double C61u  = *Param["C61u"];
       double C62u  = *Param["C62u"];
       double C63u  = *Param["C63u"];
       double C64u  = *Param["C64u"];
+      
       double C61d  = *Param["C61d"];
       double C62d  = *Param["C62d"];
       double C63d  = *Param["C63d"];
