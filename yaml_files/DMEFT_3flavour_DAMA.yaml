@@ -1,7 +1,8 @@
 ##################################################################################################################
-## YAML file for running a scan of dimension-6 Wilson coefficients using the DAMA log-likelihood.
+##
+## YAML file for an 11-dimensional scan of 3-flavour DM EFT model with DAMA + direct detection likelihoods.
+##
 ##################################################################################################################
-
 
 Parameters:
 
