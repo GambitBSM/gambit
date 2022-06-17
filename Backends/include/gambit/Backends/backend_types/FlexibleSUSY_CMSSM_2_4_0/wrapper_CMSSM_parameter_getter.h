@@ -1,9 +1,0 @@
-#ifndef __wrapper_CMSSM_parameter_getter_FlexibleSUSY_CMSSM_2_4_0_h__
-#define __wrapper_CMSSM_parameter_getter_FlexibleSUSY_CMSSM_2_4_0_h__
-
-
-#include "wrapper_CMSSM_parameter_getter_decl.h"
-#include "wrapper_CMSSM_parameter_getter_def.h"
-
-
-#endif /* __wrapper_CMSSM_parameter_getter_FlexibleSUSY_CMSSM_2_4_0_h__ */
