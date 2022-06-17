@@ -1019,7 +1019,40 @@ START_MODULE
 
   // --------------------
   // Modified gravity models - symmetron
-
+  
+  
+  // Calculate field at matter-radiation equality given initial conditions TODO: Chris Chang
+  // Uses analytic solution from: https://arxiv.org/pdf/1107.2112.pdf
+  #define CAPABILITY phi_eq_analytic
+  START_CAPABILITY
+    #define FUNCTION phi_eq_analytic
+    START_FUNCTION(double)
+    ALLOW_MODELS(symmetron)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+  // Calculate field at symmetry breaking given field at matter-radiatoin equality TODO: Chris Chang
+  // Uses analytic solution from: https://arxiv.org/pdf/1107.2112.pdf
+  #define CAPABILITY phi_symbreak_analytic
+  START_CAPABILITY
+    #define FUNCTION phi_symbreak_analytic
+    START_FUNCTION(double)
+    DEPENDENCY(phi_eq_analytic, double)
+    ALLOW_MODELS(symmetron)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
+  // Calculate field at current time given field at symmetry breaking TODO: Chris Chang
+  // Uses analytic solution from: https://arxiv.org/pdf/1107.2112.pdf
+  #define CAPABILITY phi0_analytic
+  START_CAPABILITY
+    #define FUNCTION phi0_analytic
+    START_FUNCTION(double)
+    DEPENDENCY(phi_symbreak_analytic, double)
+    ALLOW_MODELS(symmetron)
+    #undef FUNCTION
+  #undef CAPABILITY
+  
   // Obtain a value for phi(0) given mass and mu
   #define CAPABILITY phi0_interpolation
   START_CAPABILITY

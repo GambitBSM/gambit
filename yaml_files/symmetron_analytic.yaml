@@ -1,0 +1,90 @@
+##########################################################################
+## GAMBIT configuration for an ultra-minimal MultiNest scan of a toy model.
+##
+## Only needs ExampleBit_A and a scanner (either one of the built-ins like
+## the random sampler or TWalk, or an external like Diver, MultiNest,
+## GreAT or Polychord).
+##########################################################################
+
+
+Parameters:
+  symmetron: # TODO: These are the acutal values, whereas I thikn the other likelihoods currently take in the order of magnitude...
+    mass: 1e15
+    mu: 2.0e-34
+    vval: 2e10
+    phi_init: 1.0e-6
+
+
+Priors:
+
+Printer:
+
+  printer: cout
+  #printer: hdf5
+  options:
+    output_file: "fifthforcetest.hdf5"
+    group: "/symmetron"
+    delete_file_on_restart: true
+    buffer_length: 1000
+    disable_autorepair: true
+
+
+
+  #printer: none
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+
+ObsLikes:
+
+  - purpose:      ObsLike
+    capability:   phi_eq_analytic
+    module:       CosmoBit
+    type:         double
+
+  - purpose:      ObsLike
+    capability:   phi_symbreak_analytic
+    module:       CosmoBit
+    type:         double
+
+  - purpose:      ObsLike
+    capability:   phi0_analytic
+    module:       CosmoBit
+    type:         double
+
+
+Rules:
+
+
+
+
+Logger:
+
+  redirection:
+    [Default]      : "default.log"
+    [CosmoBit] : "CosmoBit.log" # or stdout
+  debug: false
+
+KeyValues:
+
+  default_output_path: "${PWD}/runs/symmetron"
+
+  rng:
+    generator: ranlux48
+    seed: -1
+
+  print_timing_data: false
+
+  print_unitcube: false
+
+  likelihood:
+    model_invalid_for_lnlike_below: -1e6

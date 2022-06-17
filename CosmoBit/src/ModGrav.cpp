@@ -30,6 +30,7 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv2.h>
+#include <gsl/gsl_sf_bessel.h>
 
 namespace Gambit
 {
@@ -43,6 +44,87 @@ namespace Gambit
     using namespace LogTags;
 
     const double G_cgs = 6.674e-8; // Gravitational constant [cm³/g/s²]
+
+    /// TODO: Chris Chang. ------------------------------------------------------------------
+    /// TODO: These currently take in the actual values, but I think that Anna coded it up so we input the order of magnitudes instead... I will need to make this consistent.
+    /// Analytical solution for the symmetron field during radiation dominated evolution
+    void phi_eq_analytic(double& result)
+    {
+      using namespace Pipes::phi_eq_analytic;
+    
+      double mass = *Param["mass"];
+      double phi_init = *Param["phi_init"]; // This will be the value of the field after inflation
+      
+      // Calculate matter radiation equality assuming that the presence of the symmetron has no effect on this.
+      // TODO: Perhaps we could get this from the input file, or make it a global variable.
+      // Calculate field value at matter radiation equality
+      double s = 2*pow(3,0.5)*M_pl / mass;
+      double phi_eq = 2.*phi_init*(gsl_sf_bessel_J1(s)/s);
+      
+      // Set the result
+      result = phi_eq;
+    
+    }
+    
+    /// Analytical solution for the symmetron field during matter dominated evolution
+    void phi_symbreak_analytic(double& result)
+    {
+      using namespace Pipes::phi_symbreak_analytic;
+    
+      double z_eq = 3402.964890;
+      double a_eq = 1.0 / (1.0 + z_eq);
+      
+      // Get the value of the field at matter-radiation equality
+      double phi_eq = *Dep::phi_eq_analytic;
+      
+      double mass = *Param["mass"];
+      double mu = *Param["mu"];
+      
+      // Find the scale factor at phase transition
+      // TODO: Need H0 and Omegam. Perhaps I can make these model inputs...?
+      double OmegaM0 = 1.0 - 0.687862;
+      double H0 = 100.0 * 0.67556 * 3.24078e-20 * 6.58e-25; // TODO: I pulled these from Cullan's code. Check them.
+      
+      double z_trans = pow(((1/OmegaM0) * (pow(mass,2) * pow(mu,2) / (3.*pow(H0,2)*pow(M_pl,2)) - 4.*(1-OmegaM0)) ),1./3.) - 1.;
+      double a_trans = 1./(1. + z_trans);
+      
+      // Solve for the field at phase transition //TODO: How to do cos and ln...
+      double phi_trans = phi_eq * pow(a_eq/a_trans,3./4.) * cos(sqrt(3.*pow(M_pl,2)/(pow(mass,2))-9./16.)*log(a_trans/a_eq));
+      
+      result = phi_trans;
+    
+    }
+    
+    /// Analytical solution for the symmetron field at present day
+    void phi0_analytic(double& result)
+    {
+      using namespace Pipes::phi0_analytic;
+      
+      double mass = *Param["mass"];
+      double vval = *Param["vval"];
+      double mu = *Param["mu"];
+      
+      double sqrtlam = mu/vval;
+      
+      double phi_trans = *Dep::phi_symbreak_analytic;
+      
+      // TODO: Need H0 and Omegam. Perhaps I can make these model inputs...?
+      double OmegaM0 = 1.0 - 0.687862;
+      double H0 = 100.0 * 0.67556 * 3.24078e-20 * 6.58e-25; // TODO: I pulled these from Cullan's code. Check them.
+      
+      double z_trans = pow(((1/OmegaM0) * (pow(mass,2) * pow(mu,2) / (3.*pow(H0,2)*pow(M_pl,2)) - 4.*(1-OmegaM0)) ),1./3.) - 1.;
+      
+      // Calculate field value at zero redshift
+      double phi0 = sqrt(3.*OmegaM0) * H0*M_pl/(sqrtlam*mass)*sqrt(pow(1+z_trans,3.) - 1.);
+      
+      result = phi0;
+    
+    }
+    
+    // TODO: Perhaps create a python code (not used in GAMBIT) just to plot the solution of the different phases, and compare to Cullan's python code.
+    
+    ///--------------------------------------------------------------------------------------
+
 
     // Obtain the grid of phi(0) for a given M and mu by interpolating pre-calculated values
     // from the data file CosmoBit/data/phiOvals.dat
