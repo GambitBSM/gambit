@@ -30,5 +30,6 @@
 #define  Default_Pythia 8_212
 #define  Default_vevacious 1_0
 #define  Default_FlexibleSUSY_CMSSM 2_0_1
+#define  Default_ExampleBackendForGAMBIT 1_234
 
 // Defaults added by GUM (do not remove this comment).

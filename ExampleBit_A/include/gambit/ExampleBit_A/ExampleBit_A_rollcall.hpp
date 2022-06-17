@@ -251,6 +251,18 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+
+  // Tester for BOSS development, using BOSSed ExampleBackend
+  #define CAPABILITY examplebackend_tests
+  START_CAPABILITY
+    #define FUNCTION do_examplebackend_tests
+    START_FUNCTION(bool)
+    NEEDS_CLASSES_FROM(ExampleBackendForGAMBIT, default)
+    // BACKEND_REQ(return_a_ClassFour_instance, (), ExampleBackendForGAMBIT_1_234::ClassFour, ())
+    BACKEND_REQ(return_a_ClassFour_instance, (), ExampleBackendForGAMBIT_default::ClassFour, ())
+    #undef FUNCTION
+  #undef CAPABILITY
+
 #undef MODULE
 
 

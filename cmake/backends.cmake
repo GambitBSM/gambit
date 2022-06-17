@@ -2222,6 +2222,30 @@ if(NOT ditched_${name}_${model}_${ver})
   #set_as_default_version("backend" ${name}_${model} ${ver})
 endif()
 
+# ExampleBackendForGAMBIT, for testing on the Template_BOSS branch
+# TODO: Remove before merging into master
+set(name "examplebackendforgambit")
+set(ver "1.234")
+set(dl "no-download-url")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(copy_from_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS/ExampleBackend")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS castxml
+    DOWNLOAD_COMMAND ${CMAKE_COMMAND} -E copy_directory ${copy_from_dir} ${dir}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ./makesharedlib.sh
+    INSTALL_COMMAND ""
+  )
+  BOSS_backend(${name} ${ver})
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
+
 # Alternative download command for getting unreleased things from the gambit_internal repository.
 # If you don't know what that is, you don't need to tinker with these.
 #    DOWNLOAD_COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --yellow --bold ${private_code_warning1}

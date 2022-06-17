@@ -577,6 +577,31 @@ namespace Gambit
     /// Flat test likelihood for checking prior distributions
     void flat_likelihood(double &result){ result = 1; }
 
+
+    /// Example of using a BOSSed version of Pythia
+    void do_examplebackend_tests(bool &result)
+    {
+      using namespace Pipes::do_examplebackend_tests;
+
+      cout << endl;
+      cout << "=======================================" << endl;
+      cout << "Testing ExampleBackendForGAMBIT backend" << endl;
+      cout << "=======================================" << endl;
+
+      ExampleBackendForGAMBIT_default::ClassFour classfour_instance;
+      classfour_instance.push(3.14);
+
+      ExampleBackendForGAMBIT_default::ClassFour classfour_instance_2 = BEreq::return_a_ClassFour_instance();
+      cout << "classfour_instance_2.size() = " << classfour_instance_2.size() << endl;
+
+      cout << "============================================" << endl;
+      cout << "Done testing ExampleBackendForGAMBIT backend" << endl;
+      cout << "============================================" << endl;
+      cout << endl;
+
+      result = true;
+    }
+
     /// @}
   }
 
