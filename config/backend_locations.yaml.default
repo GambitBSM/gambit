@@ -157,6 +157,9 @@ vevacious:
 
 # Example/debug backends
 
+ExampleBackendForGAMBIT:
+  1.234:       ./Backends/installed/examplebackendforgambit/1.234/libexamplebackend.so
+
 LibFirst:
   1.0:         ./Backends/examples/libfirst.so
   1.1:         ./Backends/examples/libfirst.so
