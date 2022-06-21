@@ -18,17 +18,24 @@
 #  \date 2014 Nov, Dec
 #  \date 2015 Jan, Feb, Apr
 #
+#  \author Tomas Gonzalo
+#          (tomas.gonzalo@monash.edu)
+#  \date 2020 Feb, Dec
+#
 #************************************************
 
 set(source_files src/ascii_table_reader.cpp
+                 src/ascii_dict_reader.cpp
                  src/exceptions.cpp
                  src/file_lock.cpp
+                 src/integration.cpp
                  src/mpiwrapper.cpp
                  src/new_mpi_datatypes.cpp
                  src/model_parameters.cpp
                  src/screen_print_utils.cpp
                  src/signal_handling.cpp
                  src/signal_helpers.cpp
+                 src/slhaea_helpers.cpp
                  src/standalone_error_handlers.cpp
                  src/standalone_utils.cpp
                  src/statistics.cpp
@@ -42,10 +49,12 @@ set(source_files src/ascii_table_reader.cpp
 )
 
 set(header_files include/gambit/Utils/ascii_table_reader.hpp
+                 include/gambit/Utils/ascii_dict_reader.hpp
                  include/gambit/Utils/boost_fallbacks.hpp
                  include/gambit/Utils/cats.hpp
                  include/gambit/Utils/exceptions.hpp
                  include/gambit/Utils/file_lock.hpp
+                 include/gambit/Utils/integration.hpp
                  include/gambit/Utils/mpiwrapper.hpp
                  include/gambit/Utils/new_mpi_datatypes.hpp
                  include/gambit/Utils/factory_registry.hpp
@@ -56,6 +65,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/screen_print_utils.hpp
                  include/gambit/Utils/signal_handling.hpp
                  include/gambit/Utils/signal_helpers.hpp
+                 include/gambit/Utils/slhaea_helpers.hpp
                  include/gambit/Utils/standalone_error_handlers.hpp
                  include/gambit/Utils/standalone_utils.hpp
                  include/gambit/Utils/static_members.hpp

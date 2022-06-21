@@ -47,25 +47,26 @@ namespace Gambit
   Likelihood_Container::Likelihood_Container(const std::map<str, primary_model_functor *> &functorMap,
    DRes::DependencyResolver &dependencyResolver, IniParser::IniFile &iniFile,
    const str &purpose, Printers::BaseBasePrinter& printer)
-  : dependencyResolver (dependencyResolver),
-    printer            (printer),
-    functorMap         (functorMap),
-    min_valid_lnlike        (iniFile.getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below")),
-    alt_min_valid_lnlike    (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
-    active_min_valid_lnlike (min_valid_lnlike), // can be switched to the alternate value by the scanner
-    // why does it default to true?
-    print_invalid_points    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
-    print_points_to_cout    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_points_to_cout")),
-    print_perf_stats    (iniFile.getValueOrDef<bool>(true, "likelihood", "print_perf_stats")),
-    intralooptime_label     ("Runtime(ms) intraloop"),
-    interlooptime_label     ("Runtime(ms) interloop"),
-    totallooptime_label     ("Runtime(ms) totalloop"),
+  : dependencyResolver               (dependencyResolver),
+    printer                          (printer),
+    functorMap                       (functorMap),
+    min_valid_lnlike                 (iniFile.getValueOrDef<double>(0.9*std::numeric_limits<double>::lowest(), "likelihood", "model_invalid_for_lnlike_below")),
+    alt_min_valid_lnlike             (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
+    active_min_valid_lnlike          (min_valid_lnlike), // can be switched to the alternate value by the scanner
+    print_invalid_points             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
+    print_points_to_cout             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_points_to_cout")),
+    print_perf_stats                 (iniFile.getValueOrDef<bool>(true, "likelihood", "print_perf_stats")),
+    disable_print_for_lnlike_below   (iniFile.getValueOrDef<double>(min_valid_lnlike, "likelihood", "disable_print_for_lnlike_below")),
+    intralooptime_label              ("Runtime(ms) intraloop"),
+    interlooptime_label              ("Runtime(ms) interloop"),
+    totallooptime_label              ("Runtime(ms) totalloop"),
     /* Note, likelihood container should be constructed after dependency
        resolution, so that new printer IDs can be safely acquired without
        risk of collision with graph vertex IDs */
     intraloopID(Printers::get_main_param_id(intralooptime_label)),
     interloopID(Printers::get_main_param_id(interlooptime_label)),
     totalloopID(Printers::get_main_param_id(totallooptime_label)),
+    invalidcodeID(Printers::get_main_param_id("Invalidation Code")),
     #ifdef CORE_DEBUG
       debug            (true)
     #else
@@ -153,7 +154,6 @@ namespace Gambit
     }
     // Print the parameter point to the logs, even if not in debug mode
     // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
-
 
   }
   
@@ -299,17 +299,18 @@ namespace Gambit
         catch(invalid_point_exception& e)
         {
           ++invalid_count;
-          logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << EOM;
+          logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
           logger().leaving_module();
           lnlike = active_min_valid_lnlike;
           compute_aux = false;
           point_invalidated = true;
+          int rankinv = printer.getRank();
           // If print_ivalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
           if (debug && print_points_to_cout) cout << "Point invalid." << endl;
-
-          // exit loop and skip other LLs. Why not move try out of loop?
+          printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());
+          if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
           break;
         }
 
@@ -336,13 +337,16 @@ namespace Gambit
           catch(Gambit::invalid_point_exception& e)
           {
             logger() << LogTags::core << "Additional observable invalidated by " << e.thrower()->origin()
-                     << "::" << e.thrower()->name() << ": " << e.message() << EOM;
+                     << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
           }
         }
       }
 
       // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
       if(point_invalidated and !print_invalid_points)
+        printer.disable();
+      // If the likelihood is below the limit given in disable_print_for_lnlike_below, disable the printer
+      else if(lnlike <= disable_print_for_lnlike_below)
         printer.disable();
       else
       {

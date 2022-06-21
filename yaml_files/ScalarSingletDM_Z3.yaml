@@ -269,6 +269,9 @@ Rules:
   - capability: decay_rates
     function: all_decays
 
+  # The model is annihilating DM, not decaying
+  - capability: GA_Yield
+    function: GA_AnnYield_General
 
 Logger:
 

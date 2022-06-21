@@ -47,7 +47,7 @@ namespace Gambit
     {
       Utils::typeEquivalencies().add(s1,s2);
     }
-    catch (std::exception& e) { printf("BITE 1"); ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return 0;
   }
 
@@ -58,7 +58,7 @@ namespace Gambit
     {
       Backends::backendInfo().default_safe_versions[be] = def;
     }
-    catch (std::exception& e) { printf("BITE 2"); ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return 0;
   }
 
@@ -69,7 +69,7 @@ namespace Gambit
     {
       Models::ModelDB().declare_model(model, parent);
     }
-    catch (std::exception& e) { printf("BITE 3");ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return 0;
   }
 
@@ -80,7 +80,7 @@ namespace Gambit
     {
       primary_parameters.addParameter(param);
     }
-    catch (std::exception& e) { printf("BITE 4"); ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return 0;
   }
 
@@ -91,7 +91,7 @@ namespace Gambit
     {
       primary_parameters.setModelName(model_name);
     }
-    catch (std::exception& e) { printf("BITE 5"); ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return 0;
   }
 
@@ -103,7 +103,7 @@ namespace Gambit
       donor.donateParameters(donee);
       if (add_friend) Models::ModelDB().add_friend(model, model_x);
     }
-    catch (std::exception& e) { printf("BITE 6"); ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return 0;
   }
 
@@ -117,7 +117,7 @@ namespace Gambit
       Logging::tag2str()[mytag] = module;
       Logging::components().insert(mytag);
     }
-    catch (std::exception& e) { printf("BITE 8"); ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return mytag;
   }
 
@@ -240,7 +240,7 @@ namespace Gambit
     {
       f.setModelGroup(group_name,group);
     }
-    catch (std::exception& e) { printf("BITE 9"); ini_catch(e); }
+    catch (std::exception& e) { ini_catch(e); }
     return 0;
   }
 

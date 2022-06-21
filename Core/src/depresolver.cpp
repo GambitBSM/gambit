@@ -275,10 +275,13 @@ namespace Gambit
     {
       bool match1, match2;
       // Loop over all the default versions of BOSSed backends and replace any corresponding *_default leading namespace with the explicit version.
-      for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
+      if ((s1.find("_default") != std::string::npos) || (s2.find("_default") != std::string::npos))
       {
-        s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
-        s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
+        for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
+        {
+          s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
+          s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
+        }
       }
       // Does it just match?
       if (stringComp(s1, s2, with_regex)) return true;
@@ -1282,7 +1285,9 @@ namespace Gambit
         str errmsg = "None of the vertex candidates for";
         errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
         errmsg += "\nfulfills all rules in the YAML file.";
-        errmsg += "\nPlease check your YAML file for contradictory rules.";
+        errmsg += "\nPlease check your YAML file for contradictory rules, and";
+        errmsg += "\nensure that you have built GAMBIT in the first place with";
+        errmsg += "\nall of the components that you are trying to use.";
         dependency_resolver_error().raise(LOCAL_INFO,errmsg);
       }
 
@@ -1592,6 +1597,8 @@ namespace Gambit
           str to_lmtype = (*masterGraph[toVertex]).loopManagerType();
           str from_lmcap = (*masterGraph[fromVertex]).loopManagerCapability();
           str from_lmtype = (*masterGraph[fromVertex]).loopManagerType();
+          bool is_same_lmcap = to_lmcap == from_lmcap;
+          bool is_same_lmtype = to_lmtype == "any" or from_lmtype == "any" or to_lmtype == from_lmtype;
           if (to_lmcap != "none")
           {
             // This function runs nested.  Check if its loop manager has been resolved yet.
@@ -1600,9 +1607,7 @@ namespace Gambit
               // toVertex's loop manager has not yet been determined.
               // Add the edge to the list to deal with when the loop manager dependency is resolved,
               // as long as toVertex and fromVertex cannot end up inside the same loop.
-              if (to_lmcap != from_lmcap or
-                  (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
-                 )
+              if (!is_same_lmcap or !is_same_lmtype)
               {
                 if (edges_to_force_on_manager.find(toVertex) == edges_to_force_on_manager.end())
                  edges_to_force_on_manager[toVertex] = std::set<DRes::VertexID>();
@@ -1618,12 +1623,8 @@ namespace Gambit
               // fromVertex as an edge of the manager.
               str name = (*masterGraph[toVertex]).loopManagerName();
               str origin = (*masterGraph[toVertex]).loopManagerOrigin();
-              if (name != (*masterGraph[fromVertex]).name() and
-                  origin != (*masterGraph[fromVertex]).origin() and
-                  (to_lmcap != from_lmcap or
-                   (to_lmtype != "any" and from_lmtype != "any" and to_lmtype != from_lmtype)
-                  )
-                 )
+              bool is_itself = (name == (*masterGraph[fromVertex]).name() and origin == (*masterGraph[fromVertex]).origin());
+              if (!is_itself and (!is_same_lmcap or !is_same_lmtype) )
               {
                 // Hunt through the edges of toVertex and find the one that corresponds to its loop manager.
                 graph_traits<DRes::MasterGraphType>::in_edge_iterator ibegin, iend;
@@ -1849,6 +1850,12 @@ namespace Gambit
                 // It has, so resolve the backend requirement with that function and add it to the list of successful resolutions.
                 resolveRequirement(solution,vertex);
                 previous_successes.push_back(solution);
+
+                // If *req is in remaining_reqs, remove it
+                if (remaining_reqs.find(*req) != remaining_reqs.end())
+                {
+                  remaining_reqs.erase(*req);
+                }
               }
               else // No valid solution found, but deferral has been suggested - so defer resolution of this group until later.
               {
@@ -2178,6 +2185,15 @@ namespace Gambit
           else errmsg += "group " + group;
           errmsg += " of module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name()
            + "\nViable candidates are:\n" + printGenericFunctorList(vertexCandidates);
+          errmsg += "\nIf you don't need all the above backends, you can resolve the ambiguity simply by";
+          errmsg += "\nuninstalling the backends you don't use.";
+          errmsg += "\n\nAlternatively, you can add an entry in your YAML file that selects which backend";
+          errmsg += "\nthe module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name() + " should use. A YAML file entry";
+          errmsg += "\nthat selects e.g. the first candidate above could read\n";
+          errmsg += "\n  - capability: "+masterGraph[vertex]->capability();
+          errmsg += "\n    function: "+masterGraph[vertex]->name();
+          errmsg += "\n    backends:";
+          errmsg += "\n      - {backend: "+vertexCandidates.at(0)->origin()+", version: "+vertexCandidates.at(0)->version()+"}\n";
           dependency_resolver_error().raise(LOCAL_INFO,errmsg);
         }
       }

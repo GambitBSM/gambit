@@ -1,0 +1,10 @@
+# Data taken from WiggleZ_bao likelihood (1401.0358)
+# only use highest z point to avoid overlapp with volume from BOSS
+
+
+WiggleZ_bao_highz.high_z = 0.73
+WiggleZ_bao_highz.high_z_Dv = 2516
+WiggleZ_bao_highz.high_z_sigma = 86
+
+# Value of the exact sound speed in the fiducial model, in Mpc
+WiggleZ_bao_highz.rs_fiducial = 148.6

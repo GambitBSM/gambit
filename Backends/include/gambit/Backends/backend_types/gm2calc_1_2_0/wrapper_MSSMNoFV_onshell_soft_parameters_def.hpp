@@ -1,9 +1,9 @@
 #ifndef __wrapper_MSSMNoFV_onshell_soft_parameters_def_gm2calc_1_2_0_hpp__
 #define __wrapper_MSSMNoFV_onshell_soft_parameters_def_gm2calc_1_2_0_hpp__
 
-#include "wrapper_MSSMNoFV_onshell_susy_parameters_decl.hpp"
 #include <Eigen/Core>
 #include <ostream>
+#include "wrapper_MSSMNoFV_onshell_susy_parameters_decl.hpp"
 
 #include "identification.hpp"
 
@@ -246,14 +246,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Wrappers for original constructors: 
-      inline gm2calc::MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters() :
+      inline MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters() :
          MSSMNoFV_onshell_susy_parameters(__factory0())
       {
          get_BEptr()->set_wptr(this);
          get_BEptr()->set_delete_wrapper(false);
       }
       
-      inline gm2calc::MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(const gm2calc::MSSMNoFV_onshell_susy_parameters& arg_1, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& TYd_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& TYe_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& TYu_, double BMu_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& mq2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& ml2_, double mHd2_, double mHu2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& md2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& mu2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& me2_, double MassB_, double MassWB_, double MassG_) :
+      inline MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(const gm2calc::MSSMNoFV_onshell_susy_parameters& arg_1, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& TYd_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& TYe_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& TYu_, double BMu_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& mq2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& ml2_, double mHd2_, double mHu2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& md2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& mu2_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& me2_, double MassB_, double MassWB_, double MassG_) :
          MSSMNoFV_onshell_susy_parameters(__factory1(arg_1, TYd_, TYe_, TYu_, BMu_, mq2_, ml2_, mHd2_, mHu2_, md2_, mu2_, me2_, MassB_, MassWB_, MassG_))
       {
          get_BEptr()->set_wptr(this);
@@ -261,7 +261,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Special pointer-based constructor: 
-      inline gm2calc::MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(gm2calc::Abstract_MSSMNoFV_onshell_soft_parameters* in) :
+      inline MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(Abstract_MSSMNoFV_onshell_soft_parameters* in) :
          MSSMNoFV_onshell_susy_parameters(in)
       {
          get_BEptr()->set_wptr(this);
@@ -269,7 +269,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Copy constructor: 
-      inline gm2calc::MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(const MSSMNoFV_onshell_soft_parameters& in) :
+      inline MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(const MSSMNoFV_onshell_soft_parameters& in) :
          MSSMNoFV_onshell_susy_parameters(in.get_BEptr()->pointer_copy__BOSS())
       {
          get_BEptr()->set_wptr(this);
@@ -277,7 +277,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Assignment operator: 
-      inline gm2calc::MSSMNoFV_onshell_soft_parameters& MSSMNoFV_onshell_soft_parameters::operator=(const MSSMNoFV_onshell_soft_parameters& in)
+      inline MSSMNoFV_onshell_soft_parameters& MSSMNoFV_onshell_soft_parameters::operator=(const MSSMNoFV_onshell_soft_parameters& in)
       {
          if (this != &in)
          {
@@ -288,7 +288,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Destructor: 
-      inline gm2calc::MSSMNoFV_onshell_soft_parameters::~MSSMNoFV_onshell_soft_parameters()
+      inline MSSMNoFV_onshell_soft_parameters::~MSSMNoFV_onshell_soft_parameters()
       {
          if (get_BEptr() != 0)
          {
@@ -303,9 +303,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Returns correctly casted pointer to Abstract class: 
-      inline gm2calc::Abstract_MSSMNoFV_onshell_soft_parameters* gm2calc::MSSMNoFV_onshell_soft_parameters::get_BEptr() const
+      inline Abstract_MSSMNoFV_onshell_soft_parameters* gm2calc::MSSMNoFV_onshell_soft_parameters::get_BEptr() const
       {
-         return dynamic_cast<gm2calc::Abstract_MSSMNoFV_onshell_soft_parameters*>(BEptr);
+         return dynamic_cast<Abstract_MSSMNoFV_onshell_soft_parameters*>(BEptr);
       }
    }
    

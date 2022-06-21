@@ -54,6 +54,7 @@
 #include "gambit/Utils/variadic_functions.hpp"
 #include "gambit/Utils/local_info.hpp"
 
+
 namespace Gambit
 {
 
@@ -63,8 +64,14 @@ namespace Gambit
   typedef std::pair<str, str> sspair;
   /// Shorthand for a pair of doubles
   typedef std::pair<double, double> ddpair;
+  /// Shorthand for a pair of integers
+  typedef std::pair<int, int> iipair;
+  /// Shorthand for a pair of string and double
+  typedef std::pair<str, double> sdpair;
   /// Shorthand for a string-to-double map
   typedef std::map<std::string,double> map_str_dbl;
+  /// Shorthand for a string-to-int map
+  typedef std::map<std::string,int> map_str_int;
   /// Shorthand for a string-to-string-to-double map
   typedef std::map<std::string,std::map<std::string,double> > map_str_map_str_dbl;
   /// Shorthand for a const-string-to-double map
@@ -73,7 +80,12 @@ namespace Gambit
   typedef std::map<const std::string,std::map<const std::string,double> > map_const_str_map_const_str_dbl;
   /// Shorthand for a string-to-string map
   typedef std::map<std::string,std::string> map_str_str;
-
+  /// Shorthand for a string-to-bool map
+  typedef std::map<std::string,bool> map_str_bool;
+  /// Shorthand for an int to double map
+  typedef std::map<int,double> map_int_dbl;
+  /// Shorthand for a string-to-string-to-string map
+  typedef std::map<std::string,std::map<std::string,std::string> > map_str_map_str_str;
   /// Shorthand for an int-int pair to double map
   typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
 
@@ -297,6 +309,10 @@ namespace Gambit
 
   };
 
+  /// Shorthand for the type of the 'Param' map (string-to-double-safe_ptr map)
+  typedef std::map<std::string, safe_ptr<const double> > param_map_type;
+
+
 
   /// Array class that matches the memory structure and functionality of arrays in Fortran codes
   /// Syntax: Farray<[type], [lower index, dim 1], [upper index, dim 1], [alternating lower/upper indices for subsequent dimensions]>
@@ -324,13 +340,13 @@ namespace Gambit
       struct calc_nElem<limL,limU,_lims...>
       {
         enum{val= (limU-limL+1)*calc_nElem<_lims... >::val};
-        static_assert(limU>limL, "Farray error: Upper array index limit is lower than lower limit.");
+        static_assert(limU>=limL, "Farray error: Upper array index limit is lower than lower limit.");
       };
       template<int limL, int limU>
       struct calc_nElem<limL,limU>
       {
         enum{val=(limU-limL+1)};
-        static_assert(limU>limL, "Farray error: Upper array index limit is lower than lower limit.");
+        static_assert(limU>=limL, "Farray error: Upper array index limit is lower than lower limit.");
       };
     public:
       typedef calc_nElem<lims... > nElem;
@@ -641,7 +657,6 @@ namespace Gambit
   typedef double            Freal8;
   typedef long double       Freal16;
 
-
   /// Types used for Mathematica backends
   typedef void         MVoid;
   typedef int          MInteger;
@@ -650,7 +665,6 @@ namespace Gambit
   typedef char         MChar;
   typedef std::string  MString;
   template <typename T> using MList = std::vector<T>;
-
 
 }
 #endif //defined __util_types_hpp__

@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Couplings* (*__factory0)();
+                static Abstract_Couplings* (*__factory0)();
         
                 // -- Other member variables: 
             public:
@@ -33,7 +33,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Couplings();
         
                 // Special pointer-based constructor: 
-                Couplings(Pythia8::Abstract_Couplings* in);
+                Couplings(Abstract_Couplings* in);
         
                 // Copy constructor: 
                 Couplings(const Couplings& in);
@@ -45,7 +45,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Couplings();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Couplings* get_BEptr() const;
+                Abstract_Couplings* get_BEptr() const;
         
         };
     }

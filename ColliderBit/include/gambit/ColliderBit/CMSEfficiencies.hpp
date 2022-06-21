@@ -47,7 +47,7 @@ namespace Gambit
       ///@{
 
       /// Randomly filter the supplied particle list by parameterised electron tracking efficiency
-      inline void applyElectronTrackingEff(std::vector<HEPUtils::Particle*>& electrons) {
+      inline void applyElectronTrackingEff(std::vector<const HEPUtils::Particle*>& electrons) {
         static HEPUtils::BinnedFn2D<double> _elTrackEff2d({{0, 1.5, 2.5, DBL_MAX}}, //< |eta|
                                                           {{0, 0.1, 1.0, DBL_MAX}}, //< pT
                                                           {{0., 0.70, 0.95, // |eta| 0.1-1.5
@@ -60,7 +60,7 @@ namespace Gambit
       /// Randomly filter the supplied particle list by parameterised electron efficiency
       /// @note Should be applied after the electron energy smearing
       /// @note Eff values currently identical to those in ATLAS (AB, 2016-01-24)
-      inline void applyElectronEff(std::vector<HEPUtils::Particle*>& electrons) {
+      inline void applyElectronEff(std::vector<const HEPUtils::Particle*>& electrons) {
         static HEPUtils::BinnedFn2D<double> _elEff2d({{0, 1.5, 2.5, DBL_MAX}}, //< |eta|
                                                      {{0, 10., DBL_MAX}}, //< pT
                                                      {{0., 0.95, // |eta| 0.1-1.5
@@ -72,7 +72,7 @@ namespace Gambit
 
       /// Randomly filter the supplied particle list by parameterised muon tracking efficiency
       /// @note Eff values currently identical to those in ATLAS (AB, 2016-01-24)
-      inline void applyMuonTrackEff(std::vector<HEPUtils::Particle*>& muons) {
+      inline void applyMuonTrackEff(std::vector<const HEPUtils::Particle*>& muons) {
         static HEPUtils::BinnedFn2D<double> _muTrackEff2d({{0, 1.5, 2.5, DBL_MAX}}, //< |eta|
                                                           {{0, 0.1, 1.0, DBL_MAX}}, //< pT
                                                           {{0, 0.75, 0.99, // |eta| 0.1-1.5
@@ -83,7 +83,7 @@ namespace Gambit
 
 
       /// Randomly filter the supplied particle list by parameterised muon efficiency
-      inline void applyMuonEff(std::vector<HEPUtils::Particle*>& muons) {
+      inline void applyMuonEff(std::vector<const HEPUtils::Particle*>& muons) {
         if(muons.empty()) return;
         auto keptMuonsEnd = std::remove_if(muons.begin(), muons.end(),
                                            [](const HEPUtils::Particle* p) {
@@ -101,7 +101,7 @@ namespace Gambit
 
       /// @brief Randomly filter the supplied particle list by parameterised tau efficiency
       /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
-      inline void applyTauEfficiency(std::vector<HEPUtils::Particle*>& taus) {
+      inline void applyTauEfficiency(std::vector<const HEPUtils::Particle*>& taus) {
         filtereff(taus, 0.6);
       }
 
@@ -135,11 +135,9 @@ namespace Gambit
           if (resolution > 0) {
             std::normal_distribution<> d(e->E(), resolution);
             double smeared_E = d(Random::rng());
-            if (smeared_E < 0) smeared_E = 0;
+            if (smeared_E < e->mass()) smeared_E = 1.01*e->mass();
             // double smeared_pt = smeared_E/cosh(e->eta()); ///< @todo Should be cosh(|eta|)?
-            // std::cout << "BEFORE eta " << electron->eta() << std::std::endl;
             e->set_mom(HEPUtils::P4::mkEtaPhiME(e->eta(), e->phi(), e->mass(), smeared_E));
-            // std::cout << "AFTER eta " << electron->eta() << std::std::endl;
           }
         }
       }

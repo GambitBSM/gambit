@@ -2,13 +2,13 @@
 #define __wrapper_Info_decl_Pythia_8_212_h__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.h"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_Info.h"
 #include <ostream>
 #include <string>
 #include <vector>
 #include <map>
+#include "forward_decls_wrapper_classes.h"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_Info.h"
 
 #include "identification.hpp"
 
@@ -23,7 +23,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Info* (*__factory0)();
+                static Abstract_Info* (*__factory0)();
         
                 // -- Other member variables: 
             public:
@@ -419,7 +419,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Info();
         
                 // Special pointer-based constructor: 
-                Info(Pythia8::Abstract_Info* in);
+                Info(Abstract_Info* in);
         
                 // Copy constructor: 
                 Info(const Info& in);
@@ -431,7 +431,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Info();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Info* get_BEptr() const;
+                Abstract_Info* get_BEptr() const;
         
         };
     }

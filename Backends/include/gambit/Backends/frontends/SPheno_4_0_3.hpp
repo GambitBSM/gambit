@@ -122,6 +122,7 @@ BE_VARIABLE(l_fit_RP_parameters, Flogical, ("__control_MOD_l_fit_rp_parameters",
 BE_VARIABLE(l_CSrp, Flogical, ("__control_MOD_l_csrp", "control_mp_l_csrp_"), "SPheno_internal");
 BE_VARIABLE(ErrorHandler_cptr, fptr_void, ("__control_MOD_errorhandler_cptr", "control_mp_errorhandler_cptr_"), "SPheno_internal")
 
+
 // src/StandardModel.f90 variables
 BE_VARIABLE(mZ, Freal8, ("__standardmodel_MOD_mz", "standardmodel_mp_mz"), "SPheno_internal")
 BE_VARIABLE(mZ2, Freal8,  ("__standardmodel_MOD_mz2", "standardmodel_mp_mz2"), "SPheno_internal")
@@ -155,6 +156,7 @@ BE_VARIABLE(Delta_Alpha_Lepton, Freal8, ("__standardmodel_MOD_delta_alpha_lepton
 BE_VARIABLE(Delta_Alpha_Hadron, Freal8, ("__standardmodel_MOD_delta_alpha_hadron", "standardmodel_mp_delta_alpha_hadron"), "SPheno_internal")
 BE_VARIABLE(Alpha, Freal8, ("__standardmodel_MOD_alpha", "standardmodel_mp_alpha"), "SPheno_internal")
 BE_VARIABLE(Alpha_mZ, Freal8, ("__standardmodel_MOD_alpha_mz", "standardmodel_mp_alpha_mz"), "SPheno_internal")
+BE_VARIABLE(MZ_input, Flogical, ("__loopcouplings_MOD_mz_input", "loopcouplings_mp_mz_input_"), "SPheno_internal")
 BE_VARIABLE(Alpha_mZ_MS, Freal8, ("__standardmodel_MOD_alpha_mz_ms", "standardmodel_mp_alpha_mz_ms"), "SPheno_internal")
 BE_VARIABLE(AlphaS_mZ, Freal8, ("__standardmodel_MOD_alphas_mz", "standardmodel_mp_alphas_mz"), "SPheno_internal")
 BE_VARIABLE(G_F, Freal8, ("__standardmodel_MOD_g_f", "standardmodel_mp_g_f"), "SPheno_internal")

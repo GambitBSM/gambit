@@ -1,0 +1,76 @@
+##########################################################################
+## Defaults for StandardModel_mNudiff parameters.
+##
+## Not a top-level configuration file! Instead, import this file, e.g.
+## Parameters:
+##   StandardModel_mNudiff: !import include/StandardModel_mNudiff_IH_scan.yaml
+##
+## These values are all FIXED. To vary e.g., m_top, or just use different
+## fixed values, you should create (and include) a new version of this file.
+##
+## Values from PDG 2017
+##  # from http://pdg.lbl.gov/2017/mobile/summary-tables/pdf/rpp2017-sum-quarks-m.pdf
+##    (for reference: http://pdg.lbl.gov/2017/reviews/rpp2017-rev-quark-masses.pdf)
+##  & from http://pdg.lbl.gov/2017/tables/rpp2017-sum-leptons.pdf
+##  @ from http://pdg.lbl.gov/2017/reviews/rpp2017-rev-qcd.pdf
+##  ! from http://pdg.lbl.gov/2017/reviews/rpp2017-rev-standard-model.pdf
+##  $ from http://pdg.lbl.gov/2017/reviews/rpp2017-rev-top-quark.pdf
+##
+## If more than one source is listed, values are equal in both sources.
+## Values in GeV where units apply.
+###########################################################################
+
+# SLHA1
+alphainv:  1.27950000E+02 # alpha^{-1}(mZ)^MSbar !
+GF      :  1.16637870E-05 # G_Fermi !
+alphaS  :  1.18100000E-01 # alpha_s(mZ)^MSbar @
+mZ      :  9.11876000E+01 # mZ(pole) !
+mBmB    :  4.18000000E+00 # mb(mb)^MSbar #
+mT      :  1.73340000E+02 # mtop(pole) $
+mTau    :  1.77686000E+00 # mtau(pole) &
+
+# SLHA2
+mE      :  5.10998946E-04 # melectron(pole) &
+mMu     :  1.05658375E-01 # mmuon(pole) &
+mD      :  4.70000000E-03 # md(2 GeV)^MSbar #
+mU      :  2.20000000E-03 # mu(2 GeV)^MSbar #
+mS      :  9.60000000E-02 # ms(2 GeV)^MSbar #
+mCmC    :  1.28000000E+00 # mc(mc)^MSbar #
+
+# CKM
+# Wolfenstein parameterisation (matches SLHA2 VCKMIN block)
+# from http://pdg.lbl.gov/2014/reviews/rpp2014-rev-ckm-matrix.pdf
+CKM_lambda  :  0.22537
+CKM_A       :  0.814
+CKM_rhobar  :  0.117
+CKM_etabar  :  0.353
+
+# PMNS
+# from NuFit 4.1 / JHEP 01 (2019) 106 / arXiv:1811.05487
+theta12 :  0.59027 # solar angle
+theta23 :  0.85172 # atmospheric mixing angle
+theta13 :  0.15079 #
+delta13 :  4.92183 # Dirac CP-violating phase
+alpha1  :  0       # first Majorana CP-violating phase
+alpha2  :  0       # second CP-violating Majorana phase
+
+# mass of lightest neutrino in eV
+mNu_light:
+  prior_type: flat
+  range: [0.,1.1]
+  #prior_type: double_log_flat_join
+  #ranges: [ 0., 0., 3.e-4, 1.1]
+
+# mass spliting dmNu21 in eV^2
+dmNu21:
+  prior_type: flat
+  scale : 1e-5
+  range: [6.,9.]
+
+# mass spliting dmNu3l in eV^2
+# (NH) dmNu3l = dmNu31 > 0.0
+# (IH) dmNu3l = dmNu32 < 0.0
+dmNu3l:
+  prior_type: flat
+  scale : 1e-3
+  range: [-2.8,-2.2]

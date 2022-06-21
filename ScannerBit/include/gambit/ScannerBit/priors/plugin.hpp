@@ -50,6 +50,12 @@ namespace Gambit
             {
                 return (*plugin)(unitpars, outputMap);
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override
+            {
+                scan_err << "inverse transform not supported in plugin prior" << scan_end;
+                return {};
+            }
             
             double operator()(const std::vector<double>& vec) const
             {

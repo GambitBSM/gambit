@@ -22,7 +22,7 @@
 
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Elements/subspectrum.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/SpecBit/MDMSpec_head.hpp"   // "Header" declarations for MDMSpec class
 

@@ -14,7 +14,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         // Member functions: 
         
         // Wrappers for original constructors: 
-        inline Pythia8::Couplings::Couplings() :
+        inline Couplings::Couplings() :
             CoupSM(__factory0()),
             isSUSY( get_BEptr()->isSUSY_ref__BOSS())
         {
@@ -23,7 +23,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Couplings::Couplings(Pythia8::Abstract_Couplings* in) :
+        inline Couplings::Couplings(Abstract_Couplings* in) :
             CoupSM(in),
             isSUSY( get_BEptr()->isSUSY_ref__BOSS())
         {
@@ -32,7 +32,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Couplings::Couplings(const Couplings& in) :
+        inline Couplings::Couplings(const Couplings& in) :
             CoupSM(in.get_BEptr()->pointer_copy__BOSS()),
             isSUSY( get_BEptr()->isSUSY_ref__BOSS())
         {
@@ -41,7 +41,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Couplings& Couplings::operator=(const Couplings& in)
+        inline Couplings& Couplings::operator=(const Couplings& in)
         {
             if (this != &in)
             {
@@ -52,7 +52,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Couplings::~Couplings()
+        inline Couplings::~Couplings()
         {
             if (get_BEptr() != 0)
             {
@@ -67,9 +67,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Couplings* Pythia8::Couplings::get_BEptr() const
+        inline Abstract_Couplings* Pythia8::Couplings::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Couplings*>(BEptr);
+            return dynamic_cast<Abstract_Couplings*>(BEptr);
         }
     }
     

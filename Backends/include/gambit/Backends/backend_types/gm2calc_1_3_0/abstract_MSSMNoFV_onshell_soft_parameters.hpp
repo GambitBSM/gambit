@@ -1,14 +1,14 @@
 #ifndef __abstract_MSSMNoFV_onshell_soft_parameters_gm2calc_1_3_0_hpp__
 #define __abstract_MSSMNoFV_onshell_soft_parameters_gm2calc_1_3_0_hpp__
 
+#include <cstddef>
+#include <iostream>
+#include <Eigen/Core>
+#include <ostream>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hpp"
 #include "forward_decls_wrapper_classes.hpp"
 #include "wrapper_MSSMNoFV_onshell_susy_parameters_decl.hpp"
-#include <Eigen/Core>
-#include <ostream>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

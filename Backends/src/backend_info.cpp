@@ -32,7 +32,11 @@
 #endif
 
 #ifdef HAVE_PYBIND11
+
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/embed.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
+
 #endif
 
 #ifdef HAVE_LINK_H
@@ -502,12 +506,12 @@ namespace Gambit
       pHandle = WSOpenString(WSenv, WSTPflags.str().c_str(), &WSerrno);
       if(pHandle == NULL || WSerrno != WSEOK)
       {
-        err << "Unable to create link to the Kernel" << endl;
-        backend_warning().raise(LOCAL_INFO,err.str());
-        backend_warning().raise(LOCAL_INFO, WSErrorMessage(pHandle));
-        works[be+ver] = false;
-        WSNewPacket(pHandle);
-        return;
+        if(pHandle != NULL)
+        {
+          err << "Received the following error message from WSErrorMessage: \"" << WSErrorMessage(pHandle) << "\"" << endl;
+        }
+        err << "Failed to establish link with the Mathematica kernel. Make sure that Mathematica is working or rebuild GAMBIT without Mathematica support by using the CMake flag -Ditch=\"Mathematica\".";
+        backend_error().raise(LOCAL_INFO,err.str());
       }
 
       // Tell WSTP to load up the Mathematica package of the backend
@@ -600,6 +604,9 @@ namespace Gambit
       pybind11::object sys_path_insert = sys_path.attr("insert");
       sys_path_insert(0,path_dir(be, ver));
 
+      // Function to remove the location of the library after we attempted to load it.
+      pybind11::object sys_path_remove = sys_path.attr("remove");
+
       // Attempt to import the module
       const str name = lib_name(be, ver);
       pybind11::module* new_module;
@@ -613,6 +620,8 @@ namespace Gambit
             << "Python error was: " << e.what() << endl;
         backend_warning().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
+        // Remove the path to the backend from the Python system path
+        sys_path_remove(path_dir(be, ver));
         return;
       }
 
@@ -636,11 +645,12 @@ namespace Gambit
             << "Got: " << loaded_loc << " (expected: " << expected_loc << ")" << endl;
         backend_warning().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;
+        // Remove the path to the backend from the Python system path
+        sys_path_remove(path_dir(be, ver));
         return;
       }
 
       // Remove the path to the backend from the Python system path
-      pybind11::object sys_path_remove = sys_path.attr("remove");
       sys_path_remove(path_dir(be, ver));
 
       logger() << "Succeeded in loading " << path << LogTags::backends << LogTags::info << EOM;

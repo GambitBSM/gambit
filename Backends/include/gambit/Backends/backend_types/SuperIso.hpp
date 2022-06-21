@@ -10,16 +10,25 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Nazila Mahmoudi
-///          (FIXME @blah.edu)
 ///  \date 2013 Dec
-///  \auther Marcin Chrzaszcz
+///
+///  \author Marcin Chrzaszcz
 ///  \date 2016 Oct
+///
+///  \author Cristian Sierra
+///  \date 2021 April
+///
+///  \author Tomas Gonzalo
+///  \date 2022 May
 ///
 ///  *********************************************
 
 
 #ifndef __SuperIso_types_hpp__
 #define __SuperIso_types_hpp__
+
+
+#include "gambit/Utils/util_types.hpp"
 
 namespace Gambit
 {
@@ -255,8 +264,12 @@ namespace Gambit
     // follow the memory layout that SuperIso expects.
 
     /* Wilson Coefficients */
+    double Re_DeltaC2 = 0.;
+    double Im_DeltaC2 = 0.;
     double Re_DeltaC7 = 0.;
     double Im_DeltaC7 = 0.;
+    double Re_DeltaC8 = 0.;
+    double Im_DeltaC8 = 0.;
     double Re_DeltaC9 = 0.;
     double Im_DeltaC9 = 0.;
     double Re_DeltaC10 = 0.;
@@ -265,6 +278,19 @@ namespace Gambit
     double Im_DeltaCQ1 = 0.;
     double Re_DeltaCQ2 = 0.;
     double Im_DeltaCQ2 = 0.;
+
+    double Re_DeltaC7_Prime = 0.;
+    double Im_DeltaC7_Prime = 0.;
+    double Re_DeltaC8_Prime = 0.;
+    double Im_DeltaC8_Prime = 0.;
+    double Re_DeltaC9_Prime = 0.;
+    double Im_DeltaC9_Prime = 0.;
+    double Re_DeltaC10_Prime = 0.;
+    double Im_DeltaC10_Prime = 0.;
+    double Re_DeltaCQ1_Prime = 0.;
+    double Im_DeltaCQ1_Prime = 0.;
+    double Re_DeltaCQ2_Prime = 0.;
+    double Im_DeltaCQ2_Prime = 0.;
 
     double Re_DeltaC7_mu = 0.;
     double Im_DeltaC7_mu = 0.;
@@ -277,6 +303,17 @@ namespace Gambit
     double Re_DeltaCQ2_mu = 0.;
     double Im_DeltaCQ2_mu = 0.;
     
+    double Re_DeltaC7_mu_Prime = 0.;
+    double Im_DeltaC7_mu_Prime = 0.;
+    double Re_DeltaC9_mu_Prime = 0.;
+    double Im_DeltaC9_mu_Prime = 0.;
+    double Re_DeltaC10_mu_Prime = 0.;
+    double Im_DeltaC10_mu_Prime = 0.;
+    double Re_DeltaCQ1_mu_Prime = 0.;
+    double Im_DeltaCQ1_mu_Prime = 0.;
+    double Re_DeltaCQ2_mu_Prime = 0.;
+    double Im_DeltaCQ2_mu_Prime = 0.;
+
     double Re_DeltaC7_e = 0.;
     double Im_DeltaC7_e = 0.;
     double Re_DeltaC9_e = 0.;
@@ -287,6 +324,17 @@ namespace Gambit
     double Im_DeltaCQ1_e = 0.;
     double Re_DeltaCQ2_e = 0.;
     double Im_DeltaCQ2_e = 0.;
+
+    double Re_DeltaC7_e_Prime = 0.;
+    double Im_DeltaC7_e_Prime = 0.;
+    double Re_DeltaC9_e_Prime = 0.;
+    double Im_DeltaC9_e_Prime = 0.;
+    double Re_DeltaC10_e_Prime = 0.;
+    double Im_DeltaC10_e_Prime = 0.;
+    double Re_DeltaCQ1_e_Prime = 0.;
+    double Im_DeltaCQ1_e_Prime = 0.;
+    double Re_DeltaCQ2_e_Prime = 0.;
+    double Im_DeltaCQ2_e_Prime = 0.;
 
     double Re_DeltaC7_tau = 0.;
     double Im_DeltaC7_tau = 0.;
@@ -299,17 +347,16 @@ namespace Gambit
     double Re_DeltaCQ2_tau = 0.;
     double Im_DeltaCQ2_tau = 0.;
     
-    double Re_DeltaC7_Prime = 0.;
-    double Im_DeltaC7_Prime = 0.;
-    double Re_DeltaC9_Prime = 0.;
-    double Im_DeltaC9_Prime = 0.;
-    double Re_DeltaC10_Prime = 0.;
-    double Im_DeltaC10_Prime = 0.;
-    double Re_DeltaCQ1_Prime = 0.;
-    double Im_DeltaCQ1_Prime = 0.;
-    double Re_DeltaCQ2_Prime = 0.;
-    double Im_DeltaCQ2_Prime = 0.;
-    
+    double Re_DeltaC7_tau_Prime = 0.;
+    double Im_DeltaC7_tau_Prime = 0.;
+    double Re_DeltaC9_tau_Prime = 0.;
+    double Im_DeltaC9_tau_Prime = 0.;
+    double Re_DeltaC10_tau_Prime = 0.;
+    double Im_DeltaC10_tau_Prime = 0.;
+    double Re_DeltaCQ1_tau_Prime = 0.;
+    double Im_DeltaCQ1_tau_Prime = 0.;
+    double Re_DeltaCQ2_tau_Prime = 0.;
+    double Im_DeltaCQ2_tau_Prime = 0.;
 
   };
 
@@ -454,6 +501,17 @@ namespace Gambit
     double S9;
     double q2_min;
     double q2_max;
+  };
+
+  /// Maps for holding SI observables and covariance matrix.
+  typedef map_const_str_dbl flav_observable_map;
+  typedef map_const_str_map_const_str_dbl flav_covariance_map;
+
+  /// Flavour observables structure holding central values and covariances.
+  struct flav_prediction
+  {
+    flav_observable_map central_values;
+    flav_covariance_map covariance;
   };
 
 }

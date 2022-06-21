@@ -19,6 +19,10 @@
 #ifndef __SpecBit_MajoranaSingletDM_Z2_hpp__
 #define __SpecBit_MajoranaSingletDM_Z2_hpp__
 
+  #ifndef MODULE
+    #define MODULE SpecBit
+  #endif
+
   // Spectrum object for MajoranaSingletDM_Z2 model  (tree-level masses)
   #define CAPABILITY MajoranaSingletDM_Z2_spectrum
   START_CAPABILITY

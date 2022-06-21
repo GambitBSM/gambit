@@ -2,11 +2,11 @@
 #define __wrapper_EReadError_decl_gm2calc_1_3_0_hpp__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.hpp"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_EReadError.hpp"
 #include "wrapper_Error_decl.hpp"
-#include <string>
 
 #include "identification.hpp"
 
@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static gm2calc::Abstract_EReadError* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
+            static Abstract_EReadError* (*__factory0)(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&);
       
             // -- Other member variables: 
       
@@ -35,7 +35,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             EReadError(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >& message_);
       
             // Special pointer-based constructor: 
-            EReadError(gm2calc::Abstract_EReadError* in);
+            EReadError(Abstract_EReadError* in);
       
             // Copy constructor: 
             EReadError(const EReadError& in);
@@ -47,7 +47,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~EReadError();
       
             // Returns correctly casted pointer to Abstract class: 
-            gm2calc::Abstract_EReadError* get_BEptr() const;
+            Abstract_EReadError* get_BEptr() const;
       
       };
    }

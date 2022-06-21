@@ -1,26 +1,413 @@
-- name: BR_Bs2mumu
+
+- name: RDemu
   islimit: false
-  exp_value: 2.9e-9
-  exp_stat_error: 0.7e-9
-  exp_sys_error: 0.2e-9
-  exp_source: CMS-PAS-BPH-16-004
-  th_error: 0.1
+  exp_value: 1.01
+  exp_stat_error: 0.01
+  exp_sys_error: 0.03
+  exp_source: SuperIso
+  th_error: 0.0001
   th_error_type: M
-  th_error_source: 1208.0934
+  th_error_source: 2104.02094
   correlation:
   - name: NONE
 
-- name: BR_B02mumu
+- name: R_mu
   islimit: false
-  exp_value: 0.8e-10
-  exp_stat_error: 1.4e-10
-  exp_sys_error: 0.0e-10
-  exp_source: CMS-PAS-BPH-16-004
+  exp_value: 0.6358
+  exp_stat_error: 0.0011
+  exp_sys_error: 0.0
+  exp_source: SuperIso
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: FLDstar
+  islimit: false
+  exp_value: 0.6
+  exp_stat_error: 0.08
+  exp_sys_error: 0.04
+  exp_source: 1903.03102 
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: Bc_lifetime
+  islimit: false
+  exp_value: 0.510e-12
+  exp_stat_error: 0.009e-12
+  exp_sys_error: 0.0
+  exp_source: PDG2021
+  th_error: 0.18e-12
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_4.0-4.5
+  islimit: false
+  exp_value: 0.124
+  exp_stat_error: 0.06
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_4.5-5.0
+  islimit: false
+  exp_value: 0.0869
+  exp_stat_error: 0.06
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_5.0-5.5
+  islimit: false
+  exp_value: 0.145
+  exp_stat_error: 0.053
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_5.5-6.0
+  islimit: false
+  exp_value: 0.23
+  exp_stat_error: 0.066
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_6.0-6.5
+  islimit: false
+  exp_value: 0.243
+  exp_stat_error: 0.067
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_6.5-7.0
+  islimit: false
+  exp_value: 0.204
+  exp_stat_error: 0.069
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_7.0-7.5
+  islimit: false
+  exp_value: 0.163
+  exp_stat_error: 0.063
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_7.5-8.0
+  islimit: false
+  exp_value: 0.245
+  exp_stat_error: 0.076
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_8.0-8.5
+  islimit: false
+  exp_value: 0.176
+  exp_stat_error: 0.071
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_8.5-9.0
+  islimit: false
+  exp_value: 0.0923
+  exp_stat_error: 0.067
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_9.0-9.5
+  islimit: false
+  exp_value: 0.0
+  exp_stat_error: 0.052
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_9.5-10.0
+  islimit: false
+  exp_value: 0.0379
+  exp_stat_error: 0.073
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_10.0-10.5
+  islimit: false
+  exp_value: 0.184
+  exp_stat_error: 0.082
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_10.5-11.0
+  islimit: false
+  exp_value: 0.0173
+  exp_stat_error: 0.059
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDlnu_11.0-11.5
+  islimit: false
+  exp_value: 0.0122
+  exp_stat_error: 0.052
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE    
+
+- name: dBR_BDstarlnu_4.0-4.5
+  islimit: false
+  exp_value: 0.00241
+  exp_stat_error: 0.031
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_4.5-5.0
+  islimit: false
+  exp_value: 0.114
+  exp_stat_error: 0.045
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_5.0-5.5
+  islimit: false
+  exp_value: 0.107
+  exp_stat_error: 0.036
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_5.5-6.0
+  islimit: false
+  exp_value: 0.0994
+  exp_stat_error: 0.038
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_6.0-6.5
+  islimit: false
+  exp_value: 0.097
+  exp_stat_error: 0.035
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_6.5-7.0
+  islimit: false
+  exp_value: 0.186
+  exp_stat_error: 0.039
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_7.0-7.5
+  islimit: false
+  exp_value: 0.213
+  exp_stat_error: 0.044
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_7.5-8.0
+  islimit: false
+  exp_value: 0.237
+  exp_stat_error: 0.049
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_8.0-8.5
+  islimit: false
+  exp_value: 0.192
+  exp_stat_error: 0.044
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_8.5-9.0
+  islimit: false
+  exp_value: 0.18
+  exp_stat_error: 0.046
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_9.0-9.5
+  islimit: false
+  exp_value: 0.184
+  exp_stat_error: 0.046
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_9.5-10.0
+  islimit: false
+  exp_value: 0.152
+  exp_stat_error: 0.053
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: dBR_BDstarlnu_10.0-10.5
+  islimit: false
+  exp_value: 0.154
+  exp_stat_error: 0.05
+  exp_sys_error: 0.0
+  exp_source: BaBar, PHYSICAL REVIEW D 88, 072012 (2013)
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_Bs2mumu
+  islimit: false
+  exp_value: 2.7165e-9
+  exp_stat_error: 0.3665e-9
+  exp_sys_error: 0.0
+  exp_source: LHCb-CONF-2020-002
   th_error: 0.1
   th_error_type: M
   th_error_source: 1208.0934
   correlation:
-  - name: NONE
+  - name: BR_B02mumu
+    value: -0.20884
+
+- name: BR_B02mumu
+  islimit: false
+  exp_value: 0.49975e-10
+  exp_stat_error: 0.793e-10
+  exp_sys_error: 0.0
+  exp_source: LHCb-CONF-2020-002
+  th_error: 0.1
+  th_error_type: M
+  th_error_source: 1208.0934
+  correlation:
+  - name: BR_Bs2mumu
+    value: -0.20884
 
 - name: BR_b2sgamma
   islimit: false
@@ -72,10 +459,10 @@
 
 - name: BR_Dstaunu
   islimit: false
-  exp_value: 5.5e-2
-  exp_stat_error: 0.24e-2
+  exp_value: 5.48e-2
+  exp_stat_error: 0.23e-2
   exp_sys_error: 0.0
-  exp_source: PDG16
+  exp_source: PDG21
   th_error: 0.02
   th_error_type: M
   th_error_source: 0902.2393
@@ -84,10 +471,10 @@
 
 - name: BR_Dsmunu
   islimit: false
-  exp_value: 5.56e-3
-  exp_stat_error: 0.25e-3
+  exp_value: 5.49e-3
+  exp_stat_error: 0.16e-3
   exp_sys_error: 0.0
-  exp_source: PDG16
+  exp_source: PDG21
   th_error: 0.02
   th_error_type: M
   th_error_source: 0902.2393
@@ -106,41 +493,53 @@
   correlation:
   - name: NONE
 
+- name: BR_Dtaunu
+  islimit: false
+  exp_value: 1.2e-3
+  exp_stat_error: 0.27e-3
+  exp_sys_error: 0.0
+  exp_source: 1908.08877
+  th_error: 0.0
+  th_error_type: M
+  th_error_source: NONE 
+  correlation:
+  - name: NONE
+
 - name: RDstar
   islimit: false
-  exp_value: 0.407
-  exp_stat_error: 0.039
-  exp_sys_error: 0.024
-  exp_source: 1612.07233
-  th_error: 0.001
+  exp_value: 0.295
+  exp_stat_error: 0.011
+  exp_sys_error: 0.008
+  exp_source: HFLAV
+  th_error: 0.005
   th_error_type: M
-  th_error_source: Phys.Rev.D85,094025(2012)
+  th_error_source: HFLAV
   correlation:
   - name: RD
-    value: -0.2
+    value: -0.38
 
 - name: RD
   islimit: false
-  exp_value: 0.306
-  exp_stat_error: 0.013
-  exp_sys_error: 0.007
-  exp_source: 1612.07233
-  th_error: 0.037
+  exp_value: 0.340
+  exp_stat_error: 0.027
+  exp_sys_error: 0.013
+  exp_source: HFLAV
+  th_error: 0.003
   th_error_type: M
-  th_error_source: Phys.Rev.D92,034506(2015)
+  th_error_source: HFLAV
   correlation:
   - name: RDstar
-    value: -0.2
+    value: -0.38
 
 - name: DeltaMs
   islimit: false
-  exp_value: 17.757
-  exp_stat_error: 0.021
+  exp_value: 17.741
+  exp_stat_error: 0.020
   exp_sys_error: 0.000
-  exp_source: HFAG16
-  th_error: 0.06
+  exp_source: HFLAV2021
+  th_error: 1.2 
   th_error_type: M
-  th_error_source: 1511.09466
+  th_error_source: 1602.03560
   correlation:
   - name: NONE
 
@@ -156,7 +555,29 @@
   correlation:
   - name: NONE
 
+- name: gmu_ge
+  islimit: false
+  exp_value: 1.0018
+  exp_stat_error: 0.0014
+  exp_sys_error: 0.000
+  exp_source: BABAR_arXiv:0912.0242
+  th_error: 0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
 
+- name: delta0
+  islimit: false
+  exp_value: 5.2
+  exp_stat_error: 2.6
+  exp_sys_error: 0.000
+  exp_source: SuperIso4.1_Manual
+  th_error: 0
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
 
 ##########################################
 
@@ -1743,15 +2164,42 @@
 - name: RK
   islimit: false
   exp_value: 0.846
-  exp_stat_error: 0.060
-  exp_sys_error: 0.016
-  exp_source: 1903.09252
+  exp_stat_error: 0.042
+  exp_sys_error: 0.013
+  exp_source: 2103.11769
   th_error: 0.01
   th_error_type: A
   th_error_source: 1605.07633
   correlation:
   - name: NONE
 
+- name: BR_h2taumu
+  islimit: true
+  one_sided: false
+  exp_value: 0
+  exp_95_CL: 0.0143
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: 1604.07730
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_t2ch
+  islimit: true
+  one_sided: false
+  exp_value: 0
+  exp_95_CL: 0.0011
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: 1812.11568
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
 
 ################################
 
@@ -1889,6 +2337,104 @@
   exp_stat_error: 0.
   exp_sys_error: 0.
   exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_BKmue
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 9.1e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_BKtaumu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 4.8e-5
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_BKtautau
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 2.25e-3
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_Bsmutau
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 4.2e-5
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_Bstautau
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 6.8e-3
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG2020
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: RKnunu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 3.9 
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Belle_arXiv:1702.03224
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: RKstarnunu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 2.7
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Belle_arXiv:1702.03224
   th_error: 0.
   th_error_type: M
   th_error_source: NONE

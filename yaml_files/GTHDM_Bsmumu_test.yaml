@@ -1,0 +1,232 @@
+#########################################################################
+## GAMBIT configuration for running a single random point of the GTHDM
+## GTHDM_Bsmumu_test     
+##
+## Required backends:
+## SuperISO, HEPlike
+##########################################################################
+
+
+Parameters:
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+  THDM_physical:
+      lambda6: 0.0
+      lambda7: 0.0
+      mh2: 15647.5
+      yd2_im_11: 0.0
+      yd2_im_12: 0.0
+      yd2_im_13: 0.0
+      yd2_im_21: 0.0
+      yd2_im_22: 0.0
+      yd2_im_23: 0.0
+      yd2_im_31: 0.0
+      yd2_im_32: 0.0
+      mC2: 5669810.520228682
+      tanb: 1.1912202191743444
+      yu2_re_22: 0.2973285686319068
+      yu2_re_32: -1.7976149318049321
+      yu2_re_33: 0.7479986014756689
+      yd2_re_22: 0.010489475648516586
+      yd2_re_32: 0.005866342060515485
+      yd2_re_33: 0.0034656315339238047
+      yl2_re_22: -0.010052583428432849
+      yl2_re_32: -0.18247055676338508
+      yl2_re_33: -0.023460388897032614
+      mH2: 5399542.037991076
+      mA2: 5351712.040629294
+      m12_2: 2598891.7284709476
+      sba: 0.9999858742144535
+      yu2_re_23: 0.013498454360887813
+      yd2_im_33: 0.0
+      yd2_re_11: 0.0
+      yd2_re_12: 0.0
+      yd2_re_13: 0.0
+      yd2_re_21: 0.0
+      yd2_re_23: 0.005866342060515485
+      yd2_re_31: 0.0
+      yl2_im_11: 0.0
+      yl2_im_12: 0.0
+      yl2_im_13: 0.0
+      yl2_im_21: 0.0
+      yl2_im_22: 0.0
+      yl2_im_23: 0.0
+      yl2_im_31: 0.0
+      yl2_im_32: 0.0
+      yl2_im_33: 0.0
+      yl2_re_11: 0.0
+      yl2_re_12: 0.0
+      yl2_re_13: 0.0
+      yl2_re_21: 0.0
+      yl2_re_23: -0.18247055676338508
+      yl2_re_31: 0.0
+      yu2_im_11: 0.0
+      yu2_im_12: 0.0
+      yu2_im_13: 0.0
+      yu2_im_21: 0.0
+      yu2_im_22: 0.0
+      yu2_im_23: 0.0
+      yu2_im_31: 0.0
+      yu2_im_32: 0.0
+      yu2_im_33: 0.0
+      yu2_re_11: 0.0
+      yu2_re_12: 0.0
+      yu2_re_13: 0.0
+      yu2_re_21: 0.0
+      yu2_re_31: 0.0
+
+ObsLikes:
+
+    ###########################
+    # Likelihoods
+    ###########################
+
+    #### NOTE
+    # FCNC likelihoods 
+
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_LHCb
+
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_CMS
+
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_Atlas
+
+    #### NOTE 
+    ##Other Likelihoods
+
+    #- capability: deltaMB_LL
+    #  function: deltaMB_likelihood
+    #  purpose: LogLike
+
+    # LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
+    #- capability: gmu_ge_lnL
+    #  function: gmu_ge_likelihood
+    #  purpose: LogLike
+
+    #- capability: B2Kllp_lnL
+    #  function: B2Kllp_likelihood
+    #  purpose: LogLike
+
+    #################
+    # Observables
+    #################
+
+    - purpose:    Observable
+      capability: prediction_B2mumu
+
+    #- capability: Bsmumu_untag
+    #  function: SI_Bsmumu_untag
+    #  module: FlavBit
+    #  purpose: Observable
+
+    #- capability: DeltaMs
+    #  function: THDM_Delta_MBs
+    #  purpose: Observable
+
+    #- capability: B2Ktautau
+    #  function: SI_BRBKtautau
+    #  module: FlavBit
+    #  purpose: Observable
+
+    #- capability: gmu_ge
+    #  function: THDM_gmu_ge
+    #  module: FlavBit
+    #  purpose: Observable
+
+Rules:
+
+    ##############################
+    # Likelihood/Observable Rules
+    ##############################
+
+    - capability: SuperIso_modelinfo
+      function: SI_fill
+      
+    - capability: prediction_B2mumu
+      options:
+        obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+    - capability: B2mumu_LogLikelihood_.*
+      options:
+       obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
+
+    # Use SuperIso instead of FeynHiggs for B_s->mumu
+    - capability: Bsmumu_untag
+      function: SI_Bsmumu_untag
+
+    - options:
+        use_SM_covariance: false
+
+# Printer setup
+##############################
+
+Printer:
+
+  printer: cout
+  options:
+    output_file: "THDM_TEST.hdf5"
+    group: "/THDM_TEST"
+    delete_file_on_restart: true
+
+
+##############################
+# Scanner setup
+##############################
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 20000
+      convthresh: 1e-5
+      verbosity: 1
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 2000
+      tol: 0.001
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    #[Debug] :  "Debug.log"
+    [Default] :  "Default.log"
+    #[PrecisionBit] :  "PrecisionBit.log"
+    #[SpecBit] :  "SpecBit.log"
+    #[Dependency Resolver] :  "DepResolver.log"
+    #[Scanner]:  "Scanner.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+    print_invalid_points: false
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  default_output_path: "runs/THDM_TEST/"
+  debug: false

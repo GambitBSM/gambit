@@ -75,6 +75,11 @@ For a more complete list of cmake variables, take a look in the file `CMakeCache
 -DPYTHIA_OPT=On
 
 
+# Enable/disable suppression of some common compiler warnings
+# that are due to external library headers: SUPPRESS_LIBRARY_WARNINGS (On|Off)
+-DSUPPRESS_LIBRARY_WARNINGS=On
+
+
 # Create Graphviz files: HAVE_GRAPHVIZ (On|Off)
 -DHAVE_GRAPHVIZ=On
 

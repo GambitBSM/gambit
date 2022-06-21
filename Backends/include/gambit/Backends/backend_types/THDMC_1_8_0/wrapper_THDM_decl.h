@@ -2,11 +2,11 @@
 #define __wrapper_THDM_decl_THDMC_1_8_0_h__
 
 #include <cstddef>
+#include <complex>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_THDM.h"
 #include "wrapper_SM_decl.h"
-#include <complex>
 
 #include "identification.hpp"
 
@@ -22,8 +22,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             static Abstract_THDM* (*__factory0)();
     
             // -- Other member variables: 
-        public:
-            const double& EPS;
     
             // Member functions: 
         public:

@@ -37,31 +37,24 @@
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
 ///
+///  \author Douglas Jacob
+///          (douglas.jacob@monash.edu)
+///  \date 2020 Nov
+///  \date 2021 Feb 
+///  \date 2021 Apr
+///
 ///  *********************************************
 
 #include <algorithm>
 
-// GSL headers
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_eigen.h>
-#include <gsl/gsl_permutation.h>
-#include <gsl/gsl_permute.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_min.h>
-#include <gsl/gsl_integration.h>
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_deriv.h>
-
-// intorduce FlavBit helper routines for likelihood calculations
-#include "gambit/FlavBit/FlavBit_types.hpp"
-#include "gambit/FlavBit/flav_utils.hpp"
-
 #include "gambit/Elements/gambit_module_headers.hpp"
-#include "gambit/Elements/smlike_higgs.hpp"
-#include "gambit/PrecisionBit/PrecisionBit_rollcall.hpp"
-#include "gambit/Utils/statistics.hpp"
+#include "gambit/Elements/loop_functions.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
+#include "gambit/Elements/smlike_higgs.hpp"
+#include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/PrecisionBit/PrecisionBit_rollcall.hpp"
+
 
 //#define PRECISIONBIT_DEBUG
 
@@ -755,9 +748,9 @@ namespace Gambit
     /// Z boson mass likelihood
     /// M_Z (Breit-Wigner mass parameter ~ pole) = 91.1876 +/- 0.0021 GeV (1 sigma), Gaussian.
     /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_Z_mass_chi2(double &result)
+    void lnL_Z_mass(double &result)
     {
-      using namespace Pipes::lnL_Z_mass_chi2;
+      using namespace Pipes::lnL_Z_mass;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mZ, 91.1876, 0.0, 0.0021, profile);
@@ -766,9 +759,9 @@ namespace Gambit
     /// t quark mass likelihood
     /// m_t (pole) = 173.34 +/- 0.76 GeV (1 sigma), Gaussian.
     /// Reference: http://arxiv.org/abs/1403.4427
-    void lnL_t_mass_chi2(double &result)
+    void lnL_t_mass(double &result)
     {
-      using namespace Pipes::lnL_t_mass_chi2;
+      using namespace Pipes::lnL_t_mass;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mT, 173.34, 0.0, 0.76, profile);
@@ -777,9 +770,9 @@ namespace Gambit
     /// b quark mass likelihood
     /// m_b (mb)^MSbar = 4.18 +/- 0.03 GeV (1 sigma), Gaussian.
     /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_mbmb_chi2(double &result)
+    void lnL_mbmb(double &result)
     {
-      using namespace Pipes::lnL_mbmb_chi2;
+      using namespace Pipes::lnL_mbmb;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mBmB, 4.18, 0.0, 0.03, profile);
@@ -788,9 +781,9 @@ namespace Gambit
     /// c quark mass likelihood
     /// m_c (mc)^MSbar = 1.28 +/- 0.03 GeV (1 sigma), Gaussian.
     ///  Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_mcmc_chi2(double &result)
+    void lnL_mcmc(double &result)
     {
-      using namespace Pipes::lnL_mcmc_chi2;
+      using namespace Pipes::lnL_mcmc;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mCmC, 1.28, 0.0, 0.03, profile);
@@ -802,9 +795,9 @@ namespace Gambit
     /// m_u/m_d = 0.38-0.58
     /// m_s / ((m_u + m_d)/2) = 27.3 +/- 0.7
     /// m_s = (96 +/- 4) MeV
-    void lnL_light_quark_masses_chi2 (double &result)
+    void lnL_light_quark_masses (double &result)
     {
-        using namespace Pipes::lnL_light_quark_masses_chi2;
+        using namespace Pipes::lnL_light_quark_masses;
         const SMInputs& SM = *Dep::SMINPUTS;
 
         double mud_obs = runOptions->getValueOrDef<double>(0.48, "mud_obs");
@@ -826,9 +819,9 @@ namespace Gambit
     /// alpha^{-1}(mZ)^MSbar likelihood
     /// alpha^{-1}(mZ)^MSbar = 127.950 +/- 0.017 (1 sigma), Gaussian.  (PDG global SM fit)
     /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-standard-model.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_alpha_em_chi2(double &result)
+    void lnL_alpha_em(double &result)
     {
-      using namespace Pipes::lnL_alpha_em_chi2;
+      using namespace Pipes::lnL_alpha_em;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->alphainv, 127.950, 0.0, 0.017, profile);
@@ -837,9 +830,9 @@ namespace Gambit
     /// alpha_s(mZ)^MSbar likelihood
     /// alpha_s(mZ)^MSbar = 0.1181 +/- 0.0011 (1 sigma), Gaussian.
     /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_alpha_s_chi2(double &result)
+    void lnL_alpha_s(double &result)
     {
-      using namespace Pipes::lnL_alpha_s_chi2;
+      using namespace Pipes::lnL_alpha_s;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->alphaS, 0.1181, 0.0, 0.0011, profile);
@@ -848,18 +841,18 @@ namespace Gambit
     /// G_Fermi likelihood
     /// G_Fermi = (1.1663787 +/- 0.0000006) * 10^-5 GeV^-2 (1 sigma), Gaussian.
     ///  Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_GF_chi2(double &result)
+    void lnL_GF(double &result)
     {
-      using namespace Pipes::lnL_GF_chi2;
+      using namespace Pipes::lnL_GF;
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->GF, 1.1663787E-05, 0.0, 0.0000006E-05, profile);
     }
 
     /// W boson mass likelihood
-    void lnL_W_mass_chi2(double &result)
+    void lnL_W_mass(double &result)
     {
-      using namespace Pipes::lnL_W_mass_chi2;
+      using namespace Pipes::lnL_W_mass;
       double theory_uncert = std::max(Dep::mw->upper, Dep::mw->lower);
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
@@ -869,9 +862,9 @@ namespace Gambit
     /// Simple, naive h boson mass likelihood
     /// Reference: D. Aad et al arxiv:1503.07589, Phys.Rev.Lett. 114 (2015) 191803 (ATLAS + CMS combination)
     /// Also used dierctly in http://pdg.lbl.gov/2016/tables/rpp2016-sum-gauge-higgs-bosons.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_h_mass_chi2(double &result)
+    void lnL_h_mass(double &result)
     {
-      using namespace Pipes::lnL_h_mass_chi2;
+      using namespace Pipes::lnL_h_mass;
       double theory_uncert = std::max(Dep::mh->upper, Dep::mh->lower);
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
@@ -881,9 +874,9 @@ namespace Gambit
     /// Effective leptonic sin^2(theta_W) likelihood
     /// sin^2theta_W^leptonic_effective~ sin^2theta_W(mZ)^MSbar + 0.00029 = 0.23155 +/- 0.00005    (1 sigma), Gaussian.  (PDG global SM fit)
    ///  Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_sinW2_eff_chi2(double &result)
+    void lnL_sinW2_eff(double &result)
     {
-      using namespace Pipes::lnL_sinW2_eff_chi2;
+      using namespace Pipes::lnL_sinW2_eff;
       double theory_uncert = std::max(Dep::prec_sinW2_eff->upper, Dep::prec_sinW2_eff->lower);
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
@@ -893,9 +886,9 @@ namespace Gambit
     /// Delta rho likelihood
     /// Delta rho = 0.00037 +/- 0.00023 (1 sigma), Gaussian.  (PDG global SM fit)
     ///  Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
-    void lnL_deltarho_chi2(double &result)
+    void lnL_deltarho(double &result)
     {
-      using namespace Pipes::lnL_deltarho_chi2;
+      using namespace Pipes::lnL_deltarho;
       double theory_uncert = std::max(Dep::deltarho->upper, Dep::deltarho->lower);
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
@@ -921,19 +914,58 @@ namespace Gambit
       result.lower = result.upper;
     }
 
-    /// g-2 likelihood
-    void lnL_gm2_chi2(double &result)
+    /// g-2 in SM from Muon g-2 Theory Initiative White Paper arXiv:2006.04822
+    void gm2_SM_WhitePaper(triplet<double> &result)
     {
-      using namespace Pipes::lnL_gm2_chi2;
+      result.central = 2.0 * 11659181.0e-10;
+      result.upper = 2.0 * 4.3e-10;
+      result.lower = result.upper;
+    }
+
+    /// g-2 in SM using Budapest-Marseille-Wuppertal lattice value arXiv:2002.12347
+    void gm2_SM_BMW(triplet<double> &result)
+    {
+      result.central = 2.0 * 11659195.4e-10;
+      result.upper = 2.0 * 5.8e-10;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the BNL experiment from hep-ex/0602035
+    void gm2_Exp_BNL(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592089e-11;
+      result.upper = 2.0 * 63e-11;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the FNAL experiment from hep-ex/2104.03281
+    void gm2_Exp_FNAL(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592040e-11;
+      result.upper = 2.0 * 54e-11;
+      result.lower = result.upper;
+    }
+
+    /// g-2 according to the FNAL+BNL experiment from hep-ex/2104.03281
+    void gm2_Exp_WorldAverage(triplet<double> &result)
+    {
+      result.central = 2.0 * 116592061e-11;
+      result.upper = 2.0 * 41e-11;
+      result.lower = result.upper;
+    }
+
+    /// g-2 likelihood
+    void lnL_gm2(double &result)
+    {
+      using namespace Pipes::lnL_gm2;
       double amu_sm  = 0.5*Dep::muon_gm2_SM->central;
       double amu_sm_error = 0.5*std::max(Dep::muon_gm2_SM->upper, Dep::muon_gm2_SM->lower);
       double amu_bsm = 0.5*Dep::muon_gm2->central;
       double amu_bsm_error = 0.5*std::max(Dep::muon_gm2->upper, Dep::muon_gm2->lower);
       double amu_theory = amu_sm + amu_bsm;
       double amu_theory_err = sqrt(Gambit::Utils::sqr(amu_sm_error) + Gambit::Utils::sqr(amu_bsm_error));
-      // From hep-ex/0602035, as updated in PDG 2016 (C. Patrignani et al, Chin. Phys. C, 40, 100001 (2016). ). Error combines statistical (5.4) and systematic (3.3) uncertainties in quadrature.
-      double amu_exp = 11659209.1e-10;
-      double amu_exp_error = 6.3e-10;
+      double amu_exp = 0.5*Dep::muon_gm2_Exp->central;
+      double amu_exp_error = 0.5*std::max(Dep::muon_gm2_Exp->upper, Dep::muon_gm2_Exp->lower);
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
       result = Stats::gaussian_loglikelihood(amu_theory, amu_exp, amu_theory_err, amu_exp_error, profile);
@@ -1069,6 +1101,12 @@ namespace Gambit
         << e.what() << ".";
         invalid_point().raise(err.str());
       }
+      catch (...)
+      {
+        std::ostringstream err;
+        err << "gm2calc routine convert_to_onshell raised unspecified error.";
+        invalid_point().raise(err.str());
+      }
 
       const double error = BEreq::calculate_uncertainty_amu_2loop(model);
 
@@ -1111,6 +1149,211 @@ namespace Gambit
       #ifdef PRECISIONBIT_DEBUG
         printf("(g-2)_mu=%.3e\n",result.central);
         cout<<"Finished SI_muon_gm2"<<endl;
+      #endif
+    }
+
+    // Calculation of muon g-2 in PrecisionBit
+    // For general THDM only
+    void THDM_mumugamma(triplet<double> &result)
+    {
+      using namespace Pipes::THDM_mumugamma;
+
+      #ifdef PRECISIONBIT_DEBUG
+        cout<<"Starting THDM_mumugamma"<<endl;
+      #endif
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const int f = 0, l = 1, lp = 1;
+
+      const double Alpha_em = 1/(sminputs.alphainv); //fine structure constant
+      const double alpha_h = spectrum.get(Par::dimensionless,"alpha"); //Higgs mixing angle
+      const double tanb = spectrum.get(Par::dimensionless,"tanb");
+      const double beta = atan(tanb);
+      const double cosb = cos(beta);
+      const double vev = spectrum.get(Par::mass1, "vev");
+      const double cab = cos(alpha_h-beta);
+      const double mW = sminputs.mW;
+      const double mZ = sminputs.mZ;
+      const double mE = sminputs.mE;
+      const double mMu = sminputs.mMu;
+      const double mTau = sminputs.mTau;
+      const double mNu1 = sminputs.mNu1;
+      const double mNu2 = sminputs.mNu2;
+      const double mNu3 = sminputs.mNu3;
+      const double mBmB = sminputs.mBmB;
+      const double mT = sminputs.mT;
+      const double mCmC = sminputs.mCmC;
+      const double mS = sminputs.mS;
+      const double m122 = spectrum.get(Par::mass1, "m12_2");
+      const double mh = spectrum.get(Par::Pole_Mass,"h0",1);
+      const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
+      const double mA = spectrum.get(Par::Pole_Mass,"A0");
+      const double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      const std::vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      const std::vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      const std::vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      const std::vector<double> mphi = {mh, mH, mA, mHp};
+      const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
+      const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
+      const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
+      const double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
+      const double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
+      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
+      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
+      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double rhobar = sminputs.CKM.rhobar;
+      const double etabar = sminputs.CKM.etabar;
+      const std::complex<double> Vud(1 - (1/2)*lambda*lambda);
+      const std::complex<double> Vcd(-lambda,0);
+      const std::complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vus(lambda,0);
+      const std::complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      const std::complex<double> Vts(-A*lambda*lambda,0);
+      const std::complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vcb(A*lambda*lambda,0);
+      const std::complex<double> Vtb(1,0);
+      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
+      const double xitc = Ytc/cosb;
+      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
+      const double xisb = Ysb/cosb;
+      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
+      const double xiemu = Yemu/cosb;
+      const double ximue = Ymue/cosb;
+      const double xietau = Yetau/cosb;
+      const double xitaue = Ytaue/cosb;
+      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
+      const double ximutau = Ymutau/cosb;
+      const double xitaumu = Ytaumu/cosb;
+      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
+
+      Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
+
+      xi_L << xiee,  xiemu,  xietau,
+              ximue, ximumu, ximutau,
+              xitaue, xitaumu, xitautau;
+
+      xi_U << 0,   0,    0,
+              0, xicc,  xitc,
+              0, xitc, xitt;
+
+      xi_D << 0,   0,    0,
+              0, xiss,  xisb,
+              0, xisb, xibb;
+
+      const std::vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
+
+      // Needed for Hpm-l-vl couplings
+      VCKM << Vud, Vus, Vub,
+              Vcd, Vcs, Vcb,
+              Vtd, Vts, Vtb;
+
+      // One loop amplitude
+      std::complex<double> Aloop1L = 0, A1L = 0;
+      std::complex<double> Aloop1R = 0, A1R = 0;
+      //Charged higgs contributions are being neglected
+      //no longer
+      for (int phi=0; phi<=3; ++phi)
+      {
+        for (int li = 0; li <=2; ++li)
+        {
+          //if ((phi == 0) and (li == 1))
+          //{
+          // Ignore purely SM contributions with SM higgs and no flavour changing 
+          //  Aloop1L += 0.0;
+          //  Aloop1R += 0.0;
+          //}
+          //else
+          //{
+            A1L=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1L(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
+            A1R=(ml[l]*ml[lp]/(16*pow(pi*mphi[phi],2)))*Amplitudes::A_loop1R(f, l, li, lp, phi, mvl, ml, mphi[phi], xi_L, VCKM, vev, cab);
+            Aloop1L += A1L;
+            Aloop1R += A1R;
+          //}
+        }
+      }
+
+      // Need to remove the SM Higgs contribution
+      // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
+      // Alternatively could use: 1607.06292, eqn (32)
+      std::complex<double> Aloop1SML = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1L(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, vev, 0.);
+      std::complex<double> Aloop1SMR = (ml[l]*ml[lp]/(16*pow(pi*mphi[0],2)))*Amplitudes::A_loop1R(f, l, l, lp, 0, mvl, ml, mphi[0], xi_L, VCKM, vev, 0.);
+
+      // Two loop amplitude
+      const std::vector<double> Qf = {-1.,-1./3.,2./3.};
+      const std::vector<double> Nc = { 1.,    3.,   3.};
+
+      const double sw2 = 1 - pow(mW/mZ,2);
+      const std::vector<double> gfv = {-1./2./2.-Qf[0]*sw2, -1./2./2.-Qf[1]*sw2, 1./2./2.-Qf[2]*sw2};
+
+      //Fermionic contribution, source: 1607.06292
+      std::complex<double> Aloop2f = 0.;
+      std::complex<double> Aloop2SMf = 0.;
+      for (int phi=0; phi<=3; ++phi)
+      { 
+        for (int lf=0; lf<=2; ++lf)
+        {
+          Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, phi, mMu, mlf, mphi[phi], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, vev, cab, mW, mZ, Alpha_em);
+        }
+      }
+
+      // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
+      for (int lf=0; lf<=2; ++lf)
+      {
+        Aloop2SMf += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, 0, mMu, mlf, mphi[0], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, vev, 0., mW, mZ, Alpha_em);
+      }
+
+      const std::vector<double> couplingphiCC = { \
+      (-(mh*mh-2.*mHp*mHp) * cos(alpha_h-3.*beta) * sin(2.*beta) + cos(alpha_h+beta) * (-8.*m122+(3.*pow(mh,2)+2.*pow(mHp,2))*sin(2.*beta))) / pow(cos(beta)*sin(beta),2) / (8.*vev*vev), \
+      (-(mH*mH-2.*mHp*mHp) * sin(alpha_h-3.*beta) + (3.*pow(mH,2)+2.*pow(mHp,2)-4.*m122/sin(beta)/cos(beta)) * sin(alpha_h + beta)) / sin(2.*beta) / (2.*vev*vev), \
+      0.};
+      const std::vector<double> couplingphiWW = {sqrt(1-pow(cab,2)), cab, 0.};
+      const std::vector<std::complex<double>> couplingphiCW = { std::complex<double> (cab,0.),  std::complex<double> (-sqrt(1-pow(cab,2)),0.), std::complex<double> (0.,-1.)};
+      
+      //Barr-Zee contribution, source: 1502.04199
+      std::complex<double> Aloop2BZ = 0.;
+      std::complex<double> Aloop2SMBZ = 0.;
+      for (int phi=0; phi<=2; ++phi)
+      { 
+        // Superseded by gm2mu_loop2f by neutral boson contributions
+        //for (int lf=0; lf<=2; ++lf)
+        //{
+        //  Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaf(f, lf, l, lp, phi, mMu, mlf[f], mphi[phi], xi_L, xi_f[lf], VCKM, Nc[f], Qf[f], vev, cab, Alpha_em);
+        //}
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, vev, cab, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, vev, cab, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
+      }
+      // Superseded by gm2mu_loop2f by charged boson contributions
+      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
+
+      // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
+      Aloop2SMBZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, 0, mMu, mW, mphi[0], couplingphiWW[0], xi_L, VCKM, vev, 0., Alpha_em);
+
+      //Bosonic contribution
+      // 3-boson contributions suppressed and neglected
+
+      result.central = Aloop1L.real() + Aloop1R.real() - Aloop1SML.real() - Aloop1SMR.real() + Aloop2f.real() - Aloop2SMf.real() + Aloop2BZ.real() - Aloop2SMBZ.real();
+      //convert to g-2 for the likelihood
+      result.central = 2. * result.central;
+      result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
+      result.lower = result.upper;
+
+      #ifdef PRECISIONBIT_DEBUG
+        printf("(g-2)_mu=%.3e\n",result.central);
+        cout<<"Finished THDM_mumugamma"<<endl;
       #endif
     }
 
@@ -1184,7 +1427,8 @@ namespace Gambit
     }
 
     // calculates chi2 from EWPO in the THDM using 2HDMC
-    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container) { 
+    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container)
+    { 
       THDMC_1_8_0::Constraints constraints_object(container.THDM_object);
 
       const double mh_ref = 125.0; 
@@ -1194,7 +1438,8 @@ namespace Gambit
       // if new physics in the low energy scale 
       // move to basis as introduced in arxiv:9407203
       const bool use_low_energy = true;
-      if (use_low_energy) {
+      if (use_low_energy)
+      {
         const double sinW2 = container.he->get(Par::dimensionless, "sinW2");
         const double cosW2 = 1. - sinW2;
         S = S + 4.*sinW2*cosW2*V + 4.*(cosW2-sinW2)*X;
@@ -1206,35 +1451,31 @@ namespace Gambit
       std::vector<double> value_exp = {S,T,U};
       std::vector<double> value_th = {0.04, 0.09, -0.02};
       std::vector<double> error;
-      const int dim = value_exp.size();
+      const size_t dim = value_exp.size();
 
-      for (int i=0;i<dim;++i) {
+      for (size_t i=0; i<dim; ++i)
+      {
         error.push_back(abs(value_exp[i] - value_th[i]));
       }
 
       // calculating the covariance matrix
-      boost::numeric::ublas::matrix<double> cov(dim,dim), cov_inv(dim, dim), corr(dim, dim);
+      Eigen::Matrix3d cov,corr; 
       std::vector<double> sigma = {0.11, 0.14, 0.11};
 
-      // fill with zeros
-      for (int i=0; i< dim; i++) {
-        for (int j=0; j<dim; j++) corr(i,j) = 0.0;
-      }
+      corr <<  1.0,   0.92, -0.68,
+               0.92,  1.0,  -0.87, 
+              -0.68, -0.87,  1.0;
 
-      corr(0,0) = 1.0; corr(0,1) = 0.92; corr(0,2) = -0.68;
-      corr(1,0) = 0.92; corr(1,1) = 1.0; corr(1,2) = -0.87; 
-      corr(2,0) = -0.68; corr(2,1) = -0.87; corr(2,2) = 1.0;
-
-      for (int i=0; i< dim; i++) {
-        for (int j=0; j<dim; j++) cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
-      }
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          cov(i,j) = sigma[i] * sigma[j] * corr(i,j);
 
       // calculating the chi2
       double chi2=0;
-      FlavBit::InvertMatrix(cov, cov_inv);
-      for (int i=0; i < dim; ++i) {
-        for (int j=0; j< dim; ++j) chi2 += error[i] * cov_inv(i,j)* error[j];
-      }
+      Eigen::Matrix3d cov_inv = cov.inverse();
+      for (size_t i=0; i<dim; ++i)
+        for (size_t j=0; j<dim; ++j)
+          chi2 += error[i] * cov_inv(i,j)* error[j];
         
       return -0.5*chi2;
     }
@@ -1251,7 +1492,7 @@ namespace Gambit
       double sinW2_SM = 0.23152; // taken from 1211.1864
       double sinW2_SM_err = 0.00010;
 
-      result.central = 0.5 - 0.5*sqrt(1.0 - 4*sinW2_SM*(1.0 - sinW2_SM)*sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) ); 
+      result.central = 0.5 - 0.5*sqrt(1.0 - 4*sinW2_SM*(1.0 - sinW2_SM)*sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) );
       result.upper = (1.0 - 2*sinW2_SM) / (1.0 - 2*result.central) * sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1)) * sinW2_SM_err;
       result.lower = result.upper;
     }
@@ -1274,6 +1515,26 @@ namespace Gambit
       result.central = sqrt( pow(mW_SM,2) * sinW2_SM / sinW2.central * sqrt(1.0 - ThetaNorm(0,0) - ThetaNorm(1,1))  );
       result.upper = 0.5*result.central*sqrt( pow(2*mW_SM_err/mW_SM,2) + pow(sinW2_SM_err/sinW2_SM,2) + pow(sinW2.upper/sinW2.central,2)  );
       result.lower = result.upper;
+    }
+
+    // Neutron lifetime measurements
+
+    /// Beam method: Phys. Rev. Lett. 111, 222501 (2013) https://arxiv.org/abs/1309.2623
+    void lnL_neutron_lifetime_beam_Yue(double &result)
+    {
+      using namespace Pipes::lnL_neutron_lifetime_beam_Yue;
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      result = Stats::gaussian_loglikelihood(*Param["neutron_lifetime"], 887.7, 1.9, 1.2, profile);
+    }
+
+    /// Bottle method: average recommended by PDG 2019 http://pdg.lbl.gov/2019/listings/rpp2019-list-n.pdf
+    void lnL_neutron_lifetime_bottle_PDG19(double &result)
+    {
+      using namespace Pipes::lnL_neutron_lifetime_bottle_PDG19;
+      /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      result = Stats::gaussian_loglikelihood(*Param["neutron_lifetime"], 879.4, 0, 0.6, profile);
     }
 
   }

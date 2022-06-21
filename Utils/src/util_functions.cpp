@@ -44,6 +44,7 @@
 /// Boost
 #include <boost/algorithm/string/iter_find.hpp>
 #include <boost/algorithm/string/finder.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
 
 namespace Gambit
@@ -55,15 +56,37 @@ namespace Gambit
     const char* whitespaces[] = {" ", "\t", "\n", "\f", "\r"};
 
     /// Return the path to the run-specific scratch directory
+    /// Don't call this from a destructor, as the internal static str may have already been destroyed.
     const str& runtime_scratch()
     {
-      #ifdef WITH_MPI
-        static const str master_procID = std::to_string(GMPI::Comm().MasterPID());
-      #else
-        static const str master_procID = std::to_string(getpid());
-      #endif
-      static const str path = ensure_path_exists(GAMBIT_DIR "/scratch/run_time/machine_" + std::to_string(gethostid()) + "/master_process_" + master_procID + "/");
+      static const str path = construct_runtime_scratch();
       return path;
+    }
+
+    /// Construct the path to the run-specific scratch directory
+    /// This version is safe to call from a destructor.
+    str construct_runtime_scratch(bool
+    #ifdef WITH_MPI
+      fail_on_mpi_uninitialised
+    #endif
+    )
+    {
+      str master_procID;
+      #ifdef WITH_MPI
+        if (GMPI::Is_initialized() and not GMPI::Is_finalized())
+        {
+          master_procID = "/master_process_" + std::to_string(GMPI::Comm().MasterPID());
+        }
+        else
+        {
+          if (fail_on_mpi_uninitialised)
+            utils_error().raise(LOCAL_INFO, "Tried to call construct_runtime_scratch without MPI initialised!");
+          master_procID = "/unattached_MPI_process_" + std::to_string(getpid());
+        }
+      #else
+        master_procID = "/master_process_" + std::to_string(getpid());
+      #endif
+      return ensure_path_exists(GAMBIT_DIR "/scratch/run_time/machine_" + std::to_string(gethostid()) + master_procID + "/");
     }
 
     /// Convert all instances of "p" in a string to "."
@@ -92,7 +115,7 @@ namespace Gambit
     str strip_leading_namespace(str s, str ns)
     {
       std::regex expression("(^|[\\s\\*\\&\\(\\,\\[])"+ns+"::");
-      s = std::regex_replace(s, expression, str("\\1"));
+      s = std::regex_replace(s, expression, str("$1"));
       return s;
     }
 
@@ -100,7 +123,7 @@ namespace Gambit
     str replace_leading_namespace(str s, str ns, str ns_new)
     {
       std::regex expression("(^|[\\s\\*\\&\\(\\,\\[])"+ns+"::");
-      s = std::regex_replace(s, expression, str("\\1")+ns_new+"::");
+      s = std::regex_replace(s, expression, str("$1")+ns_new+"::");
       return s;
     }
 
@@ -198,6 +221,15 @@ namespace Gambit
         return result;
     }
 
+    /// Convert a whole string to lowercase
+    std::string strtolower(const std::string& a)
+    {
+        unsigned int sz = a.size();
+        std::string b = a;
+        for (unsigned int i = 0; i < sz; ++i)
+        { b[i] = tolower(a[i]); }
+        return b;
+    }
 
     /// Ensure that a path exists (and then return the path, for chaining purposes)
     const std::string& ensure_path_exists(const std::string& path)
@@ -400,6 +432,11 @@ namespace Gambit
       return true;
     }
 
+    // Factorial function
+    int factorial(const int n)
+    {
+      return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+    }
 
   }
 

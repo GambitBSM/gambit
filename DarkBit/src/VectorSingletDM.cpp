@@ -190,6 +190,7 @@ namespace Gambit
     };
 
     void DarkMatter_ID_VectorSingletDM(std::string& result) { result = "V"; }
+    void DarkMatterConj_ID_VectorSingletDM(std::string& result) { result = "V"; }
 
     /// Direct detection couplings for the VectorSingletDM_Z2 model.
     void DD_couplings_VectorSingletDM_Z2(DM_nucleon_couplings &result)

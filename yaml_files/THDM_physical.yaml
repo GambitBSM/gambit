@@ -86,7 +86,6 @@ Printer:
     disable_combine_routines: true
 
 
-
 #################################
 ##     SCANNER SELECTION       ##
 #################################
@@ -533,10 +532,10 @@ Logger:
   redirection:
     [Debug] :  "Debug.log"
     [Default] :  "Default.log"
-    [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
-    [PrecisionBit] :  "PrecisionBit.log"
-    [ColliderBit] :  "ColliderBit.log"
+    #[DecayBit] :  "DecayBit.log"
+    #[DarkBit] :  "DarkBit.log"
+   # [PrecisionBit] :  "PrecisionBit.log"
+    #[ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
     [Dependency Resolver] :  "DepResolver.log"
     [Scanner]:  "Scanner.log"

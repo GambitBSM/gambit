@@ -2,11 +2,11 @@
 #define __wrapper_MSSMNoFV_onshell_decl_gm2calc_1_3_0_hpp__
 
 #include <cstddef>
+#include <Eigen/Core>
 #include "forward_decls_wrapper_classes.hpp"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_MSSMNoFV_onshell.hpp"
 #include "wrapper_MSSMNoFV_onshell_mass_eigenstates_decl.hpp"
-#include <Eigen/Core>
 
 #include "identification.hpp"
 
@@ -21,8 +21,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static gm2calc::Abstract_MSSMNoFV_onshell* (*__factory0)();
-            static gm2calc::Abstract_MSSMNoFV_onshell* (*__factory1)(const gm2calc::MSSMNoFV_onshell_mass_eigenstates&);
+            static Abstract_MSSMNoFV_onshell* (*__factory0)();
+            static Abstract_MSSMNoFV_onshell* (*__factory1)(const gm2calc::MSSMNoFV_onshell_mass_eigenstates&);
       
             // -- Other member variables: 
       
@@ -139,7 +139,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             MSSMNoFV_onshell(const gm2calc::MSSMNoFV_onshell_mass_eigenstates& arg_1);
       
             // Special pointer-based constructor: 
-            MSSMNoFV_onshell(gm2calc::Abstract_MSSMNoFV_onshell* in);
+            MSSMNoFV_onshell(Abstract_MSSMNoFV_onshell* in);
       
             // Copy constructor: 
             MSSMNoFV_onshell(const MSSMNoFV_onshell& in);
@@ -151,7 +151,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~MSSMNoFV_onshell();
       
             // Returns correctly casted pointer to Abstract class: 
-            gm2calc::Abstract_MSSMNoFV_onshell* get_BEptr() const;
+            Abstract_MSSMNoFV_onshell* get_BEptr() const;
       
       };
    }

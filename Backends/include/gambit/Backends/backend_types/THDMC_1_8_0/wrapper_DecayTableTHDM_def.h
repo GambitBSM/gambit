@@ -1,9 +1,9 @@
 #ifndef __wrapper_DecayTableTHDM_def_THDMC_1_8_0_h__
 #define __wrapper_DecayTableTHDM_def_THDMC_1_8_0_h__
 
+#include <complex>
 #include "wrapper_THDM_decl.h"
 #include "wrapper_SM_decl.h"
-#include <complex>
 
 #include "identification.hpp"
 

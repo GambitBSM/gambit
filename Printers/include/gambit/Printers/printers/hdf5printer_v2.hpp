@@ -166,9 +166,6 @@ namespace Gambit
          /// Flag to let us known if the dataset is open
          bool is_open;
 
-         /// Variable tracking size of dataset on disk
-         std::size_t virtual_dset_length;
-
          /// Variable tracking whether the dataset is known to exist in the output file yet
          bool exists_on_disk;
 
@@ -1503,7 +1500,7 @@ namespace Gambit
         #define DECLARE_PRINT(r,data,i,elem) void _print(elem const&, const std::string&, const int, const uint, const ulong);
         BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
         ///@}
@@ -1585,28 +1582,6 @@ namespace Gambit
         {
             // Forward the print information on to the master buffer manager object
             buffermaster.schedule_print<T>(value,label,mpirank,pointID);
-        }
-
-        template<typename T>
-        void print_map_str_dbl(const T& map, const std::string& label, const unsigned int mpirank, const unsigned long pointID)
-        {
-          for (typename T::const_iterator it = map.begin(); it != map.end(); it++)
-          {
-            std::stringstream ss;
-            ss<<label<<"::"<<it->first;
-            basic_print(it->second,ss.str(),mpirank,pointID);
-          }
-        }
-
-        template<typename T>
-        void print_map_str_map_str_dbl(const T& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-        {
-          for (typename T::const_iterator it = map.begin(); it != map.end(); it++)
-          {
-            std::stringstream ss;
-            ss<<label<<"::"<<it->first;
-            _print(it->second,ss.str(),vID,mpirank,pointID);
-          }
         }
 
         /// @}

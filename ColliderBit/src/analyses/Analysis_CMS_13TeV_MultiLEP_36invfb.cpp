@@ -32,15 +32,15 @@ namespace Gambit {
 
     protected:
       // Counters for the number of accepted events for each signal region
-      std::map<string,double> _numSR = {
-        {"SR1", 0.},
-        {"SR2", 0.},
-        {"SR3", 0.},
-        {"SR4", 0.},
-        {"SR5", 0.},
-        {"SR6", 0.},
-        {"SR7", 0.},
-        {"SR8", 0.}
+      std::map<string, EventCounter> _counters = {
+        {"SR1", EventCounter("SR1")},
+        {"SR2", EventCounter("SR2")},
+        {"SR3", EventCounter("SR3")},
+        {"SR4", EventCounter("SR4")},
+        {"SR5", EventCounter("SR5")},
+        {"SR6", EventCounter("SR6")},
+        {"SR7", EventCounter("SR7")},
+        {"SR8", EventCounter("SR8")},
       };
 
     private:
@@ -59,7 +59,7 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       struct ptComparison {
-        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+        bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
       Analysis_CMS_13TeV_MultiLEP_36invfb() {
@@ -136,9 +136,9 @@ namespace Gambit {
         // const vector<double> bEl={0.,20.,25.,30.,40.,50.,10000.};  // Assuming flat efficiency above pT = 200 GeV, where the CMS map stops.
         // const vector<double> cEl={0.507,0.619,0.682,0.742,0.798,0.863,0.429,0.546,0.619,0.710,0.734,0.833,0.256,0.221,0.315,0.351,0.373,0.437,0.249,0.404,0.423,0.561,0.642,0.749,0.195,0.245,0.380,0.441,0.533,0.644};
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
-          bool isEl=has_tag(_eff2dEl, electron->eta(), electron->pT());
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
+          bool isEl=has_tag(_eff2dEl, fabs(electron->eta()), electron->pT());
           if (electron->pT()>15. && fabs(electron->eta())<2.5 && isEl)baselineElectrons.push_back(electron);
         }
 
@@ -158,9 +158,9 @@ namespace Gambit {
         // const vector<double> bMu={0.,15.,20.,25.,30.,40.,50.,10000.};  // Assuming flat efficiency above pT = 200 GeV, where the CMS map stops.
         // const vector<double> cMu={0.704,0.797,0.855,0.88,0.906,0.927,0.931,0.639,0.776,0.836,0.875,0.898,0.94,0.93,0.569,0.715,0.84,0.862,0.891,0.906,0.925,0.0522,0.720,0.764,0.803,0.807,0.885,0.877};
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
-          bool isMu=has_tag(_eff2dMu, muon->eta(), muon->pT());
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
+          bool isMu=has_tag(_eff2dMu, fabs(muon->eta()), muon->pT());
           if (muon->pT()>10. &&fabs(muon->eta())<2.4 && isMu)baselineMuons.push_back(muon);
         }
 
@@ -170,30 +170,30 @@ namespace Gambit {
         // The tau efficiencies should be corrected with a data/simulation scale factor of 0.95, as instructed here: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SUSMoriond2017ObjectsEfficiency
         const vector<double> cTau={0.38*0.95, 0.48*0.95, 0.5*0.95, 0.49*0.95, 0.51*0.95, 0.49*0.95, 0.47*0.95, 0.45*0.95, 0.48*0.95, 0.5*0.95};
         HEPUtils::BinnedFn2D<double> _eff2dTau(aTau,bTau,cTau);
-        vector<HEPUtils::Particle*> baselineTaus;
-        for (HEPUtils::Particle* tau : event->taus()) {
-          bool isTau=has_tag(_eff2dTau, tau->eta(), tau->pT());
+        vector<const HEPUtils::Particle*> baselineTaus;
+        for (const HEPUtils::Particle* tau : event->taus()) {
+          bool isTau=has_tag(_eff2dTau, fabs(tau->eta()), tau->pT());
           if (tau->pT()>20. &&fabs(tau->eta())<2.3 && isTau)baselineTaus.push_back(tau);
         }
 
-        vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT()>25. &&fabs(jet->eta())<2.4)baselineJets.push_back(jet);
         }
 
         // Signal objects
-        vector<HEPUtils::Particle*> signalElectrons=baselineElectrons;
-        vector<HEPUtils::Particle*> signalMuons=baselineMuons;
-        vector<HEPUtils::Particle*> signalTaus=baselineTaus;
-        vector<HEPUtils::Particle*> signalLightLeptons=signalElectrons;
+        vector<const HEPUtils::Particle*> signalElectrons=baselineElectrons;
+        vector<const HEPUtils::Particle*> signalMuons=baselineMuons;
+        vector<const HEPUtils::Particle*> signalTaus=baselineTaus;
+        vector<const HEPUtils::Particle*> signalLightLeptons=signalElectrons;
         signalLightLeptons.insert(signalLightLeptons.end(),signalMuons.begin(),signalMuons.end());
-        vector<HEPUtils::Particle*> signalLeptons=signalTaus;
+        vector<const HEPUtils::Particle*> signalLeptons=signalTaus;
         signalLeptons.insert(signalLeptons.end(),signalLightLeptons.begin(),signalLightLeptons.end());
         sort(signalLightLeptons.begin(),signalLightLeptons.end(),comparePt);
         sort(signalLeptons.begin(),signalLeptons.end(),comparePt);
 
-        vector<HEPUtils::Jet*> signalJets;
-        vector<HEPUtils::Jet*> signalBJets;
+        vector<const HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Jet*> signalBJets;
         int num_ISRjets=0;
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
           bool overlap=false;
@@ -226,8 +226,8 @@ namespace Gambit {
         double mT=0;
         double mT2=0;
         // double mll=0;
-        vector<vector<HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
-        vector<vector<HEPUtils::Particle*>> OSpair_cont = getOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> SFOSpair_cont = getSFOSpairs(signalLeptons);
+        vector<vector<const HEPUtils::Particle*>> OSpair_cont = getOSpairs(signalLeptons);
 
         if (nSignalLeptons>1)pT_ll=(signalLeptons.at(0)->mom()+signalLeptons.at(1)->mom()).pT();
         if (nSignalLightLeptons>0 && nSignalTaus>0) {
@@ -268,8 +268,8 @@ namespace Gambit {
         if (preselection && nSignalLeptons==2 && nSignalTaus==0 && met>60 && conversion_veto) {
           if (signalLeptons.at(0)->pid()*signalLeptons.at(1)->pid()>0) {
             if ((signalLeptons.at(0)->abspid()==11 && signalLeptons.at(0)->pT()>25) || (signalLeptons.at(0)->abspid()==13 && signalLeptons.at(0)->pT()>20)) {
-              if (num_ISRjets==0 && met>140 && mT>100) _numSR["SR1"]++;
-              if (num_ISRjets==1 && met>200 && mT<100 && pT_ll<100) _numSR["SR2"]++;
+              if (num_ISRjets==0 && met>140 && mT>100) _counters.at("SR1").add_event(event);
+              if (num_ISRjets==1 && met>200 && mT<100 && pT_ll<100) _counters.at("SR2").add_event(event);
             }
           }
         }
@@ -280,19 +280,19 @@ namespace Gambit {
           if (nSignalTaus<2) {
             if ((signalLightLeptons.at(0)->abspid()==11 && signalLightLeptons.at(0)->pT()>25) || (signalLightLeptons.at(0)->abspid()==13 && signalLightLeptons.at(0)->pT()>20 && nSignalMuons>1) || (signalLightLeptons.at(0)->abspid()==13 && signalLightLeptons.at(0)->pT()>25 && nSignalMuons==1)) {
               if (nSignalLightLeptons==3 && nSignalTaus==0) {
-                if (mT>120 && met>200) _numSR["SR3"]++;
-                if (met>250) _numSR["SR4"]++;
+                if (mT>120 && met>200) _counters.at("SR3").add_event(event);
+                if (met>250) _counters.at("SR4").add_event(event);
               }
-              if (nSignalLightLeptons==2 && nSignalTaus==1 && mT2>50 && met>200) _numSR["SR5"]++;
-              if (nSignalLeptons>3 && met>200) _numSR["SR8"]++;
+              if (nSignalLightLeptons==2 && nSignalTaus==1 && mT2>50 && met>200) _counters.at("SR5").add_event(event);
+              if (nSignalLeptons>3 && met>200) _counters.at("SR8").add_event(event);
             }
           }
 
           if (nSignalLightLeptons==1 && nSignalTaus==2) {
             if ((signalLightLeptons.at(0)->abspid()==11 && signalLightLeptons.at(0)->pT()>30) || (signalLightLeptons.at(0)->abspid()==13 && signalLightLeptons.at(0)->pT()>25)) {
               if (signalLeptons.at(0)->abseta()<2.1 && signalLeptons.at(1)->abseta()<2.1 && signalLeptons.at(2)->abseta()<2.1) {
-                if (mT2>50 && met>200) _numSR["SR6"]++;
-                if (met>75) _numSR["SR7"]++;
+                if (mT2>50 && met>200) _counters.at("SR6").add_event(event);
+                if (met>75) _counters.at("SR7").add_event(event);
               }
             }
           }
@@ -495,6 +495,8 @@ namespace Gambit {
         const Analysis_CMS_13TeV_MultiLEP_36invfb* specificOther
                 = dynamic_cast<const Analysis_CMS_13TeV_MultiLEP_36invfb*>(other);
 
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
         if (NCUTS1 != specificOther->NCUTS1) NCUTS1 = specificOther->NCUTS1;
         if (NCUTS2 != specificOther->NCUTS2) NCUTS2 = specificOther->NCUTS2;
         if (NCUTS3 != specificOther->NCUTS3) NCUTS3 = specificOther->NCUTS3;
@@ -514,10 +516,6 @@ namespace Gambit {
         for (size_t j = 0; j < NCUTS4; j++) {
           cutFlowVector4[j] += specificOther->cutFlowVector4[j];
           cutFlowVector_str4[j] = specificOther->cutFlowVector_str4[j];
-        }
-
-        for (auto& el : _numSR) {
-          el.second += specificOther->_numSR.at(el.first);
         }
       }
 
@@ -624,20 +622,19 @@ namespace Gambit {
 
         //Now fill a results object with the results for each SR
 
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR1", 13., {_numSR["SR1"], 0.}, {12., 3.}));
-        add_result(SignalRegionData("SR2", 18., {_numSR["SR2"], 0.}, {18., 4.}));
-        add_result(SignalRegionData("SR3", 19., {_numSR["SR3"], 0.}, {19., 4.}));
-        add_result(SignalRegionData("SR4", 128., {_numSR["SR4"], 0.}, {142, 34.}));
-        add_result(SignalRegionData("SR5", 18., {_numSR["SR5"], 0.}, {22, 5.}));
-        add_result(SignalRegionData("SR6", 2., {_numSR["SR6"], 0.}, {1, 0.6}));
-        add_result(SignalRegionData("SR7", 82., {_numSR["SR7"], 0.}, {109, 28.}));
-        add_result(SignalRegionData("SR8", 166., {_numSR["SR8"], 0.}, {197, 42.}));
+        add_result(SignalRegionData(_counters.at("SR1"), 13., {12., 3.}));
+        add_result(SignalRegionData(_counters.at("SR2"), 18., {18., 4.}));
+        add_result(SignalRegionData(_counters.at("SR3"), 19., {19., 4.}));
+        add_result(SignalRegionData(_counters.at("SR4"), 128., {142, 34.}));
+        add_result(SignalRegionData(_counters.at("SR5"), 18., {22, 5.}));
+        add_result(SignalRegionData(_counters.at("SR6"), 2., {1, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR7"), 82., {109, 28.}));
+        add_result(SignalRegionData(_counters.at("SR8"), 166., {197, 42.}));
       }
 
 
 
-      vector<double> get_mll_mT(vector<vector<HEPUtils::Particle*>> pair_cont, vector<HEPUtils::Particle*> leptons, HEPUtils::P4 met, int type) {
+      vector<double> get_mll_mT(vector<vector<const HEPUtils::Particle*>> pair_cont, vector<const HEPUtils::Particle*> leptons, HEPUtils::P4 met, int type) {
         vector<double> mll_mT;
         vector<vector<double>> mll_mT_container;
         for (size_t iPa=0;iPa<pair_cont.size();iPa++) {
@@ -671,7 +668,7 @@ namespace Gambit {
         return mll_mT;
       }
 
-      double get_mTmin(vector<HEPUtils::Particle*> leptons, HEPUtils::P4 met) {
+      double get_mTmin(vector<const HEPUtils::Particle*> leptons, HEPUtils::P4 met) {
         vector<double> mT_container;
         for (size_t iLe=0;iLe<leptons.size();iLe++) {
           mT_container.push_back(sqrt(2*met.pT()*leptons.at(iLe)->pT()*(1-cos(leptons.at(iLe)->phi()-met.phi()))));
@@ -685,7 +682,7 @@ namespace Gambit {
     protected:
       void analysis_specific_reset() {
 
-        for (auto& el : _numSR) { el.second = 0.;}
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector1.begin(), cutFlowVector1.end(), 0);
         std::fill(cutFlowVector2.begin(), cutFlowVector2.end(), 0);
@@ -712,9 +709,8 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR1", 13., {_numSR["SR1"], 0.}, {12., 3.}));
-        add_result(SignalRegionData("SR2", 18., {_numSR["SR2"], 0.}, {18., 4.}));
+        add_result(SignalRegionData(_counters.at("SR1"), 13., {12., 3.}));
+        add_result(SignalRegionData(_counters.at("SR2"), 18., {18., 4.}));
       }
 
     };
@@ -735,13 +731,12 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR3", 19., {_numSR["SR3"], 0.}, {19., 4.}));
-        add_result(SignalRegionData("SR4", 128., {_numSR["SR4"], 0.}, {142, 34.}));
-        add_result(SignalRegionData("SR5", 18., {_numSR["SR5"], 0.}, {22, 5.}));
-        add_result(SignalRegionData("SR6", 2., {_numSR["SR6"], 0.}, {1, 0.6}));
-        add_result(SignalRegionData("SR7", 82., {_numSR["SR7"], 0.}, {109, 28.}));
-        add_result(SignalRegionData("SR8", 166., {_numSR["SR8"], 0.}, {197, 42.}));
+        add_result(SignalRegionData(_counters.at("SR3"), 19., {19., 4.}));
+        add_result(SignalRegionData(_counters.at("SR4"), 128., {142, 34.}));
+        add_result(SignalRegionData(_counters.at("SR5"), 18., {22, 5.}));
+        add_result(SignalRegionData(_counters.at("SR6"), 2., {1, 0.6}));
+        add_result(SignalRegionData(_counters.at("SR7"), 82., {109, 28.}));
+        add_result(SignalRegionData(_counters.at("SR8"), 166., {197, 42.}));
       }
 
     };

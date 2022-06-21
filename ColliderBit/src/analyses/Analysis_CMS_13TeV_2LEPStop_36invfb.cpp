@@ -26,13 +26,55 @@ namespace Gambit {
     private:
 
         // Numbers passing cuts
-        // int _SRSF[13], _SRDF[13], _SRALL[13],_SRA[3];
+        std::map<string, EventCounter> _counters = {
+            {"SF-SR-0", EventCounter("SF-SR-0")},
+            {"DF-SR-0", EventCounter("DF-SR-0")},
+            {"SF-SR-1", EventCounter("SF-SR-1")},
+            {"DF-SR-1", EventCounter("DF-SR-1")},
+            {"SF-SR-2", EventCounter("SF-SR-2")},
+            {"DF-SR-2", EventCounter("DF-SR-2")},
+            {"SF-SR-3", EventCounter("SF-SR-3")},
+            {"DF-SR-3", EventCounter("DF-SR-3")},
+            {"SF-SR-4", EventCounter("SF-SR-4")},
+            {"DF-SR-4", EventCounter("DF-SR-4")},
+            {"SF-SR-5", EventCounter("SF-SR-5")},
+            {"DF-SR-5", EventCounter("DF-SR-5")},
+            {"SF-SR-6", EventCounter("SF-SR-6")},
+            {"DF-SR-6", EventCounter("DF-SR-6")},
+            {"SF-SR-7", EventCounter("SF-SR-7")},
+            {"DF-SR-7", EventCounter("DF-SR-7")},
+            {"SF-SR-8", EventCounter("SF-SR-8")},
+            {"DF-SR-8", EventCounter("DF-SR-8")},
+            {"SF-SR-9", EventCounter("SF-SR-9")},
+            {"DF-SR-9", EventCounter("DF-SR-9")},
+            {"SF-SR-10", EventCounter("SF-SR-10")},
+            {"DF-SR-10", EventCounter("DF-SR-10")},
+            {"SF-SR-11", EventCounter("SF-SR-11")},
+            {"DF-SR-11", EventCounter("DF-SR-11")},
+            {"SF-SR-12", EventCounter("SF-SR-12")},
+            {"DF-SR-12", EventCounter("DF-SR-12")},
+            //
+            {"ALL-SR-0", EventCounter("ALL-SR-0")},
+            {"ALL-SR-1", EventCounter("ALL-SR-1")},
+            {"ALL-SR-2", EventCounter("ALL-SR-2")},
+            {"ALL-SR-3", EventCounter("ALL-SR-3")},
+            {"ALL-SR-4", EventCounter("ALL-SR-4")},
+            {"ALL-SR-5", EventCounter("ALL-SR-5")},
+            {"ALL-SR-6", EventCounter("ALL-SR-6")},
+            {"ALL-SR-7", EventCounter("ALL-SR-7")},
+            {"ALL-SR-8", EventCounter("ALL-SR-8")},
+            {"ALL-SR-9", EventCounter("ALL-SR-9")},
+            {"ALL-SR-10", EventCounter("ALL-SR-10")},
+            {"ALL-SR-11", EventCounter("ALL-SR-11")},
+            {"ALL-SR-12", EventCounter("ALL-SR-12")},
+            //
+            {"A-SR-0", EventCounter("A-SR-0")},
+            {"A-SR-1", EventCounter("A-SR-1")},
+            {"A-SR-2", EventCounter("A-SR-2")},
+        };
+
         static const size_t _SR_size = 13;
         static const size_t _SRA_size = 3;
-        std::vector<int> _SRSF;
-        std::vector<int> _SRDF;
-        std::vector<int> _SRALL;
-        std::vector<int> _SRA;
 
         // Cut Flow
         vector<int> cutFlowVector;
@@ -41,11 +83,11 @@ namespace Gambit {
 
 
         // Jet overlap removal
-        void JetLeptonOverlapRemoval(vector<HEPUtils::Jet*> &jetvec, vector<HEPUtils::Particle*> &lepvec, double DeltaRMax) {
+        void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec, double DeltaRMax) {
             //Routine to do jet-lepton check
             //Discards jets if they are within DeltaRMax of a lepton
 
-            vector<HEPUtils::Jet*> Survivors;
+            vector<const HEPUtils::Jet*> Survivors;
 
             for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
                 bool overlap = false;
@@ -67,11 +109,11 @@ namespace Gambit {
         }
 
         // Lepton overlap removal
-        void LeptonJetOverlapRemoval(vector<HEPUtils::Particle*> &lepvec, vector<HEPUtils::Jet*> &jetvec, double DeltaRMax) {
+        void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax) {
             //Routine to do lepton-jet check
             //Discards leptons if they are within DeltaRMax of a jet
 
-            vector<HEPUtils::Particle*> Survivors;
+            vector<const HEPUtils::Particle*> Survivors;
 
             for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
                 bool overlap = false;
@@ -103,16 +145,7 @@ namespace Gambit {
             set_analysis_name("CMS_13TeV_2LEPStop_36invfb");
             set_luminosity(35.9);
 
-            for(size_t i=0;i<_SR_size;i++){
-                _SRSF.push_back(0);
-                _SRDF.push_back(0);
-                _SRALL.push_back(0);
-            }
-            for(size_t i=0;i<_SRA_size;i++){
-                _SRA.push_back(0);
-            }
             NCUTS= 11;
-
             for(int i=0;i<NCUTS;i++){
                 cutFlowVector.push_back(0);
                 cutFlowVector_str.push_back("");
@@ -133,19 +166,19 @@ namespace Gambit {
             HEPUtils::BinnedFn2D<double> _eff2dEl(a,b,cEl);
             const vector<double> cMu={0.89};
             HEPUtils::BinnedFn2D<double> _eff2dMu(a,b,cMu);
-            vector<HEPUtils::Particle*> baselineElectrons, baselineMuons;
-            for (HEPUtils::Particle* electron : event->electrons()) {
-                bool hasTrig=has_tag(_eff2dEl, electron->eta(), electron->pT());
+            vector<const HEPUtils::Particle*> baselineElectrons, baselineMuons;
+            for (const HEPUtils::Particle* electron : event->electrons()) {
+                bool hasTrig=has_tag(_eff2dEl, electron->abseta(), electron->pT());
                 if (electron->pT() > 15. && electron->abseta() < 2.4 && hasTrig) baselineElectrons.push_back(electron);
             }
-            for (HEPUtils::Particle* muon : event->muons()) {
-                bool hasTrig=has_tag(_eff2dMu, muon->eta(), muon->pT());
+            for (const HEPUtils::Particle* muon : event->muons()) {
+                bool hasTrig=has_tag(_eff2dMu, muon->abseta(), muon->pT());
                 if (muon->pT() > 15. && muon->abseta() < 2.4 && hasTrig) baselineMuons.push_back(muon);
             }
             ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
             // Jets
-            vector<HEPUtils::Jet*> baselineJets;
-            for (HEPUtils::Jet* jet : event->jets()) {
+            vector<const HEPUtils::Jet*> baselineJets;
+            for (const HEPUtils::Jet* jet : event->jets()) {
                 if (jet->pT() > 30. && fabs(jet->eta()) < 2.4) baselineJets.push_back(jet);
             }
 
@@ -157,11 +190,11 @@ namespace Gambit {
             int LooseLepNum = baselineElectrons.size()+baselineMuons.size();
             //Signal Leptons
             ATLAS::applyMediumIDElectronSelectionR2(baselineElectrons);
-            vector<HEPUtils::Particle*> signalLeptons;
-            for (HEPUtils::Particle* electron : baselineElectrons) {
+            vector<const HEPUtils::Particle*> signalLeptons;
+            for (const HEPUtils::Particle* electron : baselineElectrons) {
                 signalLeptons.push_back(electron);
             }
-            for (HEPUtils::Particle* muon : baselineMuons) {
+            for (const HEPUtils::Particle* muon : baselineMuons) {
                 signalLeptons.push_back(muon);
             }
 
@@ -172,14 +205,14 @@ namespace Gambit {
             //std::sort(sgLeptons.begin(), sgLeptons.end(), sortByPT_l);
 
             // Function used to get b jets
-            vector<HEPUtils::Jet*> bJets;
-            vector<HEPUtils::Jet*> nobJets;
+            vector<const HEPUtils::Jet*> bJets;
+            vector<const HEPUtils::Jet*> nobJets;
             //const std::vector<double>  a = {0,10.};
             //const std::vector<double>  b = {0,10000.};
             const std::vector<double> c = {0.60};
             HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-            for (HEPUtils::Jet* jet :baselineJets) {
-                bool hasTag=has_tag(_eff2d, jet->eta(), jet->pT());
+            for (const HEPUtils::Jet* jet :baselineJets) {
+                bool hasTag=has_tag(_eff2d, jet->abseta(), jet->pT());
                 if(jet->btag() && hasTag && jet->pT() > 25.) {
                         bJets.push_back(jet);
                     }else{
@@ -227,7 +260,7 @@ namespace Gambit {
                     double Mll= (lepton0+lepton1).m();
                     // S=MET/sqrt(HT)
                     double HT = 0.;
-                    for (HEPUtils::Jet* jet :baselineJets) {
+                    for (const HEPUtils::Jet* jet :baselineJets) {
                         HT += jet->pT();
                     }
                     double S=met/sqrt(HT);
@@ -360,7 +393,11 @@ namespace Gambit {
                    (j==10 && pre_cut && flg_SF && sig_MT2ll_140 && sig_MT2bl_200 && sig_MET_80 )||
                    (j==11 && pre_cut && flg_SF && sig_MT2ll_140 && sig_MT2bl_200 && sig_MET_200)||
                    (j==12 && pre_cut && flg_SF && sig_MT2ll_240)
-                   )_SRSF[j]++;
+                   )
+                {
+                    stringstream sr_key; sr_key << "SF-SR-" << j;
+                    _counters.at(sr_key.str()).add_event(event);
+                }
                  // diferent flavour
                 if(
                    (j==0 && pre_cut && !flg_SF && sig_MT2ll_100 && sig_MT2bl_0   && sig_MET_80 )||
@@ -376,7 +413,11 @@ namespace Gambit {
                    (j==10 && pre_cut && !flg_SF && sig_MT2ll_140 && sig_MT2bl_200 && sig_MET_80 )||
                    (j==11 && pre_cut && !flg_SF && sig_MT2ll_140 && sig_MT2bl_200 && sig_MET_200)||
                    (j==12 && pre_cut && !flg_SF && sig_MT2ll_240)
-                   )_SRDF[j]++;
+                   )
+                {
+                    stringstream sr_key; sr_key << "DF-SR-" << j;
+                    _counters.at(sr_key.str()).add_event(event);
+                }
                  // all
                 if(
                    (j==0 && pre_cut && sig_MT2ll_100 && sig_MT2bl_0   && sig_MET_80 )||
@@ -392,14 +433,24 @@ namespace Gambit {
                    (j==10 && pre_cut && sig_MT2ll_140 && sig_MT2bl_200 && sig_MET_80 )||
                    (j==11 && pre_cut && sig_MT2ll_140 && sig_MT2bl_200 && sig_MET_200)||
                    (j==12 && pre_cut && sig_MT2ll_240)
-                   )_SRALL[j]++;
+                   )
+                {
+                    stringstream sr_key; sr_key << "ALL-SR-" << j;
+                    _counters.at(sr_key.str()).add_event(event);
+                }
+
             }
             for(size_t j=0;j<_SRA_size;j++){
                 if(
                    (j==0  && pre_cut && sig_MT2ll_100 && sig_MET_200) ||
                    (j==1  && pre_cut && sig_MT2ll_140 && sig_MET_200)||
                    (j==2  && pre_cut && sig_MT2ll_240)
-                   )_SRA[j]++;
+                   )
+                {
+                    stringstream sr_key; sr_key << "A-SR-" << j;
+                    _counters.at(sr_key.str()).add_event(event);
+                }
+
             }
         return;
 
@@ -411,6 +462,8 @@ namespace Gambit {
             const Analysis_CMS_13TeV_2LEPStop_36invfb* specificOther
                 = dynamic_cast<const Analysis_CMS_13TeV_2LEPStop_36invfb*>(other);
 
+            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
             if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
 
             for (int j=0; j<NCUTS; j++)
@@ -419,17 +472,6 @@ namespace Gambit {
                 cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
             }
 
-            for (size_t j=0; j<_SR_size; j++)
-            {
-                _SRSF[j] += specificOther->_SRSF[j];
-                _SRDF[j] += specificOther->_SRDF[j];
-                _SRALL[j] += specificOther->_SRALL[j];
-            }
-
-            for (size_t j=0; j<_SRA_size; j++)
-            {
-                _SRA[j] += specificOther->_SRA[j];
-            }
         }
 
 
@@ -473,41 +515,35 @@ namespace Gambit {
            //  }
            //  cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
-            // Observed event counts, same-flavor signal regions
-            static const double OBSNUM_SF[_SR_size] = {
-                112., 7., 69., 1., 0., 2., 2., 2., 1., 1., 0., 2., 1.
-            };
-            // Background estimates, same-flavor signal regions
-            static const double BKGNUM_SF[_SR_size] = {
-                131., 4.1, 60., 4.8, 0.5, 1.9, 1.1, 0.6, 2.1, 1.6, 0.3, 1.7, 0.7
-            };
-            // Background uncertainties, same-flavor signal regions
-            static const double BKGERR_SF[_SR_size] = {
-                30., 1.1, 13., 1.2, 0.2, 0.5, 0.6, 0.3, 0.7, 0.4, 0.1, 0.4, 0.3
-            };
 
-            // Observed event counts, different-flavor signal regions
-            static const double OBSNUM_DF[_SR_size] = {
-                141., 6., 67., 5., 1., 1., 1., 0., 1., 0., 0., 1., 0.
-            };
-            // Background estimates, different-flavor signal regions
-            static const double BKGNUM_DF[_SR_size] = {
-                139., 4.0, 70., 3.9, 0.7, 2.1, 0.5, 0.3, 0.8, 0.9, 0.1, 1.2, 0.5
-            };
-            // Background uncertainties, different-flavor signal regions
-            static const double BKGERR_DF[_SR_size] = {
-                32., 1.1, 17., 1.0, 0.2, 0.5, 0.2, 0.2, 0.2, 0.3, 0.1, 0.3, 0.2
-            };
+            // The ordering here is important! (Must match the ordering in the covariance matrix.)
 
-            for (size_t ibin = 0; ibin < _SR_size; ++ibin)
-            {
-                stringstream ss_SF; ss_SF << "SF-SR-" << ibin;
-                stringstream ss_DF; ss_DF << "DF-SR-" << ibin;
-                // The ordering here is important -- first add SF then DF regions.
-                // (Must match the ordering in the covariance matrix.)
-                add_result(SignalRegionData(ss_SF.str(), OBSNUM_SF[ibin], {_SRSF[ibin],  0.}, {BKGNUM_SF[ibin], BKGERR_SF[ibin]}));
-                add_result(SignalRegionData(ss_DF.str(), OBSNUM_DF[ibin], {_SRDF[ibin],  0.}, {BKGNUM_DF[ibin], BKGERR_DF[ibin]}));
-            }
+            add_result(SignalRegionData(_counters.at("SF-SR-0"), 112., {131., 30.}));
+            add_result(SignalRegionData(_counters.at("DF-SR-0"), 141., {139., 32.}));
+            add_result(SignalRegionData(_counters.at("SF-SR-1"), 7., {4.1, 1.1}));
+            add_result(SignalRegionData(_counters.at("DF-SR-1"), 6., {4.0, 1.1}));
+            add_result(SignalRegionData(_counters.at("SF-SR-2"), 69., {60., 13.}));
+            add_result(SignalRegionData(_counters.at("DF-SR-2"), 67., {70., 17.}));
+            add_result(SignalRegionData(_counters.at("SF-SR-3"), 1., {4.8, 1.2}));
+            add_result(SignalRegionData(_counters.at("DF-SR-3"), 5., {3.9, 1.0}));
+            add_result(SignalRegionData(_counters.at("SF-SR-4"), 0., {0.5, 0.2}));
+            add_result(SignalRegionData(_counters.at("DF-SR-4"), 1., {0.7, 0.2}));
+            add_result(SignalRegionData(_counters.at("SF-SR-5"), 2., {1.9, 0.5}));
+            add_result(SignalRegionData(_counters.at("DF-SR-5"), 1., {2.1, 0.5}));
+            add_result(SignalRegionData(_counters.at("SF-SR-6"), 2., {1.1, 0.6}));
+            add_result(SignalRegionData(_counters.at("DF-SR-6"), 1., {0.5, 0.2}));
+            add_result(SignalRegionData(_counters.at("SF-SR-7"), 2., {0.6, 0.3}));
+            add_result(SignalRegionData(_counters.at("DF-SR-7"), 0., {0.3, 0.2}));
+            add_result(SignalRegionData(_counters.at("SF-SR-8"), 1., {2.1, 0.7}));
+            add_result(SignalRegionData(_counters.at("DF-SR-8"), 1., {0.8, 0.2}));
+            add_result(SignalRegionData(_counters.at("SF-SR-9"), 1., {1.6, 0.4}));
+            add_result(SignalRegionData(_counters.at("DF-SR-9"), 0., {0.9, 0.3}));
+            add_result(SignalRegionData(_counters.at("SF-SR-10"), 0., {0.3, 0.1}));
+            add_result(SignalRegionData(_counters.at("DF-SR-10"), 0., {0.1, 0.1}));
+            add_result(SignalRegionData(_counters.at("SF-SR-11"), 2., {1.7, 0.4}));
+            add_result(SignalRegionData(_counters.at("DF-SR-11"), 1., {1.2, 0.3}));
+            add_result(SignalRegionData(_counters.at("SF-SR-12"), 1., {0.7, 0.3}));
+            add_result(SignalRegionData(_counters.at("DF-SR-12"), 0., {0.5, 0.2}));
 
             // Covariance
             static const vector< vector<double> > BKGCOV = {
@@ -544,395 +580,11 @@ namespace Gambit {
             return;
         }
 
-            // Same flavour
-            /*SignalRegionData results_SRSF0;
-            results_SRSF0.sr_label = "SRSF0";
-            results_SRSF0.n_observed = 112.;
-            results_SRSF0.n_background = 131.;
-            results_SRSF0.background_sys = 30.;
-            results_SRSF0.signal_sys = 0.;
-            results_SRSF0.n_signal = _SRSF[0];
-            add_result(results_SRSF0);
-
-            SignalRegionData results_SRSF1;
-            results_SRSF1.sr_label = "SRSF1";
-            results_SRSF1.n_observed = 7.;
-            results_SRSF1.n_background = 4.1;
-            results_SRSF1.background_sys = 1.1;
-            results_SRSF1.signal_sys = 0.;
-            results_SRSF1.n_signal = _SRSF[1];
-            add_result(results_SRSF1);
-
-            SignalRegionData results_SRSF2;
-            results_SRSF2.sr_label = "SRSF2";
-            results_SRSF2.n_observed = 69.;
-            results_SRSF2.n_background = 60.;
-            results_SRSF2.background_sys = 13.;
-            results_SRSF2.signal_sys = 0.;
-            results_SRSF2.n_signal = _SRSF[2];
-            add_result(results_SRSF2);
-
-            SignalRegionData results_SRSF3;
-            results_SRSF3.sr_label = "SRSF3";
-            results_SRSF3.n_observed = 1.;
-            results_SRSF3.n_background = 4.8;
-            results_SRSF3.background_sys = 1.2;
-            results_SRSF3.signal_sys = 0.;
-            results_SRSF3.n_signal = _SRSF[3];
-            add_result(results_SRSF3);
-
-            SignalRegionData results_SRSF4;
-            results_SRSF4.sr_label = "SRSF4";
-            results_SRSF4.n_observed = 0.;
-            results_SRSF4.n_background = 0.5;
-            results_SRSF4.background_sys = 0.2;
-            results_SRSF4.signal_sys = 0.;
-            results_SRSF4.n_signal = _SRSF[4];
-            add_result(results_SRSF4);
-
-            SignalRegionData results_SRSF5;
-            results_SRSF5.sr_label = "SRSF5";
-            results_SRSF5.n_observed = 2.;
-            results_SRSF5.n_background = 1.9;
-            results_SRSF5.background_sys = 0.5;
-            results_SRSF5.signal_sys = 0.;
-            results_SRSF5.n_signal = _SRSF[5];
-            add_result(results_SRSF5);
-
-            SignalRegionData results_SRSF6;
-            results_SRSF6.sr_label = "SRSF6";
-            results_SRSF6.n_observed = 2.;
-            results_SRSF6.n_background = 1.1;
-            results_SRSF6.background_sys = 0.6;
-            results_SRSF6.signal_sys = 0.;
-            results_SRSF6.n_signal = _SRSF[6];
-            add_result(results_SRSF6);
-
-            SignalRegionData results_SRSF7;
-            results_SRSF7.sr_label = "SRSF7";
-            results_SRSF7.n_observed = 2.;
-            results_SRSF7.n_background = 0.6;
-            results_SRSF7.background_sys = 0.3;
-            results_SRSF7.signal_sys = 0.;
-            results_SRSF7.n_signal = _SRSF[7];
-            add_result(results_SRSF7);
-
-            SignalRegionData results_SRSF8;
-            results_SRSF8.sr_label = "SRSF8";
-            results_SRSF8.n_observed = 1.;
-            results_SRSF8.n_background = 2.1;
-            results_SRSF8.background_sys = 0.7;
-            results_SRSF8.signal_sys = 0.;
-            results_SRSF8.n_signal = _SRSF[8];
-            add_result(results_SRSF8);
-
-            SignalRegionData results_SRSF9;
-            results_SRSF9.sr_label = "SRSF9";
-            results_SRSF9.n_observed = 1.;
-            results_SRSF9.n_background = 1.6;
-            results_SRSF9.background_sys = 0.4;
-            results_SRSF9.signal_sys = 0.;
-            results_SRSF9.n_signal = _SRSF[9];
-            add_result(results_SRSF9);
-
-            SignalRegionData results_SRSF10;
-            results_SRSF10.sr_label = "SRSF10";
-            results_SRSF10.n_observed = 0.;
-            results_SRSF10.n_background = 0.3;
-            results_SRSF10.background_sys = 0.1;
-            results_SRSF10.signal_sys = 0.;
-            results_SRSF10.n_signal = _SRSF[10];
-            add_result(results_SRSF10);
-
-            SignalRegionData results_SRSF11;
-            results_SRSF11.sr_label = "SRSF11";
-            results_SRSF11.n_observed = 2.;
-            results_SRSF11.n_background = 1.7;
-            results_SRSF11.background_sys = 0.4;
-            results_SRSF11.signal_sys = 0.;
-            results_SRSF11.n_signal = _SRSF[11];
-            add_result(results_SRSF11);
-
-            SignalRegionData results_SRSF12;
-            results_SRSF12.sr_label = "SRSF12";
-            results_SRSF12.n_observed = 1.;
-            results_SRSF12.n_background = 0.7;
-            results_SRSF12.background_sys = 0.3;
-            results_SRSF12.signal_sys = 0.;
-            results_SRSF12.n_signal = _SRSF[12];
-            add_result(results_SRSF12);
-
-            // Different falvor
-            SignalRegionData results_SRDF0;
-            results_SRDF0.sr_label = "SRDF0";
-            results_SRDF0.n_observed = 141.;
-            results_SRDF0.n_background = 139.;
-            results_SRDF0.background_sys = 32.;
-            results_SRDF0.signal_sys = 0.;
-            results_SRDF0.n_signal = _SRDF[0];
-            add_result(results_SRDF0);
-
-            SignalRegionData results_SRDF1;
-            results_SRDF1.sr_label = "SRDF1";
-            results_SRDF1.n_observed = 6.;
-            results_SRDF1.n_background = 4.0;
-            results_SRDF1.background_sys = 1.1;
-            results_SRDF1.signal_sys = 0.;
-            results_SRDF1.n_signal = _SRDF[1];
-            add_result(results_SRDF1);
-
-            SignalRegionData results_SRDF2;
-            results_SRDF2.sr_label = "SRDF2";
-            results_SRDF2.n_observed = 67.;
-            results_SRDF2.n_background = 70.;
-            results_SRDF2.background_sys = 17.;
-            results_SRDF2.signal_sys = 0.;
-            results_SRDF2.n_signal = _SRDF[2];
-            add_result(results_SRDF2);
-
-            SignalRegionData results_SRDF3;
-            results_SRDF3.sr_label = "SRDF3";
-            results_SRDF3.n_observed = 5.;
-            results_SRDF3.n_background = 3.9;
-            results_SRDF3.background_sys = 1.0;
-            results_SRDF3.signal_sys = 0.;
-            results_SRDF3.n_signal = _SRDF[3];
-            add_result(results_SRDF3);
-
-            SignalRegionData results_SRDF4;
-            results_SRDF4.sr_label = "SRDF4";
-            results_SRDF4.n_observed = 1.;
-            results_SRDF4.n_background = 0.7;
-            results_SRDF4.background_sys = 0.2;
-            results_SRDF4.signal_sys = 0.;
-            results_SRDF4.n_signal = _SRDF[4];
-            add_result(results_SRDF4);
-
-            SignalRegionData results_SRDF5;
-            results_SRDF5.sr_label = "SRDF5";
-            results_SRDF5.n_observed = 1.;
-            results_SRDF5.n_background = 2.1;
-            results_SRDF5.background_sys = 0.5;
-            results_SRDF5.signal_sys = 0.;
-            results_SRDF5.n_signal = _SRDF[5];
-            add_result(results_SRDF5);
-
-            SignalRegionData results_SRDF6;
-            results_SRDF6.sr_label = "SRDF6";
-            results_SRDF6.n_observed = 1.;
-            results_SRDF6.n_background = 0.5;
-            results_SRDF6.background_sys = 0.2;
-            results_SRDF6.signal_sys = 0.;
-            results_SRDF6.n_signal = _SRDF[6];
-            add_result(results_SRDF6);
-
-            SignalRegionData results_SRDF7;
-            results_SRDF7.sr_label = "SRDF7";
-            results_SRDF7.n_observed = 0.;
-            results_SRDF7.n_background = 0.3;
-            results_SRDF7.background_sys = 0.2;
-            results_SRDF7.signal_sys = 0.;
-            results_SRDF7.n_signal = _SRDF[7];
-            add_result(results_SRDF7);
-
-            SignalRegionData results_SRDF8;
-            results_SRDF8.sr_label = "SRDF8";
-            results_SRDF8.n_observed = 1.;
-            results_SRDF8.n_background = 0.8;
-            results_SRDF8.background_sys = 0.2;
-            results_SRDF8.signal_sys = 0.;
-            results_SRDF8.n_signal = _SRDF[8];
-            add_result(results_SRDF8);
-
-            SignalRegionData results_SRDF9;
-            results_SRDF9.sr_label = "SRDF9";
-            results_SRDF9.n_observed = 0.;
-            results_SRDF9.n_background = 0.9;
-            results_SRDF9.background_sys = 0.3;
-            results_SRDF9.signal_sys = 0.;
-            results_SRDF9.n_signal = _SRDF[9];
-            add_result(results_SRDF9);
-
-            SignalRegionData results_SRDF10;
-            results_SRDF10.sr_label = "SRDF10";
-            results_SRDF10.n_observed = 0.;
-            results_SRDF10.n_background = 0.1;
-            results_SRDF10.background_sys = 0.1;
-            results_SRDF10.signal_sys = 0.;
-            results_SRDF10.n_signal = _SRDF[10];
-            add_result(results_SRDF10);
-
-            SignalRegionData results_SRDF11;
-            results_SRDF11.sr_label = "SRDF11";
-            results_SRDF11.n_observed = 1.;
-            results_SRDF11.n_background = 1.2;
-            results_SRDF11.background_sys = 0.3;
-            results_SRDF11.signal_sys = 0.;
-            results_SRDF11.n_signal = _SRDF[11];
-            add_result(results_SRDF11);
-
-            SignalRegionData results_SRDF12;
-            results_SRDF12.sr_label = "SRDF12";
-            results_SRDF12.n_observed = 0.;
-            results_SRDF12.n_background = 0.5;
-            results_SRDF12.background_sys = 0.2;
-            results_SRDF12.signal_sys = 0.;
-            results_SRDF12.n_signal = _SRDF[12];
-            add_result(results_SRDF12);
-
-            // DF+SF
-            SignalRegionData results_SRALL0;
-            results_SRALL0.sr_label = "SRALL0";
-            results_SRALL0.n_observed = 253.;
-            results_SRALL0.n_background = 271.;
-            results_SRALL0.background_sys = 61.;
-            results_SRALL0.signal_sys = 0.;
-            results_SRALL0.n_signal = _SRALL[0];
-            add_result(results_SRALL0);
-
-            SignalRegionData results_SRALL1;
-            results_SRALL1.sr_label = "SRALL1";
-            results_SRALL1.n_observed = 13.;
-            results_SRALL1.n_background = 8.1;
-            results_SRALL1.background_sys = 2.0;
-            results_SRALL1.signal_sys = 0.;
-            results_SRALL1.n_signal = _SRALL[1];
-            add_result(results_SRALL1);
-
-            SignalRegionData results_SRALL2;
-            results_SRALL2.sr_label = "SRALL2";
-            results_SRALL2.n_observed = 136.;
-            results_SRALL2.n_background = 130.;
-            results_SRALL2.background_sys = 29.;
-            results_SRALL2.signal_sys = 0.;
-            results_SRALL2.n_signal = _SRALL[2];
-            add_result(results_SRALL2);
-
-            SignalRegionData results_SRALL3;
-            results_SRALL3.sr_label = "SRALL3";
-            results_SRALL3.n_observed = 6.;
-            results_SRALL3.n_background = 8.7;
-            results_SRALL3.background_sys = 2.0;
-            results_SRALL3.signal_sys = 0.;
-            results_SRALL3.n_signal = _SRALL[3];
-            add_result(results_SRALL3);
-
-            SignalRegionData results_SRALL4;
-            results_SRALL4.sr_label = "SRALL4";
-            results_SRALL4.n_observed = 1.;
-            results_SRALL4.n_background = 1.2;
-            results_SRALL4.background_sys = 0.4;
-            results_SRALL4.signal_sys = 0.;
-            results_SRALL4.n_signal = _SRALL[4];
-            add_result(results_SRALL4);
-
-            SignalRegionData results_SRALL5;
-            results_SRALL5.sr_label = "SRALL5";
-            results_SRALL5.n_observed = 3.;
-            results_SRALL5.n_background = 4.0;
-            results_SRALL5.background_sys = 0.8;
-            results_SRALL5.signal_sys = 0.;
-            results_SRALL5.n_signal = _SRALL[5];
-            add_result(results_SRALL5);
-
-            SignalRegionData results_SRALL6;
-            results_SRALL6.sr_label = "SRALL6";
-            results_SRALL6.n_observed = 3.;
-            results_SRALL6.n_background = 1.5;
-            results_SRALL6.background_sys = 0.7;
-            results_SRALL6.signal_sys = 0.;
-            results_SRALL6.n_signal = _SRALL[6];
-            add_result(results_SRALL6);
-
-            SignalRegionData results_SRALL7;
-            results_SRALL7.sr_label = "SRALL7";
-            results_SRALL7.n_observed = 2.;
-            results_SRALL7.n_background = 0.8;
-            results_SRALL7.background_sys = 0.3;
-            results_SRALL7.signal_sys = 0.;
-            results_SRALL7.n_signal = _SRALL[7];
-            add_result(results_SRALL7);
-
-            SignalRegionData results_SRALL8;
-            results_SRALL8.sr_label = "SRALL8";
-            results_SRALL8.n_observed = 2.;
-            results_SRALL8.n_background = 2.9;
-            results_SRALL8.background_sys = 0.7;
-            results_SRALL8.signal_sys = 0.;
-            results_SRALL8.n_signal = _SRALL[8];
-            add_result(results_SRALL8);
-
-            SignalRegionData results_SRALL9;
-            results_SRALL9.sr_label = "SRALL9";
-            results_SRALL9.n_observed = 1.;
-            results_SRALL9.n_background = 2.5;
-            results_SRALL9.background_sys = 0.5;
-            results_SRALL9.signal_sys = 0.;
-            results_SRALL9.n_signal = _SRALL[9];
-            add_result(results_SRALL9);
-
-            SignalRegionData results_SRALL10;
-            results_SRALL10.sr_label = "SRALL10";
-            results_SRALL10.n_observed = 0.;
-            results_SRALL10.n_background = 0.4;
-            results_SRALL10.background_sys = 0.2;
-            results_SRALL10.signal_sys = 0.;
-            results_SRALL10.n_signal = _SRALL[10];
-            add_result(results_SRALL10);
-
-            SignalRegionData results_SRALL11;
-            results_SRALL11.sr_label = "SRALL11";
-            results_SRALL11.n_observed = 3.;
-            results_SRALL11.n_background = 2.9;
-            results_SRALL11.background_sys = 0.6;
-            results_SRALL11.signal_sys = 0.;
-            results_SRALL11.n_signal = _SRALL[11];
-            add_result(results_SRALL11);
-
-            SignalRegionData results_SRALL12;
-            results_SRALL12.sr_label = "SRALL12";
-            results_SRALL12.n_observed = 1.;
-            results_SRALL12.n_background = 1.1;
-            results_SRALL12.background_sys = 0.4;
-            results_SRALL12.signal_sys = 0.;
-            results_SRALL12.n_signal = _SRALL[12];
-            add_result(results_SRALL12);*/
-
-            /*//Signal region A
-            SignalRegionData results_SRA0;
-            results_SRA0.sr_label = "SRA0";
-            results_SRA0.n_observed = 22.;
-            results_SRA0.n_background = 20.8;
-            results_SRA0.background_sys = 4.4;
-            results_SRA0.signal_sys = 0.;
-            results_SRA0.n_signal = _SRA[0];
-            add_result(results_SRA0);
-
-            SignalRegionData results_SRA1;
-            results_SRA1.sr_label = "SRA1";
-            results_SRA1.n_observed = 6.;
-            results_SRA1.n_background = 6.2;
-            results_SRA1.background_sys = 1.0;
-            results_SRA1.signal_sys = 0.;
-            results_SRA1.n_signal = _SRA[1];
-            add_result(results_SRA1);
-
-            SignalRegionData results_SRA2;
-            results_SRA2.sr_label = "SRA2";
-            results_SRA2.n_observed = 1.;
-            results_SRA2.n_background = 1.1;
-            results_SRA2.background_sys = 0.4;
-            results_SRA2.signal_sys = 0.;
-            results_SRA2.n_signal = _SRA[2];
-            add_result(results_SRA2);*/
 
     protected:
       void analysis_specific_reset() {
 
-        std::fill(_SRSF.begin(), _SRSF.end(), 0);
-        std::fill(_SRDF.begin(), _SRDF.end(), 0);
-        std::fill(_SRALL.begin(), _SRALL.end(), 0);
-        std::fill(_SRA.begin(), _SRA.end(), 0);
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
 

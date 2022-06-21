@@ -1,0 +1,12 @@
+diff -rupN MadGraph_pristine/input/mg5_configuration.txt ../contrib/MadGraph/input/mg5_configuration.txt
+--- MadGraph_pristine/input/mg5_configuration.txt	2020-10-31 18:52:00.000000000 +1100
++++ ../contrib/MadGraph/input/mg5_configuration.txt	2020-11-03 14:57:03.932811759 +1100
+@@ -50,7 +50,7 @@
+ 
+ #! Prefered PS viewer
+ #!  If None: try to find one available on the system
+-# eps_viewer = None
++eps_viewer = true
+ 
+ #! Time allowed to answer question (if no answer takes default value)
+ #!  0: No time limit

@@ -1,12 +1,12 @@
 #ifndef __abstract_SM_THDMC_1_8_0_h__
 #define __abstract_SM_THDMC_1_8_0_h__
 
+#include <cstddef>
+#include <iostream>
+#include <complex>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <complex>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -17,60 +17,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     class Abstract_SM : public virtual AbstractBase
     {
         public:
-    
-            virtual const double& alpha_ref__BOSS() =0;
-    
-            virtual const double& alpha0_ref__BOSS() =0;
-    
-            virtual const double& GF_ref__BOSS() =0;
-    
-            virtual const double& MZ_ref__BOSS() =0;
-    
-            virtual const double& MW_ref__BOSS() =0;
-    
-            virtual const double& alpha_s_ref__BOSS() =0;
-    
-            virtual const double& GammaZ_ref__BOSS() =0;
-    
-            virtual const double& GammaW_ref__BOSS() =0;
-    
-            virtual const double& md_p_ref__BOSS() =0;
-    
-            virtual const double& mu_p_ref__BOSS() =0;
-    
-            virtual const double& ms_p_ref__BOSS() =0;
-    
-            virtual const double& Q_ms_ref__BOSS() =0;
-    
-            virtual const double& mc_p_ref__BOSS() =0;
-    
-            virtual const double& mb_p_ref__BOSS() =0;
-    
-            virtual const double& mt_p_ref__BOSS() =0;
-    
-            virtual const double& me_p_ref__BOSS() =0;
-    
-            virtual const double& mmu_p_ref__BOSS() =0;
-    
-            virtual const double& mtau_p_ref__BOSS() =0;
-    
-            virtual const double& Vud_ref__BOSS() =0;
-    
-            virtual const double& Vus_ref__BOSS() =0;
-    
-            virtual const double& Vub_ref__BOSS() =0;
-    
-            virtual const double& Vcd_ref__BOSS() =0;
-    
-            virtual const double& Vcs_ref__BOSS() =0;
-    
-            virtual const double& Vcb_ref__BOSS() =0;
-    
-            virtual const double& Vtd_ref__BOSS() =0;
-    
-            virtual const double& Vts_ref__BOSS() =0;
-    
-            virtual const double& Vtb_ref__BOSS() =0;
     
             virtual void set_alpha(double) =0;
     
@@ -165,18 +111,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             virtual double get_gamma_tWd(int) =0;
     
             virtual void set_CKM(double, double, double, double, double, double, double, double, double) =0;
-    
-            virtual const double& Q_HD_ref__BOSS() =0;
-    
-            virtual const bool& b_HD_ref__BOSS() =0;
-    
-            virtual const double& ms_5_ref__BOSS() =0;
-    
-            virtual const double& mc_5_ref__BOSS() =0;
-    
-            virtual const double& mb_5_ref__BOSS() =0;
-    
-            virtual const double& mt_5_ref__BOSS() =0;
     
         public:
             virtual void pointer_assign__BOSS(Abstract_SM*) =0;

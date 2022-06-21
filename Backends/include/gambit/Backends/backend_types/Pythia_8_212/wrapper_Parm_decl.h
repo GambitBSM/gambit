@@ -2,10 +2,10 @@
 #define __wrapper_Parm_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <string>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_Parm.h"
-#include <string>
 
 #include "identification.hpp"
 
@@ -20,13 +20,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Parm* (*__factory0)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool, bool, double, double);
-                static Pythia8::Abstract_Parm* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool, bool, double);
-                static Pythia8::Abstract_Parm* (*__factory2)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool, bool);
-                static Pythia8::Abstract_Parm* (*__factory3)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool);
-                static Pythia8::Abstract_Parm* (*__factory4)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double);
-                static Pythia8::Abstract_Parm* (*__factory5)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
-                static Pythia8::Abstract_Parm* (*__factory6)();
+                static Abstract_Parm* (*__factory0)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool, bool, double, double);
+                static Abstract_Parm* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool, bool, double);
+                static Abstract_Parm* (*__factory2)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool, bool);
+                static Abstract_Parm* (*__factory3)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, bool);
+                static Abstract_Parm* (*__factory4)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, double);
+                static Abstract_Parm* (*__factory5)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+                static Abstract_Parm* (*__factory6)();
         
                 // -- Other member variables: 
             public:
@@ -51,7 +51,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Parm();
         
                 // Special pointer-based constructor: 
-                Parm(Pythia8::Abstract_Parm* in);
+                Parm(Abstract_Parm* in);
         
                 // Copy constructor: 
                 Parm(const Parm& in);
@@ -63,7 +63,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Parm();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Parm* get_BEptr() const;
+                Abstract_Parm* get_BEptr() const;
         
         };
     }

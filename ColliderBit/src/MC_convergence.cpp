@@ -92,7 +92,7 @@ namespace Gambit
         for (auto& sr : analysis_pointer_pair.second->get_results())
         {
           // Update the number of accepted events in this signal region
-          n_signals[my_thread].push_back(sr.n_signal);
+          n_signals[my_thread].push_back(sr.n_sig_MC);
         }
       }
     }
@@ -131,7 +131,7 @@ namespace Gambit
 
             double fractional_stat_uncert = (total_counts == 0 ? 1.0 : 1.0/sqrt(total_counts));
             double absolute_stat_uncert = total_counts * fractional_stat_uncert;
-            SR_converged = (_settings->stop_at_sys and total_counts > 0 and absolute_stat_uncert <= sr.signal_sys) or
+            SR_converged = (_settings->stop_at_sys and total_counts > 0 and absolute_stat_uncert <= sr.n_sig_MC_sys) or
                    (fractional_stat_uncert <= _settings->target_stat);
 
             if (not SR_converged) all_SR_converged = false;
@@ -140,7 +140,7 @@ namespace Gambit
               cerr << endl;
               cerr << "DEBUG: SIGNAL REGION " << SR_index << " of " << n_signals[0].size() << endl;
               cerr << "DEBUG: SR label: " << sr.sr_label << " in analysis " << analysis_pointer_pair.first << endl;
-              cerr << "DEBUG: absolute_stat_uncert vs sys: " << absolute_stat_uncert << " vs " << sr.signal_sys << endl;
+              cerr << "DEBUG: absolute_stat_uncert vs sys: " << absolute_stat_uncert << " vs " << sr.n_sig_MC_sys << endl;
               cerr << "DEBUG: fractional_stat_uncert vs target: " << fractional_stat_uncert << " vs " << _settings->target_stat << endl;
               cerr << "DEBUG: Is this SR done? " << SR_converged << endl;
             #endif

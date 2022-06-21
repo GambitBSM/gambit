@@ -19,7 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Wrappers for original constructors: 
-      inline gm2calc::Error::Error() :
+      inline Error::Error() :
          WrapperBase(__factory0())
       {
          get_BEptr()->set_wptr(this);
@@ -27,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Special pointer-based constructor: 
-      inline gm2calc::Error::Error(gm2calc::Abstract_Error* in) :
+      inline Error::Error(Abstract_Error* in) :
          WrapperBase(in)
       {
          get_BEptr()->set_wptr(this);
@@ -35,7 +35,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Copy constructor: 
-      inline gm2calc::Error::Error(const Error& in) :
+      inline Error::Error(const Error& in) :
          WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
       {
          get_BEptr()->set_wptr(this);
@@ -43,7 +43,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Assignment operator: 
-      inline gm2calc::Error& Error::operator=(const Error& in)
+      inline Error& Error::operator=(const Error& in)
       {
          if (this != &in)
          {
@@ -54,7 +54,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Destructor: 
-      inline gm2calc::Error::~Error()
+      inline Error::~Error()
       {
          if (get_BEptr() != 0)
          {
@@ -69,9 +69,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Returns correctly casted pointer to Abstract class: 
-      inline gm2calc::Abstract_Error* gm2calc::Error::get_BEptr() const
+      inline Abstract_Error* gm2calc::Error::get_BEptr() const
       {
-         return dynamic_cast<gm2calc::Abstract_Error*>(BEptr);
+         return dynamic_cast<Abstract_Error*>(BEptr);
       }
    }
    

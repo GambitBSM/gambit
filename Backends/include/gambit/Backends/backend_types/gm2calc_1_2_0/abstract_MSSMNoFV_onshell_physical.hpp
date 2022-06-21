@@ -1,13 +1,13 @@
 #ifndef __abstract_MSSMNoFV_onshell_physical_gm2calc_1_2_0_hpp__
 #define __abstract_MSSMNoFV_onshell_physical_gm2calc_1_2_0_hpp__
 
+#include <cstddef>
+#include <iostream>
+#include <ostream>
+#include <Eigen/Core>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hpp"
 #include "forward_decls_wrapper_classes.hpp"
-#include <ostream>
-#include <Eigen/Core>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

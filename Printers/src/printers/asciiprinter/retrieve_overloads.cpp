@@ -19,6 +19,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2017 March
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #include "gambit/Printers/printers/asciireader.hpp"
@@ -144,7 +148,7 @@ namespace Gambit
 
       /// Work out all the output labels that correspond to the input modelname
       bool found_at_least_one(false);
-      for(const std::pair<std::string,uint>& kv : column_map)
+      for(const auto& kv : column_map)
       {
         std::string param_name; // *output* of parsing function, parameter name
         std::string label_root; // *output* of parsing function, label minus parameter name
@@ -249,18 +253,30 @@ namespace Gambit
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
     bool asciiReader::_retrieve(std::vector<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+    bool asciiReader::_retrieve(std::complex<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
     bool asciiReader::_retrieve(map_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+    bool asciiReader::_retrieve(map_const_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+    { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+    bool asciiReader::_retrieve(map_const_str_map_const_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
     bool asciiReader::_retrieve(triplet<double>& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
     bool asciiReader::_retrieve(map_intpair_dbl& /*out*/,const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
-    #ifndef SCANNER_STANDALONE // All the types inside ASCII_MODULE_BACKEND_TYPES need to go inside this def guard.
+    #ifndef SCANNER_STANDALONE // All the types inside ASCII_BACKEND_TYPES need to go inside this def guard.
 
       bool asciiReader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+      bool asciiReader::_retrieve(DM_nucleon_couplings_fermionic_HP& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
       bool asciiReader::_retrieve(Flav_KstarMuMu_obs& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+      bool asciiReader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+      bool asciiReader::_retrieve(flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
       { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
     #endif

@@ -18,10 +18,11 @@
 
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/SPheno_3_3_8.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
 #include "gambit/Elements/spectrum_factories.hpp"
 #include "gambit/Models/SimpleSpectra/MSSMSimpleSpec.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/version.hpp"
+#include "gambit/Utils/util_functions.hpp"
 
 // Callback function for error handling
 BE_NAMESPACE
@@ -231,28 +232,29 @@ BE_NAMESPACE
     slha["SMINPUTS"][""] << 23 << (*mf_d)(2) << "# m_s(2 GeV), MSbar";
     slha["SMINPUTS"][""] << 24 << (*mf_u)(2) << "# m_c(m_c), MSbar";
 
+    // SUSY-HIT requires these blocks to be present, so add them
+    SLHAea_add_block(slha, "VCKMIN");
+    slha["VCKMIN"][""] << 1 << *lam_wolf << "# lambda";
+    slha["VCKMIN"][""] << 2 << *A_wolf << "# A";
+    slha["VCKMIN"][""] << 3 << *rho_wolf << "# rho bar";
+    slha["VCKMIN"][""] << 4 << *eta_wolf << "# eta bar";
+
+    SLHAea_add_block(slha, "UPMNSIN");
+    slha["UPMNSIN"][""] << 1 << *theta_12 << "# theta_12, solar";
+    slha["UPMNSIN"][""] << 2 << *theta_23<< "# theta_23, atmospheric";
+    slha["UPMNSIN"][""] << 3 << *theta_13 << "# theta_13";
+    slha["UPMNSIN"][""] << 4 << *delta_nu << "# delta_nu";
+    slha["UPMNSIN"][""] << 5 << *alpha_nu1 << "# alpha_1";
+    slha["UPMNSIN"][""] << 6 << *alpha_nu2 << "# alpha_2";
+
     Farray<Fcomplex16,1,6,1,6> RSl_pmns;
     Farray<Fcomplex16,1,3,1,3> RSn_pmns, id3C;
     Farray<Fcomplex16,1,3,1,3> PMNS_Q;
     if(*GenerationMixing)
     {
-      SLHAea_add_block(slha, "VCKMIN");
-      slha["VCKMIN"][""] << 1 << *lam_wolf << "# lambda";
-      slha["VCKMIN"][""] << 2 << *A_wolf << "# A";
-      slha["VCKMIN"][""] << 3 << *rho_wolf << "# rho bar";
-      slha["VCKMIN"][""] << 4 << *eta_wolf << "# eta bar";
-
       Flogical False = false;
       try{ Switch_to_superCKM(*Y_d,*Y_u,*A_d,*A_u,*M2_D,*M2_Q,*M2_U,*Ad_sckm,*Au_sckm,*M2D_sckm,*M2Q_sckm,*M2U_sckm,False,*RSdown,*RSup,RDsq_ckm,RUsq_ckm,CKM_Q,Yd,Yu); }
       catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
-
-      SLHAea_add_block(slha, "UPMNSIN");
-      slha["UPMNSIN"][""] << 1 << *theta_12 << "# theta_12, solar";
-      slha["UPMNSIN"][""] << 2 << *theta_23<< "# theta_23, atmospheric";
-      slha["UPMNSIN"][""] << 3 << *theta_13 << "# theta_13";
-      slha["UPMNSIN"][""] << 4 << *delta_nu << "# delta_nu";
-      slha["UPMNSIN"][""] << 5 << *alpha_nu1 << "# alpha_1";
-      slha["UPMNSIN"][""] << 6 << *alpha_nu2 << "# alpha_2";
 
       try{ Switch_to_superPMNS(*Y_l,id3C,*A_l,*M2_E,*M2_L,*Al_pmns,*M2E_pmns,*M2L_pmns,False,*RSlepton,*RSneut,RSl_pmns,RSn_pmns,PMNS_Q,Yl); }
       catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
@@ -358,21 +360,21 @@ BE_NAMESPACE
     slha["MSOFT"][""] << 21 << (*M2_H)(1) << "# M^2_(H,d)";
     slha["MSOFT"][""] << 22 << (*M2_H)(2) << "# M^2_(H,u)";
 
-    slha["MSOFT"][""] << 31 << sqrt((*M2L_pmns)(1,1).re) << "# M_(L,11)";
-    slha["MSOFT"][""] << 32 << sqrt((*M2L_pmns)(2,2).re) << "# M_(L,22)";
-    slha["MSOFT"][""] << 33 << sqrt((*M2L_pmns)(3,3).re) << "# M_(L,33)";
-    slha["MSOFT"][""] << 34 << sqrt((*M2E_pmns)(1,1).re) << "# M_(E,11)";
-    slha["MSOFT"][""] << 35 << sqrt((*M2E_pmns)(2,2).re) << "# M_(E,22)";
-    slha["MSOFT"][""] << 36 << sqrt((*M2E_pmns)(3,3).re) << "# M_(E,33)";
-    slha["MSOFT"][""] << 41 << sqrt((*M2Q_sckm)(1,1).re) << "# M_(Q,11)";
-    slha["MSOFT"][""] << 42 << sqrt((*M2Q_sckm)(2,2).re) << "# M_(Q,22)";
-    slha["MSOFT"][""] << 43 << sqrt((*M2Q_sckm)(3,3).re) << "# M_(Q,33)";
-    slha["MSOFT"][""] << 44 << sqrt((*M2U_sckm)(1,1).re) << "# M_(U,11)";
-    slha["MSOFT"][""] << 45 << sqrt((*M2U_sckm)(2,2).re) << "# M_(U,22)";
-    slha["MSOFT"][""] << 46 << sqrt((*M2U_sckm)(3,3).re) << "# M_(U,33)";
-    slha["MSOFT"][""] << 47 << sqrt((*M2D_sckm)(1,1).re) << "# M_(D,11)";
-    slha["MSOFT"][""] << 48 << sqrt((*M2D_sckm)(2,2).re) << "# M_(D,22)";
-    slha["MSOFT"][""] << 49 << sqrt((*M2D_sckm)(3,3).re) << "# M_(D,33)";
+    slha["MSOFT"][""] << 31 << Utils::sgn((*M2L_pmns)(1,1).re) * sqrt(abs((*M2L_pmns)(1,1).re)) << "# M_(L,11)";
+    slha["MSOFT"][""] << 32 << Utils::sgn((*M2L_pmns)(2,2).re) * sqrt(abs((*M2L_pmns)(2,2).re)) << "# M_(L,22)";
+    slha["MSOFT"][""] << 33 << Utils::sgn((*M2L_pmns)(3,3).re) * sqrt(abs((*M2L_pmns)(3,3).re)) << "# M_(L,33)";
+    slha["MSOFT"][""] << 34 << Utils::sgn((*M2E_pmns)(1,1).re) * sqrt(abs((*M2E_pmns)(1,1).re)) << "# M_(E,11)";
+    slha["MSOFT"][""] << 35 << Utils::sgn((*M2E_pmns)(2,2).re) * sqrt(abs((*M2E_pmns)(2,2).re)) << "# M_(E,22)";
+    slha["MSOFT"][""] << 36 << Utils::sgn((*M2E_pmns)(3,3).re) * sqrt(abs((*M2E_pmns)(3,3).re)) << "# M_(E,33)";
+    slha["MSOFT"][""] << 41 << Utils::sgn((*M2Q_sckm)(1,1).re) * sqrt(abs((*M2Q_sckm)(1,1).re)) << "# M_(Q,11)";
+    slha["MSOFT"][""] << 42 << Utils::sgn((*M2Q_sckm)(2,2).re) * sqrt(abs((*M2Q_sckm)(2,2).re)) << "# M_(Q,22)";
+    slha["MSOFT"][""] << 43 << Utils::sgn((*M2Q_sckm)(3,3).re) * sqrt(abs((*M2Q_sckm)(3,3).re)) << "# M_(Q,33)";
+    slha["MSOFT"][""] << 44 << Utils::sgn((*M2U_sckm)(1,1).re) * sqrt(abs((*M2U_sckm)(1,1).re)) << "# M_(U,11)";
+    slha["MSOFT"][""] << 45 << Utils::sgn((*M2U_sckm)(2,2).re) * sqrt(abs((*M2U_sckm)(2,2).re)) << "# M_(U,22)";
+    slha["MSOFT"][""] << 46 << Utils::sgn((*M2U_sckm)(3,3).re) * sqrt(abs((*M2U_sckm)(3,3).re)) << "# M_(U,33)";
+    slha["MSOFT"][""] << 47 << Utils::sgn((*M2D_sckm)(1,1).re) * sqrt(abs((*M2D_sckm)(1,1).re)) << "# M_(D,11)";
+    slha["MSOFT"][""] << 48 << Utils::sgn((*M2D_sckm)(2,2).re) * sqrt(abs((*M2D_sckm)(2,2).re)) << "# M_(D,22)";
+    slha["MSOFT"][""] << 49 << Utils::sgn((*M2D_sckm)(3,3).re) * sqrt(abs((*M2D_sckm)(3,3).re)) << "# M_(D,33)";
 
     if((*Mi)(1).im != 0 or (*Mi)(2).im != 0 or (*Mi)(3).im != 0)
     {
@@ -402,6 +404,7 @@ BE_NAMESPACE
     }
 
     SLHAea_add_block(slha, "MASS");
+    slha["MASS"][""] << 5 << (*mf_d)(3) << "# m_b(pole)";
     slha["MASS"][""] << 6 << (*mf_u)(3) << "# m_t(pole)";
     slha["MASS"][""] << 23 << *mZ << "# m_Z(pole)";
     slha["MASS"][""] << 24 << *mW << "# m_W(pole)";
@@ -697,17 +700,20 @@ BE_NAMESPACE
         }
       }
 
-    // Block GAMBIT
-    SLHAea_add_block(slha, "GAMBIT");
-    slha["GAMBIT"][""] << 1 << *m_GUT << "# Input scale of (upper) boundary contidions, e.g. GUT scale";
-
     //Create Spectrum object
     static const Spectrum::mc_info mass_cut;
     static const Spectrum::mr_info mass_ratio_cut;
     Spectrum spectrum = spectrum_from_SLHAea<MSSMSimpleSpec, SLHAstruct>(slha,slha,mass_cut,mass_ratio_cut);
 
-    // Add the high scale variable by hand
-    spectrum.get_HE().set_override(Par::mass1, SLHAea::to<double>(slha.at("GAMBIT").at(1).at(1)), "high_scale", true);
+    // Add the high scale and susy scale variables by hand
+    double high_scale;
+    if(inputs.param.find("Qin") != inputs.param.end())
+      high_scale = *inputs.param.at("Qin");
+    else
+      high_scale = *m_GUT;
+    double susy_scale = Q;
+    spectrum.get_HE().set_override(Par::mass1, high_scale, "high_scale", true);
+    spectrum.get_HE().set_override(Par::mass1, susy_scale, "susy_scale", true);
 
     return spectrum;
 

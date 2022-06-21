@@ -1,13 +1,14 @@
 #ifndef __wrapper_ParticleData_def_Pythia_8_212_h__
 #define __wrapper_ParticleData_def_Pythia_8_212_h__
 
+#include <string>
+#include <ostream>
+#include <vector>
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Couplings_decl.h"
-#include <string>
-#include <ostream>
-#include <vector>
+#include "wrapper_ResonanceWidths_decl.h"
 #include "wrapper_ParticleDataEntry_decl.h"
 
 #include "identification.hpp"
@@ -634,6 +635,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->rescaleBR__BOSS(idIn);
         }
         
+        inline void ParticleData::setResonancePtr(int idIn, Pythia8::ResonanceWidths* resonancePtrIn)
+        {
+            get_BEptr()->setResonancePtr__BOSS(idIn, (*resonancePtrIn).get_BEptr());
+        }
+        
         inline void ParticleData::resInit(int idIn)
         {
             get_BEptr()->resInit(idIn);
@@ -726,7 +732,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::ParticleData::ParticleData() :
+        inline ParticleData::ParticleData() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -734,7 +740,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::ParticleData::ParticleData(Pythia8::Abstract_ParticleData* in) :
+        inline ParticleData::ParticleData(Abstract_ParticleData* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -742,7 +748,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::ParticleData::ParticleData(const ParticleData& in) :
+        inline ParticleData::ParticleData(const ParticleData& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -750,7 +756,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::ParticleData& ParticleData::operator=(const ParticleData& in)
+        inline ParticleData& ParticleData::operator=(const ParticleData& in)
         {
             if (this != &in)
             {
@@ -761,7 +767,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::ParticleData::~ParticleData()
+        inline ParticleData::~ParticleData()
         {
             if (get_BEptr() != 0)
             {
@@ -776,9 +782,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_ParticleData* Pythia8::ParticleData::get_BEptr() const
+        inline Abstract_ParticleData* Pythia8::ParticleData::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_ParticleData*>(BEptr);
+            return dynamic_cast<Abstract_ParticleData*>(BEptr);
         }
     }
     

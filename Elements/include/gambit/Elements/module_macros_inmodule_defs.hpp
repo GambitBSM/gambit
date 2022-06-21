@@ -40,6 +40,7 @@
 #include "gambit/Elements/safety_bucket.hpp"
 #include "gambit/Elements/module_macros_common.hpp"
 #include "gambit/Utils/exceptions.hpp"
+#include "gambit/Elements/elements_extras.hpp"
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/Models/safe_param_map.hpp"
 
@@ -87,6 +88,12 @@
                                                                                \
     namespace MODULE                                                           \
     {                                                                          \
+      /* Register (prototype) the function as defined elsewhere */             \
+      BOOST_PP_IIF(IS_TYPE(void,TYPE),                                         \
+        extern void FUNCTION();                                                \
+      ,                                                                        \
+        extern void FUNCTION (TYPE &);                                         \
+      )                                                                        \
                                                                                \
       /* Let the module source know that this functor is declared*/            \
       namespace Functown { extern module_functor<TYPE> FUNCTION; }             \
@@ -170,6 +177,12 @@
             /* Create a loop-breaking function that can be called to tell the  \
             functor's loop manager that it is time to break. */                \
             extern void wrapup();                                              \
+            /* Create a function that can be called to break a loop            \
+            immediately,, without finishing the current iteration. */          \
+            extern void halt();                                                \
+            /* Create an iteration-skipping function that can be called to skip\
+            on to the next iteration. */                                       \
+            extern void cycle();                                               \
           }                                                                    \
         }                                                                      \
       }                                                                        \

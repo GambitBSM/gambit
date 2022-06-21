@@ -50,7 +50,12 @@
 #include <iostream>
 #include <type_traits>
 #include <chrono>
+
+#include "gambit/Utils/begin_ignore_warnings_mpi.hpp"
 #include <mpi.h>
+#include "gambit/Utils/end_ignore_warnings.hpp"
+
+
 #include <boost/utility/enable_if.hpp>
 
 #include "gambit/Utils/standalone_error_handlers.hpp"
@@ -642,13 +647,13 @@ namespace Gambit
 
          private:
 
-            // The MPI communicator to which the current object "talks".
+            /// The MPI communicator to which the current object "talks".
             MPI_Comm boundcomm;
 
-            // A name to identify the communicator group to which this object is bound
+            /// A name to identify the communicator group to which this object is bound
             std::string myname;
 
-            // The process ID of the master process (rank 0)
+            /// The process ID of the master process (rank 0)
             static long int pid;
       };
 

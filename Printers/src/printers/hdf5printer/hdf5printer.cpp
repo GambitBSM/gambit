@@ -475,8 +475,16 @@ namespace Gambit
             }
             else
             {
-              set_resume(false);  //Tell ScannerBit that it shouldn't resume and do not find highest point.
               logger() << LogTags::info << "No process-level temporary files found; skipping combination step." << EOM;
+              if(not HDF5::checkFileReadable(tmp_comb_file))
+              {
+                // There is no combined output either, so disable resume mode
+                std::ostringstream msg;
+                msg<<"No temporary output from a previous scan found (or it is unreadable); this will be treated as a NEW scan";
+                std::cout<<msg.str()<<std::endl;
+                logger() << LogTags::info << msg.str();
+                set_resume(false);
+              }
             }
           }
           else // If we are not in resume mode, need to delete any temporary files left lying around in our target directory from previous incomplete runs

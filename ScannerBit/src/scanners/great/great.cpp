@@ -170,7 +170,7 @@ scanner_plugin(great, version(1, 0, 0))
       TGreatMCMCSample *prev_sample = estimator.GetFirstIndSample();
       unsigned int multiplicity = 0;
 
-      for(TGreatMCMCSample *sample = estimator.GetFirstIndSample(); sample != 0; sample = estimator.GetNextIndSample())
+      for(TGreatMCMCSample *sample = prev_sample; sample != 0; sample = estimator.GetNextIndSample())
       {
         // count samples to get their posterior weight and save them
         if(prev_sample->GetID() == sample->GetID())

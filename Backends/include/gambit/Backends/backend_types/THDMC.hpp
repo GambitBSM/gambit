@@ -22,14 +22,15 @@
 #define __THDMC_types_hpp__
 
 #include "gambit/Backends/backend_types/THDMC_1_8_0/identification.hpp"
-#include "THDMC_1_8_0/wrapper_THDM_decl.h"
+#include "gambit/Backends/backend_types/THDMC_1_8_0/wrapper_THDM_decl.h"
 
 namespace Gambit
 {
 
   // NB: Containers offset by one to align with higgs & fermion numbers
   // Container for all THDMC couplings
-  struct THDM_couplings {
+  struct THDM_couplings
+  {
       std::complex<double> hdd_cs[5][4][4], hdd_cp[5][4][4];
       std::complex<double> huu_cs[5][4][4], huu_cp[5][4][4];
       std::complex<double> hll_cs[5][4][4], hll_cp[5][4][4];
@@ -42,7 +43,8 @@ namespace Gambit
       std::complex<double> hhhh[5][5][5][5];
   };
 
-  struct THDM_decay_widths {
+  struct THDM_decay_widths
+  {
       double gamma_uhd[4][5][4];
       double gamma_hdd[5][4][4];
       double gamma_huu[5][4][4];
@@ -57,12 +59,14 @@ namespace Gambit
       double gamma_hhh[5][5][5];
   };
 
-  struct THDM_total_widths {
+  struct THDM_total_widths
+  {
     double gamma_tot_h[5], gamma_tot_t, gamma_tot_t_SM_contrib, gamma_tot_v[4];
     bool isValid;
   };
 
-  struct THDM_spectrum_container {
+  struct THDM_spectrum_container
+  {
     // variables
     // (spectrum split for convenience)
     std::unique_ptr<SubSpectrum> he;
@@ -71,11 +75,13 @@ namespace Gambit
     THDMC_1_8_0::THDM* THDM_object;
     int yukawa_type;
     // constructor
-    THDM_spectrum_container() {
+    THDM_spectrum_container()
+    {
       THDM_object = new THDMC_1_8_0::THDM();
     }
     // destructor
-    ~THDM_spectrum_container() {
+    ~THDM_spectrum_container()
+    {
       THDM_object->free_gsl();
       delete THDM_object;
     }

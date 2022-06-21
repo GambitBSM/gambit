@@ -2,10 +2,10 @@
 #define __wrapper_SM_decl_THDMC_1_8_0_h__
 
 #include <cstddef>
+#include <complex>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_SM.h"
-#include <complex>
 
 #include "identification.hpp"
 
@@ -21,40 +21,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             static Abstract_SM* (*__factory0)();
     
             // -- Other member variables: 
-        public:
-            const double& alpha;
-            const double& alpha0;
-            const double& GF;
-            const double& MZ;
-            const double& MW;
-            const double& alpha_s;
-            const double& GammaZ;
-            const double& GammaW;
-            const double& md_p;
-            const double& mu_p;
-            const double& ms_p;
-            const double& Q_ms;
-            const double& mc_p;
-            const double& mb_p;
-            const double& mt_p;
-            const double& me_p;
-            const double& mmu_p;
-            const double& mtau_p;
-            const double& Vud;
-            const double& Vus;
-            const double& Vub;
-            const double& Vcd;
-            const double& Vcs;
-            const double& Vcb;
-            const double& Vtd;
-            const double& Vts;
-            const double& Vtb;
-            const double& Q_HD;
-            const bool& b_HD;
-            const double& ms_5;
-            const double& mc_5;
-            const double& mb_5;
-            const double& mt_5;
     
             // Member functions: 
         public:

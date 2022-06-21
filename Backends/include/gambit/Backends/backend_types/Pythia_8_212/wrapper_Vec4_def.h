@@ -239,35 +239,35 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::Vec4::Vec4(double xIn, double yIn, double zIn, double tIn) :
+        inline Vec4::Vec4(double xIn, double yIn, double zIn, double tIn) :
             WrapperBase(__factory0(xIn, yIn, zIn, tIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Vec4::Vec4(double xIn, double yIn, double zIn) :
+        inline Vec4::Vec4(double xIn, double yIn, double zIn) :
             WrapperBase(__factory1(xIn, yIn, zIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Vec4::Vec4(double xIn, double yIn) :
+        inline Vec4::Vec4(double xIn, double yIn) :
             WrapperBase(__factory2(xIn, yIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Vec4::Vec4(double xIn) :
+        inline Vec4::Vec4(double xIn) :
             WrapperBase(__factory3(xIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Vec4::Vec4() :
+        inline Vec4::Vec4() :
             WrapperBase(__factory4())
         {
             get_BEptr()->set_wptr(this);
@@ -275,7 +275,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Vec4::Vec4(Pythia8::Abstract_Vec4* in) :
+        inline Vec4::Vec4(Abstract_Vec4* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -283,7 +283,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Vec4::Vec4(const Vec4& in) :
+        inline Vec4::Vec4(const Vec4& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -291,7 +291,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Vec4& Vec4::operator=(const Vec4& in)
+        inline Vec4& Vec4::operator=(const Vec4& in)
         {
             if (this != &in)
             {
@@ -302,7 +302,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Vec4::~Vec4()
+        inline Vec4::~Vec4()
         {
             if (get_BEptr() != 0)
             {
@@ -317,9 +317,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Vec4* Pythia8::Vec4::get_BEptr() const
+        inline Abstract_Vec4* Pythia8::Vec4::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Vec4*>(BEptr);
+            return dynamic_cast<Abstract_Vec4*>(BEptr);
         }
     }
     

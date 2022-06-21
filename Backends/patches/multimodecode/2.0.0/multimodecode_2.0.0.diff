@@ -1,0 +1,1536 @@
+diff --git a/Makefile_main_modpk b/Makefile_main_modpk
+index 0db23f9..ee9fa53 100644
+--- a/Makefile_main_modpk
++++ b/Makefile_main_modpk
+@@ -12,10 +12,10 @@ MODPKOBJ = dvode_f90_m.o \
+ 					 modpk_rng.o \
+   				 modpk_potential.o modpk_icsampling.o \
+ 					 modpk_utils.o  modpk_odeint.o \
+-					 modpk_backgrnd.o modpk.o modpk_deltaN.o
++					 modpk_backgrnd.o modpk.o modpk_deltaN.o multimodecode_gambit.o
+ 
+ 
+-default: powspec
++default: lib/libmodecode.so
+ 
+ dvode_f90_m.o: dvode_f90_m.f90
+ csv_file.o: csv_file.f90 csv_file_1d.f90 csv_file_2d.f90
+@@ -34,6 +34,7 @@ modpk_odeint.o:  modpk_modules.o modpk_io.o modpk_io.o modpk_potential.o modpk_i
+ modpk_backgrnd.o: modpk_odeint.o modpk_backgrnd.f90 modpk_errorhandling.o
+ modpk.o: modpk_backgrnd.o modpk.f90 modpk_errorhandling.o
+ modpk_deltaN.o: modpk_deltaN.f90 modpk_modules.o modpk_potential.o modpk_errorhandling.o
++multimodecode_gambit.o: multimodecode_gambit.f90 modpk.o
+ 
+ powspec : $(MODPKOBJ) $(PKDRIVER)
+ 	$(F90C) $(F90FLAGS) $(MODPKOBJ) $(PKDRIVER) -o $@
+@@ -41,9 +42,15 @@ powspec : $(MODPKOBJ) $(PKDRIVER)
+ %.o %.mod: %.f90
+ 	$(F90C) $(F90FLAGS) -c $*.f90
+ 
+-clean: cleanoutput
++lib/libmodecode.so: $(MODPKOBJ)
++	-mkdir -p lib
++	$(F90C) $(F90FLAGS) -shared $^ -o $@
++
++#clean: cleanoutput
++clean:
+ 	-rm -f *.o *.mod
+-	-rm powspec
++	-rm -f powspec
++	-rm -rf lib
+ 
+ cleanoutput:
+ 	-rm out_fields_infl_end.csv
+diff --git a/modpk.f90 b/modpk.f90
+index 1ad7e43..e062db6 100644
+--- a/modpk.f90
++++ b/modpk.f90
+@@ -18,15 +18,83 @@ MODULE access_modpk
+ 
+ CONTAINS
+ 
+-  SUBROUTINE potinit
++  SUBROUTINE potinit(observs)
+     USE modpkparams
+     USE modpk_observables
+     USE background_evolution, ONLY : backgrnd
+     USE potential, ONLY : initialphi
++    use modpk_numerics, only : locate, polint, array_polint
+     use modpk_icsampling, only : ic_flags, ic_sampling
+     IMPLICIT NONE
+ 
++	type(observables), intent(inout) :: observs
++
++    integer*4 :: ii
++    real(dp) :: dchidrho, derr,rho_init,slowroll_efolds
++    real(dp) :: xi,beta,lambda
++
++    chiHarray = 0e0_dp
++    rhoHarray = 0e0_dp
++    potHarray = 0e0_dp
++    dpotHarray = 0e0_dp
++    d2potHarray = 0e0_dp
++
++    if (potential_choice == 18) then !! build potential for SMASH inflation
++      xi = 10**vparams(1,1)
++      beta = 10**vparams(2,1)
++      lambda = 10**vparams(3,1)
++
++      do ii=1,builtpot
++        rhoHarray(ii) = 5e0_dp*phi_init0(1) - dble(ii)*(1e-3_dp)*phi_init0(1)
++        chiHarray(ii) = (sqrt(1e0_dp+6e0_dp*xi/beta)*&
++                        asinh(sqrt(1e0_dp+6e0_dp*xi/beta)*&
++                        sqrt(xi)*rhoHarray(ii)) - &
++                        sqrt(6e0_dp*xi/beta) * &
++                        asinh(sqrt(6e0_dp*xi/beta) * &
++                        sqrt(xi)*rhoHarray(ii)/ &
++                        sqrt(1e0_dp+(sqrt(xi)*rhoHarray(ii))**2))) /&
++                        sqrt(xi/beta)
++		potHarray(ii) = lambda/4e0_dp*rhoHarray(ii)**4 / &
++                        (1e0_dp+xi*rhoHarray(ii)**2)**2
++        dchidrho = sqrt(beta*(1e0_dp+xi*rhoHarray(ii)**2) +&
++                        6e0_dp*xi**2*rhoHarray(ii)**2) / &
++                        (1e0_dp+xi*rhoHarray(ii)**2)
++        dpotHarray(ii) = (lambda*rhoHarray(ii)**3/dchidrho)/(1e0_dp + &
++						  xi*rhoHarray(ii)**2)**2*(1e0_dp - &
++                          rhoHarray(ii)**2*xi/(1e0_dp+xi *&
++                          rhoHarray(ii)**2))
++
++        if (ii > 1) then
++          d2potHarray(ii-1) = (dpotHarray(ii)-dpotHarray(ii-1)) / &
++                              (chiHarray(ii)-chiHarray(ii-1))
++	    end if
++
++        if (ii > 2) then
++          d3potHarray(ii-2) = (d2potHarray(ii-1)-d2potHarray(ii-2)) / &
++							  (chiHarray(ii-1)-chiHarray(ii-2))
++		end if
++      end do
++
++      ii = locate(chiHarray,phi_init0(1))
++      call polint(chiHarray(ii:ii+4), rhoHarray(ii:ii+4), phi_init0(1), rho_init, derr)
++
++      observs%is_ic_ok = .true.
++
++      call polint(chiHarray((size(d2potHarray)-4):size(d2potHarray)-1),&
++                  d2potHarray((size(d2potHarray)-4):size(d2potHarray)-1),&
++                  chiHarray(size(d2potHarray)),d2potHarray(size(d2potHarray)), derr)
++
++      d3potHarray(size(d2potHarray)-1) = (d2potHarray(size(d2potHarray)) - &
++                                          d2potHarray(size(d2potHarray)-1)) / &
++                                         (chiHarray(size(d2potHarray)) - &
++                                          chiHarray(size(d2potHarray)-1))
++
++      call polint(chiHarray((size(d3potHarray)-4):size(d3potHarray)-1),&
++                  d3potHarray((size(d3potHarray)-4):size(d3potHarray)-1),&
++				  chiHarray(size(d3potHarray)),d3potHarray(size(d3potHarray)), derr)
++
+ 
++    end if
+     !
+     !     Solve the background equations
+     !
+diff --git a/modpk_backgrnd.f90 b/modpk_backgrnd.f90
+index bcfdf96..af0bee9 100644
+--- a/modpk_backgrnd.f90
++++ b/modpk_backgrnd.f90
+@@ -23,7 +23,9 @@ CONTAINS
+     use modpk_icsampling, only : save_iso_N, N_iso_ref, phi_iso_N, &
+       dphi_iso_N, ic_sampling, ic_flags
+ 
+-    INTEGER*4 :: i,j, rescl_count
++    INTEGER*4 :: i,j,ii, rescl_count
++
++    real(dp) :: dchidrho, derr
+ 
+     real(dp) :: phi_init_trial(size(phi_init))
+     real(dp) :: alpha_e,dalpha,V_end,dv,dh
+@@ -243,12 +245,6 @@ CONTAINS
+             end if
+ 
+           end if
+-
+-          IF (a_end .GT. a_end_inst) THEN
+-             PRINT*,'MODECODE: inflation ends too late with this N_pivot', N_pivot
+-             pk_bad = run_outcome%bad_reheat
+-             RETURN
+-          ENDIF
+        END IF
+ 
+        a_pivot = EXP(alpha_pivot)*a_init
+@@ -347,6 +343,9 @@ CONTAINS
+ 
+       dphi_init0 = y(size(y)/2+1 : (size(y)))
+ 
++      if (potential_choice==18) then
++        y(size(y)/2+1 : (size(y))) = 0.0e0_dp
++
+     else
+ 
+       h_init = getH(phi_init_trial,dphi_init0)
+@@ -525,6 +524,7 @@ CONTAINS
+ 
+        if (out_opt%modpkoutput .and. .not. out_opt%output_reduced) &
+          WRITE(*,array_fmt) ' phi_end =', phi_infl_end
++       end if
+ 
+        IF (instreheat) THEN
+           !Set a plausible pivot (ignoring logarithmic V_k and V_end terms) for
+@@ -539,7 +539,7 @@ CONTAINS
+        !or to homogeneously rescale all the fields. It is better to work on a case by case basis.
+        !
+ 
+-       IF (size(phi_init) .eq. 1) THEN
++       IF (size(phi_init) .eq. 1 .and. .not. potential_choice .eq. 18) THEN
+           IF(alpha_e.LT.(N_pivot+20.e0_dp)) THEN
+              IF ((potential_choice.eq.6).and.(vparams(1,1)<-2.e0_dp)) THEN
+                 phi_init_trial = phi_init*0.9e0_dp
+diff --git a/modpk_errorhandling.f90 b/modpk_errorhandling.f90
+index 3799073..b18f01a 100644
+--- a/modpk_errorhandling.f90
++++ b/modpk_errorhandling.f90
+@@ -2,10 +2,24 @@ module modpk_errorhandling
+   !Module for handling exceptions and warnings.
+   !More info is sometimes printed to screen where these occur.
+   use modpk_io, only : out_opt
++  use, Intrinsic :: iso_c_binding  ! Added by GAMBIT
+   implicit none
+ 
++  ! GAMBIT addition start
++  Type(c_funptr) :: ErrorHandler_cptr
++
++  ! Define interface of call-back routine.
++
++  Abstract Interface
++    Subroutine callback ()
++      Use, Intrinsic :: iso_c_binding
++    End Subroutine callback
++  End Interface
++
++  ! GAMBIT addition end
++
+   private
+-  public :: raise, run_outcome, assert
++  public :: raise, run_outcome, assert, ErrorHandler_cptr ! Modified by GAMBIT
+ 
+   !General class for errors
+   type :: error
+@@ -75,11 +89,14 @@ module modpk_errorhandling
+     end subroutine raise_warning
+ 
+     subroutine raise_exception_code(self, msg, fname, line)
++      use, Intrinsic :: iso_c_binding
++
+       class(error) :: self
+       character(*), intent(in) :: msg
+       character(*), intent(in), optional :: fname
+       integer, intent(in), optional :: line
+ 
++      Procedure(callback), Pointer :: ErrorHandler_fptr
+ 
+       !Print out even if asking for no output (modpkoutput=.false.)
+       print*, "**********************************************"
+@@ -93,17 +110,27 @@ module modpk_errorhandling
+ 
+       print*, "MODECODE: ", trim(msg)
+ 
++      ! Convert C to Fortran procedure pointer.
++      Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++
++      ! Call the ErrorHandler
++      Call ErrorHandler_fptr()
++
++      ! This should never happen
+       stop
+ 
+     end subroutine raise_exception_code
+ 
+ 
+     subroutine raise_exception_cosmo(self, msg, fname, line)
++      use, Intrinsic :: iso_c_binding
++
+       class(error) :: self
+       character(*), intent(in) :: msg
+       character(*), intent(in), optional :: fname
+       integer, intent(in), optional :: line
+ 
++      Procedure(callback), Pointer :: ErrorHandler_fptr
+ 
+       !Print out even if asking for no output (modpkoutput=.false.)
+       print*, "**********************************************"
+@@ -117,6 +144,13 @@ module modpk_errorhandling
+ 
+       print*, "MODECODE: ", trim(msg)
+ 
++      ! Convert C to Fortran procedure pointer.
++      Call c_f_procpointer(ErrorHandler_cptr, ErrorHandler_fptr)
++
++      ! Call the ErrorHandler
++      Call ErrorHandler_fptr()
++
++      ! This should never happen
+       stop
+ 
+     end subroutine raise_exception_cosmo
+diff --git a/modpk_modules.f90 b/modpk_modules.f90
+index 3226d39..9b2419f 100644
+--- a/modpk_modules.f90
++++ b/modpk_modules.f90
+@@ -28,7 +28,8 @@ MODULE modpkparams
+   INTEGER :: potential_choice
+ 
+   INTEGER*4 :: nactual_bg, nactual_mode
+-  INTEGER, PARAMETER :: nsteps=1e5
++  INTEGER, PARAMETER :: nsteps=1e6
++  INTEGER, PARAMETER :: builtpot=1e4
+   real(dp), PARAMETER :: M_Pl=1.0e0_dp
+   real(dp), PARAMETER :: Mpc2Mpl=2.6245e-57_dp
+   real(dp) :: k_pivot, N_pivot, N_tot, H_pivot
+@@ -39,7 +40,9 @@ MODULE modpkparams
+   real(dp), ALLOCATABLE :: phidot_sign(:)
+   real(dp) :: Nefold_max=100000.e0_dp
+   real(dp) :: lna(nsteps)
+-  real(dp) :: hubarr(nsteps), log_aharr(nsteps), epsarr(nsteps), dtheta_dN(nsteps)
++  real(dp) :: hubarr(nsteps), log_aharr(nsteps), epsarr(nsteps), dtheta_dN(nsteps), &
++				chiHarray(builtpot), rhoHarray(builtpot), potHarray(builtpot), &
++                dpotHarray(builtpot), d2potHarray(builtpot), d3potHarray(builtpot)
+   LOGICAL :: slowroll_infl_end
+   LOGICAL :: slowroll_start=.false.
+ 
+@@ -167,6 +170,7 @@ module modpk_observables
+   !Type to save the ICs and observs. Add new observables here
+   type :: observables
+     real(dp), dimension(:), allocatable :: ic
++    logical :: is_ic_ok !parameter range check for SMASH
+     !Spectra amplitudes
+     real(dp) :: As
+     real(dp) :: A_iso
+@@ -189,6 +193,10 @@ module modpk_observables
+     !Non-Gaussianity
+     real(dp) :: f_NL
+     real(dp) :: tau_NL
++    real(dp) , dimension(:), allocatable :: k_array
++    real(dp) , dimension(:), allocatable :: pks_array
++    real(dp) , dimension(:), allocatable :: pkt_array
++    integer :: k_size
+     contains
+       procedure, public :: printout => ic_print_observables
+       procedure, public :: print_header => ic_print_headers
+diff --git a/modpk_potential.f90 b/modpk_potential.f90
+index 630ec5b..8057926 100644
+--- a/modpk_potential.f90
++++ b/modpk_potential.f90
+@@ -48,7 +48,7 @@ contains
+     integer :: phi_light_index
+     real(dp) :: lambda4(size(phi)), alpha2(num_inflaton)
+ 
+-    real(dp) :: lambda2
++    real(dp) :: lambda2, derr
+     real(dp), dimension(size(phi),size(phi)) :: m2_matrix
+     integer :: i,j, temp_choice
+ 
+@@ -284,6 +284,22 @@ contains
+           cos(2.0e0_dp*pi*phi(ii) - 2.0e0_dp*pi*phi(jj))
+       end do; end do
+ 
++    case(18)
++      ! SMASH potential - see deriv. expressions in modpk_backgrnd
++      ii = locate(chiHarray,phi(1))
++      call polint(chiHarray(ii:ii+4), potHarray(ii:ii+4), phi(1), V_potential, derr)
++
++    case(19)
++      ! Starobinsky
++      ! R + R^2/(6M^2)
++      ! or
++      ! Lambda^4 (1 - exp(-sqrt(2/3)phi/Mpl))^2
++
++      call assert%check(size(vparams,1)>=1,__FILE__,__LINE__)
++      call assert%check(num_inflaton==1,__FILE__,__LINE__)
++      Lambda4 = vparams(1,:)
++      V_potential = Lambda4(1) * (1 - exp(-sqrt(2.0e0_dp/3.0e0_dp)*phi(1)))**2
++
+ 
+ 
+     case default
+@@ -334,7 +350,7 @@ contains
+     real(dp) :: p_exp
+     integer :: ii
+ 
+-    real(dp) :: V0, twopi
++    real(dp) :: V0, twopi, derr(size(phi))
+     real(dp), dimension(size(phi)) :: A_i
+     real(dp), dimension(size(phi),size(phi)) :: B_ij
+     integer :: alpha, beta
+@@ -501,6 +517,18 @@ contains
+            end do
+          end do
+ 
++       case(18)
++       ! SMASH potential - see deriv. expressions in modpk_backgrnd
++         ii = locate(chiHarray,phi(1))
++         call polint(chiHarray(ii:ii+4), dpotHarray(ii:ii+4), phi(1), first_deriv(1), derr(1))
++
++       case(19)
++       ! Starobinsky
++         lambda4 = vparams(1,:)
++         first_deriv = lambda4 * 2.0e0_dp * sqrt(2.0e0_dp/3.0e0_dp) * &
++                       (-exp(-2.0e0_dp * sqrt(2.0e0_dp/3.0e0_dp)*phi(1)) &
++                       + exp(-sqrt(2.0e0_dp/3.0e0_dp)*phi(1)))
++
+ 
+        !END MULTIFIELD
+        case default
+@@ -542,7 +570,7 @@ contains
+     real(dp), dimension(size(phi),size(phi)) :: m2_matrix
+ 
+     real(dp), dimension(size(phi)) :: location_phi, step_size, step_slope
+-    real(dp), dimension(size(phi)) :: stepsize
++    real(dp), dimension(size(phi)) :: stepsize, derr
+     real(dp), dimension(:,:), allocatable :: numderiv
+     real(dp), dimension(:), allocatable :: numderiv1
+ 
+@@ -771,6 +799,18 @@ contains
+            end do
+          end do
+ 
++       case(18)
++       ! SMASH potential - see deriv. expressions in modpk_backgrnd
++         ii = locate(chiHarray,phi(1))
++         call polint(chiHarray(ii:ii+4), d2potHarray(ii:ii+4), phi(1), second_deriv(1,1), derr(1))
++
++       case(19)
++       ! Starobinsky
++         lambda4 = vparams(1,:)
++         second_deriv = lambda4(1) * 4.0e0_dp/3.0e0_dp * &
++             (2.0e0_dp * exp(-2.0e0_dp * sqrt(2.0e0_dp/3.0e0_dp)*phi(1)) &
++             - exp(-sqrt(2.0e0_dp/3.0e0_dp)*phi(1)))
++
+ 
+        case default
+ 
+@@ -794,13 +834,13 @@ contains
+   !of the scalar running, alpha_s
+   function d3Vdphi3(phi) result(third_deriv)
+     real(dp), intent(in) :: phi(:)
+-    real(dp) :: third_deriv(size(phi),size(phi),size(phi))
+-    real(dp) :: m2_V(size(phi))
++    real(dp) :: third_deriv(size(phi),size(phi),size(phi))!,lambda(size(phi))
++    real(dp) :: m2_V(size(phi)), lambda4(size(phi))
+     integer :: ii
+ 
+     real(dp) :: p_exp
+ 
+-    real(dp), dimension(size(phi)) :: location_phi, step_size, step_slope
++    real(dp), dimension(size(phi)) :: location_phi, step_size, step_slope, derr
+ 
+     third_deriv = 0e0_dp
+ 
+@@ -808,6 +848,10 @@ contains
+     case(1)
+       m2_V = 10.e0_dp**(vparams(1,:))
+       third_deriv=0e0_dp
++
++    case(4)
++      third_deriv=0e0_dp
++
+     case(14)
+ 
+       !Multifield step potential
+@@ -852,6 +896,21 @@ contains
+           m2_V(ii)*abs(phi(ii))**(p_exp-3.0e0_dp)
+       end do
+ 
++     case(18)
++     ! SMASH potential - see deriv. expressions in modpk_backgrnd
++       ii = locate(chiHarray,phi(1))
++       call polint(chiHarray(ii:ii+4), d3potHarray(ii:ii+4), &
++                         phi(1), third_deriv(1,1,1), derr(1))
++
++     case(19)
++     ! Starobinsky
++       lambda4 = vparams(1,:)
++       third_deriv = lambda4(1)**4 * 4.0e0_dp/3.0e0_dp * sqrt(2.0e0_dp/3.0e0_dp) &
++           * (-4.0e0_dp * exp(-2.0e0_dp * sqrt(2.0e0_dp/3.0e0_dp)*phi(1))    &
++           + exp(-sqrt(2.0e0_dp/3.0e0_dp)*phi(1)))
++
++
++
+     case default
+ 
+       print*, "MODECODE: potential_choice =", potential_choice
+@@ -906,6 +965,10 @@ contains
+              x2 = 4.e0_dp*Ninit + 2.e0_dp*x1/phesq + 0.5e0_dp*phesq
+              phii = sqrt(x2)*sqrt(1.e0_dp-sqrt(1.e0_dp-4.e0_dp*x1/x2/x2))
+           end if
++       case(19)
++          ! Approximation for intial conditions in Starobinsky inflation
++          ! For Ninit in [50, 80] error < 0.5 percent w.r.t. slow roll
++          phii = 3.91397_dp + 1.68848e-2_dp*(Ninit - 65.0_dp) - 1.17594e-4_dp*(Ninit - 65.0_dp)**2
+        case default
+           phii = phi0
+        end select
+@@ -923,9 +986,17 @@ contains
+     !
+     real(dp) :: getEps
+     real(dp), INTENT(IN) :: phi(:), dphi(:)
+-
+-    !MULTIFIELD
+-    getEps = 0.5e0_dp*(M_Pl)**2 * dot_product(dphi,dphi)
++    real(dp), dimension(size(phi)) ::  dVpot
++    real(dp) ::  Vpot
++
++    if (potential_choice == 18) then
++      Vpot = pot(phi)
++      dVpot = dVdphi(phi)
++      getEps = 0.5e0_dp*(dVpot(1)/Vpot)**2
++ 	else
++      !MULTIFIELD
++      getEps = 0.5e0_dp*(M_Pl)**2 * dot_product(dphi,dphi)
++	end if
+ 
+     if (getEps >=3.0e0_dp) then
+       print*, "MODECODE: epsilon =", getEps
+diff --git a/modpk_utils.f90 b/modpk_utils.f90
+index 77866a5..bab6987 100644
+--- a/modpk_utils.f90
++++ b/modpk_utils.f90
+@@ -92,8 +92,8 @@ CONTAINS
+     real(dp), DIMENSION(:), INTENT(OUT) :: yprime
+ 
+     !MULTIFIELD
+-    real(dp), DIMENSION(size(y)/2) :: p, delp
+-    real(dp) :: hubble,dhubble, eps
++    real(dp), DIMENSION(size(y)/2) :: p, delp, dVpot
++    real(dp) :: hubble,dhubble, eps, Vpot
+     !END MULTIFIEND
+ 
+     integer :: i
+@@ -106,6 +106,9 @@ CONTAINS
+     !MULTIFIELD
+     p = y(1 : size(y)/2)
+     delp = y(size(y)/2+1 : size(y))
++
++    Vpot = pot(p)
++		dVpot = dVdphi(p)
+     !END MULTIFIELD
+ 
+     if (.not. use_t) then
+@@ -157,12 +160,15 @@ CONTAINS
+     !MULTIFIELD
+     if (.not. use_t) then
+       !Derivs wrt e-folds
++
++      yprime(1 : size(y)/2) = delp
++
+       hubble=getH(p,delp)
+       dhubble=getdHdalpha(p,delp)
+ 
+-      yprime(1 : size(y)/2) = delp
+       yprime(size(y)/2+1 : size(y)) = -((3.0e0_dp+dhubble/hubble)*delp+&
+-        dVdphi(p)/hubble/hubble)
++      dVdphi(p)/hubble/hubble)
++    ! end if
+     else
+ 
+       !Derivs in cosmic time
+diff --git a/multimodecode_driver.f90 b/multimodecode_driver.f90
+index 3ba54a2..296e434 100644
+--- a/multimodecode_driver.f90
++++ b/multimodecode_driver.f90
+@@ -5,6 +5,7 @@ program multimodecode
+   use modpk_utils
+   use camb_interface
+   use access_modpk, only : evolve, potinit
++  use modpk_numerics
+   use internals
+   use modpk_icsampling
+   use modpk_io, only : out_opt
+diff --git a/multimodecode_gambit.f90 b/multimodecode_gambit.f90
+new file mode 100644
+index 0000000..c95782d
+--- /dev/null
++++ b/multimodecode_gambit.f90
+@@ -0,0 +1,983 @@
++! Module that contains the interface for MultiModeCode to CosmoBit in GAMBIT
++MODULE multimodecode_gambit
++  use modpkparams
++  use potential
++  use background_evolution
++  use modpk_utils
++  use camb_interface
++  use access_modpk, only : evolve, potinit
++  use internals
++  use modpk_icsampling
++  use modpk_io, only : out_opt
++  use modpk_deltaN
++  use modpk_observables, only : observables
++  use csv_file, only : csv_write
++  use modpk_errorhandling, only : raise, run_outcome, assert
++  use modpk_rng, only : init_random_seed
++
++  implicit none
++
++  logical :: SilenceOutput = .false.
++
++  public :: multimodecode_gambit_driver
++
++! The structure of the output gambit reads.
++  type :: gambit_inflation_observables
++    logical :: check_ic_ok
++    !Spectra amplitudes
++    real(dp) :: As
++    real(dp) :: A_iso
++    real(dp) :: A_pnad
++    real(dp) :: A_ent
++    real(dp) :: A_cross_ad_iso
++    !Spectral indices
++    real(dp) :: ns
++    real(dp) :: nt
++    real(dp) :: n_iso
++    real(dp) :: n_pnad
++    real(dp) :: n_ent
++    !Number of e-folds at pivot scale
++    real(dp) :: N_pivot
++    !Tensor-to-scalar
++    real(dp) :: r
++    !Running, etc
++    real(dp) :: alpha_s
++    real(dp) :: runofrun
++    !Non-Gaussianity
++    real(dp) :: f_NL
++    real(dp) :: tau_NL
++    real(dp) , dimension(1000) :: k_array
++    real(dp) , dimension(1000) :: pks_array
++    real(dp) , dimension(1000) :: pks_iso_array
++    real(dp) , dimension(1000) :: pkt_array
++    integer :: k_size
++    !Error checking
++    integer :: err
++  end type gambit_inflation_observables
++
++contains
++
++  function multimodecode_gambit_driver(ginput_num_inflaton, &
++                                       ginput_potential_choice, &
++                                       ginput_evaluate_modes, &
++                                       ginput_get_runningofrunning, &
++                                       ginput_phi_init0, &
++                                       ginput_dphi_init0, &
++                                       ginput_vparams, &
++                                       ginput_N_pivot, &
++                                       ginput_k_pivot, &
++                                       ginput_dlnk, &
++                                       ginput_steps, &
++                                       ginput_kmin, &
++                                       ginput_kmax, &
++                                       ginput_vparam_rows, &
++                                       ginput_slowroll_infl_end,&
++                                       ginput_instreheat,&
++                                       ginput_use_deltaN_SR,&
++                                       ginput_use_horiz_cross_approx &
++																		 ) result(gambit_obs)
++
++    type(gambit_inflation_observables) :: gambit_obs ! output
++
++    integer :: i
++
++    ! Gambit interface input parameters
++    integer, intent(in) :: ginput_num_inflaton
++    integer, intent(in) :: ginput_potential_choice
++    integer, intent(in) :: ginput_vparam_rows
++    logical, optional :: ginput_evaluate_modes
++    logical, optional :: ginput_get_runningofrunning
++    real(dp), dimension(ginput_num_inflaton), intent(in) :: ginput_phi_init0
++    real(dp), dimension(ginput_num_inflaton), intent(in) :: ginput_dphi_init0
++    real(dp), dimension(ginput_vparam_rows, ginput_num_inflaton), intent(in) :: ginput_vparams
++    real(dp), intent(in) :: ginput_N_pivot
++    real(dp), intent(in) :: ginput_k_pivot
++    real(dp), intent(in) :: ginput_dlnk
++    integer, intent(in) :: ginput_steps
++    real(dp), intent(in) :: ginput_kmin
++    real(dp), intent(in) :: ginput_kmax
++    logical, intent(in) :: ginput_slowroll_infl_end
++    logical, intent(in) :: ginput_instreheat
++    logical, intent(in) :: ginput_use_deltaN_SR
++    logical, intent(in) :: ginput_use_horiz_cross_approx
++
++    type(observables) :: observs, observs_SR
++
++    !Run-specific input params
++    integer :: sample_looper
++    integer :: vparam_rows
++
++    !Parallel variables
++    integer :: numtasks, rank
++
++    !Cosmology
++    real(dp) :: dlnk
++
++    !Sampling parameters for ICs
++    integer :: numb_samples,steps
++    integer :: out_adiab
++    real(dp) :: energy_scale
++    real(dp), dimension(:,:), allocatable :: icpriors_min, icpriors_max
++
++    !Other sampling params
++    real(dp) :: N_pivot_prior_min, N_pivot_prior_max, k_min, k_max
++    integer :: num_inflaton_prior_min, num_inflaton_prior_max
++    logical :: varying_N_pivot, varying_num_inflaton
++    logical :: more_potential_params
++    logical :: get_runningofrunning
++    logical :: use_horiz_cross_approx
++    logical :: calc_full_pk
++    integer :: pfile
++
++    if (SilenceOutput) Then
++      close(unit=6)
++    else
++      open(unit=6, file="/dev/stdout")
++    endif
++
++    call deallocate_vars()
++
++    ! Below, we fix some parameters that are not needed in GAMBIT.
++    ! These parameters control the internal sampling of MMC.
++    ! They are not needed because ScannerBit in GAMBIT handles all the sampling; below we set them to dummy values
++    ! Sampling method for initial condition in MMC (1 = regular, 2 = equal-energy, 3 = slowroll, 6 = iso-N sampling)
++    ic_sampling = 1
++    ! Number of samples to obtain
++    numb_samples = 1
++    ! Energy scale used in equal-energy sampling (if ic_sampling = 2) in units of Planck mass
++    energy_scale = 0.1
++    ! Save the N values obatined from equal-energy sampling (if ic_sampling = 2)
++    save_iso_N = .false.
++    ! Reference value for the iso-N sampling method (if ic_sampling = 6)
++    N_iso_ref = 55
++
++    param_sampling = 1
++    varying_N_pivot = .false.
++    use_first_priorval = .false.
++
++    ! Gambit interface giving the values
++    ! to the MultiModeCode IC parameters
++    num_inflaton = ginput_num_inflaton
++    potential_choice = ginput_potential_choice
++    vparam_rows = ginput_vparam_rows
++
++    ! Allocate memory for arrays
++    call allocate_vars()
++
++    evaluate_modes = ginput_evaluate_modes
++    get_runningofrunning = ginput_get_runningofrunning
++    k_min = ginput_kmin
++    k_max = ginput_kmax
++    steps = ginput_steps
++    phi_init0 = ginput_phi_init0
++    dphi_init0 = ginput_dphi_init0
++    vparams = ginput_vparams
++    N_pivot = ginput_N_pivot
++    k_pivot = ginput_k_pivot
++    dlnk = ginput_dlnk
++    calc_full_pk = .true.
++    slowroll_infl_end = ginput_slowroll_infl_end
++    instreheat = ginput_instreheat
++    use_deltaN_SR = ginput_use_deltaN_SR
++    use_horiz_cross_approx = ginput_use_horiz_cross_approx
++
++    ! Set up printer options at the code-level.
++    out_opt%modpkoutput = .false.
++    out_opt%output_reduced = .true.
++    out_opt%output_badic = .false.
++
++    out_opt%save_traj = .false.
++    out_opt%fields_horiz = .false.
++    out_opt%fields_end_infl = .false.
++    out_opt%spectra = .false.
++    out_opt%modes = .false.
++
++    assert%use_assertions = .true.
++
++    tech_opt%accuracy_setting = 1
++    tech_opt%use_dvode_integrator = .false.
++
++    !---------------------------------------------------------------
++    !---------------------Factory settings--------------------------
++    !---------------------------------------------------------------
++    tech_opt%rk_accuracy_modes = 1.0e-7
++    tech_opt%rk_accuracy_back = 1.0e-6
++    tech_opt%dvode_rtol_back = 1.0e-6
++    tech_opt%dvode_rtol_modes = 1.0e-6
++    tech_opt%dvode_atol_back(1:4) = (/1.0e-14, 1.0e-14, 1.0e-14, 1.0e-14/)
++    tech_opt%dvode_atol_modes_real(1:2) = (1e-8, 1e-8)
++    tech_opt%dvode_atol_modes_real(3:4) = (1e-6, 1e-6)
++    tech_opt%dvode_atol_modes_real(5:8) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_real(9:12) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_real(13:14) = (1e-8, 1e-8)
++    tech_opt%dvode_atol_modes_real(15:16) = (1e-3, 1e-3)
++    tech_opt%dvode_atol_modes_imag(1:2) = (1e0, 1e0)
++    tech_opt%dvode_atol_modes_imag(3:4) = (1e0, 1e0)
++    tech_opt%dvode_atol_modes_imag(5:8) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_imag(9:12) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_imag(13:14) = (1e-8, 1e-8)
++    tech_opt%dvode_atol_modes_imag(15:16) = (1e-3, 1e-3)
++
++
++    !---------------------------------------------------------------
++    call observs%set_zero()
++    call observs_SR%set_zero()
++
++    !Set error code to 0
++    gambit_obs%err = 0
++
++    !Set random seed
++    call init_random_seed()
++
++    call calculate_pk_observables(gambit_obs,observs,observs_SR,k_pivot,dlnk,calc_full_pk,steps,k_min,k_max)
++
++    ! SMASH potential.
++    if (potential_choice == 18) then
++      if (.not. observs%is_ic_ok) then
++        gambit_obs%err = 999 ! TODO choose error messages
++        RETURN
++      else
++        gambit_obs%As = observs_SR%As
++        gambit_obs%ns = observs_SR%ns
++        gambit_obs%nt = observs_SR%nt
++        gambit_obs%r = observs_SR%r
++        gambit_obs%f_NL = observs_SR%f_NL
++        gambit_obs%tau_NL = observs_SR%tau_NL
++        gambit_obs%alpha_s = observs_SR%alpha_s
++      end if
++    else
++      !-------------setting up the observables--------------------
++      gambit_obs%As = observs%As
++      gambit_obs%A_iso = observs%A_iso
++      gambit_obs%A_pnad = observs%A_pnad
++      gambit_obs%A_ent = observs%A_ent
++      gambit_obs%A_cross_ad_iso = observs%A_cross_ad_iso
++      gambit_obs%ns = observs%ns
++      gambit_obs%nt = observs%nt
++      gambit_obs%n_iso = observs%n_iso
++      gambit_obs%n_pnad = observs%n_pnad
++      gambit_obs%n_ent = observs%n_ent
++      gambit_obs%N_pivot = N_pivot
++      gambit_obs%r = observs%r
++      gambit_obs%alpha_s = observs%alpha_s
++      gambit_obs%runofrun = observs%runofrun
++      gambit_obs%f_NL = observs%f_NL
++      gambit_obs%tau_NL = observs%tau_NL
++
++      !-------------setting up the observables--------------------
++
++    end if
++
++  contains
++
++    subroutine gambit_get_full_pk(pk_arr,calc_full_pk,ginput_steps,ginput_kmin,ginput_kmax)
++      !Find P(k) for all the power spectra from kmin to kmax, as given in the
++      !parameters file.
++      real(dp), intent(in) :: ginput_kmin, ginput_kmax
++      integer, intent(in) :: ginput_steps
++
++      real(dp), dimension(:,:), allocatable, intent(out) :: pk_arr
++
++      real(dp) :: kmin, kmax, incr
++      logical, intent(in) :: calc_full_pk
++      real(dp) :: p_scalar, p_tensor, p_zeta, p_iso
++      real(dp), dimension(:), allocatable :: k_input
++      integer :: i, steps, u
++
++      type(power_spectra) :: pk
++
++      kmin = ginput_kmin
++      kmax = ginput_kmax
++      steps = ginput_steps
++
++      !If don't want full spectrum, return
++      if (calc_full_pk) then
++
++        !Make the output arrays
++        if (allocated(pk_arr)) deallocate(pk_arr)
++
++        allocate(pk_arr(steps, 9))
++
++        pk_arr=0e0_dp
++
++        !Make the arrays for k values to sample
++        allocate(k_input(steps))
++        incr=(kmax/kmin)**(1/real(steps-1,kind=dp))
++        do i=1,steps
++          k_input(i) = kmin*incr**(i-1)
++        end do
++
++        do i=1,steps
++          call evolve(k_input(i), pk)
++
++          pk_arr(i,:)=(/k_input(i), &
++            pk%adiab, &
++            pk%isocurv, &
++            pk%entropy, &
++            pk%pnad, &
++            pk%tensor, &
++            pk%pressure, &
++            pk%press_ad, &
++            pk%cross_ad_iso /)
++
++        end do
++      end if
++
++    end subroutine gambit_get_full_pk
++
++    subroutine allocate_vars()
++!      !Allocate all the necessary arrays that we can with the information given
++!      !in the parameters file.
++
++      !Model dependent
++      if (potential_choice==8) then
++        allocate(vparams(1,4))
++      else
++        allocate(vparams(vparam_rows,num_inflaton))
++      end if
++
++      allocate(icpriors_max(2,num_inflaton))
++      allocate(icpriors_min(2,num_inflaton))
++
++      allocate(vp_prior_max(vparam_rows,num_inflaton))
++      allocate(vp_prior_min(vparam_rows,num_inflaton))
++
++      allocate(phi_init0(num_inflaton))
++      allocate(phi_init(num_inflaton))
++      allocate(phidot_sign(num_inflaton))
++      allocate(phiarr(num_inflaton, 1:nsteps))
++      allocate(dphiarr(num_inflaton, 1:nsteps))
++      allocate(param_arr(1:nsteps))
++      allocate(phi_infl_end(num_inflaton))
++      allocate(phi_pivot(num_inflaton))
++      allocate(dphi_pivot(num_inflaton))
++      allocate(dphi_init0(num_inflaton))
++      allocate(dphi_init(num_inflaton))
++
++    end subroutine allocate_vars
++
++!-------------------DEVELOPEMENT-------------------------------
++    subroutine deallocate_vars()
++
++      if (allocated(vparams)) deallocate(vparams)
++      if (allocated(icpriors_max)) deallocate(icpriors_max)
++      if (allocated(icpriors_min)) deallocate(icpriors_min)
++      if (allocated(vp_prior_max)) deallocate(vp_prior_max)
++      if (allocated(vp_prior_min)) deallocate(vp_prior_min)
++
++      if (allocated(phi_init0)) deallocate(phi_init0)
++      if (allocated(phi_init)) deallocate(phi_init)
++      if (allocated(phidot_sign)) deallocate(phidot_sign)
++      if (allocated(phiarr)) deallocate(phiarr)
++      if (allocated(dphiarr)) deallocate(dphiarr)
++      if (allocated(param_arr)) deallocate(param_arr)
++      if (allocated(phi_infl_end)) deallocate(phi_infl_end)
++      if (allocated(phi_pivot)) deallocate(phi_pivot)
++      if (allocated(dphi_pivot)) deallocate(dphi_pivot)
++      if (allocated(dphi_init0)) deallocate(dphi_init0)
++      if (allocated(dphi_init)) deallocate(dphi_init)
++
++    end subroutine deallocate_vars
++
++    !Calculate observables, optionally grab a new IC or a new set of parameters
++    !each time this routine is called.
++    subroutine calculate_pk_observables(observs_gambit,observs,observs_SR,k_pivot,dlnk,calc_full_pk,steps,kmin,kmax)
++
++      real(dp), intent(in) :: k_pivot,dlnk
++      logical, intent(in) :: calc_full_pk
++      type(observables), intent(inout) :: observs, observs_SR
++      type(gambit_inflation_observables), intent(inout) :: observs_gambit
++      integer, intent(in) :: steps
++      real(dp), intent(in) :: kmin, kmax
++
++      real(dp), dimension(:,:), allocatable :: pk_arr
++      logical :: leave
++
++      type(power_spectra) :: pk0, pk1, pk2, pk3, pk4
++
++      real(dp), dimension(:), allocatable :: k_a, pks_a, pkt_a
++
++      character(1024) :: cname
++      integer :: ii
++
++      call observs%set_zero()
++      call observs_SR%set_zero()
++
++      observs_gambit%err = run_outcome%success
++      leave = .false.
++
++      !Get vparams
++      if (param_sampling == 1) then
++        call get_vparams()
++      end if
++
++      !Load ics
++      allocate(observs%ic(2*num_inflaton))
++      observs%ic(1:num_inflaton)=phi_init0
++      observs%ic(num_inflaton+1:2*num_inflaton)=dphi_init0
++      if (use_deltaN_SR) then
++        allocate(observs_SR%ic(2*num_inflaton))
++        observs_SR%ic = observs%ic
++      end if
++
++      !Initialize potential and calc background
++      call potinit(observs)
++
++      call test_bad(observs_gambit%err, observs, leave)
++      if (leave) return
++
++      !Calculate SR approximation for sum-separable potentials
++      if (use_deltaN_SR) then
++        call calculate_SR_observables(observs_SR)
++
++        !Only calculating these in SR
++        observs%f_NL = observs_SR%f_NL
++        observs%tau_NL = observs_SR%tau_NL
++      end if
++
++      !Evaluate the mode functions
++      if (evaluate_modes) then
++
++        call evolve(k_pivot, pk0)
++          call test_bad(observs_gambit%err, observs, leave)
++          if (leave) then
++            return
++          end if
++
++        call evolve(k_pivot*exp(-dlnk), pk1)
++          call test_bad(observs_gambit%err, observs, leave)
++          if (leave) return
++
++          call evolve(k_pivot*exp(dlnk), pk2)
++          call test_bad(observs_gambit%err, observs, leave)
++          if (leave) return
++
++        if (get_runningofrunning) then
++            !Alpha_s from 5-pt stencil
++            !or running of running
++          call evolve(k_pivot*exp(-2.0e0_dp*dlnk), pk3)
++
++            call test_bad(observs_gambit%err, observs, leave)
++            if (leave) return
++          call evolve(k_pivot*exp(2.0e0_dp*dlnk), pk4)
++
++            call test_bad(observs_gambit%err, observs, leave)
++            if (leave) return
++        end if
++
++          !Construct the observables
++        if (get_runningofrunning) then
++          call observs%set_finite_diff(dlnk, &
++            pk0,pk1,pk2,pk3,pk4, &
++            field_bundle%exp_scalar)
++          !print*,"here we calculate the observables! (476)"
++        else
++          !print*,"here we calculate the observables! (478)"
++          call observs%set_finite_diff(dlnk, &
++            pk0,pk1,pk2,&
++            bundle_width=field_bundle%exp_scalar)
++        end if
++
++        !Get full spectrum for adiab and isocurv at equal intvs in lnk
++
++        call gambit_get_full_pk(pk_arr,calc_full_pk,steps,kmin,kmax)
++
++        if (calc_full_pk) then
++
++          observs_gambit%k_array         = pk_arr(:steps,1)
++          observs_gambit%pks_array       = pk_arr(:steps,2)
++          observs_gambit%pks_iso_array   = pk_arr(:steps,3)
++          observs_gambit%pkt_array       = pk_arr(:steps,6)
++
++        end if
++      end if
++
++    end subroutine calculate_pk_observables
++
++    !Calculate observables for the power spectrum, as well as fNL, using the
++    !delta-N formalism in slow-roll
++    subroutine calculate_SR_observables(observs_SR)
++      use modpk_numerics, only : locate, array_polint, polint
++      type(observables), intent(inout) :: observs_SR
++      integer :: j, i
++      real(dp) :: ah, alpha_ik, dalpha, N_end, del_N, Npiv_renorm
++      real(dp), dimension(num_inflaton) :: phi_pivot, phi_end, del_phi
++
++      !Find field values at end of inflation
++      !Note that eps=1 perhaps twice, so take the last one.
++      call array_polint(epsarr(nactual_bg-4:nactual_bg),&
++        phiarr(:,nactual_bg-4:nactual_bg),&
++        1.0e0_dp,  phi_end, del_phi)
++      call polint(epsarr(nactual_bg-4:nactual_bg),&
++        lna(nactual_bg-4:nactual_bg),&
++        1.0e0_dp,  N_end, del_N)
++
++      !Find field values at horizon crossing
++      Npiv_renorm = N_end - N_pivot
++
++      i= locate(lna(1:nactual_bg), Npiv_renorm)
++      j=min(max(i-(4-1)/2,1),nactual_bg+1-4)
++      call array_polint(lna(j:j+4), phiarr(:,j:j+4),&
++        Npiv_renorm, phi_pivot, del_phi)
++
++      if (use_horiz_cross_approx) then
++        HC_approx = .true.
++      else
++        HC_approx = .false.
++      end if
++
++      call observs_SR%set_zero()
++      observs_SR%As = PR_SR(phi_pivot,phi_end)
++      observs_SR%ns = ns_SR(phi_pivot,phi_end)
++      observs_SR%nt = nt_SR(phi_pivot)
++      observs_SR%r  = r_SR(phi_pivot,phi_end)
++      observs_SR%f_NL  = fnl_SR(phi_pivot,phi_end)
++      observs_SR%tau_NL  = taunl_SR(phi_pivot,phi_end)
++      observs_SR%alpha_s  = alpha_s_SR(phi_pivot,phi_end)
++
++    end subroutine calculate_SR_observables
++
++
++    !Check if an IC had some properties where we declare it to be unphysical
++    subroutine test_bad(pk_bad,observ,leave)
++
++      integer,  intent(in)     :: pk_bad
++      logical,  intent(inout)  :: leave
++      type(observables) :: observ
++
++      if (pk_bad /= run_outcome%success) then
++
++        call run_outcome%print_outcome(pk_bad)
++
++        call observ%set_zero()
++        !Flag for voiding calculation
++        leave = .true.
++      end if
++
++    end subroutine test_bad
++
++  end function multimodecode_gambit_driver
++
++  function multimodecode_parametrised_ps(ginput_num_inflaton,&
++                                         ginput_potential_choice,&
++                                         ginput_evaluate_modes,&
++                                         ginput_get_runningofrunning,&
++                                         ginput_phi_init0,&
++                                         ginput_dphi_init0,&
++                                         ginput_vparams,&
++                                         ginput_N_pivot,&
++                                         ginput_k_pivot,&
++                                         ginput_dlnk,&
++                                         ginput_vparam_rows,&
++                                         ginput_slowroll_infl_end,&
++                                         ginput_instreheat,&
++                                         ginput_use_deltaN_SR,&
++                                         ginput_use_horiz_cross_approx &
++                                                            ) result(gambit_obs)
++
++    type(gambit_inflation_observables) :: gambit_obs ! output
++
++    integer :: i
++
++    ! Gambit interface input parameters
++    integer, intent(in) :: ginput_num_inflaton
++    integer, intent(in) :: ginput_potential_choice
++    integer, intent(in) :: ginput_vparam_rows
++    logical, optional :: ginput_evaluate_modes
++    logical, optional :: ginput_get_runningofrunning
++    real(dp), dimension(ginput_num_inflaton), intent(in) :: ginput_phi_init0
++    real(dp), dimension(ginput_num_inflaton), intent(in) :: ginput_dphi_init0
++    real(dp), dimension(ginput_vparam_rows, ginput_num_inflaton), intent(in) :: ginput_vparams
++    real(dp), intent(in) :: ginput_N_pivot
++    real(dp), intent(in) :: ginput_k_pivot
++    real(dp), intent(in) :: ginput_dlnk
++    logical, intent(in) :: ginput_slowroll_infl_end
++    logical, intent(in) :: ginput_instreheat
++    logical, intent(in) :: ginput_use_deltaN_SR
++    logical, intent(in) :: ginput_use_horiz_cross_approx
++
++    !---------------------------------------------------------------
++    type(observables) :: observs, observs_SR
++
++    !Run-specific input params
++    integer :: sample_looper
++    integer :: vparam_rows
++
++    !Parallel variables
++    integer :: numtasks, rank
++
++    !Cosmology
++    real(dp) :: dlnk
++
++    !Sampling parameters for ICs
++    integer :: numb_samples,steps
++    integer :: out_adiab
++    real(dp) :: energy_scale
++    real(dp), dimension(:,:), allocatable :: icpriors_min, icpriors_max
++
++    !Other sampling params
++    real(dp) :: N_pivot_prior_min, N_pivot_prior_max
++    integer :: num_inflaton_prior_min, num_inflaton_prior_max
++    logical :: varying_N_pivot, varying_num_inflaton
++    logical :: more_potential_params
++    logical :: get_runningofrunning
++    logical :: use_horiz_cross_approx
++    logical :: calc_full_pk
++    integer :: pfile
++
++    if (SilenceOutput) Then
++      close(unit=6)
++    else
++      open(unit=6, file="/dev/stdout")
++    endif
++
++    call deallocate_vars()
++
++
++    ! Fix some parameters that we don't need in GAMBIT
++    ! The following parameters control the internal sampling of MMC
++    ! We don't need them because ScannerBit in GAMBIT handles all the sampling; set them to dummy values
++    ! Sampling method for initial condition in MMC (1 = regular, 2 = equal-energy, 3 = slowroll, 6 = iso-N sampling)
++    ic_sampling = 1
++    ! Number of samples to obtain
++    numb_samples = 1
++    ! Energy scale used in equal-energy sampling (if ic_sampling = 2) in units of Planck mass
++    energy_scale = 0.1
++    ! Save the N values obatined from equal-energy sampling (if ic_sampling = 2)
++    save_iso_N = .false.
++    ! Reference value for the iso-N sampling method (if ic_sampling = 6)
++    N_iso_ref = 55
++
++    param_sampling = 1
++    varying_N_pivot = .false.
++    use_first_priorval = .false.
++
++    ! Gambit interface giving the values
++    ! to the MultiModeCode IC parameters
++    num_inflaton = ginput_num_inflaton
++    potential_choice = ginput_potential_choice
++    vparam_rows = ginput_vparam_rows
++
++    ! Allocate memory for arrays
++    call allocate_vars()
++
++    evaluate_modes = ginput_evaluate_modes
++    get_runningofrunning = ginput_get_runningofrunning
++    ! We don't need to set k_min = ginput_kmin, k_max = ginput_kmax, and steps = ginput_steps here
++    phi_init0 = ginput_phi_init0
++    dphi_init0 = ginput_dphi_init0
++    vparams = ginput_vparams
++    N_pivot = ginput_N_pivot
++    k_pivot = ginput_k_pivot
++    dlnk = ginput_dlnk
++    calc_full_pk = .true.
++    slowroll_infl_end = ginput_slowroll_infl_end
++    instreheat = ginput_instreheat
++    use_deltaN_SR = ginput_use_deltaN_SR
++    use_horiz_cross_approx = ginput_use_horiz_cross_approx
++
++    out_opt%modpkoutput = .false.
++    out_opt%output_reduced = .true.
++    out_opt%output_badic = .false.
++    out_opt%save_traj = .false.
++    out_opt%fields_horiz = .false.
++    out_opt%fields_end_infl = .false.
++    out_opt%spectra = .false.
++    out_opt%modes = .false.
++
++    assert%use_assertions = .true.
++    tech_opt%accuracy_setting = 1
++    tech_opt%use_dvode_integrator = .false.
++
++    !---------------------------------------------------------------
++    !---------------------Factory settings--------------------------
++    !---------------------------------------------------------------
++    tech_opt%rk_accuracy_modes = 1.0e-7
++    tech_opt%rk_accuracy_back = 1.0e-6
++
++    tech_opt%dvode_rtol_back = 1.0e-6
++    tech_opt%dvode_rtol_modes = 1.0e-6
++
++    tech_opt%dvode_atol_back(1:4) = (/1.0e-14, 1.0e-14, 1.0e-14, 1.0e-14/)
++
++    tech_opt%dvode_atol_modes_real(1:2) = (1e-8, 1e-8)
++    tech_opt%dvode_atol_modes_real(3:4) = (1e-6, 1e-6)
++    tech_opt%dvode_atol_modes_real(5:8) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_real(9:12) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_real(13:14) = (1e-8, 1e-8)
++    tech_opt%dvode_atol_modes_real(15:16) = (1e-3, 1e-3)
++
++    tech_opt%dvode_atol_modes_imag(1:2) = (1e0, 1e0)
++    tech_opt%dvode_atol_modes_imag(3:4) = (1e0, 1e0)
++    tech_opt%dvode_atol_modes_imag(5:8) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_imag(9:12) = (/1e-5, 1e-5, 1e-5, 1e-5/)
++    tech_opt%dvode_atol_modes_imag(13:14) = (1e-8, 1e-8)
++    tech_opt%dvode_atol_modes_imag(15:16) = (1e-3, 1e-3)
++
++    !---------------------------------------------------------------
++    call observs%set_zero()
++    call observs_SR%set_zero()
++
++    !Set random seed
++    call init_random_seed()
++
++    call calculate_pk_observables(gambit_obs,observs,observs_SR,k_pivot,dlnk)
++
++    if (potential_choice == 18) then
++      if (.not. observs%is_ic_ok) then
++        RETURN
++      else
++        gambit_obs%As = observs_SR%As
++        gambit_obs%ns = observs_SR%ns
++        gambit_obs%nt = observs_SR%nt
++        gambit_obs%r = observs_SR%r
++        gambit_obs%f_NL = observs_SR%f_NL
++        gambit_obs%tau_NL = observs_SR%tau_NL
++        gambit_obs%alpha_s = observs_SR%alpha_s
++      end if
++    else
++      !-------------setting up the observables--------------------
++      gambit_obs%As = observs%As
++      gambit_obs%A_iso = observs%A_iso
++      gambit_obs%A_pnad = observs%A_pnad
++      gambit_obs%A_ent = observs%A_ent
++      gambit_obs%A_cross_ad_iso = observs%A_cross_ad_iso
++      gambit_obs%ns = observs%ns
++      gambit_obs%nt = observs%nt
++      gambit_obs%n_iso = observs%n_iso
++      gambit_obs%n_pnad = observs%n_pnad
++      gambit_obs%n_ent = observs%n_ent
++      gambit_obs%N_pivot = N_pivot
++      gambit_obs%r = observs%r
++      gambit_obs%alpha_s = observs%alpha_s
++      gambit_obs%runofrun = observs%runofrun
++      gambit_obs%f_NL = observs%f_NL
++      gambit_obs%tau_NL = observs%tau_NL
++
++      !-------------setting up the observables--------------------
++
++    end if
++
++  contains
++
++    subroutine allocate_vars()
++!      !Allocate all the necessary arrays that we can with the information given
++!      !in the parameters file.
++
++      !Model dependent
++      if (potential_choice==8) then
++        allocate(vparams(1,4))
++      else
++        allocate(vparams(vparam_rows,num_inflaton))
++      end if
++
++      allocate(icpriors_max(2,num_inflaton))
++      allocate(icpriors_min(2,num_inflaton))
++
++      allocate(vp_prior_max(vparam_rows,num_inflaton))
++      allocate(vp_prior_min(vparam_rows,num_inflaton))
++
++      allocate(phi_init0(num_inflaton))
++      allocate(phi_init(num_inflaton))
++      allocate(phidot_sign(num_inflaton))
++      allocate(phiarr(num_inflaton, 1:nsteps))
++      allocate(dphiarr(num_inflaton, 1:nsteps))
++      allocate(param_arr(1:nsteps))
++      allocate(phi_infl_end(num_inflaton))
++      allocate(phi_pivot(num_inflaton))
++      allocate(dphi_pivot(num_inflaton))
++      allocate(dphi_init0(num_inflaton))
++      allocate(dphi_init(num_inflaton))
++
++    end subroutine allocate_vars
++
++!-------------------DEVELOPEMENT-------------------------------
++    subroutine deallocate_vars()
++
++      if (allocated(vparams)) deallocate(vparams)
++      if (allocated(icpriors_max)) deallocate(icpriors_max)
++      if (allocated(icpriors_min)) deallocate(icpriors_min)
++      if (allocated(vp_prior_max)) deallocate(vp_prior_max)
++      if (allocated(vp_prior_min)) deallocate(vp_prior_min)
++
++      if (allocated(phi_init0)) deallocate(phi_init0)
++      if (allocated(phi_init)) deallocate(phi_init)
++      if (allocated(phidot_sign)) deallocate(phidot_sign)
++      if (allocated(phiarr)) deallocate(phiarr)
++      if (allocated(dphiarr)) deallocate(dphiarr)
++      if (allocated(param_arr)) deallocate(param_arr)
++      if (allocated(phi_infl_end)) deallocate(phi_infl_end)
++      if (allocated(phi_pivot)) deallocate(phi_pivot)
++      if (allocated(dphi_pivot)) deallocate(dphi_pivot)
++      if (allocated(dphi_init0)) deallocate(dphi_init0)
++      if (allocated(dphi_init)) deallocate(dphi_init)
++
++    end subroutine deallocate_vars
++
++    !Calculate observables, optionally grab a new IC or a new set of parameters
++    !each time this routine is called.
++    subroutine calculate_pk_observables(observs_gambit,observs,observs_SR,k_pivot,dlnk)
++
++      real(dp), intent(in) :: k_pivot,dlnk
++      type(observables), intent(inout) :: observs, observs_SR
++      type(gambit_inflation_observables), intent(inout) :: observs_gambit
++
++      real(dp), dimension(:,:), allocatable :: pk_arr
++      logical :: leave
++
++      type(power_spectra) :: pk0, pk1, pk2, pk3, pk4
++
++      real(dp), dimension(:), allocatable :: k_a, pks_a, pkt_a
++
++      character(1024) :: cname
++      integer :: ii
++
++      call observs%set_zero()
++      call observs_SR%set_zero()
++
++      observs_gambit%err = run_outcome%success
++      leave = .false.
++
++      !Get vparams
++      if (param_sampling == 1) then
++        call get_vparams()
++      end if
++
++      !Load ics
++      allocate(observs%ic(2*num_inflaton))
++      observs%ic(1:num_inflaton)=phi_init0
++      observs%ic(num_inflaton+1:2*num_inflaton)=dphi_init0
++      if (use_deltaN_SR) then
++        allocate(observs_SR%ic(2*num_inflaton))
++        observs_SR%ic = observs%ic
++      end if
++
++      !Initialize potential and calc background
++      call potinit(observs)
++
++      call test_bad(observs_gambit%err, observs, leave)
++      if (leave) return
++
++      !Calculate SR approximation for sum-separable potentials
++      if (use_deltaN_SR) then
++        call calculate_SR_observables(observs_SR)
++
++        !Only calculating these in SR
++        observs%f_NL = observs_SR%f_NL
++        observs%tau_NL = observs_SR%tau_NL
++      end if
++
++      !Evaluate the mode functions
++      if (evaluate_modes) then
++
++        call evolve(k_pivot, pk0)
++          call test_bad(gambit_obs%err, observs, leave)
++          if (leave) then
++            return
++          end if
++
++        call evolve(k_pivot*exp(-dlnk), pk1)
++          call test_bad(pk_bad, observs, leave)
++          if (leave) return
++
++          call evolve(k_pivot*exp(dlnk), pk2)
++          call test_bad(pk_bad, observs, leave)
++          if (leave) return
++
++        if (get_runningofrunning) then
++            !Alpha_s from 5-pt stencil
++            !or running of running
++          call evolve(k_pivot*exp(-2.0e0_dp*dlnk), pk3)
++
++            call test_bad(pk_bad, observs, leave)
++            if (leave) return
++          call evolve(k_pivot*exp(2.0e0_dp*dlnk), pk4)
++
++            call test_bad(pk_bad, observs, leave)
++            if (leave) return
++        end if
++
++          !Construct the observables
++        if (get_runningofrunning) then
++          call observs%set_finite_diff(dlnk, &
++            pk0,pk1,pk2,pk3,pk4, &
++            field_bundle%exp_scalar)
++          !print*,"here we calculate the observables! (893)"
++        else
++          !print*,"here we calculate the observables! (895)"
++          call observs%set_finite_diff(dlnk, &
++            pk0,pk1,pk2,&
++            bundle_width=field_bundle%exp_scalar)
++        end if
++
++        !Get full spectrum for adiab and isocurv at equal intvs in lnk
++      end if
++
++    end subroutine calculate_pk_observables
++
++    !Calculate observables for the power spectrum, as well as fNL, using the
++    !delta-N formalism in slow-roll
++    subroutine calculate_SR_observables(observs_SR)
++      use modpk_numerics, only : locate, array_polint, polint
++!     use modpk_reheat, only : reheater
++      type(observables), intent(inout) :: observs_SR
++      integer :: j, i
++      real(dp) :: ah, alpha_ik, dalpha, N_end, del_N, Npiv_renorm
++      real(dp), dimension(num_inflaton) :: phi_pivot, phi_end, del_phi
++
++      !Find field values at end of inflation
++      !Note that eps=1 perhaps twice, so take the last one.
++      call array_polint(epsarr(nactual_bg-4:nactual_bg),&
++        phiarr(:,nactual_bg-4:nactual_bg),&
++        1.0e0_dp,  phi_end, del_phi)
++      call polint(epsarr(nactual_bg-4:nactual_bg),&
++        lna(nactual_bg-4:nactual_bg),&
++        1.0e0_dp,  N_end, del_N)
++
++      !Find field values at horizon crossing
++      Npiv_renorm = N_end - N_pivot
++
++      i= locate(lna(1:nactual_bg), Npiv_renorm)
++      j=min(max(i-(4-1)/2,1),nactual_bg+1-4)
++      call array_polint(lna(j:j+4), phiarr(:,j:j+4),&
++        Npiv_renorm, phi_pivot, del_phi)
++
++      if (use_horiz_cross_approx) then
++        HC_approx = .true.
++      else
++        HC_approx = .false.
++      end if
++
++      call observs_SR%set_zero()
++      observs_SR%As = PR_SR(phi_pivot,phi_end)
++      observs_SR%ns = ns_SR(phi_pivot,phi_end)
++      observs_SR%nt = nt_SR(phi_pivot)
++      observs_SR%r  = r_SR(phi_pivot,phi_end)
++      observs_SR%f_NL  = fnl_SR(phi_pivot,phi_end)
++      observs_SR%tau_NL  = taunl_SR(phi_pivot,phi_end)
++      observs_SR%alpha_s  = alpha_s_SR(phi_pivot,phi_end)
++
++    end subroutine calculate_SR_observables
++
++
++    !Check if an IC had some properties where we declare it to be unphysical
++    subroutine test_bad(pk_bad,observ,leave)
++
++      integer,  intent(in)     :: pk_bad
++      logical,  intent(inout)  :: leave
++      type(observables) :: observ
++
++      if (pk_bad /= run_outcome%success) then
++
++        call run_outcome%print_outcome(pk_bad)
++        call observ%set_zero()
++        !Flag for voiding calculation
++        leave = .true.
++      end if
++
++    end subroutine test_bad
++
++  end function multimodecode_parametrised_ps
++
++
++end module multimodecode_gambit

@@ -1,13 +1,13 @@
 #ifndef __abstract_THDM_THDMC_1_8_0_h__
 #define __abstract_THDM_THDMC_1_8_0_h__
 
+#include <cstddef>
+#include <iostream>
+#include <complex>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
 #include "wrapper_SM_decl.h"
-#include <complex>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -164,8 +164,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             virtual bool read_LesHouches(const char*) =0;
     
             virtual double get_alpha() =0;
-    
-            virtual const double& EPS_ref__BOSS() =0;
     
         public:
             virtual void pointer_assign__BOSS(Abstract_THDM*) =0;

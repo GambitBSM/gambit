@@ -1,0 +1,14 @@
+##########################################################################
+## Nuisance parameter of "cosmo_nuisance_Planck_lite"
+##
+## Gaussian priors on chosen parameters as recommenrded by Planck.
+## Should not be scanned with  "Planck_nuisance_prior_loglike"
+##
+## Patrick Stoecker <stoecker@physik.rwth-aachen.de>
+## 2019, Aug
+##########################################################################
+
+A_planck:
+  prior_type: gaussian
+  mu: [1.0]
+  sigma: [0.0025]

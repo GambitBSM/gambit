@@ -18,6 +18,14 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2014 Nov, Dec
 #
+#  \author Christopher Chang
+#          (christopher.chang@uqconnect.edu.au)
+#  \date 2021 Feb
+#
+#  \author Tomas Gonzalo
+#          (gonzalo@physik.rwth-aachen.de)
+#  \date 2021 Mar
+#
 #  \author Alex Woodcock
 #          (alex.woodcock@outlook.com)
 #  \date   2022 May
@@ -50,10 +58,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
                                 $<TARGET_OBJECTS:Printers>
   )
   set_target_properties(gambit PROPERTIES EXCLUDE_FROM_ALL 0)
-  # !!!! prevent compiler crash (hopefully...)
-  if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug"))
-  set_target_properties(gambit PROPERTIES COMPILE_FLAGS -O1)
-  endif()
+
   # EXPERIMENTAL: Linking against Electric Fence for heap corruption debugging
   #target_link_libraries(gambit PUBLIC efence) # just segfaults. Be good if it could be made to work though.
   # If Mathematica is present and the system is OS X, absolutize paths to avoid dylib errors

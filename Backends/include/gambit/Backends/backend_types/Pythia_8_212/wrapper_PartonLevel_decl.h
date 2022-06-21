@@ -2,6 +2,7 @@
 #define __wrapper_PartonLevel_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_PartonLevel.h"
@@ -12,8 +13,8 @@
 #include "wrapper_BeamParticle_decl.h"
 #include "wrapper_Couplings_decl.h"
 #include "wrapper_SigmaTotal_decl.h"
+#include "wrapper_UserHooks_decl.h"
 #include "wrapper_Event_decl.h"
-#include <vector>
 #include "wrapper_ResonanceDecays_decl.h"
 
 #include "identification.hpp"
@@ -29,7 +30,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_PartonLevel* (*__factory0)();
+                static Abstract_PartonLevel* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -67,7 +68,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 PartonLevel();
         
                 // Special pointer-based constructor: 
-                PartonLevel(Pythia8::Abstract_PartonLevel* in);
+                PartonLevel(Abstract_PartonLevel* in);
         
                 // Copy constructor: 
                 PartonLevel(const PartonLevel& in);
@@ -79,7 +80,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~PartonLevel();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_PartonLevel* get_BEptr() const;
+                Abstract_PartonLevel* get_BEptr() const;
         
         };
     }

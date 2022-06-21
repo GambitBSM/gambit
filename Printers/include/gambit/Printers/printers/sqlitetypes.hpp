@@ -13,12 +13,16 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2018 Dec
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Aug
+///
 ///  *********************************************
 
 #ifndef __SQLITETYPES__
 #define __SQLITETYPES__
 
-#define SQLITE_TYPES        \
+#define SQL_TYPES           \
   (int)                     \
   (uint)                    \
   (long)                    \
@@ -28,6 +32,7 @@
   (float)                   \
   (double)                  \
   (std::vector<double>)     \
+  (std::complex<double>)    \
   (bool)                    \
   (map_str_dbl)             \
   (ModelParameters)         \
@@ -35,8 +40,11 @@
   (map_intpair_dbl)         \
 
 
-#define SQLITE_MODULE_BACKEND_TYPES \
-  (DM_nucleon_couplings)    \
-  (Flav_KstarMuMu_obs)      \
+#define SQL_BACKEND_TYPES             \
+  (DM_nucleon_couplings)              \
+  (DM_nucleon_couplings_fermionic_HP) \
+  (Flav_KstarMuMu_obs)                \
+  (BBN_container)                     \
+
 
 #endif
