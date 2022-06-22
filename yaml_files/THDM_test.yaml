@@ -555,7 +555,6 @@ Logger:
     [Debug] :  "debug.log"
     [Default] :  "default.log"
     [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
     [PrecisionBit] :  "PrecisionBit.log"
     [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"

@@ -449,11 +449,11 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
     [PrecisionBit] :  "PrecisionBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 ##########################

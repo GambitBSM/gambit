@@ -802,11 +802,10 @@ namespace Gambit
         result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_tau_Prime, result.Im_DeltaCQ2_tau_Prime);
 
       }
-      if (ModelInUse("THDM"))
+      if (ModelInUse("THDM") or ModelInUse("THDMatQ"))
       {
         result.SM = 1;
         result.model = -3; //force SI to read the THDM as an EFT
-        //cout<<"ModelInUse('THDM'), Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
         result.Re_DeltaC2  = Dep::DeltaC2->real();
         result.Im_DeltaC2  = Dep::DeltaC2->imag();
         result.Re_DeltaC7  = Dep::DeltaC7->real();

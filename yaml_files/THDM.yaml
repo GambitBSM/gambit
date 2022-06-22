@@ -320,6 +320,8 @@ Scanner:
     # Likelihoods
     ###########################
 
+ObsLikes:
+
     # Checks that loop corrections to the pole mass of mh0
     # do not exceed 50% of the input mass at Qin
     # Likelihood type: Acceptance/Rejection
@@ -589,13 +591,12 @@ Logger:
   redirection:
     [Debug] :  "debug.log"
     [Default] :  "default.log"
-   # [DecayBit] :  "DecayBit.log"
-   # [DarkBit] :  "DarkBit.log"
-   # [PrecisionBit] :  "PrecisionBit.log"
-   # [ColliderBit] :  "ColliderBit.log"
+    [DecayBit] :  "DecayBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
     [FlavBit] :  "FlavBit.log"
-    [Dependency Resolver] :  "depresolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 

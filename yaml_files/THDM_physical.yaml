@@ -30,20 +30,20 @@ Parameters:
   
   # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, IDM
   THDMI_physicalatQ:
-    m_h: 
+    mh: 
       fixed_value: 125.10
-    m_H:
+    mH:
       range: [130.0, 4000]
       prior_type: flat
-    m_A:
+    mA:
       range: [130.0, 4000]
       prior_type: flat
-    m_Hp:
+    mHp:
       range: [130.0, 4000]
       prior_type: flat
-    lambda_6:
+    lambda6:
       fixed_value: 0.0
-    lambda_7:
+    lambda7:
        fixed_value: 0.0
     m12_2:
       ranges: [-1e6, -1e4, 1e4, 1e6]
@@ -56,8 +56,6 @@ Parameters:
       prior_type: flat
     Qin:
       fixed_value: 91.1876 # = mZ
-    QrunTo:
-      fixed_value: 1000 # for comparison with other literature
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -199,25 +197,11 @@ ObsLikes:
   - capability: LEP_Higgs_LogLike
     function: calc_HB_5_LEP_LogLike
     purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
 
   # HS 2beta likelihood
   - capability: LHC_Higgs_LogLike
     function: calc_HS_2_LHC_LogLike
     purpose: LogLike
-    dependencies:
-      - capability: HB_ModelParameters_neutral
-        function: THDM_ModelParameters_effc
-        module: ColliderBit
-      - capability: HB_ModelParameters_charged
-        function: THDM_ModelParameters_charged
-        module: ColliderBit
 
   # helps guide the scanner towards mh ~ 125 GeV. Needed to improve scan performance
   # only use in combination with HiggsSignals
@@ -265,9 +249,9 @@ ObsLikes:
     purpose: LogLike
 
   # FlavBit.cpp:2435
-  - capability: SL_LL
-    function: SL_likelihood
-    purpose: LogLike
+#  - capability: SL_LL
+#    function: SL_likelihood
+#    purpose: LogLike
 
   # FlavBit.cpp:3163 (lepton universality)
   - purpose:    LogLike
@@ -288,24 +272,17 @@ ObsLikes:
 
   # --- THDM parameters
 
-  - capability: THDM_spectrum_map
-    function: get_THDM_spectrum_as_map
+  - capability: THDM_spectrum
+    type: map_str_dbl
     purpose: Observable
 
   - capability: sba
-    function: obs_sba
     purpose: Observable
 
   - capability: cba
-    function: obs_cba
     purpose: Observable
 
   - capability: ba
-    function: obs_ba
-    purpose: Observable
-
-  - capability: vev
-    function: obs_vev
     purpose: Observable
 
   # --- branching fractions
@@ -444,6 +421,7 @@ ObsLikes:
 Rules:
 
   - capability: THDM_spectrum
+    type: Spectrum
     function: get_THDM_spectrum
 
   - capability: decay_rates
@@ -496,14 +474,6 @@ Rules:
   - capability: t_decay_rates
     function: t_decays_THDM
 
-  - capability: HB_ModelParameters_neutral
-    function: THDM_ModelParameters_effc
-    module: ColliderBit
-
-  - capability: HB_ModelParameters_charged
-    function: THDM_ModelParameters_charged
-    module: ColliderBit
-
   - capability: Higgs_Couplings
     function: THDM_higgs_couplings_2HDMC
     module: SpecBit
@@ -530,14 +500,13 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
-    #[DecayBit] :  "DecayBit.log"
-    #[DarkBit] :  "DarkBit.log"
-   # [PrecisionBit] :  "PrecisionBit.log"
-    #[ColliderBit] :  "ColliderBit.log"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
+    [DecayBit] :  "DecayBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 
@@ -570,5 +539,5 @@ KeyValues:
     dependency_resolver_warning: non-fatal
     core_warning: fatal
 
-  default_output_path: "../runs/"
+  default_output_path: "runs/THDM_physical"
   debug: false

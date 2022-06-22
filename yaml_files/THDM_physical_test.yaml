@@ -401,14 +401,13 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
-    #[DecayBit] :  "DecayBit.log"
-    #[DarkBit] :  "DarkBit.log"
-   # [PrecisionBit] :  "PrecisionBit.log"
-    #[ColliderBit] :  "ColliderBit.log"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
+    [DecayBit] :  "DecayBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 ##########################
