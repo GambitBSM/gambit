@@ -81,13 +81,15 @@ namespace Gambit
     // ***
     // Function definitions below
 
-    inline bool basis_map_contains(std::map<std::string, double> basis, std::string par_key) {
+    inline bool basis_map_contains(std::map<std::string, double> basis, std::string par_key)
+    {
          std::map<std::string, double>::iterator it = basis.find(par_key);
          if(it != basis.end()) return true; //found
          return false;
     }
 
-    inline std::map<std::string, double> create_empty_THDM_basis(){
+    inline std::map<std::string, double> create_empty_THDM_basis()
+    {
          const double EMPTY = -1E10;
          std::map<std::string, double> basis;
          // create a complete list of keys for basis
@@ -95,26 +97,30 @@ namespace Gambit
                                              "Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7", "M12_2", "M11_2", "M22_2", \
                                              "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
          // fill entries in basis
-         for(const auto& each_basis_key : basis_keys){
-         basis.insert(std::make_pair(each_basis_key, EMPTY));
+         for(const auto& each_basis_key : basis_keys)
+         {
+           basis.insert(std::make_pair(each_basis_key, EMPTY));
          }
          return basis;
     }
 
-    inline void print_THDM_spectrum(std::map<std::string, double>& basis){
+    inline void print_THDM_spectrum(std::map<std::string, double>& basis)
+    {
          const double EMPTY = -1E10;
          const std::vector<std::string> basis_keys{"lambda1", "lambda2", "lambda3", "lambda4", "lambda5", "lambda6", "lambda7", "m12_2", "m11_2", "m22_2", \
                                              "Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7", "M12_2", "M11_2", "M22_2", \
                                              "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
          // fill entries in basis
-         for(const auto& each_basis_key : basis_keys){
-         std::cout << each_basis_key << ": ";
-         if (basis[each_basis_key]!= EMPTY) std::cout << basis[each_basis_key] << std::endl;
-         else std::cout << "entry not filled" << std::endl;
+         for(const auto& each_basis_key : basis_keys)
+         {
+           std::cout << each_basis_key << ": ";
+           if (basis[each_basis_key]!= EMPTY) std::cout << basis[each_basis_key] << std::endl;
+           else std::cout << "entry not filled" << std::endl;
          }
     }
 
-    inline bool check_basis(const std::vector<std::string> basis_keys, std::map<std::string, double> basis){
+    inline bool check_basis(const std::vector<std::string> basis_keys, std::map<std::string, double> basis)
+    {
          const double EMPTY = -1E10;
          for(const auto& each_basis_key : basis_keys){
             if (!basis_map_contains(basis, each_basis_key) || basis[each_basis_key] == EMPTY) return false;
@@ -122,7 +128,8 @@ namespace Gambit
          return true;
     }
 
-    inline void fill_generic_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs){
+    inline void fill_generic_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs)
+    {
          const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","Lambda6","Lambda7","M12_2","tanb"};
          const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
          // necessary definitions
@@ -133,7 +140,8 @@ namespace Gambit
          double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
          double s2b = sin(2.*beta), c2b = cos(2.*beta);
          //initially try to fill from Higgs basis
-         if (check_basis(higgs_basis_keys, input_basis)) {
+         if (check_basis(higgs_basis_keys, input_basis))
+         {
             // get values from higgs basis
             double Lambda1 = input_basis["Lambda1"], Lambda2 = input_basis["Lambda2"], Lambda3 = input_basis["Lambda3"], Lambda4 = input_basis["Lambda4"], Lambda5 = input_basis["Lambda5"];
             double Lambda6 = input_basis["Lambda6"], Lambda7 = input_basis["Lambda7"], M12_2 = input_basis["M12_2"];
@@ -155,7 +163,8 @@ namespace Gambit
             input_basis["m22_2"] = M11_2*pow(sb,2) + M22_2*pow(cb,2) + M12_2*s2b;
          }
          //otherwise try to fill from physical basis
-         else if(check_basis(physical_basis_keys, input_basis)) {
+         else if(check_basis(physical_basis_keys, input_basis))
+         {
             // get values from physical basis
             double m_h = input_basis["m_h"], m_H = input_basis["m_H"], m_A = input_basis["m_A"], m_Hp = input_basis["m_Hp"];
             double lambda6 = input_basis["lambda6"], lambda7 = input_basis["lambda7"], m12_2 = input_basis["m12_2"];
@@ -174,13 +183,14 @@ namespace Gambit
             input_basis["m11_2"] = m12_2*tb - 0.5*v2 * (input_basis["lambda1"]*cb*cb + lam345*sb*sb + 3.0*input_basis["lambda6"]*sb*cb + input_basis["lambda7"]*sb*sb*tb); 
             input_basis["m22_2"] = m12_2*ctb - 0.5*v2 * (input_basis["lambda2"]*sb*sb + lam345*cb*cb + input_basis["lambda6"]*cb*cb*ctb + 3.0*input_basis["lambda7"]*sb*cb);
          }
-         else{
-            // fail // TODO: Handle this case better
-            std::cout << "THDM_Spec_helper throwing error: " << "Cannot fill_generic_THDM_basis" << std::endl; 
+         else
+         {
+            SpecBit_error().raise(LOCAL_INFO, "Cannot fill generic THDM basis");
          }
     }
 
-    inline void fill_higgs_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs){
+    inline void fill_higgs_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs)
+    {
          const std::vector<std::string> physical_basis_keys{"m_h","m_H","m_A","m_Hp","tanb","m12_2","sba"};
          const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
          // necessary definitions
@@ -191,7 +201,8 @@ namespace Gambit
          double ctb = 1./tb;
          double s2b = sin(2.*beta), c2b = cos(2.*beta);
          //initially try to fill from scalar basis
-         if (check_basis(generic_basis_keys, input_basis)) {
+         if (check_basis(generic_basis_keys, input_basis))
+         {
             // get values from coupling basis
             double lam1 = input_basis["lambda1"], lam2 = input_basis["lambda2"], lam3 = input_basis["lambda3"], lam4 = input_basis["lambda4"], lam5 = input_basis["lambda5"];
             double lam6 = input_basis["lambda6"], lam7 = input_basis["lambda7"], m12_2 = input_basis["m12_2"];
@@ -212,17 +223,19 @@ namespace Gambit
             input_basis["Lambda7"] = -0.5*s2b*(lam1*pow(sb,2)-lam2*pow(cb,2)+lam345*c2b) + sb*sin(3.*beta)*lam6 + cb*cos(3.*beta)*lam7;
          }
          //otherwise try to fill from physical basis
-         else if(check_basis(physical_basis_keys, input_basis)) {
+         else if(check_basis(physical_basis_keys, input_basis))
+         {
             fill_generic_THDM_basis(input_basis, sminputs);
             fill_higgs_THDM_basis(input_basis, sminputs);
          }
-         else{
-            // fail
-            std::cout << "THDM_Spec_helper throwing error: " << "Cannot fill_higgs_THDM_basis" << std::endl; 
+         else
+         {
+            SpecBit_error().raise(LOCAL_INFO, "Cannot fill higgs THDM basis");
          }
     }
 
-    inline void fill_physical_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs){
+    inline void fill_physical_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs)
+    {
          const std::vector<std::string> higgs_basis_keys{"Lambda1","Lambda2","Lambda3","Lambda4","Lambda5","M12_2","tanb"};
          const std::vector<std::string> generic_basis_keys{"lambda1","lambda2","lambda3","lambda4","lambda5","m12_2","tanb"};
          // necessary definitions
@@ -232,7 +245,8 @@ namespace Gambit
          double sb = sin(beta), cb = cos(beta), tb = tan(beta);
          double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
          //initially try to fill from higgs basis
-         if(check_basis(generic_basis_keys, input_basis)) {
+         if(check_basis(generic_basis_keys, input_basis))
+         {
             // get values from coupling basis
             double lam1 = input_basis["lambda1"], lam2 = input_basis["lambda2"], lam3 = input_basis["lambda3"], lam4 = input_basis["lambda4"], lam5 = input_basis["lambda5"];
             double lam6 = input_basis["lambda6"], lam7 = input_basis["lambda7"], m12_2 = input_basis["m12_2"];
@@ -261,17 +275,19 @@ namespace Gambit
             else input_basis["m_Hp"] = sqrt(m_Hp2);
          }
          //otherwise try to fill from higgs basis
-         else if (check_basis(higgs_basis_keys, input_basis)) {
+         else if (check_basis(higgs_basis_keys, input_basis))
+         {
             fill_generic_THDM_basis(input_basis, sminputs);
             fill_physical_THDM_basis(input_basis, sminputs);
          }
-         else{
-            // fail
-            std::cout << "THDM_Spec_helper throwing error: " << "Cannot fill_physical_THDM_basis" << std::endl; 
+         else
+         {
+            SpecBit_error().raise(LOCAL_INFO, "Cannot fill physical THDM basis");
          }
     }
 
-    inline void generate_THDM_spectrum_tree_level(std::map<std::string, double>& basis, const SMInputs& sminputs) {
+    inline void generate_THDM_spectrum_tree_level(std::map<std::string, double>& basis, const SMInputs& sminputs)
+    {
          const double EMPTY = -1E10;
          // validate basis entries
          // create a complete list of keys for basis
@@ -279,7 +295,8 @@ namespace Gambit
                                              "Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7", "M12_2", "M11_2", "M22_2", \
                                              "m_h", "m_H", "m_A", "m_Hp", "tanb", "sba","alpha"};
          // validate entries in basis
-         for(const auto& each_basis_key : basis_keys){
+         for(const auto& each_basis_key : basis_keys)
+         {
             if (!basis_map_contains(basis, each_basis_key)) basis.insert(std::make_pair(each_basis_key, EMPTY));
          }
 
@@ -295,16 +312,12 @@ namespace Gambit
          // are the minimum requirements for a filled physical basis satsified?
          bool physical_filled = check_basis(physical_basis_keys, basis);
 
-         if (!coupling_filled && !higgs_filled && !physical_filled){
+         if (!coupling_filled && !higgs_filled && !physical_filled)
+         {
             std::ostringstream errmsg;
-            errmsg << "SpecBit error (fatal): A problem was encountered during spectrum generation." << std::endl;
+            errmsg << "A problem was encountered during spectrum generation." << std::endl;
             errmsg << "Incomplete basis was sent to tree-level generator." << std::endl;
-            // SpecBit_error().raise(LOCAL_INFO,errmsg.str());
-            std::cout << "SpecBit error (fatal): A problem was encountered during spectrum generation." << std::endl;
-            std::cout << "Incomplete basis was sent to tree-level generator." << std::endl;
-            std::cout << "Force Exiting SpecBit!" << std::endl;
-            exit(0);
-            return;
+            SpecBit_error().raise(LOCAL_INFO, errmsg);
          }
 
          if (!coupling_filled) fill_generic_THDM_basis(basis, sminputs);
@@ -322,9 +335,10 @@ namespace Gambit
          double s2ba = -2.*Lambda6*v2, c2ba = -(mA_2+(Lambda5-Lambda1)*v2);
          double ba = 0.5*atan2(s2ba,c2ba);
          double alpha = beta - ba;
-            if (alpha>M_PI/2.0) {
-               alpha =  alpha-M_PI;
-            }
+         if (alpha>M_PI/2.0)
+         {
+           alpha =  alpha-M_PI;
+         }
          // fill basis
          basis["sba"] = sin(ba);
          basis["beta"] = beta;
