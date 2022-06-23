@@ -65,6 +65,7 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/spectrum.hpp
                  include/gambit/Elements/spec_fptrfinder.hpp
                  include/gambit/Elements/spectrum_factories.hpp
+                 include/gambit/Elements/spectrum_types.hpp
                  include/gambit/Elements/spec.hpp
                  include/gambit/Elements/spec_head.hpp
                  include/gambit/Elements/standalone_module.hpp

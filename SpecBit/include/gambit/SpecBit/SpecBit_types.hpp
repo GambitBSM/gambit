@@ -33,21 +33,13 @@
 #include <string>
 #include <vector>
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/Elements/spectrum_types.hpp"
 
 namespace Gambit
 {
 
   namespace SpecBit
   {
-
-    enum THDM_TYPE
-    {
-       TYPE_I = 1,
-       TYPE_II,
-       TYPE_LS,
-       TYPE_flipped,
-       TYPE_III
-    };
 
     // this vector of <int,double> pairs is the type the routine 'ReadLhaBlock' of vevacious uses to read
     // in the passed parameters

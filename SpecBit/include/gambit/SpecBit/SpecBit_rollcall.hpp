@@ -24,8 +24,6 @@
 #ifndef __SpecBit_rollcall_hpp__
 #define __SpecBit_rollcall_hpp__
 
-#include "gambit/SpecBit/SpecBit_types.hpp"
-
 #define MODULE SpecBit
 START_MODULE
 
@@ -97,6 +95,3 @@ START_MODULE
 #undef MODULE
 
 #endif /* defined(__SpecBit_rollcall_hpp__) */
-
-
-

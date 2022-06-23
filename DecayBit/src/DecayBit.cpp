@@ -48,6 +48,7 @@
 #include "gambit/Elements/virtual_higgs.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
+#include "gambit/Elements/spectrum_types.hpp"
 #include "gambit/DecayBit/DecayBit_rollcall.hpp"
 #include "gambit/DecayBit/decay_utils.hpp"
 #include "gambit/DecayBit/SM_Z.hpp"
@@ -58,7 +59,6 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/numerical_constants.hpp"
 #include "gambit/Utils/integration.hpp"
-#include "gambit/Core/point_counter.hpp"
 
 #include <string>
 #include <map>
@@ -95,19 +95,9 @@ namespace Gambit
     /// Check if a width is negative or suspiciously large and raise an error.
     void check_width(const str& info, double& w, bool raise_invalid_pt_negative_width = false, bool raise_invalid_pt_large_width = false)
     {
-      // static point_counter count("NaN decay width"); count.count();
-      // static point_counter count2("negative decay width"); count2.count();
-      // static point_counter count3("ultra large decay width"); count3.count();
-
-      if (Utils::isnan(w)) 
-      {
-        // count.count_invalid();
-        invalid_point().raise("Decay width is NaN!");
-      }
-      // if (Utils::isnan(w)) DecayBit_error().raise(info, "Decay width is NaN!");
+      if (Utils::isnan(w)) DecayBit_error().raise(info, "Decay width is NaN!");
       if (w < 0)
       {
-        // count2.count_invalid();
         str nwiderr("Negative width returned!");
         if (raise_invalid_pt_negative_width)
           invalid_point().raise(nwiderr);
@@ -116,7 +106,6 @@ namespace Gambit
       }
       if (w > 1e7)
       {
-        // count3.count_invalid();
         str lwiderr("Suspiciously large width returned: "+std::to_string(w)+" GeV");
         if (raise_invalid_pt_large_width)
           invalid_point().raise(lwiderr);
@@ -3206,11 +3195,8 @@ namespace Gambit
       }
 
       // THDM-specific
-      else if(ModelInUse("THDMatQ") or ModelInUse("THDM") or
-              ModelInUse("THDMI") or ModelInUse("THDMIatQ") or
-              ModelInUse("THDMII") or ModelInUse("THDMIIatQ") or
-              ModelInUse("THDMLS") or ModelInUse("THDMLSatQ") or 
-              ModelInUse("THDMflipped") or ModelInUse("THDMflippedatQ")) {
+      else if(ModelInUse("THDMatQ") or ModelInUse("THDM"))
+      {
         decays("h0_2") = *Dep::h0_2_decay_rates;                 // Add the h0_2 decays.
         decays("A0") = *Dep::A0_decay_rates;                     // Add the A0 decays.
         decays("H+") = *Dep::H_plus_decay_rates;                 // Add the H+ decays.
@@ -3636,7 +3622,8 @@ namespace Gambit
   // }
 
     // helper function for grabbing higgs decays from THDMC
-    void h_decays_THDM(DecayTable::Entry& result, THDM_spectrum_container& container, int h) {
+    void h_decays_THDM(DecayTable::Entry& result, THDM_spectrum_container& container, int h)
+    {
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
 
       // particle keys to simplify loops
@@ -3662,8 +3649,10 @@ namespace Gambit
       // loop over two flavour (generation) indices
 
       // fill the GAMBIT decay table
-      for(int f1=1; f1<4; f1++) {
-        for(int f2=1; f2<4; f2++) {
+      for(int f1=1; f1<4; f1++)
+      {
+        for(int f2=1; f2<4; f2++)
+        {
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hdd(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)down][f1-1], antiparticle_keys[(int)down][f2-1]);
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_huu(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)up][f1-1], antiparticle_keys[(int)up][f2-1]);
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hdu(h,f1,f2)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)down][f1-1], antiparticle_keys[(int)up][f2-1]);
@@ -3694,14 +3683,18 @@ namespace Gambit
       result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hvh(h,3,4)/result.width_in_GeV : 0.0), 0.0, "W+","H-");
       result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hvh(h,3,4)/result.width_in_GeV : 0.0), 0.0, "W-","H+");
 
-      for(int h2=1; h2<=4; h2++) {
-        for(int h3=1; h3<=4; h3++) {
+      for(int h2=1; h2<=4; h2++)
+      {
+        for(int h3=1; h3<=4; h3++)
+        {
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hhh(h,h2,h3)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)higgs][h2-1], antiparticle_keys[(int)higgs][h3-1]); //h->H,H
         }
       }
 
-      if (h==4) {
-        for(int h2=1; h2<=3; h2++) {
+      if (h==4)
+      {
+        for(int h2=1; h2<=3; h2++)
+        {
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hvh(4,3,h2)/result.width_in_GeV : 0.0), 0.0, "W-",particle_keys[(int)higgs][h2-1]);
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_hvh(4,3,h2)/result.width_in_GeV : 0.0), 0.0, "W+",antiparticle_keys[(int)higgs][h2-1]);
         }
@@ -3711,103 +3704,65 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, true , true);
     }
 
-    enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
-    
-    // model lookup map -> useful for looking up model info
-    // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
-    struct model_param {
-      bool is_model_at_Q;
-      yukawa_type model_y_type;
-      // constructor
-      model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
-    };
-    std::map<std::string, model_param > THDM_model_lookup_map = {
-			{ "THDMatQ", model_param( true, type_III ) },
-			{ "THDM", model_param( false, type_III ) },
-      { "THDMIatQ", model_param( true, type_I ) },
-      { "THDMI", model_param( false, type_I ) },
-      { "THDMIIatQ", model_param( true, type_II ) },
-      { "THDMII", model_param( false, type_II ) },
-      { "THDMLSatQ", model_param( true, lepton_specific ) },
-      { "THDMLS", model_param( false, lepton_specific ) },
-      { "THDMflippedatQ", model_param( true, flipped ) },
-      { "THDMflipped", model_param( false, flipped ) }
-		};
-
     // get all decays for h0_1 (via THDMC)
-    void h0_1_decays_THDM(DecayTable::Entry& result) {
+    void h0_1_decays_THDM(DecayTable::Entry& result)
+    {
       using namespace Pipes::h0_1_decays_THDM;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
+
+      // get THDM type
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       h_decays_THDM(result, container, 1);
    }
     
     // get all decays for h0_2 (via THDMC)
-    void h0_2_decays_THDM(DecayTable::Entry& result) {
-     using namespace Pipes::h0_2_decays_THDM;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
+    void h0_2_decays_THDM(DecayTable::Entry& result)
+    {
+      using namespace Pipes::h0_2_decays_THDM;
+
+      // get THDM type
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       h_decays_THDM(result, container, 2);
    }
     
     // get all decays for A0 (via THDMC)
-    void A0_decays_THDM(DecayTable::Entry& result) {
+    void A0_decays_THDM(DecayTable::Entry& result)
+    {
       using namespace Pipes::A0_decays_THDM;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
+
+      // get THDM type
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       h_decays_THDM(result, container, 3);
    }
     
     // get all decays for H+- (via THDMC)
-    void Hpm_decays_THDM(DecayTable::Entry& result) {
+    void Hpm_decays_THDM(DecayTable::Entry& result)
+    {
       using namespace Pipes::Hpm_decays_THDM;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
+
+      // get THDM type
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       h_decays_THDM(result, container, 4);
    }
 
     /// Reference SM Higgs decays: h0_1 (via THDMC)
-    void Ref_SM_Higgs_decays_THDM(DecayTable::Entry& result) {
+    void Ref_SM_Higgs_decays_THDM(DecayTable::Entry& result)
+    {
       using namespace Pipes::Ref_SM_Higgs_decays_THDM;
       // set up container and fill BFs
       THDM_spectrum_container container;
@@ -3816,7 +3771,8 @@ namespace Gambit
     }
     
     /// Reference SM Higgs decays: h0_2 (via THDMC)
-    void Ref_SM_other_Higgs_decays_THDM(DecayTable::Entry& result) {
+    void Ref_SM_other_Higgs_decays_THDM(DecayTable::Entry& result)
+    {
       using namespace Pipes::Ref_SM_other_Higgs_decays_THDM;
       // set up container and fill BFs
       THDM_spectrum_container container;
@@ -3825,7 +3781,8 @@ namespace Gambit
     }
     
     /// Reference SM Higgs decays: A0 (via THDMC)
-    void Ref_SM_A0_decays_THDM(DecayTable::Entry& result) {
+    void Ref_SM_A0_decays_THDM(DecayTable::Entry& result)
+    {
       using namespace Pipes::Ref_SM_A0_decays_THDM;
       // set up container and fill BFs
       THDM_spectrum_container container;
@@ -3834,24 +3791,20 @@ namespace Gambit
     }
     
     // get all decays for top quark (via THDMC)
-    void t_decays_THDM (DecayTable::Entry& result) {
+    void t_decays_THDM (DecayTable::Entry& result)
+    {
       using namespace Pipes::t_decays_THDM;
       const Spectrum spec = *Dep::THDM_spectrum;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
+
+      // get THDM type
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+
       // - fill BFs
       
       // set up container and 2HDMC decay table object
       THDM_spectrum_container container;
       // set up container and fill BFs
-      BEreq::init_THDM_spectrum_container_CONV(container, spec, byVal(y_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, spec, byVal(THDM_type), 0.0, 0);
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
       // get a pointer to the 2HDMC SM class
       THDMC_1_8_0::SM* SM_object = container.THDM_object->get_SM_pointer();
@@ -3862,11 +3815,13 @@ namespace Gambit
 
       // particle keys to simplify loops
       enum p_family {up, down, electron, neutrino, vector, higgs};
-      const std::vector<std::vector<std::string>> particle_keys = {
+      const std::vector<std::vector<std::string>> particle_keys = 
+      {
        {"u","c","t"}, {"d","s","b"}, {"e+","mu+","tau+"}, {"nu_e","nu_mu","nu_tau"},
        {"gamma","Z0","W+"}, {"h0_1","h0_2","A0","H+"}
       };
-      const std::vector<std::vector<std::string>> antiparticle_keys = {
+      const std::vector<std::vector<std::string>> antiparticle_keys =
+      {
        {"ubar","cbar","tbar"}, {"dbar","sbar","bbar"}, {"e-","mu-","tau-"}, {"nubar_e","nubar_mu","nubar_tau"},
        {"gamma","Z0","W-"}, {"h0_1","h0_2","A0","H-"}
       };
@@ -3880,9 +3835,11 @@ namespace Gambit
       result.negative_error = 0.0;
 
       // fill the GAMBIT decay table
-      for(int f=1; f<4; f++) {
+      for(int f=1; f<4; f++)
+      {
         result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_uhd(3,4,f)/result.width_in_GeV : 0.0), 0.0, "H+", particle_keys[(int)down][f-1]);
-        for(int h=1; h<4; h++) {
+        for(int h=1; h<4; h++)
+        {
           result.set_BF((result.width_in_GeV > 0 ? decay_table_2hdmc.get_gamma_uhu(3,h,f)/result.width_in_GeV : 0.0), 0.0, particle_keys[(int)higgs][h-1], particle_keys[(int)up][f-1]);
         }
       }
