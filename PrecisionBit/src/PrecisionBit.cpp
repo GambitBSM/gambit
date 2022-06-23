@@ -1382,47 +1382,17 @@ namespace Gambit
 
     }
 
-    // THDM yukawa type enum
-    enum yukawa_type {type_I = 1, type_II, lepton_specific, flipped, type_III};
-    // model lookup map -> useful for looking up model info
-    // the keys correspond to model names which may be matched using the ModelInUse GAMBIT function
-    struct model_param {
-      bool is_model_at_Q;
-      yukawa_type model_y_type;
-      // constructor
-      model_param(bool is_model_at_Q_in, yukawa_type model_y_type_in) : is_model_at_Q(is_model_at_Q_in), model_y_type(model_y_type_in) {}
-    };
-    std::map<std::string, model_param > THDM_model_lookup_map = {
-			{ "THDMatQ", model_param( true, type_III ) },
-			{ "THDM", model_param( false, type_III ) },
-      { "THDMIatQ", model_param( true, type_I ) },
-      { "THDMI", model_param( false, type_I ) },
-      { "THDMIIatQ", model_param( true, type_II ) },
-      { "THDMII", model_param( false, type_II ) },
-      { "THDMLSatQ", model_param( true, lepton_specific ) },
-      { "THDMLS", model_param( false, lepton_specific ) },
-      { "THDMflippedatQ", model_param( true, flipped ) },
-      { "THDMflipped", model_param( false, flipped ) }
-		};
-
     // forward declaraion
     double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container);
 
     // helper function to setup likelihood environment
     // this is called by the rollcall
-    void get_oblique_parameters_likelihood_THDM(double& result) {
+    void get_oblique_parameters_likelihood_THDM(double& result)
+    {
       using namespace Pipes::get_oblique_parameters_likelihood_THDM;
-      // set THDM model type
-      int y_type = -1;
-      for (auto const& THDM_model : THDM_model_lookup_map) {
-          // model match was found: set values based on matched model
-          if (ModelInUse(THDM_model.first)) {
-            y_type = THDM_model.second.model_y_type; 
-            break;
-          }
-      }
+
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(y_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(*Dep::THDM_Type), 0.0, 0);
       result = oblique_parameters_likelihood_THDM(container);
     }
 

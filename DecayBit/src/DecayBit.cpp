@@ -48,7 +48,6 @@
 #include "gambit/Elements/virtual_higgs.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
 #include "gambit/Elements/smlike_higgs.hpp"
-#include "gambit/Elements/spectrum_types.hpp"
 #include "gambit/DecayBit/DecayBit_rollcall.hpp"
 #include "gambit/DecayBit/decay_utils.hpp"
 #include "gambit/DecayBit/SM_Z.hpp"
@@ -3709,12 +3708,9 @@ namespace Gambit
     {
       using namespace Pipes::h0_1_decays_THDM;
 
-      // get THDM type
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(*Dep::THDM_Type), 0.0, 0);
       h_decays_THDM(result, container, 1);
    }
     
@@ -3723,12 +3719,9 @@ namespace Gambit
     {
       using namespace Pipes::h0_2_decays_THDM;
 
-      // get THDM type
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(*Dep::THDM_Type), 0.0, 0);
       h_decays_THDM(result, container, 2);
    }
     
@@ -3737,12 +3730,9 @@ namespace Gambit
     {
       using namespace Pipes::A0_decays_THDM;
 
-      // get THDM type
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(*Dep::THDM_Type), 0.0, 0);
       h_decays_THDM(result, container, 3);
    }
     
@@ -3751,12 +3741,9 @@ namespace Gambit
     {
       using namespace Pipes::Hpm_decays_THDM;
 
-      // get THDM type
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-
       // set up container and fill BFs
       THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(*Dep::THDM_Type), 0.0, 0);
       h_decays_THDM(result, container, 4);
    }
 
@@ -3796,15 +3783,12 @@ namespace Gambit
       using namespace Pipes::t_decays_THDM;
       const Spectrum spec = *Dep::THDM_spectrum;
 
-      // get THDM type
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-
       // - fill BFs
       
       // set up container and 2HDMC decay table object
       THDM_spectrum_container container;
       // set up container and fill BFs
-      BEreq::init_THDM_spectrum_container_CONV(container, spec, byVal(THDM_type), 0.0, 0);
+      BEreq::init_THDM_spectrum_container_CONV(container, spec, byVal(*Dep::THDM_Type), 0.0, 0);
       THDMC_1_8_0::DecayTableTHDM decay_table_2hdmc(container.THDM_object);
       // get a pointer to the 2HDMC SM class
       THDMC_1_8_0::SM* SM_object = container.THDM_object->get_SM_pointer();
