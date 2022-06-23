@@ -69,14 +69,10 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/util_functions.hpp"
-#include "gambit/Core/point_counter.hpp"
 
 // #define SPECBIT_DEBUG // turn on debug mode
 
 #define L_MAX 1e50 // used to invalidate likelihood
-
-point_counter::time_point point_counter::startTime = std::chrono::high_resolution_clock::now();
-
 
 namespace Gambit
 {
@@ -521,13 +517,11 @@ namespace Gambit
         //for debug reasons may choose to continue with negative mass
         const bool continue_with_negative_mass = false;
 
-        static point_counter count("non-physical mass"); count.count();
-
         if (basis["m_h"] < 0.0 || basis["m_H"] < 0.0 || basis["m_A"] < 0.0 || basis["m_Hp"] < 0.0)
         {
-          count.count_invalid();
           std::ostringstream msg;
           msg << "Negative mass encountered. Point invalidated." << std::endl;
+          // TODO: Should this be an actual error, negative mass could mean a problem with the code, not just an invalid point
           if (!continue_with_negative_mass)
             invalid_point().raise(msg.str());
         }
@@ -897,15 +891,11 @@ namespace Gambit
     // checks a coupling for NaN
     void check_coupling(std::complex<double> var)
     {
-      static point_counter count("NaN coupling"); count.count();
-
       if (std::isnan(var.real()) || std::isnan(var.imag()))
       {
-        count.count_invalid();
         std::ostringstream msg;
-        msg << "SpecBit warning (non-fatal) a coupling has evaluated to NaN." << std::endl;
-        SpecBit_warning().raise(LOCAL_INFO, msg.str());
-        std::cerr << msg.str();
+        msg << "SpecBit error: a coupling has evaluated to NaN." << std::endl;
+        SpecBit_error().raise(LOCAL_INFO, msg.str());
       }
     }
 
@@ -3062,10 +3052,6 @@ namespace Gambit
         if (abs(eachEig) > unitarity_upper_limit)
           error += abs(eachEig) - unitarity_upper_limit;
 
-      // count failure rate
-      static point_counter count("unitarity LL"); count.count();
-      if (error > 0.0) count.count_invalid();
-
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
@@ -3116,12 +3102,6 @@ namespace Gambit
         }
       }
 
-      // count failure rate
-      static point_counter count("NLO unitarity LL"); count.count();
-      if (error > 0.0) count.count_invalid();
-      static point_counter count2("NLO/LO unitarity ratio LL"); count2.count();
-      if (error_ratio > 0.0) count2.count_invalid();
-
       return Stats::gaussian_upper_limit(error + error_ratio, 0.0, 0.0, sigma, false);
     }
 
@@ -3142,10 +3122,6 @@ namespace Gambit
         if (abs(each_lambda) > perturbativity_upper_limit)
           error += abs(each_lambda) - perturbativity_upper_limit;
       }
-
-      // count failure rate
-      static point_counter count("simple perturbativity LL"); count.count();
-      if (error > 0.0) count.count_invalid();
 
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
@@ -3189,9 +3165,6 @@ namespace Gambit
         }
       }
 
-      static point_counter count("perturbativity LL"); count.count();
-      if (error > 0.0) count.count_invalid();
-
       return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
     }
 
@@ -3208,9 +3181,6 @@ namespace Gambit
 
       container.THDM_object->get_param_gen(lambda[1], lambda[2], lambda[3], lambda[4], lambda[5], lambda[6], lambda[7], m122, tanb);
 
-      static point_counter count("stability LL"); count.count();
-      static point_counter countM("metastability LL"); countM.count();
-
       //do the full check first - if fails continue with chi^2 calculation to guide scanner
       if (!container.THDM_object->check_stability())
       {
@@ -3218,7 +3188,7 @@ namespace Gambit
 
         if (std::isnan(sqrt_lam12)) 
         {
-          count.count_invalid();
+          // TODO: Shouldn't this throw an error?
           return -L_MAX;
         }
 
@@ -3244,13 +3214,11 @@ namespace Gambit
             error += abs(lambda[3] + lambda[4] - lambda[5] - (-sqrt_lam12));
         }
 
-        if (error > 0.0) count.count_invalid();
       }
 
       // check meta-stability
       if (!global_minimum_discriminant_THDM(container) && checkMeta)
       {
-        countM.count_invalid();
         return -L_MAX;
       }
 
@@ -3269,10 +3237,6 @@ namespace Gambit
       const double sigma = 0.1;
       const double error = 1.0 - sba;
       
-      // count failure rate
-      static point_counter count("alignment LL"); count.count();
-      if (error > sba_tolerance) count.count_invalid();
-
       return Stats::gaussian_upper_limit(error, sba_tolerance, 0.0, sigma, false);
     }
 
@@ -3335,12 +3299,9 @@ namespace Gambit
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running * 0.5;
 
-      // count failure rate
-      static point_counter count("higgs mass pert"); count.count();
-
       if (mh_splitting > lower_limit)
       {
-        count.count_invalid();
+        //TODO: This should just invalidate the point, right?
         return -L_MAX;
       }
       return 0.0;
@@ -3353,7 +3314,10 @@ namespace Gambit
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running * 0.5;
       if (mh_splitting > lower_limit)
+      {
+        //TODO: This should just invalidate the point, right?
         return -L_MAX;
+      }
       return 0.0;
     }
 
@@ -3364,7 +3328,10 @@ namespace Gambit
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running * 0.5;
       if (mh_splitting > lower_limit)
+      {
+        //TODO: This should just invalidate the point, right?
         return -L_MAX;
+      }
       return 0.0;
     }
 
@@ -3375,7 +3342,10 @@ namespace Gambit
       const double mh_splitting = abs(mh_pole - mh_running);
       const double lower_limit = mh_running * 0.5;
       if (mh_splitting > lower_limit)
+      {
+        //TODO: This should just invalidate the point, right?
         return -L_MAX;
+      }
       return 0.0;
     }
 
@@ -3385,10 +3355,6 @@ namespace Gambit
       double loglike = loop_correction_mass_splitting_H0_THDM(container);
       loglike += loop_correction_mass_splitting_A0_THDM(container);
       loglike += loop_correction_mass_splitting_Hpm_THDM(container);
-
-      // count failure rate
-      static point_counter count("heavy scalar mass pert"); count.count();
-      if (loglike < -1.0) count.count_invalid();
 
       return loglike;
     }
@@ -3436,11 +3402,10 @@ namespace Gambit
 
       // ensure we bail on the point if any mass is negative
       if (mh0 < std::min(min_mass,0.0) || mH0 < min_mass || mHp < min_mass || mA0 < min_mass)
+      {
+        // TODO: Should this invalidate the point?
         result = -L_MAX;
-
-      // count failure rate
-      static point_counter count("scalar-mass-range"); count.count();
-      if (result < -1.0) count.count_invalid();
+      }
 
       return result;
     }
@@ -3921,9 +3886,8 @@ namespace Gambit
     {
       using namespace Pipes::hidden_higgs_scenario_LL;
 
-      // get THDM type and find out if it is a FS spectrum (at Q)
+      // get THDM type
       THDM_TYPE THDM_type = *Dep::THDM_Type;
-      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
 
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
@@ -3950,12 +3914,9 @@ namespace Gambit
       // weight that pushes mass_err_H < mass_err_h
       result += std::max(0.0, mass_err_H - mass_err_h) / 20000.0;
 
+      // TODO: Should this be just invalidated if result > 0
       constexpr double model_invalid_for_lnlike_below = -1e6;
       result *= model_invalid_for_lnlike_below; 
-
-      // count failure rate
-      static point_counter count("Hidden higgs"); count.count();
-      if (result < -1.0) count.count_invalid();
 
     }
 
@@ -3964,16 +3925,16 @@ namespace Gambit
     {
       using namespace Pipes::higgs_mass_LL;
       
-      // get THDM type and find out if it is a FS spectrum (at Q)
+      // get THDM type
       THDM_TYPE THDM_type = *Dep::THDM_Type;
-      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
 
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
       constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
-      constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
+      // TODO: Why didn't you use the experimental uncertainty?
+      //constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
       double model_invalid_for_lnlike_below = -1e6;
 
       // get the Higgs mass diff, considering the possibility of a Hidden higgs scenario
@@ -3981,19 +3942,9 @@ namespace Gambit
 
       // scale it so that going 300 GeV above/below the measured higgs mass hits the threshold to bail on the point
       // no penalty if we are within 10 GeV of exp. value
+      // TODO: Should this be just invalidated if result > 0
       result = model_invalid_for_lnlike_below * (std::max(0.0,mass_err - 10.0) / 800);
       
-      // count failure rate
-      static point_counter count("h-mass-125"); count.count();
-      if (result < -1.0) count.count_invalid();
-
-      static double best = -1e99;
-
-      if (result >= best)
-      {
-        best = result;
-        std::cerr << "result: " << result << " | mh0: " << mh_pole << " | mH0: " << mH_pole << std::endl;
-      }
     }
 
     // LIKELIHOOD: mass range for each heavy scalar, specified in YAML file (soft-cutoff)

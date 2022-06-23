@@ -317,7 +317,7 @@ namespace Gambit
             std::ostringstream errmsg;
             errmsg << "A problem was encountered during spectrum generation." << std::endl;
             errmsg << "Incomplete basis was sent to tree-level generator." << std::endl;
-            SpecBit_error().raise(LOCAL_INFO, errmsg);
+            SpecBit_error().raise(LOCAL_INFO, errmsg.str());
          }
 
          if (!coupling_filled) fill_generic_THDM_basis(basis, sminputs);

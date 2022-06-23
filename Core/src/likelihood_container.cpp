@@ -54,8 +54,7 @@ namespace Gambit
     alt_min_valid_lnlike             (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
     active_min_valid_lnlike          (min_valid_lnlike), // can be switched to the alternate value by the scanner
     print_invalid_points             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
-    print_points_to_cout             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_points_to_cout")),
-    print_perf_stats                 (iniFile.getValueOrDef<bool>(true, "likelihood", "print_perf_stats")),
+    log_valid_point_ratio            (iniFile.getValueOrDef<bool>(true, "likelihood", "log_valid_point_ratio")),
     disable_print_for_lnlike_below   (iniFile.getValueOrDef<double>(min_valid_lnlike, "likelihood", "disable_print_for_lnlike_below")),
     intralooptime_label              ("Runtime(ms) intraloop"),
     interlooptime_label              ("Runtime(ms) interloop"),
@@ -73,16 +72,10 @@ namespace Gambit
       debug            (iniFile.getValueOrDef<bool>(false, "debug") or iniFile.getValueOrDef<bool>(false, "likelihood", "debug"))
     #endif
   {
-
-    required_points = iniFile.getValueOrDef<int>(-1, "required_points");
-    required_valid_points = iniFile.getValueOrDef<int>(-1, "required_valid_points");
-    required_scan_duration = iniFile.getValueOrDef<int>(-1, "required_scan_duration");
-
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
     // Find subset of vertices that match requested purpose
     auto all_vertices = dependencyResolver.getObsLikeOrder();
-
     for (auto it = all_vertices.begin(); it != all_vertices.end(); ++it)
     {
       if (dependencyResolver.getIniEntry(*it)->purpose == purpose)
@@ -139,17 +132,11 @@ namespace Gambit
     // Print out the MPI rank and values of the parameters for this point if in debug mode.
     if (debug)
     {
-      int mpirank = 0;
-      #ifdef WITH_MPI
-      GMPI::Comm COMM_WORLD;
-      mpirank = COMM_WORLD.Get_rank();
-      #endif
-
-      if (print_points_to_cout && mpirank == 0)
-      {
-        cout << parstream.str();
-      }
-
+       #ifdef WITH_MPI
+        GMPI::Comm COMM_WORLD;
+        std::cout << "MPI process rank: "<< COMM_WORLD.Get_rank() << std::endl;
+       #endif
+      cout << parstream.str();
       logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
     }
     // Print the parameter point to the logs, even if not in debug mode
@@ -160,11 +147,6 @@ namespace Gambit
   /// Evaluate total likelihood function
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
-    int mpirank = 0;
-    #ifdef WITH_MPI
-    GMPI::Comm COMM_WORLD;
-    mpirank = COMM_WORLD.Get_rank();
-    #endif
 
     logger() << LogTags::core << LogTags::debug << "Entered Likelihood_Container::main" << EOM;
 
@@ -223,8 +205,6 @@ namespace Gambit
       std::chrono::duration<double> interloop_time = startL - previous_endL;
 
       static int point_count = 0, invalid_count = 0;
-      static std::chrono::time_point<std::chrono::high_resolution_clock> startTime, currTime;
-      if (point_count == 0) startTime = std::chrono::high_resolution_clock::now();
       ++point_count;
 
       // First work through the target functors, i.e. the ones contributing to the likelihood.
@@ -288,7 +268,6 @@ namespace Gambit
           }
 
           // If we've dropped below the likelihood corresponding to effective zero already, skip the rest of the vertices.
-          // warning: this means that we may not calculate all likelihood components for a given point
           if (lnlike <= active_min_valid_lnlike) dependencyResolver.invalidatePointAt(*it, false);
 
           // Log completion of this likelihood.
@@ -308,7 +287,6 @@ namespace Gambit
           // If print_ivalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
-          if (debug && print_points_to_cout) cout << "Point invalid." << endl;
           printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());
           if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
           break;
@@ -358,64 +336,13 @@ namespace Gambit
 
       // --------------------------------
 
-      
-
-      currTime = std::chrono::high_resolution_clock::now();
-      double totalDur = std::chrono::duration<double>(currTime - startTime).count();
-      static double timer = 0;
-
-
-
-      auto time = [&](double secs)
+      if (log_valid_point_ratio)
       {
-        int sec = secs;
-        int min = sec / 60;
-        int hour = min / 60;
-        int day = hour / 24;
-        sec %= 60;
-        min %= 60;
-        hour %= 24;
-
-        return std::to_string(day) + "d" + std::to_string(hour) + ":" + std::to_string(min) + ":" + std::to_string(sec);
-      };
-
-      if (mpirank == 0 && totalDur > timer && print_perf_stats)
-      {
-        timer += 20;
-
-        double completedPer = (100.0*point_count)/required_points;
-        double eta = ((totalDur * required_points) / point_count - totalDur);
         int valid_count = point_count-invalid_count;
+        double valid_ratio = (100.0*valid_count)/point_count;
 
-        std::cerr << point_count << " / " << required_points << "pts (" << (int)completedPer << "%)" << " | " << valid_count << " / " << required_valid_points << " valid | " << valid_count / totalDur << " valid/sec | "  << point_count / totalDur << " pts/sec | (eta " << time(eta) << " ) | duration " << time(totalDur) << std::endl;
+        logger() << LogTags::core << "Valid points: " << valid_count << " / " << point_count << " (" << (int)valid_ratio << "%)" << EOM;
       }
-
- 
-
-      // check if we are ready for shutdown
-
-      if (!signaldata().check_if_shutdown_begun() && mpirank == 0)
-      {
-        if (required_points != -1 && point_count > required_points)
-        {
-          std::cerr << "completed the required point count of: " << required_points << std::endl;
-          std::cerr << "GAMBIT has completed the scan successfully!" << std::endl;
-          signaldata().set_shutdown_begun();
-        }
-        if (required_valid_points != -1 && point_count-invalid_count > required_valid_points)
-        {
-          std::cerr << "completed the required valid point count of: " << required_valid_points << std::endl;
-          std::cerr << "GAMBIT has completed the scan successfully!" << std::endl;
-          signaldata().set_shutdown_begun();
-        }
-        if (required_scan_duration != -1 && totalDur > required_scan_duration)
-        {
-          std::cerr << "completed the required scan duration of: " << time(required_scan_duration) << std::endl;
-          std::cerr << "GAMBIT has completed the scan successfully!" << std::endl;
-          signaldata().set_shutdown_begun();
-        }
-      }
-
 
       // End timing of total likelihood evaluation
       std::chrono::time_point<std::chrono::system_clock> endL = std::chrono::system_clock::now();

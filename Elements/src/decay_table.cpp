@@ -21,7 +21,6 @@
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/version.hpp"
 #include "gambit/Utils/file_lock.hpp"
-#include "gambit/Core/point_counter.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/assign.hpp>
@@ -305,12 +304,8 @@ namespace Gambit
   /// Make sure no NaNs have been passed to the DecayTable by nefarious backends
   void DecayTable::Entry::check_BF_validity(double BF, double error, std::multiset< std::pair<int,int> >& key) const
   {
-    static point_counter count("NaN BR or BR err"); count.count();
-
-    if ((Utils::isnan(BF) or Utils::isnan(error)))
+    if (Utils::isnan(BF) or Utils::isnan(error))
     {
-      count.count_invalid();
-
       std::ostringstream msg;
       msg << "NaN detected in attempt to set decay table branching fraction. " << endl
           << "Final states are: " << endl;

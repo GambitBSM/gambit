@@ -1096,7 +1096,7 @@ namespace Gambit
 
       if (std::isnan(result) || std::isinf(result))
       {
-        Colliderbit_error().raise(LOCAL_INFO, "NaN or infinite HS likelihood, point invalidated!");
+        ColliderBit_error().raise(LOCAL_INFO, "NaN or infinite HS likelihood, point invalidated!");
       }
 
     }
