@@ -24,7 +24,7 @@
 ///  =======
 ///
 ///  (add name and date if you modify)
-///  
+///
 ///  \author James McKay
 ///          (j.mckay14@imperial.ac.uk)
 ///  \date 2016 November
@@ -74,11 +74,11 @@ namespace Gambit
 #define PARENT THDM
 #define FRIEND THDMLSatQ
   START_MODEL
-  
+
   DEFINEPARS(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7)
   DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
-  
+
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMLS_to_THDMLSatQ)
   INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)
   INTERPRET_AS_PARENT_FUNCTION(THDMLS_to_THDM)

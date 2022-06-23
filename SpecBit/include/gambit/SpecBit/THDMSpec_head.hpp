@@ -8,7 +8,7 @@
 ///
 ///  *********************************************
 ///
-///  Authors: 
+///  Authors:
 ///  <!-- add name and date if you modify -->
 ///
 ///  \author James McKay
@@ -31,17 +31,17 @@
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
 #include "flexiblesusy/config/config.h"
 
-namespace Gambit 
+namespace Gambit
 {
 
-   namespace SpecBit 
+   namespace SpecBit
    {
       template <class MI>  // "MI" for "Model_interface"
       class THDMSpec;
-   } 
+   }
 
    // For example of what kind of class MI needs to be, see
-   // SpecBit/include/model_files_and_boxes.hpp, 
+   // SpecBit/include/model_files_and_boxes.hpp,
    // MODELNAME_interface class
 
    /// Specialisation of "traits" class used to inform Spec<T> class of what
@@ -69,25 +69,25 @@ namespace Gambit
             /// These typedefs are inherited, but the name lookup doesn't work so smoothly in
             /// templated wrapper classes, so need to help them along:
             typedef THDMSpec<MI> Self;
-            typedef typename Self::MTget MTget; 
-            typedef typename Self::MTset MTset; 
+            typedef typename Self::MTget MTget;
+            typedef typename Self::MTset MTset;
             typedef typename Self::GetterMaps GetterMaps;
             typedef typename Self::SetterMaps SetterMaps;
             typedef typename SpecTraits<Self>::Model Model;
             typedef typename SpecTraits<Self>::Input Input;
-           
+
             /// Interface function overrides
             static int index_offset() {return _index_offset;}
             virtual double GetScale() const;
-            virtual void SetScale(double scale);           
+            virtual void SetScale(double scale);
             virtual void RunToScaleOverride(double scale);
-        
+
             //constructors
             THDMSpec();
             THDMSpec(MI, str backend_name, str backend_version);
 
-            //Could more constructors to interface with other generators   
-             
+            //Could more constructors to interface with other generators
+
             // These are public for now so that SpecBit_tests.cpp can access them
             MI model_interface;
 
@@ -102,13 +102,13 @@ namespace Gambit
             Input& get_Input() { return dummyinput; }
             const Model& get_Model() const { return model_interface.model; }
             const Input& get_Input() const { return dummyinput;  }
-  
+
             virtual std::string AccessError(std::string state) const;
-            
+
             // Fill an SLHAea object with spectrum information
             virtual void add_to_SLHAea(int slha_version, SLHAstruct& slha) const;
 
-  
+
             template<class THDMlike>
             void get_lowe_data_from(THDMlike &othermodel)
             {
@@ -135,10 +135,10 @@ namespace Gambit
 
       };
 
-     
+
    } // end SpecBit namespace
 
-   
+
 } // end Gambit namespace
 
 #undef MAPS

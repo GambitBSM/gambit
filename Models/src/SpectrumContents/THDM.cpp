@@ -11,13 +11,13 @@
 ///  <!-- add name and date if you modify -->
 ///
 ///  \author Filip Rajec
-///          (filip.rajec@adelaide.edu.au)         
+///          (filip.rajec@adelaide.edu.au)
 ///  \date June 2016
 ///  \date 2020 Apr
 ///
 ///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
-///  \date Apr 2020 
+///  \date Apr 2020
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
@@ -32,7 +32,7 @@
 
 namespace Gambit
 {
-  
+
   /// Only have to define the constructor
   SpectrumContents::THDM::THDM()
   {
@@ -76,8 +76,8 @@ namespace Gambit
     addParameter(Par::dimensionless, "ImYe2", m3x3, "ImYe2");
 
     // Pole masses
-    addParameter(Par::Pole_Mass, "h0",   v2,"MASS",{25,35}); 
-    addParameter(Par::Pole_Mass, "A0",   scalar,"MASS",36); 
+    addParameter(Par::Pole_Mass, "h0",   v2,"MASS",{25,35});
+    addParameter(Par::Pole_Mass, "A0",   scalar,"MASS",36);
     addParameter(Par::Pole_Mass, "H+",   scalar,"MASS",37);
     addParameter(Par::Pole_Mass, "W+",   scalar,"MASS",24);
 
@@ -97,6 +97,6 @@ namespace Gambit
     addParameter(Par::mass1, "m22_2",scalar,"HMIX",21);
 
   }
-  
+
 }
 #endif

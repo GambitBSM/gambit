@@ -5,9 +5,9 @@
 //
 ///  *********************************************
 ///
-///  Authors: 
+///  Authors:
 ///  <!-- add name and date if you modify -->
-///   
+///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2020 Apr
@@ -18,9 +18,9 @@
 ///
 ///  *********************************************
 
-#include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp" 
+#include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
 #include "gambit/Elements/thdm_slhahelp.hpp"
-#include "gambit/Utils/util_functions.hpp" 
+#include "gambit/Utils/util_functions.hpp"
 
 using namespace SLHAea;
 
@@ -28,9 +28,9 @@ namespace Gambit
 {
 
     /// @{ Member functions for SLHAeaModel class
-           
+
     /// Default Constructor
-    THDMea::THDMea() 
+    THDMea::THDMea()
       : SLHAeaModel()
     {}
 
@@ -39,7 +39,7 @@ namespace Gambit
       : SLHAeaModel(slhainput)
     {}
 
-    /// @{ Getters for SM information 
+    /// @{ Getters for SM information
 
     // Model type
     double THDMea::get_model_type()   const { return getdata("FMODSEL",1) - 30; }
@@ -66,7 +66,7 @@ namespace Gambit
 
     double THDMea::get_MPhoton_pole()   const { return 0.; }
     double THDMea::get_MGluon_pole()    const { return 0.; }
-       
+
     // In SLHA the W mass is an output, though some spectrum generator authors
     // allow it as a non-standard entry in SMINPUTS. Here we will stick to
     // SLHA.
@@ -74,35 +74,21 @@ namespace Gambit
     double THDMea::get_MW_unc()         const { return 0.0; }
 
     double THDMea::get_sinthW2_pole()   const { return (1.0 - Utils::sqr(get_MW_pole()) / Utils::sqr(get_MZ_pole())); }
-      
+
     /// Running masses
     //  Only available for light quarks
     double THDMea::get_md() const { return getdata("SMINPUTS",21); }
     double THDMea::get_mu() const { return getdata("SMINPUTS",22); }
     double THDMea::get_ms() const { return getdata("SMINPUTS",23); }
 
-    double THDMea::get_vev()   const { return getdata("HMIX",3);  } 
+    double THDMea::get_vev()   const { return getdata("HMIX",3);  }
     double THDMea::get_tanb()  const { return getdata("MINPAR",3); }
     double THDMea::get_beta()  const { return atan(get_tanb()); }
     double THDMea::get_alpha() const { return getdata("ALPHA",0); }
 
-    double THDMea::get_v1()    const { return sqrt(pow(get_vev(),2)*pow(get_tanb(),2)/(1+pow(get_tanb(),2)));  } 
-    double THDMea::get_v2()    const { return sqrt(pow(get_vev(),2)/(1+pow(get_tanb(),2))); } 
- 
-    // TODO: This is Filip's implementation, but I don't understand his computation of v, ask him
-    /*  double THDMea::get_vev()      const { return sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2))); } 
-      double THDMea::get_v1()      const { 
-        const double tb = getdata("MINPAR",3);
-        const double v = sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2)));
-        return sqrt(pow(v,2)*pow(tb,2)/(1+pow(tb,2))); 
-        } 
-      double THDMea::get_v2()      const { 
-        const double tb = getdata("MINPAR",3);
-        const double v = sqrt(1.0/(sqrt(2.0)*getdata("SMINPUTS",2)));
-        return sqrt(pow(v,2)/(1+pow(tb,2))); 
-        } 
-    */
-  
+    double THDMea::get_v1()    const { return sqrt(pow(get_vev(),2)*pow(get_tanb(),2)/(1+pow(get_tanb(),2)));  }
+    double THDMea::get_v2()    const { return sqrt(pow(get_vev(),2)/(1+pow(get_tanb(),2))); }
+
     double THDMea::get_g1()    const { return getdata("GAUGE",1); }
     double THDMea::get_g2()    const { return getdata("GAUGE",2); }
     double THDMea::get_g3()    const { return getdata("GAUGE",3); }
@@ -125,8 +111,8 @@ namespace Gambit
     double THDMea::get_ImYd2(int i, int j) const { return getdata("ImYd2",i,j); }
     double THDMea::get_ImYu2(int i, int j) const { return getdata("ImYu2",i,j); }
     double THDMea::get_ImYe2(int i, int j) const { return getdata("ImYe2",i,j); }
- 
-    // Pole masses  
+
+    // Pole masses
     double THDMea::get_mh0_pole(int i) const
     {
       if      (i==1){ return getdata("MASS",25); } // Neutral Higgs(1)
@@ -158,7 +144,7 @@ namespace Gambit
     double THDMea::get_lambda5() const { return getdata("MINPAR",15); }
     double THDMea::get_lambda6() const { return getdata("MINPAR",16); }
     double THDMea::get_lambda7() const { return getdata("MINPAR",17); }
-     
+
     double THDMea::get_Lambda1() const
     {
       double b = get_beta(), sb = sin(b), cb = cos(b), s2b = sin(2.*b);
@@ -205,16 +191,16 @@ namespace Gambit
     double THDMea::get_m12_2() const { return getdata("MINPAR",18); }
 
     double THDMea::get_m11_2() const
-    { 
+    {
       double m12_2 = get_m12_2(), b = get_beta(), cb = cos(b), sb = sin(b), vev = get_vev();
       double lam1 = get_lambda1(), lam345 = get_lambda3() + get_lambda4() + get_lambda5(), lam6 = get_lambda6(), lam7 = get_lambda7();
-      return m12_2*tan(b) - 0.5*pow(vev,2) * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tan(b)); 
+      return m12_2*tan(b) - 0.5*pow(vev,2) * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tan(b));
     }
     double THDMea::get_m22_2() const
-    { 
+    {
       double m12_2 = get_m12_2(), b = get_beta(), cb = cos(b), sb = sin(b), vev = get_vev();
       double lam2 = get_lambda2(), lam345 = get_lambda3() + get_lambda4() + get_lambda5(), lam6 = get_lambda6(), lam7 = get_lambda7();
-      return m12_2/tan(b) - 0.5*pow(vev,2) * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb/tan(b) + 3.0*lam7*sb*cb); 
+      return m12_2/tan(b) - 0.5*pow(vev,2) * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb/tan(b) + 3.0*lam7*sb*cb);
     }
 
     double THDMea::get_M12_2() const
@@ -243,10 +229,10 @@ namespace Gambit
 
     /// @{ Member functions for THDMSimpleSpec class
 
-    /// @{ Constructors 
- 
+    /// @{ Constructors
+
     /// Default Constructor
-    THDMSimpleSpec::THDMSimpleSpec() 
+    THDMSimpleSpec::THDMSimpleSpec()
     {}
 
     /// Construct via SLHAea object
@@ -261,7 +247,7 @@ namespace Gambit
       std::map<str,double> scalars = {{"h0_1", p.mh0}, {"h0_2", p.mH0}, {"A0", p.mA0},
                                       {"H+", p.mC}, {"W+", p.mW},
                                       {"lambda1",p.lambda1}, {"lambda2",p.lambda2}, {"lambda3",p.lambda3},
-                                      {"lambda4",p.lambda4}, {"lambda5",p.lambda5}, {"lambda6",p.lambda6}, 
+                                      {"lambda4",p.lambda4}, {"lambda5",p.lambda5}, {"lambda6",p.lambda6},
                                       {"lambda7",p.lambda7}, {"tanb",p.tanb}, {"alpha",p.alpha},
                                       {"m11_2",p.m11_2}, {"m12_2",p.m12_2}, {"m22_22",p.m22_2},
                                       {"vev",p.vev}, {"g1",p.g1}, {"g2",p.g2}, {"g3",p.g3}, {"sinW2",p.sinW2}};
@@ -307,21 +293,21 @@ namespace Gambit
     /// Copy constructor: needed by clone function.
     THDMSimpleSpec::THDMSimpleSpec(const THDMSimpleSpec& other)
       : SLHASimpleSpec(other)
-    {} 
+    {}
 
-    /// @}  
-       
+    /// @}
+
     /// Hardcoded to return SLHA2 defined scale of light quark MSbar masses in SMINPUTS block (2 GeV)
     double THDMSimpleSpec::GetScale() const { return 2; }
-      
+
     /// @}
-      
+
     // Map fillers
 
     THDMSimpleSpec::GetterMaps THDMSimpleSpec::fill_getter_maps()
     {
 
-        GetterMaps map_collection; 
+        GetterMaps map_collection;
 
         typedef MTget::FInfo1 FInfo1;
         typedef MTget::FInfo2 FInfo2;
@@ -332,7 +318,7 @@ namespace Gambit
         static const int i123v[] = {1,2,3};
         static const std::set<int> i123(i123v, Utils::endA(i123v));
 
-        /// Fill for mass1 map 
+        /// Fill for mass1 map
         {
             MTget::fmap0 tmp_map;
 
@@ -380,26 +366,26 @@ namespace Gambit
         /// Fill Pole_mass map (from Model object)
         {
             MTget::fmap0 tmp_map;
- 
-            tmp_map["Z0"]  = &THDMea::get_MZ_pole;      
+
+            tmp_map["Z0"]  = &THDMea::get_MZ_pole;
             tmp_map["W+"]  = &THDMea::get_MW_pole;
-            tmp_map["gamma"] = &THDMea::get_MPhoton_pole;  
-            tmp_map["g"]     = &THDMea::get_MGluon_pole;  
+            tmp_map["gamma"] = &THDMea::get_MPhoton_pole;
+            tmp_map["g"]     = &THDMea::get_MGluon_pole;
 
             tmp_map["d_3"] = &THDMea::get_MbMb; // b
             tmp_map["u_2"] = &THDMea::get_McMc; // c
-            tmp_map["u_3"] = &THDMea::get_Mtop_pole; //t    
+            tmp_map["u_3"] = &THDMea::get_Mtop_pole; //t
             tmp_map["e-_3"]= &THDMea::get_Mtau_pole; // tau
             tmp_map["e-_2"]= &THDMea::get_Mmuon_pole; // mu
             tmp_map["e-_1"]= &THDMea::get_Melectron_pole;
             tmp_map["nu_1"]= &THDMea::get_Mnu1_pole;
             tmp_map["nu_2"]= &THDMea::get_Mnu2_pole;
             tmp_map["nu_3"]= &THDMea::get_Mnu3_pole;
- 
+
             // Nearest flavour 'aliases' for the THDM mass eigenstates
             tmp_map["b"]   = &THDMea::get_MbMb; // b
             tmp_map["c"]   = &THDMea::get_McMc; // c
-            tmp_map["t"]   = &THDMea::get_Mtop_pole; //t    
+            tmp_map["t"]   = &THDMea::get_Mtop_pole; //t
             tmp_map["tau-"]= &THDMea::get_Mtau_pole; // tau
             tmp_map["mu-"] = &THDMea::get_Mmuon_pole; // mu
             tmp_map["e-"]  = &THDMea::get_Melectron_pole;
@@ -411,7 +397,7 @@ namespace Gambit
             tmp_map["G+"]  = &THDMea::get_mGC;
             tmp_map["G-"]  = &THDMea::get_mGC;
             tmp_map["G0"]  = &THDMea::get_mG0;
- 
+
             map_collection[Par::Pole_Mass].map0 = tmp_map;
         }
 
@@ -422,20 +408,20 @@ namespace Gambit
 
             map_collection[Par::Pole_Mass].map1 = tmp_map;
         }
-           
+
         // fill W mass uncertainties
         {
             MTget::fmap0 tmp_map;
             tmp_map["W+"] = &THDMea::get_MW_unc;
             map_collection[Par::Pole_Mass_1srd_high].map0 = tmp_map;
         }
-                       
+
         {
            MTget::fmap0 tmp_map;
            tmp_map["W+"] = &THDMea::get_MW_unc;
            map_collection[Par::Pole_Mass_1srd_low].map0 = tmp_map;
         }
-           
+
 
         // Dimensionless block
         {

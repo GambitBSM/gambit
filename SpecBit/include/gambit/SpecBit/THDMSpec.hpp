@@ -350,7 +350,7 @@ namespace Gambit
         return 0;
       }
 
-      // wrapper getter methods for higgs basis parameters 
+      // wrapper getter methods for higgs basis parameters
       template <class Model>
       double get_Lambda1(const Model& model)
       {
@@ -555,7 +555,7 @@ namespace Gambit
           double M112 = mA2*sb2 + v2*( lam1*cb2 + 2.0*lam6*sb*cb + lam5*sb2 );
           double M222 = mA2*cb2 + v2*( lam2*sb2 + 2.0*lam7*sb*cb + lam5*cb2 );
           double M122 = -mA2*sb*cb + v2*( (lam3+lam4)*sb*cb + lam6*cb2 + lam7*sb2 );
-            
+
           double s2a = 2*M122/sqrt( pow( ( M112 - M222 ) , 2 ) + 4.0*pow( ( M122 ) , 2 ) );
           double c2a = ( M112 - M222 )/sqrt( pow( ( M112 - M222 ) , 2 ) + 4.0*pow( ( M122 ) , 2 ) );
 
@@ -686,7 +686,7 @@ namespace Gambit
             tmp_map["Lambda5"]= &get_Lambda5<Model>;
             tmp_map["Lambda6"]= &get_Lambda6<Model>;
             tmp_map["Lambda7"]= &get_Lambda7<Model>;
- 
+
             #ifdef ALPHA_DEBUG
                tmp_map["alpha_alt"]= &get_alpha_calculated<Model>;
             #endif

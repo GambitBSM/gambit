@@ -8,10 +8,10 @@
 ///
 //
 ///  <!-- add name and date if you modify -->
-///   
+///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
-///  \date 2019 Feb 
+///  \date 2019 Feb
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@monash.edu)
@@ -59,31 +59,31 @@ namespace Gambit
             THDMea(const SLHAea::Coll& input);
             /// @}
 
-            /// @{ Getters for THDM information 
+            /// @{ Getters for THDM information
             double get_model_type()        const;
 
-            double get_MZ_pole()        const; 
+            double get_MZ_pole()        const;
             double get_Mtop_pole()      const;
-                                             
-            double get_MbMb()           const; 
-            double get_McMc()           const; 
-                                             
-            double get_Mtau_pole()      const; 
-            double get_Mmuon_pole()     const; 
-            double get_Melectron_pole() const; 
-                                             
-            double get_Mnu1_pole()      const; 
-            double get_Mnu2_pole()      const; 
-            double get_Mnu3_pole()      const; 
-                                            
-            double get_MPhoton_pole()   const; 
-            double get_MGluon_pole()    const; 
-                                             
-            double get_MW_pole()        const; 
- 
+
+            double get_MbMb()           const;
+            double get_McMc()           const;
+
+            double get_Mtau_pole()      const;
+            double get_Mmuon_pole()     const;
+            double get_Melectron_pole() const;
+
+            double get_Mnu1_pole()      const;
+            double get_Mnu2_pole()      const;
+            double get_Mnu3_pole()      const;
+
+            double get_MPhoton_pole()   const;
+            double get_MGluon_pole()    const;
+
+            double get_MW_pole()        const;
+
             double get_sinthW2_pole()   const;
             double get_MW_unc()         const;
-         
+
             double get_md()             const;
             double get_mu()             const;
             double get_ms()             const;
@@ -159,7 +159,7 @@ namespace Gambit
 
     /// Specialisation of traits class needed to inform base spectrum class of the Model and Input types
     template <>
-    struct SpecTraits<THDMSimpleSpec> 
+    struct SpecTraits<THDMSimpleSpec>
     {
         static std::string name() { return "THDMSimpleSpec"; }
         typedef SpectrumContents::THDM Contents;
@@ -168,7 +168,7 @@ namespace Gambit
     };
 
     /// THDM specialisation of SLHAea object wrapper version of SubSpectrum class
-    class THDMSimpleSpec : public SLHASimpleSpec<THDMSimpleSpec> 
+    class THDMSimpleSpec : public SLHASimpleSpec<THDMSimpleSpec>
     {
         private:
           Models::THDMModel params;
@@ -193,7 +193,7 @@ namespace Gambit
              // All THDM  blocks
              slhahelp::add_THDM_spectrum_to_SLHAea(*this, slha, slha_version);
           }
-         
+
           /// Map filler
           /// Used to initialise maps of function pointers
           static GetterMaps fill_getter_maps();

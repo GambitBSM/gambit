@@ -80,7 +80,7 @@ void MODEL_NAMESPACE::THDM_to_THDMatQ (const ModelParameters &myP, ModelParamete
                                             "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_re_33", "yl2_im_33"};
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
-  {  
+  {
       targetP.setValue(yukawa_key, myP.getValue(yukawa_key));
   }
 
@@ -97,7 +97,7 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
     logger()<<"Running interpret_as_parent calculations for THDM_higgs --> THDM.."<<LogTags::info<<EOM;
 
     const SMInputs& sminputs = *Dep::SMINPUTS;
-    
+
     // higgs basis
     double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
     double tb  = myP.getValue("tanb");
@@ -110,7 +110,7 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
     double Lam345 = myP.getValue("Lambda3")+ myP.getValue("Lambda4") + myP.getValue("Lambda5");
     double M11_2 = -0.5*v2*myP.getValue("Lambda1");
     double M12_2 = 0.5*v2*Lambda6;
-   
+
     //generic basis
     double lambda1 = myP.getValue("Lambda1")*pow(cb,4) + myP.getValue("Lambda2")*pow(sb,4) + 0.5*Lam345*pow(s2b,2) + 2.*s2b*(pow(cb,2)*Lambda6+pow(sb,2)*myP.getValue("Lambda7"));
     double lambda2 = myP.getValue("Lambda1")*pow(sb,4) + myP.getValue("Lambda2")*pow(cb,4) + 0.5*Lam345*pow(s2b,2) - 2.*s2b*(pow(sb,2)*Lambda6+pow(cb,2)*myP.getValue("Lambda7"));
@@ -120,7 +120,7 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
     double lambda6 = -0.5*s2b*(myP.getValue("Lambda1")*pow(cb,2)-myP.getValue("Lambda2")*pow(sb,2)-Lam345*c2b) + cb*cos(3.*beta)*Lambda6 + sb*sin(3.*beta)*myP.getValue("Lambda7");
     double lambda7 = -0.5*s2b*(myP.getValue("Lambda1")*pow(sb,2)-myP.getValue("Lambda2")*pow(cb,2)+Lam345*c2b) + sb*sin(3.*beta)*Lambda6 + cb*cos(3.*beta)*myP.getValue("Lambda7");
     double m12_2 = 0.5*(M11_2-myP.getValue("M22_2"))*s2b + M12_2*c2b;
-   
+
     targetP.setValue("lambda1",lambda1);
     targetP.setValue("lambda2",lambda2);
     targetP.setValue("lambda3",lambda3);
@@ -143,7 +143,7 @@ void MODEL_NAMESPACE::THDM_higgs_to_THDM (const ModelParameters &myP, ModelParam
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
   {
-    targetP.setValue(yukawa_key, myP.getValue(yukawa_key));  
+    targetP.setValue(yukawa_key, myP.getValue(yukawa_key));
   }
 
 
@@ -160,7 +160,7 @@ void MODEL_NAMESPACE::THDM_physical_to_THDM (const ModelParameters &myP, ModelPa
     logger()<<"Running interpret_as_parent calculations for THDM_physical --> THDM.."<<LogTags::info<<EOM;
 
     const SMInputs& sminputs = *Dep::SMINPUTS;
-    
+
     //generic basis
     double mh2 =  myP.getValue("mh2"), mH2 =  myP.getValue("mH2"), mA2 =  myP.getValue("mA2"), mC2 =  myP.getValue("mC2");
     double tb  = myP.getValue("tanb");
@@ -174,8 +174,8 @@ void MODEL_NAMESPACE::THDM_physical_to_THDM (const ModelParameters &myP, ModelPa
     double lambda2 = (mH2*pow(sa,2)+mh2*pow(ca,2)-myP.getValue("m12_2")*ctb)/v2/pow(sb,2)+0.5*myP.getValue("lambda6")*pow(ctb,3)-1.5*myP.getValue("lambda7")*ctb;
     double lambda3 = ((mH2-mh2)*ca*sa+2.*mC2*sb*cb-myP.getValue("m12_2"))/v2/sb/cb-0.5*myP.getValue("lambda6")*ctb-0.5*myP.getValue("lambda7")*tb;
     double lambda4 = ((mA2-2.*mC2)*cb*sb+myP.getValue("m12_2"))/v2/sb/cb-0.5*myP.getValue("lambda6")*ctb-0.5*myP.getValue("lambda7")*tb;
-    double lambda5 = (myP.getValue("m12_2")-mA2*sb*cb)/v2/sb/cb-0.5*myP.getValue("lambda6")*ctb-0.5*myP.getValue("lambda7")*tb;   
-                    
+    double lambda5 = (myP.getValue("m12_2")-mA2*sb*cb)/v2/sb/cb-0.5*myP.getValue("lambda6")*ctb-0.5*myP.getValue("lambda7")*tb;
+
     targetP.setValue("lambda1",lambda1);
     targetP.setValue("lambda2",lambda2);
     targetP.setValue("lambda3",lambda3);
@@ -197,7 +197,7 @@ void MODEL_NAMESPACE::THDM_physical_to_THDM (const ModelParameters &myP, ModelPa
                                             "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_re_33", "yl2_im_33"};
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
-  {  
+  {
    targetP.setValue(yukawa_key, myP.getValue(yukawa_key));
   }
 

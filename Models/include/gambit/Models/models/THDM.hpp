@@ -35,7 +35,7 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2020 Apr
 ///  \date 2021 Mar
-///  
+///
 ///  *********************************************
 
 #ifndef __THDM_hpp__
@@ -80,7 +80,7 @@ namespace Gambit
   DEFINEPARS(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7)
   DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
-  
+
   DEFINEPARS(yu2_re_11, yu2_im_11, yu2_re_12, yu2_im_12, yu2_re_13, yu2_im_13,
              yu2_re_21, yu2_im_21, yu2_re_22, yu2_im_22, yu2_re_23, yu2_im_23,
              yu2_re_31, yu2_im_31, yu2_re_32, yu2_im_32, yu2_re_33, yu2_im_33)

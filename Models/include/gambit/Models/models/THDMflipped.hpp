@@ -24,7 +24,7 @@
 ///  =======
 ///
 ///  (add name and date if you modify)
-///  
+///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
 ///  \date 2016 Aug
@@ -73,11 +73,11 @@ namespace Gambit
 #define PARENT THDM
 #define FRIEND THDMflippedatQ
   START_MODEL
-  
+
   DEFINEPARS(lambda1,lambda2,lambda3,lambda4,lambda5,lambda6,lambda7)
   DEFINEPARS(m12_2)
   DEFINEPARS(tanb)
-  
+
   // Translation functions defined in THDMflipped.cpp
   INTERPRET_AS_X_FUNCTION(FRIEND, THDMflipped_to_THDMflippedatQ)
   INTERPRET_AS_X_DEPENDENCY(FRIEND, SMINPUTS, SMInputs)

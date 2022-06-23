@@ -119,7 +119,7 @@ void MODEL_NAMESPACE::THDMLS_to_THDM (const ModelParameters &myP, ModelParameter
                                           "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_re_33", "yl2_im_33"};
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
-  {  
+  {
       targetP.setValue(yukawa_key, 0.0);
   }
 
@@ -170,7 +170,7 @@ void MODEL_NAMESPACE::THDMLSatQ_to_THDMatQ (const ModelParameters &myP, ModelPar
                                           "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_re_33", "yl2_im_33"};
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
-  {  
+  {
       targetP.setValue(yukawa_key, 0.0);
   }
 

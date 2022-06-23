@@ -121,7 +121,7 @@ void MODEL_NAMESPACE::THDMflipped_to_THDM (const ModelParameters &myP, ModelPara
                                           "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_im_33"};
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
-  {  
+  {
       targetP.setValue(yukawa_key, 0.0);
   }
 
@@ -172,7 +172,7 @@ void MODEL_NAMESPACE::THDMflippedatQ_to_THDMatQ (const ModelParameters &myP, Mod
                                           "yl2_re_31", "yl2_im_31", "yl2_re_32", "yl2_im_32", "yl2_im_33"};
 
   for (auto &yukawa_key : yukawa_keys) // access by reference to avoid copying
-  {  
+  {
       targetP.setValue(yukawa_key, 0.0);
   }
 

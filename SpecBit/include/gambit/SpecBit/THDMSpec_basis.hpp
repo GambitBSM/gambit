@@ -8,7 +8,7 @@
 ///
 ///  *********************************************
 ///
-///  Authors: 
+///  Authors:
 ///
 ///  \author A.S. Woodcock
 ///          (alex.woodcock@outlook.com)
@@ -25,20 +25,20 @@
 #ifndef THDMSPEC_BASIS_H
 #define THDMSPEC_BASIS_H
 
-namespace Gambit 
+namespace Gambit
 {
    namespace SpecBit
-   { 
+   {
 
       // ----------
       // Spectrum and tree-level basis transformation functions
       // To use:
       // 1. Include this helper header.
       // 2. If not in SpecBit namespace append to function. [MODULARITY BREAKING]
-      // 
+      //
       // These functions exist to improve code reuse (at a developer level).
       // They are inline to avoid multiple library linking,
-      // unfortunately this means they do not improve code reuse in the build 
+      // unfortunately this means they do not improve code reuse in the build
       // ----------
 
       // ----------
@@ -70,7 +70,7 @@ namespace Gambit
       // input basis must have generic basis filled
       // TODO: allow higgs basis (currently in dev.)
       inline void fill_physical_THDM_basis(std::map<std::string, double>& input_basis, const SMInputs& sminputs);
-      
+
       // this is the main method called to generate a THDM spectrum (tree-level)
       // takes in an THDM basis map with at least one filled in basis
       // and returns a complete THDM basis map
@@ -147,7 +147,7 @@ namespace Gambit
             double Lambda6 = input_basis["Lambda6"], Lambda7 = input_basis["Lambda7"], M12_2 = input_basis["M12_2"];
             // set values of coupling basis
             double Lam345 = Lambda3 + Lambda4 + Lambda5;
-            double M11_2 = M12_2*tb - 0.5*v2 * (Lambda1*cb*cb + Lam345*sb*sb + 3.0*Lambda6*sb*cb + Lambda7*sb*sb*tb); 
+            double M11_2 = M12_2*tb - 0.5*v2 * (Lambda1*cb*cb + Lam345*sb*sb + 3.0*Lambda6*sb*cb + Lambda7*sb*sb*tb);
             double M22_2 = M12_2*ctb - 0.5*v2 * (Lambda2*sb*sb + Lam345*cb*cb + Lambda6*cb*cb*ctb + 3.0*Lambda7*sb*cb);
             input_basis["m12_2"] = (M11_2-M22_2)*s2b + M12_2*c2b;
             // do the basis conversion here
@@ -180,7 +180,7 @@ namespace Gambit
             input_basis["lambda5"] = (m12_2-m_A*m_A*sb*cb)/v2/sb/cb-0.5*lambda6*ctb-0.5*lambda7*tb;
             // fill extra inputs
             double lam345 = input_basis["lambda3"] + input_basis["lambda4"] + input_basis["lambda5"];
-            input_basis["m11_2"] = m12_2*tb - 0.5*v2 * (input_basis["lambda1"]*cb*cb + lam345*sb*sb + 3.0*input_basis["lambda6"]*sb*cb + input_basis["lambda7"]*sb*sb*tb); 
+            input_basis["m11_2"] = m12_2*tb - 0.5*v2 * (input_basis["lambda1"]*cb*cb + lam345*sb*sb + 3.0*input_basis["lambda6"]*sb*cb + input_basis["lambda7"]*sb*sb*tb);
             input_basis["m22_2"] = m12_2*ctb - 0.5*v2 * (input_basis["lambda2"]*sb*sb + lam345*cb*cb + input_basis["lambda6"]*cb*cb*ctb + 3.0*input_basis["lambda7"]*sb*cb);
          }
          else
