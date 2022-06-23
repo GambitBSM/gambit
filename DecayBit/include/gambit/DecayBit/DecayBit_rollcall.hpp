@@ -30,10 +30,13 @@
 ///  \date 2016 Aug
 ///
 ///   \author Tomas Gonzalo
-///           (t.e.gonzalo@fys.uio.no)
+///           (tomas.gonzalo@kit.edu)
 ///  \date 2018 Feb
+///  \date 2022 June
+///
 ///  \author Andrew Fowlie
 ///  \date 2018 May
+///
 ///  \author Peter Athron
 ///  \date 2018 May
 ///

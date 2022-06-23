@@ -41,18 +41,13 @@
 
 // Eigen headers
 #include <Eigen/Eigenvalues>
-#include <Eigen/Dense> 
 
 // Flexible SUSY stuff (should not be needed by the rest of gambit)
 #include "flexiblesusy/src/spectrum_generator_settings.hpp"
-#include "flexiblesusy/src/ew_input.hpp"
-#include "flexiblesusy/src/lowe.h" // From softsusy; used by flexiblesusy
-#include "flexiblesusy/src/numerics2.hpp"
 #include "flexiblesusy/models/THDM_I/THDM_I_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_II/THDM_II_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_LS/THDM_LS_input_parameters.hpp"
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
-#include "flexiblesusy/src/problems.hpp"
 
 // GAMBIT headers
 #include "gambit/Elements/gambit_module_headers.hpp"
@@ -3894,7 +3889,8 @@ namespace Gambit
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
       constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
-      constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
+      // TODO: Why didn't you use the experimental uncertainty?
+      //constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
 
       double mass_err_h = std::abs(mh_pole - mh_exp);
       double mass_err_H = std::abs(mH_pole - mh_exp);

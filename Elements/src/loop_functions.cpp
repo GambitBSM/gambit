@@ -308,6 +308,7 @@ namespace Gambit
         {
           utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopfCl");
         }
+        return 0.0;
       }
 
       std::complex<double> TwoLoopfCd(double xu, double xd, double Qu, double Qd)
@@ -329,7 +330,8 @@ namespace Gambit
         else
         {
           utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopfCd");
-        }      
+        }
+        return 0.0;
       }
 
       std::complex<double> TwoLoopfCu(double xu, double xd, double Qu, double Qd)
@@ -380,6 +382,11 @@ namespace Gambit
           const double xdW = std::pow(mf[1]/mW,2);
           return std::pow((alph*mmu)*mf[lf]/(M_PI*mW*sw2),2) * Nc / (std::pow(mphi,2)-std::pow(mW,2)) / 32. * (TwoLoopFunctions::TwoLoopfCu(xuC, xdC, Qu, Qd) - TwoLoopFunctions::TwoLoopfCu(xuW, xdW, Qu, Qd));
         }
+        else
+        {
+          utils_error().raise(LOCAL_INFO, "Unknown field in computation of amplitude");
+        }
+        return 0.0;
       }
 
       //  Source:  1502.04199, eqn (25-29)
@@ -580,6 +587,12 @@ namespace Gambit
           std::complex<double> term1(ml[l]/ml[l] * OneLoopFunctions::OneLoopB(x)/24.,0.);
           return -term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
+        else
+        {
+          utils_error().raise(LOCAL_INFO, "Unknown field in amplitude");
+        }
+
+        return 0.0;
       }
 
       std::complex<double> A_loop1R(int f, int l, int li, int lp, int phi, std::vector<double> mnu, std::vector<double> ml, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab)
@@ -608,6 +621,12 @@ namespace Gambit
           std::complex<double> term1(ml[lp]/ml[l] * OneLoopFunctions::OneLoopB(x)/24.,0.);
           return -term1*conj(Yukawas::yff_phi(f,li,lp,phi,ml[li],xi_L,VCKM,vev,cosab))*Yukawas::yff_phi(f,li,l,phi,ml[li],xi_L,VCKM,vev,cosab);
         }
+        else
+        {
+          utils_error().raise(LOCAL_INFO, "Unknown field in amplitude");
+        }
+
+        return 0.0;
       }
 
     //2-loop fermionic contribution
@@ -701,6 +720,12 @@ namespace Gambit
           const std::complex<double> I(0,1);
           return TwoLoopFunctions::TwoLoopfC(lf, Nc, Qu, Qd, alph, mmu, mf, mphi, mW, mZ) * I * vev / mmu * Yukawas::yff_phi(fe, l, lp, 2, mmu, xi_L, VCKM, vev, cosab) * I * vev / mf[lf] * Yukawas::yff_phi(lf, gi, gi, 2, mf[lf], xi_f, VCKM, vev, cosab);
         }
+        else
+        {
+          utils_error().raise(LOCAL_INFO, "Unknown field in amplitude");
+        }
+
+        return 0.0;
       }
 
       // Source: 1502.04199, eqns (19-24)
