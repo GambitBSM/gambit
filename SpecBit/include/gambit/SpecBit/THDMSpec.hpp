@@ -44,6 +44,7 @@ namespace Gambit
 {
    namespace SpecBit
    {
+      // MI === model_interface
       template <class MI>
       const int THDMSpec<MI>::_index_offset = MI::index_offset;
 
@@ -57,7 +58,6 @@ namespace Gambit
          , backend_version(be_version)
          , model_interface(mi)
       {}
-
 
       template <class MI>
       THDMSpec<MI>::THDMSpec()

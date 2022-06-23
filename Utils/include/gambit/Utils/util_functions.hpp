@@ -254,6 +254,9 @@ namespace Gambit
      dummy_function(args...);
     }
 
+    // Factorial function
+    EXPORT_SYMBOLS int factorial(const int);
+
   }
 
 }

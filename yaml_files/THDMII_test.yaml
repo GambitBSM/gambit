@@ -195,15 +195,13 @@ ObsLikes:
     purpose: Observable
 
   - capability: sba
-    function: obs_sba
     purpose: Observable
 
   - capability: cba
-    function: obs_cba
     purpose: Observable
 
   - capability: ba
-    function: obs_ba
+    purpose: Observable
 
   # interesting flavour observables
 
@@ -394,14 +392,6 @@ Rules:
   - capability: Reference_SM_A0_decay_rates
     function: Ref_SM_A0_decays_THDM
 
-  - capability: HB_ModelParameters_neutral
-    function: THDM_ModelParameters_effc
-    module: ColliderBit
-
-  - capability: HB_ModelParameters_charged
-    function: THDM_ModelParameters_charged
-    module: ColliderBit
-
   - capability: Higgs_Couplings
     function: THDM_higgs_couplings_2HDMC
     module: SpecBit
@@ -416,15 +406,14 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "stderr"
-    [Default] :  "stderr"
-    [DecayBit] :  "stderr"
-    [DarkBit] :  "stderr"
-    [PrecisionBit] :  "stderr"
-    [ColliderBit] :  "stderr"
-    [SpecBit] :  "stderr"
-    [Dependency Resolver] :  "stderr"
-    [Scanner]:  "stderr"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
+    [DecayBit] :  "DecayBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "dep_resolver.log"
+    [Scanner]:  "Scanner.log"
 
 ##########################
 # Name/Value Section

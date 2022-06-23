@@ -185,25 +185,11 @@ ObsLikes:
     - capability: LEP_Higgs_LogLike
       function: calc_HB_5_LEP_LogLike
       purpose: LogLike
-      dependencies:
-        - capability: HB_ModelParameters_neutral
-          function: THDM_ModelParameters_effc
-          module: ColliderBit
-        - capability: HB_ModelParameters_charged
-          function: THDM_ModelParameters_charged
-          module: ColliderBit
 
     # HS 2beta likelihood
     - capability: LHC_Higgs_LogLike
       function: calc_HS_2_LHC_LogLike
       purpose: LogLike
-      dependencies:
-        - capability: HB_ModelParameters_neutral
-          function: THDM_ModelParameters_effc
-          module: ColliderBit
-        - capability: HB_ModelParameters_charged
-          function: THDM_ModelParameters_charged
-          module: ColliderBit
 
     #################
     # Observables
@@ -261,14 +247,6 @@ Rules:
     # -------------------------------------------
 
     # Specifies effc coupling input for HB/HS
-    - capability: HB_ModelParameters_neutral
-      function: THDM_ModelParameters_effc
-      module: ColliderBit
-
-    - capability: HB_ModelParameters_charged
-      function: THDM_ModelParameters_charged
-      module: ColliderBit
-
     - capability: Higgs_Couplings
       function: THDM_higgs_couplings_2HDMC
 
@@ -296,6 +274,11 @@ Rules:
     - capability: muon_gm2_SM
       function: gm2_SM_ee
 
+    # Choose the BNL experimental measurement of g-2
+    - capability: muon_gm2_Exp
+      function: gm2_Exp_BNL
+      module: PrecisionBit
+
     # Choose to use superiso for DeltaMBs calc
     - capability: DeltaMs
       function: SI_Delta_MBs
@@ -317,14 +300,13 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
     [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
     [PrecisionBit] :  "PrecisionBit.log"
     [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 ##########################

@@ -39,6 +39,10 @@
 ///          (ankit.beniwal@uclouvain.be)
 ///  \date 2020 Jul
 ///
+///  \author A.S. Woodcock
+///          (alex.woodcock@outlook.com)
+///  \date   Feb 2022
+///
 ///  *********************************************
 
 #include <cmath>
@@ -54,6 +58,7 @@
 #include "gambit/Utils/util_types.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
+
 
 // #define COLLIDERBIT_DEBUG
 
@@ -324,7 +329,7 @@ namespace Gambit
       set_SMLikeHiggs_ModelParameters_charged(result);
     }
 
-    /// MSSM-like (MSSM + NMSSM + ...) Higgs model parameters for HiggsBounds/Signals
+    /// MSSM-like (MSSM + NMSSM + THDM + ...) Higgs model parameters for HiggsBounds/Signals
     void MSSMLikeHiggs_ModelParameters(hb_neutral_ModelParameters_part &result)
     {
       using namespace Pipes::MSSMLikeHiggs_ModelParameters;
@@ -414,7 +419,7 @@ namespace Gambit
 
     }
 
-    /// MSSM-like (MSSM + NMSSM + ...) Higgs model parameters for HiggsBounds 5
+    /// MSSM-like (MSSM + NMSSM + THDM + ...) Higgs model parameters for HiggsBounds 5
     void MSSMLikeHiggs_ModelParameters_effc(hb_neutral_ModelParameters_effc &result)
     {
       using namespace Pipes::MSSMLikeHiggs_ModelParameters_effc;
@@ -461,10 +466,18 @@ namespace Gambit
           result.deltaMh[i] = 0.;
         }
 
-        // Total width - get HB to calculate this 
-        result.hGammaTot[i] = -1.;
-        // Total width - use calculated
-        // result.hGammaTot[i] = decays.width_in_GeV;
+        // Total width 
+        const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
+        result.hGammaTot[i] = decays.width_in_GeV;
+
+        // TODO: Maybe make this a runoption?
+        const bool calc_width_using_HB = false;
+        if (calc_width_using_HB)
+        {
+          // get HB to calculate total width internally (this is only valid for scalar masses up to 1 TeV)
+          result.hGammaTot[i] = -1.;
+        }
+
       }
 
       // fill neutral effective couplings
@@ -493,7 +506,7 @@ namespace Gambit
       #endif
     }
 
-    // MSSM-like Higgs charged model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...)
+    // MSSM-like Higgs charged model parameters, for BSM models with MSSM-like sectors (THDM, MSSM, NMSSM, ...)
     void MSSMLikeHiggs_ModelParameters_charged(hb_charged_ModelParameters &result)
     {
       using namespace Pipes::MSSMLikeHiggs_ModelParameters_charged;
@@ -557,17 +570,17 @@ namespace Gambit
         result.BR_HpjhiW[h-1] = H_plus_widths.has_channel("W+",sHneut[h-1]) ? H_plus_widths.BF("W+",sHneut[h-1]): 0.;
       }
      
-        #ifdef COLLIDERBIT_DEBUG
-        std::cout << "Pole_Mass " << result.MHplus[0] << std::endl;
-        std::cout << "Width " << result.HpGammaTot[0] << std::endl;
-          printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
-          printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
-          printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
-          printf("4 %5s %16.8E\n", "Hpjcb", result.BR_Hpjcb[0]);
-          printf("4 %5s %16.8E\n", "BR_Hptaunu", result.BR_Hptaunu[0]);
-          printf("4 %5s %16.8E\n", "BR_Hpjtb", result.BR_Hpjtb[0]);
-          printf("4 %5s %16.8E\n", "BR_HpjhiW", result.BR_HpjhiW[0]);
-        #endif
+      #ifdef COLLIDERBIT_DEBUG
+      std::cout << "Pole_Mass " << result.MHplus[0] << std::endl;
+      std::cout << "Width " << result.HpGammaTot[0] << std::endl;
+        printf("4 %5s %16.8E\n", "tW", result.BR_tWpb);
+        printf("4 %5s %16.8E\n", "tHpj", result.BR_tHpjb[0]);
+        printf("4 %5s %16.8E\n", "Hpjcs", result.BR_Hpjcs[0]);
+        printf("4 %5s %16.8E\n", "Hpjcb", result.BR_Hpjcb[0]);
+        printf("4 %5s %16.8E\n", "BR_Hptaunu", result.BR_Hptaunu[0]);
+        printf("4 %5s %16.8E\n", "BR_Hpjtb", result.BR_Hpjtb[0]);
+        printf("4 %5s %16.8E\n", "BR_HpjhiW", result.BR_HpjhiW[0]);
+      #endif
     }
 
     /// Get a LEP chisq from HiggsBounds
@@ -816,7 +829,6 @@ namespace Gambit
       result = -0.5*chisq_withouttheory;
     }
 
-
     /// Get an LHC chisq from HiggsSignals
     void calc_HS_LHC_LogLike(double &result)
     {
@@ -995,16 +1007,20 @@ namespace Gambit
       #endif
 
     }
+    
 
     /// Get an LHC chisq from HiggsSignals (v2 beta)
     void calc_HS_2_LHC_LogLike(double &result)
     {
       using namespace Pipes::calc_HS_2_LHC_LogLike;
+      const bool SMHiggsMassOnly = runOptions->getValueOrDef<bool>(false, "sm_higgs_mass_only");
 
       hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
 
       const int nNeutral = 3;
+
+      // - put Higgs branching ratios into a Fortran array
 
       Farray<double, 1,nNeutral> BR_HpjhiW, BR_hjHpiW;
       Farray<double, 1,nNeutral, 1,nNeutral> ghjhiZ, BR_hjhiZ;
@@ -1013,19 +1029,18 @@ namespace Gambit
       for(int j = 0; j < nNeutral; j++) {
         BR_HpjhiW(j+1) = ModelParam_charged.BR_HpjhiW[j];
         BR_hjHpiW(j+1) = ModelParam.BR_hjHpiW[j][0];
-        //
+
         for(int i = 0; i < nNeutral; i++) {
           ghjhiZ(j+1,i+1) = ModelParam.ghjhiZ[j][i];
           BR_hjhiZ(j+1,i+1) = ModelParam.BR_hjhiZ[j][i];
           
-          //
           for(int k = 0; k < nNeutral; k++) {
             BR_hkhjhi(k+1, j+1, i+1) = ModelParam.BR_hkhjhi[k][j][i];
           }
-          //
         }
-        //
       }
+
+      // - give our couplings / branching ratios to HiggsBounds/HiggsSignals
 
       BEreq::HiggsBounds_neutral_input_properties_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
 
@@ -1058,20 +1073,34 @@ namespace Gambit
       // double dBR[5] = {0.,0.,0.,0.,0.};
       // BEreq::setup_rate_uncertainties(dCS,dBR);
 
+      // chi-squared values for: mu == rate observable, mh == mass observable, tot == both combined
 
-            // run HiggsSignals
-      // int mode = 1; // 1- peak-centered chi2 method (recommended)
       double csqmu, csqmh, csqtot, Pvalue;
       double csqmu1, csqmh1, csqtot1, Pvalue1;
       double csqmu2, csqmh2, csqtot2, Pvalue2;
       int nobs, nobs1, nobs2;
 
-      // Run the main subroutines
+      // - run HiggsSignals
+
+      // peak-centered method using Higgs signal strength measurements
       BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
+      // LHC run1 (using combined ATLAS + CMS dataset)
       BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
+      // uses new Simplified Template Cross Section (STXS) measurements
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
-      result = -0.5*(csqtot + csqtot1 + csqtot2);
+      // std::cout << " " << csqmu << " " << csqmu1 << " " << csqmu2 << " " << csqmh << " " << csqmh1 << " " << csqmh2 << std::endl;
+
+      if (SMHiggsMassOnly) 
+        result = -0.5*(csqmh + csqmh1 + csqmh2);
+      else
+        result = -0.5*(csqtot + csqtot1 + csqtot2);
+
+      if (std::isnan(result) || std::isinf(result))
+      {
+        invalid_point().raise("NaN or infinite HS likelihood, point invalidated!");
+      }
+
     }
 
     /// Higgs production cross-sections from FeynHiggs.
@@ -1122,6 +1151,20 @@ namespace Gambit
       // The ttbar production cross-sections for the (BSM,SM) model can be found at (prodxs_X[h+27], prodxs_X[h+30]),
       // where h is the higgs index (0 = h0_1, 1 = h0_2, 2 = A0) and X is one of Tev, LHC7 or LHC8.
       result = HiggsProd;
+
+    }
+
+     /// Get an LHC chisq from HiggsSignals
+    void calc_SM_Higgs_Mass_LogLike(double &result)
+    {
+      using namespace Pipes::calc_SM_Higgs_Mass_LogLike;
+
+      hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
+      const double mh = ModelParam.Mh[0];
+      const double mh_obs = 124.97;
+      const double error = 0.24;
+
+      result = -0.5 * pow(((mh - mh_obs) / error), 2);
 
     }
   }

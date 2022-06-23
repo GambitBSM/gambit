@@ -34,7 +34,7 @@
 
 #define MODULE ColliderBit
 
-  // HiggsBounds input model parameters nuetral
+  // HiggsBounds input model parameters neutral
   #define CAPABILITY HB_ModelParameters_neutral
   START_CAPABILITY
 
@@ -48,7 +48,7 @@
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 
-    // MSSM-like Higgs model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...)
+    // MSSM-like Higgs model parameters, for BSM models with MSSM-like Higgs sectors (MSSM, NMSSM, THDM, ...)
     #define FUNCTION MSSMLikeHiggs_ModelParameters
     START_FUNCTION(hb_neutral_ModelParameters_part)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
@@ -57,7 +57,7 @@
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 
-    // MSSM-like Higgs model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...) (effc)
+    // MSSM-like Higgs model parameters, for BSM models with MSSM-like Higgs sectors (MSSM, NMSSM, THDM, ...) (effc)
     #define FUNCTION MSSMLikeHiggs_ModelParameters_effc
     START_FUNCTION(hb_neutral_ModelParameters_effc)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
@@ -82,7 +82,7 @@
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 
-    // MSSM-like Higgs charged model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...)
+    // MSSM-like Higgs charged model parameters, for BSM models with MSSM-like Higgs sectors (MSSM, NMSSM, THDM, ...)
     #define FUNCTION MSSMLikeHiggs_ModelParameters_charged
     START_FUNCTION(hb_charged_ModelParameters)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
@@ -210,6 +210,18 @@
     BACKEND_REQ(FHHiggsProd, (libfeynhiggs), void, (int&, fh_real&, Farray< fh_real,1,52>&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
     #undef FUNCTION
+  #undef CAPABILITY
+
+
+  // Get an LHC Higgs chisq
+  #define CAPABILITY SM_Higgs_Mass_LogLike
+  START_CAPABILITY
+
+    #define FUNCTION calc_SM_Higgs_Mass_LogLike
+    START_FUNCTION(double)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 

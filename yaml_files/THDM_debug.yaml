@@ -173,9 +173,9 @@ ObsLikes:
       purpose: LogLike
 
     # Semi-Leptonic likelihood collection 7 obs (Ds,D->munu && Bu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
-    - capability: SL_LL
-      function: SL_likelihood
-      purpose: LogLike
+#    - capability: SL_LL
+#      function: SL_likelihood
+#      purpose: LogLike
     
     # muon g-2 likelihood 
     - capability: lnL_gm2
@@ -218,14 +218,14 @@ ObsLikes:
       purpose: LogLike
 
     # # B->Dstar,l,nu likelihood [Normalized differential decay width]
-    - capability: BDstartaunu_LL
-      function: BDstartaunu_likelihood
+#    - capability: BDstartaunu_LL
+#      function: BDstartaunu_likelihood
       purpose: LogLike
 
     # # B->D,l,nu likelihood [Normalized differential decay width]
-    - capability: BDtaunu_LL
-      function: BDtaunu_likelihood
-      purpose: LogLike
+#    - capability: BDtaunu_LL
+#      function: BDtaunu_likelihood
+#      purpose: LogLike
 
     # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
     - purpose: LogLike
@@ -435,6 +435,10 @@ Rules:
       function: gm2_SM_ee
       module: PrecisionBit
 
+    - capability: muon_gm2_Exp
+      function: gm2_Exp_BNL
+      module: PrecisionBit
+
     - options:
       use_SM_covariance: true
 
@@ -445,11 +449,11 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
     [PrecisionBit] :  "PrecisionBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 ##########################

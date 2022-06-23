@@ -802,11 +802,10 @@ namespace Gambit
         result.deltaCQp[6]=std::complex<double>(result.Re_DeltaCQ2_tau_Prime, result.Im_DeltaCQ2_tau_Prime);
 
       }
-      if (ModelInUse("THDM"))
+      if (ModelInUse("THDM") or ModelInUse("THDMatQ"))
       {
         result.SM = 1;
-        result.THDM_model = -3; //force SI to read the THDM as an EFT
-        //cout<<"ModelInUse('THDM'), Dep::DeltaC10 = "<<Dep::DeltaC10->real()<<endl;
+        result.model = -3; //force SI to read the THDM as an EFT
         result.Re_DeltaC2  = Dep::DeltaC2->real();
         result.Im_DeltaC2  = Dep::DeltaC2->imag();
         result.Re_DeltaC7  = Dep::DeltaC7->real();
@@ -3477,6 +3476,14 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_BDtaunu"<<endl;
     }
 
+    /// BR B -> D tau nu
+    void THDM_BDtaunu(double &)
+    {
+      using namespace Pipes::THDM_BDtaunu;
+
+      FlavBit_error().raise(LOCAL_INFO, "BDtaunu not implemented for THDM model");
+    }
+
 
     /// Br B -> D mu nu
     void SI_BDmunu(double &result)
@@ -3497,6 +3504,14 @@ namespace Gambit
 
       if (flav_debug) printf("BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SI_BDmunu"<<endl;
+    }
+
+    /// BR B -> D mu nu
+    void THDM_BDmunu(double &)
+    {
+      using namespace Pipes::THDM_BDmunu;
+
+      FlavBit_error().raise(LOCAL_INFO, "BDmunu not implemented for THDM model");
     }
 
 
@@ -3521,6 +3536,14 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_BDstartaunu"<<endl;
     }
 
+    /// BR B -> D* tau nu
+    void THDM_BDstartaunu(double &)
+    {
+      using namespace Pipes::THDM_BDstartaunu;
+
+      FlavBit_error().raise(LOCAL_INFO, "BDstartaunu not implemented for THDM model");
+    }
+
 
     /// Br B -> D* mu nu
     void SI_BDstarmunu(double &result)
@@ -3541,6 +3564,14 @@ namespace Gambit
 
       if (flav_debug) printf("BR(B->Dstar mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SI_BDstarmunu"<<endl;
+    }
+
+    /// BR B -> D* mu nu
+    void THDM_BDstarmunu(double &)
+    {
+      using namespace Pipes::THDM_BDstarmunu;
+
+      FlavBit_error().raise(LOCAL_INFO, "BDstarmunu not implemented for THDM model");
     }
 
 
@@ -4474,9 +4505,6 @@ namespace Gambit
       //double S5 = pmc.value_th(28,0);
       //double AFB = pmc.value_th(25,0);
 
-      //cout<<"BKstarmumu_6_8->P5' "<< S5/sqrt(FL*(1-FL)) <<endl;
-      //cout<<"BKstarmumu_6_8->P2 "<< 2*AFB/(3*(1-FL)) <<endl;
-
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)
       {
@@ -5017,7 +5045,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_measurements;
 
-      const int n_experiments=9;//11;
+      const int n_experiments=11;
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
@@ -5036,9 +5064,9 @@ namespace Gambit
         // B-> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
         // B-> D mu nu
-        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BDmunu");
         // B-> D* mu nu
-        //fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
+        fread.read_yaml_measurement("flav_data.yaml", "BR_BDstarmunu");
         // RD
         fread.read_yaml_measurement("flav_data.yaml", "RD");
         // RDstar
@@ -5076,38 +5104,38 @@ namespace Gambit
       }
 
       // R(D) is calculated assuming isospin symmetry
-      double theory[9];//[11];
+      double theory[11];
       // B-> tau nu SI
       theory[0] = *Dep::Btaunu;
       // B-> D mu nu
-      //theory[1] = *Dep::BDmunu;
+      theory[1] = *Dep::BDmunu;
       // B-> D* mu nu
-      //theory[2] = *Dep::BDstarmunu;
+      theory[2] = *Dep::BDstarmunu;
       // RD
-      theory[1] = *Dep::RD;
+      theory[3] = *Dep::RD;
       // RDstar
-      theory[2] = *Dep::RDstar;
+      theory[4] = *Dep::RDstar;
       // Ds-> tau nu
-      theory[3] = *Dep::Dstaunu;
+      theory[5] = *Dep::Dstaunu;
       // Ds -> mu nu
-      theory[4] = *Dep::Dsmunu;
+      theory[6] = *Dep::Dsmunu;
       // D -> mu nu
-      theory[5] =*Dep::Dmunu;
+      theory[7] =*Dep::Dmunu;
       // D -> tau nu
-      theory[6] =*Dep::Dtaunu;
+      theory[8] =*Dep::Dtaunu;
       //R_mu
-      theory[7] =*Dep::Rmu;
+      theory[9] =*Dep::Rmu;
       //RDemu
-      theory[8] =*Dep::RDemu;
+      theory[10] =*Dep::RDemu;
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];
         pmc.cov_th(i,i) = th_err[i]*th_err[i] * (th_err_absolute[i] ? 1.0 : theory[i]*theory[i]);
       }
       // Add in the correlations between B-> D mu nu and RD
-      //pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
+      pmc.cov_th(1,3) = pmc.cov_th(3,1) = -0.55 * th_err[1]*th_err[3] * (th_err_absolute[1] ? 1.0 : theory[1]) * (th_err_absolute[3] ? 1.0 : theory[3]);
       // Add in the correlations between B-> D* mu nu and RD*
-      //pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
+      pmc.cov_th(2,4) = pmc.cov_th(4,2) = -0.62 * th_err[2]*th_err[4] * (th_err_absolute[2] ? 1.0 : theory[2]) * (th_err_absolute[4] ? 1.0 : theory[4]);
 
       pmc.diff.clear();
       for (int i=0;i<n_experiments;++i)
@@ -7073,7 +7101,8 @@ namespace Gambit
 
       if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_LHCb result: " << result << std::endl;
     }
- /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
+
+    /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
     void HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020(double &result)
     {
       using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020;
@@ -7120,7 +7149,8 @@ namespace Gambit
 
       if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_LHCb 2020 result: " << result << std::endl;
     }
-     /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
+
+    /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
     void HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020(double &result)
     {
       using namespace Pipes::HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020;
@@ -7166,9 +7196,7 @@ namespace Gambit
       if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb 2020 result: " << result << std::endl;
     }
 
-
-    
-     /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
+    /// HEPLike LogLikelihood B -> K* mu mu Angular (LHCb)
     void HEPLike_B2KstarmumuAng_CPAssym_LogLikelihood_LHCb(double &result)
     {
       using namespace Pipes::HEPLike_B2KstarmumuAng_CPAssym_LogLikelihood_LHCb;
@@ -7308,8 +7336,6 @@ namespace Gambit
 
       if (flav_debug) std::cout << "HEPLike_B2KstarmumuAng_LogLikelihood_LHCb result: " << result << std::endl;
     }
-
-
 
     
     /// HEPLike LogLikelihood B -> K+ mu mu Br (LHCb)

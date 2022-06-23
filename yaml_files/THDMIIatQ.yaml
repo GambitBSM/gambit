@@ -152,9 +152,9 @@ ObsLikes:
       purpose: LogLike
 
     # Semi-Leptonic likelihood collection
-    - capability: SL_LL
-      function: SL_likelihood
-      purpose: LogLike
+#    - capability: SL_LL
+#      function: SL_likelihood
+#      purpose: LogLike
 
     # LUV likelihood collection
     - purpose:    LogLike
@@ -210,11 +210,9 @@ ObsLikes:
       purpose: Observable
 
     - capability: sba
-      function: obs_sba
       purpose: Observable
 
     - capability: cba
-      function: obs_cba
       purpose: Observable
 
     # -------------------------------------------
@@ -234,6 +232,7 @@ Rules:
     ##############################
 
     - capability: THDM_spectrum
+      type: Spectrum
       function: get_THDM_spectrum
 
     # -------------------------------------------
@@ -265,14 +264,6 @@ Rules:
     # -------------------------------------------
 
     # Specifies effc coupling input for HB/HS
-    - capability: HB_ModelParameters_neutral
-      function: THDM_ModelParameters_effc
-      module: ColliderBit
-
-    - capability: HB_ModelParameters_charged
-      function: THDM_ModelParameters_charged
-      module: ColliderBit
-
     - capability: Higgs_Couplings
       function: THDM_higgs_couplings_2HDMC
       module: SpecBit
@@ -321,14 +312,13 @@ Rules:
 Logger:
 
   redirection:
-    [Debug] :  "Debug.log"
-    [Default] :  "Default.log"
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
     [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
     [PrecisionBit] :  "PrecisionBit.log"
     [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "DepResolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 ##########################

@@ -102,7 +102,6 @@ namespace Gambit
     //  =======================================================================
     //  These are wrapped up in Gambit functor objects according to the
     //  instructions in the rollcall header
-
     /// Set SMINPUTS (SLHA2) struct to match StandardModel_SLHA2 parameters.
     //  Effectively just changes these model parameters into a more convenient form.
     //  But also opens up the possibility of rebuilding this struct from some other

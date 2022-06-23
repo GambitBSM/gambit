@@ -201,25 +201,11 @@ ObsLikes:
 #    - capability: LEP_Higgs_LogLike
 #      function: calc_HB_5_LEP_LogLike
 #      purpose: LogLike
-#      dependencies:
-#        - capability: HB_ModelParameters_neutral
-#          function: THDM_ModelParameters_effc
-#          module: ColliderBit
-#        - capability: HB_ModelParameters_charged
-#          function: THDM_ModelParameters_charged
-#          module: ColliderBit
 
     # HS 2beta likelihood
 #    - capability: LHC_Higgs_LogLike
 #      function: calc_HS_2_LHC_LogLike
 #      purpose: LogLike
-#      dependencies:
-#        - capability: HB_ModelParameters_neutral
-#          function: THDM_ModelParameters_effc
-#          module: ColliderBit
-#        - capability: HB_ModelParameters_charged
-#          function: THDM_ModelParameters_charged
-#          module: ColliderBit
 
     #################
     # Observables
@@ -270,18 +256,6 @@ Rules:
       options:
         check_correction_ratio: true
     
-    # -------------------------------------------
-
-    # Specifies effc coupling input for HB/HS
-    - capability: HB_ModelParameters_neutral
-      function: THDM_ModelParameters_effc
-      module: ColliderBit
-
-    - capability: HB_ModelParameters_charged
-      function: THDM_ModelParameters_charged
-      module: ColliderBit
-
-    # -------------------------------------------
 
     - capability: SuperIso_modelinfo
       function: SI_fill
@@ -329,11 +303,10 @@ Logger:
     [Debug] :  "debug.log"
     [Default] :  "default.log"
     [DecayBit] :  "DecayBit.log"
-    [DarkBit] :  "DarkBit.log"
     [PrecisionBit] :  "PrecisionBit.log"
     [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
-    [Dependency Resolver] :  "depresolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
 
 ##########################

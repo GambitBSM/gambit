@@ -9,6 +9,12 @@
 ## THDMC, SuperIso, HiggsBounds, HiggsSignals
 ##########################################################################
 
+
+
+#################################
+##   MODEL PARAMETER RANGES    ##
+#################################
+
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
@@ -273,22 +279,23 @@ Parameters:
 Printer:
 
   # Select printer to use via string tag
-  printer: cout
-  #printer: hdf5
+  #printer: cout
+  printer: hdf5
 
+  # # unfortunately the new hdf5 printer is buggy!
+  printer: hdf5_v1
   options:
-    # name of output file, which format should have when using cout?
     output_file: "THDM.hdf5"
     group: "/THDM"
     delete_file_on_restart: true
 
-##############################
-# Scanner setup
-##############################
+#################################
+##     SCANNER SELECTION       ##
+#################################
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: de
 
   scanners:
 
@@ -306,19 +313,14 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 10000
+      point_number: 2000000
       like:  LogLike
-
-      # No options to set, but still need the nodes at the moment...
-      aux_printer_txt_options:
-      aux_printer_stats_options:
-      aux_printer_live_options:
-
-ObsLikes:
 
     ###########################
     # Likelihoods
     ###########################
+
+ObsLikes:
 
     # Checks that loop corrections to the pole mass of mh0
     # do not exceed 50% of the input mass at Qin
@@ -469,6 +471,8 @@ ObsLikes:
 #      purpose: Observable  
       
 
+
+
 Rules:
 
     ##############################
@@ -576,67 +580,6 @@ Rules:
       function: SI_Bsmumu_untag
       module: FlavBit
 
-  # -------------------------
-  # OFF - b2mumu likelihoods
-
-  # - capability: prediction_B2mumu
-  #   options:
-  #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  # - capability: B2mumu_LogLikelihood_.*
-  #   function: HEPLike_B2mumu_LogLikelihood_LHCb
-  #   options:
-  #     obs_list: [BRuntag_Bsmumu, BR_Bdmumu]
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - b2kstar likelihoods
-
-  # - capability: prediction_B2KstarmumuAng_.*_Atlas
-  #   options:
-  #     obs_list: [FL, S3, S4, S5, S7, S8]
-  
-  # - capability: B2KstarmumuAng_LogLikelihood_Atlas
-  #   options:
-  #     obs_list: [FL, S3, S4, S5, S7, S8]
-
-  # - capability: prediction_B2KstarmumuAng_.*_Belle
-  #   options:
-  #     obs_list: [P4prime, P5prime]
-
-  # - capability: B2KstarmumuAng_LogLikelihood_Belle
-  #   options:
-  #     obs_list: [P4prime, P5prime]
-
-  # - capability: prediction_B2KstarmumuAng_.*_LHCb
-  #   options:
-  #     obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
-  
-  # - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
-  #   function: HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020
-  #   options:
-  #     obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]  
-
-  # - capability: prediction_B2KstarmumuAng_.*_CMS
-  #   options:
-  #     obs_list: [P1, P5prime] 
-
-  # - capability: B2KstarmumuAng_LogLikelihood_CMS
-  #   options:
-  #     obs_list: [P1, P5prime]
-
-  # -------------------------
-
-
-  # -------------------------
-  # OFF - RK/RD star likelihoods
-
-  # - capability: SuperIso_theory_covariance
-  #   function: SI_theory_covariance
-
-  # -------------------------
 
 
 #########################
@@ -648,14 +591,15 @@ Logger:
   redirection:
     [Debug] :  "debug.log"
     [Default] :  "default.log"
-   # [DecayBit] :  "DecayBit.log"
-   # [DarkBit] :  "DarkBit.log"
-   # [PrecisionBit] :  "PrecisionBit.log"
-   # [ColliderBit] :  "ColliderBit.log"
+    [DecayBit] :  "DecayBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
     [SpecBit] :  "SpecBit.log"
     [FlavBit] :  "FlavBit.log"
-    [Dependency Resolver] :  "depresolver.log"
+    [Dependency Resolver] :  "dep_resolver.log"
     [Scanner]:  "Scanner.log"
+
+
 
 ##########################
 # Name/Value Section

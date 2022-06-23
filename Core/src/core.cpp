@@ -277,6 +277,8 @@ namespace Gambit
   /// Check the capability and model databases for conflicts and missing descriptions
   void gambit_core::check_databases()
   {
+    const int mpirank = GET_RANK; // Get MPI rank (assume MPI already initialised)
+
     // Loop through registered capabilities and try to find their descriptions (potentially from many files, but for now just checking one)
     DescriptionDatabase description_file(input_capability_descriptions); // Load descriptions file
     // std::set<str> parsed_descriptions; // Set of capabilities whose description we have parsed
@@ -443,7 +445,7 @@ namespace Gambit
       model_dbase.push_back(model);
     }
 
-    if (missing_flag)
+    if (missing_flag and mpirank == 0)
     {
       // Warn user of missing descriptions
       cout << "Descriptions are missing for the following models:" << endl;
@@ -475,8 +477,9 @@ namespace Gambit
 
   void gambit_core::check_capability_descriptions()
   {
+    const int mpirank = GET_RANK; // Get MPI rank (assume MPI already initialised)
 
-    if (missing_capability_description)
+    if (missing_capability_description and mpirank == 0)
     {
       cout << "Descriptions are missing for the following capabilities:" << endl;
       for (const auto &capability : capability_dbase)

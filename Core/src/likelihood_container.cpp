@@ -26,6 +26,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2019 May
 ///
+///  \author A.S. Woodcock
+///          (alex.woodcock@outlook.com)
+///  \date   2022 May
+///
 ///  *********************************************
 
 #include "gambit/Core/likelihood_container.hpp"
@@ -37,7 +41,6 @@
 
 namespace Gambit
 {
-
   // Methods for Likelihood_Container class.
 
   /// Constructor
@@ -51,6 +54,8 @@ namespace Gambit
     alt_min_valid_lnlike             (iniFile.getValueOrDef<double>(0.5*min_valid_lnlike, "likelihood", "model_invalid_for_lnlike_below_alt")),
     active_min_valid_lnlike          (min_valid_lnlike), // can be switched to the alternate value by the scanner
     print_invalid_points             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
+    print_points_to_cout             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_points_to_cout")),
+    print_perf_stats                 (iniFile.getValueOrDef<bool>(true, "likelihood", "print_perf_stats")),
     disable_print_for_lnlike_below   (iniFile.getValueOrDef<double>(min_valid_lnlike, "likelihood", "disable_print_for_lnlike_below")),
     intralooptime_label              ("Runtime(ms) intraloop"),
     interlooptime_label              ("Runtime(ms) interloop"),
@@ -68,10 +73,16 @@ namespace Gambit
       debug            (iniFile.getValueOrDef<bool>(false, "debug") or iniFile.getValueOrDef<bool>(false, "likelihood", "debug"))
     #endif
   {
+
+    required_points = iniFile.getValueOrDef<int>(-1, "required_points");
+    required_valid_points = iniFile.getValueOrDef<int>(-1, "required_valid_points");
+    required_scan_duration = iniFile.getValueOrDef<int>(-1, "required_scan_duration");
+
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
     // Find subset of vertices that match requested purpose
     auto all_vertices = dependencyResolver.getObsLikeOrder();
+
     for (auto it = all_vertices.begin(); it != all_vertices.end(); ++it)
     {
       if (dependencyResolver.getIniEntry(*it)->purpose == purpose)
@@ -128,22 +139,33 @@ namespace Gambit
     // Print out the MPI rank and values of the parameters for this point if in debug mode.
     if (debug)
     {
+      int mpirank = 0;
       #ifdef WITH_MPI
-        GMPI::Comm COMM_WORLD;
-        std::cout << "MPI process rank: "<< COMM_WORLD.Get_rank() << std::endl;
+      GMPI::Comm COMM_WORLD;
+      mpirank = COMM_WORLD.Get_rank();
       #endif
-      cout << parstream.str();
+
+      if (print_points_to_cout && mpirank == 0)
+      {
+        cout << parstream.str();
+      }
+
       logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
     }
     // Print the parameter point to the logs, even if not in debug mode
-    //logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
-
+    // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
 
   }
-
+  
   /// Evaluate total likelihood function
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
+    int mpirank = 0;
+    #ifdef WITH_MPI
+    GMPI::Comm COMM_WORLD;
+    mpirank = COMM_WORLD.Get_rank();
+    #endif
+
     logger() << LogTags::core << LogTags::debug << "Entered Likelihood_Container::main" << EOM;
 
     double lnlike = 0;
@@ -178,7 +200,9 @@ namespace Gambit
       point_invalidated = true; // Will prevent this likelihood value from being flagged as 'valid' by the printer
       logger() << "Shutdown in progess! The scanner is not flagged as being able to shut itself down, so are managing the shutdown from the likelihood container side. Returning min_valid_lnlike to ScannerBit instead of computing likelihood." << EOM;
     }
-    else // Do the normal likelihood calculation
+
+    // otherwise go ahead with the likelihood calculation
+    else
     {
       // If the shutdown has been triggered but the quit flag is present, then we let the likelihood evaluation proceed as normal.
 
@@ -195,7 +219,13 @@ namespace Gambit
       std::chrono::time_point<std::chrono::system_clock> startL = std::chrono::system_clock::now();
 
       // Compute time since the previous likelihood evaluation ended
+      // only used for printing (if user sets print_timing_data to true)
       std::chrono::duration<double> interloop_time = startL - previous_endL;
+
+      static int point_count = 0, invalid_count = 0;
+      static std::chrono::time_point<std::chrono::high_resolution_clock> startTime, currTime;
+      if (point_count == 0) startTime = std::chrono::high_resolution_clock::now();
+      ++point_count;
 
       // First work through the target functors, i.e. the ones contributing to the likelihood.
       for (auto it = target_vertices.begin(), end = target_vertices.end(); it != end; ++it)
@@ -258,6 +288,7 @@ namespace Gambit
           }
 
           // If we've dropped below the likelihood corresponding to effective zero already, skip the rest of the vertices.
+          // warning: this means that we may not calculate all likelihood components for a given point
           if (lnlike <= active_min_valid_lnlike) dependencyResolver.invalidatePointAt(*it, false);
 
           // Log completion of this likelihood.
@@ -267,6 +298,7 @@ namespace Gambit
         // Catch points that are invalid, either due to low like or pathology.  Skip the rest of the vertices if a point is invalid.
         catch(invalid_point_exception& e)
         {
+          ++invalid_count;
           logger() << LogTags::core << "Point invalidated by " << e.thrower()->origin() << "::" << e.thrower()->name() << ": " << e.message() << "Invalidation code " << e.invalidcode << EOM;
           logger().leaving_module();
           lnlike = active_min_valid_lnlike;
@@ -276,14 +308,16 @@ namespace Gambit
           // If print_ivalid_points is false disable the printer
           if(!print_invalid_points)
             printer.disable();
+          if (debug && print_points_to_cout) cout << "Point invalid." << endl;
           printer.print(e.invalidcode, "Invalidation Code", invalidcodeID, rankinv, getPtID());
           if (debug) cout << "Point invalid. Invalidation code: " << e.invalidcode << endl;
           break;
         }
+
       }
 
 
-      // If none of the likelihood calculations have invalidated the point, calculate the additional auxiliary observables.
+      // If none of the likelihood calculations have invalidated the point, calculate the observables.
       if (compute_aux)
       {
         if (debug) logger() << LogTags::core <<  "Completed likelihoods.  Calculating additional observables." << EOM;
@@ -322,6 +356,67 @@ namespace Gambit
            dependencyResolver.printObsLike(*it,getPtID());
       }
 
+      // --------------------------------
+
+      
+
+      currTime = std::chrono::high_resolution_clock::now();
+      double totalDur = std::chrono::duration<double>(currTime - startTime).count();
+      static double timer = 0;
+
+
+
+      auto time = [&](double secs)
+      {
+        int sec = secs;
+        int min = sec / 60;
+        int hour = min / 60;
+        int day = hour / 24;
+        sec %= 60;
+        min %= 60;
+        hour %= 24;
+
+        return std::to_string(day) + "d" + std::to_string(hour) + ":" + std::to_string(min) + ":" + std::to_string(sec);
+      };
+
+      if (mpirank == 0 && totalDur > timer && print_perf_stats)
+      {
+        timer += 20;
+
+        double completedPer = (100.0*point_count)/required_points;
+        double eta = ((totalDur * required_points) / point_count - totalDur);
+        int valid_count = point_count-invalid_count;
+
+        std::cerr << point_count << " / " << required_points << "pts (" << (int)completedPer << "%)" << " | " << valid_count << " / " << required_valid_points << " valid | " << valid_count / totalDur << " valid/sec | "  << point_count / totalDur << " pts/sec | (eta " << time(eta) << " ) | duration " << time(totalDur) << std::endl;
+      }
+
+ 
+
+      // check if we are ready for shutdown
+
+      if (!signaldata().check_if_shutdown_begun() && mpirank == 0)
+      {
+        if (required_points != -1 && point_count > required_points)
+        {
+          std::cerr << "completed the required point count of: " << required_points << std::endl;
+          std::cerr << "GAMBIT has completed the scan successfully!" << std::endl;
+          signaldata().set_shutdown_begun();
+        }
+        if (required_valid_points != -1 && point_count-invalid_count > required_valid_points)
+        {
+          std::cerr << "completed the required valid point count of: " << required_valid_points << std::endl;
+          std::cerr << "GAMBIT has completed the scan successfully!" << std::endl;
+          signaldata().set_shutdown_begun();
+        }
+        if (required_scan_duration != -1 && totalDur > required_scan_duration)
+        {
+          std::cerr << "completed the required scan duration of: " << time(required_scan_duration) << std::endl;
+          std::cerr << "GAMBIT has completed the scan successfully!" << std::endl;
+          signaldata().set_shutdown_begun();
+        }
+      }
+
+
       // End timing of total likelihood evaluation
       std::chrono::time_point<std::chrono::system_clock> endL = std::chrono::system_clock::now();
 
@@ -341,9 +436,9 @@ namespace Gambit
       {
         int rank = printer.getRank();
         // Convert time counts to doubles (had weird problem with long long ints on some systems)
-        double d_runtime   = std::chrono::duration_cast<ms>(runtimeL).count();
-        double d_interloop = std::chrono::duration_cast<ms>(interloop_time).count();
-        double d_total     = std::chrono::duration_cast<ms>(true_total_loop_time).count();
+        double d_runtime   = std::chrono::duration_cast<ms>(runtimeL).count();   // the time it took to calc all LLs and obs's for current point
+        double d_interloop = std::chrono::duration_cast<ms>(interloop_time).count(); // the overhead between two consecuative point calcs
+        double d_total     = std::chrono::duration_cast<ms>(true_total_loop_time).count(); // the time between two consecuative point calcs (including additional overhead)
         printer.print(d_runtime,   intralooptime_label, intraloopID, rank, getPtID());
         printer.print(d_interloop, interlooptime_label, interloopID, rank, getPtID());
         printer.print(d_total,     totallooptime_label, totalloopID, rank, getPtID());

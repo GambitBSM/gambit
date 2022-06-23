@@ -73,6 +73,12 @@ namespace Gambit
       /// Switch to print or not print invalid points to the output file
       bool print_invalid_points;
 
+      /// option to print each point to cout in real time
+      bool print_points_to_cout;
+
+      /// option to print performance stats to cout in real time
+      bool print_perf_stats;
+
       /// Disable printing for points with log likelihood below some value
       double disable_print_for_lnlike_below;
 
@@ -99,6 +105,12 @@ namespace Gambit
 
       /// Run in likelihood debug mode?
       bool debug;
+
+
+      int required_points = -1;
+      int required_valid_points = -1;
+      int required_scan_duration = -1;
+
 
     public:
 

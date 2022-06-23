@@ -1717,7 +1717,13 @@ START_MODULE
     BACKEND_REQ(BRBDlnu, (libsuperiso), double, (int, int, double,  double, double*, const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+
+    #define FUNCTION THDM_BDtaunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM, THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
+
 
   // Observable: BR(B->D mu nu)
   #define CAPABILITY BDmunu
@@ -1727,6 +1733,11 @@ START_MODULE
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(BRBDlnu, (libsuperiso), double, (int, int, double,  double, double*, const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+
+    #define FUNCTION THDM_BDmunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1739,6 +1750,11 @@ START_MODULE
     BACKEND_REQ(BRBDstarlnu, (libsuperiso), double, (int, int, double,  double, double*, const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+
+    #define FUNCTION THDM_BDstartaunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM, THDMatQ)
+    #undef FUNCTION
   #undef CAPABILITY
 
   // Observable: BR(B->D* mu nu)
@@ -1749,6 +1765,11 @@ START_MODULE
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(BRBDstarlnu, (libsuperiso), double, (int, int, double,  double, double*, const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+
+    #define FUNCTION THDM_BDstarmunu
+    START_FUNCTION(double)
+    ALLOW_MODELS(THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2570,7 +2591,7 @@ START_MODULE
     #define FUNCTION HEPLike_B2taunu_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2taunu, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2583,7 +2604,7 @@ START_MODULE
     DEPENDENCY(RDstar, double)
     // TODO: Switch dependency as soon as SuperIso is ready for the "new" way.
     // DEPENDENCY(prediction_RDRDstar, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2593,7 +2614,7 @@ START_MODULE
     #define FUNCTION HEPLike_b2sgamma_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(prediction_b2sgamma, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2603,7 +2624,7 @@ START_MODULE
     #define FUNCTION HEPLike_B2Kstargamma_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2Kstargamma, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2613,7 +2634,7 @@ START_MODULE
     #define FUNCTION HEPLike_B2mumu_LogLikelihood_LHCb
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2mumu, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2623,7 +2644,7 @@ START_MODULE
     #define FUNCTION HEPLike_B2mumu_LogLikelihood_CMS
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2mumu, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2633,7 +2654,7 @@ START_MODULE
     #define FUNCTION HEPLike_B2mumu_LogLikelihood_Atlas
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2mumu, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2645,7 +2666,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_0p1_2_Atlas, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_2_4_Atlas, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_4_8_Atlas, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2656,7 +2677,7 @@ START_MODULE
     START_FUNCTION(double)
      DEPENDENCY(prediction_B2KstarmumuAng_2_4_Atlas, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_4_8_Atlas, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
   
@@ -2672,7 +2693,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_10p09_12p86_CMS, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_14p18_16_CMS, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_16_19_CMS, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2685,7 +2706,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_4_8_Belle, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_10p9_12p9_Belle, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_14p18_19_Belle, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2698,7 +2719,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_4_8_Belle, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_10p9_12p9_Belle, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_14p18_19_Belle, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
   
@@ -2713,7 +2734,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2728,7 +2749,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2742,7 +2763,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2757,7 +2778,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2774,7 +2795,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuBr_4_6, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuBr_6_8, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuBr_15_19, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2788,7 +2809,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KstarmumuBr_4_6, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuBr_6_8, flav_prediction)
     DEPENDENCY(prediction_B2KstarmumuBr_15_19, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2805,7 +2826,7 @@ START_MODULE
     DEPENDENCY(prediction_B2KmumuBr_14p18_16, flav_prediction)
     DEPENDENCY(prediction_B2KmumuBr_16_18, flav_prediction)
     DEPENDENCY(prediction_B2KmumuBr_18_22, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2816,7 +2837,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(prediction_Bs2phimumuBr_1_6, flav_prediction)
     DEPENDENCY(prediction_Bs2phimumuBr_15_19, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2827,7 +2848,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_obs_values, flav_observable_map)
     DEPENDENCY(SuperIso_theory_covariance, flav_covariance_map)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -2838,7 +2859,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_obs_values, flav_observable_map)
     DEPENDENCY(SuperIso_theory_covariance, flav_covariance_map)
-    NEEDS_CLASSES_FROM(HepLike)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
