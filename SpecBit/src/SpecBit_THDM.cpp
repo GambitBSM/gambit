@@ -877,12 +877,6 @@ namespace Gambit
       return true;
     }
 
-    // prints scale warning if needed
-    void print_calculation_at_scale_warning(const std::string calculation_name)
-    {
-      std::cerr << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation." << std::endl;
-    }
-
     // checks a coupling for NaN
     void check_coupling(std::complex<double> var)
     {
@@ -3440,7 +3434,10 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          print_calculation_at_scale_warning("get_unitarity_likelihood_THDM");
+          std::ostringstream;
+          str calculation_name = "get_unitarity_likelihood_THDM";
+          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
+          SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
       }
       // return the worse performing likelihood
@@ -3486,7 +3483,10 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          print_calculation_at_scale_warning("get_NLO_unitarity_likelihood_THDM");
+          std::ostringstream;
+          str calculation_name = "get_NLO_unitarity_likelihood_THDM";
+          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
+          SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
       }
       // return the worse performing likelihood
@@ -3525,7 +3525,10 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          print_calculation_at_scale_warning("get_perturbativity_likelihood_THDM");
+          std::ostringstream;
+          str calculation_name = "get_perturbativity_likelihood_THDM";
+          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
+          SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
       }
       // return the worse performing likelihood
@@ -3726,7 +3729,10 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          print_calculation_at_scale_warning("get_stability_likelihood_THDM");
+          std::ostringstream;
+          str calculation_name = "get_stability_likelihood_THDM";
+          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
+          SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
       }
       // return the worse performing likelihood
@@ -3766,7 +3772,10 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          print_calculation_at_scale_warning("get_alignment_likelihood_THDM");
+          std::ostringstream;
+          str calculation_name = "get_alignment_likelihood_THDM";
+          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
+          SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
       }
       // return the worse performing likelihood
@@ -3806,7 +3815,10 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          print_calculation_at_scale_warning("check_vacuum_global_minimum");
+          std::ostringstream;
+          str calculation_name = "check_vacuum_global_minimum";
+          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
+          SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
       }
       // return the worse performing likelihood
