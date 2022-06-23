@@ -4088,8 +4088,8 @@ namespace Gambit
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
       
-      // give higgs indicies names
-      enum neutral_higgs_indicies
+      // give higgs indices names
+      enum neutral_higgs_indices
       {
           light_higgs, heavy_higgs, CP_odd_higgs, NUMBER_OF_NEUTRAL_HIGGS
       };
@@ -4164,7 +4164,7 @@ namespace Gambit
           light_higgs, heavy_higgs, CP_odd_higgs, NUMBER_OF_NEUTRAL_HIGGS
       };
       // note: the below does not include degenerate charged higgs
-      enum charged_higgs_indicies
+      enum charged_higgs_indices
       {
           charged_higgs=3, NUMBER_OF_CHARGED_HIGGS=1
       };

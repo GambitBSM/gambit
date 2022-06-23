@@ -1089,8 +1089,6 @@ namespace Gambit
       // uses new Simplified Template Cross Section (STXS) measurements
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
-      // std::cout << " " << csqmu << " " << csqmu1 << " " << csqmu2 << " " << csqmh << " " << csqmh1 << " " << csqmh2 << std::endl;
-
       if (SMHiggsMassOnly) 
         result = -0.5*(csqmh + csqmh1 + csqmh2);
       else
@@ -1098,7 +1096,7 @@ namespace Gambit
 
       if (std::isnan(result) || std::isinf(result))
       {
-        invalid_point().raise("NaN or infinite HS likelihood, point invalidated!");
+        Colliderbit_error().raise(LOCAL_INFO, "NaN or infinite HS likelihood, point invalidated!");
       }
 
     }
@@ -1154,7 +1152,7 @@ namespace Gambit
 
     }
 
-     /// Get an LHC chisq from HiggsSignals
+     /// Get a simple LHC likelihood for the Higgs mass
     void calc_SM_Higgs_Mass_LogLike(double &result)
     {
       using namespace Pipes::calc_SM_Higgs_Mass_LogLike;

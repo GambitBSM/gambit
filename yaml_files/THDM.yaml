@@ -280,9 +280,6 @@ Printer:
 
   # Select printer to use via string tag
   #printer: cout
-  printer: hdf5
-
-  # # unfortunately the new hdf5 printer is buggy!
   printer: hdf5_v1
   options:
     output_file: "THDM.hdf5"

@@ -228,7 +228,6 @@
   #undef CAPABILITY
 
   // only keeps points that correspond to hidden higgs scenario (hard-cutoff)
-  // TODO: I'm not I get the point of this likelihood
   #define CAPABILITY hidden_higgs_scenario_likelihood
   START_CAPABILITY
     #define FUNCTION hidden_higgs_scenario_LL

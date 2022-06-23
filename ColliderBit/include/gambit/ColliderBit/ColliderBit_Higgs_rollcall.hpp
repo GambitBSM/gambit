@@ -213,7 +213,7 @@
   #undef CAPABILITY
 
 
-  // Get an LHC Higgs chisq
+  // Get an LHC Higgs mass likelihood
   #define CAPABILITY SM_Higgs_Mass_LogLike
   START_CAPABILITY
 

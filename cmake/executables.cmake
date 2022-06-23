@@ -26,10 +26,6 @@
 #          (gonzalo@physik.rwth-aachen.de)
 #  \date 2021 Mar
 #
-#  \author Alex Woodcock
-#          (alex.woodcock@outlook.com)
-#  \date   2022 May
-#
 #************************************************
 
 # Add the module standalones
