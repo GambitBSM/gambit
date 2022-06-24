@@ -130,8 +130,8 @@
     double*, double*, double*, double*,
     double*, Farray<double, 1,3, 1,3>&))
     BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR, (libhiggsbounds), void,
-    (double*, Farray<double, 1,3, 1,3, 1,3>&, 
-    Farray<double, 1,3, 1,3>&, double*, double*, 
+    (double*, Farray<double, 1,3, 1,3, 1,3>&,
+    Farray<double, 1,3, 1,3>&, double*, double*,
     double*, Farray<double, 1,3>&))
     BACKEND_REQ(HiggsBounds_charged_input, (libhiggsbounds), void,
     (double*, double*, double*, double*,
@@ -149,7 +149,7 @@
   // Get an LHC Higgs chisq
   #define CAPABILITY LHC_Higgs_LogLike
   START_CAPABILITY
-  
+
     #define FUNCTION calc_HS_LHC_LogLike
     START_FUNCTION(double)
     DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_part)
@@ -183,8 +183,8 @@
     double*, double*, double*, double*,
     double*, Farray<double, 1,3, 1,3>&))
     BACKEND_REQ(HiggsBounds_neutral_input_nonSMBR_HS, (libhiggssignals), void,
-    (double*, Farray<double, 1,3, 1,3, 1,3>&, 
-    Farray<double, 1,3, 1,3>&, double*, double*, 
+    (double*, Farray<double, 1,3, 1,3, 1,3>&,
+    Farray<double, 1,3, 1,3>&, double*, double*,
     double*, Farray<double, 1,3>&))
     BACKEND_REQ(HiggsBounds_charged_input_HS, (libhiggssignals), void,
     (double*, double*, double*, double*,
@@ -196,6 +196,11 @@
     BACKEND_REQ(HiggsSignals_neutral_input_MassUncertainty, (libhiggssignals), void, (double*))
     // BACKEND_REQ(setup_rate_uncertainties, (libhiggssignals), void, (double*, double*))
     BACKEND_OPTION( (HiggsSignals, 2.5.0), (libhiggssignals) )
+    #undef FUNCTION
+
+    #define FUNCTION calc_SM_Higgs_Mass_LogLike
+    START_FUNCTION(double)
+    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -210,18 +215,6 @@
     BACKEND_REQ(FHHiggsProd, (libfeynhiggs), void, (int&, fh_real&, Farray< fh_real,1,52>&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
     #undef FUNCTION
-  #undef CAPABILITY
-
-
-  // Get an LHC Higgs mass likelihood
-  #define CAPABILITY SM_Higgs_Mass_LogLike
-  START_CAPABILITY
-
-    #define FUNCTION calc_SM_Higgs_Mass_LogLike
-    START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
-    #undef FUNCTION
-
   #undef CAPABILITY
 
 
