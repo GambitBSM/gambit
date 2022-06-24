@@ -44,7 +44,31 @@ END_BE_INI_FUNCTION
       dark_photon = DarkCast.attr("Model")(model_name);
     }
 
-    double dark_photon_decay_width(double mass, std::vector<std::string> states, double k)
+    //For a single final state
+    double dark_photon_decay_width(double k, std::string state, double mass)
+    {
+      if (dark_photon == NULL) 
+      {
+        dark_photon_ini();
+      }
+
+      double width = dark_photon.attr("width")(state, mass, k).cast<double>();
+      return width;
+    }
+
+    double dark_photon_branching_fraction(std::string state, double mass)
+    {
+      if (dark_photon == NULL)
+      {
+        dark_photon_ini();
+      }
+
+      double bfrac = dark_photon.attr("bfrac")(state, mass).cast<double>();
+      return bfrac;
+    }
+
+    //For a combination of final states. Take a vector of string input, eg: std::vector<std::string> ("e_e","u_u","d_d")
+    double dark_photon_decay_width(double k, std::vector<std::string> states, double mass)
     {
       if (dark_photon == NULL) 
       {
@@ -55,7 +79,7 @@ END_BE_INI_FUNCTION
       return width;
     }
 
-    double dark_photon_bfrac(double mass, std::vector<std::string> states)
+    double dark_photon_branching_fraction(std::vector<std::string> states, double mass)
     {
       if (dark_photon == NULL)
       {
