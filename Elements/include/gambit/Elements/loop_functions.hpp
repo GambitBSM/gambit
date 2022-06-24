@@ -14,7 +14,7 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 Aug, 2018 Feb
 ///
-///  \author Cristian Sierra 
+///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 Oct
 ///
@@ -47,7 +47,7 @@ namespace Gambit
     namespace Vertices_THDM
     {
       std::complex<double> yff_h(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab);
-    
+
       std::complex<double> yff_H(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab);
     }
 
@@ -133,11 +133,11 @@ namespace Gambit
       double gm2mu_barrzeephigammaC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph);
       double gm2mu_barrzeephigammaW(int fe, int l, int lp,int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph);
 
-      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
-      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
-      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph);
+      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double alph);
+      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double alph);
+      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mphi, double mHp, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double alph);
     }
-    
+
     // Loop functions for LFV diagrams
     namespace LoopFunctions
     {
@@ -151,7 +151,7 @@ namespace Gambit
 
       double C0(const double a, const double b, const double c);
       double C00(const double a, const double b, const double c, const double Q);
-      
+
       // Finite combination of loop functions that appears in VZw10
       double B02C00C0(const double a, const double b, const double c, const double Q);
       double D0(const double a, const double b, const double c, const double d);

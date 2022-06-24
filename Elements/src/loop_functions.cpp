@@ -14,7 +14,7 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 Aug, 2018 Feb
 ///
-///  \author Cristian Sierra 
+///  \author Cristian Sierra
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 Oct
 ///
@@ -34,75 +34,77 @@
 namespace Gambit
 {
 
-  //Yukawas vertices for THDM
-  namespace Vertices_THDM
-  {
-    std::complex<double> yff_h(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab)
+    //Yukawas vertices for THDM
+    namespace Vertices_THDM
     {
-      Eigen::Matrix3i delta_ij;
-      delta_ij << 1.0,  0.0,  0.0,
-                  0.0,  1.0,  0.0,
-                  0.0,  0.0,  1.0;
+      std::complex<double> yff_h(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab)
+      {
+        Eigen::Matrix3i delta_ij;
+        delta_ij << 1.0,  0.0,  0.0,
+                    0.0,  1.0,  0.0,
+                    0.0,  0.0,  1.0;
 
-      return (mf/vev)*(std::sqrt(1-cosab*cosab))*delta_ij(f,fp) + (cosab/std::sqrt(2))*xi_f(f,fp);
+        return (mf/vev)*(std::sqrt(1-cosab*cosab))*delta_ij(f,fp) + (cosab/std::sqrt(2))*xi_f(f,fp);
+      }
+
+      std::complex<double> yff_H(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab)
+      {
+        Eigen::Matrix3i delta_ij;
+        delta_ij << 1.0,  0.0,  0.0,
+                    0.0,  1.0,  0.0,
+                    0.0,  0.0,  1.0;
+
+        return (mf/vev)*cosab*delta_ij(f,fp) - (std::sqrt(1-cosab*cosab)/std::sqrt(2))*xi_f(f,fp);
+      }
     }
 
-    std::complex<double> yff_H(int f, int fp, double mf, Eigen::Matrix3cd xi_f, double vev, double cosab)
+    //Auxiliary function to flip the sign and choose the scalar field in the fermion-fermion-Higgs vertex
+    namespace Yukawas
     {
-      Eigen::Matrix3i delta_ij;
-      delta_ij << 1.0,  0.0,  0.0,
-                  0.0,  1.0,  0.0,
-                  0.0,  0.0,  1.0;
+      std::complex<double> yff_phi(int f, int i, int j, int phi, double mf, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, double vev, double cosab)
+      {
+         std::complex<double> I(0,1);
+         switch(phi)
+         {
+           case 0 :
+             return Vertices_THDM::yff_h(i, j, mf, xi_f, vev, cosab);
+           case 1 :
+             return Vertices_THDM::yff_H(i, j, mf, xi_f, vev, cosab);
+           case 2 :
+             if (f==2)//flip sign if it is an up-like quark
+             {
+               return -I*(1/std::sqrt(2))*xi_f(i,j);
+             }
+             else
+             {
+               return I*(1/std::sqrt(2))*xi_f(i,j);
+             }
+           case 3 :
+             std::complex<double> vertex_total(0,0);
+             switch(f)
+             {
+               case 2 ://flip sign and include CKM Matrix if it is an up-like quark
+                 for (int kk = 0; kk <= 2; ++kk)
+                 {
+                   vertex_total += -conj(VCKM(kk,j))*xi_f(kk,i);
+                 }
+                 break;
+               case 1 ://include CKM Matrix if it is an down-like quark
+                 for (int kk = 0; kk <= 2; ++kk)
+                 {
+                   vertex_total += VCKM(i,kk)*xi_f(kk,j);
+                 }
+                 break;
+               case 0 ://if it is a charged lepton
+                 vertex_total += xi_f(i,j);
+                 break;
+             }
+             return vertex_total;
+         }
+      }
 
-      return (mf/vev)*cosab*delta_ij(f,fp) - (std::sqrt(1-cosab*cosab)/std::sqrt(2))*xi_f(f,fp);
+      return 0.0;
     }
-  }
-
-  //Auxiliary function to flip the sign and choose the scalar field in the fermion-fermion-Higgs vertex
-  namespace Yukawas
-  {
-    std::complex<double> yff_phi(int f, int i, int j, int phi, double mf, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, double vev, double cosab)
-    {
-       std::complex<double> I(0,1);
-       switch(phi)
-       {
-         case 0 :
-           return Vertices_THDM::yff_h(i, j, mf, xi_f, vev, cosab);
-         case 1 :
-           return Vertices_THDM::yff_H(i, j, mf, xi_f, vev, cosab);
-         case 2 :
-           if (f==2)//flip sign if it is an up-like quark
-           {
-             return -I*(1/std::sqrt(2))*xi_f(i,j);
-           }
-           else
-           {
-             return I*(1/std::sqrt(2))*xi_f(i,j);
-           }
-         case 3 :
-           std::complex<double> vertex_total(0,0);
-           switch(f)
-           {
-             case 2 ://flip sign and include CKM Matrix if it is an up-like quark
-               for (int kk = 0; kk <= 2; ++kk)
-               {
-                 vertex_total += -conj(VCKM(kk,j))*xi_f(kk,i);
-               }
-               break;
-             case 1 ://include CKM Matrix if it is an down-like quark
-               for (int kk = 0; kk <= 2; ++kk)
-               {
-                 vertex_total += VCKM(i,kk)*xi_f(kk,j);
-               }
-               break;
-             case 0 ://if it is a charged lepton
-               vertex_total += xi_f(i,j);
-               break;
-           }
-           return vertex_total;
-       }
-    }
-  }
 
     //2-loop functions for BR(l>l' gamma) for the gTHDM
     namespace TwoLoopFunctions
@@ -110,98 +112,90 @@ namespace Gambit
         std::complex<double> TwoLoopFH(std::complex<double> x)
         {
            std::complex<double> z(1 - 4*real(x),0);
-           if (imag(std::sqrt(z))!=0 or std::real(std::sqrt(z))>0)
-           {
-             std::complex<double> one(1,0);
-             std::complex<double> two(2,0);
-             std::complex<double> z(1 - 4*real(x),0);
-             std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
-             std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
-             std::complex<double> Logs = (-x/(two*std::sqrt(z)))*(-two*two*std::sqrt(z) - two*std::sqrt(z)*std::log(x) - std::log(w1)*std::log(x) + two*x*std::log(w1)*std::log(x) + std::log(w2)*std::log(x) - two*x*std::log(w2)*std::log(x));
-             std::complex<double> w4 = (-two)/(-one + std::sqrt(z));
-             std::complex<double> w5 = (two)/(one + std::sqrt(z));
-             gsl_sf_result reD1, imD1;
-             gsl_sf_result reD2, imD2;
-             gsl_sf_complex_dilog_e(abs(w4), arg(w4), &reD1, &imD1);
-             std::complex<double> Dilog1(reD1.val,imD1.val);
-             gsl_sf_complex_dilog_e(abs(w5), arg(w5), &reD2, &imD2);
-             std::complex<double> Dilog2(reD2.val,imD2.val);
-             std::complex<double> Dilogs = (-x/(two*std::sqrt(z)))*((-two + two*two*x)*Dilog1 + (two - two*two*x)*Dilog2);
-             // cout<<"OneLoopFH(x) = " << std::real(Logs+Dilogs) << endl;
-             return std::real(Logs+Dilogs);
-           }
-           else
+           if (not (imag(std::sqrt(z))!=0 or std::real(std::sqrt(z))>0))
            {
              utils_error().raise(LOCAL_INFO, "1/0 in dilog OneLoopFH");
            }
+           std::complex<double> one(1,0);
+           std::complex<double> two(2,0);
+           std::complex<double> z(1 - 4*real(x),0);
+           std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
+           std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
+           std::complex<double> Logs = (-x/(two*std::sqrt(z)))*(-two*two*std::sqrt(z) - two*std::sqrt(z)*std::log(x) - std::log(w1)*std::log(x) + two*x*std::log(w1)*std::log(x) + std::log(w2)*std::log(x) - two*x*std::log(w2)*std::log(x));
+           std::complex<double> w4 = (-two)/(-one + std::sqrt(z));
+           std::complex<double> w5 = (two)/(one + std::sqrt(z));
+           gsl_sf_result reD1, imD1;
+           gsl_sf_result reD2, imD2;
+           gsl_sf_complex_dilog_e(abs(w4), arg(w4), &reD1, &imD1);
+           std::complex<double> Dilog1(reD1.val,imD1.val);
+           gsl_sf_complex_dilog_e(abs(w5), arg(w5), &reD2, &imD2);
+           std::complex<double> Dilog2(reD2.val,imD2.val);
+           std::complex<double> Dilogs = (-x/(two*std::sqrt(z)))*((-two + two*two*x)*Dilog1 + (two - two*two*x)*Dilog2);
+           // cout<<"OneLoopFH(x) = " << std::real(Logs+Dilogs) << endl;
+           return std::real(Logs+Dilogs);
          }
 
         std::complex<double> TwoLoopFA(std::complex<double> x)
         {
-           std::complex<double> z(1 - 4*real(x),0);
-           if (imag(std::sqrt(z))!=0 or std::real(std::sqrt(z))>0)
-            {
-             std::complex<double> one(1,0);
-             std::complex<double> two(2,0);
-             std::complex<double> z(1 - 4*real(x),0);
-             std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
-             std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
-             std::complex<double> Logs = (-x/(two*std::sqrt(z)))*(-std::log(w1)+std::log(w2))*std::log(x);
-             std::complex<double> w4 = (-two)/(-one + std::sqrt(z));
-             std::complex<double> w5 = (two)/(one + std::sqrt(z));
-             gsl_sf_result reD1, imD1;
-             gsl_sf_result reD2, imD2;
-             gsl_sf_complex_dilog_e(abs(w4), arg(w4), &reD1, &imD1);
-             std::complex<double> Dilog1(reD1.val,imD1.val);
-             gsl_sf_complex_dilog_e(abs(w5), arg(w5), &reD2, &imD2);
-             std::complex<double> Dilog2(reD2.val,imD2.val);
-             std::complex<double> Dilogs = (-x/(two*std::sqrt(z)))*(-two*Dilog1 + two*Dilog2);
-             return std::real(Logs+Dilogs);
-            }
-            else
-            {
-              utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopFA");
-            }
+          std::complex<double> z(1 - 4*real(x),0);
+          if (not (imag(std::sqrt(z))!=0 or std::real(std::sqrt(z))>0))
+          {
+            utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopFA");
+          }
+          std::complex<double> one(1,0);
+          std::complex<double> two(2,0);
+          std::complex<double> z(1 - 4*real(x),0);
+          std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
+          std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
+          std::complex<double> Logs = (-x/(two*std::sqrt(z)))*(-std::log(w1)+std::log(w2))*std::log(x);
+          std::complex<double> w4 = (-two)/(-one + std::sqrt(z));
+          std::complex<double> w5 = (two)/(one + std::sqrt(z));
+          gsl_sf_result reD1, imD1;
+          gsl_sf_result reD2, imD2;
+          gsl_sf_complex_dilog_e(abs(w4), arg(w4), &reD1, &imD1);
+          std::complex<double> Dilog1(reD1.val,imD1.val);
+          gsl_sf_complex_dilog_e(abs(w5), arg(w5), &reD2, &imD2);
+          std::complex<double> Dilog2(reD2.val,imD2.val);
+          std::complex<double> Dilogs = (-x/(two*std::sqrt(z)))*(-two*Dilog1 + two*Dilog2);
+          return std::real(Logs+Dilogs);
         }
 
         std::complex<double> TwoLoopGW(std::complex<double> x)
         {
            std::complex<double> z(1 - 4*real(x),0);
-           if (imag(std::sqrt(z))!=0 or std::real(std::sqrt(z))>0)
-           {
-             std::complex<double> one(1,0);
-             std::complex<double> two(2,0);
-             std::complex<double> four(4,0);
-             std::complex<double> z(1 - 4*real(x),0);
-             std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
-             std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
-             std::complex<double> Logs =  - std::sqrt(-z)*std::log(-one - std::sqrt(z)) + four*x*std::sqrt(-z)*std::log(-one - std::sqrt(z))
-                             + std::sqrt(-z)*std::log(one - std::sqrt(z)) - four*x*std::sqrt(-z)*std::log(one - std::sqrt(z))         
-                             + std::sqrt(-z)*std::log(-one + std::sqrt(z)) - four*x*std::sqrt(-z)*std::log(-one + std::sqrt(z)) - std::sqrt(-z)*std::log(one + std::sqrt(z))
-                             + four*x*std::sqrt(-z)*std::log(one + std::sqrt(z)) - two*std::sqrt(-std::pow(-z,2))*std::log(x)         
-                             + two*x*std::sqrt(-z)*std::log(w1)*std::log(one/x) - two*x*std::sqrt(-z)*std::log(w2)*std::log(one/x);
-             std::complex<double> w4 = (-two)/(-one + std::sqrt(z));
-             std::complex<double> w5 = (two)/(one + std::sqrt(z));
-             gsl_sf_result reD1, imD1;
-             gsl_sf_result reD2, imD2;
-             gsl_sf_complex_dilog_e(abs(w4), arg(w4), &reD1, &imD1);
-             std::complex<double> Dilog1(reD1.val,imD1.val);
-             gsl_sf_complex_dilog_e(abs(w5), arg(w5), &reD2, &imD2);
-             std::complex<double> Dilog2(reD2.val,imD2.val);
-             std::complex<double> Dilogs = four*x*std::sqrt(-z)*(-Dilog1 + Dilog2);
-             std::complex<double> Atans = -four*std::sqrt(z)*atan(one/std::sqrt(-z))*(one-four*x);
-             return std::real((x/(two*std::sqrt(z)*std::pow(-z,1.5)))*(Logs+Dilogs+Atans));
-           }
-           else
+           if (not (imag(std::sqrt(z))!=0 or std::real(std::sqrt(z))>0))
            {
              utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopGW");
            }
+
+           std::complex<double> one(1,0);
+           std::complex<double> two(2,0);
+           std::complex<double> four(4,0);
+           std::complex<double> z(1 - 4*real(x),0);
+           std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
+           std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
+           std::complex<double> Logs =  - std::sqrt(-z)*std::log(-one - std::sqrt(z)) + four*x*std::sqrt(-z)*std::log(-one - std::sqrt(z))
+                           + std::sqrt(-z)*std::log(one - std::sqrt(z)) - four*x*std::sqrt(-z)*std::log(one - std::sqrt(z))
+                           + std::sqrt(-z)*std::log(-one + std::sqrt(z)) - four*x*std::sqrt(-z)*std::log(-one + std::sqrt(z)) - std::sqrt(-z)*std::log(one + std::sqrt(z))
+                           + four*x*std::sqrt(-z)*std::log(one + std::sqrt(z)) - two*std::sqrt(-std::pow(-z,2))*std::log(x)
+                           + two*x*std::sqrt(-z)*std::log(w1)*std::log(one/x) - two*x*std::sqrt(-z)*std::log(w2)*std::log(one/x);
+           std::complex<double> w4 = (-two)/(-one + std::sqrt(z));
+           std::complex<double> w5 = (two)/(one + std::sqrt(z));
+           gsl_sf_result reD1, imD1;
+           gsl_sf_result reD2, imD2;
+           gsl_sf_complex_dilog_e(abs(w4), arg(w4), &reD1, &imD1);
+           std::complex<double> Dilog1(reD1.val,imD1.val);
+           gsl_sf_complex_dilog_e(abs(w5), arg(w5), &reD2, &imD2);
+           std::complex<double> Dilog2(reD2.val,imD2.val);
+           std::complex<double> Dilogs = four*x*std::sqrt(-z)*(-Dilog1 + Dilog2);
+           std::complex<double> Atans = -four*std::sqrt(z)*atan(one/std::sqrt(-z))*(one-four*x);
+           return std::real((x/(two*std::sqrt(z)*std::pow(-z,1.5)))*(Logs+Dilogs+Atans));
         }
 
       // Two Loop Functions for Muon g-2 for gTHDM
       //  Source:  1607.06292, eqn (68)
       std::complex<double> TwoLoopPhi(double m1, double m2, double m3)
-      { 
+      {
         double mm1, mm2, mm3;
         // Order the masses in increasing order
         if (m1 <= m2)
@@ -231,7 +225,7 @@ namespace Gambit
           else
           {
             if (m2 <= m3)
-            {              
+            {
               mm1 = m2; mm2 = m3; mm3 = m1;
             }
             else
@@ -240,26 +234,23 @@ namespace Gambit
             }
           }
         }
-        if (mm3 != 0)
+        if (mm3 == 0)
         {
-          std::complex<double> argum  = std::complex<double> (std::pow(mm1,4)+std::pow(mm2,4)+std::pow(mm3,4)-2*std::pow(mm1*mm2,2)-2*std::pow(mm2*mm3,2)-2*std::pow(mm3*mm1,2));
-          std::complex<double> lambda = std::sqrt(argum);
-          std::complex<double> alphap = (std::pow(mm3,2)+std::pow(mm1,2)-std::pow(mm2,2)-lambda) / (2*std::pow(mm3,2));
-          std::complex<double> alpham = (std::pow(mm3,2)-std::pow(mm1,2)+std::pow(mm2,2)-lambda) / (2*std::pow(mm3,2));
-          gsl_sf_result reD1, imD1;
-          gsl_sf_complex_dilog_e(abs(alphap), arg(alphap), &reD1, &imD1);
-          std::complex<double> Dilog1(reD1.val,imD1.val);
-          gsl_sf_result reD2, imD2;
-          gsl_sf_complex_dilog_e(abs(alpham), arg(alpham), &reD2, &imD2);
-          std::complex<double> Dilog2(reD2.val,imD2.val);
-          return lambda/2. * (2.*std::log(alphap)*std::log(alpham) - std::log(std::pow(mm1/mm3,2))*std::log(pow(mm2/mm3,2)) - 2.*Dilog1 - 2.*Dilog2 + std::pow(M_PI,2)/3.);
-        } 
-        else 
-        { 
-          utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopPhi");
+         utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopPhi");
         }
-      }   
-        
+        std::complex<double> argum  = std::complex<double> (std::pow(mm1,4)+std::pow(mm2,4)+std::pow(mm3,4)-2*std::pow(mm1*mm2,2)-2*std::pow(mm2*mm3,2)-2*std::pow(mm3*mm1,2));
+        std::complex<double> lambda = std::sqrt(argum);
+        std::complex<double> alphap = (std::pow(mm3,2)+std::pow(mm1,2)-std::pow(mm2,2)-lambda) / (2*std::pow(mm3,2));
+        std::complex<double> alpham = (std::pow(mm3,2)-std::pow(mm1,2)+std::pow(mm2,2)-lambda) / (2*std::pow(mm3,2));
+        gsl_sf_result reD1, imD1;
+        gsl_sf_complex_dilog_e(abs(alphap), arg(alphap), &reD1, &imD1);
+        std::complex<double> Dilog1(reD1.val,imD1.val);
+        gsl_sf_result reD2, imD2;
+        gsl_sf_complex_dilog_e(abs(alpham), arg(alpham), &reD2, &imD2);
+        std::complex<double> Dilog2(reD2.val,imD2.val);
+        return lambda/2. * (2.*std::log(alphap)*std::log(alpham) - std::log(std::pow(mm1/mm3,2))*std::log(pow(mm2/mm3,2)) - 2.*Dilog1 - 2.*Dilog2 + std::pow(M_PI,2)/3.);
+      }
+
       //  Source:  1607.06292, eqns (54-57)
       std::complex<double> TwoLoopfgammaphi(int Nc, double Qf, double alph, double mmu, double mf, double mphi, double mW, double mZ)
       {
@@ -297,18 +288,14 @@ namespace Gambit
       std::complex<double> TwoLoopfCl(double xl)
       {
         std::complex<double> z = 1.-1./xl;
-        if (z != 0.)
-        {
-          gsl_sf_result reD, imD;
-          gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
-          std::complex<double> Dilog(reD.val,imD.val);
-          return xl + xl * (xl-1.) * (Dilog-std::pow(M_PI,2)/6.) + (xl-0.5)*std::log(xl);
-        }
-        else
+        if (z == 0.)
         {
           utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopfCl");
         }
-        return 0.0;
+        gsl_sf_result reD, imD;
+        gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
+        std::complex<double> Dilog(reD.val,imD.val);
+        return xl + xl * (xl-1.) * (Dilog-std::pow(M_PI,2)/6.) + (xl-0.5)*std::log(xl);
       }
 
       std::complex<double> TwoLoopfCd(double xu, double xd, double Qu, double Qd)
@@ -341,20 +328,17 @@ namespace Gambit
         double c  = std::pow(xu-xd,2) - (Qu+2.)*xu + (Qd+2.)*xd;
         double cb = (xu-Qu-2.)*xu - (xd+Qd+2.)*xd;
         std::complex<double> z = 1.-xd/xu;
-        if (z != 0.)
-        {
-          gsl_sf_result reD, imD;
-          gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
-          std::complex<double> Dilog(reD.val,imD.val);
-          return -(xu-xd) + (cb/y-c*(xu-xd)/y) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) \
-                 + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) /** TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.)*/) \
-                 + (s+xd) * std::log(xd) + (s-xu)*std::log(xu) \
-                 - 4./3. * (xu-xd-1.)/y * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) - 1./3.*(std::pow(std::log(xd),2)-std::pow(std::log(xu),2));
-        }
-        else
+        if (z == 0.)
         {
           utils_error().raise(LOCAL_INFO, "1/0 in dilog TwoLoopfCu");
         }
+        gsl_sf_result reD, imD;
+        gsl_sf_complex_dilog_e(abs(z), arg(z), &reD, &imD);
+        std::complex<double> Dilog(reD.val,imD.val);
+        return -(xu-xd) + (cb/y-c*(xu-xd)/y) * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) \
+               + c * (Dilog - 0.5*std::log(xu)*std::log(xd/xu) /** TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.)*/) \
+               + (s+xd) * std::log(xd) + (s-xu)*std::log(xu) \
+               - 4./3. * (xu-xd-1.)/y * TwoLoopFunctions::TwoLoopPhi(std::sqrt(xd),std::sqrt(xu),1.) - 1./3.*(std::pow(std::log(xd),2)-std::pow(std::log(xu),2));
       }
 
       std::complex<double> TwoLoopfC(int lf, int Nc, double Qu, double Qd, double alph, double mmu, std::vector<double> mf, double mphi, double mW, double mZ)
@@ -365,7 +349,7 @@ namespace Gambit
           const double xlC = std::pow(mf[lf]/mphi,2);
           const double xlW = std::pow(mf[lf]/mW,2);
           return std::pow((alph*mmu)*mf[lf]/(M_PI*mW*sw2),2) * Nc / (std::pow(mphi,2)-std::pow(mW,2)) / 32. * (TwoLoopFunctions::TwoLoopfCl(xlC) - TwoLoopFunctions::TwoLoopfCl(xlW));
-        } 
+        }
         else if (lf == 1)
         {
           const double xuC = std::pow(mf[2]/mphi,2);
@@ -375,7 +359,7 @@ namespace Gambit
           return std::pow((alph*mmu)*mf[lf]/(M_PI*mW*sw2),2) * Nc / (std::pow(mphi,2)-std::pow(mW,2)) / 32. * (TwoLoopFunctions::TwoLoopfCd(xuC, xdC, Qu, Qd) - TwoLoopFunctions::TwoLoopfCd(xuW, xdW, Qu, Qd));
         }
         else if (lf == 2)
-        {          
+        {
           const double xuC = std::pow(mf[2]/mphi,2);
           const double xdC = std::pow(mf[1]/mphi,2);
           const double xuW = std::pow(mf[2]/mW,2);
@@ -413,7 +397,7 @@ namespace Gambit
         double w = *(double *) params;
         return w/2. * 1. / (w-x*(1.-x)) * std::log(w/(x*(1.-x)));
       }
-      
+
       double TwoLoopF1(double w)
       {
         // Integral of w/2 * integral((2*x*(1-x)-1) / (w-x*(1-x)) * log(w/(x*(1-x))),{x,0,1})
@@ -641,7 +625,7 @@ namespace Gambit
         std::complex<double> FAm = (xfphi*TwoLoopFunctions::TwoLoopFA(xfZ)-xfZ*TwoLoopFunctions::TwoLoopFA(xfphi))/(xfphi-xfZ);
         return conj(Yukawas::yff_phi(fe, l, lp, phi, ml, xi_L, VCKM, vev, cosab))*(real(Yukawas::yff_phi(lf, gi, gi, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFH(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FHm)-I*imag(Yukawas::yff_phi(lf, gi, gi, phi, mlf, xi_f, VCKM, vev, cosab)) * (Qf*TwoLoopFunctions::TwoLoopFA(std::pow(mlf/mphi,2))+(1.-4.*sw2)*QfZ/(16.*sw2*(1-sw2))*FAm));
     }
-    
+
     //AR
     std::complex<double> A_loop2fR(int fe, int lf, int l, int lp, int phi, double ml, double mlf, double mphi, double mZ, double Qf, double QfZ, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab)
     {
@@ -696,7 +680,7 @@ namespace Gambit
     {
       // Source: 1607.06292, eqns (53,58)
       std::complex<double> gm2mu_loop2f(int fe, int lf, int l, int lp, int phi, double mmu, std::vector<double> mf, double mphi, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_f, Eigen::Matrix3cd VCKM, int Nc, std::vector<double> Qf, std::vector<double> gfv, double vev, double cosab, double mW, double mZ, double alph)
-      { 
+      {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lf,lp = 0,1,2 are the generation numbers of incoming,loop,outgoing lepton
         // phi = 0,1,2,3 for h,H,A,H+
@@ -755,7 +739,7 @@ namespace Gambit
         const double x = std::pow(mHp/mphi,2);
         return alph * std::pow(mmu/mphi,2) / (8. * std::pow(M_PI,3)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * couplingphiCC * TwoLoopFunctions::TwoLoopF2(x);
       }
-        
+
       double gm2mu_barrzeephigammaW(int fe, int l, int lp, int phi, double mmu, double mW, double mphi, double couplingphiWW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double vev, double cosab, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
@@ -767,7 +751,7 @@ namespace Gambit
         return alph * std::pow(mmu/vev,2) / (8. * std::pow(M_PI,3)) * vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab).real() * couplingphiWW * TwoLoopFunctions::TwoLoopF3(x);
       }
 
-      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
+      std::complex<double> gm2mu_barrzeeCHiggsWBosontb(int fe, int l, int lp, double mmu, std::vector<double> mf, double mHp, std::vector<double> Qf, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd xi_D, Eigen::Matrix3cd xi_U, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
@@ -792,7 +776,7 @@ namespace Gambit
         return alph*Nc*norm(VCKM(2,1))*std::pow(mmu/vev,2) / (32.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * (term1 + term2 + term3 + term4);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonC(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiCC, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
@@ -808,7 +792,7 @@ namespace Gambit
         return alph*std::pow(mmu,2) / (64.*std::pow(M_PI,3)*sw2) / (std::pow(mHp,2)-std::pow(mW,2)) * std::real(std::conj(vev / mmu * Yukawas::yff_phi(fe, l, lp, phi, mmu, xi_L, VCKM, vev, cosab)) * couplingphiCC * couplingphiCW) * (term1-term2);
       }
 
-      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double mZ, double alph)
+      double gm2mu_barrzeeCHiggsWBosonW(int fe, int l, int lp, int phi, double mmu, double mHp, double mphi, double couplingphiWW, std::complex<double> couplingphiCW, Eigen::Matrix3cd xi_L, Eigen::Matrix3cd VCKM, double sw2, double vev, double cosab, double mW, double alph)
       {
         // fe = 0,1,2 for electron,down,up families for external fermion
         // l,lp = 0,1,2 are the generation numbers of incoming,outgoing lepton
@@ -887,15 +871,15 @@ namespace Gambit
         // TODO: behaviour when two paramers are 0 undefined, set it to zero
         if(a == 0 and b == 0 and c == 0)
           return 0;
-        if(a == 0 and b == 0) 
+        if(a == 0 and b == 0)
           return 0;
-        else if(a == 0 and c == 0) 
+        else if(a == 0 and c == 0)
           return 0;
         else if(b == 0 and c == 0)
           return 0;
         else if(c == 0)
           return C0(a,c,b);
-        else if(a == b and b == c) 
+        else if(a == b and b == c)
           return - 1./(2*c);
         else if(a == b)
           return (-b + c- c*std::log(c/b)) / std::pow(b-c,2);
@@ -1010,7 +994,7 @@ namespace Gambit
       {
         //TODO: behaviour when three or more parameters are zero is undefined, set it to zero
         if((!a and !b and !c) or (!a and !b and !d) or (!a and !c and !d) or (!b and !c and !d))
-          return 0; 
+          return 0;
         if(a == b and b == c and c == d)
            return -1./(12.*d);
         if(a == d and c == d and b == 0)
@@ -1027,7 +1011,7 @@ namespace Gambit
           return -1./(4.*d);
         if(a == b and c == d and d == 0)
           return -1./(4.*b);
-        if(a == b and c == d) 
+        if(a == b and c == d)
           return (-b*b + d*d -2.*b*d*std::log(d/b)) / (4.*std::pow(b-d,3));
         if(a == c and b == d)
           return D27(a,c,b,d);
@@ -1097,12 +1081,12 @@ namespace Gambit
       {
         double g2 = sminputs.mW * std::sqrt( 8. * sminputs.GF / std::sqrt(2));
         return  -1. / std::sqrt(2) * g2 * U(i,j);
-      
+
       }
 
       double EL(int i,int j, Gambit::SMInputs sminputs)
       {
-        if(i != j)  return 0; 
+        if(i != j)  return 0;
 
         double e = std::sqrt(4. * M_PI / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -1110,18 +1094,18 @@ namespace Gambit
         double cw = sminputs.mW / sminputs.mZ;
         double sw = std::sqrt(1. - cw*cw);
         return 0.5 * (-g1*sw + g2*cw);
-        
+
       }
- 
+
       double ER(int i, int j, Gambit::SMInputs sminputs)
       {
         if(i != j) return 0;
- 
+
         double e = std::sqrt(4. * M_PI / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
         double cw = sminputs.mW / sminputs.mZ;
         double sw = std::sqrt(1. - cw*cw);
-        return - g1*sw; 
+        return - g1*sw;
       }
 
       std::complex<double> VL(int i, int j, Gambit::SMInputs sminputs)
@@ -1241,21 +1225,21 @@ namespace Gambit
       double HL(int i, int j, Gambit::SMInputs sminputs)
       {
         double vev = 1. / std::sqrt(std::sqrt(2.)*sminputs.GF);
-        
+
         if(i == 0 and j == 0)
           return -1. / vev * sminputs.mE;
         if(i == 1 and j == 1)
           return -1. / vev * sminputs.mMu;
         if(i == 2 and j == 2)
           return -1. / vev * sminputs.mTau;
-        else 
+        else
           return 0;
       }
 
       double HR(int i, int j, Gambit::SMInputs sminputs)
       {
         return HL(i, j , sminputs);
-      } 
+      }
 
       double HdL(int i, int j, Gambit::SMInputs sminputs)
       {
@@ -1339,14 +1323,14 @@ namespace Gambit
       std::complex<double> VZw2w4LL(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         std::complex<double> vzll = {0,0};
- 
+
         for(int a=0; a<6; a++)
           for(int c=0; c<3; c++)
           {
             // Use MZ for the renormalization scale Q
             if(beta == c)
               vzll += Vertices::EL(beta,c, sminputs) * Vertices::VpL(alpha,a,sminputs,U) * conj(Vertices::VpL(c,a,sminputs,U)) * (1. + 2.* LoopFunctions::B1(std::pow(mnu[a],2),std::pow(sminputs.mW,2),sminputs.mZ))* std::pow(ml[alpha],2) / (std::pow(ml[alpha],2) - std::pow(ml[c],2));
-            if(alpha == c) 
+            if(alpha == c)
               vzll += Vertices::EL(alpha,c, sminputs) * Vertices::VpL(beta,a,sminputs,U) * conj(Vertices::VpL(c,a,sminputs,U)) * (1. + 2.* LoopFunctions::B1(std::pow(mnu[a],2),std::pow(sminputs.mW,2),sminputs.mZ))* std::pow(ml[beta],2) / (std::pow(ml[beta],2) - std::pow(ml[c],2));
          }
 
@@ -1357,11 +1341,11 @@ namespace Gambit
       {
         return VZw2w4LL(alpha,beta,sminputs,U,ml,mnu);
       }
-    
+
       std::complex<double> VZw2w4RR(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         std::complex<double> vzrr = {0,0};
- 
+
         for(int a=0; a<6; a++)
           for(int c=0; c<3; c++)
           {
@@ -1376,7 +1360,7 @@ namespace Gambit
 
       std::complex<double> VZw2w4RL(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-        return VZw2w4RR(alpha, beta, sminputs, U, ml, mnu); 
+        return VZw2w4RR(alpha, beta, sminputs, U, ml, mnu);
       }
 
       std::complex<double> VZw8LL(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
@@ -1390,7 +1374,7 @@ namespace Gambit
 
         return vzll;
       }
-    
+
       std::complex<double> VZw8LR(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return VZw8LL(alpha, beta, sminputs, U, mnu);
@@ -1400,7 +1384,7 @@ namespace Gambit
       {
         std::complex<double> vzll = {0,0};
         double mW = sminputs.mW;
- 
+
         // Use MZ as the renormalization scale Q
         for(int b=0; b<6; b++)
         {
@@ -1491,22 +1475,22 @@ namespace Gambit
       std::complex<double> ShsumLL(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*std::pow(M_PI,2)) * Shw2w4LL(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
       std::complex<double> ShsumLR(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*std::pow(M_PI,2)) * Shw2w4LR(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
       std::complex<double> ShsumRL(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*std::pow(M_PI,2)) * Shw2w4RL(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
       std::complex<double> ShsumRR(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*std::pow(M_PI,2)) * Shw2w4RR(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
     }
 
@@ -1599,7 +1583,7 @@ namespace Gambit
       std::complex<double> K1R(int alpha, int beta, Gambit::SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         double e = std::sqrt(4. * M_PI / sminputs.alphainv);
- 
+
         return 1. / (16*std::pow(M_PI,2)*e) * Penguins::A1R(alpha, beta, sminputs, U, mnu);
       }
 

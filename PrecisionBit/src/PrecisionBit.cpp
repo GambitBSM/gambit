@@ -40,7 +40,7 @@
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
 ///  \date 2020 Nov
-///  \date 2021 Feb 
+///  \date 2021 Feb
 ///  \date 2021 Apr
 ///
 ///  *********************************************
@@ -1270,7 +1270,7 @@ namespace Gambit
         {
           //if ((phi == 0) and (li == 1))
           //{
-          // Ignore purely SM contributions with SM higgs and no flavour changing 
+          // Ignore purely SM contributions with SM higgs and no flavour changing
           //  Aloop1L += 0.0;
           //  Aloop1R += 0.0;
           //}
@@ -1301,7 +1301,7 @@ namespace Gambit
       std::complex<double> Aloop2f = 0.;
       std::complex<double> Aloop2SMf = 0.;
       for (int phi=0; phi<=3; ++phi)
-      { 
+      {
         for (int lf=0; lf<=2; ++lf)
         {
           Aloop2f += TwoLoopContributions::gm2mu_loop2f(f, lf, l, lp, phi, mMu, mlf, mphi[phi], xi_L, xi_f[lf], VCKM, Nc[lf], Qf, gfv, vev, cab, mW, mZ, Alpha_em);
@@ -1320,12 +1320,12 @@ namespace Gambit
       0.};
       const std::vector<double> couplingphiWW = {sqrt(1-pow(cab,2)), cab, 0.};
       const std::vector<std::complex<double>> couplingphiCW = { std::complex<double> (cab,0.),  std::complex<double> (-sqrt(1-pow(cab,2)),0.), std::complex<double> (0.,-1.)};
-      
+
       //Barr-Zee contribution, source: 1502.04199
       std::complex<double> Aloop2BZ = 0.;
       std::complex<double> Aloop2SMBZ = 0.;
       for (int phi=0; phi<=2; ++phi)
-      { 
+      {
         // Superseded by gm2mu_loop2f by neutral boson contributions
         //for (int lf=0; lf<=2; ++lf)
         //{
@@ -1333,11 +1333,11 @@ namespace Gambit
         //}
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaC(f, l, lp, phi, mMu, mphi[3], mphi[phi], couplingphiCC[phi], xi_L, VCKM, vev, cab, Alpha_em);
         Aloop2BZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, phi, mMu, mW, mphi[phi], couplingphiWW[phi], xi_L, VCKM, vev, cab, Alpha_em);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
-        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonC(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiCC[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, Alpha_em);
+        Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosonW(f, l, lp, 3, mMu, mphi[3], mphi[phi], couplingphiWW[phi], couplingphiCW[phi], xi_L, VCKM, sw2, vev, cab, mW, Alpha_em);
       }
       // Superseded by gm2mu_loop2f by charged boson contributions
-      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, sw2, vev, cab, mW, mZ, Alpha_em);
+      //Aloop2BZ += TwoLoopContributions::gm2mu_barrzeeCHiggsWBosontb(f, l, lp, mMu, mlf, mHp, Qf, xi_L, xi_D, xi_U, VCKM, sw2, vev, cab, mW, Alpha_em);
 
       // Use lighter Higgs as SM Higgs, set cab=0 to simulate SM Yukawas
       Aloop2SMBZ += TwoLoopContributions::gm2mu_barrzeephigammaW(f, l, lp, 0, mMu, mW, mphi[0], couplingphiWW[0], xi_L, VCKM, vev, 0., Alpha_em);
@@ -1398,14 +1398,14 @@ namespace Gambit
 
     // calculates chi2 from EWPO in the THDM using 2HDMC
     double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container)
-    { 
+    {
       THDMC_1_8_0::Constraints constraints_object(container.THDM_object);
 
-      const double mh_ref = 125.0; 
+      const double mh_ref = 125.0;
       double S, T, U, V, W, X;
       constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
-    
-      // if new physics in the low energy scale 
+
+      // if new physics in the low energy scale
       // move to basis as introduced in arxiv:9407203
       const bool use_low_energy = true;
       if (use_low_energy)
@@ -1429,11 +1429,11 @@ namespace Gambit
       }
 
       // calculating the covariance matrix
-      Eigen::Matrix3d cov,corr; 
+      Eigen::Matrix3d cov,corr;
       std::vector<double> sigma = {0.11, 0.14, 0.11};
 
       corr <<  1.0,   0.92, -0.68,
-               0.92,  1.0,  -0.87, 
+               0.92,  1.0,  -0.87,
               -0.68, -0.87,  1.0;
 
       for (size_t i=0; i<dim; ++i)
@@ -1446,7 +1446,7 @@ namespace Gambit
       for (size_t i=0; i<dim; ++i)
         for (size_t j=0; j<dim; ++j)
           chi2 += error[i] * cov_inv(i,j)* error[j];
-        
+
       return -0.5*chi2;
     }
 
