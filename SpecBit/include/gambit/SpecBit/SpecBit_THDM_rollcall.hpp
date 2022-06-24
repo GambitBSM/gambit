@@ -209,7 +209,6 @@
   #undef CAPABILITY
 
   // guides scanner towards mh = 125 GeV, used to improve performance of HS (soft-cutoff)
-  // TODO: This should be covered by HiggsSignals, so adding this in top may be redundant/wrong?
   #define CAPABILITY higgs_mass_likelihood
   START_CAPABILITY
     #define FUNCTION higgs_mass_LL
@@ -224,7 +223,6 @@
   #undef CAPABILITY
 
   // mass range for each heavy scalar, specified in YAML file (soft-cutoff)
-  // TODO: Check what this is
   #define CAPABILITY THDM_scalar_masses
   START_CAPABILITY
     #define FUNCTION check_THDM_scalar_masses

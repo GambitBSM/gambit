@@ -516,7 +516,6 @@ namespace Gambit
         {
           std::ostringstream msg;
           msg << "Negative mass encountered. Point invalidated." << std::endl;
-          // TODO: Should this be an actual error, negative mass could mean a problem with the code, not just an invalid point
           if (!continue_with_negative_mass)
             invalid_point().raise(msg.str());
         }
@@ -3177,7 +3176,6 @@ namespace Gambit
 
         if (std::isnan(sqrt_lam12))
         {
-          // TODO: Shouldn't this throw an error?
           return -L_MAX;
         }
 
@@ -3290,7 +3288,6 @@ namespace Gambit
 
       if (mh_splitting > lower_limit)
       {
-        //TODO: This should just invalidate the point, right?
         return -L_MAX;
       }
       return 0.0;
@@ -3304,7 +3301,6 @@ namespace Gambit
       const double lower_limit = mh_running * 0.5;
       if (mh_splitting > lower_limit)
       {
-        //TODO: This should just invalidate the point, right?
         return -L_MAX;
       }
       return 0.0;
@@ -3318,7 +3314,6 @@ namespace Gambit
       const double lower_limit = mh_running * 0.5;
       if (mh_splitting > lower_limit)
       {
-        //TODO: This should just invalidate the point, right?
         return -L_MAX;
       }
       return 0.0;
@@ -3332,7 +3327,6 @@ namespace Gambit
       const double lower_limit = mh_running * 0.5;
       if (mh_splitting > lower_limit)
       {
-        //TODO: This should just invalidate the point, right?
         return -L_MAX;
       }
       return 0.0;
@@ -3392,7 +3386,6 @@ namespace Gambit
       // ensure we bail on the point if any mass is negative
       if (mh0 < std::min(min_mass,0.0) || mH0 < min_mass || mHp < min_mass || mA0 < min_mass)
       {
-        // TODO: Should this invalidate the point?
         result = -L_MAX;
       }
 
@@ -3815,8 +3808,6 @@ namespace Gambit
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
       constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
-      // TODO: Why didn't you use the experimental uncertainty?
-      //constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
 
       double mass_err_h = std::abs(mh_pole - mh_exp);
       double mass_err_H = std::abs(mH_pole - mh_exp);
@@ -3836,7 +3827,6 @@ namespace Gambit
       // weight that pushes mass_err_H < mass_err_h
       result += std::max(0.0, mass_err_H - mass_err_h) / 20000.0;
 
-      // TODO: Should this be just invalidated if result > 0
       constexpr double model_invalid_for_lnlike_below = -1e6;
       result *= model_invalid_for_lnlike_below;
 
@@ -3855,8 +3845,6 @@ namespace Gambit
       const double mh_pole = container.he->get(Par::Pole_Mass, "h0", 1);
       const double mH_pole = container.he->get(Par::Pole_Mass, "h0", 2);
       constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
-      // TODO: Why didn't you use the experimental uncertainty?
-      //constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
       double model_invalid_for_lnlike_below = -1e6;
 
       // get the Higgs mass diff, considering the possibility of a Hidden higgs scenario
@@ -3864,7 +3852,6 @@ namespace Gambit
 
       // scale it so that going 300 GeV above/below the measured higgs mass hits the threshold to bail on the point
       // no penalty if we are within 10 GeV of exp. value
-      // TODO: Should this be just invalidated if result > 0
       result = model_invalid_for_lnlike_below * (std::max(0.0,mass_err - 10.0) / 800);
 
     }
