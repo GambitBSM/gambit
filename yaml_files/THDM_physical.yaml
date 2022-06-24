@@ -27,10 +27,10 @@ Parameters:
 
   # load fixed values for all SM parameters
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
-  
+
   # Select model: THDMI, THDMII, THDMIatQ, THDMIIatQ, IDM
   THDMI_physicalatQ:
-    mh: 
+    mh:
       fixed_value: 125.10
     mH:
       range: [130.0, 4000]
@@ -139,13 +139,12 @@ ObsLikes:
 
   # Checks that the NLO scattering-matrix is unitary
   # Calculates and applies limit on eigenvalues of matrix
-  # NOTE: This is always a subset of LO unitarity so it not needed
   # Likelihood type: Half-Gaussian
   # Only supports CP-conserving models
   # Unitarity of the S-matrix at next leading order (includes leading order too)
   - purpose:    LogLike
   #   capability: unitarity_likelihood_THDM
-    capability: NLO_unitarity_likelihood_THDM
+    capability: unitarity_likelihood_THDM
 
 
   # Calculates all quartic Higgs couplings in the physical
@@ -162,7 +161,7 @@ ObsLikes:
   - purpose:    LogLike
     capability: h0_loop_order_corrections
     function: check_h0_loop_order_corrections
-  
+
   # Checks that loop corrections to the pole masses of mH0,
   # mA0, mHpm do not exceed 50% of the input mass at Qin
   # Likelihood type: Acceptance/Rejection
@@ -173,7 +172,7 @@ ObsLikes:
 
   # enforces a mass range for heavy scalars from the yaml
   # these are specified by the run options (given below):
-  # can be used as eight a soft or had cutoff 
+  # can be used as eight a soft or had cutoff
   # (*) maximum_scalar_mass
   # (*) minimum_scalar_mass
   # (*) soft_maximum_scalar_mass
@@ -290,14 +289,6 @@ ObsLikes:
   # - capability: all_BFs
   #   purpose: Observable
 
-  # --- vacuum meta-stability discriminant
-
-  # OBSOLETE
-  # Theoretical | another vacuum stability check (true or)
-  # - capability: vacuum_global_minimum
-  #   function: check_vacuum_global_minimum
-  #   purpose: Observable  
-
   # --- flavour observables
 
   # # bsgamma
@@ -327,7 +318,7 @@ ObsLikes:
   # - capability: RDstar
   #   function: SI_RDstar
   #   purpose: Observable
-    
+
   #   # BDmunu
 
   # - capability: BDmunu
@@ -411,7 +402,7 @@ ObsLikes:
   # - capability: Bmumu
   #   function: SI_Bmumu
   #   purpose: Observable
-     
+
 
 
 #################################
@@ -431,7 +422,7 @@ Rules:
   - capability: all_BFs
     function: get_decaytable_as_map
     options:
-      printall: true 
+      printall: true
 
   - capability: THDM_scalar_masses
     function: check_THDM_scalar_masses
@@ -445,18 +436,17 @@ Rules:
     function: get_perturbativity_likelihood_THDM
     options:
       check_other_scale: 1000.0
-      simple_perturbativity: false
 
   - capability: stability_likelihood_THDM
     function: get_stability_likelihood_THDM
     options:
       check_other_scale: 1000.0
-      #~Icheck_metastability: true
+      check_metastability: true
 
-  - capability: NLO_unitarity_likelihood_THDM
-    function: get_NLO_unitarity_likelihood_THDM
+  - capability: unitarity_likelihood_THDM
+    function: NLO_unitarity_likelihood_THDMC
     options:
-      #~Gcheck_correction_ratio: true
+      #check_correction_ratio: true
       check_other_scale: 1000.0
       wave_function_corrections: true
       gauge_corrections: true
@@ -480,7 +470,7 @@ Rules:
 
   - capability: SuperIso_modelinfo
     function: SI_fill
-  
+
   - capability: bsgamma
     function: SI_bsgamma
 

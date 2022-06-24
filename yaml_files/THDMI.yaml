@@ -1,6 +1,6 @@
 ##########################################################################
 ## GAMBIT configuration for running a diver scan of the THDM
-## THDM Type I 
+## THDM Type I
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
@@ -122,11 +122,10 @@ ObsLikes:
 
     # Checks that the NLO scattering-matrix is unitary
     # Calculates and applies limit on eigenvalues of matrix
-    # NOTE: This is always a subset of LO unitarity so it not needed
     # Likelihood type: Half-Gaussian
     # Only supports CP-conserving models
 #    - purpose:    LogLike
-#      capability: NLO_unitarity_likelihood_THDM
+#      capability: unitarity_likelihood_THDM
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
     # & fits to meausured values. S, T, U involve a correlation matrix.
@@ -136,7 +135,7 @@ ObsLikes:
 #      capability: oblique_parameters_likelihood_THDM
 
     # # -------------------------------------------
-     
+
     #### NOTE
     # Flavor likelihoods imported from Superiso
     # Superiso is given SLHA struct filled with THDM input
@@ -175,11 +174,11 @@ ObsLikes:
 #    - capability: deltaMBd_LL
 #      function: deltaMBd_likelihood
 #      purpose: LogLike
-    
+
     # # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
 #    - capability: b2sll_AI_LL
 #      function: BKstarmumu_AI_ll
-#      purpose: LogLike  
+#      purpose: LogLike
 
     # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
 #    - capability: b2sll_AI_zero_LL
@@ -218,14 +217,6 @@ ObsLikes:
 
     # -------------------------------------------
 
-    # Checks if the vacuum leads to a global minimum solution
-    # Returns 0 if it is metastable or unstable (otherwise 1)
-    # Only supports CP-conserving models
-#    - capability: vacuum_global_minimum
-#      function: check_vacuum_global_minimum
-#      purpose: Observable  
-      
-
 Rules:
 
     ##############################
@@ -234,7 +225,7 @@ Rules:
 
     ##
     # the check_all_scales option-flag triggers evaluation
-    # of the likelihood at the default Qin scale, 
+    # of the likelihood at the default Qin scale,
     # but also at QrunTo scale, where the worst performing
     # of the two likelihoods is returned.
     # eg. min[L(Q_in), L(Q_runTo)]
@@ -242,24 +233,21 @@ Rules:
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
-      options:
-        check_all_scales: true
-        simple_perturbativity: false
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: true
+        check_metastability: true
 
-    - capability: NLO_unitarity_likelihood_THDM
-      function: get_NLO_unitarity_likelihood_THDM
+    - capability: unitarity_likelihood_THDM
+      function: NLO_unitarity_likelihood_THDMC
       options:
         check_correction_ratio: true
-    
+
 
     - capability: SuperIso_modelinfo
       function: SI_fill
-    
+
     - capability: b2sll_M
       function: b2sll_measurements
 

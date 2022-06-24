@@ -89,10 +89,16 @@
   #undef CAPABILITY
 
 
-  // Leading-Order unitarity constraint (soft-cutoff)
   #define CAPABILITY unitarity_likelihood_THDM
   START_CAPABILITY
-    #define FUNCTION get_unitarity_likelihood_THDM
+    #define FUNCTION LO_unitarity_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODEL(THDM, THDMatQ)
+    #undef FUNCTION
+
+    // Leading-Order unitarity constraint (soft-cutoff)
+    #define FUNCTION LO_unitarity_likelihood_THDMC
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
@@ -100,18 +106,9 @@
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
-    #define FUNCTION unitarity_lambdas_LL
-    START_FUNCTION(double)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    ALLOW_MODEL(THDM, THDMatQ)
-    #undef FUNCTION
-  #undef CAPABILITY
 
-  // Next-to-Leading-Order unitarity constraint (soft-cutoff)
-  // TODO: Are these mutually exclusive or complementary?
-  #define CAPABILITY NLO_unitarity_likelihood_THDM
-  START_CAPABILITY
-    #define FUNCTION get_NLO_unitarity_likelihood_THDM
+    // Next-to-Leading-Order unitarity constraint (soft-cutoff)
+    #define FUNCTION NLO_unitarity_likelihood_THDMC
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
@@ -168,36 +165,6 @@
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL(THDM, THDMatQ)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  // LIKELIHOOD: guide scanner so that sba ~ 0.99 to 1.00, which is the alignment limit (soft-cutoff)
-  // Note: unneccesary since sampling density is actually much higher towards alignment limit
-  // TODO: Should it be removed then?
-  #define CAPABILITY alignment_likelihood_THDM
-  START_CAPABILITY
-    #define FUNCTION get_alignment_likelihood_THDM
-    START_FUNCTION(double)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_Type, THDM_TYPE)
-    ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
-    #undef FUNCTION
-  #undef CAPABILITY
-
-  // OBSERVABLE: checks for vacuum meta-stability (T/F)
-  // Note: obsolete as it can now be done in the stability constraint
-  // TODO: Should it be removed then?
-  #define CAPABILITY vacuum_global_minimum
-  START_CAPABILITY
-    #define FUNCTION check_vacuum_global_minimum
-    START_FUNCTION(int)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    DEPENDENCY(THDM_Type, THDM_TYPE)
-    ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
   #undef CAPABILITY
 

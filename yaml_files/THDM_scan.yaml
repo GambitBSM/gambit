@@ -110,7 +110,7 @@ Parameters:
         yu2_im_33:
             fixed_value: 0
             #range: [-12.5664, 12.5664]
-            #prior_type: flat 
+            #prior_type: flat
         # -------------------------------------------
         yd2_re_11:
             fixed_value: 0
@@ -308,7 +308,7 @@ ObsLikes:
       capability: perturbativity_yukawas_LL
 
     # Applies the THDM tree level stability constraints on the potential
-   
+
     - purpose:    LogLike
       capability: stability_likelihood_THDM
       function: stability_lambdas_LL
@@ -317,7 +317,7 @@ ObsLikes:
 
     - purpose:    LogLike
       capability: unitarity_likelihood_THDM
-      function: unitarity_lambdas_LL
+      function:   LO_unitarity_likelihood
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
     # & fits to meausured values. S, T, U involve a correlation matrix.
@@ -330,14 +330,14 @@ ObsLikes:
     # -------------------------------------------
 
     #### NOTE
-    # Flavor likelihoods 
+    # Flavor likelihoods
 
     # B->s,gamma likelihood (using HEPlike)
     - capability: b2sgamma_LogLikelihood
       function: HEPLike_b2sgamma_LogLikelihood
       purpose: LogLike
 
-    #delta0 likelihood 
+    #delta0 likelihood
     - capability: delta0_LL
       function: delta0_ll
       purpose: LogLike
@@ -354,7 +354,7 @@ ObsLikes:
    #   purpose: LogLike
 
     #ERROR: A problem has occurred in the printer utilities.
-    #No print function override has been 
+    #No print function override has been
     #defined for this type (for whatever printer
     #class the current printer comes from)
     #Dumping available info...
@@ -364,7 +364,7 @@ ObsLikes:
     - capability: Btaunu
       function: THDM_Btaunu
       module: FlavBit
-      purpose: Observable      
+      purpose: Observable
 
     # B->mu,mu likelihood
     - capability: b2ll_LL
@@ -375,8 +375,8 @@ ObsLikes:
 #    - capability: SL_LL
 #      function: SL_likelihood
 #      purpose: LogLike
-    
-    # muon g-2 likelihood 
+
+    # muon g-2 likelihood
     - capability: lnL_gm2
       function: lnL_gm2
       purpose: LogLike
@@ -386,7 +386,7 @@ ObsLikes:
       function: gmu_ge_likelihood
       purpose: LogLike
 
-   # # l->l gamma 
+   # # l->l gamma
     - capability: l2lgamma_lnL
       function: l2lgamma_likelihood
       purpose: LogLike
@@ -396,12 +396,12 @@ ObsLikes:
       function: l2lll_likelihood
       purpose: LogLike
 
-    # FLDstar likelihood 
+    # FLDstar likelihood
     - capability: FLDstar_lnL
       function: FLDstar_likelihood
       purpose: LogLike
 
-    # Bc->tanu lifetime likelihood 
+    # Bc->tanu lifetime likelihood
     - capability: Bc_lifetime_lnL
       function: Bc_lifetime_likelihood
       purpose: LogLike
@@ -421,24 +421,24 @@ ObsLikes:
    # - capability: b2sll_LL
     #  function: b2sll_likelihood
      # purpose: LogLike
-   
-    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_Atlas
-   
+
     #B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas, why is this splitted in this way? contains _2_4_Atlas and _4_8_Atlas
 
-    # 7 observables all q2 range 
+    # 7 observables all q2 range
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_CMS
 
-    # 4 observables all q2 range 
+    # 4 observables all q2 range
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_Belle
 
     # B2KstarmumuAng_NoLowq2_LogLikelihood_Belle, same splitting, why?
 
-    # 6 observables 
+    # 6 observables
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
 
@@ -474,12 +474,12 @@ ObsLikes:
     #  capability: RKstar_LogLikelihood_LHCb
 
     #Old observables
-    # # B->Kstarll branching for 6 bins 
+    # # B->Kstarll branching for 6 bins
    # - capability: b2sll_BR_LL
     #  function: b2sll_BR_likelihood
      # purpose: LogLike
 
-    # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
+    # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60)
     - purpose: LogLike
       capability: LUV_LL
 
@@ -597,7 +597,7 @@ Rules:
     - capability: prediction_B2KstarmumuAng_.*_LHCb
       options:
        # obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime]
-         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]
 
     - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
       options:
@@ -624,7 +624,7 @@ Rules:
    # - capability: prediction_B2taunu
     #  function: THDM_Btaunu
     #  options:
-    #     obs_list: [B2taunu] 
+    #     obs_list: [B2taunu]
 
     - capability: b2sll_M
       function: b2sll_measurements
@@ -659,19 +659,15 @@ Rules:
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
-      options:
-         check_all_scales: false
-         simple_perturbativity: false
 
    # - capability: stability_likelihood_THDM
     #  function: get_stability_likelihood_THDM
     #  options:
-    #     check_all_scales: true
+    #    check_metastability: true
 
-   # - capability: NLO_unitarity_likelihood_THDM
-    #  function: get_NLO_unitarity_likelihood_THDM
+   # - capability: unitarity_likelihood_THDM
+    #  function: NLO_unitarity_likelihood_THDMC
     #  options:
-    #     check_all_scales: false
     #     check_correction_ratio: true
 
     # ----------------------

@@ -1,6 +1,6 @@
 #########################################################################
 ## GAMBIT configuration for running a single random point of the GTHDM
-## THDM_debug	
+## THDM_debug
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
@@ -144,13 +144,12 @@ ObsLikes:
 
     # Checks that the NLO scattering-matrix is unitary
     # Calculates and applies limit on eigenvalues of matrix
-    # NOTE: This is always a subset of LO unitarity so it not needed
     # Likelihood type: Half-Gaussian
     # Only supports CP-conserving models
     - purpose:    LogLike
       capability: unitarity_likelihood_THDM
-      function: get_unitarity_likelihood_THDM
-      #function: unitarity_lambdas_LL #Does not use the backend THDMC
+      function: LO_unitarity_likelihood_THDMC
+      #function: LO_unitarity_likelihood #Does not use the backend THDMC
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
     # & fits to meausured values. S, T, U involve a correlation matrix.
@@ -160,7 +159,7 @@ ObsLikes:
       capability: oblique_parameters_likelihood_THDM
 
     #### NOTE
-    # Flavor likelihoods 
+    # Flavor likelihoods
 
     # B->s,gamma likelihood (using HEPlike)
     - capability: b2sgamma_LogLikelihood
@@ -176,8 +175,8 @@ ObsLikes:
 #    - capability: SL_LL
 #      function: SL_likelihood
 #      purpose: LogLike
-    
-    # muon g-2 likelihood 
+
+    # muon g-2 likelihood
     - capability: lnL_gm2
       function: lnL_gm2
       purpose: LogLike
@@ -187,17 +186,17 @@ ObsLikes:
       function: gmu_ge_likelihood
       purpose: LogLike
 
-   # # l->l gamma 
+   # # l->l gamma
     - capability: l2lgamma_lnL
       function: l2lgamma_likelihood
       purpose: LogLike
 
-     # # B->Kllp 
+     # # B->Kllp
     - capability: B2Kllp_lnL
       function: B2Kllp_likelihood
       purpose: LogLike
 
-     # # Bs->llp 
+     # # Bs->llp
     - capability: Bs2llp_lnL
       function: Bs2llp_likelihood
       purpose: LogLike
@@ -207,12 +206,12 @@ ObsLikes:
       function: l2lll_likelihood
       purpose: LogLike
 
-    # FLDstar likelihood 
+    # FLDstar likelihood
     - capability: FLDstar_lnL
       function: FLDstar_likelihood
       purpose: LogLike
 
-    # Bc->tanu lifetime likelihood 
+    # Bc->tanu lifetime likelihood
     - capability: Bc_lifetime_lnL
       function: Bc_lifetime_likelihood
       purpose: LogLike
@@ -227,7 +226,7 @@ ObsLikes:
 #      function: BDtaunu_likelihood
 #      purpose: LogLike
 
-    # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
+    # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60)
     - purpose: LogLike
       capability: LUV_LL
 
@@ -377,18 +376,15 @@ Rules:
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
-      options:
-        check_all_scales: false
-        simple_perturbativity: true
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: false
+        check_metastability: true
 
     - capability: unitarity_likelihood_THDM
-      function: get_unitarity_likelihood_THDM
-      #function: unitarity_lambdas_LL #Does not use the backend THDMC
+      function: LO_unitarity_likelihood_THDMC
+      #function: LO_unitarity_likelihood #Does not use the backend THDMC
 
     # -------------------------------------------
 

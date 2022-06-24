@@ -1,6 +1,6 @@
 ##########################################################################
 ## GAMBIT configuration for running a diver scan of the THDM
-## THDM Type III 
+## THDM Type III
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
@@ -19,27 +19,27 @@ Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
     THDM:
-        lambda1: 
+        lambda1:
             fixed_value: 1
            # range: [-12.5664, 12.5664]
             #prior_type: flat
-        lambda2: 
+        lambda2:
             fixed_value: 1
             #range: [-12.5664, 12.5664]
             #prior_type: flat
-        lambda3: 
+        lambda3:
             fixed_value: 1
             #range: [-12.5664, 12.5664]
             #prior_type: flat
-        lambda4: 
+        lambda4:
             fixed_value: 1
             #range: [-12.5664, 12.5664]
             #prior_type: flat
-        lambda5: 
+        lambda5:
             fixed_value: 1
             #range: [-12.5664, 12.5664]
             #prior_type: flat
-        lambda6: 
+        lambda6:
             fixed_value: 1
         lambda7:
             fixed_value: 1
@@ -81,7 +81,7 @@ Parameters:
             #range: [-12.5664, 12.5664]
             #prior_type: flat
         yu2_re_32:
-            #same_as: THDM::yu2_re_23 
+            #same_as: THDM::yu2_re_23
             fixed_value: 1
             #range: [-12.5664, 12.5664]
             #prior_type: flat
@@ -350,11 +350,10 @@ ObsLikes:
 
     # Checks that the NLO scattering-matrix is unitary
     # Calculates and applies limit on eigenvalues of matrix
-    # NOTE: This is always a subset of LO unitarity so it not needed
     # Likelihood type: Half-Gaussian
     # Only supports CP-conserving models
 #    - purpose:    LogLike
-#      capability: NLO_unitarity_likelihood_THDM
+#      capability: unitarity_likelihood_THDM
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
     # & fits to meausured values. S, T, U involve a correlation matrix.
@@ -364,7 +363,7 @@ ObsLikes:
 #      capability: oblique_parameters_likelihood_THDM
 
     # # -------------------------------------------
-     
+
     #### NOTE
     # Flavor likelihoods imported from Superiso
     # Superiso is given SLHA struct filled with THDM input
@@ -403,11 +402,11 @@ ObsLikes:
     - capability: deltaMBd_LL
       function: deltaMBd_likelihood
       purpose: LogLike
-    
+
     # # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
     - capability: b2sll_AI_LL
       function: BKstarmumu_AI_ll
-      purpose: LogLike  
+      purpose: LogLike
 
     # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
     - capability: b2sll_AI_zero_LL
@@ -460,15 +459,6 @@ ObsLikes:
 
     # -------------------------------------------
 
-    # Checks if the vacuum leads to a global minimum solution
-    # Returns 0 if it is metastable or unstable (otherwise 1)
-    # Only supports CP-conserving models
-#    - capability: vacuum_global_minimum
-#      function: check_vacuum_global_minimum
-#      purpose: Observable  
-      
-
-
 
 Rules:
 
@@ -478,7 +468,7 @@ Rules:
 
     ##
     # the check_all_scales option-flag triggers evaluation
-    # of the likelihood at the default Qin scale, 
+    # of the likelihood at the default Qin scale,
     # but also at QrunTo scale, where the worst performing
     # of the two likelihoods is returned.
     # eg. min[L(Q_in), L(Q_runTo)]
@@ -486,20 +476,17 @@ Rules:
 
     - capability: perturbativity_likelihood_THDM
       function: get_perturbativity_likelihood_THDM
-      options:
-        check_all_scales: true
-        simple_perturbativity: false
 
     - capability: stability_likelihood_THDM
       function: get_stability_likelihood_THDM
       options:
-        check_all_scales: true
+        check_metastability: true
 
-    - capability: NLO_unitarity_likelihood_THDM
-      function: get_NLO_unitarity_likelihood_THDM
+    - capability: unitarity_likelihood_THDM
+      function: NLO_unitarity_likelihood_THDMC
       options:
         check_correction_ratio: true
-    
+
     # -------------------------------------------
 
     # Specifies effc coupling input for HB/HS
@@ -515,7 +502,7 @@ Rules:
       function: get_decaytable_as_map
       options:
         printall: true
-      
+
     - capability: THDM_scalar_masses
       function: check_THDM_scalar_masses
       options:
@@ -566,7 +553,7 @@ Rules:
 
     - capability: SuperIso_modelinfo
       function: SI_fill
-    
+
     - capability: bsgamma
       function: SI_bsgamma
 

@@ -9,7 +9,7 @@
 ///  - Type-I
 ///  - Type-II
 ///  - lepton specific (X)
-///  - flipped (Y) 
+///  - flipped (Y)
 ///  - general (Type-III)
 ///
 ///  *********************************************
@@ -99,7 +99,7 @@ namespace Gambit
 
     // FlexibleSUSY spectrum
     template <class MI>
-    Spectrum run_FS_spectrum_generator(const typename MI::InputParameters &input, const SMInputs &sminputs, const Options &runOptions, 
+    Spectrum run_FS_spectrum_generator(const typename MI::InputParameters &input, const SMInputs &sminputs, const Options &runOptions,
                                        const std::map<str, safe_ptr<const double>> &input_Param, THDM_TYPE &model_type)
     {
       // *
@@ -227,12 +227,12 @@ namespace Gambit
               Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
               Yd2 = 0;
               Yl2 = 0;
-             break; 
+             break;
             case TYPE_LS:
               Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
               Yd2 = -thdmspec.get(Par::dimensionless, "Yd", i, j);
               Yl2 = 0;
-              break; 
+              break;
             case TYPE_flipped:
               Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
               Yd2 = 0;
@@ -285,7 +285,7 @@ namespace Gambit
         errmsg << "Message from FlexibleSUSY below:" << std::endl;
         problems.print_problems(errmsg);
         problems.print_warnings(errmsg);
- 
+
         if (runOptions.getValueOrDef<bool>(false, "invalid_point_fatal"))
         {
           ///TODO: Need to tell gambit that the spectrum is not viable somehow. For now
@@ -438,7 +438,7 @@ namespace Gambit
 
     /// Get a Spectrum object wrapper for the THDM model
     void get_THDM_spectrum(Spectrum &result)
-    { 
+    {
       using namespace Pipes::get_THDM_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;
 
@@ -539,7 +539,7 @@ namespace Gambit
         //thdm_model.mW = sminputs.mZ * sqrt(cosW2);// this is a tree level approximation
         thdm_model.mW = sminputs.mW;
         // Yukawas
-        
+
         for(int i=0; i<3; i++)
         {
           for(int j=0; j<3; j++)
@@ -564,7 +564,7 @@ namespace Gambit
 
         const double sqrt2v = sqrt(2.0)/vev;
         const double cb = sqrt(1.0/(1+tanb*tanb));
- 
+
         thdm_model.Yu1[0][0] += sqrt2v * sminputs.mU / cb;
         thdm_model.Yu1[1][1] += sqrt2v * sminputs.mCmC / cb;
         thdm_model.Yu1[2][2] += sqrt2v * sminputs.mT / cb;
@@ -1867,7 +1867,7 @@ namespace Gambit
         if (calculate_both)
           quartic_couplings_mass = quartic_couplings;
       }
-      
+
       if (!use_quartic_couplings_mass || calculate_both)
       {
         quartic_couplings[1] = get_quartic_coupling_higgs(container, h0, h0, G0, G0);
@@ -2355,7 +2355,7 @@ namespace Gambit
       gsl_deriv_central(&F_im, m_in, 1e-8, &result_im, &abserr_im);
       return 1.0 + 0.5 * (result_re + result_im);
     }
-    
+
     // ---------------------------------------------------------------------
 
     // Custom functions to extend GSL
@@ -2378,7 +2378,7 @@ namespace Gambit
       std::complex<double> tr_u2, tr_d2, tr_l2, tr_u4, tr_d4, tr_l4, tr_du;
       gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
       const int size = 3;
-      
+
       y_u = gsl_matrix_complex_alloc(size, size);
       y_d = gsl_matrix_complex_alloc(size, size);
       y_l = gsl_matrix_complex_alloc(size, size);
@@ -2749,7 +2749,7 @@ namespace Gambit
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
 
       // check that model is Z2 conserving
-      if (!check_Z2(Lambda[6], Lambda[7], "NLO_unitarity_likelihood_THDM"))
+      if (!check_Z2(Lambda[6], Lambda[7], "get_NLO_unitarity_likelihood_THDMC"))
         return {0.0};
 
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a = container.he->get(Par::dimensionless, "alpha");
@@ -2893,20 +2893,20 @@ namespace Gambit
 
       std::vector<std::complex<double>> result =  {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
               a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
-    
+
       return result;
     }
-    
+
 
     // =========== likelihood function helpers =============
-    
+
     // use this if we require the LO eigenvalues to be ordered
     std::vector<std::complex<double>> get_LO_scattering_eigenvalues_ordered(THDM_spectrum_container &container)
     {
       // Note: only compatible with Z-2 aligned models
 
       std::vector<double> lambda;
-    
+
       lambda = get_lambdas_from_spectrum(container);
       check_Z2(lambda[6], lambda[7], "get_LO_scattering_eigenvalues_ordered");
 
@@ -3026,15 +3026,15 @@ namespace Gambit
     }
 
     // - LO unitarity likelihood
-    double unitarity_likelihood_THDM(THDM_spectrum_container &container)
+    double get_LO_unitarity_likelihood_THDMC(THDM_spectrum_container &container)
     {
       // get the leading order scattering eigenvalues
       std::vector<std::complex<double>> LO_eigenvalues = get_LO_scattering_eigenvalues(container);
-      
+
       // all values < 8*PI for unitarity conditions (see ivanov paper)
       constexpr double unitarity_upper_limit = 8 * M_PI;
       constexpr double sigma = 0.05;
-      
+
       //calculate the total error of each point
       double error = 0.0;
       for (auto const &eachEig : LO_eigenvalues)
@@ -3045,7 +3045,7 @@ namespace Gambit
     }
 
     // - NLO unitarity likelihood
-    double NLO_unitarity_likelihood_THDM(THDM_spectrum_container &container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections)
+    double get_NLO_unitarity_likelihood_THDMC(THDM_spectrum_container &container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections)
     {
       const std::complex<double> i(0.0, 1.0);
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container, wave_function_corrections, gauge_corrections, yukawa_corrections);
@@ -3175,7 +3175,7 @@ namespace Gambit
       {
         const double sqrt_lam12 = sqrt(lambda[1] * lambda[2]);
 
-        if (std::isnan(sqrt_lam12)) 
+        if (std::isnan(sqrt_lam12))
         {
           // TODO: Shouldn't this throw an error?
           return -L_MAX;
@@ -3218,14 +3218,14 @@ namespace Gambit
     double alignment_likelihood_THDM(THDM_spectrum_container &container)
     {
       // sin(b-a) = 1 in alignment limit - the tolerance gives the distance from alignment limit:
-      
+
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a = container.he->get(Par::dimensionless, "alpha");
       double sba = sin(b - a);
-      
+
       const double sba_tolerance = 0.01;
       const double sigma = 0.1;
       const double error = 1.0 - sba;
-      
+
       return Stats::gaussian_upper_limit(error, sba_tolerance, 0.0, sigma, false);
     }
 
@@ -3257,7 +3257,7 @@ namespace Gambit
 
       // TODO: seems like an imaginary k is invalid?
       const std::complex<double> k = pow((std::complex<double>(lambda1) / std::complex<double>(lambda2)), 0.25);
-      
+
       // the 'dicriminant', if this value is greater than zero then we have only one vacuum and it is global
       const std::complex<double> discriminant = m12_2 * (m11_2 - pow(k, 2) * m22_2) * (tb - k);
 
@@ -3387,7 +3387,7 @@ namespace Gambit
 
       // scale it such that a value of 1 is the invalid point cutoff
       constexpr double model_invalid_for_lnlike_below = -1e6;
-      result *= model_invalid_for_lnlike_below; 
+      result *= model_invalid_for_lnlike_below;
 
       // ensure we bail on the point if any mass is negative
       if (mh0 < std::min(min_mass,0.0) || mH0 < min_mass || mHp < min_mass || mA0 < min_mass)
@@ -3402,17 +3402,17 @@ namespace Gambit
 
     // =============== likelihood functions ================
 
-    // LIKELIHOOD: Leading-Order unitarity constraint (soft-cutoff)
-    void get_unitarity_likelihood_THDM(double &result)
+    // LIKELIHOOD: Leading-Order unitarity constraint (soft-cutoff) using THDMC
+    void LO_unitarity_likelihood_THDMC(double &result)
     {
-      using namespace Pipes::get_unitarity_likelihood_THDM;
+      using namespace Pipes::LO_unitarity_likelihood_THDMC;
 
       // get THDM type and find out if it is a FS spectrum (at Q)
       THDM_TYPE THDM_type = *Dep::THDM_Type;
       bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
 
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = unitarity_likelihood_THDM;
+      std::function<double(THDM_spectrum_container &)> likelihood_function = get_LO_unitarity_likelihood_THDMC;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
@@ -3434,8 +3434,8 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          std::ostringstream;
-          str calculation_name = "get_unitarity_likelihood_THDM";
+          std::ostringstream os;
+          str calculation_name = "LO_unitarity_likelihood_THDMC";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
@@ -3444,10 +3444,10 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    // LIKELIHOOD: Next-to-Leading-Order unitarity constraint (soft-cutoff)
-    void get_NLO_unitarity_likelihood_THDM(double &result)
+    // LIKELIHOOD: Next-to-Leading-Order unitarity constraint (soft-cutoff) using THDMC
+    void NLO_unitarity_likelihood_THDMC(double &result)
     {
-     using namespace Pipes::get_NLO_unitarity_likelihood_THDM;
+     using namespace Pipes::NLO_unitarity_likelihood_THDMC;
 
       // get THDM type and find out if it is a FS spectrum (at Q)
       THDM_TYPE THDM_type = *Dep::THDM_Type;
@@ -3460,7 +3460,7 @@ namespace Gambit
       const bool gauge_corrections = runOptions->getValueOrDef<bool>(false, "gauge_corrections");
       const bool yukawa_corrections = runOptions->getValueOrDef<bool>(false, "yukawa_corrections");
       // create likelihood function
-      std::function<double(THDM_spectrum_container &, const bool, const bool, const bool, const bool)> likelihood_function = NLO_unitarity_likelihood_THDM;
+      std::function<double(THDM_spectrum_container &, const bool, const bool, const bool, const bool)> likelihood_function = get_NLO_unitarity_likelihood_THDMC;
 
       // create container
       THDM_spectrum_container container;
@@ -3483,8 +3483,8 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          std::ostringstream;
-          str calculation_name = "get_NLO_unitarity_likelihood_THDM";
+          std::ostringstream os;
+          str calculation_name = "NLO_unitarity_likelihood_THDMC";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
@@ -3496,7 +3496,7 @@ namespace Gambit
     // LIKELIHOOD: perturbativity constraint (soft-cutoff)
     void get_perturbativity_likelihood_THDM(double &result)
     {
-     using namespace Pipes::get_perturbativity_likelihood_THDM;
+      using namespace Pipes::get_perturbativity_likelihood_THDM;
 
       // get THDM type and find out if it is a FS spectrum (at Q)
       THDM_TYPE THDM_type = *Dep::THDM_Type;
@@ -3525,7 +3525,7 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          std::ostringstream;
+          std::ostringstream os;
           str calculation_name = "get_perturbativity_likelihood_THDM";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
@@ -3536,7 +3536,7 @@ namespace Gambit
     }
 
     void simple_perturbativity_yukawas_LL(double &result)
-    { 
+    {
       using namespace Pipes::simple_perturbativity_yukawas_LL;
       SMInputs sminputs = *Dep::SMINPUTS;
       const Spectrum spec = *Dep::THDM_spectrum;
@@ -3654,9 +3654,9 @@ namespace Gambit
     }
 
     //LO unitarity function without 2HDMC
-    void unitarity_lambdas_LL(double &result)
-    {   
-        using namespace Pipes::unitarity_lambdas_LL;
+    void LO_unitarity_likelihood(double &result)
+    {
+        using namespace Pipes::LO_unitarity_likelihood;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         const double unitarity_limit = 8 * M_PI;
@@ -3686,7 +3686,7 @@ namespace Gambit
         eigenval.push_back(lambda[3]-lambda[5]);
         eigenval.push_back(lambda[3]+lambda[4]);
         eigenval.push_back(lambda[3]-lambda[4]);
-        
+
         // loop over all eigenvalues
         for (auto & each_eigen : eigenval)
         {
@@ -3729,7 +3729,7 @@ namespace Gambit
         else
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
-          std::ostringstream;
+          std::ostringstream os;
           str calculation_name = "get_stability_likelihood_THDM";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
@@ -3737,92 +3737,6 @@ namespace Gambit
       }
       // return the worse performing likelihood
       result = std::min(loglike, loglike_at_Q);
-    }
-
-
-    // LIKELIHOOD: guide scanner so that sba ~ 0.99 to 1.00, which is the alignment limit (soft-cutoff)
-    void get_alignment_likelihood_THDM(double &result)
-    {
-      using namespace Pipes::get_alignment_likelihood_THDM;
-
-      // get THDM type and find out if it is a FS spectrum (at Q)
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
-
-      // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = alignment_likelihood_THDM;
-      // create container
-      THDM_spectrum_container container;
-      // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
-      // evaluate loglike
-      const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
-      double loglike_at_Q = L_MAX;
-      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
-      {
-        if (is_at_Q)
-        {
-          // get likelihood at check_other_scale
-          THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
-          loglike_at_Q = likelihood_function(container_at_scale);
-        }
-        else
-        {
-          // print warning if we ask for likelihood at check_other_scale but not using FS model
-          std::ostringstream;
-          str calculation_name = "get_alignment_likelihood_THDM";
-          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
-          SpecBit_warning().raise(LOCAL_INFO, os.str());
-        }
-      }
-      // return the worse performing likelihood
-      result = std::min(loglike, loglike_at_Q);
-    }
-
-
-    // OBSERVABLE: checks for vacuum meta-stability (T/F)
-    void check_vacuum_global_minimum(int &result)
-    {
-      using namespace Pipes::check_vacuum_global_minimum;
-
-      // get THDM type and find out if it is a FS spectrum (at Q)
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-      bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
-
-      // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = global_minimum_discriminant_THDM;
-      // create container
-      THDM_spectrum_container container;
-      // initialise container at Qin - this is where the 2HDMC is configured
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
-      // evaluate loglike
-      const double loglike = likelihood_function(container);
-      // note that we may alos check SpecBit's likelihoods at a different scale: check_other_scale
-      int loglike_at_Q = 1;
-      double check_other_scale = runOptions->getValueOrDef<double>(0.0, "check_other_scale");
-      if (check_other_scale > 0.0)
-      {
-        if (is_at_Q)
-        {
-          // get likelihood at check_other_scale
-          THDM_spectrum_container container_at_scale;
-          BEreq::init_THDM_spectrum_container_CONV(container_at_scale, *Dep::THDM_spectrum, byVal(THDM_type), byVal(check_other_scale), 0);
-          loglike_at_Q = likelihood_function(container_at_scale);
-        }
-        else
-        {
-          // print warning if we ask for likelihood at check_other_scale but not using FS model
-          std::ostringstream;
-          str calculation_name = "check_vacuum_global_minimum";
-          os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
-          SpecBit_warning().raise(LOCAL_INFO, os.str());
-        }
-      }
-      // return the worse performing likelihood
-      result = (loglike && loglike_at_Q);
     }
 
     // LIKELIHOOD: checks that the corrections to h0 are perturbative (hard-cutoff)
@@ -3910,7 +3824,7 @@ namespace Gambit
 
       // OFF - it doesn't work
       // we need mass_err_H < mass_err_h for Hidden Higgs scenario
-      
+
       // if (mass_err_h < mass_err_H)
       // {
       //   result = -L_MAX;
@@ -3924,7 +3838,7 @@ namespace Gambit
 
       // TODO: Should this be just invalidated if result > 0
       constexpr double model_invalid_for_lnlike_below = -1e6;
-      result *= model_invalid_for_lnlike_below; 
+      result *= model_invalid_for_lnlike_below;
 
     }
 
@@ -3932,7 +3846,7 @@ namespace Gambit
     void higgs_mass_LL(double& result)
     {
       using namespace Pipes::higgs_mass_LL;
-      
+
       // get THDM type
       THDM_TYPE THDM_type = *Dep::THDM_Type;
 
@@ -3952,7 +3866,7 @@ namespace Gambit
       // no penalty if we are within 10 GeV of exp. value
       // TODO: Should this be just invalidated if result > 0
       result = model_invalid_for_lnlike_below * (std::max(0.0,mass_err - 10.0) / 800);
-      
+
     }
 
     // LIKELIHOOD: mass range for each heavy scalar, specified in YAML file (soft-cutoff)
@@ -3971,7 +3885,7 @@ namespace Gambit
       // initialise container at Qin - this is where the 2HDMC is configured
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(THDM_type), 0.0, 0);
       constexpr double infinity = std::numeric_limits<double>::infinity();
-      
+
       const double max_scalar_mass = runOptions->getValueOrDef<double>(infinity, "maximum_scalar_mass");
       const double min_scalar_mass = runOptions->getValueOrDef<double>(-1.0*infinity, "minimum_scalar_mass");
       const double soft_max_scalar_mass = runOptions->getValueOrDef<double>(max_scalar_mass, "soft_maximum_scalar_mass");
@@ -4046,7 +3960,7 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-      
+
       // give higgs indices names
       enum neutral_higgs_indices
       {
@@ -4162,7 +4076,7 @@ namespace Gambit
         }
       }
     }
-    
+
     // get higgs couplings from THDMC
     // Put together the Higgs couplings for the THDM, using 2HDMC
     void THDM_higgs_couplings_2HDMC(HiggsCouplingsTable &result)
@@ -4218,7 +4132,7 @@ namespace Gambit
       }
 
       // Determine the type
-      THDM_TYPE THDM_type = *Dep::THDM_Type; 
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
 
       // Initiate 2HDM container
       THDM_spectrum_container container;
