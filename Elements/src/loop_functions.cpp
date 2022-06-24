@@ -101,9 +101,9 @@ namespace Gambit
              }
              return vertex_total;
          }
+         return 0.0;
       }
 
-      return 0.0;
     }
 
     //2-loop functions for BR(l>l' gamma) for the gTHDM
@@ -118,7 +118,6 @@ namespace Gambit
            }
            std::complex<double> one(1,0);
            std::complex<double> two(2,0);
-           std::complex<double> z(1 - 4*real(x),0);
            std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
            std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
            std::complex<double> Logs = (-x/(two*std::sqrt(z)))*(-two*two*std::sqrt(z) - two*std::sqrt(z)*std::log(x) - std::log(w1)*std::log(x) + two*x*std::log(w1)*std::log(x) + std::log(w2)*std::log(x) - two*x*std::log(w2)*std::log(x));
@@ -144,7 +143,6 @@ namespace Gambit
           }
           std::complex<double> one(1,0);
           std::complex<double> two(2,0);
-          std::complex<double> z(1 - 4*real(x),0);
           std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
           std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
           std::complex<double> Logs = (-x/(two*std::sqrt(z)))*(-std::log(w1)+std::log(w2))*std::log(x);
@@ -171,7 +169,6 @@ namespace Gambit
            std::complex<double> one(1,0);
            std::complex<double> two(2,0);
            std::complex<double> four(4,0);
-           std::complex<double> z(1 - 4*real(x),0);
            std::complex<double> w1 = (-one + std::sqrt(z))/(one + std::sqrt(z));
            std::complex<double> w2 = (one + std::sqrt(z))/(-one + std::sqrt(z));
            std::complex<double> Logs =  - std::sqrt(-z)*std::log(-one - std::sqrt(z)) + four*x*std::sqrt(-z)*std::log(-one - std::sqrt(z))

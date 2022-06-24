@@ -1436,6 +1436,7 @@ namespace Gambit
            break;
            }
       }
+      return 0.0;
     }
 
     /// Delta C9 from the general THDM
