@@ -48,6 +48,7 @@
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 June-December
 ///  \date 2021 Jan-Sep
+///  \date 2022 June
 //
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
@@ -1907,9 +1908,21 @@ namespace Gambit
 
 
     //Partial decay width for B->D l nu computed with Simpson's rule
-    double Gamma_BDlnu(std::complex<double> gs, std::complex<double> gsmutau, int n)
+    double Gamma_BDlnu(std::complex<double> gs, std::complex<double> gsmutau, int gen, int n)
     {
-      const double a = 1.77686*1.77686;//mTau^2
+      double a = 0.0;
+      if (gen==3)
+      {
+      a = 1.77686*1.77686;//mTau^2
+      }
+      else if (gen==2)
+      {
+      a = 0.105658*0.105658;//mMu^2
+      }
+      else if (gen==1)
+      {
+      FlavBit_error().raise(LOCAL_INFO, "BDenu is not supported for THDM model");
+      }
       const double b = 3.40961*3.40961;//(mB-mD)^2
       double h = (b-a)/n;
       double sum_odds = 0.0;
@@ -1926,9 +1939,21 @@ namespace Gambit
     }
 
     //Partial decay width for B->D* l nu computed with Simpson's rule
-    double Gamma_BDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, int n)
+    double Gamma_BDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, int gen, int n)
     {
-      const double a = 1.77686*1.77686;//mTau^2
+      double a = 0.0;
+      if (gen==3)
+      {
+      a = 1.77686*1.77686;//mTau^2
+      }
+      else if (gen==2)
+      {
+      a = 0.105658*0.105658;//mMu^2
+      }
+      else if (gen==1)
+      {
+      FlavBit_error().raise(LOCAL_INFO, "BDstarnu is not supported for THDM model");
+      }
       const double b = 3.27261*3.27261;//(mB-mDs)^2
       double h = (b-a)/n;
       double sum_odds = 0.0;
@@ -1966,7 +1991,7 @@ namespace Gambit
    // FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma
     double GammaDstar_Gamma(std::complex<double> gp, std::complex<double> gpmutau)
     {
-      double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, gpmutau, 13)/Gamma_BDstarlnu(gp, gpmutau, 13);
+      double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, gpmutau, 13)/Gamma_BDstarlnu(gp, gpmutau, 3, 13);
 
       return GammaDstar_Gamma;
     }
@@ -2057,7 +2082,7 @@ namespace Gambit
 
       double q2 = (q2min + q2max)/2;
 
-      double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, gsmutau, q2)/Gamma_BDlnu(gs, gsmutau, 15);
+      double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, gsmutau, q2)/Gamma_BDlnu(gs, gsmutau, 3, 15);
 
       result = dGamma_dq2_Gamma;
     }
@@ -2099,7 +2124,7 @@ namespace Gambit
       std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
       double q2 = (q2min + q2max)/2;
 
-      double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, gpmutau, q2)/Gamma_BDstarlnu(gp, gpmutau, 13);
+      double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, gpmutau, q2)/Gamma_BDstarlnu(gp, gpmutau, 3, 13);
 
       result = dGamma_dq2_Gamma;
 
@@ -3479,12 +3504,71 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_BDtaunu"<<endl;
     }
 
-    /// BR B -> D tau nu
-    void THDM_BDtaunu(double &)
+    // Auxiliary function for BR(B->Dlnu),1st generation is not supported
+    void THDM_Gamma_BDlnu(SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, int gen, double &result)
+    { 
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double mTau = (*sminputspointer)->mTau;
+      const double mMu = (*sminputspointer)->mMu;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mCmC = (*sminputspointer)->mCmC;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcb(0,0);
+      std::complex<double> CLcb(0,0);
+      if (gen==3)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      }
+      else if (gen==2)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2); 
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      }
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gs = (CRcb + CLcb)/CSMcb;
+      std::complex<double> gsmutau = (CRcbmutau + CLcbmutau)/CSMcb;
+      
+      double Gamma = Gamma_BDlnu(gs, gsmutau, gen, 13);
+      
+      result = Gamma;
+    
+    }
+
+    ///  BR(B->Dtanu) in the THDM
+    void THDM_BDtaunu(double &result)
     {
       using namespace Pipes::THDM_BDtaunu;
 
-      FlavBit_error().raise(LOCAL_INFO, "BDtaunu not implemented for THDM model");
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      THDM_Gamma_BDlnu(sminputs, sminputspointer, spectrum, 3, result);
     }
 
 
@@ -3510,12 +3594,16 @@ namespace Gambit
     }
 
     /// BR B -> D mu nu
-    void THDM_BDmunu(double &)
+    void THDM_BDmunu(double &result)
     {
       using namespace Pipes::THDM_BDmunu;
-
-      FlavBit_error().raise(LOCAL_INFO, "BDmunu not implemented for THDM model");
-    }
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      
+      THDM_Gamma_BDlnu(sminputs, sminputspointer, spectrum, 2, result);
+    } 
 
 
     /// Br B -> D* tau nu
@@ -3539,13 +3627,72 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SI_BDstartaunu"<<endl;
     }
 
+    // Auxiliary function for BR(B->Dstarlnu),1st generation is not supported
+    void THDM_Gamma_BDstarlnu(SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, int gen, double &result)
+    {
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double mTau = (*sminputspointer)->mTau;
+      const double mMu = (*sminputspointer)->mMu;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mCmC = (*sminputspointer)->mCmC;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
+      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
+      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
+      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
+      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      double xitc = Ytc/cosb;
+      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      double xisb = Ysb/cosb;
+      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      double ximutau = Ymutau/cosb;
+      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
+      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcb(0,0);
+      std::complex<double> CLcb(0,0);
+      if (gen==3)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      }
+      else if (gen==2)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      }
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp = (CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
+
+      double Gamma = Gamma_BDstarlnu(gp, gpmutau, gen, 15);
+
+      result = Gamma;
+
+    }
+
     /// BR B -> D* tau nu
-    void THDM_BDstartaunu(double &)
+    void THDM_BDstartaunu(double &result)
     {
       using namespace Pipes::THDM_BDstartaunu;
-
-      FlavBit_error().raise(LOCAL_INFO, "BDstartaunu not implemented for THDM model");
-    }
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      
+      THDM_Gamma_BDstarlnu(sminputs, sminputspointer, spectrum, 3, result);
+    } 
 
 
     /// Br B -> D* mu nu
@@ -3570,13 +3717,16 @@ namespace Gambit
     }
 
     /// BR B -> D* mu nu
-    void THDM_BDstarmunu(double &)
+    void THDM_BDstarmunu(double &result)
     {
       using namespace Pipes::THDM_BDstarmunu;
-
-      FlavBit_error().raise(LOCAL_INFO, "BDstarmunu not implemented for THDM model");
+      
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      
+      THDM_Gamma_BDstarlnu(sminputs, sminputspointer, spectrum, 2, result);
     }
-
 
     ///  B-> D tau nu / B-> D e nu decays
     void SI_RD(double &result)

@@ -1720,10 +1720,11 @@ START_MODULE
 
     #define FUNCTION THDM_BDtaunu
     START_FUNCTION(double)
-    ALLOW_MODELS(THDM, THDMatQ)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
-  #undef CAPABILITY
-
+  #undef CAPABILITY  
 
   // Observable: BR(B->D mu nu)
   #define CAPABILITY BDmunu
@@ -1737,7 +1738,9 @@ START_MODULE
 
     #define FUNCTION THDM_BDmunu
     START_FUNCTION(double)
-    ALLOW_MODELS(THDM, THDMatQ)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1753,7 +1756,9 @@ START_MODULE
 
     #define FUNCTION THDM_BDstartaunu
     START_FUNCTION(double)
-    ALLOW_MODELS(THDM, THDMatQ)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1769,7 +1774,9 @@ START_MODULE
 
     #define FUNCTION THDM_BDstarmunu
     START_FUNCTION(double)
-    ALLOW_MODELS(THDM, THDMatQ)
+    ALLOW_MODELS(THDM,THDMatQ)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
 
