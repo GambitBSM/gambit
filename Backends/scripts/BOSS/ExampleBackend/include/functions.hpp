@@ -16,6 +16,13 @@ namespace SomeNamespace
   // Function with return-by-value of a loaded class
   ClassFour return_a_ClassFour_instance();
 
+  // Function template
+  template <typename T>
+  T return_as_it_is(T arg)
+  {
+    return arg;
+  }
+
 }
 
 

@@ -242,7 +242,7 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
             type_name = gb.abstr_class_prefix + type_name_short
         else:
             type_name = (namespace+'::')*include_namespace  + gb.abstr_class_prefix + type_name_short
-    else: 
+    else:
         if namespace == '':
             type_name = type_name_short
         else:
@@ -817,7 +817,7 @@ def getTemplatedMethodTypes(func_el, class_name):
 
         # Parse each arg into a dictionary and add it to method_types
         method_types['args'] = makeTemplateArgs(args)
-            
+
         if len(method_types['args']) != len(xml_args_info):
             raise UnfoundMember("Arguments of {0} are incorrect".format(searching_method))
 
@@ -825,7 +825,7 @@ def getTemplatedMethodTypes(func_el, class_name):
         # TODO: This causes more problems that it solves
         #same_args = True
         #for i, j in zip(method_types['args'], xml_args_info):
-        #    
+        #
         #    if i['type'] != j['type'] and i['type'] != removeNamespace(j['type']) and\
         #       i['type'] != (j['type'] + ' ' +j['name']) and\
         #       i['type'] != (removeNamespace(j['type']) + ' ' +j['name']) and\
@@ -860,7 +860,7 @@ def makeTemplateArgs(args):
 
     argc = 1
     for arg in args:
-       
+
         arg_dict = OrderedDict()
         arg = arg.strip()
 
@@ -1595,7 +1595,7 @@ def usesLoadedClass(input_type, byname=False):
 
     else:
         return False
-   
+
 
 # ====== constrAbsForwardDeclHeader ========
 
@@ -1974,7 +1974,7 @@ def getMemberElements(el, include_artificial=False):
 
 def foundMatchingMembers(class_name, el):
     """
-    This function is responsible in finding if there's any matching member 
+    This function is responsible in finding if there's any matching member
     in the original file for a templated class
     """
     try:
@@ -2975,7 +2975,7 @@ def validType(type_name, xml_file):
     # Grab the locations of the outer brackets
     (lo, hi) = type_name_bracket_locs[0]
     stripped_type = type_name[:lo]
-   
+
     if not isTypeValid(type_name, xml_file) or hi != type_name_len - 1:
         # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
         return False
@@ -3215,7 +3215,7 @@ def xmlFilesToDicts(xml_files):
                 namespaces_list = getNamespaces(
                     el, include_self=True, xml_file_name=xml_file)
                 full_name = '::'.join(namespaces_list)
-                
+
                 full_name = full_name.strip()
             else:
                 # Skip elements that don't have a name
