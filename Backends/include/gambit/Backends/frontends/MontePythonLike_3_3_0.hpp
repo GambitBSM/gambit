@@ -26,6 +26,7 @@
 #define BACKENDLANG Python
 #define VERSION 3.3.0
 #define SAFE_VERSION 3_3_0
+#define REFERENCE Audren:2012wb,Brinckmann:2018cvx
 
 LOAD_LIBRARY
 

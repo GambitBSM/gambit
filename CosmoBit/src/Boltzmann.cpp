@@ -20,6 +20,7 @@
 ///  \date 2017 Nov
 ///  \date 2018 Jan - May
 ///  \date 2019 Jan, Feb, June, Nov
+///  \date 2021 Jan, Mar
 ///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
@@ -191,6 +192,16 @@ namespace Gambit
           CosmoBit_error().raise(LOCAL_INFO, "You have requested to scan both LCDM and LCDM_theta.\n"
                                              "This is not allowed. Please select one in your YAML file.");
         }
+        if (ModelInUse("LCDM") and ModelInUse("LCDM_zreio"))
+        {
+          CosmoBit_error().raise(LOCAL_INFO, "You have requested to scan both LCDM and LCDM_zreio.\n"
+                                             "This is not allowed. Please select one in your YAML file.");
+        }
+        if (ModelInUse("LCDM_theta") and ModelInUse("LCDM_zreio"))
+        {
+          CosmoBit_error().raise(LOCAL_INFO, "You have requested to scan both LCDM_theta and LCDM_zreio.\n"
+                                             "This is not allowed. Please select one in your YAML file.");
+        }
 
         // Make sure dict is empty
         result.clear();
@@ -209,11 +220,14 @@ namespace Gambit
         // Standard cosmological parameters (common to all CDM-like models)
         result.add_entry("T_cmb"      , *Param["T_cmb"]);
         result.add_entry("omega_b"    , *Param["omega_b"]);
-        result.add_entry("tau_reio"   , *Param["tau_reio"]);
         result.add_entry("omega_cdm"  , *Param["omega_cdm"]);
 
+        // Depending on parametrisation, pass either tau_reio or z_reio
+        if (ModelInUse("LCDM") or ModelInUse("LCDM_theta")) result.add_entry("tau_reio", *Param["tau_reio"]);
+        else result.add_entry("z_reio", *Param["z_reio"]);
+
         // Depending on parametrisation, pass either Hubble or the acoustic scale
-        if (ModelInUse("LCDM")) result.add_entry("H0", *Param["H0"]);
+        if (ModelInUse("LCDM") or ModelInUse("LCDM_zreio")) result.add_entry("H0", *Param["H0"]);
         else result.add_entry("100*theta_s", *Param["100theta_s"]);
 
         // add energy-injection-related CLASS input parameters
@@ -299,6 +313,15 @@ namespace Gambit
           result.merge_input_dicts(*Dep::classy_PlanckLike_input);
         }
 
+        // Print the content of the complete input dictory for CLASS into the logger (for debugging)
+        static const bool logInputs = runOptions->getValueOrDef<bool>(false, "log_classy_inputs");
+        if (logInputs)
+        {
+          logger() << "[set_classy_input_params] Collected the following inputs:\n\n"<<endl;
+          for (auto& it : result.get_input_dict().cast<map_str_str>())
+            logger() << it.first << " = " << it.second << "\n";
+          logger() << "\n" << EOM;
+        }
 
       }
 
@@ -367,9 +390,9 @@ namespace Gambit
         // Make sure nothing from previous run is contained
         result.clear();
 
-         // Set relevant inputs for the scenario of s-wave annihilating DM
-         result["DM_annihilation_cross_section"] = *Param["sigmav"];
-         result["DM_annihilation_mass"] = *Param["mass"];
+        // Set relevant inputs for the scenario of s-wave annihilating DM
+        result["DM_annihilation_cross_section"] = *Param["sigmav"];
+        result["DM_annihilation_mass"] = *Param["mass"];
 
         // Get the results from the DarkAges tables that hold extra information to be passed to the CLASS thermodynamics structure
         static DarkAges::Energy_injection_efficiency_table fz;
@@ -421,8 +444,34 @@ namespace Gambit
 
         // Copy fz to cache
         cached_fz = fz;
+
+        // If "sigmav" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["sigmav"] > 0.0)) result.clear();
       }
 
+      void set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot(pybind11::dict &result)
+      {
+        using namespace Pipes::set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot;
+
+        // Make sure nothing from previous run is contained
+        result.clear();
+
+        // Get the value for f_eff.
+        const double f_eff = *Dep::f_eff;
+
+        // Set relevant inputs for the scenario of s-wave annihilating DM
+        // Scale "sigmav" by "f_eff" as CLASS will implicitly asume f_eff=1.
+        result["DM_annihilation_cross_section"] = (*Param["sigmav"]) * f_eff;
+        result["DM_annihilation_mass"] = *Param["mass"];
+
+        // Tell CLASS to use the on-the-spot approximation;
+        result["f_eff_type"] = "on_the_spot";
+
+        // If "sigmav" or "f_eff" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["sigmav"] > 0.0  && f_eff > 0.0)) result.clear();
+      }
 
       /// Set the parameters for exoCLASS for a scenario with decaying dark matter.
       void set_classy_parameters_EnergyInjection_DecayingDM(pybind11::dict &result)
@@ -433,9 +482,8 @@ namespace Gambit
         result.clear();
 
         // Set relevant inputs for the scenario of decaying DM
-        const ModelParameters& NP_params = *Dep::DecayingDM_general_parameters;
-        result["DM_decay_tau"] = NP_params.at("lifetime");
-        result["DM_decay_fraction"] = NP_params.at("fraction");
+        result["DM_decay_tau"] = *Param["lifetime"];
+        result["DM_decay_fraction"] = *Param["fraction"];
 
         // Get the results from the DarkAges tables that hold extra information to be passed to the CLASS thermodynamics structure
         static DarkAges::Energy_injection_efficiency_table fz;
@@ -487,6 +535,34 @@ namespace Gambit
 
         // Copy fz to cache
         cached_fz = fz;
+
+        // If "fraction" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["fraction"] > 0.0)) result.clear();
+      }
+
+      /// Set the parameters for exoCLASS for a scenario with decaying dark matter.
+      void set_classy_parameters_EnergyInjection_DecayingDM_onSpot(pybind11::dict &result)
+      {
+        using namespace Pipes::set_classy_parameters_EnergyInjection_DecayingDM_onSpot;
+
+        // Make sure nothing from previous run is contained
+        result.clear();
+
+        // Get the value for f_eff.
+        const double f_eff = *Dep::f_eff;
+
+        // Set relevant inputs for the scenario of decaying DM
+        // Scale "fraction" by "f_eff" as CLASS will implicitly asume f_eff=1.
+        result["DM_decay_tau"] = *Param["lifetime"];
+        result["DM_decay_fraction"] = (*Param["fraction"]) * f_eff;
+
+        // Tell CLASS to use the on-the-spot approximation;
+        result["f_eff_type"] = "on_the_spot";
+
+        // If "fraction" or "f_eff" is zero, clear the whole dictionary again
+        // as no energy injection is considered.
+        if (!(*Param["fraction"] > 0.0  && f_eff > 0.0)) result.clear();
       }
 
       /// Add all inputs for CLASS needed to produce the correct output to be

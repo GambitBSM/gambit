@@ -126,6 +126,17 @@ index fae0dd04..a8020991 100644
      def omega_b(self):
          return self.ba.Omega0_b * self.ba.h * self.ba.h
  
+@@ -1046,6 +1076,10 @@ cdef class Class:
+         self.compute(["thermodynamics"])
+         return self.th.rs_d
+ 
++    def z_reio(self):
++        self.compute(["thermodynamics"])
++        return self.th.z_reio
++
+     def angular_distance(self, z):
+         """
+         angular_distance(z)
 diff --git a/source/input.c b/source/input.c
 index d6f41879..f1e55990 100644
 --- a/source/input.c
@@ -651,3 +662,18 @@ index deb01201..c474fbbc 100755
               hyrec_data.cosmo->inj_params->energy_deposition_treatment = 1;
             }
             if(pth->energy_repart_coefficient==no_factorization) hyrec_data.cosmo->inj_params->energy_repart_coefficient = 0;
+diff --git a/tools/evolver_ndf15.c b/tools/evolver_ndf15.c
+index 790ced55..a09306d7 100755
+--- a/tools/evolver_ndf15.c
++++ b/tools/evolver_ndf15.c
+@@ -310,7 +310,9 @@ int evolver_ndf15(
+     if (fabs(absh-hmin)<100*eps){
+       /* If the stepsize has not changed */
+       if (at_hmin==_TRUE_){
+-	absh = abshlast;	/*required by stepsize recovery */
++        class_test(fabs(absh-abshlast) < eps, error_message,
++                   "Cannot recover the last successful stepsize. Solver gets stuck in an infinite loop");
++        absh = abshlast;    /*required by stepsize recovery */
+       }
+       at_hmin = _TRUE_;
+     }

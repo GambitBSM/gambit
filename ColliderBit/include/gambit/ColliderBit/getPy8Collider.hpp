@@ -38,7 +38,7 @@
 
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
-//#define COLLIDERBIT_DEBUG
+// #define COLLIDERBIT_DEBUG
 #define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
 
 namespace Gambit
@@ -124,6 +124,16 @@ namespace Gambit
 
         // We need "SLHA:file = slhaea" for the SLHAea interface.
         pythiaOptions.push_back("SLHA:file = slhaea");
+
+        // If the collider energy is not given in the list of Pythia options, we set it to 13 TeV by default.
+        // We search for the substring "Beams:e", meaning that if any of the Pythia options "Beams:eCM", "Beams:eA" 
+        // or "Beams:eB" are present we don't apply the default.
+        bool has_beam_energy_option = std::any_of(pythiaOptions.begin(), pythiaOptions.end(), [](const str& s){ return s.find("Beams:e") != str::npos; });
+        if (!has_beam_energy_option)
+        {
+          pythiaOptions.push_back("Beams:eCM = 13000");
+          logger() << LogTags::debug << "Could not find a beam energy in the list of Pythia settings. Will add the setting 'Beams:eCM = 13000'." << EOM;
+        }
 
         // Variables needed for the xsec veto
         std::stringstream processLevelOutput;
@@ -223,16 +233,24 @@ namespace Gambit
           }
           catch (typename Py8Collider<PythiaT,EventT,hepmc_writerT>::EventGenerationError& e)
           {
-            piped_invalid_point.request("Failed to generate dummy test event. Will invalidate point.");
-
-            #ifdef COLLIDERBIT_DEBUG
-              cout << DEBUG_PREFIX << "Failed to generate dummy test event during COLLIDER_INIT_OMP in getPy8Collider. Check the logs for event details." << endl;
-            #endif
-            #pragma omp critical (pythia_event_failure)
+            // Try again...
+            try
             {
-              std::stringstream ss;
-              dummy_pythia_event.list(ss, 1);
-              logger() << LogTags::debug << "Failed to generate dummy test event during COLLIDER_INIT_OMP iteration in getPy8Collider. Pythia record for the event that failed:\n" << ss.str() << EOM;
+              result.nextEvent(dummy_pythia_event);
+            }
+            catch (typename Py8Collider<PythiaT,EventT,hepmc_writerT>::EventGenerationError& e)
+            {
+              piped_invalid_point.request("Failed to generate dummy test event. Will invalidate point.");
+
+              #ifdef COLLIDERBIT_DEBUG
+                cout << DEBUG_PREFIX << "Failed to generate dummy test event during COLLIDER_INIT_OMP in getPy8Collider. Check the logs for event details." << endl;
+              #endif
+              #pragma omp critical (pythia_event_failure)
+              {
+                std::stringstream ss;
+                dummy_pythia_event.list(ss, 1);
+                logger() << LogTags::debug << "Failed to generate dummy test event during COLLIDER_INIT_OMP iteration in getPy8Collider. Pythia record for the event that failed:\n" << ss.str() << EOM;
+              }
             }
           }
 

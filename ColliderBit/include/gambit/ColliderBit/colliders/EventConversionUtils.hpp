@@ -110,7 +110,7 @@ namespace Gambit
 
         inline double get_unified_eta(const HepMC3::GenParticlePtr &gp) { return MCUtils::eta(gp->momentum()); }
 
-        inline bool get_unified_fromHadron(const HepMC3::GenParticlePtr gp, const std::vector<HepMC3::GenParticlePtr> &pevt, int i)
+        inline bool get_unified_fromHadron(const HepMC3::GenParticlePtr &gp, const std::vector<HepMC3::GenParticlePtr> &pevt, int i)
         {
           // This function mimics exactly what the Py8Utils.cpp function does, but for HepMC3 events.
           // This seems highly unlikely to change - apparently this is just the standard way it's done.
@@ -120,7 +120,7 @@ namespace Gambit
           if (HEPMC3_isParton(abs(gp->pid()))) return false; // stop the walking at the end of the hadron level
           auto parent_vector = (gp->parents());
           if (parent_vector.size() == 0) return false;
-          for (const HepMC3::GenParticlePtr parent : parent_vector)
+          for (const HepMC3::GenParticlePtr& parent : parent_vector)
           {
             if (get_unified_fromHadron(parent, pevt, i)) return true;
           }
@@ -139,7 +139,7 @@ namespace Gambit
         {
           //Note! The unified_child_id_results MUST BE EMPTY as we don't clear them in the function.
           auto child_vector = gp->children();
-          for (const HepMC3::GenParticlePtr child: child_vector)
+          for (const HepMC3::GenParticlePtr& child: child_vector)
           {
             unified_child_id_results.push_back(child->pid());
           }

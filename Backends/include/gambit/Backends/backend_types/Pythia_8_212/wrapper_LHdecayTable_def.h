@@ -49,12 +49,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->addChannel__BOSS(*channelIn.get_BEptr());
         }
         
-        inline void LHdecayTable::addChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > cIn)
+        inline void LHdecayTable::addChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn, ::std::basic_string<char> cIn)
         {
             get_BEptr()->addChannel(bratIn, nDaIn, idDaIn, cIn);
         }
         
-        inline void LHdecayTable::addChannel(double bratIn, int nDaIn, ::std::vector<int, std::allocator<int> > idDaIn)
+        inline void LHdecayTable::addChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn)
         {
             get_BEptr()->addChannel__BOSS(bratIn, nDaIn, idDaIn);
         }
@@ -69,7 +69,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->getBrat(iChannel);
         }
         
-        inline ::std::vector<int, std::allocator<int> > LHdecayTable::getIdDa(int iChannel)
+        inline ::std::vector<int> LHdecayTable::getIdDa(int iChannel)
         {
             return get_BEptr()->getIdDa(iChannel);
         }

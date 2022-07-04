@@ -52,6 +52,7 @@
 
 
 #define MODULE DecayBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
   #define CAPABILITY t_decay_rates
@@ -61,9 +62,9 @@ START_MODULE
     START_FUNCTION(DecayTable::Entry)
     #undef FUNCTION
 
-    #define FUNCTION FH_t_decays
+    #define FUNCTION FeynHiggs_t_decays
     START_FUNCTION(DecayTable::Entry)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
@@ -88,10 +89,10 @@ START_MODULE
     DEPENDENCY(mh, triplet<double>)
     #undef FUNCTION
 
-    #define FUNCTION Ref_SM_Higgs_decays_FH
+    #define FUNCTION Ref_SM_Higgs_decays_FeynHiggs
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
@@ -121,7 +122,7 @@ START_MODULE
     #define FUNCTION Ref_SM_other_Higgs_decays_FH
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(MSSM_spectrum, Spectrum)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
@@ -150,7 +151,7 @@ START_MODULE
 
     #define FUNCTION Ref_SM_A0_decays_FH
     START_FUNCTION(DecayTable::Entry)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
@@ -215,9 +216,9 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
-    #define FUNCTION FH_MSSM_h0_1_decays
+    #define FUNCTION FeynHiggs_MSSM_h0_1_decays
     START_FUNCTION(DecayTable::Entry)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
@@ -247,10 +248,10 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
-    #define FUNCTION FH_h0_2_decays
+    #define FUNCTION FeynHiggs_h0_2_decays
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
     
@@ -278,9 +279,9 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
-    #define FUNCTION FH_A0_decays
+    #define FUNCTION FeynHiggs_A0_decays
     START_FUNCTION(DecayTable::Entry)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
@@ -311,10 +312,10 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
-    #define FUNCTION FH_H_plus_decays
+    #define FUNCTION FeynHiggs_H_plus_decays
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     #undef FUNCTION
 
@@ -999,6 +1000,7 @@ START_MODULE
 
   #undef CAPABILITY
 
+#undef REFERENCE
 #undef MODULE
 
 // SM decay rate functions

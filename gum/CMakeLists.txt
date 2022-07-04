@@ -231,13 +231,19 @@ add_executable(mathematica ${SRC_GUM} ${HEADER_FILES})
 
 TARGET_LINK_LIBRARIES(mathematica ${LIBRARIES} ${PYTHON_LIBRARIES} ${Boost_LIBRARIES} ${GUM_LIBS})
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-    message("   Setting GCC flags")
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU") OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel") OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang"))
+
+    message("   Setting compiler flags")
 
     # Remove the -g flag when not debugging
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2 -Wall -Wextra -W -pedantic -std=c++0x -O3")
-else()
+elseif("${CMAKE_GENERATOR}" MATCHES "Visual Studio")
     message(status ": Setting MSVC flags")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHc-")
+else()
+    message(FATAL_ERROR "Unknown compiler or generator. Please check that you are using a proper C++ compiler.")
 endif()
 install(TARGETS mathematica DESTINATION ${CMAKE_BINARY_DIR}/lib)

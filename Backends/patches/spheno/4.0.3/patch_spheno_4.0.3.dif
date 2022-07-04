@@ -38,7 +38,7 @@ diff -rupN SPheno-4.0.3/src/Makefile ../installed/spheno/4.0.3/src/Makefile
  
  #
  # options for various compilers
-@@ -11,41 +12,52 @@ name = ../lib/libSPheno.a
+@@ -11,41 +12,58 @@ name = ../lib/libSPheno.a
  
  # Intels ifort, default in optimized mode
  F90 = ifort
@@ -66,6 +66,12 @@ diff -rupN SPheno-4.0.3/src/Makefile ../installed/spheno/4.0.3/src/Makefile
 +
 +# gfortran, any version (Added by GAMBIT)
 +ifneq (,$(findstring gfortran,${F90}))
++ comp = -c -O -fPIC -J${Mdir} -I${InDir}
++ LFlagsB = -O -fPIC
++endif
++
++# f95, any version (Added by GAMBIT)
++ifneq (,$(findstring f95,${F90}))
 + comp = -c -O -fPIC -J${Mdir} -I${InDir}
 + LFlagsB = -O -fPIC
  endif

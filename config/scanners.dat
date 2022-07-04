@@ -82,7 +82,7 @@ multinest: |
       seed (-1):       random no. generator seed, if < 0 then take the seed from system clock
       fb (1):          need feedback on standard output?
       resume (1):      resume from a previous job?
-      outfile (0):     write output files?
+      outfile (1):     write output files?
       logZero (-1E90): points with loglike < logZero will be ignored by MultiNest
       maxiter (0):     Max no. of iterations, a non-positive value means infinity.
 

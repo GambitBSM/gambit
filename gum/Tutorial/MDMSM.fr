@@ -89,7 +89,6 @@ M$Parameters = {
 
 Lkin := 1/2 ( I*chibar[s]*Ga[mu,s,p].del[chi[p],mu] - mChi chibar[s].chi[s] ) + 1/2 del[YY,mu] del[YY,mu] - 1/2 mY^2 YY^2;
 
-(* Lint := 1/2 gchi chibar[s].chi[s] YY + cY/(Sqrt[2]*vev) * ( Md[i] (dqbar[s,i,c].dq[s,i,c]) + Mu[i] (uqbar[s,i,c].uq[s,i,c])  + Ml[i] (lbar[s,i].l[s,i])) YY; *)
 Lint := 1/2 gchi chibar[s].chi[s] YY + cY * 
   ( ydo dbar.d +
     yup ubar.u + 

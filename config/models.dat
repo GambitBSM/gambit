@@ -498,6 +498,14 @@ WC: |
 
    An implementation of the standard effective field theory for the study of rare meson decays, based on the decomposition of the effective Hamiltonian into a linear combination of interactions specified with Wilson coefficients. This model incorporates enhancements and suppressions to the real and imaginary parts of the Wilson coefficients of the effective operators O7 , O9 , O10 , Q1 and Q2 (see the GAMBIT core paper for details and definitions).
 
+WC_LUV: |
+
+   Identical to the WC model, but with different Wilson Coefficients for coupling to each generation of leptons, so as to permit lepton flavour universality violation (LUV).
+
+WC_LR: |
+
+   Identical to the WC model, but also with primed versions of the different Wilson Coefficients.
+
 nuclear_params_fnq: |
 
    This model contains the nuclear matrix elements that parameterise the quark content of protons and neutrons, plus parameters that describe the spin content of the proton.
@@ -509,6 +517,13 @@ nuclear_params_sigma0_sigmal: |
 nuclear_params_sigmas_sigmal: |
 
    The same as nuclear_params_fnq, but with the replacement of the six quark content matrix elements by the matrix element sigma0 and the strange quark content of the nucleon sigmas. See the GAMBIT core paper for details and definitions.
+
+nuclear_params_ChPT: |
+
+   Model of nuclear matrix elements relevant for chiral perturbation theory in the context of direct detection. This is primarily designed for the interface with DirectDM, and the naming of the parameters corresponds to the one given in 1708.02678.
+
+nuclear_params_ChPT_sigmapiN: |
+   Model of nuclear matrix elements relevant for chiral perturbation theory in the context of direct detection. This is a daughter model of nuclear_params_ChPT where sigma(u,d)(p,n) are calculated in terms of sigmapiN
 
 nuclear_params_neutron_lifetime : |
 
@@ -545,6 +560,46 @@ DiracSingletDM_Z2: |
 DiracSingletDM_Z2_sps: |
 
    Same as DiracSingletDM_Z2, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.
+
+GeneralCosmoALP : |
+
+   General ALP model with parametric temperature-dependent mass and cosmological applications.
+
+   gagg                 - ALP-photon coupling [GeV^-1]
+   gaee                 - ALP-electron coupling [dimensionless]
+   gaN                  - ALP-nucleon coupling [dimensionless]
+   fa                   - ALP decay constant scale [GeV]
+   ma0                  - ALP mass (at zero temperature) [eV]
+   Tchi                 - Critical temperature below which the axion mass is constant [MeV]
+   beta                 - Exponent of the temperature scaling of the axion mass above Tchi [dimensionless]
+   thetai               - Initial misalignment angle [dimensionless]
+   f0_thermal           - Fraction of total CDM in ALPs produced thermally (at production) [dimensionless]
+   T_R                  - Reheating temperature [MeV]
+
+CosmoALP : |
+
+   Specialised version of GeneralCosmoALP for cosmological applications, without ALP-electron coupling and ALP-nucleon coupling (gaee=gaN=0) and
+   with temperature-independent mass (beta=0, Tchi irrelevant). The ALP-photon coupling (gagg) is replaced by its dimensionless equivalent (Cagg).
+
+   Cagg                 - ALP-photon coupling [dimensionless]
+   fa                   - ALP decay constant scale [GeV]
+   ma0                  - ALP mass (at zero temperature) [eV]
+   thetai               - Initial misalignment angle [dimensionless]
+   f0_thermal           - Fraction of total CDM in ALPs produced thermally (at production) [dimensionless]
+   T_R                  - Reheating temperature [MeV]
+
+CosmoALP_gg_tau : |
+
+   Specialised version of GeneralCosmoALP for cosmological applications, without ALP-electron coupling and ALP-nuclen coupling (gaee=gaN=0). The ALP-photon coupling (gagg) is replaced by the ALP lifetime (tau).
+
+   tau                  - ALP lifetime [s]
+   fa                   - ALP decay constant scale [GeV]
+   ma0                  - ALP mass (at zero temperature) [eV]
+   Tchi                 - Critical temperature below which the axion mass is constant [MeV]
+   beta                 - Exponent of the temperature scaling of the axion mass above Tchi [dimensionless]
+   thetai               - Initial misalignment angle [dimensionless]
+   f0_thermal           - Fraction of total CDM in ALPs produced thermally (at production) [dimensionless]
+   T_R                  - Reheating temperature [MeV]
 
 GeneralALP: |
 
@@ -752,6 +807,33 @@ THDMII_hybrid_lambda2atQ: |
    Qin                 - the scale at which the parameters are defined
    QRunTo              - the scale to which the parameters are run
 
+NREO_scalarDM: |
+   Non-relativistic effective operator model for scalar DM, coupling constants as defined in: https://arxiv.org/abs/1501.03729
+
+NREO_DiracDM: |
+   Non-relativistic effective operator model for Dirac DM, coupling constants as defined in: https://arxiv.org/abs/1501.03729
+
+NREO_MajoranaDM: |
+   Non-relativistic effective operator model for Majorana DM, coupling constants as defined in: https://arxiv.org/abs/1501.03729
+
+WIMP_sigmav: |
+   General A + Bv^2 parameterisation of WIMP self-annihilation to all SM two-body final states
+
+DMEFT: |
+   Effective field theory model of Dirac DM. The parameters of the model are the DM Mass, mchi, the new physics scale, Lambda, the MSbar running top mass, mtrunIN, and the dimensions I=5,6,7 Wilson coefficients, CIJ
+
+SuperRenormHP: |
+   The super-renormalizable Higgs portal model. A new scalar S with an SHH interaction.
+
+   mS     - the physical mass of the S scalar
+   theta  - the mixing angle with the Higgs boson
+
+ModifiedGravityYukawa: |
+   A model of modified gravity where a new Yukawa interaction is added to the Newtonian inverse-square law.
+
+   alpha  - the amplitude of the new Yukawa interaction
+   lambda - the range of the new Yukawa interaction
+
 
 ############################
 # Cosmology related models #
@@ -779,6 +861,17 @@ LCDM_theta: |
    tau_reio            - reionization optical depth
    T_cmb               - CMB temperature [K]
 
+LCDM_zreio: |
+
+   The standard Lambda-CDM model, but without any details of the inflationary or neutrino sectors. redshift of reionisation as an input parameter.
+   The simplest standard contemporary model with 4+1 effective parameters including cosmological constant Lambda and cold dark matter. The 5 parameters are chosen as:
+
+   omega_b             - baryon density parameter
+   omega_cdm           - dark matter density parameter
+   H0                  - Hubble constant [km/s/Mpc]
+   z_reio              - reionization redshift
+   T_cmb               - CMB temperature [K]
+
 #
 # Modifications to N_eff
 #
@@ -803,6 +896,14 @@ etaBBN: |
    Child model of etaBBN_rBBN_rCMB_dNurBBN_dNurCMB with only etaBBN as free parameter. Only allows for non-standard baryon-to-photon ratios, Neff as in SM at all times => r_BBN = r_CMB = 1 and dNur_BBN = dNur_CMB = 0.
 
    eta_BBN             - baryon-to-photon ratio during BBN (eta at CMB set by omega_b)
+
+etaBBN_rBBN_dNurBBN: |
+
+   Child model of etaBBN_rBBN_rCMB_dNurBBN_dNurCMB. Parameters as in parent but rCMB and dNurCMB are calculated externally.
+
+rBBN_dNurBBN: |
+
+   Child model of etaBBN_rBBN_dNurBBN. Parameters as in parent but etaBBN is calculated through "eta0" (baryon-to-photon ratio today) and "eta_ratio".
 
 rBBN_rCMB_dNurBBN_dNurCMB: |
 
@@ -915,6 +1016,26 @@ cosmo_nuisance_JLA: |
    alpha               - SALT2 shape parameter
    beta                - SALT2 colour parameter
 
+cosmo_nuisance_BK15: |
+   Cosmological nuisance parameters for BK15 likelihood, from http://arxiv.org/pdf/1810.05216.pdf, http://bicepkeck.org/bk15_2018_release.html. Descriptions taken from BK15_cosmomc/batch3/BK15.ini
+
+   BBTdust             - dust blackbody temperature [K] -- fixed to 19.6 / very insensitive to this
+   BBalphadust         - dust spatial power spectrum power law index
+   BBalphasync         - sync spatial power specturm power law index
+   BBbetadust          - dust SED power law index
+   BBbetasync          - sync SED power law index
+   BBdust              - dust power at ell=80, nu=353 GHz [uK^2]
+   BBdustsynccorr      - correlation between dust and sync
+   BBsync              - sync power at ell=80, nu=23 GHz [uK^2]
+   Delta_dust          - dust correlation ratio between 217 and 353 GHz, ell=80
+   Delta_sync          - sync correlation ratio between 217 and 353 GHz, ell=80
+   EEtoBB_dust         - EE/BB ratios -- recommended to fix to 2 / only used if E-modes are turned on
+   EEtoBB_sync         - EE/BB ratios -- recommended to fix to 2 / only used if E-modes are turned on
+   gamma_corr          - Band center errors, fixed to zero
+   gamma_95            - Band center errors, fixed to zero
+   gamma_150           - Band center errors, fixed to zero
+   gamma_220           - Band center errors, fixed to zero
+
 cosmo_nuisance_BK14: |
    Cosmological nuisance parameters for BK14 likelihood, from http://arxiv.org/pdf/1510.09217.pdf, http://bicepkeck.org/bk14_2015_release.html. Descriptions taken from BK14_cosmomc/batch2/BK14.ini
 
@@ -930,7 +1051,7 @@ cosmo_nuisance_BK14: |
    EEtoBB_sync         - EE/BB ratios -- recommended to fix to 2 / only used if E-modes are turned on
 
 cosmo_nuisance_BK14priors: |
-   Cosmological nuisance parameters for BK14priors likelihood in MontePython, from http://arxiv.org/pdf/1510.09217.pdf
+   Cosmological nuisance parameters for BK14priors (and BK15priors) likelihood in MontePython, from http://arxiv.org/pdf/1510.09217.pdf (http://arxiv.org/pdf/1810.05216.pdf for BK15priors)
    @TODO
 
    BBbetadust          - dust SED power law index
@@ -1112,6 +1233,26 @@ cosmo_nuisance_Planck_lite: |
 
    A_planck            - the Planck absolute calibration.
 
+cosmo_nuisance_SpectralDistortions: |
+   Cosmological nuisance parameters for spectral distortions, i.e. FIRAS, PIXIE and PRISM
+
+   sd_delta_T          - temperature shift
+   sd_T_D              - thermal dust temperature
+   sd_beta_D           - thermal dust spectral index
+   sd_A_D              - thermal dust amplitude
+   sd_T_CIB            - Cosmic Infrared Background temperature
+   sd_beta_CIB         - Cosmic Infrared Background spectral index
+   sd_A_CIB            - Cosmic Infrared Background amplitude
+   sd_alpha_sync       - synchrotron emissions spectral index
+   sd_omega_sync       - synchrotron emissions spectral curvature
+   sd_A_sync           - synchrotron emissions amplitude
+   sd_T_e              - free-free dust emission temperature
+   sd_EM               - free-free dust emission measure
+   sd_nu_p_spin        - spinning dust emission frequency
+   sd_A_spin           - spinning dust emission amplitude
+   sd_A_CO             - integrated CO emission amplitude
+   sd_y_reio_nuisance  - reionization
+
 #
 # Energy injection models
 #
@@ -1210,7 +1351,7 @@ ColliderBit_SLHA_scan_model: |
 ColliderBit_SLHA_file_model: |
 
    Dummy model for doing a ColliderBit-only scan over a set of SLHA files.
-   See ColliderBit/examples/ColliderBit_SLHA_file_model.yaml for an example 
+   See ColliderBit/examples/ColliderBit_SLHA_file_model.yaml for an example
    yaml file that uses this model.
 
    dummy    - a dummy parameter, not used for anything

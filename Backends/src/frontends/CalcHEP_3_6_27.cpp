@@ -59,9 +59,21 @@ BE_INI_FUNCTION
       model = "ScalarSingletDM_Z2";
     }
 
-    int error = setModel(modeltoset, 1);
-    if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model" + std::string(modeltoset) +
-          " in CalcHEP. CalcHEP error code: " + std::to_string(error) + ". Please check your model files.\n");
+    if (ModelInUse("DMEFT"))
+    {
+      BEpath = backendDir + "/../models/DMEFT";
+      path = BEpath.c_str();
+      modeltoset = (char*)malloc(strlen(path)+11);
+      sprintf(modeltoset, "%s", path);
+    }
+
+    // CH is not threadsafe so make critical sections everywhere
+    #pragma omp critical
+    {
+      int error = setModel(modeltoset, 1);
+      if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model" + std::string(modeltoset) +
+            " in CalcHEP. CalcHEP error code: " + std::to_string(error) + ". Please check your model files.\n");
+    }
 
     // Get the MPI rank, only let the first rank make the processes...
     int rank = 0;
@@ -84,7 +96,7 @@ BE_INI_FUNCTION
     }
     #ifdef WITH_MPI
       // Wait here until the first rank has generated all matrix elements.
-      MPI_Barrier(MPI_COMM_WORLD);
+      GMPI::Comm().Barrier();
     #endif
 
     free(modeltoset);
@@ -105,6 +117,20 @@ BE_INI_FUNCTION
     const Spectrum& spec = *Dep::ScalarSingletDM_Z2_spectrum;
 
     Assign_All_Values(spec, ScalarSingletDM_Z2_params);
+  }
+
+  if (ModelInUse("DMEFT"))
+  {
+   // Obtain model contents
+   static const SpectrumContents::DMEFT DMEFT_contents;
+
+   // Obtain list of all parameters within model
+   static const std::vector<SpectrumParameter> DMEFT_params = DMEFT_contents.all_parameters();
+
+   // Obtain spectrum information to pass to CalcHEP
+   const Spectrum& spec = *Dep::DMEFT_spectrum;
+
+   Assign_All_Values(spec, DMEFT_params);
   }
 
 }
@@ -146,8 +172,8 @@ BE_NAMESPACE
     numout* cc = getMEcode(twidth, UG, process, excludeVirtual, excludeOut, libname);
 
     // Release all memory allocated by "new" before returning
-    delete process;
-    delete libname;
+    delete[] process;
+    delete[] libname;
 
     return cc;
   }
@@ -235,7 +261,8 @@ BE_NAMESPACE
         // Scalar case
         if (it->shape().size()==1 and it->shape()[0] == 1)
         {
-          char *chepname = const_cast<char*> ( it->name().c_str() );
+          str name = it->name();
+          char *chepname = const_cast<char*> ( name.c_str() );
           Assign_Value(chepname, HE.get(it->tag(), it->name()));
         }
         // Vector case
@@ -404,10 +431,10 @@ BE_NAMESPACE
     double prefactor = p/(8*pi*Msquared);
 
     // Release all memory allocated by "new" before returning
-    delete libname;
-    delete inbound;
-    delete outbound_1;
-    delete outbound_2;
+    delete[] libname;
+    delete[] inbound;
+    delete[] outbound_1;
+    delete[] outbound_2;
 
     // Return partial width
     return prefactor*matElement;
@@ -487,11 +514,11 @@ BE_NAMESPACE
     numout* cc = getMEcode(twidth, UG, process, excludeVirtual, excludeOut, libname);
 
     // Release all memory allocated by "new" before returning
-    delete libname;
-    delete inbound_1;
-    delete inbound_2;
-    delete outbound_1;
-    delete outbound_2;
+    delete[] libname;
+    delete[] inbound_1;
+    delete[] inbound_2;
+    delete[] outbound_1;
+    delete[] outbound_2;
 
     // Export numerical values of parameters to link to dynamical code
     err=passParameters(cc);

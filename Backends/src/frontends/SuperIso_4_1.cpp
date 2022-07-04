@@ -35,8 +35,12 @@
 #include "gambit/Backends/backend_types/SuperIso.hpp"
 
 /// Number of observables that SuperIso returns for B0 -> K(*) mu mu and Bs -> phi mu mu
-#define Nobs_BKll 2 
+#define Nobs_BKll 2
+<<<<<<< HEAD
 #define Nobs_BKsll 34
+=======
+#define Nobs_BKsll 32
+>>>>>>> master
 #define Nobs_Bsphill 6
 
 
@@ -67,7 +71,7 @@ BE_NAMESPACE
     CQ0b[1]+=std::complex<double>(param->Re_DeltaCQ1, param->Im_DeltaCQ1);
     CQ0b[2]+=std::complex<double>(param->Re_DeltaCQ2, param->Im_DeltaCQ2);
   }
-  
+
    void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
   {
     Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
@@ -126,6 +130,7 @@ BE_NAMESPACE
     if (not known_model) backend_error().raise(where, "SuperIso convenience function called with incompatible model.");
   }
 
+<<<<<<< HEAD
   /// B0 -> K*0 mu mu observables
   Flav_KstarMuMu_obs BKstarmumu_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
@@ -149,7 +154,7 @@ BE_NAMESPACE
 
     modify_WC(param, C0b, CQ0b);
     modify_WCP(param, Cpb, CQpb);
-    
+
 
     results.BR = BRBKstarll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
 
@@ -166,17 +171,18 @@ BE_NAMESPACE
     return results;
   }
 
+ // TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
  /// BR(B+->K+ tau tau) observable
   double BRBKtautau_CONV(const parameters *param, double Q2_min, double Q2_max)
-  { 
+  {
     check_model(param, LOCAL_INFO);
-    assert(std::abs(Q2_max-Q2_min)>=0.01); 
-    
+    assert(std::abs(Q2_max-Q2_min)>=0.01);
+
     std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
     std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    double obs[3]; 
+    double obs[3];
     double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_pole; 
+    double mu_b=param->mass_b_pole;
 
     CW_calculator(3,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
@@ -205,7 +211,7 @@ BE_NAMESPACE
     //double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_pole;
 
-    double BR=BRBKll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb), param, byVal(mu_b));        
+    double BR=BRBKll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb), param, byVal(mu_b));
 
     return BR;
   }
@@ -243,7 +249,7 @@ BE_NAMESPACE
 
     return BRBKstarll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b))/BRBKstarll(1,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0be),byVal(C1be),byVal(C2be),byVal(CQ0be),byVal(CQ1be),byVal(Cpbe),byVal(CQpbe),param,byVal(mu_b));
   }
-  
+
   /// RK observable
   double RK_CONV(const parameters *param, double Q2_min, double Q2_max)
   {
@@ -258,7 +264,7 @@ BE_NAMESPACE
 
     double mu_W=2.*param->mass_W;
     double mu_b=param->mass_b_pole;
-    
+
     CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
     C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
     CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
@@ -277,7 +283,7 @@ BE_NAMESPACE
 
     return BRBKll(2,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b))/BRBKll(1,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0be),byVal(C1be),byVal(C2be),byVal(CQ0be),byVal(CQ1be),byVal(Cpbe),byVal(CQpbe),param,byVal(mu_b));
   }
-  
+
   /// Branching fraction of B -> X_s gamma
   double bsgamma_CONV(const parameters *param, double E_t)
   {
@@ -422,6 +428,9 @@ BE_NAMESPACE
   }
 
   double A_BXsmumu_zero_CONV(const parameters *param)
+=======
+  double A_BXsmumu_zero(const parameters *param)
+>>>>>>> master
   {
     check_model(param, LOCAL_INFO);
 
@@ -441,7 +450,7 @@ BE_NAMESPACE
     return A_BXsll_zero(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
-  double BRBXstautau_highq2_CONV(const parameters *param)
+  double BRBXstautau_highq2(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -461,7 +470,7 @@ BE_NAMESPACE
     return BRBXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
-  double A_BXstautau_highq2_CONV(const parameters *param)
+  double A_BXstautau_highq2(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -481,7 +490,7 @@ BE_NAMESPACE
     return A_BXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
-  double delta0_CONV(const parameters *param)
+  double modified_delta0(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -503,7 +512,7 @@ BE_NAMESPACE
     return delta0(byVal(C0b),byVal(C0spec),byVal(C1b),byVal(C1spec),byVal(Cpb),param,byVal(mu_b),byVal(mu_spec),byVal(lambda_h));
   }
 
-  double SI_AI_BKstarmumu_CONV(const parameters *param)
+  double modified_AI_BKstarmumu(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -519,7 +528,7 @@ BE_NAMESPACE
     return AI_BKstarmumu(1.,6.,byVal(C0b),byVal(C1b),byVal(C2b),param,byVal(mu_b));
   }
 
-  double SI_AI_BKstarmumu_zero_CONV(const parameters *param)
+  double modified_AI_BKstarmumu_zero(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 

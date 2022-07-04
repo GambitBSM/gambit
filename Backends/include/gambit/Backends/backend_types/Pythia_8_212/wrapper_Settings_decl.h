@@ -31,149 +31,149 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 void initPtr(Pythia8::Info* infoPtrIn);
         
-                bool init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile, bool append, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                bool init(::std::basic_string<char> startFile, bool append, ::std::basic_ostream<char>& os);
         
-                bool init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile, bool append);
+                bool init(::std::basic_string<char> startFile, bool append);
         
-                bool init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile);
+                bool init(::std::basic_string<char> startFile);
         
                 bool init();
         
-                bool reInit(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                bool reInit(::std::basic_string<char> startFile, ::std::basic_ostream<char>& os);
         
-                bool reInit(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > startFile);
+                bool reInit(::std::basic_string<char> startFile);
         
                 bool reInit();
         
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > line, bool warn, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                bool readString(::std::basic_string<char> line, bool warn, ::std::basic_ostream<char>& os);
         
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > line, bool warn);
+                bool readString(::std::basic_string<char> line, bool warn);
         
-                bool readString(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > line);
+                bool readString(::std::basic_string<char> line);
         
                 bool readingFailed();
         
-                bool writeFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > toFile, bool writeAll);
+                bool writeFile(::std::basic_string<char> toFile, bool writeAll);
         
-                bool writeFile(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > toFile);
+                bool writeFile(::std::basic_string<char> toFile);
         
-                bool writeFile(::std::basic_ostream<char, std::char_traits<char> >& os, bool writeAll);
+                bool writeFile(::std::basic_ostream<char>& os, bool writeAll);
         
-                bool writeFile(::std::basic_ostream<char, std::char_traits<char> >& os);
+                bool writeFile(::std::basic_ostream<char>& os);
         
                 bool writeFile();
         
-                void listAll(::std::basic_ostream<char, std::char_traits<char> >& os);
+                void listAll(::std::basic_ostream<char>& os);
         
                 void listAll();
         
-                void listChanged(::std::basic_ostream<char, std::char_traits<char> >& os);
+                void listChanged(::std::basic_ostream<char>& os);
         
                 void listChanged();
         
-                void list(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > match, ::std::basic_ostream<char, std::char_traits<char> >& os);
+                void list(::std::basic_string<char> match, ::std::basic_ostream<char>& os);
         
-                void list(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > match);
+                void list(::std::basic_string<char> match);
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > output(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, bool fullLine);
+                ::std::basic_string<char> output(::std::basic_string<char> keyIn, bool fullLine);
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > output(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::basic_string<char> output(::std::basic_string<char> keyIn);
         
                 void resetAll();
         
-                bool isFlag(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool isFlag(::std::basic_string<char> keyIn);
         
-                bool isMode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool isMode(::std::basic_string<char> keyIn);
         
-                bool isParm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool isParm(::std::basic_string<char> keyIn);
         
-                bool isWord(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool isWord(::std::basic_string<char> keyIn);
         
-                bool isFVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool isFVec(::std::basic_string<char> keyIn);
         
-                bool isMVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool isMVec(::std::basic_string<char> keyIn);
         
-                bool isPVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool isPVec(::std::basic_string<char> keyIn);
         
-                void addFlag(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, bool defaultIn);
+                void addFlag(::std::basic_string<char> keyIn, bool defaultIn);
         
-                void addMode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn, bool optOnlyIn);
+                void addMode(::std::basic_string<char> keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn, bool optOnlyIn);
         
-                void addMode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
+                void addMode(::std::basic_string<char> keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
         
-                void addParm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
+                void addParm(::std::basic_string<char> keyIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
         
-                void addWord(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > defaultIn);
+                void addWord(::std::basic_string<char> keyIn, ::std::basic_string<char> defaultIn);
         
-                void addFVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<bool, std::allocator<bool> > defaultIn);
+                void addFVec(::std::basic_string<char> keyIn, ::std::vector<bool> defaultIn);
         
-                void addMVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<int, std::allocator<int> > defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
+                void addMVec(::std::basic_string<char> keyIn, ::std::vector<int> defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
         
-                void addPVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<double, std::allocator<double> > defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
+                void addPVec(::std::basic_string<char> keyIn, ::std::vector<double> defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
         
-                bool flag(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool flag(::std::basic_string<char> keyIn);
         
-                int mode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                int mode(::std::basic_string<char> keyIn);
         
-                double parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                double parm(::std::basic_string<char> keyIn);
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > word(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::basic_string<char> word(::std::basic_string<char> keyIn);
         
-                ::std::vector<bool, std::allocator<bool> > fvec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::vector<bool> fvec(::std::basic_string<char> keyIn);
         
-                ::std::vector<int, std::allocator<int> > mvec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::vector<int> mvec(::std::basic_string<char> keyIn);
         
-                ::std::vector<double, std::allocator<double> > pvec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::vector<double> pvec(::std::basic_string<char> keyIn);
         
-                bool flagDefault(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                bool flagDefault(::std::basic_string<char> keyIn);
         
-                int modeDefault(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                int modeDefault(::std::basic_string<char> keyIn);
         
-                double parmDefault(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                double parmDefault(::std::basic_string<char> keyIn);
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > wordDefault(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::basic_string<char> wordDefault(::std::basic_string<char> keyIn);
         
-                ::std::vector<bool, std::allocator<bool> > fvecDefault(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::vector<bool> fvecDefault(::std::basic_string<char> keyIn);
         
-                ::std::vector<int, std::allocator<int> > mvecDefault(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::vector<int> mvecDefault(::std::basic_string<char> keyIn);
         
-                ::std::vector<double, std::allocator<double> > pvecDefault(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                ::std::vector<double> pvecDefault(::std::basic_string<char> keyIn);
         
-                void flag(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, bool nowIn);
+                void flag(::std::basic_string<char> keyIn, bool nowIn);
         
-                bool mode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, int nowIn);
+                bool mode(::std::basic_string<char> keyIn, int nowIn);
         
-                void parm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, double nowIn);
+                void parm(::std::basic_string<char> keyIn, double nowIn);
         
-                void word(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > nowIn);
+                void word(::std::basic_string<char> keyIn, ::std::basic_string<char> nowIn);
         
-                void fvec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<bool, std::allocator<bool> > nowIn);
+                void fvec(::std::basic_string<char> keyIn, ::std::vector<bool> nowIn);
         
-                void mvec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<int, std::allocator<int> > nowIn);
+                void mvec(::std::basic_string<char> keyIn, ::std::vector<int> nowIn);
         
-                void pvec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<double, std::allocator<double> > nowIn);
+                void pvec(::std::basic_string<char> keyIn, ::std::vector<double> nowIn);
         
-                void forceMode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, int nowIn);
+                void forceMode(::std::basic_string<char> keyIn, int nowIn);
         
-                void forceParm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, double nowIn);
+                void forceParm(::std::basic_string<char> keyIn, double nowIn);
         
-                void forceMVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<int, std::allocator<int> > nowIn);
+                void forceMVec(::std::basic_string<char> keyIn, ::std::vector<int> nowIn);
         
-                void forcePVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn, ::std::vector<double, std::allocator<double> > nowIn);
+                void forcePVec(::std::basic_string<char> keyIn, ::std::vector<double> nowIn);
         
-                void resetFlag(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                void resetFlag(::std::basic_string<char> keyIn);
         
-                void resetMode(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                void resetMode(::std::basic_string<char> keyIn);
         
-                void resetParm(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                void resetParm(::std::basic_string<char> keyIn);
         
-                void resetWord(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                void resetWord(::std::basic_string<char> keyIn);
         
-                void resetFVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                void resetFVec(::std::basic_string<char> keyIn);
         
-                void resetMVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                void resetMVec(::std::basic_string<char> keyIn);
         
-                void resetPVec(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > keyIn);
+                void resetPVec(::std::basic_string<char> keyIn);
         
                 bool getIsInit();
         

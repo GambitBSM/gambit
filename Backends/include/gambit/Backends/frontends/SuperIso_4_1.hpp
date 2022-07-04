@@ -24,6 +24,7 @@
 #define BACKENDLANG CC
 #define VERSION 4.1
 #define SAFE_VERSION 4_1
+#define REFERENCE Mahmoudi:2007vz,Mahmoudi:2008tp,Mahmoudi:2009zz
 
 LOAD_LIBRARY
 
@@ -92,25 +93,15 @@ BE_FUNCTION(Delta_MB, double , (const parameters*), "Delta_MB", "Delta_MB")
 BE_FUNCTION(Delta_MBs, double , (const parameters*), "Delta_MBs", "Delta_MBs")
 
 // Convenience functions:
-BE_CONV_FUNCTION(BKstarmumu_CONV, Flav_KstarMuMu_obs, (const parameters*, double, double), "BKstarmumu_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(BRBKmumu_CONV, double, (const parameters*, double, double), "BRBKmumu_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
+BE_CONV_FUNCTION(A_BXsmumu_zero, double, (const parameters*), "A_BXsmumu_zero",(MSSM63atQ, MSSM63atMGUT, WC))
+BE_CONV_FUNCTION(BRBXstautau_highq2, double, (const parameters*), "BRBXstautau_highq2", (MSSM63atQ, MSSM63atMGUT, WC))
+BE_CONV_FUNCTION(A_BXstautau_highq2, double, (const parameters*), "A_BXstautau_highq2", (MSSM63atQ, MSSM63atMGUT, WC))
+BE_CONV_FUNCTION(modified_AI_BKstarmumu, double, (const parameters*), "modified_AI_BKstarmumu", (MSSM63atQ, MSSM63atMGUT, WC))
+BE_CONV_FUNCTION(modified_AI_BKstarmumu_zero, double, (const parameters*), "modified_AI_BKstarmumu_zero", (MSSM63atQ, MSSM63atMGUT, WC))
+BE_CONV_FUNCTION(modified_delta0, double, (const parameters*), "modified_delta0", (MSSM63atQ, MSSM63atMGUT, WC))
 
-BE_CONV_FUNCTION(RKstar_CONV, double, (const parameters*, double, double), "RKstar_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(RK_CONV, double, (const parameters*, double, double), "RK_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(bsgamma_CONV, double, (const parameters*, double), "bsgamma_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(Bsll_untag_CONV, double, (const parameters*, int), "Bsll_untag_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(Bll_CONV, double, (const parameters*, int), "Bll_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(BRBXsmumu_lowq2_CONV, double, (const parameters*), "BRBXsmumu_lowq2_CONV",(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(BRBXsmumu_highq2_CONV, double, (const parameters*), "BRBXsmumu_highq2_CONV",(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(A_BXsmumu_lowq2_CONV, double, (const parameters*), "A_BXsmumu_lowq2_CONV",(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(A_BXsmumu_highq2_CONV, double, (const parameters*), "A_BXsmumu_highq2_CONV",(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(A_BXsmumu_zero_CONV, double, (const parameters*), "A_BXsmumu_zero_CONV",(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(BRBXstautau_highq2_CONV, double, (const parameters*), "BRBXstautau_highq2_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(A_BXstautau_highq2_CONV, double, (const parameters*), "A_BXstautau_highq2_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(SI_AI_BKstarmumu_CONV, double, (const parameters*), "SI_AI_BKstarmumu_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(SI_AI_BKstarmumu_zero_CONV, double, (const parameters*), "SI_AI_BKstarmumu_zero_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
-BE_CONV_FUNCTION(delta0_CONV, double, (const parameters*), "delta0_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
+// TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
+BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

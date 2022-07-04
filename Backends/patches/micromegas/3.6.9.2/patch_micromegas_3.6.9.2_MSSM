@@ -230,7 +230,7 @@ diff -rupN micromegas_3.6.9.2/MSSM/Makefile ../installed/micromegas/3.6.9.2/MSSM
 +ifeq (,$(main))
 +	@echo Main program is not specified. Use gmake main='<code of main program>'
 +else
-+	$(CXX) -shared -fPIC -o libmicromegas.so $(main) $(SSS) $(lDL)
++	$(CC) $(CFLAGS) -shared -fPIC -o libmicromegas.so $(main) $(SSS) $(lDL)
 +endif
 +
 +clean:

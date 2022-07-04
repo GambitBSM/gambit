@@ -32,6 +32,8 @@
 ///  \author Ankit Beniwal
 ///         (ankit.beniwal@adelaide.edu.au)
 ///  \date 2016 Oct
+///  \date 2020 Dec
+///  \date 2021 Jan, Mar
 ///
 ///  \author Filip Rajec
 ///          (filip.rajec@adelaide.edu.au)
@@ -74,9 +76,9 @@ namespace Gambit
 
     // Module functions
 
-    void FH_PrecisionObs(fh_PrecisionObs &result)
+    void FeynHiggs_PrecisionObs(fh_PrecisionObs_container &result)
     {
-      using namespace Pipes::FH_PrecisionObs;
+      using namespace Pipes::FeynHiggs_PrecisionObs;
 
       fh_real gm2;        // g_{mu}-2
       fh_real Deltarho;   // deltaRho
@@ -144,7 +146,7 @@ namespace Gambit
         if (not nans.empty()) PrecisionBit_error().raise(LOCAL_INFO, nans+"returned as NaN from FeynHiggs!");
       #endif
 
-      fh_PrecisionObs PrecisionObs;
+      fh_PrecisionObs_container PrecisionObs;
       PrecisionObs.gmu2 = gm2;
       PrecisionObs.deltaRho = Deltarho;
       PrecisionObs.MW_MSSM = MWMSSM;
@@ -161,33 +163,33 @@ namespace Gambit
 
     /// FeynHiggs precision extractors
     /// @{
-    void FH_precision_edm_e   (double &result) { result = Pipes::FH_precision_edm_e::Dep::FH_Precision->edm_ele;     }
-    void FH_precision_edm_n   (double &result) { result = Pipes::FH_precision_edm_n::Dep::FH_Precision->edm_neu;     }
-    void FH_precision_edm_hg  (double &result) { result = Pipes::FH_precision_edm_hg::Dep::FH_Precision->edm_Hg;     }
-    void FH_precision_gm2(triplet<double> &result)
+    void FeynHiggs_precision_edm_e   (double &result) { result = Pipes::FeynHiggs_precision_edm_e::Dep::Precision->edm_ele;     }
+    void FeynHiggs_precision_edm_n   (double &result) { result = Pipes::FeynHiggs_precision_edm_n::Dep::Precision->edm_neu;     }
+    void FeynHiggs_precision_edm_hg  (double &result) { result = Pipes::FeynHiggs_precision_edm_hg::Dep::Precision->edm_Hg;     }
+    void FeynHiggs_precision_gm2(triplet<double> &result)
     {
-      result.central = Pipes::FH_precision_gm2::Dep::FH_Precision->gmu2;
+      result.central = Pipes::FeynHiggs_precision_gm2::Dep::Precision->gmu2;
       result.upper = std::max(std::abs(result.central)*0.3, 6e-10); //Based on hep-ph/0609168v1 eqs 84 & 85
       result.lower = result.upper;
     }
-    void FH_precision_deltarho(triplet<double> &result)
+    void FeynHiggs_precision_deltarho(triplet<double> &result)
     {
-      double mw = Pipes::FH_precision_deltarho::Dep::FH_Precision->MW_MSSM;
-      double sintw2eff = Pipes::FH_precision_sinW2::Dep::FH_Precision->sinW2_MSSM;
-      result.central = Pipes::FH_precision_deltarho::Dep::FH_Precision->deltaRho;
+      double mw = Pipes::FeynHiggs_precision_deltarho::Dep::Precision->MW_MSSM;
+      double sintw2eff = Pipes::FeynHiggs_precision_sinW2::Dep::Precision->sinW2_MSSM;
+      result.central = Pipes::FeynHiggs_precision_deltarho::Dep::Precision->deltaRho;
       //Follows approximately from tree level relations, where delta{M_W, sintthetaW^2} go as deltarho
       result.upper = std::max(abserr_mw/mw, abserr_sinW2eff/sintw2eff);
       result.lower = result.upper;
     }
-    void FH_precision_mw(triplet<double> &result)
+    void FeynHiggs_precision_mw(triplet<double> &result)
     {
-      result.central = Pipes::FH_precision_mw::Dep::FH_Precision->MW_MSSM;
+      result.central = Pipes::FeynHiggs_precision_mw::Dep::Precision->MW_MSSM;
       result.upper = abserr_mw;
       result.lower = result.upper;
     }
-    void FH_precision_sinW2   (triplet<double> &result)
+    void FeynHiggs_precision_sinW2(triplet<double> &result)
     {
-      result.central = Pipes::FH_precision_sinW2::Dep::FH_Precision->sinW2_MSSM;
+      result.central = Pipes::FeynHiggs_precision_sinW2::Dep::Precision->sinW2_MSSM;
       result.upper = abserr_sinW2eff;
       result.lower = result.upper;
     }
@@ -767,6 +769,26 @@ namespace Gambit
       result = Stats::gaussian_loglikelihood(Dep::SMINPUTS->mT, 173.34, 0.0, 0.76, profile);
     }
 
+    /**
+     * @brief Running top mass MS-bar likelihood
+     *
+     * This uses a special running MS-bar top mass input parameter at the scale mtop from ATLAS.
+     * Reference: https://arxiv.org/pdf/1905.02302.pdf (see table 2, page 14)
+     *
+     * The asymmetric errors are averaged.
+     */
+    void lnL_mtrun(double &result)
+    {
+      using namespace Pipes::lnL_mtrun;
+      const double mtrun_obs = runOptions->getValueOrDef<double>(162.9, "mtrun_obs");
+      const double default_mtrun_obserr = 0.5 * (2.3 + 1.6);
+      const double mtrun_obserr = runOptions->getValueOrDef<double>(default_mtrun_obserr, "mtrun_obserr");
+      const bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      const Spectrum& spec = *Dep::DMEFT_spectrum;
+      const double mtrun = spec.get(Par::mass1, "mtrun");
+      result = Stats::gaussian_loglikelihood(mtrun, mtrun_obs, 0.0, mtrun_obserr, profile);
+    }
+
     /// b quark mass likelihood
     /// m_b (mb)^MSbar = 4.18 +/- 0.03 GeV (1 sigma), Gaussian.
     /// Reference: http://pdg.lbl.gov/2016/reviews/rpp2016-rev-qcd.pdf = C. Patrignani et al. (Particle Data Group), Chin. Phys. C, 40, 100001 (2016).
@@ -1123,12 +1145,12 @@ namespace Gambit
 
 
     /// Calculation of g-2 with SuperIso
-    void SI_muon_gm2(triplet<double> &result)
+    void SuperIso_muon_gm2(triplet<double> &result)
     {
-      using namespace Pipes::SI_muon_gm2;
+      using namespace Pipes::SuperIso_muon_gm2;
 
       #ifdef PRECISIONBIT_DEBUG
-        cout<<"Starting SI_muon_gm2"<<endl;
+        cout<<"Starting SuperIso_muon_gm2"<<endl;
       #endif
 
       struct parameters param = *Dep::SuperIso_modelinfo;
@@ -1148,7 +1170,7 @@ namespace Gambit
 
       #ifdef PRECISIONBIT_DEBUG
         printf("(g-2)_mu=%.3e\n",result.central);
-        cout<<"Finished SI_muon_gm2"<<endl;
+        cout<<"Finished SuperIso_muon_gm2"<<endl;
       #endif
     }
 

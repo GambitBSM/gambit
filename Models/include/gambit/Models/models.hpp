@@ -85,7 +85,10 @@ namespace Gambit
         ///
         /// Returns a vector of primary_model_functors to be activated, according to the model(s) being scanned
         primodel_vec getPrimaryModelFunctorsToActivate (std::set<str>, const primodel_vec&);
-        
+       
+        /// Searches primary model functor list for specified model
+        primary_model_functor* getPrimaryModelFunctor(const std::string modelname, const primodel_vec&) const;
+  
         /// Active model functor "usefulness" checker
         ///
         /// Checks that all the active primary model functors are actually used 

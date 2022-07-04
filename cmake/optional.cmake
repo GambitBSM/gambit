@@ -31,25 +31,54 @@
 option(WITH_MPI "Compile with MPI enabled" OFF)
 if(WITH_MPI)
   find_package(MPI)
+
   # Do things for GAMBIT itself
   if(MPI_C_FOUND OR MPI_CXX_FOUND)
     message("${BoldYellow}-- MPI C/C++ libraries found. GAMBIT will be MPI-enabled.${ColourReset}")
     add_definitions(-DWITH_MPI)
+
+    # Check if we need to work around homebrew OpenMPI formula rpath bug
+    if(BREW)
+      string(FIND "Cellar/open-mpi" MPI_C_LIBRARIES MPI_FROM_BREW)
+      if(MPI_FROM_BREW)
+        execute_process(COMMAND ${BREW} deps open-mpi RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_QUIET ERROR_QUIET)
+        string(FIND "gcc" RESULT_VARIABLE OPEN_MPI_DEPENDS_ON_GCC)
+        if(OPEN_MPI_DEPENDS_ON_GCC AND NOT BREW_RESULT_CODE)
+          execute_process(COMMAND ${BREW} ls gcc --verbose RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_VARIABLE GCC_LS_VERBOSE)
+          if(BREW_RESULT_CODE)
+            message(FATAL_ERROR "You are using Open-MPI from homebrew, which depends on gcc (from homebrew) -- but you have removed gcc.  Please reinstall it with \"brew install gcc\".")
+          else()
+            # Cmake regex makes me want to stab myself in the eye; this should really be possible in one line.
+            string(REPLACE "\n" ";" GCC_LS_VERBOSE "${GCC_LS_VERBOSE}")
+            string(REGEX MATCH ";[^;]*/libgcc_s" GCC_LS_VERBOSE "${GCC_LS_VERBOSE}")
+            string(REPLACE ";" "" GCC_LS_VERBOSE "${GCC_LS_VERBOSE}")
+            string(REPLACE "/libgcc_s" "" GCC_LIB_DIR "${GCC_LS_VERBOSE}")
+            list(APPEND MPI_CXX_LIBRARIES "-L${GCC_LIB_DIR}")
+            list(APPEND MPI_C_LIBRARIES "-L${GCC_LIB_DIR}")
+          endif()
+        endif()
+      endif()
+    endif()
+
     if(MPI_CXX_FOUND)
       include_directories(${MPI_CXX_INCLUDE_PATH})
       add_definitions(${MPI_CXX_COMPILE_FLAGS})
     endif()
+
     if(MPI_C_FOUND)
       include_directories(${MPI_C_INCLUDE_PATH})
       add_definitions(${MPI_C_COMPILE_FLAGS})
+      list(APPEND MPI_C_LIBRARIES "-L${GCC_LIB_DIR}")
       if (NOT MPI_CXX_FOUND)
         message("${Red}-- Warning: C MPI libraries found, but not C++ MPI libraries.  Usually that's OK, but")
         message("   if you experience MPI linking errors, please install C++ MPI libraries as well.${CoulourReset}")
       endif()
     endif()
+
   else()
     message("${BoldRed}   Missing C MPI installation.  GAMBIT will not be MPI-enabled.${ColourReset}")
   endif()
+
   # Do things for Fortran backends and scanners
   if(MPI_Fortran_FOUND)
     if(MPI_C_FOUND)
@@ -60,6 +89,10 @@ if(WITH_MPI)
       endforeach()
       string(STRIP "${GAMBIT_MPI_F_INC}" GAMBIT_MPI_F_INC)
       set(BACKEND_Fortran_FLAGS_PLUS_MPI "${MPI_Fortran_COMPILE_FLAGS} ${BACKEND_Fortran_FLAGS} -DMPI ${GAMBIT_MPI_F_INC}")
+      # Avoid errors from old-style Fortran MPI headers when compiling with gfortran 10 or later.
+      if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" AND NOT CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 10)
+        set(BACKEND_Fortran_FLAGS_PLUS_MPI "${BACKEND_Fortran_FLAGS_PLUS_MPI} -fallow-argument-mismatch")
+      endif()
       string(STRIP "${BACKEND_Fortran_FLAGS_PLUS_MPI}" BACKEND_Fortran_FLAGS_PLUS_MPI)
       # Libraries
       foreach(lib ${MPI_Fortran_LIBRARIES})

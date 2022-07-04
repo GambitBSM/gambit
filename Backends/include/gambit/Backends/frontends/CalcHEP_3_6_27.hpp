@@ -19,10 +19,12 @@
 #define BACKENDLANG CC
 #define VERSION 3.6.27
 #define SAFE_VERSION 3_6_27
+#define REFERENCE Pukhov:2004ca,Belyaev:2012qa
 
 LOAD_LIBRARY
 
 BE_ALLOW_MODELS(ScalarSingletDM_Z2)
+BE_ALLOW_MODELS(DMEFT)
 
 BE_FUNCTION(setModel, int, (char*, int), "setModel", "setModel")
 BE_FUNCTION(calcMainFunc, int, (), "calcMainFunc", "calcMainFunc")
@@ -47,5 +49,6 @@ BE_CONV_FUNCTION(Assign_Value, void, (char*, double), "Assign_Value")
 
 BE_INI_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2)
 
+BE_INI_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

@@ -53,7 +53,7 @@ Priors:
 
 Printer:
 
-  #printer: cout 
+  #printer: cout
   printer: hdf5
 
   options:
@@ -175,7 +175,6 @@ ObsLikes:
     - purpose:    Observable
       capability: sigma_SI_n
 
-
 Rules:
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
@@ -197,12 +196,15 @@ Rules:
   - capability: sigmav
     function: sigmav_late_universe
 
-  # Choose to use DarkSUSY yield tables for indirect detection
-  - capability: SimYieldTable
-    #function: SimYieldTable_DS5
-    function: SimYieldTable_DarkSUSY
-    options:
-      allow_yield_extrapolation: true
+  # Choose to use DarkSUSY 6 yield tables for indirect detection
+  - capability: GA_SimYieldTable
+    function: GA_SimYieldTable_DarkSUSY
+  - capability: positron_SimYieldTable
+    function: positron_SimYieldTable_DarkSUSY
+  - capability: antiproton_SimYieldTable
+    function: antiproton_SimYieldTable_DarkSUSY
+  - capability: antideuteron_SimYieldTable
+    function: antideuteron_SimYieldTable_DarkSUSY
 
   # Use DS5 or DS6 (DS_genericWIMP) for calculating neutrino yields
   - capability: nuyield_ptr
@@ -219,6 +221,10 @@ Rules:
   # Use DarkBit's own calculations of the direct detection couplings
   - capability: DD_couplings
     function: DD_couplings_ScalarSingletDM_Z2
+    
+  # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
+  - capability: DDCalc_Couplings
+    function: DDCalc_Couplings_WIMP_nucleon
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates

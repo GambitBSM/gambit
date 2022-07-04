@@ -545,7 +545,7 @@ namespace Gambit
                // data should just be stacked in the order of the process ranks
                std::vector<int> displs(Get_size());
                displs.push_back(0);
-               for(int i=0; i<(recvcounts.size()-1); i++)
+               for(size_t i=0; i<(recvcounts.size()-1); i++)
                {
                    displs.push_back(i);
                }

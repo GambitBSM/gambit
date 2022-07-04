@@ -31,6 +31,7 @@
 ///  \author Felix Kahlhoefer
 ///          (felix.kahlhoefer@desy.de)
 ///  \date 2016 Aug
+///  \date 2020 May
 ///
 ///  *********************************************
 
@@ -39,6 +40,7 @@
 #define BACKENDLANG Fortran
 #define VERSION 2.1.0
 #define SAFE_VERSION 2_1_0
+#define REFERENCE GAMBIT:2017fax,GAMBIT:2018eea
 
 // Load it
 LOAD_LIBRARY
@@ -124,26 +126,52 @@ BE_FUNCTION(DDCalc_GetWIMP_mfa,    void, (const int&,double&,double&,double&,dou
 BE_FUNCTION(DDCalc_GetWIMP_mG,     void, (const int&,double&,double&,double&,double&,double&), "C_DDCalc_ddcalc_getwimp_mg",     "GetWIMP_mG")
 BE_FUNCTION(DDCalc_GetWIMP_msigma, void, (const int&,double&,double&,double&,double&,double&), "C_DDCalc_ddcalc_getwimp_msigma", "GetWIMP_msigma")
 
-// Set the WIMP mass, spin, and coupling structure within the non-relativistic effective theory of DM-nucleon interactions.
+// Set the WIMP mass, spin, and coupling structure within the general non-relativistic effective theory of DM-nucleon interactions.
+//
 //  - SetWIMP_NREffectiveTheory initializes a WIMP within the non-relativistic effective theory setup, setting all coefficients to zero.
-//    Arguments are the WIMP index, the mass of the WIMP in GeV, and the spin of the WIMP.
+//    Arguments are the WIMP index, the mass of the WIMP in GeV, and the spin of the WIMP
+//
+//  - SetWIMP_NREFT_CPT initializes a WIMP within the non-relativistic effective theory setup with corrections from CPT, setting all coefficients to zero.
+//    Arguments are the WIMP index, the mass of the WIMP in GeV, and the spin of the WIMP
+
 //  - SetNRCoefficient sets the coefficient of a single operator to a given value.
+//    This function can be called for WIMPs initialised via either SetWIMP_NREffectiveTheory or SetWIMP_NREFT_CPT, keeping in mind the different conventions
 //    Arguments are:
 //  (1) the WIMP index
-//  (2) The operator index, i.e. an integer specifying the non-relativistic operator, e.g. 6 for O_6.
-//      For the specific cases of O_1 and O_4 one can also use the operators (q^2/mp^2) * O_1 and (q^2/mp^2) * O_4,
-//      by passing -1 and -4, respectively.
-//  (3) The isospin index: 0 for the isoscalar and 1 for the isovector component of the operator.
-//  (4) The desired value of the operator coefficient in units GeV^(-2).
+//  (2) The operator index, i.e. an integer specifying the non-relativistic operator, e.g. 6 for O_6, using the following numbering scheme:
+//  For WIMPs initialised via SetWIMP_NREffectiveTheory:
+//  i = 1, 3-15, 17 & 18 correspond to the standard non-relativistic operators from arXiv:1505.03117 (note that O_2 and O_16 are not included)
+//  i = -1: q^2 O_1
+//  i = -4: q^2 O_4
+//  For WIMPs initialisd via SetWIMP_NREFT_CPT:
+//  i = 1-12 correspond to the standard non-relativistic operators from arXiv:1203.3542 (see also arXiv:1708.02678, note that the operator O_2 is included)
+//  i = 13: 1/(mpi^2 + q^2) O_6
+//  i = 14: 1/(meta^2 + q^2) O_6
+//  i = 15: q^2/(mpi^2 + q^2) O_6
+//  i = 16: q^2/(meta^2 + q^2) O_6
+//  i = 17: 1/(mpi^2 + q^2) O_10
+//  i = 18: 1/(meta^2 + q^2) O_10
+//  i = 19: q^2/(mpi^2 + q^2) O_10
+//  i = 20: q^2/(meta^2 + q^2) O_10
+//  i = 21: 1/q^2 O_5
+//  i = 22: 1/q^2 O_6
+//  i = 23: 1/q^2 O_11
+//  i = 100: q^2 O_1
+//  i = 104: q^2 O_4
+//  (3) An isospin index: For WIMPs initialised via SetWIMP_NREffectiveTheory 0 stands for the isoscalar and 1 for the isovector component of the operator
+//                        For WIMPs initialised via SetWIMP_NREFT_CPT 0 stands for the proton and 1 for the neutron component of the operator
+//  (4) The desired value of the operator coefficient in units GeV^-n, where n = 2 for the standard non-relativistic operators and n = 0, 2 or 4 for operators with explicit momentum pre-factors
+
 BE_FUNCTION(DDCalc_SetWIMP_NREffectiveTheory, void, (const int&,const double&,const double&), "C_DDCalc_ddcalc_setwimp_nreffectivetheory", "SetWIMP_NREffectiveTheory")
+BE_FUNCTION(DDCalc_SetWIMP_NREFT_CPT, void, (const int&,const double&,const double&), "C_DDCalc_ddcalc_setwimp_nreft_cpt", "SetWIMP_NREFT_CPT")
 BE_FUNCTION(DDCalc_SetNRCoefficient, void, (const int&,const int&,const int&,const double&), "C_DDCalc_ddcalc_setnrcoefficient", "SetNRCoefficient")
 
 // Get the values of the isoscalar and isovector part of a given non-relativistic operator.
 // Arguments are:
 //   (1) the WIMP index
-//   (2) the operator index (see description fir SetNRCoefficient above)
-//   (3) gives the value of the isoscalar component of the operator, in units GeV^(-2)
-//   (4) gives the value of the isovector component of the operator, in units GeV^(-2)
+//   (2) the operator index
+//   (3) gives the value of the isoscalar (for WIMP type 'NREffectiveTheory') or the proton (for WIMP type 'NREFT_CPT') component of the operator, in units GeV^-n (see above)
+//   (4) gives the value of the isovector (for WIMP type 'NREffectiveTheory') or the neutron (for WIMP type 'NREFT_CPT') component of the operator, in units GeV^-n (see above)
 BE_FUNCTION(DDCalc_GetNRCoefficient, void, (const int&,const int&,double&,double&), "C_DDCalc_ddcalc_getnrcoefficient", "GetNRCoefficient")
 
 
@@ -177,11 +205,15 @@ BE_FUNCTION(DDCalc_FreeHalos,     void, (), "C_DDUtils_ddcalc_freehalos",     "F
 BE_FUNCTION(DDCalc_FreeDetectors, void, (), "C_DDUtils_ddcalc_freedetectors", "FreeDetectorss")
 BE_FUNCTION(DDCalc_FreeAll,       void, (), "C_DDUtils_ddcalc_freeall",       "FreeAll")
 
-// DM mass, couplings and fraction of cosmological DM that is accounted for by model
+// DM mass, spin & conjugate nature, plus couplings and fraction of cosmological DM that is accounted for by model.
 BE_INI_DEPENDENCY(mwimp, double)
-BE_INI_DEPENDENCY(DD_couplings, DM_nucleon_couplings)
+BE_INI_DEPENDENCY(spinwimpx2, unsigned int)
+BE_INI_DEPENDENCY(wimp_sc, bool)
 BE_INI_DEPENDENCY(RD_fraction, double)
 BE_INI_DEPENDENCY(LocalHalo, LocalMaxwellianHalo)
+
+// Direct detection couplings --- see backend_types/DDCalc.hpp for specifics. Wraps up the old DM_nucleon_couplings struct with the new Wilson Coefficient struct.
+BE_INI_DEPENDENCY(DDCalc_Couplings, DD_coupling_container)
 
 // Convenience function for returning detector index given an analysis name.
 BE_CONV_FUNCTION(DDCalc_Experiment, int, (const str&), "DD_Experiment")

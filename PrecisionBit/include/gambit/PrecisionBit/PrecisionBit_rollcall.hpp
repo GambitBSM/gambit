@@ -54,15 +54,16 @@
 
 
 #define MODULE PrecisionBit
+#define REFERENCE GAMBITModelsWorkgroup:2017ilg
 START_MODULE
 
 
   // FeynHiggs EWK precision observables
-  #define CAPABILITY FH_Precision
+  #define CAPABILITY Precision
   START_CAPABILITY
-    #define FUNCTION FH_PrecisionObs
-    START_FUNCTION(fh_PrecisionObs)
-    DEPENDENCY(FH_Couplings_output, fh_Couplings)
+    #define FUNCTION FeynHiggs_PrecisionObs
+    START_FUNCTION(fh_PrecisionObs_container)
+    DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
     BACKEND_REQ(FHConstraints, (libfeynhiggs), void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,
                 fh_real&,fh_real&,fh_real&,fh_real&,fh_real&,int&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
@@ -71,13 +72,13 @@ START_MODULE
   #undef CAPABILITY
 
   // Extractors for FeynHiggs EWK precision observables
-  QUICK_FUNCTION(PrecisionBit, muon_gm2,       NEW_CAPABILITY, FH_precision_gm2,      triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, deltarho,       NEW_CAPABILITY, FH_precision_deltarho, triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, prec_mw,        NEW_CAPABILITY, FH_precision_mw,       triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, prec_sinW2_eff, NEW_CAPABILITY, FH_precision_sinW2,    triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, edm_e,          NEW_CAPABILITY, FH_precision_edm_e,    double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, edm_n,          NEW_CAPABILITY, FH_precision_edm_n,    double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
-  QUICK_FUNCTION(PrecisionBit, edm_hg,         NEW_CAPABILITY, FH_precision_edm_hg,   double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (FH_Precision, fh_PrecisionObs))
+  QUICK_FUNCTION(PrecisionBit, muon_gm2,       NEW_CAPABILITY, FeynHiggs_precision_gm2,      triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (Precision, fh_PrecisionObs_container))
+  QUICK_FUNCTION(PrecisionBit, deltarho,       NEW_CAPABILITY, FeynHiggs_precision_deltarho, triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (Precision, fh_PrecisionObs_container))
+  QUICK_FUNCTION(PrecisionBit, prec_mw,        NEW_CAPABILITY, FeynHiggs_precision_mw,       triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (Precision, fh_PrecisionObs_container))
+  QUICK_FUNCTION(PrecisionBit, prec_sinW2_eff, NEW_CAPABILITY, FeynHiggs_precision_sinW2,    triplet<double>, (MSSM30atQ, MSSM30atMGUT, NUHM2), (Precision, fh_PrecisionObs_container))
+  QUICK_FUNCTION(PrecisionBit, edm_e,          NEW_CAPABILITY, FeynHiggs_precision_edm_e,    double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (Precision, fh_PrecisionObs_container))
+  QUICK_FUNCTION(PrecisionBit, edm_n,          NEW_CAPABILITY, FeynHiggs_precision_edm_n,    double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (Precision, fh_PrecisionObs_container))
+  QUICK_FUNCTION(PrecisionBit, edm_hg,         NEW_CAPABILITY, FeynHiggs_precision_edm_hg,   double,          (MSSM30atQ, MSSM30atMGUT, NUHM2), (Precision, fh_PrecisionObs_container))
 
   // Precision MSSM spectrum manufacturers
   #define CAPABILITY MSSM_spectrum
@@ -140,6 +141,16 @@ START_MODULE
   QUICK_FUNCTION(PrecisionBit, lnL_GF,       NEW_CAPABILITY, lnL_GF,       double, (), (SMINPUTS, SMInputs))
 
   QUICK_FUNCTION(PrecisionBit, lnL_light_quark_masses, NEW_CAPABILITY, lnL_light_quark_masses, double, (), (SMINPUTS, SMInputs))
+
+  // Top quark running mass log-likelihood
+  #define CAPABILITY lnL_mtrun
+  START_CAPABILITY
+    #define FUNCTION lnL_mtrun
+    START_FUNCTION(double)
+    DEPENDENCY(DMEFT_spectrum, Spectrum)
+    ALLOW_MODEL(DMEFT)
+    #undef FUNCTION
+  #undef CAPABILITY
 
 
   // Electroweak precision likelihoods: W mass
@@ -217,7 +228,7 @@ START_MODULE
     #undef FUNCTION
 
     // Muon g-2 -- Using SuperIso
-    #define FUNCTION SI_muon_gm2
+    #define FUNCTION SuperIso_muon_gm2
     START_FUNCTION(triplet<double>)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_REQ(muon_gm2, (libsuperiso), double, (const parameters*))
@@ -334,7 +345,7 @@ START_MODULE
 
 
 
-
+#undef REFERENCE
 #undef MODULE
 
 

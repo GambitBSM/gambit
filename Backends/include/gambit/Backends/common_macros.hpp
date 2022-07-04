@@ -13,6 +13,10 @@
 ///          (patscott@physics.mcgill.ca)
 ///  \date 2015 May
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #ifndef __COMMON_MACROS_HPP__
@@ -70,15 +74,17 @@ namespace Gambit                                                            \
 /// Closer for convenience function definitional boilerplate.
 #define END_BE_NAMESPACE }}
 
-/// \name Variadic redirection macro for BE_VARIABLE(NAME, TYPE, SYMBOLNAME, CAPABILITY, [(ALLOWED_MODELS)])
-#define BE_VARIABLE_5(_1, _2, _3, _4, _5)      BE_VARIABLE_I(_1, _2, _3, _4, _5)
-#define BE_VARIABLE_4(_1, _2, _3, _4)          BE_VARIABLE_I(_1, _2, _3, _4, ())
-#define BE_VARIABLE(...)                       VARARG(BE_VARIABLE, __VA_ARGS__)
+/// \name Variadic redirection macro for BE_VARIABLE(NAME, TYPE, SYMBOLNAME, CAPABILITY, [(ALLOWED_MODELS)], [REF])
+#define BE_VARIABLE_6(_1, _2, _3, _4, _5, _6)      BE_VARIABLE_I(_1, _2, _3, _4, _5, _6)
+#define BE_VARIABLE_5(_1, _2, _3, _4, _5)          BE_VARIABLE_I(_1, _2, _3, _4, _5, "")
+#define BE_VARIABLE_4(_1, _2, _3, _4)              BE_VARIABLE_I(_1, _2, _3, _4, (), "")
+#define BE_VARIABLE(...)                           VARARG(BE_VARIABLE, __VA_ARGS__)
 
-/// \name Variadic redirection macro for BE_CONV_FUNCTION(NAME, TYPE, ARGSLIST, CAPABILITY, [(ALLOWED_MODELS)])
-#define BE_CONV_FUNCTION_5(_1, _2, _3, _4, _5) BE_CONV_FUNCTION_FULL(_1, _2, _3, _4, _5)
-#define BE_CONV_FUNCTION_4(_1, _2, _3, _4)     BE_CONV_FUNCTION_FULL(_1, _2, _3, _4, ())
-#define BE_CONV_FUNCTION(...)                  VARARG(BE_CONV_FUNCTION, __VA_ARGS__)
+/// \name Variadic redirection macro for BE_CONV_FUNCTION(NAME, TYPE, ARGSLIST, CAPABILITY, [(ALLOWED_MODELS)], [REF])
+#define BE_CONV_FUNCTION_6(_1, _2, _3, _4, _5,_6) BE_CONV_FUNCTION_FULL(_1, _2, _3, _4, _5, _6)
+#define BE_CONV_FUNCTION_5(_1, _2, _3, _4, _5)    BE_CONV_FUNCTION_FULL(_1, _2, _3, _4, _5, "")
+#define BE_CONV_FUNCTION_4(_1, _2, _3, _4)        BE_CONV_FUNCTION_FULL(_1, _2, _3, _4, (), "")
+#define BE_CONV_FUNCTION(...)                     VARARG(BE_CONV_FUNCTION, __VA_ARGS__)
 
 /// Evaluates to ARG if and only if we have pybind11 and USING_PYTHON is true
 #ifdef HAVE_PYBIND11

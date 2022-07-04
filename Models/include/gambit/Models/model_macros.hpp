@@ -168,7 +168,7 @@
           namespace CAT(MODEL_X,_parameters)                                   \
           {                                                                    \
             /* Declare the parameters safe-pointer map as external. */         \
-            extern std::map<str, safe_ptr<double> > Param;                     \
+            extern std::map<str, const safe_ptr<const double> > Param;                     \
             /* Declare the safe-pointer to the models vector as external. */   \
             extern safe_ptr< std::vector<str> > Models;                        \
             /* Declare the safe pointer to the run options as external. */     \
@@ -266,13 +266,13 @@
       /* Make the functor exclusive to this model and its descendants */       \
       CORE_ALLOW_MODEL(MODEL,PARAMETER,MODEL)                                  \
                                                                                \
+      /* Create dependency on the parameters of MODEL */                       \
+      /* TODO: Check whether there is a more elegant solution */               \
+      CORE_ALLOWED_MODEL_ARRANGE_DEP(MODEL,PARAMETER,MODEL)                    \
+                                                                               \
     }                                                                          \
                                                                                \
   }                                                                            \
-                                                                               \
-  /* Create dependency of PARAMETER functor on host model parameters object */ \
-  CORE_DEPENDENCY(CAT(MODEL,_parameters),ModelParameters,MODEL,PARAMETER,      \
-   IS_MODEL)                                                                   \
                                                                                \
   /* Define the actual parameter setting function, now that we have the
      functor and its dependency */                                             \
@@ -291,9 +291,7 @@
            core */                                                             \
         void PARAMETER (double &result)                                        \
         {                                                                      \
-          safe_ptr<ModelParameters> model_safe_ptr =                           \
-           Pipes::PARAMETER::Dep::CAT(MODEL,_parameters).safe_pointer();       \
-          result = model_safe_ptr->getValue(STRINGIFY(PARAMETER));             \
+          result = *Pipes::PARAMETER::Param.at(STRINGIFY(PARAMETER));          \
         }                                                                      \
                                                                                \
       }                                                                        \
@@ -301,7 +299,6 @@
     }                                                                          \
                                                                                \
   }                                                                            \
-
 
 /// Macro to define parameter.  Does not create a corresponding CAPABILITY;
 /// use MAP_TO_CAPABILITY to do this after calling DEFINEPAR(S).

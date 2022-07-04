@@ -25,16 +25,6 @@ namespace Gambit {
   namespace DarkBit {
 
 
-    //TH_resonances_thresholds definitions
-
-    TH_resonances_thresholds& TH_resonances_thresholds::operator=(const TH_resonances_thresholds & copy)
-    {
-      resonances = copy.resonances;
-      threshold_energy = copy.threshold_energy;
-      return *this;
-    }
-
-
     // TH_ParticleProperty definitions
 
     TH_ParticleProperty::TH_ParticleProperty(double mass, unsigned int spin2)

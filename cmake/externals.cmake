@@ -74,6 +74,7 @@ set(name "pippi")
 set(dir "${CMAKE_SOURCE_DIR}/${name}")
 ExternalProject_Add(get-${name}
   GIT_REPOSITORY https://github.com/patscott/pippi.git
+  GIT_TAG v2.2
   SOURCE_DIR ${dir}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -84,6 +85,7 @@ add_custom_target(nuke-pippi COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-d
                              COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
 add_dependencies(nuke-all nuke-pippi)
 set_target_properties(get-pippi PROPERTIES EXCLUDE_FROM_ALL 1)
+
 
 # Macro to clear the build stamp manually for an external project
 macro(enable_auto_rebuild package)
@@ -330,11 +332,12 @@ macro(inform_of_missing_modules name ver missing_with_commas)
   )
 endmacro()
 
-if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
-  include(cmake/backends.cmake)
-endif()
+# Bring in the actual backends and scanners
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(cmake/scanners.cmake)
+endif()
+if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/")
+  include(cmake/backends.cmake)
 endif()
 
 # Print outcomes of BOSSing efforts

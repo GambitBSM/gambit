@@ -17,6 +17,9 @@
 #          (tomas.gonzalo@monash.edu)
 #  \date 2020 Mar
 #
+#  \author Chris Chang
+#  \date 2021 Jul
+#
 #  **************************************
 
 import numpy as np
@@ -84,47 +87,50 @@ def decay_grouper(decays, antiparticle_dict):
     # to conjugate the outgoing particles to A -> Bbar Bbar or A -> Bbar Cbar.
 
     for i in range(0, len(decays)):
-        if decays[i][1] == "ABB" or decays[i][1] == "ABC":
-
+        if decays[i][1] == "ABBar":
+            annihilations.append(decays[i][0])
+    
+        elif decays[i][1] == "ABB":
             # Outgoing particles
             p1 = antiparticle_dict.get(decays[i][0][1])
             p2 = antiparticle_dict.get(decays[i][0][2])
-
-            decays[i][0] = [ decays[i][0][0], p1, p2 ]
-
-    for i in range(0, len(decays)):
-        if decays[i][1] == "ABB" or decays[i][1] == "ABBar":
-            annihilations.append(decays[i][0])
+            
+            annihilations.append([decays[i][0][0], p1, p2])
+        
         elif decays[i][1] == "ABC":
-            others.append(decays[i][0])
+            # Take all three possible decays from this vertex
+            for j in decays[i][0]:
+                index = decays[i][0].index(j)
+                # Outgoing particles
+                p1 = antiparticle_dict.get(decays[i][0][index - 1])
+                p2 = antiparticle_dict.get(decays[i][0][index - 2])
+
+                others.append([decays[i][0][index], p1, p2])
 
     # Produce a list of all particles which need a module function writing.
     # Those with annihilations
     decaying_a_to_bb = list(set([i[0] for i in annihilations]))
     # Those less easy to categorise
-    decaying_a_to_bc = list((set(i for j in others for i in j))
-                            - set(decaying_a_to_bb))
+    decaying_a_to_bc = list(set([i[0] for i in others]) - set(decaying_a_to_bb))
 
     channels = []
 
     for j in decaying_a_to_bb:
         products = []
         for i in range(0, len(annihilations)):
-            if j in annihilations[i]:
+            if j == annihilations[i][0]:
                 products.append([annihilations[i][1], annihilations[i][2]])
         for i in range(0, len(others)):
-            if j in others[i]:
-                index = others[i].index(j)
-                products.append([others[i][index - 1], others[i][index - 2]])
+            if j == others[i][0]:
+                products.append([others[i][1], others[i][2]])
         channels.append([j, products])
 
     for j in decaying_a_to_bc:
         products = []
         for i in range(0, len(others)):
-            if j in others[i]:
-                index = others[i].index(j)
-                products.append([others[i][index - 1], others[i][index - 2]])
-        channels.append([j, products])
+            if j == others[i][0]:
+                products.append([others[i][1], others[i][2]])
+        channels.append([j, products]) 
 
     # Return list of all channels per particle.
     return channels

@@ -1041,6 +1041,12 @@ namespace Gambit
     {
       using namespace Pipes::getEvGenCrossSection;
 
+      // Reset the xsec object
+      if (*Loop::iteration == BASE_INIT)
+      {
+        result.reset();
+      }
+
       // Don't bother if there are no analyses that will use this.
       if (Dep::RunMC->analyses.empty()) return;
 
@@ -1148,6 +1154,8 @@ namespace Gambit
           // #endif
 
         }
+
+
       }
 
       // Gather the xsecs from all threads into one

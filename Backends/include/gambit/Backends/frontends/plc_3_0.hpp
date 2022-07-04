@@ -22,6 +22,7 @@
 #define BACKENDLANG CC
 #define VERSION 3.0
 #define SAFE_VERSION 3_0
+#define REFERENCE Planck:2015bpv,Planck:2019nip
 
 LOAD_LIBRARY
 

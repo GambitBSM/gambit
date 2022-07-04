@@ -17,6 +17,7 @@
 #define BACKENDLANG MATHEMATICA
 #define VERSION 1.0.2
 #define SAFE_VERSION 1_0_2
+#define REFERENCE PardoVega:2015eno
 
 LOAD_LIBRARY
 

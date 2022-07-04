@@ -67,7 +67,7 @@ namespace Gambit
 
     /// @brief Container for data from multiple analyses and SRs
     typedef std::vector<AnalysisData> AnalysisNumbers;
-    typedef std::vector<const AnalysisData*> AnalysisDataPointers;
+    typedef std::vector<AnalysisData*> AnalysisDataPointers;
 
     /// @brief Container for loglike information for an analysis
     struct AnalysisLogLikes

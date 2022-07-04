@@ -29,22 +29,20 @@
 // Types that Gambit printers can output (if printer plugin is properly equipped)
 #define PRINTABLE_TYPES               \
   SCANNER_PRINTABLE_TYPES             \
-  (map_intpair_dbl)                   \
   (map_const_str_dbl)                 \
   (map_str_map_str_dbl)               \
   (map_const_str_map_const_str_dbl)   \
+  (map_intpair_dbl)                   \
   (triplet<double>)                   \
+  (flav_prediction)                   \
   (DM_nucleon_couplings)              \
-  (DM_nucleon_couplings_fermionic_HP) \
-  (Flav_KstarMuMu_obs)                \
-  (BBN_container)                     \
-  (flav_prediction)
+  (BBN_container)
 
 // Types that can be retrieved from Gambit printer output (if printer plugin is properly equipped)
 // Generally needs to be the same as the printable types, i.e. should be able to retrieve everything.
-#define RETRIEVABLE_TYPES \
-  PRINTABLE_TYPES \
-  (MSSM_SLHAstruct) \
+#define RETRIEVABLE_TYPES             \
+  PRINTABLE_TYPES                     \
+  (MSSM_SLHAstruct)                   \
   (SMslha_SLHAstruct)
 
 #endif // defined __printable_types_hpp__

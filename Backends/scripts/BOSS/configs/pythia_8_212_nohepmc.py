@@ -27,9 +27,10 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'Pythia'
-gambit_backend_version = '8.212'
-gambit_base_namespace  = ''
+gambit_backend_name      = 'Pythia'
+gambit_backend_version   = '8.212'
+gambit_backend_reference = 'Sjostrand:2014zea'
+gambit_base_namespace    = ''
 
 
 # ~~~~~ Information about the external code ~~~~~

@@ -60,6 +60,8 @@ BE_INI_FUNCTION
     dsanyield_sim(mdm,egev,pdg,hel,yieldpdg,diff,istat);
     yieldpdg = -11; //positrons
     dsanyield_sim(mdm,egev,pdg,hel,yieldpdg,diff,istat);
+    yieldpdg = -1000010020; //anti-deuteron
+    dsanyield_sim(mdm,egev,pdg,hel,yieldpdg,diff,istat);
 
     scan_level = false;
   }

@@ -48,6 +48,10 @@
 ///          (b.farmer@imperial.ac.uk)
 ///  \date 2019 Jul
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #ifndef __module_macros_incore_defs_hpp__
@@ -104,7 +108,8 @@
 #else
   #define CORE_START_MODULE_COMMON(MODULE)                                     \
           CORE_START_MODULE_COMMON_MAIN(MODULE)                                \
-          const int module_registered = register_module(STRINGIFY(MODULE));
+          const int module_registered =                                        \
+            register_module(STRINGIFY(MODULE), SAFE_STRINGIFY(REFERENCE));
 #endif
 
 /// Redirection of \link START_MODULE() START_MODULE\endlink when invoked from
