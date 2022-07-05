@@ -357,18 +357,6 @@ namespace Gambit
     double Im_DeltaCQ1_tau_Prime = 0.;
     double Re_DeltaCQ2_tau_Prime = 0.;
     double Im_DeltaCQ2_tau_Prime = 0.;
-
-    double Re_DeltaC7_Prime = 0.;
-    double Im_DeltaC7_Prime = 0.;
-    double Re_DeltaC9_Prime = 0.;
-    double Im_DeltaC9_Prime = 0.;
-    double Re_DeltaC10_Prime = 0.;
-    double Im_DeltaC10_Prime = 0.;
-    double Re_DeltaCQ1_Prime = 0.;
-    double Im_DeltaCQ1_Prime = 0.;
-    double Re_DeltaCQ2_Prime = 0.;
-    double Im_DeltaCQ2_Prime = 0.;
-
   };
 
   struct indnuis
@@ -501,13 +489,6 @@ namespace Gambit
   /// Maps for holding SI observables and covariance matrix.
   typedef map_const_str_dbl flav_observable_map;
   typedef map_const_str_map_const_str_dbl flav_covariance_map;
-
-  /// Flavour observables structure holding central values and covariances.
-  struct flav_prediction
-  {
-    flav_observable_map central_values;
-    flav_covariance_map covariance;
-  };
 
 }
 

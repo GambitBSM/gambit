@@ -29,8 +29,6 @@
 LOAD_LIBRARY
 
 // Can't do anything non-MSSM/2HDM with SuperIso yet, besides Wilson coefficients.
-// If you want to expand this to work in the 2HDM, it should all just work out of the box if you set the
-// parameters object up correctly in FlavBit and specify the model(s) as allowed here.
 BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ)
 
 BE_FUNCTION(Init_param, void, (parameters*), "Init_param", "Init_param")
