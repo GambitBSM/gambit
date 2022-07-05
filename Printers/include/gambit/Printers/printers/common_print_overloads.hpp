@@ -112,18 +112,6 @@ namespace Gambit
       }
     }
 
-    template<typename P>
-    void _common_print(P& printer, const map_str_map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      for (std::map<std::string, std::map<std::string, double> >::const_iterator
-           it = map.begin(); it != map.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::"<<it->first;
-        _common_print(printer,it->second,ss.str(),vID,mpirank,pointID);
-      }
-    }
-
     /// Integer pair-to-double map print overload
     template<typename P>
     void _common_print(P& printer, map_intpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
@@ -189,26 +177,6 @@ namespace Gambit
           m[i+"::1sigma_err"] = sqrt(value.get_BBN_covmat(index, index));
         }
         printer._print(m, label, vID, mpirank, pointID);
-      }
-
-      // Flav predictions print overload
-      template<typename P>
-      void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> map;
-
-        for (auto cv : value.central_values)
-          map[cv.first] = cv.second;
-
-        for (auto cov1 : value.covariance)
-        {
-          for(auto cov2 : cov1.second)
-          {
-            map["covariance::"+cov1.first+"::"+cov2.first] = cov2.second;
-          }
-        }
-
-        printer._print(map, label, vID, mpirank, pointID);
       }
 
     #endif

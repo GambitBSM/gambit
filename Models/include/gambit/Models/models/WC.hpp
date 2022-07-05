@@ -53,17 +53,6 @@
 #undef MODEL
 #undef PARENT
 
-// Simple WC model, only muon flavour
-#define PARENT WC_LUV
-#define MODEL WC
-  START_MODEL
-  DEFINEPARS(Re_DeltaC7, Im_DeltaC7, Re_DeltaC9, Im_DeltaC9, Re_DeltaC10, Im_DeltaC10, Re_DeltaCQ1, Im_DeltaCQ1, Re_DeltaCQ2, Im_DeltaCQ2)
-  // Translation functions defined in WC.cpp
-  INTERPRET_AS_PARENT_FUNCTION(WC_to_WC_LUV)
-  INTERPRET_AS_X_FUNCTION(WC_LR,WC_to_WC_LR)
-#undef MODEL
-#undef PARENT
-
 // WC model with different chirality
 #define PARENT GWC
 #define MODEL WC_LR
@@ -72,6 +61,17 @@
              Re_DeltaC7_Prime, Im_DeltaC7_Prime, Re_DeltaC9_Prime, Im_DeltaC9_Prime, Re_DeltaC10_Prime, Im_DeltaC10_Prime, Re_DeltaCQ1_Prime, Im_DeltaCQ1_Prime, Re_DeltaCQ2_Prime, Im_DeltaCQ2_Prime)
   // Translation functions defined in WC.cpp
   INTERPRET_AS_PARENT_FUNCTION(WC_LR_to_GWC)
+#undef MODEL
+#undef PARENT
+
+// Simple WC model, only muon flavour
+#define PARENT WC_LUV
+#define MODEL WC
+  START_MODEL
+  DEFINEPARS(Re_DeltaC7, Im_DeltaC7, Re_DeltaC9, Im_DeltaC9, Re_DeltaC10, Im_DeltaC10, Re_DeltaCQ1, Im_DeltaCQ1, Re_DeltaCQ2, Im_DeltaCQ2)
+  // Translation functions defined in WC.cpp
+  INTERPRET_AS_PARENT_FUNCTION(WC_to_WC_LUV)
+  INTERPRET_AS_X_FUNCTION(WC_LR,WC_to_WC_LR)
 #undef MODEL
 #undef PARENT
 
