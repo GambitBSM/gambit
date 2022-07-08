@@ -3979,7 +3979,7 @@ namespace Gambit
     }
 
     /// Measurement for Delta Bs (Bs mass splitting)
-    void SI_Delta_MBs(double &result)
+    void SuperIso_prediction_Delta_MBs(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Delta_MBs;
       if (flav_debug) cout<<"Starting SuperIso_prediction_Delta_MBs"<<endl;
