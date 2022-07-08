@@ -2887,7 +2887,7 @@ namespace Gambit
         first = false;
       }
 
-      double theory[14];
+      double theory[n_bins];
 
       theory[0] = *Dep::BDlnu_40_45;
       theory[1] = *Dep::BDlnu_45_50;
@@ -3013,7 +3013,7 @@ namespace Gambit
         first = false;
       }
 
-      double theory[12];
+      double theory[n_bins];
 
       theory[0] = *Dep::BDstarlnu_40_45;
       theory[1] = *Dep::BDstarlnu_45_50;

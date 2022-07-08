@@ -46,7 +46,7 @@
 // Forward declaration of needed types
 namespace Gambit
 {
-  class SMInputs;
+  struct SMInputs;
 }
 
 #define MODEL THDMatQ
