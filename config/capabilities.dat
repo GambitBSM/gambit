@@ -655,7 +655,7 @@ HB_ModelParameters_charged: |
    Provides SM and MSSM input parameters for charged Higgs(es) for LEP and LHC Higgs
    likelihood calculations.
 
-HB_ModelParameters_neutral: | 
+HB_ModelParameters_neutral: |
    Provides SM and MSSM input parameters for neutral Higgs(es) for LEP and LHC Higgs
    likelihood calculations.
 
@@ -3662,7 +3662,6 @@ SuperIso_4_1_init : |
 SuperIso_modelinfo : |
    SuperIso internal model information.
 
-<<<<<<< HEAD
 h2bs: |
    The branching ratio BR(h->bs).
 
@@ -3678,23 +3677,6 @@ h2taumu: |
 h2taumu_LL: |
    Log-likelihood for BR(h->taumu).
 
-b2ll_LL : |
-   Log-likelihood for BR(Bd-> μ+ μ-) and BR(Bs-> μ+ μ-).
-
-b2ll_M : |
-   Measurements related to BR(Bd-> μ+ μ-) and BR(Bs-> μ+ μ-).
-
-b2sgamma_LL : |
-   Log-likelihood for inclusive branching ratio of B-> Xs gamma.
-
-b2sll_LL : |
-   Log-likelihood for B-> K* μ+ μ- observables.
-
-b2sll_M : |
-   Measurements for B-> K* μ+ μ- observables.
-
-=======
->>>>>>> master
 bsgamma : |
    The inclusive branching ratio of B-> Xs gamma with a photon energy cut of 1.6 GeV.
 
@@ -3788,10 +3770,9 @@ l2lll_lnL: |
 mu2e_lnL: |
    Log-likelihood for mu - e conversion in nucleii
 
-<<<<<<< HEAD
 gmu_ge_lnL: |
    Log-likelihood for g_mu over g_e/
-=======
+
 B2KmumuBr_LogLikelihood_LHCb: |
    Log-likelihood for B->K mu mu with LHCb
 
@@ -4022,7 +4003,6 @@ prediction_RKstar_LHCb_0p045_1p1: |
 
 prediction_RKstar_LHCb_1p1_6: |
    Theoretical prediction of the ratio R_K*, for q2 between 1.1 and 6 GeV^2 (relevant for LHCb analysis)
->>>>>>> master
 
 
 #-------------------------------------
