@@ -5843,7 +5843,7 @@ namespace Gambit
     void HEPLike_RDRDstar_LogLikelihood(double& result)
     {
       using namespace Pipes::HEPLike_RDRDstar_LogLikelihood;
-      static const std::string inputfile = path_to_latest_heplike_data() + "/data/HFLAV_18/Semileptonic/RD_RDstar.yaml";
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/HFLAV_19/Semileptonic/RD_RDstar.yaml";
       static HepLike_default::HL_nDimGaussian nDimGaussian(inputfile);
       static bool first = true;
       if (first)
