@@ -48,6 +48,7 @@
 ///          (cristian.sierra@monash.edu)
 ///  \date 2020 June-December
 ///  \date 2021 Jan-Sep
+///  \date 2022 June
 //
 ///  \author Douglas Jacob
 ///          (douglas.jacob@monash.edu)
@@ -1228,20 +1229,20 @@ namespace Gambit
       const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       const double mA = spectrum.get(Par::Pole_Mass,"A0");
       const double yh = 1/(mh*mh), yH = 1/(mH*mH), yA = 1/(mA*mA);
-      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      const double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
+      const complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      const complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      const complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      const complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      const complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      const complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
-      const double xi_sb = Ysb/cosb;
-      const double xi_bs = Ybs/cosb;
-      const double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      const double xi_mutau = Ymutau/cosb;
-      const double xi_taumu = Ytaumu/cosb;
-      const double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      const complex<double> xi_sb = Ysb/cosb;
+      const complex<double> xi_bs = Ybs/cosb;
+      const complex<double> xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      const complex<double> xi_mutau = Ymutau/cosb;
+      const complex<double> xi_taumu = Ytaumu/cosb;
+      const complex<double> xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
@@ -1428,14 +1429,14 @@ namespace Gambit
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_tc = Ytc/cosb;
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
-      double xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xi_tc = Ytc/cosb;
+      std::complex<double> xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xi_sb = Ysb/cosb;
+      std::complex<double> xi_cc = -((sqrt(2)*mC*tanb)/v) + Ycc/cosb;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
@@ -1464,14 +1465,14 @@ namespace Gambit
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      double xi_ct = Yct/cosb;
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
+      std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      std::complex<double> xi_ct = Yct/cosb;
+      std::complex<double> xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xi_sb = Ysb/cosb;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
@@ -1501,14 +1502,14 @@ namespace Gambit
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      double xi_ct = Yct/cosb;
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
+      std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      std::complex<double> xi_ct = Yct/cosb;
+      std::complex<double> xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xi_sb = Ysb/cosb;
       const double Vcs = 1 - (1/2)*lambda*lambda;
       const double Vcb = A*lambda*lambda;
       const double Vts = -A*lambda*lambda;
@@ -1538,14 +1539,14 @@ namespace Gambit
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
-      double xi_ct = Yct/cosb;
+      std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      std::complex<double> xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xi_sb = Ysb/cosb;
+      std::complex<double> xi_ct = Yct/cosb;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
@@ -1572,14 +1573,14 @@ namespace Gambit
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       //Yukawa couplings
-      double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xi_sb = Ysb/cosb;
-      double xi_ct = Yct/cosb;
+      std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      std::complex<double> xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xi_sb = Ysb/cosb;
+      std::complex<double> xi_ct = Yct/cosb;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
@@ -1655,18 +1656,18 @@ namespace Gambit
       const double mW = (*sminputspointer)->mW;
       const double mZ = (*sminputspointer)->mZ;
       const double SW = sqrt(1 - pow(mW/mZ,2));
-      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      const double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      const double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      const complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      const complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      const complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      const complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      const complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      const complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      const complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      const complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      const complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      const complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      const complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       //const double rhobar = (*sminputspointer)->CKM.rhobar;
@@ -1677,18 +1678,18 @@ namespace Gambit
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vub = 0;//This should be improved by directly calling an Eigen object
       const double Vus = lambda;
-      const double xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
-      const double xi_cc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      const double xi_tc = Ytc/cosb;
-      const double xi_ct = Yct/cosb;
-      const double xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      const double xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
-      const double xi_sb = Ysb/cosb;
-      const double xi_bs = Ybs/cosb;
-      const double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      const double xi_mutau = Ymutau/cosb;
-      const double xi_taumu = Ytaumu/cosb;
-      const double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      const complex<double> xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      const complex<double> xi_cc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      const complex<double> xi_tc = Ytc/cosb;
+      const complex<double> xi_ct = Yct/cosb;
+      const complex<double> xi_bb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      const complex<double> xi_ss = -((sqrt(2)*mS*tanb)/v) + Yss/cosb;
+      const complex<double> xi_sb = Ysb/cosb;
+      const complex<double> xi_bs = Ybs/cosb;
+      const complex<double> xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      const complex<double> xi_mutau = Ymutau/cosb;
+      const complex<double> xi_taumu = Ytaumu/cosb;
+      const complex<double> xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L;
 
@@ -2239,9 +2240,21 @@ namespace Gambit
     }
 
     ///Partial decay width for B->D l nu computed with Simpson's rule
-    double Gamma_BDlnu(std::complex<double> gs, std::complex<double> gsmutau, int n)
+    double Gamma_BDlnu(std::complex<double> gs, std::complex<double> gsmutau, int gen, int n)
     {
-      const double a = 1.77686*1.77686;//mTau^2
+      double a = 0.0;
+      if (gen==3)
+      {
+      a = 1.77686*1.77686;//mTau^2
+      }
+      else if (gen==2)
+      {
+      a = 0.105658*0.105658;//mMu^2
+      }
+      else if (gen==1)
+      {
+      FlavBit_error().raise(LOCAL_INFO, "BDenu is not supported for THDM model");
+      }
       const double b = 3.40961*3.40961;//(mB-mD)^2
       double h = (b-a)/n;
       double sum_odds = 0.0;
@@ -2258,9 +2271,21 @@ namespace Gambit
     }
 
     ///Partial decay width for B->D* l nu computed with Simpson's rule
-    double Gamma_BDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, int n)
+    double Gamma_BDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, int gen, int n)
     {
-      const double a = 1.77686*1.77686;//mTau^2
+      double a = 0.0;
+      if (gen==3)
+      {
+      a = 1.77686*1.77686;//mTau^2
+      }
+      else if (gen==2)
+      {
+      a = 0.105658*0.105658;//mMu^2
+      }
+      else if (gen==1)
+      {
+      FlavBit_error().raise(LOCAL_INFO, "BDstarnu is not supported for THDM model");
+      }
       const double b = 3.27261*3.27261;//(mB-mDs)^2
       double h = (b-a)/n;
       double sum_odds = 0.0;
@@ -2298,7 +2323,7 @@ namespace Gambit
     ///FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma
     double GammaDstar_Gamma(std::complex<double> gp, std::complex<double> gpmutau)
     {
-      double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, gpmutau, 13)/Gamma_BDstarlnu(gp, gpmutau, 13);
+      double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, gpmutau, 13)/Gamma_BDstarlnu(gp, gpmutau, 3, 13);
 
       return GammaDstar_Gamma;
     }
@@ -2325,19 +2350,19 @@ namespace Gambit
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xitc = Ytc/cosb;
-      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xisb = Ysb/cosb;
-      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double ximutau = Ymutau/cosb;
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
@@ -2367,18 +2392,18 @@ namespace Gambit
       const double mCmC = (*sminputspointer)->mCmC;
       const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xitc = Ytc/cosb;
-      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xisb = Ysb/cosb;
-      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double ximutau = Ymutau/cosb;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
@@ -2388,7 +2413,7 @@ namespace Gambit
 
       double q2 = (q2min + q2max)/2;
 
-      double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, gsmutau, q2)/Gamma_BDlnu(gs, gsmutau, 15);
+      double dGamma_dq2_Gamma = THDM_dGammaBDlnu(gs, gsmutau, q2)/Gamma_BDlnu(gs, gsmutau, 3, 15);
 
       result = dGamma_dq2_Gamma;
     }
@@ -2410,18 +2435,18 @@ namespace Gambit
       const double mBmB = (*sminputspointer)->mBmB;
       const double mCmC = (*sminputspointer)->mCmC;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xitc = Ytc/cosb;
-      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xisb = Ysb/cosb;
-      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double ximutau = Ymutau/cosb;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
@@ -2430,7 +2455,7 @@ namespace Gambit
       std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
       double q2 = (q2min + q2max)/2;
 
-      double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, gpmutau, q2)/Gamma_BDstarlnu(gp, gpmutau, 13);
+      double dGamma_dq2_Gamma = THDM_dGammaBDstarlnu(gp, gpmutau, q2)/Gamma_BDstarlnu(gp, gpmutau, 3, 13);
 
       result = dGamma_dq2_Gamma;
     }
@@ -3112,18 +3137,18 @@ namespace Gambit
       const double mTau = Dep::SMINPUTS->mTau;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
       double D = (2*mMu*Fint(pow(mMu,2)/pow(mTau,2)))/(mTau*Fps(pow(mMu,2)/pow(mTau,2)));
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double xi_mutau = Ymutau/cosb;
-      double xi_taumu = Ytaumu/cosb;
-      double xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
-      double Roff = 2*((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);//The 2 factor accounts for tau mu and mu tau neutrinos
-
-      result =sqrt(1 + 0.25*(R*R+Roff*Roff) - D*(R));
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> xi_mumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> xi_mutau = Ymutau/cosb;
+      std::complex<double> xi_taumu = Ytaumu/cosb;
+      std::complex<double> xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> R = ((v*v)/(2*mHp*mHp))*(xi_mumu*xi_tautau);
+      std::complex<double> Roff = 2*((v*v)/(2*mHp*mHp))*(xi_mutau*xi_taumu);//The 2 factor accounts for tau mu and mu tau neutrinos
+      std::complex<double> one = {1,0};
+      result =real(sqrt(one + 0.25*(R*R+Roff*Roff) - D*(R)));
     }
 
     /// Br B->tau nu_tau decays
@@ -3157,18 +3182,18 @@ namespace Gambit
       const double Vub = 3.55e-3;
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double X13 = (v*(Vub*(-((sqrt(2)*mBmB*tanb)/v) + sqrt(1 + pow(tanb,2))*Ybb) + sqrt(1 + pow(tanb,2))*Vus*Ysb))/(sqrt(2)*mBmB);
-      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
-      double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> X13 = (v*(Vub*(-((sqrt(2)*mBmB*tanb)/v) + sqrt(1 + pow(tanb,2))*Ybb) + sqrt(1 + pow(tanb,2))*Vus*Ysb))/(sqrt(2)*mBmB);
+      std::complex<double> Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      std::complex<double> Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
 
-      double Deltaij = (pow(m_B,2)*X13*(Z33))/(pow(mHp,2)*Vub);
-      double Deltataumu = (pow(m_B,2)*X13*(Z32))/(pow(mHp,2)*Vub);
-
-      double prediction = (pow(1 - Deltaij,2)+pow(Deltataumu,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi);
+      std::complex<double> Deltaij = (pow(m_B,2)*X13*(Z33))/(pow(mHp,2)*Vub);
+      std::complex<double> Deltataumu = (pow(m_B,2)*X13*(Z32))/(pow(mHp,2)*Vub);
+      std::complex<double> one = {1,0};
+      double prediction = real((pow(one - Deltaij,2)+pow(Deltataumu,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi));
       result = prediction;
       //result.central_values["B2taunu"] = prediction;
       if (flav_debug) cout << "BR(Bu->tau nu) = " << prediction << endl;
@@ -3209,21 +3234,21 @@ namespace Gambit
       const double mTau = Dep::SMINPUTS->mTau;
       const double mS = Dep::SMINPUTS->mS;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
-      double Y22 = -((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
-      double X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
-      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
-      double Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
+      std::complex<double> Y22 = -((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
+      std::complex<double> X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
+      std::complex<double> Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      std::complex<double> Z32 = -((sqrt(1 + pow(tanb,2))*v*Ytaumu)/(sqrt(2)*mTau));
 
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-      double Deltataumu = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-
-      result = (pow(1 - Deltaij,2)+pow(Deltataumu,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+      std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> Deltataumu = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> one = {1,0};
+      result = real((pow(one - Deltaij,2)+pow(Deltataumu,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
 
       if (flav_debug) cout << "BR(Ds->tau nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dstaunu" << endl;
@@ -3263,20 +3288,20 @@ namespace Gambit
       const double mMu = Dep::SMINPUTS->mMu;
       const double mS = Dep::SMINPUTS->mS;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
-      double Y22 = -((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
-      double X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
-      double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
-      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      double Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-      double Deltamutau = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
-
-      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi);
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
+      std::complex<double> Y22 = -((v*(Vcs*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vts*Ytc))/(sqrt(2)*mCmC));
+      std::complex<double> X22 = (v*(sqrt(1 + pow(tanb,2))*Vcb*Ysb + Vcs*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
+      std::complex<double> Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
+      std::complex<double> Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
+      std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> Deltamutau = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
+      std::complex<double> one = {1,0};
+      result = real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
 
       if (flav_debug) cout << "BR(Ds->mu nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dsmunu" << endl;
@@ -3313,17 +3338,17 @@ namespace Gambit
       const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
       const double mMu = Dep::SMINPUTS->mMu;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
-      double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
-      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      double Deltaij = (pow(m_D,2)*Y21*(Z22))/(pow(mHp,2)*Vcd);
-      double Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
-
-      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
+      std::complex<double> Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
+      std::complex<double> Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
+      std::complex<double> Deltaij = (pow(m_D,2)*Y21*(Z22))/(pow(mHp,2)*Vcd);
+      std::complex<double> Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
+      std::complex<double> one = {1,0};
+      result =  real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi));
 
       if (flav_debug) cout << "BR(D->mu nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dmunu" << endl;
@@ -3347,17 +3372,17 @@ namespace Gambit
       const double Vtd = 8.54e-3;//This should be to be called directly from an Eigen object, for the moment is fine.
       const double mTau = Dep::SMINPUTS->mTau;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
-      double Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
-      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mTau);
-      double Deltaij = (pow(m_D,2)*Y21*(Z33))/(pow(mHp,2)*Vcd);
-      double Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
-
-      result = ((pow(1 - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi);
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> Y21 = -((v*(Vcd*(-((sqrt(2)*mCmC*tanb)/v) + sqrt(1 + pow(tanb,2))*Ycc) + sqrt(1 + pow(tanb,2))*Vtd*Ytc))/(sqrt(2)*mCmC));
+      std::complex<double> Z33 = (v*(-((sqrt(2)*mTau*tanb)/v) + sqrt(1 + pow(tanb,2))*Ytautau))/(sqrt(2)*mTau);
+      std::complex<double> Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mTau);
+      std::complex<double> Deltaij = (pow(m_D,2)*Y21*(Z33))/(pow(mHp,2)*Vcd);
+      std::complex<double> Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
+      std::complex<double> one = {1,0};
+      result = real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi));
 
       if (flav_debug) cout << "BR(D->tau nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dtaunu" << endl;
@@ -3384,12 +3409,71 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SuperIso_prediction_BDtaunu"<<endl;
     }
 
-    /// BR B -> D tau nu
-    void THDM_BDtaunu(double &)
+    // Auxiliary function for BR(B->Dlnu),1st generation is not supported
+    void THDM_Gamma_BDlnu(SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, int gen, double &result)
+    {
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double mTau = (*sminputspointer)->mTau;
+      const double mMu = (*sminputspointer)->mMu;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mCmC = (*sminputspointer)->mCmC;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcb(0,0);
+      std::complex<double> CLcb(0,0);
+      if (gen==3)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      }
+      else if (gen==2)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      }
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gs = (CRcb + CLcb)/CSMcb;
+      std::complex<double> gsmutau = (CRcbmutau + CLcbmutau)/CSMcb;
+
+      double Gamma = Gamma_BDlnu(gs, gsmutau, gen, 13);
+
+      result = Gamma;
+
+    }
+
+    ///  BR(B->Dtanu) in the THDM
+    void THDM_BDtaunu(double &result)
     {
       using namespace Pipes::THDM_BDtaunu;
 
-      FlavBit_error().raise(LOCAL_INFO, "BDtaunu not implemented for THDM model");
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      THDM_Gamma_BDlnu(sminputs, sminputspointer, spectrum, 3, result);
     }
 
     /// Br B -> D mu nu
@@ -3414,11 +3498,15 @@ namespace Gambit
     }
 
     /// BR B -> D mu nu
-    void THDM_BDmunu(double &)
+    void THDM_BDmunu(double &result)
     {
       using namespace Pipes::THDM_BDmunu;
 
-      FlavBit_error().raise(LOCAL_INFO, "BDmunu not implemented for THDM model");
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      THDM_Gamma_BDlnu(sminputs, sminputspointer, spectrum, 2, result);
     }
 
     /// Br B -> D* tau nu
@@ -3442,12 +3530,71 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SuperIso_prediction_BDstartaunu"<<endl;
     }
 
+    // Auxiliary function for BR(B->Dstarlnu),1st generation is not supported
+    void THDM_Gamma_BDstarlnu(SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, int gen, double &result)
+    {
+      const double A      = (*sminputspointer)->CKM.A;
+      const double lambda = (*sminputspointer)->CKM.lambda;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      const double CSMcb = 4*sminputs.GF*Vcb/(sqrt(2.0));
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double mTau = (*sminputspointer)->mTau;
+      const double mMu = (*sminputspointer)->mMu;
+      const double mBmB = (*sminputspointer)->mBmB;
+      const double mCmC = (*sminputspointer)->mCmC;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcb(0,0);
+      std::complex<double> CLcb(0,0);
+      if (gen==3)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      }
+      else if (gen==2)
+      {
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      }
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gp = (CRcb - CLcb)/CSMcb;
+      std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
+
+      double Gamma = Gamma_BDstarlnu(gp, gpmutau, gen, 15);
+
+      result = Gamma;
+
+    }
+
     /// BR B -> D* tau nu
-    void THDM_BDstartaunu(double &)
+    void THDM_BDstartaunu(double &result)
     {
       using namespace Pipes::THDM_BDstartaunu;
 
-      FlavBit_error().raise(LOCAL_INFO, "BDstartaunu not implemented for THDM model");
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      THDM_Gamma_BDstarlnu(sminputs, sminputspointer, spectrum, 3, result);
     }
 
     /// Br B -> D* mu nu
@@ -3472,11 +3619,15 @@ namespace Gambit
     }
 
     /// BR B -> D* mu nu
-    void THDM_BDstarmunu(double &)
+    void THDM_BDstarmunu(double &result)
     {
       using namespace Pipes::THDM_BDstarmunu;
 
-      FlavBit_error().raise(LOCAL_INFO, "BDstarmunu not implemented for THDM model");
+      SMInputs sminputs = *Dep::SMINPUTS;
+      dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      THDM_Gamma_BDstarlnu(sminputs, sminputspointer, spectrum, 2, result);
     }
 
     ///  B-> D tau nu / B-> D e nu decays
@@ -3514,19 +3665,19 @@ namespace Gambit
       const double mMu = Dep::SMINPUTS->mMu;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xitc = Ytc/cosb;
-      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xisb = Ysb/cosb;
-      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double ximutau = Ymutau/cosb;
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
       std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
       std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
@@ -3563,21 +3714,21 @@ namespace Gambit
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xitc = Ytc/cosb;
-      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xisb = Ysb/cosb;
-      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double ximutau = Ymutau/cosb;
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
@@ -3630,21 +3781,21 @@ namespace Gambit
       const double mTau = Dep::SMINPUTS->mTau;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xitc = Ytc/cosb;
-      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xisb = Ysb/cosb;
-      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double ximutau = Ymutau/cosb;
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
@@ -3686,18 +3837,18 @@ namespace Gambit
       const double f_Bc = 0.434;
       const double hbar = 6.582119514e-25;
       const double mCmC = Dep::SMINPUTS->mCmC;
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xitc = Ytc/cosb;
-      double xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      double xisb = Ysb/cosb;
-      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
-      double ximutau = Ymutau/cosb;
-      double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      double xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
       std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
       std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
       std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
@@ -3752,17 +3903,18 @@ namespace Gambit
       double Vub = 3.55e-3;//From superiso 3.6 manual
       const double mMu = Dep::SMINPUTS->mMu;
       const double mS = Dep::SMINPUTS->mS;
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
-      double X12 = (v*(sqrt(1 + pow(tanb,2))*Vub*Ysb + Vus*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
-      double Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
-      double Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
-      double Deltaij = (pow(m_K,2)*X12*(Z22))/(pow(mHp,2)*Vus);
-      double Deltamutau = (pow(m_K,2)*X12*(Z23))/(pow(mHp,2)*Vus);
-      double leptonFactor = pow((1 - pow(mMu,2)/pow(m_K,2))/(1 - pow(mMu,2)/pow(m_pi,2)),2);
-      result = (life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(1 - Deltaij,2)+pow(Deltamutau,2));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
+      std::complex<double> X12 = (v*(sqrt(1 + pow(tanb,2))*Vub*Ysb + Vus*(-((sqrt(2)*mS*tanb)/v) + sqrt(1 + pow(tanb,2))*Yss)))/(sqrt(2)*mS);
+      std::complex<double> Z22 = (v*(-((sqrt(2)*mMu*tanb)/v) + sqrt(1 + pow(tanb,2))*Ymumu))/(sqrt(2)*mMu);
+      std::complex<double> Z23 = (sqrt(1 + pow(tanb,2))*v*Ymutau)/(sqrt(2)*mMu);
+      std::complex<double> Deltaij = (pow(m_K,2)*X12*(Z22))/(pow(mHp,2)*Vus);
+      std::complex<double> Deltamutau = (pow(m_K,2)*X12*(Z23))/(pow(mHp,2)*Vus);
+      std::complex<double> leptonFactor = pow((1 - pow(mMu,2)/pow(m_K,2))/(1 - pow(mMu,2)/pow(m_pi,2)),2);
+      std::complex<double> one = {1,0};
+      result = real((life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(one - Deltaij,2)+pow(Deltamutau,2)));
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu) in THDM =%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_Rmu"<<endl;
@@ -4021,12 +4173,12 @@ namespace Gambit
       const double b2 = -1.6666;
       const double b3 = 0.3333;
       const double b4 = 2.0;
-      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      double xi_bs = Ybs/cosb;
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_sb = Ysb/cosb;
-      double M12_NP = -(0.125)*(pow(fBs,2)*pow(mBs,3)/(pow(mBmB+mS,2)))*((0.25)*pow(cba,2)*(pow(1/mh,2)-pow(1/mH,2))*((U22*Bag2*b2+U32*Bag3*b3)*(xi_bs*xi_bs+xi_sb*xi_sb)+2*U44*Bag4*b4*xi_sb*xi_bs)+(pow(1/mH,2)*U44*Bag4*b4*xi_sb*xi_bs));
-      result = 2*abs(0.5*DeltaSM + M12_NP)*conv_factor;
+      std::complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      std::complex<double> xi_bs = Ybs/cosb;
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xi_sb = Ysb/cosb;
+      std::complex<double> M12_NP = -(0.125)*(pow(fBs,2)*pow(mBs,3)/(pow(mBmB+mS,2)))*((0.25)*pow(cba,2)*(pow(1/mh,2)-pow(1/mH,2))*((U22*Bag2*b2+U32*Bag3*b3)*(xi_bs*xi_bs+xi_sb*xi_sb)+2*U44*Bag4*b4*xi_sb*xi_bs)+(pow(1/mH,2)*U44*Bag4*b4*xi_sb*xi_bs));
+      result = 2*abs(real(0.5*DeltaSM + M12_NP))*conv_factor;
       if (flav_debug) printf("Delta_MBs=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_Delta_MBs"<<endl;
     }
@@ -4059,12 +4211,12 @@ namespace Gambit
       const double b2 = -1.6666;
       const double b3 = 0.3333;
       const double b4 = 2.0;
-      double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      double xi_bs = Ybs/cosb;
-      double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      double xi_sb = Ysb/cosb;
-      double M12_NP = -(0.125)*((pow(fBs,2)*pow(mBs, 3))/(pow(mBmB+ mS, 2)))*(0.25*pow(cba,2)*(pow(1/mh, 2) - pow(1/mH, 2))*((U22*Bag2*b2 + U32*Bag3*b3)*(pow(xi_bs, 2) + pow(xi_sb, 2)) + 2*U44*Bag4*b4*xi_sb*xi_bs) + pow(1/mH, 2)*U44*Bag4*b4*xi_sb*xi_bs);
-      result = 2*abs(M12_NP);
+      std::complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      std::complex<double> xi_bs = Ybs/cosb;
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xi_sb = Ysb/cosb;
+      std::complex<double> M12_NP = -(0.125)*((pow(fBs,2)*pow(mBs, 3))/(pow(mBmB+ mS, 2)))*(0.25*pow(cba,2)*(pow(1/mh, 2) - pow(1/mH, 2))*((U22*Bag2*b2 + U32*Bag3*b3)*(pow(xi_bs, 2) + pow(xi_sb, 2)) + 2*U44*Bag4*b4*xi_sb*xi_bs) + pow(1/mH, 2)*U44*Bag4*b4*xi_sb*xi_bs);
+      result = 2*abs(real(M12_NP));
       const double A = (pow(fBs,2)*pow(mBs,3)/(4*pow(mBmB+mS,2)));
       const double Gammah = 4.07e-3;
       const double factor = 2.2; //Factor extracted from JHEP02(2020)147 eq.4.18
@@ -4087,12 +4239,12 @@ namespace Gambit
       double cba = cos(beta-alpha);
       const double mT = Dep::SMINPUTS->mT;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
-      double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      double xi_ct = Yct/cosb;
-      double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      double xi_tc = Ytc/cosb;
+      std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      std::complex<double> xi_ct = Yct/cosb;
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> xi_tc = Ytc/cosb;
       const double Gamma = 1.42;//From PDG 2021 in GeV
-      result = (1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2);
+      result = real((1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2));
       if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;
     }
@@ -4110,12 +4262,12 @@ namespace Gambit
       double cba = cos(beta-alpha);
       const double mTau = Dep::SMINPUTS->mTau;
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double xi_mutau = Ymutau/cosb;
-      double xi_taumu = Ytaumu/cosb;
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      std::complex<double> xi_mutau = Ymutau/cosb;
+      std::complex<double> xi_taumu = Ytaumu/cosb;
       const double Gamma = 0.0032;//From PDG 2021 in GeV
-      result = (1/Gamma)*(3*mh*pow(cba,2)/(8*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2);
+      result = real((1/Gamma)*(3*mh*pow(cba,2)/(8*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2));
       if (flav_debug) printf("BR(h->taumu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_h2taumu"<<endl;
     }
@@ -4591,23 +4743,23 @@ namespace Gambit
       const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
       const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
       const vector<double> mphi = {mh, mH, mA, mHp};
-      const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
-      const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
-      const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
-      const double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
-      const double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
-      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      const double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      const double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const std::complex<double> Yee(spectrum.get(Par::dimensionless,"Ye2",1,1), spectrum.get(Par::dimensionless, "ImYe2",1,1));
+      const std::complex<double> Yemu(spectrum.get(Par::dimensionless,"Ye2",1,2), spectrum.get(Par::dimensionless, "ImYe2",1,2));
+      const std::complex<double> Ymue(spectrum.get(Par::dimensionless,"Ye2",2,1), spectrum.get(Par::dimensionless, "ImYe2",2,1));
+      const std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
+      const std::complex<double> Ytaue(spectrum.get(Par::dimensionless,"Ye2",3,1), spectrum.get(Par::dimensionless, "ImYe2",3,1));
+      const complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      const std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      const complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      const complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      const complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      const complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      const complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      const complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      const complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      const complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      const complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      const complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       const double rhobar = (*sminputspointer)->CKM.rhobar;
@@ -4621,23 +4773,23 @@ namespace Gambit
       const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
       const complex<double> Vcb(A*lambda*lambda,0);
       const complex<double> Vtb(1,0);
-      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
-      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
-      const double xitc = Ytc/cosb;
-      const double xict = Yct/cosb;
-      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
-      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
-      const double xisb = Ysb/cosb;
-      const double xibs = Ybs/cosb;
-      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
-      const double xiemu = Yemu/cosb;
-      const double ximue = Ymue/cosb;
-      const double xietau = Yetau/cosb;
-      const double xitaue = Ytaue/cosb;
-      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
-      const double ximutau = Ymutau/cosb;
-      const double xitaumu = Ytaumu/cosb;
-      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
+      const complex<double> xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const complex<double> xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
+      const complex<double> xitc = Ytc/cosb;
+      const complex<double> xict = Yct/cosb;
+      const complex<double> xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const complex<double> xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
+      const complex<double> xisb = Ysb/cosb;
+      const complex<double> xibs = Ybs/cosb;
+      const complex<double> xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
+      const complex<double> xiemu = Yemu/cosb;
+      const complex<double> ximue = Ymue/cosb;
+      const complex<double> xietau = Yetau/cosb;
+      const complex<double> xitaue = Ytaue/cosb;
+      const complex<double> ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
+      const complex<double> ximutau = Ymutau/cosb;
+      const complex<double> xitaumu = Ytaumu/cosb;
+      const complex<double> xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
@@ -4944,15 +5096,15 @@ namespace Gambit
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       double mA = spectrum.get(Par::Pole_Mass,"A0");
       vector<double> mphi= {mh, mH, mA};
-      double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
-      double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
-      double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
-      double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
-      double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
-      double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
+      std::complex<double> Yee(spectrum.get(Par::dimensionless,"Ye2",1,1), spectrum.get(Par::dimensionless, "ImYe2",1,1));
+      std::complex<double> Yemu(spectrum.get(Par::dimensionless,"Ye2",1,2), spectrum.get(Par::dimensionless, "ImYe2",1,2));
+      std::complex<double> Ymue(spectrum.get(Par::dimensionless,"Ye2",2,1), spectrum.get(Par::dimensionless, "ImYe2",2,1));
+      std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
+      std::complex<double> Ytaue(spectrum.get(Par::dimensionless,"Ye2",3,1), spectrum.get(Par::dimensionless, "ImYe2",3,1));
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
       double A      = sminputs.CKM.A;
       double lambda = sminputs.CKM.lambda;
       double rhobar = sminputs.CKM.rhobar;
@@ -4966,15 +5118,15 @@ namespace Gambit
       complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
       complex<double> Vcb(A*lambda*lambda,0);
       complex<double> Vtb(1,0);
-      double xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
-      double xiemu = Yemu/cosb;
-      double ximue = Ymue/cosb;
-      double xietau = Yetau/cosb;
-      double xitaue = Ytaue/cosb;
-      double ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      double ximutau = Ymutau/cosb;
-      double xitaumu = Ytaumu/cosb;
-      double xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
+      std::complex<double> xiemu = Yemu/cosb;
+      std::complex<double> ximue = Ymue/cosb;
+      std::complex<double> xietau = Yetau/cosb;
+      std::complex<double> xitaue = Ytaue/cosb;
+      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      std::complex<double> xitaumu = Ytaumu/cosb;
+      std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
       Eigen::Matrix3cd xi_L, VCKM;
 
       xi_L << xiee,  xiemu,  xietau,
@@ -5052,23 +5204,23 @@ namespace Gambit
       const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
       const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
       const vector<double> mphi = {mh, mH, mA, mHp};
-      const double Yee = spectrum.get(Par::dimensionless,"Ye2",1,1);
-      const double Yemu = spectrum.get(Par::dimensionless,"Ye2",1,2);
-      const double Ymue = spectrum.get(Par::dimensionless,"Ye2",2,1);
-      const double Yetau = spectrum.get(Par::dimensionless,"Ye2",1,3);
-      const double Ytaue = spectrum.get(Par::dimensionless,"Ye2",3,1);
-      const double Ymumu = spectrum.get(Par::dimensionless,"Ye2",2,2);
-      const double Ymutau = spectrum.get(Par::dimensionless,"Ye2",2,3);
-      const double Ytaumu = spectrum.get(Par::dimensionless,"Ye2",3,2);
-      const double Ytautau = spectrum.get(Par::dimensionless,"Ye2",3,3);
-      const double Ytt = spectrum.get(Par::dimensionless,"Yu2",3,3);
-      const double Ytc = spectrum.get(Par::dimensionless,"Yu2",3,2);
-      const double Yct = spectrum.get(Par::dimensionless,"Yu2",2,3);
-      const double Ycc = spectrum.get(Par::dimensionless,"Yu2",2,2);
-      const double Ybb = spectrum.get(Par::dimensionless,"Yd2",3,3);
-      const double Ybs = spectrum.get(Par::dimensionless,"Yd2",3,2);
-      const double Ysb = spectrum.get(Par::dimensionless,"Yd2",2,3);
-      const double Yss = spectrum.get(Par::dimensionless,"Yd2",2,2);
+      const complex<double> Yee(spectrum.get(Par::dimensionless,"Ye2",1,1), spectrum.get(Par::dimensionless, "ImYe2",1,1));
+      const complex<double> Yemu(spectrum.get(Par::dimensionless,"Ye2",1,2), spectrum.get(Par::dimensionless, "ImYe2",1,2));
+      const complex<double> Ymue(spectrum.get(Par::dimensionless,"Ye2",2,1), spectrum.get(Par::dimensionless, "ImYe2",2,1));
+      const complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
+      const complex<double> Ytaue(spectrum.get(Par::dimensionless,"Ye2",3,1), spectrum.get(Par::dimensionless, "ImYe2",3,1));
+      const complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      const complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      const complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      const complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      const complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      const complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      const complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      const complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      const complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      const complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      const complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      const complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       const double rhobar = (*sminputspointer)->CKM.rhobar;
@@ -5082,23 +5234,23 @@ namespace Gambit
       const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
       const complex<double> Vcb(A*lambda*lambda,0);
       const complex<double> Vtb(1,0);
-      const double xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
-      const double xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
-      const double xitc = Ytc/cosb;
-      const double xict = Yct/cosb;
-      const double xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
-      const double xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
-      const double xisb = Ysb/cosb;
-      const double xibs = Ybs/cosb;
-      const double xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
-      const double xiemu = Yemu/cosb;
-      const double ximue = Ymue/cosb;
-      const double xietau = Yetau/cosb;
-      const double xitaue = Ytaue/cosb;
-      const double ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
-      const double ximutau = Ymutau/cosb;
-      const double xitaumu = Ytaumu/cosb;
-      const double xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
+      const complex<double> xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const complex<double> xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
+      const complex<double> xitc = Ytc/cosb;
+      const complex<double> xict = Yct/cosb;
+      const complex<double> xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const complex<double> xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
+      const complex<double> xisb = Ysb/cosb;
+      const complex<double> xibs = Ybs/cosb;
+      const complex<double> xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
+      const complex<double> xiemu = Yemu/cosb;
+      const complex<double> ximue = Ymue/cosb;
+      const complex<double> xietau = Yetau/cosb;
+      const complex<double> xitaue = Ytaue/cosb;
+      const complex<double> ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
+      const complex<double> ximutau = Ymutau/cosb;
+      const complex<double> xitaumu = Ytaumu/cosb;
+      const complex<double> xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
@@ -5162,12 +5314,12 @@ namespace Gambit
       }
       complex<double> I(0,1);
       //g2 coupling
-      double g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
+      complex<double> g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
       //g4 coupling
-      double g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
+      complex<double> g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
 
       double C2 = norm(g2)/16 + norm(g4);
-      double C7 = (pi*Alpha_em/(sqrt(2)*sminputs.GF))*g4*real(conj(I)*(Aloop1R+Aloop2fR+Aloop2bR));
+      double C7 = (pi*Alpha_em/(sqrt(2)*sminputs.GF))*real(conj(g4)*(Aloop1R+Aloop2fR+Aloop2bR));
 
       return 2*C2+16*C7;
     }
