@@ -242,7 +242,6 @@ namespace Gambit
 
     // Construct with THDMModel struct
     THDMSimpleSpec::THDMSimpleSpec(const Models::THDMModel& p, const SMInputs &sminputs)
-      : params(p)
     {
       std::map<str,double> scalars = {{"h0_1", p.mh0}, {"h0_2", p.mH0}, {"A0", p.mA0},
                                       {"H+", p.mC}, {"W+", p.mW},

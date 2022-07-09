@@ -161,7 +161,7 @@ namespace Gambit
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_at, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_at_at"));
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_atau_atau, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_atau_atau"));
       settings.set(Spectrum_generator_settings::top_pole_qcd_corrections, runOptions.getValueOrDef<int>(1, "top_pole_qcd_corrections"));
-      settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<int>(1.000000000e-14, "beta_zero_threshold"));
+      settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<double>(1.000000000e-14, "beta_zero_threshold"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_up, runOptions.getValueOrDef<int>(1, "eft_matching_loop_order_up"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions.getValueOrDef<int>(1, "eft_matching_loop_order_down"));
       settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(123111321, "threshold_corrections"));
@@ -1746,7 +1746,6 @@ namespace Gambit
       if (use_cubic_couplings_mass || calculate_both)
       {
         const physical_basis_input input_pars = fill_physical_basis_input(container);
-        const std::complex<double> i(0.0, 1.0);
 
         cubic_couplings[1] = get_cubic_coupling_physical_h0GpGm(container, input_pars);
         cubic_couplings[2] = get_cubic_coupling_physical_h0GpGm(container, input_pars);
@@ -1838,8 +1837,6 @@ namespace Gambit
       if (use_quartic_couplings_mass || calculate_both)
       {
         const physical_basis_input input_pars = fill_physical_basis_input(container);
-
-        const std::complex<double> i(0.0, 1.0);
 
         quartic_couplings[1] = get_quartic_coupling_physical_h0h0G0G0(container, input_pars);
         quartic_couplings[2] = get_quartic_coupling_physical_HpHmG0G0(container, input_pars);

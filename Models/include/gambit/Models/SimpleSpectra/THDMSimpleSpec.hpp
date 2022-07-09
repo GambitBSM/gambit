@@ -170,9 +170,6 @@ namespace Gambit
     /// THDM specialisation of SLHAea object wrapper version of SubSpectrum class
     class THDMSimpleSpec : public SLHASimpleSpec<THDMSimpleSpec>
     {
-        private:
-          Models::THDMModel params;
-
         public:
           // Constructors/destructors
           THDMSimpleSpec();
@@ -182,7 +179,7 @@ namespace Gambit
 
           virtual ~THDMSimpleSpec() {};
 
-          virtual double GetScale() const;
+          virtual double GetScale() const override;
 
           /// Add SLHAea object to another
           virtual void add_to_SLHAea(int slha_version, SLHAea::Coll& slha) const override
