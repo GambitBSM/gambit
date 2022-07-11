@@ -104,7 +104,7 @@ OPTIONAL:
 Memory requirements
 --
 
-For building the entirety of GAMBIT without optimisation, at least 10 GB of RAM is required. The build can be completed with less RAM than this if enough modules are ditched when running cmake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used cmake options, see the file CMAKE_FLAGS.md.
+Building the entirety of GAMBIT without optimisation can be achieved with as little as 4GB of RAM if one uses clang-14.  Some versions of g++ will run out of memory even with 16GB of RAM. The build will also use less RAM if modules are ditched when running cmake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used cmake options, see the file CMAKE_FLAGS.md.
 
 Building with optimisation enabled (e.g. using -DCMAKE_BUILD_TYPE=Release) may require more than 20 GB of RAM, depending on the compiler in use and precisely which optimisations it employs. Interprocedural optimisation in particular requires very large amounts of RAM. In general, Release mode is only intended for performance-critical applications, such as when running on supercomputer architectures.  It is not advised for laptops.
 
@@ -114,7 +114,7 @@ Building GAMBIT
 
 The basic build instructions are below.  GAMBIT supports Linux and Mac OSX.  On Windows, you can run it thorugh the Linux subsystem or Cygwin.  A full walkthrough of how to install all dependencies and build GAMBIT with AppleClang on OSX can be found in the file README_OSX.md.
 
-Note that cmake will fail to find some dependencies on some systems without guidance. If you encounter problems configuring or building GAMBIT, have a look in BUILD_OPTIONS.md for a list of commonly used build options. 
+Note that cmake will fail to find some dependencies on some systems without guidance. If you encounter problems configuring or building GAMBIT, have a look in BUILD_OPTIONS.md for a list of commonly used build options.
 
 More information about the GAMBIT cmake system is provided in the Core paper. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
 
