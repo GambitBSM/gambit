@@ -137,7 +137,7 @@ ObsLikes:
     # Observables
     #################
 
-    - capability: DeltaMs
+    - capability: prediction_DeltaMs
       function: THDM_Delta_MBs
       purpose: Observable
 
