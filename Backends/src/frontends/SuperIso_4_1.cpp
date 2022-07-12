@@ -141,30 +141,6 @@ BE_NAMESPACE
     return A_BXsll_zero(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
- // TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
- /// BR(B+->K+ tau tau) observable
-  double BRBKtautau_CONV(const parameters *param, double Q2_min, double Q2_max)
-  {
-    check_model(param, LOCAL_INFO);
-    assert(std::abs(Q2_max-Q2_min)>=0.01);
-
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    double obs[3];
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_pole;
-
-    CW_calculator(3,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(3,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(3,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC_tautau(param, C0b, CQ0b);
-    modify_WCP_tautau(param, Cpb, CQpb);
-
-    return BRBKll(3,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
   double BRBXstautau_highq2(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
