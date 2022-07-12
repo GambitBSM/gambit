@@ -115,40 +115,40 @@ ObsLikes:
   - capability: LEP_Higgs_LogLike
     purpose:    LogLike
 
-  - capability: ALEPH_Selectron_LLike
+  - capability: ALEPH_Selectron_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: ALEPH_Smuon_LLike
+  - capability: ALEPH_Smuon_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: ALEPH_Stau_LLike
+  - capability: ALEPH_Stau_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: L3_Selectron_LLike
+  - capability: L3_Selectron_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: L3_Smuon_LLike
+  - capability: L3_Smuon_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: L3_Stau_LLike
+  - capability: L3_Stau_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: L3_Neutralino_Leptonic_LLike
+  - capability: L3_Neutralino_Leptonic_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: L3_Chargino_Leptonic_LLike
+  - capability: L3_Chargino_Leptonic_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: OPAL_Chargino_Hadronic_LLike
+  - capability: OPAL_Chargino_Hadronic_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: OPAL_Chargino_SemiLeptonic_LLike
+  - capability: OPAL_Chargino_SemiLeptonic_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: OPAL_Chargino_Leptonic_LLike
+  - capability: OPAL_Chargino_Leptonic_LogLikelihoodike
     purpose:    LogLike
 
-  - capability: OPAL_Neutralino_Hadronic_LLike
+  - capability: OPAL_Neutralino_Hadronic_LogLikelihoodike
     purpose:    LogLike
 
   # Flavour physics likelihoods
@@ -195,7 +195,7 @@ ObsLikes:
     sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
   - purpose:    LogLike
-    capability: SL_LL
+    capability: SL_LogLikelihood
 
   - purpose:    LogLike
     capability: B2KstarmumuBr_LogLikelihood_LHCb

@@ -231,7 +231,7 @@ START_MODULE
 
 
   ///B-Dstartaunu distributions likelihood [Normalized differential partial width]
-  #define CAPABILITY BDstartaunu_LL
+  #define CAPABILITY BDstartaunu_LogLikelihood
   START_CAPABILITY
     #define FUNCTION BDstartaunu_likelihood
     START_FUNCTION(double)
@@ -430,7 +430,7 @@ START_MODULE
 
 
   ///B-Dtanu distributions likelihood [Normalized differential partial width]
-  #define CAPABILITY BDtaunu_LL
+  #define CAPABILITY BDtaunu_LogLikelihood
   START_CAPABILITY
     #define FUNCTION BDtaunu_likelihood
     START_FUNCTION(double)
@@ -452,7 +452,7 @@ START_MODULE
 
 
   ///mu-e universality likelihood
-  #define CAPABILITY gmu_ge_lnL
+  #define CAPABILITY gmu_ge_LogLikelihood
   START_CAPABILITY
     #define FUNCTION gmu_ge_likelihood
     START_FUNCTION(double)
@@ -474,7 +474,7 @@ START_MODULE
 
 
   ///FLDstar likelihood
-  #define CAPABILITY FLDstar_lnL
+  #define CAPABILITY FLDstar_LogLikelihood
   START_CAPABILITY
     #define FUNCTION FLDstar_likelihood
     START_FUNCTION(double)
@@ -496,7 +496,7 @@ START_MODULE
 
 
   ///Bc lifetime likelihood
-  #define CAPABILITY Bc_lifetime_lnL
+  #define CAPABILITY Bc_lifetime_LogLikelihood
   START_CAPABILITY
     #define FUNCTION Bc_lifetime_likelihood
     START_FUNCTION(double)
@@ -530,7 +530,7 @@ START_MODULE
 
 
   ///Bs2llp likelihood
-  #define CAPABILITY Bs2llp_lnL
+  #define CAPABILITY Bs2llp_LogLikelihood
   START_CAPABILITY
     #define FUNCTION Bs2llp_likelihood
     START_FUNCTION(double)
@@ -564,22 +564,23 @@ START_MODULE
   #undef CAPABILITY
 
 
-  // TODO: attempt to upgrade to use the 'observables' backend function
   ///Observable: BR(B+ ->K+ tau tau)
   #define CAPABILITY B2Ktautau
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_BRBKtautau
-    START_FUNCTION(double)
-    DEPENDENCY(SMINPUTS,SMInputs)
+    START_FUNCTION(flav_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_REQ(BRBKtautau_CONV, (libsuperiso), double, (const parameters*, double, double))
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
 
-
   ///Bs2llp likelihood
-  #define CAPABILITY B2Kllp_lnL
+  #define CAPABILITY B2Kllp_LogLikelihood
   START_CAPABILITY
     #define FUNCTION B2Kllp_likelihood
     START_FUNCTION(double)
@@ -615,7 +616,7 @@ START_MODULE
 
 
   /// RKnunu and RKstarnunu likelihood
-  #define CAPABILITY RK_RKstarnunu_lnL
+  #define CAPABILITY RK_RKstarnunu_LogLikelihood
   START_CAPABILITY
     #define FUNCTION RK_RKstarnunu_likelihood
     START_FUNCTION(double)
@@ -2441,7 +2442,7 @@ START_MODULE
 
 
   ///h->tau mu likelihood
-  #define CAPABILITY h2taumu_LL
+  #define CAPABILITY h2taumu_LogLikelihood
   START_CAPABILITY
     #define FUNCTION h2taumu_likelihood
     START_FUNCTION(double)
@@ -2451,7 +2452,7 @@ START_MODULE
 
 
   ///t->ch likelihood
-  #define CAPABILITY t2ch_LL
+  #define CAPABILITY t2ch_LogLikelihood
   START_CAPABILITY
     #define FUNCTION t2ch_likelihood
     START_FUNCTION(double)
@@ -2461,7 +2462,7 @@ START_MODULE
 
 
   ///B meson mass aysmmetry likelihood
-  #define CAPABILITY deltaMB_LL
+  #define CAPABILITY deltaMB_LogLikelihood
   START_CAPABILITY
     #define FUNCTION deltaMB_likelihood
     START_FUNCTION(double)
@@ -2471,7 +2472,7 @@ START_MODULE
 
 
   ///B_d meson mass aysmmetry likelihood
-  #define CAPABILITY deltaMBd_LL
+  #define CAPABILITY deltaMBd_LogLikelihood
   START_CAPABILITY
     #define FUNCTION deltaMBd_likelihood
     START_FUNCTION(double)
@@ -2501,7 +2502,7 @@ START_MODULE
 
 
   ///Tree-level leptonic and semi-leptonic B & D decay likelihoods
-  #define CAPABILITY SL_LL
+  #define CAPABILITY SL_LogLikelihood
   START_CAPABILITY
     #define FUNCTION SL_likelihood
     START_FUNCTION(double)
@@ -2511,7 +2512,7 @@ START_MODULE
 
 
   ///l -> l gamma  likelihood
-  #define CAPABILITY l2lgamma_lnL
+  #define CAPABILITY l2lgamma_LogLikelihood
   START_CAPABILITY
     #define FUNCTION l2lgamma_likelihood
     START_FUNCTION(double)
@@ -2523,7 +2524,7 @@ START_MODULE
 
 
   ///l -> l l l likelihood
-  #define CAPABILITY l2lll_lnL
+  #define CAPABILITY l2lll_LogLikelihood
   START_CAPABILITY
     #define FUNCTION l2lll_likelihood
     START_FUNCTION(double)
@@ -2539,7 +2540,7 @@ START_MODULE
 
 
   ///mu - e conversion likelihood
-  #define CAPABILITY mu2e_lnL
+  #define CAPABILITY mu2e_LogLikelihood
   START_CAPABILITY
     #define FUNCTION mu2e_likelihood
     START_FUNCTION(double)

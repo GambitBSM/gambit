@@ -1,6 +1,6 @@
 #########################################################################
 ## GAMBIT configuration for running a single random point of the GTHDM
-## GTHDM_test      
+## GTHDM_test
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
@@ -83,10 +83,10 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-    #### NOTE 
+    #### NOTE
     ##Other Likelihoods
 
-    #- capability: deltaMB_LL
+    #- capability: deltaMB_LogLikelihood
     #  function: deltaMB_likelihood
     #  purpose: LogLike
 

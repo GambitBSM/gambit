@@ -1,6 +1,6 @@
 #########################################################################
 ## GAMBIT configuration for running a single random point of the GTHDM
-## GTHDM_Bsmumu_test     
+## GTHDM_Bsmumu_test
 ##
 ## Required backends:
 ## SuperISO, HEPlike
@@ -81,7 +81,7 @@ ObsLikes:
     ###########################
 
     #### NOTE
-    # FCNC likelihoods 
+    # FCNC likelihoods
 
     - purpose:    LogLike
       capability: B2mumu_LogLikelihood_LHCb
@@ -92,10 +92,10 @@ ObsLikes:
     - purpose:    LogLike
       capability: B2mumu_LogLikelihood_Atlas
 
-    #### NOTE 
+    #### NOTE
     ##Other Likelihoods
 
-    #- capability: deltaMB_LL
+    #- capability: deltaMB_LogLikelihood
     #  function: deltaMB_likelihood
     #  purpose: LogLike
 
@@ -142,7 +142,7 @@ Rules:
 
     - capability: SuperIso_modelinfo
       function: SI_fill
-      
+
     - capability: prediction_B2mumu
       options:
         obs_list: [BRuntag_Bsmumu, BR_Bdmumu]

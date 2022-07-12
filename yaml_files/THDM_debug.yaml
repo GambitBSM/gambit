@@ -124,13 +124,13 @@ ObsLikes:
     #Tree level Yukawas perturbativity
 
     - purpose:    LogLike
-      capability: perturbativity_yukawas_LL
+      capability: perturbativity_yukawas_LogLikelihood
 
     # Calculates all quartic Higgs couplings in the physical
     # basis & applies a 4pi perturbativity constraint on each
     # Likelihood type: Half-Gaussian
     - purpose:    LogLike
-      capability: perturbativity_likelihood_THDM
+      capability: perturbativity_LogLikelihood_THDM
 
     # Applies the THDM stability constraints on the potential
     # NOTE: This likelihood has two parts, described below
@@ -139,16 +139,16 @@ ObsLikes:
     # (ii) If rejected, applies looser stabililty constraints
     # Likelihood type: Half-Gaussian
     - purpose:    LogLike
-      capability: stability_likelihood_THDM
-    # function: stability_lambdas_LL #Does not use the backend THDMC
+      capability: stability_LogLikelihood_THDM
+    # function: stability_lambdas_LogLikelihood #Does not use the backend THDMC
 
     # Checks that the NLO scattering-matrix is unitary
     # Calculates and applies limit on eigenvalues of matrix
     # Likelihood type: Half-Gaussian
     # Only supports CP-conserving models
     - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
-      function: LO_unitarity_likelihood_THDMC
+      capability: unitarity_LogLikelihood_THDM
+      function: LO_unitarity_LogLikelihood_THDMC
       #function: LO_unitarity_likelihood #Does not use the backend THDMC
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
@@ -156,7 +156,7 @@ ObsLikes:
     # Includes low-energy notation described in arxiv::9407203.
     # Likelihood type: Half-Gaussian
     - purpose:    LogLike
-      capability: oblique_parameters_likelihood_THDM
+      capability: oblique_parameters_LogLikelihood_THDM
 
     #### NOTE
     # Flavor likelihoods
@@ -167,12 +167,12 @@ ObsLikes:
       purpose: LogLike
 
     # B->mu,mu likelihood
-    - capability: b2ll_LL
+    - capability: b2ll_LogLikelihood
       function: b2ll_likelihood
       purpose: LogLike
 
     # Semi-Leptonic likelihood collection 7 obs (Ds,D->munu && Bu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
-#    - capability: SL_LL
+#    - capability: SL_LogLikelihood
 #      function: SL_likelihood
 #      purpose: LogLike
 
@@ -217,40 +217,40 @@ ObsLikes:
       purpose: LogLike
 
     # # B->Dstar,l,nu likelihood [Normalized differential decay width]
-#    - capability: BDstartaunu_LL
+#    - capability: BDstartaunu_LogLikelihood
 #      function: BDstartaunu_likelihood
       purpose: LogLike
 
     # # B->D,l,nu likelihood [Normalized differential decay width]
-#    - capability: BDtaunu_LL
+#    - capability: BDtaunu_LogLikelihood
 #      function: BDtaunu_likelihood
 #      purpose: LogLike
 
     # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60)
     - purpose: LogLike
-      capability: LUV_LL
+      capability: LUV_LogLikelihood
 
    # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
-    - capability: b2sll_AI_LL
+    - capability: b2sll_AI_LogLikelihood
       function: BKstarmumu_AI_ll
       purpose: LogLike
 
     # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
-    - capability: b2sll_AI_zero_LL
+    - capability: b2sll_AI_zero_LogLikelihood
       function: BKstarmumu_AI_zero_ll
       purpose: LogLike
 
-    - capability: deltaMB_LL
+    - capability: deltaMB_LogLikelihood
       function: deltaMB_likelihood
       purpose: LogLike
 
-    # # h2taumu_LL
-    - capability: h2taumu_LL
+    # # h2taumu_LogLikelihood
+    - capability: h2taumu_LogLikelihood
       function: h2taumu_likelihood
       purpose: LogLike
 
-    # # t2ch_LL
-    - capability: t2ch_LL
+    # # t2ch_LogLikelihood
+    - capability: t2ch_LogLikelihood
       function: t2ch_likelihood
       purpose: LogLike
 
@@ -374,16 +374,16 @@ Rules:
     # Likelihood/Observable Rules
     ##############################
 
-    - capability: perturbativity_likelihood_THDM
-      function: get_perturbativity_likelihood_THDM
+    - capability: perturbativity_LogLikelihood_THDM
+      function: get_perturbativity_LogLikelihood_THDM
 
-    - capability: stability_likelihood_THDM
-      function: get_stability_likelihood_THDM
+    - capability: stability_LogLikelihood_THDM
+      function: get_stability_LogLikelihood_THDM
       options:
         check_metastability: true
 
-    - capability: unitarity_likelihood_THDM
-      function: LO_unitarity_likelihood_THDMC
+    - capability: unitarity_LogLikelihood_THDM
+      function: LO_unitarity_LogLikelihood_THDMC
       #function: LO_unitarity_likelihood #Does not use the backend THDMC
 
     # -------------------------------------------

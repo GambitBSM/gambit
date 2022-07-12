@@ -84,7 +84,7 @@ ObsLikes:
     ###########################
 
     #### NOTE
-    # Flavour likelihoods 
+    # Flavour likelihoods
 
     # B->s,gamma likelihood (using HEPlike)
     - capability: b2sgamma_LogLikelihood
@@ -92,23 +92,23 @@ ObsLikes:
       purpose: LogLike
 
     # B->mu,mu likelihood
-    - capability: b2ll_LL
+    - capability: b2ll_LogLikelihood
       function: b2ll_likelihood
       purpose: LogLike
 
-    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_Atlas
-   
-    # 7 observables all q2 range 
+
+    # 7 observables all q2 range
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_CMS
 
-    # 4 observables all q2 range 
+    # 4 observables all q2 range
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_Belle
 
-    # 6 observables 
+    # 6 observables
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
 
@@ -215,7 +215,7 @@ Rules:
 
     - capability: prediction_B2KstarmumuAng_.*_LHCb
       options:
-         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]
 
     - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
       options:

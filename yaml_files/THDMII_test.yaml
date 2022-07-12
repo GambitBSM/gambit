@@ -98,16 +98,16 @@ ObsLikes:
   #   function: check_THDM_scalar_loop_order_corrections
 
   - purpose:    LogLike
-    capability: perturbativity_likelihood_THDM
+    capability: perturbativity_LogLikelihood_THDM
 
   - purpose:    LogLike
-    capability: stability_likelihood_THDM
+    capability: stability_LogLikelihood_THDM
 
   - purpose:    LogLike
-    capability: unitarity_likelihood_THDM
+    capability: unitarity_LogLikelihood_THDM
 
   # - purpose:    LogLike
-  #   capability: oblique_parameters_likelihood_THDM
+  #   capability: oblique_parameters_LogLikelihood_THDM
 
   # ## -------------------------------------------
 
@@ -141,24 +141,24 @@ ObsLikes:
   # - purpose:    LogLike
   #   capability: B2KmumuBr_LogLikelihood_LHCb
 
-  # - capability: deltaMB_LL
+  # - capability: deltaMB_LogLikelihood
   #   function: deltaMB_likelihood
   #   purpose: LogLike
 
-  # - capability: deltaMBd_LL
+  # - capability: deltaMBd_LogLikelihood
   #   function: deltaMBd_likelihood
   #   purpose: LogLike
 
-  # - capability: b2ll_LL
+  # - capability: b2ll_LogLikelihood
   #   function: b2ll_likelihood
   #   purpose: LogLike
 
-  # - capability: SL_LL
+  # - capability: SL_LogLikelihood
   #   function: SL_likelihood
   #   purpose: LogLike
 
   # - purpose:    LogLike
-  #   capability: LUV_LL
+  #   capability: LUV_LogLikelihood
 
   # ## -------------------------------------------
 
@@ -226,16 +226,16 @@ Rules:
     function: all_decays
     module: DecayBit
 
-  - capability: perturbativity_likelihood_THDM
-    function: get_perturbativity_likelihood_THDM
+  - capability: perturbativity_LogLikelihood_THDM
+    function: get_perturbativity_LogLikelihood_THDM
 
-  - capability: stability_likelihood_THDM
-    function: get_stability_likelihood_THDM
+  - capability: stability_LogLikelihood_THDM
+    function: get_stability_LogLikelihood_THDM
     options:
       check_metastability: true
 
-  - capability: unitarity_likelihood_THDM
-    function: NLO_unitarity_likelihood_THDMC
+  - capability: unitarity_LogLikelihood_THDM
+    function: NLO_unitarity_LogLikelihood_THDMC
     options:
       check_correction_ratio: false
 

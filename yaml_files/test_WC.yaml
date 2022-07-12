@@ -94,10 +94,10 @@ ObsLikes:
   # FIXME: How are the observables called inside superiso?
   #- purpose:    RDRDstarTest
   #  capability: RDRDstar_LogLikelihood
- 
-  # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60) 
+
+  # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60)
   - purpose: LogLike
-    capability: LUV_LL
+    capability: LUV_LogLikelihood
 
   - purpose:    LogLike
     function: HEPLike_b2sgamma_LogLikelihood
@@ -107,7 +107,7 @@ ObsLikes:
    # capability: B2mumu_LogLikelihood_LHCb
 
     # B->mu,mu likelihood
-  - capability: b2ll_LL
+  - capability: b2ll_LogLikelihood
     function: b2ll_likelihood
     purpose: LogLike
 
@@ -136,7 +136,7 @@ ObsLikes:
     capability: Bs2phimumuBr_LogLikelihood
 
   - purpose:    LogLike
-    capability: B2KmumuBr_LogLikelihood_LHCb      
+    capability: B2KmumuBr_LogLikelihood_LHCb
 
 Rules:
 
@@ -208,7 +208,7 @@ Rules:
 
   - options:
         use_SM_covariance: false
-   
+
   - capability: SuperIso_modelinfo
     function: SI_fill
 
@@ -224,7 +224,7 @@ Rules:
 
   - capability: RKstar_11_60
     function: SI_RKstar_11_60
-     
+
 Logger:
 
   redirection:

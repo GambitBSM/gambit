@@ -1149,6 +1149,7 @@ namespace Gambit
 
     SI_SINGLE_PREDICTION_FUNCTION(B2taunu)
     SI_SINGLE_PREDICTION_FUNCTION(b2sgamma)
+    SI_SINGLE_PREDICTION_FUNCTION(BRBKtautau)
 
     SI_SINGLE_PREDICTION_FUNCTION(B2Kstargamma)
     SI_SINGLE_PREDICTION_FUNCTION(BRBXsmumu_lowq2)
@@ -2034,24 +2035,6 @@ namespace Gambit
       result = THDM_B2Kllp(l, lp, sminputs, sminputspointer, spectrum);
     }
 
-    /// Branching ratio B+ ->K+ tau tau
-    void SuperIso_prediction_BRBKtautau(double &result)
-    {
-      using namespace Pipes::SuperIso_prediction_BRBKtautau;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_BRBKtautau"<<endl;
-
-      parameters const& param = *Dep::SuperIso_modelinfo;
-      double mB = 5.27926;
-      double mK = 0.493677;
-      const double mTau = Dep::SMINPUTS->mTau;
-      double Q2min = 4*mTau*mTau;
-      double Q2max = pow(mB-mK,2);
-      result=BEreq::BRBKtautau_CONV(&param,byVal(Q2min),byVal(Q2max));
-
-      if (flav_debug) printf("BR(B=->K+ tau tau)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_BRBKtautau"<<endl;
-    }
-
     ///  B-> D tau nu distributions in GTHDM
     double THDM_dGammaBDlnu(std::complex<double> gs, std::complex<double> gsmutau, double q2)
     {
@@ -2889,7 +2872,7 @@ namespace Gambit
 
         for (unsigned i=0;i<num_obs;++i)
         {
-         // fill fread from observable names
+          // fill fread from observable names
           fread.read_yaml_measurement("flav_data.yaml", observables[i]);
         }
 
@@ -5312,7 +5295,6 @@ namespace Gambit
        const vector<complex<double>> angle = {sab,Cab};
        Aloop2bR += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
       }
-      complex<double> I(0,1);
       //g2 coupling
       complex<double> g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
       //g4 coupling

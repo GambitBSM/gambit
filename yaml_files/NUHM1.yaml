@@ -192,7 +192,7 @@ ObsLikes:
     sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
   - purpose:    LogLike
-    capability: SL_LL
+    capability: SL_LogLikelihood
 
   - purpose:    LogLike
     capability: B2KstarmumuBr_LogLikelihood_LHCb

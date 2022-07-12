@@ -102,7 +102,7 @@ ObsLikes:
     # basis & applies a 4pi perturbativity constraint on each
     # Likelihood type: Half-Gaussian
     - purpose:    LogLike
-      capability: perturbativity_likelihood_THDM
+      capability: perturbativity_LogLikelihood_THDM
 
     # Applies the THDM stability constraints on the potential
     # NOTE: This likelihood has two parts, described below
@@ -111,21 +111,21 @@ ObsLikes:
     # (ii) If rejected, applies looser stabililty constraints
     # Likelihood type: Half-Gaussian
     - purpose:    LogLike
-      capability: stability_likelihood_THDM
+      capability: stability_LogLikelihood_THDM
 
     # Checks that the NLO scattering-matrix is unitary
     # Calculates and applies limit on eigenvalues of matrix
     # Likelihood type: Half-Gaussian
     # Only supports CP-conserving models
     - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
+      capability: unitarity_LogLikelihood_THDM
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
     # & fits to meausured values. S, T, U involve a correlation matrix.
     # Includes low-energy notation described in arxiv::9407203.
     # Likelihood type: Half-Gaussian
     - purpose:    LogLike
-      capability: oblique_parameters_likelihood_THDM
+      capability: oblique_parameters_LogLikelihood_THDM
 
     # -------------------------------------------
 
@@ -135,36 +135,36 @@ ObsLikes:
     # & then likelihoods may be called as intended
 
     # B->s,gamma likelihood (Radiative B Decays)
-    - capability: b2sgamma_LL
+    - capability: b2sgamma_LogLikelihood
       function: b2sgamma_likelihood
       purpose: LogLike
 
     # B->s,l,l likelihood
-    - capability: b2sll_LL
+    - capability: b2sll_LogLikelihood
       function: b2sll_likelihood
       purpose: LogLike
 
     # B->l,l likelihood
-    - capability: b2ll_LL
+    - capability: b2ll_LogLikelihood
       function: b2ll_likelihood
       purpose: LogLike
 
     # Semi-Leptonic likelihood collection
-    - capability: SL_LL
+    - capability: SL_LogLikelihood
       function: SL_likelihood
       purpose: LogLike
 
     # LUV likelihood collection
     - purpose:    LogLike
-      capability: LUV_LL
+      capability: LUV_LogLikelihood
 
     # Bs0 and Bd0 Meson Mass Splitting added to FlavBit
     # Necessary calculations added to superiso via patch supplied by Nazila
-    - capability: deltaMB_LL
+    - capability: deltaMB_LogLikelihood
       function: deltaMB_likelihood
       purpose: LogLike
 
-    - capability: deltaMBd_LL
+    - capability: deltaMBd_LogLikelihood
       function: deltaMBd_likelihood
       purpose: LogLike
 
@@ -219,16 +219,16 @@ Rules:
     # eg. min[L(Q_in), L(Q_runTo)]
     #
 
-    - capability: perturbativity_likelihood_THDM
-      function: get_perturbativity_likelihood_THDM
+    - capability: perturbativity_LogLikelihood_THDM
+      function: get_perturbativity_LogLikelihood_THDM
 
-    - capability: stability_likelihood_THDM
-      function: get_stability_likelihood_THDM
+    - capability: stability_LogLikelihood_THDM
+      function: get_stability_LogLikelihood_THDM
       options:
         check_metastability: true
 
-    - capability: unitarity_likelihood_THDM
-      function: NLO_unitarity_likelihood_THDMC
+    - capability: unitarity_LogLikelihood_THDM
+      function: NLO_unitarity_LogLikelihood_THDMC
       options:
         check_correction_ratio: true
 

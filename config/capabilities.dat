@@ -3668,13 +3668,13 @@ h2bs: |
 t2ch: |
    The branching ratio BR(t->ch).
 
-t2ch_LL: |
+t2ch_LogLikelihood: |
    Log-likelihood for BR(t->ch).
 
 h2taumu: |
    The branching ratio BR(h->taumu).
 
-h2taumu_LL: |
+h2taumu_LogLikelihood: |
    Log-likelihood for BR(h->taumu).
 
 bsgamma : |
@@ -3761,16 +3761,16 @@ muePb: |
 gmu_ge: |
    Calculates the ratio g_mu over g_e representing lepton universality in tau decays/
 
-l2lgamma_lnL: |
+l2lgamma_LogLikelihood: |
    Log-likelihood for l -> l gamma processes
 
-l2lll_lnL: |
+l2lll_LogLikelihood: |
    Log-likelihood for l -> l l l processes
 
-mu2e_lnL: |
+mu2e_LogLikelihood: |
    Log-likelihood for mu - e conversion in nucleii
 
-gmu_ge_lnL: |
+gmu_ge_LogLikelihood: |
    Log-likelihood for g_mu over g_e/
 
 B2KmumuBr_LogLikelihood_LHCb: |
