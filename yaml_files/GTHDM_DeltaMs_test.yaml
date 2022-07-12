@@ -125,11 +125,11 @@ ObsLikes:
       purpose: LogLike
 
     # LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
-    #- capability: gmu_ge_lnL
+    #- capability: gmu_ge_LogLikelihood
     #  function: gmu_ge_likelihood
     #  purpose: LogLike
 
-    #- capability: B2Kllp_lnL
+    #- capability: B2Kllp_LogLikelihood
     #  function: B2Kllp_likelihood
     #  purpose: LogLike
 

@@ -1,6 +1,6 @@
 #########################################################################
 ## GAMBIT configuration for running a single random point of the GTHDM
-## THDM_debug	
+## THDM_debug
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
@@ -123,13 +123,13 @@ ObsLikes:
 
     #Tree level Yukawas perturbativity
 
-    # # B->Kllp 
-    - capability: B2Kllp_lnL
+    # # B->Kllp
+    - capability: B2Kllp_LogLikelihood
       function: B2Kllp_likelihood
       purpose: LogLike
 
-     # # Bs->llp 
-    - capability: Bs2llp_lnL
+     # # Bs->llp
+    - capability: Bs2llp_LogLikelihood
       function: Bs2llp_likelihood
       purpose: LogLike
 

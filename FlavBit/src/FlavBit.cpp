@@ -1149,7 +1149,6 @@ namespace Gambit
 
     SI_SINGLE_PREDICTION_FUNCTION(B2taunu)
     SI_SINGLE_PREDICTION_FUNCTION(b2sgamma)
-    SI_SINGLE_PREDICTION_FUNCTION(BRBKtautau)
 
     SI_SINGLE_PREDICTION_FUNCTION(B2Kstargamma)
     SI_SINGLE_PREDICTION_FUNCTION(BRBXsmumu_lowq2)
@@ -1175,6 +1174,8 @@ namespace Gambit
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(RK_LHCb,_1p1_6)
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_0p045_1p1)
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_1p1_6)
+    // TODO: this should be used once the BKtautau CONV function is removed from the SuperIso frontend
+    //SI_SINGLE_PREDICTION_FUNCTION_BINS(BKtautauBr,_12p6_22p9)
 
     // The sub-capabilities that may be received from likelihood functions in order to feed them valid observables are listed
     // below. In principle though, these functions will accept as sub-capabilities *any* recognised SuperIso observable names.
@@ -2033,6 +2034,25 @@ namespace Gambit
       const int l = 1, lp = 0;
 
       result = THDM_B2Kllp(l, lp, sminputs, sminputspointer, spectrum);
+    }
+
+    /// Branching ratio B+ ->K+ tau tau
+    //  TODO: this function should be deleted once BRBKtautau_CONV is removed from the SuperIso frontend
+    void SuperIso_prediction_BRBKtautau(double &result)
+    {
+      using namespace Pipes::SuperIso_prediction_BRBKtautau;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_BRBKtautau"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      double mB = 5.27926;
+      double mK = 0.493677;
+      const double mTau = Dep::SMINPUTS->mTau;
+      double Q2min = 4*mTau*mTau;
+      double Q2max = pow(mB-mK,2);
+      result=BEreq::BRBKtautau_CONV(&param,byVal(Q2min),byVal(Q2max));
+
+      if (flav_debug) printf("BR(B=->K+ tau tau)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_prediction_BRBKtautau"<<endl;
     }
 
     ///  B-> D tau nu distributions in GTHDM
@@ -5658,6 +5678,7 @@ namespace Gambit
      theory[1] = *Dep::B2Kmue;
      if(flav_debug) cout << "B ->K mu e = " << theory[1] << endl;
      theory[2] = *Dep::B2Ktautau;
+     // theory[2] = Dep::B2Ktautau->central_values.at("BKtautauBr");
      if(flav_debug) cout << "B ->K tau tau = " << theory[2] << endl;
 
      result = 0;

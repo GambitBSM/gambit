@@ -564,19 +564,27 @@ START_MODULE
   #undef CAPABILITY
 
 
+  // TODO: attempt to upgrade to use the 'observables' backend function
   ///Observable: BR(B+ ->K+ tau tau)
   #define CAPABILITY B2Ktautau
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_BRBKtautau
-    START_FUNCTION(flav_prediction)
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(SuperIso_modelinfo, parameters)
-    DEPENDENCY(SuperIso_nuisance, nuisance)
-    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
-    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
-    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
-    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_REQ(BRBKtautau_CONV, (libsuperiso), double, (const parameters*, double, double))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
+    //#define FUNCTION SuperIso_prediction_BKtautauBr_12p6_22p9
+    //START_FUNCTION(flav_prediction)
+    //DEPENDENCY(SuperIso_modelinfo, parameters)
+    //DEPENDENCY(SuperIso_nuisance, nuisance)
+    //BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    //BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    //BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    //BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    //BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    //#undef FUNCTION
   #undef CAPABILITY
 
   ///Bs2llp likelihood
@@ -587,6 +595,7 @@ START_MODULE
     DEPENDENCY(B2Kmue, double)
     DEPENDENCY(B2Ktaumu, double)
     DEPENDENCY(B2Ktautau, double)
+    //DEPENDENCY(B2Ktautau, flav_prediction)
     #undef FUNCTION
   #undef CAPABILITY
 

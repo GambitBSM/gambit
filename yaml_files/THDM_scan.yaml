@@ -382,27 +382,27 @@ ObsLikes:
       purpose: LogLike
 
    #LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
-    - capability: gmu_ge_lnL
+    - capability: gmu_ge_LogLikelihood
       function: gmu_ge_likelihood
       purpose: LogLike
 
    # # l->l gamma
-    - capability: l2lgamma_lnL
+    - capability: l2lgamma_LogLikelihood
       function: l2lgamma_likelihood
       purpose: LogLike
 
     # # l->lll
-    - capability: l2lll_lnL
+    - capability: l2lll_LogLikelihood
       function: l2lll_likelihood
       purpose: LogLike
 
     # FLDstar likelihood
-    - capability: FLDstar_lnL
+    - capability: FLDstar_LogLikelihood
       function: FLDstar_likelihood
       purpose: LogLike
 
     # Bc->tanu lifetime likelihood
-    - capability: Bc_lifetime_lnL
+    - capability: Bc_lifetime_LogLikelihood
       function: Bc_lifetime_likelihood
       purpose: LogLike
 
