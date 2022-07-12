@@ -1489,7 +1489,7 @@ namespace Gambit
       result = THDM_DeltaC_NP(12, l, lp, sminputs, sminputspointer, spectrum);
     }
 
-   /// Delta C9 tautau from the general THDM
+    /// Delta C9 tautau from the general THDM
     void calculate_DeltaC9_tautau(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC9_tautau;
@@ -1501,7 +1501,7 @@ namespace Gambit
       result = THDM_DeltaC_NP(9, l, lp, sminputs, sminputspointer, spectrum);
     }
 
-      /// Delta C10 tautau from the general THDM
+    /// Delta C10 tautau from the general THDM
     void calculate_DeltaC10_tautau(std::complex<double> &result)
     {
       using namespace Pipes::calculate_DeltaC10_tautau;
@@ -1552,7 +1552,7 @@ namespace Gambit
       return real(etaij);
     }
 
-   /// RKnunu for b->snunu in the GTHDM
+    /// RKnunu for b->snunu in the GTHDM
     void THDM_RKnunu(double &result)
     {
       using namespace Pipes::THDM_RKnunu;
@@ -1565,14 +1565,14 @@ namespace Gambit
       {
         for (int j = 0; j <= 2; ++j)
         {
-         RKnunu += (0.33333333)*(1-2*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
+          RKnunu += (0.33333333)*(1-2*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
         }
       }
 
       result = RKnunu;
     }
 
-   /// RKstarnunu for b->snunu in the GTHDM
+    /// RKstarnunu for b->snunu in the GTHDM
     void THDM_RKstarnunu(double &result)
     {
       using namespace Pipes::THDM_RKstarnunu;
@@ -1586,7 +1586,7 @@ namespace Gambit
       {
         for (int j = 0; j <= 2; ++j)
         {
-         RKstarnunu += (0.33333333)*(1 + kappa*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
+          RKstarnunu += (0.33333333)*(1 + kappa*eta(i, j, sminputs, sminputspointer, spectrum))*pow(epsilon(i, j, sminputs, sminputspointer, spectrum),2);
         }
       }
 
@@ -1625,9 +1625,9 @@ namespace Gambit
 
       double frirj = sqrt(1-2*(ri+rj)+pow(ri-rj,2));
 
-     return  pow(sminputs.GF*mW*SW,4)/(32*pow(pi,5))*m_Bs*pow(f_Bs*(ml[l]+ml[lp]),2)*(life_Bs/hbar)*pow(Vtb*Vts,2)*frirj
+      return  pow(sminputs.GF*mW*SW,4)/(32*pow(pi,5))*m_Bs*pow(f_Bs*(ml[l]+ml[lp]),2)*(life_Bs/hbar)*pow(Vtb*Vts,2)*frirj
 	*(norm(m_Bs*m_Bs/((mBmB+mS)*(ml[l]+ml[lp]))*conj(CQ2-CQ2p)-conj(C10-C10p))*(1-pow(ri-rj,2)) + norm(m_Bs*m_Bs/((mBmB+mS)*(ml[l]+ml[lp]))*conj(CQ1-CQ1p)+((ml[l]-ml[lp])/(ml[l]+ml[lp]))*conj(C9-C9p))*(1-pow(ri+rj,2)));
-     }
+    }
 
     void THDM_Bs2mutau(double &result)
     {
@@ -1672,7 +1672,7 @@ namespace Gambit
 
       return 10e-9*(akllp[lp]*norm(C9+C9p)+bkllp[lp]*norm(C10+C10p)+(akllp[lp]*norm(C9lp+C9plp)+bkllp[lp]*norm(C10lp+C10plp)));
 
-     }
+    }
 
     void THDM_B2Ktaumu(double &result)
     {
@@ -1717,50 +1717,50 @@ namespace Gambit
     ///  B-> D tau nu distributions in GTHDM
     double THDM_dGammaBDlnu(std::complex<double> gs, std::complex<double> gsmutau, double q2)
     {
-	  const double mB = 5.27961;
-	  const double mD = 1.870;
-	  const double ml = 1.77686;
-          const double mb = 4.18;
-          const double mc = 1.28;
-          const double GF = 1.16638e-5;
-          const double Vcb = 0.041344392;
+      const double mB = 5.27961;
+      const double mD = 1.870;
+      const double ml = 1.77686;
+      const double mb = 4.18;
+      const double mc = 1.28;
+      const double GF = 1.16638e-5;
+      const double Vcb = 0.041344392;
 
-	  const double rho_D2 = 1.186;
-	  const double V1_1 = 1.074;
-	  const double Delta = 1;
+      const double rho_D2 = 1.186;
+      const double V1_1 = 1.074;
+      const double Delta = 1;
 
-          double C_V1=0.;
-          double C_V2=0.;
-          double C_T=0.;
+      double C_V1=0.;
+      double C_V2=0.;
+      double C_T=0.;
 
-	  double lambda_D=((mB-mD)*(mB-mD)-q2)*((mB+mD)*(mB+mD)-q2);
+      double lambda_D=((mB-mD)*(mB-mD)-q2)*((mB+mD)*(mB+mD)-q2);
 
-	  double r_D=mD/mB;
-	  double w=(mB*mB+mD*mD-q2)/2./mB/mD;
-	  double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
+      double r_D=mD/mB;
+      double w=(mB*mB+mD*mD-q2)/2./mB/mD;
+      double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
 
-	  double V1=V1_1*(1.-8.*rho_D2*z+(51.*rho_D2-10.)*z*z-(252.*rho_D2-84.)*z*z*z);
-	  double S1=V1*(1.+Delta*(-0.019+0.041*(w-1.)-0.015*(w-1.)*(w-1.)));
+      double V1=V1_1*(1.-8.*rho_D2*z+(51.*rho_D2-10.)*z*z-(252.*rho_D2-84.)*z*z*z);
+      double S1=V1*(1.+Delta*(-0.019+0.041*(w-1.)-0.015*(w-1.)*(w-1.)));
 
-	  double hp=1./2./(1.+r_D*r_D-2.*r_D*w)*(-(1.+r_D)*(1.+r_D)*(w-1.)*V1+(1.-r_D)*(1.-r_D)*(w+1.)*S1);
-	  double hm=(1.-r_D*r_D)*(w+1.)/2./(1.+r_D*r_D-2.*r_D*w)*(S1-V1);
-	  double hT=(mb+mc)/(mB+mD)*(hp-(1.+r_D)/(1.-r_D)*hm);
+      double hp=1./2./(1.+r_D*r_D-2.*r_D*w)*(-(1.+r_D)*(1.+r_D)*(w-1.)*V1+(1.-r_D)*(1.-r_D)*(w+1.)*S1);
+      double hm=(1.-r_D*r_D)*(w+1.)/2./(1.+r_D*r_D-2.*r_D*w)*(S1-V1);
+      double hT=(mb+mc)/(mB+mD)*(hp-(1.+r_D)/(1.-r_D)*hm);
 
-	  double F_1=1./2./sqrt(mB*mD)*((mB+mD)*hp-(mB-mD)*hm);
-	  double F_0=1./2./sqrt(mB*mD)*(((mB+mD)*(mB+mD)-q2)/(mB+mD)*hp-((mB-mD)*(mB-mD)-q2)/(mB-mD)*hm);
-	  double F_T=(mB+mD)/2./sqrt(mB*mD)*hT;
+      double F_1=1./2./sqrt(mB*mD)*((mB+mD)*hp-(mB-mD)*hm);
+      double F_0=1./2./sqrt(mB*mD)*(((mB+mD)*(mB+mD)-q2)/(mB+mD)*hp-((mB-mD)*(mB-mD)-q2)/(mB-mD)*hm);
+      double F_T=(mB+mD)/2./sqrt(mB*mD)*hT;
 
-	  double Hs_V0=sqrt(lambda_D/q2)*F_1;
-	  double Hs_Vt=(mB*mB-mD*mD)/sqrt(q2)*F_0;
-	  double Hs_S=(mB*mB-mD*mD)/(mb-mc)*F_0;
-	  double Hs_T=-sqrt(lambda_D)/(mB+mD)*F_T;
+      double Hs_V0=sqrt(lambda_D/q2)*F_1;
+      double Hs_Vt=(mB*mB-mD*mD)/sqrt(q2)*F_0;
+      double Hs_S=(mB*mB-mD*mD)/(mb-mc)*F_0;
+      double Hs_T=-sqrt(lambda_D)/(mB+mD)*F_T;
 
 
-	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*std::norm(1.-ml*ml/q2)*
-	  (std::norm(1.+C_V1+C_V2)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
-	  +3./2.*(std::norm(gs)+std::norm(gsmutau))*Hs_S*Hs_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
-	  +3.*(1.+C_V1+C_V2)*real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
-	  -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0));
+      double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*std::norm(1.-ml*ml/q2)*
+      (std::norm(1.+C_V1+C_V2)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
+      +3./2.*(std::norm(gs)+std::norm(gsmutau))*Hs_S*Hs_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
+      +3.*(1.+C_V1+C_V2)*real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
+      -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0));
 
 
       return dGamma_dq2;
@@ -1771,67 +1771,67 @@ namespace Gambit
     double THDM_dGammaBDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, double q2)
     {
 
-	  const double mB = 5.27961;
-	  const double mDs = 2.007;
-          const double ml = 1.77686;
-          const double mb = 4.18;
-          const double mc = 1.28;
-          const double GF = 1.16638e-5;
-          const double Vcb = 0.041344392;
+      const double mB = 5.27961;
+      const double mDs = 2.007;
+      const double ml = 1.77686;
+      const double mb = 4.18;
+      const double mc = 1.28;
+      const double GF = 1.16638e-5;
+      const double Vcb = 0.041344392;
 
-	  const double rho_Dstar2=1.214;
-	  const double R1_1=1.403;
-	  const double R2_1=0.864;
-	  const double R3_1=0.97;
-	  const double hA1_1=0.921;
+      const double rho_Dstar2=1.214;
+      const double R1_1=1.403;
+      const double R2_1=0.864;
+      const double R3_1=0.97;
+      const double hA1_1=0.921;
 
-          double C_V1=0.;
-          double C_V2=0.;
-          double C_T=0.;
+      double C_V1=0.;
+      double C_V2=0.;
+      double C_T=0.;
 
-	  double lambda_Ds=((mB-mDs)*(mB-mDs)-q2)*((mB+mDs)*(mB+mDs)-q2);
+	    double lambda_Ds=((mB-mDs)*(mB-mDs)-q2)*((mB+mDs)*(mB+mDs)-q2);
 
-	  double r_Dstar=mDs/mB;
-	  double w=(mB*mB+mDs*mDs-q2)/2./mB/mDs;
-	  double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
+	    double r_Dstar=mDs/mB;
+      double w=(mB*mB+mDs*mDs-q2)/2./mB/mDs;
+      double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
 
-	  double hA1=hA1_1*(1.-8.*rho_Dstar2*z+(53.*rho_Dstar2-15.)*z*z-(231.*rho_Dstar2-91.)*z*z*z);
-	  double R1=R1_1-0.12*(w-1.)+0.05*(w-1.)*(w-1.);
-	  double R2=R2_1-0.11*(w-1.)-0.06*(w-1.)*(w-1.);
-	  double R3=R3_1-0.052*(w-1.)+0.026*(w-1.)*(w-1.);
+      double hA1=hA1_1*(1.-8.*rho_Dstar2*z+(53.*rho_Dstar2-15.)*z*z-(231.*rho_Dstar2-91.)*z*z*z);
+      double R1=R1_1-0.12*(w-1.)+0.05*(w-1.)*(w-1.);
+      double R2=R2_1-0.11*(w-1.)-0.06*(w-1.)*(w-1.);
+      double R3=R3_1-0.052*(w-1.)+0.026*(w-1.)*(w-1.);
 
-          double hV=R1*hA1;
-	  double hA2=(R2-R3)/2./r_Dstar*hA1;
-	  double hA3=(R2+R3)/2.*hA1;
+      double hV=R1*hA1;
+      double hA2=(R2-R3)/2./r_Dstar*hA1;
+      double hA3=(R2+R3)/2.*hA1;
 
-	  double hT1=1./2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*(1.-r_Dstar)*(1.-r_Dstar)*(w+1.)*hA1-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*(w-1.)*hV);
-	  double hT2=(1.-r_Dstar*r_Dstar)*(w+1.)/2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*hA1-(mb+mc)/(mB+mDs)*hV);
-	  double hT3=-1./2./(1.+r_Dstar)/(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(2.*(mb-mc)/(mB-mDs)*r_Dstar*(w+1.)*hA1-(mb-mc)/(mB-mDs)*(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(hA3-r_Dstar*hA2)-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*hV);
+      double hT1=1./2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*(1.-r_Dstar)*(1.-r_Dstar)*(w+1.)*hA1-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*(w-1.)*hV);
+      double hT2=(1.-r_Dstar*r_Dstar)*(w+1.)/2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*hA1-(mb+mc)/(mB+mDs)*hV);
+      double hT3=-1./2./(1.+r_Dstar)/(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(2.*(mb-mc)/(mB-mDs)*r_Dstar*(w+1.)*hA1-(mb-mc)/(mB-mDs)*(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(hA3-r_Dstar*hA2)-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*hV);
 
-	  double V=(mB+mDs)/2./sqrt(mB*mDs)*hV;
-	  double A_1=((mB+mDs)*(mB+mDs)-q2)/2./sqrt(mB*mDs)/(mB+mDs)*hA1;
-	  double A_2=(mB+mDs)/2./sqrt(mB*mDs)*(hA3+mDs/mB*hA2);
-	  double A_0=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/2./mDs*hA1-(mB*mB-mDs*mDs+q2)/2./mB*hA2-(mB*mB-mDs*mDs-q2)/2./mDs*hA3);
-	  double T_1=1./2./sqrt(mB*mDs)*((mB+mDs)*hT1-(mB-mDs)*hT2);
-	  double T_2=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/(mB+mDs)*hT1-((mB-mDs)*(mB-mDs)-q2)/(mB-mDs)*hT2);
-	  double T_3=1./2./sqrt(mB*mDs)*((mB-mDs)*hT1-(mB+mDs)*hT2-2.*(mB*mB-mDs*mDs)/mB*hT3);
+      double V=(mB+mDs)/2./sqrt(mB*mDs)*hV;
+      double A_1=((mB+mDs)*(mB+mDs)-q2)/2./sqrt(mB*mDs)/(mB+mDs)*hA1;
+      double A_2=(mB+mDs)/2./sqrt(mB*mDs)*(hA3+mDs/mB*hA2);
+      double A_0=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/2./mDs*hA1-(mB*mB-mDs*mDs+q2)/2./mB*hA2-(mB*mB-mDs*mDs-q2)/2./mDs*hA3);
+      double T_1=1./2./sqrt(mB*mDs)*((mB+mDs)*hT1-(mB-mDs)*hT2);
+      double T_2=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/(mB+mDs)*hT1-((mB-mDs)*(mB-mDs)-q2)/(mB-mDs)*hT2);
+      double T_3=1./2./sqrt(mB*mDs)*((mB-mDs)*hT1-(mB+mDs)*hT2-2.*(mB*mB-mDs*mDs)/mB*hT3);
 
-	  double H_Vp=(mB+mDs)*A_1-sqrt(lambda_Ds)/(mB+mDs)*V;
-	  double H_Vm=(mB+mDs)*A_1+sqrt(lambda_Ds)/(mB+mDs)*V;
-	  double H_V0=(mB+mDs)/2./mDs/sqrt(q2)*(-(mB*mB-mDs*mDs-q2)*A_1+lambda_Ds/pow(mB+mDs,2)*A_2);
-	  double H_Vt=-sqrt(lambda_Ds/q2)*A_0;
-	  double H_S=-sqrt(lambda_Ds)/(mb+mc)*A_0;
-	  double H_Tp=1./sqrt(q2)*((mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
-	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
-	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
+      double H_Vp=(mB+mDs)*A_1-sqrt(lambda_Ds)/(mB+mDs)*V;
+      double H_Vm=(mB+mDs)*A_1+sqrt(lambda_Ds)/(mB+mDs)*V;
+      double H_V0=(mB+mDs)/2./mDs/sqrt(q2)*(-(mB*mB-mDs*mDs-q2)*A_1+lambda_Ds/pow(mB+mDs,2)*A_2);
+      double H_Vt=-sqrt(lambda_Ds/q2)*A_0;
+      double H_S=-sqrt(lambda_Ds)/(mb+mc)*A_0;
+      double H_Tp=1./sqrt(q2)*((mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+      double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+      double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 
-	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
-	  ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
-	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
-	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
+      double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+      ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+      +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
+      -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
+      +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 
       return dGamma_dq2;
     }
@@ -1841,67 +1841,67 @@ namespace Gambit
     double THDM_dFLDstar(std::complex<double> gp, std::complex<double> gpmutau, double q2)
     {
 
-	  const double mB = 5.27961;
-	  const double mDs = 2.007;
-          const double ml = 1.77686;
-          const double mb = 4.18;
-          const double mc = 1.28;
-          const double GF = 1.16638e-5;
-          const double Vcb = 0.041344392;
+	    const double mB = 5.27961;
+	    const double mDs = 2.007;
+      const double ml = 1.77686;
+      const double mb = 4.18;
+      const double mc = 1.28;
+      const double GF = 1.16638e-5;
+      const double Vcb = 0.041344392;
 
-	  const double rho_Dstar2=1.214;
-	  const double R1_1=1.403;
-	  const double R2_1=0.864;
-	  const double R3_1=0.97;
-	  const double hA1_1=0.921;
+      const double rho_Dstar2=1.214;
+      const double R1_1=1.403;
+      const double R2_1=0.864;
+      const double R3_1=0.97;
+      const double hA1_1=0.921;
 
-          double C_V1=0.;
-          double C_V2=0.;
-          double C_T=0.;
+      double C_V1=0.;
+      double C_V2=0.;
+      double C_T=0.;
 
-	  double lambda_Ds=((mB-mDs)*(mB-mDs)-q2)*((mB+mDs)*(mB+mDs)-q2);
+      double lambda_Ds=((mB-mDs)*(mB-mDs)-q2)*((mB+mDs)*(mB+mDs)-q2);
 
-	  double r_Dstar=mDs/mB;
-	  double w=(mB*mB+mDs*mDs-q2)/2./mB/mDs;
-	  double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
+      double r_Dstar=mDs/mB;
+      double w=(mB*mB+mDs*mDs-q2)/2./mB/mDs;
+      double z=(sqrt(w+1.)-sqrt(2.))/(sqrt(w+1.)+sqrt(2.));
 
-	  double hA1=hA1_1*(1.-8.*rho_Dstar2*z+(53.*rho_Dstar2-15.)*z*z-(231.*rho_Dstar2-91.)*z*z*z);
-	  double R1=R1_1-0.12*(w-1.)+0.05*(w-1.)*(w-1.);
-	  double R2=R2_1-0.11*(w-1.)-0.06*(w-1.)*(w-1.);
-	  double R3=R3_1-0.052*(w-1.)+0.026*(w-1.)*(w-1.);
+      double hA1=hA1_1*(1.-8.*rho_Dstar2*z+(53.*rho_Dstar2-15.)*z*z-(231.*rho_Dstar2-91.)*z*z*z);
+      double R1=R1_1-0.12*(w-1.)+0.05*(w-1.)*(w-1.);
+      double R2=R2_1-0.11*(w-1.)-0.06*(w-1.)*(w-1.);
+      double R3=R3_1-0.052*(w-1.)+0.026*(w-1.)*(w-1.);
 
-          double hV=R1*hA1;
-	  double hA2=(R2-R3)/2./r_Dstar*hA1;
-	  double hA3=(R2+R3)/2.*hA1;
+            double hV=R1*hA1;
+      double hA2=(R2-R3)/2./r_Dstar*hA1;
+      double hA3=(R2+R3)/2.*hA1;
 
-	  double hT1=1./2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*(1.-r_Dstar)*(1.-r_Dstar)*(w+1.)*hA1-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*(w-1.)*hV);
-	  double hT2=(1.-r_Dstar*r_Dstar)*(w+1.)/2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*hA1-(mb+mc)/(mB+mDs)*hV);
-	  double hT3=-1./2./(1.+r_Dstar)/(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(2.*(mb-mc)/(mB-mDs)*r_Dstar*(w+1.)*hA1-(mb-mc)/(mB-mDs)*(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(hA3-r_Dstar*hA2)-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*hV);
+      double hT1=1./2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*(1.-r_Dstar)*(1.-r_Dstar)*(w+1.)*hA1-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*(w-1.)*hV);
+      double hT2=(1.-r_Dstar*r_Dstar)*(w+1.)/2./(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*((mb-mc)/(mB-mDs)*hA1-(mb+mc)/(mB+mDs)*hV);
+      double hT3=-1./2./(1.+r_Dstar)/(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(2.*(mb-mc)/(mB-mDs)*r_Dstar*(w+1.)*hA1-(mb-mc)/(mB-mDs)*(1.+r_Dstar*r_Dstar-2.*r_Dstar*w)*(hA3-r_Dstar*hA2)-(mb+mc)/(mB+mDs)*(1.+r_Dstar)*(1.+r_Dstar)*hV);
 
-	  double V=(mB+mDs)/2./sqrt(mB*mDs)*hV;
-	  double A_1=((mB+mDs)*(mB+mDs)-q2)/2./sqrt(mB*mDs)/(mB+mDs)*hA1;
-	  double A_2=(mB+mDs)/2./sqrt(mB*mDs)*(hA3+mDs/mB*hA2);
-	  double A_0=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/2./mDs*hA1-(mB*mB-mDs*mDs+q2)/2./mB*hA2-(mB*mB-mDs*mDs-q2)/2./mDs*hA3);
-	  double T_1=1./2./sqrt(mB*mDs)*((mB+mDs)*hT1-(mB-mDs)*hT2);
-	  double T_2=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/(mB+mDs)*hT1-((mB-mDs)*(mB-mDs)-q2)/(mB-mDs)*hT2);
-	  double T_3=1./2./sqrt(mB*mDs)*((mB-mDs)*hT1-(mB+mDs)*hT2-2.*(mB*mB-mDs*mDs)/mB*hT3);
+      double V=(mB+mDs)/2./sqrt(mB*mDs)*hV;
+      double A_1=((mB+mDs)*(mB+mDs)-q2)/2./sqrt(mB*mDs)/(mB+mDs)*hA1;
+      double A_2=(mB+mDs)/2./sqrt(mB*mDs)*(hA3+mDs/mB*hA2);
+      double A_0=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/2./mDs*hA1-(mB*mB-mDs*mDs+q2)/2./mB*hA2-(mB*mB-mDs*mDs-q2)/2./mDs*hA3);
+      double T_1=1./2./sqrt(mB*mDs)*((mB+mDs)*hT1-(mB-mDs)*hT2);
+      double T_2=1./2./sqrt(mB*mDs)*(((mB+mDs)*(mB+mDs)-q2)/(mB+mDs)*hT1-((mB-mDs)*(mB-mDs)-q2)/(mB-mDs)*hT2);
+      double T_3=1./2./sqrt(mB*mDs)*((mB-mDs)*hT1-(mB+mDs)*hT2-2.*(mB*mB-mDs*mDs)/mB*hT3);
 
-	  double H_Vp=(mB+mDs)*A_1-sqrt(lambda_Ds)/(mB+mDs)*V;
-	  double H_Vm=(mB+mDs)*A_1+sqrt(lambda_Ds)/(mB+mDs)*V;
-	  double H_V0=(mB+mDs)/2./mDs/sqrt(q2)*(-(mB*mB-mDs*mDs-q2)*A_1+lambda_Ds/pow(mB+mDs,2)*A_2);
-	  double H_Vt=-sqrt(lambda_Ds/q2)*A_0;
-	  double H_S=-sqrt(lambda_Ds)/(mb+mc)*A_0;
-	  double H_Tp=1./sqrt(q2)*((mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
-	  double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
-	  double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
+      double H_Vp=(mB+mDs)*A_1-sqrt(lambda_Ds)/(mB+mDs)*V;
+      double H_Vm=(mB+mDs)*A_1+sqrt(lambda_Ds)/(mB+mDs)*V;
+      double H_V0=(mB+mDs)/2./mDs/sqrt(q2)*(-(mB*mB-mDs*mDs-q2)*A_1+lambda_Ds/pow(mB+mDs,2)*A_2);
+      double H_Vt=-sqrt(lambda_Ds/q2)*A_0;
+      double H_S=-sqrt(lambda_Ds)/(mb+mc)*A_0;
+      double H_Tp=1./sqrt(q2)*((mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+      double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
+      double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 
-	  double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
-	  ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-	  +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-	  +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
-	  -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
-	  +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
+      double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+      ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
+      +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
+      -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
+      +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 
       return dGamma_dq2;
     }
@@ -1913,15 +1913,15 @@ namespace Gambit
       double a = 0.0;
       if (gen==3)
       {
-      a = 1.77686*1.77686;//mTau^2
+        a = 1.77686*1.77686;//mTau^2
       }
       else if (gen==2)
       {
-      a = 0.105658*0.105658;//mMu^2
+        a = 0.105658*0.105658;//mMu^2
       }
       else if (gen==1)
       {
-      FlavBit_error().raise(LOCAL_INFO, "BDenu is not supported for THDM model");
+        FlavBit_error().raise(LOCAL_INFO, "BDenu is not supported for THDM model");
       }
       const double b = 3.40961*3.40961;//(mB-mD)^2
       double h = (b-a)/n;
@@ -1944,15 +1944,15 @@ namespace Gambit
       double a = 0.0;
       if (gen==3)
       {
-      a = 1.77686*1.77686;//mTau^2
+        a = 1.77686*1.77686;//mTau^2
       }
       else if (gen==2)
       {
-      a = 0.105658*0.105658;//mMu^2
+        a = 0.105658*0.105658;//mMu^2
       }
       else if (gen==1)
       {
-      FlavBit_error().raise(LOCAL_INFO, "BDstarnu is not supported for THDM model");
+        FlavBit_error().raise(LOCAL_INFO, "BDstarnu is not supported for THDM model");
       }
       const double b = 3.27261*3.27261;//(mB-mDs)^2
       double h = (b-a)/n;
@@ -1988,7 +1988,7 @@ namespace Gambit
       return (THDM_dFLDstar(gp, gpmutau, a) + THDM_dFLDstar(gp, gpmutau, b) + 2 * sum_evens + 4 * sum_odds) * h / 3;
     }
 
-   // FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma
+    // FLDstar Gamma=lambda_Dstar=0(B->D* l nu)/Gamma
     double GammaDstar_Gamma(std::complex<double> gp, std::complex<double> gpmutau)
     {
       double GammaDstar_Gamma = GammaDstar_BDstarlnu(gp, gpmutau, 13)/Gamma_BDstarlnu(gp, gpmutau, 3, 13);
@@ -3506,7 +3506,7 @@ namespace Gambit
 
     // Auxiliary function for BR(B->Dlnu),1st generation is not supported
     void THDM_Gamma_BDlnu(SMInputs sminputs, dep_bucket<SMInputs> *sminputspointer, Spectrum spectrum, int gen, double &result)
-    { 
+    {
       const double A      = (*sminputspointer)->CKM.A;
       const double lambda = (*sminputspointer)->CKM.lambda;
       const double Vcs = 1 - (1/2)*lambda*lambda;
@@ -3545,18 +3545,18 @@ namespace Gambit
       }
       else if (gen==2)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2); 
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
       CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
       }
       std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
       std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
       std::complex<double> gs = (CRcb + CLcb)/CSMcb;
       std::complex<double> gsmutau = (CRcbmutau + CLcbmutau)/CSMcb;
-      
+
       double Gamma = Gamma_BDlnu(gs, gsmutau, gen, 13);
-      
+
       result = Gamma;
-    
+
     }
 
     ///  BR(B->Dtanu) in the THDM
@@ -3597,13 +3597,13 @@ namespace Gambit
     void THDM_BDmunu(double &result)
     {
       using namespace Pipes::THDM_BDmunu;
-      
+
       SMInputs sminputs = *Dep::SMINPUTS;
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      
+
       THDM_Gamma_BDlnu(sminputs, sminputspointer, spectrum, 2, result);
-    } 
+    }
 
 
     /// Br B -> D* tau nu
@@ -3686,13 +3686,13 @@ namespace Gambit
     void THDM_BDstartaunu(double &result)
     {
       using namespace Pipes::THDM_BDstartaunu;
-      
+
       SMInputs sminputs = *Dep::SMINPUTS;
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      
+
       THDM_Gamma_BDstarlnu(sminputs, sminputspointer, spectrum, 3, result);
-    } 
+    }
 
 
     /// Br B -> D* mu nu
@@ -3720,11 +3720,11 @@ namespace Gambit
     void THDM_BDstarmunu(double &result)
     {
       using namespace Pipes::THDM_BDstarmunu;
-      
+
       SMInputs sminputs = *Dep::SMINPUTS;
       dep_bucket<SMInputs> *sminputspointer = &Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
-      
+
       THDM_Gamma_BDstarlnu(sminputs, sminputspointer, spectrum, 2, result);
     }
 
