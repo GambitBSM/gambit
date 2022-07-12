@@ -34,7 +34,6 @@ namespace Gambit
 {
   namespace SpectrumContents
   {
-
     struct SM                   : SubSpectrumContents { SM(); };
     struct SM_slha              : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
     struct SMHiggs              : SubSpectrumContents { SMHiggs(); };
