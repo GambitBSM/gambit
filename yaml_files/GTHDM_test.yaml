@@ -84,37 +84,47 @@ ObsLikes:
     ###########################
 
     #### NOTE
-    # Flavour likelihoods 
+    # Flavour likelihoods
 
-    # B->s,gamma likelihood (using HEPlike)
     - capability: b2sgamma_LogLikelihood
       function: HEPLike_b2sgamma_LogLikelihood
       purpose: LogLike
 
-    # B->mu,mu likelihood
-    - capability: b2ll_LL
-      function: b2ll_likelihood
-      purpose: LogLike
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_Atlas
+      sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-    # 3 observables low q2 _0p1_2_Atlas , _2_4_Atlas and _4_8_Atlas 
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_CMS
+      sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+    - purpose:    LogLike
+      capability: B2mumu_LogLikelihood_LHCb
+      sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_Atlas
-   
-    # 7 observables all q2 range 
+      sub_capabilities: [FL, S3, S4, S5, S7, S8]
+
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_CMS
+      sub_capabilities: [P1, P5prime]
 
-    # 4 observables all q2 range 
     - purpose:    LogLike
-      capability: B2KstarmumuAng_LogLikelihood_Belle
+      capability: B2KstarellellAng_LogLikelihood_Belle
+      sub_capabilities: [P4prime, P5prime]
 
-    # 6 observables 
     - purpose:    LogLike
       capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+      sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-   # 6 observables
     - purpose:    LogLike
-      capability: B2KstarmumuBr_LogLikelihood_LHCb
+      capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+      sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+    - purpose:    LogLike
+      capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+      sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
    # 2 obs, low and high q2
     - purpose:    LogLike
@@ -148,38 +158,19 @@ ObsLikes:
       module: FlavBit
       purpose: Observable
 
-    - capability: Bsmumu_untag
-      function: SI_Bsmumu_untag
-      module: FlavBit
-      purpose: Observable
-
+    # Use SuperIso instead of FeynHiggs for b->sgamma
     - capability: prediction_b2sgamma
       function: SuperIso_prediction_b2sgamma
-      module: FlavBit
-      purpose: Observable
+
+    # Use SuperIso instead of FeynHiggs for B_s->mumu
+    - capability: prediction_B2mumu
+      function: SuperIso_prediction_B2mumu
 
 Rules:
 
     ##############################
     # Likelihood/Observable Rules
     ##############################
-
-    - capability: SuperIso_modelinfo
-      function: SI_fill
-
-    - capability: b2ll_M
-      function: b2ll_measurements
-      dependencies:
-        - capability: Bsmumu_untag
-          function: SI_Bsmumu_untag
-          module: FlavBit
-
-    - capability: b2sll_M
-      function: b2sll_measurements
-
-    - capability: prediction_Bs2phimumuBr_*
-      options:
-        obs_list: [Bs2phimumuBr]
 
     - capability: prediction_B2KstarmumuBr_*
       options:
@@ -215,7 +206,7 @@ Rules:
 
     - capability: prediction_B2KstarmumuAng_.*_LHCb
       options:
-         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]   
+         obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]
 
     - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
       options:

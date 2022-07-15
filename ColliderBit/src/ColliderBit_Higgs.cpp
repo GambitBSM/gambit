@@ -116,28 +116,28 @@ namespace Gambit
       {
           result.ghjss_s[i] = couplings.C_ss_s[i];
           result.ghjss_p[i] = couplings.C_ss_p[i];
-  
+
           result.ghjbb_s[i] = couplings.C_bb_s[i];
           result.ghjbb_p[i] = couplings.C_bb_p[i];
-  
+
           result.ghjcc_s[i] = couplings.C_cc_s[i];
           result.ghjcc_p[i] = couplings.C_cc_p[i];
- 
+
           result.ghjtt_s[i] = couplings.C_tt_s[i];
           result.ghjtt_p[i] = couplings.C_tt_p[i];
- 
+
           result.ghjmumu_s[i] = couplings.C_mumu_s[i];
           result.ghjmumu_p[i] = couplings.C_mumu_p[i];
-   
+
           result.ghjtautau_s[i] = couplings.C_tautau_s[i];
           result.ghjtautau_p[i] = couplings.C_tautau_p[i];
-         
-          result.ghjZZ[i] = couplings.C_ZZ[i];    
-   
+
+          result.ghjZZ[i] = couplings.C_ZZ[i];
+
           result.ghjWW[i] = couplings.C_WW[i];
-  
+
           result.ghjgaga[i] = sqrt(couplings.C_gaga2[i]);
-   
+
           result.ghjZga[i] = sqrt(couplings.C_Zga2[i]);
 
           result.ghjgg[i] = sqrt(couplings.C_gg2[i]);
@@ -172,7 +172,7 @@ namespace Gambit
                 std::cout << "h->hh ("<< k << ", " << j << ", " << i << "): " << result.BR_hkhjhi[k - 1][j - 1][i - 1] << std::endl;
               #endif
             }
-            result.BR_hjhiZ[j-1][i-1] = h0_widths[j-1]->has_channel("Z0",sHneut[i-1]) ? h0_widths[j-1]->BF("Z0",sHneut[i-1]) : 0.; 
+            result.BR_hjhiZ[j-1][i-1] = h0_widths[j-1]->has_channel("Z0",sHneut[i-1]) ? h0_widths[j-1]->BF("Z0",sHneut[i-1]) : 0.;
             #ifdef COLLIDERBIT_DEBUG
               std::cout << "h->hZ ("<< j << ", " << i << "): " << result.BR_hjhiZ[j - 1][i - 1] << std::endl;
             #endif
@@ -184,10 +184,10 @@ namespace Gambit
           result.BR_hjinvisible[j-1] += h0_widths[j-1]->BF(it->first, it->second);
         }
         // other
-        result.BR_hjemu[j-1] = h0_widths[j-1]->has_channel("e+","mu-") ? h0_widths[j-1]->BF("e+","mu-") : 0.; 
-        result.BR_hjetau[j-1] = h0_widths[j-1]->has_channel("e+","tau-") ? h0_widths[j-1]->BF("e+","tau-") : 0.;  
-        result.BR_hjmutau[j-1] = h0_widths[j-1]->has_channel("mu+","tau-") ? h0_widths[j-1]->BF("mu+","tau-") : 0.; 
-        result.BR_hjHpiW[j-1][0] = h0_widths[j-1]->has_channel("H+","W-") ? h0_widths[j-1]->BF("H+","W-") : 0.; 
+        result.BR_hjemu[j-1] = h0_widths[j-1]->has_channel("e+","mu-") ? h0_widths[j-1]->BF("e+","mu-") : 0.;
+        result.BR_hjetau[j-1] = h0_widths[j-1]->has_channel("e+","tau-") ? h0_widths[j-1]->BF("e+","tau-") : 0.;
+        result.BR_hjmutau[j-1] = h0_widths[j-1]->has_channel("mu+","tau-") ? h0_widths[j-1]->BF("mu+","tau-") : 0.;
+        result.BR_hjHpiW[j-1][0] = h0_widths[j-1]->has_channel("H+","W-") ? h0_widths[j-1]->BF("H+","W-") : 0.;
       }
 
     }
@@ -305,7 +305,7 @@ namespace Gambit
       result.BR_Hpjcb[0] = 0.;
       result.BR_Hptaunu[0] = 0.;
       result.CS_lep_HpjHmi_ratio[0] = 0.;
-      // Cross section 
+      // Cross section
       set_CS_charged(result); // Moved this to end, so CS_lep_HpjHmi_ratio is set. Is that OK?
     }
 
@@ -344,10 +344,10 @@ namespace Gambit
       const std::vector<const DecayTable::Entry*>& h0_widths = Dep::Higgs_Couplings->get_neutral_decays_array();
 
       // Pick the correct spectrum and specify the Higgses
-      dep_bucket<Spectrum>* spectrum_dependency;  
+      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       std::vector<str> Higgses;
 
-      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ")) 
+      if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
       {
         spectrum_dependency = &Dep::MSSM_spectrum;
         Higgses = initVector<str>("h0_1", "h0_2", "A0");
@@ -357,9 +357,8 @@ namespace Gambit
         spectrum_dependency = &Dep::THDM_spectrum;
         Higgses = initVector<str>("h0_1", "h0_2", "A0");
       }
-      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");  
+      else ColliderBit_error().raise(LOCAL_INFO, "No valid model for MSSMLikeHiggs_ModelParameters.");
 
-          
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
       static const std::vector<str> sHneut(Higgses);
 
@@ -428,7 +427,7 @@ namespace Gambit
       int n_neutral_higgses = Dep::Higgs_Couplings->get_n_neutral_higgs();
 
       // Pick the correct spectrum and specify the Higgses
-      dep_bucket<Spectrum>* spectrum_dependency;
+      dep_bucket<Spectrum>* spectrum_dependency = NULL;
       std::vector<str> Higgses;
 
       if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
@@ -466,7 +465,7 @@ namespace Gambit
           result.deltaMh[i] = 0.;
         }
 
-        // Total width 
+        // Total width
         const DecayTable::Entry& decays = Dep::Higgs_Couplings->get_neutral_decays(i);
         result.hGammaTot[i] = decays.width_in_GeV;
 
@@ -484,7 +483,7 @@ namespace Gambit
       set_CS_neutral_effc(result, *Dep::Higgs_Couplings, n_neutral_higgses);
       // fill non SM BRs
       set_nonSMBR(result, *Dep::Higgs_Couplings, sHneut);
-    
+
       #ifdef COLLIDERBIT_DEBUG
         for (int h=1;h<=3;h++) {
           for (int h2=1; h2<=3; h2++) {
@@ -516,7 +515,7 @@ namespace Gambit
       const DecayTable::Entry& t_widths = Dep::Higgs_Couplings->get_t_decays();
 
       // Pick the correct spectrum
-      dep_bucket<Spectrum>* spectrum_dependency;
+      dep_bucket<Spectrum>* spectrum_dependency = NULL;
 
       if (ModelInUse("MSSM63atMGUT") or ModelInUse("MSSM63atQ"))
       {
@@ -550,26 +549,26 @@ namespace Gambit
 
       // Set charged Higgs branching fractions and total width.
       result.HpGammaTot[0] = H_plus_widths.width_in_GeV;
-      result.BR_Hpjcs[0]   = H_plus_widths.has_channel("c", "sbar") ? H_plus_widths.BF("c", "sbar") : 0.; 
-      result.BR_Hpjcb[0]   = H_plus_widths.has_channel("c", "bbar") ? H_plus_widths.BF("c", "bbar") : 0.; 
-      result.BR_Hptaunu[0] = H_plus_widths.has_channel("tau+", "nu_tau") ? H_plus_widths.BF("tau+", "nu_tau") : 0.; 
+      result.BR_Hpjcs[0]   = H_plus_widths.has_channel("c", "sbar") ? H_plus_widths.BF("c", "sbar") : 0.;
+      result.BR_Hpjcb[0]   = H_plus_widths.has_channel("c", "bbar") ? H_plus_widths.BF("c", "bbar") : 0.;
+      result.BR_Hptaunu[0] = H_plus_widths.has_channel("tau+", "nu_tau") ? H_plus_widths.BF("tau+", "nu_tau") : 0.;
 
       // Set top branching fractions
-      result.BR_tWpb       = t_widths.has_channel("W+", "b") ? t_widths.BF("W+", "b") : 0.; 
+      result.BR_tWpb       = t_widths.has_channel("W+", "b") ? t_widths.BF("W+", "b") : 0.;
       result.BR_tHpjb[0]   = t_widths.has_channel("H+", "b") ? t_widths.BF("H+", "b") : 0.0;
 
       // extra HB v5 beta input
       result.BR_Hpjtb[0] = H_plus_widths.has_channel("t", "bbar") ? H_plus_widths.BF("t", "bbar"): 0.;
-      result.BR_HpjWZ[0] = H_plus_widths.has_channel("W+","Z0") ? H_plus_widths.BF("W+","Z0") : 0.; 
+      result.BR_HpjWZ[0] = H_plus_widths.has_channel("W+","Z0") ? H_plus_widths.BF("W+","Z0") : 0.;
 
       // Set up neutral Higgses (keys)
       static const std::vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
-      
+
       for (int h=1;h<=3;h++)
       {
         result.BR_HpjhiW[h-1] = H_plus_widths.has_channel("W+",sHneut[h-1]) ? H_plus_widths.BF("W+",sHneut[h-1]): 0.;
       }
-     
+
       #ifdef COLLIDERBIT_DEBUG
       std::cout << "Pole_Mass " << result.MHplus[0] << std::endl;
       std::cout << "Width " << result.HpGammaTot[0] << std::endl;
@@ -732,10 +731,10 @@ namespace Gambit
           // ColliderBit_warning().raise(LOCAL_INFO,err.str());
           // chisq_withouttheory = 0.0;
           invalid_point().raise(err.str());
-        } 
+        }
         result = -0.5*chisq_withouttheory;
       }
-      
+
     }
 
     /// Get a LEP chisq from HiggsBounds (HB v5)
@@ -759,7 +758,7 @@ namespace Gambit
         for(int i = 0; i < nNeutral; i++) {
           ghjhiZ(j+1,i+1) = ModelParam.ghjhiZ[j][i];
           BR_hjhiZ(j+1,i+1) = ModelParam.BR_hjhiZ[j][i];
-          
+
           //
           for(int k = 0; k < nNeutral; k++) {
             BR_hkhjhi(k+1, j+1, i+1) = ModelParam.BR_hkhjhi[k][j][i];
@@ -772,7 +771,7 @@ namespace Gambit
       BEreq::HiggsBounds_neutral_input_properties(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
 
       BEreq::HiggsBounds_neutral_input_effC(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
-		                                        &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
+                                            &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
                                             &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
                                             &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
                                             &ModelParam.ghjmumu_s[0], &ModelParam.ghjmumu_p[0],
@@ -787,10 +786,10 @@ namespace Gambit
         &ModelParam.BR_hjetau[0], &ModelParam.BR_hjmutau[0],
         BR_hjHpiW);
 
-      BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
+      BEreq::HiggsBounds_charged_input(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0],
                                         &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
-                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], 
-                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0], 
+                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0],
+                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0],
                                         &ModelParam_charged.BR_Hptaunu[0], &ModelParam_charged.BR_Hpjtb[0],
                                         &ModelParam_charged.BR_HpjWZ[0], BR_HpjhiW);
 
@@ -824,8 +823,8 @@ namespace Gambit
         // ColliderBit_warning().raise(LOCAL_INFO,err.str());
         // chisq_withouttheory = 0.0;
         invalid_point().raise(err.str());
-      } 
-    
+      }
+
       result = -0.5*chisq_withouttheory;
     }
 
@@ -904,13 +903,13 @@ namespace Gambit
       result = -0.5*csqtot;
 
       // Add one-sided Gaussian drop in loglike when the lightest Higgs
-      // mass is > 150 GeV. This avoids a completely flat loglike 
+      // mass is > 150 GeV. This avoids a completely flat loglike
       // from HS in parameter regions with far too high Higgs mass.
       if (ModelParam.Mh[0] > 150.)
       {
         result -= 0.5 * pow(ModelParam.Mh[0] - 150., 2) / pow(10., 2);
       }
-      
+
       #ifdef COLLIDERBIT_DEBUG
         std::cout << "HS output: " << std::endl << \
         "csqmu: " << csqmu << std::endl << \
@@ -1007,7 +1006,7 @@ namespace Gambit
       #endif
 
     }
-    
+
 
     /// Get an LHC chisq from HiggsSignals (v2 beta)
     void calc_HS_2_LHC_LogLike(double &result)
@@ -1033,7 +1032,7 @@ namespace Gambit
         for(int i = 0; i < nNeutral; i++) {
           ghjhiZ(j+1,i+1) = ModelParam.ghjhiZ[j][i];
           BR_hjhiZ(j+1,i+1) = ModelParam.BR_hjhiZ[j][i];
-          
+
           for(int k = 0; k < nNeutral; k++) {
             BR_hkhjhi(k+1, j+1, i+1) = ModelParam.BR_hkhjhi[k][j][i];
           }
@@ -1045,7 +1044,7 @@ namespace Gambit
       BEreq::HiggsBounds_neutral_input_properties_HS(&ModelParam.Mh[0], &ModelParam.hGammaTot[0], &ModelParam.CP[0]);
 
       BEreq::HiggsBounds_neutral_input_effC_HS(&ModelParam.ghjss_s[0], &ModelParam.ghjss_p[0],
-						  						                  &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
+                                            &ModelParam.ghjcc_s[0], &ModelParam.ghjcc_p[0],
                                             &ModelParam.ghjbb_s[0], &ModelParam.ghjbb_p[0],
                                             &ModelParam.ghjtt_s[0], &ModelParam.ghjtt_p[0],
                                             &ModelParam.ghjmumu_s[0], &ModelParam.ghjmumu_p[0],
@@ -1059,10 +1058,10 @@ namespace Gambit
                                                   &ModelParam.BR_hjetau[0], &ModelParam.BR_hjmutau[0],
                                                   BR_hjHpiW);
 
-      BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0], 
+      BEreq::HiggsBounds_charged_input_HS(&ModelParam_charged.MHplus[0], &ModelParam_charged.HpGammaTot[0],
                                         &ModelParam_charged.CS_lep_HpjHmi_ratio[0],
-                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0], 
-                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0], 
+                                        &ModelParam_charged.BR_tWpb, &ModelParam_charged.BR_tHpjb[0],
+                                        &ModelParam_charged.BR_Hpjcs[0], &ModelParam_charged.BR_Hpjcb[0],
                                         &ModelParam_charged.BR_Hptaunu[0], &ModelParam_charged.BR_Hpjtb[0],
                                         &ModelParam_charged.BR_HpjWZ[0], BR_HpjhiW);
 
@@ -1089,7 +1088,7 @@ namespace Gambit
       // uses new Simplified Template Cross Section (STXS) measurements
       BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
-      if (SMHiggsMassOnly) 
+      if (SMHiggsMassOnly)
         result = -0.5*(csqmh + csqmh1 + csqmh2);
       else
         result = -0.5*(csqtot + csqtot1 + csqtot2);
@@ -1102,13 +1101,13 @@ namespace Gambit
     }
 
     /// Higgs production cross-sections from FeynHiggs.
-    void FH_HiggsProd(fh_HiggsProd &result)
+    void FeynHiggs_HiggsProd(fh_HiggsProd_container &result)
     {
-      using namespace Pipes::FH_HiggsProd;
+      using namespace Pipes::FeynHiggs_HiggsProd;
 
       Farray<fh_real, 1,52> prodxs;
 
-      fh_HiggsProd HiggsProd;
+      fh_HiggsProd_container HiggsProd;
       int error;
       fh_real sqrts;
 

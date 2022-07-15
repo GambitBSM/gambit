@@ -182,6 +182,9 @@ def check_for_declaration(input_snippet,module,all_modules,local_namespace,candi
     return (right_class, candidate_type)
 
 # Parse a string to see if it has a namespace declaration
+# TODO: This is really limited. E.g. a forward declaration in a small, temporary namespace will get appended to local_namespace,
+# and this function has no way to notice when that namespace ends, so all subsequent types in some different namespace will be
+# screwed up.
 def check_for_namespace(input_snippet,local_namespace):
     # Exit if the line just defines a namespace alias
     if "=" in input_snippet:

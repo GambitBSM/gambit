@@ -6,7 +6,7 @@
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define vevacious_1_0_all_data \
-  (( /*class*/(VevaciousPlusPlus)(VevaciousPlusPlus),    /*constructors*/(("Factory_VevaciousPlusPlus_0__BOSS_1",(const ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >&))) )) \
+  (( /*class*/(VevaciousPlusPlus)(VevaciousPlusPlus),    /*constructors*/(("Factory_VevaciousPlusPlus_0__BOSS_1",(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&))) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))

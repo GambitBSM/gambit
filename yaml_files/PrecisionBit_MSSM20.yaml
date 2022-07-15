@@ -128,22 +128,22 @@ Rules:
     function: make_MSSM_precision_spectrum_H_W
 
   - capability: prec_mh
-    function: FH_HiggsMass
+    function: FeynHiggs_HiggsMass
 
   - capability: muon_gm2_SM
     function: gm2_SM_ee
 
   - capability: Higgs_decay_rates
-    function: FH_MSSM_h0_1_decays
+    function: FeynHiggs_MSSM_h0_1_decays
 
   - capability: h0_2_decay_rates
-    function: FH_h0_2_decays
+    function: FeynHiggs_h0_2_decays
 
   - capability: A0_decay_rates
-    function: FH_A0_decays
+    function: FeynHiggs_A0_decays
 
   - capability: H_plus_decay_rates
-    function: FH_H_plus_decays
+    function: FeynHiggs_H_plus_decays
 
   - capability: decay_rates
     function: all_decays

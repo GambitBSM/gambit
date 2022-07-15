@@ -89,7 +89,7 @@
   #undef CAPABILITY
 
 
-  #define CAPABILITY unitarity_likelihood_THDM
+  #define CAPABILITY unitarity_LogLikelihood_THDM
   START_CAPABILITY
     #define FUNCTION LO_unitarity_likelihood
     START_FUNCTION(double)
@@ -98,7 +98,7 @@
     #undef FUNCTION
 
     // Leading-Order unitarity constraint (soft-cutoff)
-    #define FUNCTION LO_unitarity_likelihood_THDMC
+    #define FUNCTION LO_unitarity_LogLikelihood_THDMC
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
@@ -108,7 +108,7 @@
     #undef FUNCTION
 
     // Next-to-Leading-Order unitarity constraint (soft-cutoff)
-    #define FUNCTION NLO_unitarity_likelihood_THDMC
+    #define FUNCTION NLO_unitarity_LogLikelihood_THDMC
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
@@ -119,9 +119,9 @@
   #undef CAPABILITY
 
   // perturbativity constraint on lambdas (soft-cutoff)
-  #define CAPABILITY perturbativity_likelihood_THDM
+  #define CAPABILITY perturbativity_LogLikelihood_THDM
   START_CAPABILITY
-    #define FUNCTION get_perturbativity_likelihood_THDM
+    #define FUNCTION get_perturbativity_LogLikelihood_THDM
     START_FUNCTION(double)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -130,7 +130,7 @@
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
-    #define FUNCTION simple_perturbativity_lambdas_LL
+    #define FUNCTION simple_perturbativity_lambdas_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -139,9 +139,9 @@
   #undef CAPABILITY
 
   // perturbativity constraint on yukawas
-  #define CAPABILITY perturbativity_yukawas_LL
+  #define CAPABILITY perturbativity_yukawas_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION simple_perturbativity_yukawas_LL
+    #define FUNCTION simple_perturbativity_yukawas_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -150,9 +150,9 @@
   #undef CAPABILITY
 
   // vacuum stability + meta-stability constraint (soft+hard cutoff)
-  #define CAPABILITY stability_likelihood_THDM
+  #define CAPABILITY stability_LogLikelihood_THDM
   START_CAPABILITY
-    #define FUNCTION get_stability_likelihood_THDM
+    #define FUNCTION get_stability_LogLikelihood_THDM
     START_FUNCTION(double)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -161,7 +161,7 @@
     BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
-    #define FUNCTION stability_lambdas_LL
+    #define FUNCTION stability_lambdas_LogLikelihood
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
     ALLOW_MODEL(THDM, THDMatQ)
@@ -197,7 +197,7 @@
   // only keeps points that correspond to hidden higgs scenario (hard-cutoff)
   #define CAPABILITY hidden_higgs_scenario_likelihood
   START_CAPABILITY
-    #define FUNCTION hidden_higgs_scenario_LL
+    #define FUNCTION hidden_higgs_scenario_LogLikelihood
     START_FUNCTION(double)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -211,7 +211,7 @@
   // guides scanner towards mh = 125 GeV, used to improve performance of HS (soft-cutoff)
   #define CAPABILITY higgs_mass_likelihood
   START_CAPABILITY
-    #define FUNCTION higgs_mass_LL
+    #define FUNCTION higgs_mass_LogLikelihood
     START_FUNCTION(double)
     NEEDS_CLASSES_FROM(THDMC,default)
     DEPENDENCY(THDM_spectrum, Spectrum)

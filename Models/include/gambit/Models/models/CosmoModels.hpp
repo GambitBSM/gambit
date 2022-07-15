@@ -16,6 +16,7 @@
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2019 Feb, July
+///  \date 2021 Jan
 ///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
@@ -49,6 +50,7 @@
   DEFINEPARS(T_cmb,omega_b,omega_cdm,H0,tau_reio)
   MAP_TO_CAPABILITY(T_cmb,T_cmb)
   MAP_TO_CAPABILITY(H0, H0)
+  MAP_TO_CAPABILITY(omega_cdm, omega_cdm)
 #undef MODEL
 
 // Vanilla ΛCDM.
@@ -59,6 +61,18 @@
   START_MODEL
   DEFINEPARS(T_cmb,omega_b,omega_cdm,100theta_s,tau_reio)
   MAP_TO_CAPABILITY(T_cmb,T_cmb)
+  MAP_TO_CAPABILITY(omega_cdm, omega_cdm)
+#undef MODEL
+
+// Vanilla ΛCDM.
+// This model would usually be scanned alongside an inflationary model and a neutrino model
+// As LCDM but with z_reio, redshift of reonisation, as model parameter instead of tau_reio.
+#define MODEL LCDM_zreio
+  START_MODEL
+  DEFINEPARS(T_cmb,omega_b,omega_cdm,H0,z_reio)
+  MAP_TO_CAPABILITY(T_cmb,T_cmb)
+  MAP_TO_CAPABILITY(H0, H0)
+  MAP_TO_CAPABILITY(omega_cdm, omega_cdm)
 #undef MODEL
 
 /* CMB + BBN */
@@ -81,6 +95,32 @@
   START_MODEL
   DEFINEPARS(eta_BBN)
   INTERPRET_AS_PARENT_FUNCTION(etaBBN_to_etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
+ #undef PARENT
+#undef MODEL
+
+// As etaBBN_rBBN_rCMB_dNurBBN_dNurCMB, but with rCMB and dNurCMB
+// being calculated externally through "Neff_evolution"
+#define MODEL etaBBN_rBBN_dNurBBN
+ #define PARENT etaBBN_rBBN_rCMB_dNurBBN_dNurCMB
+  START_MODEL
+  DEFINEPARS(eta_BBN)
+  DEFINEPARS(r_BBN)
+  DEFINEPARS(dNur_BBN)
+  INTERPRET_AS_PARENT_FUNCTION(etaBBN_rBBN_dNurBBN_to_etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
+  INTERPRET_AS_PARENT_DEPENDENCY(Neff_evolution, map_str_dbl)
+ #undef PARENT
+#undef MODEL
+
+// As etaBBN_rBBN_dNurBBN, but the baryon-to-photon ratio η at BBN
+// is given by η today multiplied with "eta_ratio".
+#define MODEL rBBN_dNurBBN
+ #define PARENT etaBBN_rBBN_dNurBBN
+  START_MODEL
+  DEFINEPARS(r_BBN)
+  DEFINEPARS(dNur_BBN)
+  INTERPRET_AS_PARENT_FUNCTION(rBBN_dNurBBN_to_etaBBN_rBBN_dNurBBN)
+  INTERPRET_AS_PARENT_DEPENDENCY(eta_ratio, double)
+  INTERPRET_AS_PARENT_DEPENDENCY(eta0,double)
  #undef PARENT
 #undef MODEL
 

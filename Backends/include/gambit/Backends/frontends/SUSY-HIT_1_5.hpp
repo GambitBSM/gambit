@@ -19,6 +19,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 1.5
 #define SAFE_VERSION 1_5
+#define REFERENCE Djouadi:2006bz,Muhlleitner:2003vg,Djouadi:2002ze,Djouadi:1997yw
 
 // Let's go.
 LOAD_LIBRARY

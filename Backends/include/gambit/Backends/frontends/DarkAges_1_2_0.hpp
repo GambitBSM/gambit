@@ -22,6 +22,7 @@
 #define BACKENDLANG Python
 #define VERSION 1.2.0
 #define SAFE_VERSION 1_2_0
+#define REFERENCE Stocker:2018avm
 
 LOAD_LIBRARY
 

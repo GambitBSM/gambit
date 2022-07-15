@@ -34,11 +34,6 @@
 #include "gambit/Backends/frontends/SuperIso_4_1.hpp"
 #include "gambit/Backends/backend_types/SuperIso.hpp"
 
-/// Number of observables that SuperIso returns for B0 -> K(*) mu mu and Bs -> phi mu mu
-#define Nobs_BKll 2 
-#define Nobs_BKsll 34
-#define Nobs_Bsphill 6
-
 
 // Initialisation
 BE_INI_FUNCTION{}
@@ -67,7 +62,7 @@ BE_NAMESPACE
     CQ0b[1]+=std::complex<double>(param->Re_DeltaCQ1, param->Im_DeltaCQ1);
     CQ0b[2]+=std::complex<double>(param->Re_DeltaCQ2, param->Im_DeltaCQ2);
   }
-  
+
    void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
   {
     Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
@@ -126,302 +121,7 @@ BE_NAMESPACE
     if (not known_model) backend_error().raise(where, "SuperIso convenience function called with incompatible model.");
   }
 
-  /// B0 -> K*0 mu mu observables
-  Flav_KstarMuMu_obs BKstarmumu_CONV(const parameters *param, double Q2_min, double Q2_max)
-  {
-    check_model(param, LOCAL_INFO);
-    assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
-
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    double obs[Nobs_BKsll+1];
-    Flav_KstarMuMu_obs results;
-    results.q2_min=Q2_min;
-    results.q2_max=Q2_max;
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_pole;
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-    
-
-    results.BR = BRBKstarll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-
-    // Fill the other results
-    results.FL=obs[2];
-    results.AFB=obs[1];
-    results.S3=obs[25];
-    results.S4=obs[26];
-    results.S5=obs[27];
-    results.S7=obs[28];
-    results.S8=obs[29];
-    results.S9=obs[30];
-
-    return results;
-  }
-
- /// BR(B+->K+ tau tau) observable
-  double BRBKtautau_CONV(const parameters *param, double Q2_min, double Q2_max)
-  { 
-    check_model(param, LOCAL_INFO);
-    assert(std::abs(Q2_max-Q2_min)>=0.01); 
-    
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    double obs[3]; 
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_pole; 
-
-    CW_calculator(3,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(3,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(3,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC_tautau(param, C0b, CQ0b);
-    modify_WCP_tautau(param, Cpb, CQpb);
-
-    return BRBKll(3,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
-
-  double BRBKmumu_CONV(const parameters *param, double Q2_min, double Q2_max)
-  {
-    check_model(param, LOCAL_INFO);
-    assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
-
-    std::complex<double> C0b[11],C1b[11],C2b[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    double obs[3];
-    //Flav_KstarMuMu_obs results;
-    //results.q2_min=Q2_min;
-    //results.q2_max=Q2_max;
-
-    //double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_pole;
-
-    double BR=BRBKll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb), param, byVal(mu_b));        
-
-    return BR;
-  }
-
-  /// RK* observables
-  double RKstar_CONV(const parameters *param, double Q2_min, double Q2_max)
-  {
-    check_model(param, LOCAL_INFO);
-    assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
-
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    std::complex<double> C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
-    std::complex<double> CQ0be[3],CQ1be[3],CQpbe[3];
-    double obs[Nobs_BKsll+1];
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_pole;
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-
-    CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
-    CQ_calculator(1,byVal(CQ0be),byVal(CQ1be),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(1,byVal(Cpbe),byVal(CQpbe),byVal(mu_W),byVal(mu_b),param);
-
-    // FIXME: This is a temporary hack. Implement 1st gen WCs for release
-    //modify_WC(param, C0be, CQ0be);
-
-    return BRBKstarll(2,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b))/BRBKstarll(1,0,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0be),byVal(C1be),byVal(C2be),byVal(CQ0be),byVal(CQ1be),byVal(Cpbe),byVal(CQpbe),param,byVal(mu_b));
-  }
-  
-  /// RK observable
-  double RK_CONV(const parameters *param, double Q2_min, double Q2_max)
-  {
-    check_model(param, LOCAL_INFO);
-    assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
-
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-    std::complex<double> C0be[11],C1be[11],C2be[11],C0we[11],C1we[11],C2we[11],Cpbe[11];
-    std::complex<double> CQ0be[3],CQ1be[3],CQpbe[3];
-    double obs[Nobs_BKll+1];
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_pole;
-    
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-
-    CW_calculator(1,byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0we),byVal(C1we),byVal(C2we),byVal(mu_W),byVal(C0be),byVal(C1be),byVal(C2be),byVal(mu_b),param);
-    CQ_calculator(1,byVal(CQ0be),byVal(CQ1be),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(1,byVal(Cpbe),byVal(CQpbe),byVal(mu_W),byVal(mu_b),param);
-
-    // FIXME: This is a temporary hack. Implement 1st gen WCs for release
-    //modify_WC(param, C0be, CQ0be);
-
-    return BRBKll(2,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b))/BRBKll(1,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0be),byVal(C1be),byVal(C2be),byVal(CQ0be),byVal(CQ1be),byVal(Cpbe),byVal(CQpbe),param,byVal(mu_b));
-  }
-  
-  /// Branching fraction of B -> X_s gamma
-  double bsgamma_CONV(const parameters *param, double E_t)
-  {
-    check_model(param, LOCAL_INFO);
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b_1S/2.;
-    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
-    std::complex<double> CQpb[3];
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b);
-    modify_WCP(param, Cpb);
-
-    return bsgamma_Ecut(byVal(C0b),byVal(C1b),byVal(C2b),byVal(Cpb),byVal(mu_b),byVal(mu_W), E_t, param);
-  }
-
-  /// CP-averaged branching fraction of B0_s -> l+ l-
-  double Bsll_untag_CONV(const parameters *param, int flav)
-  {
-    if (flav < 1 || flav > 3) backend_error().raise(LOCAL_INFO, "Unrecognised flavour!");
-    check_model(param, LOCAL_INFO);
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b;
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-
-    CW_calculator(flav,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(flav,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(flav,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-
-    return Bsll_untag(flav,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
-  /// Branching fraction of B0 -> l+ l-
-  double Bll_CONV(const parameters *param, int flav)
-  {
-    if (flav < 1 || flav > 3) backend_error().raise(LOCAL_INFO, "Unrecognised flavour!");
-    check_model(param, LOCAL_INFO);
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b;
-    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
-    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(flav,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-
-    return Bll(byVal(flav),(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
-  double BRBXsmumu_lowq2_CONV(const parameters *param)
-  {
-    check_model(param, LOCAL_INFO);
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b;
-    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
-    std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-
-    return BRBXsll_lowq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
-  double BRBXsmumu_highq2_CONV(const parameters *param)
-  {
-    check_model(param, LOCAL_INFO);
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b;
-    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
-    std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-
-    return BRBXsll_highq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
-  double A_BXsmumu_lowq2_CONV(const parameters *param)
-  {
-    check_model(param, LOCAL_INFO);
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b;
-    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
-    std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-
-    return A_BXsll_lowq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
-  double A_BXsmumu_highq2_CONV(const parameters *param)
-  {
-    check_model(param, LOCAL_INFO);
-
-    double mu_W=2.*param->mass_W;
-    double mu_b=param->mass_b;
-    std::complex<double> C0w[11],C1w[11],C2w[11],C0b[11],C1b[11],C2b[11],Cpb[11];
-    std::complex<double> CQpb[3],CQ0b[3],CQ1b[3];
-
-    CW_calculator(2,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
-    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
-    CQ_calculator(2,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
-    Cprime_calculator(2,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
-
-    modify_WC(param, C0b, CQ0b);
-    modify_WCP(param, Cpb, CQpb);
-
-    return A_BXsll_highq2(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
-  }
-
-  double A_BXsmumu_zero_CONV(const parameters *param)
+  double A_BXsmumu_zero(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -441,7 +141,31 @@ BE_NAMESPACE
     return A_BXsll_zero(2,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
-  double BRBXstautau_highq2_CONV(const parameters *param)
+ // TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
+ /// BR(B+->K+ tau tau) observable
+  double BRBKtautau_CONV(const parameters *param, double Q2_min, double Q2_max)
+  {
+    check_model(param, LOCAL_INFO);
+    assert(std::abs(Q2_max-Q2_min)>=0.01);
+
+    std::complex<double> C0b[11],C1b[11],C2b[11],C0w[11],C1w[11],C2w[11],Cpb[11];
+    std::complex<double> CQ0b[3],CQ1b[3],CQpb[3];
+    double obs[3];
+    double mu_W=2.*param->mass_W;
+    double mu_b=param->mass_b_pole;
+
+    CW_calculator(3,byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),param);
+    C_calculator_base1(byVal(C0w),byVal(C1w),byVal(C2w),byVal(mu_W),byVal(C0b),byVal(C1b),byVal(C2b),byVal(mu_b),param);
+    CQ_calculator(3,byVal(CQ0b),byVal(CQ1b),byVal(mu_W),byVal(mu_b),param);
+    Cprime_calculator(3,byVal(Cpb),byVal(CQpb),byVal(mu_W),byVal(mu_b),param);
+
+    modify_WC_tautau(param, C0b, CQ0b);
+    modify_WCP_tautau(param, Cpb, CQpb);
+
+    return BRBKll(3,1,byVal(Q2_min), byVal(Q2_max), byVal(obs),byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
+  }
+
+  double BRBXstautau_highq2(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -461,7 +185,7 @@ BE_NAMESPACE
     return BRBXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
-  double A_BXstautau_highq2_CONV(const parameters *param)
+  double A_BXstautau_highq2(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -481,7 +205,7 @@ BE_NAMESPACE
     return A_BXsll_highq2(3,byVal(C0b),byVal(C1b),byVal(C2b),byVal(CQ0b),byVal(CQ1b),byVal(Cpb),byVal(CQpb),param,byVal(mu_b));
   }
 
-  double delta0_CONV(const parameters *param)
+  double modified_delta0(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -503,7 +227,7 @@ BE_NAMESPACE
     return delta0(byVal(C0b),byVal(C0spec),byVal(C1b),byVal(C1spec),byVal(Cpb),param,byVal(mu_b),byVal(mu_spec),byVal(lambda_h));
   }
 
-  double SI_AI_BKstarmumu_CONV(const parameters *param)
+  double modified_AI_BKstarmumu(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 
@@ -519,7 +243,7 @@ BE_NAMESPACE
     return AI_BKstarmumu(1.,6.,byVal(C0b),byVal(C1b),byVal(C2b),param,byVal(mu_b));
   }
 
-  double SI_AI_BKstarmumu_zero_CONV(const parameters *param)
+  double modified_AI_BKstarmumu_zero(const parameters *param)
   {
     check_model(param, LOCAL_INFO);
 

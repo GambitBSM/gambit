@@ -15,9 +15,9 @@ def get_bits_from_directory_list(gambit_directory):
         gambit_directory (str): Directory to search in. To work properly this has to be the Gambit source directory.
 
     Returns:
-        list: sorted list of Gambit Bits
+        list: sorted list of Gambit Bits, except ScannerBit
     """
-    return sorted(set([directory for directory in os.listdir(gambit_directory) if "Bit" in directory]))
+    return sorted(set([directory for directory in os.listdir(gambit_directory) if "Bit" in directory and "ScannerBit" not in directory and os.path.isdir(directory)]))
 
 
 def write_list_to_yaml(list_of_bits, output_file, yaml_key="gambit_bits"):

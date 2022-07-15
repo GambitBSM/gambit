@@ -769,8 +769,10 @@ def revert(reset_file):
             with open(filename, 'r') as original_file:
                 text = original_file.read()
 
+            # Order the strings by length, this avoids substrings getting removed before they appear in longer strings
+            sorted_v = list(reversed(sorted(v, key = len)))
             # This is the YAML node for the strings needing to be deleted
-            for string in v:
+            for string in sorted_v:
 
                 # If we find it, kill it
                 if string in text:

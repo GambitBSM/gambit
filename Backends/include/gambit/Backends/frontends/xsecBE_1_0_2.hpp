@@ -20,6 +20,7 @@
 #define BACKENDLANG Python
 #define VERSION 1.0.2
 #define SAFE_VERSION 1_0_2
+#define REFERENCE Buckley:2020bxg
 
 /* The following macro imports the modude in the Python interpreter
  * when this header file is included somewhere. */

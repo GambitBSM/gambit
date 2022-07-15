@@ -64,22 +64,20 @@ namespace Gambit
 
     /// String-to-double map print overload
     template<typename P>
-    void _common_print(P& printer, const map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      for (std::map<std::string, double>::const_iterator
-           it = map.begin(); it != map.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::"<<it->first;
-        printer._print(it->second,ss.str(),vID,mpirank,pointID);
-      }
-    }
-
-    /// Const string-to-double map print overload
-    template<typename P>
     void _common_print(P& printer, const map_const_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
-      for (std::map<const std::string, double>::const_iterator
+      for (map_const_str_dbl::const_iterator
+           it = map.begin(); it != map.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first;
+        printer._print(it->second,ss.str(),vID,mpirank,pointID);
+      }
+    }
+    template<typename P>
+    void _common_print(P& printer, const map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      for (map_str_dbl::const_iterator
            it = map.begin(); it != map.end(); it++)
       {
         std::stringstream ss;
@@ -88,29 +86,29 @@ namespace Gambit
       }
     }
 
-     /// String-to-String-to-double-map map print overload
-    template<typename P>
-    void _common_print(P& printer, const map_str_map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-    {
-      for (std::map<std::string, std::map<std::string, double> >::const_iterator
-           it = map.begin(); it != map.end(); it++)
-      {
-        std::stringstream ss;
-        ss<<label<<"::"<<it->first;
-        _common_print(printer,it->second,ss.str(),vID,mpirank,pointID);
-      }
-    }
-
-     /// Const string-to-const-String-to-double-map map print overload
+    /// String-to-map print overload (where map is string-to-double)
     template<typename P>
     void _common_print(P& printer, const map_const_str_map_const_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
-      for (std::map<const std::string, std::map<const std::string, double> >::const_iterator
+      for (map_const_str_map_const_str_dbl::const_iterator
            it = map.begin(); it != map.end(); it++)
       {
         std::stringstream ss;
         ss<<label<<"::"<<it->first;
-        _common_print(printer,it->second,ss.str(),vID,mpirank,pointID);
+        printer._print(it->second,ss.str(),vID,mpirank,pointID);
+      }
+    }
+
+    /// String-to-(string-to-double-map) print overload
+    template<typename P>
+    void _common_print(P& printer, const map_str_map_str_dbl& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      for (map_str_map_str_dbl::const_iterator
+           it = map.begin(); it != map.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first;
+        printer._print(it->second,ss.str(),vID,mpirank,pointID);
       }
     }
 
@@ -118,7 +116,7 @@ namespace Gambit
     template<typename P>
     void _common_print(P& printer, map_intpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
-      for (std::map<std::pair<int,int>, double>::const_iterator it = map.begin(); it != map.end(); it++)
+      for (map_intpair_dbl::const_iterator it = map.begin(); it != map.end(); it++)
       {
         std::stringstream ss;
         ss<<label<<"::"<<it->first;
@@ -159,35 +157,12 @@ namespace Gambit
         printer._print(m, label, vID, mpirank, pointID);
       }
 
-      /// DM-nucleon coupling print overload (For the fermionic HP)
+      /// Generic flavour prediction print overload
       template<typename P>
-      void _common_print(P& printer, DM_nucleon_couplings_fermionic_HP const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
-        std::map<std::string, double> m;
-        m["Gp_SI"] = value.gps;
-        m["Gn_SI"] = value.gns;
-        m["Gp_q2"] = value.gp_q2;
-        m["Gn_q2"] = value.gn_q2;
-        printer._print(m, label, vID, mpirank, pointID);
-      }
-
-      /// K*->mumu angular observables print overload
-      template<typename P>
-      void _common_print(P& printer, Flav_KstarMuMu_obs const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> m;
-        std::ostringstream bins;
-        bins << value.q2_min << "_" << value.q2_max;
-        m["BR_"+bins.str()] = value.BR;
-        m["AFB_"+bins.str()] = value.AFB;
-        m["FL_"+bins.str()] = value.FL;
-        m["S3_"+bins.str()] = value.S3;
-        m["S4_"+bins.str()] = value.S4;
-        m["S5_"+bins.str()] = value.S5;
-        m["S7_"+bins.str()] = value.S7;
-        m["S8_"+bins.str()] = value.S8;
-        m["S9_"+bins.str()] = value.S9;
-        printer._print(m, label, vID, mpirank, pointID);
+        printer._print(value.central_values, label, vID, mpirank, pointID);
+        printer._print(value.covariance, label, vID, mpirank, pointID);
       }
 
       /// BBN observables print overload
@@ -202,26 +177,6 @@ namespace Gambit
           m[i+"::1sigma_err"] = sqrt(value.get_BBN_covmat(index, index));
         }
         printer._print(m, label, vID, mpirank, pointID);
-      }
-
-      // Flav predictions print overload
-      template<typename P>
-      void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
-      {
-        std::map<std::string, double> map;
-
-        for (auto cv : value.central_values)
-          map[cv.first] = cv.second;
-
-        for (auto cov1 : value.covariance)
-        {
-          for(auto cov2 : cov1.second)
-          {
-            map["covariance::"+cov1.first+"::"+cov2.first] = cov2.second;
-          }
-        }
-
-        printer._print(map, label, vID, mpirank, pointID);
       }
 
     #endif

@@ -161,7 +161,7 @@ namespace Gambit
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_at_at, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_at_at"));
       settings.set(Spectrum_generator_settings::higgs_2loop_correction_atau_atau, runOptions.getValueOrDef<int>(1, "higgs_2loop_correction_atau_atau"));
       settings.set(Spectrum_generator_settings::top_pole_qcd_corrections, runOptions.getValueOrDef<int>(1, "top_pole_qcd_corrections"));
-      settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<int>(1.000000000e-14, "beta_zero_threshold"));
+      settings.set(Spectrum_generator_settings::beta_zero_threshold, runOptions.getValueOrDef<double>(1.000000000e-14, "beta_zero_threshold"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_up, runOptions.getValueOrDef<int>(1, "eft_matching_loop_order_up"));
       settings.set(Spectrum_generator_settings::eft_matching_loop_order_down, runOptions.getValueOrDef<int>(1, "eft_matching_loop_order_down"));
       settings.set(Spectrum_generator_settings::threshold_corrections, runOptions.getValueOrDef<int>(123111321, "threshold_corrections"));
@@ -1746,7 +1746,6 @@ namespace Gambit
       if (use_cubic_couplings_mass || calculate_both)
       {
         const physical_basis_input input_pars = fill_physical_basis_input(container);
-        const std::complex<double> i(0.0, 1.0);
 
         cubic_couplings[1] = get_cubic_coupling_physical_h0GpGm(container, input_pars);
         cubic_couplings[2] = get_cubic_coupling_physical_h0GpGm(container, input_pars);
@@ -1838,8 +1837,6 @@ namespace Gambit
       if (use_quartic_couplings_mass || calculate_both)
       {
         const physical_basis_input input_pars = fill_physical_basis_input(container);
-
-        const std::complex<double> i(0.0, 1.0);
 
         quartic_couplings[1] = get_quartic_coupling_physical_h0h0G0G0(container, input_pars);
         quartic_couplings[2] = get_quartic_coupling_physical_HpHmG0G0(container, input_pars);
@@ -2748,7 +2745,7 @@ namespace Gambit
       const std::vector<double> Lambda = get_lambdas_from_spectrum(container);
 
       // check that model is Z2 conserving
-      if (!check_Z2(Lambda[6], Lambda[7], "get_NLO_unitarity_likelihood_THDMC"))
+      if (!check_Z2(Lambda[6], Lambda[7], "get_NLO_unitarity_LogLikelihood_THDMC"))
         return {0.0};
 
       double b = atan(container.he->get(Par::dimensionless, "tanb")), a = container.he->get(Par::dimensionless, "alpha");
@@ -3025,7 +3022,7 @@ namespace Gambit
     }
 
     // - LO unitarity likelihood
-    double get_LO_unitarity_likelihood_THDMC(THDM_spectrum_container &container)
+    double get_LO_unitarity_LogLikelihood_THDMC(THDM_spectrum_container &container)
     {
       // get the leading order scattering eigenvalues
       std::vector<std::complex<double>> LO_eigenvalues = get_LO_scattering_eigenvalues(container);
@@ -3044,7 +3041,7 @@ namespace Gambit
     }
 
     // - NLO unitarity likelihood
-    double get_NLO_unitarity_likelihood_THDMC(THDM_spectrum_container &container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections)
+    double get_NLO_unitarity_LogLikelihood_THDMC(THDM_spectrum_container &container, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections)
     {
       const std::complex<double> i(0.0, 1.0);
       std::vector<std::complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(container, wave_function_corrections, gauge_corrections, yukawa_corrections);
@@ -3094,7 +3091,7 @@ namespace Gambit
     }
 
     // - perturbativity likelihood (simple) (only checks that lambdas are less than 4pi)
-    double perturbativity_likelihood_simple_THDM(THDM_spectrum_container &container)
+    double perturbativity_LogLikelihood_simple_THDM(THDM_spectrum_container &container)
     {
       // check lambdai (generic couplings)
       //-----------------------------
@@ -3115,7 +3112,7 @@ namespace Gambit
     }
 
     // - perturbativity likelihood (checks that all quartic couplings are less than 4pi)
-    double perturbativity_likelihood_THDM(THDM_spectrum_container &container)
+    double perturbativity_LogLikelihood_THDM(THDM_spectrum_container &container)
     {
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
@@ -3160,7 +3157,7 @@ namespace Gambit
     double global_minimum_discriminant_THDM(THDM_spectrum_container &container);
 
     // - stability likelihood
-    double stability_likelihood_THDM(THDM_spectrum_container &container, bool checkMeta)
+    double stability_LogLikelihood_THDM(THDM_spectrum_container &container, bool checkMeta)
     {
       std::vector<double> lambda(8);
       double m122, tanb;
@@ -3213,7 +3210,7 @@ namespace Gambit
     }
 
     // - alignment likelihood
-    double alignment_likelihood_THDM(THDM_spectrum_container &container)
+    double alignment_LogLikelihood_THDM(THDM_spectrum_container &container)
     {
       // sin(b-a) = 1 in alignment limit - the tolerance gives the distance from alignment limit:
 
@@ -3263,7 +3260,7 @@ namespace Gambit
       if (std::isnan(discriminant.real()) || std::isnan(discriminant.imag()))
       {
         std::ostringstream msg;
-        msg << "SpecBit warning (non-fatal): global_minimum_discriminant_likelihood_THDM is returning NaN. Ivnvalidating point. Reporting calculated values:"
+        msg << "SpecBit warning (non-fatal): global_minimum_discriminant_LogLikelihood_THDM is returning NaN. Ivnvalidating point. Reporting calculated values:"
             << " k= " << k << ", m11^2 = " << m11_2 << ", m22^2 = " << m22_2 << std::endl;
         SpecBit_warning().raise(LOCAL_INFO, msg.str());
         std::cerr << msg.str();
@@ -3396,16 +3393,16 @@ namespace Gambit
     // =============== likelihood functions ================
 
     // LIKELIHOOD: Leading-Order unitarity constraint (soft-cutoff) using THDMC
-    void LO_unitarity_likelihood_THDMC(double &result)
+    void LO_unitarity_LogLikelihood_THDMC(double &result)
     {
-      using namespace Pipes::LO_unitarity_likelihood_THDMC;
+      using namespace Pipes::LO_unitarity_LogLikelihood_THDMC;
 
       // get THDM type and find out if it is a FS spectrum (at Q)
       THDM_TYPE THDM_type = *Dep::THDM_Type;
       bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
 
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = get_LO_unitarity_likelihood_THDMC;
+      std::function<double(THDM_spectrum_container &)> likelihood_function = get_LO_unitarity_LogLikelihood_THDMC;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
@@ -3428,7 +3425,7 @@ namespace Gambit
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
           std::ostringstream os;
-          str calculation_name = "LO_unitarity_likelihood_THDMC";
+          str calculation_name = "LO_unitarity_LogLikelihood_THDMC";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
@@ -3438,9 +3435,9 @@ namespace Gambit
     }
 
     // LIKELIHOOD: Next-to-Leading-Order unitarity constraint (soft-cutoff) using THDMC
-    void NLO_unitarity_likelihood_THDMC(double &result)
+    void NLO_unitarity_LogLikelihood_THDMC(double &result)
     {
-     using namespace Pipes::NLO_unitarity_likelihood_THDMC;
+     using namespace Pipes::NLO_unitarity_LogLikelihood_THDMC;
 
       // get THDM type and find out if it is a FS spectrum (at Q)
       THDM_TYPE THDM_type = *Dep::THDM_Type;
@@ -3453,7 +3450,7 @@ namespace Gambit
       const bool gauge_corrections = runOptions->getValueOrDef<bool>(false, "gauge_corrections");
       const bool yukawa_corrections = runOptions->getValueOrDef<bool>(false, "yukawa_corrections");
       // create likelihood function
-      std::function<double(THDM_spectrum_container &, const bool, const bool, const bool, const bool)> likelihood_function = get_NLO_unitarity_likelihood_THDMC;
+      std::function<double(THDM_spectrum_container &, const bool, const bool, const bool, const bool)> likelihood_function = get_NLO_unitarity_LogLikelihood_THDMC;
 
       // create container
       THDM_spectrum_container container;
@@ -3477,7 +3474,7 @@ namespace Gambit
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
           std::ostringstream os;
-          str calculation_name = "NLO_unitarity_likelihood_THDMC";
+          str calculation_name = "NLO_unitarity_LogLikelihood_THDMC";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
@@ -3487,16 +3484,16 @@ namespace Gambit
     }
 
     // LIKELIHOOD: perturbativity constraint (soft-cutoff)
-    void get_perturbativity_likelihood_THDM(double &result)
+    void get_perturbativity_LogLikelihood_THDM(double &result)
     {
-      using namespace Pipes::get_perturbativity_likelihood_THDM;
+      using namespace Pipes::get_perturbativity_LogLikelihood_THDM;
 
       // get THDM type and find out if it is a FS spectrum (at Q)
       THDM_TYPE THDM_type = *Dep::THDM_Type;
       bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
 
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &)> likelihood_function = perturbativity_likelihood_THDM;
+      std::function<double(THDM_spectrum_container &)> likelihood_function = perturbativity_LogLikelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
@@ -3519,7 +3516,7 @@ namespace Gambit
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
           std::ostringstream os;
-          str calculation_name = "get_perturbativity_likelihood_THDM";
+          str calculation_name = "get_perturbativity_LogLikelihood_THDM";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
@@ -3528,9 +3525,9 @@ namespace Gambit
       result = std::min(loglike, loglike_at_Q);
     }
 
-    void simple_perturbativity_yukawas_LL(double &result)
+    void simple_perturbativity_yukawas_LogLikelihood(double &result)
     {
-      using namespace Pipes::simple_perturbativity_yukawas_LL;
+      using namespace Pipes::simple_perturbativity_yukawas_LogLikelihood;
       SMInputs sminputs = *Dep::SMINPUTS;
       const Spectrum spec = *Dep::THDM_spectrum;
       std::unique_ptr<SubSpectrum> he = spec.clone_HE();
@@ -3573,9 +3570,9 @@ namespace Gambit
     }
 
     //LO stability function without 2HDMC from 1106.0034
-    void stability_lambdas_LL(double &result)
+    void stability_lambdas_LogLikelihood(double &result)
     {
-        using namespace Pipes::stability_lambdas_LL;
+        using namespace Pipes::stability_lambdas_LogLikelihood;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         const double sigma = 0.1;
@@ -3618,9 +3615,9 @@ namespace Gambit
     }
 
     //LO lambdas perturbativity without 2HDMC
-    void simple_perturbativity_lambdas_LL (double &result)
+    void simple_perturbativity_lambdas_LogLikelihood (double &result)
     {
-        using namespace Pipes::simple_perturbativity_lambdas_LL;
+        using namespace Pipes::simple_perturbativity_lambdas_LogLikelihood;
         const Spectrum spec = *Dep::THDM_spectrum;
         std::unique_ptr<SubSpectrum> he = spec.clone_HE();
         const double sigma = 0.1;
@@ -3690,16 +3687,16 @@ namespace Gambit
     }
 
     // LIKELIHOOD: vacuum stability + meta-stability constraint (soft+hard cutoff)
-    void get_stability_likelihood_THDM(double &result)
+    void get_stability_LogLikelihood_THDM(double &result)
     {
-      using namespace Pipes::get_stability_likelihood_THDM;
+      using namespace Pipes::get_stability_LogLikelihood_THDM;
 
       // get THDM type and find out if it is a FS spectrum (at Q)
       THDM_TYPE THDM_type = *Dep::THDM_Type;
       bool is_at_Q = ModelInUse("THDMatQ") ? true : false;
 
       // define likelihood function to use
-      std::function<double(THDM_spectrum_container &, bool)> likelihood_function = stability_likelihood_THDM;
+      std::function<double(THDM_spectrum_container &, bool)> likelihood_function = stability_LogLikelihood_THDM;
       // create container
       THDM_spectrum_container container;
       // initialise container at Qin - this is where the 2HDMC is configured
@@ -3723,7 +3720,7 @@ namespace Gambit
         {
           // print warning if we ask for likelihood at check_other_scale but not using FS model
           std::ostringstream os;
-          str calculation_name = "get_stability_likelihood_THDM";
+          str calculation_name = "get_stability_LogLikelihood_THDM";
           os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
           SpecBit_warning().raise(LOCAL_INFO, os.str());
         }
@@ -3796,9 +3793,9 @@ namespace Gambit
     }
 
     // LIKELIHOOD: only keeps points that correspond to hidden higgs scenario (hard-cutoff)
-    void hidden_higgs_scenario_LL(double& result)
+    void hidden_higgs_scenario_LogLikelihood(double& result)
     {
-      using namespace Pipes::hidden_higgs_scenario_LL;
+      using namespace Pipes::hidden_higgs_scenario_LogLikelihood;
 
       // get THDM type
       THDM_TYPE THDM_type = *Dep::THDM_Type;
@@ -3833,9 +3830,9 @@ namespace Gambit
     }
 
     // LIKELIHOOD: guides scanner towards mh = 125 GeV. Use to improve performance of HiggsSignals (soft-cutoff)
-    void higgs_mass_LL(double& result)
+    void higgs_mass_LogLikelihood(double& result)
     {
-      using namespace Pipes::higgs_mass_LL;
+      using namespace Pipes::higgs_mass_LogLikelihood;
 
       // get THDM type
       THDM_TYPE THDM_type = *Dep::THDM_Type;

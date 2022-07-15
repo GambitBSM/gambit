@@ -20,19 +20,22 @@ Please cite the following GAMBIT papers, depending on your use of different modu
 
 GAMBIT contains interfaces to various external codes, along with scripts for downloading and configuring them. Please cite as appropriate if you use those codes:
 
- - **AlterBBN:** **(i)** A. Arbey, AlterBBN: A program for calculating the BBN abundances of the elements in alternative cosmologies, Comput. Phys. Commun. 183 (2012) 1822, arXiv:1106.1363 **(ii)** A. Arbey, J. Auffinger, K. P. Hickerson and E. S. Jenssen, AlterBBN v2: A public code for calculating Big-Bang nucleosynthesis constraints in alternative cosmologies, arXiv:1806.11095
+ - **Acropolis:** **(i)** M. Hufnagel, K. Schmidt-Hoberg, S. Wild, BBN constraints on MeV-scale dark sectors. Part II. Electromagnetic decays, JCAP 11 (2018) 032, arXiv:1808.09324, **(ii)** P. F. Depta, M. Hufnagel, K. Schmidt-Hoberg, ACROPOLIS: A generiC fRamework fOr Photodisintegration Of LIght elementS, JCAP 03 (2021) 061, arXiv:2011.06518, **(iii)** P. F. Depta, M. Hufnagel, K. Schmidt-Hoberg, Updated BBN constraints on electromagnetic decays of MeV-scale particles, JCAP 04 (2021) 011, arXiv:2011.06519.
+ - **AlterBBN:** **(i)** A. Arbey, AlterBBN: A program for calculating the BBN abundances of the elements in alternative cosmologies, Comput. Phys. Commun. 183 (2012) 1822, arXiv:1106.1363 **(ii)** A. Arbey, J. Auffinger, K. P. Hickerson and E. S. Jenssen, AlterBBN v2: A public code for calculating Big-Bang nucleosynthesis constraints in alternative cosmologies, arXiv:1806.11095.
  - **CalcHEP:** **(i)** A. Pukhov, CalcHEP 2.3: MSSM, structure functions, event generation, batchs, and generation of matrix elements for other packages, arXiv:hep-ph/0412191, **(ii)** A. Belyaev, N. D. Christensen, and A. Pukhov, CalcHEP 3.4 for collider physics within and beyond the Standard Model, Comp. Phys. Comm. 184 (2013) 1729–1769, arXiv:1207.6082.
- - **CLASS:** D. Blas, J. Lesgourgues, T. Tram, The Cosmic Linear Anisotropy Solving System (CLASS) II: Approximation schemes, JCAP 07 (2011) 034, arXiv: 1104.2933.
- - **Capt'n General:** GAMBIT Collaboration: P. Athron, C. Balazs, et al., Global analyses of Higgs portal singlet dark matter models using GAMBIT, Eur. Phys. J. C 79 (2019) 38, arXiv:1808.10465
+ - **CLASS:** **(i)** D. Blas, J. Lesgourgues, T. Tram, The Cosmic Linear Anisotropy Solving System (CLASS) II: Approximation schemes, JCAP 07 (2011) 034, arXiv: 1104.2933, **(ii)** M. Lucca, N. Schöneberg, D. C. Hooper, J. Lesgourgues, J. Chluba, The synergy between CMB spectral distortions and anisotropies, JCAP 02 (2020) 026, arXiv:1910.04619.
+ - **Capt'n General:** **(i)** GAMBIT Collaboration: P. Athron, C. Balazs, et al., Global analyses of Higgs portal singlet dark matter models using GAMBIT, Eur. Phys. J. C 79 (2019) 38, arXiv:1808.10465, **(ii)** N. Avis Kozar, A. Caddell, L. Fraser-Leach, P. Scott, and A. C. Vincent, Capt’n General: A generalized stellar dark matter capture and heat transport code, (2021), arXiv:2105.06810.
  - **DarkAges:** P. Stoecker, M. Krämer, J. Lesgourgues, V. Poulin, Exotic energy injection with ExoCLASS: Application to the Higgs portal model and evaporating black holes, JCAP 03 (2018) 018, arXiv:1801.01871
  - **DarkSUSY:** **(i)** P. Gondolo, J. Edsjo, et al., DarkSUSY: computing supersymmetric dark matter properties numerically, JCAP 7 (2004) 8, arXiv: astro-ph/0406204 **(ii)** T. Bringmann, J. Edsjö, P. Gondolo, P. Ullio and L. Bergström, DarkSUSY 6: An Advanced Tool to Compute Dark Matter Properties Numerically, JCAP 1807 (2018) 033, arXiv:1802.03399,
  - **DDCalc:** **(i)** GAMBIT Collaboration: P. Athron, C. Balazs, et al. Global analyses of Higgs portal singlet dark matter models using GAMBIT, EPJC 79 (2019) 38, arxiv:1808.10465 **(ii)** P. Athron, J. M. Cornell, F. Kahlhoefer, J. Mckay, P. Scott, Impact of vacuum stability, perturbativity and XENON1T on global fits of Z_2​ and Z_3​ scalar singlet dark matter, EPJC 78 (2018) 1830, arxiv:1806.11281 **(iii)** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
+ - **DirectDM:** **(i)** F. Bishara, J. Brod, B. Grinstein, and J. Zupan, DirectDM: a tool for dark matter direct detection, arXiv:1708.02678. **(ii)** J. Brod, A. Gootjes-Dreesbach, M. Tammaro, and J. Zupan, Effective Field Theory for Dark Matter Direct Detection up to Dimension Seven, JHEP 10 (2018) 065, arXiv:1710.10218.
  - **exoCLASS:** P. Stoecker, M. Krämer, J. Lesgourgues, V. Poulin, Exotic energy injection with ExoCLASS: Application to the Higgs portal model and evaporating black holes, JCAP 03 (2018) 018, arXiv:1801.01871
  - **FeynHiggs:** **(i)** H. Bahl, W. Hollik, Precise prediction for the light MSSM Higgs boson mass combining effective field theory and fixed-order calculations, Eur. Phys. J. C 76 (2016) 499,  arXiv:1608.01880, **(ii)** T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, High-precision predictions for the light CP-even Higgs Boson Mass of the MSSM, Phys. Rev. Lett. 112 (2014) 141801, arXiv:1312.4937, **(iii)** M. Frank, T. Hahn, S. Heinemeyer, W. Hollik, H. Rzehak, G. Weiglein, The Higgs Boson Masses and Mixings of the Complex MSSM in the Feynman-Diagrammatic Approach, JHEP 0702 (2007) 047, arXiv:hep-ph/0611326, **(iv)** G. Degrassi, S. Heinemeyer, W. Hollik, P. Slavich, G. Weiglein, Towards High-Precision Predictions for the MSSM Higgs Sector, Eur. Phys. J. C 28 (2003) 133, arXiv:hep-ph/0212020, **(v)** S. Heinemeyer, W. Hollik, G. Weiglein, The Masses of the Neutral CP-even Higgs Bosons in the MSSM: Accurate Analysis at the Two-Loop Level, Eur.Phys.J.C9:343-366 (1999), arXiv:hep-ph/9812472, **(vi)** S. Heinemeyer, W. Hollik, G. Weiglein, FeynHiggs: a program for the calculation of the masses of the neutral CP-even Higgs bosons in the MSSM, Comput. Phys. Commun. 124 (2000) 76, arXiv:hep-ph/9812320
  - **FeynRules:** **(i)** N. D. Christensen and C. Duhr, FeynRules - Feynman rules made easy, Comput. Phys. Commun. 180 (2009) 1614–1641, arXiv:0806.4194, **(ii)** N. D. Christensen, P. de Aquino, et. al., A Comprehensive approach to new physics simulations, Eur. Phys. J. C71 (2011) 1541, arXiv:0906.2474, **(iii)** N. D. Christensen, C. Duhr, B. Fuks, J. Reuter, and C. Speckner, Introducing an interface between WHIZARD and FeynRules, Eur. Phys. J. C72 (2012) 1990, arXiv:1010.3251, **(iv)** A. Alloul, N. D. Christensen, C. Degrande, C. Duhr, and B. Fuks, FeynRules 2.0 - A complete toolbox for tree-level phenomenology, Comput. Phys. Commun. 185 (2014) 2250–2300, arXiv:1310.1921.
  - **FlexibleSUSY:** P. Athron, J.-h. Park, D. Stöckinger, and A. Voigt, FlexibleSUSY - A spectrum generator generator for supersymmetric models, Comp. Phys. Comm. 190 (2015) 139, arXiv:1406.2319
  - **GamLike:** GAMBIT Dark Matter Workgroup: T. Bringmann, J. Conrad, et al., DarkBit: A GAMBIT module for computing dark matter observables and likelihoods, Eur. Phys. J. C 77 (2017) 831, arXiv:1705.07920
  - **GM2Calc:** P. Athron, et al., GM2Calc: precise MSSM prediction for (g-2) of the muon, Eur. Phys. J. C 76 (2016) 62, arXiv:1510.08071
+ - **HepLike:** J. Bhom, M. Chrzaszcz, HEPLike: an open source framework for experimental likelihood evaluation, Comput.Phys.Commun. 254 (2020) 107235, arXiv:2003.03956.
  - **HiggsBounds:** **(i)** P. Bechtle, O. Brein, S. Heinemeyer, G. Weiglein, and K. E. Williams, HiggsBounds: Confronting Arbitrary Higgs Sectors with Exclusion Bounds from LEP and the Tevatron, Comp. Phys. Comm. 181 (2010) 138, arXiv:0811.4169, **(ii)** P. Bechtle, O. Brein, S. Heinemeyer, G. Weiglein, and K. E. Williams, HiggsBounds 2.0.0: Confronting Neutral and Charged Higgs Sector Predictions with Exclusion Bounds from LEP and the Tevatron, Comp. Phys. Comm. 182 (2011) 2605, arXiv:1102.1898, **(iii)** P. Bechtle, O. Brein, et al., HiggsBounds - 4: Improved Tests of Extended Higgs Sectors against Exclusion Bounds from LEP, the Tevatron and the LHC, Eur. Phys. J. C 74 (2014) 2693, arXiv:1311.0055
  - **HiggsSignals:** P. Bechtle, S. Heinemeyer, O. Stal, T. Stefaniak, and G. Weiglein, HiggsSignals: Confronting arbitrary Higgs sectors with measurements at the Tevatron and the LHC, Eur. Phys. J. C 74 (2014) 2711, arXiv:1305.1933
  - **MadGraph 5:** **(i)** T. Stelzer and W. F. Long, Automatic generation of tree level helicity amplitudes, Comput. Phys. Commun. 81 (1994) 357–371, arXiv:hep-ph/9401258, **(ii)** F. Maltoni and T. Stelzer, MadEvent: Automatic event generation with MadGraph, JHEP 02 (2003) 027, arXiv:hep-ph/0208156, **(iii)** J. Alwall, P. Demin, et. al., MadGraph/MadEvent v4: The New Web Generation, JHEP 09 (2007)
@@ -64,12 +67,13 @@ GAMBIT is built using the CMake system. The following libraries and packages mus
 
 COMPULSORY:
 
- - g++/gfortran 5.1 or greater, or icpc/ifort 15.0.2 or greater
+ - gcc >= 5.1 / llvm clang >= 10 / AppleClang >= 13 / icc >= 15.0.2
+ - gfortran >= 5.1 / ifort >=15.0.2
  - Cmake 2.8.12 or greater
  - Python 2.7 or greater (Python 3 is supported)
  - Python modules: yaml, future, os, re, datetime, sys, getopt, shutil and itertools.
  - git
- - Boost 1.41 or greater
+ - Boost 1.48 or greater
  - GNU Scientific Library (GSL) 2.1 or greater
  - Eigen 3.1.0 or greater
  - LAPACK
@@ -90,17 +94,17 @@ OPTIONAL:
     - Boost.Filesystem
     - Boost.System
  - Python modules:
-    - h5py (for use of the hdf5 printer)
     - Cython (required for using the classy backend)
     - scipy (required for using the MontePython or DarkAges backends)
     - numpy 1.12 or greater (required for using the classy or DarkAges backends)
     - dill (required for using the DarkAges backend)
     - pandas, numexpr (required for using the MontePython backend)
+    - h5py (required to use hdf5 utilities located in gambit/Printers/scripts)
 
 Memory requirements
 --
 
-For building the entirety of GAMBIT without optimisation, at least 10 GB of RAM is required. The build can be completed with less RAM than this if enough modules are ditched when running cmake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used cmake options, see the file CMAKE_FLAGS.md.
+Building the entirety of GAMBIT without optimisation can be achieved with as little as 4GB of RAM if one uses clang-14.  Some versions of g++ will run out of memory even with 16GB of RAM. The build will also use less RAM if modules are ditched when running cmake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used cmake options, see the file CMAKE_FLAGS.md.
 
 Building with optimisation enabled (e.g. using -DCMAKE_BUILD_TYPE=Release) may require more than 20 GB of RAM, depending on the compiler in use and precisely which optimisations it employs. Interprocedural optimisation in particular requires very large amounts of RAM. In general, Release mode is only intended for performance-critical applications, such as when running on supercomputer architectures.  It is not advised for laptops.
 
@@ -108,9 +112,13 @@ Building with optimisation enabled (e.g. using -DCMAKE_BUILD_TYPE=Release) may r
 Building GAMBIT
 --
 
-The basic build instructions are below.
+The basic build instructions are below.  GAMBIT supports Linux and Mac OSX.  On Windows, you can run it thorugh the Linux subsystem or Cygwin.  A full walkthrough of how to install all dependencies and build GAMBIT with AppleClang on OSX can be found in the file README_OSX.md.
 
-Note that cmake will fail to find some dependencies on some systems without guidance. More information is provided in the Core paper. For a list of commonly used cmake options, see the file CMAKE_FLAGS.md. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
+Note that cmake will fail to find some dependencies on some systems without guidance. If you encounter problems configuring or building GAMBIT, have a look in BUILD_OPTIONS.md for a list of commonly used build options.
+
+More information about the GAMBIT cmake system is provided in the Core paper. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
+
+
 
 Assuming that you have retrieved the git repository or the tarball and unpacked it:
 

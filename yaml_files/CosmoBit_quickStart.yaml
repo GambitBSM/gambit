@@ -148,7 +148,7 @@ ObsLikes:
   # As D and He4 are used for BBN_LogLike, they are automatically included.
   # Here we also include Helium-3 and Lithium-7
   - purpose:      Observable
-    capability:   BBN_abundances
+    capability:   primordial_abundances
     sub_capabilities:
       - He3
       - Li7
@@ -202,7 +202,7 @@ Rules:
       err: 0
 
   # Fix relative error and covariance of helium-4 and deuterium abundances
-  - capability: BBN_abundances
+  - capability: primordial_abundances_BBN
     options:
       isotope_basis: [Yp, D]
       correlation_matrix: [[+1.000e00, +1.524e-2],

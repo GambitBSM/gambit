@@ -38,7 +38,7 @@ BE_FUNCTION(dsrdcom, void, (), "dsrdcom_", "dsrdcom")
 BE_FUNCTION(dsrdstart, void, (int&, double(&)[1000], double(&)[1000], int&, double(&)[1000], double(&)[1000], int&, double(&)[1000]), "dsrdstart_", "dsrdstart")
 BE_FUNCTION(dsrdens, void, (double(*)(double&),double&,double&,int&,int&,int&), "dsrdens_", "dsrdens")
 
-// Functions used in GamYields.cpp
+// Functions used in IndirectDetectionYields.cpp
 BE_FUNCTION(dsanyield_sim, double, (double&,double&,int&,char*,int&,int&,int&), "dsanyield_sim_", "dsanyield_sim")
 
 // Functions used in SunNeutrinos.cpp

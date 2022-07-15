@@ -501,22 +501,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->iBotCopyId__BOSS();
         }
         
-        inline ::std::vector<int, std::allocator<int> > Particle::motherList() const
+        inline ::std::vector<int> Particle::motherList() const
         {
             return get_BEptr()->motherList();
         }
         
-        inline ::std::vector<int, std::allocator<int> > Particle::daughterList() const
+        inline ::std::vector<int> Particle::daughterList() const
         {
             return get_BEptr()->daughterList();
         }
         
-        inline ::std::vector<int, std::allocator<int> > Particle::sisterList(bool traceTopBot) const
+        inline ::std::vector<int> Particle::sisterList(bool traceTopBot) const
         {
             return get_BEptr()->sisterList(traceTopBot);
         }
         
-        inline ::std::vector<int, std::allocator<int> > Particle::sisterList() const
+        inline ::std::vector<int> Particle::sisterList() const
         {
             return get_BEptr()->sisterList__BOSS();
         }
@@ -541,17 +541,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->undoDecay();
         }
         
-        inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > Particle::name() const
+        inline ::std::basic_string<char> Particle::name() const
         {
             return get_BEptr()->name();
         }
         
-        inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > Particle::nameWithStatus(int maxLen) const
+        inline ::std::basic_string<char> Particle::nameWithStatus(int maxLen) const
         {
             return get_BEptr()->nameWithStatus(maxLen);
         }
         
-        inline ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > Particle::nameWithStatus() const
+        inline ::std::basic_string<char> Particle::nameWithStatus() const
         {
             return get_BEptr()->nameWithStatus__BOSS();
         }

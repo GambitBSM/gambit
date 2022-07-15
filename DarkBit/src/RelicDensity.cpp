@@ -268,16 +268,16 @@ namespace Gambit
 
 
       // determine resonances for LSP annihilation
-      int reslist[] = {BEreq::DS5particle_code("Z0"),
-                       BEreq::DS5particle_code("h0_2"),
-                       BEreq::DS5particle_code("h0_1"),
-                       BEreq::DS5particle_code("A0"),
-                       BEreq::DS5particle_code("W+"),
-                       BEreq::DS5particle_code("H+")};
-      int resmax=sizeof(reslist) / sizeof(reslist[0]);
+      //int reslist[] = {BEreq::DS5particle_code("Z0"),
+      //                 BEreq::DS5particle_code("h0_2"),
+      //                 BEreq::DS5particle_code("h0_1"),
+      //                 BEreq::DS5particle_code("A0"),
+      //                 BEreq::DS5particle_code("W+"),
+      //                 BEreq::DS5particle_code("H+")}; (Unused)
+      //int resmax=sizeof(reslist) / sizeof(reslist[0]); (Unused)
       // the last 2 resonances in the list can only appear for coannihilations
-      if (result.coannihilatingParticles.size() == 1)
-        resmax -= 2;
+      //if (result.coannihilatingParticles.size() == 1) (Unused)
+      //  resmax -= 2; (Unused)
       // (Turns out resonances are never returned with DS5)
 
       // determine thresholds; lowest threshold = 2*WIMP rest mass  (unlike DS
@@ -1134,6 +1134,17 @@ namespace Gambit
       /// Option oh2_obs<double>: Set reference dark matter density (Oh2) for this module function (default 0.1188)
       double oh2_obs = runOptions->getValueOrDef<double>(0.1188, "oh2_obs");
       double oh2_theory = *Dep::RD_oh2;
+      result = oh2_theory/oh2_obs;
+      logger() << LogTags::debug << "Fraction of dark matter that the scanned model accounts for: " << result << EOM;
+    }
+
+    void RD_fraction_rescaled_LCDM(double &result)
+    {
+      using namespace Pipes::RD_fraction_rescaled_LCDM;
+
+      double oh2_obs = *Param["omega_b"];
+      double oh2_theory = *Dep::RD_oh2;
+
       result = oh2_theory/oh2_obs;
       logger() << LogTags::debug << "Fraction of dark matter that the scanned model accounts for: " << result << EOM;
     }

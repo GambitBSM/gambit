@@ -12,6 +12,10 @@
 ///  \date 2013 Aug
 ///  \date 2014 Feb, Aug
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
 ///  *********************************************
 
 #ifndef __gambit_core_hpp__
@@ -52,8 +56,14 @@ namespace Gambit
     /// Set of all declared modules
     std::set<str> modules;
 
+    /// Map from module names to their citation keys
+    std::map<str, str> module_citation_keys;
+
     /// Map from backend names to a list of all registered versions of the backend
     std::map<str, std::set<str>> backend_versions;
+
+    /// Map from backend name and versions, to their citation keys
+    std::map<sspair, str> backend_citation_keys;
 
     /// List of all declared capabilities
     std::set<str> capabilities;
@@ -128,6 +138,9 @@ namespace Gambit
     /// Flag to trigger dependency resolver to report functor run order
     int show_runorder;
 
+    /// Flag to show the list of required backends
+    int show_backends;
+
     /// Flag to trigger "resume" mode
     bool resume;
 
@@ -148,10 +161,10 @@ namespace Gambit
     str run_diagnostic(int, char **);
 
     /// Add a new module to modules list
-    void registerModule(str);
+    void registerModule(str, str);
 
     /// Register a new backend
-    void registerBackend(str, str);
+    void registerBackend(str, str, str);
 
     /// Add a new module functor to functorList
     void registerModuleFunctor(functor &);
@@ -182,6 +195,12 @@ namespace Gambit
 
     /// Get a reference to the map of all user-activated primary model functors
     const pmfMap &getActiveModelFunctors() const;
+
+    /// Get a reference to the map of module citation keys
+    const std::map<str,str> &getModuleCitationKeys() const;
+
+    /// Get a reference to the map of backend citation keys
+    const std::map<sspair, str> &getBackendCitationKeys() const;
 
     /// Tell the module functors which backends are actually present
     void accountForMissingClasses() const;

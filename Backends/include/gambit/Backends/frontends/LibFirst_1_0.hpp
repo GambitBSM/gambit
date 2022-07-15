@@ -25,6 +25,7 @@
 #define BACKENDLANG CXX
 #define VERSION 1.0
 #define SAFE_VERSION 1_0
+#define REFERENCE GAMBIT:2017yxo
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */

@@ -1973,6 +1973,7 @@ def replaceCodeTags(input, file_input=False, write_file=False):
     new_content = new_content.replace('__BACKEND_NAME__'         ,  cfg.gambit_backend_name)
     new_content = new_content.replace('__BACKEND_VERSION__'      ,  cfg.gambit_backend_version)
     new_content = new_content.replace('__BACKEND_SAFE_VERSION__' ,  gb.gambit_backend_safeversion)
+    new_content = new_content.replace('__BACKEND_REFERENCE__'    ,  cfg.gambit_backend_reference)
     new_content = new_content.replace('__CODE_SUFFIX__'          ,  gb.code_suffix)
 
     new_content = new_content.replace('__PATH_TO_FRWD_DECLS_ABS_CLASSES_HEADER__', os.path.join(gb.backend_types_basedir, gb.gambit_backend_name_full, gb.frwd_decls_abs_fname + cfg.header_extension))

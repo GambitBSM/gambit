@@ -136,14 +136,11 @@ namespace Gambit
       auto& buffer_manager = get_mybuffermanager<double>(pointID,mpirank);
 
       unsigned int i=0; // index for each buffer
-      for (std::map<std::string, double>::const_iterator
-           it = map.begin(); it != map.end(); it++)
+      for (map_str_dbl::const_iterator it = map.begin(); it != map.end(); it++)
       {
         std::stringstream ss;
         ss<<label<<"::"<<it->first;
         PPIDpair ppid(pointID,mpirank);
-        // Write to each buffer
-        //buffer_manager.get_buffer(vID, i, ss.str()).append(it->second);
         if(synchronised)
         {
           // Write the data to the selected buffer ("just works" for simple numeric types)
@@ -173,8 +170,6 @@ namespace Gambit
         std::stringstream ss;
         ss<<label<<"::"<<it->first;
         PPIDpair ppid(pointID,mpirank);
-        // Write to each buffer
-        //buffer_manager.get_buffer(vID, i, ss.str()).append(it->second);
         if(synchronised)
         {
           // Write the data to the selected buffer ("just works" for simple numeric types)
@@ -201,8 +196,6 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer, triplet<double>)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, DM_nucleon_couplings)
-      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, DM_nucleon_couplings_fermionic_HP)
-      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, Flav_KstarMuMu_obs)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, BBN_container)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, flav_prediction)
     #endif

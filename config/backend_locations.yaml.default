@@ -10,16 +10,21 @@
 # absolute, those beginning with a period will
 # be interpreted as relative to the GAMBIT dir.
 
+Acropolis:
+  1.2.1:       ./Backends/installed/acropolis/1.2.1/acropolis
+
 AlterBBN:
   2.2:         ./Backends/installed/alterbbn/2.2/libbbn.so
 
 CaptnGeneral:
   1.0:         ./Backends/installed/capgen/1.0/gencaplib.so
+  2.1:         ./Backends/installed/capgen/2.1/gencaplib.so
 
 classy:
   2.6.3:       ./Backends/installed/classy/2.6.3/lib/classy_2_6_3.py
   2.9.3:       ./Backends/installed/classy/2.9.3/lib/classy_2_9_3.py
   2.9.4:       ./Backends/installed/classy/2.9.4/lib/classy_2_9_4.py
+  3.1.0:       ./Backends/installed/classy/3.1.0/lib/classy_3_1_0.py
 
   exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
 
@@ -33,7 +38,7 @@ DarkSUSY_MSSM:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_mssm.so
-  
+
 DarkSUSY_generic_wimp:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
@@ -46,7 +51,7 @@ HepLike:
   1.2:         ./Backends/installed/heplike/1.2/libHEPLike.so
 
 HepLikeData:
-  1.2:         ./Backends/installed/heplikedata/1.2
+  1.3:         ./Backends/installed/heplikedata/1.3
 
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so
@@ -92,6 +97,7 @@ gm2calc:
 
 MontePythonLike:
   3.3.0:       ./Backends/installed/montepythonlike/3.3.0/montepython/MontePythonLike_3_3_0.py
+  3.5.0:       ./Backends/installed/montepythonlike/3.5.0/montepython/MontePythonLike_3_5_0.py
 
 MicrOmegas_MSSM:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/MSSM/libmicromegas.so
@@ -138,6 +144,9 @@ libMathematicaTest:
 
 SUSYHD:
   1.0.2:       ./Backends/installed/susyhd/1.0.2/SUSYHD.m
+
+DirectDM:
+  2.2.0:       ./Backends/installed/directdm/2.2.0/directdm
 
 vevacious:
   1.0:         ./Backends/installed/vevacious/1.0/lib/libVevaciousPlusPlus.so

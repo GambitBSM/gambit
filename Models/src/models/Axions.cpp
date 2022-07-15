@@ -24,6 +24,81 @@
 
 #include "gambit/Models/models/Axions.hpp"
 
+#define MODEL GeneralCosmoALP
+#define FRIEND DecayingDM_photon
+void MODEL_NAMESPACE::GeneralCosmoALP_to_DecayingDM_photon (const ModelParameters &myparams, ModelParameters &friendparams)
+{
+    USE_MODEL_PIPE(FRIEND) // get pipe for "interpret as friend" function
+    logger()<<"Running interpret_as_friend calculations for GeneralCosmoALP -> DecayingDM_photon ..."<<EOM;
+
+    friendparams.setValue("lifetime", *Dep::lifetime);
+    friendparams.setValue("mass", 1e-9*myparams["ma0"]); // Convert units from eV (GeneralCosmoALP) to GeV (DecayingDM_photon)
+    friendparams.setValue("fraction", *Dep::DM_fraction);
+}
+#undef FRIEND
+#undef MODEL
+
+#define MODEL CosmoALP
+void MODEL_NAMESPACE::CosmoALP_to_GeneralCosmoALP (const ModelParameters &myparams, ModelParameters &parentparams)
+{
+    logger()<<"Running interpret_as_parent calculations for CosmoALP -> GeneralCosmoALP ..."<<EOM;
+
+    const double alpha_red = alpha_EM/(2.0*pi);
+    double fa  = myparams["fa"];
+
+    parentparams.setValue("gagg", alpha_red*myparams["Cagg"]/fa);
+    parentparams.setValue("gaee", 0);
+    parentparams.setValue("gaN", 0);
+    parentparams.setValue("fa", fa);
+    parentparams.setValue("ma0", myparams["ma0"]);
+    parentparams.setValue("Tchi", 1E99);
+    parentparams.setValue("beta", 0);
+    parentparams.setValue("thetai", myparams["thetai"]);
+    parentparams.setValue("f0_thermal", myparams["f0_thermal"]);
+    parentparams.setValue("T_R", myparams["T_R"]);
+}
+#undef MODEL
+
+#define MODEL GeneralALP
+void MODEL_NAMESPACE::GeneralALP_to_GeneralCosmoALP (const ModelParameters &myparams, ModelParameters &parentparams)
+{
+    logger()<<"Running interpret_as_parent calculations for GeneralALP -> GeneralCosmoALP ..."<<EOM;
+
+    parentparams.setValue("gagg", myparams["gagg"]);
+    parentparams.setValue("gaee", myparams["gaee"]);
+    parentparams.setValue("gaN", myparams["gaN"]);
+    parentparams.setValue("fa", myparams["fa"]);
+    parentparams.setValue("ma0", myparams["ma0"]);
+    parentparams.setValue("Tchi", myparams["Tchi"]);
+    parentparams.setValue("beta", myparams["beta"]);
+    parentparams.setValue("thetai", myparams["thetai"]);
+    // Set f0_thermal = 0, i.e. no thermal component.
+    parentparams.setValue("f0_thermal", 0);
+    // Use extremely high reheating temperature to guarantee that Tosc < T_R
+    parentparams.setValue("T_R", 1.0E99);
+}
+#undef MODEL
+
+#define MODEL CosmoALP_gg_tau
+void MODEL_NAMESPACE::CosmoALP_gg_tau_to_GeneralCosmoALP (const ModelParameters &myparams, ModelParameters &parentparams)
+{
+    logger()<<"Running interpret_as_parent calculations for CosmoALP_gg_tau -> GeneralCosmoALP ..."<<EOM;
+
+    // Compute coupling out of the lifetime and mass
+    parentparams.setValue("gagg", sqrt(64e27 * pi * hbar/myparams["tau"] / pow(myparams["ma0"],3)) );
+    // Set matter couplings to 0
+    parentparams.setValue("gaee", 0.0);
+    parentparams.setValue("gaN", 0.0);
+    parentparams.setValue("fa", myparams["fa"]);
+    parentparams.setValue("ma0", myparams["ma0"]);
+    parentparams.setValue("Tchi", myparams["Tchi"]);
+    parentparams.setValue("beta", myparams["beta"]);
+    parentparams.setValue("thetai", myparams["thetai"]);
+    parentparams.setValue("f0_thermal", myparams["f0_thermal"]);
+    parentparams.setValue("T_R", myparams["T_R"]);
+}
+#undef MODEL
+
 #define MODEL QCDAxion
 void MODEL_NAMESPACE::QCDAxion_to_GeneralALP (const ModelParameters &myparams, ModelParameters &parentparams)
 {

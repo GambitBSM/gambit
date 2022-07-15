@@ -40,6 +40,7 @@
 ///
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
+///  \date 2018 Sep
 ///  \date 2020 Feb
 ///
 ///  *********************************************
@@ -333,30 +334,38 @@ namespace Gambit
       result = 3.0*gev2cm2/pi*pow(reduced_mass*gna,2.0);
     }
 
-    /// Calculation of SI and SD cross sections at a reference momentum q0
+    /// Calculation of SI cross sections at a reference momentum q0
     /// for the fermionic Higgs portal models
-    void sigma_SI_vnqn(map_intpair_dbl &result)
+    /// If required add equivalent function for spin-dependent cross section
+    void sigma_SI_vnqn_FermionicHiggsPortal(map_intpair_dbl &result)
     {
-      using namespace Pipes::sigma_SI_vnqn;
+      using namespace Pipes::sigma_SI_vnqn_FermionicHiggsPortal;
+
+      NREO_DM_nucleon_couplings wilsonCoeffs = *Dep::DD_nonrel_WCs;
 
       double q0 = 0.04; // reference momentum transfer: 40 MeV
-      double gps = Dep::DD_couplings_fermionic_HP->gps;
-      double gpq2 = Dep::DD_couplings_fermionic_HP->gp_q2;
+      double gps = (wilsonCoeffs.c0[1] + wilsonCoeffs.c1[1])/2. ;
+      double gpa = (wilsonCoeffs.c0[11] + wilsonCoeffs.c1[11])/2.;
       double reduced_mass = *Dep::mwimp * m_proton / (*Dep::mwimp + m_proton);
 
       result[std::make_pair(0,0)] =   gev2cm2/pi*pow(reduced_mass*gps,2.0);
       result[std::make_pair(-2,0)] =  0.0;
-      result[std::make_pair(2,0)] =   gev2cm2/pi*pow(reduced_mass*gpq2,2.0)*pow(q0/(*Dep::mwimp)/2.0,2.0);
+      result[std::make_pair(2,0)] =   gev2cm2/pi*pow(reduced_mass*gpa,2.0)*pow(q0/(*Dep::mwimp)/2.0,2.0);
       result[std::make_pair(4,0)] =   0.0;
       result[std::make_pair(0,-2)] =  0.0;
       result[std::make_pair(0,2)] =   0.0;
       result[std::make_pair(0,4)] =   0.0;
     }
 
-    void sigma_SD_vnqn(map_intpair_dbl &result)
+    /// Calculation of SD cross section at a reference momentum q0
+    /// for the fermionic Higgs portal models
+    void sigma_SD_vnqn_FermionicHiggsPortal(map_intpair_dbl &result)
     {
-      using namespace Pipes::sigma_SD_vnqn;
+      using namespace Pipes::sigma_SD_vnqn_FermionicHiggsPortal;
 
+      /// There is no SD contribution to fermionic Higgs portal models
+      /// So this is just set to 0 (or close enough)
+      /// Modify if needed
       result[std::make_pair(0,0)] =   0.0;
       result[std::make_pair(-2,0)] =  0.0;
       result[std::make_pair(2,0)] =   0.0;
@@ -366,6 +375,23 @@ namespace Gambit
       result[std::make_pair(0,4)] =   0.0;
     }
 
+    /// DDCalc initialisation.
+
+    // Using spin-independent/spin-dependent interactions only
+    void DDCalc_Couplings_WIMP_nucleon(DD_coupling_container &result)
+    {
+      using namespace Pipes::DDCalc_Couplings_WIMP_nucleon;
+      result.coeff_structure = 1;
+      result.DM_nucleon_coeffs = *Dep::DD_couplings;
+    }
+
+    // Using non-relativistic Wilson Coefficient coupling structure
+    void DDCalc_Couplings_NR_WCs(DD_coupling_container &result)
+    {
+      using namespace Pipes::DDCalc_Couplings_NR_WCs;
+      result.coeff_structure = 2;
+      result.DD_nonrel_WCs = *Dep::DD_nonrel_WCs;
+    }
 
     //////////////////////////////////////////////////////////////////////////
     //

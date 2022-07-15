@@ -29,6 +29,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 6.2.5
 #define SAFE_VERSION 6_2_5
+#define REFERENCE Gondolo:2004sc,Bringmann:2018lay
 
 // Load the library
 LOAD_LIBRARY

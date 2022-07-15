@@ -21,6 +21,7 @@
 ///  \author Sanjay Bloor
 ///          (sanjay.bloor12@imperial.ac.uk)
 ///  \date 2018 Aug
+///        2020 May
 ///
 ///  *********************************************
 
@@ -33,10 +34,10 @@
 #include "gambit/Utils/util_functions.hpp"
 
 #include "gambit/Models/models/MajoranaSingletDM_Z2.hpp"
-#include "gambit/Elements/spectrum.hpp"
 
 using namespace Gambit::Utils;
 
+// Translation functions
 #define MODEL MajoranaSingletDM_Z2_sps
 #define PARENT MajoranaSingletDM_Z2
   void MODEL_NAMESPACE::MajoranaSingletDM_Z2_sps_to_MajoranaSingletDM_Z2 (const ModelParameters &myparams, ModelParameters &parentparams)

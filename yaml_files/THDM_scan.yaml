@@ -305,18 +305,18 @@ ObsLikes:
     #Tree level Yukawas perturbativity
 
     - purpose:    LogLike
-      capability: perturbativity_yukawas_LL
+      capability: perturbativity_yukawas_LogLikelihood
 
     # Applies the THDM tree level stability constraints on the potential
 
     - purpose:    LogLike
-      capability: stability_likelihood_THDM
-      function: stability_lambdas_LL
+      capability: stability_LogLikelihood_THDM
+      function: stability_lambdas_LogLikelihood
 
     # Tree level unitarity for the potential
 
     - purpose:    LogLike
-      capability: unitarity_likelihood_THDM
+      capability: unitarity_LogLikelihood_THDM
       function:   LO_unitarity_likelihood
 
     # Calculates the electroweak precision parameters, S, T, U, V, W, X
@@ -325,7 +325,7 @@ ObsLikes:
     #  Likelihood type: Half-Gaussian
 
     # - purpose:    LogLike
-    #  capability: oblique_parameters_likelihood_THDM
+    #  capability: oblique_parameters_LogLikelihood_THDM
 
     # -------------------------------------------
 
@@ -338,7 +338,7 @@ ObsLikes:
       purpose: LogLike
 
     #delta0 likelihood
-    - capability: delta0_LL
+    - capability: delta0_LogLikelihood
       function: delta0_ll
       purpose: LogLike
 
@@ -367,12 +367,12 @@ ObsLikes:
       purpose: Observable
 
     # B->mu,mu likelihood
-    - capability: b2ll_LL
+    - capability: b2ll_LogLikelihood
       function: b2ll_likelihood
       purpose: LogLike
 
     # Semi-Leptonic likelihood collection 9 obs (Ds,D->munu && Bu,Ds->taunu, RD(*) and included Rmu=BR(K->munu)/BR(pi->munu))
-#    - capability: SL_LL
+#    - capability: SL_LogLikelihood
 #      function: SL_likelihood
 #      purpose: LogLike
 
@@ -382,43 +382,43 @@ ObsLikes:
       purpose: LogLike
 
    #LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
-    - capability: gmu_ge_lnL
+    - capability: gmu_ge_LogLikelihood
       function: gmu_ge_likelihood
       purpose: LogLike
 
    # # l->l gamma
-    - capability: l2lgamma_lnL
+    - capability: l2lgamma_LogLikelihood
       function: l2lgamma_likelihood
       purpose: LogLike
 
     # # l->lll
-    - capability: l2lll_lnL
+    - capability: l2lll_LogLikelihood
       function: l2lll_likelihood
       purpose: LogLike
 
     # FLDstar likelihood
-    - capability: FLDstar_lnL
+    - capability: FLDstar_LogLikelihood
       function: FLDstar_likelihood
       purpose: LogLike
 
     # Bc->tanu lifetime likelihood
-    - capability: Bc_lifetime_lnL
+    - capability: Bc_lifetime_LogLikelihood
       function: Bc_lifetime_likelihood
       purpose: LogLike
 
     # # B->Dstar,l,nu likelihood [Normalized differential decay width]
-    - capability: BDstartaunu_LL
+    - capability: BDstartaunu_LogLikelihood
       function: BDstartaunu_likelihood
       purpose: LogLike
 
     # # B->D,l,nu likelihood [Normalized differential decay width]
-    - capability: BDtaunu_LL
+    - capability: BDtaunu_LogLikelihood
       function: BDtaunu_likelihood
       purpose: LogLike
 
     #Old measurements
     # B->Kstarll angular for 6 bins, 48 obs in total:FL,AFB,S3,S4,S5,S7,S8,S9
-   # - capability: b2sll_LL
+   # - capability: b2sll_LogLikelihood
     #  function: b2sll_likelihood
      # purpose: LogLike
 
@@ -475,25 +475,25 @@ ObsLikes:
 
     #Old observables
     # # B->Kstarll branching for 6 bins
-   # - capability: b2sll_BR_LL
+   # - capability: b2sll_BR_LogLikelihood
     #  function: b2sll_BR_likelihood
      # purpose: LogLike
 
     # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60)
     - purpose: LogLike
-      capability: LUV_LL
+      capability: LUV_LogLikelihood
 
    # B->Kstar,l,l likelihood [isospin asymmetry lowq2]
-    - capability: b2sll_AI_LL
+    - capability: b2sll_AI_LogLikelihood
       function: BKstarmumu_AI_ll
       purpose: LogLike
 
     # # B->Kstar,l,l likelihood [isospin asymmetry zero-crossing]
-    - capability: b2sll_AI_zero_LL
+    - capability: b2sll_AI_zero_LogLikelihood
       function: BKstarmumu_AI_zero_ll
       purpose: LogLike
 
-    - capability: deltaMB_LL
+    - capability: deltaMB_LogLikelihood
       function: deltaMB_likelihood
       purpose: LogLike
 
@@ -654,19 +654,19 @@ Rules:
       function: gm2_Exp_BNL
       module: PrecisionBit
 
-    - capability: stability_likelihood_THDM
-      function: stability_lambdas_LL
+    - capability: stability_LogLikelihood_THDM
+      function: stability_lambdas_LogLikelihood
 
-    - capability: perturbativity_likelihood_THDM
-      function: get_perturbativity_likelihood_THDM
+    - capability: perturbativity_LogLikelihood_THDM
+      function: get_perturbativity_LogLikelihood_THDM
 
-   # - capability: stability_likelihood_THDM
-    #  function: get_stability_likelihood_THDM
+   # - capability: stability_LogLikelihood_THDM
+    #  function: get_stability_LogLikelihood_THDM
     #  options:
     #    check_metastability: true
 
-   # - capability: unitarity_likelihood_THDM
-    #  function: NLO_unitarity_likelihood_THDMC
+   # - capability: unitarity_LogLikelihood_THDM
+    #  function: NLO_unitarity_LogLikelihood_THDMC
     #  options:
     #     check_correction_ratio: true
 

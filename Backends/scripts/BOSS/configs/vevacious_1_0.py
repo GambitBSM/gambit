@@ -27,10 +27,11 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'vevacious'
-gambit_backend_version = '1.0'
-gambit_base_namespace  = ''
-gambit_minuit_version  = '5.34.14'
+gambit_backend_name      = 'vevacious'
+gambit_backend_version   = '1.0'
+gambit_backend_reference = 'Camargo-Molina:2013qva'
+gambit_base_namespace    = ''
+gambit_minuit_version    = '6.23.01'
 
 
 # ~~~~~ Information about the external code ~~~~~
@@ -43,7 +44,7 @@ input_files = [
 include_paths = [
     '../../../Backends/installed/'+gambit_backend_name+'/'+gambit_backend_version+'/include',
     '../../../Backends/installed/'+gambit_backend_name+'/'+gambit_backend_version+'/include/LHPC',
-    '../../../Backends/installed/minuit2/'+gambit_minuit_version+'/include',
+    '../../../ScannerBit/installed/minuit2/'+gambit_minuit_version+'/inc',
 #    '../../../contrib/eigen3.2.8' # This should be learned from GAMBIT somehow to future-protect against version changes (and if user uses own library!)
 ]
 base_paths = ['../../../Backends/installed/'+gambit_backend_name+'/'+gambit_backend_version]

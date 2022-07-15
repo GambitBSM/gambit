@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual std::basic_string<char, std::char_traits<char>, std::allocator<char> >& name_ref__BOSS() =0;
+                virtual std::basic_string<char>& name_ref__BOSS() =0;
     
                 virtual double& valNow_ref__BOSS() =0;
     

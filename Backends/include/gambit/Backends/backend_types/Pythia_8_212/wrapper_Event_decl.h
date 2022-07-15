@@ -32,11 +32,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 // Member functions: 
             public:
-                void init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn);
+                void init(::std::basic_string<char> headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn);
         
-                void init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn, Pythia8::ParticleData* particleDataPtrIn);
+                void init(::std::basic_string<char> headerIn, Pythia8::ParticleData* particleDataPtrIn);
         
-                void init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn);
+                void init(::std::basic_string<char> headerIn);
         
                 void init();
         
@@ -102,9 +102,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void list() const;
         
-                void list(::std::basic_ostream<char, std::char_traits<char> >& os, int precision) const;
+                void list(::std::basic_ostream<char>& os, int precision) const;
         
-                void list(::std::basic_ostream<char, std::char_traits<char> >& os) const;
+                void list(::std::basic_ostream<char>& os) const;
         
                 void list(bool showScaleAndVertex, bool showMothersAndDaughters, int precision) const;
         
@@ -112,9 +112,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void list(bool showScaleAndVertex) const;
         
-                void list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char, std::char_traits<char> >& os, int precision) const;
+                void list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char>& os, int precision) const;
         
-                void list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char, std::char_traits<char> >& os) const;
+                void list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char>& os) const;
         
                 void popBack(int nRemove);
         
@@ -146,7 +146,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 double scaleSecond() const;
         
-                ::std::vector<int, std::allocator<int> > daughterList(int i) const;
+                ::std::vector<int> daughterList(int i) const;
         
                 void rot(double theta, double phi);
         
@@ -186,7 +186,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void restoreJunctionSize();
         
-                void listJunctions(::std::basic_ostream<char, std::char_traits<char> >& os) const;
+                void listJunctions(::std::basic_ostream<char>& os) const;
         
                 void listJunctions() const;
         

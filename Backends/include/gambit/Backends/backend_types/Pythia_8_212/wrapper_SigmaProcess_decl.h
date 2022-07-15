@@ -96,13 +96,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void setScale();
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name() const;
+                ::std::basic_string<char> name() const;
         
                 int code() const;
         
                 int nFinal() const;
         
-                ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > inFlux() const;
+                ::std::basic_string<char> inFlux() const;
         
                 bool convert2mb() const;
         

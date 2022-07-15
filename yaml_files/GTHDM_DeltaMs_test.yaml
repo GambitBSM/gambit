@@ -1,6 +1,6 @@
 #########################################################################
 ## GAMBIT configuration for running one likelihhod for the GTHDM
-## GTHDM_DeltaMs_test      
+## GTHDM_DeltaMs_test
 ##
 ## Includes all compatible likelihoods:
 ## Theoretical, experimental & flavor
@@ -117,19 +117,19 @@ ObsLikes:
     # Likelihoods
     ###########################
 
-    #### NOTE 
+    #### NOTE
     ##Other Likelihoods
 
-    - capability: deltaMB_LL
+    - capability: deltaMB_LogLikelihood
       function: deltaMB_likelihood
       purpose: LogLike
 
     # LU observable (gmu/g2)^2=BR(tau->mununu)/BR(tau->enunu)
-    #- capability: gmu_ge_lnL
+    #- capability: gmu_ge_LogLikelihood
     #  function: gmu_ge_likelihood
     #  purpose: LogLike
 
-    #- capability: B2Kllp_lnL
+    #- capability: B2Kllp_LogLikelihood
     #  function: B2Kllp_likelihood
     #  purpose: LogLike
 
@@ -137,7 +137,7 @@ ObsLikes:
     # Observables
     #################
 
-    - capability: DeltaMs
+    - capability: prediction_DeltaMs
       function: THDM_Delta_MBs
       purpose: Observable
 

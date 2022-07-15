@@ -17,6 +17,6 @@
 #
 # -------------------------
 
-# Isotope  central value  1 sigma uncertainty
-Yp         0.245          0.003
-D          2.45e-5        0.28e-5
+# Isotope  central value  1 sigma uncertainty   upper limit
+Yp         0.245          0.003                 0
+D          2.45e-5        0.28e-5               0

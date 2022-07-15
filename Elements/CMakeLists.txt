@@ -40,6 +40,7 @@ set(source_files src/decay_table.cpp
                  src/translator.cpp
                  src/type_equivalency.cpp
                  src/virtual_higgs.cpp
+                 src/wimp_types.cpp
 )
 
 set(header_files include/gambit/Elements/decay_table.hpp
@@ -75,6 +76,7 @@ set(header_files include/gambit/Elements/decay_table.hpp
                  include/gambit/Elements/type_equivalency.hpp
                  include/gambit/Elements/types_rollcall.hpp
                  include/gambit/Elements/virtual_higgs.hpp
+                 include/gambit/Elements/wimp_types.hpp
 )
 
 add_gambit_library(Elements OPTION OBJECT SOURCES ${source_files} HEADERS ${header_files})

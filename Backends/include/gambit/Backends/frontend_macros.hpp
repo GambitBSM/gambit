@@ -18,6 +18,7 @@
 ///  \author Tomas Gonzalo
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 Dec
+///  \date 2021 Sep
 ///
 ///  *********************************************
 
@@ -84,7 +85,7 @@ MODULE_DECLARE_FUNCTION(BackendIniBit,                                      \
  void,2,NOT_MODEL)                                                          \
 
 /// Main actual backend variable macro
-#define BE_VARIABLE_I(NAME, TYPE, SYMBOLNAME, CAPABILITY, MODELS)             \
+#define BE_VARIABLE_I(NAME, TYPE, SYMBOLNAME, CAPABILITY, MODELS, REF)        \
 namespace Gambit                                                              \
 {                                                                             \
   namespace Backends                                                          \
@@ -106,25 +107,29 @@ namespace Gambit                                                              \
 
 /// \name Wrapping macros for backend-defined functions
 ///
-/// BE_FUNCTION(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY, [(MODELS)]) is the
+/// BE_FUNCTION(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY, [(MODELS)], [REF]) is the
 /// macro used for constructing pointers to library functions and
 /// wrapping function pointers in backend functors.
 ///
 /// The sixth argument (MODELS) is optional, and contains a list of models that you want this function to be able
 /// to be used with.
+/// The seventh argument REF is optional, and contains a string of citation keys as references for the backend function
 /// @{
 
 #define BE_FUNCTION_5(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY)                             \
-  BE_FUNCTION_I(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY, ())
+  BE_FUNCTION_I(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY, (), "")
 
 #define BE_FUNCTION_6(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY, MODELS)                     \
-  BE_FUNCTION_I(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY, MODELS)
+  BE_FUNCTION_I(NAME, TYPE, ARGSLIST, SYMBOLNAME, CAPABILITY, MODELS, "")
+
+#define BE_FUNCTION_7(NAME, TYPE, ARGSLIST, SYMBOLNAMES, CAPABILITY, MODELS, REF)               \
+  BE_FUNCTION_I(NAME, TYPE, ARGSLIST, SYMBOLNAMES, CAPABILITY, MODELS, REF)
 
 #define BE_FUNCTION(...) VARARG(BE_FUNCTION, __VA_ARGS__)
 
 
 /// Main actual backend function macro
-#define BE_FUNCTION_I(NAME, TYPE, ARGLIST, SYMBOLNAME, CAPABILITY, MODELS)                      \
+#define BE_FUNCTION_I(NAME, TYPE, ARGLIST, SYMBOLNAME, CAPABILITY, MODELS, REF)                 \
 namespace Gambit                                                                                \
 {                                                                                               \
   namespace Backends                                                                            \
@@ -145,9 +150,9 @@ namespace Gambit                                                                
 
 
 /// \name Main wrapping macro for convenience functions
-/// BE_CONV_FUNCTION(NAME, TYPE, ARGSLIST, CAPABILITY, [(MODELS)]) is the macro used
+/// BE_CONV_FUNCTION(NAME, TYPE, ARGSLIST, CAPABILITY, [(MODELS)], [REF]) is the macro used
 /// for wrapping convenience functions in backend functors.
-#define BE_CONV_FUNCTION_FULL(NAME, TYPE, ARGSLIST, CAPABILITY, MODELS)                         \
+#define BE_CONV_FUNCTION_FULL(NAME, TYPE, ARGSLIST, CAPABILITY, MODELS, REF)                    \
 namespace Gambit                                                                                \
 {                                                                                               \
   namespace Backends                                                                            \

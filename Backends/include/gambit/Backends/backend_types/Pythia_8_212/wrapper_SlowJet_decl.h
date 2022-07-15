@@ -67,15 +67,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 double dNext() const;
         
-                void list(bool listAll, ::std::basic_ostream<char, std::char_traits<char> >& os) const;
+                void list(bool listAll, ::std::basic_ostream<char>& os) const;
         
                 void list(bool listAll) const;
         
                 void list() const;
         
-                ::std::vector<int, std::allocator<int> > constituents(int j);
+                ::std::vector<int> constituents(int j);
         
-                ::std::vector<int, std::allocator<int> > clusConstituents(int j);
+                ::std::vector<int> clusConstituents(int j);
         
                 int jetAssignment(int i);
         

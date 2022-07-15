@@ -330,7 +330,17 @@ namespace Gambit
       //--------------------------------------------------------------------------
       double tmp_result = 0.0; // temporary to not spoil the printer output if the TT works but EE fails.
       tmp_result += BEreq::plc_loglike_lowl_TT_2018(&cl_and_pars_TT[0]);
-      tmp_result += BEreq::plc_loglike_lowl_EE_2018(&cl_and_pars_EE[0]);
+      // The EE Planck likelihood shoulw always be < 0, if not something went wrong
+      // FIXME: For now invalidate the point, until we find the source of the issue
+      double EE = BEreq::plc_loglike_lowl_EE_2018(&cl_and_pars_EE[0]);
+      if(EE > 0.0)
+      {
+        std::ostringstream err;
+        err << "EE lowl Planck likelihood is problematic, with value " << EE;
+        logger() << err.str() << EOM;
+        invalid_point().raise(err.str());
+      }
+      tmp_result += EE;
 
       // Now update result
       result = tmp_result;

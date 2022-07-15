@@ -30,12 +30,17 @@
 ///          (alex.woodcock@outlook.com)
 ///  \date   2022 May
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no
+///  \date 2021 Feb
+///
 ///  *********************************************
 
 #include "gambit/Core/likelihood_container.hpp"
 #include "gambit/Utils/signal_helpers.hpp"
 #include "gambit/Utils/signal_handling.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/lnlike_modifiers.hpp"
 
 //#define CORE_DEBUG
 
@@ -56,6 +61,7 @@ namespace Gambit
     print_invalid_points             (iniFile.getValueOrDef<bool>(true, "likelihood", "print_invalid_points")),
     log_valid_point_ratio            (iniFile.getValueOrDef<bool>(true, "likelihood", "log_valid_point_ratio")),
     disable_print_for_lnlike_below   (iniFile.getValueOrDef<double>(min_valid_lnlike, "likelihood", "disable_print_for_lnlike_below")),
+    lnlike_modifier_name             (iniFile.getValueOrDef<str>("identity", "likelihood", "use_lnlike_modifier")),
     intralooptime_label              ("Runtime(ms) intraloop"),
     interlooptime_label              ("Runtime(ms) interloop"),
     totallooptime_label              ("Runtime(ms) totalloop"),
@@ -72,6 +78,11 @@ namespace Gambit
       debug            (iniFile.getValueOrDef<bool>(false, "debug") or iniFile.getValueOrDef<bool>(false, "likelihood", "debug"))
     #endif
   {
+    // Get the parameter node for the chosen lnlike_modifier (if any)
+    if (lnlike_modifier_name != "identity")
+    {
+      lnlike_modifier_params = Options(iniFile.getValue<YAML::Node>("likelihood", "lnlike_modifiers", lnlike_modifier_name));
+    }
     // Set the list of valid return types of functions that can be used for 'purpose' by this container class.
     const std::vector<str> allowed_types_for_purpose = initVector<str>("double", "std::vector<double>", "float", "std::vector<float>");
     // Find subset of vertices that match requested purpose
@@ -143,7 +154,7 @@ namespace Gambit
     // logger() << LogTags::core << "\nBeginning computations for parameter point:\n" << parstream.str() << EOM;
 
   }
-  
+
   /// Evaluate total likelihood function
   double Likelihood_Container::main(std::unordered_map<std::string, double> &in)
   {
@@ -386,6 +397,11 @@ namespace Gambit
     return lnlike;
   }
 
+  /// Use this to modify the total likelihood function before passing it to the scanner
+  double Likelihood_Container::purposeModifier(double lnlike)
+  {
+    return Utils::run_lnlike_modifier(lnlike, lnlike_modifier_name, lnlike_modifier_params);
+  }
 
 }
 

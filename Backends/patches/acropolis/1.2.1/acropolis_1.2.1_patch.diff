@@ -1,0 +1,116 @@
+diff --git a/acropolis/db.py b/acropolis/db.py
+index f1cdae9..6811c3c 100644
+--- a/acropolis/db.py
++++ b/acropolis/db.py
+@@ -84,6 +84,9 @@ def _get_T_index(T_log):
+     # For points at the upper boundary, i+1 does not exist
+     return index if index != Tnum - 1 else index - 1
+ 
++@nb.jit(cache=True)
++def _index_2d(jT, jE):
++    return jT*Enum + jE
+ 
+ @nb.jit(cache=True)
+ def interp_rate_db(rate_db, id, E_log, T_log):
+@@ -104,7 +107,8 @@ def interp_rate_db(rate_db, id, E_log, T_log):
+     xd, yd = (x-x0)/(x1-x0), (y-y0)/(y1-y0)
+ 
+     # Define the index function
+-    k = lambda jT, jE: jT*Enum + jE
++    #k = lambda jT, jE: jT*Enum + jE
++    k = _index_2d
+ 
+     c00 = rate_db[ k(iT  , iE  ) ][c]
+     c10 = rate_db[ k(iT+1, iE  ) ][c]
+@@ -120,6 +124,9 @@ def interp_rate_db(rate_db, id, E_log, T_log):
+ 
+     return 10.**( a0 + a1*x + a2*y + a3*x*y )
+ 
++@nb.jit(cache=True)
++def _index_3d(jT, jE, jEp):
++    return jT*Enum*(Enum+1)//2 + jE*Enum - (jE-1)*jE//2 + (jEp - jE)
+ 
+ @nb.jit(cache=True)
+ def interp_kernel_db(kernel_db, id, E_log, Ep_log, T_log):
+@@ -140,7 +147,8 @@ def interp_kernel_db(kernel_db, id, E_log, Ep_log, T_log):
+     xd, yd, zd = (x-x0)/(x1-x0), (y-y0)/(y1-y0), (z-z0)/(z1-z0)
+ 
+     # Define the index function
+-    k = lambda jT, jE, jEp: jT*Enum*(Enum+1)//2 + jE*Enum - (jE-1)*jE//2 + (jEp - jE)
++    #k = lambda jT, jE, jEp: jT*Enum*(Enum+1)//2 + jE*Enum - (jE-1)*jE//2 + (jEp - jE)
++    k = _index_3d
+ 
+     c000 = kernel_db[ k(iT  , iE  , iEp  ) ][c]
+     c100 = kernel_db[ k(iT+1, iE  , iEp  ) ][c]
+diff --git a/acropolis/input.py b/acropolis/input.py
+--- a/acropolis/input.py	2021-11-04 16:04:57.857595504 +0100
++++ b/acropolis/input.py	2021-11-04 16:05:15.393354618 +0100
+@@ -100,11 +100,16 @@ class InputInterface(object):
+         y = self._sCosmoDataLog[:,yc]
+         N = self._sCosmoDataShp[0]
+ 
++        # Sort x and y in increasing order
++        o = np.argsort(x)
++        x = x[o]
++        y = y[o]
++
+         val_log = log10(val)
+         # Extract the index corresponding to
+         # the data entries above and below 'val'
+         ix = np.argmin( np.abs( x - val_log ) )
+-        if ix == N - 1:
++        if (x[ix] >= val_log) or (ix == N - 1):
+             ix -= 1
+ 
+         m = (y[ix+1] - y[ix])/(x[ix+1] - x[ix])
+@@ -149,6 +154,8 @@ class InputInterface(object):
+     def bbn_abundances_0(self):
+         return self._sAbundData[:,0]
+ 
++    def set_bbn_abundances(self, abundances):
++        self._sAbundData = abundances
+ 
+     # 3. PARAM_DATA ###########################################################
+ 
+--- a/acropolis/models.py	2021-11-11 14:47:05.455926528 +0100
++++ b/acropolis/models.py	2021-11-11 14:47:22.871851143 +0100
+@@ -67,7 +67,7 @@ class AbstractModel(ABC):
+                 "Injection energy is below all thresholds. No calculation required.",
+                 "acropolis.models.AbstractModel.run_disintegration"
+             )
+-            return self._squeeze_decays( self._sII.bbn_abundances() )
++            return {'abundances':self._squeeze_decays( self._sII.bbn_abundances() ), 'transfer_matrix':self._postd_matrix()}
+ 
+         # Calculate the different transfer matrices
+         ###########################################
+@@ -87,7 +87,7 @@ class AbstractModel(ABC):
+             list( transf_mat.dot( Y0i ) for Y0i in self._sII.bbn_abundances().transpose() )
+         )
+ 
+-        return Yf
++        return {'abundances':Yf, 'transfer_matrix':transf_mat}
+ 
+ 
+     def _pdi_matrix(self):
+--- a/acropolis/utils.py	2021-02-16 18:07:22.000000000 +0100
++++ b/acropolis/utils.py	2021-11-23 11:21:52.174947621 +0100
+@@ -2,6 +2,8 @@
+ from math import log, pow
+ # numpy
+ import numpy as np
++# sys
++import sys
+ 
+ 
+ class LogInterp(object):
+@@ -11,6 +13,9 @@ class LogInterp(object):
+         self._sLogBase = log(self._sBase)
+ 
+         self._sFillValue = fill_value
++
++        x_grid = [x if x > 0 else sys.float_info.min for x in x_grid]
++        y_grid = [y if y > 0 else sys.float_info.min for y in y_grid]
+ 
+         self._sXLog = np.log(x_grid)/self._sLogBase
+         self._sYLog = np.log(y_grid)/self._sLogBase
+

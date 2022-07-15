@@ -27,9 +27,10 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'Pythia'
-gambit_backend_version = '8.212'
-gambit_base_namespace  = ''
+gambit_backend_name      = 'Pythia'
+gambit_backend_version   = '8.212'
+gambit_backend_reference = 'Sjostrand:2014zea'
+gambit_base_namespace    = ''
 
 
 # ~~~~~ Information about the external code ~~~~~
@@ -42,8 +43,8 @@ input_files   = [
 include_paths = [
                   '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include',
                   '../../../contrib/slhaea/include',
-                  '../../../contrib/HepMC3-3.1.1/local/include',
-                  '../../../contrib/HepMC3-3.1.1/interfaces/pythia8/include'
+                  '../../../contrib/HepMC3-3.2.5/local/include',
+                  '../../../contrib/HepMC3-3.2.5/interfaces/pythia8/include'
                 ]
 base_paths    = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/']
 
@@ -83,7 +84,7 @@ load_classes = [
     'Pythia8::SusyLesHouches',
     'Pythia8::UserHooks',
     'Pythia8::Vec4',
-    # 
+    #
     'Pythia8::GAMBIT_hepmc_writer'
 ]
 

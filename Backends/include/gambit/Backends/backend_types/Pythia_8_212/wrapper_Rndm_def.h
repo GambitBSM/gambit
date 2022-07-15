@@ -49,17 +49,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->gauss2();
         }
         
-        inline int Rndm::pick(const ::std::vector<double, std::allocator<double> >& prob)
+        inline int Rndm::pick(const ::std::vector<double>& prob)
         {
             return get_BEptr()->pick(prob);
         }
         
-        inline bool Rndm::dumpState(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName)
+        inline bool Rndm::dumpState(::std::basic_string<char> fileName)
         {
             return get_BEptr()->dumpState(fileName);
         }
         
-        inline bool Rndm::readState(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName)
+        inline bool Rndm::readState(::std::basic_string<char> fileName)
         {
             return get_BEptr()->readState(fileName);
         }

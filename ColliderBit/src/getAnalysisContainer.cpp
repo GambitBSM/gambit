@@ -38,7 +38,7 @@
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 
 // #define COLLIDERBIT_DEBUG
-#define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  "
+#define DEBUG_PREFIX "DEBUG: OMP thread " << omp_get_thread_num() << ":  " << __FILE__ << ":" << __LINE__ << ":  "
 
 namespace Gambit
 {
