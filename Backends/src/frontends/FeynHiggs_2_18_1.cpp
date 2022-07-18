@@ -40,10 +40,10 @@ BE_INI_FUNCTION
   {
     // initialize FeynHiggs flags
     int mssmpart = 4;  // scope of calculation (4 -> full MSSM, recommended)
-    int higgsmix = 2;  // mixing in Higgs sector (3 -> full 3 x 3 in neutral sector) -> HB says 2
+    int higgsmix = 2;  // mixing in Higgs sector (3 -> full 3 x 3 in neutral sector) -> HB says 2  // PA:  currently 2 is OK as we consider real MSSM. 3 should be used when we introduce complex MSSM.  Then we need to make this a setting that can changed or varies according to the model. 
     int p2approx = 4;  // 1-loop approximation (4 -> none, UHiggs eval. at p^2=0, recommended) -> HB says 0
     int looplevel = 2; // higher-order corrections? (2 -> various 2-loop contrib., recommended)
-    int loglevel = 3;  // resum logs? (1 -> NLL, large MSUSY; 2 -> NLL, large MCha,MNeu,MGlu,MSUSY 3 -> NNLL, large MCha,MNeu,MGlu,MSUSY); 4-> NNLL using THDM as EFT, recommended for mA < mSUSY -> FH recommend 1 or 2, but anything except 0 is buggy in this version.
+    int loglevel = 3;  // resum logs? (1 -> NLL, large MSUSY; 2 -> NLL, large MCha,MNeu,MGlu,MSUSY 3 -> NNLL, large MCha,MNeu,MGlu,MSUSY); 4-> NNLL using THDM as EFT, recommended for mA < mSUSY -> FH recommend 3 or 4 depending ion the mass hierachy.  TODO - look inti dynamically setting this depending in spectrum form original spectrum generator or maybe just the input parameters to FH since mA is one.
     int runningMT = 1; // top mass for 1/2-loop corr. (1 -> m_t^{run}, recommended)
     int botResum = 2;  // O(tan^n Beta) corr. ressummed? (1 -> 1L; 2-> 1L for Higgs self-energies, 2L for Higgs decays, recommended)
     int tlCplxApprox = 0; // determines how 2-loop corr. are treated with complex param (0 for rMSSM, > 0 for cMSSM)
@@ -80,8 +80,8 @@ BE_INI_FUNCTION
   //
   // SM input parameters: -1 gives default value
   //
-  fh_real invAlfa0 = -1; // 1/alpha_{QED} at 0? MJW: Peter check?
-  fh_real invAlfaMZ = sminputs.alphainv; // 1/alpha_{QED}
+  fh_real invAlfa0 = -1; // 1/alpha_{QED} at Q = 0 (ie the thompson limit).-1 uses their default.  Hard coding this is ugly but phenomeniologically safe.  how to deal with extra inputs like should be discussed in specbit redesign.
+  fh_real invAlfaMZ = sminputs.alphainv; // 1/alpha_{QED}  PA: one question here is do they want the MSbar quantity or something else, e.g. in the OS MW calculation they want something slightly different! 
   fh_real AlfasMZ = sminputs.alphaS;   // alpha_s @ MZ
   fh_real GF = sminputs.GF;            // Fermi constant
 
@@ -97,8 +97,8 @@ BE_INI_FUNCTION
   fh_real MW = fullspectrum.get(Par::Pole_Mass,"W+");  // W boson mass
   fh_real MZ = sminputs.mZ;                        // Z boson mass
 
-  fh_real GammaW = -1; //MJW: Peter check?
-  fh_real GammaZ = -1; // MJW: Peter check?
+  fh_real GammaW = -1; // PA: TODO get these from the decay tables 
+  fh_real GammaZ = -1; // PA: TODO get these from the decay tables 
   
   // CKM input parameters in Wolfenstein parameterization
   fh_real CKMlambda = sminputs.CKM.lambda;
@@ -177,6 +177,9 @@ BE_INI_FUNCTION
   fh_complex Ab = Af, As = Af, Ad = Af;
   fh_complex Atau = Af, Amu = Af, Ae = Af;
 
+
+  //PA::TODO  we should really be checking here that the Yukawas we divide by are not zero
+  /// and throwing an error in they are 
   Au.re   = SLHAea::to<double>(slhaea.at("TU").at(1,1).at(2))/SLHAea::to<double>(slhaea.at("YU").at(1,1).at(2));
   Ac.re   = SLHAea::to<double>(slhaea.at("TU").at(2,2).at(2))/SLHAea::to<double>(slhaea.at("YU").at(2,2).at(2));
   At.re   = SLHAea::to<double>(slhaea.at("TU").at(3,3).at(2))/SLHAea::to<double>(slhaea.at("YU").at(3,3).at(2));
