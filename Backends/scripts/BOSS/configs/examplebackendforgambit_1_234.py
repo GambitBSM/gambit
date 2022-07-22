@@ -48,19 +48,19 @@ header_files_to = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'
 src_files_to = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/src'
 
 load_classes = [
-    # 'ClassThree<double>',
-    # 'ClassThree<int>',
+    #'ClassThree<double>',
+    #'ClassThree<int>',
     'ClassFour',
-    # #'ClassThree<ClassFour>',
-    # 'ClassFive<ClassFour>',
+    # 'ClassThree<ClassFour>',
+    'ClassFive<ClassFour>',
     # 'ClassSix',
     # 'ClassSeven<double>',
     # 'ClassSeven<int>',
 ]
 
 load_functions = [
-    # 'SomeNamespace::return_as_vector(int, int)',
-    # 'SomeNamespace::return_as_vector_2(int, int&)',
+    'SomeNamespace::return_as_vector(int, int)',
+    'SomeNamespace::return_as_vector_2(int, int&)',
     'SomeNamespace::return_a_ClassFour_instance()',
 ]
 

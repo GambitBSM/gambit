@@ -1,0 +1,9 @@
+#ifndef __wrapper_ClassFive__ClassFour_ExampleBackendForGAMBIT_1_234_hpp__
+#define __wrapper_ClassFive__ClassFour_ExampleBackendForGAMBIT_1_234_hpp__
+
+
+#include "wrapper_ClassFive__ClassFour_decl.hpp"
+#include "wrapper_ClassFive__ClassFour_def.hpp"
+
+
+#endif /* __wrapper_ClassFive__ClassFour_ExampleBackendForGAMBIT_1_234_hpp__ */
