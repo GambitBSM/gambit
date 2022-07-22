@@ -1150,19 +1150,5 @@ namespace Gambit
       result = HiggsProd;
 
     }
-
-     /// Get a simple LHC likelihood for the Higgs mass
-    void calc_SM_Higgs_Mass_LogLike(double &result)
-    {
-      using namespace Pipes::calc_SM_Higgs_Mass_LogLike;
-
-      hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
-      const double mh = ModelParam.Mh[0];
-      const double mh_obs = 124.97;
-      const double error = 0.24;
-
-      result = -0.5 * pow(((mh - mh_obs) / error), 2);
-
-    }
   }
 }

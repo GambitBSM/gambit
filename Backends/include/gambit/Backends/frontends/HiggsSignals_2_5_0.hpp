@@ -27,6 +27,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 2.5.0
 #define SAFE_VERSION 2_5_0
+#define REFERENCE Bechtle:2013xfa
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */

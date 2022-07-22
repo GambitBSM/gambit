@@ -666,6 +666,20 @@ StandardModel_mNudiff: |
 THDM: |
    The most general Two-Higgs-Doublet Model.
 
+THDM_higgs: |
+   The most general Two-Higgs-Doublet Model in the Higgs basis.
+
+THDM_physical: |
+   The most general Two-Higgs-Doublet Model in the physical basis.
+
+THDM_higgsatQ: |
+   The most general Two-Higgs-Doublet Model in the Higgs basis with running.
+   Qin                 - the scale at which the parameters are defined
+
+THDM_physicalatQ: |
+   The most general Two-Higgs-Doublet Model in the physical basis with running.
+   Qin                 - the scale at which the parameters are defined
+
 THDMatQ: |
    The most general Two-Higgs-Doublet Model (see THDM) with running.
    Qin                 - the scale at which the parameters are defined
@@ -791,6 +805,79 @@ THDMflipped_physicalatQ: |
    Qin                 - the scale at which the parameters are defined
    QRunTo              - the scale to which the parameters are run
 
+
+THDMI_higgs: |
+   The Type-I Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+
+THDMI_higgsatQ: |
+   The Type-I Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+   Qin                          - the scale at which the parameters are defined
+
+THDMII_higgs: |
+   The Type-II Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+
+THDMII_higgsatQ: |
+   The Type-II Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+   Qin                          - the scale at which the parameters are defined
+
+THDMLS_higgs: |
+   The LS Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+
+THDMLS_higgsatQ: |
+   The LS Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+   Qin                          - the scale at which the parameters are defined
+
+THDMflipped_higgs: |
+   The flipped Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+
+THDMflipped_higgsatQ: |
+   The flipped Two-Higgs-Doublet Model in the Higgs basis.
+   Lambda1,...,Lambda7          - Real Higgs basis quartic couplings
+   tanb                          - The ratio of the up-type to down-type Higgs vevs
+   M12_2                         - The squared mass-mixing bilinear coupling
+   Qin                          - the scale at which the parameters are defined
+
+
+
+
+
+THDMI_hybrid_lambda1: |
+   The Type-I Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
+
+THDMI_hybrid_lambda1atQ: |
+   The Type-I Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMI_hybrid_lambda2: |
+   The Type-I Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
+
+THDMI_hybrid_lambda2atQ: |
+   The Type-I Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
 THDMII_hybrid_lambda1: |
    The Type-II Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
 
@@ -806,6 +893,135 @@ THDMII_hybrid_lambda2atQ: |
    The Type-II Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
    Qin                 - the scale at which the parameters are defined
    QRunTo              - the scale to which the parameters are run
+
+THDMLS_hybrid_lambda1: |
+   The Type-LS Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
+
+THDMLS_hybrid_lambda1atQ: |
+   The Type-LS Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMLS_hybrid_lambda2: |
+   The Type-LS Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
+
+THDMLS_hybrid_lambda2atQ: |
+   The Type-LS Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMflipped_hybrid_lambda1: |
+   The Type-flipped Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
+
+THDMflipped_hybrid_lambda1atQ: |
+   The Type-flipped Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+THDMflipped_hybrid_lambda2: |
+   The Type-flipped Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
+
+THDMflipped_hybrid_lambda2atQ: |
+   The Type-flipped Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
+   Qin                 - the scale at which the parameters are defined
+   QRunTo              - the scale to which the parameters are run
+
+
+
+THDM_hybrid_Higgs: |
+   The General Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+
+THDM_hybrid_HiggsatQ: |
+   The General Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+   Qin                          - the scale at which the parameters are defined
+
+THDMI_hybrid_Higgs: |
+   The Type-I Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+
+THDMI_hybrid_HiggsatQ: |
+   The Type-I Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+   Qin                          - the scale at which the parameters are defined
+
+THDMII_hybrid_Higgs: |
+   The Type-II Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+
+THDMII_hybrid_HiggsatQ: |
+   The Type-II Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+   Qin                          - the scale at which the parameters are defined
+
+THDMLS_hybrid_Higgs: |
+   The LS Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+
+THDMLS_hybrid_HiggsatQ: |
+   The LS Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+   Qin                          - the scale at which the parameters are defined
+
+THDMflipped_hybrid_Higgs: |
+   The flipped Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+
+THDMflipped_hybrid_HiggsatQ: |
+   The flipped Two-Higgs-Doublet Model in a hybrid basis with CP-even scalar masses and Higgs-basis params
+   mh                           - Mass of CP-even light Higgs
+   mH                           - Mass of CP-even heavy Higgs
+   cba                          - cos of the physical angle (beta-alpha)
+   tanb                         - The ratio of the up-type to down-type Higgs vevs
+   Lambda4,Lambda5,Lambda7      - Real Higgs basis quartic couplings
+   lambda6, lambda7             - Real scalar CP-violating quartic couplings
+   Qin                          - the scale at which the parameters are defined
 
 NREO_scalarDM: |
    Non-relativistic effective operator model for scalar DM, coupling constants as defined in: https://arxiv.org/abs/1501.03729

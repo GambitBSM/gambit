@@ -34,7 +34,7 @@ castxml_cc_opt = '-std=c++11'         # Additional option string passed to the c
 gambit_backend_name    = 'THDMC'
 gambit_backend_version = '1.8.0'
 gambit_base_namespace  = ''
-
+gambit_backend_reference = 'eriksson_2hdmc_2010'
 
 # ~~~~~ Information about the external code ~~~~~
 

@@ -138,6 +138,30 @@ namespace Gambit
 #undef PARENT
 #undef MODEL
 
+#define MODEL THDMI_hybrid_Higgs
+#define PARENT THDMI
+  START_MODEL
+
+  DEFINEPARS(mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7)
+
+  INTERPRET_AS_PARENT_FUNCTION(THDMI_hybrid_Higgs_to_THDMI)
+  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
+#undef PARENT
+#undef MODEL
+
+#define MODEL THDMI_hybrid_HiggsatQ
+#define PARENT THDMIatQ
+  START_MODEL
+
+  DEFINEPARS(mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7)
+
+  DEFINEPARS(Qin)
+
+  INTERPRET_AS_PARENT_FUNCTION(THDMI_hybrid_HiggsatQ_to_THDMIatQ)
+  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
+#undef PARENT
+#undef MODEL
+
 #define MODEL THDMI_hybrid_lambda1
 #define PARENT THDMI
   START_MODEL

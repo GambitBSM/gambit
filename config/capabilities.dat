@@ -278,7 +278,7 @@ large_print: |
   Scale test for various aspects of the printer buffer system.
 
 #-------------------------------------
-#  SpecBit
+#  SpecBit capabilities
 #-------------------------------------
 
 #####  DMEFT  #####
@@ -286,6 +286,191 @@ large_print: |
 DMEFT_spectrum: |
     The spectrum for the DMEFT model.
 
+
+#####  Two-Higgs-Doublet-Model  #####
+
+THDM_Type: |
+    Type of THDM, determined at runtime via the Yukawas
+
+THDM_spectrum: | 
+    Create Spectrum object from SMInputs structs and 2HDM parameters
+
+unitarity_LogLikelihood_THDM: | 
+    S-Matrix untarity constraint
+
+perturbativity_LogLikelihood_THDM: | 
+    perturbativity constraint on the scalar couplings
+
+perturbativity_yukawas_LogLikelihood_THDM: | 
+    perturbativity constraint on the Yukawa couplings
+
+stability_LogLikelihood_THDM: | 
+    vacuum stability + meta-stability constraint
+
+light_scalar_mass_corrections_LogLikelihood_THDM: | 
+    checks that the corrections to h0 are perturbative
+
+heavy_scalar_mass_corrections_LogLikelihood_THDM: | 
+    checks that the corrections to H0,A0,Hp are perturbative
+
+hidden_higgs_scenario_LogLikelihood_THDM: | 
+    only keeps points that correspond to hidden higgs scenario
+
+scalar_mass_range_LogLikelihood_THDM: | 
+    mass range for each scalar, specified in YAML file
+
+Higgs_Couplings_THDM: | 
+    fills a table of Higgs couplings for THDM
+
+oblique_parameters_LogLikelihood_THDM: | 
+    constraint on the 2HDM contributions to the S,T,U,V,W,X electroweak
+    precision observables
+
+init_THDM_spectrum_container_CONV: | 
+    overrides the Two-Higgs-Doublet model calculator (THDMC) internal 
+    spectrum with the GAMBIT generated spectrum.
+
+THDMC_1_8_0_init: | 
+    initializes the Two-Higgs-Doublet model calculator (THDMC) backend.
+
+THDMII_higgs_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_higgsatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_hybrid_lambda1_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_hybrid_lambda1atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_hybrid_lambda2_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_hybrid_lambda2atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_physical_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMII_physicalatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMIIatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_higgs_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_higgsatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_hybrid_Higgs_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_hybrid_HiggsatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_hybrid_lambda1_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_hybrid_lambda1atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_hybrid_lambda2_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_hybrid_lambda2atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_physical_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMI_physicalatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMIatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_higgs_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_higgsatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_hybrid_lambda1_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_hybrid_lambda1atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_hybrid_lambda2_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_hybrid_lambda2atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_physical_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLS_physicalatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMLSatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDM_higgs_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDM_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDM_physical_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_higgs_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_higgsatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_hybrid_lambda1_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_hybrid_lambda1atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_hybrid_lambda2_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_hybrid_lambda2atQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_physical_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflipped_physicalatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
+THDMflippedatQ_parameters: |
+    Parameters for the Two-Higgs-Doublet model
+    
 
 #####  Scalar singlet Higgs-portal models  #####
 

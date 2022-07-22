@@ -25,6 +25,8 @@
 #include <chrono>
 #include <cstdint>
 
+#include "gambit/Logs/logger.hpp"
+
 #ifdef WITH_MPI
 #include "gambit/Utils/mpiwrapper.hpp"
 #define GET_RANK ::Gambit::GMPI::Comm().Get_rank()
@@ -32,43 +34,45 @@
 #define GET_RANK 0
 #endif
 
-class point_counter
+namespace Gambit
 {
-
-public:
-  using time_point = std::chrono::time_point<std::chrono::high_resolution_clock>;
-  using int32 = int32_t;
-
-  point_counter(std::string name)
-    : name(name)
-  {}
-
-  std::string name;
-  static time_point startTime;
-  int32 point_count = 0;
-  int32 failed_count = 0;
-  int32 timer = 0;
-
-  void count()
+  class point_counter
   {
-    if (GET_RANK != 0) return;
+  public:
+    using time_point = std::chrono::time_point<std::chrono::high_resolution_clock>;
+    using int32 = int32_t;
 
-    time_point currTime = std::chrono::high_resolution_clock::now();
-    double totalDur = std::chrono::duration<double>(currTime - startTime).count();
+    point_counter(std::string name)
+      : name(name)
+    {}
 
-    if (timer < totalDur && point_count > 0)
+    std::string name;
+    time_point startTime;
+    int32 point_count = 0;
+    int32 failed_count = 0;
+    int32 timer = 0;
+
+    void count()
     {
-      timer += 40;
-      logger() << LogTags::utils << name << " failed: " << failed_count << "/" << point_count << " (" << (100*failed_count)/point_count << "%)" << EOM;
+      if (GET_RANK != 0) return;
+      if (point_count == 0) startTime = std::chrono::high_resolution_clock::now();
+      time_point currTime = std::chrono::high_resolution_clock::now();
+      double totalDur = std::chrono::duration<double>(currTime - startTime).count();
+
+      if (timer < totalDur && point_count > 0)
+      {
+        timer += 40;
+        logger() << LogTags::utils << name << " failed: " << failed_count << "/" << point_count << " (" << (100*failed_count)/point_count << "%)" << EOM;
+      }
+
+      ++point_count;
     }
 
-    ++point_count;
-  }
-
-  void count_invalid()
-  {
-    ++failed_count;
-  }
-};
+    void count_invalid()
+    {
+      ++failed_count;
+    }
+  };
+}
 
 #endif // point_counter_hpp

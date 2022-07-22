@@ -198,11 +198,6 @@
     BACKEND_OPTION( (HiggsSignals, 2.5.0), (libhiggssignals) )
     #undef FUNCTION
 
-    #define FUNCTION calc_SM_Higgs_Mass_LogLike
-    START_FUNCTION(double)
-    DEPENDENCY(HB_ModelParameters_neutral, hb_neutral_ModelParameters_effc)
-    #undef FUNCTION
-
   #undef CAPABILITY
 
 
