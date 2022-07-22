@@ -594,6 +594,15 @@ namespace Gambit
       ExampleBackendForGAMBIT_default::ClassFour classfour_instance_2 = BEreq::return_a_ClassFour_instance();
       cout << "classfour_instance_2.size() = " << classfour_instance_2.size() << endl;
 
+      ExampleBackendForGAMBIT_default::ClassFive<ExampleBackendForGAMBIT_default::ClassFour> classfive_instance;
+      classfive_instance.push(classfour_instance);
+      cout << "class_five_instance.size() = " << classfive_instance.size() << endl;
+
+      ExampleBackendForGAMBIT_1_234::ClassFive<ExampleBackendForGAMBIT_1_234::ClassFour> classfive_instance2;
+      classfive_instance2.push(classfour_instance);
+      cout << "class_five_instance.size() = " << classfive_instance2.size() << endl;
+
+
       cout << "============================================" << endl;
       cout << "Done testing ExampleBackendForGAMBIT backend" << endl;
       cout << "============================================" << endl;

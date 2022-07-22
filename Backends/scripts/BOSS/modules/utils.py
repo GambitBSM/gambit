@@ -74,18 +74,22 @@ def getClassNameDict(class_el, abstract=False):
     # Get template info, but only for loaded classes
     if '<' in class_name['short_templ'] and isLoadedClass(class_el):
         templ_bracket, templ_var_list, is_specialization = getTemplateBracket(class_el)
+        class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
+        class_name['templ_var_list'] = templ_var_list
+        class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
+
         if not is_specialization:
             class_name['templ_bracket'] = templ_bracket
-            class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
-            class_name['templ_var_list'] = templ_var_list
-            class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
             class_name['is_template' ] = True
+
         else:
-          class_name['wrp_long_templ'] = class_name['long'] + '__' + '_'.join(templ_var_list)
-          class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_var_list)
-          class_name['wrp_short_templ'] = class_name['short'] + '__' + '_'.join(templ_var_list)
-          class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_var_list)
-          class_name['is_specialization'] = True
+            class_name['templ_bracket'] = '<>'
+            class_name['is_specialization'] = True
+            class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
+            class_name['wrp_long_templ'] = class_name['long'] + '__' + '_'.join(templ_var_list)
+            class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_var_list)
+            class_name['wrp_short_templ'] = class_name['short'] + '__' + '_'.join(templ_var_list)
+            class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_var_list)
 
     class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
     class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
@@ -242,7 +246,7 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
             type_name = gb.abstr_class_prefix + type_name_short
         else:
             type_name = (namespace+'::')*include_namespace  + gb.abstr_class_prefix + type_name_short
-    else: 
+    else:
         if namespace == '':
             type_name = type_name_short
         else:
@@ -817,7 +821,7 @@ def getTemplatedMethodTypes(func_el, class_name):
 
         # Parse each arg into a dictionary and add it to method_types
         method_types['args'] = makeTemplateArgs(args)
-            
+
         if len(method_types['args']) != len(xml_args_info):
             raise UnfoundMember("Arguments of {0} are incorrect".format(searching_method))
 
@@ -825,7 +829,7 @@ def getTemplatedMethodTypes(func_el, class_name):
         # TODO: This causes more problems that it solves
         #same_args = True
         #for i, j in zip(method_types['args'], xml_args_info):
-        #    
+        #
         #    if i['type'] != j['type'] and i['type'] != removeNamespace(j['type']) and\
         #       i['type'] != (j['type'] + ' ' +j['name']) and\
         #       i['type'] != (removeNamespace(j['type']) + ' ' +j['name']) and\
@@ -860,7 +864,7 @@ def makeTemplateArgs(args):
 
     argc = 1
     for arg in args:
-       
+
         arg_dict = OrderedDict()
         arg = arg.strip()
 
@@ -1595,7 +1599,7 @@ def usesLoadedClass(input_type, byname=False):
 
     else:
         return False
-   
+
 
 # ====== constrAbsForwardDeclHeader ========
 
@@ -1974,7 +1978,7 @@ def getMemberElements(el, include_artificial=False):
 
 def foundMatchingMembers(class_name, el):
     """
-    This function is responsible in finding if there's any matching member 
+    This function is responsible in finding if there's any matching member
     in the original file for a templated class
     """
     try:
@@ -2577,6 +2581,39 @@ def removeCodeTags(content, remove_tags_list):
 # ====== END: removeCodeTags ========
 
 
+# ====== constrTemplateAliases ======
+
+def constrTemplateAliases(class_name, namespace_list):
+
+    code = constrNamespace(namespace_list, 'open', indent=cfg.indent)
+
+    if isTemplateClass(class_name):
+        template_bracket = class_name['templ_bracket']
+        template_vars = class_name['templ_vars']
+    elif isSpecialization(class_name):
+        template_bracket  = '<' + ','.join(['class T' + str(i) for i in range(len(class_name['templ_var_list']))]) + '>'
+        template_vars = '<' + ','.join(['T' + str(i) for i in range(len(class_name['templ_var_list']))]) + '>'
+    template_types = '<' + ','.join(class_name['templ_types']) + '>'
+
+    template_class_name = class_name['short'] + '_T'
+    alias_lines = 'template' + template_bracket + '\n'
+    alias_lines += 'class ' + template_class_name +  '\n'
+    alias_lines += '{};\n\n'
+    alias_lines += 'template<> class ' + template_class_name + template_types + ': public ' + class_name['wrp_short_templ']
+    alias_lines += ' { using ' + class_name['wrp_short_templ'] + '::' + class_name['wrp_short_templ'] + '; };\n\n'
+    alias_lines += 'template ' + template_bracket + ' using ' + class_name['short'] + ' = typename ' + template_class_name + template_vars + '::' + class_name['wrp_short_templ'] + ";"
+
+    code += addIndentation(alias_lines, len(namespace_list)*cfg.indent)
+
+    code += constrNamespace(namespace_list, 'close', indent=cfg.indent)
+
+    code += '\n\n'
+
+    return code
+
+# ====== END: constrTemplateAliases =====
+
+
 # ====== constrLoadedTypesHeaderContent ======
 
 def constrLoadedTypesHeaderContent():
@@ -2585,6 +2622,7 @@ def constrLoadedTypesHeaderContent():
     # Construct the code lines for the loaded classes, containg all the factory symbols and argument brackets for that class
     #
     class_lines = []
+    class_alias_lines = ''
 
     # Loop over all classes
     for class_name in gb.classes_done:
@@ -2608,7 +2646,7 @@ def constrLoadedTypesHeaderContent():
             for ns_part in namespace_list:
                 class_line += '(' + ns_part + ')'
 
-            class_line += '(' + class_name['short'] + '),'
+            class_line += '(' + class_name['wrp_short_templ'] + '),'
 
             class_line += '    /*constructors*/'
 
@@ -2618,6 +2656,10 @@ def constrLoadedTypesHeaderContent():
 
             class_line += ')) \\'
             class_lines.append(class_line)
+
+            # If class is template then one needs to build aliases
+            if isTemplateClass(class_name) or isSpecialization(class_name):
+              class_alias_lines += constrTemplateAliases(class_name, namespace_list)
 
     class_lines_code = ''
     class_lines_code += '#define ' + gb.gambit_backend_name_full + '_all_data \\\n'
@@ -2669,7 +2711,21 @@ def constrLoadedTypesHeaderContent():
     code += '// If the default version has been loaded, set it as default.\n'
     code += '#if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))\n'
     code += '  SET_DEFAULT_VERSION_FOR_LOADING_TYPES(BACKENDNAME,SAFE_VERSION,CAT(Default_,BACKENDNAME))\n'
-    code += '#endif\n'
+
+    if isTemplateClass(class_name) or isSpecialization(class_name):
+        outer_namespace_list = ['Gambit', gb.gambit_backend_name_default]
+        code += addIndentation(constrNamespace(outer_namespace_list, 'open', indent=cfg.indent), cfg.indent)
+        code += addIndentation(class_alias_lines, 3*cfg.indent)
+        code += addIndentation(constrNamespace(outer_namespace_list, 'close', indent=cfg.indent), cfg.indent)
+
+
+    code += '#endif\n\n'
+
+    if isTemplateClass(class_name) or isSpecialization(class_name):
+        outer_namespace_list = [gb.gambit_backend_name_full]
+        code += constrNamespace(outer_namespace_list, 'open', indent=cfg.indent)
+        code += addIndentation(class_alias_lines, cfg.indent)
+        code += constrNamespace(outer_namespace_list, 'close', indent=cfg.indent)
 
     code += '\n'
     code += '// Undefine macros to avoid conflict with other backends.\n'
@@ -2975,7 +3031,7 @@ def validType(type_name, xml_file):
     # Grab the locations of the outer brackets
     (lo, hi) = type_name_bracket_locs[0]
     stripped_type = type_name[:lo]
-   
+
     if not isTypeValid(type_name, xml_file) or hi != type_name_len - 1:
         # The outer type isn't valid OR the closing angle bracket isn't the final character in type_name.
         return False
@@ -3215,7 +3271,7 @@ def xmlFilesToDicts(xml_files):
                 namespaces_list = getNamespaces(
                     el, include_self=True, xml_file_name=xml_file)
                 full_name = '::'.join(namespaces_list)
-                
+
                 full_name = full_name.strip()
             else:
                 # Skip elements that don't have a name

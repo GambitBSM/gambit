@@ -9,6 +9,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
   
   class Abstract_ClassFour;
+  class Abstract_ClassFive__ClassFour;
   
   
   
