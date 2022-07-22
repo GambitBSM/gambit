@@ -199,10 +199,14 @@ namespace Gambit                                                            \
 
 /// Load factory functions for classes provided by this backend
 #define LOAD_ALL_FACTORIES                                                                      \
- BOOST_PP_SEQ_FOR_EACH(LOAD_FACTORIES_FOR_TYPE, , CAT_4(BACKENDNAME,_,SAFE_VERSION,_all_data))
+ BOOST_PP_SEQ_FOR_EACH(LOAD_FACTORIES_FOR_TYPE_I, , CAT_4(BACKENDNAME,_,SAFE_VERSION,_all_data))\
+
+/// Redirection macros
+#define LOAD_FACTORIES_FOR_TYPE_I(r,data,elem)                                                  \
+   LOAD_FACTORIES_FOR_TYPE(BOOST_PP_TUPLE_ELEM(2,0,elem),BOOST_PP_TUPLE_ELEM(2,1,elem))
 
 /// Load all factory functions for a given type.
-#define LOAD_FACTORIES_FOR_TYPE(r,data,elem)                                                    \
+#define LOAD_FACTORIES_FOR_TYPE(elem,factory)                                                   \
 namespace Gambit                                                                                \
 {                                                                                               \
   namespace Backends                                                                            \
@@ -214,31 +218,23 @@ namespace Gambit                                                                
                                                                                                 \
       /*Typedef the wrapper type to avoid expanding type seq inside BOOST_PP_SEQ_FOR_EACH_I*/   \
       typedef ::CAT_3(BACKENDNAME,_,SAFE_VERSION)::BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER,\
-               , BOOST_PP_SEQ_SUBSEQ(BOOST_PP_TUPLE_ELEM(2,0,elem),0,                           \
-                BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(BOOST_PP_TUPLE_ELEM(2,0,elem)),1)))              \
-              BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(BOOST_PP_TUPLE_ELEM(2,0,elem)),1)\
-               ,BOOST_PP_TUPLE_ELEM(2,0,elem))                                                  \
-              CAT(BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_TRANSFORM(APPEND_TOKEN,                         \
-               NS_SEP, BOOST_PP_TUPLE_ELEM(2,0,elem))),wrapper);                                \
+               , BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))           \
+              BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem)                   \
+              CAT(BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_TRANSFORM(APPEND_TOKEN,NS_SEP, elem)),wrapper); \
                                                                                                 \
       /*Typedef the abstract type to avoid expanding type seq inside BOOST_PP_SEQ_FOR_EACH_I*/  \
       typedef ::CAT_3(BACKENDNAME,_,SAFE_VERSION)::BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER,\
-               , BOOST_PP_SEQ_SUBSEQ(BOOST_PP_TUPLE_ELEM(2,0,elem),0,                           \
-                BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(BOOST_PP_TUPLE_ELEM(2,0,elem)),1)))              \
-              CAT(Abstract_,BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(                   \
-               BOOST_PP_TUPLE_ELEM(2,0,elem)),1), BOOST_PP_TUPLE_ELEM(2,0,elem)))               \
-              CAT(BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_TRANSFORM(APPEND_TOKEN,                         \
-         NS_SEP, BOOST_PP_TUPLE_ELEM(2,0,elem))),abstract);                                     \
+               , BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))           \
+              CAT(Abstract_,BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1), elem))   \
+              CAT(BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_TRANSFORM(APPEND_TOKEN,NS_SEP, elem)),abstract);\
                                                                                                 \
       /*Register the type with the backend info object*/                                        \
       int CAT(registered_type_,BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_TRANSFORM(APPEND_TOKEN,            \
-       NS_SEP, BOOST_PP_TUPLE_ELEM(2,0,elem)))) =                                               \
+       NS_SEP, elem))) =                                                                        \
        register_type(STRINGIFY(BACKENDNAME)STRINGIFY(VERSION),                                  \
          STRINGIFY(BOOST_PP_SEQ_FOR_EACH_I(TRAILING_NSQUALIFIER, ,                              \
-         BOOST_PP_SEQ_SUBSEQ(BOOST_PP_TUPLE_ELEM(2,0,elem),0,                                   \
-         BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(BOOST_PP_TUPLE_ELEM(2,0,elem)),1)))                     \
-         BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(BOOST_PP_TUPLE_ELEM(2,0,elem)),1),    \
-         BOOST_PP_TUPLE_ELEM(2,0,elem))));                                                      \
+         BOOST_PP_SEQ_SUBSEQ(elem,0,BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1)))                   \
+         BOOST_PP_SEQ_ELEM(BOOST_PP_SUB(BOOST_PP_SEQ_SIZE(elem),1),elem)));                     \
                                                                                                 \
     } /* end namespace BACKENDNAME_SAFE_VERSION */                                              \
   } /* end namespace Backends */                                                                \
@@ -246,8 +242,7 @@ namespace Gambit                                                                
                                                                                                 \
 /*Load up each factory in turn for this type*/                                                  \
 BOOST_PP_SEQ_FOR_EACH_I(LOAD_NTH_FACTORY_FOR_TYPE,                                              \
- BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_TRANSFORM(APPEND_TOKEN, NS_SEP,                                  \
- BOOST_PP_TUPLE_ELEM(2,0,elem))), BOOST_PP_TUPLE_ELEM(2,1,elem))                                \
+ BOOST_PP_SEQ_CAT(BOOST_PP_SEQ_TRANSFORM(APPEND_TOKEN, NS_SEP, elem)), factory)                 \
 
 /// Redirector from within BOOST_PP_SEQ_FOR_EACH_I to LOAD_SINGLE_FACTORY
 #define LOAD_NTH_FACTORY_FOR_TYPE(r,data,i,elem)                                                \
