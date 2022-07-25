@@ -178,7 +178,7 @@ def fillParentsOfLoadedClassesList():
 
 # ====== constrAbstractClassDecl ========
 
-def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for_gambit=False, has_copy_constructor=True, construct_assignment_operator=True, current_code=""):
+def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for_gambit=False, has_copy_constructor=True, construct_assignment_operator=True, current_code="", skip_templ=False):
 
     n_indents = len(namespaces)
 
@@ -208,20 +208,40 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
     # - Construct the beginning of the namespaces
     class_decl += utils.constrNamespace(namespaces, 'open')
 
-    # - If this class is a template specialization, add 'template <>' at the top
-    # - If this class is a full template, add template bracket
+    # - If this class is a template, add generic declaration at the top
+    if is_template and not skip_templ:
+        class_decl += ' '*n_indents*indent + 'template ' + class_name['templ_bracket']  + '\n'
+        class_decl += ' '*n_indents*indent + 'class ' + class_name['abstr_short'] + '\n'
+        class_decl += ' '*n_indents*indent + '{'
+
+        # - Construct 'pointer_assign' and 'pointer_copy' functions
+        if class_name['long_templ'] in gb.contains_pure_virtual_members:
+            reason = "Contains pure virtual member functions."
+            infomsg.NoPointerCopyAndAssignmentFunctions(class_name['long_templ'], reason).printMessage()
+        else:
+            class_decl += '\n'
+            if has_copy_constructor or construct_assignment_operator:
+                class_decl += ' '*(n_indents+1)*indent + 'public:\n'
+            if construct_assignment_operator:
+                for parent_dict in parent_classes:
+                    if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
+                        class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long'] + class_name['templ_vars'] + '::pointer_assign' + gb.code_suffix + ';\n'
+                class_decl += constrPtrAssignFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True, specialized=False)
+            if has_copy_constructor:
+                class_decl += constrPtrCopyFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True, specialized=False)
+
+        class_decl += ' '*n_indents*indent + '};\n\n'
+
+    # - If this class is a template, add 'template <>' at the top
     if is_template:
-        class_decl += ' '*n_indents*indent + 'template ' + templ_bracket + '\n'
+        class_decl += ' '*n_indents*indent + 'template <>\n'
 
     # - Construct the declaration line, with inheritance of abstract classes
     inheritance_line = ''
     for parent_dict in parent_classes:
 
         if parent_dict['loaded']:
-            if is_template:
-                inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['abstr_long'] + templ_vars + ', '
-            else:
-                inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['abstr_long_templ'] + ', '
+            inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['abstr_long_templ'] + ', '
 
         elif parent_dict['fundamental'] or parent_dict['std']:
             # inheritance_line += 'virtual ' + parent_dict['access'] + ' ' + parent_dict['class_name']['long_templ'] + ', '
@@ -243,7 +263,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
 
     class_decl += ' '*n_indents*indent
-    class_decl += 'class ' + class_name['abstr_short'] + inheritance_line + '\n'
+    class_decl += 'class ' + class_name['abstr_short_templ'] + inheritance_line + '\n'
 
     # - Construct body of class declaration
     current_access = ''
@@ -293,18 +313,18 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
             return_kw     = return_type_dict['cv_qualifiers']
 
             return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
-            
-            if is_template:
-                func_types = utils.getTemplatedMethodTypes(el, class_name)
 
-                return_type = func_types['return']
-                args = func_types['args']
-
-
-            else:
-                args = utils.getArgs(el)
-                return_name = return_type_dict['name']
-                return_type   = return_name + '*'*pointerness + '&'*is_ref
+#            if is_template:
+#                func_types = utils.getTemplatedMethodTypes(el, class_name)
+#
+#                return_type = func_types['return']
+#                args = func_types['args']
+#
+#
+#            else:
+            args = utils.getArgs(el)
+            return_name = return_type_dict['name']
+            return_type   = return_name + '*'*pointerness + '&'*is_ref
             # If any of the arg types is a locally defined type, remove all namespaces
             for arg in args:
                 if utils.typeInList(arg, locally_defined_types):
@@ -320,7 +340,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
             return_is_loaded = utils.isLoadedClass(return_el)
 
-            
+
 
             # If return type is a known class, add '::' for absolute namespace.
             if (not return_is_loaded) and utils.isKnownClass(return_el):
@@ -455,10 +475,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
         if construct_assignment_operator:
             for parent_dict in parent_classes:
                 if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
-                    if is_template:
-                        class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long'] + templ_vars + '::pointer_assign' + gb.code_suffix + ';\n'
-                    else:
-                        class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
+                    class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long_templ'] + '::pointer_assign' + gb.code_suffix + ';\n'
             class_decl += constrPtrAssignFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True)
         if has_copy_constructor:
             class_decl += constrPtrCopyFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True)
@@ -468,8 +485,6 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
     class_decl += ' '*(n_indents+1)*indent + 'private:\n'
     # Wrapper class needs to be templated
     wrapper_class_name = class_name['wrp_short']
-    if is_template:
-        wrapper_class_name += templ_vars
 
     class_decl +=  ' '*(n_indents+2)*indent +  wrapper_class_name
 
@@ -503,10 +518,7 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
     parent_cctors_line = ''
     for parent_dict in all_parent_classes:
         if parent_dict['loaded']:
-            if is_template:
-                parent_cctors_line += parent_dict['class_name']['abstr_long'] + class_name['templ_vars'] + '(in), '
-            else:
-                parent_cctors_line += parent_dict['class_name']['abstr_long_templ'] + '(in), '
+            parent_cctors_line += parent_dict['class_name']['abstr_long_templ'] + '(in), '
         elif parent_dict['fundamental'] or parent_dict['std']:
             reason = 'Avoid inheritance ambiguity.'
             infomsg.ParentClassIgnored(class_name['abstr_short'], parent_dict['class_name']['long_templ'], reason).printMessage()
@@ -546,8 +558,6 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
         class_decl += ' '*(n_indents+3)*indent + 'if (wptr == 0)\n'
         class_decl += ' '*(n_indents+3)*indent + '{\n'
         class_decl += ' '*(n_indents+4)*indent + 'wptr = wrapper_creator'
-        if is_template:
-            class_decl += templ_vars
         class_decl += '(this);\n'
         class_decl += ' '*(n_indents+4)*indent + 'delete_wrapper = true;\n'
         class_decl += ' '*(n_indents+3)*indent + '}\n'
@@ -585,23 +595,16 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
         class_decl += ' '*(n_indents+3)*indent + 'if (wptr != 0)\n'
         class_decl += ' '*(n_indents+3)*indent + '{\n'
         class_decl += ' '*(n_indents+4)*indent + 'set_delete_BEptr'
-        if is_template:
-            class_decl += templ_vars
         class_decl += '(wptr, false);\n'
         class_decl += ' '*(n_indents+4)*indent + 'if (delete_wrapper == true)\n'
         class_decl += ' '*(n_indents+4)*indent + '{\n'
         class_decl += ' '*(n_indents+5)*indent + 'wrapper_deleter'
-        if is_template:
-            class_decl += templ_vars
         class_decl += '(wptr);\n'
         class_decl += ' '*(n_indents+5)*indent + 'wptr = 0;\n'
         # Set wptr = 0 in all parent classes as well
         for parent_dict in all_parent_classes:
             if parent_dict['loaded']:
-                if is_template:
-                    class_decl += ' '*(n_indents+5)*indent + parent_dict['class_name']['abstr_long'] + templ_vars + '::set_wptr(0);\n'
-                else:
-                    class_decl += ' '*(n_indents+5)*indent + parent_dict['class_name']['abstr_long_templ'] + '::set_wptr(0);\n'
+                class_decl += ' '*(n_indents+5)*indent + parent_dict['class_name']['abstr_long_templ'] + '::set_wptr(0);\n'
 
         class_decl += ' '*(n_indents+5)*indent + 'delete_wrapper = false;\n'
         class_decl += ' '*(n_indents+4)*indent + '}\n'
@@ -646,31 +649,34 @@ def forwardDeclGenerator(class_el, class_name):
     is_template = utils.isTemplateClass(class_name)
 
     # Add the declaration for the wrapper_creator
-    if is_template:
-        frwd_decl_creator = 'template '+class_name['templ_bracket']+'\n'+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'* wrapper_creator'
-        frwd_decl_creator += '('+gb.gambit_backend_namespace+'::'+class_name['abstr_long']+class_name['templ_vars']+'*);\n'
-    else :
-        frwd_decl_creator = gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'* wrapper_creator('+gb.gambit_backend_namespace+'::'+class_name['abstr_long']+'*);\n'
+    # TODO: Remove if not needed
+    #if is_template:
+    #    frwd_decl_creator = 'template '+class_name['templ_bracket']+'\n'+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'* wrapper_creator'
+    #    frwd_decl_creator += '('+gb.gambit_backend_namespace+'::'+class_name['abstr_long']+class_name['templ_vars']+'*);\n'
+    #else :
+    frwd_decl_creator = gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'* wrapper_creator('+gb.gambit_backend_namespace+'::'+class_name['abstr_long_templ']+'*);\n'
     frwd_decl_creator += '\n'
 
 
 
     # Add the declaration for the wrapper_deleter
-    if is_template:
-        frwd_decl_deleter = 'template '+class_name['templ_bracket']+'\nvoid wrapper_deleter'
-        frwd_decl_deleter += '('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'*);\n'
-    else :
-        frwd_decl_deleter = 'void wrapper_deleter('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'*);\n'
+    # TODO: Remove if not needed
+    #if is_template:
+    #    frwd_decl_deleter = 'template '+class_name['templ_bracket']+'\nvoid wrapper_deleter'
+    #    frwd_decl_deleter += '('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'*);\n'
+    #else :
+    frwd_decl_deleter = 'void wrapper_deleter('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'*);\n'
     frwd_decl_deleter += '\n'
 
 
 
     # Add the declaration for set_delete_BEptr
-    if is_template:
-        frwd_decl_setdel = 'template '+class_name['templ_bracket']+'\nvoid set_delete_BEptr'
-        frwd_decl_setdel += '('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'*, bool);\n'
-    else :
-        frwd_decl_setdel = 'void set_delete_BEptr('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'*, bool);\n'
+    # TODO: Remove if not needed
+    #if is_template:
+    #    frwd_decl_setdel = 'template '+class_name['templ_bracket']+'\nvoid set_delete_BEptr'
+    #    frwd_decl_setdel += '('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'*, bool);\n'
+    #else :
+    frwd_decl_setdel = 'void set_delete_BEptr('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'*, bool);\n'
     frwd_decl_setdel += '\n'
 
     # Return all 3
@@ -866,7 +872,7 @@ def constrFactoryFunctionCode(class_el, class_name, indent=4, template_types=[],
 
 # ====== constrWrapperFunction ========
 
-def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False):
+def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, remove_n_args=0, only_declaration=False, include_full_namespace=False, specialized=True):
 
     class_name = utils.getClassNameDict(class_el)
     is_template = utils.isTemplateClass(class_name)
@@ -888,7 +894,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     return_el     = return_type_dict['el']
     pointerness   = return_type_dict['pointerness']
     is_ref        = return_type_dict['is_reference']
-    return_kw     = return_type_dict['cv_qualifiers']   
+    return_kw     = return_type_dict['cv_qualifiers']
 
     # Check constness (in the following sense: "double someFunction() const", i.e. a function that does not modify member variables.)
     is_const = ('const' in method_el.keys()) and (method_el.get('const') == '1')
@@ -896,7 +902,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     return_is_loaded_class = utils.isLoadedClass(return_el)
 
     # Function return type
-    if is_template:
+    if is_template and not specialized:
         # Get the function's types from config file
         func_types = utils.getTemplatedMethodTypes(method_el, class_name)
 
@@ -914,7 +920,7 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
         args = args[:-remove_n_args]
 
     # Construct wrapper function name
-    if is_template:
+    if is_template and not specialized:
       w_func_name = funcutils.constrWrapperName(method_el, include_full_namespace=False)
       if include_full_namespace:
           namespaces = utils.getNamespaces(method_el)
@@ -998,7 +1004,7 @@ def constrEnumDecl(enum_el, indent=cfg.indent, n_indents=0):
 # ====== constrVariableRefFunction ========
 
 def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False,
-                              include_full_namespace=False, add_return_type_suffix=False):
+                              include_full_namespace=False, add_return_type_suffix=False, specialized=True):
 
     func_code = ''
 
@@ -1020,7 +1026,7 @@ def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent
     is_template = utils.isTemplateClass(class_name)
 
     # If class is templated, pull type from file
-    if is_template:
+    if is_template and not specialized:
         var_type = utils.getTemplatedMemberVariableType(var_el)
     else:
         var_type   = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
@@ -1032,7 +1038,7 @@ def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent
     if include_full_namespace:
         namespaces = utils.getNamespaces(var_el)
         if len(namespaces) > 0:
-            if is_template:
+            if is_template and not specialized:
                 namespaces[-1] = class_name['short'] + class_name['templ_vars']
             ref_method_name = '::'.join(namespaces) + '::' + ref_method_name
 
@@ -1069,7 +1075,7 @@ def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent
 
     else:
 
-        if is_template and not only_declaration:
+        if is_template and not only_declaration and not specialized:
             func_code += 'template ' + class_name['templ_bracket'] + '\n'
 
         if is_array:
@@ -1101,21 +1107,19 @@ def constrVariableRefFunction(var_el, class_el, virtual=False, indent=cfg.indent
 
 # ====== constrPtrCopyFunc ========
 
-def constrPtrCopyFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
+def constrPtrCopyFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, specialized=True):
 
     func_name = 'pointer_copy' + gb.code_suffix
 
     is_template = utils.isTemplateClass(class_name)
     ptr_code = ''
 
-    if is_template:
-       if not only_declaration:
-           ptr_code = 'template ' + class_name['templ_bracket'] + '\n'
-       abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
-       class_name_short = class_name['short'] + class_name['templ_vars']
+    if is_template and only_declaration and not specialized:
+        abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
+        class_name_short = class_name['short'] + class_name['templ_vars']
     else:
         class_name_short = class_name['short_templ']
-        abstr_class_name_short = class_name['abstr_short']
+        abstr_class_name_short = class_name['abstr_short_templ']
 
     class_name_long = class_name_short
     abstr_class_name_long = abstr_class_name_short
@@ -1149,19 +1153,24 @@ def constrPtrCopyFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_
 
 # ====== constrPtrAssignFunc ========
 
-def constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False):
+def constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_indents=0, only_declaration=False, include_full_namespace=False, specialized=True):
 
     func_name  = 'pointer_assign' + gb.code_suffix
 
     # Some shorthand variable names for different cases
-    if class_name['is_template']:
+    # TODO: Remove if not needed
+#    if class_name['is_template']:
+#        abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
+#        class_name_short = class_name['short'] + class_name['templ_vars']
+#        wrp_class_name_short = class_name['wrp_short'] + class_name['templ_vars']
+#    else:
+    if class_name['is_template'] and not specialized:
         abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
         class_name_short = class_name['short'] + class_name['templ_vars']
-        wrp_class_name_short = class_name['wrp_short'] + class_name['templ_vars']
     else:
-        abstr_class_name_short = class_name['abstr_short_templ']
-        class_name_short = class_name['short_templ']
-        wrp_class_name_short = class_name['wrp_short_templ']
+      abstr_class_name_short = class_name['abstr_short_templ']
+      class_name_short = class_name['short_templ']
+    wrp_class_name_short = class_name['wrp_short_templ']
 
     abstr_class_name_long = abstr_class_name_short
     class_name_long = class_name_short
@@ -1302,8 +1311,6 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 
     # Class declaration line
     decl_code += '\n'
-    if is_template:
-      decl_code += 'template <>\n'
     decl_code += 'class ' + class_name['wrp_short_templ'] + inheritance_line + '\n'
 
     # Class body
@@ -1359,7 +1366,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
                 use_args = args
             else:
                 use_args = args[:-remove_n_args]
-            
+
             args_bracket = utils.constrArgsBracket(use_args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
             # Factory pointer name
@@ -1399,7 +1406,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 
 
         var_kw_str = ' '.join(var_kw) + ' '*bool(len(var_kw))
-        
+
         var_type = var_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
         var_is_loaded_class = utils.isLoadedClass(var_el)
@@ -1580,8 +1587,8 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
             # Check that the constructor is acceptable
             if funcutils.ignoreFunction(constr_el, limit_pointerness=True, remove_n_args=remove_n_args):
                 continue
-            
-            
+
+
             if remove_n_args == 0:
                 use_args         = args
                 # factory_use_args = factory_args
@@ -1617,7 +1624,7 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
 
     # Add wrappers for all operators except the artificial ones which were filtered out prior
     # TODO: ZELUN subject to change
-    # This is used to load the operators in wrapper_decl however I am not exactly sure about the 
+    # This is used to load the operators in wrapper_decl however I am not exactly sure about the
     # format we want it in so it is still subject to update
     # TODO: I'm pretty sure this shouldn't be here, operators are treated as normal methods
 #    temp_code = ''
@@ -1689,7 +1696,6 @@ def constrWrapperDecl(class_el, class_name, loaded_parent_classes, class_variabl
     # Close class body
     decl_code += '\n'
     decl_code += '};\n'
-
 
     # Add namespace
     namespace, class_name_short = utils.removeNamespace(class_name['wrp_long'], return_namespace=True)
