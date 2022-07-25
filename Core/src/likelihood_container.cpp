@@ -307,7 +307,7 @@ namespace Gambit
 
 
       // If none of the likelihood calculations have invalidated the point, calculate the observables.
-      if (compute_aux)
+      if (compute_aux && lnlike > disable_print_for_lnlike_below)
       {
         if (debug) logger() << LogTags::core <<  "Completed likelihoods.  Calculating additional observables." << EOM;
 

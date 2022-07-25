@@ -1409,9 +1409,9 @@ namespace Gambit
 
     // helper function to setup likelihood environment
     // this is called by the rollcall
-    void get_oblique_parameters_likelihood_THDM(double& result)
+    void get_oblique_parameters_LogLikelihood_THDM(double& result)
     {
-      using namespace Pipes::get_oblique_parameters_likelihood_THDM;
+      using namespace Pipes::get_oblique_parameters_LogLikelihood_THDM;
 
       THDM_spectrum_container container;
       BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(*Dep::THDM_Type), 0.0, 0);

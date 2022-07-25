@@ -69,7 +69,7 @@ contrib/**/Makefile*
 contrib/MassSpectra/flexiblesusy/config/depgen.x
 contrib/MassSpectra/flexiblesusy/config/flexiblesusy-version
 contrib/pybind11/
-contrib/HepMC3-3.2.5/**
+contrib/HepMC3-**
 
 # Local configuration files
 config/*_locations.yaml

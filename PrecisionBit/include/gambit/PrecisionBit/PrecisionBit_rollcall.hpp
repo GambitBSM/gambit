@@ -294,9 +294,9 @@ START_MODULE
 
   #undef CAPABILITY
 
-#define CAPABILITY oblique_parameters_likelihood_THDM
+#define CAPABILITY oblique_parameters_LogLikelihood_THDM
   START_CAPABILITY
-  #define FUNCTION get_oblique_parameters_likelihood_THDM
+#define FUNCTION get_oblique_parameters_LogLikelihood_THDM
   START_FUNCTION(double)
   NEEDS_CLASSES_FROM(THDMC,default)
   DEPENDENCY(THDM_spectrum, Spectrum)
