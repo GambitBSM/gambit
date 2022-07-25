@@ -71,12 +71,22 @@ def getClassNameDict(class_el, abstract=False):
     class_name['is_template'] = False
     class_name['is_specialization'] = False
 
+    class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
+    class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
+    class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix, short=True)
+    class_name['abstr_short']       = class_name['abstr_short_templ'].split('<',1)[0]
+
     # Get template info, but only for loaded classes
     if '<' in class_name['short_templ'] and isLoadedClass(class_el):
         templ_bracket, templ_var_list, is_specialization = getTemplateBracket(class_el)
+        templ_types = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
         class_name['templ_var_list'] = templ_var_list
-        class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
+        class_name['templ_types'] = templ_types
+        class_name['wrp_long_templ'] = class_name['long'] + '__' + '_'.join(templ_types)
+        class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_types)
+        class_name['wrp_short_templ'] = class_name['short'] + '__' + '_'.join(templ_types)
+        class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_types)
 
         if not is_specialization:
             class_name['templ_bracket'] = templ_bracket
@@ -85,16 +95,10 @@ def getClassNameDict(class_el, abstract=False):
         else:
             class_name['templ_bracket'] = '<>'
             class_name['is_specialization'] = True
-            class_name['templ_types'] = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
-            class_name['wrp_long_templ'] = class_name['long'] + '__' + '_'.join(templ_var_list)
-            class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_var_list)
-            class_name['wrp_short_templ'] = class_name['short'] + '__' + '_'.join(templ_var_list)
-            class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_var_list)
-
-    class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
-    class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
-    class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix, short=True)
-    class_name['abstr_short']       = class_name['abstr_short_templ'].split('<',1)[0]
+            class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
+            class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
+            class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix, short=True)
+            class_name['abstr_short']       = class_name['abstr_short_templ'].split('<',1)[0]
 
     return class_name
 
@@ -1723,18 +1727,8 @@ def constrWrpForwardDeclHeader(file_output_path):
 
         # - Forward declaration
 
-        is_template = isTemplateClass(class_name)
+        insert_code += full_indent + 'class ' + class_name["wrp_short"] + ';\n'
 
-        if is_template:
-
-            templ_bracket = class_name['templ_bracket']
-
-            insert_code += full_indent + 'template ' + templ_bracket + '\n'
-
-            insert_code += full_indent + 'class ' + class_name['wrp_short'] + ';\n'
-
-        else:
-            insert_code += full_indent + 'class ' + class_name["wrp_short"] + ';\n'
 
         done_classes.append(class_name['wrp_short'])
 
@@ -2370,12 +2364,9 @@ def getIncludeStatements(input_el, convert_loaded_to='none', exclude_types=[],
                     else:
                         header_key = convert_loaded_to
 
-                    if convert_loaded_to in ['wrapper', 'wrapper_decl', 'wrapper_def'] and type_name['is_specialization']:
+                    if convert_loaded_to in ['wrapper', 'wrapper_decl', 'wrapper_def']:
                         include_statements.append(
-                            '#include "' + gb.new_header_files[type_name['wrp_long_templ']][header_key] + '"')
-                    else:
-                        include_statements.append(
-                            '#include "' + gb.new_header_files[type_name['long']][header_key] + '"')
+                            '#include "' + gb.new_header_files[type_name['wrp_long']][header_key] + '"')
 
             elif isStdType(type_el):
                 if type_name['long'] in gb.std_headers:
@@ -2596,11 +2587,9 @@ def constrTemplateAliases(class_name, namespace_list):
     template_types = '<' + ','.join(class_name['templ_types']) + '>'
 
     template_class_name = class_name['short'] + '_T'
-    alias_lines = 'template' + template_bracket + '\n'
-    alias_lines += 'class ' + template_class_name +  '\n'
-    alias_lines += '{};\n\n'
-    alias_lines += 'template<> class ' + template_class_name + template_types + ': public ' + class_name['wrp_short_templ']
-    alias_lines += ' { using ' + class_name['wrp_short_templ'] + '::' + class_name['wrp_short_templ'] + '; };\n\n'
+
+    alias_lines = 'template' + template_bracket +  'class ' + template_class_name +  '{ struct type; };\n'
+    alias_lines += 'template<> class ' + template_class_name + template_types + ' { using type = ' + class_name['wrp_short_templ'] + '; };\n\n'
     alias_lines += 'template ' + template_bracket + ' using ' + class_name['short'] + ' = typename ' + template_class_name + template_vars + '::' + class_name['wrp_short_templ'] + ";"
 
     code += addIndentation(alias_lines, len(namespace_list)*cfg.indent)
@@ -2683,12 +2672,14 @@ def constrLoadedTypesHeaderContent():
     for pragma_directive in cfg.pragmas_begin:
         incl_statements_code += pragma_directive.strip() + '\n'
 
+    included_classes = []
     for class_name in gb.classes_done:
-        if class_name['wrp_long'] in gb.factory_info.keys():
+        if class_name['wrp_long'] in gb.factory_info.keys() and class_name['wrp_short'] not in included_classes:
             namespace, class_name_short = removeNamespace(
                 class_name['wrp_long'], return_namespace=True)
             incl_statements_code += '#include "' + gb.wrapper_header_prefix + \
                 class_name['wrp_short'] + cfg.header_extension + '"\n'
+            included_classes.append(class_name['wrp_short'])
     incl_statements_code += '#include "identification.hpp"\n'
 
     for pragma_directive in cfg.pragmas_end:
@@ -2712,7 +2703,7 @@ def constrLoadedTypesHeaderContent():
     code += '#if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))\n'
     code += '  SET_DEFAULT_VERSION_FOR_LOADING_TYPES(BACKENDNAME,SAFE_VERSION,CAT(Default_,BACKENDNAME))\n'
 
-    if isTemplateClass(class_name) or isSpecialization(class_name):
+    if class_alias_lines:
         outer_namespace_list = ['Gambit', gb.gambit_backend_name_default]
         code += addIndentation(constrNamespace(outer_namespace_list, 'open', indent=cfg.indent), cfg.indent)
         code += addIndentation(class_alias_lines, 3*cfg.indent)
@@ -2721,7 +2712,7 @@ def constrLoadedTypesHeaderContent():
 
     code += '#endif\n\n'
 
-    if isTemplateClass(class_name) or isSpecialization(class_name):
+    if class_alias_lines:
         outer_namespace_list = [gb.gambit_backend_name_full]
         code += constrNamespace(outer_namespace_list, 'open', indent=cfg.indent)
         code += addIndentation(class_alias_lines, cfg.indent)
@@ -3427,28 +3418,26 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
 
             class_name = getClassNameDict(el)
 
-            class_name_short = class_name['wrp_short']
             class_name_long = class_name['wrp_long']
 
             if class_name_long not in gb.new_header_files.keys():
 
-                abstract_header_name = gb.abstr_header_prefix + \
-                    class_name_short + cfg.header_extension
-                wrapper_header_name = gb.wrapper_header_prefix + \
-                    class_name_short + cfg.header_extension
-                wrapper_decl_header_name = gb.wrapper_header_prefix + \
-                    class_name_short + '_decl' + cfg.header_extension
-                wrapper_def_header_name = gb.wrapper_header_prefix + \
-                    class_name_short + '_def' + cfg.header_extension
+                if class_name['is_template']:
+                  abstract_header_name = gb.abstr_header_prefix + class_name['short'] + cfg.header_extension
+                else:
+                  abstract_header_name = gb.abstr_header_prefix + class_name['wrp_short'] + cfg.header_extension
+                wrapper_header_name = gb.wrapper_header_prefix + class_name['wrp_short'] + cfg.header_extension
+                wrapper_decl_header_name = gb.wrapper_header_prefix + class_name['wrp_short'] + '_decl' + cfg.header_extension
+                wrapper_def_header_name = gb.wrapper_header_prefix + class_name['wrp_short'] + '_def' + cfg.header_extension
 
                 abstract_header_fullpath = os.path.join(
-                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.abstr_header_prefix + class_name_short + cfg.header_extension)
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, abstract_header_name)
                 wrapper_header_fullpath = os.path.join(
-                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + cfg.header_extension)
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, wrapper_header_name)
                 wrapper_decl_header_fullpath = os.path.join(
-                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_decl' + cfg.header_extension)
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, wrapper_decl_header_name)
                 wrapper_def_header_fullpath = os.path.join(
-                    gb.backend_types_basedir, gb.gambit_backend_name_full, gb.wrapper_header_prefix + class_name_short + '_def' + cfg.header_extension)
+                    gb.backend_types_basedir, gb.gambit_backend_name_full, wrapper_def_header_name)
 
                 gb.new_header_files[class_name_long] = {'abstract': abstract_header_name,
                                                         'wrapper': wrapper_header_name,
@@ -3462,7 +3451,7 @@ def initGlobalXMLdicts(xml_path, id_and_name_only=False):
             if class_name_long not in gb.new_source_files.keys():
 
                 wrapper_src_name = gb.wrapper_source_prefix + \
-                    class_name_short + cfg.source_extension
+                    class_name['wrp_short'] + cfg.source_extension
 
                 gb.new_source_files[class_name_long] = {
                     'wrapper': wrapper_src_name}
