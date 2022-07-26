@@ -22,16 +22,20 @@ namespace Gambit
   {
     namespace ExampleBackendForGAMBIT_1_234
     {
+      template <typename T>
+      using ClassThree = ::ExampleBackendForGAMBIT_1_234::ClassThree<T>;
+      typedef ::ExampleBackendForGAMBIT_1_234::ClassThree__int ClassThree__int;
       typedef ::ExampleBackendForGAMBIT_1_234::ClassFour ClassFour;
-      typedef ::ExampleBackendForGAMBIT_1_234::ClassFive__ClassFour ClassFive__ClassFour;
+      template <class T0>
+      using ClassFive = ::ExampleBackendForGAMBIT_1_234::ClassFive<T0>;
     }
   }
 }
 
 // Functions
-BE_FUNCTION(return_as_vector, std::vector<int>, (int, int), "return_as_vector__BOSS_3", "return_as_vector")
-BE_FUNCTION(return_as_vector_2, std::vector<int>, (int, int&), "return_as_vector_2__BOSS_4", "return_as_vector_2")
-BE_FUNCTION(return_a_ClassFour_instance, ExampleBackendForGAMBIT_1_234::ClassFour, (), "return_a_ClassFour_instance__BOSS_5", "return_a_ClassFour_instance")
+BE_FUNCTION(return_as_vector, std::vector<int>, (int, int), "return_as_vector__BOSS_5", "return_as_vector")
+BE_FUNCTION(return_as_vector_2, std::vector<int>, (int, int&), "return_as_vector_2__BOSS_6", "return_as_vector_2")
+BE_FUNCTION(return_a_ClassFour_instance, ExampleBackendForGAMBIT_1_234::ClassFour, (), "return_a_ClassFour_instance__BOSS_7", "return_a_ClassFour_instance")
 
 // Enums
 

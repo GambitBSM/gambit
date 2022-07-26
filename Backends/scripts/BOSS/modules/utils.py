@@ -2586,7 +2586,7 @@ def removeCodeTags(content, remove_tags_list):
 
 # ====== constrTemplateAliases ======
 
-def constrTemplateAliases(class_name, namespace_list):
+def constrTemplateAliases(class_name, namespace_list, base_done=False):
 
     code = constrNamespace(namespace_list, 'open', indent=cfg.indent)
 
@@ -2598,17 +2598,14 @@ def constrTemplateAliases(class_name, namespace_list):
         template_vars = '<' + ','.join(['T' + str(i) for i in range(len(class_name['templ_var_list']))]) + '>'
     template_types = '<' + ','.join(class_name['templ_types']) + '>'
 
-    template_class_name = class_name['short'] + '_T'
-
-    alias_lines = 'template' + template_bracket +  'class ' + template_class_name +  '{ struct type; };\n'
-    alias_lines += 'template<> class ' + template_class_name + template_types + ' { using type = ' + class_name['wrp_short'] + '; };\n\n'
-    alias_lines += 'template ' + template_bracket + ' using ' + class_name['short'] + ' = typename ' + template_class_name + template_vars + '::' + class_name['wrp_short'] + ";"
+    alias_lines = ''
+    if not base_done:
+        alias_lines += 'template ' + template_bracket + ' class ' + class_name['short'] +  ' { };\n'
+    alias_lines += 'template <> class ' + class_name['short'] + template_types + ': public ' + class_name['wrp_short'] + ' { using ' + class_name['wrp_short'] + '::' + class_name['wrp_short'] + '; };\n'
 
     code += addIndentation(alias_lines, len(namespace_list)*cfg.indent)
 
     code += constrNamespace(namespace_list, 'close', indent=cfg.indent)
-
-    code += '\n\n'
 
     return code
 
@@ -2624,6 +2621,8 @@ def constrLoadedTypesHeaderContent():
     #
     class_lines = []
     class_alias_lines = ''
+
+    done_templates = []
 
     # Loop over all classes
     for class_name in gb.classes_done:
@@ -2660,7 +2659,11 @@ def constrLoadedTypesHeaderContent():
 
             # If class is template then one needs to build aliases
             if isTemplateClass(class_name) or isSpecialization(class_name):
-              class_alias_lines += constrTemplateAliases(class_name, namespace_list)
+                if class_name['long'] in done_templates:
+                    class_alias_lines += constrTemplateAliases(class_name, namespace_list, base_done=True)
+                else:
+                    class_alias_lines += constrTemplateAliases(class_name, namespace_list)
+                    done_templates.append(class_name['long'])
 
     class_lines_code = ''
     class_lines_code += '#define ' + gb.gambit_backend_name_full + '_all_data \\\n'

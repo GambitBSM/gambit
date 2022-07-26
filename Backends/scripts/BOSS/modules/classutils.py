@@ -226,9 +226,9 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
                 for parent_dict in parent_classes:
                     if (parent_dict['loaded']) and (parent_dict['class_name']['long_templ'] not in gb.contains_pure_virtual_members):
                         class_decl += ' '*(n_indents+2)*indent + 'using ' + parent_dict['class_name']['abstr_long'] + class_name['templ_vars'] + '::pointer_assign' + gb.code_suffix + ';\n'
-                class_decl += constrPtrAssignFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True, specialized=False)
+                class_decl += constrPtrAssignFunc(class_el, class_name, virtual=False, indent=indent, n_indents=n_indents+2, only_declaration=True, specialized=False)
             if has_copy_constructor:
-                class_decl += constrPtrCopyFunc(class_el, class_name, virtual=True, indent=indent, n_indents=n_indents+2, only_declaration=True, specialized=False)
+                class_decl += constrPtrCopyFunc(class_el, class_name, virtual=False, indent=indent, n_indents=n_indents+2, only_declaration=True, specialized=False)
 
         class_decl += ' '*n_indents*indent + '};\n\n'
 
@@ -616,6 +616,10 @@ def constrAbstractClassDecl(class_el, class_name, namespaces, indent=4, file_for
 
     # - Close the class body
     class_decl += ' '*n_indents*indent + '};' + '\n'
+
+    # Add required typedefs
+    if is_template:
+      class_decl += '\n' + ' '*n_indents*indent + 'typedef ' + class_name['abstr_short_templ'] + ' ' + utils.getAbstractClassName(class_name['wrp_short'], prefix=gb.abstr_class_prefix) + ';\n'
 
     # - Construct the closing of the namespaces
     class_decl += utils.constrNamespace(namespaces, 'close')
