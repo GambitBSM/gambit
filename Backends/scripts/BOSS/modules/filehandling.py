@@ -491,7 +491,7 @@ def copyFilesToSourceTree(verbose=False):
 
     # - Add source file for the wrapper classes
     for class_name in gb.classes_done:
-    
+
         if class_name['wrp_short'] in gb.needs_wrapper_source_file :
             wrapper_source_file_name= gb.wrapper_source_prefix + class_name['wrp_short'] + cfg.source_extension
 
@@ -713,6 +713,7 @@ def createFrontendHeader(function_xml_files_dict):
     typedef_code += utils.constrNamespace(outer_namespace_list, 'open', indent=cfg.indent)
 
 
+    done_templates = []
     # Loop over all classes
     for class_name in gb.classes_done:
 
@@ -725,21 +726,31 @@ def createFrontendHeader(function_xml_files_dict):
             class_namespace, class_name_short = utils.removeNamespace(class_name['long'], return_namespace=True)
 
             is_template = utils.isTemplateClass(class_name)
+            is_specialization = utils.isSpecialization(class_name)
+            if is_template:
+                template_bracket = class_name['templ_bracket']
+                template_vars = class_name['templ_vars']
+            elif is_specialization:
+                template_bracket  = '<' + ','.join(['class T' + str(i) for i in range(len(class_name['templ_var_list']))]) + '>'
+                template_vars = '<' + ','.join(['T' + str(i) for i in range(len(class_name['templ_var_list']))]) + '>'
 
             if class_namespace == '':
-                if is_template:
-                    class_typedef_code += "template " + class_name['templ_bracket'] + '\n'
-                    class_typedef_code += "using " + class_name['wrp_short'] + ' = ' + '::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + class_name['templ_vars'] + ';\n'
-                else : 
+                if (is_template or is_specialization) and class_name['long'] not in done_templates:
+                    class_typedef_code += "template " + template_bracket + '\n'
+                    class_typedef_code += "using " + class_name['short'] + ' = ' + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + template_vars + ';\n'
+                    done_templates.append(class_name['long'])
+                else :
                     class_typedef_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + ' ' + class_name['wrp_short'] + ';\n'
             else:
                 class_namespace_list = class_namespace.split('::')
 
                 class_typedef_code += utils.constrNamespace(class_namespace_list, 'open', indent=cfg.indent)
-                if is_template:
-                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'template ' + class_name['templ_bracket'] + '\n'
-                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'using ' + class_name['wrp_short'] + '::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + class_name['templ_vars'] + ';\n'
-                else : 
+                if (is_template or is_specialization) and class_name['long'] not in done_templates:
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'template ' + template_bracket + '\n'
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'using ' + class_name['short'] + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + template_vars + ';\n'
+                    done_templates.append(class_name['long'])
+
+                else :
                     class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['wrp_long'] + ' ' + class_name['wrp_short'] + ';\n'
                 class_typedef_code += utils.constrNamespace(class_namespace_list, 'close', indent=cfg.indent)
 
@@ -817,7 +828,7 @@ def createFrontendHeader(function_xml_files_dict):
 
     for enum_name in gb.enums_done :
 
-        enum_code = '' 
+        enum_code = ''
         enum_namespace, enum_name_short = utils.removeNamespace(enum_name['long'], return_namespace=True)
 
         if enum_namespace == '':
@@ -831,7 +842,7 @@ def createFrontendHeader(function_xml_files_dict):
             enum_code += ' '*cfg.indent*len(enum_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + enum_name['long'] + ' ' + enum_name['short'] + ';\n'
             for val in enum_name['enum_values']:
                 enum_code += ' '*cfg.indent*len(enum_namespace_list) + 'constexpr ' + enum_name['short'] + ' ' + val + ' = ::' + gb.gambit_backend_name_full + '::' + enum_namespace + '::' + val + ';\n'
- 
+
             enum_code += utils.constrNamespace(enum_namespace_list, 'close', indent=cfg.indent)
 
         enum_code = utils.addIndentation(enum_code, 3*cfg.indent)

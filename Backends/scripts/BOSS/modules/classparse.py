@@ -122,12 +122,6 @@ def run():
 
 
           #
-          # Construct utility functions for dealing with pointer-to-wrapper from Abstract class.
-          # ('wrapper_creator', 'wrapper_deleter', 'set_delete_BEptr')
-          #
-
-          constrWrapperUtils(class_el, class_name)
-
           #
           # Add typedef to 'abstracttypedefs.hpp'
           #
@@ -187,7 +181,11 @@ def run():
 
         generateWrapperSource(class_el, class_name, namespaces)
 
+        # Construct utility functions for dealing with pointer-to-wrapper from Abstract class.
+        # ('wrapper_creator', 'wrapper_deleter', 'set_delete_BEptr')
+        #
 
+        constrWrapperUtils(class_el, class_name)
 
         #
         # Add include guards to the original headers
@@ -744,7 +742,7 @@ def generateWrapperSource(class_el, class_name, namespaces):
 def constrWrapperUtils(class_el, class_name):
 
     wrapper_class_name = utils.toWrapperType(class_name['wrp_long'], include_namespace=True)
-    abstr_class_name = utils.toAbstractType(class_name['wrp_long'], include_namespace=True)
+    abstr_class_name = utils.toAbstractType(class_name['abstr_long_templ'], include_namespace=True)
 
     # Include statement for the header file
     wrapper_include_statement_decl = '#include "' + gb.new_header_files[class_name['wrp_long']]['wrapper_fullpath'] + '"\n'
@@ -752,26 +750,16 @@ def constrWrapperUtils(class_el, class_name):
     wr_utils_decl = ''
     wr_utils_impl = ''
 
-    is_template = utils.isTemplateClass(class_name)
-
-    if is_template:
-        wrapper_class_name += class_name['templ_vars']
-        abstr_class_name += class_name['templ_vars']
-
     #
     # wrapper_creator
     #
 
     # Function declaration
     wr_utils_decl = '\n'
-    if is_template:
-        wr_utils_decl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_decl += wrapper_class_name + '* wrapper_creator(' + abstr_class_name + '*);\n'
 
     # Function implementation
     wr_utils_impl = '\n'
-    if is_template:
-        wr_utils_impl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_impl += wrapper_class_name + '* wrapper_creator(' + abstr_class_name + '* abs_ptr)\n'
     wr_utils_impl += '{\n'
     wr_utils_impl += ' '*cfg.indent + 'return new ' + wrapper_class_name + '(abs_ptr);\n'
@@ -784,14 +772,10 @@ def constrWrapperUtils(class_el, class_name):
 
     # Function declaration
     wr_utils_decl += '\n'
-    if is_template:
-        wr_utils_decl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_decl += 'void wrapper_deleter(' + wrapper_class_name + '*);\n'
 
     # Function implementation
     wr_utils_impl += '\n'
-    if is_template:
-        wr_utils_impl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_impl += 'void wrapper_deleter(' + wrapper_class_name + '* wptr)\n'
     wr_utils_impl += '{\n'
     wr_utils_impl += ' '*cfg.indent + 'wptr->set_delete_BEptr(false);\n'
@@ -805,14 +789,10 @@ def constrWrapperUtils(class_el, class_name):
 
     # Function declaration
     wr_utils_decl += '\n'
-    if is_template:
-        wr_utils_decl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_decl += 'void set_delete_BEptr(' + wrapper_class_name + '*, bool);\n'
 
     # Function implementation
     wr_utils_impl += '\n'
-    if is_template:
-        wr_utils_impl += 'template ' + class_name['templ_bracket'] + '\n'
     wr_utils_impl += 'void set_delete_BEptr(' + wrapper_class_name + '* wptr, bool setting)\n'
     wr_utils_impl += '{\n'
     wr_utils_impl += ' '*cfg.indent + 'wptr->set_delete_BEptr(setting);\n'

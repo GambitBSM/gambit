@@ -596,12 +596,17 @@ namespace Gambit
 
       ExampleBackendForGAMBIT_default::ClassFive<ExampleBackendForGAMBIT_default::ClassFour> classfive_instance;
       classfive_instance.push(classfour_instance);
-      cout << "class_five_instance.size() = " << classfive_instance.size() << endl;
+      cout << "classfive_instance.size() = " << classfive_instance.size() << endl;
 
       ExampleBackendForGAMBIT_1_234::ClassFive<ExampleBackendForGAMBIT_1_234::ClassFour> classfive_instance2;
       classfive_instance2.push(classfour_instance);
-      cout << "class_five_instance.size() = " << classfive_instance2.size() << endl;
+      cout << "classfive_instance2.size() = " << classfive_instance2.size() << endl;
 
+
+      ExampleBackendForGAMBIT_1_234::ClassThree<double> classthree_instance;
+      classthree_instance.push(1.0);
+      classthree_instance.push(2.0);
+      cout << "classthree_instance.size() = " << classthree_instance.size() << endl;
 
       cout << "============================================" << endl;
       cout << "Done testing ExampleBackendForGAMBIT backend" << endl;

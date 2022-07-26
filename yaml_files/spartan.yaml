@@ -36,13 +36,13 @@ Printer:
   #  buffer_length: 1000
   #  delete_file_on_restart: true
 
-  printer: hdf5
-  options:
-    output_file: "results.hdf5"
-    group: "/spartan"
-    delete_file_on_restart: true
-    buffer_length: 1000
-    #disable_autorepair: true
+  #printer: hdf5
+  #options:
+  #  output_file: "results.hdf5"
+  #  group: "/spartan"
+  #  delete_file_on_restart: true
+  #  buffer_length: 1000
+  #  #disable_autorepair: true
 
   #printer: ascii
   #options:
@@ -50,7 +50,7 @@ Printer:
   #  buffer_length: 10
   #  delete_file_on_restart: true
 
-  #printer: cout
+  printer: cout
 
   #printer: none
 
@@ -63,7 +63,7 @@ Scanner:
     random:
       plugin: random
       like: LogLike
-      point_number: 1000
+      point_number: 10
 
     de:
       plugin: diver
@@ -120,6 +120,8 @@ ObsLikes:
     module:       ExampleBit_A
     type:         double
 
+  - purpose: Observable
+    capability: examplebackend_tests
 
 Rules:
 
@@ -152,20 +154,20 @@ KeyValues:
     model_invalid_for_lnlike_below: -1e6
 
     # A 'likelihood modifier function' recieves as input the total
-    # log-likelihood value and outputs a modified log-likelihood which  
-    # is then passed to the scanner. This can be used to make an adaptive 
+    # log-likelihood value and outputs a modified log-likelihood which
+    # is then passed to the scanner. This can be used to make an adaptive
     # scanner explore specific ranges of the total log-likelihood, e.g.
-    # log-likelihood values corresponding to a given 1D/2D confidence region. 
+    # log-likelihood values corresponding to a given 1D/2D confidence region.
     # The default is to use the 'identity' modifier, which does nothing.
     use_lnlike_modifier: identity
     lnlike_modifiers:
       # Assuming that the best-fit log-likelihood value is 0.0,
-      # the 'gaussian' or 'gaussian_plateau' settings below 
-      # will encourage the scanner to explore parameter regions 
-      # at the border of the 2-sigma confidence region in 2D 
+      # the 'gaussian' or 'gaussian_plateau' settings below
+      # will encourage the scanner to explore parameter regions
+      # at the border of the 2-sigma confidence region in 2D
       # (Delta lnlike = -3.09).
       gaussian:
-        mu: -3.1   
+        mu: -3.1
         sigma: 0.5
         # use_limit: lower
         use_delta_lnlike: false
