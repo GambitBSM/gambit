@@ -172,7 +172,7 @@ def run():
         # Generate factory functions source file
         #
 
-        generateFactoryFunctions(class_el, class_name, add_include_statements=not skip_templ)
+        generateFactoryFunctions(class_el, class_name)
 
 
         #
