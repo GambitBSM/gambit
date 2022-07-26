@@ -432,6 +432,11 @@ ObsLikes:
 
 Rules:
 
+  - capability: THDM_spectrum
+    type: map_str_dbl
+    options:
+      print_minimal_yukawas: false
+
   - capability: prediction_B2KstarmumuBr_*
     options:
       obs_list: [B2KstarmumuBr]

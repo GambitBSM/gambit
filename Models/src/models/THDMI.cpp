@@ -456,7 +456,7 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
   double cosb  = std::cos(beta);
   double sina  = std::sin(alpha);
   double cosa  = std::cos(alpha);
-  double sba   = sin(beta - alpha); // Note: conventions don't matter here
+  double sba   = sin(beta - alpha);
 
   // calc masses
   double mA2   = mH2*sq(sba) + mh2*sq(cba) - L5*v2;
@@ -516,7 +516,7 @@ void MODEL_NAMESPACE::THDMI_hybrid_HiggsatQ_to_THDMIatQ(const ModelParameters &m
   double cosb  = std::cos(beta);
   double cosa  = std::sin(alpha);
   double sina  = std::cos(alpha);
-  double sba   = sin(beta - alpha); // Note: conventions don't matter here
+  double sba   = sin(beta - alpha);
 
   // calc masses
   double mA2   = mH2*sq(sba) + mh2*sq(cba) - L5*v2;

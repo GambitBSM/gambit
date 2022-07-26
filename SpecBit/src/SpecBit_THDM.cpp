@@ -648,6 +648,9 @@ namespace Gambit
 
     void fill_map_from_THDMspectrum(std::map<std::string, double> &specmap, const Spectrum &thdmspec, const THDM_TYPE THDM_type)
     {
+      using namespace Pipes::get_THDM_spectrum_as_map;
+      bool print_minimal_yukawas = runOptions->getValueOrDef<bool>(false, "print_minimal_yukawas");
+
       /// Add everything... use spectrum contents routines to automate task
       static const SpectrumContents::THDM contents;
       static const std::vector<SpectrumParameter> required_parameters = contents.all_parameters();
@@ -659,43 +662,30 @@ namespace Gambit
         const std::string name = it->name();
         const std::vector<int> shape = it->shape();
 
-        bool skip = false;
-
+        if (print_minimal_yukawas)
+        {
         // skip Yukawas that are zero for the model being scanned
         if (THDM_type != TYPE_III)
-          if (name.rfind("ImY",0) == 0)
-            skip = true;
+            if (name.rfind("ImY", 0) == 0)
+              continue;
 
         if (THDM_type == TYPE_I)
-          if (name.rfind("Yd2", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Yd2", 0) == 0)
-            skip = true;
+            if (name.rfind("Yu2", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Ye2", 0) == 0)
+              continue;
 
         if (THDM_type == TYPE_II)
-          if (name.rfind("Yd1", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Yd2", 0) == 0)
-            skip = true;
+            if (name.rfind("Yu1", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Ye2", 0) == 0)
+              continue;
 
         if (THDM_type == TYPE_LS)
-          if (name.rfind("Yd2", 0) == 0 || name.rfind("Yd1", 0) == 0 || name.rfind("Yd2", 0) == 0)
-            skip = true;
+            if (name.rfind("Yu1", 0) == 0 || name.rfind("Yd1", 0) == 0 || name.rfind("Ye2", 0) == 0)
+              continue;
 
         if (THDM_type == TYPE_flipped)
-          if (name.rfind("Yd2", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Yd1", 0) == 0)
-            skip = true;
+            if (name.rfind("Yu1", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Ye1", 0) == 0)
+              continue;
 
-        if (skip)
-        {
-          for (int i = 1; i <= shape[0]; ++i)
-          {
-            for (int j = 1; j <= shape[1]; ++j)
-            {
-              double val = thdmspec.get_HE().get(tag, name, i, j);
-              if (abs(val) != 0.0)
-                utils_error().forced_throw(LOCAL_INFO, "wrong Yukawa check: " + std::to_string(val));
-            }
-          }
         }
-
-        if (skip) continue;
 
         /// Verification routine should have taken care of invalid shapes etc, so won't check for that here.
 
@@ -721,8 +711,11 @@ namespace Gambit
         {
           for (int i = 1; i <= shape[0]; ++i)
           {
-            for (int j = 1; j <= shape[0]; ++j)
+            for (int j = 1; j <= shape[1]; ++j)
             {
+              if (print_minimal_yukawas && THDM_type != TYPE_III && i != j && (name.rfind("Yu", 0) == 0 || name.rfind("Yd", 0) == 0 || name.rfind("Ye", 0) == 0))
+                continue;
+
               std::ostringstream label;
               label << name << "_(" << i << "," << j << ") " << Par::toString.at(tag);
               specmap[label.str()] = thdmspec.get_HE().get(tag, name, i, j);
@@ -743,10 +736,8 @@ namespace Gambit
       // for convenience also print cbs, sba, ba
       double beta = thdmspec.get_HE().get(Par::dimensionless, "beta");
       double alpha = thdmspec.get_HE().get(Par::dimensionless, "alpha");
-      specmap["ba"] = beta - alpha;
       specmap["sba"] = sin(beta - alpha);
       specmap["cba"] = cos(beta - alpha);
-      // specmap["THDM_type"] = THDM_type;
 
       // TODO: remove below once bugs are fixed
       specmap["Lambda1"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda1");
