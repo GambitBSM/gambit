@@ -63,17 +63,15 @@ def getClassNameDict(class_el, abstract=False):
     class_name['short']       = class_name['short_templ'].split('<',1)[0]
     class_name['namespace']   = '::'.join(namespaces_list[:-1])
 
-    class_name['wrp_long_templ'] = class_name['long_templ']
     class_name['wrp_long'] = class_name['long']
-    class_name['wrp_short_templ'] = class_name['short_templ']
     class_name['wrp_short'] = class_name['short']
 
     class_name['is_template'] = False
     class_name['is_specialization'] = False
 
-    class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
+    class_name['abstr_long_templ']  = getAbstractClassName(class_name['long_templ'], prefix=gb.abstr_class_prefix)
     class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
-    class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix, short=True)
+    class_name['abstr_short_templ'] = getAbstractClassName(class_name['short_templ'], prefix=gb.abstr_class_prefix, short=True)
     class_name['abstr_short']       = class_name['abstr_short_templ'].split('<',1)[0]
 
     # Get template info, but only for loaded classes
@@ -83,9 +81,7 @@ def getClassNameDict(class_el, abstract=False):
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
         class_name['templ_var_list'] = templ_var_list
         class_name['templ_types'] = templ_types
-        class_name['wrp_long_templ'] = class_name['long'] + '__' + '_'.join(templ_types)
         class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_types)
-        class_name['wrp_short_templ'] = class_name['short'] + '__' + '_'.join(templ_types)
         class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_types)
 
         if not is_specialization:
@@ -95,9 +91,9 @@ def getClassNameDict(class_el, abstract=False):
         else:
             class_name['templ_bracket'] = '<>'
             class_name['is_specialization'] = True
-            class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix)
+            class_name['abstr_long_templ']  = getAbstractClassName(class_name['wrp_long'], prefix=gb.abstr_class_prefix)
             class_name['abstr_long']        = class_name['abstr_long_templ'].split('<',1)[0]
-            class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_long_templ'], prefix=gb.abstr_class_prefix, short=True)
+            class_name['abstr_short_templ'] = getAbstractClassName(class_name['wrp_short'], prefix=gb.abstr_class_prefix, short=True)
             class_name['abstr_short']       = class_name['abstr_short_templ'].split('<',1)[0]
 
     return class_name
@@ -182,42 +178,57 @@ def getEnumNameDict(enum_el):
 
 # ====== toWrapperType ========
 
-def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False, include_namespace=False, include_global_namespace=False):
+def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False, include_namespace=False, include_global_namespace=False, type_el=None):
 
-    type_name = input_type_name
 
     # Search for '*' and '&'
-    n_pointers = type_name.count('*')
-    is_ref     = bool('&' in type_name)
+    n_pointers = input_type_name.count('*')
+    is_ref     = bool('&' in input_type_name)
 
-    # Remove '*' and '&'
-    type_name = type_name.replace('*','').replace('&','')
+    if type_el is not None:
+        type_name = getClassNameDict(type_el)
+        if include_namespace:
+            short_type_name = type_name['wrp_long']
+        else:
+            short_type_name = type_name['wrp_short']
 
-    # Split into namespace, short_type_name
-    namespace, short_type_name = removeNamespace(type_name, return_namespace=True)
+        if include_global_namespace:
+            short_type_name = '::' + short_type_name
 
-    if include_global_namespace:
-        namespace = '::' + namespace
+    else:
 
-    # Insert wrapper class prefix
-    short_type_name = gb.wrapper_class_prefix + short_type_name
+        type_name = input_type_name
+
+        # Remove '*' and '&'
+        type_name = type_name.replace('*','').replace('&','')
+
+        # Split into namespace, short_type_name
+        namespace, short_type_name = removeNamespace(type_name, return_namespace=True)
+
+        # Remove template tags
+        if '<' in short_type_name:
+            short_type_name_notempl = removeTemplateBracket(short_type_name)
+            unpacked_template_args = getAllTemplateTypes(short_type_name)
+            short_type_name = short_type_name_notempl + '__' + '_'.join(unpacked_template_args)
+
+        if include_global_namespace:
+            namespace = '::' + namespace
+
+        # Insert wrapper class prefix
+        short_type_name = gb.wrapper_class_prefix + short_type_name
+
+        if include_namespace and (namespace != ''):
+          short_type_name = "{0}::{1}".format(namespace,short_type_name)
 
     # Add '*' and '&'
-    if remove_pointers:
-        pass
-    else:
+    if not remove_pointers:
         short_type_name = short_type_name + '*'*n_pointers
 
-    if remove_reference:
-        pass
-    else:
+    if not remove_reference:
         short_type_name = short_type_name + '&'*is_ref
 
     # Return result
-    if include_namespace and (namespace != ''):
-        return "{0}::{1}".format(namespace,short_type_name)
-    else:
-        return short_type_name
+    return short_type_name
 
 # ====== END: toWrapperType ========
 
@@ -320,6 +331,7 @@ def getArgs(func_el):
             arg_dict['type'] = arg_type
             arg_dict['kw'] = arg_kw
             arg_dict['id'] = arg_id
+            arg_dict['el'] = arg_type_el
             arg_dict['function_pointer'] = is_func_ptr
 
             arg_dict['native'] = isNative(arg_type_el)
@@ -396,7 +408,7 @@ def constrArgsBracket(args, include_arg_name=True, include_arg_type=True, includ
                 args_seq += ''.join([kw+' ' for kw in arg_dict['kw']])
 
                 if use_wrapper_class and (arg_dict['loaded_class'] or arg_dict['uses_loaded_class']):
-                    args_seq += toWrapperType(arg_dict['type'], include_namespace=include_namespace)
+                    args_seq += toWrapperType(arg_dict['type'], include_namespace=include_namespace, type_el=arg_dict['el'])
                 else:
                     if include_namespace:
                         # If known class, add '::' for absolute namespace
@@ -2589,8 +2601,8 @@ def constrTemplateAliases(class_name, namespace_list):
     template_class_name = class_name['short'] + '_T'
 
     alias_lines = 'template' + template_bracket +  'class ' + template_class_name +  '{ struct type; };\n'
-    alias_lines += 'template<> class ' + template_class_name + template_types + ' { using type = ' + class_name['wrp_short_templ'] + '; };\n\n'
-    alias_lines += 'template ' + template_bracket + ' using ' + class_name['short'] + ' = typename ' + template_class_name + template_vars + '::' + class_name['wrp_short_templ'] + ";"
+    alias_lines += 'template<> class ' + template_class_name + template_types + ' { using type = ' + class_name['wrp_short'] + '; };\n\n'
+    alias_lines += 'template ' + template_bracket + ' using ' + class_name['short'] + ' = typename ' + template_class_name + template_vars + '::' + class_name['wrp_short'] + ";"
 
     code += addIndentation(alias_lines, len(namespace_list)*cfg.indent)
 
@@ -2635,7 +2647,7 @@ def constrLoadedTypesHeaderContent():
             for ns_part in namespace_list:
                 class_line += '(' + ns_part + ')'
 
-            class_line += '(' + class_name['wrp_short_templ'] + '),'
+            class_line += '(' + class_name['wrp_short'] + '),'
 
             class_line += '    /*constructors*/'
 
