@@ -36,13 +36,13 @@ Printer:
   #  buffer_length: 1000
   #  delete_file_on_restart: true
 
-  #printer: hdf5
-  #options:
-  #  output_file: "results.hdf5"
-  #  group: "/spartan"
-  #  delete_file_on_restart: true
-  #  buffer_length: 1000
-  #  #disable_autorepair: true
+  printer: hdf5
+  options:
+    output_file: "results.hdf5"
+    group: "/spartan"
+    delete_file_on_restart: true
+    buffer_length: 1000
+    #disable_autorepair: true
 
   #printer: ascii
   #options:
@@ -50,7 +50,7 @@ Printer:
   #  buffer_length: 10
   #  delete_file_on_restart: true
 
-  printer: cout
+  #printer: cout
 
   #printer: none
 
@@ -63,7 +63,7 @@ Scanner:
     random:
       plugin: random
       like: LogLike
-      point_number: 10
+      point_number: 1000
 
     de:
       plugin: diver
@@ -119,9 +119,6 @@ ObsLikes:
     capability:   normaldist_loglike
     module:       ExampleBit_A
     type:         double
-
-  - purpose: Observable
-    capability: examplebackend_tests
 
 Rules:
 

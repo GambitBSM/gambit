@@ -152,9 +152,9 @@ START_MODULE
     MODEL_GROUP(group3, (NUHM1, NUHM2))
     ALLOW_MODEL_COMBINATION(group1, group3)
     // Function can also be used if MSSM19atQ is in use, but only if CMSSM + (NUHM1 or NUHM2) + (NormalDist or SingletDM) are in use too.
-//    ALLOW_MODEL_DEPENDENCE(MSSM19atQ)
-//    MODEL_GROUP(group4, (MSSM19atQ))
-//    ALLOW_MODEL_COMBINATION(group1, group2, group3, group4)
+    ALLOW_MODEL_DEPENDENCE(MSSM19atQ)
+    MODEL_GROUP(group4, (MSSM19atQ))
+    ALLOW_MODEL_COMBINATION(group1, group2, group3, group4)
 
     #undef FUNCTION
   #undef CAPABILITY
