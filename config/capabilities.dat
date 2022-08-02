@@ -4523,6 +4523,8 @@ FH_Couplings_output: |
 FlavourObs: |
    FeynHiggs flavour observables, packaged up for use as a dependency.
 
+FHEWPO: |
+   FeynHiggs EW observables, which is the set MW and sinthetaW in the MSSM and SM and also outputs the loop corrections that enter these, DeltaRho and DeltaR.
 
 #----------------------------
 #  gamLike capabilities
