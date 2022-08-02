@@ -72,6 +72,7 @@ FeynHiggs:
   2.11.2:      ./Backends/installed/feynhiggs/2.11.2/lib/libFH.so
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
+  2.18.1:      ./Backends/installed/feynhiggs/2.18.1/lib/libFH.so
 
 # Work in progress:
 # Prospino:

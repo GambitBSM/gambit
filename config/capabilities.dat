@@ -364,9 +364,6 @@ unimproved_MSSM_spectrum: |
 SM_subspectrum: |
     Return the standard model subspectrum object from the MSSM_spectrum
 
-MSSMMasses: |
-    SUSY masses and mixings (e.g. as computed by FeynHiggs).
-
 HiggsMasses: |
     Higgs masses and mixings with theoretical uncertainties (as e.g. computed by FeynHiggs).
 
@@ -4473,6 +4470,9 @@ FeynHiggs_2_11_3_init: |
    Initialisation of FeynHiggs.
 
 FeynHiggs_2_12_0_init: |
+   Initialisation of FeynHiggs.
+
+FeynHiggs_2_18_1_init: |
    Initialisation of FeynHiggs.
 
 FHConstraints: |

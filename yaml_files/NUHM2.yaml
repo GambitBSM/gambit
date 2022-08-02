@@ -503,9 +503,6 @@ Rules:
   #- capability: prec_HiggsMasses
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: MSSMMasses
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
 
   # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
   - capability: prec_mh
