@@ -17,6 +17,8 @@ gambit_backend_namespace = 'CAT_3(BACKENDNAME,_,SAFE_VERSION)'
 gambit_backend_safeversion = cfg.gambit_backend_version.replace('.', '_')
 gambit_backend_name_full = cfg.gambit_backend_name + \
     '_' + gambit_backend_safeversion
+gambit_backend_name_default = cfg.gambit_backend_name + \
+    '_default'
 
 boss_dir = os.path.dirname(os.path.abspath(__file__))+'/..'
 boss_temp_dir = 'BOSS_temp/' + gambit_backend_name_full

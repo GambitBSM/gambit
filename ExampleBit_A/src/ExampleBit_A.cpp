@@ -577,6 +577,45 @@ namespace Gambit
     /// Flat test likelihood for checking prior distributions
     void flat_likelihood(double &result){ result = 1; }
 
+
+    /// Example of using a BOSSed version of Pythia
+    void do_examplebackend_tests(bool &result)
+    {
+      using namespace Pipes::do_examplebackend_tests;
+
+      cout << endl;
+      cout << "=======================================" << endl;
+      cout << "Testing ExampleBackendForGAMBIT backend" << endl;
+      cout << "=======================================" << endl;
+
+      ExampleBackendForGAMBIT_default::ClassFour classfour_instance;
+      classfour_instance.push(3.14);
+
+      ExampleBackendForGAMBIT_default::ClassFour classfour_instance_2 = BEreq::return_a_ClassFour_instance();
+      cout << "classfour_instance_2.size() = " << classfour_instance_2.size() << endl;
+
+      ExampleBackendForGAMBIT_default::ClassFive<ExampleBackendForGAMBIT_default::ClassFour> classfive_instance;
+      classfive_instance.push(classfour_instance);
+      cout << "classfive_instance.size() = " << classfive_instance.size() << endl;
+
+      ExampleBackendForGAMBIT_1_234::ClassFive<ExampleBackendForGAMBIT_1_234::ClassFour> classfive_instance2;
+      classfive_instance2.push(classfour_instance);
+      cout << "classfive_instance2.size() = " << classfive_instance2.size() << endl;
+
+
+      ExampleBackendForGAMBIT_1_234::ClassThree<double> classthree_instance;
+      classthree_instance.push(1.0);
+      classthree_instance.push(2.0);
+      cout << "classthree_instance.size() = " << classthree_instance.size() << endl;
+
+      cout << "============================================" << endl;
+      cout << "Done testing ExampleBackendForGAMBIT backend" << endl;
+      cout << "============================================" << endl;
+      cout << endl;
+
+      result = true;
+    }
+
     /// @}
   }
 
