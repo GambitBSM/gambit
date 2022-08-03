@@ -98,40 +98,6 @@ def run():
         if is_template and class_name['long'] in template_done:
           skip_templ = True
 
-        if not skip_templ:
-
-
-          #
-          # Add abstract class to inheritance list of original class
-          #
-
-          addAbsClassToInheritanceList(class_el, class_name, original_file_name, original_file_content_nocomments)
-
-
-          #
-          # Generate code for #include statements in orginal header/source file
-          #
-
-          addIncludesToOriginalClassFile(class_el, class_name, namespaces, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
-
-          #
-          # Comment out member variables or types in the class definition
-          #
-
-          commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content_nocomments)
-
-
-          #
-          #
-          # Add typedef to 'abstracttypedefs.hpp'
-          #
-
-          addAbstractTypedefs(class_el, class_name, namespaces)
-
-
-
-        # From here on, it should be done per specialization
-
         #
         # For the backend: Construct code for the abstract class header file and register it
         #
@@ -144,6 +110,31 @@ def run():
 
         constrAbstractClassHeaderCode(class_el, class_name, namespaces, has_copy_constructor, construct_assignment_operator, abstr_class_fname, file_for_gambit=True, skip_templ=skip_templ)
 
+
+        # Only once per template
+        if not skip_templ:
+
+            #
+            # Add abstract class to inheritance list of original class
+            #
+
+            addAbsClassToInheritanceList(class_el, class_name, original_file_name, original_file_content_nocomments)
+
+
+            #
+            # Generate code for #include statements in orginal header/source file
+            #
+
+            addIncludesToOriginalClassFile(class_el, class_name, namespaces, original_file_name, original_file_content_nocomments, original_file_content, short_abstr_class_fname)
+
+
+            #
+            # Comment out member variables or types in the class definition
+            #
+
+            commentMembersOfOriginalClassFile(class_el, original_file_name, original_file_content_nocomments)
+
+
         #
         # Generate additional member functions in the original class:
         # - Abstract class versions of member functions that make use of loaded types.
@@ -153,13 +144,6 @@ def run():
         #
 
         generateClassMemberInterface(class_el, class_name, namespaces, original_file_name, original_file_content_nocomments, original_class_file_el, extras_src_file_name, has_copy_constructor, construct_assignment_operator, skip_templ=skip_templ)
-
-
-        #
-        # Add typedef to 'wrappertypdefs.hpp'
-        #
-
-        addWrapperTypedefs(class_name, namespaces, class_el)
 
 
         #
@@ -186,6 +170,25 @@ def run():
         #
 
         constrWrapperUtils(class_el, class_name)
+
+
+        # Only once per template
+        if not skip_templ:
+
+          #
+          #
+          # Add typedef to 'abstracttypedefs.hpp'
+          #
+
+          addAbstractTypedefs(class_el, class_name, namespaces)
+
+
+        #
+        # Add typedef to 'wrappertypdefs.hpp'
+        #
+
+        addWrapperTypedefs(class_name, namespaces, class_el)
+
 
         #
         # Add include guards to the original headers

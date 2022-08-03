@@ -12,6 +12,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   class Abstract_ClassThree;
   class Abstract_ClassFour;
   class Abstract_ClassFive__ClassFour;
+  class Abstract_ClassSix;
+  template <typename T>
+  class Abstract_ClassSeven;
   
   
   

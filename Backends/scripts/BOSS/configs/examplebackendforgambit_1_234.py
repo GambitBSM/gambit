@@ -51,11 +51,10 @@ load_classes = [
     'ClassThree<double>',
     'ClassThree<int>',
     'ClassFour',
-    # 'ClassThree<ClassFour>',
     'ClassFive<ClassFour>',
-    # 'ClassSix',
-    # 'ClassSeven<double>',
-    # 'ClassSeven<int>',
+    'ClassSix',
+    'ClassSeven<double>',
+    'ClassSeven<int>',
 ]
 
 load_functions = [

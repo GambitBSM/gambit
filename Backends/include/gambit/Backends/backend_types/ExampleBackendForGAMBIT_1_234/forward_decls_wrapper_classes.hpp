@@ -12,6 +12,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   class ClassThree__int;
   class ClassFour;
   class ClassFive__ClassFour;
+  class ClassSix;
+  class ClassSeven__double;
+  class ClassSeven__int;
   
   
   

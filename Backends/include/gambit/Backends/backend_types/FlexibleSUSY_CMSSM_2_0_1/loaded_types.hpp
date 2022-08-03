@@ -28,6 +28,7 @@
   SET_DEFAULT_VERSION_FOR_LOADING_TYPES(BACKENDNAME,SAFE_VERSION,CAT(Default_,BACKENDNAME))
 #endif
 
+
 // Undefine macros to avoid conflict with other backends.
 #include "gambit/Backends/backend_undefs.hpp"
 
