@@ -1171,9 +1171,9 @@ namespace Gambit
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_16_18)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_18_22)
     // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
-    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RK_LHCb,_1p1_6)
-    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_0p045_1p1)
-    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_1p1_6)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(RK_LHCb,_1p1_6)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_0p045_1p1)
+    SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_1p1_6)
     // TODO: this should be used once the BKtautau CONV function is removed from the SuperIso frontend
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(BKtautauBr,_12p6_22p9)
 
@@ -6520,7 +6520,7 @@ namespace Gambit
 
       result = 0;
       for (unsigned int i = 0; i < nDimGaussian.size(); i++)
-      {
+      { 
         result += nDimGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
       }
 
@@ -6597,6 +6597,10 @@ namespace Gambit
         HepLike_default::HL_nDimGaussian(inputfile + "6.0_8.0_CPA.yaml"),
         HepLike_default::HL_nDimGaussian(inputfile + "15.0_19_CPA.yaml"),
       };
+
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
       static bool first = true;
       if (first)
       {

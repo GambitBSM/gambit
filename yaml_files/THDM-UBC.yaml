@@ -1,0 +1,562 @@
+##########################################################################
+## GAMBIT configuration for the following                               ##
+##                                                                      ##
+## Models: THDM, THDMI, THDMII, THDMLS, THDMflipped                     ##
+##                                                                      ##
+## Includes all compatible likelihoods:                                 ##
+## theoretical, collider, electroweak, flavour                          ##
+##                                                                      ##
+## Requires backends:                                                   ##
+## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike                  ##
+##                                                                      ##
+## Author: A.S. Woodcock                                                ##
+## Date: 22/JUL/2022                                                    ##
+##                                                                      ##
+##########################################################################
+
+
+Parameters:
+    StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+    # different model types can be selected with THDMI, THDMII, THDMX, THDMY,
+    # otherwise use THDM for the General CP-conserving 2HDM
+
+    # parameters for these are provided in the generic basis. Alternatively, use the suffix
+    # '_higgs' or '_physical' or '_hybrid_Higgs' for alternative bases, e.g. 'THDMI_higgs'
+
+    # the models described so far are tree-level. 'atQ' is suffixed for loop-level models
+    # which use a FlexibleSUSY spectrum generator, e.g. 'THDMI_higgsatQ'
+
+    THDMIatQ:
+
+      # model parameters are specified here
+      # generic basis:      lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tanb
+      # Higgs basis:        Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M12_2, tanb
+      # Physical basis:     mh, mH, mA, mHp, lambda6, lambda7, m12_2, sba, tanb
+      # hybrid_Higgs basis: mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7
+
+      # for the general model, we must also specify the Yukawas
+      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij, 
+      # where we have a separate parameter for each i,j (which run from 1 to 3)
+      
+      # lower limit on lambda1,2 of 0 required for vacuum stability
+      # limit on |lambda1,...,7| of 4pi required for perturbativity
+      # lambda6,7 set to 0 for Z2-symmetric scalar sector (to avoid large FCNCs at 1-loop level)
+      # lower limit of tanb due to perturbativity of top Yukawa coupling
+      # range of m12_2 hard to justify so we use a logarithmic prior over a large region
+      #      but m12_2 too low tends to cause negative masses
+
+      lambda1:
+          range: [0, 12.5664]
+          prior_type: flat
+      lambda2:
+          range: [0, 12.5664]
+          prior_type: flat
+      lambda3:
+          range: [-12.5664, 12.5664]
+          prior_type: flat
+      lambda4:
+          range: [-12.5664, 12.5664]
+          prior_type: flat
+      lambda5:
+          range: [-12.5664, 12.5664]
+          prior_type: flat
+      lambda6:
+          fixed_value: 0.0
+      lambda7:
+          fixed_value: 0.0
+      m12_2:
+          ranges: [-1e5, -1e3, 1e4, 1e7]
+          prior_type: double_log_flat_join
+      tanb:
+          range: [0.2, 50]
+          prior_type: log
+      Qin:
+          fixed_value: 91.1876 # = mZ
+
+
+#################################
+##     PRINTER SELECTION       ##
+#################################
+
+
+Printer:
+
+  printer: cout
+
+  # printer: ascii
+  # options:
+  #   buffer_length: 100
+  #   output_file: "scan.txt"
+
+  # printer: hdf5
+  # options:
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
+
+
+#################################
+##     SCANNER SELECTION       ##
+#################################
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1000
+      like:  LogLike
+
+    differentialEvolution:
+      plugin: diver
+      like: LogLike
+      NP: 100000
+      convthresh: 1e-5
+      verbosity: 0
+      aux_printer_txt_options:
+      aux_printer_stats_options:
+      aux_printer_live_options:
+
+
+#################################
+##  OBSERVABLES / LIKELIHOODS  ##
+#################################
+
+
+ObsLikes:
+
+  #-------------------------------------#
+  #      THEORETICAL LIKELIHOODS        #
+  #-------------------------------------#
+
+  # Checks that the LO or NLO scattering-matrix is unitary
+  # Calculates and applies limit on eigenvalues of matrix
+  # Likelihood type: Half-Gaussian
+  # Only supports CP-conserving models
+  # Unitarity of the S-matrix at next leading order (includes leading order too)
+  - purpose:    LogLike
+    capability: unitarity_LogLikelihood_THDM
+    function: NLO_unitarity_LogLikelihood_THDM
+    # function: LO_unitarity_LogLikelihood_THDM
+
+  # Stability of the 2HDM Potential
+  # Applies the THDM stability constraints on the potential
+  # NOTE: This likelihood has two parts, described below
+  # (i) Applies strict stability constraint
+  # Likelihood type: Acceptance/Rejection
+  # (ii) If rejected, applies looser stabililty constraints
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: stability_LogLikelihood_THDM
+
+  # Perturbativity check on h0 mass loop-corrections
+  # Checks that loop corrections to the pole mass of mh0
+  # do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: light_scalar_mass_corrections_LogLikelihood_THDM
+
+  # Checks that loop corrections to the pole masses of mH0,
+  # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  # Perturbativity check on other scalar mass loop-corrections
+  - purpose:    LogLike
+    capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
+
+  # enforces a mass range for all scalars from the yaml
+  # these are specified by the run options (given below):
+  # (*) maximum_scalar_mass
+  # (*) minimum_scalar_mass
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: scalar_mass_range_LogLikelihood_THDM
+
+  # Perturbativity check on lambdas and scalar couplings
+  # Calculates all quartic Higgs couplings in the physical
+  # basis & applies a 4pi perturbativity constraint on each
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: perturbativity_LogLikelihood_THDM
+    function: perturbativity_LogLikelihood_THDM
+    # alternative simple perturbativity constraint which only checks lambdas
+    # function: perturbativity_lambdas_LogLikelihood_THDM
+
+  # perturbativity constraint on yukawas
+  - purpose:    LogLike
+    capability: perturbativity_yukawas_LogLikelihood_THDM
+    
+  #-------------------------------------#
+  #      COLLIDER LIKELIHOODS           #
+  #-------------------------------------#
+
+  ### NOTE
+  # LHC & LEP likelihoods
+  # Coupling Squared input structs are filled by colliderBit,
+  # then chi^2 are extracted directly from HS & HB
+
+  # HiggsBounds 5.8.0 likelihood
+  - capability: LEP_Higgs_LogLike
+    function: calc_HB_5_LEP_LogLike
+    purpose: LogLike
+
+  # HiggsSignals 2.5.0 likelihood
+  - capability: LHC_Higgs_LogLike
+    function: calc_HS_2_LHC_LogLike
+    purpose: LogLike
+
+  #-------------------------------------#
+  #      PRECISION LIKELIHOODS          #
+  #-------------------------------------#
+
+  # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # & fits to meausured values. S, T, U involve a correlation matrix.
+  # Includes low-energy notation described in arxiv::9407203.
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: oblique_parameters_LogLikelihood_THDM
+
+  # muon anomalous magnetic moment likelihood (for GTHDM)
+  - purpose: Observable
+    capability: lnL_gm2
+    function: lnL_gm2
+
+  #-------------------------------------#
+  #      FLAVOR LIKELIHOODS             #
+  #-------------------------------------#
+
+  # TODO: need to add the following information
+  #       (i) which are relevant for G2HDM
+  #      (ii) which are relevant for I/II/X/Y
+  #     (iii) which cannot be explained by 2HDMs
+  #      (iv) which should only be used as observables (e.g. due to high uncertainty)
+  #       (v) which cause the largest performance hit
+
+  # Source -> who provides the required calculations (GAMBIT, SuperISO, or HepLike)
+
+  # Does not work - could take from SL_Likelihood?
+  #- purpose:    LogLike
+  #  capability: B2taunu_LogLikelihood
+    
+  # Source: GAMBIT
+  # B-Dstartaunu distributions
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: BDstartaunu_LogLikelihood
+
+  # Source: GAMBIT
+  # B-Dtanu distributions
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: BDtaunu_LogLikelihood
+
+  # Source: GAMBIT
+  # mu-e universality for gTHDM based on JHEP07(2013)044
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: gmu_ge_LogLikelihood
+
+  # Source: GAMBIT
+  # FLDstar polarization
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: FLDstar_LogLikelihood
+
+  # Source: GAMBIT
+  # Bc lifetime
+  - purpose:    LogLike
+    capability: Bc_lifetime_LogLikelihood
+
+  # Source: GAMBIT
+  # Bs2llp (Bs2mutau, Bs2tautau)
+  - purpose:    LogLike
+    capability: Bs2llp_LogLikelihood
+
+  # Source: GAMBIT, SuperISO
+  # B2Kllp (B2Kmue, B2Ktaumu, B2Ktautau)
+  - purpose:    LogLike
+    capability: B2Kllp_LogLikelihood
+
+  # Source: GAMBIT
+  # RK and RKstarnunu
+  - purpose:    LogLike
+    capability: RK_RKstarnunu_LogLikelihood
+
+  # Source: GAMBIT
+  # BR(h->tau mu)
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: h2taumu_LogLikelihood
+
+  # Source: GAMBIT
+  # BR(t->ch)
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: t2ch_LogLikelihood
+
+  # TODO: reported as absent/broken
+  # Should be included - need Alex patch
+  # Source: GAMBIT
+  # B meson mass aysmmetry
+  #- purpose:    LogLike
+  #  capability: deltaMB_LogLikelihood
+  # - capability: prediction_DeltaMs
+  #   function: SuperIso_prediction_Delta_MBs
+
+  # TODO: reported as absent/broken
+  # # Source: SuperISO
+  # Should be included - need Alex patch
+  # # B_d meson mass aysmmetry
+  #- purpose:    LogLike
+  #  capability: deltaMBd_LogLikelihood
+  # - capability: DeltaMd
+  #   function: SuperIso_prediction_Delta_MBd
+
+  # Source: GAMBIT or SuperISO
+  # Tree-level leptonic and semi-leptonic B & D decay measurements
+  # Overlap with other likelihoods - may need for BDmunu, BDstarmunu, Btaunu, Dstaunu, DSmunu, Dmunu, Dtaunu
+  # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
+  - purpose:    LogLike
+    capability: SL_LogLikelihood
+
+  # Source: GAMBIT
+  # l -> l gamma (muegamma, tauegamma, taumugamma)
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: l2lgamma_LogLikelihood
+
+  # Source: GAMBIT
+  # l -> l l l (mueee, taueee, taumumumu, taumuee, taueemu, tauemumu, taumumue)
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: l2lll_LogLikelihood
+
+  # Source: GAMBIT, HEPLike
+  # RD RDstar
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: RDRDstar_LogLikelihood
+
+  # Source: SuperISO, HEPLike
+  # b -> s gamma
+  - purpose:    LogLike
+    capability: b2sgamma_LogLikelihood
+    function: HEPLike_b2sgamma_LogLikelihood
+
+  # TODO: is this useful
+  # Source: SuperISO, HEPLike
+  # B -> K* gamma
+  - purpose:    LogLike
+    capability: B2Kstargamma_LogLikelihood
+
+  # Source: SuperISO, HEPLike
+  # B -> mu mu
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_LHCb
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_CMS
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_Atlas
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # Source: SuperISO, HEPLike
+  # B -> K* mu mu Angular
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    sub_capabilities: [FL, S3, S4, S5, S7, S8]
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_CMS
+    sub_capabilities: [P1, P5prime]
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Belle
+    sub_capabilities: [P4prime, P5prime]
+  #- purpose:    LogLike
+  #  capability: B2KstarmumuAng_LogLikelihood_LHCb
+  #   sub_capabilities: [???]
+
+  # Source: SuperISO, HEPLike
+  # B -> K* l l Angular
+  - purpose:    LogLike
+    capability: B2KstarellellAng_LogLikelihood_Belle
+    sub_capabilities: [P4prime, P5prime]
+
+  # Source: SuperISO, HEPLike
+  # B_u -> K* mu mu Angular
+  - purpose:    LogLike
+    capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  # WARNING: CAUSES CRASH (OBSERVABLES NOT IN SUPERISO)
+  # Source: SuperISO, HEPLike
+  # B -> K* mu mu Angular CP assymetry
+  #- purpose:    LogLike
+  #  capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+  #  sub_capabilities: [A3, A4, A5, A6, A7, A8, A9]
+    
+  # TODO: is this useful
+  # Source: SuperISO, HEPLike
+  # B -> K* e e angular low q2
+  - purpose:    LogLike
+    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+  # Source: SuperISO, HEPLike
+  # B -> K* mu mu BR
+  - purpose:    LogLike
+    capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+  # Source: SuperISO, HEPLike
+  # B -> K mu mu BR
+  - purpose:    LogLike
+    capability: B2KmumuBr_LogLikelihood_LHCb
+
+  # Source: SuperISO, HEPLike
+  # Bs -> Phi mu mu BR
+  - purpose:    LogLike
+    capability: Bs2phimumuBr_LogLikelihood
+
+
+#################################
+##          OBSERVABLES        ##
+#################################
+
+
+  # entire 2HDM spectrum
+  - capability: THDM_spectrum
+    type: map_str_dbl
+    purpose: Observable
+
+  # 2HDM decay rates and branching ratios 
+  - capability: all_BFs
+    purpose: Observable
+
+
+###################################
+##  Likelihood/Observable Rules  ##
+###################################
+
+
+Rules:
+
+  - capability: THDM_spectrum
+    type: map_str_dbl
+    options:
+      print_minimal_yukawas: false
+
+  - capability: THDM_spectrum
+    type: Spectrum
+    function: get_THDM_spectrum
+
+  - capability: decay_rates
+    function: all_decays
+
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      printall: true
+
+    # set check_other_scale to some extra scale to 
+    # check constraint at, or -1 to skip this
+    # note that input scale is always checked
+  - capability: perturbativity_LogLikelihood_THDM
+    options:
+      check_other_scale: -1
+
+  - capability: stability_LogLikelihood_THDM
+    options:
+      check_other_scale: -1
+      check_metastability: true
+
+  - capability: unitarity_LogLikelihood_THDM
+    options:
+      check_other_scale: -1
+      # options below only for NLO unitarity
+      check_correction_ratio: true
+      wave_function_corrections: true
+      gauge_corrections: true
+      yukawa_corrections: true
+
+  - capability: scalar_mass_range_LogLikelihood_THDM
+    options:
+      check_other_scale: -1
+      minimum_scalar_mass: 0
+      maximum_scalar_mass: 10000
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_THDM
+
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_THDM
+
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_THDM
+
+  - capability: t_decay_rates
+    function: t_decays_THDM
+
+  - capability: muon_gm2
+    function: SuperIso_muon_gm2
+    # function: THDM_mumugamma
+
+  - capability: muon_gm2_SM
+    function: gm2_SM_ee
+
+  - capability: muon_gm2_Exp
+    function: gm2_Exp_BNL
+
+
+#########################
+# Logging setup
+#########################
+
+
+Logger:
+
+  redirection:
+    [Debug] :  "debug.log"
+    [Default] :  "default.log"
+    [DecayBit] :  "DecayBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
+    [SpecBit] :  "SpecBit.log"
+    [Dependency Resolver] :  "dep_resolver.log"
+    [Scanner]:  "Scanner.log"
+
+
+##########################
+# Name/Value Section
+##########################
+
+
+KeyValues:
+
+  likelihood:
+    print_invalid_points: false
+    model_invalid_for_lnlike_below: -1e6
+    model_invalid_for_lnlike_below_alt: -5e5
+    disable_print_for_lnlike_below: -4e4
+    debug: true
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDMIatQ"
+  debug: true

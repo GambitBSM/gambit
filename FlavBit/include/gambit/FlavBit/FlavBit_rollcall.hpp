@@ -1626,7 +1626,7 @@ START_MODULE
   #undef CAPABILITY
 
 
-  /* TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
+//TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
 
   #define CAPABILITY prediction_RK_LHCb_1p1_6
   START_CAPABILITY
@@ -1671,7 +1671,7 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
   #undef CAPABILITY
-  */
+  
 
 
   ///Observable: BR(B -> tau nu)
