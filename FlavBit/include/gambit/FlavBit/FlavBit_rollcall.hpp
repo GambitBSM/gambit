@@ -65,142 +65,10 @@
 START_MODULE
 
 
-  #define CAPABILITY BDstarlnu_40_45
+  #define CAPABILITY BDstarlnu
   START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_40_45
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_45_50
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_45_50
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_50_55
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_50_55
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_55_60
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_55_60
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_60_65
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_60_65
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_65_70
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_65_70
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_70_75
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_70_75
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_75_80
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_75_80
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_80_85
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_80_85
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_85_90
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_85_90
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_90_95
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_90_95
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_95_100
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_95_100
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDstarlnu_100_105
-  START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu_100_105
-    START_FUNCTION(double)
+    #define FUNCTION THDM_BDstarlnu
+    START_FUNCTION(map_dblpair_dbl)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
@@ -213,19 +81,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION BDstartaunu_measurements
     START_FUNCTION(FlavBit::predictions_measurements_covariances)
-    DEPENDENCY(BDstarlnu_40_45, double)
-    DEPENDENCY(BDstarlnu_45_50, double)
-    DEPENDENCY(BDstarlnu_50_55, double)
-    DEPENDENCY(BDstarlnu_55_60, double)
-    DEPENDENCY(BDstarlnu_60_65, double)
-    DEPENDENCY(BDstarlnu_65_70, double)
-    DEPENDENCY(BDstarlnu_70_75, double)
-    DEPENDENCY(BDstarlnu_75_80, double)
-    DEPENDENCY(BDstarlnu_80_85, double)
-    DEPENDENCY(BDstarlnu_85_90, double)
-    DEPENDENCY(BDstarlnu_90_95, double)
-    DEPENDENCY(BDstarlnu_95_100, double)
-    DEPENDENCY(BDstarlnu_100_105, double)
+    DEPENDENCY(BDstarlnu, map_dblpair_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -240,191 +96,22 @@ START_MODULE
   #undef CAPABILITY
 
 
-  #define CAPABILITY BDlnu_40_45
+  #define CAPABILITY BDlnu
   START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_40_45
-    START_FUNCTION(double)
+    #define FUNCTION THDM_BDlnu
+    START_FUNCTION(map_dblpair_dbl)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
   #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_45_50
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_45_50
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_50_55
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_50_55
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_55_60
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_55_60
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_60_65
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_60_65
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_65_70
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_65_70
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_70_75
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_70_75
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_75_80
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_75_80
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_80_85
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_80_85
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_85_90
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_85_90
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_90_95
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_90_95
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_95_100
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_95_100
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_100_105
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_100_105
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_105_110
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_105_110
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY BDlnu_110_115
-  START_CAPABILITY
-    #define FUNCTION THDM_BDlnu_110_115
-    START_FUNCTION(double)
-    ALLOW_MODELS(THDM,THDMatQ)
-    DEPENDENCY(SMINPUTS,SMInputs)
-    DEPENDENCY(THDM_spectrum, Spectrum)
-    #undef FUNCTION
-  #undef CAPABILITY
-
 
   ///B-Dtanu distribution measurements
   #define CAPABILITY BDtaunu_M
   START_CAPABILITY
     #define FUNCTION BDtaunu_measurements
     START_FUNCTION(FlavBit::predictions_measurements_covariances)
-    DEPENDENCY(BDlnu_40_45, double)
-    DEPENDENCY(BDlnu_45_50, double)
-    DEPENDENCY(BDlnu_50_55, double)
-    DEPENDENCY(BDlnu_55_60, double)
-    DEPENDENCY(BDlnu_60_65, double)
-    DEPENDENCY(BDlnu_65_70, double)
-    DEPENDENCY(BDlnu_70_75, double)
-    DEPENDENCY(BDlnu_75_80, double)
-    DEPENDENCY(BDlnu_80_85, double)
-    DEPENDENCY(BDlnu_85_90, double)
-    DEPENDENCY(BDlnu_90_95, double)
-    DEPENDENCY(BDlnu_95_100, double)
-    DEPENDENCY(BDlnu_100_105, double)
-    DEPENDENCY(BDlnu_105_110, double)
-    DEPENDENCY(BDlnu_110_115, double)
+    DEPENDENCY(BDlnu, map_dblpair_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -635,94 +322,119 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///C2 in the general THDM capability
+  // TODO: All these are only muon flavour, should they be triplets?
+
+  /// C2
   #define CAPABILITY DeltaC2
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC2
+
+    /// C2 in the THDM
+    #define FUNCTION THDM_DeltaC2
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C7 in the general THDM capability
+  /// C7
   #define CAPABILITY DeltaC7
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC7
+
+    /// C7 in the THDM
+    #define FUNCTION THDM_DeltaC7
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C8 in the general THDM capability
+  /// C8
   #define CAPABILITY DeltaC8
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC8
+
+    /// C8 in the THDM
+    #define FUNCTION THDM_DeltaC8
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C9 in the general THDM capability
+  /// C9
   #define CAPABILITY DeltaC9
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC9
+
+    /// C9 in the THDM
+    #define FUNCTION THDM_DeltaC9
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C10 in the general THDM capability
+  /// C10 in the THDM
   #define CAPABILITY DeltaC10
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC10
+
+    /// C10 in the THDM
+    #define FUNCTION THDM_DeltaC10
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C7' in the general THDM capability
+  /// C7'
   #define CAPABILITY DeltaC7_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC7_Prime
+
+    /// C7' in the THDM
+    #define FUNCTION THDM_DeltaC7_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C8' in the general THDM capability
+  /// C8'
   #define CAPABILITY DeltaC8_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC8_Prime
+
+    /// C8' in the THDM
+    #define FUNCTION THDM_DeltaC8_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C9' in the general THDM capability
+  /// C9'
   #define CAPABILITY DeltaC9_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC9_Prime
+
+    /// C9' in the THDM
+    #define FUNCTION THDM_DeltaC9_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
@@ -731,159 +443,198 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///C10' in the general THDM capability
+  /// C10'
   #define CAPABILITY DeltaC10_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC10_Prime
+
+    /// C10' in the THDM
+    #define FUNCTION THDM_DeltaC10_Prime
     START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,THDMatQ)
+    ALLOW_MODELS(THDM,TaHDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ1 in the general THDM capability
+  /// CQ1
   #define CAPABILITY DeltaCQ1
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ1
+
+    /// CQ1 in the THDM
+    #define FUNCTION THDM_DeltaCQ1
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ2 in the general THDM capability
+  /// CQ2
   #define CAPABILITY DeltaCQ2
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ2
+
+    /// CQ2 in the THDM
+    #define FUNCTION THDM_DeltaCQ2
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ1_Prime in the general THDM capability
+  /// CQ1'
   #define CAPABILITY DeltaCQ1_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ1_Prime
+
+    /// CQ1' in the THDM
+    #define FUNCTION THDM_DeltaCQ1_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ2_Prime in the general THDM capability
+  /// CQ2'
   #define CAPABILITY DeltaCQ2_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ2_Prime
+
+    ///CQ2' in the THDM
+    #define FUNCTION THDM_DeltaCQ2_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///WC for tautau processes
+  /// C9 for tau-tau processes
   #define CAPABILITY DeltaC9_tautau
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC9_tautau
+
+    /// C9 for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaC9_tautau
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///WC for tautau processes
+  /// C10 for tau-tau processes
   #define CAPABILITY DeltaC10_tautau
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC10_tautau
+
+    /// C10 for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaC10_tautau
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///WC for tautau processes
+  /// C9' for tau-tau processes
   #define CAPABILITY DeltaC9_tautau_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC9_tautau_Prime
+
+    /// C9' for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaC9_tautau_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///C10' in the general THDM capability
+  /// C10' for tau-tau processes
   #define CAPABILITY DeltaC10_tautau_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaC10_tautau_Prime
+
+    /// C10' for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaC10_tautau_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ1 in the general THDM capability
+  /// CQ1 for tau-tau processes
   #define CAPABILITY DeltaCQ1_tautau
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ1_tautau
+
+    /// CQ1 for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaCQ1_tautau
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ2 in the general THDM capability
+  /// CQ2 for tau-tau processes
   #define CAPABILITY DeltaCQ2_tautau
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ2_tautau
+
+    /// CQ2 for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaCQ2_tautau
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ1_Prime in the general THDM capability
+  /// CQ1' for tau-tau processes
   #define CAPABILITY DeltaCQ1_tautau_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ1_tautau_Prime
+
+    /// CQ1' for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaCQ1_tautau_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
-  ///CQ2_Prime in the general THDM capability
+  /// CQ2' for tau-tau processes
   #define CAPABILITY DeltaCQ2_tautau_Prime
   START_CAPABILITY
-    #define FUNCTION calculate_DeltaCQ2_tautau_Prime
+
+    /// CQ2' for tau-tau processes in the THDM
+    #define FUNCTION THDM_DeltaCQ2_tautau_Prime
     START_FUNCTION(std::complex<double>)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -1100,7 +851,20 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-
+/*  #define CAPABILITY prediction_B2KstarmumuBr
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_B2KStarmumuBr
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+*/
   #define CAPABILITY prediction_B2KstarmumuBr_0p1_0p98
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_B2KstarmumuBr_0p1_0p98
@@ -1626,8 +1390,8 @@ START_MODULE
   #undef CAPABILITY
 
 
-  /* TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
-
+  // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
+  /*
   #define CAPABILITY prediction_RK_LHCb_1p1_6
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_RK_LHCb_1p1_6
@@ -1672,7 +1436,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
   */
-
 
   ///Observable: BR(B -> tau nu)
   #define CAPABILITY Btaunu

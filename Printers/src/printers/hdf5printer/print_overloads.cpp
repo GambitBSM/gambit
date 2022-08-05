@@ -188,6 +188,36 @@ namespace Gambit
       }
     }
 
+    void HDF5Printer::_print(map_dblpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      // Retrieve the buffer manager for buffers with this type
+      auto& buffer_manager = get_mybuffermanager<double>(pointID,mpirank);
+
+      unsigned int i=0; // index for each buffer
+      for (std::map<std::pair<double,double>, double>::const_iterator it = map.begin(); it != map.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first;
+        PPIDpair ppid(pointID,mpirank);
+        if(synchronised)
+        {
+          // Write the data to the selected buffer ("just works" for simple numeric types)
+          buffer_manager.get_buffer(vID, i, ss.str()).append(it->second,ppid);
+        }
+        else
+        {
+          // Queue up a desynchronised ("random access") dataset write to previous scan iteration
+          if(not seen_PPID_before(ppid))
+          {
+            add_PPID_to_list(ppid);
+          }
+          buffer_manager.get_buffer(vID, i, ss.str()).RA_write(it->second,ppid,primary_printer->global_index_lookup);
+        }
+        i++;
+      }
+    }
+
+
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_str_map_str_dbl)

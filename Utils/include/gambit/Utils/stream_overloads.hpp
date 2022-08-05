@@ -105,6 +105,21 @@ namespace Gambit
     return os;
   }
 
+  /// Stream overload for map from a pair of any type to any type that already has << defined
+  template<class T, class U>
+  std::ostream& operator << (std::ostream& os, const std::map<std::pair<T,T>,U>& map)
+  {
+
+    for (auto it = map.begin(); it != map.end(); it++)
+    {
+      if (it != map.begin()) {os << std::endl;}
+      os << " (" << it->first.first << "," << it->first.second << ")(" << it->second << ")";
+    }
+
+    return os;
+  }
+
+
 }
 
 #endif /* defined(__stream_overloads_hpp__) */
