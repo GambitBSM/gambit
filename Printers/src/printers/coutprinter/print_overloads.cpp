@@ -63,6 +63,7 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_const_str_map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_intpair_dbl)
+    USE_COMMON_PRINT_OVERLOAD(coutPrinter, map_dblpair_dbl)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(coutPrinter, triplet<double>)
     #ifndef SCANNER_STANDALONE

@@ -47,6 +47,7 @@
   (ModelParameters)                    \
   (triplet<double>)                    \
   (map_intpair_dbl)                    \
+  (map_dblpair_dbl)                    \
 
 #define HDF5_RETRIEVABLE_TYPES         \
   HDF5_TYPES                           \

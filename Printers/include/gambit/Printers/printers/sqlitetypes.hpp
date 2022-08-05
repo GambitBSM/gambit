@@ -38,6 +38,7 @@
   (ModelParameters)         \
   (triplet<double>)         \
   (map_intpair_dbl)         \
+  (map_dblpair_dbl)         \
 
 
 #define SQL_BACKEND_TYPES             \
