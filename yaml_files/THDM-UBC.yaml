@@ -36,9 +36,9 @@ Parameters:
       # hybrid_Higgs basis: mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7
 
       # for the general model, we must also specify the Yukawas
-      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij, 
+      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij,
       # where we have a separate parameter for each i,j (which run from 1 to 3)
-      
+
       # lower limit on lambda1,2 of 0 required for vacuum stability
       # limit on |lambda1,...,7| of 4pi required for perturbativity
       # lambda6,7 set to 0 for Z2-symmetric scalar sector (to avoid large FCNCs at 1-loop level)
@@ -189,7 +189,7 @@ ObsLikes:
   # perturbativity constraint on yukawas
   - purpose:    LogLike
     capability: perturbativity_yukawas_LogLikelihood_THDM
-    
+
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
   #-------------------------------------#
@@ -241,7 +241,7 @@ ObsLikes:
   # Does not work - could take from SL_Likelihood?
   #- purpose:    LogLike
   #  capability: B2taunu_LogLikelihood
-    
+
   # Source: GAMBIT
   # B-Dstartaunu distributions
   # No relevance for Type I and Type II
@@ -401,13 +401,14 @@ ObsLikes:
   #- purpose:    LogLike
   #  capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
   #  sub_capabilities: [A3, A4, A5, A6, A7, A8, A9]
-    
+
   # TODO: is this useful
+  # TODO: The AT_Im observable is not in SuperISO, ask Nazila
   # Source: SuperISO, HEPLike
   # B -> K* e e angular low q2
-  - purpose:    LogLike
-    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
-    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+  #- purpose:    LogLike
+  #  capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+  #  sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
   # Source: SuperISO, HEPLike
   # B -> K* mu mu BR
@@ -435,7 +436,7 @@ ObsLikes:
     type: map_str_dbl
     purpose: Observable
 
-  # 2HDM decay rates and branching ratios 
+  # 2HDM decay rates and branching ratios
   - capability: all_BFs
     purpose: Observable
 
@@ -464,7 +465,7 @@ Rules:
     options:
       printall: true
 
-    # set check_other_scale to some extra scale to 
+    # set check_other_scale to some extra scale to
     # check constraint at, or -1 to skip this
     # note that input scale is always checked
   - capability: perturbativity_LogLikelihood_THDM

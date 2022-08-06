@@ -91,7 +91,7 @@
 #include "gambit/FlavBit/Flav_reader.hpp"
 #include "gambit/FlavBit/flav_utils.hpp"
 
-#define FLAVBIT_DEBUG
+//#define FLAVBIT_DEBUG
 //#define FLAVBIT_DEBUG_LL
 
 namespace YAML
@@ -951,8 +951,6 @@ namespace Gambit
       if (flav_debug)
       {
         cout << "Starting SuperIso_prediction" << std::endl;
-        cout << "Changing convention. Before:"<<endl;
-        print(result,{"S3", "S4", "S5", "S8", "S9", "AT_Im"});
       }
 
       int nObservables = SI_obslist.size();
@@ -1078,8 +1076,6 @@ namespace Gambit
               obsnames[iObservable], obsnames[jObservable], result.covariance[FB_obslist[iObservable]][FB_obslist[jObservable]]);
            }
         }
-        cout << "Changing convention. After:"<<endl;
-        print(result,{"S3", "S4", "S5", "S8", "S9", "AT_Im"});
         std::cout << "Finished SuperIso_prediction" << std::endl;
       }
 
@@ -1171,9 +1167,9 @@ namespace Gambit
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_16_18)
     SI_SINGLE_PREDICTION_FUNCTION_BINS(B2KmumuBr,_18_22)
     // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
-    SI_SINGLE_PREDICTION_FUNCTION_BINS(RK_LHCb,_1p1_6)
-    SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_0p045_1p1)
-    SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_1p1_6)
+    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RK_LHCb,_1p1_6)
+    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_0p045_1p1)
+    //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb,_1p1_6)
     // TODO: this should be used once the BKtautau CONV function is removed from the SuperIso frontend
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(BKtautauBr,_12p6_22p9)
 
@@ -5444,7 +5440,7 @@ namespace Gambit
 
       result = 0;
       for (unsigned int i = 0; i < nDimGaussian.size(); i++)
-      { 
+      {
         result += nDimGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
       }
 
@@ -5629,7 +5625,6 @@ namespace Gambit
       {
         double theory = prediction[i].central_values.begin()->second;
         double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
-        cout<<theory<<endl;
         result += BifurGaussian[i].GetLogLikelihood(theory, theory_variance);
       }
 

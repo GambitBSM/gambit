@@ -450,7 +450,7 @@ START_MODULE
     /// C10' in the THDM
     #define FUNCTION THDM_DeltaC10_Prime
     START_FUNCTION(std::complex<double>)
-    ALLOW_MODELS(THDM,TaHDMatQ)
+    ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
     DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
