@@ -124,6 +124,18 @@ namespace Gambit
       }
     }
 
+    /// Integer double-to-double map print overload
+    template<typename P>
+    void _common_print(P& printer, map_dblpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      for (map_dblpair_dbl::const_iterator it = map.begin(); it != map.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first;
+        printer._print(it->second,ss.str(),vID,mpirank,pointID);
+      }
+    }
+
     /// ModelParameters print overload
     template<typename P>
     void _common_print(P& printer, ModelParameters const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)

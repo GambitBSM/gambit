@@ -31,6 +31,8 @@ namespace Gambit
   namespace FlavBit
   {
 
+    using namespace std;
+
     /// Matrix inversion routine using Boost
     template<class T>
     bool InvertMatrix (const ublas::matrix<T>& input, ublas::matrix<T>& inverse)
@@ -55,6 +57,12 @@ namespace Gambit
 
       return true;
     }
+
+    /// Scalar WCs at tree level in the THDM
+    std::complex<double> THDM_DeltaCQ_NP(int, int, int, SMInputs&, Spectrum&);
+
+    ///Function for WCs 9,10 and primes in the THDM
+    std::complex<double> THDM_DeltaC_NP(int, int, int, SMInputs&, Spectrum&);
 
   }
 

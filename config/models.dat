@@ -683,7 +683,6 @@ THDM_physicalatQ: |
 THDMatQ: |
    The most general Two-Higgs-Doublet Model (see THDM) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMI: |
    The Type-I Two-Higgs-Doublet Model.
@@ -696,7 +695,6 @@ THDMI: |
 THDMIatQ: |
    The Type-I Two-Higgs-Doublet Model (see THDMI) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMI_physical: |
    The Type-I Two-Higgs-Doublet Model in the physical basis.
@@ -713,7 +711,6 @@ THDMI_physical: |
 THDMI_physicalatQ: |
    The Type-I Two-Higgs-Doublet Model in the physical basis (see THDMI_physical) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMII: |
    The Type-II Two-Higgs-Doublet Model.
@@ -726,7 +723,6 @@ THDMII: |
 THDMIIatQ: |
    The Type-II Two-Higgs-Doublet Model (see THDMII) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMII_physical: |
    The Type-II Two-Higgs-Doublet Model in the physical basis.
@@ -743,7 +739,6 @@ THDMII_physical: |
 THDMII_physicalatQ: |
    The Type-II Two-Higgs-Doublet Model in the physical basis (see THDMII_physical) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMLS: |
    The Lepton-Specific Two-Higgs-Doublet Model.
@@ -756,7 +751,6 @@ THDMLS: |
 THDMLSatQ: |
    The Lepton-Specific Two-Higgs-Doublet Model (see THDMLS) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMLS_physical: |
    The Lepton-Specific Two-Higgs-Doublet Model in the physical basis.
@@ -773,7 +767,6 @@ THDMLS_physical: |
 THDMLS_physicalatQ: |
    The Lepton-Specific Two-Higgs-Doublet Model in the physical basis (see THDMLS_physical) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMflipped: |
    The Flipped Two-Higgs-Doublet Model.
@@ -786,7 +779,6 @@ THDMflipped: |
 THDMflippedatQ: |
    The Flipped Two-Higgs-Doublet Model (see THDMflipped) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMflipped_physical: |
    The Flipped Two-Higgs-Doublet Model in the physical basis.
@@ -803,7 +795,6 @@ THDMflipped_physical: |
 THDMflipped_physicalatQ: |
    The Flipped Two-Higgs-Doublet Model in the physical basis (see THDMflipped_physical) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 
 THDMI_higgs: |
@@ -868,7 +859,6 @@ THDMI_hybrid_lambda1: |
 THDMI_hybrid_lambda1atQ: |
    The Type-I Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMI_hybrid_lambda2: |
    The Type-I Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
@@ -876,7 +866,6 @@ THDMI_hybrid_lambda2: |
 THDMI_hybrid_lambda2atQ: |
    The Type-I Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMII_hybrid_lambda1: |
    The Type-II Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
@@ -884,7 +873,6 @@ THDMII_hybrid_lambda1: |
 THDMII_hybrid_lambda1atQ: |
    The Type-II Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMII_hybrid_lambda2: |
    The Type-II Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
@@ -892,7 +880,6 @@ THDMII_hybrid_lambda2: |
 THDMII_hybrid_lambda2atQ: |
    The Type-II Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMLS_hybrid_lambda1: |
    The Type-LS Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
@@ -900,7 +887,6 @@ THDMLS_hybrid_lambda1: |
 THDMLS_hybrid_lambda1atQ: |
    The Type-LS Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMLS_hybrid_lambda2: |
    The Type-LS Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
@@ -908,7 +894,6 @@ THDMLS_hybrid_lambda2: |
 THDMLS_hybrid_lambda2atQ: |
    The Type-LS Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMflipped_hybrid_lambda1: |
    The Type-flipped Two-Higgs-Doublet Model with a lambda_1 hybrid input basis.
@@ -916,7 +901,6 @@ THDMflipped_hybrid_lambda1: |
 THDMflipped_hybrid_lambda1atQ: |
    The Type-flipped Two-Higgs-Doublet Model with a lambda_1 hybrid input basis (see THDMII_hybrid_lambda1) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 THDMflipped_hybrid_lambda2: |
    The Type-flipped Two-Higgs-Doublet Model with a lambda_2 hybrid input basis.
@@ -924,7 +908,6 @@ THDMflipped_hybrid_lambda2: |
 THDMflipped_hybrid_lambda2atQ: |
    The Type-flipped Two-Higgs-Doublet Model with a lambda_2 hybrid input basis (see THDMII_hybrid_lambda2) with running.
    Qin                 - the scale at which the parameters are defined
-   QRunTo              - the scale to which the parameters are run
 
 
 

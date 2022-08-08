@@ -452,12 +452,19 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
   // calc angles
   double beta  = std::atan(tanb);
   double alpha = beta - std::acos(cba);
+  double sba   = sin(beta - alpha);
+
+  // conventions
+  if (sba < 0.0)
+  {
+    alpha += M_PI;
+    sba = sin(beta - alpha);
+  } 
   double sinb  = std::sin(beta);
   double cosb  = std::cos(beta);
   double sina  = std::sin(alpha);
   double cosa  = std::cos(alpha);
-  double sba   = sin(beta - alpha);
-
+  
   // calc masses
   double mA2   = mH2*sq(sba) + mh2*sq(cba) - L5*v2;
   double mHp2  = mA2 - 0.5*v2*(L4-L5);
@@ -482,6 +489,9 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
   targetP.setValue("lambda7", lambda7 );
   targetP.setValue("m12_2", m122);
   targetP.setValue("tanb", tanb);
+
+  // std::cerr << "beta2: " << beta << std::endl;
+  // std::cerr << "alpha2: " << alpha << std::endl;
 }
 #undef PARENT
 #undef MODEL
@@ -510,13 +520,20 @@ void MODEL_NAMESPACE::THDMI_hybrid_HiggsatQ_to_THDMIatQ(const ModelParameters &m
   double v2 = 1./(sqrt(2)*sminputs.GF);
 
   // calc angles
-  double beta  = std::atan(tanb);
+  double beta = std::atan(tanb);
   double alpha = beta - std::acos(cba);
-  double sinb  = std::sin(beta);
-  double cosb  = std::cos(beta);
-  double cosa  = std::sin(alpha);
-  double sina  = std::cos(alpha);
-  double sba   = sin(beta - alpha);
+  double sba = sin(beta - alpha);
+
+  // conventions
+  if (sba < 0.0)
+  {
+    alpha += M_PI;
+    sba = sin(beta - alpha);
+  }
+  double sinb = std::sin(beta);
+  double cosb = std::cos(beta);
+  double sina = std::sin(alpha);
+  double cosa = std::cos(alpha);
 
   // calc masses
   double mA2   = mH2*sq(sba) + mh2*sq(cba) - L5*v2;
@@ -545,6 +562,8 @@ void MODEL_NAMESPACE::THDMI_hybrid_HiggsatQ_to_THDMIatQ(const ModelParameters &m
 
   targetP.setValue("Qin", myP.getValue("Qin"));
 
+  // std::cerr << "beta2: " << beta << std::endl;
+  // std::cerr << "alpha2: " << alpha << std::endl;
 }
 #undef PARENT
 #undef MODEL

@@ -425,11 +425,18 @@ void MODEL_NAMESPACE::THDMII_hybrid_Higgs_to_THDMII(const ModelParameters &myP, 
   // calc angles
   double beta = std::atan(tanb);
   double alpha = beta - std::acos(cba);
+  double sba = sin(beta - alpha);
+
+  // conventions
+  if (sba < 0.0)
+  {
+    alpha += M_PI;
+    sba = sin(beta - alpha);
+  }
   double sinb = std::sin(beta);
   double cosb = std::cos(beta);
   double sina = std::sin(alpha);
   double cosa = std::cos(alpha);
-  double sba = sin(beta - alpha);
 
   // calc masses
   double mA2 = mH2 * sq(sba) + mh2 * sq(cba) - L5 * v2;
@@ -486,11 +493,18 @@ void MODEL_NAMESPACE::THDMII_hybrid_HiggsatQ_to_THDMIIatQ(const ModelParameters 
   // calc angles
   double beta = std::atan(tanb);
   double alpha = beta - std::acos(cba);
+  double sba = sin(beta - alpha);
+
+  // conventions
+  if (sba < 0.0)
+  {
+    alpha += M_PI;
+    sba = sin(beta - alpha);
+  }
   double sinb = std::sin(beta);
   double cosb = std::cos(beta);
-  double cosa = std::sin(alpha);
-  double sina = std::cos(alpha);
-  double sba = sin(beta - alpha);
+  double sina = std::sin(alpha);
+  double cosa = std::cos(alpha);
 
   // calc masses
   double mA2 = mH2 * sq(sba) + mh2 * sq(cba) - L5 * v2;
