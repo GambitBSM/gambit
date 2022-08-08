@@ -20,11 +20,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_Data* (*__factory0)();
-         static Abstract_HL_Data* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+         static Abstract_HL_Data* (*__factory1)(::std::basic_string<char>);
    
          // -- Other member variables: 
       public:
-         std::basic_string<char, std::char_traits<char>, std::allocator<char> >& HFile;
+         std::basic_string<char>& HFile;
    
          // Member functions: 
       public:
@@ -36,7 +36,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // Wrappers for original constructors: 
       public:
          HL_Data();
-         HL_Data(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > arg_1);
+         HL_Data(::std::basic_string<char> arg_1);
    
          // Special pointer-based constructor: 
          HL_Data(Abstract_HL_Data* in);

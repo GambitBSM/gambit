@@ -2,7 +2,8 @@
 //   *********************************************
 ///  \file
 ///
-///  Functions of module FlavBit regarding Wilson Coefficients
+///  Functions of module FlavBit:
+///  - Wilson Coefficients
 ///
 ///  *********************************************
 ///
@@ -20,24 +21,9 @@
 ///
 ///  *********************************************
 
-/*
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <map>
-
-#include "gambit/cmake/cmake_variables.hpp"
-#include "gambit/Utils/statistics.hpp"
-#include "gambit/Elements/loop_functions.hpp"
-#include "gambit/Elements/translator.hpp"
-*/
 #include "gambit/Elements/gambit_module_headers.hpp"
-//#include "gambit/Elements/spectrum.hpp"
-//#include "gambit/Elements/thdm_slhahelp.hpp"
 #include "gambit/FlavBit/FlavBit_rollcall.hpp"
-//#include "gambit/FlavBit/FlavBit_types.hpp"
-//#include "gambit/FlavBit/Flav_reader.hpp"
-#include "gambit/FlavBit/flav_utils.hpp"
+#include "gambit/FlavBit/FlavBit_utils.hpp"
 
 namespace Gambit
 {

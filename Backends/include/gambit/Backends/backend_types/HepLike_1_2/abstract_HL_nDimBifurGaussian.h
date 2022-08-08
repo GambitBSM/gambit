@@ -23,21 +23,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          virtual void Read() =0;
    
-         virtual double GetChi2(::std::vector<double, std::allocator<double> >) =0;
+         virtual double GetChi2(::std::vector<double>) =0;
    
-         virtual double GetLikelihood(::std::vector<double, std::allocator<double> >) =0;
+         virtual double GetLikelihood(::std::vector<double>) =0;
    
-         virtual double GetLogLikelihood(::std::vector<double, std::allocator<double> >) =0;
+         virtual double GetLogLikelihood(::std::vector<double>) =0;
    
-         virtual double GetChi2(::std::vector<double, std::allocator<double> >, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > >) =0;
+         virtual double GetChi2(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
    
-         virtual double GetLikelihood(::std::vector<double, std::allocator<double> >, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > >) =0;
+         virtual double GetLikelihood(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
    
-         virtual double GetLogLikelihood(::std::vector<double, std::allocator<double> >, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > >) =0;
+         virtual double GetLogLikelihood(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
    
-         virtual bool Restrict(::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >) =0;
+         virtual bool Restrict(::std::vector<std::basic_string<char>>) =0;
    
-         virtual ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > GetObservables() =0;
+         virtual ::std::vector<std::basic_string<char>> GetObservables() =0;
    
       public:
          using Abstract_HL_Data::pointer_assign__BOSS;

@@ -22,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_nDimLikelihood* (*__factory0)();
-         static Abstract_HL_nDimLikelihood* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+         static Abstract_HL_nDimLikelihood* (*__factory1)(::std::basic_string<char>);
    
          // -- Other member variables: 
       public:
@@ -32,33 +32,33 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          void Read();
    
-         double GetChi2(::std::vector<double, std::allocator<double> > theory);
+         double GetChi2(::std::vector<double> theory);
    
-         double GetChi2(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov);
+         double GetChi2(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLikelihood(::std::vector<double, std::allocator<double> > theory);
+         double GetLikelihood(::std::vector<double> theory);
    
-         double GetLikelihood(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov);
+         double GetLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLogLikelihood(::std::vector<double, std::allocator<double> > theory);
+         double GetLogLikelihood(::std::vector<double> theory);
    
-         double GetLogLikelihood(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov);
+         double GetLogLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
    
          void Profile();
    
-         double GetChi2_profile(double theory, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > arg_1);
+         double GetChi2_profile(double theory, ::std::basic_string<char> arg_1);
    
-         double GetLikelihood_profile(double theory, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > axis);
+         double GetLikelihood_profile(double theory, ::std::basic_string<char> axis);
    
-         double GetLogLikelihood_profile(double theory, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > X);
+         double GetLogLikelihood_profile(double theory, ::std::basic_string<char> X);
    
-         ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > GetObservables();
+         ::std::vector<std::basic_string<char>> GetObservables();
    
    
          // Wrappers for original constructors: 
       public:
          HL_nDimLikelihood();
-         HL_nDimLikelihood(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > s);
+         HL_nDimLikelihood(::std::basic_string<char> s);
    
          // Special pointer-based constructor: 
          HL_nDimLikelihood(Abstract_HL_nDimLikelihood* in);

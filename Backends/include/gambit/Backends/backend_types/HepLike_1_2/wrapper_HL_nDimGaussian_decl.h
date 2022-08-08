@@ -22,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_nDimGaussian* (*__factory0)();
-         static Abstract_HL_nDimGaussian* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+         static Abstract_HL_nDimGaussian* (*__factory1)(::std::basic_string<char>);
    
          // -- Other member variables: 
    
@@ -30,27 +30,27 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          void Read();
    
-         double GetChi2(::std::vector<double, std::allocator<double> > theory);
+         double GetChi2(::std::vector<double> theory);
    
-         double GetLikelihood(::std::vector<double, std::allocator<double> > theory);
+         double GetLikelihood(::std::vector<double> theory);
    
-         double GetLogLikelihood(::std::vector<double, std::allocator<double> > theory);
+         double GetLogLikelihood(::std::vector<double> theory);
    
-         double GetChi2(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov);
+         double GetChi2(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLikelihood(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov);
+         double GetLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLogLikelihood(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov);
+         double GetLogLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
    
-         bool Restrict(::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > arg_1);
+         bool Restrict(::std::vector<std::basic_string<char>> arg_1);
    
-         ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > GetObservables();
+         ::std::vector<std::basic_string<char>> GetObservables();
    
    
          // Wrappers for original constructors: 
       public:
          HL_nDimGaussian();
-         HL_nDimGaussian(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > s);
+         HL_nDimGaussian(::std::basic_string<char> s);
    
          // Special pointer-based constructor: 
          HL_nDimGaussian(Abstract_HL_nDimGaussian* in);

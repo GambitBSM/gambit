@@ -22,11 +22,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          virtual void Read() =0;
    
-         virtual double GetChi2(::std::vector<double, std::allocator<double> >) =0;
+         virtual double GetChi2(::std::vector<double>) =0;
    
-         virtual double GetLogLikelihood(::std::vector<double, std::allocator<double> >) =0;
+         virtual double GetLogLikelihood(::std::vector<double>) =0;
    
-         virtual double GetLikelihood(::std::vector<double, std::allocator<double> >) =0;
+         virtual double GetLikelihood(::std::vector<double>) =0;
    
          virtual bool InitData() =0;
    

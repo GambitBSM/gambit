@@ -21,7 +21,7 @@
 
 #include "yaml-cpp/yaml.h"
 
-#include "gambit/Elements/translator.hpp"
+#include "gambit/Utils/translator.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 
 namespace Gambit

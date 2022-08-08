@@ -16,17 +16,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->Read();
    }
    
-   inline double HL_ExpPoints::GetChi2(::std::vector<double, std::allocator<double> > theory)
+   inline double HL_ExpPoints::GetChi2(::std::vector<double> theory)
    {
       return get_BEptr()->GetChi2(theory);
    }
    
-   inline double HL_ExpPoints::GetLogLikelihood(::std::vector<double, std::allocator<double> > theory)
+   inline double HL_ExpPoints::GetLogLikelihood(::std::vector<double> theory)
    {
       return get_BEptr()->GetLogLikelihood(theory);
    }
    
-   inline double HL_ExpPoints::GetLikelihood(::std::vector<double, std::allocator<double> > theory)
+   inline double HL_ExpPoints::GetLikelihood(::std::vector<double> theory)
    {
       return get_BEptr()->GetLikelihood(theory);
    }
@@ -45,7 +45,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_ExpPoints::HL_ExpPoints(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > s) :
+   inline HL_ExpPoints::HL_ExpPoints(::std::basic_string<char> s) :
       HL_Data(__factory1(s))
    {
       get_BEptr()->set_wptr(this);

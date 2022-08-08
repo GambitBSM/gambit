@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_Limit* (*__factory0)();
-         static Abstract_HL_Limit* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+         static Abstract_HL_Limit* (*__factory1)(::std::basic_string<char>);
    
          // -- Other member variables: 
    
@@ -41,7 +41,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // Wrappers for original constructors: 
       public:
          HL_Limit();
-         HL_Limit(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > s);
+         HL_Limit(::std::basic_string<char> s);
    
          // Special pointer-based constructor: 
          HL_Limit(Abstract_HL_Limit* in);

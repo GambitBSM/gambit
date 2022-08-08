@@ -54,7 +54,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_Gaussian::HL_Gaussian(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > s) :
+   inline HL_Gaussian::HL_Gaussian(::std::basic_string<char> s) :
       HL_Data(__factory1(s))
    {
       get_BEptr()->set_wptr(this);

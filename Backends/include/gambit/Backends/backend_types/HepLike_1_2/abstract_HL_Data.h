@@ -19,7 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       public:
    
-         virtual std::basic_string<char, std::char_traits<char>, std::allocator<char> >& HFile_ref__BOSS() =0;
+         virtual std::basic_string<char>& HFile_ref__BOSS() =0;
    
          virtual void Read() =0;
    

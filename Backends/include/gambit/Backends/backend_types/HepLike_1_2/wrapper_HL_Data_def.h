@@ -31,7 +31,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_Data::HL_Data(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > arg_1) :
+   inline HL_Data::HL_Data(::std::basic_string<char> arg_1) :
       WrapperBase(__factory1(arg_1)),
       HFile( get_BEptr()->HFile_ref__BOSS())
    {

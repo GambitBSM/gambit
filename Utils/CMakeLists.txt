@@ -49,6 +49,7 @@ set(source_files src/ascii_table_reader.cpp
                  src/stream_overloads.cpp
                  src/table_formatter.cpp
                  src/threadsafe_rng.cpp
+                 src/translator.cpp
                  src/util_functions.cpp
                  src/version.cpp
                  src/yaml_parser_base.cpp
@@ -85,6 +86,7 @@ set(header_files include/gambit/Utils/ascii_table_reader.hpp
                  include/gambit/Utils/stream_overloads.hpp
                  include/gambit/Utils/threadsafe_rng.hpp
                  include/gambit/Utils/table_formatter.hpp
+                 include/gambit/Utils/translator.hpp
                  include/gambit/Utils/type_index.hpp
                  include/gambit/Utils/type_macros.hpp
                  include/gambit/Utils/util_functions.hpp

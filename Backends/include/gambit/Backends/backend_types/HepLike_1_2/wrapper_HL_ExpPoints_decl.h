@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_ExpPoints* (*__factory0)();
-         static Abstract_HL_ExpPoints* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
+         static Abstract_HL_ExpPoints* (*__factory1)(::std::basic_string<char>);
    
          // -- Other member variables: 
    
@@ -29,11 +29,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          void Read();
    
-         double GetChi2(::std::vector<double, std::allocator<double> > theory);
+         double GetChi2(::std::vector<double> theory);
    
-         double GetLogLikelihood(::std::vector<double, std::allocator<double> > theory);
+         double GetLogLikelihood(::std::vector<double> theory);
    
-         double GetLikelihood(::std::vector<double, std::allocator<double> > theory);
+         double GetLikelihood(::std::vector<double> theory);
    
          bool InitData();
    
@@ -41,7 +41,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // Wrappers for original constructors: 
       public:
          HL_ExpPoints();
-         HL_ExpPoints(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > s);
+         HL_ExpPoints(::std::basic_string<char> s);
    
          // Special pointer-based constructor: 
          HL_ExpPoints(Abstract_HL_ExpPoints* in);

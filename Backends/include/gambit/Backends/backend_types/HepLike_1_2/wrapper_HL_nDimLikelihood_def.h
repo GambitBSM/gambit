@@ -17,32 +17,32 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->Read();
    }
    
-   inline double HL_nDimLikelihood::GetChi2(::std::vector<double, std::allocator<double> > theory)
+   inline double HL_nDimLikelihood::GetChi2(::std::vector<double> theory)
    {
       return get_BEptr()->GetChi2(theory);
    }
    
-   inline double HL_nDimLikelihood::GetChi2(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimLikelihood::GetChi2(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetChi2(theory, theory_cov);
    }
    
-   inline double HL_nDimLikelihood::GetLikelihood(::std::vector<double, std::allocator<double> > theory)
+   inline double HL_nDimLikelihood::GetLikelihood(::std::vector<double> theory)
    {
       return get_BEptr()->GetLikelihood(theory);
    }
    
-   inline double HL_nDimLikelihood::GetLikelihood(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimLikelihood::GetLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLikelihood(theory, theory_cov);
    }
    
-   inline double HL_nDimLikelihood::GetLogLikelihood(::std::vector<double, std::allocator<double> > theory)
+   inline double HL_nDimLikelihood::GetLogLikelihood(::std::vector<double> theory)
    {
       return get_BEptr()->GetLogLikelihood(theory);
    }
    
-   inline double HL_nDimLikelihood::GetLogLikelihood(::std::vector<double, std::allocator<double> > theory, ::boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimLikelihood::GetLogLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLogLikelihood(theory, theory_cov);
    }
@@ -52,22 +52,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->Profile();
    }
    
-   inline double HL_nDimLikelihood::GetChi2_profile(double theory, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > arg_1)
+   inline double HL_nDimLikelihood::GetChi2_profile(double theory, ::std::basic_string<char> arg_1)
    {
       return get_BEptr()->GetChi2_profile(theory, arg_1);
    }
    
-   inline double HL_nDimLikelihood::GetLikelihood_profile(double theory, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > axis)
+   inline double HL_nDimLikelihood::GetLikelihood_profile(double theory, ::std::basic_string<char> axis)
    {
       return get_BEptr()->GetLikelihood_profile(theory, axis);
    }
    
-   inline double HL_nDimLikelihood::GetLogLikelihood_profile(double theory, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > X)
+   inline double HL_nDimLikelihood::GetLogLikelihood_profile(double theory, ::std::basic_string<char> X)
    {
       return get_BEptr()->GetLogLikelihood_profile(theory, X);
    }
    
-   inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > HL_nDimLikelihood::GetObservables()
+   inline ::std::vector<std::basic_string<char>> HL_nDimLikelihood::GetObservables()
    {
       return get_BEptr()->GetObservables();
    }
@@ -82,7 +82,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_nDimLikelihood::HL_nDimLikelihood(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > s) :
+   inline HL_nDimLikelihood::HL_nDimLikelihood(::std::basic_string<char> s) :
       HL_Data(__factory1(s)),
       loglikelihood_penalty( get_BEptr()->loglikelihood_penalty_ref__BOSS())
    {
