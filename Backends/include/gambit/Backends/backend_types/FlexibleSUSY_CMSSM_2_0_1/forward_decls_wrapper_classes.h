@@ -10,17 +10,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     namespace flexiblesusy
     {
-        class Two_scale;
         class CMSSM_input_parameters;
-        class Spectrum_generator_settings;
+        class CMSSM_scales;
+        class CMSSM_slha_io;
         class Spectrum_generator_problems;
-        class Physical_input;
-        class CMSSM_parameter_getter;
-        class Error;
     }
     namespace softsusy
     {
         class QedQcd;
+    }
+    
+    namespace flexiblesusy
+    {
+        class Two_scale;
+        class CMSSM_spectrum_generator__Two_scale;
+        class Spectrum_generator_settings;
     }
     
     

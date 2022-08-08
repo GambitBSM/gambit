@@ -24,31 +24,36 @@ namespace Gambit
         {
             namespace flexiblesusy
             {
-                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Two_scale Two_scale;
-            }
-            namespace flexiblesusy
-            {
                 typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_input_parameters CMSSM_input_parameters;
             }
             namespace flexiblesusy
             {
-                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Spectrum_generator_settings Spectrum_generator_settings;
+                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_scales CMSSM_scales;
+            }
+            namespace flexiblesusy
+            {
+                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_slha_io CMSSM_slha_io;
             }
             namespace flexiblesusy
             {
                 typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Spectrum_generator_problems Spectrum_generator_problems;
             }
-            namespace flexiblesusy
-            {
-                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Physical_input Physical_input;
-            }
-            namespace flexiblesusy
-            {
-                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_parameter_getter CMSSM_parameter_getter;
-            }
             namespace softsusy
             {
                 typedef ::FlexibleSUSY_CMSSM_2_0_1::softsusy::QedQcd QedQcd;
+            }
+            namespace flexiblesusy
+            {
+                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Two_scale Two_scale;
+            }
+            namespace flexiblesusy
+            {
+                template <class T0>
+                using CMSSM_spectrum_generator::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_spectrum_generator<T0>;
+            }
+            namespace flexiblesusy
+            {
+                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Spectrum_generator_settings Spectrum_generator_settings;
             }
         }
     }

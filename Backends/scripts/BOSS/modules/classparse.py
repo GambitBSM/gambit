@@ -305,7 +305,6 @@ def addAbsClassToInheritanceList(class_el, class_name,
 
     # If there are previous parent classes
     else:
-
         # - Get colon position
         if is_template:
             temp_pos = class_name_pos + len(class_name['short'])

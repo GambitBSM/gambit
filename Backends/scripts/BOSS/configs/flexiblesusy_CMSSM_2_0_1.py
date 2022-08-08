@@ -37,16 +37,14 @@ gambit_base_namespace  = ''
 
 # Use either absolute paths or paths relative to the main BOSS directory.
 input_files   = [
-#    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/src/command_line_options.hpp',
     '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp',
-#    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM/CMSSM_slha_io.hpp',
+    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM/CMSSM_slha_io.hpp',
 ]
 include_paths = [
     '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/src',
-#    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM',
+    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM',
     '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/config',
-    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/slhaea',
-#    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/model_specific/SM',
+   '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/slhaea',
 ]
 base_paths    = ['../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/']
 
@@ -57,19 +55,13 @@ src_files_to    = '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backe
 
 load_classes = [
     'softsusy::QedQcd',
-    'flexiblesusy::Error',
     'flexiblesusy::Spectrum_generator_settings',
     'flexiblesusy::Spectrum_generator_problems',
-    'flexiblesusy::Command_line_options',
-    'flexiblesusy::Physical_input',
-    'flexiblesusy::CMSSM_slha_io', 
+    'flexiblesusy::CMSSM_slha_io',
     'flexiblesusy::CMSSM_scales',
     'flexiblesusy::CMSSM_input_parameters',
-    'flexiblesusy::CMSSM_parameter_getter',
     'flexiblesusy::Two_scale',
-    'flexiblesusy::CMSSM_spectrum_generator<Two_scale>',
-    'flexiblesusy::CMSSM_spectrum_generator_interface<Two_scale>',
-    'flexiblesusy::CMSSM_slha_Model_Two_scale'
+    'flexiblesusy::CMSSM_spectrum_generator<flexiblesusy::Two_scale>',
 ]
 
 load_functions = [
@@ -118,9 +110,9 @@ known_classes = {}
 # ~~~~~ Declarations to be added to the frontend header file ~~~~~
 
 convenience_functions = [
-    {'name' : 'run_FS_Spectrum', 
-     'returntype' : 'void', 
-     'argtypes' : ['Spectrum&', 'const SpectrumInputs&'], 
+    {'name' : 'run_FS_Spectrum',
+     'returntype' : 'void',
+     'argtypes' : ['Spectrum&', 'const SpectrumInputs&'],
      'capname' : 'FS_CMSSM_Spectrum'
     }
 ]
