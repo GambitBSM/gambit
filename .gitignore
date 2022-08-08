@@ -89,7 +89,7 @@ ScannerBit/lib/plugin_libraries.list
 *.mug
 gum/build/*
 gum/contrib/**
-gum/Output/**
+gum/Outputs/**
 gum/mathematica
 gum/include/cmake_variables.hpp
 gum/src/cmake_variables.py

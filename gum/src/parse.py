@@ -983,11 +983,10 @@ def parse_sarah_model_file(model_name, outputs):
                 if desc.group(1) in safeparticles:
                     continue
 
-            else:
-                raise GumError(("There is either no PDG code or mass given for "
-                                "particle {0}, and SARAH\n doesn't have it "
-                                "internally defined. Please update your SARAH "
-                                "file.").format(particle))
+            raise GumError(("There is either no PDG code or mass given for "
+                            "particle {0}, and SARAH\n doesn't have it "
+                            "internally defined. Please update your SARAH "
+                            "file.").format(particle))
 
         # Check PDG code entry.
 

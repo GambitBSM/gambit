@@ -1013,6 +1013,7 @@ namespace Gambit
     {
       using namespace Pipes::calc_HS_2_LHC_LogLike;
       const bool SMHiggsMassOnly = runOptions->getValueOrDef<bool>(false, "sm_higgs_mass_only");
+      const int analysis = runOptions->getValueOrDef<int>(-1, "HS_analysis");
 
       hb_neutral_ModelParameters_effc ModelParam = *Dep::HB_ModelParameters_neutral;
       hb_charged_ModelParameters ModelParam_charged = *Dep::HB_ModelParameters_charged;
@@ -1074,19 +1075,29 @@ namespace Gambit
 
       // chi-squared values for: mu == rate observable, mh == mass observable, tot == both combined
 
-      double csqmu, csqmh, csqtot, Pvalue;
-      double csqmu1, csqmh1, csqtot1, Pvalue1;
-      double csqmu2, csqmh2, csqtot2, Pvalue2;
+      double csqmu = 0.0, csqmh = 0.0, csqtot = 0.0, Pvalue = 0.0;
+      double csqmu1 = 0.0, csqmh1 = 0.0, csqtot1 = 0.0, Pvalue1 = 0.0;
+      double csqmu2 = 0.0, csqmh2 = 0.0, csqtot2 = 0.0, Pvalue2 = 0.0;
       int nobs, nobs1, nobs2;
+
+      enum Analysis
+      {
+        RUN1_SS = 0,
+        LATEST_SS,
+        LATEST_STXS
+      };
 
       // - run HiggsSignals
 
-      // peak-centered method using Higgs signal strength measurements
-      BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
       // LHC run1 (using combined ATLAS + CMS dataset)
-      BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
+      if (analysis == Analysis::RUN1_SS || analysis == -1)
+        BEreq::run_HiggsSignals_LHC_Run1_combination(csqmu1, csqmh1, csqtot1, nobs1, Pvalue1);
+      // peak-centered method using Higgs signal strength measurements
+      if (analysis == Analysis::LATEST_SS || analysis == -1)
+        BEreq::run_HiggsSignals(csqmu, csqmh, csqtot, nobs, Pvalue);
       // uses new Simplified Template Cross Section (STXS) measurements
-      BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
+      if (analysis == Analysis::LATEST_STXS || analysis == -1)
+        BEreq::run_HiggsSignals_STXS(csqmu2, csqmh2, csqtot2, nobs2, Pvalue2);
 
       if (SMHiggsMassOnly)
         result = -0.5*(csqmh + csqmh1 + csqmh2);

@@ -36,9 +36,9 @@ Parameters:
       # hybrid_Higgs basis: mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7
 
       # for the general model, we must also specify the Yukawas
-      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij, 
+      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij,
       # where we have a separate parameter for each i,j (which run from 1 to 3)
-      
+
       # lower limit on lambda1,2 of 0 required for vacuum stability
       # limit on |lambda1,...,7| of 4pi required for perturbativity
       # lambda6,7 set to 0 for Z2-symmetric scalar sector (to avoid large FCNCs at 1-loop level)
@@ -189,7 +189,7 @@ ObsLikes:
   # perturbativity constraint on yukawas
   - purpose:    LogLike
     capability: perturbativity_yukawas_LogLikelihood_THDM
-    
+
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
   #-------------------------------------#
@@ -238,175 +238,187 @@ ObsLikes:
 
   # Source -> who provides the required calculations (GAMBIT, SuperISO, or HepLike)
 
+  # Does not work - could take from SL_Likelihood?
+  #- purpose:    LogLike
+  #  capability: B2taunu_LogLikelihood
+
   # Source: GAMBIT
   # B-Dstartaunu distributions
-  - purpose:    Observable
-    capability: BDstartaunu_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: BDstartaunu_LogLikelihood
 
   # Source: GAMBIT
   # B-Dtanu distributions
-  - purpose:    Observable
-    capability: BDtaunu_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: BDtaunu_LogLikelihood
 
   # Source: GAMBIT
   # mu-e universality for gTHDM based on JHEP07(2013)044
-  - purpose:    Observable
-    capability: gmu_ge_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: gmu_ge_LogLikelihood
 
   # Source: GAMBIT
   # FLDstar polarization
-  - purpose:    Observable
-    capability: FLDstar_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: FLDstar_LogLikelihood
 
   # Source: GAMBIT
   # Bc lifetime
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: Bc_lifetime_LogLikelihood
 
   # Source: GAMBIT
   # Bs2llp (Bs2mutau, Bs2tautau)
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: Bs2llp_LogLikelihood
 
   # Source: GAMBIT, SuperISO
   # B2Kllp (B2Kmue, B2Ktaumu, B2Ktautau)
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2Kllp_LogLikelihood
 
   # Source: GAMBIT
   # RK and RKstarnunu
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: RK_RKstarnunu_LogLikelihood
 
   # Source: GAMBIT
   # BR(h->tau mu)
-  - purpose:    Observable
-    capability: h2taumu_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: h2taumu_LogLikelihood
 
   # Source: GAMBIT
-  # BR(t->ch) 
-  - purpose:    Observable
-    capability: t2ch_LogLikelihood
+  # BR(t->ch)
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: t2ch_LogLikelihood
 
   # TODO: reported as absent/broken
   # Source: GAMBIT
   # B meson mass aysmmetry
-  # - purpose:    Observable
-  #   capability: deltaMB_LogLikelihood
-
-  # - capability: prediction_DeltaMs
-  #   function: SuperIso_prediction_Delta_MBs
+  - purpose:    LogLike
+    capability: deltaMB_LogLikelihood
+    function: SuperIso_prediction_Delta_MBs
 
   # TODO: reported as absent/broken
   # # Source: SuperISO
   # # B_d meson mass aysmmetry
-  # - purpose:    Observable
-  #   capability: deltaMBd_LogLikelihood
-
-  # - capability: DeltaMd
-  #   function: SuperIso_prediction_Delta_MBd
+  - purpose:    LogLike
+    capability: deltaMBd_LogLikelihood
+    function: SuperIso_prediction_Delta_MBd
 
   # Source: GAMBIT or SuperISO
-  # Tree-level leptonic and semi-leptonic B & D decay measurements 
+  # Tree-level leptonic and semi-leptonic B & D decay measurements
+  # Overlap with other likelihoods - may need for BDmunu, BDstarmunu, Btaunu, Dstaunu, DSmunu, Dmunu, Dtaunu
   # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: SL_LogLikelihood
 
   # Source: GAMBIT
   # l -> l gamma (muegamma, tauegamma, taumugamma)
-  - purpose:    Observable
-    capability: l2lgamma_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: l2lgamma_LogLikelihood
 
   # Source: GAMBIT
   # l -> l l l (mueee, taueee, taumumumu, taumuee, taueemu, tauemumu, taumumue)
-  - purpose:    Observable
-    capability: l2lll_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: l2lll_LogLikelihood
 
   # Source: GAMBIT, HEPLike
   # RD RDstar
-  - purpose:    Observable
-    capability: RDRDstar_LogLikelihood
+  # No relevance for Type I and Type II
+  #- purpose:    LogLike
+  #  capability: RDRDstar_LogLikelihood
 
   # Source: SuperISO, HEPLike
   # b -> s gamma
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: b2sgamma_LogLikelihood
     function: HEPLike_b2sgamma_LogLikelihood
 
   # TODO: is this useful
   # Source: SuperISO, HEPLike
   # B -> K* gamma
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2Kstargamma_LogLikelihood
 
   # Source: SuperISO, HEPLike
   # B -> mu mu
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2mumu_LogLikelihood_LHCb
     sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2mumu_LogLikelihood_CMS
     sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2mumu_LogLikelihood_Atlas
     sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
   # Source: SuperISO, HEPLike
   # B -> K* mu mu Angular
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_Atlas
     sub_capabilities: [FL, S3, S4, S5, S7, S8]
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_CMS
     sub_capabilities: [P1, P5prime]
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
     sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
-  # - purpose:    Observable
-  #   capability: B2KstarmumuAng_LogLikelihood_Belle
-  #   sub_capabilities: [???]
-  # - purpose:    Observable
-  #   capability: B2KstarmumuAng_LogLikelihood_LHCb
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Belle
+    sub_capabilities: [P4prime, P5prime]
+  #- purpose:    LogLike
+  #  capability: B2KstarmumuAng_LogLikelihood_LHCb
   #   sub_capabilities: [???]
 
   # Source: SuperISO, HEPLike
   # B -> K* l l Angular
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2KstarellellAng_LogLikelihood_Belle
     sub_capabilities: [P4prime, P5prime]
 
   # Source: SuperISO, HEPLike
   # B_u -> K* mu mu Angular
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
     sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-  # WARNING: CAUSES CRASH
+  # WARNING: CAUSES CRASH (OBSERVABLES NOT IN SUPERISO)
   # Source: SuperISO, HEPLike
   # B -> K* mu mu Angular CP assymetry
-  # - purpose:    Observable
-  #   capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+  #- purpose:    LogLike
+  #  capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
+  #  sub_capabilities: [A3, A4, A5, A6, A7, A8, A9]
 
   # TODO: is this useful
+  # TODO: The AT_Im observable is not in SuperISO, ask Nazila
   # Source: SuperISO, HEPLike
   # B -> K* e e angular low q2
-  - purpose:    Observable
-    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
-    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+  #- purpose:    LogLike
+  #  capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+  #  sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
   # Source: SuperISO, HEPLike
   # B -> K* mu mu BR
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2KstarmumuBr_LogLikelihood_LHCb
 
   # Source: SuperISO, HEPLike
   # B -> K mu mu BR
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: B2KmumuBr_LogLikelihood_LHCb
 
   # Source: SuperISO, HEPLike
   # Bs -> Phi mu mu BR
-  - purpose:    Observable
+  - purpose:    LogLike
     capability: Bs2phimumuBr_LogLikelihood
 
 
@@ -420,7 +432,7 @@ ObsLikes:
     type: map_str_dbl
     purpose: Observable
 
-  # 2HDM decay rates and branching ratios 
+  # 2HDM decay rates and branching ratios
   - capability: all_BFs
     purpose: Observable
 
@@ -437,50 +449,6 @@ Rules:
     options:
       print_minimal_yukawas: false
 
-  - capability: prediction_B2KstarmumuBr_*
-    options:
-      obs_list: [B2KstarmumuBr]
-
-  - capability: prediction_B2KmumuBr_*
-    options:
-      obs_list: [B2KmumuBr]
-
-  - capability: prediction_B2KstarmumuAng_.*_Atlas
-    options:
-      obs_list: [FL, S3, S4, S5, S7, S8]
-
-  - capability: B2KstarmumuAng_LogLikelihood_Atlas
-    options:
-      obs_list: [FL, S3, S4, S5, S7, S8]
-
-  - capability: prediction_B2KstarmumuAng_.*_CMS
-    options:
-      obs_list: [P1, P5prime]
-
-  - capability: B2KstarmumuAng_LogLikelihood_CMS
-    options:
-      obs_list: [P1, P5prime]
-
-  - capability: prediction_B2KstarmumuAng_.*_Belle
-    options:
-      obs_list: [P4prime, P5prime]
-
-  - capability: B2KstarmumuAng_LogLikelihood_Belle
-    options:
-      obs_list: [P4prime, P5prime]
-
-  - capability: prediction_B2KstarmumuAng_.*_LHCb
-    options:
-        obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9, P5prime, P1, P4prime, A3, A4, A5, A6, A7, A8, A9]
-
-  - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
-    options:
-      obs_list: [FL, AFB, S3, S4, S5, S7, S8, S9]
-
-  - capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
-    options:
-      obs_list: [A3, A4, A5, A6, A7, A8, A9] 
-
   - capability: THDM_spectrum
     type: Spectrum
     function: get_THDM_spectrum
@@ -493,7 +461,7 @@ Rules:
     options:
       printall: true
 
-    # set check_other_scale to some extra scale to 
+    # set check_other_scale to some extra scale to
     # check constraint at, or -1 to skip this
     # note that input scale is always checked
   - capability: perturbativity_LogLikelihood_THDM
@@ -576,7 +544,7 @@ KeyValues:
     model_invalid_for_lnlike_below: -1e6
     model_invalid_for_lnlike_below_alt: -5e5
     disable_print_for_lnlike_below: -4e4
-    debug: false
+    debug: true
 
   dependency_resolution:
     prefer_model_specific_functions: true
@@ -588,4 +556,4 @@ KeyValues:
     core_warning: fatal
 
   default_output_path: "runs/THDMIatQ"
-  debug: false
+  debug: true

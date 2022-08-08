@@ -847,7 +847,7 @@ if args.file:
                 amend_file("ColliderBit_Higgs_rollcall.hpp", m, hct_head, num-1,
                            reset_contents)
             add_new_model_to_function("ColliderBit_Higgs_rollcall.hpp",
-                                      m, "HB_ModelParameters",
+                                      m, "HB_ModelParameters_neutral",
                                       hb_pattern, gum.name, reset_contents,
                                       pattern="ALLOW_MODELS")
 
