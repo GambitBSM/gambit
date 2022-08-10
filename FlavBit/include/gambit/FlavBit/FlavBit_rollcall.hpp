@@ -831,20 +831,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY prediction_B2KstarmumuAng_NoLowq2_Atlas
-  START_CAPABILITY
-    #define FUNCTION SuperIso_prediction_B2KstarmumuAng_NoLowq2_Atlas
-    START_FUNCTION(flav_binned_prediction)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    DEPENDENCY(SuperIso_nuisance, nuisance)
-    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
-    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
-    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
-    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    #undef FUNCTION
-  #undef CAPABILITY
-
 
   #define CAPABILITY prediction_B2KstarmumuAng_CMS
   START_CAPABILITY
@@ -876,39 +862,9 @@ START_MODULE
   #undef CAPABILITY
 
 
-  #define CAPABILITY prediction_B2KstarmumuAng_NoLowq2_Belle
-  START_CAPABILITY
-    #define FUNCTION SuperIso_prediction_B2KstarmumuAng_NoLowq2_Belle
-    START_FUNCTION(flav_binned_prediction)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    DEPENDENCY(SuperIso_nuisance, nuisance)
-    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
-    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
-    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
-    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
   #define CAPABILITY prediction_B2KstarmumuAng_LHCb
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_B2KstarmumuAng_LHCb
-    START_FUNCTION(flav_binned_prediction)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    DEPENDENCY(SuperIso_nuisance, nuisance)
-    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
-    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
-    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
-    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  #define CAPABILITY prediction_B2KstarmumuAng_NoLowq2_LHCb
-  START_CAPABILITY
-    #define FUNCTION SuperIso_prediction_B2KstarmumuAng_NoLowq2_LHCb
     START_FUNCTION(flav_binned_prediction)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     DEPENDENCY(SuperIso_nuisance, nuisance)
@@ -2032,16 +1988,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  ///HEPLike LogLikelihood B -> K* mu mu Angular without the first q2 bin
-  #define CAPABILITY B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
-  START_CAPABILITY
-    #define FUNCTION HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_Atlas
-    START_FUNCTION(double)
-    DEPENDENCY(prediction_B2KstarmumuAng_NoLowq2_Atlas, flav_binned_prediction)
-    NEEDS_CLASSES_FROM(HepLike, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-
 
   ///HEPLike LogLikelihood B -> K* mu mu Angular
   #define CAPABILITY B2KstarmumuAng_LogLikelihood_CMS
@@ -2060,17 +2006,6 @@ START_MODULE
     #define FUNCTION HEPLike_B2KstarmumuAng_LogLikelihood_Belle
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2KstarmumuAng_Belle, flav_binned_prediction)
-    NEEDS_CLASSES_FROM(HepLike, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  ///HEPLike LogLikelihood B -> K* mu mu Angular
-  #define CAPABILITY B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
-  START_CAPABILITY
-    #define FUNCTION HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_Belle
-    START_FUNCTION(double)
-    DEPENDENCY(prediction_B2KstarmumuAng_NoLowq2_Belle, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2104,17 +2039,6 @@ START_MODULE
     #define FUNCTION HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020
     START_FUNCTION(double)
     DEPENDENCY(prediction_B2KstarmumuAng_LHCb, flav_binned_prediction)
-    NEEDS_CLASSES_FROM(HepLike, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-
-
-  ///HEPLike LogLikelihood B -> K* mu mu Angular
-  #define CAPABILITY B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
-  START_CAPABILITY
-    #define FUNCTION HEPLike_B2KstarmumuAng_NoLowq2_LogLikelihood_LHCb_2020
-    START_FUNCTION(double)
-    DEPENDENCY(prediction_B2KstarmumuAng_NoLowq2_LHCb, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -2164,17 +2088,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-
-  ///HEPLike LogLikelihood B -> K* mu mu BR
-/*  #define CAPABILITY B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb
-  START_CAPABILITY
-    #define FUNCTION HEPLike_B2KstarmumuBr_NoLowq2_LogLikelihood_LHCb
-    START_FUNCTION(double)
-    DEPENDENCY(prediction_B2KstarmumuBr, flav_binned_prediction)
-    NEEDS_CLASSES_FROM(HepLike, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-*/
 
   ///HEPLike LogLikelihood B -> K mu mu BR
   #define CAPABILITY B2KmumuBr_LogLikelihood_LHCb
