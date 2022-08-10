@@ -177,6 +177,31 @@ namespace Gambit
         printer._print(value.covariance, label, vID, mpirank, pointID);
       }
 
+      /// Generic binned flavour prediction print overload
+      template<typename P>
+      void _common_print(P& printer, flav_binned_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        std::map<std::string,double> m;
+
+        for(auto bin : value)
+        {
+          for(auto val : bin.second.central_values)
+          {
+            std::stringstream vals;
+            vals << bin.first << "::";
+            vals << val.first;
+            m[vals.str()] = val.second;
+          }
+          for(auto cov : bin.second.covariance) for(auto cov2 : cov.second)
+          {
+            std::stringstream covs;
+            covs << bin.first << "::" << cov.first << "::" << cov2.first;
+            m[covs.str()] = cov2.second;
+          }
+        }
+        printer._print(m, label, vID, mpirank, pointID);
+      }
+
       /// BBN observables print overload
       template<typename P>
       void _common_print(P& printer, BBN_container const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)

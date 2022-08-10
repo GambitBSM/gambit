@@ -15,6 +15,10 @@
 ///          (pat.scott@uq.edu.au)
 ///  \date 2020 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2022 Aug
+///
 ///  *********************************************
 
 #include <algorithm>
@@ -85,7 +89,13 @@ namespace Gambit
     }
 
     /// Translate terms from one language to another and add a suffix
-    str translator::operator()(const str& from, const str& to, const str& obs, const str& suffix) { return operator()(from, to, obs) + suffix; }
+    str translator::operator()(const str& from, const str& to, const str& obs, const str& suffix)
+    {
+      if(suffix == "" or suffix[0] == '_')
+        return operator()(from, to, obs) + suffix;
+      else
+        return operator()(from, to, obs) + "_" + suffix;
+    }
 
     /// Translate terms from one language to another.
     std::vector<str> translator::operator()(const str& from, const str& to, const std::vector<str>& obs) { return operator()(from, to, obs, ""); }
@@ -96,6 +106,15 @@ namespace Gambit
       std::vector<str> result;
       for (auto o : obs) result.push_back(operator()(from, to, o, suffix));
       return result;
+    }
+
+    /// Translate terms from one language to another and add a suffix
+    std::vector<str> translator::operator()(const str& from, const str& to, const std::vector<str>& obs, const std::vector<str>& suffix)
+    {
+      std::vector<str> result;
+      for (auto o : obs) for (auto s : suffix) result.push_back(operator()(from, to, o, s));
+      return result;
+
     }
 
   }

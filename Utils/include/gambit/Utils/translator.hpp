@@ -14,6 +14,10 @@
 ///          (pat.scott@uq.edu.au)
 ///  \date 2020 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2022 Aug
+///
 ///  *********************************************
 
 #include <map>
@@ -48,6 +52,7 @@ namespace Gambit
         str operator()(const str& from, const str& to, const str& obs, const str& suffix);
         std::vector<str> operator()(const str& from, const str& to, const std::vector<str>& obs);
         std::vector<str> operator()(const str& from, const str& to, const std::vector<str>& obs, const str& suffix);
+        std::vector<str> operator()(const str& from, const str& to, const std::vector<str>& obs, const std::vector<str>& suffix);
         /// @}
 
     };

@@ -25,24 +25,38 @@
 #ifndef __FlavBit_macros_hpp__
 #define __FlavBit_macros_hpp__
 
+#include "gambit/Utils/util_macros.hpp"
+
 namespace Gambit
 {
 
   namespace FlavBit
   {
 
-    // SuperIso prediction macros
+    /// SuperIso prediction macros
+
+    /// Macros to parse bins
+    #define MAKE_BIN_BRACE(bins) BOOST_PP_SEQ_ENUM(                      \
+      BOOST_PP_SEQ_TRANSFORM(MAKE_BIN_STRING_I,,                         \
+      BOOST_PP_TUPLE_TO_SEQ(bins)))
+    #define MAKE_BIN_STRING_I(r,data,elem)                               \
+      STRINGIFY(MAKE_BIN_STRING elem)
+    #define MAKE_BIN_STRING_2(_1,_2) _1##_##_2
+    #define MAKE_BIN_STRING_1(_1) _1
+    #define MAKE_BIN_STRING(...) VARARG(MAKE_BIN_STRING, __VA_ARGS__)
+
+    // Rest of function
     #define THE_REST(bins)                                          \
-      static const std::vector<str> SI_obslist =                    \
+      std::vector<str> SI_obslist =                                 \
        translate_flav_obs("FlavBit", "SuperIso", FB_obslist,        \
-       Utils::p2dot(bins));                                         \
+       bins);                                                       \
       static bool use_SM_covariance =                               \
        runOptions->getValueOrDef<bool>(false, "use_SM_covariance"); \
       static bool SM_covariance_cached = false;                     \
       SuperIso_prediction_helper(                                   \
         FB_obslist,                                                 \
         SI_obslist,                                                 \
-        result,                                                     \
+        prediction,                                                 \
         *Dep::SuperIso_modelinfo,                                   \
         *Dep::SuperIso_nuisance,                                    \
         BEreq::get_predictions_nuisance.pointer(),                  \
@@ -54,44 +68,64 @@ namespace Gambit
     );                                                              \
     SM_covariance_cached = true;
 
+
+
     #define SI_SINGLE_PREDICTION_FUNCTION(name)                          \
     void CAT(SuperIso_prediction_,name)(flav_prediction& result)         \
     {                                                                    \
       using namespace CAT(Pipes::SuperIso_prediction_,name);             \
+      flav_prediction prediction;                                        \
       static const std::vector<str> FB_obslist = {#name};                \
       THE_REST("")                                                       \
+      result = prediction;                                               \
     }                                                                    \
 
+
     #define SI_SINGLE_PREDICTION_FUNCTION_BINS(name,bins)                \
-    void CAT_3(SuperIso_prediction_,name,bins)(flav_prediction& result)  \
+    void CAT(SuperIso_prediction_,name)(flav_binned_prediction &result)  \
     {                                                                    \
-      using namespace CAT_3(Pipes::SuperIso_prediction_,name,bins);      \
+      using namespace CAT(Pipes::SuperIso_prediction_,name);             \
+      flav_prediction prediction;                                        \
       static const std::vector<str> FB_obslist = {#name};                \
-      THE_REST(#bins)                                                    \
+      static const std::vector<str> vbins = {MAKE_BIN_BRACE(bins)};      \
+      for(str bin: vbins)                                                \
+      {                                                                  \
+        THE_REST(bin)                                                    \
+        result[bin] = prediction;                                        \
+      }                                                                  \
     }                                                                    \
 
     #define SI_MULTI_PREDICTION_FUNCTION(name)                           \
     void CAT(SuperIso_prediction_,name)(flav_prediction& result)         \
     {                                                                    \
       using namespace CAT(Pipes::SuperIso_prediction_,name);             \
+      flav_prediction prediction;                                        \
       static const std::vector<str> FB_obslist =                         \
        Downstream::subcaps->getNames();                                  \
       if (FB_obslist.empty()) FlavBit_error().raise(LOCAL_INFO,          \
        "Missing subcapabilities for SuperIso_prediction_"#name".");      \
       THE_REST("")                                                       \
+      result = prediction;                                               \
     }                                                                    \
 
-    #define SI_MULTI_PREDICTION_FUNCTION_BINS(name,bins,exp)             \
-    void CAT_4(SuperIso_prediction_,name,bins,exp)(flav_prediction&      \
+    #define SI_MULTI_PREDICTION_FUNCTION_BINS(name,exp,bins)             \
+    void CAT_4(SuperIso_prediction_,name,_,exp)(flav_binned_prediction&  \
      result)                                                             \
     {                                                                    \
-      using namespace CAT_4(Pipes::SuperIso_prediction_,name,bins,exp);  \
+      using namespace CAT_4(Pipes::SuperIso_prediction_,name,_,exp);     \
+      flav_prediction prediction;                                        \
       static const std::vector<str> FB_obslist =                         \
        Downstream::subcaps->getNames();                                  \
       if (FB_obslist.empty()) FlavBit_error().raise(LOCAL_INFO,          \
        "Missing subcapabilities for SuperIso_prediction_"#name".");      \
-      THE_REST(#bins)                                                    \
+      static const std::vector<str> vbins = {MAKE_BIN_BRACE(bins)};      \
+      for(str bin: vbins)                                                \
+      {                                                                  \
+        THE_REST(bin)                                                    \
+        result[bin] = prediction;                                        \
+      }                                                                  \
     }                                                                    \
+
 
 
     /// HEPLike single-observable likelihood

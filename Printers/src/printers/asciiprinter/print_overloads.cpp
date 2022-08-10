@@ -108,6 +108,7 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(asciiPrinter, flav_binned_prediction)
     #endif
 
     /// @}

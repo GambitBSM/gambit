@@ -302,7 +302,6 @@ namespace Gambit
 
     }
 
-
   }
 
 }
