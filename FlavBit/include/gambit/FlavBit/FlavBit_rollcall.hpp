@@ -389,7 +389,6 @@ START_MODULE
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, GWC)
     BACKEND_REQ(Init_param, (libsuperiso), void, (parameters*))
     BACKEND_REQ(slha_adjust, (libsuperiso), void, (parameters*))
-    //TODO: Why do you need mcmc from the pole mass, if mcmc is given in sminputs?
     BACKEND_REQ(mcmc_from_pole, (libsuperiso), double, (double, int, parameters*))
     BACKEND_REQ(mb_1S, (libsuperiso), double, (const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
@@ -630,7 +629,8 @@ START_MODULE
   #undef CAPABILITY
 
 
-  #define CAPABILITY prediction_B2taunu
+  // TODO: Does not work currently as it is not implemented in SuperIso in this form
+  /*#define CAPABILITY prediction_B2taunu
   START_CAPABILITY
 
     #define FUNCTION SuperIso_prediction_B2taunu
@@ -644,16 +644,8 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
 
-    //Function for the general THDM
-    //#define FUNCTION THDM_Btaunu
-    //START_FUNCTION(flav_prediction)
-    //ALLOW_MODELS(THDM,THDMatQ)
-    //DEPENDENCY(SMINPUTS,SMInputs)
-    //DEPENDENCY(THDM_spectrum, Spectrum)
-    //#undef FUNCTION
-
   #undef CAPABILITY
-
+  */
 
   /* TODO: this should be re-activated once RD and RDstar can be extracted from a future version of SuperIso using the check_nameobs function.
   #define CAPABILITY prediction_RDRDstar
@@ -950,6 +942,14 @@ START_MODULE
   ///Observable: BR(B->D e nu)/BR(B->D mu nu)
   #define CAPABILITY RDemu
   START_CAPABILITY
+
+    #define FUNCTION SuperIso_prediction_RDemu
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(BRBDlnu, (libsuperiso), double, (int, int, double,  double, double*, const parameters*))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+
     //Function for the general THDM
     #define FUNCTION THDM_RDemu
     START_FUNCTION(double)
@@ -1107,6 +1107,15 @@ START_MODULE
   ///Observable: BR(D->tau nu)
   #define CAPABILITY Dtaunu
   START_CAPABILITY
+
+    #define FUNCTION SuperIso_prediction_Dtaunu
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_REQ(Dlnu, (libsuperiso), double, (int const parameters*))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+
+
     //Function for the general THDM
     #define FUNCTION THDM_Dtaunu
     START_FUNCTION(double)
@@ -1226,6 +1235,7 @@ START_MODULE
 
 
   ///Observable: Delta0(B -> K* gamma)
+  // TODO: This is never used in any likelihood, why?
   #define CAPABILITY delta0
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_delta0
@@ -1899,6 +1909,7 @@ START_MODULE
   #undef CAPABILITY
 
 
+  /* TODO: This does not work currently in this form as it is not implemented in SuperIso
   ///HEPLike LogLikelihood B -> tau nu
   #define CAPABILITY B2taunu_LogLikelihood
   START_CAPABILITY
@@ -1907,7 +1918,7 @@ START_MODULE
     DEPENDENCY(prediction_B2taunu, flav_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
-  #undef CAPABILITY
+  #undef CAPABILITY*/
 
 
   ///HEPLike LogLikelihood RD RDstar

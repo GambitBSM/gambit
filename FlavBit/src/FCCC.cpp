@@ -620,42 +620,6 @@ namespace Gambit
 
     }
 
-    /// Likelihood for tree-level leptonic and semileptonic B decays
-    void BDtaunu_likelihood(double &result)
-    {
-      using namespace Pipes::BDtaunu_likelihood;
-
-      if (flav_debug) cout<<"Starting BDtaunu_likelihood"<<endl;
-
-      predictions_measurements_covariances pmc = *Dep::BDtaunu_M;
-
-      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
-
-      // adding theory and experimental covariance
-      cov+=pmc.cov_th;
-      //calculating a diff
-      vector<double> diff;
-      diff=pmc.diff;
-
-      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
-      InvertMatrix(cov, cov_inv);
-      double Chi2=0;
-
-      for (int i=0; i < pmc.dim; ++i)
-      {
-        for (int j=0; j<pmc.dim; ++j)
-        {
-          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
-        }
-      }
-
-      result=-0.5*Chi2;
-
-      if (flav_debug) cout<<"Finished BDtaunu_likelihood"<<endl;
-
-      if (flav_debug_LL) cout<<"Likelihood result BDtaunu_likelihood  : "<< result<<endl;
-    }
-
     /// Measurements for tree-level semileptonic B decays
     void BDstartaunu_measurements(predictions_measurements_covariances &pmc)
     {
@@ -726,45 +690,9 @@ namespace Gambit
     }
 
 
-    /// Likelihood for tree-level leptonic and semileptonic B decays
-    void BDstartaunu_likelihood(double &result)
-    {
-      using namespace Pipes::BDstartaunu_likelihood;
-
-      if (flav_debug) cout<<"Starting BDstartaunu_likelihood"<<endl;
-
-      predictions_measurements_covariances pmc = *Dep::BDstartaunu_M;
-
-      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
-
-      // adding theory and experimental covariance
-      cov+=pmc.cov_th;
-      //calculating a diff
-      vector<double> diff;
-      diff=pmc.diff;
-
-      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
-      InvertMatrix(cov, cov_inv);
-      double Chi2=0;
-      for (int i=0; i < pmc.dim; ++i)
-      {
-        for (int j=0; j<pmc.dim; ++j)
-        {
-          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
-        }
-      }
-
-      result=-0.5*Chi2;
-
-      if (flav_debug) cout<<"Finished BDstartaunu_likelihood"<<endl;
-
-      if (flav_debug_LL) cout<<"Likelihood result BDstartaunu_likelihood  : "<< result<<endl;
-    }
-
-
-    //TODO: Why two versions?
+    //TODO: This does not work currently in this form as it is not implemented in SuperIso
     /// SuperIso prediction for B -> tau nu_tau
-    SI_SINGLE_PREDICTION_FUNCTION(B2taunu)
+    //SI_SINGLE_PREDICTION_FUNCTION(B2taunu)
 
     /// Br B->tau nu_tau decays
     void SuperIso_prediction_Btaunu(double &result)
@@ -967,6 +895,19 @@ namespace Gambit
 
       if (flav_debug) cout << "BR(D->mu nu) = " << result << endl;
       if (flav_debug) cout << "Finished THDM_Dmunu" << endl;
+    }
+
+    /// Br D -> tau nu
+    void SuperIso_prediction_Dtaunu(double &result)
+    {
+      using namespace Pipes::SuperIso_prediction_Dtaunu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_Dtaunu"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result = BEreq::Dlnu(3,&param);
+
+      if (flav_debug) printf("BR(D->tau nu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_prediction_Dtaunu"<<endl;
     }
 
     /// Br D->tau nu in the THDM
@@ -1243,7 +1184,7 @@ namespace Gambit
 
 
     /// SuperIso prediction for RD and RD*
-    //SI_MULTI_PREDICTION_FUNCTION(RDRDstar)                            // TODO: Typical subcaps: RD, RDstar
+    //SI_MULTI_PREDICTION_FUNCTION(RDRDstar)  // TODO: Typical subcaps: RD, RDstar
 
     ///  B-> D tau nu / B-> D e nu decays
     void SuperIso_prediction_RD(double &result)
@@ -1256,54 +1197,6 @@ namespace Gambit
 
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D e nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SuperIso_prediction_RD"<<endl;
-    }
-
-    ///  B-> D e nu / B-> D mu nu decays in THDM
-    void THDM_RDemu(double &result)
-    {
-      using namespace Pipes::THDM_RDemu;
-      if (flav_debug) cout<<"Starting THDM_RDemu"<<endl;
-
-      SMInputs sminputs = *Dep::SMINPUTS;
-      Spectrum spectrum = *Dep::THDM_spectrum;
-
-      const double lambda = Dep::SMINPUTS->CKM.lambda;
-      const double A = Dep::SMINPUTS->CKM.A;
-      const double Vcs = 1 - (1/2)*lambda*lambda;
-      const double Vcb = A*lambda*lambda;
-      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
-      double tanb = spectrum.get(Par::dimensionless,"tanb");
-      double beta = atan(tanb);
-      double cosb = cos(beta);
-      const double v = spectrum.get(Par::mass1, "vev");
-      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
-      const double mMu = Dep::SMINPUTS->mMu;
-      const double mBmB = Dep::SMINPUTS->mBmB;
-      double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
-      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
-      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
-      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
-      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
-      std::complex<double> xitc = Ytc/cosb;
-      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
-      std::complex<double> xisb = Ysb/cosb;
-      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
-      std::complex<double> ximutau = Ymutau/cosb;
-      const double mCmC = Dep::SMINPUTS->mCmC;
-      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
-      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
-      std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
-      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
-
-      result = 1/(0.9964+0.175*real(gsmumu)+1.46*(norm(gsmumu)+norm(gsmutau)));
-
-      if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_RDemu"<<endl;
     }
 
     ///  B-> D tau nu / B-> D mu nu decays in THDM
@@ -1424,6 +1317,78 @@ namespace Gambit
       result = (1+0.12*real(gp)+0.05*(norm(gp)+norm(gpmutau)))/(3.89+0.246*(norm(gpmumu)+norm(gpmutau)));
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished THDM_RDstar"<<endl;
+    }
+
+
+    /// B -> D e nu / B -> D mu nu
+    void SuperIso_prediction_RDemu(double &result)
+    {
+      using namespace Pipes::SuperIso_prediction_RDemu;
+      if (flav_debug) cout<<"Starting SuperIso_prediction_RDemu"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
+
+      double q2_min_mu_D=  0.012; // 0.105*0.105
+      double g2_min_e_D = 0.261; // 0.511**2
+      double q2_max_D  = 11.6;   // (5.28-1.869)**2
+      int gen_e_D = 1, gen_mu_D = 2;
+      int charge_D  = 0;// D* is the charged version
+      double obs_mu_D[3], obs_e_D[3];
+
+      result=BEreq::BRBDlnu(byVal(gen_e_D), byVal( charge_D), byVal(q2_min_e_D), byVal(q2_max_D), byVal(obs_e_D), &param) /
+             /BEreq::BRBDlnu(byVal(gen_mu_D), byVal( charge_D), byVal(q2_min_mu_D), byVal(q2_max_D), byVal(obs_mu_D), &param)
+
+      if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_prediction_RDemu"<<endl;
+    }
+
+    ///  B-> D e nu / B-> D mu nu decays in THDM
+    void THDM_RDemu(double &result)
+    {
+      using namespace Pipes::THDM_RDemu;
+      if (flav_debug) cout<<"Starting THDM_RDemu"<<endl;
+
+      SMInputs sminputs = *Dep::SMINPUTS;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+
+      const double lambda = Dep::SMINPUTS->CKM.lambda;
+      const double A = Dep::SMINPUTS->CKM.A;
+      const double Vcs = 1 - (1/2)*lambda*lambda;
+      const double Vcb = A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double v = spectrum.get(Par::mass1, "vev");
+      const double CSMcb = 4*sminputs.GF*Vcb/sqrt(2.0);
+      const double mMu = Dep::SMINPUTS->mMu;
+      const double mBmB = Dep::SMINPUTS->mBmB;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      std::complex<double> xitc = Ytc/cosb;
+      std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/v) + Ybb/cosb;
+      std::complex<double> xisb = Ysb/cosb;
+      std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/v) + Ymumu/cosb;
+      std::complex<double> ximutau = Ymutau/cosb;
+      const double mCmC = Dep::SMINPUTS->mCmC;
+      std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
+      std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
+
+      result = 1/(0.9964+0.175*real(gsmumu)+1.46*(norm(gsmumu)+norm(gsmutau)));
+
+      if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
+      if (flav_debug) cout<<"Finished THDM_RDemu"<<endl;
     }
 
     /// B->K mu nu / B-> pi mu nu
@@ -1588,6 +1553,76 @@ namespace Gambit
     ///      Likelihoods       ///
     ///------------------------///
 
+    /// Likelihood for tree-level leptonic and semileptonic B decays
+    void BDtaunu_likelihood(double &result)
+    {
+      using namespace Pipes::BDtaunu_likelihood;
+
+      if (flav_debug) cout<<"Starting BDtaunu_likelihood"<<endl;
+
+      predictions_measurements_covariances pmc = *Dep::BDtaunu_M;
+
+      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
+
+      // adding theory and experimental covariance
+      cov+=pmc.cov_th;
+      //calculating a diff
+      vector<double> diff;
+      diff=pmc.diff;
+
+      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
+      InvertMatrix(cov, cov_inv);
+      double Chi2=0;
+
+      for (int i=0; i < pmc.dim; ++i)
+      {
+        for (int j=0; j<pmc.dim; ++j)
+        {
+          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+        }
+      }
+
+      result=-0.5*Chi2;
+
+      if (flav_debug) cout<<"Finished BDtaunu_likelihood"<<endl;
+
+      if (flav_debug_LL) cout<<"Likelihood result BDtaunu_likelihood  : "<< result<<endl;
+    }
+
+    /// Likelihood for tree-level leptonic and semileptonic B decays
+    void BDstartaunu_likelihood(double &result)
+    {
+      using namespace Pipes::BDstartaunu_likelihood;
+
+      if (flav_debug) cout<<"Starting BDstartaunu_likelihood"<<endl;
+
+      predictions_measurements_covariances pmc = *Dep::BDstartaunu_M;
+
+      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
+
+      // adding theory and experimental covariance
+      cov+=pmc.cov_th;
+      //calculating a diff
+      vector<double> diff;
+      diff=pmc.diff;
+
+      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
+      InvertMatrix(cov, cov_inv);
+      double Chi2=0;
+      for (int i=0; i < pmc.dim; ++i)
+      {
+        for (int j=0; j<pmc.dim; ++j)
+        {
+          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+        }
+      }
+
+      result=-0.5*Chi2;
+
+      if (flav_debug) cout<<"Finished BDstartaunu_likelihood"<<endl;
+
+      if (flav_debug_LL) cout<<"Likelihood result BDstartaunu_likelihood  : "<< result<<endl;
+    }
 
     /// Likelihood for tree-level leptonic and semileptonic B decays
     void SL_likelihood(double &result)
@@ -1692,8 +1727,9 @@ namespace Gambit
       if (flav_debug) std::cout << "HEPLike_RDRDstar_LogLikelihood result: " << result << std::endl;
     }
 
+    // TODO: This does not work currently in this form as it is not implemented in SuperIso
     /// HEPLike LogLikelihood B -> tau nu
-    HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(B2taunu, "/data/PDG/Semileptonic/B2TauNu.yaml")
+    //HEPLIKE_GAUSSIAN_1D_LIKELIHOOD(B2taunu, "/data/PDG/Semileptonic/B2TauNu.yaml")
 
   }
 }
