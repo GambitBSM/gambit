@@ -2044,7 +2044,6 @@ START_MODULE
   #undef CAPABILITY
 
 
-  // TODO: Is this different from the above
   ///HEPLike LogLikelihood B_u -> K* mu mu Angular
   #define CAPABILITY Bu2KstarmumuAng_LogLikelihood_LHCb_2020
   START_CAPABILITY
