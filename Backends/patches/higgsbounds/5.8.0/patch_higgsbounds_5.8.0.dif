@@ -44,4 +44,24 @@ diff -rupN higgsbounds-5.8.0/src/theo_manip.f90 higgsbounds-5.8.0_patched/src/th
 
                  endif
 
+#diff -rupN higgsbounds-5.8.0/src/theory_colliderSfunctions.f90 higgsbounds-5.8.0_patched/src/theory_colliderSfunctions.f90
+--- higgsbounds-5.8.0/src/theory_colliderSfunctions.f90	2022-08-11 11:31:08.272062485 -0400
++++ higgsbounds-5.8.0_patched/src/theory_colliderSfunctions.f90	2022-08-11 11:31:21.363731297 -0400
+@@ -141,7 +141,7 @@ contains
+         endif
 
+         if (x .gt. 1050d0) then
+-            write (*, *) 'function lhc8_rHVBF_WW might not be a good fit (m_H > 1050 GeV)'
++            !write (*, *) 'function lhc8_rHVBF_WW might not be a good fit (m_H > 1050 GeV)'
+         endif
+
+     end function
+@@ -178,7 +178,7 @@ contains
+         endif
+
+         if (x .gt. 1050d0) then
+-            write (*, *) 'function lhc8_rHVBF_ZZ might not be a good fit (m_H > 1050 GeV)'
++            !write (*, *) 'function lhc8_rHVBF_ZZ might not be a good fit (m_H > 1050 GeV)'
+         endif
+
+     end function
