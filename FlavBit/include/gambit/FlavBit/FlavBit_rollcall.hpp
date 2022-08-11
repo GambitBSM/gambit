@@ -1111,7 +1111,7 @@ START_MODULE
     #define FUNCTION SuperIso_prediction_Dtaunu
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_REQ(Dlnu, (libsuperiso), double, (int const parameters*))
+    BACKEND_REQ(Dlnu, (libsuperiso), double, (int, const parameters*))
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
     #undef FUNCTION
 

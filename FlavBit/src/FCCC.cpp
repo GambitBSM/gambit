@@ -904,7 +904,7 @@ namespace Gambit
       if (flav_debug) cout<<"Starting SuperIso_prediction_Dtaunu"<<endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result = BEreq::Dlnu(3,&param);
+      result = BEreq::Dlnu(byVal(3),&param);
 
       if (flav_debug) printf("BR(D->tau nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SuperIso_prediction_Dtaunu"<<endl;
