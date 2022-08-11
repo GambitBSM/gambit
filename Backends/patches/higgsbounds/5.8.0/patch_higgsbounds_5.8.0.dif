@@ -3,10 +3,45 @@ diff -rupN higgsbounds-5.8.0/src/usefulbits.f90 higgsbounds-5.8.0_patched/src/us
 +++ higgsbounds-5.8.0_patched/src/usefulbits.f90	2020-03-02 19:08:14.000000000 -0500
 @@ -46,7 +46,7 @@ module usefulbits
      integer, allocatable :: analysis_exclude_list(:)
- 
+
  ! For the LEP chisq extension:
 -    logical :: chisqcut_at_mumax = .False.
 +    logical :: chisqcut_at_mumax = .True.
      logical :: BRdirectinput = .False.
- 
+
  ! Global parameters (to be set during initialization)
+diff -rupN higgsbounds-5.8.0/src/theo_manip.f90 higgsbounds-5.8.0_patched/src/theo_manip.f90
+--- higgsbounds-5.8.0/src/theo_manip.f90	2022-08-11 10:55:27.019051659 -0400
++++ higgsbounds-5.8.0_patched/src/theo_manip.f90	2022-08-11 10:56:08.613876065 -0400
+@@ -1013,18 +1013,18 @@ contains
+ !     write(*,*) 'debug: testBR = ', testBR
+                 testsumBR = maxval(testBR)
+                 if (testsumBR .gt. 1.0D0 + fuzziness) then
+-                    write (*, *) 'warning: sum of BR for '//trim(adjustl(pdesc(Hneut)%long))// &
+-                        ' ', maxloc(testBR), ' at line number=', jj, 'is', testsumBR
+-                    write (*, *) 'BR(h', maxloc(testBR), '->WW)=', theo(jj)%BR_hjWW(maxloc(testBR))
+-                    write (*, *) 'BR(h', maxloc(testBR), '->ZZ)=', theo(jj)%BR_hjZZ(maxloc(testBR))
+-                    write (*, *) 'BR(h', maxloc(testBR), '->gg)=', theo(jj)%BR_hjgg(maxloc(testBR))
+-                    write (*, *) 'BR(h', maxloc(testBR), '->gaga)=', theo(jj)%BR_hjgaga(maxloc(testBR))
+-                    write (*, *) 'BR(h', maxloc(testBR), '->bb)=', theo(jj)%BR_hjbb(maxloc(testBR))
+-                    write (*, *) 'BR(h', maxloc(testBR), '->tautau)=', theo(jj)%BR_hjtautau(maxloc(testBR))
+-                    write (*, *) 'BR(h', maxloc(testBR), '->tt)=', theo(jj)%BR_hjtt(maxloc(testBR))
+-                    write (*, *) 'BR(h', maxloc(testBR), '->hiZ)=', theo(jj)%BR_hjhiZ(maxloc(testBR), :)
+-                    write (*, *) 'sum(BR(h', maxloc(testBR), '->hjhi))=', sumhjhi(maxloc(testBR))
+-                    write (*, *) 'sum(BR(h', maxloc(testBR), '->HpjW))=', sumhjHpi(maxloc(testBR))
++                    !write (*, *) 'warning: sum of BR for '//trim(adjustl(pdesc(Hneut)%long))// &
++                    !    ' ', maxloc(testBR), ' at line number=', jj, 'is', testsumBR
++                    !write (*, *) 'BR(h', maxloc(testBR), '->WW)=', theo(jj)%BR_hjWW(maxloc(testBR))
++                    !write (*, *) 'BR(h', maxloc(testBR), '->ZZ)=', theo(jj)%BR_hjZZ(maxloc(testBR))
++                    !write (*, *) 'BR(h', maxloc(testBR), '->gg)=', theo(jj)%BR_hjgg(maxloc(testBR))
++                    !write (*, *) 'BR(h', maxloc(testBR), '->gaga)=', theo(jj)%BR_hjgaga(maxloc(testBR))
++                    !write (*, *) 'BR(h', maxloc(testBR), '->bb)=', theo(jj)%BR_hjbb(maxloc(testBR))
++                    !write (*, *) 'BR(h', maxloc(testBR), '->tautau)=', theo(jj)%BR_hjtautau(maxloc(testBR))
++                    !write (*, *) 'BR(h', maxloc(testBR), '->tt)=', theo(jj)%BR_hjtt(maxloc(testBR))
++                    !write (*, *) 'BR(h', maxloc(testBR), '->hiZ)=', theo(jj)%BR_hjhiZ(maxloc(testBR), :)
++                    !write (*, *) 'sum(BR(h', maxloc(testBR), '->hjhi))=', sumhjhi(maxloc(testBR))
++                    !write (*, *) 'sum(BR(h', maxloc(testBR), '->HpjW))=', sumhjHpi(maxloc(testBR))
+
+                 endif
+
+
