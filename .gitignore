@@ -34,6 +34,7 @@ a.out
 
 # Hidden files
 .vscode**
+.*swp
 
 # Output data
 runs/*

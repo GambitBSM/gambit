@@ -103,8 +103,10 @@ namespace Gambit
 
 
     ///  B-> D tau nu distributions in the THDM
+    // TODO: If this only works with taus change name
     double THDM_dGammaBDlnu(std::complex<double> gs, std::complex<double> gsmutau, double q2)
     {
+      // TODO: Change to use sminputs and constants
       const double mB = 5.27961;
       const double mD = 1.870;
       const double ml = 1.77686;
@@ -154,8 +156,10 @@ namespace Gambit
     }
 
     ///  B->D* tau nu distributions in THDM
+    // TODO: If this only works with taus change name
     double THDM_dGammaBDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, double q2)
     {
+      // TODO: Change to use sminputs and constants
       const double mB = 5.27961;
       const double mDs = 2.007;
       const double ml = 1.77686;
@@ -290,6 +294,7 @@ namespace Gambit
     }
 
     ///Partial decay width for B->D l nu computed with Simpson's rule
+    // TODO: Does this actually work for muons, or only taus
     double Gamma_BDlnu(std::complex<double> gs, std::complex<double> gsmutau, int gen, int n)
     {
       double a = 0.0;
@@ -321,6 +326,7 @@ namespace Gambit
     }
 
     ///Partial decay width for B->D* l nu computed with Simpson's rule
+    // TODO: Does this actually work for muons, or only taus
     double Gamma_BDstarlnu(std::complex<double> gp, std::complex<double> gpmutau, int gen, int n)
     {
       double a = 0.0;
@@ -425,8 +431,8 @@ namespace Gambit
       if (flav_debug) cout<<"Finished THDM_FLDstar"<<endl;
     }
 
-    /// Normalized partial decay width  dGamma(B->D l nu)/dq2/Gamma
-    double THDM_dGammaBDlnu_Gamma(double q2min, double q2max, SMInputs sminputs, Spectrum spectrum)
+    /// Normalized partial decay width  dGamma(B->D tau nu)/dq2/Gamma
+    double THDM_dGammaBDtaunu_Gamma(double q2min, double q2max, SMInputs sminputs, Spectrum spectrum)
     {
       const double A      = sminputs.CKM.A;
       const double lambda = sminputs.CKM.lambda;
@@ -468,8 +474,8 @@ namespace Gambit
       return dGamma_dq2_Gamma;
     }
 
-    /// Normalized partial decay width  dGamma(B->D* l nu)/dq2/Gamma
-    double THDM_dGammaBDstarlnu_Gamma(double q2min, double q2max, SMInputs sminputs, Spectrum spectrum)
+    /// Normalized partial decay width dGamma(B->D* tau nu)/dq2/Gamma
+    double THDM_dGammaBDstartaunu_Gamma(double q2min, double q2max, SMInputs sminputs, Spectrum spectrum)
     {
       const double A      = sminputs.CKM.A;
       const double lambda = sminputs.CKM.lambda;
@@ -511,10 +517,10 @@ namespace Gambit
     }
 
     /// Normalized differential B-> D tau nu width
-    void THDM_BDlnu(map_dblpair_dbl &result)
+    void THDM_dBRBDtaunu(map_dblpair_dbl &result)
     {
-      using namespace Pipes::THDM_BDlnu;
-      if (flav_debug) cout<<"Starting THDM_BDlnu"<<endl;
+      using namespace Pipes::THDM_dBRBDtaunu;
+      if (flav_debug) cout<<"Starting THDM_dBRBDtaunu"<<endl;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
 
@@ -524,17 +530,17 @@ namespace Gambit
                                   {10.0, 10.5}, {10.5, 11.0}, {11.0, 11.5}};
 
       for(ddpair bin : bins)
-        result[bin] = THDM_dGammaBDlnu_Gamma(bin.first, bin.second, sminputs, spectrum);
+        result[bin] = THDM_dGammaBDtaunu_Gamma(bin.first, bin.second, sminputs, spectrum);
 
       if (flav_debug) cout<<"dGamma(B->D tau nu)/dq2/Gamma=" << result << endl;
-      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu"<<endl;
+      if (flav_debug) cout<<"Finished THDM_dBRBDtaunu"<<endl;
     }
 
     /// Normalized differential B-> D* tau nu width
-    void THDM_BDstarlnu(map_dblpair_dbl &result)
+    void THDM_dBRBDstartaunu(map_dblpair_dbl &result)
     {
-      using namespace Pipes::THDM_BDstarlnu;
-      if (flav_debug) cout<<"Starting THDM_BDstarlnu"<<endl;
+      using namespace Pipes::THDM_dBRBDstartaunu;
+      if (flav_debug) cout<<"Starting THDM_dBRBDstartaunu"<<endl;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
 
@@ -544,30 +550,30 @@ namespace Gambit
                                   {10.0, 10.5}};
 
       for(ddpair bin : bins)
-        result[bin] = THDM_dGammaBDstarlnu_Gamma(bin.first, bin.second, sminputs, spectrum);
+        result[bin] = THDM_dGammaBDstartaunu_Gamma(bin.first, bin.second, sminputs, spectrum);
 
-      if (flav_debug) cout<<"dGamma(B->D tau nu)/dq2/Gamma=" << result << endl;
-      if (flav_debug) cout<<"Finished THDM_BRBDstarlnu"<<endl;
+      if (flav_debug) cout<<"dGamma(B->D* tau nu)/dq2/Gamma=" << result << endl;
+      if (flav_debug) cout<<"Finished THDM_dBRBDstartaunu"<<endl;
     }
 
-    /// Measurements for tree-level semileptonic B decays
-    void BDtaunu_measurements(predictions_measurements_covariances &pmc)
+    /// Measurements for the differential widths of tree-level semileptonic B decays
+    void dBRBDtaunu_measurements(predictions_measurements_covariances &pmc)
     {
-      using namespace Pipes::BDtaunu_measurements;
+      using namespace Pipes::dBRBDtaunu_measurements;
 
-      map_dblpair_dbl bins_theory = *Dep::BDlnu;
+      map_dblpair_dbl bins_theory = *Dep::dBRBDtaunu;
 
       const int n_bins=bins_theory.size();
       static bool first = true;
       static std::vector<bool> th_err_absolute;
       static std::vector<double> th_err;
 
-      if (flav_debug) cout<<"Starting BDtaunu_measurements"<<endl;
+      if (flav_debug) cout<<"Starting dBRBDtaunu_measurements"<<endl;
 
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        pmc.LL_name="BDtaunu_likelihood";
+        pmc.LL_name="dBRBDtaunu_likelihood";
 
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
@@ -616,28 +622,28 @@ namespace Gambit
         pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
       }
 
-      if (flav_debug) cout<<"Finished BDtaunu_measurements"<<endl;
+      if (flav_debug) cout<<"Finished dBRBDtaunu_measurements"<<endl;
 
     }
 
-    /// Measurements for tree-level semileptonic B decays
-    void BDstartaunu_measurements(predictions_measurements_covariances &pmc)
+    /// Measurements of the differential width for tree-level semileptonic B decays
+    void dBRBDstartaunu_measurements(predictions_measurements_covariances &pmc)
     {
-      using namespace Pipes::BDstartaunu_measurements;
+      using namespace Pipes::dBRBDstartaunu_measurements;
 
-      map_dblpair_dbl bins_theory = *Dep::BDstarlnu;
+      map_dblpair_dbl bins_theory = *Dep::dBRBDstartaunu;
 
       const int n_bins=bins_theory.size();
       static bool first = true;
       static std::vector<bool> th_err_absolute;
       static std::vector<double> th_err;
 
-      if (flav_debug) cout<<"Starting BDstartaunu_measurements"<<endl;
+      if (flav_debug) cout<<"Starting dBRBDstartaunu_measurements"<<endl;
 
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        pmc.LL_name="BDstartaunu_likelihood";
+        pmc.LL_name="dBRBDstartaunu_likelihood";
 
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
@@ -686,7 +692,7 @@ namespace Gambit
         pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
       }
 
-      if (flav_debug) cout<<"Finished BDstartaunu_measurements"<<endl;
+      if (flav_debug) cout<<"Finished dBRBDstartaunu_measurements"<<endl;
     }
 
 
@@ -1553,14 +1559,14 @@ namespace Gambit
     ///      Likelihoods       ///
     ///------------------------///
 
-    /// Likelihood for tree-level leptonic and semileptonic B decays
-    void BDtaunu_likelihood(double &result)
+    /// Likelihood for the differential widths of tree-level semileptonic B decays to tau leptons
+    void dBRBDtaunu_likelihood(double &result)
     {
-      using namespace Pipes::BDtaunu_likelihood;
+      using namespace Pipes::dBRBDtaunu_likelihood;
 
-      if (flav_debug) cout<<"Starting BDtaunu_likelihood"<<endl;
+      if (flav_debug) cout<<"Starting dBRBDtaunu_likelihood"<<endl;
 
-      predictions_measurements_covariances pmc = *Dep::BDtaunu_M;
+      predictions_measurements_covariances pmc = *Dep::dBRBDtaunu_M;
 
       boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
 
@@ -1584,19 +1590,19 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) cout<<"Finished BDtaunu_likelihood"<<endl;
+      if (flav_debug) cout<<"Finished dBRBDtaunu_likelihood"<<endl;
 
-      if (flav_debug_LL) cout<<"Likelihood result BDtaunu_likelihood  : "<< result<<endl;
+      if (flav_debug_LL) cout<<"Likelihood result dBRBDtaunu_likelihood  : "<< result<<endl;
     }
 
-    /// Likelihood for tree-level leptonic and semileptonic B decays
-    void BDstartaunu_likelihood(double &result)
+    /// Likelihood for the differential widths of tree-level semileptonic B decays to tau leptons
+    void dBRBDstartaunu_likelihood(double &result)
     {
-      using namespace Pipes::BDstartaunu_likelihood;
+      using namespace Pipes::dBRBDstartaunu_likelihood;
 
-      if (flav_debug) cout<<"Starting BDstartaunu_likelihood"<<endl;
+      if (flav_debug) cout<<"Starting dBRBDstartaunu_likelihood"<<endl;
 
-      predictions_measurements_covariances pmc = *Dep::BDstartaunu_M;
+      predictions_measurements_covariances pmc = *Dep::dBRBDstartaunu_M;
 
       boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
 
@@ -1619,9 +1625,9 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) cout<<"Finished BDstartaunu_likelihood"<<endl;
+      if (flav_debug) cout<<"Finished dBRBDstartaunu_likelihood"<<endl;
 
-      if (flav_debug_LL) cout<<"Likelihood result BDstartaunu_likelihood  : "<< result<<endl;
+      if (flav_debug_LL) cout<<"Likelihood result dBRBDstartaunu_likelihood  : "<< result<<endl;
     }
 
     /// Likelihood for tree-level leptonic and semileptonic B decays

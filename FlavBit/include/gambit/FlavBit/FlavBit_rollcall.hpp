@@ -434,9 +434,10 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  #define CAPABILITY BDstarlnu
+
+  #define CAPABILITY dBRBDstartaunu
   START_CAPABILITY
-    #define FUNCTION THDM_BDstarlnu
+    #define FUNCTION THDM_dBRBDstartaunu
     START_FUNCTION(map_dblpair_dbl)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
@@ -446,18 +447,18 @@ START_MODULE
 
 
   //B-Dstartanu distribution measurements
-  #define CAPABILITY BDstartaunu_M
+  #define CAPABILITY dBRBDstartaunu_M
   START_CAPABILITY
-    #define FUNCTION BDstartaunu_measurements
+    #define FUNCTION dBRBDstartaunu_measurements
     START_FUNCTION(FlavBit::predictions_measurements_covariances)
-    DEPENDENCY(BDstarlnu, map_dblpair_dbl)
+    DEPENDENCY(dBRBDstartaunu, map_dblpair_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 
 
-  #define CAPABILITY BDlnu
+  #define CAPABILITY dBRBDtaunu
   START_CAPABILITY
-    #define FUNCTION THDM_BDlnu
+    #define FUNCTION THDM_dBRBDtaunu
     START_FUNCTION(map_dblpair_dbl)
     ALLOW_MODELS(THDM,THDMatQ)
     DEPENDENCY(SMINPUTS,SMInputs)
@@ -466,11 +467,11 @@ START_MODULE
   #undef CAPABILITY
 
   ///B-Dtanu distribution measurements
-  #define CAPABILITY BDtaunu_M
+  #define CAPABILITY dBRBDtaun_M
   START_CAPABILITY
-    #define FUNCTION BDtaunu_measurements
+    #define FUNCTION dBRBDtaunu_measurements
     START_FUNCTION(FlavBit::predictions_measurements_covariances)
-    DEPENDENCY(BDlnu, map_dblpair_dbl)
+    DEPENDENCY(dBRBDtaunu, map_dblpair_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1801,21 +1802,21 @@ START_MODULE
 
 
   ///B-Dstartaunu distributions likelihood [Normalized differential partial width]
-  #define CAPABILITY BDstartaunu_LogLikelihood
+  #define CAPABILITY dBRBDstartaunu_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION BDstartaunu_likelihood
+    #define FUNCTION dBRBDstartaunu_likelihood
     START_FUNCTION(double)
-    DEPENDENCY(BDstartaunu_M, FlavBit::predictions_measurements_covariances)
+    DEPENDENCY(dBRBDstartaunu_M, FlavBit::predictions_measurements_covariances)
     #undef FUNCTION
   #undef CAPABILITY
 
 
   ///B-Dtanu distributions likelihood [Normalized differential partial width]
-  #define CAPABILITY BDtaunu_LogLikelihood
+  #define CAPABILITY dBRBDtaunu_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION BDtaunu_likelihood
+    #define FUNCTION dBRBDtaunu_likelihood
     START_FUNCTION(double)
-    DEPENDENCY(BDtaunu_M, FlavBit::predictions_measurements_covariances)
+    DEPENDENCY(dBRBDtaunu_M, FlavBit::predictions_measurements_covariances)
     #undef FUNCTION
   #undef CAPABILITY
 
