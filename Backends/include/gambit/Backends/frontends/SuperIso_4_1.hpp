@@ -101,6 +101,9 @@ BE_CONV_FUNCTION(modified_delta0, double, (const parameters*), "modified_delta0"
 
 // TODO: attempt to upgrade module function to use the 'observables' backend function instead, and delete this CONV function
 BE_CONV_FUNCTION(BRBKtautau_CONV, double, (const parameters*, double, double), "BRBKtautau_CONV", (MSSM63atQ, MSSM63atMGUT, GWC, THDM, THDMatQ))
+// TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
+BE_CONV_FUNCTION(RKstar, double, (const parameters*, double, double), "RKstar", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
+BE_CONV_FUNCTION(RK, double, (const parameters*, double, double), "RK", (MSSM63atQ, MSSM63atMGUT, WC, THDM, THDMatQ))
 
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

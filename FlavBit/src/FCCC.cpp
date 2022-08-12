@@ -1330,14 +1330,14 @@ namespace Gambit
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
 
       double q2_min_mu_D=  0.012; // 0.105*0.105
-      double g2_min_e_D = 0.261; // 0.511**2
+      double q2_min_e_D = 0.261; // 0.511**2
       double q2_max_D  = 11.6;   // (5.28-1.869)**2
       int gen_e_D = 1, gen_mu_D = 2;
       int charge_D  = 0;// D* is the charged version
       double obs_mu_D[3], obs_e_D[3];
 
       result=BEreq::BRBDlnu(byVal(gen_e_D), byVal( charge_D), byVal(q2_min_e_D), byVal(q2_max_D), byVal(obs_e_D), &param) /
-             /BEreq::BRBDlnu(byVal(gen_mu_D), byVal( charge_D), byVal(q2_min_mu_D), byVal(q2_max_D), byVal(obs_mu_D), &param)
+             BEreq::BRBDlnu(byVal(gen_mu_D), byVal( charge_D), byVal(q2_min_mu_D), byVal(q2_max_D), byVal(obs_mu_D), &param);
 
       if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
       if (flav_debug) cout<<"Finished SuperIso_prediction_RDemu"<<endl;

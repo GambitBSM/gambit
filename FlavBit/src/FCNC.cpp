@@ -130,6 +130,46 @@ namespace Gambit
     //SI_SINGLE_PREDICTION_FUNCTION(RK_LHCb)
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb, ((0.045, 1.1), (1.1, 6)))
 
+    // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
+    /// SuperIso prediction for RK* in low q^2
+    void SuperIso_RKstar_0045_11(double &result)
+    {
+      using namespace Pipes::SuperIso_RKstar_0045_11;
+      if (flav_debug) cout<<"Starting SuperIso_RKstar_0045_11"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RKstar(&param,0.045,1.1);
+
+      if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_RKstar_0045_11"<<endl;
+    }
+
+    /// RK* in intermediate q^2
+    void SuperIso_RKstar_11_60(double &result)
+    {
+      using namespace Pipes::SuperIso_RKstar_11_60;
+      if (flav_debug) cout<<"Starting SuperIso_RKstar_11_60"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RKstar(&param,1.1,6.0);
+
+      if (flav_debug) printf("RK*_intermq2=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_RKstar_11_60"<<endl;
+    }
+
+    /// RK between 1 and 6 GeV^2
+    void SuperIso_RK(double &result)
+    {
+      using namespace Pipes::SuperIso_RK;
+      if (flav_debug) cout<<"Starting SuperIso_RK"<<endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::RK(&param,1.0,6.0);
+
+      if (flav_debug) printf("RK=%.3e\n",result);
+      if (flav_debug) cout<<"Finished SuperIso_RK"<<endl;
+    }
+
     /// SuperIso prediction for B -> K tau tau
     // TODO: this should be used once the BKtautau CONV function is removed from the SuperIso frontend
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(BKtautauBr,_12p6_22p9)
@@ -1288,10 +1328,13 @@ namespace Gambit
         first = false;
       }
 
-      flav_prediction prediction = *Dep::prediction_RK_LHCb;
+      //flav_prediction prediction = *Dep::prediction_RK_LHCb;
 
-      const double theory = prediction.central_values.begin()->second;
-      const double theory_variance = prediction.covariance.begin()->second.begin()->second;
+      //const double theory = prediction.central_values.begin()->second;
+      //const double theory_variance = prediction.covariance.begin()->second.begin()->second;
+      const double theory = *Dep::RK;
+      const double theory_variance = 0.0;
+
       result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
 
       if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHC_LHCb result: " << result << std::endl;
@@ -1306,18 +1349,23 @@ namespace Gambit
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/RKstar/CERN-EP-2017-100_q2_";
       static std::vector<HepLike_default::HL_ProfLikelihood> ProfLikelihood;
 
-      flav_binned_prediction binned_prediction = *Dep::prediction_RKstar_LHCb;
-      std::vector<flav_prediction> prediction;
-      for(auto pred : binned_prediction)
-        prediction.push_back(pred.second);
+      //flav_binned_prediction binned_prediction = *Dep::prediction_RKstar_LHCb;
+      //std::vector<flav_prediction> prediction;
+      //for(auto pred : binned_prediction)
+      //  prediction.push_back(pred.second);
+      std::vector<double> prediction = {*Dep::RKstar_0045_11, *Dep::RKstar_11_60};
+      std::vector<str> bins = {"0.045_1.1", "1.1_6"};
 
       static bool first = true;
       if (first)
       {
-        for(auto pred : binned_prediction)
+        //for(auto pred : binned_prediction)
+        for(str bin : bins)
         {
-          ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << endl;
+          //ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + pred.first + ".yaml"));
+          ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + bin + ".yaml"));
+          //if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + bin + ".yaml"  << endl;
           ProfLikelihood[ProfLikelihood.size()-1].Read();
 
         }
@@ -1327,8 +1375,10 @@ namespace Gambit
       result = 0;
       for (unsigned int i = 0; i < ProfLikelihood.size(); i++)
       {
-        const double theory = prediction[i].central_values.begin()->second;
-        const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        //const double theory = prediction[i].central_values.begin()->second;
+        //const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
+        const double theory = prediction[i];
+        const double theory_variance = 0.0;
         result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
       }
 
