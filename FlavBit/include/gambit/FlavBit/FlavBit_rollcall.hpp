@@ -1288,6 +1288,7 @@ START_MODULE
 
 
   ///Observable: A_I(B -> K* mu mu)
+  // TODO: This is never used in any likelihood, why?
   #define CAPABILITY AI_BKstarmumu
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_AI_BKstarmumu
@@ -1300,6 +1301,7 @@ START_MODULE
 
 
   ///Observable: zero of A_I(B -> K* mu mu)
+  // TODO: This is never used in any likelihood, why?
   #define CAPABILITY AI_BKstarmumu_zero
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_AI_BKstarmumu_zero

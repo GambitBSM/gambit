@@ -1096,7 +1096,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + "CPA.yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + "_CPA.yaml" << endl;
           nDimGaussian[nDimGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimGaussian[0].GetObservables());
