@@ -820,7 +820,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_Atlas;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/ATLAS/RD/Bd2KstarMuMu_Angular/CERN-EP-2017-161_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -864,7 +864,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_CMS;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/CMS/RD/Bd2KstarMuMu_Angular/CERN-EP-2017-240_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -904,7 +904,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_Belle;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/Belle/RD/Bd2KstarMuMu_Angular/KEK-2016-54_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -948,7 +948,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_B2KstarellellAng_LogLikelihood_Belle;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/Belle/RD/Bd2KstarEllEll_Angular/KEK-2016-54_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -994,7 +994,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/PH-EP-2015-314_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
+      static std::vector<HepLike_default::HL_nDimBifurGaussian> nDimBifurGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -1040,7 +1040,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/CERN-EP-2020-027_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -1081,7 +1081,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_B2KstarmumuAng_CPAssym_LogLikelihood_LHCb;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Angular/PH-EP-2015-314_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -1167,7 +1167,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_Bu2KstarmumuAng_LogLikelihood_LHCb_2020;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bu2KstarMuMu_Angular/CERN-EP-2020-239_q2_";
       static std::vector<str> obs_list = Downstream::subcaps->getNames();
-      std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
@@ -1203,7 +1203,7 @@ namespace Gambit
     {
       using namespace Pipes::HEPLike_B2KstarmumuBr_LogLikelihood_LHCb;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bd2KstarMuMu_Br/CERN-EP-2016-141_q2_";
-      std::vector<HepLike_default::HL_BifurGaussian> BifurGaussian;
+      static std::vector<HepLike_default::HL_BifurGaussian> BifurGaussian;
 
       flav_binned_prediction binned_prediction = *Dep::prediction_B2KstarmumuBr;
       if(runOptions->getValueOrDef<bool>(false, "ignore_lowq2_bin"))
@@ -1243,7 +1243,7 @@ namespace Gambit
     {
       using namespace Pipes::HEPLike_B2KmumuBr_LogLikelihood_LHCb;
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/B2KMuMu_Br/CERN-PH-EP-2012-263_q2_";
-      std::vector<HepLike_default::HL_Gaussian> Gaussian;
+      static std::vector<HepLike_default::HL_Gaussian> Gaussian;
 
       flav_binned_prediction binned_prediction = *Dep::prediction_B2KmumuBr;
       std::vector<flav_prediction> prediction;
@@ -1281,7 +1281,7 @@ namespace Gambit
       using namespace Pipes::HEPLike_Bs2phimumuBr_LogLikelihood;
 
       static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Bs2PhiMuMu_Br/CERN-PH-EP-2015-145_";
-      std::vector<HepLike_default::HL_BifurGaussian> BifurGaussian;
+      static std::vector<HepLike_default::HL_BifurGaussian> BifurGaussian;
 
       flav_binned_prediction binned_prediction = *Dep::prediction_Bs2phimumuBr;
       std::vector<flav_prediction> prediction;
