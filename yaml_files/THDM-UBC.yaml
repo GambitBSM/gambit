@@ -139,9 +139,9 @@ ObsLikes:
   # Likelihood type: Half-Gaussian
   # Only supports CP-conserving models
   # Unitarity of the S-matrix at next leading order (includes leading order too)
-#  - purpose:    LogLike
-#    capability: unitarity_LogLikelihood_THDM
-#    function: NLO_unitarity_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: unitarity_LogLikelihood_THDM
+    function: NLO_unitarity_LogLikelihood_THDM
     # function: LO_unitarity_LogLikelihood_THDM
 
   # Stability of the 2HDM Potential
@@ -151,44 +151,44 @@ ObsLikes:
   # Likelihood type: Acceptance/Rejection
   # (ii) If rejected, applies looser stabililty constraints
   # Likelihood type: Half-Gaussian
-#  - purpose:    LogLike
-#    capability: stability_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: stability_LogLikelihood_THDM
 
   # Perturbativity check on h0 mass loop-corrections
   # Checks that loop corrections to the pole mass of mh0
   # do not exceed 50% of the input mass at Qin
   # Likelihood type: Acceptance/Rejection
-#  - purpose:    LogLike
-#    capability: light_scalar_mass_corrections_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: light_scalar_mass_corrections_LogLikelihood_THDM
 
   # Checks that loop corrections to the pole masses of mH0,
   # mA0, mHpm do not exceed 50% of the input mass at Qin
   # Likelihood type: Acceptance/Rejection
   # Perturbativity check on other scalar mass loop-corrections
-#  - purpose:    LogLike
-#    capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
 
   # enforces a mass range for all scalars from the yaml
   # these are specified by the run options (given below):
   # (*) maximum_scalar_mass
   # (*) minimum_scalar_mass
   # Likelihood type: Acceptance/Rejection
-#  - purpose:    LogLike
-#    capability: scalar_mass_range_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: scalar_mass_range_LogLikelihood_THDM
 
   # Perturbativity check on lambdas and scalar couplings
   # Calculates all quartic Higgs couplings in the physical
   # basis & applies a 4pi perturbativity constraint on each
   # Likelihood type: Half-Gaussian
-#  - purpose:    LogLike
-#    capability: perturbativity_LogLikelihood_THDM
-#    function: perturbativity_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: perturbativity_LogLikelihood_THDM
+    function: perturbativity_LogLikelihood_THDM
     # alternative simple perturbativity constraint which only checks lambdas
     # function: perturbativity_lambdas_LogLikelihood_THDM
 
   # perturbativity constraint on yukawas
-#  - purpose:    LogLike
-#    capability: perturbativity_yukawas_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: perturbativity_yukawas_LogLikelihood_THDM
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -200,14 +200,14 @@ ObsLikes:
   # then chi^2 are extracted directly from HS & HB
 
   # HiggsBounds 5.8.0 likelihood
-#  - capability: LEP_Higgs_LogLike
-#    function: calc_HB_5_LEP_LogLike
-#    purpose: LogLike
+  - capability: LEP_Higgs_LogLike
+    function: calc_HB_5_LEP_LogLike
+    purpose: LogLike
 
   # HiggsSignals 2.5.0 likelihood
-#  - capability: LHC_Higgs_LogLike
-#    function: calc_HS_2_LHC_LogLike
-#    purpose: LogLike
+  - capability: LHC_Higgs_LogLike
+    function: calc_HS_2_LHC_LogLike
+    purpose: LogLike
 
   #-------------------------------------#
   #      PRECISION LIKELIHOODS          #
@@ -217,13 +217,13 @@ ObsLikes:
   # & fits to meausured values. S, T, U involve a correlation matrix.
   # Includes low-energy notation described in arxiv::9407203.
   # Likelihood type: Half-Gaussian
-#  - purpose:    LogLike
-#    capability: oblique_parameters_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: oblique_parameters_LogLikelihood_THDM
 
   # muon anomalous magnetic moment likelihood (for GTHDM)
-#  - purpose: Observable
-#    capability: lnL_gm2
-#    function: lnL_gm2
+  # - purpose: Observable
+  #   capability: lnL_gm2
+  #   function: lnL_gm2
 
   #-------------------------------------#
   #      FLAVOR LIKELIHOODS             #
@@ -238,108 +238,89 @@ ObsLikes:
 
   # Source -> who provides the required calculations (GAMBIT, SuperISO, or HepLike)
 
-  # Does not work - could take from SL_Likelihood?
-  #- purpose:    LogLike
-  #  capability: B2taunu_LogLikelihood
-
   # Source: GAMBIT
   # B-Dstartaunu distributions
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: BDstartaunu_LogLikelihood
+  - purpose:    LogLike
+    capability: BDstartaunu_LogLikelihood
 
   # Source: GAMBIT
   # B-Dtanu distributions
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: BDtaunu_LogLikelihood
+  - purpose:    LogLike
+    capability: BDtaunu_LogLikelihood
 
   # Source: GAMBIT
   # mu-e universality for gTHDM based on JHEP07(2013)044
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: gmu_ge_LogLikelihood
+  - purpose:    LogLike
+    capability: gmu_ge_LogLikelihood
 
   # Source: GAMBIT
   # FLDstar polarization
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: FLDstar_LogLikelihood
+  - purpose:    LogLike
+    capability: FLDstar_LogLikelihood
 
   # Source: GAMBIT
   # Bc lifetime
-#  - purpose:    LogLike
-#    capability: Bc_lifetime_LogLikelihood
+  - purpose:    LogLike
+    capability: Bc_lifetime_LogLikelihood
 
   # Source: GAMBIT
   # Bs2llp (Bs2mutau, Bs2tautau)
-#  - purpose:    LogLike
-#    capability: Bs2llp_LogLikelihood
+  - purpose:    LogLike
+    capability: Bs2llp_LogLikelihood
 
   # Source: GAMBIT, SuperISO
   # B2Kllp (B2Kmue, B2Ktaumu, B2Ktautau)
-#  - purpose:    LogLike
-#    capability: B2Kllp_LogLikelihood
+  - purpose:    LogLike
+    capability: B2Kllp_LogLikelihood
 
   # Source: GAMBIT
   # RK and RKstarnunu
-#  - purpose:    LogLike
-#    capability: RK_RKstarnunu_LogLikelihood
+  - purpose:    LogLike
+    capability: RK_RKstarnunu_LogLikelihood
 
   # Source: GAMBIT
   # BR(h->tau mu)
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: h2taumu_LogLikelihood
+  - purpose:    LogLike
+    capability: h2taumu_LogLikelihood
 
   # Source: GAMBIT
   # BR(t->ch)
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: t2ch_LogLikelihood
+  - purpose:    LogLike
+    capability: t2ch_LogLikelihood
 
-  # TODO: reported as absent/broken
-  # Should be included - need Alex patch
   # Source: GAMBIT
   # B meson mass aysmmetry
-  #- purpose:    LogLike
-  #  capability: deltaMB_LogLikelihood
-  # - capability: prediction_DeltaMs
-  #   function: SuperIso_prediction_Delta_MBs
+  - purpose:    LogLike
+    capability: deltaMB_LogLikelihood
 
-  # TODO: reported as absent/broken
-  # # Source: SuperISO
-  # Should be included - need Alex patch
-  # # B_d meson mass aysmmetry
-  #- purpose:    LogLike
-  #  capability: deltaMBd_LogLikelihood
-  # - capability: DeltaMd
-  #   function: SuperIso_prediction_Delta_MBd
+  # Source: SuperISO
+  # B_d meson mass aysmmetry
+  - purpose:    LogLike
+    capability: deltaMBd_LogLikelihood
 
   # Source: GAMBIT or SuperISO
   # Tree-level leptonic and semi-leptonic B & D decay measurements
-  # Overlap with other likelihoods - may need for BDmunu, BDstarmunu, Btaunu, Dstaunu, DSmunu, Dmunu, Dtaunu
   # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
-#  - purpose:    LogLike
-#    capability: SL_LogLikelihood
+  - purpose:    LogLike
+    capability: SL_LogLikelihood
 
   # Source: GAMBIT
   # l -> l gamma (muegamma, tauegamma, taumugamma)
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: l2lgamma_LogLikelihood
+  - purpose:    LogLike
+    capability: l2lgamma_LogLikelihood
 
   # Source: GAMBIT
   # l -> l l l (mueee, taueee, taumumumu, taumuee, taueemu, tauemumu, taumumue)
   # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: l2lll_LogLikelihood
-
-  # Source: GAMBIT, HEPLike
-  # RD RDstar
-  # No relevance for Type I and Type II
-  #- purpose:    LogLike
-  #  capability: RDRDstar_LogLikelihood
+  - purpose:    LogLike
+    capability: l2lll_LogLikelihood
 
   # Source: SuperISO, HEPLike
   # b -> s gamma
@@ -353,18 +334,25 @@ ObsLikes:
 
   # Source: SuperISO, HEPLike
   # B -> mu mu
-  # TODO: Gives segfault, root?
-  #- purpose:    LogLike
-  #  capability: B2mumu_LogLikelihood_LHCb
-  #  sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-  # TODO: Gives segfault, root?
-  #- purpose:    LogLike
-  #  capability: B2mumu_LogLikelihood_CMS
-  #  sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-  # TODO: Gives segfault, root?
-  #- purpose:    LogLike
-  #  capability: B2mumu_LogLikelihood_Atlas
-  #  sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_LHCb
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_CMS
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  - purpose:    LogLike
+    capability: B2mumu_LogLikelihood_Atlas
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # Source: SuperISO, HEPLike
+  # RK
+  - purpose: LogLike
+    capability: RK_LogLikelihood_LHCb
+
+  # Source: SuperISO, HEPLike
+  # RKstar
+  - purpose: LogLike
+    capability: RKstar_LogLikelihood_LHCb
 
   # Source: SuperISO, HEPLike
   # B -> K* mu mu Angular
@@ -393,20 +381,11 @@ ObsLikes:
     capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
     sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
-  # WARNING: CAUSES CRASH (OBSERVABLES NOT IN SUPERISO)
-  # Source: SuperISO, HEPLike
-  # B -> K* mu mu Angular CP assymetry
-  #- purpose:    LogLike
-  #  capability: B2KstarmumuAng_CPAssym_LogLikelihood_LHCb
-  #  sub_capabilities: [A3, A4, A5, A6, A7, A8, A9]
-
-  # TODO: is this useful
-  # TODO: The AT_Im observable is not in SuperISO, ask Nazila
   # Source: SuperISO, HEPLike
   # B -> K* e e angular low q2
-  #- purpose:    LogLike
-  #  capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
-  #  sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+  - purpose:    LogLike
+    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
   # Source: SuperISO, HEPLike
   # B -> K* mu mu BR
@@ -435,8 +414,8 @@ ObsLikes:
     purpose: Observable
 
   # 2HDM decay rates and branching ratios
-#  - capability: all_BFs
-#    purpose: Observable
+  - capability: all_BFs
+    purpose: Observable
 
   # SuperIso prediction for b -> s gamma
   - capability: prediction_b2sgamma
@@ -447,8 +426,8 @@ ObsLikes:
     purpose: Observable
 
   # SuperIso prediction for B -> mu mu
-#  - capability: prediction_B2mumu
-#    purpose: Observable
+  - capability: prediction_B2mumu
+    purpose: Observable
 
   # SuperIso prediction for B -> K* mu mu Ang Atlas
   - capability: prediction_B2KstarmumuAng_Atlas
@@ -476,6 +455,78 @@ ObsLikes:
 
   # SuperIso prediction for Bs -> phi mu mu BR
   - capability: prediction_Bs2phimumuBr
+    purpose: Observable
+
+  # SuperIso or THDM prediction for RD
+  - capability: RD
+    #function: SuperIso_prediction_RD
+    function: THDM_RD
+    purpose: Observable
+
+  # SuperIso or THDM prediction for RDstar
+  - capability: RDstar
+    #function: SuperIso_prediction_RDstar
+    function: THDM_RDstar
+    purpose: Observable
+
+  # SuperIso or THDM prediction for BDmunu
+  - capability: BDmunu
+    #function: SuperIso_prediction_BDmunu
+    function: THDM_BDmunu
+    purpose: Observable
+
+  # SuperIso or THDM prediction for BDstarmunu
+  - capability: BDstarmunu
+    #function: SuperIso_prediction_BDstarmunu
+    function: THDM_BDstarmunu
+    purpose: Observable
+
+  # SuperIso or THDM prediction for Btaunu
+  - capability: Btaunu
+    #function: SuperIso_prediction_Btaunu
+    function: THDM_Btaunu
+    purpose: Observable
+
+  # SuperIso or THDM prediction for Rmu
+  - capability: Rmu
+    #function: SuperIso_prediction_Rmu
+    function: THDM_Rmu
+    purpose: Observable
+
+  # SuperIso or THDM prediction for Dsmumu
+  - capability: Dsmunu
+    #function: SuperIso_prediction_Dsmunu
+    function: THDM_Dsmunu
+    purpose: Observable
+
+  # SuperIso or THDM prediction for Dmunu
+  - capability: Dmunu
+    #function: SuperIso_prediction_Dmunu
+    function: THDM_Dmunu
+    purpose: Observable
+
+  # SuperIso or THDM prediction for Dtaunu
+  - capability: Dtaunu
+    #function: SuperIso_prediction_Dtaunu
+    function: THDM_Dtaunu
+    purpose: Observable
+
+  # SuperIso or THDM prediction for RDemu
+  - capability: RDemu
+    #function: SuperIso_prediction_RDemu
+    function: THDM_RDemu
+    purpose: Observable
+
+  # SuperIso prediction for RK
+  - capability: RK
+    purpose: Observable
+
+  # SuperIso prediction for RKstar, bins 0.045 - 1.1
+  - capability: RKstar_0045_11
+    purpose: Observable
+
+  # SuperIso prediction for RKstar, bins 1.1 - 6
+    capability: RKstar_11_60
     purpose: Observable
 
 
