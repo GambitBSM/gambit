@@ -242,13 +242,13 @@ ObsLikes:
   # B-Dstartaunu distributions
   # No relevance for Type I and Type II
   - purpose:    LogLike
-    capability: BDstartaunu_LogLikelihood
+    capability: dBRBDstartaunu_LogLikelihood
 
   # Source: GAMBIT
   # B-Dtanu distributions
   # No relevance for Type I and Type II
   - purpose:    LogLike
-    capability: BDtaunu_LogLikelihood
+    capability: dBRBDtaunu_LogLikelihood
 
   # Source: GAMBIT
   # mu-e universality for gTHDM based on JHEP07(2013)044
@@ -415,6 +415,14 @@ ObsLikes:
 
   # 2HDM decay rates and branching ratios
   - capability: all_BFs
+    purpose: Observable
+
+  # 2HDM prediction for the differential width of B -> D* tau nu
+  - capability: dBRBDstartaunu
+    purpose: Observable
+
+  # 2HDM prediction for the differential width of B -> D tau nu
+  - capability: dBRBDtaunu
     purpose: Observable
 
   # SuperIso prediction for b -> s gamma

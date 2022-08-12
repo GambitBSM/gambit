@@ -467,7 +467,7 @@ START_MODULE
   #undef CAPABILITY
 
   ///B-Dtanu distribution measurements
-  #define CAPABILITY dBRBDtaun_M
+  #define CAPABILITY dBRBDtaunu_M
   START_CAPABILITY
     #define FUNCTION dBRBDtaunu_measurements
     START_FUNCTION(FlavBit::predictions_measurements_covariances)
