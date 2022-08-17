@@ -192,7 +192,7 @@ namespace Gambit
       printer_error().raise(LOCAL_INFO, err.str());
       return Options();
     }
- 
+
     /// Do final buffer dumps
     void asciiPrinter::finalise(bool /*abnormal*/)
     {
@@ -202,7 +202,7 @@ namespace Gambit
 
     void asciiPrinter::flush()
     {
-      dump_buffer(true); 
+      dump_buffer(true);
     }
 
     /// Delete contents of output file (to be replaced/updated) and erase everything in the buffer
@@ -246,7 +246,7 @@ namespace Gambit
         return;
       if (functor_labels[0] == "Invalidation Code")
         return;
-        
+
       if(lastPointID == nullpoint)
       {
         // No previous point; add current point
@@ -298,7 +298,7 @@ namespace Gambit
              << "   slot (rank,pointID): "<< rank <<", "<< pointID << endl;
          printer_error().raise(LOCAL_INFO, err.str());
       }
- 
+
       // Assign to buffer, adding keys if needed
       buffer[bkey].data[vID] = functor_data;
 
@@ -348,18 +348,6 @@ namespace Gambit
       }
       AP_DBUG( std::cout << "lfpvfc 2" << std::endl; )
 
-      // std::cout << "scanner debug: " << lineindexrecord.size() << std::endl;
-      // std::cout << "lineindexrecord" << std::endl;
-      // for(auto elem : lineindexrecord)
-      // {
-      //   std::cout << elem.first << " " << elem.second << "\n";
-      // }
-      // std::cout <<  "newlineindexrecord"<< std::endl;
-      // for(auto elem : newlineindexrecord)
-      // {
-      //   std::cout << elem.first << " " << elem.second << "\n";
-      // }
-      
       // Check if the output format has changed, and raise an error if so
       if (lineindexrecord.size()==0)
       {
@@ -397,8 +385,6 @@ namespace Gambit
           {
             errmsg<<"      - vID="<<(*it)<<", label="<<label_record.at(*it)<<std::endl;
           }
-          // std::cout << "I've made this error non fatal. But really there is something fishy happenening to the scanner" << std::endl;
-          printer_error().raise(LOCAL_INFO,errmsg.str());
         }
 
         if(increased_lengths.size()!=0)
@@ -410,7 +396,6 @@ namespace Gambit
             errmsg<<"      - vID="<<(*it)<<", label="<<label_record.at(*it)<<std::endl;
             errmsg<<"          orig length="<<lineindexrecord.at(*it)<<", new length="<<newlineindexrecord.at(*it)<<std::endl;
           }
-          printer_error().raise(LOCAL_INFO,errmsg.str());
         }
         printer_error().raise(LOCAL_INFO,errmsg.str());
       }
