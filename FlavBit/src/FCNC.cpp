@@ -1335,7 +1335,8 @@ namespace Gambit
       const double theory = *Dep::RK;
       const double theory_variance = 0.0;
 
-      result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
+      //result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
+      result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
 
       if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHC_LHCb result: " << result << std::endl;
     }
@@ -1379,7 +1380,8 @@ namespace Gambit
         //const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
         const double theory = prediction[i];
         const double theory_variance = 0.0;
-        result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
+        //result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
+        result += ProfLikelihood[i].GetLogLikelihood(theory, theory_variance);
       }
 
       if (flav_debug) std::cout << "HEPLike_RKstar_LogLikelihood_LHCb result: " << result << std::endl;
