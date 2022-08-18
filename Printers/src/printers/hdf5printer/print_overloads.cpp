@@ -217,6 +217,49 @@ namespace Gambit
       }
     }
 
+    void HDF5Printer::_print(flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      std::map<std::string,double> m;
+
+      for(auto val : value.central_values)
+      {
+        std::stringstream vals;
+        vals << val.first;
+        m[vals.str()] = val.second;
+      }
+      for(auto cov : value.covariance) for(auto cov2 : cov.second)
+      {
+        std::stringstream covs;
+        covs << cov.first << "::" << cov2.first;
+        m[covs.str()] = cov2.second;
+      }
+      _print(m, label, vID, mpirank, pointID);
+    }
+
+
+    void HDF5Printer::_print(flav_binned_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      std::map<std::string,double> m;
+
+      for(auto bin : value)
+      {
+        for(auto val : bin.second.central_values)
+        {
+          std::stringstream vals;
+          vals << bin.first << "::";
+          vals << val.first;
+          m[vals.str()] = val.second;
+        }
+        for(auto cov : bin.second.covariance) for(auto cov2 : cov.second)
+        {
+          std::stringstream covs;
+          covs << bin.first << "::" << cov.first << "::" << cov2.first;
+          m[covs.str()] = cov2.second;
+        }
+      }
+      _print(m, label, vID, mpirank, pointID);
+    }
+
 
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer, map_const_str_dbl)
@@ -227,8 +270,6 @@ namespace Gambit
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(HDF5Printer, BBN_container)
-      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, flav_prediction)
-      USE_COMMON_PRINT_OVERLOAD(HDF5Printer, flav_binned_prediction)
     #endif
 
     /// @}
