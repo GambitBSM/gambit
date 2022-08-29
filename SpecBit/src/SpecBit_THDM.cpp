@@ -221,36 +221,38 @@ namespace Gambit
       {
         for(int j=1; j<=3; j++)
         {
-
           // As this is a full spectrum, make sure to improve the translations
-          double Yu2 = 0, Yd2 = 0, Yl2 = 0;
+          double Yu2 = 0, Yd2 = 0, Ye2 = 0, Yu1 = 0, Yd1 = 0, Ye1 = 0;
           switch(model_type)
           {
             case TYPE_I:
-              Yu2 = 0;
-              Yd2 = 0;
-              Yl2 = 0;
+              Yu1 = thdmspec.get(Par::dimensionless, "Yu", i, j);
+              Yd1 = thdmspec.get(Par::dimensionless, "Yd", i, j);
+              Ye1 = thdmspec.get(Par::dimensionless, "Ye", i, j);
               break;
             case TYPE_II:
               Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
-              Yd2 = 0;
-              Yl2 = 0;
+              Yd1 = thdmspec.get(Par::dimensionless, "Yd", i, j);
+              Ye1 = thdmspec.get(Par::dimensionless, "Ye", i, j);
              break;
             case TYPE_LS:
               Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
-              Yd2 = -thdmspec.get(Par::dimensionless, "Yd", i, j);
-              Yl2 = 0;
+              Yd2 = thdmspec.get(Par::dimensionless, "Yd", i, j);
+              Ye1 = thdmspec.get(Par::dimensionless, "Ye", i, j);
               break;
             case TYPE_flipped:
               Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
-              Yd2 = 0;
-              Yl2 = -thdmspec.get(Par::dimensionless, "Yl", i, j);
+              Yd1 = thdmspec.get(Par::dimensionless, "Yd", i, j);
+              Ye2 = thdmspec.get(Par::dimensionless, "Ye", i, j);
               break;
             case TYPE_III:
               // Use input values here
               Yu2 = *input_Param.at("yu2_re_"+std::to_string(i)+std::to_string(j));
               Yd2 = *input_Param.at("yd2_re_"+std::to_string(i)+std::to_string(j));
-              Yl2 = *input_Param.at("yl2_re_"+std::to_string(i)+std::to_string(j));
+              Ye2 = *input_Param.at("yl2_re_"+std::to_string(i)+std::to_string(j));
+              Yu1 = -tanb*(Yu2+thdmspec.get(Par::dimensionless, "Yu", i, j));
+              Yd1 = -tanb*(Yd2+thdmspec.get(Par::dimensionless, "Yd", i, j));
+              Ye1 = -tanb*(Ye2+thdmspec.get(Par::dimensionless, "Ye", i, j));
               break;
             default:
               SpecBit_error().raise(LOCAL_INFO, "invalid model type");
@@ -258,16 +260,14 @@ namespace Gambit
 
           thdmspec.set_override(Par::dimensionless, Yu2, "Yu2", i, j, true);
           thdmspec.set_override(Par::dimensionless, Yd2, "Yd2", i, j, true);
-          thdmspec.set_override(Par::dimensionless, Yl2, "Ye2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, Ye2, "Ye2", i, j, true);
+          thdmspec.set_override(Par::dimensionless, Yu1, "Yu1", i, j, true);
+          thdmspec.set_override(Par::dimensionless, Yd1, "Yd1", i, j, true);
+          thdmspec.set_override(Par::dimensionless, Ye1, "Ye1", i, j, true);
 
           thdmspec.set_override(Par::dimensionless, *input_Param.at("yu2_im_"+std::to_string(i)+std::to_string(j)), "ImYu2", i, j, true);
           thdmspec.set_override(Par::dimensionless, *input_Param.at("yd2_im_"+std::to_string(i)+std::to_string(j)), "ImYd2", i, j, true);
           thdmspec.set_override(Par::dimensionless, *input_Param.at("yl2_im_"+std::to_string(i)+std::to_string(j)), "ImYe2", i, j, true);
-
-          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "Yu2", i, j) - thdmspec.get(Par::dimensionless, "Yu", i, j) * tanb , "Yu1", i, j, true);
-          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "Yd2", i, j) - thdmspec.get(Par::dimensionless, "Yd", i, j) * tanb, "Yd1", i, j, true);
-          thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "Ye2", i, j) - thdmspec.get(Par::dimensionless, "Ye", i, j) * tanb, "Ye1", i, j, true);
-
           thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYu2", i, j), "ImYu1", i, j, true);
           thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYd2", i, j), "ImYd1", i, j, true);
           thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYe2", i, j), "ImYe1", i, j, true);
