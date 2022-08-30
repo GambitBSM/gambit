@@ -14,6 +14,7 @@
 #include "wrapper_EPhysicalProblem.hpp"
 #include "wrapper_EReadError.hpp"
 #include "identification.hpp"
+#include "typedefs.hpp"
 #include "gambit/Utils/end_ignore_warnings.hpp"
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
