@@ -91,7 +91,7 @@ namespace Gambit
       Gp,
       Gm
     };
-    
+
     struct physical_basis_input
     {
       double mh, mH, mC, mA, mG, mGC, beta, lambda6, lambda7, m122, alpha;
@@ -219,6 +219,7 @@ namespace Gambit
 
       for(int i=1; i<=3; i++)
       {
+
         for(int j=1; j<=3; j++)
         {
           // As this is a full spectrum, make sure to improve the translations
@@ -250,9 +251,9 @@ namespace Gambit
               Yu2 = *input_Param.at("yu2_re_"+std::to_string(i)+std::to_string(j));
               Yd2 = *input_Param.at("yd2_re_"+std::to_string(i)+std::to_string(j));
               Ye2 = *input_Param.at("yl2_re_"+std::to_string(i)+std::to_string(j));
-              Yu1 = -tanb*(Yu2+thdmspec.get(Par::dimensionless, "Yu", i, j));
-              Yd1 = -tanb*(Yd2+thdmspec.get(Par::dimensionless, "Yd", i, j));
-              Ye1 = -tanb*(Ye2+thdmspec.get(Par::dimensionless, "Ye", i, j));
+              Yu1 = -tanb*(Yu2-thdmspec.get(Par::dimensionless, "Yu", i, j));
+              Yd1 = -tanb*(Yd2-thdmspec.get(Par::dimensionless, "Yd", i, j));
+              Ye1 = -tanb*(Ye2-thdmspec.get(Par::dimensionless, "Ye", i, j));
               break;
             default:
               SpecBit_error().raise(LOCAL_INFO, "invalid model type");
@@ -271,6 +272,7 @@ namespace Gambit
           thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYu2", i, j), "ImYu1", i, j, true);
           thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYd2", i, j), "ImYd1", i, j, true);
           thdmspec.set_override(Par::dimensionless, -tanb * thdmspec.get(Par::dimensionless, "ImYe2", i, j), "ImYe1", i, j, true);
+
         }
       }
 
@@ -359,7 +361,7 @@ namespace Gambit
         SpecBit_error().raise(LOCAL_INFO, msg.str());
       }
     }
-    
+
     // Get Spectrum for the THDM (either a FlexibleSUSY or tree-level spectrum depending on model)
     void get_THDM_spectrum(Spectrum &result)
     {
@@ -925,27 +927,27 @@ namespace Gambit
 
         if (fill_generic)
           for (auto& n : generic)
-            if (strcmp(name,n) == 0) 
+            if (strcmp(name,n) == 0)
               return he.get(Par::dimensionless, name);
 
         if (fill_higgs)
           for (auto& n : higgs)
-            if (strcmp(name,n) == 0) 
+            if (strcmp(name,n) == 0)
               return he.get(Par::dimensionless, name);
 
         if (fill_physical)
         {
           for (auto& n : physical)
-            if (strcmp(name,n) == 0) 
+            if (strcmp(name,n) == 0)
               return he.get(Par::mass1, name);
 
-          if (strcmp(name,"v2") == 0) return v*v; 
+          if (strcmp(name,"v2") == 0) return v*v;
         }
 
         if (fill_angles)
         {
           for (auto& n : angles)
-            if (strcmp(name,n) == 0) 
+            if (strcmp(name,n) == 0)
               return he.get(Par::dimensionless, name);
 
           if (strcmp(name,"cosba") == 0) return cos(beta-alpha);
@@ -2075,7 +2077,7 @@ namespace Gambit
       // check quartic couplings
 
       vector<std::string> names2 = { "h0h0G0G0", "HpHmG0G0", "A0A0G0G0", "h0h0G0A0", "H0H0G0A0", "HpHmG0A0", "A0A0G0A0", "A0A0G0A0", "h0h0HpHm", "h0h0A0A0", "H0H0HpHm", "H0H0A0A0", "h0H0HpHm", "h0H0A0A0", "h0h0h0h0", "h0h0h0H0", "h0h0H0H0", "h0H0H0H0", "H0H0H0H0", "HpHmHpHm", "HpHmHpHm", "HpHmHpHm" };
-      
+
       couplings_physical = get_quartic_couplings(s, true);
       couplings_higgs = get_quartic_couplings(s, false);
 
@@ -2093,7 +2095,7 @@ namespace Gambit
 
 
     // -- wavefunction corrections to beta functions
-    
+
     double A0_bar(const double m2)
     {
       const double MZ = 91.15349; // get this from FS
@@ -3199,10 +3201,10 @@ namespace Gambit
       ThdmSpec s(he, ThdmSpec::FILL_GENERIC);
 
       // don't waste time on points that are TFG
-      if ((s.lam1 < -20 || s.lam1 > 20) || 
-          (s.lam2 < -20 || s.lam2 > 20) || 
-          (s.lam3 < -20 || s.lam3 > 20) || 
-          (s.lam4 < -20 || s.lam4 > 20) || 
+      if ((s.lam1 < -20 || s.lam1 > 20) ||
+          (s.lam2 < -20 || s.lam2 > 20) ||
+          (s.lam3 < -20 || s.lam3 > 20) ||
+          (s.lam4 < -20 || s.lam4 > 20) ||
           (s.lam5 < -20 || s.lam5 > 20))
           {
             return -L_MAX;
@@ -3210,7 +3212,7 @@ namespace Gambit
 
       // get the leading order scattering eigenvalues
       vector<complex<double>> LO_eigenvalues;
-      
+
       if (s.lam6 == 0 && s.lam7 == 0)
         LO_eigenvalues = get_LO_scattering_eigenvalues_ordered(s);
       else
@@ -3236,10 +3238,10 @@ namespace Gambit
       ThdmSpec s(he, ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
 
       // don't waste time on points that are TFG
-      if ((s.lam1 < -14 || s.lam1 > 14) || 
-          (s.lam2 < -14 || s.lam2 > 14) || 
-          (s.lam3 < -14 || s.lam3 > 14) || 
-          (s.lam4 < -14 || s.lam4 > 14) || 
+      if ((s.lam1 < -14 || s.lam1 > 14) ||
+          (s.lam2 < -14 || s.lam2 > 14) ||
+          (s.lam3 < -14 || s.lam3 > 14) ||
+          (s.lam4 < -14 || s.lam4 > 14) ||
           (s.lam5 < -14 || s.lam5 > 14))
           {
             return -L_MAX;
@@ -3438,7 +3440,7 @@ namespace Gambit
 
       if (std::isnan(sqrt_lam12))
       {
-        // rather than throwing an invalid point, 
+        // rather than throwing an invalid point,
         // better to just give an awful likelihood
         error *= 4;
       }
@@ -3461,13 +3463,13 @@ namespace Gambit
 
           // a calculation needed for the conditions below
           double calc = (1./2.)*(-s.lam4*s.lam3*s.lam3+s.lam4*s.lam2*s.lam1-s.lam3*s.lam3*s.lam5+s.lam2*s.lam1*s.lam5-2*s.lam7*s.lam7*s.lam1+4*s.lam6*s.lam7*s.lam3-2*s.lam2*s.lam6*s.lam6)/(s.lam4*s.lam1+s.lam4*s.lam2-2*s.lam4*s.lam3+s.lam1*s.lam5-2*s.lam3*s.lam5+s.lam2*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7+4*s.lam6*s.lam7);
-          
+
           // cos(theta) = +-1 AND abs(rho) <= 1 AND 0<gamma<pi/2 (first gamma solution)
           double rho,gamma,cosg;
           gamma = acos(sqrt((4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7)*(-2*s.lam7*s.lam7+s.lam2*s.lam5+s.lam4*s.lam2-s.lam3*s.lam5-s.lam4*s.lam3+2*s.lam6*s.lam7))/(4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7));
           cosg  = cos(gamma);
           rho   = sin(gamma)*(s.lam7-cosg*cosg*s.lam7+s.lam6*cosg*cosg)/(cosg*(-s.lam5-s.lam4+cosg*cosg*s.lam4+cosg*cosg*s.lam5));
-          
+
           if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= M_PI/2.)
           {
             error += std::max(0.0, -calc);
@@ -3485,11 +3487,11 @@ namespace Gambit
 
           // a calculation needed for the conditions below
           double calc2 = (1./2.)*(s.lam1*s.lam2*s.lam5-s.lam1*s.lam7*s.lam7-s.lam5*s.lam5*s.lam5+2*s.lam5*s.lam5*s.lam4+2*s.lam5*s.lam5*s.lam3-s.lam5*s.lam4*s.lam4-2*s.lam5*s.lam6*s.lam7-s.lam5*s.lam3*s.lam3-2*s.lam5*s.lam4*s.lam3-s.lam6*s.lam6*s.lam2+2*s.lam6*s.lam7*s.lam3+2*s.lam6*s.lam7*s.lam4)/(s.lam1*s.lam5+2*s.lam6*s.lam7-2*s.lam3*s.lam5+s.lam2*s.lam5-2*s.lam5*s.lam4-s.lam6*s.lam6-s.lam7*s.lam7+2*s.lam5*s.lam5);
-          
+
           // rho=1 AND abs(ct) <= 1 AND abs(gamma) <= pi/2
           double ct = (1./2.)*(-s.lam6*s.lam3-s.lam6*s.lam4+s.lam6*s.lam2+s.lam5*s.lam6+s.lam7*s.lam1-s.lam7*s.lam3-s.lam7*s.lam4+s.lam7*s.lam5)/sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6));
           gamma     = atan(sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6))/(-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7));
-          
+
           if (abs(ct) <= 1.0 && abs(gamma) <= M_PI/2.)
           {
             error += std::max(0.0, -calc2);
@@ -3529,7 +3531,7 @@ namespace Gambit
     double get_heavy_scalar_mass_correction_LogLikelihood(const SubSpectrum& he)
     {
       vector<std::string> heavy_scalars = {"h0_2", "A0", "H+"};
-      
+
       double result = 0.0;
 
       for (auto& scalar : heavy_scalars)
@@ -3571,11 +3573,11 @@ namespace Gambit
     // helper function get list of energy scales, check constraint at each, and get the worst performer
     double get_worst_LL_of_all_scales(const Spectrum& spec, LL_type LL, bool is_FS_model, double other_scale, std::string calculation_name)
     {
-      // we always check the input scale 
+      // we always check the input scale
       vector<double> scales_to_check = { RunScale::INPUT };
 
       // also check the custom scale from the yaml file
-      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model) 
+      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
         scales_to_check.push_back(other_scale);
 
       // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
@@ -3639,7 +3641,7 @@ namespace Gambit
 
       // wrap up LogLike function & get worst performing LogLike at all scales
 
-      LL_type LL = [&](const SubSpectrum& c){ return get_NLO_unitarity_LogLikelihood(c, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections); };  
+      LL_type LL = [&](const SubSpectrum& c){ return get_NLO_unitarity_LogLikelihood(c, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections); };
       result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "NLO_unitarity_LogLikelihood_THDM");
     }
 
