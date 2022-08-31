@@ -1851,10 +1851,10 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///Bs2llp likelihood
-  #define CAPABILITY Bs2llp_LogLikelihood
+  ///Bs2ll likelihood
+  #define CAPABILITY Bs2ll_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION Bs2llp_likelihood
+    #define FUNCTION Bs2ll_likelihood
     START_FUNCTION(double)
     DEPENDENCY(Bs2mutau, double)
     DEPENDENCY(Bs2tautau, double)
@@ -1862,10 +1862,10 @@ START_MODULE
   #undef CAPABILITY
 
 
-  ///B2Kllp likelihood
-  #define CAPABILITY B2Kllp_LogLikelihood
+  ///B2Kll likelihood
+  #define CAPABILITY B2Kll_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION B2Kllp_likelihood
+    #define FUNCTION B2Kll_likelihood
     START_FUNCTION(double)
     DEPENDENCY(B2Kmue, double)
     DEPENDENCY(B2Ktaumu, double)
@@ -1875,10 +1875,10 @@ START_MODULE
   #undef CAPABILITY
 
 
-  /// RKnunu and RKstarnunu likelihood
-  #define CAPABILITY RK_RKstarnunu_LogLikelihood
+  /// B2Xsnunu likelihood
+  #define CAPABILITY B2Xsnunu_LogLikelihood
   START_CAPABILITY
-    #define FUNCTION RK_RKstarnunu_likelihood
+    #define FUNCTION B2Xsnunu_likelihood
     START_FUNCTION(double)
     DEPENDENCY(RKnunu, double)
     DEPENDENCY(RKstarnunu, double)

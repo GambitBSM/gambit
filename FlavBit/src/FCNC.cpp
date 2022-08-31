@@ -245,7 +245,7 @@ namespace Gambit
       result = RKstarnunu;
     }
 
-    double THDM_Bs2llp(int l, int lp, SMInputs sminputs, Spectrum spectrum)
+    double THDM_Bs2ll(int l, int lp, SMInputs sminputs, Spectrum spectrum)
     {
       const double mMu = sminputs.mMu;
       const double mTau = sminputs.mTau;
@@ -288,7 +288,7 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 2;
 
-      result = THDM_Bs2llp(l, lp, sminputs, spectrum);
+      result = THDM_Bs2ll(l, lp, sminputs, spectrum);
     }
 
     void THDM_Bs2tautau(double &result)
@@ -298,18 +298,18 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 2;
 
-      result = THDM_Bs2llp(l, lp, sminputs, spectrum);
+      result = THDM_Bs2ll(l, lp, sminputs, spectrum);
     }
 
-    double THDM_B2Kllp(int l, int lp, SMInputs sminputs, Spectrum spectrum)
+    double THDM_B2Kll(int l, int lp, SMInputs sminputs, Spectrum spectrum)
     {
       //constants from 1903.10440
       const double a_ktaumu = 9.6;
       const double b_ktaumu = 10.0;
       const double a_kmue = 15.4;
       const double b_kmue = 15.7;
-      const vector<double> akllp = {a_kmue, a_ktaumu};
-      const vector<double> bkllp = {b_kmue, b_ktaumu};
+      const vector<double> akll = {a_kmue, a_ktaumu};
+      const vector<double> bkll = {b_kmue, b_ktaumu};
 
       std::complex<double> C9 = THDM_DeltaC_NP(9, l, lp, sminputs, spectrum);
       std::complex<double> C9p = THDM_DeltaC_NP(11, l, lp, sminputs, spectrum);
@@ -320,7 +320,7 @@ namespace Gambit
       std::complex<double> C10lp = THDM_DeltaC_NP(10, lp, l, sminputs, spectrum);
       std::complex<double> C10plp = THDM_DeltaC_NP(12, lp, l, sminputs, spectrum);
 
-      return 10e-9*(akllp[lp]*norm(C9+C9p)+bkllp[lp]*norm(C10+C10p)+(akllp[lp]*norm(C9lp+C9plp)+bkllp[lp]*norm(C10lp+C10plp)));
+      return 10e-9*(akll[lp]*norm(C9+C9p)+bkll[lp]*norm(C10+C10p)+(akll[lp]*norm(C9lp+C9plp)+bkll[lp]*norm(C10lp+C10plp)));
     }
 
     void THDM_B2Ktaumu(double &result)
@@ -330,7 +330,7 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 2, lp = 1;
 
-      result = THDM_B2Kllp(l, lp, sminputs, spectrum);
+      result = THDM_B2Kll(l, lp, sminputs, spectrum);
     }
 
     void THDM_B2Kmue(double &result)
@@ -340,7 +340,7 @@ namespace Gambit
       Spectrum spectrum = *Dep::THDM_spectrum;
       const int l = 1, lp = 0;
 
-      result = THDM_B2Kllp(l, lp, sminputs, spectrum);
+      result = THDM_B2Kll(l, lp, sminputs, spectrum);
     }
 
     /// Branching ratio B+ ->K+ tau tau
@@ -589,9 +589,9 @@ namespace Gambit
 
 
     /// Likelihood for Bs -> mu tau and Bs -> tau tau
-    void Bs2llp_likelihood(double &result)
+    void Bs2ll_likelihood(double &result)
     {
-      using namespace Pipes::Bs2llp_likelihood;
+      using namespace Pipes::Bs2ll_likelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -631,10 +631,10 @@ namespace Gambit
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
     }
 
-    /// Likelihood for B+->K+ l lp
-    void B2Kllp_likelihood(double &result)
+    /// Likelihood for B+->K+ l- l+
+    void B2Kll_likelihood(double &result)
     {
-      using namespace Pipes::B2Kllp_likelihood;
+      using namespace Pipes::B2Kll_likelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
@@ -679,10 +679,11 @@ namespace Gambit
        result += Stats::gaussian_upper_limit(theory[i], value_exp(i,0), th_err[i], sqrt(cov_exp(i,i)), false);
     }
 
-    /// Likelihood for  RKnunu and RKstarnunu
-    void RK_RKstarnunu_likelihood(double &result)
+    /// Likelihood for B2Xsnunu
+    /// Uses the obseravables RKnunu and RKstarnunu
+    void B2Xsnunu_likelihood(double &result)
     {
-      using namespace Pipes::RK_RKstarnunu_likelihood;
+      using namespace Pipes::B2Xsnunu_likelihood;
 
       static bool first = true;
       static boost::numeric::ublas::matrix<double> cov_exp, value_exp;
