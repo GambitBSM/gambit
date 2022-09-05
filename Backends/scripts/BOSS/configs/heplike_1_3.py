@@ -29,7 +29,7 @@ castxml_cc_opt = '-std=c++14 -D __builtin_sincos(x,y,z)=::sincos(x,y,z)'  # Addi
 # ~~~~~ GAMBIT-specific options ~~~~~
 
 gambit_backend_name    = 'HepLike'
-gambit_backend_version = '1.2'
+gambit_backend_version = '1.3'
 gambit_backend_reference = 'Bhom:2020bfe'
 gambit_base_namespace  = ''
 

@@ -432,10 +432,10 @@ endif()
 
 # HepLikedata
 set(name "heplikedata")
-set(ver "1.3")
-set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
+set(ver "1.4")
+set(dl "https://github.com/tegonzalo/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "24e9f64ad54d100a2f2c6b38a333e75a")
+set(md5 "b11c715ee3af25727b85297b6681c9b5")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -451,11 +451,10 @@ endif()
 
 # HepLike
 set(name "heplike")
-set(ver "1.2")
-set(dl "https://github.com/KrakowHEPSoft/HEPLike/archive/V${ver}.zip")
+set(ver "1.3")
+set(dl "https://github.com/tegonzalo/HEPLike/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
-set(md5 "0854396f48f2257ad185064107d6f72f")
+set(md5 "ceec07d057abc2a779084a0d90f45e12")
 set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
@@ -464,7 +463,6 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch -p1 < ${patch}
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake
     BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
