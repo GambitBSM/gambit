@@ -14,6 +14,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         class Abstract_CMSSM_scales;
         class Abstract_CMSSM_slha_io;
         class Abstract_Spectrum_generator_problems;
+        class Abstract_Beta_function;
     }
     namespace softsusy
     {
@@ -23,7 +24,6 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     namespace flexiblesusy
     {
         class Abstract_Two_scale;
-        class Abstract_CMSSM_spectrum_generator__Two_scale;
         class Abstract_Spectrum_generator_settings;
     }
     

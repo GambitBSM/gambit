@@ -747,7 +747,7 @@ def createFrontendHeader(function_xml_files_dict):
                 class_typedef_code += utils.constrNamespace(class_namespace_list, 'open', indent=cfg.indent)
                 if (is_template or is_specialization) and class_name['long'] not in done_templates:
                     class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'template ' + template_bracket + '\n'
-                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'using ' + class_name['short'] + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + template_vars + ';\n'
+                    class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'using ' + class_name['short'] + ' = ' + '::' + gb.gambit_backend_name_full + '::' + class_name['long'] + template_vars + ';\n'
                     done_templates.append(class_name['long'])
 
                 else :

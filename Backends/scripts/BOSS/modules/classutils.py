@@ -653,33 +653,22 @@ def forwardDeclGenerator(class_el, class_name):
     is_template = utils.isTemplateClass(class_name)
 
     # Add the declaration for the wrapper_creator
-    # TODO: Remove if not needed
-    #if is_template:
-    #    frwd_decl_creator = 'template '+class_name['templ_bracket']+'\n'+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'* wrapper_creator'
-    #    frwd_decl_creator += '('+gb.gambit_backend_namespace+'::'+class_name['abstr_long']+class_name['templ_vars']+'*);\n'
-    #else :
-    frwd_decl_creator = gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'* wrapper_creator('+gb.gambit_backend_namespace+'::'+class_name['abstr_long_templ']+'*);\n'
+    if is_template:
+        frwd_decl_creator = gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'* wrapper_creator('+gb.gambit_backend_namespace+'::'+class_name['abstr_long']
+        frwd_decl_creator += '<' + ','.join([gb.gambit_backend_namespace + '::' + x if x in cfg.load_classes else x for x in class_name['templ_types']]) +'>*);\n'
+    else :
+        frwd_decl_creator = gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'* wrapper_creator('+gb.gambit_backend_namespace+'::'+class_name['abstr_long_templ']+'*);\n'
     frwd_decl_creator += '\n'
 
 
 
     # Add the declaration for the wrapper_deleter
-    # TODO: Remove if not needed
-    #if is_template:
-    #    frwd_decl_deleter = 'template '+class_name['templ_bracket']+'\nvoid wrapper_deleter'
-    #    frwd_decl_deleter += '('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'*);\n'
-    #else :
     frwd_decl_deleter = 'void wrapper_deleter('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'*);\n'
     frwd_decl_deleter += '\n'
 
 
 
     # Add the declaration for set_delete_BEptr
-    # TODO: Remove if not needed
-    #if is_template:
-    #    frwd_decl_setdel = 'template '+class_name['templ_bracket']+'\nvoid set_delete_BEptr'
-    #    frwd_decl_setdel += '('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+class_name['templ_vars']+'*, bool);\n'
-    #else :
     frwd_decl_setdel = 'void set_delete_BEptr('+gb.gambit_backend_namespace+'::'+class_name['wrp_long']+'*, bool);\n'
     frwd_decl_setdel += '\n'
 

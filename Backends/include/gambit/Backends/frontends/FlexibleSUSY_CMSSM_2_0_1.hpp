@@ -48,11 +48,6 @@ namespace Gambit
             }
             namespace flexiblesusy
             {
-                template <class T0>
-                using CMSSM_spectrum_generator::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_spectrum_generator<T0>;
-            }
-            namespace flexiblesusy
-            {
                 typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Spectrum_generator_settings Spectrum_generator_settings;
             }
         }

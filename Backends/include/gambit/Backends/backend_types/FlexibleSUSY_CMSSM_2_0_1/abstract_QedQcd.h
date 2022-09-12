@@ -6,6 +6,7 @@
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
+#include "wrapper_Beta_function_decl.h"
 
 #include "enum_decl_copies.h"
 
@@ -17,7 +18,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     namespace softsusy
     {
-        class Abstract_QedQcd : public virtual AbstractBase
+        class Abstract_QedQcd : virtual public flexiblesusy::Abstract_Beta_function
         {
             public:
     
@@ -121,7 +122,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                     delete_wrapper = false;
                 }
     
-                Abstract_QedQcd(const Abstract_QedQcd&)
+                Abstract_QedQcd(const Abstract_QedQcd& in) : 
+                    flexiblesusy::Abstract_Beta_function(in)
                 {
                     wptr = 0;
                     delete_wrapper = false;

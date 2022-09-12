@@ -69,7 +69,7 @@ ditch = []
 
 auto_detect_stdlib_paths = False
 
-load_parent_classes = False
+load_parent_classes = True
 wrap_inherited_members = False
 
 header_extension = '.hpp'

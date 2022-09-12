@@ -77,13 +77,15 @@ def getClassNameDict(class_el, abstract=False):
     # Get template info, but only for loaded classes
     if '<' in class_name['short_templ'] and isLoadedClass(class_el):
         templ_bracket, templ_var_list, is_specialization = getTemplateBracket(class_el)
-        templ_types = [x.split('::')[-1] for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
+        templ_types = [x for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
+        templ_types_short = [x.split('::')[-1] for x in re.split('<|>|,',class_name['short_templ'])[1:] if x != '']
         class_name['templ_vars'] = '<' + ','.join(templ_var_list) + '>'
         class_name['templ_var_list'] = templ_var_list
         class_name['templ_types'] = templ_types
-        class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_types)
-        class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_types)
-        class_name['short_templ'] = class_name['short'] + '<' + ','.join([x.split('::')[-1] for x in templ_var_list]) + '>'
+        class_name['templ_types_short'] = templ_types_short
+        class_name['wrp_long'] = class_name['long'] + '__' + '_'.join(templ_types_short)
+        class_name['wrp_short'] = class_name['short'] + '__' + '_'.join(templ_types_short)
+        class_name['short_templ'] = class_name['short'] + '<' + ','.join(templ_types_short) + '>'
 
         if not is_specialization:
             class_name['templ_bracket'] = templ_bracket

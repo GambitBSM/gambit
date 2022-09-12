@@ -39,6 +39,8 @@ gambit_base_namespace  = ''
 input_files   = [
     '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM/CMSSM_two_scale_spectrum_generator.hpp',
     '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM/CMSSM_slha_io.hpp',
+#    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/models/CMSSM/CMSSM_model_slha.hpp',
+#    '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/src/model.hpp'
 ]
 include_paths = [
     '../../../Backends/installed/flexiblesusy_CMSSM/'+gambit_backend_version+'/src',
@@ -61,7 +63,10 @@ load_classes = [
     'flexiblesusy::CMSSM_scales',
     'flexiblesusy::CMSSM_input_parameters',
     'flexiblesusy::Two_scale',
-    'flexiblesusy::CMSSM_spectrum_generator<flexiblesusy::Two_scale>',
+#    'flexiblesusy::CMSSM<flexiblesusy::Two_scale>',
+#    'flexiblesusy::CMSSM_spectrum_generator<flexiblesusy::Two_scale>',
+#    'flexiblesusy::Model',
+#    'flexiblesusy::CMSSM_slha<flexiblesusy::CMSSM<flexiblesusy::Two_scale>>',
 ]
 
 load_functions = [
@@ -86,7 +91,7 @@ ditch = [
 auto_detect_stdlib_paths = False
 
 
-load_parent_classes    = False
+load_parent_classes    = True
 wrap_inherited_members = False
 
 
