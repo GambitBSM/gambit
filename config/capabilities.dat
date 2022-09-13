@@ -80,6 +80,9 @@ test_BE_Array: |
 test_flat_likelihood: |
    Tester for C/C++ backend array interfaces.
 
+point_invalidator_loglike: |
+   A dummy log-likelihood for scaling tests.
+
 LibFarrayTest_1_0_init: |
    Initialize function for the LibFarrayTest backend.
 
