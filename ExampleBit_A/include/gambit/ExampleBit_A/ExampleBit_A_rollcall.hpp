@@ -251,6 +251,16 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// A dummy log-likelihood for GAMBIT scaling tests, 
+  /// to test different scenarios for how invalid points 
+  /// can be distributed across MPI processes.
+  #define CAPABILITY point_invalidator_loglike
+  START_CAPABILITY
+    #define FUNCTION point_invalidator_loglike
+    START_FUNCTION(double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 #undef MODULE
 
 

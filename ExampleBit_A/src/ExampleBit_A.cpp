@@ -577,6 +577,52 @@ namespace Gambit
     /// Flat test likelihood for checking prior distributions
     void flat_likelihood(double &result){ result = 1; }
 
+
+    /// A dummy log-likelihood for GAMBIT scaling tests, 
+    /// to test different scenarios for how invalid points 
+    /// can be distributed across MPI processes.
+    void point_invalidator_loglike(double &result)
+    { 
+      using namespace Pipes::point_invalidator_loglike;
+
+      // Read YAML options
+      static const double invalid_point_prob = runOptions->getValue<double>("invalid_point_prob");
+
+      static const std::vector<int> special_ranks_default = {};
+      static const std::vector<int> special_ranks = runOptions->getValueOrDef<std::vector<int>>(special_ranks_default, "special_ranks");
+      static const double special_ranks_invalid_point_prob = runOptions->getValueOrDef<double>(invalid_point_prob, "special_ranks_invalid_point_prob");
+
+      // Check if the current MPI rank is in the special_ranks list
+      // const int mpirank = GET_RANK;
+      int mpirank = 0;
+      #ifdef WITH_MPI
+      {
+        mpirank = GMPI::Comm().Get_rank();
+      }
+      #endif
+      const bool is_special_rank = (std::count(special_ranks.begin(), special_ranks.end(), mpirank) > 0);
+
+      // Check if point should be invalidated
+      bool invalidate_point = false;
+      double r = Random::draw();
+      if (is_special_rank && r < special_ranks_invalid_point_prob)
+      {
+        invalidate_point = true;
+      }
+      else if (!is_special_rank && r < invalid_point_prob)
+      {
+        invalidate_point = true;
+      }
+
+      if (invalidate_point)
+      {
+        invalid_point().raise("Point invalidated by point_invalidator_loglike.");
+      }
+
+      result = 0.0; 
+    }
+
+
     /// @}
   }
 
