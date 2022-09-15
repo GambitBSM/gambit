@@ -2152,6 +2152,11 @@ START_MODULE
   ///HEPLike LogLikelihood for RK
   #define CAPABILITY RK_LogLikelihood_LHCb
   START_CAPABILITY
+    #define FUNCTION RK_LogLikelihood_LHCb
+    START_FUNCTION(double)
+    DEPENDENCY(RK, double)
+    #undef FUNCTION
+
     #define FUNCTION HEPLike_RK_LogLikelihood_LHCb
     START_FUNCTION(double)
     DEPENDENCY(RK, double)
@@ -2164,6 +2169,12 @@ START_MODULE
   ///HEPLike LogLikelihood for RKstar
   #define CAPABILITY RKstar_LogLikelihood_LHCb
   START_CAPABILITY
+    #define FUNCTION RKstar_LogLikelihood_LHCb
+    START_FUNCTION(double)
+    DEPENDENCY(RKstar_0045_11, double)
+    DEPENDENCY(RKstar_11_60, double)
+    #undef FUNCTION
+
     #define FUNCTION HEPLike_RKstar_LogLikelihood_LHCb
     START_FUNCTION(double)
     DEPENDENCY(RKstar_0045_11, double)
