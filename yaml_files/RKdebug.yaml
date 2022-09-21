@@ -151,17 +151,13 @@ ObsLikes:
   #  capability: RK_RKstarnunu_LogLikelihood
 
   # RK
-  #- purpose: LogLike
-  #  capability: RK_LogLikelihood_LHCb
+  - purpose: LogLike
+    capability: RK_LogLikelihood_LHCb
 
   # Source: SuperISO, HEPLike
   # RKstar
-  #- purpose: LogLike
-  #  capability: RKstar_LogLikelihood_LHCb
-
-  # LUV likelihood collection (RK, RKstar_0045_11 and RKstar_11_60)
   - purpose: LogLike
-    capability: LUV_LL
+    capability: RKstar_LogLikelihood_LHCb
 
 
 Rules:
@@ -173,6 +169,15 @@ Rules:
   # Use SuperIso instead of FeynHiggs for B_s->mumu
   #- capability: prediction_B2mumu
   #  function: SuperIso_prediction_B2mumu
+
+  # RK
+  - capability: RK_LogLikelihood_LHCb
+    function: RK_LogLikelihood_LHCb
+
+  # RKstar
+  - capability: RKstar_LogLikelihood_LHCb
+    function: RKstar_LogLikelihood_LHCb
+
 
 
 Logger:
