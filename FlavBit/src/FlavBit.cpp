@@ -744,6 +744,116 @@ namespace Gambit
       if (flav_debug) cout<<"Finished SuperIso_nuisance_fill"<<endl;
     }
 
+    /// TO DO: Temporary restore of LUV likelihood infrastructure
+    /// Necessary to test RK and RKstar likelihoods
+    /// Measurements for LUV in b->sll
+    void LUV_measurements(predictions_measurements_covariances &pmc)
+    {
+      using namespace Pipes::LUV_measurements;
+      static bool first = true;
+
+      static double theory_RKstar_0045_11_err, theory_RKstar_11_60_err, theory_RK_err;
+      if (flav_debug) cout<<"Starting LUV_measurements"<<endl;
+
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+        {
+          pmc.LL_name="LUV_likelihood";
+
+          Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+          fread.debug_mode(flav_debug);
+
+          if (flav_debug) cout<<"Initiated Flav reader in LUV_measurements"<<endl;
+          fread.read_yaml_measurement("flav_data.yaml", "RKstar_0045_11");
+          fread.read_yaml_measurement("flav_data.yaml", "RKstar_11_60");
+          fread.read_yaml_measurement("flav_data.yaml", "RK");
+
+          if (flav_debug) cout<<"Finished reading LUV data"<<endl;
+
+          fread.initialise_matrices();
+
+          theory_RKstar_0045_11_err = fread.get_th_err()(0,0).first;
+          theory_RKstar_11_60_err = fread.get_th_err()(1,0).first;
+          theory_RK_err = fread.get_th_err()(2,0).first;
+
+          pmc.value_exp=fread.get_exp_value();
+          pmc.cov_exp=fread.get_exp_cov();
+
+          pmc.value_th.resize(3,1);
+          pmc.cov_th.resize(3,3);
+
+          pmc.dim=3;
+
+          // Init over and out.
+          first = false;
+        }
+
+      // Get theory prediction
+      pmc.value_th(0,0)=*Dep::RKstar_0045_11;
+      pmc.value_th(1,0)=*Dep::RKstar_11_60;
+      pmc.value_th(2,0)=*Dep::RK;
+
+      // Compute error on theory prediction and populate the covariance matrix
+      pmc.cov_th(0,0)=theory_RKstar_0045_11_err;
+      pmc.cov_th(0,1)=0.;
+      pmc.cov_th(0,2)=0.;
+      pmc.cov_th(1,0)=0.;
+      pmc.cov_th(1,1)=theory_RKstar_11_60_err;
+      pmc.cov_th(1,2)=0.;
+      pmc.cov_th(2,0)=0.;
+      pmc.cov_th(2,1)=0.;
+      pmc.cov_th(2,2)=theory_RK_err;
+
+
+
+      // Save the differences between theory and experiment
+      pmc.diff.clear();
+      for (int i=0;i<3;++i)
+        {
+          pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
+        }
+
+      if (flav_debug) cout<<"Finished LUV_measurements"<<endl;
+
+
+    }
+    /// Likelihood  for LUV in b->sll
+    void LUV_likelihood(double &result)
+    {
+      using namespace Pipes::LUV_likelihood;
+
+      if (flav_debug) cout<<"Starting LUV_likelihood"<<endl;
+
+      predictions_measurements_covariances pmc = *Dep::LUV_M;
+
+      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
+
+      // adding theory and experimental covariance
+      cov+=pmc.cov_th;
+
+      //calculating a diff
+      vector<double> diff;
+      diff=pmc.diff;
+
+      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
+      InvertMatrix(cov, cov_inv);
+
+      double Chi2=0;
+      for (int i=0; i < pmc.dim; ++i)
+        {
+          for (int j=0; j<pmc.dim; ++j)
+            {
+              Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+            }
+        }
+
+      result=-0.5*Chi2;
+
+      if (flav_debug) cout<<"Finished LUV_likelihood"<<endl;
+
+      if (flav_debug_LL) cout<<"Likelihood result LUV_likelihood  : "<< result<<endl;
+
+    }
 
     ///  Bc lifetime in the THDM
     void THDM_Bc_lifetime(double &result)
