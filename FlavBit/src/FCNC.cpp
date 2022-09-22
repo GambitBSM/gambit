@@ -1317,7 +1317,8 @@ namespace Gambit
     {
       using namespace Pipes::RK_LogLikelihood_LHCb;
 
-      predictions_measurements_covariances pmc;
+      static double value_exp, value_th;
+      static boost::numeric::ublas::matrix<double> cov_exp, cov_th;
 
       static bool first = true;
 
@@ -1326,8 +1327,6 @@ namespace Gambit
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        pmc.LL_name="RK_LogLikelihood_LHCb";
-
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
 
@@ -1337,41 +1336,30 @@ namespace Gambit
 
         theory_RK_err = fread.get_th_err()(0,0).first;
 
-        pmc.value_exp=fread.get_exp_value();
-        pmc.cov_exp=fread.get_exp_cov();
-
-        pmc.value_th.resize(1,1);
-        pmc.cov_th.resize(1,1);
-
-        pmc.dim=1;
+        value_exp=fread.get_exp_value()(0,0);
+        cov_exp=fread.get_exp_cov();
 
         // Init over and out.
         first = false;
       }
 
       // Get theory prediction
-      pmc.value_th(0,0)=*Dep::RK;
+      value_th = *Dep::RK;
 
       // Compute error on theory prediction and populate the covariance matrix
-      pmc.cov_th(0,0)=theory_RK_err;
-
-      // Save the differences between theory and experiment
-      pmc.diff.clear();
-      pmc.diff.push_back(pmc.value_exp(0,0)-pmc.value_th(0,0));
-
-      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
+      cov_th.resize(1,1);
+      cov_th(0,0) = theory_RK_err;
 
       // adding theory and experimental covariance
-      cov+=pmc.cov_th;
+      boost::numeric::ublas::matrix<double> cov = cov_exp + cov_th;
 
-      //calculating a diff
-      vector<double> diff;
-      diff=pmc.diff;
+      // Calculating the differences between theory and experiment
+      double diff = value_exp - value_th;
 
-      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
+      boost::numeric::ublas::matrix<double> cov_inv(1,1);
       InvertMatrix(cov, cov_inv);
 
-      result=-0.5*diff[0]*cov_inv(0,0)*diff[0];
+      result=-0.5*diff*cov_inv(0,0)*diff;
     }
 
 
@@ -1409,7 +1397,8 @@ namespace Gambit
     {
       using namespace Pipes::RKstar_LogLikelihood_LHCb;
 
-      predictions_measurements_covariances pmc;
+      static double value_exp[2], value_th[2];
+      static boost::numeric::ublas::matrix<double> cov_exp, cov_th;
 
       static bool first = true;
 
@@ -1418,7 +1407,6 @@ namespace Gambit
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
       {
-        pmc.LL_name="RKstar_LogLikelihood_LHCb";
 
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
@@ -1431,49 +1419,40 @@ namespace Gambit
         theory_RKstar_0045_11_err = fread.get_th_err()(0,0).first;
         theory_RKstar_11_60_err = fread.get_th_err()(1,0).first;
 
-        pmc.value_exp=fread.get_exp_value();
-        pmc.cov_exp=fread.get_exp_cov();
-
-        pmc.value_th.resize(2,1);
-        pmc.cov_th.resize(2,2);
-
-        pmc.dim=2;
+        value_exp[0] = fread.get_exp_value()(0,0);
+        value_exp[1] = fread.get_exp_value()(1,0);
+        cov_exp=fread.get_exp_cov();
 
         // Init over and out.
         first = false;
       }
 
       // Get theory prediction
-      pmc.value_th(0,0)=*Dep::RKstar_0045_11;
-      pmc.value_th(1,0)=*Dep::RKstar_11_60;
+      value_th[0] = *Dep::RKstar_0045_11;
+      value_th[1] = *Dep::RKstar_11_60;
 
       // Compute error on theory prediction and populate the covariance matrix
-      pmc.cov_th(0,0)=theory_RKstar_0045_11_err;
-      pmc.cov_th(0,1)=0.;
-      pmc.cov_th(1,0)=0.;
-      pmc.cov_th(1,1)=theory_RKstar_11_60_err;
+      cov_th.resize(2,2);
+      cov_th(0,0) = theory_RKstar_0045_11_err;
+      cov_th(0,1) = 0.0;
+      cov_th(1,0) = 0.0;
+      cov_th(1,1) = theory_RKstar_11_60_err;
 
-      // Save the differences between theory and experiment
-      pmc.diff.clear();
-      pmc.diff.push_back(pmc.value_exp(0,0)-pmc.value_th(0,0));
-      pmc.diff.push_back(pmc.value_exp(1,0)-pmc.value_th(1,0));
-
-      boost::numeric::ublas::matrix<double> cov=pmc.cov_exp;
+      // Calculating the differences between theory and experiment
+      vector<double> diff;
+      diff.push_back(value_exp[0] - value_th[0]);
+      diff.push_back(value_exp[1] - value_th[1]);
 
       // adding theory and experimental covariance
-      cov+=pmc.cov_th;
+      boost::numeric::ublas::matrix<double> cov = cov_exp + cov_th;
 
-      //calculating a diff
-      vector<double> diff;
-      diff=pmc.diff;
-
-      boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
+      boost::numeric::ublas::matrix<double> cov_inv(2,2);
       InvertMatrix(cov, cov_inv);
 
       double Chi2=0;
-      for (int i=0; i<pmc.dim; ++i)
-        for (int j=0; j<pmc.dim; ++j)
-          Chi2+= diff[i] * cov_inv(i,j)*diff[j];
+      for (int i=0; i<2; ++i)
+        for (int j=0; j<2; ++j)
+          Chi2 += diff[i] * cov_inv(i,j) * diff[j];
       result=-0.5*Chi2;
     }
 
