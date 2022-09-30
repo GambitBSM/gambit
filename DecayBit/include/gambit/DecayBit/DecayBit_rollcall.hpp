@@ -708,10 +708,12 @@ START_MODULE
   #define CAPABILITY dark_photon_decay_rates
   START_CAPABILITY
   
-    #define FUNCTION SubGeVDM_scalar_dark_photon_decays
+    #define FUNCTION SubGeVDM_dark_photon_decays
     START_FUNCTION(DecayTable::Entry)
-    MODEL_CONDITIONAL_DEPENDENCY(SubGeVDM_scalar_spectrum, Spectrum, SubGeVDM_scalar)
-    ALLOW_MODELS(SubGeVDM_scalar)
+    DEPENDENCY(SubGeVDM_spectrum, Spectrum)
+    BACKEND_REQ(dark_photon_decay_width, (), double, (double&, std::string, double&))
+    BACKEND_REQ(dark_photon_branching_fraction, (), double, (std::string, double&))
+    ALLOW_MODELS(SubGeVDM_scalar, SubGeVDM_fermion)
     #undef FUNCTION
 
   #undef CAPABILITY

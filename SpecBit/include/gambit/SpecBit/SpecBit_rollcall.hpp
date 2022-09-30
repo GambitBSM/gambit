@@ -67,6 +67,9 @@ START_MODULE
   
   /// Module function declarations for SpecBit_DMEFT.cpp
   #include "gambit/SpecBit/SpecBit_DMEFT_rollcall.hpp"
+
+  /// Module function declarations for SpecBit_SubGeVDM.cpp
+  #include "gambit/SpecBit/SpecBit_SubGeVDM_rollcall.hpp"
   
   /// For SpecBit testing only
   //#include "gambit/SpecBit/SpecBit_sandbox_rollcall.hpp"

@@ -45,7 +45,7 @@ END_BE_INI_FUNCTION
     }
 
     //For a single final state
-    double dark_photon_decay_width(double k, std::string state, double mass)
+    double dark_photon_decay_width(double& k, std::string state, double& mass)
     {
       if (dark_photon == NULL) 
       {
@@ -56,7 +56,7 @@ END_BE_INI_FUNCTION
       return width;
     }
 
-    double dark_photon_branching_fraction(std::string state, double mass)
+    double dark_photon_branching_fraction(std::string state, double& mass)
     {
       if (dark_photon == NULL)
       {
@@ -68,7 +68,7 @@ END_BE_INI_FUNCTION
     }
 
     //For a combination of final states. Take a vector of string input, eg: std::vector<std::string> ("e_e","u_u","d_d")
-    double dark_photon_decay_width_multi(double k, std::vector<std::string> states, double mass)
+    double dark_photon_decay_width_multi(double& k, std::vector<std::string> states, double& mass)
     {
       if (dark_photon == NULL) 
       {
@@ -79,7 +79,7 @@ END_BE_INI_FUNCTION
       return width;
     }
 
-    double dark_photon_branching_fraction_multi(std::vector<std::string> states, double mass)
+    double dark_photon_branching_fraction_multi(std::vector<std::string> states, double& mass)
     {
       if (dark_photon == NULL)
       {

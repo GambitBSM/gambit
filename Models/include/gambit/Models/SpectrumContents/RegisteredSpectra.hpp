@@ -43,6 +43,7 @@ namespace Gambit
     struct MajoranaSingletDM_Z2 : SubSpectrumContents { MajoranaSingletDM_Z2(); };
     struct DiracSingletDM_Z2    : SubSpectrumContents { DiracSingletDM_Z2(); };
     struct DMEFT                : SubSpectrumContents { DMEFT(); };
+    struct SubGeVDM             : SubSpectrumContents { SubGeVDM(); };
 
   }
 }

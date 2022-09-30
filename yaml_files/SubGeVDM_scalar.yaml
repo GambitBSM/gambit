@@ -7,11 +7,17 @@
 
 Parameters:
 
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  StandardModel_Higgs:
+     mH: 125.10 # PDG 2020 value
+
   SubGeVDM_scalar:
     mDM: 1
-    gDM: 1
-    kappa: 1e-2
-    mAp: 10
+    gDM: 2.5
+    kappa: 1e-3
+    mAp: 3
     etaDM: 0
 
   Halo_gNFW_rho0:
@@ -53,6 +59,13 @@ Scanner:
 
 ObsLikes:
 
+    # Relic density
+    - capability: lnL_oh2
+      purpose:    LogLike
+
+    - capability: RD_oh2
+      purpose: Observable
+
     - capability: CRESST_III_LogLikelihood
       purpose:    LogLike
 
@@ -62,10 +75,44 @@ ObsLikes:
     - purpose:    Observable
       capability: sigma_SI_p
 
+    - capability: sigmav
+      purpose:    Observable
+
 Rules:
 
+  # Relic density likelihood
+  - capability: lnL_oh2
+    # Choose to implement the relic density likelihood as an upper bound, not a detection
+    function: lnL_oh2_upperlimit
+    # Choose to implement the relic density likelihood as a detection
+    # function: lnL_oh2_Simple
+    options: # Planck 2018 values
+      oh2_obs: 0.120
+      oh2_obserr: 0.001
+      oh2_fractional_theory_err: 0.01
+
   - capability: RD_fraction
-    function: RD_fraction_one
+    function: RD_fraction_leq_one
+    options: # Planck 2018 values
+      oh2_obs: 0.120
+      
+  # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
+  # Consult the DarkBit manual for the required options in each case
+  - capability: RD_oh2
+    #function: RD_oh2_DS5_general
+    function: RD_oh2_DS_general
+    options:
+      # these options are identical for DS5 and DS6+ version
+      fast: 1  # 0: standard, 1: fast (default)
+    #function: RD_oh2_DarkSUSY_DS5
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
+    #  omtype: 1  # 0: no coann, 1: all coann (default)
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast
+    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
 
   # Use DarkBit's own calculations of the direct detection couplings
   - capability: DD_couplings
@@ -74,6 +121,12 @@ Rules:
   # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
   - capability: DDCalc_Couplings
     function: DDCalc_Couplings_WIMP_nucleon
+
+  - capability: sigmav
+    function: sigmav_late_universe
+
+  - capability: decay_rates
+    function: all_decays
 
 Logger:
 

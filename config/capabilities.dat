@@ -5653,10 +5653,16 @@ Rivet_3_0_0_init: |
 #-------------------------------------
 
 dark_photon_decay_width: |
-  Calculate the decay width of a dark photon with a given coupling strength, decay state(s) and mass.
+  Calculate the decay width of a dark photon with a given coupling strength, decay state and mass.
 
-dark_photon_bfrac: |
-  Calculate the branching fraction of a dark photon with a given decay state(s) and mass.
+dark_photon_branching_fraction: |
+  Calculate the branching fraction of a dark photon with a given decay state and mass.
+
+dark_photon_decay_width_multi: |
+  Calculate the combined decay width in multiple channels for a dark photon with a given coupling strength and mass.
+
+dark_photon_branching_fraction_multi: |
+  Calculate the combined branching fraction in multiple channels for a dark photon with a given mass.
 
 #---------------------
 # DirecDM capabilities

@@ -31,7 +31,7 @@ namespace Gambit
   double hadronic_cross_section_ratio(double sqrts)
   {
     // Path to file containing cross section ratio tables.
-    const str R_tabfile = GAMBIT_DIR "/Elements/data/Elements/data/rpp2020-hadronicrpp_page1001_removed-duplicates.dat";
+    const str R_tabfile = GAMBIT_DIR "/Elements/data/rpp2020-hadronicrpp_page1001_removed-duplicates.dat";
 
     // Initialise, reading in the data tables and setting up the interpolators.
     static ASCIItableReader table(R_tabfile);
@@ -60,7 +60,7 @@ namespace Gambit
     if (sqrts > maxsqrts)
     {
       std::stringstream msg;
-      msg << "Requested cross section ratio for sqrt(s) = " << sqrts << "; allowed range is sqrt(s) < " << maxmass << " GeV!";
+      msg << "Requested cross section ratio for sqrt(s) = " << sqrts << "; allowed range is sqrt(s) < " << maxsqrts << " GeV!";
       utils_error().raise(LOCAL_INFO, msg.str());
     }
 
