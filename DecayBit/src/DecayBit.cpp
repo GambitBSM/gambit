@@ -3015,6 +3015,46 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
+    //////////// Vector singlet DM /////////////////////
+
+    /// Add the decay of Higgs to vectors for the VectorSingletDM models (see arXiv:1512.06458v4)
+    void SubGeVDM_dark_photon_decays (DecayTable::Entry& result)
+    {
+      using namespace Pipes::SubGeVDM_scalar_dark_photon_decays;
+
+      // Get the spectrum information
+      const Spectrum& spec = *Dep::SubGeVDM_scalar_spectrum;
+      const SubSpectrum& he = spec.get_HE();
+      double mAp = spec.get(Par::Pole_Mass,"Ap");
+      double mDM = spec.get(Par::Pole_Mass,"S");
+      double gDM = he.get(Par::dimensionless,"gDM");
+      double kappa = he.get(Par::dimensionless,"kappa");
+
+      result.calculator = "GAMBIT::DecayBit";
+      result.calculator_version = gambit_version();
+      result.width_in_GeV = BEreq::dark_photon_decay_width(kappa,"Gamma",mAp);
+      //TODO: Set individual branching ratios
+      //result.set_BF(BEreq::dark_photon_decay_width(kappa,"ee",mh), 0.0, "e+", "e-");
+
+      // Add the dark photon invisible width to the total
+      //TODO: Check expression
+      double gamma = (2.0*mDM <= mAp) ? (pow(gDM,2)*mAp/(12.*pi) * sqrt(1.0 - 4.0*pow(mDM/mAp,2)) : 0.0;
+      result.width_in_GeV = result.width_in_GeV + gamma;
+
+      // Rescale the visible branching fractions.
+      double wscaling = BEreq::dark_photon_decay_width(kappa,"Gamma",mAp)/result.width_in_GeV;
+      for (auto it = result.channels.begin(); it != result.channels.end(); ++it)
+      {
+        it->second.first  *= wscaling; // rescale BF
+        it->second.second *= wscaling; // rescale error on BF
+      }
+
+      // Add the h->VV branching fraction
+      result.set_BF(gamma/result.width_in_GeV, 0.0, "S", "S~");
+
+      // Make sure the width is sensible.
+      check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
+    }
 
     //////////// Everything ///////////////////
 

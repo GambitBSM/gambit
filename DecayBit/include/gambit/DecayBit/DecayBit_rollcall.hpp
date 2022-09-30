@@ -124,7 +124,7 @@ START_MODULE
 
   #define CAPABILITY Higgs_decay_rates
   START_CAPABILITY
-
+  
     #define FUNCTION SM_Higgs_decays
     START_FUNCTION(DecayTable::Entry)
     DEPENDENCY(Reference_SM_Higgs_decay_rates, DecayTable::Entry)
@@ -705,6 +705,18 @@ START_MODULE
 
   #undef CAPABILITY
 
+  #define CAPABILITY dark_photon_decay_rates
+  START_CAPABILITY
+  
+    #define FUNCTION SubGeVDM_scalar_dark_photon_decays
+    START_FUNCTION(DecayTable::Entry)
+    MODEL_CONDITIONAL_DEPENDENCY(SubGeVDM_scalar_spectrum, Spectrum, SubGeVDM_scalar)
+    ALLOW_MODELS(SubGeVDM_scalar)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+
   #define CAPABILITY decay_rates
   START_CAPABILITY
 
@@ -790,6 +802,7 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(neutralino_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT)
     MODEL_CONDITIONAL_DEPENDENCY(neutralino_3_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT)
     MODEL_CONDITIONAL_DEPENDENCY(neutralino_4_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT)
+    MODEL_CONDITIONAL_DEPENDENCY(dark_photon_decay_rates, DecayTable::Entry, SubGeVDM_scalar, SubGeVDM_fermion)
     #undef FUNCTION
 
   #undef CAPABILITY
