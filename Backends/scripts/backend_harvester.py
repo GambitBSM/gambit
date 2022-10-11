@@ -59,11 +59,19 @@ def main(argv):
 
     # Get list of frontend header files to include in backend_rollcall.hpp
     frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
+
+    print("excluded backends", exclude_backends)
+    print("frontend headers", frontend_headers)
+    check_for_ditched_modules(verbose, "./Backends/include/gambit/Backends/frontends",frontend_headers, exclude_backends)
+    print("excluded backends", exclude_backends)
+    print("frontend headers", frontend_headers)
+
     # Get list of backend type header files
     backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","backend type",set([])))
     bossed_backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed type",set([])))
 
-    if verbose: 
+
+    if verbose:
         print("Frontend headers identified:")
         for h in frontend_headers:
             print('  gambit/Backends/frontends/'+h)

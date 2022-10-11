@@ -24,6 +24,7 @@
   #undef BACKENDLANG
   #undef VERSION
   #undef SAFE_VERSION
+  #undef MODULE
   #undef REFERENCE
   #undef DO_CLASSLOADING
   #define DO_CLASSLOADING 0

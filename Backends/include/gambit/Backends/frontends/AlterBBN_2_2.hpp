@@ -31,6 +31,7 @@
 #define BACKENDLANG CC
 #define VERSION 2.2
 #define SAFE_VERSION 2_2
+#define MODULE CosmoBit
 #define REFERENCE Arbey:2011nf,Arbey:2018zfh
 
 LOAD_LIBRARY

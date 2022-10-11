@@ -491,6 +491,18 @@ def find_and_harvest_headers(header_set,fullheadlist,exclude_set,dir_exclude_set
             if verbose: print( "    "+header )
         find_and_harvest_headers(new_headers,fullheadlist,new_exclude_set,dir_exclude_set,verbose=verbose)
 
+# Check for ditch modules and update the list of excluded backends and frontend headers
+def check_for_ditched_modules(verbose,rollcall_path,frontend_headers,excludes):
+    for rollcall in frontend_headers:
+        print(rollcall)
+        rollcall_file_path = rollcall_path + "/" + rollcall
+        with io.open(rollcall_file_path, encoding='utf-8') as f:
+            for newline in readlines_nocomments(f):
+                newline = newline.strip()
+                if newline.startswith("#define MODULE"):
+                  print(newline)
+
+
 #Search the source tree to determine which modules are present, and write a module_rollcall header if the GAMBIT Core exists.
 def retrieve_rollcall_headers(verbose,install_dir,excludes):
     rollcall_headers=[]
