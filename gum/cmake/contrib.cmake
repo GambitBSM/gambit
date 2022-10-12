@@ -62,7 +62,7 @@ set(patch "${CMAKE_SOURCE_DIR}/cmake/patch_${name}.dif")
 if(${Mathematica_VERSION} VERSION_LESS "12.2")
   set(patch_command "")
 else()
-  set(patch_command patch -p1 < ${patch}) 
+  set(patch_command patch -p1 < ${patch})
 endif()
 set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
 set(FEYNRULES_PATH "${dir}")
@@ -90,7 +90,7 @@ set(patch "${CMAKE_SOURCE_DIR}/cmake/patch_${name}.dif")
 if(${Mathematica_VERSION} VERSION_LESS "12.2")
   set(patch_command "")
 else()
-  set(patch_command patch -p1 < ${patch}) 
+  set(patch_command patch -p1 < ${patch})
 endif()
 set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
 set(SARAH_VERSION ${ver})
@@ -106,6 +106,29 @@ EXTERNALPROJECT_ADD(
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+)
+add_extra_targets(${name} ${dir})
+
+# Download LanHEP
+set(name "LanHEP")
+set(ver "4.0.0")
+set(dl "https://theory.sinp.msu.ru/~semenov/lhep400.tgz")
+set(md5 "")
+set(dir "${CMAKE_SOURCE_DIR}/contrib/${name}")
+set(LanHEP_VERSION ${ver})
+set(LanHEP_PATH ${dir}$)
+set(HAVE_LanHEP 1)
+EXTERNALPROJECT_ADD(
+    LanHEP
+    URL ${dl}
+    URL_MD5 ${md5}
+    UPDATE_COMMAND ""
+    PATCH_COMMAND ""
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ${CMAKE_MAKE_COMMAND}
     INSTALL_COMMAND ""
 )
 add_extra_targets(${name} ${dir})
