@@ -2287,6 +2287,34 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# SmodelS
+set(name "smodels")
+set(ver "2.2.1")
+set(dl "https://github.com/SModelS/smodels/archive/refs/tags/${ver}.tar.gz")
+set(md5 "ac766e1b6bd22ba2aa24147a727fbaf6")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
+set(ditch_if_absent "Python")
+set(required_modules "docutils,numpy,scipy,unum,requests,pyslha,pyhf,jsonpatch,jsonschema")
+check_ditch_status(${name} ${ver} ${dir} ${ditch_if_absent})
+if(NOT ditched_${name}_${ver})
+  check_python_modules(${name} ${ver} ${required_modules})
+  if(modules_missing_${name}_${ver})
+    inform_of_missing_modules(${name} ${ver} ${modules_missing_${name}_${ver}})
+  else()
+    ExternalProject_Add(${name}_${ver}
+      DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      CONFIGURE_COMMAND ""
+      BUILD_COMMAND ${MAKE_PARALLEL}
+      INSTALL_COMMAND ""
+    )
+  endif()
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
+
 
 # Alternative download command for getting unreleased things from the gambit_internal repository.
 # If you don't know what that is, you don't need to tinker with these.
