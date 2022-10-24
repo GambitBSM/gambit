@@ -2290,8 +2290,10 @@ endif()
 # SmodelS
 set(name "smodels")
 set(ver "2.2.1")
+set(sfver "2_2_1")
 set(dl "https://github.com/SModelS/smodels/archive/refs/tags/${ver}.tar.gz")
 set(md5 "ac766e1b6bd22ba2aa24147a727fbaf6")
+set(lib "smodels")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(ditch_if_absent "Python")
@@ -2308,6 +2310,8 @@ if(NOT ditched_${name}_${ver})
       BUILD_IN_SOURCE 1
       CONFIGURE_COMMAND ""
       BUILD_COMMAND ${MAKE_PARALLEL}
+      COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > ${lib}_${sfver}.py
+      COMMAND ${CMAKE_COMMAND} -E echo "from ${lib} import *" >> ${lib}_${sfver}.py
       INSTALL_COMMAND ""
     )
   endif()

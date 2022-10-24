@@ -125,6 +125,9 @@ nulike:
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
 
+smodels:
+  2.2.1:       ./Backends/installed/smodels/2.2.1/smodels_2_2_1.py
+
 SPheno:
   3.3.8:       ./Backends/installed/spheno/3.3.8/lib/libSPheno.so
   4.0.3:       ./Backends/installed/spheno/4.0.3/lib/libSPheno.so
