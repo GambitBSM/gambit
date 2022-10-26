@@ -37,7 +37,7 @@ namespace Gambit
     {
 
       using namespace Pipes::calc_smodels_loglike;
-      std::string inputFile = "lightEWinos.slha";
+      std::string inputFile = "Backends/python_interfaces/smodels/2.2.1/lightEWinos.slha";
       result = BEreq::smodels_results(inputFile);
 
 
