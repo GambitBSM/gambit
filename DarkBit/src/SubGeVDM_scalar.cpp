@@ -73,8 +73,8 @@ namespace Gambit
           if ( channel == "tautau" ) return sv_ff(gDM, gSM, mass, v, mtau, -1., 1);
           if ( channel == "pipi" )
           {
-            if (sqrt_s < mb*2 ) return hadronic_cross_section_ratio(sqrt_s) * sv_ff(gDM, gSM, mass, v, mmu, -1., 1);
-            else return hadronic_cross_section_ratio(sqrt_s) * sv_ff(gDM, gSM, mass, v, mmu, -1., 1) - sv_ff(gDM, gSM, mass, v, mb, -1/3., 3); //Avoid double-counting of bb final state
+            if (sqrt_s < mb*2 ) return hadronic_cross_section_ratio(sqrt_s, *Pipes::DD_couplings_SubGeVDM_scalar::Param["smooth"]) * sv_ff(gDM, gSM, mass, v, mmu, -1., 1);
+            else return hadronic_cross_section_ratio(sqrt_s, *Pipes::DD_couplings_SubGeVDM_scalar::Param["smooth"]) * sv_ff(gDM, gSM, mass, v, mmu, -1., 1) - sv_ff(gDM, gSM, mass, v, mb, -1/3., 3); //Avoid double-counting of bb final state
           }
           if ( channel == "ApAp" ) return sv_ApAp(gDM, mass, v);
           

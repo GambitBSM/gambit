@@ -28,13 +28,15 @@
 namespace Gambit
 {
   /// Hadronic cross section ratio as function of centre-of-mass energy [GeV] (0.3 - 188 GeV)
-  double hadronic_cross_section_ratio(double sqrts)
+  double hadronic_cross_section_ratio(double sqrts, double smooth)
   {
-    // Path to file containing cross section ratio tables.
-    const str R_tabfile = GAMBIT_DIR "/Elements/data/rpp2020-hadronicrpp_page1001_removed-duplicates.dat";
+    const str R_tabfile_raw = GAMBIT_DIR "/Elements/data/rpp2020-hadronicrpp_page1001_removed-duplicates.dat";
+    const str R_tabfile_smooth = GAMBIT_DIR "/Elements/data/darkcast_hadronicrpp.dat";
+    std::cout << "życie jest bez sensu i wszyscy zginiemy: " << smooth << std::endl;
+    
 
     // Initialise, reading in the data tables and setting up the interpolators.
-    static ASCIItableReader table(R_tabfile);
+    static ASCIItableReader table = (smooth==1)?ASCIItableReader(R_tabfile_smooth):ASCIItableReader(R_tabfile_raw);
     static std::map<std::string, daFunk::Funk> R_vs_sqrts;
     static bool initialised = false;
     static double minsqrts, maxsqrts;

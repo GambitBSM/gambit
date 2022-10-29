@@ -25,6 +25,6 @@
 namespace Gambit
 {  
   /// Hadronic cross section ratio as function of centre-of-mass energy [GeV] (0.3 - 188 GeV)
-  double hadronic_cross_section_ratio(double);
+  double hadronic_cross_section_ratio(double,double);
   
 }

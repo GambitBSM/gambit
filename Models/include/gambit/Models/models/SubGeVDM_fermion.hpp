@@ -24,7 +24,7 @@
 #define MODEL SubGeVDM_fermion
   START_MODEL
 
-  DEFINEPARS(mDM,mAp,gDM,kappa,etaDM)
+  DEFINEPARS(mDM,mAp,gDM,kappa,etaDM,smooth)
 
   // In order to enable CMB constraints create a friendship relation
   // to the s-wave annihilation "marker" model AnnihilatingDM_general

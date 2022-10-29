@@ -19,6 +19,7 @@ Parameters:
     kappa: 1e-3
     mAp: 3
     etaDM: 0
+    smooth: 0
 
   Halo_gNFW_rho0:
     rho0: 0.4
