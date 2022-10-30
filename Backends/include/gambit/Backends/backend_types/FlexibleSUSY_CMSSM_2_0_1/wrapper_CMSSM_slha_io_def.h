@@ -7,6 +7,7 @@
 #include <ostream>
 #include "wrapper_QedQcd_decl.h"
 #include "wrapper_CMSSM_input_parameters_decl.h"
+#include "wrapper_CMSSM_mass_eigenstates_decl.h"
 #include "wrapper_Spectrum_generator_settings_decl.h"
 #include "wrapper_Spectrum_generator_problems_decl.h"
 
@@ -30,6 +31,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         inline void CMSSM_slha_io::fill(flexiblesusy::CMSSM_input_parameters& arg_1) const
+        {
+            get_BEptr()->fill__BOSS(*arg_1.get_BEptr());
+        }
+        
+        inline void CMSSM_slha_io::fill(flexiblesusy::CMSSM_mass_eigenstates& arg_1) const
         {
             get_BEptr()->fill__BOSS(*arg_1.get_BEptr());
         }

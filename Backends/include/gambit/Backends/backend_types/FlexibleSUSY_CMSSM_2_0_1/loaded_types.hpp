@@ -7,9 +7,14 @@
 #include "wrapper_CMSSM_scales.h"
 #include "wrapper_CMSSM_slha_io.h"
 #include "wrapper_Spectrum_generator_problems.h"
+#include "wrapper_CMSSM_mass_eigenstates.h"
+#include "wrapper_CMSSM_soft_parameters.h"
+#include "wrapper_CMSSM_susy_parameters.h"
 #include "wrapper_QedQcd.h"
 #include "wrapper_Two_scale.h"
+#include "wrapper_CMSSM_spectrum_generator__Two_scale.h"
 #include "wrapper_Spectrum_generator_settings.h"
+#include "wrapper_CMSSM__Two_scale.h"
 #include "identification.hpp"
 #pragma GCC diagnostic pop
 
@@ -19,15 +24,49 @@
   (( /*class*/(flexiblesusy)(CMSSM_scales),    /*constructors*/(("Factory_CMSSM_scales_0__BOSS_2",())) )) \
   (( /*class*/(flexiblesusy)(CMSSM_slha_io),    /*constructors*/(("Factory_CMSSM_slha_io_0__BOSS_3",())) )) \
   (( /*class*/(flexiblesusy)(Spectrum_generator_problems),    /*constructors*/(("Factory_Spectrum_generator_problems_0__BOSS_4",())) )) \
-  (( /*class*/(softsusy)(QedQcd),    /*constructors*/(("Factory_QedQcd_0__BOSS_5",())) )) \
-  (( /*class*/(flexiblesusy)(Two_scale),    /*constructors*/(("Factory_Two_scale_0__BOSS_6",())) )) \
-  (( /*class*/(flexiblesusy)(Spectrum_generator_settings),    /*constructors*/(("Factory_Spectrum_generator_settings_0__BOSS_7",())) )) \
+  (( /*class*/(flexiblesusy)(CMSSM_mass_eigenstates),    /*constructors*/(("Factory_CMSSM_mass_eigenstates_0__BOSS_5",(const my_ns::flexiblesusy::CMSSM_input_parameters&))) (("Factory_CMSSM_mass_eigenstates_1__BOSS_6",())) )) \
+  (( /*class*/(flexiblesusy)(CMSSM_soft_parameters),    /*constructors*/(("Factory_CMSSM_soft_parameters_0__BOSS_7",(const my_ns::flexiblesusy::CMSSM_input_parameters&))) (("Factory_CMSSM_soft_parameters_1__BOSS_8",())) )) \
+  (( /*class*/(flexiblesusy)(CMSSM_susy_parameters),    /*constructors*/(("Factory_CMSSM_susy_parameters_0__BOSS_9",(const my_ns::flexiblesusy::CMSSM_input_parameters&))) (("Factory_CMSSM_susy_parameters_1__BOSS_10",())) )) \
+  (( /*class*/(softsusy)(QedQcd),    /*constructors*/(("Factory_QedQcd_0__BOSS_11",())) )) \
+  (( /*class*/(flexiblesusy)(Two_scale),    /*constructors*/(("Factory_Two_scale_0__BOSS_12",())) )) \
+  (( /*class*/(flexiblesusy)(CMSSM_spectrum_generator__Two_scale),    /*constructors*/(("Factory_CMSSM_spectrum_generator__Two_scale_0__BOSS_13",())) )) \
+  (( /*class*/(flexiblesusy)(Spectrum_generator_settings),    /*constructors*/(("Factory_Spectrum_generator_settings_0__BOSS_14",())) )) \
+  (( /*class*/(flexiblesusy)(CMSSM__Two_scale),    /*constructors*/(("Factory_CMSSM__Two_scale_0__BOSS_15",(const my_ns::flexiblesusy::CMSSM_input_parameters&))) (("Factory_CMSSM__Two_scale_1__BOSS_16",())) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))
   SET_DEFAULT_VERSION_FOR_LOADING_TYPES(BACKENDNAME,SAFE_VERSION,CAT(Default_,BACKENDNAME))
+    namespace Gambit
+    {
+        namespace FlexibleSUSY_CMSSM_default
+        {
+            namespace flexiblesusy
+            {
+                template <class T0> class CMSSM_spectrum_generator { };
+                template <> class CMSSM_spectrum_generator<flexiblesusy::Two_scale>: public CMSSM_spectrum_generator__Two_scale { using CMSSM_spectrum_generator__Two_scale::CMSSM_spectrum_generator__Two_scale; };
+            }
+            namespace flexiblesusy
+            {
+                template <class T0> class CMSSM { };
+                template <> class CMSSM<flexiblesusy::Two_scale>: public CMSSM__Two_scale { using CMSSM__Two_scale::CMSSM__Two_scale; };
+            }
+        }
+    }
 #endif
 
+namespace FlexibleSUSY_CMSSM_2_0_1
+{
+    namespace flexiblesusy
+    {
+        template <class T0> class CMSSM_spectrum_generator { };
+        template <> class CMSSM_spectrum_generator<flexiblesusy::Two_scale>: public CMSSM_spectrum_generator__Two_scale { using CMSSM_spectrum_generator__Two_scale::CMSSM_spectrum_generator__Two_scale; };
+    }
+    namespace flexiblesusy
+    {
+        template <class T0> class CMSSM { };
+        template <> class CMSSM<flexiblesusy::Two_scale>: public CMSSM__Two_scale { using CMSSM__Two_scale::CMSSM__Two_scale; };
+    }
+}
 
 // Undefine macros to avoid conflict with other backends.
 #include "gambit/Backends/backend_undefs.hpp"

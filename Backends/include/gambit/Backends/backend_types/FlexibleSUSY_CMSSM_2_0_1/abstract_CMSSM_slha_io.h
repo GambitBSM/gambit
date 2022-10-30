@@ -12,6 +12,7 @@
 #include "forward_decls_wrapper_classes.h"
 #include "wrapper_QedQcd_decl.h"
 #include "wrapper_CMSSM_input_parameters_decl.h"
+#include "wrapper_CMSSM_mass_eigenstates_decl.h"
 #include "wrapper_Spectrum_generator_settings_decl.h"
 #include "wrapper_Spectrum_generator_problems_decl.h"
 
@@ -34,6 +35,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 virtual void fill__BOSS(softsusy::Abstract_QedQcd&) const =0;
     
                 virtual void fill__BOSS(flexiblesusy::Abstract_CMSSM_input_parameters&) const =0;
+    
+                virtual void fill__BOSS(flexiblesusy::Abstract_CMSSM_mass_eigenstates&) const =0;
     
                 virtual void fill__BOSS(flexiblesusy::Abstract_Spectrum_generator_settings&) const =0;
     

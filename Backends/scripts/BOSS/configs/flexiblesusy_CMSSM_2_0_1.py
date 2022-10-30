@@ -63,10 +63,10 @@ load_classes = [
     'flexiblesusy::CMSSM_scales',
     'flexiblesusy::CMSSM_input_parameters',
     'flexiblesusy::Two_scale',
-#    'flexiblesusy::CMSSM<flexiblesusy::Two_scale>',
-#    'flexiblesusy::CMSSM_spectrum_generator<flexiblesusy::Two_scale>',
+    'flexiblesusy::CMSSM<flexiblesusy::Two_scale>',
+    'flexiblesusy::CMSSM_spectrum_generator<flexiblesusy::Two_scale>',
 #    'flexiblesusy::Model',
-#    'flexiblesusy::CMSSM_slha<flexiblesusy::CMSSM<flexiblesusy::Two_scale>>',
+    'flexiblesusy::CMSSM_slha<flexiblesusy::CMSSM<flexiblesusy::Two_scale>>',
 ]
 
 load_functions = [

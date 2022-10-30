@@ -11,6 +11,7 @@
 #include "abstract_CMSSM_slha_io.h"
 #include "wrapper_QedQcd_decl.h"
 #include "wrapper_CMSSM_input_parameters_decl.h"
+#include "wrapper_CMSSM_mass_eigenstates_decl.h"
 #include "wrapper_Spectrum_generator_settings_decl.h"
 #include "wrapper_Spectrum_generator_problems_decl.h"
 
@@ -38,6 +39,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 void fill(softsusy::QedQcd& qedqcd) const;
         
                 void fill(flexiblesusy::CMSSM_input_parameters& arg_1) const;
+        
+                void fill(flexiblesusy::CMSSM_mass_eigenstates& arg_1) const;
         
                 void fill(flexiblesusy::Spectrum_generator_settings& arg_1) const;
         

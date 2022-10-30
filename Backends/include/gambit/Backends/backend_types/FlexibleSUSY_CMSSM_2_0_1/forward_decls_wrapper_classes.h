@@ -14,6 +14,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         class CMSSM_scales;
         class CMSSM_slha_io;
         class Spectrum_generator_problems;
+        class CMSSM_mass_eigenstates;
+        class Model;
+        class CMSSM_soft_parameters;
+        class CMSSM_susy_parameters;
         class Beta_function;
     }
     namespace softsusy
@@ -24,7 +28,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     namespace flexiblesusy
     {
         class Two_scale;
+        class CMSSM_spectrum_generator__Two_scale;
+        class CMSSM_spectrum_generator_interface__Two_scale;
         class Spectrum_generator_settings;
+        class CMSSM__Two_scale;
     }
     
     

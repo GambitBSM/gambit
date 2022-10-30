@@ -38,6 +38,18 @@ namespace Gambit
             {
                 typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Spectrum_generator_problems Spectrum_generator_problems;
             }
+            namespace flexiblesusy
+            {
+                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_mass_eigenstates CMSSM_mass_eigenstates;
+            }
+            namespace flexiblesusy
+            {
+                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_soft_parameters CMSSM_soft_parameters;
+            }
+            namespace flexiblesusy
+            {
+                typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_susy_parameters CMSSM_susy_parameters;
+            }
             namespace softsusy
             {
                 typedef ::FlexibleSUSY_CMSSM_2_0_1::softsusy::QedQcd QedQcd;
@@ -48,7 +60,17 @@ namespace Gambit
             }
             namespace flexiblesusy
             {
+                template <class T0>
+                using CMSSM_spectrum_generator = ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM_spectrum_generator<T0>;
+            }
+            namespace flexiblesusy
+            {
                 typedef ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::Spectrum_generator_settings Spectrum_generator_settings;
+            }
+            namespace flexiblesusy
+            {
+                template <class T0>
+                using CMSSM = ::FlexibleSUSY_CMSSM_2_0_1::flexiblesusy::CMSSM<T0>;
             }
         }
     }
