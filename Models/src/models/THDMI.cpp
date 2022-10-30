@@ -104,6 +104,8 @@ void MODEL_NAMESPACE::THDMI_to_THDM (const ModelParameters &myP, ModelParameters
   USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
   logger()<<"Running interpret_as_parent calculations for THDMI --> THDM.."<<LogTags::info<<EOM;
 
+  const SMInputs& sminputs = *Dep::SMINPUTS;
+
   targetP.setValue("lambda1", myP.getValue("lambda1"));
   targetP.setValue("lambda2", myP.getValue("lambda2"));
   targetP.setValue("lambda3", myP.getValue("lambda3"));
@@ -129,6 +131,19 @@ void MODEL_NAMESPACE::THDMI_to_THDM (const ModelParameters &myP, ModelParameters
       targetP.setValue(yukawa_key, 0.0);
   }
 
+  double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+  double sb = myP.getValue("tanb")/sqrt(1+pow(myP.getValue("tanb"),2));
+
+  targetP.setValue("yu2_re_11", sqrt(2)/v/sb*sminputs.mU);
+  targetP.setValue("yu2_re_22", sqrt(2)/v/sb*sminputs.mCmC);
+  targetP.setValue("yu2_re_33", sqrt(2)/v/sb*sminputs.mT);
+  targetP.setValue("yd2_re_11", sqrt(2)/v/sb*sminputs.mD);
+  targetP.setValue("yd2_re_22", sqrt(2)/v/sb*sminputs.mS);
+  targetP.setValue("yd2_re_33", sqrt(2)/v/sb*sminputs.mBmB);
+  targetP.setValue("yl2_re_11", sqrt(2)/v/sb*sminputs.mE);
+  targetP.setValue("yl2_re_22", sqrt(2)/v/sb*sminputs.mMu);
+  targetP.setValue("yl2_re_33", sqrt(2)/v/sb*sminputs.mTau);
+
   // Done! Check that everything is ok if desired.
   #ifdef THDM_DBUG
     std::cout << "THDMI parameters:" << myP << std::endl;
@@ -145,6 +160,8 @@ void MODEL_NAMESPACE::THDMIatQ_to_THDMatQ(const ModelParameters &myP, ModelParam
 {
   USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
   logger()<<"Running interpret_as_parent calculations for THDMIatQ --> THDMatQ.."<<LogTags::info<<EOM;
+
+  const SMInputs& sminputs = *Dep::SMINPUTS;
 
   targetP.setValue("lambda1", myP.getValue("lambda1"));
   targetP.setValue("lambda2", myP.getValue("lambda2"));
@@ -172,6 +189,20 @@ void MODEL_NAMESPACE::THDMIatQ_to_THDMatQ(const ModelParameters &myP, ModelParam
   {
       targetP.setValue(yukawa_key, 0.0);
   }
+
+  double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
+  double sb = myP.getValue("tanb")/sqrt(1+pow(myP.getValue("tanb"),2));
+
+  targetP.setValue("yu2_re_11", sqrt(2)/v/sb*sminputs.mU);
+  targetP.setValue("yu2_re_22", sqrt(2)/v/sb*sminputs.mCmC);
+  targetP.setValue("yu2_re_33", sqrt(2)/v/sb*sminputs.mT);
+  targetP.setValue("yd2_re_11", sqrt(2)/v/sb*sminputs.mD);
+  targetP.setValue("yd2_re_22", sqrt(2)/v/sb*sminputs.mS);
+  targetP.setValue("yd2_re_33", sqrt(2)/v/sb*sminputs.mBmB);
+  targetP.setValue("yl2_re_11", sqrt(2)/v/sb*sminputs.mE);
+  targetP.setValue("yl2_re_22", sqrt(2)/v/sb*sminputs.mMu);
+  targetP.setValue("yl2_re_33", sqrt(2)/v/sb*sminputs.mTau);
+
 
 }
 #undef PARENT
@@ -436,7 +467,7 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
 
   const SMInputs &sminputs = *Dep::SMINPUTS;
   auto sq = [&](double d) { return d*d; };
-  
+
   // extract params
   double mh2 = sq(myP.getValue("mh"));
   double mH2 = sq(myP.getValue("mH"));
@@ -459,12 +490,12 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
   {
     alpha += M_PI;
     sba = sin(beta - alpha);
-  } 
+  }
   double sinb  = std::sin(beta);
   double cosb  = std::cos(beta);
   double sina  = std::sin(alpha);
   double cosa  = std::cos(alpha);
-  
+
   // calc masses
   double mA2   = mH2*sq(sba) + mh2*sq(cba) - L5*v2;
   double mHp2  = mA2 - 0.5*v2*(L4-L5);
@@ -478,7 +509,7 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
   double lambda3 = ((mH2-mh2)*cosa*sina + 2*mHp2*sinb*cosb - m122)/(v2*sinb*cosb) -0.5*lambda6/tanb - 0.5*lambda7*tanb;
   double lambda4 = ((mA2-2*mHp2)*cosb*sinb + m122)/(v2*sinb*cosb) - 0.5*lambda6/tanb - 0.5*lambda7*tanb;
   double lambda5 = (m122 - mA2*sinb*cosb)/(v2*sinb*cosb) - 0.5*lambda6/tanb - 0.5*lambda7*tanb;
-  
+
   // set params
   targetP.setValue("lambda1", lambda1);
   targetP.setValue("lambda2", lambda2);
@@ -503,10 +534,10 @@ void MODEL_NAMESPACE::THDMI_hybrid_HiggsatQ_to_THDMIatQ(const ModelParameters &m
 {
   USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
   logger()<<"Running interpret_as_PARENT calculations for THDMI_hybrid_HiggsatQ --> THDMIatQ"<<LogTags::info<<EOM;
-  
+
   const SMInputs &sminputs = *Dep::SMINPUTS;
   auto sq = [&](double d) { return d*d; };
-  
+
   // extract params
   double mh2 = sq(myP.getValue("mh"));
   double mH2 = sq(myP.getValue("mH"));
@@ -548,7 +579,7 @@ void MODEL_NAMESPACE::THDMI_hybrid_HiggsatQ_to_THDMIatQ(const ModelParameters &m
   double lambda3 = ((mH2-mh2)*cosa*sina + 2*mHp2*sinb*cosb - m122)/(v2*sinb*cosb) -0.5*lambda6/tanb - 0.5*lambda7*tanb;
   double lambda4 = ((mA2-2*mHp2)*cosb*sinb + m122)/(v2*sinb*cosb) - 0.5*lambda6/tanb - 0.5*lambda7*tanb;
   double lambda5 = (m122 - mA2*sinb*cosb)/(v2*sinb*cosb) - 0.5*lambda6/tanb - 0.5*lambda7*tanb;
-  
+
   // set params
   targetP.setValue("lambda1", lambda1);
   targetP.setValue("lambda2", lambda2);
