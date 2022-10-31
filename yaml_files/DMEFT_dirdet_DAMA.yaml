@@ -150,7 +150,7 @@ Printer:
 
 Scanner:
 
-  use_scanner: diver
+  use_scanner: random
 
   scanners:
 

@@ -525,6 +525,7 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+
 #set(name "ddcalc")
 #set(ver "3.0.0")
 #set(lib "libDDCalc")

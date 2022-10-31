@@ -124,7 +124,7 @@ Rules:
 
   # Use DD_couplings from DarkSUSY
   - capability: DD_couplings
-    function: DD_couplings_DarkSUSY
+    function: DD_couplings_DarkSUSY_MSSM
 
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum
@@ -207,8 +207,8 @@ Logger:
     [DecayBit] : "DecayBit.log"
     [DarkBit] : "DarkBit.log"
     [PrecisionBit] : "PrecisionBit.log"
-    [FlavBit] : "FlavBit.log"
-    [ColliderBit] : "ColliderBit.log"
+    #[FlavBit] : "FlavBit.log"
+    #[ColliderBit] : "ColliderBit.log"
     [SpecBit] : "SpecBit.log"
     [Dependency Resolver] : "dep_resolver.log"
 

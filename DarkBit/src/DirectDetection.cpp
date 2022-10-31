@@ -612,39 +612,75 @@ namespace Gambit
     //
     //////////////////////////////////////////////////////////////////////////
 
-    void DAMA_CalcRates_mod(bool &result) {
-        using namespace Pipes::DAMA_CalcRates_mod;
-        BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)), 152.0, 334.0);
-        result = true;
+    // MJW attempt to write macros that automatically generate annual modulation likelihoods
+    // Trying with DAMA first so I can debug against the existing DAMA likelihood
+
+    /// Make the CalcRates function
+    // MJW: I think that the arguments here are TOBSMAX and TOBSMIN
+    // An expert should check though
+    // Can probably condense these further? e.g. not repeat the calc step?
+    
+    #define DDCALC_MOD_GETRATES(EXPERIMENT, TOBSMIN, TOBSMAX)				\
+    void CAT(EXPERIMENT,_CalcRates_mod)(bool &result)                                 \
+    {                                                                              \
+      using namespace Pipes::CAT(EXPERIMENT,_CalcRates_mod);                          \
+      BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT)), TOBSMIN, TOBSMAX); \
+      result = true; \
     }
 
-    void DAMA_GetLogLikelihood_mod(double &result) {
-        using namespace Pipes::DAMA_GetLogLikelihood_mod;
-        BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)), 152.0, 334.0);
-        double chi2 = BEreq::DD_Chi2_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)));
-        double temp_result = BEreq::DD_LogLikelihood_mod(chi2);
-        if (Utils::isnan(temp_result)) {
-            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */
-            /* TODO: Raise a proper error here -- NaNs should be fixed. */
-            //            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");
-        }
-        result = temp_result;
+    #define DDCALC_MOD_GETLOGLIKE(EXPERIMENT, TOBSMIN, TOBSMAX)	\
+    void CAT(EXPERIMENT,_GetLogLikelihood_mod)(double &result)		\
+    {							\
+      using namespace Pipes::CAT(EXPERIMENT,_GetLogLikelihood_mod); \
+      BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT)), TOBSMIN, TOBSMAX); \
+      double chi2 = BEreq::DD_Chi2_mod(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT))); \
+      double temp_result = BEreq::DD_LogLikelihood_mod(chi2); \
+      if (Utils::isnan(temp_result)) { \
+	 /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */ \
+	/* TODO: Raise a proper error here -- NaNs should be fixed. */ \
+	 /*          invalid_point().raise("Got NaN value from DDCalc! This need fixing!");*/ \
+       } \
+       result = temp_result; \
+     }
+  
+
+    #define DDCALC_MOD_GETBINSIGNAL(EXPERIMENT, TOBSMIN, TOBSMAX) \
+    void CAT(EXPERIMENT,_GetBinSignal_mod)(std::vector<double> &result) { \
+      using namespace Pipes::CAT(EXPERIMENT,_GetBinSignal_mod); \
+        BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT)), TOBSMIN, TOBSMAX); \
+        result.clear(); \
+        int nbins; \
+        nbins = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT))); \
+        for (int ibin = 1; ibin <= nbins; ibin++) { \
+            result.push_back( \
+                    BEreq::DD_BinSignal_mod(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT)), ibin)); \
+        } \
     }
 
-    void DAMA_GetBinSignal_mod(std::vector<double> &result) {
-        using namespace Pipes::DAMA_GetBinSignal_mod;
-        BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)), 152.0,
-                334.0);
-        result.clear();
-        int nbins;
-        nbins = BEreq::DD_Bins(BEreq::DD_Experiment(STRINGIFY(DAMA)));
-        for (int ibin = 1; ibin <= nbins; ibin++) {
-            result.push_back(
-                    BEreq::DD_BinSignal_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)), ibin));
-        }
+
+
+    #define DDCALC_MOD_XSECTEST(EXPERIMENT, TOBSMIN, TOBSMAX) \
+      void CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test)(double &result) { \
+      using namespace Pipes::CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test); \
+        BEreq::FreeWIMPs(); \
+        int WIMP = BEreq::InitWIMP(); \
+        double sigmap_SI = *Param["sigmap_SI"]; \
+        double sigman_SI = sigmap_SI; \
+        double sigmap_SD = *Param["sigmap_SD"]; \
+        double sigman_SD = *Param["sigman_SD"]; \
+        BEreq::SetWIMP_msigma(WIMP, *Dep::mwimp, sigmap_SI, sigman_SI, sigmap_SD, sigman_SD); \
+        BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT)), TOBSMIN, TOBSMAX); \
+        double chi2 = BEreq::DD_Chi2_mod(BEreq::DD_Experiment(STRINGIFY(EXPERIMENT))); \
+        double temp_result = BEreq::DD_LogLikelihood_mod(chi2); \
+        if (Utils::isnan(temp_result)) { \
+            /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */ \
+            /* TODO: Raise a proper error here -- NaNs should be fixed. */ \
+            /*            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");*/ \
+        } \
+        result = temp_result; \
     }
 
-    void DAMA_GetLogLikelihood_mod_xsec_test(double &result) {
+    /*void DAMA_GetLogLikelihood_mod_xsec_test(double &result) {
         using namespace Pipes::DAMA_GetLogLikelihood_mod_xsec_test;
         BEreq::FreeWIMPs();
         int WIMP = BEreq::InitWIMP();
@@ -656,13 +692,20 @@ namespace Gambit
         BEreq::DD_CalcRates_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)), 152.0, 334.0);
         double chi2 = BEreq::DD_Chi2_mod(BEreq::DD_Experiment(STRINGIFY(DAMA)));
         double temp_result = BEreq::DD_LogLikelihood_mod(chi2);
-        if (Utils::isnan(temp_result)) {
+        if (Utils::isnan(temp_result)) {*/
             /* DarkBit_error().raise(LOCAL_INFO, "Got NaN value from DDCalc."); */
             /* TODO: Raise a proper error here -- NaNs should be fixed. */
             //            invalid_point().raise("Got NaN value from DDCalc! This need fixing!");
-        }
-        result = temp_result;
-    }
+    //}
+    //   result = temp_result;
+    //
 
-	}
+    // Make the DAMA functions
+    DDCALC_MOD_GETRATES(DAMA,152.0, 334.0);
+    DDCALC_MOD_GETLOGLIKE(DAMA,152.0,334.0);
+    DDCALC_MOD_GETBINSIGNAL(DAMA,152.0,334.0);
+    DDCALC_MOD_XSECTEST(DAMA,152.0,334.0);
+
+    
+  }
 }
