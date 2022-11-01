@@ -112,6 +112,9 @@ BE_FUNCTION(DarkSide_50_Init,    int, (), "C_DDCalc_darkside_50_init",    "DarkS
 BE_FUNCTION(DarkSide_50_S2_Init,    int, (), "C_DDCalc_darkside_50_s2_init",    "DarkSide_50_S2_Init")
 BE_FUNCTION(DARWIN_Init,         int, (), "C_DDCalc_darwin_init",         "DARWIN_Init")
 BE_FUNCTION(DAMA_Init,           int, (), "C_DDCalc_dama_init",         "DAMA_Init")
+BE_FUNCTION(COSINE_100_Init,           int, (), "C_DDCalc_cosine_100_init",         "COSINE_100_Init")
+BE_FUNCTION(ANAIS_Init,           int, (), "C_DDCalc_anais_init",         "ANAIS_Init")
+
 //BE_FUNCTION(DARWIN_Ar_Init,      int, (), "C_DDCalc_darwin_ar_init", "DARWIN_Ar_Init")
 //BE_FUNCTION(DARWIN_Xe_Init,      int, (), "C_DDCalc_darwin_xe_init", "DARWIN_Xe_Init")
 

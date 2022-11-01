@@ -104,6 +104,8 @@ BE_INI_FUNCTION
       ex_map["DarkSide_50_S2"] = DarkSide_50_S2_Init();
       ex_map["DARWIN"] = DARWIN_Init();
       ex_map["DAMA"] = DAMA_Init();
+      ex_map["COSINE_100"] = COSINE_100_Init();
+      ex_map["ANAIS"] = ANAIS_Init();
       //ex_map["DARWIN_Ar"] = DARWIN_Ar_Init();
       //ex_map["DARWIN_Xe"] = DARWIN_Xe_Init();
     }

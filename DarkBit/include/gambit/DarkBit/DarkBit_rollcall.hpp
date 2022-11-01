@@ -1563,38 +1563,76 @@ START_MODULE
   SET_BACKEND_OPTION(PICO_60_2019, (DDCalc, 2.2.0, 3.0.0))
 
   // Annual Modulation Rate Calculation and Likelihood 
-  // (eventually move this into macros?)
-  #define CAPABILITY DAMA_Calc
-  START_CAPABILITY
-     #define FUNCTION DAMA_CalcRates_mod
-     START_FUNCTION(bool)
-     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
-     BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
-     #undef FUNCTION
-  #undef CAPABILITY
+ 
+  #define DD_DECLARE_MOD_RATE_FUNCTION(EXPERIMENT)                          \
+  LONG_START_CAPABILITY(MODULE, CAT(EXPERIMENT,_Calc))                           \
+  LONG_DECLARE_FUNCTION(MODULE, CAT(EXPERIMENT,_Calc),                           \
+   CAT(EXPERIMENT,_CalcRates_mod), bool, 0)                                            \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_Calc),                                \
+   CAT(EXPERIMENT,_CalcRates_mod), DD_Experiment, (needs_DDCalc), int, (const str&))   \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_Calc),                                \
+		   CAT(EXPERIMENT,_CalcRates_mod), DD_CalcRates_mod, (needs_DDCalc), void , (const int&, const double&, const double&))
 
-  #define CAPABILITY DAMA_LogLikelihood_mod
-  START_CAPABILITY
-     #define FUNCTION DAMA_GetLogLikelihood_mod
-     START_FUNCTION(double)
-     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
-     BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
-     BACKEND_REQ(DD_Chi2_mod, (needs_DDCalc), double, (const int&))
-     BACKEND_REQ(DD_LogLikelihood_mod, (needs_DDCalc), double, (const double&))
-     #undef FUNCTION
-  #undef CAPABILITY
 
-  #define CAPABILITY DAMA_BinSignal_mod
-  START_CAPABILITY
-     #define FUNCTION DAMA_GetBinSignal_mod
-     START_FUNCTION(std::vector<double>)
-     BACKEND_REQ(DD_Experiment, (needs_DDCalc), int, (const str&))
-     BACKEND_REQ(DD_CalcRates_mod, (needs_DDCalc), void, (const int&, const double&, const double&))
-     BACKEND_REQ(DD_BinSignal_mod, (needs_DDCalc), double, (const int&, const int&))
-     BACKEND_REQ(DD_Bins, (needs_DDCalc), int, (const int&))
-     #undef FUNCTION
-  #undef CAPABILITY
+  #define DD_DECLARE_MOD_LOGLIKE_FUNCTION(EXPERIMENT)                          \
+  LONG_START_CAPABILITY(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod))                           \
+  LONG_DECLARE_FUNCTION(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod),                           \
+   CAT(EXPERIMENT,_GetLogLikelihood_mod), double, 0)                                            \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod),                                \
+   CAT(EXPERIMENT,_GetLogLikelihood_mod), DD_Experiment, (needs_DDCalc), int, (const str&))   \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod), DD_CalcRates_mod, (needs_DDCalc), void , (const int&, const double&, const double&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod), DD_Chi2_mod, (needs_DDCalc), double , (const int&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod), DD_LogLikelihood_mod, (needs_DDCalc), double , (const double&))
+      
 
+  #define DD_DECLARE_MOD_BINSIGNAL_FUNCTION(EXPERIMENT)                          \
+  LONG_START_CAPABILITY(MODULE, CAT(EXPERIMENT,_BinSignal_mod))                           \
+  LONG_DECLARE_FUNCTION(MODULE, CAT(EXPERIMENT,_BinSignal_mod),                           \
+   CAT(EXPERIMENT,_GetBinSignal_mod), std::vector<double>, 0)                                          \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_BinSignal_mod),                                \
+   CAT(EXPERIMENT,_GetBinSignal_mod), DD_Experiment, (needs_DDCalc), int, (const str&))   \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_BinSignal_mod),                                \
+		   CAT(EXPERIMENT,_GetBinSignal_mod), DD_CalcRates_mod, (needs_DDCalc), void , (const int&, const double&, const double&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_BinSignal_mod),                               \
+		   CAT(EXPERIMENT,_GetBinSignal_mod), DD_BinSignal_mod, (needs_DDCalc), double, (const int&, const int&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_BinSignal_mod),                               \
+		   CAT(EXPERIMENT,_GetBinSignal_mod), DD_Bins, (needs_DDCalc), int, (const int&)) 
+  
+/* #define DD_DECLARE_MOD_XSEC_FUNCTION(EXPERIMENT)
+  LONG_START_CAPABILITY(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test))                           \
+  LONG_DECLARE_FUNCTION(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                           \
+   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test),double, 0)                                          \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                                \
+   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test), DD_Experiment, (needs_DDCalc), int, (const str&))   \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test), DD_CalcRates_mod, (needs_DDCalc), void , (const int&, const double&, const double&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test), DD_Chi2_mod, (needs_DDCalc), double , (const int&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test), DD_LogLikelihood_mod, (needs_DDCalc), double , (const double&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test), InitWIMP, (needs_DDCalc), int , ()) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test), SetWIMP_msigma, (needs_DDCalc), void, (const int&, const double&, const double&, const double&, const double&, const double&)) \
+  LONG_BACKEND_REQ(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                                \
+		   CAT(EXPERIMENT,_GetLogLikelihood_mod_xsec_test), FreeWIMPs, (needs_DDCalc), void, ()) \
+  LONG_DEPENDENCY(MODULE, CAT(EXPERIMENT,_LogLikelihood_mod_xsec_test),                              \
+  mwimp, double)    */
+
+  DD_DECLARE_MOD_RATE_FUNCTION(DAMA) 
+  DD_DECLARE_MOD_LOGLIKE_FUNCTION(DAMA)
+  DD_DECLARE_MOD_BINSIGNAL_FUNCTION(DAMA)
+  DD_DECLARE_MOD_RATE_FUNCTION(COSINE_100) 
+  DD_DECLARE_MOD_LOGLIKE_FUNCTION(COSINE_100)
+  DD_DECLARE_MOD_BINSIGNAL_FUNCTION(COSINE_100)
+  DD_DECLARE_MOD_RATE_FUNCTION(ANAIS) 
+  DD_DECLARE_MOD_LOGLIKE_FUNCTION(ANAIS)
+  DD_DECLARE_MOD_BINSIGNAL_FUNCTION(ANAIS)
+
+//DD_DECLARE_MOD_XSEC_FUNCTION(DAMA)
 
   #define CAPABILITY DAMA_LogLikelihood_mod_xsec_test
   START_CAPABILITY
