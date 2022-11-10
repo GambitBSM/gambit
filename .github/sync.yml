@@ -1,3 +1,81 @@
 GambitBSM/gambit_light_forktesting:
+  - BUILD_OPTIONS.md
+  - Backends/
+  - CMakeLists.txt
+  - Core/
+  - Elements/
+  - HISTORY
+  - LightBit/
+  - Logs/
+  - Models/
+  - Printers/
   - README.md
+  - README_OSX.md
+  - ScannerBit/
+  - Utils/
+  - cmake/
+  - config/
+  - contrib/
+  - doc/
+  exclude: |
+    
+   Models/data/
+   Models/src/models/
+   Models/include/gambit/Models/models/
 
+   Contrib/heputils
+   contrib/mcutils
+   contrib/MassSpectra
+   contrib/LHEF
+
+   Backends/patches
+   Backends/scripts/CBGB
+   Backends/scripts/CBGB
+
+
+   Backends/examples/libsecond
+   Backends/examples/libthird
+   Backends/examples/salami
+   Backends/examples/xsecBE
+
+   Backends/include/gambit/Backends/frontends/
+   Backends/src/frontends/
+
+   Backends/examples/libMathematicaTest.m
+
+   Backends/include/gambit/Backends/abstractbase.hpp
+   Backends/include/gambit/Backends/wrapperbase.hpp
+
+   Backends/src/backend_types/MultiModeCode.cpp
+   Backends/src/backend_types/Prospino.cpp
+   Backends/src/backend_types/classy.cpp
+
+   Backends/include/gambit/Backends/backend_types/HepLike_1_2
+   Backends/include/gambit/Backends/backend_types/Pythia_8_212
+   Backends/include/gambit/Backends/backend_types/gm2calc_1_2_0
+   Backends/include/gambit/Backends/backend_types/gm2calc_1_3_0
+   Backends/include/gambit/Backends/backend_types/vevacious_1_0
+ 
+   Backends/include/gambit/Backends/backend_types/CalcHEP.hpp
+   Backends/include/gambit/Backends/backend_types/DarkAges.hpp
+   Backends/include/gambit/Backends/backend_types/DarkSUSY.hpp
+   Backends/include/gambit/Backends/backend_types/FeynHiggs.hpp
+   Backends/include/gambit/Backends/backend_types/HiggsBounds.hpp
+   Backends/include/gambit/Backends/backend_types/MicrOmegas.hpp
+   Backends/include/gambit/Backends/backend_types/MontePythonLike.hpp
+   Backends/include/gambit/Backends/backend_types/MultiModeCode.hpp
+   Backends/include/gambit/Backends/backend_types/Prospino.hpp
+   Backends/include/gambit/Backends/backend_types/SPheno.hpp
+   Backends/include/gambit/Backends/backend_types/SUSY-HIT.hpp
+   Backends/include/gambit/Backends/backend_types/SuperIso.hpp
+   Backends/include/gambit/Backends/backend_types/classy.hpp
+   Backends/include/gambit/Backends/backend_types/libFarrayTest.hpp
+   Backends/include/gambit/Backends/backend_types/libfirst.hpp
+   Backends/include/gambit/Backends/backend_types/nulike.hpp
+   Backends/include/gambit/Backends/backend_types/plc.hpp
+
+   cmake/scripts/download_castxml_binaries.sh
+
+   Utils/include/gambit/Utils/begin_ignore_warnings_hepmc.hpp
+
+   
