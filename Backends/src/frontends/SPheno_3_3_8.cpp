@@ -1,3 +1,5 @@
+//Maiken test - this file should not be synced
+
 //   GAMBIT: Global and Modular BSM Inference Tool
 //   *********************************************
 ///  \file
