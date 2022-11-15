@@ -459,6 +459,9 @@ function(add_standalone executablename)
       if (NOT EXCLUDE_YODA)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
       endif()
+      if (NOT EXCLUDE_LWTNN)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${LWTNN_LDFLAGS})
+      endif()
     endif()
 
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.

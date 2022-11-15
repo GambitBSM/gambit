@@ -236,6 +236,53 @@ if(NOT EXCLUDE_HEPMC)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
+#lwtnninclude only if ColliderBit is in use and WITH_YODA=ON.
+option(WITH_LWTNN "Compile with LWTNN enabled" OFF)
+if(NOT WITH_LWTNN)
+  message("${BoldCyan} X LWTNN is deactivated. Set -DWITH_LWTNN=ON to activate LWTNN.${ColourReset}")
+elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X ColliderBit is not in use: excluding LWTNN from GAMBIT configuraton.${ColourReset}")
+  set(WITH_LWTNN OFF)
+endif()
+
+set(name "lwtnn")
+set(ver "2.13")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/${name}-${ver}")
+if(WITH_LWTNN)
+  message("-- LWTNN-dependent functions in ColliderBit will be activated.")
+  set(EXCLUDE_LWTNN FALSE)
+else()
+  message("   LWTNN-dependent functions in ColliderBit will be deactivated.")
+  nuke_ditched_contrib_content(${name} ${dir})
+  set(EXCLUDE_LWTNN TRUE)
+endif()
+
+if(NOT EXCLUDE_LWTNN)
+  set(lib "lwtnn")
+  set(LWTNN_VERSION "2.13")
+  set(dl "https://github.com/lwtnn/lwtnn/archive/refs/tags/v${LWTNN_VERSION}.tar.gz")
+  set(md5 "1b2795cfc16c63018efa8332afd02955")
+  include_directories("${dir}/include")
+  set(LWTNN_PATH "${dir}")
+  set(LWTNN_LIB "${dir}/lib")
+  set(LWTNN_LDFLAGS "-L${LWTNN_LIB} -l${lib}")
+  set(LWTNN_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -O3" )
+  set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
+  set(LWTNN_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} LWTNN_CXX_FLAGS=${LWTNN_CXX_FLAGS}
+    INSTALL_COMMAND ""
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  # YODA must be build before any bits as it is included early because it's in Rivet's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+endif()
+
+
+
 #contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
 option(WITH_YODA "Compile with YODA enabled" OFF)
 if(NOT WITH_YODA)
