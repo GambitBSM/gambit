@@ -66,11 +66,11 @@ namespace Gambit
         {"1l_8j100_0b", EventCounter("1l_8j100_0b")},
         {"1l_8j100_3b", EventCounter("1l_8j100_3b")},
         //1l channel - shape/neural net bins
-        {"1l_shape_4j_4b",EventCounter("1l_shape_4j_4b") },
-        {"1l_shape_5j_4b",EventCounter("1l_shape_4j_4b) },
-        {"1l_shape_6j_4b",EventCounter("1l_shape_4j_4b") },
-        {"1l_shape_7j_4b",EventCounter("1l_shape_4j_4b") },
-        {"1l_shape_8j_4b",EventCounter("1l_shape_4j_4b") },
+        {"1l_shape_4j_4b", EventCounter("1l_shape_4j_4b")},
+        {"1l_shape_5j_4b", EventCounter("1l_shape_4j_4b")},
+        {"1l_shape_6j_4b", EventCounter("1l_shape_4j_4b")},
+        {"1l_shape_7j_4b", EventCounter("1l_shape_4j_4b")},
+        {"1l_shape_8j_4b", EventCounter("1l_shape_4j_4b")}
       };
 
     private:
