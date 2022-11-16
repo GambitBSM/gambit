@@ -80,11 +80,11 @@ namespace Gambit
       //Where the neural net json files are:
       //TODO: Are there any refdata loading conventions in GAMBIT?
       //TODO: See other TODO in constructo
-      std::map<size_t, string> _neuralNetPaths = {{4, (string)GAMBIT_DIR+(string)"/ColliderBit/src/analyses/data/ATLAS_13TeV_1LEPJets_4j.json"},
-                                                    {5, (string)GAMBIT_DIR+(string)"/ColliderBit/src/analyses/data/ATLAS_13TeV_1LEPJets_5j.json"},
-                                                    {6, (string)GAMBIT_DIR+(string)"/ColliderBit/src/analyses/data/ATLAS_13TeV_1LEPJets_6j.json"},
-                                                    {7, (string)GAMBIT_DIR+(string)"/ColliderBit/src/analyses/data/ATLAS_13TeV_1LEPJets_7j.json"},
-                                                    {8, (string)GAMBIT_DIR+(string)"/ColliderBit/src/analyses/data/ATLAS_13TeV_1LEPJets_8j.json"}};
+      std::map<size_t, string> _neuralNetPaths = {{4, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_4j.json"},
+                                                    {5, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_5j.json"},
+                                                    {6, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_6j.json"},
+                                                    {7, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_7j.json"},
+                                                    {8, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_8j.json"}};
       //_neuralNet cut off scores.
       map<size_t, double> _neuralNetCuts = {{4, 0.73}, {5, 0.76}, {6, 0.77}, {7, 0.72}, {8, 0.73}};                                                  
 
