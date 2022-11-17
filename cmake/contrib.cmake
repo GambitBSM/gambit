@@ -236,7 +236,7 @@ if(NOT EXCLUDE_HEPMC)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
-#lwtnninclude only if ColliderBit is in use and WITH_YODA=ON.
+#lwtnninclude only if ColliderBit is in use and WITH_LWTNN=ON.
 option(WITH_LWTNN "Compile with LWTNN enabled" OFF)
 if(NOT WITH_LWTNN)
   message("${BoldCyan} X LWTNN is deactivated. Set -DWITH_LWTNN=ON to activate LWTNN.${ColourReset}")
@@ -267,8 +267,8 @@ if(NOT EXCLUDE_LWTNN)
   set(LWTNN_LIB "${dir}/lib")
   set(LWTNN_LDFLAGS "-L${LWTNN_LIB} -l${lib}")
   set(LWTNN_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -O3" )
-  set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
-  set(LWTNN_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  set_compiler_warning("no-unused-parameter" LWTNN_CXX_FLAGS)
+  set(LWTNN_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${LWTNN_LIB}")
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
@@ -277,7 +277,7 @@ if(NOT EXCLUDE_LWTNN)
     INSTALL_COMMAND ""
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
-  # YODA must be build before any bits as it is included early because it's in Rivet's headers
+  # LWTNN must be build before any bits as it is included early because it's in Rivet's headers
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
