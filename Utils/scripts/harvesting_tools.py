@@ -28,6 +28,10 @@
 #    \date 2018 Oct
 #    \date 2021 Mar
 #
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2022 Nov
+#
 #*********************************************
 import os
 import re
@@ -555,11 +559,12 @@ def retrieve_generic_headers(verbose,starting_dir,kind,excludes,exclude_list=[])
             for x in excludes:
                 if name.startswith(x): exclude = True
             if kind == "BOSSed type" and not name.startswith("loaded_types"): exclude = True
+            if kind == "BOSSed typedef" and not name.startswith("typedefs"): exclude = True
             if not exclude and (name.endswith(".hpp") or name.endswith(".h") or name.endswith(".hh")):
                 if verbose: print( "  Located "+kind+" header '{0}' at path '{1}'".format(name,os.path.join(root,name)) )
                 rel_name = re.sub(".*?/include/", "", os.path.relpath(os.path.join(root,name),starting_dir))
                 headers+=[rel_name]
-        if kind != "BOSSed type": break
+        if kind not in ["BOSSed type", "BOSSed typedef"]: break
     return headers
 
 # Check whether or not two files differ in their contents except for the date line

@@ -27,6 +27,10 @@
 #          (b.farmer@imperial.ac.uk)
 #  \date 2018 Oct
 #
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2022 Nov
+#
 #*********************************************
 import os
 
@@ -38,6 +42,7 @@ def main(argv):
     frontend_headers=set([])
     backend_type_headers = set([])
     bossed_backend_type_headers = set([])
+    bossed_backend_typedef_headers = set([])
     exclude_backends=set([])
 
     # Handle command line options
@@ -62,6 +67,7 @@ def main(argv):
     # Get list of backend type header files
     backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","backend type",set([])))
     bossed_backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed type",set([])))
+    bossed_backend_typedef_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed typedef",set([])))
 
     if verbose: 
         print("Frontend headers identified:")
@@ -71,6 +77,8 @@ def main(argv):
         for h in backend_type_headers:
             print('  gambit/Backends/backend_types/'+h)
         for h in bossed_backend_type_headers:
+            print('  gambit/Backends/backend_types/'+h)
+        for h in bossed_backend_typedef_headers:
             print('  gambit/Backends/backend_types/'+h)
 
     # Generate a c++ header containing all the frontend headers we have just harvested.
@@ -166,6 +174,10 @@ def main(argv):
 
     towrite += "\n// BOSSed backend type definitions.\n"
     for h in bossed_backend_type_headers:
+        towrite+='#include \"gambit/Backends/backend_types/{0}\"\n'.format(h)
+
+    towrite += "\n// BOSSed backend typedefs.\n"
+    for h in bossed_backend_typedef_headers:
         towrite+='#include \"gambit/Backends/backend_types/{0}\"\n'.format(h)
 
     towrite+="\n#endif // defined __backend_types_rollcall_hpp__\n"
