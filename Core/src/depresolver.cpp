@@ -431,6 +431,9 @@ namespace Gambit
 
       // Get BibTeX key entries for backends, modules, etc
       getCitationKeys();
+      
+      // Get the scanID
+      set_scanID();
 
       // Done
     }
@@ -2423,6 +2426,8 @@ namespace Gambit
     }
 
     /// Construct metadata information from used observables, rules and options
+    /// Note: No keys can be identical (or differing only by capitalisation) 
+    ///       to those printed in the main file, otherwise the sqlite printer fails
     map_str_str DependencyResolver::getMetadata()
     {
       map_str_str metadata;
@@ -2437,6 +2442,14 @@ namespace Gambit
       std::stringstream ss;
       ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M");
       metadata["Date"] =  ss.str();
+
+      // scanID
+      if (boundIniFile->getValueOrDef<bool>(true, "print_scanID"))
+      {
+        ss.str("");
+        ss << scanID;
+        metadata["Scan_ID"] = ss.str();
+      }
 
       // Parameters
       YAML::Node parametersNode = boundIniFile->getParametersNode();
@@ -2567,6 +2580,29 @@ namespace Gambit
         backendsRequired.push_back(resolvedBackends);
       }
 
+    }
+
+    // Set the Scan ID
+    void DependencyResolver::set_scanID()
+    {
+      // Get the scanID from the yaml node.
+      scanID = boundIniFile->getValueOrDef<int>(-1, "scanID");
+    
+      // If scanID is supplied by user, use that
+      if (scanID != -1)
+      {
+        return;
+      }
+      else
+      {
+        const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+        std::time_t in_time_t = std::chrono::system_clock::to_time_t(now);
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds> (now.time_since_epoch()) - std::chrono::duration_cast<std::chrono::seconds> (now.time_since_epoch());
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%H%M%S");
+        ss << ms.count();
+        ss >> scanID;
+      }
     }
 
     // Get BibTeX citation keys for backends, modules, etc

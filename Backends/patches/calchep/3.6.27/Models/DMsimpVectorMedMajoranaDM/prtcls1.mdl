@@ -1,0 +1,22 @@
+DMsimp_s_spin1_MajoranaDM
+ Particles
+ Full  name  |A          |A+         | number |2*spin| mass          |width          |color|aux|>LaTex(A)<|>LaTeX(A+)   <|
+Photon       |a          |a          |22      |2     |0              |0              |1    |G  |a         |a             |
+Z            |Z          |Z          |23      |2     |MZ             |WZ             |1    |G  |Z         |Z             |
+W            |W+         |W-         |24      |2     |MW             |WW             |1    |G  |W+        |W-            |
+G            |g          |g          |21      |2     |0              |0              |8    |G  |g         |g             |
+Electron-neut|ve         |ve~        |12      |1     |0              |0              |1    |0  |ve        |ve~           |
+Mu-neutrino  |vm         |vm~        |14      |1     |0              |0              |1    |0  |vm        |vm~           |
+Tau-neutrino |vt         |vt~        |16      |1     |0              |0              |1    |0  |vt        |vt~           |
+Electron     |e-         |e+         |11      |1     |Me             |0              |1    |-3 |e-        |e+            |
+Muon         |mu-        |mu+        |13      |1     |MMU            |0              |1    |-3 |mu-       |mu+           |
+Tau          |ta-        |ta+        |15      |1     |MTA            |0              |1    |-3 |ta-       |ta+           |
+u-quark      |u          |u~         |2       |1     |MU             |0              |3    |2  |u         |u~            |
+c-quark      |c          |c~         |4       |1     |MC             |0              |3    |2  |c         |c~            |
+t-quark      |t          |t~         |6       |1     |MT             |WT             |3    |2  |t         |t~            |
+d-quark      |d          |d~         |1       |1     |MD             |0              |3    |-1 |d         |d~            |
+s-quark      |s          |s~         |3       |1     |MS             |0              |3    |-1 |s         |s~            |
+b-quark      |b          |b~         |5       |1     |MB             |0              |3    |-1 |b         |b~            |
+H            |H          |H          |25      |0     |MH             |WH             |1    |0  |H         |H             |
+Majorana DM  |Xm         |Xm         |5000522 |1     |MXm            |0              |1    |0  |Xm        |Xm            |
+spin-1 mediat|Y1         |Y1         |5000001 |2     |MY1            |WY1            |1    |0  |Y1        |Y1            |

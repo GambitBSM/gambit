@@ -545,6 +545,11 @@ AllAnalysisNumbersUnmodified: |
    based on interpolated yields. AllAnalysisNumbersUnmodified is the collection
    of all analysis numbers before any subsequent modificiation, e.g. due to
    EFT validity constraints.
+   
+Dijet_LogLike: |
+   Interpolates dijet signal predictions and compares the
+   quark coupling scaled down by branching ratios to upper limits from a range of searches.
+   Returns a log likelihood value.
 
 DMEFT_profiled_LHC_nuisance_params: |
    Information on the result of profiling out the nuisance parameter 'a' in collider
@@ -6121,3 +6126,33 @@ trivial_7d_parameters: |
 
 trivial_10d_parameters: |
   Model parameters for the trivial 10D model
+
+#####  DMsimp models #####
+
+DMsimpVectorMedDiracDM_parameters: |
+    Parameters for the model DMsimpVectorMedDiracDM (see ./gambit DMsimpVectorMedDiracDM).
+
+Y1_decay_rates: |
+    All decay rates for particle Y1.
+
+DMsimpVectorMedDiracDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedDiracDM model.
+    
+Unitarity_Bound_DMsimpVectorMedDiracDM: |
+    Test against a unitarity bound. If violated, invalidate the point. Otherwise return zero.
+
+DMsimpVectorMedMajoranaDM_parameters: |
+    Parameters for the model DMsimpVectorMedMajoranaDM (see ./gambit DMsimpVectorMedMajoranaDM).
+
+DMsimpVectorMedMajoranaDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedMajoranaDM model.
+    
+Unitarity_Bound_DMsimpVectorMedMajoranaDM: |
+    Test against a unitarity bound. If violated, invalidate the point. Otherwise return zero.
+
+DMsimpVectorMedScalarDM_parameters: |
+    Parameters for the model DMsimpVectorMedScalarDM (see ./gambit DMsimpVectorMedScalarDM).
+
+DMsimpVectorMedScalarDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedScalarDM model.
+

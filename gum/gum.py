@@ -780,7 +780,7 @@ if args.file:
             num = find_string("DarkBit_rollcall.hpp", m,"MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)")[1]
             amend_file("DarkBit_rollcall.hpp", m, wimp_prop_h,num, reset_contents)
             
-            num = find_string("DarkBit.cpp", m,"if(ModelInUse(\"DMEFT\"))")[1]
+            num = find_string("DarkBit.cpp", m,"else if(ModelInUse(\"DMEFT\"))")[1]
             amend_file("DarkBit.cpp", m, wimp_prop_c,num-1, reset_contents)
             
             write_file(gum.name + ".cpp", m, darkbit_src, reset_contents)
@@ -874,7 +874,7 @@ if args.file:
             num = find_string(f, m, "backend_undefs.hpp")[1]
             amend_file(f, m, ch_head, num-2, reset_contents)
             num = find_string(f, m, "BE_FUNCTION")[1]
-            amend_file(f, m, "BE_ALLOW_MODELS({0})".format(gum.name), num-2,
+            amend_file(f, m, "BE_ALLOW_MODELS({0})\n".format(gum.name), num-2,
                        reset_contents)
         # micrOMEGAs
         if output_opts.mo:

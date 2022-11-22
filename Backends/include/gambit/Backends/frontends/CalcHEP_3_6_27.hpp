@@ -25,6 +25,9 @@ LOAD_LIBRARY
 
 BE_ALLOW_MODELS(ScalarSingletDM_Z2)
 BE_ALLOW_MODELS(DMEFT)
+BE_ALLOW_MODELS(DMsimpVectorMedScalarDM)
+BE_ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+BE_ALLOW_MODELS(DMsimpVectorMedDiracDM)
 
 BE_FUNCTION(setModel, int, (char*, int), "setModel", "setModel")
 BE_FUNCTION(calcMainFunc, int, (), "calcMainFunc", "calcMainFunc")
@@ -50,5 +53,8 @@ BE_CONV_FUNCTION(Assign_Value, void, (char*, double), "Assign_Value")
 BE_INI_CONDITIONAL_DEPENDENCY(ScalarSingletDM_Z2_spectrum, Spectrum, ScalarSingletDM_Z2)
 
 BE_INI_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
+BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
 // Undefine macros to avoid conflict with other backends
 #include "gambit/Backends/backend_undefs.hpp"

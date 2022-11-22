@@ -165,9 +165,10 @@ START_MODULE
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
-      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
-                   ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3,
+                   ScalarSingletDM_Z3_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2,
+                   VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -222,8 +223,8 @@ START_MODULE
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
-      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -499,6 +500,30 @@ START_MODULE
       DEPENDENCY(DMEFT_spectrum, Spectrum)
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
       ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedDiracDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedMajoranaDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedScalarDM
+      START_FUNCTION(TH_ProcessCatalog)
+      DEPENDENCY(WIMP_properties, WIMPprops)
+      DEPENDENCY(decay_rates, DecayTable)
+      DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
+      BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
+      ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1093,6 +1118,10 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum, VectorSingletDM_Z2)
     MODEL_CONDITIONAL_DEPENDENCY(MDM_spectrum, Spectrum, MDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM)
     ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
     ALLOW_MODELS(ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running)
     ALLOW_MODELS(VectorSingletDM_Z2, MajoranaSingletDM_Z2, DiracSingletDM_Z2)
@@ -1247,6 +1276,27 @@ START_MODULE
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(MajoranaSingletDM_Z2_spectrum, Spectrum)
       ALLOW_MODEL(MajoranaSingletDM_Z2)
+      #undef FUNCTION
+      
+      #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedScalarDM
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODEL(DMsimpVectorMedScalarDM)
+      #undef FUNCTION
+      
+      #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedMajoranaDM
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODEL(DMsimpVectorMedMajoranaDM)
+      #undef FUNCTION
+      
+      #define FUNCTION DD_rel_WCs_flavscheme_DMsimpVectorMedDiracDM
+      START_FUNCTION(map_str_dbl)
+      DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      ALLOW_MODEL(DMsimpVectorMedDiracDM)
       #undef FUNCTION
 
   #undef CAPABILITY
@@ -1952,6 +2002,18 @@ START_MODULE
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMEFT)
     #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedDiracDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedMajoranaDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatter_ID_DMsimpVectorMedScalarDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM)
+    #undef FUNCTION
   #undef CAPABILITY
 
   #define CAPABILITY DarkMatterConj_ID
@@ -1991,6 +2053,18 @@ START_MODULE
     #define FUNCTION DarkMatterConj_ID_DMEFT
     START_FUNCTION(std::string)
     ALLOW_MODELS(DMEFT)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedDiracDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedMajoranaDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+    #undef FUNCTION
+    #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedScalarDM
+    START_FUNCTION(std::string)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM)
     #undef FUNCTION
   #undef CAPABILITY
 

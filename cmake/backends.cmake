@@ -421,6 +421,24 @@ if(NOT ditched_${name}_${model}_${ver})
   set_as_default_version("backend model" ${name} ${ver} ${model})
 endif()
 
+# DMsimp_Data
+# This is the MonoJet and DiJet data associated with the simplified dark matter models.
+set(name "DMsimp_data")
+set(ver "1.0")
+set(dl "https://zenodo.org/record/6999436/files/DMsimp.zip")
+set(dir "${PROJECT_SOURCE_DIR}/ColliderBit/data/")
+set(md5 "c4d8a3ecf22227376a227307dc00d850")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver} "retain container folder"
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    )
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+endif()
 
 # HepLikedata
 set(name "heplikedata")
@@ -955,7 +973,7 @@ endif()
 # - Add "-undefined dynamic_lookup flat_namespace" to linker flags when OSX linker is used
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -undefined dynamic_lookup -flat_namespace")
-  set(pythia_CXX_SONAME_FLABS "-Wl,-dylib_install_name")
+  set(pythia_CXX_SONAME_FLAGS "-Wl,-dylib_install_name")
 else()
   set(pythia_CXX_SHARED_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS}")
   set(pythia_CXX_SONAME_FLAGS "-Wl,-soname")

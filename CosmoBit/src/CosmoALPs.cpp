@@ -109,7 +109,7 @@ namespace Gambit
     void minimum_abundance_ALP_numerical(double& result)
     {
       using namespace Pipes::minimum_abundance_ALP_numerical;
-      using Interpolator2D = Utils::interp2d_collection;
+      using Interpolator2D = Utils::interp2d_gsl_collection;
 
       double gagg = *Param["gagg"];                 // Read axion-photon coupling in GeV^-1
       double T_R_in_GeV = 1e-3 * (*Param["T_R"]);   // Read reheating temperature in MeV and convert it to GeV

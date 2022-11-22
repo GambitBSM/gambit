@@ -704,6 +704,27 @@ START_MODULE
 
 
   #undef CAPABILITY
+  #define CAPABILITY Y1_decay_rates
+  START_CAPABILITY
+
+    #define FUNCTION CH_DMsimpVectorMedDiracDM_Y1_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    #undef FUNCTION
+
+    #define FUNCTION CH_DMsimpVectorMedMajoranaDM_Y1_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
+    #undef FUNCTION
+    
+    #define FUNCTION CH_DMsimpVectorMedScalarDM_Y1_decays
+    START_FUNCTION(DecayTable::Entry)
+    BACKEND_REQ(CH_Decay_Width, (), double, (str&, str&, std::vector<str>&))
+    ALLOW_MODELS(DMsimpVectorMedScalarDM)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   #define CAPABILITY decay_rates
   START_CAPABILITY
@@ -733,6 +754,7 @@ START_MODULE
     DEPENDENCY(rho_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(omega_decay_rates, DecayTable::Entry)
     DEPENDENCY(rho1450_decay_rates, DecayTable::Entry)
+    MODEL_CONDITIONAL_DEPENDENCY(Y1_decay_rates, DecayTable::Entry, DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM)
     MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
     MODEL_CONDITIONAL_DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms, MSSM63atQ, MSSM63atMGUT)
     MODEL_CONDITIONAL_DEPENDENCY(h0_2_decay_rates, DecayTable::Entry, MSSM63atQ, MSSM63atMGUT)

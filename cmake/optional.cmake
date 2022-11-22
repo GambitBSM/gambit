@@ -326,7 +326,7 @@ if(HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIR})  # for older versions of cmake
   include_directories(${HDF5_INCLUDE_DIRS}) # for newer cmake
   message("-- Found HDF5 version: ${HDF5_VERSION}")
-  if (HDF5_VERSION VERSION_GREATER_EQUAL 1.12)
+  if (HDF5_VERSION VERSION_GREATER 1.12 OR HDF5_VERSION VERSION_EQUAL 1.12)
       message("   Enforcing API macro mapping to HDF5 version 1.10.")
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DH5_USE_110_API")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DH5_USE_110_API")

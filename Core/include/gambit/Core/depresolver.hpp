@@ -196,6 +196,10 @@ namespace Gambit
 
         /// Check for unused rules and options
         void checkForUnusedRules(int);
+        
+        /// Set the Scan ID
+        void set_scanID();
+        int scanID;
 
         /// Construct metadata information from used observables, rules and options
         map_str_str getMetadata();
@@ -319,6 +323,7 @@ namespace Gambit
 
         /// Global flag for triggering printing of unitCubeParameters
         bool print_unitcube = false;
+        
   };
   }
 }
