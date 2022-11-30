@@ -98,12 +98,9 @@ namespace Gambit
     };
 
 
-
-
     /// =========================
     /// == spectrum generation ==
     /// =========================
-
 
     // helper to setup Spectrum with a FlexibleSUSY spectrum generator
     template <class MI>
@@ -227,9 +224,9 @@ namespace Gambit
           switch(model_type)
           {
             case TYPE_I:
-              Yu1 = thdmspec.get(Par::dimensionless, "Yu", i, j);
-              Yd1 = thdmspec.get(Par::dimensionless, "Yd", i, j);
-              Ye1 = thdmspec.get(Par::dimensionless, "Ye", i, j);
+              Yu2 = thdmspec.get(Par::dimensionless, "Yu", i, j);
+              Yd2 = thdmspec.get(Par::dimensionless, "Yd", i, j);
+              Ye2 = thdmspec.get(Par::dimensionless, "Ye", i, j);
               break;
             case TYPE_II:
               Yu2 = -thdmspec.get(Par::dimensionless, "Yu", i, j);
@@ -498,6 +495,18 @@ namespace Gambit
         thdm_model.Ye1[1][1] += sqrt2v * sminputs.mMu / cb;
         thdm_model.Ye1[2][2] += sqrt2v * sminputs.mTau / cb;
 
+        // // !!!!!! HACK YUKAWAS TO MATCH FS
+
+        // thdm_model.Yu2[0][0] *= 0.620437956;
+        // thdm_model.Yu2[1][1] *= 0.485436039;
+        // thdm_model.Yu2[2][2] *= 0.978593122;
+        // thdm_model.Yd1[0][0] *= 0.577532073;
+        // thdm_model.Yd1[1][1] *= 0.618996779;
+        // thdm_model.Yd1[2][2] *= 0.668142186;
+        // thdm_model.Ye1[0][0] *= 0.976077011;
+        // thdm_model.Ye1[1][1] *= 0.975944523;
+        // thdm_model.Ye1[2][2] *= 0.975904405;
+
         // Create a SimpleSpec object to wrap the spectrum
         THDMSimpleSpec thdm_spec(thdm_model,sminputs);
 
@@ -647,11 +656,13 @@ namespace Gambit
       }
     }
 
-
+    // fill a map of THDM spectrum parameters to be printed
     void fill_map_from_THDMspectrum(std::map<std::string, double> &specmap, const Spectrum &thdmspec, const THDM_TYPE THDM_type)
     {
       using namespace Pipes::get_THDM_spectrum_as_map;
       bool print_minimal_yukawas = runOptions->getValueOrDef<bool>(false, "print_minimal_yukawas");
+      bool print_Higgs_basis_params = runOptions->getValueOrDef<bool>(true, "print_Higgs_basis_params");
+      bool print_running_masses = runOptions->getValueOrDef<bool>(true, "print_running_masses");
 
       /// Add everything... use spectrum contents routines to automate task
       static const SpectrumContents::THDM contents;
@@ -666,27 +677,26 @@ namespace Gambit
 
         if (print_minimal_yukawas)
         {
-        // skip Yukawas that are zero for the model being scanned
-        if (THDM_type != TYPE_III)
+          // skip Yukawas that are zero for the model being scanned
+          if (THDM_type != TYPE_III)
             if (name.rfind("ImY", 0) == 0)
               continue;
 
-        if (THDM_type == TYPE_I)
-            if (name.rfind("Yu2", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Ye2", 0) == 0)
+          if (THDM_type == TYPE_I)
+            if (name.rfind("Yu1", 0) == 0 || name.rfind("Yd1", 0) == 0 || name.rfind("Ye1", 0) == 0)
               continue;
 
-        if (THDM_type == TYPE_II)
+          if (THDM_type == TYPE_II)
             if (name.rfind("Yu1", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Ye2", 0) == 0)
               continue;
 
-        if (THDM_type == TYPE_LS)
+          if (THDM_type == TYPE_LS)
             if (name.rfind("Yu1", 0) == 0 || name.rfind("Yd1", 0) == 0 || name.rfind("Ye2", 0) == 0)
               continue;
 
-        if (THDM_type == TYPE_flipped)
+          if (THDM_type == TYPE_flipped)
             if (name.rfind("Yu1", 0) == 0 || name.rfind("Yd2", 0) == 0 || name.rfind("Ye1", 0) == 0)
               continue;
-
         }
 
         /// Verification routine should have taken care of invalid shapes etc, so won't check for that here.
@@ -717,9 +727,17 @@ namespace Gambit
             {
               if (print_minimal_yukawas && THDM_type != TYPE_III && i != j && (name.rfind("Yu", 0) == 0 || name.rfind("Yd", 0) == 0 || name.rfind("Ye", 0) == 0))
                 continue;
+              
+              std::string name2 = name;
+              if (print_minimal_yukawas && THDM_type != TYPE_III)
+              {
+                if (name2 == "Yu2" || name2 == "Yu1") name2 = "Yu";
+                if (name2 == "Yd2" || name2 == "Yd1") name2 = "Yd";
+                if (name2 == "Ye2" || name2 == "Ye1") name2 = "Ye";
+              }
 
               std::ostringstream label;
-              label << name << "_(" << i << "," << j << ") " << Par::toString.at(tag);
+              label << name2 << "_(" << i << "," << j << ") " << Par::toString.at(tag);
               specmap[label.str()] = thdmspec.get_HE().get(tag, name, i, j);
             }
           }
@@ -735,20 +753,46 @@ namespace Gambit
         }
       }
 
-      // for convenience also print cbs, sba, ba
+      // for convenience also print cba, sba
       double beta = thdmspec.get_HE().get(Par::dimensionless, "beta");
       double alpha = thdmspec.get_HE().get(Par::dimensionless, "alpha");
-      specmap["sba"] = sin(beta - alpha);
-      specmap["cba"] = cos(beta - alpha);
 
-      // TODO: remove below once bugs are fixed
-      specmap["Lambda1"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda1");
-      specmap["Lambda2"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda2");
-      specmap["Lambda3"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda3");
-      specmap["Lambda4"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda4");
-      specmap["Lambda5"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda5");
-      specmap["Lambda6"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda6");
-      specmap["Lambda7"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda7");
+      // fix conventions
+
+      // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+      // if (beta-alpha >= M_PI) alpha += M_PI;
+      // if (beta-alpha < 0) alpha -= M_PI;
+
+      // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+      // if (beta-alpha >= M_PI/2) alpha += M_PI;
+      // if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
+      specmap["sba dimensionless"] = sin(beta - alpha);
+      specmap["cba dimensionless"] = cos(beta - alpha);
+
+      if (print_Higgs_basis_params)
+      {
+        // Higgs basis params
+        specmap["Lambda1 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda1");
+        specmap["Lambda2 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda2");
+        specmap["Lambda3 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda3");
+        specmap["Lambda4 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda4");
+        specmap["Lambda5 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda5");
+        specmap["Lambda6 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda6");
+        specmap["Lambda7 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda7");
+        specmap["M12_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M12_2");
+        specmap["M11_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M11_2");
+        specmap["M22_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M22_2");
+      }
+
+      if (print_running_masses)
+      {
+        // running masses
+        specmap["h0_1 mass1"] = thdmspec.get_HE().get(Par::mass1, "h0_1");
+        specmap["h0_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "h0_2");
+        specmap["A0 mass1"] = thdmspec.get_HE().get(Par::mass1, "A0");
+        specmap["H+ mass1"] = thdmspec.get_HE().get(Par::mass1, "H+");
+      }
     }
 
     // get Spectrum as std::map so that it can be printed
@@ -809,8 +853,8 @@ namespace Gambit
         }
       }
 
-      // If all y2 yukawas are zero, it is type I
-      if (yu_empty and yd_empty and yl_empty)
+      // If all y2 yukawas are non-zero, it is type I
+      if (real and diagonal and !yu_empty and !yd_empty and !yl_empty)
       {
         type = TYPE_I;
       }
@@ -2088,6 +2132,7 @@ namespace Gambit
         if (err > 1e-7) std::cerr << "coupling mismatch (" << names2[i] << "): " << std::fixed << std::setprecision(4) << err << std::endl;
       }
     }
+    
 
     ///  ===============================================================
     ///  == functions to fill parameters for NLO unitarity likelihood ==
@@ -3200,16 +3245,6 @@ namespace Gambit
       // get required spectrum info
       ThdmSpec s(he, ThdmSpec::FILL_GENERIC);
 
-      // don't waste time on points that are TFG
-      if ((s.lam1 < -20 || s.lam1 > 20) ||
-          (s.lam2 < -20 || s.lam2 > 20) ||
-          (s.lam3 < -20 || s.lam3 > 20) ||
-          (s.lam4 < -20 || s.lam4 > 20) ||
-          (s.lam5 < -20 || s.lam5 > 20))
-          {
-            return -L_MAX;
-          }
-
       // get the leading order scattering eigenvalues
       vector<complex<double>> LO_eigenvalues;
 
@@ -3236,17 +3271,6 @@ namespace Gambit
     {
       // get required spectrum info
       ThdmSpec s(he, ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
-
-      // don't waste time on points that are TFG
-      if ((s.lam1 < -14 || s.lam1 > 14) ||
-          (s.lam2 < -14 || s.lam2 > 14) ||
-          (s.lam3 < -14 || s.lam3 > 14) ||
-          (s.lam4 < -14 || s.lam4 > 14) ||
-          (s.lam5 < -14 || s.lam5 > 14))
-          {
-            return -L_MAX;
-          }
-
 
       const complex<double> i(0.0, 1.0);
       vector<complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(he, s, wave_function_corrections, gauge_corrections, yukawa_corrections);
@@ -3423,8 +3447,6 @@ namespace Gambit
       // WARNING: the conditions for the GCP-2HDM with lam6,7 != 0 are incomplete
 
       ThdmSpec s(he, ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
-      get_cubic_coupling_higgs(s);
-      get_quartic_couplings(s);
 
       const double sigma = 0.07;
       double error = 0.;
@@ -3519,7 +3541,7 @@ namespace Gambit
       const double mh_splitting = abs(mh_pole - mh_running);
       double result = 0.0;
 
-      if (mh_splitting > mh_running * 0.5)
+      if (mh_splitting/mh_running > 0.5)
       {
         result += -1e5 * (mh_splitting/mh_running -  0.5);
         // result = -L_MAX;
@@ -3539,7 +3561,7 @@ namespace Gambit
         double mass_running = he.get(Par::mass1, scalar);
         double mass_pole = he.get(Par::Pole_Mass, scalar);
         double mass_splitting = abs(mass_running - mass_pole);
-        if (mass_splitting > 0.5 * mass_running)
+        if (mass_splitting/mass_running > 0.5)
         {
           result += -1e5 * (mass_splitting/mass_running - 0.5);
           // result = -L_MAX;
@@ -3580,13 +3602,13 @@ namespace Gambit
       if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
         scales_to_check.push_back(other_scale);
 
-      // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
-      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && !is_FS_model)
-      {
-        std::ostringstream os;
-        os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
-        SpecBit_warning().raise(LOCAL_INFO, os.str());
-      }
+      // // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
+      // if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && !is_FS_model)
+      // {
+      //   std::ostringstream os;
+      //   os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
+      //   SpecBit_warning().raise(LOCAL_INFO, os.str());
+      // }
 
       // get the worst performing likelihood at all scales
       double result = std::numeric_limits<double>::max();
@@ -3606,6 +3628,9 @@ namespace Gambit
         // don't waste time when it will be invalid anyway
         if (result < -1e7) break;
       }
+
+      // normalize to 0
+      result = std::min(0.0, result);
       return result;
     }
 
@@ -3720,6 +3745,7 @@ namespace Gambit
       //Apply softer bound for Yu2tt
       error += abs(Yu2tt) - ((sqrt(4*M_PI)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
       result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      result = std::min(0.0, result);
     }
 
     // vacuum stability + meta-stability constraint (soft cutoff)
@@ -3775,6 +3801,7 @@ namespace Gambit
     void hidden_higgs_scenario_LogLikelihood_THDM(double& result)
     {
       using namespace Pipes::hidden_higgs_scenario_LogLikelihood_THDM;
+      const bool hidden_higgs_scenario = runOptions->getValueOrDef<bool>(true, "hidden_higgs_scenario");
       const Spectrum& spec = *Dep::THDM_spectrum;
 
       const double mh_pole = spec.get_HE().get(Par::Pole_Mass, "h0", 1);
@@ -3787,10 +3814,10 @@ namespace Gambit
 
       // we need mass_err_H < mass_err_h for Hidden Higgs scenario
 
-      if (mass_err_h < mass_err_H)
-      {
+      if (hidden_higgs_scenario && mass_err_h < mass_err_H)
         result = -L_MAX;
-      }
+      if (!hidden_higgs_scenario && mass_err_h > mass_err_H)
+        result = -L_MAX;
 
       // // weight that pushes mH to 125 Gev
       // result += std::max(0.0, mass_err_H - 10.0) / 1000.0;
