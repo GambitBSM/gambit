@@ -266,14 +266,18 @@ if(NOT EXCLUDE_LWTNN)
   set(LWTNN_PATH "${dir}")
   set(LWTNN_LIB "${dir}/lib")
   set(LWTNN_LDFLAGS "-L${LWTNN_LIB} -l${lib}")
-  set(LWTNN_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -O3" )
+  set(LWTNN_CXX_FLAGS "${CONTRIB_CXX_FLAGS} -O3")
   set_compiler_warning("no-unused-parameter" LWTNN_CXX_FLAGS)
   set(LWTNN_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${LWTNN_LIB}")
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
+    #TODO: this could be cleaned up a bit.
     BUILD_IN_SOURCE 1
-    BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER} LWTNN_CXX_FLAGS=${LWTNN_CXX_FLAGS}
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${LWTNN_CXX_FLAGS} -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR} -DBoost_DIR=${Boost_DIR} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${LWTNN_LIB} -DEIGEN3_INCLUDE_DIR=${EIGEN3_INCLUDE_DIR}
+    #note due to the weird lwtnn build system ${MAKE_PARALLEL} will not build the right thing
+    BUILD_COMMAND ${CMAKE_COMMAND} --build .
     INSTALL_COMMAND ""
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
