@@ -59,7 +59,7 @@ BE_FUNCTION(FHSetLFV, void, (int&,fh_ccomplex&,fh_ccomplex&,fh_ccomplex&,fh_ccom
 BE_FUNCTION(FHEWPO, void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&), "fhewpo_", "FHEWPO")
 
 BE_FUNCTION(FHConstraints, void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,
-				  fh_real&), "fhconstraints_", "FHConstraints")
+				  int&), "fhconstraints_", "FHConstraints")
 	    
 BE_FUNCTION(FHFlavour, void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&,fh_real&), "fhflavour_", "FHFlavour")
 
