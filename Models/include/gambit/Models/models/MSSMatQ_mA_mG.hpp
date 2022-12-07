@@ -72,7 +72,7 @@ namespace Gambit
   /// Depends on an MSSM spectrum, since RGEs must run in order to determine MGUT
   INTERPRET_AS_PARENT_DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   /// Mass matrices are symmetric (Hermitian, and we are restricted to real entries at the moment)
   /// so only one 'triangle' needed.
@@ -115,7 +115,7 @@ namespace Gambit
 #define PARENT MSSM63atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_1, mq2_2, mq2_3)
 
@@ -143,7 +143,7 @@ namespace Gambit
 #define PARENT MSSM30atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_1, mq2_2, mq2_3)
 
@@ -169,7 +169,7 @@ namespace Gambit
 #define PARENT MSSM25atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_1, mq2_2, mq2_3)
 
@@ -195,7 +195,7 @@ namespace Gambit
 #define PARENT MSSM25atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3)
 
@@ -224,7 +224,7 @@ namespace Gambit
 #define PARENT MSSM24atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3)
 
@@ -251,7 +251,7 @@ namespace Gambit
 #define PARENT MSSM19atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3, mu2_3, md2_3)
 
@@ -273,7 +273,7 @@ namespace Gambit
 #define PARENT MSSM16atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3, mu2_3, md2_3)
 
@@ -289,7 +289,7 @@ namespace Gambit
 #define PARENT MSSM16atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2)
 
@@ -309,7 +309,7 @@ namespace Gambit
 #define PARENT MSSM11atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2)
 
@@ -327,7 +327,7 @@ namespace Gambit
 #define PARENT MSSM11atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mf2)
 
@@ -346,7 +346,7 @@ namespace Gambit
 #define PARENT MSSM15atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3)
 
@@ -362,7 +362,7 @@ namespace Gambit
 #define PARENT MSSM10atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mf2)
 
@@ -379,7 +379,7 @@ namespace Gambit
 #define PARENT MSSM15atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_3)
 
@@ -401,7 +401,7 @@ namespace Gambit
 #define PARENT MSSM9atQ_mA_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,mA,mu,M2,MG)
+  DEFINEPARS(Qin,TanBeta,mA,mu,M2,mG)
 
   DEFINEPARS(mf2)
 

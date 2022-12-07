@@ -89,7 +89,7 @@
 #define PARENT MSSM63atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_1, mq2_2, mq2_3)
 
@@ -115,7 +115,7 @@
 #define PARENT MSSM30atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_1, mq2_2, mq2_3)
 
@@ -141,7 +141,7 @@
 #define PARENT MSSM25atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_1, mq2_2, mq2_3)
 
@@ -167,7 +167,7 @@
 #define PARENT MSSM25atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3)
 
@@ -194,7 +194,7 @@
 #define PARENT MSSM24atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3)
 
@@ -221,7 +221,7 @@
 #define PARENT MSSM19atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3, mu2_3, md2_3)
 
@@ -242,7 +242,7 @@
 #define PARENT MSSM16atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3, mu2_3, md2_3)
 
@@ -258,7 +258,7 @@
 #define PARENT MSSM16atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2)
 
@@ -279,7 +279,7 @@
 #define PARENT MSSM11atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2)
 
@@ -297,7 +297,7 @@
 #define PARENT MSSM11atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mf2)
 
@@ -316,7 +316,7 @@
 #define PARENT MSSM15atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_12, mq2_3)
 
@@ -332,7 +332,7 @@
 #define PARENT MSSM10atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mf2)
 
@@ -349,7 +349,7 @@
 #define PARENT MSSM15atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M1,M2,M3,mG)
 
   DEFINEPARS(mq2_3)
 
@@ -371,7 +371,7 @@ namespace Gambit
 #define PARENT MSSM9atQ_mG
   START_MODEL
 
-  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M2,MG)
+  DEFINEPARS(Qin,TanBeta,SignMu,mHu2,mHd2,M2,mG)
 
   DEFINEPARS(mf2)
 
