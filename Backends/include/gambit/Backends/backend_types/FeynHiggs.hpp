@@ -204,6 +204,7 @@ namespace Gambit
   struct fh_PrecisionObs_container
   {
     fh_real gmu2;        // g_{mu}-2
+    fh_real deltar;      // deltar 
     fh_real deltaRho;    // deltaRho
     fh_real MW_MSSM;     // W mass in MSSM
     fh_real MW_SM;       // W mass in SM
