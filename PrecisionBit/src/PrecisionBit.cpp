@@ -64,24 +64,106 @@ namespace Gambit
 
     // Module functions
 
+    // Versions 2_12_0 and earlier
+    // PA TODO: decide if we have specific backened versions of these, do more of this in the backend setup  so all versions can be handled the same here or stop supporting old and problematic feynhiggs versions. 
+     // void FeynHiggs_PrecisionObs(fh_PrecisionObs_container &result)
+    // {
+    //   using namespace Pipes::FeynHiggs_PrecisionObs;
+
+    //   fh_real gm2;        // g_{mu}-2
+    //   fh_real Deltarho;   // deltaRho
+    //   fh_real MWMSSM;     // W pole mass in MSSM
+    //   fh_real MWSM;       // W pole mass in SM
+    //   fh_real SW2MSSM;    // sin^2theta_W^leptonic_effective in MSSM
+    //   fh_real SW2SM;      // sin^2theta_W^leptonic_effective in SM
+    //   fh_real edmeTh;     // electron EDM (experimental)
+    //   fh_real edmn;       // neutron EDM (experimental)
+    //   fh_real edmHg;      // mercury EDM (experimental)
+    //   int ccb;            // model corresponds to charge or colour-breaking minimum (experimental)
+
+    //   int error = 1;
+    //   BEreq::FHConstraints(error, gm2, Deltarho,
+    //      MWMSSM, MWSM, SW2MSSM, SW2SM,
+    //      edmeTh, edmn, edmHg, ccb);
+    //   if (error != 0)
+    //   {
+    //     std::ostringstream err;
+    //     err << "BEreq::FHConstraints raised error flag: " << error << ".";
+    //     invalid_point().raise(err.str());
+    //   }
+
+    //   // Just scrub this point now if it's more than 7 sigma off in mW,
+    //   // as extreme values of mW can cause instability in other routines.
+    //   const double obserrsq = mw_err_observed*mw_err_observed;
+    //   const double theoryerrsq = abserr_mw*abserr_mw;
+    //   if (std::abs(mw_central_observed - MWMSSM) > 7.0*sqrt(obserrsq + theoryerrsq))
+    //   {
+    //     std::ostringstream err;
+    //     err << "W mass too extreme. More than 7 sigma off observed value. " << endl
+    //         << "Deviation from observed value: " << std::abs(mw_central_observed - MWMSSM) << "." << endl
+    //         << "1 sigma uncertainty on observed value: " << sqrt(obserrsq + theoryerrsq) << "." << endl
+    //         << "Invalidating immediately to prevent downstream instability.";
+    //     invalid_point().raise(err.str());
+    //     //PrecisionBit_error().raise(LOCAL_INFO, err.str());
+    //   }
+
+    //   // Just scrub this point now if sinW2 is negative in the MSSM,
+    //   // as negative sinW2 can cause instability in other routines
+    //   // (and this point should be excluded because this is waaay off
+    //   // the observed value).
+    //   if (SW2MSSM <= 0.0)
+    //   {
+    //     std::ostringstream err;
+    //     err << "Sin^2 thetaW_effective is less than zero." << endl
+    //         << "Value computed by FeynHiggs: " << SW2MSSM << endl
+    //         << "Invalidating immediately to prevent downstream instability.";
+    //     invalid_point().raise(err.str());
+    //     //PrecisionBit_error().raise(LOCAL_INFO, err.str());
+    //   }
+
+    //   #ifdef PRECISIONBIT_DEBUG
+    //     // Just die if any of the other observables look really suspicious.
+    //     str nans;
+    //     if (Utils::isnan(gm2)) nans += "g-2 | ";
+    //     if (Utils::isnan(Deltarho)) nans += "Delta rho | ";
+    //     if (Utils::isnan(MWMSSM)) nans += "MW in MSSM | ";
+    //     if (Utils::isnan(MWSM)) nans += "MW in SM | ";
+    //     if (Utils::isnan(SW2MSSM)) nans += "sin^2 thetaW_effective in MSSM | ";
+    //     if (Utils::isnan(SW2SM)) nans += "sin^2 thetaW_effective in SM | ";
+    //     if (Utils::isnan(edmeTh)) nans += "e EDM | ";
+    //     if (Utils::isnan(edmn)) nans += "n EDM | ";
+    //     if (Utils::isnan(edmHg)) nans += "Hg EDM | ";
+    //     if (not nans.empty()) PrecisionBit_error().raise(LOCAL_INFO, nans+"returned as NaN from FeynHiggs!");
+    //   #endif
+
+    //   fh_PrecisionObs_container PrecisionObs;
+    //   PrecisionObs.gmu2 = gm2;
+    //   PrecisionObs.deltaRho = Deltarho;
+    //   PrecisionObs.MW_MSSM = MWMSSM;
+    //   PrecisionObs.MW_SM = MWSM;
+    //   PrecisionObs.sinW2_MSSM = SW2MSSM;
+    //   PrecisionObs.sinW2_SM = SW2SM;
+    //   PrecisionObs.edm_ele = edmeTh;
+    //   PrecisionObs.edm_neu = edmn;
+    //   PrecisionObs.edm_Hg = edmHg;
+    //   PrecisionObs.ccb = ccb;
+
+    //   result = PrecisionObs;
+    // }
+    
+    // version 2.18.1 and hopefully later...
     void FeynHiggs_PrecisionObs(fh_PrecisionObs_container &result)
     {
       using namespace Pipes::FeynHiggs_PrecisionObs;
 
       fh_real gm2;        // g_{mu}-2
-      fh_real Deltarho;   // deltaRho
-      fh_real MWMSSM;     // W pole mass in MSSM
-      fh_real MWSM;       // W pole mass in SM
-      fh_real SW2MSSM;    // sin^2theta_W^leptonic_effective in MSSM
-      fh_real SW2SM;      // sin^2theta_W^leptonic_effective in SM
       fh_real edmeTh;     // electron EDM (experimental)
       fh_real edmn;       // neutron EDM (experimental)
       fh_real edmHg;      // mercury EDM (experimental)
       int ccb;            // model corresponds to charge or colour-breaking minimum (experimental)
 
       int error = 1;
-      BEreq::FHConstraints(error, gm2, Deltarho,
-         MWMSSM, MWSM, SW2MSSM, SW2SM,
+      BEreq::FHConstraints(error, gm2,
          edmeTh, edmn, edmHg, ccb);
       if (error != 0)
       {
@@ -90,44 +172,10 @@ namespace Gambit
         invalid_point().raise(err.str());
       }
 
-      // Just scrub this point now if it's more than 7 sigma off in mW,
-      // as extreme values of mW can cause instability in other routines.
-      const double obserrsq = mw_err_observed*mw_err_observed;
-      const double theoryerrsq = abserr_mw*abserr_mw;
-      if (std::abs(mw_central_observed - MWMSSM) > 7.0*sqrt(obserrsq + theoryerrsq))
-      {
-        std::ostringstream err;
-        err << "W mass too extreme. More than 7 sigma off observed value. " << endl
-            << "Deviation from observed value: " << std::abs(mw_central_observed - MWMSSM) << "." << endl
-            << "1 sigma uncertainty on observed value: " << sqrt(obserrsq + theoryerrsq) << "." << endl
-            << "Invalidating immediately to prevent downstream instability.";
-        invalid_point().raise(err.str());
-        //PrecisionBit_error().raise(LOCAL_INFO, err.str());
-      }
-
-      // Just scrub this point now if sinW2 is negative in the MSSM,
-      // as negative sinW2 can cause instability in other routines
-      // (and this point should be excluded because this is waaay off
-      // the observed value).
-      if (SW2MSSM <= 0.0)
-      {
-        std::ostringstream err;
-        err << "Sin^2 thetaW_effective is less than zero." << endl
-            << "Value computed by FeynHiggs: " << SW2MSSM << endl
-            << "Invalidating immediately to prevent downstream instability.";
-        invalid_point().raise(err.str());
-        //PrecisionBit_error().raise(LOCAL_INFO, err.str());
-      }
-
       #ifdef PRECISIONBIT_DEBUG
         // Just die if any of the other observables look really suspicious.
         str nans;
         if (Utils::isnan(gm2)) nans += "g-2 | ";
-        if (Utils::isnan(Deltarho)) nans += "Delta rho | ";
-        if (Utils::isnan(MWMSSM)) nans += "MW in MSSM | ";
-        if (Utils::isnan(MWSM)) nans += "MW in SM | ";
-        if (Utils::isnan(SW2MSSM)) nans += "sin^2 thetaW_effective in MSSM | ";
-        if (Utils::isnan(SW2SM)) nans += "sin^2 thetaW_effective in SM | ";
         if (Utils::isnan(edmeTh)) nans += "e EDM | ";
         if (Utils::isnan(edmn)) nans += "n EDM | ";
         if (Utils::isnan(edmHg)) nans += "Hg EDM | ";
@@ -136,11 +184,6 @@ namespace Gambit
 
       fh_PrecisionObs_container PrecisionObs;
       PrecisionObs.gmu2 = gm2;
-      PrecisionObs.deltaRho = Deltarho;
-      PrecisionObs.MW_MSSM = MWMSSM;
-      PrecisionObs.MW_SM = MWSM;
-      PrecisionObs.sinW2_MSSM = SW2MSSM;
-      PrecisionObs.sinW2_SM = SW2SM;
       PrecisionObs.edm_ele = edmeTh;
       PrecisionObs.edm_neu = edmn;
       PrecisionObs.edm_Hg = edmHg;

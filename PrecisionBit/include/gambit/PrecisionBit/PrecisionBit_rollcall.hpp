@@ -56,8 +56,7 @@ START_MODULE
     #define FUNCTION FeynHiggs_PrecisionObs
     START_FUNCTION(fh_PrecisionObs_container)
     DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
-    BACKEND_REQ(FHConstraints, (libfeynhiggs), void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,
-                fh_real&,fh_real&,fh_real&,fh_real&,fh_real&,int&))
+    BACKEND_REQ(FHConstraints, (libfeynhiggs), void, (int&,fh_real&,fh_real&,fh_real&,fh_real&,int&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
     ALLOW_MODELS(MSSM30atQ, MSSM30atMGUT, NUHM2)
     #undef FUNCTION
