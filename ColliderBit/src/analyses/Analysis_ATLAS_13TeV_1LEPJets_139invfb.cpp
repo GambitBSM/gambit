@@ -80,11 +80,11 @@ namespace Gambit
       //Where the neural net json files are:
       //TODO: Are there any refdata loading conventions in GAMBIT?
       //TODO: See other TODO in constructo
-      std::map<size_t, string> _neuralNetPaths = {{4, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_4j.json"},
-                                                    {5, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_5j.json"},
-                                                    {6, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_6j.json"},
-                                                    {7, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_7j.json"},
-                                                    {8, (string)GAMBIT_DIR+(string)"/ColliderBit/data/analyses/lwtnn/ATLAS_13TeV_1LEPJets_139invfb_8j.json"}};
+      std::map<size_t, string> _neuralNetPaths = {{4, (string)GAMBIT_DIR+(string)"/ColliderBit/data/lwtnn/ATLAS_13TeV_1LEPJets_139invfb/ATLAS_13TeV_1LEPJets_139invfb_4j.json"},
+                                                    {5, (string)GAMBIT_DIR+(string)"/ColliderBit/data/lwtnn/ATLAS_13TeV_1LEPJets_139invfb/ATLAS_13TeV_1LEPJets_139invfb_5j.json"},
+                                                    {6, (string)GAMBIT_DIR+(string)"/ColliderBit/data/lwtnn/ATLAS_13TeV_1LEPJets_139invfb/ATLAS_13TeV_1LEPJets_139invfb_6j.json"},
+                                                    {7, (string)GAMBIT_DIR+(string)"/ColliderBit/data/lwtnn/ATLAS_13TeV_1LEPJets_139invfb/ATLAS_13TeV_1LEPJets_139invfb_7j.json"},
+                                                    {8, (string)GAMBIT_DIR+(string)"/ColliderBit/data/lwtnn/ATLAS_13TeV_1LEPJets_139invfb/ATLAS_13TeV_1LEPJets_139invfb_8j.json"}};
       //_neuralNet cut off scores.
       map<size_t, double> _neuralNetCuts = {{4, 0.73}, {5, 0.76}, {6, 0.77}, {7, 0.72}, {8, 0.73}};                                                  
 
@@ -345,12 +345,10 @@ namespace Gambit
         //Load the neural networks (one each for 4j - 8j)
         for (size_t i = 4; i <= 8; ++i){
           //TODO: I suspect we're going to end up needing to try and be more file-read efficient about this?
-          ifstream input(_neuralNetPaths[i]);
+          ifstream input(_neuralNetPaths[i]);      
           lwt::GraphConfig cfg = lwt::parse_json_graph(input);
           _neuralNets[i] = make_unique<lwt::LightweightGraph>(cfg);
         }
-        
-
       }
 
       void run(const HEPUtils::Event* event)
@@ -649,31 +647,31 @@ namespace Gambit
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
+        //TODO Sig counts made up for testing - fix.
+        add_result(SignalRegionData(_counters.at("1l_shape_4j_4b"), 1.,{0.5,0.2}));
+        add_result(SignalRegionData(_counters.at("1l_shape_5j_4b"), 1.,{0.5,0.2}));
+        add_result(SignalRegionData(_counters.at("1l_shape_6j_4b"), 1.,{0.5,0.2}));
+        add_result(SignalRegionData(_counters.at("1l_shape_7j_4b"), 1.,{0.5,0.2}));
+        add_result(SignalRegionData(_counters.at("1l_shape_8j_4b"), 1.,{0.5,0.2}));
 
-        add_result(SignalRegionData(_counters.at("SR0A"), 13., {10.2, 2.1}));
-        add_result(SignalRegionData(_counters.at("SR0B"),  2., {1.31, 0.24}));
-        add_result(SignalRegionData(_counters.at("SR0C"), 47., {37., 9.}));
-        add_result(SignalRegionData(_counters.at("SR0D"), 10., {4.1, 0.7}));
+        // #ifdef CHECK_CUTFLOW
+        //   vector<double> cutFlowVector_scaled;
+        //   for (size_t i=0 ; i < cutFlowVector.size() ; i++)
+        //   {
+        //     double scale_factor = cutFlowVectorATLAS_400_0[0]/cutFlowVector[0];
+        //     cutFlowVector_scaled.push_back(cutFlowVector[i] * scale_factor);
+        //   }
+        //   cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled) " << endl;
+        //   cout << "DEBUG CUTFLOW:   -------------------------------------" << endl;
 
-
-        #ifdef CHECK_CUTFLOW
-          vector<double> cutFlowVector_scaled;
-          for (size_t i=0 ; i < cutFlowVector.size() ; i++)
-          {
-            double scale_factor = cutFlowVectorATLAS_400_0[0]/cutFlowVector[0];
-            cutFlowVector_scaled.push_back(cutFlowVector[i] * scale_factor);
-          }
-          cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled) " << endl;
-          cout << "DEBUG CUTFLOW:   -------------------------------------" << endl;
-
-          for (size_t j = 0; j < NCUTS; j++) {
-            cout << setprecision(4) << "DEBUG CUTFLOW:   " << cutFlowVectorATLAS_400_0[j] << "\t\t"
-                                        << cutFlowVector[j] << "\t\t"
-                                        << cutFlowVector_scaled[j] << "\t\t"
-                                        << cutFlowVector_str[j]
-                                        << endl;
-          }
-        #endif
+        //   for (size_t j = 0; j < NCUTS; j++) {
+        //     cout << setprecision(4) << "DEBUG CUTFLOW:   " << cutFlowVectorATLAS_400_0[j] << "\t\t"
+        //                                 << cutFlowVector[j] << "\t\t"
+        //                                 << cutFlowVector_scaled[j] << "\t\t"
+        //                                 << cutFlowVector_str[j]
+        //                                 << endl;
+        //   }
+        // #endif
       }
 
 
