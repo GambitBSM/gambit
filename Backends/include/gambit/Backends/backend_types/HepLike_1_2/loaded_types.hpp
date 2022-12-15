@@ -13,6 +13,7 @@
 #include "wrapper_HL_nDimGaussian.h"
 #include "wrapper_HL_nDimLikelihood.h"
 #include "identification.hpp"
+#include "typedefs.hpp"
 #pragma GCC diagnostic pop
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.

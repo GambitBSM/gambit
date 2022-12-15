@@ -582,6 +582,59 @@ def copyFilesToSourceTree(verbose=False):
 
 
 
+# ====== createTypedefsHeader ========
+
+# Generate the header file typedefs.hpp. This header 
+# will contain typedefs for loaded classes, 
+# from ::BACKENDNAME_SAFE_VERSION::class_name
+# to ::Gambit::Backends::BACKENDNAME_SAFE_VERSION::class_name
+
+def createTypedefsHeader():
+
+    # Construct the typedefs code
+    outer_namespace_list = ['Gambit', 'Backends', gb.gambit_backend_name_full]
+
+    typedefs_header_content  = ''
+    typedefs_header_content += utils.constrNamespace(outer_namespace_list, 'open', indent=cfg.indent)
+
+    # Loop over all classes
+    for class_name in gb.classes_done:
+
+        if not class_name['long'] in gb.factory_info.keys():
+            continue
+        else:
+
+            class_typedef_code = ''
+
+            class_namespace, class_name_short = utils.removeNamespace(class_name['long'], return_namespace=True)
+
+            if class_namespace == '':
+                class_typedef_code += 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
+            else:
+                class_namespace_list = class_namespace.split('::')
+
+                class_typedef_code += utils.constrNamespace(class_namespace_list, 'open', indent=cfg.indent)
+                class_typedef_code += ' '*cfg.indent*len(class_namespace_list) + 'typedef ::' + gb.gambit_backend_name_full + '::' + class_name['long'] + ' ' + class_name['short'] + ';\n'
+                class_typedef_code += utils.constrNamespace(class_namespace_list, 'close', indent=cfg.indent)
+
+            class_typedef_code = utils.addIndentation(class_typedef_code, 3*cfg.indent)
+            typedefs_header_content += class_typedef_code
+
+    typedefs_header_content += utils.constrNamespace(outer_namespace_list, 'close', indent=cfg.indent)
+
+    # Add include guards
+    typedefs_header_content = utils.addIncludeGuard(typedefs_header_content, 'typedefs.hpp', prefix='', suffix=gb.gambit_backend_name_full)
+
+    # Write to file
+    typedefs_header_output_path = os.path.join(gb.for_gambit_backend_types_dir_complete, 'typedefs.hpp')
+    f = open(typedefs_header_output_path, 'w')
+    f.write(typedefs_header_content)
+    f.close()
+
+# ====== END: createTypedefsHeader ========
+
+
+
 # ====== createLoadedTypesHeader ========
 
 # Generate the header file loaded_types.hpp. This header will
@@ -766,14 +819,11 @@ def createFrontendHeader(function_xml_files_dict):
     # - Include statement for the identification header
     frontend_content += '\n'
     frontend_content += '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.backend_types_basedir, gb.gambit_backend_name_full, 'identification.hpp') + '"\n'
+    frontend_content += '#include "' + os.path.join(gb.gambit_backend_incl_dir, gb.backend_types_basedir, gb.gambit_backend_name_full, 'typedefs.hpp') + '"\n'
 
     # - LOAD_LIBRARY macro
     frontend_content += '\n'
     frontend_content += 'LOAD_LIBRARY\n'
-
-    # - Class typedefs
-    frontend_content += '\n'
-    frontend_content += typedef_code
 
     # - BE_FUNCTION macros
     frontend_content += '\n'
@@ -781,6 +831,7 @@ def createFrontendHeader(function_xml_files_dict):
     frontend_content += be_function_macro_code
 
     # - Descriptions of different things that can go into a frontend header
+    frontend_content += '\n'
     frontend_content += '// Variables\n'
     frontend_content += '\n'
     frontend_content += '// Initialisation function (dependencies)\n'

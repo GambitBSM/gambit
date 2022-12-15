@@ -3,24 +3,12 @@
 //
 
 #include "gambit/Backends/backend_types/vevacious_1_0/identification.hpp"
+#include "gambit/Backends/backend_types/vevacious_1_0/typedefs.hpp"
 
 LOAD_LIBRARY
 
-namespace Gambit
-{
-    namespace Backends
-    {
-        namespace vevacious_1_0
-        {
-            namespace VevaciousPlusPlus
-            {
-                typedef ::vevacious_1_0::VevaciousPlusPlus::VevaciousPlusPlus VevaciousPlusPlus;
-            }
-        }
-    }
-}
-
 // Functions
+
 // Variables
 
 // Initialisation function (dependencies)

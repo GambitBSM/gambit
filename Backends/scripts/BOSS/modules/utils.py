@@ -2079,6 +2079,7 @@ def constrLoadedTypesHeaderContent():
             namespace, class_name_short = removeNamespace(class_name['long'], return_namespace=True)
             incl_statements_code += '#include "' + gb.wrapper_header_prefix + class_name['short'] + cfg.header_extension + '"\n'
     incl_statements_code += '#include "identification.hpp"\n'
+    incl_statements_code += '#include "typedefs.hpp"\n'
 
     for pragma_directive in cfg.pragmas_end:
         incl_statements_code += pragma_directive.strip() + '\n'

@@ -3,6 +3,7 @@
 
 #include "wrapper_VevaciousPlusPlus.hpp"
 #include "identification.hpp"
+#include "typedefs.hpp"
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define vevacious_1_0_all_data \

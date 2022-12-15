@@ -34,6 +34,7 @@
 #include "wrapper_Vec4.h"
 #include "wrapper_Hist.h"
 #include "identification.hpp"
+#include "typedefs.hpp"
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define Pythia_8_212_all_data \
