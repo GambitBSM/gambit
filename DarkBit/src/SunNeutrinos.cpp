@@ -769,6 +769,20 @@ namespace Gambit
 #endif
     }
 
+    void IceCube_2022_loglike(double &result)
+    {
+      using namespace Pipes::IceCube_2022_loglike;
+      result = 0.0; // temp
+      if (result > 0.0) result = 0.0;
+    }
+
+    void ANTARES_2022_loglike(double &result)
+    {
+      using namespace Pipes::ANTARES_2022_loglike;
+      result = 0.0; // temp
+      if (result > 0.0) result = 0.0;
+    }
+
     /// Function to set Local Halo Parameters in DarkSUSY (DS5 only)
     void DarkSUSY5_PointInit_LocalHalo_func(bool &result)
     {

@@ -1948,6 +1948,24 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  #define CAPABILITY IceCube_2022_loglike
+  START_CAPABILITY
+    #define FUNCTION IceCube_2022_loglike
+    START_FUNCTION(double)
+    DEPENDENCY(mwimp, double)
+    DEPENDENCY(capture_rate_Sun, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY ANTARES_2022_loglike
+  START_CAPABILITY
+    #define FUNCTION ANTARES_2022_loglike
+    START_FUNCTION(double)
+    DEPENDENCY(mwimp, double)
+    DEPENDENCY(capture_rate_Sun, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
   // DarkBit auxiliary module functions ================================
 
