@@ -2137,12 +2137,12 @@
   correlation:
   - name: NONE
 
-- name: RKstar_0045_11
+- name: RKstar_01_11
   islimit: false
-  exp_value: 0.66
-  exp_stat_error: 0.09
-  exp_sys_error: 0.03
-  exp_source: 1705.05802
+  exp_value: 0.927
+  exp_stat_error: 0.09  # symmetrised +0.093 / -0.087
+  exp_sys_error: 0.0355  # symmetrised +0.036 / -0.035
+  exp_source: 2212.09153
   th_error: 0.01
   th_error_type: A
   th_error_source: 1605.07633
@@ -2151,22 +2151,34 @@
 
 - name: RKstar_11_60
   islimit: false
-  exp_value: 0.69
-  exp_stat_error: 0.09
-  exp_sys_error: 0.05
-  exp_source: 1705.05802
+  exp_value: 1.027
+  exp_stat_error: 0.07  # symmetrised +0.072 / -0.068
+  exp_sys_error: 0.0265  # symmetrised +0.027 / -0.026
+  exp_source: 2212.09153
   th_error: 0.01
   th_error_type: A
   th_error_source: 1605.07633
   correlation:
   - name: NONE
 
-- name: RK
+- name: RK_01_11
   islimit: false
-  exp_value: 0.846
-  exp_stat_error: 0.042
-  exp_sys_error: 0.013
-  exp_source: 2103.11769
+  exp_value: 0.994
+  exp_stat_error: 0.086  # symmetrised +0.090 / -0.082
+  exp_sys_error: 0.028  # symmetrised +0.029 / -0.027
+  exp_source: 2212.09153
+  th_error: 0.01
+  th_error_type: A
+  th_error_source: 1605.07633
+  correlation:
+  - name: NONE
+
+- name: RK_11_60
+  islimit: false
+  exp_value: 0.949
+  exp_stat_error: 0.0405  # symmetrised +0.042 / -0.041
+  exp_sys_error: 0.022
+  exp_source: 2212.09153
   th_error: 0.01
   th_error_type: A
   th_error_source: 1605.07633
