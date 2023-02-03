@@ -1952,7 +1952,10 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION IceCube_2022_loglike
     START_FUNCTION(double)
-    DEPENDENCY(mwimp, double)
+    DEPENDENCY(DarkMatter_ID, std::string)
+    DEPENDENCY(DarkMatterConj_ID, std::string)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+    DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(capture_rate_Sun, double)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1961,7 +1964,10 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION ANTARES_2022_loglike
     START_FUNCTION(double)
-    DEPENDENCY(mwimp, double)
+    DEPENDENCY(DarkMatter_ID, std::string)
+    DEPENDENCY(DarkMatterConj_ID, std::string)
+    DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
+    DEPENDENCY(WIMP_properties, WIMPprops)
     DEPENDENCY(capture_rate_Sun, double)
     #undef FUNCTION
   #undef CAPABILITY

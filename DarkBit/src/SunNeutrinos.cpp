@@ -769,17 +769,165 @@ namespace Gambit
 #endif
     }
 
+    /// \brief IceCube 2022 log likelihoods digitized from DarkGhosts
+    /// Only supports the bottom quark, W boson, and tauon annihilation channels. The digitized points
+    /// corresponding to dark matter mass and the 1-sigma confidence interval are hard-coded to the
+    /// mass_digitized and sigma_digitized vectors. The digitization was taken from:
+    /// https://indico.cern.ch/event/1075227/contributions/4785656/attachments/2418159/4138553/Dark_Ghosts_2022.pdf
     void IceCube_2022_loglike(double &result)
     {
       using namespace Pipes::IceCube_2022_loglike;
-      result = 0.0; // temp
+
+      double DM_mass = log10(Dep::WIMP_properties->mass);
+      std::string DMid = *Dep::DarkMatter_ID;
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
+
+      static std::vector< std::vector<std::string> > channelStrings = {{"d_3", "dbar_3"}, {"W+", "W-"}, {"e+_3", "e-_3"}};
+      std::vector<double> mass_digitized;
+      std::vector<double> sigma_digitized;
+      std::vector<bool> isOpenChannel;
+      bool anyAreOpen = false;
+
+      for (auto it = channelStrings.begin(); it != channelStrings.end(); it++)
+      {
+        const TH_Channel* channel = annProc.find(*it);
+        if (channel == NULL)
+        {
+          isOpenChannel.push_back(false);
+        }
+        else
+        {
+          bool thisIsOpen = channel->genRate->bind("v")->eval(1.0) != 0.0;
+          isOpenChannel.push_back(thisIsOpen);
+          if (thisIsOpen) anyAreOpen = true;
+        }
+      }
+
+      if (anyAreOpen)
+      {
+        // bb, NOT (WW or tautau)
+        if (not (isOpenChannel[1] or isOpenChannel[2]))
+        {
+          mass_digitized = {2.4821, 2.6949, 2.8949, 3.0026, 3.4821, 3.7744, 4.0};
+          sigma_digitized = {1.3567e+23, 4.7728e+21, 8.5645e+20, 4.2956e+20, 7.6441e+19, 4.5856e+19, 3.7744e+19};
+        }
+        // WW, NOT (bb or tautau)
+        else if (not (isOpenChannel[0] or isOpenChannel[2]))
+        {
+          mass_digitized = {2.4795, 2.6974, 2.9077, 3.4718, 4.0};
+          sigma_digitized = {3.5683e+20, 1.1435e+20, 6.5245e+19, 5.7382e+19, 5.6131e+19};
+        }
+        // tautau, NOT (bb or WW)
+        else if (not (isOpenChannel[0] or isOpenChannel[1]))
+        {
+          mass_digitized = {2.4821, 2.6974, 2.9154, 3.0205, 3.4744, 4.0};
+          sigma_digitized = {3.5254e+20, 8.0804e+19, 3.8222e+19, 3.1527e+19, 1.8747e+19, 1.8847e+19};
+        }
+        else
+        {
+          DarkBit_error().raise(LOCAL_INFO,"ERROR: Combination of WIMP annihilation channels not implemented in IceCube_2022_loglike.");
+        }
+
+        // Check upper and lower mass limits
+        if (mass_digitized[0] <= DM_mass and DM_mass <= mass_digitized[mass_digitized.size()-1])
+        {
+          // Find where the DM_mass fits in the digitized points
+          auto upper_pointer = std::upper_bound(mass_digitized.begin(), mass_digitized.end(), DM_mass);
+          int upper_index = std::distance(mass_digitized.begin(), upper_pointer);
+
+          // Get the LERPed simga value
+          double lerp_point = (DM_mass - mass_digitized[upper_index-1]) / (mass_digitized[upper_index] - mass_digitized[upper_index-1]);
+          double sigma = sigma_digitized[upper_index-1] + lerp_point * (sigma_digitized[upper_index] - sigma_digitized[upper_index-1]);
+          // sigma = std::lerp(sigma_digitized[upper_index-1], sigma_digitized[upper_index], lerp_point); // GAMBIT not using c++20 by default
+
+          // logL = -(caprate)^2 / (2 * sigma^2)
+          result = - pow(*Dep::capture_rate_Sun,2) / (2 * pow(sigma,2));
+        }
+        else result = 0.0; // Can't LERP
+      }
+      else result = 0.0; // No channels are enabled
       if (result > 0.0) result = 0.0;
     }
 
+    /// \brief ANTARES 2022 log likelihoods digitized from DarkGhosts
+    /// Only supports the bottom quark, W boson, and tauon annihilation channels. The digitized points
+    /// corresponding to dark matter mass and the 1-sigma confidence interval are hard-coded to the
+    /// mass_digitized and sigma_digitized vectors. The digitization was taken from slide 15:
+    /// https://indico.cern.ch/event/1075227/contributions/4785678/attachments/2418554/4139369/ANTARES_DarkGhosts22_CPoire.pdf
     void ANTARES_2022_loglike(double &result)
     {
       using namespace Pipes::ANTARES_2022_loglike;
-      result = 0.0; // temp
+
+      double DM_mass = log10(Dep::WIMP_properties->mass);
+      std::string DMid = *Dep::DarkMatter_ID;
+      std::string DMbarid = *Dep::DarkMatterConj_ID;
+      TH_Process annProc = Dep::TH_ProcessCatalog->getProcess(DMid, DMbarid);
+
+      static std::vector< std::vector<std::string> > channelStrings = {{"d_3", "dbar_3"}, {"W+", "W-"}, {"e+_3", "e-_3"}};
+      std::vector<double> mass_digitized;
+      std::vector<double> sigma_digitized;
+      std::vector<bool> isOpenChannel;
+      bool anyAreOpen = false;
+
+      for (auto it = channelStrings.begin(); it != channelStrings.end(); it++)
+      {
+        const TH_Channel* channel = annProc.find(*it);
+        if (channel == NULL)
+        {
+          isOpenChannel.push_back(false);
+        }
+        else
+        {
+          bool thisIsOpen = channel->genRate->bind("v")->eval(1.0) != 0.0;
+          isOpenChannel.push_back(thisIsOpen);
+          if (thisIsOpen) anyAreOpen = true;
+        }
+      }
+
+      if (anyAreOpen)
+      {
+        // bb, NOT (WW or tautau)
+        if (not (isOpenChannel[1] or isOpenChannel[2]))
+        {
+          mass_digitized = {1.701, 2.0074, 2.1838, 2.3015, 2.3971, 2.5441, 2.6985, 2.8775, 3.0098, 3.1691, 3.3015, 3.473};
+          sigma_digitized = {7.4841e+24, 1.3525e+24, 5.4714e+23, 2.1697e+23, 1.2269e+23, 5.8637e+22, 2.2793e+22, 1.1341e+22, 6.998e+21, 4.4859e+21, 3.4352e+21, 2.3344e+21};
+        }
+        // WW, NOT (bb or tautau)
+        else if (not (isOpenChannel[0] or isOpenChannel[2]))
+        {
+          mass_digitized = {2.0049, 2.1814, 2.2475, 2.3039, 2.3995, 2.5441, 2.6961, 2.8676, 3.0025, 3.1765, 3.2966, 3.473};
+          sigma_digitized = {4.591e+22, 1.168e+22, 7.6489e+21, 5.4235e+21, 3.286e+21, 1.7772e+21, 1.0854e+21, 7.2267e+20, 5.6714e+20, 4.4223e+20, 4.3267e+20, 3.1151e+20};
+        }
+        // tautau, NOT (bb or WW)
+        else if (not (isOpenChannel[0] or isOpenChannel[1]))
+        {
+          mass_digitized = {1.7034, 2.0025, 2.174, 2.2475, 2.3088, 2.402, 2.549, 2.6961, 2.8775, 3.0, 3.1789, 3.3039, 3.4681};
+          sigma_digitized = {1.8948e+23, 1.9428e+22, 6.1276e+21, 3.8357e+21, 2.9406e+21, 1.5407e+21, 7.3421e+20, 4.1487e+20, 2.2616e+20, 6327e+20, 1.1255e+20, 9.1975e+19, 7.2228e+19};
+        }
+        else
+        {
+          DarkBit_error().raise(LOCAL_INFO,"ERROR: Combination of WIMP annihilation channels not implemented in ANTARES_2022_loglike.");
+        }
+
+        // Check upper and lower mass limits
+        if (mass_digitized[0] <= DM_mass and DM_mass <= mass_digitized[mass_digitized.size()-1])
+        {
+          // Find where the DM_mass fits in the digitized points
+          auto upper_pointer = std::upper_bound(mass_digitized.begin(), mass_digitized.end(), DM_mass);
+          int upper_index = std::distance(mass_digitized.begin(), upper_pointer);
+
+          // Get the LERPed simga value
+          double lerp_point = (DM_mass - mass_digitized[upper_index-1]) / (mass_digitized[upper_index] - mass_digitized[upper_index-1]);
+          double sigma = sigma_digitized[upper_index-1] + lerp_point * (sigma_digitized[upper_index] - sigma_digitized[upper_index-1]);
+          // sigma = std::lerp(sigma_digitized[upper_index-1], sigma_digitized[upper_index], lerp_point); // GAMBIT not using c++20 by default
+
+          // logL = -(caprate)^2 / (2 * sigma^2)
+          result = - pow(*Dep::capture_rate_Sun,2) / (2 * pow(sigma,2));
+        }
+        else result = 0.0; // Can't LERP
+      }
+      else result = 0.0; // No channels are enabled
       if (result > 0.0) result = 0.0;
     }
 

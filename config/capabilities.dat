@@ -2366,6 +2366,12 @@ IC79_loglike: |
 IceCube_likelihood: |
    The complete IceCube log-likelihood, including 22-string and 79-string data.
 
+IceCube_2022_loglike: |
+   IceCube log-likehood, only bb, WW, and tautau annihilation channels from DarkGhosts 2022 https://indico.cern.ch/event/1075227/contributions/4785656/attachments/2418159/4138553/Dark_Ghosts_2022.pdf.
+
+ANTARES_2022_loglike: |
+   ANTARES log-likehood, only bb, WW, and tautau annihilation channels from DarkGhosts slide 15 of https://indico.cern.ch/event/1075227/contributions/4785678/attachments/2418554/4139369/ANTARES_DarkGhosts22_CPoire.pdf.
+
 DarkSUSY_PointInit: |
    Initialises DarkSUSY (up to version 5) for a specific model point.
 
