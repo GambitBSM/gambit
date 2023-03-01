@@ -111,6 +111,28 @@ BE_INI_FUNCTION
   #endif
 
   error = 1;
+  std::cout << "SM FH Inputs: invAlfa0 = "  << invAlfa0 << std::endl;
+  std::cout << "SM FH Inputs: invAlfaMZ = "  << invAlfaMZ << std::endl;
+  std::cout << "SM FH Inputs: AlfasMZ = "  << AlfasMZ<< std::endl;
+  std::cout << "SM FH Inputs: GF = "  << GF << std::endl;
+  std::cout << "SM FH Inputs: ME = "  << ME << std::endl;
+  std::cout << "SM FH Inputs: MU = "  << MU << std::endl;
+  std::cout << "SM FH Inputs: MD = "  << MD << std::endl;
+  std::cout << "SM FH Inputs: MM = "  << MM << std::endl;
+  std::cout << "SM FH Inputs: MC = "  << MC << std::endl;
+  std::cout << "SM FH Inputs: MS = "  << ML << std::endl;
+  std::cout << "SM FH Inputs: MB = "  << MB << std::endl;
+  std::cout << "SM FH Inputs: MW = "  << MW << std::endl;
+  std::cout << "SM FH Inputs: MZ = "  << MZ << std::endl;
+  std::cout << "SM FH Inputs: GammaW = "  << GammaW << std::endl;
+  std::cout << "SM FH Inputs: GammaZ = "  << GammaZ << std::endl;
+  std::cout << "SM FH Inputs: CKMlambda = "  << CKMlambda << std::endl;
+  std::cout << "SM FH Inputs: CKMA = "  << CKMA << std::endl;
+  std::cout << "SM FH Inputs: CKMrhobar = "  << CKMrhobar << std::endl;
+  std::cout << "SM FH Inputs: CKMetabar  = "  << CKMetabar << std::endl;
+  
+  
+  
   FHSetSMPara(error, invAlfa0, invAlfaMZ, AlfasMZ, GF,
         ME, MU, MD, MM, MC, MS, ML, MB,
 	      MW, MZ, GammaW, GammaZ,
@@ -234,6 +256,57 @@ BE_INI_FUNCTION
   #endif
 
   error = 1;
+  std::cout << "BSM FH Inputs: scalefactor = "  << scalefactor << std::endl;
+  std::cout << "BSM FH Inputs: MT = "  << MT << std::endl;
+  std::cout << "BSM FH Inputs: TB = "  << TB << std::endl;
+  std::cout << "BSM FH Inputs: MA0 = "  << MA0 << std::endl;
+  std::cout << "BSM FH Inputs: MHp = "  << MHp << std::endl;
+  std::cout << "BSM FH Inputs: M3SL = "  << M3SL << std::endl;
+  std::cout << "BSM FH Inputs: M3SE = "  << M3SE << std::endl;
+  std::cout << "BSM FH Inputs: M3SU = "  << M3SU << std::endl;
+  std::cout << "BSM FH Inputs: M3SQ = "  << M3SQ << std::endl;
+  std::cout << "BSM FH Inputs: M3SD = "  << M3SD << std::endl;
+  std::cout << "BSM FH Inputs: M2SL = "  << M2SL << std::endl;
+  std::cout << "BSM FH Inputs: M2SE = "  << M2SE<< std::endl;
+  std::cout << "BSM FH Inputs: M2SU = "  << M2SU << std::endl;
+  std::cout << "BSM FH Inputs: M2SQ = "  << M2SQ << std::endl;
+  std::cout << "BSM FH Inputs: M2SD = "  << M2SD << std::endl;
+  std::cout << "BSM FH Inputs: M1SL = "  << M1SL << std::endl;
+  std::cout << "BSM FH Inputs: M1SE = "  << M1SE << std::endl;
+  std::cout << "BSM FH Inputs: M1SU = "  << M1SU << std::endl;
+  std::cout << "BSM FH Inputs: M1SQ = "  << M1SQ << std::endl;
+  std::cout << "BSM FH Inputs: M1SD = "  << M1SD << std::endl;
+  std::cout << "BSM FH Inputs: MUE.re = "  << MUE.re << std::endl;
+  std::cout << "BSM FH Inputs: MUE.im = "  << MUE.im << std::endl;
+  
+  std::cout << "BSM FH Inputs: Atau.re = "  << Atau.re << std::endl;
+  std::cout << "BSM FH Inputs: Atau.im = "  << Atau.im << std::endl;
+  std::cout << "BSM FH Inputs: At.re = "  << At.re << std::endl;
+  std::cout << "BSM FH Inputs: At.im = "  << At.im << std::endl;
+  std::cout << "BSM FH Inputs: Ab.re  = "  << Ab.re << std::endl;
+  std::cout << "BSM FH Inputs: Ab.im  = "  << Ab.im << std::endl;
+  std::cout << "BSM FH Inputs: Amu.re = "  << Amu.re << std::endl;
+  std::cout << "BSM FH Inputs: Amu.im = "  << Amu.im << std::endl;
+  std::cout << "BSM FH Inputs: Ac.re = "  << Ac.re << std::endl;
+  std::cout << "BSM FH Inputs: Ac.im = "  << Ac.im << std::endl;
+  std::cout << "BSM FH Inputs: As.re = "  << As.re << std::endl;
+  std::cout << "BSM FH Inputs: As.im = "  << As.im << std::endl;
+  std::cout << "BSM FH Inputs: Ae.re = "  << Ae.re << std::endl;
+  std::cout << "BSM FH Inputs: Ae.im = "  << Ae.im << std::endl;
+  std::cout << "BSM FH Inputs: Au.re = "  << Au.re << std::endl;
+  std::cout << "BSM FH Inputs: Au.im = "  << Au.im << std::endl;
+  std::cout << "BSM FH Inputs: Ad.re = "  << Ad.re << std::endl;
+  std::cout << "BSM FH Inputs: Ad.im = "  << Ad.im << std::endl;
+  std::cout << "BSM FH Inputs: M_1.re = "  << M_1.re << std::endl;
+  std::cout << "BSM FH Inputs: M_1.im = "  << M_1.im << std::endl;
+  std::cout << "BSM FH Inputs: M_2.re = "  << M_2.re << std::endl;
+  std::cout << "BSM FH Inputs: M_2.im = "  << M_2.im << std::endl;
+  std::cout << "BSM FH Inputs: M_3.re = "  << M_3.re << std::endl;
+  std::cout << "BSM FH Inputs: M_3.im = "  << M_3.im << std::endl;
+  std::cout << "BSM FH Inputs: Qtau = "  << Qtau << std::endl;
+  std::cout << "BSM FH Inputs: Qt = "  << Qt << std::endl;
+  std::cout << "BSM FH Inputs: Qb = "  << Qb << std::endl;
+
   FHSetPara(error, scalefactor, MT, TB, MA0, MHp,
       M3SL, M3SE, M3SQ, M3SU, M3SD,
       M2SL, M2SE, M2SQ, M2SU, M2SD,
