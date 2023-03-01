@@ -36,11 +36,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void set_alpha_thompson(double arg_1);
       
-            void set_Ae(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A);
+            void set_Ae(const ::Eigen::Matrix<double, 3, 3, 0>& A);
       
-            void set_Au(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A);
+            void set_Au(const ::Eigen::Matrix<double, 3, 3, 0>& A);
       
-            void set_Ad(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A);
+            void set_Ad(const ::Eigen::Matrix<double, 3, 3, 0>& A);
       
             void set_Ae(unsigned int i, unsigned int k, double a);
       
@@ -64,11 +64,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double get_vev() const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ae() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Ae() const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Au() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Au() const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ad() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Ad() const;
       
             double get_Ae(unsigned int i, unsigned int k) const;
       
@@ -102,23 +102,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double get_MA0() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USe() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USe() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USm() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USm() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_UStau() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_UStau() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USu() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USu() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USd() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USd() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USc() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USc() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USs() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USs() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USb() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USb() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USt() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USt() const;
       
             void convert_to_onshell(double precision, unsigned int max_iterations);
       

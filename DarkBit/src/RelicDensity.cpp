@@ -10,7 +10,7 @@
 ///
 ///  \author Torsten Bringmann
 ///          (torsten.bringmann@desy.de)
-///  \date 2013 Jun -- 2016 May, 2019
+///  \date 2013 Jun -- 2016 May, 2019, 2022
 ///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
@@ -586,6 +586,88 @@ namespace Gambit
       } // function RD_eff_annrate_from_ProcessCatalog
 
 
+    /*! \brief Some helper function to prepare evaluation of RD_oh2_DS_general from
+     *         DarkSUSY 6., up to version 6.2.5
+     */
+    void RD_oh2_DS6pre4_ini_func(int &result)
+    {
+      using namespace Pipes::RD_oh2_DS6pre4_ini_func;
+
+      //We start by setting some general common block settings
+      BEreq::dsrdcom();
+
+      /// Option timeout<double>: Maximum core time to allow for relic density
+      /// calculation, in seconds (default: 600s)
+      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(600, "timeout");
+
+      /// Option fast<int>: Numerical performance of Boltzmann solver in DS
+      /// (default: 1) [NB: accurate is fast = 0 !]
+      DS_RDPARS_OLD *myrdpars = BEreq::rdpars.pointer();
+      int fast = runOptions->getValueOrDef<int>(1, "fast");
+
+      switch (fast)
+      {
+        case 0:
+          myrdpars->cosmin=0.996195;myrdpars->waccd=0.005;myrdpars->dpminr=1.0e-4;
+          myrdpars->dpthr=5.0e-4;myrdpars->wdiffr=0.05;myrdpars->wdifft=0.02;
+          break;
+        case 1:
+          myrdpars->cosmin=0.996195;myrdpars->waccd=0.05;myrdpars->dpminr=5.0e-4;
+          myrdpars->dpthr=2.5e-3;myrdpars->wdiffr=0.5;myrdpars->wdifft=0.1;
+          break;
+        default:
+          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1). Fast > 1 not yet "
+           "supported in DarkBit::RD_oh2_DS_general.  Please add relevant settings to this routine.");
+      }
+
+      result=fast;
+
+    } // function RD_oh2_DS6pre4_ini_func
+
+
+    /*! \brief Some helper function to prepare evaluation of RD_oh2_DS_general from
+     *         DarkSUSY 6., starting from version 6.4.0
+     */
+    void RD_oh2_DS6_ini_func(int &result)
+    {
+      using namespace Pipes::RD_oh2_DS6_ini_func;
+
+      /// Option timeout<double>: Maximum core time to allow for relic density
+      /// calculation, in seconds (default: 600s)
+      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(600, "timeout");
+
+      /// Option fast<int>: Numerical performance of Boltzmann solver in DS
+      /// (default: 1) [NB: accurate is fast = 0 !]
+      DS_RDPARS *myrdpars = BEreq::rdpars.pointer();
+      int fast = runOptions->getValueOrDef<int>(1, "fast");
+      RD_spectrum_type myRDspec = *Dep::RD_spectrum_ordered;
+      double mwimp=myRDspec.coannihilatingParticles[0].mass;
+      
+      switch (fast)
+      {
+        case 0:
+          myrdpars->cosmin=0.9999;myrdpars->waccd=0.005;myrdpars->dpminr=1.0e-4;
+          myrdpars->dpthr=5.0e-4;myrdpars->wdiffr=0.05;myrdpars->wdifft=0.02;
+          if (mwimp < 1.0)
+          {
+            myrdpars->xinit=0.01;myrdpars->xfinal=5.0e4;
+          }
+          break;
+        case 1:
+          myrdpars->waccd=0.05;myrdpars->dpminr=5.0e-4;
+          myrdpars->dpthr=2.5e-3;myrdpars->wdiffr=0.5;myrdpars->wdifft=0.1;
+          break;
+        default:
+          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1). Fast > 1 not yet "
+           "supported in DarkBit::RD_oh2_DS_general.  Please add relevant settings to this routine.");
+      }
+
+      result=fast;
+
+    } // function RD_oh2_DS6_ini_func
+
+
+
     /*! \brief General routine for calculation of relic density, using DarkSUSY 6+
      *         Boltzmann solver
      *
@@ -607,34 +689,7 @@ namespace Gambit
       double mwimp=myRDspec.coannihilatingParticles[0].mass;
 
       // What follows below implements dsrdomega from DarkSUSY 6+
-      //We start by setting some general common block settings
-      BEreq::dsrdcom();
-      DS_RDPARS *myrdpars = BEreq::rdpars.pointer();
-
-      /// Option fast<int>: Numerical performance of Boltzmann solver in DS
-      /// (default: 1) [NB: accurate is fast = 0 !]
-      int fast = runOptions->getValueOrDef<int>(1, "fast");
-
-      /// Option timeout<double>: Maximum core time to allow for relic density
-      /// calculation, in seconds (default: 600s)
-      BEreq::rdtime->rdt_max = runOptions->getValueOrDef<double>(600, "timeout");
-
-      switch (fast)
-      {
-        case 0:
-          myrdpars->cosmin=0.996195;myrdpars->waccd=0.005;myrdpars->dpminr=1.0e-4;
-          myrdpars->dpthr=5.0e-4;myrdpars->wdiffr=0.05;myrdpars->wdifft=0.02;
-          break;
-        case 1:
-          myrdpars->cosmin=0.996195;myrdpars->waccd=0.05;myrdpars->dpminr=5.0e-4;
-          myrdpars->dpthr=2.5e-3;myrdpars->wdiffr=0.5;myrdpars->wdifft=0.1;
-          break;
-        default:
-          DarkBit_error().raise(LOCAL_INFO, "Invalid fast flag (should be 0 or 1). Fast > 1 not yet "
-           "supported in DarkBit::RD_oh2_DS_general.  Please add relevant settings to this routine.");
-      }
-
-      // now transfer information from myRDspec to DS common blocks
+      // first transfer information from myRDspec to DS common blocks
       int tnco=myRDspec.coannihilatingParticles.size();
       int tnrs=myRDspec.resonances.size();
       int tnthr=myRDspec.threshold_energy.size();
@@ -681,7 +736,16 @@ namespace Gambit
 
       // Finally use DS Boltzmann solver with invariant rate
       double oh2, xf;
-      int ierr=0; int iwar=0;
+      int ierr=0; int iwar=0; int fast=0;
+      if (Dep::RD_oh2_DS6_ini.active())
+      {
+        fast=*Dep::RD_oh2_DS6_ini;
+      }
+      if (Dep::RD_oh2_DS6pre4_ini.active())
+      {
+        fast=*Dep::RD_oh2_DS6pre4_ini;
+      }
+      
       BEreq::dsrdens(byVal(*Dep::RD_eff_annrate),oh2,xf,fast,ierr,iwar);
 
       //Check for NAN result.
@@ -763,7 +827,7 @@ namespace Gambit
       //                expected accuracy: can be orders of magnitude wrong
       //                for models with strong resonances or thresholds
 
-      DS_RDPARS myrdpars;
+      DS_RDPARS_OLD myrdpars;
       /// Option fast<int>: Numerical performance of Boltzmann solver in DS
       /// (default: 1) [NB: accurate is fast = 0 !]
       int fast = runOptions->getValueOrDef<int>(1, "fast");

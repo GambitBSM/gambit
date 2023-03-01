@@ -27,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void convert_to_slha() =0;
    
-            virtual void print(::std::basic_ostream<char, std::char_traits<char> >&) const =0;
+            virtual void print(::std::basic_ostream<char>&) const =0;
    
             virtual double& MVG_ref__BOSS() =0;
    
@@ -67,65 +67,65 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual double& MSvtL_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSd_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSd_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSu_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSu_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSe_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSe_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSm_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSm_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MStau_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MStau_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSs_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSs_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSc_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSc_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSb_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSb_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MSt_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MSt_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& Mhh_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& Mhh_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MAh_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MAh_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MHpm_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MHpm_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 4, 1, 0, 4, 1>& MChi_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 4, 1, 0>& MChi_ref__BOSS() =0;
    
-            virtual ::Eigen::Array<double, 2, 1, 0, 2, 1>& MCha_ref__BOSS() =0;
+            virtual ::Eigen::Array<double, 2, 1, 0>& MCha_ref__BOSS() =0;
    
             virtual double& MVWm_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZD_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZD_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZU_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZU_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZE_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZE_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZM_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZM_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZTau_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZTau_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZS_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZS_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZC_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZC_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZB_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZB_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZT_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZT_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZH_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZH_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZA_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZA_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& ZP_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0>& ZP_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<std::complex<double>, 4, 4, 0, 4, 4>& ZN_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<std::complex<double>, 4, 4, 0>& ZN_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& UM_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& UM_ref__BOSS() =0;
    
-            virtual ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& UP_ref__BOSS() =0;
+            virtual ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& UP_ref__BOSS() =0;
    
          public:
             virtual void pointer_assign__BOSS(Abstract_MSSMNoFV_onshell_physical*) =0;

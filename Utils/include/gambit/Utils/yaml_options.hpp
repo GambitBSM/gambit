@@ -28,6 +28,10 @@
 ///          (markus.prim@kit.edu)
 ///  \date 2020 April
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 
 #ifndef __yaml_options_hpp__
@@ -151,7 +155,7 @@ namespace Gambit
         if (getNode(key).IsScalar())
         {
           return {getValue<TYPE>(key)};
-        } 
+        }
         else
         {
           return getValue<std::vector<TYPE>>(key);
@@ -238,6 +242,79 @@ namespace Gambit
       /// Return begin and end of options
       YAML::const_iterator begin() const { return options.begin(); }
       YAML::const_iterator end() const { return options.end(); }
+
+      /// Convert to string with some indentation
+      std::string toString(size_t level) const
+      {
+        std::stringstream ss;
+        for (YAML::const_iterator it = begin(); it != end(); it++)
+        {
+          for(size_t i=0; i<level; i++) ss << "  ";
+          ss << it->first.as<std::string>() << " : ";
+          if(it->second.IsScalar())
+            ss << it->second << endl;
+          else if(it->second.IsMap())
+            ss << endl << Options(it->second).toString(level+1);
+          else if(it->second.IsSequence())
+          {
+            ss << endl;
+            for (unsigned int j = 0; j<it->second.size(); ++j)
+            {
+              for(size_t i=0; i<level+1; i++) ss << "  ";
+              ss << "- " << it->second[j] << endl;
+            }
+          }
+          else
+          {
+            std::ostringstream os;
+            os << "Couldn't convert options to string. YAML type unknown. ";
+            utils_error().raise(LOCAL_INFO,os.str());
+          }
+        }
+        return ss.str();
+      }
+
+      /// Convert the options node a map
+      void toMap(map_str_str& map, str header = "") const
+      {
+        str head = header;
+        if(not head.empty()) head += "::";
+
+        for(auto node: *this)
+        {
+          str key;
+          if(node.first.IsScalar())
+            key = node.first.as<str>();
+          else if(node.first.IsSequence())
+          {
+            key = "[";
+            for(size_t j=0; j<node.first.size()-1; ++j)
+              key += node.first[j].as<str>() + ",";
+            key += node.first[node.first.size()-1].as<str>() + "]";
+          }
+          if(node.second.IsScalar())
+            map[head + key] = node.second.as<str>();
+          else if(node.second.IsMap())
+            Options(node.second).toMap(map, head + key);
+          else if(node.second.IsSequence())
+          {
+            str val;
+            for(size_t j=0; j<node.second.size()-1; ++j)
+            {
+              val += node.second[j].as<str>() + ", ";
+            }
+            val += node.second[node.second.size()-1].as<str>();
+            map[head + key] = val;
+          }
+          else
+          {
+            std::ostringstream os;
+            os << "Couldn't convert options to map. YAML type unknown. ";
+            utils_error().raise(LOCAL_INFO,os.str());
+          }
+        }
+
+      }
 
     private:
 

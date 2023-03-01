@@ -540,12 +540,12 @@ def write_wimp_props(model_name):
               "MODEL_CONDITIONAL_DEPENDENCY({0}_spectrum, Spectrum, {0})\n"
               "ALLOW_MODELS({0})\n"
     ).format(model_name))
-    
+
     wimp_prop_c = dumb_indent(6, (
-              "if(ModelInUse(\"{0}\"))\n"
+              "else if(ModelInUse(\"{0}\"))\n"
               "  props.mass = Dep::{0}_spectrum->get(Par::Pole_Mass, props.name);\n"
     ).format(model_name))
-    
+
     return wimp_prop_h, wimp_prop_c
 
 
@@ -1104,10 +1104,9 @@ def add_micromegas_to_cmake(model_name, reset_dict):
             "  ExternalProject_Add(${name}_${model}_${ver}\n"
             "    DOWNLOAD_COMMAND \"\"\n"
             "    SOURCE_DIR ${dir}\n"
+            "    BUILD_IN_SOURCE 1\n"
             "    PATCH_COMMAND ./newProject ${model} && patch -p0 < ${patch}\n"
             "    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy_directory ${patchdir}/mdlfiles ${dir}/${model}/work/models/\n"
-            "    BUILD_IN_SOURCE 1\n"
-            "    CONFIGURE_COMMAND \"\"\n"
             "    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c\n"
             "    INSTALL_COMMAND \"\"\n"
             "  )\n"

@@ -954,9 +954,17 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
- // Observable: RK* in q^2 bin from 0.045 GeV^2 to 1.1 GeV^2
+  // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
+  // Observable: RK* in q^2 bin from 0.045 GeV^2 to 1.1 GeV^2
   #define CAPABILITY RKstar_0045_11
   START_CAPABILITY
+    #define FUNCTION SuperIso_RKstar_0045_11
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
+    #undef FUNCTION
+
     // Function to calcualte RK* for RHN
     #define FUNCTION RHN_RKstar_0045_11
     START_FUNCTION(double)
@@ -966,9 +974,17 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
   // Observable: RK* in q^2 bin from 1.1 GeV^2 to 6 GeV^2
   #define CAPABILITY RKstar_11_60
   START_CAPABILITY
+    #define FUNCTION SuperIso_RKstar_11_60
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
+    #undef FUNCTION
+
     // Function to calculate RK* for RHN
     #define FUNCTION RHN_RKstar_11_60
     START_FUNCTION(double)
@@ -978,9 +994,17 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
   // Observable: RK in q^2 bin from 1 GeV^2 to 6 GeV^2
   #define CAPABILITY RK
   START_CAPABILITY
+    #define FUNCTION SuperIso_RK
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
+    #undef FUNCTION
+
     // Function to calculate RK for RHN
     #define FUNCTION RHN_RK
     START_FUNCTION(double)
@@ -1492,24 +1516,28 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikelihood for RK
-  #define CAPABILITY RK_LogLikelihood
+  // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
+  ///HEPLike LogLikelihood for RK
+  #define CAPABILITY RK_LogLikelihood_LHCb
   START_CAPABILITY
-    #define FUNCTION HEPLike_RK_LogLikelihood
+    #define FUNCTION HEPLike_RK_LogLikelihood_LHCb
     START_FUNCTION(double)
-    DEPENDENCY(prediction_RK_LHCb_1p1_6, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    DEPENDENCY(RK, double)
+    //DEPENDENCY(prediction_RK_LHCb, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikelihood for RKstar
+  // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
+  ///HEPLike LogLikelihood for RKstar
   #define CAPABILITY RKstar_LogLikelihood_LHCb
   START_CAPABILITY
     #define FUNCTION HEPLike_RKstar_LogLikelihood_LHCb
     START_FUNCTION(double)
-    DEPENDENCY(prediction_RKstar_LHCb_0p045_1p1, flav_prediction)
-    DEPENDENCY(prediction_RKstar_LHCb_1p1_6, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike)
+    DEPENDENCY(RKstar_0045_11, double)
+    DEPENDENCY(RKstar_11_60, double)
+    //DEPENDENCY(prediction_RKstar_LHCb, flav_binned_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 

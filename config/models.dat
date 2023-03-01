@@ -1210,3 +1210,15 @@ ColliderBit_SLHA_file_model: |
    yaml file that uses this model.
 
    dummy    - a dummy parameter, not used for anything
+
+DMsimpVectorMedDiracDM: |
+    DMsimpVectorMedDiracDM model, created by GUM, with parameters: gVXd, gAXd, gVq, MXd, MY1
+
+
+DMsimpVectorMedMajoranaDM: |
+    DMsimpVectorMedMajoranaDM model, created by GUM, with parameters: gAXm, gVq, MXm, MY1
+
+
+DMsimpVectorMedScalarDM: |
+    DMsimpVectorMedScalarDM model, created by GUM, with parameters: gVXc, gVq, MXc, MY1
+

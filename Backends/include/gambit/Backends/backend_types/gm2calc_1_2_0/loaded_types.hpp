@@ -18,17 +18,17 @@
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
 #define gm2calc_1_2_0_all_data \
-  (( /*class*/(gm2calc)(MSSMNoFV_onshell_susy_parameters),    /*constructors*/(("Factory_MSSMNoFV_onshell_susy_parameters_0__BOSS_1",())) (("Factory_MSSMNoFV_onshell_susy_parameters_1__BOSS_2",(double, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, double, double, double, double, double, double))) )) \
+  (( /*class*/(gm2calc)(MSSMNoFV_onshell_susy_parameters),    /*constructors*/(("Factory_MSSMNoFV_onshell_susy_parameters_0__BOSS_1",())) (("Factory_MSSMNoFV_onshell_susy_parameters_1__BOSS_2",(double, const Eigen::Matrix<double, 3, 3, 0>&, const Eigen::Matrix<double, 3, 3, 0>&, const Eigen::Matrix<double, 3, 3, 0>&, double, double, double, double, double, double))) )) \
   (( /*class*/(gm2calc)(MSSMNoFV_onshell),    /*constructors*/(("Factory_MSSMNoFV_onshell_0__BOSS_3",())) (("Factory_MSSMNoFV_onshell_1__BOSS_4",(const my_ns::gm2calc::MSSMNoFV_onshell_mass_eigenstates&))) )) \
   (( /*class*/(gm2calc)(MSSMNoFV_onshell_mass_eigenstates),    /*constructors*/(("Factory_MSSMNoFV_onshell_mass_eigenstates_0__BOSS_5",())) )) \
   (( /*class*/(gm2calc)(MSSMNoFV_onshell_problems),    /*constructors*/(("Factory_MSSMNoFV_onshell_problems_0__BOSS_6",())) )) \
   (( /*class*/(gm2calc)(MSSMNoFV_onshell_physical),    /*constructors*/(("Factory_MSSMNoFV_onshell_physical_0__BOSS_7",())) )) \
-  (( /*class*/(gm2calc)(MSSMNoFV_onshell_soft_parameters),    /*constructors*/(("Factory_MSSMNoFV_onshell_soft_parameters_0__BOSS_8",())) (("Factory_MSSMNoFV_onshell_soft_parameters_1__BOSS_9",(const my_ns::gm2calc::MSSMNoFV_onshell_susy_parameters&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, double, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, double, double, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const Eigen::Matrix<double, 3, 3, 0, 3, 3>&, double, double, double))) )) \
+  (( /*class*/(gm2calc)(MSSMNoFV_onshell_soft_parameters),    /*constructors*/(("Factory_MSSMNoFV_onshell_soft_parameters_0__BOSS_8",())) (("Factory_MSSMNoFV_onshell_soft_parameters_1__BOSS_9",(const my_ns::gm2calc::MSSMNoFV_onshell_susy_parameters&, const Eigen::Matrix<double, 3, 3, 0>&, const Eigen::Matrix<double, 3, 3, 0>&, const Eigen::Matrix<double, 3, 3, 0>&, double, const Eigen::Matrix<double, 3, 3, 0>&, const Eigen::Matrix<double, 3, 3, 0>&, double, double, const Eigen::Matrix<double, 3, 3, 0>&, const Eigen::Matrix<double, 3, 3, 0>&, const Eigen::Matrix<double, 3, 3, 0>&, double, double, double))) )) \
   (( /*class*/(gm2calc)(Error),    /*constructors*/(("Factory_Error_0__BOSS_14",())) )) \
-  (( /*class*/(gm2calc)(ESetupError),    /*constructors*/(("Factory_ESetupError_0__BOSS_15",(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&))) )) \
-  (( /*class*/(gm2calc)(EInvalidInput),    /*constructors*/(("Factory_EInvalidInput_0__BOSS_16",(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&))) )) \
-  (( /*class*/(gm2calc)(EPhysicalProblem),    /*constructors*/(("Factory_EPhysicalProblem_0__BOSS_17",(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&))) )) \
-  (( /*class*/(gm2calc)(EReadError),    /*constructors*/(("Factory_EReadError_0__BOSS_18",(const std::basic_string<char, std::char_traits<char>, std::allocator<char>>&))) )) \
+  (( /*class*/(gm2calc)(ESetupError),    /*constructors*/(("Factory_ESetupError_0__BOSS_15",(const std::basic_string<char>&))) )) \
+  (( /*class*/(gm2calc)(EInvalidInput),    /*constructors*/(("Factory_EInvalidInput_0__BOSS_16",(const std::basic_string<char>&))) )) \
+  (( /*class*/(gm2calc)(EPhysicalProblem),    /*constructors*/(("Factory_EPhysicalProblem_0__BOSS_17",(const std::basic_string<char>&))) )) \
+  (( /*class*/(gm2calc)(EReadError),    /*constructors*/(("Factory_EReadError_0__BOSS_18",(const std::basic_string<char>&))) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))

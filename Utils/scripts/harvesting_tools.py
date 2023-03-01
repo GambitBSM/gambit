@@ -86,7 +86,7 @@ def get_type_equivalencies(nses):
 
               # If the type is an alias of a native int then add int to the equivalency class
               if re.match("int[0-9]+_t", member):
-                if ( ctypes.sizeof(ctypes.c_int) == 4 and re.search("32", member) ) or ( ctypes.sizeof(ctypes.c_int) == 2 and re.search("16", member) ) :
+                if ( ctypes.sizeof(ctypes.c_int) == 8 and re.search("64", member) ) or ( ctypes.sizeof(ctypes.c_int) == 4 and re.search("32", member) ) or ( ctypes.sizeof(ctypes.c_int) == 2 and re.search("16", member) ) :
                   if 'int' not in equivalency_class:
                     equivalency_class+=['int']
               if member not in equivalency_class:

@@ -473,13 +473,17 @@ namespace Gambit
 
     if (missing_flag)
     {
+      int mpirank = GET_RANK;
       // Warn user of missing descriptions
-      cout << "Descriptions are missing for the following models:" << endl;
-      for (const auto &model : model_dbase)
+      if(mpirank == 0)
       {
-        if (not model.has_description) { cout << "   " << model.name << endl; }
+        cout << "Descriptions are missing for the following models:" << endl;
+        for (const auto &model : model_dbase)
+        {
+          if (not model.has_description) { cout << "   " << model.name << endl; }
+        }
+        cout << "Please add descriptions of these to " << input_model_descriptions << endl;
       }
-      cout << "Please add descriptions of these to " << input_model_descriptions << endl;
     }
 
     // Write out the centralised database file containing all this information
@@ -645,7 +649,8 @@ namespace Gambit
         if (not processed_options)
         {
           filename = process_primary_options(argc, argv);
-          check_capability_descriptions();
+          int mpirank = GET_RANK;
+          if(mpirank == 0) check_capability_descriptions();
           // Check if we indeed received a valid filename (needs the -f option)
           if (found_inifile) return filename;
           // Ok then, report an unrecognised command and bail

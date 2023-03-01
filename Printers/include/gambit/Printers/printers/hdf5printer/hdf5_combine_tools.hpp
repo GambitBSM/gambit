@@ -14,6 +14,9 @@
 ///          (gregory.david.martinez@gmail.com)
 ///  \date ???
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2022 May
 ///
 ///  *********************************************
  
@@ -51,11 +54,26 @@ namespace Gambit
                 {
                     hid_t dataspace = H5Dget_space(dataset);
                     hssize_t dim_t = H5Sget_simple_extent_npoints(dataspace);
-                    std::vector<U> data(dim_t);
-                    H5Dread( dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
-                    vec = std::vector<T>(data.begin(), data.end());
+                    vec.resize(dim_t);
+                    H5Dread( dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)vec.data());
                     H5Sclose(dataspace);
                 }
+
+                template <typename U>
+                static void run(U, hid_t &dataset, std::vector <bool> &vec)
+                {
+                    hid_t dataspace = H5Dget_space(dataset);
+                    hssize_t dim_t = H5Sget_simple_extent_npoints(dataspace);
+                    std::vector<U> data(dim_t);
+                    H5Dread( dataset, get_hdf5_data_type<U>::type(), H5S_ALL, H5S_ALL, H5P_DEFAULT, (void *)&data[0]);
+                    vec = std::vector<bool>(data.begin(), data.end());
+                    H5Sclose(dataspace);
+                }
+
+                static void run(std::string, hid_t &, std::vector <bool> &)
+                { }
+
+
             };
 
             struct copy_hdf5
@@ -416,6 +434,10 @@ namespace Gambit
                 {
                     U::run(type_ret<unsigned long long>(), dataset, params...);
                 }
+                else if (H5Tequal(type, get_hdf5_data_type<std::string>::type()))
+                {
+                    U::run(type_ret<std::string>(), dataset, params...);
+                }
                 else
                 {
                     std::ostringstream errmsg;
@@ -430,10 +452,13 @@ namespace Gambit
             {
             private:
                 std::string group_name;
-                std::vector<std::string> param_names, aux_param_names;
-                std::unordered_set<std::string> param_set, aux_param_set; // for easier finding
+                std::string metadata_group_name;
+                std::vector<std::string> param_names, metadata_names, aux_param_names;
+                std::unordered_set<std::string> param_set, metadata_set, aux_param_set; // for easier finding
+                std::vector<std::string> metadata_dates;
                 std::vector<unsigned long long> cum_sizes;
                 std::vector<unsigned long long> sizes;
+                std::vector<unsigned long long> metadata_sizes;
                 unsigned long long size_tot;
                 unsigned long long size_tot_l;
                 std::string root_file_name;
@@ -442,19 +467,20 @@ namespace Gambit
                 bool skip_unreadable; // If true, ignores temp files that fail to open
                 std::vector<hid_t> files;
                 std::vector<hid_t> groups;
+                std::vector<hid_t> metadata_groups;
                 std::vector<hid_t> aux_groups;
                 std::vector<std::string> file_names; // Names of temp files to combine
                 bool custom_mode; // Running in mode which allows 'custom' filenames (for combining output from multiple runs)
 
             public:
-                hdf5_stuff(const std::string &base_file_name, const std::string &output_file, const std::string &group_name, const size_t num, const bool cleanup, const bool skip, const std::vector<std::string>& input_files);
+                hdf5_stuff(const std::string &base_file_name, const std::string &output_file, const std::string &group_name, const std::string &metadata_group_name, const size_t num, const bool cleanup, const bool skip, const std::vector<std::string>& input_files);
                 ~hdf5_stuff(); // close files on destruction                
                 void Enter_Aux_Parameters(const std::string &output_file, bool resume = false);
             };
 
-            inline void combine_hdf5_files(const std::string output_file, const std::string &base_file_name, const std::string &group, const size_t num, const bool resume, const bool cleanup, const bool skip, const std::vector<std::string> input_files = std::vector<std::string>())
+            inline void combine_hdf5_files(const std::string output_file, const std::string &base_file_name, const std::string &group, const std::string &metadata_group, const size_t num, const bool resume, const bool cleanup, const bool skip, const std::vector<std::string> input_files = std::vector<std::string>())
             {
-                hdf5_stuff stuff(base_file_name, output_file, group, num, cleanup, skip, input_files);
+                hdf5_stuff stuff(base_file_name, output_file, group, metadata_group, num, cleanup, skip, input_files);
                 
                 stuff.Enter_Aux_Parameters(output_file, resume);
             }

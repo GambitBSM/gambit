@@ -125,6 +125,11 @@ namespace Gambit
       finfo<< output_file <<"_info";
       info_file = finfo.str();
 
+      // Name "metadata" file to match "output" file
+      std::ostringstream fmetadata;
+      fmetadata << output_file << "_metadata";
+      metadata_file = fmetadata.str();
+
       #ifdef WITH_MPI
       myRealRank = myComm.Get_rank();
       this->setRank(myRealRank);
@@ -192,17 +197,24 @@ namespace Gambit
       printer_error().raise(LOCAL_INFO, err.str());
       return Options();
     }
- 
+
     /// Do final buffer dumps
     void asciiPrinter::finalise(bool /*abnormal*/)
     {
       dump_buffer(true);
       AP_DBUG( std::cout << "Buffer (of asciiPrinter with name=\""<<printer_name<<"\") successfully dumped..." << std::endl; )
+
+      // Add last point ID to metadata
+      std::stringstream ssPPID;
+      ssPPID << lastPointID;
+      map_str_str lastpoint;
+      lastpoint["lastPointID"] = ssPPID.str();
+      _print_metadata(lastpoint);
     }
 
     void asciiPrinter::flush()
     {
-      dump_buffer(true); 
+      dump_buffer(true);
     }
 
     /// Delete contents of output file (to be replaced/updated) and erase everything in the buffer
@@ -246,7 +258,7 @@ namespace Gambit
         return;
       if (functor_labels[0] == "Invalidation Code")
         return;
-        
+
       if(lastPointID == nullpoint)
       {
         // No previous point; add current point
@@ -298,7 +310,7 @@ namespace Gambit
              << "   slot (rank,pointID): "<< rank <<", "<< pointID << endl;
          printer_error().raise(LOCAL_INFO, err.str());
       }
- 
+
       // Assign to buffer, adding keys if needed
       buffer[bkey].data[vID] = functor_data;
 
@@ -321,7 +333,6 @@ namespace Gambit
       // an ordering that reflects the order of stuff in, say, the inifile.
       //  force=true -- dumps all records regardless if they are "readyToPrint"
       AP_DBUG( std::cout << "dumping asciiprinter buffer" << std::endl; )
-      AP_DBUG( std::cout << "lfpvfc 1" << std::endl; )
 
       // Open output file in append mode
       std::ofstream my_fstream;
@@ -346,7 +357,6 @@ namespace Gambit
           newlineindexrecord[item->first] = std::max(oldlen, newlen);
         }
       }
-      AP_DBUG( std::cout << "lfpvfc 2" << std::endl; )
 
       // Check if the output format has changed, and raise an error if so
       if (lineindexrecord.size()==0)
@@ -399,7 +409,6 @@ namespace Gambit
         }
         printer_error().raise(LOCAL_INFO,errmsg.str());
       }
-      AP_DBUG( std::cout << "lfpvfc 3" << std::endl; )
 
       // Write the file explaining what is in each column of the output file
       if (info_file_written==false)
@@ -422,12 +431,9 @@ namespace Gambit
             column_index++;
           }
         }
-        AP_DBUG( std::cout << "lfpvfc 3.1" << std::endl; )
         info_fstream.close();
         info_file_written=true;
       }
-
-      AP_DBUG( std::cout << "lfpvfc 4" << std::endl; )
 
       // Actual dump of buffer to file
       for (Buffer::iterator
@@ -490,14 +496,28 @@ namespace Gambit
         // line printed, print endline character and go to next line
         my_fstream<<std::endl;
       }
-      AP_DBUG( std::cout << "lfpvfc 5" << std::endl; )
 
       // buffer dump complete! Flush the fstream to ensure write to file happens.
       //my_fstream.flush();
       my_fstream.close();
 
-      AP_DBUG( std::cout << "lfpvfc 6" << std::endl; )
     }
+
+    // Print metadata info to file
+    void asciiPrinter::_print_metadata(map_str_str metadata)
+    {
+      // Open metadata file in append mode
+      std::ofstream metadata_fstream;
+      open_output_file(metadata_fstream, metadata_file, std::ofstream::app);
+
+      // Print metadata
+      for(auto data: metadata)
+        metadata_fstream << data.first << "\t" << data.second << std::endl;;
+
+      // Close metadata file
+      metadata_fstream.close();
+    }
+
 
   } // end namespace printers
 } // end namespace Gambit

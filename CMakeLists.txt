@@ -61,6 +61,7 @@ foreach(p
   CMP0022 # CMake 2.8.12
   CMP0025 # CMake 3.0
   CMP0042 # CMake 3.0
+  CMP0048 # Cmake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
   CMP0060 # CMake 3.16.2
@@ -196,8 +197,8 @@ if(NOT PYTHONLIBS_FOUND)
   set(itch "${itch};pybind11")
   endif()
 else()
-  set(MIN_pybind11_VERSION "2.5.0")
-  set(PREFERRED_pybind11_VERSION "2.5.0")
+  set(MIN_pybind11_VERSION "2.10.0")
+  set(PREFERRED_pybind11_VERSION "2.10.0")
   set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
   include_directories("${PYTHON_INCLUDE_DIRS}")
   find_package(pybind11 QUIET)

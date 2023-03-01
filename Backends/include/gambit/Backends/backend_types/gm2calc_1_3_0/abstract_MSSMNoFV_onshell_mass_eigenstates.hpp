@@ -56,9 +56,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual int solve_ewsb() =0;
    
-            virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name() const =0;
+            virtual ::std::basic_string<char> name() const =0;
    
-            virtual void print(::std::basic_ostream<char, std::char_traits<char> >&) const =0;
+            virtual void print(::std::basic_ostream<char>&) const =0;
    
             virtual double get_MVG() const =0;
    
@@ -98,125 +98,125 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual double get_MSvtL() const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSd() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSd() const =0;
    
             virtual double get_MSd(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSu() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSu() const =0;
    
             virtual double get_MSu(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSe() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSe() const =0;
    
             virtual double get_MSe(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSm() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSm() const =0;
    
             virtual double get_MSm(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MStau() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MStau() const =0;
    
             virtual double get_MStau(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSs() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSs() const =0;
    
             virtual double get_MSs(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSc() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSc() const =0;
    
             virtual double get_MSc(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSb() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSb() const =0;
    
             virtual double get_MSb(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MSt() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MSt() const =0;
    
             virtual double get_MSt(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_Mhh() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_Mhh() const =0;
    
             virtual double get_Mhh(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MAh() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MAh() const =0;
    
             virtual double get_MAh(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MHpm() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MHpm() const =0;
    
             virtual double get_MHpm(int) const =0;
    
-            virtual const ::Eigen::Array<double, 4, 1, 0, 4, 1>& get_MChi() const =0;
+            virtual const ::Eigen::Array<double, 4, 1, 0>& get_MChi() const =0;
    
             virtual double get_MChi(int) const =0;
    
-            virtual const ::Eigen::Array<double, 2, 1, 0, 2, 1>& get_MCha() const =0;
+            virtual const ::Eigen::Array<double, 2, 1, 0>& get_MCha() const =0;
    
             virtual double get_MCha(int) const =0;
    
             virtual double get_MVWm() const =0;
    
-            virtual ::Eigen::Array<double, 1, 1, 0, 1, 1> get_MChargedHiggs() const =0;
+            virtual ::Eigen::Array<double, 1, 1, 0> get_MChargedHiggs() const =0;
    
-            virtual ::Eigen::Array<double, 1, 1, 0, 1, 1> get_MPseudoscalarHiggs() const =0;
+            virtual ::Eigen::Array<double, 1, 1, 0> get_MPseudoscalarHiggs() const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZD() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZD() const =0;
    
             virtual double get_ZD(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZU() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZU() const =0;
    
             virtual double get_ZU(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZE() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZE() const =0;
    
             virtual double get_ZE(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZM() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZM() const =0;
    
             virtual double get_ZM(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZTau() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZTau() const =0;
    
             virtual double get_ZTau(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZS() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZS() const =0;
    
             virtual double get_ZS(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZC() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZC() const =0;
    
             virtual double get_ZC(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZB() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZB() const =0;
    
             virtual double get_ZB(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZT() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZT() const =0;
    
             virtual double get_ZT(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZH() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZH() const =0;
    
             virtual double get_ZH(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZA() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZA() const =0;
    
             virtual double get_ZA(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_ZP() const =0;
+            virtual const ::Eigen::Matrix<double, 2, 2, 0>& get_ZP() const =0;
    
             virtual double get_ZP(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<std::complex<double>, 4, 4, 0, 4, 4>& get_ZN() const =0;
+            virtual const ::Eigen::Matrix<std::complex<double>, 4, 4, 0>& get_ZN() const =0;
    
             virtual const ::std::complex<double>& get_ZN(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& get_UM() const =0;
+            virtual const ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& get_UM() const =0;
    
             virtual const ::std::complex<double>& get_UM(int, int) const =0;
    
-            virtual const ::Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>& get_UP() const =0;
+            virtual const ::Eigen::Matrix<std::complex<double>, 2, 2, 0>& get_UP() const =0;
    
             virtual const ::std::complex<double>& get_UP(int, int) const =0;
    
@@ -300,59 +300,59 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void calculate_MSvtL() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sd() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sd() const =0;
    
             virtual void calculate_MSd() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Su() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Su() const =0;
    
             virtual void calculate_MSu() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Se() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Se() const =0;
    
             virtual void calculate_MSe() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sm() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sm() const =0;
    
             virtual void calculate_MSm() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Stau() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Stau() const =0;
    
             virtual void calculate_MStau() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Ss() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Ss() const =0;
    
             virtual void calculate_MSs() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sc() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sc() const =0;
    
             virtual void calculate_MSc() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Sb() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Sb() const =0;
    
             virtual void calculate_MSb() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_St() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_St() const =0;
    
             virtual void calculate_MSt() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_hh() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_hh() const =0;
    
             virtual void calculate_Mhh() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Ah() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Ah() const =0;
    
             virtual void calculate_MAh() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Hpm() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Hpm() const =0;
    
             virtual void calculate_MHpm() =0;
    
-            virtual ::Eigen::Matrix<double, 4, 4, 0, 4, 4> get_mass_matrix_Chi() const =0;
+            virtual ::Eigen::Matrix<double, 4, 4, 0> get_mass_matrix_Chi() const =0;
    
             virtual void calculate_MChi() =0;
    
-            virtual ::Eigen::Matrix<double, 2, 2, 0, 2, 2> get_mass_matrix_Cha() const =0;
+            virtual ::Eigen::Matrix<double, 2, 2, 0> get_mass_matrix_Cha() const =0;
    
             virtual void calculate_MCha() =0;
    

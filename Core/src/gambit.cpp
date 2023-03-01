@@ -191,6 +191,9 @@ int main(int argc, char* argv[])
       // Check that all requested models are used for at least one computation
       Models::ModelDB().checkPrimaryModelFunctorUsage(Core().getActiveModelFunctors());
 
+      // Check for unused rules and options on the ini file, and print them to screen
+      dependencyResolver.checkForUnusedRules(rank);
+
       // Report the proposed (output) functor evaluation order
       dependencyResolver.printFunctorEvalOrder(Core().show_runorder);
 
@@ -205,6 +208,10 @@ int main(int argc, char* argv[])
         scanner_node["Scanner"] = iniFile.getScannerNode();
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
+
+        // Print scan metadata from rank 0
+        if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))
+          printerManager.printerptr->print_metadata(dependencyResolver.getMetadata());
 
         //Create the master scan manager
         Scanner::Scan_Manager scan(scanner_node, &printerManager, &factory);

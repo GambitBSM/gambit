@@ -473,6 +473,9 @@ namespace Gambit
     DD_EX(PICO_60_2017)         // C. Amole et al., arXiv:1702.07666
     DD_EX(PICO_60_2019)         // C. Amole et al., arXiv:1902.04031
     DD_EX(PICO_500)             // S. Fallows, talk at TAUP 2017
+    DD_EX(LZ_2022)              // J. Aalbers et al., arXiv:2207.03764
+    DD_EX(PandaX_4T)            // Y. Meng et al., PRL 127 (2021) 26, 261802 [arXiv:2107.13438]
+    
 
     // Just in case, to make sure we don't mess with other things elsewhere.
     #undef DD_EX

@@ -239,22 +239,13 @@ Rules:
     options: # Planck 2018 values
       oh2_obs: 0.120
 
-  # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
-  # Consult the DarkBit manual for the required options in each case
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    #function: RD_oh2_DS5_general
     function: RD_oh2_DS_general
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
-      # these options are identical for DS5 and DS6+ version
-      fast: 1  # 0: standard, 1: fast (default)
-    #function: RD_oh2_DarkSUSY_DS5
-    #options:
-    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
-    #  omtype: 1  # 0: no coann, 1: all coann (default)
-    #function: RD_oh2_MicrOmegas
-    #options:
-    #  fast: 1  # 0: standard (default), 1: fast
-    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
   - capability: sigmav

@@ -15,8 +15,8 @@
 ///  \date 2016 July
 ///  \author Sebastian Wild
 ///  \date 2016 Aug
-///  \date 2020
 ///  \author Torsten Bringmann
+///  \date 2022
 ///
 ///  *********************************************
 
@@ -317,9 +317,9 @@ int main(int argc, char* argv[])
 
     // ---- Check that required backends are present ----
 
-    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.2.5"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.2.5 is missing!");
+    if (not Backends::backendInfo().works["DarkSUSY_generic_wimp6.4.0"]) backend_error().raise(LOCAL_INFO, "DarkSUSY_generic_wimp_6.4.0 is missing!");
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
-    if (not Backends::backendInfo().works["DDCalc2.2.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.2.0 is missing!");
+    if (not Backends::backendInfo().works["DDCalc2.3.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.3.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
 
     // ---- Initialize models ----
@@ -357,23 +357,23 @@ int main(int argc, char* argv[])
     DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
     // Set up DDCalc backend initialization
-    Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-    Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment.setStatus(2);
-    Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood.setStatus(2);
-    DDCalc_2_2_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+    DDCalc_2_3_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
     // Assume for direct and indirect detection likelihoods that dark matter
     // density is always the measured one (despite relic density results)
-    DDCalc_2_2_0_init.resolveDependency(&RD_fraction_one);
-    DDCalc_2_2_0_init.resolveDependency(&mwimp_generic);
-    //DDCalc_2_2_0_init.resolveDependency(&spinwimpx2_generic);
-    //DDCalc_2_2_0_init.resolveDependency(&wimp_sc_generic);
-    DDCalc_2_2_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
+    DDCalc_2_3_0_init.resolveDependency(&RD_fraction_one);
+    DDCalc_2_3_0_init.resolveDependency(&mwimp_generic);
+    //DDCalc_2_3_0_init.resolveDependency(&spinwimpx2_generic);
+    //DDCalc_2_3_0_init.resolveDependency(&wimp_sc_generic);
+    DDCalc_2_3_0_init.resolveDependency(&DDCalc_Couplings_WIMP_nucleon);
 
     // Initialize gamLike backend
     gamLike_1_0_1_init.reset_and_calculate();
 
     // Initialize DarkSUSY backend
-    DarkSUSY_generic_wimp_6_2_5_init.reset_and_calculate();
+    DarkSUSY_generic_wimp_6_4_0_init.reset_and_calculate();
 
     // Initialize MicrOmegas backend
     // The below allows us to initialise MicrOmegas_MSSM without a particular MSSM model.
@@ -383,7 +383,7 @@ int main(int argc, char* argv[])
     // ---- Gamma-ray and other indirect detection yields ----
 
     // Initialize tabulated gamma-ray yields
-    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
+    GA_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
     GA_SimYieldTable_MicrOmegas.resolveBackendReq(&Backends::MicrOmegas_MSSM_3_6_9_2::Functown::dNdE);
     GA_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     GA_SimYieldTable_MicrOmegas.setOption<bool>("allow_yield_extrapolation", true);
@@ -394,10 +394,10 @@ int main(int argc, char* argv[])
     Combine_SimYields.resolveDependency(SimYieldTablePointer);
 
     // Choose DarkSUSY for e+, e-, pbar and Dbar yields
-    positron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
+    positron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
     electron_SimYieldTable_from_positron_SimYieldTable.resolveDependency(&positron_SimYieldTable_DarkSUSY);
-    antiproton_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
-    antideuteron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsanyield_sim);
+    antiproton_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
+    antideuteron_SimYieldTable_DarkSUSY.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsanyield_sim);
     positron_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     antiproton_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
     antideuteron_SimYieldTable_DarkSUSY.setOption<bool>("allow_yield_extrapolation", true);
@@ -552,47 +552,50 @@ int main(int argc, char* argv[])
 
     RD_spectrum_ordered_func.resolveDependency(&RD_spectrum_from_ProcessCatalog);
 
+    RD_oh2_DS6_ini_func.resolveDependency(&RD_spectrum_ordered_func);
+    RD_oh2_DS6_ini_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::rdpars);
+    RD_oh2_DS6_ini_func.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::rdtime);
+    RD_oh2_DS6_ini_func.setOption<int>("fast", 1);  // 0: normal; 1: fast; 2: dirty
 
     RD_oh2_DS_general.resolveDependency(&RD_spectrum_ordered_func);
     RD_oh2_DS_general.resolveDependency(&RD_eff_annrate_from_ProcessCatalog);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdpars);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::rdtime);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdcom);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdstart);
-    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_2_5::Functown::dsrdens);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsrdstart);
+    RD_oh2_DS_general.resolveBackendReq(&Backends::DarkSUSY_generic_wimp_6_4_0::Functown::dsrdens);
+      // Note that this one has to come *last* since it's a conditional dependency
+    RD_oh2_DS_general.resolveDependency(&RD_oh2_DS6_ini_func);
 
 
     // ---- Calculate direct detection constraints ----
 
-    // Calculate direct detection rates for LZ, PandaX 2017, Xenon 1T and PICO-60
-    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    LZ_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
-    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    PandaX_2017_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
-    PICO_60_2019_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    PICO_60_2019_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
-    XENON1T_2018_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    XENON1T_2018_Calc.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_CalcRates_simple);
+    // Calculate direct detection rates for LZ 2022, PandaX 4T, Xenon 1T and PICO-60
+    LZ_2022_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    LZ_2022_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
+    PandaX_4T_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    PandaX_4T_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
+    PICO_60_2019_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    PICO_60_2019_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
+    XENON1T_2018_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    XENON1T_2018_Calc.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple);
 
-    // Calculate direct detection likelihood for LZ, PandaX 2017, Xenon 1T and PICO-60
-    LZ_GetLogLikelihood.resolveDependency(&LZ_Calc);
-    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    LZ_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
-    PandaX_2017_GetLogLikelihood.resolveDependency(&PandaX_2017_Calc);
-    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    PandaX_2017_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+    // Calculate direct detection likelihood for LZ 2022, PandaX 4T, Xenon 1T and PICO-60
+    LZ_2022_GetLogLikelihood.resolveDependency(&LZ_2022_Calc);
+    LZ_2022_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    LZ_2022_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
+    PandaX_4T_GetLogLikelihood.resolveDependency(&PandaX_4T_Calc);
+    PandaX_4T_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    PandaX_4T_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
     XENON1T_2018_GetLogLikelihood.resolveDependency(&XENON1T_2018_Calc);
-    XENON1T_2018_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    XENON1T_2018_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+    XENON1T_2018_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    XENON1T_2018_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
     PICO_60_2019_GetLogLikelihood.resolveDependency(&PICO_60_2019_Calc);
-    PICO_60_2019_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    PICO_60_2019_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_LogLikelihood);
+    PICO_60_2019_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    PICO_60_2019_GetLogLikelihood.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood);
 
     // Provide bin number in LZ
-    LZ_GetBinSignal.resolveDependency(&LZ_Calc);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Experiment);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_Bins);
-    LZ_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_2_0::Functown::DDCalc_BinSignal);
+    LZ_2022_GetBinSignal.resolveDependency(&LZ_2022_Calc);
+    LZ_2022_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment);
+    LZ_2022_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_Bins);
+    LZ_2022_GetBinSignal.resolveBackendReq(&Backends::DDCalc_2_3_0::Functown::DDCalc_BinSignal);
 
     // Set generic WIMP mass object
     WIMP_properties_WIMP.resolveDependency(&DarkMatter_ID_WIMP);
@@ -801,6 +804,7 @@ int main(int argc, char* argv[])
           RD_eff_annrate_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_from_ProcessCatalog.reset_and_calculate();
           RD_spectrum_ordered_func.reset_and_calculate();
+          RD_oh2_DS6_ini_func.reset_and_calculate();
           RD_oh2_DS_general.reset_and_calculate();
           oh2 = RD_oh2_DS_general(0);
 
@@ -874,17 +878,17 @@ int main(int argc, char* argv[])
           DD_couplings_WIMP.reset_and_calculate();
           DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
-          DDCalc_2_2_0_init.reset_and_calculate();
-          LZ_Calc.reset_and_calculate();
-          LZ_GetLogLikelihood.reset_and_calculate();
+          DDCalc_2_3_0_init.reset_and_calculate();
+          LZ_2022_Calc.reset_and_calculate();
+          LZ_2022_GetLogLikelihood.reset_and_calculate();
 
           XENON1T_2018_Calc.reset_and_calculate();
           XENON1T_2018_GetLogLikelihood.reset_and_calculate();
-          PandaX_2017_Calc.reset_and_calculate();
-          PandaX_2017_GetLogLikelihood.reset_and_calculate();
+          PandaX_4T_Calc.reset_and_calculate();
+          PandaX_4T_GetLogLikelihood.reset_and_calculate();
 
-          lnL1 = LZ_GetLogLikelihood(0);
-          lnL2 = PandaX_2017_GetLogLikelihood(0);
+          lnL1 = LZ_2022_GetLogLikelihood(0);
+          lnL2 = PandaX_4T_GetLogLikelihood(0);
           lnL3 = XENON1T_2018_GetLogLikelihood(0);
 
           // Set LocalHalo Model parameters to PICO-60 values
@@ -894,23 +898,23 @@ int main(int argc, char* argv[])
           Halo_primary_parameters->setValue("vesc", 544.);
           ExtractLocalMaxwellianHalo.reset_and_calculate();
 
-          DDCalc_2_2_0_init.reset_and_calculate();
+          DDCalc_2_3_0_init.reset_and_calculate();
           PICO_60_2019_Calc.reset_and_calculate();
           PICO_60_2019_GetLogLikelihood.reset_and_calculate();
           lnL4 = PICO_60_2019_GetLogLikelihood(0);
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "LZ SI lnL = " << lnL1 << std::endl;
-            std::cout << "PandaX_2017 SI lnL = " << lnL2 << std::endl;
+            std::cout << "LZ_2022 SI lnL = " << lnL1 << std::endl;
+            std::cout << "PandaX_4T SI lnL = " << lnL2 << std::endl;
             std::cout << "XENON1T_2018 SI lnL = " << lnL3 << std::endl;
             std::cout << "PICO_60_2019 SI lnL = " << lnL4 << std::endl;
           #endif
 
-          DDCalc_2_2_0_init.reset_and_calculate();
-          LZ_Calc.reset_and_calculate();
+          DDCalc_2_3_0_init.reset_and_calculate();
+          LZ_2022_Calc.reset_and_calculate();
           std::vector<double> events;
-          LZ_GetBinSignal.reset_and_calculate();
-          events = LZ_GetBinSignal(0);
+          LZ_2022_GetBinSignal.reset_and_calculate();
+          events = LZ_2022_GetBinSignal(0);
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
             int nbins = events.size();
@@ -927,8 +931,8 @@ int main(int argc, char* argv[])
         }
       }
 
-      dump_array_to_file("LZ_SI_table.dat", lnL_array1, m_list, s_list);
-      dump_array_to_file("PandaX_2017_SI_table.dat", lnL_array2, m_list, s_list);
+      dump_array_to_file("LZ_2022_SI_table.dat", lnL_array1, m_list, s_list);
+      dump_array_to_file("PandaX_4T_SI_table.dat", lnL_array2, m_list, s_list);
       dump_array_to_file("XENON1T_2018_SI_table.dat", lnL_array3, m_list, s_list);
       dump_array_to_file("PICO_60_2019_SI_table.dat", lnL_array4, m_list, s_list);
 
@@ -967,15 +971,15 @@ int main(int argc, char* argv[])
           DD_couplings_WIMP.setOption<double>("gna", 0.);
           DD_couplings_WIMP.reset_and_calculate();
 
-          DDCalc_2_2_0_init.reset_and_calculate();
-          LZ_Calc.reset_and_calculate();
-          LZ_GetLogLikelihood.reset_and_calculate();
+          DDCalc_2_3_0_init.reset_and_calculate();
+          LZ_2022_Calc.reset_and_calculate();
+          LZ_2022_GetLogLikelihood.reset_and_calculate();
           XENON1T_2018_Calc.reset_and_calculate();
           XENON1T_2018_GetLogLikelihood.reset_and_calculate();
-          PandaX_2017_Calc.reset_and_calculate();
-          PandaX_2017_GetLogLikelihood.reset_and_calculate();
-          lnL1 = LZ_GetLogLikelihood(0);
-          lnL2 = PandaX_2017_GetLogLikelihood(0);
+          PandaX_4T_Calc.reset_and_calculate();
+          PandaX_4T_GetLogLikelihood.reset_and_calculate();
+          lnL1 = LZ_2022_GetLogLikelihood(0);
+          lnL2 = PandaX_4T_GetLogLikelihood(0);
           lnL3 = XENON1T_2018_GetLogLikelihood(0);
 
           // Set LocalHalo Model parameters to PICO-60 values
@@ -985,14 +989,14 @@ int main(int argc, char* argv[])
           Halo_primary_parameters->setValue("vesc", 544.);
           ExtractLocalMaxwellianHalo.reset_and_calculate();
 
-          DDCalc_2_2_0_init.reset_and_calculate();
+          DDCalc_2_3_0_init.reset_and_calculate();
           PICO_60_2019_Calc.reset_and_calculate();
           PICO_60_2019_GetLogLikelihood.reset_and_calculate();
           lnL4 = PICO_60_2019_GetLogLikelihood(0);
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
-            std::cout << "LZ SD lnL = " << lnL1 << std::endl;
-            std::cout << "PandaX_2017 SD lnL = " << lnL2 << std::endl;
+            std::cout << "LZ_2022 SD lnL = " << lnL1 << std::endl;
+            std::cout << "PandaX_4T SD lnL = " << lnL2 << std::endl;
             std::cout << "XENON1T_2018 SD lnL = " << lnL3 << std::endl;
             std::cout << "PICO_60_2019 SD lnL = " << lnL4 << std::endl;
           #endif
@@ -1004,8 +1008,8 @@ int main(int argc, char* argv[])
         }
       }
 
-      dump_array_to_file("LZ_SD_table.dat", lnL_array1, m_list, s_list);
-      dump_array_to_file("PandaX_2017_SD_table.dat", lnL_array2, m_list, s_list);
+      dump_array_to_file("LZ_2022_SD_table.dat", lnL_array1, m_list, s_list);
+      dump_array_to_file("PandaX_4T_SD_table.dat", lnL_array2, m_list, s_list);
       dump_array_to_file("XENON1T_2018_SD_table.dat", lnL_array3, m_list, s_list);
       dump_array_to_file("PICO_60_2019_SD_table.dat", lnL_array4, m_list, s_list);
 

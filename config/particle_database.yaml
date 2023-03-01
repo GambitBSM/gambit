@@ -157,9 +157,9 @@ OtherModels:
     - 0
     chargex3: 0
     color: 1
+    conjugate: chi~
     description: NREO Dirac Singlet
     name: chi
-    conjugate: chi~
     spinx2: 1
 
   - PDG_context:
@@ -199,6 +199,47 @@ OtherModels:
     description: Pseudoscalar Higgs
     name: A0
     spinx2: 0
+
+  - name: Xd
+    PDG_context:
+    - 5000521
+    - 0
+    spinx2: 1
+    chargex3: 0
+    color: 1
+    description: Xd (DMsimpVectorMedDiracDM)
+    conjugate: Xd~
+
+  - name: Y1
+    PDG_context:
+    - 5000001
+    - 0
+    spinx2: 2
+    chargex3: 0
+    color: 1
+    description: Y1 (DMsimpVectorMedDiracDM)
+    DecayBit:
+      Decays: true
+      name: Y1
+
+  - name: Xm
+    PDG_context:
+    - 5000522
+    - 0
+    spinx2: 1
+    chargex3: 0
+    color: 1
+    description: Xm (DMsimpVectorMedMajoranaDM)
+
+  - name: Xc
+    PDG_context:
+    - 5000520
+    - 0
+    spinx2: 0
+    chargex3: 0
+    color: 1
+    description: Xc (DMsimpVectorMedScalarDM)
+    conjugate: Xc~
   Sets:
 
   - DecayBit:

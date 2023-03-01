@@ -385,10 +385,11 @@ Rules:
   # Consult the DarkBit manual for the required options in each case
   - capability: RD_oh2
     #function: RD_oh2_DS5_general
+    # options:
+      # fast: 1  # 0: standard, 1: fast (default)
+      # Note that the corresponding options for DS6 have to be set in RD_oh2_DS6(pre4)_ini
+      # instead, see below!
     function: RD_oh2_DS_general
-    options:
-      # these options are identical for DS5 and DS6+ version
-      fast: 1  # 0: standard, 1: fast (default)
     #function: RD_oh2_DarkSUSY_DS5
     #options:
     #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
@@ -397,6 +398,15 @@ Rules:
     #options:
     #  fast: 1  # 0: standard (default), 1: fast
     #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
+    options:
+      fast: 1  # 0: standard, 1: fast (default)
+  #- capability: RD_oh2_DS6pre4_ini # for DS6 pre version 6.4.0
+  #  function: RD_oh2_DS6pre4_ini_func
+  #  options:
+  #    fast: 1  # 0: standard, 1: fast (default)
 
   # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
   - capability: RD_eff_annrate

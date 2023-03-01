@@ -22,13 +22,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          public:
             // -- Static factory pointers: 
             static Abstract_MSSMNoFV_onshell_susy_parameters* (*__factory0)();
-            static Abstract_MSSMNoFV_onshell_susy_parameters* (*__factory1)(double, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>&, double, double, double, double, double, double);
+            static Abstract_MSSMNoFV_onshell_susy_parameters* (*__factory1)(double, const ::Eigen::Matrix<double, 3, 3, 0>&, const ::Eigen::Matrix<double, 3, 3, 0>&, const ::Eigen::Matrix<double, 3, 3, 0>&, double, double, double, double, double, double);
       
             // -- Other member variables: 
       
             // Member functions: 
          public:
-            void print(::std::basic_ostream<char, std::char_traits<char> >& arg_1) const;
+            void print(::std::basic_ostream<char>& arg_1) const;
       
             void clear();
       
@@ -36,15 +36,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double get_scale() const;
       
-            void set_Yd(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& Yd_);
+            void set_Yd(const ::Eigen::Matrix<double, 3, 3, 0>& Yd_);
       
             void set_Yd(int i, int k, double value);
       
-            void set_Ye(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& Ye_);
+            void set_Ye(const ::Eigen::Matrix<double, 3, 3, 0>& Ye_);
       
             void set_Ye(int i, int k, double value);
       
-            void set_Yu(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& Yu_);
+            void set_Yu(const ::Eigen::Matrix<double, 3, 3, 0>& Yu_);
       
             void set_Yu(int i, int k, double value);
       
@@ -60,15 +60,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void set_vu(double vu_);
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Yd() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Yd() const;
       
             double get_Yd(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ye() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Ye() const;
       
             double get_Ye(int i, int k) const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Yu() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Yu() const;
       
             double get_Yu(int i, int k) const;
       
@@ -88,7 +88,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Wrappers for original constructors: 
          public:
             MSSMNoFV_onshell_susy_parameters();
-            MSSMNoFV_onshell_susy_parameters(double scale_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& Yd_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& Ye_, const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& Yu_, double Mu_, double g1_, double g2_, double g3_, double vd_, double vu_);
+            MSSMNoFV_onshell_susy_parameters(double scale_, const ::Eigen::Matrix<double, 3, 3, 0>& Yd_, const ::Eigen::Matrix<double, 3, 3, 0>& Ye_, const ::Eigen::Matrix<double, 3, 3, 0>& Yu_, double Mu_, double g1_, double g2_, double g3_, double vd_, double vu_);
       
             // Special pointer-based constructor: 
             MSSMNoFV_onshell_susy_parameters(Abstract_MSSMNoFV_onshell_susy_parameters* in);
