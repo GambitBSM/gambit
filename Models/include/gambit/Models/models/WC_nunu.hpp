@@ -25,9 +25,9 @@
 // (assume different neutrinos are phenomenologically indistinguishable)
 #define MODEL WC_nunu
   START_MODEL
-  DEFINE_PARS(Re_DeltaCLL_V, Im_DeltaCLL_V, Re_DeltaCRL_V, Im_DeltaCRL_V, Re_DeltaCLR_V, Im_DeltaCLR_V, Re_DeltaCRR_V, Im_DeltaCRR_V,
-	      Re_DeltaCLL_S, Im_DeltaCLL_S, Re_DeltaCRL_S, Im_DeltaCRL_S, Re_DeltaCLR_S, Im_DeltaCLR_S, Re_DeltaCRR_S, Im_DeltaCRR_S,
-	      Re_DeltaCLL_T, Im_DeltaCLL_T, Re_DeltaCRR_T, Im_DeltaCRR_T)
+  DEFINEPARS(Re_DeltaCLL_V, Im_DeltaCLL_V, Re_DeltaCRL_V, Im_DeltaCRL_V, Re_DeltaCLR_V, Im_DeltaCLR_V, Re_DeltaCRR_V, Im_DeltaCRR_V,
+	     Re_DeltaCLL_S, Im_DeltaCLL_S, Re_DeltaCRL_S, Im_DeltaCRL_S, Re_DeltaCLR_S, Im_DeltaCLR_S, Re_DeltaCRR_S, Im_DeltaCRR_S,
+	     Re_DeltaCLL_T, Im_DeltaCLL_T, Re_DeltaCRR_T, Im_DeltaCRR_T)
 #undef MODEL
 
 #endif

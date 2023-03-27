@@ -1576,7 +1576,7 @@ namespace Gambit
 
     /// Calculaton of dGamma(B->Kstarnunu)/dq2
     // Expression taken from 2107.01080
-    double dGammaBKstarnunudq2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mK)
+    double dGammaBKstarnunudq2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mKstar)
     {
       // CKM parameters
       const double A      = sminputs.CKM.A;
@@ -1611,7 +1611,7 @@ namespace Gambit
       const double HV0 = 1, HVp = 1, HVm = 1;
       const double HS = 1;
 
-      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR))*HS*HS );
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mKstar),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR))*HS*HS );
 
       return dGammadq2;
     }
@@ -1642,51 +1642,72 @@ namespace Gambit
 
     /// Calculation of FL_Knunu
     /// Based on equation 8 of 2107.01080
-    void FL_Knunu(double &result)
+    double FL_Knunu_q2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mKstar)
     {
-      using namespace Pipes::FL_Knunu;
-      SMInputs sminputs = *Dep::SMINPUTS;
-      
+      // CKM parameters
       const double A      = sminputs.CKM.A;
       const double lambda = sminputs.CKM.lambda;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
       // TODO: Using mb(mb) not pole mass
       const double mBmB = sminputs.mBmB;
 
       // Standard Model value for CLL
-      // TODO: Taking this from Table 1 in Bednyakov et al
+      // Took this from Table 1 in Bednyakov et al
       const double CLLSM = 4.1;
       const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
-      std::complex<double> CVLL = {*Param["Re_CLL_V"], *Param["Im_CLL_V"]};
-      std::complex<double> CVLR = {*Param["Re_CLR_V"], *Param["Im_CLR_V"]};
-      std::complex<double> CVRL = {*Param["Re_CRL_V"], *Param["Im_CRL_V"]};
-      std::complex<double> CVRR = {*Param["Re_CRR_V"], *Param["Im_CRR_V"]};
-      std::complex<double> CSLL = {*Param["Re_CLL_S"], *Param["Im_CLL_S"]};
-      std::complex<double> CSLR = {*Param["Re_CLR_S"], *Param["Im_CLR_S"]};
-      std::complex<double> CSRL = {*Param["Re_CRL_S"], *Param["Im_CRL_S"]};
-      std::complex<double> CSRR = {*Param["Re_CRR_S"], *Param["Im_CRR_S"]};
-      std::complex<double> CTLL = {*Param["Re_CLL_T"], *Param["Im_CLL_T"]};
-      std::complex<double> CTRR = {*Param["Re_CRR_T"], *Param["Im_CRR_T"]};
-      
+      // Ignoring tensor operators for now, only scalar and vector
+      std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
+      std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
+      std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
+      std::complex<double> CVRR = {param["Re_DeltaCRR_V"], param["Im_DeltaCRR_V"]};
+      std::complex<double> CSLL = {param["Re_DeltaCLL_S"], param["Im_DeltaCLL_S"]};
+      std::complex<double> CSLR = {param["Re_DeltaCLR_S"], param["Im_DeltaCLR_S"]};
+      std::complex<double> CSRL = {param["Re_DeltaCRL_S"], param["Im_DeltaCRL_S"]};
+      std::complex<double> CSRR = {param["Re_DeltaCRR_S"], param["Im_DeltaCRR_S"]};
+      std::complex<double> CTLL = {param["Re_DeltaCLL_T"], param["Im_DeltaCLL_T"]};
+      std::complex<double> CTRR = {param["Re_DeltaCRR_T"], param["Im_DeltaCRR_T"]};
+
       // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
       const double Nf = 3;
-      
+
       // Helicity amplitudes
       // TODO: Placeholder for now
-      const double HV = 1;
-      const double HS = 1;
-      const double HT = 1;
+      const double HV0 = 1;
+      const double HT0 = 1;
 
-      double FL_Knunu = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaKstar(q2),1/2) * (1/dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS)) * (pow(std::abs(CLLSM + CVLL - CVRL),2) * pow(HV,2) - 8.*pow(std::abs(CTLL),2) * pow(HT,2) + pow(std::abs(CVLR - CVRR),2)  * pow(HV,2) -8.* pow(std::abs(CTRR),2) *  pow(HT,2) );
+      double FL_Knunu_q2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2,mB,mKstar),1/2) * (1/dGammaBKstarnunudq2(q2, param, sminputs, mB, mKstar)) * (pow(std::abs(CLLSM + CVLL - CVRL),2) * pow(HV0,2) - 8.*pow(std::abs(CTLL),2) * pow(HT0,2) + pow(std::abs(CVLR - CVRR),2)  * pow(HV0,2) -8.* pow(std::abs(CTRR),2) *  pow(HT0,2) );
 
-      result = FL_Knunu;
+      return FL_Knunu_q2;
 
     }
     
+    /// Calculation of FL_Knunu
+    void FL_Knunu(double &result)
+    {
+      using namespace Pipes::FL_Knunu;
 
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaon0;
+
+      std::function<double(double)> FL_q2 = [&](double q2)
+      {
+        return FL_Knunu_q2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(FL_q2, q2min, q2max, epsabs, epsrel);
+
+    }
+    
     /// Calculation of BR(B+ -> K+ nu nu)
     void BpKpnunu(double &result)
     {
