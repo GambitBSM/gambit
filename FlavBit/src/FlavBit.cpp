@@ -1550,7 +1550,6 @@ namespace Gambit
       const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
-      // Ignoring tensor operators for now, only scalar and vector
       std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
       std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
       std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
@@ -1596,7 +1595,6 @@ namespace Gambit
       const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
-      // Ignoring tensor operators for now, only scalar and vector
       std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
       std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
       std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
@@ -1665,7 +1663,6 @@ namespace Gambit
       const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
-      // Ignoring tensor operators for now, only scalar and vector
       std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
       std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
       std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
