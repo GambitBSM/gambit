@@ -1517,12 +1517,63 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<< std::endl;
     }
 
+    // Kahler function
+    // TODO: Placeholder
+    double lambdaK(double q2)
+    {
+      return 0.;
+    }
+
+    /// Calculaton of dGamma(B->Knunu)/dq2
+    // Expression taken from 2107.01080
+    double dGammaBKnunudq2(double q2, ModelParameters param, SMInputs sminputs)
+    {
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      // TODO: Using mb(mb) not pole mass
+      const double mBmB = sminputs.mBmB;
+
+      // Standard Model value for CLL
+      // TODO: Taking this from Table 1 in Bednyakov et al
+      const double CLLSM = 4.1;
+      const double CLLSM_uncert = 0.5;
+
+      // Extract Wilson coefficients from model
+      // TODO: Ignoring tensor operators for now, only scalar and vector
+      std::complex<double> CVLL = {param["Re_CLL_V"], param["Im_CLL_V"]};
+      std::complex<double> CVLR = {param["Re_CLR_V"], param["Im_CLR_V"]};
+      std::complex<double> CVRL = {param["Re_CRL_V"], param["Im_CRL_V"]};
+      std::complex<double> CVRR = {param["Re_CRR_V"], param["Im_CRR_V"]};
+      std::complex<double> CSLL = {param["Re_CLL_S"], param["Im_CLL_S"]};
+      std::complex<double> CSLR = {param["Re_CLR_S"], param["Im_CLR_S"]};
+      std::complex<double> CSRL = {param["Re_CRL_S"], param["Im_CRL_S"]};
+      std::complex<double> CSRR = {param["Re_CRR_S"], param["Im_CRR_S"]};
+
+      // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
+      const double Nf = 3;
+
+      // Helicity amplitudes
+      // TODO: Placeholder for now
+      const double HV = 1;
+      const double HS = 1;
+
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2),1/2) * ( pow(std::abs(CLLSM + CVLL + CVRL),2) + pow(std::abs(CVLR + CVRR),2)  * pow(HV,2) + 3./2 * ( pow(std::abs(CSRL + CSLL),2) + pow(std::abs(CSRR + CSLR),2) ) * pow(HS,2) );
+
+      return dGammadq2;
+    }
+
     /// Calculation of BR(B -> K nu nu)
     void BKnunu(double &result)
     {
       using namespace Pipes::BKnunu;
 
-      result = 0.;
+      // TODO: Fixed for now
+      double q2 = 0.;
+
+      result = dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS);
+
     }
 
     /// Calculation of BR(B+ -> K+ nu nu)
