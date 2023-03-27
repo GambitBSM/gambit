@@ -1524,13 +1524,13 @@ namespace Gambit
     {
       return mB*mB*mB*mB + mK*mK*mK*mK + q2*q2 - 2.*mB*mB*mK*mK - 2.*mK*mK*q2 - 2.*mB*mB*q2;
     }
-    
+
     // TODO: Placeholder
     double lambdaKstar(double q2)
     {
       return 0.;
     }
-    
+
     /// Calculaton of dGamma(B->Knunu)/dq2
     // Expression taken from 2107.01080
     double dGammaBKnunudq2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mK)
@@ -1551,14 +1551,16 @@ namespace Gambit
 
       // Extract Wilson coefficients from model
       // Ignoring tensor operators for now, only scalar and vector
-      std::complex<double> CVLL = {param["Re_CLL_V"], param["Im_CLL_V"]};
-      std::complex<double> CVLR = {param["Re_CLR_V"], param["Im_CLR_V"]};
-      std::complex<double> CVRL = {param["Re_CRL_V"], param["Im_CRL_V"]};
-      std::complex<double> CVRR = {param["Re_CRR_V"], param["Im_CRR_V"]};
-      std::complex<double> CSLL = {param["Re_CLL_S"], param["Im_CLL_S"]};
-      std::complex<double> CSLR = {param["Re_CLR_S"], param["Im_CLR_S"]};
-      std::complex<double> CSRL = {param["Re_CRL_S"], param["Im_CRL_S"]};
-      std::complex<double> CSRR = {param["Re_CRR_S"], param["Im_CRR_S"]};
+      std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
+      std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
+      std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
+      std::complex<double> CVRR = {param["Re_DeltaCRR_V"], param["Im_DeltaCRR_V"]};
+      std::complex<double> CSLL = {param["Re_DeltaCLL_S"], param["Im_DeltaCLL_S"]};
+      std::complex<double> CSLR = {param["Re_DeltaCLR_S"], param["Im_DeltaCLR_S"]};
+      std::complex<double> CSRL = {param["Re_DeltaCRL_S"], param["Im_DeltaCRL_S"]};
+      std::complex<double> CSRR = {param["Re_DeltaCRR_S"], param["Im_DeltaCRR_S"]};
+      std::complex<double> CTLL = {param["Re_DeltaCLL_T"], param["Im_DeltaCLL_T"]};
+      std::complex<double> CTRR = {param["Re_DeltaCRR_T"], param["Im_DeltaCRR_T"]};
 
       // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
       const double Nf = 3;
@@ -1567,8 +1569,9 @@ namespace Gambit
       // TODO: Placeholder for now
       const double HV = 1;
       const double HS = 1;
+      const double HT = 1;
 
-      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL + CVRL) + std::norm(CVLR + CVRR)  * HV*HV + 3./2 * ( std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR) ) * HS*HS );
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL + CVRL) + std::norm(CVLR + CVRR)  * HV*HV + 3./2 * ( std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR) ) * HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR)) * HT*HT);
 
       return dGammadq2;
     }
@@ -1594,14 +1597,16 @@ namespace Gambit
 
       // Extract Wilson coefficients from model
       // Ignoring tensor operators for now, only scalar and vector
-      std::complex<double> CVLL = {param["Re_CLL_V"], param["Im_CLL_V"]};
-      std::complex<double> CVLR = {param["Re_CLR_V"], param["Im_CLR_V"]};
-      std::complex<double> CVRL = {param["Re_CRL_V"], param["Im_CRL_V"]};
-      std::complex<double> CVRR = {param["Re_CRR_V"], param["Im_CRR_V"]};
-      std::complex<double> CSLL = {param["Re_CLL_S"], param["Im_CLL_S"]};
-      std::complex<double> CSLR = {param["Re_CLR_S"], param["Im_CLR_S"]};
-      std::complex<double> CSRL = {param["Re_CRL_S"], param["Im_CRL_S"]};
-      std::complex<double> CSRR = {param["Re_CRR_S"], param["Im_CRR_S"]};
+      std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
+      std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
+      std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
+      std::complex<double> CVRR = {param["Re_DeltaCRR_V"], param["Im_DeltaCRR_V"]};
+      std::complex<double> CSLL = {param["Re_DeltaCLL_S"], param["Im_DeltaCLL_S"]};
+      std::complex<double> CSLR = {param["Re_DeltaCLR_S"], param["Im_DeltaCLR_S"]};
+      std::complex<double> CSRL = {param["Re_DeltaCRL_S"], param["Im_DeltaCRL_S"]};
+      std::complex<double> CSRR = {param["Re_DeltaCRR_S"], param["Im_DeltaCRR_S"]};
+      std::complex<double> CTLL = {param["Re_DeltaCLL_T"], param["Im_DeltaCLL_T"]};
+      std::complex<double> CTRR = {param["Re_DeltaCRR_T"], param["Im_DeltaCRR_T"]};
 
       // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
       const double Nf = 3;
@@ -1610,8 +1615,9 @@ namespace Gambit
       // TODO: Placeholder for now
       const double HV0 = 1, HVp = 1, HVm = 1;
       const double HS = 1;
+      const double HT0 = 1, HTp = 1, HTm = 1;
 
-      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mKstar),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR))*HS*HS );
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mKstar),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL - CSLL) + std::norm(CSRR - CSLR))*HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR))*(HTp*HTp + HTm*HTm + HT0*HT0));
 
       return dGammadq2;
     }
@@ -1679,12 +1685,12 @@ namespace Gambit
       const double HV0 = 1;
       const double HT0 = 1;
 
-      double FL_Knunu_q2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2,mB,mKstar),1/2) * (1/dGammaBKstarnunudq2(q2, param, sminputs, mB, mKstar)) * (pow(std::abs(CLLSM + CVLL - CVRL),2) * pow(HV0,2) - 8.*pow(std::abs(CTLL),2) * pow(HT0,2) + pow(std::abs(CVLR - CVRR),2)  * pow(HV0,2) -8.* pow(std::abs(CTRR),2) *  pow(HT0,2) );
+      double FL_Knunu_q2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2,mB,mKstar),1/2) * (1./dGammaBKstarnunudq2(q2, param, sminputs, mB, mKstar)) * (std::norm(CLLSM + CVLL - CVRL) * HV0*HV0 - 8.*std::norm(CTLL) * HT0*HT0 + std::norm(CVLR - CVRR)  * HV0*HV0 -8.* std::norm(CTRR) * HT0*HT0 );
 
       return FL_Knunu_q2;
 
     }
-    
+
     /// Calculation of FL_Knunu
     void FL_Knunu(double &result)
     {
@@ -1707,7 +1713,7 @@ namespace Gambit
       result = Utils::integrate_cquad(FL_q2, q2min, q2max, epsabs, epsrel);
 
     }
-    
+
     /// Calculation of BR(B+ -> K+ nu nu)
     void BpKpnunu(double &result)
     {
