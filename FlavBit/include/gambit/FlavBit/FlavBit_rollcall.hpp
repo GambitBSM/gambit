@@ -1065,6 +1065,28 @@ START_MODULE
     ALLOW_MODEL(WC_nunu)
     #undef FUNCTION
   #undef CAPABILITY
+
+  // Observable: RKnunu = BR(B+ -> K+ nu nu)/BR(B+ -> K+ nu nu)_SM
+  #define CAPABILITY RKnunu
+  START_CAPABILITY
+    #define FUNCTION RKnunu
+    START_FUNCTION(double)
+    DEPENDENCY(BpKpnunu, double)
+    ALLOW_MODEL(WC_nunu)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: RKstarnunu = BR(B -> K* nu nu)/BR(B -> K*nu nu)_SM
+  #define CAPABILITY RKstarnunu
+  START_CAPABILITY
+    #define FUNCTION RKstarnunu
+    START_FUNCTION(double)
+    DEPENDENCY(BKstarnunu, double)
+    ALLOW_MODEL(WC_nunu)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
   // All FeynHiggs flavour observables
   #define CAPABILITY FlavourObs
   START_CAPABILITY

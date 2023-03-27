@@ -1777,6 +1777,31 @@ namespace Gambit
 
     }
 
+    /// Observable: RKnunu = BR(B+ -> K+ nu nu) / BR(B+ -> K+ nu nu)_SM
+    void RKnunu(double &result)
+    {
+      using namespace Pipes::RKnunu;
+
+      // SM prediction for BR(B+ -> K+ nu nu), from 2107.01080
+      const double BpKpnunuSM = 4.6e-6;
+      const double BpKpnunuSM_uncert = 0.5e-6;
+
+      result = *Dep::BpKpnunu / BpKpnunuSM;
+    }
+
+    /// Observable: RKstarnunu = BR(B -> Kstar nu nu) / BR(B -> Kstar nu nu)_SM
+    void RKstarnunu(double &result)
+    {
+      using namespace Pipes::RKstarnunu;
+
+      // SM prediction for BR(B -> Kstar nu nu), from 2107.01080
+      // TODO: I think this is outdated, check
+      const double BKstarnunuSM = 8.4e-6;
+      const double BKstarnunuSM_uncert = 1.5e-6;
+
+      result = *Dep::BKstarnunu / BKstarnunuSM;
+    }
+
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
     {
