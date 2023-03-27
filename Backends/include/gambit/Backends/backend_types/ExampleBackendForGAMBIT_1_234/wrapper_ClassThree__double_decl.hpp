@@ -32,7 +32,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
       int size();
   
-      ClassThree__double operator+(ClassThree__double& other);
+      ClassThree__double operator+(ClassThree__double other);
   
   
       // Wrappers for original constructors: 

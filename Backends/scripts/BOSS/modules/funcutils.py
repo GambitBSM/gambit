@@ -61,7 +61,7 @@ def constrWrapperArgs(args, add_ref=False, convert_loaded_to_abstract=True):
         if not arg_dict['enumeration'] and (arg_dict['loaded_class'] or arg_dict['uses_loaded_class']):
 
                 if convert_loaded_to_abstract:
-                    arg_dict['type'] = utils.toAbstractType(arg_dict['type'])
+                    arg_dict['type'] = utils.toAbstractType(arg_dict['type'], is_loaded_type=True)
 
                 if add_ref:
                     if ('&' not in arg_dict['type']) and ('*' not in arg_dict['type']):

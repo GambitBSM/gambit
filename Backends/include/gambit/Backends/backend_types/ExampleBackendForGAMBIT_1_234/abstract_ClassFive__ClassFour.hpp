@@ -20,6 +20,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
       virtual Abstract_ClassFour* pop__BOSS() =0;
   
+      virtual const Abstract_ClassFour& last__BOSS() const =0;
+  
       virtual void push__BOSS(Abstract_ClassFour&) =0;
   
       virtual int size() =0;

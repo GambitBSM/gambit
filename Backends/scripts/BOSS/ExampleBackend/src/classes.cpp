@@ -25,7 +25,7 @@ int ClassThree<T>::size()
 }
 
 template <typename T>
-ClassThree<T> ClassThree<T>::operator+(ClassThree<T> & other)
+ClassThree<T> ClassThree<T>::operator+(ClassThree<T> other)
 {
   ClassThree<T> result;
   for(int i=0; i<curr_size; ++i)
@@ -59,7 +59,7 @@ int ClassFour::size()
   return stack.size();
 }
 
-ClassFour ClassFour::operator+(ClassFour &other)
+ClassFour ClassFour::operator+(ClassFour other)
 {
   ClassFour result;
   for(int i=0; i<curr_size; ++i)
@@ -69,11 +69,18 @@ ClassFour ClassFour::operator+(ClassFour &other)
 }
 
 
+template class ClassThree<ClassFour>;
+
 ClassFour ClassFive<ClassFour>::pop()
 {
   ClassFour top = stack.back();
   stack.pop_back();
   return top;
+}
+
+const ClassFour &ClassFive<ClassFour>::last() const
+{
+  return stack.back();
 }
 
 
@@ -137,4 +144,97 @@ template <typename T>
 void ClassSeven<T>::get_stack(std::vector<ClassFour>& stack)
 {
   stack = stack3;
+}
+
+namespace ClassNamespace
+{
+  double ClassEight::pop()
+  {
+    double top = stack.back();
+    stack.pop_back();
+    return top;
+  }
+
+
+  void ClassEight::push(double item)
+  {
+    stack.push_back(item);
+  }
+
+
+  int ClassEight::size()
+  {
+    return stack.size();
+  }
+
+  ClassEight ClassEight::operator+(ClassEight other)
+  {
+    ClassEight result;
+    for(int i=0; i<curr_size; ++i)
+      result.push(pop() + other.pop());
+
+    return result;
+  }
+
+
+  ClassEight ClassNine<ClassEight>::pop()
+  {
+    ClassEight top = stack.back();
+    stack.pop_back();
+    return top;
+  }
+
+  const ClassEight &ClassNine<ClassEight>::last() const
+  {
+    return stack.back();
+  }
+
+
+  void ClassNine<ClassEight>::push(ClassEight item)
+  {
+    stack.push_back(item);
+  }
+
+
+  int ClassNine<ClassEight>::size()
+  {
+    return stack.size();
+  }
+
+  template <typename T>
+  T ClassTen<T>::pop()
+  {
+    T top = stack.back();
+    stack.pop_back();
+    return top;
+  }
+
+
+  template <typename T>
+  void ClassTen<T>::push(T item)
+  {
+    stack.push_back(item);
+  }
+
+
+  template <typename T>
+  int ClassTen<T>::size()
+  {
+    return stack.size();
+  }
+
+  template <typename T>
+  ClassTen<T> ClassTen<T>::operator+(ClassTen<T> other)
+  {
+    ClassTen<T> result;
+    for(int i=0; i<curr_size; ++i)
+      result.push(pop() + other.pop());
+
+    return result;
+  }
+
+// Instantiate a <ClassEight> specialization of ClassTen:
+template class ClassTen<ClassEight>;
+
+
 }

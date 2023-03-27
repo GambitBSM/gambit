@@ -15,6 +15,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     return ClassFour( get_BEptr()->pop__BOSS() );
   }
   
+  inline const ClassFour& ClassFive__ClassFour::last() const
+  {
+    return const_cast<Abstract_ClassFour&>(const_cast<const Abstract_ClassFive__ClassFour*>(get_BEptr())->last__BOSS()).get_init_wref();
+  }
+  
   inline void ClassFive__ClassFour::push(ClassFour item)
   {
     get_BEptr()->push__BOSS(*item.get_BEptr());

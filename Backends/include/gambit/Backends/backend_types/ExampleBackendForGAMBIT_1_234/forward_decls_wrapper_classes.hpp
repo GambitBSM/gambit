@@ -15,6 +15,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   class ClassSix;
   class ClassSeven__double;
   class ClassSeven__int;
+  namespace ClassNamespace
+  {
+    class ClassEight;
+    class ClassNine__ClassEight;
+  }
   
   
   

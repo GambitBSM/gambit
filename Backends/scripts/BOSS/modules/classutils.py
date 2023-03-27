@@ -926,11 +926,11 @@ def constrWrapperFunction(class_el, method_el, indent=cfg.indent, n_indents=0, r
     # Choose wrapper return type
     if return_is_loaded_class:
         if (pointerness == 0) and (is_ref):
-            w_return_type = utils.toAbstractType(return_type, include_namespace=True)
+            w_return_type = utils.toAbstractType(return_type, include_namespace=True, is_loaded_type=True)
         elif (pointerness == 0) and (not is_ref):
-            w_return_type = utils.toAbstractType(return_type, include_namespace=True, add_pointer=True, remove_reference=True)
+            w_return_type = utils.toAbstractType(return_type, include_namespace=True, add_pointer=True, remove_reference=True, is_loaded_type=True)
         else:
-            w_return_type = utils.toAbstractType(return_type, include_namespace=True)
+            w_return_type = utils.toAbstractType(return_type, include_namespace=True, is_loaded_type=True)
 
     else:
         w_return_type = return_type
@@ -1116,19 +1116,24 @@ def constrPtrCopyFunc(class_el, class_name, virtual=False, indent=cfg.indent, n_
     if is_template and only_declaration and not specialized:
         abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
         class_name_short = class_name['short'] + class_name['templ_vars']
+        if include_full_namespace:
+            class_name_long = class_name['long_templ']
+            abstr_class_name_long = class_name['abstr_long_templ']
+            func_name = class_name_long + "::" + func_name
+        else:
+            class_name_long = class_name_short
+            abstr_class_name_long = abstr_class_name_short
+
     else:
         class_name_short = class_name['short_templ']
         abstr_class_name_short = class_name['abstr_short_templ']
-
-    class_name_long = class_name_short
-    abstr_class_name_long = abstr_class_name_short
-
-    if include_full_namespace:
-        namespaces = utils.getNamespaces(class_el)
-        if len(namespaces) > 0:
-            abstr_class_name_long = '::'.join(namespaces) + '::' + abstr_class_name_short
-            class_name_long = '::'.join(namespaces) + '::' + class_name_short
-        func_name = class_name_long + "::" + func_name
+        if include_full_namespace:
+            class_name_long = class_name['long_templ']
+            abstr_class_name_long = class_name['abstr_long_templ']
+            func_name = class_name_long + "::" + func_name
+        else:
+            class_name_long = class_name_short
+            abstr_class_name_long = abstr_class_name_short
 
     if class_name['is_template'] and not only_declaration:
        if specialized:
@@ -1163,31 +1168,31 @@ def constrPtrAssignFunc(class_el, class_name, virtual=False, indent=cfg.indent, 
     func_name  = 'pointer_assign' + gb.code_suffix
 
     # Some shorthand variable names for different cases
-    # TODO: Remove if not needed
-#    if class_name['is_template']:
-#        abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
-#        class_name_short = class_name['short'] + class_name['templ_vars']
-#        wrp_class_name_short = class_name['wrp_short'] + class_name['templ_vars']
-#    else:
     if class_name['is_template'] and not specialized:
         abstr_class_name_short = class_name['abstr_short'] + class_name['templ_vars']
         class_name_short = class_name['short'] + class_name['templ_vars']
+        if include_full_namespace:
+            class_name_long = class_name['long_templ']
+            abstr_class_name_long = class_name['abstr_long_templ']
+            func_name = class_name_long + "::" + func_name
+        else:
+            class_name_long = class_name_short
+            abstr_class_name_long = abstr_class_name_short
+
     else:
-      abstr_class_name_short = class_name['abstr_short_templ']
-      class_name_short = class_name['short_templ']
+        abstr_class_name_short = class_name['abstr_short_templ']
+        class_name_short = class_name['short_templ']
+        if include_full_namespace:
+            class_name_long = class_name['long_templ']
+            abstr_class_name_long = class_name['abstr_long_templ']
+            func_name = class_name_long + "::" + func_name
+        else:
+            class_name_long = class_name_short
+            abstr_class_name_long = abstr_class_name_short
+
     wrp_class_name_short = class_name['wrp_short']
-
-    abstr_class_name_long = abstr_class_name_short
-    class_name_long = class_name_short
-    wrp_class_name_long = wrp_class_name_short
-
-    if include_full_namespace:
-        namespaces = utils.getNamespaces(class_el)
-        if len(namespaces) > 0:
-            abstr_class_name_long = '::'.join(namespaces) + '::' + abstr_class_name_short
-            class_name_long = '::'.join(namespaces) + '::' + class_name_short
-            wrp_class_name_long = '::'.join(namespaces) + '::' + wrp_class_name_short
-        func_name = class_name_long + "::" + func_name
+    #wrp_class_name_long = wrp_class_name_short
+    wrp_class_name_long = class_name['wrp_long']
 
     # Now generate the code
     ptr_code = ''
@@ -1855,7 +1860,7 @@ def constrWrapperDef(class_el, class_name, loaded_parent_classes, class_variable
 
             if return_is_loaded:
 
-                abs_return_type_simple = utils.toAbstractType(return_type, include_namespace=True, remove_reference=True, remove_pointers=True)
+                abs_return_type_simple = utils.toAbstractType(return_type, include_namespace=True, remove_reference=True, remove_pointers=True, is_loaded_type=True)
                 # return_type_simple     = return_type.replace('*','').replace('&','')
 
                 if is_const:

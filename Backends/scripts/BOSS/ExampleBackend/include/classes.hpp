@@ -4,18 +4,18 @@
 #include <iostream>
 #include <vector>
 #include <ctime>
-#include <map> 
+#include <map>
 
 
 
-template <typename T>         
+template <typename T>
 class ClassThree {
 public:
   T pop();
   void push(T item);
   int size();
 
-  ClassThree<T> operator+(ClassThree<T>& other);
+  ClassThree<T> operator+(ClassThree<T> other);
 
   T test;
 
@@ -34,7 +34,7 @@ public:
   void push(double item);
   int size();
 
-  ClassFour operator+(ClassFour& other);
+  ClassFour operator+(ClassFour other);
 
 private:
   std::vector<double> stack;
@@ -52,6 +52,7 @@ class ClassFive<ClassFour>
 {
 public:
   ClassFour pop();
+  const ClassFour &last() const;
   void push(ClassFour item);
   int size();
 
@@ -92,5 +93,62 @@ private:
 
 static ClassSeven<double> __BOSS_dummy_ClassSeven_double_instance__;
 static ClassSeven<int> __BOSS_dummy_ClassSeven_int_instance__;
+
+namespace ClassNamespace
+{
+  class ClassEight
+  {
+    public:
+      double pop();
+      void push(double item);
+      int size();
+
+      ClassEight operator+(ClassEight other);
+
+    private:
+      std::vector<double> stack;
+      int curr_size;
+  };
+
+  template <typename T>
+  class ClassNine;
+
+  template<>
+  class ClassNine<ClassEight>
+  {
+  public:
+    ClassEight pop();
+    const ClassEight &last() const;
+    void push(ClassEight item);
+    int size();
+
+  private:
+    std::vector<ClassEight> stack;
+    int curr_size;
+
+  };
+
+  template <typename T>
+  class ClassTen {
+  public:
+    T pop();
+    void push(T item);
+    int size();
+
+    ClassTen<T> operator+(ClassTen<T> other);
+
+    T test;
+
+  private:
+    std::vector<T> stack;
+    int curr_size;
+  };
+
+  static ClassTen<double> __BOSS_dummy_ClassTen_double_instance__;
+  static ClassTen<int> _BOSS_dummy_ClassTen_int_instance__;
+  static ClassTen<ClassEight> _BOSS_dummy_ClassTen_Eight_instance__;
+
+
+}
 
 #endif

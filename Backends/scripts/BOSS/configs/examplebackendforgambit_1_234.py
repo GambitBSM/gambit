@@ -50,11 +50,15 @@ src_files_to = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+ga
 load_classes = [
     'ClassThree<double>',
     'ClassThree<int>',
+    #'ClassThree<ClassFour>',
     'ClassFour',
     'ClassFive<ClassFour>',
     'ClassSix',
     'ClassSeven<double>',
     'ClassSeven<int>',
+    'ClassNamespace::ClassEight',
+    'ClassNamespace::ClassNine<ClassNamespace::ClassEight>',
+    #'ClassNamespace::ClassTen<ClassNamespace::ClassEight>'
 ]
 
 load_functions = [

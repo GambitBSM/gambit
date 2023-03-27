@@ -26,6 +26,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     public:
       ClassFour pop();
   
+      const ClassFour& last() const;
+  
       void push(ClassFour item);
   
       int size();

@@ -25,7 +25,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     return get_BEptr()->size();
   }
   
-  inline ClassFour ClassFour::operator+(ClassFour& other)
+  inline ClassFour ClassFour::operator+(ClassFour other)
   {
     return ClassFour( get_BEptr()->operator_plus__BOSS(*other.get_BEptr()) );
   }

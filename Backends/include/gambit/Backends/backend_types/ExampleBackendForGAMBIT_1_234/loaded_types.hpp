@@ -8,6 +8,8 @@
 #include "wrapper_ClassSix.hpp"
 #include "wrapper_ClassSeven__double.hpp"
 #include "wrapper_ClassSeven__int.hpp"
+#include "wrapper_ClassEight.hpp"
+#include "wrapper_ClassNine__ClassEight.hpp"
 #include "identification.hpp"
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
@@ -19,6 +21,8 @@
   (( /*class*/(ClassSix),    /*constructors*/(("Factory_ClassSix_0__BOSS_5",())) )) \
   (( /*class*/(ClassSeven__double),    /*constructors*/(("Factory_ClassSeven__double_0_double__BOSS_6",())) )) \
   (( /*class*/(ClassSeven__int),    /*constructors*/(("Factory_ClassSeven__int_0_int__BOSS_7",())) )) \
+  (( /*class*/(ClassNamespace)(ClassEight),    /*constructors*/(("Factory_ClassEight_0__BOSS_8",())) )) \
+  (( /*class*/(ClassNamespace)(ClassNine__ClassEight),    /*constructors*/(("Factory_ClassNine__ClassEight_0__BOSS_9",())) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))
@@ -35,6 +39,11 @@
       template <typename T> class ClassSeven { };
       template <> class ClassSeven<double>: public ClassSeven__double { using ClassSeven__double::ClassSeven__double; };
       template <> class ClassSeven<int>: public ClassSeven__int { using ClassSeven__int::ClassSeven__int; };
+      namespace ClassNamespace
+      {
+        template <class T0> class ClassNine { };
+        template <> class ClassNine<ClassNamespace::ClassEight>: public ClassNine__ClassEight { using ClassNine__ClassEight::ClassNine__ClassEight; };
+      }
     }
   }
 #endif
@@ -49,6 +58,11 @@ namespace ExampleBackendForGAMBIT_1_234
   template <typename T> class ClassSeven { };
   template <> class ClassSeven<double>: public ClassSeven__double { using ClassSeven__double::ClassSeven__double; };
   template <> class ClassSeven<int>: public ClassSeven__int { using ClassSeven__int::ClassSeven__int; };
+  namespace ClassNamespace
+  {
+    template <class T0> class ClassNine { };
+    template <> class ClassNine<ClassNamespace::ClassEight>: public ClassNine__ClassEight { using ClassNine__ClassEight::ClassNine__ClassEight; };
+  }
 }
 
 // Undefine macros to avoid conflict with other backends.

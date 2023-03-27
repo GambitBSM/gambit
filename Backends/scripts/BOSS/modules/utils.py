@@ -239,7 +239,7 @@ def toWrapperType(input_type_name, remove_reference=False, remove_pointers=False
 
 # ====== toAbstractType ========
 
-def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, remove_reference=False, remove_pointers=False, input_type_el=None):
+def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, remove_reference=False, remove_pointers=False, input_type_el=None, is_loaded_type=False):
 
     type_name = input_type_name
 
@@ -259,7 +259,7 @@ def toAbstractType(input_type_name, include_namespace=True, add_pointer=False, r
     if (n_pointers > 0) and remove_pointers:
         type_name_short = type_name_short.replace('*','')
 
-    if isLoadedClass(type_name, bybasename=True) or isLoadedClass(type_name.split("__")[0], bybasename=True):
+    if is_loaded_type or isLoadedClass(type_name, bybasename=True) or isLoadedClass(type_name.split("__")[0], bybasename=True):
         if namespace == '':
             type_name = gb.abstr_class_prefix + type_name_short
         else:
@@ -839,7 +839,8 @@ def getTemplatedMethodTypes(func_el, class_name):
             args = brackets.split(',')
 
         # Parse each arg into a dictionary and add it to method_types
-        method_types['args'] = makeTemplateArgs(args)
+        dict_args = getArgs(func_el)
+        method_types['args'] = makeTemplateArgs(args,dict_args)
 
         if len(method_types['args']) != len(xml_args_info):
             raise UnfoundMember("Arguments of {0} are incorrect".format(searching_method))
@@ -870,7 +871,7 @@ def getTemplatedMethodTypes(func_el, class_name):
 
 # ======== makeTemplateArgs ============
 
-def makeTemplateArgs(args):
+def makeTemplateArgs(args,dict_args):
 
     # Returns a list of dicts for the template arguments
     # containing the following keywords:
@@ -882,7 +883,10 @@ def makeTemplateArgs(args):
     args_out = []
 
     argc = 1
-    for arg in args:
+    for i in range(len(args)):
+
+        arg = args[i]
+        dict_arg = dict_args[i]
 
         arg_dict = OrderedDict()
         arg = arg.strip()
@@ -893,24 +897,20 @@ def makeTemplateArgs(args):
           arg = arg.split('=')[0].strip()
 
         # I don't think we care if this is fundamental or an enumeration
-        arg_dict['fundamental'] = False
-        arg_dict['enumeration'] = False
+        arg_dict['fundamental'] = dict_arg['fundamental']
+        arg_dict['enumeration'] = dict_arg['enumeration']
 
-        # Default is no specific type
-        arg_dict['native'] = False
-        arg_dict['known_class'] = False
-        arg_dict['enumeration'] = False
-        arg_dict['loaded_class'] = False
+        # Take info from type dictionary
+        arg_dict['native'] = dict_arg['native']
 
         # Is it a known class?
-        if isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
-           isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True):
-            arg_dict['known_class'] = True
+        arg_dict['known_class'] = dict_arg['known_class'] or\
+           isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True) or\
+           isInList(arg, cfg.known_classes.keys(), return_index=False, ignore_whitespace=True)
 
         # If type is a loaded class, tag it as loaded and native
-        arg_dict['loaded_class'] = isLoadedClass(arg, bybasename=True)
-        arg_dict['uses_loaded_class'] = usesLoadedClass(arg, byname=True)
-        arg_dict['native'] = isLoadedClass(arg, bybasename=True)
+        arg_dict['loaded_class'] = dict_arg['loaded_class'] or isLoadedClass(arg, bybasename=True)
+        arg_dict['uses_loaded_class'] = dict_arg['uses_loaded_class'] or usesLoadedClass(arg, byname=True)
 
         # Look for const or volatile qualifiers at the start
         arg_dict['kw'] = []

@@ -30,7 +30,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   
       int size();
   
-      ClassFour operator+(ClassFour& other);
+      ClassFour operator+(ClassFour other);
   
   
       // Wrappers for original constructors: 
