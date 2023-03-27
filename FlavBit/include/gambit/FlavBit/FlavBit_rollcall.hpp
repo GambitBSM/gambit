@@ -1048,6 +1048,16 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Observable: FL_Knunu
+  #define CAPABILITY FL_Knunu
+  START_CAPABILITY
+    #define FUNCTION FL_Knunu
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS, SMInputs)
+    ALLOW_MODEL(WC_nunu)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // Observable: BR(B+ -> Kstar+ nu nu)
   #define CAPABILITY BpKstarpnunu
   START_CAPABILITY

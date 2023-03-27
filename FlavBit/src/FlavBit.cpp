@@ -1523,7 +1523,13 @@ namespace Gambit
     {
       return 0.;
     }
-
+    
+    // TODO: Placeholder
+    double lambdaKstar(double q2)
+    {
+      return 0.;
+    }
+    
     /// Calculaton of dGamma(B->Knunu)/dq2
     // Expression taken from 2107.01080
     double dGammaBKnunudq2(double q2, ModelParameters param, SMInputs sminputs)
@@ -1575,6 +1581,53 @@ namespace Gambit
       result = dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS);
 
     }
+
+    /// Calculation of FL_Knunu
+    /// Based on equation 8 of 2107.01080
+    void FL_Knunu(double &result)
+    {
+      using namespace Pipes::FL_Knunu;
+      SMInputs sminputs = *Dep::SMINPUTS;
+      
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+      // TODO: Using mb(mb) not pole mass
+      const double mBmB = sminputs.mBmB;
+
+      // Standard Model value for CLL
+      // TODO: Taking this from Table 1 in Bednyakov et al
+      const double CLLSM = 4.1;
+      const double CLLSM_uncert = 0.5;
+
+      // Extract Wilson coefficients from model
+      std::complex<double> CVLL = {*Param["Re_CLL_V"], *Param["Im_CLL_V"]};
+      std::complex<double> CVLR = {*Param["Re_CLR_V"], *Param["Im_CLR_V"]};
+      std::complex<double> CVRL = {*Param["Re_CRL_V"], *Param["Im_CRL_V"]};
+      std::complex<double> CVRR = {*Param["Re_CRR_V"], *Param["Im_CRR_V"]};
+      std::complex<double> CSLL = {*Param["Re_CLL_S"], *Param["Im_CLL_S"]};
+      std::complex<double> CSLR = {*Param["Re_CLR_S"], *Param["Im_CLR_S"]};
+      std::complex<double> CSRL = {*Param["Re_CRL_S"], *Param["Im_CRL_S"]};
+      std::complex<double> CSRR = {*Param["Re_CRR_S"], *Param["Im_CRR_S"]};
+      std::complex<double> CTLL = {*Param["Re_CLL_T"], *Param["Im_CLL_T"]};
+      std::complex<double> CTRR = {*Param["Re_CRR_T"], *Param["Im_CRR_T"]};
+      
+      // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
+      const double Nf = 3;
+      
+      // Helicity amplitudes
+      // TODO: Placeholder for now
+      const double HV = 1;
+      const double HS = 1;
+      const double HT = 1;
+
+      double FL_Knunu = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaKstar(q2),1/2) * (1/dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS)) * (pow(std::abs(CLLSM + CVLL - CVRL),2) * pow(HV,2) - 8.*pow(std::abs(CTLL),2) * pow(HT,2) + pow(std::abs(CVLR - CVRR),2)  * pow(HV,2) -8.* pow(std::abs(CTRR),2) *  pow(HT,2) );
+
+      result = FL_Knunu;
+
+    }
+    
 
     /// Calculation of BR(B+ -> K+ nu nu)
     void BpKpnunu(double &result)
