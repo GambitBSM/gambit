@@ -1517,7 +1517,38 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<< std::endl;
     }
 
+    /// Calculation of BR(B -> K nu nu)
+    void BKnunu(double &result)
+    {
+      using namespace Pipes::BKnunu;
 
+      result = 0.;
+    }
+
+    /// Calculation of BR(B+ -> K+ nu nu)
+    void BpKpnunu(double &result)
+    {
+      using namespace Pipes::BpKpnunu;
+
+      result = 0.;
+    }
+
+    /// Calculation of BR(B -> K* nu nu)
+    void BKstarnunu(double &result)
+    {
+      using namespace Pipes::BKstarnunu;
+
+      result = 0.;
+    }
+
+    /// Calculation of BR(B+ -> K*+ nu nu)
+    void BpKstarpnunu(double &result)
+    {
+      using namespace Pipes::BpKstarpnunu;
+
+      result = 0.;
+
+    }
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
     {
