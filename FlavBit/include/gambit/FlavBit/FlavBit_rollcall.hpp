@@ -37,6 +37,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///  \date 2017 July
+///  \date 2022 Mar
 ///
 ///  \author Jihyun Bhom
 ///  \date 2019 July
@@ -44,9 +45,6 @@
 ///
 ///  \author Markus Prim
 ///  \date 2019 Aug
-///
-///  \author Tomas Gonzalo
-///  \date 2022 Mar
 ///
 ///  *********************************************
 

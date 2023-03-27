@@ -41,8 +41,9 @@
 ///  \date 2020 Feb
 ///
 ///  \author Tomas Gonzalo
-///          (t.e.gonzalo@fys.uio.no)
+///          (tomas.gonzalo@kit.edu)
 ///  \date 2017 July
+///  \date 2023 Mar
 ///
 ///  \author Jihyun Bhom
 ///          (jihyun.bhom@ifj.edu.pl)
@@ -73,6 +74,7 @@
 #include "gambit/FlavBit/flav_loop_functions.hpp"
 #include "gambit/Elements/translator.hpp"
 #include "gambit/Utils/statistics.hpp"
+#include "gambit/Utils/integration.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
 
 
@@ -1518,10 +1520,9 @@ namespace Gambit
     }
 
     // Kahler function
-    // TODO: Placeholder
-    double lambdaK(double q2)
+    double lambdaK(double q2, double mB, double mK)
     {
-      return 0.;
+      return mB*mB*mB*mB + mK*mK*mK*mK + q2*q2 - 2.*mB*mB*mK*mK - 2.*mK*mK*q2 - 2.*mB*mB*q2;
     }
     
     // TODO: Placeholder
@@ -1532,22 +1533,24 @@ namespace Gambit
     
     /// Calculaton of dGamma(B->Knunu)/dq2
     // Expression taken from 2107.01080
-    double dGammaBKnunudq2(double q2, ModelParameters param, SMInputs sminputs)
+    double dGammaBKnunudq2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mK)
     {
+      // CKM parameters
       const double A      = sminputs.CKM.A;
       const double lambda = sminputs.CKM.lambda;
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
       // TODO: Using mb(mb) not pole mass
       const double mBmB = sminputs.mBmB;
 
       // Standard Model value for CLL
-      // TODO: Taking this from Table 1 in Bednyakov et al
+      // Took this from Table 1 in Bednyakov et al
       const double CLLSM = 4.1;
       const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
-      // TODO: Ignoring tensor operators for now, only scalar and vector
+      // Ignoring tensor operators for now, only scalar and vector
       std::complex<double> CVLL = {param["Re_CLL_V"], param["Im_CLL_V"]};
       std::complex<double> CVLR = {param["Re_CLR_V"], param["Im_CLR_V"]};
       std::complex<double> CVRL = {param["Re_CRL_V"], param["Im_CRL_V"]};
@@ -1565,20 +1568,75 @@ namespace Gambit
       const double HV = 1;
       const double HS = 1;
 
-      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2),1/2) * ( pow(std::abs(CLLSM + CVLL + CVRL),2) + pow(std::abs(CVLR + CVRR),2)  * pow(HV,2) + 3./2 * ( pow(std::abs(CSRL + CSLL),2) + pow(std::abs(CSRR + CSLR),2) ) * pow(HS,2) );
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL + CVRL) + std::norm(CVLR + CVRR)  * HV*HV + 3./2 * ( std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR) ) * HS*HS );
 
       return dGammadq2;
     }
+
+
+    /// Calculaton of dGamma(B->Kstarnunu)/dq2
+    // Expression taken from 2107.01080
+    double dGammaBKstarnunudq2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mK)
+    {
+      // CKM parameters
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      // TODO: Using mb(mb) not pole mass
+      const double mBmB = sminputs.mBmB;
+
+      // Standard Model value for CLL
+      // Took this from Table 1 in Bednyakov et al
+      const double CLLSM = 4.1;
+      const double CLLSM_uncert = 0.5;
+
+      // Extract Wilson coefficients from model
+      // Ignoring tensor operators for now, only scalar and vector
+      std::complex<double> CVLL = {param["Re_CLL_V"], param["Im_CLL_V"]};
+      std::complex<double> CVLR = {param["Re_CLR_V"], param["Im_CLR_V"]};
+      std::complex<double> CVRL = {param["Re_CRL_V"], param["Im_CRL_V"]};
+      std::complex<double> CVRR = {param["Re_CRR_V"], param["Im_CRR_V"]};
+      std::complex<double> CSLL = {param["Re_CLL_S"], param["Im_CLL_S"]};
+      std::complex<double> CSLR = {param["Re_CLR_S"], param["Im_CLR_S"]};
+      std::complex<double> CSRL = {param["Re_CRL_S"], param["Im_CRL_S"]};
+      std::complex<double> CSRR = {param["Re_CRR_S"], param["Im_CRR_S"]};
+
+      // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
+      const double Nf = 3;
+
+      // Helicity amplitudes
+      // TODO: Placeholder for now
+      const double HV0 = 1, HVp = 1, HVm = 1;
+      const double HS = 1;
+
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR))*HS*HS );
+
+      return dGammadq2;
+    }
+
 
     /// Calculation of BR(B -> K nu nu)
     void BKnunu(double &result)
     {
       using namespace Pipes::BKnunu;
 
-      // TODO: Fixed for now
-      double q2 = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaon0;
 
-      result = dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS);
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
 
     }
 
@@ -1634,7 +1692,22 @@ namespace Gambit
     {
       using namespace Pipes::BpKpnunu;
 
-      result = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_plus;
+      const double mK = Mesons_masses::kaon_plus;
+
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
     }
 
     /// Calculation of BR(B -> K* nu nu)
@@ -1642,7 +1715,22 @@ namespace Gambit
     {
       using namespace Pipes::BKstarnunu;
 
-      result = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaonstar0;
+
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
     }
 
     /// Calculation of BR(B+ -> K*+ nu nu)
@@ -1650,9 +1738,24 @@ namespace Gambit
     {
       using namespace Pipes::BpKstarpnunu;
 
-      result = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_plus;
+      const double mK = Mesons_masses::kaonstar_plus;
+
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
 
     }
+
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
     {
