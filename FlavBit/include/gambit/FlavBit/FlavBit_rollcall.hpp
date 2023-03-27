@@ -45,6 +45,9 @@
 ///  \author Markus Prim
 ///  \date 2019 Aug
 ///
+///  \author Tomas Gonzalo
+///  \date 2022 Mar
+///
 ///  *********************************************
 
 #ifndef __FlavBit_rollcall_hpp__
@@ -1014,6 +1017,42 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+
+  // Observable: BR(B -> K nu nu)
+  #define CAPABILITY BKnunu
+  START_CAPABILITY
+    #define FUNCTION BKnunu
+    START_FUNCTION(double)
+    ALLOW_MODEL(WC_nunu)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(B+ -> K+ nu nu)
+  #define CAPABILITY BpKpnunu
+  START_CAPABILITY
+    #define FUNCTION BpKpnunu
+    START_FUNCTION(double)
+    ALLOW_MODEL(WC_nunu)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(B -> K* nu nu)
+  #define CAPABILITY BKstarnunu
+  START_CAPABILITY
+    #define FUNCTION BKstarnunu
+    START_FUNCTION(double)
+    ALLOW_MODEL(WC_nunu)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: BR(B+ -> Kstar+ nu nu)
+  #define CAPABILITY BpKstarpnunu
+  START_CAPABILITY
+    #define FUNCTION BpKstarpnunu
+    START_FUNCTION(double)
+    ALLOW_MODEL(WC_nunu)
+    #undef FUNCTION
+  #undef CAPABILITY
   // All FeynHiggs flavour observables
   #define CAPABILITY FlavourObs
   START_CAPABILITY
