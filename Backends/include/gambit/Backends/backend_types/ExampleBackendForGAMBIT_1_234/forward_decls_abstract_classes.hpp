@@ -19,6 +19,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   {
     class Abstract_ClassEight;
     class Abstract_ClassNine__ClassEight;
+    template <typename T>
+    class Abstract_ClassTen;
   }
   
   

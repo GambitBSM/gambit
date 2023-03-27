@@ -41,14 +41,19 @@ namespace Gambit
         template <class T0>
         using ClassNine = ::ExampleBackendForGAMBIT_1_234::ClassNamespace::ClassNine<T0>;
       }
+      namespace ClassNamespace
+      {
+        template <typename T>
+        using ClassTen = ::ExampleBackendForGAMBIT_1_234::ClassNamespace::ClassTen<T>;
+      }
     }
   }
 }
 
 // Functions
-BE_FUNCTION(return_as_vector, std::vector<int>, (int, int), "return_as_vector__BOSS_10", "return_as_vector")
-BE_FUNCTION(return_as_vector_2, std::vector<int>, (int, int&), "return_as_vector_2__BOSS_11", "return_as_vector_2")
-BE_FUNCTION(return_a_ClassFour_instance, ExampleBackendForGAMBIT_1_234::ClassFour, (), "return_a_ClassFour_instance__BOSS_12", "return_a_ClassFour_instance")
+BE_FUNCTION(return_as_vector, std::vector<int>, (int, int), "return_as_vector__BOSS_11", "return_as_vector")
+BE_FUNCTION(return_as_vector_2, std::vector<int>, (int, int&), "return_as_vector_2__BOSS_12", "return_as_vector_2")
+BE_FUNCTION(return_a_ClassFour_instance, ExampleBackendForGAMBIT_1_234::ClassFour, (), "return_a_ClassFour_instance__BOSS_13", "return_a_ClassFour_instance")
 
 // Enums
 

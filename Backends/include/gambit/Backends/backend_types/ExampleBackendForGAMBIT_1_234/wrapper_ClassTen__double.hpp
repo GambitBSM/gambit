@@ -1,0 +1,9 @@
+#ifndef __wrapper_ClassTen__double_ExampleBackendForGAMBIT_1_234_hpp__
+#define __wrapper_ClassTen__double_ExampleBackendForGAMBIT_1_234_hpp__
+
+
+#include "wrapper_ClassTen__double_decl.hpp"
+#include "wrapper_ClassTen__double_def.hpp"
+
+
+#endif /* __wrapper_ClassTen__double_ExampleBackendForGAMBIT_1_234_hpp__ */

@@ -58,6 +58,7 @@ load_classes = [
     'ClassSeven<int>',
     'ClassNamespace::ClassEight',
     'ClassNamespace::ClassNine<ClassNamespace::ClassEight>',
+    'ClassNamespace::ClassTen<double>',
     #'ClassNamespace::ClassTen<ClassNamespace::ClassEight>'
 ]
 

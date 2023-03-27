@@ -19,6 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
   {
     class ClassEight;
     class ClassNine__ClassEight;
+    class ClassTen__double;
   }
   
   

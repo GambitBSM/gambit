@@ -10,6 +10,7 @@
 #include "wrapper_ClassSeven__int.hpp"
 #include "wrapper_ClassEight.hpp"
 #include "wrapper_ClassNine__ClassEight.hpp"
+#include "wrapper_ClassTen__double.hpp"
 #include "identification.hpp"
 
 // Indicate which types are provided by this backend, and what the symbols of their factories are.
@@ -23,6 +24,7 @@
   (( /*class*/(ClassSeven__int),    /*constructors*/(("Factory_ClassSeven__int_0_int__BOSS_7",())) )) \
   (( /*class*/(ClassNamespace)(ClassEight),    /*constructors*/(("Factory_ClassEight_0__BOSS_8",())) )) \
   (( /*class*/(ClassNamespace)(ClassNine__ClassEight),    /*constructors*/(("Factory_ClassNine__ClassEight_0__BOSS_9",())) )) \
+  (( /*class*/(ClassNamespace)(ClassTen__double),    /*constructors*/(("Factory_ClassTen__double_0_double__BOSS_10",())) )) \
 
 // If the default version has been loaded, set it as default.
 #if ALREADY_LOADED(CAT_3(BACKENDNAME,_,CAT(Default_,BACKENDNAME)))
@@ -44,6 +46,11 @@
         template <class T0> class ClassNine { };
         template <> class ClassNine<ClassNamespace::ClassEight>: public ClassNine__ClassEight { using ClassNine__ClassEight::ClassNine__ClassEight; };
       }
+      namespace ClassNamespace
+      {
+        template <typename T> class ClassTen { };
+        template <> class ClassTen<double>: public ClassTen__double { using ClassTen__double::ClassTen__double; };
+      }
     }
   }
 #endif
@@ -62,6 +69,11 @@ namespace ExampleBackendForGAMBIT_1_234
   {
     template <class T0> class ClassNine { };
     template <> class ClassNine<ClassNamespace::ClassEight>: public ClassNine__ClassEight { using ClassNine__ClassEight::ClassNine__ClassEight; };
+  }
+  namespace ClassNamespace
+  {
+    template <typename T> class ClassTen { };
+    template <> class ClassTen<double>: public ClassTen__double { using ClassTen__double::ClassTen__double; };
   }
 }
 
