@@ -41,8 +41,9 @@
 ///  \date 2020 Feb
 ///
 ///  \author Tomas Gonzalo
-///          (t.e.gonzalo@fys.uio.no)
+///          (tomas.gonzalo@kit.edu)
 ///  \date 2017 July
+///  \date 2023 Mar
 ///
 ///  \author Jihyun Bhom
 ///          (jihyun.bhom@ifj.edu.pl)
@@ -73,6 +74,7 @@
 #include "gambit/FlavBit/flav_loop_functions.hpp"
 #include "gambit/Elements/translator.hpp"
 #include "gambit/Utils/statistics.hpp"
+#include "gambit/Utils/integration.hpp"
 #include "gambit/cmake/cmake_variables.hpp"
 
 
@@ -1614,10 +1616,21 @@ namespace Gambit
     {
       using namespace Pipes::BKnunu;
 
-      // TODO: Fixed for now
-      double q2 = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaon0;
 
-      result = dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, Mesons_masses::B_0, Mesons_masses::kaon0);
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
 
     }
 
@@ -1626,10 +1639,22 @@ namespace Gambit
     {
       using namespace Pipes::BpKpnunu;
 
-      // TODO: Fixed for now
-      double q2 = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_plus;
+      const double mK = Mesons_masses::kaon_plus;
 
-      result = dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, Mesons_masses::B_plus, Mesons_masses::kaon_plus);
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
     }
 
     /// Calculation of BR(B -> K* nu nu)
@@ -1637,10 +1662,22 @@ namespace Gambit
     {
       using namespace Pipes::BKstarnunu;
 
-      // TODO: Fixed for now
-      double q2 = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaonstar0;
 
-      result = dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, Mesons_masses::B_0, Mesons_masses::kaonstar0);
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
     }
 
     /// Calculation of BR(B+ -> K*+ nu nu)
@@ -1648,12 +1685,24 @@ namespace Gambit
     {
       using namespace Pipes::BpKstarpnunu;
 
-      // TODO: Fixed for now
-      double q2 = 0.;
+      // Meson masses
+      const double mB = Mesons_masses::B_plus;
+      const double mK = Mesons_masses::kaonstar_plus;
 
-      result = dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, Mesons_masses::B_plus, Mesons_masses::kaonstar_plus);
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
 
     }
+
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
     {
