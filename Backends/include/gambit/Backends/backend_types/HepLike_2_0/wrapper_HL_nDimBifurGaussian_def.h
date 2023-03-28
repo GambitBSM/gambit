@@ -32,27 +32,27 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       return get_BEptr()->GetLogLikelihood(theory);
    }
    
-   inline double HL_nDimBifurGaussian::GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimBifurGaussian::GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetChi2(theory, theory_cov);
    }
    
-   inline double HL_nDimBifurGaussian::GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimBifurGaussian::GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLikelihood(theory, theory_cov);
    }
    
-   inline double HL_nDimBifurGaussian::GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimBifurGaussian::GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLogLikelihood(theory, theory_cov);
    }
    
-   inline bool HL_nDimBifurGaussian::Restrict(std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > arg_1)
+   inline bool HL_nDimBifurGaussian::Restrict(std::vector<std::string> arg_1)
    {
       return get_BEptr()->Restrict(arg_1);
    }
    
-   inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > HL_nDimBifurGaussian::GetObservables()
+   inline ::std::vector<std::string> HL_nDimBifurGaussian::GetObservables()
    {
       return get_BEptr()->GetObservables();
    }

@@ -548,10 +548,10 @@ endif()
 
 # HepLikedata
 set(name "heplikedata")
-set(ver "1.4")
+set(ver "1.5")
 set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "b11c715ee3af25727b85297b6681c9b5")
+set(md5 "b3050abd422e27804fd96fdb5ec7ace8")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}

@@ -224,6 +224,14 @@ namespace Gambit
       return Backends::backendInfo().corrected_path("HepLikeData", working_data.back());
     }
 
+    str heplike_data_file(str filename)
+    {
+      str filepath = path_to_latest_heplike_data() + filename;
+      if(not Utils::file_exists(filepath))
+        FlavBit_error().raise(LOCAL_INFO, "HepLikeData file " + filepath + " not found");
+      return filepath;
+    }
+
     /// Fill SuperIso model info structure
     void SuperIso_fill(parameters &result)
     {
@@ -1667,10 +1675,6 @@ namespace Gambit
       std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
       std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
       std::complex<double> CVRR = {param["Re_DeltaCRR_V"], param["Im_DeltaCRR_V"]};
-      std::complex<double> CSLL = {param["Re_DeltaCLL_S"], param["Im_DeltaCLL_S"]};
-      std::complex<double> CSLR = {param["Re_DeltaCLR_S"], param["Im_DeltaCLR_S"]};
-      std::complex<double> CSRL = {param["Re_DeltaCRL_S"], param["Im_DeltaCRL_S"]};
-      std::complex<double> CSRR = {param["Re_DeltaCRR_S"], param["Im_DeltaCRR_S"]};
       std::complex<double> CTLL = {param["Re_DeltaCLL_T"], param["Im_DeltaCLL_T"]};
       std::complex<double> CTRR = {param["Re_DeltaCRR_T"], param["Im_DeltaCRR_T"]};
 
@@ -3338,7 +3342,7 @@ namespace Gambit
 
       result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
 
-      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHC_LHCb result: " << result << std::endl;
+      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHCb result: " << result << std::endl;
     }
 
 
@@ -3377,6 +3381,307 @@ namespace Gambit
       if (flav_debug) std::cout << "HEPLike_RKstar_LogLikelihood_LHCb result: " << result << std::endl;
 
     }
+
+    /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with semileptonic tagging
+    void HEPLike_BKnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BKnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/B2KNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with hadronic tagging
+    void HEPLike_BKnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BKnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/B2KNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+
+    /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from Belle with semileptonic tagging
+    void HEPLike_BpKpnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BpKpnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/Bp2KpNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BpKpnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from Belle with hadronic tagging
+    void HEPLike_BpKpnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BpKpnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/Bp2KpNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BpKpnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from BelleII
+    void HEPLike_BpKpnunu_LogLikelihood_BelleII(double &result)
+    {
+      using namespace Pipes::HEPLike_BpKpnunu_LogLikelihood_BelleII;
+
+      static const std::string inputfile = heplike_data_file("/data/BelleII/Inclusive/Bp2KpNuNu/KEK-2020-45.yaml");
+      static HepLike_default::HL_BifurGaussian BifurGaussian(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        BifurGaussian.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BpKpnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      result = BifurGaussian.GetLogLikelihood(theory, theory_variance);
+    }
+
+    /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with semileptonic tagging
+    void HEPLike_BKstarnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BKstarnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/B2KstarNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with hadronic tagging
+    void HEPLike_BKstarnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BKstarnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/B2KstarNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from Belle with semileptonic tagging
+    void HEPLike_BpKstarpnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BpKstarpnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/Bp2KstarpNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BpKstarpnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from Belle with hadronic tagging
+    void HEPLike_BpKstarpnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BpKstarpnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/Bp2KstarpNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BpKstarpnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B -> K nu nu) from BaBar
+    void HEPLike_BKnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BKnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/B2KNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B+ -> K+ nu nu) from BaBar
+    void HEPLike_BpKpnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BpKpnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/Bp2KpNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BpKpnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B -> K* nu nu) from BaBar
+    void HEPLike_BKstarnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BKstarnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/B2KstarNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B+ -> K*+ nu nu) from BaBar
+    void HEPLike_BpKstarpnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BpKstarpnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/Bp2KstarpNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BpKstarpnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+
 
   }
 }

@@ -10,6 +10,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
    class HL_Gaussian;
    class HL_BifurGaussian;
+   class HL_Limit;
    class HL_ProfLikelihood;
    class HL_nDimBifurGaussian;
    class HL_nDimGaussian;

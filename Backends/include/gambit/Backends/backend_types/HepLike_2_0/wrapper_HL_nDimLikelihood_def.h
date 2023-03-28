@@ -22,7 +22,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       return get_BEptr()->GetChi2(theory);
    }
    
-   inline double HL_nDimLikelihood::GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimLikelihood::GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetChi2(theory, theory_cov);
    }
@@ -32,7 +32,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       return get_BEptr()->GetLikelihood(theory);
    }
    
-   inline double HL_nDimLikelihood::GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimLikelihood::GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLikelihood(theory, theory_cov);
    }
@@ -42,7 +42,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       return get_BEptr()->GetLogLikelihood(theory);
    }
    
-   inline double HL_nDimLikelihood::GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double> > > theory_cov)
+   inline double HL_nDimLikelihood::GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLogLikelihood(theory, theory_cov);
    }
@@ -72,7 +72,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       return get_BEptr()->GetLogLikelihood_profile(theory, X);
    }
    
-   inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > HL_nDimLikelihood::GetObservables()
+   inline ::std::vector<std::string> HL_nDimLikelihood::GetObservables()
    {
       return get_BEptr()->GetObservables();
    }

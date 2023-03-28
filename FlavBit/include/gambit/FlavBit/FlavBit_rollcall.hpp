@@ -1614,6 +1614,137 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with semileptonic tagging
+  #define CAPABILITY BKnunu_LogLikelihood_Belle_sl
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BKnunu_LogLikelihood_Belle_sl
+    START_FUNCTION(double)
+    DEPENDENCY(BKnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with hadronic tagging
+  #define CAPABILITY BKnunu_LogLikelihood_Belle_had
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BKnunu_LogLikelihood_Belle_had
+    START_FUNCTION(double)
+    DEPENDENCY(BKnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from Belle with semileptonic tagging
+  #define CAPABILITY BpKpnunu_LogLikelihood_Belle_sl
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_Belle_sl
+    START_FUNCTION(double)
+    DEPENDENCY(BpKpnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from Belle with hadronic tagging
+  #define CAPABILITY BpKpnunu_LogLikelihood_Belle_had
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_Belle_had
+    START_FUNCTION(double)
+    DEPENDENCY(BpKpnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from BelleII
+  #define CAPABILITY BpKpnunu_LogLikelihood_BelleII
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_BelleII
+    START_FUNCTION(double)
+    DEPENDENCY(BpKpnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with semileptonic tagging
+  #define CAPABILITY BKstarnunu_LogLikelihood_Belle_sl
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BKstarnunu_LogLikelihood_Belle_sl
+    START_FUNCTION(double)
+    DEPENDENCY(BKstarnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with hadronic tagging
+  #define CAPABILITY BKstarnunu_LogLikelihood_Belle_had
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BKstarnunu_LogLikelihood_Belle_had
+    START_FUNCTION(double)
+    DEPENDENCY(BKstarnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from Belle with semileptonic tagging
+  #define CAPABILITY BpKstarpnunu_LogLikelihood_Belle_sl
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BpKstarpnunu_LogLikelihood_Belle_sl
+    START_FUNCTION(double)
+    DEPENDENCY(BpKstarpnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from Belle with hadronic tagging
+  #define CAPABILITY BpKstarpnunu_LogLikelihood_Belle_had
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BpKstarpnunu_LogLikelihood_Belle_had
+    START_FUNCTION(double)
+    DEPENDENCY(BpKstarpnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B -> K nu nu) from BaBar
+  #define CAPABILITY BKnunu_LogLikelihood_BaBar
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BKnunu_LogLikelihood_BaBar
+    START_FUNCTION(double)
+    DEPENDENCY(BKnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from BaBar
+  #define CAPABILITY BpKpnunu_LogLikelihood_BaBar
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_BaBar
+    START_FUNCTION(double)
+    DEPENDENCY(BpKpnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B -> K* nu nu) from BaBar
+  #define CAPABILITY BKstarnunu_LogLikelihood_BaBar
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BKstarnunu_LogLikelihood_BaBar
+    START_FUNCTION(double)
+    DEPENDENCY(BKstarnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from BaBar
+  #define CAPABILITY BpKstarpnunu_LogLikelihood_BaBar
+  START_CAPABILITY
+    #define FUNCTION HEPLike_BpKstarpnunu_LogLikelihood_BaBar
+    START_FUNCTION(double)
+    DEPENDENCY(BpKstarpnunu, double)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+
 
 #undef REFERENCE
 #undef MODULE

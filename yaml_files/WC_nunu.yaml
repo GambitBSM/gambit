@@ -1,0 +1,217 @@
+#############################################################################
+## GAMBIT configuration for a MultiNest scan of flavour physics Wilson coeffs
+##
+## Uses likelihood constraints from flavour physics observables only,
+## without nuisance parameters.
+#############################################################################
+
+
+Parameters:
+
+  StandardModel_SLHA2:
+    alphaS    :  1.18500000E-01 # alpha_s(mZ)^MSbar ^
+    mBmB      :  4.18000000E+00 # mb(mb)^MSbar &
+    alphainv  :  1.27940010E+02 # alpha^{-1}(mZ)^MSbar
+    mT        :  1.73340000E+02 # mtop(pole)
+    GF        :  1.16637870E-05 # G_Fermi
+    mZ        :  9.11876000E+01 # mZ(pole)
+    mTau      :  1.77682000E+00 # mtau(pole)
+    mNu3      :               0 # mnu3(pole)
+    mD        :  4.80000000E-03 # md(2 GeV)^MSbar
+    mU        :  2.30000000E-03 # mu(2 GeV)^MSbar
+    mS        :  9.50000000E-02 # ms(2 GeV)^MSbar
+    mCmC      :  1.27500000E+00 # mc(mc)^MSbar
+    mE        :  5.10998928E-04 # melectron(pole)
+    mMu       :  1.05658372E-01 # mmuon(pole)
+    mNu1      :               0 # mnu1(pole)
+    mNu2      :               0 # mnu2(pole)
+    CKM_lambda:  0.22537        # Wolfenstein \lambda
+    CKM_A     :  0.814          # Wolfenstein A
+    CKM_rhobar:  0.117          # Wolfenstein \bar\rho
+    CKM_etabar:  0.353          # Wolfenstein \bar\eta
+    theta12   :  0.58376        # solar angle
+    theta23   :  0.76958        # atmospheric mixing angle
+    theta13   :  0.15495        # reactor angle
+    delta13   :  0              # Dirac CP-violating phase
+    alpha1    :  0              # first Majorana CP-violating phase
+    alpha2    :  0              # second CP-violating Majorana phase
+
+  WC_nunu:
+    Re_DeltaCLL_V: 0.0
+    Im_DeltaCLL_V: 0.0
+    Re_DeltaCLR_V: 0.0
+    Im_DeltaCLR_V: 0.0
+    Re_DeltaCRL_V: 0.0
+    Im_DeltaCRL_V: 0.0
+    Re_DeltaCRR_V: 0.0
+    Im_DeltaCRR_V: 0.0
+    Re_DeltaCLL_S: 0.0
+    Im_DeltaCLL_S: 0.0
+    Re_DeltaCLR_S: 0.0
+    Im_DeltaCLR_S: 0.0
+    Re_DeltaCRL_S: 0.0
+    Im_DeltaCRL_S: 0.0
+    Re_DeltaCRR_S: 0.0
+    Im_DeltaCRR_S: 0.0
+    Re_DeltaCLL_T: 0.0
+    Im_DeltaCLL_T: 0.0
+    Re_DeltaCRR_T: 0.0
+    Im_DeltaCRR_T: 0.0
+
+Priors:
+
+  # All priors are simple, so specified in Parameters section
+
+
+Printer:
+
+  printer: hdf5
+
+  options:
+    output_file: "WC.hdf5"
+    group: "/WC"
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      like: LogLike
+      point_number: 1
+
+    multinest:
+      plugin: multinest
+      like:  LogLike
+      nlive: 400
+      tol: 0.1
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 2000
+      convthresh: 1e-3
+
+    square_grid:
+      plugin: square_grid
+      like: LogLike
+      grid_pts: 20
+
+
+ObsLikes:
+
+#  - purpose:    LogLike
+#    capability: b2sgamma_LogLikelihood
+
+#  - purpose:    LogLike
+#    capability: B2Kstargamma_LogLikelihood
+
+#  - purpose:    LogLike
+#    capability: B2mumu_LogLikelihood_Atlas
+#    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+#  - purpose:    LogLike
+#    capability: B2mumu_LogLikelihood_CMS
+#    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+#  - purpose:    LogLike
+#    capability: B2mumu_LogLikelihood_LHCb
+#    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+#  - purpose:    LogLike
+#    capability: B2KstarmumuAng_LogLikelihood_Atlas
+#    sub_capabilities: [FL, S3, S4, S5, S7, S8]
+
+#  - purpose:    LogLike
+#    capability: B2KstarmumuAng_LogLikelihood_CMS
+#    sub_capabilities: [P1, P5prime]
+
+#  - purpose:    LogLike
+#    capability: B2KstarellellAng_LogLikelihood_Belle
+#    sub_capabilities: [P4prime, P5prime]
+
+#  - purpose:    LogLike
+#    capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+#    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+#  - purpose:    LogLike
+#    capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+#    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+#  - purpose:    LogLike
+#    capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+#    sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+#  - purpose:    LogLike
+#    capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+#  - purpose:    LogLike
+#    capability: Bs2phimumuBr_LogLikelihood
+
+#  - purpose:    LogLike
+#    capability: B2KmumuBr_LogLikelihood_LHCb
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BpKpnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BpKpnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BpKpnunu_LogLikelihood_BelleII
+
+  - purpose: LogLike
+    capability: BKstarnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BKstarnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BpKstarpnunu_LogLikelihood_Belle_sl
+
+  - purpose: LogLike
+    capability: BpKstarpnunu_LogLikelihood_Belle_had
+
+  - purpose: LogLike
+    capability: BKnunu_LogLikelihood_BaBar
+
+  - purpose: LogLike
+    capability: BpKpnunu_LogLikelihood_BaBar
+
+  - purpose: LogLike
+    capability: BKstarnunu_LogLikelihood_BaBar
+
+  - purpose: LogLike
+    capability: BpKstarpnunu_LogLikelihood_BaBar
+
+Rules:
+
+Logger:
+
+  redirection:
+    [Debug]   : "debug.log"
+    [Default] : "default.log"
+    [FlavBit] : "FlavBit.log"
+
+
+KeyValues:
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    model_invalid_for_lnlike_below_alt: -1e5
+
+  default_output_path: "runs/WC"
+
+  debug: true
