@@ -1550,7 +1550,8 @@ namespace Gambit
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
       // TODO: Using mb(mb) not pole mass
-      const double mBmB = sminputs.mBmB;
+      const double mb = sminputs.mBmB;
+      const double ms = sminputs.mS;
 
       // Standard Model value for CLL
       // Took this from Table 1 in Bednyakov et al
@@ -1572,13 +1573,18 @@ namespace Gambit
       // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
       const double Nf = 3;
 
-      // Helicity amplitudes
-      // TODO: Placeholder for now
-      const double HV = 1;
-      const double HS = 1;
-      const double HT = 1;
+      // Form factors
+      // TODO: Missing
+      const double fp = 1;
+      const double f0 = 1;
+      const double fT = 1;
 
-      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL + CVRL) + std::norm(CVLR + CVRR)  * HV*HV + 3./2 * ( std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR) ) * HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR)) * HT*HT);
+      // Helicity amplitudes
+      const double HV = sqrt(lambdaK(q2, mB, mK)/q2)*fp;
+      const double HS = (mB*mB - mK*mK)/(mb - ms)*f0;
+      const double HT = - sqrt(lambdaK(q2, mB, mK))*(mB + mK)*fT;
+
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mb,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL + CVRL) + std::norm(CVLR + CVRR)  * HV*HV + 3./2 * ( std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR) ) * HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR)) * HT*HT);
 
       return dGammadq2;
     }
@@ -1595,7 +1601,8 @@ namespace Gambit
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
       // TODO: Using mb(mb) not pole mass
-      const double mBmB = sminputs.mBmB;
+      const double mb = sminputs.mBmB;
+      const double mc = sminputs.mCmC;
 
       // Standard Model value for CLL
       // Took this from Table 1 in Bednyakov et al
@@ -1617,13 +1624,22 @@ namespace Gambit
       // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
       const double Nf = 3;
 
-      // Helicity amplitudes
-      // TODO: Placeholder for now
-      const double HV0 = 1, HVp = 1, HVm = 1;
-      const double HS = 1;
-      const double HT0 = 1, HTp = 1, HTm = 1;
+      // Form factors
+      // TODO: Missing
+      const double A12 = 1;
+      const double A1 = 1, A0 = 1, V = 1;
+      const double T23 = 0, T1 = 0, T2 = 0;
 
-      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2, mB, mKstar),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL - CSLL) + std::norm(CSRR - CSLR))*HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR))*(HTp*HTp + HTm*HTm + HT0*HT0));
+      // Helicity amplitudes
+      const double HV0 = 8./sqrt(q2)*mB*mKstar*A12;
+      const double HVp = (mB + mKstar)*A1 - sqrt(lambdaK(q2, mB, mKstar))/(mB + mKstar)*V;
+      const double HVm = (mB + mKstar)*A1 + sqrt(lambdaK(q2, mB, mKstar))/(mB + mKstar)*V;
+      const double HS = -sqrt(lambdaK(q2, mB, mKstar))/(mb + mc)*A0;
+      const double HT0 = -(4.*mB*mKstar)/(mB + mKstar)*T23;
+      const double HTp = 1./sqrt(q2)*((mB*mB - mKstar*mKstar)*T2 + sqrt(lambdaK(q2, mB, mKstar))*T1);
+      const double HTm = 1./sqrt(q2)*(-(mB*mB - mKstar*mKstar)*T2 + sqrt(lambdaK(q2, mB, mKstar))*T1);
+
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mb,3)) * q2 * pow(lambdaK(q2, mB, mKstar),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL - CSLL) + std::norm(CSRR - CSLR))*HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR))*(HTp*HTp + HTm*HTm + HT0*HT0));
 
       return dGammadq2;
     }
@@ -1663,7 +1679,7 @@ namespace Gambit
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
       // TODO: Using mb(mb) not pole mass
-      const double mBmB = sminputs.mBmB;
+      const double mb = sminputs.mBmB;
 
       // Standard Model value for CLL
       // Took this from Table 1 in Bednyakov et al
@@ -1681,12 +1697,16 @@ namespace Gambit
       // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
       const double Nf = 3;
 
-      // Helicity amplitudes
-      // TODO: Placeholder for now
-      const double HV0 = 1;
-      const double HT0 = 1;
+      // Form factors
+      // TODO: Missing
+      const double A12 = 1;
+      const double T23 = 0;
 
-      double FL_Knunu_q2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mBmB,3)) * q2 * pow(lambdaK(q2,mB,mKstar),1/2) * (1./dGammaBKstarnunudq2(q2, param, sminputs, mB, mKstar)) * (std::norm(CLLSM + CVLL - CVRL) * HV0*HV0 - 8.*std::norm(CTLL) * HT0*HT0 + std::norm(CVLR - CVRR)  * HV0*HV0 -8.* std::norm(CTRR) * HT0*HT0 );
+      // Helicity amplitudes
+      const double HV0 = 8./sqrt(q2)*mB*mKstar*A12;
+      const double HT0 = -(4.*mB*mKstar)/(mB + mKstar)*T23;
+
+      double FL_Knunu_q2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mb,3)) * q2 * pow(lambdaK(q2,mB,mKstar),1/2) * (1./dGammaBKstarnunudq2(q2, param, sminputs, mB, mKstar)) * (std::norm(CLLSM + CVLL - CVRL) * HV0*HV0 - 8.*std::norm(CTLL) * HT0*HT0 + std::norm(CVLR - CVRR)  * HV0*HV0 -8.* std::norm(CTRR) * HT0*HT0 );
 
       return FL_Knunu_q2;
 
