@@ -699,6 +699,7 @@ START_MODULE
    #undef FUNCTION
   #undef CAPABILITY
 
+  #undef CAPABILITY
   #define CAPABILITY prediction_B2KstareeAng_0p0008_0p257_LHCb
   START_CAPABILITY
     #define FUNCTION SuperIso_prediction_B2KstareeAng_0p0008_0p257_LHCb
@@ -712,6 +713,150 @@ START_MODULE
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
    #undef FUNCTION
   #undef CAPABILITY
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_0p1_0p98_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_0p1_0p98_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_1p1_2p5_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_1p1_2p5_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_2p5_4_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_2p5_4_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_4_6_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_4_6_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_6_8_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_6_8_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_11_12p5_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_11_12p5_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+   #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_15_17_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_15_17_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+   #undef FUNCTION
+  #undef CAPABILITY
+
+
+  #define CAPABILITY prediction_Bu2KstarmumuAng_17_19_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_17_19_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+   #undef FUNCTION
+  #undef CAPABILITY
+
+  // TODO Why does this exist
+  #define CAPABILITY prediction_Bu2KstarmumuAng_1p1_6_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_1p1_6_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+   #undef FUNCTION
+  #undef CAPABILITY
+
+  // TODO Why does this exist
+  #define CAPABILITY prediction_Bu2KstarmumuAng_15_19_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_Bu2KstarmumuAng_15_19_LHCb
+    START_FUNCTION(flav_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+   #undef FUNCTION
+  #undef CAPABILITY
+
 
   /* TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
 
@@ -1026,10 +1171,10 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: BR(B+ -> K+ nu nu)
-  #define CAPABILITY BpKpnunu
+  // Observable: BR(B_u+ -> K+ nu nu)
+  #define CAPABILITY BuKnunu
   START_CAPABILITY
-    #define FUNCTION BpKpnunu
+    #define FUNCTION BuKnunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(WC_nunu)
@@ -1046,20 +1191,20 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: FL_Knunu
-  #define CAPABILITY FL_Knunu
+  // Observable: BR(B_u+ -> Kstar+ nu nu)
+  #define CAPABILITY BuKstarnunu
   START_CAPABILITY
-    #define FUNCTION FL_Knunu
+    #define FUNCTION BuKstarnunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(WC_nunu)
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Observable: BR(B+ -> Kstar+ nu nu)
-  #define CAPABILITY BpKstarpnunu
+  // Observable: FL_Knunu
+  #define CAPABILITY FL_Knunu
   START_CAPABILITY
-    #define FUNCTION BpKstarpnunu
+    #define FUNCTION FL_Knunu
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     ALLOW_MODEL(WC_nunu)
@@ -1071,7 +1216,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION RKnunu
     START_FUNCTION(double)
-    DEPENDENCY(BpKpnunu, double)
+    DEPENDENCY(BuKnunu, double)
     ALLOW_MODEL(WC_nunu)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1527,12 +1672,16 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION HEPLike_Bu2KstarmumuAng_LogLikelihood_LHCb_2020
     START_FUNCTION(double)
-    DEPENDENCY(prediction_B2KstarmumuAng_0p1_0p98_LHCb, flav_prediction)
-    DEPENDENCY(prediction_B2KstarmumuAng_1p1_2p5_LHCb, flav_prediction)
-    DEPENDENCY(prediction_B2KstarmumuAng_2p5_4_LHCb, flav_prediction)
-    DEPENDENCY(prediction_B2KstarmumuAng_4_6_LHCb, flav_prediction)
-    DEPENDENCY(prediction_B2KstarmumuAng_6_8_LHCb, flav_prediction)
-    DEPENDENCY(prediction_B2KstarmumuAng_15_19_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_0p1_0p98_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_1p1_2p5_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_2p5_4_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_4_6_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_6_8_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_11_12p5_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_15_17_LHCb, flav_prediction)
+    DEPENDENCY(prediction_Bu2KstarmumuAng_17_19_LHCb, flav_prediction)
+    //DEPENDENCY(prediction_Bu2KstarmumuAng_1p1_6_LHCb, flav_prediction)
+    //DEPENDENCY(prediction_Bu2KstarmumuAng_15_19_LHCb, flav_prediction)
     NEEDS_CLASSES_FROM(HepLike)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1634,32 +1783,32 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from Belle with semileptonic tagging
-  #define CAPABILITY BpKpnunu_LogLikelihood_Belle_sl
+  /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with semileptonic tagging
+  #define CAPABILITY BuKnunu_LogLikelihood_Belle_sl
   START_CAPABILITY
-    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_Belle_sl
+    #define FUNCTION HEPLike_BuKnunu_LogLikelihood_Belle_sl
     START_FUNCTION(double)
-    DEPENDENCY(BpKpnunu, double)
+    DEPENDENCY(BuKnunu, double)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from Belle with hadronic tagging
-  #define CAPABILITY BpKpnunu_LogLikelihood_Belle_had
+  /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with hadronic tagging
+  #define CAPABILITY BuKnunu_LogLikelihood_Belle_had
   START_CAPABILITY
-    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_Belle_had
+    #define FUNCTION HEPLike_BuKnunu_LogLikelihood_Belle_had
     START_FUNCTION(double)
-    DEPENDENCY(BpKpnunu, double)
+    DEPENDENCY(BuKnunu, double)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from BelleII
-  #define CAPABILITY BpKpnunu_LogLikelihood_BelleII
+  /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from BelleII
+  #define CAPABILITY BuKnunu_LogLikelihood_BelleII
   START_CAPABILITY
-    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_BelleII
+    #define FUNCTION HEPLike_BuKnunu_LogLikelihood_BelleII
     START_FUNCTION(double)
-    DEPENDENCY(BpKpnunu, double)
+    DEPENDENCY(BuKnunu, double)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1684,22 +1833,22 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from Belle with semileptonic tagging
-  #define CAPABILITY BpKstarpnunu_LogLikelihood_Belle_sl
+  /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with semileptonic tagging
+  #define CAPABILITY BuKstarnunu_LogLikelihood_Belle_sl
   START_CAPABILITY
-    #define FUNCTION HEPLike_BpKstarpnunu_LogLikelihood_Belle_sl
+    #define FUNCTION HEPLike_BuKstarnunu_LogLikelihood_Belle_sl
     START_FUNCTION(double)
-    DEPENDENCY(BpKstarpnunu, double)
+    DEPENDENCY(BuKstarnunu, double)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from Belle with hadronic tagging
-  #define CAPABILITY BpKstarpnunu_LogLikelihood_Belle_had
+  /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with hadronic tagging
+  #define CAPABILITY BuKstarnunu_LogLikelihood_Belle_had
   START_CAPABILITY
-    #define FUNCTION HEPLike_BpKstarpnunu_LogLikelihood_Belle_had
+    #define FUNCTION HEPLike_BuKstarnunu_LogLikelihood_Belle_had
     START_FUNCTION(double)
-    DEPENDENCY(BpKstarpnunu, double)
+    DEPENDENCY(BuKstarnunu, double)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1714,12 +1863,12 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikehood for BR(B+ -> K+ nu nu) from BaBar
-  #define CAPABILITY BpKpnunu_LogLikelihood_BaBar
+  /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from BaBar
+  #define CAPABILITY BuKnunu_LogLikelihood_BaBar
   START_CAPABILITY
-    #define FUNCTION HEPLike_BpKpnunu_LogLikelihood_BaBar
+    #define FUNCTION HEPLike_BuKnunu_LogLikelihood_BaBar
     START_FUNCTION(double)
-    DEPENDENCY(BpKpnunu, double)
+    DEPENDENCY(BuKnunu, double)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
@@ -1734,12 +1883,12 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  /// HEPLike LogLikehood for BR(B+ -> K*+ nu nu) from BaBar
-  #define CAPABILITY BpKstarpnunu_LogLikelihood_BaBar
+  /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from BaBar
+  #define CAPABILITY BuKstarnunu_LogLikelihood_BaBar
   START_CAPABILITY
-    #define FUNCTION HEPLike_BpKstarpnunu_LogLikelihood_BaBar
+    #define FUNCTION HEPLike_BuKstarnunu_LogLikelihood_BaBar
     START_FUNCTION(double)
-    DEPENDENCY(BpKstarpnunu, double)
+    DEPENDENCY(BuKstarnunu, double)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
