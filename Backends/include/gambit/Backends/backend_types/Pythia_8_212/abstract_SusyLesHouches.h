@@ -24,21 +24,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual int readFile(::std::basic_string<char>, int, bool) =0;
+                virtual int readFile(std::string, int, bool) =0;
     
-                virtual int readFile__BOSS(::std::basic_string<char>, int) =0;
+                virtual int readFile__BOSS(std::string, int) =0;
     
-                virtual int readFile__BOSS(::std::basic_string<char>) =0;
+                virtual int readFile__BOSS(std::string) =0;
     
                 virtual int readFile__BOSS() =0;
     
-                virtual int readFile(::std::basic_istream<char>&, int, bool) =0;
+                virtual int readFile(std::istream&, int, bool) =0;
     
-                virtual int readFile__BOSS(::std::basic_istream<char>&, int) =0;
+                virtual int readFile__BOSS(std::istream&, int) =0;
     
-                virtual int readFile__BOSS(::std::basic_istream<char>&) =0;
+                virtual int readFile__BOSS(std::istream&) =0;
     
-                virtual void setSLHAea(const ::SLHAea::Coll*) =0;
+                virtual void setSLHAea(const SLHAea::Coll*) =0;
     
                 virtual void printHeader() =0;
     
@@ -50,23 +50,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual int checkSpectrum() =0;
     
-                virtual std::basic_string<char>& slhaFile_ref__BOSS() =0;
+                virtual std::string& slhaFile_ref__BOSS() =0;
     
                 virtual std::map<int, int>& decayIndices_ref__BOSS() =0;
     
-                virtual std::vector<std::basic_string<char>>& qnumbersName_ref__BOSS() =0;
+                virtual std::vector<std::string>& qnumbersName_ref__BOSS() =0;
     
-                virtual std::vector<std::basic_string<char>>& qnumbersAntiName_ref__BOSS() =0;
+                virtual std::vector<std::string>& qnumbersAntiName_ref__BOSS() =0;
     
                 virtual int verbose() =0;
     
                 virtual void verbose(int) =0;
     
-                virtual void message(int, ::std::basic_string<char>, ::std::basic_string<char>, int) =0;
+                virtual void message(int, std::string, std::string, int) =0;
     
-                virtual void message__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>) =0;
+                virtual void message__BOSS(int, std::string, std::string) =0;
     
-                virtual void toLower(::std::basic_string<char>&) =0;
+                virtual void toLower(std::string&) =0;
     
             public:
                 virtual void pointer_assign__BOSS(Abstract_SusyLesHouches*) =0;

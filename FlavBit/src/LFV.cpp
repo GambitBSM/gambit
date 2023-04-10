@@ -51,12 +51,12 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
 
       Eigen::Matrix3cd m_nu = *Dep::m_nu;
-      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
-      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      std::vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      std::vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
 
       Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
       Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
-      Eigen::Matrix<complex<double>,3,6> U;
+      Eigen::Matrix<std::complex<double>,3,6> U;
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -69,8 +69,8 @@ namespace Gambit
 
       // Form factors
       int e = 0, mu = 1;
-      complex<double> k2l = FormFactors::K2L(mu, e, sminputs, U, ml, mnu);
-      complex<double> k2r = FormFactors::K2R(mu, e, sminputs, U, ml, mnu);
+      std::complex<double> k2l = FormFactors::K2L(mu, e, sminputs, U, ml, mnu);
+      std::complex<double> k2r = FormFactors::K2R(mu, e, sminputs, U, ml, mnu);
 
       result *= (norm(k2l) + norm(k2r));
 
@@ -84,12 +84,12 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
 
       Eigen::Matrix3cd m_nu = *Dep::m_nu;
-      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
-      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      std::vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      std::vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
 
       Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
       Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
-      Eigen::Matrix<complex<double>,3,6> U;
+      Eigen::Matrix<std::complex<double>,3,6> U;
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -102,8 +102,8 @@ namespace Gambit
 
       // Form factors
       int e = 0, tau = 2;
-      complex<double> k2l = FormFactors::K2L(tau, e, sminputs, U, ml, mnu);
-      complex<double> k2r = FormFactors::K2R(tau, e, sminputs, U, ml, mnu);
+      std::complex<double> k2l = FormFactors::K2L(tau, e, sminputs, U, ml, mnu);
+      std::complex<double> k2r = FormFactors::K2R(tau, e, sminputs, U, ml, mnu);
 
       result *= (norm(k2l) + norm(k2r));
 
@@ -117,12 +117,12 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
 
       Eigen::Matrix3cd m_nu = *Dep::m_nu;
-      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
-      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      std::vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      std::vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
 
       Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
       Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
-      Eigen::Matrix<complex<double>,3,6> U;
+      Eigen::Matrix<std::complex<double>,3,6> U;
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -135,8 +135,8 @@ namespace Gambit
 
       // Form factors
       int mu = 1, tau = 2;
-      complex<double> k2l = FormFactors::K2L(tau, mu, sminputs, U, ml, mnu);
-      complex<double> k2r = FormFactors::K2R(tau, mu, sminputs, U, ml, mnu);
+      std::complex<double> k2l = FormFactors::K2L(tau, mu, sminputs, U, ml, mnu);
+      std::complex<double> k2r = FormFactors::K2R(tau, mu, sminputs, U, ml, mnu);
 
       result *= (norm(k2l) + norm(k2r));
 
@@ -146,10 +146,10 @@ namespace Gambit
     /// General contribution to l_\alpha^- -> l_\beta^- l_\gamma^- l_\delta^+ from RHNs
     double RHN_l2lll(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix3cd Vnu, Eigen::Matrix3cd Theta, Eigen::Matrix3cd m_nu, double M1, double M2, double M3, double mH)
     {
-      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
-      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), M1, M2, M3};
+      std::vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      std::vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), M1, M2, M3};
 
-      Eigen::Matrix<complex<double>,3,6> U;
+      Eigen::Matrix<std::complex<double>,3,6> U;
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -159,22 +159,22 @@ namespace Gambit
         }
 
       // Form factors
-      complex<double> k2l = FormFactors::K2L(alpha, beta, sminputs, U, ml, mnu);
-      complex<double> k2r = FormFactors::K2R(alpha, beta, sminputs, U, ml, mnu);
-      complex<double> k1r = FormFactors::K1R(alpha, beta, sminputs, U, mnu);
-      complex<double> asll = FormFactors::ASLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
-      complex<double> aslr = FormFactors::ASLR(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
-      complex<double> asrl = FormFactors::ASRL(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
-      complex<double> asrr = FormFactors::ASRR(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
-      complex<double> avll = FormFactors::AVLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
-      complex<double> avlr = FormFactors::AVLR(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
-      complex<double> avrl = FormFactors::AVLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
-      complex<double> avrr = FormFactors::AVRR(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+      std::complex<double> k2l = FormFactors::K2L(alpha, beta, sminputs, U, ml, mnu);
+      std::complex<double> k2r = FormFactors::K2R(alpha, beta, sminputs, U, ml, mnu);
+      std::complex<double> k1r = FormFactors::K1R(alpha, beta, sminputs, U, mnu);
+      std::complex<double> asll = FormFactors::ASLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      std::complex<double> aslr = FormFactors::ASLR(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      std::complex<double> asrl = FormFactors::ASRL(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      std::complex<double> asrr = FormFactors::ASRR(alpha, beta, gamma, delta, sminputs, U, ml, mnu, mH);
+      std::complex<double> avll = FormFactors::AVLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+      std::complex<double> avlr = FormFactors::AVLR(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+      std::complex<double> avrl = FormFactors::AVLL(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
+      std::complex<double> avrr = FormFactors::AVRR(alpha, beta, gamma, delta, sminputs, U, ml, mnu);
 
-      complex<double> avhatll = avll;
-      complex<double> avhatlr = avlr;
-      complex<double> avhatrl = avrl + 4. * pi / sminputs.alphainv * k1r;
-      complex<double> avhatrr = avrr + 4. * pi / sminputs.alphainv * k1r;
+      std::complex<double> avhatll = avll;
+      std::complex<double> avhatlr = avlr;
+      std::complex<double> avhatrl = avrl + 4. * pi / sminputs.alphainv * k1r;
+      std::complex<double> avhatrr = avrr + 4. * pi / sminputs.alphainv * k1r;
 
       double l2lll = 0;
       if(beta == gamma and gamma == delta) // l(alpha)- -> l(beta)- l(beta)- l(beta)+
@@ -319,59 +319,59 @@ namespace Gambit
     }
 
     /// Form factors for to mu - e conversion
-    void RHN_mue_FF(const SMInputs sminputs, std::vector<double> &mnu, Eigen::Matrix<complex<double>,3,6> &U, const double mH, complex<double> &g0SL, complex<double> &g0SR, complex<double> &g0VL, complex<double> &g0VR, complex<double> &g1SL, complex<double> &g1SR, complex<double> &g1VL, complex<double> &g1VR)
+    void RHN_mue_FF(const SMInputs sminputs, std::vector<double> &mnu, Eigen::Matrix<std::complex<double>,3,6> &U, const double mH, std::complex<double> &g0SL, std::complex<double> &g0SR, std::complex<double> &g0VL, std::complex<double> &g0VR, std::complex<double> &g1SL, std::complex<double> &g1SR, std::complex<double> &g1VL, std::complex<double> &g1VR)
     {
-      vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
+      std::vector<double> ml = {sminputs.mE, sminputs.mMu, sminputs.mTau};
 
       int e = 0, mu = 1;
-      complex<double> k1r = FormFactors::K1R(mu, e, sminputs, U, mnu);
-      complex<double> k2l = FormFactors::K2L(mu, e, sminputs, U, ml, mnu);
-      complex<double> k2r = FormFactors::K2R(mu, e, sminputs, U, ml, mnu);
+      std::complex<double> k1r = FormFactors::K1R(mu, e, sminputs, U, mnu);
+      std::complex<double> k2l = FormFactors::K2L(mu, e, sminputs, U, ml, mnu);
+      std::complex<double> k2r = FormFactors::K2R(mu, e, sminputs, U, ml, mnu);
 
       int u = 0, d =0, s = 1;
-      complex<double> CVLLu = FormFactors::CVLL(mu, e, u, u, sminputs, U, ml, mnu);
-      complex<double> CVLLd = FormFactors::BVLL(mu, e, d, d, sminputs, U, ml, mnu);
-      complex<double> CVLLs = FormFactors::BVLL(mu, e, s, s, sminputs, U, ml, mnu);
-      complex<double> CVLRu = FormFactors::CVLR(mu, e, u, u, sminputs, U, ml, mnu);
-      complex<double> CVLRd = FormFactors::BVLR(mu, e, d, d, sminputs, U, ml, mnu);
-      complex<double> CVLRs = FormFactors::BVLR(mu, e, s, s, sminputs, U, ml, mnu);
-      complex<double> CVRLu = FormFactors::CVRL(mu, e, u, u, sminputs, U, ml, mnu);
-      complex<double> CVRLd = FormFactors::BVRL(mu, e, d, d, sminputs, U, ml, mnu);
-      complex<double> CVRLs = FormFactors::BVRL(mu, e, s, s, sminputs, U, ml, mnu);
-      complex<double> CVRRu = FormFactors::CVRR(mu, e, u, u, sminputs, U, ml, mnu);
-      complex<double> CVRRd = FormFactors::BVRR(mu, e, d, d, sminputs, U, ml, mnu);
-      complex<double> CVRRs = FormFactors::BVRR(mu, e, s, s, sminputs, U, ml, mnu);
+      std::complex<double> CVLLu = FormFactors::CVLL(mu, e, u, u, sminputs, U, ml, mnu);
+      std::complex<double> CVLLd = FormFactors::BVLL(mu, e, d, d, sminputs, U, ml, mnu);
+      std::complex<double> CVLLs = FormFactors::BVLL(mu, e, s, s, sminputs, U, ml, mnu);
+      std::complex<double> CVLRu = FormFactors::CVLR(mu, e, u, u, sminputs, U, ml, mnu);
+      std::complex<double> CVLRd = FormFactors::BVLR(mu, e, d, d, sminputs, U, ml, mnu);
+      std::complex<double> CVLRs = FormFactors::BVLR(mu, e, s, s, sminputs, U, ml, mnu);
+      std::complex<double> CVRLu = FormFactors::CVRL(mu, e, u, u, sminputs, U, ml, mnu);
+      std::complex<double> CVRLd = FormFactors::BVRL(mu, e, d, d, sminputs, U, ml, mnu);
+      std::complex<double> CVRLs = FormFactors::BVRL(mu, e, s, s, sminputs, U, ml, mnu);
+      std::complex<double> CVRRu = FormFactors::CVRR(mu, e, u, u, sminputs, U, ml, mnu);
+      std::complex<double> CVRRd = FormFactors::BVRR(mu, e, d, d, sminputs, U, ml, mnu);
+      std::complex<double> CVRRs = FormFactors::BVRR(mu, e, s, s, sminputs, U, ml, mnu);
 
-      complex<double> CSLLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, mH);
-      complex<double> CSLLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, mH);
-      complex<double> CSLLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, mH);
-      complex<double> CSLRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, mH);
-      complex<double> CSLRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, mH);
-      complex<double> CSLRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, mH);
-      complex<double> CSRLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, mH);
-      complex<double> CSRLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml ,mnu, mH);
-      complex<double> CSRLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, mH);
-      complex<double> CSRRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, mH);
-      complex<double> CSRRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, mH);
-      complex<double> CSRRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, mH);
+      std::complex<double> CSLLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, mH);
+      std::complex<double> CSLLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, mH);
+      std::complex<double> CSLLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, mH);
+      std::complex<double> CSLRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml, mnu, mH);
+      std::complex<double> CSLRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, mH);
+      std::complex<double> CSLRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml, mnu, mH);
+      std::complex<double> CSRLu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, mH);
+      std::complex<double> CSRLd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml ,mnu, mH);
+      std::complex<double> CSRLs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, mH);
+      std::complex<double> CSRRu = FormFactors::CSLL(mu, e, u, u, sminputs, U, ml ,mnu, mH);
+      std::complex<double> CSRRd = FormFactors::BSLL(mu, e, d, d, sminputs, U, ml, mnu, mH);
+      std::complex<double> CSRRs = FormFactors::BSLL(mu, e, s, s, sminputs, U, ml ,mnu, mH);
 
       double Qu = 2./3.;
-      complex<double> gVLu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (0. - k2r) - 0.5*(CVLLu + CVLRu));
-      complex<double> gSLu = -1./(sqrt(2)*sminputs.GF)*(CSLLu + CSLRu);
-      complex<double> gVRu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (k1r - k2l) - 0.5*(CVRRu + CVRLu));
-      complex<double> gSRu = -1./(sqrt(2)*sminputs.GF)*(CSRRu + CSRLu);
+      std::complex<double> gVLu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (0. - k2r) - 0.5*(CVLLu + CVLRu));
+      std::complex<double> gSLu = -1./(sqrt(2)*sminputs.GF)*(CSLLu + CSLRu);
+      std::complex<double> gVRu = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qu * (k1r - k2l) - 0.5*(CVRRu + CVRLu));
+      std::complex<double> gSRu = -1./(sqrt(2)*sminputs.GF)*(CSRRu + CSRLu);
 
       double Qd = -1./3.;
-      complex<double> gVLd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (0. - k2r) - 0.5*(CVLLd + CVLRd));
-      complex<double> gSLd = -1./(sqrt(2)*sminputs.GF)*(CSLLd + CSLRd);
-      complex<double> gVRd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (k1r - k2l) - 0.5*(CVRRd + CVRLd));
-      complex<double> gSRd = -1./(sqrt(2)*sminputs.GF)*(CSRRd + CSRLd);
+      std::complex<double> gVLd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (0. - k2r) - 0.5*(CVLLd + CVLRd));
+      std::complex<double> gSLd = -1./(sqrt(2)*sminputs.GF)*(CSLLd + CSLRd);
+      std::complex<double> gVRd = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qd * (k1r - k2l) - 0.5*(CVRRd + CVRLd));
+      std::complex<double> gSRd = -1./(sqrt(2)*sminputs.GF)*(CSRRd + CSRLd);
 
       double Qs = -1./3.;
-      complex<double> gVLs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (0. - k2r) - 0.5*(CVLLs + CVLRs));
-      complex<double> gSLs = -1./(sqrt(2)*sminputs.GF)*(CSLLs + CSLRs);
-      complex<double> gVRs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (k1r - k2l) - 0.5*(CVRRs + CVRLs));
-      complex<double> gSRs = -1./(sqrt(2)*sminputs.GF)*(CSRRs + CSRLs);
+      std::complex<double> gVLs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (0. - k2r) - 0.5*(CVLLs + CVLRs));
+      std::complex<double> gSLs = -1./(sqrt(2)*sminputs.GF)*(CSLLs + CSLRs);
+      std::complex<double> gVRs = sqrt(2)/sminputs.GF * (4.*pi / sminputs.alphainv * Qs * (k1r - k2l) - 0.5*(CVRRs + CVRLs));
+      std::complex<double> gSRs = -1./(sqrt(2)*sminputs.GF)*(CSRRs + CSRLs);
 
       double GVup = 2, GVdn = 2, GVdp = 1, GVun = 1, GVsp = 0, GVsn = 0;
       double GSup = 5.1, GSdn = 5.1, GSdp = 4.3, GSun = 4.3, GSsp = 2.5, GSsn = 2.5;
@@ -395,8 +395,8 @@ namespace Gambit
       Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
       Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
 
-      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
-      Eigen::Matrix<complex<double>,3,6> U;
+      std::vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      Eigen::Matrix<std::complex<double>,3,6> U;
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -405,7 +405,7 @@ namespace Gambit
           U(i,j+3) = Theta(i,j);
         }
 
-      complex<double> g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR;
+      std::complex<double> g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR;
       RHN_mue_FF(sminputs, mnu, U, *Param["mH"], g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR);
 
       // Parameters for Ti, from Table 1 in 1209.2679 for Ti
@@ -426,8 +426,8 @@ namespace Gambit
       Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
       Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
 
-      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
-      Eigen::Matrix<complex<double>,3,6> U;
+      std::vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      Eigen::Matrix<std::complex<double>,3,6> U;
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -436,7 +436,7 @@ namespace Gambit
           U(i,j+3) = Theta(i,j);
         }
 
-      complex<double> g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR;
+      std::complex<double> g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR;
       RHN_mue_FF(sminputs, mnu, U, *Param["mH"], g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR);
 
 
@@ -458,8 +458,8 @@ namespace Gambit
       Eigen::Matrix3cd Vnu = *Dep::SeesawI_Vnu;
       Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
 
-      vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
-      Eigen::Matrix<complex<double>,3,6> U;
+      std::vector<double> mnu = {real(m_nu(0,0)), real(m_nu(1,1)), real(m_nu(2,2)), *Param["M_1"], *Param["M_2"], *Param["M_3"]};
+      Eigen::Matrix<std::complex<double>,3,6> U;
 
       for(int i=0; i<3; i++)
         for(int j=0; j<3; j++)
@@ -468,7 +468,7 @@ namespace Gambit
           U(i,j+3) = Theta(i,j);
         }
 
-      complex<double> g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR;
+      std::complex<double> g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR;
       RHN_mue_FF(sminputs, mnu, U, *Param["mH"], g0SL, g0SR, g0VL, g0VR, g1SL, g1SR, g1VL, g1VR);
 
       // Parameters for Pb, from Table 1 in 1209.2679 for Pb
@@ -508,57 +508,57 @@ namespace Gambit
       const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       const double mA = spectrum.get(Par::Pole_Mass,"A0");
       const double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const vector<double> ml = {mE, mMu, mTau};     // charged leptons
-      const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
-      const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
-      const vector<double> mphi = {mh, mH, mA, mHp};
+      const std::vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      const std::vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      const std::vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      const std::vector<double> mphi = {mh, mH, mA, mHp};
       const std::complex<double> Yee(spectrum.get(Par::dimensionless,"Ye2",1,1), spectrum.get(Par::dimensionless, "ImYe2",1,1));
       const std::complex<double> Yemu(spectrum.get(Par::dimensionless,"Ye2",1,2), spectrum.get(Par::dimensionless, "ImYe2",1,2));
       const std::complex<double> Ymue(spectrum.get(Par::dimensionless,"Ye2",2,1), spectrum.get(Par::dimensionless, "ImYe2",2,1));
       const std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
       const std::complex<double> Ytaue(spectrum.get(Par::dimensionless,"Ye2",3,1), spectrum.get(Par::dimensionless, "ImYe2",3,1));
-      const complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      const std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
       const std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
-      const complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
-      const complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
-      const complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
-      const complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
-      const complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
-      const complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
-      const complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
-      const complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
-      const complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
-      const complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
+      const std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      const std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      const std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      const std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      const std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      const std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      const std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      const std::complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      const std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      const std::complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
       const double A      = sminputs.CKM.A;
       const double lambda = sminputs.CKM.lambda;
       const double rhobar = sminputs.CKM.rhobar;
       const double etabar = sminputs.CKM.etabar;
-      const complex<double> Vud(1 - (1/2)*lambda*lambda);
-      const complex<double> Vcd(-lambda,0);
-      const complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      const complex<double> Vus(lambda,0);
-      const complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
-      const complex<double> Vts(-A*lambda*lambda,0);
-      const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      const complex<double> Vcb(A*lambda*lambda,0);
-      const complex<double> Vtb(1,0);
-      const complex<double> xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
-      const complex<double> xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
-      const complex<double> xitc = Ytc/cosb;
-      const complex<double> xict = Yct/cosb;
-      const complex<double> xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
-      const complex<double> xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
-      const complex<double> xisb = Ysb/cosb;
-      const complex<double> xibs = Ybs/cosb;
-      const complex<double> xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
-      const complex<double> xiemu = Yemu/cosb;
-      const complex<double> ximue = Ymue/cosb;
-      const complex<double> xietau = Yetau/cosb;
-      const complex<double> xitaue = Ytaue/cosb;
-      const complex<double> ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
-      const complex<double> ximutau = Ymutau/cosb;
-      const complex<double> xitaumu = Ytaumu/cosb;
-      const complex<double> xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
+      const std::complex<double> Vud(1 - (1/2)*lambda*lambda);
+      const std::complex<double> Vcd(-lambda,0);
+      const std::complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vus(lambda,0);
+      const std::complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      const std::complex<double> Vts(-A*lambda*lambda,0);
+      const std::complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vcb(A*lambda*lambda,0);
+      const std::complex<double> Vtb(1,0);
+      const std::complex<double> xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
+      const std::complex<double> xitc = Ytc/cosb;
+      const std::complex<double> xict = Yct/cosb;
+      const std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const std::complex<double> xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
+      const std::complex<double> xisb = Ysb/cosb;
+      const std::complex<double> xibs = Ybs/cosb;
+      const std::complex<double> xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
+      const std::complex<double> xiemu = Yemu/cosb;
+      const std::complex<double> ximue = Ymue/cosb;
+      const std::complex<double> xietau = Yetau/cosb;
+      const std::complex<double> xitaue = Ytaue/cosb;
+      const std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
+      const std::complex<double> ximutau = Ymutau/cosb;
+      const std::complex<double> xitaumu = Ytaumu/cosb;
+      const std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
@@ -574,7 +574,7 @@ namespace Gambit
               0, xiss, xisb,
               0, xibs, xibb;
 
-      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
+      const std::vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
 
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,
@@ -584,8 +584,8 @@ namespace Gambit
       int f = 0;
 
       // One loop amplitude
-      complex<double> Aloop1L = 0;
-      complex<double> Aloop1R = 0;
+      std::complex<double> Aloop1L = 0;
+      std::complex<double> Aloop1R = 0;
       //Charged higgs contributions are being neglected
       //no longer
       for (int phi=0; phi<=3; ++phi)
@@ -601,12 +601,12 @@ namespace Gambit
       const double mW = sminputs.mW;
       const double mZ = sminputs.mZ;
       const double sw2 = 1 - pow(mW/mZ,2);
-      const vector<double> Qf = {2./3.,-1./3.,-1.};
-      const vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
-      const vector<double> Nc = {3.,3.,1.};
+      const std::vector<double> Qf = {2./3.,-1./3.,-1.};
+      const std::vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
+      const std::vector<double> Nc = {3.,3.,1.};
       //Fermionic contribution
-      complex<double> Aloop2fL = 0;
-      complex<double> Aloop2fR = 0;
+      std::complex<double> Aloop2fL = 0;
+      std::complex<double> Aloop2fR = 0;
       for (int phi=0; phi<=2; ++phi)
       {
         for (int lf=0; lf<=2; ++lf)
@@ -616,13 +616,13 @@ namespace Gambit
          }
       }
       //Bosonic contribution
-      complex<double> Aloop2bL = 0;
-      complex<double> Aloop2bR = 0;
+      std::complex<double> Aloop2bL = 0;
+      std::complex<double> Aloop2bR = 0;
       for (int phi=0; phi<=1; ++phi)
       {
-       const complex<double> sab(sqrt(1-cab*cab),0);
-       const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
-       const vector<complex<double>> angle = {sab,Cab};
+       const std::complex<double> sab(sqrt(1-cab*cab),0);
+       const std::complex<double> Cab(cab,0);//auxiliary definition to deal with the std::complex product
+       const std::vector<std::complex<double>> angle = {sab,Cab};
        Aloop2bL += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bL(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
        Aloop2bR += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
       }
@@ -683,11 +683,11 @@ namespace Gambit
       double mE = sminputs.mE;
       double mMu = sminputs.mMu;
       double mTau = sminputs.mTau;
-      vector<double> ml = {mE, mMu, mTau};
+      std::vector<double> ml = {mE, mMu, mTau};
       double mh = spectrum.get(Par::Pole_Mass,"h0",1);
       double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       double mA = spectrum.get(Par::Pole_Mass,"A0");
-      vector<double> mphi= {mh, mH, mA};
+      std::vector<double> mphi= {mh, mH, mA};
       std::complex<double> Yee(spectrum.get(Par::dimensionless,"Ye2",1,1), spectrum.get(Par::dimensionless, "ImYe2",1,1));
       std::complex<double> Yemu(spectrum.get(Par::dimensionless,"Ye2",1,2), spectrum.get(Par::dimensionless, "ImYe2",1,2));
       std::complex<double> Ymue(spectrum.get(Par::dimensionless,"Ye2",2,1), spectrum.get(Par::dimensionless, "ImYe2",2,1));
@@ -701,15 +701,15 @@ namespace Gambit
       double lambda = sminputs.CKM.lambda;
       double rhobar = sminputs.CKM.rhobar;
       double etabar = sminputs.CKM.etabar;
-      complex<double> Vud(1 - (1/2)*lambda*lambda);
-      complex<double> Vcd(-lambda,0);
-      complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      complex<double> Vus(lambda,0);
-      complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
-      complex<double> Vts(-A*lambda*lambda,0);
-      complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      complex<double> Vcb(A*lambda*lambda,0);
-      complex<double> Vtb(1,0);
+      std::complex<double> Vud(1 - (1/2)*lambda*lambda);
+      std::complex<double> Vcd(-lambda,0);
+      std::complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      std::complex<double> Vus(lambda,0);
+      std::complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      std::complex<double> Vts(-A*lambda*lambda,0);
+      std::complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      std::complex<double> Vcb(A*lambda*lambda,0);
+      std::complex<double> Vtb(1,0);
       std::complex<double> xiee = -((sqrt(2)*mE*tanb)/v) + Yee/cosb;
       std::complex<double> xiemu = Yemu/cosb;
       std::complex<double> ximue = Ymue/cosb;
@@ -732,7 +732,7 @@ namespace Gambit
 
       int f=0;
       double l2lll = 0;
-      complex<double> two(2,0);
+      std::complex<double> two(2,0);
 
       for (int phi=0; phi<=2; ++phi)
       {
@@ -792,57 +792,57 @@ namespace Gambit
       const double mH = spectrum.get(Par::Pole_Mass,"h0",2);
       const double mA = spectrum.get(Par::Pole_Mass,"A0");
       const double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      const vector<double> ml = {mE, mMu, mTau};     // charged leptons
-      const vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
-      const vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
-      const vector<double> mphi = {mh, mH, mA, mHp};
-      const complex<double> Yee(spectrum.get(Par::dimensionless,"Ye2",1,1), spectrum.get(Par::dimensionless, "ImYe2",1,1));
-      const complex<double> Yemu(spectrum.get(Par::dimensionless,"Ye2",1,2), spectrum.get(Par::dimensionless, "ImYe2",1,2));
-      const complex<double> Ymue(spectrum.get(Par::dimensionless,"Ye2",2,1), spectrum.get(Par::dimensionless, "ImYe2",2,1));
-      const complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
-      const complex<double> Ytaue(spectrum.get(Par::dimensionless,"Ye2",3,1), spectrum.get(Par::dimensionless, "ImYe2",3,1));
-      const complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
-      const complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
-      const complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
-      const complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
-      const complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
-      const complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
-      const complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
-      const complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
-      const complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
-      const complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
-      const complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
-      const complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
+      const std::vector<double> ml = {mE, mMu, mTau};     // charged leptons
+      const std::vector<double> mvl = {mNu1, mNu2, mNu3}; // neutrinos
+      const std::vector<double> mlf = {mTau, mBmB, mT};   // fermions in the second loop
+      const std::vector<double> mphi = {mh, mH, mA, mHp};
+      const std::complex<double> Yee(spectrum.get(Par::dimensionless,"Ye2",1,1), spectrum.get(Par::dimensionless, "ImYe2",1,1));
+      const std::complex<double> Yemu(spectrum.get(Par::dimensionless,"Ye2",1,2), spectrum.get(Par::dimensionless, "ImYe2",1,2));
+      const std::complex<double> Ymue(spectrum.get(Par::dimensionless,"Ye2",2,1), spectrum.get(Par::dimensionless, "ImYe2",2,1));
+      const std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
+      const std::complex<double> Ytaue(spectrum.get(Par::dimensionless,"Ye2",3,1), spectrum.get(Par::dimensionless, "ImYe2",3,1));
+      const std::complex<double> Ymumu(spectrum.get(Par::dimensionless,"Ye2",2,2), spectrum.get(Par::dimensionless, "ImYe2",2,2));
+      const std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      const std::complex<double> Ytaumu(spectrum.get(Par::dimensionless,"Ye2",3,2), spectrum.get(Par::dimensionless, "ImYe2",3,2));
+      const std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      const std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      const std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      const std::complex<double> Yct(spectrum.get(Par::dimensionless,"Yu2",2,3), spectrum.get(Par::dimensionless, "ImYu2",2,3));
+      const std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
+      const std::complex<double> Ybb(spectrum.get(Par::dimensionless,"Yd2",3,3), spectrum.get(Par::dimensionless, "ImYd2",3,3));
+      const std::complex<double> Ybs(spectrum.get(Par::dimensionless,"Yd2",3,2), spectrum.get(Par::dimensionless, "ImYd2",3,2));
+      const std::complex<double> Ysb(spectrum.get(Par::dimensionless,"Yd2",2,3), spectrum.get(Par::dimensionless, "ImYd2",2,3));
+      const std::complex<double> Yss(spectrum.get(Par::dimensionless,"Yd2",2,2), spectrum.get(Par::dimensionless, "ImYd2",2,2));
       const double A      = sminputs.CKM.A;
       const double lambda = sminputs.CKM.lambda;
       const double rhobar = sminputs.CKM.rhobar;
       const double etabar = sminputs.CKM.etabar;
-      const complex<double> Vud(1 - (1/2)*lambda*lambda);
-      const complex<double> Vcd(-lambda,0);
-      const complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      const complex<double> Vus(lambda,0);
-      const complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
-      const complex<double> Vts(-A*lambda*lambda,0);
-      const complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
-      const complex<double> Vcb(A*lambda*lambda,0);
-      const complex<double> Vtb(1,0);
-      const complex<double> xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
-      const complex<double> xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
-      const complex<double> xitc = Ytc/cosb;
-      const complex<double> xict = Yct/cosb;
-      const complex<double> xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
-      const complex<double> xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
-      const complex<double> xisb = Ysb/cosb;
-      const complex<double> xibs = Ybs/cosb;
-      const complex<double> xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
-      const complex<double> xiemu = Yemu/cosb;
-      const complex<double> ximue = Ymue/cosb;
-      const complex<double> xietau = Yetau/cosb;
-      const complex<double> xitaue = Ytaue/cosb;
-      const complex<double> ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
-      const complex<double> ximutau = Ymutau/cosb;
-      const complex<double> xitaumu = Ytaumu/cosb;
-      const complex<double> xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
+      const std::complex<double> Vud(1 - (1/2)*lambda*lambda);
+      const std::complex<double> Vcd(-lambda,0);
+      const std::complex<double> Vtd((1-rhobar)*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vus(lambda,0);
+      const std::complex<double> Vcs(1 - (1/2)*lambda*lambda,0);
+      const std::complex<double> Vts(-A*lambda*lambda,0);
+      const std::complex<double> Vub(rhobar*A*pow(lambda,3),-etabar*A*pow(lambda,3));
+      const std::complex<double> Vcb(A*lambda*lambda,0);
+      const std::complex<double> Vtb(1,0);
+      const std::complex<double> xitt = -((sqrt(2)*mT*tanb)/vev) + Ytt/cosb;
+      const std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/vev) + Ycc/cosb;
+      const std::complex<double> xitc = Ytc/cosb;
+      const std::complex<double> xict = Yct/cosb;
+      const std::complex<double> xibb = -((sqrt(2)*mBmB*tanb)/vev) + Ybb/cosb;
+      const std::complex<double> xiss = -((sqrt(2)*mS*tanb)/vev) + Yss/cosb;
+      const std::complex<double> xisb = Ysb/cosb;
+      const std::complex<double> xibs = Ybs/cosb;
+      const std::complex<double> xiee = -((sqrt(2)*mE*tanb)/vev) + Yee/cosb;
+      const std::complex<double> xiemu = Yemu/cosb;
+      const std::complex<double> ximue = Ymue/cosb;
+      const std::complex<double> xietau = Yetau/cosb;
+      const std::complex<double> xitaue = Ytaue/cosb;
+      const std::complex<double> ximumu = -((sqrt(2)*mMu*tanb)/vev) + Ymumu/cosb;
+      const std::complex<double> ximutau = Ymutau/cosb;
+      const std::complex<double> xitaumu = Ytaumu/cosb;
+      const std::complex<double> xitautau = -((sqrt(2)*mTau*tanb)/vev) + Ytautau/cosb;
 
       Eigen::Matrix3cd xi_L, xi_U, xi_D, VCKM;
 
@@ -858,7 +858,7 @@ namespace Gambit
               0, xiss, xisb,
               0, xibs, xibb;
 
-      const vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
+      const std::vector<Eigen::Matrix3cd> xi_f = {xi_L, xi_D, xi_U};
 
       // Needed for Hpm-l-vl couplings
       VCKM << Vud, Vus, Vub,
@@ -868,7 +868,7 @@ namespace Gambit
       int f = 0;
 
       // One loop amplitude
-      complex<double> Aloop1R = 0;
+      std::complex<double> Aloop1R = 0;
       //Charged higgs contributions are being neglected
       //no longer
       for (int phi=0; phi<=3; ++phi)
@@ -883,11 +883,11 @@ namespace Gambit
       const double mW = sminputs.mW;
       const double mZ = sminputs.mZ;
       const double sw2 = 1 - pow(mW/mZ,2);
-      const vector<double> Qf = {2./3.,-1./3.,-1.};
-      const vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
-      const vector<double> Nc = {3.,3.,1.};
+      const std::vector<double> Qf = {2./3.,-1./3.,-1.};
+      const std::vector<double> QfZ = {-1./2.*2.-4.*Qf[0]*sw2,1./2.*2.-4.*Qf[1]*sw2,-1./2.*2.-4.*Qf[2]*sw2};
+      const std::vector<double> Nc = {3.,3.,1.};
       //Fermionic contribution
-      complex<double> Aloop2fR = 0;
+      std::complex<double> Aloop2fR = 0;
       for (int phi=0; phi<=2; ++phi)
       {
         for (int lf=0; lf<=2; ++lf)
@@ -896,18 +896,18 @@ namespace Gambit
          }
       }
       //Bosonic contribution
-      complex<double> Aloop2bR = 0;
+      std::complex<double> Aloop2bR = 0;
       for (int phi=0; phi<=1; ++phi)
       {
-       const complex<double> sab(sqrt(1-cab*cab),0);
-       const complex<double> Cab(cab,0);//auxiliary definition to deal with the complex product
-       const vector<complex<double>> angle = {sab,Cab};
+       const std::complex<double> sab(sqrt(1-cab*cab),0);
+       const std::complex<double> Cab(cab,0);//auxiliary definition to deal with the std::complex product
+       const std::vector<std::complex<double>> angle = {sab,Cab};
        Aloop2bR += (Alpha_em/(16*pow(pi,3)*ml[l]*vev))*angle[phi]*Amplitudes::A_loop2bR(f, l, lp, phi, ml[l], mphi[phi], xi_L, VCKM, sw2, vev, cab, mW, mZ);
       }
       //g2 coupling
-      complex<double> g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
+      std::complex<double> g2 = mMu*mMu*xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(192*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,4));
       //g4 coupling
-      complex<double> g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
+      std::complex<double> g4 = -xitaumu*(ximumu*ximumu+xitaumu*xitaumu)*(ximumu+xitautau)/(128*sqrt(2)*pi*pi*sminputs.GF*pow(mHp,2));
 
       double C2 = norm(g2)/16 + norm(g4);
       double C7 = (pi*Alpha_em/(sqrt(2)*sminputs.GF))*real(conj(g4)*(Aloop1R+Aloop2fR+Aloop2bR));

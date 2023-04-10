@@ -24,7 +24,8 @@
 
 LOAD_LIBRARY
 
-BE_ALLOW_MODELS(MSSM63atQ, Halo_gNFW, Halo_gNFW_rho0, Halo_gNFW_rhos, Halo_Einasto, Halo_Einasto_rho0, Halo_Einasto_rhos)
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atQ_mG,
+	            Halo_gNFW, Halo_gNFW_rho0, Halo_gNFW_rhos, Halo_Einasto, Halo_Einasto_rho0, Halo_Einasto_rhos)
 // The presence of the various halo models is just a workaround to allow initializing MO without MSSM model
 
 BE_FUNCTION(oneChannel, double, (double,double,char*,char*,char*,char*), "oneChannel", "get_oneChannel", (MSSM63atQ))

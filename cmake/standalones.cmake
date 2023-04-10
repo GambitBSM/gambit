@@ -17,6 +17,10 @@
 #          (tomas.gonzalo@monash.edu)
 #  \date 2020
 #
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2023
+#
 #************************************************
 
 # Add some programs that use the GAMBIT physics libraries but not GAMBIT itself.

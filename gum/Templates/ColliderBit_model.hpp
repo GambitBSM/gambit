@@ -56,13 +56,32 @@
   // Run event generator
   #define CAPABILITY HardScatteringEvent
     #define FUNCTION generateEventPythia_@MODEL@
+    START_FUNCTION(Pythia_@MODEL@_default::Pythia8::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
+    DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+    ALLOW_MODEL(@MODEL@)
+    #undef FUNCTION
+
+    #define FUNCTION generateEventPythia_@MODEL@_HEPUtils
     START_FUNCTION(HEPUtils::Event)
     NEEDS_MANAGER(RunMC, MCLoopInfo)
     NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
     DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+    DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
-    ALLOW_MODEL(@MODEL@)
     #undef FUNCTION
+
+    #ifndef EXCLUDE_HEPMC
+      #define FUNCTION generateEventPythia_@MODEL@_HepMC
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
+      DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+      DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
+      #undef FUNCTION
+    #endif
+
   #undef CAPABILITY
 
 

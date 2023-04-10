@@ -28,6 +28,8 @@
 
 LOAD_LIBRARY
 
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atQ_mG)
+
 /* Next we use macros BE_VARIABLE and BE_FUNCTION to load pointers
  * (using dlsym) to the variables and functions within the library.
  *

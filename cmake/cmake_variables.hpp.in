@@ -64,8 +64,14 @@
 /// Found/installed pybind11
 #cmakedefine HAVE_PYBIND11 1
 
+/// Leave out yoda
+#cmakedefine EXCLUDE_YODA 1
+
 /// Leave out HepMC
 #cmakedefine EXCLUDE_HEPMC 1
+
+/// Path to HepMC lib directory
+#cmakedefine HEPMC_LIB "@HEPMC_LIB@"
 
 /// Leave out ROOT
 #cmakedefine EXCLUDE_ROOT 1

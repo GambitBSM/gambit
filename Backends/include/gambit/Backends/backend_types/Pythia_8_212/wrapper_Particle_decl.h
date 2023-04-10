@@ -258,11 +258,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool undoDecay();
         
-                ::std::basic_string<char> name() const;
+                ::std::string name() const;
         
-                ::std::basic_string<char> nameWithStatus(int maxLen) const;
+                ::std::string nameWithStatus(int maxLen) const;
         
-                ::std::basic_string<char> nameWithStatus() const;
+                ::std::string nameWithStatus() const;
         
                 int spinType() const;
         

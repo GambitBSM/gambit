@@ -566,6 +566,7 @@ set( PLUGIN_INCLUDE_DIRECTORIES
                 ${GSL_INCLUDE_DIRS}
                 ${ROOT_INCLUDE_DIR}
                 ${ROOT_INCLUDE_DIRS}
+                ${BREW_LIBOMP_PREFIX}/include
                 ${PROJECT_SOURCE_DIR}/ScannerBit/include/gambit/ScannerBit
 )\n
 if( ${PLUG_VERBOSE} )

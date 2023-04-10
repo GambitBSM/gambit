@@ -1,4 +1,3 @@
-# GAMBIT central capabilities description database
 #
 # GAMBIT will parse this file and try to match the entries
 # to the capabilities it has registered. If there are any
@@ -71,9 +70,6 @@ test_Farrays: |
 test_marg_lnlike: |
    Tester for marginalised Poisson likelihood.
 
-test_Pythia: |
-   Tester for Pythia backend.
-
 test_BE_Array: |
    Tester for C/C++ backend array interfaces.
 
@@ -129,13 +125,13 @@ LibSecond_1_2_init: |
    Initialize the Python testing LibSecond backend, version 1.2.
 
 LibThird_1_0_init: |
-   Initialize the Python package testing LibThird backend, version 1.0.
+   Initialize the Python testing LibThird backend, version 1.0.
 
 LibThird_1_1_init: |
-   Initialize the Python package testing LibThird backend, version 1.1.
+   Initialize the Python testing LibThird backend, version 1.1.
 
 LibThird_1_2_init: |
-   Initialize the Python package testing LibThird backend, version 1.2.
+   Initialize the Python testing LibThird backend, version 1.2.
 
 initialize_capability: |
    Tester function for the initialization of backends.
@@ -292,185 +288,185 @@ DMEFT_spectrum: |
 THDM_Type: |
     Type of THDM, determined at runtime via the Yukawas
 
-THDM_spectrum: | 
+THDM_spectrum: |
     Create Spectrum object from SMInputs structs and 2HDM parameters
 
-unitarity_LogLikelihood_THDM: | 
+unitarity_LogLikelihood_THDM: |
     S-Matrix untarity constraint
 
-perturbativity_LogLikelihood_THDM: | 
+perturbativity_LogLikelihood_THDM: |
     perturbativity constraint on the scalar couplings
 
-perturbativity_yukawas_LogLikelihood_THDM: | 
+perturbativity_yukawas_LogLikelihood_THDM: |
     perturbativity constraint on the Yukawa couplings
 
-stability_LogLikelihood_THDM: | 
+stability_LogLikelihood_THDM: |
     vacuum stability + meta-stability constraint
 
-light_scalar_mass_corrections_LogLikelihood_THDM: | 
+light_scalar_mass_corrections_LogLikelihood_THDM: |
     checks that the corrections to h0 are perturbative
 
-heavy_scalar_mass_corrections_LogLikelihood_THDM: | 
+heavy_scalar_mass_corrections_LogLikelihood_THDM: |
     checks that the corrections to H0,A0,Hp are perturbative
 
-hidden_higgs_scenario_LogLikelihood_THDM: | 
+hidden_higgs_scenario_LogLikelihood_THDM: |
     only keeps points that correspond to hidden higgs scenario
 
-scalar_mass_range_LogLikelihood_THDM: | 
+scalar_mass_range_LogLikelihood_THDM: |
     mass range for each scalar, specified in YAML file
 
-Higgs_Couplings_THDM: | 
+Higgs_Couplings_THDM: |
     fills a table of Higgs couplings for THDM
 
-oblique_parameters_LogLikelihood_THDM: | 
+oblique_parameters_LogLikelihood_THDM: |
     constraint on the 2HDM contributions to the S,T,U,V,W,X electroweak
     precision observables
 
-init_THDM_spectrum_container_CONV: | 
-    overrides the Two-Higgs-Doublet model calculator (THDMC) internal 
+init_THDM_spectrum_container_CONV: |
+    overrides the Two-Higgs-Doublet model calculator (THDMC) internal
     spectrum with the GAMBIT generated spectrum.
 
-THDMC_1_8_0_init: | 
+THDMC_1_8_0_init: |
     initializes the Two-Higgs-Doublet model calculator (THDMC) backend.
 
 THDMII_higgs_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_higgsatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_hybrid_lambda1_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_hybrid_lambda1atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_hybrid_lambda2_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_hybrid_lambda2atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_physical_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMII_physicalatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMIIatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_higgs_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_higgsatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_hybrid_Higgs_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_hybrid_HiggsatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_hybrid_lambda1_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_hybrid_lambda1atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_hybrid_lambda2_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_hybrid_lambda2atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_physical_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMI_physicalatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMIatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_higgs_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_higgsatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_hybrid_lambda1_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_hybrid_lambda1atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_hybrid_lambda2_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_hybrid_lambda2atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_physical_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLS_physicalatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMLSatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDM_higgs_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDM_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDM_physical_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_higgs_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_higgsatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_hybrid_lambda1_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_hybrid_lambda1atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_hybrid_lambda2_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_hybrid_lambda2atQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_physical_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflipped_physicalatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 THDMflippedatQ_parameters: |
     Parameters for the Two-Higgs-Doublet model
-    
+
 
 #####  Scalar singlet Higgs-portal models  #####
 
@@ -638,7 +634,10 @@ SLHAFileNameAndContent: |
    Name and content of a SLHA file.
 
 susy_spectrum_scan_guide: |
-   Invalid point check with advances mass cuts, to aid scans of SUSY models.
+   Invalid point check with advanced mass cuts, to aid scans of SUSY models.
+
+susy_spectrum_validation_loglike: |
+   A zero loglike used for separating physical and unphysical SUSY points in ColliderBit tests.
 
 LHC_LogLike_scan_guide: |
    A dummy log-likelihood to force the scanner to explore a given range of
@@ -730,6 +729,11 @@ AllAnalysisNumbersUnmodified: |
    based on interpolated yields. AllAnalysisNumbersUnmodified is the collection
    of all analysis numbers before any subsequent modificiation, e.g. due to
    EFT validity constraints.
+
+Dijet_LogLike: |
+   Interpolates dijet signal predictions and compares the
+   quark coupling scaled down by branching ratios to upper limits from a range of searches.
+   Returns a log likelihood value.
 
 DMEFT_profiled_LHC_nuisance_params: |
    Information on the result of profiling out the nuisance parameter 'a' in collider
@@ -1414,7 +1418,7 @@ DarkMatter_ID: |
    Contains string ID to identify dark matter particle.
 
 DarkMatterConj_ID: |
-   Contains string ID to identify the conjugate to the dark matter particle.
+   String ID for the dark matter conjugate.
 
 RD_spectrum: |
    Contains degrees of freedom and masses of all (co)-annihilating
@@ -1720,6 +1724,39 @@ LZ_BinSignal: |
 LZ_Bins: |
    The number of bins used in the LZ direct detection analysis.
 
+LZ_2022_Calculate: |
+   Perform rate and likelihood calculations for the LZ 2022 direct detection analysis.
+
+LZ_2022_Events: |
+   The number of observed events for the LZ 2022 direct detection analysis.
+
+LZ_2022_Background: |
+   The number of background events for the LZ 2022 direct detection analysis.
+
+LZ_2022_Signal: |
+   The number of signal events for the LZ 2022 direct detection analysis.
+
+LZ_2022_SignalSI: |
+   The number of spin-independent signal events for the LZ 2022 direct detection analysis.
+
+LZ_2022_SignalSD: |
+   The number of spin-dependent signal events for the LZ 2022 direct detection analysis.
+
+LZ_2022_LogLikelihood: |
+   Calculate the log-likelihood for the LZ 2022 direct detection analysis.
+
+LZ_2022_BinBackground: |
+   The number of expected background events in each bin for the LZ 2022 direct detection analysis.
+
+LZ_2022_BinEvents: |
+   The number of expected events in each bin for the LZ 2022 direct detection analysis.
+
+LZ_2022_BinSignal: |
+   The number of expected signal events in each bin for the LZ 2022 direct detection analysis.
+
+LZ_2022_Bins: |
+   The number of bins used in the LZ 2022 direct detection analysis.
+
 PandaX_2016_Calculate: |
    Perform rate and likelihood calculations for the PandaX 2016 direct detection analysis.
 
@@ -1785,6 +1822,39 @@ PandaX_2017_BinSignal: |
 
 PandaX_2017_Bins: |
    The number of bins used in the PandaX 2017 direct detection analysis.
+
+PandaX_4T_Calculate: |
+   Perform rate and likelihood calculations for the PandaX 4T direct detection analysis.
+
+PandaX_4T_Events: |
+   The number of observed events for the PandaX 4T direct detection analysis.
+
+PandaX_4T_Background: |
+   The number of background events for the PandaX 4T direct detection analysis.
+
+PandaX_4T_Signal: |
+   The number of signal events for the PandaX 4T direct detection analysis.
+
+PandaX_4T_SignalSI: |
+   The number of spin-independent signal events for the PandaX 4T direct detection analysis.
+
+PandaX_4T_SignalSD: |
+   The number of spin-dependent signal events for the PandaX 4T direct detection analysis.
+
+PandaX_4T_LogLikelihood: |
+   Calculate the log-likelihood for the PandaX 4T direct detection analysis.
+
+PandaX_4T_BinBackground: |
+   The number of expected background events in each bin for the PandaX 4T direct detection analysis.
+
+PandaX_4T_BinEvents: |
+   The number of expected events in each bin for the PandaX 4T direct detection analysis.
+
+PandaX_4T_BinSignal: |
+   The number of expected signal events in each bin for the PandaX 4T direct detection analysis.
+
+PandaX_4T_Bins: |
+   The number of bins used in the PandaX 4T direct detection analysis.
 
 SuperCDMS_2014_Calculate: |
    Perform rate and likelihood calculations for the SuperCDMS 2014 direct detection analysis.
@@ -2484,6 +2554,15 @@ IC79_loglike: |
 IceCube_likelihood: |
    The complete IceCube log-likelihood, including 22-string and 79-string data.
 
+pbar_logLikes:
+   AMS-02 7-year antiproton likelihoods for both correlated and uncorrelated errors.
+
+pbar_logLike_uncorr:
+   AMS-02 7-year antiproton likelihoods for uncorrelated errors.
+
+pbar_logLike_corr:
+   AMS-02 7-year antiproton likelihoods for correlated errors.
+
 DarkSUSY_PointInit: |
    Initialises DarkSUSY (up to version 5) for a specific model point.
 
@@ -2496,6 +2575,9 @@ DarkSUSY_MSSM_6_2_2_init: |
 DarkSUSY_MSSM_6_2_5_init: |
    Initialises DarkSUSY 6.2.5 for the MSSM.
 
+DarkSUSY_MSSM_6_4_0_init: |
+   Initialises DarkSUSY 6.4.0 for the MSSM.
+
 DarkSUSY_generic_wimp_6_1_1_init: |
    Initialises DarkSUSY 6.1.1 for a generic WIMP.
 
@@ -2504,6 +2586,9 @@ DarkSUSY_generic_wimp_6_2_2_init: |
 
 DarkSUSY_generic_wimp_6_2_5_init: |
    Initialises DarkSUSY 6.2.5 for a generic WIMP.
+
+DarkSUSY_generic_wimp_6_4_0_init: |
+   Initialises DarkSUSY 6.4.0 for a generic WIMP.
 
 DarkSUSY5_PointInit_LocalHalo: |
    Initialises Milky Way halo model parameters in DarkSUSY5
@@ -2553,6 +2638,9 @@ DDCalc_2_1_0_init: |
 
 DDCalc_2_2_0_init: |
    Initialises DDCalc 2.2.0.
+
+DDCalc_2_3_0_init: |
+   Initialises DDCalc 2.3.0.
 
 DDCalc_Couplings: |
    Initialise DDCalc couplings from a given DM interaction basis.
@@ -2641,6 +2729,9 @@ PandaX_2016_Init: |
 PandaX_2017_Init: |
    Initialises a direct detection experiment with the properties of the 2017 analysis of PandaX.
 
+PandaX_4T_Init: |
+   Initialises a direct detection experiment with the properties of the 4T analysis of PandaX.
+
 XENON100_2012_Init: |
    Initialises a direct detection experiment with the properties of the 2012 analysis of Xenon100.
 
@@ -2673,6 +2764,9 @@ DARWIN_Init: |
 
 LZ_Init: |
    Initialises a direct detection experiment with the properties of the analysis of LZ.
+
+LZ_2022_Init: |
+   Initialises a direct detection experiment with the properties of the 2022 analysis of LZ.
 
 FreeDetectorss: |
    Deletes the detector object held internally by DDCalc (relevant for the C/C++ interface of DDCalc).
@@ -3216,6 +3310,12 @@ dssuconst_yukawa: |
 rdmgev: |
    Information about (co)annihilating particles for the DarkSUSY relic density routines.
 
+RD_oh2_DS6_ini: |
+   Initializes relic density calculations with DarkSUSY (starting from version 6.4.0).
+
+RD_oh2_DS6pre4_ini: |
+   Initializes relic density calculations with DarkSUSY 6 (for versions prior to 6.4.0).
+
 rdpth: |
    Momentum thresholds relevant for DarkSUSY relic density calculation.
 
@@ -3385,152 +3485,196 @@ decay_rates: |
 all_BFs: |
   Returns branching fractions for the specified particles (as a map<str,double>)
 
-Z_decay_rates : |
+Z_decay_rates: |
    All decays of the Z gauge boson.
 
-Higgs_decay_rates : |
+Higgs_decay_rates: |
    All decays of the most SM-like Higgs boson.
 
-Reference_SM_Higgs_decay_rates : |
+Reference_SM_Higgs_decay_rates: |
    All decays of the Higgs boson in the SM.
 
-eta_decay_rates : |
+eta_decay_rates: |
    All decays of the η meson.
 
-omega_decay_rates : |
+omega_decay_rates: |
    All decays of the ω meson.
 
-lnL_Higgs_invWidth : |
+lnL_Higgs_invWidth: |
    The log-likelihood of the (SM-like) Higgs invisible width.
 
-h0_2_decay_rates : |
+h0_2_decay_rates: |
    Decays of the heaviest CP-even MSSM Higgs boson.
 
-A0_decay_rates : |
+A0_decay_rates: |
    Decays of the CP-odd MSSM Higgs boson.
 
-gluino_decay_rates : |
+gluino_decay_rates: |
    Decays of the gluino.
 
-t_decay_rates : |
+t_decay_rates: |
    All decays of the t quark.
 
-snu_electronl_decay_rates : |
+snu_electronl_decay_rates: |
    Decays of the ν_eL sneutrinos.
 
-snu_muonl_decay_rates : |
+snu_muonl_decay_rates: |
    Decays of the ν_μL sneutrinos.
 
-snu_taul_decay_rates : |
+snu_taul_decay_rates: |
    Decays of the ν_τL sneutrinos.
 
-stop_1_decay_rates : |
+stop_1_decay_rates: |
    Decays of the t_1 squarks.
 
-sbottom_1_decay_rates : |
+sbottom_1_decay_rates: |
    Decays of the b_1 squarks.
 
-stau_1_decay_rates : |
+stau_1_decay_rates: |
    Decays of the τ_1 sleptons.
 
-stau_1_decay_rates_SH : |
+stau_1_decay_rates_SH: |
    Decays of the τ_1 sleptons calculated with SUSY-HIT.
 
-stau_1_decay_rates_smallsplit : |
+stau_1_decay_rates_smallsplit: |
    Decays of the τ_1 sleptons for small stau--neutralino mass splittings.
 
-stop_2_decay_rates : |
+stop_2_decay_rates: |
    Decays of the t_2 squarks.
 
-sbottom_2_decay_rates : |
+sbottom_2_decay_rates: |
    Decays of the b_2 squarks.
 
-stau_2_decay_rates : |
+stau_2_decay_rates: |
    Decays of the τ_2 sleptons.
 
-tbar_decay_rates : |
+tbar_decay_rates: |
    All decays of the anti-t quark.
 
-snubar_electronl_decay_rates : |
+snubar_electronl_decay_rates: |
    Decays of the anti-ν_eL sneutrinos.
 
-snubar_muonl_decay_rates : |
+snubar_muonl_decay_rates: |
    Decays of the anti-ν_μL sneutrinos.
 
-snubar_taul_decay_rates : |
+snubar_taul_decay_rates: |
    Decays of the anti-ν_τL sneutrinos.
 
-stopbar_1_decay_rates : |
+stopbar_1_decay_rates: |
    Decays of the anti-t_1 squarks.
 
-sbottombar_1_decay_rates : |
+sbottombar_1_decay_rates: |
    Decays of the anti-b_1 squarks.
 
-staubar_1_decay_rates : |
+staubar_1_decay_rates: |
    Decays of the anti-τ_1 sleptons.
 
-stopbar_2_decay_rates : |
+stopbar_2_decay_rates: |
    Decays of the anti-t_2 squarks.
 
-sbottombar_2_decay_rates : |
+sbottombar_2_decay_rates: |
    Decays of the anti-b_2 squarks.
 
-staubar_2_decay_rates : |
+staubar_2_decay_rates: |
    Decays of the anti-τ_2 sleptons.
 
-mu_plus_decay_rates : |
+mu_plus_decay_rates: |
   All decays of the μ+ lepton.
 
-tau_plus_decay_rates : |
+tau_plus_decay_rates: |
   All decays of the τ+ lepton.
 
-W_plus_decay_rates : |
+W_plus_decay_rates: |
   All decays of the W+ gauge boson.
 
-H_plus_decay_rates : |
+H_plus_decay_rates: |
    Decays of the MSSM H+.
 
-chargino_plus_1_decay_rates : |
+chargino_plus_1_decay_rates: |
    Decays of the chargino+ 1.
 
-chargino_plus_1_decay_rates_SH : |
+chargino_plus_1_decay_rates_SH: |
    Decays of the chargino+ 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
 
-chargino_plus_1_decay_rates_smallsplit : |
+chargino_plus_1_decay_rates_smallsplit: |
    Decays of the chargino+ 1 at small chargino--neutralino mass splittings.
+   Not including decays to gravitinos.
 
-chargino_plus_2_decay_rates : |
+chargino_plus_1_decay_rates_SH_or_smallsplit : |
+   Decays of the chargino+ 1, either calculated using SUSY-HIT or by DecayBit
+   in the case of small chargino--neutralino mass splittings. Not including decays to gravitinos.
+
+chargino_plus_1_decay_rates_gravitino : |
+   Decays of the chargino+ 1 to gravitinos.
+
+chargino_plus_2_decay_rates: |
    Decays of the chargino+ 2.
+
+chargino_plus_2_decay_rates_SH : |
+   Decays of the chargino+ 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+chargino_plus_2_decay_rates_gravitino : |
+   Decays of the chargino+ 2 to gravitinos.
 
 mu_minus_decay_rates : |
   All decays of the μ- lepton.
 
-tau_minus_decay_rates : |
+tau_minus_decay_rates: |
   All decays of the τ- lepton.
 
-W_minus_decay_rates : |
+W_minus_decay_rates: |
   All decays of the W- gauge boson.
 
-chargino_minus_1_decay_rates : |
+chargino_minus_1_decay_rates: |
    Decays of the chargino- 1.
 
-chargino_minus_2_decay_rates : |
+chargino_minus_2_decay_rates: |
    Decays of the chargino- 2.
 
-rho1450_decay_rates : |
+rho1450_decay_rates: |
   Decays of the ρ(1450) meson.
 
-neutralino_1_decay_rates : |
+neutralino_1_decay_rates: |
    Decays of the neutralino 1.
+
+neutralino_1_decay_rates_SH : |
+   Decays of the neutralino 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_1_decay_rates_gravitino : |
+   Decays of the neutralino 1 to gravitinos.
 
 neutralino_2_decay_rates : |
    Decays of the neutralino 2.
 
+neutralino_2_decay_rates_SH : |
+   Decays of the neutralino 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_2_decay_rates_gravitino : |
+   Decays of the neutralino 2 to gravitinos.
+
 neutralino_3_decay_rates : |
    Decays of the neutralino 3.
 
+neutralino_3_decay_rates_SH : |
+   Decays of the neutralino 3 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_3_decay_rates_gravitino : |
+   Decays of the neutralino 3 to gravitinos.
+
 neutralino_4_decay_rates : |
    Decays of the neutralino 4.
+
+neutralino_4_decay_rates_SH : |
+   Decays of the neutralino 4 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_4_decay_rates_gravitino : |
+   Decays of the neutralino 4 to gravitinos.
 
 SLHA1_violation: |
    Checks if the first or second generation left-right mixing exceeds the specified tolerance (which means that SLHA1 is an invalid format for this model point).
@@ -3571,79 +3715,79 @@ MSSM_spectrum: |
     Provide an updated MSSM spectrum from the unimproved version with
     precision W and Higgs masses.
 
-lnL_alpha_em : |
+lnL_alpha_em: |
    Log-likelihood of α_EM (m_Z), the MSBar value of the fine structure constant at μ = m_Z.
 
-lnL_alpha_s : |
+lnL_alpha_s: |
    Log-likelihood of α_s (m_Z), the MSBar value of the strong coupling constant at μ = m_Z.
 
-lnL_GF : |
+lnL_GF: |
    Log-likelihood of the Fermi coupling constant G_F.
 
-lnL_light_quark_masses : |
+lnL_light_quark_masses: |
    Joint log-likelihood of the MSbar masses of the u, d and s quarks at μ = 2 GeV.
 
-lnL_mcmc : |
+lnL_mcmc: |
    Log-likelihood of the MSbar mass of the c quark at scale m_c.
 
-lnL_mbmb : |
+lnL_mbmb: |
    Log-likelihood of the MSbar mass of the b quark at scale m_b.
 
-lnL_t_mass : |
+lnL_t_mass: |
    Log-likelihood of the top quark pole mass.
 
-lnL_mtrun : |
+lnL_mtrun: |
    Log-likelihood of the MSbar running top mass.
 
-lnL_Z_mass : |
+lnL_Z_mass: |
    Log-likelihood of the Z boson pole mass.
 
-lnL_h_mass : |
+lnL_h_mass: |
    Simple log-likelihood of the SM-like Higgs boson pole mass.
 
-lnL_W_mass : |
+lnL_W_mass: |
    Log-likelihood of the W boson pole mass.
 
-lnL_neutron_lifetime_beam : |
+lnL_neutron_lifetime_beam: |
    Log-likelihood on the neutron lifetime based on measurements of 'beam' experiments
 
-lnL_neutron_lifetime_bottle : |
+lnL_neutron_lifetime_bottle: |
    Log-likelihood on the neutron lifetime based on measurements of 'bottle' experiments
 
-mw : |
+mw: |
    The W boson pole mass.
 
-mh : |
+mh: |
    The SM-like Higgs boson pole mass.
 
-Precision : |
+Precision: |
    Precision observable tableau (e.g. as calculated with FeynHiggs).
 
-SP_PrecisionObs : |
+SP_PrecisionObs: |
    Precision observable tableau, as calculated with SUSY-POPE.
 
-deltarho : |
+deltarho: |
    Deviation from one (∆ρ) of the ratio of the Fermi effective coupling (G_F) in W and Z-mediated processes.
 
-prec_mw : |
+prec_mw: |
    Precision value of the W mass.
 
-prec_mh : |
+prec_mh: |
    Precision value of the mass of the most SM-like Higgs boson.
 
-prec_HeavyHiggsMasses : |
+prec_HeavyHiggsMasses: |
    Precision values of the masses of the A^0, H+ and the least SM-like neutral Higgs boson.
 
-prec_sinW2_eff : |
+prec_sinW2_eff: |
    Precision value of the effective leptonic weak mixing angle sin^2 θ_W,eff.
 
-edm_e : |
+edm_e: |
    The electric dipole moment of the electron.
 
-edm_n : |
+edm_n: |
    The electric dipole moment of the neutron.
 
-edm_hg : |
+edm_hg: |
    The electric dipole moment of mercury.
 
 muon_gm2: |
@@ -3655,13 +3799,13 @@ muon_gm2_SM: |
 muon_gm2_Exp: |
    The experimental measurement of g−2 of the muon.
 
-lnL_sinW2_eff : |
+lnL_sinW2_eff: |
    Log-likelihood of the effective leptonic weak mixing angle sin^2 θ_W,eff.
 
-lnL_gm2 : |
+lnL_gm2: |
    Log-likelihood of the muon g−2.
 
-lnL_deltarho : |
+lnL_deltarho: |
    Log-likelihood of ∆ρ, the departure from one of the ratio of the Fermi effective coupling (G_F) in W and Z-mediated processes.
 
 
@@ -3670,181 +3814,181 @@ lnL_deltarho : |
 #  FlavBit, SuperIso and HepLike capabilities
 #-------------------------------------
 
-AI_BKstarmumu : |
+AI_BKstarmumu: |
    The isospin asymmetry in B-> K* μ+ μ-.
 
-AI_BKstarmumu_zero : |
+AI_BKstarmumu_zero: |
    The zero-crossing of the isospin asymmetry in B-> K* μ+ μ-.
 
-A_BXsll_highq2 : |
+A_BXsll_highq2: |
    The integrated forward-backward asymmetry of B->Xs l+ l- in the high-q2 bin.
 
-A_BXsll_lowq2 : |
+A_BXsll_lowq2: |
    The integrated forward-backward asymmetry of B->Xs l+ l- in the low-q2 bin.
 
-A_BXsll_zero : |
+A_BXsll_zero: |
    The zero crossing of the forward-backward asymmetry of B->Xs l+ l-.
 
-A_BXsmumu_highq2 : |
+A_BXsmumu_highq2: |
    The integrated forward-backward asymmetry of B->Xs μ+ μ- in the high-q2 bin.
 
-A_BXsmumu_lowq2 : |
+A_BXsmumu_lowq2: |
    The integrated forward-backward asymmetry of B->Xs μ+ μ- in the low-q2 bin.
 
 A_BXsmumu_zero: |
    The Wilson coefficients and the zero crossing of the forward-backward asymmetry of B->Xs μ+ μ-.
 
-A_BXstautau_highq2 : |
+A_BXstautau_highq2: |
    The Wilson coefficients and the integrated forward-backward asymmetry of B->Xs tau+ tau- in the high-q2 bin.
 
-BDmunu : |
+BDmunu: |
    The branching ratio of B-> D mu nu.
 
-BDtaunu : |
+BDtaunu: |
    The branching ratio of B-> D tau nu.
 
-BRBDlnu : |
+BRBDlnu: |
    The branching ratio of B-> D l nu.
 
-BDtaunu_BDenu : |
+BDtaunu_BDenu: |
    The ratio of BR(B-> D tau nu)/BR(B-> D e nu).
 
-BDstarmunu : |
+BDstarmunu: |
    The branching ratio of B-> D* mu nu.
 
-BDstartaunu : |
+BDstartaunu: |
    The branching ratio of B-> D* tau nu.
 
-BRBDstarlnu : |
+BRBDstarlnu: |
    The branching ratio of B-> D* l nu.
 
-BDstartaunu_BDstarenu : |
+BDstartaunu_BDstarenu: |
    The ratio of BR(B-> D* tau nu)/BR(B-> D* e nu).
 
-BKstarmumu_11_25 : |
+BKstarmumu_11_25: |
    The integrated differential cross-section and angular observables of B-> K* μ+ μ- for q2 between 1.1 and 2.5 GeV^2.
 
-BKstarmumu_25_40 : |
+BKstarmumu_25_40: |
    The integrated differential cross-section and angular observables of B-> K* μ+ μ- for q2 between 2.5 and 4 GeV^2.
 
-BKstarmumu_40_60 : |
+BKstarmumu_40_60: |
    The integrated differential cross-section and angular observables of B-> K* μ+ μ- for q2 between 4 and 6 GeV^2.
 
-BKstarmumu_60_80 : |
+BKstarmumu_60_80: |
    The integrated differential cross-section and angular observables of B-> K* μ+ μ- for q2 between 6 and 8 GeV^2.
 
-BKstarmumu_15_17 : |
+BKstarmumu_15_17: |
    The integrated differential cross-section and angular observables of B-> K* μ+ μ- for q2 between 15 and 17 GeV^2.
 
-BKstarmumu_17_19 : |
+BKstarmumu_17_19: |
    The integrated differential cross-section and angular observables of B-> K* μ+ μ- for q2 between 17 and 19 GeV^2.
 
-BRBKll : |
+BRBKll: |
    The differential cross-section and angular observables of B-> K l+ l-.
 
-BRBKstarll : |
+BRBKstarll: |
    The differential cross-section and angular observables of B-> K* l+ l-.
 
-BRBXsll_highq2 : |
+BRBXsll_highq2: |
    The branching ratio B-> Xs l+ l- in the high-q2 bin.
 
-BRBXsll_lowq2 : |
+BRBXsll_lowq2: |
    The branching ratio B-> Xs l+ l- in the low-q2 bin.
 
-prediction_BRBXsmumu_highq2 : |
+prediction_BRBXsmumu_highq2: |
    The branching ratio B-> Xs μ+ μ- in the high-q2 bin.
 
-prediction_BRBXsmumu_lowq2 : |
+prediction_BRBXsmumu_lowq2: |
    The branching ratio B-> Xs μ+ μ- in the low-q2 bin.
 
-BRBXstautau_highq2 : |
+BRBXstautau_highq2: |
    The Wilson coefficients and the branching ratio B-> Xs tau+ tau- in the low-q2 bin.
 
-BRBsphill : |
+BRBsphill: |
    The differential cross-section and angular observables of Bs-> phi l+ l-.
 
-Bll : |
+Bll: |
    The branching ratio of Bd-> l+ l-.
 
-Blnu : |
+Blnu: |
    The branching ratio of B-> l nu.
 
-Bmumu : |
+Bmumu: |
    The branching ratio of Bd-> μ+ μ-.
 
-Bsee_untag : |
+Bsee_untag: |
    The untagged branching ratio of Bs-> e+ e-.
 
-Bsll_untag : |
+Bsll_untag: |
    The untagged branching ratio of Bs-> l+ l-.
 
-Bsmumu : |
+Bsmumu: |
    The branching ratio of Bs-> μ+ μ-.
 
-Bsmumu_untag : |
+Bsmumu_untag: |
    The untagged branching ratio of Bs-> μ+ μ-.
 
-Btaunu : |
+Btaunu: |
    The branching ratio of B-> tau nu.
 
-CQ_calculator : |
+CQ_calculator: |
    The scalar and pseudoscalar Wilson coefficients.
 
-CW_calculator : |
+CW_calculator: |
    The Wilson coefficients at the W mass scale.
 
-C_calculator_base1 : |
+C_calculator_base1: |
    The Wilson coefficients at the b mass scale in the operator basis 1.
 
-C_calculator_base2 : |
+C_calculator_base2: |
    The Wilson coefficients at the b mass scale in the operator basis 2.
 
-Cprime_calculator : |
+Cprime_calculator: |
    The primed Wilson coefficients.
 
-prediction_DeltaMs : |
+prediction_DeltaMs: |
    The Bs meson mass difference.
 
-Dmunu : |
+Dmunu: |
    The branching ratio of D-> mu nu.
 
-Dsmunu : |
+Dsmunu: |
    The branching ratio of Ds-> mu nu.
 
-Dstaunu : |
+Dstaunu: |
    The branching ratio of Ds-> tau nu.
 
-Kmunu_pimunu : |
+Kmunu_pimunu: |
    The ratio of BR(K-> mu nu)/BR(pi-> mu nu).
 
-RD : |
+RD: |
    The ratio of BR(B-> D tau nu)/BR(B-> D e nu).
 
-RDstar : |
+RDstar: |
    The ratio of BR(B-> D* tau nu)/BR(B-> D* e nu).
 
-Rmu : |
+Rmu: |
    The ratio of BR(K-> mu nu)/BR(pi-> mu nu).
 
-Rmu23 : |
+Rmu23: |
    The Rmu23 observable related to K-> mu nu and pi-> mu nu.
 
-modified_AI_BKstarmumu : |
+modified_AI_BKstarmumu: |
    The Wilson coefficients and the isospin asymmetry in B-> K* μ+ μ-.
 
-modified_AI_BKstarmumu_zero : |
+modified_AI_BKstarmumu_zero: |
    The Wilson coefficients and the zero crossing of isospin asymmetry in B-> K* μ+ μ-.
 
-SL_LL : |
+SL_LL: |
   Log-likelihood for the tree-level leptonic and semileptonic B and D decays.
 
-SL_M : |
+SL_M: |
   Measurements related to the tree-level leptonic and semileptonic B and D decays.
 
-SuperIso_4_1_init : |
+SuperIso_4_1_init: |
    Initalise SuperIso v4.1.
 
-SuperIso_modelinfo : |
+SuperIso_modelinfo: |
    SuperIso internal model information.
 
 h2bs: |
@@ -3862,46 +4006,52 @@ h2taumu: |
 h2taumu_LogLikelihood: |
    Log-likelihood for BR(h->taumu).
 
-bsgamma : |
+SuperIso_RK_computation: |
+   RK computation using SuperIso
+
+SuperIso_RKstar_computation: |
+   RKstar computation using SuperIso
+
+bsgamma: |
    The inclusive branching ratio of B-> Xs gamma with a photon energy cut of 1.6 GeV.
 
-bsgamma_Ecut : |
+bsgamma_Ecut: |
    The inclusive branching ratio of B-> Xs gamma with a photon energy cut Ecut.
 
-delta0 : |
+delta0: |
    The isospin asymmetry of B-> K* gamma.
 
-modified_delta0 : |
+modified_delta0: |
    Wilson coefficients and the isospin asymmetry of B-> K* gamma.
 
-deltaMB_LL : |
+deltaMB_LL: |
    Log-likelihood for the Bs meson mass difference.
 
-mb_1S : |
+mb_1S: |
    The 1S bottom quark mass.
 
-Init_param : |
+Init_param: |
    Initialiases the SuperIso parameter structure.
 
-alphas_running : |
+alphas_running: |
    Computes the alphas running coupling at a given energy.
 
-slha_adjust : |
+slha_adjust: |
    Adjusts the SLHA parameters to the SuperIso standard.
 
-LUV_LL :  |
+LUV_LL: |
    Calculate the likelihood function of the b->sll LUV observables (RK, RK*)
 
-LUV_M :  |
+LUV_M: |
    Measurements related to LUV in b->sll
 
-RK :  |
+RK: |
    Calculation R_K in 1-6GeVGeV
 
-RKstar_0045_11:  |
+RKstar_0045_11: |
    Calculation R_K* in 0.045-1.1GeVGeV
 
-RKstar_11_60:  |
+RKstar_11_60: |
    Calculation R_K* in 1.1 -  6.0 GeVGeV
 
 muegamma: |
@@ -4006,13 +4156,13 @@ B2taunu_LogLikelihood: |
 Bs2phimumuBr_LogLikelihood: |
    Log-likelihood for branching fraction of B_s-> phi mu mu
 
-HepLike_1_2_init: |
+HepLike_2_0_init: |
    Initialise HepLike
 
 RDRDstar_LogLikelihood: |
    Incomplete likelihood for RD and RD*
 
-RK_LogLikelihood: |
+RK_LogLikelihood_LHCb: |
    Incomplete likelihood for RK
 
 RKstar_LogLikelihood_LHCb: |
@@ -4633,6 +4783,144 @@ NUHM2_parameters: |
 CMSSM_parameters: |
    Parameters for the model CMSSM (see ./gambit CMSSM)
 
+MSSM10atQ_mG_parameters: |
+   Parameters for the model MSSM10atQ_mG (see ./gambit MSSM10atQ_mG)
+
+MSSM10atQ_mA_mG_parameters: |
+   Parameters for the model MSSM10atQ_mA_mG (see ./gambit MSSM10atQ_mA_mG)
+
+MSSM10batQ_mG_parameters: |
+   Parameters for the model MSSM10batQ_mG (see ./gambit MSSM10batQ_mG)
+
+MSSM10batQ_mA_mG_parameters: |
+   Parameters for the model MSSM10batQ_mA_mG (see ./gambit MSSM10batQ_mA_mG)
+
+MSSM10catQ_mG_parameters: |
+   Parameters for the model MSSM10catQ_mG (see ./gambit MSSM10catQ_mG)
+
+MSSM10catQ_mA_mG_parameters: |
+   Parameters for the model MSSM10catQ_mA_mG (see ./gambit MSSM10catQ_mA_mG)
+
+MSSM11atQ_mG_parameters: |
+   Parameters for the model MSSM11atQ_mG (see ./gambit MSSM11atQ_mG)
+
+MSSM11atQ_mA_mG_parameters: |
+   Parameters for the model MSSM11atQ_mA_mG (see ./gambit MSSM11atQ_mA_mG)
+
+MSSM15atQ_mG_parameters: |
+   Parameters for the model MSSM15atQ_mG (see ./gambit MSSM15atQ_mG)
+
+MSSM15atQ_mA_mG_parameters: |
+   Parameters for the model MSSM15atQ_mA_mG (see ./gambit MSSM15atQ_mA_mG)
+
+MSSM16atQ_mG_parameters: |
+   Parameters for the model MSSM16atQ_mG (see ./gambit MSSM16atQ_mG)
+
+MSSM16atQ_mA_mG_parameters: |
+   Parameters for the model MSSM16atQ_mA_mG (see ./gambit MSSM16atQ_mA_mG)
+
+MSSM19atQ_mG_parameters: |
+   Parameters for the model MSSM19atQ_mG (see ./gambit MSSM19atQ_mG)
+
+MSSM19atQ_mA_mG_parameters: |
+   Parameters for the model MSSM19atQ_mA_mG (see ./gambit MSSM19atQ_mA_mG)
+
+MSSM20atMGUT_mG_parameters: |
+   Parameters for the model MSSM20atMGUT_mG (see ./gambit MSSM20atMGUT_mG)
+
+MSSM20atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM20atMGUT_mA_mG (see ./gambit MSSM20atMGUT_mA_mG)
+
+MSSM20atMSUSY_mG_parameters: |
+   Parameters for the model MSSM20atMSUSY_mG (see ./gambit MSSM20atMSUSY_mG)
+
+MSSM20atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM20atMSUSY_mA_mG (see ./gambit MSSM20atMSUSY_mA_mG)
+
+MSSM20atQ_mG_parameters: |
+   Parameters for the model MSSM20atQ_mG (see ./gambit MSSM20atQ_mG)
+
+MSSM20atQ_mA_mG_parameters: |
+   Parameters for the model MSSM20atQ_mA_mG (see ./gambit MSSM20atQ_mA_mG)
+
+MSSM24atQ_mG_parameters: |
+   Parameters for the model MSSM24atQ_mG (see ./gambit MSSM24atQ_mG)
+
+MSSM24atQ_mA_mG_parameters: |
+   Parameters for the model MSSM24atQ_mA_mG (see ./gambit MSSM24atQ_mA_mG)
+
+MSSM25atMGUT_mG_parameters: |
+   Parameters for the model MSSM25atMGUT_mG (see ./gambit MSSM25atMGUT_mG)
+
+MSSM25atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM25atMGUT_mA_mG (see ./gambit MSSM25atMGUT_mA_mG)
+
+MSSM25atMSUSY_mG_parameters: |
+   Parameters for the model MSSM25atMSUSY_mG (see ./gambit MSSM25atMSUSY_mG)
+
+MSSM25atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM25atMSUSY_mA_mG (see ./gambit MSSM25atMSUSY_mA_mG)
+
+MSSM25atQ_mG_parameters: |
+   Parameters for the model MSSM25atQ_mG (see ./gambit MSSM25atQ_mG)
+
+MSSM25atQ_mA_mG_parameters: |
+   Parameters for the model MSSM25atQ_mA_mG (see ./gambit MSSM25atQ_mA_mG)
+
+MSSM30atMGUT_mG_parameters: |
+   Parameters for the model MSSM30atMGUT_mG (see ./gambit MSSM30atMGUT_mG)
+
+MSSM30atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM30atMGUT_mA_mG (see ./gambit MSSM30atMGUT_mA_mG)
+
+MSSM30atMSUSY_mG_parameters: |
+   Parameters for the model MSSM30atMSUSY_mG (see ./gambit MSSM30atMSUSY_mG)
+
+MSSM30atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM30atMSUSY_mA_mG (see ./gambit MSSM30atMSUSY_mA_mG)
+
+MSSM30atQ_mG_parameters: |
+   Parameters for the model MSSM30atQ_mG (see ./gambit MSSM30atQ_mG)
+
+MSSM30atQ_mA_mG_parameters: |
+   Parameters for the model MSSM30atQ_mA_mG (see ./gambit MSSM30atQ_mA_mG)
+
+MSSM63atMGUT_mG_parameters: |
+   Parameters for the model MSSM63atMGUT_mG (see ./gambit MSSM63atMGUT_mG)
+
+MSSM63atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM63atMGUT_mA_mG (see ./gambit MSSM63atMGUT_mA_mG)
+
+MSSM63atMSUSY_mG_parameters: |
+   Parameters for the model MSSM63atMSUSY_mG (see ./gambit MSSM63atMSUSY_mG)
+
+MSSM63atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM63atMSUSY_mA_mG (see ./gambit MSSM63atMSUSY_mA_mG)
+
+MSSM63atQ_mG_parameters: |
+   Parameters for the model MSSM63atQ_mG (see ./gambit MSSM63atQ_mG)
+
+MSSM63atQ_mA_mG_parameters: |
+   Parameters for the model MSSM63atQ_mA_mG (see ./gambit MSSM63atQ_mA_mG)
+
+MSSM7atQ_mG_parameters: |
+   Parameters for the model MSSM7atQ_mG (see ./gambit MSSM7atQ_mG)
+
+MSSM7atQ_mA_mG_parameters: |
+   Parameters for the model MSSM7atQ_mA_mG (see ./gambit MSSM7atQ_mA_mG)
+
+MSSM9atQ_mG_parameters: |
+   Parameters for the model MSSM9atQ_mG (see ./gambit MSSM9atQ_mG)
+
+MSSM9atQ_mA_mG_parameters: |
+   Parameters for the model MSSM9atQ_mA_mG (see ./gambit MSSM9atQ_mA_mG)
+
+MSSM9batQ_mG_parameters: |
+   Parameters for the model MSSM9batQ_mG (see ./gambit MSSM9batQ_mG)
+
+MSSM9batQ_mA_mG_parameters: |
+   Parameters for the model MSSM9batQ_mA_mG (see ./gambit MSSM9batQ_mA_mG)
+
 NormalDist_parameters: |
    Parameters for the model NormalDist (see ./gambit NormalDist)
 
@@ -4828,6 +5116,19 @@ set_halo_profile: |
    Set the halo profile in gamLike.
 
 #----------------------------
+# pbarlike capabilites
+#----------------------------
+
+pbarlike_1_0_init: |
+   Initialises the pbarlike backend, version 1.0.
+
+pbarlike_initialization: |
+   Initialiases pbarlike and calculates scan-level observables and likelihoods.
+
+drn_pbar_logLikes: |
+   AMS-02 7-year log-likelihood ratios using correlated and uncorrelated errors.
+
+#----------------------------
 #  gm2calc capabilities
 #----------------------------
 
@@ -4922,10 +5223,10 @@ ALPS1_signal_gas: |
 lnL_ALPS1: |
    Loglikelihood for all runs of the ALPS 1 experiment.
 
-CAST2007_signal_vac : |
+CAST2007_signal_vac: |
    Signal prediction for a 2004 vacuum run of the CAST experiment.
 
-CAST2017_signal_vac : |
+CAST2017_signal_vac: |
    Signal prediction for the combined 2013, 2014 and 2015 vacuum runs of the CAST experiment.
 
 lnL_CAST2007: |
@@ -5001,7 +5302,7 @@ SUSYHD_SetSMparameters: |
 SUSYHD_MHiggs: |
    Calculates the Higgs mass using SUSYHD
 
-SUSYHD_DeltaMHiggs : |
+SUSYHD_DeltaMHiggs: |
    Calculates the uncertainty on the Higgs mass using SUSYHD
 
 #----------------------------
@@ -5657,7 +5958,7 @@ compute_Planck_lensing_loglike: |
    function computes the Planck lensing- log-likelihood for
    a  given set of  Cl's.
 
-lnL_A_planck : |
+lnL_A_planck: |
    "prior"-likelihood for A_planck. Applies the Gauss bell on
     A_planck if a flat prior is chosen. Should have the same
     effect than using a Gaussian prior on it in the first place.
@@ -6280,12 +6581,41 @@ varNames: |
   CalcHEP's internal list of variable names.
 
 #------------------------
-#  Rivet capabilites
+#  Rivet & Contur capabilites
 #-----------------------
 
-Rivet_3_0_0_init: |
+Rivet_3_1_5_init: |
   Initialise Rivet backend
 
+Rivet_measurements: |
+  Run's rivet on current hepmc event. Creates output YODA object on COLLIDER_FINALISE
+
+addAnalysisLibPath: |
+  Wrapper for Rivet's addaAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
+
+Contur_2_1_1_init: |
+  Initialise Contur backend
+
+Contur_GetAnalyses: |
+  Wrapper for Contur's static_db.getAnalyses(). Gets a string vector of all the analyses known to this version of Contur for a given beam energy, e.g. "13TeV".
+
+Contur_Measurements: |
+  Capability for a wrapper functions that can provide Contur output, e.g. from file or stream input.
+
+LHC_measurements: |
+  Produces a Contur_output object. Typically will require some form of yoda input to run contur on.
+
+LHC_measurements_LogLike: |
+  Extracts the LLR from a Contur_output object (including factor -2 correction for GAMBIT).
+
+LHC_measurements_LogLike_Multi: |
+  Similar to LHC_measurements_LogLike, for the case where multiple configurations of Contur are used.
+
+LHC_measurements_LogLike_perPool: |
+  Extracts a map_str_dbl containing each pool and its individual LLR contribution.
+
+LHC_measurements_histotags_perPool: |
+  Extracts the name, as a string, of the histogram(s) that provide exclusion for each bin. Useless except for single param points.
 
 #---------------------
 # DirecDM capabilities
@@ -6340,46 +6670,32 @@ pass_spectrum_to_vevacious: |
 
 gaussian: |
   Multi-dimensional Gaussian centered at 0.5 with diagonal covariances of 0.1^2.
-
 rosenbrock: |
   Multi-dimensional generalization of 2d Rosenbrock function. See https://en.wikipedia.org/wiki/Rosenbrock_function
-
 himmelblau: |
   Two-dimensional Himmelblau function. See https://en.wikipedia.org/wiki/Himmelblau%27s_function
-
 mccormick: |
   Two-dimensional McCormick function.
-
 ackley: |
   Multi-dimensional Ackely function. See https://en.wikipedia.org/wiki/Ackley_function
-
 eggbox: |
   Multi-dimensional eggbox function. Test problem 2 from https://arxiv.org/abs/1306.2144
-
 rastrigin: |
   Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function
-
 beale: |
   Two-dimensional Beale function.
-
 shells: |
   Multi-dimensional Gausian shells. Test problem 1 from https://arxiv.org/abs/1306.2144
-
 styblinski_tang: |
   Multi-dimensional Styblinski-Tang function.
-
 easom: |
   Two-dimensional Easom function.
-
 tf1: |
   Analytic function 1 from https://arxiv.org/abs/2101.04525
-
 tf2: |
   Analytic function 2 from https://arxiv.org/abs/2101.04525
-
 tf3: |
   Analytic function 3 from https://arxiv.org/abs/2101.04525
-
 tf4: |
   Analytic function 4 from https://arxiv.org/abs/2101.04525
 
@@ -6403,3 +6719,81 @@ trivial_7d_parameters: |
 
 trivial_10d_parameters: |
   Model parameters for the trivial 10D model
+
+#####  DMsimp models #####
+
+DMsimpVectorMedDiracDM_parameters: |
+    Parameters for the model DMsimpVectorMedDiracDM (see ./gambit DMsimpVectorMedDiracDM).
+
+Y1_decay_rates: |
+    All decay rates for particle Y1.
+
+DMsimpVectorMedDiracDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedDiracDM model.
+
+Unitarity_Bound_DMsimpVectorMedDiracDM: |
+    Test against a unitarity bound. If violated, invalidate the point. Otherwise return zero.
+
+DMsimpVectorMedMajoranaDM_parameters: |
+    Parameters for the model DMsimpVectorMedMajoranaDM (see ./gambit DMsimpVectorMedMajoranaDM).
+
+DMsimpVectorMedMajoranaDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedMajoranaDM model.
+
+Unitarity_Bound_DMsimpVectorMedMajoranaDM: |
+    Test against a unitarity bound. If violated, invalidate the point. Otherwise return zero.
+
+DMsimpVectorMedScalarDM_parameters: |
+    Parameters for the model DMsimpVectorMedScalarDM (see ./gambit DMsimpVectorMedScalarDM).
+
+DMsimpVectorMedScalarDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedScalarDM model.
+
+DMsimpVectorMedVectorDM_parameters: |
+    Parameters for the model DMsimpVectorMedVectorDM (see ./gambit DMsimpVectorMedVectorDM).
+
+MicrOmegas_DMsimpVectorMedVectorDM_3_6_9_2_init: |
+    Initialise MicrOmegas DMsimpVectorMedVectorDM backend.
+
+DMsimpVectorMedVectorDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedVectorDM model.
+
+DecayWidthPerturbativity_DMsimpVectorMedVectorDM: |
+    Invalidate points where the mediator width to mass ratio is above 1. Return zero otherwise.
+
+
+#--------------------------------
+#  ATLAS_FullLikes capabilities
+#--------------------------------
+
+ATLAS_FullLikes_1_0_init: |
+  Initialization of the ATLAS_FullLikes 1.0 backend.
+
+FullLikes_ReadIn: |
+  ATLAS_FullLikes backend function for reading in JSON files with backgrounds.
+
+FullLikes_FileExists: |
+  ATLAS_FullLikes backend function checking if a particular analysis has been initialised.
+
+FullLikes_Reset: |
+  ATLAS_FullLikes backend function to reset the data for a given analysis
+
+FullLikes_Evaluate_pydict: |
+  ATLAS_FullLikes backend function to evaluate a likelihood for a given analysis and set of signal counts.
+
+FullLikes_Evaluate: |
+  A convenience function that provides an interface to FullLikes_Evaluate_pydict that doesn't use the PyDict type.
+
+#--------------------------------
+#  simple_xs capabilities
+#--------------------------------
+
+simple_xs_1_0_init: |
+  Initialization of the simple_xs 1.0 backend.
+
+simplexs_init: |
+  simple_xs backend function that reads in data and forms the interpolation function.
+
+simplexs_get_xsection: |
+  simple_xs backend function that returns the cross-section for a given process.
+>>>>>>> master

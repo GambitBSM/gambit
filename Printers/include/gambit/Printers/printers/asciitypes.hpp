@@ -27,7 +27,7 @@
   (map_intpair_dbl)                         \
   (map_dblpair_dbl)                         \
   (map_const_str_dbl)                       \
-  (map_const_str_map_const_str_dbl)
+  (map_const_str_map_const_str_dbl)         \
 
 
 #define ASCII_BACKEND_TYPES                 \

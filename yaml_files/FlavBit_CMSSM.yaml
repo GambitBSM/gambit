@@ -138,23 +138,6 @@ Rules:
   #- options:
   #    drop_SLHA_file: true
 
-  # Globally permit maximal mixing between gauge and family eigenstates
-  - options:
-      gauge_mixing_tolerance: 0.5
-      family_mixing_tolerance: 0.5
-
-  # Choose to use gm2calc for g-2
-  - capability: muon_gm2
-    function: GM2C_SUSY
-
-  # Choose to base the SM prediction for g-2 on e+e- data
-  - capability: muon_gm2_SM
-    function: gm2_SM_ee
-
-  # Use SM theory covariance matrix for every point
-  - capability: flav_theory_covariance
-    function: SuperIso_theory_covariance_SM
-
   # Use SuperIso instead of FeynHiggs for b->sgamma
   - capability: prediction_b2sgamma
     function: SuperIso_prediction_b2sgamma
@@ -162,10 +145,6 @@ Rules:
   # Use SuperIso instead of FeynHiggs for B_s->mumu
   - capability: SuperIso_prediction_B2mumu
     function: SuperIso_prediction_B2mumu
-
-  # Choose to get decays from DecayBit proper, not from an SLHA file.
-  - capability: decay_rates
-    function: all_decays
 
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum

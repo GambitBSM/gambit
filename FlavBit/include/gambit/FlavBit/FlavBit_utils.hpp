@@ -87,7 +87,6 @@ namespace Gambit
       false;
     #endif
 
-    using namespace std;
     namespace ublas = boost::numeric::ublas;
 
     /// Matrix inversion routine using Boost
@@ -119,7 +118,7 @@ namespace Gambit
     static Utils::translator translate_flav_obs(GAMBIT_DIR "/FlavBit/data/observables_key.yaml");
 
     /// Print function for FlavBit predictions
-    void print(flav_prediction prediction , vector<std::string > names);
+    void print(flav_prediction prediction , std::vector<std::string > names);
 
     /// Translate B->K*ll observables from theory to LHCb convention
     void Kstarll_Theory2Experiment_translation(flav_observable_map& prediction, int generation);

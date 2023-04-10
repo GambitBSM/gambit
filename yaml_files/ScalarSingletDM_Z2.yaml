@@ -53,7 +53,7 @@ Priors:
 
 Printer:
 
-  #printer: cout
+  # printer: cout
   printer: hdf5
 
   options:
@@ -129,6 +129,9 @@ ObsLikes:
     - capability: IC79_loglike
       purpose:    LogLike
 
+    - capability: pbar_logLike_corr
+      purpose:    LogLike
+
     # SI nuclear nuisance parameter likelihood
     - capability: lnL_SI_nuclear_parameters
       purpose:    LogLike
@@ -174,6 +177,9 @@ ObsLikes:
 
     - purpose:    Observable
       capability: sigma_SI_n
+    
+    - purpose:    Observable
+      capability: pbar_logLike_uncorr
 
 Rules:
 
@@ -187,8 +193,9 @@ Rules:
 
   # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    #function: RD_oh2_DS5_general
     function: RD_oh2_DS_general
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
       fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
@@ -237,6 +244,13 @@ Rules:
   # The model is annihilating DM, not decaying
   - capability: GA_Yield
     function: GA_AnnYield_General
+
+  # Anti-proton likelihoods
+  - capability: pbarlike_1_0_init 
+    options:
+      PreventExtrapolation: False
+      PropagationModel: "INJ.BRK"
+      PropagationParameters: [[0.0]]
 
 Logger:
 

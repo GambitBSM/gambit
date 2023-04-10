@@ -68,10 +68,9 @@ Scanner:
 ObsLikes:
 
   # Test DecayBit
-  - purpose:      Test
-    capability:   decay_rates
-    type:         DecayTable
-    printme: false
+  - purpose:    Observable
+    capability: all_BFs
+    printme: true
 
 
 Rules:
@@ -79,29 +78,36 @@ Rules:
   - capability: unimproved_MSSM_spectrum
     function: get_MSSMatQ_spectrum_FS
 
-  - capability: Higgs_decay_rates
-    function: MSSM_h0_1_decays
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
 
-  - capability: h0_2_decay_rates
-    function: h0_2_decays
+  # Print all branching fractions or just some?
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      printall: true 
+      # BFs: [
+      #        ["~chi0_2",  "Z0", "~chi0_1"],
+      #        ["~chi0_2",  "h0_1", "~chi0_1"],
+      #        ["~chi0_2",  "W+", "~chi-_1"],
+      #      ]
 
-  - capability: A0_decay_rates
-    function: A0_decays
-
-  - capability: H_plus_decay_rates
-    function: H_plus_decays
-
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
 
-  - capability: MSSM_spectrum
-    function: make_MSSM_precision_spectrum_4H_W
-    options:
-      Higgs_predictions_source: 1
-      Higgs_predictions_error_method: 4
-
-  - capability: prec_mh
-    function: FeynHiggs_HiggsMass
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
 
   #- function: SUSY_HIT_1_5_init
   #  options:
@@ -111,9 +117,7 @@ Rules:
 
 Printer:
 
-  printer: ascii
-  options:
-    output_file: "results.txt"
+  printer: cout
 
 
 Logger:

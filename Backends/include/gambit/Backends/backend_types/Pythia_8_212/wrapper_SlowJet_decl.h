@@ -67,7 +67,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 double dNext() const;
         
-                void list(bool listAll, ::std::basic_ostream<char>& os) const;
+                void list(bool listAll, std::ostream& os) const;
         
                 void list(bool listAll) const;
         

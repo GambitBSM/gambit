@@ -839,6 +839,7 @@ namespace Gambit
              }
              SLHAea_add(slha, "MASS", pdg_codes[i+12], mssmspec.get(Par::Pole_Mass, slha2_sfermions[i]), slha1_sfermions[i], true);
            }
+           if (mssmspec.has(Par::Pole_Mass, "~G")) SLHAea_add_from_subspec(slha, LOCAL_INFO, mssmspec, Par::Pole_Mass, std::pair<int, int>(1000039,0), "MASS", "~G");
          }
          else if (slha_version == 2)
          {
@@ -848,6 +849,7 @@ namespace Gambit
              str comment(Models::ParticleDB().long_name(pdg_codes[i], 0));
              SLHAea_add_from_subspec(slha, LOCAL_INFO, mssmspec, Par::Pole_Mass, std::pair<int, int>(pdg_codes[i],0), "MASS", comment);
            }
+           if (mssmspec.has(Par::Pole_Mass, "~G")) SLHAea_add_from_subspec(slha, LOCAL_INFO, mssmspec, Par::Pole_Mass, std::pair<int, int>(1000039,0), "MASS", "~G");
 
            // USQMIX, DSQMIX, SELMIX
            sspair S[3] = {sspair("USQMIX","~u"), sspair("DSQMIX","~d"), sspair("SELMIX","~e-")};

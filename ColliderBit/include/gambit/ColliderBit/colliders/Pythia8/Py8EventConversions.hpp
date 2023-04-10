@@ -13,6 +13,7 @@
 ///  \author Anders Kvellestad
 ///  \author Pat Scott
 ///  \author Martin White
+///  \author Are Raklev  June 2021
 ///
 ///  *********************************************
 
@@ -39,7 +40,7 @@ namespace Gambit
       result.clear();
 
       std::vector<FJNS::PseudoJet> bhadrons; //< for input to FastJet b-tagging
-      std::vector<HEPUtils::Particle> bpartons, cpartons, tauCandidates;
+      std::vector<HEPUtils::Particle> bpartons, cpartons, tauCandidates, WCandidates, ZCandidates, hCandidates;
       HEPUtils::P4 pout; //< Sum of momenta outside acceptance
       std::vector<FJNS::PseudoJet> jetparticles;
 
@@ -100,6 +101,46 @@ namespace Gambit
           }
           if (isGoodTau) tauCandidates.push_back(HEPUtils::Particle(p4, pid));
         }
+
+        // Find candidates for hadronically decaying bosons for fat jet searches
+        if (apid == MCUtils::PID::Z0 || apid == MCUtils::PID::WPLUS || apid == MCUtils::PID::HIGGS)
+        {
+          bool isGoodBoson = true;
+          std::vector<int> childIDs;
+          get_unified_child_ids(p, pevt, childIDs);
+          int abschildID;
+          for (int childID : childIDs)
+          {
+            // Veto bosons not decaying into quarks or gluons
+            abschildID = abs(childID);
+            if (abschildID == MCUtils::PID::Z0 || abschildID == MCUtils::PID::WPLUS || abschildID == MCUtils::PID::HIGGS || abschildID == MCUtils::PID::ELECTRON || abschildID == MCUtils::PID::MUON || abschildID == MCUtils::PID::TAU || abschildID == MCUtils::PID::NU_E || abschildID == MCUtils::PID::NU_MU || abschildID == MCUtils::PID::NU_TAU || abschildID == MCUtils::PID::GAMMA)
+            {
+              isGoodBoson = false;
+            }
+          }
+          // Check for reasonable on-shellness (only low masses discarded on purpose)
+          if(apid == MCUtils::PID::Z0 && (mz_central_observed-p4.m() > 20.))
+          {
+            isGoodBoson = false;
+          }
+          if(apid == MCUtils::PID::WPLUS && (mw_central_observed-p4.m() > 20.))
+          {
+            isGoodBoson = false;
+          }
+          // Check that the vector bosons do not come from a Higgs boson or top quark (in which case the tagging efficiency would be different)
+          int absmotherID = abs(get_unified_mother1_pid(p, pevt));
+          if(absmotherID == MCUtils::PID::HIGGS || absmotherID == MCUtils::PID::TQUARK)
+          {
+            isGoodBoson = false;
+          }
+          // Store candidate
+          if (isGoodBoson)
+          {
+            if(apid == MCUtils::PID::Z0) ZCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if(apid == MCUtils::PID::WPLUS) WCandidates.push_back(HEPUtils::Particle(p4,pid));
+            if(apid == MCUtils::PID::HIGGS) hCandidates.push_back(HEPUtils::Particle(p4,pid));
+          }
+        }        
 
         //We only want final state particles:
         if (!get_unified_isFinal(p)) continue;
@@ -180,11 +221,44 @@ namespace Gambit
         }
 
         bool isTau = false;
+        int signedTauPID = MCUtils::PID::TAU;
         for (HEPUtils::Particle& ptau : tauCandidates)
         {
           if (jetMom.deltaR_eta(ptau.mom()) < 0.5) ///< @todo Hard-coded radius!!!
           {
             isTau = true;
+            signedTauPID = ptau.pid();
+            break;
+          }
+        }
+
+        bool isW = false;
+        for (HEPUtils::Particle& pW : WCandidates)
+        {
+          if (jetMom.deltaR_eta(pW.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
+          {
+            isW = true;
+            break;
+          }
+        }
+
+        bool isZ = false;
+        for (HEPUtils::Particle& pZ : ZCandidates)
+        {
+          if (jetMom.deltaR_eta(pZ.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
+          {
+            isZ = true;
+            break;
+          }
+        }
+
+
+        bool ish = false;
+        for (HEPUtils::Particle& ph : hCandidates)
+        {
+          if (jetMom.deltaR_eta(ph.mom()) < 1.0) ///< @todo Hard-coded radius from ATLAS-CONF-2021-022, make selectable?
+          {
+            ish = true;
             break;
           }
         }
@@ -192,11 +266,13 @@ namespace Gambit
         // Add to the event (use jet momentum for tau)
         if (isTau)
         {
-          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), MCUtils::PID::TAU);
+          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), signedTauPID);
           gp->set_prompt();
           result.add_particle(gp);
         }
-        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC));
+
+        // Add jet to collection including tags
+        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC, isW, isZ, ish));
       }
 
       /// Calculate missing momentum
@@ -327,22 +403,24 @@ namespace Gambit
                  [](const FJNS::PseudoJet& c){ return c.user_index() == MCUtils::PID::BQUARK; });
         const bool isC = HEPUtils::any(pj.constituents(),
                  [](const FJNS::PseudoJet& c){ return c.user_index() == MCUtils::PID::CQUARK; });
-        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC));
+        result.add_jet(new HEPUtils::Jet(HEPUtils::mk_p4(pj), isB, isC, false, false, false)); // This does not currently deal with boson tagging
 
         bool isTau=false;
+        int signedTauPID = MCUtils::PID::TAU;
         for (auto& ptau : tauCandidates)
         {
           HEPUtils::P4 jetMom = HEPUtils::mk_p4(pj);
           if (jetMom.deltaR_eta(ptau.mom()) < 0.5)
           {
             isTau=true;
+            signedTauPID = ptau.pid();
             break;
           }
         }
         // Add to the event (use jet momentum for tau)
         if (isTau)
         {
-          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), MCUtils::PID::TAU);
+          HEPUtils::Particle* gp = new HEPUtils::Particle(HEPUtils::mk_p4(pj), signedTauPID);
           gp->set_prompt();
           result.add_particle(gp);
         }

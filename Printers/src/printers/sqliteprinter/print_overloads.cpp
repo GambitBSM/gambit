@@ -51,6 +51,7 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, std::vector<double>)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, std::complex<double>)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_str_str)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_intpair_dbl)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, map_dblpair_dbl)
     USE_COMMON_PRINT_OVERLOAD(SQLitePrinter, ModelParameters)

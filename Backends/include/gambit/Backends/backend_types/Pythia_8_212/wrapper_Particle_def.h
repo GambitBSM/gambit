@@ -541,17 +541,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->undoDecay();
         }
         
-        inline ::std::basic_string<char> Particle::name() const
+        inline ::std::string Particle::name() const
         {
             return get_BEptr()->name();
         }
         
-        inline ::std::basic_string<char> Particle::nameWithStatus(int maxLen) const
+        inline ::std::string Particle::nameWithStatus(int maxLen) const
         {
             return get_BEptr()->nameWithStatus(maxLen);
         }
         
-        inline ::std::basic_string<char> Particle::nameWithStatus() const
+        inline ::std::string Particle::nameWithStatus() const
         {
             return get_BEptr()->nameWithStatus__BOSS();
         }

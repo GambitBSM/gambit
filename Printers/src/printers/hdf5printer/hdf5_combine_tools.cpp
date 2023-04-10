@@ -22,6 +22,10 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2017 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2022 May
+///
 ///  *********************************************
 
 #include "gambit/Printers/printers/hdf5printer/hdf5_combine_tools.hpp"
@@ -97,6 +101,7 @@ namespace Gambit
                }
                return outnames;
             }
+
 
 
             inline herr_t op_func (hid_t loc_id, const char *name_in, const H5L_info_t *,
@@ -179,6 +184,34 @@ namespace Gambit
                 return return_val;
             }
 
+            inline void setup_hdf5_points(hid_t new_group, hid_t type, unsigned long long size_tot, const std::string &name)
+            {
+                #ifdef COMBINE_DEBUG
+                std::cerr << "  Creating dataset '"<<name<<"'" << std::endl;
+                #endif
+
+                hsize_t dimsf[1];
+                dimsf[0] = size_tot;
+                hid_t dataspace = H5Screate_simple(1, dimsf, NULL);
+                if(dataspace < 0)
+                {
+                  std::ostringstream errmsg;
+                  errmsg<<"Failed to set up HDF5 points for copying. H5Screate_simple failed for dataset ("<<name<<").";
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+                hid_t dataset_out = H5Dcreate2(new_group, name.c_str(), type, dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+                if(dataset_out < 0)
+                {
+                  std::ostringstream errmsg;
+                  errmsg<<"Failed to set up HDF5 points for copying. H5Dcreate2 failed for dataset ("<<name<<").";
+                  printer_error().raise(LOCAL_INFO, errmsg.str());
+                }
+
+                // We are just going to close the newly created datasets, and reopen them as needed.
+                HDF5::closeSpace(dataspace);
+                HDF5::closeDataset(dataset_out);
+            }
+
             inline void setup_hdf5_points(hid_t new_group, hid_t type, hid_t type2, unsigned long long size_tot, const std::string &name)
             {
                 #ifdef COMBINE_DEBUG
@@ -241,16 +274,19 @@ namespace Gambit
                 return ret;
             }
 
-            hdf5_stuff::hdf5_stuff(const std::string &file_name, const std::string &output_file, const std::string &group_name, const size_t num, const bool cleanup, const bool skip, const std::vector<std::string>& file_names_in)
+            hdf5_stuff::hdf5_stuff(const std::string &file_name, const std::string &output_file, const std::string &group_name, const std::string &metadata_group_name, const size_t num, const bool cleanup, const bool skip, const std::vector<std::string>& file_names_in)
               : group_name(group_name)
+              , metadata_group_name(metadata_group_name)
               , cum_sizes(num, 0)
               , sizes(num, 0)
+              , metadata_sizes(num, 0)
               , size_tot(0)
               , root_file_name(file_name)
               , do_cleanup(cleanup)
               , skip_unreadable(skip)
               , files(num,-1)
               , groups(num,-1)
+              , metadata_groups(num,-1)
               , aux_groups(num,-1)
               , file_names(file_names_in)
               , custom_mode(file_names.size()>0) // Running in mode which allows 'custom' filenames (for combining output from multiple runs)
@@ -318,7 +354,7 @@ namespace Gambit
                     std::cout << "  Scanning temp file "<<i<<" for datasets...             \r"<<std::flush;
 
                     std::string fname = get_fname(i);
-                    hid_t file_id, group_id, aux_group_id;
+                    hid_t file_id, group_id, metadata_group_id, aux_group_id;
                     hssize_t size = 0; // Length of datasets in this file (to be measured)
                     if(HDF5::checkFileReadable(fname))
                     {
@@ -332,6 +368,7 @@ namespace Gambit
                         file_id = -1;
                         files[i] = file_id;
                         group_id = -1;
+                        metadata_group_id = -1;
                         aux_group_id = -1;
                     }
 
@@ -372,6 +409,47 @@ namespace Gambit
                                 }
                             }
                         //}
+
+                        metadata_group_id = HDF5::openGroup(file_id, metadata_group_name, true);
+                        // If there is no metadata group, skip it 
+                        if(metadata_group_id >= 0)
+                        {
+                          std::vector<std::string> names = get_dset_names(metadata_group_id);
+                          for (auto it = names.begin(), end = names.end(); it != end and metadata_group_id >= 0; ++it)
+                          {
+                            // If the Date dataset exists, add it to the list if it's not there otherwise skip the metadata for this file
+                            if(*it == "Date")
+                            {
+                              std::vector<std::string> dates;
+                              hid_t dataset  = HDF5::openDataset(metadata_group_id, *it, true); // Allow failure to open
+                              if(dataset > 0)
+                              {
+                                Enter_HDF5<read_hdf5>(dataset, dates);
+                                HDF5::closeDataset(dataset);
+                              }
+                              for(auto date : dates)
+                              {
+                                if(std::find(metadata_dates.begin(), metadata_dates.end(), date) == metadata_dates.end())
+                                {
+                                  metadata_dates.push_back(date);
+                                  metadata_sizes[i] ++;
+                                }
+                              }
+                              if(metadata_sizes[i] == 0)
+                              {
+                                if(metadata_group_id>-1) HDF5::closeGroup(metadata_group_id);
+                                metadata_group_id = -1;
+                              }
+                            }
+
+                            if (metadata_group_id >=0 and metadata_set.find(*it) == metadata_set.end())
+                            {
+                                metadata_names.push_back(*it);
+                                metadata_set.insert(*it);
+                            }
+
+                          }
+                        }
 
                         if(not custom_mode)
                         {
@@ -482,10 +560,12 @@ namespace Gambit
                     // Record whether files/groups could be opened
                     files[i] = file_id;
                     groups[i] = group_id;
+                    metadata_groups[i] = metadata_group_id;
                     aux_groups[i] = aux_group_id;
 
                     // Close groups and tmp file
                     if(group_id>-1)     HDF5::closeGroup(group_id);
+                    if(metadata_group_id>-1)     HDF5::closeGroup(metadata_group_id);
                     if(aux_group_id>-1) HDF5::closeGroup(aux_group_id);
                     if(file_id>-1)      HDF5::closeFile(file_id);
                 }
@@ -509,6 +589,7 @@ namespace Gambit
 
                 hid_t old_file = -1;
                 hid_t old_group = -1;
+                hid_t old_metadata_group = -1;
                 //std::cout << "resume? " << resume <<std::endl;
                 if (resume)
                 {
@@ -563,12 +644,56 @@ namespace Gambit
                                param_set.insert(*it);
                            }
                        }
+
+                       // Check for metadata, but do not fail if not found
+                       old_metadata_group = H5Gopen2(old_file, metadata_group_name.c_str(), H5P_DEFAULT);
+                       if(old_metadata_group > -1)
+                       {
+                         std::vector<std::string> metadata_names = get_dset_names(old_metadata_group);
+
+                         for (auto it = metadata_names.begin(), end = metadata_names.end(); it != end and old_metadata_group >= 0; ++it)
+                         {
+                            // If the Date dataset exists, add it to the list if it's not there otherwise skip the metadata for this file
+                            if(*it == "Date")
+                            {
+                              std::vector<std::string> dates;
+                              hid_t dataset  = HDF5::openDataset(old_metadata_group, *it, true); // Allow failure to open
+                              if(dataset > 0)
+                              {
+                                Enter_HDF5<read_hdf5>(dataset, dates);
+                                HDF5::closeDataset(dataset);
+                              }
+                              unsigned long long old_metadata_size = 0;
+                              for(auto date : dates)
+                              {
+                                if(std::find(metadata_dates.begin(), metadata_dates.end(), date) == metadata_dates.end())
+                                {
+                                  metadata_dates.push_back(date);
+                                  old_metadata_size ++;
+                                }
+                              }
+                              if(old_metadata_size == 0)
+                              {
+                                if(old_metadata_group>-1) HDF5::closeGroup(old_metadata_group);
+                                old_metadata_group = -1;
+                              }
+                            }
+
+                            if (old_metadata_group >=0 and metadata_set.find(*it) == metadata_set.end())
+                            {
+                                metadata_names.push_back(*it);
+                                metadata_set.insert(*it);
+                            }
+                         }
+                      }
+
                     }
                     else
                     {
                        // This is ok; on first resume no previous combined output exists.
                        old_file = -1;
                        old_group = -1;
+                       old_metadata_group = -1;
                     }
                 }
 
@@ -1048,13 +1173,167 @@ namespace Gambit
                    }
                 }
 
+                // Create metadata group
+                hid_t new_metadata_group = HDF5::openGroup(new_file, metadata_group_name);
+
+                counter = 1; //reset counter
+                for (auto it = metadata_names.begin(), end = metadata_names.end(); it != end; ++it, ++counter)
+                {
+                    // Simple Progress monitor
+                    std::cout << "  Combining metadata datasets... "<<int(100*counter/metadata_names.size())<<"%   (copied "<<counter<<" parameters of "<<metadata_names.size()<<")        \r"<<std::flush;
+
+                    size_t offset = 0; // where to begin writing the next batch in output datasets
+                    for(size_t batch_i = 0, end = N_BATCHES; batch_i < end; batch_i++)
+                    {
+                        size_t pc_offset = 0; // possible extra offset due to previous combined datasets. Only batch 0 will use this.
+                        long long valid_dset = -1; // index of a validly opened dataset (-1 if none)
+                        size_t THIS_BATCH_SIZE = BATCH_SIZE;
+                        std::vector<unsigned long long> batch_sizes(BATCH_SIZE,0);
+                         // IDs for this batch
+                        std::vector<hid_t> file_ids (THIS_BATCH_SIZE,-1);
+                        std::vector<hid_t> metadata_group_ids(THIS_BATCH_SIZE,-1);
+                        std::vector<hid_t> datasets (THIS_BATCH_SIZE,-1);
+
+                        // Collect all the HDF5 ids need to combine this parameter for this batch of files
+                        if(remainder>0 and batch_i==N_BATCHES-1) THIS_BATCH_SIZE = remainder; // Last batch is incomplete
+                        //std::cout << "   Processing temp files "<<batch_i*BATCH_SIZE<<" to "<<batch_i*BATCH_SIZE+THIS_BATCH_SIZE<<std::endl;
+                        //std::cout << "BATCH "<< batch_i << std::endl;
+                        for (size_t file_i = 0, end = THIS_BATCH_SIZE; file_i < end; file_i++)
+                        {
+                            size_t i = file_i + batch_i * BATCH_SIZE;
+
+                            hid_t file_id  = -1;
+                            hid_t metadata_group_id = -1;
+                            hid_t dataset = -1;
+                            batch_sizes[file_i] = metadata_sizes[i]; // Collect pre-measured dataset sizes for this batch
+
+                            // Skip this file if it wasn't successfully opened earlier
+                            // If the file has no valid metadata id skip it
+                            // This can happen if the file is corrupt or we chose to skip the metadata for this file
+                            if(files[i]>=0 and metadata_groups[i]>=0)
+                            {
+                                // Reopen files
+                                // NOTE: RAM problems largely solved, but footprint could be lowered even more if we only open one file at a time.
+                                std::string fname = get_fname(i);
+                                if(not HDF5::checkFileReadable(fname))
+                                {
+                                  std::cout <<"files["<<i<<"] = "<<files[i]<<std::endl;
+                                  std::cerr<<"WARNING! "<<fname<<" was not readable! This should have been caught earlier!"<<std::endl;
+                                }
+                                file_id = HDF5::openFile(fname);
+                                files[i] = file_id;
+                                metadata_group_id = HDF5::openGroup(file_id, metadata_group_name, true); // final argument prevents group from being created
+                                if(metadata_group_id>=0)
+                                {
+                                   HDF5::errorsOff();
+                                   dataset  = HDF5::openDataset(metadata_group_id, *it, true); // Allow fail; not all parameters must exist in all temp files
+                                   HDF5::errorsOn();
+                                }
+
+                                if(dataset>=0) valid_dset = file_i;
+                            }
+
+                            datasets [file_i] = dataset;
+                            file_ids [file_i] = file_id;
+                            metadata_group_ids[file_i] = metadata_group_id;
+                        }
+
+                        // Get id for old combined output for this parameter
+                        hid_t old_dataset = -1;
+                        if (resume and batch_i==0 and old_metadata_group >=0) // Only copy old dataset once, during first batch of files, and only if the date is not repeated
+                        {
+                            //std::cout << "Opening previous combined dataset for parameter "<<*it<<std::endl;
+                            HDF5::errorsOff();
+                            old_dataset  = HDF5::openDataset(old_metadata_group, *it, true); // Allow fail; may be no previous combined output
+                            HDF5::errorsOn();
+                            if(old_dataset<0) std::cout << "Failed to open previous combined dataset for parameter "<<*it<<std::endl; // debugging
+                            if(old_dataset>0)
+                            {
+                                hid_t space = H5Dget_space(old_dataset);
+                                hsize_t dim_t = H5Sget_simple_extent_npoints(space);
+                                H5Sclose(space);
+                                pc_offset = dim_t; // Record size of old combined dataset, needed to get correct offset for next batch
+                            }
+                        }
+
+                        // With new batching system, could get a batch with no data for this parameter. This is ok,
+                        // so we just skip it.
+                        // TODO: Could put in a check to make sure that SOME batch copies data.
+                        // This should happen though, since the parameter name must have been retrieved from *some*
+                        // file or other, so it would just be double-checking that this worked correctly.
+                        if(valid_dset>=0 or old_dataset>=0)
+                        {
+                            hid_t type;
+                            if(valid_dset<0)
+                            {
+                               // Parameter not in any of the new temp files, must only be in the old combined output, get type from there.
+                               type  = H5Dget_type(old_dataset);
+                            }
+                            else
+                            {
+                               // Get the type from a validly opened dataset in temp file
+                               type  = H5Dget_type(datasets[valid_dset]);
+                            }
+                            if(type<0)
+                            {
+                               std::ostringstream errmsg;
+                               errmsg << "Failed to detect type for dataset '"<<*it<<"'! The dataset is supposedly valid, so this does not make sense. It must be a bug, please report it. (valid_dset="<<valid_dset<<")";
+                               printer_error().raise(LOCAL_INFO, errmsg.str());
+                            }
+
+                            if(batch_i==0) // Only want to create the output dataset once!
+                            {
+                               // Create datasets
+                               //std::cout<<"Creating dataset '"<<*it<<"' in file:group "<<file<<":"<<group_name<<std::endl;
+                               setup_hdf5_points(new_metadata_group, type, metadata_dates.size(), *it);
+                            }
+
+                            // Reopen dataset for writing
+                            hid_t dataset_out   = HDF5::openDataset(new_metadata_group, *it);
+
+                            // Measure total size of datasets for this batch of files
+                            // (not counting previous combined output, which will be copied in batch 0)
+                            unsigned long long batch_size_tot = 0;
+                            for(auto it = batch_sizes.begin(); it != batch_sizes.end(); ++it)
+                            {
+                               batch_size_tot += *it;
+                            }
+
+                            // Do the copy!!!
+                            Enter_HDF5<copy_hdf5>(dataset_out, datasets, batch_size_tot, batch_sizes, old_dataset, offset);
+
+                            // Close resources
+                            HDF5::closeDataset(dataset_out);
+
+                            // Move offset so that next batch is written to correct place in output file
+                            offset += batch_size_tot + pc_offset;
+                        }
+                        else
+                        {
+                            std::cout << "No datasets found for parameter "<<*it<<" in file batch "<<batch_i<<". Moving on to next batch since there seems to be nothing to copy in this one." << std::endl;
+                        }
+
+                        // Close files etc. associated with this batch
+                        for (size_t file_i = 0, end = file_ids.size(); file_i < end; file_i++)
+                        {
+                            if(datasets[file_i]>=0) HDF5::closeDataset(datasets[file_i]);
+                            if(metadata_group_ids[file_i]>=0) HDF5::closeGroup(metadata_group_ids[file_i]);
+                            if(file_ids[file_i]>=0)  HDF5::closeFile(file_ids[file_i]);
+                        }
+
+                    } // end batch, begin processing next batch of files.
+                }
+                std::cout << "  Combining metadata datasets... Done.                                 "<<std::endl;
+
                 // Close the old combined file
                 if(old_group>=0) HDF5::closeGroup(old_group);
+                if(old_metadata_group>=0) HDF5::closeGroup(old_metadata_group);
                 if(old_file>=0)  HDF5::closeFile(old_file);
 
                 // Flush and close output file
                 H5Fflush(new_file, H5F_SCOPE_GLOBAL);
                 HDF5::closeGroup(new_group);
+                HDF5::closeGroup(new_metadata_group);
                 HDF5::closeFile(new_file);
 
                 if (do_cleanup and not custom_mode) // Cleanup disabled for custom mode. This is only for "routine" combination during scan resuming.

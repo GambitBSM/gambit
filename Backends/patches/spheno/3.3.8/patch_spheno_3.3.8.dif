@@ -1,12 +1,8 @@
 diff -rupN SPheno-3.3.8/Makefile ../installed/spheno/3.3.8/Makefile
 --- SPheno-3.3.8/Makefile	2015-11-03 00:26:45.000000000 +1100
 +++ ../installed/spheno/3.3.8/Makefile	2020-04-14 20:10:10.024864753 +1000
-@@ -3,16 +3,21 @@
- # cases NAG's nagfor, gfortran, g95, Lahey's lf95 and Intels ifort
- # Please uncomment the corresponding line
- # F90 = nagfor
--# F90 = gfortran
-+#F90 = gfortran
+@@ -6,13 +6,18 @@
+ # F90 = gfortran
  # F90 = g95
  # F90 = lf95
 -F90 = ifort
@@ -27,6 +23,7 @@ diff -rupN SPheno-3.3.8/Makefile ../installed/spheno/3.3.8/Makefile
 -.PHONY: bin/SPheno clean cleanall
 +	rm -f bin/SPheno lib/*.a lib/*.so *.o *~ */*.o */*~ include/*
 +.PHONY: bin/SPheno lib/libSPheno.so clean cleanall
+
 diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
 --- SPheno-3.3.8/src/Makefile	2015-11-03 00:26:45.000000000 +1100
 +++ ../installed/spheno/3.3.8/src/Makefile	2020-04-14 20:12:07.650347088 +1000
@@ -38,13 +35,13 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
  
  #
  # options for various compilers
-@@ -11,41 +12,52 @@ name = ../lib/libSPheno.a
+@@ -11,41 +12,58 @@ name = ../lib/libSPheno.a
  
  # Intels ifort, default in optimized mode
  F90 = ifort
 -comp = -c -O -module ${Mdir} -I${InDir} 
 -LFlagsB = -O  
-+comp = -c -O -fPIC -module ${Mdir} -I${InDir} 
++comp = -c -O -fPIC -module ${Mdir} -I${InDir}
 +LFlagsB = -O -fPIC
  
  # Intels ifort, debug modus
@@ -52,8 +49,8 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
   F90 = ifort
 - comp = -c -g -module ${Mdir} -I${InDir} 
 - LFlagsB = -g  
-+ comp = -c -g -fPIC -module ${Mdir} -I${InDir} 
-+ LFlagsB = -g -fPIC 
++ comp = -c -g -fPIC -module ${Mdir} -I${InDir}
++ LFlagsB = -g -fPIC
  endif
  
  # gfortran
@@ -61,28 +58,28 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
 - comp = -c -O -J${Mdir} -I${InDir}
 - LFlagsB = -O  
 + comp = -c -O -fPIC -J${Mdir} -I${InDir}
-+ LFlagsB = -O -fPIC 
-+endif
-+
++ LFlagsB = -O -fPIC
+ endif
+ 
+-# g95 
 +# gfortran, any version (Added by GAMBIT)
 +ifneq (,$(findstring gfortran,${F90}))
 + comp = -c -O -fPIC -J${Mdir} -I${InDir}
 + LFlagsB = -O -fPIC
- endif
- 
++endif
++
 +# /usr/bin/gfortran
 +ifeq (${F90},/usr/bin/gfortran)
 + LFlagsB = -w -O2 -fPIC # Modified by GAMBIT
-+ comp = -c ${LFlagsB} -J${Mdir} -I${InDir} # Modified by GAMBIT  
++ comp = -c ${LFlagsB} -J${Mdir} -I${InDir} # Modified by GAMBIT
 +endif
 +
-+
- # g95 
++# g95
  ifeq (${F90},g95)
 - comp = -c -O -fmod=${Mdir} -I${InDir}
 - LFlagsB = -O  
 + comp = -c -O -fPIC -fmod=${Mdir} -I${InDir}
-+ LFlagsB = -O -fPIC  
++ LFlagsB = -O -fPIC
  endif
  
  # Lahey F95 compiler
@@ -90,17 +87,19 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
 - comp = -c -O -M ${Mdir} -I${InDir}
 - LFlagsB = -O  
 + comp = -c -O -fPIC -M ${Mdir} -I${InDir}
-+ LFlagsB = -O -fPIC 
++ LFlagsB = -O -fPIC
  endif
-  
+- 
++
  # NAG f95/2003
  ifeq (${F90},nagfor)
 - comp = -c -O  -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
 - LFlagsB = -O
-+ comp = -c -O -fPIC -DONLYDOUBLE -mdir ${Mdir} -I${InDir}   
++ comp = -c -O -fPIC -DONLYDOUBLE -mdir ${Mdir} -I${InDir}
 + LFlagsB = -O -fPIC
  endif
-  
+- 
++
 +.NOTPARALLEL:
  .SUFFIXES : .o .ps .f90 .F90 .a
 +${shared}:
@@ -110,7 +109,12 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
  bin/SPheno: ${name} SPheno3.o
  	${F90} -o SPheno ${LFlagsB} SPheno3.o ../lib/${name}
  	mv SPheno ../bin
-@@ -64,17 +76,17 @@ ${name}: ${name}(Control.o)  ${name}(Mat
+@@ -60,11 +78,11 @@ ${name}: ${name}(Control.o)  ${name}(Mat
+   ${name}(EplusEminusProduction.o) ${name}(TwoLoopHiggsMass.o) \
+   ${name}(LoopMasses.o) ${name}(SugraRuns.o) ${name}(Experiment.o) \
+   ${name}(LowEnergy.o) ${name}(NMSSM_tools.o) ${name}(RPtools.o) \
+-  ${name}(LHC_observables.o) ${name}(InputOutput.o) 
++  ${name}(LHC_observables.o) ${name}(InputOutput.o)
  clean:
  	rm -f *.o *~ */*.o */*~
  cleanall:
@@ -119,18 +123,6 @@ diff -rupN SPheno-3.3.8/src/Makefile ../installed/spheno/3.3.8/src/Makefile
  #
  # Suffix rules
  #
- .f90.a:
- 	${F90} ${comp} $<
--	ar -ruc $@ $*.o
-+	ar -ruc $@ $*.o
- 	rm -f $*.o
- .F90.a:
- 	${F90} ${comp}  ${PreDef} $<
--	ar -ruc $@ $*.o
-+	ar -ruc $@ $*.o
- 	rm -f $*.o
- .f90.o: 
- 	${F90} ${comp}  $< 
 diff -rupN SPheno-3.3.8/src/SPheno3.f90 ../installed/spheno/3.3.8/src/SPheno3.f90
 --- SPheno-3.3.8/src/SPheno3.f90	2015-11-03 00:26:45.000000000 +1100
 +++ ../installed/spheno/3.3.8/src/SPheno3.f90	2020-04-14 20:19:19.851804523 +1000

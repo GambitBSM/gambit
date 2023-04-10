@@ -146,11 +146,11 @@ namespace Gambit
       double Hs_T=-sqrt(lambda_D)/(mB+mD)*F_T;
 
 
-      double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*std::norm(1.-ml*ml/q2)*
+      double dGamma_dq2 = std::real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_D)*std::norm(1.-ml*ml/q2)*
       (std::norm(1.+C_V1+C_V2)*((1.+ml*ml/2./q2)*Hs_V0*Hs_V0+3./2.*ml*ml/q2*Hs_Vt*Hs_Vt)
       +3./2.*(std::norm(gs)+std::norm(gsmutau))*Hs_S*Hs_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*Hs_T*Hs_T
-      +3.*(1.+C_V1+C_V2)*real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
-      -12.*(1.+C_V1+C_V2)*conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0));
+      +3.*(1.+C_V1+C_V2)*std::real(gs)*ml/sqrt(q2)*Hs_S*Hs_Vt
+      -12.*(1.+C_V1+C_V2)*std::conj(C_T)*ml/sqrt(q2)*Hs_T*Hs_V0));
 
       return dGamma_dq2;
     }
@@ -214,13 +214,13 @@ namespace Gambit
       double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
       double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 
-      double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
-      ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-      -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      double dGamma_dq2 = std::real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+      ((std::norm(1.+C_V1)+std::norm(C_V2))*((1.+ml*ml/2./q2)*(H_Vp*H_Vp+H_Vm*H_Vm+H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      -2.*(1.+C_V1)*std::conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0+2.*H_Vp*H_Vm)+3./2.*ml*ml/q2*H_Vt*H_Vt)
       +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-      +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
-      -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
-      +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
+      +3.*(1.+C_V1-C_V2)*(std::real(gp))*ml/sqrt(q2)*H_S*H_Vt
+      -12.*(1.+C_V1)*std::conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
+      +12.*C_V2*std::conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 
       return dGamma_dq2;
     }
@@ -282,13 +282,13 @@ namespace Gambit
       double H_Tm=1./sqrt(q2)*(-(mB*mB-mDs*mDs)*T_2+sqrt(lambda_Ds)*T_1);
       double H_T0=1./2./mDs*(-(mB*mB+3.*mDs*mDs-q2)*T_2+lambda_Ds/(mB*mB-mDs*mDs)*T_3);
 
-      double dGamma_dq2 = real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
-      ((std::norm(1.+C_V1)+norm(C_V2))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
-      -2.*(1.+C_V1)*conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      double dGamma_dq2 = std::real(std::norm(GF*Vcb)/192./pow(pi,3.)/pow(mB,3.)*q2*sqrt(lambda_Ds)*std::norm(1.-ml*ml/q2)*
+      ((std::norm(1.+C_V1)+std::norm(C_V2))*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
+      -2.*(1.+C_V1)*std::conj(C_V2)*((1.+ml*ml/2./q2)*(H_V0*H_V0)+3./2.*ml*ml/q2*H_Vt*H_Vt)
       +3./2.*(std::norm(gp)+std::norm(gpmutau))*H_S*H_S+8.*std::norm(C_T)*(1.+2.*ml*ml/q2)*(H_Tp*H_Tp+H_Tm*H_Tm+H_T0*H_T0)
-      +3.*(1.+C_V1-C_V2)*(real(gp))*ml/sqrt(q2)*H_S*H_Vt
-      -12.*(1.+C_V1)*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
-      +12.*C_V2*conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
+      +3.*(1.+C_V1-C_V2)*(std::real(gp))*ml/sqrt(q2)*H_S*H_Vt
+      -12.*(1.+C_V1)*std::conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vp-H_Tm*H_Vm)
+      +12.*C_V2*std::conj(C_T)*ml/sqrt(q2)*(H_T0*H_V0+H_Tp*H_Vm-H_Tm*H_Vp)));
 
       return dGamma_dq2;
     }
@@ -388,7 +388,7 @@ namespace Gambit
     void THDM_FLDstar(double &result)
     {
       using namespace Pipes::THDM_FLDstar;
-      if (flav_debug) cout<<"Starting THDM_FLDstarlnu"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_FLDstarlnu"<< std::endl;
 
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -419,16 +419,16 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
       std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
 
       result = GammaDstar_Gamma(gp,gpmutau);
       if (flav_debug) printf("Gamma(B->D* tau nu)/Gamma=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_FLDstar"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_FLDstar"<< std::endl;
     }
 
     /// Normalized partial decay width  dGamma(B->D tau nu)/dq2/Gamma
@@ -460,10 +460,10 @@ namespace Gambit
       std::complex<double> ximutau = Ymutau/cosb;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gs =  (CRcb + CLcb)/CSMcb;
       std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
 
@@ -503,10 +503,10 @@ namespace Gambit
       std::complex<double> ximutau = Ymutau/cosb;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gp = (CRcb - CLcb)/CSMcb;
       std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
       double q2 = (q2min + q2max)/2;
@@ -520,7 +520,7 @@ namespace Gambit
     void THDM_dBRBDtaunu(map_dblpair_dbl &result)
     {
       using namespace Pipes::THDM_dBRBDtaunu;
-      if (flav_debug) cout<<"Starting THDM_dBRBDtaunu"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_dBRBDtaunu"<< std::endl;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
 
@@ -532,15 +532,15 @@ namespace Gambit
       for(ddpair bin : bins)
         result[bin] = THDM_dGammaBDtaunu_Gamma(bin.first, bin.second, sminputs, spectrum);
 
-      if (flav_debug) cout<<"dGamma(B->D tau nu)/dq2/Gamma=" << result << endl;
-      if (flav_debug) cout<<"Finished THDM_dBRBDtaunu"<<endl;
+      if (flav_debug) std::cout<<"dGamma(B->D tau nu)/dq2/Gamma=" << result << std::endl;
+      if (flav_debug) std::cout<<"Finished THDM_dBRBDtaunu"<< std::endl;
     }
 
     /// Normalized differential B-> D* tau nu width
     void THDM_dBRBDstartaunu(map_dblpair_dbl &result)
     {
       using namespace Pipes::THDM_dBRBDstartaunu;
-      if (flav_debug) cout<<"Starting THDM_dBRBDstartaunu"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_dBRBDstartaunu"<< std::endl;
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
 
@@ -552,8 +552,8 @@ namespace Gambit
       for(ddpair bin : bins)
         result[bin] = THDM_dGammaBDstartaunu_Gamma(bin.first, bin.second, sminputs, spectrum);
 
-      if (flav_debug) cout<<"dGamma(B->D* tau nu)/dq2/Gamma=" << result << endl;
-      if (flav_debug) cout<<"Finished THDM_dBRBDstartaunu"<<endl;
+      if (flav_debug) std::cout<<"dGamma(B->D* tau nu)/dq2/Gamma=" << result << std::endl;
+      if (flav_debug) std::cout<<"Finished THDM_dBRBDstartaunu"<< std::endl;
     }
 
     /// Measurements for the differential widths of tree-level semileptonic B decays
@@ -568,7 +568,7 @@ namespace Gambit
       static std::vector<bool> th_err_absolute;
       static std::vector<double> th_err;
 
-      if (flav_debug) cout<<"Starting dBRBDtaunu_measurements"<<endl;
+      if (flav_debug) std::cout<<"Starting dBRBDtaunu_measurements"<< std::endl;
 
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
@@ -578,12 +578,12 @@ namespace Gambit
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in BDtaunu_measurements"<<endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in BDtaunu_measurements"<< std::endl;
 
         for (auto bins_th: bins_theory)
         {
-          ostringstream observable;
-          observable << "dBR_BDlnu_" << fixed << setprecision(1) << bins_th.first.first << "-" << bins_th.first.second;
+          std::ostringstream observable;
+          observable << "dBR_BDlnu_" << std::fixed << std::setprecision(1) << bins_th.first.first << "-" << bins_th.first.second;
           fread.read_yaml_measurement("flav_data.yaml", observable.str());
         }
 
@@ -622,7 +622,7 @@ namespace Gambit
         pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
       }
 
-      if (flav_debug) cout<<"Finished dBRBDtaunu_measurements"<<endl;
+      if (flav_debug) std::cout<<"Finished dBRBDtaunu_measurements"<< std::endl;
 
     }
 
@@ -638,7 +638,7 @@ namespace Gambit
       static std::vector<bool> th_err_absolute;
       static std::vector<double> th_err;
 
-      if (flav_debug) cout<<"Starting dBRBDstartaunu_measurements"<<endl;
+      if (flav_debug) std::cout<<"Starting dBRBDstartaunu_measurements"<< std::endl;
 
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
@@ -648,12 +648,12 @@ namespace Gambit
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in BDstartaunu_measurements"<<endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in BDstartaunu_measurements"<< std::endl;
 
         for (auto bins_th: bins_theory)
         {
-          ostringstream observable;
-          observable << "dBR_BDstarlnu_" << fixed << setprecision(1) << bins_th.first.first << "-" << bins_th.first.second;
+          std::ostringstream observable;
+          observable << "dBR_BDstarlnu_" << std::fixed << std::setprecision(1) << bins_th.first.first << "-" << bins_th.first.second;
           fread.read_yaml_measurement("flav_data.yaml", observable.str());
         }
 
@@ -692,7 +692,7 @@ namespace Gambit
         pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
       }
 
-      if (flav_debug) cout<<"Finished dBRBDstartaunu_measurements"<<endl;
+      if (flav_debug) std::cout<<"Finished dBRBDstartaunu_measurements"<< std::endl;
     }
 
 
@@ -704,13 +704,13 @@ namespace Gambit
     void SuperIso_prediction_Btaunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Btaunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Btaunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Btaunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Btaunu(&param);
 
       if (flav_debug) printf("BR(B->tau nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Btaunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Btaunu"<< std::endl;
     }
 
     /// Br Bu->tau nu in the THDM
@@ -742,24 +742,24 @@ namespace Gambit
       std::complex<double> Deltaij = (pow(m_B,2)*X13*(Z33))/(pow(mHp,2)*Vub);
       std::complex<double> Deltataumu = (pow(m_B,2)*X13*(Z32))/(pow(mHp,2)*Vub);
       std::complex<double> one = {1,0};
-      double prediction = real((pow(one - Deltaij,2)+pow(Deltataumu,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi));
+      double prediction = std::real((pow(one - Deltaij,2)+pow(Deltataumu,2))*(pow(f_B,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_B,2),2)*m_B*life_B*pow(Vub,2))/(8.*hbar*pi));
       result = prediction;
       //result.central_values["B2taunu"] = prediction;
-      if (flav_debug) cout << "BR(Bu->tau nu) = " << prediction << endl;
-      if (flav_debug) cout << "Finished THDMB2taunu" << endl;
+      if (flav_debug) std::cout << "BR(Bu->tau nu) = " << prediction << std::endl;
+      if (flav_debug) std::cout << "Finished THDMB2taunu" << std::endl;
     }
 
     /// Br D_s -> tau nu
     void SuperIso_prediction_Dstaunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Dstaunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Dstaunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Dstaunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Dstaunu(&param);
 
       if (flav_debug) printf("BR(Ds->tau nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Dstaunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Dstaunu"<< std::endl;
     }
 
     /// Br D_s->tau nu in the THDM
@@ -797,23 +797,23 @@ namespace Gambit
       std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z33))/(pow(mHp,2)*(mS + mCmC)*Vcs);
       std::complex<double> Deltataumu = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z32))/(pow(mHp,2)*(mS + mCmC)*Vcs);
       std::complex<double> one = {1,0};
-      result = real((pow(one - Deltaij,2)+pow(Deltataumu,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
+      result = std::real((pow(one - Deltaij,2)+pow(Deltataumu,2))*(pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
 
-      if (flav_debug) cout << "BR(Ds->tau nu) = " << result << endl;
-      if (flav_debug) cout << "Finished THDM_Dstaunu" << endl;
+      if (flav_debug) std::cout << "BR(Ds->tau nu) = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished THDM_Dstaunu" << std::endl;
     }
 
     /// Br D_s -> mu nu
     void SuperIso_prediction_Dsmunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Dsmunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Dsmunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Dsmunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Dsmunu(&param);
 
       if (flav_debug) printf("BR(Ds->mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Dsmunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Dsmunu"<< std::endl;
     }
 
     /// Br D_s->mu nu in the THDM
@@ -850,23 +850,23 @@ namespace Gambit
       std::complex<double> Deltaij = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z22))/(pow(mHp,2)*(mS + mCmC)*Vcs);
       std::complex<double> Deltamutau = (pow(m_Ds,2)*(mS*X22 + mCmC*Y22)*(Z23))/(pow(mHp,2)*(mS + mCmC)*Vcs);
       std::complex<double> one = {1,0};
-      result = real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
+      result = std::real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_Ds,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_Ds,2),2)*m_Ds*life_Ds*pow(Vcs,2))/(8.*hbar*pi));
 
-      if (flav_debug) cout << "BR(Ds->mu nu) = " << result << endl;
-      if (flav_debug) cout << "Finished THDM_Dsmunu" << endl;
+      if (flav_debug) std::cout << "BR(Ds->mu nu) = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished THDM_Dsmunu" << std::endl;
     }
 
     /// Br D -> mu nu
     void SuperIso_prediction_Dmunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Dmunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Dmunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Dmunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Dmunu(&param);
 
       if (flav_debug) printf("BR(D->mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Dmunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Dmunu"<< std::endl;
     }
 
     /// Br D->mu nu in the THDM
@@ -897,23 +897,23 @@ namespace Gambit
       std::complex<double> Deltaij = (pow(m_D,2)*Y21*(Z22))/(pow(mHp,2)*Vcd);
       std::complex<double> Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
       std::complex<double> one = {1,0};
-      result =  real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi));
+      result =  std::real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mMu,2)*pow(1 - pow(mMu,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi));
 
-      if (flav_debug) cout << "BR(D->mu nu) = " << result << endl;
-      if (flav_debug) cout << "Finished THDM_Dmunu" << endl;
+      if (flav_debug) std::cout << "BR(D->mu nu) = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished THDM_Dmunu" << std::endl;
     }
 
     /// Br D -> tau nu
     void SuperIso_prediction_Dtaunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Dtaunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Dtaunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Dtaunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Dlnu(byVal(3),&param);
 
       if (flav_debug) printf("BR(D->tau nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Dtaunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Dtaunu"<< std::endl;
     }
 
     /// Br D->tau nu in the THDM
@@ -944,17 +944,17 @@ namespace Gambit
       std::complex<double> Deltaij = (pow(m_D,2)*Y21*(Z33))/(pow(mHp,2)*Vcd);
       std::complex<double> Deltamutau = (pow(m_D,2)*Y21*(Z23))/(pow(mHp,2)*Vcd);
       std::complex<double> one = {1,0};
-      result = real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi));
+      result = std::real(((pow(one - Deltaij,2)+pow(Deltamutau,2))*pow(f_D,2)*pow(sminputs.GF,2)*pow(mTau,2)*pow(1 - pow(mTau,2)/pow(m_D,2),2)*m_D*life_D*pow(Vcd,2))/(8.*hbar*pi));
 
-      if (flav_debug) cout << "BR(D->tau nu) = " << result << endl;
-      if (flav_debug) cout << "Finished THDM_Dtaunu" << endl;
+      if (flav_debug) std::cout << "BR(D->tau nu) = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished THDM_Dtaunu" << std::endl;
     }
 
     /// Br B -> D tau nu
     void SuperIso_prediction_BDtaunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_BDtaunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_BDtaunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_BDtaunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -968,7 +968,7 @@ namespace Gambit
       result=BEreq::BRBDlnu(byVal(gen_tau_D), byVal( charge_tau_D), byVal(q2_min_tau_D), byVal(q2_max_tau_D), byVal(obs_tau_D), &param);
 
       if (flav_debug) printf("BR(B-> D tau nu )=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_BDtaunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_BDtaunu"<< std::endl;
     }
 
     // Auxiliary function for BR(B->Dlnu),1st generation is not supported
@@ -1007,16 +1007,16 @@ namespace Gambit
       std::complex<double> CLcb(0,0);
       if (gen==3)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
       }
       else if (gen==2)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
-      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
       }
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gs = (CRcb + CLcb)/CSMcb;
       std::complex<double> gsmutau = (CRcbmutau + CLcbmutau)/CSMcb;
 
@@ -1041,7 +1041,7 @@ namespace Gambit
     void SuperIso_prediction_BDmunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_BDmunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_BDmunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_BDmunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -1055,7 +1055,7 @@ namespace Gambit
       result= BEreq::BRBDlnu(byVal(gen_mu_D), byVal( charge_mu_D), byVal(q2_min_mu_D), byVal(q2_max_mu_D), byVal(obs_mu_D), &param);
 
       if (flav_debug) printf("BR(B->D mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_BDmunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_BDmunu"<< std::endl;
     }
 
     /// BR B -> D mu nu
@@ -1073,7 +1073,7 @@ namespace Gambit
     void SuperIso_prediction_BDstartaunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_BDstartaunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_BDstartaunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_BDstartaunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -1087,7 +1087,7 @@ namespace Gambit
       result= BEreq::BRBDstarlnu(byVal(gen_tau_Dstar), byVal( charge_tau_Dstar), byVal(q2_min_tau_Dstar), byVal(q2_max_tau_Dstar), byVal(obs_tau_Dstar), &param);
 
       if (flav_debug) printf("BR(B->Dstar tau nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_BDstartaunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_BDstartaunu"<< std::endl;
     }
 
     // Auxiliary function for BR(B->Dstarlnu),1st generation is not supported
@@ -1126,16 +1126,16 @@ namespace Gambit
       std::complex<double> CLcb(0,0);
       if (gen==3)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
       }
       else if (gen==2)
       {
-      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
-      CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
+      CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
       }
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gp = (CRcb - CLcb)/CSMcb;
       std::complex<double> gpmutau = (CRcbmutau - CLcbmutau)/CSMcb;
 
@@ -1160,7 +1160,7 @@ namespace Gambit
     void SuperIso_prediction_BDstarmunu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_BDstarmunu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_BDstarmunu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_BDstarmunu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -1174,7 +1174,7 @@ namespace Gambit
       result=BEreq::BRBDstarlnu(byVal(gen_mu_Dstar), byVal( charge_mu_Dstar), byVal(q2_min_mu_Dstar), byVal(q2_max_mu_Dstar), byVal(obs_mu_Dstar), &param);
 
       if (flav_debug) printf("BR(B->Dstar mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_BDstarmunu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_BDstarmunu"<< std::endl;
     }
 
     /// BR B -> D* mu nu
@@ -1196,20 +1196,20 @@ namespace Gambit
     void SuperIso_prediction_RD(double &result)
     {
       using namespace Pipes::SuperIso_prediction_RD;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_RD"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_RD"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::BDtaunu_BDenu(&param);
 
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D e nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_RD"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_RD"<< std::endl;
     }
 
     ///  B-> D tau nu / B-> D mu nu decays in THDM
     void THDM_RD(double &result)
     {
       using namespace Pipes::THDM_RD;
-      if (flav_debug) cout<<"Starting THDM_RD"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_RD"<< std::endl;
 
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -1243,40 +1243,40 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gs =  (CRcb + CLcb)/CSMcb;
       std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
       std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
 
-      result = (1+1.5*real(gs)+1.0*(norm(gs)+norm(gsmutau)))/(3.34+4.795*(norm(gsmumu)+norm(gsmutau)));
+      result = (1+1.5*std::real(gs)+1.0*(std::norm(gs)+std::norm(gsmutau)))/(3.34+4.795*(std::norm(gsmumu)+std::norm(gsmutau)));
 
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_RD"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_RD"<< std::endl;
     }
 
     ///  B->D* tau nu / B-> D* e nu decays
     void SuperIso_prediction_RDstar(double &result)
     {
       using namespace Pipes::SuperIso_prediction_RDstar;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_RDstar"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_RDstar"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::BDstartaunu_BDstarenu(&param);
 
       if (flav_debug) printf("BR(B->D* tau nu)/BR(B->D* e nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_RD*"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_RD*"<< std::endl;
     }
 
     ///  B->D* tau nu / B-> D* mu nu decays in THDM
     void THDM_RDstar(double &result)
     {
       using namespace Pipes::THDM_RDstar;
-      if (flav_debug) cout<<"Starting THDM_RDstar"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_RDstar"<< std::endl;
 
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -1310,19 +1310,19 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CLcb = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(xitautau)/pow(mHp,2);
-      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcb = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CLcb = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(xitautau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gp =  (CRcb - CLcb)/CSMcb;
       std::complex<double> gpmumu =  (CRcbmumu - CLcbmumu)/CSMcb;
       std::complex<double> gpmutau =  (CRcbmutau - CLcbmutau)/CSMcb;
 
-      result = (1+0.12*real(gp)+0.05*(norm(gp)+norm(gpmutau)))/(3.89+0.246*(norm(gpmumu)+norm(gpmutau)));
+      result = (1+0.12*std::real(gp)+0.05*(std::norm(gp)+std::norm(gpmutau)))/(3.89+0.246*(std::norm(gpmumu)+std::norm(gpmutau)));
       if (flav_debug) printf("BR(B->D tau nu)/BR(B->D mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_RDstar"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_RDstar"<< std::endl;
     }
 
 
@@ -1330,7 +1330,7 @@ namespace Gambit
     void SuperIso_prediction_RDemu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_RDemu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_RDemu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_RDemu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       if (param.model < 0) FlavBit_error().raise(LOCAL_INFO, "Unsupported model.");
@@ -1346,14 +1346,14 @@ namespace Gambit
              BEreq::BRBDlnu(byVal(gen_mu_D), byVal( charge_D), byVal(q2_min_mu_D), byVal(q2_max_D), byVal(obs_mu_D), &param);
 
       if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_RDemu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_RDemu"<< std::endl;
     }
 
     ///  B-> D e nu / B-> D mu nu decays in THDM
     void THDM_RDemu(double &result)
     {
       using namespace Pipes::THDM_RDemu;
-      if (flav_debug) cout<<"Starting THDM_RDemu"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_RDemu"<< std::endl;
 
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -1384,37 +1384,37 @@ namespace Gambit
       const double mCmC = Dep::SMINPUTS->mCmC;
       std::complex<double> Ycc(spectrum.get(Par::dimensionless,"Yu2",2,2), spectrum.get(Par::dimensionless, "ImYu2",2,2));
       std::complex<double> xicc = -((sqrt(2)*mCmC*tanb)/v) + Ycc/cosb;
-      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CLcbmumu = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximumu)/pow(mHp,2);
-      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*conj(ximutau)/pow(mHp,2);
-      std::complex<double> CLcbmutau = 2.*(Vcb*conj(xicc)+Vtb*conj(xitc))*conj(ximutau)/pow(mHp,2);
+      std::complex<double> CRcbmumu = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CLcbmumu = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximumu)/pow(mHp,2);
+      std::complex<double> CRcbmutau = -2.*(Vcb*xibb+Vcs*xisb)*std::conj(ximutau)/pow(mHp,2);
+      std::complex<double> CLcbmutau = 2.*(Vcb*std::conj(xicc)+Vtb*std::conj(xitc))*std::conj(ximutau)/pow(mHp,2);
       std::complex<double> gsmumu =  (CRcbmumu + CLcbmumu)/CSMcb;
       std::complex<double> gsmutau =  (CRcbmutau + CLcbmutau)/CSMcb;
 
-      result = 1/(0.9964+0.175*real(gsmumu)+1.46*(norm(gsmumu)+norm(gsmutau)));
+      result = 1/(0.9964+0.175*std::real(gsmumu)+1.46*(std::norm(gsmumu)+std::norm(gsmutau)));
 
       if (flav_debug) printf("BR(B->D e nu)/BR(B->D mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_RDemu"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_RDemu"<< std::endl;
     }
 
     /// B->K mu nu / B-> pi mu nu
     void SuperIso_prediction_Rmu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Rmu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Rmu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Rmu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Kmunu_pimunu(&param);
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Rmu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Rmu"<< std::endl;
     }
 
     /// BR(K->mu nu) /BR pi-> mu nu) in the THDM
     void THDM_Rmu(double &result)
     {
       using namespace Pipes::THDM_Rmu;
-      if (flav_debug) cout<<"Starting THDM_Rmu"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_Rmu"<< std::endl;
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double delta_em = -0.0070;//All values taken from SuperIso 3.6
       const double m_pi = 0.13957;
@@ -1442,10 +1442,10 @@ namespace Gambit
       std::complex<double> Deltamutau = (pow(m_K,2)*X12*(Z23))/(pow(mHp,2)*Vus);
       std::complex<double> leptonFactor = pow((1 - pow(mMu,2)/pow(m_K,2))/(1 - pow(mMu,2)/pow(m_pi,2)),2);
       std::complex<double> one = {1,0};
-      result = real((life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(one - Deltaij,2)+pow(Deltamutau,2)));
+      result = std::real((life_K/life_pi)*pow(fK_fpi*Vus/Vud,2)*(m_K/m_pi)*leptonFactor*(1.+delta_em)*(pow(one - Deltaij,2)+pow(Deltamutau,2)));
 
       if (flav_debug) printf("R_mu=BR(K->mu nu)/BR(pi->mu nu) in THDM =%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_Rmu"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_Rmu"<< std::endl;
     }
 
 
@@ -1458,7 +1458,7 @@ namespace Gambit
       static bool th_err_absolute[n_experiments], first = true;
       static double th_err[n_experiments];
 
-      if (flav_debug) cout<<"Starting SL_measurements"<<endl;
+      if (flav_debug) std::cout<<"Starting SL_measurements"<< std::endl;
 
       // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
       if (first)
@@ -1468,7 +1468,7 @@ namespace Gambit
         // Read in experimental measuremens
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in SL_measurements"<<endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in SL_measurements"<< std::endl;
 
         // B-> tau nu
         fread.read_yaml_measurement("flav_data.yaml", "BR_Btaunu");
@@ -1552,7 +1552,7 @@ namespace Gambit
         pmc.diff.push_back(pmc.value_exp(i,0)-pmc.value_th(i,0));
       }
 
-      if (flav_debug) cout<<"Finished SL_measurements"<<endl;
+      if (flav_debug) std::cout<<"Finished SL_measurements"<< std::endl;
     }
 
     ///------------------------///
@@ -1564,7 +1564,7 @@ namespace Gambit
     {
       using namespace Pipes::dBRBDtaunu_likelihood;
 
-      if (flav_debug) cout<<"Starting dBRBDtaunu_likelihood"<<endl;
+      if (flav_debug) std::cout<<"Starting dBRBDtaunu_likelihood"<< std::endl;
 
       predictions_measurements_covariances pmc = *Dep::dBRBDtaunu_M;
 
@@ -1573,7 +1573,7 @@ namespace Gambit
       // adding theory and experimental covariance
       cov+=pmc.cov_th;
       //calculating a diff
-      vector<double> diff;
+      std::vector<double> diff;
       diff=pmc.diff;
 
       boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
@@ -1590,9 +1590,9 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) cout<<"Finished dBRBDtaunu_likelihood"<<endl;
+      if (flav_debug) std::cout<<"Finished dBRBDtaunu_likelihood"<< std::endl;
 
-      if (flav_debug_LL) cout<<"Likelihood result dBRBDtaunu_likelihood  : "<< result<<endl;
+      if (flav_debug_LL) std::cout<<"Likelihood result dBRBDtaunu_likelihood  : "<< result<< std::endl;
     }
 
     /// Likelihood for the differential widths of tree-level semileptonic B decays to tau leptons
@@ -1600,7 +1600,7 @@ namespace Gambit
     {
       using namespace Pipes::dBRBDstartaunu_likelihood;
 
-      if (flav_debug) cout<<"Starting dBRBDstartaunu_likelihood"<<endl;
+      if (flav_debug) std::cout<<"Starting dBRBDstartaunu_likelihood"<< std::endl;
 
       predictions_measurements_covariances pmc = *Dep::dBRBDstartaunu_M;
 
@@ -1609,7 +1609,7 @@ namespace Gambit
       // adding theory and experimental covariance
       cov+=pmc.cov_th;
       //calculating a diff
-      vector<double> diff;
+      std::vector<double> diff;
       diff=pmc.diff;
 
       boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
@@ -1625,9 +1625,9 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) cout<<"Finished dBRBDstartaunu_likelihood"<<endl;
+      if (flav_debug) std::cout<<"Finished dBRBDstartaunu_likelihood"<< std::endl;
 
-      if (flav_debug_LL) cout<<"Likelihood result dBRBDstartaunu_likelihood  : "<< result<<endl;
+      if (flav_debug_LL) std::cout<<"Likelihood result dBRBDstartaunu_likelihood  : "<< result<< std::endl;
     }
 
     /// Likelihood for tree-level leptonic and semileptonic B decays
@@ -1635,7 +1635,7 @@ namespace Gambit
     {
       using namespace Pipes::SL_likelihood;
 
-      if (flav_debug) cout<<"Starting SL_likelihood"<<endl;
+      if (flav_debug) std::cout<<"Starting SL_likelihood"<< std::endl;
 
       predictions_measurements_covariances pmc = *Dep::SL_M;
 
@@ -1645,7 +1645,7 @@ namespace Gambit
       cov+=pmc.cov_th;
 
       //calculating a diff
-      vector<double> diff;
+      std::vector<double> diff;
       diff=pmc.diff;
 
       boost::numeric::ublas::matrix<double> cov_inv(pmc.dim, pmc.dim);
@@ -1662,8 +1662,8 @@ namespace Gambit
 
       result=-0.5*Chi2;
 
-      if (flav_debug) cout<<"Finished SL_likelihood"<<endl;
-      if (flav_debug_LL) cout<<"Likelihood result SL_likelihood  : "<< result<<endl;
+      if (flav_debug) std::cout<<"Finished SL_likelihood"<< std::endl;
+      if (flav_debug_LL) std::cout<<"Likelihood result SL_likelihood  : "<< result<< std::endl;
     }
 
 
@@ -1674,13 +1674,13 @@ namespace Gambit
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_FLDstar_err, th_err;
 
-      if (flav_debug) cout << "FLDstar_likelihood"<<endl;
+      if (flav_debug) std::cout << "FLDstar_likelihood"<< std::endl;
 
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in FLDstar_likelihood"<<endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in FLDstar_likelihood"<< std::endl;
         fread.read_yaml_measurement("flav_data.yaml", "FLDstar");
         fread.initialise_matrices();
         exp_meas = fread.get_exp_value()(0,0);
@@ -1690,11 +1690,11 @@ namespace Gambit
         first = false;
       }
 
-      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_FLDstar_err << " " << th_err << endl;
+      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_FLDstar_err << " " << th_err << std::endl;
 
       double theory_prediction = *Dep::FLDstar;
       double theory_FLDstar_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_FLDstar_err<<endl;
+      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_FLDstar_err<< std::endl;
 
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
 
@@ -1714,7 +1714,7 @@ namespace Gambit
       static bool first = true;
       if (first)
       {
-        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
         nDimGaussian.Read();
         first = false;
       }

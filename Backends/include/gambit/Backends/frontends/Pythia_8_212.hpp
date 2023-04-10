@@ -12,6 +12,8 @@
 ///
 ///  *********************************************
 
+#ifndef EXCLUDE_HEPMC
+
 #include "gambit/Backends/backend_types/Pythia_8_212/identification.hpp"
 
 LOAD_LIBRARY
@@ -168,3 +170,5 @@ BE_INI_FUNCTION{} END_BE_INI_FUNCTION
 
 // End
 #include "gambit/Backends/backend_undefs.hpp"
+
+#endif

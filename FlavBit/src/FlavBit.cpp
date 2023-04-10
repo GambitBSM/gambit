@@ -92,7 +92,6 @@ namespace Gambit
     void SuperIso_fill(parameters &result)
     {
       using namespace Pipes::SuperIso_fill;
-      using namespace std;
 
       SLHAstruct spectrum;
       // Obtain SLHAea object from spectrum
@@ -342,19 +341,19 @@ namespace Gambit
         if (!spectrum["ALPHA"].empty()) if (spectrum["ALPHA"].back().is_data_line()) result.alpha=SLHAea::to<double>(spectrum["ALPHA"].back().at(0));
 
         if (!spectrum["STOPMIX"].empty()) for (ie=1;ie<=2;ie++) for (je=1;je<=2;je++)
-         if (spectrum["STOPMIX"][max(ie,je)].is_data_line()) result.stop_mix[ie][je]=SLHAea::to<double>(spectrum["STOPMIX"].at(ie,je)[2]);
+         if (spectrum["STOPMIX"][std::max(ie,je)].is_data_line()) result.stop_mix[ie][je]=SLHAea::to<double>(spectrum["STOPMIX"].at(ie,je)[2]);
         if (!spectrum["SBOTMIX"].empty()) for (ie=1;ie<=2;ie++) for (je=1;je<=2;je++)
-         if (spectrum["SBOTMIX"][max(ie,je)].is_data_line()) result.sbot_mix[ie][je]=SLHAea::to<double>(spectrum["SBOTMIX"].at(ie,je)[2]);
+         if (spectrum["SBOTMIX"][std::max(ie,je)].is_data_line()) result.sbot_mix[ie][je]=SLHAea::to<double>(spectrum["SBOTMIX"].at(ie,je)[2]);
         if (!spectrum["STAUMIX"].empty()) for (ie=1;ie<=2;ie++) for (je=1;je<=2;je++)
-         if (spectrum["STAUMIX"][max(ie,je)].is_data_line()) result.stau_mix[ie][je]=SLHAea::to<double>(spectrum["STAUMIX"].at(ie,je)[2]);
+         if (spectrum["STAUMIX"][std::max(ie,je)].is_data_line()) result.stau_mix[ie][je]=SLHAea::to<double>(spectrum["STAUMIX"].at(ie,je)[2]);
         if (!spectrum["NMIX"].empty()) for (ie=1;ie<=4;ie++) for (je=1;je<=4;je++)
-         if (spectrum["NMIX"][max(ie,je)].is_data_line()) result.neut_mix[ie][je]=SLHAea::to<double>(spectrum["NMIX"].at(ie,je)[2]);
+         if (spectrum["NMIX"][std::max(ie,je)].is_data_line()) result.neut_mix[ie][je]=SLHAea::to<double>(spectrum["NMIX"].at(ie,je)[2]);
         if (!spectrum["NMNMIX"].empty()) for (ie=1;ie<=5;ie++) for (je=1;je<=5;je++)
-         if (spectrum["NMNMIX"][max(ie,je)].is_data_line()) result.neut_mix[ie][je]=SLHAea::to<double>(spectrum["NMNMIX"].at(ie,je)[2]);
+         if (spectrum["NMNMIX"][std::max(ie,je)].is_data_line()) result.neut_mix[ie][je]=SLHAea::to<double>(spectrum["NMNMIX"].at(ie,je)[2]);
         if (!spectrum["UMIX"].empty()) for (ie=1;ie<=2;ie++) for (je=1;je<=2;je++)
-         if (spectrum["UMIX"][max(ie,je)].is_data_line()) result.charg_Umix[ie][je]=SLHAea::to<double>(spectrum["UMIX"].at(ie,je)[2]);
+         if (spectrum["UMIX"][std::max(ie,je)].is_data_line()) result.charg_Umix[ie][je]=SLHAea::to<double>(spectrum["UMIX"].at(ie,je)[2]);
         if (!spectrum["VMIX"].empty()) for (ie=1;ie<=2;ie++) for (je=1;je<=2;je++)
-         if (spectrum["VMIX"][max(ie,je)].is_data_line()) result.charg_Vmix[ie][je]=SLHAea::to<double>(spectrum["VMIX"].at(ie,je)[2]);
+         if (spectrum["VMIX"][std::max(ie,je)].is_data_line()) result.charg_Vmix[ie][je]=SLHAea::to<double>(spectrum["VMIX"].at(ie,je)[2]);
 
         if (!spectrum["GAUGE"].empty())
         {
@@ -376,10 +375,10 @@ namespace Gambit
         }
 
         if (!spectrum["NMHMIX"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["NMHMIX"][max(ie,je)].is_data_line()) result.H0_mix[ie][je]=SLHAea::to<double>(spectrum["NMHMIX"].at(ie,je)[2]);
+         if (spectrum["NMHMIX"][std::max(ie,je)].is_data_line()) result.H0_mix[ie][je]=SLHAea::to<double>(spectrum["NMHMIX"].at(ie,je)[2]);
 
         if (!spectrum["NMAMIX"].empty()) for (ie=1;ie<=2;ie++) for (je=1;je<=2;je++)
-         if (spectrum["NMAMIX"][max(ie,je)].is_data_line()) result.A0_mix[ie][je]=SLHAea::to<double>(spectrum["NMAMIX"].at(ie,je)[2]);
+         if (spectrum["NMAMIX"][std::max(ie,je)].is_data_line()) result.A0_mix[ie][je]=SLHAea::to<double>(spectrum["NMAMIX"].at(ie,je)[2]);
 
         if (!spectrum["MSOFT"].empty())
         {
@@ -442,39 +441,39 @@ namespace Gambit
         }
 
         if (!spectrum["USQMIX"].empty()) for (ie=1;ie<=6;ie++) for (je=1;je<=6;je++)
-         if (spectrum["USQMIX"][max(ie,je)].is_data_line()) result.sU_mix[ie][je]=SLHAea::to<double>(spectrum["USQMIX"].at(ie,je)[2]);
+         if (spectrum["USQMIX"][std::max(ie,je)].is_data_line()) result.sU_mix[ie][je]=SLHAea::to<double>(spectrum["USQMIX"].at(ie,je)[2]);
         if (!spectrum["DSQMIX"].empty()) for (ie=1;ie<=6;ie++) for (je=1;je<=6;je++)
-         if (spectrum["DSQMIX"][max(ie,je)].is_data_line()) result.sD_mix[ie][je]=SLHAea::to<double>(spectrum["DSQMIX"].at(ie,je)[2]);
+         if (spectrum["DSQMIX"][std::max(ie,je)].is_data_line()) result.sD_mix[ie][je]=SLHAea::to<double>(spectrum["DSQMIX"].at(ie,je)[2]);
         if (!spectrum["SELMIX"].empty()) for (ie=1;ie<=6;ie++) for (je=1;je<=6;je++)
-         if (spectrum["SELMIX"][max(ie,je)].is_data_line()) result.sE_mix[ie][je]=SLHAea::to<double>(spectrum["SELMIX"].at(ie,je)[2]);
+         if (spectrum["SELMIX"][std::max(ie,je)].is_data_line()) result.sE_mix[ie][je]=SLHAea::to<double>(spectrum["SELMIX"].at(ie,je)[2]);
         if (!spectrum["SNUMIX"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["SNUMIX"][max(ie,je)].is_data_line()) result.sNU_mix[ie][je]=SLHAea::to<double>(spectrum["SNUMIX"].at(ie,je)[2]);
+         if (spectrum["SNUMIX"][std::max(ie,je)].is_data_line()) result.sNU_mix[ie][je]=SLHAea::to<double>(spectrum["SNUMIX"].at(ie,je)[2]);
 
         if (!spectrum["MSQ2"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["MSQ2"][max(ie,je)].is_data_line()) result.sCKM_msq2[ie][je]=SLHAea::to<double>(spectrum["MSQ2"].at(ie,je)[2]);
+         if (spectrum["MSQ2"][std::max(ie,je)].is_data_line()) result.sCKM_msq2[ie][je]=SLHAea::to<double>(spectrum["MSQ2"].at(ie,je)[2]);
         if (!spectrum["MSL2"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["MSL2"][max(ie,je)].is_data_line()) result.sCKM_msl2[ie][je]=SLHAea::to<double>(spectrum["MSL2"].at(ie,je)[2]);
+         if (spectrum["MSL2"][std::max(ie,je)].is_data_line()) result.sCKM_msl2[ie][je]=SLHAea::to<double>(spectrum["MSL2"].at(ie,je)[2]);
         if (!spectrum["MSD2"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["MSD2"][max(ie,je)].is_data_line()) result.sCKM_msd2[ie][je]=SLHAea::to<double>(spectrum["MSD2"].at(ie,je)[2]);
+         if (spectrum["MSD2"][std::max(ie,je)].is_data_line()) result.sCKM_msd2[ie][je]=SLHAea::to<double>(spectrum["MSD2"].at(ie,je)[2]);
         if (!spectrum["MSU2"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["MSU2"][max(ie,je)].is_data_line()) result.sCKM_msu2[ie][je]=SLHAea::to<double>(spectrum["MSU2"].at(ie,je)[2]);
+         if (spectrum["MSU2"][std::max(ie,je)].is_data_line()) result.sCKM_msu2[ie][je]=SLHAea::to<double>(spectrum["MSU2"].at(ie,je)[2]);
         if (!spectrum["MSE2"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["MSE2"][max(ie,je)].is_data_line()) result.sCKM_mse2[ie][je]=SLHAea::to<double>(spectrum["MSE2"].at(ie,je)[2]);
+         if (spectrum["MSE2"][std::max(ie,je)].is_data_line()) result.sCKM_mse2[ie][je]=SLHAea::to<double>(spectrum["MSE2"].at(ie,je)[2]);
 
         if (!spectrum["IMVCKM"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["IMVCKM"][max(ie,je)].is_data_line()) result.IMCKM[ie][je]=SLHAea::to<double>(spectrum["IMVCKM"].at(ie,je)[2]);
+         if (spectrum["IMVCKM"][std::max(ie,je)].is_data_line()) result.IMCKM[ie][je]=SLHAea::to<double>(spectrum["IMVCKM"].at(ie,je)[2]);
         if (!spectrum["IMVCKM"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["IMVCKM"][max(ie,je)].is_data_line()) result.IMCKM[ie][je]=SLHAea::to<double>(spectrum["IMVCKM"].at(ie,je)[2]);
+         if (spectrum["IMVCKM"][std::max(ie,je)].is_data_line()) result.IMCKM[ie][je]=SLHAea::to<double>(spectrum["IMVCKM"].at(ie,je)[2]);
 
         if (!spectrum["UPMNS"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["UPMNS"][max(ie,je)].is_data_line()) result.PMNS_U[ie][je]=SLHAea::to<double>(spectrum["UPMNS"].at(ie,je)[2]);
+         if (spectrum["UPMNS"][std::max(ie,je)].is_data_line()) result.PMNS_U[ie][je]=SLHAea::to<double>(spectrum["UPMNS"].at(ie,je)[2]);
 
         if (!spectrum["TU"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["TU"][max(ie,je)].is_data_line()) result.TU[ie][je]=SLHAea::to<double>(spectrum["TU"].at(ie,je)[2]);
+         if (spectrum["TU"][std::max(ie,je)].is_data_line()) result.TU[ie][je]=SLHAea::to<double>(spectrum["TU"].at(ie,je)[2]);
         if (!spectrum["TD"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["TD"][max(ie,je)].is_data_line()) result.TD[ie][je]=SLHAea::to<double>(spectrum["TD"].at(ie,je)[2]);
+         if (spectrum["TD"][std::max(ie,je)].is_data_line()) result.TD[ie][je]=SLHAea::to<double>(spectrum["TD"].at(ie,je)[2]);
         if (!spectrum["TE"].empty()) for (ie=1;ie<=3;ie++) for (je=1;je<=3;je++)
-         if (spectrum["TE"][max(ie,je)].is_data_line()) result.TE[ie][je]=SLHAea::to<double>(spectrum["TE"].at(ie,je)[2]);
+         if (spectrum["TE"][std::max(ie,je)].is_data_line()) result.TE[ie][je]=SLHAea::to<double>(spectrum["TE"].at(ie,je)[2]);
       }
 
       else if (ModelInUse("GWC"))
@@ -724,14 +723,14 @@ namespace Gambit
         result.Im_DeltaCQ2_tau_Prime = Dep::DeltaCQ2_tautau_Prime->imag();
 
       }
-      if (flav_debug) cout<<"Finished SuperIso_fill"<<endl;
+      if (flav_debug) std::cout << "Finished SuperIso_fill" << std::endl;
     }
 
     /// Fill SuperIso nuisance structure
     void SuperIso_nuisance_fill(nuisance &nuislist)
     {
       using namespace Pipes::SuperIso_nuisance_fill;
-      if (flav_debug) cout<<"Starting SuperIso_nuisance_fill"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_nuisance_fill"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
 
@@ -741,14 +740,14 @@ namespace Gambit
       /* Here the nuisance parameters which should not be used for the correlation calculation have to be given a zero standard deviation.
          E.g. nuislist.mass_b.dev=0.; */
 
-      if (flav_debug) cout<<"Finished SuperIso_nuisance_fill"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_nuisance_fill"<< std::endl;
     }
 
     ///  Bc lifetime in the THDM
     void THDM_Bc_lifetime(double &result)
     {
       using namespace Pipes::THDM_Bc_lifetime;
-      if (flav_debug) cout<<"Starting THDM_Bc_lifetime"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_Bc_lifetime"<< std::endl;
 
       SMInputs sminputs = *Dep::SMINPUTS;
       Spectrum spectrum = *Dep::THDM_spectrum;
@@ -799,7 +798,7 @@ namespace Gambit
       result = hbar/(Gamma_Bc_SM + Gamma_Bc_THDM);
 
       if (flav_debug) printf("THDM_Bc_lifetime=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_Bc_lifetime"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_Bc_lifetime"<< std::endl;
     }
 
 
@@ -807,33 +806,33 @@ namespace Gambit
     void SuperIso_prediction_Delta_MBd(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Delta_MBd;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Delta_MBd"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Delta_MBd"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::Delta_MB(&param);
 
       if (flav_debug) printf("Delta_MBd=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Delta_MBd"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Delta_MBd"<< std::endl;
     }
 
     /// Measurement for Delta Bs (Bs mass splitting)
     void SuperIso_prediction_Delta_MBs(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Delta_MBs;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Delta_MBs"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Delta_MBs"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::Delta_MBs(&param);
 
       if (flav_debug) printf("Delta_MBs=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Delta_MBs"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Delta_MBs"<< std::endl;
     }
 
     /// DeltaMBs at tree level for the general THDM
     void THDM_Delta_MBs(double &result)
     {
       using namespace Pipes::THDM_Delta_MBs;
-      if (flav_debug) cout<<"Starting THDM_Delta_MBs"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_Delta_MBs"<< std::endl;
 
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double mBs = 5.36689;// values from 1602.03560
@@ -866,14 +865,14 @@ namespace Gambit
       std::complex<double> M12_NP = -(0.125)*(pow(fBs,2)*pow(mBs,3)/(pow(mBmB+mS,2)))*((0.25)*pow(cba,2)*(pow(1/mh,2)-pow(1/mH,2))*((U22*Bag2*b2+U32*Bag3*b3)*(xi_bs*xi_bs+xi_sb*xi_sb)+2*U44*Bag4*b4*xi_sb*xi_bs)+(pow(1/mH,2)*U44*Bag4*b4*xi_sb*xi_bs));
       result = 2*abs(real(0.5*DeltaSM + M12_NP))*conv_factor;
       if (flav_debug) printf("Delta_MBs=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_Delta_MBs"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_Delta_MBs"<< std::endl;
     }
 
     /// BR(h->bs) at tree level for the general THDM from JHEP02(2020)147
     void THDM_h2bs(double &result)
     {
       using namespace Pipes::THDM_h2bs;
-      if (flav_debug) cout<<"Starting THDM_h2bs"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_h2bs"<< std::endl;
 
       Spectrum spectrum = *Dep::THDM_spectrum;
       const double mBs = 5.36689;// values from 1602.03560
@@ -909,14 +908,14 @@ namespace Gambit
       double BRhbs = ((3*pow(mh, 3)*pow(mH, 2))/(16*pi*Gammah*(pow(mH, 2) - pow(mh, 2))))*(1/(A*abs(U22*Bag2*b2 + U32*Bag3*b3 + factor*U44*Bag4*b4)));
       result*= BRhbs;
       if (flav_debug) printf("BR(h->bs)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_h2bs"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_h2bs"<< std::endl;
     }
 
     /// BR(t->ch) at tree level for the general THDM from JHEP02(2020)147
     void THDM_t2ch(double &result)
     {
       using namespace Pipes::THDM_t2ch;
-      if (flav_debug) cout<<"Starting THDM_t2ch"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_t2ch"<< std::endl;
       Spectrum spectrum = *Dep::THDM_spectrum;
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
@@ -932,14 +931,14 @@ namespace Gambit
       const double Gamma = 1.42;//From PDG 2021 in GeV
       result = real((1/Gamma)*(mT*pow(cba,2)/(32*pi))*(pow(xi_tc,2)+pow(xi_ct,2))*pow(1-pow(mh/mT,2),2));
       if (flav_debug) printf("BR(t->ch)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_t2ch"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_t2ch"<< std::endl;
     }
 
     /// BR(h->taumu) at tree level for the general THDM from JHEP, 06:119, 2019 (ArXiv:1903.10440)
     void THDM_h2taumu(double &result)
     {
       using namespace Pipes::THDM_h2taumu;
-      if (flav_debug) cout<<"Starting THDM_h2taumu"<<endl;
+      if (flav_debug) std::cout<<"Starting THDM_h2taumu"<< std::endl;
       Spectrum spectrum = *Dep::THDM_spectrum;
       double alpha = spectrum.get(Par::dimensionless,"alpha");
       double tanb = spectrum.get(Par::dimensionless,"tanb");
@@ -955,7 +954,7 @@ namespace Gambit
       const double Gamma = 0.0032;//From PDG 2021 in GeV
       result = real((1/Gamma)*(3*mh*pow(cba,2)/(8*pi))*(pow(xi_mutau,2)+pow(xi_taumu,2))*pow(1-pow(mTau/mh,2),2));
       if (flav_debug) printf("BR(h->taumu)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished THDM_h2taumu"<<endl;
+      if (flav_debug) std::cout<<"Finished THDM_h2taumu"<< std::endl;
     }
 
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
@@ -963,7 +962,7 @@ namespace Gambit
     {
       using namespace Pipes::FeynHiggs_FlavourObs;
 
-      if (flav_debug) cout<<"Starting FeynHiggs_FlavourObs"<<endl;
+      if (flav_debug) std::cout<<"Starting FeynHiggs_FlavourObs"<< std::endl;
 
       fh_real bsgMSSM;     // B -> Xs gamma in MSSM
       fh_real bsgSM;       // B -> Xs gamma in SM
@@ -986,7 +985,7 @@ namespace Gambit
       FlavourObs.Bsmumu_SM = bsmumuSM;
 
       result = FlavourObs;
-      if (flav_debug) cout<<"Finished FeynHiggs_FlavourObs"<<endl;
+      if (flav_debug) std::cout<<"Finished FeynHiggs_FlavourObs"<< std::endl;
     }
 
     ///@}
@@ -1034,7 +1033,7 @@ namespace Gambit
       }
 
      theory[0] = *Dep::t2ch;
-     if(flav_debug) cout << "BR(t -> c h) = " << theory[0] << endl;
+     if(flav_debug) std::cout << "BR(t -> c h) = " << theory[0] << std::endl;
 
      result = 0;
      for (int i = 0; i < 1; ++i)
@@ -1070,7 +1069,7 @@ namespace Gambit
       }
 
      theory[0] = *Dep::h2taumu;
-     if(flav_debug) cout << "BR(h -> tau mu) = " << theory[0] << endl;
+     if(flav_debug) std::cout << "BR(h -> tau mu) = " << theory[0] << std::endl;
 
      result = 0;
      for (int i = 0; i < 1; ++i)
@@ -1084,13 +1083,13 @@ namespace Gambit
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_DeltaMs_err, th_err;
 
-      if (flav_debug) cout << "Starting Delta_Ms_likelihood"<<endl;
+      if (flav_debug) std::cout << "Starting Delta_Ms_likelihood"<< std::endl;
 
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in Delta_Ms_likelihood"<<endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in Delta_Ms_likelihood"<< std::endl;
         fread.read_yaml_measurement("flav_data.yaml", "DeltaMs");
         fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
         exp_meas = fread.get_exp_value()(0,0);
@@ -1100,12 +1099,12 @@ namespace Gambit
         first = false;
       }
 
-      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_DeltaMs_err << " " << th_err << endl;
+      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_DeltaMs_err << " " << th_err << std::endl;
 
       // Now we do the stuff that actually depends on the parameters
       double theory_prediction = *Dep::prediction_DeltaMs;
       double theory_DeltaMs_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_DeltaMs_err<<endl;
+      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_DeltaMs_err<< std::endl;
 
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
@@ -1120,13 +1119,13 @@ namespace Gambit
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_DeltaMd_err, th_err;
 
-      if (flav_debug) cout << "Starting Delta_Md_likelihood"<<endl;
+      if (flav_debug) std::cout << "Starting Delta_Md_likelihood"<< std::endl;
 
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in Delta_Md_likelihood"<<endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in Delta_Md_likelihood"<< std::endl;
         fread.read_yaml_measurement("flav_data.yaml", "DeltaMd");
         fread.initialise_matrices(); // here we have a single measurement ;) so let's be sneaky:
         exp_meas = fread.get_exp_value()(0,0);
@@ -1136,12 +1135,12 @@ namespace Gambit
         first = false;
       }
 
-      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_DeltaMd_err << " " << th_err << endl;
+      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_DeltaMd_err << " " << th_err << std::endl;
 
       // Now we do the stuff that actually depends on the parameters
       double theory_prediction = *Dep::DeltaMd;
       double theory_DeltaMs_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_DeltaMd_err<<endl;
+      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_DeltaMd_err<< std::endl;
 
       /// Option profile_systematics<bool>: Use likelihood version that has been profiled over systematic errors (default false)
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
@@ -1157,13 +1156,13 @@ namespace Gambit
       static bool th_err_absolute, first = true;
       static double exp_meas, exp_taulifetime_err, th_err;
 
-      if (flav_debug) cout << "Bc_lifetime_likelihood"<<endl;
+      if (flav_debug) std::cout << "Bc_lifetime_likelihood"<< std::endl;
 
       if (first)
       {
         Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
         fread.debug_mode(flav_debug);
-        if (flav_debug) cout<<"Initialised Flav reader in Bc_lifetime_ikelihood"<<endl;
+        if (flav_debug) std::cout<<"Initialised Flav reader in Bc_lifetime_ikelihood"<< std::endl;
         fread.read_yaml_measurement("flav_data.yaml", "Bc_lifetime");
         fread.initialise_matrices();
         exp_meas = fread.get_exp_value()(0,0);
@@ -1173,11 +1172,11 @@ namespace Gambit
         first = false;
       }
 
-      if (flav_debug) cout << "Experiment: " << exp_meas << " " << exp_taulifetime_err << " " << th_err << endl;
+      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_taulifetime_err << " " << th_err << std::endl;
 
       double theory_prediction = *Dep::Bc_lifetime;
       double theory_taulifetime_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
-      if (flav_debug) cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_taulifetime_err<<endl;
+      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<exp_taulifetime_err<< std::endl;
 
       bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
 

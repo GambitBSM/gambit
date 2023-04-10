@@ -104,6 +104,8 @@ namespace Gambit
         void set_covariance(const Eigen::MatrixXd& srcov);
         /// A convenience function for setting the SR covariance from a nested vector/initialiser list
         void set_covariance(const std::vector<std::vector<double>>&);
+        /// A convenience function for setting the path to the ATLAS FullLikes BKG Json file
+        void set_bkgjson(const std::string& bkgpath);
         /// Gather together the info for likelihood calculation.
         virtual void collect_results() = 0;
         ///@}

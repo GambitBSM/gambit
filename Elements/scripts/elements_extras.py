@@ -6,7 +6,7 @@
 #
 #  Script to create files containing extra code
 #  that should be generated at build time.
-#  Usually to make sure the Printers are not used 
+#  Usually to make sure the Printers are not used
 #  in the standalones.
 #
 #  Generated files:
@@ -63,6 +63,30 @@ def Suspicious_Points(isStandalone):
 \n"
 
     return(contents)
+
+# Postprocessor reader routines, only available outside of standalones
+def pp_reader(isStandalone):
+
+  contents = "\
+  /// Postprocessor reader retrieve function\n"
+  if not isStandalone:
+    contents += "\
+  template<typename T>\n\
+  bool pp_reader_retrieve(T& result, str dataset)\n\
+  {\n\
+    return get_pp_reader().retrieve(result, dataset);\n\
+  }\n"
+  else:
+    contents += "\
+  template<typename T>\n\
+  bool pp_reader_retrieve(T&, str)\n\
+  {\n\
+    invalid_point().raise(\"Reader not available in standalones.\");\n\
+    return false;\n\
+  }\n"
+
+  return(contents)
+
 
 # Main function
 def main(argv):
@@ -135,13 +159,17 @@ def main(argv):
 namespace Gambit\n\
 {\n\
 \n"
- 
+
     # Here add calls for all functions that generate code #
     ########################################################
 
     # Suspicious points, avoid using the printers when building standalones
     if verbose: print("Writing suspicious points code")
     contents += Suspicious_Points(isStandalone)
+
+    # Postprocessor reader routines
+    if verbose: print("Writing postprocessor reader routines")
+    contents += pp_reader(isStandalone)
 
     contents += "\
 }\n\

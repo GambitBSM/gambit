@@ -372,10 +372,6 @@ Rules:
   - capability: muon_gm2_SM
     function: gm2_SM_ee
 
-  # Use SM theory covariance matrix for every point
-  - capability: flav_theory_covariance
-    function: SuperIso_theory_covariance_SM
-
   # Use SuperIso instead of FeynHiggs for b->sgamma
   - capability: prediction_b2sgamma
     function: SuperIso_prediction_b2sgamma
@@ -396,18 +392,37 @@ Rules:
   # Consult the DarkBit manual for the required options in each case
   - capability: RD_oh2
     #function: RD_oh2_DS5_general
-    #function: RD_oh2_DS_general
-    #options:
-      # these options are identical for DS5 and DS6+ version
-    #  fast: 1  # 0: standard, 1: fast (default)
+    # options:
+      # fast: 1  # 0: standard, 1: fast (default)
+      # Note that the corresponding options for DS6 have to be set in RD_oh2_DS6(pre4)_ini
+      # instead, see below!
+    function: RD_oh2_DS_general
     #function: RD_oh2_DarkSUSY_DS5
     #options:
     #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
     #  omtype: 1  # 0: no coann, 1: all coann (default)
-    function: RD_oh2_MicrOmegas
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard (default), 1: fast
+    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
-      fast: 1  # 0: standard (default), 1: fast
-      Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+      fast: 1  # 0: standard, 1: fast (default)
+  #- capability: RD_oh2_DS6pre4_ini # for DS6 pre version 6.4.0
+  #  function: RD_oh2_DS6pre4_ini_func
+  #  options:
+  #    fast: 1  # 0: standard, 1: fast (default)
+
+  # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
+  - capability: RD_eff_annrate
+    # function: RD_eff_annrate_DS5_MSSM
+    function: RD_eff_annrate_DS_MSSM
+  # ...and get the dependency RD_spectrum from RD_spectrum_MSSM
+  - capability: RD_spectrum
+    #function: RD_spectrum_SUSY_DS5
+    function: RD_spectrum_MSSM
 
   # Choose module function to provide the TH_ProcessCatalog
   - capability: TH_ProcessCatalog
@@ -420,11 +435,11 @@ Rules:
 
   # Choose whether MicrOmegas calculates decays widths for the MSSM internally using CalcHEP (internal_decays=true) or uses
   # values from the GAMBIT decay table (internal_decays=false).
-  - function: MicrOmegas_MSSM_3_6_9_2_init
-    options:
-       internal_decays: true
-       VZdecay: 2 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
-       VWdecay: 2 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
+  #- function: MicrOmegas_MSSM_3_6_9_2_init
+  #  options:
+  #     internal_decays: true
+  #     VZdecay: 2 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
+  #     VWdecay: 2 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
   # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
   - capability: lnL_FermiLATdwarfs
@@ -528,43 +543,40 @@ Rules:
       rho0_obserr: 0.15
 
   # Values to be used in local disk rotation speed likelihood (all values in km/s)
-  - capability: lnL_vrot
-    function: lnL_vrot_gaussian
-    options:
-      vrot_obs: 235
-      vrot_obserr: 20
+  #- capability: lnL_vrot
+  #  function: lnL_vrot_gaussian
+  #  options:
+  #    vrot_obs: 235
+  #    vrot_obserr: 20
 
   # Values to be used in Maxwellian most-probable speed likelihood (all values in km/s)
-  - capability: lnL_v0
-    function: lnL_v0_gaussian
-    options:
-      v0_obs: 235
-      v0_obserr: 20
+  #- capability: lnL_v0
+  #  function: lnL_v0_gaussian
+  #  options:
+  #    v0_obs: 235
+  #    v0_obserr: 20
 
   # Values to be used in local Galactic escape speed likelihood (all values in km/s)
-  - capability: lnL_vesc
-    function: lnL_vesc_gaussian
-    options:
-      vesc_obs: 550
-      vesc_obserr: 35
+  #- capability: lnL_vesc
+  #  function: lnL_vesc_gaussian
+  #  options:
+  #    vesc_obs: 550
+  #    vesc_obserr: 35
 
   # Values to be used in PrecisionBit likelihood function for light quark masses
-  - capability: lnL_light_quark_masses
-    options:
-      # m_u/m_d
-      mud_central: 0.48
-      mud_error: 0.10
-      # m_s / ((m_u + m_d)/2)
-      msud_central: 27.5
-      msud_error: 1.0
-      # m_s
-      ms_central: 95.E-03
-      ms_error: 5.E-03
+  #- capability: lnL_light_quark_masses
+  #  options:
+  #    # m_u/m_d
+  #    mud_central: 0.48
+  #    mud_error: 0.10
+  #    # m_s / ((m_u + m_d)/2)
+  #    msud_central: 27.5
+  #    msud_error: 1.0
+  #    # m_s
+  #    ms_central: 95.E-03
+  #    ms_error: 5.E-03
 
-  # Choose where to get scattering events from
-  - capability: HardScatteringEvent
-    function: generateEventPythia
-
+  # Pass an SLHA2 spectrum to Pythia
   - capability: SpectrumAndDecaysForPythia
     function: getSpectrumAndDecaysForPythia
     options:
@@ -579,9 +591,14 @@ Rules:
   - capability: EventWeighterFunction
     function: setEventWeight_unity
 
-  # Choose to generate events with Pythia on the fly (rather than reading them in)
+  # Choose where to get scattering events from
   - capability: HardScatteringEvent
+    type: Pythia_default::Pythia8::Event
     function: generateEventPythia
+
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
 
   # Choose Monte Carlo event simulator and options.
   - capability: HardScatteringSim
@@ -642,6 +659,7 @@ Rules:
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
+    function: calc_LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
@@ -664,8 +682,6 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses:
-
 
 
 Logger:

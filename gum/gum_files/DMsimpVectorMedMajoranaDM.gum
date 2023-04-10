@@ -1,0 +1,14 @@
+# Input GUM file for the DMsimpVectorMedMajoranaDM (Majorana DM, vector mediator)
+# model in GUM
+
+math:
+    package: feynrules
+    model: DMsimpVectorMedMajoranaDM
+    base_model: SM
+    restriction: DiagonalCKM
+    lagrangian: LDM + LSM
+
+wimp_candidate: 5000522
+
+output:
+  calchep: true

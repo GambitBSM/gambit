@@ -495,7 +495,7 @@ Rules:
     function: set_classy_input_params
     options:
       log_classy_inputs: false # Print the inputs for classy to logger (useful for debugging)
-      classy_dict:
+      #classy_dict:
         #back_integration_stepsize: 7.e-3
         #tol_background_integration: 1.e-2
         #background_verbose: 3
@@ -507,28 +507,28 @@ Rules:
   # functions f_eff are calculated via the transfer functions or the factorised approach.
   # See chapter 5.4 and Appendix C.3 of the module paper for details on the two approaches.
   # The options below are set to their default values
-  - capability: DarkAges_1_2_0_init
-    options:
-      f_eff_mode: true     # Calculate the single f_eff(z) rather than the full f_c(z) table? By default f_c(z) is calculated
-      print_table: false   # Print the table to stdout. Useful for debugging
-      z_max: 1.e7          # Constant continuation of efficiency table up to a given redshift. (f(z) = const. for 2.7e3 < z < z_max)
+  #- capability: DarkAges_1_2_0_init
+  #  options:
+  #    f_eff_mode: true     # Calculate the single f_eff(z) rather than the full f_c(z) table? By default f_c(z) is calculated
+  #    print_table: false   # Print the table to stdout. Useful for debugging
+  #    z_max: 1.e7          # Constant continuation of efficiency table up to a given redshift. (f(z) = const. for 2.7e3 < z < z_max)
 
   # Choose between the full f(z) treatment or "on the spot".
   # In the latter case, f(z) is condensend into a single constant f_eff.
-  - capability: classy_parameters_EnergyInjection
+  #- capability: classy_parameters_EnergyInjection
     #  -- Only for AnnihilatingDM_general (and its related models) --
     #function: set_classy_parameters_EnergyInjection_AnnihilatingDM
-    function: set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot
+    #function: set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot
     #  -- Only for DecayingDM_general (and its related models) --
     #function: set_classy_parameters_EnergyInjection_DecayingDM
     #function: set_classy_parameters_EnergyInjection_DecayingDM_onSpot
 
   # Choose how exactly f_eff should be calculated.
   # NOTE. If choosing options a) or b), DarkAges *must* be operating in "f_eff_mode"
-  - capability: f_eff
+  #- capability: f_eff
     # a) By convoultion of f_eff(z) with a weighting function W(z) [cf. https://arxiv.org/abs/1506.03811]
     #  -- Only for AnnihilatingDM_general (and its related models) --
-    function: f_eff_weighted
+    #function: f_eff_weighted
     # b) By taking the value of f_eff(z) at given redshift (z_eff).
     # -- Applies for ALL energy injection models --
     # Default values of z_eff: 600 for annihilation, 300 for decay (!experimental!)
@@ -570,14 +570,14 @@ Rules:
   # ---- C.5) MultimodeCode related settings -----
 
   # pass input settings to MultiModeCode
-  - capability: multimode_input_parameters
-    function: set_multimode_inputs
-    options:
-      k_pivot: 0.002
-      dlnk: 0.4
-      numsteps: 200
-      k_min: 1e-7
-      k_max: 1e6
+  #- capability: multimode_input_parameters
+  #  function: set_multimode_inputs
+  #  options:
+  #    k_pivot: 0.002
+  #    dlnk: 0.4
+  #    numsteps: 200
+  #    k_min: 1e-7
+  #    k_max: 1e6
 
   # Pass primordial power spectrum to CLASS
   # Option a): pass the parametrised primordial power spectrum (i.e. not the full shape but only A_s

@@ -13,7 +13,7 @@ diff -rupN pythia_8.212_original/configure pythia_8.212_patched/configure
 diff -rupN pythia_8.212_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia_8.212_patched/include/Pythia8/GAMBIT_hepmc_writer.h
 --- pythia_8.212_original/include/Pythia8/GAMBIT_hepmc_writer.h	1970-01-01 01:00:00.000000000 +0100
 +++ pythia_8.212_patched/include/Pythia8/GAMBIT_hepmc_writer.h	2020-09-09 18:50:37.004950328 +0200
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,106 @@
 +#ifndef Pythia8_GAMBIT_hepmc_writer_H
 +#define Pythia8_GAMBIT_hepmc_writer_H
 +
@@ -109,6 +109,12 @@ diff -rupN pythia_8.212_original/include/Pythia8/GAMBIT_hepmc_writer.h pythia_8.
 +      file2->write_event(hepmc);
 +    }
 +
++    // Returns current event in HepMC format
++    void convert_to_HepMC_event(Pythia *pythia, HepMC3::GenEvent &event)
++    {
++      pythiaToHepMC->fill_next_event(pythia->event, &event, -1, &(pythia->info));
++    }
++  
 +  };
 +
 +}

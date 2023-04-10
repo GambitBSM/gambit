@@ -75,7 +75,7 @@ def get_type_equivalencies(nses):
             if newline == "" or newline.startswith("#"): continue
             newline = re.sub("^\[\s*|\s*\]", "", newline)
             equivalency_class = list()
-            for member in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", newline+","):
+            for member in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", newline+","):
               member = re.sub("\"","",member[:-1].strip())
               # Convert the leading BOSSed namespace for the default version to the explicit namespace of the actual version
               for key in nses:
@@ -86,7 +86,7 @@ def get_type_equivalencies(nses):
 
               # If the type is an alias of a native int then add int to the equivalency class
               if re.match("int[0-9]+_t", member):
-                if ( ctypes.sizeof(ctypes.c_int) == 4 and re.search("32", member) ) or ( ctypes.sizeof(ctypes.c_int) == 2 and re.search("16", member) ) :
+                if ( ctypes.sizeof(ctypes.c_int) == 8 and re.search("64", member) ) or ( ctypes.sizeof(ctypes.c_int) == 4 and re.search("32", member) ) or ( ctypes.sizeof(ctypes.c_int) == 2 and re.search("16", member) ) :
                   if 'int' not in equivalency_class:
                     equivalency_class+=['int']
               if member not in equivalency_class:
@@ -125,6 +125,8 @@ def neatsplit(regex,string):
 def excluded(string,st):
     for x in st:
         if string.startswith(x): return True
+        if string.lower().startswith(x.lower()): return True
+        if string.lower().startswith(x.lower().replace('.','_')): return True
     return False
 
 # Nice sorting function (from http://stackoverflow.com/a/2669120/1447953)
@@ -235,29 +237,39 @@ def first_simple_type_equivalent(candidate_in, equivs, nses, existing):
       ns_true = key+"_"+nses[key]+"::"
       if candidate.startswith(ns_default): candidate = ns_true+candidate[len(ns_default):]
       candidate = re.sub("\s"+ns_default," "+ns_true,candidate)
+    
     # Exists in the equivalency classes
-    if candidate in equivs:
-        candidate_suffix = ""
+
+    candidate_prefix = ""
+    candidate_suffix = ""
+
+    # Qualifiers up front, e.g const
+    if "const" in candidate[:6]:
+      candidate_prefix = "const "
+      candidate = re.sub("const ","",candidate)
+    
     # Pointer or reference to something that exists in the equivalency classes
-    elif candidate[:-1] in equivs:
+    if candidate[-1] == "&" or candidate[-1] == "*":
         candidate_suffix = candidate[-1:]
         candidate = candidate[:-1]
+
     # Just not there
-    else:
-        return candidate
+    if candidate not in equivs:
+        return candidate_prefix+candidate+candidate_suffix
+
     equivalency_class = equivs[candidate]
     common_elements = set.intersection(set(equivalency_class), existing)
     if not common_elements:
       for index in range(len(equivalency_class)):
         equivalent = equivalency_class[index]
-        if "," not in equivalent: return equivalent+candidate_suffix
+        if "," not in equivalent: return candidate_prefix+equivalent+candidate_suffix
       print( "Error: all equivalent types found have commas in them!  Please typedef one without a comma." )
       print( "Types are: ", equivalency_class )
       sys.exit(1)
     if len(common_elements) != 1:
         print( "Error: existing types and equivalency class have more than one element in common!" )
         sys.exit(1)
-    return common_elements.pop()+candidate_suffix
+    return candidate_prefix+common_elements.pop()+candidate_suffix
 
 # Strips all whitespaces from a string, but re-inserts a single regular space after "const" or "struct".
 def strip_ws(s, qualifiers):
@@ -403,7 +415,7 @@ def addifbefunctormacro(line,be_typeset,type_pack_set,equiv_classes,equiv_ns,ver
                     args = re.sub("\)\s*,[^\)]*?,[^\)]*?\)\s*$", "", args)
                 else:
                     args = re.sub("\)\s*,[^\)]*?\)\s*$", "", args)
-                for arg in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", args+","):
+                for arg in re.findall("[^,]*?\(.*?\)[^,]*?\(.*?\).*?,|[^,]*?<[^>]*?<.*?>[^<]*?>.*?,|[^,]*?<.*?>.*?,|[^,]*?\(.*?\).*?,|[^>\)]*?,", args+","):
                     arg = arg[:-1].strip()
                     if arg != "" and not arg.startswith("\"") and not arg.startswith("("):
                         if arg == "etc": arg = "..."
@@ -552,8 +564,7 @@ def retrieve_generic_headers(verbose,starting_dir,kind,excludes,exclude_list=[])
         if root.endswith("shared_includes"): continue
         for name in files:
             exclude = False
-            for x in excludes:
-                if name.startswith(x): exclude = True
+            if excluded(name,excludes): exclude = True
             if kind == "BOSSed type" and not name.startswith("loaded_types"): exclude = True
             if not exclude and (name.endswith(".hpp") or name.endswith(".h") or name.endswith(".hh")):
                 if verbose: print( "  Located "+kind+" header '{0}' at path '{1}'".format(name,os.path.join(root,name)) )

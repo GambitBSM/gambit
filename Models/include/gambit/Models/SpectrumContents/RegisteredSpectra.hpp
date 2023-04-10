@@ -34,20 +34,26 @@ namespace Gambit
 {
   namespace SpectrumContents
   {
-    struct SM                   : SubSpectrumContents { SM(); };
-    struct SM_slha              : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
-    struct SMHiggs              : SubSpectrumContents { SMHiggs(); };
-    struct MSSM                 : SubSpectrumContents { MSSM(); };
-    struct MDM                  : SubSpectrumContents { MDM(); };
-    struct ScalarSingletDM_Z2   : SubSpectrumContents { ScalarSingletDM_Z2(); };
-    struct ScalarSingletDM_Z3   : SubSpectrumContents { ScalarSingletDM_Z3(); };
-    struct VectorSingletDM_Z2   : SubSpectrumContents { VectorSingletDM_Z2(); };
-    struct MajoranaSingletDM_Z2 : SubSpectrumContents { MajoranaSingletDM_Z2(); };
-    struct DiracSingletDM_Z2    : SubSpectrumContents { DiracSingletDM_Z2(); };
-    struct THDM                 : SubSpectrumContents { THDM(); };
-    struct DMEFT                : SubSpectrumContents { DMEFT(); };
-    //TODO: Temporarily disabled until project is ready
-    //struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); };
+    struct SM                       : SubSpectrumContents { SM(); };
+    struct SM_slha                  : SubSpectrumContents { SM_slha(); }; // Missing some running masses that aren't part of SMINPUTS in slha
+    struct SMHiggs                  : SubSpectrumContents { SMHiggs(); };
+    struct MSSM                     : SubSpectrumContents { MSSM(); };
+    struct MDM                      : SubSpectrumContents { MDM(); };
+    struct ScalarSingletDM_Z2       : SubSpectrumContents { ScalarSingletDM_Z2(); };
+    struct ScalarSingletDM_Z3       : SubSpectrumContents { ScalarSingletDM_Z3(); };
+    struct VectorSingletDM_Z2       : SubSpectrumContents { VectorSingletDM_Z2(); };
+    struct MajoranaSingletDM_Z2     : SubSpectrumContents { MajoranaSingletDM_Z2(); };
+    struct DiracSingletDM_Z2        : SubSpectrumContents { DiracSingletDM_Z2(); };
+    struct DMEFT                    : SubSpectrumContents { DMEFT(); };
+    struct DMsimpVectorMedDiracDM   : SubSpectrumContents { DMsimpVectorMedDiracDM(); };
+    struct DMsimpVectorMedMajoranaDM: SubSpectrumContents { DMsimpVectorMedMajoranaDM(); };
+    struct DMsimpVectorMedScalarDM  : SubSpectrumContents { DMsimpVectorMedScalarDM(); };
+    struct DMsimpVectorMedVectorDM  : SubSpectrumContents { DMsimpVectorMedVectorDM(); };
+    struct THDM                     : SubSpectrumContents { THDM(); };
+
+    // TODO: Temporarily disabled until project is ready
+    // struct SuperRenormHP        : SubSpectrumContents { SuperRenormHP(); };
+
   }
 }
 #endif

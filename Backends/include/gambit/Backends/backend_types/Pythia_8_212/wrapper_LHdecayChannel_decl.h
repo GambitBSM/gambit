@@ -22,20 +22,20 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 // -- Static factory pointers: 
                 static Abstract_LHdecayChannel* (*__factory0)();
-                static Abstract_LHdecayChannel* (*__factory1)(double, int, ::std::vector<int>, ::std::basic_string<char>);
-                static Abstract_LHdecayChannel* (*__factory2)(double, int, ::std::vector<int>);
+                static Abstract_LHdecayChannel* (*__factory1)(double, int, std::vector<int>, std::string);
+                static Abstract_LHdecayChannel* (*__factory2)(double, int, std::vector<int>);
         
                 // -- Other member variables: 
         
                 // Member functions: 
             public:
-                void setChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn, ::std::basic_string<char> cIn);
+                void setChannel(double bratIn, int nDaIn, std::vector<int> idDaIn, std::string cIn);
         
-                void setChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn);
+                void setChannel(double bratIn, int nDaIn, std::vector<int> idDaIn);
         
                 void setBrat(double bratIn);
         
-                void setIdDa(::std::vector<int> idDaIn);
+                void setIdDa(std::vector<int> idDaIn);
         
                 double getBrat();
         
@@ -43,14 +43,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 ::std::vector<int> getIdDa();
         
-                ::std::basic_string<char> getComment();
+                ::std::string getComment();
         
         
                 // Wrappers for original constructors: 
             public:
                 LHdecayChannel();
-                LHdecayChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn, ::std::basic_string<char> cIn);
-                LHdecayChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn);
+                LHdecayChannel(double bratIn, int nDaIn, std::vector<int> idDaIn, std::string cIn);
+                LHdecayChannel(double bratIn, int nDaIn, std::vector<int> idDaIn);
         
                 // Special pointer-based constructor: 
                 LHdecayChannel(Abstract_LHdecayChannel* in);

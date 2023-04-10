@@ -332,7 +332,7 @@ def add_new_particleDB_entry(particles, dm_pdg, gambit_pdg_codes,
             data['OtherModels']['Particles'].append(entry)
 
     # Overwrite the particle database file
-    particleDB += yaml.dump(data).replace('\n  - ', '\n\n  - ')
+    particleDB += yaml.dump(data, sort_keys=False).replace('\n  - ', '\n\n  - ')
 
     return gambit_pdg_codes, decaybit_dict, particleDB
 

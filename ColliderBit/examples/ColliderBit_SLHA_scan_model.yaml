@@ -194,13 +194,17 @@ Rules:
       nuisance_prof_simplexsize: 1e-5
       nuisance_prof_method: 6 #1
       nuisance_prof_verbosity: 0
+      # covariance_marg_convthres_abs: 0.05
+      # covariance_marg_convthres_rel: 0.05
+      # covariance_nsamples_start: 1000000
 
-  # Choose options for the LHC likelihood combination
+  # Options for how the combined LHC loglike should be calculated
   - capability: LHC_Combined_LogLike
     options:
+      write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses:
+      # skip_analyses: 
       #   - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
 
 

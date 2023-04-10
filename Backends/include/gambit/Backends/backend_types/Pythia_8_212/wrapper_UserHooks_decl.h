@@ -105,9 +105,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool canEnhanceEmission();
         
-                double enhanceFactor(::std::basic_string<char> arg_1);
+                double enhanceFactor(std::string arg_1);
         
-                double vetoProbability(::std::basic_string<char> arg_1);
+                double vetoProbability(std::string arg_1);
         
                 void setEnhancedEventWeight(double wt);
         

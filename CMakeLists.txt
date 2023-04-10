@@ -61,6 +61,7 @@ foreach(p
   CMP0022 # CMake 2.8.12
   CMP0025 # CMake 3.0
   CMP0042 # CMake 3.0
+  CMP0048 # Cmake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
   CMP0060 # CMake 3.16.2
@@ -196,8 +197,8 @@ if(NOT PYTHONLIBS_FOUND)
   set(itch "${itch};pybind11")
   endif()
 else()
-  set(MIN_pybind11_VERSION "2.5.0")
-  set(PREFERRED_pybind11_VERSION "2.5.0")
+  set(MIN_pybind11_VERSION "2.10.1")
+  set(PREFERRED_pybind11_VERSION "2.10.1")
   set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
   include_directories("${PYTHON_INCLUDE_DIRS}")
   find_package(pybind11 QUIET)
@@ -288,6 +289,7 @@ if(PERMIT_CXX17_CHECK)
 endif()
 if(COMPILER_SUPPORTS_CXX17)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+  set(GAMBIT_SUPPORTS_CXX17 TRUE)
 else()
   if(PERMIT_CXX17_CHECK)
     CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
@@ -295,15 +297,18 @@ else()
   CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
   if(COMPILER_SUPPORTS_CXX14)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+    set(GAMBIT_SUPPORTS_CXX14 TRUE)
   else()
     CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1y)
     CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
     if(COMPILER_SUPPORTS_CXX11)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+      set(GAMBIT_SUPPORTS_CXX11 TRUE)
     else()
       CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
       if(COMPILER_SUPPORTS_CXX0X)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+        set(GAMBIT_SUPPORTS_CXX0X TRUE)
       else()
         message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
       endif()
@@ -393,8 +398,8 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     else()
       execute_process(COMMAND ${BREW} --prefix libomp OUTPUT_VARIABLE BREW_LIBOMP_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
       if(NOT OPENMP_FOUND)
-        set(OpenMP_CXX_FLAGS "-Xclang -fopenmp")
-        set(OpenMP_C_FLAGS "-Xclang -fopenmp")
+        set(OpenMP_CXX_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
+        set(OpenMP_C_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
       endif()
       set(OpenMP_CXX_LIB_NAMES "omp")
       set(OpenMP_C_LIB_NAMES "omp")
@@ -405,7 +410,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     endif()
   endif()
 endif()
-if (OPENMP_FOUND)
+if (OPENMP_FOUND OR FOUND_BREW_OPENMP)
   message("-- OpenMP found successfully")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -675,19 +680,30 @@ set(GAMBIT_ALL_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:
 foreach(bit ${GAMBIT_BITS})
   add_subdirectory(${bit})
   set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
+  # Add dependencies that need to be built before any bit
+  foreach(dep ${MODULE_DEPENDENCIES})
+    add_dependencies(${bit} ${dep})
+  endforeach()
 endforeach()
 
-# If ColliderBit is in use, make the collider_harvest step a dependency of ColliderBit
+# If ColliderBit is in use, set various dependencies
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  # Make the collider_harvest step a dependency of ColliderBit
   add_dependencies(ColliderBit collider_harvest)
   # If RestFrames is in use, make it a dependency of ColliderBit
   if(NOT EXCLUDE_RESTFRAMES)
     add_dependencies(ColliderBit restframes)
   endif()
-  # If HepMC is in use, make it a dependency of ColliderBit
-  if(NOT EXCLUDE_HEPMC)
-    add_dependencies(ColliderBit hepmc)
+  # ColliderBit depends on HepMC
+  if(EXCLUDE_HEPMC)
+    message(FATAL_ERROR "\nColliderBit needs HepMC3. Either use -DWITH_HEPMC=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
+  add_dependencies(ColliderBit hepmc)
+  # ColliderBit depends on YODA
+  if(EXCLUDE_YODA)
+    message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(ColliderBit yoda)
 endif()
 
 # If SpecBit is in use, make flexiblesusy a dependency of SpecBit

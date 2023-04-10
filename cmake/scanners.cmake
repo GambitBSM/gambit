@@ -271,6 +271,7 @@ set(md5 "f94eb954d31aefac0bef14c0717adfa1")
 set(dl "https://github.com/farhanferoz/MultiNest/archive/4b3709c6d659adbd62c85e3e95ff7eeb6e6617af.tar.gz")
 set(dl "https://github.com/farhanferoz/MultiNest/archive/MultiNestv${ver}.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
+set(mn_subdir "${dir}/MultiNest_v${ver}")
 set(mnSO_LINK "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
 if (NOT LAPACK_STATIC)
   set(mnLAPACK "${LAPACK_LINKLIBS}")
@@ -289,14 +290,14 @@ if(NOT ditched_${name}_${ver})
     CONFIGURE_COMMAND sed ${dashi} -e "s#nested.o[[:space:]]*$#nested.o cwrapper.o#g"
                                    -e "s#-o[[:space:]]*\\(\\$\\)(LIBS)[[:space:]]*\\$@[[:space:]]*\\$^#-o \\$\\(LIBS\\)\\$@ \\$^ ${mnLAPACK}#g"
                                    -e "s#default:#.NOTPARALLEL:${nl}${nl}default:#"
-                                   <SOURCE_DIR>/MultiNest_v${ver}/Makefile
-              COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/MultiNest_v${ver}/Makefile <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp
-              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp > <SOURCE_DIR>/MultiNest_v${ver}/Makefile
-              COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp
+                                   ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E copy ${mn_subdir}/Makefile ${mn_subdir}/Makefile.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" ${mn_subdir}/Makefile.tmp > ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E remove ${mn_subdir}/Makefile.tmp
               COMMAND sed ${dashi} -e "s#function[[:space:]]*loglike_proto(Cube,n_dim,nPar,context)[[:space:]]*$#function loglike_proto(Cube,n_dim,nPar,context) bind(c)#g"
                                    -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
-                                   <SOURCE_DIR>/MultiNest_v${ver}/cwrapper.f90
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir MultiNest_v${ver} ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
+                                   ${mn_subdir}/cwrapper.f90
+    BUILD_COMMAND cd ${mn_subdir} && ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
@@ -309,6 +310,7 @@ set(lib "libnest3")
 set(md5 "ebaf960c348592a1b6e3a50b3794c357")
 set(dl "https://github.com/farhanferoz/MultiNest/archive/4b3709c6d659adbd62c85e3e95ff7eeb6e6617af.tar.gz")
 set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
+set(mn_subdir "${dir}/MultiNest_v${ver}")
 set(mnSO_LINK "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
 if (NOT LAPACK_STATIC)
   set(mnLAPACK "${LAPACK_LINKLIBS}")
@@ -324,24 +326,62 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND patch -N <SOURCE_DIR>/MultiNest_v${ver}/posterior.F90 -i ${PROJECT_SOURCE_DIR}/ScannerBit/patches/${name}/${ver}/posterior.F90.patch
     CONFIGURE_COMMAND sed ${dashi} -e "s#nested.o[[:space:]]*$#nested.o cwrapper.o#g"
                                    -e "s#-o[[:space:]]*\\(\\$\\)(LIBS)[[:space:]]*\\$@[[:space:]]*\\$^#-o \\$\\(LIBS\\)\\$@ \\$^ ${mnLAPACK}#g"
                                    -e "s#default:#.NOTPARALLEL:${nl}${nl}default:#"
-                                   <SOURCE_DIR>/MultiNest_v${ver}/Makefile
-              COMMAND ${CMAKE_COMMAND} -E copy <SOURCE_DIR>/MultiNest_v${ver}/Makefile <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp
-              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp > <SOURCE_DIR>/MultiNest_v${ver}/Makefile
-              COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/MultiNest_v${ver}/Makefile.tmp
+                                   ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E copy ${mn_subdir}/Makefile ${mn_subdir}/Makefile.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" ${mn_subdir}/Makefile.tmp > ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E remove ${mn_subdir}/Makefile.tmp
               COMMAND sed ${dashi} -e "s#function[[:space:]]*loglike_proto(Cube,n_dim,nPar,context)[[:space:]]*$#function loglike_proto(Cube,n_dim,nPar,context) bind(c)#g"
                                    -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
-                                   <SOURCE_DIR>/MultiNest_v${ver}/cwrapper.f90
-    BUILD_COMMAND ${CMAKE_COMMAND} -E chdir MultiNest_v${ver} ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
+                                   ${mn_subdir}/cwrapper.f90
+    BUILD_COMMAND cd ${mn_subdir} && ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
+    INSTALL_COMMAND ""
+  )
+  add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+
+# MultiNest
+set(name "multinest")
+set(ver "3.12")
+set(lib "libnest3")
+set(md5 "1a7af4d9c73f16b0038876c3857c5ff8")
+set(dl "https://github.com/farhanferoz/MultiNest/archive/cc616c17ed440fbff8d35937997c86256ed4d744.tar.gz")
+set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
+set(mn_subdir "${dir}/MultiNest_v${ver}")
+set(mnSO_LINK "${CMAKE_Fortran_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS}")
+if (NOT LAPACK_STATIC)
+  set(mnLAPACK "${LAPACK_LINKLIBS}")
+endif()
+if(MPI_Fortran_FOUND)
+  set(mnFFLAGS "${BACKEND_Fortran_FLAGS_PLUS_MPI}")
+else()
+  set(mnFFLAGS "${BACKEND_Fortran_FLAGS}")
+endif()
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND sed ${dashi} -e "s#nested.o[[:space:]]*$#nested.o cwrapper.o#g"
+                                   -e "s#-o[[:space:]]*\\(\\$\\)(LIBS)[[:space:]]*\\$@[[:space:]]*\\$^#-o \\$\\(LIBS\\)\\$@ \\$^ ${mnLAPACK}#g"
+                                   -e "s#default:#.NOTPARALLEL:${nl}${nl}default:#"
+                                   ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E copy ${mn_subdir}/Makefile ${mn_subdir}/Makefile.tmp
+              COMMAND awk "{gsub(/${nl}/,${true_nl})}{print}" ${mn_subdir}/Makefile.tmp > ${mn_subdir}/Makefile
+              COMMAND ${CMAKE_COMMAND} -E remove ${mn_subdir}/Makefile.tmp
+              COMMAND sed ${dashi} -e "s#function[[:space:]]*loglike_proto(Cube,n_dim,nPar,context)[[:space:]]*$#function loglike_proto(Cube,n_dim,nPar,context) bind(c)#g"
+                                   -e "s#subroutine[[:space:]]*dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context)[[:space:]]*$#subroutine dumper_proto(nSamples,nlive,nPar,physLive,posterior,paramConstr,maxLogLike,logZ,INSlogZ,logZerr,context) bind(c)#g"
+                                   ${mn_subdir}/cwrapper.f90
+    BUILD_COMMAND cd ${mn_subdir} && ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${mnFFLAGS} LINKLIB=${mnSO_LINK} LIBS=${dir}/
     INSTALL_COMMAND ""
   )
   add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("scanner" ${name} ${ver})
 endif()
-
 
 # GreAT
 set(name "great")
@@ -387,6 +427,7 @@ if(NOT ditched_${name}_${ver})
     DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
+    UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(Minuit2 PROPERTIES OUTPUT_NAME Minuit2 SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
     CMAKE_COMMAND ${CMAKE_COMMAND} ..
     CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DBUILD_SHARED_LIBS=1 -Dminuit2_mpi=${minuit2_MPI} -Dminuit2_openmp=0 -Dminuit2_omp=0
     BUILD_COMMAND ${MAKE_PARALLEL}

@@ -67,9 +67,9 @@ namespace Gambit
         BOOST_PP_SEQ_FOR_EACH(TYPE_CASES, _, PRINTABLE_TYPES)
         #undef TYPE_CASES
         {
-          std::ostringstream err;                               
-          err << "Did not recognise retrieved type for data label '"<<in_label<<"'! This may indicate a bug in the Reader class you are using, please report it."; 
-          printer_error().raise(LOCAL_INFO,err.str());         
+          std::ostringstream err;
+          err << "Did not recognise retrieved type for data label '"<<in_label<<"'! This may indicate a bug in the Reader class you are using, please report it.";
+          printer_error().raise(LOCAL_INFO,err.str());
         }
         return valid;
      }
@@ -83,7 +83,7 @@ namespace Gambit
         bool result = false;
         std::istringstream iss(fulllabel);
         std::string capability;
-        std::string rest; 
+        std::string rest;
         iss >> capability;
         iss >> rest;
         if(!iss)
@@ -115,7 +115,7 @@ namespace Gambit
                   labelroot.erase(fulllabel.size() - out.size() - 2, out.size()+2);
                 } else { result = false; }
              } else { result = false; }
-          } else { result = false; }        
+          } else { result = false; }
         }
         return result;
      }
@@ -131,7 +131,7 @@ namespace Gambit
         bool result = false;
         std::istringstream iss(fulllabel);
         std::string capability;
-        std::string rest; 
+        std::string rest;
         iss >> capability;
         iss >> rest;
         iss >> outtag; // Last element is that spectrum 'tag', e.g. dimensionless, Pole_Mixing, etc.
@@ -149,7 +149,7 @@ namespace Gambit
              // Check 'rest', should be something like @SpecBit::get_MSSM_spectrum_as_map::~u_(6,6)
              rest.erase(0,1); // cut off the first character (@, in all potentially matching cases)
              std::vector<str> split_rest = Utils::delimiterSplit(rest, "::");
-             if(    Utils::iequals(split_rest[0],req_module,case_sensitive) 
+             if(    Utils::iequals(split_rest[0],req_module,case_sensitive)
                 and Utils::iequals(split_rest[1],req_function,case_sensitive)
                 and split_rest.size()==3)
              {
@@ -162,7 +162,7 @@ namespace Gambit
                std::size_t offset = outname.size() + outtag.size() + 3; // Names plus :: plus space
                labelroot.erase(fulllabel.size() - offset, offset);
              } else { result = false; }
-          } else { result = false; }        
+          } else { result = false; }
         }
         return result;
      }

@@ -38,9 +38,9 @@ namespace Gambit
   {
 
     /// A nested function that reads in Les Houches Event files and converts them to HEPUtils::Event format
-    void getLHEvent(HEPUtils::Event& result)
+    void getLHEvent_HEPUtils(HEPUtils::Event& result)
     {
-      using namespace Pipes::getLHEvent;
+      using namespace Pipes::getLHEvent_HEPUtils;
 
       result.clear();
 

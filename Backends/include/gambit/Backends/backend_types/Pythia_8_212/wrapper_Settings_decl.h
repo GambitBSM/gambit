@@ -31,149 +31,149 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 void initPtr(Pythia8::Info* infoPtrIn);
         
-                bool init(::std::basic_string<char> startFile, bool append, ::std::basic_ostream<char>& os);
+                bool init(std::string startFile, bool append, std::ostream& os);
         
-                bool init(::std::basic_string<char> startFile, bool append);
+                bool init(std::string startFile, bool append);
         
-                bool init(::std::basic_string<char> startFile);
+                bool init(std::string startFile);
         
                 bool init();
         
-                bool reInit(::std::basic_string<char> startFile, ::std::basic_ostream<char>& os);
+                bool reInit(std::string startFile, std::ostream& os);
         
-                bool reInit(::std::basic_string<char> startFile);
+                bool reInit(std::string startFile);
         
                 bool reInit();
         
-                bool readString(::std::basic_string<char> line, bool warn, ::std::basic_ostream<char>& os);
+                bool readString(std::string line, bool warn, std::ostream& os);
         
-                bool readString(::std::basic_string<char> line, bool warn);
+                bool readString(std::string line, bool warn);
         
-                bool readString(::std::basic_string<char> line);
+                bool readString(std::string line);
         
                 bool readingFailed();
         
-                bool writeFile(::std::basic_string<char> toFile, bool writeAll);
+                bool writeFile(std::string toFile, bool writeAll);
         
-                bool writeFile(::std::basic_string<char> toFile);
+                bool writeFile(std::string toFile);
         
-                bool writeFile(::std::basic_ostream<char>& os, bool writeAll);
+                bool writeFile(std::ostream& os, bool writeAll);
         
-                bool writeFile(::std::basic_ostream<char>& os);
+                bool writeFile(std::ostream& os);
         
                 bool writeFile();
         
-                void listAll(::std::basic_ostream<char>& os);
+                void listAll(std::ostream& os);
         
                 void listAll();
         
-                void listChanged(::std::basic_ostream<char>& os);
+                void listChanged(std::ostream& os);
         
                 void listChanged();
         
-                void list(::std::basic_string<char> match, ::std::basic_ostream<char>& os);
+                void list(std::string match, std::ostream& os);
         
-                void list(::std::basic_string<char> match);
+                void list(std::string match);
         
-                ::std::basic_string<char> output(::std::basic_string<char> keyIn, bool fullLine);
+                ::std::string output(std::string keyIn, bool fullLine);
         
-                ::std::basic_string<char> output(::std::basic_string<char> keyIn);
+                ::std::string output(std::string keyIn);
         
                 void resetAll();
         
-                bool isFlag(::std::basic_string<char> keyIn);
+                bool isFlag(std::string keyIn);
         
-                bool isMode(::std::basic_string<char> keyIn);
+                bool isMode(std::string keyIn);
         
-                bool isParm(::std::basic_string<char> keyIn);
+                bool isParm(std::string keyIn);
         
-                bool isWord(::std::basic_string<char> keyIn);
+                bool isWord(std::string keyIn);
         
-                bool isFVec(::std::basic_string<char> keyIn);
+                bool isFVec(std::string keyIn);
         
-                bool isMVec(::std::basic_string<char> keyIn);
+                bool isMVec(std::string keyIn);
         
-                bool isPVec(::std::basic_string<char> keyIn);
+                bool isPVec(std::string keyIn);
         
-                void addFlag(::std::basic_string<char> keyIn, bool defaultIn);
+                void addFlag(std::string keyIn, bool defaultIn);
         
-                void addMode(::std::basic_string<char> keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn, bool optOnlyIn);
+                void addMode(std::string keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn, bool optOnlyIn);
         
-                void addMode(::std::basic_string<char> keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
+                void addMode(std::string keyIn, int defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
         
-                void addParm(::std::basic_string<char> keyIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
+                void addParm(std::string keyIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
         
-                void addWord(::std::basic_string<char> keyIn, ::std::basic_string<char> defaultIn);
+                void addWord(std::string keyIn, std::string defaultIn);
         
-                void addFVec(::std::basic_string<char> keyIn, ::std::vector<bool> defaultIn);
+                void addFVec(std::string keyIn, std::vector<bool> defaultIn);
         
-                void addMVec(::std::basic_string<char> keyIn, ::std::vector<int> defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
+                void addMVec(std::string keyIn, std::vector<int> defaultIn, bool hasMinIn, bool hasMaxIn, int minIn, int maxIn);
         
-                void addPVec(::std::basic_string<char> keyIn, ::std::vector<double> defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
+                void addPVec(std::string keyIn, std::vector<double> defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
         
-                bool flag(::std::basic_string<char> keyIn);
+                bool flag(std::string keyIn);
         
-                int mode(::std::basic_string<char> keyIn);
+                int mode(std::string keyIn);
         
-                double parm(::std::basic_string<char> keyIn);
+                double parm(std::string keyIn);
         
-                ::std::basic_string<char> word(::std::basic_string<char> keyIn);
+                ::std::string word(std::string keyIn);
         
-                ::std::vector<bool> fvec(::std::basic_string<char> keyIn);
+                ::std::vector<bool> fvec(std::string keyIn);
         
-                ::std::vector<int> mvec(::std::basic_string<char> keyIn);
+                ::std::vector<int> mvec(std::string keyIn);
         
-                ::std::vector<double> pvec(::std::basic_string<char> keyIn);
+                ::std::vector<double> pvec(std::string keyIn);
         
-                bool flagDefault(::std::basic_string<char> keyIn);
+                bool flagDefault(std::string keyIn);
         
-                int modeDefault(::std::basic_string<char> keyIn);
+                int modeDefault(std::string keyIn);
         
-                double parmDefault(::std::basic_string<char> keyIn);
+                double parmDefault(std::string keyIn);
         
-                ::std::basic_string<char> wordDefault(::std::basic_string<char> keyIn);
+                ::std::string wordDefault(std::string keyIn);
         
-                ::std::vector<bool> fvecDefault(::std::basic_string<char> keyIn);
+                ::std::vector<bool> fvecDefault(std::string keyIn);
         
-                ::std::vector<int> mvecDefault(::std::basic_string<char> keyIn);
+                ::std::vector<int> mvecDefault(std::string keyIn);
         
-                ::std::vector<double> pvecDefault(::std::basic_string<char> keyIn);
+                ::std::vector<double> pvecDefault(std::string keyIn);
         
-                void flag(::std::basic_string<char> keyIn, bool nowIn);
+                void flag(std::string keyIn, bool nowIn);
         
-                bool mode(::std::basic_string<char> keyIn, int nowIn);
+                bool mode(std::string keyIn, int nowIn);
         
-                void parm(::std::basic_string<char> keyIn, double nowIn);
+                void parm(std::string keyIn, double nowIn);
         
-                void word(::std::basic_string<char> keyIn, ::std::basic_string<char> nowIn);
+                void word(std::string keyIn, std::string nowIn);
         
-                void fvec(::std::basic_string<char> keyIn, ::std::vector<bool> nowIn);
+                void fvec(std::string keyIn, std::vector<bool> nowIn);
         
-                void mvec(::std::basic_string<char> keyIn, ::std::vector<int> nowIn);
+                void mvec(std::string keyIn, std::vector<int> nowIn);
         
-                void pvec(::std::basic_string<char> keyIn, ::std::vector<double> nowIn);
+                void pvec(std::string keyIn, std::vector<double> nowIn);
         
-                void forceMode(::std::basic_string<char> keyIn, int nowIn);
+                void forceMode(std::string keyIn, int nowIn);
         
-                void forceParm(::std::basic_string<char> keyIn, double nowIn);
+                void forceParm(std::string keyIn, double nowIn);
         
-                void forceMVec(::std::basic_string<char> keyIn, ::std::vector<int> nowIn);
+                void forceMVec(std::string keyIn, std::vector<int> nowIn);
         
-                void forcePVec(::std::basic_string<char> keyIn, ::std::vector<double> nowIn);
+                void forcePVec(std::string keyIn, std::vector<double> nowIn);
         
-                void resetFlag(::std::basic_string<char> keyIn);
+                void resetFlag(std::string keyIn);
         
-                void resetMode(::std::basic_string<char> keyIn);
+                void resetMode(std::string keyIn);
         
-                void resetParm(::std::basic_string<char> keyIn);
+                void resetParm(std::string keyIn);
         
-                void resetWord(::std::basic_string<char> keyIn);
+                void resetWord(std::string keyIn);
         
-                void resetFVec(::std::basic_string<char> keyIn);
+                void resetFVec(std::string keyIn);
         
-                void resetMVec(::std::basic_string<char> keyIn);
+                void resetMVec(std::string keyIn);
         
-                void resetPVec(::std::basic_string<char> keyIn);
+                void resetPVec(std::string keyIn);
         
                 bool getIsInit();
         

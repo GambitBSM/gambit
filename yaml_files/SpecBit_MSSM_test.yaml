@@ -22,8 +22,7 @@ Parameters:
   # Choose here the model and parameters to be tested, as well as the equivalent function below
 
   CMSSM:
-    M0:
-      range: [1500, 1600]
+    M0: 1578.01
     M12: 1001.79
     A0: -4550.25
     SignMu: 1
@@ -116,23 +115,25 @@ Priors:
 
 Printer:
 
-  printer: ascii
-  options:
-    output_file: "SpecBit_test.txt"
+  printer: cout
+
+  # printer: ascii
+  # options:
+  #   output_file: "SpecBit_MSSM_test.txt"
 
 
 Scanner:
 
   # Use trivial scanner toy_mcmc with the minumum number of points
 
-  use_scanner: toy_mcmc
+  use_scanner: random
 
   scanners:
-    toy_mcmc:
-      plugin: toy_mcmc
-      point_number: 2
-      output_file:  output
-      like:  Likelihood
+
+    random:
+      plugin: random
+      point_number: 1
+      like:  LogLike
 
 
 ObsLikes:
@@ -142,19 +143,19 @@ ObsLikes:
   - purpose:      Test
     capability:   run_MSSMspectrum_test
     type:         bool
-    #function:     MSSMspectrum_test
+    # function:     MSSMspectrum_test
     function:     SPheno_MSSM_test
 
   # Vacuum Stability Likelihood
-  - capability:   VS_likelihood
-    purpose:      LogLike
+  - purpose:      LogLike
+    capability:   VS_likelihood
     sub_capabilities:
       global: [quantum]
       nearest: [quantum]
 
   # Print all vevacious results
-  - capability:   VS_results
-    purpose:      Obs
+  - purpose:      Observable
+    capability:   VS_results
 
   - purpose:    Observable
     capability: SLHA1_violation
@@ -169,9 +170,9 @@ Rules:
   # i.e. the function specific to the model and spectrum calculator
   - capability:    unimproved_MSSM_spectrum
     type:         Spectrum
-    #function:     get_CMSSM_spectrum_FS
-    #function:     get_MSSMatMGUT_spectrum_FS
-    #function:     get_MSSMatQ_spectrum_FS
+    # function:     get_CMSSM_spectrum_FS
+    # function:     get_MSSMatMGUT_spectrum_FS
+    # function:     get_MSSMatQ_spectrum_FS
     function:     get_MSSM_spectrum_SPheno
     options:
     # FlexibleSUSY options
@@ -203,9 +204,9 @@ Rules:
     # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
     # Choose to use the difference between the precision and spectrum generator predictions, along
     # with the precision error estimate, to estimate the theoretical error on the prediction.
-    options:
-      Higgs_predictions_source: 1
-      Higgs_predictions_error_method: 4
+    # options:
+    #   Higgs_predictions_source: 1
+    #   Higgs_predictions_error_method: 4
 
   # Make sure to use the next-to-latest version (2.11.3) of FeynHiggs for things that need it,
   # as the latest version (2.12.0) is buggy.
@@ -230,10 +231,10 @@ Rules:
   #  backends:
   #  - {backend: FeynHiggs, version: 2.11.3}
 
-  # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
-  - capability: prec_mh
-    function: FeynHiggs_HiggsMass
-    #function: SUSYHD_HiggsMass
+  # # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
+  # - capability: prec_mh
+  #   function: FeynHiggs_HiggsMass
+  #   #function: SUSYHD_HiggsMass
 
   # pass settings to vevacious
   - capability: initialize_vevacious
@@ -264,7 +265,7 @@ Logger:
 KeyValues:
 
   # Choose the output path
-  default_output_path: "runs/SpecBit_tests"
+  default_output_path: "runs/SpecBit_MSSM_test"
 
   # Choose to use model spectific funtions during dependency resolution
   dependency_resolution:
@@ -273,3 +274,5 @@ KeyValues:
   # Choose a lower cutoff for the likelihood
   likelihood:
     model_invalid_for_lnlike_below: -1e6
+
+  debug: true

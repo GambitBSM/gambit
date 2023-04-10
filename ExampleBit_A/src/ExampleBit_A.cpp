@@ -505,53 +505,6 @@ namespace Gambit
     }
 
 
-    /// Example of using a BOSSed version of Pythia
-    void bossed_pythia_test_function(bool &result)
-    {
-      using namespace Pipes::bossed_pythia_test_function;
-
-      cout << "Testing Pythia backend" << endl;
-      cout << "======================" << endl;
-
-      static str default_doc_path = GAMBIT_DIR "/Backends/installed/Pythia/" +
-                                    Backends::backendInfo().default_version("Pythia") +
-                                    "/share/Pythia8/xmldoc/";
-
-      Pythia_default::Pythia8::Pythia pythia(default_doc_path, false);
-
-      pythia.readString("Beams:eCM = 8000.");
-      pythia.readString("HardQCD:all = on");
-      pythia.readString("PhaseSpace:pTHatMin = 20.");
-
-      pythia.readString("Next:numberShowInfo = 0");
-      pythia.readString("Next:numberShowProcess = 0");
-      pythia.readString("Next:numberShowEvent = 0");
-
-      pythia.init();
-
-      Pythia_default::Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
-      // Begin event loop. Generate event. Skip if error. List first one.
-      for (int iEvent = 0; iEvent < 2; ++iEvent) {
-        if (!pythia.next()) continue;
-        // Find number of all final charged particles and fill histogram.
-        int nCharged = 0;
-        for (int i = 0; i < pythia.event.size(); ++i)
-          if (pythia.event[i].isFinal() && pythia.event[i].isCharged())
-            ++nCharged;
-        mult.fill( nCharged );
-        cout << "Event: " << iEvent << "   nCharged: " << nCharged << endl;
-      // End of event loop. Statistics. Histogram. Done.
-      }
-
-      pythia.stat();
-
-      cout << "Done testing Pythia backend" << endl;
-      cout << "===========================" << endl;
-
-      result = true;
-    }
-
-
     /// Tester for C/C++ backend array interfaces
     void Backend_array_test(double &result)
     {

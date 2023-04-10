@@ -3,6 +3,48 @@ GAMBIT Revision History
 Full details can be found in the git log.  Only a summary of the
 changes in each new version is given here.
 
+v2.4.0
+Feature release
+- Support for EWMSSM plus gravitino
+- Support for ATLAS full likelihoods
+- Support for Vector DM Simplified models
+- Added new routines to use SM measurements from LHC experiments
+- Added new routines to include DM indirect detection constraints with antiprotons
+- Several new LHC searches implemented in ColliderBit
+- Extended DecayBit with electroweakino decays to gravitino final states
+- Added new backend Rivet 3.1.5
+- Added new backend Contur 2.1.1
+- Added new backend ATLAS FullLikes, which uses pyhf
+- Added new backend simple_xs
+- Added new backend pbarlike 1.0
+- Added support for ROOT-less HepLike 2.0
+- Added support for DarkSUSY 6.4.0
+- Added support for HepMC 3.2.5
+- Added support for YODA 1.9.7
+- Improved support for OSX
+- Increase supported pybind11 version to 2.10.1
+- Rearranged MSSM model tree
+- Various BOSS updates
+- Various GUM updates
+- Various bugfixes
+
+v2.3.1
+Bugfix release
+- Support for DDCalc v2.3.0 to fix implementation of LZ likelihood
+- Fixed bug on Minuit2 interface
+- Fixed Capt'n General checksum
+
+v2.3.0
+Feature release
+- Added routines for DM Simplified Models with Vector Mediators
+- Added yaml metadata entry to data output
+- Added optional scanID to data output
+- Added support for HDF5 versions >= 1.12
+- Dependency resolver now identifies unused rules in a scan
+- Updated Collider interpolation to include dijet searches
+- Removed use of master/slave terminology
+- Various bugfixes for building on specific systems
+
 v2.2.1
 Bugfix release
 - Fixed bug in spectrum contents

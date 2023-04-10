@@ -135,39 +135,39 @@ namespace Gambit
     void SuperIso_RKstar_0045_11(double &result)
     {
       using namespace Pipes::SuperIso_RKstar_0045_11;
-      if (flav_debug) cout<<"Starting SuperIso_RKstar_0045_11"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_RKstar_0045_11"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RKstar(&param,0.045,1.1);
+      result=BEreq::SuperIso_RKstar_computation(&param,0.045,1.1);
 
       if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_RKstar_0045_11"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RKstar_0045_11"<< std::endl;
     }
 
     /// RK* in intermediate q^2
     void SuperIso_RKstar_11_60(double &result)
     {
       using namespace Pipes::SuperIso_RKstar_11_60;
-      if (flav_debug) cout<<"Starting SuperIso_RKstar_11_60"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_RKstar_11_60"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RKstar(&param,1.1,6.0);
+      result=BEreq::SuperIso_RKstar_computation(&param,1.1,6.0);
 
       if (flav_debug) printf("RK*_intermq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_RKstar_11_60"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RKstar_11_60"<< std::endl;
     }
 
     /// RK between 1 and 6 GeV^2
     void SuperIso_RK(double &result)
     {
       using namespace Pipes::SuperIso_RK;
-      if (flav_debug) cout<<"Starting SuperIso_RK"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_RK"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RK(&param,1.0,6.0);
+      result=BEreq::SuperIso_RK_computation(&param,1.0,6.0);
 
       if (flav_debug) printf("RK=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_RK"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RK"<< std::endl;
     }
 
     /// SuperIso prediction for B -> K tau tau
@@ -254,7 +254,7 @@ namespace Gambit
       const double mW = sminputs.mW;
       const double mZ = sminputs.mZ;
       const double SW = sqrt(1 - pow(mW/mZ,2));
-      const vector<double> ml = {0, mMu, mTau};
+      const std::vector<double> ml = {0, mMu, mTau};
       const double A      = sminputs.CKM.A;
       const double lambda = sminputs.CKM.lambda;
       const double Vts = -A*lambda*lambda;
@@ -308,8 +308,8 @@ namespace Gambit
       const double b_ktaumu = 10.0;
       const double a_kmue = 15.4;
       const double b_kmue = 15.7;
-      const vector<double> akll = {a_kmue, a_ktaumu};
-      const vector<double> bkll = {b_kmue, b_ktaumu};
+      const std::vector<double> akll = {a_kmue, a_ktaumu};
+      const std::vector<double> bkll = {b_kmue, b_ktaumu};
 
       std::complex<double> C9 = THDM_DeltaC_NP(9, l, lp, sminputs, spectrum);
       std::complex<double> C9p = THDM_DeltaC_NP(11, l, lp, sminputs, spectrum);
@@ -348,7 +348,7 @@ namespace Gambit
     void SuperIso_prediction_BRBKtautau(double &result)
     {
       using namespace Pipes::SuperIso_prediction_BRBKtautau;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_BRBKtautau"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_BRBKtautau"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       double mB = 5.27926;
@@ -359,72 +359,72 @@ namespace Gambit
       result=BEreq::BRBKtautau_CONV(&param,byVal(Q2min),byVal(Q2max));
 
       if (flav_debug) printf("BR(B=->K+ tau tau)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_BRBKtautau"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_BRBKtautau"<< std::endl;
     }
 
     /// 2-to-3-body decay ratio for semileptonic K and pi decays
     void SuperIso_prediction_Rmu23(double &result)
     {
       using namespace Pipes::SuperIso_prediction_Rmu23;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_Rmu23"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_Rmu23"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result = BEreq::Rmu23(&param);
 
       if (flav_debug) printf("Rmu23=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_Rmu23"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_Rmu23"<< std::endl;
     }
 
     /// Delta_0 (CP-averaged isospin asymmetry of B -> K* gamma)
     void SuperIso_prediction_delta0(double &result)
     {
       using namespace Pipes::SuperIso_prediction_delta0;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_delta0"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_delta0"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::modified_delta0(&param);
 
       if (flav_debug) printf("Delta0(B->K* gamma)=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_delta0"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_delta0"<< std::endl;
     }
 
     /// Zero crossing of the forward-backward asymmetry of B -> X_s mu mu
     void SuperIso_prediction_A_BXsmumu_zero(double &result)
     {
       using namespace Pipes::SuperIso_prediction_A_BXsmumu_zero;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_A_BXsmumu_zero"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_A_BXsmumu_zero"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::A_BXsmumu_zero(&param);
 
       if (flav_debug) printf("AFB(B->Xs mu mu)_zero=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_A_BXsmumu_zero"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_A_BXsmumu_zero"<< std::endl;
     }
 
     /// Inclusive branching fraction B -> X_s tau tau at high q^2
     void SuperIso_prediction_BRBXstautau_highq2(double &result)
     {
       using namespace Pipes::SuperIso_prediction_BRBXstautau_highq2;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_BRBXstautau_highq2"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_BRBXstautau_highq2"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::BRBXstautau_highq2(&param);
 
       if (flav_debug) printf("BR(B->Xs tau tau)_highq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_BRBXstautau_highq2"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_BRBXstautau_highq2"<< std::endl;
     }
 
     /// Forward-backward asymmetry of B -> X_s tau tau at high q^2
     void SuperIso_prediction_A_BXstautau_highq2(double &result)
     {
       using namespace Pipes::SuperIso_prediction_A_BXstautau_highq2;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_A_BXstautau_highq2"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_A_BXstautau_highq2"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::A_BXstautau_highq2(&param);
 
       if (flav_debug) printf("AFB(B->Xs tau tau)_highq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_A_BXstautau_highq2"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_A_BXstautau_highq2"<< std::endl;
     }
 
     /// RK* for RHN, using same approximations as RK, low q^2
@@ -436,7 +436,7 @@ namespace Gambit
       std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
       double mt = *Param["mT"];
 
-      if (flav_debug) cout << "Starting RHN_RKstar_0045_11" << endl;
+      if (flav_debug) std::cout << "Starting RHN_RKstar_0045_11" << std::endl;
 
       const double mW = sminputs.mW;
       const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
@@ -458,8 +458,8 @@ namespace Gambit
       result =  std::norm(C10_SM + C10_mu) + std::norm(C9_SM + C9_mu);
       result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
 
-      if (flav_debug) cout << "RK = " << result << endl;
-      if (flav_debug) cout << "Finished RHN_RKstar_0045_11" << endl;
+      if (flav_debug) std::cout << "RK = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished RHN_RKstar_0045_11" << std::endl;
     }
 
     /// RK* for RHN, using same approximations as RK, intermediate q^2
@@ -471,7 +471,7 @@ namespace Gambit
       std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
       double mt = *Param["mT"];
 
-      if (flav_debug) cout << "Starting RHN_RKstar_11_60" << endl;
+      if (flav_debug) std::cout << "Starting RHN_RKstar_11_60" << std::endl;
 
       const double mW = sminputs.mW;
       const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
@@ -493,8 +493,8 @@ namespace Gambit
       result =  std::norm(C10_SM + C10_mu) + std::norm(C9_SM + C9_mu);
       result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
 
-      if (flav_debug) cout << "RK = " << result << endl;
-      if (flav_debug) cout << "Finished RHN_RKstar_11_60" << endl;
+      if (flav_debug) std::cout << "RK = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished RHN_RKstar_11_60" << std::endl;
     }
 
     /// RK for RHN
@@ -506,7 +506,7 @@ namespace Gambit
       std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
       double mt = *Param["mT"];
 
-      if (flav_debug) cout << "Starting RHN_RK" << endl;
+      if (flav_debug) std::cout << "Starting RHN_RK" << std::endl;
 
       const double mW = sminputs.mW;
       const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
@@ -528,21 +528,21 @@ namespace Gambit
       result =  std::norm(C10_SM + C10_mu) + std::norm(C9_SM + C9_mu);
       result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
 
-      if (flav_debug) cout << "RK = " << result << endl;
-      if (flav_debug) cout << "Finished RHN_RK" << endl;
+      if (flav_debug) std::cout << "RK = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished RHN_RK" << std::endl;
     }
 
     /// Isospin asymmetry of B-> K* mu mu
     void SuperIso_prediction_AI_BKstarmumu(double &result)
     {
       using namespace Pipes::SuperIso_prediction_AI_BKstarmumu;
-      if (flav_debug) cout<<"Starting SuperIso_prediction_AI_BKstarmumu"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_AI_BKstarmumu"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::modified_AI_BKstarmumu(&param);
 
       if (flav_debug) printf("A_I(B->K* mu mu)_lowq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_AI_BKstarmumu"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_AI_BKstarmumu"<< std::endl;
     }
 
     /// Zero crossing of isospin asymmetry of B-> K* mu mu
@@ -550,13 +550,13 @@ namespace Gambit
     {
       using namespace Pipes::SuperIso_prediction_AI_BKstarmumu_zero;
 
-      if (flav_debug) cout<<"Starting SuperIso_prediction_AI_BKstarmumu_zero"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_prediction_AI_BKstarmumu_zero"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
       result=BEreq::modified_AI_BKstarmumu_zero(&param);
 
       if (flav_debug) printf("A_I(B->K* mu mu)_zero=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<< std::endl;
     }
 
     ///These functions extract observables from a FeynHiggs flavour result
@@ -622,9 +622,9 @@ namespace Gambit
       }
 
      theory[0] = *Dep::Bs2mutau;
-     if(flav_debug) cout << "Bs -> mu tau = " << theory[0] << endl;
+     if(flav_debug) std::cout << "Bs -> mu tau = " << theory[0] << std::endl;
      theory[1] = *Dep::Bs2tautau;
-     if(flav_debug) cout << "Bs -> tau+ tau- = " << theory[1] << endl;
+     if(flav_debug) std::cout << "Bs -> tau+ tau- = " << theory[1] << std::endl;
 
      result = 0;
      for (int i = 0; i < 2; ++i)
@@ -667,12 +667,12 @@ namespace Gambit
       }
 
      theory[0] = *Dep::B2Ktaumu;
-     if(flav_debug) cout << "B ->K tau mu = " << theory[0] << endl;
+     if(flav_debug) std::cout << "B ->K tau mu = " << theory[0] << std::endl;
      theory[1] = *Dep::B2Kmue;
-     if(flav_debug) cout << "B ->K mu e = " << theory[1] << endl;
+     if(flav_debug) std::cout << "B ->K mu e = " << theory[1] << std::endl;
      theory[2] = *Dep::B2Ktautau;
      // theory[2] = Dep::B2Ktautau->central_values.at("BKtautauBr");
-     if(flav_debug) cout << "B ->K tau tau = " << theory[2] << endl;
+     if(flav_debug) std::cout << "B ->K tau tau = " << theory[2] << std::endl;
 
      result = 0;
      for (int i = 0; i < 3; ++i)
@@ -714,9 +714,9 @@ namespace Gambit
       }
 
      theory[0] = *Dep::RKnunu;
-     if(flav_debug) cout << "RKnunu = " << theory[0] << endl;
+     if(flav_debug) std::cout << "RKnunu = " << theory[0] << std::endl;
      theory[1] = *Dep::RKstarnunu;
-     if(flav_debug) cout << "RKstarnunu = " << theory[1] << endl;
+     if(flav_debug) std::cout << "RKstarnunu = " << theory[1] << std::endl;
 
      result = 0;
      for (int i = 0; i < 2; ++i)
@@ -739,7 +739,7 @@ namespace Gambit
 
       if (first)
       {
-        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
         nDimLikelihood.Read();
         update_obs_list(obs_list, nDimLikelihood.GetObservables());
         first = false;
@@ -767,7 +767,7 @@ namespace Gambit
       static bool first = true;
       if (first)
       {
-        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
         nDimLikelihood.Read();
         update_obs_list(obs_list, nDimLikelihood.GetObservables());
         first = false;
@@ -795,7 +795,7 @@ namespace Gambit
       static bool first = true;
       if (first)
       {
-        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
         nDimLikelihood.Read();
         update_obs_list(obs_list, nDimLikelihood.GetObservables());
         first = false;
@@ -840,7 +840,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimGaussian[nDimGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimGaussian[0].GetObservables());
@@ -880,7 +880,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimBifurGaussian.push_back(HepLike_default::HL_nDimBifurGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimBifurGaussian[nDimBifurGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
@@ -924,7 +924,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimBifurGaussian.push_back(HepLike_default::HL_nDimBifurGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimBifurGaussian[nDimBifurGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
@@ -964,7 +964,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimBifurGaussian.push_back(HepLike_default::HL_nDimBifurGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimBifurGaussian[nDimBifurGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
@@ -1010,7 +1010,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimBifurGaussian.push_back(HepLike_default::HL_nDimBifurGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimBifurGaussian[nDimBifurGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimBifurGaussian[0].GetObservables());
@@ -1060,7 +1060,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimGaussian[nDimGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimGaussian[0].GetObservables());
@@ -1097,7 +1097,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + "_CPA.yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + "_CPA.yaml" << std::endl;
           nDimGaussian[nDimGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimGaussian[0].GetObservables());
@@ -1138,7 +1138,7 @@ namespace Gambit
       {
         for (auto pred : binned_prediction)
         {
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimGaussian.Read();
         }
         first = false;
@@ -1183,7 +1183,7 @@ namespace Gambit
         for (auto pred : binned_prediction)
         {
           nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile + pred.first + ".yaml" << std::endl;
           nDimGaussian[nDimGaussian.size()-1].Read();
         }
         update_obs_list(obs_list, nDimGaussian[0].GetObservables());
@@ -1221,7 +1221,7 @@ namespace Gambit
         for(auto pred : binned_prediction)
         {
           BifurGaussian.push_back(HepLike_default::HL_BifurGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << std::endl;
           BifurGaussian[BifurGaussian.size()-1].Read();
         }
         first = false;
@@ -1258,7 +1258,7 @@ namespace Gambit
         for(auto pred : binned_prediction)
         {
           Gaussian.push_back(HepLike_default::HL_Gaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << inputfile + pred.first + ".yaml" << std::endl;
           Gaussian[Gaussian.size()-1].Read();
         }
         first = false;
@@ -1295,7 +1295,7 @@ namespace Gambit
         for(auto pred : binned_prediction)
         {
           BifurGaussian.push_back(HepLike_default::HL_BifurGaussian(inputfile + pred.first + ".yaml"));
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << inputfile + pred.first + ".yaml" << endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " << inputfile + pred.first + ".yaml" << std::endl;
           BifurGaussian[BifurGaussian.size()-1].Read();
         }
         first = false;
@@ -1373,7 +1373,7 @@ namespace Gambit
       static bool first = true;
       if (first)
       {
-        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << endl;
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
         ProfLikelihood.Read();
 
         first = false;
@@ -1384,7 +1384,7 @@ namespace Gambit
       //const double theory = prediction.central_values.begin()->second;
       //const double theory_variance = prediction.covariance.begin()->second.begin()->second;
       const double theory = *Dep::RK;
-      const double theory_variance = 0.0;
+      const double theory_variance = 0.001;
 
       //result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
       result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
@@ -1439,7 +1439,7 @@ namespace Gambit
       cov_th(1,1) = theory_RKstar_11_60_err;
 
       // Calculating the differences between theory and experiment
-      vector<double> diff;
+      std::vector<double> diff;
       diff.push_back(value_exp[0] - value_th[0]);
       diff.push_back(value_exp[1] - value_th[1]);
 
@@ -1479,8 +1479,8 @@ namespace Gambit
         {
           //ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + pred.first + ".yaml"));
           ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + bin + ".yaml"));
-          //if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << endl;
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + bin + ".yaml"  << endl;
+          //if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << std::endl;
+          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + bin + ".yaml"  << std::endl;
           ProfLikelihood[ProfLikelihood.size()-1].Read();
 
         }

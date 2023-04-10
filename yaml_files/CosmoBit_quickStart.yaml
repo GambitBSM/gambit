@@ -3,8 +3,8 @@
 ##
 ##      Quickstart yaml file for CosmoBit
 ##
-##        With this file, you can reproduce Fig. 5 in the 
-##        CosmoBit Module paper (GAMBIT Cosmology Workgroup, Renk, et al. arXiv:2009.xxxxx). 
+##        With this file, you can reproduce Fig. 5 in the
+##        CosmoBit Module paper (GAMBIT Cosmology Workgroup, Renk, et al. arXiv:2009.xxxxx).
 ##        It shows the constraints on Omega_m and H0 arising from BBN and BAO data.
 ##        See arXiv 1907.11594 for the original study.
 ##
@@ -61,7 +61,7 @@ Parameters:
 
   # Fix the sum of the neutrino masses to 0.06 with only one massive neutrino, as in
   # the Planck 'baseline' analysis and in 1907.11594.
-  # For a physical treatment of neutrino masses, see yaml_files/CosmoBit_tutorial. 
+  # For a physical treatment of neutrino masses, see yaml_files/CosmoBit_tutorial.
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_Planckbaseline.yaml
 
   # base-line LCDM model parameters and prior
@@ -231,9 +231,9 @@ Rules:
   # lead to unphysical inputs in cases where dN_ur < 0 and abs(dN_ur) > N_ur contribution from 3 SM neutrinos today.
   # As this scan assumes only one massive neutrino, the resultant inputs for CLASS remain valid
   # and we can safely circumvent the limitation
-  - module: CosmoBit
-    options:
-      allow_negative_delta_N_ur: true
+  #- module: CosmoBit
+  #  options:
+  #    allow_negative_delta_N_ur: true
 
 #======== 8) Logging setup ========
 Logger:

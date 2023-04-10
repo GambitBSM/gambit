@@ -100,7 +100,9 @@ namespace Gambit
         {
           delete it->second;
         }
-        delete python_interpreter;
+        //TODO: Currently this causes memory leaks, so we let it die on its own
+        // If in the future this is fixed on the python side, we can uncomment it
+        //delete python_interpreter;
       }
     #endif
   }

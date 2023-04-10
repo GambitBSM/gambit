@@ -51,18 +51,18 @@
     // MSSM-like Higgs model parameters, for BSM models with MSSM-like Higgs sectors (MSSM, NMSSM, THDM, ...)
     #define FUNCTION MSSMLikeHiggs_ModelParameters
     START_FUNCTION(hb_neutral_ModelParameters_part)
-    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
-    ALLOW_MODELS(MSSM63atMGUT, MSSM63atQ, THDM, THDMatQ)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 
     // MSSM-like Higgs model parameters, for BSM models with MSSM-like Higgs sectors (MSSM, NMSSM, THDM, ...) (effc)
     #define FUNCTION MSSMLikeHiggs_ModelParameters_effc
     START_FUNCTION(hb_neutral_ModelParameters_effc)
-    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     MODEL_CONDITIONAL_DEPENDENCY(THDM_spectrum, Spectrum, THDM, THDMatQ)
-    ALLOW_MODELS(MSSM63atMGUT, MSSM63atQ, THDM, THDMatQ)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG, THDM, THDMatQ)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 

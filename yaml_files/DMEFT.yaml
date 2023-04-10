@@ -1,8 +1,8 @@
 #######################################################################################################################################
 ## GAMBIT configuration file for a Diver scan of the DMEFT model
 ##
-## Constrains: relic density, gamma rays, solar neutrinos, CMB, direct detection, LHC likelihood (full and profile cut-off by default). 
-## 
+## Constrains: relic density, gamma rays, solar neutrinos, CMB, direct detection, LHC likelihood (full and profile cut-off by default).
+##
 ## 16 model parameters (mchi, Lambda, C61-64 and C71-C710 (WCs for Dim-6 & Dim-7 operators))
 ## 8 nuisance parameters (mtrunIN, rho0, v0, vesc, sigmapiN, Deltas, gTs, rs2)
 ########################################################################################################################################
@@ -35,26 +35,26 @@ Parameters:
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # axial-vector vector
-    C62: 
+    C62:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # vector axial-vector
-    C63: 
+    C63:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # axial-vector axial-vector
-    C64: 
+    C64:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # Dim 7 -- gluons
-    C71: 
+    C71:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C72: 
+    C72:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
@@ -62,39 +62,39 @@ Parameters:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
-    C74: 
+    C74:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # Dim 7 -- Higgs induced bilinears
     # Scalar scalar
-    C75: 
+    C75:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # Pseudoscalar scalar
-    C76: 
+    C76:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # Scalar pseudoscalar
-    C77: 
+    C77:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # Pseudoscalar pseudoscalar
-    C78: 
+    C78:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # Dim 7 -- tensor currents
     # sigma sigma
-    C79: 
+    C79:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
     # sigma*ig5 sigma
-    C710: 
+    C710:
       #range: [-12.56637, 12.56637]
       prior_type: double_log_flat_join
       ranges: [-12.56637, -1e-06, 1e-06, 12.56637]
@@ -110,7 +110,7 @@ Parameters:
       range: [216, 264]
     vesc:
       range: [453, 603]
-    vrot: 
+    vrot:
       same_as: Halo_gNFW_rho0::v0
     rs: 20.0
     r_sun: 8.5
@@ -149,7 +149,7 @@ ObsLikes:
 
   - capability: PICO_60_2017_LogLikelihood
     purpose:    LogLike
-    
+
   - capability: PICO_60_2019_LogLikelihood
     purpose:    LogLike
 
@@ -211,10 +211,10 @@ ObsLikes:
   - capability: lnL_mtrun
     purpose:    LogLike
 
-  # DirectDM nuisance parameters 
+  # DirectDM nuisance parameters
   - capability: lnL_nuclear_parameters_ChPT
     purpose: LogLike
-    
+
 Rules:
 
   # Relic density likelihood
@@ -228,33 +228,19 @@ Rules:
       oh2_obserr: 0.001
       oh2_fractional_theory_err: 0.01
 
-    options: # Planck 2018 values
-      oh2_obs: 0.120
-      oh2_obserr: 0.001
-      oh2_fractional_theory_err: 0.01
-
   # Choose to rescale signals in direct and indirect detection by the relic density fraction
   - capability: RD_fraction
     function: RD_fraction_leq_one
     options: # Planck 2018 values
       oh2_obs: 0.120
 
-  # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
-  # Consult the DarkBit manual for the required options in each case
+  # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    #function: RD_oh2_DS5_general
     function: RD_oh2_DS_general
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
-      # these options are identical for DS5 and DS6+ version
-      fast: 1  # 0: standard, 1: fast (default)
-    #function: RD_oh2_DarkSUSY_DS5
-    #options:
-    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
-    #  omtype: 1  # 0: no coann, 1: all coann (default)
-    #function: RD_oh2_MicrOmegas
-    #options:
-    #  fast: 1  # 0: standard (default), 1: fast
-    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+      fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
   - capability: sigmav
@@ -327,15 +313,16 @@ Rules:
 
   # Use LHC analyses based on fast interpolation rather than on-the-fly MC simulation
   - capability: RunMC
-    function: InterpolatedMCInfo 
+    function: InterpolatedMCInfo
     module: ColliderBit
-    
+
   - capability: LHC_Combined_LogLike
     options:
       # Do not use capped LHC loglike, change to true if desired
       cap_loglike: false
 
   - capability: LHC_LogLikes
+    function: calc_LHC_LogLikes
     backends:
     - {capability: lnlike_marg_poisson_lognormal_error}
     options:
@@ -353,7 +340,7 @@ Rules:
       nuisance_prof_method: 6
       nuisance_prof_verbosity: 0
 
-    # Signal yields for LHC analyses 
+    # Signal yields for LHC analyses
   - capability: AllAnalysisNumbers
     # Profile over the cut-off parameter for pT/ETmiss > Lambda
     function: DMEFT_results_profiled

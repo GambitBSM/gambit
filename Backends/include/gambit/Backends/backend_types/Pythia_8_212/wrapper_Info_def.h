@@ -15,7 +15,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void Info::list(::std::basic_ostream<char>& os) const
+        inline void Info::list(std::ostream& os) const
         {
             get_BEptr()->list(os);
         }
@@ -80,7 +80,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->tooLowPTmin();
         }
         
-        inline ::std::basic_string<char> Info::name() const
+        inline ::std::string Info::name() const
         {
             return get_BEptr()->name();
         }
@@ -145,12 +145,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->hasSub__BOSS();
         }
         
-        inline ::std::basic_string<char> Info::nameSub(int i) const
+        inline ::std::string Info::nameSub(int i) const
         {
             return get_BEptr()->nameSub(i);
         }
         
-        inline ::std::basic_string<char> Info::nameSub() const
+        inline ::std::string Info::nameSub() const
         {
             return get_BEptr()->nameSub__BOSS();
         }
@@ -575,12 +575,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->codesHard();
         }
         
-        inline ::std::basic_string<char> Info::nameProc(int i)
+        inline ::std::string Info::nameProc(int i)
         {
             return get_BEptr()->nameProc(i);
         }
         
-        inline ::std::basic_string<char> Info::nameProc()
+        inline ::std::string Info::nameProc()
         {
             return get_BEptr()->nameProc__BOSS();
         }
@@ -665,22 +665,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->errorReset();
         }
         
-        inline void Info::errorMsg(::std::basic_string<char> messageIn, ::std::basic_string<char> extraIn, bool showAlways, ::std::basic_ostream<char>& os)
+        inline void Info::errorMsg(std::string messageIn, std::string extraIn, bool showAlways, std::ostream& os)
         {
             get_BEptr()->errorMsg(messageIn, extraIn, showAlways, os);
         }
         
-        inline void Info::errorMsg(::std::basic_string<char> messageIn, ::std::basic_string<char> extraIn, bool showAlways)
+        inline void Info::errorMsg(std::string messageIn, std::string extraIn, bool showAlways)
         {
             get_BEptr()->errorMsg__BOSS(messageIn, extraIn, showAlways);
         }
         
-        inline void Info::errorMsg(::std::basic_string<char> messageIn, ::std::basic_string<char> extraIn)
+        inline void Info::errorMsg(std::string messageIn, std::string extraIn)
         {
             get_BEptr()->errorMsg__BOSS(messageIn, extraIn);
         }
         
-        inline void Info::errorMsg(::std::basic_string<char> messageIn)
+        inline void Info::errorMsg(std::string messageIn)
         {
             get_BEptr()->errorMsg__BOSS(messageIn);
         }
@@ -690,7 +690,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->errorTotalNumber();
         }
         
-        inline void Info::errorStatistics(::std::basic_ostream<char>& os)
+        inline void Info::errorStatistics(std::ostream& os)
         {
             get_BEptr()->errorStatistics(os);
         }
@@ -770,12 +770,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->setWeightFIRST(weightIn);
         }
         
-        inline ::std::basic_string<char> Info::header(const ::std::basic_string<char>& key)
+        inline ::std::string Info::header(const std::string& key)
         {
             return get_BEptr()->header(key);
         }
         
-        inline ::std::vector<std::basic_string<char>> Info::headerKeys()
+        inline ::std::vector<std::string> Info::headerKeys()
         {
             return get_BEptr()->headerKeys();
         }
@@ -800,12 +800,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->setLHEF3EventInfo();
         }
         
-        inline ::std::basic_string<char> Info::getEventAttribute(::std::basic_string<char> key, bool doRemoveWhitespace)
+        inline ::std::string Info::getEventAttribute(std::string key, bool doRemoveWhitespace)
         {
             return get_BEptr()->getEventAttribute(key, doRemoveWhitespace);
         }
         
-        inline ::std::basic_string<char> Info::getEventAttribute(::std::basic_string<char> key)
+        inline ::std::string Info::getEventAttribute(std::string key)
         {
             return get_BEptr()->getEventAttribute__BOSS(key);
         }
@@ -825,22 +825,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->getGeneratorSize();
         }
         
-        inline ::std::basic_string<char> Info::getGeneratorValue(unsigned int n)
+        inline ::std::string Info::getGeneratorValue(unsigned int n)
         {
             return get_BEptr()->getGeneratorValue(n);
         }
         
-        inline ::std::basic_string<char> Info::getGeneratorValue()
+        inline ::std::string Info::getGeneratorValue()
         {
             return get_BEptr()->getGeneratorValue__BOSS();
         }
         
-        inline ::std::basic_string<char> Info::getGeneratorAttribute(unsigned int n, ::std::basic_string<char> key, bool doRemoveWhitespace)
+        inline ::std::string Info::getGeneratorAttribute(unsigned int n, std::string key, bool doRemoveWhitespace)
         {
             return get_BEptr()->getGeneratorAttribute(n, key, doRemoveWhitespace);
         }
         
-        inline ::std::basic_string<char> Info::getGeneratorAttribute(unsigned int n, ::std::basic_string<char> key)
+        inline ::std::string Info::getGeneratorAttribute(unsigned int n, std::string key)
         {
             return get_BEptr()->getGeneratorAttribute__BOSS(n, key);
         }
@@ -850,17 +850,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->getWeightsDetailedSize();
         }
         
-        inline double Info::getWeightsDetailedValue(::std::basic_string<char> n)
+        inline double Info::getWeightsDetailedValue(std::string n)
         {
             return get_BEptr()->getWeightsDetailedValue(n);
         }
         
-        inline ::std::basic_string<char> Info::getWeightsDetailedAttribute(::std::basic_string<char> n, ::std::basic_string<char> key, bool doRemoveWhitespace)
+        inline ::std::string Info::getWeightsDetailedAttribute(std::string n, std::string key, bool doRemoveWhitespace)
         {
             return get_BEptr()->getWeightsDetailedAttribute(n, key, doRemoveWhitespace);
         }
         
-        inline ::std::basic_string<char> Info::getWeightsDetailedAttribute(::std::basic_string<char> n, ::std::basic_string<char> key)
+        inline ::std::string Info::getWeightsDetailedAttribute(std::string n, std::string key)
         {
             return get_BEptr()->getWeightsDetailedAttribute__BOSS(n, key);
         }
@@ -875,32 +875,32 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->getWeightsCompressedValue(n);
         }
         
-        inline ::std::basic_string<char> Info::getWeightsCompressedAttribute(::std::basic_string<char> key, bool doRemoveWhitespace)
+        inline ::std::string Info::getWeightsCompressedAttribute(std::string key, bool doRemoveWhitespace)
         {
             return get_BEptr()->getWeightsCompressedAttribute(key, doRemoveWhitespace);
         }
         
-        inline ::std::basic_string<char> Info::getWeightsCompressedAttribute(::std::basic_string<char> key)
+        inline ::std::string Info::getWeightsCompressedAttribute(std::string key)
         {
             return get_BEptr()->getWeightsCompressedAttribute__BOSS(key);
         }
         
-        inline ::std::basic_string<char> Info::getScalesValue(bool doRemoveWhitespace)
+        inline ::std::string Info::getScalesValue(bool doRemoveWhitespace)
         {
             return get_BEptr()->getScalesValue(doRemoveWhitespace);
         }
         
-        inline ::std::basic_string<char> Info::getScalesValue()
+        inline ::std::string Info::getScalesValue()
         {
             return get_BEptr()->getScalesValue__BOSS();
         }
         
-        inline double Info::getScalesAttribute(::std::basic_string<char> key)
+        inline double Info::getScalesAttribute(std::string key)
         {
             return get_BEptr()->getScalesAttribute(key);
         }
         
-        inline void Info::setHeader(const ::std::basic_string<char>& key, const ::std::basic_string<char>& val)
+        inline void Info::setHeader(const std::string& key, const std::string& val)
         {
             get_BEptr()->setHeader(key, val);
         }

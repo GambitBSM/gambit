@@ -75,6 +75,7 @@ namespace Gambit
     SCANNER_VECTOR_TYPES              \
     (std::complex<double>)            \
     (map_str_dbl)                     \
+    (map_str_str)                     \
     (Gambit::ModelParameters)
 
   #define SCANNER_RETRIEVABLE_TYPES   \

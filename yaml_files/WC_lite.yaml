@@ -112,10 +112,6 @@ ObsLikes:
 
 Rules:
 
-  # Use SM theory covariance matrix for every point
-  - capability: flav_theory_covariance
-    function: SuperIso_theory_covariance_SM
-
   # Use SuperIso instead of FeynHiggs for b->sgamma
   - capability: prediction_b2sgamma
     function: SuperIso_prediction_b2sgamma

@@ -37,7 +37,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"vx:",["verbose","exclude-models="])
     except getopt.GetoptError:
-        print('Usage: collider_harvestor.py [flags]')
+        print('Usage: collider_harvester.py [flags]')
         print(' flags:')
         print('        -v : More verbose output')
         sys.exit(2)

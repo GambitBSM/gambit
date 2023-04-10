@@ -135,10 +135,10 @@ Rules:
 
   # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
-    #function: RD_oh2_DS5_general
     function: RD_oh2_DS_general
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
     options:
-      # these options are identical for DS5 and DS6+ version
       fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
@@ -183,10 +183,6 @@ Rules:
   - capability: capture_rate_Sun
     function: capture_rate_Sun_vnqn
 
-  # Use micromega's calculations of the direct detection couplings
-  - capability: DD_couplings
-    function: DD_couplings_MicrOmegas
-
   # Choose to rescale signals in direct and indirect detection by the relic density fraction
   - capability: RD_fraction
     function: RD_fraction_leq_one
@@ -204,7 +200,7 @@ Rules:
   # Choose to compute decay rates from the DecayBit module
   - capability: decay_rates
     function: all_decays
-    
+
   # Select non-relativistic couplings for DDCalc 2+ WIMP object
   - capability: DDCalc_Couplings
     function: DDCalc_Couplings_NR_WCs
@@ -212,7 +208,7 @@ Rules:
   # # Use the non-relativistic version of the WCs instead of using DirectDM
   - capability: DD_nonrel_WCs
     function: DD_nonrel_WCs_MajoranaSingletDM_Z2
-    
+
   # Choose to obtain spectrum from the SpecBit module
   - capability: MajoranaSingletDM_Z2_spectrum
     function: get_MajoranaSingletDM_Z2_spectrum

@@ -105,40 +105,22 @@ namespace Gambit
       addtobuffer(vdvalue,names,IDcode,thread,pointID);
     }
 
-    void asciiPrinter::_print(map_const_str_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
+    void asciiPrinter::_print(map_str_str const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
       std::vector<std::string> names;
       std::vector<double> vdvalue;
       names.reserve(value.size());
       vdvalue.reserve(value.size());
-      for (map_const_str_dbl::const_iterator it = value.begin(); it != value.end(); it++)
+      for (map_str_str::const_iterator it = value.begin(); it != value.end(); it++)
       {
         std::stringstream ss;
-        ss<<label<<"::"<<it->first;
+        ss<<label<<"::"<<it->first<<": "<<it->second;
         names.push_back( ss.str() );
-        vdvalue.push_back( it->second );
+        vdvalue.push_back(0);
       }
       addtobuffer(vdvalue,names,IDcode,thread,pointID);
     }
 
-    void asciiPrinter::_print(map_const_str_map_const_str_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
-    {
-      std::vector<std::string> names;
-      std::vector<double> vdvalue;
-      names.reserve(value.size());
-      vdvalue.reserve(value.size());
-      for (map_const_str_map_const_str_dbl::const_iterator it = value.begin(); it != value.end(); it++)
-      {
-        for(map_str_dbl::const_iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-        {
-          std::stringstream ss;
-          ss<<label<<"::"<<it->first<<it2->first;
-          names.push_back( ss.str() );
-          vdvalue.push_back( it2->second );
-        }
-      }
-      addtobuffer(vdvalue,names,IDcode,thread,pointID);
-    }
 
     void asciiPrinter::_print(map_dblpair_dbl const& value, const std::string& label, const int IDcode, const uint thread, const ulong pointID)
     {
@@ -182,6 +164,8 @@ namespace Gambit
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, ModelParameters)
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, triplet<double>)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_map_const_str_dbl)
     #ifndef SCANNER_STANDALONE
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)

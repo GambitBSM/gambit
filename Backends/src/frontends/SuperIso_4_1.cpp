@@ -63,10 +63,10 @@ BE_NAMESPACE
     CQ0b[2]+=std::complex<double>(param->Re_DeltaCQ2, param->Im_DeltaCQ2);
   }
 
-   void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
+  void modify_WCP(const parameters *param, std::complex<double> Cpb[11])
   {
-    Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
     Cpb[7]+=std::complex<double>(param->Re_DeltaC7_Prime, param->Im_DeltaC7_Prime);
+    Cpb[8]+=std::complex<double>(param->Re_DeltaC8_Prime, param->Im_DeltaC8_Prime);
     Cpb[9]+=std::complex<double>(param->Re_DeltaC9_Prime, param->Im_DeltaC9_Prime);
     Cpb[10]+=std::complex<double>(param->Re_DeltaC10_Prime, param->Im_DeltaC10_Prime);
   }
@@ -261,7 +261,7 @@ BE_NAMESPACE
 
   // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
   /// RK* observables
-  double RKstar(const parameters *param, double Q2_min, double Q2_max)
+  double SuperIso_RKstar_computation(const parameters *param, double Q2_min, double Q2_max)
   {
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong
@@ -296,7 +296,7 @@ BE_NAMESPACE
   }
 
   /// RK observable
-  double RK(const parameters *param, double Q2_min, double Q2_max)
+  double SuperIso_RK_computation(const parameters *param, double Q2_min, double Q2_max)
   {
     check_model(param, LOCAL_INFO);
     assert(std::abs(Q2_max-Q2_min)>0.01); // it's not safe to have such small bins => probably you are doing something wrong

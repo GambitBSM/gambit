@@ -32,21 +32,21 @@ namespace Gambit
     const nuiscorr (&corrnuis)[ncorrnuis] = nuiscorr_help(arr, YAML::LoadFile(GAMBIT_DIR "/FlavBit/data/SM_nuisance_correlations.yaml")["correlation_matrix"].as<std::vector<nuiscorr>>());
 
     /// Print function for FlavBit predictions
-    void print(flav_prediction prediction , vector<std::string > names)
+    void print(flav_prediction prediction , std::vector<std::string > names)
     {
       for(unsigned i=0; i<names.size(); i++)
       {
-        cout<<names[i]<<": "<<prediction.central_values[names[i]]<<endl;
+        std::cout<<names[i]<<": "<<prediction.central_values[names[i]]<< std::endl;
       }
-      cout<<"Covariance:"<<endl;
+      std::cout<<"Covariance:"<< std::endl;
       for( unsigned i=0; i<names.size(); i++)
       {
-        stringstream row;
+        std::stringstream row;
         for( unsigned j=0; j<names.size(); j++)
         {
           row<<(prediction.covariance)[names[i]]  [names[j]]<<" ";
         }
-        cout<<row.str()<<endl;
+        std::cout<<row.str()<< std::endl;
       }
     }
 
@@ -56,8 +56,8 @@ namespace Gambit
       // Only works for ll = ee and ll = mumu
       if (generation < 1 or generation > 2)
        FlavBit_error().raise(LOCAL_INFO, "Kstarll_Theory2Experiment_translation called with generation not 1 or 2");
-      const vector<std::string> all_names[2] = {{"AT_Im"} , {"S4", "S7", "S9"}};
-      const vector<std::string>& names = all_names[generation-1];
+      const std::vector<std::string> all_names[2] = {{"AT_Im"} , {"S4", "S7", "S9"}};
+      const std::vector<std::string>& names = all_names[generation-1];
       for (unsigned i=0; i < names.size(); i++)
       {
         auto search = prediction.find(names[i]);
@@ -75,8 +75,8 @@ namespace Gambit
       if (generation < 1 or generation > 2)
        FlavBit_error().raise(LOCAL_INFO, "Kstarll_Theory2Experiment_translation called with generation not 1 or 2");
 
-      const vector<std::string> names[2] = {{"AT_Im"} , {"S4", "S7", "S9"}};
-      vector<std::string> names_exist;
+      const std::vector<std::string> names[2] = {{"AT_Im"} , {"S4", "S7", "S9"}};
+      std::vector<std::string> names_exist;
 
       for (unsigned i=0; i < names[generation-1].size(); i++)
       {
@@ -171,7 +171,7 @@ namespace Gambit
     {
       if (flav_debug)
       {
-        cout << "Starting SuperIso_prediction" << std::endl;
+        std::cout << "Starting SuperIso_prediction" << std::endl;
       }
 
       int nObservables = SI_obslist.size();

@@ -117,23 +117,21 @@ Priors:
 
 Printer:
 
-  # These lines tell GAMBIT to use the hdf5 printer
-  # Can switch to the ascii printer by commenting out and
-  # using the ascii lines below
+  # Select printer 
 
   printer: hdf5
   options:
-    output_file: "MSSM7_DarkBit.hdf5"
+    output_file: "DarkBit_MSSM7.hdf5"
     group: "/MSSM7"
     delete_file_on_restart: true
 
-  #printer: ascii
-  #options:
-  #  output_file: "MSSM7.txt"
-  #  buffer_length: 10
-  #  delete_file_on_restart: true
+  # printer: ascii
+  # options:
+  #   output_file: "MSSM7.txt"
+  #   buffer_length: 10
+  #   delete_file_on_restart: true
 
-  #printer: cout
+  # printer: cout
 
 
 Scanner:
@@ -326,14 +324,15 @@ Rules:
        VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
        VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
-  # Use DarkSUSY directly (not recommended), MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
+  # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
   # Consult the DarkBit manual for the required options in each case
   - capability: RD_oh2
     #function: RD_oh2_DS5_general
+    # options:
+      # fast: 1  # 0: standard, 1: fast (default)
+      # Note that the corresponding options for DS6 have to be set in RD_oh2_DS6(pre4)_ini
+      # instead, see below!
     function: RD_oh2_DS_general
-    options:
-      # these options are identical for DS5 and DS6+ version
-      fast: 1  # 0: standard, 1: fast (default)
     #function: RD_oh2_DarkSUSY_DS5
     #options:
     #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
@@ -342,6 +341,15 @@ Rules:
     #options:
     #  fast: 1  # 0: standard (default), 1: fast
     #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+
+  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    function: RD_oh2_DS6_ini_func
+    options:
+      fast: 1  # 0: standard, 1: fast (default)
+  #- capability: RD_oh2_DS6pre4_ini # for DS6 pre version 6.4.0
+  #  function: RD_oh2_DS6pre4_ini_func
+  #  options:
+  #    fast: 1  # 0: standard, 1: fast (default)
 
   # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
   - capability: RD_eff_annrate
@@ -537,23 +545,23 @@ Rules:
   # Choose where to get the precision spectrum from
   - capability: MSSM_spectrum
     type: Spectrum
-    #function: make_MSSM_precision_spectrum_none
-    #function: make_MSSM_precision_spectrum_W
-    #function: make_MSSM_precision_spectrum_H_W
-    function: make_MSSM_precision_spectrum_4H_W
+    function: make_MSSM_precision_spectrum_none
+    # function: make_MSSM_precision_spectrum_W
+    # function: make_MSSM_precision_spectrum_H_W
+    # function: make_MSSM_precision_spectrum_4H_W
     # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
     # or make_MSSM_precision_spectrum_H_W.
     # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
     # Choose to use the difference between the precision and spectrum generator predictions, along
     # with the precision error estimate, to estimate the theoretical error on the prediction.
-    options:
-      Higgs_predictions_source: 1
-      Higgs_predictions_error_method: 4
+    # options:
+    #   Higgs_predictions_source: 1
+    #   Higgs_predictions_error_method: 4
 
-  # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
-  - capability: prec_mh
-    function: FeynHiggs_HiggsMass
-    #function: SUSYHD_HiggsMass
+  # # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
+  # - capability: prec_mh
+  #   function: FeynHiggs_HiggsMass
+  #   #function: SUSYHD_HiggsMass
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
@@ -616,4 +624,4 @@ KeyValues:
   debug: true
 
   # Set the output path for the log files (relative to working directory unless absolute path is specified)
-  default_output_path: "runs/MSSM7-DarkBit/"
+  default_output_path: "runs/DarkBit_MSSM7/"

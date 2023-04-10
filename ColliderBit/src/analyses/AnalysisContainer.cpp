@@ -55,10 +55,12 @@ namespace Gambit
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
+      F(ATLAS_13TeV_2BoostedBosons_139invfb)         \
       F(ATLAS_13TeV_0LEP_13invfb)                    \
       F(ATLAS_13TeV_0LEP_36invfb)                    \
       F(ATLAS_13TeV_0LEP_139invfb)                   \
       F(ATLAS_13TeV_0LEPStop_36invfb)                \
+      F(ATLAS_13TeV_1Lep2b_139invfb)                 \
       F(ATLAS_13TeV_2LEPStop_36invfb)                \
       F(ATLAS_13TeV_2LEPStop_139invfb)               \
       F(ATLAS_13TeV_2LEPStop_inclusive_139invfb)     \
@@ -69,12 +71,14 @@ namespace Gambit
       F(ATLAS_13TeV_MultiLEP_2LepPlusJets_36invfb)   \
       F(ATLAS_13TeV_MultiLEP_3Lep_36invfb)           \
       F(ATLAS_13TeV_MultiLEP_strong_139invfb)        \
+      F(ATLAS_13TeV_MONOJET_139infb)                 \
       F(ATLAS_13TeV_2OSLEP_chargino_80invfb)         \
       F(ATLAS_13TeV_2OSLEP_chargino_binned_80invfb)  \
       F(ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb)  \
       F(ATLAS_13TeV_2OSLEP_chargino_139invfb)        \
       F(ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb) \
       F(ATLAS_13TeV_2OSLEP_chargino_binned_139invfb) \
+      F(ATLAS_13TeV_3LEP_139invfb)                   \
       F(ATLAS_13TeV_4LEP_36invfb)                    \
       F(ATLAS_13TeV_4LEP_139invfb)                   \
       F(ATLAS_13TeV_2bMET_36invfb)                   \
@@ -83,6 +87,9 @@ namespace Gambit
       F(ATLAS_13TeV_3b_36invfb)                      \
       F(ATLAS_13TeV_3b_discoverySR_36invfb)          \
       F(ATLAS_13TeV_PhotonGGM_36invfb)               \
+      F(ATLAS_13TeV_PhotonGGM_1Photon_36invfb)       \
+      F(ATLAS_13TeV_PhotonGGM_2Photon_36invfb)       \
+      F(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)      \
       F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
       F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
       F(ATLAS_8TeV_0LEP_20invfb)                     \
@@ -106,6 +113,9 @@ namespace Gambit
       F(CMS_13TeV_2LEPsoft_stop_36invfb)             \
       F(CMS_13TeV_2LEPsoft_stop_36invfb_nocovar)     \
       F(CMS_13TeV_2OSLEP_36invfb)                    \
+      F(CMS_13TeV_2OSLEP_137invfb)                   \
+      F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \
+      F(CMS_13TeV_2OSLEP_Slepton_137invfb) \
       F(CMS_13TeV_2OSLEP_36invfb_nocovar)            \
       F(CMS_13TeV_2OSLEP_confnote_36invfb)           \
       F(CMS_13TeV_2OSLEP_chargino_stop_36invfb)      \
@@ -127,6 +137,12 @@ namespace Gambit
       F(CMS_13TeV_MultiLEP_Full_3Lep_36invfb)        \
       F(CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb) \
       F(CMS_13TeV_MONOJET_36invfb)                   \
+      F(CMS_13TeV_MultiLEP_137invfb)                 \
+      F(CMS_13TeV_MultiLEP_2LEP_137invfb)            \
+      F(CMS_13TeV_MultiLEP_3LEP_137invfb)            \
+      F(CMS_13TeV_MultiLEP_3LEPTau_137invfb)         \
+      F(CMS_13TeV_MultiLEP_4LEP_137invfb)            \
+      F(CMS_13TeV_MultiLEP_4LEPTau_137invfb)         \
       F(CMS_8TeV_1LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_2LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_MultiLEP_20invfb)                   \

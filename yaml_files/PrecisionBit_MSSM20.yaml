@@ -157,9 +157,11 @@ Rules:
 
 Printer:
 
-  printer: ascii
-  options:
-    output_file: "results.txt"
+  printer: cout
+
+  # printer: ascii
+  # options:
+  #   output_file: "results.txt"
 
 
 Logger:

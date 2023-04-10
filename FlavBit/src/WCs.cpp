@@ -153,20 +153,20 @@ namespace Gambit
                  0 ,1 ,0,
                  0 ,0 ,1;
 
-      complexd Lijp = yA*(xi_L(l,lp)-conj(xi_L(lp,l)))+(cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)+conj(xi_L(lp,l)));
-      complexd Lijm = yA*(xi_L(l,lp)-conj(xi_L(lp,l)))-(cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)+conj(xi_L(lp,l)));
+      complexd Lijp = yA*(xi_L(l,lp)-std::conj(xi_L(lp,l)))+(cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)+std::conj(xi_L(lp,l)));
+      complexd Lijm = yA*(xi_L(l,lp)-std::conj(xi_L(lp,l)))-(cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)+std::conj(xi_L(lp,l)));
 
       complexd result = mBmB*pow(pi,2)/(2.*pow(sminputs.GF,2)*pow(mW,2)*pow(SW,2)*Vtb*Vts);
 
       switch(wc)
       {
         case 1:
-           result*= conj(xi_bs)*(2*sba*cba*(ml[l]*deltaij(l,lp)/v)*(yh-yH) + Lijp);
+           result*= std::conj(xi_bs)*(2*sba*cba*(ml[l]*deltaij(l,lp)/v)*(yh-yH) + Lijp);
            return result;
            break;
 
         case 2:
-           result*= conj(xi_bs)*((cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)-conj(xi_L(lp,l))) + yA*(xi_L(l,lp)+conj(xi_L(lp,l))));
+           result*= std::conj(xi_bs)*((cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)-std::conj(xi_L(lp,l))) + yA*(xi_L(l,lp)+std::conj(xi_L(lp,l))));
            return result;
            break;
 
@@ -176,7 +176,7 @@ namespace Gambit
            break;
 
         case 4://CQ2prime
-           result*= xi_sb*((cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)-conj(xi_L(lp,l))) - yA*(xi_L(l,lp)+conj(xi_L(lp,l))));
+           result*= xi_sb*((cba*cba*yh+sba*sba*yH)*(xi_L(l,lp)-std::conj(xi_L(lp,l))) - yA*(xi_L(l,lp)+std::conj(xi_L(lp,l))));
            return result;
            break;
       }
@@ -235,28 +235,28 @@ namespace Gambit
       Eigen::Vector3cd xilp_m2 = xi_L.col(lp);
 
 
-      complexd C9_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
-                                      (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*DHp(pow(mT/mHp,2));
-      complexd C9_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*(xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
-                                  (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*CHp(pow(mT/mHp,2));
-      complexd C9_Zmix = (mBmB*(4*SW*SW-1)*(xi_bb*conj(Vtb) + xi_sb*conj(Vts))*(Vcs*conj(xi_ct) + Vts*conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*conj(Vts));
+      complexd C9_gamma = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
+                                      (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*DHp(pow(mT/mHp,2));
+      complexd C9_Z = ((4*SW*SW-1)/(sqrt(2)*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*sminputs.GF))*(xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
+                                  (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*CHp(pow(mT/mHp,2));
+      complexd C9_Zmix = (mBmB*(4*SW*SW-1)*(xi_bb*std::conj(Vtb) + xi_sb*std::conj(Vts))*(Vcs*std::conj(xi_ct) + Vts*std::conj(xi_tt)))*CHpmix(pow(mT/mHp,2))/(16.*sqrt(2)*sminputs.GF*mT*pow(mW,2)*pow(SW,2)*Vtb*std::conj(Vts));
 
-      complexd C9_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(conj(Vcs)*(Vcb*xi_cc*conj(xi_cc) + Vcb*xi_ct*conj(xi_ct) + Vtb*xi_cc*conj(xi_tc) + Vtb*xi_ct*conj(xi_tt)) + conj(Vts)*(Vcb*xi_tc*conj(xi_cc) + Vcb*xi_tt*conj(xi_ct) + Vtb*xi_tc*conj(xi_tc) + Vtb*xi_tt*conj(xi_tt)))*BHp(pow(mT/mHp,2));
+      complexd C9_Box = (1/(2*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(std::conj(Vcs)*(Vcb*xi_cc*std::conj(xi_cc) + Vcb*xi_ct*std::conj(xi_ct) + Vtb*xi_cc*std::conj(xi_tc) + Vtb*xi_ct*std::conj(xi_tt)) + std::conj(Vts)*(Vcb*xi_tc*std::conj(xi_cc) + Vcb*xi_tt*std::conj(xi_ct) + Vtb*xi_tc*std::conj(xi_tc) + Vtb*xi_tt*std::conj(xi_tt)))*BHp(pow(mT/mHp,2));
 
-      complexd C9_mub = (2/(4*sqrt(2)*27*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*
-                                      (Vcb*conj(xi_cc) + Vtb*conj(xi_tc))*(19+12*log(pow(mBmB/mHp,2)));
+      complexd C9_mub = (2/(4*sqrt(2)*27*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*
+                                      (Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc))*(19+12*log(pow(mBmB/mHp,2)));
 
       complexd C10_Ztotal = (1/(4*SW*SW-1))*(C9_Z+C9_Zmix);
 
       complexd C10_Box = C9_Box;
 
-      complexd C9p_gamma = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*DHp(pow(mT/mHp,2));
+      complexd C9p_gamma = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*DHp(pow(mT/mHp,2));
 
-      complexd C9p_Z = ((1-4*SW*SW)/(sqrt(2)*mW*mW*SW*SW*real(Vtb*conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
+      complexd C9p_Z = ((1-4*SW*SW)/(sqrt(2)*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*sminputs.GF))*((Vtb*xi_bb + Vts*xi_sb)*(Vtb*xi_bs + Vts*xi_ss))*CHp(pow(mT/mHp,2));
 
-      complexd C9p_Box = (1/(2*mW*mW*SW*SW*real(Vtb*conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*conj(Vub))*conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*conj(Vus))*conj(xi_ss))*BHpp(pow(mT/mHp,2));
+      complexd C9p_Box = (1/(2*mW*mW*SW*SW*std::real(Vtb*std::conj(Vts))*pow(sminputs.GF,2)*mHp*mHp))*(xil_m1conj.dot(xilp_m2))*(((Vcb*xi_bb + Vcs*xi_sb)*std::conj(Vcb) + (Vtb*xi_bb + Vts*xi_sb)*std::conj(Vtb) + (Vub*xi_bb + Vus*xi_sb)*std::conj(Vub))*std::conj(xi_bs) + ((Vcb*xi_bb + Vcs*xi_sb)*std::conj(Vcs) + (Vtb*xi_bb + Vts*xi_sb)*std::conj(Vts) + (Vub*xi_bb + Vus*xi_sb)*std::conj(Vus))*std::conj(xi_ss))*BHpp(pow(mT/mHp,2));
 
-      complexd C9p_mub = (2/(4*sqrt(2)*27*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((Vcb*xi_bb + Vcs*xi_sb)*(Vcb*xi_bs + Vcs*xi_ss))*(19+12*log(pow(mBmB/mHp,2)));
+      complexd C9p_mub = (2/(4*sqrt(2)*27*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((Vcb*xi_bb + Vcs*xi_sb)*(Vcb*xi_bs + Vcs*xi_ss))*(19+12*log(pow(mBmB/mHp,2)));
 
       complexd C10p_Z = -(1/(1-4*SW*SW))*C9p_Z;
 
@@ -307,7 +307,7 @@ namespace Gambit
            }
            else
            {
-           return  -real((CL_nunu+CL_SM)*conj(CR_nunu))/denom;
+           return  -std::real((CL_nunu+CL_SM)*std::conj(CR_nunu))/denom;
            break;
            }
       }
@@ -449,7 +449,7 @@ namespace Gambit
       const double mC = Dep::SMINPUTS->mCmC;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-      
+
       auto xiU = get_xiF(spectrum,'u');
       auto xiD = get_xiF(spectrum,'d');
       const complexd xi_tc     = xiU[t][c];
@@ -462,9 +462,9 @@ namespace Gambit
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
-      complexd C2diag = (-7.*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(Vcb*conj(xi_cc) + Vtb*conj(xi_tc)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
+      complexd C2diag = (-7.*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(Vcb*std::conj(xi_cc) + Vtb*std::conj(xi_tc)))/(72.*sqrt(2)*sminputs.GF*pow(mHp,2)*Vtb*Vts);
 
-      complexd C2mix = -(mC*(xi_bb*conj(Vcb) + xi_sb*conj(Vcs))*(xi_cc*conj(Vcs) + xi_tc*conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
+      complexd C2mix = -(mC*(xi_bb*std::conj(Vcb) + xi_sb*std::conj(Vcs))*(xi_cc*std::conj(Vcs) + xi_tc*std::conj(Vts))*(3 + 4*log(pow(mBmB,2)/pow(mHp,2))))/(12.*sqrt(2)*sminputs.GF*mBmB*pow(mHp,2)*Vtb*Vts);
 
       result = C2diag + C2mix;
     }
@@ -493,10 +493,10 @@ namespace Gambit
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
-      complexd C70 = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
-               (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_1(pow(mT/mHp,2)))
-               + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
-               (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_2(pow(mT/mHp,2)));
+      complexd C70 = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
+               (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_1(pow(mT/mHp,2)))
+               + (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
+               (std::conj(Vcs)*std::conj(xi_ct) + std::conj(Vts)*std::conj(xi_tt))*F7_2(pow(mT/mHp,2)));
 
       result = C70;
     }
@@ -525,10 +525,10 @@ namespace Gambit
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
 
-      complexd C80 = (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*conj(Vcs) + xi_tt*conj(Vts))*
-               (Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_3(pow(mT/mHp,2)))
-               + (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
-               (conj(Vcs)*conj(xi_ct) + conj(Vts)*conj(xi_tt))*F7_4(pow(mT/mHp,2)));
+      complexd C80 = (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*((xi_ct*std::conj(Vcs) + xi_tt*std::conj(Vts))*
+               (Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_3(pow(mT/mHp,2)))
+               + (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*((Vtb*xi_bb + Vts*xi_sb)*
+               (std::conj(Vcs)*std::conj(xi_ct) + std::conj(Vts)*std::conj(xi_tt))*F7_4(pow(mT/mHp,2)));
 
       result = C80;
     }
@@ -556,8 +556,8 @@ namespace Gambit
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
 
-      complexd C7p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
-               +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_2(pow(mT/mHp,2));
+      complexd C7p0 =  (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*std::conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_1(pow(mT/mHp,2))
+               +(1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_2(pow(mT/mHp,2));
 
       result = C7p0;
     }
@@ -580,13 +580,13 @@ namespace Gambit
       const complexd xi_bb     = xiD[b][b];
       const complexd xi_sb     = xiD[s][b];
       const complexd xi_ct     = xiU[c][t];
-      
+
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
 
-      complexd C8p0 =  (1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_3(pow(mT/mHp,2))
-                 +(1/(sqrt(2)*real(Vtb*conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*conj(xi_ct) + Vtb*conj(xi_tt))*F7_4(pow(mT/mHp,2));
+      complexd C8p0 =  (1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mHp))*(xi_sb*std::conj(Vtb))*(Vtb*xi_bb + Vts*xi_sb)*F7_3(pow(mT/mHp,2))
+                 +(1/(sqrt(2)*std::real(Vtb*std::conj(Vts))*sminputs.GF*mHp*mBmB))*(Vtb*xi_sb)*(Vcb*std::conj(xi_ct) + Vtb*std::conj(xi_tt))*F7_4(pow(mT/mHp,2));
 
 
       result = C8p0;

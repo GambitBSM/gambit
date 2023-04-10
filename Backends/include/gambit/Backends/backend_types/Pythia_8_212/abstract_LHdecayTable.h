@@ -36,9 +36,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void addChannel__BOSS(Pythia8::Abstract_LHdecayChannel&) =0;
     
-                virtual void addChannel(double, int, ::std::vector<int>, ::std::basic_string<char>) =0;
+                virtual void addChannel(double, int, std::vector<int>, std::string) =0;
     
-                virtual void addChannel__BOSS(double, int, ::std::vector<int>) =0;
+                virtual void addChannel__BOSS(double, int, std::vector<int>) =0;
     
                 virtual int size() =0;
     

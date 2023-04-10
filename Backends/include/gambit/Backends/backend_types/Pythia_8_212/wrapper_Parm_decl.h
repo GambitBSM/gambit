@@ -20,17 +20,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Abstract_Parm* (*__factory0)(::std::basic_string<char>, double, bool, bool, double, double);
-                static Abstract_Parm* (*__factory1)(::std::basic_string<char>, double, bool, bool, double);
-                static Abstract_Parm* (*__factory2)(::std::basic_string<char>, double, bool, bool);
-                static Abstract_Parm* (*__factory3)(::std::basic_string<char>, double, bool);
-                static Abstract_Parm* (*__factory4)(::std::basic_string<char>, double);
-                static Abstract_Parm* (*__factory5)(::std::basic_string<char>);
+                static Abstract_Parm* (*__factory0)(std::string, double, bool, bool, double, double);
+                static Abstract_Parm* (*__factory1)(std::string, double, bool, bool, double);
+                static Abstract_Parm* (*__factory2)(std::string, double, bool, bool);
+                static Abstract_Parm* (*__factory3)(std::string, double, bool);
+                static Abstract_Parm* (*__factory4)(std::string, double);
+                static Abstract_Parm* (*__factory5)(std::string);
                 static Abstract_Parm* (*__factory6)();
         
                 // -- Other member variables: 
             public:
-                std::basic_string<char>& name;
+                std::string& name;
                 double& valNow;
                 double& valDefault;
                 bool& hasMin;
@@ -42,12 +42,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 // Wrappers for original constructors: 
             public:
-                Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
-                Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn);
-                Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn);
-                Parm(::std::basic_string<char> nameIn, double defaultIn, bool hasMinIn);
-                Parm(::std::basic_string<char> nameIn, double defaultIn);
-                Parm(::std::basic_string<char> nameIn);
+                Parm(std::string nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn, double maxIn);
+                Parm(std::string nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn, double minIn);
+                Parm(std::string nameIn, double defaultIn, bool hasMinIn, bool hasMaxIn);
+                Parm(std::string nameIn, double defaultIn, bool hasMinIn);
+                Parm(std::string nameIn, double defaultIn);
+                Parm(std::string nameIn);
                 Parm();
         
                 // Special pointer-based constructor: 
