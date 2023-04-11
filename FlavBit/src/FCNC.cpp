@@ -85,6 +85,7 @@
 ///  *********************************************
 
 #include "gambit/Utils/statistics.hpp"
+#include "gambit/Utils/integration.hpp"
 #include "gambit/Elements/loop_functions.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/FlavBit/FlavBit_rollcall.hpp"
@@ -189,6 +190,12 @@ namespace Gambit
 
     /// SuperIso prediction for the angular observables of B -> K* e e
     SI_MULTI_PREDICTION_FUNCTION_BINS(B2KstareeAng_Lowq2, LHCb, ((0.0008, 0.257))) // Typical subcaps: FLee, AT_Re, AT_2, AT_Im
+
+    /// SuperIso prediction for the angular observables of B_u -> K* mu mu
+    SI_MULTI_PREDICTION_FUNCTION_BINS(Bu2KstarmumuAng, LHCb, ((0.1, 0.98), (1.1, 2.5), (2.5, 4.0), (4.0, 6.0), (6.0, 8.0), (11.0, 12.5), (15.0, 17.0), (17.0, 19.0))) // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9
+
+    /// SuperIso prediction for the angular observables of B_u -> K* mu mu with alternative binning
+    SI_MULTI_PREDICTION_FUNCTION_BINS(Bu2KstarmumuAng_alt, LHCb, ((0.1, 0.98), (1.1, 6.0), (6.0, 8.0), (11.0, 12.5), (15.0, 19.0))) // Typical subcaps: FL, AFB, S3, S4, S5, S7, S8, S9 // TODO Why does this bin exist
 
     /// epsilon function for b->snunu in the THDM
     double epsilon(int l, int lp, SMInputs &sminputs, Spectrum &spectrum)
@@ -557,6 +564,301 @@ namespace Gambit
 
       if (flav_debug) printf("A_I(B->K* mu mu)_zero=%.3e\n",result);
       if (flav_debug) std::cout<<"Finished SuperIso_prediction_AI_BKstarmumu_zero"<< std::endl;
+    }
+
+    // Kahler function
+    double lambdaK(double q2, double mB, double mK)
+    {
+      return mB*mB*mB*mB + mK*mK*mK*mK + q2*q2 - 2.*mB*mB*mK*mK - 2.*mK*mK*q2 - 2.*mB*mB*q2;
+    }
+
+    /// Calculaton of dGamma(B->Knunu)/dq2
+    // Expression taken from 2107.01080
+    double dGammaBKnunudq2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mK)
+    {
+      // CKM parameters
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      // TODO: Using mb(mb) not pole mass
+      const double mb = sminputs.mBmB;
+      const double ms = sminputs.mS;
+
+      // Standard Model value for CLL
+      // Took this from Table 1 in Bednyakov et al
+      const double CLLSM = 4.1;
+      const double CLLSM_uncert = 0.5;
+
+      // Extract Wilson coefficients from model
+      std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
+      std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
+      std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
+      std::complex<double> CVRR = {param["Re_DeltaCRR_V"], param["Im_DeltaCRR_V"]};
+      std::complex<double> CSLL = {param["Re_DeltaCLL_S"], param["Im_DeltaCLL_S"]};
+      std::complex<double> CSLR = {param["Re_DeltaCLR_S"], param["Im_DeltaCLR_S"]};
+      std::complex<double> CSRL = {param["Re_DeltaCRL_S"], param["Im_DeltaCRL_S"]};
+      std::complex<double> CSRR = {param["Re_DeltaCRR_S"], param["Im_DeltaCRR_S"]};
+      std::complex<double> CTLL = {param["Re_DeltaCLL_T"], param["Im_DeltaCLL_T"]};
+      std::complex<double> CTRR = {param["Re_DeltaCRR_T"], param["Im_DeltaCRR_T"]};
+
+
+      // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
+      const double Nf = 3;
+
+      // Form factors
+      // TODO: Missing
+      const double fp = 1;
+      const double f0 = 1;
+      const double fT = 1;
+
+      // Helicity amplitudes
+      const double HV = sqrt(lambdaK(q2, mB, mK)/q2)*fp;
+      const double HS = (mB*mB - mK*mK)/(mb - ms)*f0;
+      const double HT = - sqrt(lambdaK(q2, mB, mK))*(mB + mK)*fT;
+
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mb,3)) * q2 * pow(lambdaK(q2, mB, mK),1/2) * ( std::norm(CLLSM + CVLL + CVRL) + std::norm(CVLR + CVRR)  * HV*HV + 3./2 * ( std::norm(CSRL + CSLL) + std::norm(CSRR + CSLR) ) * HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR)) * HT*HT);
+
+      return dGammadq2;
+    }
+
+    /// Calculaton of dGamma(B->Kstarnunu)/dq2
+    // Expression taken from 2107.01080
+    double dGammaBKstarnunudq2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mKstar)
+    {
+      // CKM parameters
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      // TODO: Using mb(mb) not pole mass
+      const double mb = sminputs.mBmB;
+      const double mc = sminputs.mCmC;
+
+      // Standard Model value for CLL
+      // Took this from Table 1 in Bednyakov et al
+      const double CLLSM = 4.1;
+      const double CLLSM_uncert = 0.5;
+
+      // Extract Wilson coefficients from model
+      std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
+      std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
+      std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
+      std::complex<double> CVRR = {param["Re_DeltaCRR_V"], param["Im_DeltaCRR_V"]};
+      std::complex<double> CSLL = {param["Re_DeltaCLL_S"], param["Im_DeltaCLL_S"]};
+      std::complex<double> CSLR = {param["Re_DeltaCLR_S"], param["Im_DeltaCLR_S"]};
+      std::complex<double> CSRL = {param["Re_DeltaCRL_S"], param["Im_DeltaCRL_S"]};
+      std::complex<double> CSRR = {param["Re_DeltaCRR_S"], param["Im_DeltaCRR_S"]};
+      std::complex<double> CTLL = {param["Re_DeltaCLL_T"], param["Im_DeltaCLL_T"]};
+      std::complex<double> CTRR = {param["Re_DeltaCRR_T"], param["Im_DeltaCRR_T"]};
+
+      // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
+      const double Nf = 3;
+
+      // Form factors
+      // TODO: Missing
+      const double A12 = 1;
+      const double A1 = 1, A0 = 1, V = 1;
+      const double T23 = 0, T1 = 0, T2 = 0;
+
+      // Helicity amplitudes
+      const double HV0 = 8./sqrt(q2)*mB*mKstar*A12;
+      const double HVp = (mB + mKstar)*A1 - sqrt(lambdaK(q2, mB, mKstar))/(mB + mKstar)*V;
+      const double HVm = (mB + mKstar)*A1 + sqrt(lambdaK(q2, mB, mKstar))/(mB + mKstar)*V;
+      const double HS = -sqrt(lambdaK(q2, mB, mKstar))/(mb + mc)*A0;
+      const double HT0 = -(4.*mB*mKstar)/(mB + mKstar)*T23;
+      const double HTp = 1./sqrt(q2)*((mB*mB - mKstar*mKstar)*T2 + sqrt(lambdaK(q2, mB, mKstar))*T1);
+      const double HTm = 1./sqrt(q2)*(-(mB*mB - mKstar*mKstar)*T2 + sqrt(lambdaK(q2, mB, mKstar))*T1);
+
+      double dGammadq2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mb,3)) * q2 * pow(lambdaK(q2, mB, mKstar),1/2) * ( std::norm(CLLSM + CVLL)*(HVp*HVp+HVm*HVm) + std::norm(CLLSM + CVLL - CVRL)*HV0*HV0 - 4.*std::real((CLLSM + CVLL)*std::conj(CVRL))*HVp*HVm + (std::norm(CVRL) + std::norm(CVLR) + std::norm(CVRR))*(HVp*HVp+HVm*HVm) + std::norm(CVLR - CVRR)*HV0*HV0 -4.*std::real(CVLR*std::conj(CVRR))*HVp*HVm + 3./2*(std::norm(CSRL - CSLL) + std::norm(CSRR - CSLR))*HS*HS + 8.*(std::norm(CTLL) + std::norm(CTRR))*(HTp*HTp + HTm*HTm + HT0*HT0));
+
+      return dGammadq2;
+    }
+
+    /// Calculation of BR(B -> K nu nu)
+    void BKnunu(double &result)
+    {
+      using namespace Pipes::BKnunu;
+
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaon0;
+
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
+    }
+
+    /// Calculation of FL_Knunu
+    /// Based on equation 8 of 2107.01080
+    double FL_Knunu_q2(double q2, ModelParameters param, SMInputs sminputs, double mB, double mKstar)
+    {
+      // CKM parameters
+      const double A      = sminputs.CKM.A;
+      const double lambda = sminputs.CKM.lambda;
+      const double Vts = -A*lambda*lambda;
+      const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
+
+      // TODO: Using mb(mb) not pole mass
+      const double mb = sminputs.mBmB;
+
+      // Standard Model value for CLL
+      // Took this from Table 1 in Bednyakov et al
+      const double CLLSM = 4.1;
+      const double CLLSM_uncert = 0.5;
+
+      // Extract Wilson coefficients from model
+      std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
+      std::complex<double> CVLR = {param["Re_DeltaCLR_V"], param["Im_DeltaCLR_V"]};
+      std::complex<double> CVRL = {param["Re_DeltaCRL_V"], param["Im_DeltaCRL_V"]};
+      std::complex<double> CVRR = {param["Re_DeltaCRR_V"], param["Im_DeltaCRR_V"]};
+      std::complex<double> CTLL = {param["Re_DeltaCLL_T"], param["Im_DeltaCLL_T"]};
+      std::complex<double> CTRR = {param["Re_DeltaCRR_T"], param["Im_DeltaCRR_T"]};
+
+      // The WCs are assumed to be diagonal in flavour, so we add a prefactor of 3 for the number of flavours
+      const double Nf = 3;
+
+      // Form factors
+      // TODO: Missing
+      const double A12 = 1;
+      const double T23 = 0;
+
+      // Helicity amplitudes
+      const double HV0 = 8./sqrt(q2)*mB*mKstar*A12;
+      const double HT0 = -(4.*mB*mKstar)/(mB + mKstar)*T23;
+
+      double FL_Knunu_q2 = Nf*pow(sminputs.GF * Vts * Vtb / sminputs.alphainv,2) / (192. * 16*pow(pi,5)*pow(mb,3)) * q2 * pow(lambdaK(q2,mB,mKstar),1/2) * (1./dGammaBKstarnunudq2(q2, param, sminputs, mB, mKstar)) * (std::norm(CLLSM + CVLL - CVRL) * HV0*HV0 - 8.*std::norm(CTLL) * HT0*HT0 + std::norm(CVLR - CVRR)  * HV0*HV0 -8.* std::norm(CTRR) * HT0*HT0 );
+
+      return FL_Knunu_q2;
+
+    }
+
+    /// Calculation of FL_Knunu
+    void FL_Knunu(double &result)
+    {
+      using namespace Pipes::FL_Knunu;
+
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaon0;
+
+      std::function<double(double)> FL_q2 = [&](double q2)
+      {
+        return FL_Knunu_q2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(FL_q2, q2min, q2max, epsabs, epsrel);
+
+    }
+
+    /// Calculation of BR(B_u+ -> K+ nu nu)
+    void BuKnunu(double &result)
+    {
+      using namespace Pipes::BuKnunu;
+
+      // Meson masses
+      const double mB = Mesons_masses::B_plus;
+      const double mK = Mesons_masses::kaon_plus;
+
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
+    }
+
+    /// Calculation of BR(B -> K* nu nu)
+    void BKstarnunu(double &result)
+    {
+      using namespace Pipes::BKstarnunu;
+
+      // Meson masses
+      const double mB = Mesons_masses::B_0;
+      const double mK = Mesons_masses::kaonstar0;
+
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
+    }
+
+   /// Calculation of BR(B_u+ -> K*+ nu nu)
+    void BuKstarnunu(double &result)
+    {
+      using namespace Pipes::BuKstarnunu;
+
+      // Meson masses
+      const double mB = Mesons_masses::B_plus;
+      const double mK = Mesons_masses::kaonstar_plus;
+
+      std::function<double(double)> dGammadq2 = [&](double q2)
+      {
+        return dGammaBKstarnunudq2(q2, *Dep::WC_nunu_parameters, *Dep::SMINPUTS, mB, mK);
+      };
+
+      // Integration limits and variables
+      double q2min = 0., q2max = pow(mB - mK,2);
+      static double epsabs = 0;
+      static double epsrel = 1e-2;
+
+      result = Utils::integrate_cquad(dGammadq2, q2min, q2max, epsabs, epsrel);
+
+    }
+
+    /// Observable: RKnunu = BR(B_u+ -> K+ nu nu) / BR(B_u+ -> K+ nu nu)_SM
+    void RKnunu(double &result)
+    {
+      using namespace Pipes::RKnunu;
+
+      // SM prediction for BR(B_u+ -> K+ nu nu), from 2107.01080
+      const double BuKnunuSM = 4.6e-6;
+      const double BuKnunuSM_uncert = 0.5e-6;
+
+      result = *Dep::BuKnunu / BuKnunuSM;
+    }
+
+    /// Observable: RKstarnunu = BR(B -> Kstar nu nu) / BR(B -> Kstar nu nu)_SM
+    void RKstarnunu(double &result)
+    {
+      using namespace Pipes::RKstarnunu;
+
+      // SM prediction for BR(B -> Kstar nu nu), from 2107.01080
+      // TODO: I think this is outdated, check
+      const double BKstarnunuSM = 8.4e-6;
+      const double BKstarnunuSM_uncert = 1.5e-6;
+
+      result = *Dep::BKstarnunu / BKstarnunuSM;
     }
 
     ///These functions extract observables from a FeynHiggs flavour result
@@ -1172,7 +1474,7 @@ namespace Gambit
 
       if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
-      flav_binned_prediction binned_prediction= *Dep::prediction_B2KstarmumuAng_LHCb;
+      flav_binned_prediction binned_prediction= *Dep::prediction_Bu2KstarmumuAng_LHCb;
       std::vector<flav_prediction> prediction;
       for(auto pred : binned_prediction)
         prediction.push_back(pred.second);
@@ -1196,7 +1498,7 @@ namespace Gambit
         result += nDimGaussian[i].GetLogLikelihood(get_obs_theory(prediction[i], obs_list), get_obs_covariance(prediction[i], obs_list));
       }
 
-      if (flav_debug) std::cout << "HEPLike_Bu2KstarmumuAng_LogLikelihood_LHCb 2020 result: " << result << std::endl;
+      if (flav_debug) std::cout << "HEPLike_Bu2KstarmumuAng_LogLikelihood_LHCb result: " << result << std::endl;
     }
 
     /// HEPLike LogLikelihood B -> K* mu mu Br (LHCb)
@@ -1389,7 +1691,7 @@ namespace Gambit
       //result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
       result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
 
-      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHC_LHCb result: " << result << std::endl;
+      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHCb result: " << result << std::endl;
     }
 
     /// Likelihood for RKstar
@@ -1500,6 +1802,305 @@ namespace Gambit
 
       if (flav_debug) std::cout << "HEPLike_RKstar_LogLikelihood_LHCb result: " << result << std::endl;
     }
+
+    /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with semileptonic tagging
+    void HEPLike_BKnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BKnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/B2KNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with hadronic tagging
+    void HEPLike_BKnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BKnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/B2KNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with semileptonic tagging
+    void HEPLike_BuKnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BuKnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/Bu2KNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BuKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from Belle with hadronic tagging
+    void HEPLike_BuKnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BuKnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/Bu2KNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BuKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B_u+ -> K+ nu nu) from BelleII
+    void HEPLike_BuKnunu_LogLikelihood_BelleII(double &result)
+    {
+      using namespace Pipes::HEPLike_BuKnunu_LogLikelihood_BelleII;
+
+      static const std::string inputfile = heplike_data_file("/data/BelleII/Inclusive/Bu2KNuNu/KEK-2020-45.yaml");
+      static HepLike_default::HL_BifurGaussian BifurGaussian(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        BifurGaussian.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BuKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      result = BifurGaussian.GetLogLikelihood(theory, theory_variance);
+    }
+
+    /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with semileptonic tagging
+    void HEPLike_BKstarnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BKstarnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/B2KstarNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B -> K* nu nu) from Belle with hadronic tagging
+    void HEPLike_BKstarnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BKstarnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/B2KstarNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with semileptonic tagging
+    void HEPLike_BuKstarnunu_LogLikelihood_Belle_sl(double &result)
+    {
+      using namespace Pipes::HEPLike_BuKstarnunu_LogLikelihood_Belle_sl;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Semileptonic/Bu2KstarNuNu/KEK-2017-6.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BuKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikehood for BR(B_u+ -> K*+ nu nu) from Belle with hadronic tagging
+    void HEPLike_BuKstarnunu_LogLikelihood_Belle_had(double &result)
+    {
+      using namespace Pipes::HEPLike_BuKstarnunu_LogLikelihood_Belle_had;
+
+      static const std::string inputfile = heplike_data_file("/data/Belle/Hadronic/Bu2KstarNuNu/KEK-2012-37.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BuKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B -> K nu nu) from BaBar
+    void HEPLike_BKnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BKnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/B2KNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B_u+ -> K+ nu nu) from BaBar
+    void HEPLike_BuKnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BuKnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/Bu2KNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BuKnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B -> K* nu nu) from BaBar
+    void HEPLike_BKstarnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BKstarnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/B2KstarNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
+    /// HEPLike LogLikelihood for BR(B_u+ -> K*+ nu nu) from BaBar
+    void HEPLike_BuKstarnunu_LogLikelihood_BaBar(double &result)
+    {
+      using namespace Pipes::HEPLike_BuKstarnunu_LogLikelihood_BaBar;
+
+      static const std::string inputfile = heplike_data_file("/data/BaBar/Combined/Bu2KstarNuNu/BABAR-2013-002.yaml");
+      static HepLike_default::HL_Limit Limit(inputfile);
+
+      static bool first = true;
+      if (first)
+      {
+        Limit.Read();
+        first = false;
+      }
+
+      const double theory = *Dep::BuKstarnunu;
+      // TODO: Deal properly with theory uncertainty
+      const double theory_variance = 0.001;
+
+      // TODO: Implement theory uncertainty of HL_Limit
+      result = Limit.GetLogLikelihood(theory);
+    }
+
 
   }
 }

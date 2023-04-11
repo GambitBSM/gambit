@@ -24,6 +24,7 @@ namespace Gambit
       {
          typedef ::HepLike_2_0::HL_Gaussian HL_Gaussian;
          typedef ::HepLike_2_0::HL_BifurGaussian HL_BifurGaussian;
+         typedef ::HepLike_2_0::HL_Limit HL_Limit;
          typedef ::HepLike_2_0::HL_ProfLikelihood HL_ProfLikelihood;
          typedef ::HepLike_2_0::HL_nDimBifurGaussian HL_nDimBifurGaussian;
          typedef ::HepLike_2_0::HL_nDimGaussian HL_nDimGaussian;

@@ -114,6 +114,13 @@ namespace Gambit
       return Backends::backendInfo().corrected_path("HepLikeData", working_data.back());
     }
 
+    str heplike_data_file(str filename)
+    {
+      str filepath = path_to_latest_heplike_data() + filename;
+      if(not Utils::file_exists(filepath))
+        FlavBit_error().raise(LOCAL_INFO, "HepLikeData file " + filepath + " not found");
+      return filepath;
+    }
 
     /// Extract central values of the given observables from the central value map.
     std::vector<double> get_obs_theory(const flav_prediction& prediction, const std::vector<std::string>& observables)

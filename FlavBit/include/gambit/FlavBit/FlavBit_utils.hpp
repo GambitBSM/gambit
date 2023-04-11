@@ -129,6 +129,9 @@ namespace Gambit
     /// Find the path to the latest installed version of the HepLike data
     str path_to_latest_heplike_data();
 
+    /// Find the heplikedata file
+    str heplike_data_file(str);
+
     /// Extract central values of the given observables from the central value map.
     std::vector<double> get_obs_theory(const flav_prediction& prediction, const std::vector<std::string>& observables);
 

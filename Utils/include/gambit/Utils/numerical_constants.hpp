@@ -51,7 +51,7 @@ namespace Gambit
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
   const double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
   const double s2cm = 2.99792458e10;                            // cm per s
-  const double m_planck = 1.220910e19;                          // Planck mass (GeV) 
+  const double m_planck = 1.220910e19;                          // Planck mass (GeV)
   const double m_planck_red = m_planck/sqrt(8.0*pi);            // reduced Planck mass (GeV)
   const double atomic_mass_unit = 0.931494028;                  // atomic mass unit (GeV/c^2)
   const double m_proton_amu = 1.00727646688;                    // proton mass (amu)
@@ -118,10 +118,13 @@ namespace Gambit
     static constexpr double kaon_plus = 0.4937;   // charged kaon meson mass (GeV/c^2)
     static constexpr double kaon_minus = 0.4937;  // charged kaon meson mass (GeV/c^2)
     static constexpr double kaon0 = 0.4976;       // neutral kaon meson mass (GeV/c^2)
+    static constexpr double kaonstar_plus = 0.89166; // charged kaon* meson mass (GeV/c^2)
+    static constexpr double kaonstar0 = 0.89581; // neutral kaon* meson mass (GeV/c^2)
     static constexpr double rho1450 = 1.465;      // rho(1450) mass (GeV/c^2)
     static constexpr double D_plus = 1.86962;     // charged D meson mass (GeV/c^2)
     static constexpr double D_s = 1.96847;        // D_s meson mass (GeV/c^2)
-    static constexpr double B_plus = 5.27929;     // charged B meson mass (GeV/c^2)
+    static constexpr double B_0 = 5.27966;        // neutral B meson mass (GeV/c^2)
+    static constexpr double B_plus = 5.27934;     // charged B meson mass (GeV/c^2)
     static constexpr double B_s = 5.36679;        // B_s meson mass (GeV/c^2)
     static constexpr double B_c = 6.2751;         // B_c meson mass (GeV/c^2)
     static constexpr double eta_prime = 0.95778;  // eta prime meson mass (GeV/c^2)
