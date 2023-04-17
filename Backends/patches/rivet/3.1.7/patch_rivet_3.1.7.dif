@@ -264,7 +264,7 @@ diff -rupN Rivet-3.1.7/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.
  
  
  namespace Rivet {
-diff -rupN Rivet-3.1.7/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.7/src/Core/AnalysisHandler.c
+diff -rupN Rivet-3.1.7/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.7/src/Core/AnalysisHandler.cc
 --- Rivet-3.1.7/src/Core/AnalysisHandler.cc	2022-07-26 09:34:20.000000000 +0100
 +++ ../installed/rivet/3.1.7/src/Core/AnalysisHandler.cc	2023-04-14 14:55:04.100679799 +0100
 @@ -123,7 +123,8 @@ namespace Rivet {
