@@ -66,16 +66,8 @@ diff -rupN Rivet-3.1.7/include/Rivet/Makefile.in ../installed/rivet/3.1.7/includ
  .SUFFIXES:
 diff -rupN Rivet-3.1.7/src/Core/Makefile.in ../installed/rivet/3.1.7/src/Core/Makefile.in
 --- Rivet-3.1.7/src/Core/Makefile.in	2022-09-28 14:33:10.000000000 +0100
-+++ ../installed/rivet/3.1.7/src/Core/Makefile.in	2023-04-14 16:18:03.244227378 +0100
-@@ -110,6 +110,7 @@ CONFIG_CLEAN_VPATH_FILES =
- LTLIBRARIES = $(noinst_LTLIBRARIES)
- libRivetCore_la_DEPENDENCIES =  \
- 	$(builddir)/yamlcpp/librivet-yaml-cpp.la
-+# Modified by GAMBIT
- am_libRivetCore_la_OBJECTS = libRivetCore_la-Run.lo \
- 	libRivetCore_la-Event.lo libRivetCore_la-Jet.lo \
- 	libRivetCore_la-Particle.lo \
-@@ -118,7 +119,12 @@ am_libRivetCore_la_OBJECTS = libRivetCor
++++ ../installed/rivet/3.1.7/src/Core/Makefile.in	2023-04-18 15:47:59.480540099 +0100
+@@ -118,7 +118,12 @@ am_libRivetCore_la_OBJECTS = libRivetCor
  	libRivetCore_la-AnalysisLoader.lo \
  	libRivetCore_la-AnalysisInfo.lo \
  	libRivetCore_la-AnalysisHandler.lo \
@@ -89,12 +81,19 @@ diff -rupN Rivet-3.1.7/src/Core/Makefile.in ../installed/rivet/3.1.7/src/Core/Ma
  libRivetCore_la_OBJECTS = $(am_libRivetCore_la_OBJECTS)
  AM_V_lt = $(am__v_lt_@AM_V@)
  am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-@@ -442,11 +448,17 @@ top_srcdir = @top_srcdir@
- SUBDIRS = yamlcpp .
- EXTRA_DIST = zstr
- noinst_LTLIBRARIES = libRivetCore.la
-+# Modified by GAMBIT
- libRivetCore_la_SOURCES = \
+@@ -143,6 +148,11 @@ am__depfiles_remade = ./$(DEPDIR)/libRiv
+ 	./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo \
+ 	./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo \
+ 	./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo \
++	./$(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo \
++	./$(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo \
++	./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo \
++	./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo \
++	./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo \
+ 	./$(DEPDIR)/libRivetCore_la-Event.Plo \
+ 	./$(DEPDIR)/libRivetCore_la-Jet.Plo \
+ 	./$(DEPDIR)/libRivetCore_la-Particle.Plo \
+@@ -446,7 +456,12 @@ libRivetCore_la_SOURCES = \
    Run.cc Event.cc Jet.cc Particle.cc \
    ProjectionApplier.cc Projection.cc \
    Analysis.cc AnalysisLoader.cc AnalysisInfo.cc \
@@ -108,67 +107,22 @@ diff -rupN Rivet-3.1.7/src/Core/Makefile.in ../installed/rivet/3.1.7/src/Core/Ma
  
  libRivetCore_la_CPPFLAGS = -I$(srcdir)/yamlcpp -DYAML_NAMESPACE=RIVET_YAML $(AM_CPPFLAGS)
  libRivetCore_la_LIBADD = $(builddir)/yamlcpp/librivet-yaml-cpp.la
-@@ -515,6 +527,12 @@ distclean-compile:
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-ProjectionApplier.Plo@am__quote@ # am--include-marker
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-ProjectionHandler.Plo@am__quote@ # am--include-marker
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Run.Plo@am__quote@ # am--include-marker
-+# Added by GAMBIT
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo@am__quote@
-+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo@am__quote@
- 
- $(am__depfiles_remade):
- 	@$(MKDIR_P) $(@D)
-@@ -529,6 +547,42 @@ am--depfiles: $(am__depfiles_remade)
- @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
- @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
- 
-+# Added by GAMBIT
-+libRivetCore_la-BOSS_wrapperutils.lo: BOSS_wrapperutils.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_wrapperutils.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Tpo -c -o libRivetCore_la-BOSS_wrapperutils.lo `test -f 'BOSS_wrapperutils.cc' || echo '$(srcdir)/'`BOSS_wrapperutils.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Tpo $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_wrapperutils.cc' object='libRivetCore_la-BOSS_wrapperutils.lo' libtool=yes @AMDEPBACKSLASH@
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_wrapperutils.lo `test -f 'BOSS_wrapperutils.cc' || echo '$(srcdir)/'`BOSS_wrapperutils.cc
-+
-+libRivetCore_la-BOSS_AnalysisHandler.lo: BOSS_AnalysisHandler.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_AnalysisHandler.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Tpo -c -o libRivetCore_la-BOSS_AnalysisHandler.lo `test -f 'BOSS_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_AnalysisHandler.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Tpo $(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_AnalysisHandler.cc' object='libRivetCore_la-BOSS_AnalysisHandler.lo' libtool=yes @AMDEPBACKSLASH@
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_AnalysisHandler.lo `test -f 'BOSS_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_AnalysisHandler.cc
-+
-+libRivetCore_la-BOSS_factory_AnalysisHandler.lo: BOSS_factory_AnalysisHandler.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_factory_AnalysisHandler.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Tpo -c -o libRivetCore_la-BOSS_factory_AnalysisHandler.lo `test -f 'BOSS_factory_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_factory_AnalysisHandler.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Tpo $(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_factory_AnalysisHandler.cc' object='libRivetCore_la-BOSS_factory_AnalysisHandler.lo' libtool=yes @AMDEPBACKSLASH@
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_factory_AnalysisHandler.lo `test -f 'BOSS_factory_AnalysisHandler.cc' || echo '$(srcdir)/'`BOSS_factory_AnalysisHandler.cc
-+
-+libRivetCore_la-BOSS_func_addAnalysisLibPath.lo: BOSS_func_addAnalysisLibPath.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_func_addAnalysisLibPath.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Tpo -c -o libRivetCore_la-BOSS_func_addAnalysisLibPath.lo `test -f 'BOSS_func_addAnalysisLibPath.cc' || echo '$(srcdir)/'`BOSS_func_addAnalysisLibPath.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Tpo $(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_func_addAnalysisLibPath.cc' object='libRivetCore_la-BOSS_func_addAnalysisLibPath.lo' libtool=yes @AMDEPBACKSLASH@
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_func_addAnalysisLibPath.lo `test -f 'BOSS_func_addAnalysisLibPath.cc' || echo '$(srcdir)/'`BOSS_func_addAnalysisLibPath.cc
-+
-+libRivetCore_la-BOSS_function_return_utils.lo: BOSS_function_return_utils.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_function_return_utils.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Tpo -c -o libRivetCore_la-BOSS_function_return_utils.lo `test -f 'BOSS_function_return_utils.cc' || echo '$(srcdir)/'`BOSS_function_return_utils.cc
-+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Tpo $(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BOSS_function_return_utils.cc' object='libRivetCore_la-BOSS_function_return_utils.lo' libtool=yes @AMDEPBACKSLASH@
-+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-BOSS_function_return_utils.lo `test -f 'BOSS_function_return_utils.cc' || echo '$(srcdir)/'`BOSS_function_return_utils.cc
-+
- .cc.obj:
- @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
- @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@@ -620,6 +674,42 @@ libRivetCore_la-ProjectionHandler.lo: Pr
+@@ -508,6 +523,11 @@ distclean-compile:
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo@am__quote@ # am--include-marker
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo@am__quote@ # am--include-marker
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo@am__quote@ # am--include-marker
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo@am__quote@ # am--include-marker
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo@am__quote@ # am--include-marker
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Event.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Jet.Plo@am__quote@ # am--include-marker
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libRivetCore_la-Particle.Plo@am__quote@ # am--include-marker
+@@ -620,6 +640,41 @@ libRivetCore_la-ProjectionHandler.lo: Pr
  @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
  @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libRivetCore_la-ProjectionHandler.lo `test -f 'ProjectionHandler.cc' || echo '$(srcdir)/'`ProjectionHandler.cc
  
-+# Added by GAMBIT
 +libRivetCore_la-BOSS_wrapperutils.lo: BOSS_wrapperutils.cc
 +@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libRivetCore_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libRivetCore_la-BOSS_wrapperutils.lo -MD -MP -MF $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Tpo -c -o libRivetCore_la-BOSS_wrapperutils.lo `test -f 'BOSS_wrapperutils.cc' || echo '$(srcdir)/'`BOSS_wrapperutils.cc
 +@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Tpo $(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo
@@ -207,6 +161,30 @@ diff -rupN Rivet-3.1.7/src/Core/Makefile.in ../installed/rivet/3.1.7/src/Core/Ma
  mostlyclean-libtool:
  	-rm -f *.lo
  
+@@ -828,6 +883,11 @@ distclean: distclean-recursive
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-Event.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-Jet.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-Particle.Plo
+@@ -884,6 +944,11 @@ maintainer-clean: maintainer-clean-recur
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisHandler.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisInfo.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-AnalysisLoader.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_AnalysisHandler.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_factory_AnalysisHandler.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_func_addAnalysisLibPath.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_function_return_utils.Plo
++	-rm -f ./$(DEPDIR)/libRivetCore_la-BOSS_wrapperutils.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-Event.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-Jet.Plo
+ 	-rm -f ./$(DEPDIR)/libRivetCore_la-Particle.Plo 
 diff -rupN Rivet-3.1.7/include/Rivet/AnalysisHandler.hh ../installed/rivet/3.1.7/include/Rivet/AnalysisHandler.hh
 --- Rivet-3.1.7/include/Rivet/AnalysisHandler.hh	2022-05-05 15:06:25.000000000 +0100
 +++ ../installed/rivet/3.1.7/include/Rivet/AnalysisHandler.hh	2023-04-14 14:55:04.096679845 +0100
