@@ -1,7 +1,7 @@
 diff -rupN Rivet-3.1.7/Makefile.in ../installed/rivet/3.1.7/Makefile.in
 --- Rivet-3.1.7/Makefile.in	2022-09-28 14:32:46.000000000 +0100
 +++ ../installed/rivet/3.1.7/Makefile.in	2023-04-14 14:55:04.096679845 +0100
-@@ -457,6 +457,20 @@ pkgconfigdir = $(libdir)/pkgconfig
+@@ -457,6 +457,21 @@ pkgconfigdir = $(libdir)/pkgconfig
  dist_pkgconfig_DATA = rivet.pc
  DEST = login.hepforge.org:rivet/downloads/
  all: all-recursive
@@ -15,6 +15,7 @@ diff -rupN Rivet-3.1.7/Makefile.in ../installed/rivet/3.1.7/Makefile.in
 +	cd ${top_builddir}/src && ${MAKE} $(AM_MAKEFLAGS) libRivet.la
 +	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) install
 +	cd ${top_builddir}/pyext && ${MAKE} $(AM_MAKEFLAGS) install
++	cd ${top_builddir}/analyses && ${MAKE} $(AM_MAKEFLAGS) RivetATLASAnalyses.so RivetCMSAnalyses.so RivetLHCbAnalyses.so
 +	mkdir -p ${libdir}
 +	if test -e ${top_builddir}/src/.libs/libRivet.so ; then cp ${top_builddir}/src/.libs/libRivet.so ${libdir}/libRivet.so ; fi
 +	if test -e ${top_builddir}/src/.libs/libRivet.dylib ; then cp ${top_builddir}/src/.libs/libRivet.dylib ${libdir}/libRivet.so ; fi
@@ -22,7 +23,7 @@ diff -rupN Rivet-3.1.7/Makefile.in ../installed/rivet/3.1.7/Makefile.in
  
  .SUFFIXES:
  am--refresh: Makefile
-@@ -529,6 +543,7 @@ mostlyclean-libtool:
+@@ -529,6 +544,7 @@ mostlyclean-libtool:
  
  clean-libtool:
  	-rm -rf .libs _libs
