@@ -828,8 +828,10 @@ def getTemplatedMethodTypes(func_el, class_name):
         else:
             method_types['return'] = method[:lo].strip()
 
-        # Find the last ')'
-        last_bracket_index = max([i for i, ltr in enumerate(method) if ltr == ')'])
+        # Find the last ')' before any '{'
+        first_curly_index = [i for i, ltr in enumerate(method) if ltr == '{']
+        first_curly_index = min(first_curly_index) if len(first_curly_index) > 0 else len(method)
+        last_bracket_index = max([i for i, ltr in enumerate(method[:first_curly_index]) if ltr == ')'])
 
         # Find the args
         brackets = method[hi:last_bracket_index]
