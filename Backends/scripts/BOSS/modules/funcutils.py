@@ -150,21 +150,11 @@ def ignoreFunction(func_el, limit_pointerness=False, remove_n_args=0, print_warn
     if func_name['long_templ_args'] in cfg.ditch:
         return True
 
-    # TODO: When BOSS starts accepting template functions, add a check for the template arguments
-    # TODO: TG: Checking that the template arguments are not ignored and they are accepted types
     if utils.isTemplateFunction(func_el):
         spec_template_types = utils.getSpecTemplateTypes(func_el)
         for template_type in spec_template_types:
             if template_type in cfg.ditch or template_type not in gb.accepted_types:
                 return True
-
-    # Ignore templated functions (BOSS cannot deal with that yet...)
-    # TODO: TG: We kind of do now
-    # if utils.isTemplateFunction(func_el):
-    #    if print_warning:
-    #        reason = "Templated function. BOSS cannot deal with this yet."
-    #        infomsg.IgnoredFunction(func_name['long_templ_args'], reason).printMessage()
-    #    return True
 
     # Check if this is an operator function
     is_operator = (func_el.tag == 'OperatorMethod')
