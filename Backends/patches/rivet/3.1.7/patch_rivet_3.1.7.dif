@@ -243,6 +243,50 @@ diff -rupN Rivet-3.1.7/include/Rivet/Tools/RivetHepMC.hh ../installed/rivet/3.1.
  
  
  namespace Rivet {
+diff -rupN Rivet-3.1.7/analyses/Makefile.in ../installed/rivet/3.1.7/analyses/Makefile.in
+--- Rivet-3.1.7/analyses/Makefile.in	2022-09-28 14:33:10.000000000 +0100
++++ ../installed/rivet/3.1.7/analyses/Makefile.in	2023-04-19 21:07:06.580845603 +0100
+@@ -329,10 +329,10 @@ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+ AUTOMAKE_OPTIONS = -Wno-portability
+-PLUGIN_DIRS = $(shell ls -d $(srcdir)/plugin*)
++PLUGIN_DIRS = $(shell ls -d $(srcdir)/pluginCMS $(srcdir)/pluginATLAS $(srcdir)/pluginLHCb)
+ PLUGIN_NAMES = $(notdir $(subst plugin,,$(PLUGIN_DIRS)))
+ PLUGIN_LIBS = $(patsubst %,Rivet%Analyses.so,$(PLUGIN_NAMES))
+-PLUGIN_DATAFILES = $(shell ls $(abs_srcdir)/plugin*/*.*)
++PLUGIN_DATAFILES = $(shell ls $(abs_srcdir)/pluginCMS/*.* $(abs_srcdir)/pluginATLAS/*.* $(abs_srcdir)/pluginLHCb/*.*)
+ CLEANFILES = $(PLUGIN_LIBS)
+ EXTRA_DIST = $(PLUGIN_DIRS) examples
+ all: all-am
+@@ -449,8 +449,8 @@ distclean-generic:
+ maintainer-clean-generic:
+ 	@echo "This command is intended for maintainers to use"
+ 	@echo "it deletes files that may require special tools to rebuild."
+-@ENABLE_ANALYSES_FALSE@install-data-local:
+ @ENABLE_ANALYSES_FALSE@install-exec-local:
++@ENABLE_ANALYSES_FALSE@install-data-local:
+ @ENABLE_ANALYSES_FALSE@uninstall-local:
+ clean: clean-am
+ 
+@@ -567,7 +567,7 @@ RivetTristanAnalyses.so: $(filter-out $(
+ 
+ @ENABLE_ANALYSES_TRUE@all-local: $(PLUGIN_LIBS) $(PLUGIN_DATAFILES)
+ @ENABLE_ANALYSES_TRUE@	mkdir -p $(builddir)/data
+-@ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/plugin*; do $(LN_S) -f $${pdir}/*.* $(builddir)/data; done
++@ENABLE_ANALYSES_TRUE@	for pdir in $(abs_srcdir)/pluginCMS $(abs_srcdir)/pluginATLAS $(abs_srcdir)/pluginLHCb; do $(LN_S) -f $${pdir}/*.* $(builddir)/data; done
+ 
+ @ENABLE_ANALYSES_TRUE@install-exec-local: $(PLUGIN_LIBS)
+ @ENABLE_ANALYSES_TRUE@	$(MKDIR_P) $(DESTDIR)$(libdir)/Rivet
+@@ -576,7 +576,7 @@ RivetTristanAnalyses.so: $(filter-out $(
+ @ENABLE_ANALYSES_TRUE@install-data-local: $(PLUGIN_DATAFILES)
+ @ENABLE_ANALYSES_TRUE@	@echo "Installing analysis data files..."
+ @ENABLE_ANALYSES_TRUE@	$(mkdir_p) $(DESTDIR)$(pkgdatadir)
+-@ENABLE_ANALYSES_TRUE@	for pdir in $(srcdir)/plugin* $(srcdir)/examples; do $(FCP) $${pdir}/*.* $(DESTDIR)$(pkgdatadir)/; done
++@ENABLE_ANALYSES_TRUE@	for pdir in $(srcdir)/pluginCMS $(srcdir)/pluginLHCb $(srcdir)/pluginATLAS $(srcdir)/examples; do $(FCP) $${pdir}/*.* $(DESTDIR)$(pkgdatadir)/; done
+ 
+ @ENABLE_ANALYSES_TRUE@uninstall-local:
+ @ENABLE_ANALYSES_TRUE@	cd $(DESTDIR)$(libdir) && rm -f $(PLUGIN_LIBS)
 diff -rupN Rivet-3.1.7/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.7/src/Core/AnalysisHandler.cc
 --- Rivet-3.1.7/src/Core/AnalysisHandler.cc	2022-07-26 09:34:20.000000000 +0100
 +++ ../installed/rivet/3.1.7/src/Core/AnalysisHandler.cc	2023-04-14 14:55:04.100679799 +0100
