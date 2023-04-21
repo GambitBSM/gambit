@@ -1,0 +1,27 @@
+# Simple example input file for running CBS
+# Pat Scott May 2019
+
+#TP 19th Jul 2019 - just fiddled slightly with the original to take a hepmc file from
+#the ATLAS_0Lep analysis (generated in PYTHIA) which we are using to verify CBS.
+#Settings adjusted accordingly.
+
+#EDIT TP Jul 22nd - using input from GAMBIT to esnure consistency.generate
+
+analyses:
+  - ATLAS_13TeV_0LEP_139invfb
+settings:
+  debug: true
+  seed: 1337
+  event_file: GAMBIT_collider_events.omp_thread_0.hepmc3
+  cross_section_fb: 11.5
+  cross_section_fractional_uncert: 0.318422
+  events_between_convergence_checks: 100000
+  target_fractional_uncert: 0.02
+  halt_when_systematic_dominated: true
+  all_analyses_must_converge: true
+  all_SR_must_converge: true
+  use_covariances: false
+  combine_SRs_without_covariances: false
+  covariance_marg_convthres_abs: 0.05
+  covariance_marg_convthres_rel: 0.05
+  covariance_nsamples_start: 100000
