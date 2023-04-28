@@ -86,7 +86,7 @@ namespace Gambit
       //changing the rows:
       for (unsigned i=0; i <  names_exist.size(); i++)
       {
-        string name1=names_exist[i];
+	std::string name1=names_exist[i];
         std::map<const std::string, double> row=prediction[name1];
         for (std::map<const std::string, double>::iterator it=row.begin(); it !=row.end(); it++)
         {
@@ -96,10 +96,10 @@ namespace Gambit
       // changing the columns:
       for (flav_covariance_map::iterator it=prediction.begin(); it !=prediction.end(); it++)
       {
-        string name_columns=it->first;
+	std::string name_columns=it->first;
         for (unsigned i=0; i <  names_exist.size(); i++)
         {
-          string name1=names_exist[i];
+          std::string name1=names_exist[i];
           prediction[name_columns][name1]=(-1)*prediction[name_columns][name1];
         }
       }
