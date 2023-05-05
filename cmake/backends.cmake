@@ -2129,9 +2129,9 @@ endif()
 
 # Contur
 set(name "contur")
-set(ver "2.1.1")
+set(ver "2.4.1")
 set(dl "https://gitlab.com/hepcedar/${name}/-/archive/${name}-${ver}/${name}-${name}-${ver}.tar.gz")
-set(md5 "ecb91229775b62e5d71c8089d78b2ff6")
+set(md5 "c8d988c279b333794f4b66c9b19025de")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(contur_dir "${dir}/contur")
 set(init_file ${contur_dir}/init_by_GAMBIT.py)
@@ -2168,7 +2168,7 @@ if(NOT ditched_${name}_${ver})
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisLibPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Rivet\")" >> ${init_file}
                 COMMAND ${CMAKE_COMMAND} -E echo "addAnalysisDataPath(\"${dir}/data/Theory\")" >> ${init_file}
-      BUILD_COMMAND ${MAKE_PARALLEL} "data/DB/analyses.db"
+      BUILD_COMMAND cd ${dir}/data/DB  && ${MAKE_PARALLEL} "analyses.db" && cd -
       INSTALL_COMMAND ""
     )
   endif()
