@@ -2051,10 +2051,10 @@ endif()
 
 # Rivet
 set(name "rivet")
-set(ver "3.1.7")
+set(ver "3.1.8")
 set(Rivet_ver "${ver}")
 set(dl "https://rivet.hepforge.org/downloads/?f=Rivet-${ver}.tar.gz")
-set(md5 "328b371eb644fe616b1e2b03b2cf99d3")
+set(md5 "e60c75562572905ed9984c67ada1241b")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(yoda_name "yoda")
 set(yoda_dir "${YODA_PATH}/local")
@@ -2087,8 +2087,8 @@ endif()
 
 set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
-## Rivet needs to be compiled with c++14 or c++17, otherwise it will fail to compile
-set(ditch_if_absent "HepMC;YODA;c++14")
+## Rivet needs to be compiled with c++17, otherwise it will fail to compile
+set(ditch_if_absent "HepMC;YODA;c++17")
 ## If cython is not installed disable the python extension
 gambit_find_python_module(cython)
 if(PY_cython_FOUND)
