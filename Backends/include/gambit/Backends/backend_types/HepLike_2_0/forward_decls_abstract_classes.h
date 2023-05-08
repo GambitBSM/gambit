@@ -12,6 +12,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    class Abstract_HL_BifurGaussian;
    
    
+   class Abstract_HL_Limit;
+   
    class Abstract_HL_ProfLikelihood;
    
    class Abstract_HL_nDimBifurGaussian;

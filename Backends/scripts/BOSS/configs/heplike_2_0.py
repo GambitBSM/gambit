@@ -22,23 +22,14 @@
 
 castxml_cc_id  = 'gnu'         # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
 castxml_cc     = 'g++'         # Name a specific compiler: 'g++', 'cl', ...
-<<<<<<<< HEAD:Backends/scripts/BOSS/configs/heplike_1_3.py
-#castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
-castxml_cc_opt = '-std=c++14 -D __builtin_sincos(x,y,z)=::sincos(x,y,z)'  # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
-========
 castxml_cc_opt = '-std=c++14 -D __builtin_sincos=::sincos'  # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
->>>>>>>> master:Backends/scripts/BOSS/configs/heplike_2_0.py
 
 
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
 gambit_backend_name    = 'HepLike'
-<<<<<<<< HEAD:Backends/scripts/BOSS/configs/heplike_1_3.py
-gambit_backend_version = '1.3'
-========
 gambit_backend_version = '2.0'
->>>>>>>> master:Backends/scripts/BOSS/configs/heplike_2_0.py
 gambit_backend_reference = 'Bhom:2020bfe'
 gambit_base_namespace  = ''
 
@@ -56,6 +47,7 @@ input_files = [
     install_path+'/include/HL_nDimGaussian.h',
     install_path+'/include/HL_nDimLikelihood.h',
     install_path+'/include/HL_ProfLikelihood.h',
+    install_path+'/include/HL_Limit.h'
 ]
 include_paths = [install_path+'/include/', install_path+'/yaml-cpp/include/']
 base_paths = [install_path]
@@ -70,6 +62,7 @@ load_classes = [
     'HL_nDimGaussian',
     'HL_ProfLikelihood',
     'HL_nDimLikelihood',
+    'HL_Limit'
 ]
 
 load_functions = []
@@ -130,11 +123,12 @@ pragmas_end = [
 
 # ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
 
-# The listed code will be added at the top/bottom in the frontend header file 
+# The listed code will be added at the top/bottom in the frontend header file
 # and in the loaded_types.hpp header.
 
 surround_code_begin = '''
 '''
 
-surround_code_end = ''' 
+surround_code_end = '''
 '''
+
