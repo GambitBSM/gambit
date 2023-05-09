@@ -6796,4 +6796,3 @@ simplexs_init: |
 
 simplexs_get_xsection: |
   simple_xs backend function that returns the cross-section for a given process.
-#>>>>>>> master
