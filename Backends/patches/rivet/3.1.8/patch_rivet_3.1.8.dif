@@ -55,13 +55,13 @@ diff -rupN Rivet-3.1.8/include/Rivet/Makefile.in ../installed/rivet/3.1.8/includ
 +    ../gambit/Backends/wrappertypedefs.hh \
 +    ../gambit/Backends/function_return_utils.hpp \
 +    ../gambit/Utils/cats.hpp \
-+    ../backend_types/Rivet_3_1_7/identification.hpp \
-+    ../backend_types/Rivet_3_1_7/forward_decls_abstract_classes.hh \
-+    ../backend_types/Rivet_3_1_7/forward_decls_wrapper_classes.hh \
-+    ../backend_types/Rivet_3_1_7/abstract_AnalysisHandler.hh \
-+    ../backend_types/Rivet_3_1_7/wrapper_AnalysisHandler.hh \
-+    ../backend_types/Rivet_3_1_7/wrapper_AnalysisHandler_decl.hh \
-+    ../backend_types/Rivet_3_1_7/wrapper_AnalysisHandler_def.hh
++    ../backend_types/Rivet_3_1_8/identification.hpp \
++    ../backend_types/Rivet_3_1_8/forward_decls_abstract_classes.hh \
++    ../backend_types/Rivet_3_1_8/forward_decls_wrapper_classes.hh \
++    ../backend_types/Rivet_3_1_8/abstract_AnalysisHandler.hh \
++    ../backend_types/Rivet_3_1_8/wrapper_AnalysisHandler.hh \
++    ../backend_types/Rivet_3_1_8/wrapper_AnalysisHandler_decl.hh \
++    ../backend_types/Rivet_3_1_8/wrapper_AnalysisHandler_def.hh
  all: all-am
  
  .SUFFIXES:
