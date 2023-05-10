@@ -88,6 +88,26 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +
 +/*--------------------------------------------------------------------*/
 +
++double AHH_RR(double xH, double xt, double ld)
++{
++               if((fabs(1.-xH)<1.e-5)&&(fabs(1.-xt)<1.e-5)) return AHH(0.9998,1.0002,ld);
++
++               if(fabs(1.-xH)<1.e-5) return AHH(0.9999,xt,ld);
++               if(fabs(1.-xt)<1.e-5) return AHH(xH,0.9999,ld);
++
++               if(fabs(1.-xH/xt)<1.e-5) return AHH(xt*0.9998,xt,ld);
++               
++               double xt2=xt*xt;
++               double xt3=xt*xt2;
++               
++               double xH2=xH*xH; 
++               double xH3=xH*xH2;
++               
++               return (xt/xH)*pow(ld,4.)*(xt+xH)/(xt-xH)/(xt-xH)-2.*xt*xH/pow(xt-xH,3.)*log(xt/xH);
++}
++
++/*--------------------------------------------------------------------*/
++
 +double AWH_ST(double xH, double xt, double lu, double ld)
 +{
 +		if((fabs(1.-xH)<1.e-5)&&(fabs(1.-xt)<1.e-5)) return AWH_ST(0.9998,1.0002,lu,ld);
@@ -207,7 +227,8 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +	double etaBs=0.551;
 +	double mt=running_mass(param->mtmt,param->mtmt,160.,param->mass_top_pole,param->mass_b,param);
 +	double mb=running_mass(param->mass_b,param->mass_b,160.,param->mass_top_pole,param->mass_b,param);
-+	
++       double ms=running_mass(param->mass_s,param->mass_s,160.,param->mass_top_pole,param->mass_b,param); 	
++
 +	double xt=pow(mt/MW,2.);
 +	
 +	if(param->SM==1) 
@@ -217,6 +238,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +		return dmbs/6.582119e-25*1.e-12; /* from GeV to ps-1 */
 +	}
 +
++       double xs=pow(ms/MW,2.);
 +	double xb=pow(mb/MW,2.);
 +	double xH=pow(MH/MW,2.);
 +
@@ -228,12 +250,13 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +	if(param->THDM_model>0) lbb=param->lambda_d[3][3];
 +	else lbb=param->tan_beta;
 +	
-+	double CV=xt*(AWW(xt)+2.*xt*AWH(xH,xt,xb,ltt,lbb)+xt*AHH(xH,xt,xb,ltt));
++	double CV_LL=xt*(AWW(xt)+2.*xt*AWH(xH,xt,xb,ltt,lbb)+xt*AHH(xH,xt,xb,ltt));
++       double CV_RR=xb*xs*AHH_RR(xH,xt,lbb);
 +	double CST=4.*xb*xt*xt*(AWH_ST(xH,xt,ltt,lbb)+AHH_ST(xH,xt,ltt,lbb));
 +
 +	double fBs2_BsST_etaBsST=pow(0.231,2.)*(-0.007)-pow(0.225,2.)*(5./8*1.654+5./2.*(-0.007));
 +
-+	double dmbs=pow(param->Gfermi*MW,2.)*param->m_Bs/(24.*pow(pi,2.))*pow(cabs(conj(param->Vts)*param->Vtb),2.)*(fBs2_Bs*etaBs*CV+fBs2_BsST_etaBsST*CST);
++	double dmbs=pow(param->Gfermi*MW,2.)*param->m_Bs/(24.*pow(pi,2.))*pow(cabs(conj(param->Vts)*param->Vtb),2.)*(fBs2_Bs*etaBs*(CV_LL + CV_RR)+fBs2_BsST_etaBsST*CST);
 +	
 +	return dmbs/6.582119e-25*1.e-12; /* from GeV to ps-1 */
 +}
