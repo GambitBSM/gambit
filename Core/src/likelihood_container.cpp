@@ -183,6 +183,9 @@ namespace Gambit
       printer.print(scancode, "scanID", scancodeID, printer.getRank(), getPtID());
     }
 
+    // keep track on top N highest LLs
+    static std::vector<double> max_LLs(20, -1e20);
+
     double lnlike = 0;
     bool point_invalidated = false;
 
@@ -363,6 +366,13 @@ namespace Gambit
         }
       }
 
+      if (lnlike > max_LLs[0])
+      {
+         max_LLs[0] = lnlike;
+         std::sort(max_LLs.begin(), max_LLs.end());
+        //  std::cout << "ln " << lnlike << std::endl;
+      }
+      
       // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
       if(point_invalidated and !print_invalid_points)
         printer.disable();

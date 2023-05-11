@@ -271,20 +271,20 @@ ObsLikes:
   - purpose:    LogLike
     capability: Bc_lifetime_LogLikelihood
 
-  # Source: GAMBIT
-  # Bs2llp (Bs2mutau, Bs2tautau)
-  - purpose:    LogLike
-    capability: Bs2llp_LogLikelihood
+  # # Source: GAMBIT
+  # # Bs2llp (Bs2mutau, Bs2tautau)
+  # - purpose:    LogLike
+  #   capability: Bs2llp_LogLikelihood
 
-  # Source: GAMBIT, SuperISO
-  # B2Kllp (B2Kmue, B2Ktaumu, B2Ktautau)
-  - purpose:    LogLike
-    capability: B2Kllp_LogLikelihood
+  # # Source: GAMBIT, SuperISO
+  # # B2Kllp (B2Kmue, B2Ktaumu, B2Ktautau)
+  # - purpose:    LogLike
+  #   capability: B2Kllp_LogLikelihood
 
-  # Source: GAMBIT
-  # RK and RKstarnunu
-  - purpose:    LogLike
-    capability: RK_RKstarnunu_LogLikelihood
+  # # Source: GAMBIT
+  # # RK and RKstarnunu
+  # - purpose:    LogLike
+  #   capability: RK_RKstarnunu_LogLikelihood
 
   # Source: GAMBIT
   # BR(h->tau mu)
@@ -298,19 +298,19 @@ ObsLikes:
   #- purpose:    LogLike
   #  capability: t2ch_LogLikelihood
 
-  # TODO: reported as absent/broken
-  # Source: GAMBIT
-  # B meson mass aysmmetry
-  - purpose:    LogLike
-    capability: deltaMB_LogLikelihood
-    function: SuperIso_prediction_Delta_MBs
+  # # TODO: reported as absent/broken
+  # # Source: GAMBIT
+  # # B meson mass aysmmetry
+  # - purpose:    LogLike
+  #   capability: deltaMB_LogLikelihood
+  #   function: SuperIso_prediction_Delta_MBs
 
-  # TODO: reported as absent/broken
-  # # Source: SuperISO
-  # # B_d meson mass aysmmetry
-  - purpose:    LogLike
-    capability: deltaMBd_LogLikelihood
-    function: SuperIso_prediction_Delta_MBd
+  # # TODO: reported as absent/broken
+  # # # Source: SuperISO
+  # # # B_d meson mass aysmmetry
+  # - purpose:    LogLike
+  #   capability: deltaMBd_LogLikelihood
+  #   function: SuperIso_prediction_Delta_MBd
 
   # Source: GAMBIT or SuperISO
   # Tree-level leptonic and semi-leptonic B & D decay measurements

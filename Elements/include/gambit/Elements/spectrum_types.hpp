@@ -20,7 +20,7 @@
 namespace Gambit
 {
 
-  enum THDM_TYPE
+  enum THDM_TYPE : int
   {
      TYPE_I = 1,
      TYPE_II,

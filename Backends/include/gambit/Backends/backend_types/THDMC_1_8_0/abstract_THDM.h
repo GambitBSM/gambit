@@ -79,59 +79,59 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual void set_yukawas_lepton(double, double, double) =0;
     
-            virtual void set_yukawas_down(::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>) =0;
+            virtual void set_yukawas_down(std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>) =0;
     
-            virtual void set_yukawas_up(::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>) =0;
+            virtual void set_yukawas_up(std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>) =0;
     
-            virtual void set_yukawas_lepton(::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>, ::std::complex<double>) =0;
+            virtual void set_yukawas_lepton(std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>, std::complex<double>) =0;
     
             virtual void set_yukawas_inert() =0;
     
-            virtual void get_yukawas_down(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_yukawas_down(std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_yukawas_up(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_yukawas_up(std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_yukawas_lepton(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_yukawas_lepton(std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_kappa_down(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_down(std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_kappa_up(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_up(std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_kappa_lepton(::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_lepton(std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_kappa_down(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_down(double, std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_kappa_up(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_up(double, std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_kappa_lepton(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_kappa_lepton(double, std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_rho_down(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_rho_down(double, std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_rho_up(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_rho_up(double, std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_rho_lepton(double, ::std::complex<double>&, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_rho_lepton(double, std::complex<double>&, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_coupling_hdd(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_coupling_hdd(int, int, int, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_coupling_huu(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_coupling_huu(int, int, int, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_coupling_hdu(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_coupling_hdu(int, int, int, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_coupling_hud(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_coupling_hud(int, int, int, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_coupling_hll(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_coupling_hll(int, int, int, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_coupling_hln(int, int, int, ::std::complex<double>&, ::std::complex<double>&) =0;
+            virtual void get_coupling_hln(int, int, int, std::complex<double>&, std::complex<double>&) =0;
     
-            virtual void get_coupling_vvh(int, int, int, ::std::complex<double>&) =0;
+            virtual void get_coupling_vvh(int, int, int, std::complex<double>&) =0;
     
-            virtual void get_coupling_vhh(int, int, int, ::std::complex<double>&) =0;
+            virtual void get_coupling_vhh(int, int, int, std::complex<double>&) =0;
     
-            virtual void get_coupling_hhh(int, int, int, ::std::complex<double>&) =0;
+            virtual void get_coupling_hhh(int, int, int, std::complex<double>&) =0;
     
-            virtual void get_coupling_vvhh(int, int, int, int, ::std::complex<double>&) =0;
+            virtual void get_coupling_vvhh(int, int, int, int, std::complex<double>&) =0;
     
-            virtual void get_coupling_hhhh(int, int, int, int, ::std::complex<double>&) =0;
+            virtual void get_coupling_hhhh(int, int, int, int, std::complex<double>&) =0;
     
             virtual double calc_unitarity() =0;
     
@@ -139,7 +139,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual bool check_unitarity__BOSS() =0;
     
-            virtual void calc_perturbativity(::std::complex<double>&, int&, int&, int&, int&) =0;
+            virtual void calc_perturbativity(std::complex<double>&, int&, int&, int&, int&) =0;
     
             virtual bool check_perturbativity(double) =0;
     

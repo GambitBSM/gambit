@@ -4269,9 +4269,9 @@ namespace Gambit
       using namespace Pipes::get_decaytable_as_map;
 
       // skip all BFs for these particles
-      const vector<str> skip_particles = runOptions->getValueOrDef<vector<str>>({}, "skip_particles");
+      const std::vector<str> skip_particles = runOptions->getValueOrDef<std::vector<str>>({}, "skip_particles");
       // skip the following specific decay channels (0 -> 1,2,...). WARNING: order needs to match
-      const vector<vector<str>> skip_channels = runOptions->getValueOrDef<vector<vector<str>>>({}, "BFs");
+      const std::vector<std::vector<str>> skip_channels = runOptions->getValueOrDef<std::vector<std::vector<str>>>({}, "BFs");
       // should we also print BF errors?
       const bool print_BF_error = runOptions->getValueOrDef<bool>(false, "print_BF_error");
       // should we print widths instead of BFs
@@ -4299,7 +4299,7 @@ namespace Gambit
         for (auto& channel : entry.channels)
         {
           // construct full particle names vector (0 -> 1,2,...)
-          vector<str> names(1+channel.first.size());
+          std::vector<str> names(1+channel.first.size());
           names[0] = name;
           size_t i = 1;
           for (auto& ch : channel.first)
@@ -4323,7 +4323,7 @@ namespace Gambit
           }
 
           // add the BF and BF error to map
-          str channel_name = replace(join(names,","),",","->",1);
+          str channel_name = Utils::replace(Utils::join(names,","),",","->",1);
           map[channel_name] = BF;
           if (print_BF_error) map[channel_name+" error"] = BF_error;
         }

@@ -3593,7 +3593,7 @@ namespace Gambit
     typedef std::function<double(const SubSpectrum&)> LL_type;
 
     // helper function get list of energy scales, check constraint at each, and get the worst performer
-    double get_worst_LL_of_all_scales(const Spectrum& spec, LL_type LL, bool is_FS_model, double other_scale, std::string calculation_name)
+    double get_worst_LL_of_all_scales(const Spectrum& spec, LL_type LL, bool is_FS_model, double other_scale)
     {
       // we always check the input scale
       vector<double> scales_to_check = { RunScale::INPUT };
@@ -3647,7 +3647,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = get_LO_unitarity_LogLikelihood;
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "LO_unitarity_LogLikelihood_THDM");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
     // Next-to-Leading-Order unitarity constraint (soft-cutoff)
@@ -3667,7 +3667,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = [&](const SubSpectrum& c){ return get_NLO_unitarity_LogLikelihood(c, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections); };
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "NLO_unitarity_LogLikelihood_THDM");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
     // LO lambdas perturbativity (soft-cutoff)
@@ -3683,7 +3683,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = get_simple_perturbativity_LogLikelihood;
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "perturbativity_LogLikelihood_THDM");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
     // perturbativity constraint (soft-cutoff)
@@ -3699,7 +3699,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = get_perturbativity_LogLikelihood;
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "perturbativity_LogLikelihood_THDM");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
     // simple perturbativity constraint on yukawas (soft-cutoff)
@@ -3762,7 +3762,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = [&](const SubSpectrum& c){ return get_stability_LogLikelihood(c, checkMeta); };
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "stability_LogLikelihood_THDM");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
     // checks that the corrections to h0 are perturbative (hard-cutoff)
@@ -3778,7 +3778,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = get_light_scalar_mass_correction_LogLikelihood;
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "light_scalar_mass_corrections_LogLikelihood");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
     // checks that the corrections to H0,A0,Hp are perturbative (hard-cutoff)
@@ -3794,7 +3794,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = get_heavy_scalar_mass_correction_LogLikelihood;
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "heavy_scalar_mass_corrections_LogLikelihood");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
     // only keeps points that correspond to hidden higgs scenario (hard-cutoff)
@@ -3843,7 +3843,7 @@ namespace Gambit
       // wrap up LogLike function & get worst performing LogLike at all scales
 
       LL_type LL = [&](const SubSpectrum& c){ return get_scalar_mass_range_LogLikelihood(c, min_scalar_mass, max_scalar_mass); };
-      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale, "scalar_mass_range_LogLikelihood_THDM");
+      result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
 

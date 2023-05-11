@@ -140,7 +140,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         get_BEptr()->set_diagonal_CKM();
     }
     
-    inline void SM::set_CKM_element_complex(int i, int j, ::std::complex<double> Vij)
+    inline void SM::set_CKM_element_complex(int i, int j, std::complex<double> Vij)
     {
         get_BEptr()->set_CKM_element_complex(i, j, Vij);
     }

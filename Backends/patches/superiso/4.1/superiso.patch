@@ -22,7 +22,7 @@ diff -ruN 4.1/src/Makefile 4.1_patched/src/Makefile
 diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 --- 4.1/src/mixings.c	1970-01-01 09:30:00.000000000 +0930
 +++ 4.1_patched/src/mixings.c	2020-04-18 02:42:48.000000000 +0930
-@@ -0,0 +1,228 @@
+@@ -0,0 +1,251 @@
 +#include "include.h"
 +
 +/*--------------------------------------------------------------------*/
