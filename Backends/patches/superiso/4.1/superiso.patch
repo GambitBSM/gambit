@@ -90,12 +90,12 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +
 +double AHH_RR(double xH, double xt, double ld)
 +{
-+               if((fabs(1.-xH)<1.e-5)&&(fabs(1.-xt)<1.e-5)) return AHH(0.9998,1.0002,ld);
++               if((fabs(1.-xH)<1.e-5)&&(fabs(1.-xt)<1.e-5)) return AHH_RR(0.9998,1.0002,ld);
 +
-+               if(fabs(1.-xH)<1.e-5) return AHH(0.9999,xt,ld);
-+               if(fabs(1.-xt)<1.e-5) return AHH(xH,0.9999,ld);
++               if(fabs(1.-xH)<1.e-5) return AHH_RR(0.9999,xt,ld);
++               if(fabs(1.-xt)<1.e-5) return AHH_RR(xH,0.9999,ld);
 +
-+               if(fabs(1.-xH/xt)<1.e-5) return AHH(xt*0.9998,xt,ld);
++               if(fabs(1.-xH/xt)<1.e-5) return AHH_RR(xt*0.9998,xt,ld);
 +               
 +               double xt2=xt*xt;
 +               double xt3=xt*xt2;
