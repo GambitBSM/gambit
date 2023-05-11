@@ -1,18 +1,23 @@
 ## Minimal .gum (YAML) file for the THDM-II model in GUM
 
+# the Mathematica package used, model name, plus package-specific info
 math:
-  # Name of Mathematica package, either 'feynrules' or 'sarah'
   package: sarah
-  # Name of Model within that package. This will also be the name of the GAMBIT model.
-  model: THDM-II
+  model: gumTHDMII
   lagrangian: LTotal
 
 # Outputs for GUM to hook up to GAMBIT
 output:
   spheno: true
-  vevacious: true
+  calchep: true
+  pythia: false
+  vevacious: false
+  micromegas: false
 
 # Options for outputs
 output_options:
   spheno:
-    IncludeLoopDecays: false
+    IncludeLoopDecays: true
+    GetWilsonCoefficients: true
+    GetFlavorObservables: true
+    GetElectroweakObservables: true

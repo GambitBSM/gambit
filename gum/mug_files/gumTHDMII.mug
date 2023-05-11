@@ -1,0 +1,1008 @@
+amended_files:
+  ../Backends/include/gambit/Backends/backend_types/SPheno.hpp:
+  - "    typedef Farray<Freal8,1,3,1,159> Farray_Freal8_1_3_1_159;\n    typedef Farray<Freal8,1,3,1,159>\
+    \ Farray_Freal8_1_3_1_159;\n    typedef Farray<Freal8,1,3,1,156> Farray_Freal8_1_3_1_156;\n\
+    \    typedef Farray<Freal8,1,3,1,156> Farray_Freal8_1_3_1_156;\n    typedef Farray<Freal8,1,3,1,159>\
+    \ Farray_Freal8_1_3_1_159;\n    typedef Farray<Freal8,1,3,1,159> Farray_Freal8_1_3_1_159;\n\
+    \    typedef Farray<Freal8,1,2,1,59> Farray_Freal8_1_2_1_59;\n    typedef Farray<Freal8,1,2,1,59>\
+    \ Farray_Freal8_1_2_1_59;\n    typedef Farray<Freal8,1,2,1,57> Farray_Freal8_1_2_1_57;\n\
+    \    typedef Farray<Freal8,1,2,1,57> Farray_Freal8_1_2_1_57;\n    typedef Farray<Freal8,1,2,1,28>\
+    \ Farray_Freal8_1_2_1_28;\n    typedef Farray<Freal8,1,2,1,28> Farray_Freal8_1_2_1_28;\n\
+    \    typedef Farray<Freal8,1,15> Farray_Freal8_1_15;\n    typedef Farray<Freal8,1,15>\
+    \ Farray_Freal8_1_15;\n    typedef Farray<Freal8,1,62> Farray_Freal8_1_62;\n \
+    \   typedef Farray<Freal8,1,3,1,159> Farray_Freal8_1_3_1_159;\n    typedef Farray<Freal8,1,3,1,159>\
+    \ Farray_Freal8_1_3_1_159;\n    typedef Farray<Freal8,1,3,1,156> Farray_Freal8_1_3_1_156;\n\
+    \    typedef Farray<Freal8,1,3,1,156> Farray_Freal8_1_3_1_156;\n    typedef Farray<Freal8,1,3,1,159>\
+    \ Farray_Freal8_1_3_1_159;\n    typedef Farray<Freal8,1,3,1,159> Farray_Freal8_1_3_1_159;\n\
+    \    typedef Farray<Freal8,1,2,1,59> Farray_Freal8_1_2_1_59;\n    typedef Farray<Freal8,1,2,1,59>\
+    \ Farray_Freal8_1_2_1_59;\n    typedef Farray<Freal8,1,2,1,57> Farray_Freal8_1_2_1_57;\n\
+    \    typedef Farray<Freal8,1,2,1,57> Farray_Freal8_1_2_1_57;\n    typedef Farray<Freal8,1,2,1,28>\
+    \ Farray_Freal8_1_2_1_28;\n    typedef Farray<Freal8,1,2,1,28> Farray_Freal8_1_2_1_28;\n\
+    \    typedef Farray<Freal8,1,3,1,24> Farray_Freal8_1_3_1_24;\n    typedef Farray<Freal8,1,3,1,24>\
+    \ Farray_Freal8_1_3_1_24;\n    typedef Farray<Freal8,1,3,1,21> Farray_Freal8_1_3_1_21;\n\
+    \    typedef Farray<Freal8,1,3,1,21> Farray_Freal8_1_3_1_21;\n    typedef Farray<Freal8,1,3,1,24>\
+    \ Farray_Freal8_1_3_1_24;\n    typedef Farray<Freal8,1,3,1,24> Farray_Freal8_1_3_1_24;\n\
+    \    typedef Farray<Freal8,1,2,1,59> Farray_Freal8_1_2_1_59;\n    typedef Farray<Freal8,1,2,1,59>\
+    \ Farray_Freal8_1_2_1_59;\n    typedef Farray<Freal8,1,2,1,57> Farray_Freal8_1_2_1_57;\n\
+    \    typedef Farray<Freal8,1,2,1,57> Farray_Freal8_1_2_1_57;\n    typedef Farray<Freal8,1,2,1,28>\
+    \ Farray_Freal8_1_2_1_28;\n    typedef Farray<Freal8,1,2,1,28> Farray_Freal8_1_2_1_28;\n\
+    \    typedef Farray<Freal8,1,75> Farray_Freal8_1_75;\n    typedef Farray<Freal8,1,5,1,2,1,5>\
+    \ Farray_Freal8_1_5_1_2_1_5;\n    typedef Farray<Freal8,1,5,1,2,1,5> Farray_Freal8_1_5_1_2_1_5;\n\
+    \    typedef Farray<Flogical,1,10> Farray_Flogical_1_10;\n    typedef Farray<Flogical,1,10>\
+    \ Farray_Flogical_1_10;\n    typedef Farray<Freal8,1,2,1,3,1,3> Farray_Freal8_1_2_1_3_1_3;\n\
+    \    typedef Farray<Freal8,1,2,1,3,1,3> Farray_Freal8_1_2_1_3_1_3;\n    typedef\
+    \ Farray<Freal8,1,2,1,2,1,2> Farray_Freal8_1_2_1_2_1_2;\n    typedef Farray<Freal8,1,2,1,2,1,2>\
+    \ Farray_Freal8_1_2_1_2_1_2;\n    typedef Farray<Freal8,1,2,1,2,1,2> Farray_Freal8_1_2_1_2_1_2;\n\
+    \    typedef Farray<Freal8,1,2,1,2,1,2> Farray_Freal8_1_2_1_2_1_2;\n    typedef\
+    \ Farray<Freal8,1,2,1,2,1,2> Farray_Freal8_1_2_1_2_1_2;\n    typedef Farray<Freal8,1,2,1,2,1,2>\
+    \ Farray_Freal8_1_2_1_2_1_2;\n    typedef Farray<Freal8,1,3,1,2> Farray_Freal8_1_3_1_2;\n\
+    \    typedef Farray<Freal8,1,3,1,2> Farray_Freal8_1_3_1_2;\n    typedef Farray<Freal8,1,3,1,2>\
+    \ Farray_Freal8_1_3_1_2;\n    typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n \
+    \   typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n  \
+    \  typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n   \
+    \ typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n    typedef\
+    \ Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3>\
+    \ Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n    typedef Farray<Fcomplex16,1,3,1,3,1,2>\
+    \ Farray_Fcomplex16_1_3_1_3_1_2;\n    typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n \
+    \   typedef Farray<Fcomplex16,1,3,1,3,1,2> Farray_Fcomplex16_1_3_1_3_1_2;\n  \
+    \  typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n\
+    \    typedef Farray<Fcomplex16,1,3,1,3,1,3,1,3> Farray_Fcomplex16_1_3_1_3_1_3_1_3;\n"
+  ../Backends/include/gambit/Backends/frontends/CalcHEP_3_6_27.hpp:
+  - 'BE_INI_CONDITIONAL_DEPENDENCY(gumTHDMII_spectrum, Spectrum, gumTHDMII)
+
+    '
+  - BE_ALLOW_MODELS(gumTHDMII)
+  ../Backends/src/frontends/CalcHEP_3_6_27.cpp:
+  - "    if (ModelInUse(\"gumTHDMII\"))\n    {\n      BEpath = backendDir + \"/../models/gumTHDMII\"\
+    ;\n      path = BEpath.c_str();\n      modeltoset = (char*)malloc(strlen(path)+11);\n\
+    \      sprintf(modeltoset, \"%s\", path);\n      decays[\"h2\"] = std::vector<\
+    \ std::vector<str> >{ {\"Ah2\",\"Ah2\"}, {\"h1\",\"h1\"}, {\"Hm2\",\"Hp2\"}, {\"\
+    Wp\",\"Wm\"}, {\"Z\",\"Z\"}, {\"D1\",\"d1\"}, {\"D2\",\"d2\"}, {\"D3\",\"d3\"\
+    }, {\"E1\",\"e1\"}, {\"E2\",\"e2\"}, {\"E3\",\"e3\"}, {\"U1\",\"u1\"}, {\"U2\"\
+    ,\"u2\"}, {\"U3\",\"u3\"}, {\"A\",\"A\"}, {\"g\",\"g\"}, {\"h1\",\"Ah2\"}, {\"\
+    Ah2\",\"Z\"}, {\"Wm\",\"Hp2\"}, {\"Wp\",\"Hm2\"}, {\"D2\",\"d1\"}, {\"D3\",\"\
+    d1\"}, {\"D1\",\"d2\"}, {\"D3\",\"d2\"}, {\"D1\",\"d3\"}, {\"D2\",\"d3\"}, {\"\
+    E2\",\"e1\"}, {\"E3\",\"e1\"}, {\"E1\",\"e2\"}, {\"E3\",\"e2\"}, {\"E1\",\"e3\"\
+    }, {\"E2\",\"e3\"}, {\"U2\",\"u1\"}, {\"U3\",\"u1\"}, {\"U1\",\"u2\"}, {\"U3\"\
+    ,\"u2\"}, {\"U1\",\"u3\"}, {\"U2\",\"u3\"} };\n      decays[\"Ah2\"] = std::vector<\
+    \ std::vector<str> >{ {\"h1\",\"h1\"}, {\"h2\",\"h2\"}, {\"Hm2\",\"Hp2\"}, {\"\
+    D1\",\"d1\"}, {\"D2\",\"d2\"}, {\"D3\",\"d3\"}, {\"E1\",\"e1\"}, {\"E2\",\"e2\"\
+    }, {\"E3\",\"e3\"}, {\"U1\",\"u1\"}, {\"U2\",\"u2\"}, {\"U3\",\"u3\"}, {\"A\"\
+    ,\"A\"}, {\"g\",\"g\"}, {\"h2\",\"h1\"}, {\"Z\",\"h1\"}, {\"Z\",\"h2\"}, {\"Wm\"\
+    ,\"Hp2\"}, {\"Wp\",\"Hm2\"}, {\"D2\",\"d1\"}, {\"D3\",\"d1\"}, {\"D1\",\"d2\"\
+    }, {\"D3\",\"d2\"}, {\"D1\",\"d3\"}, {\"D2\",\"d3\"}, {\"E2\",\"e1\"}, {\"E3\"\
+    ,\"e1\"}, {\"E1\",\"e2\"}, {\"E3\",\"e2\"}, {\"E1\",\"e3\"}, {\"E2\",\"e3\"},\
+    \ {\"U2\",\"u1\"}, {\"U3\",\"u1\"}, {\"U1\",\"u2\"}, {\"U3\",\"u2\"}, {\"U1\"\
+    ,\"u3\"}, {\"U2\",\"u3\"} };\n      decays[\"h1\"] = std::vector< std::vector<str>\
+    \ >{ {\"Ah2\",\"Ah2\"}, {\"h2\",\"h2\"}, {\"Hm2\",\"Hp2\"}, {\"Ah2\",\"h2\"},\
+    \ {\"Ah2\",\"Z\"}, {\"Wm\",\"Hp2\"}, {\"Wp\",\"Hm2\"} };\n      decays[\"Hp2\"\
+    ] = std::vector< std::vector<str> >{ {\"Ah2\",\"Wp\"}, {\"h1\",\"Wp\"}, {\"h2\"\
+    ,\"Wp\"}, {\"Wp\",\"A\"}, {\"Z\",\"Wp\"}, {\"D1\",\"u1\"}, {\"D2\",\"u1\"}, {\"\
+    D3\",\"u1\"}, {\"D1\",\"u2\"}, {\"D2\",\"u2\"}, {\"D3\",\"u2\"}, {\"D1\",\"u3\"\
+    }, {\"D2\",\"u3\"}, {\"D3\",\"u3\"}, {\"E1\",\"nu1\"}, {\"E2\",\"nu1\"}, {\"E3\"\
+    ,\"nu1\"}, {\"E1\",\"nu2\"}, {\"E2\",\"nu2\"}, {\"E3\",\"nu2\"}, {\"E1\",\"nu3\"\
+    }, {\"E2\",\"nu3\"}, {\"E3\",\"nu3\"} };\n      decays[\"Hm2\"] = std::vector<\
+    \ std::vector<str> >{ {\"Ah2\",\"Wm\"}, {\"h1\",\"Wm\"}, {\"h2\",\"Wm\"}, {\"\
+    A\",\"Wm\"}, {\"Z\",\"Wm\"}, {\"U1\",\"d1\"}, {\"U2\",\"d1\"}, {\"U3\",\"d1\"\
+    }, {\"U1\",\"d2\"}, {\"U2\",\"d2\"}, {\"U3\",\"d2\"}, {\"U1\",\"d3\"}, {\"U2\"\
+    ,\"d3\"}, {\"U3\",\"d3\"}, {\"Nu1\",\"e1\"}, {\"Nu2\",\"e1\"}, {\"Nu3\",\"e1\"\
+    }, {\"Nu1\",\"e2\"}, {\"Nu2\",\"e2\"}, {\"Nu3\",\"e2\"}, {\"Nu1\",\"e3\"}, {\"\
+    Nu2\",\"e3\"}, {\"Nu3\",\"e3\"} };\n      model = \"gumTHDMII\";\n    }\n    \n"
+  - "  if (ModelInUse(\"gumTHDMII\"))\n  {\n    // Obtain spectrum information to\
+    \ pass to CalcHEP\n    const Spectrum& spec = *Dep::gumTHDMII_spectrum;\n    \n\
+    \    Assign_Value(\"lam1\", spec.get(Par::dimensionless, \"lam1\"));\n    Assign_Value(\"\
+    lam2\", spec.get(Par::dimensionless, \"lam2\"));\n    Assign_Value(\"lam3\", spec.get(Par::dimensionless,\
+    \ \"lam3\"));\n    Assign_Value(\"lam4\", spec.get(Par::dimensionless, \"lam4\"\
+    ));\n    Assign_Value(\"lam5\", spec.get(Par::dimensionless, \"lam5\"));\n   \
+    \ for(int i=1; i<2; i++)\n    {\n      for(int j=1; j<2; j++)\n      {\n     \
+    \   std::string paramname = \"ZH\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZH\",i,j));\n  \
+    \    }\n    }\n    for(int i=1; i<2; i++)\n    {\n      for(int j=1; j<2; j++)\n\
+    \      {\n        std::string paramname = \"ZA\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZA\",i,j));\n  \
+    \    }\n    }\n    for(int i=1; i<2; i++)\n    {\n      for(int j=1; j<2; j++)\n\
+    \      {\n        std::string paramname = \"ZP\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZP\",i,j));\n  \
+    \    }\n    }\n    for(int i=1; i<3; i++)\n    {\n      for(int j=1; j<3; j++)\n\
+    \      {\n        std::string paramname = \"ZUL\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZUL\",i,j));\n \
+    \     }\n    }\n    for(int i=1; i<3; i++)\n    {\n      for(int j=1; j<3; j++)\n\
+    \      {\n        std::string paramname = \"ZDL\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZDL\",i,j));\n \
+    \     }\n    }\n    for(int i=1; i<3; i++)\n    {\n      for(int j=1; j<3; j++)\n\
+    \      {\n        std::string paramname = \"ZUR\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZUR\",i,j));\n \
+    \     }\n    }\n    for(int i=1; i<3; i++)\n    {\n      for(int j=1; j<3; j++)\n\
+    \      {\n        std::string paramname = \"ZDR\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZDR\",i,j));\n \
+    \     }\n    }\n    for(int i=1; i<3; i++)\n    {\n      for(int j=1; j<3; j++)\n\
+    \      {\n        std::string paramname = \"ZEL\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZEL\",i,j));\n \
+    \     }\n    }\n    for(int i=1; i<3; i++)\n    {\n      for(int j=1; j<3; j++)\n\
+    \      {\n        std::string paramname = \"ZER\" + std::to_string(i) + std::to_string(j);\n\
+    \        Assign_Value(paramname, spec.get(Par::Pole_Mixing, \"ZER\",i,j));\n \
+    \     }\n    }\n    // Masses\n    Assign_Value(\"Mh1\", spec.get(Par::Pole_Mass,\
+    \ \"h0_1\"));\n    Assign_Value(\"Mh2\", spec.get(Par::Pole_Mass, \"h0_2\"));\n\
+    \    Assign_Value(\"MAh2\", spec.get(Par::Pole_Mass, \"A0\"));\n    Assign_Value(\"\
+    MHm2\", spec.get(Par::Pole_Mass, \"H-\"));\n    double TW = asin(sqrt(spec.get(Par::dimensionless,\
+    \ \"sinW2\")));\n    Assign_Value(\"TW\", TW);\n    \n    // SMInputs\n    Assign_Value(\"\
+    MZ\", sminputs.mZ);\n    Assign_Value(\"Md1\", sminputs.mD);\n    Assign_Value(\"\
+    Md2\", sminputs.mS);\n    Assign_Value(\"Md3\", sminputs.mBmB);\n    Assign_Value(\"\
+    Mu1\", sminputs.mU);\n    Assign_Value(\"Mu2\", sminputs.mCmC);\n    Assign_Value(\"\
+    Mu3\", sminputs.mT);\n    Assign_Value(\"Me1\", sminputs.mE);\n    Assign_Value(\"\
+    Me2\", sminputs.mMu);\n    Assign_Value(\"Me3\", sminputs.mTau);\n    \n    //\
+    \ SMInputs constants\n    Assign_Value(\"Gf\", sminputs.GF); // Fermi constant\n\
+    \    Assign_Value(\"aS\", sminputs.alphaS); // alphaS \n    Assign_Value(\"alfSMZ\"\
+    , sminputs.alphaS); // alphaS at mZ - for internal running\n    Assign_Value(\"\
+    aEWinv\", sminputs.alphainv); // Fine structure constant\n    \n    \n    // Set\
+    \ particle widths in micrOmegas\n    const DecayTable* tbl = &(*Dep::decay_rates);\n\
+    \    double width = 0.0;\n    bool present = true;\n    \n    Assign_Value(\"\
+    !Wh1\", width);\n    Assign_Value(\"!Wh2\", width);\n    Assign_Value(\"!WAh2\"\
+    , width);\n    Assign_Value(\"!WHm2\", width);\n    Assign_Value(\"WZ\", width);\n\
+    \    Assign_Value(\"WWm\", width);\n    Assign_Value(\"Wd1\", width);\n    Assign_Value(\"\
+    Wd2\", width);\n    Assign_Value(\"Wd3\", width);\n    Assign_Value(\"Wu1\", width);\n\
+    \    Assign_Value(\"Wu2\", width);\n    Assign_Value(\"Wu3\", width);\n    Assign_Value(\"\
+    We1\", width);\n    Assign_Value(\"We2\", width);\n    Assign_Value(\"We3\", width);\n\
+    \    \n  }\n  \n"
+  ../ColliderBit/include/gambit/ColliderBit/ColliderBit_Higgs_rollcall.hpp:
+  - '    MODEL_CONDITIONAL_DEPENDENCY(gumTHDMII_spectrum, Spectrum, gumTHDMII)
+
+    '
+  ../ColliderBit/src/ColliderBit_Higgs.cpp:
+  - "      else if (ModelInUse(\"gumTHDMII\"))\n      {\n        spectrum_dependency\
+    \ = &Dep::gumTHDMII_spectrum;\n        Higgses = initVector<str>(\"h0_1\",\"h0_2\"\
+    ,\"A0\");\n      }\n"
+  ../DecayBit/include/gambit/DecayBit/DecayBit_rollcall.hpp:
+  - "    #define FUNCTION all_gumTHDMII_decays_from_SPheno\n    START_FUNCTION(DecayTable)\n\
+    \    DEPENDENCY(W_minus_decay_rates, DecayTable::Entry)\n    DEPENDENCY(W_plus_decay_rates,\
+    \ DecayTable::Entry)\n    DEPENDENCY(Z_decay_rates, DecayTable::Entry)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_decays, (libSPhenogumTHDMII),\
+    \ int, (const Spectrum&, DecayTable&, const Finputs&) )\n    BACKEND_OPTION((SARAHSPheno_gumTHDMII,\
+    \ 4.0.3), (libSPhenogumTHDMII))\n    ALLOW_MODELS(gumTHDMII)\n    #undef FUNCTION\n\
+    \    \n"
+  ../DecayBit/src/DecayBit.cpp:
+  - "    void CH_gumTHDMII_h0_2_decays(DecayTable::Entry& result)\n    {\n      using\
+    \ namespace Pipes::CH_gumTHDMII_h0_2_decays;\n      // Clear previous decays\n\
+    \      result = DecayTable::Entry();\n      \n      str model = \"gumTHDMII\"\
+    ;\n      str in = \"h2\"; // In state: CalcHEP particle name\n      std::vector<std::vector<str>>\
+    \ out_calchep = {{\"Ah2\", \"Ah2\"}, {\"h1\", \"h1\"}, {\"Hm2\", \"Hp2\"}, {\"\
+    Wp\", \"Wm\"}, {\"Z\", \"Z\"}, {\"D1\", \"d1\"}, {\"D2\", \"d2\"}, {\"D3\", \"\
+    d3\"}, {\"E1\", \"e1\"}, {\"E2\", \"e2\"}, {\"E3\", \"e3\"}, {\"U1\", \"u1\"},\
+    \ {\"U2\", \"u2\"}, {\"U3\", \"u3\"}, {\"A\", \"A\"}, {\"g\", \"g\"}, {\"h1\"\
+    , \"Ah2\"}, {\"Ah2\", \"Z\"}, {\"Wm\", \"Hp2\"}, {\"Wp\", \"Hm2\"}, {\"D2\", \"\
+    d1\"}, {\"D3\", \"d1\"}, {\"D1\", \"d2\"}, {\"D3\", \"d2\"}, {\"D1\", \"d3\"},\
+    \ {\"D2\", \"d3\"}, {\"E2\", \"e1\"}, {\"E3\", \"e1\"}, {\"E1\", \"e2\"}, {\"\
+    E3\", \"e2\"}, {\"E1\", \"e3\"}, {\"E2\", \"e3\"}, {\"U2\", \"u1\"}, {\"U3\",\
+    \ \"u1\"}, {\"U1\", \"u2\"}, {\"U3\", \"u2\"}, {\"U1\", \"u3\"}, {\"U2\", \"u3\"\
+    }}; // Out states: CalcHEP particle names\n      std::vector<std::vector<str>>\
+    \ out_gambit = {{\"A0\", \"A0\"}, {\"h0_1\", \"h0_1\"}, {\"H-\", \"H+\"}, {\"\
+    W+\", \"W-\"}, {\"Z0\", \"Z0\"}, {\"dbar_1\", \"d_1\"}, {\"dbar_2\", \"d_2\"},\
+    \ {\"dbar_3\", \"d_3\"}, {\"e+_1\", \"e-_1\"}, {\"e+_2\", \"e-_2\"}, {\"e+_3\"\
+    , \"e-_3\"}, {\"ubar_1\", \"u_1\"}, {\"ubar_2\", \"u_2\"}, {\"ubar_3\", \"u_3\"\
+    }, {\"gamma\", \"gamma\"}, {\"g\", \"g\"}, {\"h0_1\", \"A0\"}, {\"A0\", \"Z0\"\
+    }, {\"W-\", \"H+\"}, {\"W+\", \"H-\"}, {\"dbar_2\", \"d_1\"}, {\"dbar_3\", \"\
+    d_1\"}, {\"dbar_1\", \"d_2\"}, {\"dbar_3\", \"d_2\"}, {\"dbar_1\", \"d_3\"}, {\"\
+    dbar_2\", \"d_3\"}, {\"e+_2\", \"e-_1\"}, {\"e+_3\", \"e-_1\"}, {\"e+_1\", \"\
+    e-_2\"}, {\"e+_3\", \"e-_2\"}, {\"e+_1\", \"e-_3\"}, {\"e+_2\", \"e-_3\"}, {\"\
+    ubar_2\", \"u_1\"}, {\"ubar_3\", \"u_1\"}, {\"ubar_1\", \"u_2\"}, {\"ubar_3\"\
+    , \"u_2\"}, {\"ubar_1\", \"u_3\"}, {\"ubar_2\", \"u_3\"}}; // Out states: GAMBIT\
+    \ particle names\n      \n      for (unsigned int i=0; i<out_calchep.size(); i++)\n\
+    \      {\n        \n        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]);\
+    \ // Partial width\n        double newwidth = result.width_in_GeV + gamma;  //\
+    \ Adjust total width\n        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth;\
+    \ // Scaling for BFs, avoid NaNs\n        result.width_in_GeV = newwidth;\n  \
+    \      \n        for (auto it = result.channels.begin(); it != result.channels.end();\
+    \ ++it)\n        {\n          it->second.first  *= wscaling; // rescale BF \n\
+    \          it->second.second *= wscaling; // rescale error on BF \n        }\n\
+    \        \n        // Avoid NaNs!\n        double BF = ( gamma == 0. ) ? 0. :\
+    \ gamma/result.width_in_GeV;\n        \n        result.set_BF(BF, 0.0, out_gambit[i][0],\
+    \ out_gambit[i][1]);\n        \n      }\n      \n      check_width(LOCAL_INFO,\
+    \ result.width_in_GeV, runOptions->getValueOrDef<bool>(false, \"invalid_point_for_negative_width\"\
+    ));\n    }\n    \n    void CH_gumTHDMII_A0_decays(DecayTable::Entry& result)\n\
+    \    {\n      using namespace Pipes::CH_gumTHDMII_A0_decays;\n      // Clear previous\
+    \ decays\n      result = DecayTable::Entry();\n      \n      str model = \"gumTHDMII\"\
+    ;\n      str in = \"Ah2\"; // In state: CalcHEP particle name\n      std::vector<std::vector<str>>\
+    \ out_calchep = {{\"h1\", \"h1\"}, {\"h2\", \"h2\"}, {\"Hm2\", \"Hp2\"}, {\"D1\"\
+    , \"d1\"}, {\"D2\", \"d2\"}, {\"D3\", \"d3\"}, {\"E1\", \"e1\"}, {\"E2\", \"e2\"\
+    }, {\"E3\", \"e3\"}, {\"U1\", \"u1\"}, {\"U2\", \"u2\"}, {\"U3\", \"u3\"}, {\"\
+    A\", \"A\"}, {\"g\", \"g\"}, {\"h2\", \"h1\"}, {\"Z\", \"h1\"}, {\"Z\", \"h2\"\
+    }, {\"Wm\", \"Hp2\"}, {\"Wp\", \"Hm2\"}, {\"D2\", \"d1\"}, {\"D3\", \"d1\"}, {\"\
+    D1\", \"d2\"}, {\"D3\", \"d2\"}, {\"D1\", \"d3\"}, {\"D2\", \"d3\"}, {\"E2\",\
+    \ \"e1\"}, {\"E3\", \"e1\"}, {\"E1\", \"e2\"}, {\"E3\", \"e2\"}, {\"E1\", \"e3\"\
+    }, {\"E2\", \"e3\"}, {\"U2\", \"u1\"}, {\"U3\", \"u1\"}, {\"U1\", \"u2\"}, {\"\
+    U3\", \"u2\"}, {\"U1\", \"u3\"}, {\"U2\", \"u3\"}}; // Out states: CalcHEP particle\
+    \ names\n      std::vector<std::vector<str>> out_gambit = {{\"h0_1\", \"h0_1\"\
+    }, {\"h0_2\", \"h0_2\"}, {\"H-\", \"H+\"}, {\"dbar_1\", \"d_1\"}, {\"dbar_2\"\
+    , \"d_2\"}, {\"dbar_3\", \"d_3\"}, {\"e+_1\", \"e-_1\"}, {\"e+_2\", \"e-_2\"},\
+    \ {\"e+_3\", \"e-_3\"}, {\"ubar_1\", \"u_1\"}, {\"ubar_2\", \"u_2\"}, {\"ubar_3\"\
+    , \"u_3\"}, {\"gamma\", \"gamma\"}, {\"g\", \"g\"}, {\"h0_2\", \"h0_1\"}, {\"\
+    Z0\", \"h0_1\"}, {\"Z0\", \"h0_2\"}, {\"W-\", \"H+\"}, {\"W+\", \"H-\"}, {\"dbar_2\"\
+    , \"d_1\"}, {\"dbar_3\", \"d_1\"}, {\"dbar_1\", \"d_2\"}, {\"dbar_3\", \"d_2\"\
+    }, {\"dbar_1\", \"d_3\"}, {\"dbar_2\", \"d_3\"}, {\"e+_2\", \"e-_1\"}, {\"e+_3\"\
+    , \"e-_1\"}, {\"e+_1\", \"e-_2\"}, {\"e+_3\", \"e-_2\"}, {\"e+_1\", \"e-_3\"},\
+    \ {\"e+_2\", \"e-_3\"}, {\"ubar_2\", \"u_1\"}, {\"ubar_3\", \"u_1\"}, {\"ubar_1\"\
+    , \"u_2\"}, {\"ubar_3\", \"u_2\"}, {\"ubar_1\", \"u_3\"}, {\"ubar_2\", \"u_3\"\
+    }}; // Out states: GAMBIT particle names\n      \n      for (unsigned int i=0;\
+    \ i<out_calchep.size(); i++)\n      {\n        \n        double gamma = BEreq::CH_Decay_Width(model,\
+    \ in, out_calchep[i]); // Partial width\n        double newwidth = result.width_in_GeV\
+    \ + gamma;  // Adjust total width\n        double wscaling = ( gamma == 0. ) ?\
+    \ 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs\n        result.width_in_GeV\
+    \ = newwidth;\n        \n        for (auto it = result.channels.begin(); it !=\
+    \ result.channels.end(); ++it)\n        {\n          it->second.first  *= wscaling;\
+    \ // rescale BF \n          it->second.second *= wscaling; // rescale error on\
+    \ BF \n        }\n        \n        // Avoid NaNs!\n        double BF = ( gamma\
+    \ == 0. ) ? 0. : gamma/result.width_in_GeV;\n        \n        result.set_BF(BF,\
+    \ 0.0, out_gambit[i][0], out_gambit[i][1]);\n        \n      }\n      \n     \
+    \ check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false,\
+    \ \"invalid_point_for_negative_width\"));\n    }\n    \n    void CH_gumTHDMII_Higgs_decays(DecayTable::Entry&\
+    \ result)\n    {\n      using namespace Pipes::CH_gumTHDMII_Higgs_decays;\n  \
+    \    // Clear previous decays\n      result = DecayTable::Entry();\n      \n \
+    \     result = *Dep::Reference_SM_Higgs_decay_rates;\n      \n      str model\
+    \ = \"gumTHDMII\";\n      str in = \"h1\"; // In state: CalcHEP particle name\n\
+    \      std::vector<std::vector<str>> out_calchep = {{\"Ah2\", \"Ah2\"}, {\"h2\"\
+    , \"h2\"}, {\"Hm2\", \"Hp2\"}, {\"Ah2\", \"h2\"}, {\"Ah2\", \"Z\"}, {\"Wm\", \"\
+    Hp2\"}, {\"Wp\", \"Hm2\"}}; // Out states: CalcHEP particle names\n      std::vector<std::vector<str>>\
+    \ out_gambit = {{\"A0\", \"A0\"}, {\"h0_2\", \"h0_2\"}, {\"H-\", \"H+\"}, {\"\
+    A0\", \"h0_2\"}, {\"A0\", \"Z0\"}, {\"W-\", \"H+\"}, {\"W+\", \"H-\"}}; // Out\
+    \ states: GAMBIT particle names\n      \n      for (unsigned int i=0; i<out_calchep.size();\
+    \ i++)\n      {\n        \n        double gamma = BEreq::CH_Decay_Width(model,\
+    \ in, out_calchep[i]); // Partial width\n        double newwidth = result.width_in_GeV\
+    \ + gamma;  // Adjust total width\n        double wscaling = ( gamma == 0. ) ?\
+    \ 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs\n        result.width_in_GeV\
+    \ = newwidth;\n        \n        for (auto it = result.channels.begin(); it !=\
+    \ result.channels.end(); ++it)\n        {\n          it->second.first  *= wscaling;\
+    \ // rescale BF \n          it->second.second *= wscaling; // rescale error on\
+    \ BF \n        }\n        \n        // Avoid NaNs!\n        double BF = ( gamma\
+    \ == 0. ) ? 0. : gamma/result.width_in_GeV;\n        \n        result.set_BF(BF,\
+    \ 0.0, out_gambit[i][0], out_gambit[i][1]);\n        \n      }\n      \n     \
+    \ check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false,\
+    \ \"invalid_point_for_negative_width\"));\n    }\n    \n    void CH_gumTHDMII_H_plus_decays(DecayTable::Entry&\
+    \ result)\n    {\n      using namespace Pipes::CH_gumTHDMII_H_plus_decays;\n \
+    \     // Clear previous decays\n      result = DecayTable::Entry();\n      \n\
+    \      str model = \"gumTHDMII\";\n      str in = \"Hp2\"; // In state: CalcHEP\
+    \ particle name\n      std::vector<std::vector<str>> out_calchep = {{\"Ah2\",\
+    \ \"Wp\"}, {\"h1\", \"Wp\"}, {\"h2\", \"Wp\"}, {\"Wp\", \"A\"}, {\"Z\", \"Wp\"\
+    }, {\"D1\", \"u1\"}, {\"D2\", \"u1\"}, {\"D3\", \"u1\"}, {\"D1\", \"u2\"}, {\"\
+    D2\", \"u2\"}, {\"D3\", \"u2\"}, {\"D1\", \"u3\"}, {\"D2\", \"u3\"}, {\"D3\",\
+    \ \"u3\"}, {\"E1\", \"nu1\"}, {\"E2\", \"nu1\"}, {\"E3\", \"nu1\"}, {\"E1\", \"\
+    nu2\"}, {\"E2\", \"nu2\"}, {\"E3\", \"nu2\"}, {\"E1\", \"nu3\"}, {\"E2\", \"nu3\"\
+    }, {\"E3\", \"nu3\"}}; // Out states: CalcHEP particle names\n      std::vector<std::vector<str>>\
+    \ out_gambit = {{\"A0\", \"W+\"}, {\"h0_1\", \"W+\"}, {\"h0_2\", \"W+\"}, {\"\
+    W+\", \"gamma\"}, {\"Z0\", \"W+\"}, {\"dbar_1\", \"u_1\"}, {\"dbar_2\", \"u_1\"\
+    }, {\"dbar_3\", \"u_1\"}, {\"dbar_1\", \"u_2\"}, {\"dbar_2\", \"u_2\"}, {\"dbar_3\"\
+    , \"u_2\"}, {\"dbar_1\", \"u_3\"}, {\"dbar_2\", \"u_3\"}, {\"dbar_3\", \"u_3\"\
+    }, {\"e+_1\", \"nu_1\"}, {\"e+_2\", \"nu_1\"}, {\"e+_3\", \"nu_1\"}, {\"e+_1\"\
+    , \"nu_2\"}, {\"e+_2\", \"nu_2\"}, {\"e+_3\", \"nu_2\"}, {\"e+_1\", \"nu_3\"},\
+    \ {\"e+_2\", \"nu_3\"}, {\"e+_3\", \"nu_3\"}}; // Out states: GAMBIT particle\
+    \ names\n      \n      for (unsigned int i=0; i<out_calchep.size(); i++)\n   \
+    \   {\n        \n        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]);\
+    \ // Partial width\n        double newwidth = result.width_in_GeV + gamma;  //\
+    \ Adjust total width\n        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth;\
+    \ // Scaling for BFs, avoid NaNs\n        result.width_in_GeV = newwidth;\n  \
+    \      \n        for (auto it = result.channels.begin(); it != result.channels.end();\
+    \ ++it)\n        {\n          it->second.first  *= wscaling; // rescale BF \n\
+    \          it->second.second *= wscaling; // rescale error on BF \n        }\n\
+    \        \n        // Avoid NaNs!\n        double BF = ( gamma == 0. ) ? 0. :\
+    \ gamma/result.width_in_GeV;\n        \n        result.set_BF(BF, 0.0, out_gambit[i][0],\
+    \ out_gambit[i][1]);\n        \n      }\n      \n      check_width(LOCAL_INFO,\
+    \ result.width_in_GeV, runOptions->getValueOrDef<bool>(false, \"invalid_point_for_negative_width\"\
+    ));\n    }\n    \n    void CH_gumTHDMII_H_minus_decays(DecayTable::Entry& result)\n\
+    \    {\n      using namespace Pipes::CH_gumTHDMII_H_minus_decays;\n      // Clear\
+    \ previous decays\n      result = DecayTable::Entry();\n      \n      str model\
+    \ = \"gumTHDMII\";\n      str in = \"Hm2\"; // In state: CalcHEP particle name\n\
+    \      std::vector<std::vector<str>> out_calchep = {{\"Ah2\", \"Wm\"}, {\"h1\"\
+    , \"Wm\"}, {\"h2\", \"Wm\"}, {\"A\", \"Wm\"}, {\"Z\", \"Wm\"}, {\"U1\", \"d1\"\
+    }, {\"U2\", \"d1\"}, {\"U3\", \"d1\"}, {\"U1\", \"d2\"}, {\"U2\", \"d2\"}, {\"\
+    U3\", \"d2\"}, {\"U1\", \"d3\"}, {\"U2\", \"d3\"}, {\"U3\", \"d3\"}, {\"Nu1\"\
+    , \"e1\"}, {\"Nu2\", \"e1\"}, {\"Nu3\", \"e1\"}, {\"Nu1\", \"e2\"}, {\"Nu2\",\
+    \ \"e2\"}, {\"Nu3\", \"e2\"}, {\"Nu1\", \"e3\"}, {\"Nu2\", \"e3\"}, {\"Nu3\",\
+    \ \"e3\"}}; // Out states: CalcHEP particle names\n      std::vector<std::vector<str>>\
+    \ out_gambit = {{\"A0\", \"W-\"}, {\"h0_1\", \"W-\"}, {\"h0_2\", \"W-\"}, {\"\
+    gamma\", \"W-\"}, {\"Z0\", \"W-\"}, {\"ubar_1\", \"d_1\"}, {\"ubar_2\", \"d_1\"\
+    }, {\"ubar_3\", \"d_1\"}, {\"ubar_1\", \"d_2\"}, {\"ubar_2\", \"d_2\"}, {\"ubar_3\"\
+    , \"d_2\"}, {\"ubar_1\", \"d_3\"}, {\"ubar_2\", \"d_3\"}, {\"ubar_3\", \"d_3\"\
+    }, {\"nubar_1\", \"e-_1\"}, {\"nubar_2\", \"e-_1\"}, {\"nubar_3\", \"e-_1\"},\
+    \ {\"nubar_1\", \"e-_2\"}, {\"nubar_2\", \"e-_2\"}, {\"nubar_3\", \"e-_2\"}, {\"\
+    nubar_1\", \"e-_3\"}, {\"nubar_2\", \"e-_3\"}, {\"nubar_3\", \"e-_3\"}}; // Out\
+    \ states: GAMBIT particle names\n      \n      for (unsigned int i=0; i<out_calchep.size();\
+    \ i++)\n      {\n        \n        double gamma = BEreq::CH_Decay_Width(model,\
+    \ in, out_calchep[i]); // Partial width\n        double newwidth = result.width_in_GeV\
+    \ + gamma;  // Adjust total width\n        double wscaling = ( gamma == 0. ) ?\
+    \ 1 : result.width_in_GeV/newwidth; // Scaling for BFs, avoid NaNs\n        result.width_in_GeV\
+    \ = newwidth;\n        \n        for (auto it = result.channels.begin(); it !=\
+    \ result.channels.end(); ++it)\n        {\n          it->second.first  *= wscaling;\
+    \ // rescale BF \n          it->second.second *= wscaling; // rescale error on\
+    \ BF \n        }\n        \n        // Avoid NaNs!\n        double BF = ( gamma\
+    \ == 0. ) ? 0. : gamma/result.width_in_GeV;\n        \n        result.set_BF(BF,\
+    \ 0.0, out_gambit[i][0], out_gambit[i][1]);\n        \n      }\n      \n     \
+    \ check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false,\
+    \ \"invalid_point_for_negative_width\"));\n    }\n    \n"
+  - "    \n    /// Get all the decays from SPheno (for the gumTHDMII model).\n   \
+    \ void all_gumTHDMII_decays_from_SPheno(DecayTable& decays)\n    {\n      namespace\
+    \ myPipe = Pipes::all_gumTHDMII_decays_from_SPheno;\n      \n      // Get the\
+    \ spectrum object\n      Spectrum spectrum = *myPipe::Dep::gumTHDMII_spectrum;\n\
+    \      \n      // Set up the input structure\n      Finputs inputs;\n      inputs.param\
+    \ = myPipe::Param;\n      inputs.options = myPipe::runOptions;\n      \n     \
+    \ // Use SPheno to fill the decay table\n      myPipe::BEreq::SARAHSPheno_gumTHDMII_decays(spectrum,\
+    \ decays, inputs);\n      \n      // Add some SM decays\n      decays(\"Z0\")\
+    \ = *myPipe::Dep::Z_decay_rates;           // Add the Z decays\n      decays(\"\
+    W+\") = *myPipe::Dep::W_plus_decay_rates;      // Add the W decays for W+.\n \
+    \     decays(\"W-\") = *myPipe::Dep::W_minus_decay_rates;     // Add the W decays\
+    \ for W-\n      \n      /// Spit out the full decay table as an SLHA2 file.\n\
+    \      /// We do not provide SLHA1 as that requires knowledge of the pseudonyms,\
+    \ which we do not have in general.\n      if (myPipe::runOptions->getValueOrDef<bool>(false,\
+    \ \"drop_SLHA_file\"))\n      {\n        str prefix   = myPipe::runOptions->getValueOrDef<str>(\"\
+    \", \"SLHA_output_prefix\");\n        str filename = myPipe::runOptions->getValueOrDef<str>(\"\
+    GAMBIT_decays\", \"SLHA_output_filename\");\n        decays.writeSLHAfile(2,prefix+filename+\"\
+    .slha2\",false);\n      }\n      \n    }\n    \n"
+  ../FlavBit/include/gambit/FlavBit/FlavBit_rollcall.hpp:
+  - "\n  #define CAPABILITY prediction_BrBsGamma\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrBsGamma\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBsGamma,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBsGamma\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBsGamma\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBsGamma,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrDmunu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrDmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrDmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioDmunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioDmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioDmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrDsmunu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrDsmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrDsmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioDsmunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioDsmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioDsmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrDstaunu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrDstaunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrDstaunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioDstaunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioDstaunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioDstaunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBmunu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrBmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBmunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBtaunu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrBtaunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBtaunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBtaunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBtaunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBtaunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrKmunu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrKmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrKmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioKmunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioKmunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioKmunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_RK\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_RK\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_RK,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_RKSM\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_RKSM\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_RKSM,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_muEgamma\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_muEgamma\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_muEgamma,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_tauEgamma\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_tauEgamma\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_tauEgamma,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_tauMuGamma\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_tauMuGamma\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_tauMuGamma,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_CRmuEAl\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_CRmuEAl\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_CRmuEAl,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_CRmuETi\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_CRmuETi\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_CRmuETi,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_CRmuESr\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_CRmuESr\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_CRmuESr,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_CRmuESb\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_CRmuESb\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_CRmuESb,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_CRmuEAu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_CRmuEAu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_CRmuEAu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_CRmuEPb\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_CRmuEPb\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_CRmuEPb,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BRmuTo3e\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BRmuTo3e\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BRmuTo3e,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BRtauTo3e\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BRtauTo3e\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BRtauTo3e,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BRtauTo3mu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BRtauTo3mu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BRtauTo3mu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BRtauToemumu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BRtauToemumu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BRtauToemumu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BRtauTomuee\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BRtauTomuee\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BRtauTomuee,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BRtauToemumu2\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BRtauToemumu2\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BRtauToemumu2,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BRtauTomuee2\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BRtauTomuee2\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BRtauTomuee2,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrZtoMuE\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrZtoMuE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrZtoMuE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrZtoTauE\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrZtoTauE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrZtoTauE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrZtoTauMu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrZtoTauMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrZtoTauMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrhtoMuE\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrhtoMuE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrhtoMuE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrhtoTauE\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrhtoTauE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrhtoTauE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrhtoTauMu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrhtoTauMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrhtoTauMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_DeltaMBs\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_DeltaMBs\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_DeltaMBs,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioDeltaMBs\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioDeltaMBs\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioDeltaMBs,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_DeltaMBq\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_DeltaMBq\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_DeltaMBq,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioDeltaMBq\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioDeltaMBq\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioDeltaMBq,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrTautoEPi\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrTautoEPi\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrTautoEPi,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrTautoEEta\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrTautoEEta\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrTautoEEta,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrTautoEEtap\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrTautoEEtap\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrTautoEEtap,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrTautoMuPi\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrTautoMuPi\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrTautoMuPi,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrTautoMuEta\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrTautoMuEta\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrTautoMuEta,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrTautoMuEtap\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrTautoMuEtap\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrTautoMuEtap,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrB0dEE\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrB0dEE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrB0dEE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioB0dEE\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioB0dEE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioB0dEE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrB0sEE\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrB0sEE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrB0sEE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioB0sEE\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioB0sEE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioB0sEE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrB0dMuMu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrB0dMuMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrB0dMuMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioB0dMuMu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioB0dMuMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioB0dMuMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrB0sMuMu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrB0sMuMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrB0sMuMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioB0sMuMu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioB0sMuMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioB0sMuMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrB0dTauTau\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrB0dTauTau\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrB0dTauTau,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioB0dTauTau\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioB0dTauTau\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioB0dTauTau,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrB0sTauTau\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrB0sTauTau\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrB0sTauTau,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioB0sTauTau\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioB0sTauTau\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioB0sTauTau,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBtoSEE\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrBtoSEE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBtoSEE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBtoSEE\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBtoSEE\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBtoSEE,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBtoSMuMu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrBtoSMuMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBtoSMuMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBtoSMuMu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBtoSMuMu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBtoSMuMu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBtoKee\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_BrBtoKee\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBtoKee,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBtoKee\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBtoKee\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBtoKee,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBtoKmumu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrBtoKmumu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBtoKmumu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBtoKmumu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBtoKmumu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBtoKmumu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBtoSnunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrBtoSnunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBtoSnunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBtoSnunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBtoSnunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBtoSnunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrBtoDnunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrBtoDnunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrBtoDnunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioBtoDnunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioBtoDnunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioBtoDnunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_BrKptoPipnunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_BrKptoPipnunu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrKptoPipnunu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ratioKptoPipnunu\n  START_CAPABILITY\n    #define\
+    \ FUNCTION SPheno_prediction_ratioKptoPipnunu\n    START_FUNCTION(double)\n  \
+    \  ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n   \
+    \ BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioKptoPipnunu, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_BrKltoPinunu\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_BrKltoPinunu\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrKltoPinunu, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_ratioKltoPinunu\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_ratioKltoPinunu\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioKltoPinunu, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_BrK0eMu\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_BrK0eMu\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_BrK0eMu, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_ratioK0eMu\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_ratioK0eMu\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioK0eMu, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_DelMK\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_DelMK\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_DelMK, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_ratioDelMK\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_ratioDelMK\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioDelMK, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_epsK\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_epsK\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_epsK, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\n  #define CAPABILITY\
+    \ prediction_ratioepsK\n  START_CAPABILITY\n    #define FUNCTION SPheno_prediction_ratioepsK\n\
+    \    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n    DEPENDENCY(gumTHDMII_spectrum,\
+    \ Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ratioepsK, (libSPhenogumTHDMII),\
+    \ double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n"
+  ../FlavBit/src/FlavBit.cpp:
+  - "\n    void SPheno_prediction_BrBsGamma(double& result){ result = Pipes::SPheno_prediction_BrBsGamma::BEreq::SARAHSPheno_gumTHDMII_conv_BrBsGamma();\
+    \ }\n\n    void SPheno_prediction_ratioBsGamma(double& result){ result = Pipes::SPheno_prediction_ratioBsGamma::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBsGamma();\
+    \ }\n\n    void SPheno_prediction_BrDmunu(double& result){ result = Pipes::SPheno_prediction_BrDmunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrDmunu();\
+    \ }\n\n    void SPheno_prediction_ratioDmunu(double& result){ result = Pipes::SPheno_prediction_ratioDmunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioDmunu();\
+    \ }\n\n    void SPheno_prediction_BrDsmunu(double& result){ result = Pipes::SPheno_prediction_BrDsmunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrDsmunu();\
+    \ }\n\n    void SPheno_prediction_ratioDsmunu(double& result){ result = Pipes::SPheno_prediction_ratioDsmunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioDsmunu();\
+    \ }\n\n    void SPheno_prediction_BrDstaunu(double& result){ result = Pipes::SPheno_prediction_BrDstaunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrDstaunu();\
+    \ }\n\n    void SPheno_prediction_ratioDstaunu(double& result){ result = Pipes::SPheno_prediction_ratioDstaunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioDstaunu();\
+    \ }\n\n    void SPheno_prediction_BrBmunu(double& result){ result = Pipes::SPheno_prediction_BrBmunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrBmunu();\
+    \ }\n\n    void SPheno_prediction_ratioBmunu(double& result){ result = Pipes::SPheno_prediction_ratioBmunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBmunu();\
+    \ }\n\n    void SPheno_prediction_BrBtaunu(double& result){ result = Pipes::SPheno_prediction_BrBtaunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrBtaunu();\
+    \ }\n\n    void SPheno_prediction_ratioBtaunu(double& result){ result = Pipes::SPheno_prediction_ratioBtaunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBtaunu();\
+    \ }\n\n    void SPheno_prediction_BrKmunu(double& result){ result = Pipes::SPheno_prediction_BrKmunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrKmunu();\
+    \ }\n\n    void SPheno_prediction_ratioKmunu(double& result){ result = Pipes::SPheno_prediction_ratioKmunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioKmunu();\
+    \ }\n\n    void SPheno_prediction_RK(double& result){ result = Pipes::SPheno_prediction_RK::BEreq::SARAHSPheno_gumTHDMII_conv_RK();\
+    \ }\n\n    void SPheno_prediction_RKSM(double& result){ result = Pipes::SPheno_prediction_RKSM::BEreq::SARAHSPheno_gumTHDMII_conv_RKSM();\
+    \ }\n\n    void SPheno_prediction_muEgamma(double& result){ result = Pipes::SPheno_prediction_muEgamma::BEreq::SARAHSPheno_gumTHDMII_conv_muEgamma();\
+    \ }\n\n    void SPheno_prediction_tauEgamma(double& result){ result = Pipes::SPheno_prediction_tauEgamma::BEreq::SARAHSPheno_gumTHDMII_conv_tauEgamma();\
+    \ }\n\n    void SPheno_prediction_tauMuGamma(double& result){ result = Pipes::SPheno_prediction_tauMuGamma::BEreq::SARAHSPheno_gumTHDMII_conv_tauMuGamma();\
+    \ }\n\n    void SPheno_prediction_CRmuEAl(double& result){ result = Pipes::SPheno_prediction_CRmuEAl::BEreq::SARAHSPheno_gumTHDMII_conv_CRmuEAl();\
+    \ }\n\n    void SPheno_prediction_CRmuETi(double& result){ result = Pipes::SPheno_prediction_CRmuETi::BEreq::SARAHSPheno_gumTHDMII_conv_CRmuETi();\
+    \ }\n\n    void SPheno_prediction_CRmuESr(double& result){ result = Pipes::SPheno_prediction_CRmuESr::BEreq::SARAHSPheno_gumTHDMII_conv_CRmuESr();\
+    \ }\n\n    void SPheno_prediction_CRmuESb(double& result){ result = Pipes::SPheno_prediction_CRmuESb::BEreq::SARAHSPheno_gumTHDMII_conv_CRmuESb();\
+    \ }\n\n    void SPheno_prediction_CRmuEAu(double& result){ result = Pipes::SPheno_prediction_CRmuEAu::BEreq::SARAHSPheno_gumTHDMII_conv_CRmuEAu();\
+    \ }\n\n    void SPheno_prediction_CRmuEPb(double& result){ result = Pipes::SPheno_prediction_CRmuEPb::BEreq::SARAHSPheno_gumTHDMII_conv_CRmuEPb();\
+    \ }\n\n    void SPheno_prediction_BRmuTo3e(double& result){ result = Pipes::SPheno_prediction_BRmuTo3e::BEreq::SARAHSPheno_gumTHDMII_conv_BRmuTo3e();\
+    \ }\n\n    void SPheno_prediction_BRtauTo3e(double& result){ result = Pipes::SPheno_prediction_BRtauTo3e::BEreq::SARAHSPheno_gumTHDMII_conv_BRtauTo3e();\
+    \ }\n\n    void SPheno_prediction_BRtauTo3mu(double& result){ result = Pipes::SPheno_prediction_BRtauTo3mu::BEreq::SARAHSPheno_gumTHDMII_conv_BRtauTo3mu();\
+    \ }\n\n    void SPheno_prediction_BRtauToemumu(double& result){ result = Pipes::SPheno_prediction_BRtauToemumu::BEreq::SARAHSPheno_gumTHDMII_conv_BRtauToemumu();\
+    \ }\n\n    void SPheno_prediction_BRtauTomuee(double& result){ result = Pipes::SPheno_prediction_BRtauTomuee::BEreq::SARAHSPheno_gumTHDMII_conv_BRtauTomuee();\
+    \ }\n\n    void SPheno_prediction_BRtauToemumu2(double& result){ result = Pipes::SPheno_prediction_BRtauToemumu2::BEreq::SARAHSPheno_gumTHDMII_conv_BRtauToemumu2();\
+    \ }\n\n    void SPheno_prediction_BRtauTomuee2(double& result){ result = Pipes::SPheno_prediction_BRtauTomuee2::BEreq::SARAHSPheno_gumTHDMII_conv_BRtauTomuee2();\
+    \ }\n\n    void SPheno_prediction_BrZtoMuE(double& result){ result = Pipes::SPheno_prediction_BrZtoMuE::BEreq::SARAHSPheno_gumTHDMII_conv_BrZtoMuE();\
+    \ }\n\n    void SPheno_prediction_BrZtoTauE(double& result){ result = Pipes::SPheno_prediction_BrZtoTauE::BEreq::SARAHSPheno_gumTHDMII_conv_BrZtoTauE();\
+    \ }\n\n    void SPheno_prediction_BrZtoTauMu(double& result){ result = Pipes::SPheno_prediction_BrZtoTauMu::BEreq::SARAHSPheno_gumTHDMII_conv_BrZtoTauMu();\
+    \ }\n\n    void SPheno_prediction_BrhtoMuE(double& result){ result = Pipes::SPheno_prediction_BrhtoMuE::BEreq::SARAHSPheno_gumTHDMII_conv_BrhtoMuE();\
+    \ }\n\n    void SPheno_prediction_BrhtoTauE(double& result){ result = Pipes::SPheno_prediction_BrhtoTauE::BEreq::SARAHSPheno_gumTHDMII_conv_BrhtoTauE();\
+    \ }\n\n    void SPheno_prediction_BrhtoTauMu(double& result){ result = Pipes::SPheno_prediction_BrhtoTauMu::BEreq::SARAHSPheno_gumTHDMII_conv_BrhtoTauMu();\
+    \ }\n\n    void SPheno_prediction_DeltaMBs(double& result){ result = Pipes::SPheno_prediction_DeltaMBs::BEreq::SARAHSPheno_gumTHDMII_conv_DeltaMBs();\
+    \ }\n\n    void SPheno_prediction_ratioDeltaMBs(double& result){ result = Pipes::SPheno_prediction_ratioDeltaMBs::BEreq::SARAHSPheno_gumTHDMII_conv_ratioDeltaMBs();\
+    \ }\n\n    void SPheno_prediction_DeltaMBq(double& result){ result = Pipes::SPheno_prediction_DeltaMBq::BEreq::SARAHSPheno_gumTHDMII_conv_DeltaMBq();\
+    \ }\n\n    void SPheno_prediction_ratioDeltaMBq(double& result){ result = Pipes::SPheno_prediction_ratioDeltaMBq::BEreq::SARAHSPheno_gumTHDMII_conv_ratioDeltaMBq();\
+    \ }\n\n    void SPheno_prediction_BrTautoEPi(double& result){ result = Pipes::SPheno_prediction_BrTautoEPi::BEreq::SARAHSPheno_gumTHDMII_conv_BrTautoEPi();\
+    \ }\n\n    void SPheno_prediction_BrTautoEEta(double& result){ result = Pipes::SPheno_prediction_BrTautoEEta::BEreq::SARAHSPheno_gumTHDMII_conv_BrTautoEEta();\
+    \ }\n\n    void SPheno_prediction_BrTautoEEtap(double& result){ result = Pipes::SPheno_prediction_BrTautoEEtap::BEreq::SARAHSPheno_gumTHDMII_conv_BrTautoEEtap();\
+    \ }\n\n    void SPheno_prediction_BrTautoMuPi(double& result){ result = Pipes::SPheno_prediction_BrTautoMuPi::BEreq::SARAHSPheno_gumTHDMII_conv_BrTautoMuPi();\
+    \ }\n\n    void SPheno_prediction_BrTautoMuEta(double& result){ result = Pipes::SPheno_prediction_BrTautoMuEta::BEreq::SARAHSPheno_gumTHDMII_conv_BrTautoMuEta();\
+    \ }\n\n    void SPheno_prediction_BrTautoMuEtap(double& result){ result = Pipes::SPheno_prediction_BrTautoMuEtap::BEreq::SARAHSPheno_gumTHDMII_conv_BrTautoMuEtap();\
+    \ }\n\n    void SPheno_prediction_BrB0dEE(double& result){ result = Pipes::SPheno_prediction_BrB0dEE::BEreq::SARAHSPheno_gumTHDMII_conv_BrB0dEE();\
+    \ }\n\n    void SPheno_prediction_ratioB0dEE(double& result){ result = Pipes::SPheno_prediction_ratioB0dEE::BEreq::SARAHSPheno_gumTHDMII_conv_ratioB0dEE();\
+    \ }\n\n    void SPheno_prediction_BrB0sEE(double& result){ result = Pipes::SPheno_prediction_BrB0sEE::BEreq::SARAHSPheno_gumTHDMII_conv_BrB0sEE();\
+    \ }\n\n    void SPheno_prediction_ratioB0sEE(double& result){ result = Pipes::SPheno_prediction_ratioB0sEE::BEreq::SARAHSPheno_gumTHDMII_conv_ratioB0sEE();\
+    \ }\n\n    void SPheno_prediction_BrB0dMuMu(double& result){ result = Pipes::SPheno_prediction_BrB0dMuMu::BEreq::SARAHSPheno_gumTHDMII_conv_BrB0dMuMu();\
+    \ }\n\n    void SPheno_prediction_ratioB0dMuMu(double& result){ result = Pipes::SPheno_prediction_ratioB0dMuMu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioB0dMuMu();\
+    \ }\n\n    void SPheno_prediction_BrB0sMuMu(double& result){ result = Pipes::SPheno_prediction_BrB0sMuMu::BEreq::SARAHSPheno_gumTHDMII_conv_BrB0sMuMu();\
+    \ }\n\n    void SPheno_prediction_ratioB0sMuMu(double& result){ result = Pipes::SPheno_prediction_ratioB0sMuMu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioB0sMuMu();\
+    \ }\n\n    void SPheno_prediction_BrB0dTauTau(double& result){ result = Pipes::SPheno_prediction_BrB0dTauTau::BEreq::SARAHSPheno_gumTHDMII_conv_BrB0dTauTau();\
+    \ }\n\n    void SPheno_prediction_ratioB0dTauTau(double& result){ result = Pipes::SPheno_prediction_ratioB0dTauTau::BEreq::SARAHSPheno_gumTHDMII_conv_ratioB0dTauTau();\
+    \ }\n\n    void SPheno_prediction_BrB0sTauTau(double& result){ result = Pipes::SPheno_prediction_BrB0sTauTau::BEreq::SARAHSPheno_gumTHDMII_conv_BrB0sTauTau();\
+    \ }\n\n    void SPheno_prediction_ratioB0sTauTau(double& result){ result = Pipes::SPheno_prediction_ratioB0sTauTau::BEreq::SARAHSPheno_gumTHDMII_conv_ratioB0sTauTau();\
+    \ }\n\n    void SPheno_prediction_BrBtoSEE(double& result){ result = Pipes::SPheno_prediction_BrBtoSEE::BEreq::SARAHSPheno_gumTHDMII_conv_BrBtoSEE();\
+    \ }\n\n    void SPheno_prediction_ratioBtoSEE(double& result){ result = Pipes::SPheno_prediction_ratioBtoSEE::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBtoSEE();\
+    \ }\n\n    void SPheno_prediction_BrBtoSMuMu(double& result){ result = Pipes::SPheno_prediction_BrBtoSMuMu::BEreq::SARAHSPheno_gumTHDMII_conv_BrBtoSMuMu();\
+    \ }\n\n    void SPheno_prediction_ratioBtoSMuMu(double& result){ result = Pipes::SPheno_prediction_ratioBtoSMuMu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBtoSMuMu();\
+    \ }\n\n    void SPheno_prediction_BrBtoKee(double& result){ result = Pipes::SPheno_prediction_BrBtoKee::BEreq::SARAHSPheno_gumTHDMII_conv_BrBtoKee();\
+    \ }\n\n    void SPheno_prediction_ratioBtoKee(double& result){ result = Pipes::SPheno_prediction_ratioBtoKee::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBtoKee();\
+    \ }\n\n    void SPheno_prediction_BrBtoKmumu(double& result){ result = Pipes::SPheno_prediction_BrBtoKmumu::BEreq::SARAHSPheno_gumTHDMII_conv_BrBtoKmumu();\
+    \ }\n\n    void SPheno_prediction_ratioBtoKmumu(double& result){ result = Pipes::SPheno_prediction_ratioBtoKmumu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBtoKmumu();\
+    \ }\n\n    void SPheno_prediction_BrBtoSnunu(double& result){ result = Pipes::SPheno_prediction_BrBtoSnunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrBtoSnunu();\
+    \ }\n\n    void SPheno_prediction_ratioBtoSnunu(double& result){ result = Pipes::SPheno_prediction_ratioBtoSnunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBtoSnunu();\
+    \ }\n\n    void SPheno_prediction_BrBtoDnunu(double& result){ result = Pipes::SPheno_prediction_BrBtoDnunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrBtoDnunu();\
+    \ }\n\n    void SPheno_prediction_ratioBtoDnunu(double& result){ result = Pipes::SPheno_prediction_ratioBtoDnunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioBtoDnunu();\
+    \ }\n\n    void SPheno_prediction_BrKptoPipnunu(double& result){ result = Pipes::SPheno_prediction_BrKptoPipnunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrKptoPipnunu();\
+    \ }\n\n    void SPheno_prediction_ratioKptoPipnunu(double& result){ result = Pipes::SPheno_prediction_ratioKptoPipnunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioKptoPipnunu();\
+    \ }\n\n    void SPheno_prediction_BrKltoPinunu(double& result){ result = Pipes::SPheno_prediction_BrKltoPinunu::BEreq::SARAHSPheno_gumTHDMII_conv_BrKltoPinunu();\
+    \ }\n\n    void SPheno_prediction_ratioKltoPinunu(double& result){ result = Pipes::SPheno_prediction_ratioKltoPinunu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioKltoPinunu();\
+    \ }\n\n    void SPheno_prediction_BrK0eMu(double& result){ result = Pipes::SPheno_prediction_BrK0eMu::BEreq::SARAHSPheno_gumTHDMII_conv_BrK0eMu();\
+    \ }\n\n    void SPheno_prediction_ratioK0eMu(double& result){ result = Pipes::SPheno_prediction_ratioK0eMu::BEreq::SARAHSPheno_gumTHDMII_conv_ratioK0eMu();\
+    \ }\n\n    void SPheno_prediction_DelMK(double& result){ result = Pipes::SPheno_prediction_DelMK::BEreq::SARAHSPheno_gumTHDMII_conv_DelMK();\
+    \ }\n\n    void SPheno_prediction_ratioDelMK(double& result){ result = Pipes::SPheno_prediction_ratioDelMK::BEreq::SARAHSPheno_gumTHDMII_conv_ratioDelMK();\
+    \ }\n\n    void SPheno_prediction_epsK(double& result){ result = Pipes::SPheno_prediction_epsK::BEreq::SARAHSPheno_gumTHDMII_conv_epsK();\
+    \ }\n\n    void SPheno_prediction_ratioepsK(double& result){ result = Pipes::SPheno_prediction_ratioepsK::BEreq::SARAHSPheno_gumTHDMII_conv_ratioepsK();\
+    \ }\n"
+  ../Models/include/gambit/Models/SpectrumContents/RegisteredSpectra.hpp:
+  - '    struct gumTHDMII            : SubSpectrumContents { gumTHDMII(); };
+
+    '
+  ../PrecisionBit/include/gambit/PrecisionBit/PrecisionBit_rollcall.hpp:
+  - "\n  #define CAPABILITY prediction_Tpar\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_Tpar\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_Tpar,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_Spar\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_Spar\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_Spar,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_Upar\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_Upar\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_Upar,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_ae\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_ae\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_ae,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_amu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_amu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_amu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_atau\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_atau\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_atau,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_EDMe\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_EDMe\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_EDMe,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_EDMmu\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_EDMmu\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_EDMmu,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_EDMtau\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_EDMtau\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_EDMtau,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n\
+    \n  #define CAPABILITY prediction_dRho\n  START_CAPABILITY\n    #define FUNCTION\
+    \ SPheno_prediction_dRho\n    START_FUNCTION(double)\n    ALLOW_MODELS(gumTHDMII)\n\
+    \    DEPENDENCY(gumTHDMII_spectrum, Spectrum)\n    BACKEND_REQ(SARAHSPheno_gumTHDMII_conv_dRho,\
+    \ (libSPhenogumTHDMII), double, () )\n    #undef FUNCTION\n  #undef CAPABILITY\n"
+  ../PrecisionBit/src/PrecisionBit.cpp:
+  - "\n\n    void SPheno_prediction_Tpar(double& result){ result = Pipes::SPheno_prediction_Tpar::BEreq::SARAHSPheno_gumTHDMII_conv_Tpar();\
+    \ }\n\n    void SPheno_prediction_Spar(double& result){ result = Pipes::SPheno_prediction_Spar::BEreq::SARAHSPheno_gumTHDMII_conv_Spar();\
+    \ }\n\n    void SPheno_prediction_Upar(double& result){ result = Pipes::SPheno_prediction_Upar::BEreq::SARAHSPheno_gumTHDMII_conv_Upar();\
+    \ }\n\n    void SPheno_prediction_ae(double& result){ result = Pipes::SPheno_prediction_ae::BEreq::SARAHSPheno_gumTHDMII_conv_ae();\
+    \ }\n\n    void SPheno_prediction_amu(double& result){ result = Pipes::SPheno_prediction_amu::BEreq::SARAHSPheno_gumTHDMII_conv_amu();\
+    \ }\n\n    void SPheno_prediction_atau(double& result){ result = Pipes::SPheno_prediction_atau::BEreq::SARAHSPheno_gumTHDMII_conv_atau();\
+    \ }\n\n    void SPheno_prediction_EDMe(double& result){ result = Pipes::SPheno_prediction_EDMe::BEreq::SARAHSPheno_gumTHDMII_conv_EDMe();\
+    \ }\n\n    void SPheno_prediction_EDMmu(double& result){ result = Pipes::SPheno_prediction_EDMmu::BEreq::SARAHSPheno_gumTHDMII_conv_EDMmu();\
+    \ }\n\n    void SPheno_prediction_EDMtau(double& result){ result = Pipes::SPheno_prediction_EDMtau::BEreq::SARAHSPheno_gumTHDMII_conv_EDMtau();\
+    \ }\n\n    void SPheno_prediction_dRho(double& result){ result = Pipes::SPheno_prediction_dRho::BEreq::SARAHSPheno_gumTHDMII_conv_dRho();\
+    \ }\n"
+  ../SpecBit/include/gambit/SpecBit/SpecBit_rollcall.hpp:
+  - "  \n  /// Module function declarations for SpecBit_gumTHDMII.cpp\n  #include\
+    \ \"gambit/SpecBit/SpecBit_gumTHDMII_rollcall.hpp\"\n  \n"
+  ../Utils/include/gambit/Utils/citation_keys.hpp:
+  - "    \"Bloor:2021gtp\", // GUM 1.0 Paper\n    \"Staub:2013tta\", // SARAH 4.0\n\
+    \    \"Staub:2012pb\", // SARAH 3.2\n    \"Staub:2008uz\", // SARAH\n    \"Staub:2010jh\"\
+    , // SARAH: Automatic Calc of SUSY RGE and Self Energies\n    \"Staub:2015kfa\"\
+    , // SARAH: Exploring new models in detail\n    \"Pukhov:2004ca\", // Calchep\
+    \ 2.3\n    \"Belyaev:2012qa\", // Calchep 3.4\n    \"Porod:2003um\", // Spheno\n\
+    \    \"Porod:2011nf\", // Spheno 3.1\n"
+  ../cmake/backends.cmake:
+  - "# SARAH-SPheno gumTHDMII model\nset(name \"sarah-spheno\")\nset(model \"gumTHDMII\"\
+    )\nset(cleanmodel \"gumTHDMII\")\nset(ver \"4.0.3\")\nset(lib \"lib/libSPheno${cleanmodel}.so\"\
+    )\nset(dl \"http://www.hepforge.org/archive/spheno/SPheno-${ver}.tar.gz\")\nset(md5\
+    \ \"64787d6c8ce03cac38aec53d34ac46ad\")\nset(dir \"${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}/${model}\"\
+    )\nset(sarahdir \"${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/unpatched/\"\
+    )\nfile(GLOB sarahfiles  \"${sarahdir}/[a-zA-Z0-9]*\")\nstring(REGEX REPLACE \"\
+    (-cpp)|(-fpp)\" \"\" SPheno_FLAGS \"${BACKEND_Fortran_FLAGS}\") #SPheno hates\
+    \ the preprocessor\nset(SPheno_FLAGS \"-c ${SPheno_FLAGS} -${FMODULE} ${dir}/include\
+    \ -I${dir}/include\")\nset(patch \"${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/${model}/patch_${name}_${ver}_${model}.dif\"\
+    )\ncheck_ditch_status(${name}_${model} ${ver} ${dir})\nif(NOT ditched_${name}_${model}_${ver})\n\
+    \  ExternalProject_Add(${name}_${model}_${ver}\n    DOWNLOAD_COMMAND ${DL_BACKEND}\
+    \ ${dl} ${md5} ${dir}\n             COMMAND ${CMAKE_COMMAND} -E make_directory\
+    \ \"${dir}/${cleanmodel}\"\n             COMMAND cp -r \"${sarahfiles}\" \"${dir}/${cleanmodel}\"\
+    \n    SOURCE_DIR ${dir}\n    BUILD_IN_SOURCE 1\n    PATCH_COMMAND patch -p1 <\
+    \ ${patch}\n    CONFIGURE_COMMAND \"\"\n    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}\
+    \ Model=${cleanmodel} F90=${CMAKE_Fortran_COMPILER} FFLAGS=\"${SPheno_FLAGS}\"\
+    \ ${lib}\n    INSTALL_COMMAND \"\"\n  )\n  add_extra_targets(\"backend\" ${name}_${model}\
+    \ ${ver} ${dir} ${dl} cleanall)\n  set_as_default_version(\"backend\" ${name}_${model}\
+    \ ${ver})\nendif()\n\n"
+  ../config/backend_locations.yaml.default:
+  - "# Added by GUM\nSARAHSPheno_gumTHDMII:\n  4.0.3:       ./Backends/installed/sarah-spheno/4.0.3/gumTHDMII/lib/libSPhenogumTHDMII.so\n\
+    \n"
+  ../config/capabilities.dat:
+  - "\n#####  gumTHDMII model #####\n\ngumTHDMII_parameters: |\n    Parameters for\
+    \ the model gumTHDMII (see ./gambit gumTHDMII).\n\nSARAHSPheno_gumTHDMII_internal:\
+    \ |\n    Exclusively used for internal variables and functions for the SARAH-SPheno\
+    \ backend.\n\nSARAHSPheno_gumTHDMII_spectrum: |\n    Calculates and returns a\
+    \ gumTHDMII spectrum object using SARAH-SPheno.\n\nSARAHSPheno_gumTHDMII_decays:\
+    \ |\n    Calculates and returns all decays for the gumTHDMII model using SARAH-SPheno.\n\
+    \nSARAHSPheno_gumTHDMII_HiggsCouplingsTable: |\n    Fills the Higgs couplings\
+    \ table using SARAH-SPheno.\n\nSARAHSPheno_gumTHDMII_4_0_3_init: |\n    Initialisation\
+    \ of backend SARAH-SPheno v4.0.3 for model gumTHDMII.\n\ngumTHDMII_spectrum: |\n\
+    \    Create spectrum object for gumTHDMII model.\n\n"
+  ../config/models.dat:
+  - "\ngumTHDMII: |\n    gumTHDMII model, created by GUM, with parameters: lam1, lam2,\
+    \ lam3, lam4, lam5, m122, TanBeta\n\n"
+capabilities:
+  ../DecayBit/include/gambit/DecayBit/DecayBit_rollcall.hpp:
+  - h0_2_decay_rates|CH_gumTHDMII_h0_2_decays
+  - A0_decay_rates|CH_gumTHDMII_A0_decays
+  - Higgs_decay_rates|CH_gumTHDMII_Higgs_decays
+  - H_plus_decay_rates|CH_gumTHDMII_H_plus_decays
+  - H_minus_decay_rates|CH_gumTHDMII_H_minus_decays
+new_dirs:
+  hard:
+  - ../Backends/patches/sarah-spheno/4.0.3/gumTHDMII/unpatched
+  soft:
+  - ../Backends/patches/calchep/3.6.27/Models/gumTHDMII/
+  - ../Backends/patches/sarah-spheno/4.0.3/gumTHDMII
+new_files:
+  files:
+  - ../Models/include/gambit/Models/models/gumTHDMII.hpp
+  - ../Models/src/SpectrumContents/gumTHDMII.cpp
+  - ../Models/include/gambit/Models/SimpleSpectra/gumTHDMIISimpleSpec.hpp
+  - ../SpecBit/src/SpecBit_gumTHDMII.cpp
+  - ../SpecBit/include/gambit/SpecBit/SpecBit_gumTHDMII_rollcall.hpp
+  - ../Backends/patches/calchep/3.6.27/Models/gumTHDMII/lgrng1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/gumTHDMII/prtcls1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/gumTHDMII/vars1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/gumTHDMII/extlib1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/gumTHDMII/func1.mdl
+  - ../Backends/src/frontends/SARAHSPheno_gumTHDMII_4_0_3.cpp
+  - ../Backends/include/gambit/Backends/frontends/SARAHSPheno_gumTHDMII_4_0_3.hpp
+  - ../Backends/patches/sarah-spheno/4.0.3/gumTHDMII/patch_sarah-spheno_4.0.3_gumTHDMII.dif
+  - ../Backends/data/SARAHSPheno_gumTHDMII_4_0_3_decays_info.dat
+  - ../yaml_files/gumTHDMII_example.yaml
+new_models:
+  ? ../ColliderBit/include/gambit/ColliderBit/ColliderBit_Higgs_rollcall.hpp|HB_ModelParameters_neutral|MSSMLikeHiggs_ModelParameters|ALLOW_MODELS
+  : - gumTHDMII
+particles: {}
