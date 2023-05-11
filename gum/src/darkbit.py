@@ -762,9 +762,254 @@ MICROMEGAS
 mo_version = "3.6.9.2"
 mo_safe_version = "3_6_9_2"
 
+
+def write_calchep_param_assignments(mathpackage, params,
+                         particles, gambit_pdg_codes, calchep_masses,
+                         calchep_widths, ch_particles, ch_independent_params, ch_dependent_params, ch_vertices):
+
+    # clean up the shape member inside the Parameters
+
+    for param in params:
+        if param.shape == 'scalar':
+            param.shape2 = 1
+        elif param.shape.startswith('v'):
+            param.shape2 = int(param.shape[1:])
+        elif param.shape.startswith('m'):
+            tmp = param.shape[1:].split('x')
+            param.shape2 = [int(tmp[0]),int(tmp[1])]
+        else:
+            raise GumError('invalid parameter shape')
+
+    # create dict {nameij:param} where nameij is the expected gum name
+
+    expected_names = []
+    for param in params:
+        # don't bother if block is MINPAR or **IN
+        if param.block is None or param.block == "MINPAR" or param.block == "EXTPAR" or param.block.endswith("IN"):
+            continue
+        if param.shape2 == 1:
+            expected_names.append([param.name,param])
+        elif len(param.shape2) == 1:
+            expected_names += [[param.name+str(i+1),param] for i in range(0,param.shape2[0])]
+        elif len(param.shape2) == 2:
+            expected_names += [[param.name+str(i+1)+str(j+1),param] for i in range(0,param.shape2[0]) for j in range(0,param.shape2[1])]
+
+    # convert to dict but ensure no duplicates
+
+    tmp = {}
+    for name in expected_names:
+        if name[0] in tmp:
+            raise GumError("duplicate parameter name: {0}".format(name[0]))
+        tmp[name[0]] = name[1]
+    expected_names = tmp
+
+    
+    # look up each calchep name and add it to Parameter
+
+    for param in params:
+        param.name_calchep = None
+
+    for ch_param in ch_independent_params:
+
+        # skip non-parameters
+        if ch_param.name_short in ['Pi', 'sqrt2']:
+            continue
+
+        # don't worry about masses (deal with them later)
+        if ch_param.name_short in calchep_masses.values(): 
+            continue
+
+        # we also deal with widths later
+        if ch_param.name_short in calchep_widths.values(): 
+            continue
+
+        # more stuff we will add later (TODO: add FeynRules version)
+        if ch_param.name_short in ['Gf', 'aS', 'alfSMZ', 'aEWinv', 'TW']: 
+            continue
+
+        # some params that sarah adds to calchep but not in spectrum
+        # I add the expressions to calculate them later
+        if ch_param.name_short in ['betaH']:
+            continue 
+
+        # TODO: wtf are these? 
+        if ch_param.name_short in ['Maux', 'Q']: 
+            continue
+
+        # I *think* these are effective vertex factors (added because the tree-level ones are absent)
+        # For now I just leave them at their default of 0.
+        if ch_param.name_short in ['HPP1', 'HGG1', 'HPP2', 'HGG2', 'APP2', 'AGG2']: 
+            continue
+        
+        try:
+            param = expected_names[ch_param.name_short]
+            param.name_calchep = param.name
+        except:
+            print('failed to find corresponding gambit param for calchep param: {0}'.format(ch_param.name_short))
+            raise
+
+    # leaving the original code mostly untouched for now
+    # some day I shall clean up this awful mess
+
+    result = ""
+
+    # deal with the params not in spectrum
+    if 'betaH' in ch_independent_params:
+        result += "Assign_Value(\"betaH\", atan(spec.get(Par::dimensionless, \"TanBeta\")));\n"
+
+    # donotassign = ["vev", "sinW2", "Yu", "Ye", "Yd", "g1", "g2", "g3"]
+
+    # Firstly assign all BSM model parameters
+    for param in params:
+
+        # only assign those with a calchep name
+
+        if param.name_calchep is None: 
+            continue
+
+        # # Internally computed
+        # if param.name in donotassign: continue
+
+        # # Ignore the pole masses - do these separately
+        # if  param.tag == "Pole_Mass": continue
+
+        # leaving this untouched for now
+
+        # Scalar case
+        if param.shape == "scalar":
+            result += (
+                    "Assign_Value(\"{0}\", spec.get(Par::{1}, \"{2}\"));\n"
+            ).format(param.name, param.tag, param.name)
+
+        # Vector case
+        if param.shape.startswith('v'):
+            size = param.shape[1:]
+            result += (
+                "for(int i=1; i<{0}; i++)\n{{\n"
+                "std::string paramname = \"{2}\" + std::to_string(i);\n"
+                "Assign_Value(paramname, spec.get(Par::{3}, \"{4}\"));\n"
+                "}}\n"
+            ).format(i, j, param.name, param.tag, param.name)
+
+        # Matrix case
+        if param.shape.startswith('m'):
+            size = param.shape[1:]
+            i,j = size.split('x')
+
+            result += (
+                "for(int i=1; i<{0}; i++)\n{{\n"
+                "for(int j=1; j<{1}; j++)\n{{\n"
+                "std::string paramname = \"{2}\" + std::to_string(i) + "
+                "std::to_string(j);\n"
+                "Assign_Value(paramname, spec.get(Par::{3}, \"{4}\",i,j));\n"
+                "}}\n}}\n"
+            ).format(i, j, param.name, param.tag, param.name)
+
+
+    # Do pole masses now
+    result += "// Masses\n"
+    for part in particles:
+
+        chname = calchep_masses[part.PDG_code]
+        gbname = pdg_to_particle(part.PDG_code, gambit_pdg_codes)
+
+        if gbname is None:
+            raise GumError('failed to find gambit name for {0}'.format(chname))
+
+        result += (
+               "Assign_Value(\"{0}\", spec.get(Par::Pole_Mass, \"{1}\"));\n"
+        ).format(chname, gbname)
+
+    # todo make sure everything in calchep_masses has been assigned
+
+    # Weinberg angle
+
+    result += ("double sinW2 = 1 - pow(spec.get(Par::Pole_Mass, \"W+\") / spec.get(Par::Pole_Mass, \"Z0\"),2);\n"
+               "double TW = asin(sqrt(sinW2));\n"
+               "Assign_Value(\"TW\", TW);\n")
+
+    # result += ("double TW = asin(sqrt(spec.get(Par::dimensionless, \"sinW2\")));\n"
+    #           "Assign_Value(\"TW\", TW);\n")
+
+    # SMInputs
+    result += "\n// SMInputs\n"
+
+
+    SMinputs = {1 : 'mD', 2 : 'mU', 3 : 'mS', 4 : 'mCmC', 5:'mBmB', 6:'mT',
+                11: 'mE', 13: 'mMu', 15: 'mTau', 23: 'mZ'}
+
+    for pdg, chmass in iteritems(calchep_masses):
+        if pdg in SMinputs:
+            result += (
+                "Assign_Value(\"{0}\", sminputs.{1});\n"
+            ).format(chmass, SMinputs[pdg])
+
+
+    # These are handled slightly differently by SARAH and FeynRules
+    if mathpackage == 'sarah':
+        result += (
+            "\n"
+            "// SMInputs constants\n"
+            "Assign_Value(\"Gf\", sminputs.GF); "
+            "// Fermi constant\n"
+            "Assign_Value(\"aS\", sminputs.alphaS); "
+            "// alphaS \n"
+            "Assign_Value(\"alfSMZ\", sminputs.alphaS); "
+            "// alphaS at mZ - for internal running\n"
+            "Assign_Value(\"aEWinv\", sminputs.alphainv); "
+            "// Fine structure constant\n\n"
+        )
+    elif mathpackage == 'feynrules':
+        result += (
+            "\n"
+            "// SMInputs constants"
+            "Assign_Value(\"Gf\", sminputs.GF); "
+            "// Fermi constant\n"
+            "Assign_Value(\"aS\", sminputs.alphaS); "
+            "// alphaS \n"
+            "Assign_Value(\"aEWM1\", sminputs.alphainv); "
+            "// Fine structure constant\n\n"
+        )
+
+    # Widths
+    result += (
+            "\n"
+            "// Set particle widths in micrOmegas\n"
+            "const DecayTable* tbl = &(*Dep::decay_rates);\n"
+            "double width = 0.0;\n"
+            "bool present = true;\n"
+            "\n"
+    )
+
+    for pdg, chwidth in iteritems(calchep_widths):
+        # If a particle has zero width don't try and assign it
+        if chwidth == "0": continue
+
+        gbname = pdg_to_particle(pdg, gambit_pdg_codes)
+        
+        if gbname is None:
+            raise GumError('failed to find gambit name for {0}'.format(chname))
+        
+        result += (
+               "Assign_Value(\"{1}\", width);\n"
+        ).format(gbname, chwidth)
+
+            #    "try {{ width = tbl->at(\"{0}\").width_in_GeV; }}\n"
+            #    " catch(std::exception& e) {{ present = false; }}\n"
+            #    "if (present) Assign_Value(\"{1}\", width);\n"
+            #    "present = true;\n\n"
+
+    return result
+
+
 def write_micromegas_src(gambit_model_name, spectrum, mathpackage, params,
                          particles, gambit_pdg_codes, calchep_masses,
-                         calchep_widths):
+                         calchep_widths, ch_particles, ch_independent_params, ch_dependent_params, ch_vertices):
+
+                        #  gum.name, gum.spec, gum.math,
+                        #                       parameters, bsm_particle_list,
+                        #                       gambit_pdgs, calchep_masses,
+                        #                       calchep_widths)
     """
     Writes frontend source and header files for a new MicrOmegas model.
 
@@ -851,119 +1096,8 @@ def write_micromegas_src(gambit_model_name, spectrum, mathpackage, params,
     ).format(gambit_model_name, mo_safe_version, spectrum)
 
 
-    donotassign = ["vev", "sinW2", "Yu", "Ye", "Yd", "g1", "g2", "g3"]
-
-    # Firstly assign all BSM model parameters
-    for param in params:
-
-        # Internally computed
-        if param.name in donotassign: continue
-
-        # Ignore the pole masses - do these separately
-        if  param.tag == "Pole_Mass": continue
-
-        # Scalar case
-        if param.shape == "scalar":
-            mo_src += (
-                    "Assign_Value(\"{0}\", spec.get(Par::{1}, \"{2}\"));\n"
-            ).format(param.name, param.tag, param.alt_name)
-
-        # Vector case
-        if param.shape.startswith('v'):
-            size = param.shape[1:]
-            mo_src += (
-                "for(int i=1; i<{0}; i++)\n{{\n"
-                "std::string paramname = \"{2}\" + std::to_string(i);\n"
-                "Assign_Value(paramname, spec.get(Par::{3}, \"{4}\"));\n"
-                "}}\n"
-            ).format(i, j, param.name, param.tag, param.alt_name)
-
-        # Matrix case
-        if param.shape.startswith('m'):
-            size = param.shape[1:]
-            i,j = size.split('x')
-
-            mo_src += (
-                "for(int i=1; i<{0}; i++)\n{{\n"
-                "for(int j=1; j<{1}; j++)\n{{\n"
-                "std::string paramname = \"{2}\" + std::to_string(i) + "
-                "std::to_string(j);\n"
-                "Assign_Value(paramname, spec.get(Par::{3}, \"{4}\"));\n"
-                "}}\n}}\n"
-            ).format(i, j, param.name, param.tag, param.alt_name)
-
-
-    # Do pole masses now
-    mo_src += "// Masses\n"
-    for part in particles:
-
-        chname = calchep_masses[part.PDG_code]
-        gbname = pdg_to_particle(part.PDG_code, gambit_pdg_codes)
-
-        mo_src += (
-               "Assign_Value(\"{0}\", spec.get(Par::Pole_Mass, \"{1}\"));\n"
-        ).format(chname, gbname)
-
-    # SMInputs
-    mo_src += "\n// SMInputs\n"
-
-    SMinputs = {1 : 'mD', 2 : 'mU', 3 : 'mS', 4 : 'mCmC', 5:'mBmB', 6:'mT',
-                11: 'mE', 13: 'mMu', 15: 'mTau', 23: 'mZ'}
-
-    for pdg, chmass in iteritems(calchep_masses):
-        if pdg in SMinputs:
-            mo_src += (
-                "Assign_Value(\"{0}\", sminputs.{1});\n"
-            ).format(chmass, SMinputs[pdg])
-
-
-    # These are handled slightly differently by SARAH and FeynRules
-    if mathpackage == 'sarah':
-        mo_src += (
-            "\n"
-            "// SMInputs constants"
-            "Assign_Value(\"Gf\", sminputs.GF); "
-            "// Fermi constant\n"
-            "Assign_Value(\"aS\", sminputs.alphaS); "
-            "// alphaS \n"
-            "Assign_Value(\"alfSMZ\", sminputs.alphaS); "
-            "// alphaS at mZ - for internal running\n"
-            "Assign_Value(\"aEWinv\", sminputs.alphainv); "
-            "// Fine structure constant\n\n"
-        )
-    elif mathpackage == 'feynrules':
-        mo_src += (
-            "\n"
-            "// SMInputs constants"
-            "Assign_Value(\"Gf\", sminputs.GF); "
-            "// Fermi constant\n"
-            "Assign_Value(\"aS\", sminputs.alphaS); "
-            "// alphaS \n"
-            "Assign_Value(\"aEWM1\", sminputs.alphainv); "
-            "// Fine structure constant\n\n"
-        )
-
-    # Widths
-    mo_src += (
-            "\n"
-            "// Set particle widths in micrOmegas\n"
-            "const DecayTable* tbl = &(*Dep::decay_rates);\n"
-            "double width = 0.0;\n"
-            "bool present = true;\n"
-            "\n"
-    )
-
-    for pdg, chwidth in iteritems(calchep_widths):
-        # If a particle has zero width don't try and assign it
-        if chwidth == "0": continue
-        mo_src += (
-               "try {{ width = tbl->at(\"{0}\").width_in_GeV; }}\n"
-               "catch(std::exception& e) {{ present = false; }}\n"
-               "if (present) Assign_Value(\"{1}\", width);\n"
-               "present = true;\n\n"
-        ).format(pdg_to_particle(pdg, gambit_pdg_codes), chwidth)
-
-
+    mo_src += write_calchep_param_assignments(mathpackage, params, particles, gambit_pdg_codes, calchep_masses, 
+                          calchep_widths, ch_particles, ch_independent_params, ch_dependent_params, ch_vertices)
 
     # Get MicrOmegas to do it's thing.
     mo_src += (
@@ -980,7 +1114,7 @@ def write_micromegas_src(gambit_model_name, spectrum, mathpackage, params,
 
     return indent(mo_src)
 
-def write_micromegas_header(gambit_model_name, mathpackage, params, cap_def):
+def write_micromegas_header(gambit_model_name, mathpackage, params, cap_def, ch_particles, ch_independent_params, ch_dependent_params, ch_vertices):
     """
     Writes a header file for micromegas.
     """

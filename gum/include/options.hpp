@@ -99,7 +99,6 @@ Options parse(int, char**);
 
 class Particle
 {
-
     int pdgcode;
     std::string partname;
     int doublespin;

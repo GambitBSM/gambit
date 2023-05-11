@@ -21,7 +21,6 @@
 #
 #  **************************************
 
-
 # TODO add mass dimension for new parameters in .gum file
 
 import yaml
@@ -32,9 +31,11 @@ from collections import defaultdict
 from .setup import *
 from .cmake_variables import *
 
+
 """
 .GUM FILE PARSING
 """
+
 
 class Inputs:
     """
@@ -74,7 +75,6 @@ class Inputs:
             self.restriction = restriction
         else:
             self.restriction = ''
-
 
 class Outputs:
     """
@@ -116,7 +116,6 @@ class Outputs:
         if self.vev: backends.append('vevacious')
         if self.ufo: backends.append('ufo')
         return backends
-
 
 def check_gum_file(inputfile):
     """
@@ -224,8 +223,8 @@ def fill_gum_object(data):
     backends = ['calchep', 'pythia', 'spheno', 'ufo',
                 'micromegas', 'vevacious']
 
-    opts = {}
     # The outputs GUM should hook up to GAMBIT, if specified
+    opts = {}
     if 'output' in data:
         for i in backends:
             if i in data['output']:
@@ -237,8 +236,8 @@ def fill_gum_object(data):
                             "file.\nGive GUM something to do!\n"
                             "Please change your .gum file."))
 
-    options = {}
     # Options for the outputs declared
+    options = {}
     if 'output_options' in data:
         for output in data['output_options']:
             if output not in opts.keys():
@@ -307,9 +306,11 @@ def fill_gum_object(data):
 
     return gum_info, outputs
 
+
 """
 FEYNRULES PARSING
 """
+
 
 def parse_feynrules_model_file(model_name, base_model, outputs):
     """
@@ -625,17 +626,20 @@ def parse_sarah_model_file(model_name, outputs):
     gumdir = GUM_DIR + ("/Models/{0}/").format(model_name)
     sarahfolder = sarahdir
 
+    # EDIT: gum version needs to take priority! how can we update it otherwise?
     sarah_file_path = sarahdir + ("{0}.m").format(model_name)
-    # If it doesn't exist, try the GUM models folder
-    if not os.path.isfile(sarah_file_path):
-        sarah_file_path = gumdir + ("{0}.m").format(model_name)
-        if not os.path.isfile(sarah_file_path):
-            raise GumError(("GUM Error: Unable to find the model {0} in either "
-                            "the SARAH model directory, or the GUM model "
-                            "directory!\nPlease move it to one of "
-                            "these locations.").format(model_name))
+    gum_file_path = gumdir + ("{0}.m").format(model_name)
+
+    # If gum version exists then update SARAH version
+    if os.path.isfile(gum_file_path):
         # Copy the files to the SARAH directory, then we should be good to go
         copy_tree(gumdir, sarahdir)
+
+    elif not os.path.isfile(sarah_file_path):
+        raise GumError(("GUM Error: Unable to find the model {0} in either "
+                        "the SARAH model directory, or the GUM model "
+                        "directory!\nPlease move it to one of "
+                        "these locations.").format(model_name))
 
     # Read the model name used by SARAH
     sarah_model_name = model_name
@@ -961,6 +965,7 @@ def parse_sarah_model_file(model_name, outputs):
         desc = re.search(r'Description\s*->\s*"(.*?)"', entry)
 
         if not desc:
+            print(entry)
             raise GumError(("No description for particle {0}.\n"
                             "Please update your SARAH file.").format(particle))
 
@@ -981,6 +986,10 @@ def parse_sarah_model_file(model_name, outputs):
             if desc:
                 # If it's there - all good
                 if desc.group(1) in safeparticles:
+                    continue
+
+                # !!!!!!!!!! SKIP GUMS PARTICLE CHECK IF IT HAS A DESCRIPTION
+                if True:
                     continue
 
             raise GumError(("There is either no PDG code or mass given for "
