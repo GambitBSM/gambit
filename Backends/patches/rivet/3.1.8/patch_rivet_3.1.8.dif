@@ -313,3 +313,15 @@ diff -rupN Rivet-3.1.8/src/Core/AnalysisHandler.cc ../installed/rivet/3.1.8/src/
  
    string AnalysisHandler::runName() const {
      return _runname;
+diff -rupN Rivet-3.1.8/configure ../installed/rivet/3.1.8/configure
+--- Rivet-3.1.8/configure	2023-04-27 14:14:13.000000000 +0200
++++ ../installed/rivet/3.1.8/configure	2023-05-11 12:18:52.365835672 +0200
+@@ -21243,7 +21243,7 @@ printf "%s\n" "$fjversion" >&6; }
+   if test "$fjmajor" -lt 3 -o "$fjminor" -lt 2 ; then  #< only works for v3.x
+     as_fn_error $? "FastJet version 3.2.0 or later is required" "$LINENO" 5
+   fi
+-  FASTJETLIBADD="$($FJCONFIG --libs --plugins --rpath=no)"
++  FASTJETLIBADD="$($FJCONFIG --libs --plugins)"
+ else
+   FASTJETLIBADD="-L$FASTJETLIBPATH -l$FASTJETLIBNAME -lfastjetplugins"
+ fi
