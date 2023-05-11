@@ -226,7 +226,12 @@ namespace Gambit
     bool check2(const str& s1, const str& s2);
 
     /// returns square of double - saves tedious repetition
-    EXPORT_SYMBOLS double sqr(double a);
+    EXPORT_SYMBOLS double sqr(const double a);
+    EXPORT_SYMBOLS std::complex<double> sqr(const std::complex<double> a);
+
+    /// returns cube of double - saves tedious repetition
+    EXPORT_SYMBOLS double cub(const double a);
+    EXPORT_SYMBOLS std::complex<double> cub(const std::complex<double> a);
 
     /// Local GAMBIT definition of isnan.  Could be redefined at a later point, depending on compiler support.
     using std::isnan;
@@ -237,9 +242,6 @@ namespace Gambit
     /// Check if a string represents an integer
     /// From: http://stackoverflow.com/a/2845275/1447953
     EXPORT_SYMBOLS bool isInteger(const std::string&);
-
-    /// Get the sign of a (hopefully numeric type)
-    template <typename T> int sgn(T val) {  return (T(0) < val) - (val < T(0)); }
 
     // Dummy functions for variadic variables to avoid compiler warnings
     template<typename... T> void dummy_function() {}
@@ -254,8 +256,51 @@ namespace Gambit
      dummy_function(args...);
     }
 
+    // get MPI rank if we are using MPI, otherwise return 0
+    EXPORT_SYMBOLS int get_mpi_rank();
+
+    // get MPI size if we are using MPI, otherwise return 1
+    EXPORT_SYMBOLS int get_mpi_size();
+
+    // really annoying when C++ is missing basic fetures
+
     // Factorial function
     EXPORT_SYMBOLS int factorial(const int);
+
+    // fill string with character up to fixed width (left-align)
+    EXPORT_SYMBOLS std::string ljust(const std::string to_be_filled, const size_t width, const char fill_character = ' ');
+
+    // fill string with character up to fixed width (right-align)
+    EXPORT_SYMBOLS std::string rjust(const std::string to_be_filled, const size_t width, const char fill_character = ' ');
+
+    // check if file exists (without C++17 and without boost)
+    EXPORT_SYMBOLS bool check_file_exists(const std::string name);
+
+    // convert complex number to string
+    EXPORT_SYMBOLS std::string to_string(const std::complex<double> d);
+
+    // convert a list to delimited string
+    template <typename TYPE>
+    std::string join(const std::vector<TYPE> list, const std::string separator)
+    {
+      std::stringstream result;
+      for (size_t i=0; i<list.size()-1; ++i)
+      {
+        result << list[i];
+        result << separator;
+      }
+      result << list[list.size()-1];
+      return result.str();
+    }
+
+    // replace substrings within some string with the given replacement, set num_occurences to -1 to replace all
+    EXPORT_SYMBOLS std::string replace(const std::string mainstring, const std::string substring, const std::string replacement, const int num_occurences = -1);
+    
+    // read this like: part in [first,last]
+    EXPORT_SYMBOLS bool in(int part, int first, int last);
+
+    // floating-point equality
+    EXPORT_SYMBOLS bool equal(double a, double b);
 
   }
 

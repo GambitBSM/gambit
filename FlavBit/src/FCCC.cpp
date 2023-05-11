@@ -1536,6 +1536,20 @@ namespace Gambit
       theory[9] =*Dep::Rmu;
       //RDemu
       theory[10] =*Dep::RDemu;
+
+      // hax (to ignore some of them)
+      // theory[0] = pmc.value_exp(0,0); // B-> tau nu SI
+      // theory[1] = pmc.value_exp(1,0); // B-> D mu nu
+      // theory[2] = pmc.value_exp(2,0); // B-> D* mu nu
+      // theory[3] = pmc.value_exp(3,0); // RD
+      // theory[4] = pmc.value_exp(4,0); // RDstar
+      // theory[5] = pmc.value_exp(5,0); // Ds-> tau nu
+      // theory[6] = pmc.value_exp(6,0); // Ds -> mu nu
+      // theory[7] = pmc.value_exp(7,0); // D -> mu nu
+      // theory[8] = pmc.value_exp(8,0); // D -> tau nu
+      // theory[9] = pmc.value_exp(9,0); //R_mu
+      // theory[10] = pmc.value_exp(10,0); //RDemu
+
       for (int i = 0; i < n_experiments; ++i)
       {
         pmc.value_th(i,0) = theory[i];

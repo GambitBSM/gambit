@@ -101,7 +101,12 @@ namespace Gambit
     /// Check if a width is negative or suspiciously large and raise an error.
     void check_width(const str& info, double& w, bool raise_invalid_pt_negative_width = false, bool raise_invalid_pt_large_width = false)
     {
-      if (Utils::isnan(w)) DecayBit_error().raise(info, "Decay width is NaN!");
+      if (Utils::isnan(w))
+      {
+        DecayBit_error().raise(info, "Decay width is NaN!");
+        // str error = "Decay width is NaN!";
+        // invalid_point().raise(err);
+      }
       if (w < 0)
       {
         str nwiderr("Negative width returned!");
@@ -359,6 +364,8 @@ namespace Gambit
       result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_e", "nubar_e");
       result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_mu", "nubar_mu");
       result.set_BF(0.20000/3.0, 0.00055/3.0, "nu_tau", "nubar_tau");
+
+      // sums to 0.8. the remaining 0.2 is for neutrinos
 
       // Neutrinos
       // FIXME: It doesn't work because SMINPUTS it's not satisfied yet
@@ -2463,7 +2470,6 @@ namespace Gambit
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
 
-
     /// MSSM decays: chargino decays for small chargino--neutralino mass splitting.
     /// Using results from hep-ph/9607421.
     void chargino_plus_1_decays_smallsplit(DecayTable::Entry& result)
@@ -2781,7 +2787,6 @@ namespace Gambit
 
       check_width(LOCAL_INFO, result.width_in_GeV, runOptions->getValueOrDef<bool>(false, "invalid_point_for_negative_width"));
     }
-
 
     /// MSSM decays: stau decays for small stau--neutralino mass splitting.
     /// Using results from T. Jittoh, J. Sato, T. Shimomura, M. Yamanaka, Phys. Rev. D73 (2006), hep-ph/0512197
@@ -3873,7 +3878,6 @@ namespace Gambit
       using namespace Pipes::CH_DMsimpVectorMedDiracDM_Y1_decays;
       // Clear previous decays
       result = DecayTable::Entry();
-
       str model = "DMsimpVectorMedDiracDM";
       str in = "Y1"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"b~", "b"}, {"c~", "c"}, {"d~", "d"}, {"s~", "s"}, {"t~", "t"}, {"u~", "u"}, {"Xd~", "Xd"}}; // Out states: CalcHEP particle names
@@ -3909,7 +3913,6 @@ namespace Gambit
       using namespace Pipes::CH_DMsimpVectorMedMajoranaDM_Y1_decays;
       // Clear previous decays
       result = DecayTable::Entry();
-
       str model = "DMsimpVectorMedMajoranaDM";
       str in = "Y1"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"b~", "b"}, {"c~", "c"}, {"d~", "d"}, {"s~", "s"}, {"t~", "t"}, {"u~", "u"}, {"Xm", "Xm"}}; // Out states: CalcHEP particle names
@@ -3946,7 +3949,6 @@ namespace Gambit
       using namespace Pipes::CH_DMsimpVectorMedScalarDM_Y1_decays;
       // Clear previous decays
       result = DecayTable::Entry();
-
       str model = "DMsimpVectorMedScalarDM";
       str in = "Y1"; // In state: CalcHEP particle name
       std::vector<std::vector<str>> out_calchep = {{"Xc", "Xc~"}, {"b~", "b"}, {"c~", "c"}, {"d~", "d"}, {"s~", "s"}, {"t~", "t"}, {"u~", "u"}}; // Out states: CalcHEP particle names
@@ -4237,89 +4239,96 @@ namespace Gambit
       decays = DecayTable(slha);
     }
 
+    // make sure all BFs sum to 1 (ignoring SM)
+    void check_BR_sum(const DecayTable& tbl)
+    {
+      // loop over all particles we have decays for
+      for (auto& part_entry_pair : tbl.particles)
+      {
+        str part_name = Models::ParticleDB().partmap::long_name(part_entry_pair.first);
+        auto& decay_entry = part_entry_pair.second;
+
+        if (part_name == "omega" || part_name == "eta" || part_name == "rho+" || part_name == "rho0" || part_name == "rho-" || part_name == "H-" ||
+            part_name == "W+" || part_name == "Z0" || part_name == "W-" || part_name == "e+_3" || part_name == "tau+" || part_name == "e-_3" || part_name == "tau-")
+          continue;
+
+        double BR_sum = 0;
+
+        // loop over each decay mode
+        for (auto& prod_br_pair : decay_entry.channels)
+          BR_sum += prod_br_pair.second.first;
+
+        if (abs(BR_sum-1.0) > 1e-4 && abs(decay_entry.width_in_GeV) > 1e-35)
+          std::cout << "ERROR: BR sum for " + part_name + " is " << BR_sum << std::endl;
+      }
+    }
+
     /// Convert the DecayTable to a format where we can print each individual channel's BF
     void get_decaytable_as_map(map_str_dbl& map)
     {
       using namespace Pipes::get_decaytable_as_map;
 
+      // skip all BFs for these particles
+      const vector<str> skip_particles = runOptions->getValueOrDef<vector<str>>({}, "skip_particles");
+      // skip the following specific decay channels (0 -> 1,2,...). WARNING: order needs to match
+      const vector<vector<str>> skip_channels = runOptions->getValueOrDef<vector<vector<str>>>({}, "BFs");
+      // should we also print BF errors?
+      const bool print_BF_error = runOptions->getValueOrDef<bool>(false, "print_BF_error");
+      // should we print widths instead of BFs
+      const bool print_as_widths = runOptions->getValueOrDef<bool>(false, "print_as_widths");
+      // get the decay table
       const DecayTable* tbl = &(*Dep::decay_rates);
 
-      std::vector<std::vector<str> > bfs;
-      std::string channel;
-      double BF = 0.0;
+      check_BR_sum(*tbl);
 
-      // If the user specifies "printall" -- then print everything.
-      bool printall = runOptions->getValueOrDef(false, "printall");
-      if (printall)
+      // loop over all particles in decay table
+      for (auto& part : tbl->particles)
       {
-        // Iterate through DecayTable.
-        for (auto it = tbl->particles.begin(); it != tbl->particles.end(); ++it)
+        // get full name of current particle
+        const str name = Models::ParticleDB().partmap::long_name(part.first);
+
+        // if in skip_particles list then dont bother
+        bool skip = false;
+        for (auto& p : skip_particles) if (name == p) skip = true;
+        if (skip) continue;
+
+        // get entry for current particle
+        const DecayTable::Entry& entry = part.second;
+
+        // loop over all decay channels
+        for (auto& channel : entry.channels)
         {
-          std::pair<int, int> pdg = it->first;
-          std::vector<str> bf = {Models::ParticleDB().partmap::long_name(pdg)};
-          bfs.push_back(bf);
-        }
-      }
-
-      /// Otherwise just print the specific, named channels
-      else
-      {
-        std::vector<std::vector<str> > BFs; // Empty set of braching fractions.
-        bfs = runOptions->getValueOrDef<std::vector<std::vector<str> > >(BFs, "BFs");
-      }
-
-      // Iterate through branching ratios
-      for ( const auto &row : bfs )
-      {
-
-        std::string decaypart = row.front();
-        const DecayTable::Entry entry = tbl->at(decaypart);
-
-        // If the entry is a single particle, then add every BF for this channel
-        if ( row.size() == 1 )
-        {
-          for (auto it = entry.channels.begin(); it != entry.channels.end(); ++it)
+          // construct full particle names vector (0 -> 1,2,...)
+          vector<str> names(1+channel.first.size());
+          names[0] = name;
+          size_t i = 1;
+          for (auto& ch : channel.first)
           {
-            BF = it->second.first;
-
-            std::multiset< std::pair<int,int> > ch = it->first;
-            std::vector<str> chan;
-
-            // Create a vector of final states by particle name.
-            for (auto it2 = ch.begin(); it2 != ch.end(); ++it2) chan.push_back(Models::ParticleDB().partmap::long_name(*it2));
-
-            // Write the name of the output channel.
-            channel = row[0] + "->" + chan[0] + "+" + chan[1];
-
-            // + 3-body decay case: add the third final state particle if needed.
-            if (chan.size() == 3) channel += "+" + chan[2];
-
-            map[channel] = BF;
+            names[i] = Models::ParticleDB().partmap::long_name(ch);
+            i += 1;
           }
 
-        }
+          // if in skip_channels list then dont bother
+          skip = false;
+          for (auto& p : skip_channels) if (names == p) skip = true;
+          if (skip) continue;
 
-        // No 1-body decays..
+          // extract BF for current channel
+          double BF = channel.second.first; 
+          double BF_error = channel.second.second;
+          if (print_as_widths)
+          {
+            BF *= entry.width_in_GeV;
+            BF_error *= entry.width_in_GeV;
+          }
 
-        // 2-body decays channel-by-channel
-        else if ( row.size() == 3 )
-        {
-          BF = entry.BF( row[1], row[2] );
-          channel = row[0] + "->" + row[1] + "+" + row[2];
-          map[channel] = BF;
-        }
-
-        // 3-body decays channel-by-channel
-        // (SB: I don't think we have these yet. But if/when we do, they will be supported)
-        else if (row.size() == 4 )
-        {
-          BF = entry.BF( row[1], row[2], row[3] );
-          channel = row[0] + "->" + row[1] + "+" + row[2] + "+" + row[3];
-          map[channel] = BF;
+          // add the BF and BF error to map
+          str channel_name = replace(join(names,","),",","->",1);
+          map[channel_name] = BF;
+          if (print_BF_error) map[channel_name+" error"] = BF_error;
         }
       }
     }
-
 
     /// Get MSSM mass eigenstate pseudonyms for the gauge eigenstates
     void get_mass_es_pseudonyms(mass_es_pseudonyms& result)
@@ -4371,8 +4380,6 @@ namespace Gambit
       if((max_mixing*max_mixing) <= 1-tol) result = 6;
     }
 
-    /// @}
-
     // Read and interpolate chi2 table
     daFunk::Funk get_Higgs_invWidth_chi2(std::string filename)
     {
@@ -4381,7 +4388,6 @@ namespace Gambit
       table.setcolnames(colnames);
       return daFunk::interp("BR", table["BR"], table["Delta_chi2"]);
     }
-
 
     void MSSM_inv_Higgs_BF(double &BF)
     {
@@ -4821,7 +4827,7 @@ namespace Gambit
     /// @}
 
 
-
+    // Calculate width of Z decays to neutrinos (with RHN correction if present),
     void Z_gamma_nu_2l(triplet<double>& gamma)
     {
       /**
@@ -4884,6 +4890,7 @@ namespace Gambit
 
     }
 
+    // Calculate width of Z decays to the lightest neutralinos,
     void Z_gamma_chi_0_MSSM_tree(triplet<double>& gamma)
     {
       /**
@@ -4972,7 +4979,6 @@ namespace Gambit
       result += Stats::gaussian_loglikelihood(Wtoldecays[1], Wwidth[1], 0.0, Wwidth_error[1], false);
       result += Stats::gaussian_loglikelihood(Wtoldecays[2], Wwidth[2], 0.0, Wwidth_error[2], false);
     }
-
 
   }  // namespace DecayBit
 

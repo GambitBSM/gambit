@@ -96,6 +96,15 @@ namespace Gambit
   typedef std::map< std::pair < int, int >, double> map_intpair_dbl;
   /// Shorthand for an double-double pair to double map
   typedef std::map< std::pair < double, double >, double> map_dblpair_dbl;
+  /// shorthand for a complex double
+  typedef std::complex<double> complexd;
+  /// vector< particle_list , (scalar-coupling,pseudoscalar-coupling) >
+  typedef std::vector<std::pair<std::vector<int>,std::pair<complexd,complexd>>> coupling_table;
+  /// <particles, <scalar,pseudoscalar>>
+  using coupling = std::pair<std::vector<int>,std::pair<complexd,complexd>>;
+  // @asw TODO: move this
+  enum THDM_TYPE : int;
+
 
   // Shorthand for vector of shared pointers
   template <typename T>

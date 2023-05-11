@@ -326,6 +326,7 @@ namespace Gambit
           {
             std::ostringstream os;
             os << "Couldn't convert options to map. YAML type unknown. ";
+            os << header;
             utils_error().raise(LOCAL_INFO,os.str());
           }
         }

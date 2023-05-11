@@ -188,7 +188,7 @@ namespace Gambit
 
     // Check for signals from the scanner to switch to an alternate minimum log likelihood value. TODO: could let scanner plugin set the actual value?
     static bool switch_done(false); // Disable this check once the switch occurs
-    if(not switch_done)
+    if(!switch_done)
     {
       if(check_for_switch_to_alternate_min_LogL())
       {
@@ -206,7 +206,7 @@ namespace Gambit
     }
 
     // Decide if we need to skip the likelihood calculation due to shutdown procedure
-    if(signaldata().shutdown_begun() and not scanner_can_quit())
+    if(signaldata().shutdown_begun() && !scanner_can_quit())
     {
       // If the scanner does not have a built-in mechanism for halting the scan early, then we will assume
       // responsiblity for the process and attempt to shut the scan down from our side.
@@ -247,6 +247,16 @@ namespace Gambit
         str likelihood_tag = "ikelihood contribution from " + dependencyResolver.get_functor(*it)->origin()
                              + "::" + dependencyResolver.get_functor(*it)->name();
         if (debug) logger() << LogTags::core << "Calculating l" << likelihood_tag << "." << EOM;
+
+        // @asw skip expensive constraints if already shit LL
+        str origin = dependencyResolver.get_functor(*it)->origin();
+        if ((origin == "PrecisionBit" && lnlike < max_LLs[0]-5000) ||
+            (origin == "ColliderBit" && lnlike < max_LLs[0]-1000) ||
+            (origin == "DarkBit" && lnlike < max_LLs[0]-500) ||
+            (origin == "FlavBit" && lnlike < max_LLs[0]-500))
+        {
+          break;
+        }
 
         try
         {
