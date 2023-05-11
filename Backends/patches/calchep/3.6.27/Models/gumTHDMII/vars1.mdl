@@ -1,0 +1,116 @@
+gumTHDMII  % Created by SARAH v4.14.0 (arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223) at 18:20 on 16.9.2022
+Parameters  
+ Name               | Value              |> Comment          <|
+Mh1                 |0                   |  
+Mh2                 |0                   |  
+MAh2                |0                   |  
+MHm2                |0                   |  
+WZ                  |2.4952              | width 
+MZ                  |91.1876             |  
+WWm                 |2.141               | width 
+Wd1                 |0                   | width 
+Md1                 |0.0035              |  
+Wd2                 |0                   | width 
+Md2                 |0.104               |  
+Wd3                 |0                   | width 
+Md3                 |4.2                 |  
+Wu1                 |0                   | width 
+Mu1                 |0.0015              |  
+Wu2                 |0                   | width 
+Mu2                 |1.27                |  
+Wu3                 |1.51                | width 
+Mu3                 |171.2               |  
+We1                 |0                   | width 
+Me1                 |0.000511            |  
+We2                 |0                   | width 
+Me2                 |0.105               |  
+We3                 |0                   | width 
+Me3                 |1.776               |  
+Maux                |1                   |  
+sqrt2               |1.41421356237310    |  
+Pi                  |3.14159265358979    |  
+Q                   |100                 |  
+alfSMZ              |0.1172              |  
+lam5                |0                   | Lambda5  
+lam1                |0                   | Lambda1  
+lam4                |0                   | Lambda4  
+lam3                |0                   | Lambda3  
+lam2                |0                   | Lambda2  
+ZH11                |0                   | Scalar-Mixing-Matrix  
+ZH12                |0                   | Scalar-Mixing-Matrix  
+ZH21                |0                   | Scalar-Mixing-Matrix  
+ZH22                |0                   | Scalar-Mixing-Matrix  
+ZA11                |0                   | Pseudo-Scalar-Mixing-Matrix  
+ZA12                |0                   | Pseudo-Scalar-Mixing-Matrix  
+ZA21                |0                   | Pseudo-Scalar-Mixing-Matrix  
+ZA22                |0                   | Pseudo-Scalar-Mixing-Matrix  
+ZP11                |0                   | Charged-Mixing-Matrix  
+ZP12                |0                   | Charged-Mixing-Matrix  
+ZP21                |0                   | Charged-Mixing-Matrix  
+ZP22                |0                   | Charged-Mixing-Matrix  
+ZDL11               |0                   | Left-Down-Mixing-Matrix  
+ZDL12               |0                   | Left-Down-Mixing-Matrix  
+ZDL13               |0                   | Left-Down-Mixing-Matrix  
+ZDL21               |0                   | Left-Down-Mixing-Matrix  
+ZDL22               |0                   | Left-Down-Mixing-Matrix  
+ZDL23               |0                   | Left-Down-Mixing-Matrix  
+ZDL31               |0                   | Left-Down-Mixing-Matrix  
+ZDL32               |0                   | Left-Down-Mixing-Matrix  
+ZDL33               |0                   | Left-Down-Mixing-Matrix  
+ZDR11               |0                   | Right-Down-Mixing-Matrix  
+ZDR12               |0                   | Right-Down-Mixing-Matrix  
+ZDR13               |0                   | Right-Down-Mixing-Matrix  
+ZDR21               |0                   | Right-Down-Mixing-Matrix  
+ZDR22               |0                   | Right-Down-Mixing-Matrix  
+ZDR23               |0                   | Right-Down-Mixing-Matrix  
+ZDR31               |0                   | Right-Down-Mixing-Matrix  
+ZDR32               |0                   | Right-Down-Mixing-Matrix  
+ZDR33               |0                   | Right-Down-Mixing-Matrix  
+ZUL11               |0                   | Left-Up-Mixing-Matrix  
+ZUL12               |0                   | Left-Up-Mixing-Matrix  
+ZUL13               |0                   | Left-Up-Mixing-Matrix  
+ZUL21               |0                   | Left-Up-Mixing-Matrix  
+ZUL22               |0                   | Left-Up-Mixing-Matrix  
+ZUL23               |0                   | Left-Up-Mixing-Matrix  
+ZUL31               |0                   | Left-Up-Mixing-Matrix  
+ZUL32               |0                   | Left-Up-Mixing-Matrix  
+ZUL33               |0                   | Left-Up-Mixing-Matrix  
+ZUR11               |0                   | Right-Up-Mixing-Matrix  
+ZUR12               |0                   | Right-Up-Mixing-Matrix  
+ZUR13               |0                   | Right-Up-Mixing-Matrix  
+ZUR21               |0                   | Right-Up-Mixing-Matrix  
+ZUR22               |0                   | Right-Up-Mixing-Matrix  
+ZUR23               |0                   | Right-Up-Mixing-Matrix  
+ZUR31               |0                   | Right-Up-Mixing-Matrix  
+ZUR32               |0                   | Right-Up-Mixing-Matrix  
+ZUR33               |0                   | Right-Up-Mixing-Matrix  
+ZEL11               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL12               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL13               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL21               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL22               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL23               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL31               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL32               |0                   | Left-Lepton-Mixing-Matrix  
+ZEL33               |0                   | Left-Lepton-Mixing-Matrix  
+ZER11               |0                   | Right-Lepton-Mixing-Matrix  
+ZER12               |0                   | Right-Lepton-Mixing-Matrix  
+ZER13               |0                   | Right-Lepton-Mixing-Matrix  
+ZER21               |0                   | Right-Lepton-Mixing-Matrix  
+ZER22               |0                   | Right-Lepton-Mixing-Matrix  
+ZER23               |0                   | Right-Lepton-Mixing-Matrix  
+ZER31               |0                   | Right-Lepton-Mixing-Matrix  
+ZER32               |0                   | Right-Lepton-Mixing-Matrix  
+ZER33               |0                   | Right-Lepton-Mixing-Matrix  
+betaH               |0                   | Pseudo Scalar mixing angle  
+aS                  |0.119               | Alpha Strong  
+aEWinv              |137.035999679       | inverse weak coupling constant at mZ  
+Gf                  |0.0000116639        | Fermi's constant  
+HPP1| 0. 
+HGG1| 0. 
+HPP2| 0. 
+HGG2| 0. 
+APP2                | 0. 
+AGG2                | 0. 
+MWm            |1
+TW             |1

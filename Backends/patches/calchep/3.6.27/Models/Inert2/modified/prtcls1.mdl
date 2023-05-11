@@ -1,0 +1,24 @@
+i2HDM
+ Particles 
+Full   Name     | P | aP |  number  |spin2|mass|width|color|aux| LaTeX(A)       |  LateX(A+)         |
+photon          |a  |a   |22        |2    |0   |0    |1    |G  |a               |A
+z boson         |z  |z   |23        |2    |Mz  |wz   |1    |G  |z               |Z
+gluon           |g  |g   |21        |2    |0   |0    |8    |G  |g               |G
+W boson         |wp |wm  |24        |2    |Mw  |ww   |1    |G  |W^+             |W^-
+neutrino        |v1 |v1c |12        |1    |0   |0    |1    |L  |\nu^e           |\bar{\nu}^e
+electron        |e1 |e1c |11        |1    |0   |0    |1    |   |e               |\bar{e}
+mu-neutrino     |v2 |v2c |14        |1    |0   |0    |1    |L  |\nu^\mu1        |\bar{\nu}^\mu
+muon            |e2 |e2c |13        |1    |Me2 |0    |1    |   |\mu1            |\bar{\mu}
+tau-neutrino    |v3 |v3c |16        |1    |0   |0    |1    |L  |\nu^\tau1       |\bar{\nu}^\tau
+tau-lepton      |e3 |e3c |15        |1    |Me3 |0    |1    |   |\tau            |\bar{\tau}
+u-quark         |u1 |u1c |2         |1    |Mu1 |0    |3    |   |u               |\bar{u}
+d-quark         |d1 |d1c |1         |1    |Md1 |0    |3    |   |d1              |\bar{d}
+c-quark         |u2 |u2c |4         |1    |Mu2 |0    |3    |   |c               |\bar{c}
+s-quark         |d2 |d2c |3         |1    |Md2 |0    |3    |   |s               |\bar{s}
+t-quark         |u3 |u3c |6         |1    |Mu3 |wu3  |3    |   |t               |\bar{t}
+b-quark         |d3 |d3c |5         |1    |Md3 |0    |3    |   |b               |\bar{b}
+Higgs           |hh |hh  |25        |0    |Mhh |!whh |1    |   |hh              |H
+Dark Matter     |~hx|~hx |3000022   |0    |Mhx |wh1  |1    |   |\widetilde{h}_1 |\widetilde{h}_1
+Neut Odd Higgs  |~ha|~ha |3000027   |0    |Mha |!wh2 |1    |   |\widetilde{h}_2 |\widetilde{h}_2
+Charged higgs   |~hp|~hm |3000025   |0    |Mhp |!whp |1    |   |\widetilde{h}^+ |\widetilde{h}^-
+=====================================================================================================
