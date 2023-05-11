@@ -181,5 +181,5 @@ namespace Gambit
         citationKeys.push_back(k);
     }
   }
-}
 
+}

@@ -154,5 +154,7 @@ namespace Gambit
 
       }
     }
+  
   }  // namespace slhahelp
+
 } //namespace gambit

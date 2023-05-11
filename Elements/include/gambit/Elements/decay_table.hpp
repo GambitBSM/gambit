@@ -342,13 +342,13 @@ namespace Gambit
           double sum_BF() const;
 
           /// Total particle width (in GeV)
-          double width_in_GeV;
+          double width_in_GeV = 0.;
 
           /// Positive error on width
-          double positive_error;
+          double positive_error = 0.;
 
           /// Negative error on width
-          double negative_error;
+          double negative_error = 0.;
 
           /// Name of the code (backend or otherwise) used for calculating this entry
           str calculator;

@@ -153,7 +153,7 @@ BE_INI_FUNCTION
      // default values are used.
 
      const DecayTable* tbl = &(*Dep::decay_rates);
-     double width;
+     double width = 0.0;
      bool present = true;
 
      try {width = tbl->at("h0_1").width_in_GeV;}

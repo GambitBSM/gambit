@@ -340,6 +340,7 @@ namespace Gambit
     };
 
   }
+
 }
 
 #endif //defined __interp_collection_hpp__

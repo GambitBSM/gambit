@@ -507,6 +507,7 @@ namespace Gambit
     outfile2 << "# Edit \"" << input_model_descriptions << "\" instead." << endl << endl << out2.c_str();
   }
 
+  /// prints warnings for capabilities with missing descriptions
   void gambit_core::check_capability_descriptions()
   {
     const int mpirank = GET_RANK; // Get MPI rank (assume MPI already initialised)
@@ -542,6 +543,7 @@ namespace Gambit
     return capability_info();
   }
 
+  /// get model_info structure for the provided model name
   model_info gambit_core::get_model_info(const str &name) const
   {
     for (const auto &model : model_dbase)

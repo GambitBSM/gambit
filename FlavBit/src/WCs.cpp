@@ -449,7 +449,6 @@ namespace Gambit
       const double mC = Dep::SMINPUTS->mCmC;
       const double mBmB = Dep::SMINPUTS->mBmB;
       double mHp = spectrum.get(Par::Pole_Mass,"H+");
-
       auto xiU = get_xiF(spectrum,'u');
       auto xiD = get_xiF(spectrum,'d');
       const complexd xi_tc     = xiU[t][c];
@@ -580,7 +579,6 @@ namespace Gambit
       const complexd xi_bb     = xiD[b][b];
       const complexd xi_sb     = xiD[s][b];
       const complexd xi_ct     = xiU[c][t];
-
       const double Vts = -A*lambda*lambda;
       const double Vtb = 1 - (1/2)*A*A*pow(lambda,4);
       const double Vcb = A*lambda*lambda;
@@ -682,4 +680,5 @@ namespace Gambit
 
     ///@}
   }
+
 }

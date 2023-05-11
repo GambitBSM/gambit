@@ -636,7 +636,7 @@ namespace Gambit
 
         double bestexp_dll_exp = 0, bestexp_dll_obs = NAN;
         str bestexp_sr_label;
-        int bestexp_sr_index;
+        int bestexp_sr_index = 0;
         double nocovar_srsum_dll_obs = 0;
 
         for (size_t SR = 0; SR < nSR; ++SR)

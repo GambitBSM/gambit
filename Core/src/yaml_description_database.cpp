@@ -145,5 +145,6 @@ namespace Gambit
     }
     return values;
   } 
+
 } // end Gambit namespace
 

@@ -20,9 +20,9 @@
 /// Struct to describe start and end indices for a chunk of data
 struct Chunk
 {
-  std::size_t start; // Index of first point in this chunk
-  std::size_t end;   // Index of last point in this chunk
-  std::size_t eff_length; // Number of points in the chunk that are not marked to be skipped
+  std::size_t start = 0; // Index of first point in this chunk
+  std::size_t end = 0;   // Index of last point in this chunk
+  std::size_t eff_length = 0; // Number of points in the chunk that are not marked to be skipped
   Chunk(std::size_t s, std::size_t e, std::size_t el)
    : start(s)
    , end(e)

@@ -103,10 +103,10 @@ namespace Gambit
             signaldata().leaving_multithreaded_region(); /* Switch signal handler back to normal mode */
          }
        }
+     
      }
     /// @}
 
   /// @}
-
 
 }

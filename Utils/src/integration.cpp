@@ -39,7 +39,6 @@ namespace Gambit
     /// Integrate a std::function using GSL cquad
     double integrate_cquad(std::function<double(double)> ftor, double a, double b, double abseps, double releps)
     {
-
       double result = 0.0;
       gsl_integration_cquad_workspace * gsl_ws = gsl_integration_cquad_workspace_alloc(100);
 
@@ -59,10 +58,6 @@ namespace Gambit
       return result;
     }
 
-
-
   }
 
 }
-
-

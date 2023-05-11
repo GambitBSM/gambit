@@ -71,7 +71,7 @@ BE_NAMESPACE
 
     SLHAstruct slha;
 
-    Freal8 Q;
+    Freal8 Q = 0.0;
     try{ Q = sqrt(GetRenormalizationScale()); }
     catch(std::runtime_error& e) { invalid_point().raise(e.what()); }
 
