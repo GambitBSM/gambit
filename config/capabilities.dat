@@ -322,10 +322,6 @@ oblique_parameters_LogLikelihood_THDM: |
     constraint on the 2HDM contributions to the S,T,U,V,W,X electroweak
     precision observables
 
-init_THDM_spectrum_container_CONV: |
-    overrides the Two-Higgs-Doublet model calculator (THDMC) internal
-    spectrum with the GAMBIT generated spectrum.
-
 THDMC_1_8_0_init: |
     initializes the Two-Higgs-Doublet model calculator (THDMC) backend.
 

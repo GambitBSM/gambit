@@ -1404,44 +1404,18 @@ namespace Gambit
 
     }
 
-    // forward declaraion
-    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container);
-
-    // helper function to setup likelihood environment
-    // this is called by the rollcall
-    void get_oblique_parameters_LogLikelihood_THDM(double& result)
+    ///
+    void get_oblique_parameters_LogLikelihood(double& result)
     {
-      using namespace Pipes::get_oblique_parameters_LogLikelihood_THDM;
+      using namespace Pipes::get_oblique_parameters_LogLikelihood;
 
-      THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, *Dep::THDM_spectrum, byVal(*Dep::THDM_Type), 0.0, 0);
-      result = oblique_parameters_likelihood_THDM(container);
-    }
-
-    // calculates chi2 from EWPO in the THDM using 2HDMC
-    double oblique_parameters_likelihood_THDM(THDM_spectrum_container& container)
-    {
-      THDMC_1_8_0::Constraints constraints_object(container.THDM_object);
-
-      const double mh_ref = 125.0;
-      double S, T, U, V, W, X;
-      constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
-
-      // if new physics in the low energy scale
-      // move to basis as introduced in arxiv:9407203
-      const bool use_low_energy = true;
-      if (use_low_energy)
-      {
-        const double sinW2 = container.he->get(Par::dimensionless, "sinW2");
-        const double cosW2 = 1. - sinW2;
-        S = S + 4.*sinW2*cosW2*V + 4.*(cosW2-sinW2)*X;
-        T = T + V;
-        U = U - 4.*sinW2*cosW2*V + 8.*sinW2*X;
-      }
+      double S = *Dep::prediction_Spar; 
+      double T = *Dep::prediction_Tpar; 
+      double U = *Dep::prediction_Upar; 
 
       //calculating a diff
-      std::vector<double> value_exp = {S,T,U};
-      std::vector<double> value_th = {0.04, 0.09, -0.02};
+      std::vector<double> value_th = {S,T,U};
+      std::vector<double> value_exp = {0.04, 0.09, -0.02};
       std::vector<double> error;
       const size_t dim = value_exp.size();
 
@@ -1469,9 +1443,55 @@ namespace Gambit
         for (size_t j=0; j<dim; ++j)
           chi2 += error[i] * cov_inv(i,j)* error[j];
 
-      return -0.5*chi2;
+      result = -0.5*chi2;
     }
 
+    // calculates chi2 from EWPO in the THDM using 2HDMC
+    void THDMC_prediction_STUVWX(map_str_dbl& result)
+    {
+      using namespace Pipes::THDMC_prediction_STUVWX;
+
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
+      THDMC_1_8_0::Constraints constraints_object(&container.obj);
+
+      const double mh_ref = 125.1;
+      double S, T, U, V, W, X;
+      constraints_object.oblique_param(mh_ref, S, T, U, V, W, X);
+
+      result = map_str_dbl({ {"S",S},{"T",T},{"U",U},{"V",V},{"W",W},{"X",X} });
+    }
+
+    void STUVWX_to_prediction_Tpar(double& result)
+    {
+      // if new physics in the low energy scale
+      // move to basis as introduced in arxiv:9407203
+      using namespace Pipes::STUVWX_to_prediction_Tpar;
+      auto& stuvwx = *Dep::prediction_STUVWX;
+      result = stuvwx.at("T") + stuvwx.at("V");
+    }
+
+    void STUVWX_to_prediction_Spar(double& result)
+    {
+      // if new physics in the low energy scale
+      // move to basis as introduced in arxiv:9407203
+      using namespace Pipes::STUVWX_to_prediction_Spar;
+      auto& stuvwx = *Dep::prediction_STUVWX;
+      const double sinW2 = Dep::THDM_spectrum->get_HE().get(Par::dimensionless, "sinW2");
+      const double cosW2 = 1. - sinW2;
+      result = stuvwx.at("S") + 4.*sinW2*cosW2*stuvwx.at("V") + 4.*(cosW2-sinW2)*stuvwx.at("X");
+    }
+
+    void STUVWX_to_prediction_Upar(double& result)
+    {
+      // if new physics in the low energy scale
+      // move to basis as introduced in arxiv:9407203
+      using namespace Pipes::STUVWX_to_prediction_Upar;
+      auto& stuvwx = *Dep::prediction_STUVWX;
+      const double sinW2 = Dep::THDM_spectrum->get_HE().get(Par::dimensionless, "sinW2");
+      const double cosW2 = 1. - sinW2;
+      result = stuvwx.at("U") - 4.*sinW2*cosW2*stuvwx.at("V") + 8.*sinW2*stuvwx.at("X");
+    }
 
     // EWPO corrections from heavy neutrinos, from 1407.6607 and 1502.00477
     // Weak mixing angle sinW2, calculation from 1211.1864
@@ -1530,4 +1550,5 @@ namespace Gambit
     }
 
   }
+
 }

@@ -33,7 +33,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             SM* get_SM_pointer();
     
-            bool set_param_full(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta, double m_h, double m_H, double m_A, double m_Hp, double sba);
+            bool set_param_full(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m22_2, double m12_2, double tan_beta, double m_h, double m_H, double m_A, double m_Hp, double sba);
     
             bool set_param_gen(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta);
     

@@ -31,9 +31,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         return get_BEptr()->get_SM_pointer__BOSS()->get_init_wptr();
     }
     
-    inline bool THDM::set_param_full(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta, double m_h, double m_H, double m_A, double m_Hp, double sba)
+    inline bool THDM::set_param_full(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m22_2, double m12_2, double tan_beta, double m_h, double m_H, double m_A, double m_Hp, double sba)
     {
-        return get_BEptr()->set_param_full(lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tan_beta, m_h, m_H, m_A, m_Hp, sba);
+        return get_BEptr()->set_param_full(lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m22_2, m12_2, tan_beta, m_h, m_H, m_A, m_Hp, sba);
     }
     
     inline bool THDM::set_param_gen(double lambda1, double lambda2, double lambda3, double lambda4, double lambda5, double lambda6, double lambda7, double m12_2, double tan_beta)

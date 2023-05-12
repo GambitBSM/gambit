@@ -36,7 +36,8 @@ namespace Gambit
 // Initialisation function (dependencies)
 
 // Convenience functions (registration)
-BE_CONV_FUNCTION(init_THDM_spectrum_container_CONV, void, (THDM_spectrum_container&, const Spectrum&, int, double, int), "init_THDM_spectrum_container_CONV")
+BE_CONV_FUNCTION(setup_thdmc_spectrum, void, (THDMsafe&, const Spectrum&), "setup_thdmc_spectrum")
+BE_CONV_FUNCTION(setup_thdmc_sm_like_spectrum, void, (THDMsafe&, const Spectrum&, double), "setup_thdmc_sm_like_spectrum")
 
 
 // Convenience functions (definitions)

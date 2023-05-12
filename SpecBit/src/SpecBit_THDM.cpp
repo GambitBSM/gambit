@@ -35,9 +35,8 @@
 ///
 ///  *********************************************
 
-// GSL headers
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_deriv.h>
+#include <sstream>
+#include <complex>
 
 // Eigen headers
 #include <Eigen/Eigenvalues>
@@ -50,6 +49,7 @@
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 
 // GAMBIT headers
+#include "gambit/Elements/spectrum_types.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Utils/stream_overloads.hpp" // Just for more convenient output to logger
@@ -59,48 +59,93 @@
 #include "gambit/SpecBit/QedQcdWrapper.hpp"
 #include "gambit/Models/SimpleSpectra/THDMSimpleSpec.hpp"
 #include "gambit/SpecBit/THDMSpec.hpp"
-#include "gambit/SpecBit/THDMSpec_basis.hpp"
+#include "gambit/SpecBit/THDMSpec_helpers.hpp"
 #include "gambit/SpecBit/model_files_and_boxes.hpp"
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/util_functions.hpp"
-#include "gambit/Utils/point_counter.hpp"
+#include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Elements/spectrum_types.hpp"
 
 // #define SPECBIT_DEBUG // turn on debug mode
 
-#define L_MAX 1e50 // used to invalidate likelihood
 namespace Gambit
 {
+
+  extern int to_thdmc(const thdm::Particle part);
+
+  namespace hax
+  {
+    // hack to prevent point from being outputted
+    bool skip_output_hax = false;
+  }
+
   namespace SpecBit
   {
+
+    constexpr double eps = 1e-10;
+    
+      // error === value - upperbound
+      // error_invalid_val === error value at which result reaches invalid threshold
+      // invalid_threshold === threshold where point is as invalid
+
+      // hard cutoff function
+      double cutoff_hard(const double error, const double error_invalid_val, const double invalid_threshold)
+      {
+         return error > eps ? invalid_threshold : 0.0;
+      }
+
+      // soft cutoff function (square)
+      double cutoff_soft_square(const double error, const double error_invalid_val, const double invalid_threshold)
+      {
+         if (error <= eps) return 0.0;
+         double sigma = error_invalid_val / sqrt(invalid_threshold);
+         double result = Utils::sqr(error/sigma);
+
+         // make sure the result is non-negligible if constraints are indeed violated
+         return result + 1.0;
+      }
+
+      // soft cutoff function (linear)
+      double cutoff_soft_linear(const double error, const double error_invalid_val, const double invalid_threshold)
+      {
+         if (error <= eps) return 0.0;
+         double sigma = error_invalid_val / invalid_threshold;
+         double result = error/sigma;
+
+         // make sure the result is non-negligible if constraints are indeed violated
+         return result + 1.0;
+      }
+
     // extra namespace declarations
     using namespace LogTags;
     using namespace flexiblesusy;
+    using namespace Utils;
     using std::vector;
-    using std::complex;
 
-    // additional type definitions
-    enum scalar_type
+    namespace RunScale
     {
-      h0 = 1,
-      H0,
-      A0,
-      G0,
-      Hp,
-      Hm,
-      Gp,
-      Gm
-    };
+      constexpr double NONE = -1.0;
+      constexpr double INPUT = -2.0;
+    }
 
-    struct physical_basis_input
-    {
-      double mh, mH, mC, mA, mG, mGC, beta, lambda6, lambda7, m122, alpha;
-    };
+    // used to invalidate likelihood
+    constexpr double L_MAX = 1e50;
 
+    // imaginary unit
+    constexpr complexd ii(0,1);
 
     /// =========================
     /// == spectrum generation ==
     /// =========================
+
+      double g_lam1 = 0.0;
+      double g_lam2 = 0.0;
+      double g_lam3 = 0.0;
+      double g_lam4 = 0.0;
+      double g_lam5 = 0.0;
+      double g_m122 = 0.0;
+      double g_tanb = 0.0;
 
     // helper to setup Spectrum with a FlexibleSUSY spectrum generator
     template <class MI>
@@ -202,6 +247,8 @@ namespace Gambit
       //  us to set parameters that don't previously exist)
       thdmspec.set_override(Par::mass1, spectrum_generator.get_high_scale(), "high_scale", true);
       thdmspec.set_override(Par::mass1, spectrum_generator.get_low_scale(), "low_scale", true);
+      thdmspec.set_override(Par::dimensionless, 0, "isIDM", true);
+      thdmspec.set_override(Par::dimensionless, cos(thdmspec.get(Par::dimensionless, "beta")-thdmspec.get(Par::dimensionless, "alpha")), "cosba", true);
 
       if (input_Param.find("TanBeta") != input_Param.end())
       {
@@ -216,7 +263,6 @@ namespace Gambit
 
       for(int i=1; i<=3; i++)
       {
-
         for(int j=1; j<=3; j++)
         {
           // As this is a full spectrum, make sure to improve the translations
@@ -273,10 +319,136 @@ namespace Gambit
         }
       }
 
+
+      // fix conventions to match FS and THDMC
+      // double beta = atan(tanb);
+      // double alpha = thdmspec.get(Par::dimensionless, "alpha");
+
+      // thdmspec.set_override(Par::dimensionless, alpha, "alpha", true);
+
+      // {
+      //   double beta = atan(tanb);
+      //   double cb = cos(beta), sb = sin(beta);
+      //   double v2 = 1.0 / (sqrt(2.0) * sminputs.GF), vev = sqrt(v2);
+      //   const double sqrt2v = sqrt(2.0)/vev;
+
+      //   std::cout << "-------\n";
+
+      //   double in_tanb = *input_Param.at("tanb");
+      //   double in_beta = atan(in_tanb);
+      //   // double in_cba = *input_Param.at("cba");
+      //   // double in_alpha = in_beta - acos(in_cba);
+      //   // double in_sba = sin(in_beta-in_alpha);
+      //   // double in_mHp = *input_Param.at("mHp");
+
+      //   double alpha = thdmspec.get(Par::dimensionless, "alpha");
+      //   double sba = sin(beta-alpha);
+      //   double cba = cos(beta-alpha);
+      //   double mHp = thdmspec.get(Par::mass1, "H+");
+
+      //   std::cout << "mHp " << 0 << " | " << mHp << " alpha " << 0 << " | " << alpha << " beta " << in_beta << " | " << beta << std::endl;
+
+      //   std::cout << "GT_Yu " << sqrt2v * sminputs.mU/sba << "  " << sqrt2v * sminputs.mCmC/sba << "  " << sqrt2v * sminputs.mT/sba << std::endl;
+      //   std::cout << "GT_Yd " << sqrt2v * sminputs.mD/cba << "  " << sqrt2v * sminputs.mS/cba << "  " << sqrt2v * sminputs.mBmB/cba << std::endl;
+      //   std::cout << "GT_Ye " << sqrt2v * sminputs.mE/cba << "  " << sqrt2v * sminputs.mMu/cba << "  " << sqrt2v * sminputs.mTau/cba << std::endl;
+      // }
+
+      // std::cerr << "Yu " << thdmspec.get(Par::dimensionless, "Yu2", 1, 1) << "  " << thdmspec.get(Par::dimensionless, "Yu2", 2, 2) << "  " << thdmspec.get(Par::dimensionless, "Yu2", 3, 3) << std::endl;;
+      // std::cerr << "Yd " << thdmspec.get(Par::dimensionless, "Yd1", 1, 1) << "  " << thdmspec.get(Par::dimensionless, "Yd1", 2, 2) << "  " << thdmspec.get(Par::dimensionless, "Yd1", 3, 3) << std::endl;;
+      // std::cerr << "Ye " << thdmspec.get(Par::dimensionless, "Ye1", 1, 1) << "  " << thdmspec.get(Par::dimensionless, "Ye1", 2, 2) << "  " << thdmspec.get(Par::dimensionless, "Ye1", 3, 3) << std::endl;;
+
+
       // Do the W mass separately.  Here we use 10 MeV based on the size of corrections from two-loop papers and advice from Dominik Stockinger.
       // double rd_mW = 0.01 / thdmspec.get(Par::Pole_Mass, "W+");
       // thdmspec.set_override(Par::Pole_Mass_1srd_high, rd_mW, "W+", true);
       // thdmspec.set_override(Par::Pole_Mass_1srd_low,  rd_mW, "W+", true);
+
+      {
+        // fill coupling basis
+        // std::map<std::string, double> basis = create_empty_THDM_basis();
+
+        // basis["lambda1"] = *input_Param.at("lambda1");
+        // basis["lambda2"] = *input_Param.at("lambda2");
+        // basis["lambda3"] = *input_Param.at("lambda3");
+        // basis["lambda4"] = *input_Param.at("lambda4");
+        // basis["lambda5"] = *input_Param.at("lambda5");
+        // basis["lambda6"] = *input_Param.at("lambda6");
+        // basis["lambda7"] = *input_Param.at("lambda7");
+        // basis["tanb"] = *input_Param.at("tanb");
+        // basis["m12_2"] = *input_Param.at("m12_2");
+
+        // // run tree level spectrum generator
+        // generate_THDM_spectrum_tree_level(basis, sminputs);
+
+        // std::cout << "lambda1:  " << basis["lambda1"] - thdmspec.get(Par::dimensionless, "lambda1") << "  " << basis["lambda1"] << "  " << thdmspec.get(Par::dimensionless, "lambda1") << std::endl;
+        // std::cout << "lambda2:  " << basis["lambda2"] - thdmspec.get(Par::dimensionless, "lambda2") << "  " << basis["lambda2"] << "  " << thdmspec.get(Par::dimensionless, "lambda2") << std::endl;
+        // std::cout << "lambda3:  " << basis["lambda3"] - thdmspec.get(Par::dimensionless, "lambda3") << "  " << basis["lambda3"] << "  " << thdmspec.get(Par::dimensionless, "lambda3") << std::endl;
+        // std::cout << "lambda4:  " << basis["lambda4"] - thdmspec.get(Par::dimensionless, "lambda4") << "  " << basis["lambda4"] << "  " << thdmspec.get(Par::dimensionless, "lambda4") << std::endl;
+        // std::cout << "lambda5:  " << basis["lambda5"] - thdmspec.get(Par::dimensionless, "lambda5") << "  " << basis["lambda5"] << "  " << thdmspec.get(Par::dimensionless, "lambda5") << std::endl;
+        // std::cout << "lambda6:  " << basis["lambda6"] - thdmspec.get(Par::dimensionless, "lambda6") << "  " << basis["lambda6"] << "  " << thdmspec.get(Par::dimensionless, "lambda6") << std::endl;
+        // std::cout << "lambda7:  " << basis["lambda7"] - thdmspec.get(Par::dimensionless, "lambda7") << "  " << basis["lambda7"] << "  " << thdmspec.get(Par::dimensionless, "lambda7") << std::endl;
+
+        // std::cout << "Lambda1:  " << basis["Lambda1"] - thdmspec.get(Par::dimensionless, "Lambda1") << "  " << basis["Lambda1"] << "  " << thdmspec.get(Par::dimensionless, "Lambda1") << std::endl;
+        // std::cout << "Lambda2:  " << basis["Lambda2"] - thdmspec.get(Par::dimensionless, "Lambda2") << "  " << basis["Lambda2"] << "  " << thdmspec.get(Par::dimensionless, "Lambda2") << std::endl;
+        // std::cout << "Lambda3:  " << basis["Lambda3"] - thdmspec.get(Par::dimensionless, "Lambda3") << "  " << basis["Lambda3"] << "  " << thdmspec.get(Par::dimensionless, "Lambda3") << std::endl;
+        // std::cout << "Lambda4:  " << basis["Lambda4"] - thdmspec.get(Par::dimensionless, "Lambda4") << "  " << basis["Lambda4"] << "  " << thdmspec.get(Par::dimensionless, "Lambda4") << std::endl;
+        // std::cout << "Lambda5:  " << basis["Lambda5"] - thdmspec.get(Par::dimensionless, "Lambda5") << "  " << basis["Lambda5"] << "  " << thdmspec.get(Par::dimensionless, "Lambda5") << std::endl;
+        // std::cout << "Lambda6:  " << basis["Lambda6"] - thdmspec.get(Par::dimensionless, "Lambda6") << "  " << basis["Lambda6"] << "  " << thdmspec.get(Par::dimensionless, "Lambda6") << std::endl;
+        // std::cout << "Lambda7:  " << basis["Lambda7"] - thdmspec.get(Par::dimensionless, "Lambda7") << "  " << basis["Lambda7"] << "  " << thdmspec.get(Par::dimensionless, "Lambda7") << std::endl;
+
+        // std::cout << "h0_1:  " << basis["m_h"] - thdmspec.get(Par::mass1, "h0_1") << "  " << basis["m_h"] << "  " << thdmspec.get(Par::mass1, "h0_1") << std::endl;
+        // std::cout << "h0_2:  " << basis["m_H"] - thdmspec.get(Par::mass1, "h0_2") << "  " << basis["m_H"] << "  " << thdmspec.get(Par::mass1, "h0_2") << std::endl;
+        // std::cout << "A0:  " << basis["m_A"] - thdmspec.get(Par::mass1, "A0") << "  " << basis["m_A"] << "  " << thdmspec.get(Par::mass1, "A0") << std::endl;
+        // std::cout << "H+:  " << basis["m_Hp"] - thdmspec.get(Par::mass1, "H+") << "  " << basis["m_Hp"] << "  " << thdmspec.get(Par::mass1, "H+") << std::endl;
+        // // std::cout << "G0:  " << basis["G0"] - thdmspec.get(Par::mass1, "G0") << "  " << basis["G0"] << "  " << thdmspec.get(Par::mass1, "G0") << std::endl;
+        // // std::cout << "G+:  " << basis["G+"] - thdmspec.get(Par::mass1, "G+") << "  " << basis["G+"] << "  " << thdmspec.get(Par::mass1, "G+") << std::endl;
+        // std::cout << "m12_2:  " << basis["m12_2"] - thdmspec.get(Par::mass1, "m12_2") << "  " << basis["m12_2"] << "  " << thdmspec.get(Par::mass1, "m12_2") << std::endl;
+        // std::cout << "m11_2:  " << basis["m11_2"] - thdmspec.get(Par::mass1, "m11_2") << "  " << basis["m11_2"] << "  " << thdmspec.get(Par::mass1, "m11_2") << std::endl;
+        // std::cout << "m22_2:  " << basis["m22_2"] - thdmspec.get(Par::mass1, "m22_2") << "  " << basis["m22_2"] << "  " << thdmspec.get(Par::mass1, "m22_2") << std::endl;
+
+        // std::cout << "M12_2:  " << basis["M12_2"] - thdmspec.get(Par::mass1, "M12_2") << "  " << basis["M12_2"] << "  " << thdmspec.get(Par::mass1, "M12_2") << std::endl;
+        // std::cout << "M11_2:  " << basis["M11_2"] - thdmspec.get(Par::mass1, "M11_2") << "  " << basis["M11_2"] << "  " << thdmspec.get(Par::mass1, "M11_2") << std::endl;
+        // std::cout << "M22_2:  " << basis["M22_2"] - thdmspec.get(Par::mass1, "M22_2") << "  " << basis["M22_2"] << "  " << thdmspec.get(Par::mass1, "M22_2") << std::endl;
+
+        // std::cout << "beta:  " << basis["beta"] - thdmspec.get(Par::dimensionless, "beta") << "  " << basis["beta"] << "  " << thdmspec.get(Par::dimensionless, "beta") << std::endl;
+        // std::cout << "alpha:  " << basis["alpha"] - thdmspec.get(Par::dimensionless, "alpha") << "  " << basis["beta"] - basis["alpha"] << "  " << thdmspec.get(Par::dimensionless, "beta") - thdmspec.get(Par::dimensionless, "alpha") << "   tanb:  " << basis["tanb"] - thdmspec.get(Par::dimensionless, "tanb") << "  " << basis["tanb"] << "  " << thdmspec.get(Par::dimensionless, "tanb") << std::endl;
+
+        {
+
+          // double lam1 = *input_Param.at("lambda1");
+          // double lam2 = *input_Param.at("lambda2");
+          // double lam3 = *input_Param.at("lambda3");
+          // double lam4 = *input_Param.at("lambda4");
+          // double lam5 = *input_Param.at("lambda5");
+          // double lam6 = *input_Param.at("lambda6");
+          // double lam7 = *input_Param.at("lambda7");
+          // double tanb = *input_Param.at("tanb");
+          // double m12_2 = *input_Param.at("m12_2"), m122 = m12_2;
+          // double mA2 = pow(basis["m_A"],2);
+          // double lam345 = lam3+lam4+lam5;
+
+          // double beta = atan(tanb), cotb = 1/tanb;
+          // double cosb = cos(beta), sinb = sin(beta);
+          // double vsq = 1.0 / (sqrt(2.0) * sminputs.GF), vev = sqrt(vsq);
+          // const double sqrt2v = sqrt(2.0)/vev;
+
+          // double v = vev;
+          // double v2   = v * sinb;
+          // double v1   = v * cosb;
+          // double m112 = m122*tanb - 0.5*(lam1*pow(v1,2) + lam345*pow(v2,2));
+          // double m222 = m122*cotb - 0.5*(lam2*pow(v2,2) + lam345*pow(v1,2));
+          // double M112 = mA2*pow(sinb,2) + vsq*(lam1*pow(cosb,2)+2*lam6*sinb*cosb+lam5*pow(sinb,2));
+          // double M222 = mA2*pow(cosb,2) + vsq*(lam2*pow(sinb,2)+2*lam7*sinb*cosb+lam5*pow(cosb,2));
+          // double M122 = -mA2*pow(sinb,2)*pow(cosb,2) + vsq*((lam3+lam4)*sinb*cosb+lam6*pow(cosb,2)+lam7*pow(sinb,2));
+
+          // std::cout << "__m122 " << m122 << std::endl;
+          // std::cout << "__m112 " << m112 << std::endl;
+          // std::cout << "__m222 " << m222 << std::endl;
+          // std::cout << "__M122 " << M122 << std::endl;
+          // std::cout << "__M112 " << M112 << std::endl;
+          // std::cout << "__M222 " << M222 << std::endl;
+        }
+      }
 
       // Create a second SubSpectrum object to wrap the qedqcd object used to initialise the spectrum generator
       // Attach the sminputs object as well, so that SM pole masses can be passed on (these aren't easily
@@ -358,12 +530,94 @@ namespace Gambit
         SpecBit_error().raise(LOCAL_INFO, msg.str());
       }
     }
+    
+    // apply a basic set of theory constraints at the input scale
+    void performance_hax()
+    {
+        using namespace Pipes::get_THDM_spectrum;
+        const bool use_speedhacks = runOptions->getValueOrDef<bool>(true, "use_speedhacks");
+        const str err_msg = "bad point encountered. Point invalidated\n";
+        constexpr double pert_limit = 12.7; // not intended as a replacement of theory constraints,
+                                     // just to skip spectrum calculation when way off the mark
+                              
+        const double lam1 = *Param.at("lambda1");
+        const double lam2 = *Param.at("lambda2");
+        const double lam3 = *Param.at("lambda3");
+        const double lam4 = *Param.at("lambda4");
+        const double lam5 = *Param.at("lambda5");
+        const double lam6 = *Param.at("lambda6");
+        const double lam7 = *Param.at("lambda7");
+
+        g_lam1 = lam1;
+        g_lam2 = lam2;
+        g_lam3 = lam3;
+        g_lam4 = lam4;
+        g_lam5 = lam5;
+        g_m122 = *Param.at("m12_2");
+        g_tanb = *Param.at("tanb");
+
+        if (abs(lam1) > pert_limit || abs(lam2) > pert_limit ||
+            abs(lam3) > pert_limit || abs(lam4) > pert_limit ||
+            abs(lam5) > pert_limit || abs(lam6) > pert_limit ||
+            abs(lam7) > pert_limit)
+        {
+            invalid_point().raise(err_msg);
+        }
+
+        if (!use_speedhacks) return;
+        // double mbar = 2*(*Param.at("m12_2")) / sin(2*atan(*Param.at("tanb")));
+        // double v2 = 246*246;
+          
+        // a00
+        double a00_even_plus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) + sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
+        double a00_even_minus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) - sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
+        double a00_odd_plus = lam3 + 2.0 * lam4 + 3.0 * lam5;
+        double a00_odd_minus = lam3 + 2.0 * lam4 - 3.0 * lam5;
+        // a01
+        double a01_even_plus = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam4, 2)));
+        double a01_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam4, 2)));
+        double a01_odd_plus = lam3 + lam5;
+        double a01_odd_minus = lam3 - lam5;
+        // a20
+        double a20_odd = lam3 - lam4;
+        // a21
+        double a21_even_plus = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam5, 2)));
+        double a21_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam5, 2)));
+        double a21_odd = lam3 + lam4;
+
+        vector<double> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
+                a01_even_minus, a01_odd_plus, a01_odd_minus, a20_odd, a21_even_plus, a21_even_minus, a21_odd};
+
+        constexpr double unitarity_upper_limit = 8 * pi;
+
+        for (auto const &eachEig : lo_eigenvalues)
+        {
+          if (abs(eachEig) > unitarity_upper_limit)
+          {
+            invalid_point().raise(err_msg);
+          }
+        }
+    }
 
     // Get Spectrum for the THDM (either a FlexibleSUSY or tree-level spectrum depending on model)
     void get_THDM_spectrum(Spectrum &result)
     {
       using namespace Pipes::get_THDM_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;
+
+      if (ModelInUse("gumTHDMII"))
+      {
+        str errmsg = "Cannot use gumTHDMII with Filip's 2HDM spectrum generator";
+        SpecBit_error().raise(LOCAL_INFO, errmsg);
+      }
+
+      if (ModelInUse("Inert2"))
+      {
+        str errmsg = "Cannot use IDM with Filip's 2HDM spectrum generator";
+        SpecBit_error().raise(LOCAL_INFO, errmsg);
+      }
+
+      performance_hax();
 
       if (ModelInUse("THDM"))
       {
@@ -386,7 +640,7 @@ namespace Gambit
         Models::THDMModel thdm_model;
 
         // create empty basis
-        std::map<std::string, double> basis = create_empty_THDM_basis();
+        std::map<str, double> basis = create_empty_THDM_basis();
 
         // fill coupling basis
         basis["lambda1"] = *Param.at("lambda1");
@@ -406,9 +660,8 @@ namespace Gambit
         #endif
 
         // copy any info that will be reused
-        const double alpha = basis["alpha"];
+        double alpha = basis["alpha"];
         const double tanb = basis["tanb"];
-
 
         thdm_model.model_type = *Dep::THDM_Type;
 
@@ -445,18 +698,20 @@ namespace Gambit
         thdm_model.mGC = 0.0;
 
         // quantities needed to fill spectrum, intermediate calculations
-        const double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * pi / (sminputs.GF * pow(2, 0.5));
-        const double sinW2 = 0.5 - pow(0.25 - C_calc / pow(sminputs.mZ, 2), 0.5), cosW2 = 0.5 + pow(0.25 - C_calc / pow(sminputs.mZ, 2), 0.5);
-        const double e = pow(4 * pi * (alpha_em), 0.5), v2 = 1.0 / (sqrt(2.0) * sminputs.GF), vev = sqrt(v2);
+        const double v2 = 1.0 / (sqrt(2.0) * sminputs.GF);
+        const double vev = sqrt(v2);
+        const double alpha_em = 1.0 / sminputs.alphainv;
+        const double e = sqrt(4*pi*alpha_em);
+        const double cosW = sminputs.mW/sminputs.mZ; 
+        const double sinW = sqrt(1 - sqr(cosW));
 
         // Standard model
-        thdm_model.sinW2 = sinW2;
+        thdm_model.sinW2 = sqr(sinW);
         thdm_model.vev = vev;
         // gauge couplings
-        thdm_model.g1 = e / sinW2;
-        thdm_model.g2 = e / cosW2;
+        thdm_model.g1 = e / sinW;
+        thdm_model.g2 = e / cosW;
         thdm_model.g3 = pow(4 * pi * (sminputs.alphaS), 0.5);
-        //thdm_model.mW = sminputs.mZ * sqrt(cosW2);// this is a tree level approximation
         thdm_model.mW = sminputs.mW;
         // Yukawas
 
@@ -495,23 +750,13 @@ namespace Gambit
         thdm_model.Ye1[1][1] += sqrt2v * sminputs.mMu / cb;
         thdm_model.Ye1[2][2] += sqrt2v * sminputs.mTau / cb;
 
-        // // !!!!!! HACK YUKAWAS TO MATCH FS
-
-        // thdm_model.Yu2[0][0] *= 0.620437956;
-        // thdm_model.Yu2[1][1] *= 0.485436039;
-        // thdm_model.Yu2[2][2] *= 0.978593122;
-        // thdm_model.Yd1[0][0] *= 0.577532073;
-        // thdm_model.Yd1[1][1] *= 0.618996779;
-        // thdm_model.Yd1[2][2] *= 0.668142186;
-        // thdm_model.Ye1[0][0] *= 0.976077011;
-        // thdm_model.Ye1[1][1] *= 0.975944523;
-        // thdm_model.Ye1[2][2] *= 0.975904405;
-
         // Create a SimpleSpec object to wrap the spectrum
         THDMSimpleSpec thdm_spec(thdm_model,sminputs);
 
         thdm_spec.set_override(Par::mass1, 0, "G0", true);
         thdm_spec.set_override(Par::mass1, 0, "G+", true);
+        thdm_spec.set_override(Par::dimensionless, 0, "isIDM", true);
+        thdm_spec.set_override(Par::dimensionless, cos(thdm_spec.get(Par::dimensionless, "beta")-thdm_spec.get(Par::dimensionless, "alpha")), "cosba", true);
 
         // Create full Spectrum object from components above
         // Note: SubSpectrum objects cannot be copied, but Spectrum
@@ -541,11 +786,11 @@ namespace Gambit
         if (runOptions->getValueOrDef<bool>(false, "check_perturbativity"))
         {
           bool is_perturbative = true;
-          vector<std::string> lambda_keys = {"lambda1", "lambda2", "lambda3", "lambda4",
+          vector<str> lambda_keys = {"lambda1", "lambda2", "lambda3", "lambda4",
                                                   "lambda5", "lambda6", "lambda7"};
           for (auto const &each_lambda : lambda_keys)
           {
-            if (*Param.at(each_lambda) > 4. * M_PI)
+            if (*Param.at(each_lambda) > 4. * pi)
             {
               is_perturbative = false;
               break;
@@ -656,28 +901,40 @@ namespace Gambit
       }
     }
 
-    // fill a map of THDM spectrum parameters to be printed
-    void fill_map_from_THDMspectrum(std::map<std::string, double> &specmap, const Spectrum &thdmspec, const THDM_TYPE THDM_type)
+    // get Spectrum as std::map so that it can be printed
+    void get_THDM_spectrum_as_map(std::map<str,double> &specmap)
     {
       using namespace Pipes::get_THDM_spectrum_as_map;
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      namespace myPipe = Pipes::get_THDM_spectrum_as_map;
+      const Spectrum &thdmspec(*myPipe::Dep::THDM_spectrum);
+      
       bool print_minimal_yukawas = runOptions->getValueOrDef<bool>(false, "print_minimal_yukawas");
       bool print_Higgs_basis_params = runOptions->getValueOrDef<bool>(true, "print_Higgs_basis_params");
-      bool print_running_masses = runOptions->getValueOrDef<bool>(true, "print_running_masses");
+      bool print_running_masses = runOptions->getValueOrDef<bool>(false, "print_running_masses");
+
+      print_Higgs_basis_params = true;
 
       /// Add everything... use spectrum contents routines to automate task
       static const SpectrumContents::THDM contents;
-      static const std::vector<SpectrumParameter> required_parameters = contents.all_parameters();
+      static const vector<SpectrumParameter> required_parameters = contents.all_parameters();
 
-      for (std::vector<SpectrumParameter>::const_iterator it = required_parameters.begin();
+      for (vector<SpectrumParameter>::const_iterator it = required_parameters.begin();
            it != required_parameters.end(); ++it)
       {
         const Par::Tags tag = it->tag();
-        const std::string name = it->name();
-        const std::vector<int> shape = it->shape();
+        const str name = it->name();
+        const vector<int> shape = it->shape();
 
+        // useless stuff
+        if (name == "vev" || name == "model_type" || name == "lambda6" || name == "lambda7") continue;
+
+        // only enable in final combined fit
+        // if (name == "sinW2" || name == "m22_2" || name == "m12_2" || name == "m11_2" || name == "g1" || name == "g2" || name == "g3" || name == "W+") continue;
+        
+        // skip Yukawas that are zero for the model being scanned
         if (print_minimal_yukawas)
         {
-          // skip Yukawas that are zero for the model being scanned
           if (THDM_type != TYPE_III)
             if (name.rfind("ImY", 0) == 0)
               continue;
@@ -727,7 +984,7 @@ namespace Gambit
             {
               if (print_minimal_yukawas && THDM_type != TYPE_III && i != j && (name.rfind("Yu", 0) == 0 || name.rfind("Yd", 0) == 0 || name.rfind("Ye", 0) == 0))
                 continue;
-              
+
               std::string name2 = name;
               if (print_minimal_yukawas && THDM_type != TYPE_III)
               {
@@ -780,8 +1037,8 @@ namespace Gambit
         specmap["Lambda5 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda5");
         specmap["Lambda6 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda6");
         specmap["Lambda7 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda7");
-        specmap["M12_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M12_2");
-        specmap["M11_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M11_2");
+        // specmap["M12_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M12_2");
+        // specmap["M11_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M11_2");
         specmap["M22_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M22_2");
       }
 
@@ -793,16 +1050,52 @@ namespace Gambit
         specmap["A0 mass1"] = thdmspec.get_HE().get(Par::mass1, "A0");
         specmap["H+ mass1"] = thdmspec.get_HE().get(Par::mass1, "H+");
       }
-    }
 
-    // get Spectrum as std::map so that it can be printed
-    void get_THDM_spectrum_as_map(std::map<std::string, double> &specmap)
-    {
-      using namespace Pipes::get_THDM_spectrum_as_map;
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-      namespace myPipe = Pipes::get_THDM_spectrum_as_map;
-      const Spectrum &thdmspec(*myPipe::Dep::THDM_spectrum);
-      fill_map_from_THDMspectrum(specmap, thdmspec, THDM_type);
+      // return; // !!!!
+
+      specmap["lambda1_in"] = g_lam1;
+      specmap["lambda2_in"] = g_lam2;
+      specmap["lambda3_in"] = g_lam3;
+      specmap["lambda4_in"] = g_lam4;
+      specmap["lambda5_in"] = g_lam5;
+      specmap["m122_in"] = g_m122;
+      specmap["tanb_in"] = g_tanb;
+
+      specmap["mA_mHp"] = thdmspec.get_HE().get(Par::Pole_Mass, "A0") - thdmspec.get_HE().get(Par::Pole_Mass, "H+");
+      specmap["mH_mA"] = thdmspec.get_HE().get(Par::Pole_Mass, "h0_2") - thdmspec.get_HE().get(Par::Pole_Mass, "A0");
+
+      specmap["mA_mHp mass1"] = thdmspec.get_HE().get(Par::mass1, "A0") - thdmspec.get_HE().get(Par::mass1, "H+");
+      specmap["mH_mA mass1"] = thdmspec.get_HE().get(Par::mass1, "h0_2") - thdmspec.get_HE().get(Par::mass1, "A0");
+
+      {
+        double v2 = 1.0/(sqrt(2.0)*thdmspec.get_SMInputs().GF);
+        double tanb  = g_tanb;
+        double beta = atan(tanb);
+        double sb = sin(beta), cb = cos(beta), tb = tan(beta);
+        double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
+        double lam1 = g_lam1, lam2 = g_lam2, lam3 = g_lam3, lam4 = g_lam4, lam5 = g_lam5;
+        double lam6 = 0, lam7 = 0, m12_2 = g_m122;
+        
+        double lam345 = lam3 + lam4 + lam5;
+        // do the basis conversion
+        double m11_2 = m12_2*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb);
+        double m22_2 = m12_2*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb);
+        double m_A2;
+        if (tb>0) m_A2 = m12_2/sb/cb-0.5*v2*(2*lam5+lam6*ctb+lam7*tb);
+        else m_A2 = m22_2+0.5*v2*(lam3+lam4-lam5);
+        double m_Hp2 = m_A2+0.5*v2*(lam5-lam4);
+        double M112 = m_A2*sb2+v2*(lam1*cb2+2.*lam6*sb*cb+lam5*sb2);
+        double M122 = -m_A2*sb*cb+v2*((lam3+lam4)*sb*cb+lam6*cb2+lam7*sb2);
+        double M222 = m_A2*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
+        double m_h2 = 0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+        double m_H2 = 0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+
+        specmap["h0_1 tree"] = sqrt(m_h2);
+        specmap["h0_2 tree"] = sqrt(m_H2);
+        specmap["A0 tree"] = sqrt(m_A2);
+        specmap["H+ tree"] = sqrt(m_Hp2);
+      }
+
     }
 
     // Get the Type of THDM from the yukawa structure
@@ -834,15 +1127,15 @@ namespace Gambit
             if(std::abs(*Param.at(ss.str())) > eps)
             {
               // if any element is non-zero, it is not empty
-              if(yuk.find("yu") != std::string::npos)
+              if(yuk.find("yu") != str::npos)
                 yu_empty = false;
-              else if(yuk.find("yd") != std::string::npos)
+              else if(yuk.find("yd") != str::npos)
                 yd_empty = false;
-              else if(yuk.find("yl") != std::string::npos)
+              else if(yuk.find("yl") != str::npos)
                 yl_empty = false;
 
               // if any imaginary element is non-zero, it is not real
-              if(yuk.find("im") != std::string::npos)
+              if(yuk.find("im") != str::npos)
                 real = false;
 
               // if any off-diagonal element, is non-zero, it is not diagonal
@@ -893,2219 +1186,34 @@ namespace Gambit
       }
     }
 
-    // helper function to ensure that the 2HDM scalar sector is Z2 symmetric
-    void check_Z2(const double lambda6, const double lambda7, const std::string calculation_name)
+    // Get name of the SM-like scalar
+    void get_SM_like_scalar(str& result)
     {
-      if (std::abs(lambda6) != 0.0 || std::abs(lambda7) != 0.0)
+      const Spectrum& spectrum = *Pipes::get_SM_like_scalar::Dep::THDM_spectrum;
+
+      if (spectrum.get(Par::dimensionless,"isIDM") == true)
       {
-        std::ostringstream msg;
-        msg << "SpecBit error (fatal): " << calculation_name << " is only compatible with Z2 conserving models. \
-        Please fix you yaml file."
-            << std::endl;
-        std::cerr << msg.str();
-        SpecBit_error().raise(LOCAL_INFO, msg.str());
-      }
-    }
-
-
-    /// ========================================================================================
-    /// == helper functions to unwrap parameters from the spectrum and help with calculations ==
-    /// ========================================================================================
-
-
-    namespace RunScale
-    {
-      constexpr double NONE = -1.0;
-      constexpr double INPUT = -2.0;
-    }
-
-    // simple immutable structure for passing around 2HDM parameters at a fixed scale
-    // with simple variable names so that you don't need to unwrap them
-    // TODO: finish replacing all of Filip's structures with this
-    struct ThdmSpec
-    {
-      enum ThdmSpecFill
-      {
-        FILL_GENERIC = 1<<0,
-        FILL_HIGGS = 1<<1,
-        FILL_PHYSICAL = 1<<2,
-        FILL_ANGLES = 1<<3,
-        // FILL_TYPE = 1<<4,
-        // FILL_YUKAWAS = 1<<5,
-      };
-
-      ThdmSpec(const SubSpectrum& he, const int fill = 0xFFFF) :
-        fill_mode((ThdmSpecFill)fill),
-        lam1(get(he,"lambda1")), lam2(get(he,"lambda2")), lam3(get(he,"lambda3")), lam4(get(he,"lambda4")), lam5(get(he,"lambda5")), lam6(get(he,"lambda6")), lam7(get(he,"lambda7")),
-        Lam1(get(he,"Lambda1")), Lam2(get(he,"Lambda2")), Lam3(get(he,"Lambda3")), Lam4(get(he,"Lambda4")), Lam5(get(he,"Lambda5")), Lam6(get(he,"Lambda6")), Lam7(get(he,"Lambda7")),
-        mh(get(he,"h0_1")), mH(get(he,"h0_2")), mA(get(he,"A0")), mHp(get(he,"H+")), mG(get(he,"G0")), mGp(get(he,"G+")), v(get(he,"vev")), v2(get(he,"v2")), m122(get(he,"m12_2")), m112(get(he,"m11_2")), m222(get(he,"m22_2")),
-        beta(get(he,"beta")), alpha(get(he,"alpha")), tanb(get(he,"tanb")), cosba(get(he,"cosba")), sinba(get(he,"sinba"))
-      {}
-
-      // what has been filled
-      const ThdmSpecFill fill_mode;
-      // Generic basis params
-      const double lam1, lam2, lam3, lam4, lam5, lam6, lam7;
-      // Higgs basis params
-      const double Lam1, Lam2, Lam3, Lam4, Lam5, Lam6, Lam7;
-      // Physical params
-      const double mh, mH, mA, mHp, mG, mGp, v, v2, m122, m112, m222;
-      // angles
-      const double beta, alpha, tanb, cosba, sinba;
-
-    private:
-
-      using ccstring = const char* const;
-
-      double get(const SubSpectrum& he, ccstring name) const
-      {
-        const bool fill_generic  = (fill_mode & FILL_GENERIC) != 0;
-        const bool fill_higgs    = (fill_mode & FILL_HIGGS) != 0;
-        const bool fill_physical = (fill_mode & FILL_PHYSICAL) != 0;
-        const bool fill_angles   = (fill_mode & FILL_ANGLES) != 0;
-
-        ccstring generic[]  = {"lambda1", "lambda2", "lambda3", "lambda4", "lambda5", "lambda6", "lambda7"};
-        ccstring higgs[]    = {"Lambda1", "Lambda2", "Lambda3", "Lambda4", "Lambda5", "Lambda6", "Lambda7"};
-        ccstring physical[] = {"h0_1", "h0_2", "A0", "H+", "G0", "G+", "vev", "m12_2", "m11_2", "m22_2"};
-        ccstring angles[]   = {"beta", "alpha", "tanb"};
-
-        if (fill_generic)
-          for (auto& n : generic)
-            if (strcmp(name,n) == 0)
-              return he.get(Par::dimensionless, name);
-
-        if (fill_higgs)
-          for (auto& n : higgs)
-            if (strcmp(name,n) == 0)
-              return he.get(Par::dimensionless, name);
-
-        if (fill_physical)
-        {
-          for (auto& n : physical)
-            if (strcmp(name,n) == 0)
-              return he.get(Par::mass1, name);
-
-          if (strcmp(name,"v2") == 0) return v*v;
-        }
-
-        if (fill_angles)
-        {
-          for (auto& n : angles)
-            if (strcmp(name,n) == 0)
-              return he.get(Par::dimensionless, name);
-
-          if (strcmp(name,"cosba") == 0) return cos(beta-alpha);
-          if (strcmp(name,"sinba") == 0) return sin(beta-alpha);
-        }
-
-        return std::numeric_limits<double>::quiet_NaN();
-      }
-
-    };
-
-    using q_matrix = vector<vector<complex<double>>>;
-
-    // fills a template struct that includes physical basis parameters form the spectrum conatainer
-    template <class T>
-    void fill_physical_basis(T &input, ThdmSpec &s)
-    {
-      input.mh = s.mh;
-      input.mH = s.mH;
-      input.mA = s.mA;
-      input.mC = s.mHp;
-      input.mG = s.mG;
-      input.mGC = s.mGp;
-      input.alpha = s.alpha;
-      input.beta = s.beta;
-      input.m122 = s.m122;
-    }
-
-    // helper function to fill from physical basis
-    physical_basis_input fill_physical_basis_input(ThdmSpec &s)
-    {
-      physical_basis_input input;
-      fill_physical_basis(input, s);
-      return input;
-    }
-
-    // fills a vector with lambas from the spectrum object
-    vector<double> get_lambdas_from_spectrum(ThdmSpec &s)
-    {
-      vector<double> lambda(8);
-      lambda[1] = s.lam1;
-      lambda[2] = s.lam2;
-      lambda[3] = s.lam3;
-      lambda[4] = s.lam4;
-      lambda[5] = s.lam5;
-      lambda[6] = s.lam6;
-      lambda[7] = s.lam7;
-      return lambda;
-    }
-
-    // returns the symmetry factor for a set of particels
-    int get_symmetry_factor(vector<int> n_identical_particles)
-    {
-      int symm_factor = 1;
-      for (const auto &n_identical : n_identical_particles)
-      {
-        symm_factor *= Utils::factorial(n_identical);
-      }
-      return symm_factor;
-    }
-
-    // returns Class I q_ij matrix based upon Higgs basis
-    q_matrix get_qij(const double ba, const double Lam6)
-    {
-      const double sba = sin(ba), cba = abs(cos(ba));
-      const complex<double> i(0.0, 1.0);
-      q_matrix q = {{0.0, 0.0, 0.0}, {0.0, sba, (double)sgn(Lam6) * cba}, {0.0, -(double)sgn(Lam6) * cba, sba}, {0.0, 0.0, i}, {0.0, i, 0.0}};
-      return q;
-    }
-
-    // is a particle neutral?
-    bool is_neutral(int p1)
-    {
-      if (p1 == h0 || p1 == H0 || p1 == A0 || p1 == G0)
-        return true;
-      return false;
-    }
-
-    // is a particle a goldstone boson?
-    bool is_goldstone(int p1)
-    {
-      if (p1 == G0 || p1 == Gp || p1 == Gm)
-        return true;
-      return false;
-    }
-
-    // returns all partical permutations for a set of neutral particles
-    // includes the symmetry factor for number of times particles are outputed
-    // expects particle input to be ordered
-    vector<vector<scalar_type>> get_neutral_particle_permutations(vector<scalar_type> particles)
-    {
-      int neutral_index = 0, neutral_index_identical = 0, identical_counter = 0;
-      vector<vector<scalar_type>> particle_permutations;
-      // check if particle 0 is neutral
-      if (!is_neutral(particles[0]))
-        return {particles};
-      // cycle through particles to find index of last neutral particle that is not a Goldstone boson
-      while (is_neutral(particles[neutral_index]) && !is_goldstone(particles[neutral_index]) && neutral_index < (signed)(particles.size()))
-      {
-        neutral_index++;
-      }
-      neutral_index--; // fix to machine index
-      // count identical neutral particles in the particles vector
-      // retuurns vector with number of identical particles in order
-      // starts at the first index of the particle array
-      vector<int> identical_particles;
-      while (neutral_index_identical < (signed)particles.size())
-      {
-        identical_counter = 1;
-        if (particles[neutral_index_identical] != particles[neutral_index_identical + 1])
-        {
-          // the particle to the right is different
-          identical_particles.push_back(identical_counter);
-          neutral_index_identical++;
-        }
+        if (spectrum.get(Par::dimensionless, "cosba") == 0)
+          result = "h0_1";
         else
-        {
-          // the particle to the right is identical
-          // keep searching right until a different particle is found
-          while (neutral_index_identical < (signed)particles.size() - 1 && particles[neutral_index_identical] == particles[neutral_index_identical + 1])
-          {
-            neutral_index_identical++;
-            identical_counter++;
-          }
-          neutral_index_identical++;
-          identical_particles.push_back(identical_counter);
-        }
+          result = "h0_2";
       }
-
-      const int symmetry_factor = get_symmetry_factor(identical_particles);
-      // start permutating the neutral particles that are not Goldstone particles
-      do
-      {
-        // append permutation *symmetry factor* number of times
-        for (int j = 0; j < symmetry_factor; j++)
-          particle_permutations.push_back(particles);
-      } while (std::next_permutation(particles.begin(), particles.begin() + neutral_index + 1));
-
-      return particle_permutations;
-    }
-
-    // helper function for == between particles
-    bool particles_match(vector<scalar_type> particles, vector<scalar_type> test_particles)
-    {
-      return particles == test_particles;
-    }
-
-
-    /// =================================================================================
-    /// == Higgs couplings calculated using the Higgs basis (ref arXiv:hep-ph/0602242) ==
-    /// =================================================================================
-
-
-    // hhh coupling using Higgs basis
-    complex<double> get_cubic_coupling_higgs_hhh(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type j = particles[0], k = particles[1], l = particles[2];
-
-      const double Lam1 = s.Lam1, Lam34 = s.Lam3 + s.Lam4;
-      const double Lam5 = s.Lam5, Lam6 = s.Lam6, Lam7 = s.Lam7;
-      complex<double> c(0.0, 0.0);
-
-      c += q[j][1] * std::conj(q[k][1]) * (q[l][1]).real() * Lam1;
-      c += q[j][2] * std::conj(q[k][2]) * (q[l][1]).real() * Lam34;
-      c += (std::conj(q[j][1]) * q[k][2] * q[l][2] * Lam5).real();
-      c += ((2.0 * q[j][1] + std::conj(q[j][1])) * std::conj(q[k][1]) * q[l][2] * Lam6 * (double)sgn(Lam6)).real();
-      c += (std::conj(q[j][2]) * q[k][2] * q[l][2] * Lam7 * (double)sgn(Lam6)).real();
-      c *= 0.5 * s.v;
-      return c;
-    }
-
-    // hH+H- coupling
-    complex<double> get_cubic_coupling_higgs_hHpHm(ThdmSpec &s, const q_matrix &q, scalar_type k)
-    {
-      return s.v * ((q[k][1]).real() * s.Lam3 + (q[k][2] * (double)sgn(s.Lam6) * s.Lam7).real());
-    }
-
-    // hG+G- coupling
-    complex<double> get_cubic_coupling_higgs_hGpGm(ThdmSpec &s, const q_matrix &q, scalar_type k)
-    {
-      double Lambda6 = s.Lam6;
-      return s.v * ((q[k][1]).real() * s.Lam1 + (q[k][2] * (double)sgn(Lambda6) * Lambda6).real());
-    }
-
-    // hG-H+ coupling
-    complex<double> get_cubic_coupling_higgs_hGmHp(ThdmSpec &s, const q_matrix &q, scalar_type k)
-    {
-      double Lambda6 = s.Lam6;
-      return s.v * 0.5 * (double)sgn(Lambda6) * (std::conj(q[k][2]) * s.Lam4 + q[k][2] * s.Lam5 + 2.0 * (q[k][1]).real() * Lambda6 * (double)sgn(Lambda6));
-    }
-
-    // hhG0 coupling
-    complex<double> get_cubic_coupling_higgs_hhG0(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type k = particles[0], l = particles[1];
-      double Lambda6 = s.Lam6;
-      return s.v * 0.5 * ((q[k][2] * q[l][2] * s.Lam5).imag() + 2.0 * q[k][1] * (q[l][2] * Lambda6 * (double)sgn(Lambda6)).imag());
-    }
-
-    // hG0G0 coupling
-    complex<double> get_cubic_coupling_higgs_hG0G0(ThdmSpec &s, const q_matrix &q, scalar_type k)
-    {
-      double Lambda6 = s.Lam6;
-      return 0.5 * s.v * (q[k][1] * s.Lam1 + (q[k][2] * Lambda6 * (double)sgn(Lambda6)).real());
-    }
-
-    // hhhh coupling
-    complex<double> get_quartic_coupling_higgs_hhhh(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type j = particles[0], k = particles[1], l = particles[2], m = particles[3];
-      const double Lam1 = s.Lam1, Lam2 = s.Lam2, Lam34 = s.Lam3 + s.Lam4;
-      const double Lam5 = s.Lam5, Lam6 = s.Lam6, Lam7 = s.Lam7;
-      complex<double> c(0.0, 0.0);
-
-      c += q[j][1] * q[k][1] * std::conj(q[l][1]) * std::conj(q[m][1]) * Lam1;
-      c += q[j][2] * q[k][2] * std::conj(q[l][2]) * std::conj(q[m][2]) * Lam2;
-      c += 2.0 * q[j][1] * std::conj(q[k][1]) * q[l][2] * std::conj(q[m][2]) * Lam34;
-      c += 2.0 * (std::conj(q[j][1]) * std::conj(q[k][1]) * q[l][2] * q[m][2] * Lam5).real();
-      c += 4.0 * (q[j][1] * std::conj(q[k][1]) * std::conj(q[l][1]) * q[m][2] * Lam6 * (double)sgn(Lam6)).real();
-      // TODO: I feel this should be sgn(Lam7), where do these equations come from?
-      c += 4.0 * (std::conj(q[j][1]) * q[k][2] * q[l][2] * std::conj(q[m][2]) * Lam7 * (double)sgn(Lam6)).real();
-      return 0.125 * c;
-    }
-
-    // hhG+G- coupling
-    complex<double> get_quartic_coupling_higgs_hhGpGm(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type j = particles[0], k = particles[1];
-      const double Lambda6 = s.Lam6;
-      return 0.5 * (q[j][1] * std::conj(q[k][1]) * s.Lam1 + q[j][2] * std::conj(q[k][2]) * s.Lam3 + 2.0 * (q[j][1] * q[k][2] * Lambda6 * (double)sgn(Lambda6)).real());
-    }
-
-    // hhH+H- coupling
-    complex<double> get_quartic_coupling_higgs_hhHpHm(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type j = particles[0], k = particles[1];
-      return 0.5 * (q[j][2] * std::conj(q[k][2]) * s.Lam2 + q[j][1] * std::conj(q[k][1]) * s.Lam3 + 2.0 * (q[j][1] * q[k][2] * s.Lam7 * (double)sgn(s.Lam6)).real());
-    }
-
-    // hhG+H- coupling
-    complex<double> get_quartic_coupling_higgs_hhGmHp(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type j = particles[0], k = particles[1];
-      const double Lam4 = s.Lam4, Lam5 = s.Lam5, Lam6 = s.Lam6, Lam7 = s.Lam7;
-      complex<double> c(0.0, 0.0);
-      c += (double)sgn(Lam6) * q[j][1] * std::conj(q[k][2]) * Lam4;
-      c += std::conj(q[j][1]) * q[k][2] * Lam5;
-      c += q[j][1] * std::conj(q[k][1]) * Lam6 * (double)sgn(Lam6);
-      c += q[j][2] * std::conj(q[k][2]) * Lam7 * (double)sgn(Lam6);
-      return 0.5 * c;
-    }
-
-    // hG0G0G0 coupling
-    complex<double> get_quartic_coupling_higgs_hG0G0G0(ThdmSpec &s, const q_matrix &q, scalar_type m)
-    {
-      const double Lam6 = s.Lam6;
-      return 0.5 * (q[m][2] * Lam6 * (double)sgn(Lam6)).imag();
-    }
-
-    // hhG0G0 coupling
-    complex<double> get_quartic_coupling_higgs_hhG0G0(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type l = particles[0], m = particles[1];
-      const double Lam6 = s.Lam6;
-      complex<double> c(0.0, 0.0);
-      c = (q[l][1] * q[m][1] * s.Lam1 + q[l][2] * std::conj(q[m][2]) * (s.Lam3 + s.Lam4));
-      c += -(q[l][2] * q[m][2] * s.Lam5).real() + 2.0 * q[l][1] * (q[m][2] * Lam6 * (double)sgn(Lam6)).real();
-      return 0.25 * c;
-    }
-
-    // hhhG0 coupling
-    complex<double> get_quartic_coupling_higgs_hhhG0(ThdmSpec &s, const q_matrix &q, vector<scalar_type> particles)
-    {
-      const scalar_type k = particles[1], l = particles[1], m = particles[2];
-      const double Lam6 = s.Lam6;
-      complex<double> c(0.0, 0.0);
-      c = q[k][1] * (q[l][2] * q[m][2] * s.Lam5).real() + q[k][1] * q[l][1] * (q[m][2] * Lam6 * (double)sgn(Lam6)).real();
-      c += (q[k][2] * q[l][2] * std::conj(q[m][2]) * s.Lam7 * (double)sgn(Lam6)).real();
-      return 0.5 * c;
-    }
-
-
-    /// ===========================================================
-    /// === Higgs couplings calculated using the physical basis ===
-    /// ===========================================================
-
-
-    // h0G+G- coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0GpGm(ThdmSpec &s)
-    {
-      const double mh = s.mh;
-      const double mh2 = pow(mh, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a);
-      const double v = s.v;
-      return 1.0 / v * (-1.0 * mh2 * sba);
-    }
-
-    // H0G+G- coupling using physical basiss
-    complex<double> get_cubic_coupling_physical_H0GpGm(ThdmSpec &s)
-    {
-      const double mH = s.mH;
-      const double mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cba = (cos(b - a));
-      const double v = s.v;
-      return 1.0 / v * (-1.0 * mH2 * cba);
-    }
-
-    // h0G+H- coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0GpHm(ThdmSpec &s)
-    {
-      const double mh = s.mh, mC = s.mHp;
-      const double mh2 = pow(mh, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cba = (cos(b - a));
-      const double v = s.v;
-      return 1.0 / v * (-1.0 * (mh2 - mC2) * cba);
-    }
-
-    // h0G0A0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0G0A0(ThdmSpec &s)
-    {
-      const double mh = s.mh, mA = s.mA;
-      const double mh2 = pow(mh, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cba = (cos(b - a));
-      const double v = s.v;
-      return 1.0 / v * (-1.0 * (mh2 - mA2) * cba);
-    }
-
-    // H0G+H- coupling using physical basis
-    complex<double> get_cubic_coupling_physical_H0GpHm(ThdmSpec &s)
-    {
-      const double mH = s.mH, mC = s.mHp;
-      const double mH2 = pow(mH, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a);
-      const double v = s.v;
-      return 1.0 / v * (1.0 * (mH2 - mC2) * sba);
-    }
-
-    // H0G0A0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_H0G0A0(ThdmSpec &s)
-    {
-      const double mH = s.mH, mA = s.mA;
-      const double mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a);
-      const double v = s.v;
-      return 1.0 / v * (1.0 * (mH2 - mA2) * sba);
-    }
-
-    // A0G+H- coupling using physical basis
-    complex<double> get_cubic_coupling_physical_A0GpHm(ThdmSpec &s)
-    {
-      const complex<double> i(0.0, 1.0);
-      const double mA = s.mA, mC = s.mHp;
-      const double mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const double v = s.v;
-      return 1.0 / v * (-1.0 * i * (mA2 - mC2));
-    }
-
-    // h0H+H- coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0HpHm(ThdmSpec &s)
-    {
-      const double mh = s.mh, mC = s.mHp, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), cba = (cos(b - a)), cbap = cos(b + a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double c2b = cos(2.0 * b);
-      const double v = s.v;
-      return 1.0 / v * (sbinv * cbinv * (m122 * cbap * sbinv * cbinv - mh2 * c2b * cba) - (mh2 + 2.0 * mC2) * sba);
-    }
-
-    // h0A0A0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0A0A0(ThdmSpec &s)
-    {
-      const double mh = s.mh, mA = s.mA, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), cba = (cos(b - a)), cbap = cos(b + a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double c2b = cos(2.0 * b);
-      const double v = s.v;
-      return 1.0 / v * (sbinv * cbinv * (m122 * cbap * sbinv * cbinv - mh2 * c2b * cba) - (mh2 + 2.0 * mA2) * sba);
-    }
-
-    // H0H+H- coupling using physical basis
-    complex<double> get_cubic_coupling_physical_H0HpHm(ThdmSpec &s)
-    {
-      const double mH = s.mH, mC = s.mHp, m122 = s.m122;
-      const double mH2 = pow(mH, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), cba = (cos(b - a)), sbap = sin(b + a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double c2b = cos(2.0 * b);
-      const double v = s.v;
-      return 1.0 / v * (sbinv * cbinv * (m122 * sbap * sbinv * cbinv + mH2 * c2b * sba) - (mH2 + 2.0 * mC2) * cba);
-    }
-
-    // H0A0A0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_H0A0A0(ThdmSpec &s)
-    {
-      const double mH = s.mH, mA = s.mA, m122 = s.m122;
-      const double mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), cba = (cos(b - a)), sbap = sin(b + a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double c2b = cos(2.0 * b);
-      const double v = s.v;
-      return 1.0 / v * (sbinv * cbinv * (m122 * sbap * sbinv * cbinv + mH2 * c2b * sba) - (mH2 + 2.0 * mA2) * cba);
-    }
-
-    // h0h0h0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0h0h0(ThdmSpec &s)
-    {
-      const double mh = s.mh, m122 = s.m122;
-      const double mh2 = pow(mh, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), cba = (cos(b - a)), cbap = cos(b + a);
-      const double cba2 = pow(cba, 2);
-      const double s2b = sin(2.0 * b);
-      const double v = s.v;
-      return 3.0 / (4.0 * v * s2b * s2b) * (16.0 * m122 * cbap * cba2 - mh2 * (3.0 * sin(3.0 * b + a) + 3.0 * sba + sin(3.0 * b - 3.0 * a) + sin(b + 3.0 * a)));
-    }
-
-    // h0h0H0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0h0H0(ThdmSpec &s)
-    {
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cba = (cos(b - a));
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double v = s.v;
-      return -cba / (s2b * v) * (2.0 * m122 + (mH2 + 2.0 * mh2 - 3.0 * m122 * sbinv * cbinv) * s2a);
-    }
-
-    // h0H0H0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_h0H0H0(ThdmSpec &s)
-    {
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double v = s.v;
-      return sba / (s2b * v) * (-2.0 * m122 + (mh2 + 2.0 * mH2 - 3.0 * m122 * sbinv * cbinv) * s2a);
-    }
-
-    // H0H0H0 coupling using physical basis
-    complex<double> get_cubic_coupling_physical_H0H0H0(ThdmSpec &s)
-    {
-      const double mH = s.mH, m122 = s.m122;
-      const double mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), cba = (cos(b - a)), sbap = sin(b + a);
-      const double sba2 = pow(sba, 2);
-      const double s2b = sin(2.0 * b);
-      const double v = s.v;
-      return 3.0 / (4.0 * v * s2b * s2b) * (16.0 * m122 * sbap * sba2 + mH2 * (3.0 * cos(3.0 * b + a) - 3.0 * cba + cos(3.0 * b - 3.0 * a) - cos(b + 3.0 * a)));
-    }
-
-    // h0h0G0G0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0h0G0G0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mA = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), sba2 = pow(sba, 2);
-      const double cba = cos(b - a), cba2 = pow(cba, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double t2binv = 1.0 / (tan(2.0 * b));
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = -1.0 / v2 * (mH2 * pow(cba, 4) + 2.0 * (mh2 - mH2) * pow(cba, 3) * sba * t2binv + mh2 * pow(sba, 4));
-      coupling += -1.0 / v2 * cba2 * (2.0 * mA2 - 2.0 * m122 * sbinv * cbinv + (3.0 * mh2 - mH2) * sba2);
-      return coupling;
-    }
-
-    // h0h0G0G0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_HpHmG0G0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mA = s.mA, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), sba2 = pow(sba, 2);
-      const double cba = cos(b - a), cba2 = pow(cba, 2);
-      const double t2binv = 1.0 / (tan(2.0 * b)), sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = -1.0 / v2 * (mH2 * pow(cba, 4) + 2.0 * (mh2 - mH2) * pow(sba, 3) * cba * t2binv + mh2 * pow(sba, 4));
-      coupling += -1.0 / v2 * sba2 * (2.0 * mA2 - 2.0 * m122 * sbinv * cbinv + (3.0 * mH2 - mh2) * cba2);
-      return coupling;
-    }
-
-    // A0A0G0G0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_A0A0G0G0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mC = s.mHp, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), sba2 = pow(sba, 2);
-      const double cba = cos(b - a), cba2 = pow(cba, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double t2binv = 1.0 / (tan(2.0 * b));
-      const double s2b2a = sin(2.0 * b - 2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / v2 * (2.0 * m122 * sbinv * cbinv - 2.0 * mC2 - mH2 * cba2 - mh2 * sba2 + (mH2 - mh2) * t2binv * s2b2a);
-      return coupling;
-    }
-
-    // h0h0G0A0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0h0G0A0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), sba2 = pow(sba, 2);
-      const double cba = cos(b - a), cba2 = pow(cba, 2);
-      const double t2binv = 1.0 / (tan(2.0 * b)), sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b2a = sin(2.0 * b - 2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / v2 * (2.0 * m122 * sbinv * cbinv - (mH2 + 2.0 * mh2) * cba2 - (mh2 + 2.0 * mH2) * sba2 + (mH2 - mh2) * t2binv * s2b2a);
-      return coupling;
-    }
-
-    // H0H0G0A0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_H0H0G0A0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mA = s.mA, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cba = cos(b - a);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double s2b2a = sin(2.0 * b - 2.0 * a), s2a2b = sin(2.0 * a - 2.0 * b);
-      const double c2b = cos(2.0 * b);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (2.0 * v2 * s2b) * (mH2 * s2b2a * s2a - mA2 * s2b * s2a2b + cba * (4.0 * m122 * cba * sbinv * cbinv * c2b - mh2 * (cos(-1.0 * b + 3.0 * a) + 3.0 * cos(b + a))));
-      return coupling;
-    }
-
-    // HpHmG0A0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_HpHmG0A0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mA = s.mA, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double s2b2a = sin(2.0 * b - 2.0 * a), s2a2b = sin(2.0 * a - 2.0 * b);
-      const double c2b = cos(2.0 * b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (2.0 * v2 * s2b) * (mh2 * s2b2a * s2a + mA2 * s2b * s2a2b + sba * (4.0 * m122 * sba * sbinv * cbinv * c2b - mH2 * (sin(-1.0 * b + 3.0 * a) - 3.0 * sin(b + a))));
-      return coupling;
-    }
-
-    // A0A0G0A0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_A0A0G0A0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double s2b = sin(2.0 * b);
-      const double c2b = cos(2.0 * b), c2a = cos(2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (8.0 * v2 * s2b * s2b) * (32 * m122 * c2b + 2.0 * (mH2 - mh2) * (3.0 * c2a + cos(4.0 * b - 2.0 * a)) * s2b - 4.0 * (mh2 + mH2) * sin(4.0 * b));
-      return coupling;
-    }
-
-    // h0h0HpHm coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0h0HpHm(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mC = s.mHp, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sab = sin(a - b), sab2 = pow(sab, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b), sbinv2 = pow(sbinv, 2), cbinv2 = pow(cbinv, 2);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double c4b = cos(4.0 * b), c4a = cos(4.0 * a);
-      const double c2a2b = cos(2.0 * a - 2.0 * b), c2a2bp = cos(2.0 * a + 2.0 * b);
-      const double c4a4b = cos(4.0 * a - 4.0 * b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (16.0 * v2 * s2b) * 2.0 * sbinv2 * cbinv2 * (cos(2.0 * a - 6.0 * b) + 2.0 * (3.0 + c2a2b + c4b) + 5.0 * c2a2bp) * m122;
-      coupling += -1.0 / (16.0 * v2 * s2b) * sbinv * cbinv * (9.0 + 3.0 * c4a + 6.0 * c2a2b + c4a4b + 3.0 * c4b + 10.0 * c2a2bp) * mh2;
-      coupling += -1.0 / (16.0 * v2 * s2b) * (2.0 * sbinv * cbinv * s2a * (3.0 * s2a + sin(2.0 * a - 4.0 * b) + 2.0 * s2b) * mH2 + 32.0 * sab2 * s2b * mC2);
-      return coupling;
-    }
-
-    // h0h0A0A0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0h0A0A0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mA = s.mA, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sab = sin(a - b), sab2 = pow(sab, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b), sbinv2 = pow(sbinv, 2), cbinv2 = pow(cbinv, 2);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double c4b = cos(4.0 * b), c4a = cos(4.0 * a);
-      const double c2a2b = cos(2.0 * a - 2.0 * b), c2a2bp = cos(2.0 * a + 2.0 * b);
-      const double c4a4b = cos(4.0 * a - 4.0 * b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (16.0 * v2 * s2b) * 2.0 * sbinv2 * cbinv2 * (cos(2.0 * a - 6.0 * b) + 2.0 * (3.0 + c2a2b + c4b) + 5.0 * c2a2bp) * m122;
-      coupling += -1.0 / (16.0 * v2 * s2b) * sbinv * cbinv * (9.0 + 3.0 * c4a + 6.0 * c2a2b + c4a4b + 3.0 * c4b + 10.0 * c2a2bp) * mh2;
-      coupling += -1.0 / (16.0 * v2 * s2b) * (2.0 * sbinv * cbinv * s2a * (3.0 * s2a + sin(2.0 * a - 4.0 * b) + 2.0 * s2b) * mH2 + 32.0 * sab2 * s2b * mA2);
-      return coupling;
-    }
-
-    // H0H0HpHm coupling using physical basis
-    complex<double> get_quartic_coupling_physical_H0H0HpHm(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mC = s.mHp, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cab = cos(a - b), cab2 = pow(cab, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b), sbinv2 = pow(sbinv, 2), cbinv2 = pow(cbinv, 2);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double c4b = cos(4.0 * b), c4a = cos(4.0 * a);
-      const double c2a2b = cos(2.0 * a - 2.0 * b), c2a2bp = cos(2.0 * a + 2.0 * b);
-      const double c4a4b = cos(4.0 * a - 4.0 * b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (16.0 * v2 * s2b) * 2.0 * sbinv2 * cbinv2 * (-cos(2.0 * a - 6.0 * b) + 2.0 * (3.0 - c2a2b + c4b) - 5.0 * c2a2bp) * m122;
-      coupling += -1.0 / (16.0 * v2 * s2b) * sbinv * cbinv * (9.0 + 3.0 * c4a - 6.0 * c2a2b + c4a4b + 3.0 * c4b - 10.0 * c2a2bp) * mH2;
-      coupling += -1.0 / (16.0 * v2 * s2b) * (2.0 * sbinv * cbinv * s2a * (3.0 * s2a + sin(2.0 * a - 4.0 * b) - 2.0 * s2b) * mh2 + 32.0 * cab2 * s2b * mC2);
-      return coupling;
-    }
-
-    // H0H0A0A0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_H0H0A0A0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mA = s.mA, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cab = cos(a - b), cab2 = pow(cab, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b), sbinv2 = pow(sbinv, 2), cbinv2 = pow(cbinv, 2);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double c4b = cos(4.0 * b), c4a = cos(4.0 * a);
-      const double c2a2b = cos(2.0 * a - 2.0 * b), c2a2bp = cos(2.0 * a + 2.0 * b);
-      const double c4a4b = cos(4.0 * a - 4.0 * b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (16.0 * v2 * s2b) * 2.0 * sbinv2 * cbinv2 * (-cos(2.0 * a - 6.0 * b) + 2.0 * (3.0 - c2a2b + c4b) - 5.0 * c2a2bp) * m122;
-      coupling += -1.0 / (16.0 * v2 * s2b) * sbinv * cbinv * (9.0 + 3.0 * c4a - 6.0 * c2a2b + c4a4b + 3.0 * c4b - 10.0 * c2a2bp) * mH2;
-      coupling += -1.0 / (16.0 * v2 * s2b) * (2.0 * sbinv * cbinv * s2a * (3.0 * s2a + sin(2.0 * a - 4.0 * b) - 2.0 * s2b) * mh2 + 32.0 * cab2 * s2b * mA2);
-      return coupling;
-    }
-
-    // h0H0HpHm coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0H0HpHm(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mC = s.mHp, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mC2 = pow(mC, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), cba = cos(b - a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b), s4b = sin(4.0 * b);
-      const double s2b2a = sin(2.0 * b - 2.0 * a);
-      const double s3b3a = sin(3.0 * b - 3.0 * a);
-      const double c4b = cos(4.0 * b);
-      const double c2b2a = cos(2.0 * b - 2.0 * a);
-      const double c3b3a = cos(3.0 * b - 3.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (8.0 * v2 * s2b) * cba * sbinv * cbinv * (3.0 * sba + s3b3a - 3.0 * sin(b + 3.0 * a) - sin(3.0 * b + a)) * mh2;
-      coupling += 1.0 / (8.0 * v2 * s2b) * sba * sbinv * cbinv * (3.0 * cba - c3b3a - 3.0 * cos(b + 3.0 * a) + cos(3.0 * b + a)) * mH2;
-      coupling += -1.0 / (8.0 * v2 * s2b) * (8.0 * s2b2a * s2b * mC2 + 4.0 * pow(1.0 / s2b, 2) * (2.0 * (1.0 + 3.0 * c4b) * s2b2a - 4.0 * c2b2a * s4b) * m122);
-      return coupling;
-    }
-
-    // h0H0A0A0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0H0A0A0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, mA = s.mA, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a);
-      const double cba = cos(b - a);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b), s4b = sin(4.0 * b);
-      const double s2b2a = sin(2.0 * b - 2.0 * a);
-      const double s3b3a = sin(3.0 * b - 3.0 * a);
-      const double c4b = cos(4.0 * b);
-      const double c2b2a = cos(2.0 * b - 2.0 * a);
-      const double c3b3a = cos(3.0 * b - 3.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (8.0 * v2 * s2b) * cba * sbinv * cbinv * (3.0 * sba + s3b3a - 3.0 * sin(b + 3.0 * a) - sin(3.0 * b + a)) * mh2;
-      coupling += 1.0 / (8.0 * v2 * s2b) * sba * sbinv * cbinv * (3.0 * cba - c3b3a - 3.0 * cos(b + 3.0 * a) + cos(3.0 * b + a)) * mH2;
-      coupling += -1.0 / (8.0 * v2 * s2b) * (8.0 * s2b2a * s2b * mA2 + 4.0 * pow(1.0 / s2b, 2) * (2.0 * (1.0 + 3.0 * c4b) * s2b2a - 4.0 * c2b2a * s4b) * m122);
-      return coupling;
-    }
-
-    // h0h0h0h0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0h0h0h0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double cba = cos(b - a), cbap = cos(b + a), cba2 = pow(cba, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 3.0 / (4.0 * v2 * s2b * s2b) * 4.0 * cba2 * (4.0 * m122 * sbinv * cbinv * pow(cbap, 2) - mH2 * pow(s2a, 2));
-      coupling += -3.0 / (4.0 * v2 * s2b * s2b) * mh2 * pow((cos(-b + 3.0 * a) + 3.0 * cbap), 2);
-      return coupling;
-    }
-
-    // h0h0h0H0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0h0h0H0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a);
-      const double cba = cos(b - a), cbap = cos(b + a);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double s2b2a = sin(2.0 * b - 2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (2.0 * v2 * s2b * s2b) * 3.0 * s2a * (mH2 * s2a * s2b2a - mh2 * cba * (cos(-b + 3.0 * a) + 3.0 * cbap));
-      coupling += 1.0 / (2.0 * v2 * s2b * s2b) * 12.0 * m122 * (1.0 / s2b) * cba * (sin(b + 3.0 * a) - sba);
-      return coupling;
-    }
-
-    // h0h0H0H0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0h0H0H0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b);
-      const double c4b = cos(4.0 * b), c4a = cos(4.0 * a);
-      const double c2b2a = cos(2.0 * b - 2.0 * a), c2b2ap = cos(2.0 * b + 2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (8.0 * v2 * s2b * s2b) * (4.0 * sbinv * cbinv * (2.0 + c4b - 3.0 * c4a) * m122 + 6.0 * (c4a - 1.0) * (mh2 + mH2));
-      coupling += 1.0 / (8.0 * v2 * s2b * s2b) * (3.0 * cos(-2.0 * b + 6.0 * a) - c2b2ap - 2.0 * c2b2a) * (mh2 - mH2);
-      return coupling;
-    }
-
-    // h0H0H0H0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_h0H0H0H0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), sbap = sin(b + a);
-      const double cba = cos(b - a);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double s2b2a = sin(2.0 * b - 2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 1.0 / (2.0 * v2 * s2b * s2b) * 3.0 * s2a * (mh2 * s2a * s2b2a - mH2 * sba * (sin(-b + 3.0 * a) - 3.0 * sbap));
-      coupling += 1.0 / (2.0 * v2 * s2b * s2b) * 12.0 * m122 * (1.0 / s2b) * sba * (cos(b + 3.0 * a) - cba);
-      return coupling;
-    }
-
-    // H0H0H0H0 coupling using physical basis
-    complex<double> get_quartic_coupling_physical_H0H0H0H0(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), sbap = sin(b + a), sba2 = pow(sba, 2);
-      const double sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b = sin(2.0 * b), s2a = sin(2.0 * a);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 3.0 / (4.0 * v2 * s2b * s2b) * 4.0 * sba2 * (4.0 * m122 * sbinv * cbinv * pow(sbap, 2) - mh2 * pow(s2a, 2));
-      coupling += -3.0 / (4.0 * v2 * s2b * s2b) * mH2 * pow((sin(-b + 3.0 * a) - 3.0 * sbap), 2);
-      return coupling;
-    }
-
-    // HpHmHpHm coupling using physical basis
-    complex<double> get_quartic_coupling_physical_HpHmHpHm(ThdmSpec &s)
-    {
-      // extract parameters
-      const double mh = s.mh, mH = s.mH, m122 = s.m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double b = s.beta, a = s.alpha;
-      const double sba = sin(b - a), sba2 = pow(sba, 2);
-      const double cba = cos(b - a), cba2 = pow(cba, 2);
-      const double t2binv = 1.0 / (tan(2.0 * b)), sbinv = 1.0 / sin(b), cbinv = 1.0 / cos(b);
-      const double s2b2a = sin(2.0 * b - 2.0 * a);
-      const double c2b = cos(2.0 * b);
-      const double v2 = pow(s.v,2);
-      // calculate coupling
-      complex<double> coupling = 0.0;
-      coupling = 2.0 / v2 * ((mH2 - mh2) * c2b * sbinv * cbinv * s2b2a - mh2 * sba2);
-      coupling += -2.0 / v2 * (cba2 * (mH2 + 4.0 * mh2 * pow(t2binv, 2)) + 4.0 * pow(t2binv, 2) * (mH2 * sba2 - m122 * sbinv * cbinv));
-      return coupling;
-    }
-
-
-    ///  ===========================================================
-    ///  == helper functions to get couplings in more generic way ==
-    ///  ===========================================================
-
-
-    // main function to get cubic higgs coupling
-    complex<double> get_cubic_coupling_higgs(ThdmSpec &s, scalar_type p1, scalar_type p2, scalar_type p3)
-    {
-      complex<double> c(0.0, 0.0);
-      const complex<double> i(0.0, 1.0);
-      const double ba = s.beta - s.alpha;
-      const double Lam6 = s.Lam6;
-      const q_matrix q = get_qij(ba, Lam6);
-
-      vector<scalar_type> particles = {p1, p2, p3};
-      std::sort(particles.begin(), particles.end()); // order particles
-      p1 = particles[0];
-      p2 = particles[1];
-      p3 = particles[2];
-
-      // Get a sign factor based on particles involved in the coupling
-      // - based up Class I
-      int sign = 1;
-      for (auto const &each_part : particles)
-      {
-        if (each_part == H0)
-          sign *= -(double)sgn(Lam6);
-        else if (each_part == A0)
-          sign *= (double)sgn(Lam6);
-      }
-
-      // Get coupling
-      if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3))
-      {
-        for (auto const &particles_perm : get_neutral_particle_permutations(particles))
-        {
-          if (particles_match(particles, {p1, G0, G0}))
-            c += get_cubic_coupling_higgs_hG0G0(s, q, p1);
-          else if (particles_match(particles, {p1, p2, G0}))
-            c += get_cubic_coupling_higgs_hhG0(s, q, particles_perm);
-          else
-            c += get_cubic_coupling_higgs_hhh(s, q, particles_perm);
-        }
-      }
-      else if (is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3))
-      {
-        if (particles_match(particles, {p1, Hp, Hm}))
-          c += get_cubic_coupling_higgs_hHpHm(s, q, p1);
-        else if (particles_match(particles, {p1, Gp, Gm}))
-          c += get_cubic_coupling_higgs_hGpGm(s, q, p1);
-        else if (particles_match(particles, {p1, Hp, Gm}))
-          c += get_cubic_coupling_higgs_hGmHp(s, q, p1);
-        else if (particles_match(particles, {p1, Hm, Gp}))
-          c += std::conj(get_cubic_coupling_higgs_hGmHp(s, q, p1));
-      }
-
-      return -i * c * (double)sign;
-    }
-
-    // main function to get quartic higgs couplings
-    complex<double> get_quartic_coupling_higgs(ThdmSpec &s, scalar_type p1, scalar_type p2, scalar_type p3, scalar_type p4)
-    {
-      complex<double> c(0.0, 0.0);
-      const complex<double> i(0.0, 1.0);
-      const double ba = s.beta - s.alpha;
-      const double Lam1 = s.Lam4, Lam2 = s.Lam2, Lam3 = s.Lam3;
-      const double Lam4 = s.Lam4, Lam5 = s.Lam5, Lam6 = s.Lam6, Lam7 = s.Lam7;
-      const q_matrix q = get_qij(ba, Lam6);
-
-      vector<scalar_type> particles = {p1, p2, p3, p4};
-      std::sort(particles.begin(), particles.end()); // order particles
-      p1 = particles[0];
-      p2 = particles[1];
-      p3 = particles[2];
-      p4 = particles[3];
-
-      // Get a sign factor based on particles involved in the coupling
-      // - based up Class I
-      int sign = 1;
-      for (auto const &each_part : particles)
-      {
-        if (each_part == H0)
-          sign *= -(double)sgn(Lam6);
-        else if (each_part == A0)
-          sign *= (double)sgn(Lam6);
-      }
-
-      // Get coupling
-      for (auto const &particles_perm : get_neutral_particle_permutations(particles))
-      {
-        if (is_neutral(p1) && is_neutral(p2) && is_neutral(p3) && is_neutral(p4))
-        {
-          if (particles_match(particles, {p1, G0, G0, G0}))
-            c += get_quartic_coupling_higgs_hG0G0G0(s, q, p1);
-          else if (particles_match(particles, {p1, p2, G0, G0}))
-            c += get_quartic_coupling_higgs_hhG0G0(s, q, particles_perm);
-          else if (particles_match(particles, {p1, p2, p3, G0}))
-            c += get_quartic_coupling_higgs_hhhG0(s, q, particles_perm);
-          else
-            c += get_quartic_coupling_higgs_hhhh(s, q, particles_perm);
-        }
-        else if (is_neutral(p1) && is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4))
-        {
-          if (particles_match(particles, {G0, G0, Hp, Hm}))
-            c += 0.5 * Lam3;
-          else if (particles_match(particles, {p1, G0, Hp, Hm}))
-            c += -(q[p1][2] * Lam7 * (double)sgn(Lam6)).imag();
-          else if (particles_match(particles, {p1, p2, Hp, Hm}))
-            c += get_quartic_coupling_higgs_hhHpHm(s, q, particles_perm);
-          else if (particles_match(particles, {p1, p2, Gp, Gm}))
-            c += get_quartic_coupling_higgs_hhGpGm(s, q, particles_perm);
-          else if (particles_match(particles, {p1, p2, Hp, Gm}))
-            c += get_quartic_coupling_higgs_hhGmHp(s, q, particles_perm);
-          else if (particles_match(particles, {p1, p2, Hm, Gp}))
-            c += std::conj(get_quartic_coupling_higgs_hhGmHp(s, q, particles_perm));
-        }
-        else if (!is_neutral(p1) && !is_neutral(p2) && !is_neutral(p3) && !is_neutral(p4))
-        {
-          if (particles_match(particles, {Gp, Gp, Gm, Gm}))
-            c += 4.0 * 0.5 * Lam1;
-          else if (particles_match(particles, {Hp, Hp, Hm, Hm}))
-            c += 4.0 * 0.5 * Lam2;
-          else if (particles_match(particles, {Hp, Hm, Gp, Gm}))
-            c += 4.0 * (Lam3 + Lam4);
-          else if (particles_match(particles, {Hp, Hp, Gm, Gm}))
-            c += 0.5 * Lam5;
-          else if (particles_match(particles, {Hm, Hm, Gp, Gp}))
-            c += std::conj(0.5 * Lam5);
-          else if (particles_match(particles, {Hp, Gp, Gm, Gm}))
-            c += 2.0 * Lam6;
-          else if (particles_match(particles, {Hm, Gp, Gp, Gm}))
-            c += 4.0 * std::conj(1.0 * Lam6);
-          else if (particles_match(particles, {Hp, Hp, Hm, Gm}))
-            c += 2.0 * Lam7;
-          else if (particles_match(particles, {Hp, Hm, Hm, Gp}))
-            c += 4.0 * std::conj(1.0 * Lam7);
-        }
-      }
-
-      return -i * c * (double)sign;
-    }
-
-    // puts together a vector of cubic higgs couplings (necessary for NLO unitarity calculation)
-    vector<complex<double>> get_cubic_coupling_higgs(ThdmSpec &s, const bool use_physical_basis = true)
-    {
-      const int size = 17;
-      const complex<double> i(0.0, 1.0);
-      vector<complex<double>> result(size+1,0.);
-
-      // couplings calculated using the physical basis
-      if (use_physical_basis)
-      {
-        result[1] = get_cubic_coupling_physical_h0GpGm(s);
-        result[2] = get_cubic_coupling_physical_h0GpGm(s); // !!!! h0G0G0
-        result[3] = get_cubic_coupling_physical_H0GpGm(s);
-        result[4] = get_cubic_coupling_physical_H0GpGm(s); // !!!! H0G0G0
-        result[5] = get_cubic_coupling_physical_h0GpHm(s);
-        result[6] = get_cubic_coupling_physical_h0G0A0(s);
-        result[7] = get_cubic_coupling_physical_H0GpHm(s);
-        result[8] = get_cubic_coupling_physical_H0G0A0(s);
-        result[9] = get_cubic_coupling_physical_A0GpHm(s);
-        result[10] = get_cubic_coupling_physical_h0HpHm(s);
-        result[11] = get_cubic_coupling_physical_h0A0A0(s);
-        result[12] = get_cubic_coupling_physical_H0HpHm(s);
-        result[13] = get_cubic_coupling_physical_H0A0A0(s);
-        result[14] = get_cubic_coupling_physical_h0h0h0(s);
-        result[15] = get_cubic_coupling_physical_h0h0H0(s);
-        result[16] = get_cubic_coupling_physical_h0H0H0(s);
-        result[17] = get_cubic_coupling_physical_H0H0H0(s);
-      }
-
-      // couplings caluclated using the Higgs basis
       else
       {
-        result[1] = get_cubic_coupling_higgs(s,h0,Gp,Gm);
-        result[2] = get_cubic_coupling_higgs(s,h0,G0,G0);
-        result[3] = get_cubic_coupling_higgs(s,H0,Gp,Gm);
-        result[4] = get_cubic_coupling_higgs(s,H0,G0,G0);
-        result[5] = get_cubic_coupling_higgs(s,h0,Gp,Hm);
-        result[6] = get_cubic_coupling_higgs(s,h0,G0,A0);
-        result[7] = get_cubic_coupling_higgs(s,H0,Gp,Hm);
-        result[8] = get_cubic_coupling_higgs(s,H0,G0,A0);
-        result[9] = get_cubic_coupling_higgs(s,A0,Gp,Hm);
-        result[10] = get_cubic_coupling_higgs(s,h0,Hp,Hm);
-        result[11] = get_cubic_coupling_higgs(s,h0,A0,A0);
-        result[12] = get_cubic_coupling_higgs(s,H0,Hp,Hm);
-        result[13] = get_cubic_coupling_higgs(s,H0,A0,A0);
-        result[14] = get_cubic_coupling_higgs(s,h0,h0,h0);
-        result[15] = get_cubic_coupling_higgs(s,h0,h0,H0);
-        result[16] = get_cubic_coupling_higgs(s,h0,H0,H0);
-        result[17] = get_cubic_coupling_higgs(s,H0,H0,H0);
-        for (int j = 1; j <= size; j++)
-          result[j] = -i * result[j];
+        if (abs(spectrum.get(Par::Pole_Mass,"h0_1")-125.10) <= abs(spectrum.get(Par::Pole_Mass,"h0_2")-125.10))
+          result = "h0_1";
+        else
+          result = "h0_2";
       }
-
-      return result;
     }
 
-    // puts together a vector of quartic higgs couplings (necessary for NLO unitarity calculation)
-    vector<complex<double>> get_quartic_couplings(ThdmSpec &s, const bool use_physical_basis = true)
+    // Get the name of the additional
+    void get_additional_scalar(str& result)
     {
-      const int size = 22;
-      const complex<double> i(0.0, 1.0);
-      vector<complex<double>> result(size+1,0.);
-
-      // couplings calculated using the physical basis
-      if (use_physical_basis)
-      {
-        result[1] = get_quartic_coupling_physical_h0h0G0G0(s);
-        result[2] = get_quartic_coupling_physical_HpHmG0G0(s); // X
-        result[3] = get_quartic_coupling_physical_A0A0G0G0(s);
-        result[4] = get_quartic_coupling_physical_h0h0G0A0(s);
-        result[5] = get_quartic_coupling_physical_H0H0G0A0(s);
-        result[6] = get_quartic_coupling_physical_HpHmG0A0(s); // X
-        result[7] = get_quartic_coupling_physical_A0A0G0A0(s); // X
-        result[8] = 3.0 * get_quartic_coupling_physical_A0A0G0A0(s); // X
-        result[9] = get_quartic_coupling_physical_h0h0HpHm(s); // X
-        result[10] = get_quartic_coupling_physical_h0h0A0A0(s);
-        result[11] = get_quartic_coupling_physical_H0H0HpHm(s);
-        result[12] = get_quartic_coupling_physical_H0H0A0A0(s);
-        result[13] = get_quartic_coupling_physical_h0H0HpHm(s);
-        result[14] = get_quartic_coupling_physical_h0H0A0A0(s);
-        result[15] = get_quartic_coupling_physical_h0h0h0h0(s);
-        result[16] = get_quartic_coupling_physical_h0h0h0H0(s);
-        result[17] = get_quartic_coupling_physical_h0h0H0H0(s);
-        result[18] = get_quartic_coupling_physical_h0H0H0H0(s);
-        result[19] = get_quartic_coupling_physical_H0H0H0H0(s);
-        result[20] = get_quartic_coupling_physical_HpHmHpHm(s);
-        result[21] = get_quartic_coupling_physical_HpHmHpHm(s) / 2.0;
-        result[22] = 3.0 * get_quartic_coupling_physical_HpHmHpHm(s) / 2.0;
-      }
-
-      // couplings caluclated using the Higgs basis
+      if (*Pipes::get_additional_scalar::Dep::SM_like_scalar == "h0_1")
+        result = "h0_2";
       else
-      {
-        result[1] = get_quartic_coupling_higgs(s,h0,h0,G0,G0);
-        result[2] = get_quartic_coupling_higgs(s,H0,H0,G0,G0);
-        result[3] = get_quartic_coupling_higgs(s,Hp,Hm,G0,G0); // X
-        result[4] = get_quartic_coupling_higgs(s,A0,A0,G0,G0);
-        result[5] = get_quartic_coupling_higgs(s,h0,h0,G0,A0); // differs
-        result[6] = get_quartic_coupling_higgs(s,H0,H0,G0,A0); // differs
-        result[7] = get_quartic_coupling_higgs(s,Hp,Hm,G0,A0); // X equal if third term in equation is .imag() not .real()
-        result[8] = get_quartic_coupling_higgs(s,A0,A0,G0,A0); // X is different by a factor of sign(Lam6)
-        result[9] = get_quartic_coupling_higgs(s,h0,h0,Hp,Hm);
-        result[10] = get_quartic_coupling_higgs(s,h0,h0,A0,A0);
-        result[11] = get_quartic_coupling_higgs(s,H0,H0,Hp,Hm);
-        result[12] = get_quartic_coupling_higgs(s,H0,H0,A0,A0);
-        result[13] = get_quartic_coupling_higgs(s,h0,H0,Hp,Hm);
-        result[14] = get_quartic_coupling_higgs(s,h0,H0,A0,A0);
-        result[15] = get_quartic_coupling_higgs(s,h0,h0,h0,h0);
-        result[16] = get_quartic_coupling_higgs(s,h0,h0,h0,H0);
-        result[17] = get_quartic_coupling_higgs(s,h0,h0,H0,H0);
-        result[18] = get_quartic_coupling_higgs(s,h0,H0,H0,H0);
-        result[19] = get_quartic_coupling_higgs(s,H0,H0,H0,H0);
-        result[20] = get_quartic_coupling_higgs(s,Hp,Hm,Hp,Hm);
-        result[21] = get_quartic_coupling_higgs(s,A0,A0,Hp,Hm);
-        result[22] = get_quartic_coupling_higgs(s,A0,A0,A0,A0);
-        for (int j = 1; j <= size; j++)
-          result[j] = -i * result[j];
-      }
-
-      return result;
-    }
-
-    void check_coupling_calcs(ThdmSpec &s)
-    {
-      // check cubic couplings
-
-      vector<std::string> names = {"h0GpGm", "h0GpGm", "H0GpGm", "H0GpGm", "h0GpHm", "h0G0A0", "H0GpHm", "H0G0A0", "A0GpHm", "h0HpHm", "h0A0A0", "H0HpHm", "H0A0A0", "h0h0h0", "h0h0H0", "h0H0H0", "H0H0H0", };
-
-      auto couplings_physical = get_cubic_coupling_higgs(s, true);
-      auto couplings_higgs = get_cubic_coupling_higgs(s, false);
-
-      for (size_t i=0; i<names.size(); ++i)
-      {
-        double mag = 0.5 * (abs(couplings_higgs[i+1]) + abs(couplings_physical[i+1]) +1e-6);
-        double err = abs(couplings_higgs[i+1] - couplings_physical[i+1]) / mag;
-        if (err > 1e-7) std::cerr << "coupling mismatch (" << names[i] << "): " << std::fixed << std::setprecision(4) << err << std::endl;
-      }
-
-      // check quartic couplings
-
-      vector<std::string> names2 = { "h0h0G0G0", "HpHmG0G0", "A0A0G0G0", "h0h0G0A0", "H0H0G0A0", "HpHmG0A0", "A0A0G0A0", "A0A0G0A0", "h0h0HpHm", "h0h0A0A0", "H0H0HpHm", "H0H0A0A0", "h0H0HpHm", "h0H0A0A0", "h0h0h0h0", "h0h0h0H0", "h0h0H0H0", "h0H0H0H0", "H0H0H0H0", "HpHmHpHm", "HpHmHpHm", "HpHmHpHm" };
-
-      couplings_physical = get_quartic_couplings(s, true);
-      couplings_higgs = get_quartic_couplings(s, false);
-
-      for (size_t i=0; i<names2.size(); ++i)
-      {
-        double mag = 0.5 * (abs(couplings_higgs[i]) + abs(couplings_physical[i]) + 1e-6);
-        double err = abs(couplings_higgs[i] - couplings_physical[i]) / mag;
-        if (err > 1e-7) std::cerr << "coupling mismatch (" << names2[i] << "): " << std::fixed << std::setprecision(4) << err << std::endl;
-      }
-    }
-    
-
-    ///  ===============================================================
-    ///  == functions to fill parameters for NLO unitarity likelihood ==
-    ///  ===============================================================
-
-
-    // -- wavefunction corrections to beta functions
-
-    double A0_bar(const double m2)
-    {
-      const double MZ = 91.15349; // get this from FS
-      double mu2 = pow(MZ, 2);
-      return m2 * (-log(m2 / mu2) + 1.0);
-    }
-
-    struct B0_integration_variables
-    {
-      double x;
-      double p2;
-      double m12;
-      double m22;
-      double mu2;
-      double z_plus;
-    };
-
-    double B0_bar_integration_real(const double x, void *params)
-    {
-      B0_integration_variables *input_pars = static_cast<B0_integration_variables *>(params);
-      double p2 = input_pars->p2, m12 = input_pars->m12, m22 = input_pars->m22, mu2 = input_pars->mu2, z_plus = input_pars->z_plus;
-      double re = (p2 * x * x - x * (p2 - m12 - m22) + m22) / mu2;
-      double im = -z_plus / mu2;
-      return log(sqrt(re * re + im * im));
-    }
-
-    double B0_bar_integration_imag(const double x, void *params)
-    {
-      B0_integration_variables *input_pars = static_cast<B0_integration_variables *>(params);
-      double p2 = input_pars->p2, m12 = input_pars->m12, m22 = input_pars->m22, mu2 = input_pars->mu2, z_plus = input_pars->z_plus;
-      double re = (p2 * x * x - x * (p2 - m12 - m22) + m22) / mu2;
-      double im = -z_plus / mu2;
-      return atan(im / re);
-    }
-
-    complex<double> B0_bar(const double p2, const double m12, const double m22)
-    {
-      const double MZ = 91.15349; // get this from FS
-      const complex<double> i(0.0, 1.0);
-      double mu2 = pow(MZ, 2);
-      double z_plus = 1E-10;
-      double result_real, error_real, result_imag, error_imag;
-      // real
-      gsl_integration_workspace *w = gsl_integration_workspace_alloc(1000);
-      gsl_function B0_bar_int;
-      B0_bar_int.function = &B0_bar_integration_real;
-      B0_integration_variables input_pars;
-      input_pars.p2 = p2;
-      input_pars.m12 = m12;
-      input_pars.m22 = m22;
-      input_pars.mu2 = mu2;
-      input_pars.z_plus = z_plus;
-      B0_bar_int.params = &input_pars;
-      gsl_integration_qag(&B0_bar_int, 0, 1.0, 1e-7, 1e-7, 1000, 1, w, &result_real, &error_real);
-      gsl_integration_workspace_free(w);
-      // imag
-      gsl_integration_workspace *w_imag = gsl_integration_workspace_alloc(1000);
-      gsl_function B0_bar_int_imag;
-      B0_bar_int_imag.function = &B0_bar_integration_imag;
-      B0_bar_int_imag.params = &input_pars;
-      gsl_integration_qag(&B0_bar_int_imag, 0, 1.0, 1e-7, 1e-7, 1000, 1, w_imag, &result_imag, &error_imag);
-      gsl_integration_workspace_free(w_imag);
-
-      return (result_real + i * result_imag);
-    }
-
-    struct wavefunction_renormalization_input
-    {
-      double mh;
-      double mH;
-      double mA;
-      double mC;
-      double mG;
-      double mGC;
-      double beta;
-      double alpha;
-      double m122;
-      vector<complex<double>> m;
-      vector<complex<double>> g;
-    };
-
-    wavefunction_renormalization_input fill_wavefunction_renormalization_input(ThdmSpec &s)
-    {
-      wavefunction_renormalization_input input;
-      fill_physical_basis(input, s);
-      input.m = get_cubic_coupling_higgs(s);
-      input.g = get_quartic_couplings(s);
-      return input;
-    }
-
-    enum wavefunction_renormalization
-    {
-      wpwm,
-      zz,
-      wpHm,
-      Hpwm,
-      zA,
-      Az,
-      hh,
-      HH,
-      hH,
-      Hh,
-      HpHm,
-      AA,
-    };
-
-    double mZw2(const void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, b = input_pars->beta, alpha = input_pars->alpha, m122 = input_pars->m122;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2);
-      const double a = alpha, sb = sin(b), cb = cos(b), sba = sin(b - a), cba = abs(cos(b - a)), s2b2a = sin(2.0 * b - 2.0 * a), t2b = tan(2.0 * b);
-      return 1.0 / 2.0 * (mh2 * pow(sba, 2) + mH2 * pow(cba, 2) + (mh2 - mH2) * s2b2a * (1.0 / t2b) - 2.0 * m122 * (1.0 / sb) * (1.0 / cb));
-    }
-
-    // -- Self energies & wavefunction renormalizations
-
-    complex<double> Pi_tilde_wpwm(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = pow(m[1], 2) * (B0_bar(p2, 0., mh2) - B0_bar(0., 0., mh2));
-      Pi += pow(m[3], 2) * (B0_bar(p2, 0., mH2) - B0_bar(0., 0., mH2));
-      Pi += pow(m[5], 2) * (B0_bar(p2, mC2, mh2) - B0_bar(0., mC2, mh2));
-      Pi += pow(m[7], 2) * (B0_bar(p2, mC2, mH2) - B0_bar(0., mC2, mH2));
-      Pi += m[9] * std::conj(m[9]) * (B0_bar(p2, mC2, mA2) - B0_bar(0., mC2, mA2));
-      return -1.0 / (16.0 * pow(M_PI, 2)) * Pi;
-    }
-    double Pi_tilde_wpwm_re(const double p2, void *params) { return Pi_tilde_wpwm(p2, params).real(); }
-    double Pi_tilde_wpwm_im(const double p2, void *params) { return Pi_tilde_wpwm(p2, params).imag(); }
-
-    complex<double> Pi_tilde_zz(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = pow(m[2], 2) * (B0_bar(p2, 0., mh2) - B0_bar(0., 0., mh2));
-      Pi += pow(m[4], 2) * (B0_bar(p2, 0., mH2) - B0_bar(0., 0., mH2));
-      Pi += pow(m[6], 2) * (B0_bar(p2, mA2, mh2) - B0_bar(0., mA2, mh2));
-      Pi += pow(m[8], 2) * (B0_bar(p2, mA2, mH2) - B0_bar(0., mA2, mH2));
-      return -1.0 / (16.0 * pow(M_PI, 2)) * Pi;
-    }
-    double Pi_tilde_zz_re(const double p2, void *params) { return Pi_tilde_zz(p2, params).real(); }
-    double Pi_tilde_zz_im(const double p2, void *params) { return Pi_tilde_zz(p2, params).imag(); }
-
-    complex<double> Pi_tilde_wpHm(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mC = input_pars->mC;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = m[1] * m[5] * (B0_bar(p2, 0., mh2) - B0_bar(0., 0., mh2));
-      Pi += m[3] * m[7] * (B0_bar(p2, 0., mH2) - B0_bar(0., 0., mH2));
-      Pi += m[5] * m[10] * (B0_bar(p2, mC2, mh2) - B0_bar(0., mC2, mh2));
-      Pi += m[7] * m[12] * (B0_bar(p2, mC2, mH2) - B0_bar(0., mC2, mH2));
-      return -1.0 / (16.0 * pow(M_PI, 2)) * Pi;
-    }
-    double Pi_tilde_wpHm_re(const double p2, void *params) { return Pi_tilde_wpHm(p2, params).real(); }
-    double Pi_tilde_wpHm_im(const double p2, void *params) { return Pi_tilde_wpHm(p2, params).imag(); }
-
-    complex<double> Pi_tilde_zA(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = m[2] * m[6] * (B0_bar(p2, 0., mh2) - B0_bar(0., 0., mh2));
-      Pi += m[4] * m[8] * (B0_bar(p2, 0., mH2) - B0_bar(0., 0., mH2));
-      Pi += m[6] * m[11] * (B0_bar(p2, mA2, mh2) - B0_bar(0., mA2, mh2));
-      Pi += m[8] * m[13] * (B0_bar(p2, mA2, mH2) - B0_bar(0., mA2, mH2));
-      return -1.0 / (16.0 * pow(M_PI, 2)) * Pi;
-    }
-    double Pi_tilde_zA_re(const double p2, void *params) { return Pi_tilde_zA(p2, params).real(); }
-    double Pi_tilde_zA_im(const double p2, void *params) { return Pi_tilde_zA(p2, params).imag(); }
-
-    complex<double> Pi_zz(void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = 1.0 / (32.0 * pow(M_PI, 2)) * (g[1] * A0_bar(mh2) + g[2] * A0_bar(mH2) + 2.0 * g[3] * A0_bar(mC2) + g[4] * A0_bar(mA2));
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[2], 2) * B0_bar(0., 0., mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[4], 2) * B0_bar(0., 0., mH2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[6], 2) * B0_bar(0., mA2, mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[8], 2) * B0_bar(0., mA2, mH2);
-      return Pi;
-    }
-    double Pi_zz_re(void *params) { return Pi_zz(params).real(); }
-    double Pi_zz_im(void *params) { return Pi_zz(params).imag(); }
-
-    double Pi_wpwm_re(void *params) { return Pi_zz(params).real(); }
-    double Pi_wpwm_im(void *params) { return Pi_zz(params).imag(); }
-
-    complex<double> Pi_zA(void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = 1.0 / (32.0 * pow(M_PI, 2)) * (g[5] * A0_bar(mh2) + g[6] * A0_bar(mH2) + 2.0 * g[7] * A0_bar(mC2) + g[8] * A0_bar(mA2));
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * m[2] * m[6] * B0_bar(0., 0., mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * m[4] * m[8] * B0_bar(0., 0., mH2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * m[6] * m[11] * B0_bar(0., mA2, mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * m[8] * m[13] * B0_bar(0., mA2, mH2);
-      return Pi;
-    }
-    double Pi_zA_re(void *params) { return Pi_zA(params).real(); }
-    double Pi_zA_im(void *params) { return Pi_zA(params).imag(); }
-
-    double Pi_wpHm_re(void *params) { return Pi_zA(params).real(); }
-    double Pi_wpHm_im(void *params) { return Pi_zA(params).imag(); }
-
-    double Z_w(void *params); // Necessary forward declaration
-
-    complex<double> Pi_tilde_hh(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, beta = input_pars->beta, alpha = input_pars->alpha;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      const double sba = sin(beta - alpha), cba = abs(cos(beta - alpha));
-      complex<double> Pi = 1.0 / (32.0 * pow(M_PI, 2)) * (2.0 * g[9] * A0_bar(mC2) + g[10] * A0_bar(mA2) + g[15] * A0_bar(mh2) + g[17] * A0_bar(mH2));
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * (2.0 * pow(m[1], 2) + pow(m[2], 2)) * B0_bar(p2, 0, 0);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 4.0 * pow(m[5], 2) * B0_bar(p2, 0., mC2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * pow(m[6], 2) * B0_bar(p2, 0., mA2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * pow(m[10], 2) * B0_bar(p2, mC2, mC2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * pow(m[11], 2) * B0_bar(p2, mA2, mA2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * pow(m[14], 2) * B0_bar(p2, mh2, mh2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * pow(m[15], 2) * B0_bar(p2, mH2, mh2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * pow(m[16], 2) * B0_bar(p2, mH2, mH2);
-      Pi += -pow(sba, 2) * Pi_zz(params) - 2.0 * sba * cba * Pi_zA(params) + (Z_w(params) - 1.0) * (mh2 + mZw2(params) * pow(cba, 2));
-      return Pi;
-    }
-    double Pi_tilde_hh_re(const double p2, void *params) { return Pi_tilde_hh(p2, params).real(); }
-    double Pi_tilde_hh_im(const double p2, void *params) { return Pi_tilde_hh(p2, params).imag(); }
-
-    complex<double> Pi_tilde_HH(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, beta = input_pars->beta, alpha = input_pars->alpha;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      const double sba = sin(beta - alpha), cba = cos(beta - alpha);
-      complex<double> Pi = 1.0 / (32.0 * pow(M_PI, 2)) * (2.0 * g[11] * A0_bar(mC2) + g[12] * A0_bar(mA2) + g[17] * A0_bar(mh2) + g[19] * A0_bar(mH2));
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * (2.0 * pow(m[3], 2) + pow(m[4], 2)) * B0_bar(p2, 0, 0);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 4.0 * pow(m[7], 2) * B0_bar(p2, 0., mC2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * pow(m[8], 2) * B0_bar(p2, 0., mA2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * pow(m[12], 2) * B0_bar(p2, mC2, mC2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * pow(m[13], 2) * B0_bar(p2, mA2, mA2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * pow(m[15], 2) * B0_bar(p2, mh2, mh2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * pow(m[16], 2) * B0_bar(p2, mH2, mh2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * pow(m[17], 2) * B0_bar(p2, mH2, mH2);
-      Pi += -pow(cba, 2) * Pi_zz(params) + 2.0 * sba * cba * Pi_zA(params) + (Z_w(params) - 1.0) * (mH2 + mZw2(params) * pow(sba, 2));
-      return Pi;
-    }
-    double Pi_tilde_HH_re(const double p2, void *params) { return Pi_tilde_HH(p2, params).real(); }
-    double Pi_tilde_HH_im(const double p2, void *params) { return Pi_tilde_HH(p2, params).imag(); }
-
-    complex<double> Pi_tilde_hH(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC, beta = input_pars->beta, alpha = input_pars->alpha;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      const double sba = sin(beta - alpha), cba = abs(cos(beta - alpha));
-      complex<double> Pi = 1.0 / (32.0 * pow(M_PI, 2)) * (2.0 * g[13] * A0_bar(mC2) + g[14] * A0_bar(mA2) + g[16] * A0_bar(mh2) + g[18] * A0_bar(mH2));
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * (2.0 * m[1] * m[3] + m[2] * m[4]) * B0_bar(p2, 0, 0);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 4.0 * m[5] * m[7] * B0_bar(p2, 0., mC2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * m[6] * m[8] * B0_bar(p2, 0., mA2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * m[10] * m[12] * B0_bar(p2, mC2, mC2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * m[11] * m[13] * B0_bar(p2, mA2, mA2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * m[14] * m[15] * B0_bar(p2, mh2, mh2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * 2.0 * m[15] * m[16] * B0_bar(p2, mH2, mh2);
-      Pi += -1.0 / (32.0 * pow(M_PI, 2)) * m[16] * m[17] * B0_bar(p2, mH2, mH2);
-      Pi += -sba * cba * Pi_zz(params) - (pow(cba, 2) - pow(sba, 2)) * Pi_zA(params) - (Z_w(params) - 1.0) * (mZw2(params) * sba * cba);
-      return Pi;
-    }
-    double Pi_tilde_hH_re(const double p2, void *params) { return Pi_tilde_hH(p2, params).real(); }
-    double Pi_tilde_hH_im(const double p2, void *params) { return Pi_tilde_hH(p2, params).imag(); }
-
-    complex<double> Pi_tilde_HpHm(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = 1.0 / (32.0 * pow(M_PI, 2)) * (g[9] * A0_bar(mh2) + g[11] * A0_bar(mH2) + 2.0 * g[20] * A0_bar(mC2) + g[21] * A0_bar(mA2));
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[5], 2) * B0_bar(p2, 0., mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[7], 2) * B0_bar(p2, 0., mH2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * std::conj(m[9]) * m[9] * B0_bar(p2, 0., mA2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[10], 2) * B0_bar(p2, mC2, mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[12], 2) * B0_bar(p2, mC2, mH2);
-      Pi += (Z_w(params) - 1.0) * (mC2 + mZw2(params));
-      return Pi;
-    }
-    double Pi_tilde_HpHm_re(const double p2, void *params) { return Pi_tilde_HpHm(p2, params).real(); }
-    double Pi_tilde_HpHm_im(const double p2, void *params) { return Pi_tilde_HpHm(p2, params).imag(); }
-
-    complex<double> Pi_tilde_AA(const double p2, void *params)
-    {
-      const wavefunction_renormalization_input *input_pars = static_cast<const wavefunction_renormalization_input *>(params);
-      const double mh = input_pars->mh, mH = input_pars->mH, mA = input_pars->mA, mC = input_pars->mC;
-      const double mh2 = pow(mh, 2), mH2 = pow(mH, 2), mA2 = pow(mA, 2), mC2 = pow(mC, 2);
-      const vector<complex<double>> m = input_pars->m, g = input_pars->g;
-      complex<double> Pi = 1.0 / (32.0 * pow(M_PI, 2)) * (g[10] * A0_bar(mh2) + g[12] * A0_bar(mH2) + 2.0 * g[21] * A0_bar(mC2) + g[22] * A0_bar(mA2));
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[6], 2) * B0_bar(p2, 0., mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[8], 2) * B0_bar(p2, 0., mH2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * 2.0 * std::conj(m[9]) * m[9] * B0_bar(p2, 0., mC2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[11], 2) * B0_bar(p2, mA2, mh2);
-      Pi += -1.0 / (16.0 * pow(M_PI, 2)) * pow(m[13], 2) * B0_bar(p2, mA2, mH2);
-      Pi += (Z_w(params) - 1.0) * (mA2 + mZw2(params));
-      return Pi;
-    }
-    double Pi_tilde_AA_re(const double p2, void *params) { return Pi_tilde_AA(p2, params).real(); }
-    double Pi_tilde_AA_im(const double p2, void *params) { return Pi_tilde_AA(p2, params).imag(); }
-
-    complex<double> z_ii(const wavefunction_renormalization type, wavefunction_renormalization_input &params)
-    {
-      gsl_function F_re;
-      gsl_function F_im;
-      F_re.params = &params;
-      F_im.params = &params;
-      double result_re, result_im, abserr_re, abserr_im;
-      double m_in = 0.0;
-      const complex<double> i(0.0, 1.0);
-      switch (type)
-      {
-      case wpwm:
-        F_re.function = &Pi_tilde_wpwm_re;
-        F_im.function = &Pi_tilde_wpwm_im;
-        m_in = params.mGC;
-        break;
-      case zz:
-        F_re.function = &Pi_tilde_zz_re;
-        F_im.function = &Pi_tilde_zz_im;
-        m_in = params.mG;
-        break;
-      case hh:
-        F_re.function = &Pi_tilde_hh_re;
-        F_im.function = &Pi_tilde_hh_im;
-        m_in = params.mh;
-        break;
-      case HH:
-        F_re.function = &Pi_tilde_HH_re;
-        F_im.function = &Pi_tilde_HH_im;
-        m_in = params.mH;
-        break;
-      case HpHm:
-        F_re.function = &Pi_tilde_HpHm_re;
-        F_im.function = &Pi_tilde_HpHm_im;
-        m_in = params.mC;
-        break;
-      case AA:
-        F_re.function = &Pi_tilde_AA_re;
-        F_im.function = &Pi_tilde_AA_im;
-        m_in = params.mA;
-        break;
-      default:
-        std::cerr << "WARNING: Unrecognized wavefunction renormalization particle pair sent to z_ij function. Returning 0." << std::endl;
-        return 0.0;
-      }
-      gsl_deriv_central(&F_re, pow(m_in, 2), 1e-8, &result_re, &abserr_re);
-      gsl_deriv_central(&F_im, pow(m_in, 2), 1e-8, &result_im, &abserr_im);
-      const complex<double> Z_ii = 1.0 + 0.5 * (result_re + i * result_im);
-      return 16.0 * pow(M_PI, 2) * (Z_ii - 1.0);
-    }
-
-    complex<double> z_ij(const wavefunction_renormalization type, ThdmSpec &s)
-    {
-      complex<double> z_ij = 0.0;
-      double m1 = 0.0, m2 = 0.0;
-      wavefunction_renormalization_input input_pars = fill_wavefunction_renormalization_input(s);
-      switch (type)
-      {
-      case wpHm:
-        m1 = input_pars.mGC;
-        m2 = input_pars.mC;
-        z_ij = Pi_tilde_wpHm(m1, &input_pars);
-        break;
-      case zA:
-        m1 = input_pars.mG;
-        m2 = input_pars.mA;
-        z_ij = Pi_tilde_zA(m1, &input_pars);
-        break;
-      case hH:
-        m1 = input_pars.mh;
-        m2 = input_pars.mH;
-        z_ij = Pi_tilde_hH(m1, &input_pars);
-        break;
-      case Hpwm:
-        m1 = input_pars.mC;
-        m2 = input_pars.mGC;
-        z_ij = Pi_tilde_wpHm(m1, &input_pars);
-        break;
-      case Az:
-        m1 = input_pars.mA;
-        m2 = input_pars.mG;
-        z_ij = Pi_tilde_zA(m1, &input_pars);
-        break;
-      case Hh:
-        m1 = input_pars.mH;
-        m2 = input_pars.mh;
-        z_ij = Pi_tilde_hH(m1, &input_pars);
-        break;
-      default:
-        z_ij = z_ii(type, input_pars);
-        return z_ij;
-      }
-      return 16.0 * pow(M_PI, 2) * z_ij / (pow(m1, 2) - pow(m2, 2));
-    }
-
-    double Z_w(void *params)
-    {
-      gsl_function F_re, F_im;
-      F_re.params = params;
-      F_im.params = params;
-      F_re.function = &Pi_tilde_wpwm_re;
-      F_im.function = &Pi_tilde_wpwm_im;
-      double result_re, abserr_re, result_im, abserr_im;
-      double m_in = 0.0;
-      gsl_deriv_central(&F_re, m_in, 1e-8, &result_re, &abserr_re);
-      gsl_deriv_central(&F_im, m_in, 1e-8, &result_im, &abserr_im);
-      return 1.0 + 0.5 * (result_re + result_im);
-    }
-
-    // -- Custom functions to extend GSL
-
-    complex<double> gsl_complex_to_complex_double(const gsl_complex c)
-    {
-      return complex<double>(GSL_REAL(c), GSL_IMAG(c));
-    }
-
-    complex<double> gsl_matrix_complex_trace_complex(const gsl_matrix_complex *m1)
-    {
-      return gsl_complex_to_complex_double(gsl_matrix_complex_get(m1, 0, 0)) +
-             gsl_complex_to_complex_double(gsl_matrix_complex_get(m1, 1, 1)) +
-             gsl_complex_to_complex_double(gsl_matrix_complex_get(m1, 2, 2));
-    }
-
-    // gets Yukawa traces required for LO corrections to lambdai beta functions
-    //- easily extendable to Yukawas with off-diagonals
-    std::map<std::string, complex<double>> get_traces_of_y(const SubSpectrum& he)
-    {
-      complex<double> tr_u2, tr_d2, tr_l2, tr_u4, tr_d4, tr_l4, tr_du;
-      gsl_matrix_complex *y_u, *y_d, *y_l, *y_u_dagger, *y_d_dagger, *y_l_dagger;
-      const int size = 3;
-
-      y_u = gsl_matrix_complex_alloc(size, size);
-      y_d = gsl_matrix_complex_alloc(size, size);
-      y_l = gsl_matrix_complex_alloc(size, size);
-      y_u_dagger = gsl_matrix_complex_alloc(size, size);
-      y_d_dagger = gsl_matrix_complex_alloc(size, size);
-      y_l_dagger = gsl_matrix_complex_alloc(size, size);
-
-      // set yukawa - up
-      gsl_complex y_u_11;
-      GSL_SET_REAL(&y_u_11, he.get(Par::dimensionless, "Yu", 1, 1));
-      GSL_SET_IMAG(&y_u_11, 0.0);
-
-      gsl_complex y_u_22;
-      GSL_SET_REAL(&y_u_22, he.get(Par::dimensionless, "Yu", 2, 2));
-      GSL_SET_IMAG(&y_u_22, 0.0);
-
-      gsl_complex y_u_33;
-      GSL_SET_REAL(&y_u_33, he.get(Par::dimensionless, "Yu", 3, 3));
-      GSL_SET_IMAG(&y_u_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_u);
-
-      gsl_matrix_complex_set(y_u, 0, 0, y_u_11);
-      gsl_matrix_complex_set(y_u, 1, 1, y_u_22);
-      gsl_matrix_complex_set(y_u, 2, 2, y_u_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_u_dagger, y_u);
-
-      // set yukawa - down
-      gsl_complex y_d_11;
-      GSL_SET_REAL(&y_d_11, he.get(Par::dimensionless, "Yd", 1, 1));
-      GSL_SET_IMAG(&y_d_11, 0.0);
-
-      gsl_complex y_d_22;
-      GSL_SET_REAL(&y_d_22, he.get(Par::dimensionless, "Yd", 2, 2));
-      GSL_SET_IMAG(&y_d_22, 0.0);
-
-      gsl_complex y_d_33;
-      GSL_SET_REAL(&y_d_33, he.get(Par::dimensionless, "Yd", 3, 3));
-      GSL_SET_IMAG(&y_d_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_d);
-
-      gsl_matrix_complex_set(y_d, 0, 0, y_d_11);
-      gsl_matrix_complex_set(y_d, 1, 1, y_d_22);
-      gsl_matrix_complex_set(y_d, 2, 2, y_d_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_d_dagger, y_d);
-
-      // set yukawa - lepton
-      gsl_complex y_l_11;
-      GSL_SET_REAL(&y_l_11, he.get(Par::dimensionless, "Ye", 1, 1));
-      GSL_SET_IMAG(&y_l_11, 0.0);
-
-      gsl_complex y_l_22;
-      GSL_SET_REAL(&y_l_22, he.get(Par::dimensionless, "Ye", 2, 2));
-      GSL_SET_IMAG(&y_l_22, 0.0);
-
-      gsl_complex y_l_33;
-      GSL_SET_REAL(&y_l_33, he.get(Par::dimensionless, "Ye", 3, 3));
-      GSL_SET_IMAG(&y_l_33, 0.0);
-
-      gsl_matrix_complex_set_zero(y_l);
-
-      gsl_matrix_complex_set(y_l, 0, 0, y_l_11);
-      gsl_matrix_complex_set(y_l, 1, 1, y_l_22);
-      gsl_matrix_complex_set(y_l, 2, 2, y_l_33);
-
-      // take dagger -> all components currently real so no need to conjugate
-      gsl_matrix_complex_transpose_memcpy(y_l_dagger, y_l);
-
-      //calculate traces - up
-      gsl_matrix_complex *y_u2;
-      gsl_matrix_complex *y_u4;
-      y_u2 = gsl_matrix_complex_alloc(size, size);
-      y_u4 = gsl_matrix_complex_alloc(size, size);
-
-      gsl_matrix_complex_memcpy(y_u2, y_u);
-      gsl_matrix_complex_mul_elements(y_u2, y_u_dagger);
-      tr_u2 = gsl_matrix_complex_trace_complex(y_u2);
-
-      gsl_matrix_complex_memcpy(y_u4, y_u2);
-      gsl_matrix_complex_mul_elements(y_u4, y_u2);
-      tr_d4 = gsl_matrix_complex_trace_complex(y_u4);
-
-      //calculate traces - down
-      gsl_matrix_complex *y_d2;
-      gsl_matrix_complex *y_d4;
-      y_d2 = gsl_matrix_complex_alloc(size, size);
-      y_d4 = gsl_matrix_complex_alloc(size, size);
-
-      gsl_matrix_complex_memcpy(y_d2, y_d);
-      gsl_matrix_complex_mul_elements(y_d2, y_d_dagger);
-      tr_d2 = gsl_matrix_complex_trace_complex(y_d2);
-
-      gsl_matrix_complex_memcpy(y_d4, y_d2);
-      gsl_matrix_complex_mul_elements(y_d4, y_d2);
-      tr_d4 = gsl_matrix_complex_trace_complex(y_d4);
-
-      // calculate trace for down*up
-      gsl_matrix_complex_mul_elements(y_d2, y_u2);
-      tr_du = gsl_matrix_complex_trace_complex(y_d2);
-
-      gsl_matrix_complex_free(y_d2);
-      gsl_matrix_complex_free(y_u2);
-      gsl_matrix_complex_free(y_d4);
-      gsl_matrix_complex_free(y_u4);
-
-      //calculate traces - lepton
-      gsl_matrix_complex *y_l2;
-      y_l2 = gsl_matrix_complex_alloc(size, size);
-      gsl_matrix_complex_memcpy(y_l2, y_l);
-
-      gsl_matrix_complex_mul_elements(y_l2, y_l_dagger);
-      tr_l2 = gsl_matrix_complex_trace_complex(y_l2);
-
-      gsl_matrix_complex_mul_elements(y_l2, y_l2); // y_l^2 is now y_l^4
-      tr_l4 = gsl_matrix_complex_trace_complex(y_l2);
-
-      gsl_matrix_complex_free(y_l2);
-
-      gsl_matrix_complex_free(y_u);
-      gsl_matrix_complex_free(y_d);
-      gsl_matrix_complex_free(y_l);
-      gsl_matrix_complex_free(y_u_dagger);
-      gsl_matrix_complex_free(y_d_dagger);
-      gsl_matrix_complex_free(y_l_dagger);
-
-      return {{"tr_u2", tr_u2},
-              {"tr_d2", tr_d2},
-              {"tr_l2", tr_l2},
-              {"tr_u4", tr_u4},
-              {"tr_d4", tr_d4},
-              {"tr_l4", tr_l4},
-              {"tr_du", tr_du}};
-    }
-
-    // returns model specific coeffiecients (a_i) to Yukawa terms
-    // appearing in the LO corrections to lambdai beta functions
-    // see Nucl.Phys.B 262 (1985) 517-537
-    vector<double> get_alphas_for_type(const int type)
-    {
-      vector<double> a;
-      const int size = 24;
-      a.push_back(0);
-      for (int i = 1; i < size; i++)
-      {
-        a.push_back(1);
-      }
-      switch (type)
-      {
-      case 1:
-        a[1] = 0;
-        a[2] = 0;
-        a[3] = 0;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
-        a[7] = 1;
-        a[8] = 1;
-        a[9] = 1;
-        a[10] = 1;
-        a[11] = 1;
-        a[12] = 1;
-        a[13] = 1;
-        a[14] = 1;
-        a[15] = 1;
-        a[16] = 0;
-        a[17] = 1;
-        a[18] = 1;
-        a[19] = 1;
-        a[20] = 0;
-        a[21] = 1;
-        a[22] = 1;
-        a[23] = 1;
-        break;
-      case 2:
-        a[1] = 1;
-        a[2] = 1;
-        a[3] = 0;
-        a[4] = 1;
-        a[5] = 1;
-        a[6] = 0;
-        a[7] = 0;
-        a[8] = 0;
-        a[9] = 1;
-        a[10] = 0;
-        a[11] = 0;
-        a[12] = 1;
-        a[13] = 1;
-        a[14] = 1;
-        a[15] = 1;
-        a[16] = 1;
-        a[17] = 1;
-        a[18] = 1;
-        a[19] = 1;
-        a[20] = 1;
-        a[21] = 1;
-        a[22] = 1;
-        a[23] = 1;
-        break;
-      case 3:
-        a[1] = 1;
-        a[2] = 0;
-        a[3] = 0;
-        a[4] = 1;
-        a[5] = 0;
-        a[6] = 0;
-        a[7] = 0;
-        a[8] = 1;
-        a[9] = 1;
-        a[10] = 0;
-        a[11] = 1;
-        a[12] = 1;
-        a[13] = 1;
-        a[14] = 1;
-        a[15] = 1;
-        a[16] = 0;
-        a[17] = 1;
-        a[18] = 1;
-        a[19] = 1;
-        a[20] = 0;
-        a[21] = 1;
-        a[22] = 1;
-        a[23] = 1;
-        break;
-      case 4:
-        a[1] = 0;
-        a[2] = 1;
-        a[3] = 0;
-        a[4] = 0;
-        a[5] = 1;
-        a[6] = 0;
-        a[7] = 1;
-        a[8] = 1;
-        a[9] = 0;
-        a[10] = 1;
-        a[11] = 1;
-        a[12] = 0;
-        a[13] = 1;
-        a[14] = 1;
-        a[15] = 1;
-        a[16] = 1;
-        a[17] = 1;
-        a[18] = 1;
-        a[19] = 1;
-        a[20] = 1;
-        a[21] = 1;
-        a[22] = 1;
-        a[23] = 1;
-        break;
-      case -1:
-        break;
-      default:
-        break;
-      }
-      return a;
-    }
-
-    // gets Yukawa traces required for LO corrections to lambdai beta functions
-    // simple functions for efficiency - only for diagonal Yukawas
-    double get_tr_pow(const SubSpectrum& he, std::string yukawa_name, int pow_N)
-    {
-      double tr = 0.0;
-      for (int i = 1; i <= 3; i++)
-      {
-        tr += pow(he.get(Par::dimensionless, yukawa_name, i, i), pow_N);
-      }
-      return tr;
-    }
-
-    double get_tr_dduu(const SubSpectrum& he)
-    {
-      double tr = 0.0;
-      for (int i = 1; i <= 3; i++)
-      {
-        tr += pow(he.get(Par::dimensionless, "Yd", i, i), 2) * pow(he.get(Par::dimensionless, "Yu", i, i), 2);
-      }
-      return tr;
-    }
-
-    // LO beta function for lambda1
-    complex<double> beta_one(const SubSpectrum& he, ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      vector<double> a = get_alphas_for_type(he.get(Par::dimensionless, "model_type"));
-      const vector<double> Lambda = get_lambdas_from_spectrum(s);
-      const double g1 = he.get(Par::dimensionless, "g1"), g2 = he.get(Par::dimensionless, "g2");
-      const complex<double> tr_u2 = get_tr_pow(he, "Yu", 2), tr_d2 = get_tr_pow(he, "Yd", 2), tr_l2 = get_tr_pow(he, "Ye", 2);
-      const complex<double> tr_u4 = get_tr_pow(he, "Yu", 4), tr_d4 = get_tr_pow(he, "Yd", 4), tr_l4 = get_tr_pow(he, "Ye", 4);
-      complex<double> beta = 12.0 * pow(Lambda[1], 2) + 4.0 * pow(Lambda[3], 2) + 4.0 * Lambda[3] * Lambda[4] + 2.0 * pow(Lambda[4], 2) + 2.0 * pow(Lambda[5], 2);
-      if (gauge_correction)
-        beta += 3.0 / 4.0 * pow(g1, 4) + 3.0 / 2.0 * pow(g1, 2) * pow(g2, 2) + 9.0 / 4.0 * pow(g2, 4) - 3.0 * pow(g1, 2) * Lambda[1] - 9.0 * pow(g2, 2) * Lambda[1];
-      if (yukawa_correction)
-        beta += 4.0 * Lambda[1] * (a[1] * tr_l2 + 3.0 * a[2] * tr_d2 + 3.0 * a[3] * tr_u2) - 4.0 * (a[4] * tr_l4 + 3.0 * a[5] * tr_d4 + 3.0 * a[6] * tr_u4);
-      return 1.0 / (16.0 * pow(M_PI, 2)) * (beta);
-    }
-
-    // LO beta function for lambda2
-    complex<double> beta_two(const SubSpectrum& he, ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(he.get(Par::dimensionless, "model_type"));
-      const vector<double> Lambda = get_lambdas_from_spectrum(s);
-      const double g1 = he.get(Par::dimensionless, "g1"), g2 = he.get(Par::dimensionless, "g2");
-      const complex<double> tr_u2 = get_tr_pow(he, "Yu", 2), tr_d2 = get_tr_pow(he, "Yd", 2), tr_l2 = get_tr_pow(he, "Ye", 2);
-      const complex<double> tr_u4 = get_tr_pow(he, "Yu", 4), tr_d4 = get_tr_pow(he, "Yd", 4), tr_l4 = get_tr_pow(he, "Ye", 4);
-      complex<double> beta = 12.0 * pow(Lambda[2], 2) + 4.0 * pow(Lambda[3], 2) + 4.0 * Lambda[3] * Lambda[4] + 2.0 * pow(Lambda[4], 2) + 2.0 * pow(Lambda[5], 2);
-      if (gauge_correction)
-        beta += 3.0 / 4.0 * pow(g1, 4) + 3.0 / 2.0 * pow(g1, 2) * pow(g2, 2) + 9.0 / 4.0 * pow(g2, 4) - 3.0 * pow(g1, 2) * Lambda[2] - 9.0 * pow(g2, 2) * Lambda[2];
-      if (yukawa_correction)
-        beta += 4.0 * Lambda[2] * (a[7] * tr_l2 + 3.0 * a[8] * tr_d2 + 3.0 * a[9] * tr_u2) - 4.0 * (a[10] * tr_l4 + 3.0 * a[11] * tr_d4 + 3.0 * a[12] * tr_u4);
-      return 1.0 / (16.0 * pow(M_PI, 2)) * beta;
-    }
-
-    // LO beta function for lambda3
-    complex<double> beta_three(const SubSpectrum& he, ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(he.get(Par::dimensionless, "model_type"));
-      const vector<double> Lambda = get_lambdas_from_spectrum(s);
-      const double g1 = he.get(Par::dimensionless, "g1"), g2 = he.get(Par::dimensionless, "g2");
-      const complex<double> tr_u2 = get_tr_pow(he, "Yu", 2), tr_d2 = get_tr_pow(he, "Yd", 2), tr_l2 = get_tr_pow(he, "Ye", 2);
-      const complex<double> tr_du = get_tr_dduu(he);
-      complex<double> beta = 4.0 * pow(Lambda[3], 2) + 2.0 * pow(Lambda[4], 2) + (Lambda[1] + Lambda[2]) * (6.0 * Lambda[3] + 2.0 * Lambda[4]) + 2.0 * pow(Lambda[5], 2);
-      if (gauge_correction)
-        beta += -3.0 * Lambda[3] * (3.0 * pow(g2, 2) + pow(g1, 2)) + 9.0 / 4.0 * pow(g2, 4) + 3.0 / 4.0 * pow(g1, 4) - 3.0 / 2.0 * pow(g1, 2) * pow(g2, 2);
-      if (yukawa_correction)
-        beta += 2 * Lambda[3] * (a[13] * tr_l2 + 3.0 * a[14] * tr_d2 + 3.0 * a[15] * tr_u2) - 12.0 * a[16] * tr_du;
-      return 1.0 / (16.0 * pow(M_PI, 2)) * beta;
-    }
-
-    // LO beta function for lambda4
-    complex<double> beta_four(const SubSpectrum& he, ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(he.get(Par::dimensionless, "model_type"));
-      const vector<double> Lambda = get_lambdas_from_spectrum(s);
-      const double g1 = he.get(Par::dimensionless, "g1"), g2 = he.get(Par::dimensionless, "g2");
-      const complex<double> tr_u2 = get_tr_pow(he, "Yu", 2), tr_d2 = get_tr_pow(he, "Yd", 2), tr_l2 = get_tr_pow(he, "Ye", 2);
-      const complex<double> tr_du = get_tr_dduu(he);
-      complex<double> beta = (2.0 * Lambda[1] + 2.0 * Lambda[2] + 8.0 * Lambda[3]) * Lambda[4] + 4.0 * pow(Lambda[4], 2) + 8.0 * pow(Lambda[5], 2);
-      if (gauge_correction)
-        beta += -3.0 * Lambda[4] * (3.0 * pow(g2, 2) + pow(g1, 2)) + 3.0 * pow(g1, 2) * pow(g2, 2);
-      if (yukawa_correction)
-        beta += 2.0 * Lambda[4] * (a[17] * tr_l2 + 3.0 * a[18] * tr_d2 + 3.0 * a[19] * tr_u2) + 12.0 * a[20] * tr_du;
-      return 1.0 / (16.0 * pow(M_PI, 2)) * beta;
-    }
-
-    // LO beta function for lambda5
-    complex<double> beta_five(const SubSpectrum& he, ThdmSpec &s, const bool gauge_correction, const bool yukawa_correction)
-    {
-      const vector<double> a = get_alphas_for_type(he.get(Par::dimensionless, "model_type"));
-      const vector<double> Lambda = get_lambdas_from_spectrum(s);
-      const double g1 = he.get(Par::dimensionless, "g1"), g2 = he.get(Par::dimensionless, "g2");
-      const complex<double> tr_u2 = get_tr_pow(he, "Yu", 2), tr_d2 = get_tr_pow(he, "Yd", 2), tr_l2 = get_tr_pow(he, "Ye", 2);
-      complex<double> beta = (2.0 * Lambda[1] + 2.0 * Lambda[2] + 8.0 * Lambda[3] + 12.0 * Lambda[4]) * Lambda[5];
-      if (gauge_correction)
-        beta += -3.0 * Lambda[5] * (3.0 * pow(g2, 2) + pow(g1, 2));
-      if (yukawa_correction)
-        beta += 2.0 * Lambda[5] * (a[21] * tr_l2 + 3.0 * a[22] * tr_d2 + 3.0 * a[23] * tr_u2);
-      return 1.0 / (16.0 * pow(M_PI, 2)) * beta;
-    }
-
-    // put everything together to get the NLO unitarity scattering eigenvalues
-    vector<complex<double>> get_NLO_scattering_eigenvalues(const SubSpectrum& he, ThdmSpec &s, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections)
-    {
-      const complex<double> i(0.0, 1.0);
-      const vector<double> Lambda = get_lambdas_from_spectrum(s);
-
-      // ensure that we have a Z2-symmetric scalar sector
-      check_Z2(Lambda[6], Lambda[7], "get_NLO_unitarity_LogLikelihood_THDM");
-
-      double b = atan(he.get(Par::dimensionless, "tanb")), a = he.get(Par::dimensionless, "alpha");
-      double c2a = cos(2.0 * a), c2b = cos(2.0 * b), s2a = sin(2.0 * a), s2b = sin(2.0 * b);
-
-      // calculate LO beta functions
-      const complex<double> b_one = beta_one(he, s, gauge_corrections, yukawa_corrections);
-      const complex<double> b_two = beta_two(he, s, gauge_corrections, yukawa_corrections);
-      const complex<double> b_three = beta_three(he, s, gauge_corrections, yukawa_corrections);
-      const complex<double> b_four = beta_four(he, s, gauge_corrections, yukawa_corrections);
-      const complex<double> b_five = beta_five(he, s, gauge_corrections, yukawa_corrections);
-
-      // wavefunction functions
-      complex<double> zij_wpwm, zij_zz, zij_Hpwm, zij_Az, zij_hh, zij_HH, zij_hH, zij_Hh, zij_HpHm, zij_AA;
-      complex<double> B1_z, B2_z, B3_z, B20_z, B21_z, B22_z;
-      if (wave_function_corrections)
-      {
-        zij_wpwm = z_ij(wpwm, s);
-        zij_zz = z_ij(zz, s);
-        zij_Hpwm = z_ij(Hpwm, s);
-        zij_Az = z_ij(Az, s);
-        zij_hh = z_ij(hh, s);
-        zij_HH = z_ij(HH, s);
-        zij_hH = z_ij(hH, s);
-        zij_Hh = z_ij(Hh, s);
-        zij_HpHm = z_ij(HpHm, s);
-        zij_AA = z_ij(AA, s);
-      }
-
-      complex<double> B1 = -3.0 * Lambda[1] + (9.0 / 2.0) * b_one + 1.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (9.0 * pow(Lambda[1], 2) + pow((2.0 * Lambda[3] + Lambda[4]), 2));
-      if (wave_function_corrections)
-      {
-        B1_z = 1.0 / (16.0 * pow(M_PI, 2)) * (zij_AA + zij_hh + 2.0 * zij_HpHm + zij_HH + 2.0 * zij_wpwm + zij_zz - (zij_HH - zij_hh) * c2a);
-        B1_z += 1.0 / (16.0 * pow(M_PI, 2)) * ((2.0 * zij_wpwm - 2.0 * zij_HpHm + zij_zz - zij_AA) * c2b - (zij_Hh + zij_hH) * s2a - (2.0 * zij_Hpwm + zij_Az) * s2b);
-        B1 += -3.0 / 2.0 * Lambda[1] * B1_z;
-      }
-
-      complex<double> B2 = -3.0 * Lambda[2] + (9.0 / 2.0) * b_two + 1.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (9.0 * pow(Lambda[2], 2) + pow((2.0 * Lambda[3] + Lambda[4]), 2));
-      if (wave_function_corrections)
-      {
-        B2_z = 1.0 / (16.0 * pow(M_PI, 2)) * (zij_AA + zij_hh + 2.0 * zij_HpHm + zij_HH + 2.0 * zij_wpwm + zij_zz - (zij_HH - zij_hh) * c2a);
-        B2_z += 1.0 / (16.0 * pow(M_PI, 2)) * (-(2.0 * zij_wpwm - 2.0 * zij_HpHm + zij_zz - zij_AA) * c2b + (zij_Hh + zij_hH) * s2a + (2.0 * zij_Hpwm + zij_Az) * s2b);
-        B2 += -3.0 / 2.0 * Lambda[2] * B2_z;
-      }
-
-      complex<double> B3 = -(2.0 * Lambda[3] + Lambda[4]) + (3.0 / 2.0) * (2.0 * b_three + b_four) + 3.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (Lambda[1] + Lambda[2]) * (2.0 * Lambda[3] + Lambda[4]);
-      if (wave_function_corrections)
-      {
-        complex<double> B3_z = 1.0 / (16.0 * pow(M_PI, 2)) * (zij_AA + zij_hh + 2.0 * zij_HpHm + zij_HH + 2.0 * zij_wpwm + zij_zz);
-        B3 += -1.0 / 2.0 * (2.0 * Lambda[3] + Lambda[4]) * B3_z;
-      }
-
-      complex<double> B4 = -(Lambda[3] + 2.0 * Lambda[4]) + (3.0 / 2.0) * (b_three + 2.0 * b_four) + (1.0 / (16.0 * pow(M_PI, 2))) * (i * M_PI - 1.) * (pow(Lambda[3], 2) + 4.0 * Lambda[3] * Lambda[4] + 4.0 * pow(Lambda[4], 2) + 9.0 * pow(Lambda[5], 2));
-      if (wave_function_corrections)
-      {
-        B4 += -1.0 / 2.0 * (Lambda[3] + Lambda[4] + Lambda[5]) * B3_z;
-      }
-
-      complex<double> B6 = -3.0 * Lambda[5] + (9.0 / 2.0) * b_five + (6.0 / (16.0 * pow(M_PI, 2))) * (i * M_PI - 1.) * (Lambda[3] + 2.0 * Lambda[4]) * Lambda[5];
-      if (wave_function_corrections)
-      {
-        B6 += -1.0 / 2.0 * (Lambda[4] + 2.0 * Lambda[5]) * B3_z;
-      }
-
-      complex<double> B7 = -Lambda[1] + (3.0 / 2.0) * b_one + 1.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (pow(Lambda[1], 2) + pow(Lambda[4], 2));
-      if (wave_function_corrections)
-      {
-        B7 += -1.0 / 2.0 * Lambda[1] * B1_z;
-      }
-
-      complex<double> B8 = -Lambda[2] + (3.0 / 2.0) * b_two + 1.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (pow(Lambda[2], 2) + pow(Lambda[4], 2));
-      if (wave_function_corrections)
-      {
-        B8 += -1.0 / 2.0 * Lambda[2] * B2_z;
-      }
-
-      complex<double> B9 = -Lambda[4] + (3.0 / 2.0) * b_four + 1.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (Lambda[1] + Lambda[2]) * Lambda[4];
-      if (wave_function_corrections)
-      {
-        B9 += -1.0 / 2.0 * Lambda[4] * B3_z;
-      }
-
-      complex<double> B13 = -Lambda[3] + (3.0 / 2.0) * b_three + (1.0 / (16.0 * pow(M_PI, 2))) * (i * M_PI - 1.) * (pow(Lambda[3], 2) + pow(Lambda[5], 2));
-      if (wave_function_corrections)
-      {
-        B13 += -1.0 / 2.0 * (Lambda[3] + Lambda[4] + Lambda[5]) * B3_z;
-      }
-
-      complex<double> B15 = -Lambda[5] + (3.0 / 2.0) * b_five + (2.0 / (16.0 * pow(M_PI, 2))) * (i * M_PI - 1.) * Lambda[3] * Lambda[5];
-      if (wave_function_corrections)
-      {
-        B15 += -1.0 / 2.0 * (Lambda[4] - 2.0 * Lambda[5]) * B3_z;
-      }
-
-      complex<double> B19 = -(Lambda[3] - Lambda[4]) + (3.0 / 2.0) * (b_three - b_four) + (1.0 / (16.0 * pow(M_PI, 2))) * (i * M_PI - 1.) * pow((Lambda[3] - Lambda[4]), 2);
-      if (wave_function_corrections)
-      {
-        B19 += -1.0 / 2.0 * (Lambda[3] - Lambda[5]) * B3_z;
-      }
-
-      complex<double> B20 = -Lambda[1] + (3.0 / 2.0) * b_one + 1.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (pow(Lambda[1], 2) + pow(Lambda[5], 2));
-      if (wave_function_corrections)
-      {
-        B20_z = 1.0 / (16.0 * pow(M_PI, 2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh) * c2a + (zij_zz - zij_AA) * c2b - (zij_Hh - zij_hH) * s2a - zij_Az * s2b);
-        B20 += -1.0 * Lambda[1] * B20_z;
-      }
-
-      complex<double> B21 = -Lambda[2] + (3.0 / 2.0) * b_two + 1.0 / (16.0 * pow(M_PI, 2)) * (i * M_PI - 1.) * (pow(Lambda[2], 2) + pow(Lambda[5], 2));
-      if (wave_function_corrections)
-      {
-        B21_z = 1.0 / (16.0 * pow(M_PI, 2)) * (zij_AA + zij_hh + zij_HH + zij_zz + (zij_HH - zij_hh) * c2a - (zij_zz - zij_AA) * c2b + (zij_Hh - zij_hH) * s2a + zij_Az * s2b);
-        B21 += -1.0 * Lambda[2] * B21_z;
-      }
-
-      complex<double> B22 = -Lambda[5] + (3.0 / 2.0) * b_five + (1.0 / (16.0 * pow(M_PI, 2))) * (i * M_PI - 1.) * (Lambda[1] + Lambda[2]) * Lambda[5];
-      if (wave_function_corrections)
-      {
-        B22_z = 1.0 / (16.0 * pow(M_PI, 2)) * (zij_AA + zij_hh + zij_HH + zij_zz);
-        B22 += -1.0 * Lambda[5] * B22_z;
-      }
-
-      complex<double> B30 = -(Lambda[3] + Lambda[4]) + (3.0 / 2.0) * (b_three + b_four) + (1.0 / (16.0 * pow(M_PI, 2))) * (i * M_PI - 1.) * pow((Lambda[3] + Lambda[4]), 2);
-      if (wave_function_corrections)
-      {
-        B30 += -1.0 * (Lambda[3] + Lambda[4]) * B22_z;
-      }
-
-      // eigenvalues
-      complex<double> a00_even_plus = 1.0 / (32.0 * M_PI) * ((B1 + B2) + sqrt(pow((B1 - B2), 2) + 4. * pow(B3, 2)));
-      complex<double> a00_even_minus = 1.0 / (32.0 * M_PI) * ((B1 + B2) - sqrt(pow((B1 - B2), 2) + 4. * pow(B3, 2)));
-      complex<double> a00_odd_plus = 1.0 / (32.0 * M_PI) * (2. * B4 + 2. * B6);
-      complex<double> a00_odd_minus = 1.0 / (32.0 * M_PI) * (2. * B4 - 2. * B6);
-      complex<double> a01_even_plus = 1.0 / (32.0 * M_PI) * (B7 + B8 + sqrt(pow((B7 - B8), 2) + 4. * pow(B9, 2)));
-      complex<double> a01_even_minus = 1.0 / (32.0 * M_PI) * (B7 + B8 - sqrt(pow((B7 - B8), 2) + 4. * pow(B9, 2)));
-      complex<double> a01_odd_plus = 1.0 / (32.0 * M_PI) * (2. * B13 + 2. * B15);
-      complex<double> a01_odd_minus = 1.0 / (32.0 * M_PI) * (2. * B13 - 2. * B15);
-      complex<double> a10_odd = 1.0 / (32.0 * M_PI) * (2. * B19);
-      complex<double> a11_even_plus = 1.0 / (32.0 * M_PI) * (B20 + B21 + sqrt(pow((B20 - B21), 2) + 4. * pow(B22, 2)));
-      complex<double> a11_even_minus = 1.0 / (32.0 * M_PI) * (B20 + B21 - sqrt(pow((B20 - B21), 2) + 4. * pow(B22, 2)));
-      complex<double> a11_odd = 1.0 / (32.0 * M_PI) * (2. * B30);
-
-      vector<complex<double>> result =  {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
-              a01_even_minus, a01_odd_plus, a01_odd_minus, a10_odd, a11_even_plus, a11_even_minus, a11_odd};
-
-      return result;
+        result = "h0_1";
     }
 
 
@@ -3115,58 +1223,53 @@ namespace Gambit
 
 
     // get leading-order scattering eigenvalues (with fixed ordering) (requires Z2-symmetric THDM)
-    vector<complex<double>> get_LO_scattering_eigenvalues_ordered(ThdmSpec &s)
+    vector<complexd> get_LO_scattering_eigenvalues_ordered(const ThdmSpec &s)
     {
-      // Note: only compatible with Z-2 aligned models
-
-      vector<double> lambda = get_lambdas_from_spectrum(s);
-
       // ensure that we have a Z2-symmetric scalar sector
-      check_Z2(lambda[6], lambda[7], "get_LO_scattering_eigenvalues_ordered");
+      check_Z2(s.lam6, s.lam7, "get_LO_scattering_eigenvalues_ordered");
 
       // a00
-      complex<double> a00_even_plus = 1.0 / 2.0 * (3.0 * (lambda[1] + lambda[2]) + sqrt(9.0 * pow((lambda[1] - lambda[2]), 2) + 4.0 * pow((2.0 * lambda[3] + lambda[4]), 2)));
-      complex<double> a00_even_minus = 1.0 / 2.0 * (3.0 * (lambda[1] + lambda[2]) - sqrt(9.0 * pow((lambda[1] - lambda[2]), 2) + 4.0 * pow((2.0 * lambda[3] + lambda[4]), 2)));
-      complex<double> a00_odd_plus = lambda[3] + 2.0 * lambda[4] + 3.0 * lambda[5];
-      complex<double> a00_odd_minus = lambda[3] + 2.0 * lambda[4] - 3.0 * lambda[5];
+      complexd a00_even_plus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) + sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
+      complexd a00_even_minus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) - sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
+      complexd a00_odd_plus = s.lam3 + 2.0 * s.lam4 + 3.0 * s.lam5;
+      complexd a00_odd_minus = s.lam3 + 2.0 * s.lam4 - 3.0 * s.lam5;
       // a01
-      complex<double> a01_even_plus = 1.0 / 2.0 * (lambda[1] + lambda[2] + sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[4], 2)));
-      complex<double> a01_even_minus = 1.0 / 2.0 * (lambda[1] + lambda[2] - sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[4], 2)));
-      complex<double> a01_odd_plus = lambda[3] + lambda[5];
-      complex<double> a01_odd_minus = lambda[3] - lambda[5];
+      complexd a01_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
+      complexd a01_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
+      complexd a01_odd_plus = s.lam3 + s.lam5;
+      complexd a01_odd_minus = s.lam3 - s.lam5;
       // a20
-      complex<double> a20_odd = lambda[3] - lambda[4];
+      complexd a20_odd = s.lam3 - s.lam4;
       // a21
-      complex<double> a21_even_plus = 1.0 / 2.0 * (lambda[1] + lambda[2] + sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[5], 2)));
-      complex<double> a21_even_minus = 1.0 / 2.0 * (lambda[1] + lambda[2] - sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[5], 2)));
-      complex<double> a21_odd = lambda[3] + lambda[4];
+      complexd a21_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
+      complexd a21_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
+      complexd a21_odd = s.lam3 + s.lam4;
 
-      vector<complex<double>> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
+      vector<complexd> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
               a01_even_minus, a01_odd_plus, a01_odd_minus, a20_odd, a21_even_plus, a21_even_minus, a21_odd};
 
       return lo_eigenvalues;
     }
 
     // get leading-order scattering eigenvalues (with no particular order) (supports GCP 2HDM with lam6,lam7)
-    vector<complex<double>> get_LO_scattering_eigenvalues(ThdmSpec &s)
+    vector<complexd> get_LO_scattering_eigenvalues(const ThdmSpec &s)
     {
       vector<double> lambda;
-      vector<complex<double>> lo_eigenvalues;
-      lambda = get_lambdas_from_spectrum(s);
+      vector<complexd> lo_eigenvalues;
 
       // Scattering matrix (7a) Y=2 sigma=1
       Eigen::MatrixXcd S_21(3, 3);
-      S_21(0, 0) = lambda[1];
-      S_21(0, 1) = lambda[5];
-      S_21(0, 2) = sqrt(2.0) * lambda[6];
+      S_21(0, 0) = s.lam1;
+      S_21(0, 1) = s.lam5;
+      S_21(0, 2) = sqrt(2.0) * s.lam6;
 
-      S_21(1, 0) = std::conj(lambda[5]);
-      S_21(1, 1) = lambda[2];
-      S_21(1, 2) = sqrt(2.0) * std::conj(lambda[7]);
+      S_21(1, 0) = std::conj(s.lam5);
+      S_21(1, 1) = s.lam2;
+      S_21(1, 2) = sqrt(2.0) * std::conj(s.lam7);
 
-      S_21(2, 0) = sqrt(2.0) * std::conj(lambda[6]);
-      S_21(2, 1) = sqrt(2.0) * lambda[7];
-      S_21(2, 2) = lambda[3] + lambda[4];
+      S_21(2, 0) = sqrt(2.0) * std::conj(s.lam6);
+      S_21(2, 1) = sqrt(2.0) * s.lam7;
+      S_21(2, 2) = s.lam3 + s.lam4;
 
       Eigen::ComplexEigenSolver<Eigen::MatrixXcd> eigensolver_S_21(S_21);
       Eigen::VectorXcd eigenvalues_S_21 = eigensolver_S_21.eigenvalues();
@@ -3175,30 +1278,30 @@ namespace Gambit
       lo_eigenvalues.push_back((eigenvalues_S_21(2)));
 
       // Scattering matrix (7b) Y=2 sigma=0
-      complex<double> S_20 = lambda[3] - lambda[4];
+      complexd S_20 = s.lam3 - s.lam4;
       lo_eigenvalues.push_back((S_20));
 
       // Scattering matrix (7c) Y=0 sigma=1
       Eigen::MatrixXcd S_01(4, 4);
-      S_01(0, 0) = lambda[1];
-      S_01(0, 1) = lambda[4];
-      S_01(0, 2) = lambda[6];
-      S_01(0, 3) = std::conj(lambda[6]);
+      S_01(0, 0) = s.lam1;
+      S_01(0, 1) = s.lam4;
+      S_01(0, 2) = s.lam6;
+      S_01(0, 3) = std::conj(s.lam6);
 
-      S_01(1, 0) = lambda[4];
-      S_01(1, 1) = lambda[2];
-      S_01(1, 2) = lambda[7];
-      S_01(1, 3) = std::conj(lambda[7]);
+      S_01(1, 0) = s.lam4;
+      S_01(1, 1) = s.lam2;
+      S_01(1, 2) = s.lam7;
+      S_01(1, 3) = std::conj(s.lam7);
 
-      S_01(2, 0) = std::conj(lambda[6]);
-      S_01(2, 1) = std::conj(lambda[7]);
-      S_01(2, 2) = lambda[3];
-      S_01(2, 3) = lambda[5];
+      S_01(2, 0) = std::conj(s.lam6);
+      S_01(2, 1) = std::conj(s.lam7);
+      S_01(2, 2) = s.lam3;
+      S_01(2, 3) = s.lam5;
 
-      S_01(3, 0) = lambda[6];
-      S_01(3, 1) = lambda[7];
-      S_01(3, 2) = lambda[5];
-      S_01(3, 3) = lambda[3];
+      S_01(3, 0) = s.lam6;
+      S_01(3, 1) = s.lam7;
+      S_01(3, 2) = s.lam5;
+      S_01(3, 3) = s.lam3;
 
       Eigen::ComplexEigenSolver<Eigen::MatrixXcd> eigensolver_S_01(S_01);
       Eigen::VectorXcd eigenvalues_S_01 = eigensolver_S_01.eigenvalues();
@@ -3209,25 +1312,25 @@ namespace Gambit
 
       // Scattering matrix (7d) Y=0 sigma=0
       Eigen::MatrixXcd S_00(4, 4);
-      S_00(0, 0) = 3.0 * lambda[1];
-      S_00(0, 1) = 2.0 * lambda[3] + lambda[4];
-      S_00(0, 2) = 3.0 * lambda[6];
-      S_00(0, 3) = 3.0 * std::conj(lambda[6]);
+      S_00(0, 0) = 3.0 * s.lam1;
+      S_00(0, 1) = 2.0 * s.lam3 + s.lam4;
+      S_00(0, 2) = 3.0 * s.lam6;
+      S_00(0, 3) = 3.0 * std::conj(s.lam6);
 
-      S_00(1, 0) = 2.0 * lambda[3] + lambda[4];
-      S_00(1, 1) = 3.0 * lambda[2];
-      S_00(1, 2) = 3.0 * lambda[7];
-      S_00(1, 3) = 3.0 * std::conj(lambda[7]);
+      S_00(1, 0) = 2.0 * s.lam3 + s.lam4;
+      S_00(1, 1) = 3.0 * s.lam2;
+      S_00(1, 2) = 3.0 * s.lam7;
+      S_00(1, 3) = 3.0 * std::conj(s.lam7);
 
-      S_00(2, 0) = 3.0 * std::conj(lambda[6]);
-      S_00(2, 1) = 3.0 * std::conj(lambda[7]);
-      S_00(2, 2) = lambda[3] + 2.0 * lambda[4];
-      S_00(2, 3) = 3.0 * std::conj(lambda[5]);
+      S_00(2, 0) = 3.0 * std::conj(s.lam6);
+      S_00(2, 1) = 3.0 * std::conj(s.lam7);
+      S_00(2, 2) = s.lam3 + 2.0 * s.lam4;
+      S_00(2, 3) = 3.0 * std::conj(s.lam5);
 
-      S_00(3, 0) = 3.0 * lambda[6];
-      S_00(3, 1) = 3.0 * lambda[7];
-      S_00(3, 2) = 3.0 * lambda[5];
-      S_00(3, 3) = lambda[3] + 2.0 * lambda[4];
+      S_00(3, 0) = 3.0 * s.lam6;
+      S_00(3, 1) = 3.0 * s.lam7;
+      S_00(3, 2) = 3.0 * s.lam5;
+      S_00(3, 3) = s.lam3 + 2.0 * s.lam4;
 
       Eigen::ComplexEigenSolver<Eigen::MatrixXcd> eigensolver_S_00(S_00);
       Eigen::VectorXcd eigenvalues_S_00 = eigensolver_S_00.eigenvalues();
@@ -3243,19 +1346,18 @@ namespace Gambit
     double get_LO_unitarity_LogLikelihood(const SubSpectrum& he)
     {
       // get required spectrum info
-      ThdmSpec s(he, ThdmSpec::FILL_GENERIC);
+      ThdmSpec s(he, ThdmSpecFill::FILL_GENERIC);
 
       // get the leading order scattering eigenvalues
-      vector<complex<double>> LO_eigenvalues;
-
+      vector<complexd> LO_eigenvalues;
+      
       if (s.lam6 == 0 && s.lam7 == 0)
         LO_eigenvalues = get_LO_scattering_eigenvalues_ordered(s);
       else
         LO_eigenvalues = get_LO_scattering_eigenvalues(s);
 
       // all values < 8*PI for unitarity conditions (see ivanov paper)
-      constexpr double unitarity_upper_limit = 8 * M_PI;
-      constexpr double sigma = 0.05;
+      constexpr double unitarity_upper_limit = 8 * pi;
 
       //calculate the total error of each point
       double error = 0.0;
@@ -3263,17 +1365,20 @@ namespace Gambit
         if (abs(eachEig) > unitarity_upper_limit)
           error += abs(eachEig) - unitarity_upper_limit;
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 71, 1e6);
     }
 
     // next-to-leading-order S-matrix unitarity likelihood
     double get_NLO_unitarity_LogLikelihood(const SubSpectrum& he, const bool check_correction_ratio, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections)
     {
       // get required spectrum info
-      ThdmSpec s(he, ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
+      const ThdmSpec s(he);
 
-      const complex<double> i(0.0, 1.0);
-      vector<complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(he, s, wave_function_corrections, gauge_corrections, yukawa_corrections);
+
+      vector<complexd> C3 = get_cubic_coupling_higgs(s);
+      vector<complexd> C4 = get_quartic_couplings(s);
+
+      vector<complexd> NLO_eigenvalues = get_NLO_scattering_eigenvalues(s, C3, C4, wave_function_corrections, gauge_corrections, yukawa_corrections);
 
       constexpr double unitarity_upper_limit = 0.50;
       constexpr double sigma = 0.05;
@@ -3287,9 +1392,9 @@ namespace Gambit
 
       for (auto const &eig : NLO_eigenvalues)
       {
-        if (abs(eig - i / 2.0) > unitarity_upper_limit)
+        if (abs(eig - ii / 2.0) > unitarity_upper_limit)
         {
-          error += abs(eig - i / 2.0) - unitarity_upper_limit;
+          error += abs(eig - ii / 2.0) - unitarity_upper_limit;
         }
         // std::cout << nlo_eig_names[counter_nlo] << ": " << eig << " | " << abs(eig - i / 2) << std::endl;
         // counter_nlo++;
@@ -3297,42 +1402,39 @@ namespace Gambit
 
       if (check_correction_ratio)
       {
-        vector<complex<double>> LO_eigenvalues = get_LO_scattering_eigenvalues_ordered(s);
+        vector<complexd> LO_eigenvalues = get_LO_scattering_eigenvalues_ordered(s);
         // flip order of plus/minus to match conventions
         vector<int> LO_eigenvalue_order = {2, 1, 4, 3, 6, 5, 8, 7, 9, 11, 10, 12};
         for (size_t num = 0; num < LO_eigenvalues.size(); num++)
         {
           // needs to be normalized in accordance to NLO unitarity
-          complex<double> LO_eigenvalue = -(LO_eigenvalues[LO_eigenvalue_order[num]]) / (32.0 * M_PI * M_PI);
+          complexd LO_eigenvalue = -(LO_eigenvalues[LO_eigenvalue_order[num]]) / (32.0 * pi * pi);
           // only check for lo eigenvalues larger than 1/16pi as otherwise this may break down
-          if (abs(LO_eigenvalue) > 1 / (16.0 * M_PI))
+          if (abs(LO_eigenvalue) > 1 / (16.0 * pi))
           {
             double ratio = abs(NLO_eigenvalues[num]) / abs(LO_eigenvalue);
-            if (ratio >= 1)
+            if (ratio > 1.0)
             {
-              error_ratio += abs(ratio - 1);
+              error_ratio += abs(ratio - 1.0);
             }
           }
         }
       }
 
-      return Stats::gaussian_upper_limit(error*0.7 + error_ratio*0.6, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error*0.7 + error_ratio*0.6, 71, 1e6);
     }
 
     // basic perturbativity likelihood (only checks that lambdas are less than 4pi)
     double get_simple_perturbativity_LogLikelihood(const SubSpectrum& he)
     {
       // get required spectrum info
-      ThdmSpec s(he,ThdmSpec::FILL_GENERIC);
+      ThdmSpec s(he,ThdmSpecFill::FILL_GENERIC);
 
       // check lambdai (generic couplings)
-      //-----------------------------
       // all values < 4*PI for perturbativity conditions
-      const double perturbativity_upper_limit = 4 * M_PI;
-      const double sigma = 0.05;
-      //-----------------------------
+      const double perturbativity_upper_limit = 4 * pi;
       double error = 0.0;
-      vector<double> lambda = get_lambdas_from_spectrum(s);
+      vector<double> lambda = {s.lam1, s.lam2, s.lam3, s.lam4, s.lam5, s.lam6, s.lam7};
       // loop over all lambdas
       for (auto const &each_lambda : lambda)
       {
@@ -3340,24 +1442,22 @@ namespace Gambit
           error += abs(each_lambda) - perturbativity_upper_limit;
       }
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 71, 1e6);
     }
 
     // perturbativity likelihood (checks that all quartic couplings are less than 4pi)
     double get_perturbativity_LogLikelihood(const SubSpectrum& he)
     {
       // get required spectrum info
-      ThdmSpec s(he,ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
+      ThdmSpec s(he,ThdmSpecFill::FILL_GENERIC | ThdmSpecFill::FILL_ANGLES | ThdmSpecFill::FILL_HIGGS | ThdmSpecFill::FILL_PHYSICAL);
 
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
-      const double perturbativity_upper_limit = 4 * M_PI;
-      const double sigma = 0.08;
-      //-----------------------------
+      const double perturbativity_upper_limit = 4 * pi;
       double error = 0.0;
       double previous_coupling = 0.0;
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
-      complex<double> hhhh_coupling;
+      complexd hhhh_coupling;
 
 
       // particle types h0=1, H0, A0, G0, Hp, Hm, Gp, Gm;
@@ -3387,7 +1487,7 @@ namespace Gambit
         }
       }
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 113, 1e6);
     }
 
     // vacuum metastability constraint (checked as part of the stability likelihood)
@@ -3400,7 +1500,7 @@ namespace Gambit
       // returns true if the condition is met (meta-stable), otherwise false
 
       // get required spectrum info
-      ThdmSpec s(he,ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_PHYSICAL);
+      ThdmSpec s(he,ThdmSpecFill::FILL_GENERIC | ThdmSpecFill::FILL_ANGLES | ThdmSpecFill::FILL_PHYSICAL);
 
       const double lambda1 = s.lam1;
       const double lambda2 = s.lam2;
@@ -3417,9 +1517,9 @@ namespace Gambit
       const double m22_2 = s.m222;
 
       // TODO: seems like an imaginary k is invalid?
-      auto k2 = sqrt(complex<double>(lambda1 / lambda2));
+      auto k2 = sqrt(complexd(lambda1 / lambda2));
       auto k = sqrt(k2);
-      const complex<double> discriminant = m12_2 * (m11_2 - k2 * m22_2) * (tb - k);
+      const complexd discriminant = m12_2 * (m11_2 - k2 * m22_2) * (tb - k);
 
       // check for NaN - should *not* happen but has crashed scans before. Most probable culprit is k when lambda2 = 0. TODO: find workaround
       if (std::isnan(discriminant.real()) || std::isnan(discriminant.imag()))
@@ -3446,9 +1546,8 @@ namespace Gambit
 
       // WARNING: the conditions for the GCP-2HDM with lam6,7 != 0 are incomplete
 
-      ThdmSpec s(he, ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
+      ThdmSpec s(he, ThdmSpecFill::FILL_GENERIC | ThdmSpecFill::FILL_ANGLES | ThdmSpecFill::FILL_HIGGS | ThdmSpecFill::FILL_PHYSICAL);
 
-      const double sigma = 0.07;
       double error = 0.;
 
       error += std::max(0.0, -s.lam1);
@@ -3457,12 +1556,12 @@ namespace Gambit
       // rho = 0
 
       // get required spectrum info
-      // ThdmSpec s(he,ThdmSpec::FILL_GENERIC);
+      // ThdmSpec s(he,ThdmSpecFill::FILL_GENERIC);
       const double sqrt_lam12 = sqrt(s.lam1 * s.lam2);
 
       if (std::isnan(sqrt_lam12))
       {
-        // rather than throwing an invalid point,
+        // rather than throwing an invalid point, 
         // better to just give an awful likelihood
         error *= 4;
       }
@@ -3485,36 +1584,36 @@ namespace Gambit
 
           // a calculation needed for the conditions below
           double calc = (1./2.)*(-s.lam4*s.lam3*s.lam3+s.lam4*s.lam2*s.lam1-s.lam3*s.lam3*s.lam5+s.lam2*s.lam1*s.lam5-2*s.lam7*s.lam7*s.lam1+4*s.lam6*s.lam7*s.lam3-2*s.lam2*s.lam6*s.lam6)/(s.lam4*s.lam1+s.lam4*s.lam2-2*s.lam4*s.lam3+s.lam1*s.lam5-2*s.lam3*s.lam5+s.lam2*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7+4*s.lam6*s.lam7);
-
+          
           // cos(theta) = +-1 AND abs(rho) <= 1 AND 0<gamma<pi/2 (first gamma solution)
           double rho,gamma,cosg;
           gamma = acos(sqrt((4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7)*(-2*s.lam7*s.lam7+s.lam2*s.lam5+s.lam4*s.lam2-s.lam3*s.lam5-s.lam4*s.lam3+2*s.lam6*s.lam7))/(4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7));
           cosg  = cos(gamma);
           rho   = sin(gamma)*(s.lam7-cosg*cosg*s.lam7+s.lam6*cosg*cosg)/(cosg*(-s.lam5-s.lam4+cosg*cosg*s.lam4+cosg*cosg*s.lam5));
-
-          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= M_PI/2.)
+          
+          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= pi/2.)
           {
             error += std::max(0.0, -calc);
           }
 
           // cos(theta) = +-1 AND abs(rho) <= 1 AND 0<gamma<pi/2 (second gamma solution)
-          gamma = M_PI-gamma;
+          gamma = pi-gamma;
           cosg  = cos(gamma);
           rho   = sin(gamma)*(s.lam7-cosg*cosg*s.lam7+s.lam6*cosg*cosg)/(cosg*(-s.lam5-s.lam4+cosg*cosg*s.lam4+cosg*cosg*s.lam5));
 
-          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= M_PI/2.)
+          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= pi/2.)
           {
             error += std::max(0.0, -calc);
           }
 
           // a calculation needed for the conditions below
           double calc2 = (1./2.)*(s.lam1*s.lam2*s.lam5-s.lam1*s.lam7*s.lam7-s.lam5*s.lam5*s.lam5+2*s.lam5*s.lam5*s.lam4+2*s.lam5*s.lam5*s.lam3-s.lam5*s.lam4*s.lam4-2*s.lam5*s.lam6*s.lam7-s.lam5*s.lam3*s.lam3-2*s.lam5*s.lam4*s.lam3-s.lam6*s.lam6*s.lam2+2*s.lam6*s.lam7*s.lam3+2*s.lam6*s.lam7*s.lam4)/(s.lam1*s.lam5+2*s.lam6*s.lam7-2*s.lam3*s.lam5+s.lam2*s.lam5-2*s.lam5*s.lam4-s.lam6*s.lam6-s.lam7*s.lam7+2*s.lam5*s.lam5);
-
+          
           // rho=1 AND abs(ct) <= 1 AND abs(gamma) <= pi/2
           double ct = (1./2.)*(-s.lam6*s.lam3-s.lam6*s.lam4+s.lam6*s.lam2+s.lam5*s.lam6+s.lam7*s.lam1-s.lam7*s.lam3-s.lam7*s.lam4+s.lam7*s.lam5)/sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6));
           gamma     = atan(sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6))/(-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7));
-
-          if (abs(ct) <= 1.0 && abs(gamma) <= M_PI/2.)
+          
+          if (abs(ct) <= 1.0 && abs(gamma) <= pi/2.)
           {
             error += std::max(0.0, -calc2);
           }
@@ -3531,7 +1630,7 @@ namespace Gambit
 
       }
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 99, 1e6);
     }
 
     // loop correction perturbativity constraint on the light scalar, h0
@@ -3541,19 +1640,16 @@ namespace Gambit
       const double mh_splitting = abs(mh_pole - mh_running);
       double result = 0.0;
 
-      if (mh_splitting/mh_running > 0.5)
-      {
-        result += -1e5 * (mh_splitting/mh_running -  0.5);
-        // result = -L_MAX;
-      }
+      double error = mh_splitting/mh_running - 0.5;
+      result += -cutoff_soft_square(error, 1.0, 1e6);
+      
       return result;
     }
 
     // loop correction perturbativity constraint on the heavy scalars, H0,A0 & H+/H-
     double get_heavy_scalar_mass_correction_LogLikelihood(const SubSpectrum& he)
     {
-      vector<std::string> heavy_scalars = {"h0_2", "A0", "H+"};
-
+      vector<str> heavy_scalars = {"h0_2", "A0", "H+"};
       double result = 0.0;
 
       for (auto& scalar : heavy_scalars)
@@ -3561,11 +1657,9 @@ namespace Gambit
         double mass_running = he.get(Par::mass1, scalar);
         double mass_pole = he.get(Par::Pole_Mass, scalar);
         double mass_splitting = abs(mass_running - mass_pole);
-        if (mass_splitting/mass_running > 0.5)
-        {
-          result += -1e5 * (mass_splitting/mass_running - 0.5);
-          // result = -L_MAX;
-        }
+
+         double error = mass_splitting/mass_running - 0.5;
+         result += -cutoff_soft_square(error, 1.0, 1e6);
       }
       return result;
     }
@@ -3573,10 +1667,10 @@ namespace Gambit
     // allows the user to enforce upper mass limit on all scalars and lower mass limit on heavy scalars
     double get_scalar_mass_range_LogLikelihood(const SubSpectrum& he, const double min_mass, const double max_mass)
     {
-      const double mh0 = he.get(Par::mass1, "h0", 1);
-      const double mH0 = he.get(Par::mass1, "h0", 2);
-      const double mA0 = he.get(Par::mass1, "A0");
-      const double mHp = he.get(Par::mass1, "H+");
+      const double mh0 = he.get(Par::Pole_Mass, "h0", 1);
+      const double mH0 = he.get(Par::Pole_Mass, "h0", 2);
+      const double mA0 = he.get(Par::Pole_Mass, "A0");
+      const double mHp = he.get(Par::Pole_Mass, "H+");
 
       double result = 0;
       if (mh0 > max_mass || mH0 > max_mass || mA0 > max_mass || mHp > max_mass) result = -L_MAX;
@@ -3595,11 +1689,11 @@ namespace Gambit
     // helper function get list of energy scales, check constraint at each, and get the worst performer
     double get_worst_LL_of_all_scales(const Spectrum& spec, LL_type LL, bool is_FS_model, double other_scale)
     {
-      // we always check the input scale
+      // we always check the input scale 
       vector<double> scales_to_check = { RunScale::INPUT };
 
-      // also check the custom scale from the yaml file
-      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
+      // also check the custom scale from the yaml file. Skip if tree level
+      if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model) 
         scales_to_check.push_back(other_scale);
 
       // // print warning if we ask for likelihood at check_other_scale but not using FlexibleSUSY model
@@ -3607,7 +1701,7 @@ namespace Gambit
       // {
       //   std::ostringstream os;
       //   os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
-      //   SpecBit_warning().raise(LOCAL_INFO, os.str());
+      //   SpecBit_error().raise(LOCAL_INFO, os.str());
       // }
 
       // get the worst performing likelihood at all scales
@@ -3628,9 +1722,6 @@ namespace Gambit
         // don't waste time when it will be invalid anyway
         if (result < -1e7) break;
       }
-
-      // normalize to 0
-      result = std::min(0.0, result);
       return result;
     }
 
@@ -3666,7 +1757,7 @@ namespace Gambit
 
       // wrap up LogLike function & get worst performing LogLike at all scales
 
-      LL_type LL = [&](const SubSpectrum& c){ return get_NLO_unitarity_LogLikelihood(c, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections); };
+      LL_type LL = [&](const SubSpectrum& c){ return get_NLO_unitarity_LogLikelihood(c, check_corrections_ratio, wave_function_corrections, gauge_corrections, yukawa_corrections); };  
       result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
@@ -3709,7 +1800,6 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const Spectrum spec = *Dep::THDM_spectrum;
       std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-      const double sigma = 0.1;
       const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       const double mT = Dep::SMINPUTS->mT;
       double tanb = he->get(Par::dimensionless,"tanb");
@@ -3739,13 +1829,12 @@ namespace Gambit
       // loop over all yukawas
       for (auto & each_yukawa : Yukawas)
       {
-        if (abs(each_yukawa) > sqrt(4*M_PI)/(sqrt(1+tanb*tanb)))
-          error += abs(each_yukawa) - (sqrt(4*M_PI)/(sqrt(1+tanb*tanb)));
+        if (abs(each_yukawa) > sqrt(4*pi)/(sqrt(1+tanb*tanb)))
+          error += abs(each_yukawa) - (sqrt(4*pi)/(sqrt(1+tanb*tanb)));
       }
       //Apply softer bound for Yu2tt
-      error += abs(Yu2tt) - ((sqrt(4*M_PI)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
-      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
-      result = std::min(0.0, result);
+      error += abs(Yu2tt) - ((sqrt(4*pi)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
+      result = -cutoff_soft_square(error, 141, 1e6);
     }
 
     // vacuum stability + meta-stability constraint (soft cutoff)
@@ -3797,6 +1886,27 @@ namespace Gambit
       result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
+    // LIKELIHOOD: guides scanner towards mh = 125 GeV. Use to improve performance of HiggsSignals (soft-cutoff)
+    void higgs_mass_LogLikelihood(double &result)
+    {
+      using namespace Pipes::higgs_mass_LogLikelihood;
+
+      const double higgs_mass_uncertainty = runOptions->getValueOrDef<double>(2.5, "higgs_mass_uncertainty");
+      const double valid_range = runOptions->getValueOrDef<double>(60, "valid_range");
+
+      const Spectrum &spec = *Dep::THDM_spectrum;
+      const double mh_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::SM_like_scalar);
+      constexpr double mh_exp = 125.15;   // experimental value of Higgs mass measured by others GeV
+      // constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
+      double model_invalid_for_lnlike_below = -1e6;
+
+      double mass_err = std::abs(mh_pole - mh_exp);
+
+      // scale it so that going 300 GeV above/below the measured higgs mass hits the threshold to bail on the point
+      // no penalty if we are within 10 GeV of exp. value
+      result = model_invalid_for_lnlike_below * (std::max(0.0, mass_err - higgs_mass_uncertainty) / valid_range);
+    }
+
     // only keeps points that correspond to hidden higgs scenario (hard-cutoff)
     void hidden_higgs_scenario_LogLikelihood_THDM(double& result)
     {
@@ -3804,28 +1914,17 @@ namespace Gambit
       const bool hidden_higgs_scenario = runOptions->getValueOrDef<bool>(true, "hidden_higgs_scenario");
       const Spectrum& spec = *Dep::THDM_spectrum;
 
-      const double mh_pole = spec.get_HE().get(Par::Pole_Mass, "h0", 1);
-      const double mH_pole = spec.get_HE().get(Par::Pole_Mass, "h0", 2);
-      constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
+      const double mh_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::SM_like_scalar);
+      const double mH_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::additional_scalar);
+      // constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
 
-      double mass_err_h = std::abs(mh_pole - mh_exp);
-      double mass_err_H = std::abs(mH_pole - mh_exp);
-      result = 0;
-
-      // we need mass_err_H < mass_err_h for Hidden Higgs scenario
-
-      if (hidden_higgs_scenario && mass_err_h < mass_err_H)
+      // Hidden-Higgs scenario means the additional scalar has a smaller mass than the SM-like scalar
+      if (mH_pole < mh_pole && hidden_higgs_scenario)
         result = -L_MAX;
-      if (!hidden_higgs_scenario && mass_err_h > mass_err_H)
+      else if (mH_pole > mh_pole && !hidden_higgs_scenario)
         result = -L_MAX;
-
-      // // weight that pushes mH to 125 Gev
-      // result += std::max(0.0, mass_err_H - 10.0) / 1000.0;
-      // // weight that pushes mass_err_H < mass_err_h
-      // result += std::max(0.0, mass_err_H - mass_err_h) / 20000.0;
-      // constexpr double model_invalid_for_lnlike_below = -1e6;
-      // result *= model_invalid_for_lnlike_below;
-
+      else
+        result = 0;
     }
 
     // mass range for each heavy scalar, specified in YAML file (soft-cutoff)
@@ -3851,6 +1950,40 @@ namespace Gambit
     /// == Higgs coupling table ==
     /// ==========================
 
+    void test(const Spectrum& s, HiggsCouplingsTable &h)
+    {
+      const SMInputs& sminputs = s.get_SMInputs();
+      const double v2 = 1.0 / (sqrt(2.0) * sminputs.GF);
+      const double vev = sqrt(v2);
+      double alpha = s.get(Par::dimensionless, "alpha");
+      double beta = s.get(Par::dimensionless, "beta");
+      double ca = cos(alpha), sa = sin(alpha);
+      double cb = cos(beta), sb = sin(beta);
+      const vector<double> mU = { sminputs.mU, sminputs.mCmC, sminputs.mT };
+      const vector<double> mD = { sminputs.mD, sminputs.mS, sminputs.mBmB };
+      const vector<double> mE = { sminputs.mE, sminputs.mMu, sminputs.mTau };
+
+      double C_tt2 = sqr((ca/sb));
+      double C_WW = sin(beta-alpha);
+
+      std::cout << "(theory) C_tt2 " << C_tt2 << std::endl;
+      std::cout << "(actual) C_tt2 " << h.C_tt2[0] << std::endl;
+      std::cout << "(theory) C_WW " << C_WW << std::endl;
+      std::cout << "(actual) C_WW " << h.C_WW[0] << std::endl;
+
+
+        // result.C_WW[i] = sqrt(result.compute_effective_coupling(i, std::pair<int, int>(24, 0), std::pair<int, int>(-24, 0)));
+        // result.C_ZZ[i] = sqrt(result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(23, 0)));
+        // result.C_tt2[i] = result.compute_effective_coupling(i, std::pair<int, int>(6, 1), std::pair<int, int>(-6, 1));
+        // result.C_bb2[i] = result.compute_effective_coupling(i, std::pair<int, int>(5, 1), std::pair<int, int>(-5, 1));
+        // result.C_cc2[i] = result.compute_effective_coupling(i, std::pair<int, int>(4, 1), std::pair<int, int>(-4, 1));
+        // result.C_tautau2[i] = result.compute_effective_coupling(i, std::pair<int, int>(15, 1), std::pair<int, int>(-15, 1));
+        // result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(22, 0), std::pair<int, int>(22, 0));
+        // result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int, int>(21, 0), std::pair<int, int>(21, 0));
+        // result.C_mumu2[i] = result.compute_effective_coupling(i, std::pair<int, int>(13, 1), std::pair<int, int>(-13, 1));
+        // result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(22, 0));
+        // result.C_ss2[i] = result.compute_effective_coupling(i, std::pair<int, int>(3, 1), std::pair<int, int>(-3, 1));
+    }
 
     /// Put together the Higgs couplings for the THDM, using only partial widths
     void THDM_higgs_couplings_pwid(HiggsCouplingsTable &result)
@@ -3865,6 +1998,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
       // give higgs indices names
       enum neutral_higgs_indices
@@ -3911,8 +2048,9 @@ namespace Gambit
       for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
         {
-          double mhi = spec.get(Par::mass1, sHneut[i]); //mass1 to be consistent
-          double mhj = spec.get(Par::mass1, sHneut[j]);
+          // changed mass1 -> Pole_Mass
+          double mhi = spec.get(Par::Pole_Mass, sHneut[i]); //mass1 to be consistent
+          double mhj = spec.get(Par::Pole_Mass, sHneut[j]);
           if (mhi > mhj + mZ and result.get_neutral_decays(i).has_channel(sHneut[j], "Z0"))
           {
             double gamma = result.get_neutral_decays(i).width_in_GeV * result.get_neutral_decays(i).BF(sHneut[j], "Z0");
@@ -3928,17 +2066,23 @@ namespace Gambit
           }
         }
 
-      // Work out which invisible decays are possible
-      //result.invisibles = get_invisibles(spec);
+      if (ModelInUse("Inert2"))
+      {
+        str DarkMatter_ID = *Dep::DarkMatter_ID;
+        str DarkMatterConj_ID = *Dep::DarkMatterConj_ID;
+        if (spec.get(Par::Pole_Mass,DarkMatter_ID)*2 < spec.get(Par::Pole_Mass, "h0_2"))
+          result.invisibles = std::vector<sspair>({{DarkMatter_ID, DarkMatterConj_ID}});
+      }
+
     }
 
     // helper to get necessary couplings from 2HDMC for higgs couplings table
-    void fill_THDM_couplings_struct(THDM_couplings &couplings, THDM_spectrum_container &container)
+    void fill_THDM_couplings_struct(THDM_couplings &couplings, THDMC_1_8_0::THDM &container)
     {
       // todo: save computational time by filling only those required in each case
 
       // checks a coupling for NaN
-      auto check_coupling = [](const complex<double> coupling)
+      auto check_coupling = [](const complexd coupling)
       {
         if (std::isnan(coupling.real()) || std::isnan(coupling.imag()))
         {
@@ -3971,9 +2115,9 @@ namespace Gambit
         {
           for (int f2 = 1; f2 <= total_number_of_fermions; f2++)
           {
-            container.THDM_object->get_coupling_hdd(h, f1, f2, couplings.hdd_cs[h][f1][f2], couplings.hdd_cp[h][f1][f2]);
-            container.THDM_object->get_coupling_huu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
-            container.THDM_object->get_coupling_hll(h, f1, f2, couplings.hll_cs[h][f1][f2], couplings.hll_cp[h][f1][f2]);
+            container.get_coupling_hdd(h, f1, f2, couplings.hdd_cs[h][f1][f2], couplings.hdd_cp[h][f1][f2]);
+            container.get_coupling_huu(h, f1, f2, couplings.huu_cs[h][f1][f2], couplings.huu_cp[h][f1][f2]);
+            container.get_coupling_hll(h, f1, f2, couplings.hll_cs[h][f1][f2], couplings.hll_cp[h][f1][f2]);
             check_coupling(couplings.hdd_cs[h][f1][f2] + couplings.hdd_cp[h][f1][f2]);
             check_coupling(couplings.huu_cs[h][f1][f2] + couplings.huu_cp[h][f1][f2]);
             check_coupling(couplings.hll_cs[h][f1][f2] + couplings.hll_cp[h][f1][f2]);
@@ -3984,12 +2128,12 @@ namespace Gambit
         {
           for (int v2 = 1; v2 <= total_number_of_vector_bosons; v2++)
           {
-            container.THDM_object->get_coupling_vvh(v1, v2, h, couplings.vvh[v1][v2][h]);
+            container.get_coupling_vvh(v1, v2, h, couplings.vvh[v1][v2][h]);
             check_coupling(couplings.vvh[v1][v2][h]);
           }
           for (int h2 = 1; h2 <= total_number_of_higgs; h2++)
           {
-            container.THDM_object->get_coupling_vhh(v1, h, h2, couplings.vhh[v1][h][h2]);
+            container.get_coupling_vhh(v1, h, h2, couplings.vhh[v1][h][h2]);
             check_coupling(couplings.vhh[v1][h][h2]);
           }
         }
@@ -4008,8 +2152,9 @@ namespace Gambit
       const SubSpectrum &spec = fullspectrum.get_HE();
 
       // set up some necessary quantities
+      // changed mass1 -> Pole_Mass
       const double vev = spec.get(Par::mass1, "vev");
-      const double mW = spec.get(Par::mass1, "W+");
+      const double mW = fullspectrum.get(Par::Pole_Mass, "W+");
       const double g = 2.*mW/vev;
       const double costw = sqrt(1. - spec.get(Par::dimensionless, "sinW2"));
 
@@ -4049,16 +2194,13 @@ namespace Gambit
         result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(22, 0));
       }
 
-      // Determine the type
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-
       // Initiate 2HDM container
-      THDM_spectrum_container container;
-      BEreq::init_THDM_spectrum_container_CONV(container, fullspectrum, byVal(THDM_type), 0.0, 0);
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
 
       // set up and fill the THDM couplings
       THDM_couplings couplings;
-      fill_THDM_couplings_struct(couplings, container);
+      fill_THDM_couplings_struct(couplings, container.obj);
 
       // SM-like couplings
       vector<THDM_couplings> couplings_SM_like;
@@ -4068,8 +2210,9 @@ namespace Gambit
       for (int h = 1; h <= NUMBER_OF_NEUTRAL_HIGGS; h++)
       {
         // init an SM like container for each neutral higgs
-        BEreq::init_THDM_spectrum_container_CONV(container, fullspectrum, 1, 0.0, byVal(h));
-        fill_THDM_couplings_struct(SM_couplings, container);
+        THDMsafe container;
+        BEreq::setup_thdmc_sm_like_spectrum(container, *Dep::THDM_spectrum, byVal(fullspectrum.get_HE().get(Par::Pole_Mass,sHneut[h-1])));
+        fill_THDM_couplings_struct(SM_couplings, container.obj);
         couplings_SM_like.push_back(SM_couplings);
       }
 
@@ -4126,7 +2269,551 @@ namespace Gambit
         }
 
       }
+
+      if (ModelInUse("Inert2"))
+      {
+        str DarkMatter_ID = *Dep::DarkMatter_ID;
+        str DarkMatterConj_ID = *Dep::DarkMatterConj_ID;
+        if (spec.get(Par::Pole_Mass,DarkMatter_ID)*2 < spec.get(Par::Pole_Mass, "h0_2"))
+          result.invisibles = std::vector<sspair>({{DarkMatter_ID, DarkMatterConj_ID}});
+      }
+
+
+    }
+
+      // list of SM & BSM particles
+    enum {u1,u2,u3,d1,d2,d3,e1,e2,e3,v1,v2,v3, u1c,u2c,u3c,d1c,d2c,d3c,e1c,e2c,e3c,v1c,v2c,v3c, a,z,wp,wm,g, hh,hx,ha,hp,hm};
+    const vector<str> names = {"u1","u2","u3","d1","d2","d3","e1","e2","e3","v1","v2","v3", "u1c","u2c","u3c","d1c","d2c","d3c","e1c","e2c","e3c","v1c","v2c","v3c", "a","z","wp","wm","g", "hh","hx","ha","hp","hm"};
+    const vector<double> electric_charge = {+2/3.,+2/3.,+2/3.,-1/3.,-1/3.,-1/3.,-1,-1,-1,0,0,0,-2/3.,-2/3.,-2/3.,+1/3.,+1/3.,+1/3.,+1,+1,+1,0,0,0, 0,0,+1,-1,0, 0,0,0,+1,-1};
+
+    using coupling = std::pair<vector<int>,std::pair<complexd,complexd>>;
+
+    void print_coupling(const coupling c)
+    {
+      str parts = "[";
+      for (auto& i : c.first) parts += names[i] + ",";
+      parts += "] = " + to_string(c.second.first) + " + g5 x ( " + to_string(c.second.second) +" )";
+      std::cout << parts << std::endl;
+    }
+
+    complexd hgaga_hacked(const double mh)
+    {
+      using namespace Pipes::get_coupling_table;
+      const DecayTable::Entry* decay = &(*Dep::Higgs_decay_rates2);
+      if (*Dep::additional_scalar != "h0_2")
+        decay = &(*Dep::h0_2_decay_rates2);
+      const double alpha = 0.0072973525, v = 246.22;
+      const double C1 = sqr(alpha)*cub(mh) / (256*cub(pi)*sqr(v));
+      const double C2 = alpha / (pi*v);
+      const double Gamma = decay->width_in_GeV*decay->BF(vector<str>({"gamma","gamma"}));
+      const complexd result = -ii*sqrt((1/4.)*Gamma/C1)*C2;
+      return result;
+    }
+
+    complexd hgg_hacked(const double mh)
+    {
+      using namespace Pipes::get_coupling_table;
+      const DecayTable::Entry* decay = &(*Dep::Higgs_decay_rates2);
+      if (*Dep::additional_scalar != "h0_2")
+        decay = &(*Dep::h0_2_decay_rates2);
+      const double alpha = 0.1185, v = 246.22;
+      const double C1 = sqr(alpha)*cub(mh) / (32*cub(pi)*sqr(v));
+      const double C2 = alpha / (pi*v);
+      const double Gamma = decay->width_in_GeV*decay->BF(vector<str>({"g","g"}));
+      const complexd result = -ii*sqrt((1/4.)*Gamma/C1)*C2;
+      return result;
+    }
+
+    complexd hgaZ_hacked(const double mh)
+    {
+      using namespace Pipes::get_coupling_table;
+      const DecayTable::Entry* decay = &(*Dep::Higgs_decay_rates2);
+      if (*Dep::additional_scalar != "h0_2")
+        decay = &(*Dep::h0_2_decay_rates2);
+      const double alpha = 0.0072973525, alphaZ=0.0072973525/tan(0.5016296), v = 246.22;
+      const double C1 = alpha*alphaZ*cub(mh) / (256*cub(pi)*sqr(v));
+      const double C2 = sqrt(alpha*alphaZ) / (pi*v);
+      const double Gamma = decay->width_in_GeV*decay->BF(vector<str>({"gamma","Z0"}));
+      const complexd result = -ii*sqrt((1/4.)*Gamma/C1)*C2;
+      // std::cout << "hgaZ " << " C1 " << C1 << " C2 " << C2 << " Gamma " << Gamma << " result " << result << "\n";
+      return result;
+    }
+
+    void get_coupling_table_SM(coupling_table& result)
+    {
+      // using namespace Pipes::get_coupling_table;
+      // const THDM_TYPE THDM_type = *Dep::THDM_Type;
+      // const Spectrum fullspectrum = *Dep::THDM_spectrum;
+      // auto& sm = fullspectrum.get_SMInputs();
+
+      enum {u1,u2,u3,d1,d2,d3,e1,e2,e3,v1,v2,v3, u1c,u2c,u3c,d1c,d2c,d3c,e1c,e2c,e3c,v1c,v2c,v3c, a,z,wp,wm,g, h1,h2,ha,hp,hm};
+
+      // T3 for left-chiral component (always 0 for right-chiral component)
+      const vector<double> T3 = 
+        {+1/2.,+1/2.,+1/2.,-1/2.,-1/2.,-1/2.,-1/2.,-1/2.,-1/2.,+1/2.,+1/2.,+1/2.,  +1/2.,+1/2.,+1/2.,-1/2.,-1/2.,-1/2.,-1/2.,-1/2.,-1/2.,+1/2.,+1/2.,+1/2.,  0,0,0,0,0, 0,0,0,0,0};
+
+      const double gs = 1.214; // Strong coupling constant
+      const double W = 0.5016296; // Weak mixing angle
+      const double ge = 0.3028221204; // QED coupling constant
+      const double sinW = sin(W), cosW = cos(W), tanW = tan(W), cotW = 1/tanW;
+
+      // CKM matrix
+
+      constexpr double deg = 0.0174532925;
+      constexpr double p12 = 13.04*deg, p13 = 0.201*deg, p23 = 2.38*deg, alpha = 68.75*deg;
+      const double cA = cos(p12), cB = cos(p13), cC = cos(p23), sA = sin(p12), sB = sin(p13), sC = sin(p23);
+      const complexd eA = exp(ii*alpha), emA = exp(-ii*alpha);
+      const vector<vector<complexd>> V = {
+
+        {cA*cB, sA*cB, sB*emA},
+        {-sA*cC-cA*sC*sB*eA, cA*cC-sA*sC*sB*eA, sC*cB},
+        {sA*sC-cA*cC*sB*eA, -cA*sC-sA*cC*sB*eA, cC*cB}
+
+      };
+
+      // read this like: part in [first,last]
+      auto in = [&](int part, int first, int last)
+      {
+        return part >= first && part <= last;
+      };
+
+      for (int i=u1; i<=hm; ++i)
+      {
+        for (int j=i; j<=hm; ++j)
+        {
+          for (int k=j; k<=hm; ++k)
+          {
+
+            // skip all Higgs couplings
+
+            if (i >= h1 || j >= h1 || k >= h1)
+              continue;
+
+            // higgs-higgs
+
+            // (skip)
+
+            // higgs-gauge
+
+            // (skip)
+
+            // higgs-fermion
+
+            // (skip)
+
+            // gauge-gauge
+
+            if (i == a && j == wp && k == wm) // aww
+              result.push_back({{i,j,k},{+ii*ge,0}});
+
+            if (i == z && j == wp && k == wm) // zww
+              result.push_back({{i,j,k},{+ii*ge*cotW,0}});
+
+            if (i == g && j == g && k == g) // ggg
+              result.push_back({{i,j,k},{+ii*gs,0}});
+
+            // gauge-fermion
+
+            if (in(i,u1,d3) && in(j,u1c,d3c) && (i == j-u1c+u1) && k == g) // qqg
+              result.push_back({{i,j,k},{-ii*gs,0}});
+
+            if (in(i,u1,e3) && in(j,u1c,e3c) && (i == j-u1c+u1) && k == a) // ffa
+              result.push_back({{i,j,k},{-ii*ge*electric_charge[i],0}});
+
+            complexd tmp = ii*ge/(cosW*sinW);
+            if (in(i,u1,v3) && in(j,u1c,v3c) && (i == j-u1c+u1) && k == z) // ffz
+              result.push_back({{i,j,k},{tmp*(0.5*T3[i]-electric_charge[i]*sqr(sinW)),-tmp*0.5*T3[i]}});
+
+            int x1 = i-d1, x2 = j-u1c;
+            complexd tmp2 = ii*ge/(2*sqrt(2)*sinW);
+            if (in(i,d1,d3) && in(j,u1c,u3c) && k == wp) // udw
+              result.push_back({{i,j,k},{tmp2*V[x2][x1],-tmp2*V[x2][x1]}});
+
+            x1 = i-u1, x2 = j-d1c;
+            if (in(i,u1,u3) && in(j,d1c,d3c) && k == wm) // duw
+              result.push_back({{i,j,k},{tmp2*std::conj(V[x1][x2]),-tmp2*std::conj(V[x1][x2])}});
+
+            if (in(i,e1,e3) && in(j,v1c,v3c) && (i == j-v1c+e1) && k == wp) // vew
+              result.push_back({{i,j,k},{tmp2,-tmp2}});
+
+            if (in(i,v1,v3) && in(j,e1c,e3c) && (i == j-e1c+v1) && k == wm) // evw
+              result.push_back({{i,j,k},{tmp2,-tmp2}});
+
+            // fermion-fermion
+
+            // (all zero)
+
+          }
+        }
+      }
+
+      for (int i=u1; i<=hm; ++i)
+      {
+        for (int j=i; j<=hm; ++j)
+        {
+          for (int k=j; k<=hm; ++k)
+          {
+            for (int l=j; l<=hm; ++l)
+            {
+              // skip all Higgs couplings
+
+              if (i >= h1 || j >= h1 || k >= h1 || l >= h1)
+                continue;
+
+              // higgs-higgs
+
+              // (skip)
+
+              // higgs-gauge
+
+              // (skip)
+
+              // higgs-fermion
+
+              // (skip)
+
+              // gauge-gauge
+
+              if (i == a && j == a && k == wp && l == wm) // aaww
+                result.push_back({{i,j,k,l},{+ii*sqr(ge),0}});
+
+              if (i == z && j == z && k == wp && l == wm) // zzww
+                result.push_back({{i,j,k,l},{+ii*sqr(ge*cotW),0}});
+
+              if (i == wp && j == wp && k == wm && l == wm) // wwww
+                result.push_back({{i,j,k,l},{-ii*sqr(ge/sinW),0}});
+
+              if (i == a && j == z && k == wp && l == wm) // azww
+                result.push_back({{i,j,k,l},{-ii*sqr(ge)*cotW,0}});
+
+              if (i == g && j == g && k == g && l == g) // gggg
+                result.push_back({{i,j,k,l},{-ii*sqr(gs),0}});
+
+              // gauge-fermion
+
+              // (all zero)
+
+              // fermion-fermion
+
+              // (all zero)
+            }
+          }
+        }
+      }
+
+    }
+
+    void get_coupling_table(coupling_table& result)
+    {
+      using namespace Pipes::get_coupling_table;
+
+      const Spectrum fullspectrum = *Dep::THDM_spectrum;
+      THDMsafe container;
+      BEreq::setup_thdmc_spectrum(container, *Dep::THDM_spectrum);
+      result.clear();
+      auto& sm = fullspectrum.get_SMInputs();
+      bool swapped_mass_hierarchy = (fullspectrum.get(Par::dimensionless, "cosba") == 1);
+      // std::cout << "swapped_mass_hierarchy" << swapped_mass_hierarchy << std::endl;
+      str SM_like_scalar_name = *Dep::SM_like_scalar;
+      str additional_scalar_name = *Dep::additional_scalar;
+
+      // fill in mass table for later use
+      vector<double> masses(names.size(),0);
+
+      // "a","z","wp","wm","g", "h1","h2","ha","hp","hm"};
+      masses[u1] = sm.mU;
+      masses[u2] = sm.mCmC;
+      masses[u3] = sm.mT;
+      masses[d1] = sm.mD;
+      masses[d2] = sm.mS;
+      masses[d3] = sm.mBmB;
+      masses[e1] = sm.mE;
+      masses[e2] = sm.mMu;
+      masses[e3] = sm.mTau;
+      masses[v1] = 0;
+      masses[v2] = 0;
+      masses[v3] = 0;
+      masses[u1c] = sm.mU;
+      masses[u2c] = sm.mCmC;
+      masses[u3c] = sm.mT;
+      masses[d1c] = sm.mD;
+      masses[d2c] = sm.mS;
+      masses[d3c] = sm.mBmB;
+      masses[e1c] = sm.mE;
+      masses[e2c] = sm.mMu;
+      masses[e3c] = sm.mTau;
+      masses[v1c] = 0;
+      masses[v2c] = 0;
+      masses[v3c] = 0;
+      masses[a] = 0;
+      masses[z] = sm.mZ;
+      masses[wp] = fullspectrum.get(Par::Pole_Mass, "W+");
+      masses[wm] = fullspectrum.get(Par::Pole_Mass, "W+");
+      masses[g] = 0;
+      masses[hh] = fullspectrum.get(Par::Pole_Mass, SM_like_scalar_name);
+      masses[hx] = fullspectrum.get(Par::Pole_Mass, additional_scalar_name);
+      masses[ha] = fullspectrum.get(Par::Pole_Mass, "A0");
+      masses[hp] = fullspectrum.get(Par::Pole_Mass, "H-");
+      masses[hm] = fullspectrum.get(Par::Pole_Mass, "H-");
+
+      // convert particle number to THDMC number
+      auto to_thdmc = [&](int part)
+      {
+        if (swapped_mass_hierarchy && part == hh) return 2;
+        if (swapped_mass_hierarchy && part == hx) return 1;
+        if (part >= u1 && part <= u3) return part-u1+1;
+        if (part >= d1 && part <= d3) return part-d1+1;
+        if (part >= e1 && part <= e3) return part-e1+1;
+        if (part >= v1 && part <= v3) return part-v1+1;
+        if (part >= u1c && part <= u3c) return part-u1c+1;
+        if (part >= d1c && part <= d3c) return part-d1c+1;
+        if (part >= e1c && part <= e3c) return part-e1c+1;
+        if (part >= v1c && part <= v3c) return part-v1c+1;
+        if (part >= a && part <= wm) return std::min(part,(int)wp)-a+1;
+        if (part >= hh && part <= hm) return std::min(part,(int)hp)-hh+1;
+        SpecBit_error().raise(LOCAL_INFO, "invalid particle");
+        return -1;
+      };
+
+      // read this like: part in [first,last]
+      auto in = [&](int part, int first, int last)
+      {
+        return part >= first && part <= last;
+      };
+
+      auto equal = [&](double a, double b)
+      {
+        return std::abs(a-b) < 1e-10;
+      };
+
+      // conserved & approximately conserved charges
+
+      const vector<double> e1_number = 
+      {0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0, 0,0,0,0,0, 0,0,0,0,0};
+      const vector<double> e2_number = 
+      {0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0, 0,0,0,0,0, 0,0,0,0,0};
+      const vector<double> e3_number = 
+      {0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1, 0,0,0,0,0, 0,0,0,0,0};
+      const vector<double> u1_number = 
+      {1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
+      const vector<double> u2_number = 
+      {0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
+      const vector<double> u3_number = 
+      {0,0,1,0,0,1,0,0,0,0,0,0,0,0,-1,0,0,-1,0,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0};
+
+      // for IDM only
+      const vector<double> Z2_number = 
+      {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0, 0,1,1,1,1};
+
+      // just a hack to get SU(3) color conservation. We don't want to consider individually colored quarks
+
+      const vector<double> color_number = 
+      {1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0, 0,0,0,0,2, 0,0,0,0,0};
+
+      // loop over all possible interactions (3-particle)
+
+      for (int i=u1; i<=hm; ++i)
+      {
+        for (int j=i; j<=hm; ++j)
+        {
+          for (int k=j; k<=hm; ++k)
+          {
+            // calculate charge sum of vertex
+            double electric_charge_sum = electric_charge[i] + electric_charge[j] + electric_charge[k];
+            double e1_number_sum = e1_number[i] + e1_number[j] + e1_number[k];
+            double e2_number_sum = e2_number[i] + e2_number[j] + e2_number[k];
+            double e3_number_sum = e3_number[i] + e3_number[j] + e3_number[k];
+            double u1_number_sum = u1_number[i] + u1_number[j] + u1_number[k];
+            double u2_number_sum = u2_number[i] + u2_number[j] + u2_number[k];
+            double u3_number_sum = u3_number[i] + u3_number[j] + u3_number[k];
+            double Z2_number_sum = Z2_number[i] + Z2_number[j] + Z2_number[k];
+            double color_number_sum = color_number[i] + color_number[j] + color_number[k];
+
+            if (int(Z2_number_sum) % 2 != 0) continue;
+
+            // skip interactions that violate conservation laws
+            if (!equal(electric_charge_sum,0)) continue; // (U(1) electric charge)
+            if (!equal(e1_number_sum + e2_number_sum + e3_number_sum,0)) continue; // (lepton number)
+            if (!equal(u1_number_sum + u2_number_sum + u3_number_sum,0)) continue; // (quark number)
+            
+            // Allows: qqx gxx qqg ggx ggg   qqxx gxxx qqqq ggxx qqgx qqgg gggx gggg
+            if (int(color_number_sum) % 2 != 0) continue; // (SU(3) color - just a hack)
+
+            // get rid of gxx gxxx
+            // Allows: qqx qqg ggx ggg   qqxx qqqq ggxx qqgx qqgg gggx gggg
+            if (equal(color_number_sum,2) && (i==g || j==g || k==g)) continue;
+
+            // skip FCNCs (can be enabled for non-Z2 2HDM)
+            if (((equal(electric_charge[i],0) && i >= a) || (equal(electric_charge[j],0) && j >= a) || (equal(electric_charge[k],0) && k >= a)) && 
+                (!equal(e1_number_sum,0) || !equal(e2_number_sum,0) || !equal(e3_number_sum,0) || !equal(u1_number_sum,0) || !equal(u2_number_sum,0) || !equal(u3_number_sum,0)))
+              continue;
+
+            // skip non-BSM interactions for now
+            if (i < hh && j < hh && k < hh) continue;
+            
+            // store results here
+            complexd scalar = 0, pseudo = 0;
+
+            // skipp hgg haa (we do them later)
+
+            if (((i==a && j==a) || (i==g && j==g) || (i==a && j==z)) && k >= hh && k <= hm) continue;
+
+            // call appropriate thdmc wrapper
+
+            if (in(k,hh,hm) && in(j,d1c,d3c) && in(i,d1,d3))
+              container.obj.get_coupling_hdd(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar,pseudo);
+            else if (in(k,hh,hm) && in(j,u1c,u3c) && in(i,u1,u3))
+              container.obj.get_coupling_huu(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar,pseudo);
+            else if (in(k,hh,hm) && in(j,u1c,u3c) && in(i,d1,d3))
+              container.obj.get_coupling_hdu(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar,pseudo);
+            else if (in(k,hh,hm) && in(j,d1c,d3c) && in(i,u1,u3))
+              container.obj.get_coupling_hud(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar,pseudo);
+            else if (in(k,hh,hm) && in(j,e1c,e3c) && in(i,e1,e3))
+              container.obj.get_coupling_hll(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar,pseudo);
+            else if (in(k,hh,hm) && in(i,v1,v3) && in(j,e1c,e3c))
+              container.obj.get_coupling_hln(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar,pseudo);
+            // else if (in(k,hh,hm) && in(i,e1,e3) && in(j,v1c,v3c))
+            //   container.obj.get_coupling_hln(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar,pseudo);
+            else if (in(k,hh,hm) && in(i,a,wm) && in(j,a,wm))
+              container.obj.get_coupling_vvh(to_thdmc(i),to_thdmc(j),to_thdmc(k),scalar);
+            else if (in(k,hh,hm) && in(i,a,wm) && in(j,hh,hm))
+              container.obj.get_coupling_vhh(to_thdmc(i),to_thdmc(j),to_thdmc(k),scalar);
+            else if (in(k,hh,hm) && in(i,hh,hm) && in(j,hh,hm))
+              container.obj.get_coupling_hhh(to_thdmc(k),to_thdmc(i),to_thdmc(j),scalar);
+            else
+            {
+              // std::cout << "unable to get coupling: ";
+              // print_coupling({{i,j,k},{scalar,pseudo}});
+              continue;
+            }
+
+            result.push_back({{i,j,k},{scalar,pseudo}});
+          }
+        }
+      }
+
+      // do the effective couplings (needs to be afterwards)
+
+      for (int k = hh; k<=ha; ++k)
+      {
+        if (k != hh) continue; // skip z2 violating for now
+        result.push_back({ {a,a,k},{ hgaga_hacked(masses[k]),0.0 } });
+        result.push_back({ {g,g,k},{ hgg_hacked(masses[k]),0.0 } });
+        result.push_back({ {a,z,k},{ hgaZ_hacked(masses[k]),0.0 } });
+        // result.push_back({ {a,a,k},{ S_gamma(k,result,masses),P_gamma(k,result,masses) } });
+        // result.push_back({ {g,g,k},{ S_gluon(k,result,masses),P_gluon(k,result,masses) } });
+      }
+
+      // std::cout << "\n\nfull list of couplings:\n\n";
+      // for (auto& c : result) print_coupling(c);
+
+      // loop over all possible interactions (4-particle)
+
+      for (int i=u1; i<=hm; ++i)
+      {
+        for (int j=i; j<=hm; ++j)
+        {
+          for (int k=j; k<=hm; ++k)
+          {
+            for (int l=k; l<=hm; ++l)
+            {
+            // calculate charge sum of vertex
+            double electric_charge_sum = electric_charge[i] + electric_charge[j] + electric_charge[k] + electric_charge[l];
+            double e1_number_sum = e1_number[i] + e1_number[j] + e1_number[k] + e1_number[l];
+            double e2_number_sum = e2_number[i] + e2_number[j] + e2_number[k] + e2_number[l];
+            double e3_number_sum = e3_number[i] + e3_number[j] + e3_number[k] + e3_number[l];
+            double u1_number_sum = u1_number[i] + u1_number[j] + u1_number[k] + u1_number[l];
+            double u2_number_sum = u2_number[i] + u2_number[j] + u2_number[k] + u2_number[l];
+            double u3_number_sum = u3_number[i] + u3_number[j] + u3_number[k] + u3_number[l];
+            double Z2_number_sum = Z2_number[i] + Z2_number[j] + Z2_number[k] + Z2_number[l];
+            double color_number_sum = color_number[i] + color_number[j] + color_number[k] + color_number[l];
+
+            if (int(Z2_number_sum) % 2 != 0) continue;
+
+            // skip interactions that violate conservation laws
+            if (!equal(electric_charge_sum,0)) continue; // (U(1) electric charge)
+            if (!equal(e1_number_sum + e2_number_sum + e3_number_sum,0)) continue; // (lepton number)
+            if (!equal(u1_number_sum + u2_number_sum + u3_number_sum,0)) continue; // (quark number)
+            
+            // Allows: qqx gxx qqg ggx ggg   qqxx gxxx qqqq ggxx qqgx qqgg gggx gggg
+            if (int(color_number_sum) % 2 != 0) continue; // (SU(3) color - just a hack)
+
+            // get rid of gxx gxxx
+            // Allows: qqx qqg ggx ggg   qqxx qqqq ggxx qqgx qqgg gggx gggg
+            if (equal(color_number_sum,2) && (i==g || j==g || k==g)) continue;
+
+            // skip FCNCs (can be enabled for non-Z2 2HDM)
+            if (((equal(electric_charge[i],0) && i >= a) || (equal(electric_charge[j],0) && j >= a) || (equal(electric_charge[k],0) && k >= a) || (equal(electric_charge[l],0) && l >= a)) && 
+                (!equal(e1_number_sum,0) || !equal(e2_number_sum,0) || !equal(e3_number_sum,0) || !equal(u1_number_sum,0) || !equal(u2_number_sum,0) || !equal(u3_number_sum,0)))
+              continue;
+
+            // skip non-BSM interactions for now
+            if (i < hh && j < hh && k < hh && l < hh) continue;
+
+
+            // skip couplings that would come out zero (but still picked up by functions below)
+
+            if (((i==a && j==a) || (i==a && j==z)) && in(k,hh,ha) && in(l,hh,ha))
+              continue;
+
+            if (i==wp && j==wm && k==hx && l==ha)
+              continue;
+
+            if ((i==hx && j==ha && k==hp && l==hm) || (i==hx && j==ha && k==ha && l==ha) 
+             || (i==hx && j==hx && k==hx && l==ha) || (i==hh && j==hh && k==hx && l==ha))
+              continue;
+            
+            // store results here
+            complexd scalar = 0, pseudo = 0;
+
+            // call appropriate thdmc wrapper
+
+            if (in(l,hh,hm) && in(k,hh,hm) && in(j,a,wm) && in(i,a,wm))
+              container.obj.get_coupling_vvhh(to_thdmc(i),to_thdmc(j),to_thdmc(k),to_thdmc(l),scalar);
+            else if (in(l,hh,hm) && in(k,hh,hm) && in(j,hh,hm) && in(i,hh,hm))
+              container.obj.get_coupling_hhhh(to_thdmc(i),to_thdmc(j),to_thdmc(k),to_thdmc(l),scalar);
+            else
+            {
+              // std::cout << "unable to get coupling: ";
+              // print_coupling({{i,j,k,l},{scalar,pseudo}});
+              continue;
+            }
+
+            result.push_back({{i,j,k,l},{scalar,pseudo}});
+            }
+          }
+        }
+      }
+
+      // add th SM couplings 
+      get_coupling_table_SM(result);
+
+
+      // auto get_coupling = [&](coupling_table& t, std::vector<int> c)
+      // {
+      //   for (auto& i : t)
+      //   {
+      //     if (i.first == c) return i;
+      //   }
+      //   throw "invalid";
+      // };
+
+      // std::cout << "\n\nwp wm hx" << std::endl;
+      // print_coupling(get_coupling(result,{wp,wm,hx,hx}));
+      // std::cout << "B wp wm hx" << std::endl;
+      // double lam3 = fullspectrum.get(Par::dimensionless, "lambda3");
+      // double lam4 = fullspectrum.get(Par::dimensionless, "lambda4");
+      // double lam5 = fullspectrum.get(Par::dimensionless, "lambda5");
+      // std::cout << lam3+lam4+lam5+2*(sqr(masses[hp])-sqr(masses[hx]))/sqr(246.) << std::endl;
+
+      // std::cout << "z z hx" << std::endl;
+      // print_coupling(get_coupling(result,{z,z,hx,hx}));
+      // std::cout << "B z z hx" << std::endl;
+      // std::cout << lam3+lam4+lam5 << std::endl;
+
+
     }
 
   }
+
 }

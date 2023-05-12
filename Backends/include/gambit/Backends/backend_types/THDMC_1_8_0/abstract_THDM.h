@@ -27,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
             virtual Abstract_SM* get_SM_pointer__BOSS() =0;
     
-            virtual bool set_param_full(double, double, double, double, double, double, double, double, double, double, double, double, double, double) =0;
+            virtual bool set_param_full(double, double, double, double, double, double, double, double, double, double, double, double, double, double, double) =0;
     
             virtual bool set_param_gen(double, double, double, double, double, double, double, double, double) =0;
     

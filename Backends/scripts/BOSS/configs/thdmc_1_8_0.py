@@ -123,17 +123,19 @@ known_classes = {}
 # ~~~~~ Declarations to be added to the frontend header file ~~~~~
 
 convenience_functions = [
-{'name' : 'init_THDM_spectrum_container_CONV',
+{'name' : 'setup_thdmc_spectrum',
 'returntype' : 'void',
-'argtypes' : ['THDM_spectrum_container&', 'const Spectrum&', 'int', 'double', 'int'],
-'capname' : 'init_THDM_spectrum_container_CONV'
+'argtypes' : ['THDMsafe&', 'const Spectrum&'],
+'capname' : 'setup_thdmc_spectrum'
+},
+{'name' : 'setup_thdmc_sm_like_spectrum',
+'returntype' : 'void',
+'argtypes' : ['THDMsafe&', 'const Spectrum&', 'double'],
+'capname' : 'setup_thdmc_sm_like_spectrum'
 }
 ]
 
 ini_function_in_header = False
-
-pragmas_begin = []
-pragmas_end = []
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
 
