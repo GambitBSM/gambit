@@ -82,12 +82,12 @@ Parameters:
 
 Printer:
 
-  # printer: cout
+  printer: cout
 
-  printer: ascii
-  options:
-    buffer_length: 100
-    output_file: "scan.txt"
+  # printer: ascii
+  # options:
+  #   buffer_length: 100
+  #   output_file: "scan.txt"
 
   # printer: hdf5
   # options:
@@ -176,12 +176,12 @@ ObsLikes:
     function: NLO_unitarity_LogLikelihood_THDM
     # function: LO_unitarity_LogLikelihood_THDM
 
-  # prevents Higgs pole mass from going out of set range (soft-cutoff)
-  - purpose:    LogLike
-    capability: higgs_mass_LogLikelihood
-    options:
-      higgs_mass_uncertainty: 2.5
-      valid_range: 60
+  # # prevents Higgs pole mass from going out of set range (soft-cutoff)
+  # - purpose:    LogLike
+  #   capability: higgs_mass_LogLikelihood
+  #   options:
+  #     higgs_mass_uncertainty: 2.5
+  #     valid_range: 60
 
   # Stability of the 2HDM Potential
   # Applies the THDM stability constraints on the potential
@@ -254,13 +254,13 @@ ObsLikes:
   #      PRECISION LIKELIHOODS          #
   #-------------------------------------#
 
-  # Calculates the electroweak precision parameters, S, T, U, V, W, X
-  # & fits to meausured values. S, T, U involve a correlation matrix.
-  # Includes low-energy notation described in arxiv::9407203.
-  # Likelihood type: Half-Gaussian
-  - purpose:    Observable
-    capability: oblique_parameters_LogLikelihood
-    function: get_oblique_parameters_LogLikelihood
+  # # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # # & fits to meausured values. S, T, U involve a correlation matrix.
+  # # Includes low-energy notation described in arxiv::9407203.
+  # # Likelihood type: Half-Gaussian
+  # - purpose:    Observable
+  #   capability: oblique_parameters_LogLikelihood
+  #   function: get_oblique_parameters_LogLikelihood
 
   # # muon anomalous magnetic moment likelihood (for GTHDM)
   # - purpose: Observable
@@ -454,14 +454,14 @@ ObsLikes:
 ##          OBSERVABLES        ##
 #################################
 
-  - purpose:      Observable
-    capability:   prediction_Tpar
+  # - purpose:      Observable
+  #   capability:   prediction_Tpar
 
-  - purpose:      Observable
-    capability:   prediction_Spar
+  # - purpose:      Observable
+  #   capability:   prediction_Spar
 
-  - purpose:      Observable
-    capability:   prediction_Upar
+  # - purpose:      Observable
+  #   capability:   prediction_Upar
 
   # entire 2HDM spectrum
   - capability: THDM_spectrum
