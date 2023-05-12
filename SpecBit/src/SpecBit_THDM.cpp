@@ -35,9 +35,12 @@
 ///
 ///  *********************************************
 
-// GSL headers
+
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_deriv.h>
+
+#include <sstream>
+#include <complex>
 
 // Eigen headers
 #include <Eigen/Eigenvalues>
@@ -50,6 +53,7 @@
 #include "flexiblesusy/models/THDM_flipped/THDM_flipped_input_parameters.hpp"
 
 // GAMBIT headers
+#include "gambit/Elements/spectrum_types.hpp"
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/Elements/spectrum.hpp"
 #include "gambit/Utils/stream_overloads.hpp" // Just for more convenient output to logger
@@ -64,18 +68,52 @@
 #include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
 #include "gambit/Utils/util_functions.hpp"
-#include "gambit/Utils/point_counter.hpp"
+#include "gambit/Utils/numerical_constants.hpp"
+#include "gambit/Elements/spectrum_types.hpp"
 
 // #define SPECBIT_DEBUG // turn on debug mode
 
-#define L_MAX 1e50 // used to invalidate likelihood
 namespace Gambit
 {
+
   namespace SpecBit
   {
+      // error === value - upperbound
+      // error_invalid_val === error value at which result reaches invalid threshold
+      // invalid_threshold === threshold where point is as invalid
+
+      // hard cutoff function
+      double cutoff_hard(const double error, const double error_invalid_val, const double invalid_threshold)
+      {
+         return error > 0.0 ? invalid_threshold : 0.0;
+      }
+
+      // soft cutoff function (square)
+      double cutoff_soft_square(const double error, const double error_invalid_val, const double invalid_threshold)
+      {
+         if (error <= 0.0) return 0.0;
+         double sigma = error_invalid_val / sqrt(invalid_threshold);
+         double result = Utils::sqr(error/sigma);
+
+         // make sure the result is non-negligible if constraints are indeed violated
+         return result + 1.0;
+      }
+
+      // soft cutoff function (linear)
+      double cutoff_soft_linear(const double error, const double error_invalid_val, const double invalid_threshold)
+      {
+         if (error <= 0.0) return 0.0;
+         double sigma = error_invalid_val / invalid_threshold;
+         double result = error/sigma;
+
+         // make sure the result is non-negligible if constraints are indeed violated
+         return result + 1.0;
+      }
+
     // extra namespace declarations
     using namespace LogTags;
     using namespace flexiblesusy;
+    using namespace Utils;
     using std::vector;
     using std::complex;
 
@@ -97,10 +135,30 @@ namespace Gambit
       double mh, mH, mC, mA, mG, mGC, beta, lambda6, lambda7, m122, alpha;
     };
 
+    namespace RunScale
+    {
+      constexpr double NONE = -1.0;
+      constexpr double INPUT = -2.0;
+    }
+    
+    // used to invalidate likelihood
+    constexpr double L_MAX = 1e50;
+
+    // imaginary unit
+    constexpr complex<double> ii(0,1);
 
     /// =========================
     /// == spectrum generation ==
     /// =========================
+
+      // TODO: delete these
+      double g_lam1 = 0.0;
+      double g_lam2 = 0.0;
+      double g_lam3 = 0.0;
+      double g_lam4 = 0.0;
+      double g_lam5 = 0.0;
+      double g_m122 = 0.0;
+      double g_tanb = 0.0;
 
     // helper to setup Spectrum with a FlexibleSUSY spectrum generator
     template <class MI>
@@ -202,6 +260,8 @@ namespace Gambit
       //  us to set parameters that don't previously exist)
       thdmspec.set_override(Par::mass1, spectrum_generator.get_high_scale(), "high_scale", true);
       thdmspec.set_override(Par::mass1, spectrum_generator.get_low_scale(), "low_scale", true);
+      thdmspec.set_override(Par::dimensionless, 0, "isIDM", true);
+      thdmspec.set_override(Par::dimensionless, cos(thdmspec.get(Par::dimensionless, "beta")-thdmspec.get(Par::dimensionless, "alpha")), "cosba", true);
 
       if (input_Param.find("TanBeta") != input_Param.end())
       {
@@ -359,11 +419,100 @@ namespace Gambit
       }
     }
 
+    // apply a basic set of theory constraints at the input scale
+    void performance_hax()
+    {
+        using namespace Pipes::get_THDM_spectrum;
+        const bool use_speedhacks = runOptions->getValueOrDef<bool>(true, "use_speedhacks");
+        const str err_msg = "bad point encountered. Point invalidated\n";
+        constexpr double pert_limit = 12.7; // not intended as a replacement of theory constraints, 
+                                     // just to skip spectrum calculation when way off the mark
+                              
+        const double lam1 = *Param.at("lambda1");
+        const double lam2 = *Param.at("lambda2");
+        const double lam3 = *Param.at("lambda3");
+        const double lam4 = *Param.at("lambda4");
+        const double lam5 = *Param.at("lambda5");
+        const double lam6 = *Param.at("lambda6");
+        const double lam7 = *Param.at("lambda7");
+
+        g_lam1 = lam1;
+        g_lam2 = lam2;
+        g_lam3 = lam3;
+        g_lam4 = lam4;
+        g_lam5 = lam5;
+        g_m122 = *Param.at("m12_2");
+        g_tanb = *Param.at("tanb");
+
+        if (abs(lam1) > pert_limit || abs(lam2) > pert_limit ||
+            abs(lam3) > pert_limit || abs(lam4) > pert_limit ||
+            abs(lam5) > pert_limit || abs(lam6) > pert_limit ||
+            abs(lam7) > pert_limit)
+        {
+            invalid_point().raise(err_msg);
+        }
+
+        if (!use_speedhacks) return;
+
+        // double mbar = 2*(*Param.at("m12_2")) / sin(2*atan(*Param.at("tanb")));
+        // double v2 = 246*246;
+
+        // if (mbar / v2 < -17)
+        // {
+        //     count.count_invalid();
+        //     invalid_point().raise(err_msg);
+        // }
+          
+        // a00
+        double a00_even_plus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) + sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
+        double a00_even_minus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) - sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
+        double a00_odd_plus = lam3 + 2.0 * lam4 + 3.0 * lam5;
+        double a00_odd_minus = lam3 + 2.0 * lam4 - 3.0 * lam5;
+        // a01
+        double a01_even_plus = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam4, 2)));
+        double a01_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam4, 2)));
+        double a01_odd_plus = lam3 + lam5;
+        double a01_odd_minus = lam3 - lam5;
+        // a20
+        double a20_odd = lam3 - lam4;
+        // a21
+        double a21_even_plus = 1.0 / 2.0 * (lam1 + lam2 + sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam5, 2)));
+        double a21_even_minus = 1.0 / 2.0 * (lam1 + lam2 - sqrt(pow((lam1 - lam2), 2) + 4.0 * pow(lam5, 2)));
+        double a21_odd = lam3 + lam4;
+
+        vector<double> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
+                a01_even_minus, a01_odd_plus, a01_odd_minus, a20_odd, a21_even_plus, a21_even_minus, a21_odd};
+
+        constexpr double unitarity_upper_limit = 8 * pi;
+
+        for (auto const &eachEig : lo_eigenvalues)
+        {
+          if (abs(eachEig) > unitarity_upper_limit)
+          {
+            invalid_point().raise(err_msg);
+          }
+        }
+    }
+
     // Get Spectrum for the THDM (either a FlexibleSUSY or tree-level spectrum depending on model)
     void get_THDM_spectrum(Spectrum &result)
     {
       using namespace Pipes::get_THDM_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;
+
+      performance_hax();
+
+      // if (ModelInUse("gumTHDMII"))
+      // {
+      //   str errmsg = "Cannot use gumTHDMII with Filip's 2HDM spectrum generator";
+      //   SpecBit_error().raise(LOCAL_INFO, errmsg);
+      // }
+
+      // if (ModelInUse("Inert2"))
+      // {
+      //   str errmsg = "Cannot use IDM with Filip's 2HDM spectrum generator";
+      //   SpecBit_error().raise(LOCAL_INFO, errmsg);
+      // }
 
       if (ModelInUse("THDM"))
       {
@@ -409,7 +558,6 @@ namespace Gambit
         const double alpha = basis["alpha"];
         const double tanb = basis["tanb"];
 
-
         thdm_model.model_type = *Dep::THDM_Type;
 
         thdm_model.tanb = tanb;
@@ -445,18 +593,20 @@ namespace Gambit
         thdm_model.mGC = 0.0;
 
         // quantities needed to fill spectrum, intermediate calculations
-        const double alpha_em = 1.0 / sminputs.alphainv, C_calc = alpha_em * pi / (sminputs.GF * pow(2, 0.5));
-        const double sinW2 = 0.5 - pow(0.25 - C_calc / pow(sminputs.mZ, 2), 0.5), cosW2 = 0.5 + pow(0.25 - C_calc / pow(sminputs.mZ, 2), 0.5);
-        const double e = pow(4 * pi * (alpha_em), 0.5), v2 = 1.0 / (sqrt(2.0) * sminputs.GF), vev = sqrt(v2);
+        const double v2 = 1.0 / (sqrt(2.0) * sminputs.GF);
+        const double vev = sqrt(v2);
+        const double alpha_em = 1.0 / sminputs.alphainv;
+        const double e = sqrt(4*pi*alpha_em);
+        const double cosW = sminputs.mW/sminputs.mZ; 
+        const double sinW = sqrt(1 - sqr(cosW));
 
         // Standard model
-        thdm_model.sinW2 = sinW2;
+        thdm_model.sinW2 = sqr(sinW);
         thdm_model.vev = vev;
         // gauge couplings
-        thdm_model.g1 = e / sinW2;
-        thdm_model.g2 = e / cosW2;
+        thdm_model.g1 = e / sinW;
+        thdm_model.g2 = e / cosW;
         thdm_model.g3 = pow(4 * pi * (sminputs.alphaS), 0.5);
-        //thdm_model.mW = sminputs.mZ * sqrt(cosW2);// this is a tree level approximation
         thdm_model.mW = sminputs.mW;
         // Yukawas
 
@@ -512,6 +662,8 @@ namespace Gambit
 
         thdm_spec.set_override(Par::mass1, 0, "G0", true);
         thdm_spec.set_override(Par::mass1, 0, "G+", true);
+        thdm_spec.set_override(Par::dimensionless, 0, "isIDM", true);
+        thdm_spec.set_override(Par::dimensionless, cos(thdm_spec.get(Par::dimensionless, "beta")-thdm_spec.get(Par::dimensionless, "alpha")), "cosba", true);
 
         // Create full Spectrum object from components above
         // Note: SubSpectrum objects cannot be copied, but Spectrum
@@ -541,11 +693,11 @@ namespace Gambit
         if (runOptions->getValueOrDef<bool>(false, "check_perturbativity"))
         {
           bool is_perturbative = true;
-          vector<std::string> lambda_keys = {"lambda1", "lambda2", "lambda3", "lambda4",
+          vector<str> lambda_keys = {"lambda1", "lambda2", "lambda3", "lambda4",
                                                   "lambda5", "lambda6", "lambda7"};
           for (auto const &each_lambda : lambda_keys)
           {
-            if (*Param.at(each_lambda) > 4. * M_PI)
+            if (*Param.at(each_lambda) > 4. * pi)
             {
               is_perturbative = false;
               break;
@@ -656,28 +808,40 @@ namespace Gambit
       }
     }
 
-    // fill a map of THDM spectrum parameters to be printed
-    void fill_map_from_THDMspectrum(std::map<std::string, double> &specmap, const Spectrum &thdmspec, const THDM_TYPE THDM_type)
+    // get Spectrum as std::map so that it can be printed
+    void get_THDM_spectrum_as_map(std::map<str,double> &specmap)
     {
       using namespace Pipes::get_THDM_spectrum_as_map;
+      THDM_TYPE THDM_type = *Dep::THDM_Type;
+      namespace myPipe = Pipes::get_THDM_spectrum_as_map;
+      const Spectrum &thdmspec(*myPipe::Dep::THDM_spectrum);
+      
       bool print_minimal_yukawas = runOptions->getValueOrDef<bool>(false, "print_minimal_yukawas");
       bool print_Higgs_basis_params = runOptions->getValueOrDef<bool>(true, "print_Higgs_basis_params");
-      bool print_running_masses = runOptions->getValueOrDef<bool>(true, "print_running_masses");
+      bool print_running_masses = runOptions->getValueOrDef<bool>(false, "print_running_masses");
+
+      print_Higgs_basis_params = true;
 
       /// Add everything... use spectrum contents routines to automate task
       static const SpectrumContents::THDM contents;
-      static const std::vector<SpectrumParameter> required_parameters = contents.all_parameters();
+      static const vector<SpectrumParameter> required_parameters = contents.all_parameters();
 
-      for (std::vector<SpectrumParameter>::const_iterator it = required_parameters.begin();
+      for (vector<SpectrumParameter>::const_iterator it = required_parameters.begin();
            it != required_parameters.end(); ++it)
       {
         const Par::Tags tag = it->tag();
         const std::string name = it->name();
-        const std::vector<int> shape = it->shape();
+        const vector<int> shape = it->shape();
 
+        // useless stuff
+        if (name == "vev" || name == "model_type" || name == "lambda6" || name == "lambda7") continue;
+
+        // only enable in final combined fit
+        // if (name == "sinW2" || name == "m22_2" || name == "m12_2" || name == "m11_2" || name == "g1" || name == "g2" || name == "g3" || name == "W+") continue;
+        
+        // skip Yukawas that are zero for the model being scanned
         if (print_minimal_yukawas)
         {
-          // skip Yukawas that are zero for the model being scanned
           if (THDM_type != TYPE_III)
             if (name.rfind("ImY", 0) == 0)
               continue;
@@ -780,8 +944,8 @@ namespace Gambit
         specmap["Lambda5 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda5");
         specmap["Lambda6 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda6");
         specmap["Lambda7 dimensionless"] = thdmspec.get_HE().get(Par::dimensionless, "Lambda7");
-        specmap["M12_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M12_2");
-        specmap["M11_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M11_2");
+        // specmap["M12_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M12_2");
+        // specmap["M11_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M11_2");
         specmap["M22_2 mass1"] = thdmspec.get_HE().get(Par::mass1, "M22_2");
       }
 
@@ -793,16 +957,52 @@ namespace Gambit
         specmap["A0 mass1"] = thdmspec.get_HE().get(Par::mass1, "A0");
         specmap["H+ mass1"] = thdmspec.get_HE().get(Par::mass1, "H+");
       }
-    }
 
-    // get Spectrum as std::map so that it can be printed
-    void get_THDM_spectrum_as_map(std::map<std::string, double> &specmap)
+      // return; // !!!!
+
+      specmap["lambda1_in"] = g_lam1;
+      specmap["lambda2_in"] = g_lam2;
+      specmap["lambda3_in"] = g_lam3;
+      specmap["lambda4_in"] = g_lam4;
+      specmap["lambda5_in"] = g_lam5;
+      specmap["m122_in"] = g_m122;
+      specmap["tanb_in"] = g_tanb;
+
+      specmap["mA_mHp"] = thdmspec.get_HE().get(Par::Pole_Mass, "A0") - thdmspec.get_HE().get(Par::Pole_Mass, "H+");
+      specmap["mH_mA"] = thdmspec.get_HE().get(Par::Pole_Mass, "h0_2") - thdmspec.get_HE().get(Par::Pole_Mass, "A0");
+
+      specmap["mA_mHp mass1"] = thdmspec.get_HE().get(Par::mass1, "A0") - thdmspec.get_HE().get(Par::mass1, "H+");
+      specmap["mH_mA mass1"] = thdmspec.get_HE().get(Par::mass1, "h0_2") - thdmspec.get_HE().get(Par::mass1, "A0");
+
     {
-      using namespace Pipes::get_THDM_spectrum_as_map;
-      THDM_TYPE THDM_type = *Dep::THDM_Type;
-      namespace myPipe = Pipes::get_THDM_spectrum_as_map;
-      const Spectrum &thdmspec(*myPipe::Dep::THDM_spectrum);
-      fill_map_from_THDMspectrum(specmap, thdmspec, THDM_type);
+        double v2 = 1.0/(sqrt(2.0)*thdmspec.get_SMInputs().GF);
+        double tanb  = g_tanb;
+        double beta = atan(tanb);
+        double sb = sin(beta), cb = cos(beta), tb = tan(beta);
+        double sb2 = sb*sb, cb2 = cb*cb, ctb = 1./tb;
+        double lam1 = g_lam1, lam2 = g_lam2, lam3 = g_lam3, lam4 = g_lam4, lam5 = g_lam5;
+        double lam6 = 0, lam7 = 0, m12_2 = g_m122;
+        
+        double lam345 = lam3 + lam4 + lam5;
+        // do the basis conversion
+        double m11_2 = m12_2*tb - 0.5*v2 * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tb);
+        double m22_2 = m12_2*ctb - 0.5*v2 * (lam2*sb*sb + lam345*cb*cb + lam6*cb*cb*ctb + 3.0*lam7*sb*cb);
+        double m_A2;
+        if (tb>0) m_A2 = m12_2/sb/cb-0.5*v2*(2*lam5+lam6*ctb+lam7*tb);
+        else m_A2 = m22_2+0.5*v2*(lam3+lam4-lam5);
+        double m_Hp2 = m_A2+0.5*v2*(lam5-lam4);
+        double M112 = m_A2*sb2+v2*(lam1*cb2+2.*lam6*sb*cb+lam5*sb2);
+        double M122 = -m_A2*sb*cb+v2*((lam3+lam4)*sb*cb+lam6*cb2+lam7*sb2);
+        double M222 = m_A2*cb2+v2*(lam2*sb2+2.*lam7*sb*cb+lam5*cb2);
+        double m_h2 = 0.5*(M112+M222-sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+        double m_H2 = 0.5*(M112+M222+sqrt((M112-M222)*(M112-M222)+4.*M122*M122));
+
+        specmap["h0_1 tree"] = sqrt(m_h2);
+        specmap["h0_2 tree"] = sqrt(m_H2);
+        specmap["A0 tree"] = sqrt(m_A2);
+        specmap["H+ tree"] = sqrt(m_Hp2);
+      }
+
     }
 
     // Get the Type of THDM from the yukawa structure
@@ -912,12 +1112,6 @@ namespace Gambit
     /// == helper functions to unwrap parameters from the spectrum and help with calculations ==
     /// ========================================================================================
 
-
-    namespace RunScale
-    {
-      constexpr double NONE = -1.0;
-      constexpr double INPUT = -2.0;
-    }
 
     // simple immutable structure for passing around 2HDM parameters at a fixed scale
     // with simple variable names so that you don't need to unwrap them
@@ -2134,6 +2328,7 @@ namespace Gambit
     }
     
 
+
     ///  ===============================================================
     ///  == functions to fill parameters for NLO unitarity likelihood ==
     ///  ===============================================================
@@ -3108,6 +3303,36 @@ namespace Gambit
       return result;
     }
 
+    // Get name of the SM-like scalar
+    void get_SM_like_scalar(str& result)
+    {
+      const Spectrum& spectrum = *Pipes::get_SM_like_scalar::Dep::THDM_spectrum;
+
+      if (spectrum.get(Par::dimensionless,"isIDM") == true)
+      {
+        if (spectrum.get(Par::dimensionless, "cosba") == 0)
+          result = "h0_1";
+        else
+          result = "h0_2";
+      }
+      else
+      {
+        if (abs(spectrum.get(Par::Pole_Mass,"h0_1")-125.10) <= abs(spectrum.get(Par::Pole_Mass,"h0_2")-125.10))
+          result = "h0_1";
+        else
+          result = "h0_2";
+      }
+    }
+
+    // Get the name of the additional
+    void get_additional_scalar(str& result)
+    {
+      if (*Pipes::get_additional_scalar::Dep::SM_like_scalar == "h0_1")
+        result = "h0_2";
+      else
+        result = "h0_1";
+    }
+
 
     /// =================================
     /// == likelihood function helpers ==
@@ -3115,31 +3340,27 @@ namespace Gambit
 
 
     // get leading-order scattering eigenvalues (with fixed ordering) (requires Z2-symmetric THDM)
-    vector<complex<double>> get_LO_scattering_eigenvalues_ordered(ThdmSpec &s)
+    vector<complex<double>> get_LO_scattering_eigenvalues_ordered(const ThdmSpec &s)
     {
-      // Note: only compatible with Z-2 aligned models
-
-      vector<double> lambda = get_lambdas_from_spectrum(s);
-
       // ensure that we have a Z2-symmetric scalar sector
-      check_Z2(lambda[6], lambda[7], "get_LO_scattering_eigenvalues_ordered");
+      check_Z2(s.lam6, s.lam7, "get_LO_scattering_eigenvalues_ordered");
 
       // a00
-      complex<double> a00_even_plus = 1.0 / 2.0 * (3.0 * (lambda[1] + lambda[2]) + sqrt(9.0 * pow((lambda[1] - lambda[2]), 2) + 4.0 * pow((2.0 * lambda[3] + lambda[4]), 2)));
-      complex<double> a00_even_minus = 1.0 / 2.0 * (3.0 * (lambda[1] + lambda[2]) - sqrt(9.0 * pow((lambda[1] - lambda[2]), 2) + 4.0 * pow((2.0 * lambda[3] + lambda[4]), 2)));
-      complex<double> a00_odd_plus = lambda[3] + 2.0 * lambda[4] + 3.0 * lambda[5];
-      complex<double> a00_odd_minus = lambda[3] + 2.0 * lambda[4] - 3.0 * lambda[5];
+      complex<double> a00_even_plus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) + sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
+      complex<double> a00_even_minus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) - sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
+      complex<double> a00_odd_plus = s.lam3 + 2.0 * s.lam4 + 3.0 * s.lam5;
+      complex<double> a00_odd_minus = s.lam3 + 2.0 * s.lam4 - 3.0 * s.lam5;
       // a01
-      complex<double> a01_even_plus = 1.0 / 2.0 * (lambda[1] + lambda[2] + sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[4], 2)));
-      complex<double> a01_even_minus = 1.0 / 2.0 * (lambda[1] + lambda[2] - sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[4], 2)));
-      complex<double> a01_odd_plus = lambda[3] + lambda[5];
-      complex<double> a01_odd_minus = lambda[3] - lambda[5];
+      complex<double> a01_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
+      complex<double> a01_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
+      complex<double> a01_odd_plus = s.lam3 + s.lam5;
+      complex<double> a01_odd_minus = s.lam3 - s.lam5;
       // a20
-      complex<double> a20_odd = lambda[3] - lambda[4];
+      complex<double> a20_odd = s.lam3 - s.lam4;
       // a21
-      complex<double> a21_even_plus = 1.0 / 2.0 * (lambda[1] + lambda[2] + sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[5], 2)));
-      complex<double> a21_even_minus = 1.0 / 2.0 * (lambda[1] + lambda[2] - sqrt(pow((lambda[1] - lambda[2]), 2) + 4.0 * pow(lambda[5], 2)));
-      complex<double> a21_odd = lambda[3] + lambda[4];
+      complex<double> a21_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
+      complex<double> a21_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
+      complex<double> a21_odd = s.lam3 + s.lam4;
 
       vector<complex<double>> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
               a01_even_minus, a01_odd_plus, a01_odd_minus, a20_odd, a21_even_plus, a21_even_minus, a21_odd};
@@ -3148,25 +3369,24 @@ namespace Gambit
     }
 
     // get leading-order scattering eigenvalues (with no particular order) (supports GCP 2HDM with lam6,lam7)
-    vector<complex<double>> get_LO_scattering_eigenvalues(ThdmSpec &s)
+    vector<complex<double>> get_LO_scattering_eigenvalues(const ThdmSpec &s)
     {
       vector<double> lambda;
       vector<complex<double>> lo_eigenvalues;
-      lambda = get_lambdas_from_spectrum(s);
 
       // Scattering matrix (7a) Y=2 sigma=1
       Eigen::MatrixXcd S_21(3, 3);
-      S_21(0, 0) = lambda[1];
-      S_21(0, 1) = lambda[5];
-      S_21(0, 2) = sqrt(2.0) * lambda[6];
+      S_21(0, 0) = s.lam1;
+      S_21(0, 1) = s.lam5;
+      S_21(0, 2) = sqrt(2.0) * s.lam6;
 
-      S_21(1, 0) = std::conj(lambda[5]);
-      S_21(1, 1) = lambda[2];
-      S_21(1, 2) = sqrt(2.0) * std::conj(lambda[7]);
+      S_21(1, 0) = std::conj(s.lam5);
+      S_21(1, 1) = s.lam2;
+      S_21(1, 2) = sqrt(2.0) * std::conj(s.lam7);
 
-      S_21(2, 0) = sqrt(2.0) * std::conj(lambda[6]);
-      S_21(2, 1) = sqrt(2.0) * lambda[7];
-      S_21(2, 2) = lambda[3] + lambda[4];
+      S_21(2, 0) = sqrt(2.0) * std::conj(s.lam6);
+      S_21(2, 1) = sqrt(2.0) * s.lam7;
+      S_21(2, 2) = s.lam3 + s.lam4;
 
       Eigen::ComplexEigenSolver<Eigen::MatrixXcd> eigensolver_S_21(S_21);
       Eigen::VectorXcd eigenvalues_S_21 = eigensolver_S_21.eigenvalues();
@@ -3175,30 +3395,30 @@ namespace Gambit
       lo_eigenvalues.push_back((eigenvalues_S_21(2)));
 
       // Scattering matrix (7b) Y=2 sigma=0
-      complex<double> S_20 = lambda[3] - lambda[4];
+      complex<double> S_20 = s.lam3 - s.lam4;
       lo_eigenvalues.push_back((S_20));
 
       // Scattering matrix (7c) Y=0 sigma=1
       Eigen::MatrixXcd S_01(4, 4);
-      S_01(0, 0) = lambda[1];
-      S_01(0, 1) = lambda[4];
-      S_01(0, 2) = lambda[6];
-      S_01(0, 3) = std::conj(lambda[6]);
+      S_01(0, 0) = s.lam1;
+      S_01(0, 1) = s.lam4;
+      S_01(0, 2) = s.lam6;
+      S_01(0, 3) = std::conj(s.lam6);
 
-      S_01(1, 0) = lambda[4];
-      S_01(1, 1) = lambda[2];
-      S_01(1, 2) = lambda[7];
-      S_01(1, 3) = std::conj(lambda[7]);
+      S_01(1, 0) = s.lam4;
+      S_01(1, 1) = s.lam2;
+      S_01(1, 2) = s.lam7;
+      S_01(1, 3) = std::conj(s.lam7);
 
-      S_01(2, 0) = std::conj(lambda[6]);
-      S_01(2, 1) = std::conj(lambda[7]);
-      S_01(2, 2) = lambda[3];
-      S_01(2, 3) = lambda[5];
+      S_01(2, 0) = std::conj(s.lam6);
+      S_01(2, 1) = std::conj(s.lam7);
+      S_01(2, 2) = s.lam3;
+      S_01(2, 3) = s.lam5;
 
-      S_01(3, 0) = lambda[6];
-      S_01(3, 1) = lambda[7];
-      S_01(3, 2) = lambda[5];
-      S_01(3, 3) = lambda[3];
+      S_01(3, 0) = s.lam6;
+      S_01(3, 1) = s.lam7;
+      S_01(3, 2) = s.lam5;
+      S_01(3, 3) = s.lam3;
 
       Eigen::ComplexEigenSolver<Eigen::MatrixXcd> eigensolver_S_01(S_01);
       Eigen::VectorXcd eigenvalues_S_01 = eigensolver_S_01.eigenvalues();
@@ -3209,25 +3429,25 @@ namespace Gambit
 
       // Scattering matrix (7d) Y=0 sigma=0
       Eigen::MatrixXcd S_00(4, 4);
-      S_00(0, 0) = 3.0 * lambda[1];
-      S_00(0, 1) = 2.0 * lambda[3] + lambda[4];
-      S_00(0, 2) = 3.0 * lambda[6];
-      S_00(0, 3) = 3.0 * std::conj(lambda[6]);
+      S_00(0, 0) = 3.0 * s.lam1;
+      S_00(0, 1) = 2.0 * s.lam3 + s.lam4;
+      S_00(0, 2) = 3.0 * s.lam6;
+      S_00(0, 3) = 3.0 * std::conj(s.lam6);
 
-      S_00(1, 0) = 2.0 * lambda[3] + lambda[4];
-      S_00(1, 1) = 3.0 * lambda[2];
-      S_00(1, 2) = 3.0 * lambda[7];
-      S_00(1, 3) = 3.0 * std::conj(lambda[7]);
+      S_00(1, 0) = 2.0 * s.lam3 + s.lam4;
+      S_00(1, 1) = 3.0 * s.lam2;
+      S_00(1, 2) = 3.0 * s.lam7;
+      S_00(1, 3) = 3.0 * std::conj(s.lam7);
 
-      S_00(2, 0) = 3.0 * std::conj(lambda[6]);
-      S_00(2, 1) = 3.0 * std::conj(lambda[7]);
-      S_00(2, 2) = lambda[3] + 2.0 * lambda[4];
-      S_00(2, 3) = 3.0 * std::conj(lambda[5]);
+      S_00(2, 0) = 3.0 * std::conj(s.lam6);
+      S_00(2, 1) = 3.0 * std::conj(s.lam7);
+      S_00(2, 2) = s.lam3 + 2.0 * s.lam4;
+      S_00(2, 3) = 3.0 * std::conj(s.lam5);
 
-      S_00(3, 0) = 3.0 * lambda[6];
-      S_00(3, 1) = 3.0 * lambda[7];
-      S_00(3, 2) = 3.0 * lambda[5];
-      S_00(3, 3) = lambda[3] + 2.0 * lambda[4];
+      S_00(3, 0) = 3.0 * s.lam6;
+      S_00(3, 1) = 3.0 * s.lam7;
+      S_00(3, 2) = 3.0 * s.lam5;
+      S_00(3, 3) = s.lam3 + 2.0 * s.lam4;
 
       Eigen::ComplexEigenSolver<Eigen::MatrixXcd> eigensolver_S_00(S_00);
       Eigen::VectorXcd eigenvalues_S_00 = eigensolver_S_00.eigenvalues();
@@ -3254,8 +3474,7 @@ namespace Gambit
         LO_eigenvalues = get_LO_scattering_eigenvalues(s);
 
       // all values < 8*PI for unitarity conditions (see ivanov paper)
-      constexpr double unitarity_upper_limit = 8 * M_PI;
-      constexpr double sigma = 0.05;
+      constexpr double unitarity_upper_limit = 8 * pi;
 
       //calculate the total error of each point
       double error = 0.0;
@@ -3263,7 +3482,7 @@ namespace Gambit
         if (abs(eachEig) > unitarity_upper_limit)
           error += abs(eachEig) - unitarity_upper_limit;
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 71, 1e6);
     }
 
     // next-to-leading-order S-matrix unitarity likelihood
@@ -3272,11 +3491,10 @@ namespace Gambit
       // get required spectrum info
       ThdmSpec s(he, ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
 
-      const complex<double> i(0.0, 1.0);
+
       vector<complex<double>> NLO_eigenvalues = get_NLO_scattering_eigenvalues(he, s, wave_function_corrections, gauge_corrections, yukawa_corrections);
 
       constexpr double unitarity_upper_limit = 0.50;
-      constexpr double sigma = 0.05;
       double error = 0.0;
       double error_ratio = 0.0;
 
@@ -3287,9 +3505,9 @@ namespace Gambit
 
       for (auto const &eig : NLO_eigenvalues)
       {
-        if (abs(eig - i / 2.0) > unitarity_upper_limit)
+        if (abs(eig - ii / 2.0) > unitarity_upper_limit)
         {
-          error += abs(eig - i / 2.0) - unitarity_upper_limit;
+          error += abs(eig - ii / 2.0) - unitarity_upper_limit;
         }
         // std::cout << nlo_eig_names[counter_nlo] << ": " << eig << " | " << abs(eig - i / 2) << std::endl;
         // counter_nlo++;
@@ -3303,20 +3521,20 @@ namespace Gambit
         for (size_t num = 0; num < LO_eigenvalues.size(); num++)
         {
           // needs to be normalized in accordance to NLO unitarity
-          complex<double> LO_eigenvalue = -(LO_eigenvalues[LO_eigenvalue_order[num]]) / (32.0 * M_PI * M_PI);
+          complex<double> LO_eigenvalue = -(LO_eigenvalues[LO_eigenvalue_order[num]]) / (32.0 * pi * pi);
           // only check for lo eigenvalues larger than 1/16pi as otherwise this may break down
-          if (abs(LO_eigenvalue) > 1 / (16.0 * M_PI))
+          if (abs(LO_eigenvalue) > 1 / (16.0 * pi))
           {
             double ratio = abs(NLO_eigenvalues[num]) / abs(LO_eigenvalue);
-            if (ratio >= 1)
+            if (ratio > 1.0)
             {
-              error_ratio += abs(ratio - 1);
+              error_ratio += abs(ratio - 1.0);
             }
           }
         }
       }
 
-      return Stats::gaussian_upper_limit(error*0.7 + error_ratio*0.6, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error*0.7 + error_ratio*0.6, 71, 1e6);
     }
 
     // basic perturbativity likelihood (only checks that lambdas are less than 4pi)
@@ -3326,13 +3544,10 @@ namespace Gambit
       ThdmSpec s(he,ThdmSpec::FILL_GENERIC);
 
       // check lambdai (generic couplings)
-      //-----------------------------
       // all values < 4*PI for perturbativity conditions
-      const double perturbativity_upper_limit = 4 * M_PI;
-      const double sigma = 0.05;
-      //-----------------------------
+      const double perturbativity_upper_limit = 4 * pi;
       double error = 0.0;
-      vector<double> lambda = get_lambdas_from_spectrum(s);
+      vector<double> lambda = {s.lam1, s.lam2, s.lam3, s.lam4, s.lam5, s.lam6, s.lam7};
       // loop over all lambdas
       for (auto const &each_lambda : lambda)
       {
@@ -3340,7 +3555,7 @@ namespace Gambit
           error += abs(each_lambda) - perturbativity_upper_limit;
       }
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 71, 1e6);
     }
 
     // perturbativity likelihood (checks that all quartic couplings are less than 4pi)
@@ -3351,9 +3566,7 @@ namespace Gambit
 
       //-----------------------------
       // all values < 4*PI for perturbativity conditions
-      const double perturbativity_upper_limit = 4 * M_PI;
-      const double sigma = 0.08;
-      //-----------------------------
+      const double perturbativity_upper_limit = 4 * pi;
       double error = 0.0;
       double previous_coupling = 0.0;
       // using generic model so calculate chi^2 from all possible 4 higgs interactions
@@ -3387,7 +3600,7 @@ namespace Gambit
         }
       }
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 113, 1e6);
     }
 
     // vacuum metastability constraint (checked as part of the stability likelihood)
@@ -3448,7 +3661,6 @@ namespace Gambit
 
       ThdmSpec s(he, ThdmSpec::FILL_GENERIC | ThdmSpec::FILL_ANGLES | ThdmSpec::FILL_HIGGS | ThdmSpec::FILL_PHYSICAL);
 
-      const double sigma = 0.07;
       double error = 0.;
 
       error += std::max(0.0, -s.lam1);
@@ -3492,17 +3704,17 @@ namespace Gambit
           cosg  = cos(gamma);
           rho   = sin(gamma)*(s.lam7-cosg*cosg*s.lam7+s.lam6*cosg*cosg)/(cosg*(-s.lam5-s.lam4+cosg*cosg*s.lam4+cosg*cosg*s.lam5));
 
-          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= M_PI/2.)
+          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= pi/2.)
           {
             error += std::max(0.0, -calc);
           }
 
           // cos(theta) = +-1 AND abs(rho) <= 1 AND 0<gamma<pi/2 (second gamma solution)
-          gamma = M_PI-gamma;
+          gamma = pi-gamma;
           cosg  = cos(gamma);
           rho   = sin(gamma)*(s.lam7-cosg*cosg*s.lam7+s.lam6*cosg*cosg)/(cosg*(-s.lam5-s.lam4+cosg*cosg*s.lam4+cosg*cosg*s.lam5));
 
-          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= M_PI/2.)
+          if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= pi/2.)
           {
             error += std::max(0.0, -calc);
           }
@@ -3514,7 +3726,7 @@ namespace Gambit
           double ct = (1./2.)*(-s.lam6*s.lam3-s.lam6*s.lam4+s.lam6*s.lam2+s.lam5*s.lam6+s.lam7*s.lam1-s.lam7*s.lam3-s.lam7*s.lam4+s.lam7*s.lam5)/sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6));
           gamma     = atan(sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6))/(-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7));
 
-          if (abs(ct) <= 1.0 && abs(gamma) <= M_PI/2.)
+          if (abs(ct) <= 1.0 && abs(gamma) <= pi/2.)
           {
             error += std::max(0.0, -calc2);
           }
@@ -3531,7 +3743,7 @@ namespace Gambit
 
       }
 
-      return Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
+      return -cutoff_soft_square(error, 99, 1e6);
     }
 
     // loop correction perturbativity constraint on the light scalar, h0
@@ -3541,11 +3753,9 @@ namespace Gambit
       const double mh_splitting = abs(mh_pole - mh_running);
       double result = 0.0;
 
-      if (mh_splitting/mh_running > 0.5)
-      {
-        result += -1e5 * (mh_splitting/mh_running -  0.5);
-        // result = -L_MAX;
-      }
+      double error = mh_splitting/mh_running - 0.5;
+      result += -cutoff_soft_square(error, 1.0, 1e6);
+      
       return result;
     }
 
@@ -3553,7 +3763,6 @@ namespace Gambit
     double get_heavy_scalar_mass_correction_LogLikelihood(const SubSpectrum& he)
     {
       vector<std::string> heavy_scalars = {"h0_2", "A0", "H+"};
-
       double result = 0.0;
 
       for (auto& scalar : heavy_scalars)
@@ -3561,11 +3770,9 @@ namespace Gambit
         double mass_running = he.get(Par::mass1, scalar);
         double mass_pole = he.get(Par::Pole_Mass, scalar);
         double mass_splitting = abs(mass_running - mass_pole);
-        if (mass_splitting/mass_running > 0.5)
-        {
-          result += -1e5 * (mass_splitting/mass_running - 0.5);
-          // result = -L_MAX;
-        }
+
+         double error = mass_splitting/mass_running - 0.5;
+         result += -cutoff_soft_square(error, 1.0, 1e6);
       }
       return result;
     }
@@ -3573,10 +3780,10 @@ namespace Gambit
     // allows the user to enforce upper mass limit on all scalars and lower mass limit on heavy scalars
     double get_scalar_mass_range_LogLikelihood(const SubSpectrum& he, const double min_mass, const double max_mass)
     {
-      const double mh0 = he.get(Par::mass1, "h0", 1);
-      const double mH0 = he.get(Par::mass1, "h0", 2);
-      const double mA0 = he.get(Par::mass1, "A0");
-      const double mHp = he.get(Par::mass1, "H+");
+      const double mh0 = he.get(Par::Pole_Mass, "h0", 1);
+      const double mH0 = he.get(Par::Pole_Mass, "h0", 2);
+      const double mA0 = he.get(Par::Pole_Mass, "A0");
+      const double mHp = he.get(Par::Pole_Mass, "H+");
 
       double result = 0;
       if (mh0 > max_mass || mH0 > max_mass || mA0 > max_mass || mHp > max_mass) result = -L_MAX;
@@ -3598,7 +3805,7 @@ namespace Gambit
       // we always check the input scale
       vector<double> scales_to_check = { RunScale::INPUT };
 
-      // also check the custom scale from the yaml file
+      // also check the custom scale from the yaml file. Skip if tree level
       if (other_scale != RunScale::NONE && other_scale != RunScale::INPUT && is_FS_model)
         scales_to_check.push_back(other_scale);
 
@@ -3607,7 +3814,7 @@ namespace Gambit
       // {
       //   std::ostringstream os;
       //   os << "SpecBit warning (non-fatal): requested " << calculation_name << " at all scales. However model in use is incompatible with running to scales. Will revert to regular calculation.";
-      //   SpecBit_warning().raise(LOCAL_INFO, os.str());
+      //   SpecBit_error().raise(LOCAL_INFO, os.str());
       // }
 
       // get the worst performing likelihood at all scales
@@ -3709,7 +3916,6 @@ namespace Gambit
       SMInputs sminputs = *Dep::SMINPUTS;
       const Spectrum spec = *Dep::THDM_spectrum;
       std::unique_ptr<SubSpectrum> he = spec.clone_HE();
-      const double sigma = 0.1;
       const double v = sqrt(1.0/(sqrt(2.0)*sminputs.GF));
       const double mT = Dep::SMINPUTS->mT;
       double tanb = he->get(Par::dimensionless,"tanb");
@@ -3739,13 +3945,12 @@ namespace Gambit
       // loop over all yukawas
       for (auto & each_yukawa : Yukawas)
       {
-        if (abs(each_yukawa) > sqrt(4*M_PI)/(sqrt(1+tanb*tanb)))
-          error += abs(each_yukawa) - (sqrt(4*M_PI)/(sqrt(1+tanb*tanb)));
+        if (abs(each_yukawa) > sqrt(4*pi)/(sqrt(1+tanb*tanb)))
+          error += abs(each_yukawa) - (sqrt(4*pi)/(sqrt(1+tanb*tanb)));
       }
       //Apply softer bound for Yu2tt
-      error += abs(Yu2tt) - ((sqrt(4*M_PI)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
-      result = Stats::gaussian_upper_limit(error, 0.0, 0.0, sigma, false);
-      result = std::min(0.0, result);
+      error += abs(Yu2tt) - ((sqrt(4*pi)+((sqrt(2)*tanb*mT)/v))/(sqrt(1+tanb*tanb)));
+      result = -cutoff_soft_square(error, 141, 1e6);
     }
 
     // vacuum stability + meta-stability constraint (soft cutoff)
@@ -3797,6 +4002,27 @@ namespace Gambit
       result = get_worst_LL_of_all_scales(spec, LL, is_FS_model, other_scale);
     }
 
+    // LIKELIHOOD: guides scanner towards mh = 125 GeV. Use to improve performance of HiggsSignals (soft-cutoff)
+    void higgs_mass_LogLikelihood(double &result)
+    {
+      using namespace Pipes::higgs_mass_LogLikelihood;
+
+      const double higgs_mass_uncertainty = runOptions->getValueOrDef<double>(2.5, "higgs_mass_uncertainty");
+      const double valid_range = runOptions->getValueOrDef<double>(60, "valid_range");
+
+      const Spectrum &spec = *Dep::THDM_spectrum;
+      const double mh_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::SM_like_scalar);
+      constexpr double mh_exp = 125.15;   // experimental value of Higgs mass measured by others GeV
+      // constexpr double mh_err_exp = 0.14; // experimental uncertainty GeV
+      double model_invalid_for_lnlike_below = -1e6;
+
+      double mass_err = std::abs(mh_pole - mh_exp);
+
+      // scale it so that going 300 GeV above/below the measured higgs mass hits the threshold to bail on the point
+      // no penalty if we are within 10 GeV of exp. value
+      result = model_invalid_for_lnlike_below * (std::max(0.0, mass_err - higgs_mass_uncertainty) / valid_range);
+    }
+
     // only keeps points that correspond to hidden higgs scenario (hard-cutoff)
     void hidden_higgs_scenario_LogLikelihood_THDM(double& result)
     {
@@ -3804,28 +4030,18 @@ namespace Gambit
       const bool hidden_higgs_scenario = runOptions->getValueOrDef<bool>(true, "hidden_higgs_scenario");
       const Spectrum& spec = *Dep::THDM_spectrum;
 
-      const double mh_pole = spec.get_HE().get(Par::Pole_Mass, "h0", 1);
-      const double mH_pole = spec.get_HE().get(Par::Pole_Mass, "h0", 2);
-      constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
+      const double mh_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::SM_like_scalar);
+      const double mH_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::additional_scalar);
 
-      double mass_err_h = std::abs(mh_pole - mh_exp);
-      double mass_err_H = std::abs(mH_pole - mh_exp);
-      result = 0;
+      // constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
 
-      // we need mass_err_H < mass_err_h for Hidden Higgs scenario
-
-      if (hidden_higgs_scenario && mass_err_h < mass_err_H)
+      // Hidden-Higgs scenario means the additional scalar has a smaller mass than the SM-like scalar
+      if (mH_pole < mh_pole && hidden_higgs_scenario)
         result = -L_MAX;
-      if (!hidden_higgs_scenario && mass_err_h > mass_err_H)
+      else if (mH_pole > mh_pole && !hidden_higgs_scenario)
         result = -L_MAX;
-
-      // // weight that pushes mH to 125 Gev
-      // result += std::max(0.0, mass_err_H - 10.0) / 1000.0;
-      // // weight that pushes mass_err_H < mass_err_h
-      // result += std::max(0.0, mass_err_H - mass_err_h) / 20000.0;
-      // constexpr double model_invalid_for_lnlike_below = -1e6;
-      // result *= model_invalid_for_lnlike_below;
-
+      else
+        result = 0;
     }
 
     // mass range for each heavy scalar, specified in YAML file (soft-cutoff)
@@ -3851,6 +4067,40 @@ namespace Gambit
     /// == Higgs coupling table ==
     /// ==========================
 
+    void test(const Spectrum& s, HiggsCouplingsTable &h)
+    {
+      const SMInputs& sminputs = s.get_SMInputs();
+      const double v2 = 1.0 / (sqrt(2.0) * sminputs.GF);
+      const double vev = sqrt(v2);
+      double alpha = s.get(Par::dimensionless, "alpha");
+      double beta = s.get(Par::dimensionless, "beta");
+      double ca = cos(alpha), sa = sin(alpha);
+      double cb = cos(beta), sb = sin(beta);
+      const vector<double> mU = { sminputs.mU, sminputs.mCmC, sminputs.mT };
+      const vector<double> mD = { sminputs.mD, sminputs.mS, sminputs.mBmB };
+      const vector<double> mE = { sminputs.mE, sminputs.mMu, sminputs.mTau };
+
+      double C_tt2 = sqr((ca/sb));
+      double C_WW = sin(beta-alpha);
+
+      std::cout << "(theory) C_tt2 " << C_tt2 << std::endl;
+      std::cout << "(actual) C_tt2 " << h.C_tt2[0] << std::endl;
+      std::cout << "(theory) C_WW " << C_WW << std::endl;
+      std::cout << "(actual) C_WW " << h.C_WW[0] << std::endl;
+
+
+        // result.C_WW[i] = sqrt(result.compute_effective_coupling(i, std::pair<int, int>(24, 0), std::pair<int, int>(-24, 0)));
+        // result.C_ZZ[i] = sqrt(result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(23, 0)));
+        // result.C_tt2[i] = result.compute_effective_coupling(i, std::pair<int, int>(6, 1), std::pair<int, int>(-6, 1));
+        // result.C_bb2[i] = result.compute_effective_coupling(i, std::pair<int, int>(5, 1), std::pair<int, int>(-5, 1));
+        // result.C_cc2[i] = result.compute_effective_coupling(i, std::pair<int, int>(4, 1), std::pair<int, int>(-4, 1));
+        // result.C_tautau2[i] = result.compute_effective_coupling(i, std::pair<int, int>(15, 1), std::pair<int, int>(-15, 1));
+        // result.C_gaga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(22, 0), std::pair<int, int>(22, 0));
+        // result.C_gg2[i] = result.compute_effective_coupling(i, std::pair<int, int>(21, 0), std::pair<int, int>(21, 0));
+        // result.C_mumu2[i] = result.compute_effective_coupling(i, std::pair<int, int>(13, 1), std::pair<int, int>(-13, 1));
+        // result.C_Zga2[i] = result.compute_effective_coupling(i, std::pair<int, int>(23, 0), std::pair<int, int>(22, 0));
+        // result.C_ss2[i] = result.compute_effective_coupling(i, std::pair<int, int>(3, 1), std::pair<int, int>(-3, 1));
+    }
 
     /// Put together the Higgs couplings for the THDM, using only partial widths
     void THDM_higgs_couplings_pwid(HiggsCouplingsTable &result)
@@ -3865,6 +4115,10 @@ namespace Gambit
 
       // Set up neutral Higgses
       static const vector<str> sHneut = initVector<str>("h0_1", "h0_2", "A0");
+      result.set_n_neutral_higgs(3);
+
+      // Set up charged Higgses
+      result.set_n_charged_higgs(1);
 
       // give higgs indices names
       enum neutral_higgs_indices
@@ -3911,8 +4165,9 @@ namespace Gambit
       for (int i = 0; i < 3; i++)
         for (int j = 0; j < 3; j++)
         {
-          double mhi = spec.get(Par::mass1, sHneut[i]); //mass1 to be consistent
-          double mhj = spec.get(Par::mass1, sHneut[j]);
+          // changed mass1 -> Pole_Mass
+          double mhi = spec.get(Par::Pole_Mass, sHneut[i]); //mass1 to be consistent
+          double mhj = spec.get(Par::Pole_Mass, sHneut[j]);
           if (mhi > mhj + mZ and result.get_neutral_decays(i).has_channel(sHneut[j], "Z0"))
           {
             double gamma = result.get_neutral_decays(i).width_in_GeV * result.get_neutral_decays(i).BF(sHneut[j], "Z0");
@@ -3927,6 +4182,8 @@ namespace Gambit
             result.C_hiZ[i][j] = 1.;
           }
         }
+
+        // test(fullspectrum,result);
 
       // Work out which invisible decays are possible
       //result.invisibles = get_invisibles(spec);
@@ -4008,8 +4265,9 @@ namespace Gambit
       const SubSpectrum &spec = fullspectrum.get_HE();
 
       // set up some necessary quantities
+      // changed mass1 -> Pole_Mass
       const double vev = spec.get(Par::mass1, "vev");
-      const double mW = spec.get(Par::mass1, "W+");
+      const double mW = fullspectrum.get(Par::Pole_Mass, "W+");
       const double g = 2.*mW/vev;
       const double costw = sqrt(1. - spec.get(Par::dimensionless, "sinW2"));
 
@@ -4126,7 +4384,9 @@ namespace Gambit
         }
 
       }
+    
     }
 
   }
+
 }
