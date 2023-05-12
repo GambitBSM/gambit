@@ -232,17 +232,20 @@ void MODEL_NAMESPACE::THDM_hybrid_Higgs_to_THDM(const ModelParameters &myP, Mode
   double lambda7 = myP.getValue("lambda7");
   double v2 = 1. / (sqrt(2) * sminputs.GF);
 
-  // calc angles
+  // cal angles
   double beta = std::atan(tanb);
   double alpha = beta - std::acos(cba);
+  
+  // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+  // if (beta-alpha >= M_PI) alpha += M_PI;
+  // if (beta-alpha < 0) alpha -= M_PI;
+
+  // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+  if (beta-alpha >= M_PI/2) alpha += M_PI;
+  if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
   double sba = sin(beta - alpha);
 
-  // conventions
-  if (sba < 0.0)
-  {
-    alpha += M_PI;
-    sba = sin(beta - alpha);
-  }
   double sinb = std::sin(beta);
   double cosb = std::cos(beta);
   double sina = std::sin(alpha);
@@ -315,17 +318,20 @@ void MODEL_NAMESPACE::THDM_hybrid_HiggsatQ_to_THDMatQ(const ModelParameters &myP
   double lambda7 = myP.getValue("lambda7");
   double v2 = 1. / (sqrt(2) * sminputs.GF);
 
-  // calc angles
+  // cal angles
   double beta = std::atan(tanb);
   double alpha = beta - std::acos(cba);
+  
+  // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+  // if (beta-alpha >= M_PI) alpha += M_PI;
+  // if (beta-alpha < 0) alpha -= M_PI;
+
+  // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+  if (beta-alpha >= M_PI/2) alpha += M_PI;
+  if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
   double sba = sin(beta - alpha);
 
-  // conventions
-  if (sba < 0.0)
-  {
-    alpha += M_PI;
-    sba = sin(beta - alpha);
-  }
   double sinb = std::sin(beta);
   double cosb = std::cos(beta);
   double sina = std::sin(alpha);

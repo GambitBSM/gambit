@@ -205,21 +205,21 @@ namespace Gambit
 
     double THDMea::get_M12_2() const
     {
-      double  b = get_tanb(), s2b = sin(2.*b), c2b = cos(2.*b);
+      double  b = get_beta(), s2b = sin(2.*b), c2b = cos(2.*b);
       double m11_2 = get_m11_2(), m12_2 = get_m12_2(), m22_2 = get_m22_2();
       return (m11_2-m22_2)*s2b + m12_2*c2b;
     }
 
     double THDMea::get_M11_2() const
     {
-      double  b = get_tanb(), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
+      double  b = get_beta(), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
       double m11_2 = get_m11_2(), m12_2 = get_m12_2(), m22_2 = get_m22_2();
       return m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
     }
 
     double THDMea::get_M22_2() const
     {
-      double  b = get_tanb(), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
+      double  b = get_beta(), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
       double m11_2 = get_m11_2(), m12_2 = get_m12_2(), m22_2 = get_m22_2();
       return m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
     }

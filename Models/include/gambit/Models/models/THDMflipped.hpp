@@ -165,6 +165,30 @@ namespace Gambit
 #undef PARENT
 #undef MODEL
 
+#define MODEL THDMflipped_hybrid_Higgs2
+#define PARENT THDMflipped
+  START_MODEL
+
+  DEFINEPARS(mh, mHp, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7)
+
+  INTERPRET_AS_PARENT_FUNCTION(THDMflipped_hybrid_Higgs2_to_THDMflipped)
+  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
+#undef PARENT
+#undef MODEL
+
+#define MODEL THDMflipped_hybrid_Higgs2atQ
+#define PARENT THDMflippedatQ
+  START_MODEL
+
+  DEFINEPARS(mh, mHp, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7)
+
+  DEFINEPARS(Qin)
+
+  INTERPRET_AS_PARENT_FUNCTION(THDMflipped_hybrid_Higgs2atQ_to_THDMflippedatQ)
+  INTERPRET_AS_PARENT_DEPENDENCY(SMINPUTS, SMInputs)
+#undef PARENT
+#undef MODEL
+
 #define MODEL THDMflipped_hybrid_lambda1
 #define PARENT THDMflipped
   START_MODEL
