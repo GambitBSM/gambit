@@ -328,6 +328,7 @@ namespace Gambit
          double v2 = 1.0/(sqrt(2.0)*sminputs.GF);
          double tanb  = basis["tanb"];
          double beta = atan(tanb);
+
          double Lambda1 = basis["Lambda1"], Lambda3 = basis["Lambda3"], Lambda4 = basis["Lambda4"], Lambda5 = basis["Lambda5"];
          double Lambda6 = basis["Lambda6"], M22_2 = basis["M22_2"];
          double mC_2 = M22_2 + 0.5*v2*Lambda3;
@@ -335,14 +336,23 @@ namespace Gambit
          double s2ba = -2.*Lambda6*v2, c2ba = -(mA_2+(Lambda5-Lambda1)*v2);
          double ba = 0.5*atan2(s2ba,c2ba);
          double alpha = beta - ba;
-         if (alpha>M_PI/2.0)
-         {
-           alpha =  alpha-M_PI;
-         }
+
+         // fix conventions to match FS and THDMC
+
+         // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+         // if (beta-alpha >= M_PI) alpha += M_PI;
+         // if (beta-alpha < 0) alpha -= M_PI;
+
+         // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+         if (beta-alpha >= M_PI/2) alpha += M_PI;
+         if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
          // fill basis
+         ba = beta-alpha;
          basis["sba"] = sin(ba);
          basis["beta"] = beta;
          basis["alpha"] = alpha;
+
     }
 
    } // end SpecBit namespace
