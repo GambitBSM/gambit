@@ -301,7 +301,6 @@ namespace Gambit
           }
           else if (*Loop::iteration == COLLIDER_FINALIZE)
           {
-            cout << "STARTING COLLIDER FINALISE LOOP" << endl;
             Contur_output temp_result;
             std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
 
@@ -319,17 +318,15 @@ namespace Gambit
               #pragma omp critical
               {
                 ///Call contur
-                temp_result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
-                cout << "\ntemp result n LLRs[DATABG] ("<<__LINE__<<")= " << temp_result.outputs.at("DATABG").pool_LLR.size() << endl;
+                Contur_output altOut = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+                temp_result = altOut;
               }
             }
             results.push_back(temp_result);
 
             #ifdef COLLIDERBIT_DEBUG
-              std::cout << "\n\nSINGLE COLLIDER CCONTUR OBTAINED: ";
               temp_result.print_Contur_output_debug();
             #endif
-            cout << "\nEND OF COLLIDER FINALISE LOOP" << endl;
           }
           else if (*Loop::iteration == BASE_FINALIZE)
           {
@@ -494,16 +491,13 @@ namespace Gambit
         // Extracts the likelihood contribution from each contur pool from Contur_output
         void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
         {
-          std::cout << "\nperPool\n" << std::endl;
           using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
           result = (*Dep::LHC_measurements).pool_LLR();
-          cout << __FILE__ << ": " << __LINE__ << ": pool_LLR size: " << result.size() << endl;
 
           for( auto const& entry : result)
           {
-            cout << entry.first << ":" << entry.second << ", ";
             summary_line << entry.first << ":" << entry.second << ", ";
           }
           logger() << LogTags::debug << summary_line.str() << EOM;
