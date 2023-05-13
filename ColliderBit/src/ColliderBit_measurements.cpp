@@ -15,6 +15,7 @@
 ///  \author Tomasz Procter
 ///          (t.procter.1@research.gla.ac.uk)
 ///  \date   June 2021
+///  \date   May 2023
 ///
 ///  *********************************************
 
@@ -300,6 +301,7 @@ namespace Gambit
           }
           else if (*Loop::iteration == COLLIDER_FINALIZE)
           {
+            cout << "STARTING COLLIDER FINALISE LOOP" << endl;
             Contur_output temp_result;
             std::shared_ptr<std::ostringstream> yodastream = *Dep::Rivet_measurements;
 
@@ -318,6 +320,7 @@ namespace Gambit
               {
                 ///Call contur
                 temp_result = BEreq::Contur_Measurements(std::move(yodastream), yaml_contur_options);
+                cout << "\ntemp result n LLRs[DATABG] ("<<__LINE__<<")= " << temp_result.outputs.at("DATABG").pool_LLR.size() << endl;
               }
             }
             results.push_back(temp_result);
@@ -326,6 +329,7 @@ namespace Gambit
               std::cout << "\n\nSINGLE COLLIDER CCONTUR OBTAINED: ";
               temp_result.print_Contur_output_debug();
             #endif
+            cout << "\nEND OF COLLIDER FINALISE LOOP" << endl;
           }
           else if (*Loop::iteration == BASE_FINALIZE)
           {
@@ -450,8 +454,13 @@ namespace Gambit
         void Contur_LHC_measurements_LogLike(double &result)
         {
           using namespace Pipes::Contur_LHC_measurements_LogLike;
+          //Which background type to use in the calculation.
+          const static string background_type = runOptions->getValueOrDef<str>("DATABG", "background");
+          if (background_type != "DATABG" && background_type != "SMBG" && background_type != "EXP"){
+            ColliderBit_error().raise(LOCAL_INFO, "Requested Contur Background type does not exist");
+          }
           Contur_output contur_likelihood_object = *Dep::LHC_measurements;
-          result = contur_likelihood_object.LLR;
+          result = contur_likelihood_object.outputs.at(background_type).LLR;
         }
 
         // Extracts the likelihood value for every set of contur settings from a map<string, Contur_output>
@@ -463,7 +472,9 @@ namespace Gambit
 
           for (auto Contur_name : contur_likelihood_object)
           {
-            result[Contur_name.first + "_LLR"] = Contur_name.second.LLR;
+            for (const str & bkg : Contur_name.second._bkg_types){
+              result[Contur_name.first + "_" + bkg + "_LLR"] = Contur_name.second.outputs.at(bkg).LLR;
+            }
           }
         }
 
@@ -473,19 +484,26 @@ namespace Gambit
           using namespace Pipes::Multi_Contur_LHC_measurements_LogLike_single;
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
           static const std::string which_as_LLR = runOptions->getValueOrDef<str>("Contur", "Use_as_likelihood");
-          result = contur_likelihood_object[which_as_LLR].LLR;
+          static const string background_type = runOptions->getValueOrDef<str>("DATABG", "background");
+          if (background_type != "DATABG" && background_type != "SMBG" && background_type != "EXP"){
+            ColliderBit_error().raise(LOCAL_INFO, "Requested Contur Background type does not exist");
+          }
+          result = contur_likelihood_object[which_as_LLR].outputs.at(background_type).LLR;
         }
 
         // Extracts the likelihood contribution from each contur pool from Contur_output
         void Contur_LHC_measurements_LogLike_perPool(map_str_dbl &result)
         {
+          std::cout << "\nperPool\n" << std::endl;
           using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
-          result = (*Dep::LHC_measurements).pool_LLR;
+          result = (*Dep::LHC_measurements).pool_LLR();
+          cout << __FILE__ << ": " << __LINE__ << ": pool_LLR size: " << result.size() << endl;
 
           for( auto const& entry : result)
           {
+            cout << entry.first << ":" << entry.second << ", ";
             summary_line << entry.first << ":" << entry.second << ", ";
           }
           logger() << LogTags::debug << summary_line.str() << EOM;
@@ -501,7 +519,7 @@ namespace Gambit
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
           for (const auto& contur_output_instance : contur_likelihood_object)
           {
-            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_LLR)
+            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_LLR())
             {
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }
@@ -517,10 +535,10 @@ namespace Gambit
         // Note map_str_str will not print to hdf5! Use for ASCII debug only.
         void Contur_LHC_measurements_histotags_perPool(map_str_str &result)
         {
-          using namespace Pipes::Contur_LHC_measurements_LogLike_perPool;
+          using namespace Pipes::Contur_LHC_measurements_histotags_perPool;
           std::stringstream summary_line;
           summary_line << "LHC Contur LogLikes per pool: ";
-          result = (*Dep::LHC_measurements).pool_tags;
+          result = (*Dep::LHC_measurements).pool_tags();
 
           for( auto const& entry : result)
           {
@@ -542,7 +560,7 @@ namespace Gambit
           Multi_Contur_output contur_likelihood_object = *Dep::LHC_measurements;
           for (const auto& contur_output_instance : contur_likelihood_object)
           {
-            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags)
+            for (auto const& pool_LLR_entry : contur_output_instance.second.pool_tags())
             {
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }

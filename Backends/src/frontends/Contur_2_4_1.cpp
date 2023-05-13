@@ -64,6 +64,8 @@
 
       Contur_add_GAMBIT_default_args(args_dict);
 
+      cerr << "Have set final args" << endl;
+
       //Return the contur output.
       return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
     }
@@ -88,7 +90,6 @@
     //to study.
     void Contur_get_analyses_from_beam(std::vector<std::string>& analyses, std::string& beamString)
     {
-      std::vector<std::string> obtained_analyses;
       pybind11::list beams;
       pybind11::object theBeam;
       bool beamFound = false;
@@ -97,23 +98,25 @@
         beams = Contur.attr("static_db").attr("get_beams")();
       }
       for (size_t  i = 0; i <= pybind11::len(beams); ++i){
-        if (beams[i].attr("id")().cast<std::string>() == beamString){
+        if (beams[i].attr("id").cast<std::string>() == beamString){
           theBeam = beams[i];
           beamFound = true;
           break;
         }
       }
       if (! beamFound ){
-        // TODO: give appropriate warning
+        // TODO: give appropriate warning that we're returning an empty vector.
+        analyses = {};
         return;
       }
       # pragma omp critical
       {
-        obtained_analyses = Contur.attr("static_db").attr("getAnalyses")(pybind11::none(), beamString).cast<std::vector<std::string>>();
+        pybind11::list anaObjectList = Contur.attr("static_db").attr("get_analyses")(pybind11::none(), pybind11::none(), theBeam);
+        for (const pybind11::handle anaObject : anaObjectList){
+          analyses.push_back(anaObject.attr("name").cast<str>());
+        }
       }
-      for (std::string analysis : obtained_analyses){
-        analyses.push_back(analysis);
-      }
+      
     }
   }
   END_BE_NAMESPACE
