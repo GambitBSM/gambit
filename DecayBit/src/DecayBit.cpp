@@ -81,6 +81,14 @@
 namespace Gambit
 {
 
+  namespace thdm
+  {
+    // name for each particle in the THDM
+    inline const std::vector<std::string> particle_name = {"u_1","u_2","u_3","d_1","d_2","d_3","e-_1","e-_2","e-_3","nu_1","nu_2","nu_3", 
+      "ubar_1","ubar_2","ubar_3","dbar_1","dbar_2","dbar_3","e+_1","e+_2","e+_3","nubar_1","nubar_2","nubar_3", 
+      "gamma","Z0","W+","W-","g", "h0_1","h0_2","A0","H+","H-"};
+  }
+
   // converts a thdm::Particle to the appropriate THDMC number
   int to_thdmc(const thdm::Particle part)
   {
