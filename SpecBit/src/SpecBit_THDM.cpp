@@ -74,12 +74,6 @@ namespace Gambit
 
   extern int to_thdmc(const thdm::Particle part);
 
-  namespace hax
-  {
-    // hack to prevent point from being outputted
-    bool skip_output_hax = false;
-  }
-
   namespace SpecBit
   {
 
@@ -133,12 +127,13 @@ namespace Gambit
     constexpr double L_MAX = 1e50;
 
     // imaginary unit
-    constexpr complexd ii(0,1);
+    constexpr complex<double> ii(0,1);
 
     /// =========================
     /// == spectrum generation ==
     /// =========================
 
+      // TODO: delete these
       double g_lam1 = 0.0;
       double g_lam2 = 0.0;
       double g_lam3 = 0.0;
@@ -537,7 +532,7 @@ namespace Gambit
         using namespace Pipes::get_THDM_spectrum;
         const bool use_speedhacks = runOptions->getValueOrDef<bool>(true, "use_speedhacks");
         const str err_msg = "bad point encountered. Point invalidated\n";
-        constexpr double pert_limit = 12.7; // not intended as a replacement of theory constraints,
+        constexpr double pert_limit = 12.7; // not intended as a replacement of theory constraints, 
                                      // just to skip spectrum calculation when way off the mark
                               
         const double lam1 = *Param.at("lambda1");
@@ -567,7 +562,7 @@ namespace Gambit
         if (!use_speedhacks) return;
         // double mbar = 2*(*Param.at("m12_2")) / sin(2*atan(*Param.at("tanb")));
         // double v2 = 246*246;
-          
+
         // a00
         double a00_even_plus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) + sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
         double a00_even_minus = 1.0 / 2.0 * (3.0 * (lam1 + lam2) - sqrt(9.0 * pow((lam1 - lam2), 2) + 4.0 * pow((2.0 * lam3 + lam4), 2)));
@@ -923,7 +918,7 @@ namespace Gambit
            it != required_parameters.end(); ++it)
       {
         const Par::Tags tag = it->tag();
-        const str name = it->name();
+        const std::string name = it->name();
         const vector<int> shape = it->shape();
 
         // useless stuff
@@ -1223,27 +1218,27 @@ namespace Gambit
 
 
     // get leading-order scattering eigenvalues (with fixed ordering) (requires Z2-symmetric THDM)
-    vector<complexd> get_LO_scattering_eigenvalues_ordered(const ThdmSpec &s)
+    vector<complex<double>> get_LO_scattering_eigenvalues_ordered(const ThdmSpec &s)
     {
       // ensure that we have a Z2-symmetric scalar sector
       check_Z2(s.lam6, s.lam7, "get_LO_scattering_eigenvalues_ordered");
 
       // a00
-      complexd a00_even_plus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) + sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
-      complexd a00_even_minus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) - sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
-      complexd a00_odd_plus = s.lam3 + 2.0 * s.lam4 + 3.0 * s.lam5;
-      complexd a00_odd_minus = s.lam3 + 2.0 * s.lam4 - 3.0 * s.lam5;
+      complex<double> a00_even_plus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) + sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
+      complex<double> a00_even_minus = 1.0 / 2.0 * (3.0 * (s.lam1 + s.lam2) - sqrt(9.0 * pow((s.lam1 - s.lam2), 2) + 4.0 * pow((2.0 * s.lam3 + s.lam4), 2)));
+      complex<double> a00_odd_plus = s.lam3 + 2.0 * s.lam4 + 3.0 * s.lam5;
+      complex<double> a00_odd_minus = s.lam3 + 2.0 * s.lam4 - 3.0 * s.lam5;
       // a01
-      complexd a01_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
-      complexd a01_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
-      complexd a01_odd_plus = s.lam3 + s.lam5;
-      complexd a01_odd_minus = s.lam3 - s.lam5;
+      complex<double> a01_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
+      complex<double> a01_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam4, 2)));
+      complex<double> a01_odd_plus = s.lam3 + s.lam5;
+      complex<double> a01_odd_minus = s.lam3 - s.lam5;
       // a20
-      complexd a20_odd = s.lam3 - s.lam4;
+      complex<double> a20_odd = s.lam3 - s.lam4;
       // a21
-      complexd a21_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
-      complexd a21_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
-      complexd a21_odd = s.lam3 + s.lam4;
+      complex<double> a21_even_plus = 1.0 / 2.0 * (s.lam1 + s.lam2 + sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
+      complex<double> a21_even_minus = 1.0 / 2.0 * (s.lam1 + s.lam2 - sqrt(pow((s.lam1 - s.lam2), 2) + 4.0 * pow(s.lam5, 2)));
+      complex<double> a21_odd = s.lam3 + s.lam4;
 
       vector<complexd> lo_eigenvalues = {a00_even_plus, a00_even_minus, a00_odd_plus, a00_odd_minus, a01_even_plus,
               a01_even_minus, a01_odd_plus, a01_odd_minus, a20_odd, a21_even_plus, a21_even_minus, a21_odd};
@@ -1252,10 +1247,10 @@ namespace Gambit
     }
 
     // get leading-order scattering eigenvalues (with no particular order) (supports GCP 2HDM with lam6,lam7)
-    vector<complexd> get_LO_scattering_eigenvalues(const ThdmSpec &s)
+    vector<complex<double>> get_LO_scattering_eigenvalues(const ThdmSpec &s)
     {
       vector<double> lambda;
-      vector<complexd> lo_eigenvalues;
+      vector<complex<double>> lo_eigenvalues;
 
       // Scattering matrix (7a) Y=2 sigma=1
       Eigen::MatrixXcd S_21(3, 3);
@@ -1278,7 +1273,7 @@ namespace Gambit
       lo_eigenvalues.push_back((eigenvalues_S_21(2)));
 
       // Scattering matrix (7b) Y=2 sigma=0
-      complexd S_20 = s.lam3 - s.lam4;
+      complex<double> S_20 = s.lam3 - s.lam4;
       lo_eigenvalues.push_back((S_20));
 
       // Scattering matrix (7c) Y=0 sigma=1
@@ -1381,7 +1376,6 @@ namespace Gambit
       vector<complexd> NLO_eigenvalues = get_NLO_scattering_eigenvalues(s, C3, C4, wave_function_corrections, gauge_corrections, yukawa_corrections);
 
       constexpr double unitarity_upper_limit = 0.50;
-      constexpr double sigma = 0.05;
       double error = 0.0;
       double error_ratio = 0.0;
 
@@ -1408,7 +1402,7 @@ namespace Gambit
         for (size_t num = 0; num < LO_eigenvalues.size(); num++)
         {
           // needs to be normalized in accordance to NLO unitarity
-          complexd LO_eigenvalue = -(LO_eigenvalues[LO_eigenvalue_order[num]]) / (32.0 * pi * pi);
+          complex<double> LO_eigenvalue = -(LO_eigenvalues[LO_eigenvalue_order[num]]) / (32.0 * pi * pi);
           // only check for lo eigenvalues larger than 1/16pi as otherwise this may break down
           if (abs(LO_eigenvalue) > 1 / (16.0 * pi))
           {
@@ -1590,7 +1584,7 @@ namespace Gambit
           gamma = acos(sqrt((4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7)*(-2*s.lam7*s.lam7+s.lam2*s.lam5+s.lam4*s.lam2-s.lam3*s.lam5-s.lam4*s.lam3+2*s.lam6*s.lam7))/(4*s.lam6*s.lam7-2*s.lam4*s.lam3+s.lam4*s.lam2+s.lam4*s.lam1-2*s.lam3*s.lam5+s.lam2*s.lam5+s.lam1*s.lam5-2*s.lam6*s.lam6-2*s.lam7*s.lam7));
           cosg  = cos(gamma);
           rho   = sin(gamma)*(s.lam7-cosg*cosg*s.lam7+s.lam6*cosg*cosg)/(cosg*(-s.lam5-s.lam4+cosg*cosg*s.lam4+cosg*cosg*s.lam5));
-          
+
           if (abs(rho) <= 1.0 && gamma >= 0.0 && gamma <= pi/2.)
           {
             error += std::max(0.0, -calc);
@@ -1612,7 +1606,7 @@ namespace Gambit
           // rho=1 AND abs(ct) <= 1 AND abs(gamma) <= pi/2
           double ct = (1./2.)*(-s.lam6*s.lam3-s.lam6*s.lam4+s.lam6*s.lam2+s.lam5*s.lam6+s.lam7*s.lam1-s.lam7*s.lam3-s.lam7*s.lam4+s.lam7*s.lam5)/sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6));
           gamma     = atan(sqrt((-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7)*(s.lam1*s.lam5+s.lam6*s.lam7-s.lam3*s.lam5+s.lam5*s.lam5-s.lam5*s.lam4-s.lam6*s.lam6))/(-s.lam3*s.lam5-s.lam5*s.lam4+s.lam2*s.lam5+s.lam5*s.lam5+s.lam6*s.lam7-s.lam7*s.lam7));
-          
+
           if (abs(ct) <= 1.0 && abs(gamma) <= pi/2.)
           {
             error += std::max(0.0, -calc2);
@@ -1649,7 +1643,7 @@ namespace Gambit
     // loop correction perturbativity constraint on the heavy scalars, H0,A0 & H+/H-
     double get_heavy_scalar_mass_correction_LogLikelihood(const SubSpectrum& he)
     {
-      vector<str> heavy_scalars = {"h0_2", "A0", "H+"};
+      vector<std::string> heavy_scalars = {"h0_2", "A0", "H+"};
       double result = 0.0;
 
       for (auto& scalar : heavy_scalars)
@@ -1917,7 +1911,7 @@ namespace Gambit
       const double mh_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::SM_like_scalar);
       const double mH_pole = spec.get_HE().get(Par::Pole_Mass, *Dep::additional_scalar);
       // constexpr double mh_exp = 125.10; // experimental value of Higgs mass measured by others GeV
-
+      
       // Hidden-Higgs scenario means the additional scalar has a smaller mass than the SM-like scalar
       if (mH_pole < mh_pole && hidden_higgs_scenario)
         result = -L_MAX;
@@ -2068,8 +2062,8 @@ namespace Gambit
 
       if (ModelInUse("Inert2"))
       {
-        str DarkMatter_ID = *Dep::DarkMatter_ID;
-        str DarkMatterConj_ID = *Dep::DarkMatterConj_ID;
+        std::string DarkMatter_ID = *Dep::DarkMatter_ID;
+        std::string DarkMatterConj_ID = *Dep::DarkMatterConj_ID;
         if (spec.get(Par::Pole_Mass,DarkMatter_ID)*2 < spec.get(Par::Pole_Mass, "h0_2"))
           result.invisibles = std::vector<sspair>({{DarkMatter_ID, DarkMatterConj_ID}});
       }
