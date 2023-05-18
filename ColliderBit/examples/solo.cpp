@@ -78,7 +78,8 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works[str("Rivet")+RIVET_VERSION]) { rivetWorks = false;}
 
     // Make sure that ATLAS FullLikes is present.
-    if (not Backends::backendInfo().works[str("ATLAS_FullLikes") + FULLLIKES_VERSION]) backend_error().raise(LOCAL_INFO, str("ATLAS_FullLikes ")+FULLLIKES_VERSION" is missing!");
+    bool FullLikesWorks = true;
+    if (not Backends::backendInfo().works[str("ATLAS_FullLikes") + FULLLIKES_VERSION]) { FullLikesWorks = false;}
 
     // Print the banner (if you could call it that)
     cout << endl;
@@ -116,8 +117,7 @@ int main(int argc, char* argv[])
 
     // Translate relevant settings into appropriate variables
     bool debug = settings.getValueOrDef<bool>(false, "debug");
-    // TODO: Use the use_FullLikes setting to allow CBS runs without having ATLAS_FullLikes installed
-    // bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
+    bool use_FullLikes = settings.getValueOrDef<bool>(false, "use_FullLikes"); 
     bool use_lnpiln = settings.getValueOrDef<bool>(false, "use_lognormal_distribution_for_1d_systematic");
     double jet_pt_min = settings.getValueOrDef<double>(10.0, "jet_pt_min");
     str event_filename = settings.getValue<str>("event_file");
@@ -126,6 +126,12 @@ int main(int argc, char* argv[])
                                 || Gambit::Utils::endsWith(event_filename, ".hepmc3") );
     if (not event_file_is_HepMC)
       throw std::runtime_error("Unrecognised event file format in "+event_filename+"; must be .hepmc.");
+
+    // Throw out case where FullLikes is requested but not present
+    if (use_FullLikes && !FullLikesWorks)
+    {
+      backend_error().raise(LOCAL_INFO, str("ATLAS_FullLikes ")+FULLLIKES_VERSION" requested, but is missing! please run make ATLAS_FullLikes or set use_FullLikes=false");
+    }
 
     // Check if Rivet & Contur requested and/or enabled then extract options from yaml
     bool withRivet;
@@ -222,27 +228,59 @@ int main(int argc, char* argv[])
     // Pass options to the likelihood function
     // TODO: I'm not specifying the defaults here. I'll add the argument only if the user supplies it.
     // ColliderBit can then fall back to its defaults if nothing is supplied.
-    apply_setting_if_present<bool>("use_covariances", settings, calc_LHC_LogLikes_full);//Default true
-    apply_setting_if_present<bool>("use_marginalising", settings, calc_LHC_LogLikes_full);//Default False
-    apply_setting_if_present<bool>("combine_SRs_without_covariances", settings, calc_LHC_LogLikes_full);//Default False
+    // If using ATLAS FullLikes apply settings to calc_LHC_LogLikes_full
+    bool calc_noerr_loglikes;//Default false
+    bool calc_expected_loglikes;//Default false
+    bool calc_expected_noerr_loglikes;//Default false
+    bool calc_scaledsignal_loglikes;//Default false
+    if (FullLikesWorks && use_FullLikes)
+    {
+      apply_setting_if_present<bool>("use_covariances", settings, calc_LHC_LogLikes_full);//Default true
+      apply_setting_if_present<bool>("use_marginalising", settings, calc_LHC_LogLikes_full);//Default False
+      apply_setting_if_present<bool>("combine_SRs_without_covariances", settings, calc_LHC_LogLikes_full);//Default False
 
-    apply_setting_if_present<double>("nuisance_prof_initstep", settings, calc_LHC_LogLikes_full);//Default 0.1
-    apply_setting_if_present<double>("nuisance_prof_convtol", settings, calc_LHC_LogLikes_full);//Default 0.01
-    apply_setting_if_present<int>("nuisance_prof_maxsteps", settings, calc_LHC_LogLikes_full);//Default 10000
-    apply_setting_if_present<double>("nuisance_prof_convacc", settings, calc_LHC_LogLikes_full);//Default 0.01
-    apply_setting_if_present<double>("nuisance_prof_simplexsize", settings, calc_LHC_LogLikes_full);//Default 1e-5
-    apply_setting_if_present<int>("nuisance_prof_method", settings, calc_LHC_LogLikes_full);//Default 6
+      apply_setting_if_present<double>("nuisance_prof_initstep", settings, calc_LHC_LogLikes_full);//Default 0.1
+      apply_setting_if_present<double>("nuisance_prof_convtol", settings, calc_LHC_LogLikes_full);//Default 0.01
+      apply_setting_if_present<int>("nuisance_prof_maxsteps", settings, calc_LHC_LogLikes_full);//Default 10000
+      apply_setting_if_present<double>("nuisance_prof_convacc", settings, calc_LHC_LogLikes_full);//Default 0.01
+      apply_setting_if_present<double>("nuisance_prof_simplexsize", settings, calc_LHC_LogLikes_full);//Default 1e-5
+      apply_setting_if_present<int>("nuisance_prof_method", settings, calc_LHC_LogLikes_full);//Default 6
 
-    apply_setting_if_present<double>("nuisance_marg_convthres_abs", settings, calc_LHC_LogLikes_full);//Default 0.05
-    apply_setting_if_present<double>("nuisance_marg_convthres_rel", settings, calc_LHC_LogLikes_full);//Default 0.05
-    apply_setting_if_present<long>("nuisance_marg_nsamples_start", settings, calc_LHC_LogLikes_full);//Default 1000000
-    apply_setting_if_present<bool>("nuisance_marg_nulike1sr", settings, calc_LHC_LogLikes_full);//Default true
+      apply_setting_if_present<double>("nuisance_marg_convthres_abs", settings, calc_LHC_LogLikes_full);//Default 0.05
+      apply_setting_if_present<double>("nuisance_marg_convthres_rel", settings, calc_LHC_LogLikes_full);//Default 0.05
+      apply_setting_if_present<long>("nuisance_marg_nsamples_start", settings, calc_LHC_LogLikes_full);//Default 1000000
+      apply_setting_if_present<bool>("nuisance_marg_nulike1sr", settings, calc_LHC_LogLikes_full);//Default true
 
-    bool calc_noerr_loglikes = apply_setting_if_present<bool>("calc_noerr_loglikes", settings, calc_LHC_LogLikes_full);//Default false
-    bool calc_expected_loglikes= apply_setting_if_present<bool>("calc_expected_loglikes", settings, calc_LHC_LogLikes_full);//Default false
-    bool calc_expected_noerr_loglikes = apply_setting_if_present<bool>("calc_expected_noerr_loglikes", settings, calc_LHC_LogLikes_full);//Default false
-    bool calc_scaledsignal_loglikes = apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, calc_LHC_LogLikes_full);//Default false
-    apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes_full);//Default 1.0
+      calc_noerr_loglikes = apply_setting_if_present<bool>("calc_noerr_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+      calc_expected_loglikes= apply_setting_if_present<bool>("calc_expected_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+      calc_expected_noerr_loglikes = apply_setting_if_present<bool>("calc_expected_noerr_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+      calc_scaledsignal_loglikes = apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, calc_LHC_LogLikes_full);//Default false
+      apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes_full);//Default 1.0
+    }
+    else
+    {
+      apply_setting_if_present<bool>("use_covariances", settings, calc_LHC_LogLikes);//Default true
+      apply_setting_if_present<bool>("use_marginalising", settings, calc_LHC_LogLikes);//Default False
+      apply_setting_if_present<bool>("combine_SRs_without_covariances", settings, calc_LHC_LogLikes);//Default False
+
+      apply_setting_if_present<double>("nuisance_prof_initstep", settings, calc_LHC_LogLikes);//Default 0.1
+      apply_setting_if_present<double>("nuisance_prof_convtol", settings, calc_LHC_LogLikes);//Default 0.01
+      apply_setting_if_present<int>("nuisance_prof_maxsteps", settings, calc_LHC_LogLikes);//Default 10000
+      apply_setting_if_present<double>("nuisance_prof_convacc", settings, calc_LHC_LogLikes);//Default 0.01
+      apply_setting_if_present<double>("nuisance_prof_simplexsize", settings, calc_LHC_LogLikes);//Default 1e-5
+      apply_setting_if_present<int>("nuisance_prof_method", settings, calc_LHC_LogLikes);//Default 6
+
+      apply_setting_if_present<double>("nuisance_marg_convthres_abs", settings, calc_LHC_LogLikes);//Default 0.05
+      apply_setting_if_present<double>("nuisance_marg_convthres_rel", settings, calc_LHC_LogLikes);//Default 0.05
+      apply_setting_if_present<long>("nuisance_marg_nsamples_start", settings, calc_LHC_LogLikes);//Default 1000000
+      apply_setting_if_present<bool>("nuisance_marg_nulike1sr", settings, calc_LHC_LogLikes);//Default true
+
+      calc_noerr_loglikes = apply_setting_if_present<bool>("calc_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
+      calc_expected_loglikes= apply_setting_if_present<bool>("calc_expected_loglikes", settings, calc_LHC_LogLikes);//Default false
+      calc_expected_noerr_loglikes = apply_setting_if_present<bool>("calc_expected_noerr_loglikes", settings, calc_LHC_LogLikes);//Default false
+      calc_scaledsignal_loglikes = apply_setting_if_present<bool>("calc_scaledsignal_loglikes", settings, calc_LHC_LogLikes);//Default false
+      apply_setting_if_present<double>("signal_scalefactor", settings, calc_LHC_LogLikes);//Default 1.0
+    }
 
     // If Rivet/Contur, set Rivet/Contur options
     if (withRivet)
@@ -260,15 +298,28 @@ int main(int argc, char* argv[])
 
     // Resolve ColliderBit dependencies and backend requirements
     convertEvent.resolveDependency(&getEvent);
-    calc_combined_LHC_LogLike.resolveDependency(&calc_LHC_LogLikes_full);
-    calc_combined_LHC_LogLike.resolveDependency(&operateLHCLoop);
-    get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes_full);
-    calc_LHC_LogLikes_full.resolveDependency(&CollectAnalyses);
-    calc_LHC_LogLikes_full.resolveDependency(&operateLHCLoop);
-    calc_LHC_LogLikes_full.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
-    calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_FileExists);
-    calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_ReadIn);
-    calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_Evaluate);
+    // If using ATLAS FullLikes resolve dependencies to calc_LHC_LogLikes_full
+    if (FullLikesWorks && use_FullLikes)
+    {
+      calc_combined_LHC_LogLike.resolveDependency(&calc_LHC_LogLikes_full);
+      calc_combined_LHC_LogLike.resolveDependency(&operateLHCLoop);
+      get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes_full);
+      calc_LHC_LogLikes_full.resolveDependency(&CollectAnalyses);
+      calc_LHC_LogLikes_full.resolveDependency(&operateLHCLoop);
+      calc_LHC_LogLikes_full.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
+      calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_FileExists);
+      calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_ReadIn);
+      calc_LHC_LogLikes_full.resolveBackendReq(&FullLikes_Evaluate);
+    }
+    else
+    {
+      calc_combined_LHC_LogLike.resolveDependency(&calc_LHC_LogLikes);
+      calc_combined_LHC_LogLike.resolveDependency(&operateLHCLoop);
+      get_LHC_LogLike_per_analysis.resolveDependency(&calc_LHC_LogLikes);
+      calc_LHC_LogLikes.resolveDependency(&CollectAnalyses);
+      calc_LHC_LogLikes.resolveDependency(&operateLHCLoop);
+      calc_LHC_LogLikes.resolveBackendReq(use_lnpiln ? &nulike_lnpiln : &nulike_lnpin);
+    }
     CollectAnalyses.resolveDependency(&runATLASAnalyses);
     CollectAnalyses.resolveDependency(&runCMSAnalyses);
     CollectAnalyses.resolveDependency(&runIdentityAnalyses);
@@ -354,7 +405,14 @@ int main(int argc, char* argv[])
     // Run the detector sim and selected analyses on all the events read in.
     operateLHCLoop.reset_and_calculate();
     CollectAnalyses.reset_and_calculate();
-    calc_LHC_LogLikes_full.reset_and_calculate();
+    if (FullLikesWorks && use_FullLikes)
+    {
+      calc_LHC_LogLikes_full.reset_and_calculate();
+    }
+    else
+    {
+      calc_LHC_LogLikes.reset_and_calculate();
+    }
     get_LHC_LogLike_per_analysis.reset_and_calculate();
     calc_combined_LHC_LogLike.reset_and_calculate();
     if (withContur)
@@ -371,7 +429,7 @@ int main(int argc, char* argv[])
     {
       const Gambit::ColliderBit::AnalysisData& adata = *(CollectAnalyses(0).at(analysis));
       const str& analysis_name = adata.analysis_name;
-      const Gambit::ColliderBit::AnalysisLogLikes& analysis_loglikes = calc_LHC_LogLikes_full(0).at(analysis_name);
+      const Gambit::ColliderBit::AnalysisLogLikes& analysis_loglikes = (FullLikesWorks && use_FullLikes) ?  calc_LHC_LogLikes_full(0).at(analysis_name) : calc_LHC_LogLikes(0).at(analysis_name);
       summary_line << "  " << analysis_name << ": " << endl;
       for (size_t sr_index = 0; sr_index < adata.size(); ++sr_index)
       {
