@@ -6,7 +6,7 @@ math:
   # Name of Mathematica package, either 'feynrules' or 'sarah'
   package: sarah
   # Name of Model within that package. This will also be the name of the GAMBIT model.
-  model: Inert2
+  model: gumIDM
   # Name of Lagrangian
   lagrangian: LTotal
 

@@ -1,6 +1,6 @@
 Off[General::spell]
 
-Model`Name = "Inert2";
+Model`Name = "gumIDM";
 Model`NameLaTeX ="Inert doublet Model";
 Model`Authors = "B.Herrmann, F.Staub";
 Model`Date = "2014-11-06";
@@ -66,9 +66,9 @@ LagHC = -(Lambdaa5/2 Hu.Hd.Hu.Hd + Yd Hd.q.d + Ye Hd.l.e - Yu conj[Hd].q.u);
 
 DEFINITION[EWSB][GaugeSector] =
 { 
-  {{VB,VWB[3]},{VP,VZ},ZZ},
-  {{VWB[1],VWB[2]},{VWp,conj[VWp]},ZW}
-};    
+  {{VB,VWB[3]}, {VP,VZ}, ZZ},
+  {{VWB[1],VWB[2]}, {VWp,conj[VWp]}, ZW}
+};      
         
         
           	
@@ -78,7 +78,7 @@ DEFINITION[EWSB][GaugeSector] =
 
 DEFINITION[EWSB][VEVs]= 
 {    {Hd0, {v, 1/Sqrt[2]}, {G0, \[ImaginaryI]/Sqrt[2]}, {hh, 1/Sqrt[2]}},
-     {Hu0, {0, 0}, {A0, \[ImaginaryI]/Sqrt[2]},{H0, 1/Sqrt[2]}}     };
+     {Hu0, {0, 0},         {A0, \[ImaginaryI]/Sqrt[2]}, {H0, 1/Sqrt[2]}} };
 
  
 
