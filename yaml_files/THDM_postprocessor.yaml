@@ -17,28 +17,27 @@
 Parameters:
     StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
-    THDMII:
+    THDMII_hybrid_Higgs2:
 
-      lambda1:
+      mh:
           prior_type: none
-      lambda2:
+      mHp:
           prior_type: none
-      lambda3:
+      cba:
           prior_type: none
-      lambda4:
+      tanb:
           prior_type: none
-      lambda5:
+      Lambda4:
+          prior_type: none
+      Lambda5:
+          prior_type: none
+      Lambda7:
           prior_type: none
       lambda6:
           prior_type: none
       lambda7:
           prior_type: none
-      m12_2:
-          prior_type: none
-      tanb:
-          prior_type: none
-      # Qin:
-      #   fixed_value: 91.1876 # = mZ
+
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -91,7 +90,7 @@ Scanner:
       # Information about input dataset to be postprocessed
       reader:
         type: hdf5
-        file: "flavSamps2.hdf5"
+        file: "flavSamps_16_MAY.hdf5"
         group: "/data"
 
 

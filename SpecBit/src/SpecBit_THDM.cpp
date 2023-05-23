@@ -600,17 +600,17 @@ namespace Gambit
       using namespace Pipes::get_THDM_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;
 
-      if (ModelInUse("gumTHDMII"))
-      {
-        str errmsg = "Cannot use gumTHDMII with Filip's 2HDM spectrum generator";
-        SpecBit_error().raise(LOCAL_INFO, errmsg);
-      }
+      // if (ModelInUse("gumTHDMII"))
+      // {
+      //   str errmsg = "Cannot use gumTHDMII with Filip's 2HDM spectrum generator";
+      //   SpecBit_error().raise(LOCAL_INFO, errmsg);
+      // }
 
-      if (ModelInUse("Inert2"))
-      {
-        str errmsg = "Cannot use IDM with Filip's 2HDM spectrum generator";
-        SpecBit_error().raise(LOCAL_INFO, errmsg);
-      }
+      // if (ModelInUse("Inert2"))
+      // {
+      //   str errmsg = "Cannot use IDM with Filip's 2HDM spectrum generator";
+      //   SpecBit_error().raise(LOCAL_INFO, errmsg);
+      // }
 
       performance_hax();
 

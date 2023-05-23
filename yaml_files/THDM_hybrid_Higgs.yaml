@@ -176,12 +176,12 @@ ObsLikes:
     function: NLO_unitarity_LogLikelihood_THDM
     # function: LO_unitarity_LogLikelihood_THDM
 
-  # # prevents Higgs pole mass from going out of set range (soft-cutoff)
-  # - purpose:    LogLike
-  #   capability: higgs_mass_LogLikelihood
-  #   options:
-  #     higgs_mass_uncertainty: 2.5
-  #     valid_range: 60
+  # prevents Higgs pole mass from going out of set range (soft-cutoff)
+  - purpose:    LogLike
+    capability: higgs_mass_LogLikelihood
+    options:
+      higgs_mass_uncertainty: 2.5
+      valid_range: 60
 
   # Stability of the 2HDM Potential
   # Applies the THDM stability constraints on the potential
@@ -759,6 +759,8 @@ Logger:
 ##########################
 
 KeyValues:
+
+  print_scanID: false
 
   likelihood:
     print_invalid_points: false
