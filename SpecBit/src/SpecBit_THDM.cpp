@@ -74,6 +74,9 @@ namespace Gambit
 
   extern int to_thdmc(const thdm::Particle part);
 
+  using std::vector;
+  using std::complex;
+
   namespace SpecBit
   {
 
