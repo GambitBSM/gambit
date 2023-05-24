@@ -409,7 +409,7 @@ def write_pythia_cmake_entry(model, output_dir):
                "    PATCH_COMMAND patch -p1 < ${model_specific_patch}\n"\
                "          COMMAND patch -p1 < ${patch}\n"\
                "          COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}.py\n"\
-               "    CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --enable-shared --cxx=\"${CMAKE_CXX_COMPILER}\" --cxx-common=\"${pythia_CXXFLAGS}\" --cxx-shared=\"${pythia_CXX_SHARED_FLAGS}\" --cxx-soname=\"${pythia_CXX_SONAME_FLAGS}\" --lib-suffix=\".so\"\n"\
+               "    CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --with-gzip --enable-shared --cxx=\"${CMAKE_CXX_COMPILER}\" --cxx-common=\"${pythia_CXXFLAGS}\" --cxx-shared=\"${pythia_CXX_SHARED_FLAGS}\" --cxx-soname=\"${pythia_CXX_SONAME_FLAGS}\" --lib-suffix=\".so\"\n"\
                "    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=\"${CMAKE_CXX_COMPILER}\" lib/${lib}.so\n"\
                "    INSTALL_COMMAND \"\"\n"\
                "  )\n"\

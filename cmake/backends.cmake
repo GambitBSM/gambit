@@ -1166,7 +1166,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND patch -p1 < ${patch}
-    CONFIGURE_COMMAND ./configure --with-hepmc3=${HEPMC_PATH}/local --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
+    CONFIGURE_COMMAND ./configure --with-hepmc3=${HEPMC_PATH}/local --with-gzip --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
     INSTALL_COMMAND ""
   )
@@ -2502,6 +2502,27 @@ if(NOT ditched_${name}_${ver})
   endif()
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
   set_as_default_version("backend" ${name} ${ver})
+endif()
+
+# MadGraph
+set(name "MadGraph")
+set(ver "3.4.2")
+set(dl "https://launchpad.net/mg5amcnlo/3.0/3.4.x/+download/MG5_aMC_v3.4.2.tar.gz")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(md5 "3fc96d7e9a604c7762497db0e6b8616a")
+# - Actual configure and compile commands
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    COMMAND echo "install pythia8" >> ${dir}/Build_MG.mg5
+    COMMAND ${dir}/bin/mg5_aMC ${dir}/Build_MG.mg5
+    SOURCE_DIR ${dir}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+  )
+add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
 endif()
 
 

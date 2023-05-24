@@ -42,6 +42,14 @@
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
     #undef FUNCTION
 
+    #define FUNCTION getMGPythia_@MODEL@
+    START_FUNCTION(Py8Collider_@MODEL@_defaultversion)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
+    ALLOW_MODEL(@MODEL@)
+    DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct) // TODO: Is this necessary since I am not using SLHA?
+    #undef FUNCTION
+
     #define FUNCTION getPythia_@MODEL@AsBase
     START_FUNCTION(const BaseCollider*)
     NEEDS_MANAGER(RunMC, MCLoopInfo)

@@ -13,6 +13,7 @@
 ///  *********************************************
 
 #include "gambit/ColliderBit/getPy8Collider.hpp"
+#include "gambit/ColliderBit/getMG5Py8Collider.hpp"
 #include "gambit/ColliderBit/generateEventPy8Collider.hpp"
 
 
@@ -26,6 +27,7 @@ namespace Gambit
 
     // Get Monte Carlo event generator
     GET_SPECIFIC_PYTHIA(getPythia_@MODEL@, Pythia_@MODEL@_default, _@MODEL@)
+    GET_SPECIFIC_PYTHIA_MG(getMGPythia_@MODEL@, Pythia_@MODEL@_default, _@MODEL@)
     GET_PYTHIA_AS_BASE_COLLIDER(getPythia_@MODEL@AsBase)
 
     // Run event generator
