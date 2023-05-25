@@ -167,10 +167,6 @@ MultiModeCode:
   2.0.0:       ./Backends/installed/multimodecode/2.0.0/lib/libmodecode.so
 
 
-# Added by GUM
-Pythia_MDMSM:
-  8.212:       ./Backends/installed/pythia_mdmsm/8.212/lib/libpythia8.so
-
 # Example/debug backends
 
 LibFirst:
