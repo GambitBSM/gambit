@@ -90,6 +90,9 @@ gm2calc:
   1.2.0:       ./Backends/installed/gm2calc/1.2.0/src/libgm2calc.so
   1.3.0:       ./Backends/installed/gm2calc/1.3.0/src/libgm2calc.so
 
+MadGraph:
+  3.4.2:       ./Backends/installed/MadGraph/GBMadGraphInterface.py
+
 MontePythonLike:
   3.3.0:       ./Backends/installed/montepythonlike/3.3.0/montepython/MontePythonLike_3_3_0.py
   3.5.0:       ./Backends/installed/montepythonlike/3.5.0/montepython/MontePythonLike_3_5_0.py
@@ -163,6 +166,10 @@ plc:
 MultiModeCode:
   2.0.0:       ./Backends/installed/multimodecode/2.0.0/lib/libmodecode.so
 
+
+# Added by GUM
+Pythia_MDMSM:
+  8.212:       ./Backends/installed/pythia_mdmsm/8.212/lib/libpythia8.so
 
 # Example/debug backends
 
