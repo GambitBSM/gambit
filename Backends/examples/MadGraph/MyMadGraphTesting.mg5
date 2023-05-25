@@ -1,0 +1,4 @@
+launch MyMadGraphTesting
+  set nevents 1000
+launch MyMadGraphTesting -i
+  print_results --path=./cross_section_top.txt --format=short

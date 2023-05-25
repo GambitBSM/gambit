@@ -125,10 +125,12 @@ def write_MadGraph_cmake_entry(model, output_dir):
                "set(ver \"3.4.2\")\n"\
                "set(dir \"${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}\")\n"\
                "set(gum_dir \"${PROJECT_SOURCE_DIR}/gum/\")\n"\
+               "set(script_dir \"${PROJECT_SOURCE_DIR}/Backends/examples/MadGraph\")\n"\
                "add_custom_target(MadGraph_"+model.lower()+"\n"\
+               "    COMMAND ${CMAKE_COMMAND} -E copy_directory ${script_dir} ${dir}/\n"\
                "    COMMAND ${CMAKE_COMMAND} -E copy_directory ${gum_dir}/contrib/MadGraph/models/"+model+" ${dir}/models/"+model+"\n"\
                "    COMMAND ${CMAKE_COMMAND} -E copy ${gum_dir}/Outputs/"+model+"/MadGraph5_aMC/generate_matrix_elements_MG_"+model+".mg5 ${dir}/\n"\
-               "    COMMAND echo \"output ${dir}/MyMadGraphTesting\" >> ${dir}/generate_matrix_elements_MG_"+model+".mg5"\
+               "    COMMAND echo \"output ${dir}/MyMadGraphTesting\" >> ${dir}/generate_matrix_elements_MG_"+model+".mg5\n"\
                "    COMMAND ${dir}/bin/mg5_aMC ${dir}/generate_matrix_elements_MG_"+model+".mg5\n"\
                "    DEPENDS ${name}_${ver})\n\n\n"
 
