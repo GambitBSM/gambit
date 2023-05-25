@@ -45,13 +45,13 @@ Parameters:
 
 Printer:
 
-  printer: cout
+  # printer: cout
 
-  # printer: hdf5
-  # options:
-  #   output_file: "scan.hdf5"
-  #   group: "/data"
-  #   delete_file_on_restart: true
+  printer: hdf5
+  options:
+    output_file: "scan.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
 
   # printer: hdf5_v1
   # options:
@@ -166,7 +166,7 @@ ObsLikes:
   # - purpose:    LogLike
   #   capability: B2Kll_LogLikelihood
 
-  # # B -> mu mu
+  # B -> mu mu
   # - purpose:    LogLike
   #   capability: B2mumu_LogLikelihood_Atlas
   #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]

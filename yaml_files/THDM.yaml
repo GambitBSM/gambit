@@ -75,7 +75,7 @@ Parameters:
     #       fixed_value: 91.1876 # = mZ
 
 
-    THDMI_hybrid_Higgs2:
+    THDMI_hybrid_HiggsatQ:
 
       # model parameters are specified here
       # generic basis:      lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tanb
@@ -94,31 +94,42 @@ Parameters:
       # range of m12_2 hard to justify so we use a logarithmic prior over a large region
       #      but m12_2 too low tends to cause negative masses
 
-      mh:
-          range: [125, 126]
-          prior_Type: flat
-      mHp:
-          range: [80, 100]
-          prior_Type: flat
-      cba:
-          range: [-0.55, +0.55]
-          prior_Type: flat
-      tanb:
-          range: [0.001, 50]
-          prior_Type: flat
-      Lambda4:
-          range: [-4, +5]
-          prior_Type: flat
-      Lambda5:
-          range: [-3, +4]
-          prior_Type: flat
-      Lambda7:
-          range: [-2, +2.5]
-          prior_Type: flat
-      lambda6:
-          fixed_value: 0.0
-      lambda7:
-          fixed_value: 0.0
+      Lambda4: -2.1667438
+      Lambda5: -1.5686068
+      Lambda7: -1.0851773
+      Qin: 91.1876
+      cba: -0.42864455
+      lambda6: 0
+      lambda7: 0
+      mH: 223.9014
+      mh: 125.62081
+      tanb: 9.216383
+
+      # mh:
+      #     range: [125, 126]
+      #     prior_Type: flat
+      # mH:
+      #     range: [140, 300]
+      #     prior_Type: flat
+      # cba:
+      #     range: [-0.55, +0.55]
+      #     prior_Type: flat
+      # tanb:
+      #     range: [0.001, 50]
+      #     prior_Type: flat
+      # Lambda4:
+      #     range: [-4, +5]
+      #     prior_Type: flat
+      # Lambda5:
+      #     range: [-3, +4]
+      #     prior_Type: flat
+      # Lambda7:
+      #     range: [-2, +2.5]
+      #     prior_Type: flat
+      # lambda6:
+      #     fixed_value: 0.0
+      # lambda7:
+      #     fixed_value: 0.0
       # Qin:
       #   fixed_value: 91.1876 # = mZ
 
@@ -156,7 +167,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1000
+      point_number: 1
       like:  LogLike
 
     differentialEvolution:
@@ -181,61 +192,61 @@ ObsLikes:
   #      THEORETICAL LIKELIHOODS        #
   #-------------------------------------#
 
-  # Checks that the LO or NLO scattering-matrix is unitary
-  # Calculates and applies limit on eigenvalues of matrix
-  # Likelihood type: Half-Gaussian
-  # Only supports CP-conserving models
-  # Unitarity of the S-matrix at next leading order (includes leading order too)
-  - purpose:    LogLike
-    capability: unitarity_LogLikelihood_THDM
-    # function: NLO_unitarity_LogLikelihood_THDM
-    function: LO_unitarity_LogLikelihood_THDM
+  # # Checks that the LO or NLO scattering-matrix is unitary
+  # # Calculates and applies limit on eigenvalues of matrix
+  # # Likelihood type: Half-Gaussian
+  # # Only supports CP-conserving models
+  # # Unitarity of the S-matrix at next leading order (includes leading order too)
+  # - purpose:    LogLike
+  #   capability: unitarity_LogLikelihood_THDM
+  #   function: NLO_unitarity_LogLikelihood_THDM
+  #   # function: LO_unitarity_LogLikelihood_THDM
 
-  # Stability of the 2HDM Potential
-  # Applies the THDM stability constraints on the potential
-  # NOTE: This likelihood has two parts, described below
-  # (i) Applies strict stability constraint
-  # Likelihood type: Acceptance/Rejection
-  # (ii) If rejected, applies looser stabililty constraints
-  # Likelihood type: Half-Gaussian
-  - purpose:    LogLike
-    capability: stability_LogLikelihood_THDM
+  # # Stability of the 2HDM Potential
+  # # Applies the THDM stability constraints on the potential
+  # # NOTE: This likelihood has two parts, described below
+  # # (i) Applies strict stability constraint
+  # # Likelihood type: Acceptance/Rejection
+  # # (ii) If rejected, applies looser stabililty constraints
+  # # Likelihood type: Half-Gaussian
+  # - purpose:    LogLike
+  #   capability: stability_LogLikelihood_THDM
 
-  # Perturbativity check on h0 mass loop-corrections
-  # Checks that loop corrections to the pole mass of mh0
-  # do not exceed 50% of the input mass at Qin
-  # Likelihood type: Acceptance/Rejection
+  # # Perturbativity check on h0 mass loop-corrections
+  # # Checks that loop corrections to the pole mass of mh0
+  # # do not exceed 50% of the input mass at Qin
+  # # Likelihood type: Acceptance/Rejection
   # - purpose:    LogLike
   #   capability: light_scalar_mass_corrections_LogLikelihood_THDM
 
-  # Checks that loop corrections to the pole masses of mH0,
-  # mA0, mHpm do not exceed 50% of the input mass at Qin
-  # Likelihood type: Acceptance/Rejection
-  # Perturbativity check on other scalar mass loop-corrections
-  # - purpose:    LogLike
-  #   capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
+  # # # Checks that loop corrections to the pole masses of mH0,
+  # # # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # # # Likelihood type: Acceptance/Rejection
+  # # # Perturbativity check on other scalar mass loop-corrections
+  # # - purpose:    LogLike
+  # #   capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
 
-  # enforces a mass range for all scalars from the yaml
-  # these are specified by the run options (given below):
-  # (*) maximum_scalar_mass
-  # (*) minimum_scalar_mass
-  # Likelihood type: Acceptance/Rejection
-  # - purpose:    LogLike
-  #   capability: scalar_mass_range_LogLikelihood_THDM
+  # # # enforces a mass range for all scalars from the yaml
+  # # # these are specified by the run options (given below):
+  # # # (*) maximum_scalar_mass
+  # # # (*) minimum_scalar_mass
+  # # # Likelihood type: Acceptance/Rejection
+  # # - purpose:    LogLike
+  # #   capability: scalar_mass_range_LogLikelihood_THDM
 
-  # Perturbativity check on lambdas and scalar couplings
-  # Calculates all quartic Higgs couplings in the physical
-  # basis & applies a 4pi perturbativity constraint on each
-  # Likelihood type: Half-Gaussian
+  # # Perturbativity check on lambdas and scalar couplings
+  # # Calculates all quartic Higgs couplings in the physical
+  # # basis & applies a 4pi perturbativity constraint on each
+  # # Likelihood type: Half-Gaussian
   # - purpose:    LogLike
   #   capability: perturbativity_LogLikelihood_THDM
   #   function: perturbativity_LogLikelihood_THDM
-    # alternative simple perturbativity constraint which only checks lambdas
-    # function: perturbativity_lambdas_LogLikelihood_THDM
+  #   # alternative simple perturbativity constraint which only checks lambdas
+  #   # function: perturbativity_lambdas_LogLikelihood_THDM
 
   # perturbativity constraint on yukawas
-  # - purpose:    LogLike
-  #   capability: perturbativity_yukawas_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: perturbativity_yukawas_LogLikelihood_THDM
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -260,18 +271,18 @@ ObsLikes:
   #      PRECISION LIKELIHOODS          #
   #-------------------------------------#
 
-  # Calculates the electroweak precision parameters, S, T, U, V, W, X
-  # & fits to meausured values. S, T, U involve a correlation matrix.
-  # Includes low-energy notation described in arxiv::9407203.
-  # Likelihood type: Half-Gaussian
-  - purpose:    Observable
-    capability: oblique_parameters_LogLikelihood
-    function: get_oblique_parameters_LogLikelihood
+  # # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # # & fits to meausured values. S, T, U involve a correlation matrix.
+  # # Includes low-energy notation described in arxiv::9407203.
+  # # Likelihood type: Half-Gaussian
+  # - purpose:    Observable
+  #   capability: oblique_parameters_LogLikelihood
+  #   function: get_oblique_parameters_LogLikelihood
 
-  # muon anomalous magnetic moment likelihood (for GTHDM)
-  - purpose: Observable
-    capability: lnL_gm2
-    function: lnL_gm2
+  # # muon anomalous magnetic moment likelihood (for GTHDM)
+  # - purpose: Observable
+  #   capability: lnL_gm2
+  #   function: lnL_gm2
 
   #-------------------------------------#
   #      FLAVOR LIKELIHOODS             #
@@ -474,92 +485,92 @@ ObsLikes:
 ##          OBSERVABLES        ##
 #################################
 
-  - purpose:      Observable
-    capability:   prediction_Tpar
+  # - purpose:      Observable
+  #   capability:   prediction_Tpar
 
-  - purpose:      Observable
-    capability:   prediction_Spar
+  # - purpose:      Observable
+  #   capability:   prediction_Spar
 
-  - purpose:      Observable
-    capability:   prediction_Upar
+  # - purpose:      Observable
+  #   capability:   prediction_Upar
 
   # entire 2HDM spectrum
   - capability: THDM_spectrum
     type: map_str_dbl
     purpose: Observable
 
-  # 2HDM decay rates and branching ratios
-  - capability: all_BFs
-    purpose: Observable
+  # # 2HDM decay rates and branching ratios
+  # - capability: all_BFs
+  #   purpose: Observable
 
-  #  ---- Wilson Coefficients ----
+  # #  ---- Wilson Coefficients ----
 
-  - purpose: Observable
-    capability: DeltaCQ1
+  # - purpose: Observable
+  #   capability: DeltaCQ1
 
-  - purpose: Observable
-    capability: DeltaCQ1_Prime
+  # - purpose: Observable
+  #   capability: DeltaCQ1_Prime
 
-  - purpose: Observable
-    capability: DeltaCQ2
+  # - purpose: Observable
+  #   capability: DeltaCQ2
 
-  - purpose: Observable
-    capability: DeltaCQ2_Prime
+  # - purpose: Observable
+  #   capability: DeltaCQ2_Prime
 
-  - purpose: Observable
-    capability: DeltaCQ1_tautau
+  # - purpose: Observable
+  #   capability: DeltaCQ1_tautau
 
-  - purpose: Observable
-    capability: DeltaCQ1_tautau_Prime
+  # - purpose: Observable
+  #   capability: DeltaCQ1_tautau_Prime
 
-  - purpose: Observable
-    capability: DeltaCQ2_tautau
+  # - purpose: Observable
+  #   capability: DeltaCQ2_tautau
 
-  - purpose: Observable
-    capability: DeltaCQ2_tautau_Prime
-
-
-
-  - purpose: Observable
-    capability: DeltaC2
-
-  - purpose: Observable
-    capability: DeltaC7
-
-  - purpose: Observable
-    capability: DeltaC7_Prime
-
-  - purpose: Observable
-    capability: DeltaC8
-
-  - purpose: Observable
-    capability: DeltaC8_Prime
-
-  - purpose: Observable
-    capability: DeltaC9
-
-  - purpose: Observable
-    capability: DeltaC9_Prime
-
-  - purpose: Observable
-    capability: DeltaC10
-
-  - purpose: Observable
-    capability: DeltaC10_Prime
+  # - purpose: Observable
+  #   capability: DeltaCQ2_tautau_Prime
 
 
 
-  - purpose: Observable
-    capability: DeltaC9_tautau
+  # - purpose: Observable
+  #   capability: DeltaC2
 
-  - purpose: Observable
-    capability: DeltaC9_tautau_Prime
+  # - purpose: Observable
+  #   capability: DeltaC7
 
-  - purpose: Observable
-    capability: DeltaC10_tautau
+  # - purpose: Observable
+  #   capability: DeltaC7_Prime
 
-  - purpose: Observable
-    capability: DeltaC10_tautau_Prime
+  # - purpose: Observable
+  #   capability: DeltaC8
+
+  # - purpose: Observable
+  #   capability: DeltaC8_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC9
+
+  # - purpose: Observable
+  #   capability: DeltaC9_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC10
+
+  # - purpose: Observable
+  #   capability: DeltaC10_Prime
+
+
+
+  # - purpose: Observable
+  #   capability: DeltaC9_tautau
+
+  # - purpose: Observable
+  #   capability: DeltaC9_tautau_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC10_tautau
+
+  # - purpose: Observable
+  #   capability: DeltaC10_tautau_Prime
 
 
 
@@ -689,11 +700,13 @@ Logger:
 
 KeyValues:
 
+  print_scanID: false
+
   likelihood:
-    print_invalid_points: false
-    model_invalid_for_lnlike_below: -1e6
-    model_invalid_for_lnlike_below_alt: -5e5
-    disable_print_for_lnlike_below: -4e4
+    print_invalid_points: true
+    # model_invalid_for_lnlike_below: -1e6
+    # model_invalid_for_lnlike_below_alt: -5e5
+    # disable_print_for_lnlike_below: -4e4
     debug: true
 
   dependency_resolution:
