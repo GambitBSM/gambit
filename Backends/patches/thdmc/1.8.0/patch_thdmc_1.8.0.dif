@@ -6595,7 +6595,7 @@ diff -ruN src/THDM.h src_patched/THDM.h
 +   // Free GSL (run at end)
 +  void free_gsl();
 +
-+  ~THDM() { free_gsl(); }
++  ~THDM() { /*free_gsl();*/ }
  
    /**
    * @brief Sets the underlying SM
