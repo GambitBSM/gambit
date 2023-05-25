@@ -277,6 +277,11 @@ namespace Gambit
             double result = dependencyResolver.getObsLike<double>(*it);
             if (debug) debug_to_cout << result;
             lnlike += result;
+
+            if (result < -500 || result > -1)
+            {
+              dependencyResolver.invalidatePointAt(*it, false);
+            }
           }
           else if (rtype == "std::vector<double>")
           {
