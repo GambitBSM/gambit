@@ -578,6 +578,7 @@ void MODEL_NAMESPACE::THDMI_hybrid_HiggsatQ_to_THDMIatQ(const ModelParameters &m
   if (beta-alpha < -M_PI/2) alpha -= M_PI;
 
   double sba = sin(beta - alpha);
+  cba = cos(beta - alpha);
 
   double sinb = std::sin(beta);
   double cosb = std::cos(beta);
