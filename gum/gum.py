@@ -304,6 +304,11 @@ if args.file:
                                          collider_processes,
                                          multiparticles)
 
+                    # Also create it for the non patched pythia version
+                    make_madgraph_script(mg5_dir, mg5_output_dir, gum.name,
+                                         collider_processes,
+                                         multiparticles, patchedpythia = False)
+
                     # Add MadGraph to path and import the python interface
                     sys.path.append(mg5_dir)
                     import madgraph.interface.master_interface as mi
@@ -684,6 +689,9 @@ if args.file:
             patch_pythia_patch(parameters, gum.name, reset_contents)
             print("Creating a cmake entry for Pythia"+gum.name+".")
             pythia_cmake = write_pythia_cmake_entry(gum.name, output_dir)
+            # Also generate a Madgraph target for this model
+            print("Creating a cmake entry for MadGraph"+gum.name+".")
+            madgraph_cmake = write_MadGraph_cmake_entry(gum.name, output_dir)
             print(("Setting the default version of Pythia_"+gum.name+" for "
                    "BOSSed classes to 8."+base_pythia_version))
             write_pythia_capability_defs(gum.name, capability_definitions)
@@ -914,6 +922,8 @@ if args.file:
                                      reset_contents)
             add_to_backends_cmake(pythia_cmake, reset_contents,
                                   string_to_find="# Nulike")
+            add_to_backends_cmake(madgraph_cmake, reset_contents,
+                                  string_to_find="# MicrOmegas base (for all models)")
             add_to_default_bossed_version("Pythia_"+gum.name,
                                           safe_ver, reset_contents)
 
