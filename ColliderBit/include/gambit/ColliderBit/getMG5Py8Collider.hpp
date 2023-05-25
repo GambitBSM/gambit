@@ -41,7 +41,8 @@ namespace Gambit
                         const str model_suffix,
                         const int iteration,
                         void(*wrapup)(),
-                        const Options& runOptions)
+                        const Options& runOptions,
+                        int (*MG_RunEvents)(const str&, const str&))
     {
       static bool first = true;
       static str pythia_doc_path;
@@ -75,17 +76,21 @@ namespace Gambit
       //   // Do the option parsing here?
       // }
       
-      // TODO: In this COLLIDER_INIT_OMP step, also run MadGraph and output the filepath of the LHE file
+      // TODO: In COLLIDER_INIT_OMP step,  run MadGraph
+      // The file path of the LHE file should be known before running MG, so no need ot get it out from the backend
+      // TODO: Pass LHE File options to Pythia
+      else if (iteration == COLLIDER_INIT)
+      {
+        const str mg5_dir = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/FreshVersion_3/gambit/Backends/installed/MadGraph/3.4.2/";
+        const str script_name = "MyMadGraphTesting.mg5";
+        int MG_success = MG_RunEvents(mg5_dir, script_name);
+        if (MG_success != 0) { std::cout << "HEY! I failed in the MadGraph stage. This message should be replaced with a proper error raise.\n";}
+      }
 
       else if (iteration == COLLIDER_INIT_OMP)
       {
-
-        // TODO: Read in MG Options and run MG.
-        
-        //TODO: I did the MG bit inside of the bit at the bottom of the page. Perhaps I can change the function inputs so that this poasses me a pointer to the backend so I can 
-        //      run it inside of this function.
-        
         // TODO: Get the file path of the LHEfile out from MG
+        std::string LHEpath = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/FreshVersion_3/gambit/Backends/installed/MadGraph/3.4.2/MyMadGraphTesting/Events/run_01/unweighted_events.lhe";
         
 
         std::vector<str> pythiaOptions;
@@ -94,10 +99,6 @@ namespace Gambit
         pythiaOptions.push_back("Print:quiet = on");
         pythiaOptions.push_back("SLHA:verbose = 0");
 
-        // TODO: Pass LHE File options to Pythia
-        std::string LHEpath = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/BothMGandPY/gambit/ColliderBit/data/MadGraph_Testing_DataFiles/unweighted_events.lhe.gz";
-        //std::string LHEpath = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/RunGUMModel/gambit/Backends/installed/MadGraph/3.4.2/MyMadGraphTesting/Events/run_01/unweighted_events.lhe.gz"; // TODO: For debugging purposes, I am just using an example generated one
-        //std::string LHEpath = "DMsimp_10events.lhe";
         pythiaOptions.push_back("Beams:frametype = 4");
         pythiaOptions.push_back("Beams:LHEF = " + LHEpath);
 
@@ -288,13 +289,10 @@ namespace Gambit
         slha = *Dep::SpectrumAndDecaysForPythia;     /* TODO: This can probably be something empty */        \
       }                                                                               \
                                                                                        \
-      if (*Loop::iteration == COLLIDER_INIT_OMP) \
-      {                                                                                 \
-        int success = BEreq::MG_RunEvents(); /* TODO: First attempt at making it run events...  */ \
-      }                                                                                 \
+      int (*MG_RunEvents)(const str&, const str&) = BEreq::MG_RunEvents.pointer();  \
                                                                                    \
       getMG5Py8Collider(result, *Dep::RunMC, slha, #MODEL_EXTENSION,                     \
-        *Loop::iteration, Loop::wrapup, *runOptions);                                 \
+        *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents);                                 \
     }
 
 

@@ -25,7 +25,7 @@ LOAD_LIBRARY
 
 #ifdef HAVE_PYBIND11
 
-  BE_FUNCTION(MG_RunEvents, int, (), "MG_RunEvents", "MG_RunEvents")
+  BE_FUNCTION(MG_RunEvents, int, (const str&, const str&), "MG_RunEvents", "MG_RunEvents")
 
 #endif
 
