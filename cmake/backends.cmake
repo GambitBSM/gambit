@@ -842,6 +842,21 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# Custom model target generated with GUM.
+set(name "MadGraph")
+set(ver "3.4.2")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(gum_dir "${PROJECT_SOURCE_DIR}/gum/")
+set(script_dir "${PROJECT_SOURCE_DIR}/Backends/examples/MadGraph")
+add_custom_target(MadGraph_mdmsm
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${script_dir} ${dir}/
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${gum_dir}/contrib/MadGraph/models/MDMSM ${dir}/models/MDMSM
+    COMMAND ${CMAKE_COMMAND} -E copy ${gum_dir}/Outputs/MDMSM/MadGraph5_aMC/generate_matrix_elements_MG_MDMSM.mg5 ${dir}/
+    COMMAND echo "output ${dir}/MyMadGraphTesting" >> ${dir}/generate_matrix_elements_MG_MDMSM.mg5
+    COMMAND ${dir}/bin/mg5_aMC ${dir}/generate_matrix_elements_MG_MDMSM.mg5
+    DEPENDS ${name}_${ver})
+
+
 # MicrOmegas base (for all models)
 set(name "micromegas")
 set(ver "3.6.9.2")
@@ -1175,6 +1190,34 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("backend" ${name} ${ver})
 endif()
 
+
+# Pythia with matrix elements for MDMSM (brought to you today by the letters G, U and M).
+set(model "mdmsm")
+set(name "pythia_${model}")
+set(ver "8.212")
+set(lib "libpythia8")
+set(dl "https://pythia.org/download/pythia82/pythia8212.tgz")
+set(md5 "7bebd73edcabcaec591ce6a38d059fa3")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(model_specific_patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS hepmc
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND patch -p1 < ${model_specific_patch}
+          COMMAND patch -p1 < ${patch}
+          COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}.py
+    CONFIGURE_COMMAND ./configure ${EXTRA_CONFIG} --enable-shared --cxx="${CMAKE_CXX_COMPILER}" --cxx-common="${pythia_CXXFLAGS}" --cxx-shared="${pythia_CXX_SHARED_FLAGS}" --cxx-soname="${pythia_CXX_SONAME_FLAGS}" --lib-suffix=".so"
+    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX="${CMAKE_CXX_COMPILER}" lib/${lib}.so
+    INSTALL_COMMAND ""
+  )
+  BOSS_backend(${name} ${ver} "")
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} distclean)
+  set_as_default_version("backend" ${name} ${ver})
+endif()
 
 # Nulike
 set(name "nulike")
