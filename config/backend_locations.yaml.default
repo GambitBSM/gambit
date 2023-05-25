@@ -91,7 +91,7 @@ gm2calc:
   1.3.0:       ./Backends/installed/gm2calc/1.3.0/src/libgm2calc.so
 
 MadGraph:
-  3.4.2:       ./Backends/installed/MadGraph/GBMadGraphInterface.py
+  3.4.2:       ./Backends/installed/MadGraph/3.4.2/GBMadGraphInterface.py
 
 MontePythonLike:
   3.3.0:       ./Backends/installed/montepythonlike/3.3.0/montepython/MontePythonLike_3_3_0.py
