@@ -8,16 +8,14 @@
 #
 #  \author Chris Chang
 #          (christopher.chang@uqconnect.edu.au)
-#  \date 2021
+#  \date 2023
 #
 #  **************************************
 
 
 import sys
-
-# TODO: Make this pass in from GB in an initialisation stage
-#mg5_dir = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/FreshVersion/gambit/Backends/installed/MadGraph/3.4.2/"
-#sys.path.append(mg5_dir)
+import os
+import shutil
 
 import madgraph.interface.master_interface as mi
 
@@ -27,8 +25,12 @@ def MG_RunEvents(mg5_dir, script_name):
 
     # Add MG directory to path
     sys.path.append(mg5_dir)
+    
+    # Remove Pre-existing output folder, if it exists
+    if (os.path.exists(mg5_dir + script_name + "/Events/run_01")):
+        shutil.rmtree(mg5_dir + script_name + "/Events/run_01")
 
-    Cmd = "import command " + mg5_dir + script_name
+    Cmd = "import command " + mg5_dir + script_name + ".mg5"
     
     launch = mi.MasterCmd(mgme_dir = mg5_dir)
     

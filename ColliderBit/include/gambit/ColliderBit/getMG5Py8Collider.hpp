@@ -81,8 +81,8 @@ namespace Gambit
       // TODO: Pass LHE File options to Pythia
       else if (iteration == COLLIDER_INIT)
       {
-        const str mg5_dir = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/FreshVersion_3/gambit/Backends/installed/MadGraph/3.4.2/";
-        const str script_name = "MyMadGraphTesting.mg5";
+        const str mg5_dir = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/TestPatch/gambit/Backends/installed/MadGraph/3.4.2/";
+        const str script_name = "MyMadGraphTesting";
         int MG_success = MG_RunEvents(mg5_dir, script_name);
         if (MG_success != 0) { std::cout << "HEY! I failed in the MadGraph stage. This message should be replaced with a proper error raise.\n";}
       }
@@ -90,7 +90,7 @@ namespace Gambit
       else if (iteration == COLLIDER_INIT_OMP)
       {
         // TODO: Get the file path of the LHEfile out from MG
-        std::string LHEpath = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/FreshVersion_3/gambit/Backends/installed/MadGraph/3.4.2/MyMadGraphTesting/Events/run_01/unweighted_events.lhe";
+        std::string LHEpath = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/TestPatch/gambit/Backends/installed/MadGraph/3.4.2/MyMadGraphTesting/Events/run_01/unweighted_events.lhe";
         
 
         std::vector<str> pythiaOptions;
