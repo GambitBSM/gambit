@@ -21,7 +21,7 @@ import madgraph.interface.master_interface as mi
 
 
 # Run Event Generation with MadGraph
-def MG_RunEvents(mg5_dir, script_name):
+def MG_RunEvents(mg5_dir, script_name, commands):
 
     # Add MG directory to path
     sys.path.append(mg5_dir)
@@ -29,15 +29,21 @@ def MG_RunEvents(mg5_dir, script_name):
     # Remove Pre-existing output folder, if it exists
     if (os.path.exists(mg5_dir + script_name + "/Events/run_01")):
         shutil.rmtree(mg5_dir + script_name + "/Events/run_01")
+    if (os.path.exists(mg5_dir + script_name + "/HTML/run_01")):
+        shutil.rmtree(mg5_dir + script_name + "/HTML/run_01")
 
     Cmd = "import command " + mg5_dir + script_name + ".mg5"
     
     launch = mi.MasterCmd(mgme_dir = mg5_dir)
     
-    # Execute the command
     # Prevent automatic html opening in a browser
     launch.exec_cmd("set automatic_html_opening False")
     
+    # Run each additional setting provided from the yaml
+    for cmd in commands:
+      launch.exec_cmd(cmd)
+    
+    # Run the main command
     launch.exec_cmd(Cmd)
     
     return(0)

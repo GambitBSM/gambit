@@ -105,15 +105,17 @@ Rules:
     function: getMGPythia_MDMSM
     options:
       LHC_13TeV:
+        MG_OutputFolderName: "MyMadGraphTesting"
         xsec_veto: 0.00
         partonOnly: false
         antiktR: 0.4
+        MadGraph_settings:
+          - set automatic_html_opening False
         pythia_settings:
           - Next:numberShowProcess = 1
           - Print:quiet = off
           - Random:setSeed = on
           - HadronLevel:all = on
-          #- SUSY:all = off
           - MDMSM:all = on
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2

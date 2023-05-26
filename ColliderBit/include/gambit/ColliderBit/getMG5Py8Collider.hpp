@@ -42,11 +42,13 @@ namespace Gambit
                         const int iteration,
                         void(*wrapup)(),
                         const Options& runOptions,
-                        int (*MG_RunEvents)(const str&, const str&))
+                        int (*MG_RunEvents)(str&, str&, std::vector<str>&))
     {
       static bool first = true;
       static str pythia_doc_path;
       static double xsec_veto_fb;
+      static str OutputFolderName;
+      str mg5_dir = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/";
 
       if (iteration == BASE_INIT)
       {
@@ -76,22 +78,36 @@ namespace Gambit
       //   // Do the option parsing here?
       // }
       
-      // TODO: In COLLIDER_INIT_OMP step,  run MadGraph
-      // The file path of the LHE file should be known before running MG, so no need ot get it out from the backend
-      // TODO: Pass LHE File options to Pythia
+      // In COLLIDER_INIT_OMP step, run MadGraph
       else if (iteration == COLLIDER_INIT)
       {
-        const str mg5_dir = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/TestPatch/gambit/Backends/installed/MadGraph/3.4.2/";
-        const str script_name = "MyMadGraphTesting";
-        int MG_success = MG_RunEvents(mg5_dir, script_name);
+        std::vector<str> MadGraphOptions;
+        str OutputFolderName_default = "MyMadGraphTesting_default";
+        if (runOptions.hasKey(RunMC.current_collider()))
+        {
+          YAML::Node colNode = runOptions.getValue<YAML::Node>(RunMC.current_collider());
+          Options colOptions(colNode);
+
+          
+          OutputFolderName = colOptions.getValueOrDef<str>(OutputFolderName_default, "MG_OutputFolderName");
+
+          // TODO: Check whether the output folder exists, and if not throw an error
+          
+          // TODO: Check for some necessary settings??
+
+          if (colOptions.hasKey("MadGraph_settings"))
+          {
+            std::vector<str> addMadGraphOptions = colNode["MadGraph_settings"].as<std::vector<str> >();
+            MadGraphOptions.insert(MadGraphOptions.end(), addMadGraphOptions.begin(), addMadGraphOptions.end());
+          }
+        }
+        int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions);
         if (MG_success != 0) { std::cout << "HEY! I failed in the MadGraph stage. This message should be replaced with a proper error raise.\n";}
       }
 
       else if (iteration == COLLIDER_INIT_OMP)
       {
-        // TODO: Get the file path of the LHEfile out from MG
-        std::string LHEpath = "/home/s4358844/GAMBIT/CB_Development/MadGraph_CB/TestPatch/gambit/Backends/installed/MadGraph/3.4.2/MyMadGraphTesting/Events/run_01/unweighted_events.lhe";
-        
+        std::string LHEpath = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/" + OutputFolderName + "/Events/run_01/unweighted_events.lhe";
 
         std::vector<str> pythiaOptions;
 
@@ -289,7 +305,7 @@ namespace Gambit
         slha = *Dep::SpectrumAndDecaysForPythia;     /* TODO: This can probably be something empty */        \
       }                                                                               \
                                                                                        \
-      int (*MG_RunEvents)(const str&, const str&) = BEreq::MG_RunEvents.pointer();  \
+      int (*MG_RunEvents)(str&, str&, std::vector<str>&) = BEreq::MG_RunEvents.pointer();  \
                                                                                    \
       getMG5Py8Collider(result, *Dep::RunMC, slha, #MODEL_EXTENSION,                     \
         *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents);                                 \

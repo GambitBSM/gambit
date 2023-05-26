@@ -48,7 +48,7 @@
     NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
     ALLOW_MODEL(@MODEL@)
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct) // TODO: Is this necessary since I am not using SLHA?
-    BACKEND_REQ(MG_RunEvents, (MadGraph), int, (const str&, const str&))
+    BACKEND_REQ(MG_RunEvents, (MadGraph), int, (str&, str&, std::vector<str>&))
     #undef FUNCTION
 
     #define FUNCTION getPythia_@MODEL@AsBase
