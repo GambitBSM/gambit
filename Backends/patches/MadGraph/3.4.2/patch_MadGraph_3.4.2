@@ -1,0 +1,32 @@
+--- a/madgraph/interface/madevent_interface.py	2023-01-21 01:22:52.000000000 +1000
++++ b/madgraph/interface/madevent_interface.py	2023-05-26 11:08:56.610922238 +1000
+@@ -3760,7 +3760,7 @@
+         if len(AllEvent) == 0:
+             nb_event = 0 
+         else:
+-            nb_event = AllEvent.unweight(pjoin(self.me_dir, "Events", self.run_name, "unweighted_events.lhe.gz"),
++            nb_event = AllEvent.unweight(pjoin(self.me_dir, "Events", self.run_name, "unweighted_events.lhe"), # Changing lhe.gz to lhe for GAMBIT hack
+                           get_wgt, trunc_error=1e-2, event_target=self.run_card['nevents'],
+                           log_level=logging.DEBUG, normalization=self.run_card['event_norm'],
+                           proc_charac=self.proc_characteristic)
+@@ -3941,7 +3941,8 @@
+                 if os.path.exists("%s.gz" % foutput):
+                     os.remove(foutput)
+                 else:
+-                    misc.gzip(foutput, stdout="%s.gz" % foutput, error=False)
++                    #misc.gzip(foutput, stdout="%s.gz" % foutput, error=False)
++                    print("GAMBIT hack to prevent zipping event file")
+         #        if os.path.exists(pjoin(O_path, '%s.gz' % name)):
+         #            os.remove(pjoin(O_path, '%s.gz' % name))
+         #        input = pjoin(E_path, name)
+@@ -5528,8 +5529,8 @@
+         if 'event' in self.to_store:
+             if not os.path.exists(pjoin(self.me_dir, 'Events',self.run_name, 'unweighted_events.lhe.gz')) and\
+                os.path.exists(pjoin(self.me_dir, 'Events',self.run_name, 'unweighted_events.lhe')):
+-                logger.info("gzipping output file: unweighted_events.lhe")
+-                misc.gzip(pjoin(self.me_dir,'Events',self.run_name,"unweighted_events.lhe"))
++                logger.info("GAMBIT hack, so not gzipping output file: unweighted_events.lhe")
++                #misc.gzip(pjoin(self.me_dir,'Events',self.run_name,"unweighted_events.lhe"))
+             if os.path.exists(pjoin(self.me_dir,'Events','reweight.lhe')):
+                 os.remove(pjoin(self.me_dir,'Events', 'reweight.lhe'))
+         
