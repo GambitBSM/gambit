@@ -337,7 +337,7 @@ Rules:
       check_other_scale: 1000
       # options below only for NLO unitarity
       check_correction_ratio: true
-      wave_function_corrections: true
+      wave_function_corrections: false
       gauge_corrections: true
       yukawa_corrections: true
 

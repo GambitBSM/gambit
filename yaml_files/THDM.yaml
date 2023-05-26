@@ -94,44 +94,44 @@ Parameters:
       # range of m12_2 hard to justify so we use a logarithmic prior over a large region
       #      but m12_2 too low tends to cause negative masses
 
-      Lambda4: -2.1667438
-      Lambda5: -1.5686068
-      Lambda7: -1.0851773
-      Qin: 91.1876
-      cba: -0.42864455
-      lambda6: 0
-      lambda7: 0
-      mH: 223.9014
-      mh: 125.62081
-      tanb: 9.216383
+      # Lambda4: -3.8883787
+      # Lambda5: 0.64795802
+      # Lambda7: -0.21549477
+      # Qin: 91.1876
+      # cba: -0.13614576
+      # lambda6: 0
+      # lambda7: 0
+      # mH: 204.5666
+      # mh: 125.73188
+      # tanb: 26.71022
 
-      # mh:
-      #     range: [125, 126]
-      #     prior_Type: flat
-      # mH:
-      #     range: [140, 300]
-      #     prior_Type: flat
-      # cba:
-      #     range: [-0.55, +0.55]
-      #     prior_Type: flat
-      # tanb:
-      #     range: [0.001, 50]
-      #     prior_Type: flat
-      # Lambda4:
-      #     range: [-4, +5]
-      #     prior_Type: flat
-      # Lambda5:
-      #     range: [-3, +4]
-      #     prior_Type: flat
-      # Lambda7:
-      #     range: [-2, +2.5]
-      #     prior_Type: flat
-      # lambda6:
-      #     fixed_value: 0.0
-      # lambda7:
-      #     fixed_value: 0.0
-      # Qin:
-      #   fixed_value: 91.1876 # = mZ
+      mh:
+          range: [125, 126]
+          prior_Type: flat
+      mH:
+          range: [140, 300]
+          prior_Type: flat
+      cba:
+          range: [-0.55, +0.55]
+          prior_Type: flat
+      tanb:
+          range: [0.001, 50]
+          prior_Type: flat
+      Lambda4:
+          range: [-4, +5]
+          prior_Type: flat
+      Lambda5:
+          range: [-3, +4]
+          prior_Type: flat
+      Lambda7:
+          range: [-2, +2.5]
+          prior_Type: flat
+      lambda6:
+          fixed_value: 0.0
+      lambda7:
+          fixed_value: 0.0
+      Qin:
+        fixed_value: 91.1876 # = mZ
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -167,7 +167,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1
+      point_number: 10000
       like:  LogLike
 
     differentialEvolution:
@@ -192,30 +192,30 @@ ObsLikes:
   #      THEORETICAL LIKELIHOODS        #
   #-------------------------------------#
 
-  # # Checks that the LO or NLO scattering-matrix is unitary
-  # # Calculates and applies limit on eigenvalues of matrix
-  # # Likelihood type: Half-Gaussian
-  # # Only supports CP-conserving models
-  # # Unitarity of the S-matrix at next leading order (includes leading order too)
-  # - purpose:    LogLike
-  #   capability: unitarity_LogLikelihood_THDM
-  #   function: NLO_unitarity_LogLikelihood_THDM
-  #   # function: LO_unitarity_LogLikelihood_THDM
+  # Checks that the LO or NLO scattering-matrix is unitary
+  # Calculates and applies limit on eigenvalues of matrix
+  # Likelihood type: Half-Gaussian
+  # Only supports CP-conserving models
+  # Unitarity of the S-matrix at next leading order (includes leading order too)
+  - purpose:    LogLike
+    capability: unitarity_LogLikelihood_THDM
+    function: NLO_unitarity_LogLikelihood_THDM
+    # function: LO_unitarity_LogLikelihood_THDM
 
-  # # Stability of the 2HDM Potential
-  # # Applies the THDM stability constraints on the potential
-  # # NOTE: This likelihood has two parts, described below
-  # # (i) Applies strict stability constraint
-  # # Likelihood type: Acceptance/Rejection
-  # # (ii) If rejected, applies looser stabililty constraints
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: stability_LogLikelihood_THDM
+  # Stability of the 2HDM Potential
+  # Applies the THDM stability constraints on the potential
+  # NOTE: This likelihood has two parts, described below
+  # (i) Applies strict stability constraint
+  # Likelihood type: Acceptance/Rejection
+  # (ii) If rejected, applies looser stabililty constraints
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: stability_LogLikelihood_THDM
 
-  # # Perturbativity check on h0 mass loop-corrections
-  # # Checks that loop corrections to the pole mass of mh0
-  # # do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
+  # Perturbativity check on h0 mass loop-corrections
+  # Checks that loop corrections to the pole mass of mh0
+  # do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
   # - purpose:    LogLike
   #   capability: light_scalar_mass_corrections_LogLikelihood_THDM
 
@@ -234,19 +234,19 @@ ObsLikes:
   # # - purpose:    LogLike
   # #   capability: scalar_mass_range_LogLikelihood_THDM
 
-  # # Perturbativity check on lambdas and scalar couplings
-  # # Calculates all quartic Higgs couplings in the physical
-  # # basis & applies a 4pi perturbativity constraint on each
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: perturbativity_LogLikelihood_THDM
-  #   function: perturbativity_LogLikelihood_THDM
-  #   # alternative simple perturbativity constraint which only checks lambdas
-  #   # function: perturbativity_lambdas_LogLikelihood_THDM
-
-  # perturbativity constraint on yukawas
+  # Perturbativity check on lambdas and scalar couplings
+  # Calculates all quartic Higgs couplings in the physical
+  # basis & applies a 4pi perturbativity constraint on each
+  # Likelihood type: Half-Gaussian
   - purpose:    LogLike
-    capability: perturbativity_yukawas_LogLikelihood_THDM
+    capability: perturbativity_LogLikelihood_THDM
+    function: perturbativity_LogLikelihood_THDM
+    # alternative simple perturbativity constraint which only checks lambdas
+    # function: perturbativity_lambdas_LogLikelihood_THDM
+
+  # # perturbativity constraint on yukawas
+  # - purpose:    LogLike
+  #   capability: perturbativity_yukawas_LogLikelihood_THDM
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
@@ -639,7 +639,7 @@ Rules:
       check_other_scale: -1
       # options below only for NLO unitarity
       check_correction_ratio: true
-      wave_function_corrections: true
+      wave_function_corrections: false # broken
       gauge_corrections: true
       yukawa_corrections: true
 
@@ -703,11 +703,11 @@ KeyValues:
   print_scanID: false
 
   likelihood:
-    print_invalid_points: true
+    print_invalid_points: false
     # model_invalid_for_lnlike_below: -1e6
     # model_invalid_for_lnlike_below_alt: -5e5
     # disable_print_for_lnlike_below: -4e4
-    debug: true
+    debug: false
 
   dependency_resolution:
     prefer_model_specific_functions: true
@@ -719,4 +719,4 @@ KeyValues:
     core_warning: fatal
 
   default_output_path: "runs/THDMIatQ"
-  debug: true
+  debug: false
