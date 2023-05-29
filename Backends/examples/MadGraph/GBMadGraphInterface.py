@@ -19,9 +19,28 @@ import shutil
 
 import madgraph.interface.master_interface as mi
 
+# Generate the run script
+def generate_runscript(mg5_dir, script_name, commands, PassParamsToMG):
+
+    with open(mg5_dir + script_name + ".mg5", "w") as FileOut:
+        FileOut.write("launch " + script_name + "\n")
+
+        # Add each additional setting provided from the yaml
+        for cmd in commands:
+          FileOut.write("  " + cmd + "\n")
+        
+        # Set each parameter value
+        for par in PassParamsToMG:
+          FileOut.write("  set " + par + " " + str(PassParamsToMG[par]) + "\n")
+          
+        FileOut.write("launch " + script_name + " -i\n")
+        FileOut.write("  print_results --path=./cross_section_top.txt --format=short") # TODO: I probably want to change this so it doesn't print at all
+    
+    return
+
 
 # Run Event Generation with MadGraph
-def MG_RunEvents(mg5_dir, script_name, commands):
+def MG_RunEvents(mg5_dir, script_name, commands, PassParamsToMG):
 
     # Add MG directory to path
     sys.path.append(mg5_dir)
@@ -39,22 +58,10 @@ def MG_RunEvents(mg5_dir, script_name, commands):
     # Prevent automatic html opening in a browser
     launch.exec_cmd("set automatic_html_opening False")
     
-    # Run each additional setting provided from the yaml
-    for cmd in commands:
-      launch.exec_cmd(cmd)
+    generate_runscript(mg5_dir, script_name, commands, PassParamsToMG)
     
     # Run the main command
     launch.exec_cmd(Cmd)
     
     return(0)
-
-
-
-""" Current Commands inside of the mg5 file:
-launch MyMadGraphTesting
-  set nevents 10
-launch MyMadGraphTesting -i
-  print_results --path=./cross_section_top.txt --format=short
-"""
-
 

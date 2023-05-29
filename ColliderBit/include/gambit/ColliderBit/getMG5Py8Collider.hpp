@@ -42,7 +42,10 @@ namespace Gambit
                         const int iteration,
                         void(*wrapup)(),
                         const Options& runOptions,
-                        int (*MG_RunEvents)(str&, str&, std::vector<str>&))
+                        int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&),
+                        const Spectrum& spec,
+                        const SMInputs& sminputs,
+                        DecayTable& tbl)
     {
       static bool first = true;
       static str pythia_doc_path;
@@ -83,6 +86,7 @@ namespace Gambit
       {
         std::vector<str> MadGraphOptions;
         str OutputFolderName_default = "MyMadGraphTesting_default";
+        std::map<str, double> PassParamsToMG;
         if (runOptions.hasKey(RunMC.current_collider()))
         {
           YAML::Node colNode = runOptions.getValue<YAML::Node>(RunMC.current_collider());
@@ -94,6 +98,74 @@ namespace Gambit
           // TODO: Check whether the output folder exists, and if not throw an error
           
           // TODO: Check for some necessary settings??
+          
+          // Create a map from the YAML provided values to pass to MadGraph
+          // This includes a decay width of each particle
+          std::vector<str> MGMassNames = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "MGMassNames");
+          std::vector<str> ParticleNames = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "ParticleNames");
+          std::vector<str> ParticleWidths = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "ParticleWidths");
+          std::vector<str> CouplingNames = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "CouplingNames");
+          
+          // TODO: Throw and error if the size of the two don't match.
+          // TODO: Current problem: The order of the parameters given in yaml really matters. Also decaying particles must all be given first.
+          //       This would be very hard to check unless I rejig the system of inputs to yaml
+          
+          // TODO: This might be able to be simpler if we require that the model names are labelled the same as in MadGraph
+          for(size_t j = 0; j < MGMassNames.size(); j++)
+          {
+            PassParamsToMG[MGMassNames[j]] = spec.get(Par::Pole_Mass, ParticleNames[j]);
+          }
+          
+          for(size_t j = 0; j < CouplingNames.size(); j++)
+          {
+            PassParamsToMG[CouplingNames[j]] = spec.get(Par::dimensionless, CouplingNames[j]);
+          }
+          
+          // Set widths for all particles that can decay TODO: I tried to combine it with the mass loop.
+          // To do this I need to know how to check whether a particle decays or not (particles that don't decay have no entry in DecayTable)
+          for(size_t j = 0; j < ParticleWidths.size(); j++)
+          {
+            PassParamsToMG[ParticleWidths[j]] = tbl.at(ParticleNames[j]).width_in_GeV;
+          }
+          
+          // Pass the SM values to MadGraph 
+          PassParamsToMG["md"] = SLHAea_get(slha, "SMINPUTS", 21);
+          PassParamsToMG["mu"] = SLHAea_get(slha, "SMINPUTS", 22);
+          PassParamsToMG["ms"] = SLHAea_get(slha, "SMINPUTS", 23);
+          PassParamsToMG["mc"] = SLHAea_get(slha, "SMINPUTS", 24);
+          PassParamsToMG["mb"] = SLHAea_get(slha, "SMINPUTS", 5);
+          PassParamsToMG["mt"] = SLHAea_get(slha, "SMINPUTS", 6);
+          PassParamsToMG["me"] = SLHAea_get(slha, "SMINPUTS", 11);
+          PassParamsToMG["mmu"] = SLHAea_get(slha, "SMINPUTS", 13);
+          PassParamsToMG["mta"] = SLHAea_get(slha, "SMINPUTS", 7);
+          PassParamsToMG["mz"] = SLHAea_get(slha, "SMINPUTS", 4);
+          PassParamsToMG["mh"] = SLHAea_get(slha, "MASS", 25);
+          
+          PassParamsToMG["aewm1"] = SLHAea_get(slha, "SMINPUTS", 1);
+          PassParamsToMG["gf"] = SLHAea_get(slha, "SMINPUTS", 2);
+          PassParamsToMG["as"] = SLHAea_get(slha, "SMINPUTS", 3); // TODO: This gets overwritten in MG from the PDF
+          
+          // TODO: Looking at example paramcard_default.dat files in MG, they are setting the fermion yukawas equal to the mass. Want to check wht this is.
+          // If we do it this way, we probably don't need to include sminputs as a dependency at all
+          //double vev = 1. / sqrt(sqrt(2.)*sminputs.GF);
+          //double sqrt2v = pow(2.0,0.5)/vev;
+          PassParamsToMG["ymdo"] = PassParamsToMG["md"]; //sqrt2v*sminputs.mD;
+          PassParamsToMG["ymup"] = PassParamsToMG["mu"]; //sqrt2v*sminputs.mU; 
+          PassParamsToMG["yms"] = PassParamsToMG["ms"]; //sqrt2v*sminputs.mS; 
+          PassParamsToMG["ymc"] = PassParamsToMG["mc"]; //sqrt2v*sminputs.mCmC; 
+          PassParamsToMG["ymb"] = PassParamsToMG["mb"]; //sqrt2v*sminputs.mBmB; 
+          PassParamsToMG["ymt"] = PassParamsToMG["mt"]; //sqrt2v*sminputs.mT; 
+          PassParamsToMG["yme"] = PassParamsToMG["me"]; //sqrt2v*sminputs.mE; 
+          PassParamsToMG["ymm"] = PassParamsToMG["mmu"]; //sqrt2v*sminputs.mMu; 
+          PassParamsToMG["ymtau"] = PassParamsToMG["mta"]; //sqrt2v*sminputs.mTau; 
+          
+          // Decay widths
+          // TODO: Changes to the different branching ratios/decay channels should be handled by MG. Worth checking that this works properly.
+          PassParamsToMG["wt"] = tbl.at("t").width_in_GeV;
+          PassParamsToMG["wz"] = tbl.at("Z0").width_in_GeV;
+          PassParamsToMG["ww"] = tbl.at("W+").width_in_GeV; // TODO: GB has the option of different W+ or W- decay rates...
+          PassParamsToMG["wh"] = tbl.at("h0_1").width_in_GeV;
+          
 
           if (colOptions.hasKey("MadGraph_settings"))
           {
@@ -101,7 +173,7 @@ namespace Gambit
             MadGraphOptions.insert(MadGraphOptions.end(), addMadGraphOptions.begin(), addMadGraphOptions.end());
           }
         }
-        int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions);
+        int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions, PassParamsToMG);
         if (MG_success != 0) { std::cout << "HEY! I failed in the MadGraph stage. This message should be replaced with a proper error raise.\n";}
       }
 
@@ -290,7 +362,7 @@ namespace Gambit
     #endif
 
     /// Retrieve a specific Pythia hard-scattering Monte Carlo simulation
-    #define GET_SPECIFIC_PYTHIA_MG(NAME, PYTHIA_NS, MODEL_EXTENSION)                     \
+    #define GET_SPECIFIC_PYTHIA_MG(NAME, PYTHIA_NS, MODEL_EXTENSION, SPECTRUM)                     \
     void NAME(Py8Collider<PYTHIA_NS::Pythia8::Pythia,                                 \
                           PYTHIA_NS::Pythia8::Event,                                  \
                           HEPMC_TYPE(PYTHIA_NS)> &result)                             \
@@ -305,10 +377,13 @@ namespace Gambit
         slha = *Dep::SpectrumAndDecaysForPythia;     /* TODO: This can probably be something empty */        \
       }                                                                               \
                                                                                        \
-      int (*MG_RunEvents)(str&, str&, std::vector<str>&) = BEreq::MG_RunEvents.pointer();  \
+      const Spectrum& spec = *Dep::SPECTRUM;                                                   \
+      const SMInputs& sminputs = *Dep::SMINPUTS;                              \
+      DecayTable tbl = *Dep::decay_rates;                                        \
+      int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&) = BEreq::MG_RunEvents.pointer();  \
                                                                                    \
       getMG5Py8Collider(result, *Dep::RunMC, slha, #MODEL_EXTENSION,                     \
-        *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents);                                 \
+        *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents, spec, sminputs, tbl);                                 \
     }
 
 

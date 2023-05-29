@@ -106,14 +106,26 @@ Rules:
     options:
       LHC_13TeV:
         MG_OutputFolderName: "MyMadGraphTesting"
+        # TODO: If added from GUM, shouldn't these always be the same? maybe I can remove these lists altogether
+        MGMassNames:
+          - "mY"
+          - "mchi"
+        ParticleNames:
+          - "Y"
+          - "~chi"
+        ParticleWidths:
+          - "wy"
+        CouplingNames:
+          - "gchi"
+          - "cY"
         xsec_veto: 0.00
         partonOnly: false
         antiktR: 0.4
         MadGraph_settings:
-          - set automatic_html_opening False
+          - set nevents 1000
         pythia_settings:
           - Next:numberShowProcess = 1
-          - Print:quiet = off
+          - Print:quiet = on
           - Random:setSeed = on
           - HadronLevel:all = on
           - MDMSM:all = on
