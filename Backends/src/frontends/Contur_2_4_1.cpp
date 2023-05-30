@@ -47,24 +47,18 @@
 
     Contur_output Contur_LogLike_from_stream(std::shared_ptr<std::ostringstream> yodastream, std::vector<std::string>& contur_yaml_args)
     {
-      cerr << "Getting Contur Loglike from stream" << endl;
       //Convert C++ ostringstream to python StringIO
       pybind11::str InputString = pybind11::cast(yodastream->str());
       pybind11::object yoda_string_IO = Contur.attr("StringIO")(InputString);
       yoda_string_IO.attr("seek")(pybind11::int_(pybind11::cast(0)));
 
-      cerr << "Done transforming input yoda" << endl;
       // Get default settings for Contur run and add a couple of our own as defaults for GAMBIT
       pybind11::dict args_dict = 
         ((Contur.attr("arg_utils").attr("get_argparser")(pybind11::cast("analysis"))).attr(
           "parse_args")(pybind11::cast(contur_yaml_args))).attr("__dict__");
       args_dict[pybind11::cast("YODASTREAM")] = yoda_string_IO;
 
-      cerr << "Done getting the args dict" << endl;
-
       Contur_add_GAMBIT_default_args(args_dict);
-
-      cerr << "Have set final args" << endl;
 
       //Return the contur output.
       return Contur_output(Contur.attr("run_analysis").attr("main")(args_dict));
