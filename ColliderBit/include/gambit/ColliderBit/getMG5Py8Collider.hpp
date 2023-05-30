@@ -4,7 +4,6 @@
 ///
 ///  ColliderBit event loop functions returning
 ///  collider Monte Carlo event simulators.
-///  TODO: This is a WIP
 ///  This is very similar to getPy8Collider.hpp, but
 ///  in the initialisation step of Pythia, it first runs
 ///  MadGraph. The events from MadGraph are read into Pythia via an LHE file.
@@ -95,9 +94,11 @@ namespace Gambit
           
           OutputFolderName = colOptions.getValueOrDef<str>(OutputFolderName_default, "MG_OutputFolderName");
 
-          // TODO: Check whether the output folder exists, and if not throw an error
-          
-          // TODO: Check for some necessary settings??
+          // Check whether the output folder exists, and if not throw an error
+          if (not(Utils::file_exists(mg5_dir +  OutputFolderName)))
+          {
+            ColliderBit_error().raise(LOCAL_INFO, "Cannot find MadGraph Output folder: " + OutputFolderName + ". Please check that MadGraph_modelname has been built, and that the correct name has been given to the MG_OutputFolderName YAML option.");
+          }
           
           // Create a map from the YAML provided values to pass to MadGraph
           // This includes a decay width of each particle
@@ -106,9 +107,13 @@ namespace Gambit
           std::vector<str> ParticleWidths = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "ParticleWidths");
           std::vector<str> CouplingNames = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "CouplingNames");
           
-          // TODO: Throw and error if the size of the two don't match.
+          // Throw and error if the size of the two don't match.
           // TODO: Current problem: The order of the parameters given in yaml really matters. Also decaying particles must all be given first.
           //       This would be very hard to check unless I rejig the system of inputs to yaml
+          if (MGMassNames.size() != ParticleNames.size())
+          {
+            ColliderBit_error().raise(LOCAL_INFO, "MadGraph event generation: ParticleNames and MGMassNames in your YAML file should be the same size.");
+          }
           
           // TODO: This might be able to be simpler if we require that the model names are labelled the same as in MadGraph
           for(size_t j = 0; j < MGMassNames.size(); j++)
@@ -121,8 +126,7 @@ namespace Gambit
             PassParamsToMG[CouplingNames[j]] = spec.get(Par::dimensionless, CouplingNames[j]);
           }
           
-          // Set widths for all particles that can decay TODO: I tried to combine it with the mass loop.
-          // To do this I need to know how to check whether a particle decays or not (particles that don't decay have no entry in DecayTable)
+          // Set widths for all particles that can decay
           for(size_t j = 0; j < ParticleWidths.size(); j++)
           {
             PassParamsToMG[ParticleWidths[j]] = tbl.at(ParticleNames[j]).width_in_GeV;
@@ -145,7 +149,7 @@ namespace Gambit
           PassParamsToMG["gf"] = SLHAea_get(slha, "SMINPUTS", 2);
           PassParamsToMG["as"] = SLHAea_get(slha, "SMINPUTS", 3); // TODO: This gets overwritten in MG from the PDF
           
-          // TODO: Looking at example paramcard_default.dat files in MG, they are setting the fermion yukawas equal to the mass. Want to check wht this is.
+          // TODO: Looking at example paramcard_default.dat files in MG, they are setting the fermion yukawas equal to the mass. Want to check why this is.
           // If we do it this way, we probably don't need to include sminputs as a dependency at all
           //double vev = 1. / sqrt(sqrt(2.)*sminputs.GF);
           //double sqrt2v = pow(2.0,0.5)/vev;
@@ -174,7 +178,7 @@ namespace Gambit
           }
         }
         int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions, PassParamsToMG);
-        if (MG_success != 0) { std::cout << "HEY! I failed in the MadGraph stage. This message should be replaced with a proper error raise.\n";}
+        if (MG_success != 0) { ColliderBit_error().raise(LOCAL_INFO, "Something went wrong in the MadGraph event generation.");}
       }
 
       else if (iteration == COLLIDER_INIT_OMP)
@@ -353,7 +357,7 @@ namespace Gambit
     }
 
 
-    // TODO: Would this be a problem of duplicate definitions?
+    // TODO: Would this be a duplicate definition?
     /// Work out last template arg of Py8Collider depending on whether we are using HepMC
     #ifdef EXCLUDE_HEPMC
       #define HEPMC_TYPE(PYTHIA_NS) void
@@ -374,7 +378,7 @@ namespace Gambit
       {                                                                               \
         /* SLHAea object constructed from dependencies on the spectrum and decays. */ \
         slha.clear();                                                                 \
-        slha = *Dep::SpectrumAndDecaysForPythia;     /* TODO: This can probably be something empty */        \
+        slha = *Dep::SpectrumAndDecaysForPythia;                                      \
       }                                                                               \
                                                                                        \
       const Spectrum& spec = *Dep::SPECTRUM;                                                   \
