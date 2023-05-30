@@ -16,7 +16,7 @@ Parameters:
   MDMSM:
     cY: 1.0
     gchi: 1.0
-    mY: 1000.0
+    mY: 200.0
     mchi: 100.0
 
 Priors:
@@ -95,7 +95,7 @@ Rules:
         halt_when_systematic_dominated: true
         all_analyses_must_converge: false
         all_SR_must_converge: false
-        maxFailedEvents: 10
+        maxFailedEvents: 1000
         analyses:
           - CMS_13TeV_MONOJET_36invfb
 
