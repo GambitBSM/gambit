@@ -2087,7 +2087,7 @@ endif()
 
 set(patch_dir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(patch "${patch_dir}/patch_${name}_${ver}.dif")
-## Rivet needs to be compiled with c++17, otherwise it will fail to compile
+## Rivet needs to be compiled with c++14 or c++17, otherwise it will fail to compile
 set(ditch_if_absent "HepMC;YODA;c++14")
 ## If cython is not installed disable the python extension
 gambit_find_python_module(cython)
