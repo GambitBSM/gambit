@@ -10,6 +10,8 @@
 ///  TODO: In the future this will patch pythia so that LHE files are not written.
 ///  TODO: I need to be careful with parallelisation since the different threads need to all read from the same LHE file.
 ///        Perhaps this can be solved if MadGraph can be instructed to generate nthread lhe files
+///  TODO: In the finalize stage of the scan, perhaps we want to delete the output folders generated for each rank all together.
+///  TODO: The number of threads per mpi processes need to be passed to MadGraph
 ///
 ///  *********************************************
 ///
@@ -41,7 +43,7 @@ namespace Gambit
                         const int iteration,
                         void(*wrapup)(),
                         const Options& runOptions,
-                        int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&),
+                        int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&, int&),
                         const Spectrum& spec,
                         const SMInputs& sminputs,
                         DecayTable& tbl)
@@ -51,6 +53,16 @@ namespace Gambit
       static double xsec_veto_fb;
       static str OutputFolderName;
       str mg5_dir = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/";
+      
+      // Append the rank number to the output folder name.
+      int rank = 0;
+      #ifdef WITH_MPI
+        if(GMPI::Is_initialized())
+        {
+          GMPI::Comm comm;
+          rank = comm.Get_rank();
+        }
+      #endif
 
       if (iteration == BASE_INIT)
       {
@@ -86,6 +98,7 @@ namespace Gambit
         std::vector<str> MadGraphOptions;
         str OutputFolderName_default = "MyMadGraphTesting_default";
         std::map<str, double> PassParamsToMG;
+        
         if (runOptions.hasKey(RunMC.current_collider()))
         {
           YAML::Node colNode = runOptions.getValue<YAML::Node>(RunMC.current_collider());
@@ -177,15 +190,18 @@ namespace Gambit
             MadGraphOptions.insert(MadGraphOptions.end(), addMadGraphOptions.begin(), addMadGraphOptions.end());
           }
         }
-        int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions, PassParamsToMG);
+        int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions, PassParamsToMG, rank);
         if (MG_success != 0) { ColliderBit_error().raise(LOCAL_INFO, "Something went wrong in the MadGraph event generation.");}
       }
 
       else if (iteration == COLLIDER_INIT_OMP)
       {
-        std::string LHEpath = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/" + OutputFolderName + "/Events/run_01/unweighted_events.lhe";
+        std::string LHEpath = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/" + OutputFolderName + "_" + std::to_string(rank) + "/Events/run_01/unweighted_events.lhe";
 
         std::vector<str> pythiaOptions;
+        
+        // TODO: Jet matching...
+        //       Doing this will either require me to read in the LHE file to GAMBIT, or patch MadGraph to pass the LHE events directly through memory.
 
         // By default we tell Pythia to be quiet. (Can be overridden from yaml settings)
         pythiaOptions.push_back("Print:quiet = on");
@@ -384,7 +400,7 @@ namespace Gambit
       const Spectrum& spec = *Dep::SPECTRUM;                                                   \
       const SMInputs& sminputs = *Dep::SMINPUTS;                              \
       DecayTable tbl = *Dep::decay_rates;                                        \
-      int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&) = BEreq::MG_RunEvents.pointer();  \
+      int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&, int&) = BEreq::MG_RunEvents.pointer();  \
                                                                                    \
       getMG5Py8Collider(result, *Dep::RunMC, slha, #MODEL_EXTENSION,                     \
         *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents, spec, sminputs, tbl);                                 \

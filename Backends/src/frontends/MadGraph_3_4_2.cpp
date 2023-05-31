@@ -25,7 +25,7 @@ BE_NAMESPACE
 
 #ifdef HAVE_PYBIND11
   // Convert the maps to PyDicts before passing them to MadGraph
-  int MG_RunEvents(str& mg5_dir, str& script_name, std::vector<str>& commands, std::map<str, double>& PassParamsToMG)
+  int MG_RunEvents(str& mg5_dir, str& script_name, std::vector<str>& commands, std::map<str, double>& PassParamsToMG, int& rank)
   {
     // Convert the std::map to a PyDict
     pybind11::dict MGParams;
@@ -37,12 +37,12 @@ BE_NAMESPACE
     }
     
     // Run the MadGraph Event Generation
-    int success = MG_RunEvents_pydict(mg5_dir, script_name, commands, MGParams);
+    int success = MG_RunEvents_pydict(mg5_dir, script_name, commands, MGParams, rank);
     
     return success;
   }
 #else
-  int MG_RunEvents(str& mg5_dir, str& script_name, std::vector<str>& commands, std::map<str, double>& PassMassParamsToMG)
+  int MG_RunEvents(str& mg5_dir, str& script_name, std::vector<str>& commands, std::map<str, double>& PassMassParamsToMG, int& rank)
   {
     backend_error().raise(LOCAL_INFO, "pybind11 has been excluded, but is required for the MadGraph backend.\n");
     return 0; // Just returning a number to be consistent with types

@@ -40,25 +40,30 @@ def generate_runscript(mg5_dir, script_name, commands, PassParamsToMG):
 
 
 # Run Event Generation with MadGraph
-def MG_RunEvents(mg5_dir, script_name, commands, PassParamsToMG):
+def MG_RunEvents(mg5_dir, script_name, commands, PassParamsToMG, rank):
 
     # Add MG directory to path
     sys.path.append(mg5_dir)
     
-    # Remove Pre-existing output folder, if it exists
-    if (os.path.exists(mg5_dir + script_name + "/Events/run_01")):
-        shutil.rmtree(mg5_dir + script_name + "/Events/run_01")
-    if (os.path.exists(mg5_dir + script_name + "/HTML/run_01")):
-        shutil.rmtree(mg5_dir + script_name + "/HTML/run_01")
+    # If not present, copy the output directory for each MPI rank
+    script_name_rank = script_name + "_" +  str(rank)
+    if not (os.path.exists(mg5_dir + script_name_rank)):
+      shutil.copytree(mg5_dir + script_name, mg5_dir + script_name_rank)
+    
+    # Remove Pre-existing event folder, if it exists
+    if (os.path.exists(mg5_dir + script_name_rank + "/Events/run_01")):
+        shutil.rmtree(mg5_dir + script_name_rank + "/Events/run_01")
+    if (os.path.exists(mg5_dir + script_name_rank + "/HTML/run_01")):
+        shutil.rmtree(mg5_dir + script_name_rank + "/HTML/run_01")
 
-    Cmd = "import command " + mg5_dir + script_name + ".mg5"
+    Cmd = "import command " + mg5_dir + script_name_rank + ".mg5"
     
     launch = mi.MasterCmd(mgme_dir = mg5_dir)
     
     # Prevent automatic html opening in a browser
     launch.exec_cmd("set automatic_html_opening False")
     
-    generate_runscript(mg5_dir, script_name, commands, PassParamsToMG)
+    generate_runscript(mg5_dir, script_name_rank, commands, PassParamsToMG)
     
     # Run the main command
     launch.exec_cmd(Cmd)

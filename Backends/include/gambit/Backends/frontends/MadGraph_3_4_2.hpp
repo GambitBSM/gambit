@@ -25,11 +25,11 @@ LOAD_LIBRARY
 
 #ifdef HAVE_PYBIND11
 
-  BE_FUNCTION(MG_RunEvents_pydict, int, (str&, str&, std::vector<str>&, PyDict&), "MG_RunEvents", "MG_RunEvents_pydict")
+  BE_FUNCTION(MG_RunEvents_pydict, int, (str&, str&, std::vector<str>&, PyDict&, int&), "MG_RunEvents", "MG_RunEvents_pydict")
 
 #endif
 
-  BE_CONV_FUNCTION(MG_RunEvents, int, (str&, str&, std::vector<str>&, std::map<str, double>&), "MG_RunEvents")
+  BE_CONV_FUNCTION(MG_RunEvents, int, (str&, str&, std::vector<str>&, std::map<str, double>&, int&), "MG_RunEvents")
 
 #include "gambit/Backends/backend_undefs.hpp"
 
