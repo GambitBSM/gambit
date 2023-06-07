@@ -838,11 +838,11 @@ namespace Gambit {
           = dynamic_cast<const Analysis_CMS_8TeV_MultiLEP_20invfb*>(other);
 
         #ifdef CHECK_CUTFLOW
-          // if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-          for (size_t j = 0; j < NCUTS; j++) {
-            cutFlowVector[j] += specificOther->cutFlowVector.at(j);
-            cutFlowVector_str[j] = specificOther->cutFlowVector_str.at(j);
-          }
+//          // if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
+//          for (size_t j = 0; j < NCUTS; j++) {
+//            cutFlowVector[j] += specificOther->cutFlowVector.at(j);
+//            cutFlowVector_str[j] = specificOther->cutFlowVector_str.at(j);
+//          }
         #endif
 
         for (auto& el : _numSR)
@@ -870,7 +870,7 @@ namespace Gambit {
       void analysis_specific_reset() {
         for (auto& el : _numSR) { el.second = 0.;}
         #ifdef CHECK_CUTFLOW
-          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
+//          std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         #endif
       }
 

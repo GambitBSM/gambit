@@ -17,10 +17,11 @@
 ///  *********************************************
 
 // #define CHECK_CUTFLOW
-//#define BENCHMARK "WZ_300_200"
-//#define BENCHMARK "WZ_600_100"
-// #define BENCHMARK "Wh_190_60"
-
+#ifdef CHECK_CUTFLOW
+  #define BENCHMARK "WZ_300_200"
+  //#define BENCHMARK "WZ_600_100"
+  //#define BENCHMARK "Wh_190_60"
+#endif
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"

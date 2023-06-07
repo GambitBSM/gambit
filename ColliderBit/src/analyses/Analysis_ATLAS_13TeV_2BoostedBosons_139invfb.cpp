@@ -25,10 +25,12 @@
 
 
 //#define CHECK_CUTFLOW
-//#define BENCHMARK "WW"
-//#define BENCHMARK "WZ"
-//#define BENCHMARK "Wh"
-//#define BENCHMARK "HG"
+#ifdef CHECK_CUTFLOW
+  #define BENCHMARK "WW"
+  //#define BENCHMARK "WZ"
+  //#define BENCHMARK "Wh"
+  //#define BENCHMARK "HG"
+#endif
 
 #include <vector>
 #include <cmath>
