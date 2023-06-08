@@ -125,6 +125,7 @@ int main(int argc, char* argv[])
         cout << "----------" << endl;
         cout << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << endl;
         if(Core().found_inifile) cout << "YAML file: "<< filename << endl;
+        if(Core().monitor) cout << "Launching monitor deamon" << endl;
       }
 
       std::vector<std::string> arguments(argv, argv + argc);
@@ -139,11 +140,15 @@ int main(int argc, char* argv[])
       logger() << "WARNING! Running in SERIAL (no MPI) mode!" << endl;
       #endif
       logger() << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << EOM;
+      if(Core().monitor) logger() << core << "Launching monitor deamon" << EOM;
       if( Core().resume ) logger() << core << "Attempting to resume scan..." << EOM;
       logger() << core << "Registered module functors [Core().getModuleFunctors().size()]: ";
       logger() << Core().getModuleFunctors().size() << endl;
       logger() << "Registered backend functors [Core().getBackendFunctors().size()]: ";
       logger() << Core().getBackendFunctors().size() << EOM;
+
+      // Launch monitor deamon
+      if(Core().monitor) Core().launch_monitor();
 
       // Read YAML file, which also initialises the logger.
       IniParser::IniFile iniFile;

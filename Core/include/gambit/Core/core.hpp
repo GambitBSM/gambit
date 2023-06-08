@@ -144,6 +144,9 @@ namespace Gambit
     /// Flag to trigger "resume" mode
     bool resume;
 
+    /// Flag to switch on monitor deamon
+    bool monitor;
+
     /// Verbosity mode
     // Set 'true' by '--verbose'
     bool verbose_flag;
@@ -159,6 +162,9 @@ namespace Gambit
 
     /// Diagnostics function
     str run_diagnostic(int, char **);
+
+    /// Launch monitor deamon
+    void launch_monitor();
 
     /// Add a new module to modules list
     void registerModule(str, str);

@@ -66,7 +66,7 @@ namespace Gambit
         outprec(8)
         /* command line flags */
         ,
-        processed_options(false), show_runorder(false), show_backends(false), resume(true), verbose_flag(false), found_inifile(false)
+        processed_options(false), show_runorder(false), show_backends(false), resume(true), monitor(false), verbose_flag(false), found_inifile(false)
   {
   }
 
@@ -138,7 +138,8 @@ namespace Gambit
         {"version", no_argument, 0, 1}, /*1 is just a unique integer key to identify this argument*/
         {"verbose", no_argument, 0, 'v'}, {"help", no_argument, 0, 'h'},
         {"dryrun", no_argument, 0, 'd'},  {"backends", no_argument, 0, 'b'},
-        {"restart", no_argument, 0, 'r'}, {0, 0, 0, 0},
+        {"restart", no_argument, 0, 'r'}, {"monitor", no_argument, 0, 'm'},
+        {0, 0, 0, 0},
     };
 
     // Must at least have one argument.
@@ -184,6 +185,10 @@ namespace Gambit
         // Restart scan (turn off "resume" mode, activate output overwrite)
         resume = false;
         break;
+      case 'm':
+        // Launch monitoring deamon
+        monitor = true;
+        break;
       case 'f':
         // Argument must contain the ini-filename
         filename = optarg;
@@ -198,6 +203,12 @@ namespace Gambit
     // Set flag telling core object that command line option processing is complete
     processed_options = true;
     return filename;
+  }
+
+  /// Launch a deamon to monitor memory, CPU, stale calculations, etc
+  void gambit_core::launch_monitor()
+  {
+
   }
 
   /// Add a new module to modules list
