@@ -82,11 +82,39 @@
     DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
     DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
-    DEPENDENCY(JetMatcher, HEPUtils::Event)
+    DEPENDENCY(JetMatchedEvent, HEPUtils::Event)
     #undef FUNCTION
 
     #ifndef EXCLUDE_HEPMC
       #define FUNCTION generateEventPythia_@MODEL@_HepMC
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
+      DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+      DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
+      #undef FUNCTION
+    #endif
+    
+    #define FUNCTION generateEventMGPythia_@MODEL@
+    START_FUNCTION(Pythia_@MODEL@_default::Pythia8::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
+    DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+    ALLOW_MODEL(@MODEL@)
+    #undef FUNCTION
+
+    #define FUNCTION generateEventMGPythia_@MODEL@_HEPUtils
+    START_FUNCTION(HEPUtils::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
+    DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+    DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
+    DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
+    DEPENDENCY(JetMatchedEvent, HEPUtils::Event)
+    #undef FUNCTION
+
+    #ifndef EXCLUDE_HEPMC
+      #define FUNCTION generateEventMGPythia_@MODEL@_HepMC
       START_FUNCTION(HepMC3::GenEvent)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
@@ -103,6 +131,7 @@
   
     #define FUNCTION jetmatching_dummy_@MODEL@
     START_FUNCTION(HEPUtils::Event)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
     DEPENDENCY(HardScatteringEvent, HEPUtils::Event)
     DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
     #undef FUNCTION

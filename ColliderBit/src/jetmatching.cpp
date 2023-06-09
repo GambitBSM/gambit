@@ -2,8 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  ColliderBit event loop functions returning
-///  events after detector simulation.
+///  Performs Jet Matching on events
 ///
 ///  *********************************************
 ///
@@ -14,11 +13,25 @@
 ///
 ///  *********************************************
 
+#include "gambit/Utils/util_functions.hpp"
+#include "gambit/ColliderBit/lhef2heputils.hpp"
+#include "HepMC3/LHEF.h"
+#include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
+#include "gambit/ColliderBit/colliders/Pythia8/Py8EventConversions.hpp"
+
 namespace Gambit
 {
 
   namespace ColliderBit
   {
+
+    /// Simply take the hard Scattering Event and pass it on through
+    void nojetmatching(HEPUtils::Event& result)
+    {
+      using namespace Pipes::nojetmatching; 
+      //result.clear(); for this object
+      //result = *Dep::HardScatteringEvent;  // TODO: This is currently not working. The equals operator is not liked
+    }
 
     /// A function that sets the event weight to zero
     /// This is used if the event should be removed at the jet matching step
@@ -36,13 +49,10 @@ namespace Gambit
     /// A function that reads in Les Houches Event files and converts them to HEPUtils::Event format
     /// This is largely copied from getLHEvent.cpp with small tweaks
     /// Returns false until the end of the file
-    bool getMGLHEvent_HEPUtils(HEPUtils::Event& result, LHEF::Reader& lhe)
+    bool getMGLHEvent_HEPUtils(HEPUtils::Event& result, LHEF::Reader& lhe, double& jet_pt_min)
     {
 
       result.clear();
-
-      // Get yaml option
-      const static double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
 
       // Attempt to read the next LHE event as a HEPUtils event. If there are no more events, wrap up the loop and skip the rest of this iteration.
       bool event_retrieved = true;
@@ -59,14 +69,6 @@ namespace Gambit
       
       return false;
 
-    }
-
-    /// Simply take the hard Scattering Event and pass it on through
-    void nojetmatching(HEPUtils::Event& result)
-    {
-      using namespace Pipes::nojetmatching; 
-      result.clear();
-      result = *Dep::Dep::HardScatteringEvent;  
     }
 
     /// Perform jetmatching on an event from Pythia and MadGraph
@@ -90,28 +92,31 @@ namespace Gambit
       
       
       // Don't do anything during special iterations TODO: Only do something during the iteration I want
-      if (*Loop::iteration < 0) return;
+      //if (*Loop::iteration < 0) return;
       
-      bool end_of_file = getMGLHEvent_HEPUtils(MadGraphEvent, lhe);
+      // Get yaml option
+      double jet_pt_min = 10.0;//runOptions->getValueOrDef<double>(10.0, "jet_pt_min"); // TODO: Pull this in from yaml, would need fixed dependencies.
+      
+      bool end_of_file = getMGLHEvent_HEPUtils(MadGraphEvent, lhe, jet_pt_min);
       
       if (end_of_file) {return;} // TODO: Make sure it has the right end condition
       
       
       // Extract the partons from the MG event
-      vector<HEPUtils::Jet> partons = MadGraphEvent.jets();
+      std::vector<HEPUtils::Jet> partons = MadGraphEvent.jets();
       
-      // Sort the partons in order of highest pT
-      sortByPt(&partons); // TODO: This might fail if I didn't pass the right type through
+      // Sort the partons in order of highest pT TODO: Needs doing
+      //sortByPt(&partons); // TODO: This might fail if I didn't pass the right type through
       
       // Extract the jets from the pythia event
-      vector<HEPUtils::Jet> jets = pythia_event.jets();
+      std::vector<HEPUtils::Jet> jets = pythia_event.jets();
       
       
       // Match parton to jet
       bool matched_event = false;
       double deltaR_match = 10000.0; // TODO: Pull this number from YAML, and find a good default (i picked a silly number to remember)
       // Loop over each parton
-      for (size_t i=0; = <  partons.size(); i++)
+      for (size_t i=0; i <  partons.size(); i++)
       {
         HEPUtils::Jet parton = partons[i];
         
@@ -119,11 +124,11 @@ namespace Gambit
         size_t closestjet;
         bool matched_parton = false;
         // Loop over each jet
-        for (size_t j=0; = <  jets.size(); j++)
+        for (size_t j=0; j <  jets.size(); j++)
         {
           HEPUtils::Jet jet = jets[i];
           // Calculate the deltaR of between the parton and jet
-          double deltaR = parton.deltaR_eta(jet);
+          double deltaR = (parton.mom()).deltaR_eta(jet.mom());
           if (deltaR < deltaR_match && deltaR < closestdeltaR)
           {
             closestdeltaR = deltaR;
@@ -136,7 +141,7 @@ namespace Gambit
         if (matched_parton)
         {
           // Remove the jet from the list if it is matched
-          jets.erase(jets.begin() + closestjet)
+          jets.erase(jets.begin() + closestjet);
         }
         else
         {
@@ -147,7 +152,7 @@ namespace Gambit
       }
       
       // If there are any leftover jets, matching has failed
-      if (jets.size() > 0) {matched_event = false}
+      if (jets.size() > 0) {matched_event = false;}
       
       // If fails matching, set pythia event weight to zero
       if (not matched_event)
@@ -166,10 +171,6 @@ namespace Gambit
       jetmatching_dummy(pythia_event, *Dep::HardScatteringSim);                                \
                                                                  \
     }                                                            \
-                                                                 \
-    )
-
-
 
 
   }
