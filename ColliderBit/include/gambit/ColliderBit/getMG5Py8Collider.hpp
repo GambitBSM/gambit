@@ -34,6 +34,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
+
     /// Retrieve a Pythia hard-scattering Monte Carlo simulation
     template<typename PythiaT, typename EventT, typename hepmc_writerT>
     void getMG5Py8Collider(Py8Collider<PythiaT, EventT, hepmc_writerT>& result,
@@ -192,6 +193,7 @@ namespace Gambit
         }
         int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions, PassParamsToMG, rank);
         if (MG_success != 0) { ColliderBit_error().raise(LOCAL_INFO, "Something went wrong in the MadGraph event generation.");}
+        
       }
 
       else if (iteration == COLLIDER_INIT_OMP)
@@ -200,9 +202,6 @@ namespace Gambit
 
         std::vector<str> pythiaOptions;
         
-        // TODO: Jet matching...
-        //       Doing this will either require me to read in the LHE file to GAMBIT, or patch MadGraph to pass the LHE events directly through memory.
-
         // By default we tell Pythia to be quiet. (Can be overridden from yaml settings)
         pythiaOptions.push_back("Print:quiet = on");
         pythiaOptions.push_back("SLHA:verbose = 0");
@@ -240,7 +239,7 @@ namespace Gambit
         // We need "SLHA:file = slhaea" for the SLHAea interface.
         //pythiaOptions.push_back("SLHA:file = slhaea"); // TODO: If the LHE file hsa the slha block (which it should from MG), it should be fine to ignore this option.
 
-        // If the collider energy is given in the list of Pythia options, we raise an ignore it.
+        // If the collider energy is given in the list of Pythia options, we ignore it.
         bool has_beam_energy_option = std::any_of(pythiaOptions.begin(), pythiaOptions.end(), [](const str& s){ return s.find("Beams:e") != str::npos; });
         if (has_beam_energy_option)
         {
@@ -337,6 +336,8 @@ namespace Gambit
           wrapup();
         } else {
 
+          // TODO: I am commenting out this part since I believe that it will cause issues with the LHE event by going to the next one...
+          /*
           // Create a dummy event to make Pythia fill its internal list of process codes
           EventT dummy_pythia_event;
           try
@@ -365,9 +366,11 @@ namespace Gambit
               }
             }
           }
+          
+          */
 
         }
-
+        
       }
 
     }

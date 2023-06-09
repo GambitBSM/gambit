@@ -32,6 +32,10 @@ namespace Gambit
 
     // Run event generator
     GET_PYTHIA_EVENT(generateEventPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event)
+    GET_MGPYTHIA_EVENT(generateEventMGPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event)
+    
+    // Get the jetmatching function
+    GET_JETMATCHER(jetmatching_dummy_@MODEL@, Py8Collider_@MODEL@_defaultversion)
 
   }
 }

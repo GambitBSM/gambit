@@ -82,6 +82,7 @@
     DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
     DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
+    DEPENDENCY(JetMatcher, HEPUtils::Event)
     #undef FUNCTION
 
     #ifndef EXCLUDE_HEPMC
@@ -94,6 +95,18 @@
       #undef FUNCTION
     #endif
 
+  #undef CAPABILITY
+  
+  /// Perform jet matching on an event
+  #define CAPABILITY JetMatchedEvent
+  START_CAPABILITY
+  
+    #define FUNCTION jetmatching_dummy_@MODEL@
+    START_FUNCTION(HEPUtils::Event)
+    DEPENDENCY(HardScatteringEvent, HEPUtils::Event)
+    DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+    #undef FUNCTION
+  
   #undef CAPABILITY
 
 

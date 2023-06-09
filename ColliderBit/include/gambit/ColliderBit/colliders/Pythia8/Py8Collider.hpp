@@ -235,6 +235,11 @@ namespace Gambit
 
         /// Report the list of all active process codes
         std::vector<int> all_active_process_codes() const { return _pythiaInstance->info.codesHard(); }
+        
+        /// File path for LHE file to read in events (used when running events from MadGraph)
+        std::string LHEpath; // TODO: Need to make sure it has a default value when not running events from MadGraph
+        std::string get_LHE_path() {return LHEpath;}
+        void set_LHE_path(std::string path) {LHEpath = path;}
 
         ///@}
 

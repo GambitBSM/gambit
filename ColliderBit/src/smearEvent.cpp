@@ -62,7 +62,8 @@ namespace Gambit
     void NAME(HEPUtils::Event& result)                                                   \
     {                                                                                    \
       using namespace Pipes::NAME;                                                       \
-      smearEvent(result, *Dep::HardScatteringEvent, *(*Dep::CAT(EXPERIMENT,DetectorSim)),\
+      /*smearEvent(result, *Dep::HardScatteringEvent, *(*Dep::CAT(EXPERIMENT,DetectorSim)), */\
+      smearEvent(result, *Dep::JetMatchedEvent, *(*Dep::CAT(EXPERIMENT,DetectorSim)),\
        *Dep::RunMC, *Loop::iteration, #EXPERIMENT);                                      \
     }
 
