@@ -292,7 +292,9 @@ namespace Gambit
               key += node.first[j].as<str>() + ",";
             key += node.first[node.first.size()-1].as<str>() + "]";
           }
-          if(node.second.IsScalar())
+          if(node.second.IsNull())
+            map[head + key] = "";
+          else if(node.second.IsScalar())
             map[head + key] = node.second.as<str>();
           else if(node.second.IsMap())
             Options(node.second).toMap(map, head + key);
