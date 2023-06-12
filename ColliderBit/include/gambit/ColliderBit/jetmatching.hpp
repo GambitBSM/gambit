@@ -29,8 +29,8 @@ namespace Gambit
     void nojetmatching(HEPUtils::Event& result)
     {
       using namespace Pipes::nojetmatching; 
-      //result.clear(); for this object
-      //result = *Dep::HardScatteringEvent;  // TODO: This is currently not working. The equals operator is not liked
+      result.clear();
+      (*Dep::HardScatteringEvent).cloneTo(result);
     }
 
     /// A function that sets the event weight to zero
@@ -42,8 +42,8 @@ namespace Gambit
     }
     
     /// Compare jet pT for sorting
-    bool sortPT(HEPUtils::Jet a, HEPUtils::Jet b) {
-      return a.pT2() >= b.pT2();
+    bool sortPT(HEPUtils::Jet* a, HEPUtils::Jet* b) {
+      return a->pT2() >= b->pT2();
     }
     
     /// A function that reads in Les Houches Event files and converts them to HEPUtils::Event format
@@ -76,8 +76,13 @@ namespace Gambit
     /// TODO: Check that the static uses aren't a problem for different parameter points
     template<typename PythiaT, typename EventT, typename hepmc_writerT>
     void jetmatching_dummy(HEPUtils::Event& pythia_event,
-                           Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim)
+                           const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
+                           const int iteration,
+                           const safe_ptr<Options>& runOptions)
     {
+      // Only run during the iteration I want it to TODO: Double check that this is the right iteration
+      if (iteration != COLLIDER_INIT_OMP) return;
+    
       std::string lhef_filename = HardScatteringSim.get_LHE_path();
       static bool first = true;
       if (first)
@@ -90,35 +95,32 @@ namespace Gambit
       HEPUtils::Event MadGraphEvent;
       static LHEF::Reader lhe(lhef_filename);
       
+      // Get minimum pT for a jet
+      double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
       
-      // Don't do anything during special iterations TODO: Only do something during the iteration I want
-      //if (*Loop::iteration < 0) return;
-      
-      // Get yaml option
-      double jet_pt_min = 10.0;//runOptions->getValueOrDef<double>(10.0, "jet_pt_min"); // TODO: Pull this in from yaml, would need fixed dependencies.
-      
+      // Check that we still have events to process
       bool end_of_file = getMGLHEvent_HEPUtils(MadGraphEvent, lhe, jet_pt_min);
       
       if (end_of_file) {return;} // TODO: Make sure it has the right end condition
       
       
       // Extract the partons from the MG event
-      std::vector<HEPUtils::Jet> partons = MadGraphEvent.jets();
+      std::vector<HEPUtils::Jet*> partons = MadGraphEvent.jets();
       
-      // Sort the partons in order of highest pT TODO: Needs doing
-      //sortByPt(&partons); // TODO: This might fail if I didn't pass the right type through
+      // Sort the partons in order of highest pT
+      std::sort(partons.begin(), partons.end(), sortPT);
       
       // Extract the jets from the pythia event
-      std::vector<HEPUtils::Jet> jets = pythia_event.jets();
+      std::vector<HEPUtils::Jet*> jets = pythia_event.jets();
       
       
       // Match parton to jet
       bool matched_event = false;
-      double deltaR_match = 10000.0; // TODO: Pull this number from YAML, and find a good default (i picked a silly number to remember)
+      double deltaR_match = runOptions->getValueOrDef<double>(0.4, "deltaR_match"); // TODO: Work out a good default to choose
       // Loop over each parton
       for (size_t i=0; i <  partons.size(); i++)
       {
-        HEPUtils::Jet parton = partons[i];
+        HEPUtils::Jet* parton = partons[i];
         
         double closestdeltaR;
         size_t closestjet;
@@ -126,9 +128,9 @@ namespace Gambit
         // Loop over each jet
         for (size_t j=0; j <  jets.size(); j++)
         {
-          HEPUtils::Jet jet = jets[i];
+          HEPUtils::Jet* jet = jets[i];
           // Calculate the deltaR of between the parton and jet
-          double deltaR = (parton.mom()).deltaR_eta(jet.mom());
+          double deltaR = (parton->mom()).deltaR_eta(jet->mom());
           if (deltaR < deltaR_match && deltaR < closestdeltaR)
           {
             closestdeltaR = deltaR;
@@ -164,13 +166,14 @@ namespace Gambit
     }
 
     /// Perform Jet matching with a specific Pythia
-    #define GET_JETMATCHER(NAME, PYTHIA_COLLIDER_TYPE)            \
-    void NAME(HEPUtils::Event& pythia_event)                         \
+    #define GET_JETMATCHER(NAME, PYTHIA_COLLIDER_TYPE)           \
+    void NAME(HEPUtils::Event& pythia_event)                     \
     {                                                            \
       using namespace Pipes::NAME;                               \
-      jetmatching_dummy(pythia_event, *Dep::HardScatteringSim);                                \
+      jetmatching_dummy(pythia_event, *Dep::HardScatteringSim,   \
+      *Loop::iteration, runOptions);                                        \
                                                                  \
-    }                                                            \
+    }                                                            
 
 
   }

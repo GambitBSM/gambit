@@ -199,6 +199,8 @@ namespace Gambit
       else if (iteration == COLLIDER_INIT_OMP)
       {
         std::string LHEpath = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/" + OutputFolderName + "_" + std::to_string(rank) + "/Events/run_01/unweighted_events.lhe";
+        result.set_LHE_path(LHEpath);
+
 
         std::vector<str> pythiaOptions;
         

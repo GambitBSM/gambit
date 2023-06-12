@@ -16,6 +16,7 @@
 #include "gambit/ColliderBit/getMG5Py8Collider.hpp"
 #include "gambit/ColliderBit/generateEventPy8Collider.hpp"
 #include "gambit/ColliderBit/generateEventMG5Py8Collider.hpp"
+#include "gambit/ColliderBit/jetmatching.hpp"
 
 
 namespace Gambit
