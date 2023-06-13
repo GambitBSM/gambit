@@ -75,14 +75,18 @@ namespace Gambit
     /// TODO: This is just a first simple function to get the right inputs and outputs
     /// TODO: Check that the static uses aren't a problem for different parameter points
     template<typename PythiaT, typename EventT, typename hepmc_writerT>
-    void jetmatching_dummy(HEPUtils::Event& pythia_event,
+    void jetmatching_dummy(HEPUtils::Event& result,
+                           const HEPUtils::Event& pythia_event,
                            const Py8Collider<PythiaT,EventT,hepmc_writerT>& HardScatteringSim,
                            const int iteration,
                            const safe_ptr<Options>& runOptions)
     {
-      // Only run during the iteration I want it to TODO: Double check that this is the right iteration
-      if (iteration != COLLIDER_INIT_OMP) return;
-    
+      // If in any other special iteration, do nothing
+      if (iteration <= BASE_INIT) return;
+      
+      // Copy the output of the jet matched event from the pythia event
+      pythia_event.cloneTo(result);
+      
       std::string lhef_filename = HardScatteringSim.get_LHE_path();
       static bool first = true;
       if (first)
@@ -91,12 +95,13 @@ namespace Gambit
         first = false;
       }
       
+      
       // Pull the event from MadGraph
       HEPUtils::Event MadGraphEvent;
       static LHEF::Reader lhe(lhef_filename);
       
       // Get minimum pT for a jet
-      double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
+      double jet_pt_min = runOptions->getValueOrDef<double>(30.0, "jet_pt_min");
       
       // Check that we still have events to process
       bool end_of_file = getMGLHEvent_HEPUtils(MadGraphEvent, lhe, jet_pt_min);
@@ -111,30 +116,37 @@ namespace Gambit
       std::sort(partons.begin(), partons.end(), sortPT);
       
       // Extract the jets from the pythia event
-      std::vector<HEPUtils::Jet*> jets = pythia_event.jets();
+      std::vector<const HEPUtils::Jet*> jets = pythia_event.jets();
       
       
       // Match parton to jet
       bool matched_event = false;
-      double deltaR_match = runOptions->getValueOrDef<double>(0.4, "deltaR_match"); // TODO: Work out a good default to choose
+      double deltaR_match = runOptions->getValueOrDef<double>(0.7, "deltaR_match"); // TODO: Work out a good default to choose
+      
+      std::cout << "Npartons: " << partons.size() << ", Njets: " << jets.size() << "\n";// TODO: Debugging
+      
       // Loop over each parton
+      double softest_matched_jet_pt;
+      size_t Nmatched_partons = 0;
       for (size_t i=0; i <  partons.size(); i++)
       {
         HEPUtils::Jet* parton = partons[i];
         
-        double closestdeltaR;
+        double closestdeltaR = deltaR_match; // Setting initial value as large as a matched jet deltaR could be
         size_t closestjet;
         bool matched_parton = false;
         // Loop over each jet
         for (size_t j=0; j <  jets.size(); j++)
         {
-          HEPUtils::Jet* jet = jets[i];
+          const HEPUtils::Jet* jet = jets[i];
           // Calculate the deltaR of between the parton and jet
           double deltaR = (parton->mom()).deltaR_eta(jet->mom());
+          std::cout << "deltaR: " << deltaR << std::endl;// TODO: Debugging
           if (deltaR < deltaR_match && deltaR < closestdeltaR)
           {
             closestdeltaR = deltaR;
             closestjet = j;
+            softest_matched_jet_pt = (jet->mom()).pT();
             matched_parton = true;
           }
           
@@ -142,6 +154,8 @@ namespace Gambit
         
         if (matched_parton)
         {
+          // Add to the number of matched partons
+          Nmatched_partons = Nmatched_partons + 1;
           // Remove the jet from the list if it is matched
           jets.erase(jets.begin() + closestjet);
         }
@@ -153,24 +167,43 @@ namespace Gambit
         
       }
       
-      // If there are any leftover jets, matching has failed
-      if (jets.size() > 0) {matched_event = false;}
+      std::cout << "Nmatchedpartons: " << Nmatched_partons << ", jets.size(): " << jets.size() << "\n";// TODO: Debugging
+      
+      // If there are any leftover jets that are not softer than the softest matched jet, matching has failed
+      if (Nmatched_partons == partons.size() && jets.size() > 0)
+      {
+        // Find the hardest remaining jet
+        double hardest_nonmatched_jet_pt = (jets[0]->mom()).pT();
+        for(size_t j=0; j <  jets.size(); j++)
+        {
+          if ((jets[j]->mom()).pT() > hardest_nonmatched_jet_pt)
+          {
+            hardest_nonmatched_jet_pt = (jets[j]->mom()).pT();
+          }
+        }
+        
+        if (softest_matched_jet_pt < hardest_nonmatched_jet_pt)
+        {
+          matched_event = false;
+        }
+      }
       
       // If fails matching, set pythia event weight to zero
       if (not matched_event)
       {
-        setEventWeight_zero(pythia_event);
+        setEventWeight_zero(result);
       }
       
+      std::cout << "HEY! am I Matched? " << matched_event << "\n";// TODO: Debugging
       
     }
 
     /// Perform Jet matching with a specific Pythia
     #define GET_JETMATCHER(NAME, PYTHIA_COLLIDER_TYPE)           \
-    void NAME(HEPUtils::Event& pythia_event)                     \
+    void NAME(HEPUtils::Event& result)                     \
     {                                                            \
       using namespace Pipes::NAME;                               \
-      jetmatching_dummy(pythia_event, *Dep::HardScatteringSim,   \
+      jetmatching_dummy(result, *Dep::HardScatteringEvent, *Dep::HardScatteringSim,   \
       *Loop::iteration, runOptions);                                        \
                                                                  \
     }                                                            
