@@ -75,12 +75,12 @@ Rules:
 
   # Choose where to get scattering events from
   - capability: HardScatteringEvent
-    type: Pythia_default::Pythia8::Event
-    function: generateEventPythia_MDMSM
+    type: Pythia_MDMSM_default::Pythia8::Event
+    function: generateEventMGPythia_MDMSM
     
   - capability: HardScatteringEvent
     type: HEPUtils::Event
-    function: generateEventPythia_MDMSM_HEPUtils
+    function: generateEventMGPythia_MDMSM_HEPUtils
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
@@ -158,6 +158,14 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
+  
+  - capability: JetMatchedEvent
+    function: jetmatching_dummy_MDMSM
+    module: ColliderBit
+  
+  - capability: HardScatteringSim
+    type: const BaseCollider*
+    function: getPythia_MDMSMAsBase
 
 Logger:
 

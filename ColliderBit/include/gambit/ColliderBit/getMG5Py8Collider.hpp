@@ -411,6 +411,13 @@ namespace Gambit
         *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents, spec, sminputs, tbl);                                 \
     }
 
+    /// Get a specific Pythia hard-scattering sim as a generator-independent pointer-to-BaseCollider
+    #define GET_MGPYTHIA_AS_BASE_COLLIDER(NAME)           \
+    void NAME(const BaseCollider* &result)              \
+    {                                                   \
+      result = &(*Pipes::NAME::Dep::HardScatteringSim); \
+    }                                                   \
+
 
   }
 

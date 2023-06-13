@@ -31,6 +31,7 @@ namespace Gambit
     GET_SPECIFIC_PYTHIA(getPythia_@MODEL@, Pythia_@MODEL@_default, _@MODEL@)
     GET_SPECIFIC_PYTHIA_MG(getMGPythia_@MODEL@, Pythia_@MODEL@_default, _@MODEL@, @MODEL@_spectrum)
     GET_PYTHIA_AS_BASE_COLLIDER(getPythia_@MODEL@AsBase)
+    GET_MGPYTHIA_AS_BASE_COLLIDER(getMGPythia_@MODEL@AsBase) // TODO: This shouldn't be necessary, but I am doing this to check an error
 
     // Run event generator
     GET_PYTHIA_EVENT(generateEventPythia_@MODEL@, Pythia_@MODEL@_default::Pythia8::Event)

@@ -62,6 +62,14 @@
     ALLOW_MODEL(@MODEL@)
     #undef FUNCTION
 
+    #define FUNCTION getMGPythia_@MODEL@AsBase
+    START_FUNCTION(const BaseCollider*)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    NEEDS_CLASSES_FROM(Pythia_@MODEL@, default)
+    DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
+    ALLOW_MODEL(@MODEL@)
+    #undef FUNCTION
+
   #undef CAPABILITY
 
 
@@ -82,7 +90,6 @@
     DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
     DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
-    DEPENDENCY(JetMatchedEvent, HEPUtils::Event)
     #undef FUNCTION
 
     #ifndef EXCLUDE_HEPMC
@@ -110,7 +117,6 @@
     DEPENDENCY(HardScatteringSim, Py8Collider_@MODEL@_defaultversion)
     DEPENDENCY(HardScatteringEvent, Pythia_@MODEL@_default::Pythia8::Event)
     DEPENDENCY(EventWeighterFunction, EventWeighterFunctionType)
-    DEPENDENCY(JetMatchedEvent, HEPUtils::Event)
     #undef FUNCTION
 
     #ifndef EXCLUDE_HEPMC
