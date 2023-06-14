@@ -101,7 +101,7 @@ namespace Gambit
       static LHEF::Reader lhe(lhef_filename);
       
       // Get minimum pT for a jet
-      double jet_pt_min = runOptions->getValueOrDef<double>(30.0, "jet_pt_min");
+      double jet_pt_min = runOptions->getValueOrDef<double>(10.0, "jet_pt_min");
       
       // Check that we still have events to process
       bool end_of_file = getMGLHEvent_HEPUtils(MadGraphEvent, lhe, jet_pt_min);
@@ -118,12 +118,9 @@ namespace Gambit
       // Extract the jets from the pythia event
       std::vector<const HEPUtils::Jet*> jets = pythia_event.jets();
       
-      
       // Match parton to jet
       bool matched_event = false;
       double deltaR_match = runOptions->getValueOrDef<double>(0.7, "deltaR_match"); // TODO: Work out a good default to choose
-      
-      std::cout << "Npartons: " << partons.size() << ", Njets: " << jets.size() << "\n";// TODO: Debugging
       
       // Loop over each parton
       double softest_matched_jet_pt;
@@ -141,7 +138,6 @@ namespace Gambit
           const HEPUtils::Jet* jet = jets[i];
           // Calculate the deltaR of between the parton and jet
           double deltaR = (parton->mom()).deltaR_eta(jet->mom());
-          std::cout << "deltaR: " << deltaR << std::endl;// TODO: Debugging
           if (deltaR < deltaR_match && deltaR < closestdeltaR)
           {
             closestdeltaR = deltaR;
@@ -167,9 +163,14 @@ namespace Gambit
         
       }
       
-      std::cout << "Nmatchedpartons: " << Nmatched_partons << ", jets.size(): " << jets.size() << "\n";// TODO: Debugging
+      // If number of matched partons is equal to total number of partons, event is matched (unless the next condition isn't met)
+      if (Nmatched_partons == partons.size())
+      {
+        matched_event = true;
+      }
       
       // If there are any leftover jets that are not softer than the softest matched jet, matching has failed
+      // TODO: Note: With my test sample, this is stopping a big portion of these from being matched.
       if (Nmatched_partons == partons.size() && jets.size() > 0)
       {
         // Find the hardest remaining jet
@@ -193,8 +194,6 @@ namespace Gambit
       {
         setEventWeight_zero(result);
       }
-      
-      std::cout << "HEY! am I Matched? " << matched_event << "\n";// TODO: Debugging
       
     }
 
