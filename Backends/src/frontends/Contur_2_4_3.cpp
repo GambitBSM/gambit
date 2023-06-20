@@ -24,7 +24,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Contur_2_4_1.hpp"
+#include "gambit/Backends/frontends/Contur_2_4_3.hpp"
 
 #ifdef HAVE_PYBIND11
 

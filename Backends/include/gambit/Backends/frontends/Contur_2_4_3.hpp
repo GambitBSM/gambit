@@ -19,14 +19,14 @@
 /// \author Tomasz Procter
 ///          (t.procter.1@research.gla.ac.uk)
 /// \date 2021 June
-/// \date 2023 May
+/// \date 2023 May, June
 ///
 ///  *********************************************
 
 #define BACKENDNAME Contur
 #define BACKENDLANG Python3
-#define VERSION 2.4.1
-#define SAFE_VERSION 2_4_1
+#define VERSION 2.4.3
+#define SAFE_VERSION 2_4_3
 #define REFERENCE Butterworth:2016sqg
 
 LOAD_LIBRARY
