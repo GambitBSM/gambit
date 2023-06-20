@@ -45,6 +45,7 @@ namespace Gambit
                         void(*wrapup)(),
                         const Options& runOptions,
                         int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&, int&),
+                        int (*MG_split_LHE)(str&, int&, int&),
                         const Spectrum& spec,
                         const SMInputs& sminputs,
                         DecayTable& tbl)
@@ -64,6 +65,13 @@ namespace Gambit
           rank = comm.Get_rank();
         }
       #endif
+      
+      // Check number of OpenMP threads used TODO: Perhaps this variable is stored somewhere, so I don't need to get it again
+      int n_omp_threads = 1;
+      #pragma omp parallel
+      {
+        if(omp_get_thread_num()==0) n_omp_threads = omp_get_num_threads();
+      }
 
       if (iteration == BASE_INIT)
       {
@@ -99,6 +107,7 @@ namespace Gambit
         std::vector<str> MadGraphOptions;
         str OutputFolderName_default = "MyMadGraphTesting_default";
         std::map<str, double> PassParamsToMG;
+        int MGnevents;
         
         if (runOptions.hasKey(RunMC.current_collider()))
         {
@@ -120,6 +129,9 @@ namespace Gambit
           std::vector<str> ParticleNames = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "ParticleNames");
           std::vector<str> ParticleWidths = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "ParticleWidths");
           std::vector<str> CouplingNames = colOptions.getValueOrDef<std::vector<str>>(std::vector<str>(), "CouplingNames");
+          
+          MGnevents = colOptions.getValueOrDef<int>(0, "MG_nevents"); // TODO: Throw an error if no events are specified
+          // TODO: Check that this is not fewer than the number of pythia events
           
           // Throw and error if the size of the two don't match.
           // TODO: Current problem: The order of the parameters given in yaml really matters. Also decaying particles must all be given first.
@@ -184,21 +196,26 @@ namespace Gambit
           PassParamsToMG["ww"] = tbl.at("W+").width_in_GeV; // TODO: GB has the option of different W+ or W- decay rates...
           PassParamsToMG["wh"] = tbl.at("h0_1").width_in_GeV;
           
-
           if (colOptions.hasKey("MadGraph_settings"))
           {
             std::vector<str> addMadGraphOptions = colNode["MadGraph_settings"].as<std::vector<str> >();
+            str nevent_command = "set nevents " + std::to_string(MGnevents);
+            addMadGraphOptions.push_back(nevent_command);
             MadGraphOptions.insert(MadGraphOptions.end(), addMadGraphOptions.begin(), addMadGraphOptions.end());
           }
         }
         int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions, PassParamsToMG, rank);
         if (MG_success != 0) { ColliderBit_error().raise(LOCAL_INFO, "Something went wrong in the MadGraph event generation.");}
         
+        // Split the resulting lhe file into many depending on the number of threads
+        std::string LHEpath = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/" + OutputFolderName + "_" + std::to_string(rank) + "/Events/run_01/unweighted_events.lhe";
+        int MG_split = MG_split_LHE(LHEpath, MGnevents, n_omp_threads);
+        
       }
 
       else if (iteration == COLLIDER_INIT_OMP)
       {
-        std::string LHEpath = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/" + OutputFolderName + "_" + std::to_string(rank) + "/Events/run_01/unweighted_events.lhe";
+        std::string LHEpath = GAMBIT_DIR "/Backends/installed/MadGraph/3.4.2/" + OutputFolderName + "_" + std::to_string(rank) + "/Events/run_01/unweighted_events.lhe_" + std::to_string(omp_get_thread_num()) + ".lhe";
         result.set_LHE_path(LHEpath);
 
 
@@ -406,9 +423,10 @@ namespace Gambit
       const SMInputs& sminputs = *Dep::SMINPUTS;                              \
       DecayTable tbl = *Dep::decay_rates;                                        \
       int (*MG_RunEvents)(str&, str&, std::vector<str>&, std::map<str, double>&, int&) = BEreq::MG_RunEvents.pointer();  \
+      int (*MG_split_LHE)(str&, int&, int&) = BEreq::MG_split_LHE.pointer();  \
                                                                                    \
       getMG5Py8Collider(result, *Dep::RunMC, slha, #MODEL_EXTENSION,                     \
-        *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents, spec, sminputs, tbl);                                 \
+        *Loop::iteration, Loop::wrapup, *runOptions, MG_RunEvents, MG_split_LHE, spec, sminputs, tbl);                                 \
     }
 
     /// Get a specific Pythia hard-scattering sim as a generator-independent pointer-to-BaseCollider

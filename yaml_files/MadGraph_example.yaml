@@ -77,6 +77,8 @@ Rules:
   - capability: HardScatteringEvent
     type: Pythia_MDMSM_default::Pythia8::Event
     function: generateEventMGPythia_MDMSM
+    options:
+      drop_HepMC3_file: true
     
   - capability: HardScatteringEvent
     type: HEPUtils::Event
@@ -88,14 +90,14 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 1000 # 5000
-        max_nEvents: 1000 # 50000
+        min_nEvents: 100 # 5000
+        max_nEvents: 100 # 50000
         events_between_convergence_checks: 5000
         target_fractional_uncert: 0.3
         halt_when_systematic_dominated: true
         all_analyses_must_converge: false
         all_SR_must_converge: false
-        maxFailedEvents: 1000
+        maxFailedEvents: 100
         analyses:
           - CMS_13TeV_MONOJET_36invfb
 
@@ -105,6 +107,8 @@ Rules:
     function: getMGPythia_MDMSM
     options:
       LHC_13TeV:
+        # Number of events to generate with MadGraph
+        MG_nevents: 100
         MG_OutputFolderName: "MyMadGraphTesting"
         # TODO: If added from GUM, shouldn't these always be the same? maybe I can remove these lists altogether
         MGMassNames:
@@ -122,7 +126,8 @@ Rules:
         partonOnly: false
         antiktR: 0.4
         MadGraph_settings:
-          - set nevents 1000
+          #- set nevents 100
+          - set notification_center = False
         pythia_settings:
           - Next:numberShowProcess = 1
           - Print:quiet = on

@@ -16,8 +16,10 @@
 import sys
 import os
 import shutil
+import math
 
 import madgraph.interface.master_interface as mi
+import madgraph.various.lhe_parser as parser
 
 # Generate the run script
 def generate_runscript(mg5_dir, script_name, commands, PassParamsToMG):
@@ -69,4 +71,24 @@ def MG_RunEvents(mg5_dir, script_name, commands, PassParamsToMG, rank):
     launch.exec_cmd(Cmd)
     
     return(0)
+
+# Call the lhe file splitter function from MadGraph
+def Splitfile(path, nevents, npartitions):
+    
+    # partition should be a list of numbers of events in each file.
+    partition = []
+    n_per_file = math.floor(nevents/npartitions) # Number of events per split file, if number of events splits equally
+    remainder = nevents - n_per_file*npartitions
+    # Form the array of how many events per file, with remainder events across multiple files
+    for i in range(npartitions):
+      if (remainder == 0):
+        partition.append(n_per_file)
+      else:
+        partition.append(n_per_file+1)
+        remainder = remainder - 1
+    
+    parser.EventFile(path).split(nb_event=nevents, partition=partition, cwd=path, zip=False)
+
+    return(0)
+
 

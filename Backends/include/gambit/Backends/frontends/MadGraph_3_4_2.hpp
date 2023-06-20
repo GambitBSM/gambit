@@ -29,6 +29,7 @@ LOAD_LIBRARY
 
 #endif
 
+  BE_FUNCTION(MG_split_LHE, int, (str&, int&, int&), "Splitfile", "MG_split_LHE")
   BE_CONV_FUNCTION(MG_RunEvents, int, (str&, str&, std::vector<str>&, std::map<str, double>&, int&), "MG_RunEvents")
 
 #include "gambit/Backends/backend_undefs.hpp"

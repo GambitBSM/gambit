@@ -52,6 +52,7 @@
     DEPENDENCY(SpectrumAndDecaysForPythia, SLHAstruct)
     DEPENDENCY(@MODEL@_spectrum, Spectrum)
     BACKEND_REQ(MG_RunEvents, (MadGraph), int, (str&, str&, std::vector<str>&, std::map<str, double>&, int&))
+    BACKEND_REQ(MG_split_LHE, (MadGraph), int, (str&, int&, int&))
     #undef FUNCTION
 
     #define FUNCTION getPythia_@MODEL@AsBase
