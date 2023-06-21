@@ -190,19 +190,20 @@ namespace Gambit
           PassParamsToMG["ymtau"] = PassParamsToMG["mta"]; //sqrt2v*sminputs.mTau; 
           
           // Decay widths
-          // TODO: Changes to the different branching ratios/decay channels should be handled by MG. Worth checking that this works properly.
           PassParamsToMG["wt"] = tbl.at("t").width_in_GeV;
           PassParamsToMG["wz"] = tbl.at("Z0").width_in_GeV;
           PassParamsToMG["ww"] = tbl.at("W+").width_in_GeV; // TODO: GB has the option of different W+ or W- decay rates...
           PassParamsToMG["wh"] = tbl.at("h0_1").width_in_GeV;
           
+          std::vector<str> addMadGraphOptions;
+          // Pass the options to MadGraph
           if (colOptions.hasKey("MadGraph_settings"))
           {
-            std::vector<str> addMadGraphOptions = colNode["MadGraph_settings"].as<std::vector<str> >();
-            str nevent_command = "set nevents " + std::to_string(MGnevents);
-            addMadGraphOptions.push_back(nevent_command);
-            MadGraphOptions.insert(MadGraphOptions.end(), addMadGraphOptions.begin(), addMadGraphOptions.end());
+          addMadGraphOptions = colNode["MadGraph_settings"].as<std::vector<str> >();
           }
+          str nevent_command = "set nevents " + std::to_string(MGnevents);
+          addMadGraphOptions.push_back(nevent_command);
+          MadGraphOptions.insert(MadGraphOptions.end(), addMadGraphOptions.begin(), addMadGraphOptions.end());
         }
         int MG_success = MG_RunEvents(mg5_dir, OutputFolderName, MadGraphOptions, PassParamsToMG, rank);
         if (MG_success != 0) { ColliderBit_error().raise(LOCAL_INFO, "Something went wrong in the MadGraph event generation.");}
@@ -356,6 +357,9 @@ namespace Gambit
         } else {
 
           // TODO: I am commenting out this part since I believe that it will cause issues with the LHE event by going to the next one...
+          // TODO: Rather than comment out, figure out how many events to skip in the jet matching.
+          //       This will be complicated by the event file split across multiple threads
+          //       Perhaps there is a function I can run to remove the first 1/2 events fomr the LHE file before splitting.
           /*
           // Create a dummy event to make Pythia fill its internal list of process codes
           EventT dummy_pythia_event;
