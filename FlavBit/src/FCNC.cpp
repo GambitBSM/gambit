@@ -135,13 +135,13 @@ namespace Gambit
     void SuperIso_RKstar_01_11(double &result)
     {
       using namespace Pipes::SuperIso_RKstar_01_11;
-      if (flav_debug) cout<<"Starting SuperIso_RKstar_01_11"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_RKstar_01_11"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RKstar(&param,0.1,1.1);
+      result=BEreq::SuperIso_RKstar_computation(&param,0.1,1.1);
 
       if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_RKstar_01_11"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RKstar_01_11"<< std::endl;
     }
 
     /// RK* in intermediate q^2
@@ -161,26 +161,26 @@ namespace Gambit
     void SuperIso_RK_01_11(double &result)
     {
       using namespace Pipes::SuperIso_RK_01_11;
-      if (flav_debug) cout<<"Starting SuperIso_RK_01_11"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_RK_01_11"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RK(&param,0.1,1.1);
+      result=BEreq::SuperIso_RK_computation(&param,0.1,1.1);
 
       if (flav_debug) printf("RK=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_RK_01_11"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RK_01_11"<< std::endl;
     }
 
     /// RK between 1.1 and 6 GeV^2
     void SuperIso_RK_11_60(double &result)
     {
       using namespace Pipes::SuperIso_RK_11_60;
-      if (flav_debug) cout<<"Starting SuperIso_RK_11_60"<<endl;
+      if (flav_debug) std::cout<<"Starting SuperIso_RK_11_60"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::RK(&param,1.1,6.0);
+      result=BEreq::SuperIso_RK_computation(&param,1.1,6.0);
 
       if (flav_debug) printf("RK=%.3e\n",result);
-      if (flav_debug) cout<<"Finished SuperIso_RK_11_60"<<endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RK_11_60"<< std::endl;
     }
 
     /// SuperIso prediction for B -> K tau tau
@@ -449,7 +449,7 @@ namespace Gambit
       std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
       double mt = *Param["mT"];
 
-      if (flav_debug) cout << "Starting RHN_RKstar_01_11" << endl;
+      if (flav_debug) std::cout << "Starting RHN_RKstar_01_11" << std::endl;
 
       const double mW = sminputs.mW;
       const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
@@ -471,8 +471,8 @@ namespace Gambit
       result =  std::norm(C10_SM + C10_mu) + std::norm(C9_SM + C9_mu);
       result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
 
-      if (flav_debug) cout << "RK = " << result << endl;
-      if (flav_debug) cout << "Finished RHN_RKstar_01_11" << endl;
+      if (flav_debug) std::cout << "RK = " << result << std::endl;
+      if (flav_debug) std::cout << "Finished RHN_RKstar_01_11" << std::endl;
     }
 
     /// RK* for RHN, using same approximations as RK, intermediate q^2
@@ -1348,6 +1348,7 @@ namespace Gambit
       //const double theory_variance = prediction.covariance.begin()->second.begin()->second;
       const double theory = *Dep::RK;
       const double theory_variance = 0.001;
+      // const double theory_variance = 0.0;
 
       //result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
       result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
@@ -1455,7 +1456,7 @@ namespace Gambit
       value_th[3] = *Dep::RKstar_11_60;
 
       // Calculating the differences between theory and experiment
-      vector<double> diff;
+      std::vector<double> diff;
       for (int i=0; i<4; i++)
         diff.push_back(value_exp[i] - value_th[i]);
 
