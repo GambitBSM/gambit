@@ -1322,6 +1322,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    // BACKEND_REQ(RKstar, (libsuperiso), double, (const parameters*, double, double))
     BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
     #undef FUNCTION
 
@@ -1343,6 +1344,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    // BACKEND_REQ(RKstar, (libsuperiso), double, (const parameters*, double, double))
     BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
     #undef FUNCTION
 
@@ -1375,7 +1377,8 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
+    // BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
+    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1386,7 +1389,8 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
+    // BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
+    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
     #undef FUNCTION
   #undef CAPABILITY
 
