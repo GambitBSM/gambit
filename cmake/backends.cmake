@@ -557,7 +557,7 @@ endif()
 # HepLikedata
 set(name "heplikedata")
 set(ver "1.4")
-set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
+set(dl "https://github.com/tegonzalo/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(md5 "b11c715ee3af25727b85297b6681c9b5")
 check_ditch_status(${name} ${ver} ${dir})
