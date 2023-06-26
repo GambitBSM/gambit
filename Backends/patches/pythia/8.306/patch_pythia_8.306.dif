@@ -174,7 +174,7 @@ diff -rupN pythia8306_original/include/Pythia8/PartonDistributions.h pythia8306_
      {init( iFit, pdfdataPath, infoPtr);}
 diff -rupN pythia8306_original/include/Pythia8/ProcessLevel.h pythia8306_patched/include/Pythia8/ProcessLevel.h
 --- pythia8306_original/include/Pythia8/ProcessLevel.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/ProcessLevel.h	2023-06-26 13:48:43.100004945 +0200
++++ pythia8306_patched/include/Pythia8/ProcessLevel.h	2023-06-26 23:46:02.288091281 +0200
 @@ -45,7 +45,7 @@ public:
  
    // Initialization.
@@ -184,9 +184,29 @@ diff -rupN pythia8306_original/include/Pythia8/ProcessLevel.h pythia8306_patched
  
    // Store or replace Les Houches pointer.
    void setLHAPtr( LHAupPtr lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
+@@ -76,6 +76,9 @@ public:
+ 
+   bool nextDecays( Event& process) { return resonanceDecays.next( process);}
+ 
++  // GAMBIT
++  double sigmaMaxSum;
++
+ protected:
+ 
+   virtual void onInitInfoPtr() override {
+@@ -102,7 +105,8 @@ private:
+   // Vector of containers of internally-generated processes.
+   vector<ProcessContainer*> containerPtrs;
+   int    iContainer, iLHACont = -1;
+-  double sigmaMaxSum;
++  // GAMBIT
++  // double sigmaMaxSum;
+ 
+   // Ditto for optional choice of a second hard process.
+   vector<ProcessContainer*> container2Ptrs;
 diff -rupN pythia8306_original/include/Pythia8/Pythia.h pythia8306_patched/include/Pythia8/Pythia.h
 --- pythia8306_original/include/Pythia8/Pythia.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/Pythia.h	2023-06-26 13:48:43.100004945 +0200
++++ pythia8306_patched/include/Pythia8/Pythia.h	2023-06-26 23:40:57.680087563 +0200
 @@ -73,7 +73,13 @@ public:
    // object instead of XML files (to speed up multiple initialisations).
    Pythia(Settings& settingsIn, ParticleData& particleDataIn,
@@ -211,9 +231,22 @@ diff -rupN pythia8306_original/include/Pythia8/Pythia.h pythia8306_patched/inclu
  
    // Generate the next event.
    bool next();
+@@ -266,6 +272,12 @@ public:
+   PDFPtr getPDFPtr(int idIn, int sequence = 1, string beam = "A",
+     bool resolved = true);
+ 
++  // GAMBIT patch
++  double getSigmaMaxSum()
++  {
++    return processLevel.sigmaMaxSum;
++  }
++
+   // The event record for the parton-level central process.
+   Event           process = {};
+ 
 diff -rupN pythia8306_original/include/Pythia8/SusyLesHouches.h pythia8306_patched/include/Pythia8/SusyLesHouches.h
 --- pythia8306_original/include/Pythia8/SusyLesHouches.h	2021-06-29 16:10:32.000000000 +0200
-+++ pythia8306_patched/include/Pythia8/SusyLesHouches.h	2023-06-26 13:48:43.100004945 +0200
++++ pythia8306_patched/include/Pythia8/SusyLesHouches.h	2023-06-27 00:45:35.228134896 +0200
 @@ -15,6 +15,12 @@
  
  #include "Pythia8/PythiaStdlib.h"

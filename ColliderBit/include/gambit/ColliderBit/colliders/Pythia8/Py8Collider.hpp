@@ -146,7 +146,7 @@ namespace Gambit
           if (_pythiaInstance) delete _pythiaInstance;
           _pythiaInstance = new PythiaT(_pythiaBase->particleData, _pythiaBase->settings);
 
-          // Send along the SLHAea::Coll pointer, if it exists
+          // Send along the SLHAea::Coll pointer, if it exists          
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
           // Read command again to get SM decay table change from yaml file
@@ -235,6 +235,10 @@ namespace Gambit
 
         /// Report the list of all active process codes
         std::vector<int> all_active_process_codes() const { return _pythiaInstance->info.codesHard(); }
+
+        /// Get the estimated max cross-section
+        double max_xsec_fb() const { return _pythiaInstance->getSigmaMaxSum() * 1e12; }
+        double max_xsec_pb() const { return _pythiaInstance->getSigmaMaxSum() * 1e9; }
 
         ///@}
 
