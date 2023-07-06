@@ -1,0 +1,151 @@
+# This file list the all the files and directories in the GambitBSM/gambit_light repo
+# that should be automatically kept up to date with changes in the GambitBSM/gambit repo
+# GambitBSM/gambit_light:
+GambitBSM/gambit_light@master_autosync:
+
+  - source: contrib/
+    dest: contrib/
+    exclude: |
+      heputils/
+      mcutils/
+      MassSpectra/
+      LHEF/
+      multimin/
+      fjcore-3.2.0/
+       
+
+  - source: cmake/
+    dest: cmake/
+    exclude: |
+      cmake_variables.hpp.in
+      scripts/download_castxml_binaries.sh
+      contrib.cmake
+      executables.cmake
+      backends.cmake
+      toy_backends.cmake
+      optional.cmake
+      FindGSL.cmake
+      FindCython.cmake
+      FindEigen3.cmake
+      standalones.cmake
+
+
+  - source: Models/
+    dest: Models/ 
+    exclude: |
+      data/
+      include/gambit/Models/models/
+      include/gambit/Models/SimpleSpectra/
+      include/gambit/Models/SpectrumContents/
+      src/models/
+      src/SimpleSpectra/
+      src/SpectrumContents/
+      src/subspectrum_contents.cpp
+
+
+  - source: Utils/
+    dest: Utils/
+    exclude: |
+      CMakeLists.txt
+      include/gambit/Utils/begin_ignore_warnings_hepmc.hpp
+      include/gambit/Utils/integration.hpp
+      include/gambit/Utils/interp_collection.hpp
+      include/gambit/Utils/PID_pair.hpp
+      include/gambit/Utils/numerical_constants.hpp
+      include/gambit/Utils/standalone_utils.hpp
+      src/integration.cpp
+      src/interp_collection.cpp
+      src/standalone_utils.cpp
+
+
+  - Backends/examples/libFarrayTest.f90
+  - Backends/examples/libfirst.cpp
+  - Backends/examples/libfortran.f90
+    
+  - Backends/scripts/backend_harvester.py
+
+  - Backends/src/backend_info.cpp
+  - Backends/src/backend_singleton.cpp
+  - Backends/src/ini_functions.cpp
+  - Backends/src/mathematica_helpers.cpp
+  - Backends/src/python_helpers.cpp
+    
+
+  - source: Backends/include/gambit/Backends/
+    dest: Backends/include/gambit/Backends/
+    exclude:  |
+      abstractbase.hpp
+      wrapperbase.hpp
+      backend_types/
+      frontends/
+
+
+  - source: Backends/src/
+    dest: Backends/src/
+    exclude: |
+      frontends/
+      backend_types/
+
+
+  - source: Elements/
+    dest: Elements/
+    exclude: |
+      data/
+      CMakeLists.txt
+      include/gambit/Elements/standalone_module.hpp
+      include/gambit/Elements/decay_table.hpp
+      include/gambit/Elements/higgs_couplings_table.hpp
+      include/gambit/Elements/mssm_slhahelp.hpp
+      include/gambit/Elements/slhaea_spec_helpers.hpp
+      include/gambit/Elements/sminputs.hpp
+      include/gambit/Elements/smlike_higgs.hpp
+      include/gambit/Elements/spec.hpp
+      include/gambit/Elements/spec_fptrfinder.hpp
+      include/gambit/Elements/spec_head.hpp
+      include/gambit/Elements/spectrum.hpp
+      include/gambit/Elements/spectrum_factories.hpp
+      include/gambit/Elements/subspectrum.hpp
+      include/gambit/Elements/virtual_higgs.hpp
+      include/gambit/Elements/wimp_types.hpp
+      src/decay_table.cpp
+      src/higgs_couplings_table.cpp
+      src/mssm_slhahelp.cpp
+      src/slhaea_spec_helpers.cpp
+      src/sminputs.cpp
+      src/smlike_higgs.cpp
+      src/spectrum.cpp
+      src/subspectrum.cpp
+      src/virtual_higgs.cpp
+      src/wimp_types.cpp
+
+
+
+  - source: config/
+    dest: config/
+    exclude: |
+      backend_locations.yaml.default
+      models.dat
+      particle_database.yaml
+
+
+  - doc/
+
+  - Core/
+  - Logs/
+  - Printers/
+
+
+  - source: ScannerBit/
+    dest: ScannerBit/
+    exclude: |
+      include/gambit/ScannerBit/scanners/great/
+      src/scanners/great/
+    
+
+  - BUILD_OPTIONS.md    
+  - README.md
+  - README_OSX.md
+  - HISTORY
+
+
+
