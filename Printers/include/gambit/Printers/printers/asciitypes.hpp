@@ -29,9 +29,12 @@
   (map_const_str_map_const_str_dbl)         \
   (flav_prediction)                         \
 
-
-#define ASCII_BACKEND_TYPES                 \
-  (DM_nucleon_couplings)                    \
-  (BBN_container)                           \
+#ifdef GAMBIT_LIGHT
+  #define ASCII_BACKEND_TYPES
+#else
+  #define ASCII_BACKEND_TYPES           \
+    (DM_nucleon_couplings)              \
+    (BBN_container)
+#endif
 
 #endif

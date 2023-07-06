@@ -23,6 +23,7 @@
 
 #include "gambit/Printers/printers/hdf5reader.hpp"
 #include "gambit/Printers/printers/hdf5printer.hpp"
+#include "gambit/Utils/util_functions.hpp"
 
 namespace Gambit
 {
@@ -549,12 +550,14 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #ifndef SCANNER_STANDALONE // All the types inside HDF5_BACKEND_TYPES need to go inside this def guard.
+     #ifndef GAMBIT_LIGHT
 
        bool HDF5Reader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool HDF5Reader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
+     #endif
      #endif
 
      /// Helper function to parse a capability name to a dataset name

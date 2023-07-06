@@ -140,8 +140,10 @@ namespace Gambit
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, map_const_str_map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(asciiPrinter, flav_prediction)
     #ifndef SCANNER_STANDALONE
+    #ifndef GAMBIT_LIGHT
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(asciiPrinter, BBN_container)
+    #endif
     #endif
 
     /// @}

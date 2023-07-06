@@ -36,9 +36,13 @@
   (map_intpair_dbl)         \
 
 
-#define SQL_BACKEND_TYPES             \
-  (DM_nucleon_couplings)              \
-  (BBN_container)                     \
+#ifdef GAMBIT_LIGHT
+  #define SQL_BACKEND_TYPES
+#else
+  #define SQL_BACKEND_TYPES             \
+    (DM_nucleon_couplings)              \
+    (BBN_container)
+#endif
 
 
 #endif

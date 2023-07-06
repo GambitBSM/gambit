@@ -84,6 +84,15 @@ namespace Gambit
               "\nRun scan:                                                                  "
               "\n   gambit -f <inifile>   Start a scan using instructions from inifile      "
               "\n                           e.g.: gambit -f gambit.yaml                     "
+              #ifdef GAMBIT_LIGHT
+              "\n                                                                           "
+              "\nNote for GAMBIT-light:                                                     "
+              "\n   Of the commands listed under 'Available commands' below, only the       "
+              "\n   command 'gambit scanners' will be relevant for most GAMBIT-light users. "
+              "\n   The other commands will give empty or non-useful results, and are left  " 
+              "\n   in just to aid development and expert users who want to extend the      "
+              "\n   GAMBIT-light code.                                                      "
+              #endif
               "\n                                                                           "
               "\nAvailable commands:                                                        "
               "\n   modules               List registered modules                           "

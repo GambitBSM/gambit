@@ -42,21 +42,46 @@ namespace Gambit
       YAML::Node root = filename_to_node(_filename);
       basicParse(root,_filename);
 
-      // Get the observables and rules sections
-      YAML::Node outputNode = root["ObsLikes"];
-      YAML::Node rulesNode = root["Rules"];
+      // In GAMBIT-light: no Rules entries and a pre-defined set of ObsLikes entries.
+      // In regular GAMBIT: get the ObsLikes and Rules entries from the YAML file.
+      #ifdef GAMBIT_LIGHT
+        Types::Observable lightbit_input;
+        lightbit_input.purpose = "Observable";
+        lightbit_input.capability = "input";
+        lightbit_input.module = "LightBit";
+        lightbit_input.printme = true;
+        observables.push_back(lightbit_input);
 
-      // Read likelihood/observables
-      for(YAML::const_iterator it=outputNode.begin(); it!=outputNode.end(); ++it)
-      {
-        observables.push_back((*it).as<Types::Observable>());
-      }
+        Types::Observable lightbit_output;
+        lightbit_output.purpose = "Observable";
+        lightbit_output.capability = "output";
+        lightbit_output.module = "LightBit";
+        lightbit_output.printme = true;
+        observables.push_back(lightbit_output);
 
-      // Read rules
-      for(YAML::const_iterator it=rulesNode.begin(); it!=rulesNode.end(); ++it)
-      {
-        rules.push_back((*it).as<Types::Observable>());
-      }
+        Types::Observable lightbit_loglike;
+        lightbit_loglike.purpose = "LogLike";
+        lightbit_loglike.capability = "total_loglike";
+        lightbit_loglike.module = "LightBit";
+        lightbit_loglike.printme = false;
+        observables.push_back(lightbit_loglike);
+      #else
+        // Get the observables and rules sections
+        YAML::Node outputNode = root["ObsLikes"];
+        YAML::Node rulesNode = root["Rules"];
+
+        // Read likelihood/observables
+        for(YAML::const_iterator it=outputNode.begin(); it!=outputNode.end(); ++it)
+        {
+          observables.push_back((*it).as<Types::Observable>());
+        }
+
+        // Read rules
+        for(YAML::const_iterator it=rulesNode.begin(); it!=rulesNode.end(); ++it)
+        {
+          rules.push_back((*it).as<Types::Observable>());
+        }
+      #endif
 
       // Read KeyValue section, find the default path entry, and pass this on
       // to the Scanner, Logger, and Printer nodes

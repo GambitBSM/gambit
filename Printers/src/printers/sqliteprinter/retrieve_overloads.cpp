@@ -145,12 +145,14 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #ifndef SCANNER_STANDALONE // All the types inside SQL_BACKEND_TYPES need to go inside this def guard.
-
+     #ifndef GAMBIT_LIGHT
+     
        bool SQLiteReader::_retrieve(DM_nucleon_couplings& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
        bool SQLiteReader::_retrieve(BBN_container& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
+     #endif
      #endif
 
      /// @}

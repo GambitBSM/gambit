@@ -38,6 +38,9 @@
 /// Name of the gambit executable
 #define GAMBIT_EXECUTABLE "@PROJECT_NAME@"
 
+/// GAMBIT-light?
+#cmakedefine GAMBIT_LIGHT 1
+
 /// Compiler supports C++14 features
 #cmakedefine COMPILER_SUPPORTS_CXX14 1
 

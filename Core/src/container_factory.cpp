@@ -64,15 +64,26 @@ namespace Gambit
       }
 
       std::unordered_set<std::string> paramSet(inikeys.begin(), inikeys.end());
-      for (std::vector<std::string>::iterator it = paramkeys.begin(), end = paramkeys.end(); it != end; ++it)
-      {
-        if (paramSet.find(*it) == paramSet.end())
+      // In GAMBIT-light, it's OK to not list all parameters
+      #ifdef GAMBIT_LIGHT
+        for (std::vector<std::string>::iterator it = paramkeys.begin(), end = paramkeys.end(); it != end; ++it)
         {
-          std::stringstream err;
-          err << "Parameter " << *it << " of model " << act_it->first << " is required by GAMBIT but is not in the inifile." << std::endl;
-          core_error().raise(LOCAL_INFO, err.str());
+          if (paramSet.find(*it) == paramSet.end())
+          {
+            act_it->second->getcontentsPtr()->deleteParameter(*it);
+          }
         }
-      }
+      #else
+        for (std::vector<std::string>::iterator it = paramkeys.begin(), end = paramkeys.end(); it != end; ++it)
+        {
+          if (paramSet.find(*it) == paramSet.end())
+          {
+            std::stringstream err;
+            err << "Parameter " << *it << " of model " << act_it->first << " is required by GAMBIT but is not in the inifile." << std::endl;
+            core_error().raise(LOCAL_INFO, err.str());
+          }
+        }
+      #endif
     }
   }
 

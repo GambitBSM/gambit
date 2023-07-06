@@ -30,6 +30,9 @@
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Logs/logmaster.hpp"
 
+#ifdef GAMBIT_LIGHT
+#include <regex>
+#endif
 
 namespace Gambit
 {
@@ -163,6 +166,193 @@ namespace Gambit
       scannerNode = root["Scanner"];
       logNode = root["Logger"];
       keyValuePairNode = root["KeyValues"];
+
+      // Special treatment for GAMBIT-light
+      #ifdef GAMBIT_LIGHT
+        userModelNode = root["UserModel"];
+        userLogLikesNode = root["UserLogLikes"];
+
+        bool has_UserPrior_node = root["UserPrior"].IsDefined();
+        if (has_UserPrior_node)
+        {
+          userPriorNode = root["UserPrior"];
+        }
+
+        std::map<std::pair<int,int>,YAML::Node> par_range_nodes;
+        std::map<std::pair<int,int>,std::string> par_range_names;
+
+        const std::regex full_par_name_regex("^UserModel::p[0-9]+$");
+        const std::regex par_name_regex("^p[0-9]+$");
+        const std::regex par_name_range_regex("^p([0-9]+)-p([0-9]+)$");
+        std::smatch full_par_name_match;
+        std::smatch par_name_match;
+        std::smatch par_name_range_match;
+
+        for(YAML::iterator it = userModelNode.begin(); it != userModelNode.end(); ++it)
+        {
+          std::string par_name = it->first.as<std::string>();
+          YAML::Node& par_node = it->second;
+  
+          // If a parameter node in "UserModel" is a Scalar/Sequence, 
+          // convert to a Map by adding the "fixed_value" key.
+          if (par_node.IsScalar() or par_node.IsSequence()) 
+          {
+            YAML::Node new_node;
+            new_node["fixed_value"] = par_node;
+            par_node = new_node;
+          }
+
+          // Check that all nodes in "UserModel" have names that match a parameter
+          // name (e.g. "p13") or a range of parameter names (e.g. "p5-p10").
+          bool par_name_matched = std::regex_match(par_name, par_name_match, par_name_regex);
+          bool par_name_range_matched = std::regex_match(par_name, par_name_range_match, par_name_range_regex);
+
+          if (!par_name_matched && !par_name_range_matched)
+          {
+            inifile_error().raise(LOCAL_INFO, 
+              "Error while parsing the UserModel settings: The name '" + par_name + "' "
+              "is not a valid UserModel parameter entry. Either use a valid parameter name "
+              "('p0', 'p1', 'p2', ...) or specify a range of parameters (e.g. 'p1-p8')."
+            );
+          }
+
+          // If a range of parameters was specified, save the parameter indices and 
+          // the YAML node so we can add individual parameter nodes later
+          if (par_name_range_matched)
+          {
+            int par_index_min = std::stoi(par_name_range_match[1].str());
+            int par_index_max = std::stoi(par_name_range_match[2].str());
+            if (par_index_min >= par_index_max)
+            {
+              inifile_error().raise(LOCAL_INFO, 
+                "Error while parsing the UserModel settings: The parameter range '"
+                 + par_name_range_match[0].str() + "' has non-increasing indices."
+              );
+            }
+            std::pair<int,int> par_index_pair(par_index_min, par_index_max);
+            par_range_nodes[par_index_pair] = YAML::Clone(par_node);
+            par_range_names[par_index_pair] = par_name;
+          }
+        }
+
+        // For each parameter range entry (e.g. 'p1-p8'), construct individual parameter 
+        // nodes for all parameters included in the range, and then delete the node
+        // with the parameter range entry.
+        for (const auto& pair_ii_node : par_range_nodes)
+        {
+          std::string par_range_name = par_range_names[pair_ii_node.first];
+          int min_index = pair_ii_node.first.first;
+          int max_index = pair_ii_node.first.second;
+
+          const YAML::Node& par_range_node = pair_ii_node.second;
+
+          bool has_name_option = par_range_node["name"].IsDefined();
+          std::string user_name;
+          if (has_name_option)
+          {
+            user_name = par_range_node["name"].as<std::string>();
+          }
+
+          for (int index = min_index; index <= max_index; ++index)
+          {
+            std::string par_name = "p" + std::to_string(index);
+            if (userModelNode[par_name].IsDefined())
+            {
+              inifile_error().raise(LOCAL_INFO, 
+                "Error while parsing the UserModel settings: Multiple entries "
+                "for the parameter '" + par_name + "', which is part of "
+                "the range entry '" + par_range_name + "'."
+              );
+            }
+            userModelNode[par_name] = YAML::Clone(par_range_node);
+            if (has_name_option)
+            {
+              userModelNode[par_name]["name"] = user_name + std::to_string(index);
+            }
+          }
+          userModelNode.remove(par_range_name);
+        }
+
+        // For each parameter, check the 'same_as' option if present. 
+        // If an entry like "same_as: p3" is found, automatically 
+        // translate it to the complete form "same_as: UserModel::p3" 
+        // expected by GAMBIT.
+        for(YAML::iterator it = userModelNode.begin(); it != userModelNode.end(); ++it)
+        {
+          std::string par_name = it->first.as<std::string>();
+          YAML::Node& par_node = it->second;
+          if (par_node["same_as"].IsDefined())
+          {
+            std::string same_as_par_name = par_node["same_as"].as<std::string>();
+
+            bool full_par_name_matched = std::regex_match(same_as_par_name, full_par_name_match, full_par_name_regex);
+            bool par_name_matched = std::regex_match(same_as_par_name, par_name_match, par_name_regex);
+
+            if (par_name_matched)
+            {
+              par_node["same_as"] = "UserModel::" + same_as_par_name;
+            }
+
+            if (!full_par_name_matched && !par_name_matched)
+            {
+              inifile_error().raise(LOCAL_INFO, 
+                "Error while parsing the UserModel settings: Unrecognised parameter "
+                "'" + same_as_par_name + "' in the 'same_as' option for parameter "
+                "'" + par_name + "'. Expected a parmater name of the form 'p1', 'p2', etc."
+              );
+            }
+          }
+        }
+
+        // Override the parametersNode variable with a node we construct 
+        // from the "UserModel" node. We construct a new parameters node 
+        // (newParametersNode), add an entry "UserModel" (which corresponds 
+        // to a model name) and fill it with the content from root["UserModel"].
+        YAML::Node newParametersNode;
+        newParametersNode["UserModel"] = userModelNode;
+        // Now override the existing parametersNode variable
+        parametersNode = newParametersNode;
+
+
+        // If there is a "UserPrior" node, use this to construct a new
+        // "Priors" node that overrides the old priorsNode variable
+        if (has_UserPrior_node)
+        {
+          // Check that the required entries are present
+          if (userPriorNode.size() != 3 
+              || !userPriorNode["lang"].IsDefined()
+              || !userPriorNode["user_lib"].IsDefined()
+              || !userPriorNode["func_name"].IsDefined())
+          {
+            inifile_error().raise(LOCAL_INFO, 
+              "Error while parsing the UserPrior settings: The UserPrior section must contain "
+              "exactly the three entries 'lang', 'user_lib' and 'func_name'. (Multiple instances " 
+              "are not allowed.)"
+            );
+          }
+          
+          YAML::Node newPriorsNode;
+          newPriorsNode["gambit_light_prior"] = userPriorNode;
+          userPriorNode["prior_type"] = "userprior";
+          for(YAML::iterator it = userModelNode.begin(); it != userModelNode.end(); ++it)
+          {
+            std::string par_name = it->first.as<std::string>();
+            userPriorNode["parameters"].push_back("UserModel::" + par_name);
+          }
+          priorsNode = newPriorsNode;
+        }
+
+
+        // Force the "like: LogLike" option for all listed scanner plugins,
+        // to match the "purpose: LogLike" in the pre-defined ObsLikes section 
+        // for GAMBIT-light.
+        YAML::Node listed_scanner_plugins = scannerNode["scanners"];
+        for(YAML::const_iterator it = listed_scanner_plugins.begin(); it != listed_scanner_plugins.end(); ++it)
+        {
+          str plugin_name = it->first.as<str>();
+          scannerNode["scanners"][plugin_name]["like"] = "LogLike";
+        }
+      #endif  // End #ifdef GAMBIT_LIGHT
 
       // Set default output path
       std::string defpath;
@@ -325,6 +515,10 @@ namespace Gambit
     YAML::Node Parser::getScannerNode()      const {return scannerNode;}
     YAML::Node Parser::getLoggerNode()       const {return logNode;}
     YAML::Node Parser::getKeyValuePairNode() const {return keyValuePairNode;}
+    #ifdef GAMBIT_LIGHT
+      YAML::Node Parser::getUserModelNode() const {return userModelNode;}
+      YAML::Node Parser::getUserLogLikesNode() const {return userLogLikesNode;}
+    #endif
     /// @}
 
     /// Getters for model/parameter section

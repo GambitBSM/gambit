@@ -45,6 +45,7 @@
 #include <vector>
 #include <iostream>
 #include "gambit/Utils/export_symbols.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
 
 namespace Gambit {
 
@@ -135,6 +136,11 @@ namespace Gambit {
       void setModelName (const std::string&);
       void setOutputName(const std::string&);
  
+      // In GAMBIT-light we need the ability to delete parameters from models
+      #ifdef GAMBIT_LIGHT
+        void deleteParameter(const std::string& parname);
+      #endif
+
     private:
 
       /// Internal map representation of parameters and their values

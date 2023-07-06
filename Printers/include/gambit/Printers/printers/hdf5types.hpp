@@ -50,8 +50,12 @@
   (MSSM_SLHAstruct) \
   (SMslha_SLHAstruct)
 
-#define HDF5_BACKEND_TYPES             \
-  (DM_nucleon_couplings)               \
-  (BBN_container)                      \
+#ifdef GAMBIT_LIGHT
+  #define HDF5_BACKEND_TYPES
+#else
+  #define HDF5_BACKEND_TYPES            \
+    (DM_nucleon_couplings)              \
+    (BBN_container)
+#endif
 
 #endif

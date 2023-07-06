@@ -1006,6 +1006,9 @@ namespace Gambit
       /// Function for handing over parameter identities to another model_functor
       void donateParameters(model_functor &receiver);
 
+      #ifdef GAMBIT_LIGHT
+        void deleteParameter(str parname);
+      #endif
   };
 
 

@@ -45,16 +45,20 @@
 #include "gambit/Utils/model_parameters.hpp"                   // Definitions required to understand model parameter objects
 #include "gambit/Utils/numerical_constants.hpp"                // Centralised constants header
 
-#include "gambit/Elements/sminputs.hpp"                                    // Struct carrying SMINPUTS block (SLHA2)
-#include "gambit/Elements/spectrum.hpp"                                    // Carries BSM plus Standard Model spectrum info
-#include "gambit/Elements/decay_table.hpp"                                 // Decay table class (carries particle decay info)
-#include "gambit/Elements/higgs_couplings_table.hpp"                       // Higgs couplings table class (carries couplings info for entire Higgs sector)
-#include "gambit/Elements/slhaea_spec_helpers.hpp"                         // Contains SLHAea reader/writer class alias
-#include "gambit/Elements/halo_types.hpp"                                  // data types for DM halo properties
-#include "gambit/Elements/wimp_types.hpp"                                  // Containers for generic WIMP dark matter and annihilation properties
+#ifndef GAMBIT_LIGHT
+  #include "gambit/Elements/sminputs.hpp"                                  // Struct carrying SMINPUTS block (SLHA2)
+  #include "gambit/Elements/spectrum.hpp"                                  // Carries BSM plus Standard Model spectrum info
+  #include "gambit/Elements/decay_table.hpp"                               // Decay table class (carries particle decay info)
+  #include "gambit/Elements/higgs_couplings_table.hpp"                     // Higgs couplings table class (carries couplings info for entire Higgs sector)
+  #include "gambit/Elements/slhaea_spec_helpers.hpp"                       // Contains SLHAea reader/writer class alias
+  #include "gambit/Elements/halo_types.hpp"                                // data types for DM halo properties
+  #include "gambit/Elements/wimp_types.hpp"                                // Containers for generic WIMP dark matter and annihilation properties
+#endif
 #include "gambit/Elements/flav_prediction.hpp"                             // Containers for flavour physics predictions
 
-#include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"         // Contains SpectrumParameter class (names and tags)
+#ifndef GAMBIT_LIGHT
+  #include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"       // Contains SpectrumParameter class (names and tags)
+#endif
 
 #include "gambit/Backends/default_bossed_versions.hpp"         // Default versions of backends to use when employing BOSSed types
 #include "gambit/Backends/mathematica_variable.hpp"            // Wrapper type for Mathematica global variables
