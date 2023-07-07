@@ -50,7 +50,7 @@ GambitBSM/gambit_light@master_autosync:
       CMakeLists.txt
       include/gambit/Utils/begin_ignore_warnings_hepmc.hpp
       include/gambit/Utils/begin_ignore_warnings_rivet_backend.hpp
-      include/gambit/Utils/begin_ignore_warnings_yoda_backend.hpp
+      include/gambit/Utils/begin_ignore_warnings_yoda.hpp
       include/gambit/Utils/integration.hpp
       include/gambit/Utils/interp_collection.hpp
       include/gambit/Utils/PID_pair.hpp
