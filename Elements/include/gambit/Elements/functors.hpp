@@ -55,9 +55,6 @@
 #include "gambit/Utils/model_parameters.hpp"
 #include "gambit/Logs/logger.hpp"
 #include "gambit/Logs/logmaster.hpp" // Need full declaration of LogMaster class
-#ifdef GAMBIT_LIGHT
-  #include "gambit/cmake/cmake_variables.hpp"
-#endif
 
 /// Decay rate of average runtime estimate [(number of functor evaluations)^-1]
 #define FUNCTORS_FADE_RATE 0.01
