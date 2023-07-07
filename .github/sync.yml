@@ -1,7 +1,6 @@
 # This file list the all the files and directories in the GambitBSM/gambit_light repo
 # that should be automatically kept up to date with changes in the GambitBSM/gambit repo
-# GambitBSM/gambit_light:
-GambitBSM/gambit_light@master_autosync:
+GambitBSM/gambit_light@gambit_light_sync:
 
   - source: contrib/
     dest: contrib/
