@@ -144,11 +144,3 @@ GambitBSM/gambit_light@gambit_light_sync:
       include/gambit/ScannerBit/scanners/great/
       src/scanners/great/
     
-
-  - BUILD_OPTIONS.md    
-  - README.md
-  - README_OSX.md
-  - HISTORY
-
-
-
