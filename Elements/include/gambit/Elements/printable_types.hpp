@@ -31,7 +31,7 @@
     (map_const_str_map_const_str_dbl)   \
     (map_intpair_dbl)                   \
     (triplet<double>)
-#elif
+#else
   #define PRINTABLE_TYPES               \
     SCANNER_PRINTABLE_TYPES             \
     (map_const_str_dbl)                 \
@@ -50,7 +50,7 @@
 #ifdef GAMBIT_LIGHT
   #define RETRIEVABLE_TYPES \
     PRINTABLE_TYPES
-#elif
+#else
   #define RETRIEVABLE_TYPES \
     PRINTABLE_TYPES \
     (MSSM_SLHAstruct) \
