@@ -27,6 +27,7 @@ GambitBSM/gambit_light@master_autosync:
       FindGSL.cmake
       FindCython.cmake
       FindEigen3.cmake
+      FindMathematica.cmake
       standalones.cmake
 
 
@@ -48,6 +49,8 @@ GambitBSM/gambit_light@master_autosync:
     exclude: |
       CMakeLists.txt
       include/gambit/Utils/begin_ignore_warnings_hepmc.hpp
+      include/gambit/Utils/begin_ignore_warnings_rivet_backend.hpp
+      include/gambit/Utils/begin_ignore_warnings_yoda_backend.hpp
       include/gambit/Utils/integration.hpp
       include/gambit/Utils/interp_collection.hpp
       include/gambit/Utils/PID_pair.hpp
@@ -125,6 +128,7 @@ GambitBSM/gambit_light@master_autosync:
     exclude: |
       backend_locations.yaml.default
       models.dat
+      priors.dat
       particle_database.yaml
 
 

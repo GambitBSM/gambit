@@ -23,22 +23,39 @@
 #include "gambit/ScannerBit/printable_types.hpp"
 
 // Types that Gambit printers can output (if printer plugin is properly equipped)
-#define PRINTABLE_TYPES               \
-  SCANNER_PRINTABLE_TYPES             \
-  (map_const_str_dbl)                 \
-  (map_str_map_str_dbl)               \
-  (map_const_str_map_const_str_dbl)   \
-  (map_intpair_dbl)                   \
-  (triplet<double>)                   \
-  (flav_prediction)                   \
-  (DM_nucleon_couplings)              \
-  (BBN_container)
+#ifdef GAMBIT_LIGHT
+  #define PRINTABLE_TYPES               \
+    SCANNER_PRINTABLE_TYPES             \
+    (map_const_str_dbl)                 \
+    (map_str_map_str_dbl)               \
+    (map_const_str_map_const_str_dbl)   \
+    (map_intpair_dbl)                   \
+    (triplet<double>)
+#elif
+  #define PRINTABLE_TYPES               \
+    SCANNER_PRINTABLE_TYPES             \
+    (map_const_str_dbl)                 \
+    (map_str_map_str_dbl)               \
+    (map_const_str_map_const_str_dbl)   \
+    (map_intpair_dbl)                   \
+    (triplet<double>)                   \
+    (flav_prediction)                   \
+    (DM_nucleon_couplings)              \
+    (BBN_container)
+#endif
+
 
 // Types that can be retrieved from Gambit printer output (if printer plugin is properly equipped)
 // Generally needs to be the same as the printable types, i.e. should be able to retrieve everything.
-#define RETRIEVABLE_TYPES \
-  PRINTABLE_TYPES \
-  (MSSM_SLHAstruct) \
-  (SMslha_SLHAstruct)
+#ifdef GAMBIT_LIGHT
+  #define RETRIEVABLE_TYPES \
+    PRINTABLE_TYPES
+#elif
+  #define RETRIEVABLE_TYPES \
+    PRINTABLE_TYPES \
+    (MSSM_SLHAstruct) \
+    (SMslha_SLHAstruct)
+#endif
+
 
 #endif // defined __printable_types_hpp__

@@ -72,6 +72,8 @@ namespace Gambit
   typedef std::pair<str, double> sdpair;
   /// Shorthand for a vector of doubles
   typedef std::vector<double> vec_dbl;
+  /// Shorthand for a vector of strings
+  typedef std::vector<std::string> vec_str;
   /// Shorthand for a matrix of doubles
   typedef std::vector<std::vector<double>> mat_dbl;
   /// Shorthand for a string-to-double map

@@ -25,6 +25,9 @@
 
 #include "gambit/Core/likelihood_container.hpp"
 #include "gambit/Elements/type_equivalency.hpp"
+#ifdef GAMBIT_LIGHT
+  #include "gambit/cmake/cmake_variables.hpp"
+#endif
 
 namespace Gambit
 {
