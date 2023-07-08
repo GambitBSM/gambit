@@ -13,6 +13,10 @@
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2021 Jul
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2022 Apr
+///
 ///  *********************************************
 
 
@@ -21,7 +25,8 @@
 #ifdef SUPPRESS_LIBRARY_WARNINGS
 
   // GCC:
-  #ifdef __GNUC__
+  // clang also depfines __GNUC__ so make sure it is only GCC
+  #if defined(__GNUC__) && !defined(__clang__)
     // Save diagnostic state
     #pragma GCC diagnostic push 
     // Don't care if an old compiler version doesn't recognize all the pragmas
@@ -32,14 +37,16 @@
   #endif
 
   // Clang:
-  #ifdef __clang__
-    #ifndef __ICC  // icpc apparently also defines __clang__ so need this check too
-      // Save diagnostic state
-      #pragma clang diagnostic push 
-      // Don't care if an old compiler version doesn't recognize all the pragmas
-      #pragma clang diagnostic ignored "-Wpragmas"
-      // Turn off some warnings
-      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  // icpc apparently also defines __clang__ 
+  #if defined(__clang__) && !defined(__ICC)
+    // Save diagnostic state
+    #pragma clang diagnostic push 
+    // Don't care if an old compiler version doesn't recognize all the pragmas
+    #pragma clang diagnostic ignored "-Wpragmas"
+    // Turn off some warnings
+    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    // This only exists from clang 13.0
+    #if __clang__ > 13
       #pragma clang diagnostic ignored "-Wcast-function-type"
     #endif
   #endif

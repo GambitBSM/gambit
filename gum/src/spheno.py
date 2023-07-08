@@ -78,24 +78,24 @@ def copy_spheno_files_gambit(model_name, clean_model_name, spheno_version, outpu
 PATCHING
 """
 
-def patch_spheno(model_name, patch_dir, flags, particles):
+def patch_spheno(model_name, sarah_model_name, patch_dir, flags, particles):
     """
     Applies all patches to SPheno in the GUM 
     Outputs/... directory.
     """
 
     patch_spheno_makefile(model_name, patch_dir)
-    patch_spheno_model_makefile(model_name, patch_dir, flags)
+    patch_spheno_model_makefile(model_name, sarah_model_name, patch_dir, flags)
     patch_spheno_src_makefile(model_name, patch_dir)
     patch_control(model_name, patch_dir)
-    patch_spheno_model(model_name, patch_dir)
-    patch_brs(model_name, patch_dir)
+    patch_spheno_model(model_name, sarah_model_name, patch_dir)
+    patch_brs(model_name, sarah_model_name, patch_dir)
     patch_addloopfunctions(model_name, patch_dir)
 
 
     if flags["SupersymmetricModel"] :
-        patch_model_data(model_name, patch_dir)
-        patch_3_body_decays_susy(model_name, patch_dir, particles)
+        patch_model_data(model_name, sarah_model_name, patch_dir)
+        patch_3_body_decays_susy(model_name, sarah_model_name, patch_dir, particles)
 
     print("SPheno files patched.")
 
@@ -139,7 +139,7 @@ def patch_spheno_makefile(model_name, patch_dir):
         f.write(content)
 
 
-def patch_spheno_model_makefile(model_name, patch_dir, flags):
+def patch_spheno_model_makefile(model_name, sarah_model_name, patch_dir, flags):
     """
     Patches $SPheno/<MODEL>/Makefile
     """
@@ -190,25 +190,25 @@ def patch_spheno_model_makefile(model_name, patch_dir, flags):
                           ".SUFFIXES : .o .ps .f90 .F90 .a\n"
                 g.write(content)
                 skip_next_lines = True
-            elif line.startswith("bin/SPheno" + model_name) :
+            elif line.startswith("bin/SPheno" + sarah_model_name) :
                 content = "${shared}:\n"\
                           "\tcd ../src ; ${MAKE} F90=${F90}\n"\
                           "\t${MAKE} F90=${F90} ${name}\n"\
-                          "\t${MAKE} F90=${F90} SPheno" + model_name + ".o\n"
+                          "\t${MAKE} F90=${F90} SPheno" + sarah_model_name + ".o\n"
                 if flags['UseHiggs2LoopMSSM']:
                     content += "\t${F90} -c -fPIC TwoLoopMasses/effpotasat.f\n"\
-                               "\t${F90} -shared -fPIC -o ../${shared} ${LFlagsB} SPheno" + model_name + ".o effpotasat.o ../lib/libSPheno" + model_name + ".a ../lib/libSPheno.a\n"
+                               "\t${F90} -shared -fPIC -o ../${shared} ${LFlagsB} SPheno" + sarah_model_name + ".o effpotasat.o ../lib/libSPheno" + sarah_model_name + ".a ../lib/libSPheno.a\n"
                 else:
-                    content += "\t${F90} -shared -fPIC -o ../${shared} ${LFlagsB} SPheno" + model_name + ".o ../lib/libSPheno" + model_name + ".a ../lib/libSPheno.a\n"
-                content += "bin/SPheno" + model_name + ":\n"\
+                    content += "\t${F90} -shared -fPIC -o ../${shared} ${LFlagsB} SPheno" + sarah_model_name + ".o ../lib/libSPheno" + sarah_model_name + ".a ../lib/libSPheno.a\n"
+                content += "bin/SPheno" + sarah_model_name + ":\n"\
                            "ifeq (${cVersion},1)\n"\
                            "\tcd ../src ; ${MAKE} F90=${F90}\n"\
                            "\t${MAKE} F90=${F90} ${name}\n"\
-                           "\t${MAKE} F90=${F90} SPheno" + model_name + ".o\n"\
+                           "\t${MAKE} F90=${F90} SPheno" + sarah_model_name + ".o\n"\
                            "\t${F90} -c -fPIC TwoLoopMasses/effpotasat.f\n"\
-                           "\t${F90} -o -fPIC SPheno" + model_name + " ${LFlagsB} SPheno" + model_name + ".o effpotasat.o ../lib/libSPheno" + model_name + ".a ../lib/libSPheno.a\n"\
-                           "\tmv SPheno" + model_name + "../bin\n"\
-                           "\trm SPheno" + model_name + ".o\n"
+                           "\t${F90} -o -fPIC SPheno" + sarah_model_name + " ${LFlagsB} SPheno" + sarah_model_name + ".o effpotasat.o ../lib/libSPheno" + sarah_model_name + ".a ../lib/libSPheno.a\n"\
+                           "\tmv SPheno" + sarah_model_name + "../bin\n"\
+                           "\trm SPheno" + sarah_model_name + ".o\n"
                 g.write(content)
                 for i in range(7): next(f)
                 skip_next_lines = False
@@ -382,12 +382,12 @@ def patch_control(model_name, patch_dir):
     os.remove(filename)
     os.rename(temp_filename, filename)
 
-def patch_spheno_model(model_name, patch_dir):
+def patch_spheno_model(model_name, sarah_model_name, patch_dir):
     """
     Patches $SPheno/<MODEL>/SPheno<MODEL>.f90
     """
  
-    filename = patch_dir + "/" + model_name + "/SPheno" + model_name + ".f90"
+    filename = patch_dir + "/" + model_name + "/SPheno" + sarah_model_name + ".f90"
     temp_filename = filename + "_temp"
 
     if not os.path.exists(filename):
@@ -396,9 +396,9 @@ def patch_spheno_model(model_name, patch_dir):
             
     with open(filename, 'r') as f, open(temp_filename, 'w') as g:
         for line in f:
-            if line.startswith("Program SPheno" + model_name) :
-                g.write("!Program SPheno" + model_name + " ! Commented by GAMBIT\n")
-                g.write("Module SPheno" + model_name + " ! Added by GAMBIT\n")
+            if line.startswith("Program SPheno" + sarah_model_name) :
+                g.write("!Program SPheno" + sarah_model_name + " ! Commented by GAMBIT\n")
+                g.write("Module SPheno" + sarah_model_name + " ! Added by GAMBIT\n")
             elif line.startswith("Tpar = 0._dp") :
                 content = '\n'\
                     "Contains ! Added by GAMBIT\n"\
@@ -446,21 +446,21 @@ def patch_spheno_model(model_name, patch_dir):
                     g.write(line2)
             elif line.startswith("!If (kont.ne.0) Call TerminateProgram") :
                 g.write("If (kont.ne.0) Call TerminateProgram\n")
-            elif line.startswith("End Program SPheno" + model_name):
-                g.write("!End Program SPheno" + model_name + " ! Commented by GAMBIT\n")
-                g.write("End Module SPheno" + model_name + " ! Added by GAMBIT\n")
+            elif line.startswith("End Program SPheno" + sarah_model_name):
+                g.write("!End Program SPheno" + sarah_model_name + " ! Commented by GAMBIT\n")
+                g.write("End Module SPheno" + sarah_model_name + " ! Added by GAMBIT\n")
             else:
                 g.write(line)
 
     os.remove(filename)
     os.rename(temp_filename, filename)
 
-def patch_brs(model_name, patch_dir):
+def patch_brs(model_name, sarah_model_name, patch_dir):
     """
     Patches $SPheno/<MODEL>/BranchingRatios_<MODEL>.f90
     """
 
-    filename = patch_dir + "/" + model_name + "/BranchingRatios_" + model_name + ".f90"
+    filename = patch_dir + "/" + model_name + "/BranchingRatios_" + sarah_model_name + ".f90"
     temp_filename = filename + "_temp"
 
     if not os.path.exists(filename):
@@ -519,12 +519,12 @@ def patch_addloopfunctions(model_name, patch_dir):
 
 # SUSY-only patches
 
-def patch_model_data(model_name, patch_dir):
+def patch_model_data(model_name, sarah_model_name, patch_dir):
     """
     Patches $SPheno/<MODEL>/Model_Data_<MODEL>.f90
     """
     
-    filename = patch_dir + "/" + model_name + "/Model_Data_" + model_name + ".f90"
+    filename = patch_dir + "/" + model_name + "/Model_Data_" + sarah_model_name + ".f90"
     temp_filename = filename + "_temp"
 
     if not os.path.exists(filename):
@@ -544,7 +544,7 @@ def patch_model_data(model_name, patch_dir):
     os.rename(temp_filename, filename)
 
 
-def patch_3_body_decays_susy(model_name, patch_dir, bsm_particles):
+def patch_3_body_decays_susy(model_name, sarah_model_name, patch_dir, bsm_particles):
     """
     Patches the 3-body decays in: 
     $SPheno/<MODEL>/3-Body-Decays/X_<MODEL>.f90
@@ -575,7 +575,7 @@ def patch_3_body_decays_susy(model_name, patch_dir, bsm_particles):
 
     for particle in particles :
  
-        filename = patch_dir + "/" + model_name + "/3-Body-Decays/" + particle + "_" + model_name + ".f90"
+        filename = patch_dir + "/" + model_name + "/3-Body-Decays/" + particle + "_" + sarah_model_name + ".f90"
         temp_filename = filename + "_temp"
 
         if not os.path.exists(filename):
@@ -586,7 +586,7 @@ def patch_3_body_decays_susy(model_name, patch_dir, bsm_particles):
             for line in f :
                 if line.startswith("Use ThreeBodyPhaseSpace") :
                     g.write(line)
-                    g.write("Use Model_Data_" + model_name + " ! Added by GAMBIT\n")
+                    g.write("Use Model_Data_" + sarah_model_name + " ! Added by GAMBIT\n")
                 elif any([line.startswith("Call " + particle + "To" + channel) for channel in channels[particle]]) :
                     g.write("If (CalcSUSY3BodyDecays) Then ! Added by GAMBIT\n")
                     g.write(line)
@@ -621,9 +621,9 @@ class SPhenoParameter:
         self.bcs = _bcs
 
 
-def write_spheno_frontends(model_name, parameters, particles, flags, 
-                           spheno_path, output_dir, blockparams, gambit_pdgs, 
-                           mixings, reality_dict, sphenodeps, bcs, 
+def write_spheno_frontends(model_name, sarah_model_name, parameters, sm_particles,
+                           bsm_particles, flags, spheno_path, output_dir, blockparams,
+                           gambit_pdgs, mixings, reality_dict, sphenodeps, bcs,
                            charged_higgses, neutral_higgses, fullmodelname,
                            cap_def = {}):
     """
@@ -631,15 +631,16 @@ def write_spheno_frontends(model_name, parameters, particles, flags,
     """
 
     # Firstly, scrape the function signatures from the spheno source
-    functions, arguments, locations = scrape_functions_from_spheno(spheno_path,
-                                                                   model_name)
+    functions, arguments, locations = scrape_functions_from_spheno(spheno_path, model_name,
+                                                                   sarah_model_name)
     # Convert the arguments to GAMBIT types
     type_dictionary = get_fortran_shapes(arguments)
 
     # Get all of the variables used in SPheno so we can store them as 
     # BE_VARIABLES. Keep track of those used for HiggsBounds too.
-    variables, hb_variables = harvest_spheno_model_variables(spheno_path, 
-                                                             model_name, 
+    variables, hb_variables = harvest_spheno_model_variables(spheno_path,
+                                                             model_name,
+                                                             sarah_model_name,
                                                              parameters)
 
     # Convert these to GAMBIT types too
@@ -650,25 +651,26 @@ def write_spheno_frontends(model_name, parameters, particles, flags,
     reality_dict = fix_reality_dict(reality_dict, variable_dictionary)
 
     # Add the new types to backend_types
-    backend_types, linenum = add_to_spheno_backend_types(type_dictionary, 
+    backend_types, linenum = add_to_spheno_backend_types(type_dictionary,
                                                          variable_dictionary,
                                                          hb_variable_dictionary)
 
     # Get the indices for the mass_uncertainties
-    mass_uncertainty_dict = get_mass_uncert(spheno_path, model_name)
+    mass_uncertainty_dict = get_mass_uncert(spheno_path, model_name, sarah_model_name)
 
     # Get the source and header files
     spheno_src = write_spheno_frontend_src(model_name, functions,
-                                           variables, flags, particles, 
-                                           parameters, blockparams, 
+                                           variables, flags,
+                                           sm_particles, bsm_particles,
+                                           parameters, blockparams,
                                            gambit_pdgs, mixings, reality_dict,
                                            sphenodeps, hb_variables, bcs,
                                            charged_higgses, neutral_higgses,
                                            mass_uncertainty_dict, fullmodelname,
                                            variable_dictionary, hb_variable_dictionary)
 
-    spheno_header = write_spheno_frontend_header(model_name, functions, 
-                                                 type_dictionary, 
+    spheno_header = write_spheno_frontend_header(model_name, sarah_model_name,
+                                                 functions, type_dictionary,
                                                  locations, variables,
                                                  variable_dictionary,
                                                  hb_variables,
@@ -811,7 +813,7 @@ def add_to_spheno_backend_types(type_dictionary, variable_dictionary,
 
 # harvesting
 
-def scrape_functions_from_spheno(spheno_path, model_name):
+def scrape_functions_from_spheno(spheno_path, model_name, sarah_model_name):
     """
     Reads the SPheno source to identify the function signatures
     we want to include in the frontend.
@@ -826,8 +828,8 @@ def scrape_functions_from_spheno(spheno_path, model_name):
 
     # Dictionary of which files each function lives in.
     locations_dictionary = {
-        clean_model_name+"/BranchingRatios_"+clean_model_name  : "CalculateBR_2",
-        clean_model_name+"/InputOutput_"+clean_model_name      : ["Switch_to_superCKM",
+        clean_model_name+"/BranchingRatios_"+sarah_model_name  : "CalculateBR_2",
+        clean_model_name+"/InputOutput_"+sarah_model_name      : ["Switch_to_superCKM",
                                                                   "Switch_to_superPMNS"],
     }
 
@@ -838,7 +840,7 @@ def scrape_functions_from_spheno(spheno_path, model_name):
     return function_dictionary, args_dictionary, locations_dictionary
 
 
-def harvest_spheno_model_variables(spheno_path, model_name, model_parameters):
+def harvest_spheno_model_variables(spheno_path, model_name, sarah_model_name, model_parameters):
     """
     Harvests the model variables from $SPHENO/<MODEL>/Model_Data_<MODEL>.f90.
     Returns a dictionary of key: parameter name, value: GAMBIT fortran type, 
@@ -846,8 +848,9 @@ def harvest_spheno_model_variables(spheno_path, model_name, model_parameters):
     """
 
     clean_model_name = model_name.replace('-','')
-    location = "{0}/{1}/Model_Data_{1}.f90".format(spheno_path, 
-                                                   clean_model_name)
+    location = "{0}/{1}/Model_Data_{2}.f90".format(spheno_path,
+                                                   clean_model_name,
+                                                   sarah_model_name)
 
         
     parameters = {}
@@ -945,15 +948,17 @@ def harvest_spheno_model_variables(spheno_path, model_name, model_parameters):
     
     return parameters, hb_parameters
 
-def get_mass_uncert(spheno_path, model_name):
+def get_mass_uncert(spheno_path, model_name, sarah_model_name):
     """
     Scrape the mass_uncertainty PDG code : index and return a dict.
     """
 
     mud = {}
 
-    location = "{0}/{1}/InputOutput_{1}.f90".format(spheno_path, 
-                                                    model_name)
+    clean_model_name = model_name.replace('-','')
+    location = "{0}/{1}/InputOutput_{2}.f90".format(spheno_path, 
+                                                    clean_model_name,
+                                                    sarah_model_name)
 
     src = []
     # Scrape every line with a Sqrt(mass_uncertainty_Q in it
@@ -1055,7 +1060,7 @@ def get_arguments_from_file(functions, file_path, function_dictionary,
                             "as I don't think it will work anyway."))
 
 
-def make_spheno_decay_tables(spheno_path, model_name):
+def make_spheno_decay_tables(spheno_path, model_name, sarah_model_name):
     """
     Generates the DecayTables for a new SPheno version within GAMBIT.
     All information harvested from InputOutput_<Model>.f90.
@@ -1065,7 +1070,7 @@ def make_spheno_decay_tables(spheno_path, model_name):
     spheno_decays = defaultdict(list)
 
     clean_model_name = model_name.replace('-','')
-    target = "{0}/{1}/InputOutput_{1}.f90".format(spheno_path, clean_model_name)
+    target = "{0}/{1}/InputOutput_{2}.f90".format(spheno_path, clean_model_name, sarah_model_name)
 
     towrite = (
             "# This file contains a list of all the {0} decays calculated by "
@@ -1078,7 +1083,7 @@ def make_spheno_decay_tables(spheno_path, model_name):
             "for charge conjugate\n"
             "# final states (CORRF=0.5) or not (CORRF=1.0)\n\n"
             "# Autogenerated by GUM.\n"
-    ).format(clean_model_name)
+    ).format(sarah_model_name)
 
     pdgs = {}
     names = {}
@@ -1262,10 +1267,10 @@ def write_hb_output(hb_variables):
 
     return hboutput, Wsign
 
-def write_spheno_frontend_src(model_name, function_signatures, variables, flags, 
-                              particles, parameters, blockparams, gambit_pdgs, 
-                              mixings, reality_dict, sphenodeps, hb_variables,
-                              bcs, charged_higgses, neutral_higgses,
+def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
+                              sm_particles, bsm_particles, parameters, blockparams,
+                              gambit_pdgs, mixings, reality_dict, sphenodeps,
+                              hb_variables, bcs, charged_higgses, neutral_higgses,
                               mass_uncertainty_dict, fullmodelname, var_dict, hb_dict):
 
     """
@@ -1352,7 +1357,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "ReadingData(inputs);\n"
             "\n"
             "try{ SPheno_Main(); }\n"
-            "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"
+            "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"
             "\n"
             "if(*kont != 0)\n"
             "  ErrorHandling(*kont);\n"
@@ -1393,30 +1398,29 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "// Fill input parameters with spectrum imformation\n"
             "\n"
             "// Masses\n"
-            "SMInputs sminputs = spectrum.get_SMInputs();\n"
-            "(*MFd)(1) = sminputs.mD;\n"
-            "(*MFd)(2) = sminputs.mS;\n"
-            "(*MFd)(3) = sminputs.mBmB;\n"
-            "(*MFe)(1) = sminputs.mE;\n"
-            "(*MFe)(2) = sminputs.mMu;\n"
-            "(*MFe)(3) = sminputs.mTau;\n"
-            "(*MFu)(1) = sminputs.mU;\n"
-            "(*MFu)(2) = sminputs.mCmC;\n"
-            "(*MFu)(3) = sminputs.mT;\n"
-            "for (int i=1; i<=3; i++)\n"
-            "{\n"
-            "(*MFd2)(i) = pow((*MFd)(i),2);\n"
-            "(*MFe2)(i) = pow((*MFe)(i),2);\n"
-            "(*MFu2)(i) = pow((*MFu)(i),2);\n"
-            "}\n"
-    )
+            "SMInputs sminputs = spectrum.get_SMInputs();\n")
+
+    # Fill SM mass from SMINPUTS struct
+    smpdgmap = {"1":"mD", "2":"mU", "3":"mS",
+                "4":"mCmC","5":"mBmB", "6":"mT",
+                "11":"mE", "13":"mMu", "15":"mTau"}
+    for particle in sm_particles :
+      if particle.PDG_code in smpdgmap.keys() :
+        mass = re.sub(r"\d","",particle.alt_mass_name)
+        index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
+        brace = "(" + str(index) + ")" if index else ""
+        towrite += (
+                "(*{0}){1} = sminputs.{2};\n"
+                "(*{0}2){1} = pow((*{0}){1}, 2);\n"
+        ).format(mass, brace, smpdgmap[particle.PDG_code])
+
 
     # A dictionary in which we save the SPheno particle name alongside the 
     # gambit one. We'll use this for the mixings in a second.
     mixingdict = {}
 
     # Add each particle to the spectrum
-    for particle in particles:
+    for particle in bsm_particles:
         mass = re.sub(r"\d","",particle.alt_mass_name)
         index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
         specmass = pdg_to_particle(particle.PDG_code, gambit_pdgs)
@@ -1511,7 +1515,17 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         "}}\n"
                         "}}\n"
                 ).format(i, j, entry, par.tag, par.name)
-            
+            # Vector case
+            elif par.shape.startswith('v'):
+                size = par.shape[1:]
+                print("size = " , size)
+                towrite += (
+                        "for(int i=1; i<={0}; i++)\n"
+                        "{{\n"
+                        "(*{1})(i) = spectrum.get(Par::{2}, \"{1}\", i);\n"
+                        "}}\n"
+                ).format(size, entry, par.tag, par.name)
+            # Scalar case
             else:
                 towrite += (
                     "*{0} = spectrum.get(Par::{1}, \"{2}\");\n"
@@ -1527,7 +1541,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "\n"
             "// Call SPheno's function to calculate decays\n"
             "try{{ {0} }}\n"
-            "catch(std::runtime_error e) {{ invalid_point().raise(e.what()); }}\n"
+            "catch(std::runtime_error &e) {{ invalid_point().raise(e.what()); }}\n"
             "\n"
             "// Check for errors\n"
             "if(*kont != 0)\n"
@@ -1573,7 +1587,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
     SMspins = [1, 1, 1, 1, 1, 1, 1, 1, 1]         # Spin x2
     SMcharges = [-1, -1, -1, 2, 2, 2, -3, -3, -3] # Charge x3
     SMcolors = [3, 3, 3, 3, 3, 3, 1, 1, 1]        # Color rep
-    decaying_particles = copy.deepcopy(particles)
+    decaying_particles = copy.deepcopy(bsm_particles)
 
     for i in range(0, len(SMpdgs)):
         decaying_particles.append(Particle(SMnames[i], SMnames[i]+'*', 
@@ -1733,42 +1747,43 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "\n"
             "Freal8 Q;\n"
             "try{ Q = sqrt(GetRenormalizationScale()); }\n"
-            "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"
+            "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"
             "\n"
     )
-    if flags["SupersymmetricModel"] and any([particle.alt_name.startswith("Chi") for particle in particles]):
+    if flags["SupersymmetricModel"] and any([particle.alt_name.startswith("Chi") for particle in bsm_particles]):
         size = ""
         for par in parameters:
-            if par.name == "ZN":
+            if par.name == "ZN" or par.name == "UV":
+                mixname = par.name
                 size = blockparams[par.block]['mixingmatrix']
         i,j = size.split('x')
 
         towrite += (
                 "// Make sure to rotate back the sign on MChi\n"
                 "if(not *RotateNegativeFermionMasses)\n"
-                "{\n"
+                "{{\n"
                 "for(int i=1; i<=" + str(i) + "; i++)\n"
-                "{\n"
+                "{{\n"
                 "double remax = 0, immax = 0;\n"
                 "for(int j=1; j<=" + str(j) +"; j++)\n"
-                "{\n"
-                "if(abs((*ZN)(i,j).re) > remax) remax = abs((*ZN)(i,j).re);\n"
-                "if(abs((*ZN)(i,j).im) > immax) immax = abs((*ZN)(i,j).im);\n"
-                "}\n"
+                "{{\n"
+                "if(abs((*{0})(i,j).re) > remax) remax = abs((*{0})(i,j).re);\n"
+                "if(abs((*{0})(i,j).im) > immax) immax = abs((*{0})(i,j).im);\n"
+                "}}\n"
                 "if(immax > remax)\n"
-                "{\n"
+                "{{\n"
                 "(*MChi)(i) *= -1;\n"
                 "for(int j=1; j<=" + str(j) + "; j++)\n"
-                "{\n"
-                "double old = (*ZN)(i,j).re;\n"
-                "(*ZN)(i,j).re = (*ZN)(i,j).im;\n"
-                "(*ZN)(i,j).im = -old;\n"
-                "}\n"
-                "}\n"
-                "}\n"
-                "}\n"
+                "{{\n"
+                "double old = (*{0})(i,j).re;\n"
+                "(*{0})(i,j).re = (*{0})(i,j).im;\n"
+                "(*{0})(i,j).im = -old;\n"
+                "}}\n"
+                "}}\n"
+                "}}\n"
+                "}}\n"
                 "\n"
-        )
+        ).format(mixname)
 
     towrite += "// Spectrum generator information\n"\
       'SLHAea_add_block(slha, "SPINFO");\n'\
@@ -1812,7 +1827,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'slha["SMINPUTS"][""] << 23 << (*mf_d)(2) << "# m_s(2 GeV), MSbar";\n'\
       'slha["SMINPUTS"][""] << 24 << (*mf_u)(2) << "# m_c(m_c), MSbar";\n'\
 
-    if not flags["OnlyLowEnergySPheno"] :
+    if not flags["OnlyLowEnergySPheno"] and flags["WriteCKMBasis"]:
       towrite += "// Write output in the super-CKM basis\n"\
         "if(*SwitchToSCKM)\n"\
         "{\n"\
@@ -1824,71 +1839,99 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
 
       if flags["SupersymmetricModel"] :
         towrite += '// Initialize temporary variables\n'\
-          'Farray<Fcomplex16,1,6,1,6> ZU_ckm = *ZU;\n'\
-          'Farray<Fcomplex16,1,6,1,6> ZD_ckm = *ZD;\n'\
-          'Farray<Fcomplex16,1,6,1,6> ZE_pmns = *ZE;\n'\
-          'Farray<Fcomplex16,1,3,1,3> ZV_pmns = *ZV;\n'\
-          '\n'\
-          'Farray<Fcomplex16,1,3,1,3> Yu_ckm, Yd_ckm, Tu_ckm, Td_ckm, mq2_ckm, mu2_ckm, md2_ckm;\n'\
-          'Farray<Fcomplex16,1,3,1,3> Ye_pmns, Te_pmns, ml2_pmns, me2_pmns, Ye_transpose, id3C;\n'\
-          'Farray<Fcomplex16,1,3,1,3> CKM_Q, PMNS_Q;\n'\
-          'for(int i=1; i<=3; i++)\n'\
-          '{\n'\
-          'for(int j=1; j<=3; j++)\n'\
-          '{\n'\
-          'Yu_ckm(i,j) = {0.0,0.0};\n'\
-          'Yd_ckm(i,j) = {0.0,0.0};\n'\
-          'Tu_ckm(i,j) = {0.0,0.0};\n'\
-          'Td_ckm(i,j) = {0.0,0.0};\n'\
-          'mq2_ckm(i,j) = {0.0,0.0};\n'\
-          'mu2_ckm (i,j) = {0.0,0.0};\n'\
-          'md2_ckm(i,j) = {0.0,0.0};\n'\
-          'Ye_pmns(i,j) = {0.0,0.0};\n'\
-          'Te_pmns(i,j) = {0.0,0.0};\n'\
-          'ml2_pmns(i,j) = {0.0,0.0};\n'\
-          'me2_pmns(i,j) = {0.0,0.0};\n'\
-          'Ye_transpose(i,j) = (*Ye)(j,i);\n'\
-          'id3C(i,j) = {0.0,0.0};\n'\
-          '}\n'\
-          'id3C(i,i) = {1.0,0.0};\n'\
-          '}\n'\
-          '\n'\
-          '// Convert to super-CKM and super-PMNS variables\n'\
-          'Flogical False = false;\n'\
-          'try{ Switch_to_superCKM(*Yd, *Yu, *Td, *Tu, *md2, *mq2, *mu2, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm,mu2_ckm, False, ZD_ckm, ZU_ckm, *ZD, *ZU, CKM_Q, Yd_ckm, Yu_ckm); }\n'\
-          'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
-          'try{ Switch_to_superPMNS(Ye_transpose, id3C, *Te, *me2, *ml2, Te_pmns, me2_pmns, ml2_pmns, False, ZE_pmns, ZV_pmns, *ZE, *ZV, PMNS_Q, Ye_pmns); }\n'\
-          'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
-          '\n'\
-          '// Save rotated values to old variables\n'\
-          '*Yd = Yd_ckm;\n'\
-          '*Yu = Yu_ckm;\n'\
-          '*Td = Td_ckm;\n'\
-          '*Tu = Tu_ckm;\n'\
-          '*md2 = md2_ckm;\n'\
-          '*mu2 = mu2_ckm;\n'\
-          '*mq2 = mq2_ckm;\n'\
-          '*ZU = ZU_ckm;\n'\
-          '*ZD = ZD_ckm;\n'\
-          '*Ye = Ye_pmns;\n'\
-          '*Te = Te_pmns;\n'\
-          '*ml2 = ml2_pmns;\n'\
-          '*me2 = me2_pmns;\n'\
-          '*ZE = ZE_pmns;\n'\
-          '*ZV = ZV_pmns;\n'\
-          '\n'\
-          '// Write output to new blocks\n'\
-          'SLHAea_add_block(slha, "VCKM", Q);\n'\
-          'SLHAea_add_block(slha, "IMVCKM", Q);\n'\
-          'for(int i=1; i<=3; i++)\n'\
-          '{\n'\
-          'for(int j=1; j<=3; j++)\n'\
-          '{\n'\
-          'slha["VCKM"][""] << i << j << CKM_Q(i,j).re << "# V_" << i << j;\n'\
-          'slha["IMVCKM"][""] << i << j << CKM_Q(i,j).im << "# Im(V_" << i << j << ")";\n'\
-          '}\n'\
-          '}\n'\
-          '}\n'
+          'Farray<Fcomplex16,1,3,1,3> id3C;\n'\
+          'Flogical False = false;\n'
+
+        if flags["WriteCKMBasis"] :
+          towrite += 'Farray<Fcomplex16,1,6,1,6> ZU_ckm = *ZU;\n'\
+            'Farray<Fcomplex16,1,6,1,6> ZD_ckm = *ZD;\n'\
+            '\n'\
+            'Farray<Fcomplex16,1,3,1,3> Yu_ckm, Yd_ckm, Tu_ckm, Td_ckm, mq2_ckm, mu2_ckm, md2_ckm;\n'\
+            'Farray<Fcomplex16,1,3,1,3> CKM_Q;\n'\
+            'for(int i=1; i<=3; i++)\n'\
+            '{\n'\
+            'for(int j=1; j<=3; j++)\n'\
+            '{\n'\
+            'Yu_ckm(i,j) = {0.0,0.0};\n'\
+            'Yd_ckm(i,j) = {0.0,0.0};\n'\
+            'Tu_ckm(i,j) = {0.0,0.0};\n'\
+            'Td_ckm(i,j) = {0.0,0.0};\n'\
+            'mq2_ckm(i,j) = {0.0,0.0};\n'\
+            'mu2_ckm (i,j) = {0.0,0.0};\n'\
+            'md2_ckm(i,j) = {0.0,0.0};\n'\
+            'id3C(i,j) = {0.0,0.0};\n'\
+            '}\n'\
+            'id3C(i,i) = {1.0,0.0};\n'\
+            '}\n'\
+            '\n'\
+            '// Convert to super-CKM variables\n'\
+            'try{ Switch_to_superCKM(*Yd, *Yu, *Td, *Tu, *md2, *mq2, *mu2, Td_ckm, Tu_ckm, md2_ckm, mq2_ckm,mu2_ckm, False, ZD_ckm, ZU_ckm, *ZD, *ZU, CKM_Q, Yd_ckm, Yu_ckm); }\n'\
+            'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
+            '\n'\
+            '// Save rotated values to old variables\n'\
+            '*Yd = Yd_ckm;\n'\
+            '*Yu = Yu_ckm;\n'\
+            '*Td = Td_ckm;\n'\
+            '*Tu = Tu_ckm;\n'\
+            '*md2 = md2_ckm;\n'\
+            '*mu2 = mu2_ckm;\n'\
+            '*mq2 = mq2_ckm;\n'\
+            '*ZU = ZU_ckm;\n'\
+            '*ZD = ZD_ckm;\n'\
+            '\n'\
+            '// Write output to new blocks\n'\
+            'SLHAea_add_block(slha, "VCKM", Q);\n'\
+            'SLHAea_add_block(slha, "IMVCKM", Q);\n'\
+            'for(int i=1; i<=3; i++)\n'\
+            '{\n'\
+            'for(int j=1; j<=3; j++)\n'\
+            '{\n'\
+            'slha["VCKM"][""] << i << j << CKM_Q(i,j).re << "# V_" << i << j;\n'\
+            'slha["IMVCKM"][""] << i << j << CKM_Q(i,j).im << "# Im(V_" << i << j << ")";\n'\
+            '}\n'\
+            '}\n'
+
+        if flags["WritePMNSBasis"] :
+          towrite += 'Farray<Fcomplex16,1,6,1,6> ZE_pmns = *ZE;\n'\
+            'Farray<Fcomplex16,1,3,1,3> ZV_pmns = *ZV;\n'\
+            '\n'\
+            'Farray<Fcomplex16,1,3,1,3> Ye_pmns, Te_pmns, ml2_pmns, me2_pmns, Ye_transpose, id3C;\n'\
+            'Farray<Fcomplex16,1,3,1,3> PMNS_Q;\n'\
+            'for(int i=1; i<=3; i++)\n'\
+            '{\n'\
+            'for(int j=1; j<=3; j++)\n'\
+            '{\n'\
+            'Yu_ckm(i,j) = {0.0,0.0};\n'\
+            'Yd_ckm(i,j) = {0.0,0.0};\n'\
+            'Tu_ckm(i,j) = {0.0,0.0};\n'\
+            'Td_ckm(i,j) = {0.0,0.0};\n'\
+            'mq2_ckm(i,j) = {0.0,0.0};\n'\
+            'mu2_ckm (i,j) = {0.0,0.0};\n'\
+            'md2_ckm(i,j) = {0.0,0.0};\n'\
+            'Ye_pmns(i,j) = {0.0,0.0};\n'\
+            'Te_pmns(i,j) = {0.0,0.0};\n'\
+            'ml2_pmns(i,j) = {0.0,0.0};\n'\
+            'me2_pmns(i,j) = {0.0,0.0};\n'\
+            'Ye_transpose(i,j) = (*Ye)(j,i);\n'\
+            'id3C(i,j) = {0.0,0.0};\n'\
+            '}\n'\
+            'id3C(i,i) = {1.0,0.0};\n'\
+            '}\n'\
+            '\n'\
+            '// Convert to super-PMNS variables\n'\
+            'Flogical False = false;\n'\
+            'try{ Switch_to_superPMNS(Ye_transpose, id3C, *Te, *me2, *ml2, Te_pmns, me2_pmns, ml2_pmns, False, ZE_pmns, ZV_pmns, *ZE, *ZV, PMNS_Q, Ye_pmns); }\n'\
+            'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
+            '\n'\
+            '// Save rotated values to old variables\n'\
+            '*Ye = Ye_pmns;\n'\
+            '*Te = Te_pmns;\n'\
+            '*ml2 = ml2_pmns;\n'\
+            '*me2 = me2_pmns;\n'\
+            '*ZE = ZE_pmns;\n'\
+            '*ZV = ZV_pmns;\n'
+
+        towrite += '}\n'
 
     # List of added blocks
     addedblocks = []
@@ -1905,6 +1948,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
         addedblocks.append(block)
 
         matrix = False
+        vector = False
         size = ""
 
         # If it's a matrix, flag it, and get the size. 
@@ -1916,8 +1960,12 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             matrix = True
             size = entry['mixingmatrix']
 
-        # If we don't have a matrix, use the block indices
-        if not matrix:
+        if 'vector' in entry:
+            vector = True
+            size = entry['vector']
+
+        # If we don't have a matrix or vector, use the block indices
+        if not matrix and not vector:
             for index, param in iteritems(entry):
 
                 # Is it a real parameter?
@@ -1940,6 +1988,38 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         "slha[\"IM{0}\"][\"\"] << {1} << {2}->im << \"# Im({2})\";\n"
                     ).format(block, index, param)
 
+        # Vector - gotta do these element by element
+        elif vector:
+            # If there is an outputname, save it
+            oname = entry['outputname'] if 'outputname' in entry else block
+
+            # Is it a real vector?
+            real = reality_dict[oname]
+
+            # If it's a real vector don't need to take the real part.
+            # Just add it.
+            if real == True:
+                towrite += (
+                        "for(int i=1; i<={1}; i++)\n"
+                        "{{\n"
+                        "slha[\"{0}\"][\"\"] << i << (*{2})(i) << "
+                        "\"# {0}(\" << i << \")\";\n"
+                        "}}\n"
+                ).format(block, size, oname)
+            else:
+                # Add the imaginary block if it's not declared real. 
+                # Then add the loop for the vector
+                addedblocks.append("IM"+block)
+                towrite += (
+                        "SLHAea_add_block(slha, \"IM{0}\", Q);\n"
+                        "for(int i=1; i<={1}; i++)\n"
+                        "{{\n"
+                        "slha[\"{0}\"][\"\"] << i << (*{2})(i).re << "
+                        "\"# {0}(\" << i << \")\";\n"
+                        "slha[\"IM{0}\"][\"\"] << i << (*{2})(i).im << "
+                        "\"# Im({0}(\" << i << \"))\";\n"
+                        "}}\n"
+                ).format(block, size, oname)
 
         # Matrix - gotta do these element by element
         else:
@@ -1990,7 +2070,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "SLHAea_add_block(slha, \"MASS\");\n"
     )
 
-    for particle in particles:
+    for particle in bsm_particles:
         mass = re.sub(r"\d","",particle.alt_mass_name)
         index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
         brace = "(" + str(index) + ")" if index else ""
@@ -2037,17 +2117,18 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
 
     # S.B. Harvested the PDG code : index from SPheno -- the order is 
     # non-trivial due the way mass lists are imported in SARAH
-    for i, particle in enumerate(particles):
+    for i, particle in enumerate(bsm_particles):
         mass = re.sub(r"\d","",particle.alt_mass_name)
         index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
-        mud_index = mass_uncertainty_dict[str(particle.PDG_code)]    
+        if str(particle.PDG_code) in mass_uncertainty_dict.keys():
+            mud_index = mass_uncertainty_dict[str(particle.PDG_code)]
 
-        towrite += (
-                "slha[\"DMASS\"][\"\"] << {0} << "
-                "sqrt(pow((*mass_uncertainty_Q)({1}),2)"
-                "+pow((*mass_uncertainty_Yt)({1}),2)) << "
-                "\"# {2}_{3}\";\n"
-        ).format(str(abs(int(particle.PDG_code))), str(mud_index), particle.name, str(index))
+            towrite += (
+                    "slha[\"DMASS\"][\"\"] << {0} << "
+                    "sqrt(pow((*mass_uncertainty_Q)({1}),2)"
+                    "+pow((*mass_uncertainty_Yt)({1}),2)) << "
+                    "\"# {2}_{3}\";\n"
+            ).format(str(abs(int(particle.PDG_code))), str(mud_index), particle.name, str(index))
    
     towrite += (
                 "\n"
@@ -2270,13 +2351,13 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "\n"\
       "InitializeStandardModel(inputs.sminputs);\n"\
       "try{ InitializeLoopFunctions(); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"\
       "\n"\
       "*ErrorLevel = -1;\n"\
       "//*GenerationMixing = true;\n"\
       "\n"\
       "try{ Set_All_Parameters_0(); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"\
       "\n"\
       "*TwoLoopRGE = true;\n"\
       "\n"\
@@ -2324,7 +2405,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       '{\n'\
       'Freal8 scale = 1.0E6;  // SPA convention is 1 TeV\n'\
       'try {SetRGEScale(scale); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
       '}\n'\
       '\n'\
       '// 3, External_Spectrum\n'\
@@ -2418,7 +2499,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'if(GUTScale > 0.0)\n'\
       '{\n'\
       'try{ SetGUTScale(GUTScale); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
       '}\n'\
       '\n'\
       '// 32, requires strict unification, StrictUnification\n'\
@@ -2426,7 +2507,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'if(StrictUnification)\n'\
       '{\n'\
       'try{ SetStrictUnification(StrictUnification); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
       '}\n'\
       '\n'\
       '// 33, setting a fixed renormalization scale\n'\
@@ -2435,7 +2516,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       '{\n'\
       'RGEScale *= RGEScale;\n'\
       'try{ SetRGEScale(RGEScale); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
       '}\n'\
       '\n'\
       '// 34, precision of mass calculation, delta_mass\n'\
@@ -2452,7 +2533,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       'if(YukawaScheme == 1 or YukawaScheme == 2)\n'\
       '{\n'\
       'try{ SetYukawaScheme(YukawaScheme); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
       '}\n'\
       '\n'\
       '// 38, set looplevel of RGEs, TwoLoopRGE\n'\
@@ -2722,9 +2803,11 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         "{{\n"
                         "{1}"
                         " = *inputs.param.at(\"{0}\");\n"
-                        "*InputValuefor{2} = true;\n"
-                        "}}\n"
-                ).format(model_par, e, name)
+                ).format(model_par, e)
+                inputvalfor = "InputValuefor" + name
+                if inputvalfor in variables:
+                    towrite += ("*InputValuefor{0} = true;\n").format(name)
+                towrite += "}\n"
 
             # Matrix case
             else:
@@ -2741,11 +2824,12 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         "if(inputs.param.find(parname.str()) != "
                         "inputs.param.end())\n"
                         "{{\n"
-                        "*InputValueFor{3} = true;"
                         "(*{3}IN)(i,j){4} = *inputs.param.at(parname.str());\n"
-                        "}}\n"
-                        "}}\n"
                 ).format(str(i), str(j), model_par, name, e)
+                inputvalfor = "InputValuefor" + name
+                if inputvalfor in variables:
+                    towrite += ("*InputValuefor{0} = true;\n").format(name)
+                towrite += "}\n}\n"
 
      
     # We don't need Block GAUGEIN, the gauge couplings are
@@ -3016,7 +3100,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       '(*mf_u_mZ)(i) = 0.0;\n'\
       '}\n'\
       'try{ CalculateRunningMasses(*mf_l, *mf_d, *mf_u, *Q_light_quarks, *Alpha_mZ, *AlphaS_mZ, *mZ, *mf_l_mZ, *mf_d_mZ, *mf_u_mZ, *kont); }\n'\
-      'catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n'\
+      'catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n'\
       'if(*kont != 0)\n'\
       'ErrorHandling(*kont);\n'\
       '\n'\
@@ -3148,7 +3232,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "*ErrorHandler_cptr = & CAT_4(BACKENDNAME,_,SAFE_VERSION,_ErrorHandler);\n"\
       "\n"\
       "try{ Set_All_Parameters_0(); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"\
       "\n"\
       "/****************/\n"\
       "/* Block MODSEL */\n"\
@@ -3175,20 +3259,20 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "// Reset RGE scale\n"\
       "*Qin = -1;\n"\
       "try{ SetRGEScale(*Qin); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"
+      "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"
     if flags["SupersymmetricModel"] :
       towrite += "*Qin = 1.0E3;  // Default value if there's no input\n"
     else :
       towrite += "*Qin = 1.0E6;  // Default value if there's no input\n"
     towrite += "Freal8 scale_sq = pow(*Qin, 2);\n"\
       "try{ SetRenormalizationScale(scale_sq); }\n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"\
       "if(Param.find(\"Qin\") != Param.end())\n"\
       "{ \n"\
       "*Qin = *Param.at(\"Qin\");\n"\
       "scale_sq = pow(*Qin,2);\n"\
       "try{ SetRGEScale(scale_sq); } \n"\
-      "catch(std::runtime_error e) { invalid_point().raise(e.what()); }\n"\
+      "catch(std::runtime_error &e) { invalid_point().raise(e.what()); }\n"\
       "}\n"\
       "\n"\
       "// Reset the global flag that indicates whether or not BRs have been computed yet or not for this parameter point.\n"\
@@ -3211,17 +3295,15 @@ def make_fortran_symbols(module, name):
 
    return "(\"" + gcc_symbol + "\", \"" + intel_symbol + "\")"
 
-def write_spheno_frontend_header(model_name, function_signatures, 
-                                 type_dictionary, locations, 
-                                 variables, var_dict, hb_variables, hb_dict, 
+def write_spheno_frontend_header(model_name, sarah_model_name, function_signatures,
+                                 type_dictionary, locations,
+                                 variables, var_dict, hb_variables, hb_dict,
                                  flags, fullmodelname,
                                  cap_def = {}):
     """
     Writes code for 
     Backends/include/gambit/Backends/SARAHSPheno_<MODEL>_<VERSION>.hpp
     """
-
-    clean_model_name = model_name.replace('-','')
 
     intro_message = "Frontend header for SARAH-SPheno {0} backend,\n" \
                     "/// for the {1} model.".format(SPHENO_VERSION, model_name)
@@ -3266,7 +3348,7 @@ def write_spheno_frontend_header(model_name, function_signatures,
             "BE_FUNCTION(SetStrictUnification, Flogical, (Flogical&), " + make_fortran_symbols("model_data_{4}","setstrictunification") +", \"SARAHSPheno_{0}_internal\")\n"
             "BE_FUNCTION(SetYukawaScheme, Finteger, (Finteger&), " + make_fortran_symbols("model_data_{4}","setyukawascheme") + ", \"SARAHSPheno_{0}_internal\")\n"
     ).format(fullmodelname, SPHENO_VERSION, SARAH_VERSION, SPHENO_VERSION.replace('.','_'),
-             clean_model_name.lower(), fullmodelname)
+             sarah_model_name.lower(), fullmodelname)
 
     # Some model-dependent functions:
     """
@@ -3306,7 +3388,6 @@ def write_spheno_frontend_header(model_name, function_signatures,
     # All scraped from Model_Data_<MODEL>.f90
     # MODEL VARIABLES
     # MASS + OUTPUT VARIABLES
-    # MODEL VARIABLES
     # EXTPAR VARIABLES
     # MINPAR VARIABLES
     # SPHENOINPUT VARIABLES
@@ -3324,7 +3405,7 @@ def write_spheno_frontend_header(model_name, function_signatures,
 
         string = (
                "BE_VARIABLE({0}, {1}, " + make_fortran_symbols("model_data_{2}","{3}") + ",\"SARAHSPheno_{4}_internal\")\n"
-        ).format(name, var_dict[name], clean_model_name.lower(), name.lower(), fullmodelname)
+        ).format(name, var_dict[name], sarah_model_name.lower(), name.lower(), fullmodelname)
 
         # Organise branching ratio stuff separately
         if name.startswith("gT") or name.startswith("BR"):
@@ -3385,7 +3466,7 @@ def write_spheno_frontend_header(model_name, function_signatures,
             "BE_VARIABLE(A_wolf, Freal8, " + make_fortran_symbols("standardmodel","a_wolf") + ", \"SARAHSPheno_{0}_internal\")\n"
             "BE_VARIABLE(rho_wolf, Freal8, " + make_fortran_symbols("standardmodel","rho_wolf") + ", \"SARAHSPheno_{0}_internal\")\n"
             "BE_VARIABLE(eta_wolf, Freal8, " + make_fortran_symbols("standardmodel","eta_wolf") + ", \"SARAHSPheno_{0}_internal\")\n"
-    ).format(fullmodelname, clean_model_name.lower())
+    ).format(fullmodelname, sarah_model_name.lower())
 
     # CONTROL + SETTINGS + "OTHER" VARIABLES
     towrite += (
@@ -3467,7 +3548,7 @@ def write_spheno_frontend_header(model_name, function_signatures,
             "// Other variables\n"
             "BE_VARIABLE(Qin, Freal8, " + make_fortran_symbols("spheno{1}","qin") + ", \"SARAHSPheno_{0}_internal\")\n"
             "BE_VARIABLE(ratioWoM, Freal8, " + make_fortran_symbols("spheno{1}","ratiowom") + ",\"SARAHSPheno_{0}_internal\")\n"
-    ).format(fullmodelname, clean_model_name.lower())
+    ).format(fullmodelname, sarah_model_name.lower())
 
     # BRANCHING RATIOS
     towrite += (
@@ -3513,12 +3594,12 @@ def write_spheno_frontend_header(model_name, function_signatures,
 
             towrite += (
                 "BE_VARIABLE({0}, Flogical, " + make_fortran_symbols("model_data_{1}","{2}") + ", \"SARAHSPheno_{3}_internal\")\n"
-            ).format(name, clean_model_name.lower(), name.lower(), fullmodelname)
+            ).format(name, sarah_model_name.lower(), name.lower(), fullmodelname)
  
     if flags["SupersymmetricModel"] : 
         towrite += (
                 "BE_VARIABLE(CalcSUSY3BodyDecays, Flogical, " + make_fortran_symbols("model_data_{0}","calcsusy3bodydecays") + ", \"SARAHSPheno_{1}_internal\")\n"
-        ).format(clean_model_name.lower(), fullmodelname)
+        ).format(sarah_model_name.lower(), fullmodelname)
 
     # HIGGSBOUNDS OUTPUT
     towrite += "\n// HiggsBounds variables\n" 
@@ -3528,7 +3609,7 @@ def write_spheno_frontend_header(model_name, function_signatures,
 
         towrite += (
                "BE_VARIABLE({0}, {1}, " + make_fortran_symbols("model_data_{2}","{3}") + ",\"SARAHSPheno_{4}_internal\")\n"
-        ).format(name, hb_dict[name], clean_model_name.lower(), name.lower(), fullmodelname)
+        ).format(name, hb_dict[name], sarah_model_name.lower(), name.lower(), fullmodelname)
 
     # Wrap it up.
     towrite += (

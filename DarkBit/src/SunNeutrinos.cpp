@@ -190,7 +190,7 @@ namespace Gambit
       */
 
       int coupleNum;
-      int maxCouplingIndex;
+      int maxCouplingIndex = -1;
       if (Dep::DD_nonrel_WCs->CPTbasis == 0) // if we are using the NREffectiveTheory basis
       {
         maxCouplingIndex = 15;
@@ -198,6 +198,10 @@ namespace Gambit
       else if (Dep::DD_nonrel_WCs->CPTbasis == 1) // if we are using the NREFT_CPT basis
       {
         maxCouplingIndex = 12;
+      }
+      else
+      {
+        DarkBit_error().raise(LOCAL_INFO, "Got unexpected value for Dep::DD_nonrel_WCs->CPTbasis. Should be 0 or 1.");
       }
       for(int j=0; j<maxCouplingIndex; j++)
       {

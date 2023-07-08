@@ -59,7 +59,7 @@ namespace Gambit {
       Cauchy(const std::vector<std::string>& param, const Options& options);
 
       /** @brief Transformation from unit interval to the Cauchy */
-      void transform(const std::vector<double>& unitpars, std::unordered_map<std::string, double>& outputMap) const
+      void transform(const std::vector<double>& unitpars, std::unordered_map<std::string, double>& outputMap) const override
       {
         std::vector<double> vec(unitpars.size());
 
@@ -100,7 +100,7 @@ namespace Gambit {
         return u;
       }
 
-      double operator()(const std::vector<double>& vec) const
+      double operator()(const std::vector<double>& vec) const override
       {
         static double norm = std::log(M_PI * col.DetSqrt());
         return -std::log1p(col.Square(vec, location)) - norm;

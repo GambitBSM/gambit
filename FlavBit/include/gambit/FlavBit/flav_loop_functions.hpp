@@ -23,7 +23,6 @@ namespace Gambit
 
   namespace FlavBit
   {
-    using namespace std;
 
     // Loop functions for LFV diagrams
     namespace LoopFunctions
@@ -86,15 +85,15 @@ namespace Gambit
         // TODO: behaviour when two paramers are 0 undefined, set it to zero
         if(a == 0 and b == 0 and c == 0)
           return 0;
-        if(a == 0 and b == 0) 
+        if(a == 0 and b == 0)
           return 0;
-        else if(a == 0 and c == 0) 
+        else if(a == 0 and c == 0)
           return 0;
         else if(b == 0 and c == 0)
           return 0;
         else if(c == 0)
           return C0(a,c,b);
-        else if(a == b and b == c) 
+        else if(a == b and b == c)
           return - 1./(2*c);
         else if(a == b)
           return (-b + c- c*log(c/b)) / pow(b-c,2);
@@ -209,7 +208,7 @@ namespace Gambit
       {
         //TODO: behaviour when three or more parameters are zero is undefined, set it to zero
         if((!a and !b and !c) or (!a and !b and !d) or (!a and !c and !d) or (!b and !c and !d))
-          return 0; 
+          return 0;
         if(a == b and b == c and c == d)
            return -1./(12.*d);
         if(a == d and c == d and b == 0)
@@ -226,7 +225,7 @@ namespace Gambit
           return -1./(4.*d);
         if(a == b and c == d and d == 0)
           return -1./(4.*b);
-        if(a == b and c == d) 
+        if(a == b and c == d)
           return (-b*b + d*d -2.*b*d*log(d/b)) / (4.*pow(b-d,3));
         if(a == c and b == d)
           return D27(a,c,b,d);
@@ -292,16 +291,16 @@ namespace Gambit
     namespace Vertices
     {
       // Fermion-vector vertices
-      complex<double> VpL(int i, int j, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U)
+      std::complex<double> VpL(int i, int j, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U)
       {
         double g2 = sminputs.mW * sqrt( 8. * sminputs.GF / sqrt(2));
         return  -1. / sqrt(2) * g2 * U(i,j);
-      
+
       }
 
       double EL(int i,int j, SMInputs sminputs)
       {
-        if(i != j)  return 0; 
+        if(i != j)  return 0;
 
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -309,21 +308,21 @@ namespace Gambit
         double cw = sminputs.mW / sminputs.mZ;
         double sw = sqrt(1. - cw*cw);
         return 0.5 * (-g1*sw + g2*cw);
-        
+
       }
- 
+
       double ER(int i, int j, SMInputs sminputs)
       {
         if(i != j) return 0;
- 
+
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
         double cw = sminputs.mW / sminputs.mZ;
         double sw = sqrt(1. - cw*cw);
-        return - g1*sw; 
+        return - g1*sw;
       }
 
-      complex<double> VL(int i, int j, SMInputs sminputs)
+      std::complex<double> VL(int i, int j, SMInputs sminputs)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -337,7 +336,7 @@ namespace Gambit
           return 0.;
       }
 
-      complex<double> VR(int i, int j, SMInputs sminputs)
+      std::complex<double> VR(int i, int j, SMInputs sminputs)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -351,7 +350,7 @@ namespace Gambit
           return 0.;
       }
 
-      complex<double> DL(int i, int j, SMInputs sminputs)
+      std::complex<double> DL(int i, int j, SMInputs sminputs)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -365,7 +364,7 @@ namespace Gambit
           return 0;
       }
 
-      complex<double> DR(int i, int j, SMInputs sminputs)
+      std::complex<double> DR(int i, int j, SMInputs sminputs)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -378,7 +377,7 @@ namespace Gambit
           return 0.;
       }
 
-      complex<double> UL(int i, int j, SMInputs sminputs)
+      std::complex<double> UL(int i, int j, SMInputs sminputs)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -392,7 +391,7 @@ namespace Gambit
           return 0;
       }
 
-      complex<double> UR(int i, int j, SMInputs sminputs)
+      std::complex<double> UR(int i, int j, SMInputs sminputs)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
         double g1 = e * sminputs.mZ / sminputs.mW;
@@ -405,15 +404,15 @@ namespace Gambit
           return 0.;
       }
 
-      complex<double> VuL(int i, int j, SMInputs sminputs)
+      std::complex<double> VuL(int i, int j, SMInputs sminputs)
       {
          double g2 = sminputs.mW * sqrt( 8. * sminputs.GF / sqrt(2));
          Eigen::Matrix3cd VCKM;
          double lambda = sminputs.CKM.lambda, A = sminputs.CKM.A;
          double rhobar = sminputs.CKM.rhobar, etabar = sminputs.CKM.etabar;
-         complex<double> I = {0,1};
+         std::complex<double> I = {0,1};
 
-         complex<double> Vub = real(rhobar + I*etabar)*sqrt(1.-A*A*pow(lambda,4))/(sqrt(1.-pow(lambda,2))*(1.- A*A*pow(lambda,4)*(rhobar+I*etabar)));
+         std::complex<double> Vub = real(rhobar + I*etabar)*sqrt(1.-A*A*pow(lambda,4))/(sqrt(1.-pow(lambda,2))*(1.- A*A*pow(lambda,4)*(rhobar+I*etabar)));
          double rho = real(Vub);
          double eta = imag(Vub);
 
@@ -440,21 +439,21 @@ namespace Gambit
       double HL(int i, int j, SMInputs sminputs)
       {
         double vev = 1. / sqrt(sqrt(2.)*sminputs.GF);
-        
+
         if(i == 0 and j == 0)
           return -1. / vev * sminputs.mE;
         if(i == 1 and j == 1)
           return -1. / vev * sminputs.mMu;
         if(i == 2 and j == 2)
           return -1. / vev * sminputs.mTau;
-        else 
+        else
           return 0;
       }
 
       double HR(int i, int j, SMInputs sminputs)
       {
         return HL(i, j , sminputs);
-      } 
+      }
 
       double HdL(int i, int j, SMInputs sminputs)
       {
@@ -502,9 +501,9 @@ namespace Gambit
     {
       // Fotonic penguins
 
-      complex<double> A1R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> A1R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
-        complex<double> a1r = {0,0};
+        std::complex<double> a1r = {0,0};
 
         for(int a=0; a<6; a++)
         {
@@ -514,9 +513,9 @@ namespace Gambit
         return a1r;
       }
 
-      complex<double> A2L(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> A2L(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-         complex<double> a2l = {0,0};
+         std::complex<double> a2l = {0,0};
          double mW = sminputs.mW;
 
          for(int a=0; a<6; a++)
@@ -525,9 +524,9 @@ namespace Gambit
          return a2l;
       }
 
-      complex<double> A2R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> A2R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-         complex<double> a2r = {0,0};
+         std::complex<double> a2r = {0,0};
          double mW = sminputs.mW;
          for(int a=0; a<6; a++)
           a2r += -2. * Vertices::Fw(sminputs) * Vertices::VpL(alpha,a,sminputs,U) * conj(Vertices::VpL(beta,a,sminputs,U)) * LoopFunctions::G1(pow(mnu[a],2), mW*mW, mW*mW) * ml[alpha];
@@ -536,32 +535,32 @@ namespace Gambit
       }
 
       // Z penguins
-      complex<double> VZw2w4LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> VZw2w4LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-        complex<double> vzll = {0,0};
- 
+        std::complex<double> vzll = {0,0};
+
         for(int a=0; a<6; a++)
           for(int c=0; c<3; c++)
           {
             // Use MZ for the renormalization scale Q
             if(beta == c)
               vzll += Vertices::EL(beta,c, sminputs) * Vertices::VpL(alpha,a,sminputs,U) * conj(Vertices::VpL(c,a,sminputs,U)) * (1. + 2.* LoopFunctions::B1(pow(mnu[a],2),pow(sminputs.mW,2),sminputs.mZ))* pow(ml[alpha],2) / (pow(ml[alpha],2) - pow(ml[c],2));
-            if(alpha == c) 
+            if(alpha == c)
               vzll += Vertices::EL(alpha,c, sminputs) * Vertices::VpL(beta,a,sminputs,U) * conj(Vertices::VpL(c,a,sminputs,U)) * (1. + 2.* LoopFunctions::B1(pow(mnu[a],2),pow(sminputs.mW,2),sminputs.mZ))* pow(ml[beta],2) / (pow(ml[beta],2) - pow(ml[c],2));
          }
 
          return vzll;
       }
 
-      complex<double> VZw2w4LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> VZw2w4LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return VZw2w4LL(alpha,beta,sminputs,U,ml,mnu);
       }
-    
-      complex<double> VZw2w4RR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+
+      std::complex<double> VZw2w4RR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-        complex<double> vzrr = {0,0};
- 
+        std::complex<double> vzrr = {0,0};
+
         for(int a=0; a<6; a++)
           for(int c=0; c<3; c++)
           {
@@ -574,14 +573,14 @@ namespace Gambit
          return vzrr;
       }
 
-      complex<double> VZw2w4RL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> VZw2w4RL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-        return VZw2w4RR(alpha, beta, sminputs, U, ml, mnu); 
+        return VZw2w4RR(alpha, beta, sminputs, U, ml, mnu);
       }
 
-      complex<double> VZw8LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> VZw8LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
-        complex<double> vzll = {0,0};
+        std::complex<double> vzll = {0,0};
         double mW = sminputs.mW;
 
         // Use MZ as the renormalization scale Q
@@ -590,17 +589,17 @@ namespace Gambit
 
         return vzll;
       }
-    
-      complex<double> VZw8LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+
+      std::complex<double> VZw8LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return VZw8LL(alpha, beta, sminputs, U, mnu);
       }
 
-      complex<double> VZw10LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> VZw10LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
-        complex<double> vzll = {0,0};
+        std::complex<double> vzll = {0,0};
         double mW = sminputs.mW;
- 
+
         // Use MZ as the renormalization scale Q
         for(int b=0; b<6; b++)
         {
@@ -614,36 +613,36 @@ namespace Gambit
         return vzll;
       }
 
-      complex<double> VZw10LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> VZw10LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return VZw10LL(alpha, beta, sminputs, U, mnu);
       }
 
       // Sum over Z penguins
-      complex<double> VZsumLL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> VZsumLL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
        return 1. / (16.*pow(pi,2)) * (VZw2w4LL(alpha, beta, sminputs, U, ml, mnu) + VZw8LL(alpha, beta, sminputs, U, mnu) + VZw10LL(alpha, beta, sminputs, U, mnu));
       }
 
-      complex<double> VZsumLR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> VZsumLR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) * (VZw2w4LR(alpha, beta, sminputs, U, ml, mnu) + VZw8LR(alpha, beta, sminputs, U, mnu) + VZw10LR(alpha, beta, sminputs, U, mnu));
       }
 
-      complex<double> VZsumRL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> VZsumRL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) * (VZw2w4RL(alpha, beta, sminputs, U, ml, mnu));
       }
 
-      complex<double> VZsumRR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> VZsumRR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) * (VZw2w4RR(alpha, beta, sminputs, U, ml, mnu));
       }
 
       // Scalar penguins
-      complex<double> Shw2w4LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> Shw2w4LL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-        complex<double> shll = {0,0};
+        std::complex<double> shll = {0,0};
         double mW = sminputs.mW;
 
         // Use mZ for the renormalisation scale Q
@@ -659,14 +658,14 @@ namespace Gambit
         return shll;
       }
 
-      complex<double> Shw2w4LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> Shw2w4LR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Shw2w4LL(alpha, beta, sminputs, U, ml, mnu);
       }
 
-      complex<double> Shw2w4RR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> Shw2w4RR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
-        complex<double> shrr = {0,0};
+        std::complex<double> shrr = {0,0};
         double mW = sminputs.mW;
 
         // Use mZ for the renormalisation scale Q
@@ -682,40 +681,40 @@ namespace Gambit
         return shrr;
       }
 
-      complex<double> Shw2w4RL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> Shw2w4RL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Shw2w4RR(alpha, beta, sminputs, U, ml, mnu);
       }
 
       // Sum over scalar penguins
-      complex<double> ShsumLL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> ShsumLL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) * Shw2w4LL(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
-      complex<double> ShsumLR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> ShsumLR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) * Shw2w4LR(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
-      complex<double> ShsumRL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> ShsumRL(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) * Shw2w4RL(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
-      complex<double> ShsumRR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> ShsumRR(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) * Shw2w4RR(alpha, beta, sminputs, U, ml, mnu);
-      }    
+      }
 
     }
 
     // Box contributions
     namespace Boxes
     {
-      complex<double> Vw4lLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> Vw4lLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
-        complex<double> vll = {0,0};
+        std::complex<double> vll = {0,0};
         double mW = sminputs.mW;
 
         for(int a=0; a<6; a++)
@@ -725,9 +724,9 @@ namespace Gambit
         return vll;
       }
 
-      complex<double> Vw8lLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> Vw8lLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
-        complex<double> vll = {0,0};
+        std::complex<double> vll = {0,0};
         double mW = sminputs.mW;
 
         for(int a=0; a<6; a++)
@@ -737,21 +736,21 @@ namespace Gambit
         return vll;
       }
 
-      complex<double> Vw4lpLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> Vw4lpLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return Vw4lLL(alpha, delta, gamma, beta, sminputs, U, mnu);
       }
 
-      complex<double> Vw8lpLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> Vw8lpLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return Vw8lLL(alpha, delta, gamma, beta, sminputs, U, mnu);
       }
 
-      complex<double> Vw4dLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> Vw4dLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
-        complex<double> vll = {0,0};
+        std::complex<double> vll = {0,0};
         double mW = sminputs.mW;
-        vector<double> mu = {sminputs.mU, sminputs.mCmC, sminputs.mT};
+        std::vector<double> mu = {sminputs.mU, sminputs.mCmC, sminputs.mT};
 
         for(int a=0; a<6; a++)
           for(int c=0; c<3; c++)
@@ -760,11 +759,11 @@ namespace Gambit
         return vll;
       }
 
-      complex<double> Vw4uLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> Vw4uLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
-        complex<double> vll = {0,0};
+        std::complex<double> vll = {0,0};
         double mW = sminputs.mW;
-        vector<double> md = {sminputs.mD, sminputs.mS, sminputs.mBmB};
+        std::vector<double> md = {sminputs.mD, sminputs.mS, sminputs.mBmB};
 
         for(int a=0; a<6; a++)
           for(int c=0; c<3; c++)
@@ -774,17 +773,17 @@ namespace Gambit
       }
 
       // Sum over boxes
-      complex<double> VsumlLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> VsumlLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return 1. / (16.*pow(pi,2)) *( Vw4lLL(alpha, beta, gamma, delta, sminputs, U, mnu) + Vw8lLL(alpha, beta, gamma, delta, sminputs, U, mnu) + Vw4lpLL(alpha, beta, gamma, delta, sminputs, U, mnu) + Vw8lpLL(alpha, beta, gamma, delta, sminputs, U, mnu));
       }
 
-      complex<double> VsumdLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> VsumdLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return 1./(16.*pow(pi,2)) *Vw4dLL(alpha, beta, gamma, delta, sminputs, U, mnu);
       }
 
-      complex<double> VsumuLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> VsumuLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         return 1./(16.*pow(pi,2)) *Vw4uLL(alpha, beta, gamma, delta, sminputs, U, mnu);
       }
@@ -796,143 +795,143 @@ namespace Gambit
     namespace FormFactors
     {
 
-      complex<double> K1R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> mnu)
+      std::complex<double> K1R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> mnu)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
- 
+
         return 1. / (16*pow(pi,2)*e) * Penguins::A1R(alpha, beta, sminputs, U, mnu);
       }
 
-      complex<double> K2L(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> K2L(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
 
         return 1. / (2. * 16.*pow(pi,2) * e * ml[alpha] ) * Penguins::A2L(alpha, beta, sminputs, U, ml, mnu);
       }
 
-      complex<double> K2R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> K2R(int alpha, int beta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         double e = sqrt(4. * pi / sminputs.alphainv);
 
         return 1. / (2. * 16.*pow(pi,2)*  e * ml[alpha] ) * Penguins::A2R(alpha, beta, sminputs, U, ml, mnu);
       }
 
-      complex<double> AVLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> AVLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumLL(alpha,beta,sminputs,U,ml,mnu)*Vertices::EL(gamma,delta,sminputs) / pow(sminputs.mZ,2) + Boxes::VsumlLL(alpha,beta,gamma,delta,sminputs,U,mnu);
       }
 
-      complex<double> AVLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> AVLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumLR(alpha,beta,sminputs,U,ml,mnu)*Vertices::ER(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-      complex<double> AVRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> AVRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumRL(alpha,beta,sminputs,U,ml,mnu)*Vertices::EL(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-     complex<double> AVRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+     std::complex<double> AVRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumRR(alpha,beta,sminputs,U,ml,mnu)*Vertices::ER(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-      complex<double> ASLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> ASLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumLL(alpha,beta,sminputs,U,ml,mnu)*Vertices::HL(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> ASLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> ASLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumLR(alpha,beta,sminputs,U,ml,mnu)*Vertices::HR(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> ASRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> ASRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumRL(alpha,beta,sminputs,U,ml,mnu)*Vertices::HL(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> ASRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> ASRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumRR(alpha,beta,sminputs,U,ml,mnu)*Vertices::HR(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> BVLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> BVLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumLL(alpha,beta,sminputs,U,ml,mnu)*Vertices::DL(gamma,delta,sminputs) / pow(sminputs.mZ,2) + Boxes::VsumdLL(alpha,beta,gamma,delta,sminputs,U,mnu);
       }
 
-      complex<double> BVLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> BVLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumLR(alpha,beta,sminputs,U,ml,mnu)*Vertices::DR(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-      complex<double> BVRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> BVRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumRL(alpha,beta,sminputs,U,ml,mnu)*Vertices::DL(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-     complex<double> BVRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+     std::complex<double> BVRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumRR(alpha,beta,sminputs,U,ml,mnu)*Vertices::DR(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-      complex<double> BSLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> BSLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumLL(alpha,beta,sminputs,U,ml,mnu)*Vertices::HdL(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> BSLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> BSLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumLR(alpha,beta,sminputs,U,ml,mnu)*Vertices::HdR(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> BSRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> BSRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumRL(alpha,beta,sminputs,U,ml,mnu)*Vertices::HdL(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> BSRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> BSRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumRR(alpha,beta,sminputs,U,ml,mnu)*Vertices::HdR(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> CVLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> CVLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumLL(alpha,beta,sminputs,U,ml,mnu)*Vertices::UL(gamma,delta,sminputs) / pow(sminputs.mZ,2) + Boxes::VsumuLL(alpha,beta,gamma,delta,sminputs,U,mnu);
       }
 
-      complex<double> CVLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> CVLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumLR(alpha,beta,sminputs,U,ml,mnu)*Vertices::UR(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-      complex<double> CVRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> CVRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumRL(alpha,beta,sminputs,U,ml,mnu)*Vertices::UL(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-      complex<double> CVRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu)
+      std::complex<double> CVRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu)
       {
         return Penguins::VZsumRR(alpha,beta,sminputs,U,ml,mnu)*Vertices::UR(gamma,delta,sminputs) / pow(sminputs.mZ,2);
       }
 
-      complex<double> CSLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> CSLL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumLL(alpha,beta,sminputs,U,ml,mnu)*Vertices::HuL(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> CSLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> CSLR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumLR(alpha,beta,sminputs,U,ml,mnu)*Vertices::HuR(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> CSRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> CSRL(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumRL(alpha,beta,sminputs,U,ml,mnu)*Vertices::HuL(gamma,delta,sminputs) / pow(mh,2);
       }
 
-      complex<double> CSRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<complex<double>,3,6> U, vector<double> ml, vector<double> mnu, double mh)
+      std::complex<double> CSRR(int alpha, int beta, int gamma, int delta, SMInputs sminputs, Eigen::Matrix<std::complex<double>,3,6> U, std::vector<double> ml, std::vector<double> mnu, double mh)
       {
         return Penguins::ShsumRR(alpha,beta,sminputs,U,ml,mnu)*Vertices::HuR(gamma,delta,sminputs) / pow(mh,2);
       }

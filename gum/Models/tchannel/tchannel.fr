@@ -1,0 +1,85 @@
+(* ****************************************************************** *)
+(* *****                                                        ***** *)
+(* *****  FeynRules model file: Simplified DM models            ***** *)
+(* *****                                                        ***** *)
+(* *****  Author: Benjamin Fuks--- Edited by Chris                            ***** *)
+(* *****                                                        ***** *)
+(* ****************************************************************** *)
+
+(* ************************** *)
+(* *****  Information   ***** *)
+(* ************************** *)
+M$ModelName = "DMsimp_t";
+
+M$Information = { Authors->{"Benjamin Fuks"}, Emails->{"fuks@lpthe.jussieu.fr"},
+                  Institutions->{"LPTHE / Sorbonne U."},
+                  Date->"29.10.19", Version->"1.2",
+                  URLs->"http://feynrules.irmp.ucl.ac.be/wiki/DMsimpt/"};
+
+M$InteractionOrderLimit     = { {NP, 2} };
+M$InteractionOrderHierarchy = { {QCD, 1}, {NP, 2}, {QED, 2} };
+
+(* ************************** *)
+(* *****     Fields     ***** *)
+(* ************************** *)
+M$ClassesDescription = {
+  (* Dark matter *)
+  
+  S[100] == {
+    ClassName -> Xs,
+    ParticleName -> "~Xs",
+    SelfConjugate -> True,
+    Mass -> {MXs, 11.},
+    Width -> 0,
+    PDG -> 99901
+  },
+
+  (* Mediators *)
+  
+  F[203] == {
+    ClassName -> YF,
+    SelfConjugate -> False,
+    Indices -> {Index[Colour]},
+    QuantumNumbers -> {Y->2/3, Q->2/3},
+    PDG -> 5920002,
+    Mass  -> {MYF, 4000.},
+    Width -> {WYF, 40.  }
+  }
+
+};
+
+(* ************************** *)
+(* *****   Parameters   ***** *)
+(* ************************** *)
+M$Parameters = {
+            
+ lamF == {
+   ParameterType -> External,
+   ComplexParameter -> False,
+   TeX -> Subscript[OverHat[\[Lambda]],u],
+   BlockName -> DMF3U,
+   InteractionOrder -> {NP,1},
+   Value ->  0.23
+ }
+ 
+};
+
+(* ************************** *)
+(* *****   Lagrangian   ***** *)
+(* ************************** *)
+
+LDM := Block[{LKinDM, LKinF3, LIntF3, ii,cc,mu,nu,sp,sp2},
+  LKinDM :=  \
+      1/2 del[Xs,mu]^2 - 1/2 MXs^2 Xs^2;
+
+  LKinF3 :=  \
+      Plus @@ (I anti[#].Ga[mu].DC[#,mu] &/@ {YF} ) \
+    - MYF YFbar[sp,cc].YF[sp,cc];
+
+  LIntF3 := \
+   + lamF YFbar[sp,cc].uR[sp2,1,cc] (Xs IndexDelta[sp,sp2]);
+
+LKinDM + LKinF3 + LIntF3 + HC[LIntF3]];
+
+
+

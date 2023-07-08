@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Base class for definining the required 
+///  Base class for definining the required
 ///  contents of SubSpectrum wrapper objects
 ///
 ///  *********************************************
@@ -73,7 +73,7 @@ namespace Gambit {
 
         /// Function to retreive all parameters
         std::vector<SpectrumParameter> all_parameters() const;
-    
+
         /// Function to retreive all parameters matching a certain tag
         std::vector<SpectrumParameter> all_parameters_with_tag(Par::Tags tag) const; 
 

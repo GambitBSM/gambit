@@ -356,8 +356,8 @@ def write_boss_configs_for_pythia(model, output_dir, reset_dict):
     path = "/Backends/scripts/BOSS/configs"
     full_output_dir = output_dir+path
     mkdir_if_absent(full_output_dir)
-    filenames = ["/pythia_"+model.lower()+"_8_"+base_pythia_version+part+".py" for part in ["","_nohepmc"]]
-    templates = [".."+path+"/pythia_8_"+base_pythia_version+part+".py" for part in ["","_nohepmc"]]
+    filenames = ["/pythia_"+model.lower()+"_8_"+base_pythia_version+".py"]
+    templates = [".."+path+"/pythia_8_"+base_pythia_version+".py"]
     outfiles = ["BOSS/configs"+f for f in filenames]
 
     # Write the actual BOSS config file
@@ -402,7 +402,7 @@ def write_pythia_cmake_entry(model, output_dir):
                "check_ditch_status(${name} ${ver} ${dir})\n"\
                "if(NOT ditched_${name}_${ver})\n"\
                "  ExternalProject_Add(${name}_${ver}\n"\
-               "    DEPENDS ${pythia_depends_on}\n"\
+               "    DEPENDS hepmc\n"\
                "    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}\n"\
                "    SOURCE_DIR ${dir}\n"\
                "    BUILD_IN_SOURCE 1\n"\
@@ -413,7 +413,7 @@ def write_pythia_cmake_entry(model, output_dir):
                "    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} CXX=\"${CMAKE_CXX_COMPILER}\" lib/${lib}.so\n"\
                "    INSTALL_COMMAND \"\"\n"\
                "  )\n"\
-               "  BOSS_backend(${name} ${ver} ${BOSS_suffix})\n"\
+               "  BOSS_backend(${name} ${ver} \"\")\n"\
                "  add_extra_targets(\"backend\" ${name} ${ver} ${dir} ${dl} distclean)\n"\
                "  set_as_default_version(\"backend\" ${name} ${ver})\n"\
                "endif()\n\n"

@@ -1,0 +1,149 @@
+amended_files:
+  ../Backends/include/gambit/Backends/frontends/CalcHEP_3_6_27.hpp:
+  - 'BE_INI_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
+
+    '
+  - 'BE_ALLOW_MODELS(DMsimpVectorMedVectorDM)
+
+    '
+  ../Backends/src/frontends/CalcHEP_3_6_27.cpp:
+  - "    if (ModelInUse(\"DMsimpVectorMedVectorDM\"))\n    {\n      BEpath = backendDir\
+    \ + \"/../models/DMsimpVectorMedVectorDM\";\n      path = BEpath.c_str();\n  \
+    \    modeltoset = (char*)malloc(strlen(path)+11);\n      sprintf(modeltoset, \"\
+    %s\", path);\n      decays[\"Y1\"] = std::vector< std::vector<str> >{ {\"d~\"\
+    ,\"d\"}, {\"s~\",\"s\"}, {\"b~\",\"b\"}, {\"u~\",\"u\"}, {\"c~\",\"c\"}, {\"t~\"\
+    ,\"t\"}, {\"~Xv\",\"~Xva\"} };\n      xsecs[std::vector<str>{\"~Xv\", \"~Xva\"\
+    }] = std::vector< std::vector<str> >{ {\"c~\",\"c\"}, {\"d~\",\"d\"}, {\"s~\"\
+    ,\"s\"}, {\"t~\",\"t\"}, {\"b~\",\"b\"}, {\"u~\",\"u\"}, {\"Y1\",\"Y1\"} };\n\
+    \      model = \"DMsimpVectorMedVectorDM\";\n    }\n    \n"
+  - "  if (ModelInUse(\"DMsimpVectorMedVectorDM\"))\n  {\n    // Obtain spectrum information\
+    \ to pass to CalcHEP\n    const Spectrum& spec = *Dep::DMsimpVectorMedVectorDM_spectrum;\n\
+    \    \n    // Obtain model contents\n    static const SpectrumContents::DMsimpVectorMedVectorDM\
+    \ DMsimpVectorMedVectorDM_contents;\n    \n    // Obtain list of all parameters\
+    \ within model\n    static const std::vector<SpectrumParameter> DMsimpVectorMedVectorDM_params\
+    \ = DMsimpVectorMedVectorDM_contents.all_parameters();\n    \n    Assign_All_Values(spec,\
+    \ DMsimpVectorMedVectorDM_params);\n  }\n  \n"
+  ../DarkBit/include/gambit/DarkBit/DarkBit_rollcall.hpp:
+  - "    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum,\
+    \ DMsimpVectorMedVectorDM)\n    ALLOW_MODELS(DMsimpVectorMedVectorDM)\n"
+  - '      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))
+
+    '
+  - "      BACKEND_OPTION((MicrOmegas_DMsimpVectorMedVectorDM),(gimmemicro))\n   \
+    \   ALLOW_MODEL(DMsimpVectorMedVectorDM)\n"
+  ../DarkBit/src/DarkBit.cpp:
+  - "      else if(ModelInUse(\"DMsimpVectorMedVectorDM\"))\n        props.mass =\
+    \ Dep::DMsimpVectorMedVectorDM_spectrum->get(Par::Pole_Mass, props.name);\n"
+  ../DecayBit/src/DecayBit.cpp:
+  - "    void CH_DMsimpVectorMedVectorDM_Y1_decays(DecayTable::Entry& result)\n  \
+    \  {\n      using namespace Pipes::CH_DMsimpVectorMedVectorDM_Y1_decays;\n   \
+    \   // Clear previous decays\n      result = DecayTable::Entry();\n      \n  \
+    \    str model = \"DMsimpVectorMedVectorDM\";\n      str in = \"Y1\"; // In state:\
+    \ CalcHEP particle name\n      std::vector<std::vector<str>> out_calchep = {{\"\
+    d~\", \"d\"}, {\"s~\", \"s\"}, {\"b~\", \"b\"}, {\"u~\", \"u\"}, {\"c~\", \"c\"\
+    }, {\"t~\", \"t\"}, {\"~Xv\", \"~Xva\"}}; // Out states: CalcHEP particle names\n\
+    \      std::vector<std::vector<str>> out_gambit = {{\"dbar_1\", \"d_1\"}, {\"\
+    dbar_2\", \"d_2\"}, {\"dbar_3\", \"d_3\"}, {\"ubar_1\", \"u_1\"}, {\"ubar_2\"\
+    , \"u_2\"}, {\"ubar_3\", \"u_3\"}, {\"~Xv\", \"~Xva\"}}; // Out states: GAMBIT\
+    \ particle names\n      \n      for (unsigned int i=0; i<out_calchep.size(); i++)\n\
+    \      {\n        \n        double gamma = BEreq::CH_Decay_Width(model, in, out_calchep[i]);\
+    \ // Partial width\n        double newwidth = result.width_in_GeV + gamma;  //\
+    \ Adjust total width\n        double wscaling = ( gamma == 0. ) ? 1 : result.width_in_GeV/newwidth;\
+    \ // Scaling for BFs, avoid NaNs\n        result.width_in_GeV = newwidth;\n  \
+    \      \n        for (auto it = result.channels.begin(); it != result.channels.end();\
+    \ ++it)\n        {\n          it->second.first  *= wscaling; // rescale BF \n\
+    \          it->second.second *= wscaling; // rescale error on BF \n        }\n\
+    \        \n        // Avoid NaNs!\n        double BF = ( gamma == 0. ) ? 0. :\
+    \ gamma/result.width_in_GeV;\n        \n        result.set_BF(BF, 0.0, out_gambit[i][0],\
+    \ out_gambit[i][1]);\n        \n      }\n      \n      check_width(LOCAL_INFO,\
+    \ result.width_in_GeV, runOptions->getValueOrDef<bool>(false, \"invalid_point_for_negative_width\"\
+    ));\n    }\n    \n"
+  ../Models/include/gambit/Models/SpectrumContents/RegisteredSpectra.hpp:
+  - '    struct DMsimpVectorMedVectorDM: SubSpectrumContents { DMsimpVectorMedVectorDM();
+    };
+
+    '
+  ../SpecBit/include/gambit/SpecBit/SpecBit_rollcall.hpp:
+  - "  \n  /// Module function declarations for SpecBit_DMsimpVectorMedVectorDM.cpp\n\
+    \  #include \"gambit/SpecBit/SpecBit_DMsimpVectorMedVectorDM_rollcall.hpp\"\n\
+    \  \n"
+  ../Utils/include/gambit/Utils/citation_keys.hpp:
+  - "    \"Bloor:2021gtp\", // GUM 1.0 Paper\n    \"Alloul:2013bka\", // FeynRules\
+    \ 2.0 Manual\n    \"Christensen:2008py\", // FeynRules made easy\n    \"Christensen:2010wz\"\
+    , // FeynRules: Whizard Interface\n    \"Christensen:2009jx\", // FeynRules: CalcHEP,\
+    \ FeynArts, Sherpa interfaces\n    \"Degrande:2011ua\", // Universal FeynRules\
+    \ Output\n    \"Pukhov:2004ca\", // Calchep 2.3\n    \"Belyaev:2012qa\", // Calchep\
+    \ 3.4\n    \"Belanger:2014vza\", // Micromegas 4.1\n    \"Belanger:2013oya\",\
+    \ // Micromegas 3.0\n    \"Belanger:2010gh\", // Micromegas 2.4\n    \"Belanger:2008sj\"\
+    , // Micromegas 2.2\n    \"Belanger:2006is\", // Micromegas 2.0\n    \"Belanger:2004yn\"\
+    , // Micromegas 1.3\n    \"Belanger:2001fz\", // Micromegas 1.0\n"
+  ../cmake/backends.cmake:
+  - "\n# MicrOmegas DMsimpVectorMedVectorDM model\nset(model \"DMsimpVectorMedVectorDM\"\
+    )\nset(patch \"${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/DMsimpVectorMedVectorDM/patch_${name}_${ver}_${model}.dif\"\
+    )\nset(patchdir \"${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/DMsimpVectorMedVectorDM\"\
+    )\ncheck_ditch_status(${name}_${model} ${ver} ${dir})\nif(NOT ditched_${name}_${model}_${ver})\n\
+    \  ExternalProject_Add(${name}_${model}_${ver}\n    DOWNLOAD_COMMAND \"\"\n  \
+    \  SOURCE_DIR ${dir}\n    BUILD_IN_SOURCE 1\n    PATCH_COMMAND ./newProject ${model}\
+    \ && patch -p0 < ${patch}\n    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy_directory\
+    \ ${patchdir}/mdlfiles ${dir}/${model}/work/models/\n    BUILD_COMMAND ${CMAKE_COMMAND}\
+    \ -E chdir ${model} ${CMAKE_MAKE_PROGRAM} sharedlib main=main.c\n    INSTALL_COMMAND\
+    \ \"\"\n  )\n  add_extra_targets(\"backend model\" ${name} ${ver} ${dir}/${model}\
+    \ ${model} \"yes | clean\")\n  set_as_default_version(\"backend model\" ${name}\
+    \ ${ver} ${model})\nendif()\n\n"
+  ../config/backend_locations.yaml.default:
+  - "# Added by GUM\nMicrOmegas_DMsimpVectorMedVectorDM:\n  3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/libmicromegas.so\n\
+    \n"
+  ../config/capabilities.dat:
+  - "\n#####  DMsimpVectorMedVectorDM model #####\n\nDMsimpVectorMedVectorDM_parameters:\
+    \ |\n    Parameters for the model DMsimpVectorMedVectorDM (see ./gambit DMsimpVectorMedVectorDM).\n\
+    \nMicrOmegas_DMsimpVectorMedVectorDM_3_6_9_2_init: |\n    Initialise MicrOmegas\
+    \ DMsimpVectorMedVectorDM backend.\n\nDMsimpVectorMedVectorDM_spectrum: |\n  \
+    \  Create spectrum object for DMsimpVectorMedVectorDM model.\n\n"
+  ../config/models.dat:
+  - "\nDMsimpVectorMedVectorDM: |\n    DMsimpVectorMedVectorDM model, created by GUM,\
+    \ with parameters: gVXv, gVq, mXv, MY1\n\n"
+capabilities:
+  ../DarkBit/include/gambit/DarkBit/DarkBit_rollcall.hpp:
+  - DarkMatter_ID|DarkMatter_ID_DMsimpVectorMedVectorDM
+  - DarkMatterConj_ID|DarkMatterConj_ID_DMsimpVectorMedVectorDM
+  - TH_ProcessCatalog|TH_ProcessCatalog_DMsimpVectorMedVectorDM
+  ../DecayBit/include/gambit/DecayBit/DecayBit_rollcall.hpp:
+  - Y1_decay_rates|CH_DMsimpVectorMedVectorDM_Y1_decays
+new_dirs:
+  soft:
+  - ../Backends/patches/calchep/3.6.27/Models/DMsimpVectorMedVectorDM/
+  - ./../Backends/patches/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/mdlfiles
+new_files:
+  files:
+  - ../Models/include/gambit/Models/models/DMsimpVectorMedVectorDM.hpp
+  - ../Models/src/SpectrumContents/DMsimpVectorMedVectorDM.cpp
+  - ../Models/include/gambit/Models/SimpleSpectra/DMsimpVectorMedVectorDMSimpleSpec.hpp
+  - ../SpecBit/src/SpecBit_DMsimpVectorMedVectorDM.cpp
+  - ../SpecBit/include/gambit/SpecBit/SpecBit_DMsimpVectorMedVectorDM_rollcall.hpp
+  - ../DarkBit/src/DMsimpVectorMedVectorDM.cpp
+  - ../Backends/patches/calchep/3.6.27/Models/DMsimpVectorMedVectorDM/vars1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/DMsimpVectorMedVectorDM/lgrng1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/DMsimpVectorMedVectorDM/func1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/DMsimpVectorMedVectorDM/prtcls1.mdl
+  - ../Backends/patches/calchep/3.6.27/Models/DMsimpVectorMedVectorDM/extlib1.mdl
+  - ./../Backends/patches/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/mdlfiles/func1.mdl
+  - ./../Backends/patches/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/mdlfiles/vars1.mdl
+  - ./../Backends/patches/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/mdlfiles/lgrng1.mdl
+  - ./../Backends/patches/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/mdlfiles/prtcls1.mdl
+  - ./../Backends/patches/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/mdlfiles/extlib1.mdl
+  - ../Backends/patches/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/patch_micromegas_3.6.9.2_DMsimpVectorMedVectorDM.dif
+  - ../Backends/src/frontends/MicrOmegas_DMsimpVectorMedVectorDM_3_6_9_2.cpp
+  - ../Backends/include/gambit/Backends/frontends/MicrOmegas_DMsimpVectorMedVectorDM_3_6_9_2.hpp
+  - ../yaml_files/DMsimpVectorMedVectorDM_example.yaml
+new_models:
+  ../DarkBit/include/gambit/DarkBit/DarkBit_rollcall.hpp|DD_couplings|DD_couplings_MicrOmegas|ALLOW_MODEL_DEPENDENCE:
+  - DMsimpVectorMedVectorDM
+  ../DarkBit/include/gambit/DarkBit/DarkBit_rollcall.hpp|DD_couplings|DD_couplings_MicrOmegas|MODEL_GROUP(group2:
+  - DMsimpVectorMedVectorDM
+  ../DarkBit/include/gambit/DarkBit/DarkBit_rollcall.hpp|RD_eff_annrate|RD_eff_annrate_from_ProcessCatalog|ALLOW_MODELS:
+  - DMsimpVectorMedVectorDM
+  ../DarkBit/include/gambit/DarkBit/DarkBit_rollcall.hpp|RD_spectrum|RD_spectrum_from_ProcessCatalog|ALLOW_MODELS:
+  - DMsimpVectorMedVectorDM
+particles:
+  particles:
+  - ~Xv|DMsimpVectorMedVectorDM

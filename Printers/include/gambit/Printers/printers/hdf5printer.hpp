@@ -170,6 +170,10 @@ namespace Gambit
           BOOST_PP_SEQ_FOR_EACH_I(DECLARE_PRINT, , HDF5_BACKEND_TYPES)
         #endif
         #undef DECLARE_PRINT
+
+        // Print metadata info to file
+        void _print_metadata(map_str_str);
+
         ///@}
 
         /// @{ HDF5Printer-specific functions
@@ -180,6 +184,7 @@ namespace Gambit
         /// Retrieve pointer to HDF5 location to which datasets are added
         hid_t get_location() const;
         hid_t get_RA_location() const;
+        hid_t get_metadata_location() const;
 
         /// Add a pointer to a new buffer to the global list
         void insert_buffer(VBIDpair& key, VertexBufferBase& newbuffer);
@@ -325,16 +330,19 @@ namespace Gambit
         std::string tmpfile;   // temporary filename (unique to each process)
         std::string finalfile; // Combined results moved here only upon successful scan completion
         std::string group;     // HDF5 group location to store datasets
+        std::string metadata_group; // HDF5 group location to store metadata
 
         // Handles for HDF5 files and groups containing the datasets
         hid_t file_id;
         hid_t group_id;
         hid_t RA_group_id;
+        hid_t metadata_id;
 
         // Handle to a location in a HDF5 to which the datasets will be written
         // i.e. a file or a group.
         hid_t location_id;
         hid_t RA_location_id;
+        hid_t metadata_location_id;
 
         /// Pointer to the primary printer object
         // (if this is an auxilliary printer, else it is "this" //NULL)

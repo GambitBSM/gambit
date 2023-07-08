@@ -20,6 +20,7 @@
 ///  \date 2017 Nov
 ///  \date 2018 Jan - May
 ///  \date 2019 Jan, Feb, June, Nov
+///  \date 2021 Jan, Mar
 ///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
@@ -191,6 +192,16 @@ namespace Gambit
           CosmoBit_error().raise(LOCAL_INFO, "You have requested to scan both LCDM and LCDM_theta.\n"
                                              "This is not allowed. Please select one in your YAML file.");
         }
+        if (ModelInUse("LCDM") and ModelInUse("LCDM_zreio"))
+        {
+          CosmoBit_error().raise(LOCAL_INFO, "You have requested to scan both LCDM and LCDM_zreio.\n"
+                                             "This is not allowed. Please select one in your YAML file.");
+        }
+        if (ModelInUse("LCDM_theta") and ModelInUse("LCDM_zreio"))
+        {
+          CosmoBit_error().raise(LOCAL_INFO, "You have requested to scan both LCDM_theta and LCDM_zreio.\n"
+                                             "This is not allowed. Please select one in your YAML file.");
+        }
 
         // Make sure dict is empty
         result.clear();
@@ -209,11 +220,14 @@ namespace Gambit
         // Standard cosmological parameters (common to all CDM-like models)
         result.add_entry("T_cmb"      , *Param["T_cmb"]);
         result.add_entry("omega_b"    , *Param["omega_b"]);
-        result.add_entry("tau_reio"   , *Param["tau_reio"]);
         result.add_entry("omega_cdm"  , *Param["omega_cdm"]);
 
+        // Depending on parametrisation, pass either tau_reio or z_reio
+        if (ModelInUse("LCDM") or ModelInUse("LCDM_theta")) result.add_entry("tau_reio", *Param["tau_reio"]);
+        else result.add_entry("z_reio", *Param["z_reio"]);
+
         // Depending on parametrisation, pass either Hubble or the acoustic scale
-        if (ModelInUse("LCDM")) result.add_entry("H0", *Param["H0"]);
+        if (ModelInUse("LCDM") or ModelInUse("LCDM_zreio")) result.add_entry("H0", *Param["H0"]);
         else result.add_entry("100*theta_s", *Param["100theta_s"]);
 
         // add energy-injection-related CLASS input parameters
@@ -299,6 +313,15 @@ namespace Gambit
           result.merge_input_dicts(*Dep::classy_PlanckLike_input);
         }
 
+        // Print the content of the complete input dictory for CLASS into the logger (for debugging)
+        static const bool logInputs = runOptions->getValueOrDef<bool>(false, "log_classy_inputs");
+        if (logInputs)
+        {
+          logger() << "[set_classy_input_params] Collected the following inputs:\n\n"<<endl;
+          for (auto& it : result.get_input_dict().cast<map_str_str>())
+            logger() << it.first << " = " << it.second << "\n";
+          logger() << "\n" << EOM;
+        }
 
       }
 

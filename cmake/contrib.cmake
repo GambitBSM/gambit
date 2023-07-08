@@ -19,7 +19,11 @@
 #
 # \author Tomas Gonzalo
 #         (tomas.gonzalo@monash.edu)
-# \dae 2019 June
+# \dae 2019 June, Oct
+#
+# \author Tomasz Procter
+#         (t.procter.1@research.gla.ac.uk)
+# \date June 2021
 #
 #************************************************
 
@@ -135,17 +139,21 @@ if(NOT EXCLUDE_RESTFRAMES)
   include_directories(${RESTFRAMES_INCLUDE})
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}/lib")
   set(RESTFRAMES_CONFIG_LDFLAGS "-L${CMAKE_BINARY_DIR}/contrib -Wl,-rpath,${CMAKE_BINARY_DIR}/contrib")
+  # OpenMP flags don't play nicely with clang and RestFrames' antiquated libtoolized build system.
+  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" RESTFRAMES_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(RESTFRAMES_CONFIG_LIBS "-lgambit_preload")
+    set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -lgambit_preload")
   else()
-    set(RESTFRAMES_CONFIG_LIBS "-Wl,--no-as-needed -lgambit_preload")
+    set(RESTFRAMES_CONFIG_LIBS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-as-needed -lgambit_preload")
   endif()
   ExternalProject_Add(${name}
     DOWNLOAD_COMMAND git clone https://github.com/crogan/RestFrames ${dir}
              COMMAND ${CMAKE_COMMAND} -E chdir ${dir} git checkout -q v${ver}
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${BACKEND_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${BACKEND_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
+    CONFIGURE_COMMAND ./configure -prefix=${dir} CC=${CMAKE_C_COMPILER} CFLAGS=${RESTFRAMES_C_FLAGS} CPP=${RESTFRAMES_CPP} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${RESTFRAMES_CXX_FLAGS} CXXCPP=${RESTFRAMES_CXXCPP} LDFLAGS=${RESTFRAMES_CONFIG_LDFLAGS} LIBS=${RESTFRAMES_CONFIG_LIBS}
+              COMMAND sed ${dashi} -e "s|.(ROOTAUXCXXFLAGS) .(ROOTCXXFLAGS)||" src/Makefile
     BUILD_COMMAND ${MAKE_PARALLEL}
     INSTALL_COMMAND ${MAKE_PARALLEL} install
     )
@@ -171,17 +179,12 @@ elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
 endif()
 
 set(name "hepmc")
-set(ver "3.1.1")
-set(dir "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
+set(ver "3.2.5")
+set(HEPMC_PATH "${PROJECT_SOURCE_DIR}/contrib/HepMC3-${ver}")
 if(WITH_HEPMC)
   message("-- HepMC-dependent functions in ColliderBit will be activated.")
   message("   HepMC v${ver} will be downloaded and installed when building GAMBIT.")
   message("   ColliderBit Solo (CBS) will be activated.")
-  if(EXISTS "${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/Pythia_8_212/abstract_GAMBIT_hepmc_writer.h")
-    message("   Pythia can now drop HepMC files.")
-  else()
-    message("${BoldRed}   Pythia has already been compiled without HepMC so the main gambit build will fail. Please nuke Pythia before compiling gambit.${ColourReset}")
-  endif()
   message("   Backends depending on HepMC will be enabled.")
   if(NOT ROOT_FOUND)
     message("   No ROOT found, ROOT-IO in HepMC will be deactivated.")
@@ -193,23 +196,20 @@ if(WITH_HEPMC)
 else()
   message("   HepMC-dependent functions in ColliderBit will be deactivated.")
   message("   ColliderBit Solo (CBS) will be deactivated.")
-  message("   Pythia will not drop HepMC files.")
-  message("   Backends depending on HepMC (e.g. Rivet) will be disabled.")
-  nuke_ditched_contrib_content(${name} ${dir})
+  message("   Backends depending on HepMC (e.g. Pythia and Rivet) will be disabled.")
+  nuke_ditched_contrib_content(${name} ${HEPMC_PATH})
   set(EXCLUDE_HEPMC TRUE)
 endif()
 
 if(NOT EXCLUDE_HEPMC)
-  set(lib "HepMC3_static")
-  set(md5 "a9cfc6e95eff5c13a0a5a9311ad75aa7")
+  set(lib "HepMC3")
+  set(md5 "d3079a7ffcc926b34c5ad2868ed6d8f0")
   set(dl "https://hepmc.web.cern.ch/hepmc/releases/HepMC3-${ver}.tar.gz")
-  set(build_dir "${PROJECT_BINARY_DIR}/${name}-prefix/src/${name}-build")
-  include_directories("${dir}/include")
+  include_directories("${HEPMC_PATH}/local/include")
+
+  set(HEPMC_LDFLAGS "-L${HEPMC_PATH}/local/lib -l${lib}")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_PATH}/local/lib")
   set(HEPMC_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
-  set(HEPMC_LDFLAGS "-L${build_dir} -l${lib}")
-  set(HEPMC_PATH "${dir}")
-  set(HEPMC_LIB "${dir}/local/lib")
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${HEPMC_LIB}")
 
   # Silence some compiler warnings coming from HepMC
   set_compiler_warning("no-unused-parameter" HEPMC_CXX_FLAGS)
@@ -217,19 +217,87 @@ if(NOT EXCLUDE_HEPMC)
   set_compiler_warning("no-sign-compare" HEPMC_CXX_FLAGS)
 
   ExternalProject_Add(${name}
-    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
-    SOURCE_DIR ${dir}
-    CMAKE_COMMAND ${CMAKE_COMMAND}  ..
-    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${dir}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_LIB}
-    BUILD_COMMAND ${MAKE_PARALLEL}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${HEPMC_PATH} ${name} ${ver}
+    SOURCE_DIR ${HEPMC_PATH}
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HEPMC_CXX_FLAGS} -DHEPMC3_ENABLE_ROOTIO=${HEPMC3_ROOTIO} -DCMAKE_INSTALL_PREFIX=${HEPMC_PATH}/local -DCMAKE_INSTALL_LIBDIR=${HEPMC_PATH}/local/lib -DHEPMC3_ENABLE_PYTHON=OFF -DHEPMC3_ENABLE_SEARCH=ON -DHEPMC3_BUILD_STATIC_LIBS=OFF
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}
     INSTALL_COMMAND ${CMAKE_INSTALL_COMMAND}
     )
-  # Add target
-  #add_custom_target(${name})
+
   # Add clean-hepmc and nuke-hepmc
-  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  add_contrib_clean_and_nuke(${name} ${HEPMC_PATH} clean)
+  # HEPMC must be build before any bits as it is included early because it's in Rivet's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
 endif()
 
+#contrib/YODA; include only if ColliderBit is in use and WITH_YODA=ON.
+option(WITH_YODA "Compile with YODA enabled" OFF)
+if(NOT WITH_YODA)
+  message("${BoldCyan} X YODA is deactivated. Set -DWITH_YODA=ON to activate YODA.${ColourReset}")
+elseif(NOT ";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("${BoldCyan} X ColliderBit is not in use: excluding YODA from GAMBIT configuraton.${ColourReset}")
+  set(WITH_YODA OFF)
+endif()
+
+set(name "yoda")
+set(ver "1.9.7")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/YODA-${ver}")
+if(WITH_YODA)
+  message("-- YODA-dependent functions in ColliderBit will be activated.")
+  message("   Backends depending on YODA will be enabled.")
+  set(EXCLUDE_YODA FALSE)
+else()
+  message("   YODA-dependent functions in ColliderBit will be deactivated.")
+  message("   Backends depending on Yoda (e.g. Rivet, Contur) will de disabled.")
+  nuke_ditched_contrib_content(${name} ${dir})
+  set(EXCLUDE_YODA TRUE)
+endif()
+
+if(NOT EXCLUDE_YODA)
+  set(lib "YODA")
+  set(dl "https://yoda.hepforge.org/downloads/?f=YODA-${ver}.tar.gz")
+  set(md5 "c5bc336d3caa3f357db484536c10dbc8")
+  include_directories("${dir}/include")
+  set(YODA_PATH "${dir}")
+  set(YODA_LIB "${dir}/local/lib")
+  set(YODA_LDFLAGS "-L${YODA_LIB} -l${lib}")
+
+  # OpenMP flags does not play nicely with clang and Yoda's use of libtools
+  string(REGEX REPLACE "-Xclang -fopenmp" "" YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3")
+  #set(YODA_CXX_FLAGS "${BACKEND_CXX_FLAGS} -O3" )
+  set_compiler_warning("no-unused-parameter" YODA_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" YODA_CXX_FLAGS)
+  set_compiler_warning("no-implicit-fallthrough" YODA_CXX_FLAGS)
+  set(YODA_PY_PATH "${dir}/local/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${YODA_LIB}")
+  # If cython is not installed disable the python extension
+  gambit_find_python_module(cython)
+  if(PY_cython_FOUND)
+    set(pyext yes)
+    message("   Backends depending on YODA's python extension will be enabled.")
+  else()
+    set(pyext no)
+    message("   Backends depending on YODA's python extension (e.g. Contur) will be disabled.")
+  endif()
+  # Set LDFLAGS for MacOS to find libz
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(YODA_CONFIG_LDFLAGS "-L${CMAKE_OSX_SYSROOT}/usr/lib")
+  else()
+    set(YODA_CONFIG_LDFLAGS "")
+  endif()
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ${YODA_PATH}/configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${YODA_CXX_FLAGS} LDFLAGS=${YODA_CONFIG_LDFLAGS} PYTHON=${PYTHON_EXECUTABLE} --prefix=${dir}/local --enable-static --enable-pyext=${pyext}
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+    INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  # YODA must be build before any bits as it is included early because it's in Rivet's headers
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+endif()
 
 #contrib/fjcore-3.2.0
 set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
@@ -269,7 +337,22 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # Determine compiler libraries needed by flexiblesusy.
   if(CMAKE_Fortran_COMPILER MATCHES "gfortran*")
-    set(flexiblesusy_compilerlibs "-lgfortran -lm")
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+      find_library(GFORTRAN_LIBRARY NAMES gfortran)
+      if(GFORTRAN_LIBRARY STREQUAL "GFORTRAN_LIBRARY-NOTFOUND")
+        execute_process(COMMAND "${CMAKE_Fortran_COMPILER}" "-v" ERROR_VARIABLE GFORTRAN_V_OUTPUT)
+        string(REGEX MATCH "--libdir=[^\t\n ]+" GFORTRAN_LIB_DIR_STR "${GFORTRAN_V_OUTPUT}")
+        string(REGEX REPLACE "--libdir=([^\t\n ]+)" "\\1" GFORTRAN_LIB_DIR_STR "${GFORTRAN_LIB_DIR_STR}")
+        find_library(GFORTRAN_LIBRARY NAMES gfortran PATHS "${GFORTRAN_LIB_DIR_STR}")
+        if(GFORTRAN_LIBRARY STREQUAL "GFORTRAN_LIBRARY-NOTFOUND")
+          message(FATAL_ERROR "Could not find libgfortran.")
+        endif()
+      endif()
+      message(STATUS "Found libgfortran at ${GFORTRAN_LIBRARY}.")
+      set(flexiblesusy_compilerlibs "${GFORTRAN_LIBRARY} -lm")
+    else()
+      set(flexiblesusy_compilerlibs "-lgfortran -lm")
+    endif()
   elseif(CMAKE_Fortran_COMPILER MATCHES "g77" OR CMAKE_Fortran_COMPILER MATCHES "f77")
     set(flexiblesusy_compilerlibs "-lg2c -lm")
   elseif(CMAKE_Fortran_COMPILER MATCHES "ifort")
@@ -292,7 +375,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   set_compiler_warning("no-unneeded-internal-declaration" FS_CXX_FLAGS)
 
   # Construct the command to create the shared library
-  set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} -shared -o")
+  set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -o")
 
   # FlexibleSUSY configure options
   set(FS_OPTIONS ${FS_OPTIONS}

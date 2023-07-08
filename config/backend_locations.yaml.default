@@ -10,6 +10,9 @@
 # absolute, those beginning with a period will
 # be interpreted as relative to the GAMBIT dir.
 
+Acropolis:
+  1.2.1:       ./Backends/installed/acropolis/1.2.1/acropolis
+
 AlterBBN:
   2.2:         ./Backends/installed/alterbbn/2.2/libbbn.so
 
@@ -21,8 +24,12 @@ classy:
   2.6.3:       ./Backends/installed/classy/2.6.3/lib/classy_2_6_3.py
   2.9.3:       ./Backends/installed/classy/2.9.3/lib/classy_2_9_3.py
   2.9.4:       ./Backends/installed/classy/2.9.4/lib/classy_2_9_4.py
+  3.1.0:       ./Backends/installed/classy/3.1.0/lib/classy_3_1_0.py
 
   exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
+
+Contur:
+  2.1.1:       ./Backends/installed/contur/2.1.1/contur/init_by_GAMBIT.py
 
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
@@ -34,14 +41,22 @@ DarkSUSY_MSSM:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_mssm.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_mssm.so
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_mssm.so
-  
+  6.4.0:       ./Backends/installed/darksusy/6.4.0/lib/libds_core_mssm.so
+
 DarkSUSY_generic_wimp:
   6.1.1:       ./Backends/installed/darksusy/6.1.1/lib/libds_core_generic_wimp.so
   6.2.2:       ./Backends/installed/darksusy/6.2.2/lib/libds_core_generic_wimp.so
   6.2.5:       ./Backends/installed/darksusy/6.2.5/lib/libds_core_generic_wimp.so
+  6.4.0:       ./Backends/installed/darksusy/6.4.0/lib/libds_core_generic_wimp.so
 
 SuperIso:
-  3.6:         ./Backends/installed/superiso/3.6/libsuperiso.so
+  4.1:         ./Backends/installed/superiso/4.1/libsuperiso.so
+
+HepLike:
+  2.0:         ./Backends/installed/heplike/2.0/libHEPLike.so
+
+HepLikeData:
+  1.4:         ./Backends/installed/heplikedata/1.4
 
 DDCalc:
   1.0.0:       ./Backends/installed/ddcalc/1.0.0/lib/libDDCalc.so
@@ -50,7 +65,7 @@ DDCalc:
   2.0.0:       ./Backends/installed/ddcalc/2.0.0/lib/libDDCalc.so
   2.1.0:       ./Backends/installed/ddcalc/2.1.0/lib/libDDCalc.so
   2.2.0:       ./Backends/installed/ddcalc/2.2.0/lib/libDDCalc.so
-# Change path for 3.0.0 to your path for DDCalc_3.0.0 shared library
+  2.3.0:       ./Backends/installed/ddcalc/2.3.0/lib/libDDCalc.so
   3.0.0:       ./../DDCalc_development/lib/libDDCalc.so
 
 HiggsBounds:
@@ -65,10 +80,6 @@ FeynHiggs:
   2.11.3:      ./Backends/installed/feynhiggs/2.11.3/lib/libFH.so
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
 
-# Work in progress:
-# Prospino:
-#   2.1:         ./Backends/installed/prospino/2.1/libprospino.so
-
 Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
 
@@ -82,6 +93,7 @@ gm2calc:
 
 MontePythonLike:
   3.3.0:       ./Backends/installed/montepythonlike/3.3.0/montepython/MontePythonLike_3_3_0.py
+  3.5.0:       ./Backends/installed/montepythonlike/3.5.0/montepython/MontePythonLike_3_5_0.py
 
 MicrOmegas_MSSM:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/MSSM/libmicromegas.so
@@ -101,6 +113,9 @@ MicrOmegas_MajoranaSingletDM_Z2:
 MicrOmegas_DiracSingletDM_Z2:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DiracSingletDM_Z2/libmicromegas.so
 
+MicrOmegas_DMsimpVectorMedVectorDM:
+  3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/libmicromegas.so
+
 nulike:
   1.0.4:       ./Backends/installed/nulike/1.0.4/lib/libnulike.so
   1.0.5:       ./Backends/installed/nulike/1.0.5/lib/libnulike.so
@@ -109,9 +124,11 @@ nulike:
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
-# Work in progress:
-# Rivet:
-#   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
+pbarlike:
+  1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py
+
+Rivet:
+  3.1.5:       ./Backends/installed/rivet/3.1.5/local/lib/libRivet.so
 
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
@@ -139,7 +156,7 @@ hom4ps:
   2.0:         ./Backends/installed/hom4ps/2.0/
 
 phc:
-  2.4.58:      ./Backends/installed/phc/2.4.58/
+  2.4.77:      ./Backends/installed/phc/2.4.77/
 
 plc:
   3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
@@ -180,3 +197,9 @@ libMathematicaTest:
 # Work in progress:
 # salami:
 #   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
+
+ATLAS_FullLikes:
+  1.0:       ./Backends/installed/ATLAS_FullLikes/1.0/ATLAS_FullLikes_1_0.py
+
+simple_xs:
+  1.0:       ./Backends/examples/simple_xs/1.0/simple_xs.py

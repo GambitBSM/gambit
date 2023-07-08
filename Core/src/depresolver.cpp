@@ -29,6 +29,7 @@
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2017 June
 ///        2019 May
+///        2020 June
 ///        2021 Sep
 ///
 ///  \author Patrick Stoecker
@@ -41,6 +42,7 @@
 #include "gambit/Models/models.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/version.hpp"
 #include "gambit/Utils/bibtex_functions.hpp"
 #include "gambit/Utils/citation_keys.hpp"
 #include "gambit/Logs/logger.hpp"
@@ -192,9 +194,16 @@ namespace Gambit
         cout << (*f).name() << " vs " << rule.function << endl;
         cout << (*f).origin() << " vs " << rule.module << endl;
       #endif
-      return ( stringComp( rule.function, (*f).name()) and
-               stringComp( rule.module, (*f).origin())
-             );
+      // Rule matches functor if the capability or module function
+      // is present and they (and the module if given) match
+      bool matches = false;
+      if (not rule.capability.empty())
+        matches = stringComp( rule.capability, f->capability() );
+      if (not rule.function.empty())
+        matches = stringComp( rule.function, f->name() );
+      if (not rule.module.empty())
+        matches = matches and stringComp( rule.module, f->origin());
+      return matches;
     }
 
 
@@ -422,6 +431,9 @@ namespace Gambit
 
       // Get BibTeX key entries for backends, modules, etc
       getCitationKeys();
+      
+      // Get the scanID
+      set_scanID();
 
       // Done
     }
@@ -1413,6 +1425,7 @@ namespace Gambit
       }
       errmsg += "as an untargeted rule (in the Rules or ObsLike section):\n";
       errmsg += "\n  - capability: "+masterGraph[vertexCandidates[0]]->capability();
+      errmsg += "\n    type: "+masterGraph[vertexCandidates[0]]->type();
       errmsg += "\n    function: "+masterGraph[vertexCandidates[0]]->name();
       errmsg += "\n    module: " +masterGraph[vertexCandidates[0]]->origin() +"\n";
       if ( toVertex == OBSLIKE_VERTEXID )
@@ -2310,7 +2323,10 @@ namespace Gambit
           errmsg += "\n  - capability: "+masterGraph[vertex]->capability();
           errmsg += "\n    function: "+masterGraph[vertex]->name();
           errmsg += "\n    backends:";
-          errmsg += "\n      - {backend: "+vertexCandidates.at(0)->origin()+", version: "+vertexCandidates.at(0)->version()+"}\n";
+          errmsg += "\n      - {capability: "+vertexCandidates.at(0)->capability()+", type: "
+                                             +vertexCandidates.at(0)->type()+", backend: "
+                                             +vertexCandidates.at(0)->origin()+", version: "
+                                             +vertexCandidates.at(0)->version()+"}\n";
           dependency_resolver_error().raise(LOCAL_INFO,errmsg);
         }
       }
@@ -2353,6 +2369,184 @@ namespace Gambit
       logger() << EOM;
     }
 
+    /// Check for unused rules and options
+    void DependencyResolver::checkForUnusedRules(int mpi_rank)
+    {
+      std::vector<Rule> unusedRules;
+
+      const IniParser::ObservablesType & entries = boundIniFile->getRules();
+      for(IniParser::ObservableType entry : entries)
+      {
+        #ifdef DEPRES_DEBUG
+          std::cout << "checking rule with capability " << entry.capability << std::endl;
+        #endif
+        graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
+        bool unused = true;
+        for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+        {
+          // Check only for enabled functors
+          if (masterGraph[*vi]->status() == 2)
+          {
+            if ( matchesRules(masterGraph[*vi], Rule(entry)) )
+            {
+              #ifdef DEPRES_DEBUG
+                std::cout << "rule for capability " << entry.capability <<" used by vertex " << masterGraph[*vi]->capability() << std::endl;
+              #endif
+              unused = false;
+              continue;
+            }
+          }
+        }
+        if (unused)
+          unusedRules.push_back(Rule(entry));
+      }
+
+      if(unusedRules.size() > 0)
+      {
+        std::stringstream msg;
+        msg << "The following rules and options are not used in the current scan. This will not affect the results of the scan, but if you wish to avoid this warning you must remove all unused rules and options from the yaml file." << endl;
+        for(auto rule :unusedRules)
+        {
+          if(not rule.capability.empty()) msg << "  capability: " << rule.capability << endl;
+          if(not rule.function.empty())   msg << "  function: " << rule.function<< endl;
+          if(not rule.module.empty())     msg << "  module: " << rule.module << endl;
+          if(not rule.type.empty())       msg << "  type: " << rule.type << endl;
+          if(not rule.backend.empty())    msg << "  backend: " << rule.backend << endl;
+          if(not rule.version.empty())    msg << "  version: " << rule.version << endl;
+          if (rule.options.getNames().size() > 0)
+          {
+            msg << "  options:" << endl;
+            msg << rule.options.toString(2);
+          }
+          msg << endl;
+        }
+        logger() << msg.str() << EOM;
+        if(mpi_rank == 0) std::cout << msg.str() << std::endl;
+      }
+    }
+
+    /// Construct metadata information from used observables, rules and options
+    /// Note: No keys can be identical (or differing only by capitalisation) 
+    ///       to those printed in the main file, otherwise the sqlite printer fails
+    map_str_str DependencyResolver::getMetadata()
+    {
+      map_str_str metadata;
+
+      // Gambit version
+      metadata["GAMBIT"] = gambit_version();
+
+      // Date
+      auto now = std::chrono::system_clock::now();
+      auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+      std::stringstream ss;
+      ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %H:%M");
+      metadata["Date"] =  ss.str();
+
+      // scanID
+      if (boundIniFile->getValueOrDef<bool>(true, "print_scanID"))
+      {
+        ss.str("");
+        ss << scanID;
+        metadata["Scan_ID"] = ss.str();
+      }
+
+      // Parameters
+      YAML::Node parametersNode = boundIniFile->getParametersNode();
+      Options(parametersNode).toMap(metadata, "Parameters");
+
+      // Priors
+      YAML::Node priorsNode = boundIniFile->getPriorsNode();
+      Options(priorsNode).toMap(metadata, "Priors");
+
+      // Printer
+      YAML::Node printerNode = boundIniFile->getPrinterNode();
+      Options(printerNode).toMap(metadata, "Printer");
+
+      // Scanners
+      YAML::Node scanNode = boundIniFile->getScannerNode();
+      str scanner = scanNode["use_scanner"].as<str>();
+      metadata["Scanner::scanner"] = scanner;
+      for(auto it = scanNode.begin(); it != scanNode.end(); ++it)
+      {
+        if(it->first.as<str>() == "scanners")
+          Options(scanNode["scanners"][scanner]).toMap(metadata, "Scanner::options");
+        else if(it->first.as<str>() != "use_scanner")
+          Options(*it).toMap(metadata, "Scanner::" + it->first.as<str>());
+      }
+
+      // ObsLikes
+      const IniParser::ObservablesType &obslikes = boundIniFile->getObservables();
+      for (IniParser::ObservableType obslike : obslikes)
+      {
+        str key = "ObsLikes::" + obslike.capability;
+        metadata[key + "::capability"] = obslike.capability;
+        if(not obslike.purpose.empty())  metadata[key + "::purpose"] = obslike.purpose;
+        if(not obslike.function.empty()) metadata[key + "::function"] = obslike.function;
+        if(not obslike.type.empty())     metadata[key + "::type"] = obslike.type;
+        if(not obslike.module.empty())   metadata[key + "::module"] = obslike.module;
+        if(obslike.subcaps.size() and obslike.subcaps.IsSequence())
+        {
+          std::stringstream subcaps;
+          subcaps << "[";
+          for (auto subcap = obslike.subcaps.begin(); subcap != obslike.subcaps.end(); ++subcap)
+            subcaps << *subcap << ",";
+          subcaps << "]";
+          metadata[key + "::subcaps"] = subcaps.str();
+
+        }
+      }
+
+      // Used rules and options
+      const IniParser::ObservablesType &rules = boundIniFile->getRules();
+      for (IniParser::ObservableType rule : rules)
+      {
+        graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
+        for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+        {
+          // Check only for enabled functors
+          if (masterGraph[*vi]->status() == 2)
+          {
+            if (matchesRules(masterGraph[*vi], Rule(rule)))
+            {
+              str key = "Rules";
+              if(not rule.capability.empty())
+              {
+                key += "::" + rule.capability;
+                metadata[key + "::capability"] = rule.capability;
+              }
+              if(not rule.function.empty())
+              {
+                if (not rule.capability.empty()) key += "::" + rule.function;
+                metadata[key+"::function"] = rule.function;
+              }
+              if(not rule.module.empty())     metadata[key+"::module"] = rule.module;
+              if(not rule.type.empty())       metadata[key+"::type"] = rule.type;
+              if(not rule.backend.empty())    metadata[key+"::backend"] = rule.backend;
+              if(not rule.version.empty())    metadata[key+"::version"] = rule.version;
+              if(rule.options.getNames().size()) rule.options.toMap(metadata, key+"::options");
+            }
+          }
+        }
+      }
+
+      // Logger
+      YAML::Node logNode = boundIniFile->getLoggerNode();
+      Options(logNode).toMap(metadata,"Logger");
+
+      // KeyValues
+      YAML::Node keyvalue = boundIniFile->getKeyValuePairNode();
+      Options(keyvalue).toMap(metadata,"KeyValue");
+
+      // YAML file
+      ss.str("");
+      ss << boundIniFile->getYAMLNode();
+      metadata["YAML"] = ss.str();
+
+      return metadata;
+
+    }
+
     // Resolve a dependency on backend classes
     void DependencyResolver::resolveVertexClassLoading(VertexID vertex)
     {
@@ -2366,7 +2560,7 @@ namespace Gambit
       logger() << LogTags::dependency_resolver << "Doing backend class loading resolution..." << EOM;
 
       // Add the backends to list of required backends
-      std::vector<sspair> resolvedBackends; 
+      std::vector<sspair> resolvedBackends;
       for(auto backend : (*masterGraph[vertex]).backendclassloading())
         resolvedBackends.push_back(backend);
 
@@ -2386,6 +2580,29 @@ namespace Gambit
         backendsRequired.push_back(resolvedBackends);
       }
 
+    }
+
+    // Set the Scan ID
+    void DependencyResolver::set_scanID()
+    {
+      // Get the scanID from the yaml node.
+      scanID = boundIniFile->getValueOrDef<int>(-1, "scanID");
+    
+      // If scanID is supplied by user, use that
+      if (scanID != -1)
+      {
+        return;
+      }
+      else
+      {
+        const std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+        std::time_t in_time_t = std::chrono::system_clock::to_time_t(now);
+        std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds> (now.time_since_epoch()) - std::chrono::duration_cast<std::chrono::seconds> (now.time_since_epoch());
+        std::stringstream ss;
+        ss << std::put_time(std::localtime(&in_time_t), "%H%M%S");
+        ss << ms.count();
+        ss >> scanID;
+      }
     }
 
     // Get BibTeX citation keys for backends, modules, etc
@@ -2438,7 +2655,7 @@ namespace Gambit
                   vi2 != parents.end(); ++vi2)
 
         {
- 
+
           // Add citation key for used modules
           for(const auto &key : boundCore->getModuleCitationKeys())
           {
@@ -2457,7 +2674,6 @@ namespace Gambit
         }
 
       }
-
     }
 
   }

@@ -54,7 +54,18 @@
 +
      def Neff(self):
          return self.ba.Neff
-
+ 
+@@ -854,6 +882,10 @@
+         self.compute(["thermodynamics"])
+         return self.th.rs_d
+ 
++    def z_reio(self):
++        self.compute(["thermodynamics"])
++        return self.th.z_reio
++
+     def angular_distance(self, z):
+         """
+         angular_distance(z)
 --- a/python/cclassy.pxd	2019-07-03 12:43:33.138033238 +0100
 +++ b/python/cclassy.pxd	2019-07-03 12:43:09.645573577 +0100
 @@ -60,6 +60,7 @@
@@ -316,3 +327,18 @@
    double * lnk;    /**< list of ln(k) values lnk[index_k] */
  
    double ** lnpk;  /**< depends on indices index_md, index_ic1, index_ic2, index_k as:
+diff --git a/tools/evolver_ndf15.c b/tools/evolver_ndf15.c
+index f5937636..004ed5cc 100755
+--- a/tools/evolver_ndf15.c
++++ b/tools/evolver_ndf15.c
+@@ -307,7 +307,9 @@ int evolver_ndf15(
+     if (fabs(absh-hmin)<100*eps){
+       /* If the stepsize has not changed */
+       if (at_hmin==_TRUE_){
+-	absh = abshlast;	/*required by stepsize recovery */
++        class_test(fabs(absh-abshlast) < eps, error_message,
++                   "Cannot recover the last successful stepsize. Solver gets stuck in an infinite loop");
++        absh = abshlast;    /*required by stepsize recovery */
+       }
+       at_hmin = _TRUE_;
+     }

@@ -75,7 +75,7 @@ namespace Gambit
 
       if (*Loop::iteration == XSEC_CALCULATION)
       {
-        for (const std::pair<int,PID_pair>& entry : *Dep::ActiveProcessCodeToPIDPairsMap)
+        for (const std::pair<const int,PID_pair>& entry : *Dep::ActiveProcessCodeToPIDPairsMap)
         {
 
           PID_pair pid_pair = entry.second;

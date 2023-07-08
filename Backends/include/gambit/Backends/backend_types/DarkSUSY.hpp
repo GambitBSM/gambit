@@ -360,10 +360,17 @@ namespace Gambit
       Finteger rderr,rdwar,rdinit;
   };
 
-  struct DS_RDPARS
+  struct DS_RDPARS_OLD
   {
       Fdouble cosmin,waccd,dpminr,dpthr,wdiffr,wdifft;
       Fdouble hstep,hmin,compeps,xinit,xfinal,umax,cfr,pmax;
+  };
+
+  struct DS_RDPARS
+  {
+      Fdouble cosmin,waccd,dpminr,dpmaxr,dpthr,wdiffr,wdifft;
+      Fdouble hstep,hmin,compeps,xinit,xfinal,umax,cfr,pmax,ptopr;
+      Fdouble theps,thepshi;
   };
 
   struct DS_RDTIME

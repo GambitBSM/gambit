@@ -47,8 +47,8 @@
     // MSSM-like Higgs model parameters, for BSM models with MSSM-like sectors (MSSM, NMSSM, ...)
     #define FUNCTION MSSMLikeHiggs_ModelParameters
     START_FUNCTION(hb_ModelParameters)
-    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT)
-    ALLOW_MODELS(MSSM63atMGUT, MSSM63atQ)
+    MODEL_CONDITIONAL_DEPENDENCY(MSSM_spectrum, Spectrum, MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     #undef FUNCTION
 
@@ -111,8 +111,8 @@
   // Not presently used by anything, but maybe useful in the future.
   #define CAPABILITY Higgs_Production_Xsecs
   START_CAPABILITY
-    #define FUNCTION FH_HiggsProd
-    START_FUNCTION(fh_HiggsProd)
+    #define FUNCTION FeynHiggs_HiggsProd
+    START_FUNCTION(fh_HiggsProd_container)
     BACKEND_REQ(FHHiggsProd, (libfeynhiggs), void, (int&, fh_real&, Farray< fh_real,1,52>&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
     #undef FUNCTION

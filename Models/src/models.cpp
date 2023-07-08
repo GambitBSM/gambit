@@ -102,7 +102,7 @@ namespace Gambit
     /// Searches primary model functor list for specificed model
     primary_model_functor* ModelFunctorClaw::getPrimaryModelFunctor(const std::string modelname, const primodel_vec& primaryModelFunctors) const
     {
-      primary_model_functor* result;
+      primary_model_functor* result = nullptr;
 
       // Find primary model functor with matching name
       auto it = std::find_if(std::begin(primaryModelFunctors), std::end(primaryModelFunctors), 

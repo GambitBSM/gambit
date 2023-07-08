@@ -21,6 +21,10 @@
 ///  \date May 2020
 ///  \date Jan 2021
 ///
+///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date June 2022
+///
 ///  *********************************************
 
 #include <vector>
@@ -35,14 +39,14 @@
 #include <numeric>
 
 #include "gambit/ScannerBit/scanner_plugin.hpp"
-#include "gambit/ScannerBit/scanners/polychord/polychord.hpp"
+#include "gambit/ScannerBit/scanners/polychord/1.18.2/polychord.hpp"
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Utils/util_functions.hpp"
 
 
 namespace Gambit
 {
-   namespace PolyChord
+   namespace PolyChord_1_18_2
    {
       /// Global pointer to loglikelihood wrapper object, for use in the PolyChord callback functions
       LogLikeWrapper *global_loglike_object;
@@ -59,6 +63,10 @@ typedef Gambit::Scanner::like_ptr scanPtr;
 
 scanner_plugin(polychord, version(1, 18, 2))
 {
+   // Access PolyChord stuff and standard Gambit things
+   using namespace Gambit;
+   using namespace Gambit::PolyChord_1_18_2;
+
    // An error is thrown if any of the following entries are not present in the inifile (none absolutely required for PolyChord).
    reqd_inifile_entries();
 
@@ -106,8 +114,8 @@ scanner_plugin(polychord, version(1, 18, 2))
       Settings settings(ma, nderived);
 
       // Create the object that interfaces to the PolyChord LogLike callback function
-      Gambit::PolyChord::LogLikeWrapper loglwrapper(LogLike, get_printer());
-      Gambit::PolyChord::global_loglike_object = &loglwrapper;
+      LogLikeWrapper loglwrapper(LogLike, get_printer());
+      global_loglike_object = &loglwrapper;
 
       // ---------- Compute an ordering for fast and slow parameters
       // Read list of fast parameters from file
@@ -121,12 +129,12 @@ scanner_plugin(polychord, version(1, 18, 2))
       std::set_difference(set_fast_params.begin(), set_fast_params.end(), set_params.begin(), set_params.end(),std::inserter(diff,diff.begin()));
       if (diff.size())
       {
-          // Raise an error if any specified fast_params are not actually being sampled over.
-          std::string error_message = "You have specified:\n";
-          for (auto param : diff) error_message += param + "\n" ;
-          error_message += "as fast param(s), but the list of params is:\n";
-          for (auto param : all_params) error_message += param + "\n";
-          scan_error().raise(LOCAL_INFO,error_message);
+         // Raise an error if any specified fast_params are not actually being sampled over.
+         std::string error_message = "You have specified:\n";
+         for (auto param : diff) error_message += param + "\n" ;
+         error_message += "as fast param(s), but the list of params is:\n";
+         for (auto param : all_params) error_message += param + "\n";
+         scan_error().raise(LOCAL_INFO,error_message);
       }
 
       // Compute the locations in PolyChord's unit hypercube, ordering from slow to fast
@@ -137,26 +145,26 @@ scanner_plugin(polychord, version(1, 18, 2))
       // Run through all the parameters, and if they're slow parameters
       // give them an index i, then increment i
       for (auto param : varied_params)
-          if (std::find(fast_params.begin(), fast_params.end(),param) == fast_params.end())
-              Gambit::PolyChord::global_loglike_object->index_map[param] = (i++);
+         if (std::find(fast_params.begin(), fast_params.end(),param) == fast_params.end())
+            global_loglike_object->index_map[param] = (i++);
       unsigned int nslow = i;
       if(nslow!=0) settings.grade_dims.push_back(nslow);
 
       // Do the same for the fast parameters
       for (auto param : varied_params)
-          if (std::find(fast_params.begin(), fast_params.end(),param) != fast_params.end())
-              Gambit::PolyChord::global_loglike_object->index_map[param] = (i++);
+         if (std::find(fast_params.begin(), fast_params.end(),param) != fast_params.end())
+            global_loglike_object->index_map[param] = (i++);
       unsigned int nfast = i-nslow;
       if (nfast>0) settings.grade_dims.push_back(nfast);
 
       if (nslow>0 and nfast>0)
       {
-          // Specify the fraction of time to spend in the slow parameters.
-          double frac_slow = get_inifile_value<double>("frac_slow",0.75);
-          settings.grade_frac = std::vector<double>({frac_slow, 1-frac_slow});
+         // Specify the fraction of time to spend in the slow parameters.
+         double frac_slow = get_inifile_value<double>("frac_slow",0.75);
+         settings.grade_frac = std::vector<double>({frac_slow, 1-frac_slow});
       }
       else if (nslow==0) // In the unusual case of all fast parameters, there's only one grade.
-          nslow = nfast;
+         nslow = nfast;
       // ---------- End computation of ordering for fast and slow parameters
 
       // PolyChord algorithm options.
@@ -186,25 +194,25 @@ scanner_plugin(polychord, version(1, 18, 2))
       settings.file_root = get_inifile_value<std::string>("root", "native");
       settings.seed = get_inifile_value<int>("seed",-1);
 
-      Gambit::Utils::ensure_path_exists(settings.base_dir);
-      Gambit::Utils::ensure_path_exists(settings.base_dir + "/clusters/");
+      Utils::ensure_path_exists(settings.base_dir);
+      Utils::ensure_path_exists(settings.base_dir + "/clusters/");
 
       // Point the boundSettings to the settings in use
-      Gambit::PolyChord::global_loglike_object->boundSettings = settings;
+      global_loglike_object->boundSettings = settings;
 
       // Set the speed threshold for the printer.
       // Evaluations of speeds >= threshold are not printed
       // Speeds start at 0
-      Gambit::PolyChord::global_loglike_object->printer_speed_threshold =
+      global_loglike_object->printer_speed_threshold =
         get_inifile_value<int>("printer_speed_threshold",settings.grade_dims.size());
 
       if(resume_mode==1 and outfile==0)
       {
-        // It is stupid to be in resume mode while not writing output files.
-        // Means subsequent resumes will be impossible. Throw an error.
-        scan_error().raise(LOCAL_INFO,"Error from PolyChord ScannerBit plugin! Resume mode is activated, however "
-                                      "PolyChord native output files are set to not be written. These are needed "
-                                      "for resuming; please change this setting in your yaml file (set option \"outfile: 1\")");
+         // It is stupid to be in resume mode while not writing output files.
+         // Means subsequent resumes will be impossible. Throw an error.
+         scan_error().raise(LOCAL_INFO,"Error from PolyChord ScannerBit plugin! Resume mode is activated, however "
+                                       "PolyChord native output files are set to not be written. These are needed "
+                                       "for resuming; please change this setting in your yaml file (set option \"outfile: 1\")");
       }
 
       // Setup auxilliary streams. These are only needed by the master process,
@@ -213,9 +221,9 @@ scanner_plugin(polychord, version(1, 18, 2))
       if(myrank==0)
       {
          // Get inifile options for each print stream
-         Gambit::Options txt_options   = get_inifile_node("aux_printer_txt_options");
-         //Gambit::Options stats_options = get_inifile_node("aux_printer_stats_options"); //FIXME
-         Gambit::Options live_options  = get_inifile_node("aux_printer_live_options");
+         Options txt_options   = get_inifile_node("aux_printer_txt_options");
+         //Options stats_options = get_inifile_node("aux_printer_stats_options"); //FIXME
+         Options live_options  = get_inifile_node("aux_printer_live_options");
 
          // Options to desynchronise print streams from the main Gambit iterations. This allows for random access writing, or writing of global scan data.
          //stats_options.setValue("synchronised",false); //FIXME
@@ -229,11 +237,11 @@ scanner_plugin(polychord, version(1, 18, 2))
       }
 
       // Ensure that MPI processes have the same IDs for auxiliary print streams;
-      Gambit::Scanner::assign_aux_numbers("Posterior","LastLive");
+      Scanner::assign_aux_numbers("Posterior","LastLive");
 
       //Run PolyChord, passing callback functions for the loglike and dumper.
       if(myrank == 0) std::cout << "Starting PolyChord run..." << std::endl;
-      run_polychord(Gambit::PolyChord::callback_loglike, Gambit::PolyChord::callback_dumper, settings);
+      run_polychord(callback_loglike, callback_dumper, settings);
       if(myrank == 0) std::cout << "PolyChord run finished!" << std::endl;
       return 0;
 
@@ -248,7 +256,7 @@ scanner_plugin(polychord, version(1, 18, 2))
 
 namespace Gambit {
 
-   namespace PolyChord {
+   namespace PolyChord_1_18_2 {
 
       ///@{ Plain-vanilla functions to pass to PolyChord for the callback
       // Note: we are using the c interface from cwrapper.f90, so the function
@@ -273,7 +281,7 @@ namespace Gambit {
 
       /// LogLikeWrapper Constructor
       LogLikeWrapper::LogLikeWrapper(scanPtr loglike, printer_interface& printer)
-        : boundLogLike(loglike), boundPrinter(printer)
+         : boundLogLike(loglike), boundPrinter(printer)
       { }
 
       /// Main interface function from PolyChord to ScannerBit-supplied loglikelihood function
@@ -293,29 +301,29 @@ namespace Gambit {
       {
          // Cached "below threshold" unitcube parameters of the previous point.
          static int ndim_threshold =
-           std::accumulate( boundSettings.grade_dims.begin(),
-                            boundSettings.grade_dims.begin() + printer_speed_threshold,
-                            0);
+            std::accumulate( boundSettings.grade_dims.begin(),
+                             boundSettings.grade_dims.begin() + printer_speed_threshold,
+                             0);
          static std::vector<double> prev_slow_unit(ndim_threshold);
 
          //convert C style array to C++ vector class, reordering parameters slow->fast
          std::vector<std::string> params = boundLogLike->getShownParameters();
          std::vector<double> unitpars(ndim);
          for (auto i=0; i<ndim; i++)
-             unitpars[i] = Cube[index_map[params[i]]];
+            unitpars[i] = Cube[index_map[params[i]]];
          std::vector<double> derived(phi, phi + nderived);
 
          // Disable the printer when the unitcube parameters with speeds below
          // the threshold have not changed and enable it otherwise
          // (It might be probably already enabled again at that point)
          if (   ndim_threshold < ndim
-             &&  std::equal(prev_slow_unit.begin(),prev_slow_unit.end(),Cube) )
+            &&  std::equal(prev_slow_unit.begin(),prev_slow_unit.end(),Cube) )
          {
-           boundLogLike->getPrinter().disable();
+            boundLogLike->getPrinter().disable();
          }
          else
          {
-           boundLogLike->getPrinter().enable();
+            boundLogLike->getPrinter().enable();
          }
          prev_slow_unit = std::vector<double>(Cube,Cube+ndim_threshold);
 
@@ -326,15 +334,15 @@ namespace Gambit {
          // Get the transformed parameters and add them as derived parameters
          if (nderived > 2)
          {
-           std::unordered_map<std::string,double> param_map;
-           boundLogLike->getPrior().transform(unitpars, param_map);
-           for (auto& param: param_map)
-           {
-             // param_map contains ALL parameters.
-             // We just need the ones which are varied (i.e. the keys of index_map)
-             if (index_map.find(param.first) != index_map.end())
-               phi[index_map[param.first]] = param.second;
-           }
+            std::unordered_map<std::string,double> param_map;
+            boundLogLike->getPrior().transform(unitpars, param_map);
+            for (auto& param: param_map)
+            {
+               // param_map contains ALL parameters.
+               // We just need the ones which are varied (i.e. the keys of index_map)
+               if (index_map.find(param.first) != index_map.end())
+                  phi[index_map[param.first]] = param.second;
+            }
          }
 
          // Get, set and ouptut the process rank and this point's ID
@@ -368,22 +376,22 @@ namespace Gambit {
                                   double *live, double *dead, double* logweights,
                                   double /*logZ*/, double /*logZerr*/)
       {
-          int thisrank = boundPrinter.get_stream()->getRank(); // MPI rank of this process
-          if(thisrank!=0)
-          {
-             scan_err <<"Error! ScannerBit PolyChord plugin attempted to run 'dumper' function on a worker process "
-                      <<"(thisrank=="<<thisrank<<")! PolyChord should only try to run this function on the master "
-                      <<"process. Most likely this means that your PolyChord installation is not running in MPI mode "
-                      <<"correctly, and is actually running independent scans on each process. Alternatively, the "
-                      <<"version of PolyChord you are using may be too far ahead of what this plugin can handle, "
-                      <<"if e.g. the described behaviour has changed since this plugin was written."
-                      << scan_end;
-          }
+         int thisrank = boundPrinter.get_stream()->getRank(); // MPI rank of this process
+         if(thisrank!=0)
+         {
+            scan_err <<"Error! ScannerBit PolyChord plugin attempted to run 'dumper' function on a worker process "
+                     <<"(thisrank=="<<thisrank<<")! PolyChord should only try to run this function on the master "
+                     <<"process. Most likely this means that your PolyChord installation is not running in MPI mode "
+                     <<"correctly, and is actually running independent scans on each process. Alternatively, the "
+                     <<"version of PolyChord you are using may be too far ahead of what this plugin can handle, "
+                     <<"if e.g. the described behaviour has changed since this plugin was written."
+                     << scan_end;
+         }
 
-          // Write a file at first run of dumper to specify the index of a given dataset.
-          static bool first = true;
-          if (first)
-          {
+         // Write a file at first run of dumper to specify the index of a given dataset.
+         static bool first = true;
+         if (first)
+         {
             int ndim = boundSettings.nDims;
             int nderived = boundSettings.nDerived;
 
@@ -392,7 +400,7 @@ namespace Gambit {
             std::vector<std::string> params = boundLogLike->getShownParameters();
             std::map<int,std::pair<std::string,int>> inversed_map;
             for (int i=0; i<ndim; ++i)
-              inversed_map[index_map[params[i]]] = {params[i],i};
+               inversed_map[index_map[params[i]]] = {params[i],i};
 
             std::ostringstream fname;
             fname << boundSettings.base_dir << "/" <<boundSettings.file_root << ".indices";
@@ -403,51 +411,51 @@ namespace Gambit {
             ofs << index++ << "\t" << "-2*(" << boundLogLike->getPurpose() << ")" << std::endl;
 
             for (int i=0; i<ndim; ++i)
-              ofs << index++ << "\t" << "unitCubeParameters[" << inversed_map[i].second <<"]" << std::endl;
+               ofs << index++ << "\t" << "unitCubeParameters[" << inversed_map[i].second <<"]" << std::endl;
             for (int i=0; i<nderived -2; ++i)
-              ofs << index++ << "\t" << inversed_map[i].first << std::endl;
+               ofs << index++ << "\t" << inversed_map[i].first << std::endl;
 
             ofs << index++ << "\t" << "MPIrank" << std::endl;
             ofs << index++ << "\t" << "pointID" << std::endl;
 
             ofs.close();
-          }
-          first = false;
+         }
+         first = false;
 
-          // Get printers for each auxiliary stream
-          printer* txt_stream(   boundPrinter.get_stream("txt")   );
-          printer* live_stream(  boundPrinter.get_stream("live")  );
+         // Get printers for each auxiliary stream
+         printer* txt_stream(   boundPrinter.get_stream("txt")   );
+         printer* live_stream(  boundPrinter.get_stream("live")  );
 
-          // Reset the print streams. WARNING! This potentially deletes the old data (here we overwrite it on purpose)
-          txt_stream->reset();
-          live_stream->reset();
+         // Reset the print streams. WARNING! This potentially deletes the old data (here we overwrite it on purpose)
+         txt_stream->reset();
+         live_stream->reset();
 
-          // Ensure the "quantity" IDcode is UNIQUE across all printers! This way fancy printers
-          // have the option of ignoring duplicate writes and doing things like combine all the
-          // auxiliary streams into a single database. But must be able to assume IDcodes are
-          // unique for a given quanity to do this.
-          // Negative numbers not used by functors, so those are 'safe' to use here
+         // Ensure the "quantity" IDcode is UNIQUE across all printers! This way fancy printers
+         // have the option of ignoring duplicate writes and doing things like combine all the
+         // auxiliary streams into a single database. But must be able to assume IDcodes are
+         // unique for a given quanity to do this.
+         // Negative numbers not used by functors, so those are 'safe' to use here
 
-          // The discarded live points (and rejected candidate live points if IS = 1)
-          for( int i_dead = 0; i_dead < ndead; i_dead++ )
-          {
-             int myrank  = dead[npars*i_dead + npars-4]; //MPI rank stored in fourth last column
-             int pointID = dead[npars*i_dead + npars-3]; //pointID stored in third last column
-             double logw = logweights[i_dead];           //posterior weight stored in logweights
-             double birth = dead[npars*i_dead + npars-2];   // birth contours
-             double death = dead[npars*i_dead + npars-1]; // death contours
-             txt_stream->print( std::exp(logw), "Posterior", myrank, pointID);
-             txt_stream->print( birth, "LogLike_birth", myrank, pointID);
-             txt_stream->print( death, "LogLike_death", myrank, pointID);
-          }
+         // The discarded live points (and rejected candidate live points if IS = 1)
+         for( int i_dead = 0; i_dead < ndead; i_dead++ )
+         {
+            int myrank  = dead[npars*i_dead + npars-4]; //MPI rank stored in fourth last column
+            int pointID = dead[npars*i_dead + npars-3]; //pointID stored in third last column
+            double logw = logweights[i_dead];           //posterior weight stored in logweights
+            double birth = dead[npars*i_dead + npars-2];   // birth contours
+            double death = dead[npars*i_dead + npars-1]; // death contours
+            txt_stream->print( std::exp(logw), "Posterior", myrank, pointID);
+            txt_stream->print( birth, "LogLike_birth", myrank, pointID);
+            txt_stream->print( death, "LogLike_death", myrank, pointID);
+         }
 
-          // The last set of live points
-          for( int i_live = 0; i_live < nlive; i_live++ )
-          {
-             int myrank  = live[npars*i_live + npars-4]; //MPI rank stored in fourth last column
-             int pointID = live[npars*i_live + npars-3]; //pointID stored in third last column
-             live_stream->print( true, "LastLive", myrank, pointID); // Flag which points were the last live set
-          }
+         // The last set of live points
+         for( int i_live = 0; i_live < nlive; i_live++ )
+         {
+            int myrank  = live[npars*i_live + npars-4]; //MPI rank stored in fourth last column
+            int pointID = live[npars*i_live + npars-3]; //pointID stored in third last column
+            live_stream->print( true, "LastLive", myrank, pointID); // Flag which points were the last live set
+         }
 
       }
 

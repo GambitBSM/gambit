@@ -32,6 +32,7 @@ static void initializer()
   if (strcmp(GAMBIT_VERSION_PATCH, "") != 0) printf("%s", "-" GAMBIT_VERSION_PATCH);
   printf("\nhttp://gambit.hepforge.org\n\n\x1b[0m");
   #ifndef EXCLUDE_RESTFRAMES
+  {
     const char* oldenv = getenv("CPLUS_INCLUDE_PATH");
     const char* addition = (oldenv == NULL ? RESTFRAMES_INCLUDE : ":" RESTFRAMES_INCLUDE);
     if (oldenv != NULL)
@@ -42,5 +43,7 @@ static void initializer()
       setenv("CPLUS_INCLUDE_PATH", newenv, 1);
     }
     else setenv("CPLUS_INCLUDE_PATH", addition, 1);
+  }
   #endif
+
 }

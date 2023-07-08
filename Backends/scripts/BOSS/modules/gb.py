@@ -42,7 +42,7 @@ contains_pure_virtual_members = []
 
 file_dict               = OrderedDict()
 std_types_dict          = OrderedDict()
-typedef_dict            = OrderedDict()
+# typedef_dict            = OrderedDict()
 loaded_classes_in_xml   = OrderedDict()
 func_dict               = OrderedDict()
 new_header_files        = OrderedDict()
@@ -53,7 +53,7 @@ std_include_paths       = []
 
 functions_done          = []
 classes_done            = []
-wr_func_names           = []
+wr_func_names           = OrderedDict()
 
 factory_info            = OrderedDict()
 class_factory_file_dict = OrderedDict()
@@ -532,3 +532,49 @@ std_headers = {
     "std::cv_status"                 : "<condition_variable>",
 }
 
+
+# Standard library typedefs. This dictionary will be expanded by BOSS at runtime. Below we 
+# manually list various typedefs we need that BOSS currently can't construct at runtime.
+std_typedef_names_dict = {
+    #
+    # Various standard types
+    #
+    "std::vector<bool, std::allocator<bool>>" : "std::vector<bool>",
+    #
+    "std::vector<int, std::allocator<int>>" : "std::vector<int>",
+    #
+    "std::vector<double, std::allocator<double>>" : "std::vector<double>",
+    #
+    "std::vector<std::pair<int, int>, std::allocator<std::pair<int, int>>>" : "std::vector<std::pair<int, int>>",
+    #
+    "std::vector<std::basic_string<char>>" : "std::vector<std::string>",
+    "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>" : "std::vector<std::string>",
+    "std::vector<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::allocator<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>" : "std::vector<std::string>",
+    # 
+    "std::map<std::basic_string<char>, std::basic_string<char>>" : "std::map<std::string, std::string>",
+    "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator<std::pair<const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, std::basic_string<char, std::char_traits<char>, std::allocator<char>>>>>" : "std::map<std::string, std::string>",
+    # 
+    "std::map<std::basic_string<char>, double>" : "std::map<std::string, double>", 
+    "std::map<std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double, std::less<std::basic_string<char, std::char_traits<char>, std::allocator<char>>>, std::allocator<std::pair<const std::basic_string<char, std::char_traits<char>, std::allocator<char>>, double>>>" : "std::map<std::string, double>", 
+    #
+    "std::map<int, int, std::less<int>, std::allocator<std::pair<const int, int>>>" : "std::map<int, int>",
+    #
+    #
+    # Backend-specific types
+    #
+    # - Rivet
+    "std::vector<std::shared_ptr<YODA::AnalysisObject>, std::allocator<std::shared_ptr<YODA::AnalysisObject>>>" : "std::vector<std::shared_ptr<YODA::AnalysisObject>>",
+    #
+    # - HepLike:
+    "boost::numeric::ublas::matrix<double, boost::numeric::ublas::basic_row_major<unsigned long, long>, boost::numeric::ublas::unbounded_array<double, std::allocator<double>>>" : "boost::numeric::ublas::matrix<double>",
+    #
+    # - gm2calc:
+    "Eigen::Array<double, 1, 1, 0, 1, 1>" : "Eigen::Array<double, 1, 1, 0>",
+    "Eigen::Array<double, 2, 1, 0, 2, 1>" : "Eigen::Array<double, 2, 1, 0>",
+    "Eigen::Array<double, 4, 1, 0, 4, 1>" : "Eigen::Array<double, 4, 1, 0>",
+    "Eigen::Matrix<double, 2, 2, 0, 2, 2>" : "Eigen::Matrix<double, 2, 2, 0>",
+    "Eigen::Matrix<double, 3, 3, 0, 3, 3>" : "Eigen::Matrix<double, 3, 3, 0>",
+    "Eigen::Matrix<double, 4, 4, 0, 4, 4>" : "Eigen::Matrix<double, 4, 4, 0>",
+    "Eigen::Matrix<std::complex<double>, 2, 2, 0, 2, 2>" : "Eigen::Matrix<std::complex<double>, 2, 2, 0>",
+    "Eigen::Matrix<std::complex<double>, 4, 4, 0, 4, 4>" : "Eigen::Matrix<std::complex<double>, 4, 4, 0>",
+}

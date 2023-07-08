@@ -20,7 +20,7 @@
 ///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2019 July
 ///  \date 2020 January
-///  \date 2021 March
+///  \date 2021 January, March
 ///
 ///  *********************************************
 
@@ -234,8 +234,8 @@
     // get the raw (unlensed) Cl.
     std::vector<double> class_get_unlensed_cl(std::string spectype)
     {
-      // Get dictionary containing all (lensed) Cl spectra
-      map_str_pyobj cl_dict = cosmo.attr("lensed_cl")().cast<map_str_pyobj>();
+      // Get dictionary containing the raw (unlensed) Cl spectra
+      map_str_pyobj cl_dict = cosmo.attr("raw_cl")().cast<map_str_pyobj>();
 
       // Get only the relevant Cl as np array and steal the pointer to its data.
       pybind11::object cl_array_obj = cl_dict[spectype];
@@ -328,6 +328,20 @@
     double class_get_rs()
     {
       double rs_d = cosmo.attr("rs_drag")().cast<double>();
+      return rs_d;
+    }
+
+    // returns optical depth at reionisation
+    double class_get_tau_reio()
+    {
+      double rs_d = cosmo.attr("tau_reio")().cast<double>();
+      return rs_d;
+    }
+
+    // returns redshift of reionisation
+    double class_get_z_reio()
+    {
+      double rs_d = cosmo.attr("z_reio")().cast<double>();
       return rs_d;
     }
 

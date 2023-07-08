@@ -21,7 +21,8 @@
 ///  \date 2017 Nov
 ///  \date 2018 Jan,Feb, Mar
 ///  \date 2019 Jan, Feb, June
-///  \date 2021 Mar
+///  \date 2020 Nov
+///  \date 2021 Jan, Mar, Apr, Sep
 ///
 ///  \author Janina Renk
 ///          (janina.renk@fysik.su.se)
@@ -51,6 +52,10 @@
 ///          (tomas.gonzalo@monash.edu)
 ///  \date 2020 Sep
 ///
+///  \author Anna Liang
+///          (a.liang1@uqconnect.edu.au)
+///  \date 2021 Aug
+///
 ///  *********************************************
 
 #ifndef __CosmoBit_rollcall_hpp__
@@ -62,6 +67,102 @@
 #define MODULE CosmoBit
 #define REFERENCE GAMBITCosmologyWorkgroup:2020htv
 START_MODULE
+
+  /// fraction of the abundance of the dark matter candidate in question
+  /// (mostly a decaying component) contributing to the total DM abundance.
+  #define CAPABILITY DM_fraction
+  START_CAPABILITY
+    #define FUNCTION DM_fraction_ALP
+    START_FUNCTION(double)
+    DEPENDENCY(minimum_fraction,double)
+    DEPENDENCY(lifetime,double)
+    DEPENDENCY(RD_oh2, double)
+    ALLOW_MODEL_DEPENDENCE(LCDM, LCDM_theta, LCDM_zreio, GeneralCosmoALP)
+    MODEL_GROUP(lcdm_model, (LCDM, LCDM_theta, LCDM_zreio))
+    MODEL_GROUP(alp_model, (GeneralCosmoALP))
+    ALLOW_MODEL_COMBINATION(lcdm_model, alp_model)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// total abundance of axion-like particles, produced either by misalignment or freeze-in
+  #define CAPABILITY total_DM_abundance
+  START_CAPABILITY
+    #define FUNCTION total_DM_abundance_ALP
+    START_FUNCTION(double)
+    DEPENDENCY(DM_fraction,double)
+    ALLOW_MODEL_DEPENDENCE(LCDM, LCDM_theta, LCDM_zreio, GeneralCosmoALP)
+    MODEL_GROUP(lcdm_model, (LCDM, LCDM_theta, LCDM_zreio))
+    MODEL_GROUP(alp_model, (GeneralCosmoALP))
+    ALLOW_MODEL_COMBINATION(lcdm_model, alp_model)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// lifetime of the decaying dark matter component (in s)
+  #define CAPABILITY lifetime
+  START_CAPABILITY
+    #define FUNCTION lifetime_ALP_agg
+    START_FUNCTION(double)
+    ALLOW_MODELS(GeneralCosmoALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// minimal Freeze-in abundance of axion-like particles, produced via Primakoff processes
+  #define CAPABILITY minimum_abundance
+  START_CAPABILITY
+    #define FUNCTION minimum_abundance_ALP_analytical
+    START_FUNCTION(double)
+    ALLOW_MODELS(GeneralCosmoALP)
+    #undef FUNCTION
+
+    #define FUNCTION minimum_abundance_ALP_numerical
+    START_FUNCTION(double)
+    ALLOW_MODELS(GeneralCosmoALP)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// the fraction of the minimal freeze-in abundance of axion-like particles,
+  /// produced via Primakoff processes, to the total abundance of dark matter
+  #define CAPABILITY minimum_fraction
+  START_CAPABILITY
+    #define FUNCTION minimum_fraction_ALP
+    START_FUNCTION(double)
+    DEPENDENCY(minimum_abundance,double)
+    ALLOW_MODEL_DEPENDENCE(LCDM, LCDM_theta, LCDM_zreio, GeneralCosmoALP)
+    MODEL_GROUP(lcdm_model, (LCDM, LCDM_theta, LCDM_zreio))
+    MODEL_GROUP(alp_model, (GeneralCosmoALP))
+    ALLOW_MODEL_COMBINATION(lcdm_model, alp_model)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// compute the values for etaBBN_rBBN_rCMB_dNurBBN_dNurCMB
+  /// for non standard models (e.g. GeneralCosmoALP)
+  #define CAPABILITY external_dNeff_etaBBN
+  START_CAPABILITY
+    #define FUNCTION compute_dNeff_etaBBN_ALP
+    START_FUNCTION(map_str_dbl)
+    ALLOW_JOINT_MODEL(GeneralCosmoALP,rBBN_dNurBBN)
+    DEPENDENCY(total_DM_abundance, double)
+    DEPENDENCY(lifetime, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY eta_ratio
+  START_CAPABILITY
+    #define FUNCTION eta_ratio_ALP
+    START_FUNCTION(double)
+    ALLOW_MODELS(GeneralCosmoALP)
+    DEPENDENCY(external_dNeff_etaBBN, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY Neff_evolution
+  START_CAPABILITY
+    #define FUNCTION Neff_evolution_ALP
+    START_FUNCTION(map_str_dbl)
+    ALLOW_MODELS(GeneralCosmoALP)
+    DEPENDENCY(external_dNeff_etaBBN, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
 
   /// get the energy injection efficiency tables
   #define CAPABILITY energy_injection_efficiency
@@ -105,6 +206,7 @@ START_MODULE
     // Set f_eff to a constant that the user can choose
     #define FUNCTION f_eff_constant
     START_FUNCTION(double)
+    ALLOW_MODELS(AnnihilatingDM_general,DecayingDM_general)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -157,7 +259,7 @@ START_MODULE
     ALLOW_MODEL(StandardModel_SLHA2)
     ALLOW_MODEL_DEPENDENCE(etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
     MODEL_GROUP(group1, StandardModel_SLHA2)
-    MODEL_GROUP(gorup2, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
+    MODEL_GROUP(group2, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
     ALLOW_MODEL_COMBINATION(group1, group2)
     DEPENDENCY(Neff_SM, double)
     #undef FUNCTION
@@ -186,13 +288,13 @@ START_MODULE
     /// - neutrino mass, ultra-relativistic species and ncdm related parameters from classy_NuMasses_Nur_input
     /// - energy injection related parameters (if needed) from classy_parameters_EnergyInjection
     /// - CLASS settings from MontePython likelihoods from classy_MPLike_input
-    /// - CLASS settings passed as yaml file options to the capability classy_input_params 
+    /// - CLASS settings passed as yaml file options to the capability classy_input_params
     /// consistency checks when combining all these different inputs are performed.
     #define CAPABILITY classy_input_params
     START_CAPABILITY
       #define FUNCTION set_classy_input_params
       START_FUNCTION(Classy_input)
-      ALLOW_MODELS(LCDM,LCDM_theta)
+      ALLOW_MODELS(LCDM,LCDM_theta,LCDM_zreio)
       DEPENDENCY(classy_MPLike_input, pybind11::dict)
       DEPENDENCY(classy_NuMasses_Nur_input, pybind11::dict)
       DEPENDENCY(classy_primordial_input, pybind11::dict)
@@ -238,7 +340,7 @@ START_MODULE
     #undef CAPABILITY
 
     /// set extra CLASS parameters for energy injection -- different functions for
-    /// decaying and annihilating DM models 
+    /// decaying and annihilating DM models
     #define CAPABILITY classy_parameters_EnergyInjection
     START_CAPABILITY
       #define FUNCTION set_classy_parameters_EnergyInjection_AnnihilatingDM
@@ -613,8 +715,34 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION get_H0_classy
     START_FUNCTION(double)
-    ALLOW_MODELS(LCDM_theta)
     BACKEND_REQ(class_get_H0,(),double,())
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Get Hubble rate at z in km/s/Mpc
+  #define CAPABILITY H_at_z
+  START_CAPABILITY
+    #define FUNCTION get_H_at_z_classy
+    START_FUNCTION(daFunk::Funk)
+    BACKEND_REQ(class_get_Hz,(),double,(double))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Get time since big bang at z in s
+  #define CAPABILITY time_at_z
+  START_CAPABILITY
+    #define FUNCTION get_time_at_z_classy
+    START_FUNCTION(daFunk::Funk)
+    BACKEND_REQ(class_get_tz,(),double,(double))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Get t(z=0) in s
+  #define CAPABILITY age_universe
+  START_CAPABILITY
+    #define FUNCTION get_age_universe_from_time_at_z
+    START_FUNCTION(double)
+    DEPENDENCY(time_at_z,daFunk::Funk)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -623,9 +751,21 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION compute_n0_g
     START_FUNCTION(double)
-    ALLOW_MODELS(LCDM, LCDM_theta)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
     #undef FUNCTION
   #undef CAPABILITY
+
+// TODO: Temporarily disabled until project is ready
+/*
+  /// energy density of dark energy today
+  #define CAPABILITY Omega0_Lambda
+    START_CAPABILITY
+    #define FUNCTION get_Omega0_Lambda_classy
+      START_FUNCTION(double)
+      BACKEND_REQ(class_get_Omega0_Lambda,(class_tag),double,())
+    #undef FUNCTION
+  #undef CAPABILITY
+*/
 
   /// energy density of all matter components today
   #define CAPABILITY Omega0_m
@@ -641,7 +781,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION compute_Omega0_b
     START_FUNCTION(double)
-    ALLOW_MODELS(LCDM, LCDM_theta)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
     DEPENDENCY(H0, double)
     #undef FUNCTION
   #undef CAPABILITY
@@ -651,7 +791,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION compute_Omega0_cdm
     START_FUNCTION(double)
-    ALLOW_MODELS(LCDM, LCDM_theta)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
     DEPENDENCY(H0, double)
     #undef FUNCTION
   #undef CAPABILITY
@@ -670,7 +810,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION compute_Omega0_g
     START_FUNCTION(double)
-    ALLOW_MODELS(LCDM, LCDM_theta)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
     DEPENDENCY(H0, double)
     #undef FUNCTION
   #undef CAPABILITY
@@ -705,7 +845,7 @@ START_MODULE
     // calculate eta0 (today) from omega_b and T_cmb
     #define FUNCTION eta0_LCDM
     START_FUNCTION(double)
-    ALLOW_MODELS(LCDM, LCDM_theta)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -715,6 +855,24 @@ START_MODULE
     #define FUNCTION get_rs_drag_classy
     START_FUNCTION(double)
     BACKEND_REQ(class_get_rs,(),double,())
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // optical depth at reionisation
+  #define CAPABILITY tau_reio
+  START_CAPABILITY
+    #define FUNCTION get_tau_reio_classy
+    START_FUNCTION(double)
+    BACKEND_REQ(class_get_tau_reio,(),double,())
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // redshift of reionisation
+  #define CAPABILITY z_reio
+  START_CAPABILITY
+    #define FUNCTION get_z_reio_classy
+    START_FUNCTION(double)
+    BACKEND_REQ(class_get_z_reio,(),double,())
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -748,27 +906,51 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION AlterBBN_Input
     START_FUNCTION(map_str_dbl)
-    ALLOW_MODELS(LCDM, LCDM_theta, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
+    ALLOW_MODELS(LCDM, LCDM_theta, LCDM_zreio, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB)
     ALLOW_MODEL_DEPENDENCE(nuclear_params_neutron_lifetime)
-    MODEL_GROUP(cosmo,(LCDM, LCDM_theta, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB))
+    MODEL_GROUP(cosmo,(LCDM, LCDM_theta, LCDM_zreio, etaBBN_rBBN_rCMB_dNurBBN_dNurCMB))
     MODEL_GROUP(neutron,(nuclear_params_neutron_lifetime))
     ALLOW_MODEL_COMBINATION(cosmo,neutron)
     DEPENDENCY(Neff_SM, double)
-    MODEL_CONDITIONAL_DEPENDENCY(eta0,double,LCDM,LCDM_theta)
+    MODEL_CONDITIONAL_DEPENDENCY(eta0,double,LCDM,LCDM_theta,LCDM_zreio)
     #undef FUNCTION
   #undef CAPABILITY
 
   /// compute primordial element abundances (and theoretical errors &
   /// covariances if requested) as predicted from BBN
-  #define CAPABILITY BBN_abundances
+  #define CAPABILITY primordial_abundances_BBN
   START_CAPABILITY
-    #define FUNCTION compute_BBN_abundances
+    #define FUNCTION compute_primordial_abundances_BBN
     START_FUNCTION(BBN_container)
     DEPENDENCY(AlterBBN_Input, map_str_dbl)
     BACKEND_REQ(call_nucl_err, (alterbbn_tag), int, (map_str_dbl&,double*,double*))
+    BACKEND_REQ(call_nucl, (alterbbn_tag), int, (map_str_dbl&,double*))
     BACKEND_REQ(get_NNUC, (alterbbn_tag), size_t, ())
     BACKEND_REQ(get_abund_map_AlterBBN, (alterbbn_tag), map_str_int, ())
     FORCE_SAME_BACKEND(alterbbn_tag)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Compute the primordial abundances today
+  /// These contain effects from photodisintegration if relevant
+  #define CAPABILITY primordial_abundances
+  START_CAPABILITY
+
+    #define FUNCTION primordial_abundances
+    START_FUNCTION(BBN_container)
+    DEPENDENCY(primordial_abundances_BBN, BBN_container)
+    #undef FUNCTION
+
+    #define FUNCTION primordial_abundances_decayingDM
+    START_FUNCTION(BBN_container)
+    ALLOW_MODEL_DEPENDENCE(LCDM, LCDM_theta, LCDM_zreio)
+    ALLOW_MODEL_DEPENDENCE(DecayingDM_mixture)
+    MODEL_GROUP(cosmo,(LCDM, LCDM_theta, LCDM_zreio))
+    MODEL_GROUP(decay,(DecayingDM_mixture))
+    ALLOW_MODEL_COMBINATION(cosmo,decay)
+    DEPENDENCY(primordial_abundances_BBN, BBN_container)
+    BACKEND_REQ(set_input_params, (), void, (bool,int,int,double))
+    BACKEND_REQ(abundance_photodisintegration_decay, (), void, (double*,double*,double*,double*,double,double,double,double,double,int))
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -777,7 +959,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION extract_helium_abundance
     START_FUNCTION(double)
-    DEPENDENCY(BBN_abundances, BBN_container)
+    DEPENDENCY(primordial_abundances, BBN_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -788,7 +970,7 @@ START_MODULE
   START_CAPABILITY
     #define FUNCTION compute_BBN_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(BBN_abundances, BBN_container)
+    DEPENDENCY(primordial_abundances, BBN_container)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -805,11 +987,12 @@ START_MODULE
       #define FUNCTION set_parameter_dict_for_MPLike
       START_FUNCTION(pybind11::dict)
       ALLOW_MODELS(cosmo_nuisance_acbar,cosmo_nuisance_spt,cosmo_nuisance_Lya_abg)
-      ALLOW_MODELS(cosmo_nuisance_JLA,cosmo_nuisance_Pantheon,cosmo_nuisance_BK14,cosmo_nuisance_BK14priors)
+      ALLOW_MODELS(cosmo_nuisance_JLA,cosmo_nuisance_Pantheon,cosmo_nuisance_BK15,cosmo_nuisance_BK14,cosmo_nuisance_BK14priors)
       ALLOW_MODELS(cosmo_nuisance_CFHTLens_correlation,cosmo_nuisance_euclid_lensing,cosmo_nuisance_euclid_pk,cosmo_nuisance_euclid_pk_noShot)
       ALLOW_MODELS(cosmo_nuisance_kids450_qe_likelihood_public,cosmo_nuisance_wmap,cosmo_nuisance_ISW)
       ALLOW_MODELS(cosmo_nuisance_ska1,cosmo_nuisance_ska1_IM_band,cosmo_nuisance_ska1_IM_band_noHI,cosmo_nuisance_ska_lensing)
       ALLOW_MODELS(cosmo_nuisance_ska1_pk,cosmo_nuisance_ska2_pk)
+      ALLOW_MODELS(cosmo_nuisance_SpectralDistortions)
       // if you implement new MontePython likelihoods with new nuisance parameters add the name of your new
       // nuisance parameter model (to be defined in Models/include/gambit/Models/models/CosmoNuisanceModels.hpp)
       ALLOW_MODELS(cosmo_nuisance_dummy)
@@ -860,8 +1043,8 @@ START_MODULE
       DEPENDENCY(MP_LogLikes, map_str_dbl)
       #undef FUNCTION
     #undef CAPABILITY
-   
-    /// retrieves the correlation coefficients and the LogLike not taking 
+
+    /// retrieves the correlation coefficients and the LogLike not taking
     /// bao correlations into account from the MP likelihood "bao_correlations"
     #define CAPABILITY bao_like_correlation
       START_CAPABILITY
@@ -873,6 +1056,78 @@ START_MODULE
     #undef CAPABILITY
 
   #endif
+
+  // --------------------
+  // Modified gravity models - symmetron
+  // TODO: Temporarily disabled until project is ready
+/*
+  // Obtain a value for phi(0) given mass and mu
+  #define CAPABILITY phi0_interpolation
+  START_CAPABILITY
+    #define FUNCTION interp_phi0
+    START_FUNCTION(double)
+    ALLOW_MODELS(symmetron)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Calculate BD param omega gievn phi(0), mass and v
+  #define CAPABILITY omega_bdparam
+  START_CAPABILITY
+    #define FUNCTION compute_omega
+    START_FUNCTION(double)
+    ALLOW_MODELS(symmetron)
+    DEPENDENCY(phi0_interpolation, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Calculate |gamma-1| given BD param omega
+  #define CAPABILITY gammaminus1_bdparam
+  START_CAPABILITY
+    #define FUNCTION compute_gammaminus1
+    START_FUNCTION(double)
+    DEPENDENCY(omega_bdparam, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+    // A likelihood function for |gamma-1| using cassini value
+  #define CAPABILITY gamma_loglike
+  START_CAPABILITY
+    #define FUNCTION lnL_gamma
+    START_FUNCTION(double)
+    DEPENDENCY(gammaminus1_bdparam, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // calculate |beta-1| given BD param omega
+  #define CAPABILITY betaminus1_bdparam
+  START_CAPABILITY
+    #define FUNCTION compute_betaminus1
+    START_FUNCTION(double)
+    ALLOW_MODELS(symmetron)
+    DEPENDENCY(omega_bdparam, double)
+    DEPENDENCY(phi0_interpolation, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // A likelihood function for eta using mars perihelion value
+  #define CAPABILITY eta_loglike
+  START_CAPABILITY
+    #define FUNCTION lnL_eta
+    START_FUNCTION(double)
+    DEPENDENCY(gammaminus1_bdparam, double)
+    DEPENDENCY(betaminus1_bdparam, double)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // A likelihood function vmax
+  #define CAPABILITY vmin_loglike
+  START_CAPABILITY
+    #define FUNCTION lnL_vmin
+    START_FUNCTION(double)
+    ALLOW_MODELS(symmetron)
+    #undef FUNCTION
+  #undef CAPABILITY
+*/
 
 #undef REFERENCE
 #undef MODULE

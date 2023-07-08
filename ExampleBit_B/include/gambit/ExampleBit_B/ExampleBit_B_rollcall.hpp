@@ -126,7 +126,7 @@ START_MODULE
     START_CONDITIONAL_DEPENDENCY(std::string)              // Type of the dependency; one type permitted per CONDITIONAL_DEPENDENCY.
     ACTIVATE_FOR_BACKEND(awesomeness, LibFirst, 1.1, 1.2)  // Dependency counts if awesomeness comes from LibFirst v1.1 or 1.2
     ACTIVATE_FOR_BACKEND(awesomeness, LibThird)            // Dependency counts when any version of LibThird is used for awesomeness
-    ACTIVATE_FOR_MODEL(demo_B)                             // Dependency counts when scanning demo_B or one of its sub-models
+    ACTIVATE_FOR_MODEL(CMSSM)                              // Dependency counts when scanning CMSSM or one of its sub-models
     #undef CONDITIONAL_DEPENDENCY
 
     #undef FUNCTION

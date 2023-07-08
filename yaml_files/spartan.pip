@@ -20,11 +20,12 @@ parse_dir = 'runs/spartan/parse'            ;Directory to save parsing output in
 cut_on_invalid_observables = F              ;Cut on any invalid entries in an hdf5 file, not just the likelihood (defaults to false, meaning cut on likelihood only)
 
 default_bins = 50                           ;Default number of bins to sort samples into in each direction.
-number_of_bins =                            ;Bins to use for specific observables (overrides default)
-interpolated_resolution = 500               ;Resolution of binwise interpolation for plotting (~300+ for publication)
+specific_bins =                             ;Bins to use for specific observables (EFN; overrides default)
+default_resolution = 500                    ;Default resolution of binwise interpolation for plotting (~300+ for publication)
+specific_resolution =                       ;Resolution of binwise interpolation for specific observables (EFN; overrides default)
 interpolation_method = 'bilinear'           ;Either bilinear (default) or spline (watch out for ringing in the latter case)
 
-chain_type =                                ;Algorithm used to generate chain (valid: MCMC, MultiNest, other)
+chain_type = other                          ;Algorithm used to generate chain (valid: MCMC, MultiNest, other)
 compute_evidence = F                        ;Compute and print evidence (only if chain_type = MCMC)
 bf_lnlike_for_profile_like =                ;Denominator of profile likelihood ratio (if empty, set to best fit determined from chain)
 
@@ -33,7 +34,6 @@ quantity_rescalings =                       ;Scaling factors to apply to any col
 data_ranges =                               ;Discard any points outside these ranges of parameters/observables
 
 labels_from_file =                          ;Either a filename or blank (quantity_labels is ignored if a filename is given)
-
 preamble = 'from gambit_preamble import *'  ;A one-line python preamble to run before processing functional datastreams.
 assign_to_pippi_datastream  =  'LogLike':0 \
                                '#NormalDist_parameters @NormalDist::primary_parameters::mu':2 \
@@ -41,7 +41,6 @@ assign_to_pippi_datastream  =  'LogLike':0 \
                                             ;To plot MultiNest posteriors, add 'Posterior':1 \ above; to plot t-walk posteriors, add 'mult':1 \ above
                                             ;Also adjust the chain_type and do_posterior_pdf fields
                                             ;Reassign a named hdf5 data stream to a particular column index in pippi (use pippi probe to test; EFN)
-
 quantity_labels =   0:'lnlike' \
                     2:'$\mu$' \
                     3:'$\sigma$'
@@ -67,7 +66,7 @@ plot_colourbar_2D = {1,2}                   ;2D plots that should include colour
 
 plot_comparison = F                         ;Overplot distributions from comparisonFilename in 1D plots and contours in 2D plots
 extra_legend_lines = 'Spartan example'      ;Additional text lines to be included in any legends (EFN)
-blame = '\textsf{GAMBIT} 1.1.3'             ;Credit line to be placed in top corner of all plots
+blame = '\textsf{GAMBIT} 2.2.0'             ;Credit line to be placed in top corner of all plots
 yaxis_number_angle = -90                    ;Angle relative to vertical for y-axis numerical labels
 
 plot_posterior_mean_on_posterior_pdf = T    ;Indicate the posterior mean in all posterior pdf plots

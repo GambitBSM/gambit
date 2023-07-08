@@ -35,7 +35,7 @@ namespace Gambit
       {
 
         // Loop through all elements in all_process_codes_to_PID_pairs
-        for (const std::pair<int,PID_pair>& elem : all_process_codes_to_PID_pairs)
+        for (const std::pair<const int, PID_pair>& elem : all_process_codes_to_PID_pairs)
         {
           // Insert the reversed pair into the result map
           result.insert( std::make_pair(elem.second, elem.first) );

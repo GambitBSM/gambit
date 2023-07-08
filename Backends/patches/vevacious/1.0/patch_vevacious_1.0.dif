@@ -1,7 +1,40 @@
 diff -rupN vevacious_pristine/CMakeLists.txt vevacious/CMakeLists.txt
 --- vevacious_pristine/CMakeLists.txt	2022-01-10 16:40:58.420250624 +0100
 +++ vevacious/CMakeLists.txt	2022-01-10 16:41:16.756223022 +0100
-@@ -238,7 +238,7 @@ else()
+@@ -59,8 +59,8 @@ add_definitions(-DSILENT_MODE)
+ endif()
+ 
+ # Set the general compiler flags
+-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fPIC")
+-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-local-typedefs -O3 -fPIC -fopenmp")
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+ 
+ 
+ #############################################################################
+@@ -171,8 +171,13 @@ set(sources source/BounceActionEvaluatio
+         source/TunnelingCalculation/BounceActionTunneler.cpp
+         source/Utilities/WarningLogger.cpp
+         source/VevaciousPlusPlus.cpp
+-        source/VevaciousPlusPlusMain.cpp)
+-
++        source/VevaciousPlusPlusMain.cpp
++        source/BOSS_factory_VevaciousPlusPlus.cpp
++        source/BOSS_wrapperutils.cpp
++        source/BOSS_VevaciousPlusPlus.cpp
++        source/BOSS_factory_VevaciousPlusPlus.cpp
++        source/BOSS_wrapperutils.cpp
++        source/BOSS_VevaciousPlusPlus.cpp)
+ 
+ 
+ #############################################################################
+@@ -233,12 +238,12 @@ endif()
+ 
+ # Linking to minuit
+ if(WITHIN_GAMBIT)
+-    #Nothing 
++    #Nothing
+ else()
      set(Minuit_lib "${PROJECT_SOURCE_DIR}/${Minuit_name}/${Minuit_ver}/lib/")
  endif()
  
@@ -10,7 +43,7 @@ diff -rupN vevacious_pristine/CMakeLists.txt vevacious/CMakeLists.txt
  
  
  
-@@ -252,7 +252,7 @@ add_library(VevaciousPlusPlus-lib SHARED
+@@ -252,7 +257,7 @@ add_library(VevaciousPlusPlus-lib SHARED
  
  # Linking to minuit
  
@@ -18,7 +51,7 @@ diff -rupN vevacious_pristine/CMakeLists.txt vevacious/CMakeLists.txt
 +target_link_libraries(VevaciousPlusPlus-lib ${Minuit_lib}/libMinuit2.so)
  
  add_dependencies(VevaciousPlusPlus-lib objlib)
-
+ 
 diff -rupN vevacious_pristine/source/VevaciousPlusPlus.cpp vevacious/source/VevaciousPlusPlus.cpp
 --- vevacious_pristine/source/VevaciousPlusPlus.cpp	2022-01-10 18:22:32.739503947 +0100
 +++ vevacious/sourceVevaciousPlusPlus.cpp	2022-01-10 18:24:58.256447328 +0100

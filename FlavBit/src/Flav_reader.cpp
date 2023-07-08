@@ -35,13 +35,12 @@ namespace Gambit
   namespace FlavBit
   {
 
-    using namespace std;
 
     /// Extraction operator for correlation
     void operator >> (const YAML::Node& node, Correlation& c)
     {
       // safety
-      string name = node["name"].as<std::string>();
+      std::string name = node["name"].as<std::string>();
       if (name == "NONE") return;
       // reading correlation
       c.corr_name= name;
@@ -54,15 +53,15 @@ namespace Gambit
       v.name=node["name"].as<std::string>();
       v.is_limit = node["islimit"].as<bool>();
       v.exp_value= node["exp_value"].as<double>();
-      if(node["exp_90_CL"]) v.exp_90_CL = node["exp_90_CL"].as<double>(); 
+      if(node["exp_90_CL"]) v.exp_90_CL = node["exp_90_CL"].as<double>();
       if(node["exp_95_CL"]) v.exp_95_CL = node["exp_95_CL"].as<double>();
-      if(node["one_sided"]) v.exp_one_sided = node["one_sided"].as<bool>(); 
+      if(node["one_sided"]) v.exp_one_sided = node["one_sided"].as<bool>();
       v.exp_source = node["exp_source"].as<std::string>();
       v.exp_stat_error = node["exp_stat_error"].as<double>();
       v.exp_sys_error = node["exp_sys_error"].as<double>();
       if(v.is_limit and !v.exp_stat_error and (v.exp_90_CL or v.exp_95_CL))
       {
-        v.exp_stat_error = 
+        v.exp_stat_error =
           Flav_reader::get_error_from_confidence_levels(v.exp_value, v.exp_90_CL, v.exp_95_CL, v.exp_one_sided);
       }
       v.exp_error=sqrt( v.exp_stat_error*v.exp_stat_error + v.exp_sys_error*v.exp_sys_error );
@@ -80,9 +79,9 @@ namespace Gambit
     }
 
     /// Constructor that takes the location of the database as an argument
-    Flav_reader::Flav_reader(string loc)
+    Flav_reader::Flav_reader(std::string loc)
     {
-      measurements=vector< Measurement >(0);
+      measurements=std::vector< Measurement >(0);
       measurement_location=loc;
       debug=false;
       use_S=true;
@@ -91,9 +90,9 @@ namespace Gambit
     }
 
     /// Read the entire database into memory
-    void Flav_reader::read_yaml(string name)
+    void Flav_reader::read_yaml(std::string name)
     {
-      string path=measurement_location+"/"+name;
+      std::string path=measurement_location+"/"+name;
       std::ifstream fin(path.c_str());
       YAML::Node doc = YAML::Load(fin);
       number_measurements=0;
@@ -105,18 +104,18 @@ namespace Gambit
         measurements.push_back(mes_tmp);
         number_measurements++;
       }
-      if (debug) cout<<"Number of measurements: "<<number_measurements<<endl;
+      if (debug) std::cout<<"Number of measurements: "<<number_measurements<<endl;
     }
 
     /// Read a single measurement from the database into memory
-    void Flav_reader::read_yaml_measurement(string name, string measurement_name)
+    void Flav_reader::read_yaml_measurement(std::string name, std::string measurement_name)
     {
-      string path=measurement_location+"/"+name;
+      std::string path=measurement_location+"/"+name;
       std::ifstream fin(path.c_str());
       YAML::Node doc = YAML::Load(fin);
       Measurement mes_tmp;
 
-      if (debug) cout << measurement_name.c_str() << endl;
+      if (debug) std::cout << measurement_name.c_str() << std::endl;
 
       for (unsigned i=0; i<doc.size(); ++i)
       {
@@ -125,26 +124,26 @@ namespace Gambit
         if(mes_tmp.name!=measurement_name.c_str()) continue;
         measurements.push_back(mes_tmp);
         number_measurements++;
-        if (debug) cout << "Read in " << measurement_name << " " << mes_tmp.name << " " << mes_tmp.exp_value << endl;
+        if (debug) std::cout << "Read in " << measurement_name << " " << mes_tmp.name << " " << mes_tmp.exp_value << std::endl;
       }
-      if(debug) cout << "Number of measurements: " << number_measurements << endl;
+      if(debug) std::cout << "Number of measurements: " << number_measurements << std::endl;
     }
 
     /// Print a measurement previously read in from the database
     void Flav_reader::print(Measurement mes)
     {
-      cout<<"################### Mesurement"<<endl;
-      cout<<"Name: "<<mes.name<<endl;
-      cout<<(mes.is_limit ? "Limit" : "Value")<<": "<<mes.exp_value<<endl;
-      cout<<"Stat/sys errror: "<< mes.exp_stat_error<<"/"<<mes.exp_sys_error<<endl;
-      cout<<"Error plus/minus: "<<mes.exp_error<<endl;
-      cout<<"Experimental source: "<<mes.exp_source<<endl;
-      cout<<"Correlations:"<<endl;
+      std::cout<<"################### Mesurement"<<endl;
+      std::cout<<"Name: "<<mes.name<<endl;
+      std::cout<<(mes.is_limit ? "Limit" : "Value")<<": "<<mes.exp_value<<endl;
+      std::cout<<"Stat/sys errror: "<< mes.exp_stat_error<<"/"<<mes.exp_sys_error<<endl;
+      std::cout<<"Error plus/minus: "<<mes.exp_error<<endl;
+      std::cout<<"Experimental source: "<<mes.exp_source<<endl;
+      std::cout<<"Correlations:"<<endl;
       for(unsigned i=0;i<mes.corr.size();++i)
       {
-        cout<<mes.corr[i].corr_name<<"  "<<mes.corr[i].corr_val<<endl;
+        std::cout<<mes.corr[i].corr_name<<"  "<<mes.corr[i].corr_val<<endl;
       }
-      cout<<"########## END"<<endl;
+      std::cout<<"########## END"<<endl;
     }
 
     /// Compute the covariance matrix and populate the measurement and theory error vectors
@@ -155,12 +154,12 @@ namespace Gambit
       for(int i=0; i<number_measurements; ++i)
       {
         #ifdef FLAVBIT_DEBUG
-          cout<<"Correlation size: "<< measurements[i].corr.size()<<endl;
+          std::cout<<"Correlation size: "<< measurements[i].corr.size()<<endl;
         #endif
         for ( unsigned icorr=0; icorr< measurements[i].corr.size(); ++icorr)
         {
           #ifdef FLAVBIT_DEBUG
-            cout<<"Searching for correlation: "<< measurements[i].corr[icorr].corr_name <<endl;
+            std::cout<<"Searching for correlation: "<< measurements[i].corr[icorr].corr_name <<endl;
           #endif
           int i_corr_index=get_measurement_for_corr(measurements[i].corr[icorr].corr_name  );
           M_cor_cov(i_corr_index,i)=measurements[i].corr[icorr].corr_val;
@@ -204,13 +203,13 @@ namespace Gambit
     }
 
     /// Find the second measurement that corresponds to a given correlation
-    int Flav_reader::get_measurement_for_corr(string ss)
+    int Flav_reader::get_measurement_for_corr(std::string ss)
     {
       for(int i=0;i<number_measurements;++i)
       {
         if(measurements[i].name == ss) return i;
       }
-      cout<<"Error!, didn't find measuremnet: "<<ss<<endl;
+      std::cout<<"Error!, didn't find measuremnet: "<<ss<<endl;
       return -1;
     }
 
@@ -218,11 +217,11 @@ namespace Gambit
     void Flav_reader::print_matrix(boost::numeric::ublas::matrix<double>& M, str name, bool is_true_matrix)
     {
       int jmax = is_true_matrix ? number_measurements : 1;
-      cout<<name<<endl;
+      std::cout<<name<<endl;
       for(int i=0; i < number_measurements; ++i)
       {
-        for(int j=0 ; j< jmax; ++j) cout<<M(i,j)<<"\t";
-        cout<<endl;
+        for(int j=0 ; j< jmax; ++j) std::cout<<M(i,j)<<"\t";
+        std::cout<<endl;
       }
     }
 
@@ -230,11 +229,11 @@ namespace Gambit
     void Flav_reader::print_matrix(boost::numeric::ublas::matrix< std::pair<double, bool> >& M, str name, bool is_true_matrix)
     {
       int jmax = is_true_matrix ? number_measurements : 1;
-      cout<<name<<endl;
+      std::cout<<name<<endl;
       for(int i=0; i < number_measurements; ++i)
       {
-        for(int j=0 ; j< jmax; ++j) cout<<M(i,j).first<<":"<<M(i,j).second<<"\t";
-        cout<<endl;
+        for(int j=0 ; j< jmax; ++j) std::cout<<M(i,j).first<<":"<<M(i,j).second<<"\t";
+        std::cout<<endl;
       }
     }
 
@@ -251,8 +250,8 @@ namespace Gambit
           }
           if (M(i,j) != M(j,i))
           {
-            cout << "Correlation matrix " << i << "," << j << " = " << M(i,j) << endl;
-            cout << "Correlation matrix " << i << "," << j << " = " << M(j,i) << endl;
+            std::cout << "Correlation matrix " << i << "," << j << " = " << M(i,j) << std::endl;
+            std::cout << "Correlation matrix " << i << "," << j << " = " << M(j,i) << std::endl;
             FlavBit_error().raise(LOCAL_INFO, "Correlation matrix not symmetric");
           }
         }

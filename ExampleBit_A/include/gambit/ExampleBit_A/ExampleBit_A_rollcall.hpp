@@ -221,15 +221,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // Pythia backend tester
-  #define CAPABILITY test_Pythia
-  START_CAPABILITY
-    #define FUNCTION bossed_pythia_test_function
-    START_FUNCTION(bool)
-    NEEDS_CLASSES_FROM(Pythia, default)
-    #undef FUNCTION
-  #undef CAPABILITY
-
 
   // Tester for C/C++ backend array interfaces
   #define CAPABILITY test_BE_Array

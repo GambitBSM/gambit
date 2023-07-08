@@ -1,0 +1,883 @@
+diff --git a/explanatory.ini b/explanatory.ini
+index 26138413..8bc31b30 100644
+--- a/explanatory.ini
++++ b/explanatory.ini
+@@ -594,7 +594,7 @@ scf_shooting_parameter =
+ 
+ # 1.a) In order to model energy injection from DM annihilation, specify a
+ #      parameter 'annihilation_efficiency' corresponding to
+-#      <sigma*v> / m_cdm expressed here in units of m^3/s/J. Alternatively,
++#      <sigma*v> / m_cdm expressed here in units of m^3/s/kg. Alternatively,
+ #      you can specify the annihilation cross section in cm^3/s and the DM
+ #      mass in GeV. The code will then evaluate 'annihilation_efficiency'.
+ #     (default: all set to zero)
+diff --git a/external/heating/injection.c b/external/heating/injection.c
+index 788d9385..770fcc96 100644
+--- a/external/heating/injection.c
++++ b/external/heating/injection.c
+@@ -54,6 +54,12 @@ int injection_init(struct precision * ppr,
+   pin->fHe = pth->fHe;                                                                              // [-]
+   pin->N_e0 = pth->n_e;                                                                             // [1/m^3]
+ 
++  /** - Define indices of tables */
++  pin->to_store = _FALSE_;
++  class_call(injection_indices(pth),
++             pin->error_message,
++             pin->error_message);
++
+   /** - Define redshift tables */
+   pin->z_size = pth->tt_size;
+   class_alloc(pin->z_table,
+@@ -73,12 +79,6 @@ int injection_init(struct precision * ppr,
+   pin->last_index_z = 0;
+   pin->index_z_store = 0;
+ 
+-  /** - Define indices of tables */
+-  pin->to_store = _FALSE_;
+-  class_call(injection_indices(pth),
+-             pin->error_message,
+-             pin->error_message);
+-
+   /** - Initialize energy injection table */
+   /* Allocate space */
+   class_alloc(pin->injection_table,
+@@ -106,6 +106,36 @@ int injection_init(struct precision * ppr,
+                pin->error_message);
+   }
+ 
++  /* If we pass the f_eff(z) table externally, do the memory allocation here and copy the data */
++  if(pin->f_eff_type == pointer_to_fz_eff)
++  {
++    pin->feff_z_size = pin->external_fz_size;
++
++    /* (z, f, ddf)*/
++    class_alloc(pin->feff_table,
++                3*pin->feff_z_size*sizeof(double),
++                pin->error_message);
++
++    int index_z;
++    for(index_z=0;index_z<pin->feff_z_size;++index_z)
++    {
++      pin->feff_table[index_z*3+0] = pin->external_fz_z[index_z];
++      pin->feff_table[index_z*3+1] = pin->external_fz_ftot[index_z];
++    }
++
++    /* Spline in one dimension */
++    class_call(array_spline(pin->feff_table,
++                            3,
++                            pin->feff_z_size,
++                            0,
++                            1,
++                            2,
++                            _SPLINE_NATURAL_,
++                            pin->error_message),
++              pin->error_message,
++              pin->error_message);
++  }
++
+   /** - Initialize deposition function */
+   /* Allocate space */
+   class_alloc(pin->chi,
+@@ -132,6 +162,46 @@ int injection_init(struct precision * ppr,
+                pin->error_message);
+   }
+ 
++  /* If we pass the f_c(z) table externally, do the memory allocation here and copy the data */
++  /* - > Note that we will use the trick to set f_eff = 1 such that this is equivalent */
++  /*     to pass a table of chi_c(z) as done in heating_read_chi_z_from_file */
++  if(pin->f_eff_type == pointer_to_fz_channel)
++  {
++    pin->chiz_size = pin->external_fz_size;
++
++    /* (z, chi_i)*/
++    class_alloc(pin->chiz_table,
++                (2*pin->dep_size+1)*pin->chiz_size*sizeof(double),
++                pin->error_message);
++
++    int index_z;
++    for(index_z=0;index_z<pin->chiz_size;++index_z)
++    {
++      pin->chiz_table[index_z*(2*pin->dep_size+1)+0] = pin->external_fz_z[index_z];; //z
++      pin->chiz_table[index_z*(2*pin->dep_size+1)+1+pin->index_dep_heat] = pin->external_fz_fheat[index_z]; //heat
++      pin->chiz_table[index_z*(2*pin->dep_size+1)+1+pin->index_dep_lya] = pin->external_fz_flya[index_z]; //lya
++      pin->chiz_table[index_z*(2*pin->dep_size+1)+1+pin->index_dep_ionH] = pin->external_fz_fhion[index_z]; //ionH
++      pin->chiz_table[index_z*(2*pin->dep_size+1)+1+pin->index_dep_ionHe] = pin->external_fz_fheion[index_z]; //ionHe
++      pin->chiz_table[index_z*(2*pin->dep_size+1)+1+pin->index_dep_lowE] = pin->external_fz_flowe[index_z]; //lowE
++    }
++
++    /* Spline in one dimension */
++    int index_dep;
++    for(index_dep=0;index_dep<pin->dep_size;++index_dep)
++    {
++      class_call(array_spline(pin->chiz_table,
++                              2*pin->dep_size+1,
++                              pin->chiz_size,
++                              0,
++                              1+index_dep,
++                              1+index_dep+pin->dep_size,
++                              _SPLINE_NATURAL_,
++                              pin->error_message),
++                 pin->error_message,
++                 pin->error_message);
++    }
++  }
++
+   /** - Initialize energy deposition table */
+   /* Allocate space */
+   class_alloc(pin->deposition_table,
+@@ -166,9 +236,19 @@ int injection_indices(struct thermodynamics* pth){
+   /* Check energy injection */
+   if(pin->DM_annihilation_efficiency!=0){
+     pin->has_DM_ann = _TRUE_;
++
++   //class_test(pin->DM_annihilation_efficiency>1.e-4,
++   //           pin->error_message,
++   //           "annihilation efficiency [m^3/s/kg] suspiciously large (%e, while typical bounds are in the range of 1e-7 to 1e-6)",pin->DM_annihilation_efficiency);
+   }
+   if(pin->DM_decay_fraction!=0){
+     pin->has_DM_dec = _TRUE_;
++
++    //double tau_dec = 1/(pin->DM_decay_Gamma);
++    //double ln_bound_on_fraction = log(tau_dec/2e25) + pow(4.6e13/tau_dec, 1/sqrt(2.));;
++    //class_test(log(1e-3*pin->DM_decay_fraction) > ln_bound_on_fraction,
++    //           pin->error_message,
++    //           "Suspiciously large energy injection through DM decay");
+   }
+   if(pin->PBH_evaporation_fraction!=0){
+     pin->has_PBH_eva = _TRUE_;
+@@ -229,10 +309,10 @@ int injection_free(struct thermodynamics* pth){
+   }
+ 
+   /* Injection efficiency */
+-  if(pin->f_eff_type == f_eff_from_file){
++  if(pin->f_eff_type == f_eff_from_file || pin->f_eff_type == pointer_to_fz_eff){
+     free(pin->feff_table);
+   }
+-  if(pin->chi_type == chi_from_z_file){
++  if(pin->chi_type == chi_from_z_file || pin->f_eff_type == pointer_to_fz_channel){
+     free(pin->chiz_table);
+   }
+   if(pin->chi_type == chi_from_x_file || pin->chi_type == chi_Galli_file){
+@@ -590,7 +670,7 @@ int injection_deposition_function_at_z(struct injection* pin,
+       }
+     }
+     /* Read file in redshift */
+-    else if(pin->chi_type == chi_from_z_file){
++    else if(pin->chi_type == chi_from_z_file || pin->f_eff_type == pointer_to_fz_channel){
+       for(index_dep=0;index_dep<pin->dep_size;++index_dep){
+         class_call(array_interpolate_spline_transposed(pin->chiz_table,
+                                                        pin->chiz_size,
+@@ -613,11 +693,11 @@ int injection_deposition_function_at_z(struct injection* pin,
+ 
+   /** - Read the correction factor f_eff */
+   /* For the on the spot, we take the user input */
+-  if(pin->f_eff_type == f_eff_on_the_spot){
++  if(pin->f_eff_type == f_eff_on_the_spot || pin->f_eff_type == pointer_to_fz_channel){
+     // pin->f_eff has already been seet by user
+   }
+   /* For the file, read in f_eff from file and multiply */
+-  else if(pin->f_eff_type == f_eff_from_file){
++  else if(pin->f_eff_type == f_eff_from_file || pin->f_eff_type == pointer_to_fz_eff){
+     class_call(array_interpolate_spline_transposed(pin->feff_table,
+                                                    pin->feff_z_size,
+                                                    3,
+@@ -699,20 +779,23 @@ int injection_rate_DM_annihilation(struct injection * pin,
+                                    double * energy_rate){
+ 
+   /** - Define local variables */
+-  double annihilation_at_z, boost_factor;
++  double annihilation_at_z, annihilation_efficiency, boost_factor;
++
++  /** - Convert the annihilation efficiency from [m^3/s/kg] to [m^3/s/J] */
++  annihilation_efficiency = pin->DM_annihilation_efficiency/_c_/_c_;
+ 
+   /** - Calculate change in the annihilation efficiency */
+   if (z>pin->DM_annihilation_zmax) {
+-    annihilation_at_z = pin->DM_annihilation_efficiency*
++    annihilation_at_z = annihilation_efficiency*
+                         exp(-pin->DM_annihilation_variation*pow(log((pin->DM_annihilation_z+1.)/(pin->DM_annihilation_zmax+1.)),2));
+   }
+   else if (z>pin->DM_annihilation_zmin) {
+-    annihilation_at_z = pin->DM_annihilation_efficiency*
++    annihilation_at_z = annihilation_efficiency*
+                         exp(pin->DM_annihilation_variation*(-pow(log((pin->DM_annihilation_z+1.)/(pin->DM_annihilation_zmax+1.)),2)
+                                          +pow(log((z+1.)/(pin->DM_annihilation_zmax+1.)),2)));
+   }
+   else {
+-    annihilation_at_z = pin->DM_annihilation_efficiency*
++    annihilation_at_z = annihilation_efficiency*
+                         exp(pin->DM_annihilation_variation*(-pow(log((pin->DM_annihilation_z+1.)/(pin->DM_annihilation_zmax+1.)),2)
+                                          +pow(log((pin->DM_annihilation_zmin+1.)/(pin->DM_annihilation_zmax+1.)),2)));
+   }
+@@ -745,8 +828,35 @@ int injection_rate_DM_decay(struct injection * pin,
+                             double * energy_rate){
+ 
+   /** - Calculate injection rates */
+-  *energy_rate = pin->rho_cdm*pin->DM_decay_fraction*pin->DM_decay_Gamma*
+-                 exp(-pin->DM_decay_Gamma*pin->t);                                                  // [J/(m^3 s)]
++  *energy_rate = pin->rho_cdm*pin->DM_decay_fraction*pin->DM_decay_Gamma;                                                  // [J/(m^3 s)]
++
++  double t_ref = 0;
++  /** If the f(z) tables are calculated with DarkAges,
++   *  the exponential factor is already included by
++   *  assuming reference values for Omega_m, Omega_r and H0.
++   *  We need to correct for this for all z if pin->f_eff_type == pointer_to_fz_eff
++   * and only for z < z_start_chi_approx if pin->f_eff_type == pointer_to_fz_channel **/
++  if ( pin->f_eff_type == pointer_to_fz_eff || (pin->f_eff_type == pointer_to_fz_channel && z <= pin->z_start_chi_approx) )
++  {
++    double Omega_m_ref = 0.3156;
++    double Omega_r_ref = 8e-5;
++    double H0_ref = 67.27 * 3.241e-20;
++
++    double z_ref = z;
++    if (z < pin->external_fz_z[1])
++    {
++      z_ref = pin->external_fz_z[1];
++    }
++    else if (z > pin->external_fz_z[pin->external_fz_size-2])
++    {
++      z_ref = pin->external_fz_z[pin->external_fz_size-2];
++    }
++
++    t_ref = 2./(3. * pow(Omega_m_ref,2.0) * z_ref * H0_ref);
++    t_ref = t_ref * ( Omega_m_ref * pow(Omega_r_ref + (Omega_m_ref / z_ref),0.5) + 2. * pow(Omega_r_ref,1.5) * z_ref - 2. * Omega_r_ref * pow(z_ref*(Omega_m_ref + z_ref*Omega_r_ref),0.5) );
++  }
++
++  *energy_rate *= exp(-pin->DM_decay_Gamma*(pin->t-t_ref));
+ 
+   return _SUCCESS_;
+ }
+diff --git a/external/heating/injection.h b/external/heating/injection.h
+index 769c31f1..f82f8a35 100644
+--- a/external/heating/injection.h
++++ b/external/heating/injection.h
+@@ -7,7 +7,7 @@
+  * All injection parameters and evolution that other modules need to know.
+  */
+ enum PBH_accretion_approx {spherical_accretion, disk_accretion};
+-enum f_eff_approx {f_eff_on_the_spot, f_eff_from_file};
++enum f_eff_approx {f_eff_on_the_spot, f_eff_from_file, pointer_to_fz_eff, pointer_to_fz_channel};
+ enum chi_approx {chi_CK, chi_PF, chi_Galli_file, chi_Galli_analytic, chi_full_heating, chi_from_x_file, chi_from_z_file};
+ 
+ struct injection{
+@@ -46,6 +46,16 @@ struct injection{
+   int f_eff_type;
+   FileName f_eff_file;
+ 
++  /* External f(z) table */
++  int external_fz_size;
++  double * external_fz_z;
++  double * external_fz_ftot;
++  double * external_fz_fheat;
++  double * external_fz_flya;
++  double * external_fz_fhion;
++  double * external_fz_fheion;
++  double * external_fz_flowe;
++
+   /* Deposition function and injection efficiency */
+   int chi_type;
+   FileName chi_z_file;
+diff --git a/include/primordial.h b/include/primordial.h
+index e253d384..58be4d4c 100644
+--- a/include/primordial.h
++++ b/include/primordial.h
+@@ -13,7 +13,8 @@ enum primordial_spectrum_type {
+   inflation_V,
+   inflation_H,
+   inflation_V_end,
+-  external_Pk
++  external_Pk,
++  pointer_to_Pk
+ };
+ 
+ /** enum defining whether the spectrum routine works with linear or logarithmic input/output */
+@@ -212,6 +213,10 @@ struct primordial {
+ 
+   int lnk_size;    /**< number of ln(k) values */
+ 
++  double * ptr_k_array;      /**< poiner to external array holding the k values of the primordial Pk */
++  double * ptr_pks_array;    /**< poiner to external array holding the scalar modes of the primordial Pk */
++  double * ptr_pkt_array;    /**< poiner to external array holding the tensor modes of the primordial Pk */
++
+   double * lnk;    /**< list of ln(k) values lnk[index_k] */
+ 
+   double ** lnpk;  /**< depends on indices index_md, index_ic1, index_ic2, index_k as:
+diff --git a/python/cclassy.pxd b/python/cclassy.pxd
+index be49fa68..92910f86 100644
+--- a/python/cclassy.pxd
++++ b/python/cclassy.pxd
+@@ -58,6 +58,7 @@ cdef extern from "class.h":
+     cdef struct background:
+         ErrorMsg error_message
+         int bg_size
++        int index_bg_time
+         int index_bg_ang_distance
+         int index_bg_lum_distance
+         int index_bg_conf_distance
+diff --git a/python/classy.pyx b/python/classy.pyx
+index b61a20e9..748ad4bb 100644
+--- a/python/classy.pyx
++++ b/python/classy.pyx
+@@ -126,8 +126,21 @@ cdef class Class:
+             "output":"tCl mPk",}
+         self.set(**_pars)
+ 
++    # (JR) added to get information from cosmo object
++    # whether class re-computed or not
++    #recomputed = True
++    cpdef int recomputed
++    property recomputed:
++        def __get__(self):
++            return self.recomputed
++
++    def set_cosmo_update(self,update):
++        self.recomputed = update
++    # ------------------
++
+     def __cinit__(self, default=False):
+         cpdef char* dumc
++        self.recomputed = True
+         self.allocated = False
+         self.computed = False
+         self._pars = {}
+@@ -1158,6 +1171,43 @@ cdef class Class:
+         self.compute(["background"])
+         return self.ba.age
+ 
++    # ADDED by PSt.
++    def proper_time(self, z):
++        """
++        proper_time(z)
++
++        Return the proper time (in Mpc, assuming c=1) at given redshift.
++
++        .. note::
++
++            Returned value has unit Mpc
++
++        Parameters
++        ----------
++        z : float
++                Desired redshift
++        """
++        cdef double tau
++        cdef int last_index #junk
++        cdef double * pvecback
++        cpdef double t
++
++        self.compute(["background"])
++
++        pvecback = <double*> calloc(self.ba.bg_size,sizeof(double))
++
++        if background_tau_of_z(&self.ba,z,&tau)==_FAILURE_:
++            raise CosmoSevereError(self.ba.error_message)
++
++        if background_at_tau(&self.ba,tau,long_info,inter_normal,&last_index,pvecback)==_FAILURE_:
++            raise CosmoSevereError(self.ba.error_message)
++
++        t = pvecback[self.ba.index_bg_time]
++
++        free(pvecback)
++
++        return t
++
+     def h(self):
+         return self.ba.h
+ 
+@@ -1191,6 +1241,21 @@ cdef class Class:
+     def omega_b(self):
+         return self.ba.Omega0_b * self.ba.h * self.ba.h
+ 
++    def Omega_dcdm(self):                   # (JR) added
++        return self.ba.Omega0_dcdm
++
++    def Omega_dr(self):                     # (JR) added
++        return self.ba.Omega0_dr
++
++    def Omega_dcdmdr(self):                     # (JR) added
++        return self.ba.Omega0_dcdmdr
++
++    def Omega_ncdm_tot(self):                     # (JR) added
++        return self.ba.Omega0_ncdm_tot
++
++    def Omega_ur(self):                     # (JR) added
++        return self.ba.Omega0_ur
++
+     def Neff(self):
+         return self.ba.Neff
+ 
+diff --git a/source/input.c b/source/input.c
+index efb67a17..a841093d 100644
+--- a/source/input.c
++++ b/source/input.c
+@@ -25,6 +25,8 @@
+ #include "distortions.h"
+ #include "output.h"
+ 
++#include <stdint.h> // to get uintptr_t type to convert int to pointer
++
+ /**
+  * Initialize input parameters from external file.
+  *
+@@ -3030,7 +3032,8 @@ int input_read_parameters_injection(struct file_content * pfc,
+ 
+   /** - Define local variables */
+   struct injection* pin = &(pth->in);
+-  int flag1;
++  int flag1, flag2;
++  double param1, param2;
+   char string1[_ARGUMENT_LENGTH_MAX_];
+   string1[0]='\0';
+ 
+@@ -3048,7 +3051,7 @@ int input_read_parameters_injection(struct file_content * pfc,
+              "annihilation efficiency cannot be negative");
+   class_test(pin->DM_annihilation_efficiency>1.e-4,
+              errmsg,
+-             "annihilation parameter suspiciously large (%e, while typical bounds are in the range of 1e-7 to 1e-6)",pin->DM_annihilation_efficiency);
++             "annihilation efficiency [m^3/s/kg] suspiciously large (%e , while typical bounds are in the range of 1e-7 to 1e-6)",pin->DM_annihilation_efficiency);
+   class_test(pin->DM_annihilation_mass<0. || pin->DM_annihilation_cross_section <0,
+              errmsg,
+              "Both mass and cross section for your dark matter particle must be positive.");
+@@ -3064,7 +3067,7 @@ int input_read_parameters_injection(struct file_content * pfc,
+ 
+   /* Complete set of parameters */
+   if(pin->DM_annihilation_mass > 0 && pin->DM_annihilation_cross_section > 0.){
+-    pin->DM_annihilation_efficiency = pin->DM_annihilation_cross_section*1.e-6/(pin->DM_annihilation_mass*_eV_*1.e9)*pow(pin->DM_annihilation_fraction,2);
++    pin->DM_annihilation_efficiency = pin->DM_annihilation_cross_section*1.e-6/(pin->DM_annihilation_mass*_eV_*1.e9/_c_/_c_)*pow(pin->DM_annihilation_fraction,2);
+   }
+ 
+   if(pin->DM_annihilation_efficiency > 0){
+@@ -3113,10 +3116,27 @@ int input_read_parameters_injection(struct file_content * pfc,
+              errmsg,
+              "You need to enter a positive fraction of decaying DM. Please adjust your param file.");
+ 
+-  /** 2.b) Decay width */
+-  /* Read */
+-  class_read_double("DM_decay_Gamma",pin->DM_decay_Gamma);
++  /** 2.b) Decay width / lifetime */
++  /* Read decay width*/
++  class_call(parser_read_double(pfc,"DM_decay_Gamma",&param1,&flag1,errmsg),
++             errmsg,
++             errmsg);
+ 
++  /* Read the lifetime */
++  class_call(parser_read_double(pfc,"DM_decay_tau",&param2,&flag2,errmsg),
++            errmsg,
++            errmsg);
++
++  /* Make sure that only one of the two parameters was given */
++  class_test((flag1 == _TRUE_) && (flag2 == _TRUE_),
++             errmsg,
++             "You can only enter one of 'DM_decay_Gamma' or 'DM_decay_tau'.");
++
++  /* Set DM_decay_Gamma accordingly */
++  if (flag1 == _TRUE_)
++    pin->DM_decay_Gamma = param1;
++  if (flag2 == _TRUE_)
++    pin->DM_decay_Gamma = 1/(param2);
+ 
+   /** 3) PBH evaporation */
+   /** 3.a) Fraction */
+@@ -3232,12 +3252,121 @@ int input_read_parameters_injection(struct file_content * pfc,
+       /* Complete set of parameters */
+       strcpy(pin->f_eff_file, string1);
+     }
++    else if (strcmp(string1,"pointer_to_fz_eff") == 0){
++      pin->f_eff_type = pointer_to_fz_eff;
++    }
++    else if (strcmp(string1,"pointer_to_fz_channel") == 0){
++      pin->f_eff_type = pointer_to_fz_channel;
++    }
+     else{
+       class_stop(errmsg,
+-                 "You specified 'f_eff_type' as '%s'. It has to be one of {'on_the_spot','from_file'}.",string1);
++                 "You specified 'f_eff_type' as '%s'. It has to be one of {'on_the_spot','from_file','pointer_to_fz_eff','pointer_to_fz_channel'}.",string1);
+     }
+   }
+ 
++  /** 5.b) External fz tables (living in GAMBIT) */
++  if(pin->f_eff_type == pointer_to_fz_eff)
++  {
++    int f0,f1,f2 = _FALSE_;
++    int col;
++    char addr [_ARGUMENT_LENGTH_MAX_];
++    uintptr_t ul;
++
++    // 1) Read the number of rows
++    class_call(parser_read_int(pfc,
++                               "energyinj_coef_num_lines",
++                               &pin->external_fz_size,
++                               &f0,
++                               errmsg),
++               errmsg,
++               errmsg);
++
++    // 2) Read in pointers to vector as string
++    class_call(parser_read_string(pfc,"energyinj_coef_z",&addr,&f1,errmsg),
++               errmsg,
++               errmsg);
++
++    // 3) Convert string to uintptr_t and then back to memory address;
++    //    initialise a double pointer pointing to it
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_z = (double*) ul;
++
++    // Repeat 2) and 3) for the rest of the table
++    class_call(parser_read_string(pfc,"energyinj_coef_tot",&addr,&f2,errmsg),
++               errmsg,
++               errmsg);
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_ftot = (double*) ul;
++
++    // 4) Check that all values needed for the calculation have been passed. If not throw error
++    class_test(((f0 == _FALSE_) || (f1 == _FALSE_) || (f2 == _FALSE_)),
++               errmsg,
++               "You set the parameter 'f_eff_type' to 'pointer_to_fz_eff',\nthis means you also have to specify the input values for \n- energyinj_coef_num_lines \n- energyinj_coef_z \n- energyinj_coef_tot\n Check that all of them are passed.");
++  }
++
++  else if(pin->f_eff_type == pointer_to_fz_channel)
++  {
++    int f0,f1,f2,f3,f4,f5,f6 = _FALSE_;
++    int col;
++    char addr [_ARGUMENT_LENGTH_MAX_];
++    uintptr_t ul;
++
++    // 1) Read the number of rows
++    class_call(parser_read_int(pfc,
++                               "energyinj_coef_num_lines",
++                               &pin->external_fz_size,
++                               &f0,
++                               errmsg),
++               errmsg,
++               errmsg);
++
++    // 2) Read in pointers to vector as string
++    class_call(parser_read_string(pfc,"energyinj_coef_z",&addr,&f1,errmsg),
++               errmsg,
++               errmsg);
++
++    // 3) Convert string to uintptr_t and then back to memory address;
++    //    initialise a double pointer pointing to it
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_z = (double*) ul;
++
++    // Repeat 2) and 3) for the rest of the table
++    class_call(parser_read_string(pfc,"energyinj_coef_heat",&addr,&f2,errmsg),
++               errmsg,
++               errmsg);
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_fheat = (double*) ul;
++
++    class_call(parser_read_string(pfc,"energyinj_coef_lya",&addr,&f3,errmsg),
++               errmsg,
++               errmsg);
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_flya = (double*) ul;
++
++    class_call(parser_read_string(pfc,"energyinj_coef_ionH",&addr,&f4,errmsg),
++               errmsg,
++               errmsg);
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_fhion = (double*) ul;
++
++    class_call(parser_read_string(pfc,"energyinj_coef_ionHe",&addr,&f5,errmsg),
++               errmsg,
++               errmsg);
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_fheion = (double*) ul;
++
++    class_call(parser_read_string(pfc,"energyinj_coef_lowE",&addr,&f6,errmsg),
++               errmsg,
++               errmsg);
++    sscanf(addr, "%lu", &ul);
++    pin->external_fz_flowe = (double*) ul;
++
++    // 4) Check that all values needed for the calculation have been passed. If not throw error
++    class_test(((f0 == _FALSE_) || (f1 == _FALSE_) || (f2 == _FALSE_) || (f3 == _FALSE_) || (f4 == _FALSE_) || (f5 == _FALSE_) || (f6 == _FALSE_)),
++               errmsg,
++               "You set the parameter 'f_eff_type' to 'pointer_to_fz_channel',\nthis means you also have to specify the input values for \n- energyinj_coef_num_lines \n- energyinj_coef_z \n- energyinj_coef_heat \n- energyinj_coef_lya \n- energyinj_coef_ionH \n- energyinj_coef_ionHe \n- energyinj_coef_lowE\n Check that all of them are passed.");
++  }
++
+   /** 6) deposition function */
+   /* Read */
+   class_call(parser_read_string(pfc,"chi_type",&string1,&flag1,errmsg),
+@@ -3719,9 +3848,12 @@ int input_read_parameters_primordial(struct file_content * pfc,
+     else if (strcmp(string1,"external_Pk") == 0){
+       ppm->primordial_spec_type = external_Pk;
+     }
++    else if (strcmp(string1,"pointer_to_Pk") == 0) {
++      ppm->primordial_spec_type = pointer_to_Pk;
++    }
+     else{
+       class_stop(errmsg,
+-                 "You specified 'P_k_ini_type' as '%s'. It has to be one of {'analytic_Pk','inflation_V','inflation_V_end','two_scales','external_Pk'}.",string1);
++                 "You specified 'P_k_ini_type' as '%s'. It has to be one of {'analytic_Pk','inflation_V','inflation_V_end','two_scales','external_Pk','pointer_to_Pk'}.",string1);
+     }
+   }
+ 
+@@ -4229,6 +4361,57 @@ int input_read_parameters_primordial(struct file_content * pfc,
+     class_read_double("custom10",ppm->custom10);
+   }
+ 
++  else if (ppm->primordial_spec_type == pointer_to_Pk) {
++    int f0,f1,f2,f3;
++    char addr [_ARGUMENT_LENGTH_MAX_];
++    uintptr_t ul;
++
++    // 1) read in number of entries the vector holding the k values has
++    class_call(parser_read_int(pfc,"lnk_size",&ppm->lnk_size,&f0,errmsg),
++             errmsg,
++             errmsg);
++
++    // 2) read pointers of other arrays that need to be passed. allocation and filling will
++    // be done later in primordial.c in function =>
++    class_call(parser_read_string(pfc,"k_array",&addr,&f1,errmsg),
++             errmsg,
++             errmsg);
++
++    // 3) Convert string to uintptr_t and then back to memory address;
++    //    initialise a double pointer pointing to it
++    sscanf(addr, "%lu", &ul);
++    ppm->ptr_k_array = (double*) ul;
++
++    // read pointers of other arrays that need to be passed. allocation and filling will
++    // be done later in primordial.c in function =>
++    // added pointers ppm->ptr_pks_array and ppm->ptr_pkt_array to primordial structure so we can
++    // re-use the primordial_indices function to allocate memory for the arrays
++    // and don't have to change & by-pass too many parts of the code.
++    // However, these pointers may NOT be deleted by CLASS's internal memory management
++    // since the deletion is taken care of in gambit => there won't be a free() statement for these
++    // this is on purpose!
++    class_call(parser_read_string(pfc,"pks_array",&addr,&f2,errmsg),
++             errmsg,
++             errmsg);
++    sscanf(addr, "%lu", &ul);
++    ppm->ptr_pks_array = (double*) ul;
++
++    class_call(parser_read_string(pfc,"pkt_array",&addr,&f3,errmsg),
++             errmsg,
++             errmsg);
++    sscanf(addr, "%lu", &ul);
++    ppm->ptr_pkt_array = (double*) ul;
++
++    // Note: the memory allocation for these arrays is done in primordial.c in the function
++    // primordial_indices. To not reproduce code unnecessarily we use this as well
++    // and fill the arrays after that in primordial.c in the function
++
++    // Check that all values needed for the calculation have been passed. If not throw error
++    class_test(((f0 == _FALSE_) || (f1 == _FALSE_) || (f2 == _FALSE_) || (f3 == _FALSE_)),
++               errmsg,
++               "You set the parameter 'P_k_ini type' to pointer_to_Pk, this means you also have to specify the input values for \n- k_array_size (int) \n- k_array (string w. mem address to dbl*)\n- pks_array (string w. mem address to dbl*)\n- pkt_array (string w. mem address to dbl*)\n Check that all of them are passed.");
++  }
++
+   /* Final tests */
+   if ((ppm->primordial_spec_type == inflation_V) || (ppm->primordial_spec_type == inflation_H) || (ppm->primordial_spec_type == inflation_V_end)) {
+     class_test(ppt->has_scalars == _FALSE_,
+@@ -5504,6 +5687,16 @@ int input_default_params(struct background *pba,
+   pin->f_eff = 1.;
+   sprintf(pin->f_eff_file,"/external/heating/example_f_eff_file.dat");
+ 
++  /** 5.2) External fz table (living in GAMBIT) */
++  pin->external_fz_size = 0;
++  pin->external_fz_z = NULL;
++  pin->external_fz_ftot = NULL;
++  pin->external_fz_fheat = NULL;
++  pin->external_fz_flya = NULL;
++  pin->external_fz_fhion = NULL;
++  pin->external_fz_fheion = NULL;
++  pin->external_fz_flowe = NULL;
++
+   /** 6) Deposition function */
+   pin->chi_type = chi_CK;
+   /** 6.1) External file */
+@@ -5625,6 +5818,11 @@ int input_default_params(struct background *pba,
+   ppm->custom9=0.;
+   ppm->custom10=0.;
+ 
++  /** 1.h) For type 'pointer_to_Pk' */
++  ppm->ptr_k_array = NULL;
++  ppm->ptr_pks_array = NULL;
++  ppm->ptr_pkt_array = NULL;
++
+   /**
+    * Default to input_read_parameters_spectra
+    */
+diff --git a/source/primordial.c b/source/primordial.c
+index 2196e2f6..9f66f85a 100644
+--- a/source/primordial.c
++++ b/source/primordial.c
+@@ -246,21 +246,60 @@ int primordial_init(
+              ppr->k_per_decade_primordial);
+ 
+   /** - allocate and fill values of \f$ \ln{k}\f$'s */
++  /// (JR): The array with the values of lnk is already passed in input.c if the 'pointer_to_Pk'
++  /// input type is selected
++  if ( ppm->primordial_spec_type != pointer_to_Pk) {
++
++    // This routine allocates the space for ppm->lnk, fills it and sets the size through
++    // ppm->lnk_size. In the first patch I will do this when reading in the pointer to the
++    // array ppm->lnk. Not great but good enough for the first version of the implementation
++    // -- can (& should) probably be improved
++    // you could ad the if statement in this funciton and fill ppm->lnk with what the read in pointer
++    // is pointing to. but that would make it neccesary to patch another part of the code..
++    class_call(primordial_get_lnk_list(ppm,
++                                       k_min,
++                                       k_max,
++                                       ppr->k_per_decade_primordial),
++               ppm->error_message,
++               ppm->error_message);
++  }
++  /// test if the kmin and kmax passed through the pointer_to_Pk method
++  /// make sense and are compatible with the CLASS internal ppt->kmin ppt->kmax
++  else {
+ 
+-  class_call(primordial_get_lnk_list(ppm,
+-                                     k_min,
+-                                     k_max,
+-                                     ppr->k_per_decade_primordial
+-                                     ),
++    double passed_kmin = ppm->ptr_k_array[0];
++    double passed_kmax = ppm->ptr_k_array[ppm->lnk_size-1];
++
++    class_test((passed_kmin <= 0.) || (passed_kmax <= passed_kmin),
+              ppm->error_message,
+-             ppm->error_message);
++             "inconsistent values of kmin=%e, kmax=%e",passed_kmin,passed_kmax);
+ 
+-  /** - define indices and allocate tables in primordial structure */
++    class_test(k_min < passed_kmin,
++             ppm->error_message,
++             "k_min = %e passed through 'pointer_to_Pk' is too large. The CLASS internal minimum is %e. Adopt the ranges of the array you are passing accordingly. ",passed_kmin,k_min);
++
++    class_test(passed_kmax < k_max,
++             ppm->error_message,
++             "k_max = %e passed through 'pointer_to_Pk' is too small. The CLASS internal maximum is %e. Adopt the ranges of the array you are passing accordingly. ",passed_kmax,k_max);
++
++    // Allocate memory for lnk_array managed by CLASS
++    class_alloc(ppm->lnk   , ppm->lnk_size*sizeof(double),ppm->error_message);
+ 
++    // Fill lnk_array with values of array that the pointer ptr_k_array is pointing to
++    for (int index_k=0; index_k<ppm->lnk_size; index_k++){
++      ppm->lnk[index_k] = log(ppm->ptr_k_array[index_k]);
++    }
++
++  }
++
++
++  /** - define indices and allocate tables in primordial structure */
++  // JR: can use this for the pointer_to_Pk as long as ppm->lnk_size and ppt->md_size are set correctly!
++  // ppm->lnk_size is done in input.c atm, ppt->md_size is taken care of my perturbations
+   class_call(primordial_indices(ppt,
+                                 ppm),
+-             ppm->error_message,
+-             ppm->error_message);
++               ppm->error_message,
++               ppm->error_message);
+ 
+   /** - deal with case of analytic primordial spectra (with amplitudes, tilts, runnings, etc.) */
+ 
+@@ -399,6 +438,30 @@ int primordial_init(
+                       primordial_free(ppm));
+   }
+ 
++  /** - fill arrays with values of the arrays the external pointers ptr_pks_array point to*/
++  else if (ppm->primordial_spec_type == pointer_to_Pk) {
++
++    // fill ppm->lnpk array with values stored in the external arrays the
++    // pointers ppm->ptr_pks_array & ppm->ptr_pks_array (if tensor modes are asked for)
++    // point to.
++    // Heads-up: these two pointers are not integrated into the memory management of CLASS
++    // and won't be deleted after a CLASS run. The deletion has to be taken care of by
++    // the external program that passes the pointer to CLASS (i.e. GAMBIT in the use case this
++    // was impelmented for)
++    for (int index_k=0; index_k<ppm->lnk_size; index_k++)
++    {
++       ppm->lnpk[ppt->index_md_scalars][index_k] = log(ppm->ptr_pks_array[index_k]);
++       if (ppt->has_tensors == _TRUE_)
++         ppm->lnpk[ppt->index_md_tensors][index_k] = log(ppm->ptr_pkt_array[index_k]);
++    }
++
++    /** - Tell CLASS that there are scalar (and tensor) modes */
++    ppm->is_non_zero[ppt->index_md_scalars][ppt->index_ic_ad] = _TRUE_;
++    if (ppt->has_tensors == _TRUE_)
++      ppm->is_non_zero[ppt->index_md_tensors][ppt->index_ic_ten] = _TRUE_;
++
++  }
++
+   else {
+ 
+     class_test(0==0,
+@@ -426,7 +489,7 @@ int primordial_init(
+   /** - derive spectral parameters from numerically computed spectra
+       (not used by the rest of the code, but useful to keep in memory for several types of investigation) */
+ 
+-  if (ppm->primordial_spec_type != analytic_Pk) {
++  if (ppm->primordial_spec_type != analytic_Pk && ppm->primordial_spec_type != pointer_to_Pk) {
+ 
+     dlnk = log(10.)/ppr->k_per_decade_primordial;
+ 
+diff --git a/source/thermodynamics.c b/source/thermodynamics.c
+index d6f71c4d..723e89c1 100644
+--- a/source/thermodynamics.c
++++ b/source/thermodynamics.c
+@@ -2596,6 +2596,7 @@ int thermodynamics_derivs(
+     dy[index_ti]=-dy[index_ti];
+   }
+ 
++
+   return _SUCCESS_;
+ }
+ 
+@@ -2858,7 +2859,7 @@ int thermodynamics_reionization_get_tau(
+              pth->error_message,
+              "reionization start = %e > largest redshift in thermodynamics table",pth->z_table[index_reio_start]);
+ 
+-  if (index_reio_start == 0) {
++  if (index_reio_start < 3) {
+     /* the global minimum of xe(z) is at z=0. This is possible in
+        models no reionization and no exotic energy
+        injection. According to our definition of the reionization
+diff --git a/tools/evolver_ndf15.c b/tools/evolver_ndf15.c
+index 0d293723..a3e8d268 100644
+--- a/tools/evolver_ndf15.c
++++ b/tools/evolver_ndf15.c
+@@ -310,7 +310,9 @@ int evolver_ndf15(
+     if (fabs(absh-hmin)<100*eps){
+       /* If the stepsize has not changed */
+       if (at_hmin==_TRUE_){
+-    absh = abshlast;    /*required by stepsize recovery */
++        class_test(fabs(absh-abshlast) < eps, error_message,
++                   "Cannot recover the last successful stepsize. Solver gets stuck in an infinite loop");
++        absh = abshlast;    /*required by stepsize recovery */
+       }
+       at_hmin = _TRUE_;
+     }
+@@ -1215,6 +1217,7 @@ int numjac(
+   double **dFdy,*fac;
+   int *Ap=NULL, *Ai=NULL;
+ 
++
+   dFdy = jac->dfdy; /* Assign pointer to dfdy directly for easier notation. */
+   fac = jac->jacvec;
+   if (jac->use_sparse){
+@@ -1306,7 +1309,11 @@ int numjac(
+                error_message,error_message);
+ 
+     *nfe+=1;
+-    for(i=1;i<=neq;i++) nj_ws->ydel_Fdel[i][j] = nj_ws->ffdel[i];
++    for(i=1;i<=neq;i++){
++      class_test(nj_ws->ffdel[i] != nj_ws->ffdel[i], error_message, "A derivative passed to numjac was NaN.");
++      nj_ws->ydel_Fdel[i][j] = nj_ws->ffdel[i];
++
++    }
+   }
+ 
+ 
+@@ -1405,6 +1412,7 @@ int numjac(
+           Fdiff_absrm = 0.0;
+           for(i=1;i<=neq;i++){
+             Fdiff_absrm = MAX(Fdiff_absrm,fabs(Fdiff_new));
++            class_test(nj_ws->ffdel[i] != nj_ws->ffdel[i], error_message, "A derivative passed to numjac was NaN.");
+             Fdiff_new = nj_ws->ffdel[i]-fval[i];
+             nj_ws->tmp[i] = Fdiff_new/del2;
+             if(fabs(Fdiff_new)>=Fdiff_absrm){

@@ -1,0 +1,47 @@
+diff -rupN darksusy-6.4.0_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F darksusy-6.4.0_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+--- darksusy-6.4.0_original/src_models/mssm/ge_slha/dsgive_model_SLHA.F
++++ darksusy-6.4.0_patched/src_models/mssm/ge_slha/dsgive_model_SLHA.F
+@@ -76,7 +76,7 @@ c...Read it in
+  
+  ! We want to get the model ID from the file eventually
+  ! For now, just use the filename, trimming away the path 
+-      idtag=file(index(file,'/',BACK=.true.)+1:lnblnk(file)) 
++      idtag=file(index(file,'/',BACK=.true.)+1:LEN_TRIM(file))
+ 
+ c...Transfer stuff from the SLHA data structure to DarkSUSY
+       call dsfromslha
+diff -rupN darksusy-6.4.0_original/makefile.in darksusy-6.4.0_patched/makefile.in
+--- darksusy-6.4.0_original/makefile.in
++++ darksusy-6.4.0_patched/makefile.in
+@@ -603,7 +603,7 @@ dscheck_libs_mssm :
+ # (Note that HS/HB have common symbols, so only work in combination!) 
+ dscheck_libs_mssm :
+ 	printf " $(DS_INSTALL)/lib/libisajet.a $(DS_INSTALL)/lib/libsuperiso.a $(DS_INSTALL)/lib/libFH.a" > mssm_libs.txt
+-	@if [grep -q "HIGGSBOUNDS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F] && [grep -q "HIGGSSIGNALS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F]; then \
++	@if grep -q "HIGGSBOUNDS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F && grep -q "HIGGSSIGNALS_INSTALLATION succeeded" $(DS_INSTALL)/src/include/dscontribstat.F; then \
+ 		printf " $(DS_INSTALL)/lib/libHS.a $(DS_INSTALL)/lib/libHB.a" >> mssm_libs.txt;\
+ 	fi
+ 
+diff -rupN darksusy-6.4.0_original/src/rd/dsrdxi.f darksusy-6.4.0_patched/src/rd/dsrdxi.f
+--- darksusy-6.4.0_original/src/rd/dsrdxi.f	2022-12-09 16:01:49
++++ darksusy-6.4.0_patched//src/rd/dsrdxi.f	2023-01-31 19:48:04
+@@ -21,12 +21,18 @@ c=====================================================
+ c=======================================================================
+       real*8 function dsrdxi(x)
+       implicit none
++      include 'dsio.h'
+       real*8 x
+ 
+-      if (x.le.0.0d0) then
++      if (x.lt.0.0d0) then
+         write(*,*) 'ERROR in dsrdxi: called with x = ',x
+         stop
+       endif
++      if (x.eq.0.0d0.and.prtlevel.gt.1) then
++        write(*,*) 'Warning: dsrdxi should not be called with x = 0.0d0 !'
++c        write(*,*) '(This corresponds to infinite temperature...)'
++      endif
++
+ 
+       dsrdxi = 1.0d0
+       

@@ -46,7 +46,7 @@ namespace Gambit
         first = false;
       }
 
-      double modified_lnlike;
+      double modified_lnlike = 0.0;
 
       if (lnlike_modifier_name == "identity")
       {

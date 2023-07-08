@@ -15,7 +15,7 @@
 ///  \date 2019 Oct
 ///
 ///  \author Patrick Stöcker
-///          (patrick.stoecker@kit.edu)
+///          (stoecker@physik.rwth-aachen.de)
 ///  \date 2021 Mar, Sep
 ///
 ///  \author Tomas Gonzalo

@@ -18,13 +18,14 @@
 #          (p.scott@imperial.ac.uk)
 #  \date 2014 Nov, Dec
 #
+#  \author Tomas Gonzalo
+#          (gonzalo@physik.rwth-aachen.de)
+#  \date 2019 Oct
+#  \date 2021 Mar
+#
 #  \author Christopher Chang
 #          (christopher.chang@uqconnect.edu.au)
 #  \date 2021 Feb
-#
-#  \author Tomas Gonzalo
-#          (gonzalo@physik.rwth-aachen.de)
-#  \date 2021 Mar
 #
 #************************************************
 
@@ -45,6 +46,9 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   endif()
   if (NOT EXCLUDE_HEPMC)
     set(gambit_XTRA ${gambit_XTRA} ${HEPMC_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_YODA)
+    set(gambit_XTRA ${gambit_XTRA} ${YODA_LDFLAGS})
   endif()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp

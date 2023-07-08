@@ -101,7 +101,6 @@ Parameters:
 #      B.7) Neutron lifetime (optional)
 #
 
-
   # ====== B.1) Standard cosmology – LCDM =======
 
   # choose either base-line LCDM model parameters and prior
@@ -358,7 +357,7 @@ ObsLikes:
 
   # Print lithium-7 abundance + error
   - purpose:      Observable
-    capability:   BBN_abundances
+    capability:   primordial_abundances
     sub_capabilities: [Li7]
 
   # Available neutron lifetime likelihoods (only turn either of these on if varying the neutron lifetime)
@@ -425,7 +424,7 @@ Rules:
 # of the CosmoBit module paper.
 
 
-  # ---- C.1) BBN & AlterBBN related settings -----
+  # ---- C.1) BBN, Acropolis & AlterBBN related settings -----
 
   # error calculation precision settings for AlterBBN
   # (use 1 and 0 to speed up Helium abundance calculation for testing)
@@ -447,8 +446,11 @@ Rules:
   # This option can be used by specifying the names of the isotopes of which the covariance matrix should be modified. (If missing, an error is thrown)
   # Relative uncertainties can be passed vie 'relative_errors' (If not present, uncertainties are derived from the AlterBBN results)
   # Alternatively to relative uncertainties, the absloute uncertainties can be passed via 'absolute_errors' (This is mutually exclusive with 'relative_errors')
+  # As an alternative to 'relative_errors' and 'absolute_error', error estimates can be derived by internally running AlterBBN thrice in the modes
+  # err: 0, 1, 2. Whichever difference (1->0 and 2->0) is bigger is assumed to be the absoulte theoerrtical uncertainty on the respective abundance.
+  # Tis can be done by setting 'diff_uncertainties' to 'true', which is mutually exclusive to 'relative_errors' or 'absolute_errors'.
   # The correlation matrix can be passed via 'correlation_matrix' (If not present, the correlation matrix is assumed to be a unit matrix)
-  - capability: BBN_abundances
+  - capability: primordial_abundances_BBN
     options:
       isotope_basis: [Yp, D, He3, Be7, Li7]
       correlation_matrix: [[+1.000e00, +1.524e-2, +2.667e-2, +2.303e-2, +2.429e-2],
@@ -457,6 +459,20 @@ Rules:
                            [+2.303e-2, -3.775e-1, +3.897e-1, +1.000e00, +9.974e-1],
                            [+2.429e-2, -3.653e-1, +3.780e-1, +9.974e-1, +1.000e00]]
       relative_errors: [1.348e-3, 1.596e-2, 1.618e-2, 6.788e-2, 6.579e-2]
+
+  # In certain scenarios (like a decaying paricle), the primordial abundances will be affected through photodisintegration effects.
+  - capability: primordial_abundances
+    # -- If photodisintegration is not possible or should not be considered choose ..
+    function: primordial_abundances
+    # -- If photodisintegration applies, the respective function for the model must be chosen
+    #    and options for the photodisintegration code (Acropolis) may be passed.
+    #    [So far, only DecayingDM_mixture and its related models are supported]
+    #function: primordial_abundances_decayingDM
+    #options:
+    #  verbose: false
+    #  NE_pd:   30    ## default:  150, fast:   75, aggresive:   30
+    #  NT_pd:   10    ## default:   50, fast:   25, aggresive:   10
+    #  eps:     1e-1  ## default: 1e-3, fast: 1e-2, aggresive: 1e-1
 
   # Set path to file containing measured values of light element abundances to use for
   # Likelihood calculation (assumes root directory is gambit/CosmoBit/data/BBN)
@@ -478,7 +494,8 @@ Rules:
   - capability: classy_input_params
     function: set_classy_input_params
     options:
-      classy_dict:
+      log_classy_inputs: false # Print the inputs for classy to logger (useful for debugging)
+      #classy_dict:
         #back_integration_stepsize: 7.e-3
         #tol_background_integration: 1.e-2
         #background_verbose: 3
@@ -490,28 +507,28 @@ Rules:
   # functions f_eff are calculated via the transfer functions or the factorised approach.
   # See chapter 5.4 and Appendix C.3 of the module paper for details on the two approaches.
   # The options below are set to their default values
-  - capability: DarkAges_1_2_0_init
-    options:
-      f_eff_mode: true     # Calculate the single f_eff(z) rather than the full f_c(z) table? By default f_c(z) is calculated
-      print_table: false   # Print the table to stdout. Useful for debugging
-      z_max: 1.e7          # Constant continuation of efficiency table up to a given redshift. (f(z) = const. for 2.7e3 < z < z_max)
+  #- capability: DarkAges_1_2_0_init
+  #  options:
+  #    f_eff_mode: true     # Calculate the single f_eff(z) rather than the full f_c(z) table? By default f_c(z) is calculated
+  #    print_table: false   # Print the table to stdout. Useful for debugging
+  #    z_max: 1.e7          # Constant continuation of efficiency table up to a given redshift. (f(z) = const. for 2.7e3 < z < z_max)
 
   # Choose between the full f(z) treatment or "on the spot".
   # In the latter case, f(z) is condensend into a single constant f_eff.
-  - capability: classy_parameters_EnergyInjection
+  #- capability: classy_parameters_EnergyInjection
     #  -- Only for AnnihilatingDM_general (and its related models) --
     #function: set_classy_parameters_EnergyInjection_AnnihilatingDM
-    function: set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot
+    #function: set_classy_parameters_EnergyInjection_AnnihilatingDM_onSpot
     #  -- Only for DecayingDM_general (and its related models) --
     #function: set_classy_parameters_EnergyInjection_DecayingDM
     #function: set_classy_parameters_EnergyInjection_DecayingDM_onSpot
 
   # Choose how exactly f_eff should be calculated.
   # NOTE. If choosing options a) or b), DarkAges *must* be operating in "f_eff_mode"
-  - capability: f_eff
+  #- capability: f_eff
     # a) By convoultion of f_eff(z) with a weighting function W(z) [cf. https://arxiv.org/abs/1506.03811]
     #  -- Only for AnnihilatingDM_general (and its related models) --
-    function: f_eff_weighted
+    #function: f_eff_weighted
     # b) By taking the value of f_eff(z) at given redshift (z_eff).
     # -- Applies for ALL energy injection models --
     # Default values of z_eff: 600 for annihilation, 300 for decay (!experimental!)
@@ -553,14 +570,14 @@ Rules:
   # ---- C.5) MultimodeCode related settings -----
 
   # pass input settings to MultiModeCode
-  - capability: multimode_input_parameters
-    function: set_multimode_inputs
-    options:
-      k_pivot: 0.002
-      dlnk: 0.4
-      numsteps: 200
-      k_min: 1e-7
-      k_max: 1e6
+  #- capability: multimode_input_parameters
+  #  function: set_multimode_inputs
+  #  options:
+  #    k_pivot: 0.002
+  #    dlnk: 0.4
+  #    numsteps: 200
+  #    k_min: 1e-7
+  #    k_max: 1e6
 
   # Pass primordial power spectrum to CLASS
   # Option a): pass the parametrised primordial power spectrum (i.e. not the full shape but only A_s

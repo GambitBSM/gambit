@@ -42,6 +42,8 @@ cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 # Define minimum compiler versions
 set(MIN_GCC_VERSION 5.1)
 set(MIN_ICC_VERSION 15.0.2)
+set(MIN_CLANG_VERSION 10.0.0)
+set(MIN_APPLECLANG_VERSION 13.0.0)
 
 SET(CMAKE_BUILD_TYPE_STRING "Choose the type of build, options are: None Debug Release Release_O3 RelWithDebInfo MinSizeRel.")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -59,6 +61,7 @@ foreach(p
   CMP0022 # CMake 2.8.12
   CMP0025 # CMake 3.0
   CMP0042 # CMake 3.0
+  CMP0048 # Cmake 3.0
   CMP0051 # CMake 3.1
   CMP0054 # CMake 3.1
   CMP0060 # CMake 3.16.2
@@ -89,7 +92,9 @@ include(cmake/utilities.cmake)
 
 # Enforce minimum versions for the C/C++ compiler
 if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_ICC_VERSION) OR
-    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_GCC_VERSION))
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_GCC_VERSION) OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_CLANG_VERSION) OR
+    ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS MIN_APPLECLANG_VERSION))
   message(FATAL_ERROR "${BoldRed}\nGAMBIT requires at least g++ ${MIN_GCC_VERSION} or icpc ${MIN_ICC_VERSION}.  Please install a newer compiler.${ColourReset}")
 endif()
 
@@ -192,8 +197,8 @@ if(NOT PYTHONLIBS_FOUND)
   set(itch "${itch};pybind11")
   endif()
 else()
-  set(MIN_pybind11_VERSION "2.5.0")
-  set(PREFERRED_pybind11_VERSION "2.5.0")
+  set(MIN_pybind11_VERSION "2.10.1")
+  set(PREFERRED_pybind11_VERSION "2.10.1")
   set(pybind11_CONTRIB_DIR "${PROJECT_SOURCE_DIR}/contrib/pybind11")
   include_directories("${PYTHON_INCLUDE_DIRS}")
   find_package(pybind11 QUIET)
@@ -262,6 +267,65 @@ endif()
 # Do OSX checks
 include(cmake/MacOSX.cmake)
 
+# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
+if(HAVE_PYBIND11)
+  if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 18.0.6) OR
+     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.6 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.3))
+    set(PERMIT_CXX17_CHECK FALSE)
+  else()
+    set(PERMIT_CXX17_CHECK TRUE)
+  endif()
+endif()
+
+# Prevent using C++17 if using gnu version 7.2
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.1 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.3)
+    set(PERMIT_CXX17_CHECK FALSE)
+endif()
+
+# Check for C++11, C++14 and C++17 support.
+include(CheckCXXCompilerFlag)
+if(PERMIT_CXX17_CHECK)
+  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+endif()
+if(COMPILER_SUPPORTS_CXX17)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+  set(GAMBIT_SUPPORTS_CXX17 TRUE)
+else()
+  if(PERMIT_CXX17_CHECK)
+    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
+  endif()
+  CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+  if(COMPILER_SUPPORTS_CXX14)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+    set(GAMBIT_SUPPORTS_CXX14 TRUE)
+  else()
+    CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1y)
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+    if(COMPILER_SUPPORTS_CXX11)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+      set(GAMBIT_SUPPORTS_CXX11 TRUE)
+    else()
+      CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+      if(COMPILER_SUPPORTS_CXX0X)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+        set(GAMBIT_SUPPORTS_CXX0X TRUE)
+      else()
+        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+      endif()
+    endif()
+  endif()
+endif()
+
+# Check for C99, C11 and C18 support
+include(CheckCCompilerFlag)
+CHECK_C_COMPILER_FLAG("-std=c18" COMPILER_SUPPORTS_C18)
+CHECK_C_COMPILER_FLAG("-std=c11" COMPILER_SUPPORTS_C11)
+CHECK_C_COMPILER_FLAG("-std=c99" COMPILER_SUPPORTS_C99)
+if(NOT COMPILER_SUPPORTS_C99)
+  message("${BoldRed}   The compiler ${CMAKE_C_COMPILER} has no C99 support.  AlterBBN will be ditched.${ColourReset}")
+  set(itch "${itch};alterbbn")
+endif()
+
 # Add -fPIC for 64 bit systems
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
@@ -290,61 +354,6 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${mylibdir} )
 endforeach()
-
-# Check if we are using 2019 intel compilers or gcc 6.1 or 6.2 together with pybind11, and forbid the use of C++17 if so.
-if(HAVE_PYBIND11)
-  if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 18.0.6) OR
-     ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 5.6 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.3))
-    set(PERMIT_CXX17_CHECK FALSE)
-  else()
-    set(PERMIT_CXX17_CHECK TRUE)
-  endif()
-endif()
-
-# Prevent using C++17 if using gnu version 7.2
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.1 AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.3)
-    set(PERMIT_CXX17_CHECK FALSE)
-endif()
-
-# Check for C++11, C++14 and C++17 support.
-include(CheckCXXCompilerFlag)
-if(PERMIT_CXX17_CHECK)
-  CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
-endif()
-if(COMPILER_SUPPORTS_CXX17)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-else()
-  if(PERMIT_CXX17_CHECK)
-    CHECK_CXX_COMPILER_FLAG("-std=c++1z" COMPILER_SUPPORTS_CXX1z)
-  endif()
-  CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
-  if(COMPILER_SUPPORTS_CXX14)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-  else()
-    CHECK_CXX_COMPILER_FLAG("-std=c++1y" COMPILER_SUPPORTS_CXX1y)
-    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-    if(COMPILER_SUPPORTS_CXX11)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-    else()
-      CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-      if(COMPILER_SUPPORTS_CXX0X)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-      else()
-        message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-      endif()
-    endif()
-  endif()
-endif()
-
-# Check for C99, C11 and C18 support
-include(CheckCCompilerFlag)
-CHECK_C_COMPILER_FLAG("-std=c18" COMPILER_SUPPORTS_C18)
-CHECK_C_COMPILER_FLAG("-std=c11" COMPILER_SUPPORTS_C11)
-CHECK_C_COMPILER_FLAG("-std=c99" COMPILER_SUPPORTS_C99)
-if(NOT COMPILER_SUPPORTS_C99)
-  message("${BoldRed}   The compiler ${CMAKE_C_COMPILER} has no C99 support.  AlterBBN will be ditched.${ColourReset}")
-  set(itch "${itch};alterbbn")
-endif()
 
 # Check for Boost
 set(Boost_NO_BOOST_CMAKE ON)
@@ -377,7 +386,31 @@ endif()
 
 # Check for OpenMP
 find_package(OpenMP QUIET)
-if (OPENMP_FOUND)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  find_program(BREW NAMES brew)
+  # This block modified from https://github.com/CLIUtils/cmake/blob/master/PatchOpenMPApple.cmake
+  if(BREW)
+    execute_process(COMMAND ${BREW} ls libomp RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_QUIET ERROR_QUIET)
+    if(BREW_RESULT_CODE)
+      if(NOT OPENMP_FOUND)
+        message(FATAL_ERROR "You are using the Apple Clang compiler, and have HomeBrew installed, but have not installed OpenMP. Please run \"brew install libomp\"")
+      endif()
+    else()
+      execute_process(COMMAND ${BREW} --prefix libomp OUTPUT_VARIABLE BREW_LIBOMP_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if(NOT OPENMP_FOUND)
+        set(OpenMP_CXX_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
+        set(OpenMP_C_FLAGS "-Xclang -fopenmp -I${BREW_LIBOMP_PREFIX}/include")
+      endif()
+      set(OpenMP_CXX_LIB_NAMES "omp")
+      set(OpenMP_C_LIB_NAMES "omp")
+      set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
+      include_directories("${BREW_LIBOMP_PREFIX}/include")
+      message(STATUS "Using Homebrew libomp from ${BREW_LIBOMP_PREFIX}")
+      set(FOUND_BREW_OPENMP True)
+    endif()
+  endif()
+endif()
+if (OPENMP_FOUND OR FOUND_BREW_OPENMP)
   message("-- OpenMP found successfully")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -386,29 +419,14 @@ if (OPENMP_FOUND)
   endif()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}")
 else()
-  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    find_program(BREW NAMES brew)
-    # This block modified from https://github.com/CLIUtils/cmake/blob/master/PatchOpenMPApple.cmake
-    if(BREW)
-      execute_process(COMMAND ${BREW} ls libomp RESULT_VARIABLE BREW_RESULT_CODE OUTPUT_QUIET ERROR_QUIET)
-      if(BREW_RESULT_CODE)
-        message(FATAL_ERROR "You are using the Apple Clang compiler, and have HomeBrew installed, but have not installed OpenMP. Please run \"brew install libomp\"")
-      else()
-        execute_process(COMMAND ${BREW} --prefix libomp OUTPUT_VARIABLE BREW_LIBOMP_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
-        set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp")
-        set(OpenMP_CXX_LIB_NAMES "omp")
-        set(OpenMP_omp_LIBRARY "${BREW_LIBOMP_PREFIX}/lib/libomp.dylib")
-        include_directories("${BREW_LIBOMP_PREFIX}/include")
-        message(STATUS "Using Homebrew libomp from ${BREW_LIBOMP_PREFIX}")
-      endif()
-    else()
+  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+    if(NOT FOUND_BREW_OPENMP)
       message(FATAL_ERROR "\nOpenMP libraries not found. You are using the Apple Clang compiler. The easiest way to get OpenMP support for Apple Clang is to install it via HomeBrew. If you want to install it some other way, e.g. via MacPorts, you need to manually set -DOpenMP_CXX_FLAGS -DOpenMP_CXX_LIB_NAMES -DOpenMP_C_FLAGS -DOpenMP_C_LIB_NAMES -DOpenMP_omp_LIBRARY when invoking cmake.")
     endif()
   else()
     message(FATAL_ERROR "\nOpenMP libraries not found.  Your compiler installation seems to be broken.")
   endif()
 endif()
-
 
 # Check for Gnu Scientific Library (GSL)
 include(cmake/FindGSL.cmake)
@@ -660,19 +678,30 @@ set(GAMBIT_ALL_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:
 foreach(bit ${GAMBIT_BITS})
   add_subdirectory(${bit})
   set(GAMBIT_BIT_OBJECTS ${GAMBIT_BIT_OBJECTS} "$<TARGET_OBJECTS:${bit}>")
+  # Add dependencies that need to be built before any bit
+  foreach(dep ${MODULE_DEPENDENCIES})
+    add_dependencies(${bit} ${dep})
+  endforeach()
 endforeach()
 
-# If ColliderBit is in use, make the collider_harvest step a dependency of ColliderBit
+# If ColliderBit is in use, set various dependencies
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  # Make the collider_harvest step a dependency of ColliderBit
   add_dependencies(ColliderBit collider_harvest)
   # If RestFrames is in use, make it a dependency of ColliderBit
   if(NOT EXCLUDE_RESTFRAMES)
     add_dependencies(ColliderBit restframes)
   endif()
-  # If HepMC is in use, make it a dependency of ColliderBit
-  if(NOT EXCLUDE_HEPMC)
-    add_dependencies(ColliderBit hepmc)
+  # ColliderBit depends on HepMC
+  if(EXCLUDE_HEPMC)
+    message(FATAL_ERROR "\nColliderBit needs HepMC3. Either use -DWITH_HEPMC=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
   endif()
+  add_dependencies(ColliderBit hepmc)
+  # ColliderBit depends on YODA
+  if(EXCLUDE_YODA)
+    message(FATAL_ERROR "\nColliderBit needs YODA. Either use -DWITH_YODA=ON or ditch ColliderBit with -Ditch=\"ColliderBit\".")
+  endif()
+  add_dependencies(ColliderBit yoda)
 endif()
 
 # If SpecBit is in use, make flexiblesusy a dependency of SpecBit

@@ -163,8 +163,8 @@ if args.file:
         elif gum.math == 'sarah':
 
             # Let GUM do a quick and dirty parse of the file first, before we
-            # fire up a Mathematica kernel
-            parse_sarah_model_file(gum.mathname, output_opts)
+            # fire up a Mathematica kernel, and get the model name used by sarah
+            sarah_model_name = parse_sarah_model_file(gum.mathname, output_opts)
 
             from lib.libsarah import *
 
@@ -191,11 +191,8 @@ if args.file:
             if err.is_error():
                 raise GumError( err.what() )
 
-            # Get a list of all non-SM particles
-            sarah_bsm = [x for x in partlist if x.SM() is False]
-
-            # Make all BSM particles work with GUM's native Particle class.
-            bsm_particle_list, add_higgs = sarah_part_to_gum_part(sarah_bsm)
+            # Make all SM and BSM particles work with GUM's native Particle class.
+            sm_particle_list, bsm_particle_list, add_higgs = sarah_part_to_gum_part(partlist)
 
         print("Finished extracting parameters from " + gum.math + ".")
 
@@ -426,8 +423,8 @@ if args.file:
             # Patch the files
             print("Patching SPheno...")
 
-            patch_spheno(clean_model_name, patched_spheno_dir, flags,
-                         bsm_particle_list)
+            patch_spheno(clean_model_name, sarah_model_name, patched_spheno_dir,
+                         flags, bsm_particle_list)
 
             fullpath = "Backends/patches/sarah-spheno/{0}/{1}".format(
                                                                SPHENO_VERSION,
@@ -448,8 +445,8 @@ if args.file:
             # Write frontends for SPheno. That's a lotta scrapin'.
             print("Writing SPheno frontends.")
             spheno_src, spheno_header, backend_types, btnum = \
-                write_spheno_frontends(clean_model_name, parameters,
-                                       bsm_particle_list, flags,
+                write_spheno_frontends(clean_model_name, sarah_model_name, parameters,
+                                       sm_particle_list, bsm_particle_list, flags,
                                        patched_spheno_dir, output_dir,
                                        blockparams, gambit_pdgs, mixings,
                                        reality_dict, deps, bcs,
@@ -462,7 +459,7 @@ if args.file:
 
             print("Writing SPheno decay table.")
             spheno_decay_tables, spheno_decays = \
-                make_spheno_decay_tables(patched_spheno_dir, clean_model_name)
+                make_spheno_decay_tables(patched_spheno_dir, clean_model_name, sarah_model_name)
 
             # DecayBit entry
             print("Writing SPheno module functions for DecayBit.")
@@ -783,7 +780,7 @@ if args.file:
             num = find_string("DarkBit_rollcall.hpp", m,"MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)")[1]
             amend_file("DarkBit_rollcall.hpp", m, wimp_prop_h,num, reset_contents)
             
-            num = find_string("DarkBit.cpp", m,"if(ModelInUse(\"DMEFT\"))")[1]
+            num = find_string("DarkBit.cpp", m,"else if(ModelInUse(\"DMEFT\"))")[1]
             amend_file("DarkBit.cpp", m, wimp_prop_c,num-1, reset_contents)
             
             write_file(gum.name + ".cpp", m, darkbit_src, reset_contents)
@@ -877,7 +874,7 @@ if args.file:
             num = find_string(f, m, "backend_undefs.hpp")[1]
             amend_file(f, m, ch_head, num-2, reset_contents)
             num = find_string(f, m, "BE_FUNCTION")[1]
-            amend_file(f, m, "BE_ALLOW_MODELS({0})".format(gum.name), num-2,
+            amend_file(f, m, "BE_ALLOW_MODELS({0})\n".format(gum.name), num-2,
                        reset_contents)
         # micrOMEGAs
         if output_opts.mo:

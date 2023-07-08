@@ -26,6 +26,8 @@
 
 LOAD_LIBRARY
 
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atQ_mG)
+
 BE_FUNCTION(FHSetFlags, void, (int&,int&,int&,int&,int&,int&,int&,int&,int&,int&,int&), "fhsetflags_", "FHSetFlags")
 
 BE_FUNCTION(FHSetDebug, void, (int&), "fhsetdebug_", "FHSetDebug")

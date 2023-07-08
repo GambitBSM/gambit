@@ -32,6 +32,7 @@
 #
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
+#  \date 2019 Sep, Oct
 #  \date 2020 Nov
 #
 #************************************************
@@ -74,6 +75,7 @@ set(name "pippi")
 set(dir "${CMAKE_SOURCE_DIR}/${name}")
 ExternalProject_Add(get-${name}
   GIT_REPOSITORY https://github.com/patscott/pippi.git
+  GIT_TAG v2.2
   SOURCE_DIR ${dir}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -188,6 +190,11 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
       set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "c++14") AND NOT GAMBIT_SUPPORTS_CXX14 AND NOT GAMBIT_SUPPORTS_CXX17)
+      message("${BoldRed}   ${name} (${version}) needs to be compiled with c++14/17 but GAMBIT is compiled with a lower version. ${name} will be ditched.${ColourReset}")
+      set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "rivet") AND ditched_rivet_${Rivet_ver})
+      set (itch "${itch}" "${name}_${version}")
     endif()
   endforeach()
   foreach(ditch_command ${itch})
@@ -205,7 +212,13 @@ function(check_ditch_status name version dir)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${name}_${version}-prefix)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir})
     endif()
+    if(NOT "${itch_unique}" MATCHES ".*${ditch_command}.*")
+      set(itch_unique "${itch_unique}" "${ditch_command}")
+    endif()
   endforeach()
+  # Make sure the additions to itch are kept in the parent scope
+  set(itch "${itch_unique}")
+  set(itch "${itch_unique}" PARENT_SCOPE)
 endfunction()
 
 # Add a new target that just prints a helpful error explaining that the target for a backend base is not activated.
@@ -331,6 +344,7 @@ macro(inform_of_missing_modules name ver missing_with_commas)
   )
 endmacro()
 
+# Bring in the actual backends and scanners
 if(EXISTS "${PROJECT_SOURCE_DIR}/ScannerBit/")
   include(cmake/scanners.cmake)
 endif()

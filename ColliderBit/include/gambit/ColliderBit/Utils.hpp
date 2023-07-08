@@ -1,7 +1,7 @@
 //   GAMBIT: Global and Modular BSM Inference Tool
 //  *********************************************
-///
 ///  \file
+///
 ///  Util variables and functions for ColliderBit
 ///
 ///  *********************************************
@@ -9,10 +9,24 @@
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Andy Buckley
+///          (andy.buckley@glasgow.ac.uk)
+///  \date 2019 Oct
+///
 ///  \author Abram Krislock
+///          (a.m.b.krislock@fys.uio.no)
+///  \date 2016 Mar
+///
 ///  \author Anders Kvellestad
+///          (anders.kvellestad@fys.uio.no)
+///  \date 2020 Jun
+///
 ///  \author Pat Scott
+///          (pat.scott@uq.edu.au)
+///  \date 2020 Jan
+///
 ///  \author Tomas Gonzalo
+///          (gonzalo@physk.rwth-aachen.de)
+///  \date 2021 Jul
 ///
 ///  *********************************************
 
@@ -26,6 +40,8 @@
 #include "HEPUtils/BinnedFn.h"
 #include "HEPUtils/Event.h"
 #include "HEPUtils/FastJet.h"
+
+#include "gambit/ColliderBit/mt2_bisect.h"
 
 namespace Gambit
 {
@@ -67,8 +83,17 @@ namespace Gambit
     /// Identifier for jets false
     inline bool amIaJet(const HEPUtils::Particle *part) { (void)part; return false; }
 
-    /// Indentifier for b-jets true
+    /// Identifier for b-jets true
     inline bool amIaBJet(const HEPUtils::Particle *part) { (void)part; return true; }
+
+    /// Identifier for electrons
+    inline bool amIanElectron(const HEPUtils::Particle *part) { return part->abspid() == 11; }
+
+    /// Identifier for muons
+    inline bool amIaMuon(const HEPUtils::Particle *part) { return part->abspid() == 13; }
+
+    /// Identifier for taus
+    inline bool amIaTau(const HEPUtils::Particle *part) { return part->abspid() == 15; }
 
     //@}
 
@@ -372,6 +397,9 @@ namespace Gambit
     /// Utility function for returning a collection of same-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles);
 
+    /// Utility function for returning a collection of b-tagged jets
+    std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets);
+
 
     /// @name Sorting
     //@{
@@ -398,8 +426,39 @@ namespace Gambit
 
     // Sort a jets list by decreasing pT
     inline void sortByPt(JetPtrs& jets) { sortBy(jets, cmpJetsByPt); }
+
+    // Sort a list of pairs by how close their invariant mass is to their parent mass
+    inline void sortByParentMass(std::vector<std::vector<const Particle *> > &pairs, double mP)
+    {
+      auto compfn = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
+      {
+        return abs((pair1.at(0)->mom() + pair1.at(1)->mom()).m() - mP) < abs((pair2.at(0)->mom() + pair2.at(1)->mom()).m() - mP);
+      };
+      std::sort(pairs.begin(), pairs.end(), compfn);
+    }
+
     //@}
 
+    /// Remove pairs with already used leptons, assumes some order
+    //@{
+    inline void uniquePairs(std::vector<std::vector<const Particle *> > &pairs)
+    {
+      for(auto it = pairs.begin(); it != pairs.end(); ++it)
+      {
+        for(auto it2 = std::next(it); it2 != pairs.end(); ++it2)
+        {
+          if(it2->at(0) == it->at(0) or
+             it2->at(1) == it->at(0) or
+             it2->at(0) == it->at(1) or
+             it2->at(1) == it->at(1))
+          {
+            it2--;
+            pairs.erase(it2+1);
+          }
+        }
+      }
+    }
+    //@}
 
     /// @name Counting
     //@{
@@ -456,6 +515,87 @@ namespace Gambit
     
     //@}
 
+    /// @name Transverse masses
+    //@{
+
+    /// Faster way to compute stransverse mass
+    inline double get_mT2(const Particle *part1, const Particle *part2, P4 pTmiss, double mass)
+    {
+
+      double p1[3] = {part1->mass(), part1->mom().px(), part1->mom().py()};
+      double p2[3] = {part2->mass(), part2->mom().px(), part2->mom().py()};
+      double pMiss[3] = {0., pTmiss.px(), pTmiss.py() };
+      double mn = mass;
+
+      mt2_bisect::mt2 mt2_calc;
+      mt2_calc.set_momenta(p1,p2,pMiss);
+      mt2_calc.set_mn(mn);
+
+      return  mt2_calc.get_mt2();
+
+    }
+
+    /// Faster way to compute stransverse mass, from the momenta
+    inline double get_mT2(P4 mom1, P4 mom2, P4 pTmiss, double mass)
+    {
+
+      double p1[3] = {mom1.m(), mom1.px(), mom1.py()};
+      double p2[3] = {mom2.m(), mom2.px(), mom2.py()};
+      double pMiss[3] = {0., pTmiss.px(), pTmiss.py() };
+      double mn = mass;
+
+      mt2_bisect::mt2 mt2_calc;
+      mt2_calc.set_momenta(p1,p2,pMiss);
+      mt2_calc.set_mn(mn);
+
+      return  mt2_calc.get_mt2();
+
+    }
+
+    // Transverse mass of a single particle system
+    inline double get_mT(const Particle *part, P4 pTmiss)
+    {
+      return sqrt( 2 * pTmiss.pT() * part->pT()*(1 - cos(part->phi() - pTmiss.phi())) );
+    }
+
+    // Transverse mass of a single particle system, given the 4-momentum
+    inline double get_mT(P4 mom, P4 pTmiss)
+    {
+      return sqrt( 2 * pTmiss.pT() * mom.pT()*(1 - cos(mom.phi() - pTmiss.phi())) );
+    }
+
+    // Transverse mass of a two-particle system
+    inline double get_mT(const Particle *part1, const Particle *part2, P4 pTmiss)
+    {
+      P4 p2mom = part1->mom() + part2->mom();
+      return get_mT(p2mom, pTmiss);
+    }
+
+    // Transverse mass of a three-particle system
+    inline double get_mT(const Particle *part1, const Particle *part2, const Particle *part3, P4 pTmiss)
+    {
+      P4 p3mom = part1->mom() + part2->mom() + part3->mom();
+      return get_mT(p3mom, pTmiss);
+    }
+
+    //@}
+
+    /// @name Particle sign helper functions
+    //@{
+    
+    /// Have two particles the same sign?
+    inline bool sameSign(const Particle *P1, const Particle *P2)
+    {
+      return P1->pid() * P2->pid() > 0;
+    }
+
+    /// Have two particles the opposite sign?
+    inline bool oppositeSign(const Particle *P1, const Particle *P2)
+    {
+      return P1->pid() * P2->pid() < 0;
+    }
+
+    //@}
   }
 
 }

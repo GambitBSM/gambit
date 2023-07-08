@@ -25,6 +25,11 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 July
 ///
+///  \author Markus Prim
+///          (markus.prim@kit.edu)
+///  \date 2019 Nov
+///        2020 Feb
+///
 ///  *********************************************
 
 #ifndef __FlavBit_types_hpp__

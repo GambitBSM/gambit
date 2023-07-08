@@ -656,7 +656,6 @@ def createFrontendHeader(function_xml_files_dict):
     # Read all xml files
     utils.xmlFilesToDicts(function_xml_files_dict.values())
 
-
     #
     # Generate typedefs for loaded classes, from ::BACKENDNAME_SAFE_VERSION::class_name
     # to ::Gambit::Backends::BACKENDNAME_SAFE_VERSION::class_name
@@ -702,53 +701,82 @@ def createFrontendHeader(function_xml_files_dict):
 
     for i,func_name in enumerate(gb.functions_done):
 
-        # Set useful variables
-        xml_file = function_xml_files_dict[func_name['long_templ_args']]
+        wr_func_names = gb.wr_func_names[func_name['long_templ_args']]
 
-        # If new xml file, initialise global dicts
-        if xml_file != gb.xml_file_name:
-            gb.xml_file_name = xml_file
-            utils.initGlobalXMLdicts(xml_file, id_and_name_only=True)
+        for j,wr_func_name in enumerate(wr_func_names):
+
+            # Set useful variables
+            xml_file = function_xml_files_dict[func_name['long_templ_args']]
+
+            # If new xml file, initialise global dicts
+            if xml_file != gb.xml_file_name:
+                gb.xml_file_name = xml_file
+                utils.initGlobalXMLdicts(xml_file, id_and_name_only=True)
 
 
-        # Get wrapper function element
-        tree = ET.parse(xml_file)
-        root = tree.getroot()
-        wr_func_el = None
+            # Get wrapper function element
+            tree = ET.parse(xml_file)
+            root = tree.getroot()
+            wr_func_el = None
 
-        for el in root.findall('Function'):
+            for el in root.findall('Function'):
 
-            if el.get('name') == gb.wr_func_names[i]:
-                wr_func_el = el
+                # if el.get('name') == gb.wr_func_names[i]:
+                if el.get('name') == wr_func_name:
+                    wr_func_el = el
 
-        if wr_func_el is None:
-            continue
+            if wr_func_el is None:
+                print("WARNING: Could not find the generated wrapper function %s in the CastXML output. No BE_FUNCTION macro generated." % (wr_func_name))
+                continue
 
-        # Get information about the return type.
-        return_type_dict = utils.findType(wr_func_el)
-        return_el     = return_type_dict['el']
-        pointerness   = return_type_dict['pointerness']
-        is_ref        = return_type_dict['is_reference']
-        return_kw     = return_type_dict['cv_qualifiers']
+            # Get information about the return type.
+            return_type_dict = utils.findType(wr_func_el)
+            return_el     = return_type_dict['el']
+            pointerness   = return_type_dict['pointerness']
+            is_ref        = return_type_dict['is_reference']
+            return_kw     = return_type_dict['cv_qualifiers']
 
-        return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
+            return_kw_str = ' '.join(return_kw) + ' '*bool(len(return_kw))
 
-        return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
+            return_type   = return_type_dict['name'] + '*'*pointerness + '&'*is_ref
 
-        # Construct argument bracket
-        args = funcutils.getArgs(wr_func_el)
-        args_bracket = funcutils.constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
+            # Construct argument bracket
+            args = funcutils.getArgs(wr_func_el)
+            args_bracket = funcutils.constrArgsBracket(args, include_arg_name=False, include_arg_type=True, include_namespace=True)
 
-        # Get mangled symbol
-        # symbol = wr_func_el.get('mangled')
-        symbol = wr_func_el.get('name')
+            # Get mangled symbol, add both normal and with leading _ to work with OSX
+            # symbol = wr_func_el.get('mangled')
+            symbol = wr_func_el.get('name')
+            symbol_list = '("' + symbol + '","' + '_' + symbol + '")'
 
-        be_function_macro_code += 'BE_FUNCTION('
-        be_function_macro_code += func_name['short'] + ', '
-        be_function_macro_code += return_type + ', '
-        be_function_macro_code += args_bracket + ', '
-        be_function_macro_code += '"' + symbol + '"' + ', '
-        be_function_macro_code += '"' + func_name['short'] + '"' + ')\n'
+            # If there are overloaded versions of this function, write a comment 
+            # and add commented-out BE_FUNCTION lines for the overloads
+            if j==1:
+                be_function_macro_code += '// Other versions of this function. Only use one at a time, or set unique function names.\n'
+            if j>0:
+                be_function_macro_code += '// '
+            be_function_macro_code += 'BE_FUNCTION('
+            be_function_macro_code += func_name['short'] + ', '
+            be_function_macro_code += return_type + ', '
+            be_function_macro_code += args_bracket + ', '
+            be_function_macro_code += symbol_list + ', '
+            be_function_macro_code += '"' + func_name['short'] + '"' + ')\n'
+
+    #
+    # Generate code for all the convenience functions
+    #
+
+    be_conv_function_macro_code = ''
+    for conv_func in cfg.convenience_functions:
+        be_conv_function_macro_code += 'BE_CONV_FUNCTION(' + conv_func['name'] + ', '
+        be_conv_function_macro_code += conv_func['returntype'] + ', '
+        be_conv_function_macro_code += '('
+        for i, argtype in enumerate(conv_func['argtypes']) :
+            be_conv_function_macro_code += argtype
+            if i < len(conv_func['argtypes']) - 1 :
+                be_conv_function_macro_code += ', '
+        be_conv_function_macro_code += '), '
+        be_conv_function_macro_code += '"' + conv_func['capname'] + '")\n'
 
 
     #
@@ -759,9 +787,23 @@ def createFrontendHeader(function_xml_files_dict):
 
     # - Comment at beginning
     backend_name_and_version = cfg.gambit_backend_name + ' ' + cfg.gambit_backend_version
-    frontend_content += '//\n'
-    frontend_content += '// Frontend header generated by BOSS for GAMBIT backend %s.\n' % (backend_name_and_version)
-    frontend_content += '//\n'
+    frontend_content += '//   GAMBIT: Global and Modular BSM Inference Tool\n'\
+        '//   *********************************************\n'\
+        '///  \\file\n'\
+        '///\n'\
+        '///  Frontend header generated by BOSS for GAMBIT backend '+backend_name_and_version+'.\n'\
+        '///\n'\
+        '///  *********************************************\n'\
+        '///\n'\
+        '///  Authors (add name and date if you modify):\n'\
+        '///\n'\
+        '///  \\author The GAMBIT Collaboration\n'\
+        '///\n'\
+        '///  *********************************************\n'
+
+    # - Any user-specified code to add?
+    if cfg.surround_code_begin.strip() != '':
+        frontend_content += cfg.surround_code_begin
 
     # - Include statement for the identification header
     frontend_content += '\n'
@@ -786,9 +828,11 @@ def createFrontendHeader(function_xml_files_dict):
     frontend_content += '// Initialisation function (dependencies)\n'
     frontend_content += '\n'
     frontend_content += '// Convenience functions (registration)\n'
+    frontend_content += be_conv_function_macro_code
     frontend_content += '\n'
-    frontend_content += '// Initialisation function (definition)\n'
-    frontend_content += 'BE_INI_FUNCTION{} END_BE_INI_FUNCTION\n'
+    if cfg.ini_function_in_header :
+        frontend_content += '// Initialisation function (definition)\n'
+        frontend_content += 'BE_INI_FUNCTION{} END_BE_INI_FUNCTION\n'
     frontend_content += '\n'
     frontend_content += '// Convenience functions (definitions)\n'
 
@@ -797,6 +841,9 @@ def createFrontendHeader(function_xml_files_dict):
     frontend_content += '// End\n'
     frontend_content += '#include "' + os.path.join(gb.gambit_backend_incl_dir, 'backend_undefs.hpp') + '"\n'
 
+    # - Any user-specified code to add?
+    if cfg.surround_code_end.strip() != '':
+        frontend_content += cfg.surround_code_end
 
     # Write to file
     f = open(gb.frontend_path, 'w')

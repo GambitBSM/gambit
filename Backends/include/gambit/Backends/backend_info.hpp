@@ -53,7 +53,9 @@
   {
     class scoped_interpreter;
   }
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
   #include <pybind11/pybind11.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 
@@ -197,6 +199,9 @@ namespace Gambit
 
         /// Load a backend library written in C, C++ or Fortran
         void loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool with_BOSS);
+
+        /// Load a backend data library
+        void loadLibrary_data(const str&, const str&, const str&);
 
         #ifdef HAVE_MATHEMATICA
           /// Load WSTP for Mathematica backends

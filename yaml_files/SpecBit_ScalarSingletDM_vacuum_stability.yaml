@@ -115,7 +115,7 @@ Logger:
 
 KeyValues:
 
-  default_output_path: "runs/SpecBit_tests"
+  default_output_path: "runs/SpecBit_ScalarSingletDM_vacuum_stability"
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

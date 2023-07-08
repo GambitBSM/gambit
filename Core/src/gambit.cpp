@@ -17,6 +17,7 @@
 
 #include "gambit/Core/gambit.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 
 using namespace Gambit;
@@ -136,7 +137,7 @@ int main(int argc, char* argv[])
       logger() << "Running in MPI-parallel mode with "<<size<<" processes" << endl;
       #else
       logger() << "WARNING! Running in SERIAL (no MPI) mode!" << endl;
-      #endif 
+      #endif
       logger() << "Running with "<< n_omp_threads << " OpenMP threads per MPI process (set by the environment variable OMP_NUM_THREADS)." << EOM;
       if( Core().resume ) logger() << core << "Attempting to resume scan..." << EOM;
       logger() << core << "Registered module functors [Core().getModuleFunctors().size()]: ";
@@ -184,12 +185,15 @@ int main(int argc, char* argv[])
       if (rank == 0) cout << "Resolving dependencies and backend requirements.  Hang tight..." << endl;
       dependencyResolver.doResolution();
       if (rank == 0) cout << "...done!" << endl;
- 
+
       // Print the citation keys required for the used backends
       if (rank == 0) dependencyResolver.printCitationKeys();
 
       // Check that all requested models are used for at least one computation
       Models::ModelDB().checkPrimaryModelFunctorUsage(Core().getActiveModelFunctors());
+
+      // Check for unused rules and options on the ini file, and print them to screen
+      dependencyResolver.checkForUnusedRules(rank);
 
       // Report the proposed (output) functor evaluation order
       dependencyResolver.printFunctorEvalOrder(Core().show_runorder);
@@ -205,6 +209,10 @@ int main(int argc, char* argv[])
         scanner_node["Scanner"] = iniFile.getScannerNode();
         scanner_node["Parameters"] = iniFile.getParametersNode();
         scanner_node["Priors"] = iniFile.getPriorsNode();
+
+        // Print scan metadata from rank 0
+        if (iniFile.getValueOrDef<bool>(true, "print_metadata_info"))
+          printerManager.printerptr->print_metadata(dependencyResolver.getMetadata());
 
         //Create the master scan manager
         Scanner::Scan_Manager scan(scanner_node, &printerManager, &factory);
@@ -365,6 +373,8 @@ int main(int argc, char* argv[])
       logger()<<"MPI_Finalize has been disabled (e.g. due to an error) and will not be called."<<EOM;
   }
   #endif
+
+  Utils::ProcessLock::clean_locks();
 
   return return_value;
 

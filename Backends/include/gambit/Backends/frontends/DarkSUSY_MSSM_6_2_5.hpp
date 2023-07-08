@@ -71,6 +71,8 @@ BE_FUNCTION(dsIBwwdxdy, double, (int&, double&, double&), "dsibwwdxdy_", "dsIBww
 BE_FUNCTION(dsseyield_ch, double, (const double&, const double&, const double&, const int&, const int&, const char*, const int&, const int&, const int&), "dsseyield_ch_", "raw_nuyield_casc")
 BE_FUNCTION(dsddgpgn, void, (Farray<Fcomplex16,1,27,1,2>&, int&), "dsddgpgn_", "dsddgpgn")
 
+// Common blocks in the DarkSUSY core library that are not identical for all DS6 versions
+BE_VARIABLE(rdpars, DS_RDPARS_OLD,     "rdpars_",    "rdpars")    // gRD Parameters
 // Common blocks in the MSSM module library
 BE_VARIABLE(smquarkmasses, DS_SMQUARKMASSES, "smquarkmasses_", "smquarkmasses")
 BE_VARIABLE(smcoupling, DS_SMCOUPLING, "smcoupling_", "smcoupling")

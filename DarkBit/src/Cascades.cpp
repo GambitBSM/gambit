@@ -391,7 +391,7 @@ namespace Gambit
         std::cout << "Final state mass^2: " << msq << std::endl;
       #endif
 
-      double specSum=0;
+      //double specSum=0; (Unused)
       int Nsampl=0;
       SimpleHist spectrum(histList[initialState][finalState].binLower);
       while(Nsampl<cMC_numSpecSamples)
@@ -402,7 +402,7 @@ namespace Gambit
         double dN_dE = chn.dNdE_bound->eval(E_CoM, M);
 
         double weight2 = E_CoM*dlogE*dN_dE;
-        specSum += weight2;
+        //specSum += weight2; (Unused)
         weight2 *= weight;
         double tmp1 = gamma*E_CoM;
         double tmp2 = gammaBeta*sqrt(E_CoM*E_CoM-msq);

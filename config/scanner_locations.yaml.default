@@ -16,12 +16,16 @@ multinest:
     - lib: ./ScannerBit/installed/multinest/3.10/libnest3.so
   3.11:
     - lib: ./ScannerBit/installed/multinest/3.11/libnest3.so
+  3.12:
+    - lib: ./ScannerBit/installed/multinest/3.12/libnest3.so
 
 polychord:
   1.17.1:
     - lib: ./ScannerBit/installed/polychord/1.17.1/lib/libchord.so
   1.18.2:
     - lib: ./ScannerBit/installed/polychord/1.18.2/lib/libchord.so
+  1.20.1:
+    - lib: ./ScannerBit/installed/polychord/1.20.1/lib/libchord.so
 
 diver:
   1.0.0:

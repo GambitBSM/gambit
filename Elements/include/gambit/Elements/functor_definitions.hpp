@@ -174,7 +174,7 @@ namespace Gambit
           int rank = printer->getRank();      // This is "first pass" printing, so use the actual rank of this process.
                                               // In the auxilliary printing system we may tell the printer to overwrite
                                               // the output of other ranks.
-          logger() << LogTags::debug << "Printing "<<myLabel<<" (vID="<<myVertexID<<", rank="<<rank<<", pID="<<pointID<<")" << EOM;
+          logger() << LogTags::debug << "Printing "<<myLabel<<" (vID="<<myVertexID<<", rank="<<rank<<", pID="<<pointID<<", type="<<myType<<")" << EOM;
           printer->print(myValue[thread_num],myLabel,myVertexID,rank,pointID);
           already_printed[thread_num] = true;
         }
