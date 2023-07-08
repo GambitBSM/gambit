@@ -5249,7 +5249,7 @@ check_likelihood_classy_combi: |
 check_likelihood_support: |
     Checks if a given MontePython likelihood is currently supported. The reason why some likelihoods are not supported are:
 
-    - likelihood is only compatible with either python 2 or 3 and GAMBIT is configured with unsupported python version
+    - likelihood is only compatible with python 2, while GAMBIT requires python 3
     - likelihood implementation does not follow MontePython guidelines. Examples could be
         * quantities derived by CLASS are not called directly through the CLASS python object but through MontePython data.get_mcmc_parameters(['derived'])
         * parameters setting the observables that CLASS has to compute are not specified

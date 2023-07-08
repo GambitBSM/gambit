@@ -74,7 +74,7 @@ COMPULSORY:
  - gcc >= 5.1 / llvm clang >= 10 / AppleClang >= 13 / icc >= 15.0.2
  - gfortran >= 5.1 / ifort >=15.0.2
  - Cmake 2.8.12 or greater
- - Python 2.7 or greater (Python 3 is supported)
+ - Python 3
  - Python modules: yaml, future, os, re, datetime, sys, getopt, shutil and itertools.
  - git
  - Boost 1.48 or greater
