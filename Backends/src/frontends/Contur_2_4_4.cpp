@@ -24,7 +24,7 @@
 ///  *********************************************
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/Contur_2_4_3.hpp"
+#include "gambit/Backends/frontends/Contur_2_4_4.hpp"
 
 #ifdef HAVE_PYBIND11
 
@@ -38,6 +38,7 @@
     void Contur_add_GAMBIT_default_args(pybind11::dict& args_dict)
     {
       args_dict[pybind11::cast("QUIET")] = pybind11::bool_(true);
+      args_dict[pybind11::cast("NOMULTIP")] = pybind11::bool_(true);
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")] = pybind11::list();
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("LLR");
       args_dict[pybind11::cast("YODASTREAM_API_OUTPUT_OPTIONS")].attr("append")("Pool_LLR");

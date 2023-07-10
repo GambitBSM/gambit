@@ -1,6 +1,6 @@
-diff -rupN contur-2.4.3_original/contur/util/utils.py contur-2.4.3_patched/contur/util/utils.py
---- contur-2.4.3_original/contur/util/utils.py	2021-09-26 16:58:41.000000000 +0200
-+++ contur-2.4.3_patched/contur/util/utils.py	2023-02-20 16:48:41.182701916 +0100
+diff -rupN contur-2.4.4_original/contur/util/utils.py contur-2.4.4_patched/contur/util/utils.py
+--- contur-2.4.4_original/contur/util/utils.py	2021-09-26 16:58:41.000000000 +0200
++++ contur-2.4.4_patched/contur/util/utils.py	2023-02-20 16:48:41.182701916 +0100
 @@ -16,12 +16,17 @@ import logging
  
  import scipy.stats as spstat

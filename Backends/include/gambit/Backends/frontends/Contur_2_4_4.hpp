@@ -25,8 +25,8 @@
 
 #define BACKENDNAME Contur
 #define BACKENDLANG Python3
-#define VERSION 2.4.3
-#define SAFE_VERSION 2_4_3
+#define VERSION 2.4.4
+#define SAFE_VERSION 2_4_4
 #define REFERENCE Butterworth:2016sqg
 
 LOAD_LIBRARY
