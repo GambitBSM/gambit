@@ -87,8 +87,8 @@ namespace Gambit
       for (unsigned i=0; i <  names_exist.size(); i++)
       {
         std::string name1=names_exist[i];
-        std::map<const std::string, double> row=prediction[name1];
-        for (std::map<const std::string, double>::iterator it=row.begin(); it !=row.end(); it++)
+        std::map<std::string, double> row=prediction[name1];
+        for (std::map<std::string, double>::iterator it=row.begin(); it !=row.end(); it++)
         {
           prediction[name1][it->first]=(-1.)*prediction[name1][it->first];
         }
