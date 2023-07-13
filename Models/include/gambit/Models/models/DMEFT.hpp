@@ -30,21 +30,50 @@
 // Make sure that AnnihilatingDM_general is declared first
 #include "gambit/Models/models/CosmoEnergyInjection.hpp"
 
+#define MODEL General_DMEFT
+  START_MODEL
+
+  DEFINEPARS(Lambda, C51, C52, C61, C62, C63, C64, C71, C72)
+  DEFINEPARS(C73, C74, C75, C76, C77, C78, C79, C710, mchi)
+  DEFINEPARS(mtrunIN, theta61, theta62, theta63, theta64)
+
+  // In order to enable CMB constraints create a friendship relation
+  // to the s-wave annihilation "marker" model AnnihilatingDM_general
+  INTERPRET_AS_X_FUNCTION(AnnihilatingDM_general,General_DMEFT_to_AnnihilatingDM_general)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,mwimp,double)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,wimp_sc,bool)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,sigmav,double)
+  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,RD_fraction,double)
+
+#undef MODEL
+
+
+#define MODEL DMEFT_3flavour
+#define PARENT General_DMEFT
+
+  START_MODEL
+
+  DEFINEPARS(C51, C52, C61, C62, C63, C64, mchi)
+  DEFINEPARS(theta61, theta62, theta63, theta64)
+
+  INTERPRET_AS_PARENT_FUNCTION(DMEFT_3flavour_to_General_DMEFT)
+
+#undef PARENT
+#undef MODEL
+
+
 #define MODEL DMEFT
+#define PARENT General_DMEFT
+
   START_MODEL
 
   DEFINEPARS(Lambda, C51, C52, C61, C62, C63, C64, C71, C72)
   DEFINEPARS(C73, C74, C75, C76, C77, C78, C79, C710, mchi)
   DEFINEPARS(mtrunIN)
 
-  // In order to enable CMB constraints create a friendship relation
-  // to the s-wave annihilation "marker" model AnnihilatingDM_general
-  INTERPRET_AS_X_FUNCTION(AnnihilatingDM_general,DMEFT_to_AnnihilatingDM_general)
-  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,mwimp,double)
-  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,wimp_sc,bool)
-  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,sigmav,double)
-  INTERPRET_AS_X_DEPENDENCY(AnnihilatingDM_general,RD_fraction,double)
+  INTERPRET_AS_PARENT_FUNCTION(DMEFT_to_General_DMEFT)
 
+#undef PARENT
 #undef MODEL
 
 #endif

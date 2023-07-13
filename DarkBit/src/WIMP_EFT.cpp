@@ -180,7 +180,7 @@ namespace Gambit
       using namespace Pipes::DD_nonrel_WCs_flavscheme;
 
       // Number of quark flavours used for matching (default 5)
-      int scheme = runOptions->getValueOrDef<int>(5, "flavs");
+      int scheme = *Dep::nflavours;
 
       // Only defined for 3, 4, + 5 flavour scheme.
       if (scheme != 3 && scheme != 4 && scheme != 5)

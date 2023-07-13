@@ -174,7 +174,7 @@ START_MODULE
       DEPENDENCY(DarkMatterConj_ID, std::string)
       ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3,
                    ScalarSingletDM_Z3_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2,
-                   VectorSingletDM_Z2, DMEFT)
+                   VectorSingletDM_Z2, General_DMEFT)
       ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
@@ -230,7 +230,7 @@ START_MODULE
       DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
       DEPENDENCY(DarkMatter_ID, std::string)
       DEPENDENCY(DarkMatterConj_ID, std::string)
-      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+      ALLOW_MODELS(ScalarSingletDM_Z2, ScalarSingletDM_Z2_running, DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, General_DMEFT)
       ALLOW_MODELS(DMsimpVectorMedDiracDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedScalarDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
@@ -371,7 +371,7 @@ START_MODULE
       ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT,
                    ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                    ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, DMEFT)
+                   DiracSingletDM_Z2, MajoranaSingletDM_Z2, VectorSingletDM_Z2, General_DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -545,7 +545,7 @@ START_MODULE
       DEPENDENCY(decay_rates, DecayTable)
       DEPENDENCY(DMEFT_spectrum, Spectrum)
       BACKEND_REQ(CH_Sigma_V, (), double, (str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&))
-      ALLOW_MODELS(DMEFT)
+      ALLOW_MODELS(General_DMEFT)
     #undef FUNCTION
 
     #define FUNCTION TH_ProcessCatalog_DMsimpVectorMedDiracDM
@@ -1203,7 +1203,7 @@ START_MODULE
     MODEL_CONDITIONAL_DEPENDENCY(DiracSingletDM_Z2_spectrum, Spectrum, DiracSingletDM_Z2)
     MODEL_CONDITIONAL_DEPENDENCY(VectorSingletDM_Z2_spectrum, Spectrum, VectorSingletDM_Z2)
     MODEL_CONDITIONAL_DEPENDENCY(MDM_spectrum, Spectrum, MDM)
-    MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, DMEFT)
+    MODEL_CONDITIONAL_DEPENDENCY(DMEFT_spectrum, Spectrum, General_DMEFT)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
     MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
@@ -1214,7 +1214,7 @@ START_MODULE
     ALLOW_MODELS(VectorSingletDM_Z2, MajoranaSingletDM_Z2, DiracSingletDM_Z2)
     ALLOW_MODELS(AnnihilatingDM_mixture, DecayingDM_mixture)
     ALLOW_MODELS(NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM)
-    ALLOW_MODELS(MDM, DMEFT, DMEFT_3flavour)
+    ALLOW_MODELS(MDM, General_DMEFT)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -1302,12 +1302,12 @@ START_MODULE
       ALLOW_MODEL_DEPENDENCE(nuclear_params_fnq, MSSM63atQ,
                              ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                              ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                             VectorSingletDM_Z2, DMEFT, DMsimpVectorMedVectorDM)
+                             VectorSingletDM_Z2, General_DMEFT, DMsimpVectorMedVectorDM)
       MODEL_GROUP(group1, (nuclear_params_fnq))
       MODEL_GROUP(group2, (MSSM63atQ,
                            ScalarSingletDM_Z2, ScalarSingletDM_Z2_running,
                            ScalarSingletDM_Z3, ScalarSingletDM_Z3_running,
-                           VectorSingletDM_Z2, DMEFT, DMsimpVectorMedVectorDM))
+                           VectorSingletDM_Z2, General_DMEFT, DMsimpVectorMedVectorDM))
       ALLOW_MODEL_COMBINATION(group1, group2)
       BACKEND_OPTION((MicrOmegas_MSSM),(gimmemicro))
       BACKEND_OPTION((MicrOmegas_ScalarSingletDM_Z2),(gimmemicro))
@@ -1352,12 +1352,8 @@ START_MODULE
       START_FUNCTION(map_str_dbl)
       DEPENDENCY(DMEFT_spectrum, Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
-      ALLOW_JOINT_MODEL(DMEFT, DAMA_xsec)
-      #undef FUNCTION
-
-      #define FUNCTION DD_rel_WCs_flavscheme_DMEFT_3flavour
-      START_FUNCTION(map_str_dbl)
-      ALLOW_MODEL(DMEFT_3flavour)
+      DEPENDENCY(nflavours, int)
+      ALLOW_JOINT_MODEL(General_DMEFT, DAMA_xsec)
       #undef FUNCTION
 
       #define FUNCTION DD_rel_WCs_flavscheme_DiracSingletDM_Z2
@@ -1416,6 +1412,7 @@ START_MODULE
       #define FUNCTION DD_nonrel_WCs_flavscheme
       START_FUNCTION(NREO_DM_nucleon_couplings)
       DEPENDENCY(DD_rel_WCs_flavscheme, map_str_dbl)
+      DEPENDENCY(nflavours, int)
       DEPENDENCY(WIMP_properties, WIMPprops) // TODO: Rewrite to not use WIMPprops!
       DEPENDENCY(DirectDMNuisanceParameters, map_str_dbl)
       BACKEND_REQ(get_NR_WCs_flav, (), NREO_DM_nucleon_couplings, (map_str_dbl&, double&, int&, std::string&, map_str_dbl&))
@@ -1437,6 +1434,17 @@ START_MODULE
       #define FUNCTION DD_nonrel_WCs_DMsimpVectorMedVectorDM
       START_FUNCTION(NREO_DM_nucleon_couplings)
       DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum)
+      #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY nflavours
+  
+      #define FUNCTION DMEFT_nflavours
+      START_FUNCTION(int)
+      DEPENDENCY(SMINPUTS, SMInputs)
+      DEPENDENCY(DMEFT_spectrum, Spectrum)
+      ALLOW_MODELS(General_DMEFT)
       #undef FUNCTION
 
   #undef CAPABILITY
@@ -1961,7 +1969,7 @@ START_MODULE
     START_FUNCTION(nuyield_info)
     ALLOW_MODELS(MSSM63atQ, ScalarSingletDM_Z2_running, ScalarSingletDM_Z3_running,
                  MajoranaSingletDM_Z2, DiracSingletDM_Z2, VectorSingletDM_Z2,
-                 NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM,DMEFT)
+                 NREO_scalarDM, NREO_MajoranaDM, NREO_DiracDM,General_DMEFT)
     DEPENDENCY(TH_ProcessCatalog, TH_ProcessCatalog)
     DEPENDENCY(mwimp, double)
     DEPENDENCY(sigmav, double)
@@ -2334,11 +2342,7 @@ START_MODULE
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_DMEFT
     START_FUNCTION(std::string)
-    ALLOW_MODELS(DMEFT)
-    #undef FUNCTION
-    #define FUNCTION DarkMatter_ID_DMEFT_3flavour
-    START_FUNCTION(std::string)
-    ALLOW_MODELS(DMEFT_3flavour)
+    ALLOW_MODELS(General_DMEFT)
     #undef FUNCTION
     #define FUNCTION DarkMatter_ID_DMsimpVectorMedDiracDM
     START_FUNCTION(std::string)
@@ -2394,11 +2398,7 @@ START_MODULE
     #undef FUNCTION
     #define FUNCTION DarkMatterConj_ID_DMEFT
     START_FUNCTION(std::string)
-    ALLOW_MODELS(DMEFT)
-    #undef FUNCTION
-    #define FUNCTION DarkMatterConj_ID_DMEFT_3flavour
-    START_FUNCTION(std::string)
-    ALLOW_MODELS(DMEFT_3flavour)
+    ALLOW_MODELS(General_DMEFT)
     #undef FUNCTION
     #define FUNCTION DarkMatterConj_ID_DMsimpVectorMedDiracDM
     START_FUNCTION(std::string)

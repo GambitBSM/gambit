@@ -204,6 +204,27 @@ namespace Gambit
 
     void DarkMatterConj_ID_DMEFT(std::string& result){ result = "chi~"; }
 
+    void DMEFT_nflavour(int& result)
+    { 
+      using namespace Pipes::DMEFT_nflavour;
+
+      const Spectrum& spec = *Dep::DMEFT_spectrum;
+      const SMInputs& sminputs = *Dep::SMINPUTS;
+      double Lambda = spec.get(Par::mass1, "Lambda");
+      if (Lambda > sminputs.mBmB)
+      {
+        result = 5;
+      }
+      else if (Lambda > 2)
+      {
+        result = 4;
+      }
+      else
+      {
+        result = 3;
+      }
+    }
+
     /// Relativistic Wilson Coefficients for direct detection
     /// DMEFT basis is the same as that used in DirectDM
     void DD_rel_WCs_flavscheme_DMEFT(map_str_dbl& result)
@@ -212,6 +233,11 @@ namespace Gambit
 
       const Spectrum& spec = *Dep::DMEFT_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;
+      int nf = *Dep::nflavours;
+      int nf4 = 0;
+      int nf5 = 0;
+      if (nf >= 4) {nf4 = 1;}
+      if (nf >= 5) {nf5 = 1;}
 
       // In our model the Wilson coefficients are dimensionless
       double Lambda = spec.get(Par::mass1, "Lambda");
@@ -231,6 +257,10 @@ namespace Gambit
       double C78  = spec.get(Par::dimensionless, "C78");
       double C79  = spec.get(Par::dimensionless, "C79");
       double C710 = spec.get(Par::dimensionless, "C710");
+      double theta61  = spec.get(Par::dimensionless, "theta61");
+      double theta62  = spec.get(Par::dimensionless, "theta62");
+      double theta63  = spec.get(Par::dimensionless, "theta63");
+      double theta64  = spec.get(Par::dimensionless, "theta64");
 
       // So we need to rescale them by the appropriate scale
       result["C51"]  = C51/Lambda;
@@ -249,65 +279,65 @@ namespace Gambit
       // Also only considering interactions with *quarks and gluons* -- 
       // not leptons, so C_{7}{tag}(tau, mu, e) = 0
 
-      result["C61d"]  = C61/pow(Lambda, 2.);
-      result["C61u"]  = C61/pow(Lambda, 2.);
-      result["C61s"]  = C61/pow(Lambda, 2.);
-      result["C61c"]  = C61/pow(Lambda, 2.);
-      result["C61b"]  = C61/pow(Lambda, 2.);
+      result["C61d"]  = C61/pow(Lambda, 2.)*sin(theta61);
+      result["C61u"]  = C61/pow(Lambda, 2.)*cos(theta61);
+      result["C61s"]  = C61/pow(Lambda, 2.)*sin(theta61);
+      result["C61c"]  = C61/pow(Lambda, 2.)*cos(theta61)*nf4;
+      result["C61b"]  = C61/pow(Lambda, 2.)*sin(theta61)*nf5;
 
-      result["C62d"]  = C62/pow(Lambda, 2.);
-      result["C62u"]  = C62/pow(Lambda, 2.);
-      result["C62s"]  = C62/pow(Lambda, 2.);
-      result["C62c"]  = C62/pow(Lambda, 2.);
-      result["C62b"]  = C62/pow(Lambda, 2.);
+      result["C62d"]  = C62/pow(Lambda, 2.)*sin(theta62);
+      result["C62u"]  = C62/pow(Lambda, 2.)*cos(theta62);
+      result["C62s"]  = C62/pow(Lambda, 2.)*sin(theta62);
+      result["C62c"]  = C62/pow(Lambda, 2.)*cos(theta62)*nf4;
+      result["C62b"]  = C62/pow(Lambda, 2.)*sin(theta62)*nf5;
 
-      result["C63d"]  = C63/pow(Lambda, 2.);
-      result["C63u"]  = C63/pow(Lambda, 2.);
-      result["C63s"]  = C63/pow(Lambda, 2.);
-      result["C63c"]  = C63/pow(Lambda, 2.);
-      result["C63b"]  = C63/pow(Lambda, 2.);
+      result["C63d"]  = C63/pow(Lambda, 2.)*sin(theta63);
+      result["C63u"]  = C63/pow(Lambda, 2.)*cos(theta63);
+      result["C63s"]  = C63/pow(Lambda, 2.)*sin(theta63);
+      result["C63c"]  = C63/pow(Lambda, 2.)*cos(theta63)*nf4;
+      result["C63b"]  = C63/pow(Lambda, 2.)*sin(theta63)*nf5;
 
-      result["C64d"]  = C64/pow(Lambda, 2.);
-      result["C64u"]  = C64/pow(Lambda, 2.);
-      result["C64s"]  = C64/pow(Lambda, 2.);
-      result["C64c"]  = C64/pow(Lambda, 2.);
-      result["C64b"]  = C64/pow(Lambda, 2.);
+      result["C64d"]  = C64/pow(Lambda, 2.)*cos(theta64);
+      result["C64u"]  = C64/pow(Lambda, 2.)*sin(theta64);
+      result["C64s"]  = C64/pow(Lambda, 2.)*cos(theta64);
+      result["C64c"]  = C64/pow(Lambda, 2.)*sin(theta64)*nf4;
+      result["C64b"]  = C64/pow(Lambda, 2.)*cos(theta64)*nf5;
 
       result["C75d"]  = C75/pow(Lambda, 3.);
       result["C75u"]  = C75/pow(Lambda, 3.);
       result["C75s"]  = C75/pow(Lambda, 3.);
-      result["C75c"]  = C75/pow(Lambda, 3.);
-      result["C75b"]  = C75/pow(Lambda, 3.);
+      result["C75c"]  = C75/pow(Lambda, 3.)*nf4;
+      result["C75b"]  = C75/pow(Lambda, 3.)*nf5;
 
       result["C76d"]  = C76/pow(Lambda, 3.);
       result["C76u"]  = C76/pow(Lambda, 3.);
       result["C76s"]  = C76/pow(Lambda, 3.);
-      result["C76c"]  = C76/pow(Lambda, 3.);
-      result["C76b"]  = C76/pow(Lambda, 3.);
+      result["C76c"]  = C76/pow(Lambda, 3.)*nf4;
+      result["C76b"]  = C76/pow(Lambda, 3.)*nf5;
 
       result["C77d"]  = C77/pow(Lambda, 3.);
       result["C77u"]  = C77/pow(Lambda, 3.);
       result["C77s"]  = C77/pow(Lambda, 3.);
-      result["C77c"]  = C77/pow(Lambda, 3.);
-      result["C77b"]  = C77/pow(Lambda, 3.);
+      result["C77c"]  = C77/pow(Lambda, 3.)*nf4;
+      result["C77b"]  = C77/pow(Lambda, 3.)*nf5;
 
       result["C78d"]  = C78/pow(Lambda, 3.);
       result["C78u"]  = C78/pow(Lambda, 3.);
       result["C78s"]  = C78/pow(Lambda, 3.);
-      result["C78c"]  = C78/pow(Lambda, 3.);
-      result["C78b"]  = C78/pow(Lambda, 3.);
+      result["C78c"]  = C78/pow(Lambda, 3.)*nf4;
+      result["C78b"]  = C78/pow(Lambda, 3.)*nf5;
 
       result["C79d"]  = C79/pow(Lambda, 3.);
       result["C79u"]  = C79/pow(Lambda, 3.);
       result["C79s"]  = C79/pow(Lambda, 3.);
-      result["C79c"]  = C79/pow(Lambda, 3.);
-      result["C79b"]  = C79/pow(Lambda, 3.);
+      result["C79c"]  = C79/pow(Lambda, 3.)*nf4;
+      result["C79b"]  = C79/pow(Lambda, 3.)*nf5;
 
       result["C710d"] = C710/pow(Lambda, 3.);
       result["C710u"] = C710/pow(Lambda, 3.);
       result["C710s"] = C710/pow(Lambda, 3.);
-      result["C710c"] = C710/pow(Lambda, 3.);
-      result["C710b"] = C710/pow(Lambda, 3.);
+      result["C710c"] = C710/pow(Lambda, 3.)*nf4;
+      result["C710b"] = C710/pow(Lambda, 3.)*nf5;
 
       // use the running top mass at Q=mt, which is an input
       double mtatmt = spec.get(Par::mass1,"mtrun");
@@ -338,8 +368,8 @@ namespace Gambit
         double prefactoru = (8.*sw2-3.)/2. * pow(mtatmt/(2.*vev*pi), 2.) * log(1/lamovermt2);
         double prefactord = (3.-4.*sw2)/2. * pow(mtatmt/(2.*vev*pi), 2.) * log(1/lamovermt2);
 
-        double C61u = C61/pow(Lambda, 2.) + prefactoru * C63/pow(Lambda, 2.);
-        double C61d = C61/pow(Lambda, 2.) + prefactord * C63/pow(Lambda, 2.);
+        double C61u = C61/pow(Lambda, 2.)*cos(theta61) + prefactoru * C63/pow(Lambda, 2.)*cos(theta63);
+        double C61d = C61/pow(Lambda, 2.)*sin(theta61) + prefactord * C63/pow(Lambda, 2.)*sin(theta63);
 
         // The following bit is intended to make it easier for the scanner to find points for which direct detection constraints are satisfied
         // by adding a flavour-independent term to C61u and C61d such that the resulting couplings are Xe-phobic (f_n / f_p = -0.7).
