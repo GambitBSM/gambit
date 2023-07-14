@@ -204,9 +204,9 @@ namespace Gambit
 
     void DarkMatterConj_ID_DMEFT(std::string& result){ result = "chi~"; }
 
-    void DMEFT_nflavour(int& result)
+    void DMEFT_nflavours(int& result)
     { 
-      using namespace Pipes::DMEFT_nflavour;
+      using namespace Pipes::DMEFT_nflavours;
 
       const Spectrum& spec = *Dep::DMEFT_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;

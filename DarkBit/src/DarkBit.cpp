@@ -100,10 +100,8 @@ namespace Gambit
         props.mass = Dep::DMsimpVectorMedScalarDM_spectrum->get(Par::Pole_Mass, props.name);
       else if(ModelInUse("DMsimpVectorMedVectorDM"))
         props.mass = Dep::DMsimpVectorMedVectorDM_spectrum->get(Par::Pole_Mass, props.name);
-      else if(ModelInUse("DMEFT"))
+      else if(ModelInUse("General_DMEFT"))
         props.mass = Dep::DMEFT_spectrum->get(Par::Pole_Mass, props.name);
-      else if(ModelInUse("DMEFT_3flavour"))
-        props.mass = *Param["mchi"];
       else
         DarkBit_error().raise(LOCAL_INFO, "WIMP properties cannot find a ModelInUse to get the wimp mass.");
     }
