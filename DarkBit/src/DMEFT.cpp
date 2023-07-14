@@ -200,7 +200,10 @@ namespace Gambit
       result = catalog;
     } // function TH_ProcessCatalog
     
-    void DarkMatter_ID_DMEFT(std::string& result){ result = "chi"; }
+    void DarkMatter_ID_DMEFT(std::string& result)
+    { 
+      result = "chi";
+    }
 
     void DarkMatterConj_ID_DMEFT(std::string& result){ result = "chi~"; }
 
@@ -210,7 +213,9 @@ namespace Gambit
 
       const Spectrum& spec = *Dep::DMEFT_spectrum;
       const SMInputs& sminputs = *Dep::SMINPUTS;
+      
       double Lambda = spec.get(Par::mass1, "Lambda");
+            
       if (Lambda > sminputs.mBmB)
       {
         result = 5;
@@ -384,7 +389,7 @@ namespace Gambit
         result["C61u"] = C61u;
 
       }
-
+      
     } // DD_rel_WCs_flavscheme_DMEFT
     
   } //namespace DarkBit

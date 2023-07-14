@@ -84,6 +84,7 @@
                                               int& scheme, std::string& DM_type,
                                               map_str_dbl& input_dict)
     {
+        
       // We can only load up 3, 4, 5 flavour scheme.
       if (scheme != 3 && scheme != 4 && scheme != 5)
       {
