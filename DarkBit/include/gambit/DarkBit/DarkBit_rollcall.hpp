@@ -1353,7 +1353,7 @@ START_MODULE
       DEPENDENCY(DMEFT_spectrum, Spectrum)
       DEPENDENCY(SMINPUTS, SMInputs)
       DEPENDENCY(nflavours, int)
-      ALLOW_JOINT_MODEL(General_DMEFT, DAMA_xsec)
+      ALLOW_MODEL(General_DMEFT)
       #undef FUNCTION
 
       #define FUNCTION DD_rel_WCs_flavscheme_DiracSingletDM_Z2

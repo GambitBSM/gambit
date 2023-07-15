@@ -47,6 +47,10 @@ namespace Gambit
       DMEFTmodel.DMEFT_C62 = *myPipe::Param.at("C62");
       DMEFTmodel.DMEFT_C63 = *myPipe::Param.at("C63");
       DMEFTmodel.DMEFT_C64 = *myPipe::Param.at("C64");
+      DMEFTmodel.DMEFT_theta61 = *myPipe::Param.at("theta61");
+      DMEFTmodel.DMEFT_theta62 = *myPipe::Param.at("theta62");
+      DMEFTmodel.DMEFT_theta63 = *myPipe::Param.at("theta63");
+      DMEFTmodel.DMEFT_theta64 = *myPipe::Param.at("theta64");
       DMEFTmodel.DMEFT_C71 = *myPipe::Param.at("C71");
       DMEFTmodel.DMEFT_C72 = *myPipe::Param.at("C72");
       DMEFTmodel.DMEFT_C73 = *myPipe::Param.at("C73");

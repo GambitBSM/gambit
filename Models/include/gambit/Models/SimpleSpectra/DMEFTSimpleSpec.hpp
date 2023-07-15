@@ -33,6 +33,10 @@ namespace Gambit
       double DMEFT_C62;
       double DMEFT_C63;
       double DMEFT_C64;
+      double DMEFT_theta61;
+      double DMEFT_theta62;
+      double DMEFT_theta63;
+      double DMEFT_theta64;
       double DMEFT_C71;
       double DMEFT_C72;
       double DMEFT_C73;
@@ -107,6 +111,10 @@ namespace Gambit
       double get_C62() const { return params.DMEFT_C62; }
       double get_C63() const { return params.DMEFT_C63; }
       double get_C64() const { return params.DMEFT_C64; }
+      double get_theta61() const { return params.DMEFT_theta61; }
+      double get_theta62() const { return params.DMEFT_theta62; }
+      double get_theta63() const { return params.DMEFT_theta63; }
+      double get_theta64() const { return params.DMEFT_theta64; }
       double get_C71() const { return params.DMEFT_C71; }
       double get_C72() const { return params.DMEFT_C72; }
       double get_C73() const { return params.DMEFT_C73; }
@@ -136,6 +144,10 @@ namespace Gambit
       void set_C62(double in) { params.DMEFT_C62=in; }
       void set_C63(double in) { params.DMEFT_C63=in; }
       void set_C64(double in) { params.DMEFT_C64=in; }
+      void set_theta61(double in) { params.DMEFT_theta61=in; }
+      void set_theta62(double in) { params.DMEFT_theta62=in; }
+      void set_theta63(double in) { params.DMEFT_theta63=in; }
+      void set_theta64(double in) { params.DMEFT_theta64=in; }
       void set_C71(double in) { params.DMEFT_C71=in; }
       void set_C72(double in) { params.DMEFT_C72=in; }
       void set_C73(double in) { params.DMEFT_C73=in; }
@@ -175,6 +187,10 @@ namespace Gambit
         getters[dimensionless].map0W["C62"] =  &Self::get_C62;
         getters[dimensionless].map0W["C63"] =  &Self::get_C63;
         getters[dimensionless].map0W["C64"] =  &Self::get_C64;
+        getters[dimensionless].map0W["theta61"] =  &Self::get_theta61;
+        getters[dimensionless].map0W["theta62"] =  &Self::get_theta62;
+        getters[dimensionless].map0W["theta63"] =  &Self::get_theta63;
+        getters[dimensionless].map0W["theta64"] =  &Self::get_theta64;
         getters[dimensionless].map0W["C71"] =  &Self::get_C71;
         getters[dimensionless].map0W["C72"] =  &Self::get_C72;
         getters[dimensionless].map0W["C73"] =  &Self::get_C73;

@@ -24,9 +24,9 @@
     #define FUNCTION get_DMEFT_spectrum
     START_FUNCTION(Spectrum)
     DEPENDENCY(SMINPUTS, SMInputs)
-    ALLOW_MODEL_DEPENDENCE(StandardModel_Higgs, DMEFT)
+    ALLOW_MODEL_DEPENDENCE(StandardModel_Higgs, General_DMEFT)
     MODEL_GROUP(higgs, (StandardModel_Higgs))
-    MODEL_GROUP(DMEFT_group, (DMEFT))
+    MODEL_GROUP(DMEFT_group, (General_DMEFT))
     ALLOW_MODEL_COMBINATION(higgs, DMEFT_group)
     #undef FUNCTION
 
