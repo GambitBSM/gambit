@@ -263,6 +263,57 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("scanner" ${name} ${ver})
 endif()
 
+# PolyChord
+set(name "polychord_wraparound")
+set(ver "1.20.2")
+set(lib "libchord")
+set(md5 "dbc3b73aa0a689030f8fc6cc326de128")
+set(dl "https://github.com/PolyChord/PolyChordLite/archive/8f527b968882614fcabe61737930db76f16abc16.tar.gz")
+set(dir "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${name}/${ver}")
+set(pcSO_LINK "${CMAKE_Fortran_COMPILER} ${OpenMP_Fortran_FLAGS} ${CMAKE_Fortran_MPI_SO_LINK_FLAGS} ${CMAKE_CXX_MPI_SO_LINK_FLAGS}")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  string(REGEX REPLACE "(-lstdc\\+\\+)" "" pcSO_LINK "${pcSO_LINK}")
+  set(pcSO_LINK "${pcSO_LINK} -lc++")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  string(REGEX REPLACE "(-lc\\+\\+)" "" pcSO_LINK "${pcSO_LINK}")
+  set(pcSO_LINK "${pcSO_LINK} -lstdc++")
+endif()
+if(MPI_Fortran_FOUND)
+  set(pcFFLAGS "${BACKEND_Fortran_FLAGS_PLUS_MPI}")
+else()
+  set(pcFFLAGS "${BACKEND_Fortran_FLAGS}")
+endif()
+if(MPI_CXX_FOUND)
+  set(pcCXXFLAGS "${BACKEND_CXX_FLAGS_PLUS_MPI}")
+else()
+  set(pcCXXFLAGS "${BACKEND_CXX_FLAGS}")
+endif()
+if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "Intel")
+  set(pcFFLAGS "${pcFFLAGS} -heap-arrays -assume noold_maxminloc ")
+  set(pcCOMPILER_TYPE "intel")
+else()
+  set(pcFFLAGS "${pcFFLAGS} -fno-stack-arrays")
+  set(pcCOMPILER_TYPE "gnu")
+endif()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(pcCXXFLAGS "${pcCXXFLAGS} -Wl,-undefined,dynamic_lookup")
+  set(pcFFLAGS "${pcFFLAGS} -Wl,-undefined,dynamic_lookup")
+  set(pcSO_LINK "${pcSO_LINK} -lstdc++")
+endif()
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DOWNLOAD_COMMAND ${DL_SCANNER} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND sed ${dashi} -e "s#-lc#-lstdc#g" Makefile_gnu
+    BUILD_COMMAND ${MAKE_PARALLEL} ${lib}.so FC=${CMAKE_Fortran_COMPILER} FFLAGS=${pcFFLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${pcCXXFLAGS} LD=${pcSO_LINK} COMPILER_TYPE=${pcCOMPILER_TYPE}
+    INSTALL_COMMAND ""
+    )
+  add_extra_targets("scanner" ${name} ${ver} ${dir} ${dl} clean)
+  set_as_default_version("scanner" ${name} ${ver})
+endif()
+
 # MultiNest
 set(name "multinest")
 set(ver "3.10")
