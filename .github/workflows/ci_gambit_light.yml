@@ -5,7 +5,7 @@ on:
     branches: temp_gambit_light_ci_test
 
 jobs:
-  gambit_build:
+  gambit-light_test:
     runs-on: [docker, self-hosted]
     strategy:
       fail-fast: false
