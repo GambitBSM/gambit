@@ -1,0 +1,53 @@
+name: GAMBIT-light CI
+
+on:
+  push:
+    branches: temp_gambit_light_ci_test
+
+jobs:
+  gambit-light_test_Mac_x64:
+    runs-on: [self-hosted, macOS,x64]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout GAMBIT-light repository
+      uses: actions/checkout@master
+      with:
+        repository: GambitBSM/gambit_light
+        ref: master
+        token: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
+    - name: Set up build environment
+      run: |
+        echo "Set up the build environment"
+        mkdir -p BUILD
+        cd BUILD
+    - name: Configure with cmake
+      run: |
+        echo "Configure with cmake"
+        cd BUILD
+        # Ditching a few backends that don't currently work on Mac
+        cmake -DWITH_MPI=OFF ..
+    - name: Build scanners
+      run: |
+        echo "Build scanners"
+        cd BUILD
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) scanners
+        cmake ..
+    - name: Build Gambit
+      run: |
+        echo "Build GAMBIT."
+        cd BUILD
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
+    - name: CLI test
+      run: |
+        echo "Run the test of gambit help"
+        ./gambit -h
+    - name: Test run with gambit_light_example.yaml
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -rf yaml_files/gambit_light_example.yaml
