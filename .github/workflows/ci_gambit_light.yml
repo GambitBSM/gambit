@@ -22,6 +22,7 @@ jobs:
       with:
         repository: GambitBSM/gambit_light
         ref: master
+        GH_PAT: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
     - name: Set up build environment
       run: |
         mkdir -p BUILD
