@@ -46,7 +46,7 @@ def hidden(filename):
 def main(argv):
 
     # Lists of modules to exclude; anything starting with one of these strings is excluded.
-    exclude_modules=set(["ScannerBit"])
+    exclude_modules=set(["ScannerBit", "gambit_light_interface"])
 
     # List of printers to exclude; subdirectories within the Printers directory
     # that match these strings will be ignored.
