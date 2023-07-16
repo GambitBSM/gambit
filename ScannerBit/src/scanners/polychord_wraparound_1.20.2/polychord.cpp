@@ -195,7 +195,7 @@ scanner_plugin(polychord_wraparound, version(1, 20, 2))
       settings.wraparound = std::vector<bool>(settings.nDims, false);
       std::vector<std::string> wraparound_params = get_inifile_value<std::vector<std::string>>("wraparound_params", {});
       for (auto param: wraparound_params)
-          settings.wraparound[index_map[param]] = true;
+          settings.wraparound[global_loglike_object->index_map[param]] = true;
 
       
 
