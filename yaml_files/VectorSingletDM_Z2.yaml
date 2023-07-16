@@ -172,8 +172,8 @@ Rules:
   - capability: nuyield_ptr
     function: nuyield_from_DS
     backends:
-    #  - {backend: DarkSUSY, version: 5.1.3}
-      - {backend: DarkSUSY_generic_wimp}
+    #  - {capability: DS_nuyield_setup, backend: DarkSUSY, version: 5.1.3}
+      - {capability: DS_nuyield_setup, backend: DarkSUSY_generic_wimp}
 
    # Choose to use DarkSUSY or capgen for solar capture rate
   - capability: capture_rate_Sun

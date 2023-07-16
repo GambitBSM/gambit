@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
       Models::ModelDB().checkPrimaryModelFunctorUsage(Core().getActiveModelFunctors());
 
       // Check for unused rules and options on the ini file, and print them to screen
-      dependencyResolver.checkForUnusedRules(rank);
+      dependencyResolver.checkForUnusedRules();
 
       // Report the proposed (output) functor evaluation order
       dependencyResolver.printFunctorEvalOrder(Core().show_runorder);

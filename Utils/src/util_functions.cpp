@@ -431,6 +431,18 @@ namespace Gambit
       return true;
     }
 
+    /// Enclose a string in quotation marks if it contains commas
+    std::string quote_if_contains_commas(str in)
+    {
+      if (in.find(',') == std::string::npos)
+      {
+        return in;
+      }
+      else
+      {
+        return "\""+in+"\"";
+      }
+    }
 
   }
 

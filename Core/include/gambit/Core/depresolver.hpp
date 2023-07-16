@@ -41,6 +41,7 @@
 
 #include "gambit/Core/core.hpp"
 #include "gambit/Core/error_handlers.hpp"
+#include "gambit/Core/resolution_utilities.hpp"
 #include "gambit/Core/yaml_parser.hpp"
 #include "gambit/Printers/baseprinter.hpp"
 #include "gambit/Elements/functors.hpp"
@@ -71,59 +72,24 @@ namespace Gambit
     typedef std::map<std::string, std::vector<functor*> > outputMapType;
     /// @}
 
-    /// Minimal info about outputVertices
-    struct OutputVertexInfo
+    /// Bind purpose to output vertex
+    struct OutputVertex
     {
       VertexID vertex;
-      const IniParser::ObservableType * iniEntry;
+      str purpose;
     };
 
-    /// A simple rule for dependency resolution (aka constraints on module and
-    /// function name).
-    struct Rule
-    {
-      Rule(std::string function, std::string module) : function(function), module(module) {};
-      Rule(IniParser::ObservableType t)
-      {
-        capability = t.capability;
-        type  = t.type;
-        function = t.function;
-        module = t.module;
-        backend = t.backend;
-        version = t.version;
-        options = t.options;
-      };
-      std::string capability;
-      std::string type;
-      std::string function;
-      std::string module;
-      std::string backend;
-      std::string version;
-      Options options;
-    };
-
-    /// Information in parameter queue
+    /// Information in resolution queue
     struct QueueEntry
     {
-      QueueEntry() {}
-      QueueEntry(sspair a, DRes::VertexID b, int c, bool d)
-      {
-        first = a;
-        second = b;
-        third = c;
-        printme = d;
-      }
-      sspair first;
-      DRes::VertexID second;
-      int third;
+      QueueEntry();
+      QueueEntry(sspair a, VertexID b, int c, bool d);
+      sspair quantity;
+      VertexID toVertex;
+      int dependency_type;
       bool printme;
+      const Observable* obslike;
     };
-
-    /// Check whether s1 (wildcard + regex allowed) matches s2
-    bool stringComp(const str &s1, const str &s2, bool with_regex = true);
-
-    /// Type comparison taking into account equivalence classes
-    bool typeComp(str, str, const Utils::type_equivalency&, bool with_regex = true);
 
     /// Main dependency resolver
     class DependencyResolver
@@ -150,7 +116,7 @@ namespace Gambit
         /// Collect the citation keys for backends, modules, etc
         void getCitationKeys();
 
-        // Print citation keys
+        /// Print citation keys
         void printCitationKeys();
 
         /// Retrieve the order in which target vertices are to be evaluated.
@@ -188,15 +154,19 @@ namespace Gambit
           return (*module_ptr)(0);
         }
 
-        const IniParser::ObservableType * getIniEntry(VertexID);
+        /// Returns the purpose associated with a given functor.
+        /// Non-null only if the functor corresponds to an ObsLike entry in the ini file.
+        const str& getPurpose(VertexID);
 
+        /// Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)
         void invalidatePointAt(VertexID, bool);
 
+        /// Reset all active functors and delete existing results.
         void resetAll();
 
         /// Check for unused rules and options
-        void checkForUnusedRules(int);
-        
+        void checkForUnusedRules();
+
         /// Set the Scan ID
         void set_scanID();
         int scanID;
@@ -209,11 +179,13 @@ namespace Gambit
         void addFunctors();
 
         /// Pretty print backend functor information
-        str printGenericFunctorList(const std::vector<functor*>&);
-        str printGenericFunctorList(const std::vector<VertexID>&);
+        str printGenericFunctorList(const std::vector<functor*>&, bool print_version = false);
+        str printGenericFunctorList(const std::vector<VertexID>&, bool print_version = false);
+        str printGenericFunctorList(const std::vector<std::pair<functor *, bool>>&, bool print_version = false);
+        str printGenericFunctorList(const std::vector<std::pair<VertexID, bool>>&, bool print_version = false);
 
         /// Print quantity to be resolved
-        str printQuantityToBeResolved(const sspair & quantity, const DRes::VertexID & vertex);
+        str printQuantityToBeResolved(const QueueEntry&);
 
         /// Initialise the printer object with a list of functors for it to expect to be printed.
         void initialisePrinter();
@@ -221,52 +193,43 @@ namespace Gambit
         /// Deactivate functors that are not allowed to be used with the model(s) being scanned.
         void makeFunctorsModelCompatible();
 
-        /// Resolution of individual module function dependencies
-        boost::tuple<const IniParser::ObservableType *, DRes::VertexID>
-          resolveDependency(DRes::VertexID toVertex, sspair quantity);
+        /// Helper function to update vertex candidate lists in resolveDependencyFromRules
+        void updateCandidates(bool, const VertexID&, int, std::vector<std::pair<VertexID, bool>>&, std::vector<std::pair<VertexID, bool>>&);
 
         /// Resolution of individual module function dependencies
-        DRes::VertexID resolveDependencyFromRules(const DRes::VertexID & toVertex, const sspair & quantity);
+        std::vector<VertexID> resolveDependencyFromRules(const QueueEntry&, const std::vector<VertexID>&);
 
         /// Derive options from ini-entries
-        Options collectIniOptions(const DRes::VertexID & vertex);
+        Options collectIniOptions(const VertexID & vertex);
 
         /// Collect sub-capabilities
-        Options collectSubCaps(const DRes::VertexID & vertex);
+        Options collectSubCaps(const VertexID & vertex);
 
         /// Generate full dependency tree
-        void generateTree(std::queue<QueueEntry> parQueue);
+        void generateTree(std::queue<QueueEntry>& resolutionQueue);
 
-        /// Helper functions/arrays
-        void fillParQueue(std::queue<QueueEntry> *parQueue,
-            DRes::VertexID vertex);
+        /// Put module function dependencies into the resolution queue
+        void fillResolutionQueue(std::queue<QueueEntry>& resolutionQueue, VertexID vertex);
 
         /// Topological sort
         std::list<VertexID> run_topological_sort();
 
-        /// Find entries (comparison of inifile entry with quantity or functor)
-        /// @{
-        const IniParser::ObservableType * findIniEntry(
-            sspair quantity, const IniParser::ObservablesType &, const str &);
-        const IniParser::ObservableType * findIniEntry(
-            DRes::VertexID toVertex, const IniParser::ObservablesType &, const str &);
-        /// @}
-
         /// Main function for resolution of backend requirements
-        void resolveVertexBackend(VertexID);
+        void resolveVertexBackend(VertexID, const std::vector<functor*>&);
 
         /// Function for resolution of backends that need class loading
         void resolveVertexClassLoading(VertexID);
 
         /// Find backend function matching any one of a number of capability-type pairs.
-        functor* solveRequirement(std::set<sspair>, const IniParser::ObservableType*, VertexID, std::vector<functor*>, bool, str group="none");
+        functor* solveRequirement(std::set<sspair>, VertexID, const std::vector<functor*>& backendFunctorCandidates, 
+        std::vector<functor*>, bool, str group="none");
 
         /// Resolve a specific backend requirement.
         void resolveRequirement(functor*, VertexID);
 
         /// Find candidate functions that are tailor made for models that are
         /// scanned over.
-        std::vector<DRes::VertexID> closestCandidateForModel(std::vector<DRes::VertexID> candidates);
+        std::vector<std::pair<VertexID,bool>> closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates);
 
         //
         // Private data members
@@ -278,17 +241,26 @@ namespace Gambit
         /// Model claw to which this dependency resolver is bound
         const Models::ModelFunctorClaw *boundClaw;
 
-        /// ini file to which this dependency resolver is bound
-        const IniParser::IniFile *boundIniFile;
-
         /// Type equivalency object to which this dependency resolver is bound
         const Utils::type_equivalency *boundTEs;
 
         /// Printer object to which this dependency resolver is bound
         Printers::BasePrinter *boundPrinter;
 
+        /// ini file to which this dependency resolver is bound
+        const IniParser::IniFile *boundIniFile;
+
+        /// ObsLike entries from the input yaml file 
+        const std::vector<Observable>& obslikes;
+
+        /// Module rules specified in the input yaml file
+        const std::vector<ModuleRule>& module_rules;
+
+        /// Backend rules specified in the input yaml file
+        const std::vector<BackendRule>& backend_rules;
+
         /// Output Vertex Infos
-        std::vector<OutputVertexInfo> outputVertexInfos;
+        std::vector<OutputVertex> outputVertices;
 
         /// The central boost graph object
         MasterGraphType masterGraph;
@@ -323,7 +295,7 @@ namespace Gambit
 
         /// Global flag for triggering printing of unitCubeParameters
         bool print_unitcube = false;
-        
+
   };
   }
 }
