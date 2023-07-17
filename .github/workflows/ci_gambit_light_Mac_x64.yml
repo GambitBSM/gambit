@@ -49,5 +49,4 @@ jobs:
         ./gambit -h
     - name: Test run with gambit_light_example.yaml
       run: |
-        . BUILD/buildenv.sh
         ./gambit -rf yaml_files/gambit_light_example.yaml
