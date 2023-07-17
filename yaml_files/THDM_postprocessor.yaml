@@ -45,13 +45,13 @@ Parameters:
 
 Printer:
 
-  # printer: cout
+  printer: cout
 
-  printer: hdf5
-  options:
-    output_file: "scan.hdf5"
-    group: "/data"
-    delete_file_on_restart: true
+  # printer: hdf5
+  # options:
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
 
   # printer: hdf5_v1
   # options:
@@ -90,7 +90,7 @@ Scanner:
       # Information about input dataset to be postprocessed
       reader:
         type: hdf5
-        file: "flavSamps_16_MAY.hdf5"
+        file: "../flavSamps_16_MAY.hdf5"
         group: "/data"
 
 
@@ -177,7 +177,7 @@ ObsLikes:
   #   capability: B2mumu_LogLikelihood_CMS
   #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
-  # # Bc lifetime
+  # # # Bc lifetime
   # - purpose:    LogLike
   #   capability: Bc_lifetime_LogLikelihood
 
@@ -185,13 +185,13 @@ ObsLikes:
   # - purpose:    LogLike
   #   capability: B2Xsnunu_LogLikelihood
 
-  # B meson mass aysmmetry
-  - purpose:    LogLike
-    capability: deltaMB_LogLikelihood
+  # # B meson mass aysmmetry
+  # - purpose:    LogLike
+  #   capability: deltaMB_LogLikelihood
 
-  # B_d meson mass aysmmetry
-  - purpose:    LogLike
-    capability: deltaMBd_LogLikelihood
+  # # B_d meson mass aysmmetry
+  # - purpose:    LogLike
+  #   capability: deltaMBd_LogLikelihood
 
   # # Tree-level leptonic and semi-leptonic B & D decay measurements
   # # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
@@ -209,15 +209,19 @@ ObsLikes:
   # # RK
   # - purpose:    LogLike
   #   capability: RK_LogLikelihood_LHCb
-
   # # RKstar
   # - purpose:    LogLike
   #   capability: RKstar_LogLikelihood_LHCb
+  # # RK and RKstar
+  # - purpose: LogLike
+  #   capability: RK_RKstar_LogLikelihood_LHCb
+
+  # NOTE: these 4 seem to be way slower than the rest
 
   # # B -> K* mu mu Angular
-  # - purpose:    LogLike
-  #   capability: B2KstarmumuAng_LogLikelihood_Atlas
-  #   sub_capabilities: [FL, S3, S4, S5, S7, S8]
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    sub_capabilities: [FL, S3, S4, S5, S7, S8]
   # - purpose:    LogLike
   #   capability: B2KstarmumuAng_LogLikelihood_CMS
   #   sub_capabilities: [P1, P5prime]
@@ -228,7 +232,7 @@ ObsLikes:
   #   capability: B2KstarmumuAng_LogLikelihood_Belle
   #   sub_capabilities: [P4prime, P5prime]
 
-  # # B -> K* l l Angular
+  # B -> K* l l Angular
   # - purpose:    LogLike
   #   capability: B2KstarellellAng_LogLikelihood_Belle
   #   sub_capabilities: [P4prime, P5prime]
@@ -259,6 +263,14 @@ ObsLikes:
 ##          OBSERVABLES        ##
 #################################
 
+  - capability: prediction_B2KstarmumuAng_Atlas
+    purpose: Observable
+
+  - capability: prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+    purpose: Observable
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
   # entire 2HDM spectrum
   - capability: THDM_spectrum
     type: map_str_dbl
@@ -273,6 +285,15 @@ ObsLikes:
 ###################################
 
 Rules:
+
+  - capability: RK_01_11
+    function: SuperIso_RK_01_11
+  - capability: RK_11_60
+    function: SuperIso_RK_11_60
+  - capability: RKstar_01_11
+    function: SuperIso_RKstar_01_11
+  - capability: RKstar_11_60
+    function: SuperIso_RKstar_11_60
 
   - capability: prediction_DeltaMs
     function: SuperIso_prediction_Delta_MBs
@@ -409,5 +430,5 @@ KeyValues:
     dependency_resolver_warning: non-fatal
     core_warning: fatal
 
-  default_output_path: "runs/THDMI_HH"
+  default_output_path: "runs/THDMI_HH/tmp"
   debug: false
