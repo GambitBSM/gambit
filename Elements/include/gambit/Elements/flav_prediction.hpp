@@ -33,8 +33,8 @@ namespace Gambit
 {
 
   /// Maps for holding observables and covariance matrix.
-  typedef std::map<const std::string, double> flav_observable_map;
-  typedef std::map<const std::string, std::map<const std::string, double>> flav_covariance_map;
+  typedef std::map<std::string, double> flav_observable_map;
+  typedef std::map<std::string, std::map<std::string, double>> flav_covariance_map;
 
   /// Flavour observables structure holding central values and covariances.
   struct flav_prediction

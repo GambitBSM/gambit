@@ -487,8 +487,8 @@ namespace Gambit
   };
 
   /// Maps for holding SI observables and covariance matrix.
-  typedef map_const_str_dbl flav_observable_map;
-  typedef map_const_str_map_const_str_dbl flav_covariance_map;
+  typedef map_str_dbl flav_observable_map;
+  typedef map_str_map_str_dbl flav_covariance_map;
 
 }
 

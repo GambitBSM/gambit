@@ -41,18 +41,18 @@ namespace Gambit
 {
 
   constexpr double pi = 3.141592653589793238462643383279502884197;
-  constexpr double root2 = sqrt(2.0);
+  const double root2 = sqrt(2.0);
   constexpr double zeta3 = 1.2020569031595942855;                   // Riemann zeta function of 3
   constexpr double hbar = 6.582119514e-25;                          // GeV s  (http://pdg.lbl.gov/2017/reviews/rpp2017-rev-phys-constants.pdf)
   constexpr double K2eV = 8.6173303e-5;                             // eV per K
   constexpr double eV2g = 1.782661907e-33;                          // eV per g
   constexpr double gev2cm = 197.327053e-16;                         // cm per GeV^-1
-  constexpr double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
-  constexpr double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
+  const double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
+  const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
   constexpr double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
   constexpr double s2cm = 2.99792458e10;                            // cm per s
   constexpr double m_planck = 1.220910e19;                          // Planck mass (GeV)
-  constexpr double m_planck_red = m_planck/sqrt(8.0*pi);            // reduced Planck mass (GeV)
+  const double m_planck_red = m_planck/sqrt(8.0*pi);            // reduced Planck mass (GeV)
   constexpr double atomic_mass_unit = 0.931494028;                  // atomic mass unit (GeV/c^2)
   constexpr double m_proton_amu = 1.00727646688;                    // proton mass (amu)
   constexpr double m_neutron_amu = 1.0086649156;                    // neutron mass (amu)
@@ -65,7 +65,7 @@ namespace Gambit
   /// Values from Particle Data Group 2018 (http://pdg.lbl.gov/2018/reviews/rpp2018-rev-phys-constants.pdf)
   constexpr double c_SI = s2cm/100;                                 // speed of light in m/s
   constexpr double eV_to_J = 1.6021766208e-19;                      // electron charge in C
-  constexpr double Mpc_SI = 969394202136*pow(10,11)/pi;             // Mpc in m
+  const double Mpc_SI = 969394202136*pow(10,11)/pi;             // Mpc in m
 
   constexpr double GN_cgs = 6.67408e-8;                             // Newton's constant in cm^3.g^-1.s^-2
   constexpr double GN_SI = GN_cgs/1e3;                              // Newton's constant in m^3.kg^-1.s^-2
@@ -77,7 +77,7 @@ namespace Gambit
   constexpr double hP_eVs = hP_SI/eV_to_J;                          // Planck const. in eVs
   constexpr double hc_eVcm =hP_eVs*s2cm;                            // Planck const. x speed of light in eV cm
 
-  constexpr double sigmaB_SI = 2*pow(pi,5)*pow(kB_SI,4)/(15*pow(hP_SI,3)*c_SI*c_SI); // Stefan-Boltzman constant in W/m^2/K^4 = Kg/K^4/s^3
+  const double sigmaB_SI = 2*pow(pi,5)*pow(kB_SI,4)/(15*pow(hP_SI,3)*c_SI*c_SI); // Stefan-Boltzman constant in W/m^2/K^4 = Kg/K^4/s^3
 
   constexpr double Neff_SM = 3.045;                                 // effective number of relativistic dof in the early Universe
   // the value of 3.045 holds for 3 SM neutrinos in the absence of any non-standard particles
