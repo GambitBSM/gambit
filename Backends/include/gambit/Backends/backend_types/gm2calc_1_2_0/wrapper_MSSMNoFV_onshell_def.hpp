@@ -33,17 +33,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_alpha_thompson(arg_1);
       }
       
-      inline void MSSMNoFV_onshell::set_Ae(const ::Eigen::Matrix<double, 3, 3, 0>& A)
+      inline void MSSMNoFV_onshell::set_Ae(const Eigen::Matrix<double, 3, 3, 0>& A)
       {
          get_BEptr()->set_Ae(A);
       }
       
-      inline void MSSMNoFV_onshell::set_Au(const ::Eigen::Matrix<double, 3, 3, 0>& A)
+      inline void MSSMNoFV_onshell::set_Au(const Eigen::Matrix<double, 3, 3, 0>& A)
       {
          get_BEptr()->set_Au(A);
       }
       
-      inline void MSSMNoFV_onshell::set_Ad(const ::Eigen::Matrix<double, 3, 3, 0>& A)
+      inline void MSSMNoFV_onshell::set_Ad(const Eigen::Matrix<double, 3, 3, 0>& A)
       {
          get_BEptr()->set_Ad(A);
       }

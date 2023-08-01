@@ -26,7 +26,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             // Member functions: 
          public:
-            ::std::basic_string<char> what() const;
+            ::std::string what() const;
       
       
             // Wrappers for original constructors: 

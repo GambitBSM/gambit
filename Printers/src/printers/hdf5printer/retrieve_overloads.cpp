@@ -533,17 +533,19 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(map_str_str& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_str_map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(map_const_str_dbl& /*out*/,    const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(map_const_str_map_const_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(map_str_map_str_dbl& /*out*/,  const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool HDF5Reader::_retrieve(map_const_str_map_const_str_dbl& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(triplet<double>& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool HDF5Reader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
-     bool HDF5Reader::_retrieve(flav_prediction& /*out*/, const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     bool HDF5Reader::_retrieve(flav_prediction& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #ifndef SCANNER_STANDALONE // All the types inside HDF5_BACKEND_TYPES need to go inside this def guard.
@@ -554,6 +556,30 @@ namespace Gambit
        { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
 
      #endif
+
+     /// Helper function to parse a capability name to a dataset name
+     void HDF5Reader::parse_capability_label(const std::string& capability_label, std::string& dataset_label)
+     {
+       // Set the dataset label to default to the given label
+       dataset_label = capability_label;
+
+       // Do the rest only if the label does not have the form of a dataset name
+       if(capability_label[0] == '#')
+         return ;
+
+       std::stringstream ss;
+       ss << "#" << capability_label;
+
+       for(auto dataset : all_datasets)
+       {
+          // Find the capability name from the dataset and compare
+          std::string cap = Utils::delimiterSplit(dataset," ")[0];
+          if(ss.str() == cap)
+            dataset_label = dataset;
+       }
+     }
+
+
 
      /// @}
 

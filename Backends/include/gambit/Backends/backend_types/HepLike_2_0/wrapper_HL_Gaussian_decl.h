@@ -19,7 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_Gaussian* (*__factory0)();
-         static Abstract_HL_Gaussian* (*__factory1)(::std::basic_string<char>);
+         static Abstract_HL_Gaussian* (*__factory1)(std::string);
    
          // -- Other member variables: 
    
@@ -43,7 +43,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // Wrappers for original constructors: 
       public:
          HL_Gaussian();
-         HL_Gaussian(::std::basic_string<char> s);
+         HL_Gaussian(std::string s);
    
          // Special pointer-based constructor: 
          HL_Gaussian(Abstract_HL_Gaussian* in);

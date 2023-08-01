@@ -271,12 +271,16 @@ function(check_root_std_flag)
   if(DOWNGRADE_CMAKE_STD)
     string(REGEX REPLACE ${CMAKE_CXX_FLAG_RE} ${ROOT_CXX_FLAG} CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+    set(GAMBIT_SUPPORTS_CXX${CMAKE_STD} FALSE PARENT_SCOPE)
+    set(GAMBIT_SUPPORTS_CXX${ROOT_STD} TRUE PARENT_SCOPE)
   endif()
   # Downgrade -std flag in BACKEND_CXX_FLAGS
   if(DOWNGRADE_BACKEND_STD)
     string(REGEX REPLACE ${BACKEND_CXX_FLAG_RE} ${ROOT_CXX_FLAG} BACKEND_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
     set(BACKEND_CXX_FLAGS ${BACKEND_CXX_FLAGS} PARENT_SCOPE)
   endif()
+  # Make the detected ROOT_CXX_FLAG available to all who need it
+  set(ROOT_CXX_FLAG ${ROOT_CXX_FLAG} PARENT_SCOPE)
 endfunction()
 
 # Check for ROOT.
@@ -350,6 +354,7 @@ if(SQLite3_FOUND)
   endif()
 else()
   message("${BoldRed}   No SQLite C libraries found. Excluding sqliteprinter and sqlitereader from GAMBIT configuration.${ColourReset}")
+  message("   Backends depending on SQLite3 (e.g. Contur) will be deactivated.")
   set(itch "${itch}" "sqliteprinter" "sqlitereader")
 endif()
 

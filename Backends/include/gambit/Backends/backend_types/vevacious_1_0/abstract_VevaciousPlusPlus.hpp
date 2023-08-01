@@ -22,17 +22,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         {
             public:
     
-                virtual void RunPoint(const ::std::basic_string<char>&) =0;
+                virtual void RunPoint(const std::string&) =0;
     
                 virtual ::std::pair<std::vector<double>, std::vector<double>> GetPanicVacua() =0;
     
-                virtual ::std::pair<std::vector<double>, std::vector<double>> RunVacua(const ::std::basic_string<char>&) =0;
+                virtual ::std::pair<std::vector<double>, std::vector<double>> RunVacua(const std::string&) =0;
     
-                virtual void ReadLhaBlock(const ::std::basic_string<char>&, const double, const ::std::vector<std::pair<int, double>>&, const int) =0;
+                virtual void ReadLhaBlock(const std::string&, const double, const std::vector<std::pair<int, double>>&, const int) =0;
     
-                virtual void WriteResultsAsXmlFile(const ::std::basic_string<char>&) =0;
+                virtual void WriteResultsAsXmlFile(const std::string&) =0;
     
-                virtual ::std::basic_string<char> GetResultsAsString() =0;
+                virtual ::std::string GetResultsAsString() =0;
     
                 virtual double GetLifetimeInSeconds() =0;
     
@@ -44,9 +44,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual ::std::vector<double> GetThermalThresholdAndActions() =0;
     
-                virtual void AppendResultsToLhaFile(const ::std::basic_string<char>&, const bool) =0;
+                virtual void AppendResultsToLhaFile(const std::string&, const bool) =0;
     
-                virtual void AppendResultsToLhaFile__BOSS(const ::std::basic_string<char>&) =0;
+                virtual void AppendResultsToLhaFile__BOSS(const std::string&) =0;
     
     
             private:

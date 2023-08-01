@@ -32,11 +32,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 // Member functions: 
             public:
-                void init(::std::basic_string<char> headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn);
+                void init(std::string headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn);
         
-                void init(::std::basic_string<char> headerIn, Pythia8::ParticleData* particleDataPtrIn);
+                void init(std::string headerIn, Pythia8::ParticleData* particleDataPtrIn);
         
-                void init(::std::basic_string<char> headerIn);
+                void init(std::string headerIn);
         
                 void init();
         
@@ -102,9 +102,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void list() const;
         
-                void list(::std::basic_ostream<char>& os, int precision) const;
+                void list(std::ostream& os, int precision) const;
         
-                void list(::std::basic_ostream<char>& os) const;
+                void list(std::ostream& os) const;
         
                 void list(bool showScaleAndVertex, bool showMothersAndDaughters, int precision) const;
         
@@ -112,9 +112,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void list(bool showScaleAndVertex) const;
         
-                void list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char>& os, int precision) const;
+                void list(bool showScaleAndVertex, bool showMothersAndDaughters, std::ostream& os, int precision) const;
         
-                void list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char>& os) const;
+                void list(bool showScaleAndVertex, bool showMothersAndDaughters, std::ostream& os) const;
         
                 void popBack(int nRemove);
         
@@ -186,7 +186,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void restoreJunctionSize();
         
-                void listJunctions(::std::basic_ostream<char>& os) const;
+                void listJunctions(std::ostream& os) const;
         
                 void listJunctions() const;
         

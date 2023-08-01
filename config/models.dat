@@ -561,6 +561,146 @@ DiracSingletDM_Z2_sps: |
 
    Same as DiracSingletDM_Z2, but specifying instead the scalar and pseudoscalar couplings lF_s and lF_ps of DM to the Higgs.
 
+
+MSSM63atQ_mG: |
+   As per the MSSM63atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM63atMSUSY_mG: |
+   As per the MSSM63atMSUSY, but with an extra parameter mG for the gravitino mass.
+
+MSSM30atQ_mG: |
+   As per the MSSM63atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM30atMSUSY_mG: |
+   As per the MSSM30atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM25atMSUSY_mG: |
+   As per the MSSM25atMSUSY, but with an extra parameter mG for the gravitino mass.
+
+MSSM25atQ_mG: |
+   As per the MSSM25atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM20atQ_mG: |
+   As per the MSSM20atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM20atMSUSY_mG: |
+   As per the MSSM20atMSUSY, but with an extra parameter mG for the gravitino mass.
+
+MSSM63atMGUT_mG: |
+   As per the MSSM63atMGUT, but with an extra parameter mG for the gravitino mass.
+
+MSSM24atQ_mG: |
+   As per the MSSM24atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM19atQ_mG: |
+   As per the MSSM19atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM16atQ_mG: |
+   As per the MSSM16atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM15atQ_mG: |
+   As per the MSSM15atQ_mG, but with an extra parameter mG for the gravitino mass.
+
+MSSM10catQ_mG: |
+   As per the MSSM10catQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM63atQ_mA_mG: |
+   As per the MSSM63atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM30atQ_mA_mG: |
+   As per the MSSM30atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM25atQ_mA_mG: |
+   As per the MSSM25atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM24atQ_mA_mG: |
+   As per the MSSM24atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM63atMSUSY_mA_mG: |
+   As per the MSSM63atMSUSY_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM30atMSUSY_mA_mG: |
+   As per the MSSM30atMSUSY_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM25atMSUSY_mA_mG: |
+   As per the MSSM25atMSUSY_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM20atQ_mA_mG: |
+   As per the MSSM20atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM19atQ_mA_mG: |
+   As per the MSSM19atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM16atQ_mA_mG: |
+   As per the MSSM16atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM15atQ_mA_mG: |
+   As per the MSSM15atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM10catQ_mA_mG: |
+   As per the MSSM10catQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM11atQ_mG: |
+   As per the MSSM11atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM10batQ_mG: |
+   As per the MSSM10batQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM9batQ_mA_mG: |
+   As per the MSSM9batQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM30atMGUT_mG: |
+   As per the MSSM30atMGUT, but with an extra parameter mG for the gravitino mass.
+
+MSSM25atMGUT_mG: |
+   As per the MSSM25atMGUT, but with an extra parameter mG for the gravitino mass.
+
+MSSM20atMGUT_mG: |
+   As per the MSSM20atMGUT, but with an extra parameter mG for the gravitino mass.
+
+MSSM11atQ_mA_mG: |
+   As per the MSSM11atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM10atQ_mA_mG: |
+   As per the MSSM10atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM10batQ_mA_mG: |
+   As per the MSSM10batQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM9atQ_mA_mG: |
+   As per the MSSM9atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM7atQ_mA_mG: |
+   As per the MSSM7atQ_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM63atMGUT_mA_mG: |
+   As per the MSSM63atMGUT_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM30atMGUT_mA_mG: |
+   As per the MSSM30atMGUT_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM25atMGUT_mA_mG: |
+   As per the MSSM25atMGUT_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM20atMGUT_mA_mG: |
+   As per the MSSM20atMGUT_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM10atQ_mG: |
+   As per the MSSM10atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM9atQ_mG: |
+   As per the MSSM9atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM7atQ_mG: |
+   As per the MSSM7atQ, but with an extra parameter mG for the gravitino mass.
+
+MSSM20atMSUSY_mA_mG: |
+   As per the MSSM20atMSUSY_mA, but with an extra parameter mG for the gravitino mass.
+
+MSSM9batQ_mG: |
+   As per the MSSM9batQ, but with an extra parameter mG for the gravitino mass.
+
+
 GeneralCosmoALP : |
 
    General ALP model with parametric temperature-dependent mass and cosmological applications.
@@ -1221,4 +1361,8 @@ DMsimpVectorMedMajoranaDM: |
 
 DMsimpVectorMedScalarDM: |
     DMsimpVectorMedScalarDM model, created by GUM, with parameters: gVXc, gVq, MXc, MY1
+
+
+DMsimpVectorMedVectorDM: |
+    DMsimpVectorMedVectorDM model, created by GUM, with parameters: gVXv, gVq, mXv, MY1
 

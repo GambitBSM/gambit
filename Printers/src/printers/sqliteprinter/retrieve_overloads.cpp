@@ -137,6 +137,8 @@ namespace Gambit
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool SQLiteReader::_retrieve(map_str_dbl& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
+     bool SQLiteReader::_retrieve(map_str_str& /*out*/,          const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
+     { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool SQLiteReader::_retrieve(triplet<double>& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)
      { printer_error().raise(LOCAL_INFO,"NOT YET IMPLEMENTED"); return false; }
      bool SQLiteReader::_retrieve(map_intpair_dbl& /*out*/,      const std::string& /*label*/, const uint /*rank*/, const ulong /*pointID*/)

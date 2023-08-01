@@ -36,11 +36,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void set_alpha_thompson(double arg_1);
       
-            void set_Ae(const ::Eigen::Matrix<double, 3, 3, 0>& A);
+            void set_Ae(const Eigen::Matrix<double, 3, 3, 0>& A);
       
-            void set_Au(const ::Eigen::Matrix<double, 3, 3, 0>& A);
+            void set_Au(const Eigen::Matrix<double, 3, 3, 0>& A);
       
-            void set_Ad(const ::Eigen::Matrix<double, 3, 3, 0>& A);
+            void set_Ad(const Eigen::Matrix<double, 3, 3, 0>& A);
       
             void set_Ae(unsigned int i, unsigned int k, double a);
       

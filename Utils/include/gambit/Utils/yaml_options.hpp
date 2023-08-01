@@ -298,12 +298,28 @@ namespace Gambit
             Options(node.second).toMap(map, head + key);
           else if(node.second.IsSequence())
           {
-            str val;
-            for(size_t j=0; j<node.second.size()-1; ++j)
+            str val = "[";
+            for(size_t j=0; j<node.second.size(); ++j)
             {
-              val += node.second[j].as<str>() + ", ";
+              if(node.second[j].IsScalar() and j < node.second.size()-1)
+                val += node.second[j].as<str>() + ", ";
+              else if(node.second[j].IsSequence())
+              {
+                val += "[";
+                for(size_t k=0; k<node.second[j].size()-1; ++k)
+                {
+                  if(node.second[j][k].IsScalar())
+                    val += node.second[j][k].as<str>() + ",";
+                  else
+                    utils_error().raise(LOCAL_INFO, "Options node only allows 2D matrices");
+                }
+                val += node.second[j][node.second[j].size()-1].as<str>() + "]";
+                if(j < node.second.size()-1) val += ",";
+              }
             }
-            val += node.second[node.second.size()-1].as<str>();
+            if(node.second[node.second.size()-1].IsScalar())
+              val += node.second[node.second.size()-1].as<str>();
+            val += "]";
             map[head + key] = val;
           }
           else

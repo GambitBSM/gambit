@@ -54,7 +54,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_BifurGaussian::HL_BifurGaussian(::std::basic_string<char> s) :
+   inline HL_BifurGaussian::HL_BifurGaussian(std::string s) :
       HL_Gaussian(__factory1(s))
    {
       get_BEptr()->set_wptr(this);

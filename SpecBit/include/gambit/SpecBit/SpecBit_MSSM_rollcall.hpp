@@ -60,7 +60,7 @@
     /// SPheno spectrum function
     #define FUNCTION get_MSSM_spectrum_SPheno
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ)
+    ALLOW_MODELS(CMSSM, MSSM63atMGUT, MSSM63atQ, MSSM63atMGUT_mG, MSSM63atQ_mG)
     DEPENDENCY(SMINPUTS, SMInputs)
     BACKEND_REQ(SPheno_MSSMspectrum, (libSPheno), int, (Spectrum&, const Finputs&) )
     BACKEND_OPTION((SPheno, 3.3.8, 4.0.3), (libSPheno))
@@ -83,7 +83,7 @@
     #if(FS_MODEL_MSSMatMGUT_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atMGUT, MSSM63atMGUT_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -93,7 +93,7 @@
     #if(FS_MODEL_MSSM_IS_BUILT)
     #define FUNCTION get_MSSMatQ_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -103,7 +103,7 @@
     #if(FS_MODEL_MSSM_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatQ_mA_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ_mA)
+    ALLOW_MODELS(MSSM63atQ_mA, MSSM63atQ_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -113,7 +113,7 @@
     #if(FS_MODEL_MSSMatMGUT_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_mA_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -123,7 +123,7 @@
     #if(FS_MODEL_MSSMatMGUTEFTHiggs_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atMGUT, MSSM63atMGUT_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -134,7 +134,7 @@
     #if(FS_MODEL_MSSMatMGUTEFTHiggs_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMGUT_mA_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMGUT_mA)
+    ALLOW_MODELS(MSSM63atMGUT_mA, MSSM63atMGUT_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -145,7 +145,7 @@
     #if(FS_MODEL_MSSMatMSUSY_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMSUSY_mA_spectrum_FS
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMSUSY_mA)
+    ALLOW_MODELS(MSSM63atMSUSY_mA, MSSM63atMSUSY_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -156,7 +156,7 @@
     #if(FS_MODEL_MSSMatMSUSYEFTHiggs_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatMSUSY_mA_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atMSUSY_mA)
+    ALLOW_MODELS(MSSM63atMSUSY_mA, MSSM63atMSUSY_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -168,7 +168,7 @@
     #if(FS_MODEL_MSSMEFTHiggs_IS_BUILT)
     #define FUNCTION get_MSSMatQ_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atQ_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -180,7 +180,7 @@
     #if(FS_MODEL_MSSMEFTHiggs_mAmu_IS_BUILT)
     #define FUNCTION get_MSSMatQ_mA_spectrum_FlexibleEFTHiggs
     START_FUNCTION(Spectrum)
-    ALLOW_MODELS(MSSM63atQ_mA)
+    ALLOW_MODELS(MSSM63atQ_mA, MSSM63atQ_mA_mG)
     DEPENDENCY(SMINPUTS, SMInputs) // Need SLHA2 SMINPUTS to set up spectrum generator
     #undef FUNCTION
     #endif
@@ -265,7 +265,6 @@
 
   #undef CAPABILITY
 
-
   // Higgs masses and mixings with theoretical uncertainties
   #define CAPABILITY HiggsMasses
   START_CAPABILITY
@@ -278,7 +277,7 @@
                 Farray<fh_complex, 1,3, 1,3>&,
                 Farray<fh_complex, 1,3, 1,3>&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -290,7 +289,7 @@
     START_FUNCTION(triplet<double>)
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
     DEPENDENCY(HiggsMasses, fh_HiggsMassObs_container)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
     #define FUNCTION SUSYHD_HiggsMass
@@ -298,7 +297,7 @@
     DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)
     BACKEND_REQ(SUSYHD_MHiggs, (), MReal, (const MList<MReal>&))
     BACKEND_REQ(SUSYHD_DeltaMHiggs, (), MReal, (const MList<MReal>&))
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -324,7 +323,7 @@
                                                     Farray< fh_real,1,978>&,
                                                     Farray< fh_real,1,250>&, int&))
     BACKEND_OPTION( (FeynHiggs), (libfeynhiggs) )
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -342,7 +341,7 @@
     DEPENDENCY(A0_decay_rates, DecayTable::Entry)
     DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(t_decay_rates, DecayTable::Entry)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
     #define FUNCTION MSSM_higgs_couplings_FeynHiggs
@@ -357,7 +356,7 @@
     DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(t_decay_rates, DecayTable::Entry)
     DEPENDENCY(FH_Couplings_output, fh_Couplings_container)
-    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT)
+    ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atQ_mG, MSSM63atMGUT_mG)
     #undef FUNCTION
 
   #undef CAPABILITY

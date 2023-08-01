@@ -249,8 +249,8 @@ namespace Gambit
       for (size_t k=0;k<fi_values.size();k++)
       {
         // Reset Values
-        test_u[0] = false; test_u[1] = false;
-        test_l[0] = false; test_l[1] = false;
+        test_u[0] = false;
+        test_l[0] = false;
 
         // Check whether the values correspond to any of the upper/lower values. skip calculation if not...
         if (x1_vec_unsorted[k]==xi_upper[0]) { test_u[0]=true;}

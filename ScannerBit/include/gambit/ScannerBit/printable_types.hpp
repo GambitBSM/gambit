@@ -66,11 +66,12 @@ namespace Gambit
     (std::vector<float>)              \
     (std::vector<double>)
 
-  #define SCANNER_PRINTABLE_TYPES     \
-    SCANNER_SIMPLE_TYPES              \
-    SCANNER_VECTOR_TYPES              \
-    (map_str_dbl)                     \
-    (Gambit::ModelParameters)
+  #define SCANNER_PRINTABLE_TYPES \
+    SCANNER_SIMPLE_TYPES          \
+    SCANNER_VECTOR_TYPES          \
+    (map_str_dbl)                 \
+    (map_str_str)                 \
+    (Gambit::ModelParameters)     \
 
   #define SCANNER_RETRIEVABLE_TYPES   \
     SCANNER_SIMPLE_TYPES              \

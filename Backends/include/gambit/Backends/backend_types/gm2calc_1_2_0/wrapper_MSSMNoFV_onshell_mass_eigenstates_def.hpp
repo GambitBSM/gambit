@@ -92,12 +92,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->solve_ewsb();
       }
       
-      inline ::std::basic_string<char> MSSMNoFV_onshell_mass_eigenstates::name() const
+      inline ::std::string MSSMNoFV_onshell_mass_eigenstates::name() const
       {
          return get_BEptr()->name();
       }
       
-      inline void MSSMNoFV_onshell_mass_eigenstates::print(::std::basic_ostream<char>& arg_1) const
+      inline void MSSMNoFV_onshell_mass_eigenstates::print(std::ostream& arg_1) const
       {
          get_BEptr()->print(arg_1);
       }
@@ -502,7 +502,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->get_UP(i, k);
       }
       
-      inline void MSSMNoFV_onshell_mass_eigenstates::set_PhaseGlu(::std::complex<double> PhaseGlu_)
+      inline void MSSMNoFV_onshell_mass_eigenstates::set_PhaseGlu(std::complex<double> PhaseGlu_)
       {
          get_BEptr()->set_PhaseGlu(PhaseGlu_);
       }

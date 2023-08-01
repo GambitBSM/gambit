@@ -62,9 +62,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             int solve_ewsb();
       
-            ::std::basic_string<char> name() const;
+            ::std::string name() const;
       
-            void print(::std::basic_ostream<char>& arg_1) const;
+            void print(std::ostream& arg_1) const;
       
             double get_MVG() const;
       
@@ -226,7 +226,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             const ::std::complex<double>& get_UP(int i, int k) const;
       
-            void set_PhaseGlu(::std::complex<double> PhaseGlu_);
+            void set_PhaseGlu(std::complex<double> PhaseGlu_);
       
             ::std::complex<double> get_PhaseGlu() const;
       

@@ -13,12 +13,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn, ::std::basic_string<char> cIn)
+        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, std::vector<int> idDaIn, std::string cIn)
         {
             get_BEptr()->setChannel(bratIn, nDaIn, idDaIn, cIn);
         }
         
-        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn)
+        inline void LHdecayChannel::setChannel(double bratIn, int nDaIn, std::vector<int> idDaIn)
         {
             get_BEptr()->setChannel__BOSS(bratIn, nDaIn, idDaIn);
         }
@@ -28,7 +28,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->setBrat(bratIn);
         }
         
-        inline void LHdecayChannel::setIdDa(::std::vector<int> idDaIn)
+        inline void LHdecayChannel::setIdDa(std::vector<int> idDaIn)
         {
             get_BEptr()->setIdDa(idDaIn);
         }
@@ -48,7 +48,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->getIdDa();
         }
         
-        inline ::std::basic_string<char> LHdecayChannel::getComment()
+        inline ::std::string LHdecayChannel::getComment()
         {
             return get_BEptr()->getComment();
         }
@@ -62,14 +62,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn, ::std::basic_string<char> cIn) :
+        inline LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, std::vector<int> idDaIn, std::string cIn) :
             WrapperBase(__factory1(bratIn, nDaIn, idDaIn, cIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, ::std::vector<int> idDaIn) :
+        inline LHdecayChannel::LHdecayChannel(double bratIn, int nDaIn, std::vector<int> idDaIn) :
             WrapperBase(__factory2(bratIn, nDaIn, idDaIn))
         {
             get_BEptr()->set_wptr(this);

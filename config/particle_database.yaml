@@ -5,14 +5,14 @@
 # New entries should look like:
 #
 #   - name: "X+"                         The name used within GAMBIT, in the particleDB.
-#     PDG_context: [10, 4]               The PDG-context pair used for a single particle.
+#     PDG_context: [10, 4]                 The PDG-context pair used for a single particle.
 #     conjugate: "X-"                    The name for the conjugate particle, also added to the particleDB.
 #     description: "New particle"        Optional - adds a C++ comment to particle_database.cpp. For readability.
-#     chargex3: 0                        Three times the electric charge.
-#     spinx2: 1                          Twice the spin.
-#     color:  3                          The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).
+#     chargex3: 0                          Three times the electric charge.
+#     spinx2: 1                            Twice the spin.
+#     color:  3                            The color representation (1 = singlet; 3 = triplet; 6 = sextet; 8 = octet).
 #     DecayBit:
-#       Decays: True                     Flag to show whether or not to include a particle's Decays in DecayBit.
+#       Decays: True                       Flag to show whether or not to include a particle's Decays in DecayBit.
 #       name: "X_plus"                   The name used as CAPABILITES in DecayBit_rollcall.hpp for the specific particle.
 #       conjugate: "X_minus"             And the name used for it's conjugate.
 #
@@ -24,8 +24,8 @@
 #     - [35, 0]      Creates entries for "h0_1" and "h0_2" in the particleDB.
 #     DecayBit:
 #       Decays: True
-#       name: "h0"                         Creates rollcall entries for "h0_1_decay_rates" and "h0_2_decay_rates" CAPABILITIES.
-#       name: ["Higgs", "h0_2"]            Alternative syntax - if particles within sets have different names - creating CAPABILITIES "Higgs_decay_rates" and "h0_2_decay_rates".
+#       name: "h0"                       Creates rollcall entries for "h0_1_decay_rates" and "h0_2_decay_rates" CAPABILITIES.
+#       name: ["Higgs", "h0_2"]        Alternative syntax - if particles within sets have different names - creating CAPABILITIES "Higgs_decay_rates" and "h0_2_decay_rates".
 #
 # Note: If there is no entry for the 'DecayBit' field, GAMBIT will use the 'name' and 'conjugate' fields by default.
 # TODO: Decide if Decays belong here, or elsewhere (GUM)
@@ -240,6 +240,16 @@ OtherModels:
     color: 1
     description: Xc (DMsimpVectorMedScalarDM)
     conjugate: Xc~
+
+  - name: ~Xv
+    PDG_context:
+    - 5000523
+    - 0
+    spinx2: 2
+    chargex3: 0
+    color: 1
+    description: ~Xv (DMsimpVectorMedVectorDM)
+    conjugate: ~Xva
   Sets:
 
   - DecayBit:

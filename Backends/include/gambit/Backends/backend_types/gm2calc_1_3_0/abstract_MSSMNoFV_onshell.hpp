@@ -29,11 +29,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void set_alpha_thompson(double) =0;
    
-            virtual void set_Ae(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_Ae(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
-            virtual void set_Au(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_Au(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
-            virtual void set_Ad(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_Ad(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Ae(unsigned int, unsigned int, double) =0;
    

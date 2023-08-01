@@ -32,7 +32,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void flag_no_convergence_me2(double, unsigned int) =0;
    
-            virtual void flag_tachyon(const ::std::basic_string<char>&) =0;
+            virtual void flag_tachyon(const std::string&) =0;
    
             virtual void unflag_no_convergence_Mu_MassB_MassWB() =0;
    
@@ -44,15 +44,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual bool have_warning() const =0;
    
-            virtual ::std::basic_string<char> get_warnings() const =0;
+            virtual ::std::string get_warnings() const =0;
    
-            virtual ::std::basic_string<char> get_problems() const =0;
+            virtual ::std::string get_problems() const =0;
    
-            virtual void print(::std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
-            virtual void print_problems(::std::basic_ostream<char>&) const =0;
+            virtual void print_problems(std::ostream&) const =0;
    
-            virtual void print_warnings(::std::basic_ostream<char>&) const =0;
+            virtual void print_warnings(std::ostream&) const =0;
    
          public:
             virtual void pointer_assign__BOSS(Abstract_MSSMNoFV_onshell_problems*) =0;

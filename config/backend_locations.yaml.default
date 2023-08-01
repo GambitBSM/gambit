@@ -28,6 +28,9 @@ classy:
 
   exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
 
+Contur:
+  2.1.1:       ./Backends/installed/contur/2.1.1/contur/init_by_GAMBIT.py
+
 DarkAges:
   1.2.0:       ./Backends/installed/darkages/1.2.0/DarkAges_1_2_0
 
@@ -53,7 +56,6 @@ HepLike:
   2.0:         ./Backends/installed/heplike/2.0/libHEPLike.so
 
 HepLikeData:
-  1.2:         ./Backends/installed/heplikedata/1.2
   1.4:         ./Backends/installed/heplikedata/1.4
 
 DDCalc:
@@ -78,10 +80,6 @@ FeynHiggs:
   2.12.0:      ./Backends/installed/feynhiggs/2.12.0/lib/libFH.so
   2.18.1:      ./Backends/installed/feynhiggs/2.18.1/lib/libFH.so
   2.19.0:      ./Backends/installed/feynhiggs/2.19.0/lib/libFH.so
-
-# Work in progress:
-# Prospino:
-#   2.1:         ./Backends/installed/prospino/2.1/libprospino.so
 
 Pythia:
   8.212:       ./Backends/installed/pythia/8.212/lib/libpythia8.so
@@ -116,6 +114,9 @@ MicrOmegas_MajoranaSingletDM_Z2:
 MicrOmegas_DiracSingletDM_Z2:
   3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DiracSingletDM_Z2/libmicromegas.so
 
+MicrOmegas_DMsimpVectorMedVectorDM:
+  3.6.9.2:     ./Backends/installed/micromegas/3.6.9.2/DMsimpVectorMedVectorDM/libmicromegas.so
+
 nulike:
   1.0.4:       ./Backends/installed/nulike/1.0.4/lib/libnulike.so
   1.0.5:       ./Backends/installed/nulike/1.0.5/lib/libnulike.so
@@ -124,9 +125,11 @@ nulike:
   1.0.8:       ./Backends/installed/nulike/1.0.8/lib/libnulike.so
   1.0.9:       ./Backends/installed/nulike/1.0.9/lib/libnulike.so
 
-# Work in progress:
-# Rivet:
-#   3.0.0:       ./Backends/installed/Rivet/3.0.0/local/lib/libRivet.so
+pbarlike:
+  1.0:         ./Backends/installed/pbarlike/1.0/pbarlike-gambit-interface.py
+
+Rivet:
+  3.1.5:       ./Backends/installed/rivet/3.1.5/local/lib/libRivet.so
 
 SUSY_HIT:
   1.5:         ./Backends/installed/susyhit/1.5/libsusyhit.so
@@ -154,7 +157,7 @@ hom4ps:
   2.0:         ./Backends/installed/hom4ps/2.0/
 
 phc:
-  2.4.58:      ./Backends/installed/phc/2.4.58/
+  2.4.77:      ./Backends/installed/phc/2.4.77/
 
 plc:
   3.0:         ./Backends/installed/plc/3.0/lib/libclik.so
@@ -170,12 +173,10 @@ LibFirst:
   1.1:         ./Backends/examples/libfirst.so
 
 LibSecond:
-  1.0:         ./Backends/examples/libsecond/1.0/libsecond_1_0.py
   1.1:         ./Backends/examples/libsecond/1.1/libsecond_1_1.py
   1.2:         ./Backends/examples/libsecond/1.2/libsecond_1_2.py
 
 LibThird:
-  1.0:         ./Backends/examples/libthird/1.0/libthird_1_0
   1.1:         ./Backends/examples/libthird/1.1/libthird_1_1
   1.2:         ./Backends/examples/libthird/1.2/libthird_1_2
 
@@ -195,3 +196,9 @@ libMathematicaTest:
 # Work in progress:
 # salami:
 #   0.1.0:       ./Backends/examples/salami/0.1.0/salami_gambit.py
+
+ATLAS_FullLikes:
+  1.0:       ./Backends/installed/ATLAS_FullLikes/1.0/ATLAS_FullLikes_1_0.py
+
+simple_xs:
+  1.0:       ./Backends/examples/simple_xs/1.0/simple_xs.py

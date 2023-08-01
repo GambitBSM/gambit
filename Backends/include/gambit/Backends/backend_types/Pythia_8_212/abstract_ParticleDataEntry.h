@@ -30,29 +30,29 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void initPtr__BOSS(Pythia8::Abstract_ParticleData*) =0;
     
-                virtual void setAll(::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double, double, double) =0;
+                virtual void setAll(std::string, std::string, int, int, int, double, double, double, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double, double, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>, int, int, int) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>, int, int) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>, int) =0;
+                virtual void setAll__BOSS(std::string, std::string, int) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char>, ::std::basic_string<char>) =0;
+                virtual void setAll__BOSS(std::string, std::string) =0;
     
-                virtual void setName(::std::basic_string<char>) =0;
+                virtual void setName(std::string) =0;
     
-                virtual void setAntiName(::std::basic_string<char>) =0;
+                virtual void setAntiName(std::string) =0;
     
-                virtual void setNames(::std::basic_string<char>, ::std::basic_string<char>) =0;
+                virtual void setNames(std::string, std::string) =0;
     
                 virtual void setSpinType(int) =0;
     
@@ -94,9 +94,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool hasAnti() const =0;
     
-                virtual ::std::basic_string<char> name(int) const =0;
+                virtual ::std::string name(int) const =0;
     
-                virtual ::std::basic_string<char> name__BOSS() const =0;
+                virtual ::std::string name__BOSS() const =0;
     
                 virtual int spinType() const =0;
     

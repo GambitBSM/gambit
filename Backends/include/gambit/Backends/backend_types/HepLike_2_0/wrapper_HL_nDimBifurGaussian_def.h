@@ -17,42 +17,42 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->Read();
    }
    
-   inline double HL_nDimBifurGaussian::GetChi2(::std::vector<double> theory)
+   inline double HL_nDimBifurGaussian::GetChi2(std::vector<double> theory)
    {
       return get_BEptr()->GetChi2(theory);
    }
    
-   inline double HL_nDimBifurGaussian::GetLikelihood(::std::vector<double> theory)
+   inline double HL_nDimBifurGaussian::GetLikelihood(std::vector<double> theory)
    {
       return get_BEptr()->GetLikelihood(theory);
    }
    
-   inline double HL_nDimBifurGaussian::GetLogLikelihood(::std::vector<double> theory)
+   inline double HL_nDimBifurGaussian::GetLogLikelihood(std::vector<double> theory)
    {
       return get_BEptr()->GetLogLikelihood(theory);
    }
    
-   inline double HL_nDimBifurGaussian::GetChi2(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
+   inline double HL_nDimBifurGaussian::GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetChi2(theory, theory_cov);
    }
    
-   inline double HL_nDimBifurGaussian::GetLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
+   inline double HL_nDimBifurGaussian::GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLikelihood(theory, theory_cov);
    }
    
-   inline double HL_nDimBifurGaussian::GetLogLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
+   inline double HL_nDimBifurGaussian::GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLogLikelihood(theory, theory_cov);
    }
    
-   inline bool HL_nDimBifurGaussian::Restrict(::std::vector<std::basic_string<char>> arg_1)
+   inline bool HL_nDimBifurGaussian::Restrict(std::vector<std::string> arg_1)
    {
       return get_BEptr()->Restrict(arg_1);
    }
    
-   inline ::std::vector<std::basic_string<char>> HL_nDimBifurGaussian::GetObservables()
+   inline ::std::vector<std::string> HL_nDimBifurGaussian::GetObservables()
    {
       return get_BEptr()->GetObservables();
    }
@@ -66,7 +66,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_nDimBifurGaussian::HL_nDimBifurGaussian(::std::basic_string<char> s) :
+   inline HL_nDimBifurGaussian::HL_nDimBifurGaussian(std::string s) :
       WrapperBase(__factory1(s))
    {
       get_BEptr()->set_wptr(this);

@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual ::std::basic_string<char> what() const =0;
+            virtual ::std::string what() const =0;
    
          public:
             using gm2calc::Abstract_Error::pointer_assign__BOSS;

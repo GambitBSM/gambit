@@ -100,7 +100,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->dNext();
         }
         
-        inline void SlowJet::list(bool listAll, ::std::basic_ostream<char>& os) const
+        inline void SlowJet::list(bool listAll, std::ostream& os) const
         {
             get_BEptr()->list(listAll, os);
         }

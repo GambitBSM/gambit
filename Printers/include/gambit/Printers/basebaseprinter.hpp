@@ -52,6 +52,7 @@ namespace Gambit
   // Forward declarations needed for some of the _print/_retrieve functions
   class ModelParameters;
   typedef std::map<std::string,double> map_str_dbl; // can't have commas in macro input
+  typedef std::map<std::string,std::string> map_str_str;
 
 
   namespace Printers

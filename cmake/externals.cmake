@@ -32,6 +32,7 @@
 #
 #  \author Tomas Gonzalo
 #          (tomas.gonzalo@monash.edu)
+#  \date 2019 Sep, Oct
 #  \date 2020 Nov
 #
 #************************************************
@@ -177,8 +178,6 @@ function(check_ditch_status name version dir)
       set (itch "${itch}" "${name}_${version};")
     elseif ((arg STREQUAL "python") AND NOT HAVE_PYBIND11)
       set (itch "${itch}" "${name}_${version};")
-    elseif ((arg STREQUAL "python2") AND (NOT PYTHON_VERSION_MAJOR EQUAL 2 OR NOT HAVE_PYBIND11))
-      set (itch "${itch}" "${name}_${version};")
     elseif ((arg STREQUAL "python3") AND (NOT PYTHON_VERSION_MAJOR EQUAL 3 OR NOT HAVE_PYBIND11))
       set (itch "${itch}" "${name}_${version};")
     elseif ((arg STREQUAL "hepmc") AND EXCLUDE_HEPMC)
@@ -188,6 +187,11 @@ function(check_ditch_status name version dir)
     elseif ((arg STREQUAL "sqlite3") AND NOT SQLITE3_FOUND)
       set (itch "${itch}" "${name}_${version}")
     elseif ((arg STREQUAL "x11") AND NOT X11_FOUND)
+      set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "c++14") AND NOT GAMBIT_SUPPORTS_CXX14 AND NOT GAMBIT_SUPPORTS_CXX17)
+      message("${BoldRed}   ${name} (${version}) needs to be compiled with c++14/17 but GAMBIT is compiled with a lower version. ${name} will be ditched.${ColourReset}")
+      set (itch "${itch}" "${name}_${version}")
+    elseif ((arg STREQUAL "rivet") AND ditched_rivet_${Rivet_ver})
       set (itch "${itch}" "${name}_${version}")
     endif()
   endforeach()
@@ -206,7 +210,13 @@ function(check_ditch_status name version dir)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${name}_${version}-prefix)
       execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir})
     endif()
+    if(NOT "${itch_unique}" MATCHES ".*${ditch_command}.*")
+      set(itch_unique "${itch_unique}" "${ditch_command}")
+    endif()
   endforeach()
+  # Make sure the additions to itch are kept in the parent scope
+  set(itch "${itch_unique}")
+  set(itch "${itch_unique}" PARENT_SCOPE)
 endfunction()
 
 # Add a new target that just prints a helpful error explaining that the target for a backend base is not activated.

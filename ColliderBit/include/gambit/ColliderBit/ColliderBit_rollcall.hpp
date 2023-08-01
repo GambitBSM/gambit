@@ -27,6 +27,10 @@
 ///          (andy.buckley@cern.ch)
 ///  \date 2017 Jun
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 July
+///
 ///  *********************************************
 
 #pragma once
@@ -43,3 +47,4 @@ START_MODULE
 #include "gambit/ColliderBit/ColliderBit_LEP_rollcall.hpp"
 #include "gambit/ColliderBit/ColliderBit_MC_rollcall.hpp"
 #include "gambit/ColliderBit/ColliderBit_models_rollcall.hpp"
+#include "gambit/ColliderBit/ColliderBit_measurements_rollcall.hpp"

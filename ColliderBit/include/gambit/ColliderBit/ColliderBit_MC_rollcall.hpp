@@ -31,6 +31,10 @@
 ///          (a.kvellestad@imperial.ac.uk)
 ///  \date 2019 Sep
 ///
+/// \author Tomasz Procter
+///          (t.procter.1@research.gla.ac.uk)
+/// \date 2021 November
+///
 ///  *********************************************
 
 #pragma once
@@ -300,24 +304,15 @@
     ALLOW_MODELS(DMEFT)
     #undef FUNCTION
 
-    #define FUNCTION DMsimpVectorMedScalarDM_results
+    #define FUNCTION DMsimp_results
     START_FUNCTION(AnalysisDataPointers)
-    DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
-    ALLOW_MODELS(DMsimpVectorMedScalarDM)
-    #undef FUNCTION
-
-    #define FUNCTION DMsimpVectorMedMajoranaDM_results
-    START_FUNCTION(AnalysisDataPointers)
-    DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
-    DEPENDENCY(Unitarity_Bound_DMsimpVectorMedMajoranaDM, double)
-    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
-    #undef FUNCTION
-
-    #define FUNCTION DMsimpVectorMedDiracDM_results
-    START_FUNCTION(AnalysisDataPointers)
-    DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
-    DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double)
-    ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
+    MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedMajoranaDM, double, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(Unitarity_Bound_DMsimpVectorMedDiracDM, double, DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -340,25 +335,14 @@
 
   /// Di-jet likelihoods
   #define CAPABILITY Dijet_LogLike
-    #define FUNCTION DiJet_LogLike_DMsimpVectorMedScalarDM
+    #define FUNCTION DiJet_LogLike_DMsimp
     START_FUNCTION(double)
-    DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedScalarDM_spectrum, Spectrum, DMsimpVectorMedScalarDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum, DMsimpVectorMedMajoranaDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum, DMsimpVectorMedDiracDM)
+    MODEL_CONDITIONAL_DEPENDENCY(DMsimpVectorMedVectorDM_spectrum, Spectrum, DMsimpVectorMedVectorDM)
     DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
-    ALLOW_MODELS(DMsimpVectorMedScalarDM)
-    #undef FUNCTION
-
-    #define FUNCTION DiJet_LogLike_DMsimpVectorMedMajoranaDM
-    START_FUNCTION(double)
-    DEPENDENCY(DMsimpVectorMedMajoranaDM_spectrum, Spectrum)
-    DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
-    ALLOW_MODELS(DMsimpVectorMedMajoranaDM)
-    #undef FUNCTION
-
-    #define FUNCTION DiJet_LogLike_DMsimpVectorMedDiracDM
-    START_FUNCTION(double)
-    DEPENDENCY(DMsimpVectorMedDiracDM_spectrum, Spectrum)
-    DEPENDENCY(Y1_decay_rates,DecayTable::Entry)
-    ALLOW_MODELS(DMsimpVectorMedDiracDM)
+    ALLOW_MODELS(DMsimpVectorMedScalarDM, DMsimpVectorMedMajoranaDM, DMsimpVectorMedDiracDM, DMsimpVectorMedVectorDM)
     #undef FUNCTION
   #undef CAPABILITY
 
@@ -374,6 +358,19 @@
   /// Calculate the log likelihood for each SR in each analysis using the analysis numbers
   #define CAPABILITY LHC_LogLikes
   START_CAPABILITY
+  
+    #define FUNCTION calc_LHC_LogLikes_full
+    START_FUNCTION(map_str_AnalysisLogLikes)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(RunMC, MCLoopInfo)
+    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_lognormal_error, (), double, (const int&, const double&, const double&, const double&) )
+    BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
+    BACKEND_GROUP(lnlike_marg_poisson)
+    BACKEND_REQ(FullLikes_Evaluate, (ATLAS_FullLikes), double, (std::map<str,double>&,const str&))
+    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
+    BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
+    #undef FUNCTION
+  
     #define FUNCTION calc_LHC_LogLikes
     START_FUNCTION(map_str_AnalysisLogLikes)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
@@ -383,7 +380,7 @@
     BACKEND_GROUP(lnlike_marg_poisson)
     #undef FUNCTION
   #undef CAPABILITY
-
+  
   /// Extract the log likelihood for each SR to a simple map_str_dbl
   #define CAPABILITY LHC_LogLike_per_SR
   START_CAPABILITY
@@ -401,6 +398,7 @@
     DEPENDENCY(LHC_LogLikes, map_str_AnalysisLogLikes)
     #undef FUNCTION
   #undef CAPABILITY
+
 
   /// Extract the labels for the SRs used in the analysis loglikes
   #define CAPABILITY LHC_LogLike_SR_labels
@@ -425,7 +423,7 @@
   START_CAPABILITY
     #define FUNCTION calc_combined_LHC_LogLike
     START_FUNCTION(double)
-    DEPENDENCY(LHC_LogLike_per_analysis, map_str_dbl)
+    DEPENDENCY(LHC_LogLikes, map_str_AnalysisLogLikes)
     DEPENDENCY(RunMC, MCLoopInfo)
     #undef FUNCTION
   #undef CAPABILITY
@@ -568,14 +566,27 @@
     #ifndef EXCLUDE_HEPMC
 
       /// A nested function that reads in Les Houches Event files and converts them to HEPUtils::Event format
-      #define FUNCTION getLHEvent
+      #define FUNCTION getLHEvent_HEPUtils
+      START_FUNCTION(HEPUtils::Event)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files
+      #define FUNCTION getHepMCEvent
+      START_FUNCTION(HepMC3::GenEvent)
+      NEEDS_MANAGER(RunMC, MCLoopInfo)
+      #undef FUNCTION
+
+      /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
+      #define FUNCTION getHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 
       /// A nested function that reads in HepMC event files and converts them to HEPUtils::Event format
-      #define FUNCTION getHepMCEvent
+      #define FUNCTION convertHepMCEvent_HEPUtils
       START_FUNCTION(HEPUtils::Event)
+      DEPENDENCY(HardScatteringEvent, HepMC3::GenEvent)
       NEEDS_MANAGER(RunMC, MCLoopInfo)
       #undef FUNCTION
 

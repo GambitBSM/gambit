@@ -12,14 +12,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       
       // Member functions: 
-      inline ::std::basic_string<char> EReadError::what() const
+      inline ::std::string EReadError::what() const
       {
          return get_BEptr()->what();
       }
       
       
       // Wrappers for original constructors: 
-      inline EReadError::EReadError(const ::std::basic_string<char>& message_) :
+      inline EReadError::EReadError(const std::string& message_) :
          Error(__factory0(message_))
       {
          get_BEptr()->set_wptr(this);

@@ -458,7 +458,17 @@ def proc_cat(dm, sv, products, propagators, gambit_pdg_dict,
                                      gambit_pdg_dict),
                      str(model_specific_particles[i].spinX2)
                      )
-
+            if not model_specific_particles[i].is_sc():
+                towrite += (
+                        "addParticle(\"{0}\", spec.get(Par::Pole_Mass,"
+                        " \"{1}\"), {2});\n"
+                ).format(pdg_to_particle(model_specific_particles[i].conjugate_PDG_code,
+                                         gambit_pdg_dict),
+                         pdg_to_particle(model_specific_particles[i].conjugate_PDG_code,
+                                         gambit_pdg_dict),
+                         str(model_specific_particles[i].spinX2)
+                         )
+ 
     towrite += (
             "\n"
             "// Get rid of convenience macros\n"
@@ -509,8 +519,8 @@ def proc_cat(dm, sv, products, propagators, gambit_pdg_dict,
             for i in np.arange(len(propagators)):
                 if abs(propagators[i]) != abs(dm.PDG_code):
                     towrite += (
-                            "if (spec.get(Par::Pole_Mass, \"{0}\") >= 2*{1}) "
-                            "process_ann.resonances_thresholds.resonances.\n    "
+                            "if ( (spec.has(Par::Pole_Mass, \"{0}\") ? spec.get(Par::Pole_Mass, \"{0}\") : spec.get(Par::mass1, \"{0}\")) >= 2*{1})\n"
+                            "  process_ann.resonances_thresholds.resonances."
                             "push_back(TH_Resonance(spec.get(Par::Pole_Mass, "
                             "\"{0}\"), tbl.at(\"{0}\").width_in_GeV));\n"
                     ).format(pdg_to_particle(propagators[i], gambit_pdg_dict),
@@ -948,7 +958,7 @@ def write_micromegas_src(gambit_model_name, spectrum, mathpackage, params,
         if chwidth == "0": continue
         mo_src += (
                "try {{ width = tbl->at(\"{0}\").width_in_GeV; }}\n"
-               " catch(std::exception& e) {{ present = false; }}\n"
+               "catch(std::exception& e) {{ present = false; }}\n"
                "if (present) Assign_Value(\"{1}\", width);\n"
                "present = true;\n\n"
         ).format(pdg_to_particle(pdg, gambit_pdg_codes), chwidth)

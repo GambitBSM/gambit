@@ -109,7 +109,7 @@ diff -rupN SPheno-4.0.3/src/Makefile ../installed/spheno/4.0.3/src/Makefile
  bin/SPheno: ${name} SPheno4.o
  	${F90} -o SPheno ${LFlagsB} SPheno4.o ../lib/${name}
  	mv SPheno ../bin
-@@ -64,17 +76,17 @@ ${name}: ${name}(Control.o)  ${name}(Mat
+@@ -64,17 +76,22 @@ ${name}: ${name}(Control.o)  ${name}(Mat
  clean:
  	rm -f *.o *~ */*.o */*~
  cleanall:
@@ -118,15 +118,20 @@ diff -rupN SPheno-4.0.3/src/Makefile ../installed/spheno/4.0.3/src/Makefile
  #
  # Suffix rules
  #
++ifneq ($(shell uname -s), Darwin)
++  arFlags = -rUc
++else
++  arFlags = -ruc
++endif
  .f90.a:
  	${F90} ${comp} $<
 -	ar -ruc $@ $*.o
-+	ar -ruc $@ $*.o
++	ar ${arFlags} $@ $*.o
  	rm -f $*.o
  .F90.a:
  	${F90} ${comp}  ${PreDef} $<
 -	ar -ruc $@ $*.o
-+	ar -ruc $@ $*.o
++	ar ${arFlags} $@ $*.o
  	rm -f $*.o
  .f90.o: 
  	${F90} ${comp}  $< 

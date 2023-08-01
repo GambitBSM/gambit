@@ -22,21 +22,21 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          virtual void Read() =0;
    
-         virtual double GetChi2(::std::vector<double>) =0;
+         virtual double GetChi2(std::vector<double>) =0;
    
-         virtual double GetLikelihood(::std::vector<double>) =0;
+         virtual double GetLikelihood(std::vector<double>) =0;
    
-         virtual double GetLogLikelihood(::std::vector<double>) =0;
+         virtual double GetLogLikelihood(std::vector<double>) =0;
    
-         virtual double GetChi2(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
+         virtual double GetChi2(std::vector<double>, boost::numeric::ublas::matrix<double>) =0;
    
-         virtual double GetLikelihood(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
+         virtual double GetLikelihood(std::vector<double>, boost::numeric::ublas::matrix<double>) =0;
    
-         virtual double GetLogLikelihood(::std::vector<double>, ::boost::numeric::ublas::matrix<double>) =0;
+         virtual double GetLogLikelihood(std::vector<double>, boost::numeric::ublas::matrix<double>) =0;
    
-         virtual bool Restrict(::std::vector<std::basic_string<char>>) =0;
+         virtual bool Restrict(std::vector<std::string>) =0;
    
-         virtual ::std::vector<std::basic_string<char>> GetObservables() =0;
+         virtual ::std::vector<std::string> GetObservables() =0;
    
       public:
          virtual void pointer_assign__BOSS(Abstract_HL_nDimGaussian*) =0;

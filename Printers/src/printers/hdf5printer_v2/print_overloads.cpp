@@ -63,6 +63,7 @@ namespace Gambit
     // Piggyback off existing print functions to build standard overloads
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, std::vector<double>)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_dbl)
+    USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_str)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_const_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_str_map_str_dbl)
     USE_COMMON_PRINT_OVERLOAD(HDF5Printer2, map_const_str_map_const_str_dbl)

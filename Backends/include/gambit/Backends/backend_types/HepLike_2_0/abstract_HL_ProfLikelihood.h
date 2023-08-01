@@ -42,11 +42,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
          virtual double& central_mes_val_ref__BOSS() =0;
    
-         virtual std::basic_string<char>& ObsName_ref__BOSS() =0;
+         virtual std::string& ObsName_ref__BOSS() =0;
    
-         virtual std::basic_string<char>& HL_RootFile_ref__BOSS() =0;
+         virtual std::string& HL_RootFile_ref__BOSS() =0;
    
-         virtual std::basic_string<char>& HL_PATH_ref__BOSS() =0;
+         virtual std::string& HL_PATH_ref__BOSS() =0;
    
       public:
          virtual void pointer_assign__BOSS(Abstract_HL_ProfLikelihood*) =0;

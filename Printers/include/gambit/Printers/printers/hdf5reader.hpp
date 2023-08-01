@@ -180,6 +180,9 @@ namespace Gambit
         H5P_LocalReadBufferManager<float    > hdf5_localbufferman_float;
         H5P_LocalReadBufferManager<double   > hdf5_localbufferman_double;
 
+        /// Helper function to parse a capability name to a dataset name
+        void parse_capability_label(const std::string&, std::string&);
+
         /// "Master" templated retrieve function.
         template<class T>
         bool _retrieve_template(T& out, const std::string& label, int aux_id, const uint rank, const ulong pointID)
@@ -187,14 +190,18 @@ namespace Gambit
            // Retrieve the buffer manager for buffers with this type
            auto& buffer_manager = get_mybuffermanager<T>();
 
+           // Parse the label to an actual parameter label
+           std::string param_label;
+           parse_capability_label(label, param_label);
+
            // Buffers are labelled by an IDcode, which in the printer case is a graph vertex.
            // In the reader case I think we can safely re-use this system to assign IDs:
-           int IDcode = get_param_id(label);
+           int IDcode = get_param_id(param_label);
 
            // Extract a buffer pair from the manager corresponding to this type + label
-           auto& selected_buffer = buffer_manager.get_buffer(IDcode, aux_id, label, H5file.location_id);
+           auto& selected_buffer = buffer_manager.get_buffer(IDcode, aux_id, param_label, H5file.location_id);
 
-           // Determine the dataset index from which to extrat the input PPIDpair
+           // Determine the dataset index from which to extract the input PPIDpair
            ulong dset_index = get_index_from_PPID(PPIDpair(pointID,rank));
 
            // Extract data value
@@ -206,7 +213,7 @@ namespace Gambit
 
         /// Extra helper function for spectrum retrieval
         bool retrieve_and_add_to_SLHAea(SLHAstruct& out, bool& found, const std::string& spec_type, const std::string& entry, const SLHAcombo& item, const std::set<std::string>& all_dataset_labels, const uint rank, const ulong pointID);
- 
+
     };
 
     /// Buffer retrieve function

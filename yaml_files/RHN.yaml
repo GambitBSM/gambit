@@ -150,7 +150,7 @@ ObsLikes:
   - capability: lnL_R_W
     purpose: LogLike
 
-  - capability: RK_LogLikelihood
+  - capability: RK_LogLikelihood_LHCb
     purpose: LogLike
 
   - capability: RKstar_LogLikelihood_LHCb

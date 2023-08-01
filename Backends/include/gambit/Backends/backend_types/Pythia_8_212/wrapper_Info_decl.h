@@ -29,13 +29,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 int& LHEFversionSave;
                 std::vector<double>& sigmaLHEFSave;
-                std::map<std::basic_string<char>, std::basic_string<char>>*& eventAttributes;
-                std::map<std::basic_string<char>, double>*& weights_detailed;
+                std::map<std::string, std::string>*& eventAttributes;
+                std::map<std::string, double>*& weights_detailed;
                 std::vector<double>*& weights_compressed;
         
                 // Member functions: 
             public:
-                void list(::std::basic_ostream<char>& os) const;
+                void list(std::ostream& os) const;
         
                 void list() const;
         
@@ -61,7 +61,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool tooLowPTmin() const;
         
-                ::std::basic_string<char> name() const;
+                ::std::string name() const;
         
                 int code() const;
         
@@ -87,9 +87,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 bool hasSub() const;
         
-                ::std::basic_string<char> nameSub(int i) const;
+                ::std::string nameSub(int i) const;
         
-                ::std::basic_string<char> nameSub() const;
+                ::std::string nameSub() const;
         
                 int codeSub(int i) const;
         
@@ -259,9 +259,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 ::std::vector<int> codesHard();
         
-                ::std::basic_string<char> nameProc(int i);
+                ::std::string nameProc(int i);
         
-                ::std::basic_string<char> nameProc();
+                ::std::string nameProc();
         
                 long int nTried(int i);
         
@@ -295,17 +295,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void errorReset();
         
-                void errorMsg(::std::basic_string<char> messageIn, ::std::basic_string<char> extraIn, bool showAlways, ::std::basic_ostream<char>& os);
+                void errorMsg(std::string messageIn, std::string extraIn, bool showAlways, std::ostream& os);
         
-                void errorMsg(::std::basic_string<char> messageIn, ::std::basic_string<char> extraIn, bool showAlways);
+                void errorMsg(std::string messageIn, std::string extraIn, bool showAlways);
         
-                void errorMsg(::std::basic_string<char> messageIn, ::std::basic_string<char> extraIn);
+                void errorMsg(std::string messageIn, std::string extraIn);
         
-                void errorMsg(::std::basic_string<char> messageIn);
+                void errorMsg(std::string messageIn);
         
                 int errorTotalNumber();
         
-                void errorStatistics(::std::basic_ostream<char>& os);
+                void errorStatistics(std::ostream& os);
         
                 void errorStatistics();
         
@@ -337,9 +337,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void setWeightFIRST(double weightIn);
         
-                ::std::basic_string<char> header(const ::std::basic_string<char>& key);
+                ::std::string header(const std::string& key);
         
-                ::std::vector<std::basic_string<char>> headerKeys();
+                ::std::vector<std::string> headerKeys();
         
                 int nProcessesLHEF();
         
@@ -349,9 +349,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void setLHEF3EventInfo();
         
-                ::std::basic_string<char> getEventAttribute(::std::basic_string<char> key, bool doRemoveWhitespace);
+                ::std::string getEventAttribute(std::string key, bool doRemoveWhitespace);
         
-                ::std::basic_string<char> getEventAttribute(::std::basic_string<char> key);
+                ::std::string getEventAttribute(std::string key);
         
                 int LHEFversion();
         
@@ -359,37 +359,37 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 unsigned int getGeneratorSize();
         
-                ::std::basic_string<char> getGeneratorValue(unsigned int n);
+                ::std::string getGeneratorValue(unsigned int n);
         
-                ::std::basic_string<char> getGeneratorValue();
+                ::std::string getGeneratorValue();
         
-                ::std::basic_string<char> getGeneratorAttribute(unsigned int n, ::std::basic_string<char> key, bool doRemoveWhitespace);
+                ::std::string getGeneratorAttribute(unsigned int n, std::string key, bool doRemoveWhitespace);
         
-                ::std::basic_string<char> getGeneratorAttribute(unsigned int n, ::std::basic_string<char> key);
+                ::std::string getGeneratorAttribute(unsigned int n, std::string key);
         
                 unsigned int getWeightsDetailedSize();
         
-                double getWeightsDetailedValue(::std::basic_string<char> n);
+                double getWeightsDetailedValue(std::string n);
         
-                ::std::basic_string<char> getWeightsDetailedAttribute(::std::basic_string<char> n, ::std::basic_string<char> key, bool doRemoveWhitespace);
+                ::std::string getWeightsDetailedAttribute(std::string n, std::string key, bool doRemoveWhitespace);
         
-                ::std::basic_string<char> getWeightsDetailedAttribute(::std::basic_string<char> n, ::std::basic_string<char> key);
+                ::std::string getWeightsDetailedAttribute(std::string n, std::string key);
         
                 unsigned int getWeightsCompressedSize();
         
                 double getWeightsCompressedValue(unsigned int n);
         
-                ::std::basic_string<char> getWeightsCompressedAttribute(::std::basic_string<char> key, bool doRemoveWhitespace);
+                ::std::string getWeightsCompressedAttribute(std::string key, bool doRemoveWhitespace);
         
-                ::std::basic_string<char> getWeightsCompressedAttribute(::std::basic_string<char> key);
+                ::std::string getWeightsCompressedAttribute(std::string key);
         
-                ::std::basic_string<char> getScalesValue(bool doRemoveWhitespace);
+                ::std::string getScalesValue(bool doRemoveWhitespace);
         
-                ::std::basic_string<char> getScalesValue();
+                ::std::string getScalesValue();
         
-                double getScalesAttribute(::std::basic_string<char> key);
+                double getScalesAttribute(std::string key);
         
-                void setHeader(const ::std::basic_string<char>& key, const ::std::basic_string<char>& val);
+                void setHeader(const std::string& key, const std::string& val);
         
                 void setAbortPartonLevel(bool abortIn);
         

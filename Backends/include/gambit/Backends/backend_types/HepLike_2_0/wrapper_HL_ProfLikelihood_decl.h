@@ -19,7 +19,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_ProfLikelihood* (*__factory0)();
-         static Abstract_HL_ProfLikelihood* (*__factory1)(::std::basic_string<char>);
+         static Abstract_HL_ProfLikelihood* (*__factory1)(std::string);
    
          // -- Other member variables: 
       public:
@@ -27,9 +27,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          double& xmin;
          double& xmax;
          double& central_mes_val;
-         std::basic_string<char>& ObsName;
-         std::basic_string<char>& HL_RootFile;
-         std::basic_string<char>& HL_PATH;
+         std::string& ObsName;
+         std::string& HL_RootFile;
+         std::string& HL_PATH;
    
          // Member functions: 
       public:
@@ -51,7 +51,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // Wrappers for original constructors: 
       public:
          HL_ProfLikelihood();
-         HL_ProfLikelihood(::std::basic_string<char> s);
+         HL_ProfLikelihood(std::string s);
    
          // Special pointer-based constructor: 
          HL_ProfLikelihood(Abstract_HL_ProfLikelihood* in);

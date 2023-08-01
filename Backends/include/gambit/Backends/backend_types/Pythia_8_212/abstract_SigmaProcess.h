@@ -90,13 +90,13 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void setScale() =0;
     
-                virtual ::std::basic_string<char> name() const =0;
+                virtual ::std::string name() const =0;
     
                 virtual int code() const =0;
     
                 virtual int nFinal() const =0;
     
-                virtual ::std::basic_string<char> inFlux() const =0;
+                virtual ::std::string inFlux() const =0;
     
                 virtual bool convert2mb() const =0;
     

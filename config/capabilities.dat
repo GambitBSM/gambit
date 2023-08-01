@@ -1,4 +1,3 @@
-# GAMBIT central capabilities description database
 #
 # GAMBIT will parse this file and try to match the entries
 # to the capabilities it has registered. If there are any
@@ -71,9 +70,6 @@ test_Farrays: |
 test_marg_lnlike: |
    Tester for marginalised Poisson likelihood.
 
-test_Pythia: |
-   Tester for Pythia backend.
-
 test_BE_Array: |
    Tester for C/C++ backend array interfaces.
 
@@ -129,13 +125,13 @@ LibSecond_1_2_init: |
    Initialize the Python testing LibSecond backend, version 1.2.
 
 LibThird_1_0_init: |
-   Initialize the Python package testing LibThird backend, version 1.0.
+   Initialize the Python testing LibThird backend, version 1.0.
 
 LibThird_1_1_init: |
-   Initialize the Python package testing LibThird backend, version 1.1.
+   Initialize the Python testing LibThird backend, version 1.1.
 
 LibThird_1_2_init: |
-   Initialize the Python package testing LibThird backend, version 1.2.
+   Initialize the Python testing LibThird backend, version 1.2.
 
 initialize_capability: |
    Tester function for the initialization of backends.
@@ -276,6 +272,13 @@ demo_CAP_parameters: |
 
 large_print: |
   Scale test for various aspects of the printer buffer system.
+
+recursive_sum: |
+  A recursive summation example for demonstrating the functionChain keyword, which adds an integer to another integer retrieved from a dependency.
+
+starting_value: |
+  A fixed integer.
+
 
 #-------------------------------------
 #  SpecBit
@@ -450,7 +453,10 @@ SLHAFileNameAndContent: |
    Name and content of a SLHA file.
 
 susy_spectrum_scan_guide: |
-   Invalid point check with advances mass cuts, to aid scans of SUSY models.
+   Invalid point check with advanced mass cuts, to aid scans of SUSY models.
+
+susy_spectrum_validation_loglike: |
+   A zero loglike used for separating physical and unphysical SUSY points in ColliderBit tests.
 
 LHC_LogLike_scan_guide: |
    A dummy log-likelihood to force the scanner to explore a given range of
@@ -1227,7 +1233,7 @@ DarkMatter_ID: |
    Contains string ID to identify dark matter particle.
 
 DarkMatterConj_ID: |
-   Contains string ID to identify the conjugate to the dark matter particle.
+   String ID for the dark matter conjugate.
 
 RD_spectrum: |
    Contains degrees of freedom and masses of all (co)-annihilating
@@ -1532,7 +1538,7 @@ LZ_BinSignal: |
 
 LZ_Bins: |
    The number of bins used in the LZ direct detection analysis.
-   
+
 LZ_2022_Calculate: |
    Perform rate and likelihood calculations for the LZ 2022 direct detection analysis.
 
@@ -1631,7 +1637,7 @@ PandaX_2017_BinSignal: |
 
 PandaX_2017_Bins: |
    The number of bins used in the PandaX 2017 direct detection analysis.
-   
+
 PandaX_4T_Calculate: |
    Perform rate and likelihood calculations for the PandaX 4T direct detection analysis.
 
@@ -2363,6 +2369,15 @@ IC79_loglike: |
 IceCube_likelihood: |
    The complete IceCube log-likelihood, including 22-string and 79-string data.
 
+pbar_logLikes:
+   AMS-02 7-year antiproton likelihoods for both correlated and uncorrelated errors.
+
+pbar_logLike_uncorr:
+   AMS-02 7-year antiproton likelihoods for uncorrelated errors.
+
+pbar_logLike_corr:
+   AMS-02 7-year antiproton likelihoods for correlated errors.
+
 DarkSUSY_PointInit: |
    Initialises DarkSUSY (up to version 5) for a specific model point.
 
@@ -2438,7 +2453,7 @@ DDCalc_2_1_0_init: |
 
 DDCalc_2_2_0_init: |
    Initialises DDCalc 2.2.0.
-   
+
 DDCalc_2_3_0_init: |
    Initialises DDCalc 2.3.0.
 
@@ -2528,7 +2543,7 @@ PandaX_2016_Init: |
 
 PandaX_2017_Init: |
    Initialises a direct detection experiment with the properties of the 2017 analysis of PandaX.
-   
+
 PandaX_4T_Init: |
    Initialises a direct detection experiment with the properties of the 4T analysis of PandaX.
 
@@ -2564,9 +2579,9 @@ DARWIN_Init: |
 
 LZ_Init: |
    Initialises a direct detection experiment with the properties of the analysis of LZ.
-   
+
 LZ_2022_Init: |
-   Initialises a direct detection experiment with the properties of the 2022 analysis of LZ. 
+   Initialises a direct detection experiment with the properties of the 2022 analysis of LZ.
 
 FreeDetectorss: |
    Deletes the detector object held internally by DDCalc (relevant for the C/C++ interface of DDCalc).
@@ -3043,7 +3058,7 @@ rdmgev: |
 
 RD_oh2_DS6_ini: |
    Initializes relic density calculations with DarkSUSY (starting from version 6.4.0).
-   
+
 RD_oh2_DS6pre4_ini: |
    Initializes relic density calculations with DarkSUSY 6 (for versions prior to 6.4.0).
 
@@ -3326,14 +3341,30 @@ chargino_plus_1_decay_rates: |
 
 chargino_plus_1_decay_rates_SH: |
    Decays of the chargino+ 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
 
 chargino_plus_1_decay_rates_smallsplit: |
    Decays of the chargino+ 1 at small chargino--neutralino mass splittings.
+   Not including decays to gravitinos.
+
+chargino_plus_1_decay_rates_SH_or_smallsplit : |
+   Decays of the chargino+ 1, either calculated using SUSY-HIT or by DecayBit
+   in the case of small chargino--neutralino mass splittings. Not including decays to gravitinos.
+
+chargino_plus_1_decay_rates_gravitino : |
+   Decays of the chargino+ 1 to gravitinos.
 
 chargino_plus_2_decay_rates: |
    Decays of the chargino+ 2.
 
-mu_minus_decay_rates: |
+chargino_plus_2_decay_rates_SH : |
+   Decays of the chargino+ 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+chargino_plus_2_decay_rates_gravitino : |
+   Decays of the chargino+ 2 to gravitinos.
+
+mu_minus_decay_rates : |
   All decays of the μ- lepton.
 
 tau_minus_decay_rates: |
@@ -3354,14 +3385,42 @@ rho1450_decay_rates: |
 neutralino_1_decay_rates: |
    Decays of the neutralino 1.
 
-neutralino_2_decay_rates: |
+neutralino_1_decay_rates_SH : |
+   Decays of the neutralino 1 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_1_decay_rates_gravitino : |
+   Decays of the neutralino 1 to gravitinos.
+
+neutralino_2_decay_rates : |
    Decays of the neutralino 2.
 
-neutralino_3_decay_rates: |
+neutralino_2_decay_rates_SH : |
+   Decays of the neutralino 2 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_2_decay_rates_gravitino : |
+   Decays of the neutralino 2 to gravitinos.
+
+neutralino_3_decay_rates : |
    Decays of the neutralino 3.
 
-neutralino_4_decay_rates: |
+neutralino_3_decay_rates_SH : |
+   Decays of the neutralino 3 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_3_decay_rates_gravitino : |
+   Decays of the neutralino 3 to gravitinos.
+
+neutralino_4_decay_rates : |
    Decays of the neutralino 4.
+
+neutralino_4_decay_rates_SH : |
+   Decays of the neutralino 4 calculated using SUSY-HIT.
+   Not including decays to gravitinos.
+
+neutralino_4_decay_rates_gravitino : |
+   Decays of the neutralino 4 to gravitinos.
 
 SLHA1_violation: |
    Checks if the first or second generation left-right mixing exceeds the specified tolerance (which means that SLHA1 is an invalid format for this model point).
@@ -4446,6 +4505,144 @@ NUHM2_parameters: |
 CMSSM_parameters: |
    Parameters for the model CMSSM (see ./gambit CMSSM)
 
+MSSM10atQ_mG_parameters: |
+   Parameters for the model MSSM10atQ_mG (see ./gambit MSSM10atQ_mG)
+
+MSSM10atQ_mA_mG_parameters: |
+   Parameters for the model MSSM10atQ_mA_mG (see ./gambit MSSM10atQ_mA_mG)
+
+MSSM10batQ_mG_parameters: |
+   Parameters for the model MSSM10batQ_mG (see ./gambit MSSM10batQ_mG)
+
+MSSM10batQ_mA_mG_parameters: |
+   Parameters for the model MSSM10batQ_mA_mG (see ./gambit MSSM10batQ_mA_mG)
+
+MSSM10catQ_mG_parameters: |
+   Parameters for the model MSSM10catQ_mG (see ./gambit MSSM10catQ_mG)
+
+MSSM10catQ_mA_mG_parameters: |
+   Parameters for the model MSSM10catQ_mA_mG (see ./gambit MSSM10catQ_mA_mG)
+
+MSSM11atQ_mG_parameters: |
+   Parameters for the model MSSM11atQ_mG (see ./gambit MSSM11atQ_mG)
+
+MSSM11atQ_mA_mG_parameters: |
+   Parameters for the model MSSM11atQ_mA_mG (see ./gambit MSSM11atQ_mA_mG)
+
+MSSM15atQ_mG_parameters: |
+   Parameters for the model MSSM15atQ_mG (see ./gambit MSSM15atQ_mG)
+
+MSSM15atQ_mA_mG_parameters: |
+   Parameters for the model MSSM15atQ_mA_mG (see ./gambit MSSM15atQ_mA_mG)
+
+MSSM16atQ_mG_parameters: |
+   Parameters for the model MSSM16atQ_mG (see ./gambit MSSM16atQ_mG)
+
+MSSM16atQ_mA_mG_parameters: |
+   Parameters for the model MSSM16atQ_mA_mG (see ./gambit MSSM16atQ_mA_mG)
+
+MSSM19atQ_mG_parameters: |
+   Parameters for the model MSSM19atQ_mG (see ./gambit MSSM19atQ_mG)
+
+MSSM19atQ_mA_mG_parameters: |
+   Parameters for the model MSSM19atQ_mA_mG (see ./gambit MSSM19atQ_mA_mG)
+
+MSSM20atMGUT_mG_parameters: |
+   Parameters for the model MSSM20atMGUT_mG (see ./gambit MSSM20atMGUT_mG)
+
+MSSM20atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM20atMGUT_mA_mG (see ./gambit MSSM20atMGUT_mA_mG)
+
+MSSM20atMSUSY_mG_parameters: |
+   Parameters for the model MSSM20atMSUSY_mG (see ./gambit MSSM20atMSUSY_mG)
+
+MSSM20atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM20atMSUSY_mA_mG (see ./gambit MSSM20atMSUSY_mA_mG)
+
+MSSM20atQ_mG_parameters: |
+   Parameters for the model MSSM20atQ_mG (see ./gambit MSSM20atQ_mG)
+
+MSSM20atQ_mA_mG_parameters: |
+   Parameters for the model MSSM20atQ_mA_mG (see ./gambit MSSM20atQ_mA_mG)
+
+MSSM24atQ_mG_parameters: |
+   Parameters for the model MSSM24atQ_mG (see ./gambit MSSM24atQ_mG)
+
+MSSM24atQ_mA_mG_parameters: |
+   Parameters for the model MSSM24atQ_mA_mG (see ./gambit MSSM24atQ_mA_mG)
+
+MSSM25atMGUT_mG_parameters: |
+   Parameters for the model MSSM25atMGUT_mG (see ./gambit MSSM25atMGUT_mG)
+
+MSSM25atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM25atMGUT_mA_mG (see ./gambit MSSM25atMGUT_mA_mG)
+
+MSSM25atMSUSY_mG_parameters: |
+   Parameters for the model MSSM25atMSUSY_mG (see ./gambit MSSM25atMSUSY_mG)
+
+MSSM25atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM25atMSUSY_mA_mG (see ./gambit MSSM25atMSUSY_mA_mG)
+
+MSSM25atQ_mG_parameters: |
+   Parameters for the model MSSM25atQ_mG (see ./gambit MSSM25atQ_mG)
+
+MSSM25atQ_mA_mG_parameters: |
+   Parameters for the model MSSM25atQ_mA_mG (see ./gambit MSSM25atQ_mA_mG)
+
+MSSM30atMGUT_mG_parameters: |
+   Parameters for the model MSSM30atMGUT_mG (see ./gambit MSSM30atMGUT_mG)
+
+MSSM30atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM30atMGUT_mA_mG (see ./gambit MSSM30atMGUT_mA_mG)
+
+MSSM30atMSUSY_mG_parameters: |
+   Parameters for the model MSSM30atMSUSY_mG (see ./gambit MSSM30atMSUSY_mG)
+
+MSSM30atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM30atMSUSY_mA_mG (see ./gambit MSSM30atMSUSY_mA_mG)
+
+MSSM30atQ_mG_parameters: |
+   Parameters for the model MSSM30atQ_mG (see ./gambit MSSM30atQ_mG)
+
+MSSM30atQ_mA_mG_parameters: |
+   Parameters for the model MSSM30atQ_mA_mG (see ./gambit MSSM30atQ_mA_mG)
+
+MSSM63atMGUT_mG_parameters: |
+   Parameters for the model MSSM63atMGUT_mG (see ./gambit MSSM63atMGUT_mG)
+
+MSSM63atMGUT_mA_mG_parameters: |
+   Parameters for the model MSSM63atMGUT_mA_mG (see ./gambit MSSM63atMGUT_mA_mG)
+
+MSSM63atMSUSY_mG_parameters: |
+   Parameters for the model MSSM63atMSUSY_mG (see ./gambit MSSM63atMSUSY_mG)
+
+MSSM63atMSUSY_mA_mG_parameters: |
+   Parameters for the model MSSM63atMSUSY_mA_mG (see ./gambit MSSM63atMSUSY_mA_mG)
+
+MSSM63atQ_mG_parameters: |
+   Parameters for the model MSSM63atQ_mG (see ./gambit MSSM63atQ_mG)
+
+MSSM63atQ_mA_mG_parameters: |
+   Parameters for the model MSSM63atQ_mA_mG (see ./gambit MSSM63atQ_mA_mG)
+
+MSSM7atQ_mG_parameters: |
+   Parameters for the model MSSM7atQ_mG (see ./gambit MSSM7atQ_mG)
+
+MSSM7atQ_mA_mG_parameters: |
+   Parameters for the model MSSM7atQ_mA_mG (see ./gambit MSSM7atQ_mA_mG)
+
+MSSM9atQ_mG_parameters: |
+   Parameters for the model MSSM9atQ_mG (see ./gambit MSSM9atQ_mG)
+
+MSSM9atQ_mA_mG_parameters: |
+   Parameters for the model MSSM9atQ_mA_mG (see ./gambit MSSM9atQ_mA_mG)
+
+MSSM9batQ_mG_parameters: |
+   Parameters for the model MSSM9batQ_mG (see ./gambit MSSM9batQ_mG)
+
+MSSM9batQ_mA_mG_parameters: |
+   Parameters for the model MSSM9batQ_mA_mG (see ./gambit MSSM9batQ_mA_mG)
+
 NormalDist_parameters: |
    Parameters for the model NormalDist (see ./gambit NormalDist)
 
@@ -4644,6 +4841,19 @@ set_data_path: |
 
 set_halo_profile: |
    Set the halo profile in gamLike.
+
+#----------------------------
+# pbarlike capabilites
+#----------------------------
+
+pbarlike_1_0_init: |
+   Initialises the pbarlike backend, version 1.0.
+
+pbarlike_initialization: |
+   Initialiases pbarlike and calculates scan-level observables and likelihoods.
+
+drn_pbar_logLikes: |
+   AMS-02 7-year log-likelihood ratios using correlated and uncorrelated errors.
 
 #----------------------------
 #  gm2calc capabilities
@@ -5048,7 +5258,7 @@ check_likelihood_classy_combi: |
 check_likelihood_support: |
     Checks if a given MontePython likelihood is currently supported. The reason why some likelihoods are not supported are:
 
-    - likelihood is only compatible with either python 2 or 3 and GAMBIT is configured with unsupported python version
+    - likelihood is only compatible with python 2, while GAMBIT requires python 3
     - likelihood implementation does not follow MontePython guidelines. Examples could be
         * quantities derived by CLASS are not called directly through the CLASS python object but through MontePython data.get_mcmc_parameters(['derived'])
         * parameters setting the observables that CLASS has to compute are not specified
@@ -5065,10 +5275,10 @@ calc_MP_LogLikes: |
     Calls MontePython to get the likelihood of all experiments (tagged with 'Likelihood' and 'Observable'). The results are stored as map from experiment name to LogLike result in the type MPLike_result_container.
 
 MP_Combined_LogLike: |
-   Returns combined LogLike of all montethon Likelihoods used in the scan.
+   Returns combined LogLike of all Monte Python Likelihoods used in the scan.
 
 MP_LogLikes: |
-   Calls montethon to get the likelihood of all experiments (tagged with Likelihood and Observable). The results are stored as map from experiment name to LogLike result in the type MPLike_result_container.
+   Calls Monte Python to get the likelihood of all experiments (tagged with Likelihood and Observable). The results are stored as map from experiment name to LogLike result in the type MPLike_result_container.
 
 MP_Observables: |
     Returns a map from experiment name to LogLike value containing the likelihood of all experiments used as an Observable. These are not added to the value returned by MP_Combined_LogLike, hence they are not driving the scan.
@@ -5083,16 +5293,16 @@ MontePythonLike_3_5_0_init: |
   Initialise MontePython backend v3.5.0.
 
 MP_objects: |
-   Creates an object containing the montethon ~Data and Likelihood objects, deining which experiments are in use in the process.
+   Creates an object containing the Monte Python ~Data and Likelihood objects, deining which experiments are in use in the process.
 
 parameter_dict_for_MPLike: |
-   Returns bind11::dict filled with the mcmc_parameters dictionary of montethon's Data object, with current values of nuisance parameters.
+   Returns bind11::dict filled with the mcmc_parameters dictionary of Monte Python's Data object, with current values of nuisance parameters.
 
 create_MP_likelihood_objects: |
    Returns a map of string to Python objects: the Python objects from MontePython are the initialised "Likelihood" objects used internally.
 
 bao_like_correlation: |
-   Adds the correlation coefficients of the bao_correlations likelihood to the output file. Optional to use in combination with the bao_correlations montethon likelihoods.
+   Adds the correlation coefficients of the bao_correlations likelihood to the output file. Optional to use in combination with the bao_correlations Monte Python likelihoods.
 
 #----------------------------
 #  DarkAges
@@ -5421,7 +5631,7 @@ classy_NuMasses_Nur_input: |
    Sets all neutrino related input parameters for classy (N_ur, N_ncdm, T_ncdm, m_ncdm) and stores them in a Python dictionary.
 
 classy_MPLike_input: |
-   Sets all input parameters for classy from active montethon likelihoods and stores them in a Python dictionary. If no montethon likelihoods are in use, this will simply pass an empty dictionary.
+   Sets all input parameters for classy from active Monte Python likelihoods and stores them in a Python dictionary. If no Monte Python likelihoods are in use, this will simply pass an empty dictionary.
 
 classy_PlanckLike_input: |
    Sets all input parameters for classy needed for the calculation of active Planck CMB likelihoods. This sets the non-linear treatment to "halofit", the maximum angular scale up to which the CMB spectra are computed, and which spectra need to be computed (temperature, polarisation and/or lensing).
@@ -6098,12 +6308,41 @@ varNames: |
   CalcHEP's internal list of variable names.
 
 #------------------------
-#  Rivet capabilites
+#  Rivet & Contur capabilites
 #-----------------------
 
-Rivet_3_0_0_init: |
+Rivet_3_1_5_init: |
   Initialise Rivet backend
 
+Rivet_measurements: |
+  Run's rivet on current hepmc event. Creates output YODA object on COLLIDER_FINALISE
+
+addAnalysisLibPath: |
+  Wrapper for Rivet's addaAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
+
+Contur_2_1_1_init: |
+  Initialise Contur backend
+
+Contur_GetAnalyses: |
+  Wrapper for Contur's static_db.getAnalyses(). Gets a string vector of all the analyses known to this version of Contur for a given beam energy, e.g. "13TeV".
+
+Contur_Measurements: |
+  Capability for a wrapper functions that can provide Contur output, e.g. from file or stream input.
+
+LHC_measurements: |
+  Produces a Contur_output object. Typically will require some form of yoda input to run contur on.
+
+LHC_measurements_LogLike: |
+  Extracts the LLR from a Contur_output object (including factor -2 correction for GAMBIT).
+
+LHC_measurements_LogLike_Multi: |
+  Similar to LHC_measurements_LogLike, for the case where multiple configurations of Contur are used.
+
+LHC_measurements_LogLike_perPool: |
+  Extracts a map_str_dbl containing each pool and its individual LLR contribution.
+
+LHC_measurements_histotags_perPool: |
+  Extracts the name, as a string, of the histogram(s) that provide exclusion for each bin. Useless except for single param points.
 
 #---------------------
 # DirecDM capabilities
@@ -6158,46 +6397,32 @@ pass_spectrum_to_vevacious: |
 
 gaussian: |
   Multi-dimensional Gaussian centered at 0.5 with diagonal covariances of 0.1^2.
-
 rosenbrock: |
   Multi-dimensional generalization of 2d Rosenbrock function. See https://en.wikipedia.org/wiki/Rosenbrock_function
-
 himmelblau: |
   Two-dimensional Himmelblau function. See https://en.wikipedia.org/wiki/Himmelblau%27s_function
-
 mccormick: |
   Two-dimensional McCormick function.
-
 ackley: |
   Multi-dimensional Ackely function. See https://en.wikipedia.org/wiki/Ackley_function
-
 eggbox: |
   Multi-dimensional eggbox function. Test problem 2 from https://arxiv.org/abs/1306.2144
-
 rastrigin: |
   Multi-dimensional Rastrigin function. See https://en.wikipedia.org/wiki/Rastrigin_function
-
 beale: |
   Two-dimensional Beale function.
-
 shells: |
   Multi-dimensional Gausian shells. Test problem 1 from https://arxiv.org/abs/1306.2144
-
 styblinski_tang: |
   Multi-dimensional Styblinski-Tang function.
-
 easom: |
   Two-dimensional Easom function.
-
 tf1: |
   Analytic function 1 from https://arxiv.org/abs/2101.04525
-
 tf2: |
   Analytic function 2 from https://arxiv.org/abs/2101.04525
-
 tf3: |
   Analytic function 3 from https://arxiv.org/abs/2101.04525
-
 tf4: |
   Analytic function 4 from https://arxiv.org/abs/2101.04525
 
@@ -6251,3 +6476,50 @@ DMsimpVectorMedScalarDM_parameters: |
 DMsimpVectorMedScalarDM_spectrum: |
     Create spectrum object for DMsimpVectorMedScalarDM model.
 
+DMsimpVectorMedVectorDM_parameters: |
+    Parameters for the model DMsimpVectorMedVectorDM (see ./gambit DMsimpVectorMedVectorDM).
+
+MicrOmegas_DMsimpVectorMedVectorDM_3_6_9_2_init: |
+    Initialise MicrOmegas DMsimpVectorMedVectorDM backend.
+
+DMsimpVectorMedVectorDM_spectrum: |
+    Create spectrum object for DMsimpVectorMedVectorDM model.
+
+DecayWidthPerturbativity_DMsimpVectorMedVectorDM: |
+    Invalidate points where the mediator width to mass ratio is above 1. Return zero otherwise.
+
+
+#--------------------------------
+#  ATLAS_FullLikes capabilities
+#--------------------------------
+
+ATLAS_FullLikes_1_0_init: |
+  Initialization of the ATLAS_FullLikes 1.0 backend.
+
+FullLikes_ReadIn: |
+  ATLAS_FullLikes backend function for reading in JSON files with backgrounds.
+
+FullLikes_FileExists: |
+  ATLAS_FullLikes backend function checking if a particular analysis has been initialised.
+
+FullLikes_Reset: |
+  ATLAS_FullLikes backend function to reset the data for a given analysis
+
+FullLikes_Evaluate_pydict: |
+  ATLAS_FullLikes backend function to evaluate a likelihood for a given analysis and set of signal counts.
+
+FullLikes_Evaluate: |
+  A convenience function that provides an interface to FullLikes_Evaluate_pydict that doesn't use the PyDict type.
+
+#--------------------------------
+#  simple_xs capabilities
+#--------------------------------
+
+simple_xs_1_0_init: |
+  Initialization of the simple_xs 1.0 backend.
+
+simplexs_init: |
+  simple_xs backend function that reads in data and forms the interpolation function.
+
+simplexs_get_xsection: |
+  simple_xs backend function that returns the cross-section for a given process.

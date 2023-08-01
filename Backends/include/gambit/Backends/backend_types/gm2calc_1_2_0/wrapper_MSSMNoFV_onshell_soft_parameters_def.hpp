@@ -14,7 +14,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       
       // Member functions: 
-      inline void MSSMNoFV_onshell_soft_parameters::print(::std::basic_ostream<char>& arg_1) const
+      inline void MSSMNoFV_onshell_soft_parameters::print(std::ostream& arg_1) const
       {
          get_BEptr()->print(arg_1);
       }
@@ -24,7 +24,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->clear();
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_TYd(const ::Eigen::Matrix<double, 3, 3, 0>& TYd_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_TYd(const Eigen::Matrix<double, 3, 3, 0>& TYd_)
       {
          get_BEptr()->set_TYd(TYd_);
       }
@@ -34,7 +34,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_TYd(i, k, value);
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_TYe(const ::Eigen::Matrix<double, 3, 3, 0>& TYe_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_TYe(const Eigen::Matrix<double, 3, 3, 0>& TYe_)
       {
          get_BEptr()->set_TYe(TYe_);
       }
@@ -44,7 +44,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_TYe(i, k, value);
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_TYu(const ::Eigen::Matrix<double, 3, 3, 0>& TYu_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_TYu(const Eigen::Matrix<double, 3, 3, 0>& TYu_)
       {
          get_BEptr()->set_TYu(TYu_);
       }
@@ -59,7 +59,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_BMu(BMu_);
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_mq2(const ::Eigen::Matrix<double, 3, 3, 0>& mq2_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_mq2(const Eigen::Matrix<double, 3, 3, 0>& mq2_)
       {
          get_BEptr()->set_mq2(mq2_);
       }
@@ -69,7 +69,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_mq2(i, k, value);
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_ml2(const ::Eigen::Matrix<double, 3, 3, 0>& ml2_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_ml2(const Eigen::Matrix<double, 3, 3, 0>& ml2_)
       {
          get_BEptr()->set_ml2(ml2_);
       }
@@ -89,7 +89,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_mHu2(mHu2_);
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_md2(const ::Eigen::Matrix<double, 3, 3, 0>& md2_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_md2(const Eigen::Matrix<double, 3, 3, 0>& md2_)
       {
          get_BEptr()->set_md2(md2_);
       }
@@ -99,7 +99,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_md2(i, k, value);
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_mu2(const ::Eigen::Matrix<double, 3, 3, 0>& mu2_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_mu2(const Eigen::Matrix<double, 3, 3, 0>& mu2_)
       {
          get_BEptr()->set_mu2(mu2_);
       }
@@ -109,7 +109,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_mu2(i, k, value);
       }
       
-      inline void MSSMNoFV_onshell_soft_parameters::set_me2(const ::Eigen::Matrix<double, 3, 3, 0>& me2_)
+      inline void MSSMNoFV_onshell_soft_parameters::set_me2(const Eigen::Matrix<double, 3, 3, 0>& me2_)
       {
          get_BEptr()->set_me2(me2_);
       }
@@ -253,7 +253,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_delete_wrapper(false);
       }
       
-      inline MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(const gm2calc::MSSMNoFV_onshell_susy_parameters& arg_1, const ::Eigen::Matrix<double, 3, 3, 0>& TYd_, const ::Eigen::Matrix<double, 3, 3, 0>& TYe_, const ::Eigen::Matrix<double, 3, 3, 0>& TYu_, double BMu_, const ::Eigen::Matrix<double, 3, 3, 0>& mq2_, const ::Eigen::Matrix<double, 3, 3, 0>& ml2_, double mHd2_, double mHu2_, const ::Eigen::Matrix<double, 3, 3, 0>& md2_, const ::Eigen::Matrix<double, 3, 3, 0>& mu2_, const ::Eigen::Matrix<double, 3, 3, 0>& me2_, double MassB_, double MassWB_, double MassG_) :
+      inline MSSMNoFV_onshell_soft_parameters::MSSMNoFV_onshell_soft_parameters(const gm2calc::MSSMNoFV_onshell_susy_parameters& arg_1, const Eigen::Matrix<double, 3, 3, 0>& TYd_, const Eigen::Matrix<double, 3, 3, 0>& TYe_, const Eigen::Matrix<double, 3, 3, 0>& TYu_, double BMu_, const Eigen::Matrix<double, 3, 3, 0>& mq2_, const Eigen::Matrix<double, 3, 3, 0>& ml2_, double mHd2_, double mHu2_, const Eigen::Matrix<double, 3, 3, 0>& md2_, const Eigen::Matrix<double, 3, 3, 0>& mu2_, const Eigen::Matrix<double, 3, 3, 0>& me2_, double MassB_, double MassWB_, double MassG_) :
          MSSMNoFV_onshell_susy_parameters(__factory1(arg_1, TYd_, TYe_, TYu_, BMu_, mq2_, ml2_, mHd2_, mHu2_, md2_, mu2_, me2_, MassB_, MassWB_, MassG_))
       {
          get_BEptr()->set_wptr(this);

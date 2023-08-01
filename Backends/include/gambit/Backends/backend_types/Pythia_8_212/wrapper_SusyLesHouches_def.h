@@ -16,17 +16,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline int SusyLesHouches::readFile(::std::basic_string<char> slhaFileIn, int verboseIn, bool useDecayIn)
+        inline int SusyLesHouches::readFile(std::string slhaFileIn, int verboseIn, bool useDecayIn)
         {
             return get_BEptr()->readFile(slhaFileIn, verboseIn, useDecayIn);
         }
         
-        inline int SusyLesHouches::readFile(::std::basic_string<char> slhaFileIn, int verboseIn)
+        inline int SusyLesHouches::readFile(std::string slhaFileIn, int verboseIn)
         {
             return get_BEptr()->readFile__BOSS(slhaFileIn, verboseIn);
         }
         
-        inline int SusyLesHouches::readFile(::std::basic_string<char> slhaFileIn)
+        inline int SusyLesHouches::readFile(std::string slhaFileIn)
         {
             return get_BEptr()->readFile__BOSS(slhaFileIn);
         }
@@ -36,22 +36,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->readFile__BOSS();
         }
         
-        inline int SusyLesHouches::readFile(::std::basic_istream<char>& arg_1, int verboseIn, bool useDecayIn)
+        inline int SusyLesHouches::readFile(std::istream& arg_1, int verboseIn, bool useDecayIn)
         {
             return get_BEptr()->readFile(arg_1, verboseIn, useDecayIn);
         }
         
-        inline int SusyLesHouches::readFile(::std::basic_istream<char>& arg_1, int verboseIn)
+        inline int SusyLesHouches::readFile(std::istream& arg_1, int verboseIn)
         {
             return get_BEptr()->readFile__BOSS(arg_1, verboseIn);
         }
         
-        inline int SusyLesHouches::readFile(::std::basic_istream<char>& arg_1)
+        inline int SusyLesHouches::readFile(std::istream& arg_1)
         {
             return get_BEptr()->readFile__BOSS(arg_1);
         }
         
-        inline void SusyLesHouches::setSLHAea(const ::SLHAea::Coll* inputSLHAea)
+        inline void SusyLesHouches::setSLHAea(const SLHAea::Coll* inputSLHAea)
         {
             get_BEptr()->setSLHAea(inputSLHAea);
         }
@@ -91,17 +91,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->verbose(verboseIn);
         }
         
-        inline void SusyLesHouches::message(int arg_1, ::std::basic_string<char> arg_2, ::std::basic_string<char> arg_3, int line)
+        inline void SusyLesHouches::message(int arg_1, std::string arg_2, std::string arg_3, int line)
         {
             get_BEptr()->message(arg_1, arg_2, arg_3, line);
         }
         
-        inline void SusyLesHouches::message(int arg_1, ::std::basic_string<char> arg_2, ::std::basic_string<char> arg_3)
+        inline void SusyLesHouches::message(int arg_1, std::string arg_2, std::string arg_3)
         {
             get_BEptr()->message__BOSS(arg_1, arg_2, arg_3);
         }
         
-        inline void SusyLesHouches::toLower(::std::basic_string<char>& name)
+        inline void SusyLesHouches::toLower(std::string& name)
         {
             get_BEptr()->toLower(name);
         }
@@ -130,7 +130,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline SusyLesHouches::SusyLesHouches(::std::basic_string<char> filename, int verboseIn) :
+        inline SusyLesHouches::SusyLesHouches(std::string filename, int verboseIn) :
             WrapperBase(__factory2(filename, verboseIn)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),
@@ -141,7 +141,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline SusyLesHouches::SusyLesHouches(::std::basic_string<char> filename) :
+        inline SusyLesHouches::SusyLesHouches(std::string filename) :
             WrapperBase(__factory3(filename)),
             slhaFile( get_BEptr()->slhaFile_ref__BOSS()),
             decayIndices( get_BEptr()->decayIndices_ref__BOSS()),

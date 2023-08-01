@@ -73,6 +73,134 @@ namespace Gambit
 
     // ======= Module functions =======
 
+    #ifdef HAVE_PYBIND11
+      /// Get a cross-section from the simple xs backend
+      void getPIDPairCrossSectionsMap_simplexs(map_PID_pair_PID_pair_xsec& result)
+      {
+        using namespace Pipes::getPIDPairCrossSectionsMap_simplexs;
+
+        thread_local bool first = true;
+
+        // We will fill this dictionary with options from the yaml file
+        thread_local pybind11::dict simplexs_init_pars;
+
+        if(*Loop::iteration == COLLIDER_INIT)
+        {
+          result.clear();
+        
+          // Only read the YAML options the first time this is run
+          if (first)
+          {
+
+            const Options yaml_options = *runOptions;
+
+            // Retrieve all the names of all entries in the yaml options node.
+            std::vector<str> vec = yaml_options.getNames();
+
+            // Step though the entry names, and accept only those 
+            // with a "use_for_PID_pairs" sub-entry as new data table entries.
+            for (str& name : vec)
+            {
+              YAML::Node node = yaml_options.getNode(name);
+              if (not node.IsScalar() and node["use_for_PID_pairs"]) 
+              {
+                // Now create a sub-dictionary with all the info for this particular data table
+                pybind11::dict data_table_options;
+
+                Options data_table_yaml_options(yaml_options.getValue<YAML::Node>(name));
+                data_table_options["energy_TeV"] = data_table_yaml_options.getValue<int>("energy_TeV");
+                data_table_options["degeneracy_factor"] = data_table_yaml_options.getValue<double>("degeneracy_factor");
+
+                // Construct a semicolon-separated string of PID pairs, which will e.g. look like this:
+                //   "1000022_1000022;1000022_1000023;-1000024_1000022;1000024_1000022;" 
+                std::vector<str> PID_pair_str_vec = data_table_yaml_options.getValue< std::vector<str> >("use_for_PID_pairs");
+                std::string all_PID_pairs_str;
+                for (const str& ppstr : PID_pair_str_vec)
+                {
+                  all_PID_pairs_str += ppstr;
+                  all_PID_pairs_str += ";";
+                }
+                data_table_options["use_for_PID_pairs"] = all_PID_pairs_str;
+                simplexs_init_pars[name.c_str()] = data_table_options;
+              }
+            }
+            // Never run this block of code again
+            first = false;
+          }
+
+          // Call init function
+          BEreq::simplexs_init(simplexs_init_pars);
+        }
+
+        if(*Loop::iteration == XSEC_CALCULATION)
+        {
+
+          // Create dict to hold all the masses
+          pybind11::dict masses_GeV;
+
+          // Get the SLHA1 spectrum
+          const SLHAstruct& slha_spec = *Dep::SLHA1Spectrum;
+
+          // Iterate through the SLHA MASS block and fill the masses_GeV dict
+          const SLHAea::Block& mass_block = slha_spec.at("MASS"); 
+          for (const SLHAea::Line& line : mass_block)
+          {
+            if (!line.is_data_line()) continue;
+
+            // Here we take the absolute values of the SLHA mass entries. 
+            // This is because the EWino masses can appear with negative sign, 
+            // due to the SLHA convention for storing information about
+            // phases from the EWino mass matrices. We won't need that info
+            // for the simplified cross-sections in simple_xs.
+            str pid = line.at(0);
+            double mass = abs(SLHAea::to<double>(line.at(1)));
+
+            // Store PID code and mass value in the masses_GeV dict
+            masses_GeV[pid.c_str()] = mass;
+          }
+
+
+          // Create dict to pass parameters and flags to the backend
+          pybind11::dict simplexs_pars;
+        
+          // Then set the neceassary parameters and spectrum info:
+          // @todo We will eventually get the collider energy from the future ColliderOptions cabability
+          double comenergy = 13.0;
+          simplexs_pars["energy_TeV"] = comenergy;
+
+          // Now get the cross-sections for all the requested PID pairs. Save the results
+          // in the result map (type map<PID_pair,PID_pair_xsec_container>)
+          for (const PID_pair& pid_pair : *Dep::ActivePIDPairs)
+          {
+
+            // Create PID_pair_xsec_container instance
+            // and set the PIDs
+            PID_pair_xsec_container pp_xs;
+            pp_xs.set_pid_pair(pid_pair);
+
+            // Get the PIDs as an iipair (= std::pair<int,int>)
+            iipair proc = pid_pair.PIDs();
+
+            // Get dictionary with cross-section results from backend
+            simplexs_pars["proc"] = proc;
+            pybind11::dict xs_pb_dict = BEreq::simplexs_get_xsection(simplexs_pars, masses_GeV);
+
+            double xs_pb = xs_pb_dict["central"].cast<double>();
+            double xs_symm_err_pb = std::max(xs_pb_dict["tot_err_down"].cast<double>(), xs_pb_dict["tot_err_up"].cast<double>());
+
+            // Update the PID_pair_xsec_container instance 
+            pp_xs.set_xsec(xs_pb, xs_symm_err_pb);
+            pp_xs.set_info_string("simplexs_NLO");
+
+            // Add it to the result map
+            result[pid_pair] = pp_xs;
+
+          }
+
+        } // end iteration
+
+      }
+    #endif
 
     #ifdef HAVE_PYBIND11
       /// WORK IN PROGRESS
@@ -336,7 +464,6 @@ namespace Gambit
 
       if(*Loop::iteration == XSEC_CALCULATION)
       {
-
         // Get a copy of the SLHA1 spectrum that we can modify
         SLHAstruct slha(*Dep::SLHA1Spectrum);
 

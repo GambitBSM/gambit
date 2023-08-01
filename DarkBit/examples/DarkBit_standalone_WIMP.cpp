@@ -17,7 +17,8 @@
 ///  \date 2016 Aug
 ///  \author Torsten Bringmann
 ///  \date 2022
-///
+///  \author Sowmiya Balan
+///  \date 2023
 ///  *********************************************
 
 #include <iostream>
@@ -290,6 +291,7 @@ int main(int argc, char* argv[])
     std::cout << "      in <sigma v> / m_WIMP parameter space." << std::endl;
     std::cout << "  7: Outputs tables of direct detection likelihoods in sigma / m_WIMP parameter" << std::endl;
     std::cout << "      space." << std::endl;
+    std::cout << "  8: Outputs antiproton likelihoods calculated using flux from DarkRayNet v2 and AMS02 data by the python backend 'pbarlike' " << std::endl;
     std::cout << "  >=10: Outputs spectra of gamma rays, positrons, anti-protons and anti-deuterons from" << std::endl;
     std::cout << "        WIMP annihilation to phi phi_2. The mode value is m_phi while m_phi_2=100 GeV." << std::endl;
     std::cout << "        The output filenames are dPhi_dE_FCMC_(spectrum)_(mode).dat." << std::endl;
@@ -321,9 +323,9 @@ int main(int argc, char* argv[])
     if (not Backends::backendInfo().works["gamLike1.0.1"]) backend_error().raise(LOCAL_INFO, "gamLike 1.0.1 is missing!");
     if (not Backends::backendInfo().works["DDCalc2.3.0"]) backend_error().raise(LOCAL_INFO, "DDCalc 2.3.0 is missing!");
     if (not Backends::backendInfo().works["MicrOmegas_MSSM3.6.9.2"]) backend_error().raise(LOCAL_INFO, "MicrOmegas 3.6.9.2 for MSSM is missing!");
+    if (not Backends::backendInfo().works["pbarlike1.0"]) backend_error().raise(LOCAL_INFO, "pbarlike1.0 is missing!");
 
     // ---- Initialize models ----
-
     // Initialize halo model
     ModelParameters* Halo_primary_parameters = Models::Halo_Einasto::Functown::primary_parameters.getcontentsPtr();
     Halo_primary_parameters->setValue("vrot", 235.); // Local properties
@@ -536,6 +538,12 @@ int main(int argc, char* argv[])
     lnL_FermiGC_gamLike.resolveDependency(&RD_fraction_one);
     lnL_FermiGC_gamLike.resolveBackendReq(&Backends::gamLike_1_0_1::Functown::lnL);
 
+    // Calculate AMS-02 antiproton log-likelihood ratio
+    lnL_pbarAMS02.resolveDependency(&WIMP_properties_WIMP);
+    lnL_pbarAMS02.resolveDependency(&TH_ProcessCatalog_WIMP);
+    lnL_pbarAMS02.resolveDependency(&ExtractLocalMaxwellianHalo);
+    lnL_pbarAMS02.resolveDependency(&RD_fraction_one);
+    lnL_pbarAMS02.resolveBackendReq(&Backends::pbarlike_1_0::Functown::c_pbar_logLikes);
 
     // -- Calculate relic density --
     // *any* of the models listed by "ALLOW_MODELS" in DarkBit_rollcall.hpp will work here
@@ -629,6 +637,7 @@ int main(int argc, char* argv[])
       if (mode==4) dumpSpectrum({"dPhi_dE4.dat"}, mass, sv, daFunk::vec<double>(0., 0., 0., 0., 1., 0., 0., 0.));
     }
 
+    // CHECK-------------------::-------------;;---------------::-------------------::------------------;;--------------------
     // Generate gamma-ray spectra for various masses
     if (mode >= 10)
     {
@@ -679,6 +688,7 @@ int main(int argc, char* argv[])
           WIMP_properties_WIMP.reset_and_calculate();
           mwimp_generic.reset_and_calculate();
           TH_ProcessCatalog_WIMP.setOption<double>("sv", sv_list[j]);
+
 
           #ifdef DARKBIT_STANDALONE_WIMP_DEBUG
             std::cout << "Parameters: " << m_list[i] << " " << sv_list[j] << std::endl;
@@ -1021,6 +1031,28 @@ int main(int argc, char* argv[])
       ExtractLocalMaxwellianHalo.reset_and_calculate();
       GalacticHalo_Einasto.reset_and_calculate();
 
+    }
+
+    // AMS-02 antiproton likelihoods for annihilation into b bbar
+    if (mode==8)
+    {
+      std::cout << "\nCalculating antiproton likelihoods for annihilation to b bbar." << std::endl;
+      DarkMatter_ID_WIMP.reset_and_calculate();
+      WIMP_properties_WIMP.setOption<double>("mWIMP", 100.0);
+      WIMP_properties_WIMP.reset_and_calculate();
+      mwimp_generic.reset_and_calculate();
+      TH_ProcessCatalog_WIMP.setOption<double>("sv", 3e-26);
+      TH_ProcessCatalog_WIMP.setOption<std::vector<double>>("brList", daFunk::vec<double>(1., 0., 0., 0., 0., 0., 0., 0.));
+      TH_ProcessCatalog_WIMP.reset_and_calculate();
+      pbarlike_1_0_init.setOption<std::string>("PropagationModel","INJ.BRK");
+      pbarlike_1_0_init.setOption<bool>("PreventExtrapolation",true);
+      pbarlike_1_0_init.setOption<std::vector<std::vector<double>>>("PropagationParameters", std::vector<std::vector<double>>((0.0)));
+      std::cout<< "\nParameters: 100 GeV, 3e-26 cm3s-1; Propagation Model: Injection break (INJ.BRK)" << std::endl;
+      pbarlike_1_0_init.reset_and_calculate();
+      lnL_pbarAMS02.reset_and_calculate();
+      map_str_dbl lnL = lnL_pbarAMS02(0);
+      std::cout<< "\nLog-likelihood ratio (using uncorrelated errors): " << lnL["uncorrelated"] << std::endl;
+      std::cout<< "Log-likelihood ratio (using correlated errors): " << lnL["correlated"] << std::endl;
     }
   }
 

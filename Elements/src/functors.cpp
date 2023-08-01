@@ -102,7 +102,9 @@ namespace Gambit
     /// Acquire ID for timing 'vertex' (used in printer system)
     void functor::setTimingVertexID(int ID) { myTimingVertexID = ID; }
 
-    /// Setter for status: -4 = required backend absent (backend ini functions)
+    /// Setter for status: -6 = required external tool absent (pybind11)
+    ///                    -5 = required external tool absent (Mathematica)
+    ///                    -4 = required backend absent (backend ini functions)
     ///                    -3 = required classes absent
     ///                    -2 = function absent
     ///                    -1 = origin absent
@@ -124,10 +126,12 @@ namespace Gambit
     /// Getter for the wrapped function's origin (module or backend name)
     str functor::origin()      const { return myOrigin; }
     /// Getter for the version of the wrapped function's origin (module or backend)
-    str functor::version()     const { return myVersion; }
+    str functor::version()     const { utils_error().raise(LOCAL_INFO,"The version method is only defined for backend functors."); return ""; }
     /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
     str functor::safe_version()const { utils_error().raise(LOCAL_INFO,"The safe_version method is only defined for backend functors."); return ""; }
     /// Getter for the wrapped function current status:
+    ///                    -6 = required external tool absent (pybind11)
+    ///                    -5 = required external tool absent (Mathematica)
     ///                    -4 = required backend absent (backend ini functions)
     ///                    -3 = required classes absent
     ///                    -2 = function absent
@@ -539,6 +543,30 @@ namespace Gambit
       std::set<str> group_combo(v.begin(), v.end());
       allowedGroupCombos.insert(group_combo);
     }
+
+    /// Add an observable to the set of those that this functor matches.
+    void functor::addMatchedObservable(const DRes::Observable* obs) { matched_observables.insert(obs); }
+    
+    /// Retrieve the set of observables that this functor matches.
+    const std::set<const DRes::Observable*>& functor::getMatchedObservables() { return matched_observables; }
+
+    /// Add a module rule to the set of those against which this functor has been tested and found to match.
+    void functor::addMatchedModuleRule(const DRes::ModuleRule* r) { matched_module_rules.insert(r); }
+    
+    /// Add a backend rule to the set of those against which this functor has been tested and found to match.
+    void functor::addMatchedBackendRule(const DRes::BackendRule* r) { matched_backend_rules.insert(r); }
+
+    /// Retrieve the set of module rules against which this functor has been tested and found to match.
+    const std::set<const DRes::ModuleRule*>& functor::getMatchedModuleRules() { return matched_module_rules; }
+
+    /// Retrieve the set of backend rules against which this functor has been tested and found to match.
+    const std::set<const DRes::BackendRule*>& functor::getMatchedBackendRules() { return matched_backend_rules; } 
+
+    // Retrieve matched rules by type.
+    template<>
+    const std::set<const DRes::ModuleRule*>& functor::getMatchedRules() { return getMatchedModuleRules(); } 
+    template<>
+    const std::set<const DRes::BackendRule*>& functor::getMatchedRules() { return getMatchedBackendRules(); } 
 
     /// Attempt to retrieve a dependency or model parameter that has not been resolved
     void functor::failBigTime(str method)

@@ -60,6 +60,13 @@ Parameters:
   #    range: [0.01,1.0]
   #    prior_type: log
 
+  # Vector DM
+  #DMsimpVectorMedVectorDM:
+  #  MY1: 100.0
+  #  mXv: 5000.0
+  #  gVXv: 0.1
+  #  gVq: 0.1
+
   # NFW profile
   Halo_gNFW_rho0:
     rho0:
@@ -93,9 +100,11 @@ Printer:
     output_file: "DMsimpVectorMedScalarDM.hdf5"
     #output_file: "DMsimpVectorMedDiracDM.hdf5"
     #output_file: "DMsimpVectorMedMajoranaDM.hdf5"
+    #output_file: "DMsimpVectorMedVectorDM.hdf5"
     group: "/DMsimpVectorMedScalarDM_Scan"
     #group: "/DMsimpVectorMedDiracDM_Scan"
     #group: "/DMsimpVectorMedMajoranaDM_Scan"
+    #group: "/DMsimpVectorMedVectorDM_Scan"
 
 
 Scanner:
@@ -123,22 +132,26 @@ ObsLikes:
   #  capability: Unitarity_Bound_DMsimpVectorMedDiracDM
   #  capability: Unitarity_Bound_DMsimpVectorMedMajoranaDM
 
+  # Physical Decay Width
+  #- purpose:    LogLike
+  #  capability: DecayWidthPerturbativity_DMsimpVectorMedVectorDM
+
   # LHC likelihoods
   - purpose:    LogLike
     capability: LHC_Combined_LogLike
     module:     ColliderBit
     type: double
-    
+
   - purpose:    Observable
     capability: LHC_signals
-    
+
   - purpose:    Observable
     capability: LHC_LogLike_per_SR
 
   - purpose:    likelihood_details
     capability: LHC_LogLike_SR_indices
-    
-  # DiJet  
+
+  # DiJet
   - purpose:      LogLike
     capability:   Dijet_LogLike
 
@@ -172,10 +185,10 @@ ObsLikes:
 
   - capability: DarkSide_50_LogLikelihood
     purpose:    LogLike
-    
+
   - capability: LZ_2022_LogLikelihood
     purpose:    LogLike
-    
+
   # Predicted signal at DARWIN experiment
   - capability: DARWIN_Signal
     purpose:    ObsLike
@@ -193,10 +206,10 @@ ObsLikes:
 
   - capability: RD_oh2
     purpose: Observable
-  
-    
+
+
 Rules:
-  
+
   # Choose to get decay rates from DecayBit proper, not an SLHA file
   - capability: decay_rates
     function: all_decays
@@ -205,7 +218,7 @@ Rules:
   - capability: RunMC
     function: InterpolatedMCInfo
     module: ColliderBit
-    
+
   - capability: LHC_Combined_LogLike
     options:
       # Do not use capped LHC loglike, change to true if desired
@@ -215,8 +228,12 @@ Rules:
         - CMS_13TeV_MONOJET_36invfb_interpolated
 
   - capability: LHC_LogLikes
+    # Choose not to use the FullLikes backend.
+    function: calc_LHC_LogLikes
+    # Choose to use the FullLikes backend when applicable
+    # function: calc_LHC_LogLikes_full
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       combine_SRs_without_covariances: false
@@ -229,12 +246,10 @@ Rules:
       nuisance_prof_method: 5
       nuisance_prof_verbosity: 0
 
-    # Signal yields for LHC analyses 
-  - capability: AllAnalysisNumbers
-    function: DMsimpVectorMedScalarDM_results
-    #function: DMsimpVectorMedDiracDM_results
-    #function: DMsimpVectorMedMajoranaDM_results
-    
+  # Signal yields for LHC analyses
+  #- capability: AllAnalysisNumbers
+  #  function: DMsimp_results
+
   # Relic density likelihood
   - capability: lnL_oh2
     #Choose either lnL_oh2_upperlimit or lnL_oh2_Simple
@@ -258,6 +273,11 @@ Rules:
   # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
     function: RD_oh2_DS_general
+    # Choose to get the relic abundance from Micromegas (for Vector DM model)
+    #function: RD_oh2_MicrOmegas
+    #options:
+    #  fast: 1  # 0: standard, 1: fast (default)
+
   - capability: RD_oh2_DS6_ini # starting from version 6.4.0
     function: RD_oh2_DS6_ini_func
     options:
@@ -266,8 +286,8 @@ Rules:
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
   - capability: sigmav
     function: sigmav_late_universe
-    
-    
+
+
   # Choose to use DarkSUSY yield tables for indirect detection
   - capability: GA_SimYieldTable
     function: GA_SimYieldTable_DarkSUSY
@@ -319,6 +339,7 @@ KeyValues:
   default_output_path: "runs/DMsimpVectorMedScalarDM/"
   #default_output_path: "runs/DMsimpVectorMedDiracDM/"
   #default_output_path: "runs/DMsimpVectorMedMajoranaDM/"
+  #default_output_path: "runs/DMsimpVectorMedVectorDM/"
 
   debug: false
 

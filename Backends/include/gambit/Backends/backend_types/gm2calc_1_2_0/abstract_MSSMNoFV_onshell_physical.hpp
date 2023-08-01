@@ -27,7 +27,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void convert_to_slha() =0;
    
-            virtual void print(::std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
             virtual double& MVG_ref__BOSS() =0;
    

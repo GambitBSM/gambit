@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_nDimBifurGaussian* (*__factory0)();
-         static Abstract_HL_nDimBifurGaussian* (*__factory1)(::std::basic_string<char>);
+         static Abstract_HL_nDimBifurGaussian* (*__factory1)(std::string);
    
          // -- Other member variables: 
    
@@ -29,27 +29,27 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          void Read();
    
-         double GetChi2(::std::vector<double> theory);
+         double GetChi2(std::vector<double> theory);
    
-         double GetLikelihood(::std::vector<double> theory);
+         double GetLikelihood(std::vector<double> theory);
    
-         double GetLogLikelihood(::std::vector<double> theory);
+         double GetLogLikelihood(std::vector<double> theory);
    
-         double GetChi2(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
+         double GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
+         double GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLogLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
+         double GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov);
    
-         bool Restrict(::std::vector<std::basic_string<char>> arg_1);
+         bool Restrict(std::vector<std::string> arg_1);
    
-         ::std::vector<std::basic_string<char>> GetObservables();
+         ::std::vector<std::string> GetObservables();
    
    
          // Wrappers for original constructors: 
       public:
          HL_nDimBifurGaussian();
-         HL_nDimBifurGaussian(::std::basic_string<char> s);
+         HL_nDimBifurGaussian(std::string s);
    
          // Special pointer-based constructor: 
          HL_nDimBifurGaussian(Abstract_HL_nDimBifurGaussian* in);

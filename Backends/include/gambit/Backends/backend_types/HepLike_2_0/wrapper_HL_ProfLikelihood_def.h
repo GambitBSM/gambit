@@ -61,7 +61,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_ProfLikelihood::HL_ProfLikelihood(::std::basic_string<char> s) :
+   inline HL_ProfLikelihood::HL_ProfLikelihood(std::string s) :
       WrapperBase(__factory1(s)),
       nxbins( get_BEptr()->nxbins_ref__BOSS()),
       xmin( get_BEptr()->xmin_ref__BOSS()),

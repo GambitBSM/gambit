@@ -22,8 +22,8 @@
 
 castxml_cc_id  = 'gnu'         # Reference compiler: 'gnu', 'gnu-c', 'msvc', 'msvc-c'
 castxml_cc     = 'g++'         # Name a specific compiler: 'g++', 'cl', ...
-#castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
 castxml_cc_opt = '-std=c++14 -D __builtin_sincos=::sincos'  # Additional option string passed to the compiler in castxml_cc (e.g. '-m32')
+
 
 
 # ~~~~~ GAMBIT-specific options ~~~~~
@@ -90,6 +90,10 @@ indent = 3
 #   known_classes = {"SomeNamespace::KnownClassOne" : "path_to_header/KnownClassOne.hpp",
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
+convenience_functions = []
+
+ini_function_in_header = True
+
 known_classes = {
     "boost::numeric::ublas::matrix" : "<boost/numeric/ublas/matrix.hpp>",
 }
@@ -110,3 +114,13 @@ pragmas_end = [
 ]
 
 
+# ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
+
+# The listed code will be added at the top/bottom in the frontend header file 
+# and in the loaded_types.hpp header.
+
+surround_code_begin = '''
+'''
+
+surround_code_end = ''' 
+'''

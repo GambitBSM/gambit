@@ -12,7 +12,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       
       // Member functions: 
-      inline ::std::basic_string<char> Error::what() const
+      inline ::std::string Error::what() const
       {
          return get_BEptr()->what();
       }

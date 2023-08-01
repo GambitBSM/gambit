@@ -12,14 +12,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    {
       
       // Member functions: 
-      inline ::std::basic_string<char> EPhysicalProblem::what() const
+      inline ::std::string EPhysicalProblem::what() const
       {
          return get_BEptr()->what();
       }
       
       
       // Wrappers for original constructors: 
-      inline EPhysicalProblem::EPhysicalProblem(const ::std::basic_string<char>& message_) :
+      inline EPhysicalProblem::EPhysicalProblem(const std::string& message_) :
          Error(__factory0(message_))
       {
          get_BEptr()->set_wptr(this);

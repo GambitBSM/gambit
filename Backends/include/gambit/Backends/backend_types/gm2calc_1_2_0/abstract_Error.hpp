@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual ::std::basic_string<char> what() const =0;
+            virtual ::std::string what() const =0;
    
          public:
             virtual void pointer_assign__BOSS(Abstract_Error*) =0;

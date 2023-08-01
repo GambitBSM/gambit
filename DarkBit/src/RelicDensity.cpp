@@ -21,6 +21,7 @@
 #include <chrono>
 
 #include "gambit/Elements/gambit_module_headers.hpp"
+#include "gambit/Elements/elements_extras.hpp"
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 #include "gambit/DarkBit/DarkBit_utils.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -1116,6 +1117,19 @@ namespace Gambit
       result = oh2_Xf.second;
     }
 
+    // Get the RD from the postprocessor
+    // This works only with the postprocessor scanner
+    void RD_from_postprocessor(double &result)
+    {
+      using namespace Pipes::RD_from_postprocessor;
+
+      // Retrieve the value of the RD from the pp reader
+      bool RD_isvalid = pp_reader_retrieve(result,"RD_oh2");
+
+      // If the RD was invalid, invalidate
+      if(not RD_isvalid)
+          invalid_point().raise("Postprocessor: the relic density read was invalid");
+    }
 
     void print_channel_contributions_MicrOmegas(double &result)
     {

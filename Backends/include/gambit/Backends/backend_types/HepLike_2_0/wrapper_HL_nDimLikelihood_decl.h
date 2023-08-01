@@ -21,14 +21,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_nDimLikelihood* (*__factory0)();
-         static Abstract_HL_nDimLikelihood* (*__factory1)(::std::basic_string<char>);
+         static Abstract_HL_nDimLikelihood* (*__factory1)(std::string);
    
          // -- Other member variables: 
       public:
          double& loglikelihood_penalty;
-         std::basic_string<char>& HL_RootFile;
-         std::basic_string<char>& HL_PATH;
-         std::vector<std::basic_string<char>>& Observables;
+         std::string& HL_RootFile;
+         std::string& HL_PATH;
+         std::vector<std::string>& Observables;
          int& NoOfObservables;
          int& size_restricted;
          double& xmin;
@@ -48,35 +48,35 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          void Read();
    
-         double GetChi2(::std::vector<double> theory);
+         double GetChi2(std::vector<double> theory);
    
-         double GetChi2(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
+         double GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLikelihood(::std::vector<double> theory);
+         double GetLikelihood(std::vector<double> theory);
    
-         double GetLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
+         double GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov);
    
-         double GetLogLikelihood(::std::vector<double> theory);
+         double GetLogLikelihood(std::vector<double> theory);
    
-         double GetLogLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov);
+         double GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov);
    
-         void Profile(::std::basic_string<char> arg_1);
+         void Profile(std::string arg_1);
    
          void Profile();
    
-         double GetChi2_profile(double theory, ::std::basic_string<char> arg_1);
+         double GetChi2_profile(double theory, std::string arg_1);
    
-         double GetLikelihood_profile(double theory, ::std::basic_string<char> axis);
+         double GetLikelihood_profile(double theory, std::string axis);
    
-         double GetLogLikelihood_profile(double theory, ::std::basic_string<char> X);
+         double GetLogLikelihood_profile(double theory, std::string X);
    
-         ::std::vector<std::basic_string<char>> GetObservables();
+         ::std::vector<std::string> GetObservables();
    
    
          // Wrappers for original constructors: 
       public:
          HL_nDimLikelihood();
-         HL_nDimLikelihood(::std::basic_string<char> s);
+         HL_nDimLikelihood(std::string s);
    
          // Special pointer-based constructor: 
          HL_nDimLikelihood(Abstract_HL_nDimLikelihood* in);

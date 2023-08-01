@@ -22,29 +22,29 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual void print(::std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
             virtual void clear() =0;
    
-            virtual void set_TYd(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_TYd(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_TYd(int, int, double) =0;
    
-            virtual void set_TYe(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_TYe(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_TYe(int, int, double) =0;
    
-            virtual void set_TYu(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_TYu(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_TYu(int, int, double) =0;
    
             virtual void set_BMu(double) =0;
    
-            virtual void set_mq2(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_mq2(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_mq2(int, int, double) =0;
    
-            virtual void set_ml2(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_ml2(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_ml2(int, int, double) =0;
    
@@ -52,15 +52,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual void set_mHu2(double) =0;
    
-            virtual void set_md2(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_md2(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_md2(int, int, double) =0;
    
-            virtual void set_mu2(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_mu2(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_mu2(int, int, double) =0;
    
-            virtual void set_me2(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_me2(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_me2(int, int, double) =0;
    

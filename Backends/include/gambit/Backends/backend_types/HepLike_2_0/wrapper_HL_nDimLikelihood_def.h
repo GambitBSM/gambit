@@ -17,37 +17,37 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->Read();
    }
    
-   inline double HL_nDimLikelihood::GetChi2(::std::vector<double> theory)
+   inline double HL_nDimLikelihood::GetChi2(std::vector<double> theory)
    {
       return get_BEptr()->GetChi2(theory);
    }
    
-   inline double HL_nDimLikelihood::GetChi2(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
+   inline double HL_nDimLikelihood::GetChi2(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetChi2(theory, theory_cov);
    }
    
-   inline double HL_nDimLikelihood::GetLikelihood(::std::vector<double> theory)
+   inline double HL_nDimLikelihood::GetLikelihood(std::vector<double> theory)
    {
       return get_BEptr()->GetLikelihood(theory);
    }
    
-   inline double HL_nDimLikelihood::GetLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
+   inline double HL_nDimLikelihood::GetLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLikelihood(theory, theory_cov);
    }
    
-   inline double HL_nDimLikelihood::GetLogLikelihood(::std::vector<double> theory)
+   inline double HL_nDimLikelihood::GetLogLikelihood(std::vector<double> theory)
    {
       return get_BEptr()->GetLogLikelihood(theory);
    }
    
-   inline double HL_nDimLikelihood::GetLogLikelihood(::std::vector<double> theory, ::boost::numeric::ublas::matrix<double> theory_cov)
+   inline double HL_nDimLikelihood::GetLogLikelihood(std::vector<double> theory, boost::numeric::ublas::matrix<double> theory_cov)
    {
       return get_BEptr()->GetLogLikelihood(theory, theory_cov);
    }
    
-   inline void HL_nDimLikelihood::Profile(::std::basic_string<char> arg_1)
+   inline void HL_nDimLikelihood::Profile(std::string arg_1)
    {
       get_BEptr()->Profile(arg_1);
    }
@@ -57,22 +57,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->Profile__BOSS();
    }
    
-   inline double HL_nDimLikelihood::GetChi2_profile(double theory, ::std::basic_string<char> arg_1)
+   inline double HL_nDimLikelihood::GetChi2_profile(double theory, std::string arg_1)
    {
       return get_BEptr()->GetChi2_profile(theory, arg_1);
    }
    
-   inline double HL_nDimLikelihood::GetLikelihood_profile(double theory, ::std::basic_string<char> axis)
+   inline double HL_nDimLikelihood::GetLikelihood_profile(double theory, std::string axis)
    {
       return get_BEptr()->GetLikelihood_profile(theory, axis);
    }
    
-   inline double HL_nDimLikelihood::GetLogLikelihood_profile(double theory, ::std::basic_string<char> X)
+   inline double HL_nDimLikelihood::GetLogLikelihood_profile(double theory, std::string X)
    {
       return get_BEptr()->GetLogLikelihood_profile(theory, X);
    }
    
-   inline ::std::vector<std::basic_string<char>> HL_nDimLikelihood::GetObservables()
+   inline ::std::vector<std::string> HL_nDimLikelihood::GetObservables()
    {
       return get_BEptr()->GetObservables();
    }
@@ -104,7 +104,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       get_BEptr()->set_delete_wrapper(false);
    }
    
-   inline HL_nDimLikelihood::HL_nDimLikelihood(::std::basic_string<char> s) :
+   inline HL_nDimLikelihood::HL_nDimLikelihood(std::string s) :
       WrapperBase(__factory1(s)),
       loglikelihood_penalty( get_BEptr()->loglikelihood_penalty_ref__BOSS()),
       HL_RootFile( get_BEptr()->HL_RootFile_ref__BOSS()),

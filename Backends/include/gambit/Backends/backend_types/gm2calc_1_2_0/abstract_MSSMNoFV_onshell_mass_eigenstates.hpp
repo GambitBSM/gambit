@@ -56,9 +56,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual int solve_ewsb() =0;
    
-            virtual ::std::basic_string<char> name() const =0;
+            virtual ::std::string name() const =0;
    
-            virtual void print(::std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
             virtual double get_MVG() const =0;
    
@@ -220,7 +220,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual const ::std::complex<double>& get_UP(int, int) const =0;
    
-            virtual void set_PhaseGlu(::std::complex<double>) =0;
+            virtual void set_PhaseGlu(std::complex<double>) =0;
    
             virtual ::std::complex<double> get_PhaseGlu() const =0;
    

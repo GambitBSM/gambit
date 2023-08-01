@@ -99,6 +99,19 @@ namespace Gambit
       }
     }
 
+    /// String-to-string map print overload
+    template<typename P>
+    void _common_print(P& printer, const map_str_str& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      for (std::map<std::string, std::string>::const_iterator
+           it = map.begin(); it != map.end(); it++)
+      {
+        std::stringstream ss;
+        ss<<label<<"::"<<it->first<<":"<<it->second;
+        printer._print(0,ss.str(),vID,mpirank,pointID);
+      }
+    }
+
     /// Integer pair-to-double map print overload
     template<typename P>
     void _common_print(P& printer, map_intpair_dbl const& map, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
@@ -148,8 +161,8 @@ namespace Gambit
       template<typename P>
       void _common_print(P& printer, flav_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
       {
-        printer._print(value.central_values, label, vID, mpirank, pointID);
-        printer._print(value.covariance, label, vID, mpirank, pointID);
+        printer._print(value.central_values, label + "::central", vID, mpirank, pointID);
+        printer._print(value.covariance, label + "::covariance", vID, mpirank, pointID);
       }
 
       /// BBN observables print overload

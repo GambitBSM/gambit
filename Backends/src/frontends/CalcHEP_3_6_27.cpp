@@ -24,7 +24,7 @@
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 #include "gambit/Elements/decay_table.hpp"
 
-#include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 #include <unistd.h>
 
@@ -67,8 +67,6 @@ BE_INI_FUNCTION
       sprintf(modeltoset, "%s", path);
     }
 
-    // CH is not threadsafe so make critical sections everywhere
-    #pragma omp critical
     if (ModelInUse("DMsimpVectorMedDiracDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedDiracDM";
@@ -79,7 +77,7 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"Xd", "Xd~"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
       model = "DMsimpVectorMedDiracDM";
     }
-    
+
     if (ModelInUse("DMsimpVectorMedMajoranaDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedMajoranaDM";
@@ -90,7 +88,7 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"Xm", "Xm"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
       model = "DMsimpVectorMedMajoranaDM";
     }
-    
+
     if (ModelInUse("DMsimpVectorMedScalarDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedScalarDM";
@@ -101,36 +99,47 @@ BE_INI_FUNCTION
       xsecs[std::vector<str>{"Xc", "Xc~"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
       model = "DMsimpVectorMedScalarDM";
     }
-    
+
+    if (ModelInUse("DMsimpVectorMedVectorDM"))
+    {
+      BEpath = backendDir + "/../models/DMsimpVectorMedVectorDM";
+      path = BEpath.c_str();
+      modeltoset = (char*)malloc(strlen(path)+11);
+      sprintf(modeltoset, "%s", path);
+      decays["Y1"] = std::vector< std::vector<str> >{ {"d~","d"}, {"s~","s"}, {"b~","b"}, {"u~","u"}, {"c~","c"}, {"t~","t"}, {"~Xv","~Xva"} };
+      xsecs[std::vector<str>{"~Xv", "~Xva"}] = std::vector< std::vector<str> >{ {"c~","c"}, {"d~","d"}, {"s~","s"}, {"t~","t"}, {"b~","b"}, {"u~","u"}, {"Y1","Y1"} };
+      model = "DMsimpVectorMedVectorDM";
+    }
+
+    else
     {
       int error = setModel(modeltoset, 1);
       if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model" + std::string(modeltoset) +
             " in CalcHEP. CalcHEP error code: " + std::to_string(error) + ". Please check your model files.\n");
     }
 
-    // Get the MPI rank, only let the first rank make the processes...
-    int rank = 0;
-    #ifdef WITH_MPI
-      rank = GMPI::Comm().Get_rank();
-    #endif
-
-    // rank 0 can create all the libraries
-    if (rank == 0)
+    // Create a process lock to allow only one process in
     {
-      // Decays first
-      for (auto d : decays)
-        for (auto fs : d.second)
-          generate_decay_code(model, d.first, fs);
+      Utils::ProcessLock mylock("CH_decays");
+      mylock.get_lock();
 
-      // And two to twos
-      for (auto x : xsecs)
-        for (auto fs : x.second)
-          generate_xsec_code(model, x.first, fs);
+      // Only first process to get here creates the libraries
+      if (not mylock.exhausted())
+      {
+        // Decays first
+        for (auto d : decays)
+          for (auto fs : d.second)
+            generate_decay_code(model, d.first, fs);
+
+        // And two to twos
+        for (auto x : xsecs)
+          for (auto fs : x.second)
+            generate_xsec_code(model, x.first, fs);
+
+      }
+      // Release the lock, which will exhaust it first
+      mylock.release_lock();
     }
-    #ifdef WITH_MPI
-      // Wait here until the first rank has generated all matrix elements.
-      GMPI::Comm().Barrier();
-    #endif
 
     free(modeltoset);
   }
@@ -170,44 +179,58 @@ BE_INI_FUNCTION
   {
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::DMsimpVectorMedDiracDM_spectrum;
-    
+
     // Obtain model contents
     static const SpectrumContents::DMsimpVectorMedDiracDM DMsimpVectorMedDiracDM_contents;
-    
+
     // Obtain list of all parameters within model
     static const std::vector<SpectrumParameter> DMsimpVectorMedDiracDM_params = DMsimpVectorMedDiracDM_contents.all_parameters();
-    
+
     Assign_All_Values(spec, DMsimpVectorMedDiracDM_params);
   }
-  
+
   if (ModelInUse("DMsimpVectorMedMajoranaDM"))
   {
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::DMsimpVectorMedMajoranaDM_spectrum;
-    
+
     // Obtain model contents
     static const SpectrumContents::DMsimpVectorMedMajoranaDM DMsimpVectorMedMajoranaDM_contents;
-    
+
     // Obtain list of all parameters within model
     static const std::vector<SpectrumParameter> DMsimpVectorMedMajoranaDM_params = DMsimpVectorMedMajoranaDM_contents.all_parameters();
-    
+
     Assign_All_Values(spec, DMsimpVectorMedMajoranaDM_params);
   }
-  
+
   if (ModelInUse("DMsimpVectorMedScalarDM"))
   {
     // Obtain spectrum information to pass to CalcHEP
     const Spectrum& spec = *Dep::DMsimpVectorMedScalarDM_spectrum;
-    
+
     // Obtain model contents
     static const SpectrumContents::DMsimpVectorMedScalarDM DMsimpVectorMedScalarDM_contents;
-    
+
     // Obtain list of all parameters within model
     static const std::vector<SpectrumParameter> DMsimpVectorMedScalarDM_params = DMsimpVectorMedScalarDM_contents.all_parameters();
-    
+
     Assign_All_Values(spec, DMsimpVectorMedScalarDM_params);
   }
-  
+
+  if (ModelInUse("DMsimpVectorMedVectorDM"))
+  {
+    // Obtain spectrum information to pass to CalcHEP
+    const Spectrum& spec = *Dep::DMsimpVectorMedVectorDM_spectrum;
+
+    // Obtain model contents
+    static const SpectrumContents::DMsimpVectorMedVectorDM DMsimpVectorMedVectorDM_contents;
+
+    // Obtain list of all parameters within model
+    static const std::vector<SpectrumParameter> DMsimpVectorMedVectorDM_params = DMsimpVectorMedVectorDM_contents.all_parameters();
+
+    Assign_All_Values(spec, DMsimpVectorMedVectorDM_params);
+  }
+
 }
 END_BE_INI_FUNCTION
 

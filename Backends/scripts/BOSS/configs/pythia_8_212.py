@@ -118,7 +118,17 @@ indent = 4
 #   known_classes = {"SomeNamespace::KnownClassOne" : "path_to_header/KnownClassOne.hpp",
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
-known_classes = {"SLHAea::Coll" : "SLHAea/slhaea.h"}
+known_classes = {
+  "SLHAea::Coll" : "SLHAea/slhaea.h",
+  "HepMC3::GenEvent" : "HepMC3/GenEvent.h"
+}
+
+
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
 
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
@@ -139,3 +149,16 @@ known_classes = {"SLHAea::Coll" : "SLHAea/slhaea.h"}
 pragmas_begin = []
 pragmas_end = []
 
+
+# ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
+
+# The listed code will be added at the top/bottom in the frontend header file 
+# and in the loaded_types.hpp header.
+
+surround_code_begin = '''
+#ifndef EXCLUDE_HEPMC
+'''
+
+surround_code_end = ''' 
+#endif
+'''

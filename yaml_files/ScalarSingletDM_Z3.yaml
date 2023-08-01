@@ -201,14 +201,10 @@ Rules:
       sigmal_obs: 50.0
       sigmal_obserr: 15.0
 
-  # Demand absolute vacuum stability
-  - capability: VS_likelihood
-    options:
-      demand_stable: true
-      set_stability_scale: 1.22e19
-
   # Compute spectrum with FS and invalidate if non-perturbitive below the top mass scale only (default).
-  - function: get_SingletDMZ3_spectrum_pole
+  - capability: ScalarSingletDM_Z3_spectrum
+    function: get_ScalarSingletDM_Z3_spectrum_pole
+    type: Spectrum
     options:
       check_perturb: false
       check_perturb_pts: 10
@@ -223,19 +219,21 @@ Rules:
     function: RD_oh2_MicrOmegas
 
   # Initialisation Settings for MicrOmegas
-  - function: MicrOmegas_ScalarSingletDM_Z3_3_6_9_2_init
-    options:
-       VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
-       VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
+  - if:
+      function: MicrOmegas_ScalarSingletDM_Z3_3_6_9_2_init
+    then:
+      options:
+        VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
+        VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
   # Relic density settings for MicrOmegas
-  - capability: RD_oh2_Xf_MicrOmegas
+  - capability: RD_oh2_Xf
     function: RD_oh2_Xf_MicrOmegas
     options:
       fast: 1  # 0: standard (default), 1: fast
       Beps: 1e-5  #  1e-5: standard, 1: switches coann off
     backends:
-    - {backend: MicrOmegas_ScalarSingletDM_Z3}
+    - {capability: any, backend: MicrOmegas_ScalarSingletDM_Z3}
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2
@@ -244,12 +242,6 @@ Rules:
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
   - capability: sigmav
     function: sigmav_late_universe
-
-  # Retrieve the semi-annihilation branching fraction from MicrOmegas
-  - capability: get_channel_MicrOmegas
-    function: get_channel_MicrOmegas
-    backends:
-    - {backend: MicrOmegas_ScalarSingletDM_Z3}
 
   # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
   - capability: lnL_FermiLATdwarfs
@@ -266,17 +258,17 @@ Rules:
     function: antideuteron_SimYieldTable_DarkSUSY
 
   # Choose to use the Z3-specific locator of the high-scale Higgs minimum
-  - capability: vacuum_stability
+  - capability: high_scale_vacuum_info
     function: find_min_lambda_ScalarSingletDM_Z3
 
   # Use DarkBit's own calculations of the direct detection couplings
   - capability: DD_couplings
     function: DD_couplings_ScalarSingletDM_Z3
-    
+
   # Select WIMP-nucleon couplings for DDCalc 2.1.0 WIMP object
   - capability: DDCalc_Couplings
     function: DDCalc_Couplings_WIMP_nucleon
-    
+
   # Choose to get decays from DecayBit proper, not from an SLHA file.
   - capability: decay_rates
     function: all_decays
@@ -288,7 +280,7 @@ Rules:
 Logger:
 
   redirection:
-
+    [Default] : "default.log"
     [Dependency Resolver] : "dep_resolver.log"
     [Backends]: "backends.log"
     [Core]: "core.log"
@@ -310,6 +302,6 @@ KeyValues:
   likelihood:
     model_invalid_for_lnlike_below: -1e4
 
-  debug: false
+  debug: true
 
   default_output_path: "runs/ScalarSingletDM_Z3/"

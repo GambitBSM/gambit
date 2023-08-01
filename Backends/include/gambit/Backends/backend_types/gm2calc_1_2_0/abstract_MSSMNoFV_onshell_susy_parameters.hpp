@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual void print(::std::basic_ostream<char>&) const =0;
+            virtual void print(std::ostream&) const =0;
    
             virtual void clear() =0;
    
@@ -29,15 +29,15 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
    
             virtual double get_scale() const =0;
    
-            virtual void set_Yd(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_Yd(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Yd(int, int, double) =0;
    
-            virtual void set_Ye(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_Ye(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Ye(int, int, double) =0;
    
-            virtual void set_Yu(const ::Eigen::Matrix<double, 3, 3, 0>&) =0;
+            virtual void set_Yu(const Eigen::Matrix<double, 3, 3, 0>&) =0;
    
             virtual void set_Yu(int, int, double) =0;
    

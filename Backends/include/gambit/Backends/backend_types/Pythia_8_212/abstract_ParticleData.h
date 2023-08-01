@@ -30,59 +30,59 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void initPtr__BOSS(Pythia8::Abstract_Info*, Pythia8::Abstract_Settings*, Pythia8::Abstract_Rndm*, Pythia8::Abstract_Couplings*) =0;
     
-                virtual bool init(::std::basic_string<char>) =0;
+                virtual bool init(std::string) =0;
     
                 virtual bool init__BOSS() =0;
     
                 virtual bool init__BOSS(const Pythia8::Abstract_ParticleData&) =0;
     
-                virtual bool reInit(::std::basic_string<char>, bool) =0;
+                virtual bool reInit(std::string, bool) =0;
     
-                virtual bool reInit__BOSS(::std::basic_string<char>) =0;
+                virtual bool reInit__BOSS(std::string) =0;
     
-                virtual bool readXML(::std::basic_string<char>, bool) =0;
+                virtual bool readXML(std::string, bool) =0;
     
-                virtual bool readXML__BOSS(::std::basic_string<char>) =0;
+                virtual bool readXML__BOSS(std::string) =0;
     
-                virtual void listXML(::std::basic_string<char>) =0;
+                virtual void listXML(std::string) =0;
     
                 virtual bool copyXML__BOSS(const Pythia8::Abstract_ParticleData&) =0;
     
-                virtual bool loadXML(::std::basic_string<char>, bool) =0;
+                virtual bool loadXML(std::string, bool) =0;
     
-                virtual bool loadXML__BOSS(::std::basic_string<char>) =0;
+                virtual bool loadXML__BOSS(std::string) =0;
     
                 virtual bool processXML(bool) =0;
     
                 virtual bool processXML__BOSS() =0;
     
-                virtual bool readFF(::std::basic_string<char>, bool) =0;
+                virtual bool readFF(std::string, bool) =0;
     
-                virtual bool readFF__BOSS(::std::basic_string<char>) =0;
+                virtual bool readFF__BOSS(std::string) =0;
     
-                virtual void listFF(::std::basic_string<char>) =0;
+                virtual void listFF(std::string) =0;
     
-                virtual bool readString(::std::basic_string<char>, bool, ::std::basic_ostream<char>&) =0;
+                virtual bool readString(std::string, bool, std::ostream&) =0;
     
-                virtual bool readString__BOSS(::std::basic_string<char>, bool) =0;
+                virtual bool readString__BOSS(std::string, bool) =0;
     
-                virtual bool readString__BOSS(::std::basic_string<char>) =0;
+                virtual bool readString__BOSS(std::string) =0;
     
                 virtual bool readingFailed() =0;
     
-                virtual void listAll(::std::basic_ostream<char>&) =0;
+                virtual void listAll(std::ostream&) =0;
     
                 virtual void listAll__BOSS() =0;
     
-                virtual void listChanged(::std::basic_ostream<char>&) =0;
+                virtual void listChanged(std::ostream&) =0;
     
                 virtual void listChanged__BOSS() =0;
     
-                virtual void listChanged(bool, ::std::basic_ostream<char>&) =0;
+                virtual void listChanged(bool, std::ostream&) =0;
     
                 virtual void listChanged__BOSS(bool) =0;
     
-                virtual void list(bool, bool, ::std::basic_ostream<char>&) =0;
+                virtual void list(bool, bool, std::ostream&) =0;
     
                 virtual void list__BOSS(bool, bool) =0;
     
@@ -90,87 +90,87 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void list__BOSS() =0;
     
-                virtual void list(int, ::std::basic_ostream<char>&) =0;
+                virtual void list(int, std::ostream&) =0;
     
                 virtual void list__BOSS(int) =0;
     
-                virtual void list(::std::vector<int>, ::std::basic_ostream<char>&) =0;
+                virtual void list(std::vector<int>, std::ostream&) =0;
     
-                virtual void list__BOSS(::std::vector<int>) =0;
+                virtual void list__BOSS(std::vector<int>) =0;
     
-                virtual void checkTable(::std::basic_ostream<char>&) =0;
+                virtual void checkTable(std::ostream&) =0;
     
                 virtual void checkTable__BOSS() =0;
     
-                virtual void checkTable(int, ::std::basic_ostream<char>&) =0;
+                virtual void checkTable(int, std::ostream&) =0;
     
                 virtual void checkTable__BOSS(int) =0;
     
-                virtual void addParticle(int, ::std::basic_string<char>, int, int, int, double, double, double, double, double) =0;
+                virtual void addParticle(int, std::string, int, int, int, double, double, double, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, int, int, int, double, double, double, double) =0;
+                virtual void addParticle__BOSS(int, std::string, int, int, int, double, double, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, int, int, int, double, double, double) =0;
+                virtual void addParticle__BOSS(int, std::string, int, int, int, double, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, int, int, int, double, double) =0;
+                virtual void addParticle__BOSS(int, std::string, int, int, int, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, int, int, int, double) =0;
+                virtual void addParticle__BOSS(int, std::string, int, int, int, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, int, int, int) =0;
+                virtual void addParticle__BOSS(int, std::string, int, int, int) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, int, int) =0;
+                virtual void addParticle__BOSS(int, std::string, int, int) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, int) =0;
+                virtual void addParticle__BOSS(int, std::string, int) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>) =0;
+                virtual void addParticle__BOSS(int, std::string) =0;
     
                 virtual void addParticle__BOSS(int) =0;
     
-                virtual void addParticle(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double, double, double) =0;
+                virtual void addParticle(int, std::string, std::string, int, int, int, double, double, double, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double, double) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string, int, int, int, double, double, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string, int, int, int, double, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string, int, int, int, double, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string, int, int, int, double) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string, int, int, int) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string, int, int) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string, int) =0;
     
-                virtual void addParticle__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>) =0;
+                virtual void addParticle__BOSS(int, std::string, std::string) =0;
     
-                virtual void setAll(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double, double, double) =0;
+                virtual void setAll(int, std::string, std::string, int, int, int, double, double, double, double, double) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double, double) =0;
+                virtual void setAll__BOSS(int, std::string, std::string, int, int, int, double, double, double, double) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double, double) =0;
+                virtual void setAll__BOSS(int, std::string, std::string, int, int, int, double, double, double) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double, double) =0;
+                virtual void setAll__BOSS(int, std::string, std::string, int, int, int, double, double) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int, double) =0;
+                virtual void setAll__BOSS(int, std::string, std::string, int, int, int, double) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int, int) =0;
+                virtual void setAll__BOSS(int, std::string, std::string, int, int, int) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int, int) =0;
+                virtual void setAll__BOSS(int, std::string, std::string, int, int) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>, int) =0;
+                virtual void setAll__BOSS(int, std::string, std::string, int) =0;
     
-                virtual void setAll__BOSS(int, ::std::basic_string<char>, ::std::basic_string<char>) =0;
+                virtual void setAll__BOSS(int, std::string, std::string) =0;
     
                 virtual bool isParticle(int) =0;
     
                 virtual int nextId(int) =0;
     
-                virtual void name(int, ::std::basic_string<char>) =0;
+                virtual void name(int, std::string) =0;
     
-                virtual void antiName(int, ::std::basic_string<char>) =0;
+                virtual void antiName(int, std::string) =0;
     
-                virtual void names(int, ::std::basic_string<char>, ::std::basic_string<char>) =0;
+                virtual void names(int, std::string, std::string) =0;
     
                 virtual void spinType(int, int) =0;
     
@@ -202,7 +202,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool hasAnti(int) =0;
     
-                virtual ::std::basic_string<char> name(int) =0;
+                virtual ::std::string name(int) =0;
     
                 virtual int spinType(int) =0;
     

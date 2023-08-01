@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       public:
          // -- Static factory pointers: 
          static Abstract_HL_BifurGaussian* (*__factory0)();
-         static Abstract_HL_BifurGaussian* (*__factory1)(::std::basic_string<char>);
+         static Abstract_HL_BifurGaussian* (*__factory1)(std::string);
    
          // -- Other member variables: 
    
@@ -44,7 +44,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          // Wrappers for original constructors: 
       public:
          HL_BifurGaussian();
-         HL_BifurGaussian(::std::basic_string<char> s);
+         HL_BifurGaussian(std::string s);
    
          // Special pointer-based constructor: 
          HL_BifurGaussian(Abstract_HL_BifurGaussian* in);

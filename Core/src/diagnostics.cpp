@@ -63,7 +63,7 @@ namespace Gambit
         table.red() << "ditched";
         table << "n/a";
       }
-      else 
+      else
       {
         int nf = 0;
         for (const auto &functor : functorList)
@@ -112,11 +112,14 @@ namespace Gambit
         // Do things specific to versions that provide classes
         if (backendData->classloader.at(backend.first + version))
         {
-          const std::set<str> classes = backendData->classes.at(backend.first + version); // Retrieve classes loaded by this version
-          ntypes = classes.size();                                                        // Get the number of classes loaded by this backend
-          for (const auto &class_ : classes)                                              // class is a C++ keyword, so use class_ here which allows the same readability.
+          if (backendData->classes.count(backend.first + version) != 0)
           {
-            nctors += backendData->factory_args.at(backend.first + version + class_).size(); // Add the number of factories for this class to the total
+            const std::set<str> classes = backendData->classes.at(backend.first + version); // Retrieve classes loaded by this version
+            ntypes = classes.size();                                                        // Get the number of classes loaded by this backend
+            for (const auto &class_ : classes)                                              // class is a C++ keyword, so use class_ here which allows the same readability.
+            {
+              nctors += backendData->factory_args.at(backend.first + version + class_).size(); // Add the number of factories for this class to the total
+            }
           }
         }
 
