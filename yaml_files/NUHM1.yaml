@@ -493,25 +493,12 @@ Rules:
     #   Higgs_predictions_source: 1
     #   Higgs_predictions_error_method: 4
 
-  # Make sure to use 2.11.3 of FeynHiggs for things that need it, as 2.12.0 is buggy.
-  #- backend: FeynHiggs
-  #  version: 2.11.3
-  # If you want to do it from the yaml file now, you need to do this:
-  #- capability: FH_Couplings_output
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: Precision
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  # The following two rules only have an impact when using make_MSSM_precision_spectrum_H_W
-  #- capability: prec_HiggsMasses
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
+
 
   # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
-  - capability: prec_mh
-    function: FeynHiggs_HiggsMass
-    #function: SUSYHD_HiggsMass
+  # - capability: prec_mh
+  #   function: FeynHiggs_HiggsMass
+  #   #function: SUSYHD_HiggsMass
 
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
   - capability: Reference_SM_Higgs_decay_rates
