@@ -928,7 +928,7 @@ namespace daFunk
     {
         singularities[arg].push_back(std::pair<Funk, Funk>(pos, width));
         return shared_from_this();
-    };
+    }
     inline Funk FunkBase::set_singularity(std::string arg, double pos, Funk width)
     { return shared_from_this()->set_singularity(arg, cnst(pos), width); }
     inline Funk FunkBase::set_singularity(std::string arg, double pos, double width)
@@ -1464,7 +1464,7 @@ namespace daFunk
     };
     //inline Funk print(std::string msg) { return Funk(new Bottle(msg)); }
     inline Funk FunkBase::print(std::string msg)
-    { return Funk(new Bottle(shared_from_this(), msg)); };
+    { return Funk(new Bottle(shared_from_this(), msg)); }
 
 
     //

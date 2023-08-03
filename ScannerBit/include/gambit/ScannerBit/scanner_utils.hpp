@@ -297,7 +297,7 @@ namespace Gambit
         typename std::enable_if<std::is_floating_point<ret>::value, ret>::type scanner_plugin_def_ret()
         {
             return -std::pow(10.0, std::numeric_limits<double>::max_exponent10);
-        };
+        }
         /// @}
 
         /********************************/
@@ -310,37 +310,37 @@ namespace Gambit
         inline double pow(const double &a)
         {
             return a*pow<i-1>(a);
-        };
+        }
 
         template <>
         inline double pow<0>(const double &)
         {
             return 1.0;
-        };
+        }
 
         template <>
         inline double pow<1>(const double &a)
         {
             return a;
-        };
+        }
 
         template <int i>
         inline int pow(const int &a)
         {
             return a*pow<i-1>(a);
-        };
+        }
 
         template <>
         inline int pow<0>(const int &)
         {
             return 1;
-        };
+        }
 
         template <>
         inline int pow<1>(const int &a)
         {
             return a;
-        };
+        }
         /// @}
 
         /********************************/
@@ -643,7 +643,7 @@ namespace Gambit
         {
             out.write(reinterpret_cast<char *>(&param), sizeof(T));
             //out << param << std::endl;
-        };
+        }
 
         template <typename T>
         inline typename std::enable_if <is_container<T>::value, void>::type
@@ -669,7 +669,7 @@ namespace Gambit
         {
             in.read((char *)&param, sizeof(T));
             //in >> param;
-        };
+        }
 
         template <typename T>
         inline typename std::enable_if <is_container<T>::value, void>::type
@@ -694,7 +694,7 @@ namespace Gambit
         resume_size_of(T &)
         {
             return sizeof(T);
-        };
+        }
 
         template <typename T>
         inline typename std::enable_if <is_container<T>::value, size_t>::type
