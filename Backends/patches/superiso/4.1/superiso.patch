@@ -191,7 +191,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +	else lbb=param->tan_beta;
 +	
 +	double CV=xt*(AWW(xt)+2.*xt*AWH(xH,xt,xb,ltt,lbb)+xt*AHH(xH,xt,xb,ltt));
-+	double CST=4.*xb*xt*xt*(AWH_ST(xH,xt,ltt,lbb)+AHH_ST(xH,xt,ltt,lbb));
++	double CST=4.*xb*xt*xt*(AWH_ST(xH,xt,ltt,lbb)+AHH_ST(xH,xt,ltt,lbb)); // CST=0;
 +
 +	double fB2_BdST_etaBST=pow(0.190,2.)*(-0.007)-pow(0.183,2.)*(5./8*1.654+5./2.*(-0.007));
 +
@@ -252,7 +252,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +	
 +	double CV_LL=xt*(AWW(xt)+2.*xt*AWH(xH,xt,xb,ltt,lbb)+xt*AHH(xH,xt,xb,ltt));
 +       double CV_RR=xb*xs*AHH_RR(xH,xt,lbb);
-+	double CST=4.*xb*xt*xt*(AWH_ST(xH,xt,ltt,lbb)+AHH_ST(xH,xt,ltt,lbb));
++	double CST=4.*xb*xt*xt*(AWH_ST(xH,xt,ltt,lbb)+AHH_ST(xH,xt,ltt,lbb)); // CST=0;
 +
 +	double fBs2_BsST_etaBsST=pow(0.231,2.)*(-0.007)-pow(0.225,2.)*(5./8*1.654+5./2.*(-0.007));
 +
