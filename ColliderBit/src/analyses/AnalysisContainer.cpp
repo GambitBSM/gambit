@@ -48,6 +48,7 @@ namespace Gambit
       F(ATLAS_13TeV_RJ3L_2Lep2Jets_36invfb)          \
       F(ATLAS_13TeV_RJ3L_3Lep_36invfb)               \
       F(ATLAS_13TeV_RJ3L_lowmass_36invfb)            \
+      F(ATLAS_13TeV_2LEPJETS_RJR_139invfb)           \
      
     #define MAP_ANALYSES_WITH_ROOT(F)                \
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
