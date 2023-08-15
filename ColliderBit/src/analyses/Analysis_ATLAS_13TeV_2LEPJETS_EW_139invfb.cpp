@@ -20,6 +20,7 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
+#include "gambit/ColliderBit/METSignificance.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -281,7 +282,8 @@ namespace Gambit
 	if (!(met > 100))
 	  return;
 	bool cut_metsig = true;
-	double metsig = met/sqrt(HT);
+	//double metsig = met/sqrt(HT); // TODO: The approximate method
+	double metsig = calcMETSignificance(baselineElectrons, event->photons(), baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
 	if (!(metsig > 6))cut_metsig=false;
 	
 	  /* More event variables */
