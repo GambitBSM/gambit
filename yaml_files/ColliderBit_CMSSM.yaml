@@ -352,7 +352,7 @@ Rules:
     # Choose to use the FullLikes backend when applicable
     function: calc_LHC_LogLikes_full
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       use_marginalising: false
@@ -406,7 +406,7 @@ Rules:
   - capability: LHC_measurements
     function: Contur_LHC_measurements_from_stream
     # function: Contur_LHC_measurements_from_file
-    options:
+    #options:
       # Adding a contur option is equivalent to running contur with the equivalent flag.
       # contur_options:
       # - use-searches

@@ -432,7 +432,7 @@ namespace Gambit
     {
       auto compfn = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
       {
-        return abs((pair1.at(0)->mom() + pair1.at(1)->mom()).m() - mP) < abs((pair2.at(0)->mom() + pair2.at(1)->mom()).m() - mP);
+        return std::abs((pair1.at(0)->mom() + pair1.at(1)->mom()).m() - mP) < std::abs((pair2.at(0)->mom() + pair2.at(1)->mom()).m() - mP);
       };
       std::sort(pairs.begin(), pairs.end(), compfn);
     }

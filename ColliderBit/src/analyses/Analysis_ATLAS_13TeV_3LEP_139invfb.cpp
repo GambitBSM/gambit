@@ -86,15 +86,8 @@ namespace Gambit
 
       private:
 
-        // Struct to sort HEPUtils::Particles on pT in decending order
-        struct ptComparison
-        {
-          bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
-        } comparePt;
-
         // Internally used Z-mass
         double mZ = 91.1876; // [GeV]
-
 
         #ifdef CHECK_CUTFLOW
         // Cut-flow variables

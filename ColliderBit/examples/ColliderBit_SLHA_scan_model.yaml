@@ -1,12 +1,12 @@
 
 Parameters:
 
-  # Dummy model for doing a ColliderBit-only 
+  # Dummy model for doing a ColliderBit-only
   # scan based on replacing SLHA file entries
   ColliderBit_SLHA_scan_model:
-    m1: 
+    m1:
       prior_type: none
-    m2: 
+    m2:
       prior_type: none
     cross_section_fb:
       prior_type: none
@@ -22,7 +22,7 @@ Priors:
 Scanner:
 
   use_scanner: raster
-  
+
   scanners:
 
     raster:
@@ -67,25 +67,25 @@ ObsLikes:
 
     - purpose:    Observable
       capability: SLHAFileElements
-    
+
 
 Rules:
 
-  # Read a single SLHA file and replace some entries for each 
+  # Read a single SLHA file and replace some entries for each
   # iteration of the scan
   - capability: SLHAFileNameAndContent
     function: getAndReplaceSLHAContent
     options:
       SLHA_filename: ColliderBit/data/example.slha
       replace_SLHA_keys:
-        m1: 
+        m1:
           - MASS;1000022;1
-        m2: 
+        m2:
           - MASS;1000023;1
           - MASS;1000024;1
         br1:
-          - 1000024;(any),2,1000022,24;0   # <-- BR for two-body decay 1000024 -> 1000022 24 
-          - 1000023;(any),2,1000022,23;0   # <-- BR for two-body decay 1000023 -> 1000022 23 
+          - 1000024;(any),2,1000022,24;0   # <-- BR for two-body decay 1000024 -> 1000022 24
+          - 1000023;(any),2,1000022,23;0   # <-- BR for two-body decay 1000023 -> 1000022 23
 
 
 
@@ -104,24 +104,29 @@ Rules:
         - NMIX;1,2;2
         - NMIX;1,3;2
         - NMIX;1,4;2
-        - 1000023;(any),2,1000022,23;0  # <-- BR for two-body decay 1000023 -> 1000022 23 
-        - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24 
+        - 1000023;(any),2,1000022,23;0  # <-- BR for two-body decay 1000023 -> 1000022 23
+        - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24
 
 
   # Take the total cross-section from the input parameters in this yaml file
   - capability: TotalCrossSection
     function: getYAMLCrossSection_param
 
-  # Choose how to do event weighting 
+  # Choose how to do event weighting
   - capability: EventWeighterFunction
     function: setEventWeight_unity
 
-
-  # Generate evens (don't read LH event files)
+  # Choose where to get scattering events from
   - capability: HardScatteringEvent
+    type: Pythia_default::Pythia8::Event
     function: generateEventPythia
-    module: ColliderBit
+    # options:
+    #   drop_HepMC3_file: true
+    #   # drop_HepMC2_file: true
 
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
@@ -153,7 +158,7 @@ Rules:
           - Print:quiet = off
           - Next:numberCount = 1000
           - Random:setSeed = on
-          - Beams:eCM = 13000          
+          - Beams:eCM = 13000
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = on
@@ -181,8 +186,12 @@ Rules:
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
+    # Choose not to use the FullLikes backend.
+    function: calc_LHC_LogLikes
+    # Choose to use the FullLikes backend when applicable
+    # function: calc_LHC_LogLikes_full
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       combine_SRs_without_covariances: false
@@ -204,7 +213,7 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses: 
+      # skip_analyses:
       #   - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
 
 

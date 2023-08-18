@@ -135,15 +135,18 @@ ObsLikes:
 Rules:
 
   # Tell all functions that are able to dump SLHA files to do so.
-  #- options:
-  #    drop_SLHA_file: true
+  #- if:
+  #    capability: any
+  #  then:
+  #    options:
+  #      drop_SLHA_file: true
 
   # Use SuperIso instead of FeynHiggs for b->sgamma
   - capability: prediction_b2sgamma
     function: SuperIso_prediction_b2sgamma
 
   # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: SuperIso_prediction_B2mumu
+  - capability: prediction_B2mumu
     function: SuperIso_prediction_B2mumu
 
   # Choose where to get the precision spectrum from

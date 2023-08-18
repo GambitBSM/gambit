@@ -1,0 +1,90 @@
+name: Gambit CI
+
+on:
+  push:
+    branches: [ master, ci-* ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron:  '0 5 * * *'
+
+jobs:
+  gambit_build:
+    runs-on: [self-hosted, macOS,x64]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        echo "Set up the build environment"
+        mkdir -p BUILD
+        cd BUILD
+    - name: Configure with cmake
+      run: |
+        echo "Configure with cmake"
+        cd BUILD
+        # Ditching a few backends that don't currently work on Mac
+        cmake -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="plc;micromegas_DMsimpVectorMedVectorDM" ..
+    - name: Build scanners
+      run: |
+        echo "Build scanners"
+        cd BUILD
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) scanners
+        cmake ..
+    - name: Build Backends for tests
+      run: |
+        echo "Building Backends"
+        cd BUILD
+        #make -j $(( $(sysctl -n hw.ncpu)/2 )) pythia higgssignals nulike ATLAS_FullLikes susyhit heplike superiso
+        make pythia
+        make higgssignals
+        make nulike
+        make ATLAS_FullLikes
+        make susyhit
+        make heplike
+        make superiso
+        make rivet
+        make contur
+        echo "Running cmake again, since this is required for ColliderBit/pythia"
+        cmake ..
+    - name: Build Gambit
+      run: |
+        echo "Build GAMBIT."
+        cd BUILD
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
+    - name: Test spartan yaml
+      run: |
+        echo "Testing spartan.yaml (with cout printer)"
+        sed -i "" 's/ hdf5/ cout/g' yaml_files/spartan.yaml
+        ./gambit -rf yaml_files/spartan.yaml 
+    - name: CLI test
+      run: |
+        echo "Run the test of gambit help"
+        ./gambit -h
+    - name: WC test
+      run: |
+        echo "Test WC_lite yaml (no printing)"
+        sed -i "" 's/ hdf5/ none/g' yaml_files/WC_lite.yaml
+        ./gambit -f yaml_files/WC_lite.yaml
+    - name: ColliderBit test
+      run: |
+        echo "Test the ColliderBit CMSSM yaml file"
+        ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
+    - name: Build Backends
+      run: |
+        echo "Building all Backends"
+        cd BUILD
+        #make -j $(( $(sysctl -n hw.ncpu)/2 )) backends
+        make backends
+    #- name: Build standalones
+    #  run: |
+    #    echo "Test the building of the standalones"
+    #    cd BUILD
+    #    make standalones

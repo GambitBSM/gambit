@@ -1886,8 +1886,9 @@ namespace Gambit
         first = false;
       }
 
-      double mMed;
-      double gq;
+      // Initialise to squash warning, these values will always be overwritten
+      double mMed = 0.0;
+      double gq = 0.0;
 
       // Pull Decay widths from CalcHEP
       DecayTable::Entry decays;
@@ -1920,6 +1921,10 @@ namespace Gambit
         mMed = spec.get(Par::Pole_Mass, "Y1");
         gq   = spec.get(Par::dimensionless, "gVq");
         decays = *Dep::Y1_decay_rates;
+      }
+      else
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "ERROR! ColliderBit_InterpolatedYields: Cannot use DMsimp Dijet likelihood for this model.");
       }
 
       double total_width = decays.width_in_GeV;

@@ -248,7 +248,11 @@ namespace Gambit
       return myFunction;
     }
 
-    /// Getter for the 'safe' incarnation of the wrapped function's origin's version (module or backend)
+    /// Getter for the version of the wrapped function's backend.
+    template <typename PTR_TYPE, typename TYPE, typename... ARGS>
+    str backend_functor_common<PTR_TYPE, TYPE, ARGS...>::version() const { return myVersion; }
+
+    /// Getter for the 'safe' incarnation of the version of the wrapped function's backend.
     template <typename PTR_TYPE, typename TYPE, typename... ARGS>
     str backend_functor_common<PTR_TYPE, TYPE, ARGS...>::safe_version() const { return mySafeVersion; }
 

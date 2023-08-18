@@ -61,7 +61,7 @@ Rules:
 
   - capability:  function_pointer
     backends:
-    - {function: externalFunction}
+    - {group: external_funcs, function: externalFunction}
 
   - capability: nevents
     type: int

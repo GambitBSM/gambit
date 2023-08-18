@@ -208,28 +208,9 @@ Rules:
     #   Higgs_predictions_source: 1
     #   Higgs_predictions_error_method: 4
 
-  # Make sure to use the next-to-latest version (2.11.3) of FeynHiggs for things that need it,
-  # as the latest version (2.12.0) is buggy.
-  # In practice, the easiest way to do this is just to not install / nuke the versions you don't want to use, e.g.
-  #  make nuke-feynhiggs_2_12_0
-  #  make nuke-feynhiggs_2_11_2
-  # In a future version of GAMBIT, it will possible to just do this here in the yaml file:
+  # Make sure to use 2.11.3 of FeynHiggs for things that need it, as 2.12.0 is buggy.
   #- backend: FeynHiggs
   #  version: 2.11.3
-  # If you want to do it from the yaml file now, you need to do this:
-  #- capability: FH_Couplings_output
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: Precision
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  # The following two rules only have an impact when using make_MSSM_precision_spectrum_H_W
-  #- capability: prec_HiggsMasses
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: MSSMMasses
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
 
   # # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
   # - capability: prec_mh

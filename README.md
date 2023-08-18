@@ -71,10 +71,10 @@ GAMBIT is built using the CMake system. The following libraries and packages mus
 
 COMPULSORY:
 
- - gcc >= 5.1 / llvm clang >= 10 / AppleClang >= 13 / icc >= 15.0.2
- - gfortran >= 5.1 / ifort >=15.0.2
- - Cmake 2.8.12 or greater
- - Python 2.7 or greater (Python 3 is supported)
+ - gcc >= 9 / llvm clang >= 10 / AppleClang >= 13 / icc >= 15.0.2
+ - gfortran >= 9 / ifort >=15.0.2
+ - CMake 3.2.3 or greater
+ - Python 3
  - Python modules: yaml, future, os, re, datetime, sys, getopt, shutil and itertools.
  - git
  - Boost 1.48 or greater
@@ -113,7 +113,7 @@ OPTIONAL:
 Memory requirements
 --
 
-For building the entirety of GAMBIT without optimisation, at least 10 GB of RAM is required. The build can be completed with less RAM than this if enough modules are ditched when running cmake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used cmake options, see the file CMAKE_FLAGS.md.
+For building the entirety of GAMBIT without optimisation, at least 10 GB of RAM is required. The build can be completed with less RAM than this if enough modules are ditched when running CMake, with e.g. `cmake -Ditch="ColliderBit;DarkBit" ..`, etc. See the Core paper ("GAMBIT: The Global and Modular Beyond-the-Standard-Model Inference Tool", the first link at the top of this README file) for further details of how to ditch components. For a list of commonly used CMake options, see the file CMAKE_FLAGS.md.
 
 Building with optimisation enabled (e.g. using -DCMAKE_BUILD_TYPE=Release) may require more than 20 GB of RAM, depending on the compiler in use and precisely which optimisations it employs. Interprocedural optimisation in particular requires very large amounts of RAM. In general, Release mode is only intended for performance-critical applications, such as when running on supercomputer architectures.  It is not advised for laptops.
 
@@ -123,9 +123,9 @@ Building GAMBIT
 
 The basic build instructions are below.  GAMBIT supports Linux and Mac OSX.  On Windows, you can run it thorugh the Linux subsystem or Cygwin.  A full walkthrough of how to install all dependencies and build GAMBIT with AppleClang on OSX can be found in the file README_OSX.md.
 
-Note that cmake will fail to find some dependencies on some systems without guidance. If you encounter problems configuring or building GAMBIT, have a look in BUILD_OPTIONS.md for a list of commonly used build options.
+Note that CMake will fail to find some dependencies on some systems without guidance. If you encounter problems configuring or building GAMBIT, have a look in BUILD_OPTIONS.md for a list of commonly used build options.
 
-More information about the GAMBIT cmake system is provided in the Core paper. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
+More information about the GAMBIT CMake system is provided in the Core paper. Configuration examples for specific computing clusters are available via gambit.hepforge.org.
 
 
 

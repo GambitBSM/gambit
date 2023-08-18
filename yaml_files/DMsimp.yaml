@@ -233,7 +233,7 @@ Rules:
     # Choose to use the FullLikes backend when applicable
     # function: calc_LHC_LogLikes_full
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       combine_SRs_without_covariances: false
