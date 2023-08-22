@@ -39,6 +39,7 @@ namespace Gambit
       // Counters for the number of accepted events for each signal region
       std::map<string, EventCounter> _counters = {
 
+       // a/b is used to represent the first or second bin of the met significance
        {"SR_High_8_a", EventCounter("SR_High_8_a")},
        {"SR_High_8_b", EventCounter("SR_High_8_b")},
        {"SR_High_16_a",EventCounter("SR_High_16_a")},
@@ -110,6 +111,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> baselineElectrons;
         vector<const HEPUtils::Particle*> baselineMuons;
         vector<const HEPUtils::Particle*> baselineLeptons;
+        vector<const HEPUtils::Particle*> baselinePhotons;
         vector<const HEPUtils::Jet*> baselineJets;
         vector<const HEPUtils::Jet*> baselineBJets;
         vector<const HEPUtils::Jet*> baselineNonBJets;
@@ -128,10 +130,9 @@ namespace Gambit
         }
 
         // Baseline electrons have pT > 4.5 GeV, satisfy the "loose" criteria, and have |eta|<2.47. 
-
         for (const HEPUtils::Particle* electron : event->electrons())
         {
-          if (electron->pT()>4.5 && electron->abseta()<2.47) baselineElectrons.push_back(electron);
+          if (electron->pT() > 4.5 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Apply electron efficiency
@@ -139,10 +140,9 @@ namespace Gambit
         ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
 
         // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7 
-
         for (const HEPUtils::Particle* muon : event->muons())
         {
-          if (muon->pT()>3. && muon->abseta()<2.7) baselineMuons.push_back(muon);
+          if (muon->pT() > 3. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
@@ -154,7 +154,18 @@ namespace Gambit
 
         // Only jet candidates with pT > 20 GeV and |η| < 2.8 are considered in the analysis
         // Jets with pT < 120 GeV and |η| < 2.8 have an efficiency of 90%
-        // Mising:  cut based on detector noise and non-collision backgrounds
+        // Missing:  cut based on detector noise and non-collision backgrounds
+
+        // Baseline photons selection (used later in met significance)
+        // pT > 25 GeV, and abseta < 2.37, and doesn't lie in 1.37 < abseta < 1.52
+        // Missing: "tight" photon ID criteria
+        for (const HEPUtils::Particle* photon : event->photons())
+        {
+          if ((photon->pT() > 25.) && (photon->abseta() < 2.37))
+          {
+            if (photon->abseta() < 1.37 || photon->abseta() > 1.52) baselinePhotons.push_back(photon);
+          }
+        }
 
         double jet_eff = 0.9;
         for (const HEPUtils::Jet* jet : event->jets())
@@ -173,8 +184,9 @@ namespace Gambit
         // 3) If any lepton has Delta R < min(0.4, 0.04 + 10/pT(l)) with a jet, remove the lepton.
         auto lambda = [](double lepton_pT) { return std::min(0.4, 0.04 + 10./(lepton_pT) ); };
         removeOverlap(baselineElectrons, baselineJets, lambda);
-        // 4) Remove muons within 0.2 of jets (incorporates shared track approximation)
-        removeOverlap(baselineMuons, baselineJets, 0.2);
+        // 4) Remove muons within 0.2 of jets (incorporates shared track approximation) // TODO: I think this is the wrong way around. I think the jet should be removed. Check This
+        //removeOverlap(baselineMuons, baselineJets, 0.2); // TODO: Old version, remove after checking
+        removeOverlap(baselineJets, baselineMuons, 0.2);
         // 5) Remove muons subject to pT-dependent deltaR requirement
         removeOverlap(baselineMuons, baselineJets, lambda);
 
@@ -194,10 +206,10 @@ namespace Gambit
           if (signalElectron->pT() > 25.) signalElectrons.push_back(signalElectron);
         }
 
-        // Signal muons must have pT > 5 GeV.
+        // Signal muons must have pT > 25 GeV.
         for (const HEPUtils::Particle* signalMuon : baselineMuons)
         {
-          if (signalMuon->pT() > 25.) signalMuons.push_back(signalMuon);
+          if (signalMuon->pT() > 25. && signalMuon->abseta() < 2.6) signalMuons.push_back(signalMuon);
         }
 
         // Signal jets must have pT > 30 GeV
@@ -246,7 +258,7 @@ namespace Gambit
         // both leptons of Opposite Sign (OS) charge *** except VR_SS
         // lepton pair mass in (12, 111)
         // at least one jet (> 30 GeV)
-        // missing energy: met > 100 GeV, met significance > 6
+        // missing energy: met > 100 GeV, met significance > 6 TODO: I can't see in the text, where the met > 100 GeV requirement comes from (I can see it in cutflows).
 
 
         // exactly two leptons (> 25 GeV)
@@ -258,8 +270,8 @@ namespace Gambit
         // 0 electron <=> 2 muon => SF
         // 1 electron <=> 1 muon => DF
         // 2 electron <=> 0 muon => SF
-        bool cut_OSSF=true;
-        if (signalElectrons.size() == 1) cut_OSSF=false;
+        bool cut_SF=true;
+        if (signalElectrons.size() == 1) cut_SF=false;
 
         // lepton pair mass in (12, 111)
         bool cut_mll = true;
@@ -280,14 +292,14 @@ namespace Gambit
         for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
 
         // missing energy: met > 100 GeV, met significance > 6
-        if (!(met > 100)) return;
+        if (!(met > 100)) return; // TODO: Still trying to understand why. Could it just be for testing
         bool cut_metsig = true;
         //double metsig = met/sqrt(HT); // TODO: The approximate method
-        double metsig = calcMETSignificance(baselineElectrons, event->photons(), baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
+        double metsig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
         if (!(metsig > 6)) cut_metsig=false;
 
         /* More event variables */
-        double dPhiPllMet = fabs(dilepton.deltaPhi(metVec));
+        double dphiPllMet = fabs(dilepton.deltaPhi(metVec));
         double dphiJ1met = fabs(signalJets.at(0)->mom().deltaPhi(metVec));
 
         double mjj = 0.;
@@ -329,14 +341,14 @@ namespace Gambit
         bool cut_OS = true;
         if (signalLeptons.at(0)->pid() == signalLeptons.at(1)->pid()) cut_OS = false;
 
-        bool Ewk_2Ljets_presel = false;
+        bool EWK_2Ljets_presel = false;
 
         if(cut_2lep &&
-           cut_OSSF &&
+           cut_SF &&
            cut_mll &&
            cut_1jet &&
            cut_metsig &&
-           cut_OS) Ewk_2Ljets_presel=true;
+           cut_OS) EWK_2Ljets_presel=true;
 
         /* Signal Regions */
 
@@ -456,7 +468,7 @@ namespace Gambit
           if (mt2 < 80
               && 6 < metsig && metsig < 9
               && Rll < 1.6
-              && dPhiPllMet < 0.6)
+              && dphiPllMet < 0.6)
           {
             _counters.at("SR_Low_2").add_event(event);
           }
