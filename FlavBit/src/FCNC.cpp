@@ -1780,18 +1780,11 @@ namespace Gambit
       if (first)
       {
         if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile  << std::endl;
-        std::cout << "Debug: Reading HepLike data file: " << inputfile  << std::endl;
         nDimBifurGaussian.Read();
- std::cout << "read" << std::endl;
-std::cout << "obs list " << new_obs_list << std::endl;
         update_obs_list(new_obs_list, nDimBifurGaussian.GetObservables());
-std::cout << "obs list " << new_obs_list << std::endl;
         first = false;
       }
 
-      std::cout << "before result" << std::endl;
-      get_obs_theory(prediction, new_obs_list);
-      get_obs_covariance(prediction, new_obs_list);
       result = nDimBifurGaussian.GetLogLikelihood(get_obs_theory(prediction, new_obs_list), get_obs_covariance(prediction, new_obs_list));
       if (flav_debug) std::cout << "HEPLike_RKRKstar_LogLikelihood_LHCb result: " << result << std::endl;
 
