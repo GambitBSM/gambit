@@ -556,10 +556,10 @@ endif()
 
 # HepLikedata
 set(name "heplikedata")
-set(ver "1.5")
-set(dl "https://github.com/KrakowHEPSoft/HEPLikeData/archive/V${ver}.zip")
+set(ver "1.6")
+set(dl "https://github.com/tegonzalo/HEPLikeData/archive/V${ver}.zip")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-set(md5 "69c51f262e06917f2a2a5b27f8328b38")
+set(md5 "22668b2b22cff397fdfbc12d637212b6")
 check_ditch_status(${name} ${ver} ${dir})
 if(NOT ditched_${name}_${ver})
   ExternalProject_Add(${name}_${ver}
@@ -603,8 +603,40 @@ if(NOT ditched_${name}_${ver})
   # ROOT flags not needed right now. Left as comment in case they are needed in the future
   # BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG}" "-I${ROOT_INCLUDE_DIRS}")
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+endif()
+
+set(name "heplike")
+set(ver "2.1")
+set(dl "https://github.com/tegonzalo/HEPLike/archive/V${ver}.zip")
+set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
+set(md5 "b72bf138ecbf6ca26e5da2aca4576e23")
+set(HL_CXXFLAGS "${BACKEND_CXX_FLAGS} -I${yaml_INCLUDE_DIR}")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} -undefined dynamic_lookup -flat_namespace")
+endif()
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
+  set(HL_CXXFLAGS "${HL_CXXFLAGS} ${NO_FIXUP_CHAINS}")
+endif()
+check_ditch_status(${name} ${ver} ${dir})
+if(NOT ditched_${name}_${ver})
+  ExternalProject_Add(${name}_${ver}
+    DEPENDS heplikedata
+    DOWNLOAD_COMMAND ${DL_BACKEND} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    UPDATE_COMMAND ${CMAKE_COMMAND} -E echo "set_target_properties(HEPLike_shared PROPERTIES OUTPUT_NAME HEPLike SUFFIX \".so\")" >> ${dir}/CMakeLists.txt
+    CMAKE_COMMAND ${CMAKE_COMMAND} ..
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_CXX_FLAGS=${HL_CXXFLAGS} -DCMAKE_MODULE_PATH=${PROJECT_SOURCE_DIR}/cmake -DUSE_ROOT=false
+    BUILD_COMMAND ${MAKE_PARALLEL} HEPLike_shared
+    INSTALL_COMMAND ""
+    )
+  BOSS_backend(${name} ${ver})
+  # ROOT flags not needed right now. Left as comment in case they are needed in the future
+  # BOSS_backend(${name} ${ver} "--castxml-cc-opt=${ROOT_CXX_FLAG}" "-I${ROOT_INCLUDE_DIRS}")
+  add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
   set_as_default_version("backend" ${name} ${ver})
 endif()
+
 
 
 # SuperIso

@@ -131,6 +131,7 @@ namespace Gambit
     // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
     //SI_SINGLE_PREDICTION_FUNCTION(RK_LHCb)
     //SI_SINGLE_PREDICTION_FUNCTION_BINS(RKstar_LHCb, ((0.045, 1.1), (1.1, 6)))
+    SI_MULTI_PREDICTION_FUNCTION_BINS(RKRKstar,LHCb, ((0.1, 1.1), (1.1, 6)))
 
     // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
     /// SuperIso prediction for RK* in low q^2
@@ -1666,35 +1667,6 @@ namespace Gambit
     }
 
 
-    void HEPLike_RK_LogLikelihood_LHCb(double &result)
-    {
-      using namespace Pipes::HEPLike_RK_LogLikelihood_LHCb;
-
-      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/Rk/CERN-EP-2019-043.yaml";
-      static HepLike_default::HL_ProfLikelihood ProfLikelihood(inputfile);
-
-      static bool first = true;
-      if (first)
-      {
-        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile << std::endl;
-        ProfLikelihood.Read();
-
-        first = false;
-      }
-
-      //flav_prediction prediction = *Dep::prediction_RK_LHCb;
-
-      //const double theory = prediction.central_values.begin()->second;
-      //const double theory_variance = prediction.covariance.begin()->second.begin()->second;
-      const double theory = *Dep::RK;
-      const double theory_variance = 0.001;
-
-      //result = ProfLikelihood.GetLogLikelihood(1. + theory, theory_variance);
-      result = ProfLikelihood.GetLogLikelihood(theory, theory_variance);
-
-      if (flav_debug) std::cout << "HEPLike_RK_LogLikelihood_LHCb result: " << result << std::endl;
-    }
-
     /// Likelihood for RKstar
     void RKstar_LogLikelihood_LHCb(double &result)
     {
@@ -1759,49 +1731,70 @@ namespace Gambit
       result=-0.5*Chi2;
     }
 
-    void HEPLike_RKstar_LogLikelihood_LHCb(double &result)
+    /// HEPLike LogLikelihood for RK and RKstar (LHCb)
+    /// Recognised sub-capabilities:
+    ///    RK_low
+    ///    RK_central
+    ///    RKstar_low
+    ///    RKstar_central
+    void HEPLike_RKRKstar_LogLikelihood_LHCb(double &result)
     {
+      using namespace Pipes::HEPLike_RKRKstar_LogLikelihood_LHCb;
 
-      using namespace Pipes::HEPLike_RKstar_LogLikelihood_LHCb;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/RKRKstar/CERN-EP-2022-278.yaml";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static HepLike_default::HL_nDimBifurGaussian nDimBifurGaussian(inputfile);
 
-      static const std::string inputfile = path_to_latest_heplike_data() + "/data/LHCb/RD/RKstar/CERN-EP-2017-100_q2_";
-      static std::vector<HepLike_default::HL_ProfLikelihood> ProfLikelihood;
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
 
-      //flav_binned_prediction binned_prediction = *Dep::prediction_RKstar_LHCb;
-      //std::vector<flav_prediction> prediction;
-      //for(auto pred : binned_prediction)
-      //  prediction.push_back(pred.second);
-      std::vector<double> prediction = {*Dep::RKstar_0045_11, *Dep::RKstar_11_60};
-      std::vector<str> bins = {"0.045_1.1", "1.1_6"};
+      flav_binned_prediction binned_prediction = *Dep::prediction_RKRKstar_LHCb;
+
+      // HepLikeData has correlations across bins for RK-RKstar, so convert into single-bin, multi-observable prediction
+      flav_prediction prediction;
+      std::vector<str> new_obs_list;
+      for(auto pred: binned_prediction)
+      {
+        for(auto val : pred.second.central_values)
+        {
+          prediction.central_values[val.first+"_"+pred.first] = val.second;
+
+          // Change observable list
+          if(std::find(obs_list.begin(), obs_list.end(), val.first) != obs_list.end() )
+            new_obs_list.push_back(val.first+"_"+pred.first);
+        }
+
+        for(auto cov1 : pred.second.covariance)
+          for(auto cov2 : cov1.second)
+          {
+            prediction.covariance[cov1.first+"_"+pred.first][cov2.first+"_"+pred.first] = cov2.second;
+          }
+
+      }
+      // Fill the uncorrelated covariance entries
+      for(auto cov1 : prediction.covariance)
+        for(auto cov2 : prediction.covariance)
+          if(cov1.second.find(cov2.first) == cov1.second.end())
+            prediction.covariance[cov1.first][cov2.first] = 0.;
 
       static bool first = true;
       if (first)
       {
-        //for(auto pred : binned_prediction)
-        for(str bin : bins)
-        {
-          //ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + pred.first + ".yaml"));
-          ProfLikelihood.push_back(HepLike_default::HL_ProfLikelihood(inputfile + bin + ".yaml"));
-          //if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + pred.first + ".yaml"  << std::endl;
-          if (flav_debug) std::cout << "Debug: Reading HepLike data file " <<  inputfile + bin + ".yaml"  << std::endl;
-          ProfLikelihood[ProfLikelihood.size()-1].Read();
-
-        }
+        if (flav_debug) std::cout << "Debug: Reading HepLike data file: " << inputfile  << std::endl;
+        std::cout << "Debug: Reading HepLike data file: " << inputfile  << std::endl;
+        nDimBifurGaussian.Read();
+ std::cout << "read" << std::endl;
+std::cout << "obs list " << new_obs_list << std::endl;
+        update_obs_list(new_obs_list, nDimBifurGaussian.GetObservables());
+std::cout << "obs list " << new_obs_list << std::endl;
         first = false;
       }
 
-      result = 0;
-      for (unsigned int i = 0; i < ProfLikelihood.size(); i++)
-      {
-        //const double theory = prediction[i].central_values.begin()->second;
-        //const double theory_variance = prediction[i].covariance.begin()->second.begin()->second;
-        const double theory = prediction[i];
-        const double theory_variance = 0.0;
-        //result += ProfLikelihood[i].GetLogLikelihood(1. + theory, theory_variance);
-        result += ProfLikelihood[i].GetLogLikelihood(theory, theory_variance);
-      }
+      std::cout << "before result" << std::endl;
+      get_obs_theory(prediction, new_obs_list);
+      get_obs_covariance(prediction, new_obs_list);
+      result = nDimBifurGaussian.GetLogLikelihood(get_obs_theory(prediction, new_obs_list), get_obs_covariance(prediction, new_obs_list));
+      if (flav_debug) std::cout << "HEPLike_RKRKstar_LogLikelihood_LHCb result: " << result << std::endl;
 
-      if (flav_debug) std::cout << "HEPLike_RKstar_LogLikelihood_LHCb result: " << result << std::endl;
     }
 
     /// HEPLike LogLikehood for BR(B -> K nu nu) from Belle with semileptonic tagging

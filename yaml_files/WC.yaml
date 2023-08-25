@@ -146,6 +146,10 @@ ObsLikes:
   - purpose:    LogLike
     capability: B2KmumuBr_LogLikelihood_LHCb
 
+  - purpose: LogLike
+    capability: RKRKstar_LogLikelihood_LHCb
+    sub_capabilities: [RK, RKstar]
+
 Rules:
 
   # Use SuperIso instead of FeynHiggs for b->sgamma

@@ -946,6 +946,20 @@ START_MODULE
   #undef CAPABILITY
   */
 
+  #define CAPABILITY prediction_RKRKstar_LHCb
+  START_CAPABILITY
+    #define FUNCTION SuperIso_prediction_RKRKstar_LHCb
+    START_FUNCTION(flav_binned_prediction)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    DEPENDENCY(SuperIso_nuisance, nuisance)
+    BACKEND_REQ(get_predictions_nuisance, (libsuperiso), void, (char**, int*, double**, const parameters*, const nuisance*))
+    BACKEND_REQ(observables, (libsuperiso), void, (int, obsname*, int, double*, double*, const nuisance*, char**, const parameters*))
+    BACKEND_REQ(convert_correlation, (libsuperiso), void, (nuiscorr*, int, double**, char**, int))
+    BACKEND_REQ(get_th_covariance_nuisance, (libsuperiso), void, (double***, char**, int*, const parameters*, const nuisance*, double**))
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
   ///Observable: BR(B -> tau nu)
   #define CAPABILITY Btaunu
   START_CAPABILITY
@@ -2254,13 +2268,6 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(RK, double)
     #undef FUNCTION
-
-    #define FUNCTION HEPLike_RK_LogLikelihood_LHCb
-    START_FUNCTION(double)
-    DEPENDENCY(RK, double)
-    //DEPENDENCY(prediction_RK_LHCb, flav_prediction)
-    NEEDS_CLASSES_FROM(HepLike, default)
-    #undef FUNCTION
   #undef CAPABILITY
 
   // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
@@ -2272,12 +2279,12 @@ START_MODULE
     DEPENDENCY(RKstar_0045_11, double)
     DEPENDENCY(RKstar_11_60, double)
     #undef FUNCTION
+  #undef CAPABILITY
 
-    #define FUNCTION HEPLike_RKstar_LogLikelihood_LHCb
+  #define CAPABILITY RKRKstar_LogLikelihood_LHCb
+    #define FUNCTION HEPLike_RKRKstar_LogLikelihood_LHCb
     START_FUNCTION(double)
-    DEPENDENCY(RKstar_0045_11, double)
-    DEPENDENCY(RKstar_11_60, double)
-    //DEPENDENCY(prediction_RKstar_LHCb, flav_binned_prediction)
+    DEPENDENCY(prediction_RKRKstar_LHCb, flav_binned_prediction)
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
