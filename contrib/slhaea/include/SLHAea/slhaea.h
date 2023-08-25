@@ -29,8 +29,10 @@
 #include <boost/lexical_cast.hpp>
 
 // Added in GAMBIT to suppress warning from clang
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 namespace SLHAea {
 
@@ -2663,6 +2665,8 @@ operator>=(const Coll& a, const Coll& b)
 
 } // namespace SLHAea
 
-#pragma clang diagnostic pop
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic pop
+#endif
 
 #endif // SLHAEA_H

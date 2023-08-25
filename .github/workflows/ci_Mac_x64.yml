@@ -31,7 +31,7 @@ jobs:
         echo "Configure with cmake"
         cd BUILD
         # Ditching a few backends that don't currently work on Mac
-        cmake -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="plc;micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
     - name: Build scanners
       run: |
         echo "Build scanners"

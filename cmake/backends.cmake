@@ -1979,7 +1979,9 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND tar -C ${dir}/ -xf ${dir}/code/plc_3.0/plc-3.0.tar.bz2 --strip-components=1
           COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
           COMMAND sed ${dashi} -e "s#x86_64#${CMAKE_SYSTEM_PROCESSOR}#g" waf_tools/mbits.py
-    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${PYTHON_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --extra_lib=dl --no_pytools
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} LDFLAGS=\"${CMAKE_SHARED_LINKER_FLAGS}\" CFLAGS=\"${BACKEND_C_FLAGS}\" ${PYTHON_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --no_pytools" > run_waf.sh
+              COMMAND chmod u+x run_waf.sh
+              COMMAND ./run_waf.sh
     BUILD_COMMAND ""
     INSTALL_COMMAND C_INCLUDE_PATH=$(C_INCLUDE_PATH):${PYTHON_INCLUDE_DIR} ${PYTHON_EXECUTABLE} ${dir}/waf install --no_pytools
   )
@@ -2175,6 +2177,10 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# Linker flags used in the class makefile when linking executables
+set(CLASSY_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+# This is the link command used by cython when compiling Python.
+set(CYTHON_LINK "LDSHARED=${CMAKE_C_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} ${CLASSY_LINKER_FLAGS}")
 # Modified OpenMP settings and linker flags for classy
 if(FOUND_BREW_OPENMP)
   set(CLASSY_OpenMP_C_FLAGS "${OpenMP_C_FLAGS} -I${BREW_LIBOMP_PREFIX}/include")
@@ -2193,7 +2199,6 @@ elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_C_COMPILER_ID}" STR
 elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
   set(lgomp_REPLACEMENT "${lgomp_REPLACEMENT},  '-xHost'")
 endif()
-set(CLASSY_MAKE_SHARED "${CMAKE_C_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS}")
 
 # classy
 set(name "classy")
@@ -2222,7 +2227,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${NO_FIXUP_CHAINS} PYTHON=${PYTHON_EXECUTABLE} LDSHARED=${CLASSY_MAKE_SHARED} CFLAGS=${BACKEND_C_FLAGS} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2261,7 +2266,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${NO_FIXUP_CHAINS} PYTHON=${PYTHON_EXECUTABLE} LDSHARED=${CLASSY_MAKE_SHARED} CFLAGS=${BACKEND_C_FLAGS} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2300,7 +2305,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${NO_FIXUP_CHAINS} PYTHON=${PYTHON_EXECUTABLE} LDSHARED=${CLASSY_MAKE_SHARED} CFLAGS=${BACKEND_C_FLAGS} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2339,7 +2344,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${NO_FIXUP_CHAINS} PYTHON=${PYTHON_EXECUTABLE} LDSHARED=${CLASSY_MAKE_SHARED} CFLAGS=${BACKEND_C_FLAGS} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2379,7 +2384,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${NO_FIXUP_CHAINS} PYTHON=${PYTHON_EXECUTABLE} LDSHARED=${CLASSY_MAKE_SHARED} CFLAGS=${BACKEND_C_FLAGS} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py

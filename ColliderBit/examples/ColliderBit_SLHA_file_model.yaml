@@ -175,9 +175,9 @@ Rules:
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
     # Choose not to use the FullLikes backend.
-    # function: calc_LHC_LogLikes
+    function: calc_LHC_LogLikes
     # Choose to use the FullLikes backend when applicable
-    function: calc_LHC_LogLikes_full
+    # function: calc_LHC_LogLikes_full
     backends:
     - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:

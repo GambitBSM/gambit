@@ -36,6 +36,10 @@
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
+///
 ///  *********************************************
 
 
@@ -200,6 +204,8 @@ namespace Gambit
       /// Getter for revealing whether this is permitted to be a manager functor
       virtual bool canBeLoopManager();
 
+      /// Getter for revealing whether this functor needs a loop manager
+      virtual bool needsLoopManager();
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
       /// Getter for revealing the required type of the wrapped function's loop manager
@@ -238,11 +244,17 @@ namespace Gambit
       /// Getter for backend-specific conditional dependencies (backend functor pointer version)
       virtual std::set<sspair> backend_conditional_dependencies (functor*);
 
-      /// Getter for listing model-specific conditional dependencies
-      virtual std::set<sspair> model_conditional_dependencies (str);
+      /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
+      virtual std::set<sspair> model_conditional_dependencies (str model);
 
-      /// Getter for listing model-specific conditional backend requirements
-      virtual std::set<sspair> model_conditional_backend_reqs (str);
+      /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+      virtual std::set<sspair> model_conditional_dependencies_exact (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
+      virtual std::set<sspair> model_conditional_backend_reqs (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+      virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Resolve a dependency using a pointer to another functor object
       virtual void resolveDependency (functor*);
@@ -306,6 +318,15 @@ namespace Gambit
 
       /// Return a safe pointer to the vector of all capability,type pairs of functors arranged downstream of this one in the dependency tree.
       safe_ptr<std::set<sspair>> getDependees();
+
+      /// Getter for listing allowed models
+      const std::set<str>& getAllowedModels();
+
+      /// Getter for listing conditional models
+      const std::set<str>& getConditionalModels();
+
+      /// Getter for map of model groups and the set of models in each group
+      const std::map<str, std::set<str>>& getModelGroups();
 
       /// Test whether the functor is allowed to be used with all models
       bool allModelsAllowed();
@@ -404,6 +425,9 @@ namespace Gambit
       /// List of allowed models
       std::set<str> allowedModels;
 
+      /// List of conditional models
+      std::set<str> conditionalModels;
+
       /// List of allowed model group combinations
       std::set<std::set<str> > allowedGroupCombos;
 
@@ -501,6 +525,8 @@ namespace Gambit
 
       /// Setter for specifying the capability required of a manager functor, if it is to run this functor nested in a loop.
       virtual void setLoopManagerCapType (str cap, str t);
+      /// Getter for revealing whether this functor needs a loop manager
+      virtual bool needsLoopManager();
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
       /// Getter for revealing the required type of the wrapped function's loop manager
@@ -545,11 +571,17 @@ namespace Gambit
       /// Getter for backend-specific conditional dependencies (backend functor pointer version)
       virtual std::set<sspair> backend_conditional_dependencies (functor* be_functor);
 
-      /// Getter for listing model-specific conditional dependencies
+      /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
       virtual std::set<sspair> model_conditional_dependencies (str model);
 
-      /// Getter for listing model-specific conditional backend requirements
+      /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+      virtual std::set<sspair> model_conditional_dependencies_exact (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
       virtual std::set<sspair> model_conditional_backend_reqs (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+      virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Add and activate unconditional dependencies.
       void setDependency(str, str, void(*)(functor*, module_functor_common*), str purpose= "");
