@@ -60,6 +60,7 @@ namespace Gambit
       // Retrieve run options from the YAML file (or standalone code)
       static bool first = true;
       static bool silenceLoop;
+      static bool print_cutflow;
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
@@ -67,6 +68,9 @@ namespace Gambit
       {
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
+
+        // Print cutflow at the end of the run
+        print_cutflow = runOptions->getValueOrDef<bool>(false, "print_cutflow");
 
         // Retrieve all the names of all entries in the yaml options node.
         std::vector<str> vec = runOptions->getNames();
@@ -157,7 +161,7 @@ namespace Gambit
         piped_errors.check(ColliderBit_error());
         piped_invalid_point.check();
 
-        // Execute the sigle-thread iteration XSEC_CALCULATION 
+        // Execute the sigle-thread iteration XSEC_CALCULATION
         #ifdef COLLIDERBIT_DEBUG
           cout << DEBUG_PREFIX << "operateLHCLoop: Will execute XSEC_CALCULATION" << endl;
         #endif
@@ -206,7 +210,7 @@ namespace Gambit
               bool thread_do_iteration = true;
               int thread_my_iteration;
 
-              // Increment counters before executing the corresponding event loop iteration, 
+              // Increment counters before executing the corresponding event loop iteration,
               // to stop other threads from starting any event iterations beyond max_nEvents.
               #pragma omp critical
               {
@@ -221,7 +225,7 @@ namespace Gambit
                   thread_do_iteration = false;
                 }
               }
-              
+
               if(thread_do_iteration)
               {
                 try
@@ -305,6 +309,9 @@ namespace Gambit
       if (silenceLoop) std::cout.rdbuf(coutbuf);
 
       Loop::executeIteration(BASE_FINALIZE);
+
+      // Print cutflows of analyses
+      if(print_cutflow) std::cout << "printing cutflow" << std::endl;
 
       // Any problems during the BASE_FINALIZE step?
       piped_warnings.check(ColliderBit_warning());

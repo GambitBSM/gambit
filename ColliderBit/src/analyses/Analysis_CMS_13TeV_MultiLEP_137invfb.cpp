@@ -34,7 +34,7 @@ namespace Gambit
         }
 
       public:
- 
+
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
@@ -132,6 +132,7 @@ namespace Gambit
         void run(const HEPUtils::Event* event)
         {
 
+          std::cout << "Running CMS_13TeV_MUltiLEP_137invfb" << std::endl;
           // Useful constants
           double mZ = 91.1876;
 
@@ -189,6 +190,13 @@ namespace Gambit
             if (jet->pT()>25. &&fabs(jet->eta())<2.4)
               baselineJets.push_back(jet);
           }
+
+          std::cout << "number of baseline electrons = " << baselineElectrons.size() << std::endl;
+          std::cout << "number of baseline muons = " << baselineMuons.size() << std::endl;
+          std::cout << "number of baseline taus = " << baselineTaus.size() << std::endl;
+          std::cout << "number of baseline jets = " << baselineJets.size() << std::endl;
+          std::cout << "number of baseline loose leptons = " << baselineLeptons.size() << std::endl;
+
 
           // Jets must have a separation of R > 0.4 from any lepton
           removeOverlap(baselineJets, baselineElectrons, 0.4);
@@ -253,12 +261,12 @@ namespace Gambit
 
           // - OS pairs, only light leptons
           std::vector<std::vector<const HEPUtils::Particle*> > OSpairs = getOSpairs(signalLightLeptons);
-          sortByParentMass(OSpairs, mZ);         
+          sortByParentMass(OSpairs, mZ);
           uniquePairs(OSpairs);
 
           // - OS pairs, including taus
           std::vector<std::vector<const HEPUtils::Particle*> > OSpairsWithTaus = getOSpairs(signalLeptons);
-          sortByParentMass(OSpairsWithTaus, mZ);         
+          sortByParentMass(OSpairsWithTaus, mZ);
           uniquePairs(OSpairsWithTaus);
 
           // - OSSF pairs, only light leptons
@@ -289,7 +297,7 @@ namespace Gambit
 
           // Apply b-tag efficiency on b-jets
           CMS::applyCSVv2TightBtagEff(signalBJets);
-          
+
 
 
           ///////////////////////////////
@@ -341,7 +349,7 @@ namespace Gambit
           // Signal regions //
 
           // 2SSLep, (2lSS)
-          if(nLightLeptons == 2 and nLeptons == 2 and nSSpairs == 1 and 
+          if(nLightLeptons == 2 and nLeptons == 2 and nSSpairs == 1 and
              ( (muonPair and signalLeptons.at(0)->pT() > 20.) or ((electronPair or mixedPair) and signalLeptons.at(0)->pT() > 25.) ) and
              ( (amIanElectron(signalLeptons.at(1)) and signalLeptons.at(1)->pT() >  15.) or (amIaMuon(signalLeptons.at(1)) and signalLeptons.at(1)->pT() > 10.) ) and
              ( nJets < 2 or signalJets.at(1)->pT() < 40) and
@@ -387,12 +395,12 @@ namespace Gambit
             static int n3lepevents = 0;
             n3lepevents++;
           }
-          bool _3Lep = nLeptons == 3 and 
-                      nLightLeptons > 0 and 
-                      ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or 
+          bool _3Lep = nLeptons == 3 and
+                      nLightLeptons > 0 and
+                      ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or
                         (amIaMuon(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 20.) ) and
-                      ( nLightLeptons < 2 or 
-                        (amIanElectron(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 15.) or 
+                      ( nLightLeptons < 2 or
+                        (amIanElectron(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 15.) or
                         (amIaMuon(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 10.) ) and
                       met > 50;
 
@@ -582,7 +590,7 @@ namespace Gambit
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 100. and met < 250.) counter_cutflow("E02",event,w);
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 250.) counter_cutflow("E03",event,w);
             if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >=  50. and met < 100.) counter_cutflow("E04",event,w);
-            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >= 100.) counter_cutflow("E05",event,w); 
+            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >= 100.) counter_cutflow("E05",event,w);
 
             if(mT2 >= 80. and mlth <= 100. and met >=  50. and met < 150.) counter_cutflow("E06",event,w);
             if(mT2 >= 80. and mlth <= 100. and met >= 150.) counter_cutflow("E07",event,w);
@@ -1187,6 +1195,6 @@ namespace Gambit
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_4LEPTau_137invfb)
-   
+
   }
 }

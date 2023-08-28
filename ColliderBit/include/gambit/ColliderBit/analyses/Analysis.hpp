@@ -22,6 +22,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 July
+///
 ///  *********************************************
 
 #pragma once
@@ -29,6 +33,7 @@
 #include <string>
 #include "HEPUtils/Event.h"
 #include "gambit/ColliderBit/analyses/AnalysisData.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 namespace Gambit
 {
@@ -78,6 +83,9 @@ namespace Gambit
         AnalysisData* get_results_ptr(str&);
         ///@}
 
+        // Get the collection of cutflows for the analysis
+        const Cutflows get_cutflows();
+
         /// Scale by xsec per event.
         void scale(double);
 
@@ -109,6 +117,12 @@ namespace Gambit
         /// Gather together the info for likelihood calculation.
         virtual void collect_results() = 0;
         ///@}
+
+        // Counters for the number of accepted events for each signal region
+        std::map<str, EventCounter> _counters;
+
+        // Every analysis should store its cutflows
+        Cutflows _cutflows;
 
       private:
 

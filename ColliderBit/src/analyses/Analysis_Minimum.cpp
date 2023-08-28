@@ -1,13 +1,16 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
     using namespace std;
 
 
     /// Basic analysis code for copying
-    class Analysis_Minimum : public Analysis {
+    class Analysis_Minimum : public Analysis
+    {
     private:
 
       // Variables to hold the number of events passing signal region cuts
@@ -33,7 +36,8 @@ namespace Gambit {
       }
 
 
-      void run(const HEPUtils::Event* event){
+      void run(const HEPUtils::Event* event)
+      {
 
         // Get the missing energy in the event
         double met = event->met();
