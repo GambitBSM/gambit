@@ -149,12 +149,6 @@ Rules:
     function: make_MSSM_precision_spectrum_none
 
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
-  - capability: Reference_SM_Higgs_decay_rates
-    function: Ref_SM_Higgs_decays_table
-  - capability: Reference_SM_other_Higgs_decay_rates
-    function: Ref_SM_other_Higgs_decays_table
-  - capability: Reference_SM_A0_decay_rates
-    function: Ref_SM_A0_decays_table
   - capability: Higgs_decay_rates
     function: MSSM_h0_1_decays
   - capability: h0_2_decay_rates
@@ -165,11 +159,6 @@ Rules:
     function: H_plus_decays
   - capability: t_decay_rates
     function: t_decays
-
-  # Choose where to get the Higgs couplings from
-  - capability: Higgs_Couplings
-    function: MSSM_higgs_couplings_pwid
-
 
   # Pass an SLHA2 spectrum to Pythia
   - capability: SpectrumAndDecaysForPythia
@@ -198,16 +187,11 @@ Rules:
     type: HEPUtils::Event
     function: generateEventPythia_HEPUtils
 
-  - capability: HardScatteringEvent
-    type: HepMC3::GenEvent
-    function: generateEventPythia_HepMC
-
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
     function: operateLHCLoop
     options:
       silenceLoop: false
-      print_cutflow: true
       LHC_13TeV:
         min_nEvents: 1000 # 5000
         max_nEvents: 1000 # 50000
@@ -253,7 +237,7 @@ Rules:
     # Choose to use the FullLikes backend when applicable
     # function: calc_LHC_LogLikes_full
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       use_marginalising: false
@@ -277,48 +261,10 @@ Rules:
       cap_loglike_individual_analyses: false
       # skip_analyses:
 
-  # Set analyses for Rivet measurements
-  - capability: Rivet_measurements
+  # Options for analysis collector
+  - capability: AllAnalysisNumbers
     options:
-      drop_YODA_file: true
-      LHC_8TeV:
-        analyses:
-          # - 8TeV
-          - ATLAS_2014_I1279489
-          - ATLAS_2014_I1306615
-          - ATLAS_2014_I1310835
-          - ATLAS_2015_I1394679
-          - ATLAS_2015_I1394865
-          - ATLAS_2015_I1397637
-          - ATLAS_2015_I1404878
-          - ATLAS_2015_I1408516:LMODE=EL
-          - ATLAS_2015_I1408516:LMODE=MU
-      LHC_13TeV:
-        analyses:
-          # - 13TeV
-          - ATLAS_2016_I1458270
-          - ATLAS_2017_I1514251:LMODE=EL
-          - ATLAS_2017_I1514251:LMODE=MU
-        exclude_analyses:
-          - ATLAS_2016_I1469071 # This analysis causes crashes if run on BSM outside of rivet.
-
-
-
-  - capability: LHC_measurements
-    function: Contur_LHC_measurements_from_stream
-    # function: Contur_LHC_measurements_from_file
-    options:
-      # Adding a contur option is equivalent to running contur with the equivalent flag.
-      # contur_options:
-      # - use-searches
-      # - theory
-      # YODA_filename: "./GAMBIT_collider_measurements_LHC_13TeV.yoda"
-
-  - capability: LHC_measurements_LogLike
-    function: Contur_LHC_measurements_LogLike
-
-  - capability: LHC_measurements_LogLike_perPool
-    function: Contur_LHC_measurements_LogLike_perPool
+      print_cutflows: true
 
 Logger:
 

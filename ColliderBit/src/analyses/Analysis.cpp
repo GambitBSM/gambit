@@ -118,9 +118,19 @@ namespace Gambit
     /// Add the given result to the internal results list.
     void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
 
+    /// Add cutflows to the internal results list
+    void Analysis::add_cutflows(const Cutflows& cf, bool normalized, double xsec)
+    {
+      // Normalize to xsec if provided
+      if(normalized)
+         _cutflows.normalize(xsec*luminosity());
+
+      _results.add_cutflows(cf);
+    }
+
     /// Set the path to the FullLikes BKG file
     void Analysis::set_bkgjson(const std::string& bkgpath)
-    { 
+    {
       _results.bkgjson_path = bkgpath;
     }
 

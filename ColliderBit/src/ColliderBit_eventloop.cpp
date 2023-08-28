@@ -60,7 +60,6 @@ namespace Gambit
       // Retrieve run options from the YAML file (or standalone code)
       static bool first = true;
       static bool silenceLoop;
-      static bool print_cutflow;
       static std::map<str,int> min_nEvents;
       static std::map<str,int> max_nEvents;
       static std::map<str,int> stoppingres;
@@ -68,9 +67,6 @@ namespace Gambit
       {
         // Should we silence stdout during the loop?
         silenceLoop = runOptions->getValueOrDef<bool>(true, "silenceLoop");
-
-        // Print cutflow at the end of the run
-        print_cutflow = runOptions->getValueOrDef<bool>(false, "print_cutflow");
 
         // Retrieve all the names of all entries in the yaml options node.
         std::vector<str> vec = runOptions->getNames();
@@ -310,9 +306,6 @@ namespace Gambit
 
       Loop::executeIteration(BASE_FINALIZE);
 
-      // Print cutflows of analyses
-      if(print_cutflow) std::cout << "printing cutflow" << std::endl;
-
       // Any problems during the BASE_FINALIZE step?
       piped_warnings.check(ColliderBit_warning());
       piped_errors.check(ColliderBit_error());
@@ -340,6 +333,7 @@ namespace Gambit
     {
       using namespace Pipes::CollectAnalyses;
       static bool first = true;
+      static bool print_cutflows;
 
       // Start with an empty vector
       result.clear();
@@ -358,6 +352,9 @@ namespace Gambit
       // When first called, check that all analyses contain at least one signal region.
       if (first)
       {
+        // Print cutflow at the end of the run
+        print_cutflows = runOptions->getValueOrDef<bool>(false, "print_cutflows");
+
         // Loop over all AnalysisData pointers
         for (auto& adp : result)
         {
@@ -371,6 +368,18 @@ namespace Gambit
         first = false;
       }
 
+      // Print cutflows of analyses
+      if(print_cutflows)
+      {
+        std::cout << "Cutflows" << std::endl;
+        std::cout << "========" << std::endl;
+        for(auto& adp : result)
+        {
+          std::cout << adp->analysis_name << std::endl;
+          std::cout << "-----------------" << std::endl;
+          std::cout << adp->cutflows << std::endl;
+        }
+      }
 
       // #ifdef COLLIDERBIT_DEBUG
       //   cout << DEBUG_PREFIX << "CollectAnalyses: Current size of 'result': " << result.size() << endl;

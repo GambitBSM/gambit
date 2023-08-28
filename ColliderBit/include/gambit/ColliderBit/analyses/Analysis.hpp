@@ -31,7 +31,9 @@
 #pragma once
 
 #include <string>
+
 #include "HEPUtils/Event.h"
+
 #include "gambit/ColliderBit/analyses/AnalysisData.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
@@ -108,6 +110,8 @@ namespace Gambit
         virtual void run(const HEPUtils::Event*) = 0;
         /// Add the given result to the internal results list.
         void add_result(const SignalRegionData& sr);
+        /// Add cutflows to the internal results list
+        void add_cutflows(const Cutflows& cf, bool normalized=false, double xsec=0.0);
         /// Set the covariance matrix, expressing SR correlations
         void set_covariance(const Eigen::MatrixXd& srcov);
         /// A convenience function for setting the SR covariance from a nested vector/initialiser list

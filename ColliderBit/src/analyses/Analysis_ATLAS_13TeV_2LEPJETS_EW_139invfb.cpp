@@ -129,7 +129,7 @@ namespace Gambit
           _cutflow[i].fillinit();
         }
 
-        // Baseline electrons have pT > 4.5 GeV, satisfy the "loose" criteria, and have |eta|<2.47. 
+        // Baseline electrons have pT > 4.5 GeV, satisfy the "loose" criteria, and have |eta|<2.47.
         for (const HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT() > 4.5 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
@@ -139,7 +139,7 @@ namespace Gambit
         // Loose electron ID selection
         ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
 
-        // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7 
+        // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
         for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 3. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
@@ -295,7 +295,7 @@ namespace Gambit
         if (!(met > 100)) return; // TODO: Still trying to understand why. Could it just be for testing
         bool cut_metsig = true;
         //double metsig = met/sqrt(HT); // TODO: The approximate method
-        double metsig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
+        double metsig = 0;//calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
         if (!(metsig > 6)) cut_metsig=false;
 
         /* More event variables */
@@ -517,14 +517,14 @@ namespace Gambit
       virtual void collect_results()
       {
 
-        add_result(SignalRegionData(_counters.at("SR_High_8_a"), 0., {2.00, 0.23})); 
-        add_result(SignalRegionData(_counters.at("SR_High_8_b"), 0., {2.00, 0.33})); 
+        add_result(SignalRegionData(_counters.at("SR_High_8_a"), 0., {2.00, 0.23}));
+        add_result(SignalRegionData(_counters.at("SR_High_8_b"), 0., {2.00, 0.33}));
         add_result(SignalRegionData(_counters.at("SR_High_16_a"), 4., {3.9, 0.7}));
         add_result(SignalRegionData(_counters.at("SR_High_16_b"), 3., {3.4, 0.9}));
         add_result(SignalRegionData(_counters.at("SR_High_4"), 1., {0.85, 0.34}));
         add_result(SignalRegionData(_counters.at("SR_llbb"), 0., {0.58, 0.20}));
         add_result(SignalRegionData(_counters.at("SR_Int_a"), 24., {22.8, 3.5 }));
-        add_result(SignalRegionData(_counters.at("SR_Int_b"), 14., {10.1, 1.0})); 
+        add_result(SignalRegionData(_counters.at("SR_Int_b"), 14., {10.1, 1.0}));
         add_result(SignalRegionData(_counters.at("SR_Low_a"), 10., {12.8, 3.4}));
         add_result(SignalRegionData(_counters.at("SR_Low_b"), 8., {10.5, 2.5}));
         add_result(SignalRegionData(_counters.at("SR_Low_2"), 8., {9, 4}));
