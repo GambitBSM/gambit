@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [ubuntu, ubuntu-py2] #, fedora
+        arch: [ubuntu] #, ubuntu-py2, fedora
         #mpi: [ON, OFF]
     container: gambitbsm/gambit-base:${{ matrix.arch }}
     defaults:

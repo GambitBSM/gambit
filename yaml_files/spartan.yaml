@@ -1,5 +1,5 @@
 ##########################################################################
-## GAMBIT configuration for an ultra-minimal MultiNest scan of a toy model.
+## GAMBIT configuration for an ultra-minimal scan of a toy model.
 ##
 ## Only needs ExampleBit_A and a scanner (either one of the built-ins like
 ## the random sampler or TWalk, or an external like Diver, MultiNest,
@@ -36,12 +36,12 @@ Printer:
   #  buffer_length: 1000
   #  delete_file_on_restart: true
 
-  printer: hdf5
-  options:
-    output_file: "results.hdf5"
-    group: "/spartan"
-    delete_file_on_restart: true
-    buffer_length: 1000
+  #printer: hdf5
+  #options:
+  #  output_file: "results.hdf5"
+  #  group: "/spartan"
+  #  delete_file_on_restart: true
+  #  buffer_length: 1000
     #disable_autorepair: true
 
   #printer: ascii
@@ -50,7 +50,7 @@ Printer:
   #  buffer_length: 10
   #  delete_file_on_restart: true
 
-  #printer: cout
+  printer: cout
 
   #printer: none
 
@@ -123,9 +123,10 @@ ObsLikes:
 
 Rules:
 
-  # None required, since no module dependencies to be resolved.
-  - capability: normaldist_loglike
-    options:
+  - if:
+      capability: normaldist_loglike
+    then:
+      options:
         probability_of_validity: 1.0
 
 Logger:

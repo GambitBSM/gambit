@@ -28,6 +28,10 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/lexical_cast.hpp>
 
+// Added in GAMBIT to suppress warning from clang
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 namespace SLHAea {
 
 // auxiliary functions
@@ -2658,5 +2662,7 @@ operator>=(const Coll& a, const Coll& b)
 { return !(a < b); }
 
 } // namespace SLHAea
+
+#pragma clang diagnostic pop
 
 #endif // SLHAEA_H

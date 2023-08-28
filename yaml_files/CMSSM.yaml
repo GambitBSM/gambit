@@ -319,9 +319,6 @@ ObsLikes:
   - capability: sigmav
     purpose:    Observable
 
-  - capability: sigma_SI_p
-    purpose:    Observable
-
   - capability: sigma_SI_n
     purpose:    Observable
 
@@ -348,76 +345,88 @@ ObsLikes:
 Rules:
 
   # Tell all functions that are able to dump SLHA files to do so.
-  #- options:
-  #    drop_SLHA_file: true
+  #- if:
+  #    capability: any
+  #  then:
+  #    options:
+  #      drop_SLHA_file: true
 
   # Choose to use DarkSUSY 6 rather than Capt'n General for calculating the capture rate of DM in the Sun
-  - capability: capture_rate_Sun
-    #function: capture_rate_Sun_const_xsec_DS5
-    function: capture_rate_Sun_const_xsec
-
-  # If you have multiple versions of DarkSUSY installed, you can pick which one to provide
-  # the backend requirements to the function nuyield_from_DS
-  # - capability: nuyield_ptr
-  #   function: nuyield_from_DS
-  #   backends:
-  #     - {backend: DarkSUSY_MSSM, version: 6.2.2}
+  - if:
+      capability: capture_rate_Sun
+    then:
+      #function: capture_rate_Sun_const_xsec_DS5
+      function: capture_rate_Sun_const_xsec
 
   # Globally permit maximal mixing between gauge and family eigenstates
-  - options:
-      gauge_mixing_tolerance: 0.5
-      family_mixing_tolerance: 0.5
+  - if: 
+      function: any
+    then:
+      options:
+        gauge_mixing_tolerance: 0.5
+        family_mixing_tolerance: 0.5
 
   # Choose to use gm2calc for g-2
-  - capability: muon_gm2
-    function: GM2C_SUSY
+  - if:
+      capability: muon_gm2
+    then:
+      function: GM2C_SUSY
 
   # Choose to base the SM prediction for g-2 on e+e- data
-  - capability: muon_gm2_SM
-    function: gm2_SM_ee
-
-  # Use SM theory covariance matrix for every point
-  - capability: flav_theory_covariance
-    function: SuperIso_theory_covariance_SM
+  - if:
+      capability: muon_gm2_SM
+    then:
+      function: gm2_SM_ee
 
   # Use SuperIso instead of FeynHiggs for b->sgamma
-  - capability: prediction_b2sgamma
-    function: SuperIso_prediction_b2sgamma
+  - if:
+      capability: prediction_b2sgamma
+    then:
+      function: SuperIso_prediction_b2sgamma
 
   # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: SuperIso_prediction_B2mumu
+  - capability: prediction_B2mumu
     function: SuperIso_prediction_B2mumu
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
-  - capability: lnL_oh2
-    function: lnL_oh2_upperlimit
+  - if:
+      capability: lnL_oh2
+    then:
+      function: lnL_oh2_upperlimit
 
   # Choose to rescale signals in direct and indirect detection by the relic density fraction
-  - capability: RD_fraction
-    function: RD_fraction_leq_one
+  - if:
+      capability: RD_fraction
+    then:
+      function: RD_fraction_leq_one
 
   # Use DarkSUSY directly , MicrOmegas or the DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for the relic density?
   # Consult the DarkBit manual for the required options in each case
-  - capability: RD_oh2
-    #function: RD_oh2_DS5_general
-    # options:
-      # fast: 1  # 0: standard, 1: fast (default)
-      # Note that the corresponding options for DS6 have to be set in RD_oh2_DS6(pre4)_ini
-      # instead, see below!
-    function: RD_oh2_DS_general
-    #function: RD_oh2_DarkSUSY_DS5
-    #options:
-    #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
-    #  omtype: 1  # 0: no coann, 1: all coann (default)
-    #function: RD_oh2_MicrOmegas
-    #options:
-    #  fast: 1  # 0: standard (default), 1: fast
-    #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
+  - if:
+      capability: RD_oh2
+    then:
+      #function: RD_oh2_DS5_general
+      # options:
+        # fast: 1  # 0: standard, 1: fast (default)
+        # Note that the corresponding options for DS6 have to be set in RD_oh2_DS6(pre4)_ini
+        # instead, see below!
+      function: RD_oh2_DS_general
+      #function: RD_oh2_DarkSUSY_DS5
+      #options:
+      #  fast: 1  # 0: standard (default), 1: fast, 2: dirty
+      #  omtype: 1  # 0: no coann, 1: all coann (default)
+      #function: RD_oh2_MicrOmegas
+      #options:
+      #  fast: 1  # 0: standard (default), 1: fast
+      #  Beps: 1e-5  #  1e-5: standard, 1: switches coann off
 
-  - capability: RD_oh2_DS6_ini # starting from version 6.4.0
-    function: RD_oh2_DS6_ini_func
-    options:
-      fast: 1  # 0: standard, 1: fast (default)
+  - if:
+      capability: RD_oh2_DS6_ini # starting from version 6.4.0
+    then:
+      function: RD_oh2_DS6_ini_func
+      options:
+        fast: 1  # 0: standard, 1: fast (default)
+
   #- capability: RD_oh2_DS6pre4_ini # for DS6 pre version 6.4.0
   #  function: RD_oh2_DS6pre4_ini_func
   #  options:
@@ -425,299 +434,364 @@ Rules:
     
 
   # Choose to use the function RD_eff_annrate_DS_MSSM rather than RD_eff_annrate_from_ProcessCatalog
-  - capability: RD_eff_annrate
-    # function: RD_eff_annrate_DS5_MSSM
-    function: RD_eff_annrate_DS_MSSM
+  - if:
+      capability: RD_eff_annrate
+    then:
+      # function: RD_eff_annrate_DS5_MSSM
+      function: RD_eff_annrate_DS_MSSM
+
   # ...and get the dependency RD_spectrum from RD_spectrum_MSSM
-  - capability: RD_spectrum
-    #function: RD_spectrum_SUSY_DS5
-    function: RD_spectrum_MSSM
+  - if:
+      capability: RD_spectrum
+    then:
+      #function: RD_spectrum_SUSY_DS5
+      function: RD_spectrum_MSSM
 
   # Choose module function to provide the TH_ProcessCatalog
-  - capability: TH_ProcessCatalog
-    #function: TH_ProcessCatalog_DS5_MSSM # For DarkSUSY 5
-    function: TH_ProcessCatalog_DS_MSSM   # For DarkSUSY 6
+  - if:
+      capability: TH_ProcessCatalog
+    then:
+      #function: TH_ProcessCatalog_DS5_MSSM # For DarkSUSY 5
+      function: TH_ProcessCatalog_DS_MSSM   # For DarkSUSY 6
 
   # Choose between the functions sigmav_late_universe and sigmav_late_universe_MicrOmegas
-  - capability: sigmav
-    function: sigmav_late_universe
+  - if:
+      capability: sigmav
+    then:
+      function: sigmav_late_universe
 
   # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
-  - capability: lnL_FermiLATdwarfs
-    function:  lnL_FermiLATdwarfs_gamLike
+  - if:
+      capability: lnL_FermiLATdwarfs
+    then:
+      function:  lnL_FermiLATdwarfs_gamLike
 
   # Choose to use DarkSUSY 6 yield tables for indirect detection
-  - capability: GA_SimYieldTable
-    function: GA_SimYieldTable_DarkSUSY
-  - capability: positron_SimYieldTable
-    function: positron_SimYieldTable_DarkSUSY
-  - capability: antiproton_SimYieldTable
-    function: antiproton_SimYieldTable_DarkSUSY
-  - capability: antideuteron_SimYieldTable
-    function: antideuteron_SimYieldTable_DarkSUSY
+  - if:
+      capability: GA_SimYieldTable
+    then:
+      function: GA_SimYieldTable_DarkSUSY
+  - if:
+      capability: positron_SimYieldTable
+    then:
+      function: positron_SimYieldTable_DarkSUSY
+  - if:
+      capability: antiproton_SimYieldTable
+    then:
+      function: antiproton_SimYieldTable_DarkSUSY
+  - if:
+      capability: antideuteron_SimYieldTable
+    then:
+      function: antideuteron_SimYieldTable_DarkSUSY
 
   # The model is annihilating DM, not decaying
   - capability: GA_Yield
     function: GA_AnnYield_General
 
   # Use DarkSUSY or MicrOmegas for calculating direct detection couplings
-  - capability: DD_couplings
-    #function: DD_couplings_DarkSUSY_DS5
-    function: DD_couplings_DarkSUSY_MSSM
-    options:
-      loop: true
-    #function: DD_couplings_MicrOmegas
+  - if:
+      capability: DD_couplings
+    then:
+      #function: DD_couplings_DarkSUSY_DS5
+      function: DD_couplings_DarkSUSY_MSSM
+      options:
+        loop: true
+      #function: DD_couplings_MicrOmegas
 
   # Select WIMP-nucleon couplings to pass to DDCalc
-  - capability: DDCalc_Couplings
-    function: DDCalc_Couplings_WIMP_nucleon
+  - if:
+      capability: DDCalc_Couplings
+    then:
+      function: DDCalc_Couplings_WIMP_nucleon
 
   # Choose to get decays from DecayBit proper, not from an SLHA file.
-  - capability: decay_rates
-    function: all_decays
+  - if:
+      capability: decay_rates
+    then:
+      function: all_decays
 
   # Choose to get the spectrum from SpecBit proper, not an SLHA file.
   # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
-  - capability: unimproved_MSSM_spectrum
-    function: get_CMSSM_spectrum_FS
-    options:
-      precision_goal:        1.0e-4
-      max_iterations:        0
-      calculate_sm_masses:   false
-      pole_mass_loop_order:  2
-      ewsb_loop_order:       2
-      beta_loop_order:       2
-      threshold_corrections_loop_order: 2
-      use_higgs_2loop_at_as: true
-      use_higgs_2loop_ab_as: true
-      use_higgs_2loop_at_at: true
-      use_higgs_2loop_atau_atau: true
-      invalid_point_fatal: false
+  - if:
+      capability: unimproved_MSSM_spectrum
+    then:
+      function: get_CMSSM_spectrum_FS
+      options:
+        precision_goal:        1.0e-4
+        max_iterations:        0
+        calculate_sm_masses:   false
+        pole_mass_loop_order:  2
+        ewsb_loop_order:       2
+        beta_loop_order:       2
+        threshold_corrections_loop_order: 2
+        use_higgs_2loop_at_as: true
+        use_higgs_2loop_ab_as: true
+        use_higgs_2loop_at_at: true
+        use_higgs_2loop_atau_atau: true
+        invalid_point_fatal: false
 
   # Choose where to get the precision spectrum from
-  - capability: MSSM_spectrum
-    type: Spectrum
-    function: make_MSSM_precision_spectrum_none
-    # function: make_MSSM_precision_spectrum_W
-    # function: make_MSSM_precision_spectrum_H_W
-    # function: make_MSSM_precision_spectrum_4H_W
-    # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
-    # or make_MSSM_precision_spectrum_H_W.
-    # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
-    # Choose to use the difference between the precision and spectrum generator predictions, along
-    # with the precision error estimate, to estimate the theoretical error on the prediction.
-    # options:
-    #   Higgs_predictions_source: 1
-    #   Higgs_predictions_error_method: 4
+  - if:
+      capability: MSSM_spectrum
+      type: Spectrum
+    then:
+      function: make_MSSM_precision_spectrum_none
+     # function: make_MSSM_precision_spectrum_W
+     # function: make_MSSM_precision_spectrum_H_W
+     # function: make_MSSM_precision_spectrum_4H_W
+     # The following options only have an impact when using make_MSSM_precision_spectrum_H_W
+     # or make_MSSM_precision_spectrum_H_W.
+     # Choose to take the precision prediction for the Higgs mass(es) (rather then spectrum generator's).
+     # Choose to use the difference between the precision and spectrum generator predictions, along
+     # with the precision error estimate, to estimate the theoretical error on the prediction.
+     # options:
+     #   Higgs_predictions_source: 1
+     #   Higgs_predictions_error_method: 4
 
-  # Make sure to use the next-to-latest version (2.11.3) of FeynHiggs for things that need it,
-  # as the latest version (2.12.0) is buggy.
-  # In practice, the easiest way to do this is just to not install / nuke the versions you don't want to use, e.g.
-  #  make nuke-feynhiggs_2_12_0
-  #  make nuke-feynhiggs_2_11_2
-  # In a future version of GAMBIT, it will possible to just do this here in the yaml file:
-  #- backend: FeynHiggs
-  #  version: 2.11.3
-  # If you want to do it from the yaml file now, you need to do this:
-  #- capability: FH_Couplings_output
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: Precision
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  # The following two rules only have an impact when using make_MSSM_precision_spectrum_H_W
-  #- capability: prec_HiggsMasses
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
-  #- capability: MSSMMasses
-  #  backends:
-  #  - {backend: FeynHiggs, version: 2.11.3}
+  # Make sure to use 2.11.3 of FeynHiggs for things that need it, as 2.12.0 is buggy.
+  #- if:
+  #    backend: FeynHiggs
+  #  then:
+  #    version: 2.11.3
 
   # # Choose to get the precision value of the SM-like Higgs mass from FeynHiggs or SUSYHD
-  # - capability: prec_mh
-  #   function: FeynHiggs_HiggsMass
+  # - if:
+  #     capability: prec_mh
+  #   then:
+  #     function: FeynHiggs_HiggsMass
   #   # function: SUSYHD_HiggsMass
 
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
-  - capability: Reference_SM_Higgs_decay_rates
-    function: Ref_SM_Higgs_decays_table
-  - capability: Reference_SM_other_Higgs_decay_rates
-    function: Ref_SM_other_Higgs_decays_table
-  - capability: Reference_SM_A0_decay_rates
-    function: Ref_SM_A0_decays_table
-  - capability: Higgs_decay_rates
-    function: MSSM_h0_1_decays
-  - capability: h0_2_decay_rates
-    function: h0_2_decays
-  - capability: A0_decay_rates
-    function: A0_decays
-  - capability: H_plus_decay_rates
-    function: H_plus_decays
-  - capability: t_decay_rates
-    function: t_decays
+  - if:
+      capability: Reference_SM_Higgs_decay_rates
+    then:
+      function: Ref_SM_Higgs_decays_table
+  - if:
+      capability: Reference_SM_other_Higgs_decay_rates
+    then:
+      function: Ref_SM_other_Higgs_decays_table
+  - if:
+      capability: Reference_SM_A0_decay_rates
+    then:
+      function: Ref_SM_A0_decays_table
+  - if:
+      capability: Higgs_decay_rates
+    then:
+      function: MSSM_h0_1_decays
+  - if:
+      capability: h0_2_decay_rates
+    then:
+      function: h0_2_decays
+  - if:
+      capability: A0_decay_rates
+    then:
+      function: A0_decays
+  - if:
+      capability: H_plus_decay_rates
+    then:
+      function: H_plus_decays
+  - if:
+      capability: t_decay_rates
+    then:
+      function: t_decays
 
   # Choose where to get the Higgs couplings from
-  - capability: Higgs_Couplings
-    function: MSSM_higgs_couplings_pwid
-    #function: MSSM_higgs_couplings_FeynHiggs
+  - if:
+      capability: Higgs_Couplings
+    then:
+      function: MSSM_higgs_couplings_pwid
+      #function: MSSM_higgs_couplings_FeynHiggs
 
   # Experimental values to be used in nuclear parameter likelihoods (all values in MeV)
-  - capability: lnL_SI_nuclear_parameters
-    function: lnL_sigmas_sigmal
-    options:
-      sigmas_central: 43.0
-      sigmas_error: 8.0
-      sigmal_central: 58.0
-      sigmal_error: 9.0
+  - if:
+      capability: lnL_SI_nuclear_parameters
+    then:
+      function: lnL_sigmas_sigmal
+      options:
+        sigmas_central: 43.0
+        sigmas_error: 8.0
+        sigmal_central: 58.0
+        sigmal_error: 9.0
 
   # Observed value and uncertainty of local dark matter density (in GeV/cm^3)
-  - capability: lnL_rho0
-    function: lnL_rho0_lognormal
-    options:
-      rho0_obs: 0.4
-      rho0_obserr: 0.15
+  - if:
+      capability: lnL_rho0
+    then:
+      function: lnL_rho0_lognormal
+      options:
+        rho0_obs: 0.4
+        rho0_obserr: 0.15
 
   # Values to be used in local disk rotation speed likelihood (all values in km/s)
-  - capability: lnL_vrot
-    function: lnL_vrot_gaussian
-    options:
-      vrot_obs: 235
-      vrot_obserr: 20
+  #- if:
+  #    capability: lnL_vrot
+  #  then:
+  #    function: lnL_vrot_gaussian
+  #    options:
+  #      vrot_obs: 235
+  #      vrot_obserr: 20
 
   # Values to be used in Maxwellian most-probable speed likelihood (all values in km/s)
-  - capability: lnL_v0
-    function: lnL_v0_gaussian
-    options:
-      v0_obs: 235
-      v0_obserr: 20
+  #- if:
+  #    capability: lnL_v0
+  #  then:
+  #    function: lnL_v0_gaussian
+  #    options:
+  #      v0_obs: 235
+  #      v0_obserr: 20
 
   # Values to be used in local Galactic escape speed likelihood (all values in km/s)
-  - capability: lnL_vesc
-    function: lnL_vesc_gaussian
-    options:
-      vesc_obs: 550
-      vesc_obserr: 35
+  #- if:
+  #    capability: lnL_vesc
+  #  then:
+  #    function: lnL_vesc_gaussian
+  #    options:
+  #      vesc_obs: 550
+  #      vesc_obserr: 35
 
   # Values to be used in PrecisionBit likelihood function for light quark masses
-  - capability: lnL_light_quark_masses
-    options:
-      # m_u/m_d
-      mud_central: 0.48
-      mud_error: 0.10
-      # m_s / ((m_u + m_d)/2)
-      msud_central: 27.5
-      msud_error: 1.0
-      # m_s
-      ms_central: 95.E-03
-      ms_error: 5.E-03
+  #- if:
+  #    capability: lnL_light_quark_masses
+  #  then:
+  #    options:
+  #      # m_u/m_d
+  #      mud_central: 0.48
+  #      mud_error: 0.10
+  #      # m_s / ((m_u + m_d)/2)
+  #      msud_central: 27.5
+  #      msud_error: 1.0
+  #      # m_s
+  #      ms_central: 95.E-03
+  #      ms_error: 5.E-03
 
   # Pass an SLHA2 spectrum to Pythia
-  - capability: SpectrumAndDecaysForPythia
-    function: getSpectrumAndDecaysForPythia
-    options:
-      slha_version: 2
-      write_summary_to_log: false
+  - if:
+      capability: SpectrumAndDecaysForPythia
+    then:
+      function: getSpectrumAndDecaysForPythia
+      options:
+        slha_version: 2
+        write_summary_to_log: false
 
   # Choose to where to get cross-sections from
-  - capability: TotalCrossSection
-    function: getEvGenCrossSection_as_base
+  - if:
+      capability: TotalCrossSection
+    then:
+      function: getEvGenCrossSection_as_base
 
   # Just use unweighted cross-sections
-  - capability: EventWeighterFunction
-    function: setEventWeight_unity
+  - if:
+      capability: EventWeighterFunction
+    then:
+      function: setEventWeight_unity
 
   # Choose where to get scattering events from
-  - capability: HardScatteringEvent
-    type: Pythia_default::Pythia8::Event
-    function: generateEventPythia
+  - if:
+      capability: HardScatteringEvent
+      type: Pythia_default::Pythia8::Event
+    then:
+      function: generateEventPythia
 
-  - capability: HardScatteringEvent
-    type: HEPUtils::Event
-    function: generateEventPythia_HEPUtils
+  - if:
+      capability: HardScatteringEvent
+      type: HEPUtils::Event
+    then:
+      function: generateEventPythia_HEPUtils
 
   # Choose Monte Carlo event simulator and options.
-  - capability: HardScatteringSim
-    type: Py8Collider_defaultversion
-    function: getPythia
-    options:
-      LHC_13TeV:
-        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
-        xsec_veto: 0.028
-        antiktR: 0.4
-        partonOnly: false
-        pythia_settings:
-          - Print:quiet = on
-          - Random:setSeed = on
-          - Beams:eCM = 13000
-          - PartonLevel:MPI = off
-          - PartonLevel:ISR = on
-          - PartonLevel:FSR = on
-          - HadronLevel:all = on
-          - SUSY:all = on
-          - TauDecays:mode = 0
-          - TimeShower:pTmin = 2
-          - 23:mMin = 0.1
-          - 24:mMin = 0.1
+  - if:
+      capability: HardScatteringSim
+      type: Py8Collider_defaultversion
+    then:
+      function: getPythia
+      options:
+        LHC_13TeV:
+          # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+          xsec_veto: 0.028
+          antiktR: 0.4
+          partonOnly: false
+          pythia_settings:
+            - Print:quiet = on
+            - Random:setSeed = on
+            - Beams:eCM = 13000
+            - PartonLevel:MPI = off
+            - PartonLevel:ISR = on
+            - PartonLevel:FSR = on
+            - HadronLevel:all = on
+            - SUSY:all = on
+            - TauDecays:mode = 0
+            - TimeShower:pTmin = 2
+            - 23:mMin = 0.1
+            - 24:mMin = 0.1
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
-  - capability: RunMC
-    function: operateLHCLoop
-    options:
-      silenceLoop: true
-      LHC_13TeV:
-        min_nEvents: 10000
-        max_nEvents: 50000
-        events_between_convergence_checks: 10000
-        target_fractional_uncert: 0.1
-        halt_when_systematic_dominated: true
-        all_analyses_must_converge: false
-        all_SR_must_converge: false
-        maxFailedEvents: 10
-        analyses:
-          - CMS_13TeV_0LEP_36invfb
-          - CMS_13TeV_1LEPbb_36invfb
-          - CMS_13TeV_2OSLEP_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_MultiLEP_36invfb
-          - CMS_13TeV_MONOJET_36invfb
-          - ATLAS_13TeV_0LEP_36invfb
-          - ATLAS_13TeV_MultiLEP_36invfb
-          - ATLAS_13TeV_0LEPStop_36invfb
-          - ATLAS_13TeV_2LEPStop_36invfb
-          - ATLAS_13TeV_2bMET_36invfb
-        # - ATLAS_13TeV_RJ3L_lowmass_36invfb
-        # - ATLAS_13TeV_1LEPStop_36invfb
-        # The last two analyses depend on ROOT.
+  - if:
+      capability: RunMC
+    then:
+      function: operateLHCLoop
+      options:
+        silenceLoop: true
+        LHC_13TeV:
+          min_nEvents: 10000
+          max_nEvents: 50000
+          events_between_convergence_checks: 10000
+          target_fractional_uncert: 0.1
+          halt_when_systematic_dominated: true
+          all_analyses_must_converge: false
+          all_SR_must_converge: false
+          maxFailedEvents: 10
+          analyses:
+            - CMS_13TeV_0LEP_36invfb
+            - CMS_13TeV_1LEPbb_36invfb
+            - CMS_13TeV_2OSLEP_36invfb
+            - CMS_13TeV_2LEPsoft_36invfb
+            - CMS_13TeV_1LEPStop_36invfb
+            - CMS_13TeV_2LEPStop_36invfb
+            - CMS_13TeV_MultiLEP_36invfb
+            - CMS_13TeV_MONOJET_36invfb
+            - ATLAS_13TeV_0LEP_36invfb
+            - ATLAS_13TeV_MultiLEP_36invfb
+            - ATLAS_13TeV_0LEPStop_36invfb
+            - ATLAS_13TeV_2LEPStop_36invfb
+            - ATLAS_13TeV_2bMET_36invfb
+          # - ATLAS_13TeV_RJ3L_lowmass_36invfb
+          # - ATLAS_13TeV_1LEPStop_36invfb
+          # The last two analyses depend on ROOT.
 
   # Choose LHC likelihood form and options.
-  - capability: LHC_LogLikes
-    function: calc_LHC_LogLikes
-    backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
-    options:
-      use_covariances: true
-      use_marginalising: false
-      combine_SRs_without_covariances: false
-      nuisance_prof_initstep: 0.1
-      nuisance_prof_convtol: 0.01
-      nuisance_prof_maxsteps: 10000
-      nuisance_prof_convacc: 0.01
-      nuisance_prof_simplexsize: 1e-5
-      nuisance_prof_method: 6 #1
-      nuisance_prof_verbosity: 0
-      # covariance_marg_convthres_abs: 0.05
-      # covariance_marg_convthres_rel: 0.05
-      # covariance_nsamples_start: 1000000
+  - if:
+      capability: LHC_LogLikes
+    then:
+      function: calc_LHC_LogLikes
+      backends:
+      - if:
+          group: lnlike_marg_poisson
+        then:
+          capability: lnlike_marg_poisson_lognormal_error
+      options:
+        use_covariances: true
+        use_marginalising: false
+        combine_SRs_without_covariances: false
+        nuisance_prof_initstep: 0.1
+        nuisance_prof_convtol: 0.01
+        nuisance_prof_maxsteps: 10000
+        nuisance_prof_convacc: 0.01
+        nuisance_prof_simplexsize: 1e-5
+        nuisance_prof_method: 6 #1
+        nuisance_prof_verbosity: 0
+        # covariance_marg_convthres_abs: 0.05
+        # covariance_marg_convthres_rel: 0.05
+        # covariance_nsamples_start: 1000000
 
   # Options for how the combined LHC loglike should be calculated
-  - capability: LHC_Combined_LogLike
-    options:
-      write_summary_to_log: false
-      cap_loglike: false
-      cap_loglike_individual_analyses: false
-      # skip_analyses: 
+  - if:
+      capability: LHC_Combined_LogLike
+    then:
+      options:
+        write_summary_to_log: false
+        cap_loglike: false
+        cap_loglike_individual_analyses: false
+        # skip_analyses: 
 
 
 Logger:

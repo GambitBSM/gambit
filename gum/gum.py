@@ -30,13 +30,6 @@ from src import *
 from collections import defaultdict
 from distutils.dir_util import copy_tree
 
-try:
-    # Python 2
-    xrange
-except NameError:
-    # Python 3, xrange is now named range
-    xrange = range
-
 print()
 print(banner())
 print("-- Running GUM with python version", platform.python_version(), "--")
@@ -200,7 +193,7 @@ if args.file:
         # First, initialise DM particle from particle list
         if darkbit:
             dm_set = False
-            for i in xrange(len(partlist)):
+            for i in range(len(partlist)):
                 part = partlist[i]
                 # If specified, initialise the DM candidate
                 if part.pdg() == gum.dm_pdg:
@@ -518,7 +511,7 @@ if args.file:
             # to provide CalcHEP DecayBit entries too?
 
             # Pass all interactions by first PDG code needed.
-            for i in xrange(len(three_body_decays)):
+            for i in range(len(three_body_decays)):
                 decaybit_src_ch += write_decaytable_entry_calchep(
                                                           three_body_decays[i],
                                                           gum.name,
@@ -743,7 +736,7 @@ if args.file:
             if output_opts.ch:
                 amend_file("DecayBit.cpp", m, decaybit_src_ch, num-3,
                            reset_contents)
-                for i in xrange(len(decay_roll)):
+                for i in range(len(decay_roll)):
                     if find_capability(decay_roll[i][0], m)[0]:
                         amend_rollcall(decay_roll[i][0], m, decay_roll[i][1],
                                        reset_contents)

@@ -171,12 +171,10 @@ LibFirst:
   1.1:         ./Backends/examples/libfirst.so
 
 LibSecond:
-  1.0:         ./Backends/examples/libsecond/1.0/libsecond_1_0.py
   1.1:         ./Backends/examples/libsecond/1.1/libsecond_1_1.py
   1.2:         ./Backends/examples/libsecond/1.2/libsecond_1_2.py
 
 LibThird:
-  1.0:         ./Backends/examples/libthird/1.0/libthird_1_0
   1.1:         ./Backends/examples/libthird/1.1/libthird_1_1
   1.2:         ./Backends/examples/libthird/1.2/libthird_1_2
 

@@ -108,7 +108,7 @@ Rules:
     function: lnL_gaussian
     options:
        # Set sleep time between evaluations (in seconds)
-       #eval_time: 0.01
+       eval_time: 0.01
 
 Logger:
 
