@@ -20,6 +20,10 @@
 ///          (markus.prim@cern.ch)
 ///  \date 2020 Dec
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
+///
 ///  *********************************************
 
 #include "gambit/Core/core.hpp"
@@ -247,17 +251,36 @@ namespace Gambit
     print_to_screen(output, "priors");
   }
 
-  void gambit_core::ff_prior_diagnostic(const str &command)
+  void gambit_core::free_form_diagnostic(const str &command)
+  {
+    // As free form commands can alias (e.g. a capability and it associated function are allowed to have the same name),
+    // collect all outputs of the free form diagnostics in a single string before printing to screen.
+    std::string ff_output;
+
+    ff_module_diagnostic(command, ff_output);
+    ff_backend_diagnostic(command, ff_output);
+    ff_model_diagnostic(command, ff_output);
+    ff_capability_diagnostic(command, ff_output);
+    ff_module_function_diagnostic(command, ff_output);
+    ff_backend_function_diagnostic(command, ff_output);
+    ff_scanner_diagnostic(command, ff_output);
+    ff_test_function_diagnostic(command, ff_output);
+    ff_prior_diagnostic(command, ff_output);
+
+    print_to_screen(ff_output, command);
+  }
+
+  void gambit_core::ff_prior_diagnostic(const str &command, str &ff_output)
   {
     if (command != "priors")
     {
       const std::string output = Scanner::Plugins::plugin_info().print_priors(command);
-      print_to_screen(output, command);
+      ff_output += output;
     }
   }
 
   /// Free-form module diagnostic function
-  void gambit_core::ff_module_diagnostic(const str &command)
+  void gambit_core::ff_module_diagnostic(const str &command, str &ff_output)
   {
     std::stringstream out;
     for (const auto &module : modules)
@@ -318,11 +341,172 @@ namespace Gambit
         break;
       }
     }
-    print_to_screen(out.str(), command);
+    ff_output += out.str();
+  }
+
+  /// Free-form module function diagnostic function
+  void gambit_core::ff_module_function_diagnostic(const str &command, str &ff_output)
+  {
+    std::stringstream out;
+
+    // Iterate over all module functions to see if command matches one of them
+    for (const auto &functor : functorList)
+    {
+      const str indent = "  ";
+      const str &name = functor->name();
+      if (command == name)
+      {
+        out << "Information for module function \"" << name << "\"." << std::endl << std::endl;
+
+        // Basic information about the module function (all module functions will have this)
+        out << indent << "module:      "  << functor->origin() << std::endl;
+        out << indent << "capability:  "  << functor->capability() << std::endl;
+        out << indent << "result type: "  << functor->type() << std::endl << std::endl;
+
+        // List models that are explicitly allowed
+        const auto& allowed_models = functor->getAllowedModels();
+        if (allowed_models.size() > 0)
+        {
+          out << indent << "This function is explicitly restricted to the following model(s):\n";
+          for (const auto &model : allowed_models)
+            out << indent << indent << "- " << model << std::endl;
+        }
+        else
+        {
+          out << indent << "This function has no explicit model restrictions" << std::endl;
+        }
+
+        // Tell whether function can act as loop manager
+        if (functor->canBeLoopManager())
+        {
+          out << "\n" << indent << "can manage loops" << std::endl;
+        }
+
+        // Tell whether function needs a loop manager and if so which one
+        if (functor->needsLoopManager())
+        {
+          auto lmc = functor->loopManagerCapability();
+          auto lmt = functor->loopManagerType();
+          out << "\n" << indent << "needs loop manager:\n";
+          out << indent << indent << lmc << " [" << lmt << "]" << std::endl;
+        }
+
+        // List (BOSSed) backends that require class loading (if any)
+        const auto& classloading_be = functor->backendclassloading();
+        if (classloading_be.size() > 0)
+        {
+          out << "\n" << indent << "needs classes from:\n";
+          for (const auto &be : classloading_be)
+            out << indent << indent << be.first << " (version " << be.second  << ")" << std::endl;
+        }
+
+        // List dependencies (if any)
+        const auto& dependencies = functor->dependencies();
+        if (dependencies.size() > 0)
+        {
+          out << "\n" << indent << "dependencies:\n";
+          for (const auto &dep : dependencies)
+            out << indent << indent << dep.first << " [" << dep.second  << "]" << std::endl;
+        }
+
+        // List backend requirements (if any)
+        const auto& be_reqs = functor->backendreqs();
+        if (be_reqs.size() > 0)
+        {
+          out << "\n" << indent << "backend requirements:\n";
+          for (const auto &be_req : be_reqs)
+            out << indent << indent << be_req.first << " {" << be_req.second  << "}" << std::endl;
+        }
+
+        // Conditional dependencies and backend requirements need a bit of tideous work.
+        const auto& all_cond_models = functor->getConditionalModels();
+
+        // All models in "allowed_models" are also part of "all_cond_models",
+        // as these models have a conditional dependency on their respective ModelParameters.
+        // We are only interested in the other condtional models here.
+        std::set<str> proper_cond_models{};
+        std::set_difference(all_cond_models.begin(), all_cond_models.end(),
+                            allowed_models.begin(), allowed_models.end(),
+                            std::inserter(proper_cond_models, proper_cond_models.begin()));
+
+        if (proper_cond_models.size() > 0)
+        {
+          // Go through all proper conditional models
+          // and collect all conditional dependencies and backend requirements
+          // in maps that contains the (name,type) pairs as keys and a set of models
+          // associated with it as value. (Inverted logic of the original maps).
+          std::map< std::pair<str,str>, std::set<str> > cond_deps_map{};
+          std::map< std::pair<str,str>, std::set<str> > cond_be_reqs_map{};
+
+          for (const auto &cond_model : proper_cond_models)
+          {
+            for (const auto &cond_dep: functor->model_conditional_dependencies_exact(cond_model))
+            {
+              // If the "(name,type)"" pair of the conditional dependency is not yet a key,
+              // then create it, with an empty set.
+              if (cond_deps_map.count(cond_dep) == 0) cond_deps_map[cond_dep] = std::set<str>{};
+
+              // Add the model to the set.
+              cond_deps_map[cond_dep].insert(cond_model);
+            }
+            for (const auto &cond_be_req: functor->model_conditional_backend_reqs_exact(cond_model))
+            {
+              // If the "(name,type)"" pair of the conditional backend requirement is not yet a key,
+              // then create it, with an empty set.
+              if (cond_be_reqs_map.count(cond_be_req) == 0) cond_be_reqs_map[cond_be_req] = std::set<str>{};
+
+              // Add the model to the set.
+              cond_be_reqs_map[cond_be_req].insert(cond_model);
+            }
+          }
+
+          // Now that we have collected all conditional dependencies and backend requirements, we can print them.
+          if (cond_deps_map.size() > 0)
+          {
+            out << "\n" << indent << "conditional dependencies:\n";
+            for (const auto &cond_dep : cond_deps_map)
+            {
+              out << indent << indent << cond_dep.first.first << " [" << cond_dep.first.second  << "]" << std::endl;
+              for (const auto &cond_model : cond_dep.second)
+                out << indent << indent << indent << "- " << cond_model << std::endl;
+            }
+          }
+
+          if (cond_be_reqs_map.size() > 0)
+          {
+            out << "\n" << indent << "conditional backend requirements:\n";
+            for (const auto &cond_be_req : cond_be_reqs_map)
+            {
+              out << indent << indent << cond_be_req.first.first << " {" << cond_be_req.first.second  << "}" << std::endl;
+              for (const auto &cond_model : cond_be_req.second)
+                out << indent << indent << indent << "- " << cond_model << std::endl;
+            }
+          }
+
+        }
+
+        // Check whether there are any model groups defined. If so, list them
+        const auto& model_groups = functor->getModelGroups();
+        if (model_groups.size() > 0)
+        {
+          out << "\n" << indent << "model groups:\n";
+          for (const auto &group: model_groups)
+          {
+            out << indent << indent << "\"" << group.first << "\"" <<std::endl;
+            for (const auto &model: group.second)
+              out << indent << indent << indent << "- " << model << std::endl;
+          }
+        }
+
+        out << std::endl;
+        break; // module functions are unique, unlike backend functions. If we found a match, stop searching.
+      }
+    }
+    ff_output += out.str();
   }
 
   /// Free-form backend diagnostic function
-  void gambit_core::ff_backend_diagnostic(const str &command)
+  void gambit_core::ff_backend_diagnostic(const str &command, str &ff_output)
   {
     std::stringstream out;
     // Iterate over all backends to see if command matches one of them
@@ -415,11 +599,60 @@ namespace Gambit
         break;
       }
     }
-    print_to_screen(out.str(), command);
+    ff_output += out.str();
+  }
+
+  /// Free-form backend function diagnostic function
+  void gambit_core::ff_backend_function_diagnostic(const str &command, str &ff_output)
+  {
+    std::stringstream out;
+    bool first_match = true;
+
+    // Iterate over all backend functions to see if command matches one of them
+    for (const auto &functor : backendFunctorList)
+    {
+      const str indent = "  ";
+      const str &name = functor->name();
+      if (command == name)
+      {
+        // Only print the following line when it is the first time we find a match, else add a delimiter
+        if (first_match)
+        {
+          out << "Information for backend function \"" << name << "\".\n\n";
+          first_match = false;
+        }
+        else
+        {
+          out << indent << "---------------\n\n";
+        }
+
+        // Basic information about the backend function
+        out << indent << "backend:     "  << functor->origin() << std::endl;
+        out << indent << "version:     "  << functor->version() << std::endl;
+        out << indent << "capability:  "  << functor->capability() << std::endl;
+        out << indent << "result type: "  << functor->type() << std::endl << std::endl;
+
+        // List models that are explicitly allowed
+        const auto& allowed_models = functor->getAllowedModels();
+        if (allowed_models.size() > 0)
+        {
+          out << indent << "This function is explicitly restricted to the following model(s):\n";
+          for (const auto &model : allowed_models)
+            out << indent << indent << "- " << model << std::endl;
+        }
+        else
+        {
+          out << indent << "This function has no explicit model restrictions" << std::endl;
+        }
+
+        out << std::endl;
+      }
+    }
+    ff_output += out.str();
   }
 
   /// Free-form model diagnostic function
-  void gambit_core::ff_model_diagnostic(const str &command)
+  void gambit_core::ff_model_diagnostic(const str &command, str &ff_output)
   {
     std::stringstream out;
     // Iterate over all models to see if command matches one of them
@@ -451,11 +684,11 @@ namespace Gambit
         break;
       }
     }
-    print_to_screen(out.str(), command);
+    ff_output += out.str();
   }
 
   /// Free-form capability diagnostic function
-  void gambit_core::ff_capability_diagnostic(const str &command)
+  void gambit_core::ff_capability_diagnostic(const str &command, str &ff_output)
   {
     std::stringstream out;
     // Iterate over all capabilities to see if command matches one of them
@@ -490,25 +723,25 @@ namespace Gambit
             out << std::endl;
           }
         }
-        out << "  Description: " << std::endl << cap.description << std::endl;
+        out << "  Description: " << std::endl << "    " << cap.description << std::endl;
         break;
       }
     }
-    print_to_screen(out.str(), command);
+    ff_output += out.str();
   }
 
   /// Free-form scanner diagnostic function
-  void gambit_core::ff_scanner_diagnostic(const str &command)
+  void gambit_core::ff_scanner_diagnostic(const str &command, str &ff_output)
   {
     const std::string output = Scanner::Plugins::plugin_info().print_plugin("scanner", command);
-    print_to_screen(output, command);
+    ff_output += output;
   }
 
   /// Free-form test function diagnostic function
-  void gambit_core::ff_test_function_diagnostic(const str &command)
+  void gambit_core::ff_test_function_diagnostic(const str &command, str &ff_output)
   {
     const std::string output = Scanner::Plugins::plugin_info().print_plugin("objective", command);
-    print_to_screen(output, command);
+    ff_output += output;
   }
 
 } // namespace Gambit
