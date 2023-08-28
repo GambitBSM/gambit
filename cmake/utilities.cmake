@@ -401,8 +401,8 @@ function(add_standalone executablename)
   set(standalone_permitted 1)
 
   # Exclude standalones that need HepMC or YODA if they have been excluded.
-  if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
-    message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of HepMC/Yoda.${ColourReset}")
+  if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) OR (EXCLUDE_FASTJET AND (";${ARG_DEPENDENCIES};" MATCHES ";fastjet;")) )
+    message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of HepMC/Yoda/Fastjet.${ColourReset}")
     set(standalone_permitted 0)
   endif()
 
@@ -479,6 +479,9 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_YODA)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_FASTJET)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${FASTJET_LDFLAGS})
       endif()
     endif()
 

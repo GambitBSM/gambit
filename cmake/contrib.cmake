@@ -302,14 +302,71 @@ if(NOT EXCLUDE_YODA)
 endif()
 
 #contrib/fjcore-3.2.0
-set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
-include_directories("${fjcore_INCLUDE_DIR}")
-add_definitions(-DFJCORE)
-add_definitions(-DFJNS=gambit::fjcore)
-add_gambit_library(fjcore OPTION OBJECT
-                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
-                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
-set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+# set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
+# include_directories("${fjcore_INCLUDE_DIR}")
+# add_definitions(-DFJCORE)
+# add_definitions(-DFJNS=gambit::fjcore)
+# add_gambit_library(fjcore OPTION OBJECT
+#                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
+#                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
+# set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+
+# Fastjet, only with ColliderBit:
+#contrib/HepMC3; include only if ColliderBit is in use.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, so fastjet is included too")
+  set(WITH_FASTJET ON)
+else()
+  set(WITH_FASTJET OFF)
+  message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+endif()
+
+# Slight weird syntax to be consistent hepmc/yoda
+set(name "fastjet")
+set(ver "3.3.2")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/${name}-${ver}")
+if (WITH_FASTJET)
+  set(EXCLUDE_FASTJET FALSE)
+else()
+  make_nuked_contrib_content(${name} ${dir})
+  set(EXCLUDE_FASTJET TRUE)
+endif()
+
+if(NOT EXCLUDE_FASTJET)
+  set(lib "fastjet")
+  set(dl "http://fastjet.fr/repo/fastjet-3.3.2.tar.gz")
+  set(md5 "ca3708785c9194513717a54c1087bfb0")
+  include_directories("${dir}/local/include")
+  set(FASTJET_PATH "${dir}")
+  set(FASTJET_LIB "${dir}/local/lib")
+  set(FASTJET_LDFLAGS "-L${FASTJET_LIB} -l${lib}")
+
+
+  # OpenMP flags don't play nicely with clang and FastJet's antiquated libtoolized build system.
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_C_FLAGS "${BACKEND_C_FLAGS}")
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FJ_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  # FastJet 3.3.2 depends on std::auto_ptr which is removed in c++17, so we need to fall back to c++14 (or c++11)
+  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_CXX_FLAGS "${FJ_CXX_FLAGS}")
+  string(REGEX REPLACE "-std=c\\+\\+17" "-std=c++14" FJ_C_FLAGS "${FJ_C_FLAGS}")
+  set_compiler_warning("no-deprecated-declarations" FJ_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-copy" FJ_CXX_FLAGS)
+  set(FJ_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${FASTJET_LIB}")
+
+  ExternalProject_Add(${name}
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+    SOURCE_DIR ${dir}
+    BUILD_IN_SOURCE 1
+    PATCH_COMMAND ""
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules
+    BUILD_COMMAND ${MAKE_PARALLEL} install
+    INSTALL_COMMAND ""
+  )
+  add_contrib_clean_and_nuke(${name} ${dir} clean)
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+  #add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
+  #set_as_default_version("backend" ${name} ${ver})
+endif()
 
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
