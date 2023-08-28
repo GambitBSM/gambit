@@ -111,7 +111,7 @@ namespace Gambit
         /// Add the given result to the internal results list.
         void add_result(const SignalRegionData& sr);
         /// Add cutflows to the internal results list
-        void add_cutflows(const Cutflows& cf, bool normalized=false, double xsec=0.0);
+        void add_cutflows(const Cutflows& cf);
         /// Set the covariance matrix, expressing SR correlations
         void set_covariance(const Eigen::MatrixXd& srcov);
         /// A convenience function for setting the SR covariance from a nested vector/initialiser list

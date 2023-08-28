@@ -798,7 +798,7 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows, true, 3832.31);
+          add_cutflows(_cutflows);
 
           // Cutflow printout
           #ifdef CHECK_CUTFLOW

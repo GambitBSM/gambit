@@ -161,6 +161,9 @@ namespace Gambit
       /// Analysis name
       std::string analysis_name;
 
+      /// Luminosity
+      double luminosity;
+
       /// Access the i'th signal region's data
       SignalRegionData& operator[] (size_t i) { return srdata[i]; }
       /// Access the i'th signal region's data (const)

@@ -887,15 +887,15 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows, true, 3832.31);
+          add_cutflows(_cutflows);
 
           // Cutflow printout
           #ifdef CHECK_CUTFLOW
             //const double xsec = 5180.86; // 150 GeV winos
-            const double xsec = 3832.31; // 150 GeV higgsinos
+            //const double xsec = 3832.31; // 150 GeV higgsinos
             //const double xsec = 1165.09; // 225 GeV winos
             // const double xsec = 284.855; // 300 GeV higgsinos
-            //const double xsec = 121.013; // 400 GeV winos
+            const double xsec = 121.013; // 400 GeV winos
             //const double xsec = 46.3533; // 500 GeV winos
             //const double xsec = 20.1372; // 600 GeV winos
             //const double xsec = 2.49667; // 900 GeV winos

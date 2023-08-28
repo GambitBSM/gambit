@@ -334,6 +334,7 @@ namespace Gambit
       using namespace Pipes::CollectAnalyses;
       static bool first = true;
       static bool print_cutflows;
+      static bool normalized_cutflows;
 
       // Start with an empty vector
       result.clear();
@@ -354,6 +355,7 @@ namespace Gambit
       {
         // Print cutflow at the end of the run
         print_cutflows = runOptions->getValueOrDef<bool>(false, "print_cutflows");
+        normalized_cutflows = runOptions->getValueOrDef<bool>(false, "normalized_cutflows");
 
         // Loop over all AnalysisData pointers
         for (auto& adp : result)
@@ -377,6 +379,9 @@ namespace Gambit
         {
           std::cout << adp->analysis_name << std::endl;
           std::cout << "-----------------" << std::endl;
+
+          if(normalized_cutflows)
+            adp->cutflows.normalize(Dep::TotalCrossSection->xsec() * adp->luminosity);
           std::cout << adp->cutflows << std::endl;
         }
       }
