@@ -92,6 +92,9 @@ include_directories("${PROJECT_SOURCE_DIR}/contrib/mcutils/include")
 #contrib/heputils
 include_directories("${PROJECT_SOURCE_DIR}/contrib/heputils/include")
 
+#contrib/METSignificance
+include_directories("${PROJECT_SOURCE_DIR}/contrib/METSignificance/include")
+
 #contrib/mkpath
 set(mkpath_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/mkpath/include")
 include_directories("${mkpath_INCLUDE_DIR}")

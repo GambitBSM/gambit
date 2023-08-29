@@ -8,6 +8,7 @@
 // Luminosity: 139 fb^-1
 // Note that this uses the ATLAS object-based met significance
 // Will approximate with event-based measure, but this will lead to discrepancies
+// TODO: Perhaps reformat to make neater
 
 #include <vector>
 #include <cmath>
@@ -20,9 +21,9 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
-#include "gambit/ColliderBit/METSignificance.hpp"
+#include "METSignificance/METSignificance.hpp"
 
-// #define CHECK_CUTFLOW
+#define CHECK_CUTFLOW
 
 using namespace std;
 
@@ -259,73 +260,88 @@ namespace Gambit
         // lepton pair mass in (12, 111)
         // at least one jet (> 30 GeV)
         // missing energy: met > 100 GeV, met significance > 6 TODO: I can't see in the text, where the met > 100 GeV requirement comes from (I can see it in cutflows).
-
+        bool cut_2lep= true;
+        bool cut_SF= true;
+        bool cut_mll = true;
+        bool cut_1jet = true;
+        bool cut_metsig = true;
+        bool cut_OS = true;
+        bool EWK_2Ljets_presel = false;
+        
+        // Initialise some useful variables
+        double mll = 0;
+        double mt2 = 0;
+        double metsig = 0;
+        double Rjj = 0;
+        double mjj = 0.;
+        double jetm1 = 0;
+        double mbb = 0.;
+        double jetpt1 = 0;
+        double Rll = 0;
+        double dphiPllMet = 0;
+        double dphiJ1met = 0;
 
         // exactly two leptons (> 25 GeV)
-        bool cut_2lep=true;
         if (n_leptons != 2 || n_baseline_leptons != 2) cut_2lep=false;
-
+        
         // both leptons of the Same Flavour (SF)
         // since we have exactly two leptons,
         // 0 electron <=> 2 muon => SF
         // 1 electron <=> 1 muon => DF
         // 2 electron <=> 0 muon => SF
-        bool cut_SF=true;
         if (signalElectrons.size() == 1) cut_SF=false;
-
-        // lepton pair mass in (12, 111)
-        bool cut_mll = true;
-        HEPUtils::P4 dilepton = signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom();
-        double mll = dilepton.m();
-        if (!(12 < mll && mll < 111)) cut_mll = false;
-
-        // at least one jet (> 30 GeV)
-        bool cut_1jet = true;
-        if (n_jets < 1) cut_1jet = false;
-
-        // Approximate the significance using HT
-        // Best we can do, but still rubbish compared to ATLAS definition :-(
-        double HT = 0.0;
-        for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
-        for (const HEPUtils::Particle* p : event->photons()) HT += p->pT();
-        for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
-        for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
-
-        // missing energy: met > 100 GeV, met significance > 6
-        if (!(met > 100)) return; // TODO: Still trying to understand why. Could it just be for testing
-        bool cut_metsig = true;
-        //double metsig = met/sqrt(HT); // TODO: The approximate method
-        double metsig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
-        if (!(metsig > 6)) cut_metsig=false;
-
-        /* More event variables */
-        double dphiPllMet = fabs(dilepton.deltaPhi(metVec));
-        double dphiJ1met = fabs(signalJets.at(0)->mom().deltaPhi(metVec));
-
-        double mjj = 0.;
-        double Rjj = 0.;
-        if (n_jets >= 2)
-        {
-          HEPUtils::P4 dijets = signalJets.at(0)->mom() + signalJets.at(1)->mom();
-          mjj = dijets.m();
-          Rjj = fabs(signalJets.at(0)->mom().deltaR_eta(signalJets.at(1)->mom()));
-        }
-
-        double mbb = 0.;
-        if (nbjets >= 2)
-        {
-          HEPUtils::P4 dibjets = signalBJets.at(0)->mom() + signalBJets.at(1)->mom();
-          mbb = dibjets.m();
-        }
-
-        double jetpt1 = signalJets.at(0)->mom().pT();
-        double jetm1 = signalJets.at(0)->mom().m();
-
-        double Rll = fabs(signalLeptons.at(0)->mom().deltaR_eta(signalLeptons.at(1)->mom()));
-
-        double mt2 = 0;
+        
+        // Can only do most of the following if there are two signal leptons
         if(cut_2lep)
         {
+          // lepton pair mass in (12, 111)
+          HEPUtils::P4 dilepton = signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom(); // TODO: !! This will fail if there aren't two signal leptons, make sure that this is stopped from hitting this, but that the cutflows still work.
+          mll = dilepton.m();
+          if (!(12 < mll && mll < 111)) cut_mll = false;
+
+          // at least one jet (> 30 GeV)
+          if (n_jets < 1) cut_1jet = false;
+
+          // Approximate the significance using HT
+          // Best we can do, but still rubbish compared to ATLAS definition :-(
+          double HT = 0.0;
+          for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
+          for (const HEPUtils::Particle* p : event->photons()) HT += p->pT();
+          for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
+          for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
+
+          // missing energy: met > 100 GeV, met significance > 6
+          if (!(met > 100)) return; // TODO: Still trying to understand why. Could it just be for testing
+          //double metsig = met/sqrt(HT); // TODO: The approximate method
+          metsig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
+          if (!(metsig > 6)) cut_metsig=false;
+        
+          /* More event variables */
+          dphiPllMet = fabs(dilepton.deltaPhi(metVec));
+          if (n_jets >= 1) dphiJ1met = fabs(signalJets.at(0)->mom().deltaPhi(metVec));
+
+          Rjj = 0.;
+          if (n_jets >= 2)
+          {
+            HEPUtils::P4 dijets = signalJets.at(0)->mom() + signalJets.at(1)->mom();
+            mjj = dijets.m();
+            Rjj = fabs(signalJets.at(0)->mom().deltaR_eta(signalJets.at(1)->mom()));
+          }
+
+          if (nbjets >= 2)
+          {
+            HEPUtils::P4 dibjets = signalBJets.at(0)->mom() + signalBJets.at(1)->mom();
+            mbb = dibjets.m();
+          }
+
+          if (n_jets >= 1)
+          {
+            jetpt1 = signalJets.at(0)->mom().pT();
+            jetm1 = signalJets.at(0)->mom().m();
+          }
+
+          Rll = fabs(signalLeptons.at(0)->mom().deltaR_eta(signalLeptons.at(1)->mom()));
+
           double pLep1[3] = {signalLeptons.at(0)->mass(), signalLeptons.at(0)->mom().px(), signalLeptons.at(0)->mom().py()};
           double pLep2[3] = {signalLeptons.at(1)->mass(), signalLeptons.at(1)->mom().px(), signalLeptons.at(1)->mom().py()};
           double pMiss[3] = {0., event->missingmom().px(), event->missingmom().py() };
@@ -335,21 +351,20 @@ namespace Gambit
           mt2_calc.set_momenta(pLep1, pLep2, pMiss);
           mt2_calc.set_mn(mn);
           mt2 = mt2_calc.get_mt2();
+
+          // both leptons of Opposite Sign (OS) charge
+          if (signalLeptons.at(0)->pid() == signalLeptons.at(1)->pid()) cut_OS = false;
         }
 
-        // both leptons of Opposite Sign (OS) charge
-        bool cut_OS = true;
-        if (signalLeptons.at(0)->pid() == signalLeptons.at(1)->pid()) cut_OS = false;
-
-        bool EWK_2Ljets_presel = false;
-
+        // If event doesn't pass trigger, exit early TODO: Can just remove hte cariable, and keep it at one if statement (perhaps keep for initial cutflow debugging)
         if(cut_2lep &&
            cut_SF &&
            cut_mll &&
            cut_1jet &&
            cut_metsig &&
            cut_OS) EWK_2Ljets_presel=true;
-
+        if (EWK_2Ljets_presel == false) return;
+        
         /* Signal Regions */
 
         // SR High presel
