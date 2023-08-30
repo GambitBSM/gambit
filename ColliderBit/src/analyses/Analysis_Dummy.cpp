@@ -20,14 +20,6 @@ namespace Gambit
     class Analysis_Dummy : public Analysis
     {
 
-      private:
-
-        // Define here any function required for this analysis only
-        inline str SR(str type, size_t count)
-        {
-          return count < 10 ? type + "0" + std::to_string(count) : type + std::to_string(count);
-        }
-
       public:
 
         // Required detector sim
@@ -88,12 +80,12 @@ namespace Gambit
           //////////////////////
           // Baseline objects //
 
-          BASELINE_PARTICLE(electrons, baselineElectrons, 10, 2.5, CMS::eff2DEl.at("SUS_19_008"))
-          BASELINE_PARTICLE(electrons, baselineLooseElectrons, 10, 2.5)
-          BASELINE_PARTICLE(muons, baselineMuons, 10, 2.4, CMS::eff2DMu.at("SUS_19_008"))
-          BASELINE_PARTICLE(muons, baselineLooseMuons, 10, 2.4)
-          BASELINE_PARTICLE(taus, baselineTaus, 20, 2.3, CMS::eff2DTau.at("SUS_16_039"))
-          BASELINE_JET(jets, baselineJets, 25, 2.4)
+          BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
+          BASELINE_PARTICLES(electrons, baselineLooseElectrons, 10, 0, DBL_MAX, 2.5)
+          BASELINE_PARTICLES(muons, baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
+          BASELINE_PARTICLES(muons, baselineLooseMuons, 10, 0, DBL_MAX, 2.4)
+          BASELINE_PARTICLES(taus, baselineTaus, 20, 2.3, CMS::eff2DTau.at("SUS_16_039"))
+          BASELINE_JETS(jets, baselineJets, 25, 0, DBL_MAX, 2.4)
           BASELINE_PARTICLE_COMBINATION(baselineLooseLeptons, baselineLooseElectrons, baselineLooseMuons)
 
 
@@ -624,200 +616,181 @@ namespace Gambit
           // TODO: This is just approximated from the plots, as there is no public data available
 
           // 2SSLep (2lSS)
-          add_result(SignalRegionData(_counters.at("SS01"), 680., {680., 80.}));
-          add_result(SignalRegionData(_counters.at("SS02"), 400., {360., 80.}));
-          add_result(SignalRegionData(_counters.at("SS03"), 26., {23., 5.}));
-          add_result(SignalRegionData(_counters.at("SS04"), 19., {12., 5.}));
-          add_result(SignalRegionData(_counters.at("SS05"), 9.5, {6., 2.}));
-          add_result(SignalRegionData(_counters.at("SS06"), 1.9, {2., 1.75}));
-          add_result(SignalRegionData(_counters.at("SS07"), 700., {650., 80.}));
-          add_result(SignalRegionData(_counters.at("SS08"), 600., {550., 80.}));
-          add_result(SignalRegionData(_counters.at("SS09"), 1.9, {1.7, 0.8}));
-          add_result(SignalRegionData(_counters.at("SS10"), 4100., {4300., 400.}));
-          add_result(SignalRegionData(_counters.at("SS11"), 97., {100., 11.}));
-          add_result(SignalRegionData(_counters.at("SS12"), 93., {80., 10.}));
-          add_result(SignalRegionData(_counters.at("SS13"), 63., {50., 7.5}));
-          add_result(SignalRegionData(_counters.at("SS14"), 2.8, {2.3, 1.3}));
-          add_result(SignalRegionData(_counters.at("SS15"), 2.9, {0.7, 0.56}));
-          add_result(SignalRegionData(_counters.at("SS16"), 10., {13., 3.5}));
-          add_result(SignalRegionData(_counters.at("SS17"), 9.5, {3.9, 2.3}));
-          add_result(SignalRegionData(_counters.at("SS18"), 5.8, {4., 1.6}));
-          add_result(SignalRegionData(_counters.at("SS19"), 5.8, {3.7, 1.2}));
-          add_result(SignalRegionData(_counters.at("SS20"), 5.8, {3.9, 1.6}));
+          COMMIT_SIGNAL_REGION("SS01", 680., 680., 80.)
+          COMMIT_SIGNAL_REGION("SS02", 400., 360., 80.)
+          COMMIT_SIGNAL_REGION("SS03", 26., 23., 5.)
+          COMMIT_SIGNAL_REGION("SS04", 19., 12., 5.)
+          COMMIT_SIGNAL_REGION("SS05", 9.5, 6., 2.)
+          COMMIT_SIGNAL_REGION("SS06", 1.9, 2., 1.75)
+          COMMIT_SIGNAL_REGION("SS07", 700., 650., 80.)
+          COMMIT_SIGNAL_REGION("SS08", 600., 550., 80.)
+          COMMIT_SIGNAL_REGION("SS09", 1.9, 1.7, 0.8)
+          COMMIT_SIGNAL_REGION("SS10", 4100., 4300., 400.)
+          COMMIT_SIGNAL_REGION("SS11", 97., 100., 11.)
+          COMMIT_SIGNAL_REGION("SS12", 93., 80., 10.)
+          COMMIT_SIGNAL_REGION("SS13", 63., 50., 7.5)
+          COMMIT_SIGNAL_REGION("SS14", 2.8, 2.3, 1.3)
+          COMMIT_SIGNAL_REGION("SS15", 2.9, 0.7, 0.56)
+          COMMIT_SIGNAL_REGION("SS16", 10., 13., 3.5)
+          COMMIT_SIGNAL_REGION("SS17", 9.5, 3.9, 2.3)
+          COMMIT_SIGNAL_REGION("SS18", 5.8, 4., 1.6)
+          COMMIT_SIGNAL_REGION("SS19", 5.8, 3.7, 1.2)
+          COMMIT_SIGNAL_REGION("SS20", 5.8, 3.9, 1.6)
 
           // 3Lep, OSSF pair (3lA)
-          add_result(SignalRegionData(_counters.at("A01"), 242., {250., 25.}));
-          add_result(SignalRegionData(_counters.at("A02"), 250., {235., 35.}));
-          add_result(SignalRegionData(_counters.at("A03"), 280., {260., 35.}));
-          add_result(SignalRegionData(_counters.at("A04"), 215., {195., 35.}));
-          add_result(SignalRegionData(_counters.at("A05"), 35., {33., 5.5}));
-          add_result(SignalRegionData(_counters.at("A06"), 960., {900., 100.}));
-          add_result(SignalRegionData(_counters.at("A07"), 390., {360., 55.}));
-          add_result(SignalRegionData(_counters.at("A08"), 7., {5.8, 1.6}));
-          add_result(SignalRegionData(_counters.at("A09"), 207., {215., 40.}));
-          add_result(SignalRegionData(_counters.at("A10"), 27., {20., 4.}));
-          add_result(SignalRegionData(_counters.at("A11"), 37., {27., 6.}));
-          add_result(SignalRegionData(_counters.at("A12"), 1., {3., 1.}));
-          add_result(SignalRegionData(_counters.at("A13"), 620., {580., 80.}));
-          add_result(SignalRegionData(_counters.at("A14"), 9., {13., 3.}));
-          add_result(SignalRegionData(_counters.at("A15"), 160., {150., 20.}));
-          add_result(SignalRegionData(_counters.at("A16"), 27., {24., 5.}));
-          add_result(SignalRegionData(_counters.at("A17"), 29., {33., 5.5}));
-          add_result(SignalRegionData(_counters.at("A18"), 1., {4.8, 1.2}));
-          add_result(SignalRegionData(_counters.at("A19"), 60., {53., 9.}));
-          add_result(SignalRegionData(_counters.at("A20"), 2.9, {2.9, 0.9}));
-          add_result(SignalRegionData(_counters.at("A21"), 27., {18., 4.}));
-          add_result(SignalRegionData(_counters.at("A22"), 9., {6.5, 1.5}));
-          add_result(SignalRegionData(_counters.at("A23"), 7300., {7000., 1200.}));
-          add_result(SignalRegionData(_counters.at("A24"), 1000., {1000., 200.}));
-          add_result(SignalRegionData(_counters.at("A25"), 200., {200., 40.}));
-          add_result(SignalRegionData(_counters.at("A26"), 62., {63., 11.}));
-          add_result(SignalRegionData(_counters.at("A27"), 35., {43., 9.}));
-          add_result(SignalRegionData(_counters.at("A28"), 1250., {1210., 200.}));
-          add_result(SignalRegionData(_counters.at("A29"), 270., {230., 50.}));
-          add_result(SignalRegionData(_counters.at("A30"), 25., {20.5, 4.5}));
-          add_result(SignalRegionData(_counters.at("A31"), 6., {5.4, 1.7}));
-          add_result(SignalRegionData(_counters.at("A32"), 112., {77., 16.}));
-          add_result(SignalRegionData(_counters.at("A33"), 49., {56, 12.}));
-          add_result(SignalRegionData(_counters.at("A34"), 18., {15.5, 3.5}));
-          add_result(SignalRegionData(_counters.at("A35"), 15., {12., 2.5}));
-          add_result(SignalRegionData(_counters.at("A36"), 1150., {1150., 200.}));
-          add_result(SignalRegionData(_counters.at("A37"), 350., {350., 60.}));
-          add_result(SignalRegionData(_counters.at("A38"), 100., {98., 17.}));
-          add_result(SignalRegionData(_counters.at("A39"), 29., {30., 6.}));
-          add_result(SignalRegionData(_counters.at("A40"), 15., {21., 4.}));
-          add_result(SignalRegionData(_counters.at("A41"), 230., {215., 40.}));
-          add_result(SignalRegionData(_counters.at("A42"), 70., {54., 13.}));
-          add_result(SignalRegionData(_counters.at("A43"), 12., {11., 2.}));
-          add_result(SignalRegionData(_counters.at("A44"), 4., {2.7, 1.1}));
-          add_result(SignalRegionData(_counters.at("A45"), 35., {32., 7.}));
-          add_result(SignalRegionData(_counters.at("A46"), 9., {10.5, 4.}));
-          add_result(SignalRegionData(_counters.at("A47"), 4., {5.8, 1.6}));
-          add_result(SignalRegionData(_counters.at("A48"), 10., {3.4, 0.9}));
-          add_result(SignalRegionData(_counters.at("A49"), 1250., {1130., 170.}));
-          add_result(SignalRegionData(_counters.at("A50"), 300., {290., 50.}));
-          add_result(SignalRegionData(_counters.at("A51"), 76., {82.5, 17.5}));
-          add_result(SignalRegionData(_counters.at("A52"), 36., {43., 9.}));
-          add_result(SignalRegionData(_counters.at("A53"), 199., {155., 30.}));
-          add_result(SignalRegionData(_counters.at("A54"), 63., {55., 11.}));
-          add_result(SignalRegionData(_counters.at("A55"), 26., {18., 3.}));
-          add_result(SignalRegionData(_counters.at("A56"), 12., {8., 2.2}));
-          add_result(SignalRegionData(_counters.at("A57"), 1., {2.5, 1.}));
-          add_result(SignalRegionData(_counters.at("A58"), 3., {4.2, 1.4}));
-          add_result(SignalRegionData(_counters.at("A59"), 52., {38., 7.}));
-          add_result(SignalRegionData(_counters.at("A60"), 20, {16.5, 4.}));
-          add_result(SignalRegionData(_counters.at("A61"), 7., {7., 1.5}));
-          add_result(SignalRegionData(_counters.at("A62"), 2., {4.1, 1.3}));
-          add_result(SignalRegionData(_counters.at("A63"), 2., {1.7, 0.45}));
-          add_result(SignalRegionData(_counters.at("A64"), 3., {5.5, 1.8}));
+          COMMIT_SIGNAL_REGION("A01", 242., 250., 25.)
+          COMMIT_SIGNAL_REGION("A02", 250., 235., 35.)
+          COMMIT_SIGNAL_REGION("A03", 280., 260., 35.)
+          COMMIT_SIGNAL_REGION("A04", 215., 195., 35.)
+          COMMIT_SIGNAL_REGION("A05", 35., 33., 5.5)
+          COMMIT_SIGNAL_REGION("A06", 960., 900., 100.)
+          COMMIT_SIGNAL_REGION("A07", 390., 360., 55.)
+          COMMIT_SIGNAL_REGION("A08", 7., 5.8, 1.6)
+          COMMIT_SIGNAL_REGION("A09", 207., 215., 40.)
+          COMMIT_SIGNAL_REGION("A10", 27., 20., 4.)
+          COMMIT_SIGNAL_REGION("A11", 37., 27., 6.)
+          COMMIT_SIGNAL_REGION("A12", 1., 3., 1.)
+          COMMIT_SIGNAL_REGION("A13", 620., 580., 80.)
+          COMMIT_SIGNAL_REGION("A14", 9., 13., 3.)
+          COMMIT_SIGNAL_REGION("A15", 160., 150., 20.)
+          COMMIT_SIGNAL_REGION("A16", 27., 24., 5.)
+          COMMIT_SIGNAL_REGION("A17", 29., 33., 5.5)
+          COMMIT_SIGNAL_REGION("A18", 1., 4.8, 1.2)
+          COMMIT_SIGNAL_REGION("A19", 60., 53., 9.)
+          COMMIT_SIGNAL_REGION("A20", 2.9, 2.9, 0.9)
+          COMMIT_SIGNAL_REGION("A21", 27., 18., 4.)
+          COMMIT_SIGNAL_REGION("A22", 9., 6.5, 1.5)
+          COMMIT_SIGNAL_REGION("A23", 7300., 7000., 1200.)
+          COMMIT_SIGNAL_REGION("A24", 1000., 1000., 200.)
+          COMMIT_SIGNAL_REGION("A25", 200., 200., 40.)
+          COMMIT_SIGNAL_REGION("A26", 62., 63., 11.)
+          COMMIT_SIGNAL_REGION("A27", 35., 43., 9.)
+          COMMIT_SIGNAL_REGION("A28", 1250., 1210., 200.)
+          COMMIT_SIGNAL_REGION("A29", 270., 230., 50.)
+          COMMIT_SIGNAL_REGION("A30", 25., 20.5, 4.5)
+          COMMIT_SIGNAL_REGION("A31", 6., 5.4, 1.7)
+          COMMIT_SIGNAL_REGION("A32", 112., 77., 16.)
+          COMMIT_SIGNAL_REGION("A33", 49., 56, 12.)
+          COMMIT_SIGNAL_REGION("A34", 18., 15.5, 3.5)
+          COMMIT_SIGNAL_REGION("A35", 15., 12., 2.5)
+          COMMIT_SIGNAL_REGION("A36", 1150., 1150., 200.)
+          COMMIT_SIGNAL_REGION("A37", 350., 350., 60.)
+          COMMIT_SIGNAL_REGION("A38", 100., 98., 17.)
+          COMMIT_SIGNAL_REGION("A39", 29., 30., 6.)
+          COMMIT_SIGNAL_REGION("A40", 15., 21., 4.)
+          COMMIT_SIGNAL_REGION("A41", 230., 215., 40.)
+          COMMIT_SIGNAL_REGION("A42", 70., 54., 13.)
+          COMMIT_SIGNAL_REGION("A43", 12., 11., 2.)
+          COMMIT_SIGNAL_REGION("A44", 4., 2.7, 1.1)
+          COMMIT_SIGNAL_REGION("A45", 35., 32., 7.)
+          COMMIT_SIGNAL_REGION("A46", 9., 10.5, 4.)
+          COMMIT_SIGNAL_REGION("A47", 4., 5.8, 1.6)
+          COMMIT_SIGNAL_REGION("A48", 10., 3.4, 0.9)
+          COMMIT_SIGNAL_REGION("A49", 1250., 1130., 170.)
+          COMMIT_SIGNAL_REGION("A50", 300., 290., 50.)
+          COMMIT_SIGNAL_REGION("A51", 76., 82.5, 17.5)
+          COMMIT_SIGNAL_REGION("A52", 36., 43., 9.)
+          COMMIT_SIGNAL_REGION("A53", 199., 155., 30.)
+          COMMIT_SIGNAL_REGION("A54", 63., 55., 11.)
+          COMMIT_SIGNAL_REGION("A55", 26., 18., 3.)
+          COMMIT_SIGNAL_REGION("A56", 12., 8., 2.2)
+          COMMIT_SIGNAL_REGION("A57", 1., 2.5, 1.)
+          COMMIT_SIGNAL_REGION("A58", 3., 4.2, 1.4)
+          COMMIT_SIGNAL_REGION("A59", 52., 38., 7.)
+          COMMIT_SIGNAL_REGION("A60", 20, 16.5, 4.)
+          COMMIT_SIGNAL_REGION("A61", 7., 7., 1.5)
+          COMMIT_SIGNAL_REGION("A62", 2., 4.1, 1.3)
+          COMMIT_SIGNAL_REGION("A63", 2., 1.7, 0.45)
+          COMMIT_SIGNAL_REGION("A64", 3., 5.5, 1.8)
 
           // 3Lep, no OSSF pair (3lB)
-          add_result(SignalRegionData(_counters.at("B01"), 14., {8.2, 1.6}));
-          add_result(SignalRegionData(_counters.at("B02"), 110., {110., 25.}));
-          add_result(SignalRegionData(_counters.at("B03"), 327, {322., 83.}));
+          COMMIT_SIGNAL_REGION("B01", 14., 8.2, 1.6)
+          COMMIT_SIGNAL_REGION("B02", 110., 110., 25.)
+          COMMIT_SIGNAL_REGION("B03", 327, 322., 83.)
 
           // 3Lep, OSSF pair + tau (3lC)
-          add_result(SignalRegionData(_counters.at("C01"), 3850., {4180., 1640.}));
-          add_result(SignalRegionData(_counters.at("C02"), 167., {190., 70.}));
-          add_result(SignalRegionData(_counters.at("C03"), 20., {23., 6.}));
-          add_result(SignalRegionData(_counters.at("C04"), 42., {34., 13.}));
-          add_result(SignalRegionData(_counters.at("C05"), 3., {4.4, 1.7}));
-          add_result(SignalRegionData(_counters.at("C06"), 5., {5.3, 1.4}));
-          add_result(SignalRegionData(_counters.at("C07"), 7., {9., 3.5}));
-          add_result(SignalRegionData(_counters.at("C08"), 1., {2.1, 1.}));
-          add_result(SignalRegionData(_counters.at("C09"), 4., {3.4, 1.1}));
+          COMMIT_SIGNAL_REGION("C01", 3850., 4180., 1640.)
+          COMMIT_SIGNAL_REGION("C02", 167., 190., 70.)
+          COMMIT_SIGNAL_REGION("C03", 20., 23., 6.)
+          COMMIT_SIGNAL_REGION("C04", 42., 34., 13.)
+          COMMIT_SIGNAL_REGION("C05", 3., 4.4, 1.7)
+          COMMIT_SIGNAL_REGION("C06", 5., 5.3, 1.4)
+          COMMIT_SIGNAL_REGION("C07", 7., 9., 3.5)
+          COMMIT_SIGNAL_REGION("C08", 1., 2.1, 1.)
+          COMMIT_SIGNAL_REGION("C09", 4., 3.4, 1.1)
 
           // 3Lep, no OSSF pair, 2 OS light leptons + tau (3lD)
-          add_result(SignalRegionData(_counters.at("D01"), 680., {666., 254.}));
-          add_result(SignalRegionData(_counters.at("D02"), 280., {230., 90.}));
-          add_result(SignalRegionData(_counters.at("D03"), 72., {49., 19.}));
-          add_result(SignalRegionData(_counters.at("D04"), 13., {17., 6.}));
-          add_result(SignalRegionData(_counters.at("D05"), 11., {13., 5.}));
-          add_result(SignalRegionData(_counters.at("D06"), 600., {570., 230.}));
-          add_result(SignalRegionData(_counters.at("D07"), 225., {200., 90.}));
-          add_result(SignalRegionData(_counters.at("D08"), 47., {55., 21.}));
-          add_result(SignalRegionData(_counters.at("D09"), 8., {13., 5.}));
-          add_result(SignalRegionData(_counters.at("D10"), 6., {6.8, 2.5}));
-          add_result(SignalRegionData(_counters.at("D11"), 200., {190., 70.}));
-          add_result(SignalRegionData(_counters.at("D12"), 63., {70., 28.}));
-          add_result(SignalRegionData(_counters.at("D13"), 20., {24., 9.}));
-          add_result(SignalRegionData(_counters.at("D14"), 7., {13., 4.}));
-          add_result(SignalRegionData(_counters.at("D15"), 20., {17., 6.}));
-          add_result(SignalRegionData(_counters.at("D16"), 1., {1.13, 0.47}));
+          COMMIT_SIGNAL_REGION("D01", 680., 666., 254.)
+          COMMIT_SIGNAL_REGION("D02", 280., 230., 90.)
+          COMMIT_SIGNAL_REGION("D03", 72., 49., 19.)
+          COMMIT_SIGNAL_REGION("D04", 13., 17., 6.)
+          COMMIT_SIGNAL_REGION("D05", 11., 13., 5.)
+          COMMIT_SIGNAL_REGION("D06", 600., 570., 230.)
+          COMMIT_SIGNAL_REGION("D07", 225., 200., 90.)
+          COMMIT_SIGNAL_REGION("D08", 47., 55., 21.)
+          COMMIT_SIGNAL_REGION("D09", 8., 13., 5.)
+          COMMIT_SIGNAL_REGION("D10", 6., 6.8, 2.5)
+          COMMIT_SIGNAL_REGION("D11", 200., 190., 70.)
+          COMMIT_SIGNAL_REGION("D12", 63., 70., 28.)
+          COMMIT_SIGNAL_REGION("D13", 20., 24., 9.)
+          COMMIT_SIGNAL_REGION("D14", 7., 13., 4.)
+          COMMIT_SIGNAL_REGION("D15", 20., 17., 6.)
+          COMMIT_SIGNAL_REGION("D16", 1., 1.13, 0.47)
 
           // 3Lep, no OSSF pair, 2 SS light leptons + tau (3lE)
-          add_result(SignalRegionData(_counters.at("E01"), 60., {70., 17.}));
-          add_result(SignalRegionData(_counters.at("E02"), 28., {22., 3.}));
-          add_result(SignalRegionData(_counters.at("E03"), 1., {2.2, 0.8}));
-          add_result(SignalRegionData(_counters.at("E04"), 362., {345., 75.}));
-          add_result(SignalRegionData(_counters.at("E05"), 108., {95., 18.}));
-          add_result(SignalRegionData(_counters.at("E06"), 25., {19., 4.}));
-          add_result(SignalRegionData(_counters.at("E07"), 5., {6., 1.6}));
-          add_result(SignalRegionData(_counters.at("E08"), 15., {14., 4.}));
-          add_result(SignalRegionData(_counters.at("E09"), 1., {1., 0.5}));
+          COMMIT_SIGNAL_REGION("E01", 60., 70., 17.)
+          COMMIT_SIGNAL_REGION("E02", 28., 22., 3.)
+          COMMIT_SIGNAL_REGION("E03", 1., 2.2, 0.8)
+          COMMIT_SIGNAL_REGION("E04", 362., 345., 75.)
+          COMMIT_SIGNAL_REGION("E05", 108., 95., 18.)
+          COMMIT_SIGNAL_REGION("E06", 25., 19., 4.)
+          COMMIT_SIGNAL_REGION("E07", 5., 6., 1.6)
+          COMMIT_SIGNAL_REGION("E08", 15., 14., 4.)
+          COMMIT_SIGNAL_REGION("E09", 1., 1., 0.5)
 
           // 3Lep, 2 tau (3lF)
-          add_result(SignalRegionData(_counters.at("F01"), 1060., {1170., 400.}));
-          add_result(SignalRegionData(_counters.at("F02"), 177., {190., 70.}));
-          add_result(SignalRegionData(_counters.at("F03"), 40., {36., 13.}));
-          add_result(SignalRegionData(_counters.at("F04"), 9., {9.5, 3.5}));
-          add_result(SignalRegionData(_counters.at("F05"), 3., {2., 1.}));
-          add_result(SignalRegionData(_counters.at("F06"), 4., {2.6, 1.2}));
-          add_result(SignalRegionData(_counters.at("F07"), 585., {600., 200.}));
-          add_result(SignalRegionData(_counters.at("F08"), 125., {130., 58.}));
-          add_result(SignalRegionData(_counters.at("F09"), 33., {37., 14.}));
-          add_result(SignalRegionData(_counters.at("F10"), 19., {17., 6.}));
-          add_result(SignalRegionData(_counters.at("F11"), 18., {23., 6.}));
-          add_result(SignalRegionData(_counters.at("F12"), 2., {3.5, 1.4}));
+          COMMIT_SIGNAL_REGION("F01", 1060., 1170., 400.)
+          COMMIT_SIGNAL_REGION("F02", 177., 190., 70.)
+          COMMIT_SIGNAL_REGION("F03", 40., 36., 13.)
+          COMMIT_SIGNAL_REGION("F04", 9., 9.5, 3.5)
+          COMMIT_SIGNAL_REGION("F05", 3., 2., 1.)
+          COMMIT_SIGNAL_REGION("F06", 4., 2.6, 1.2)
+          COMMIT_SIGNAL_REGION("F07", 585., 600., 200.)
+          COMMIT_SIGNAL_REGION("F08", 125., 130., 58.)
+          COMMIT_SIGNAL_REGION("F09", 33., 37., 14.)
+          COMMIT_SIGNAL_REGION("F10", 19., 17., 6.)
+          COMMIT_SIGNAL_REGION("F11", 18., 23., 6.)
+          COMMIT_SIGNAL_REGION("F12", 2., 3.5, 1.4)
 
           // 4Lep, 2 OSSF pairs (4lG)
-          add_result(SignalRegionData(_counters.at("G01"), 370., {365., 30.}));
-          add_result(SignalRegionData(_counters.at("G02"), 15., {18.5, 2.}));
-          add_result(SignalRegionData(_counters.at("G03"), 6., {6.7, 1.2}));
-          add_result(SignalRegionData(_counters.at("G04"), 0., {1.7, 0.8}));
-          add_result(SignalRegionData(_counters.at("G05"), 0., {0., 0.}));
+          COMMIT_SIGNAL_REGION("G01", 370., 365., 30.)
+          COMMIT_SIGNAL_REGION("G02", 15., 18.5, 2.)
+          COMMIT_SIGNAL_REGION("G03", 6., 6.7, 1.2)
+          COMMIT_SIGNAL_REGION("G04", 0., 1.7, 0.8)
+          COMMIT_SIGNAL_REGION("G05", 0., 0., 0.)
 
           // 4Lep, 1 or fewer OSSF pairs (4lH)
-          add_result(SignalRegionData(_counters.at("H01"), 49., {41.7, 5.}));
-          add_result(SignalRegionData(_counters.at("H02"), 4., {3., 1.}));
-          add_result(SignalRegionData(_counters.at("H03"), 3., {4.3, 0.9}));
+          COMMIT_SIGNAL_REGION("H01", 49., 41.7, 5.)
+          COMMIT_SIGNAL_REGION("H02", 4., 3., 1.)
+          COMMIT_SIGNAL_REGION("H03", 3., 4.3, 0.9)
 
           // 4Lep, tau + 3 light leptons (4lI)
-          add_result(SignalRegionData(_counters.at("I01"), 92., {96., 17.}));
-          add_result(SignalRegionData(_counters.at("I02"), 14., {10., 3.}));
-          add_result(SignalRegionData(_counters.at("I03"), 7., {9.4, 1.6}));
+          COMMIT_SIGNAL_REGION("I01", 92., 96., 17.)
+          COMMIT_SIGNAL_REGION("I02", 14., 10., 3.)
+          COMMIT_SIGNAL_REGION("I03", 7., 9.4, 1.6)
 
           // 4Lep, 2 tau + 2 light leptons, 2 OSSF pairs (4lJ)
-          add_result(SignalRegionData(_counters.at("J01"), 34., {35.5, 8.5}));
-          add_result(SignalRegionData(_counters.at("J02"), 6., {10.7, 4.3}));
-          add_result(SignalRegionData(_counters.at("J03"), 4., {4.3, 1.2}));
+          COMMIT_SIGNAL_REGION("J01", 34., 35.5, 8.5)
+          COMMIT_SIGNAL_REGION("J02", 6., 10.7, 4.3)
+          COMMIT_SIGNAL_REGION("J03", 4., 4.3, 1.2)
 
           // 4Lep, 2 tau + 2 light leptons, 1 or fewer OSSF pairs (4lK)
-          add_result(SignalRegionData(_counters.at("K01"), 8., {16., 6.5}));
-          add_result(SignalRegionData(_counters.at("K02"), 5., {5.2, 2.45}));
-          add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
+          COMMIT_SIGNAL_REGION("K01", 8., 16., 6.5)
+          COMMIT_SIGNAL_REGION("K02", 5., 5.2, 2.45)
+          COMMIT_SIGNAL_REGION("K03", 1., 0.61, 0.61)
 
           // Add cutflow data to the analysis results
-          add_cutflows(_cutflows);
-
-          // Cutflow printout
-          #ifdef CHECK_CUTFLOW
-            //const double xsec = 5180.86; // 150 GeV winos
-            const double xsec = 3832.31; // 150 GeV higgsinos
-            //const double xsec = 1165.09; // 225 GeV winos
-            // const double xsec = 284.855; // 300 GeV higgsinos
-            //const double xsec = 121.013; // 400 GeV winos
-            //const double xsec = 46.3533; // 500 GeV winos
-            //const double xsec = 20.1372; // 600 GeV winos
-            //const double xsec = 2.49667; // 900 GeV winos
-            //const double xsec = 0.415851; // 1200 GeV winos
-            const double sf = 137*xsec;
-            _cutflows.normalize(sf);
-            cout << "\nCUTFLOWS:\n" << _cutflows << endl;
-            cout << "\nSRCOUNTS:\n";
-            for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
-            cout << "\n" << endl;
-          #endif
+          COMMIT_CUTFLOWS
         }
 
       protected:

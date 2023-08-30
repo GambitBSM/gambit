@@ -24,7 +24,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@kit.edu)
-///  \date 2023 July
+///  \date 2023 July, Aug
 ///
 ///  *********************************************
 
@@ -74,6 +74,10 @@ namespace Gambit
         void set_analysis_name(str);
         /// Get the analysis name
         str analysis_name();
+        /// Set the collider name
+        void set_collider_name(str);
+        // Get the collider name
+        str collider_name();
 
         /// Get the collection of SignalRegionData for likelihood computation.
         const AnalysisData& get_results();
@@ -136,6 +140,7 @@ namespace Gambit
         bool _needs_collection;
         AnalysisData _results;
         std::string _analysis_name;
+        std::string _collider_name;
 
     };
 

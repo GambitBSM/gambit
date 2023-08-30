@@ -22,6 +22,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include <stdexcept>
@@ -49,7 +53,7 @@ namespace Gambit
       F(ATLAS_13TeV_RJ3L_3Lep_36invfb)               \
       F(ATLAS_13TeV_RJ3L_lowmass_36invfb)            \
       F(ATLAS_13TeV_2LEPJETS_RJR_139invfb)           \
-     
+
     #define MAP_ANALYSES_WITH_ROOT(F)                \
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
 
@@ -115,10 +119,11 @@ namespace Gambit
       F(CMS_13TeV_2LEPsoft_36invfb_nocovar)          \
       F(CMS_13TeV_2LEPsoft_stop_36invfb)             \
       F(CMS_13TeV_2LEPsoft_stop_36invfb_nocovar)     \
+      F(CMS_13TeV_2LEPsoft_137invfb)                 \
       F(CMS_13TeV_2OSLEP_36invfb)                    \
       F(CMS_13TeV_2OSLEP_137invfb)                   \
       F(CMS_13TeV_2OSLEP_Strong_Production_137invfb) \
-      F(CMS_13TeV_2OSLEP_Slepton_137invfb) \
+      F(CMS_13TeV_2OSLEP_Slepton_137invfb)           \
       F(CMS_13TeV_2OSLEP_36invfb_nocovar)            \
       F(CMS_13TeV_2OSLEP_confnote_36invfb)           \
       F(CMS_13TeV_2OSLEP_chargino_stop_36invfb)      \
@@ -332,6 +337,7 @@ namespace Gambit
       for (auto& aname : analysis_names)
       {
         analyses_map[collider_name][aname] = mkAnalysis(aname);
+        analyses_map[collider_name][aname]->set_collider_name(collider_name);
       }
     }
 

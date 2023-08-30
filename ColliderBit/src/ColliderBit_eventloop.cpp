@@ -32,6 +32,10 @@
 ///  \date   2018 Jan
 ///  \date   2018 May
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include "gambit/Elements/gambit_module_headers.hpp"

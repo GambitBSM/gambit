@@ -428,9 +428,79 @@ namespace Gambit
       ///@}
 
 
-      /// Representative Muon and Electron efficiencies for the WPs of the identification techniques used in SUSY analyses
+      /// Representative Muon, Electron and B-tagging efficiencies for the WPs of the identification techniques used in SUSY analyses
       /// From https://twiki.cern.ch/twiki/bin/view/CMSPublic/SUSMoriond2017ObjectsEfficiency
       ///{@
+
+      // B-tagging efficiencies
+      // All digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/btag_eff_CSVv2_DeepCSV.pdf
+      // Missing identification efficiencies are taken from Tabel 2 of 1712.07158
+
+      // CSVv2 Loose WP
+      static const double missIDBJet_CSVv2_Loose = 0.089;
+      static const HEPUtils::BinnedFn2D<double> eff2DBJet_CSVv2_Loose(
+        {0., DBL_MAX},   // Bin edges in eta
+        {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500.,DBL_MAX },   // Bin edges in pT
+        {
+          // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                  0.0,      0.78,     0.80,     0.82,     0.83,       0.84,      0.825,       0.82,       0.81,       0.8,       0.795,       0.79   // eta: (0, DBL_MAX)
+        }
+      );
+
+      // DeepCSV Loose WP
+      static const double missIDBJet_DeepCSV_Loose = 0.11;
+      static const HEPUtils::BinnedFn2D<double> eff2DBJet_DeepCSV_Loose(
+        {0., DBL_MAX},   // Bin edges in eta
+        {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500.,DBL_MAX },   // Bin edges in pT
+        {
+          // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                  0.0,     0.807,    0.830,    0.847,    0.854,      0.861,      0.866,      0.860,      0.857,      0.855,      0.849,      0.843   // eta: (0, DBL_MAX)
+        }
+      );
+
+      // CSVv2 Medium WP
+      static const double missIDBJet_CSVv2_Medium = 0.009;
+      static const HEPUtils::BinnedFn2D<double> eff2DBJet_CSVv2_Medium(
+        {0., DBL_MAX},   // Bin edges in eta
+        {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500., DBL_MAX},   // Bin edges in pT
+        {
+          // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                   0.0,     0.58,     0.61,     0.63,     0.64,       0.65,       0.62,       0.6,        0.58,       0.56,       0.52,      0.48    // eta: (0, DBL_MAX)
+        }
+      );
+
+      // DeepCSV Medium WP
+      static const double missIDBJet_DeepCSV_Medium = 0.011;
+      static const HEPUtils::BinnedFn2D<double> eff2DBJet_DeepCSV_Medium(
+        {0., DBL_MAX},   // Bin edges in eta
+        {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500., DBL_MAX},   // Bin edges in pT
+        {
+          // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                  0.0,     0.633,    0.667,    0.683,     0.688,     0.687,      0.678,      0.655,      0.635,      0.610,      0.585,      0.519   // eta: (0, DBL_MAX)
+        }
+      );
+
+      // CSVv2 Tight WP
+      static const double missIDBJet_CSVv2_Tight = 0.001;
+      static const HEPUtils::BinnedFn2D<double> eff2DBJet_CSVv2_Tight(
+        {0., DBL_MAX},   // Bin edges in eta
+        {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500., DBL_MAX},   // Bin edges in pT
+        {
+          // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                  0.0,    0.4997,   0.5081,   0.5104,   0.5085,    0.4994,     0.4790,     0.4481,     0.4184,     0.3798,     0.3394,        0.3     // eta: (0, DBL_MAX)
+        }
+      );
+
+      // DeepCSV Tight WP
+      static const double missIDBJet_DeepCSV_Tight = 0.001;
+      static const HEPUtils::BinnedFn2D<double> eff2DBJet_DeepCSV_Tight(
+        {0., DBL_MAX},   // Bin edges in eta
+        {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500., DBL_MAX},   // Bin edges in pT
+        {
+          // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                  0.0,     0.450,    0.492,    0.508,    0.513,      0.506,      0.485,      0.447,      0.411,      0.370,      0.330,      0.253    // eta: (0, DBL_MAX)
+        }
+      );
 
       // Efficiencies from the 2016 Multilepton EWK analyses (SUS_16_039)
 
@@ -513,6 +583,27 @@ namespace Gambit
       );
 
 
+      /// Efficiencies for the CMS 2021 soft lepton analysis SUS-18-004
+
+      // Electrons
+      // There is no proper reference that contains these numbers, so it is constructed from the description in the text, verbatim:
+      // "For electrons, the efficiency increases with pT, starting from ∼30% at 5 GeV and increasing to ∼70% at 30 GeV"
+      // Made 2D for simplicity
+      //static const HEPUtils::BinnedFn2D eff2DEl_SUS_18_004(
+      //  {0., DBL_MAX},   // Bin edges in eta (effectively 1D)
+      //  {0., 5., 30., DBL_MAX}  // Bin edges in pT, asumming 0 efficiency below min pT and flat above max pT
+      //  {
+      //    // pT:  (0,5),  (5, 30),  (30, inf)
+      //             0.0,    0.30
+
+
+      // Muons
+      // There is no proper reference that contains these numbers, so it is constructed from the description in the text, verbatim:
+      // "For muons, the pT dependence is less strong and the efficiency ranges from 70 to 85%"
+
+      /////////////////////////
+      // CMS Efficiency maps //
+
       // Map of electron efficiencies
       static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DEl =
       {
@@ -532,6 +623,28 @@ namespace Gambit
       static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DTau =
       {
         {"SUS_16_039", eff2DTau_SUS_16_039}
+      };
+
+      // Map of bjet efficiencies
+      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DBJet =
+      {
+        {"CSVv2Loose", eff2DBJet_CSVv2_Loose},
+        {"DeepCSVLoose", eff2DBJet_DeepCSV_Loose},
+        {"CSVv2Medium", eff2DBJet_CSVv2_Medium},
+        {"DeepCSVMedium", eff2DBJet_DeepCSV_Medium},
+        {"CSVv2Tight", eff2DBJet_CSVv2_Tight},
+        {"DeepCSVTight", eff2DBJet_DeepCSV_Tight},
+      };
+
+      // Map of bjet missidentification efficiencies
+      static const std::map<str, double> missIDBJet =
+      {
+        {"CSVv2Loose", missIDBJet_CSVv2_Loose},
+        {"DeepCSVLoose", missIDBJet_DeepCSV_Loose},
+        {"CSVv2Medium", missIDBJet_CSVv2_Medium},
+        {"DeepCSVMedium", missIDBJet_DeepCSV_Medium},
+        {"CSVv2Tight", missIDBJet_CSVv2_Tight},
+        {"DeepCSVTight", missIDBJet_DeepCSV_Tight},
       };
 
       ///@}
