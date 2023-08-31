@@ -25,8 +25,8 @@
 ///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physk.rwth-aachen.de)
-///  \date 2021 Jul
+///          (tomas.gonzalo@kit.edu)
+///  \date 2021 Jul, 2023 Aug
 ///
 ///  *********************************************
 
@@ -415,12 +415,16 @@ namespace Gambit
 
     /// Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(std::vector<const HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of same-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles);
+
+    // Utility function for returning a collection of same-flavour particle pairs
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of b-tagged jets
     std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets);

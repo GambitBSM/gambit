@@ -13,7 +13,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@kit.edu)
-///  \date 2023 July
+///  \date 2023 July, Aug
 ///
 ///  *********************************************
 
@@ -36,22 +36,9 @@
   for(size_t i=1; i<=N; ++i)                                                      \
   {                                                                               \
     str basename(NAME);                                                           \
-    str name = i < 10 ? basename + "0" + std::to_string(i) : basename + std::to_string(i); \
+    str name = basename + std::to_string(i);                                      \
     DEFINE_SIGNAL_REGION(name)                                                    \
   }
-
-/// Commit values for the signal region: predictions, observed and backgrounds
-#define COMMIT_SIGNAL_REGION(NAME, OBS, BKG_CENTRAL, BKG_ERR)                     \
-  add_result(SignalRegionData(_counters.at(NAME), OBS, {BKG_CENTRAL, BKG_ERR}));
-
-/// Commit a covariance matrix
-#define COMMIT_COVARIANCE_MATRIX(COV)                                             \
-  set_covariance(COV);
-
-/// Commit cutflows
-#define COMMIT_CUTFLOWS                                                           \
-  add_cutflows(_cutflows);
-
 
 /// Define baseline objects with min pT and min eta
 #define BASELINE_OBJECTS_5(TYPE, OBJECT, NAME, MINPT, MINETA)                     \
@@ -270,16 +257,69 @@
 #define SIGNAL_OBJECTS(...)      VARARG(SIGNAL_OBJECTS, __VA_ARGS__)
 
 /// Define a combination of signal objects
-#define SIGNAL_OBJECT_COMBINATION(TYPE, TARGET, OBJECT1, OBJECT2)       \
-  std::vector<const HEPUtils::TYPE*> TARGET = OBJECT1;                  \
-  TARGET.insert(TARGET.end(), OBJECT2.begin(), OBJECT2.end());          \
+#define SIGNAL_OBJECT_COMBINATION(TYPE, TARGET, OBJECT1, OBJECT2)                 \
+  std::vector<const HEPUtils::TYPE*> TARGET = OBJECT1;                            \
+  TARGET.insert(TARGET.end(), OBJECT2.begin(), OBJECT2.end());                    \
   sortByPt(TARGET);
 
 /// Define a combination of signal particles
-#define SIGNAL_PARTICLE_COMBINATION(TARGET, OBJECT1, OBJECT2)           \
+#define SIGNAL_PARTICLE_COMBINATION(TARGET, OBJECT1, OBJECT2)                     \
   SIGNAL_OBJECT_COMBINATION(Particle, TARGET, OBJECT1, OBJECT2)
 
 /// Define a combination of signal jets
-#define SIGNAL_JET_COMBINATION(TARGET, OBJECT1, OBJECT2)                \
+#define SIGNAL_JET_COMBINATION(TARGET, OBJECT1, OBJECT2)                          \
   SIGNAL_OBJECT_COMBINATION(Jet, TARGET, OBJECT1, OBJECT2)
+
+/// Types of predefined pairs
+/*#define OS    1  // opposite sign
+#define SS    2  // same sign
+#define SF    3  // same flavour
+#define OSSF  4  // opposite sign, same flavour
+#define SSSF  5  // ssame sign, same flavour
+*/
+/// Create a container for pairs
+#define CREATE_PAIR(TYPE, SOURCE, CONTAINER, UNIQUE)                              \
+  typedef std::vector<std::vector<const HEPUtils::Particle*>> ParticleContainer;  \
+  ParticleContainer CONTAINER = CAT_3(get,TYPE,pairs)(SOURCE);                    \
+  if(UNIQUE)                                                                      \
+    uniquePairs(CONTAINER);
+
+/// Preselection, at the start initialize cutflows, at the end fill preselection cutflow
+#define BEGIN_PRESELECTION                                                        \
+  _cutflows.fillinit(event->weight());
+
+#define END_PRESELECTION                                                          \
+  _cutflows.fillnext(event->weight());
+
+/// Log cuts for one or more signal regions
+#define LOG_CUT_1(A)                      _cutflows[A].fillnext(event->weight());
+#define LOG_CUT_2(A,B)                    LOG_CUT_1(A) LOG_CUT_1(B)
+#define LOG_CUT_3(A,B,C)                  LOG_CUT_1(A) LOG_CUT_2(B,C)
+#define LOG_CUT_4(A,B,C,D)                LOG_CUT_1(A) LOG_CUT_3(B,C,D)
+#define LOG_CUT_5(A,B,C,D,E)              LOG_CUT_1(A) LOG_CUT_4(B,C,D,E)
+#define LOG_CUT_6(A,B,C,D,E,F)            LOG_CUT_1(A) LOG_CUT_5(B,C,D,E,F)
+#define LOG_CUT_7(A,B,C,D,E,F,G)          LOG_CUT_1(A) LOG_CUT_6(B,C,D,E,F,G)
+#define LOG_CUT_8(A,B,C,D,E,F,G,H)        LOG_CUT_1(A) LOG_CUT_7(B,C,D,E,F,G,H)
+#define LOG_CUT_9(A,B,C,D,E,F,G,H,I)      LOG_CUT_1(A) LOG_CUT_8(B,C,D,E,F,G,H,I)
+#define LOG_CUT_10(A,B,C,D,E,F,G,H,I,J)   LOG_CUT_1(A) LOG_CUT_9(B,C,D,E,F,G,H,I,J)
+#define LOG_CUT(...)      VARARG(LOG_CUT, __VA_ARGS__)
+
+/// Fill signal region and cutflow
+#define FILL_SIGNAL_REGION(NAME)                                                  \
+  _cutflows[NAME].fillnext(event->weight());                                      \
+  _counters.at(NAME).add_event(event);
+
+/// Commit values for the signal region: predictions, observed and backgrounds
+#define COMMIT_SIGNAL_REGION(NAME, OBS, BKG_CENTRAL, BKG_ERR)                     \
+  add_result(SignalRegionData(_counters.at(NAME), OBS, {BKG_CENTRAL, BKG_ERR}));
+
+/// Commit a covariance matrix
+#define COMMIT_COVARIANCE_MATRIX(COV)                                             \
+  set_covariance(COV);
+
+/// Commit cutflows
+#define COMMIT_CUTFLOWS                                                           \
+  add_cutflows(_cutflows);
+
+
 
