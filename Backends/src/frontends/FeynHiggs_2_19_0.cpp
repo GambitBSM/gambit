@@ -106,11 +106,7 @@ BE_INI_FUNCTION
   fh_real CKMrhobar = sminputs.CKM.rhobar;
   fh_real CKMetabar = sminputs.CKM.etabar;
 
-  #ifdef FEYNHIGGS_DEBUG
-    cout << "****** calling FHSetSMPara ******" << endl;
-  #endif
-
-  error = 1;
+  
   std::cout << "SM FH Inputs: invAlfa0 = "  << invAlfa0 << std::endl;
   std::cout << "SM FH Inputs: invAlfaMZ = "  << invAlfaMZ << std::endl;
   std::cout << "SM FH Inputs: AlfasMZ = "  << AlfasMZ<< std::endl;
@@ -120,7 +116,59 @@ BE_INI_FUNCTION
   std::cout << "SM FH Inputs: MD = "  << MD << std::endl;
   std::cout << "SM FH Inputs: MM = "  << MM << std::endl;
   std::cout << "SM FH Inputs: MC = "  << MC << std::endl;
-  std::cout << "SM FH Inputs: MS = "  << ML << std::endl;
+  std::cout << "SM FH Inputs: MS = "  << MS << std::endl;
+  std::cout << "SM FH Inputs: MB = "  << MB << std::endl;
+  std::cout << "SM FH Inputs: MW = "  << MW << std::endl;
+  std::cout << "SM FH Inputs: MZ = "  << MZ << std::endl;
+  std::cout << "SM FH Inputs: GammaW = "  << GammaW << std::endl;
+  std::cout << "SM FH Inputs: GammaZ = "  << GammaZ << std::endl;
+  std::cout << "SM FH Inputs: CKMlambda = "  << CKMlambda << std::endl; 
+  std::cout << "SM FH Inputs: CKMA = "  << CKMA << std::endl;
+  std::cout << "SM FH Inputs: CKMrhobar = "  << CKMrhobar << std::endl;
+  std::cout << "SM FH Inputs: CKMetabar  = "  << CKMetabar << std::endl;
+
+  fh_real MT = fullspectrum.get(Par::Pole_Mass,"t");// top quark mass
+  std::cout << "MT = " << MT << std::endl;
+  std::cout << "sminputs.mT = " << sminputs.mT << std::endl;
+
+  // Need to convert alpha(MZ) from DRbar to the one used in OS calculation
+  // This needs code snippet found in SLHARecord.F subroutine FHSLHARecord
+  // and needs invAlfa0_default given in src/Main/const.h 
+  // invAlfa0_default = 137.035999084D0
+  // and DeltaAlfaTopAlfa(mt**2, mz**2) function given in src/Main/DeltaAlfaTop.h
+  // which in turn needs B0 and A0 function which FeynHiggs gets from LoopTools
+  // in src/LT/.
+  // mt and mz passed to  DeltaAlfaTopAlfa should be SMInputs_Mt and SMInputs_MZ
+  //fh_real DeltaAlphaTop = DeltaAlfaTopAlfa(Re(SMInputs_Mt)**2, Re(SMInputs_MZ)**2)
+  // PA: can just hard code this, shouldn't chnage anyway but in principal is something
+  // that should be updated with interface if FeynHiggs ever chnages it
+
+  fh_real DeltaAlphaTop = DeltaAlfaTopAlfa(MT*MT, MZ*MZ);
+  std::cout <<"after calling DealtaAlfaTop"  <<std::endl;
+  fh_real local_invAlfa0_default = 137.035999084;
+  invAlfaMZ = invAlfaMZ + DeltaAlphaTop + local_invAlfa0_default*.007127;
+
+  #ifdef FEYNHIGGS_DEBUG
+    cout << "****** calling FHSetSMPara ******" << endl;
+  #endif
+
+  error = 1;
+  FHSetSMPara(error, invAlfa0, invAlfaMZ, AlfasMZ, GF,
+        ME, MU, MD, MM, MC, MS, ML, MB,
+	      MW, MZ, GammaW, GammaZ,
+        CKMlambda, CKMA, CKMrhobar, CKMetabar);
+
+  std::cout << "AFTER FHSetSMPara " << std::endl;
+  std::cout << "SM FH Inputs: invAlfa0 = "  << invAlfa0 << std::endl;
+  std::cout << "SM FH Inputs: invAlfaMZ = "  << invAlfaMZ << std::endl;
+  std::cout << "SM FH Inputs: AlfasMZ = "  << AlfasMZ<< std::endl;
+  std::cout << "SM FH Inputs: GF = "  << GF << std::endl;
+  std::cout << "SM FH Inputs: ME = "  << ME << std::endl;
+  std::cout << "SM FH Inputs: MU = "  << MU << std::endl;
+  std::cout << "SM FH Inputs: MD = "  << MD << std::endl;
+  std::cout << "SM FH Inputs: MM = "  << MM << std::endl;
+  std::cout << "SM FH Inputs: MC = "  << MC << std::endl;
+  std::cout << "SM FH Inputs: MS = "  << MS << std::endl;
   std::cout << "SM FH Inputs: MB = "  << MB << std::endl;
   std::cout << "SM FH Inputs: MW = "  << MW << std::endl;
   std::cout << "SM FH Inputs: MZ = "  << MZ << std::endl;
@@ -130,15 +178,11 @@ BE_INI_FUNCTION
   std::cout << "SM FH Inputs: CKMA = "  << CKMA << std::endl;
   std::cout << "SM FH Inputs: CKMrhobar = "  << CKMrhobar << std::endl;
   std::cout << "SM FH Inputs: CKMetabar  = "  << CKMetabar << std::endl;
-  
-  
-  
-  FHSetSMPara(error, invAlfa0, invAlfaMZ, AlfasMZ, GF,
-        ME, MU, MD, MM, MC, MS, ML, MB,
-	      MW, MZ, GammaW, GammaZ,
-        CKMlambda, CKMA, CKMrhobar, CKMetabar);
 
-  fh_real MT = fullspectrum.get(Par::Pole_Mass,"t");                      // top quark mass
+  // cout << "** Top Mass: " << MT << endl;
+  // cout << "** Tan beta: " << TB << endl;
+  // cout << "** MA0: " << MA0 << endl;
+  // cout << "** MHp: " << MHp << endl;
   fh_real TB = SLHAea::to<double>( slhaea.at("MINPAR").at(3).at(1) ); // tan Beta
   fh_real MA0 = fullspectrum.get(Par::Pole_Mass,"A0");   // masses of CP-odd and
   fh_real MHp = -1.;                                                  // charged Higgs (only one should be given)
@@ -146,12 +190,7 @@ BE_INI_FUNCTION
     MA0 = -1.;
     MHp = fullspectrum.get(Par::Pole_Mass,"H+");
   }
-
-  // cout << "** Top Mass: " << MT << endl;
-  // cout << "** Tan beta: " << TB << endl;
-  // cout << "** MA0: " << MA0 << endl;
-  // cout << "** MHp: " << MHp << endl;
-
+  
   // soft-SUSY breaking parameters for g=1,2,3 generation sfermions
   // slepton doublet
   fh_real M1SL = SLHAea::to<double>( slhaea.at("MSOFT").at(31).at(1) );
@@ -256,6 +295,7 @@ BE_INI_FUNCTION
   #endif
 
   error = 1;
+  std::cout << "BEFORE FHsetPara!" << std::endl;
   std::cout << "BSM FH Inputs: scalefactor = "  << scalefactor << std::endl;
   std::cout << "BSM FH Inputs: MT = "  << MT << std::endl;
   std::cout << "BSM FH Inputs: TB = "  << TB << std::endl;
@@ -317,6 +357,59 @@ BE_INI_FUNCTION
       Ae,   Au, Ad,
       M_1, M_2, M_3,
       Qtau, Qt, Qb);
+
+  std::cout << "AFTER FHsetPara!" << std::endl;
+  std::cout << "BSM FH Inputs: scalefactor = "  << scalefactor << std::endl;
+  std::cout << "BSM FH Inputs: MT = "  << MT << std::endl;
+  std::cout << "BSM FH Inputs: TB = "  << TB << std::endl;
+  std::cout << "BSM FH Inputs: MA0 = "  << MA0 << std::endl;
+  std::cout << "BSM FH Inputs: MHp = "  << MHp << std::endl;
+  std::cout << "BSM FH Inputs: M3SL = "  << M3SL << std::endl;
+  std::cout << "BSM FH Inputs: M3SE = "  << M3SE << std::endl;
+  std::cout << "BSM FH Inputs: M3SU = "  << M3SU << std::endl;
+  std::cout << "BSM FH Inputs: M3SQ = "  << M3SQ << std::endl;
+  std::cout << "BSM FH Inputs: M3SD = "  << M3SD << std::endl;
+  std::cout << "BSM FH Inputs: M2SL = "  << M2SL << std::endl;
+  std::cout << "BSM FH Inputs: M2SE = "  << M2SE<< std::endl;
+  std::cout << "BSM FH Inputs: M2SU = "  << M2SU << std::endl;
+  std::cout << "BSM FH Inputs: M2SQ = "  << M2SQ << std::endl;
+  std::cout << "BSM FH Inputs: M2SD = "  << M2SD << std::endl;
+  std::cout << "BSM FH Inputs: M1SL = "  << M1SL << std::endl;
+  std::cout << "BSM FH Inputs: M1SE = "  << M1SE << std::endl;
+  std::cout << "BSM FH Inputs: M1SU = "  << M1SU << std::endl;
+  std::cout << "BSM FH Inputs: M1SQ = "  << M1SQ << std::endl;
+  std::cout << "BSM FH Inputs: M1SD = "  << M1SD << std::endl;
+  std::cout << "BSM FH Inputs: MUE.re = "  << MUE.re << std::endl;
+  std::cout << "BSM FH Inputs: MUE.im = "  << MUE.im << std::endl;
+  
+  std::cout << "BSM FH Inputs: Atau.re = "  << Atau.re << std::endl;
+  std::cout << "BSM FH Inputs: Atau.im = "  << Atau.im << std::endl;
+  std::cout << "BSM FH Inputs: At.re = "  << At.re << std::endl;
+  std::cout << "BSM FH Inputs: At.im = "  << At.im << std::endl;
+  std::cout << "BSM FH Inputs: Ab.re  = "  << Ab.re << std::endl;
+  std::cout << "BSM FH Inputs: Ab.im  = "  << Ab.im << std::endl;
+  std::cout << "BSM FH Inputs: Amu.re = "  << Amu.re << std::endl;
+  std::cout << "BSM FH Inputs: Amu.im = "  << Amu.im << std::endl;
+  std::cout << "BSM FH Inputs: Ac.re = "  << Ac.re << std::endl;
+  std::cout << "BSM FH Inputs: Ac.im = "  << Ac.im << std::endl;
+  std::cout << "BSM FH Inputs: As.re = "  << As.re << std::endl;
+  std::cout << "BSM FH Inputs: As.im = "  << As.im << std::endl;
+  std::cout << "BSM FH Inputs: Ae.re = "  << Ae.re << std::endl;
+  std::cout << "BSM FH Inputs: Ae.im = "  << Ae.im << std::endl;
+  std::cout << "BSM FH Inputs: Au.re = "  << Au.re << std::endl;
+  std::cout << "BSM FH Inputs: Au.im = "  << Au.im << std::endl;
+  std::cout << "BSM FH Inputs: Ad.re = "  << Ad.re << std::endl;
+  std::cout << "BSM FH Inputs: Ad.im = "  << Ad.im << std::endl;
+  std::cout << "BSM FH Inputs: M_1.re = "  << M_1.re << std::endl;
+  std::cout << "BSM FH Inputs: M_1.im = "  << M_1.im << std::endl;
+  std::cout << "BSM FH Inputs: M_2.re = "  << M_2.re << std::endl;
+  std::cout << "BSM FH Inputs: M_2.im = "  << M_2.im << std::endl;
+  std::cout << "BSM FH Inputs: M_3.re = "  << M_3.re << std::endl;
+  std::cout << "BSM FH Inputs: M_3.im = "  << M_3.im << std::endl;
+  std::cout << "BSM FH Inputs: Qtau = "  << Qtau << std::endl;
+  std::cout << "BSM FH Inputs: Qt = "  << Qt << std::endl;
+  std::cout << "BSM FH Inputs: Qb = "  << Qb << std::endl;
+  
 
   //
   // Set NMFV parameters

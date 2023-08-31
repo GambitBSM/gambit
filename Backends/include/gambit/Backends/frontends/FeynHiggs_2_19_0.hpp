@@ -83,6 +83,10 @@ BE_FUNCTION(FHCouplings, void, (int&, Farray< fh_complex,1,681>&, Farray< fh_com
                                 Farray< fh_real,1,978>&, Farray< fh_real,1,250>&, int&), "fhcouplings_", "FHCouplings")
 
 BE_FUNCTION(FHHiggsProd, void, (int&, fh_real&, Farray< fh_real,1,52>&), "fhhiggsprod_", "FHHiggsProd")
+
+//BE_FUNCTION(DeltaAlfaTopAlfa, Fdouble, (const fh_creal&, fh_creal&), "deltaalfatopalfa_", "DeltaAlfaTopAlfa")
+
+BE_FUNCTION(DeltaAlfaTopAlfa, Fdouble, (const Fdouble&, const Fdouble&), "deltaalfatopalfa_", "DeltaAlfaTopAlfa")
 	    
 // Initialisation function (dependencies)
 BE_INI_DEPENDENCY(unimproved_MSSM_spectrum, Spectrum)   // Need MSSM spectrum inputs to initialize FH
