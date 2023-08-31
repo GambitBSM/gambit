@@ -29,8 +29,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 int& LHEFversionSave;
                 std::vector<double>& sigmaLHEFSave;
-                std::map<std::string, std::string>*& eventAttributes;
-                std::map<std::string, double>*& weights_detailed;
+                std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > >*& eventAttributes;
+                std::map<std::basic_string<char>, double, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, double> > >*& weights_detailed;
                 std::vector<double>*& weights_compressed;
         
                 // Member functions: 
@@ -339,7 +339,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 ::std::string header(const std::string& key);
         
-                ::std::vector<std::string> headerKeys();
+                ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > headerKeys();
         
                 int nProcessesLHEF();
         

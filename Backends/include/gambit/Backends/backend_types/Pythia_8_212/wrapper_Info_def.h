@@ -775,7 +775,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->header(key);
         }
         
-        inline ::std::vector<std::string> Info::headerKeys()
+        inline ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > Info::headerKeys()
         {
             return get_BEptr()->headerKeys();
         }
