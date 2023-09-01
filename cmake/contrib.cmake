@@ -269,7 +269,7 @@ if (NOT EXCLUDE_ONNXRUNTIME)
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${dir}")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${ONNXRUNTIME_LIB}")
 endif()
 
 #contrib/YODA; include if ColliderBit is in, don't otherwise
