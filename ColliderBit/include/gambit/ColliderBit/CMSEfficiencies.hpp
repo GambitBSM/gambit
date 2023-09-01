@@ -589,17 +589,28 @@ namespace Gambit
       // There is no proper reference that contains these numbers, so it is constructed from the description in the text, verbatim:
       // "For electrons, the efficiency increases with pT, starting from ∼30% at 5 GeV and increasing to ∼70% at 30 GeV"
       // Made 2D for simplicity
-      //static const HEPUtils::BinnedFn2D eff2DEl_SUS_18_004(
-      //  {0., DBL_MAX},   // Bin edges in eta (effectively 1D)
-      //  {0., 5., 30., DBL_MAX}  // Bin edges in pT, asumming 0 efficiency below min pT and flat above max pT
-      //  {
-      //    // pT:  (0,5),  (5, 30),  (30, inf)
-      //             0.0,    0.30
+      static const HEPUtils::BinnedFn2D<double> eff2DEl_SUS_18_004(
+        {0., DBL_MAX},   // Bin edges in eta (effectively 1D)
+        {0., 4.25, 6.25, 8.75, 12.5, 17.5, 22.5, 27.5, DBL_MAX}, // Bin edges in pT, asumming 0 efficiency below min pT and flat above max pT
+        {
+          // pT:  (0,4.25),  (4.25,6.25),  (6.25,8.75),  (8.75,12.5),  (12.5,17.5),  (17.5,22.5),  (22.5,27.5),  (27.5,DBL_MAX)
+                    0.0,         0.30,          0.34,        0.38,         0.46,         0.54,         0.62,         0.7        // eta: (0, DBL_MAX)
+        }
+      );
 
 
       // Muons
       // There is no proper reference that contains these numbers, so it is constructed from the description in the text, verbatim:
       // "For muons, the pT dependence is less strong and the efficiency ranges from 70 to 85%"
+      // Made 2D for simplicity
+      static const HEPUtils::BinnedFn2D<double> eff2DMu_SUS_18_004(
+        {0., DBL_MAX},   // Bin edges in eta (effectively 1D)
+        {0., 1.75, 4.25, 6.25, 8.75, 12.5, 17.5, 22.5, 27.5, DBL_MAX}, // Bin edges in pT, asumming 0 efficiency below min pT and flat above max pT
+        {
+          // pT:  (0,1.75) (1.75,4.25),  (4.25,6.25),  (6.25,8.75),  (8.75,12.5),  (12.5,17.5),  (17.5,22.5),  (22.5,27.5),  (27.5,DBL_MAX)
+                    0.0,       0.691,        0.70,         0.715,        0.73,         0.76,         0.79,         0.82,         0.85        // eta: (0, DBL_MAX)
+        }
+      );
 
       /////////////////////////
       // CMS Efficiency maps //
@@ -608,14 +619,16 @@ namespace Gambit
       static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DEl =
       {
         {"SUS_16_039", eff2DEl_SUS_16_039},
-        {"SUS_19_008", eff2DEl_SUS_19_008}
+        {"SUS_19_008", eff2DEl_SUS_19_008},
+        {"SUS-18-004", eff2DEl_SUS_18_004}
       };
 
       // Map of muon efficiencies
       static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DMu =
       {
         {"SUS_16_039", eff2DMu_SUS_16_039},
-        {"SUS_19_008", eff2DMu_SUS_19_008}
+        {"SUS_19_008", eff2DMu_SUS_19_008},
+        {"SUS-18-004", eff2DMu_SUS_18_004}
 
       };
 

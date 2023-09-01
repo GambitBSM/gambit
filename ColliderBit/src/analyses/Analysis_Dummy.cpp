@@ -28,7 +28,9 @@ namespace Gambit
         Analysis_Dummy()
         {
 
-          // Define a single signal region
+          // Define a single signal region and the associated cuts
+          // DEFINE_SIGNAL_REGION(SRNAME, CF1, CF2, ...)
+          // By default the Preselection and Final cuts are always defined
           DEFINE_SIGNAL_REGION("SR")
 
           // Define multiple signal regions at one, number 1..N

@@ -25,19 +25,23 @@
 #define ETAMAX DBL_MAX
 #define PTMAX DBL_MAX
 
+/// Add a cutflow the the list of cutflows
+#define ADD_CUTFLOW(SR, ...)                                                      \
+  _cutflows.addCutflow(SR, {"Preselection", ## __VA_ARGS__, "Final"});
+
 /// Define a signal region by initialzing the counter and cutflow
-#define DEFINE_SIGNAL_REGION(NAME)                                                \
-  _counters[NAME] =  EventCounter(NAME);                                          \
-  _cutflows.addCutflow(NAME, {"Preselection", "Final"});
+#define DEFINE_SIGNAL_REGION(NAME, ...)                                           \
+  _counters[NAME] = EventCounter(NAME);                                           \
+  ADD_CUTFLOW(NAME, ## __VA_ARGS__)
 
 /// Define multiple signal regions that share a common name and
 /// only vary on sequential numbering
-#define DEFINE_SIGNAL_REGIONS(NAME, N)                                            \
+#define DEFINE_SIGNAL_REGIONS(NAME, N, ...)                                       \
   for(size_t i=1; i<=N; ++i)                                                      \
   {                                                                               \
     str basename(NAME);                                                           \
     str name = basename + std::to_string(i);                                      \
-    DEFINE_SIGNAL_REGION(name)                                                    \
+    DEFINE_SIGNAL_REGION(name, ## __VA_ARGS__)                                    \
   }
 
 /// Define baseline objects with min pT and min eta

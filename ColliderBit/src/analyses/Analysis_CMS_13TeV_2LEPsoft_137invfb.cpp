@@ -33,7 +33,7 @@ namespace Gambit
 
       Analysis_CMS_13TeV_2LEPsoft_137invfb()
       {
-        DEFINE_SIGNAL_REGIONS("2lEW",19)
+        DEFINE_SIGNAL_REGIONS("2lEW",19, "Test")
         DEFINE_SIGNAL_REGIONS("3lEW", 9)
         DEFINE_SIGNAL_REGIONS("2lST",24)
 
@@ -43,14 +43,43 @@ namespace Gambit
 
       void run(const HEPUtils::Event* event)
       {
+
         //////////////////////
         // Baseline objects //
 
+        static long count = 0;
+        count++;
+
+        static long count1 = 0, count2 = 0, count3 = 0;
+
+        int nleptons = event->electrons().size() + event->muons().size();
+
+        if(nleptons == 1)  count1 ++;
+        if(nleptons == 2)  count2 ++;
+        if(nleptons == 3)  count3 ++;
+
+//        if(!(count%1000)) std::cout << "number of events with 1 electron = " << count1 << std::endl;
+//        if(!(count%1000)) std::cout << "number of events with 2 electrons = " << count2 << std::endl;
+//        if(!(count%1000)) std::cout << "number of events with 3 electrons = " << count3 << std::endl;
+
         // TODO: Unsure on what to do about electron and muon efficiencies
-        BASELINE_PARTICLES(electrons, baselineElectrons, 5., 0., 30., 2.5)
-        BASELINE_PARTICLES(muons, baselineMuons, 3.5, 0., 30., 2.4)
+        BASELINE_PARTICLES(electrons, baselineElectrons, 5., 0., 30., 2.5, CMS::eff2DEl.at("SUS-18-004"))
+        BASELINE_PARTICLES(muons, baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
         BASELINE_JETS(jets, baselineJets, 25., 0., DBL_MAX, 2.4)
         BASELINE_BJETS(jets, baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::missIDBJet.at("DeepCSVMedium"))
+
+        static long bcount1 = 0, bcount2 = 0, bcount3 = 0;
+
+        int nbleptons = baselineElectrons.size() + baselineMuons.size();
+
+        if(nbleptons == 1)  bcount1 ++;
+        if(nbleptons == 2)  bcount2 ++;
+        if(nbleptons == 3)  bcount3 ++;
+
+//        if(!(count%1000)) std::cout << "number of events with 1 electron = " << bcount1 << std::endl;
+//        if(!(count%1000)) std::cout << "number of events with 2 electrons = " << bcount2 << std::endl;
+//        if(!(count%1000)) std::cout << "number of events with 3 electrons = " << bcount3 << std::endl;
+
 
         // Remove overlaps
         // TODO: I don't understand the isolation criteria, so don't apply it
@@ -94,7 +123,7 @@ namespace Gambit
         size_t nSFpairs = SFpairs.size();
 
         // Muon corrected ETmiss
-        double metcorr = 0.;
+        double metcorr = met;
         for(auto& muon : signalMuons)
           metcorr += sqrt(muon->mom().px() * muon->mom().px() + muon->mom().py() * muon->mom().py());
 
@@ -157,12 +186,12 @@ namespace Gambit
           DeltaRll.push_back(deltaR_eta(ospair.at(0)->mom(), ospair.at(1)->mom()));
         std::sort(DeltaRll.begin(), DeltaRll.end());
 
-        // Cuflow initialization
-        _cutflows.fillinit(event->weight());
-
 
         ///////////////////
         // Preselection //
+
+        BEGIN_PRESELECTION
+
         if(nSignalLeptons < 2 or nSignalLeptons > 3) return;
         if(nOSpairs < 1) return;
 
@@ -174,8 +203,9 @@ namespace Gambit
         //bool trigger_path_3 = metcorr > 60. and met > 50. and  nSignalMuons > 2 and signalMuons.at(0)->pT() > 17 and signalMuons.at(1)->pT() > 8;
         if(not trigger_path_1 and not trigger_path_2/* and not trigger_path_3*/) return;
 
-        // Fill preselection cutflows
-        _cutflows.fillnext(event->weight());
+        END_PRESELECTION
+
+//        std::cout<< "met = " << met << ", metcorr = " << metcorr << std::endl;
 
 
         ////////////////////
@@ -197,6 +227,8 @@ namespace Gambit
            nSignalBJets == 0 and
            mTauTau < 0 and mTauTau > 160)
         {
+//          LOG_CUT("2lEW1", "2lEW2", "2lEW3", "2lEW4")
+
           if(mllOSSF > 4.  and mllOSSF <= 10.) { FILL_SIGNAL_REGION("2lEW1"); }
           if(mllOSSF > 10. and mllOSSF <= 20.) { FILL_SIGNAL_REGION("2lEW2"); }
           if(mllOSSF > 20. and mllOSSF <= 30.) { FILL_SIGNAL_REGION("2lEW3"); }
