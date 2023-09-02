@@ -483,6 +483,9 @@ function(add_standalone executablename)
       if (NOT EXCLUDE_FASTJET)
         set(ARG_LIBRARIES ${ARG_LIBRARIES} ${FASTJET_LDFLAGS})
       endif()
+      if (NOT EXCLUDE_FJCONTRIB)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${FJCONTRIB_LDFLAGS})
+      endif()
     endif()
 
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.

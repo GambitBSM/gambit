@@ -368,6 +368,50 @@ if(NOT EXCLUDE_FASTJET)
   #set_as_default_version("backend" ${name} ${ver})
 endif()
 
+# Fjcontrib
+set(name "fjcontrib")
+set(ver "1.041")
+set(dir "${PROJECT_SOURCE_DIR}/contrib/${name}-${ver}")
+if (WITH_FJCONTRIB)
+  set(EXCLUDE_FJCONTRIB FALSE)
+else()
+  make_nuked_contrib_content(${name} ${dir})
+  set(EXCLUDE_FJCONTRIB TRUE)
+endif()
+
+if (NOT EXCLUDE_FJCONTRIB)
+    set(lib fastjetcontribfragile)
+    set(dl "http://fastjet.hepforge.org/contrib/downloads/${name}-${ver}.tar.gz")
+    set(md5 "b37674a8701af52b58ebced94a270877")
+    set(fastjet_name "fastjet")
+    set(fastjet_ver "3.3.2")
+    set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/${fastjet_name}-${fastjet_ver}")
+    include_directories("${fastjet_dir}/local/include")
+    set(FJCONTRIB_PATH "${dir}")
+    set(FJCONTRIB_LIB "${fastjet_dir}/local/lib")
+    set(FJCONTRIB_LDFLAGS "-L${FJCONTRIB_LIB} -l${lib} -lfastjettools -lfastjet")
+    set(FJCONTRIB_CXX_FLAGS ${FJ_CXX_FLAGS})
+    #set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
+    set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
+    set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
+    set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
+    set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${FJCONTRIB_LIB}")
+    ExternalProject_Add(${name}
+      DEPENDS ${fastjet_name}
+      DOWNLOAD_COMMAND ${DL_CONTRIB} ${dl} ${md5} ${dir} ${name} ${ver}
+      SOURCE_DIR ${dir}
+      BUILD_IN_SOURCE 1
+      PATCH_COMMAND ""
+      CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
+      BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
+      INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
+    )
+    add_contrib_clean_and_nuke(${name} ${dir} clean)
+    set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
+endif()
+
+
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
 include_directories("${multimin_INCLUDE_DIR}")
