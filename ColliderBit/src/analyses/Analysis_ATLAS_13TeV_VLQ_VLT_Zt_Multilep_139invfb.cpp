@@ -12,7 +12,7 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
-//#include "fastjet/contrib/VariableRPlugin.hh"
+#include "fastjet/contrib/VariableRPlugin.hh"
 
 using namespace std;
 
@@ -28,12 +28,13 @@ namespace Gambit
         // region map
         // TODO: I'm including the CRs/VRs because I can, plus useful validation.
         std::map<string, EventCounter> _counters = {
+          //TODO: really the analysis fits bins of the meff histogram in each SR.
+          // But do we have all the required info to actually implement this.
           // 2 lepton channel regions
-          // TODO: 2l region needs vRC reclustered jets.
           {"2lSR", EventCounter("2lSR")},
           {"2lCR1", EventCounter("2lCR1")},
           {"2lCR2", EventCounter("2lCR2")},
-          {"2lCR2", EventCounter("2lCR3")},
+          {"2lCR3", EventCounter("2lCR3")},
           {"2lVR1", EventCounter("2lVR1")},
           {"2lVR2", EventCounter("2lVR2")},
 
@@ -47,8 +48,9 @@ namespace Gambit
 
       private:
 
-        // Internally used Z-mass
-        double mZ = 91.1876; // [GeV]
+        // Internally used masses
+        constexpr static double mZ = 91.1876; // [GeV]
+        constexpr static double mtop = 172.76; // [GeV]
 
         #ifdef CHECK_CUTFLOW
         // Cut-flow variables
@@ -157,8 +159,31 @@ namespace Gambit
           return;
         }
 
+        // Trim reclustered jets (and conveniently apply pt/eta cuts at the same time)
+        static void trimJets(const vector<FJNS::PseudoJet> &pjs_in, vector<Jet> & largeJetsOut,
+                      const double frac=0.00, const double minPt = 0.,
+                      const double maxEta = 6., const double minPt_twosubJets = 0.){
+          largeJetsOut.clear();
+          for (const FJNS::PseudoJet & pj : pjs_in){
+            if (pj.pt() < minPt || abs(pj.eta()) > maxEta || 
+              (pj.pt() < minPt_twosubJets && pj.constituents().size() == 1)) continue;
+            const double vetoPt = frac*pj.pt();
+            P4 running_total;
+            vector<FJNS::PseudoJet> preserved_subjets;
+            for (const FJNS::PseudoJet & constit : pj.constituents()){
+              if (constit.pt() > vetoPt){
+                preserved_subjets.push_back(constit);
+                running_total += P4(constit.px(), constit.py(), constit.pz(), constit.E());
+              }
+            }
+            if (running_total.pT() < minPt || running_total.abseta() > maxEta || 
+              (running_total.pT() < minPt_twosubJets && preserved_subjets.size() == 1)) continue;
+            largeJetsOut.emplace_back(running_total);
+          }
+        }
 
-        //
+
+        
         // Main event analysis
         //
         void run(const HEPUtils::Event* event)
@@ -215,7 +240,7 @@ namespace Gambit
           }
           // b-jets
           const double btag = 0.77; const double cmisstag = 1./6.; const double misstag = 1./192.;
-          int nb = 0;
+          size_t nb = 0;
           vector<const HEPUtils::Jet*> bJets;
           for ( const HEPUtils::Jet* jet : centralJets )
           {
@@ -321,20 +346,79 @@ namespace Gambit
 
           // The parting of the ways: 2 lepton or 3(+) lepton channel
           
+          /////////////////////////////////////////////////////////////////////
           // 2l Channel
           if (muons.size() + electrons.size() == 2)
           {
             // Require HT > 300GeV
             if (HT < 300) {return;};
 
-            // TODO: Rest of 2l channel analyses require vRC jets, which requires
-            // fastjet::contrib::variableR -> discuss at next ColliderBit.
+            vector<Jet> vrcJets;
+            {
+              vector<fastjet::PseudoJet> jetsIn;
+              // TODO: is there a nicer way of converting pseudojets<->heputils jets?
+              for (size_t i = 0; i < centralJets.size(); ++i){
+                jetsIn.push_back(fastjet::PseudoJet(centralJets[i]->mom().px(), 
+                                                    centralJets[i]->mom().py(),
+                                                    centralJets[i]->mom().pz(),
+                                                    centralJets[i]->mom().E()));
+              }
+              // TODO: min/max R not actually given, need to be double checked.
+              fastjet::JetDefinition::Plugin* variableRplugin =
+                 new fastjet::contrib::VariableRPlugin(mtop*2, 0.4, 1.5, fastjet::contrib::VariableRPlugin::AKTLIKE);
+              fastjet::JetDefinition jdef(variableRplugin);
+              fastjet::ClusterSequence cseq(jetsIn, jdef);
+              vector<FJNS::PseudoJet> VRC_jets = cseq.inclusive_jets();
+              
+              //TODO: min eta cut? Constituent check?
+              trimJets(VRC_jets, vrcJets, 0.00, 200, 2.0, 700);
+            }
+            // Require at least one vRC jet:
+            if (vrcJets.size() == 0) return;
+
+            //Reconstruct the momentum of the top quark:
+            const P4 llJ = zCandidate + vrcJets[0].mom();
+
+            //Require m_llJ > HT+ETMiss
+            if (HT + met > llJ.m()) return;
+
+            // 2l channel presel passed!
+            const size_t nTopTags =  std::count_if(vrcJets.begin(), vrcJets.end(),
+                                                  [](const Jet &j){return j.mass() >= 140;});
+            const size_t nTopVetoes = vrcJets.size() - nTopTags;
+
+            // 2lCR1, 2lVR1, 2lSR:
+            if (forwardJets.size() > 0){
+              if (nTopTags >= 1 && nb >= 1){
+                _counters["2lSR"].add_event(event);
+              }
+              else if (nTopTags >= 1 && nb == 0){
+                _counters["2lVR1"].add_event(event);
+              }
+              if (nTopVetoes >= 1 && nb == 0){
+                _counters["2lCR1"].add_event(event);
+              }
+              return;
+            }
+            // 2lCR2, 2lCR3, 2lVR2
+            else {
+              if (nTopTags >= 1 && nb >= 1){
+                _counters["2lVR2"].add_event(event);
+              }
+              else if (nTopTags >= 1 && nb == 0){
+                _counters["2lCR3"].add_event(event);
+              }
+              if (nTopVetoes >= 1 && nb >= 1){
+                _counters["2lCR2"].add_event(event);
+              }
+              return;
+            }
           }
+          /////////////////////////////////////////////////////////////////////
           // 3l Channel
           else {
             // Require at least two central Jets
             if (centralJets.size() < 2) {return;};
-
 
             //3lVV CR
             if (nb == 0)
@@ -393,7 +477,7 @@ namespace Gambit
             // All other regions: >= 1 forward jet
             else {
               
-              const Jet leadbjet = *bJets[0];
+              const Jet& leadbjet = *bJets[0];
               
               // 3l VR
               if (zCandidate.deltaPhi(lepton3) < M_PI_2 || zCandidate.deltaPhi(leadbjet) < M_PI_2)
@@ -435,10 +519,19 @@ namespace Gambit
 
         void collect_results()
         {
+          // TODO: Paper only supplies post-fit numbers.
+          // Maybe hepdata will be available at some point?
           // Sig regions
+          add_result(SignalRegionData(_counters.at("2lSR"), 181, {174, 9}));
           add_result(SignalRegionData(_counters.at("3lSR"), 24, {21, 2.2}));
 
           // Control regions
+          add_result(SignalRegionData(_counters.at("2lCR1"), 4887, {4886, 70}));
+          add_result(SignalRegionData(_counters.at("2lCR2"), 3818, {3821, 60}));
+          add_result(SignalRegionData(_counters.at("2lCR3"), 3735, {3727, 60}));
+          add_result(SignalRegionData(_counters.at("2lVR1"), 704, {732, 16}));
+          add_result(SignalRegionData(_counters.at("2lVR2"), 846, {802, 24}));
+
           add_result(SignalRegionData(_counters.at("3lVV"), 4590, {4594, 70}));
           add_result(SignalRegionData(_counters.at("3lVR"), 21, {27, 3}));
           add_result(SignalRegionData(_counters.at("3lMixed"), 690, {692, 26}));
