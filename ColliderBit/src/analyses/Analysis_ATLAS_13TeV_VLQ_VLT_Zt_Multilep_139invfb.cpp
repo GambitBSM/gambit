@@ -389,26 +389,32 @@ namespace Gambit
 
             // 2lCR1, 2lVR1, 2lSR:
             if (forwardJets.size() > 0){
-              if (nTopTags >= 1 && nb >= 1){
+              if (nTopTags >= 1 && nb >= 1)
+              {
                 _counters["2lSR"].add_event(event);
               }
-              else if (nTopTags >= 1 && nb == 0){
+              else if (nTopTags >= 1 && nb == 0)
+              {
                 _counters["2lVR1"].add_event(event);
               }
-              if (nTopVetoes >= 1 && nb == 0){
+              if (nTopVetoes >= 1 && nb == 0)
+              {
                 _counters["2lCR1"].add_event(event);
               }
               return;
             }
             // 2lCR2, 2lCR3, 2lVR2
             else {
-              if (nTopTags >= 1 && nb >= 1){
+              if (nTopTags >= 1 && nb >= 1)
+              {
                 _counters["2lVR2"].add_event(event);
               }
-              else if (nTopTags >= 1 && nb == 0){
+              else if (nTopTags >= 1 && nb == 0)
+              {
                 _counters["2lCR3"].add_event(event);
               }
-              if (nTopVetoes >= 1 && nb >= 1){
+              if (nTopVetoes >= 1 && nb >= 1)
+              {
                 _counters["2lCR2"].add_event(event);
               }
               return;
