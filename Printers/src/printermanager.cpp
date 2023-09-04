@@ -37,6 +37,41 @@
 
 namespace Gambit
 {
+  
+  // Set/Get global reader object retrieval
+  Printers::PrinterManager* global_printer_manager = NULL;
+  
+  // Function to return the value of global_printer_manager
+  Printers::PrinterManager* get_global_printer_manager()
+  {
+    return(global_printer_manager);
+  }
+
+  Printers::BaseReader& get_pp_reader()
+  {
+    if(global_printer_manager==NULL)
+    {
+       std::ostringstream os;
+       os<<"Tried to retrieve postprocessor reader object, but no PrinterManager has been set! This should be set during scan setup.";
+       Printers::printer_error().raise(LOCAL_INFO,os.str()); 
+    }
+    
+    if(not global_printer_manager->reader_exists("old_points"))
+    {
+       std::ostringstream errmsg;
+       errmsg<<"No postprocessor reader object found! This probably means that you are not scanning using the postprocessor. To retrieve data from previous output you must scan with the 'postproccesor' scanner.";
+       Printers::printer_error().raise(LOCAL_INFO,errmsg.str());
+    }
+
+    return *(global_printer_manager->get_full_reader("old_points"));
+  }
+
+  void set_global_printer_manager(Printers::PrinterManager* pm)
+  {
+     global_printer_manager = pm;
+  }
+
+ 
   namespace Printers
   {
 
@@ -210,8 +245,16 @@ namespace Gambit
       }
     }
 
-    // Retrieve pointer to named reader object
+    /// Retrieve pointer to named reader object
     BaseBaseReader* PrinterManager::get_reader(const std::string& readername)
+    {
+      // Note that this routine automatically converts the BaseReader pointer into a BaseBaseReader pointer
+      // (for a more minimal interface for use in ScannerBit)
+      return get_full_reader(readername);
+    }
+
+    /// Retrieve non-base version of reader object (for use in module functions rather than ScannerBit)
+    BaseReader* PrinterManager::get_full_reader(const std::string& readername)
     {
       DBUG( std::cout << "PrinterManager: Retrieving reader stream \"" << readername << "\"" << std::endl; )
       // Note that this routine automatically converts the BaseReader pointer into a BaseBaseReader pointer
@@ -225,6 +268,14 @@ namespace Gambit
         printer_error().raise(LOCAL_INFO, errmsg.str());
       }
       return it->second;
+    }
+
+    /// Checker for existence of reader object
+    bool PrinterManager::reader_exists(const std::string& readername)
+    {
+      typedef std::map<std::string, BaseReader*>::iterator it_type;
+      it_type it = readers.find(readername);
+      return (it != readers.end());
     }
 
     /// Instruct all printers that scan has finished and to perform cleanup

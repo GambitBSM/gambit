@@ -36,7 +36,7 @@ namespace Gambit
             {
             }
 
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string, double> &outputMap) const
+            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string, double> &outputMap) const override
             {
                 auto it_vec = unitpars.begin();
                 for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
@@ -44,6 +44,17 @@ namespace Gambit
                     outputMap[*it] = *(it_vec++);
                 }
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            {
+                std::vector<double> u;
+                for (const auto& n : param_names)
+                {
+                    u.push_back(physical.at(n));
+                }
+                return u;
+            }
+
         };
 
         class None : public BasePrior
@@ -55,7 +66,7 @@ namespace Gambit
             {
             }
 
-            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
+            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const override
             {
                 for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
                 {
@@ -67,6 +78,14 @@ namespace Gambit
                     }
                 }
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override
+            {
+              scan_err << "'None' prior has no inverse transform" << scan_end;
+              return {};
+            }
+
+
         };
 
         LOAD_PRIOR(dummy, Dummy)

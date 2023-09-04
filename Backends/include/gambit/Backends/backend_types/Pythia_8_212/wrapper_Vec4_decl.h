@@ -19,11 +19,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Vec4* (*__factory0)(double, double, double, double);
-                static Pythia8::Abstract_Vec4* (*__factory1)(double, double, double);
-                static Pythia8::Abstract_Vec4* (*__factory2)(double, double);
-                static Pythia8::Abstract_Vec4* (*__factory3)(double);
-                static Pythia8::Abstract_Vec4* (*__factory4)();
+                static Abstract_Vec4* (*__factory0)(double, double, double, double);
+                static Abstract_Vec4* (*__factory1)(double, double, double);
+                static Abstract_Vec4* (*__factory2)(double, double);
+                static Abstract_Vec4* (*__factory3)(double);
+                static Abstract_Vec4* (*__factory4)();
         
                 // -- Other member variables: 
         
@@ -129,7 +129,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 Vec4();
         
                 // Special pointer-based constructor: 
-                Vec4(Pythia8::Abstract_Vec4* in);
+                Vec4(Abstract_Vec4* in);
         
                 // Copy constructor: 
                 Vec4(const Vec4& in);
@@ -141,7 +141,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Vec4();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Vec4* get_BEptr() const;
+                Abstract_Vec4* get_BEptr() const;
         
         };
     }

@@ -19,12 +19,13 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 1.5
 #define SAFE_VERSION 1_5
+#define REFERENCE Djouadi:2006bz,Muhlleitner:2003vg,Djouadi:2002ze,Djouadi:1997yw
 
 // Let's go.
 LOAD_LIBRARY
 
 // SUSY-HIT only works with diagonal MSSM models where first and second generation sfermions are degenerate.
-BE_ALLOW_MODELS(NUHM2, MSSM20atQ)
+BE_ALLOW_MODELS(NUHM2, MSSM20atQ, MSSM20atQ_mG)
 
 // Functions
 BE_FUNCTION(sdecay, void, (), "sdecay_", "sdecay")               // Converted SUSY-HIT main routine

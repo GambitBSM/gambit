@@ -27,16 +27,25 @@ castxml_cc_opt = '-std=c++11'  # Additional option string passed to the compiler
 
 # ~~~~~ GAMBIT-specific options ~~~~~
 
-gambit_backend_name    = 'Pythia'
-gambit_backend_version = '8.212'
-gambit_base_namespace  = ''
+gambit_backend_name      = 'Pythia'
+gambit_backend_version   = '8.212'
+gambit_backend_reference = 'Sjostrand:2014zea'
+gambit_base_namespace    = ''
 
 
 # ~~~~~ Information about the external code ~~~~~
 
 # Use either absolute paths or paths relative to the main BOSS directory.
-input_files   = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/Pythia.h']
-include_paths = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include', '../../../contrib/slhaea/include']
+input_files   = [
+                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/Pythia.h',
+                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include/Pythia8/GAMBIT_hepmc_writer.h',
+                ]
+include_paths = [
+                  '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include',
+                  '../../../contrib/slhaea/include',
+                  '../../../contrib/HepMC3-3.2.5/local/include',
+                  '../../../contrib/HepMC3-3.2.5/interfaces/pythia8/include'
+                ]
 base_paths    = ['../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/']
 
 header_files_to = '../../../Backends/installed/'+gambit_backend_name.lower()+'/'+gambit_backend_version+'/include'
@@ -75,6 +84,8 @@ load_classes = [
     'Pythia8::SusyLesHouches',
     'Pythia8::UserHooks',
     'Pythia8::Vec4',
+    #
+    'Pythia8::GAMBIT_hepmc_writer'
 ]
 
 load_functions = [
@@ -107,7 +118,17 @@ indent = 4
 #   known_classes = {"SomeNamespace::KnownClassOne" : "path_to_header/KnownClassOne.hpp",
 #                    "AnotherNamespace::KnownClassTwo" : "path_to_header/KnownClassTwo.hpp" }
 
-known_classes = {"SLHAea::Coll" : "SLHAea/slhaea.h"}
+known_classes = {
+  "SLHAea::Coll" : "SLHAea/slhaea.h",
+  "HepMC3::GenEvent" : "HepMC3/GenEvent.h"
+}
+
+
+# ~~~~~ Declarations to be added to the frontend header file ~~~~~
+
+convenience_functions = []
+
+ini_function_in_header = True
 
 
 # ~~~~~ Pragma directives for the inclusion of BOSSed classes in GAMBIT ~~~~~
@@ -128,3 +149,16 @@ known_classes = {"SLHAea::Coll" : "SLHAea/slhaea.h"}
 pragmas_begin = []
 pragmas_end = []
 
+
+# ~~~~~ Extra code to surround BOSS-generated code included in GAMBIT ~~~~~
+
+# The listed code will be added at the top/bottom in the frontend header file 
+# and in the loaded_types.hpp header.
+
+surround_code_begin = '''
+#ifndef EXCLUDE_HEPMC
+'''
+
+surround_code_end = ''' 
+#endif
+'''

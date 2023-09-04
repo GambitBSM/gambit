@@ -1,0 +1,10 @@
+ScalarSingletDM_Z2(CKM=1)
+ Constraints 
+ Name |> Expression                                  <|
+CW    |sqrt(1-SW^ 2)     % cos of the Weinberg angle   
+MW    |MZ*CW             % W-boson  mass               
+qcdOk |initQCD(alfSMZ,McMc,MbMb,Mtp)
+ Mb   |MbEff(Q)*one(qcdOk)
+ Mt   |MtEff(Q)*one(qcdOk)
+ Mc   |McEff(Q)*one(qcdOk)
+======================================================

@@ -46,9 +46,8 @@ namespace Gambit
 
 scanner_plugin(great, version(1, 0, 0))
 {
-  // Access GreAT and standard Gambit things
+  // Access standard Gambit things
   using namespace Gambit;
-  using namespace Gambit::GreAT;
   using namespace Gambit::Scanner;
 
   //  const static PriorTransform prior;
@@ -58,7 +57,7 @@ scanner_plugin(great, version(1, 0, 0))
 
   // Tell CMake to search for the GreAT library.
   reqd_libraries("great");
-  reqd_headers("fparser.hh", "TGreatModel.h", "TGreatManager.h", "TGreatMCMCAlgorithmCovariance.h");
+  reqd_headers("fparser.hh", "TGreatModel.h", "TGreatManager.h", "TGreatMCMCAlgorithmCovariance.h", "ROOT");
 
   // Code to execute when the plugin is loaded.
   plugin_constructor
@@ -66,22 +65,22 @@ scanner_plugin(great, version(1, 0, 0))
     const int  MPIrank = get_printer().get_stream()->getRank();
     if (MPIrank == 0) std::cout << "\033[1;31mLoading GreAT plugin for ScannerBit.\033[0m" << std::endl;
     // Retrieve the external likelihood calculator
-    data.likelihood_function = get_purpose(get_inifile_value<std::string>("like"));
+    GreAT::data.likelihood_function = get_purpose(get_inifile_value<std::string>("like"));
     // Retrieve the external printer
-    data.printer = &(get_printer());
+    GreAT::data.printer = &(get_printer());
   }
 
   int plugin_main(void)
   {
 
     // Run parameters
-    const int  nPar        = get_dimension();                            // Dimensionality of the parameter space
-    const int  nTrialLists = get_inifile_value<int> ("nTrialLists", 10); // Number of trial lists (e.g. Markov chains)
-    const int  nTrials     = get_inifile_value<int> ("nTrials",  20000); // Number of trials (e.g. Markov steps)
-    const int  MPIrank     = get_printer().get_stream()->getRank();      // MPI rank of this process
-    const bool resume_mode = get_printer().resume_mode();                // Resuming run or not
-    const str  outpath     = Gambit::Utils::ensure_path_exists(get_inifile_value<std::string>("default_output_path")+"GreAT-native/");
-    data.min_logLike       = get_inifile_value<double>("likelihood: model_invalid_for_lnlike_below");
+    const int  nPar         = get_dimension();                            // Dimensionality of the parameter space
+    const int  nTrialLists  = get_inifile_value<int> ("nTrialLists", 10); // Number of trial lists (e.g. Markov chains)
+    const int  nTrials      = get_inifile_value<int> ("nTrials",  20000); // Number of trials (e.g. Markov steps)
+    const int  MPIrank      = get_printer().get_stream()->getRank();      // MPI rank of this process
+    const bool resume_mode  = get_printer().resume_mode();                // Resuming run or not
+    const str  outpath      = Gambit::Utils::ensure_path_exists(get_inifile_value<std::string>("default_output_path")+"GreAT-native/");
+    GreAT::data.min_logLike = get_inifile_value<double>("likelihood: model_invalid_for_lnlike_below");
 
     // Set up output and MultiRun log filenames
     std::ostringstream ss1, ss2, ss3;
@@ -107,7 +106,8 @@ scanner_plugin(great, version(1, 0, 0))
       mpi.Barrier();
     #endif
 
-    // Creating GreAT Model, i.e. parameter space and function to be minimised
+    // Creating GreAT Model, i.e. parameter space and function to be minimised.
+    // This is new'd because a TGreATManager later takes ownership of it and deletes it internally.
     TGreatModel* MyModel = new TGreatModel();
 
     // Setting up the hypercube parameter space
@@ -120,7 +120,7 @@ scanner_plugin(great, version(1, 0, 0))
     }
 
     // Setting up the logarithmic likelihoodfunction
-    MyModel->SetLogLikelihoodFunction(LogLikelihoodFunction);
+    MyModel->SetLogLikelihoodFunction(GreAT::LogLikelihoodFunction);
 
     // Setting up the GreAT Manager
     if (MPIrank == 0) std::cout << "\033[1;31mCreating GreAT Manager\033[0m" << std::endl;
@@ -148,9 +148,9 @@ scanner_plugin(great, version(1, 0, 0))
 
     // 2) Define the estimator
     // TGreatEstimator<typename T>(TTree*)
-    TGreatEstimator<TGreatMCMCAlgorithmCovariance>* estimator = new TGreatEstimator<TGreatMCMCAlgorithmCovariance>(mcmc);
+    TGreatEstimator<TGreatMCMCAlgorithmCovariance> estimator(mcmc);
     // Show the scan statistics
-    estimator->ShowStatistics();
+    estimator.ShowStatistics();
 
     // Setup auxilliary stream. It is only needed by the master process
     if(MPIrank == 0)
@@ -162,15 +162,15 @@ scanner_plugin(great, version(1, 0, 0))
 
       if (MPIrank == 0) std::cout << "\033[1;31mWriting points...\033[0m" << std::endl;
       // Initialise auxiliary print stream
-      data.printer->new_stream("ind_samples", ind_samples_options);
+      GreAT::data.printer->new_stream("ind_samples", ind_samples_options);
 
-      Scanner::printer* ind_samples_printer(data.printer->get_stream("ind_samples"));
-      static const int MPIrank = data.likelihood_function->getRank();
+      Scanner::printer* ind_samples_printer(GreAT::data.printer->get_stream("ind_samples"));
+      static const int MPIrank = GreAT::data.likelihood_function->getRank();
 
-      TGreatMCMCSample *prev_sample = estimator->GetFirstIndSample();
+      TGreatMCMCSample *prev_sample = estimator.GetFirstIndSample();
       unsigned int multiplicity = 0;
 
-      for(TGreatMCMCSample *sample = estimator->GetFirstIndSample(); sample != 0; sample = estimator->GetNextIndSample())
+      for(TGreatMCMCSample *sample = prev_sample; sample != 0; sample = estimator.GetNextIndSample())
       {
         // count samples to get their posterior weight and save them
         if(prev_sample->GetID() == sample->GetID())
@@ -216,12 +216,12 @@ namespace Gambit
       if (outside)
       {
         // at least one dimension is outside the unit cube so return -1e100 for LogLike
-        return data.min_logLike;
+        return GreAT::data.min_logLike;
       }
       else
       {
-        point.SetID(data.likelihood_function->getNextPtID()); // Need to use the *next* PtID because PtID will not move on until the likelihood function is called.
-        return data.likelihood_function(parameter_vector);
+        point.SetID(GreAT::data.likelihood_function->getNextPtID()); // Need to use the *next* PtID because PtID will not move on until the likelihood function is called.
+        return GreAT::data.likelihood_function(parameter_vector);
       }
     }
   }

@@ -24,7 +24,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::AlphaEM::AlphaEM() :
+        inline AlphaEM::AlphaEM() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -32,7 +32,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::AlphaEM::AlphaEM(Pythia8::Abstract_AlphaEM* in) :
+        inline AlphaEM::AlphaEM(Abstract_AlphaEM* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -40,7 +40,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::AlphaEM::AlphaEM(const AlphaEM& in) :
+        inline AlphaEM::AlphaEM(const AlphaEM& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -48,7 +48,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::AlphaEM& AlphaEM::operator=(const AlphaEM& in)
+        inline AlphaEM& AlphaEM::operator=(const AlphaEM& in)
         {
             if (this != &in)
             {
@@ -59,7 +59,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::AlphaEM::~AlphaEM()
+        inline AlphaEM::~AlphaEM()
         {
             if (get_BEptr() != 0)
             {
@@ -74,9 +74,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_AlphaEM* Pythia8::AlphaEM::get_BEptr() const
+        inline Abstract_AlphaEM* Pythia8::AlphaEM::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_AlphaEM*>(BEptr);
+            return dynamic_cast<Abstract_AlphaEM*>(BEptr);
         }
     }
     

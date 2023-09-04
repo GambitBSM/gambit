@@ -13,6 +13,7 @@
 ///  \date 2013 Apr-July, Dec
 ///  \date 2014 Jan, Mar-May, Sep
 ///  \date 2015 Jan
+///  \date 2022 Dec
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -30,6 +31,14 @@
 ///  \author Lars A. Dal
 ///          (l.a.dal@fys.uio.no)
 ///  \date 2015 Jan
+///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
 ///
 ///  *********************************************
 
@@ -68,6 +77,9 @@ namespace Gambit
   /// Forward declaration of Models::ModelFunctorClaw class for use in constructors.
   namespace Models { class ModelFunctorClaw; }
 
+  /// Forward declaration of Rule and Observables classes for saving pointers to ignored and matched examples
+  namespace DRes { struct ModuleRule; struct BackendRule; struct Observable; }
+
   /// Type redefinition to get around icc compiler bugs.
   template <typename TYPE, typename... ARGS>
   struct variadic_ptr { typedef TYPE(*type)(ARGS..., ...); };
@@ -92,7 +104,7 @@ namespace Gambit
       /// Constructor
       functor(str, str, str, str, Models::ModelFunctorClaw&);
 
-      //// Destructor
+      /// Destructor
       virtual ~functor() {}
 
       /// Virtual calculate(); needs to be redefined in daughters.
@@ -143,10 +155,12 @@ namespace Gambit
       /// Getter for the wrapped function's origin (module or backend name)
       str origin() const;
       /// Getter for the version of the wrapped function's origin (module or backend)
-      str version() const;
+      virtual str version() const;
       /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
       virtual str safe_version() const;
       /// Getter for the wrapped function current status:
+      ///                    -6 = required external tool absent (pybind11)
+      ///                    -5 = required external tool absent (Mathematica)
       ///                    -4 = required backend absent (backend ini functions)
       ///                    -3 = required classes absent
       ///                    -2 = function absent
@@ -159,6 +173,8 @@ namespace Gambit
       sspair quantity() const;
       /// Getter for purpose (relevant for output nodes, aka helper structures for the dep. resolution)
       str purpose() const;
+      /// Getter for the citation key
+      str citationKey() const;
       /// Getter for vertex ID
       int vertexID() const;
       /// Getter for timing vertex ID
@@ -188,6 +204,8 @@ namespace Gambit
       /// Getter for revealing whether this is permitted to be a manager functor
       virtual bool canBeLoopManager();
 
+      /// Getter for revealing whether this functor needs a loop manager
+      virtual bool needsLoopManager();
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
       /// Getter for revealing the required type of the wrapped function's loop manager
@@ -202,6 +220,8 @@ namespace Gambit
 
       /// Getter for listing currently activated dependencies
       virtual std::set<sspair> dependencies();
+      /// Getter for listing backends that require class loading
+      virtual std::set<sspair> backendclassloading();
       /// Getter for listing backend requirement groups
       virtual std::set<str> backendgroups();
       /// Getter for listing all backend requirements
@@ -224,11 +244,17 @@ namespace Gambit
       /// Getter for backend-specific conditional dependencies (backend functor pointer version)
       virtual std::set<sspair> backend_conditional_dependencies (functor*);
 
-      /// Getter for listing model-specific conditional dependencies
-      virtual std::set<sspair> model_conditional_dependencies (str);
+      /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
+      virtual std::set<sspair> model_conditional_dependencies (str model);
 
-      /// Getter for listing model-specific conditional backend requirements
-      virtual std::set<sspair> model_conditional_backend_reqs (str);
+      /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+      virtual std::set<sspair> model_conditional_dependencies_exact (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
+      virtual std::set<sspair> model_conditional_backend_reqs (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+      virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Resolve a dependency using a pointer to another functor object
       virtual void resolveDependency (functor*);
@@ -241,6 +267,9 @@ namespace Gambit
 
       /// Notify the functor that a certain model is being scanned, so that it can activate itself accordingly.
       virtual void notifyOfModel(str);
+
+      /// Notify the functor that it is being used to fill a dependency of another functor
+      virtual void notifyOfDependee(functor*);
 
       /// Indicate to the functor which backends are actually loaded and working
       virtual void notifyOfBackends(std::map<str, std::set<str> >);
@@ -271,6 +300,34 @@ namespace Gambit
       /// Return a safe pointer to the options that this functor is supposed to run with (e.g. from the ini file).
       safe_ptr<Options> getOptions();
 
+      /// Notify the functor about a string in YAML that contains the sub-capability information (for use in standalones)
+      void notifyOfSubCaps(const str&);
+
+      /// Notify the functor about an instance of the options class that contains sub-capability information
+      void notifyOfSubCaps(const Options&);
+
+      /// Set a sub-capability (subcap)for the functor directly (for use in standalone executables).
+      template<typename TYPE>
+      void setSubCap(const str& key, const TYPE val)
+      {
+        mySubCaps.setValue<str,TYPE>(key, val);
+      }
+
+      /// Return a safe pointer to the subcaps that this functor realises it is supposed to facilitate downstream calculation of.
+      safe_ptr<Options> getSubCaps();
+
+      /// Return a safe pointer to the vector of all capability,type pairs of functors arranged downstream of this one in the dependency tree.
+      safe_ptr<std::set<sspair>> getDependees();
+
+      /// Getter for listing allowed models
+      const std::set<str>& getAllowedModels();
+
+      /// Getter for listing conditional models
+      const std::set<str>& getConditionalModels();
+
+      /// Getter for map of model groups and the set of models in each group
+      const std::map<str, std::set<str>>& getModelGroups();
+
       /// Test whether the functor is allowed to be used with all models
       bool allModelsAllowed();
 
@@ -294,6 +351,28 @@ namespace Gambit
 
       /// Add a combination of model groups to the internal list of combinations for which this functor is allowed to be used.
       void setAllowedModelGroupCombo(str groups);
+      
+      /// Add an observable to the set of those that this functor matches.
+      void addMatchedObservable(const DRes::Observable*);
+      
+      /// Retrieve the set of observables that this functor matches.
+      const std::set<const DRes::Observable*>& getMatchedObservables();
+
+      /// Add a module rule to the set of those against which this functor has been tested and found to match.
+      void addMatchedModuleRule(const DRes::ModuleRule*);
+      
+      /// Add a backend rule to the set of those against which this functor has been tested and found to match.
+      void addMatchedBackendRule(const DRes::BackendRule*);
+
+      /// Retrieve the set of module rules against which this functor has been tested and found to match.
+      const std::set<const DRes::ModuleRule*>& getMatchedModuleRules();
+
+      /// Retrieve the set of backend rules against which this functor has been tested and found to match.
+      const std::set<const DRes::BackendRule*>& getMatchedBackendRules();
+
+      /// Retrieve matched rules by type.
+      template<class RuleT>
+      const std::set<RuleT*>& getMatchedRules(); 
 
     protected:
 
@@ -305,10 +384,10 @@ namespace Gambit
       str myType;
       /// Internal storage of the name of the module or backend to which the function belongs.
       str myOrigin;
-      /// Internal storage of the version of the module or backend to which the function belongs.
-      str myVersion;
       /// Purpose of the function (relevant for output and next-to-output functors)
       str myPurpose;
+      /// Citation key: BibTex key of the reference.
+      str myCitationKey;
       /// Bound model functor claw, for checking relationships between models
       const Models::ModelFunctorClaw* myClaw;
 
@@ -317,6 +396,8 @@ namespace Gambit
       /// String label, used to label functor timing data for printer system
       const str myTimingLabel;
       /// Status:
+      ///                    -6 = required external tool absent (pybind11)
+      ///                    -5 = required external tool absent (Mathematica)
       ///                    -4 = required backend absent (backend ini functions)
       ///                    -3 = required classes absent
       ///                    -2 = function absent
@@ -335,14 +416,32 @@ namespace Gambit
       /// Internal storage of function options, as a YAML node
       Options myOptions;
 
+      /// Internal storage of function sub-capabilities, as a YAML node
+      Options mySubCaps;
+
+      /// List of all capability,type pairs of functors downstream of this one in the dependency tree
+      std::set<sspair> myDependees;
+
       /// List of allowed models
       std::set<str> allowedModels;
+
+      /// List of conditional models
+      std::set<str> conditionalModels;
 
       /// List of allowed model group combinations
       std::set<std::set<str> > allowedGroupCombos;
 
       /// Map from model group names to group contents
       std::map<str, std::set<str> > modelGroups;
+      
+      /// The set of observables that this functor matches.
+      std::set<const DRes::Observable*> matched_observables;
+
+      /// Set of module rules against which this functor has been tested and found to match.
+      std::set<const DRes::ModuleRule*> matched_module_rules;
+
+      /// Set of backend rules against which this functor has been tested and found to match.
+      std::set<const DRes::BackendRule*> matched_backend_rules;
 
       /// Attempt to retrieve a dependency or model parameter that has not been resolved
       static void failBigTime(str method);
@@ -426,6 +525,8 @@ namespace Gambit
 
       /// Setter for specifying the capability required of a manager functor, if it is to run this functor nested in a loop.
       virtual void setLoopManagerCapType (str cap, str t);
+      /// Getter for revealing whether this functor needs a loop manager
+      virtual bool needsLoopManager();
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
       /// Getter for revealing the required type of the wrapped function's loop manager
@@ -446,6 +547,8 @@ namespace Gambit
 
       /// Getter for listing currently activated dependencies
       virtual std::set<sspair> dependencies();
+      /// Getter for listing backends that require class loading
+      virtual std::set<sspair> backendclassloading();
       /// Getter for listing backend requirement groups
       virtual std::set<str> backendgroups();
       /// Getter for listing all backend requirements
@@ -468,26 +571,35 @@ namespace Gambit
       /// Getter for backend-specific conditional dependencies (backend functor pointer version)
       virtual std::set<sspair> backend_conditional_dependencies (functor* be_functor);
 
-      /// Getter for listing model-specific conditional dependencies
+      /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
       virtual std::set<sspair> model_conditional_dependencies (str model);
 
-      /// Getter for listing model-specific conditional backend requirements
+      /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+      virtual std::set<sspair> model_conditional_dependencies_exact (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
       virtual std::set<sspair> model_conditional_backend_reqs (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+      virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Add and activate unconditional dependencies.
       void setDependency(str, str, void(*)(functor*, module_functor_common*), str purpose= "");
 
+      /// Add conditional dependency-type pairs in advance of later conditions.
+      void setConditionalDependency(str, str);
+
       /// Add a backend conditional dependency for multiple backend versions
-      void setBackendConditionalDependency(str, str, str, str, str, void(*)(functor*, module_functor_common*));
+      void setBackendConditionalDependency(str, str, str, str, void(*)(functor*, module_functor_common*));
 
       /// Add a backend conditional dependency for a single backend version
-      void setBackendConditionalDependencySingular(str, str, str, str, str, void(*)(functor*, module_functor_common*));
+      void setBackendConditionalDependencySingular(str, str, str, str, void(*)(functor*, module_functor_common*));
 
       /// Add a model conditional dependency for multiple models
-      void setModelConditionalDependency(str, str, str, void(*)(functor*, module_functor_common*));
+      void setModelConditionalDependency(str, str, void(*)(functor*, module_functor_common*));
 
       /// Add a model conditional dependency for a single model
-      void setModelConditionalDependencySingular(str, str, str, void(*)(functor*, module_functor_common*));
+      void setModelConditionalDependencySingular(str, str, void(*)(functor*, module_functor_common*));
 
       /// Add a rule for activating backend requirements according to the model being scanned.
       void makeBackendRuleForModel(str, str);
@@ -532,6 +644,9 @@ namespace Gambit
       /// Notify the functor that a certain model is being scanned, so that it can activate its dependencies and backend reqs accordingly.
       virtual void notifyOfModel(str model);
 
+      /// Notify the functor that another functor depends on it
+      virtual void notifyOfDependee (functor*);
+
       /// Retrieve the previously saved exception generated when this functor invalidated the current point in model space.
       virtual invalid_point_exception* retrieve_invalid_point_exception();
 
@@ -558,6 +673,9 @@ namespace Gambit
 
       /// Construct the list of known models only if it doesn't yet exist
       void fill_activeModelFlags();
+
+      /// Retrieve full conditional dependency-type pair from conditional dependency only
+      sspair retrieve_conditional_dep_type_pair(str);
 
       /// Beginning and end timing points
       std::chrono::time_point<std::chrono::system_clock> *start, *end;
@@ -629,6 +747,9 @@ namespace Gambit
       /// Vector of dependency-type string pairs
       std::set<sspair> myDependencies;
 
+      /// Map of conditional dependencies to their types
+      std::map<str,str> myConditionalDependencies;
+
       /// Map from (vector with 4 strings: backend req, type, backend, version) to (set of {conditional dependency-type} pairs)
       std::map< std::vector<str>, std::set<sspair> > myBackendConditionalDependencies;
 
@@ -644,6 +765,10 @@ namespace Gambit
       /// Map from (dependency-type pairs) to (pointers to templated void functions
       /// that set dependency functor pointers)
       std::map<sspair, void(*)(functor*, module_functor_common*)> dependency_map;
+
+      /// Map from (dependency-type pairs) to pointers to functors used to resolve them
+      /// that set dependency functor pointers)
+      std::map<sspair, functor*> dependency_functor_map;
 
       /// Map from backend requirements to their required types
       std::map<str, str> backendreq_types;
@@ -806,6 +931,9 @@ namespace Gambit
       /// Integer LogTag, for tagging log messages
       int myLogTag;
 
+      /// Internal storage of the version of the backend to which the function belongs.
+      str myVersion;
+
       /// Internal storage of the 'safe' version of the version (for use in namespaces, variable names, etc).
       str mySafeVersion;
 
@@ -815,7 +943,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      backend_functor_common (funcPtrType, str, str, str, str, str, str, Models::ModelFunctorClaw&);
+      backend_functor_common (funcPtrType, str, str, str, str, str, str, str, Models::ModelFunctorClaw&);
 
       /// Destructor
       virtual ~backend_functor_common() {}
@@ -829,7 +957,10 @@ namespace Gambit
       /// Hand out a safe pointer to this backend functor's inUse flag.
       safe_ptr<bool> inUsePtr();
 
-      /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
+      /// Getter for the version of the wrapped function's backend.
+      virtual str version() const;
+
+      /// Getter for the 'safe' incarnation of the version of the wrapped function's backend.
       virtual str safe_version() const;
 
   };
@@ -846,7 +977,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      backend_functor (TYPE(*)(ARGS...), str, str, str, str, str, str, Models::ModelFunctorClaw&);
+      backend_functor (TYPE(*)(ARGS...), str, str, str, str, str, str, str, Models::ModelFunctorClaw&);
 
       /// Destructor
       virtual ~backend_functor() {}
@@ -865,7 +996,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      backend_functor (void (*)(ARGS...), str, str, str, str, str, str, Models::ModelFunctorClaw&);
+      backend_functor (void (*)(ARGS...), str, str, str, str, str, str, str, Models::ModelFunctorClaw&);
 
       /// Destructor
       virtual ~backend_functor() {}
@@ -884,7 +1015,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      backend_functor(typename variadic_ptr<TYPE,ARGS...>::type, str, str, str, str, str, str, Models::ModelFunctorClaw&);
+      backend_functor(typename variadic_ptr<TYPE,ARGS...>::type, str, str, str, str, str, str, str, Models::ModelFunctorClaw&);
 
       /// Destructor
       virtual ~backend_functor() {}
@@ -910,7 +1041,7 @@ namespace Gambit
     public:
 
       /// Constructor
-      backend_functor(typename variadic_ptr<void,ARGS...>::type, str, str, str, str, str, str, Models::ModelFunctorClaw&);
+      backend_functor(typename variadic_ptr<void,ARGS...>::type, str, str, str, str, str, str, str, Models::ModelFunctorClaw&);
 
       /// Destructor
       virtual ~backend_functor() {}

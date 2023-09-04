@@ -18,7 +18,7 @@
 #include "gambit/Backends/frontend_macros.hpp"
 #include "gambit/Backends/frontends/SUSY-HIT_1_5.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
 
 // Convenience functions (definitions)
@@ -127,7 +127,7 @@ BE_NAMESPACE
     // SUSY-HIT and HDecay non-SLHA inputs
     susyhitin->amsin = to<double>(sminputs.at(23).at(1));          // MSBAR(1): HDECAY claims it wants ms(1GeV)^MSbar, but we don't believe it, and give it m_s(2GeV)^MSBar
     susyhitin->amcin = to<double>(sminputs.at(24).at(1));          // MC: HDECAY claims it wants the c pole mass, but that is not well defined, so we give it mc(mc)^MSBar
-    susyhitin->ammuonin = sd_leshouches2->smval(11);               // MMUON: mmu(pole)
+    susyhitin->ammuonin = sd_leshouches2->smval(13);               // MMUON: mmu(pole)
     susyhitin->alphin = sd_leshouches2->smval(1);                  // ALPHA: alpha_em^-1(M_Z)^MSbar (scheme and scale not specified in SUSYHIT or HDECAY documentation)
     susyhitin->gamwin = W_width;                                   // GAMW: W width (GeV)
     susyhitin->gamzin = Z_width;                                   // GAMZ: Z width (GeV)
@@ -154,20 +154,25 @@ BE_NAMESPACE
     for (int i : msoft_indices)
     {
       if (msoft[i].is_data_line()) sd_leshouches2->msoftval(i) = to<double>(msoft.at(i).at(1));
+      //std::cout << "msoft[" << i << "] = " << sd_leshouches2->msoftval(i) << std::endl;
     }
 
     // EXTPAR
     sd_leshouches2->extval(0) = sd_leshouches2->qvalue(3);         // EWSB scale (set to SUSY scale as per MSOFT).  Not used by SUSY-HIT anymore.
+    //std::cout << "extval = " << sd_leshouches2->extval(0) << std::endl;
 
     // MASS
     for (int i=1; i<=35; ++i)
     {
       sd_leshouches2->massval(i) = (mass[pdg_codes[i-1]].is_data_line()) ? to<double>(mass[pdg_codes[i-1]][1]) : unlikely();
+      //std::cout << "massval(" << pdg_codes[i-1] << ") = " << sd_leshouches2->massval(i) << std::endl;
     }
     for (int i=36; i<=50; ++i) sd_leshouches2->massval(i) = 0.0; // zeroing
 
     // NMIX
     for (int i=1; i<=4; ++i) for (int j=1; j<=4; ++j) sd_leshouches2->nmixval(i,j) = (nmix[initVector<int>(i,j)].is_data_line()) ? to<double>(nmix.at(i,j)[2]) : 0.0;
+    //for (int i=1; i<=4; ++i) for (int j=1; j<=4; ++j) std::cout << "nmixval(" << i << "," << j << ") = " << sd_leshouches2->nmixval(i,j) << std::endl;
+
 
     // VMIX, UMIX, STOPMIX, SBOTMIX, STAUMIX
     for (int i=1; i<=2; ++i)
@@ -180,21 +185,29 @@ BE_NAMESPACE
         sd_leshouches2->stopmixval(i,j) = (stopmix[ij].is_data_line()) ? to<double>(stopmix.at(i,j)[2]) : 0.0;
         sd_leshouches2->sbotmixval(i,j) = (sbotmix[ij].is_data_line()) ? to<double>(sbotmix.at(i,j)[2]) : 0.0;
         sd_leshouches2->staumixval(i,j) = (staumix[ij].is_data_line()) ? to<double>(staumix.at(i,j)[2]) : 0.0;
+        //std::cout << "vmixval(" << i << "," << j << ") = " << sd_leshouches2->vmixval(i,j) << std::endl;
+        //std::cout << "umixval(" << i << "," << j << ") = " << sd_leshouches2->umixval(i,j) << std::endl;
+        //std::cout << "stopmixval(" << i << "," << j << ") = " << sd_leshouches2->stopmixval(i,j) << std::endl;
+        //std::cout << "sbotmixval(" << i << "," << j << ") = " << sd_leshouches2->sbotmixval(i,j) << std::endl;
+        //std::cout << "staumixval(" << i << "," << j << ") = " << sd_leshouches2->staumixval(i,j) << std::endl;
       }
     }
 
     // ALPHA (value is spectrum generator's "best choice" => can be on-shell, DRbar at a given scale, whatever)
     sd_leshouches2->alphaval = to<double>(alpha.back().at(0));             // Mixing angle in the neutral Higgs boson sector.
+    //std::cout << "alphaval = " << sd_leshouches2->alphaval << std::endl;
 
     // HMIX
     if (hmix.find_block_def()->size()  >= 4) sd_leshouches2->qvalue(1) = to<double>(hmix.find_block_def()->at(3)); // Q(GeV)
     for (int i=1; i<=10; ++i) sd_leshouches2->hmixval(i) = (hmix[i].is_data_line()) ? to<double>(hmix[i][1]) : unlikely();
+    //for (int i=1; i<=10; ++i) std::cout << "hmixval(" << i << ") = " << sd_leshouches2->hmixval(i) << std::endl;
 
     // GAUGE
     if (gauge.find_block_def()->size() >= 4) sd_leshouches2->qvalue(2) = to<double>(gauge.find_block_def()->at(3));// Q(GeV)
     sd_leshouches2->gaugeval(1) = to<double>(gauge.at(1).at(1));                                                   // gprime(Q) DRbar
     sd_leshouches2->gaugeval(2) = to<double>(gauge.at(2).at(1));                                                   // g(Q) DRbar
     sd_leshouches2->gaugeval(3) = to<double>(gauge.at(3).at(1));                                                   // g_3(Q) DRbar
+    //for(int i=1;i<=3;i++) std::cout << "gaugeval(" << i << ") = " << sd_leshouches2->gaugeval(i) << std::endl;
 
     // AU, AD, AE, YU, YD, YE
     if (au.find_block_def()->size() >= 4) sd_leshouches2->qvalue(4)  = to<double>(au.find_block_def()->at(3));     // Q(GeV)
@@ -392,7 +405,8 @@ BE_INI_FUNCTION
     // Make sure the spectrum object is at the SUSY scale
     double scale = Dep::MSSM_spectrum->get_HE().GetScale();
     double susy_scale = Dep::MSSM_spectrum->get(Par::mass1, "susy_scale");
-    if (scale != susy_scale) backend_error().raise(LOCAL_INFO, "MSSM_spectrum dependency is not at the SUSY scale.");
+    // For some reason the precision on these is different, so they won't be exactly the same
+    if (fabs(scale - susy_scale) > 1e-10) backend_error().raise(LOCAL_INFO, "MSSM_spectrum dependency is not at the SUSY scale.");
 
     // Get an SLHA1 object. SUSY-HIT is not SLHA2-compliant, despite its ability to deal with FV stop decays.
     slha = Dep::MSSM_spectrum->getSLHAea(1);

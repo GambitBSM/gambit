@@ -2,39 +2,39 @@
 # Created by Peter Kapec <kapecp@gmail.com>
 # Redistribution and use of this file is allowed according to the terms of the MIT license.
 # For details see the COPYRIGHT file distributed with LuaDist.
-#	Note:
-#		Searching headers and libraries is very simple and is NOT as powerful as scripts
-#		distributed with CMake, because LuaDist defines directories to search for.
-#		Everyone is encouraged to contact the author with improvements. Maybe this file
-#		becomes part of CMake distribution sometimes.
+# Note:
+#   Searching headers and libraries is very simple and is NOT as powerful as scripts
+#   distributed with CMake, because LuaDist defines directories to search for.
+#   Everyone is encouraged to contact the author with improvements. Maybe this file
+#   becomes part of CMake distribution sometimes.
 
 # - Find sqlite3
-# Find the native SQLITE3 headers and libraries.
+# Find the native SQLite3 headers and libraries.
 #
-# SQLITE3_INCLUDE_DIRS	- where to find sqlite3.h, etc.
-# SQLITE3_LIBRARIES	- List of libraries when using sqlite.
-# SQLITE3_FOUND	- True if sqlite found.
+# SQLite3_INCLUDE_DIRS  - where to find sqlite3.h, etc.
+# SQLite3_LIBRARIES - List of libraries when using sqlite.
+# SQLite3_FOUND - True if sqlite found.
 
 # Look for the header file.
-FIND_PATH(SQLITE3_INCLUDE_DIR NAMES sqlite3.h)
+FIND_PATH(SQLite3_INCLUDE_DIR NAMES sqlite3.h)
 
 # Look for the library.
-FIND_LIBRARY(SQLITE3_LIBRARY NAMES sqlite3)
+FIND_LIBRARY(SQLite3_LIBRARY NAMES sqlite3)
 
-#message("SQLITE3_LIBRARY: ${SQLITE3_LIBRARY}")
-#message("SQLITE3_INCLUDE_DIR: ${SQLITE3_INCLUDE_DIR}")
+#message("SQLite3_LIBRARY: ${SQLite3_LIBRARY}")
+#message("SQLite3_INCLUDE_DIR: ${SQLite3_INCLUDE_DIR}")
 
-# Handle the QUIETLY and REQUIRED arguments and set SQLITE3_FOUND to TRUE if all listed variables are TRUE.
+# Handle the QUIETLY and REQUIRED arguments and set SQLite3_FOUND to TRUE if all listed variables are TRUE.
 INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(SQLITE3 "" SQLITE3_LIBRARY SQLITE3_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(SQLite3 "" SQLite3_LIBRARY SQLite3_INCLUDE_DIR)
 
 # Copy the results to the output variables.
-IF(SQLITE3_FOUND)
-	SET(SQLITE3_LIBRARIES ${SQLITE3_LIBRARY})
-	SET(SQLITE3_INCLUDE_DIRS ${SQLITE3_INCLUDE_DIR})
-ELSE(SQLITE3_FOUND)
-	SET(SQLITE3_LIBRARIES)
-	SET(SQLITE3_INCLUDE_DIRS)
-ENDIF(SQLITE3_FOUND)
+IF(SQLite3_FOUND)
+  SET(SQLite3_LIBRARIES ${SQLite3_LIBRARY})
+  SET(SQLite3_INCLUDE_DIRS ${SQLite3_INCLUDE_DIR})
+ELSE(SQLite3_FOUND)
+  SET(SQLite3_LIBRARIES)
+  SET(SQLite3_INCLUDE_DIRS)
+ENDIF(SQLite3_FOUND)
 
-MARK_AS_ADVANCED(SQLITE3_INCLUDE_DIRS SQLITE3_LIBRARIES)
+MARK_AS_ADVANCED(SQLite3_INCLUDE_DIRS SQLite3_LIBRARIES)

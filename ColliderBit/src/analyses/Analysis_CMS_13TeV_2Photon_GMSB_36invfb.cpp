@@ -4,34 +4,34 @@
 ///
 ///  *********************************************
 
-/* 
-  Based on: 
-    "Search for supersymmetry in final states with photons and missing transverse momentum in proton-proton collisions at 13 TeV" 
+/*
+  Based on:
+    "Search for supersymmetry in final states with photons and missing transverse momentum in proton-proton collisions at 13 TeV"
 
     http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-17-011/index.html
     arxiv:1903.07070
 
   Notes:
-    
-    There are a lot of details missing in the paper, e.g. the exact numbers used for baseline 
-    object selection, isolation criteria, etc. So we have for now made some hopefully reasonable 
+
+    There are a lot of details missing in the paper, e.g. the exact numbers used for baseline
+    object selection, isolation criteria, etc. So we have for now made some hopefully reasonable
     assumptions, to be validated when we get more info from CMS.
 
   Event selection summary:
 
     Trigger:
     - Two photons
-    - Leading photon: pT > 30 
+    - Leading photon: pT > 30
     - Subleading photon: pT > 18
-    - Invariant mass m_gg > 95 
+    - Invariant mass m_gg > 95
     - Isolation and cluster shape requirements (not implemented)
 
     Photon selection:
     - pT > 40
     - |eta| < 1.44
-    - Isolated from other reconstructed particles by 
-      considering pT sum of other particles within 
-      DeltaR = 0.3. (Not implemented. No details given in the paper...) 
+    - Isolated from other reconstructed particles by
+      considering pT sum of other particles within
+      DeltaR = 0.3. (Not implemented. No details given in the paper...)
 
     Further requirements:
     - Identify the two highest pT EM objects (gg, ee, ge)
@@ -42,7 +42,7 @@
     - Any *additional* electron with pT > 25, |eta| < 2.5
     - Any muon with pT > 25, |eta| < 2.4
 
-    Six SRs based on MET value.    
+    Six SRs based on MET value.
 */
 
 #include <vector>
@@ -70,13 +70,13 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       // Counters for the number of accepted events for each signal region
-      std::map<string,double> _numSR = {
-        {"SR_MET_100-115",  0},
-        {"SR_MET_115-130",  0},
-        {"SR_MET_130-150",  0},
-        {"SR_MET_150-185",  0},
-        {"SR_MET_185-250",  0},
-        {"SR_MET_>250",  0},
+      std::map<string, EventCounter> _counters = {
+        {"SR_MET_100-115", EventCounter("SR_MET_100-115")},
+        {"SR_MET_115-130", EventCounter("SR_MET_115-130")},
+        {"SR_MET_130-150", EventCounter("SR_MET_130-150")},
+        {"SR_MET_150-185", EventCounter("SR_MET_150-185")},
+        {"SR_MET_185-250", EventCounter("SR_MET_185-250")},
+        {"SR_MET_>250", EventCounter("SR_MET_>250")},
       };
 
       // Cutflow _cutflow;
@@ -99,9 +99,9 @@ namespace Gambit {
         // _cutflow.fillinit();
 
         // Photons
-        // NOTE: 
+        // NOTE:
         //   No photon efficiency info available for this analysis.
-        //   We therefore assume the same efficiency map as used for 
+        //   We therefore assume the same efficiency map as used for
         //   other CMS 36 fb^-1 SUSY searches:
         //
         //   https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/PhotonEfficiencies_ForPublic_Moriond2017_LoosePixelVeto.pdf
@@ -119,13 +119,13 @@ namespace Gambit {
                                      0.0,    0.0,      0.0,      0.0,      0.0,     // eta > 2.5
                                  };
         HEPUtils::BinnedFn2D<double> _eff2dPhoton(aPhoton,bPhoton,cPhoton);
-        vector<HEPUtils::Particle*> photons;
-        for (HEPUtils::Particle* photon : event->photons())
+        vector<const HEPUtils::Particle*> photons;
+        for (const HEPUtils::Particle* photon : event->photons())
         {
           bool isPhoton=has_tag(_eff2dPhoton, photon->abseta(), photon->pT());
           if (isPhoton && photon->pT()>15.) photons.push_back(photon);
         }
-        // Sort 
+        // Sort
         sortByPt(photons);
 
         // Photon trigger cut
@@ -155,21 +155,21 @@ namespace Gambit {
         const vector<double> cEl={
                           // pT: (0,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,40),  (40,50),  (50,inf)
                                    0.0,    0.95,    0.507,    0.619,    0.682,    0.742,    0.798,    0.863,  // eta: (0, 0.8)
-                                   0.0,    0.95,    0.429,    0.546,    0.619,    0.710,    0.734,    0.833,  // eta: (0.8, 1.4429
+                                   0.0,    0.95,    0.429,    0.546,    0.619,    0.710,    0.734,    0.833,  // eta: (0.8, 1.442)
                                    0.0,    0.95,    0.256,    0.221,    0.315,    0.351,    0.373,    0.437,  // eta: (1.442, 1.556)
                                    0.0,    0.85,    0.249,    0.404,    0.423,    0.561,    0.642,    0.749,  // eta: (1.556, 2)
                                    0.0,    0.85,    0.195,    0.245,    0.380,    0.441,    0.533,    0.644,  // eta: (2, 2.5)
                                    0.0,    0.0,     0.0,      0.0,      0.0,      0.0,      0.0,      0.0,    // eta > 2.5
                                   };
         HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
-        vector<HEPUtils::Particle*> electrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> electrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           bool isEl=has_tag(_eff2dEl, electron->abseta(), electron->pT());
-          // No info in the paper on pT or |eta| cuts for baseline electrons, 
+          // No info in the paper on pT or |eta| cuts for baseline electrons,
           // but the above efficieny map effectively requires pT > 10 and |eta| < 2.5
           if (isEl) electrons.push_back(electron);
         }
-        // Sort 
+        // Sort
         sortByPt(electrons);
 
 
@@ -194,31 +194,31 @@ namespace Gambit {
                                      0.0,     0.0,      0.0,      0.0,      0.0,      0.0,      0.0,      0.0,    // eta > 2.4
                                  };
         HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
-        vector<HEPUtils::Particle*> muons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> muons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           bool isMu=has_tag(_eff2dMu, muon->abseta(), muon->pT());
-          // No info in the paper on pT or |eta| cuts for baseline muons, 
+          // No info in the paper on pT or |eta| cuts for baseline muons,
           // but the above efficieny map effectively requires pT > 10 and |eta| < 2.4
           if (isMu) muons.push_back(muon);
         }
-        // Sort 
+        // Sort
         sortByPt(muons);
 
 
         // Jets
-        vector<HEPUtils::Jet*> jets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> jets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           // No info on baseline jet cuts in the paper, so for now we'll
           // apply an|eta| cut for HCAL coverage and a loose jet pT cut
           if (jet->pT()>10. && jet->abseta()<3.0) jets.push_back(jet);
         }
-        // Sort 
+        // Sort
         sortByPt(jets);
 
 
         // Select signal photon candidates
-        vector<HEPUtils::Particle*> signalPhotons;
-        for (HEPUtils::Particle* photon : photons)
+        vector<const HEPUtils::Particle*> signalPhotons;
+        for (const HEPUtils::Particle* photon : photons)
         {
           if (photon->pT() > 15. && photon->abseta() < 1.44) signalPhotons.push_back(photon);
           // NOTE: there should also be an isolation cut based on pT sums of other objects
@@ -226,15 +226,15 @@ namespace Gambit {
         }
 
         // Requirements on the two highest-pT EM objects
-        vector<HEPUtils::Particle*> EMobjects;
+        vector<const HEPUtils::Particle*> EMobjects;
         EMobjects.insert(EMobjects.end(), signalPhotons.begin(), signalPhotons.end());
         EMobjects.insert(EMobjects.end(), electrons.begin(), electrons.end());
         sortByPt(EMobjects);
 
-        vector<HEPUtils::Particle*> signalEMobjects;
+        vector<const HEPUtils::Particle*> signalEMobjects;
         if (EMobjects.size() < 2) {
           signalEMobjects.insert(signalEMobjects.begin(), EMobjects.begin(), EMobjects.end());
-        } 
+        }
         else {
           signalEMobjects.insert(signalEMobjects.begin(), EMobjects.begin(), EMobjects.begin() + 2);
         }
@@ -244,8 +244,8 @@ namespace Gambit {
         bool mgg_gt_105 = false;
         if (signalEMobjects.size() >= 2) {
 
-          HEPUtils::Particle* obj1 = signalEMobjects.at(0);
-          HEPUtils::Particle* obj2 = signalEMobjects.at(1);
+          const HEPUtils::Particle* obj1 = signalEMobjects.at(0);
+          const HEPUtils::Particle* obj2 = signalEMobjects.at(1);
 
           if (obj1->pid() == 22 && obj2->pid() == 22) isDiphoton = true;
 
@@ -256,7 +256,7 @@ namespace Gambit {
 
         // Vetos on muons
         bool muVeto = false;
-        for (HEPUtils::Particle* muon : muons) {
+        for (const HEPUtils::Particle* muon : muons) {
           if (muon->pT() > 25. && muon->abseta() < 2.4) {
             muVeto = true;
             break;
@@ -265,7 +265,7 @@ namespace Gambit {
 
         // Veto on electrons not part of the two signalEMobjects
         bool elVeto = false;
-        for (HEPUtils::Particle* electron : electrons) {
+        for (const HEPUtils::Particle* electron : electrons) {
           if (electron->pT() > 25. && electron->abseta() < 2.5) {
             if (electron != signalEMobjects.at(0) && electron != signalEMobjects.at(1)) {
               elVeto = true;
@@ -276,12 +276,12 @@ namespace Gambit {
 
         // Fill signal region
         if (trigger && isDiphoton && DeltaR_gt_06 && mgg_gt_105 && !muVeto && !elVeto) {
-          if      (met > 100. && met < 115) _numSR["SR_MET_100-115"]++;
-          else if (met > 115. && met < 130) _numSR["SR_MET_115-130"]++;
-          else if (met > 130. && met < 150) _numSR["SR_MET_130-150"]++;
-          else if (met > 150. && met < 185) _numSR["SR_MET_150-185"]++;
-          else if (met > 185. && met < 250) _numSR["SR_MET_185-250"]++;
-          else if (met > 250.) _numSR["SR_MET_>250"]++;
+          if      (met > 100. && met < 115) _counters.at("SR_MET_100-115").add_event(event);
+          else if (met > 115. && met < 130) _counters.at("SR_MET_115-130").add_event(event);
+          else if (met > 130. && met < 150) _counters.at("SR_MET_130-150").add_event(event);
+          else if (met > 150. && met < 185) _counters.at("SR_MET_150-185").add_event(event);
+          else if (met > 185. && met < 250) _counters.at("SR_MET_185-250").add_event(event);
+          else if (met > 250.) _counters.at("SR_MET_>250").add_event(event);
         }
 
       }
@@ -292,34 +292,25 @@ namespace Gambit {
       {
         const Analysis_CMS_13TeV_2Photon_GMSB_36invfb* specificOther
                 = dynamic_cast<const Analysis_CMS_13TeV_2Photon_GMSB_36invfb*>(other);
-        for (auto& el : _numSR) {
-          el.second += specificOther->_numSR.at(el.first);
-        }
+
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 
       virtual void collect_results()
       {
-        // #ifdef CHECK_CUTFLOW
-        // cout << _cutflow << endl;
-        // for (auto& el : _numSR) {
-        //     cout << el.first << "\t" << _numSR[el.first] << endl;
-        // }
-        // #endif
-
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        add_result(SignalRegionData("SR_MET_100-115", 105, {_numSR["SR_MET_100-115"], 0.}, {114., 13.}));
-        add_result(SignalRegionData("SR_MET_115-130", 39, {_numSR["SR_MET_115-130"], 0.}, {42.9, 7.5}));
-        add_result(SignalRegionData("SR_MET_130-150", 21, {_numSR["SR_MET_130-150"], 0.}, {27.3, 5.6}));
-        add_result(SignalRegionData("SR_MET_150-185", 21, {_numSR["SR_MET_150-185"], 0.}, {17.4, 4.1}));
-        add_result(SignalRegionData("SR_MET_185-250", 11, {_numSR["SR_MET_185-250"], 0.}, {10.2, 2.7}));
-        add_result(SignalRegionData("SR_MET_>250", 12, {_numSR["SR_MET_>250"], 0.}, {5.4, 1.6}));
+        add_result(SignalRegionData(_counters.at("SR_MET_100-115"), 105, {114., 13.}));
+        add_result(SignalRegionData(_counters.at("SR_MET_115-130"), 39, {42.9, 7.5}));
+        add_result(SignalRegionData(_counters.at("SR_MET_130-150"), 21, {27.3, 5.6}));
+        add_result(SignalRegionData(_counters.at("SR_MET_150-185"), 21, {17.4, 4.1}));
+        add_result(SignalRegionData(_counters.at("SR_MET_185-250"), 11, {10.2, 2.7}));
+        add_result(SignalRegionData(_counters.at("SR_MET_>250"), 12, {5.4, 1.6}));
       }
 
 
     protected:
       void analysis_specific_reset() {
-       for (auto& el : _numSR) { el.second = 0.;}
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };

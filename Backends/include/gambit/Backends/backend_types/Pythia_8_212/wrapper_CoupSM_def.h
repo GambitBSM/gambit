@@ -162,7 +162,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::CoupSM::CoupSM() :
+        inline CoupSM::CoupSM() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -170,7 +170,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::CoupSM::CoupSM(Pythia8::Abstract_CoupSM* in) :
+        inline CoupSM::CoupSM(Abstract_CoupSM* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -178,7 +178,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::CoupSM::CoupSM(const CoupSM& in) :
+        inline CoupSM::CoupSM(const CoupSM& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -186,7 +186,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::CoupSM& CoupSM::operator=(const CoupSM& in)
+        inline CoupSM& CoupSM::operator=(const CoupSM& in)
         {
             if (this != &in)
             {
@@ -197,7 +197,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::CoupSM::~CoupSM()
+        inline CoupSM::~CoupSM()
         {
             if (get_BEptr() != 0)
             {
@@ -212,9 +212,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_CoupSM* Pythia8::CoupSM::get_BEptr() const
+        inline Abstract_CoupSM* Pythia8::CoupSM::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_CoupSM*>(BEptr);
+            return dynamic_cast<Abstract_CoupSM*>(BEptr);
         }
     }
     

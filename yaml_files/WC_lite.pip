@@ -20,11 +20,12 @@ parse_dir = 'runs/WC_lite/parse'            ;Directory to save parsing output in
 cut_on_invalid_observables = F              ;Cut on any invalid entries in an hdf5 file, not just the likelihood (defaults to false, meaning cut on likelihood only)
 
 default_bins = 50                           ;Default number of bins to sort samples into in each direction.
-number_of_bins =                            ;Bins to use for specific observables (overrides default)
-interpolated_resolution = 500               ;Resolution of binwise interpolation for plotting (~300+ for publication)
+specific_bins =                             ;Bins to use for specific observables (EFN; overrides default)
+default_resolution = 500                    ;Default resolution of binwise interpolation for plotting (~300+ for publication)
+specific_resolution =                       ;Resolution of binwise interpolation for specific observables (EFN; overrides default)
 interpolation_method = 'bilinear'           ;Either bilinear (default) or spline (watch out for ringing in the latter case)
 
-chain_type = MultiNest                      ;Algorithm used to generate chain (valid: MCMC, MultiNest, other)
+chain_type = other                          ;Algorithm used to generate chain (valid: MCMC, MultiNest, other)
 compute_evidence = F                        ;Compute and print evidence (only if chain_type = MCMC)
 bf_lnlike_for_profile_like =                ;Denominator of profile likelihood ratio (if empty, set to best fit determined from chain)
 
@@ -42,6 +43,7 @@ quantity_labels =   0:'lnlike' \
                     7:'Re($\Delta C_7$)' \
                     10:'Re($\Delta C_{10}$)' \
                                             ;labels for columns in chains (LaTeX for all but multiplicity, prior and likelihood)
+
 -------------------------------
 ---Scripting-------------------
 
@@ -61,7 +63,7 @@ plot_colourbar_2D = {7,10}                  ;2D plots that should include colour
 
 plot_comparison = F                         ;Overplot distributions from comparisonFilename in 1D plots and contours in 2D plots
 extra_legend_lines = 'WC example'           ;Additional text lines to be included in any legends (EFN)
-blame = '\textsf{GAMBIT} 1.0.1'             ;Credit line to be placed in top corner of all plots
+blame = '\textsf{GAMBIT} 2.2.0'             ;Credit line to be placed in top corner of all plots
 yaxis_number_angle = -90                    ;Angle relative to vertical for y-axis numerical labels
 
 plot_posterior_mean_on_posterior_pdf = F    ;Indicate the posterior mean in all posterior pdf plots

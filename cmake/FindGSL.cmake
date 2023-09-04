@@ -17,10 +17,10 @@
 #  GSL_EXE_LINKER_FLAGS = rpath on Unix
 
 INCLUDE(FindPkgConfig)
-IF(NOT PKG_CONFIG_FOUND) 
+IF(NOT PKG_CONFIG_FOUND)
   message(FATAL_ERROR "Package pkgconfig is required.")
 ENDIF()
-PKG_CHECK_MODULES(GSL "gsl >= 1.15")
+PKG_CHECK_MODULES(GSL "gsl >= 2.1")
 set(GSL_FOUND_BY_PKG_CHECK_MODULES ${GSL_FOUND})
 
 set( GSL_FOUND OFF )
@@ -28,12 +28,12 @@ set( GSL_CBLAS_FOUND OFF )
 
 # Windows, but not for Cygwin and MSys where gsl-config is available
 if( WIN32 AND NOT CYGWIN AND NOT MSYS )
-	# look for headers
+  # look for headers
   find_path( GSL_INCLUDE_DIR
     NAMES gsl/gsl_cdf.h gsl/gsl_randist.h
     )
   if( GSL_INCLUDE_DIR )
-  	# look for gsl library
+    # look for gsl library
     find_library( GSL_LIBRARY
       NAMES gsl
     )
@@ -61,13 +61,13 @@ if( WIN32 AND NOT CYGWIN AND NOT MSYS )
   #)
 else( WIN32 AND NOT CYGWIN AND NOT MSYS )
   if( UNIX OR MSYS )
-		find_program( GSL_CONFIG_EXECUTABLE gsl-config
-			/usr/bin/
-			/usr/local/bin
-		)
+    find_program( GSL_CONFIG_EXECUTABLE gsl-config
+      /usr/bin/
+      /usr/local/bin
+    )
 
-		if( GSL_CONFIG_EXECUTABLE )
-			set( GSL_FOUND ON )
+    if( GSL_CONFIG_EXECUTABLE )
+      set( GSL_FOUND ON )
 
       # run the gsl-config program to get cxxflags
       execute_process(
@@ -99,7 +99,7 @@ else( WIN32 AND NOT CYGWIN AND NOT MSYS )
           message("   GSL_INCLUDE_DIRS=${GSL_INCLUDE_DIRS}")
           message("   GSL_CFLAGS=${GSL_CFLAGS}")
         endif()
-          
+
       else( RET EQUAL 0 )
         set( GSL_FOUND FALSE )
       endif( RET EQUAL 0 )
@@ -120,7 +120,7 @@ else( WIN32 AND NOT CYGWIN AND NOT MSYS )
           GSL_LIBRARY_DIRS "${GSL_LIBRARIES_RAW}" )
         string( REPLACE "-L" ""
           GSL_LIBRARY_DIRS "${GSL_LIBRARY_DIRS}" )
-        
+
         # work out the absolute paths of the required libs
         set(CURRENT_LINK_DIR "")
         set(GSL_LIBRARIES "")
@@ -130,7 +130,7 @@ else( WIN32 AND NOT CYGWIN AND NOT MSYS )
             string( REPLACE "-L" "" CURRENT_LINK_DIR "${IS_DIR}")
           else()
             string (REPLACE "-l" "" entry "${entry}")
-            find_library(GSL_${entry}_LIBRARY NAMES ${entry} lib${entry} HINTS ${CURRENT_LINK_DIR}) 
+            find_library(GSL_${entry}_LIBRARY NAMES ${entry} lib${entry} HINTS ${CURRENT_LINK_DIR})
             if(GSL_${entry}_LIBRARY)
               set(TEMP "GSL_${entry}_LIBRARY")
               set(GSL_LIBRARIES "${GSL_LIBRARIES} ${${TEMP}}")
@@ -141,7 +141,7 @@ else( WIN32 AND NOT CYGWIN AND NOT MSYS )
         endforeach()
         string(STRIP "${GSL_LIBRARIES}" ${GSL_LIBRARIES})
         separate_arguments(GSL_LIBRARIES)
-       
+
       else( RET EQUAL 0 )
 
         set( GSL_FOUND FALSE )

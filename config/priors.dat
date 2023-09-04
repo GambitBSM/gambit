@@ -52,10 +52,10 @@ priors: |
     range: [0, 1]
 
   #remove_newlines
-  The various priors that GAMBIT recognises are listed above, separated into three groups: one-dimensional priors (flat, log, double_log_flat_join, sin, cos, tan, cot), multi-dimensional priors (gaussian, cauchy, dummy), and others (same_as, fixed_value, plugin, none).
+  The various priors that GAMBIT recognises are listed above, separated into three groups: one-dimensional priors (flat, log, double_log_flat_join, sin, cos, tan, cot), multi-dimensional priors (gaussian, cauchy, lognormal, dummy), and others (same_as, fixed_value, plugin, none).
 
 "1d_priors": [flat, log, double_log_flat_join, sin, cos, tan, cot]
-"nd_priors": [gaussian, cauchy, dummy]
+"nd_priors": [gaussian, cauchy, lognormal, dummy]
 "other_priors": [same_as, fixed_value, plugin, none]
 "internal_priors": [composite]
 
@@ -84,16 +84,34 @@ nd_priors: |
   #remove_newlines
   Specifies a multivariate prior.
 
-  Inifile entries:
-      cov:   covariance matrix
-      sigs ([1...]):  specifies the sqrt of the diagonal components of the covariance matrix.
-      mean ([0...]):  specifies the mean (or median) of the prior distribution.
+  For gaussian, the entries are:
+      cov_matrix: the covariance matrix or 
+      sigma: the sqrt of the diagonal components of the covariance matrix and
+      mu: the mean(s)
+
+  For cauchy, the entries are:
+      scale_matrix: the scale matrix or 
+      gamma: the sqrt of the diagonal components of the scale matrix and
+      location: the location parameter(s)
+
+  For lognormal, the entries are:
+      cov_matrix: the covariance matrix of log x or
+      sigma: the sqrt of the diagonal components of the covariance matrix of log x and
+      mu: the mean(s) of log x
+      base: the base of the logarithm. A float or the character e for natural logarithm
+
+  Note that there are two ways to specify the covariance/scale matrix: through
+  cov_matrix/scale_matrix or, if the covariance/scale matrix is diagonal, through the square roots
+  of its diagonal elements (sigma/gamma). The two ways are mutually exclusive.
+
+  The entries gamma and location, and sigma and mu should be sequences in the n > 1
+  dimension case, but may be scalars if n = 1.
 
 other_priors: |
   #remove_newlines
 
   same_as:
-    Specifies that this parameter is the same as another parameter.  This prior
+    Specifies that this parameter always has the same value as another parameter. This prior
     does not need the prior_type tag.
 
     Inifile entries:

@@ -1,0 +1,103 @@
+(* Majorana Fermion DM through a real scalar mediator portal. *)
+(* Assumes no mixing between the scalar mediator and the Higgs. *)
+
+M$ModelName = "Fermion DM with scalar mediator";
+
+M$Information = {
+  Authors      -> {"S. Bloor"},
+  Version      -> "1.0",
+  Date         -> "07. 11. 2019",
+  Institutions -> {"Imperial College London"},
+  Emails       -> {"sanjay.bloor12@imperial.ac.uk"},
+  URLs         -> {"http://gambit.hepforge.org"}
+};
+
+
+M$InteractionOrderHierarchy = { {QCD, 1},  {QED, 2},  {NP, 1} };
+M$InteractionOrderLimit     = { {QCD, 99}, {QED, 99}, {NP, 2} }; 
+
+(* ************************** *)
+(* **** Particle classes **** *)
+(* ************************** *)
+
+M$ClassesDescription = {
+  
+
+  (* Fermion DM *)
+
+  F[5] == {
+    ClassName        -> chi,
+    SelfConjugate    -> True,
+    Mass             -> {mchi, 1000.},
+    Width            -> 0.,
+    PropagatorLabel  -> "chi",
+    PropagatorType   -> S,
+    PropagatorArrow  -> Forward,
+    PDG              -> 52,
+    ParticleName     -> "~chi",
+    FullName         -> "Majorana DM"
+  },
+
+  (* Scalar mediator *)
+
+  S[4] == {
+    ClassName        -> YY,
+    SelfConjugate    -> True,
+    Mass             -> {mY, 1000.},
+    Width            -> {wY, 1.},
+    PropagatorLabel  -> "Y",
+    PropagatorType   -> D,
+    PropagatorArrow  -> None,
+    PDG              -> 99902,
+    ParticleName     -> "Y",
+    FullName         -> "Scalar mediator"
+  }
+
+};
+
+
+(* ************************** *)
+(* *****   Parameters   ***** *)
+(* ************************** *)
+
+M$Parameters = {
+
+  gchi == {
+    ParameterType    -> External,
+    ComplexParameter -> False,
+    InteractionOrder -> {NP, 1},
+    BlockName        -> DMINT,
+    OrderBlock       -> 1,
+    Value            -> 1.,
+    TeX              -> Subscript[g,\[Chi]],
+    Description      -> "DM-mediator coupling"
+  },  
+  cY == {
+    ParameterType    -> External,
+    ComplexParameter -> False,
+    InteractionOrder -> {NP, 1},
+    BlockName        -> DMINT,
+    OrderBlock       -> 2,
+    Value            -> 1.,
+    TeX              -> Subscript[c,Y],
+    Description      -> "SM-mediator coupling"
+  } 
+
+ };
+
+(********************* The Lagrangian *********************)
+
+Lkin := 1/2 ( I*chibar[s]*Ga[mu,s,p].del[chi[p],mu] - mChi chibar[s].chi[s] ) + 1/2 del[YY,mu] del[YY,mu] - 1/2 mY^2 YY^2;
+
+Lint := 1/2 gchi chibar[s].chi[s] YY + cY * 
+  ( ydo dbar.d +
+    yup ubar.u + 
+    ys  sbar.s + 
+    yc  cbar.c + 
+    yb  bbar.b + 
+    yt  tbar.t + 
+    ye  ebar.e +
+    ym  mubar.mu +
+    yta taubar.tau ) YY;
+
+LDM := Lkin + Lint;

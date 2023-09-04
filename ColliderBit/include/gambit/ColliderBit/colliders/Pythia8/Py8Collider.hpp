@@ -22,6 +22,7 @@
 #include <stdexcept>
 #include "gambit/Elements/shared_types.hpp"
 #include "gambit/ColliderBit/colliders/BaseCollider.hpp"
+#include "gambit/ColliderBit/colliders/Pythia8/SetHooksClass.hpp"
 #include "SLHAea/slhaea.h"
 
 namespace Gambit
@@ -31,7 +32,7 @@ namespace Gambit
   {
 
     /// A specializable, recyclable class interfacing ColliderBit and Pythia.
-    template <typename PythiaT, typename EventT>
+    template <typename PythiaT, typename EventT, typename hepmc_writerT>
     class Py8Collider : public BaseCollider
     {
 
@@ -47,6 +48,13 @@ namespace Gambit
         /// Get the Pythia instance.
         const PythiaT* pythia() const { return _pythiaInstance; }
 
+        // Setting up the CombineMatchingInput UserHook
+        bool SetupMatchingUserHook()
+        {
+            SetHooks<PythiaT, EventT> Hook;
+            Hook.SetupHook(_pythiaInstance);
+            return true;
+        }
 
         /// @name Custom exceptions:
         ///@{
@@ -124,7 +132,7 @@ namespace Gambit
                   const SLHAea::Coll* slhaea=nullptr, std::ostream& os=std::cout)
         {
           // Settings acquired externally (ex from a gambit yaml file)
-          for(const auto command : externalSettings) _pythiaSettings.push_back(command);
+          for(const str& command : externalSettings) _pythiaSettings.push_back(command);
 
           if (!_pythiaBase)
           {
@@ -132,7 +140,7 @@ namespace Gambit
           }
 
           // Pass all settings to _pythiaBase
-          for(const auto command : _pythiaSettings) _pythiaBase->readString(command);
+          for(const str& command : _pythiaSettings) _pythiaBase->readString(command);
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;
@@ -142,7 +150,7 @@ namespace Gambit
           if (slhaea) _pythiaInstance->slhaInterface.slha.setSLHAea(slhaea);
 
           // Read command again to get SM decay table change from yaml file
-          for(const auto command : _pythiaSettings)
+          for(const str& command : _pythiaSettings)
           {
             _pythiaInstance->readString(command);
           }
@@ -158,7 +166,7 @@ namespace Gambit
                              const SLHAea::Coll* slhaea=nullptr, std::ostream& os=std::cout)
         {
           // Settings acquired externally (for example, from a gambit yaml file)
-          for(const auto command : externalSettings) _pythiaSettings.push_back(command);
+          for(const str& command : externalSettings) _pythiaSettings.push_back(command);
 
           if (!_pythiaBase)
           {
@@ -166,7 +174,7 @@ namespace Gambit
           }
 
           // Pass all settings to _pythiaBase
-          for(const auto command : _pythiaSettings) _pythiaBase->readString(command);
+          for(const str& command : _pythiaSettings) _pythiaBase->readString(command);
 
           // Create new _pythiaInstance from _pythiaBase
           if (_pythiaInstance) delete _pythiaInstance;
@@ -210,11 +218,23 @@ namespace Gambit
           }
         }
 
-        /// Report the cross section (in pb) at the end of the subprocess.
+        /// Report the total or process-specific cross section (in fb or pb).
+        double xsec_fb() const { return _pythiaInstance->info.sigmaGen() * 1e12; }
+        double xsec_fb(int process_code) const { return _pythiaInstance->info.sigmaGen(process_code) * 1e12; }
         double xsec_pb() const { return _pythiaInstance->info.sigmaGen() * 1e9; }
+        double xsec_pb(int process_code) const { return _pythiaInstance->info.sigmaGen(process_code) * 1e9; }
 
-        /// Report the cross section uncertainty (in pb) at the end of the subprocess.
+        /// Report the uncertainty in the total or process-specific cross section (in fb or pb).
+        double xsecErr_fb() const { return _pythiaInstance->info.sigmaErr() * 1e12; }
+        double xsecErr_fb(int process_code) const { return _pythiaInstance->info.sigmaErr(process_code) * 1e12; }
         double xsecErr_pb() const { return _pythiaInstance->info.sigmaErr() * 1e9; }
+        double xsecErr_pb(int process_code) const { return _pythiaInstance->info.sigmaErr(process_code) * 1e9; }
+
+        /// Report an integer process code for the last generated event
+        int process_code() const { return _pythiaInstance->info.code(); }
+
+        /// Report the list of all active process codes
+        std::vector<int> all_active_process_codes() const { return _pythiaInstance->info.codesHard(); }
 
         ///@}
 

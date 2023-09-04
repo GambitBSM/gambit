@@ -124,8 +124,8 @@ namespace Gambit
       majoranamodel.sinW2 = sinW2;
 
       // gauge couplings
-      majoranamodel.g1 = e / sqrt(sinW2);
-      majoranamodel.g2 = e / sqrt(cosW2);
+      majoranamodel.g1 = sqrt(5/3) * e / sqrt(cosW2);
+      majoranamodel.g2 = e / sqrt(sinW2);
       majoranamodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas

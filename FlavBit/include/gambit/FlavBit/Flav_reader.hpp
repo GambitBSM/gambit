@@ -95,6 +95,9 @@ namespace Gambit
         /// Return the (uncorrelated) theory errors
         boost::numeric::ublas::matrix< std::pair<double,bool> > get_th_err() {return M_th_err;};
 
+        /// Calculates the experimental statistical error from confidence levels
+        static double get_error_from_confidence_levels(double, double, double, bool);
+
     };
 
   }

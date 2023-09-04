@@ -1,0 +1,1082 @@
+diff -rupN prospino_2.1_original/Makefile prospino_2.1_patched/Makefile
+--- prospino_2.1_original/Makefile	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Makefile	2022-01-01 15:45:03.628497986 +1000
+@@ -9,6 +9,11 @@
+ #OPTION = -O0
+ # these options needed for the NAG compiler
+ #OPTION = -ieee=full -gline -dcfuns#
++# OPTION = -shared -fPIC
++#
++# The -xAVX setting is for Intel processors, otherwise try using -mavx
++# OPTION = -fast -xAVX -mkl -fno-alias -fomit-frame-pointer -O3 -finline-functions
++OPTION = 
+ #
+ # paths, compiler, etc -> feel free to edit 
+ #
+@@ -43,7 +48,7 @@ FILES_MACROS = ${MACROS}Xsugra.o \
+                ${MACROS}Xrunning_mass.o \
+                ${MACROS}Xvegas_array.o \
+ 	       ${MACROS}Xread_les_houches.o \
+-	       ${MACROS}Cteq6Pdf-2008.o 
++	       ${MACROS}Cteq6Pdf-2008.o
+ #tq5	       ${MACROS}XCtq5Pdf.o 
+ #tq6	       ${MACROS}XCteq61Pdf.o 
+ #tqx	       ${MACROS}Cteq6Pdf-2008.o 
+@@ -132,13 +137,28 @@ prospino:	prospino_main.f90  ${FILES_DIR
+                                    ${FILES_INTEGS} \
+                                    ${FILES_STRONG} \
+                                    ${FILES_INTERF} 
+-	${COMP} prospino_main.f90  ${FILES_DIRECT} \
++	${COMP} ${OPTION} prospino_main.f90  ${FILES_DIRECT} \
+ 	                           ${FILES_MACROS} \
+                                    ${FILES_MATRIX} \
+                                    ${FILES_INTEGS} \
+                                    ${FILES_STRONG} \
+                                    ${FILES_INTERF} -o prospino_2.run
+ #
++# build the prospino shared library
++#
++libprospino.so:	                ${FILES_DIRECT} \
++	                            ${FILES_MACROS} \
++                                   ${FILES_MATRIX} \
++                                   ${FILES_INTEGS} \
++                                   ${FILES_STRONG} \
++                                   ${FILES_INTERF}
++	${COMP} ${OPTION} -fPIC -shared  ${FILES_DIRECT} \
++	                           ${FILES_MACROS} \
++                                   ${FILES_MATRIX} \
++                                   ${FILES_INTEGS} \
++                                   ${FILES_STRONG} \
++                                   ${FILES_INTERF} -o libprospino.so
++#
+ #
+ #
+ validate:	     validate.f90  ${FILES_DIRECT} \
+@@ -147,7 +167,7 @@ validate:	     validate.f90  ${FILES_DIR
+                                    ${FILES_INTEGS} \
+                                    ${FILES_STRONG} \
+                                    ${FILES_INTERF} 
+-	${COMP}      validate.f90  ${FILES_DIRECT} \
++	${COMP} ${OPTION} validate.f90  ${FILES_DIRECT} \
+ 	                           ${FILES_MACROS} \
+                                    ${FILES_MATRIX} \
+                                    ${FILES_INTEGS} \
+@@ -157,46 +177,47 @@ validate:	     validate.f90  ${FILES_DIR
+ #
+ #
+ clean:
+-	rm -i ${DIRECT}*.mod ; \
+-	rm -i $(DIRECT)prospino_2.run ; \
+-	rm -i $(DIRECT)validate.run ; \
+-	rm -i ${DIRECT}*.o ; rm -i ${DIRECT}*~ ; \
+-	rm -i ${MACROS}*.o ; rm -i ${MACROS}*~ ; \
+-	rm -i ${INTEGS}*.o ; rm -i ${INTEGS}*~ ; \
+-	rm -i ${MATRIX}*.o ; rm -i ${MATRIX}*~ ; \
+-	rm -i ${STRONG}*.o ; rm -i ${STRONG}*~ ; \
+-	rm -i ${INTERF}*.o ; rm -i ${INTERF}*~   
++	rm -f ${DIRECT}*.mod ; \
++	rm -f $(DIRECT)prospino_2.run ; \
++	rm -f $(DIRECT)libprospino.so ; \
++	rm -f $(DIRECT)validate.run ; \
++	rm -f ${DIRECT}*.o ; rm -f ${DIRECT}*~ ; \
++	rm -f ${MACROS}*.o ; rm -f ${MACROS}*~ ; \
++	rm -f ${INTEGS}*.o ; rm -f ${INTEGS}*~ ; \
++	rm -f ${MATRIX}*.o ; rm -f ${MATRIX}*~ ; \
++	rm -f ${STRONG}*.o ; rm -f ${STRONG}*~ ; \
++	rm -f ${INTERF}*.o ; rm -f ${INTERF}*~   
+ #
+ # prepare all the object files from the main directory [DIRECT]
+ # for DEC compiler keep them in order of dependence 
+ #
+ ${DIRECT}%.o:  ${DIRECT}%.f90
+-	${COMP} -c -o $@ $<
++	${COMP} ${OPTION} -fPIC -c -o $@ $<
+ #
+ # prepare all the object files from the directory 'Pro2_interface' [INTERF]
+ #
+ ${INTERF}%.o:  ${INTERF}%.f
+-	${COMP} -c -o $@ $<
++	${COMP} ${OPTION} -fPIC -c -o $@ $<
+ #
+ # prepare all the object files from the directory 'Pro2_subroutines' [MACROS]
+ #
+ ${MACROS}%.o:  ${MACROS}%.f
+-	${COMP} -c -o $@ $<
++	${COMP} ${OPTION} -fPIC -c -o $@ $<
+ #
+ # prepare all the object files from the directory 'Pro2_integrals' [INTEGS]
+ #
+ ${INTEGS}%.o:  ${INTEGS}%.f
+-	${COMP} -c -o $@ $<
++	${COMP} ${OPTION} -fPIC -c -o $@ $<
+ #
+ # prepare all the object files from the directory 'Pro2_matrix' [MATRIX]
+ #
+ ${MATRIX}%.o:  ${MATRIX}%.f
+-	${COMP} -c -o $@ $<
++	${COMP} ${OPTION} -fPIC -c -o $@ $<
+ #
+ # prepare all the object files from the directory 'Pro2_sq_gl' [STRONG]
+ #
+ ${STRONG}%.o:  ${STRONG}%.f
+-	${COMP} -c -o $@ $<
++	${COMP} ${OPTION} -fPIC -c -o $@ $<
+ #
+ 
+ 
+diff -rupN prospino_2.1_original/Pro2_interface/Xget_pdf.f prospino_2.1_patched/Pro2_interface/Xget_pdf.f
+--- prospino_2.1_original/Pro2_interface/Xget_pdf.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_interface/Xget_pdf.f	2022-01-01 15:41:54.879040953 +1000
+@@ -89,19 +89,23 @@ ctq5         lambda_qcd = 0.226D0
+ 
+ c -----------------------------------------------
+ c   this initialization function is only needed for Cteq grids 
+-      subroutine INIT_PDF(inlo)
++
++c   GAMBIT: modified to accept and forward the prospino_dir_in argument
++
++      subroutine INIT_PDF(inlo, prospino_dir_in)
+ 
+       implicit none
+ 
+       integer inlo
++      character(len=500) prospino_dir_in
+ 
+       if (inlo.eq.0) then 
+-         call SetCtq6(4)
+-ctq5         call SetCtq5(3)
++         call SetCtq6(4, prospino_dir_in)
++ctq5         call SetCtq5(3, prospino_dir_in)
+       else if (inlo.eq.1) then 
+-         call SetCtq6(400)
+-ctq6         call SetCtq6(1)
+-ctq5         call SetCtq5(8)
++         call SetCtq6(400, prospino_dir_in)
++ctq6         call SetCtq6(1, prospino_dir_in)
++ctq5         call SetCtq5(8, prospino_dir_in)
+       else
+          print*, " INIT_PDF: inlo set wrongly ",inlo
+       end if
+diff -rupN prospino_2.1_original/Pro2_interface/Xhard_stop.f prospino_2.1_patched/Pro2_interface/Xhard_stop.f
+--- prospino_2.1_original/Pro2_interface/Xhard_stop.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_interface/Xhard_stop.f	2022-01-01 15:41:54.879040953 +1000
+@@ -8,6 +8,25 @@ c
+ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+       subroutine HARD_STOP
+ 
++      ! Added by GAMBIT
++      Use, Intrinsic :: iso_c_binding
++      Use xx_GAMBIT_variables
++      Implicit None
++
++      Procedure(callback), Pointer :: errorhandler_fptr
++
++      ! Convert C to Fortran procedure pointer.
++      Call c_f_procpointer(errorhandler_cptr, errorhandler_fptr)
++
++      ! Call the errorhandler
++      Write(*,*) "DEBUG: HARD_STOP: Will call errorhandler_fptr()"
++      Call errorhandler_fptr()
++
++      ! This should never happen
++      Write(*,*) "DEBUG: Prospino has continued past the GAMBIT errorhandler call. This should never happen..."
++
++      ! GAMBIT addition end      
++
+       print*, " HARD_STOP: code stopped, fatal and serious error "
+       stop
+ 
+diff -rupN prospino_2.1_original/Pro2_subroutines/Cteq6Pdf-2008.f prospino_2.1_patched/Pro2_subroutines/Cteq6Pdf-2008.f
+--- prospino_2.1_original/Pro2_subroutines/Cteq6Pdf-2008.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_subroutines/Cteq6Pdf-2008.f	2022-01-01 15:41:54.931036959 +1000
+@@ -247,25 +247,29 @@ C        put a warning for calling extra
+ C                             ********************
+       End
+ 
+-      Subroutine SetCtq6 (Iset)
++
++C     GAMBIT: Modified subroutine to use the prospino path
++C             passed in through prospino_dir_in
++      Subroutine SetCtq6 (Iset, prospino_dir_in)
+       Implicit Double Precision (A-H,O-Z)
+       Parameter (Isetmax0=8)
+-ctp      Character Flnm(Isetmax0)*6, nn*3, Tablefile*40
++      character(len=500) prospino_dir_in
++ctp      Character Flnm(Isetmax0)*6, nn*3, Tablefile*500
+ ctp      Logical fmtpds
+ ctp      Data (Flnm(I), I=1,Isetmax0)
+ ctp     > / 'cteq6m', 'cteq6d', 'cteq6l', 'cteq6l','ctq61.','cteq6s'
+ ctp     >  ,'ctq65.', 'ctq66.' /
+-      Character Flnm(Isetmax0)*25, nn*3, Tablefile*40
++      Character Flnm(Isetmax0)*25, nn*3, Tablefile*500
+       Logical fmtpds
+       Data (Flnm(I), I=1,Isetmax0)
+-     > / './Pro2_subroutines/cteq6m', 
+-     >   './Pro2_subroutines/cteq6d', 
+-     >   './Pro2_subroutines/cteq6l', 
+-     >   './Pro2_subroutines/cteq6l',
+-     >   './Pro2_subroutines/cte61.',
+-     >   './Pro2_subroutines/cte6s.',
+-     >   './Pro2_subroutines/cte65.',
+-     >   './Pro2_subroutines/ctq66.'/
++     > / '/Pro2_subroutines/cteq6m', 
++     >   '/Pro2_subroutines/cteq6d', 
++     >   '/Pro2_subroutines/cteq6l', 
++     >   '/Pro2_subroutines/cteq6l',
++     >   '/Pro2_subroutines/cte61.',
++     >   '/Pro2_subroutines/cte6s.',
++     >   '/Pro2_subroutines/cte65.',
++     >   '/Pro2_subroutines/ctq66.'/
+       Data Isetold, Isetmin0, Isetmin1, Isetmax1 /-987,1,100,140/
+       Data Isetmin2,Isetmax2 /200,240/
+       Data Isetmin3,Isetmax3 /300,340/
+@@ -288,33 +292,42 @@ C             If data file not initializ
+         If (Iset.ge.Isetmin0 .and. Iset.le.3) Then
+ C                                                  Iset = 1,2,3 for 6m, 6d, 6l
+           fmtpds=.false.
+-          Tablefile=Flnm(Iset)//'.tbl'
++          Tablefile=trim(prospino_dir_in)//Flnm(Iset)
++          Tablefile=trim(Tablefile)//'.tbl'
+         Elseif (Iset.eq.4) Then
+ C                                                             4  (2nd LO fit)
+           fmtpds=.false.
+-          Tablefile=Flnm(Iset)//'1.tbl'
++          Tablefile=trim(prospino_dir_in)//Flnm(Iset)
++          Tablefile=trim(Tablefile)//'1.tbl'
+         Elseif (Iset.ge.Isetmin1 .and. Iset.le.Isetmax1) Then
+ C                                                               101 - 140
+           fmtpds=.false.
+           write(nn,'(I3)') Iset
+-          Tablefile=Flnm(1)//nn//'.tbl'
++          Tablefile=trim(prospino_dir_in)//Flnm(1)
++          Tablefile=trim(Tablefile)//nn//'.tbl'
+         Elseif (Iset.ge.Isetmin2 .and. Iset.le.Isetmax2) Then
+ C                                                               200 - 240
+           fmtpds=.false.
+           write(nn,'(I3)') Iset
+-          Tablefile=Flnm(5)//nn(2:3)//'.tbl'
++          Tablefile=trim(prospino_dir_in)//Flnm(5)
++          Tablefile=trim(Tablefile)//nn(2:3)//'.tbl'
+         Elseif (Iset.ge.IsetminS .and. Iset.le.IsetmaxS) Then
+ C                                                               11 - 15
+           If(Iset.eq.11) then
+-            Tablefile=Flnm(6)//'a.pds'
++            Tablefile=trim(prospino_dir_in)//Flnm(6)
++            Tablefile=trim(Tablefile)//'a.pds'
+           Elseif(Iset.eq.12) then
+-            Tablefile=Flnm(6)//'b.pds'
++            Tablefile=trim(prospino_dir_in)//Flnm(6)
++            Tablefile=trim(Tablefile)//'b.pds'
+           Elseif(Iset.eq.13) then
+-            Tablefile=Flnm(6)//'c.pds'
++            Tablefile=trim(prospino_dir_in)//Flnm(6)
++            Tablefile=trim(Tablefile)//'c.pds'
+           Elseif(Iset.eq.14) then
+-            Tablefile=Flnm(6)//'b+.pds'
++            Tablefile=trim(prospino_dir_in)//Flnm(6)
++            Tablefile=trim(Tablefile)//'b+.pds'
+           Elseif(Iset.eq.15) then
+-            Tablefile=Flnm(6)//'b-.pds'
++            Tablefile=trim(prospino_dir_in)//Flnm(6)
++            Tablefile=trim(Tablefile)//'b-.pds'
+           Endif
+         Elseif (Iset.eq.IsetHQ) Then
+ C                                                               21
+@@ -322,32 +335,39 @@ C
+         Elseif (Iset.ge.IsetmnSp07 .and. Iset.le.IsetmxSp07) Then
+ C                                                    (Cteq6.5S)  30 - 34
+           write(nn,'(I2)') Iset
+-          Tablefile=Flnm(7)//'s+'//nn(2:2)//'.pds'
++          Tablefile=trim(prospino_dir_in)//Flnm(7)
++          Tablefile=trim(Tablefile)//'s+'//nn(2:2)//'.pds'
+         Elseif (Iset.ge.IsetmnSm07 .and. Iset.le.IsetmxSm07) Then
+ C                                                    (Cteq6.5S)  35 - 37
+           Is = Iset - 5
+           write(nn,'(I2)') Is
+-          Tablefile=Flnm(7)//'s-'//nn(2:2)//'.pds'
++          Tablefile=trim(prospino_dir_in)//Flnm(7)
++          Tablefile=trim(Tablefile)//'s-'//nn(2:2)//'.pds'
+         Elseif (Iset.ge.IsetmnC07 .and. Iset.le.IsetmxC07) Then
+ C                                                    (Cteq6.5C)  40 - 46
+           write(nn,'(I2)') Iset
+-          Tablefile=Flnm(7)//'c'//nn(2:2)//'.pds'
++          Tablefile=trim(prospino_dir_in)//Flnm(7)
++          Tablefile=trim(Tablefile)//'c'//nn(2:2)//'.pds'
+         Elseif (Iset.ge.Isetmin3 .and. Iset.le.Isetmax3) Then
+ C                                                    (Cteq6.5)  300 - 340
+           write(nn,'(I3)') Iset
+-          Tablefile=Flnm(7)//nn(2:3)//'.pds'
++          Tablefile=trim(prospino_dir_in)//Flnm(7)
++          Tablefile=trim(Tablefile)//nn(2:3)//'.pds'
+         Elseif (Iset.ge.Isetmin4 .and. Iset.le.Isetmax4) Then
+ C                                                    (Cteq6.6)  400 - 444   
+           write(nn,'(I3)') Iset
+-          Tablefile=Flnm(8)//nn(2:3)//'.pds'
++          Tablefile=trim(prospino_dir_in)//Flnm(8)
++          Tablefile=trim(Tablefile)//nn(2:3)//'.pds'
+         Elseif (Iset.ge.IsetmnC08 .and. Iset.le.IsetmxC08) Then
+ C                                                   (Cteq6.6C)  450 - 453
+           write(nn,'(I3)') Iset 
+-          Tablefile=Flnm(8)//'c'//nn(3:3)//'.pds'
++          Tablefile=trim(prospino_dir_in)//Flnm(8)
++          Tablefile=trim(Tablefile)//'c'//nn(3:3)//'.pds'
+         Elseif (Iset.ge.IsetmnAS08 .and. Iset.le.IsetmxAS08) Then
+ C                                                   (Cteq6.6AS)  460 - 463
+           write(nn,'(I3)') Iset 
+-          Tablefile=Flnm(8)//'a'//nn(3:3)//'.pds'
++          Tablefile=trim(prospino_dir_in)//Flnm(8)
++          Tablefile=trim(Tablefile)//'a'//nn(3:3)//'.pds'
+         Else
+           Print *, 'Invalid Iset number in SetCtq6 :', Iset
+           Stop
+diff -rupN prospino_2.1_original/Pro2_subroutines/XCteq61Pdf.f prospino_2.1_patched/Pro2_subroutines/XCteq61Pdf.f
+--- prospino_2.1_original/Pro2_subroutines/XCteq61Pdf.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_subroutines/XCteq61Pdf.f	2022-01-01 15:41:54.931036959 +1000
+@@ -144,6 +144,7 @@ ctp     > / 'cteq6m', 'cteq6d', 'cteq6l'
+       Data Isetmin2,Isetmax2 /200,240/
+       save
+ 
++
+ C             If data file not initialized, do so.
+       If(Iset.ne.Isetold) then
+          IU= NextUn()
+diff -rupN prospino_2.1_original/Pro2_subroutines/XCtq5Pdf.f prospino_2.1_patched/Pro2_subroutines/XCtq5Pdf.f
+--- prospino_2.1_original/Pro2_subroutines/XCtq5Pdf.f	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Pro2_subroutines/XCtq5Pdf.f	2022-01-01 15:41:54.931036959 +1000
+@@ -197,10 +197,13 @@ C
+ C                        ****************************
+       END
+ 
+-      Subroutine SetCtq5 (Iset)
++C     GAMBIT: Modified subroutine to use the prospino path
++C             passed in through prospino_dir_in
++      Subroutine SetCtq5 (Iset, prospino_dir_in)
+       Implicit Double Precision (A-H,O-Z)
+       Parameter (Isetmax=9)
+-c$$$      Character Flnm(Isetmax)*12, Tablefile*40
++      character(len=500) prospino_dir_in
++c$$$      Character Flnm(Isetmax)*12, Tablefile*500
+ c$$$      Data (Flnm(I), I=1,Isetmax)
+ c$$$     > / 'cteq5m.tbl', 
+ c$$$     >   'cteq5d.tbl', 
+@@ -211,7 +214,7 @@ c$$$     >   'cteq5f3.tbl',
+ c$$$     >   'cteq5f4.tbl',
+ c$$$     >   'cteq5m1.tbl',
+ c$$$     >   'ctq5hq1.tbl'  /
+-      Character Flnm(Isetmax)*30, Tablefile*40
++      Character Flnm(Isetmax)*30, Tablefile*500
+       Data (Flnm(I), I=1,Isetmax)
+      > / './Pro2_subroutines/cteq5l.tbl', 
+      >   './Pro2_subroutines/cteq5l.tbl', 
+@@ -242,7 +245,7 @@ C             If data file not initializ
+ 	    Print *, 'Invalid Iset number in SetCtq5 :', Iset
+ 	    Stop
+          Else
+-            Tablefile=Flnm(Iset)
++            Tablefile=trim(prospino_dir_in)//Flnm(Iset)
+             Open(IU, File=Tablefile, Status='OLD', Err=100)
+ 	 Endif
+          Call ReadTbl (IU)
+diff -rupN prospino_2.1_original/Xinitialize.f90 prospino_2.1_patched/Xinitialize.f90
+--- prospino_2.1_original/Xinitialize.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xinitialize.f90	2022-01-01 15:41:54.875041260 +1000
+@@ -4,6 +4,8 @@ module xx_initialize
+   use xx_public_variables
+   use xx_pass_integ
+   use xx_in_out
++  ! GAMBIT
++  use xx_GAMBIT_variables
+   implicit none 
+   private :: TEST_SETTINGS_GLOBAL, TEST_SETTINGS_ITERATION
+   public  :: PROSPINO_CHECK_FS, PROSPINO_CHECK_HIGGS
+@@ -209,6 +211,7 @@ contains
+   end subroutine TEST_SETTINGS_GLOBAL
+ 
+ ! ------------------------------
++! GAMBIT: modifield to pass prospino_dir to INIT_PDF
+   subroutine INIT_ITERATION(lvalid_iteration)
+ 
+     logical, intent(out) :: lvalid_iteration
+@@ -218,9 +221,9 @@ contains
+     lvalid_iteration = .true.                                                              ! go through unless something happens
+ 
+     if (ii<=0) then                                                                        ! initialize the parton densities, either LO or NLO
+-       call INIT_PDF(0)
++       call INIT_PDF(0, prospino_dir)
+     else 
+-       call INIT_PDF(1)
++       call INIT_PDF(1, prospino_dir)
+     end if
+ 
+     call TEST_SETTINGS_ITERATION(lvalid_iteration)                                         ! check everything set in main program, for now only ii
+@@ -733,6 +736,176 @@ contains
+     
+   end subroutine INIT_SUSY
+ 
++
++! ------------------------------
++  subroutine INIT_SUSY_GB(nin1,nin2,ipart1_in,ipart2_in,isq_ng_in,run0,run1,unimass,lowmass,&
++                          uu_in,vv_in,bw_in,mst_in,msb_in,msl_in)
++    
++    integer,           intent(in) :: nin1,nin2
++    integer,           intent(in) :: ipart1_in,ipart2_in,isq_ng_in
++    real(kind=double), intent(in) :: run0,run1
++    real(kind=double), dimension(1:20), intent(out) :: unimass
++    real(kind=double), dimension(0:99), intent(out) :: lowmass
++
++    integer                              :: n
++    real(kind=double), dimension(2,2)    :: uu_in,vv_in
++    real(kind=double), dimension(2,2)    :: mst_in,msb_in,msl_in
++    real(kind=double), dimension(4,4)    :: bw_in
++    real(kind=double)                    :: sin2x
++    complex(kind=double), dimension(1:4) :: sig
++
++    ! AK: Commented out this
++    ! unimass(1:20) = 0.0
++    ! call GET_SPECTRUM(nin2,unimass,lowmass,bw_in,uu_in,vv_in,mst_in,msb_in,msl_in)
++
++    uu(1:2,1:2)  = uu_in(1:2,1:2)      ! set the mixing matrices as defined globally in Xvital.f90
++    vv(1:2,1:2)  = vv_in(1:2,1:2)
++    bw(1:4,1:4)  = bw_in(1:4,1:4)
++    mst(1:2,1:2) = mst_in(1:2,1:2)
++    msb(1:2,1:2) = msb_in(1:2,1:2)
++    msl(1:2,1:2) = msl_in(1:2,1:2)
++
++    tan_b        = unimass(10)
++    mu_susy      = lowmass(0)          ! mu parameter
++    mg           = lowmass(4)          ! gluino mass 
++    ms           = lowmass(15)         ! degenerate squark mass (still needed for old prospino code)
++    a_b          = lowmass(21)         ! tri-scalar coupling
++    a_t          = lowmass(24)         ! tri-scalar coupling
++    mh1          = lowmass(41)         ! light scalar higgs mass 
++    mh2          = lowmass(42)         ! heavy scalar higgs mass 
++    mch          = lowmass(43)         ! charged higgs mass 
++    sin_a        = lowmass(44)
++    cos_a        = lowmass(45)
++
++    smass_n(1:6) = lowmass(5:10)       ! neutralino/chargino masses 
++    smass_n(7:8) = smass_n(5:6)
++
++    if (isq_ng_in == 1 ) then          ! allow for non-degenerate squark masses
++       msq(-6:-1) = lowmass(56:51:-1)  ! the squarkL masses: u,d,s,c,b,t
++       msq( 1: 6) = lowmass(57:62:1)   ! the squarkR masses: u,d,s,c,b,t
++    else if (isq_ng_in == 0 ) then     ! or if switched off set all masses to the average value
++       msq(-6:-1) = ms
++       msq( 1: 6) = ms
++    end if
++
++!tp    mg = mg * 1.5**run0                  ! examples for the use of run0 and run1
++!tp    mg = mg + run1
++!tp    msq(+6) = msq(+6) + run0
++!tp    msq(-6) = msq(-6) + run0
++!tp    print*, " mass shift ",mg
++
++    if (imx==1) then                   ! neutralino masses, switch only works for Born term
++       mass_n(1:8) = abs(smass_n(1:8)) ! positive mass array for complex mixing matrix
++       sig(1:4)  = (1.0,0.0)           ! set correction factor eta 
++       do n=1,4 
++          if (smass_n(n)<0) sig(n) = (0.0,1.0)  
++          zz(n,1:4) = sig(n) * bw(n,1:4) 
++       end do
++    else if (imx==0) then
++       mass_n(1:8) = smass_n(1:8)
++       zz(1:4,1:4) = bw(1:4,1:4)
++    end if
++
++    if (final_state=='nn') then        ! this is for the neutralino pairs only
++       if (ipart1_in < ipart2_in) then ! ordered by charge: +1 -2
++          ipart1 = ipart1_in
++          ipart2 = ipart2_in
++       else 
++          ipart2 = ipart1_in
++          ipart1 = ipart2_in
++       end if
++    else 
++       ipart1 = ipart1_in
++       ipart2 = ipart2_in              ! where ipart2 is not really needed
++    end if
++       
++    mass_s(1:4) = 0.0
++    if (final_state=='ll') then 
++       select case (ipart1)
++       case(0) 
++          mass_s(1)   = ( lowmass(30) + lowmass(31) )/2.D0 
++          mass_s(2)   = ( lowmass(30) + lowmass(31) )/2.D0 
++       case(1)
++          mass_s(1)   = lowmass(30)
++          mass_s(2)   = lowmass(30)
++       case(2) 
++          mass_s(1)   = lowmass(31)
++          mass_s(2)   = lowmass(31)
++       case (3)
++          mass_s(1)   = lowmass(32)
++          mass_s(2)   = lowmass(32)
++       case(4,5)
++          mass_s(1)   = lowmass(30)
++          mass_s(2)   = lowmass(32)
++       case(6)
++          mass_s(1)   = lowmass(33)
++          mass_s(2)   = lowmass(33)
++          call COMPUTE_SCALAR_ANGLE(msl,sin2x)
++          mass_s(3)   = sin2x
++       case(7)
++          mass_s(1)   = lowmass(34)
++          mass_s(2)   = lowmass(34)
++          call COMPUTE_SCALAR_ANGLE(msl,sin2x)
++          mass_s(3)   = sin2x
++       case(8)
++          mass_s(1)   = lowmass(33)
++          mass_s(2)   = lowmass(34)
++          call COMPUTE_SCALAR_ANGLE(msl,sin2x)
++          mass_s(3)   = sin2x
++       case(9)
++          mass_s(1)   = lowmass(35)
++          mass_s(2)   = lowmass(35)
++       case(10,11)
++          mass_s(1)   = lowmass(33)
++          mass_s(2)   = lowmass(35)
++          call COMPUTE_SCALAR_ANGLE(msl,sin2x)
++          mass_s(3)   = sin2x
++       case(12,13)
++          mass_s(1)   = lowmass(34)
++          mass_s(2)   = lowmass(35)
++          call COMPUTE_SCALAR_ANGLE(msl,sin2x)
++          mass_s(3)   = sin2x
++       case(14)                                      ! charged Higgs pairs
++          mass_s(1)   = lowmass(43)
++          mass_s(2)   = lowmass(43)
++       end select
++    else if ((final_state=='tb').or.(final_state=='xx')) then 
++       mass_s(1) = msq(-6)                           ! different from the stau syntax!!!
++       mass_s(2) = msq(+6)
++       mass_s(3) = 2*mst(1,1)*mst(1,2)               ! like in the Form code
++       mass_s(4) = mst(1,1)**2 - mst(1,2)**2 
++       mass_x(1) = msq(-5)                           ! also fix the sbottom sector  
++       mass_x(2) = msq(+5)
++       mass_x(3) = 2*msb(1,1)*msb(1,2)               ! like in the Form code
++       mass_x(4) = msb(1,1)**2 - msb(1,2)**2 
++    else if (final_state=='lq') then 
++       mass_s(1) = msq(-6)         
++       mass_s(2) = msq(-6)
++    else if (final_state=='le') then 
++       mass_s(1) = msq(-6)         
++    else if (final_state=='bb') then 
++       mass_s(1) = msq(-5)                           ! different from the stau syntax!!!
++       mass_s(2) = msq(+5)
++       mass_s(3) = 2*msb(1,1)*msb(1,2)               ! like in the Form code
++       mass_s(4) = msb(1,1)**2 - msb(1,2)**2 
++       mass_x(1) = msq(-6)                           ! also fix the stop sector  
++       mass_x(2) = msq(+6)
++       mass_x(3) = 2*mst(1,1)*mst(1,2)               ! like in the Form code
++       mass_x(4) = mst(1,1)**2 - mst(1,2)**2 
++    end if
++
++    if (final_state=='hh') then                      ! report removed s-channel coupligs
++       if ( 2.0*mch < mz  ) print*, " INIT_SUSY: removed coupling for on-shell decay  Z->H+H- "
++       if ( 2.0*mch < mh1 ) print*, " INIT_SUSY: removed coupling for on-shell decay h0->H+H- "
++       if ( 2.0*mch < mh2 ) print*, " INIT_SUSY: removed coupling for on-shell decay H0->H+H- "
++    end if
++       
++    call DECOUPLE_SPECTRUM(ipart1_in,ipart2_in)
++    
++  end subroutine INIT_SUSY_GB
++
++
++
+ ! ------------------------------
+ ! routine to take care of critical mass choices 
+ ! solve by overwriting in xx_pass_integ
+diff -rupN prospino_2.1_original/Xinteg_le.f90 prospino_2.1_patched/Xinteg_le.f90
+--- prospino_2.1_original/Xinteg_le.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xinteg_le.f90	2022-01-01 15:41:54.875041260 +1000
+@@ -181,7 +181,9 @@ contains
+        qf = scafac * m1
+     else
+        print*, " IFCT1: isca not set correctly ",isca
+-       stop
++       ! Added by GAMBIT:
++       call HARD_STOP
++       ! stop
+     end if
+ 
+     if (iscaling==0) then                                      ! nlo factor [always nlo alpha_s]
+diff -rupN prospino_2.1_original/Xinteg_nn.f90 prospino_2.1_patched/Xinteg_nn.f90
+--- prospino_2.1_original/Xinteg_nn.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xinteg_nn.f90	2022-01-01 15:41:54.875041260 +1000
+@@ -48,10 +48,11 @@ contains
+ 
+     m1 = mass_n(ipart1)                                        ! assign the final state masses 
+     m2 = mass_n(ipart2)
+-    if ( (abs(m1)+abs(m2)) < mz ) then
+-       print*, " IFCT_NN_X12: masses low, Z decays might be more suitable "
+-       call HARD_STOP
+-    end if
++    ! GAMBIT: Mass check disabled
++    ! if ( (abs(m1)+abs(m2)) < mz ) then
++    !    print*, " IFCT_NN_X12: masses low, Z decays might be more suitable "
++    !    call HARD_STOP
++    ! end if
+ 
+     if ( (abs(m1)+abs(m2))**2 > 0.98*sc ) then
+ !tp       print*, " collider energy not large enough ",m1,m2,sqrt(sc)
+@@ -841,13 +842,14 @@ contains
+        print*, " COUPLING_NN: something wrong ",ipart1,ipart2
+     end if                                                                     ! end of NN,CC,Cn if construct
+ 
+-    if ( (abs(m1)+abs(m2)) < mz ) then
+-       print*, " COUPLINGS_NN: masses low, W/Z decays might be more suitable, decouple W/Z "
+-       v2   = 0.0
+-       a2   = 0.0
+-       v2w  = 0.0
+-       a2w  = 0.0
+-    end if
++    ! GAMBIT: Mass check disabled
++    ! if ( (abs(m1)+abs(m2)) < mz ) then
++    !    print*, " COUPLINGS_NN: masses low, W/Z decays might be more suitable, decouple W/Z "
++    !    v2   = 0.0
++    !    a2   = 0.0
++    !    v2w  = 0.0
++    !    a2w  = 0.0
++    ! end if
+ 
+     Cs(1) = (v1*v1w)**2 + s * 2.0 * real( v1*v1w*v2*v2w )/(s-mx**2)         &  ! wim's conventions 
+            + s**2*( v2**2+a2**2 )*( abs(v2w)**2+abs(a2w)**2 ) /(s-mx**2)**2    ! [v1,v2,v1w,a2 real]
+diff -rupN prospino_2.1_original/Xprospino_subroutine.f90 prospino_2.1_patched/Xprospino_subroutine.f90
+--- prospino_2.1_original/Xprospino_subroutine.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xprospino_subroutine.f90	2022-01-01 15:41:54.875041260 +1000
+@@ -14,6 +14,8 @@ module xx_prospino_subroutine
+   use xx_integral_ht
+   use xx_initialize
+   use xx_in_out
++  ! GAMBIT 
++  use xx_GAMBIT_variables
+   implicit none 
+   private :: GET_UNITS_READ_WRITE
+   public :: PROSPINO, PROSPINO_OPEN_CLOSE
+@@ -379,6 +381,398 @@ contains
+     
+   end subroutine GET_UNITS_READ_WRITE
+ 
++
++
++! --------------------------------
++! Special subroutine for GAMBIT interface
++
++  subroutine PROSPINO_GB(result, inlo,isq_ng_in,icoll_in,energy_in,i_error_in,final_state_in,&
++                         ipart1_in,ipart2_in,isquark1_in,isquark2_in,&
++                         unimass,lowmass,uu_in,vv_in,bw_in,&
++                         mst_in,msb_in,msl_in) BIND(C, NAME="C_prospino_gb")
++
++    use ISO_C_BINDING
++    
++    implicit none
++
++    real(kind=double), dimension(0:6), intent(inout) :: result
++
++    integer,                  intent(in) :: inlo,isq_ng_in,icoll_in,i_error_in,ipart1_in,ipart2_in,isquark1_in,isquark2_in
++    real(kind=double)                    :: energy_in
++    !character(len=2),         intent(in) :: final_state_in
++    character*(c_char), target           :: final_state_in
++    character*(2), pointer               :: f_final_state_in
++    integer                              :: n0,n1,ns,ii_min,ii_max,ns_min,ns_max
++    integer                              :: nin1,nin2,ndat1,ndat2,ndat3
++    integer                              :: isquark1_min,isquark1_max
++    integer                              :: isquark2_min,isquark2_max
++    integer                              :: i_lofast,ifast,inext_sq
++    integer,dimension(4)                 :: ivegas
++    real(kind=double)                    :: run0,run1,kfac,ms1_print,ms2_print,kng
++    real(kind=double), dimension(-1:22)  :: fct,rel
++    real(kind=double), dimension(1:20), intent(inout)   :: unimass
++    real(kind=double), dimension(0:99), intent(inout)   :: lowmass
++    real(kind=double), dimension(2,2)    :: uu_in,vv_in
++    real(kind=double), dimension(2,2)    :: mst_in,msb_in,msl_in
++    real(kind=double), dimension(4,4)    :: bw_in
++    character(len=2)                     :: final_state_new
++    ! character(kind=c_char)               :: final_state_new
++    logical                              :: lvalid_global,lvalid_iteration
++
++    integer           :: ilo_common, inlo_common, ionlylo_common, idg_common, ing_common
++    common/CONST5/       ilo_common, inlo_common, ionlylo_common, idg_common, ing_common        ! to fill idg_common and ing_common
++
++    integer           :: i_lofast_common                                                        ! only communicating with initpdf.f
++    common/I_LOFAST/     i_lofast_common
++
++    ! write(*,*) "DEBUG: This is PROSPINO_GB"
++
++    ! write(*,*) "DEBUG: prospino_dir = ", prospino_dir 
++
++    result(0:6) = 0.0                                                                           ! initialize result array for GAMBIT
++
++    fct(-1:22) = 0.0                                                                            ! initialize cross section and rel. error
++    rel(-1:22) = 0.0 
++    kfac       = 0.0
++    kng        = 0.0
++          
++    isquark1_min = 0                                                                            ! initialize squark loop
++    isquark1_max = 0
++    isquark2_min = 0
++    isquark2_max = 0
++    inext_sq     = 0                                                                            ! initialize squark-sum indicator in loop
++
++    icoll           = icoll_in                                                                  ! move input into public variables
++    isq_ng          = isq_ng_in
++
++    call c_f_pointer (c_loc(final_state_in), f_final_state_in)
++    final_state = f_final_state_in
++    final_state_new = f_final_state_in                                                          ! copy for second select statement
++
++!----------------------------------------------------------------------------------------
++    i_ngtest = 0     ! test degenerate squark masses : default[0] , test[1]             !
++!----------------------------------------------------------------------------------------
++    if (i_ngtest == 1 ) print*, " PROSPINO: i_ngtest in testing mode ",i_ngtest
++
++!----------------------------------------------------------------------------------------
++    i_lofast = 0     ! run fast sq-gl Born terms : default[0] , test[1]                 !
++!----------------------------------------------------------------------------------------
++    if (i_lofast == 1 ) then 
++       print*, " PROSPINO: i_lofast in testing mode, sorry ",i_lofast
++       call HARD_STOP                                                                           ! mode only for testing
++    end if
++    i_lofast_common = i_lofast
++    
++    if ( (abs(isquark1_in) > 4).or.(abs(isquark2_in) > 4) ) then                                ! protect against    
++       print*, " PROSPINO: for heavy-flavor squarks please use the final_state flag "
++       call HARD_STOP
++    end if
++            
++    if (inlo == 0) then 
++       ii_max = 0
++    else if (inlo == 1 ) then 
++       ii_max = 11
++    else
++       print*, " PROSPINO: inlo not set correctly?, continue in LO mode "
++       ii_max = 0
++    end if
++
++    if (i_error_in == 0) then
++       ns_min = 0
++       ns_max = 0 
++    else if (i_error_in == 1) then
++       ns_min = -10
++       ns_max = +10
++    else 
++       print*, " PROSPINO: i_error_in not set correctly?, continue with central scale "
++       ns_min = 0
++       ns_max = 0 
++    end if
++    
++    if ( (icoll < 0).or.(icoll > 1)) then                                                   ! set the collider energy Tevatron/LHC
++       print*, " PROSPINO: icoll not set correctly?, continue LHC "
++       icoll = 1 
++    end if
++    sc = energy_in**2
++
++!----------------------------------------------------------------------------------------
++    ifla_le = 1       ! specify the incoming quark flavor for LQ+lepton                 !
++                      !  d[2], s[3], b[5], u[1], c[4]                                   !
++!----------------------------------------------------------------------------------------
++    if (final_state == 'le') then
++       print*, " LQ+lepton final state "
++       print*, "  R violating coupling and mixing normalized to unity "  
++       print*, "  incoming quark set in Xprospino_subroutine.f90 = ",ifla_le
++    end if
++
++    ! AK: drop file I/O
++    ! call GET_UNITS_READ_WRITE(nin1,nin2,ndat1,ndat2,ndat3)                                      ! obtain units from where the OPEN_CLOSE routine got them
++
++    ! AK TODO: check if INIT_GLOBAL can be run without GET_UNITS_READ_WRITE
++    call INIT_GLOBAL(ipart1_in,ipart2_in,lvalid_global)                                         ! output lvalid_global, possibly skip s
++    if (.not. lvalid_global) then 
++       print*, " MAIN: problem inside INIT_GLOBAL, cycle "
++       return
++    end if
++
++    ! write(*,*) "DEBUG: Got past INIT_GLOBAL"
++    ! AK: Added this
++    ! call GET_UNITS_READ_WRITE(nin1,nin2,ndat1,ndat2,ndat3)
++
++    do n1   = 0,0,200                                                                           ! can be used to shift MSSM masses
++    do n0   = 0,0,150                                                                           ! in routine INIT_SUSY (Xinitialize.f90)
++    do ns   = ns_min,ns_max,10                                                                  ! change both scales simultaneously
++
++       run0 = n0
++       run1 = n1
++       scafac = 2.0**(ns/10.0)
++       
++       ! write(*,*) "DEBUG: Loop: n1, n0, ns :", n1, n0, ns
++
++       ! write(*,*) "DEBUG: Calling INIT_SUSY_GB"
++       call INIT_SUSY_GB(nin1,nin2,ipart1_in,ipart2_in,isq_ng_in,run0,run1,unimass,lowmass,&
++                         uu_in,vv_in,bw_in,mst_in,msb_in,msl_in)
++
++       ! write(*,*) "DEBUG: Got past INIT_SUSY_GB"
++
++       ! AK: Commented out this
++       ! call DAT3(ndat3,lowmass,unimass)                                                         ! print out variables and model parameters
++    
++       ms1_print = ms                                                                           ! default mode
++       ms2_print = ms
++       idg_common  = 1                                                                          ! make this the sq-gl default mode 
++       if (isq_ng == 0) then                                                                    ! only mass degenerate case
++          ing_common = 0                                                                        ! for sq-gl only
++          ii_min = 0                                                                            ! for new channels only
++          isquark1_min =  9
++          isquark1_max =  9
++          isquark2_min =  9
++          isquark2_max =  9
++       else if (isq_ng == 1) then                                                               ! also different squark masses
++          ing_common =  1                                                                       ! for sq-gl only
++          ii_min = -1                                                                           ! for new channels only
++          if ( (isquark1_in == 0).and.(isquark2_in == 0).and.          &                        ! summing mode for two external squarks
++                (final_state == 'ss')                    ) then
++             isquark1_min = -4                                                                  ! including sbottoms in the final state
++             isquark1_max =  4
++             isquark2_min = -4
++             isquark2_max =  4
++             ms1_print = ms
++             ms2_print = ms
++          else if ( (isquark1_in == 0).and.(isquark2_in == 0).and.     &                        ! summing mode for two external squarks
++                (final_state == 'sb')                    ) then
++             isquark1_min = -5                                                                  ! including sbottoms in the final state
++             isquark1_max =  5
++             isquark2_min = -5
++             isquark2_max =  5
++             ms1_print = ms
++             ms2_print = ms
++          else if ( (isquark1_in == 0).and.(isquark2_in == 0).and.     &                        ! one external squark to sum over 
++                    ((final_state == 'sg').or.                         &
++                     (final_state == 'ns')                  ) ) then
++             isquark1_min = -4                                                                  ! no sbottoms in initial state
++             isquark1_max =  4
++             isquark2_min =  9
++             isquark2_max =  9
++             ms1_print = ms
++          else if ((final_state == 'sb').or.                           &                        ! run individual channels if they exist
++                   (final_state == 'ss').or.                           &
++                   (final_state == 'sg').or.                           &
++                   (final_state == 'ns')                 ) then
++             isquark1_min = isquark1_in
++             isquark1_max = isquark1_in
++             isquark2_min = isquark2_in
++             isquark2_max = isquark2_in
++             ms1_print = msq(isquark1_min)
++             ms2_print = msq(isquark2_min)
++          else                                                                                  ! default, nothing to sum over
++             isquark1_min =  9
++             isquark1_max =  9
++             isquark2_min =  9
++             isquark2_max =  9
++          end if
++       else 
++          print*, " PROSPINO: isq_ng not set correctly? ",isq_ng
++          call HARD_STOP
++       end if
++
++       fct(20:22) = 0.0                                                                         ! initialize in case of loops 
++       do isquark1 = isquark1_min,isquark1_max,1                                                ! note this is always a loop
++       do isquark2 = isquark2_min,isquark2_max,1                                                !    so `cycle' is the way out
++          if ( (isquark1 == 0).or.(isquark2 == 0) ) cycle                                       ! just a tag for summing in isquark_in
++          if ( (isquark1 /= isquark1_min) .or. (isquark2 /= isquark2_min) )  inext_sq = 1 
++
++          print*, " running with  final_state = ",final_state
++          print*, "               ipart*_in   = ",ipart1_in,ipart2_in
++          print*, "               isquark*    = ",isquark1,isquark2
++             
++          ! write(*,*) "DEBUG: Selecting final_state"
++          select case (final_state)                                                             ! setup for old prospino
++          case ('gg')
++             call INIT_IFAST(1,inext_sq,ifast)
++             call FILL_COMMONS_SQ_GL(inlo,scafac) 
++             call INTEGGG( ifast, fct(-1:-1), rel(-1:-1), fct(0:0), rel(0:0), fct(20:20), rel(20:20) )
++          case ('sb')
++             idg_common = 0
++             if ((isquark1 == isquark1_max).and.(isquark2 == isquark2_max)) idg_common = 1
++             call INIT_IFAST(1,inext_sq,ifast)
++             call FILL_COMMONS_SQ_GL(inlo,scafac) 
++             call INTEGSB( ifast, fct(-1:-1), rel(-1:-1), fct(0:0), rel(0:0), fct(20:20), rel(20:20) )
++          case ('sg')
++             idg_common = 0
++             if (isquark1 == isquark1_max) idg_common = 1
++             call INIT_IFAST(1,inext_sq,ifast)
++             call FILL_COMMONS_SQ_GL(inlo,scafac) 
++             call INTEGSG( ifast, fct(-1:-1), rel(-1:-1), fct(0:0), rel(0:0), fct(20:20), rel(20:20) )
++          case ('ss')
++             if (isquark2 < isquark1) cycle
++             idg_common = 0
++             if ((isquark1 == isquark1_max).and.(isquark2 == isquark2_max)) idg_common = 1
++             call INIT_IFAST(1,inext_sq,ifast)
++             call FILL_COMMONS_SQ_GL(inlo,scafac)
++             call INTEGSS( ifast, fct(-1:-1), rel(-1:-1), fct(0:0), rel(0:0), fct(20:20), rel(20:20) )
++          case ('xx')
++             call INIT_IFAST(1,inext_sq,ifast)
++             call FILL_COMMONS_SQ_GL(inlo,scafac)
++             call INTEGST( ifast, fct(0:0) , rel(0:0) , fct(20:20) , rel(20:20) )
++          case default                                                                          ! below the new channels
++             ! write(*,*) "DEBUG: default case..."
++
++!----------------------------------------------------------------------------------------------
++!                  ii = -1    born consistent with non-degenerate squarks                     !
++!                       0,1   born consistent[0] , nlo-type[1]                                !
++!                       2     virtual correction                                              !
++!                       3     real gluon emission                                             !
++!                       4     subtraction term, crossed channels...                           !
++!                       20    complete nlo (only sum of 1...9)                                !
++!                       21    summed born term for non-degenerate squarks                     !
++!                       22    summed born term multipled with squark-degenerate K factor      !
++!----------------------------------------------------------------------------------------------
++             do ii=ii_min,ii_max,1
++                if ( (isquark1/=isquark1_max).and.(ii/=-1) ) cycle                              ! only run complete mode once
++                
++                print*, "               ii          = ",ii
++                ! write(*,*) "DEBUG: Call INIT_ITERATION"
++                call INIT_ITERATION(lvalid_iteration)                                           ! always needed (pdf initialization...)
++                ! write(*,*) "DEBUG: Call Got past INIT_ITERATION"
++                if (.not. lvalid_iteration) cycle
++                
++                ! write(*,*) "DEBUG: Call INIT_ALPHAS"
++                call INIT_ALPHAS                                                                ! initialize alpha_s, check Xget_pdf.f
++                ! write(*,*) "DEBUG: Got past INIT_ALPHAS"
++                call INIT_VEGAS(i_lofast,ivegas)
++                call INIT_IFAST(0,inext_sq,ifast)
++
++                select case (final_state_new)                                                   ! the actual vegas integration
++                case('ng')
++                   call INTEG(IFCT_NG_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('ns')
++                   call INTEG(IFCT_NS_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('nn')
++                   call INTEG(IFCT_NN_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('ll')
++                   call INTEG(IFCT_LL_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('tb','bb')
++                   call INTEG(IFCT_TB_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('lq')
++                   call INTEG(IFCT_LQ_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('le')
++                   call INTEG(IFCT_LE_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('hh')
++                   call INTEG(IFCT_HH_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                case('ht')
++                   call INTEG(IFCT_HT_X12,dim(ii),ivegas,ifast,fct(ii),rel(ii))
++                end select                                                                      ! close final_state_new
++                print*, " MAIN: check number attempts stopped early ",n_faulty                  ! non-fatal errors kept track of 
++                
++                if (abs(fct(ii))<1.e-20) then                                                   ! reject obvious garbage
++                   fct(ii) = 0.0 
++                   rel(ii) = 0.0
++                else if (abs(rel(ii))<1.e-20) then 
++                   rel(ii) = 0.0
++                end if
++             end do                                                                             ! close the ii loop
++
++             if ((final_state=='hh').or.(final_state=='ht')) then                               ! compute K factor for 2HDM, #22 not needed
++                fct(22) = fct(3)
++                fct(3)  = 0.0
++             end if
++
++             fct(20) = sum( fct(1:11) )                                                         ! sum all nlo contributions
++             if ( fct(20)>1.e-20 )                                                            &
++                  rel(20) = abs( sqrt( sum( rel(1:9)**2*fct(1:9)**2 ) )/fct(20) )               ! relative error added in quadrature
++
++          end select                                                                            ! close final_state
++
++          fct(21) = fct(21) + fct(-1)
++          rel(21) = rel(21) + rel(-1)**2*fct(-1)**2
++
++       end do                                                                                   ! close the isquark1 loop
++       end do                                                                                   ! close the isquark2 loop
++
++       if ((abs(fct(21)))>1.D-12) rel(21) = abs( sqrt( rel(21) )/fct(21) )                      ! just like formula for rel(20)
++       if ((abs(fct(0)))>1.D-12)     kfac = fct(20)/fct(0)                                      ! compute k factor, avoid core dump
++       
++       if ((final_state/='hh').and.(final_state/='ht')) then                                    ! means for all SUSY channels
++          fct(22) = fct(21) * kfac                                                              ! scale new LO result by K factor
++          if ((abs(fct(0)))>1.D-12)     kng  = fct(21)/fct(0)                                   ! compute factor between two born results
++       else                                                                                     ! fct(22) set before for Higgs channels
++          fct(22) = fct(22) + fct(20)
++          if ((abs(fct(20)))>1.D-12)    kng  = fct(22)/fct(20)                                  ! compute factor between two NLO results
++       end if
++
++       ! AK: No file output
++       ! call DAT1(ndat1,run0,run1,ms1_print,ms2_print,fct,rel,kfac,kng)                          ! short results output file 
++       ! call DAT2(ndat2,run0,run1,ms1_print,ms2_print,fct,rel,kfac,kng)                          ! long results output file 
++
++    ! case ('nn')
++    ! write(ndat1, fmt=form1) final_state,ipart1,ipart2,run0,run1,scafac,mass_n(ipart1),mass_n(ipart2),r_zero &
++    !                         ,fct(0),rel(0),fct(20),rel(20),kfac,fct(21),fct(22)
++
++    ! write(*,*) "DEBUG: RESULT:"
++    ! write(*,*) "DEBUG:", final_state, ipart1_in, ipart2_in
++    ! write(*,*) "DEBUG:", mass_n(ipart1_in), mass_n(ipart2_in)
++    ! write(*,*) "DEBUG:", run0, run1, ms1_print, ms2_print
++    ! write(*,*) "DEBUG:", fct(0),rel(0),fct(20),rel(20),kfac,fct(21),fct(22)
++
++    ! Write result
++    result(0) = fct(0)  ! LO [pb]
++    result(1) = rel(0)  ! relative error for LO
++    result(2) = fct(20) ! NLO [pb]
++    result(3) = rel(20) ! relative error for NLO
++    result(4) = kfac    ! K factor
++    result(5) = fct(21) ! LO_ms [pb]
++    result(6) = fct(22) ! NLO_ms [pb]
++
++    end do                                                                                      ! close the ns loop
++    end do                                                                                      ! close the n0 loop
++    end do                                                                                      ! close the n1 loop
++
++    return
++
++  end subroutine PROSPINO_GB
++
++
++
++  !
++  ! Init function to be called from GAMBIT
++  !
++  subroutine PROSPINO_GB_INIT(prospino_dir_in) BIND(C, NAME="C_prospino_gb_init")
++
++    use ISO_C_BINDING    
++
++    implicit none
++
++    ! character(len=*), intent(in) :: prospino_dir_in
++    character*(c_char), target           :: prospino_dir_in
++    character*(500), pointer             :: f_prospino_dir_in
++    call c_f_pointer (c_loc(prospino_dir_in), f_prospino_dir_in)
++
++    ! set the global variable 'prospino_dir'
++    prospino_dir = f_prospino_dir_in
++
++  end subroutine PROSPINO_GB_INIT
++
+ end module xx_prospino_subroutine
+ 
+ 
+diff -rupN prospino_2.1_original/Xvital.f90 prospino_2.1_patched/Xvital.f90
+--- prospino_2.1_original/Xvital.f90	2014-10-15 19:43:18.000000000 +1000
++++ prospino_2.1_patched/Xvital.f90	2022-01-01 15:41:54.875041260 +1000
+@@ -69,4 +69,24 @@ module xx_public_variables   ! all kind
+ end module xx_public_variables
+ 
+ 
++! ===========================================================================================================
++module xx_GAMBIT_variables   ! Variables introduced by GAMBIT
++   use, intrinsic :: iso_c_binding
++   use xx_kinds
++   implicit none 
++
++   Type(c_funptr) :: errorhandler_cptr  ! Set by GAMBIT when the Prospino backend is initialized
++   character(len=500) :: prospino_dir   ! Set by GAMBIT when the Prospino backend is initialized
++
++   ! Define the interface for the error handler call-back routine.
++   Abstract Interface
++     Subroutine callback ()
++       Use, Intrinsic :: iso_c_binding
++     End Subroutine callback
++   End Interface
++
++   ! Fix the symbol name for the errorhandler_cptr function pointer
++   BIND(C, NAME="C_errorhandler_cptr") :: errorhandler_cptr
++
++end module xx_GAMBIT_variables
+ 

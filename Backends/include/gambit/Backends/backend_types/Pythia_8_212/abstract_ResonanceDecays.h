@@ -1,6 +1,9 @@
 #ifndef __abstract_ResonanceDecays_Pythia_8_212_h__
 #define __abstract_ResonanceDecays_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <vector>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
@@ -8,9 +11,6 @@
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Event_decl.h"
-#include <vector>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 

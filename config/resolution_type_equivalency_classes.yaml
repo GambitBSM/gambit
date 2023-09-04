@@ -28,6 +28,7 @@
 
 # String conveniences
 [std::string, str]
+[std::string, ::std::basic_string<char,std::char_traits<char>,std::allocator<char>>]
 ["std::pair<str, str>", sspair]
 
 # Floating point conveniences
@@ -60,15 +61,10 @@
 # Mathematica data types
 [void, MVoid]
 [int, MInteger]
-[const int, const MInteger]
 [double, MReal]
-[const double, const MReal]
 [bool, MBool]
-[const bool, const MBool]
 [char, MChar]
-[const char, const MChar]
 [std::string, MString]
-[const std::string, const MString]
 
 # Neutrino yield function pointer
 ["double(*)(double&, int&, void*)", nuyield_functype]

@@ -43,9 +43,9 @@
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/Elements/sminputs.hpp"
 #include "gambit/Elements/subspectrum.hpp"
-#include "gambit/Elements/slhaea_helpers.hpp"
+#include "gambit/Elements/slhaea_spec_helpers.hpp"
 #include "gambit/Models/partmap.hpp"
-
+#include "gambit/Models/safe_param_map.hpp"
 
 /// YAML overloads for mass cut and mass cut ratio constituents
 namespace YAML
@@ -129,7 +129,7 @@ namespace Gambit
          SubSpectrum* LE;
          SubSpectrum* HE;
          SMInputs SMINPUTS;
-         const std::map<str, safe_ptr<double> >* input_Param;
+         const std::map<str, safe_ptr<const double> >* input_Param;
          const mc_info* mass_cuts;
          const mr_info* mass_ratio_cuts;
          bool initialised;
@@ -150,14 +150,14 @@ namespace Gambit
          /// Default constructor
          Spectrum();
          /// Construct new object, cloning the SubSpectrum objects supplied and taking possession of them.
-         Spectrum(const SubSpectrum& le, const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<double> >* input_Param, const mc_info&, const mr_info&);
+         Spectrum(const SubSpectrum& le, const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* input_Param, const mc_info&, const mr_info&);
          /// Construct new object, wrapping existing SubSpectrum objects
          ///  Make sure the original objects don't get deleted before this wrapper does!
-         Spectrum(SubSpectrum* const le, SubSpectrum* const he, const SMInputs& smi, const std::map<str, safe_ptr<double> >* input_Param, const mc_info&, const mr_info&);
+         Spectrum(SubSpectrum* const le, SubSpectrum* const he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* input_Param, const mc_info&, const mr_info&);
 
          /// Construct new object, automatically creating an SMSimpleSpec as the LE subspectrum, and cloning the HE SubSpectrum object supplied and taking possession of it.
          /// (won't make a version of this taking a pointer, since this is an "advanced" task, let people use the full contructor to do it.)
-         Spectrum(const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<double> >* input_Param, const mc_info&, const mr_info&);
+         Spectrum(const SubSpectrum& he, const SMInputs& smi, const std::map<str, safe_ptr<const double> >* input_Param, const mc_info&, const mr_info&);
 
          /// Copy constructor, clones SubSpectrum objects.
          /// Make a non-const copy in order to use e.g. RunBothToScale function.
@@ -203,6 +203,8 @@ namespace Gambit
          double get(const Par::Tags partype, const std::string& mass) const;
          bool   has(const Par::Tags partype, const std::string& mass, const int index) const;
          double get(const Par::Tags partype, const std::string& mass, const int index) const;
+         bool   has(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const;
+         double get(const Par::Tags partype, const std::string& mass, const int index1, const int index2) const;
 
          /// @{ PDB getter/checker overloads
          bool   has(const Par::Tags partype, const int pdg_code, const int context) const;

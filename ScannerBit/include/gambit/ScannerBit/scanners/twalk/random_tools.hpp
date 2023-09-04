@@ -9,7 +9,7 @@ template <typename T>
 T *matrix(const int xN)
 {
      T *temp = new T[xN];
-     
+
      return temp;
 }
 
@@ -17,10 +17,10 @@ template <typename T>
 T **matrix(const int xN, const int yN)
 {
      T **temp = new T*[xN];
-     
+
      for (int i = 0; i < xN; i++)
           temp[i] = new T[yN];
-     
+
      return temp;
 }
 
@@ -28,7 +28,7 @@ template <typename T>
 T ***matrix(const int xN, const int yN, const int zN)
 {
      T ***temp = new T**[xN];
-     
+
      for (int i = 0; i < xN; i++)
      {
           temp[i] = new T*[yN];
@@ -53,14 +53,14 @@ template <typename T>
 T **matrix(const int xN, const int yN, T in)
 {
         T **temp = new T*[xN];
-     
+
         for (int i = 0; i < xN; i++)
         {
                 temp[i] = new T[yN];
                 for (int j = 0; j < yN; j++)
                         temp[i][j] = in;
         }
-     
+
         return temp;
 }
 
@@ -68,7 +68,7 @@ template <typename T>
 T ***matrix(const int xN, const int yN, const int zN, T in)
 {
         T ***temp = new T**[xN];
-     
+
         for (int i = 0; i < xN; i++)
         {
                 temp[i] = new T*[yN];
@@ -88,7 +88,7 @@ template <typename T>
         T *temp = new T[xN];
         for (int i = 0; i < xN; i++)
                 temp[i] = in[i];
-     
+
         return temp;
 }
 
@@ -96,14 +96,14 @@ template <typename T>
                 T **matrix(const int xN, const int yN, T **in)
 {
         T **temp = new T*[xN];
-     
+
         for (int i = 0; i < xN; i++)
         {
                 temp[i] = new T[yN];
                 for (int j = 0; j < yN; j++)
                         temp[i][j] = in[i][j];
         }
-     
+
         return temp;
 }
 
@@ -111,7 +111,7 @@ template <typename T>
                 T ***matrix(const int xN, const int yN, const int zN, T ***in)
 {
         T ***temp = new T**[xN];
-     
+
         for (int i = 0; i < xN; i++)
         {
                 temp[i] = new T*[yN];
@@ -138,7 +138,7 @@ void del(T **temp, int xN)
 {
      for (int i = 0; i < xN; i++)
           delete[] temp[i];
-     
+
      delete[] temp;
      temp = NULL;
 }
@@ -152,7 +152,7 @@ void del(T ***temp, int xN, int yN)
                delete[] temp[i][j];
           delete[] temp[i];
      }
-     
+
      delete[] temp;
      temp = NULL;
 }
@@ -167,23 +167,23 @@ class Cholesky
 {
     private:
         double **el;
-                
+
         protected:
                 int num;
-        
-        
+
+
     public:
         Cholesky(const int nin) : num(nin)
         {
             el = matrix <double> (num, num);
         }
-        
+
         Cholesky(double **a, const int nin) : num(nin)
         {
             el = matrix <double> (num, num);
             double sum = 0;
             int i, j, k;
-            
+
             for (i = 0; i < num; i++)
                 for (j = 0; j < num; j++)
                     el[i][j] = a[i][j];
@@ -211,12 +211,12 @@ class Cholesky
                 for (j = 0; j < i; j++)
                     el[j][i] = 0.0;
         }
-        
+
         bool EnterMatM(double **a, const int min)
         {
             double sum = 0;
             int i, j, k;
-            
+
             for (i = 0; i < num; i++)
             {
                 for (j = 0; j < num; j++)
@@ -226,7 +226,7 @@ class Cholesky
                 }
                 //out1 << endl;
             }
-            
+
             if (num >= min)
             {
                 k = min -1;
@@ -237,7 +237,7 @@ class Cholesky
                         el[i][j] = el[j][i] = 0.0;
                 }
             }
-            
+
             for (i = 0; i < num; i++)
             {
                 for (j = i; j < num; j++)
@@ -257,7 +257,7 @@ class Cholesky
             for (i = 0; i < num; i++)
                 for (j = 0; j < i; j++)
                     el[j][i] = 0.0;
-                
+
 //                         ofstream out2("cov2.dat");
 //             double **ct = matrix <double> (n, n, 0.0);
 //             for (i = 0; i < num; i++)
@@ -272,15 +272,15 @@ class Cholesky
 //             }
 //             cout << "finished" << endl;
 //            getchar();
-                
+
             return false;
         }
-        
+
         bool EnterMat(double **a)
         {
             double sum = 0;
             int i, j, k;
-            
+
             for (i = 0; i < num; i++)
             {
                 for (j = 0; j < num; j++)
@@ -288,7 +288,7 @@ class Cholesky
                     el[i][j] = a[i][j];
                 }
             }
-            
+
             for (i = 0; i < num; i++)
             {
                 for (j = i; j < num; j++)
@@ -308,15 +308,15 @@ class Cholesky
             for (i = 0; i < num; i++)
                 for (j = 0; j < i; j++)
                     el[j][i] = 0.0;
-                                
+
                         return true;
         }
-        
+
                 bool EnterMat(const std::vector<std::vector<double>> &a)
                 {
                         double sum = 0;
                         int i, j, k;
-                        
+
                         for (i = 0; i < num; i++)
                         {
                                 for (j = 0; j < num; j++)
@@ -324,7 +324,7 @@ class Cholesky
                                         el[i][j] = a[i][j];
                                 }
                         }
-                        
+
                         for (i = 0; i < num; i++)
                         {
                                 for (j = i; j < num; j++)
@@ -344,10 +344,10 @@ class Cholesky
                         for (i = 0; i < num; i++)
                                 for (j = 0; j < i; j++)
                                         el[j][i] = 0.0;
-                                
+
                         return true;
                 }
-        
+
         void EnterMat(double **a, int nin)
         {
             del <double> (el, num);
@@ -355,7 +355,7 @@ class Cholesky
             el = matrix <double> (num, num);
             EnterMat(a);
         }
-        
+
         void ElMult (double *y, double *b)
         {
             int i, j;
@@ -366,7 +366,7 @@ class Cholesky
                     b[i] += el[i][j]*y[j];
             }
         }
-        
+
         void ElMult (double *y)
         {
             int i, j;
@@ -385,19 +385,19 @@ class Cholesky
             }
             delete[] b;
         }
-        
+
         void Solve (double *b, double *x)
         {
             int i, k;
             double sum;
-            
+
             for (i = 0; i < num; i++)
             {
                 for (sum = b[i], k=i-1; k >=0; k--)
                     sum -= el[i][k]*x[k];
                 x[i]=sum/el[i][i];
             }
-            
+
             for (i = num-1; i >=0; i--)
             {
                 for (sum = x[i], k=i+1; k<num; k++)
@@ -405,55 +405,55 @@ class Cholesky
                 x[i]=sum/el[i][i];
             }
         }
-        
+
         double Square(double *y, double *y0)
         {
             int i, j;
             double sum;
             double *x = new double[num];
-            
+
             for (i = 0; i < num; i++)
             {
                 for (sum = (y[i]-y0[i]), j=0; j < i; j++)
                     sum -= el[i][j]*x[j];
                 x[i]=sum/el[i][i];
             }
-            
+
             sum = 0.0;
             for (i = 0; i < num; i++)
                 sum += x[i]*x[i];
-            
+
             delete[] x;
-            
+
             return sum;
         }
-        
+
         double Square(double *y, double *y0, int *map)
         {
             int i, j;
             double sum;
             double *x = new double[num];
-            
+
             for (i = 0; i < num; i++)
             {
                 for (sum = (y[map[i]]-y0[i]), j=0; j < i; j++)
                     sum -= el[i][j]*x[j];
                 x[i]=sum/el[i][i];
             }
-            
+
             sum = 0.0;
             for (i = 0; i < num; i++)
                 sum += x[i]*x[i];
-            
+
             delete[] x;
-            
+
             return sum;
         }
-        
+
         void Inverse(double **ainv)
         {
             double sum;
-            
+
             for (int i = 0; i < num; i++)
                 for (int j = 0; j <= i; j++)
                 {
@@ -490,7 +490,7 @@ class Ran_old
 {
     private:
         unsigned long long int u, v, w;
-        
+
     public:
         Ran_old(unsigned long long int j) : v(4101842887655102017LL), w(1)
         {
@@ -531,7 +531,7 @@ class ExponDev : public Ran
                 u = Doub();
             }
             while(u == 0);
-            
+
             return -log(u)/beta;
         }
 };
@@ -540,7 +540,7 @@ class NormalDev : public Ran
 {
     private:
         double mu, sig;
-        
+
     public:
         NormalDev(double mmu, double ssig, unsigned long long i) : Ran(i), mu(mmu), sig(ssig){}
         double  Dev()
@@ -555,7 +555,7 @@ class NormalDev : public Ran
                 q = x*x + y*(0.19600*y-0.25472*x);
             }
             while(q > 0.27597 && (q > 0.27846 || v*v > -4.0*log(u)*u*u));
-            
+
             return mu + sig*v/u;
         }
 };
@@ -563,7 +563,7 @@ class NormalDev : public Ran
 class BasicDevs : public Ran
 {
     private:
-        
+
     public:
         BasicDevs(unsigned long long i) : Ran(i) {}
 
@@ -579,10 +579,10 @@ class BasicDevs : public Ran
                 q = x*x + y*(0.19600*y-0.25472*x);
             }
             while(q > 0.27597 && (q > 0.27846 || v*v > -4.0*log(u)*u*u));
-            
+
             return v/u;
         }
-        
+
         double ExpDev()
         {
             double u;
@@ -591,7 +591,7 @@ class BasicDevs : public Ran
                 u = Doub();
             }
             while(u == 0);
-            
+
             return -log(u);
         }
 };
@@ -602,7 +602,7 @@ class MultiNormalDev : public Ran, public Cholesky
         int mm;
         double f;
         double *spt;
-        
+
     public:
         MultiNormalDev (double **vvar, double fin, unsigned long long int j, int nin) : Ran(j), Cholesky(vvar, nin), mm(nin), f(fin)
         {
@@ -659,20 +659,20 @@ class AdvanceDevs : public BasicDevs, public Cholesky
 {
     private:
         double fac;
-        
+
     public:
         AdvanceDevs(int nin, double din, unsigned long long iin) :  BasicDevs(iin), Cholesky(nin), fac(din)
         {
         }
-        
+
         AdvanceDevs(double **vvar, const int nin, double din, unsigned long long iin) :  BasicDevs(iin), Cholesky(vvar, nin), fac(din)
         {
         }
-        
+
         double MultiDevDist()
         {
             double dist = 0.0;
-            
+
             if(Doub() < 0.33)
                 dist = ExpDev();
             else
@@ -685,15 +685,15 @@ class AdvanceDevs : public BasicDevs, public Cholesky
                 }
                 dist = sqrt(dist/2.0);
             }
-            
+
             return fac*dist;
         }
-        
+
         double MultiDevPDF(double r, int dim)
         {
             return -(2.0 - dim)*std::log(r/fac) - r*r/fac/fac/2.0;
         }
-        
+
         void MultiDev(double *pin, double *p0)
         {
             int i;
@@ -707,7 +707,7 @@ class AdvanceDevs : public BasicDevs, public Cholesky
                 norm += vec[i]*vec[i];
             }
             norm = sqrt(norm);
-            
+
             if(Doub() < 0.33)
                 dist = ExpDev();
             else
@@ -729,7 +729,7 @@ class AdvanceDevs : public BasicDevs, public Cholesky
 
             return;
         }
-        
+
         void MultiDev(double **cvar, double *pin, double *p0)
         {
             int i;
@@ -743,7 +743,7 @@ class AdvanceDevs : public BasicDevs, public Cholesky
                 norm += vec[i]*vec[i];
             }
             norm = sqrt(norm);
-            
+
             if(Doub() < 0.33)
                 dist = ExpDev();
             else
@@ -766,12 +766,12 @@ class AdvanceDevs : public BasicDevs, public Cholesky
 
             return;
         }
-        
+
         void EllipseDev(double *pin, double *p0, double fin)
         {
             int i;
             double dist = 0.0;
-            
+
             double vec[num];
             double norm = 0.0;
             for (i = 0; i < num; i++)
@@ -780,9 +780,9 @@ class AdvanceDevs : public BasicDevs, public Cholesky
                 norm += vec[i]*vec[i];
             }
             norm = sqrt(norm);
-            
+
             dist = pow(Doub(), 1.0/num);
-            
+
             ElMult(vec, pin);
             for (i = 0; i < num; i++)
             {
@@ -791,7 +791,7 @@ class AdvanceDevs : public BasicDevs, public Cholesky
 
             return;
         }
-        
+
         void EllipseDev(double **cvar, double *pin, double *p0, double fin)
         {
             int i;
@@ -805,9 +805,9 @@ class AdvanceDevs : public BasicDevs, public Cholesky
                 norm += vec[i]*vec[i];
             }
             norm = sqrt(norm);
-            
+
             dist = pow(Doub(), 1.0/num);
-            
+
             EnterMat(cvar);
             ElMult(vec, pin);
             for (i = 0; i < num; i++)
@@ -828,11 +828,11 @@ private:
     double **endEndVec;
     double **sEndVec;
     int proj, extra;
-    double alim, alimt;
+    double alimt;
     double sqrtAlim, powAlim, ratioAlim, ratioAlimt;
-        
+
 public:
-    RandomPlane(const int projin, const int nin, const double din, const double alim, const double alimt, unsigned long long iin) : AdvanceDevs(nin, din, iin), proj(projin), alim(alim), alimt(alimt)
+    RandomPlane(const int projin, const int nin, const double din, const double alim, const double alimt, unsigned long long iin) : AdvanceDevs(nin, din, iin), proj(projin), alimt(alimt)
     {
         rotVec = matrix <double> (nin, nin);
         RandRot();
@@ -848,7 +848,7 @@ public:
         ratioAlim = vol1/(vol1 + vol2);
         ratioAlimt = (alimt - 1.0)/(2.0*alimt + proj - 2.0);
     }
-        
+
     double WalkDev()
     {
         if (Doub() <= ratioAlim)
@@ -856,7 +856,7 @@ public:
         else
             return pow(powAlim + Doub()*(1.0 - powAlim), 1.0/(proj - 0.5));
     }
-        
+
     double TransDev()
     {
         if (Doub() < ratioAlimt)
@@ -868,7 +868,7 @@ public:
             return -pow(Doub(), 1.0/(1.0 - alimt));
         }
     }
-        
+
     double KWalkDev()
     {
         if (Doub() < 0.5)
@@ -894,13 +894,13 @@ public:
             }
         }
     }
-        
+
     bool KWalkDev(double &Z)
     {
         if (Doub() < 0.5)
         {
             Z = SQ(1.0/sqrtAlim + Doub()*(sqrtAlim - 1.0/sqrtAlim));
-            
+
             return pow(Z, proj - 1) > Doub();
         }
         else
@@ -913,26 +913,26 @@ public:
             {
                 Z = -pow(Doub(), 1.0/(1.0 - alimt));
             }
-            
+
             return pow(Z, proj - 2) > Doub();
         }
     }
-        
+
     double WalkDev(double *ptrOut, double *ptr, double *ptr0)
     {
         double Z;
 
         Z = SQ(1.0/sqrtAlim + Doub()*(sqrtAlim - 1.0/sqrtAlim));
-        
+
         Mult(ptrOut, ptr, ptr0, Z);
-        
+
         return (proj - 1.0)*log(Z);
     }
-    
+
     double TransDev(double *ptrOut, double *ptr, double *ptr0)
     {
         double Z;
-        
+
         if (Doub() < (alimt - 1.0)/(2.0*alimt))
         {
             Z = -pow(Doub(), 1.0/(alimt + 1.0));
@@ -941,12 +941,12 @@ public:
         {
             Z = -pow(Doub(), 1.0/(1.0 - alimt));
         }
-        
+
         Mult(ptrOut, ptr, ptr0, Z);
-        
+
         return (proj - 2.0)*log(-Z);
     }
-        
+
     void Mult2(double *ptrOut, double *ptr, double *ptr0, const double Z)
     {
         std::vector<double> z(proj);
@@ -958,7 +958,7 @@ public:
                 z[i] += (Z-1.0)*(ptr[j] - ptr0[j])*currentVec[i][j];
             }
         }
-        
+
         for (int j = 0; j < num; j++)
         {
             ptrOut[j] = ptr[j];
@@ -980,11 +980,11 @@ public:
             RandRot(extra);
         }
     }
-        
+
     void Mult(double *ptrOut, double *ptr, double *ptr0, const double Z)
     {
         RandRot(0, proj);
-        
+
         std::vector<double> z(proj);
         for (int i = 0; i < proj; i++)
         {
@@ -994,7 +994,7 @@ public:
                 z[i] += (Z-1.0)*(ptr[j] - ptr0[j])*currentVec[i][j];
             }
         }
-        
+
         for (int j = 0; j < num; j++)
         {
             ptrOut[j] = ptr[j];
@@ -1004,13 +1004,13 @@ public:
             }
         }
     }
-    
+
     void HopBlow(double *ptrOut, double *ptrIn, double *ptr, double *ptr0)
     {
         double max = 0;
-        
+
         RandRot(0, proj);
-        
+
         std::vector<double> z(proj);
         for (int i = 0; i < proj; i++)
         {
@@ -1020,16 +1020,16 @@ public:
                 z[i] += (ptr[j] - ptr0[j])*currentVec[i][j];
             }
         }
-        
+
         for (auto &&elem : z)
         {
             double pt = std::abs(elem);
             if (pt > max)
                 max = pt;
         }
-        
+
         double r = MultiDevDist();
-        
+
         for (int j = 0; j < num; j++)
         {
             ptrOut[j] = ptrIn[j];
@@ -1039,13 +1039,13 @@ public:
             }
         }
     }
-    
+
     void RandRot(const int start = 0)
     {
         double temp;
         std::vector<double> vec(num);
         int i, j, k;
-                
+
         for (i = start; i < num; i++)
         {
             for (j = 0; j < num; j++)
@@ -1065,16 +1065,16 @@ public:
             for (j = 0; j < num; j++)
                 rotVec[i][j] = vec[j]/temp;
         }
-        
+
         currentVec = rotVec;
     }
-        
+
     void RandRot(const int start, const int end)
     {
         double temp;
         std::vector<double> vec(num);
         int i, j, k;
-                
+
         for (i = start; i < end; i++)
         {
             for (j = 0; j < num; j++)
@@ -1094,12 +1094,12 @@ public:
             for (j = 0; j < num; j++)
                 rotVec[i][j] = vec[j]/temp;
         }
-        
+
         currentVec = rotVec;
     }
-    
+
     int Dim() const {return proj;}
-    
+
     ~RandomPlane()
     {
         del <double> (rotVec, num);
@@ -1110,7 +1110,7 @@ class RandomBasis : public BasicDevs
 {
     private:
         double **rotVec;
-        
+
     protected:
         int num;
         double **currentVec;
@@ -1123,7 +1123,7 @@ class RandomBasis : public BasicDevs
             RandRot();
             endVec = currentVec + num;
         }
-        
+
         void ChangeDim(const int nin)
         {
             del <double> (rotVec, num);
@@ -1132,13 +1132,13 @@ class RandomBasis : public BasicDevs
             RandRot();
             endVec = currentVec + num;
         }
-            
+
         void RandRot()
         {
             double temp;
             double vec[num];
             int i, j, k;
-                
+
             for (i = 0; i < num; i++)
             {
                 for (j = 0; j < num; j++)
@@ -1158,15 +1158,15 @@ class RandomBasis : public BasicDevs
                 for (j = 0; j < num; j++)
                     rotVec[i][j] = vec[j]/temp;
             }
-            
+
             currentVec = rotVec;
         }
-            
+
         double RanMult(double **cin)
         {
             int i, j;
             double temp = 0.0;
-            
+
             for (i = 0; i < num; i++)
             {
                 for (j = 0; j < num; j++)
@@ -1176,54 +1176,54 @@ class RandomBasis : public BasicDevs
             }
             return temp;
         }
-            
+
         void RanMult(const double in, double *out)
         {
             int i;
             double *ptr = *currentVec;
-            
+
             for (i = 0; i < num; i++)
             {
                 *out++ = in*(*ptr++);
-                    
+
             }
             return;
         }
-            
+
         void RanMult(double *in, const double w, double *out)
         {
             int i;
             double *ptr = *currentVec;
-            
+
             for (i = 0; i < num; i++)
             {
                 *out++ = *in++ + w*(*ptr++);
             }
             return;
         }
-            
+
         double Mag(double *a, double *a0)
         {
             double temp = 0.0;
             int i;
             double *ptr = *currentVec;
-            
+
             for (i = 0; i < num; i++)
                 temp += (*a++-*a0++)*(*ptr++);
-                
+
             return temp;
         }
-            
+
         void Adjust(double *a, const double lim, const int iin)
         {
             double temp = (lim - a[iin])/(*currentVec)[iin];
             double *ptr = *currentVec;
-            
+
             for (int i = 0; i < num; i++)
                 a[i] += temp*(*ptr++);
             return;
         }
-            
+
         virtual void operator ++ (int)
         {
             if (++currentVec == endVec)
@@ -1231,7 +1231,7 @@ class RandomBasis : public BasicDevs
                 RandRot();
             }
         }
-        
+
         virtual ~RandomBasis()
         {
             del <double> (rotVec, num);
@@ -1242,7 +1242,7 @@ class TransformRandomBasis : public RandomBasis, public Cholesky
 {
     private:
                 int num;
-                
+
     public:
         TransformRandomBasis(double **vvar, int nin, unsigned long long iin) : RandomBasis(nin, iin), Cholesky(vvar, nin), num(nin)
         {
@@ -1252,7 +1252,7 @@ class TransformRandomBasis : public RandomBasis, public Cholesky
                 ElMult(*ptr++);
             }
         }
-    
+
         void operator ++ (int)
         {
             if (++currentVec == endVec)
@@ -1272,16 +1272,16 @@ class MultiNormDev : public RandomBasis, public Cholesky
     private:
         double fac;
                 int num;
-        
+
     public:
         MultiNormDev(int nin, double din, unsigned long long iin) : RandomBasis(nin, iin), Cholesky(nin), fac(din), num(nin)
         {
         }
-        
+
         MultiNormDev(double **vvar, const int nin, double din, unsigned long long iin) : RandomBasis(nin, iin), Cholesky(vvar, nin), fac(din), num(nin)
         {
         }
-        
+
         void MultiDev(double *pin, double *p0)
         {
             int i;
@@ -1309,7 +1309,7 @@ class MultiNormDev : public RandomBasis, public Cholesky
 
             return;
         }
-        
+
         void MultiDev(double **cvar, double *pin, double *p0)
         {
             int i;
@@ -1338,7 +1338,7 @@ class MultiNormDev : public RandomBasis, public Cholesky
 
             return;
         }
-        
+
         void MultiDevGauss(double **cvar, double *pin, double *p0)
         {
             int i;
@@ -1351,7 +1351,7 @@ class MultiNormDev : public RandomBasis, public Cholesky
                 dist += temp*temp;
             }
             dist = sqrt(dist/2.0);
-            
+
 
             EnterMat(cvar);
             ElMult(*currentVec, pin);
@@ -1363,14 +1363,14 @@ class MultiNormDev : public RandomBasis, public Cholesky
 
             return;
         }
-        
+
         void EllipseDev(double *pin, double *p0, double fin)
         {
             int i;
             double dist = 0.0;
 
             dist = pow(Doub(), 1.0/num);
-            
+
             ElMult(*currentVec, pin);
             for (i = 0; i < num; i++)
             {
@@ -1380,14 +1380,14 @@ class MultiNormDev : public RandomBasis, public Cholesky
 
             return;
         }
-        
+
         void EllipseDev(double **cvar, double *pin, double *p0, double fin)
         {
             int i;
             double dist = 0.0;
 
             dist = pow(Doub(), 1.0/num);
-            
+
             EnterMat(cvar);
             ElMult(*currentVec, pin);
             for (i = 0; i < num; i++)

@@ -57,13 +57,15 @@ def main(argv):
       elif opt in ('-x','--exclude-backends'):
         exclude_backends.update(neatsplit(",",arg))
 
-    # Get list of frontend header files to include in backend_rollcall.hpp
-    frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
     # Get list of backend type header files
     backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","backend type",set([])))
     bossed_backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed type",set([])))
+    # Remove bossed backends from list of excluded backends
+    exclude_backends = set([be for be in exclude_backends if not any([excluded(bossed_be, [be]) for bossed_be in bossed_backend_type_headers])])
+    # Get list of frontend header files to include in backend_rollcall.hpp
+    frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
 
-    if verbose: 
+    if verbose:
         print("Frontend headers identified:")
         for h in frontend_headers:
             print('  gambit/Backends/frontends/'+h)

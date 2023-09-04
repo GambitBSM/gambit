@@ -49,31 +49,31 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->gauss2();
         }
         
-        inline int Rndm::pick(const ::std::vector<double, std::allocator<double> >& prob)
+        inline int Rndm::pick(const std::vector<double>& prob)
         {
             return get_BEptr()->pick(prob);
         }
         
-        inline bool Rndm::dumpState(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName)
+        inline bool Rndm::dumpState(std::string fileName)
         {
             return get_BEptr()->dumpState(fileName);
         }
         
-        inline bool Rndm::readState(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName)
+        inline bool Rndm::readState(std::string fileName)
         {
             return get_BEptr()->readState(fileName);
         }
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::Rndm::Rndm() :
+        inline Rndm::Rndm() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Rndm::Rndm(int seedIn) :
+        inline Rndm::Rndm(int seedIn) :
             WrapperBase(__factory1(seedIn))
         {
             get_BEptr()->set_wptr(this);
@@ -81,7 +81,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Rndm::Rndm(Pythia8::Abstract_Rndm* in) :
+        inline Rndm::Rndm(Abstract_Rndm* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -89,7 +89,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Rndm::Rndm(const Rndm& in) :
+        inline Rndm::Rndm(const Rndm& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -97,7 +97,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Rndm& Rndm::operator=(const Rndm& in)
+        inline Rndm& Rndm::operator=(const Rndm& in)
         {
             if (this != &in)
             {
@@ -108,7 +108,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Rndm::~Rndm()
+        inline Rndm::~Rndm()
         {
             if (get_BEptr() != 0)
             {
@@ -123,9 +123,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Rndm* Pythia8::Rndm::get_BEptr() const
+        inline Abstract_Rndm* Pythia8::Rndm::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Rndm*>(BEptr);
+            return dynamic_cast<Abstract_Rndm*>(BEptr);
         }
     }
     

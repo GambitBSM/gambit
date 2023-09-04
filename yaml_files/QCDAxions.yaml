@@ -1,5 +1,5 @@
 # An example YAML file for QCD axion scans
-# Author: Sebastian Hoof (s.hoof15@imperial.ac.uk)
+# Author: Sebastian Hoof (hoof@uni-goettingen.de)
 
 #################################
  # Input parameter declarations
@@ -28,6 +28,7 @@ Parameters:
     Caee:
       range: [1.0E-4, 1.0E4]
       prior_type: log
+    CaN : 0.0
     thetai:
       range: [-3.14159, 3.14159]
       prior_type: flat
@@ -43,6 +44,12 @@ Parameters:
     alpha: 1
     beta: 3
     gamma: 1
+  LCDM:
+    omega_b:   0.02237
+    omega_cdm: 0.1200
+    H0:        67.36
+    tau_reio:  0.0544
+    T_cmb:     2.72548
 
 #################################
  # Prior setup
@@ -65,7 +72,7 @@ Printer:
 #################################
 
 Scanner:
-  use_scanner: de
+  use_scanner: random
 
   scanners:
     mn:
@@ -85,6 +92,10 @@ Scanner:
       plugin: twalk
       like: LogLike
       sqrtR: 1.01
+    random:
+      plugin: random
+      point_number: 2
+      like:  LogLike
 
 #################################
  # likelihoods and observables
@@ -98,21 +109,15 @@ ObsLikes:
     purpose: LogLike
     function: lnL_oh2_upperlimit
   # Experimental searches
-  - capability: lnL_CAST2007
-    purpose: LogLike
-  - capability: lnL_CAST2017
+  - !include_all
+    capability: lnL_CAST.*
     purpose: LogLike
   - capability: lnL_ALPS1
     purpose: LogLike
   - capability: lnL_SN1987A
     purpose: LogLike
-  - capability: lnL_Haloscope_ADMX1
-    purpose: LogLike
-  - capability: lnL_Haloscope_ADMX2
-    purpose: LogLike
-  - capability: lnL_Haloscope_RBF
-    purpose: LogLike
-  - capability: lnL_Haloscope_UF
+  - !include_all
+    capability: lnL_Haloscope.*
     purpose: LogLike
   - capability: lnL_HESS_GCMF
     purpose: LogLike
@@ -126,13 +131,8 @@ ObsLikes:
   - capability: QCDAxion_AxionPhotonConstant
     purpose: LogLike
   # Cooling-related likelihoods
-  - capability: lnL_WDVar_G117B15A
-    purpose: LogLike
-  - capability: lnL_WDVar_R548
-    purpose: LogLike
-  - capability: lnL_WDVar_PG1351489
-    purpose: LogLike
-  - capability: lnL_WDVar_L192
+  - !include_all
+    capability: lnL_WDVar.*
     purpose: LogLike
 
   # Observables

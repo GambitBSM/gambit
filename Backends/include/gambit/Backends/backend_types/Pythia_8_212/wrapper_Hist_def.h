@@ -14,22 +14,22 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn)
+        inline void Hist::book(std::string titleIn, int nBinIn, double xMinIn, double xMaxIn)
         {
             get_BEptr()->book(titleIn, nBinIn, xMinIn, xMaxIn);
         }
         
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn)
+        inline void Hist::book(std::string titleIn, int nBinIn, double xMinIn)
         {
             get_BEptr()->book__BOSS(titleIn, nBinIn, xMinIn);
         }
         
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn)
+        inline void Hist::book(std::string titleIn, int nBinIn)
         {
             get_BEptr()->book__BOSS(titleIn, nBinIn);
         }
         
-        inline void Hist::book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn)
+        inline void Hist::book(std::string titleIn)
         {
             get_BEptr()->book__BOSS(titleIn);
         }
@@ -39,7 +39,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->book__BOSS();
         }
         
-        inline void Hist::name(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn)
+        inline void Hist::name(std::string titleIn)
         {
             get_BEptr()->name(titleIn);
         }
@@ -64,17 +64,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->fill__BOSS(x);
         }
         
-        inline void Hist::table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder, bool xMidBin) const
+        inline void Hist::table(std::ostream& os, bool printOverUnder, bool xMidBin) const
         {
             get_BEptr()->table(os, printOverUnder, xMidBin);
         }
         
-        inline void Hist::table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder) const
+        inline void Hist::table(std::ostream& os, bool printOverUnder) const
         {
             get_BEptr()->table__BOSS(os, printOverUnder);
         }
         
-        inline void Hist::table(::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Hist::table(std::ostream& os) const
         {
             get_BEptr()->table__BOSS(os);
         }
@@ -84,17 +84,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->table__BOSS();
         }
         
-        inline void Hist::table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder, bool xMidBin) const
+        inline void Hist::table(std::string fileName, bool printOverUnder, bool xMidBin) const
         {
             get_BEptr()->table(fileName, printOverUnder, xMidBin);
         }
         
-        inline void Hist::table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder) const
+        inline void Hist::table(std::string fileName, bool printOverUnder) const
         {
             get_BEptr()->table__BOSS(fileName, printOverUnder);
         }
         
-        inline void Hist::table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName) const
+        inline void Hist::table(std::string fileName) const
         {
             get_BEptr()->table__BOSS(fileName);
         }
@@ -171,42 +171,42 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::Hist::Hist() :
+        inline Hist::Hist() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn) :
+        inline Hist::Hist(std::string titleIn, int nBinIn, double xMinIn, double xMaxIn) :
             WrapperBase(__factory1(titleIn, nBinIn, xMinIn, xMaxIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn) :
+        inline Hist::Hist(std::string titleIn, int nBinIn, double xMinIn) :
             WrapperBase(__factory2(titleIn, nBinIn, xMinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn) :
+        inline Hist::Hist(std::string titleIn, int nBinIn) :
             WrapperBase(__factory3(titleIn, nBinIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn) :
+        inline Hist::Hist(std::string titleIn) :
             WrapperBase(__factory4(titleIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Hist::Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, const Pythia8::Hist& h) :
+        inline Hist::Hist(std::string titleIn, const Pythia8::Hist& h) :
             WrapperBase(__factory5(titleIn, h))
         {
             get_BEptr()->set_wptr(this);
@@ -214,7 +214,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Hist::Hist(Pythia8::Abstract_Hist* in) :
+        inline Hist::Hist(Abstract_Hist* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -222,7 +222,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Hist::Hist(const Hist& in) :
+        inline Hist::Hist(const Hist& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -230,7 +230,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Hist& Hist::operator=(const Hist& in)
+        inline Hist& Hist::operator=(const Hist& in)
         {
             if (this != &in)
             {
@@ -241,7 +241,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Hist::~Hist()
+        inline Hist::~Hist()
         {
             if (get_BEptr() != 0)
             {
@@ -256,9 +256,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Hist* Pythia8::Hist::get_BEptr() const
+        inline Abstract_Hist* Pythia8::Hist::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Hist*>(BEptr);
+            return dynamic_cast<Abstract_Hist*>(BEptr);
         }
     }
     

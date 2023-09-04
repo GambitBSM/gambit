@@ -69,7 +69,7 @@ namespace Gambit
 
 
       // Convert between mass and flavour eigenstate identifiers
-      std::string str_flav_to_mass(std::string flav)
+      std::string str_flav_to_mass(const std::string& flav)
       {
         if (flav=="e+") return "e+_1";
         if (flav=="mu+") return "e+_2";
@@ -92,7 +92,7 @@ namespace Gambit
         return flav;
       }
 
-      std::string str_mass_to_flav(std::string mass)
+      std::string str_mass_to_flav(const std::string& mass)
       {
         if (mass=="e+_1"   ) return "e+";
         if (mass=="e+_2"   ) return "mu+";

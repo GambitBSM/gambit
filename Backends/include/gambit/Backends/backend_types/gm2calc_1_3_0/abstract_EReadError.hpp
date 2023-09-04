@@ -1,13 +1,13 @@
 #ifndef __abstract_EReadError_gm2calc_1_3_0_hpp__
 #define __abstract_EReadError_gm2calc_1_3_0_hpp__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hpp"
 #include "forward_decls_wrapper_classes.hpp"
-#include <string>
 #include "wrapper_Error_decl.hpp"
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -21,7 +21,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > what() const =0;
+            virtual ::std::string what() const =0;
    
          public:
             using gm2calc::Abstract_Error::pointer_assign__BOSS;

@@ -94,7 +94,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::AlphaStrong::AlphaStrong() :
+        inline AlphaStrong::AlphaStrong() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -102,7 +102,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::AlphaStrong::AlphaStrong(Pythia8::Abstract_AlphaStrong* in) :
+        inline AlphaStrong::AlphaStrong(Abstract_AlphaStrong* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -110,7 +110,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::AlphaStrong::AlphaStrong(const AlphaStrong& in) :
+        inline AlphaStrong::AlphaStrong(const AlphaStrong& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -118,7 +118,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::AlphaStrong& AlphaStrong::operator=(const AlphaStrong& in)
+        inline AlphaStrong& AlphaStrong::operator=(const AlphaStrong& in)
         {
             if (this != &in)
             {
@@ -129,7 +129,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::AlphaStrong::~AlphaStrong()
+        inline AlphaStrong::~AlphaStrong()
         {
             if (get_BEptr() != 0)
             {
@@ -144,9 +144,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_AlphaStrong* Pythia8::AlphaStrong::get_BEptr() const
+        inline Abstract_AlphaStrong* Pythia8::AlphaStrong::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_AlphaStrong*>(BEptr);
+            return dynamic_cast<Abstract_AlphaStrong*>(BEptr);
         }
     }
     

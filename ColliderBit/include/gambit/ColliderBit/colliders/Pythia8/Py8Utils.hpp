@@ -22,11 +22,15 @@
 #include "HEPUtils/FastJet.h"
 #include "MCUtils/PIDUtils.h"
 
+//#define ELECTRON_PARENTAGE_DEBUG_TWO
+
 namespace Gambit
 {
 
   namespace ColliderBit
   {
+
+
 
     /// @name Converters to/from Pythia8's native 4-vector
     ///@{
@@ -94,7 +98,9 @@ namespace Gambit
       const auto& p = evt[n];
       if (p.isHadron()) return true;
       if (p.isParton()) return false; // stop the walking at the end of the hadron level
-      for (int m : p.motherList()) {
+
+      for (int m : p.motherList())
+      {
         if (fromHadron(m, evt)) return true;
       }
       return false;
@@ -114,6 +120,9 @@ namespace Gambit
       }
       return true;
     }
+
+
+
 
 
     template<typename EventT>

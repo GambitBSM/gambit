@@ -21,13 +21,13 @@
 ///        are here. */
 ///     mylock.release_lock();
 ///   }
-///   /* If not already done, lock is automatically 
+///   /* If not already done, lock is automatically
 ///      released when 'mylock' is destructed */
 ///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Ben Farmer
 ///          (ben.farmer@gmail.com)
 ///  \date 2016 Feb
@@ -49,11 +49,6 @@ namespace Gambit
       class FileLock
       {
         private:
-          /// Static variable for the lock-file prefix path, i.e. where to store the lock file
-          static const std::string lock_prefix;
-
-          /// Static variable for the lock-file extension
-          static const std::string lock_suffix;
 
           /// Name for the managed lock file
           const std::string my_lock_fname;
@@ -67,9 +62,15 @@ namespace Gambit
           /// Bool to indicate that hard errors should be thrown rather than gambit errors (e.g. for use in loggers)
           bool hard_errors;
 
+          /// Bool to indicate if the file has the ability to be exhaustible
+          bool exhaustible;
+
+          /// Bool to indicate whether the lock has been exhausted or not
+          bool exhausted_lock;
+
         public:
           /// Constructor
-          FileLock(const std::string& fname, const bool harderrs=false);
+          FileLock(const std::string& fname, const bool is_exhaustible=false, const bool harderrs=false);
 
           /// Destructor
           /// Closing the file descriptor will automatically release any lock we might have
@@ -80,11 +81,33 @@ namespace Gambit
 
           /// Release a lock (error if no lock held)
           void release_lock();
- 
+
           /// Getter for lockfile name
           const std::string& get_filename() const;
 
-      }; // end class FileLock
+          /// Check if lock is exhausted
+          bool exhausted();
+      };
+
+
+      /// Class to manage a process lock, using a file
+      class ProcessLock : public FileLock
+      {
+        private:
+          /// Static variable for the lock-file prefix path, i.e. where to store the lock file
+          static const std::string lock_prefix;
+
+          /// Static variable for the lock-file extension
+          static const std::string lock_suffix;
+
+        public:
+          /// Constructor
+          ProcessLock(const std::string& fname, const bool is_exhaustible=true, const bool harderrs=false);
+
+          /// Clean up existing process locks
+          static void clean_locks();
+      };
+
    }
 }
 

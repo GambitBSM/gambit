@@ -19,18 +19,18 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_DecayChannel* (*__factory0)(int, double, int, int, int, int, int, int, int, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory1)(int, double, int, int, int, int, int, int, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory2)(int, double, int, int, int, int, int, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory3)(int, double, int, int, int, int, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory4)(int, double, int, int, int, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory5)(int, double, int, int, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory6)(int, double, int, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory7)(int, double, int, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory8)(int, double, int);
-                static Pythia8::Abstract_DecayChannel* (*__factory9)(int, double);
-                static Pythia8::Abstract_DecayChannel* (*__factory10)(int);
-                static Pythia8::Abstract_DecayChannel* (*__factory11)();
+                static Abstract_DecayChannel* (*__factory0)(int, double, int, int, int, int, int, int, int, int, int);
+                static Abstract_DecayChannel* (*__factory1)(int, double, int, int, int, int, int, int, int, int);
+                static Abstract_DecayChannel* (*__factory2)(int, double, int, int, int, int, int, int, int);
+                static Abstract_DecayChannel* (*__factory3)(int, double, int, int, int, int, int, int);
+                static Abstract_DecayChannel* (*__factory4)(int, double, int, int, int, int, int);
+                static Abstract_DecayChannel* (*__factory5)(int, double, int, int, int, int);
+                static Abstract_DecayChannel* (*__factory6)(int, double, int, int, int);
+                static Abstract_DecayChannel* (*__factory7)(int, double, int, int);
+                static Abstract_DecayChannel* (*__factory8)(int, double, int);
+                static Abstract_DecayChannel* (*__factory9)(int, double);
+                static Abstract_DecayChannel* (*__factory10)(int);
+                static Abstract_DecayChannel* (*__factory11)();
         
                 // -- Other member variables: 
         
@@ -101,7 +101,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 DecayChannel();
         
                 // Special pointer-based constructor: 
-                DecayChannel(Pythia8::Abstract_DecayChannel* in);
+                DecayChannel(Abstract_DecayChannel* in);
         
                 // Copy constructor: 
                 DecayChannel(const DecayChannel& in);
@@ -113,7 +113,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~DecayChannel();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_DecayChannel* get_BEptr() const;
+                Abstract_DecayChannel* get_BEptr() const;
         
         };
     }

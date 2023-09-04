@@ -2,12 +2,12 @@
 #define __wrapper_Hist_decl_Pythia_8_212_h__
 
 #include <cstddef>
-#include "forward_decls_wrapper_classes.h"
-#include "gambit/Backends/wrapperbase.hpp"
-#include "abstract_Hist.h"
 #include <string>
 #include <ostream>
 #include <vector>
+#include "forward_decls_wrapper_classes.h"
+#include "gambit/Backends/wrapperbase.hpp"
+#include "abstract_Hist.h"
 
 #include "identification.hpp"
 
@@ -22,28 +22,28 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_Hist* (*__factory0)();
-                static Pythia8::Abstract_Hist* (*__factory1)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double, double);
-                static Pythia8::Abstract_Hist* (*__factory2)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, double);
-                static Pythia8::Abstract_Hist* (*__factory3)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int);
-                static Pythia8::Abstract_Hist* (*__factory4)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >);
-                static Pythia8::Abstract_Hist* (*__factory5)(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, const Pythia8::Hist&);
+                static Abstract_Hist* (*__factory0)();
+                static Abstract_Hist* (*__factory1)(std::string, int, double, double);
+                static Abstract_Hist* (*__factory2)(std::string, int, double);
+                static Abstract_Hist* (*__factory3)(std::string, int);
+                static Abstract_Hist* (*__factory4)(std::string);
+                static Abstract_Hist* (*__factory5)(std::string, const Pythia8::Hist&);
         
                 // -- Other member variables: 
         
                 // Member functions: 
             public:
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn);
+                void book(std::string titleIn, int nBinIn, double xMinIn, double xMaxIn);
         
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn);
+                void book(std::string titleIn, int nBinIn, double xMinIn);
         
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn);
+                void book(std::string titleIn, int nBinIn);
         
-                void book(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn);
+                void book(std::string titleIn);
         
                 void book();
         
-                void name(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn);
+                void name(std::string titleIn);
         
                 void name();
         
@@ -53,19 +53,19 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
                 void fill(double x);
         
-                void table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder, bool xMidBin) const;
+                void table(std::ostream& os, bool printOverUnder, bool xMidBin) const;
         
-                void table(::std::basic_ostream<char, std::char_traits<char> >& os, bool printOverUnder) const;
+                void table(std::ostream& os, bool printOverUnder) const;
         
-                void table(::std::basic_ostream<char, std::char_traits<char> >& os) const;
+                void table(std::ostream& os) const;
         
                 void table() const;
         
-                void table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder, bool xMidBin) const;
+                void table(std::string fileName, bool printOverUnder, bool xMidBin) const;
         
-                void table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName, bool printOverUnder) const;
+                void table(std::string fileName, bool printOverUnder) const;
         
-                void table(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > fileName) const;
+                void table(std::string fileName) const;
         
                 double getBinContent(int iBin) const;
         
@@ -99,14 +99,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Wrappers for original constructors: 
             public:
                 Hist();
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn, double xMaxIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn, double xMinIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, int nBinIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn);
-                Hist(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > titleIn, const Pythia8::Hist& h);
+                Hist(std::string titleIn, int nBinIn, double xMinIn, double xMaxIn);
+                Hist(std::string titleIn, int nBinIn, double xMinIn);
+                Hist(std::string titleIn, int nBinIn);
+                Hist(std::string titleIn);
+                Hist(std::string titleIn, const Pythia8::Hist& h);
         
                 // Special pointer-based constructor: 
-                Hist(Pythia8::Abstract_Hist* in);
+                Hist(Abstract_Hist* in);
         
                 // Copy constructor: 
                 Hist(const Hist& in);
@@ -118,7 +118,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~Hist();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_Hist* get_BEptr() const;
+                Abstract_Hist* get_BEptr() const;
         
         };
     }

@@ -49,9 +49,6 @@ namespace Gambit
         /// A pointer to the convergence settings to use
         const convergence_settings* _settings;
 
-        /// The index in the convergence settings to use
-        int _collider;
-
         /// Pointer to an array holding the signal counts on each thread
         std::vector<int>* n_signals;
 

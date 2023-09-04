@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Christoph Weniger
 ///    (c.weniger@uva.nl)
 ///  \date 2013 May, June, July
@@ -25,33 +25,26 @@
 
 #include "gambit/Core/likelihood_container.hpp"
 #include "gambit/Elements/type_equivalency.hpp"
-#include "gambit/Utils/mpiwrapper.hpp"
 
 namespace Gambit
 {
 
-  Likelihood_Container_Factory::Likelihood_Container_Factory(const gambit_core &core, 
-   DRes::DependencyResolver &dependencyResolver, IniParser::IniFile &iniFile, Printers::BaseBasePrinter& printer
-  #ifdef WITH_MPI
-    , GMPI::Comm& comm
-  #endif
-  ) : dependencyResolver(dependencyResolver)
+  Likelihood_Container_Factory::Likelihood_Container_Factory(const gambit_core &core,
+   DRes::DependencyResolver &dependencyResolver, IniParser::IniFile &iniFile, Printers::BaseBasePrinter& printer)
+    : dependencyResolver(dependencyResolver)
     , iniFile(iniFile)
     , printer(printer)
-    #ifdef WITH_MPI
-    , myComm(comm)
-    #endif
   {
     functorMap = core.getActiveModelFunctors();
     std::set<std::string> modelSet = iniFile.getModelNames();
-    
+
     if (functorMap.size() < modelSet.size())
     {
       std::stringstream err;
       err << "There are more model entries specified in the inifile than is required by GAMBIT." << std::endl;
       core_error().raise(LOCAL_INFO, err.str());
     }
-    
+
     for (std::map<std::string, primary_model_functor *>::iterator act_it = functorMap.begin(), end = functorMap.end(); act_it != end; ++act_it)
     {
       if (modelSet.find(act_it->first) == modelSet.end())
@@ -60,7 +53,7 @@ namespace Gambit
         err << "Model " << act_it->first << " is required by GAMBIT but is not in the inifile." << std::endl;
         core_error().raise(LOCAL_INFO, err.str());
       }
-      
+
       std::vector <std::string> paramkeys = act_it->second->getcontentsPtr()->getKeys();
       std::vector <std::string> inikeys = iniFile.getModelParameters(act_it->first);
       if (paramkeys.size() < inikeys.size())
@@ -69,7 +62,7 @@ namespace Gambit
         err << "There are more parameter entries (of model " << act_it->first << ") specified in the inifile than is required by GAMBIT." << std::endl;
         core_error().raise(LOCAL_INFO, err.str());
       }
-      
+
       std::unordered_set<std::string> paramSet(inikeys.begin(), inikeys.end());
       for (std::vector<std::string>::iterator it = paramkeys.begin(), end = paramkeys.end(); it != end; ++it)
       {
@@ -82,13 +75,9 @@ namespace Gambit
       }
     }
   }
-    
+
   void * Likelihood_Container_Factory::operator() (const std::string &purpose) const
   {
-    return __scanner_factories__["GAMBIT_Scanner_Target_Function"](functorMap, dependencyResolver, iniFile, purpose, printer
-      #ifdef WITH_MPI
-       , myComm
-      #endif
-      );
+    return __scanner_factories__["GAMBIT_Scanner_Target_Function"](functorMap, dependencyResolver, iniFile, purpose, printer);
   }
 }

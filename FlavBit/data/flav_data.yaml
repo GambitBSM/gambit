@@ -1596,4 +1596,229 @@
   - name: NONE
 
 
+################################
+
+- name: BR_muegamma
+  islimit: true
+  one_sided: false
+  exp_value: -2.2e-13
+  exp_90_CL: 4.2e-13
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: 1605.05081
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_tauegamma
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 5.4e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M 
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_taumugamma
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 5.0e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_mueee
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 1.0e-12
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Nucl. Phys. B299 (1988) 1–6.
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_taueee
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 1.4e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_taumumumu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 1.2e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_taumuee
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 1.1e-8
+  exp_stat_error: 0. 
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE 
+  correlation:
+  - name: NONE
+
+- name: BR_taueemu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 0.84e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_tauemumu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 1.6e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M 
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: BR_taumumue
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 0.98e-8
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: HFAG
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: R_mueTi
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 4.3e-12
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Phys.Lett. B317 (1993) 631-636 
+  th_error: 0.
+  th_error_type: M 
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: R_mueAu
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 7.0e-13
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Eur.Phys.J. C47 (2006) 337-346 
+  th_error: 0.
+  th_error_type: M 
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: R_muePb
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 4.6e-11
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: Phys. Rev. Lett. 76 (1996) 200–203
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+################################
+
+- name: d_e
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_90_CL: 0.87e-28
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG16
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: d_mu
+  islimit: false
+  exp_value: -0.1e-19
+  exp_stat_error: 0.9e-19
+  exp_sys_error: 0.
+  exp_source: PDG16
+  th_error: 0.
+  th_error_type: M 
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
+- name: d_tau
+  islimit: true
+  one_sided: false
+  exp_value: 0.
+  exp_95_CL: 0.5e-17
+  exp_stat_error: 0.
+  exp_sys_error: 0.
+  exp_source: PDG16
+  th_error: 0.
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
 

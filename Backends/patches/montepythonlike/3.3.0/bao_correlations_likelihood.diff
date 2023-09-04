@@ -1,0 +1,1983 @@
+diff --git a/data/bao_correlations/bao_correlations_nz.dat b/data/bao_correlations/bao_correlations_nz.dat
+new file mode 100644
+index 0000000..38d3431
+--- /dev/null
++++ b/data/bao_correlations/bao_correlations_nz.dat
+@@ -0,0 +1,35 @@
++# zlow zmid zhigh nz_boss nz_eboss  nz_cmass_in_eboss  nz_qso
++0.5000 0.5250 0.5500 234626      0      0      0
++0.5500 0.5750 0.6000 193417      0      0      0
++0.6000 0.6250 0.6500 122687  40843  27386      0
++0.6500 0.6750 0.7000  61600  28999  13113      0
++0.7000 0.7250 0.7500  25313  21321   5264      0
++0.7500 0.7750 0.8000      0  16303   1631      0
++0.8000 0.8250 0.8500      0  11313    384   3236
++0.8500 0.8750 0.9000      0   6814    115   3855
++0.9000 0.9250 0.9500      0   3712     51   4268
++0.9500 0.9750 1.0000      0   1810     37   4583
++1.0000 1.0250 1.0500      0      0      0   4797
++1.0500 1.0750 1.1000      0      0      0   5071
++1.1000 1.1250 1.1500      0      0      0   5562
++1.1500 1.1750 1.2000      0      0      0   5754
++1.2000 1.2250 1.2500      0      0      0   6449
++1.2500 1.2750 1.3000      0      0      0   6322
++1.3000 1.3250 1.3500      0      0      0   6757
++1.3500 1.3750 1.4000      0      0      0   6694
++1.4000 1.4250 1.4500      0      0      0   6516
++1.4500 1.4750 1.5000      0      0      0   6632
++1.5000 1.5250 1.5500      0      0      0   6465
++1.5500 1.5750 1.6000      0      0      0   6317
++1.6000 1.6250 1.6500      0      0      0   6556
++1.6500 1.6750 1.7000      0      0      0   6757
++1.7000 1.7250 1.7500      0      0      0   6703
++1.7500 1.7750 1.8000      0      0      0   6685
++1.8000 1.8250 1.8500      0      0      0   6194
++1.8500 1.8750 1.9000      0      0      0   5931
++1.9000 1.9250 1.9500      0      0      0   5853
++1.9500 1.9750 2.0000      0      0      0   5631
++2.0000 2.0250 2.0500      0      0      0   5393
++2.0500 2.0750 2.1000      0      0      0   5051
++2.1000 2.1250 2.1500      0      0      0   4590
++2.1500 2.1750 2.2000      0      0      0   4182
+diff --git a/data/bao_eBOSS_2017.txt b/data/bao_eBOSS_2017.txt
+new file mode 100644
+index 0000000..470a148
+--- /dev/null
++++ b/data/bao_eBOSS_2017.txt
+@@ -0,0 +1,18 @@
++# Lists measurements from eBOSS DR14 LRGs and QSOs. These overlap with BOSS DR12 and each
++# other, but when used with the bao_correlations likleihood, this overlap is computed
++# in a cosmology dependent way
++#
++# z, quantity, sigma, type (D_V/rs=3, Dv/Mpc=4, DA/rs=5, c/Hrs=6, rs/D_v=7)
++# For a given type, the quantity correspond to the listed
++# possibilities above
++#
++# LRGS: Bautista et. al., 2017. ArXiv:1712.08064
++0.72    15.92     0.42      3
++#
++#
++# QSOs: Ata et. al., 2017. ArXiv:1705.06373
++1.52    26.00     0.99      3
++#
++#
++#QSOs: Gil-Marin et. al., 2018. ArXiv:1801.02689 (Section 8.1)
++# 1.52    26.27     0.90      3
+\ No newline at end of file
+diff --git a/montepython/likelihoods/bao_correlations/__init__.py b/montepython/likelihoods/bao_correlations/__init__.py
+new file mode 100644
+index 0000000..6f817cf
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/__init__.py
+@@ -0,0 +1,416 @@
++import os
++import copy
++import numpy as np
++from montepython.likelihood_class import Likelihood
++import montepython.io_mp as io_mp
++import scipy.constants as conts
++from scipy.interpolate import splrep, splev
++from scipy.integrate import simps
++from scipy.linalg.lapack import dgesv
++from .findiff_py23 import FinDiff
++
++
++class bao_correlations(Likelihood):
++    '''
++
++    BAO scale likelihood for BOSS DR12 and eBOSS data considering correlations
++    between overlapping samples in the BAO scale measurements. This likelihood
++    takes into account the overlap of eBOSS LRG sample and BOSS DR12 galaxies,
++    and the overlap of the eBOSS QSO sample with the LRGs on the sky & in redshift.
++    The non-zero correlations that should be accounted for between the measurements
++    of (D_M/r_s)^{BOSS}, (Hr_s)^{BOSS}, (D_V/r_s)^{eBOSS,LRG}$, and (D_V/r_s)^{eBOSS,QSO}
++    are calculated accounting for a variation in cosmological parameters. If you
++    use this likelihood, please cite GAMBIT Cosmology Workgroup: Stoecker et al. '20.
++
++    To account for variation with cosmological parameters, this likelihood uses a
++    novel method to compute the cross-correlation coefficients using Fisher matrices,
++    following BAO forecasting techniques (Seo & Eisenstein '07 {astro-ph/0701079},
++    Font-Ribera et al. '14 {arXiv 1308.4164}).
++    Here, we sum the Fisher information that each sample contributes to the four
++    overlapping measurements listed above, accounting for redshift and sky overlap.
++    Inverting the full Fisher matrix then gives the correlation coefficients. This
++    is done separately for every combination of cosmological parameters in the scan,
++    using the number density of objects, matter power spectrum and growth rate of
++    structure to model the BOSS/eBOSS galaxy power spectra and their covariance
++    matrices as a function of redshift.
++
++    For more details, see GAMBIT Cosmology Workgroup: Stoecker et al. '20, arXiv:2009.03287. [Phys. Rev. D 103, 123508]
++
++    '''
++
++    # initialization routine
++
++    def __init__(self, path, data, command_line):
++
++        Likelihood.__init__(self, path, data, command_line)
++
++        # define conflicting experiments
++        conflicting_experiments = [
++            'bao', 'bao_boss', 'bao_boss_dr12', 'bao_known_rs',
++            'bao_boss_aniso', 'bao_boss_aniso_gauss_approx']
++        for experiment in conflicting_experiments:
++            if experiment in data.experiments:
++                raise io_mp.LikelihoodError(
++                    'conflicting BAO measurements')
++
++        # define array for values of z and data points
++        self.z = np.array([], 'float64')
++        self.DM_rdfid_by_rd_in_Mpc = np.array([], 'float64')
++        self.H_rd_by_rdfid_in_km_per_s_per_Mpc = np.array([], 'float64')
++        self.Dv_by_rd = np.array([], 'float64')
++        self.error = np.array([], 'float64')
++
++        # read redshifts and data points for DR12
++        with open(os.path.join(self.data_directory, self.dr12_data_file), 'r') as filein:
++            for i, line in enumerate(filein):
++                if line.strip() and line.find('#') == -1:
++                    this_line = line.split()
++                    # load redshifts and D_M * (r_s / r_s_fid)^-1 in Mpc
++                    if this_line[1] == 'dM(rsfid/rs)':
++                        self.z = np.append(self.z, float(this_line[0]))
++                        self.DM_rdfid_by_rd_in_Mpc = np.append(
++                            self.DM_rdfid_by_rd_in_Mpc, float(this_line[2]))
++                        self.Dv_by_rd = np.append(self.Dv_by_rd, float(0.0))
++                        self.error = np.append(self.error, float(0.0))
++                    # load H(z) * (r_s / r_s_fid) in km s^-1 Mpc^-1
++                    elif this_line[1] == 'Hz(rs/rsfid)':
++                        self.H_rd_by_rdfid_in_km_per_s_per_Mpc = np.append(
++                            self.H_rd_by_rdfid_in_km_per_s_per_Mpc, float(this_line[2]))
++
++
++        # read the DR12 covariance matrix
++        self.cov_data = np.loadtxt(os.path.join(self.data_directory, self.dr12_cov_file))
++
++        # read redshifts and data points for DR114
++        with open(os.path.join(self.data_directory, self.dr14_file), 'r') as filein:
++            for line in filein:
++                if line.strip() and line.find('#') == -1:
++                    # the first entry of the line is the identifier
++                    this_line = line.split()
++                    self.z = np.append(self.z, float(this_line[0]))
++                    self.Dv_by_rd = np.append(self.Dv_by_rd, float(this_line[1]))
++                    self.error = np.append(self.error, float(this_line[2]))
++                    self.DM_rdfid_by_rd_in_Mpc = np.append(
++                        self.DM_rdfid_by_rd_in_Mpc, float(0.0))
++                    self.H_rd_by_rdfid_in_km_per_s_per_Mpc = np.append(
++                        self.H_rd_by_rdfid_in_km_per_s_per_Mpc, float(0.0))
++
++        # number of bins
++        self.num_bins_comb = np.shape(self.z)[0]
++        self.num_bins = self.num_bins_comb - 2
++
++        # Create extra rows for the eBOSS measurements
++        self.num_points = np.shape(self.cov_data)[0]
++        self.num_points_comb = self.num_points + 2
++        self.cov_comb = np.zeros((self.num_points+2, self.num_points+2))
++        self.cov_comb[:self.num_points, :self.num_points] = self.cov_data
++        self.cov_comb[self.num_points:self.num_points+2, self.num_points:self.num_points+2] = np.diag(self.error[self.num_bins:self.num_bins+2])
++
++        # Read in the data files for BOSS DR12, and eBOSS DR14 LRGs and QSOs and set up
++        # some things for the cross-correlation calculation
++        self.muvals = np.linspace(0.0, 1.0, 50)
++        self.kvals = np.linspace(0.001, 0.3, 100)
++        self.order, self.dalpha = 2, 0.002
++        self.nz = np.loadtxt(os.path.join(self.data_directory, self.data_nz))
++        self.kvalsalpha, self.kvalsalpha2d = self.set_kvals(self.order, self.dalpha)
++        self.dPdalphaperp, self.dPdalphapar = FinDiff(0, self.dalpha), FinDiff(1, self.dalpha)
++        self.BOSSbias, self.BOSSdamping = 1.54, np.exp(-0.5*np.outer(self.kvals**2, self.muvals**2*4.0**2 + (1.0 - self.muvals**2)*2.0**2))  # Worked out from Beutler 2017a,b
++        self.eBOSSbias_LRG, self.eBOSSdamping_LRG = 2.3, np.exp(-0.5*np.outer(self.kvals**2, self.muvals**2*5.5**2 + (1.0 - self.muvals**2)*5.5**2))  # Based on Bautista 2017
++        self.eBOSSbias_QSO, self.eBOSSdamping_QSO = 2.45, np.exp(-0.5*np.outer(self.kvals**2, self.muvals**2*6.0**2 + (1.0 - self.muvals**2)*6.0**2)) # Based on Ata 2017
++
++        self.BOSS_area = 9376.0 * (np.pi / 180.0) ** 2
++        self.eBOSS_LRG_area = 1845.0 * (np.pi / 180.0) ** 2
++        self.eBOSS_QSO_area = 2113.0 * (np.pi / 180.0) ** 2
++
++        # maximum redshift, needed to set mPk computing range
++        self.zmax = max(self.z + 0.1)
++
++        self.need_cosmo_arguments(data, {'non linear': 'halofit'})   
++        self.need_cosmo_arguments(data, {'output': 'mPk'})
++        self.need_cosmo_arguments(data, {'z_max_pk': self.zmax+0.5})  # (JR) had to add 0.5, otherwise class threw an out of range error
++        # depending on the k values we need, we might have to adjust some
++        # CLASS parameters that fix the k range (P_k_max_h/Mpc = 1.)
++        self.need_cosmo_arguments(data, {'P_k_max_h/Mpc': 1.})
++
++        # Dummy variables to store the latest version of the cross-correlation coefficients, and the likelihood
++        # setting these cross-correlation coefficients to zero
++        self.inv_cov_data = np.linalg.inv(self.cov_comb)
++        self.uncorrelated_loglike = None
++        self.correlation_coeffs = None
++
++        # end of initialization
++
++
++    # compute likelihood
++
++    def loglkl(self, cosmo, data):
++
++        # Extra routine needed to compute the cross-correlation coefficients between DR12 and DR14
++        self.correlation_coeffs = self.compute_cross_corr_fisher(cosmo)
++        cov_comb_corr = copy.copy(self.cov_comb)
++        cov_comb_corr[4, 6] = self.correlation_coeffs[0] * np.sqrt(cov_comb_corr[4, 4]*cov_comb_corr[6, 6])
++        cov_comb_corr[5, 6] = self.correlation_coeffs[1] * np.sqrt(cov_comb_corr[5, 5]*cov_comb_corr[6, 6])
++        cov_comb_corr[7, 6] = self.correlation_coeffs[2] * np.sqrt(cov_comb_corr[7, 7]*cov_comb_corr[6, 6])
++        cov_comb_corr[6, 4] = cov_comb_corr[4, 6]
++        cov_comb_corr[6, 5] = cov_comb_corr[5, 6]
++        cov_comb_corr[6, 7] = cov_comb_corr[7, 6]
++
++        # define array for  values of D_M_diff = D_M^th - D_M^obs and H_diff = H^th - H^obs,
++        # ordered by redshift bin (z=[0.38, 0.51, 0.61]) as following:
++        # data_array = [DM_diff(z=0.38), H_diff(z=0.38), DM_diff(z=0.51), .., .., ..]
++        data_array = np.array([], 'float64')
++
++        # for each point, compute comoving angular diameter distance D_M = (1 + z) * D_A,
++        # sound horizon at baryon drag rs_d, theoretical prediction
++        for i in range(self.num_bins_comb):
++            DM_at_z = cosmo.angular_distance(self.z[i]) * (1. + self.z[i])
++            H_at_z = cosmo.Hubble(self.z[i]) * conts.c / 1000.0
++            rd = cosmo.rs_drag() * self.dr12_rs_rescale
++
++            if i < self.num_bins:
++
++                theo_DM_rdfid_by_rd_in_Mpc = DM_at_z / rd * self.dr12_rd_fid_in_Mpc
++                theo_H_rd_by_rdfid = H_at_z * rd / self.dr12_rd_fid_in_Mpc
++
++                # calculate difference between the sampled point and observations
++                DM_diff = theo_DM_rdfid_by_rd_in_Mpc - self.DM_rdfid_by_rd_in_Mpc[i]
++                H_diff = theo_H_rd_by_rdfid - self.H_rd_by_rdfid_in_km_per_s_per_Mpc[i]
++
++                # save to data array
++                data_array = np.append(data_array, DM_diff)
++                data_array = np.append(data_array, H_diff)
++
++            else:
++
++                DV_at_z = (DM_at_z**2 / H_at_z * conts.c / 1000.0 * self.z[i])**(1.0/3.0)
++                theo_DV_by_rd_in_Mpc = DV_at_z / rd
++                DV_diff = theo_DV_by_rd_in_Mpc - self.Dv_by_rd[i]
++                data_array = np.append(data_array, DV_diff)
++
++        # compute chi squared
++        inv_cov_data_corr = np.linalg.inv(cov_comb_corr)
++        chi2 = np.dot(np.dot(data_array,self.inv_cov_data),data_array)
++        chi2_corr = np.dot(np.dot(data_array,inv_cov_data_corr),data_array)
++
++        # return ln(L)
++        self.uncorrelated_loglike = -0.5 * chi2
++        loglkl = - 0.5 * chi2_corr
++
++        return loglkl
++
++    def compute_cross_corr_fisher(self, cosmo):
++
++        h = cosmo.h()
++
++        rlow = cosmo.z_of_r(self.nz[:,0])[0] * h  # Need to include h as fixed power spectrum values are in (Mpc/h)^3
++        rhigh = cosmo.z_of_r(self.nz[:,2])[0] * h
++        slice_volume = 1.0 / 3.0 * (rhigh ** 3 - rlow ** 3)
++
++        # Compute the power spectrum, it's derivatives and scale-dependent growth rate at redshifts
++        pksmoothallz, pkbaoallz, dpkdalphaallz, dpkdalphaperpallz, dpkdalphaparallz, fkallz = self.compute_pk(cosmo, self.nz[:,1])
++
++        # Loop over each redshift bin in the three samples
++        identity = np.eye(4)
++        Fisher_tot = np.zeros((4, 4))    # Contains DA_BOSS, H_BOSS, DV_eBOSS_LRG, DV_eBOSS_QSO
++        for i, data in enumerate(self.nz):
++
++            z = data[1]
++
++            pksmooth, pkbao, fk = pksmoothallz[:,i,None], pkbaoallz[:,i,None], fkallz[:,i,0]
++            dpkdalpha, dpkdalphaperp, dpkdalphapar = dpkdalphaallz[:,i,None], dpkdalphaperpallz[:,i,:], dpkdalphaparallz[:,i,:]
++            prefac = slice_volume[i]
++
++            # Do the correct thing based on the various redshift regimes
++
++            # BOSS only. For z < 0.6 BOSS galaxies contribute just to Da(z=0.61) and H(z=0.61) (and other lower z-bins,
++            # but this is already accounted for in the main BOSS results).
++            if z < 0.6:
++                kaiserBOSS = (1.0 + np.outer(fk, self.muvals**2)/self.BOSSbias)
++                pkBOSS = self.BOSSbias ** 2 * kaiserBOSS ** 2 * pksmooth * (1.0 + pkbao * self.BOSSdamping)
++                cov_inv = 1.0/(pkBOSS + self.BOSS_area * slice_volume[i] / data[3]) ** 2
++                derivs = self.get_derivsDaH(self.BOSSbias ** 2 * kaiserBOSS ** 2 * pksmooth * self.BOSSdamping, dpkdalphaperp, dpkdalphapar)
++                for j in range(2):
++                    Fisher = simps(self.kvals ** 2 * simps(derivs[j] * cov_inv * derivs, x=self.muvals, axis=-1), x = self.kvals, axis=-1)
++                    Fisher *= self.BOSS_area * prefac
++                    Fisher_tot[j, :2] += Fisher
++
++            # For z > 0.6 things are a little more complicated. The BOSS galaxies outside the eBOSS sky area contribute only to
++            # Da(z=0.61) and H(z=0.61), so lets add them on first. Then, the combined BOSS+eBOSS sample for z < 0.75 contributes
++            # to all three measurements Da(z=0.61), H(z=0.61) and Dv(z=0.72) so add these in. There are actually two ways to
++            # do this, we could alternatively work out the contribution from BOSS galaxies to all three measurements, then the extra
++            # contribution from the eBOSS only galaxies. However, we don't know the bias and non-linear damping for the eBOSS-only
++            # subsample (only the combined BOSS+eBOSS sample).
++            elif z >= 0.60 and z <= 0.75:
++                kaiserBOSS = (1.0 + np.outer(fk, self.muvals**2)/self.BOSSbias)
++                pkBOSS = self.BOSSbias ** 2 * kaiserBOSS ** 2 * pksmooth * (1.0 + pkbao * self.BOSSdamping)
++                cov_inv = 1.0/(pkBOSS + (self.BOSS_area - self.eBOSS_LRG_area) * slice_volume[i] / (data[3] - data[5])) ** 2
++                derivs = self.get_derivsDaH(self.BOSSbias ** 2 * kaiserBOSS ** 2 * pksmooth * self.BOSSdamping, dpkdalphaperp, dpkdalphapar)
++                for j in range(2):
++                    Fisher = simps(self.kvals ** 2 * simps(derivs[j] * cov_inv * derivs, x=self.muvals, axis=-1), x = self.kvals, axis=-1)
++                    Fisher *= (self.BOSS_area - self.eBOSS_LRG_area) * prefac
++                    Fisher_tot[j, :2] += Fisher
++
++                kaisereBOSS_LRG = (1.0 + np.outer(fk, self.muvals**2)/self.eBOSSbias_LRG)
++                pkeBOSS_LRG = self.eBOSSbias_LRG ** 2 * kaisereBOSS_LRG ** 2 * pksmooth * (1.0 + pkbao * self.eBOSSdamping_LRG)
++                cov_inv = 1.0/(pkeBOSS_LRG + self.eBOSS_LRG_area * slice_volume[i] / data[4]) ** 2
++                derivs = self.get_derivsDaHDv(self.eBOSSbias_LRG ** 2 * kaisereBOSS_LRG ** 2 * pksmooth * self.eBOSSdamping_LRG, dpkdalpha, dpkdalphaperp, dpkdalphapar)
++                for j in range(3):
++                    Fisher = simps(self.kvals ** 2 * simps(derivs[j] * cov_inv * derivs, x=self.muvals, axis=-1), x = self.kvals, axis=-1)
++                    Fisher *= self.eBOSS_LRG_area * prefac
++                    Fisher_tot[j, :3] += Fisher
++
++            # eBOSS LRG only. For 0.75 < z < 0.80, we only have to consider the eBOSS LRGs, which contribute to Dv(z=0.72)
++            elif z > 0.75 and z < 0.8:
++                kaisereBOSS_LRG = (1.0 + np.outer(fk, self.muvals**2)/self.eBOSSbias_LRG)
++                pkeBOSS_LRG = self.eBOSSbias_LRG ** 2 * kaisereBOSS_LRG ** 2 * pksmooth * (1.0 + pkbao * self.eBOSSdamping_LRG)
++                cov_inv = 1.0/(pkeBOSS_LRG + self.eBOSS_LRG_area * slice_volume[i] / data[4]) ** 2
++                derivs = self.get_derivsDv(self.eBOSSbias_LRG ** 2 * kaisereBOSS_LRG ** 2 * pksmooth * self.eBOSSdamping_LRG, dpkdalpha)
++                Fisher = simps(self.kvals ** 2 * simps(derivs * cov_inv * derivs, x=self.muvals, axis=-1), x=self.kvals, axis=-1)
++                Fisher *= self.eBOSS_LRG_area * prefac
++                Fisher_tot[2, 2] += Fisher
++
++            # eBOSS_LRG+eBOSS_QSO. For z < 1.0 we have eBOSS LRGS and QSOs in the same region of space. As we have a slightly larger
++            # QSO sky area than LRGs, we assume that the QSOs in the non-overlap area contribute only to Dv(z=1.52). In the overlap area
++            # both the LRGs and the QSOs will contribute to Dv(z=0.72) and Dv(z=1.52). As the derivatives for each sample are the same
++            # regardless of whether we are considering Dv(z=0.72) or Dv(z=1.52), we just add the eBOSS_LRG area to every relevant Fisher
++            # matrix element (including the cross-terms) for both sample, then a little extra to Dv(z=1.52) for the QSO sample in the
++            # non-overlap area. the eBOSS LRGs.
++            elif z >= 0.80 and z <= 1.00:
++                kaisereBOSS_LRG = (1.0 + np.outer(fk, self.muvals**2)/self.eBOSSbias_LRG)
++                pkeBOSS_LRG = self.eBOSSbias_LRG ** 2 * kaisereBOSS_LRG ** 2 * pksmooth * (1.0 + pkbao * self.eBOSSdamping_LRG)
++                cov_inv = 1.0/(pkeBOSS_LRG + self.eBOSS_LRG_area * slice_volume[i] / data[4]) ** 2
++                derivs = self.get_derivsDv(self.eBOSSbias_LRG ** 2 * kaisereBOSS_LRG ** 2 * pksmooth * self.eBOSSdamping_LRG, dpkdalpha)
++                Fisher = simps(self.kvals ** 2 * simps(derivs * cov_inv * derivs, x=self.muvals, axis=-1), x=self.kvals, axis=-1)
++                Fisher *= self.eBOSS_LRG_area * prefac
++                Fisher_tot[2:, 2:] += Fisher
++
++                kaisereBOSS_QSO = (1.0 + np.outer(fk, self.muvals**2)/self.eBOSSbias_QSO)
++                pkeBOSS_QSO = self.eBOSSbias_QSO ** 2 * kaisereBOSS_QSO ** 2 * pksmooth * (1.0 + pkbao * self.eBOSSdamping_QSO)
++                cov_inv = 1.0/(pkeBOSS_QSO + self.eBOSS_QSO_area * slice_volume[i] / data[6]) ** 2
++                derivs = self.get_derivsDv(self.eBOSSbias_QSO ** 2 * kaisereBOSS_QSO ** 2 * pksmooth * self.eBOSSdamping_QSO, dpkdalpha)
++                Fisher = simps(self.kvals ** 2 * simps(derivs * cov_inv * derivs, x=self.muvals, axis=-1), x=self.kvals, axis=-1)
++                Fisher *= prefac
++                Fisher_tot[2:, 2:] += self.eBOSS_LRG_area*Fisher
++                Fisher_tot[3, 3] += (self.eBOSS_QSO_area - self.eBOSS_LRG_area)*Fisher
++
++            # Finally we can do the eBOSS QSO only sample for z > 1.00
++            elif z >= 1.00:
++                kaisereBOSS_QSO = (1.0 + np.outer(fk, self.muvals**2)/self.eBOSSbias_QSO)
++                pkeBOSS_QSO = self.eBOSSbias_QSO ** 2 * kaisereBOSS_QSO ** 2 * pksmooth * (1.0 + pkbao * self.eBOSSdamping_QSO)
++                cov_inv = 1.0/(pkeBOSS_QSO + self.eBOSS_QSO_area * slice_volume[i] / data[6]) ** 2
++                derivs = self.get_derivsDv(self.eBOSSbias_QSO ** 2 * kaisereBOSS_QSO ** 2 * pksmooth * self.eBOSSdamping_QSO, dpkdalpha)
++                Fisher = simps(self.kvals ** 2 * simps(derivs * cov_inv * derivs, x=self.muvals, axis=-1), x=self.kvals, axis=-1)
++                Fisher *= self.eBOSS_QSO_area*prefac
++                Fisher_tot[3, 3] += Fisher
++
++
++        Fisher_tot[2, 3] *= -1   # Minus sign to ensure eBOSS_LRG and QSO correlation coefficient is positive, as
++        Fisher_tot[3, 2] *= -1   # expected given they measure the same quantity, just in slightly different bins. See comment in get_derivsDaHDv
++        Fisher_tot /= 4.0*np.pi**2
++
++        cov_lu, pivots, cov, info = dgesv(Fisher_tot, identity)
++
++        cross_corr_BOSS_Da_eBOSS_Dv = cov[0, 2]/np.sqrt(cov[0, 0]*cov[2, 2])
++        cross_corr_BOSS_H_eBOSS_Dv = -cov[1, 2]/np.sqrt(cov[1, 1]*cov[2, 2])    # Minus sign to convert from coefficient for alpha_par to H(z)
++        cross_corr_eBOSS_LRG_eBOSS_QSO = cov[2, 3]/np.sqrt(cov[2, 2]*cov[3, 3])
++        return [cross_corr_BOSS_Da_eBOSS_Dv, cross_corr_BOSS_H_eBOSS_Dv, cross_corr_eBOSS_LRG_eBOSS_QSO]
++
++    def set_kvals(self, order, dalpha):
++
++        # Create some vectors of kprime values, shaped conveniently
++        karray = np.empty((2*order+1, len(self.kvals), len(self.nz)))
++        karray2d = np.empty((2*order+1, 2*order+1, len(self.kvals), len(self.muvals)))
++        for i in range(-order, order+1):
++            alpha = 1.0 + i * dalpha
++            alpha_perp = 1.0 + i * dalpha
++            karray[i + order] = (np.tile(self.kvals/alpha, (len(self.nz), 1))).T
++            for j in range(-order, order+1):
++                alpha_par = 1.0 + j * dalpha
++                karray2d[i + order, j + order] = np.outer(self.kvals, np.sqrt((1.0 - self.muvals ** 2) / alpha_perp ** 2 + self.muvals ** 2 / alpha_par ** 2))
++
++        return karray[:, :, :, None], karray2d[:, :, :, None, :]
++
++    def smooth_hinton2017(self, ks, pk, degree=13, sigma=1, weight=0.5, **kwargs):
++        """ Smooth power spectrum based on Hinton 2017 polynomial method """
++        # logging.debug("Smoothing spectrum using Hinton 2017 method")
++        log_ks = np.log(ks)
++        log_pk = np.log(pk)
++        index = np.argmax(pk)
++        maxk2 = log_ks[index]
++        gauss = np.exp(-0.5 * np.power(((log_ks - maxk2) / sigma), 2))
++        w = np.ones(pk.size) - weight * gauss
++        z = np.polyfit(log_ks, log_pk, degree, w=w)
++        p = np.poly1d(z)
++        polyval = p(log_ks)
++        pk_smoothed = np.exp(polyval)
++        return pk_smoothed
++
++    def compute_pk(self, cosmo, zs):
++
++        # We only take derivatives with respect to the BAO wiggles, so we run Sam Hinton's BAO smoothing method on
++        # the models to extract the smooth component. We keep the smooth component for each separate redshift to allow for
++        # non-linearities, however the BAO feature is smoothed separately so we need to constuct this using the linear power
++        # spectrum. The plus side is that we only need to construct the derivatives at one redshift, as we can
++        # then scale them using sigma8. So ultimately we only need to carry one set of pkbao derivatives, and the
++        # non-linear smooth component at each redshift.
++        pk = cosmo.h() ** 3 * cosmo.get_pk_cb(self.kvalsalpha[self.order] * cosmo.h(), zs, len(self.kvals), len(zs), 1)
++        pklin = cosmo.h() ** 3 * cosmo.get_pk_cb_lin(self.kvalsalpha[self.order] * cosmo.h(), zs, len(self.kvals), len(zs), 1)
++        pksmooth = np.array([self.smooth_hinton2017(self.kvals, pk[:,i,0]) for i in range(len(zs))]).T
++        pksmoothlin = np.array([self.smooth_hinton2017(self.kvals, pklin[:,i,0]) for i in range(len(zs))]).T
++        pkbao = pklin[:,:,0]/pksmoothlin - 1.0
++        pkspline = [splrep(self.kvals, pkbao[:,i]) for i in range(len(zs))]
++
++        # Use finite differences to get the derivatives of the BAO feature w.r.t. alpha/alpha_perp/alpha_par about alpha=1
++        pkbaoarray = np.empty((2*self.order+1, len(self.kvals), len(self.nz)))
++        pkbaoarray2d = np.empty((2*self.order+1, 2*self.order+1, len(self.kvals), len(self.nz), len(self.muvals)))
++        for i in range(-self.order, self.order+1):
++            pkbaoarray[i + self.order] = np.array([splev(self.kvalsalpha[i + self.order,:,0,0], pkspline[z]) for z in range(len(zs))]).T
++            for j in range(-self.order, self.order+1):
++                pkbaoarray2d[i + self.order, j + self.order] = np.transpose(np.array([splev(self.kvalsalpha2d[i + self.order, j + self.order, :, 0, :], pkspline[z]) for z in range(len(zs))]), axes=(1,0,2))
++
++        dpkdalpha = self.dPdalphaperp(pkbaoarray)[self.order]
++        dpkdalphaperp, dpkdalphapar = self.dPdalphaperp(pkbaoarray2d)[self.order, self.order], self.dPdalphapar(pkbaoarray2d)[self.order, self.order]
++
++        # Compute the scale-dependent growth rate using more finite-differencing
++        alow = 1.0 / (1.0 + (zs - 0.001))
++        amid = 1.0 / (1.0 + zs)
++        ahi = 1.0 / (1.0 + (zs + 0.001))
++        Dlow = np.sqrt(cosmo.h() ** 3 * cosmo.get_pk_cb_lin(self.kvalsalpha[self.order] * cosmo.h(), zs - 0.001, len(self.kvals), len(zs), 1))
++        Dmid = np.sqrt(cosmo.h() ** 3 * cosmo.get_pk_cb_lin(self.kvalsalpha[self.order] * cosmo.h(), zs, len(self.kvals), len(zs), 1))
++        Dhigh = np.sqrt(cosmo.h() ** 3 * cosmo.get_pk_cb_lin(self.kvalsalpha[self.order] * cosmo.h(), zs + 0.001, len(self.kvals), len(zs), 1))
++        fk = np.transpose(np.transpose(((Dhigh - Dlow) / Dmid), axes=(0,2,1)) * amid / (ahi - alow), axes=(0,2,1))
++
++        return pksmooth, pkbao, dpkdalpha, dpkdalphaperp, dpkdalphapar, fk
++
++    def get_derivsDv(self, prefac, dpkdalpha):
++
++        # Derivative of model with respect to alpha.
++        return prefac * dpkdalpha
++
++    def get_derivsDaH(self, prefac, dpkdalphaperp, dpkdalphapar):
++
++        # Derivatives with respect to Da and H
++        derivs = np.empty((2, len(self.kvals), len(self.muvals)))
++        derivs[0] = prefac * dpkdalphaperp
++        derivs[1] = prefac * dpkdalphapar
++
++        return derivs
++
++    def get_derivsDaHDv(self, prefac, dpkdalpha, dpkdalphaperp, dpkdalphapar):
++
++        # Derivatives with respect to Da, H and Dv
++        derivs = np.zeros((3, len(self.kvals), len(self.muvals)))
++        derivs[0] = prefac * dpkdalphaperp
++        derivs[1] = prefac * dpkdalphapar
++        derivs[2] = -prefac * dpkdalpha
++        # Minus sign in derivs[2] ensures correlation coefficient matrix has positive sign.
++        # We would expect Da and Dv to be positively correlated, so the cross-term in the Fisher matrix
++        # should be negative. This is adhoc, as my way of adding information from each redshift slice to diagonal/off-diagonal
++        # terms means the off- diagonal components are always positive, but I think the correct thing to do.
++        # It is most obvious if you consider the eBOSS LRG and eBOSS QSO overlap. They are both measuring the same quantity,
++        # and we would expect a high value in one to correspond to a high value in the other if they share cosmic variance.
++        # But, if we let the Fisher information in the cross-term be positive, that means we would get a negative cross-
++        # correlation coefficient. This way also gives cross-correlation coefficients equivalent to the Veff ratio
++        # calculated in the eBOSS LRG paper.
++
++        return derivs
+diff --git a/montepython/likelihoods/bao_correlations/bao_correlations.data b/montepython/likelihoods/bao_correlations/bao_correlations.data
+new file mode 100644
+index 0000000..f043325
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/bao_correlations.data
+@@ -0,0 +1,16 @@
++# (JR) this file is just copied from the "bao_small_z" likelihood. 
++#  you can add any kinds of settings here. The file will be read in 
++#  and executed when the likelihood object (called bao_correlations) 
++#  is created
++
++# BAO BOSS 2014 low redshift likelihood
++# Uses 6FD (arXiv:1106.3366v1) and MGS (arXiv:1409.3242v1) samples
++# Intended to be compatible with BOSS DR12 (which is z>0.2)
++# By Thejs Brinckmann June 2017
++bao_correlations.data_directory           = data.path['data']
++bao_correlations.dr12_data_file           = 'COMBINEDDR12_BAO_consensus_dM_Hz/BAO_consensus_results_dM_Hz.txt'
++bao_correlations.dr12_cov_file            = 'COMBINEDDR12_BAO_consensus_dM_Hz/BAO_consensus_covtot_dM_Hz.txt'
++bao_correlations.dr12_rs_rescale          = 1.
++bao_correlations.dr12_rd_fid_in_Mpc       = 147.78
++bao_correlations.dr14_file                = 'bao_eBOSS_2017.txt'
++bao_correlations.data_nz                  = 'bao_correlations/bao_correlations_nz.dat'
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/LICENSE b/montepython/likelihoods/bao_correlations/findiff_py23/LICENSE
+new file mode 100644
+index 0000000..405a435
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/LICENSE
+@@ -0,0 +1,28 @@
++This is a fork of the findiff package https://github.com/maroba/findiff,
++commit 865be17cdb732fc022a063679d0dc9d4454faf2a, modified by Pat Scott
++to work with both Python 2.7 and Python 3, for the purposes of the
++bao_correlation likelihood. The original package only supports Python 3.
++Only the parts used in this likelihood have been verified to work with
++Python 2.7.
++
++MIT License
++
++Copyright (c) 2018 maroba
++
++Permission is hereby granted, free of charge, to any person obtaining a copy
++of this software and associated documentation files (the "Software"), to deal
++in the Software without restriction, including without limitation the rights
++to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
++copies of the Software, and to permit persons to whom the Software is
++furnished to do so, subject to the following conditions:
++
++The above copyright notice and this permission notice shall be included in all
++copies or substantial portions of the Software.
++
++THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
++AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
++OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
++SOFTWARE.
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/__init__.py b/montepython/likelihoods/bao_correlations/findiff_py23/__init__.py
+new file mode 100644
+index 0000000..dc52b4e
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/__init__.py
+@@ -0,0 +1,6 @@
++from .coefs import coefficients
++from .operators import FinDiff, Coef, Identity, Coefficient
++from .vector import Gradient, Divergence, Curl, Laplacian
++from .pde import PDE, BoundaryConditions
++
++__version__ = "0.8.0"
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/coefs.py b/montepython/likelihoods/bao_correlations/findiff_py23/coefs.py
+new file mode 100644
+index 0000000..79f8091
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/coefs.py
+@@ -0,0 +1,145 @@
++"""
++This module determines finite difference coefficients for uniform and
++non-uniform grids for any desired accuracy order.
++"""
++
++import math
++import numpy as np
++
++
++def coefficients(deriv, acc):
++    """
++    Calculates the finite difference coefficients for given derivative order and accuracy order.
++    Assumes that the underlying grid is uniform. This function is available at the `findiff`
++    package level.
++
++    :param deriv: int > 0: The derivative order.
++
++    :param acc:  even int > 0: The accuracy order.
++
++    :return: dict with the finite difference coefficients and corresponding offsets
++    """
++
++    if acc % 2 == 1:
++        acc += 1
++
++    ret = {}
++
++    # Determine central coefficients
++
++    num_central = 2 * int(math.floor((deriv + 1) / 2)) - 1 + acc
++    num_side = num_central // 2
++
++    ret["center"] = _calc_coef(num_side, num_side, deriv)
++
++    # Determine forward coefficients
++
++    if deriv % 2 == 0:
++        num_coef = num_central + 1
++    else:
++        num_coef = num_central
++
++    ret["forward"] = _calc_coef(0, num_coef - 1, deriv)
++
++    # Determine backward coefficients
++
++    ret["backward"] = _calc_coef(num_coef - 1, 0, deriv)
++
++    return ret
++
++
++def _calc_coef(left, right, deriv):
++
++    matrix = _build_matrix(left, right, deriv)
++
++    rhs = _build_rhs(left, right, deriv)
++
++    return {
++        "coefficients": np.linalg.solve(matrix, rhs),
++        "offsets": np.array([p for p in range(-left, right+1)])
++    }
++
++
++def coefficients_non_uni(deriv, acc, coords, idx):
++    """
++    Calculates the finite difference coefficients for given derivative order and accuracy order.
++    Assumes that the underlying grid is non-uniform.
++
++    :param deriv: int > 0: The derivative order.
++
++    :param acc:  even int > 0: The accuracy order.
++
++    :param coords:  1D numpy.ndarray: the coordinates of the axis for the partial derivative
++
++    :param idx:  int: index of the grid position where to calculate the coefficients
++
++    :return: dict with the finite difference coefficients and corresponding offsets
++    """
++
++    if acc % 2 == 1:
++        acc += 1
++
++    num_central = 2 * int(math.floor((deriv + 1) / 2)) - 1 + acc
++    num_side = num_central // 2
++
++    if deriv % 2 == 0:
++        num_coef = num_central + 1
++    else:
++        num_coef = num_central
++
++    if idx < num_side:
++        matrix = _build_matrix_non_uniform(0, num_coef - 1, coords, idx)
++
++        rhs = _build_rhs(0, num_coef - 1, deriv)
++
++        ret = {
++            "coefficients": np.linalg.solve(matrix, rhs),
++            "offsets": np.array([p for p in range(num_coef)])
++        }
++
++    elif idx >= len(coords) - num_side:
++        matrix = _build_matrix_non_uniform(num_coef - 1, 0, coords, idx)
++
++        rhs = _build_rhs(num_coef - 1, 0, deriv)
++
++        ret = {
++            "coefficients": np.linalg.solve(matrix, rhs),
++            "offsets": np.array([p for p in range(-num_coef + 1, 1)])
++        }
++
++    else:
++        matrix = _build_matrix_non_uniform(num_side, num_side, coords, idx)
++
++        rhs = _build_rhs(num_side, num_side, deriv)
++
++        ret = {
++            "coefficients": np.linalg.solve(matrix, rhs),
++            "offsets": np.array([p for p in range(-num_side, num_side + 1)])
++        }
++
++    return ret
++
++
++def _build_matrix(p, q, deriv):
++    """Constructs the equation system matrix for the finite difference coefficients"""
++    A = [([1 for _ in range(-p, q+1)])]
++    for i in range(1, p + q + 1):
++        A.append([j**i for j in range(-p, q+1)])
++    return np.array(A)
++
++
++def _build_rhs(p, q, deriv):
++    """The right hand side of the equation system matrix"""
++
++    b = [0 for _ in range(p+q+1)]
++    b[deriv] = math.factorial(deriv)
++    return np.array(b)
++
++
++def _build_matrix_non_uniform(p, q, coords, k):
++    """Constructs the equation matrix for the finite difference coefficients of non-uniform grids at location k"""
++    A = [[1] * (p+q+1)]
++    for i in range(1, p + q + 1):
++        line = [(coords[k+j] - coords[k])**i for j in range(-p, q+1)]
++        A.append(line)
++    return np.array(A)
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/diff.py b/montepython/likelihoods/bao_correlations/findiff_py23/diff.py
+new file mode 100644
+index 0000000..e82421c
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/diff.py
+@@ -0,0 +1,506 @@
++import operator
++import scipy.sparse as sparse
++from .coefs import coefficients, coefficients_non_uni
++from .stencils import Stencil
++from .utils import *
++from .grids import Grid
++
++
++DEFAULT_ACC = 2
++
++
++class Operator(object):
++    pass
++
++
++class BinaryOperator(Operator):
++
++    def __init__(self, left, right):
++        self.left = left
++        self.right = right
++
++    def apply(self, rhs, *args, **kwargs):
++
++        if isinstance(self.right, LinearMap) or isinstance(self.right, BinaryOperator):
++            right = self.right.apply(rhs, *args, **kwargs)
++        else:
++            right = self.right
++
++        if isinstance(self.left, LinearMap) or isinstance(self.left, BinaryOperator):
++            left = self.left.apply(right, *args, **kwargs)
++        else:
++            left = self.left
++
++        return self.oper(left, right)
++
++    def __call__(self, rhs, *args, **kwargs):
++        return self.apply(rhs, *args, **kwargs)
++
++    def set_accuracy(self, acc):
++        if isinstance(self.left, Operator):
++            self.left.set_accuracy(acc)
++        if isinstance(self.right, Operator):
++            self.right.set_accuracy(acc)
++
++
++class Plus(BinaryOperator):
++
++    def __init__(self, left, right):
++        super().__init__(left, right)
++
++    def __add__(self, other):
++        return Plus(self, other)
++
++    def __radd__(self, other):
++        return Plus(self, other)
++
++    def __sub__(self, other):
++        return Minus(self, other)
++
++    def __rsub__(self, other):
++        return Minus(self, other)
++
++    def __mul__(self, other):
++        return Mul(self, other)
++
++    def __rmul__(self, other):
++        return Mul(self, other)
++
++    def apply(self, rhs, *args, **kwargs):
++
++        if isinstance(self.right, LinearMap) or isinstance(self.right, BinaryOperator):
++            right = self.right.apply(rhs, *args, **kwargs)
++        else:
++            right = self.right
++
++        if isinstance(self.left, LinearMap) or isinstance(self.left, BinaryOperator):
++            left = self.left.apply(rhs, *args, **kwargs)
++        else:
++            left = self.left * rhs
++
++        return left + right
++
++    def matrix(self, shape, *args, **kwargs):
++        left, right = self.left, self.right
++        if isinstance(self.left, Operator):
++            left = self.left.matrix(shape, *args, **kwargs)
++        elif isinstance(self.left, np.ndarray):
++            left = sparse.diags(self.left.reshape(-1), 0)
++        if isinstance(self.right, Operator):
++            right = self.right.matrix(shape, *args, **kwargs)
++        elif isinstance(self.right, np.ndarray):
++            right = sparse.diags(self.right.reshape(-1), 0)
++        return left + right
++
++    def stencil(self, shape, h=None, acc=None, old_stl=None):
++
++        if isinstance(self.left, Operator):
++            left = self.left.stencil(shape, h, acc)
++        if isinstance(self.right, Operator):
++            right = self.right.stencil(shape, h, acc, old_stl=left)
++        return right
++
++
++class Minus(BinaryOperator):
++
++    def __init__(self, left, right):
++        super().__init__(left, right)
++
++    def __add__(self, other):
++        return Plus(self, other)
++
++    def __radd__(self, other):
++        return Plus(self, other)
++
++    def __sub__(self, other):
++        return Minus(self, other)
++
++    def __rsub__(self, other):
++        return Minus(self, other)
++
++    def __mul__(self, other):
++        return Mul(self, other)
++
++    def __rmul__(self, other):
++        return Mul(self, other)
++
++    def apply(self, rhs, *args, **kwargs):
++
++        if isinstance(self.right, LinearMap) or isinstance(self.right, BinaryOperator):
++            right = self.right.apply(rhs, *args, **kwargs)
++        else:
++            right = self.right
++
++        if isinstance(self.left, LinearMap) or isinstance(self.left, BinaryOperator):
++            left = self.left.apply(rhs, *args, **kwargs)
++        else:
++            left = self.left * rhs
++
++        return left - right
++
++    def matrix(self, shape, *args, **kwargs):
++        left, right = self.left, self.right
++        if isinstance(self.left, Operator):
++            left = self.left.matrix(shape, *args, **kwargs)
++        elif isinstance(self.left, np.ndarray):
++            left = sparse.diags(self.left.reshape(-1), 0)
++        if isinstance(self.right, Operator):
++            right = self.right.matrix(shape, *args, **kwargs)
++        elif isinstance(self.right, np.ndarray):
++            right = sparse.diags(self.right.reshape(-1), 0)
++        return left - right
++
++
++class Mul(BinaryOperator):
++
++    def __init__(self, left, right):
++        super().__init__(left, right)
++        self.oper = operator.mul
++
++    def __add__(self, other):
++        return Plus(self, other)
++
++    def __radd__(self, other):
++        return Plus(self, other)
++
++    def __sub__(self, other):
++        return Minus(self, other)
++
++    def __rsub__(self, other):
++        return Minus(self, other)
++
++    def __mul__(self, other):
++        return Mul(self, other)
++
++    def __rmul__(self, other):
++        return Mul(self, other)
++
++    def apply(self, rhs, *args, **kwargs):
++
++        if isinstance(self.right, LinearMap) or isinstance(self.right, BinaryOperator):
++            result = self.right.apply(rhs, *args, **kwargs)
++        else:
++            result = self.right * rhs
++
++        if isinstance(self.left, LinearMap) or isinstance(self.left, BinaryOperator):
++            result = self.left.apply(result, *args, **kwargs)
++        else:
++            result = self.left * result
++
++        return result
++
++    def matrix(self, shape, *args, **kwargs):
++        """ Matrix representation of given operator product on an equidistant grid of given shape.
++
++        :param shape: tuple with the shape of the grid
++        :return: scipy sparse matrix representing the operator product
++        """
++
++        if isinstance(self.left, np.ndarray):
++            left = sparse.diags(self.left.reshape(-1), 0)
++        elif isinstance(self.left, LinearMap) or isinstance(self.left, BinaryOperator):
++            left = self.left.matrix(shape, *args, **kwargs)
++        else:
++            left = self.left * sparse.diags(np.ones(shape).reshape(-1), 0)
++
++        if isinstance(self.right, np.ndarray):
++            right = sparse.diags(self.right.reshape(-1), 0)
++        elif isinstance(self.right, LinearMap) or isinstance(self.right, BinaryOperator):
++            right = self.right.matrix(shape, *args, **kwargs)
++        else:
++            right = self.right * sparse.diags(np.ones(shape).reshape(-1), 0)
++
++        return left.dot(right)
++
++
++class LinearMap(Operator):
++
++    def __init__(self, value):
++        self.value = value
++
++    def __add__(self, other):
++        return Plus(self, other)
++
++    def __radd__(self, other):
++        return Plus(self, other)
++
++    def __sub__(self, other):
++        return Minus(self, other)
++
++    def __rsub__(self, other):
++        return Minus(self, other)
++
++    def __mul__(self, other):
++        return Mul(self, other)
++
++    def __rmul__(self, other):
++        return Mul(self, other)
++
++    def __call__(self, rhs, *args, **kwargs):
++        return self.apply(rhs, *args, **kwargs)
++
++
++
++class Diff(LinearMap):
++
++    def __init__(self, axis, order, **kwargs):
++        self.axis = axis
++        self.order = order
++        self.acc = None
++        if 'acc' in kwargs:
++            self.acc = kwargs['acc']
++
++    def apply(self, u, *args, **kwargs):
++
++        h = None
++        acc = DEFAULT_ACC
++
++        def get_h(a):
++            if isinstance(a, Grid):
++                grid = a
++                h = grid.spacing(self.axis)
++            elif isinstance(a, dict):
++                h = a[self.axis]
++            else:
++                h = a
++            return h
++
++        for key, value in kwargs.items():
++            if key == 'h' or key == 'grid':
++                h = get_h(value)
++                break
++
++        if h is None:
++            h = get_h(args[0])
++
++        if 'acc' in kwargs:
++            acc = kwargs['acc']
++
++        if isinstance(h, np.ndarray):
++            return self.diff_non_uni(u, h, **kwargs)
++
++        return self.diff(u, h, acc)
++
++    def diff(self, y, h, acc):
++        """The core function to take a partial derivative on a uniform grid.
++
++            Central coefficients will be used whenever possible. Backward or forward
++            coefficients will be used if not enough points are available on either side,
++            i.e. forward coefficients for the low index boundary and backward coefficients
++            for the high index boundary.
++        """
++
++        dim = self.axis
++        coefs = coefficients(self.order, acc)
++        deriv = self.order
++
++        try:
++            npts = y.shape[dim]
++        except AttributeError as err:
++            raise ValueError("FinDiff objects can only be applied to arrays or evaluated(!) functions returning arrays")
++
++        scheme = "center"
++        weights = coefs[scheme]["coefficients"]
++        offsets = coefs[scheme]["offsets"]
++
++        num_bndry_points = len(weights) // 2
++        ref_slice = slice(num_bndry_points, npts - num_bndry_points, 1)
++        off_slices = [self._shift_slice(ref_slice, offsets[k], npts) for k in range(len(offsets))]
++
++        yd = np.zeros_like(y)
++
++        self._apply_to_array(yd, y, weights, off_slices, ref_slice, dim)
++
++        scheme = "forward"
++        weights = coefs[scheme]["coefficients"]
++        offsets = coefs[scheme]["offsets"]
++
++        ref_slice = slice(0, num_bndry_points, 1)
++        off_slices = [self._shift_slice(ref_slice, offsets[k], npts) for k in range(len(offsets))]
++
++        self._apply_to_array(yd, y, weights, off_slices, ref_slice, dim)
++
++        scheme = "backward"
++        weights = coefs[scheme]["coefficients"]
++        offsets = coefs[scheme]["offsets"]
++
++        ref_slice = slice(npts - num_bndry_points, npts, 1)
++        off_slices = [self._shift_slice(ref_slice, offsets[k], npts) for k in range(len(offsets))]
++
++        self._apply_to_array(yd, y, weights, off_slices, ref_slice, dim)
++
++        h_inv = 1. / h ** deriv
++        return yd * h_inv
++
++    def diff_non_uni(self, y, coords, **kwargs):
++        """The core function to take a partial derivative on a non-uniform grid"""
++
++        if "acc" in kwargs:
++            acc = kwargs["acc"]
++        elif self.acc is not None:
++            acc = self.acc
++        else:
++            acc = 2
++
++        order, dim = self.order, self.axis
++
++        coef_list = []
++        for i in range(len(coords)):
++            coef_list.append(coefficients_non_uni(order, acc, coords, i))
++
++        yd = np.zeros_like(y)
++
++
++        ndims = len(y.shape)
++        multi_slice = [slice(None, None)] * ndims
++        ref_multi_slice = [slice(None, None)] * ndims
++
++        for i, x in enumerate(coords):
++
++            coefs = coef_list[i]
++            weights = coefs["coefficients"]
++            offsets = coefs["offsets"]
++            ref_multi_slice[dim] = i
++
++            for off, w in zip(offsets, weights):
++                multi_slice[dim] = i + off
++                yd[tuple(ref_multi_slice)] += w * y[tuple(multi_slice)]
++
++        return yd
++
++    def matrix(self, shape, h=None, acc=None):
++
++        if isinstance(h, dict):
++            h = h[self.axis]
++
++        acc = self._properties(self.acc, acc, 2)
++
++        ndims = len(shape)
++        siz = np.prod(shape)
++        long_indices_nd = long_indices_as_ndarray(shape)
++
++        axis, order = self.axis, self.order
++        mat = sparse.lil_matrix((siz, siz))
++        coeff_dict = coefficients(order, acc)
++
++        for scheme in ['center', 'forward', 'backward']:
++
++            offsets_1d = coeff_dict[scheme]['offsets']
++            coeffs = coeff_dict[scheme]['coefficients']
++
++            # translate offsets of given scheme to long format
++            offsets_long = []
++            for o_1d in offsets_1d:
++                o_nd = np.zeros(ndims)
++                o_nd[axis] = o_1d
++                o_long = to_long_index(o_nd, shape)
++                offsets_long.append(o_long)
++
++            # determine points where to evaluate current scheme in long format
++            if scheme == 'center':
++                multi_slice = [slice(None, None)] * ndims
++                multi_slice[axis] = slice(1, -1)
++                Is = long_indices_nd[tuple(multi_slice)].reshape(-1)
++            elif scheme == 'forward':
++                multi_slice = [slice(None, None)] * ndims
++                multi_slice[axis] = 0
++                Is = long_indices_nd[tuple(multi_slice)].reshape(-1)
++            else:
++                multi_slice = [slice(None, None)] * ndims
++                multi_slice[axis] = -1
++                Is = long_indices_nd[tuple(multi_slice)].reshape(-1)
++
++            for o, c in zip(offsets_long, coeffs):
++                v = c / h**order
++                mat[Is, Is + o] = v
++
++        mat = sparse.csr_matrix(mat)
++
++        return mat
++
++    def stencil(self, shape, h=None, acc=None, old_stl=None):
++        if isinstance(h, dict):
++            h = h[self.axis]
++        acc = self._properties(self.acc, acc, 2)
++        return Stencil(shape, self.axis, self.order, h, acc, old_stl)
++
++    def set_accuracy(self, acc):
++        self.acc = acc
++
++    def _properties(self, self_value, value, default_value):
++
++        if value is not None:
++            return value
++        elif self_value is None:
++            return default_value
++        else:
++            return self_value
++
++    def _apply_to_array(self, yd, y, weights, off_slices, ref_slice, dim):
++        """Applies the finite differences only to slices along a given axis"""
++
++        ndims = len(y.shape)
++
++        all = slice(None, None, 1)
++
++        ref_multi_slice = [all] * ndims
++        ref_multi_slice[dim] = ref_slice
++
++        for w, s in zip(weights, off_slices):
++            off_multi_slice = [all] * ndims
++            off_multi_slice[dim] = s
++            if abs(1 - w) < 1.E-14:
++                yd[tuple(ref_multi_slice)] += y[tuple(off_multi_slice)]
++            else:
++                yd[tuple(ref_multi_slice)] += w * y[tuple(off_multi_slice)]
++
++    def _shift_slice(self, sl, off, max_index):
++
++        if sl.start + off < 0 or sl.stop + off > max_index:
++            raise IndexError("Shift slice out of bounds")
++
++        return slice(sl.start + off, sl.stop + off, sl.step)
++
++
++class Id(LinearMap):
++
++    def __init__(self):
++        self.value = 1
++
++    def apply(self, rhs, *args, **kwargs):
++        return rhs
++
++    def matrix(self, shape):
++        siz =  np.prod(shape)
++        mat = sparse.lil_matrix((siz, siz))
++        diag = list(range(siz))
++        mat[diag, diag] = 1
++        return sparse.csr_matrix(mat)
++
++
++class Coef(object):
++    """
++            Encapsulates a constant (number) or variable (N-dimensional coordinate array) value to multiply with a linear operator
++
++            :param value: a number or an numpy.ndarray with meshed coordinates
++
++            ============
++            **Example**:
++
++               The following example defines the differential operator
++
++               .. math::
++
++                  2x \frac{\partial^3}{\partial x^2 \partial z}
++
++               >>> X, Y, Z, U = numpy.meshgrid(x, y, z, u, indexing="ij")
++               >>> diff_op = Coef(2*X) * FinDiff((0, dx, 2), (2, dz, 1))
++
++    """
++
++    def __init__(self, value):
++        self.value = value
++
++    def __mul__(self, other):
++        return Mul(self.value , other)
++
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/grids.py b/montepython/likelihoods/bao_correlations/findiff_py23/grids.py
+new file mode 100644
+index 0000000..869788b
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/grids.py
+@@ -0,0 +1,25 @@
++import numpy as np
++
++
++class Grid(object):
++    pass
++
++
++class UniformGrid(Grid):
++
++    def __init__(self, shape, spac, center=None):
++        self.shape = shape
++        self.ndims = len(shape)
++        if not hasattr(spac, '__len__'):
++            self.spac = spac,
++        else:
++            self.spac = spac
++
++        if center is None:
++            self.center = np.zeros(self.ndims)
++        else:
++            assert len(center) == self.ndims
++            self.center = np.array(center)
++
++    def spacing(self, axis):
++        return self.spac[axis]
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/operators.py b/montepython/likelihoods/bao_correlations/findiff_py23/operators.py
+new file mode 100644
+index 0000000..b7a7770
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/operators.py
+@@ -0,0 +1,172 @@
++from .utils import *
++from .diff import Coef, Id, Diff, Plus, Minus, Mul, DEFAULT_ACC, LinearMap
++
++
++class FinDiff(LinearMap):
++    """ A representation of a general linear differential operator expressed in finite differences.
++
++            FinDiff objects can be added with other FinDiff objects. They can be multiplied by
++            objects of type Coefficient.
++
++            FinDiff is callable, i.e. to apply the derivative, just call the object on the array to
++            differentiate.
++
++            :param args: variable number of tuples. Defines what derivative to take.
++                If only one tuple is given, you can leave away the tuple parentheses.
++
++            Each tuple has the form
++
++                   `(axis, spacing, count)`     for uniform grids
++
++                   `(axis, count)`              for non-uniform grids.
++
++                 `axis` is the dimension along which to take derivative.
++
++                 `spacing` is the grid spacing of the uniform grid along that axis.
++
++                 `count` is the order of the derivative, which is optional an defaults to 1.
++
++
++            :param kwargs:  variable number of keyword arguments
++
++                Allowed keywords:
++
++                `acc`:    even integer
++                      The desired accuracy order. Default is acc=2.
++
++            This class is actually deprecated and will be replaced by the Diff class in the future.
++
++        ============
++        **Example**:
++
++
++           For this example, we want to operate on some 3D array f:
++
++           >>> import numpy as np
++           >>> x, y, z = [np.linspace(-1, 1, 100) for _ in range(3)]
++           >>> X, Y, Z = np.meshgrid(x, y, z, indexing='ij')
++           >>> f = X**2 + Y**2 + Z**2
++
++           To create :math:`\frac{\partial f}{\partial x}` on a uniform grid with spacing dx, dy
++           along the 0th axis or 1st axis, respectively, instantiate a FinDiff object and call it:
++
++           >>> d_dx = FinDiff(0, dx)
++           >>> d_dy = FinDiff(1, dx)
++           >>> result = d_dx(f)
++
++           For :math:`\frac{\partial^2 f}{\partial x^2}` or :math:`\frac{\partial^2 f}{\partial y^2}`:
++
++           >>> d2_dx2 = FinDiff(0, dx, 2)
++           >>> d2_dy2 = FinDiff(1, dy, 2)
++           >>> result_2 = d2_dx2(f)
++           >>> result_3 = d2_dy2(f)
++
++           For :math:`\frac{\partial^4 f}{\partial x \partial^2 y \partial z}`, do:
++
++           >>> op = FinDiff((0, dx), (1, dy, 2), (2, dz))
++           >>> result_4 = op(f)
++
++
++    """
++
++
++    def __init__(self, *args, **kwargs):
++        self.acc = None
++        self.spac = None
++        self.pds = self._eval_args(args, kwargs)
++
++    def __call__(self, rhs, *args, **kwargs):
++        return self.apply(rhs, *args, **kwargs)
++
++    def apply(self, rhs, *args, **kwargs):
++        if 'acc' not in kwargs:
++            if self.acc is None:
++                acc = DEFAULT_ACC
++            else:
++                acc = self.acc
++            kwargs['acc'] = acc
++
++        if len(args) == 0 and 'h' not in kwargs:
++            if self.uniform:
++                args = self.spac,
++            else:
++                args = self.coords,
++        return self.pds(rhs, *args, **kwargs)
++
++    def stencil(self, shape, h=None, acc=None, old_stl=None):
++        if h is None and self.spac is not None:
++            h = self.spac
++        return self.pds.stencil(shape, h, acc, old_stl)
++
++    def matrix(self, shape, h=None, acc=None):
++        if h is None and self.spac is not None:
++            h = self.spac
++        if acc is None:
++            acc = DEFAULT_ACC
++        return self.pds.matrix(shape, h, acc)
++
++    def set_accuracy(self, acc):
++        self.pds.set_accuracy(acc)
++
++    def __add__(self, other):
++        return Plus(self, other)
++
++    def __sub__(self, other):
++        return Minus(self, other)
++
++    def __mul__(self, other):
++        return Mul(self, other)
++
++    def _eval_args(self, args, kwargs):
++        spac = {}
++
++        if 'acc' in kwargs:
++            self.acc = kwargs['acc']
++
++        if isinstance(args[0], tuple): # mixed partial derivative
++            pds = None
++
++            for arg in args:
++                if len(arg) == 3:
++                    axis, h, order = arg
++                elif len(arg) == 2:
++                    axis, h = arg
++                    order = 1
++                else:
++                    raise ValueError('Format: (axis, spacing, order=1)')
++                spac[axis] = h
++                if pds is None:
++                    pds = Diff(axis, order)
++                else:
++                    pd = Diff(axis, order)
++                    pds = pds * pd
++        else:
++            if len(args) == 3:
++                axis, h, order = args
++            elif len(args) == 2:
++                axis, h = args
++                order = 1
++            else:
++                raise ValueError('Format: (axis, spacing, order=1)')
++            pds = Diff(axis, order)
++
++            spac[axis] = h
++
++        # Check if spac is really the spacing and not the coordinates (nonuniform case)
++        for a, s in spac.items():
++            if hasattr(s, '__len__'):
++                self.coords = spac
++                self.uniform = False
++                break
++            else:
++                self.spac = spac
++                self.uniform = True
++                break
++
++        return pds
++
++
++# Alias for backward compatibility
++Coefficient = Coef
++Identity = Id
++
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/pde.py b/montepython/likelihoods/bao_correlations/findiff_py23/pde.py
+new file mode 100644
+index 0000000..17ee558
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/pde.py
+@@ -0,0 +1,62 @@
++import numpy as np
++import scipy.sparse as sparse
++from scipy.sparse.linalg import spsolve
++
++
++class PDE(object):
++
++    def __init__(self, lhs, rhs, bcs):
++        self.lhs = lhs
++        self.rhs = rhs
++        self.bcs = bcs
++        self._L = None
++
++    def solve(self):
++
++        shape = self.bcs.shape
++        if self._L is None:
++            self._L = self.lhs.matrix(shape) # expensive operation, so cache it
++
++        L = sparse.lil_matrix(self._L)
++        f = self.rhs.reshape(-1, 1)
++
++        nz = list(self.bcs.row_inds())
++
++        L[nz, :] = self.bcs.lhs[nz, :]
++        f[nz] = np.array(self.bcs.rhs[nz].toarray()).reshape(-1, 1)
++
++        L = sparse.csr_matrix(L)
++        return spsolve(L, f).reshape(shape)
++
++
++class BoundaryConditions(object):
++
++    def __init__(self, shape):
++        self.shape = shape
++        siz = np.prod(shape)
++        self.long_indices = np.array(list(range(siz))).reshape(shape)
++        self.lhs = sparse.lil_matrix((siz, siz))
++        self.rhs = sparse.lil_matrix((siz, 1))
++
++    def __setitem__(self, key, value):
++
++        lng_inds = self.long_indices[key]
++
++        if isinstance(value, tuple): # Neumann BC
++            op, value = value
++            # Avoid calling matrix for the whole grid! Optimize later!
++            mat = sparse.lil_matrix(op.matrix(self.shape))
++            self.lhs[lng_inds, :] = mat[lng_inds, :]
++        else: # Dirichlet BC
++            self.lhs[lng_inds, lng_inds] = 1
++
++        if isinstance(value, np.ndarray):
++            value = value.reshape(-1)[lng_inds]
++            for i, v in zip(lng_inds, value):
++                self.rhs[i] = v
++        else:
++            self.rhs[lng_inds] = value
++
++    def row_inds(self):
++        nz_rows, nz_cols = self.lhs.nonzero()
++        return nz_rows
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/stencils.py b/montepython/likelihoods/bao_correlations/findiff_py23/stencils.py
+new file mode 100644
+index 0000000..3cb8cd0
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/stencils.py
+@@ -0,0 +1,144 @@
++from itertools import product
++from copy import deepcopy
++import operator
++import numpy as np
++from .coefs import coefficients
++
++
++class Stencil(object):
++
++    def __init__(self, shape, axis, order, h, acc, old_stl=None):
++        self.shape = shape
++        self.axis = axis
++        self.order = order
++        self.h = h
++        self.acc = acc
++        self.char_pts = self._det_characteristic_points()
++        if old_stl:
++            self.data = old_stl.data
++        else:
++            self.data = {}
++
++        self._create_stencil()
++
++    def apply(self, u, idx0):
++
++        if not hasattr(idx0, '__len__'):
++            idx0 = (idx0, )
++
++        typ = []
++        for axis in range(len(self.shape)):
++            if idx0[axis] == 0:
++                typ.append('L')
++            elif idx0[axis] == self.shape[axis] - 1:
++                typ.append('H')
++            else:
++                typ.append('C')
++        typ = tuple(typ)
++
++        stl = self.data[typ]
++
++        idx0 = np.array(idx0)
++        du = 0.
++        for o, c in stl.items():
++            idx = idx0 + o
++            du += c * u[tuple(idx)]
++
++        return du
++
++    def apply_all(self, u):
++
++        assert self.shape == u.shape
++
++        ndims = len(u.shape)
++        if ndims == 1:
++            indices = list(range(len(u)))
++        else:
++            axes_indices = []
++            for axis in range(ndims):
++                axes_indices.append(list(range(u.shape[axis])))
++
++            axes_indices = tuple(axes_indices)
++            indices = list(product(*axes_indices))
++
++        du = np.zeros_like(u)
++
++        for idx in indices:
++            du[idx] = self.apply(u, idx)
++
++        return du
++
++    def for_point(self, idx):
++        typ = self.type_for_point(idx)
++        return self.data[typ]
++
++    def type_for_point(self, idx):
++        typ = []
++        for axis in range(len(idx)):
++            if idx[axis] == 0:
++                typ.append('L')
++            elif idx[axis] == self.shape[axis] - 1:
++                typ.append('H')
++            else:
++                typ.append('C')
++        return tuple(typ)
++
++    def _create_stencil(self):
++
++        ndim = len(self.shape)
++        data = self.data
++        smap = {'L': 'forward', 'C': 'center', 'H': 'backward'}
++
++        axis, order, h = self.axis, self.order, self.h
++
++        for pt in self.char_pts:
++            scheme = smap[pt[axis]]
++            coefs = coefficients(order, self.acc)[scheme]
++
++            if pt in data:
++                lstl = data[pt]
++            else:
++                lstl = {}
++
++            for off, c in zip(coefs['offsets'], coefs['coefficients']):
++                long_off = [0] * ndim
++                long_off[axis] += off
++                long_off = tuple(long_off)
++
++                if long_off in lstl:
++                    lstl[long_off] += c / h ** order
++                else:
++                    lstl[long_off] = c / h ** order
++            data[pt] = lstl
++
++    def _det_characteristic_points(self):
++        shape = self.shape
++        ndim = len(shape)
++        typ = [("L", "C", "H")]*ndim
++        return product(*typ)
++
++    def __str__(self):
++        s = ""
++        for typ, stl in self.data.items():
++            s += str(typ) + ":\t" + str(stl) + "\n"
++        return s
++
++    def _binaryop(self, other, op):
++        stl = deepcopy(self)
++        assert stl.shape == other.shape
++
++        for char_pt, single_stl in stl.data.items():
++            other_single_stl = other.data[char_pt]
++            for o, c in other_single_stl.items():
++                if o in single_stl:
++                    single_stl[o] = op(single_stl[o], c)
++                else:
++                    single_stl[o] = op(0, c)
++
++        return stl
++
++    def __add__(self, other):
++        return self._binaryop(other, operator.__add__)
++
++    def __sub__(self, other):
++        return self._binaryop(other, operator.__sub__)
+\ No newline at end of file
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/utils.py b/montepython/likelihoods/bao_correlations/findiff_py23/utils.py
+new file mode 100644
+index 0000000..98f171c
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/utils.py
+@@ -0,0 +1,43 @@
++from itertools import product
++import numpy as np
++
++
++def interior_mask_as_ndarray(shape):
++    ndims = len(shape)
++    mask = np.zeros(shape, dtype=np.bool)
++    mask[tuple([slice(1, -1)] * ndims)] = True
++    return mask
++
++
++def all_index_tuples_as_list(shape):
++    ndims = len(shape)
++    return list(product(*tuple([list(range(shape[k])) for k in range(ndims)])))
++
++
++def long_indices_as_ndarray(shape):
++    return np.array(list(range(np.prod(shape)))).reshape(shape)
++
++
++def to_long_index(idx, shape):
++    ndims = len(shape)
++    long_idx = 0
++    siz = 1
++    for axis in range(ndims):
++        long_idx += idx[ndims-1-axis] * siz
++        siz *= shape[ndims-1-axis]
++    return long_idx
++
++
++def to_index_tuple(long_idx, shape):
++    ndims = len(shape)
++    idx = np.zeros(ndims)
++    for k in range(ndims):
++        s = np.prod(shape[k+1:])
++        idx[k] = long_idx // s
++        long_idx = long_idx - s * idx[k]
++
++    return tuple(idx)
++
++
++
++
+diff --git a/montepython/likelihoods/bao_correlations/findiff_py23/vector.py b/montepython/likelihoods/bao_correlations/findiff_py23/vector.py
+new file mode 100644
+index 0000000..1ebd334
+--- /dev/null
++++ b/montepython/likelihoods/bao_correlations/findiff_py23/vector.py
+@@ -0,0 +1,281 @@
++"""A module for the common differential operators of vector calculus"""
++
++import numpy as np
++from .operators import FinDiff
++from.diff import Diff
++
++
++class VectorOperator(object):
++    """Base class for all vector differential operators.
++       Shall not be instantiated directly, but through the child classes.
++    """
++
++    def __init__(self, **kwargs):
++        """Constructor for the VectorOperator base class.
++        
++            kwargs:
++            -------
++            
++            h       list with the grid spacings of an N-dimensional uniform grid
++            
++            coords  list of 1D arrays with the coordinate values along the N axes.
++                    This is used for non-uniform grids. 
++            
++            Either specify "h" or "coords", not both.
++        
++        """
++
++        if "acc" in kwargs:
++            self.acc = kwargs.pop("acc")
++        else:
++            self.acc = 2
++
++        if "spac" in kwargs or "h" in kwargs: # necessary for backward compatibility 0.5.2 => 0.6
++            if "spac" in kwargs:
++                kw = "spac"
++            else:
++                kw = "h"
++            self.h = kwargs.pop(kw)
++            self.ndims = len(self.h)
++            self.components = [FinDiff(k, self.h[k], 1) for k in range(self.ndims)]
++
++        if "coords" in kwargs:
++            coords = kwargs.pop("coords")
++            self.ndims = self.__get_dimension(coords)
++            self.components = [FinDiff((k, coords[k], 1), **kwargs) for k in range(self.ndims)]
++
++    def __get_dimension(self, coords):
++        if isinstance(coords, np.ndarray):
++            shape = coords.shape
++            if len(shape) > 1:
++                ndims = shape[0]
++            else:
++                ndims = 1
++        else:
++            ndims = len(coords)
++        return ndims
++
++
++class Gradient(VectorOperator):
++    r"""
++    The N-dimensional gradient.
++    
++    .. math::
++        \nabla = \left(\frac{\partial}{\partial x_0}, \frac{\partial}{\partial x_1}, ... , \frac{\partial}{\partial x_{N-1}}\right)
++
++    :param kwargs:  exactly one of *h* and *coords* must be specified
++    
++             *h* 
++                     list with the grid spacings of an N-dimensional uniform grid     
++             *coords*
++                     list of 1D arrays with the coordinate values along the N axes.
++                     This is used for non-uniform grids.
++                     
++             *acc*
++                     accuracy order, must be positive integer, default is 2
++    """
++
++    def __init__(self, **kwargs):
++        super().__init__(**kwargs)
++
++    def __call__(self, f):
++        """
++        Applies the N-dimensional gradient to the array f.
++        
++        :param f:  ``numpy.ndarray``
++        
++                Array to apply the gradient to. It represents a scalar function,
++                so it must have N axes for the N independent variables.        
++           
++        :returns: ``numpy.ndarray``
++         
++                The gradient of f, which has N+1 axes, i.e. it is 
++                an array of N arrays of N axes each.
++           
++        """
++
++        if not isinstance(f, np.ndarray):
++            raise TypeError("Function to differentiate must be numpy.ndarray")
++
++        if len(f.shape) != self.ndims:
++            raise ValueError("Gradients can only be applied to scalar functions")
++
++        result = []
++        for k in range(self.ndims):
++            d_dxk = self.components[k]
++            result.append(d_dxk(f, acc=self.acc))
++
++        return np.array(result)
++
++
++class Divergence(VectorOperator):
++    r"""
++    The N-dimensional divergence.
++    
++    .. math::
++    
++       {\rm \bf div} = \nabla \cdot
++    
++    :param kwargs:  exactly one of *h* and *coords* must be specified
++
++         *h* 
++                 list with the grid spacings of an N-dimensional uniform grid     
++         *coords*
++                 list of 1D arrays with the coordinate values along the N axes.
++                 This is used for non-uniform grids.
++                 
++         *acc*
++                 accuracy order, must be positive integer, default is 2
++    
++    """
++
++    def __init__(self, **kwargs):
++        super().__init__(**kwargs)
++
++    def __call__(self, f):
++        """
++        Applies the divergence to the array f.
++
++        :param f: ``numpy.ndarray``
++                
++               a vector function of N variables, so its array has N+1 axes.
++        
++        :returns: ``numpy.ndarray``
++            
++               the divergence, which is a scalar function of N variables, so it's array dimension has N axes
++                
++        """
++        if not isinstance(f, np.ndarray) and not isinstance(f, list):
++            raise TypeError("Function to differentiate must be numpy.ndarray or list of numpy.ndarrays")
++
++        if len(f.shape) != self.ndims + 1 and f.shape[0] != self.ndims:
++            raise ValueError("Divergence can only be applied to vector functions of the same dimension")
++
++        result = np.zeros(f.shape[1:])
++
++        for k in range(self.ndims):
++            result += self.components[k](f[k], acc=self.acc)
++
++        return result
++
++
++class Curl(VectorOperator):
++    r"""
++    The curl operator. 
++    
++    .. math::
++    
++        {\rm \bf rot} = \nabla \times
++    
++    Is only defined for 3D.
++    
++    :param kwargs:  exactly one of *h* and *coords* must be specified
++
++     *h* 
++             list with the grid spacings of a 3-dimensional uniform grid     
++     *coords*
++             list of 1D arrays with the coordinate values along the 3 axes.
++             This is used for non-uniform grids.
++             
++     *acc*
++             accuracy order, must be positive integer, default is 2
++
++    
++    """
++
++    def __init__(self, **kwargs):
++        super().__init__(**kwargs)
++
++        if self.ndims != 3:
++            raise ValueError("Curl operation is only defined in 3 dimensions. {} were given.".format(self.ndims))
++
++    def __call__(self, f):
++        """
++        Applies the curl to the array f.
++
++        :param f: ``numpy.ndarray``
++
++               a vector function of N variables, so its array has N+1 axes.
++
++        :returns: ``numpy.ndarray``
++
++               the curl, which is a vector function of N variables, so it's array dimension has N+1 axes
++
++        """
++
++        if not isinstance(f, np.ndarray) and not isinstance(f, list):
++            raise TypeError("Function to differentiate must be numpy.ndarray or list of numpy.ndarrays")
++
++        if len(f.shape) != self.ndims + 1 and f.shape[0] != self.ndims:
++            raise ValueError("Curl can only be applied to vector functions of the three dimensions")
++
++        result = np.zeros(f.shape)
++
++        result[0] += self.components[1](f[2], acc=self.acc) - self.components[2](f[1], acc=self.acc)
++        result[1] += self.components[2](f[0], acc=self.acc) - self.components[0](f[2], acc=self.acc)
++        result[2] += self.components[0](f[1], acc=self.acc) - self.components[1](f[0], acc=self.acc)
++
++        return result
++
++
++class Laplacian(object):
++    r"""
++        The N-dimensional Laplace operator.
++
++        .. math::
++
++           {\rm \bf \nabla^2} = \sum_{k=0}^{N-1} \frac{\partial^2}{\partial x_k^2}
++
++        :param kwargs:  exactly one of *h* and *coords* must be specified
++
++             *h* 
++                     list with the grid spacings of an N-dimensional uniform grid     
++             *coords*
++                     list of 1D arrays with the coordinate values along the N axes.
++                     This is used for non-uniform grids.
++
++             *acc*
++                     accuracy order, must be positive integer, default is 2
++
++        """
++
++    """A representation of the Laplace operator in arbitrary dimensions using finite difference schemes"""
++
++    def __init__(self, h=[1.], acc=2):
++        h = wrap_in_ndarray(h)
++
++        self._parts = [FinDiff((k, h[k], 2), acc=acc) for k in range(len(h))]
++
++    def __call__(self, f):
++        """
++        Applies the Laplacian to the array f.
++
++        :param f: ``numpy.ndarray``
++
++               a scalar function of N variables, so its array has N axes.
++
++        :returns: ``numpy.ndarray``
++
++               the Laplacian of f, which is a scalar function of N variables, so it's array dimension has N axes
++
++        """
++        laplace_f = np.zeros_like(f)
++
++        for part in self._parts:
++            laplace_f += part(f)
++
++        return laplace_f
++
++
++def wrap_in_ndarray(value):
++    """Wraps the argument in a numpy.ndarray.
++
++       If value is a scalar, it is converted in a list first.
++       If value is array-like, the shape is conserved.
++
++    """
++
++    if hasattr(value, "__len__"):
++        return np.array(value)
++    else:
++        return np.array([value])

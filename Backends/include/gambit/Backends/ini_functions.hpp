@@ -55,13 +55,13 @@ namespace Gambit
   int register_type(str bever, str classname);
 
   /// Disable a backend functor if its library is missing or the symbol cannot be found.
-  int set_backend_functor_status(functor&, const str&);
+  int set_backend_functor_status(functor&, const std::vector<str>&);
 
   /// Disable a backend initialisation function if the backend is missing.
   int set_BackendIniBit_functor_status(functor&, str, str);
 
   /// Get the status of a factory pointer to a BOSSed type's wrapper constructor.
-  int get_ctor_status(str, str, str, str, str, str);
+  int get_ctor_status(str, str, str, str, str, const std::vector<str>&);
 
   /// Set a backend rule for one or more models.
   int set_backend_rule_for_model(module_functor_common&, str, str);
@@ -85,7 +85,7 @@ namespace Gambit
 
     /// Get the pointer to the backend function.
     template <typename T>
-    T load_backend_symbol(str symbol_name, str be, str ver)
+    T load_backend_symbol(const std::vector<str>& symbol_names, str be, str ver)
     {
       T result = nullptr;
       try
@@ -95,9 +95,13 @@ namespace Gambit
         void* pHandle = works ? backendInfo().loaded_C_CXX_Fortran_backends.at(be+ver) : NULL ;
         // Clear error code by calling dlerror()
         dlerror();
-        // Obtain a void pointer (pSym) to the library symbol.
+        // Attempt to obtain a void pointer (pSym) to one of the library symbols.
         void_voidFptr pSym;
-        pSym.ptr = dlsym(pHandle, symbol_name.c_str());
+        for (auto& name : symbol_names)
+        {
+          pSym.ptr = dlsym(pHandle, name.c_str());
+          if (pSym.ptr != NULL) break;
+        }
         // If using backwards systems missing dlinfo(), like OSX, determine the path to the library with dladdr()
         #ifndef HAVE_LINK_H
           // Don't bother trying if the symbol wasn't found in the library anyway.
@@ -123,12 +127,12 @@ namespace Gambit
     /// Provide the factory pointer to a BOSSed type's wrapper constructor.
     template <typename T>
     T handover_factory_pointer(str be, str ver, str name, str barename,
-                               str args, str symbol_name, T factory,
+                               str args, const std::vector<str>& symbol_names, T factory,
                                T missing_backend, T missing_factory)
     {
       try
       {
-        int status = get_ctor_status(be, ver, name, barename, args, symbol_name);
+        int status = get_ctor_status(be, ver, name, barename, args, symbol_names);
         switch(status)
         {
           case  0: return factory;

@@ -15,6 +15,10 @@
 ///          (ben.farmer@gmail.com)
 ///  \date 2015 Aug
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Jul
+///
 ///  *********************************************
 
 #include <string>
@@ -67,6 +71,30 @@ namespace Gambit
       oneset.setPoleMZ(sminputs.mZ);
     }
 
+    /// Check that the spectrum has a neutralino LSP.
+    bool has_neutralino_LSP(const Spectrum& result)
+    {
+      double msqd  = result.get(Par::Pole_Mass, 1000001, 0);
+      double msqu  = result.get(Par::Pole_Mass, 1000002, 0);
+      double msl   = result.get(Par::Pole_Mass, 1000011, 0);
+      double msneu = result.get(Par::Pole_Mass, 1000012, 0);
+      double mglui = result.get(Par::Pole_Mass, 1000021, 0);
+      double mchi0 = std::abs(result.get(Par::Pole_Mass, 1000022, 0));
+      double mchip = std::abs(result.get(Par::Pole_Mass, 1000024, 0));
+
+      return mchi0 < mchip &&
+             mchi0 < mglui &&
+             mchi0 < msl   &&
+             mchi0 < msneu &&
+             mchi0 < msqu  &&
+             mchi0 < msqd;
+    }
+    /// Helper to work with pointer
+    bool has_neutralino_LSP(const Spectrum* result)
+    {
+      return has_neutralino_LSP(*result);
+    }
+
     /// @} End module convenience functions
 
 
@@ -108,6 +136,10 @@ namespace Gambit
          sminputs.mCmC     = *myPipe::Param["mCmC"    ];
          sminputs.mBmB     = *myPipe::Param["mBmB"    ];
          sminputs.mT       = *myPipe::Param["mT"      ];
+
+         sminputs.mNu1     = *myPipe::Param["mNu1"    ];
+         sminputs.mNu2     = *myPipe::Param["mNu2"    ];
+         sminputs.mNu3     = *myPipe::Param["mNu3"    ];
 
          // CKM
          sminputs.CKM.lambda   = *myPipe::Param["CKM_lambda" ];

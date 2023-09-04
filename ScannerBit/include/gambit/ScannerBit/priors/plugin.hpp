@@ -46,12 +46,18 @@ namespace Gambit
                 plugin = new plugin_type("objective", plugin_name, param_names, sizeRef());
             }
                 
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string,double> &outputMap) const
+            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string,double> &outputMap) const override
             {
                 return (*plugin)(unitpars, outputMap);
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override
+            {
+                scan_err << "inverse transform not supported in plugin prior" << scan_end;
+                return {};
+            }
             
-            double operator()(const std::vector<double>& vec) const
+            double operator()(const std::vector<double>& vec) const override
             {
                 return (*plugin)(vec);
             }

@@ -136,7 +136,7 @@ Scanner:
       plugin: gaussian
       purpose: LogLike
       #cov: [[0.01, 0.0], [0.0, 0.01]]
-      #mean: [0.5, 0.5]
+      #mu: [0.5, 0.5]
       parameters:
         param...20:
           range: [-5, 5]

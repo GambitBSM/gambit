@@ -18,7 +18,7 @@
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
 ///  \date 2013 Nov
-//
+///
 ///  \author Christoph Weniger
 ///          (c.weniger@uva.nl)
 ///  \date 2014 Jan
@@ -225,7 +225,7 @@ ALLOW_MODEL_COMBINATION(BOOST_PP_ENUM(BOOST_PP_VARIADIC_SIZE(__VA_ARGS__),MODEL_
 #define ALLOW_MODELS_2(A,B,_1, _2)                                   ALLOWED_MODEL(A,B,_1) ALLOWED_MODEL(A,B,_2)
 #define ALLOW_MODELS_1(A,B,_1)                                       ALLOWED_MODEL(A,B,_1)
 #define ALLOW_MODELS_AB(A,B,...)                                     VARARG_AB(ALLOW_MODELS, A, B, __VA_ARGS__)
-#define ALLOW_MODELS(...)                                            ALLOW_MODELS_AB(MODULE, FUNCTION, __VA_ARGS__)
+//#define ALLOW_MODELS(...)                                            ALLOW_MODELS_AB(MODULE, FUNCTION, __VA_ARGS__)
 /// @}
 
 

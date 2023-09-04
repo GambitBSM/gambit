@@ -1,11 +1,12 @@
 #ifndef __abstract_ResonanceGmZ_Pythia_8_212_h__
 #define __abstract_ResonanceGmZ_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <cstddef>
-#include <iostream>
+#include "wrapper_ResonanceWidths_decl.h"
 
 #include "identification.hpp"
 
@@ -15,11 +16,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
     namespace Pythia8
     {
-        class Abstract_ResonanceGmZ : public virtual AbstractBase
+        class Abstract_ResonanceGmZ : virtual public Pythia8::Abstract_ResonanceWidths
         {
             public:
     
             public:
+                using Pythia8::Abstract_ResonanceWidths::pointer_assign__BOSS;
                 virtual void pointer_assign__BOSS(Abstract_ResonanceGmZ*) =0;
                 virtual Abstract_ResonanceGmZ* pointer_copy__BOSS() =0;
     
@@ -39,7 +41,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                     delete_wrapper = false;
                 }
     
-                Abstract_ResonanceGmZ(const Abstract_ResonanceGmZ&)
+                Abstract_ResonanceGmZ(const Abstract_ResonanceGmZ& in) : 
+                    Pythia8::Abstract_ResonanceWidths(in)
                 {
                     wptr = 0;
                     delete_wrapper = false;

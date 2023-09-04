@@ -1,6 +1,7 @@
 #ifndef __wrapper_PartonLevel_def_Pythia_8_212_h__
 #define __wrapper_PartonLevel_def_Pythia_8_212_h__
 
+#include <vector>
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_ParticleData_decl.h"
@@ -8,8 +9,8 @@
 #include "wrapper_BeamParticle_decl.h"
 #include "wrapper_Couplings_decl.h"
 #include "wrapper_SigmaTotal_decl.h"
+#include "wrapper_UserHooks_decl.h"
 #include "wrapper_Event_decl.h"
-#include <vector>
 #include "wrapper_ResonanceDecays_decl.h"
 
 #include "identification.hpp"
@@ -88,7 +89,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::PartonLevel::PartonLevel() :
+        inline PartonLevel::PartonLevel() :
             WrapperBase(__factory0())
         {
             get_BEptr()->set_wptr(this);
@@ -96,7 +97,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::PartonLevel::PartonLevel(Pythia8::Abstract_PartonLevel* in) :
+        inline PartonLevel::PartonLevel(Abstract_PartonLevel* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -104,7 +105,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::PartonLevel::PartonLevel(const PartonLevel& in) :
+        inline PartonLevel::PartonLevel(const PartonLevel& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -112,7 +113,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::PartonLevel& PartonLevel::operator=(const PartonLevel& in)
+        inline PartonLevel& PartonLevel::operator=(const PartonLevel& in)
         {
             if (this != &in)
             {
@@ -123,7 +124,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::PartonLevel::~PartonLevel()
+        inline PartonLevel::~PartonLevel()
         {
             if (get_BEptr() != 0)
             {
@@ -138,9 +139,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_PartonLevel* Pythia8::PartonLevel::get_BEptr() const
+        inline Abstract_PartonLevel* Pythia8::PartonLevel::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_PartonLevel*>(BEptr);
+            return dynamic_cast<Abstract_PartonLevel*>(BEptr);
         }
     }
     

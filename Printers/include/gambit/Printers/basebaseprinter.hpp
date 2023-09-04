@@ -19,6 +19,15 @@
 ///          (benjamin.farmer@fysik.su.se)
 ///  \date 2015 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2019 May
+///        2020 June
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2020 May
+///
 ///  *********************************************
 
 #ifndef __base_base_printer_hpp__
@@ -43,6 +52,7 @@ namespace Gambit
   // Forward declarations needed for some of the _print/_retrieve functions
   class ModelParameters;
   typedef std::map<std::string,double> map_str_dbl; // can't have commas in macro input
+  typedef std::map<std::string,std::string> map_str_str;
 
 
   namespace Printers
@@ -69,10 +79,11 @@ namespace Gambit
       private:
         int rank;
         std::set<std::string> print_list; // List of names of data that may be printed (i.e. with printme=true)
-        bool resume; // Flag to query to determine if printer is appending points to existing output 
+        bool resume; // Flag to query to determine if printer is appending points to existing output
+        bool printUnitcube; // Flag whether unitCubeParameters should be printed.
 
       public:
-        BaseBasePrinter(): rank(0), printer_enabled(true) {}
+        BaseBasePrinter(): rank(0), printUnitcube(false), printer_enabled(true), printer_cooldown(-1) {}
         virtual ~BaseBasePrinter() {}
         /// Function to signal to the printer to write buffer contents to disk
         //virtual void flush() {}; // TODO: needed?
@@ -88,6 +99,10 @@ namespace Gambit
         /// Retrieve/Set MPI rank (setting is useful for e.g. the postprocessor to re-print points from other ranks)
         int  getRank() {return rank;}
         void setRank(int r) {rank = r;}
+
+        // Retrieve and set the state of the 'printUnitcube' flag
+        bool& get_printUnitcube() { return printUnitcube; }
+        void set_printUnitcube(const bool& rflag) { printUnitcube = rflag; }
 
         /// Retrieve/Set print list for this printer
         /// Required by e.g. postprocessor.
@@ -106,10 +121,17 @@ namespace Gambit
         virtual void finalise(bool abnormal=false) = 0;
 
         /// "Turn off" printer; i.e. calls to print functions will do nothing while this is active
-        void disable() { printer_enabled = false; }
+        /// Optionally, disable printer just for the next n print calls unless it was already disabled
+        void disable(int n=-1)
+        {
+          if(printer_enabled)
+            printer_cooldown = n;
+          printer_enabled = false;
+        }
 
         /// "Turn on" printer; print calls will work as normal.
-        void enable() { printer_enabled = true; }
+        /// Reset cooldown
+        void enable() { printer_enabled = true;  printer_cooldown = 0;}
 
         // Printer dispatch function. If a virtual function override exists for
         // the print type, info is passed on, otherwise the function call is resolved
@@ -121,6 +143,8 @@ namespace Gambit
                    const ulong pointID)
         {
           if(printer_enabled) _print(in, label, vertexID, rank, pointID);
+          if(printer_cooldown > 0) printer_cooldown--; // if there's a cooldown, reduce it afer printing
+          if(!printer_cooldown) printer_enabled = true; // if cooldown has ended, re-enable printer
         }
 
         // Overload which automatically determines a unique ID code
@@ -130,12 +154,23 @@ namespace Gambit
                    const uint rank,
                    const ulong pointID)
         {
-          if(printer_enabled) _print(in, label, rank, pointID);
+          if(printer_enabled) _print(in, label, get_param_id(label), rank, pointID);
+          if(printer_cooldown > 0) printer_cooldown--; // if there's a cooldown, reduce it afer printing
+          if(!printer_cooldown) printer_enabled = true; // if cooldown has ended, re-enable printer
+        }
+
+        // Print metadata information
+        void print_metadata(map_str_str datasets)
+        {
+          if(printer_enabled) _print_metadata(datasets);
         }
 
       protected:
         /// Flag to check if print functions are enabled or disabled
         bool printer_enabled;
+
+        /// Counter for printer cooldown. If non-zero printer can be disabled for a fixed number of print calls
+        int printer_cooldown;
 
         /// Default _print function. Throws an error if no matching
         /// virtual function for the type of the attempted print is
@@ -156,8 +191,7 @@ namespace Gambit
               << "you are using (see documentation for GAMBIT printers)."
               << "\n  Available info for this print attempt..."
               << "\n   Label      : " << label
-              << "\n   vertexID   : " << vertexID
-              << "\n   Type       : " << STRINGIFY(T);
+              << "\n   vertexID   : " << vertexID;
           printer_error().raise(LOCAL_INFO,err.str());
         }
 
@@ -170,34 +204,35 @@ namespace Gambit
            _print(in,label,rank,pointID);
         }
 
+        // Default _print_metadata function. Should be overloaded by printers
+        virtual void _print_metadata(map_str_str )
+        {
+          std::ostringstream err;
 
-        // Virtual print methods for base printer classes
-        #define VPRINT(r,data,elem)                                \
-        virtual void _print(elem const&, const std::string& label, \
-                           const int vertexID, const uint /*rank*/, \
-                           const ulong /*pointID*/)               \
-        {                                                         \
-          std::ostringstream err;                                 \
-                                                                  \
-          err << "No print function override has been "           \
-              << "\ndefined for this type (for whatever printer"  \
-              << "\nclass the current printer comes from)"        \
-              << "\n  Dumping available info..."                  \
-              << "\n   Label      : " << label                    \
-              << "\n   vertexID   : " << vertexID                 \
-              << "\n   Type       : " << STRINGIFY(elem);         \
-          printer_error().raise(LOCAL_INFO,err.str());          \
-        } \
-        \
-        /* version that assigns vertexID automatically */         \
-        virtual void _print(elem const& in, const std::string& label, \
-                           const uint rank, \
-                           const ulong pointID)               \
-        {                                                         \
-           _print(in,label,get_param_id(label),rank,pointID); \
+          err << "Attempted to print metadata to a printer type "
+              << "that does not accept metadata. Please change "
+              << "your printer or disable priting metadata.";
+          printer_error().raise(LOCAL_INFO,err.str());
         }
 
-        #define ADD_VIRTUAL_PRINTS(TYPES) BOOST_PP_SEQ_FOR_EACH(VPRINT, _, TYPES)
+        // Virtual print methods for base printer classes
+        #define VPRINT(r,data,elem)                                   \
+        virtual void _print(elem const&, const std::string& label,    \
+                           const int vertexID, const uint /*rank*/,   \
+                           const ulong /*pointID*/)                   \
+        {                                                             \
+          std::ostringstream err;                                     \
+                                                                      \
+          err << "No print function override has been "               \
+              << "\ndefined for this type (for whatever printer"      \
+              << "\nclass the current printer comes from)"            \
+              << "\n  Dumping available info..."                      \
+              << "\n   Label      : " << label                        \
+              << "\n   vertexID   : " << vertexID;                    \
+          printer_error().raise(LOCAL_INFO,err.str());                \
+        }
+
+        #define ADD_VIRTUAL_PRINTS(TYPES) BOOST_PP_SEQ_FOR_EACH(VPRINT, , TYPES)
 
         // Add the base virtual functions for registered printable and
         // retrievable types, to be overloaded in each printer.
@@ -286,8 +321,18 @@ namespace Gambit
         template<typename T>
         bool retrieve(T& out, const std::string& label)
         {
+          bool valid;
           PPIDpair pt = get_current_point();
-          return retrieve(out, label, pt.rank, pt.pointID);
+          // Need to check if the current rank/pointID pair is valid before trying to retrieve from it
+          if(pt==nullpoint)
+          {
+             valid = false;
+          }
+          else
+          {
+             valid = retrieve(out, label, pt.rank, pt.pointID);
+          }
+          return valid;
         }
 
         /// Retrieve and directly print data to new output
@@ -311,8 +356,18 @@ namespace Gambit
         /// As above, but allows for different input/output labels
         bool retrieve_and_print(const std::string& in_label, const std::string& out_label, BaseBasePrinter& printer)
         {
+          bool valid;
           PPIDpair pt = get_current_point();
-          return retrieve_and_print(in_label, out_label, printer, pt.rank, pt.pointID);
+          // Need to check if the current rank/pointID pair is valid before trying to retrieve from it
+          if(pt==nullpoint)
+          {
+             valid = false;
+          }
+          else
+          {
+             valid = retrieve_and_print(in_label, out_label, printer, pt.rank, pt.pointID);
+          }
+          return valid;
         }
 
         /// Get type information for a data entry, i.e. defines the C++ type which this should be
@@ -342,33 +397,31 @@ namespace Gambit
               << "to define a retrieve function for it in whatever printer "
               << "you are using (see documentation for GAMBIT printers)."
               << "\n  Available info for this retrieve attempt..."
-              << "\n   Label      : " << label
-              << "\n   Type       : " << STRINGIFY(T);
+              << "\n   Label      : " << label;
           printer_error().raise(LOCAL_INFO,err.str());
           return false;
         }
 
         // Virtual retrieval methods for base printer classes
-        #define VRETRIEVE(r,data,elem)            \
-        virtual bool _retrieve(elem& /*output*/,  \
-                       const std::string& label,  \
-                       const uint /*rank*/,       \
-                       const ulong /*pointID*/    \
-                       )                          \
-        {                                                         \
-          std::ostringstream err;                                 \
-                                                                  \
-          err << "No retrieve function override has been "           \
+        #define VRETRIEVE(r,data,elem)                                      \
+        virtual bool _retrieve(elem& /*output*/,                            \
+                       const std::string& label,                            \
+                       const uint /*rank*/,                                 \
+                       const ulong /*pointID*/                              \
+                       )                                                    \
+        {                                                                   \
+          std::ostringstream err;                                           \
+                                                                            \
+          err << "No retrieve function override has been "                  \
               << "\ndefined for this retrieval type (for whatever printer"  \
-              << "\nclass the current printer comes from)"        \
-              << "\n  Dumping available info..."                  \
-              << "\n   Label      : " << label                    \
-              << "\n   Type       : " << STRINGIFY(elem);         \
-          printer_warning().raise(LOCAL_INFO,err.str());          \
-          return false;                                           \
+              << "\nclass the current printer comes from)"                  \
+              << "\n  Dumping available info..."                            \
+              << "\n   Label      : " << label;                              \
+          printer_warning().raise(LOCAL_INFO,err.str());                    \
+          return false;                                                     \
         }
 
-        #define ADD_VIRTUAL_RETRIEVALS(TYPES) BOOST_PP_SEQ_FOR_EACH(VRETRIEVE, _, TYPES)
+        #define ADD_VIRTUAL_RETRIEVALS(TYPES) BOOST_PP_SEQ_FOR_EACH(VRETRIEVE, , TYPES)
 
         // Add the base virtual functions for registered printable and
         // retrievable types, to be overloaded in each printer.

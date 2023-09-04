@@ -2,11 +2,11 @@
 #define __wrapper_Event_def_Pythia_8_212_h__
 
 #include <string>
+#include <ostream>
+#include <vector>
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Particle_decl.h"
 #include "wrapper_Vec4_decl.h"
-#include <ostream>
-#include <vector>
 
 #include "identification.hpp"
 
@@ -17,17 +17,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     {
         
         // Member functions: 
-        inline void Event::init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn)
+        inline void Event::init(std::string headerIn, Pythia8::ParticleData* particleDataPtrIn, int startColTagIn)
         {
             get_BEptr()->init__BOSS(headerIn, (*particleDataPtrIn).get_BEptr(), startColTagIn);
         }
         
-        inline void Event::init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn, Pythia8::ParticleData* particleDataPtrIn)
+        inline void Event::init(std::string headerIn, Pythia8::ParticleData* particleDataPtrIn)
         {
             get_BEptr()->init__BOSS(headerIn, (*particleDataPtrIn).get_BEptr());
         }
         
-        inline void Event::init(::std::basic_string<char, std::char_traits<char>, std::allocator<char> > headerIn)
+        inline void Event::init(std::string headerIn)
         {
             get_BEptr()->init__BOSS(headerIn);
         }
@@ -192,12 +192,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS();
         }
         
-        inline void Event::list(::std::basic_ostream<char, std::char_traits<char> >& os, int precision) const
+        inline void Event::list(std::ostream& os, int precision) const
         {
             get_BEptr()->list(os, precision);
         }
         
-        inline void Event::list(::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Event::list(std::ostream& os) const
         {
             get_BEptr()->list__BOSS(os);
         }
@@ -217,12 +217,12 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->list__BOSS(showScaleAndVertex);
         }
         
-        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char, std::char_traits<char> >& os, int precision) const
+        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, std::ostream& os, int precision) const
         {
             get_BEptr()->list(showScaleAndVertex, showMothersAndDaughters, os, precision);
         }
         
-        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, std::ostream& os) const
         {
             get_BEptr()->list__BOSS(showScaleAndVertex, showMothersAndDaughters, os);
         }
@@ -302,7 +302,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             return get_BEptr()->scaleSecond();
         }
         
-        inline ::std::vector<int, std::allocator<int> > Event::daughterList(int i) const
+        inline ::std::vector<int> Event::daughterList(int i) const
         {
             return get_BEptr()->daughterList(i);
         }
@@ -402,7 +402,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             get_BEptr()->restoreJunctionSize();
         }
         
-        inline void Event::listJunctions(::std::basic_ostream<char, std::char_traits<char> >& os) const
+        inline void Event::listJunctions(std::ostream& os) const
         {
             get_BEptr()->listJunctions(os);
         }
@@ -424,14 +424,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::Event::Event(int capacity) :
+        inline Event::Event(int capacity) :
             WrapperBase(__factory0(capacity))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
-        inline Pythia8::Event::Event() :
+        inline Event::Event() :
             WrapperBase(__factory1())
         {
             get_BEptr()->set_wptr(this);
@@ -439,7 +439,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::Event::Event(Pythia8::Abstract_Event* in) :
+        inline Event::Event(Abstract_Event* in) :
             WrapperBase(in)
         {
             get_BEptr()->set_wptr(this);
@@ -447,7 +447,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::Event::Event(const Event& in) :
+        inline Event::Event(const Event& in) :
             WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
@@ -455,7 +455,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::Event& Event::operator=(const Event& in)
+        inline Event& Event::operator=(const Event& in)
         {
             if (this != &in)
             {
@@ -466,7 +466,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::Event::~Event()
+        inline Event::~Event()
         {
             if (get_BEptr() != 0)
             {
@@ -481,9 +481,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_Event* Pythia8::Event::get_BEptr() const
+        inline Abstract_Event* Pythia8::Event::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_Event*>(BEptr);
+            return dynamic_cast<Abstract_Event*>(BEptr);
         }
     }
     

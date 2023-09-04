@@ -44,7 +44,7 @@ def someFunction():
   print
   print(prefix, "This is function 'someFunction'.")
   if (isInitialized):
-    print (prefix, "Will now perform a calculation...")
+    print(prefix, "Will now perform a calculation...")
     someDouble = 3.1415*someInt
     print(prefix, "Result stored in variable 'someDouble' is: ", someDouble)
   else:

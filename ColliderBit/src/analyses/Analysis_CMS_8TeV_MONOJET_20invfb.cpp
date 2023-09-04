@@ -28,7 +28,7 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      int _num250,_num300,_num350,_num400,_num450,_num500,_num550;
+      double _num250,_num300,_num350,_num400,_num450,_num500,_num550;
 
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
@@ -77,8 +77,8 @@ namespace Gambit {
         // Now define vectors of baseline objects
 
         // Baseline electrons
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && fabs(electron->eta()) < 2.5) {
             baselineElectrons.push_back(electron);
           }
@@ -88,8 +88,8 @@ namespace Gambit {
         CMS::applyElectronEff(baselineElectrons);
 
         // Baseline muons
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && fabs(muon->eta()) < 2.5) {
             baselineMuons.push_back(muon);
           }
@@ -99,18 +99,18 @@ namespace Gambit {
         CMS::applyMuonEff(baselineMuons);
 
         // Baseline taus
-        vector<HEPUtils::Particle*> baselineTaus;
-        for (HEPUtils::Particle* tau : event->taus()) {
+        vector<const HEPUtils::Particle*> baselineTaus;
+        for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.3) {
             baselineTaus.push_back(tau);
           }
         }
         CMS::applyTauEfficiency(baselineTaus);
 
-        vector<HEPUtils::Jet*> baselineJets;
+        vector<const HEPUtils::Jet*> baselineJets;
         vector<HEPUtils::P4> jets;
 
-        for (HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 30. && fabs(jet->eta()) < 4.5) {
             baselineJets.push_back(jet);
           }
@@ -186,12 +186,12 @@ namespace Gambit {
         //We're now ready to apply the cuts for each signal region
         //_numSR1, _numSR2, _numSR3;
 
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 250.)_num250++;
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 350.)_num350++;
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 400.)_num400++;
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 450.)_num450++;
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 500.)_num500++;
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 550.)_num550++;
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 250.) _num250 += event->weight();
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 350.) _num350 += event->weight();
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 400.) _num400 += event->weight();
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 450.) _num450 += event->weight();
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 500.) _num500 += event->weight();
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 550.) _num550 += event->weight();
 
         return;
 
@@ -219,69 +219,16 @@ namespace Gambit {
 
       void collect_results()
       {
-        SignalRegionData results_250;
-        results_250.sr_label = "250";
-        results_250.n_observed = 52200.;
-        results_250.n_background = 51800.;
-        results_250.background_sys = 2000.;
-        results_250.signal_sys = 0.;
-        results_250.n_signal = _num250;
 
-        SignalRegionData results_300;
-        results_300.sr_label = "300";
-        results_300.n_observed = 19800.;
-        results_300.n_background = 19600.;
-        results_300.background_sys = 830.;
-        results_300.signal_sys = 0.;
-        results_300.n_signal = _num300;
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_350;
-        results_350.sr_label = "350";
-        results_350.n_observed = 8320.;
-        results_350.n_background = 8190.;
-        results_350.background_sys = 400.;
-        results_350.signal_sys = 0.;
-        results_350.n_signal = _num350;
-
-        SignalRegionData results_400;
-        results_400.sr_label = "400";
-        results_400.n_observed = 3830.;
-        results_400.n_background = 3930.;
-        results_400.background_sys = 230.;
-        results_400.signal_sys = 0.;
-        results_400.n_signal = _num400;
-
-        SignalRegionData results_450;
-        results_450.sr_label = "450";
-        results_450.n_observed = 1830.;
-        results_450.n_background = 2050.;
-        results_450.background_sys = 150.;
-        results_450.signal_sys = 0.;
-        results_450.n_signal = _num450;
-
-        SignalRegionData results_500;
-        results_500.sr_label = "500";
-        results_500.n_observed = 934.;
-        results_500.n_background = 1040.;
-        results_500.background_sys = 100.;
-        results_500.signal_sys = 0.;
-        results_500.n_signal = _num500;
-
-        SignalRegionData results_550;
-        results_550.sr_label = "550";
-        results_550.n_observed = 519.;
-        results_550.n_background = 509.;
-        results_550.background_sys = 66.;
-        results_550.signal_sys = 0.;
-        results_550.n_signal = _num550;
-
-        add_result(results_250);
-        add_result(results_300);
-        add_result(results_350);
-        add_result(results_400);
-        add_result(results_450);
-        add_result(results_500);
-        add_result(results_550);
+        add_result(SignalRegionData("250", 52200., {_num250, 0}, { 51800.,  2000.}));
+        add_result(SignalRegionData("300", 19800., {_num300, 0}, { 19600.,  830.}));
+        add_result(SignalRegionData("350", 8320., {_num350, 0}, { 8190.,  400.}));
+        add_result(SignalRegionData("400", 3830., {_num400, 0}, { 3930.,  230.}));
+        add_result(SignalRegionData("450", 1830., {_num450, 0}, { 2050.,  150.}));
+        add_result(SignalRegionData("500", 934., {_num500, 0}, { 1040.,  100.}));
+        add_result(SignalRegionData("550", 519., {_num550, 0}, { 509.,  66.}));
 
         return;
       }

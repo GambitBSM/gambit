@@ -33,6 +33,9 @@
 #include "gambit/Utils/model_parameters.hpp"
 #include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/Utils/local_info.hpp"
+#include "gambit/Elements/functors.hpp"
+#include "gambit/Models/claw_singleton.hpp"
+#include "gambit/Core/core_singleton.hpp"
 
 namespace Gambit 
 {
@@ -42,11 +45,18 @@ namespace Gambit
    /// Checks if this model container holds a parameter matching the supplied name
    void ModelParameters::assert_contains(std::string inkey) const
    {
-     if(_values.count(inkey)!=1) 
+     if(not has(inkey)) 
      { 
        model_error().raise(LOCAL_INFO, "ModelParameters object (with name "+getModelName()+") does not contain the requested parameter '"+inkey+"'.");
      }
    }
+
+   /// Check if a parameter exists in this object
+   bool ModelParameters::has(const std::string& inkey) const
+   {
+      return (_values.count(inkey)!=0);
+   }
+
 
    /// Default constructor
    ModelParameters::ModelParameters(): _values(), modelname("None"), outputname("None") {}

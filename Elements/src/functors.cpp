@@ -32,6 +32,14 @@
 ///          (l.a.dal@fys.uio.no)
 ///  \date 2015 Jan
 ///
+///  \author Tomas Gonzalo
+///          (gonzalo@physik.rwth-aachen.de)
+///  \date 2021 Sep
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
+///
 ///  *********************************************
 
 #include <chrono>
@@ -98,7 +106,9 @@ namespace Gambit
     /// Acquire ID for timing 'vertex' (used in printer system)
     void functor::setTimingVertexID(int ID) { myTimingVertexID = ID; }
 
-    /// Setter for status: -4 = required backend absent (backend ini functions)
+    /// Setter for status: -6 = required external tool absent (pybind11)
+    ///                    -5 = required external tool absent (Mathematica)
+    ///                    -4 = required backend absent (backend ini functions)
     ///                    -3 = required classes absent
     ///                    -2 = function absent
     ///                    -1 = origin absent
@@ -120,10 +130,12 @@ namespace Gambit
     /// Getter for the wrapped function's origin (module or backend name)
     str functor::origin()      const { return myOrigin; }
     /// Getter for the version of the wrapped function's origin (module or backend)
-    str functor::version()     const { return myVersion; }
+    str functor::version()     const { utils_error().raise(LOCAL_INFO,"The version method is only defined for backend functors."); return ""; }
     /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
     str functor::safe_version()const { utils_error().raise(LOCAL_INFO,"The safe_version method is only defined for backend functors."); return ""; }
     /// Getter for the wrapped function current status:
+    ///                    -6 = required external tool absent (pybind11)
+    ///                    -5 = required external tool absent (Mathematica)
     ///                    -4 = required backend absent (backend ini functions)
     ///                    -3 = required classes absent
     ///                    -2 = function absent
@@ -136,6 +148,8 @@ namespace Gambit
     sspair functor::quantity() const { return std::make_pair(myCapability, myType); }
     /// Getter for purpose (relevant for output nodes, aka helper structures for the dep. resolution)
     str functor::purpose()     const { return myPurpose; }
+    /// Getter for citation key
+    str functor::citationKey() const { return myCitationKey; }
     /// Getter for vertex ID
     int functor::vertexID()    const { return myVertexID; }
     /// Getter for timing vertex ID
@@ -186,6 +200,13 @@ namespace Gambit
       return false;
     }
 
+    /// Getter for revealing whether this functor needs a loop manager
+    bool functor::needsLoopManager()
+    {
+      utils_error().raise(LOCAL_INFO,"The needsLoopManager method has not been defined in this class.");
+      return false;
+    }
+
     /// Getter for revealing the required capability of the wrapped function's loop manager
     str functor::loopManagerCapability()
     {
@@ -218,6 +239,13 @@ namespace Gambit
     std::set<sspair> functor::dependencies()
     {
       utils_error().raise(LOCAL_INFO,"The dependencies method has not been defined in this class.");
+      std::set<sspair> empty;
+      return empty;
+    }
+    /// Getter for listing backends that require class loading
+    std::set<sspair> functor::backendclassloading()
+    {
+      utils_error().raise(LOCAL_INFO,"The backendclassloading method has not been defined in this class.");
       std::set<sspair> empty;
       return empty;
     }
@@ -291,7 +319,7 @@ namespace Gambit
        be_functor->origin(), be_functor->version());
     }
 
-    /// Getter for listing model-specific conditional dependencies
+    /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
     std::set<sspair> functor::model_conditional_dependencies (str)
     {
       utils_error().raise(LOCAL_INFO,"The model_conditional_dependencies method has not been defined in this class.");
@@ -299,10 +327,26 @@ namespace Gambit
       return empty;
     }
 
-    /// Getter for listing model-specific conditional backend requirements
+    /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+    std::set<sspair> functor::model_conditional_dependencies_exact (str)
+    {
+      utils_error().raise(LOCAL_INFO,"The model_conditional_dependencies_exact method has not been defined in this class.");
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
     std::set<sspair> functor::model_conditional_backend_reqs (str)
     {
       utils_error().raise(LOCAL_INFO,"The model_conditional_backend_reqs method has not been defined in this class.");
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+    std::set<sspair> functor::model_conditional_backend_reqs_exact (str)
+    {
+      utils_error().raise(LOCAL_INFO,"The model_conditional_backend_reqs_exact method has not been defined in this class.");
       std::set<sspair> empty;
       return empty;
     }
@@ -329,6 +373,12 @@ namespace Gambit
     void functor::notifyOfModel(str)
     {
       utils_error().raise(LOCAL_INFO,"The notifyOfModel method has not been defined in this class.");
+    }
+
+    /// Notify the functor that it is being used to fill a dependency of another functor
+    void functor::notifyOfDependee (functor*)
+    {
+      utils_error().raise(LOCAL_INFO,"The notifyOfDependee method has not been defined in this class.");
     }
 
     /// Indicate to the functor which backends are actually loaded and working
@@ -371,19 +421,86 @@ namespace Gambit
       return safe_ptr<Options>(&myOptions);
     }
 
+    /// Notify the functor about a string in YAML that contains the sub-capability information (for use in standalones)
+    void functor::notifyOfSubCaps(const str& subcap_string)
+    {
+      YAML::Node subcap_node_simple = YAML::Load(subcap_string);
+      YAML::Node subcap_node_complex;
+      for (auto x : subcap_node_simple) subcap_node_complex[x.as<str>()] = YAML::Node();
+      notifyOfSubCaps(subcap_node_complex);
+    }
+
+    /// Notify the functor about an instance of the options class that contains sub-capability information
+    void functor::notifyOfSubCaps(const Options& subcaps)
+    {
+      for (auto entry : subcaps)
+      {
+        str key = entry.first.as<std::string>();
+        if (not mySubCaps.hasKey(key)) mySubCaps.setValue(key, entry.second);
+        else
+        {
+          std::ostringstream ss1, ss2;
+          ss1 << mySubCaps.getValue<YAML::Node>(key);
+          ss2 << entry.second.as<YAML::Node>();
+          if (not (ss1.str() == ss2.str()))
+          {
+            std::ostringstream ss;
+            ss << "Duplicate sub_capability clash. " << endl
+               << "Your ObsLike section of the YAML file contains both " << endl
+               << key << ": " << ss1.str() << endl << "and" << endl << key << ": " << ss2.str() << endl
+               << "GAMBIT does not know which value to choose when trying to determine the sub-capabilities" << endl
+               << "served by " << myOrigin << "::" << myName << ", as both ObsLike entries depend on this function.";
+            utils_error().raise(LOCAL_INFO, ss.str());
+          }
+        }
+      }
+    }
+
+    /// Return a safe pointer to the subcaps that this functor realises it is supposed to facilitate downstream calculation of.
+    safe_ptr<Options> functor::getSubCaps()
+    {
+      return safe_ptr<Options>(&mySubCaps);
+    }
+
+    /// Return a safe pointer to the vector of all capability,type pairs of functors arranged downstream of this one in the dependency tree.
+    safe_ptr<std::set<sspair>> functor::getDependees()
+    {
+      return safe_ptr<std::set<sspair>>(&myDependees);
+    }
+
+    /// Getter for listing allowed models
+    const std::set<str>& functor::getAllowedModels()
+    {
+      return allowedModels;
+    }
+
+    /// Getter for listing conditional models
+    const std::set<str>& functor::getConditionalModels()
+    {
+      return conditionalModels;
+    }
+
+    /// Getter for map of model groups and the set of models in each group
+    const std::map<str, std::set<str>>& functor::getModelGroups()
+    {
+      return modelGroups;
+    }
+
     /// Test whether the functor is allowed (either explicitly or implicitly) to be used with a given model
     bool functor::modelAllowed(str model)
     {
       bool allowed = false;
-      /// DEBUG! See what models are allowed for this functor
-      // std::cout << "Checking allowedModels set for functor "<<myLabel<<std::endl;
-      // for(std::set<str>::iterator it = allowedModels.begin(); it != allowedModels.end(); ++it)
-      // {
-      //    std::cout << "  "<< *it << std::endl;
-      // }
+      if (verbose)
+      {
+        std::cout << "Checking allowedModels set for functor "<<myLabel<<std::endl;
+        for(std::set<str>::iterator it = allowedModels.begin(); it != allowedModels.end(); ++it)
+        {
+          std::cout << "  "<< *it << std::endl;
+        }
+      }
       if (allowedModels.empty() and allowedGroupCombos.empty()) allowed=true;
       if (allowed_parent_or_friend_exists(model)) allowed=true;
-      //std::cout << "  Allowed to be used with model "<<model<<"? "<<allowed<<std::endl;
+      if (verbose) std::cout << "  Allowed to be used with model "<<model<<"? "<<allowed<<std::endl;
       return allowed;
     }
 
@@ -471,6 +588,30 @@ namespace Gambit
       std::set<str> group_combo(v.begin(), v.end());
       allowedGroupCombos.insert(group_combo);
     }
+
+    /// Add an observable to the set of those that this functor matches.
+    void functor::addMatchedObservable(const DRes::Observable* obs) { matched_observables.insert(obs); }
+    
+    /// Retrieve the set of observables that this functor matches.
+    const std::set<const DRes::Observable*>& functor::getMatchedObservables() { return matched_observables; }
+
+    /// Add a module rule to the set of those against which this functor has been tested and found to match.
+    void functor::addMatchedModuleRule(const DRes::ModuleRule* r) { matched_module_rules.insert(r); }
+    
+    /// Add a backend rule to the set of those against which this functor has been tested and found to match.
+    void functor::addMatchedBackendRule(const DRes::BackendRule* r) { matched_backend_rules.insert(r); }
+
+    /// Retrieve the set of module rules against which this functor has been tested and found to match.
+    const std::set<const DRes::ModuleRule*>& functor::getMatchedModuleRules() { return matched_module_rules; }
+
+    /// Retrieve the set of backend rules against which this functor has been tested and found to match.
+    const std::set<const DRes::BackendRule*>& functor::getMatchedBackendRules() { return matched_backend_rules; } 
+
+    // Retrieve matched rules by type.
+    template<>
+    const std::set<const DRes::ModuleRule*>& functor::getMatchedRules() { return getMatchedModuleRules(); } 
+    template<>
+    const std::set<const DRes::BackendRule*>& functor::getMatchedRules() { return getMatchedBackendRules(); } 
 
     /// Attempt to retrieve a dependency or model parameter that has not been resolved
     void functor::failBigTime(str method)
@@ -871,6 +1012,8 @@ namespace Gambit
       myLoopManagerCapability = cap;
       myLoopManagerType = t;
     }
+    /// Getter for revealing whether this functor needs a loop manager
+    bool module_functor_common::needsLoopManager() { return iRunNested; }
     /// Getter for revealing the required capability of the wrapped function's loop manager
     str module_functor_common::loopManagerCapability() { return myLoopManagerCapability; }
     /// Getter for revealing the required type of the wrapped function's loop manager
@@ -882,6 +1025,20 @@ namespace Gambit
 
     /// Getter for listing currently activated dependencies
     std::set<sspair> module_functor_common::dependencies() { return myDependencies; }
+    /// Getter for listing backends that require class loading
+    std::set<sspair> module_functor_common::backendclassloading()
+    {
+      std::set<sspair> backends;
+
+      for(auto backend : required_classloading_backends)
+      {
+        for(auto version : backend.second)
+        {
+          backends.insert(sspair(backend.first, version));
+        }
+      }
+      return backends;
+    }
     /// Getter for listing backend requirement groups
     std::set<str> module_functor_common::backendgroups() { return myGroups; }
     /// Getter for listing all backend requirements
@@ -977,7 +1134,7 @@ namespace Gambit
        be_functor->origin(), be_functor->version());
     }
 
-    /// Getter for listing model-specific conditional dependencies
+    /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
     std::set<sspair> module_functor_common::model_conditional_dependencies (str model)
     {
       str parent = find_friend_or_parent_model_in_map(model,myModelConditionalDependencies);
@@ -986,7 +1143,15 @@ namespace Gambit
       return empty;
     }
 
-    /// Getter for listing model-specific conditional backend requirements
+    /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+    std::set<sspair> module_functor_common::model_conditional_dependencies_exact (str model)
+    {
+      if (myModelConditionalDependencies.count(model) != 0) return myModelConditionalDependencies[model];
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
     std::set<sspair> module_functor_common::model_conditional_backend_reqs (str model)
     {
       str parent = find_friend_or_parent_model_in_map(model,myModelConditionalBackendReqs);
@@ -995,32 +1160,60 @@ namespace Gambit
       return empty;
     }
 
-    /// Add and activate unconditional dependencies.
-    void module_functor_common::setDependency(str dep, str type, void(*resolver)(functor*, module_functor_common*), str purpose)
+    /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+    std::set<sspair> module_functor_common::model_conditional_backend_reqs_exact (str model)
     {
-      sspair key (dep, Utils::fix_type(type));
+      if (myModelConditionalBackendReqs.count(model) != 0) return myModelConditionalBackendReqs[model];
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Add and activate unconditional dependencies.
+    void module_functor_common::setDependency(str dep, str dep_type, void(*resolver)(functor*, module_functor_common*), str purpose)
+    {
+      sspair key (dep, Utils::fix_type(dep_type));
       myDependencies.insert(key);
       dependency_map[key] = resolver;
       this->myPurpose = purpose; // only relevant for output nodes
     }
 
+    /// Add conditional dependency-type pairs in advance of later conditions.
+    void module_functor_common::setConditionalDependency(str dep, str dep_type)
+    {
+      myConditionalDependencies[dep] = dep_type;
+    }
+
+    /// Retrieve full conditional dependency-type pair from conditional dependency only
+    sspair module_functor_common::retrieve_conditional_dep_type_pair(str dep)
+    {
+      if (myConditionalDependencies.find(dep) == myConditionalDependencies.end())
+      {
+        str errmsg = "Problem whilst attempting to set conditional dependency:";
+        errmsg +=  "\nThe conditional dependency " + dep + " appears not to have"
+                   "\nbeen fully declared; START_CONDITIONAL_DEPENDENCY() is missing."
+                   "\nThis is " + this->name() + " in " + this->origin() + ".";
+        utils_error().raise(LOCAL_INFO,errmsg);
+      }
+      return sspair(dep, myConditionalDependencies.at(dep));
+    }
+
     /// Add a backend conditional dependency for multiple backend versions
     void module_functor_common::setBackendConditionalDependency
-     (str req, str be, str ver, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str req, str be, str ver, str dep, void(*resolver)(functor*, module_functor_common*))
     {
       // Split the version string and send each version to be registered
       std::vector<str> versions = Utils::delimiterSplit(ver, ",");
       for (std::vector<str>::iterator it = versions.begin() ; it != versions.end(); ++it)
       {
-        setBackendConditionalDependencySingular(req, be, *it, dep, dep_type, resolver);
+        setBackendConditionalDependencySingular(req, be, *it, dep, resolver);
       }
     }
 
     /// Add a backend conditional dependency for a single backend version
     void module_functor_common::setBackendConditionalDependencySingular
-     (str req, str be, str ver, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str req, str be, str ver, str dep, void(*resolver)(functor*, module_functor_common*))
     {
-      sspair key (dep, Utils::fix_type(dep_type));
+      sspair key = retrieve_conditional_dep_type_pair(dep);
       std::vector<str> quad;
       if (backendreq_types.find(req) != backendreq_types.end())
       {
@@ -1048,21 +1241,21 @@ namespace Gambit
 
     /// Add a model conditional dependency for multiple models
     void module_functor_common::setModelConditionalDependency
-     (str model, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str model, str dep, void(*resolver)(functor*, module_functor_common*))
     {
       // Split the model string and send each model to be registered
       std::vector<str> models = Utils::delimiterSplit(model, ",");
       for (std::vector<str>::iterator it = models.begin() ; it != models.end(); ++it)
       {
-        setModelConditionalDependencySingular(*it, dep, dep_type, resolver);
+        setModelConditionalDependencySingular(*it, dep, resolver);
       }
     }
 
     /// Add a model conditional dependency for a single model
     void module_functor_common::setModelConditionalDependencySingular
-     (str model, str dep, str dep_type, void(*resolver)(functor*, module_functor_common*))
+     (str model, str dep, void(*resolver)(functor*, module_functor_common*))
     {
-      sspair key (dep, Utils::fix_type(dep_type));
+      sspair key = retrieve_conditional_dep_type_pair(dep);
       if (myModelConditionalDependencies.find(model) == myModelConditionalDependencies.end())
       {
         std::set<sspair> newvec;
@@ -1070,6 +1263,9 @@ namespace Gambit
       }
       myModelConditionalDependencies[model].insert(key);
       dependency_map[key] = resolver;
+
+      // Add the model to the list of conditional models
+      conditionalModels.insert(model);
     }
 
     /// Add an unconditional backend requirement
@@ -1150,6 +1346,9 @@ namespace Gambit
         myModelConditionalBackendReqs[model] = newvec;
       }
       myModelConditionalBackendReqs[model].insert(key);
+
+      // Add the model to the list of conditional models
+      conditionalModels.insert(model);
     }
 
     /// Add a rule for dictating which backends can be used to fulfill which backend requirements.
@@ -1329,13 +1528,31 @@ namespace Gambit
       }
       else
       {
+        // resolve the dependency
         if (dependency_map.find(key) != dependency_map.end()) (*dependency_map[key])(dep_functor,this);
         // propagate purpose from next to next-to-output nodes
         dep_functor->setPurpose(this->myPurpose);
+        // propagate this functor's dependees and subcaps on to the resolving functor
+        dep_functor->notifyOfDependee(this);
+        // save the pointer to the resolving functor to allow this functor to notify it of future dependees
+        dependency_functor_map[key] = dep_functor;
       }
     }
 
-    // Set this functor's loop manager (if it has one)
+    /// Notify the functor that another functor depends on it
+    void module_functor_common::notifyOfDependee (functor* dependent_functor)
+    {
+      // Add the dependent functor's capability-type pair to the list of dependees
+      myDependees.insert(dependent_functor->quantity());
+      // Inherit the dependent functor's own dependees
+      for (const sspair& q : *(dependent_functor->getDependees())) { myDependees.insert(q); }
+      // Inherit the dependent functor's subcaps
+      notifyOfSubCaps(*(dependent_functor->getSubCaps()));
+      // Notify all functors on which this one depends that they also now have a new dependent
+      for (auto entry : dependency_functor_map) entry.second->notifyOfDependee(dependent_functor);
+    }
+
+    /// Set this functor's loop manager (if it has one)
     void module_functor_common::resolveLoopManager (functor* dep_functor)
     {
       if (dep_functor->capability() != myLoopManagerCapability or not dep_functor->canBeLoopManager())

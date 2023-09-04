@@ -23,10 +23,16 @@
 ///
 ///  *********************************************
 
+#include "gambit/cmake/cmake_variables.hpp"
+
+#ifndef EXCLUDE_HEPMC
+
 #include "HEPUtils/Event.h"
 
 /// Forward declaration to cut down on includes
 namespace LHEF { class Reader; }
 
 /// Extract an LHE event as a HEPUtils::Event
-void get_HEPUtils_event(const LHEF::Reader&, HEPUtils::Event&);
+void get_HEPUtils_event(const LHEF::Reader&, HEPUtils::Event&, double);
+
+#endif

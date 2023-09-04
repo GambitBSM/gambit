@@ -1,11 +1,11 @@
 #ifndef __wrapper_CoupSUSY_def_Pythia_8_212_h__
 #define __wrapper_CoupSUSY_def_Pythia_8_212_h__
 
+#include <complex>
 #include "wrapper_SusyLesHouches_decl.h"
 #include "wrapper_Info_decl.h"
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Settings_decl.h"
-#include <complex>
 
 #include "identification.hpp"
 
@@ -88,7 +88,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Wrappers for original constructors: 
-        inline Pythia8::CoupSUSY::CoupSUSY() :
+        inline CoupSUSY::CoupSUSY() :
             Couplings(__factory0()),
             isInit( get_BEptr()->isInit_ref__BOSS()),
             isNMSSM( get_BEptr()->isNMSSM_ref__BOSS()),
@@ -169,7 +169,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::CoupSUSY::CoupSUSY(Pythia8::Abstract_CoupSUSY* in) :
+        inline CoupSUSY::CoupSUSY(Abstract_CoupSUSY* in) :
             Couplings(in),
             isInit( get_BEptr()->isInit_ref__BOSS()),
             isNMSSM( get_BEptr()->isNMSSM_ref__BOSS()),
@@ -250,7 +250,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Copy constructor: 
-        inline Pythia8::CoupSUSY::CoupSUSY(const CoupSUSY& in) :
+        inline CoupSUSY::CoupSUSY(const CoupSUSY& in) :
             Couplings(in.get_BEptr()->pointer_copy__BOSS()),
             isInit( get_BEptr()->isInit_ref__BOSS()),
             isNMSSM( get_BEptr()->isNMSSM_ref__BOSS()),
@@ -331,7 +331,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Assignment operator: 
-        inline Pythia8::CoupSUSY& CoupSUSY::operator=(const CoupSUSY& in)
+        inline CoupSUSY& CoupSUSY::operator=(const CoupSUSY& in)
         {
             if (this != &in)
             {
@@ -342,7 +342,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::CoupSUSY::~CoupSUSY()
+        inline CoupSUSY::~CoupSUSY()
         {
             if (get_BEptr() != 0)
             {
@@ -357,9 +357,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_CoupSUSY* Pythia8::CoupSUSY::get_BEptr() const
+        inline Abstract_CoupSUSY* Pythia8::CoupSUSY::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_CoupSUSY*>(BEptr);
+            return dynamic_cast<Abstract_CoupSUSY*>(BEptr);
         }
     }
     

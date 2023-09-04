@@ -21,6 +21,7 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 4.3.1
 #define SAFE_VERSION 4_3_1
+#define REFERENCE Bechtle:2008jh,Bechtle:2011sb,Bechtle:2013wla
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */
@@ -52,12 +53,12 @@ BE_FUNCTION(finish_HiggsBounds_chisqtables, void, (), "finish_higgsbounds_chisqt
 
 // Input sub-routines
 BE_FUNCTION(HiggsBounds_input_SLHA, void, (const char&), "higgsbounds_input_slha_", "HiggsBounds_input_SLHA")
-BE_FUNCTION(HiggsBounds_neutral_input_part, void, (double*, double*, int*, double*, double*, double*, Farray<double, 1,3, 1,3>&,
+BE_FUNCTION(HiggsBounds_neutral_input_part, void, (double*, double*, int*, double*, double*, double*, double*,
                double*, double*, double*, double*, double*, double*, double*,
                double*, double*, double*, double*, double*, double*, double*,
                double*, double*, double*, double*, double*, double*, double*,
                double*, double*, double*, double*, double*, double*, double*,
-               double*, double*, Farray<double, 1,3, 1,3>&), "higgsbounds_neutral_input_part_", "HiggsBounds_neutral_input_part")
+               double*, double*, double*), "higgsbounds_neutral_input_part_", "HiggsBounds_neutral_input_part")
 BE_FUNCTION(HiggsBounds_charged_input, void, (double*, double*, double*, double*,
                 double*, double*, double*, double*), "higgsbounds_charged_input_", "HiggsBounds_charged_input")
 

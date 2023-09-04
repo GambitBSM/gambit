@@ -85,19 +85,19 @@ def check_for_duplicates(fout,group):
    error = False
    for ID,p,r in zip(ids,pid,rank):
       if(p==1 and r==0):
-         print "   Spotted first entry ({0},{1})".format(r,p)
+         print("   Spotted first entry ({0},{1})".format(r,p))
       Nmatches = np.sum(ID==ids)
       if Nmatches>1:
-         print "   Error! ID", ID, "is duplicated {0} times!".format(Nmatches)
+         print("   Error! ID", ID, "is duplicated {0} times!".format(Nmatches))
          error = True
          matches = (p==pid) & (r==rank)
          Nmatches2 = np.sum(matches)
          if Nmatches2>1:
-           print "   ...MPIrank/pointID ({0},{1}) duplicate count: {2}".format(r,p,Nmatches2)
+           print("   ...MPIrank/pointID ({0},{1}) duplicate count: {2}".format(r,p,Nmatches2))
            dup_locs = np.where(matches)
-           print "      Indices of duplicates are:", dup_locs
+           print("      Indices of duplicates are:", dup_locs)
          else:
-           print "   ...No duplicate pid and rank pairs detected! This seems to indicate that something is screwed up in the Cantor pairing"       
+           print("   ...No duplicate pid and rank pairs detected! This seems to indicate that something is screwed up in the Cantor pairing")
   
       if error==True:
          raise ValueError("Duplicates detected in output dataset!")

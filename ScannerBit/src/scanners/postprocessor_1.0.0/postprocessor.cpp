@@ -39,8 +39,6 @@
 using namespace Gambit;
 using namespace Gambit::PostProcessor;
 
-// Forward declare this template specialisation as extern so that we use the definition compiled into baseprinter.cpp
-extern template std::size_t Gambit::Printers::getTypeID<double>();
 
 // The reweigher Scanner plugin
 scanner_plugin(postprocessor, version(1, 0, 0))
@@ -66,7 +64,7 @@ scanner_plugin(postprocessor, version(1, 0, 0))
   // Retrieve an integer from an environment variable
   int getintenv(const std::string& name)
   {
-     int x;
+     int x = 0;
      if(const char* env_p = std::getenv(name.c_str()))
      {
        std::stringstream env_s(env_p);
@@ -206,6 +204,7 @@ scanner_plugin(postprocessor, version(1, 0, 0))
     settings.all_params.insert("MPIrank"); // These should be re-printed the same as they were anyway
     settings.all_params.insert("pointID");
     settings.all_params.insert(settings.logl_purpose_name); // If there is a name clash and the run was not aborted, we are to discard the old data under this name.
+    settings.all_params.insert("Modified" + settings.logl_purpose_name);
     settings.all_params.insert(settings.reweighted_loglike_name); //   "  "
     #ifdef WITH_MPI
     settings.comm = &ppComm;

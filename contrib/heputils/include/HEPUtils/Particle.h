@@ -97,7 +97,7 @@ namespace HEPUtils {
 
 
     /// Get the mass (of the 4 vector)
-    double mass() { return _p4.m(); }
+    double mass() const { return _p4.m(); }
     /// Set the mass (of the 4 vector)
     void set_mass(double mass) { _p4.setM(mass); }
 

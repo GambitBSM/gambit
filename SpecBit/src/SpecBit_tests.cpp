@@ -405,22 +405,20 @@ namespace Gambit
              }
            }
 
-           get_polemass_functor(std::ostringstream& report, const Spectrum& fullin, const SubSpectrum& specin, SLHAea::Coll& slhaeain)
-             : report(report)
-             , fullspectrum(fullin)
+           get_polemass_functor(const Spectrum& fullin, const SubSpectrum& specin, SLHAea::Coll& slhaeain)
+             : fullspectrum(fullin)
              , spec(specin)
              , slhaea(slhaeain)
            {}
 
            private:
-             std::ostringstream& report;
              const Spectrum& fullspectrum;
              const SubSpectrum& spec;
              SLHAea::Coll slhaea;
              const Models::partmap& PDB = Models::ParticleDB();
          };
 
-         get_polemass_functor get_polemass(report,fullspectrum,spec,slhaea);
+         get_polemass_functor get_polemass(fullspectrum,spec,slhaea);
 
          cout<<endl<<"Gaugino pole masses:"<<endl<<endl;
          get_polemass("~g");

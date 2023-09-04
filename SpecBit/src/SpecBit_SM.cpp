@@ -113,6 +113,9 @@ namespace Gambit
     void SM_higgs_couplings(HiggsCouplingsTable &result)
     {
       using namespace Pipes::SM_higgs_couplings;
+      // Set the number of Higgses
+      result.set_n_neutral_higgs(1);
+      result.set_n_charged_higgs(0);
       // Set the CP of the Higgs.
       result.CP[0] = 1;
       // Set the decays

@@ -58,9 +58,6 @@ Rules:
   - capability: ScalarSingletDM_Z2_spectrum
     function: get_ScalarSingletDM_Z2_spectrum
 
-  - capability: muon_gm2_SM
-    function: gm2_SM_ee
-
 
 Printer:
 

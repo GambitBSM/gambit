@@ -15,7 +15,7 @@
 /// @file Functions for filtering and classifying HepMC GenVertex objects
 /// @author Andy Buckley <andy.buckley@cern.ch>
 
-#include "HepMC/GenEvent.h"
+#include "HepMC3/GenEvent.h"
 #include <vector>
 #include <functional>
 
@@ -26,21 +26,21 @@ namespace MCUtils {
   //@{
 
   /// Convenient type name for a generic classifier function / function object
-  typedef std::function<bool(const HepMC::GenVertex*)> VClassifier;
+  typedef std::function<bool(const HepMC3::GenVertex*)> VClassifier;
 
 
   /// Determine if the vertex has no incoming particles
-  inline bool hasNoParents(const HepMC::GenVertex* v) {
+  inline bool hasNoParents(const HepMC3::GenVertex* v) {
     return v->particles_in_size() == 0;
   }
 
   /// Determine if the vertex has no outgoing particles
-  inline bool hasNoChildren(const HepMC::GenVertex* v) {
+  inline bool hasNoChildren(const HepMC3::GenVertex* v) {
     return v->particles_out_size() == 0;
   }
 
   /// Determine if the vertex has no connected particles
-  inline bool isDisconnected(const HepMC::GenVertex* v) {
+  inline bool isDisconnected(const HepMC3::GenVertex* v) {
     return v->particles_in_size() == 0 && v->particles_out_size() == 0;
   }
 

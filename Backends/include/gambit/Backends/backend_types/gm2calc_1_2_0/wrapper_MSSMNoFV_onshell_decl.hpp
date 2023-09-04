@@ -2,11 +2,11 @@
 #define __wrapper_MSSMNoFV_onshell_decl_gm2calc_1_2_0_hpp__
 
 #include <cstddef>
+#include <Eigen/Core>
 #include "forward_decls_wrapper_classes.hpp"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_MSSMNoFV_onshell.hpp"
 #include "wrapper_MSSMNoFV_onshell_mass_eigenstates_decl.hpp"
-#include <Eigen/Core>
 
 #include "identification.hpp"
 
@@ -21,8 +21,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             // Member variables: 
          public:
             // -- Static factory pointers: 
-            static gm2calc::Abstract_MSSMNoFV_onshell* (*__factory0)();
-            static gm2calc::Abstract_MSSMNoFV_onshell* (*__factory1)(const gm2calc::MSSMNoFV_onshell_mass_eigenstates&);
+            static Abstract_MSSMNoFV_onshell* (*__factory0)();
+            static Abstract_MSSMNoFV_onshell* (*__factory1)(const gm2calc::MSSMNoFV_onshell_mass_eigenstates&);
       
             // -- Other member variables: 
       
@@ -36,11 +36,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             void set_alpha_thompson(double arg_1);
       
-            void set_Ae(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A);
+            void set_Ae(const Eigen::Matrix<double, 3, 3, 0>& A);
       
-            void set_Au(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A);
+            void set_Au(const Eigen::Matrix<double, 3, 3, 0>& A);
       
-            void set_Ad(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A);
+            void set_Ad(const Eigen::Matrix<double, 3, 3, 0>& A);
       
             void set_Ae(unsigned int i, unsigned int k, double a);
       
@@ -64,11 +64,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double get_vev() const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ae() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Ae() const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Au() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Au() const;
       
-            const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& get_Ad() const;
+            const ::Eigen::Matrix<double, 3, 3, 0>& get_Ad() const;
       
             double get_Ae(unsigned int i, unsigned int k) const;
       
@@ -102,23 +102,23 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
             double get_MA0() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USe() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USe() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USm() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USm() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_UStau() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_UStau() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USu() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USu() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USd() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USd() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USc() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USc() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USs() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USs() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USb() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USb() const;
       
-            const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& get_USt() const;
+            const ::Eigen::Matrix<double, 2, 2, 0>& get_USt() const;
       
             void convert_to_onshell(double precision, unsigned int max_iterations);
       
@@ -139,7 +139,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             MSSMNoFV_onshell(const gm2calc::MSSMNoFV_onshell_mass_eigenstates& arg_1);
       
             // Special pointer-based constructor: 
-            MSSMNoFV_onshell(gm2calc::Abstract_MSSMNoFV_onshell* in);
+            MSSMNoFV_onshell(Abstract_MSSMNoFV_onshell* in);
       
             // Copy constructor: 
             MSSMNoFV_onshell(const MSSMNoFV_onshell& in);
@@ -151,7 +151,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             ~MSSMNoFV_onshell();
       
             // Returns correctly casted pointer to Abstract class: 
-            gm2calc::Abstract_MSSMNoFV_onshell* get_BEptr() const;
+            Abstract_MSSMNoFV_onshell* get_BEptr() const;
       
       };
    }

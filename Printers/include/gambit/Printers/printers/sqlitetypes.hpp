@@ -18,7 +18,7 @@
 #ifndef __SQLITETYPES__
 #define __SQLITETYPES__
 
-#define SQLITE_TYPES        \
+#define SQL_TYPES           \
   (int)                     \
   (uint)                    \
   (long)                    \
@@ -30,13 +30,15 @@
   (std::vector<double>)     \
   (bool)                    \
   (map_str_dbl)             \
+  (map_str_str)             \
   (ModelParameters)         \
   (triplet<double>)         \
   (map_intpair_dbl)         \
 
 
-#define SQLITE_MODULE_BACKEND_TYPES \
-  (DM_nucleon_couplings)    \
-  (Flav_KstarMuMu_obs)      \
+#define SQL_BACKEND_TYPES             \
+  (DM_nucleon_couplings)              \
+  (BBN_container)                     \
+
 
 #endif

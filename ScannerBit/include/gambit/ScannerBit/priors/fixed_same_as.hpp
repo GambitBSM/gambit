@@ -26,7 +26,7 @@ namespace Gambit
 {
     namespace Priors
     {
-        //if the parameter has a fixed value
+        /** @brief A fixed parameter */
         class FixedPrior : public BasePrior
         {
         private:
@@ -75,9 +75,9 @@ namespace Gambit
 
             FixedPrior(const std::string &name, double value) : BasePrior(name), value(1, value), iter(0) {}
             
-            std::vector<std::string> getShownParameters() const {return std::vector<std::string>();}
+            std::vector<std::string> getShownParameters() const override {return std::vector<std::string>();}
 
-            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
+            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const override
             {
                 for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
                 {
@@ -86,9 +86,27 @@ namespace Gambit
 
                 iter = (iter + 1)%value.size();
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            {
+                const double rtol = 1e-4;
+                for (int i = 0, n = this->size(); i < n; i++)
+                {
+                    const double a = physical.at(param_names[i]);
+                    const double b = value[i];
+                    const double rdiff = std::abs(a - b) / std::max(std::abs(a), std::abs(b));
+                    if (rdiff > rtol)
+                    {
+                        throw std::runtime_error("no inverse as physical does not match fixed value");
+                    }
+                }
+                // arbitrary as every value of unit hypercube maps to the same fixed parameter
+                std::vector<double> u(this->size(), 0.5);
+                return u;
+            }
         };
 
-        //if the parameter shares multiple different parameters
+        /** @brief A parameter that is fixed to a different parameter */
         class MultiPriors : public BasePrior
         {
         private:
@@ -96,7 +114,8 @@ namespace Gambit
             std::vector<double> scale, shift;
 
         public:
-            MultiPriors(const std::vector<std::string>& param, const Options& options) : BasePrior(param), scale(param.size(), 1.0), shift(param.size(), 0.0)
+            MultiPriors(const std::vector<std::string>& param, const Options& options) :
+                BasePrior(param), scale(param.size(), 1.0), shift(param.size(), 0.0)
             {
                 if (options.hasKey("same_as"))
                 {
@@ -145,9 +164,9 @@ namespace Gambit
                 param_names.push_back(name_in);
             }
             
-            std::vector<std::string> getShownParameters() const {return std::vector<std::string>();}
+            std::vector<std::string> getShownParameters() const override {return std::vector<std::string>();}
 
-            void transform (const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const
+            void transform (const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const override
             {
                 double value = outputMap[name];
 
@@ -157,6 +176,25 @@ namespace Gambit
                     outputMap[*it] = (*it1)*value + *it2;
                 }
             }
+
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            {
+                const double rtol = 1e-4;
+                for (int i = 0, n = this->size(); i < n; i++)
+                {
+                    const double a = physical.at(param_names[i]);
+                    const double b = scale[i] * physical.at(name) + shift[i];
+                    const double rdiff = std::abs(a - b) / std::max(std::abs(a), std::abs(b));
+                    if (rdiff > rtol)
+                    {
+                        throw std::runtime_error("no inverse as physical does not match same as value");
+                    }
+                }
+                // arbitrary as every value of unit hypercube maps to the same fixed parameter
+                std::vector<double> u(this->size(), 0.5);
+                return u;
+            }
+
         };
 
         LOAD_PRIOR(fixed_value, FixedPrior)

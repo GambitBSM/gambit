@@ -63,10 +63,10 @@ namespace Gambit
 
       // quantities needed to fill container spectrum, intermediate calculations
       double alpha_em = 1.0 / sminputs.alphainv;
-      double C = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+      double C = alpha_em * pi / (sminputs.GF * pow(2,0.5));
       double sinW2 = 0.5 - pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
-      double e = pow( 4*Pi*( alpha_em ),0.5) ;
+      double e = pow( 4*pi*( alpha_em ),0.5) ;
 
       // Higgs sector
       double mh = *myPipe::Param.at("mH");
@@ -84,9 +84,9 @@ namespace Gambit
       singletmodel.sinW2 = sinW2;
 
       // gauge couplings
-      singletmodel.g1 = e / sinW2;
-      singletmodel.g2 = e / cosW2;
-      singletmodel.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+      singletmodel.g1 = sqrt(5/3) * e / sqrt(cosW2);
+      singletmodel.g2 = e / sqrt(sinW2);
+      singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas
       double sqrt2v = pow(2.0,0.5)/vev;
@@ -110,6 +110,9 @@ namespace Gambit
       // We don't supply a LE subspectrum here; an SMSimpleSpec will therefore be automatically created from 'sminputs'
       result = Spectrum(singletspec,sminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
 
+      result.get_HE().set_override(Par::Pole_Mass_1srd_high,0.0, "h0_1", true);
+      result.get_HE().set_override(Par::Pole_Mass_1srd_low,0.0,"h0_1", true);
+
     }
 
     /// Get a (simple) Spectrum object wrapper for the ScalarSingletDM_Z3 model
@@ -123,10 +126,10 @@ namespace Gambit
 
       // quantities needed to fill container spectrum, intermediate calculations
       double alpha_em = 1.0 / sminputs.alphainv;
-      double C = alpha_em * Pi / (sminputs.GF * pow(2,0.5));
+      double C = alpha_em * pi / (sminputs.GF * pow(2,0.5));
       double sinW2 = 0.5 - pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
       double cosW2 = 0.5 + pow( 0.25 - C/pow(sminputs.mZ,2) , 0.5);
-      double e = pow( 4*Pi*( alpha_em ),0.5) ;
+      double e = pow( 4*pi*( alpha_em ),0.5) ;
 
       // Higgs sector
       double mh = *myPipe::Param.at("mH");
@@ -146,9 +149,9 @@ namespace Gambit
       singletmodel.sinW2 = sinW2;
 
       // gauge couplings
-      singletmodel.g1 = e / sinW2;
-      singletmodel.g2 = e / cosW2;
-      singletmodel.g3   = pow( 4*Pi*( sminputs.alphaS ),0.5) ;
+      singletmodel.g1 = sqrt(5/3) * e / sqrt(cosW2);
+      singletmodel.g2 = e / sqrt(sinW2);
+      singletmodel.g3   = pow( 4*pi*( sminputs.alphaS ),0.5) ;
 
       // Yukawas
       double sqrt2v = pow(2.0,0.5)/vev;
@@ -172,6 +175,9 @@ namespace Gambit
       // We don't supply a LE subspectrum here; an SMSimpleSpec will therefore be automatically created from 'sminputs'
       result = Spectrum(singletspec,sminputs,&myPipe::Param,mass_cut,mass_ratio_cut);
 
+      result.get_HE().set_override(Par::Pole_Mass_1srd_high,0.0, "h0_1", true);
+      result.get_HE().set_override(Par::Pole_Mass_1srd_low,0.0,"h0_1", true);
+
     }
 
 
@@ -180,7 +186,7 @@ namespace Gambit
         ( const typename MI::InputParameters& input
         , const SMInputs& sminputs
         , const Options& runOptions
-        , const std::map<str, safe_ptr<double> >& input_Param
+        , const std::map<str, safe_ptr<const double> >& input_Param
         )
     {
       // SoftSUSY object used to set quark and lepton masses and gauge
@@ -287,7 +293,7 @@ namespace Gambit
 
 
     template <class T>
-    void fill_ScalarSingletDM_input(T& input, const std::map<str, safe_ptr<double> >& Param,SMInputs sminputs)//,double scale)
+    void fill_ScalarSingletDM_input(T& input, const std::map<str, safe_ptr<const double> >& Param,SMInputs sminputs)//,double scale)
     {
       double mH = *Param.at("mH");
       double mS = *Param.at("mS");
@@ -314,7 +320,7 @@ namespace Gambit
     }
 
     template <class T>
-    void fill_extra_input(T& input, const std::map<str, safe_ptr<double> >& Param )
+    void fill_extra_input(T& input, const std::map<str, safe_ptr<const double> >& Param )
     {
       input.mu3Input=*Param.at("mu3");
     }
@@ -324,7 +330,7 @@ namespace Gambit
       std::unique_ptr<SubSpectrum> ScalarSingletDM = spec.clone_HE();
       double step = log10(scale) / pts;
       double runto;
-      double ul = 4.0 * Pi;
+      double ul = 4.0 * pi;
 
       for (int i=0;i<pts;i++)
       {
@@ -342,9 +348,9 @@ namespace Gambit
           std::ostringstream label;
           label << name <<" "<< Par::toString.at(tag);
 
-          if (name == "lambda_S"){ul =  Pi;}
-          else if (name == "lambda_h"){ul =  2*Pi;}
-          else if (name == "lambda_hS"){ul =  4*Pi;}
+          if (name == "lambda_S"){ul =  pi;}
+          else if (name == "lambda_h"){ul =  2*pi;}
+          else if (name == "lambda_hS"){ul =  4*pi;}
           else {ul = 100;}
 
           if(shape.size()==1 and shape[0]==1)
@@ -568,7 +574,7 @@ namespace Gambit
     void ScalarSingletDM_higgs_couplings_pwid(HiggsCouplingsTable &result)
     {
       using namespace Pipes::ScalarSingletDM_higgs_couplings_pwid;
-      dep_bucket<Spectrum>* spectrum_dependency;
+      dep_bucket<Spectrum>* spectrum_dependency = nullptr;
       if (ModelInUse("ScalarSingletDM_Z2") or ModelInUse("ScalarSingletDM_Z2_running"))
       {
         spectrum_dependency = &Dep::ScalarSingletDM_Z2_spectrum;
@@ -580,6 +586,9 @@ namespace Gambit
       else SpecBit_error().raise(LOCAL_INFO, "No valid model for ScalarSingletDM_higgs_couplings_pwid.");
       const SubSpectrum& spec = (*spectrum_dependency)->get_HE();
 
+      // Set the number of Higgses
+      result.set_n_neutral_higgs(1);
+      result.set_n_charged_higgs(0);
       // Set the CP of the Higgs.
       result.CP[0] = 1;
       // Set the decays
@@ -588,7 +597,7 @@ namespace Gambit
 
       // Identify the singlet as the only possible invisible particle
       if (spec.get(Par::Pole_Mass, "S") * 2.0 < spec.get(Par::Pole_Mass, "h0_1"))
-        result.invisibles = initVector<str>("S");
+        result.invisibles = initVector<std::pair<str,str>>(std::make_pair("S","S"));
       else
         result.invisibles.clear();
       // Leave all the effective couplings for all neutral higgses set to unity (done at construction).

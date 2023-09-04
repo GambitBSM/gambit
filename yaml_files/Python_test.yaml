@@ -14,6 +14,12 @@ Parameters:
     TanBeta:
       range: [10, 50]
 
+  NormalDist:
+    mu:
+      range: [15, 30]
+    sigma:
+      range: [0, 5]
+
 Priors:
 
   # None needed: flat priors are automatically generated for mu and sigma
@@ -55,7 +61,7 @@ Rules:
 
   - capability:  function_pointer
     backends:
-    - {function: externalFunction}
+    - {group: external_funcs, function: externalFunction}
 
   - capability: nevents
     type: int
@@ -81,7 +87,9 @@ KeyValues:
 
   default_output_path: "runs/Python_test"
 
-  rng: ranlux48
+  rng:
+    generator: ranlux48
+    seed: -1
 
   likelihood:
     model_invalid_for_lnlike_below: -1e6

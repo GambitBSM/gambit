@@ -1,0 +1,36 @@
+diff -rupN 1.0.0/CMakeLists.txt 1.0.0-gambit/CMakeLists.txt
+--- 1.0.0/CMakeLists.txt	2019-06-17 11:03:51.069990480 +0100
++++ 1.0.0-gambit/CMakeLists.txt	2019-06-17 10:50:08.298005214 +0100
+@@ -65,18 +65,8 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BIN
+ # Check for ROOT required for GreAT
+ find_package(ROOT REQUIRED)
+ if(ROOT_FOUND)
+-  include_directories(${ROOT_INCLUDE_DIR})
+-
+-  if(ROOT_VERSION VERSION_GREATER 6)
+-    # Check for C++14 support
+-    include(CheckCXXCompilerFlag)
+-    check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
+-    if(COMPILER_SUPPORTS_CXX14)
+-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+-    else()
+-      message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support needed for ROOT 6. Please use a different C++ compiler or an older ROOT version.")
+-    endif()
+-  else()
++  include_directories(${ROOT_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
++  if(NOT ROOT_VERSION VERSION_GREATER 6)
+     # Add workaround for ROOT bug preventing the use of sstream on some systems.
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DR__ACCESS_IN_SYMBOL")
+   endif()
+diff -rupN 1.0.0/Manager/src/TGreatParameter.cpp 1.0.0-gambit/Manager/src/TGreatParameter.cpp
+--- 1.0.0/Manager/src/TGreatParameter.cpp	2019-06-17 11:03:27.129990908 +0100
++++ 1.0.0-gambit/Manager/src/TGreatParameter.cpp	2019-06-17 11:05:32.269988667 +0100
+@@ -186,7 +186,7 @@ void TGreatParameter::SetPriorFunction(T
+ 		SetRange(xmin, xmax); 
+ 	}
+ 	else 
+-		fPriorFunction = new TF1(Form("flat prior for parameter %s", GetParName().c_str()), "1", GetLowerLimit(), GetUpperLimit());
++		fPriorFunction = new TF1(Form("flat prior for parameter %s", GetParName().c_str()), "0*x+1", GetLowerLimit(), GetUpperLimit());
+ 	
+ 	ComputePriorNormFactor();
+ }

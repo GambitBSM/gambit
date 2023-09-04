@@ -1,0 +1,43 @@
+#  === Gaussian priors on Planck nuisance parameters based on PR3 (2018) ===
+#
+#  -->  Use this file if you vary galf_EE_***
+#
+#  The Columns are:
+#     parameter_name | modelID | central value | 1sigma uncertainty
+#
+#  'modelID'
+#     1 -> Parameter of all models ('lite', 'TT', 'TTTEEE')
+#     3 -> Parameter of 'cosmo_nuisance_Planck_TT' and 'cosmo_nuisance_Planck_TTTEEE'
+#     7 -> Parameter of 'cosmo_nuisance_Planck_TTTEEE'
+#
+#  =========================================================================
+
+# Prior on A_planck (All models)
+A_planck            1   1.0         2.5e-3
+
+# Priors on TT power spectrum calibration at 100 GHz and 217 GHz (Planck_TT and Planck_TTTEEE)
+calib_100T          3   1.0002      0.0007
+calib_217T          3   0.99805     0.00065
+
+# Priors on dust residual contamination in TT (at 100 GHz, 143 GHz, and 217 Ghz) (Planck_TT and Planck_TTTEEE)
+gal545_A_100        3   8.6         2.0
+gal545_A_143        3   10.6        2.0
+gal545_A_143_217    3   23.5        8.5
+gal545_A_217        3   91.9        20.0
+
+# Priors on dust residual contamination in EE (at 100 GHz, 143 GHz, and 217 Ghz) (Planck_TT and Planck_TTTEEE)
+# (Not varied in baseline ananlyses)
+galf_EE_A_100       7   0.055       0.014
+galf_EE_A_100_143   7   0.040       0.010
+galf_EE_A_100_217   7   0.094       0.023
+galf_EE_A_143       7   0.086       0.022
+galf_EE_A_143_217   7   0.210       0.051
+galf_EE_A_217       7   0.70        0.18
+
+# Priors on dust residual contamination in TE (at 100 GHz, 143 GHz, and 217 Ghz) (Planck_TT and Planck_TTTEEE)
+galf_TE_A_100       7   0.13        0.042
+galf_TE_A_100_143   7   0.13        0.036
+galf_TE_A_100_217   7   0.46        0.09
+galf_TE_A_143       7   0.207       0.072
+galf_TE_A_143_217   7   0.69        0.09
+galf_TE_A_217       7   1.938       0.540

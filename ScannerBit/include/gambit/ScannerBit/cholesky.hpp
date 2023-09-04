@@ -22,97 +22,117 @@
 #include <iostream>
 namespace Gambit
 {
-        // Cholesky decomposition class
-        class Cholesky
+    // Cholesky decomposition class
+    class Cholesky
+    {
+    private:
+        std::vector<std::vector<double>> el;
+            
+    public:
+        Cholesky(){}
+        
+        Cholesky(const int num) : el(num, std::vector<double>(num)) {}
+                
+        bool EnterMat(std::vector<std::vector<double>> &a)
         {
-        private:
-                std::vector<std::vector<double>> el;
-                
-        public:
-                Cholesky(){}
-                
-                Cholesky(const int num) : el(num, std::vector<double>(num)) {}
-                        
-                bool EnterMat(std::vector<std::vector<double>> &a)
+            el = a;
+            int num = el.size();
+            double sum = 0;
+            int i, j, k;
+            
+            for (i = 0; i < num; i++)
+            {
+                for (j = i; j < num; j++)
                 {
-                        el = a;
-                        int num = el.size();
-                        double sum = 0;
-                        int i, j, k;
-                        
-                        for (i = 0; i < num; i++)
+                    for(sum = el[i][j], k = i - 1; k >= 0; k--)
+                        sum -= el[i][k]*el[j][k];
+                    if(i == j)
+                    {
+                        if(sum <= 0.0)
                         {
-                                for (j = i; j < num; j++)
-                                {
-                                        for(sum = el[i][j], k = i - 1; k >= 0; k--)
-                                                sum -= el[i][k]*el[j][k];
-                                        if(i == j)
-                                        {
-                                                if(sum <= 0.0)
-                                                {
-                                                        return false;
-                                                }
-                                                el[i][i] = std::sqrt(sum);
-                                        }
-                                        else
-                                                el[j][i] = sum/el[i][i];
-                                }
+                                return false;
                         }
-                        
-                        for (i = 0; i < num; i++)
-                                for (j = 0; j < i; j++)
-                                        el[j][i] = 0.0;
-                                
-                        return true;
+                        el[i][i] = std::sqrt(sum);
+                    }
+                    else
+                        el[j][i] = sum/el[i][i];
                 }
-                
-                void ElMult (std::vector<double> &y) const
+            }
+            
+            for (i = 0; i < num; i++)
+                for (j = 0; j < i; j++)
+                    el[j][i] = 0.0;
+                    
+            return true;
+        }
+        
+        void ElMult (std::vector<double> &y) const
+        {
+            int i, j;
+            int num = el.size();
+            std::vector<double> b(num);
+            for(i = 0; i < num; i++)
+            {
+                b[i] = 0.0;
+                for (j = 0; j <= i; j++)
                 {
-                        int i, j;
-                        int num = el.size();
-                        std::vector<double> b(num);
-                        for(i = 0; i < num; i++)
-                        {
-                                b[i] = 0.0;
-                                for (j = 0; j <= i; j++)
-                                {
-                                        b[i] += el[i][j]*y[j];
-                                }
-                        }
-                        
-                        y = b;
+                    b[i] += el[i][j]*y[j];
                 }
-                
-                double Square(const std::vector<double> &y, const std::vector<double> &y0)
+            }
+            
+            y = b;
+        }
+
+        /**
+          * @brief x = L^-1 y where L is the lower-diagonal Cholesky matrix
+          *
+          * Found by forward substituion since L is lower-diagonal.
+          */
+        std::vector<double> invElMult(const std::vector<double> &y) const
+        {
+            std::vector<double> x(y.size(), 0.);
+            for (int i = 0, n = x.size(); i < n; i++)
+            {
+                double sum_ = 0;
+                for (int j = 0; j < i; j++)
                 {
-                        int i, j, num = y.size();
-                        double sum;
-                        std::vector<double> x(num);
-                        
-                        for (i = 0; i < num; i++)
-                        {
-                                for (sum = (y[i]-y0[i]), j=0; j < i; j++)
-                                        sum -= el[i][j]*x[j];
-                                
-                                x[i]=sum/el[i][i];
-                        }
-                        
-                        sum = 0.0;
-                        for (i = 0; i < num; i++)
-                                sum += x[i]*x[i];
-                        
-                        return sum;
+                    sum_ += el[i][j] * x[j];
                 }
+                x[i] = (y[i] - sum_) / el[i][i];
+            }
+            return x;
+        }
+
+        double Square(const std::vector<double> &y, const std::vector<double> &y0)
+        {
+            int i, j, num = y.size();
+            double sum;
+            std::vector<double> x(num);
+            
+            for (i = 0; i < num; i++)
+            {
+                for (sum = (y[i]-y0[i]), j=0; j < i; j++)
+                    sum -= el[i][j]*x[j];
                 
-                double DetSqrt()
-                {
-                        double temp = 1.0;
-                        int num = el.size();
-                        for (int i = 0; i < num; i++)
-                                temp *= el[i][i];
-                        return temp;
-                }
-        };
+                x[i]=sum/el[i][i];
+            }
+            
+            sum = 0.0;
+            for (i = 0; i < num; i++)
+                sum += x[i]*x[i];
+            
+            return sum;
+        }
+        
+        double DetSqrt()
+        {
+            double temp = 1.0;
+            int num = el.size();
+            for (int i = 0; i < num; i++)
+                temp *= el[i][i];
+            return temp;
+        }
+    };
 }
 
 #endif

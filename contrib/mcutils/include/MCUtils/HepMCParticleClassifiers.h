@@ -16,7 +16,7 @@
 /// @author Andy Buckley <andy.buckley@cern.ch>
 /// @author Nataliia Kondrashova <Nataliia.Kondrashova@cern.ch>
 
-#include "HepMC/GenEvent.h"
+#include "HepMC3/GenEvent.h"
 #include <vector>
 #include <functional>
 
@@ -24,21 +24,21 @@
 #include "MCUtils/PIDUtils.h"
 
 // Macro to map HepMC functions to PID:: functions of the same name
-#define HEPMC_TO_PID_FN(fname) fname (const HepMC::GenParticle* p) { return PID:: fname (p->pdg_id()); }
+#define HEPMC_TO_PID_FN(fname) fname (const HepMC3::GenParticle* p) { return PID:: fname (p->pdg_id()); }
 
 namespace MCUtils {
 
   using HEPUtils::in_range;
 
   // Fwd declaration
-  bool _isDecayedHFHadronOrTau(const HepMC::GenParticle* p);
+  bool _isDecayedHFHadronOrTau(const HepMC3::GenParticle* p);
 
 
   /// @name GenParticle classifier functions
   //@{
 
   /// Convenient type name for a generic classifier function / function object
-  typedef std::function<bool(const HepMC::GenParticle*)> PClassifier;
+  typedef std::function<bool(const HepMC3::GenParticle*)> PClassifier;
 
 
   /// Is this particle species charged?
@@ -266,10 +266,10 @@ namespace MCUtils {
   ///
   /// i.e. classifier(const GenParticle* p) is true, and p has no parents which match F
   template <typename F>
-  inline bool isFirstWith(const HepMC::GenParticle* p, const F& classifier) {
+  inline bool isFirstWith(const HepMC3::GenParticle* p, const F& classifier) {
     if (!classifier(p)) return false; // p doesn't have property F so it can't be the first particle with it
     if (!p->production_vertex()) return true; // p has no parents, so it's the first
-    for (const HepMC::GenParticle* parent : const_parents(p->production_vertex())) {
+    for (const HepMC3::GenParticle* parent : const_parents(p->production_vertex())) {
       if (classifier(parent)) return false; // if its parent has property F, p can't be the first
     }
     return true; // p has F and no parents do
@@ -279,10 +279,10 @@ namespace MCUtils {
   ///
   /// i.e. classifier(const GenParticle* p) is true, and p has no children which match F
   template <typename F>
-  inline bool isLastWith(const HepMC::GenParticle* p, const F& classifier) {
+  inline bool isLastWith(const HepMC3::GenParticle* p, const F& classifier) {
     if (!classifier(p)) return false; // p doesn't have property F so it can't be the last particle with it
     if (!p->end_vertex()) return true; // p has no children, so it's the last
-    for (const HepMC::GenParticle* child : const_children(p->end_vertex())) {
+    for (const HepMC3::GenParticle* child : const_children(p->end_vertex())) {
       if (classifier(child)) return false; // if its child has property F, p can't be the first
     }
     return true; // p has F and no children do
@@ -292,11 +292,11 @@ namespace MCUtils {
   /// @brief Is this particle the first of its type in the 'decay' chain?
   ///
   /// i.e. it has no parents with the same PID
-  inline bool isFirstReplica(const HepMC::GenParticle* p) {
+  inline bool isFirstReplica(const HepMC3::GenParticle* p) {
     /// @todo Rewrite with isFirstWith and a lambda based on matching p->pdg_id
     if (!p->production_vertex()) return true;
     bool isfirst = true;
-    for (const HepMC::GenParticle* m : const_parents(p->production_vertex())) {
+    for (const HepMC3::GenParticle* m : const_parents(p->production_vertex())) {
       if (m->pdg_id() == p->pdg_id()) {
         isfirst = false;
         break;
@@ -308,11 +308,11 @@ namespace MCUtils {
   /// @brief Is this particle the last of its type in the 'decay' chain?
   ///
   /// i.e. it has no daughters with the same PID
-  inline bool isLastReplica(const HepMC::GenParticle* p) {
+  inline bool isLastReplica(const HepMC3::GenParticle* p) {
     /// @todo Rewrite with isLastWith and a lambda based on matching p->pdg_id
     if (!p->end_vertex()) return true;
     bool islast = true;
-    for (const HepMC::GenParticle* d : const_children(p->end_vertex())) {
+    for (const HepMC3::GenParticle* d : const_children(p->end_vertex())) {
       if (d->pdg_id() == p->pdg_id()) {
         islast = false;
         break;
@@ -328,7 +328,7 @@ namespace MCUtils {
   /// @todo Generalise to allow comparison to multiple statuses
   struct HasStatus {
     HasStatus(int status) : status(status) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return p->status() == status;
     }
     int status;
@@ -338,7 +338,7 @@ namespace MCUtils {
   struct HasPID {
     HasPID(long pid) { pids.push_back(pid); }
     HasPID(const std::vector<long>& pids) : pids(pids) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return std::find(pids.begin(), pids.end(), p->pdg_id()) != pids.end();
     }
     std::vector<long> pids;
@@ -348,7 +348,7 @@ namespace MCUtils {
   struct HasAbsPID {
     HasAbsPID(long pid) { pids.push_back(pid); }
     HasAbsPID(const std::vector<long>& pids) : pids(pids) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return (std::find(pids.begin(), pids.end(), p->pdg_id()) != pids.end()) ||
         (std::find(pids.begin(), pids.end(), -p->pdg_id()) != pids.end());
     }
@@ -357,13 +357,13 @@ namespace MCUtils {
 
 
   /// @todo Specify and handle units
-  inline bool ptLess(const HepMC::GenParticle* p, double ptmax) {
+  inline bool ptLess(const HepMC3::GenParticle* p, double ptmax) {
     return p->momentum().perp() < ptmax;
   }
   /// @todo Specify and handle units
   struct PtLess {
     PtLess(double ptmax) : ptmax(ptmax) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return ptLess(p, ptmax);
     }
     double ptmax;
@@ -371,51 +371,51 @@ namespace MCUtils {
 
 
   /// @todo Specify and handle units
-  inline bool ptGtr(const HepMC::GenParticle* p, double ptmin) {
+  inline bool ptGtr(const HepMC3::GenParticle* p, double ptmin) {
     return p->momentum().perp() >= ptmin;
   }
   /// @todo Specify and handle units
   struct PtGtr {
     PtGtr(double ptmin) : ptmin(ptmin) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return ptGtr(p, ptmin);
     }
     double ptmin;
   };
 
 
-  inline bool inEtaRange(const HepMC::GenParticle* p, double etamin, double etamax) {
+  inline bool inEtaRange(const HepMC3::GenParticle* p, double etamin, double etamax) {
     return HEPUtils::in_range(eta(p->momentum()), etamin, etamax);
   }
   struct InEtaRange {
     InEtaRange(double etamin, double etamax) : etamin(etamin), etamax(etamax) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return inEtaRange(p, etamin, etamax);
     }
     double etamin, etamax;
   };
   struct NotInEtaRange {
     NotInEtaRange(double etamin, double etamax) : etamin(etamin), etamax(etamax) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return !inEtaRange(p, etamin, etamax);
     }
     double etamin, etamax;
   };
 
 
-  inline bool inRapRange(const HepMC::GenParticle* p, double ymin, double ymax) {
+  inline bool inRapRange(const HepMC3::GenParticle* p, double ymin, double ymax) {
     return HEPUtils::in_range(rap(p->momentum()), ymin, ymax);
   }
   struct InRapRange {
     InRapRange(double ymin, double ymax) : ymin(ymin), ymax(ymax) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return inRapRange(p, ymin, ymax);
     }
     double ymin, ymax;
   };
   struct NotInRapRange {
     NotInRapRange(double ymin, double ymax) : ymin(ymin), ymax(ymax) { }
-    bool operator()(const HepMC::GenParticle* p) {
+    bool operator()(const HepMC3::GenParticle* p) {
       return !inRapRange(p, ymin, ymax);
     }
     double ymin, ymax;
@@ -429,36 +429,36 @@ namespace MCUtils {
   //@{
 
   /// Determine whether the particle is stable
-  inline bool isStable(const HepMC::GenParticle* p) {
+  inline bool isStable(const HepMC3::GenParticle* p) {
     return p->status() == 1;
   }
 
   /// Determine whether the particle is physical but decayed
-  inline bool isDecayed(const HepMC::GenParticle* p) {
+  inline bool isDecayed(const HepMC3::GenParticle* p) {
     return p->status() == 2;
   }
 
   /// @brief Determine whether the particle is outside the physical status code range
   ///
   /// If the answer is "true", use with extreme, generator-specific care!
-  inline bool hasNonStandardStatus(const HepMC::GenParticle* p) { return !in_range(p->status(), 1, 5); }
+  inline bool hasNonStandardStatus(const HepMC3::GenParticle* p) { return !in_range(p->status(), 1, 5); }
 
   /// Is this a physically reliable final state particle? (as opposed to a debugging entry)
-  inline bool isPhysical(const HepMC::GenParticle* p) {
+  inline bool isPhysical(const HepMC3::GenParticle* p) {
     return isStable(p) || isDecayed(p);
   }
 
   /// Is this a physically reliable hadron? (as opposed to a debugging entry)
-  inline bool isPhysicalHadron(const HepMC::GenParticle* p) {
+  inline bool isPhysicalHadron(const HepMC3::GenParticle* p) {
     return isHadron(p) && isPhysical(p);
   }
   /// Determine if the particle is a decayed hadron
-  inline bool isDecayedHadron(const HepMC::GenParticle* p) {
+  inline bool isDecayedHadron(const HepMC3::GenParticle* p) {
     return isDecayed(p) && isHadron(p);
   }
 
   /// Determine if the particle is a decayed tau
-  inline bool isDecayedTau(const HepMC::GenParticle* p) {
+  inline bool isDecayedTau(const HepMC3::GenParticle* p) {
     return isDecayed(p) && isTau(p);
   }
 
@@ -470,24 +470,24 @@ namespace MCUtils {
   //@{
 
   /// @brief Determine whether the given particle has an ancestor that matches the given classifier
-  inline bool fromAncestorWith(const HepMC::GenParticle* p, const PClassifier& c) {
+  inline bool fromAncestorWith(const HepMC3::GenParticle* p, const PClassifier& c) {
     /// @todo *sigh* Missing const methods in HepMC...
-    HepMC::GenVertex* gv = const_cast<HepMC::GenVertex*>(p->production_vertex());
+    HepMC3::GenVertex* gv = const_cast<HepMC3::GenVertex*>(p->production_vertex());
     if (gv == NULL) return false;
     /// @todo HepMC needs const versions of these iterator methods :-/
-    for (HepMC::GenVertex::particle_iterator pi = gv->particles_begin(HepMC::ancestors); pi != gv->particles_end(HepMC::ancestors); ++pi) {
+    for (HepMC3::GenVertex::particle_iterator pi = gv->particles_begin(HepMC3::ancestors); pi != gv->particles_end(HepMC3::ancestors); ++pi) {
       if (c(*pi)) return true;
     }
     return false;
   }
 
   /// @brief Determine whether the given particle has a descendant that matches the given classifier
-  inline bool hasDescendantWith(const HepMC::GenParticle* p, const PClassifier& c) {
+  inline bool hasDescendantWith(const HepMC3::GenParticle* p, const PClassifier& c) {
     /// @todo *sigh* Missing const methods in HepMC...
-    HepMC::GenVertex* gv = const_cast<HepMC::GenVertex*>(p->end_vertex());
+    HepMC3::GenVertex* gv = const_cast<HepMC3::GenVertex*>(p->end_vertex());
     if (gv == NULL) return false;
     /// @todo HepMC needs const versions of these iterator methods :-/
-    for (HepMC::GenVertex::particle_iterator pi = gv->particles_begin(HepMC::descendants); pi != gv->particles_end(HepMC::descendants); ++pi) {
+    for (HepMC3::GenVertex::particle_iterator pi = gv->particles_begin(HepMC3::descendants); pi != gv->particles_end(HepMC3::descendants); ++pi) {
       if (c(*pi)) return true;
     }
     return false;
@@ -495,11 +495,11 @@ namespace MCUtils {
 
 
   /// Determine if the particle is a hadronically decayed tau
-  inline bool isHadronicTau(const HepMC::GenParticle* p) {
+  inline bool isHadronicTau(const HepMC3::GenParticle* p) {
     return isDecayedTau(p) && hasDescendantWith(p, isHadron);
   }
   /// Determine if the particle is a leptonically decayed tau
-  inline bool isLeptonicTau(const HepMC::GenParticle* p) {
+  inline bool isLeptonicTau(const HepMC3::GenParticle* p) {
     return isDecayedTau(p) && !hasDescendantWith(p, isHadron);
   }
 
@@ -507,14 +507,14 @@ namespace MCUtils {
   /// @brief Helper function used in detecting hadron/tau decay daughters
   ///
   /// @todo Use C++11 lambda when available
-  inline bool _isDecayedHadronOrTau(const HepMC::GenParticle* p) {
+  inline bool _isDecayedHadronOrTau(const HepMC3::GenParticle* p) {
     return isDecayed(p) && (isTau(p) || isHadron(p));
   }
   /// @brief Determine whether the given particle is from a hadron or tau decay
   ///
   /// @todo Use a better, more explicit name?
   /// Specifically, walk up the ancestor chain until a status 2 hadron or tau is found, if at all.
-  inline bool fromDecay(const HepMC::GenParticle* p) {
+  inline bool fromDecay(const HepMC3::GenParticle* p) {
     return fromAncestorWith(p, _isDecayedHadronOrTau);
   }
 
@@ -522,28 +522,28 @@ namespace MCUtils {
   /// @brief Determine whether the given particle is from a hadron decay
   ///
   /// Specifically, walk up the ancestor chain until a status 2 hadron is found, if at all.
-  inline bool fromHadronDecay(const HepMC::GenParticle* p) {
+  inline bool fromHadronDecay(const HepMC3::GenParticle* p) {
     return fromAncestorWith(p, isDecayedHadron);
   }
 
   /// @brief Determine whether the given particle is from a heavy hadron decay
   ///
   /// Specifically, walk up the ancestor chain until a status 2 heavy hadron is found, if at all.
-  inline bool fromHeavyHadronDecay(const HepMC::GenParticle* p) {
+  inline bool fromHeavyHadronDecay(const HepMC3::GenParticle* p) {
     return fromAncestorWith(p, isHeavyHadron);
   }
 
   /// @brief Determine whether the given particle is from a bottom hadron decay
   ///
   /// Specifically, walk up the ancestor chain until a status 2 bottom hadron is found, if at all.
-  inline bool fromBottomHadronDecay(const HepMC::GenParticle* p) {
+  inline bool fromBottomHadronDecay(const HepMC3::GenParticle* p) {
     return fromAncestorWith(p, isBottomHadron);
   }
 
   /// @brief Determine whether the given particle is from a charm hadron decay
   ///
   /// Specifically, walk up the ancestor chain until a status 2 charm hadron is found, if at all.
-  inline bool fromCharmHadronDecay(const HepMC::GenParticle* p) {
+  inline bool fromCharmHadronDecay(const HepMC3::GenParticle* p) {
     return fromAncestorWith(p, isCharmHadron);
   }
 
@@ -551,7 +551,7 @@ namespace MCUtils {
   ///
   /// Specifically, walk up the ancestor chain until a tau is found, if at all.
   /// If @a only_prompt_taus is true then return false if the tau itself was from a hadron decay.
-  inline bool fromTauDecay(const HepMC::GenParticle* p, bool only_prompt_taus=false) {
+  inline bool fromTauDecay(const HepMC3::GenParticle* p, bool only_prompt_taus=false) {
     // If the tau was non-prompt, there will also be a hadron in the history:
     if (only_prompt_taus && fromHadronDecay(p)) return false;
     // Else...
@@ -561,7 +561,7 @@ namespace MCUtils {
   /// @brief Determine whether the given particle is from a prompt tau decay
   ///
   /// @note Syntactic sugar for fromTauDecay(p, true)
-  inline bool fromPromptTauDecay(const HepMC::GenParticle* p) {
+  inline bool fromPromptTauDecay(const HepMC3::GenParticle* p) {
     return fromTauDecay(p, true);
   }
 
@@ -569,7 +569,7 @@ namespace MCUtils {
   ///
   /// Specifically, walk up the ancestor chain until a status 2 tau is found, if at all.
   /// If @a only_prompt_taus is true then return false if the tau itself was from a hadron decay.
-  inline bool fromHadronicTauDecay(const HepMC::GenParticle* p, bool only_prompt_taus=false) {
+  inline bool fromHadronicTauDecay(const HepMC3::GenParticle* p, bool only_prompt_taus=false) {
     // If the tau was non-prompt, there will also be a hadron in the history:
     if (only_prompt_taus && fromHadronDecay(p)) return false;
     // Else...
@@ -579,7 +579,7 @@ namespace MCUtils {
   /// @brief Determine whether the given particle is from a prompt tau decay
   ///
   /// @note Syntactic sugar for fromHadronicTauDecay(p, true)
-  inline bool fromPromptHadronicTauDecay(const HepMC::GenParticle* p) {
+  inline bool fromPromptHadronicTauDecay(const HepMC3::GenParticle* p) {
     return fromHadronicTauDecay(p, true);
   }
 
@@ -588,7 +588,7 @@ namespace MCUtils {
   ///
   /// Specifically, walk up the ancestor chain until a status 2 c/b hadron or tau is found, if at all.
   /// If @a only_prompt_taus is true then return false if the tau itself was from a hadron decay.
-  inline bool fromTauOrHFDecay(const HepMC::GenParticle* p, bool only_prompt_taus=false) {
+  inline bool fromTauOrHFDecay(const HepMC3::GenParticle* p, bool only_prompt_taus=false) {
     return fromHeavyHadronDecay(p) || fromTauDecay(p, only_prompt_taus); //< Evaluation order & short-circuiting are important!!
   }
 
@@ -603,7 +603,7 @@ namespace MCUtils {
   /// tau are themselves considered prompt; changing the optional boolean
   /// parameter to false will result in such particles being reported as
   /// non-prompt (i.e. isPrompt = false).
-  inline bool isPrompt(const HepMC::GenParticle* p, bool accept_prompt_tau_decay_leptons=true) {
+  inline bool isPrompt(const HepMC3::GenParticle* p, bool accept_prompt_tau_decay_leptons=true) {
     if (!isPhysical(p) || isHadron(p)) return false;
     if (fromHadronDecay(p)) return false;
     if (!accept_prompt_tau_decay_leptons && fromTauDecay(p, true)) return false;

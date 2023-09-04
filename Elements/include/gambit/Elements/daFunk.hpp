@@ -59,6 +59,7 @@
 #include <map>
 #include <set>
 #include <cmath>
+#include <stdexcept>
 
 //#define NDEBUG
 #include <assert.h>
@@ -885,7 +886,7 @@ namespace daFunk
             FunkDelta(std::string arg, double pos, double width) : pos(pos), width(width)
             {
                 arguments = vec(arg);
-                this->set_singularity("v", pos, width);
+                singularities[arg].push_back(std::pair<Funk, Funk>(cnst(pos), cnst(width)));
             }
 
             double value(const std::vector<double> & data, size_t bindID)
@@ -927,7 +928,7 @@ namespace daFunk
     {
         singularities[arg].push_back(std::pair<Funk, Funk>(pos, width));
         return shared_from_this();
-    };
+    }
     inline Funk FunkBase::set_singularity(std::string arg, double pos, Funk width)
     { return shared_from_this()->set_singularity(arg, cnst(pos), width); }
     inline Funk FunkBase::set_singularity(std::string arg, double pos, double width)
@@ -1463,7 +1464,7 @@ namespace daFunk
     };
     //inline Funk print(std::string msg) { return Funk(new Bottle(msg)); }
     inline Funk FunkBase::print(std::string msg)
-    { return Funk(new Bottle(shared_from_this(), msg)); };
+    { return Funk(new Bottle(shared_from_this(), msg)); }
 
 
     //
@@ -1739,8 +1740,12 @@ namespace daFunk
                 std::vector<double> singlgrid = linspace(std::max(position-width*sigma, xmin), std::min(position+width*sigma, xmax), N);
                 result.insert(result.end(), singlgrid.begin(), singlgrid.end());
             }
-            std::sort(result.begin(), result.end());
         }
+        // Sort the values only once
+        std::sort(result.begin(), result.end());
+
+        // Only use unique values, i.e. do not resolve the same singularity twice.
+        result.erase(std::unique(result.begin(), result.end()), result.end());
 
         return result;
     }

@@ -38,7 +38,7 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      int _numSRM90SF, _numSRM100SF, _numSRM110SF, _numSRM120SF,
+      double _numSRM90SF, _numSRM100SF, _numSRM110SF, _numSRM120SF,
           _numSRM90DF, _numSRM100DF, _numSRM110DF, _numSRM120DF;
 
       vector<int> cutFlowVector;
@@ -74,8 +74,8 @@ namespace Gambit {
         //double met = event->met();
 
         // Now define vector of baseline electrons
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
         }
 
@@ -83,36 +83,36 @@ namespace Gambit {
         ATLAS::applyElectronEff(baselineElectrons);
 
         // Now define vector of baseline muons
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && muon->abseta() < 2.4) baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
         ATLAS::applyMuonEff(baselineMuons);
 
-        vector<HEPUtils::Particle*> baselineTaus;
-        for (HEPUtils::Particle* tau : event->taus()) {
+        vector<const HEPUtils::Particle*> baselineTaus;
+        for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         }
         ATLAS::applyTauEfficiencyR1(baselineTaus);
 
-        vector<HEPUtils::Jet*> baselineJets;
-        vector<HEPUtils::Jet*> bJets;
-        vector<HEPUtils::Jet*> trueBJets; //for debugging
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> baselineJets;
+        vector<const HEPUtils::Jet*> bJets;
+        vector<const HEPUtils::Jet*> trueBJets; //for debugging
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.5) baselineJets.push_back(jet);
           if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
         }
 
         // Overlap removal
-        vector<HEPUtils::Particle*> signalLeptons;
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Particle*> electronsForVeto;
-        vector<HEPUtils::Particle*> muonsForVeto;
-        vector<HEPUtils::Jet*> goodJets;
-        vector<HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Particle*> signalLeptons;
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Particle*> electronsForVeto;
+        vector<const HEPUtils::Particle*> muonsForVeto;
+        vector<const HEPUtils::Jet*> goodJets;
+        vector<const HEPUtils::Jet*> signalJets;
 
         //Note that ATLAS use |eta|<10 for removing jets close to electrons
         //Then 2.8 is used for the rest of the overlap process
@@ -347,15 +347,15 @@ namespace Gambit {
         //We're now ready to apply the cuts for each signal region
         //_numSR1, _numSR2, _numSR3;
 
-        if(cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT290) _numSRM90SF++;
-        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2100 && cut_2jets) _numSRM100SF++;
-        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2110 && nJets>=2) _numSRM110SF++;
-        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2120) _numSRM120SF++;
+        if(cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT290) _numSRM90SF += event->weight();
+        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2100 && cut_2jets) _numSRM100SF += event->weight();
+        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2110 && nJets>=2) _numSRM110SF += event->weight();
+        if(cut_2leptons_base && cut_2leptons && (cut_2leptons_ee || cut_2leptons_mumu) && isOS && isMLL && ispT && isZsafe && isdphi && isdphib && cut_MT2120) _numSRM120SF += event->weight();
 
-        if(cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT290) _numSRM90DF++;
-        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2100 && cut_2jets) _numSRM100DF++;
-        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2110 && nJets>=2) _numSRM110DF++;
-        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120) _numSRM120DF++;
+        if(cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT290) _numSRM90DF += event->weight();
+        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2100 && cut_2jets) _numSRM100DF += event->weight();
+        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2110 && nJets>=2) _numSRM110DF += event->weight();
+        if(cut_2leptons_base && cut_2leptons && cut_2leptons_emu && isOS && isMLL && ispT && isdphi && isdphib && cut_MT2120) _numSRM120DF += event->weight();
 
         return;
       }
@@ -383,42 +383,13 @@ namespace Gambit {
 
 
       void collect_results() {
-        SignalRegionData results_SRM90;
-        results_SRM90.sr_label = "SRM90";
-        results_SRM90.n_observed = 274.;
-        results_SRM90.n_background = 300.;
-        results_SRM90.background_sys = 50.;
-        results_SRM90.signal_sys = 0.;
-        results_SRM90.n_signal = _numSRM90SF+_numSRM90DF;
 
-        SignalRegionData results_SRM100;
-        results_SRM100.sr_label = "SRM100";
-        results_SRM100.n_observed = 3.;
-        results_SRM100.n_background = 5.2;
-        results_SRM100.background_sys = 2.2;
-        results_SRM100.signal_sys = 0.;
-        results_SRM100.n_signal = _numSRM100SF+_numSRM100DF;
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_SRM110;
-        results_SRM110.sr_label = "SRM110";
-        results_SRM110.n_observed = 8.;
-        results_SRM110.n_background = 9.3;
-        results_SRM110.background_sys = 3.5;
-        results_SRM110.signal_sys = 0.;
-        results_SRM110.n_signal = _numSRM110SF+_numSRM110DF;
-
-        SignalRegionData results_SRM120;
-        results_SRM120.sr_label = "SRM120";
-        results_SRM120.n_observed = 18.;
-        results_SRM120.n_background = 19.;
-        results_SRM120.background_sys = 9.;
-        results_SRM120.signal_sys = 0.;
-        results_SRM120.n_signal = _numSRM120SF+_numSRM120DF;
-
-        add_result(results_SRM90);
-        add_result(results_SRM100);
-        add_result(results_SRM110);
-        add_result(results_SRM120);
+        add_result(SignalRegionData("SRM90", 274., {_numSRM90SF + _numSRM90DF, 0.}, {300., 50.}));
+        add_result(SignalRegionData("SRM100", 3., {_numSRM100SF + _numSRM100DF, 0.}, {5.2, 2.2}));
+        add_result(SignalRegionData("SRM110", 8., {_numSRM110SF + _numSRM110DF, 0.}, {9.3, 3.5}));
+        add_result(SignalRegionData("SRM120", 18., {_numSRM120SF + _numSRM120DF, 0.}, {19., 9.}));
 
         return;
       }

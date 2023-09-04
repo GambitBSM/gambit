@@ -3,14 +3,25 @@
 ///  \file
 ///
 ///  Definitions for Gambit MPI C++ bindings.
-//
+///
+///  NOTE! I just learned something unfortunate,
+///  which is that all Isend's are supposed to be
+///  matched by MPI_Wait calls at some point, to
+///  ensure the operation is complete.
+///  We are not doing this. Things seem to work
+///  anyway, but it may explain some of the hangs
+///  on MPI_Finalize.
+///  I will fix the worst offenders of this asap,
+///  but the rest may take longer.
+///
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
 ///
 ///  \author Ben Farmer
-///          (benjamin.farmer@fysik.su.se)
-///  \date 2015 Apr
+///          (b.farmer@imperial.ac.uk)
+///  \date 2015 - 2019
+///
 ///  *********************************************
 
 #ifdef WITH_MPI // Contents of this file ignored if MPI not enabled
@@ -20,6 +31,7 @@
 #include <iostream>
 #include <algorithm>
 #include <time.h> // For nanosleep (posix only)
+#include <sys/types.h>
 #include <chrono>
 
 #include "gambit/Utils/mpiwrapper.hpp"
@@ -35,6 +47,8 @@ namespace Gambit
    {
 
       /// @{ Main "Communicator" class
+
+      long int Comm::pid = getpid();
 
       /// @{ Constructors
       /// Default (attaches to MPI_COMM_WORLD):
@@ -52,6 +66,29 @@ namespace Gambit
          if(not Is_initialized())
          {
             utils_error().raise(LOCAL_INFO, "Error creating Comm object (wrapper for MPI communicator)! MPI has not been initialised!");
+         }
+      }
+
+      /// Create a new communicator group from WORLD for the specified processes
+      Comm::Comm(std::vector<int> processes, const std::string& name)
+         : boundcomm(), myname(name)
+      {
+         // Create group
+         MPI_Group group_world, new_group;
+         MPI_Comm_group(MPI_COMM_WORLD, &group_world);
+         MPI_Group_incl(group_world, processes.size(), &processes[0], &new_group);
+
+         // Create new communicator
+         int errflag = MPI_Comm_create(MPI_COMM_WORLD, new_group, &boundcomm);
+
+         //std::cerr<<"boundcomm="<<boundcomm<<", MPI_COMM_NULL="<<MPI_COMM_NULL<<std::endl;
+
+         // Check for error
+         if(errflag!=0)
+         {
+           std::ostringstream errmsg;
+           errmsg << "Error performing MPI_Comm_create while attempting to create a new communicator group! Received error flag: "<<errflag;
+           utils_error().raise(LOCAL_INFO, errmsg.str());
          }
       }
 
@@ -80,7 +117,7 @@ namespace Gambit
       /// Check for undelivered messages (unless finalize has already been called)
       void Comm::check_for_undelivered_messages()
       {
-        if(not Is_finalized())
+        if(not Is_finalized() and boundcomm!=MPI_COMM_NULL)
         {
           std::ostringstream errmsg;
           // Warn if any unreceived messages exist
@@ -548,6 +585,57 @@ namespace Gambit
          return timedout;
       }
 
+      /// This routine exists for MPI debugging purposes, to help make sure that
+      /// all MPI messages are received before MPI_Finalize is called.
+      /// It doesn't fix any problems, it just lets us notice if they exist.
+      void Comm::check_for_unreceived_messages(int timeout)
+      {
+        int mpiSize = Get_size();
+        int myRank  = Get_rank();
+
+        // Wait 'timeout' seconds before checking for messages, to make sure
+        // that other processes don't send more after we check.
+        struct timespec sleeptime;
+        sleeptime.tv_sec = timeout;
+        sleeptime.tv_nsec = 0;
+        logger() << LogTags::core << LogTags::info << "Waiting "<<timeout<<" seconds for any pending MPI communication to be transmitted, then we will check for unreceived messages from all processes (in communicator group "<<Get_name()<<")"<<EOM;
+        nanosleep(&sleeptime,NULL);
+
+        logger() << LogTags::core << LogTags::info << "Unreceived message report for communicator group "<<Get_name()<<":"<<std::endl;
+        bool unreceived_messages_detected(false);
+        for(int rank=0; rank<mpiSize; rank++)
+        {
+           if(rank!=myRank)
+           {
+              MPI_Status status;
+              if(Iprobe(rank, MPI_ANY_TAG, &status))
+              {
+                 unreceived_messages_detected = true;
+                 logger() << "  Unreceived messages detected from rank "<<rank<<" with tag "<<status.MPI_TAG<<std::endl;
+              }
+           }
+        }
+        if(not unreceived_messages_detected)
+        {
+           logger() << "  No unreceived messages detected!";
+        }
+        logger()<<EOM;
+      }
+
+
+      /// Get the process ID of the master process (rank 0)
+      long int Comm::MasterPID()
+      {
+        if (not Is_initialized())
+        {
+          utils_error().raise(LOCAL_INFO, "Error retrieving process ID for rank0; MPI has not been initialised!");
+        }
+        return pid;
+      }
+
+      /// Get the process ID of the master process (rank 0)
+      void Comm::set_MasterPID(long int p) { pid = p; }
+
       /// @}
 
       /// Check if MPI_Init has been called (it is an error to call it twice)
@@ -643,9 +731,22 @@ namespace Gambit
         // Create communicator and check out basic info
         Comm COMM_WORLD;
 
+        // Get the local process ID
+        long int pid = getpid();
+        std::vector<long int> pid_vec;
+        pid_vec.push_back(pid);
+
         #ifdef MPI_DEBUG_OUTPUT
-        std::cerr << "  Process pool size : " << COMM_WORLD.Get_size() << std::endl;
-        std::cerr << "  I am process number " << COMM_WORLD.Get_rank() << std::endl;
+        std::cerr << "  Process pool size: " << COMM_WORLD.Get_size() << std::endl;
+        std::cerr << "  I am process number " << COMM_WORLD.Get_rank() << ", with PID " << pid << std::endl;
+        #endif
+
+        // Distribute and save the process ID of the master process
+        COMM_WORLD.Bcast(pid_vec, 1, 0);
+        COMM_WORLD.set_MasterPID(pid_vec.at(0));
+
+        #ifdef MPI_DEBUG_OUTPUT
+        std::cerr << "  Master process PID " << COMM_WORLD.MasterPID() << std::endl;
         #endif
 
         // Run externally defined initialisation functions

@@ -21,6 +21,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jul
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 June
+///
 ///  *********************************************
 
 #ifndef __hdf5tools_hpp__
@@ -43,6 +47,8 @@
 // Boost
 #include <boost/utility/enable_if.hpp>
 
+// Maximum length of HDF5 strings
+#define HDF5_STRING_MAX_LEN 100
 
 /// Provide template specialisation of get_hdf5_data_type only if the requested type hasn't been used to define one already.
 #define SPECIALISE_HDF5_DATA_TYPE_IF_NEEDED(TYPEDEFD_TYPE, RETURN_HDF5_TYPE)                                  \
@@ -61,7 +67,8 @@
                                                                !std::is_same<float, TYPEDEFD_TYPE>::value                 && \
                                                                !std::is_same<double, TYPEDEFD_TYPE>::value                && \
                                                                !std::is_same<long double, TYPEDEFD_TYPE>::value           && \
-                                                               !std::is_same<bool, TYPEDEFD_TYPE>::value>::type >            \
+                                                               !std::is_same<bool, TYPEDEFD_TYPE>::value                  && \
+                                                               !std::is_same<std::string, TYPEDEFD_TYPE>::value>::type >            \
       {                                                                                                                      \
          static hid_t type() { return RETURN_HDF5_TYPE; }                                                            \
       };                                                                                                                     \
@@ -72,6 +79,10 @@ namespace Gambit
 
   namespace Printers
   {
+      /// Base template is left undefined in order to raise
+      /// a compile error if specialisation doesn't exist.
+      template<typename T, typename Enable=void>
+      struct get_hdf5_data_type;
 
       namespace HDF5
       {
@@ -99,6 +110,10 @@ namespace Gambit
          inline bool checkGroupReadable(hid_t location, const std::string& groupname)
          { std::string garbage; return checkGroupReadable(location, groupname, garbage); }
 
+         /// Check if a dataset exists and can be read from fully
+         /// (Reads through entire dataset to make sure! May take some time)
+         std::pair<bool,std::size_t> checkDatasetReadable(hid_t location, const std::string& dsetname);
+  
          /// Create hdf5 file (always overwrite existing files)
          hid_t createFile(const std::string& fname);
 
@@ -162,15 +177,56 @@ namespace Gambit
 
          /// Select a simple hyperslab in a 1D dataset
          std::pair<hid_t,hid_t> selectChunk(const hid_t dset_id, std::size_t offset, std::size_t length);
-  
+ 
+         /// Check if an object in a group is a dataset
+         bool isDataSet(hid_t group_id, const std::string& name);
+
+         /// Retrieve a chunk of data from a simple dataset
+         /// NOTE! Doesn't work for T=bool! Have a custom specialisation in the source file for that.
+         template<class T>
+         std::vector<T> getChunk(const hid_t dset_id, std::size_t offset, std::size_t length)
+         {
+             // Buffer to receive data (and return from function)
+             std::vector<T> chunkdata(length);
+ 
+             // Select hyperslab
+             std::pair<hid_t,hid_t> selection_ids = selectChunk(dset_id,offset,length);
+             hid_t memspace_id = selection_ids.first;
+             hid_t dspace_id   = selection_ids.second;
+
+             // Buffer to receive data
+             void* buffer = chunkdata.data(); // pointer to contiguous memory within the buffer vector
+
+             // Get the data from the hyperslab.
+             hid_t hdftype_id = get_hdf5_data_type<T>::type(); // It is assumed that you already know this is the right type for the dataset!
+             herr_t err_read = H5Dread(dset_id, hdftype_id, memspace_id, dspace_id, H5P_DEFAULT, buffer);
+
+             if(err_read<0)
+             {
+                 std::ostringstream errmsg;
+                 errmsg << "Error retrieving chunk (offset="<<offset<<", length="<<length<<") from dataset in HDF5 file. H5Dread failed." << std::endl;
+                 errmsg << "  offset+length = "<< offset+length << std::endl;
+                 printer_error().raise(LOCAL_INFO, errmsg.str());
+             }
+
+             H5Sclose(dspace_id);
+             H5Sclose(memspace_id);
+ 
+             return chunkdata;
+         }
+
+         // Bool version to deal with bool weirdness
+         template<>
+         std::vector<bool> getChunk(const hid_t dset_id, std::size_t offset, std::size_t length);
+
+         // Match fixed integers to HDF5 types
+         int inttype_from_h5type(hid_t h5type);
+   
+         // Query whether type integer indicates general 'float' or 'int'
+         bool is_float_type(int inttype);
+
          /// @}
-
       }
-
-      /// Base template is left undefined in order to raise
-      /// a compile error if specialisation doesn't exist.
-      template<typename T, typename Enable=void>
-      struct get_hdf5_data_type;
 
       /// True types
       /// @{
@@ -187,10 +243,14 @@ namespace Gambit
       template<> struct get_hdf5_data_type<float>             { static hid_t type() { return H5T_NATIVE_FLOAT  ; } };
       template<> struct get_hdf5_data_type<double>            { static hid_t type() { return H5T_NATIVE_DOUBLE ; } };
       template<> struct get_hdf5_data_type<long double>       { static hid_t type() { return H5T_NATIVE_LDOUBLE; } };
-      template<> struct get_hdf5_data_type<bool>              { static hid_t type() { return H5T_NATIVE_UINT8  ; } };
       // Bools are a bit trickier because C has no built-in boolean type (until recently; anyway
       // the HDF5 libraries were written in C before this existed). We also want something that
       // will be recognised as a bool by h5py. For now we just use an unsigned int.
+      template<> struct get_hdf5_data_type<bool>              { static hid_t type() { return H5T_NATIVE_UINT8  ; } };
+      // The hdf5 native type H5T_C_S1 is a string of a single character.
+      // To use longer strings we copy the type and extend it.
+      template<> struct get_hdf5_data_type<std::string>       { static hid_t type() { hid_t strtype = H5Tcopy(H5T_C_S1); H5Tset_size (strtype, H5T_VARIABLE); return strtype; } };
+
 
       // Macro sequence for iterating over all allowed output types
       #define H5_OUTPUT_TYPES \
@@ -207,7 +267,8 @@ namespace Gambit
         (float) \
         (double) \
         (long double) \
-        (bool)
+        (bool) \
+        (std::string)
 
       /// DEBUG: print to stdout all HDF5 type IDs
       void printAllH5Types(void);
@@ -225,6 +286,17 @@ namespace Gambit
       SPECIALISE_HDF5_DATA_TYPE_IF_NEEDED(int64_t,  H5T_NATIVE_INT64)
       SPECIALISE_HDF5_DATA_TYPE_IF_NEEDED(uint64_t, H5T_NATIVE_UINT64)
       /// @}
+
+      // Template function to match datatypes to fixed integers
+      template<class T> constexpr int h5v2_type() {return -1;}
+      template<> constexpr int h5v2_type<int               >() {return 0;}
+      template<> constexpr int h5v2_type<unsigned int      >() {return 1;}
+      template<> constexpr int h5v2_type<long              >() {return 2;}
+      template<> constexpr int h5v2_type<unsigned long     >() {return 3;}
+      template<> constexpr int h5v2_type<long long         >() {return 4;}
+      template<> constexpr int h5v2_type<unsigned long long>() {return 5;}
+      template<> constexpr int h5v2_type<float             >() {return 6;}
+      template<> constexpr int h5v2_type<double            >() {return 7;}
 
       //!_______________________________________________________________________________________
 

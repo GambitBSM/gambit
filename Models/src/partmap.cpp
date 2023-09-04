@@ -13,6 +13,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2015 Jan
 ///
+///  \author Sanjay Bloor
+///          (sanjay.bloor@imperial.ac.uk)
+///  \date 2019 May
+///
 ///  *********************************************
 
 
@@ -42,7 +46,7 @@ namespace Gambit
     partmap::partmap() { define_particles(this); }
 
     /// Add a new particle to the database
-    void partmap::add(str long_name, std::pair<int, int> pdgpr)
+    void partmap::add(str long_name, std::pair<int, int> pdgpr, int spinx2, int chargex3, int color)
     {
       if (has_particle(long_name))
       {
@@ -50,26 +54,30 @@ namespace Gambit
       }
       long_name_to_pdg_pair[long_name] = pdgpr;
       pdg_pair_to_long_name[pdgpr] = long_name;
+
+      long_name_to_spinx2[long_name] = spinx2;
+      long_name_to_chargex3[long_name] = chargex3;
+      long_name_to_color[long_name] = color;
     }
 
     /// Add a new Standard Model particle to the database
-    void partmap::add_SM(str long_name, std::pair<int, int> pdgpr)
+    void partmap::add_SM(str long_name, std::pair<int, int> pdgpr, int spinx2, int chargex3, int color)
     {
-      add(long_name, pdgpr);
+      add(long_name, pdgpr, spinx2, chargex3, color);
       SM.push_back(pdgpr);
     }
 
     /// Add a new generic particle class to the database
-    void partmap::add_generic(str long_name, std::pair<int, int> pdgpr)
+    void partmap::add_generic(str long_name, std::pair<int, int> pdgpr, int spinx2, int chargex3, int color)
     {
-      add(long_name, pdgpr);
+      add(long_name, pdgpr, spinx2, chargex3, color);
       generic.push_back(pdgpr);
     }
 
     /// Add a new particle to the database with a short name and an index
-    void partmap::add_with_short_pair(str long_name, std::pair<int, int> pdgpr, std::pair<str, int> shortpr)
+    void partmap::add_with_short_pair(str long_name, std::pair<int, int> pdgpr, std::pair<str, int> shortpr, int spinx2, int chargex3, int color)
     {
-      add(long_name, pdgpr);
+      add(long_name, pdgpr, spinx2, chargex3, color);
       short_name_pair_to_pdg_pair[shortpr] = pdgpr;
       short_name_pair_to_long_name[shortpr] = long_name;
       pdg_pair_to_short_name_pair[pdgpr] = shortpr;
@@ -77,9 +85,9 @@ namespace Gambit
     }
 
     /// Add a new Standard Model particle to the database with a short name and an index
-    void partmap::add_SM_with_short_pair(str long_name, std::pair<int, int> pdgpr, std::pair<str, int> shortpr)
+    void partmap::add_SM_with_short_pair(str long_name, std::pair<int, int> pdgpr, std::pair<str, int> shortpr, int spinx2, int chargex3, int color)
     {
-      add_with_short_pair(long_name, pdgpr, shortpr);
+      add_with_short_pair(long_name, pdgpr, shortpr, spinx2, chargex3, color);
       SM.push_back(pdgpr);
     }
 
@@ -294,6 +302,224 @@ namespace Gambit
     bool partmap::has_antiparticle(int pdgcode, int context) const
     {
       return has_antiparticle(std::make_pair(pdgcode,context));
+    }
+    /// @}
+
+    /// ****
+
+    /// Check if a particle has the spin (x2), using the long name
+    /// @{
+    bool partmap::has_spinx2(str long_name) const
+    {
+      if (not has_particle(long_name))
+      {
+        model_error().raise(LOCAL_INFO,"Particle long name "+long_name+" is not in the particle database.");
+      }
+      return (long_name_to_spinx2.find(long_name) != long_name_to_spinx2.end());
+    }    
+    /// @}
+
+    /// Check if a particle has the spin (x2), using the PDG code and context integer
+    /// @{
+    bool partmap::has_spinx2(std::pair<int, int> pdgpr) const
+    {
+      return has_spinx2(long_name(pdgpr));
+    }    
+    bool partmap::has_spinx2(int pdg_code, int context) const
+    {
+      return has_spinx2(std::make_pair(pdg_code, context));
+    }    
+    /// @}
+
+    /// Check if a particle has the spin (x2), using short name and index
+    /// @{
+    bool partmap::has_spinx2(std::pair<str, int> shortpr) const
+    {
+      return has_spinx2(pdg_pair(shortpr));
+    }   
+    bool partmap::has_spinx2(str name, int index) const
+    {
+      return has_spinx2(std::make_pair(name, index));
+    }    
+    /// @}
+
+    /// Get spin of a given particle, using the long name
+    /// @{
+    int partmap::get_spinx2(str long_name) const
+    {
+      if (not has_spinx2(long_name))
+      {
+        model_error().raise(LOCAL_INFO,"Particle long name "+long_name+" does not provide any spin information (spinformation).");
+      } 
+      return long_name_to_spinx2.at(long_name);
+    }
+    /// @}
+
+    /// Get spin of a given particle, using the PDG code and context integer
+    /// @{
+    int partmap::get_spinx2(std::pair<int, int> pdgpr) const
+    {
+      return get_spinx2(long_name(pdgpr));
+    }
+    int partmap::get_spinx2(int pdg_code, int context) const
+    {
+      return get_spinx2(std::make_pair(pdg_code,context));
+    }
+    /// @}
+
+    /// Get spin of a given particle, using short name and index
+    /// @{
+    int partmap::get_spinx2(std::pair<str, int> shortpr) const
+    {
+      return get_spinx2(pdg_pair(shortpr));
+    }
+    int partmap::get_spinx2(str name, int index) const
+    {
+      return get_spinx2(std::make_pair(name, index));
+    }
+    /// @}
+
+    /// Check if a particle has the charge (x3), using the long name
+    /// @{
+    bool partmap::has_chargex3(str long_name) const
+    {
+      if (not has_particle(long_name))
+      {
+        model_error().raise(LOCAL_INFO,"Particle long name "+long_name+" is not in the particle database.");
+      }
+      return (long_name_to_chargex3.find(long_name) != long_name_to_chargex3.end());
+    }    
+    /// @}
+
+    /// Check if a particle has the charge (x3), using the PDG code and context integer
+    /// @{
+    bool partmap::has_chargex3(std::pair<int, int> pdgpr) const
+    {
+      return has_chargex3(long_name(pdgpr));
+    }    
+    bool partmap::has_chargex3(int pdg_code, int context) const
+    {
+      return has_chargex3(std::make_pair(pdg_code, context));
+    }    
+    /// @}
+
+    /// Check if a particle has the charge (x3), using short name and index
+    /// @{
+    bool partmap::has_chargex3(std::pair<str, int> shortpr) const
+    {
+      return has_chargex3(pdg_pair(shortpr));
+    }   
+    bool partmap::has_chargex3(str name, int index) const
+    {
+      return has_chargex3(std::make_pair(name, index));
+    }    
+    /// @}
+
+    /// Get charge of a given particle, using the long name
+    /// @{
+    int partmap::get_chargex3(str long_name) const
+    {
+      if (not has_chargex3(long_name))
+      {
+        model_error().raise(LOCAL_INFO,"Particle long name "+long_name+" does not provide any charge information (chargeformation).");
+      } 
+      return long_name_to_chargex3.at(long_name);
+    }
+    /// @}
+
+    /// Get charge of a given particle, using the PDG code and context integer
+    /// @{
+    int partmap::get_chargex3(std::pair<int, int> pdgpr) const
+    {
+      return get_chargex3(long_name(pdgpr));
+    }
+    int partmap::get_chargex3(int pdg_code, int context) const
+    {
+      return get_chargex3(std::make_pair(pdg_code,context));
+    }
+    /// @}
+
+    /// Get charge of a given particle, using short name and index
+    /// @{
+    int partmap::get_chargex3(std::pair<str, int> shortpr) const
+    {
+      return get_chargex3(pdg_pair(shortpr));
+    }
+    int partmap::get_chargex3(str name, int index) const
+    {
+      return get_chargex3(std::make_pair(name, index));
+    }
+    /// @}
+
+    /// Check if a particle has color information, using the long name
+    /// @{
+    bool partmap::has_color(str long_name) const
+    {
+      if (not has_particle(long_name))
+      {
+        model_error().raise(LOCAL_INFO,"Particle long name "+long_name+" is not in the particle database.");
+      }
+      return (long_name_to_color.find(long_name) != long_name_to_color.end());
+    }    
+    /// @}
+
+    /// Check if a particle has color information, using the PDG code and context integer
+    /// @{
+    bool partmap::has_color(std::pair<int, int> pdgpr) const
+    {
+      return has_color(long_name(pdgpr));
+    }    
+    bool partmap::has_color(int pdg_code, int context) const
+    {
+      return has_color(std::make_pair(pdg_code, context));
+    }    
+    /// @}
+
+    /// Check if a particle has color information, using short name and index
+    /// @{
+    bool partmap::has_color(std::pair<str, int> shortpr) const
+    {
+      return has_color(pdg_pair(shortpr));
+    }   
+    bool partmap::has_color(str name, int index) const
+    {
+      return has_color(std::make_pair(name, index));
+    }    
+    /// @}
+
+    /// Get color of a given particle, using the long name
+    /// @{
+    int partmap::get_color(str long_name) const
+    {
+      if (not has_color(long_name))
+      {
+        model_error().raise(LOCAL_INFO,"Particle long name "+long_name+" does not provide any color information (colorformation).");
+      } 
+      return long_name_to_color.at(long_name);
+    }
+    /// @}
+
+    /// Get color of a given particle, using the PDG code and context integer
+    /// @{
+    int partmap::get_color(std::pair<int, int> pdgpr) const
+    {
+      return get_color(long_name(pdgpr));
+    }
+    int partmap::get_color(int pdg_code, int context) const
+    {
+      return get_color(std::make_pair(pdg_code,context));
+    }
+    /// @}
+
+    /// Get color of a given particle, using short name and index
+    /// @{
+    int partmap::get_color(std::pair<str, int> shortpr) const
+    {
+      return get_color(pdg_pair(shortpr));
+    }
+    int partmap::get_color(str name, int index) const
+    {
+      return get_color(std::make_pair(name, index));
     }
     /// @}
 

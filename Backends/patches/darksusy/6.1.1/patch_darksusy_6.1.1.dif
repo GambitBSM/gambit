@@ -1,0 +1,30 @@
+diff -rupN darksusy-6.1.1_original/src/include/dsdmdcom.h darksusy-6.1.1_patched/src/include/dsdmdcom.h
+--- darksusy-6.1.1_original/src/include/dsdmdcom.h
++++ darksusy-6.1.1_patched/src/include/dsdmdcom.h
+@@ -25,7 +25,7 @@ ccc
+       common/dmdintericom/dmdihalotag,dmdihalotagtmp
+       common/dmdinterrcom/dmdobjdist,dmdradintr,dmdradouttr,dmdrho0
+       common/dmdinterccom/dmdlabel    
+-      save /dmdinterlcom/,/dmdintericom/,/dmdinterlcom/,/dmdinterccom/
++      save /dmdinterlcom/,/dmdintericom/,/dmdinterccom/
+       
+ ccc
+ ccc entries to link instructions/functions to the driver:      
+diff -rupN darksusy-6.1.1_original/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f darksusy-6.1.1_patched/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f
+--- darksusy-6.1.1_original/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f
++++ darksusy-6.1.1_patched/src_models/mssm/an_ib2/dsib2ffHPsFSRZ.f
+@@ -74,10 +74,10 @@ c... Z FSR1
+ c... Z FSR2
+       else if (leg.eq.2) then
+ 
+-         CZ1 =gl(khc,f,ff)*gl(kz,f,f)*RealPart(gl(kz,kn(1),kn(1)))
+-         CZ2 =gl(khc,f,ff)*gr(kz,f,f)*RealPart(gl(kz,kn(1),kn(1)))
+-         CZ3 =gl(kz,f,f)*gr(khc,f,ff)*RealPart(gl(kz,kn(1),kn(1)))
+-         CZ4 =gr(khc,f,ff)*gr(kz,f,f)*RealPart(gl(kz,kn(1),kn(1)))
++         CZ1 =gl(khc,f,ff)*gl(kz,f,f)*REAL(gl(kz,kn(1),kn(1)))
++         CZ2 =gl(khc,f,ff)*gr(kz,f,f)*REAL(gl(kz,kn(1),kn(1)))
++         CZ3 =gl(kz,f,f)*gr(khc,f,ff)*REAL(gl(kz,kn(1),kn(1)))
++         CZ4 =gr(khc,f,ff)*gr(kz,f,f)*REAL(gl(kz,kn(1),kn(1)))
+          
+          deltaZ =dcmplx(2*E2J*EvJ + 2*CW*kJ*kv 
+      -    + MB**2 - Mf**2 + Mff**2,Mf*width(f)/mx)*

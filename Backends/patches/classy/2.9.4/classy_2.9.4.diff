@@ -1,0 +1,318 @@
+--- a/python/classy.pyx	2017-10-24 14:42:41.000000000 +0100
++++ b/python/classy.pyx	2019-07-03 12:45:27.100272668 +0100
+@@ -118,13 +118,28 @@
+         def __get__(self):
+             return self.nl.method
+ 
++
++
+     def set_default(self):
+         _pars = {
+             "output":"tCl mPk",}
+         self.set(**_pars)
+ 
++    # (JR) added to get information from cosmo object
++    # whether class re-computed or not
++    #recomputed = True
++    cpdef int recomputed
++    property recomputed:
++        def __get__(self):
++            return self.recomputed
++
++    def set_cosmo_update(self,update):
++        self.recomputed = update
++    # ------------------
++
+     def __cinit__(self, default=False):
+         cpdef char* dumc
++        self.recomputed = True
+         self.allocated = False
+         self.computed = False
+         self._pars = {}
+@@ -1082,6 +1082,21 @@
+     def omega_b(self):
+         return self.ba.Omega0_b * self.ba.h * self.ba.h
+ 
++    def Omega_dcdm(self):                   # (JR) added 
++        return self.ba.Omega0_dcdm
++
++    def Omega_dr(self):                     # (JR) added 
++        return self.ba.Omega0_dr
++
++    def Omega_dcdmdr(self):                     # (JR) added 
++        return self.ba.Omega0_dcdmdr
++
++    def Omega_ncdm_tot(self):                     # (JR) added 
++        return self.ba.Omega0_ncdm_tot
++
++    def Omega_ur(self):                     # (JR) added 
++        return self.ba.Omega0_ur
++
+     def Neff(self):
+         return self.ba.Neff
+ 
+--- a/source/input.c  2017-10-24 23:42:41.000000000 +1000
++++ b/source/input.c  2019-11-26 14:18:59.251578000 +1000 
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include "input.h"
++#include <stdint.h> // to get uintptr_t type to convert int to pointer
+ 
+ /**
+  * Use this routine to extract initial parameters from files 'xxx.ini'
+@@ -1900,9 +1901,13 @@
+       ppm->primordial_spec_type = external_Pk;
+       flag2=_TRUE_;
+     }
++    if (strcmp(string1,"pointer_to_Pk") == 0) {
++      ppm->primordial_spec_type = pointer_to_Pk;
++      flag2=_TRUE_;
++    }
+     class_test(flag2==_FALSE_,
+                errmsg,
+-               "could not identify primordial spectrum type, check that it is one of 'analytic_pk', 'two_scales', 'inflation_V', 'inflation_H', 'external_Pk'...");
++               "could not identify primordial spectrum type, check that it is one of 'analytic_pk', 'two_scales', 'inflation_V', 'inflation_H', 'external_Pk', 'pointer_to_Pk'...");
+   }
+ 
+   class_read_double("k_pivot",ppm->k_pivot);
+@@ -2415,6 +2420,70 @@
+     class_read_double("custom9",ppm->custom9);
+     class_read_double("custom10",ppm->custom10);
+   }
++
++  else if (ppm->primordial_spec_type == pointer_to_Pk) {
++
++    // initialise flags & chars here -- flag1-flag3 already defined, patch might be easier to maintain if
++    // these definitions happen here within the patched part
++    int flag0,flag4,flag5,flag6; 
++    char addr [_ARGUMENT_LENGTH_MAX_];
++    uintptr_t ul;
++
++    // 1) read in number of entries the vector holding the k values has
++    class_call(parser_read_int(pfc,"lnk_size",&ppm->lnk_size,&flag0,errmsg),
++             errmsg,
++             errmsg);
++
++
++    // 2) read pointers of other arrays that need to be passed. allocation and filling will 
++    // be done later in primordial.c in function => 
++    class_call(parser_read_string(pfc,"k_array",&addr,&flag4,errmsg),
++             errmsg,
++             errmsg);
++
++    // 3) Convert string to uintptr_t and then back to memory address;
++    //    initialise a double pointer pointing to it
++    sscanf(addr, "%lu", &ul);
++    double* ptr_k_array = (double*) ul;
++
++    // 4) allocate memory for lnk_array managed by CLASS, routine that does that (and step 5)) in 
++    // a normal class run () is by passed in primordial.c
++    class_alloc(ppm->lnk   , ppm->lnk_size*sizeof(double),ppm->error_message);
++
++    // 5) fill lnk_array with values of array that the pointer ptr_k_array is pointing to
++    for (int index_k=0; index_k<ppm->lnk_size; index_k++){
++      ppm->lnk[index_k] = log(ptr_k_array[index_k]); 
++    }
++
++    // read pointers of other arrays that need to be passed. allocation and filling will 
++    // be done later in primordial.c in function => 
++    // added pointers ppm->ptr_pks_array and ppm->ptr_pkt_array to primordial structure so we can 
++    // re-use the primordial_indices function to allocate memory for the arrays
++    // and don't have to change & by-pass too many parts of the code. 
++    // However, these pointers may NOT be deleted by CLASS's internal memory management 
++    // since the deletion is taken care of in gambit => there won't be a free() statement for these
++    // this is on purpose! 
++    class_call(parser_read_string(pfc,"pks_array",&addr,&flag5,errmsg),
++             errmsg,
++             errmsg);
++    sscanf(addr, "%lu", &ul);
++    ppm->ptr_pks_array = (double*) ul;
++
++    class_call(parser_read_string(pfc,"pkt_array",&addr,&flag6,errmsg),
++             errmsg,
++             errmsg);
++    sscanf(addr, "%lu", &ul);
++    ppm->ptr_pkt_array = (double*) ul;
++
++    // Note: the memory allocation for these arrays is done in primordial.c in the function
++    // primordial_indices. To not reproduce code unnecessarily we use this as well 
++    // and fill the arrays after that in primordial.c in the function 
++
++    // Check that all values needed for the calculation have been passed. If not throw error
++    class_test(((flag0 == _FALSE_) || (flag4 == _FALSE_) || (flag5 == _FALSE_) || (flag6 == _FALSE_)),
++               errmsg,
++               "You set the parameter 'P_k_ini type' to pointer_to_Pk, this means you also have to specify the input values for \n- k_array_size (int) \n- k_array (string w. mem address to dbl*)\n- pks_array (string w. mem address to dbl*)\n- pkt_array (string w. mem address to dbl*)\n Check that all of them are passed.");
++  }
+ 
+   /* Tests moved from primordial module: */
+   if ((ppm->primordial_spec_type == inflation_V) || (ppm->primordial_spec_type == inflation_H) || (ppm->primordial_spec_type == inflation_V_end)) {
+--- a/source/primordial.c 2017-10-24 23:42:41.000000000 +1000
++++ b/source/primordial.c 2019-11-26 14:06:19.051572000 +1000
+@@ -241,21 +241,52 @@
+              ppr->k_per_decade_primordial);
+ 
+   /** - allocate and fill values of \f$ \ln{k}\f$'s */
++  /// (JR): The array with the values of lnk is already passed in input.c if the 'pointer_to_Pk' 
++  /// input type is selected
++  if ( ppm->primordial_spec_type != pointer_to_Pk) {
++
++    // This routine allocates the space for ppm->lnk, fills it and sets the size through 
++    // ppm->lnk_size. In the first patch I will do this when reading in the pointer to the 
++    // array ppm->lnk. Not great but good enough for the first version of the implementation
++    // -- can (& should) probably be improved
++    // you could ad the if statement in this funciton and fill ppm->lnk with what the read in pointer
++    // is pointing to. but that would make it neccesary to patch another part of the code.. 
++    class_call(primordial_get_lnk_list(ppm,
++                                       k_min,
++                                       k_max,
++                                       ppr->k_per_decade_primordial),
++               ppm->error_message,
++               ppm->error_message);
++  }
++  /// test if the kmin and kmax passed through the pointer_to_Pk method 
++  /// make sense and are compatible with the CLASS internal ppt->kmin ppt->kmax
++  else {
+ 
+-  class_call(primordial_get_lnk_list(ppm,
+-                                     k_min,
+-                                     k_max,
+-                                     ppr->k_per_decade_primordial
+-                                     ),
++    double passed_kmin = exp(ppm->lnk[0]);
++    double passed_kmax = exp(ppm->lnk[ppm->lnk_size-1]);
++
++    class_test((passed_kmin <= 0.) || (passed_kmax <= passed_kmin),
+              ppm->error_message,
+-             ppm->error_message);
++             "inconsistent values of kmin=%e, kmax=%e",passed_kmin,passed_kmax);
+ 
+-  /** - define indices and allocate tables in primordial structure */
++    class_test(k_min < passed_kmin,
++             ppm->error_message,
++             "k_min = %e passed through 'pointer_to_Pk' is too large. The CLASS internal minimum is %e. Adopt the ranges of the array you are passing accordingly. ",passed_kmin,k_min);
+ 
++    class_test(passed_kmax < k_max,
++             ppm->error_message,
++             "k_max = %e passed through 'pointer_to_Pk' is too small. The CLASS internal maximum is %e. Adopt the ranges of the array you are passing accordingly. ",passed_kmax,k_max);
++
++  }
++
++
++  /** - define indices and allocate tables in primordial structure */
++  // JR: can use this for the pointer_to_Pk as long as ppm->lnk_size and ppt->md_size are set correctly! 
++  // ppm->lnk_size is done in input.c atm, ppt->md_size is taken care of my perturbations
+   class_call(primordial_indices(ppt,
+                                 ppm),
+-             ppm->error_message,
+-             ppm->error_message);
++               ppm->error_message,
++               ppm->error_message);
+ 
+   /** - deal with case of analytic primordial spectra (with amplitudes, tilts, runnings, etc.) */
+ 
+@@ -394,6 +425,58 @@
+                       primordial_free(ppm));
+   }
+ 
++  /** - fill arrays with values of the arrays the external pointers ptr_pks_array point to*/
++
++  else if (ppm->primordial_spec_type == pointer_to_Pk) {
++
++    // fill ppm->lnpk array with values stored in the external arrays the 
++    // pointers ppm->ptr_pks_array & ppm->ptr_pks_array (if tensor modes are asked for) 
++    // point to. 
++    // Heads-up: these two pointers are not integrated into the memory management of CLASS
++    // and won't be deleted after a CLASS run. The deletion has to be taken care of by 
++    // the external program that passes the pointer to CLASS (i.e. GAMBIT in the use case this 
++    // was impelmented for)
++    for (int index_k=0; index_k<ppm->lnk_size; index_k++)
++    {
++
++       ppm->lnpk[ppt->index_md_scalars][index_k] = log(ppm->ptr_pks_array[index_k]);
++       if (ppt->has_tensors == _TRUE_)
++         ppm->lnpk[ppt->index_md_tensors][index_k] = log(ppm->ptr_pkt_array[index_k]);
++    }
++
++    /** - Tell CLASS that there are scalar (and tensor) modes */
++    ppm->is_non_zero[ppt->index_md_scalars][ppt->index_ic_ad] = _TRUE_;
++    if (ppt->has_tensors == _TRUE_)
++      ppm->is_non_zero[ppt->index_md_tensors][ppt->index_ic_ten] = _TRUE_;
++
++  }
++
++  /** - fill arrays with values of the arrays the external pointers ptr_pks_array point to*/
++
++  else if (ppm->primordial_spec_type == pointer_to_Pk) {
++
++    // fill ppm->lnpk array with values stored in the external arrays the 
++    // pointers ppm->ptr_pks_array & ppm->ptr_pks_array (if tensor modes are asked for) 
++    // point to. 
++    // Heads-up: these two pointers are not integrated into the memory management of CLASS
++    // and won't be deleted after a CLASS run. The deletion has to be taken care of by 
++    // the external program that passes the pointer to CLASS (i.e. GAMBIT in the use case this 
++    // was impelmented for)
++    for (int index_k=0; index_k<ppm->lnk_size; index_k++)
++    {
++
++       ppm->lnpk[ppt->index_md_scalars][index_k] = log(ppm->ptr_pks_array[index_k]);
++       if (ppt->has_tensors == _TRUE_)
++         ppm->lnpk[ppt->index_md_tensors][index_k] = log(ppm->ptr_pkt_array[index_k]);
++    }
++
++    /** - Tell CLASS that there are scalar (and tensor) modes */
++    ppm->is_non_zero[ppt->index_md_scalars][ppt->index_ic_ad] = _TRUE_;
++    if (ppt->has_tensors == _TRUE_)
++      ppm->is_non_zero[ppt->index_md_tensors][ppt->index_ic_ten] = _TRUE_;
++
++  }
++
+   else {
+ 
+     class_test(0==0,
+@@ -421,7 +504,7 @@
+   /** - derive spectral parameters from numerically computed spectra
+       (not used by the rest of the code, but useful to keep in memory for several types of investigation) */
+ 
+-  if (ppm->primordial_spec_type != analytic_Pk) {
++  if (ppm->primordial_spec_type != analytic_Pk && ppm->primordial_spec_type != pointer_to_Pk) {
+ 
+     dlnk = log(10.)/ppr->k_per_decade_primordial;
+ 
+--- a/include/primordial.h    2017-10-24 23:42:41.000000000 +1000
++++ b/include/primordial.h    2019-11-25 11:01:44.417102000 +1000
+@@ -13,7 +13,8 @@
+   inflation_V,
+   inflation_H,
+   inflation_V_end,
+-  external_Pk
++  external_Pk,
++  pointer_to_Pk
+ };
+ 
+ /** enum defining whether the spectrum routine works with linear or logarithmic input/output */
+@@ -210,6 +211,9 @@
+ 
+   int lnk_size;    /**< number of ln(k) values */
+ 
++  double * ptr_pks_array;    /**< poiner to external array holding the scalar modes of the primordial Pk */
++  double * ptr_pkt_array;    /**< poiner to external array holding the tensor modes of the primordial Pk */
++
+   double * lnk;    /**< list of ln(k) values lnk[index_k] */
+ 
+   double ** lnpk;  /**< depends on indices index_md, index_ic1, index_ic2, index_k as:
+diff --git a/tools/evolver_ndf15.c b/tools/evolver_ndf15.c
+index 790ced55..a09306d7 100755
+--- a/tools/evolver_ndf15.c
++++ b/tools/evolver_ndf15.c
+@@ -310,7 +310,9 @@ int evolver_ndf15(
+     if (fabs(absh-hmin)<100*eps){
+       /* If the stepsize has not changed */
+       if (at_hmin==_TRUE_){
+-	absh = abshlast;	/*required by stepsize recovery */
++        class_test(fabs(absh-abshlast) < eps, error_message,
++                   "Cannot recover the last successful stepsize. Solver gets stuck in an infinite loop");
++        absh = abshlast;    /*required by stepsize recovery */
+       }
+       at_hmin = _TRUE_;
+     }

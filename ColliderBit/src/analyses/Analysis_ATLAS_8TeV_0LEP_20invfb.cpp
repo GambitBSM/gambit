@@ -60,31 +60,31 @@ namespace Gambit {
         double met = event->met();
 
         // Now define vectors of baseline objects
-        vector<HEPUtils::Particle*> baselineElectrons;
-        for (HEPUtils::Particle* electron : event->electrons()) {
+        vector<const HEPUtils::Particle*> baselineElectrons;
+        for (const HEPUtils::Particle* electron : event->electrons()) {
           if (electron->pT() > 10. && fabs(electron->eta()) < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Apply electron efficiency
         ATLAS::applyElectronEff(baselineElectrons);
 
-        vector<HEPUtils::Particle*> baselineMuons;
-        for (HEPUtils::Particle* muon : event->muons()) {
+        vector<const HEPUtils::Particle*> baselineMuons;
+        for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && fabs(muon->eta()) < 2.4) baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
         ATLAS::applyMuonEff(baselineMuons);
 
-        vector<HEPUtils::Jet*> baselineJets;
-        for (HEPUtils::Jet* jet : event->jets()) {
+        vector<const HEPUtils::Jet*> baselineJets;
+        for (const HEPUtils::Jet* jet : event->jets()) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.5) baselineJets.push_back(jet);
         }
 
         // Overlap removal: only applied to jets with |eta|<2.8
-        vector<HEPUtils::Particle*> signalElectrons;
-        vector<HEPUtils::Particle*> signalMuons;
-        vector<HEPUtils::Jet*> signalJets;
+        vector<const HEPUtils::Particle*> signalElectrons;
+        vector<const HEPUtils::Particle*> signalMuons;
+        vector<const HEPUtils::Jet*> signalJets;
 
         // Remove any jet within dR=0.2 of an electrons
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
@@ -149,9 +149,9 @@ namespace Gambit {
             dPhiMin2j = SmallestdPhi(signalJets,ptot.phi());
             //meff2j = met + signalJets[0]->pT() + signalJets[1]->pT();
             if (leptonCut && metCut && dPhiMin2j>0.4) {
-              if (met/sqrt(HT)>8. && meff_incl>800.) _num2jl += 1;
-              if (met/sqrt(HT)>15. && meff_incl>1200.) _num2jm += 1;
-              if (met/sqrt(HT)>15. && meff_incl>1600.) _num2jt += 1;
+              if (met/sqrt(HT)>8. && meff_incl>800.) _num2jl += event->weight();
+              if (met/sqrt(HT)>15. && meff_incl>1200.) _num2jm += event->weight();
+              if (met/sqrt(HT)>15. && meff_incl>1600.) _num2jt += event->weight();
             }
 
           }
@@ -166,7 +166,7 @@ namespace Gambit {
             dPhiMin3j = SmallestdPhi(signalJets,ptot.phi());
             meff3j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT();
             if (leptonCut && metCut && dPhiMin3j > 0.4) {
-              if (met/meff3j>0.3 && meff_incl>2200.) _num3j += 1;
+              if (met/meff3j>0.3 && meff_incl>2200.) _num3j += event->weight();
             }
           }
         }
@@ -182,10 +182,10 @@ namespace Gambit {
             dPhiMin2 = SmallestRemainingdPhi(signalJets,ptot.phi());
             meff4j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT() + signalJets.at(3)->pT();
             if (leptonCut && metCut && dPhiMin4 > 0.4 && dPhiMin2 > 0.2) {
-              if(met/sqrt(HT)>10. && meff_incl>700.)_num4jlm += 1;
-              if(met/sqrt(HT)>10. && meff_incl>1000.)_num4jl += 1;
-              if (met/meff4j>0.4 && meff_incl>1300.) _num4jm += 1;
-              if (met/meff4j>0.25 && meff_incl>2200.) _num4jt += 1;
+              if(met/sqrt(HT)>10. && meff_incl>700.)_num4jlm += event->weight();
+              if(met/sqrt(HT)>10. && meff_incl>1000.)_num4jl += event->weight();
+              if (met/meff4j>0.4 && meff_incl>1300.) _num4jm += event->weight();
+              if (met/meff4j>0.25 && meff_incl>2200.) _num4jt += event->weight();
             }
           }
         }
@@ -197,7 +197,7 @@ namespace Gambit {
             dPhiMin2 = SmallestRemainingdPhi(signalJets,ptot.phi());
             double meff5j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT() + signalJets.at(3)->pT() + signalJets.at(4)->pT();
             if (leptonCut && metCut && dPhiMin4>0.4 && dPhiMin2>0.2) {
-              if (met/meff5j>0.2 && meff_incl>1200.) _num5j += 1;
+              if (met/meff5j>0.2 && meff_incl>1200.) _num5j += event->weight();
             }
           }
         }
@@ -210,10 +210,10 @@ namespace Gambit {
             dPhiMin2 = SmallestRemainingdPhi(signalJets,ptot.phi());
             meff6j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT() + signalJets.at(3)->pT() + signalJets.at(4)->pT() + signalJets.at(5)->pT();
             if (leptonCut && metCut && dPhiMin4>0.4 && dPhiMin2>0.2) {
-              if (met/meff6j>0.2 && meff_incl>900.) _num6jl += 1;
-              if (met/meff6j>0.2 && meff_incl>1200.) _num6jm += 1;
-              if (met/meff6j>0.25 && meff_incl>1500.) _num6jt += 1;
-              if (met/meff6j>0.15 && meff_incl>1700.) _num6jtp += 1;
+              if (met/meff6j>0.2 && meff_incl>900.) _num6jl += event->weight();
+              if (met/meff6j>0.2 && meff_incl>1200.) _num6jm += event->weight();
+              if (met/meff6j>0.25 && meff_incl>1500.) _num6jt += event->weight();
+              if (met/meff6j>0.15 && meff_incl>1700.) _num6jtp += event->weight();
             }
           }
         }
@@ -371,129 +371,30 @@ namespace Gambit {
 
         // Now fill a results object with the results for each SR
         // Numbers are taken from CONF note
-        SignalRegionData results_2jl;
-        results_2jl.sr_label = "2jl";
-        results_2jl.n_observed = 12315.;
-        results_2jl.n_background = 13000.;
-        results_2jl.background_sys = 1000.;
-        results_2jl.signal_sys = 0.;
-        results_2jl.n_signal = _num2jl;
-        add_result(results_2jl);
 
-        SignalRegionData results_2jm;
-        results_2jm.sr_label = "2jm";
-        results_2jm.n_observed = 715.;
-        results_2jm.n_background = 760.;
-        results_2jm.background_sys = 50.;
-        results_2jm.signal_sys = 0.;
-        results_2jm.n_signal = _num2jm;
-        add_result(results_2jm);
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        SignalRegionData results_2jt;
-        results_2jt.sr_label = "2jt";
-        results_2jt.n_observed = 133.;
-        results_2jt.n_background = 125.;
-        results_2jt.background_sys = 10.;
-        results_2jt.signal_sys = 0.;
-        results_2jt.n_signal = _num2jt;
-        add_result(results_2jt);
+        add_result(SignalRegionData("2jl", 12315., {_num2jl, 0.}, { 13000., 1000.}));
+        add_result(SignalRegionData("2jm", 715., {_num2jm, 0.}, { 760., 50.}));
+        add_result(SignalRegionData("2jt", 133., {_num2jt, 0.}, { 125., 10.}));
+        add_result(SignalRegionData("3j", 7., {_num3j, 0.}, { 5., 1.2}));
+        add_result(SignalRegionData("4jlm", 2169., {_num4jlm, 0.}, { 2120., 110.}));
+        add_result(SignalRegionData("4jl", 608., {_num4jl, 0.}, { 630., 50.}));
+        add_result(SignalRegionData("4jm", 24., {_num4jm, 0.}, { 37., 6.}));
+        add_result(SignalRegionData("4jt", 0., {_num4jt, 0.}, { 2.5, 1.}));
+        add_result(SignalRegionData("5j", 121., {_num5j, 0.}, { 126., 13.}));
+        add_result(SignalRegionData("6jl", 121., {_num6jl, 0.}, { 111., 11.}));
+        add_result(SignalRegionData("6jm", 39., {_num6jm, 0.}, { 33., 6.}));
+        add_result(SignalRegionData("6jt", 5., {_num6jt, 0.}, { 5.2, 1.4}));
+        add_result(SignalRegionData("6jtp", 6., {_num6jt, 0.}, { 4.9, 1.6}));
 
-        SignalRegionData results_3j;
-        results_3j.sr_label = "3j";
-        results_3j.n_observed = 7.;
-        results_3j.n_background = 5.;
-        results_3j.background_sys = 1.2;
-        results_3j.signal_sys = 0.;
-        results_3j.n_signal = _num3j;
-        add_result(results_3j);
-
-        SignalRegionData results_4jlm;
-        results_4jlm.sr_label = "4jlm";
-        results_4jlm.n_observed = 2169.;
-        results_4jlm.n_background = 2120.;
-        results_4jlm.background_sys = 110.;
-        results_4jlm.signal_sys = 0.;
-        results_4jlm.n_signal = _num4jlm;
-        add_result(results_4jlm);
-
-        SignalRegionData results_4jl;
-        results_4jl.sr_label = "4jl";
-        results_4jl.n_observed = 608.;
-        results_4jl.n_background = 630.;
-        results_4jl.background_sys = 50.;
-        results_4jl.signal_sys = 0.;
-        results_4jl.n_signal = _num4jl;
-        add_result(results_4jl);
-
-        SignalRegionData results_4jm;
-        results_4jm.sr_label = "4jm";
-        results_4jm.n_observed = 24.;
-        results_4jm.n_background = 37.;
-        results_4jm.background_sys = 6.;
-        results_4jm.signal_sys = 0.;
-        results_4jm.n_signal = _num4jm;
-        add_result(results_4jm);
-
-        SignalRegionData results_4jt;
-        results_4jt.sr_label = "4jt";
-        results_4jt.n_observed = 0.;
-        results_4jt.n_background = 2.5;
-        results_4jt.background_sys = 1.;
-        results_4jt.signal_sys = 0.;
-        results_4jt.n_signal = _num4jt;
-        add_result(results_4jt);
-
-        SignalRegionData results_5j;
-        results_5j.sr_label = "5j";
-        results_5j.n_observed = 121.;
-        results_5j.n_background = 126.;
-        results_5j.background_sys = 13.;
-        results_5j.signal_sys = 0.;
-        results_5j.n_signal = _num5j;
-        add_result(results_5j);
-
-        SignalRegionData results_6jl;
-        results_6jl.sr_label = "6jl";
-        results_6jl.n_observed = 121.;
-        results_6jl.n_background = 111.;
-        results_6jl.background_sys = 11.;
-        results_6jl.signal_sys = 0.;
-        results_6jl.n_signal = _num6jl;
-        add_result(results_6jl);
-
-        SignalRegionData results_6jm;
-        results_6jm.sr_label = "6jm";
-        results_6jm.n_observed = 39.;
-        results_6jm.n_background = 33.;
-        results_6jm.background_sys = 6.;
-        results_6jm.signal_sys = 0.;
-        results_6jm.n_signal = _num6jm;
-        add_result(results_6jm);
-
-        SignalRegionData results_6jt;
-        results_6jt.sr_label = "6jt";
-        results_6jt.n_observed = 5.;
-        results_6jt.n_background = 5.2;
-        results_6jt.background_sys = 1.4;
-        results_6jt.signal_sys = 0.;
-        results_6jt.n_signal = _num6jt;
-        add_result(results_6jt);
-
-        SignalRegionData results_6jtp;
-        results_6jtp.sr_label = "6jtp";
-        results_6jtp.n_observed = 6.;
-        results_6jtp.n_background = 4.9;
-        results_6jtp.background_sys = 1.6;
-        results_6jtp.signal_sys = 0.;
-        results_6jtp.n_signal = _num6jt;
-        add_result(results_6jtp);
       }
 
 
       ///////////////////
 
 
-      double SmallestdPhi(vector<HEPUtils::Jet*> jets,double phi_met) {
+      double SmallestdPhi(vector<const HEPUtils::Jet*> jets,double phi_met) {
         if (jets.size()<2) return 999;
         double dphi1 = acos(cos(jets.at(0)->phi()-phi_met));
         double dphi2 = acos(cos(jets.at(1)->phi()-phi_met));
@@ -504,7 +405,7 @@ namespace Gambit {
         return min(min1, dphi3);
       }
 
-      double SmallestRemainingdPhi(const vector<HEPUtils::Jet*> jets,double phi_met) {
+      double SmallestRemainingdPhi(const vector<const HEPUtils::Jet*> jets,double phi_met) {
         double remainingDPhi = 999;
         double dphiMin = 999;
         for (size_t i = 0; i < jets.size(); i++) {

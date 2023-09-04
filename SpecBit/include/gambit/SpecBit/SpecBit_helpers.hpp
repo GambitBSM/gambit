@@ -13,6 +13,10 @@
 ///  \author Ben Farmer
 ///          (benjamin.farmer@fysik.su.se)
 ///    \date 2014 Sep - Dec, 2015 Jan - May
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date Jul 2020
 ///  
 ///  *********************************************
 
@@ -41,6 +45,14 @@ namespace Gambit
 
     /// Initialise QedQcd object from SMInputs data
     void setup_QedQcd(softsusy::QedQcd& oneset /*output*/, const SMInputs& sminputs /*input*/);
+
+    /// Check that the spectrum has a neutralino LSP.
+    bool has_neutralino_LSP(const Spectrum& result);
+
+    /// Helper to work with pointer
+    bool has_neutralino_LSP(const Spectrum* result);
+
+    /// @}
 
   }
 }

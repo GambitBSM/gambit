@@ -42,24 +42,8 @@ set_compiler_warning("no-misleading-indentation" CMAKE_CXX_FLAGS)
 
 if(EIGEN3_FOUND AND EIGEN3_VERSION VERSION_LESS 3.3.0)
   set_compiler_warning("no-ignored-attributes" CMAKE_CXX_FLAGS)
-endif()
-
-# Suppress additional warnings when using clang and ccache
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  EXEC_PROGRAM(sh
-               ARGS ${CMAKE_SOURCE_DIR}/cmake/check_for_ccache.sh ${CMAKE_CXX_COMPILER}
-               RETURN_VALUE ret)
-  if (${ret})
-    message(STATUS "Using ccache with clang - disabling some warnings")
-    CHECK_CXX_COMPILER_FLAG("-Qunused-arguments" CXX_SUPPORTS_QUNUSED_ARGUMENTS)
-    if (CXX_SUPPORTS_QUNUSED_ARGUMENTS)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Qunused-arguments")
-    endif()
-    CHECK_CXX_COMPILER_FLAG("-Wno-self-assign" CXX_SUPPORTS_WNO_SELF_ASSIGN)
-    if (CXX_SUPPORTS_WNO_SELF_ASSIGN)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} Wno-self-assign")
-    endif()
-  endif()
+  set_compiler_warning("no-deprecated-register" CMAKE_CXX_FLAGS)
+  set_compiler_warning("no-deprecated-declarations" CMAKE_CXX_FLAGS)
 endif()
 
 # set intel warnings
@@ -75,4 +59,9 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   # "remark #1419: external declaration in primary source file"
   # This can safely be ignord according to the ICC docs.
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd1419")
+endif()
+
+# Set warnings to stop complaining about deprecated copies in Eigen
+if(EIGEN3_MAJOR_VERSION LESS 4 AND EIGEN3_MINOR_VERSION LESS 8)
+  set_compiler_warning("no-deprecated-copy" CMAKE_CXX_FLAGS)
 endif()

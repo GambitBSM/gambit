@@ -84,14 +84,13 @@ namespace Gambit
                 std::map<std::string, std::map<std::string, std::vector<Plugin_Details>>> excluded_plugin_map;
                 std::vector<Plugin_Details> total_plugins;
                 std::map<std::string, std::map<std::string, std::vector<Plugin_Details>>> total_plugin_map;
-                YAML::Node flags_node;
+                std::vector<Plugin_Details> loadExcluded(const std::string &);
+                void process(const std::string &, const std::string &, const std::string &, std::vector<Plugin_Details>&);
 
             public:
                 Plugin_Loader();
-                void process(const std::string &, const std::string &, const std::string &);
                 const std::vector<Plugin_Details> &getPluginsVec() const {return total_plugins;}
                 const std::map<std::string, std::map<std::string, std::vector<Plugin_Details>>> &getPluginsMap() const {return total_plugin_map;}
-                void loadExcluded(const std::string &);
                 void loadLibrary (const std::string &, const std::string & = "");
                 std::vector<std::string> print_plugin_names(const std::string & = "") const;
                 std::string print_all (const std::string &plug_type = "") const;

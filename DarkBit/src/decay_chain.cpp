@@ -473,7 +473,7 @@ namespace Gambit
       }
       double DecayTableEntry::getEnabledBranching() const
       {
-        return enabledWidth/getTotalWidth();
+        return hasEnabledDecays() ? enabledWidth/getTotalWidth() : 0.0;
       }
       void DecayTableEntry::forceTotalWidth(bool enabled, double width)
       {

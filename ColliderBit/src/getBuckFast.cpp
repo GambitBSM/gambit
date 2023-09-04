@@ -55,15 +55,14 @@ namespace Gambit
     void getBuckFastATLAS(BaseDetector* &result)
     {
       using namespace Pipes::getBuckFastATLAS;
-      static std::unique_ptr<BuckFast[]> buckies(new BuckFast[omp_get_max_threads()]);
+      thread_local BuckFast bucky;
       if (*Loop::iteration == START_SUBPROCESS)
       {
-        BuckFast* bucky = &buckies[omp_get_thread_num()];
-        bucky->smearElectronEnergy = &ATLAS::smearElectronEnergy;
-        bucky->smearMuonMomentum   = &ATLAS::smearMuonMomentum;
-        bucky->smearTaus           = &ATLAS::smearTaus;
-        bucky->smearJets           = &ATLAS::smearJets;
-        result = bucky;
+        bucky.smearElectronEnergy = &ATLAS::smearElectronEnergy;
+        bucky.smearMuonMomentum   = &ATLAS::smearMuonMomentum;
+        bucky.smearTaus           = &ATLAS::smearTaus;
+        bucky.smearJets           = &ATLAS::smearJets;
+        result = &bucky;
       }
     }
 
@@ -71,15 +70,14 @@ namespace Gambit
     void getBuckFastCMS(BaseDetector* &result)
     {
       using namespace Pipes::getBuckFastCMS;
-      static std::unique_ptr<BuckFast[]> buckies(new BuckFast[omp_get_max_threads()]);
+      thread_local BuckFast bucky;
       if (*Loop::iteration == START_SUBPROCESS)
       {
-        BuckFast* bucky = &buckies[omp_get_thread_num()];
-        bucky->smearElectronEnergy = &CMS::smearElectronEnergy;
-        bucky->smearMuonMomentum   = &CMS::smearMuonMomentum;
-        bucky->smearTaus           = &CMS::smearTaus;
-        bucky->smearJets           = &CMS::smearJets;
-        result = bucky;
+        bucky.smearElectronEnergy = &CMS::smearElectronEnergy;
+        bucky.smearMuonMomentum   = &CMS::smearMuonMomentum;
+        bucky.smearTaus           = &CMS::smearTaus;
+        bucky.smearJets           = &CMS::smearJets;
+        result = &bucky;
       }
     }
 
@@ -87,8 +85,8 @@ namespace Gambit
     void getBuckFastIdentity(BaseDetector* &result)
     {
       using namespace Pipes::getBuckFastIdentity;
-      static std::unique_ptr<BuckFast[]> buckies(new BuckFast[omp_get_max_threads()]);
-      if (*Loop::iteration == START_SUBPROCESS) result = &buckies[omp_get_thread_num()];
+      thread_local BuckFast bucky;
+      result = &bucky;
     }
 
   }

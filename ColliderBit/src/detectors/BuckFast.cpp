@@ -18,9 +18,6 @@
 
 #include "gambit/ColliderBit/detectors/BuckFast.hpp"
 
-//FIXME delete
-#include "gambit/ColliderBit/ATLASEfficiencies.hpp"
-
 namespace Gambit
 {
 

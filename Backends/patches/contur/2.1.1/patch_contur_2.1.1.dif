@@ -1,0 +1,38 @@
+diff -rupN contur-2.1.1_original/contur/data/build_covariance.py contur-2.1.1_patched/contur/data/build_covariance.py
+--- contur-2.1.1_original/contur/data/build_covariance.py	2021-09-26 16:58:41.000000000 +0200
++++ contur-2.1.1_patched/contur/data/build_covariance.py	2023-02-20 16:46:47.086196512 +0100
+@@ -37,6 +37,7 @@ class CovarianceBuilder(object):
+                 errMap_values[ibin]=0
+             ibin=ibin+1
+         for source in self.ao.variations():
++            source = source.encode("utf-8")  # GAMBIT patch
+             if len(source)>0 and not b"stat" in source and not b"Uncor" in source and not b"uncor" in source:
+                 systErrs = np.zeros(self.nbins)
+                 fracErrs = np.zeros(self.nbins)
+diff -rupN contur-2.1.1_original/contur/util/utils.py contur-2.1.1_patched/contur/util/utils.py
+--- contur-2.1.1_original/contur/util/utils.py	2021-09-26 16:58:41.000000000 +0200
++++ contur-2.1.1_patched/contur/util/utils.py	2023-02-20 16:48:41.182701916 +0100
+@@ -16,12 +16,17 @@ import logging
+ 
+ import scipy.stats as spstat
+ 
+-## Import the tqdm progress-bar if possible, otherwise fall back to a safe do-nothing option
+-try:
+-    from tqdm import tqdm as progress_bar
+-except ImportError:
+-    def progress_bar(iterable, **kwargs):
+-        return iterable
++# GAMBIT patch to avoid importing tqdm below
++def progress_bar(iterable, **kwargs):
++    return iterable
++
++# ## Import the tqdm progress-bar if possible, otherwise fall back to a safe do-nothing option
++# try:
++#     from tqdm import tqdm as progress_bar
++# except ImportError:
++#     def progress_bar(iterable, **kwargs):
++#         return iterable
++
+ 
+ def mkoutdir(outdir):
+     """

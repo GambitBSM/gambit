@@ -49,22 +49,14 @@ namespace Gambit
     /// Special iteration labels for the loop controlled by operateLHCLoop
     enum specialIterations { BASE_INIT = -1,
                              COLLIDER_INIT = -2,
-                             START_SUBPROCESS = -3,
-                             COLLECT_CONVERGENCE_DATA = -4,
-                             CHECK_CONVERGENCE = -5,
-                             END_SUBPROCESS = -6,
-                             COLLIDER_FINALIZE = -7,
-                             BASE_FINALIZE = -8};
-
-
-    /// Debug prefix string giving thread number
-    inline str debug_prefix()
-    {
-      std::stringstream ss;
-      ss << "DEBUG: OMP thread " << omp_get_thread_num() << ":  ";
-      return ss.str();
-    }
-
+                             COLLIDER_INIT_OMP = -3,
+                             XSEC_CALCULATION = -4,
+                             START_SUBPROCESS = -5,
+                             COLLECT_CONVERGENCE_DATA = -6,
+                             CHECK_CONVERGENCE = -7,
+                             END_SUBPROCESS = -8,
+                             COLLIDER_FINALIZE = -9,
+                             BASE_FINALIZE = -10};
   }
 
 }

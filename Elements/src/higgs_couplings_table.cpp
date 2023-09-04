@@ -20,10 +20,45 @@
 namespace Gambit
 {
 
-  /// Constructor: initialise all effective couplings to 1
-  HiggsCouplingsTable::HiggsCouplingsTable()
+  /// Set the number of neutral Higgses
+  void HiggsCouplingsTable::set_n_neutral_higgs(int n)
   {
-    for (int i = 0; i < max_neutral_higgses; i++)
+    n_neutral_higgses = n;
+    neutral_decays_SM_array.resize(n);
+    neutral_decays_array.resize(n);
+    CP.resize(n);
+    C_WW2.resize(n);
+    C_ZZ2.resize(n);
+    C_tt2.resize(n);
+    C_bb2.resize(n);
+    C_cc2.resize(n);
+    C_tautau2.resize(n);
+    C_gaga2.resize(n);
+    C_gg2.resize(n);
+    C_mumu2.resize(n);
+    C_Zga2.resize(n);
+    C_ss2.resize(n);
+    C_hiZ2.resize(n);
+    for (int i = 0; i < n; i++) C_hiZ2[i].resize(n);
+  }
+
+  /// Set the number of charged Higgses
+  void HiggsCouplingsTable::set_n_charged_higgs(int n)
+  {
+    n_charged_higgses = n;
+    charged_decays_array.resize(n);
+  }
+
+  /// Retrieve number of neutral higgses
+  int HiggsCouplingsTable::get_n_neutral_higgs() const { return n_neutral_higgses; }
+
+  /// Retrieve number of charged higgses
+  int HiggsCouplingsTable::get_n_charged_higgs() const { return n_charged_higgses; }
+
+  /// Set all effective couplings to 1
+  void HiggsCouplingsTable::set_effective_couplings_to_unity()
+  {
+    for (int i = 0; i < n_neutral_higgses; i++)
     {
       C_WW2[i] = 1.0;
       C_ZZ2[i] = 1.0;
@@ -36,14 +71,14 @@ namespace Gambit
       C_mumu2[i] = 1.0;
       C_Zga2[i] = 1.0;
       C_ss2[i] = 1.0;
-      for(int j = 0; j < max_neutral_higgses; j++) C_hiZ2[i][j] = 1.0;
+      for(int j = 0; j < n_neutral_higgses; j++) C_hiZ2[i][j] = 1.0;
     }
   }
 
   /// Assign SM decay entries to neutral higgses
   void HiggsCouplingsTable::set_neutral_decays_SM(int index, const str& name, const DecayTable::Entry& entry)
   {
-    if (index > max_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_neutral_higgses.");
+    if (index > n_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_neutral_higgses.");
     neutral_decays_SM_array[index] = &entry;
     neutral_decays_SM_map.insert(std::pair<str, const DecayTable::Entry&>(name,entry));
   }
@@ -51,7 +86,7 @@ namespace Gambit
   /// Assign decay entries to neutral higgses
   void HiggsCouplingsTable::set_neutral_decays(int index, const str& name, const DecayTable::Entry& entry)
   {
-    if (index > max_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_neutral_higgses.");
+    if (index > n_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_neutral_higgses.");
     neutral_decays_array[index] = &entry;
     neutral_decays_map.insert(std::pair<str, const DecayTable::Entry&>(name,entry));
   }
@@ -59,7 +94,7 @@ namespace Gambit
   /// Assign decay entries to charged higgses
   void HiggsCouplingsTable::set_charged_decays(int index, const str& name, const DecayTable::Entry& entry)
   {
-    if (index > max_charged_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_charged_higgses.");
+    if (index > n_charged_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_charged_higgses.");
     charged_decays_array[index] = &entry;
     charged_decays_map.insert(std::pair<str, const DecayTable::Entry&>(name,entry));
   }
@@ -68,16 +103,15 @@ namespace Gambit
   void HiggsCouplingsTable::set_t_decays(const DecayTable::Entry& entry) { t_decays = &entry; }
 
   /// Retrieve SM decays of all neutral higgses
-  const HiggsCouplingsTable::h0_decay_array_type& HiggsCouplingsTable::get_neutral_decays_SM_array(int array_size) const
+  const std::vector<const DecayTable::Entry*>& HiggsCouplingsTable::get_neutral_decays_SM_array() const
   {
-    if (array_size > max_neutral_higgses) utils_error().raise(LOCAL_INFO, "Requested array size beyond max_neutral_higgses.");
     return neutral_decays_SM_array;
   }
 
   /// Retrieve SM decays of a specific neutral Higgs, by index
   const DecayTable::Entry& HiggsCouplingsTable::get_neutral_decays_SM(int index) const
   {
-    if (index > max_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_neutral_higgses.");
+    if (index > n_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_neutral_higgses.");
     return *neutral_decays_SM_array[index];
   }
 
@@ -89,16 +123,15 @@ namespace Gambit
   }
 
   /// Retrieve decays of all neutral higgses
-  const HiggsCouplingsTable::h0_decay_array_type& HiggsCouplingsTable::get_neutral_decays_array(int array_size) const
+  const std::vector<const DecayTable::Entry*>& HiggsCouplingsTable::get_neutral_decays_array() const
   {
-    if (array_size > max_neutral_higgses) utils_error().raise(LOCAL_INFO, "Requested arrray size beyond max_neutral_higgses.");
     return neutral_decays_array;
   }
 
   /// Retrieve decays of a specific neutral Higgs, by index
   const DecayTable::Entry& HiggsCouplingsTable::get_neutral_decays(int index) const
   {
-    if (index > max_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_neutral_higgses.");
+    if (index > n_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_neutral_higgses.");
     return *neutral_decays_array[index];
   }
 
@@ -110,16 +143,15 @@ namespace Gambit
   }
 
   /// Retrieve decays of all charged higgses
-  const HiggsCouplingsTable::hp_decay_array_type& HiggsCouplingsTable::get_charged_decays_array(int array_size) const
+  const std::vector<const DecayTable::Entry*>& HiggsCouplingsTable::get_charged_decays_array() const
   {
-    if (array_size > max_charged_higgses) utils_error().raise(LOCAL_INFO, "Requested array size beyond max_charged_higgses.");
     return charged_decays_array;
   }
 
   /// Retrieve decays of a specific charged Higgs, by index
   const DecayTable::Entry& HiggsCouplingsTable::get_charged_decays(int index) const
   {
-    if (index > max_charged_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond max_charged_higgses.");
+    if (index > n_charged_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_charged_higgses.");
     return *charged_decays_array[index];
   }
 

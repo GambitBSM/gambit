@@ -13,6 +13,7 @@
 ///  \date 2013 Apr, July, Aug, Dec
 ///  \date 2014 Mar
 ///  \date 2015 Apr
+///  \date 2023 Jan
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu.au)
@@ -29,6 +30,7 @@
 #include <cmath>
 
 #include "gambit/Utils/util_types.hpp"
+#include "gambit/cmake/cmake_variables.hpp"
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -37,19 +39,6 @@ extern "C"
 {
   #include "mkpath/mkpath.h"
 }
-
-# if GAMBIT_CONFIG_FLAG_use_std_regex
-  #include <regex>
-  #define GAMBIT_CONFIG_FLAG_use_regex 1
-  namespace Gambit { using std::regex; using std::regex_replace; }
-#elif GAMBIT_CONFIG_FLAG_use_boost_regex
-  #include <boost/regex.hpp>
-  #define GAMBIT_CONFIG_FLAG_use_regex 1
-  namespace Gambit { using boost::regex; using boost::regex_replace; }
-#else
-  #include <boost/algorithm/string/replace.hpp>
-  #define GAMBIT_CONFIG_FLAG_use_regex 0
-#endif
 
 namespace Gambit
 {
@@ -60,14 +49,38 @@ namespace Gambit
   template <typename T>
   T byVal(T t) { return t; }
 
+  /// Get the sign of a (hopefully numeric) type
   template <typename T>
   int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
   /// Make sure there are no nasty surprises from regular C abs()
   using std::abs;
 
+  /// Convert the memory address a pointer points to to an unsigned integer
+  /// (The size of uintptr_t  depends on system & ensures it is big
+  /// enough to store memory addresses of the underlying setup)
+  template<typename T>
+  uintptr_t memaddress_to_uint(T* ptr)
+  {
+    return reinterpret_cast<uintptr_t>(ptr);
+  }
+
   namespace Utils
   {
+
+    /// Return the path to the build-time scratch directory
+    const str buildtime_scratch = GAMBIT_DIR "/scratch/build_time/";
+
+    /// Return the path to the run-specific scratch directory
+    /// Don't call this from a destructor, as the internal static str may have already been destroyed.
+    EXPORT_SYMBOLS const str& runtime_scratch();
+
+    /// Convert all instances of "p" in a string to "."
+    EXPORT_SYMBOLS str p2dot(str s);
+
+    /// Construct the path to the run-specific scratch directory
+    /// This version is safe to call from a destructor.
+    EXPORT_SYMBOLS str construct_runtime_scratch(bool fail_on_mpi_uninitialised=true);
 
     /// Split a string into a vector of strings, using a delimiter,
     /// and removing any whitespace around the delimiter.
@@ -86,6 +99,15 @@ namespace Gambit
     /// Strips leading and/or trailing parentheses from a string.
     EXPORT_SYMBOLS void strip_parentheses(str&);
 
+    /// Test if a set of str,str pairs contains any entry with first element matching a given string
+    EXPORT_SYMBOLS bool sspairset_contains(const str&, const std::set<sspair>&);
+
+    /// Tests if a set of str,str pairs contains an entry matching two given strings
+    EXPORT_SYMBOLS bool sspairset_contains(const str&, const str&, const std::set<sspair>&);
+
+    /// Tests if a set of str,str pairs contains an entry matching a given pair
+    EXPORT_SYMBOLS bool sspairset_contains(const sspair&, const std::set<sspair>&);
+
     /// Created a str of a specified length.
     EXPORT_SYMBOLS str str_fixed_len(str, int);
 
@@ -101,28 +123,26 @@ namespace Gambit
     /// Perform a (possibly) case-insensitive string comparison
     EXPORT_SYMBOLS bool iequals(const std::string& a, const std::string& b, bool case_sensitive=false);
 
-    /************************************************************************/
-    /* Comparator for case-insensitive comparison in STL assos. containers  */
-    /************************************************************************/
-    // From: https://stackoverflow.com/a/1801913/1447953
-    struct EXPORT_SYMBOLS ci_less : std::binary_function<std::string, std::string, bool>
+    /// Split string into vector of strings, using a delimiter string
+    EXPORT_SYMBOLS std::vector<std::string> split(const std::string& input, const std::string& delimiter);
+
+    /// Convert a whole string to lowercase
+    EXPORT_SYMBOLS std::string strtolower(const std::string& a);
+
+    /// Enclose a string in quotation marks if it contains commas
+    EXPORT_SYMBOLS std::string quote_if_contains_commas(str);
+
+    /// Comparator for case-insensitive comparison in STL assos. containers  */
+    struct EXPORT_SYMBOLS ci_less
     {
       // case-independent (ci) compare_less binary function
-      struct nocase_compare : public std::binary_function<unsigned char,unsigned char,bool>
+      bool operator() (const std::string & s1, const std::string & s2) const;
+      struct nocase_compare
       {
-        bool operator() (const unsigned char& c1, const unsigned char& c2) const {
-            return tolower (c1) < tolower (c2);
-        }
+        bool operator() (const unsigned char& c1, const unsigned char& c2) const;
       };
-      bool operator() (const std::string & s1, const std::string & s2) const {
-        return std::lexicographical_compare
-          (s1.begin (), s1.end (),   // source range
-          s2.begin (), s2.end (),   // dest range
-          nocase_compare ());  // comparison
-      }
     };
 
-    
     /// Get pointers to beginning and end of array.
     // Useful for initialising vectors with arrays, e.g.
     //   int vv[] = { 12,43 };
@@ -223,6 +243,15 @@ namespace Gambit
     {
      (void)first;
      dummy_function(args...);
+    }
+
+    /// Expunge entries in a container of std::pairs for which the second (boolean) value of the pair is false.
+    /// Useful for allowing evaluation of a removal criterion over the whole container in parallel.
+    template<template<class, class> class Container, class T >
+    void masked_erase(Container<std::pair<T,bool>, std::allocator<std::pair<T,bool>>>& c)
+    {     
+      auto it = std::remove_if(c.begin(), c.end(), [](const std::pair<T,bool>& e) { return not e.second; }); 
+      c.erase(it, c.end());
     }
 
   }

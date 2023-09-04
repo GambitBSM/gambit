@@ -28,7 +28,7 @@ REQUIRED_SARAH_VERSION_FILE := \
 		$(DIR)/required_sarah_version.m
 
 FLEXIBLESUSY_VERSION_FILE := \
-		$(DIR)/version
+		$(DIR)/flexiblesusy-version
 
 FLEXIBLESUSY_GIT_COMMIT_FILE := \
 		$(DIR)/git_commit
@@ -80,6 +80,6 @@ clean::         clean-$(MODNAME)
 distclean::     distclean-$(MODNAME)
 
 $(DEPGEN_EXE): $(DEPGEN_OBJ)
-		$(CXX) -o $@ $^ $(LDLIBS)
+		$(CXX) $(CXXFLAGS) -o $@ $^ $(LDLIBS)
 
 ALLEXE += $(DEPGEN_EXE)

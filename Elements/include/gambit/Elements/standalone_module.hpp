@@ -32,5 +32,8 @@ using namespace Gambit;
 using std::cout;
 using std::endl;
 
+/// This function fixes an issue for linking to suspicious points. It is not intented to be called anywhere.
+void Suspicious() {Suspicious_point_exception().raise(".");}
+
 #endif //__standalone_hpp__
 

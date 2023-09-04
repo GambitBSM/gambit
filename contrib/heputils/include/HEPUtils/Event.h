@@ -24,14 +24,17 @@ namespace HEPUtils {
 
     /// Event weights
     std::vector<double> _weights;
+    std::vector<double> _weight_errs;
 
     /// @name Separate particle collections
     //@{
     std::vector<Particle*> _photons, _electrons, _muons, _taus, _invisibles;
+    std::vector<const Particle*> _cphotons, _celectrons, _cmuons, _ctaus, _cinvisibles;
     //@}
 
     /// Jets collection (mutable to allow sorting)
     mutable std::vector<Jet*> _jets;
+    mutable std::vector<const Jet*> _cjets;
 
     /// Missing momentum vector
     P4 _pmiss;
@@ -45,12 +48,19 @@ namespace HEPUtils {
     void operator = (const Event& e) {
       clear(); //< Delete current particles
       _weights = e._weights;
+      _weight_errs = e._weight_errs;
       _photons = e._photons;
+      _cphotons = e._cphotons;
       _electrons = e._electrons;
+      _celectrons = e._celectrons;
       _muons = e._muons;
+      _cmuons = e._cmuons;
       _taus = e._taus;
+      _ctaus = e._ctaus;
       _invisibles = e._invisibles;
+      _cinvisibles = e._cinvisibles;
       _jets = e._jets;
+      _cjets = e._cjets;
       _pmiss = e._pmiss;
     }
 
@@ -63,10 +73,13 @@ namespace HEPUtils {
     /// Default constructor
     Event() { clear(); }
 
-    /// Constructor from a list of Particles
-    Event(const std::vector<Particle*>& ps, const std::vector<double>& weights=std::vector<double>()) {
+    /// Constructor from list of Particles, plus (optional) event weights and weight errors
+    Event(const std::vector<Particle*>& ps,
+          const std::vector<double>& weights=std::vector<double>(),
+          const std::vector<double>& weight_errs=std::vector<double>()) {
       clear();
       _weights = weights;
+      _weight_errs = weight_errs;
       add_particles(ps);
     }
 
@@ -94,11 +107,12 @@ namespace HEPUtils {
     /// Clone a deep copy (new Particles and Jets allocated) into the provided event object
     void cloneTo(Event& e) const {
       e.set_weights(_weights);
-      const std::vector<Particle*> ps = particles();
+      e.set_weight_errs(_weight_errs);
+      const std::vector<const Particle*> ps = particles();
       for (size_t i = 0; i < ps.size(); ++i) {
         e.add_particle(new Particle(*ps[i]));
       }
-      const std::vector<Jet*> js = jets();
+      const std::vector<const Jet*> js = jets();
       for (size_t i = 0; i < js.size(); ++i) {
         e.add_jet(new Jet(*js[i]));
       }
@@ -111,6 +125,7 @@ namespace HEPUtils {
     /// Empty the event's particle, jet and MET collections
     void clear() {
       _weights.clear();
+      _weight_errs.clear();
       // TODO: indexed loop -> for (Particle* p : particles()) delete p;
       #define DELCLEAR(v) do { if (!v.empty()) for (size_t i = 0; i < v.size(); ++i) delete v[i]; v.clear(); } while (0)
       DELCLEAR(_photons);
@@ -120,6 +135,19 @@ namespace HEPUtils {
       DELCLEAR(_invisibles);
       DELCLEAR(_jets);
       #undef DELCLEAR
+
+      _photons.clear();
+      _cphotons.clear();
+      _electrons.clear();
+      _celectrons.clear();
+      _muons.clear();
+      _cmuons.clear();
+      _taus.clear();
+      _ctaus.clear();
+      _invisibles.clear();
+      _cinvisibles.clear();
+      _jets.clear();
+      _cjets.clear();
 
       _pmiss.clear();
     }
@@ -133,10 +161,20 @@ namespace HEPUtils {
       _weights = ws;
     }
 
+    void set_weight_errs(const std::vector<double>& werrs) {
+      _weight_errs = werrs;
+    }
+
     /// Set the event weights to the single given weight
     void set_weight(double w) {
       _weights.clear();
       _weights.push_back(w);
+    }
+
+    /// Set the event weight errors to the single given error
+    void set_weight_err(double werr) {
+      _weight_errs.clear();
+      _weight_errs.push_back(werr);
     }
 
     /// Get the event weights (const)
@@ -149,6 +187,16 @@ namespace HEPUtils {
       return _weights;
     }
 
+    /// Get the event weight errors (const)
+    const std::vector<double>& weight_errs() const {
+      return _weight_errs;
+    }
+
+    /// Get the event weight errors (non-const)
+    std::vector<double>& weight_errs() {
+      return _weight_errs;
+    }
+
     /// Get a single event weight -- the nominal, by default
     double weight(size_t i=0) const {
       if (_weights.empty()) {
@@ -156,6 +204,15 @@ namespace HEPUtils {
         throw std::runtime_error("Trying to access non-default weight from empty weight vector");
       }
       return _weights[i];
+    }
+
+    /// Get a single event weight error -- the nominal, by default
+    double weight_err(size_t i=0) const {
+      if (_weight_errs.empty()) {
+        if (i == 0) return 0;
+        throw std::runtime_error("Trying to access non-default weight error from empty weight errors vector");
+      }
+      return _weight_errs[i];
     }
 
 
@@ -176,17 +233,32 @@ namespace HEPUtils {
       if (!p->is_prompt())
         delete p;
       else if (p->pid() == 22)
+      {
         _photons.push_back(p);
+        _cphotons.push_back(p);
+      }
       else if (p->abspid() == 11)
+      {
         _electrons.push_back(p);
+        _celectrons.push_back(p);
+      }
       else if (p->abspid() == 13)
+      {
         _muons.push_back(p);
+        _cmuons.push_back(p);
+      }
       else if (p->abspid() == 15)
+      {
         _taus.push_back(p);
+        _ctaus.push_back(p);
+      }
       else if (p->abspid() == 12 || p->abspid() == 14 || p->abspid() == 16 ||
                p->pid() == 1000022 || p->pid() == 1000039 ||
-               in_range(p->pid(), 50, 60)) //< invert definition to specify all *visibles*?
+               in_range(p->abspid(), 50, 60)) //< invert definition to specify all *visibles*?
+      {
         _invisibles.push_back(p);
+        _cinvisibles.push_back(p);
+      }
       else
         delete p;
     }
@@ -203,18 +275,18 @@ namespace HEPUtils {
     /// Get all final state particles
     /// @todo Note the return by value: it's not efficient yet!
     /// @note Overlap of taus and e/mu
-    std::vector<Particle*> particles() const {
+    std::vector<const Particle*> particles() const {
       // Add together all the vectors of the different particle types
-      std::vector<Particle*> rtn;
-      // rtn.reserve(visible_particles().size() + _invisibles.size());
-      rtn.reserve(_photons.size() + _electrons.size() + _muons.size() + _taus.size() + _invisibles.size());
+      std::vector<const Particle*> rtn;
+      // rtn.reserve(visible_particles().size() + _cinvisibles.size());
+      rtn.reserve(_cphotons.size() + _celectrons.size() + _cmuons.size() + _ctaus.size() + _cinvisibles.size());
       #define APPEND_VEC(vec) rtn.insert(rtn.end(), vec.begin(), vec.end())
       // APPEND_VEC(visible_particles());
-      APPEND_VEC(_photons);
-      APPEND_VEC(_electrons);
-      APPEND_VEC(_muons);
-      APPEND_VEC(_taus);
-      APPEND_VEC(_invisibles);
+      APPEND_VEC(_cphotons);
+      APPEND_VEC(_celectrons);
+      APPEND_VEC(_cmuons);
+      APPEND_VEC(_ctaus);
+      APPEND_VEC(_cinvisibles);
       #undef APPEND_VEC
       return rtn;
       /// @todo Or use Boost range join to iterate over separate containers transparently... I like this
@@ -225,15 +297,15 @@ namespace HEPUtils {
     /// Get visible state particles
     /// @todo Note the return by value: it's not efficient yet!
     /// @note Overlap of taus and e/mu
-    std::vector<Particle*> visible_particles() const {
+    std::vector<const Particle*> visible_particles() const {
       // Add together all the vectors of the different particle types
-      std::vector<Particle*> rtn;
-      rtn.reserve(_photons.size() + _electrons.size() + _muons.size() + _taus.size());
+      std::vector<const Particle*> rtn;
+      rtn.reserve(_cphotons.size() + _celectrons.size() + _cmuons.size() + _ctaus.size());
       #define APPEND_VEC(vec) rtn.insert(rtn.end(), vec.begin(), vec.end() )
-      APPEND_VEC(_photons);
-      APPEND_VEC(_electrons);
-      APPEND_VEC(_muons);
-      APPEND_VEC(_taus);
+      APPEND_VEC(_cphotons);
+      APPEND_VEC(_celectrons);
+      APPEND_VEC(_cmuons);
+      APPEND_VEC(_ctaus);
       #undef APPEND_VEC
       return rtn;
       /// @todo Add together all the vectors of the different particle types
@@ -242,8 +314,8 @@ namespace HEPUtils {
 
 
     /// Get invisible final state particles
-    const std::vector<Particle*>& invisible_particles() const {
-      return _invisibles;
+    const std::vector<const Particle*>& invisible_particles() const {
+      return _cinvisibles;
     }
     /// Get invisible final state particles (non-const)
     std::vector<Particle*>& invisible_particles() {
@@ -252,8 +324,8 @@ namespace HEPUtils {
 
 
     /// Get prompt electrons
-    const std::vector<Particle*>& electrons() const {
-      return _electrons;
+    const std::vector<const Particle*>& electrons() const {
+      return _celectrons;
     }
     /// Get prompt electrons (non-const)
     std::vector<Particle*>& electrons() {
@@ -262,8 +334,8 @@ namespace HEPUtils {
 
 
     /// Get prompt muons
-    const std::vector<Particle*>& muons() const {
-      return _muons;
+    const std::vector<const Particle*>& muons() const {
+      return _cmuons;
     }
     /// Get prompt muons (non-const)
     std::vector<Particle*>& muons() {
@@ -272,8 +344,8 @@ namespace HEPUtils {
 
 
     /// Get prompt (hadronic) taus
-    const std::vector<Particle*>& taus() const {
-      return _taus;
+    const std::vector<const Particle*>& taus() const {
+      return _ctaus;
     }
     /// Get prompt (hadronic) taus (non-const)
     std::vector<Particle*>& taus() {
@@ -282,8 +354,8 @@ namespace HEPUtils {
 
 
     /// Get prompt photons
-    const std::vector<Particle*>& photons() const {
-      return _photons;
+    const std::vector<const Particle*>& photons() const {
+      return _cphotons;
     }
     /// Get prompt photons (non-const)
     std::vector<Particle*>& photons() {
@@ -296,9 +368,9 @@ namespace HEPUtils {
     //@{
 
     /// @brief Get anti-kT 0.4 jets (not including charged leptons or photons)
-    const std::vector<Jet*>& jets() const {
-      std::sort(_jets.begin(), _jets.end(), _cmpPtDesc);
-      return _jets;
+    const std::vector<const Jet*>& jets() const {
+      std::sort(_cjets.begin(), _cjets.end(), _cmpPtDesc);
+      return _cjets;
     }
 
     /// @brief Get anti-kT 0.4 jets (not including charged leptons or photons) (non-const)
@@ -312,6 +384,8 @@ namespace HEPUtils {
     /// The Jets should be new'd; Event will take ownership.
     void set_jets(const std::vector<Jet*>& jets) {
       _jets = jets;
+      _cjets.clear();
+      for (Jet* j : jets ) _cjets.push_back(j);
     }
 
     /// @brief Add a jet to the jets collection
@@ -319,6 +393,7 @@ namespace HEPUtils {
     /// The Jet should be new'd; Event will take ownership.
     void add_jet(Jet* j) {
       _jets.push_back(j);
+      _cjets.push_back(j);
     }
 
     //@}

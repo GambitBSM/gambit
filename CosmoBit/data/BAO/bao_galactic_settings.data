@@ -1,0 +1,10 @@
+# BAO Likelihoods
+
+# set path to directory in which bao data files are saved
+# -> the default value "data.path['data']" points to "/Backends/installed/montepythonlike/3.3.0/data/"
+#bao_smallz_2014.data_directory      = data.path['data']
+bao_smallz_2014.data_directory      = 'CosmoBit/data/BAO/'
+
+# choose respective data file for different runs
+bao_smallz_2014.file                = 'bao_galactic_data.txt'
+bao_smallz_2014.exclude             = []

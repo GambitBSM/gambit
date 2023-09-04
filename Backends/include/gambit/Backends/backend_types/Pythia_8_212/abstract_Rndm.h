@@ -1,14 +1,14 @@
 #ifndef __abstract_Rndm_Pythia_8_212_h__
 #define __abstract_Rndm_Pythia_8_212_h__
 
-#include "gambit/Backends/abstractbase.hpp"
-#include "forward_decls_abstract_classes.h"
-#include "forward_decls_wrapper_classes.h"
+#include <cstddef>
+#include <iostream>
 #include <utility>
 #include <vector>
 #include <string>
-#include <cstddef>
-#include <iostream>
+#include "gambit/Backends/abstractbase.hpp"
+#include "forward_decls_abstract_classes.h"
+#include "forward_decls_wrapper_classes.h"
 
 #include "identification.hpp"
 
@@ -36,11 +36,11 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual ::std::pair<double, double> gauss2() =0;
     
-                virtual int pick(const ::std::vector<double, std::allocator<double> >&) =0;
+                virtual int pick(const std::vector<double>&) =0;
     
-                virtual bool dumpState(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual bool dumpState(std::string) =0;
     
-                virtual bool readState(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual bool readState(std::string) =0;
     
             public:
                 virtual void pointer_assign__BOSS(Abstract_Rndm*) =0;

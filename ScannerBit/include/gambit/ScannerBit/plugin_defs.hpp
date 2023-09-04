@@ -31,7 +31,9 @@
 #include <unistd.h>
 
 #ifdef WITH_MPI
+#include "gambit/Utils/begin_ignore_warnings_mpi.hpp"
 #include <mpi.h>
+#include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 #include "gambit/ScannerBit/printer_interface.hpp"

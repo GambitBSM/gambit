@@ -3,20 +3,20 @@
 ///  \file
 ///
 ///  Some member function definitions from classes
-///  in spec_head.hpp. 
+///  in spec_head.hpp.
 ///
 ///  *********************************************
 ///
-///  Authors: 
+///  Authors:
 ///  <!-- add name and date if you modify -->
-///   
-///  \author Peter Athron  
+///
+///  \author Peter Athron
 ///          (peter.athron@coepp.org.au)
-///  \date 2014, 2015 Jan, Feb, Mar 
+///  \date 2014, 2015 Jan, Feb, Mar
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@fysik.su.se)
-///  \date 2014, 2015 Jan - Jul 
+///  \date 2014, 2015 Jan - Jul
 ///
 ///  *********************************************
 
@@ -38,7 +38,7 @@ namespace Gambit {
       //typedef typename DerivedSpec::MTget MTget;
       /// TODO: Could avoid dismantling the MapCollection struct by just letting the
       ///       SetMaps class do it, but one step at a time...
-      ///       Could also reduce duplication between getter and checker functions by making the 
+      ///       Could also reduce duplication between getter and checker functions by making the
       ///       'has' function take an optional argument to return an FptrFinder, which can then
       ///       just be used to call the found function.
 
@@ -47,17 +47,17 @@ namespace Gambit {
       if     (check_overrides == use_overrides) {  overrides=true;  override_only=false; }
       else if(check_overrides == overrides_only){  overrides=true;  override_only=true; }
       else if(check_overrides == ignore_overrides){overrides=false; override_only=false;}
-      
+
       /* Create finder object, tell it what maps to search, and do the search */
       const OverrideMaps         overridecoll = override_maps.at(partype);
       const MapCollection<MTget> mapcoll      = getter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Get>(Par::toString.at(partype),this)
-                              .omap0(  overridecoll.m0 ) 
+                              .omap0(  overridecoll.m0 )
                               .omap1( overridecoll.m1 )
-                              .map0(  mapcoll.map0 )       
+                              .map0(  mapcoll.map0 )
                               .map1(  mapcoll.map1 )
-                              .map0W( mapcoll.map0W )       
+                              .map0W( mapcoll.map0W )
                               .map1W( mapcoll.map1W )
                               .map0M( mapcoll.map0_extraM )
                               .map1M( mapcoll.map1_extraM )
@@ -65,8 +65,8 @@ namespace Gambit {
                               .map1I( mapcoll.map1_extraI )
                               .override_only(override_only)
                               .no_overrides(not overrides);
-      return finder.find(name,true,check_antiparticle);                                             
-   }                                                                        
+      return finder.find(name,true,check_antiparticle);
+   }
 
    template <class DerivedSpec>
    double Spec<DerivedSpec>::get(const Par::Tags partype, const str& name, const SpecOverrideOptions check_overrides, const SafeBool check_antiparticle) const
@@ -78,17 +78,17 @@ namespace Gambit {
       if     (check_overrides == use_overrides) {  overrides=true;  override_only=false; }
       else if(check_overrides == overrides_only){  overrides=true;  override_only=true; }
       else if(check_overrides == ignore_overrides){overrides=false; override_only=false;}
-  
+
      /* Create finder object, tell it what maps to search, and do the search */
       const OverrideMaps         overridecoll = override_maps.at(partype);
       const MapCollection<MTget> mapcoll      = getter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Get>(Par::toString.at(partype),this)
-                              .omap0(  overridecoll.m0 ) 
+                              .omap0(  overridecoll.m0 )
                               .omap1( overridecoll.m1 )
-                              .map0(  mapcoll.map0 )       
+                              .map0(  mapcoll.map0 )
                               .map1(  mapcoll.map1 )
-                              .map0W( mapcoll.map0W )       
+                              .map0W( mapcoll.map0W )
                               .map1W( mapcoll.map1W )
                               .map0M( mapcoll.map0_extraM )
                               .map1M( mapcoll.map1_extraM )
@@ -99,8 +99,8 @@ namespace Gambit {
       if( finder.find(name,true,check_antiparticle) ){ return finder.callfcn(); }
       finder.raise_error(LOCAL_INFO);
       return 0;
-   }                                                                        
- 
+   }
+
    template <class DerivedSpec>
    void Spec<DerivedSpec>::set(const Par::Tags partype, const double set_value, const str& name, const SafeBool check_antiparticle)
    {
@@ -110,14 +110,14 @@ namespace Gambit {
          for it, so that we can warn people that the value they are trying to
          set will be masked by the override */
       const OverrideMaps overridecoll = override_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Set> override_finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Set> override_finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Set>(Par::toString.at(partype),this)
-                              .omap0( overridecoll.m0 ) 
+                              .omap0( overridecoll.m0 )
                               .omap1( overridecoll.m1 )
                               .override_only(true); // switch to permit search of only override maps
       if( override_finder.find(name,true,check_antiparticle) )
-      { 
-        std::ostringstream errmsg;           
+      {
+        std::ostringstream errmsg;
         errmsg << "Warning from SubSpectrum object while trying to manually set a parameter!" << std::endl;
         errmsg << "An override entry was detected for "<<Par::toString.at(partype)<<" with string reference '"<<name<<"'. The override value will hide the value I have been instructed to set." <<std::endl;
         utils_warning().raise(LOCAL_INFO,errmsg.str());
@@ -126,11 +126,11 @@ namespace Gambit {
 
       /* Create finder object, tell it what maps to search, and do the search */
       const MapCollection<MTset> mapcoll = setter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Set> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Set> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Set>(Par::toString.at(partype),this)
-                              .map0(  mapcoll.map0 )       
+                              .map0(  mapcoll.map0 )
                               .map1(  mapcoll.map1 )
-                              .map0W( mapcoll.map0W )       
+                              .map0W( mapcoll.map0W )
                               .map1W( mapcoll.map1W )
                               .map0M( mapcoll.map0_extraM )
                               .map1M( mapcoll.map1_extraM )
@@ -138,7 +138,7 @@ namespace Gambit {
                               .map1I( mapcoll.map1_extraI );
       if( finder.find(name,true,check_antiparticle) ){ finder.callfcn(set_value); }
       else { finder.raise_error(LOCAL_INFO); }
-   }                                                                        
+   }
    /// @}
    /// @{ One index
    template <class DerivedSpec>
@@ -151,17 +151,17 @@ namespace Gambit {
       if     (check_overrides == use_overrides) {  overrides=true;  override_only=false; }
       else if(check_overrides == overrides_only){  overrides=true;  override_only=true; }
       else if(check_overrides == ignore_overrides){overrides=false; override_only=false;}
- 
+
       /* Create finder object, tell it what maps to search, and do the search */
       const OverrideMaps         overridecoll = override_maps.at(partype);
       const MapCollection<MTget> mapcoll      = getter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Get>(Par::toString.at(partype),this)
-                              .omap0( overridecoll.m0 ) 
+                              .omap0( overridecoll.m0 )
                               .omap1( overridecoll.m1 )
-                              .map0(  mapcoll.map0 )       
+                              .map0(  mapcoll.map0 )
                               .map1(  mapcoll.map1 )
-                              .map0W( mapcoll.map0W )       
+                              .map0W( mapcoll.map0W )
                               .map1W( mapcoll.map1W )
                               .map0M( mapcoll.map0_extraM )
                               .map1M( mapcoll.map1_extraM )
@@ -169,8 +169,8 @@ namespace Gambit {
                               .map1I( mapcoll.map1_extraI )
                               .override_only(override_only)
                               .no_overrides(not overrides);
-      return finder.find(name,i,true,check_antiparticle);                                             
-   }                                                                        
+      return finder.find(name,i,true,check_antiparticle);
+   }
 
    template <class DerivedSpec>
    double Spec<DerivedSpec>::get(const Par::Tags partype, const str& name, const int i, const SpecOverrideOptions check_overrides, const SafeBool check_antiparticle) const
@@ -182,17 +182,17 @@ namespace Gambit {
       if     (check_overrides == use_overrides) {  overrides=true;  override_only=false; }
       else if(check_overrides == overrides_only){  overrides=true;  override_only=true; }
       else if(check_overrides == ignore_overrides){overrides=false; override_only=false;}
- 
+
       /* Create finder object, tell it what maps to search, and do the search */
       const OverrideMaps         overridecoll = override_maps.at(partype);
       const MapCollection<MTget> mapcoll      = getter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Get>(Par::toString.at(partype),this)
-                              .omap0( overridecoll.m0 ) 
+                              .omap0( overridecoll.m0 )
                               .omap1( overridecoll.m1 )
-                              .map0(  mapcoll.map0 )       
+                              .map0(  mapcoll.map0 )
                               .map1(  mapcoll.map1 )
-                              .map0W( mapcoll.map0W )       
+                              .map0W( mapcoll.map0W )
                               .map1W( mapcoll.map1W )
                               .map0M( mapcoll.map0_extraM )
                               .map1M( mapcoll.map1_extraM )
@@ -203,8 +203,8 @@ namespace Gambit {
      if( finder.find(name,i,true,check_antiparticle) ){ return finder.callfcn(); }
      finder.raise_error(LOCAL_INFO);
      return 0;
-   }                                                                        
- 
+   }
+
    template <class DerivedSpec>
    void Spec<DerivedSpec>::set(const Par::Tags partype, const double set_value, const str& name, const int i, const SafeBool check_antiparticle)
    {
@@ -214,14 +214,14 @@ namespace Gambit {
          for it, so that we can warn people that the value they are trying to
          set will be masked by the override */
       const OverrideMaps overridecoll = override_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Set> override_finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Set> override_finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Set>(Par::toString.at(partype),this)
-                              .omap0( overridecoll.m0 ) 
+                              .omap0( overridecoll.m0 )
                               .omap1( overridecoll.m1 )
                               .override_only(true); // switch to permit search of only override maps
       if( override_finder.find(name,i,true,check_antiparticle) )
-      { 
-        std::ostringstream errmsg;           
+      {
+        std::ostringstream errmsg;
         errmsg << "Warning from SubSpectrum object while trying to manually set a parameter!" << std::endl;
         errmsg << "An override entry was detected for "<<Par::toString.at(partype)<<" with string reference '"<<name<<"', index '"<<i<<"'. The override value will hide the value I have been instructed to set." <<std::endl;
         utils_warning().raise(LOCAL_INFO,errmsg.str());
@@ -230,19 +230,19 @@ namespace Gambit {
 
       /* Create finder object, tell it what maps to search, and do the search */
       const MapCollection<MTset> mapcoll = setter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Set> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Set> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Set>(Par::toString.at(partype),this)
-                              .map0(  mapcoll.map0 )       
-                              .map1(  mapcoll.map1 ) 
-                              .map0W( mapcoll.map0W )       
-                              .map1W( mapcoll.map1W ) 
+                              .map0(  mapcoll.map0 )
+                              .map1(  mapcoll.map1 )
+                              .map0W( mapcoll.map0W )
+                              .map1W( mapcoll.map1W )
                               .map0M( mapcoll.map0_extraM )
                               .map1M( mapcoll.map1_extraM )
                               .map0I( mapcoll.map0_extraI )
                               .map1I( mapcoll.map1_extraI );
      if( finder.find(name,i,true,check_antiparticle) ){ finder.callfcn(set_value); }
       else { finder.raise_error(LOCAL_INFO); }
-   }                                                                        
+   }
 
    /// @}
    /// @{ Two indices
@@ -257,11 +257,11 @@ namespace Gambit {
       if     (check_overrides == use_overrides) {  overrides=true;  override_only=false; }
       else if(check_overrides == overrides_only){  overrides=true;  override_only=true; }
       else if(check_overrides == ignore_overrides){overrides=false; override_only=false;}
- 
+
       /* Create finder object, tell it what maps to search, and do the search */
       const OverrideMaps         overridecoll = override_maps.at(partype);
       const MapCollection<MTget> mapcoll      = getter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Get>(Par::toString.at(partype),this)
                               .omap2( overridecoll.m2 )
                               .map2(  mapcoll.map2 )
@@ -271,7 +271,7 @@ namespace Gambit {
                               .override_only(override_only)
                               .no_overrides(not overrides);
      return finder.find(name,i,j);
-   }                                                                        
+   }
 
    template <class DerivedSpec>
    double Spec<DerivedSpec>::get(const Par::Tags partype, const str& name, const int i, const int j, const SpecOverrideOptions check_overrides) const
@@ -283,11 +283,11 @@ namespace Gambit {
       if     (check_overrides == use_overrides) {  overrides=true;  override_only=false; }
       else if(check_overrides == overrides_only){  overrides=true;  override_only=true; }
       else if(check_overrides == ignore_overrides){overrides=false; override_only=false;}
- 
+
       /* Create finder object, tell it what maps to search, and do the search */
       const OverrideMaps         overridecoll = override_maps.at(partype);
       const MapCollection<MTget> mapcoll      = getter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Get> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Get>(Par::toString.at(partype),this)
                               .omap2( overridecoll.m2 )
                               .map2(  mapcoll.map2 )
@@ -299,8 +299,8 @@ namespace Gambit {
       if( finder.find(name,i,j) ){ return finder.callfcn(); }
       finder.raise_error(LOCAL_INFO);
       return 0;
-   }                                                                        
- 
+   }
+
    template <class DerivedSpec>
    void Spec<DerivedSpec>::set(const Par::Tags partype, const double set_value, const str& name, const int i, const int j)
    {
@@ -308,7 +308,7 @@ namespace Gambit {
 
       /* Create finder object, tell it what maps to search, and do the search */
       const MapCollection<MTset> mapcoll = setter_maps.at(partype);
-      FptrFinder<Spec<DerivedSpec>,MapTag::Set> finder =                                
+      FptrFinder<Spec<DerivedSpec>,MapTag::Set> finder =
                        SetMaps<Spec<DerivedSpec>,MapTag::Set>(Par::toString.at(partype),this)
                               .map2(  mapcoll.map2 )
                               .map2W( mapcoll.map2W )
@@ -316,7 +316,7 @@ namespace Gambit {
                               .map2I( mapcoll.map2_extraI );
       if( finder.find(name,i,j) ){ finder.callfcn(set_value); }
       else { finder.raise_error(LOCAL_INFO); }
-   }                                                                        
+   }
 
    /// @}
 

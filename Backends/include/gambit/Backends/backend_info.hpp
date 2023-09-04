@@ -19,6 +19,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2017 Jun
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2019 Jun
+///
 ///  *********************************************
 
 #ifndef __backend_info_hpp__
@@ -47,9 +51,11 @@
 #ifdef HAVE_PYBIND11
   namespace pybind11
   {
-    class module;
     class scoped_interpreter;
   }
+  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
+  #include <pybind11/pybind11.h>
+  #include "gambit/Utils/end_ignore_warnings.hpp"
 #endif
 
 
@@ -194,6 +200,9 @@ namespace Gambit
         /// Load a backend library written in C, C++ or Fortran
         void loadLibrary_C_CXX_Fortran(const str&, const str&, const str&, bool with_BOSS);
 
+        /// Load a backend data library
+        void loadLibrary_data(const str&, const str&, const str&);
+
         #ifdef HAVE_MATHEMATICA
           /// Load WSTP for Mathematica backends
           void loadLibrary_Mathematica(const str&, const str&, const str&);
@@ -205,6 +214,9 @@ namespace Gambit
 
           /// Python sys modudle
           pybind11::module* sys;
+
+          /// Python os modudle
+          pybind11::module* os;
 
           /// Pointer to the Python interpreter
           pybind11::scoped_interpreter* python_interpreter;

@@ -21,11 +21,14 @@
 #define BACKENDLANG FORTRAN
 #define VERSION 2.11.2
 #define SAFE_VERSION 2_11_2
+#define REFERENCE Bahl:2017aev,Bahl:2016brp,Hahn:2013ria,Frank:2006yh,Degrassi:2002fi,Heinemeyer:1998np,Heinemeyer:1998yj
 
 /* The following macro loads the library using dlopen
  * when this header file is included somewhere. */
 
 LOAD_LIBRARY
+
+BE_ALLOW_MODELS(MSSM63atQ, MSSM63atMGUT, MSSM63atMGUT_mG, MSSM63atQ_mG)
 
 /* Next we use macros BE_VARIABLE and BE_FUNCTION to load pointers
  * (using dlsym) to the variables and functions within the library.

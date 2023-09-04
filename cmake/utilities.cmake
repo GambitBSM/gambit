@@ -23,21 +23,27 @@
 #  \date 2016 Jan
 #
 #  \author Tomas Gonzalo
-#          (t.e.gonzalo@fys.uio.no)
+#          (gonzalo@physik.rwth-aachen.de)
 #  \date 2016 Sep
+#  \date 2019 Oct
+#  \date 2021 Mar
 #
 #  \author Will Handley
 #          (wh260@cam.ac.uk)
 #  \date 2018 Dec
 #
+#  \author Christopher Chang
+#          (christopher.chang@uqconnect.edu.au)
+#  \date 2021 Feb
+#
+#  \author Anders Kvellestad
+#          (anders.kvellestad@fys.uio.no)
+#  \date 2023 Mar
+#
 #************************************************
 
 include(CMakeParseArguments)
 include(ExternalProject)
-
-# Add precompiled header support
-##include(cmake/PrecompiledHeader.cmake)
-#include(cmake/cotire.cmake)
 
 # defining some colors
 string(ASCII 27 Esc)
@@ -72,6 +78,22 @@ function(check_result result command)
   endif()
 endfunction()
 
+# Execute script to prevent printing problems with standalones
+function(add_elements_extras target)
+  set(ELEMENTS_EXTRAS_SCRIPT ${PROJECT_SOURCE_DIR}/Elements/scripts/elements_extras.py)
+  add_custom_target(${target} COMMAND ${PYTHON_EXECUTABLE} ${ELEMENTS_EXTRAS_SCRIPT} ${target}
+                            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+endfunction()
+
+#Check if a string starts with a give substring
+function(starts_with str search)
+  string(FIND "${str}" "${search}" out)
+  if("${out}" EQUAL 0)
+    return(true)
+  endif()
+  return(false)
+endfunction()
+
 #Macro to retrieve GAMBIT modules
 macro(retrieve_bits bits root excludes quiet)
 
@@ -79,14 +101,26 @@ macro(retrieve_bits bits root excludes quiet)
   file(GLOB children RELATIVE ${root} ${root}/*Bit*)
 
   foreach(child ${children})
+    file(GLOB_RECURSE src RELATIVE ${root}/${child} ${root}/${child}/src/*.c
+                                                    ${root}/${child}/src/*.cc
+                                                    ${root}/${child}/src/*.cpp)
+    file(GLOB_RECURSE hdr RELATIVE ${root}/${child} ${root}/${child}/include/*.h
+                                                    ${root}/${child}/include/*.hh
+                                                    ${root}/${child}/include/*.hpp)
     string(FIND ${child} ".dSYM" FOUND_DSYM)
-    if(IS_DIRECTORY ${root}/${child} AND ${FOUND_DSYM} EQUAL -1)
+    if(IS_DIRECTORY ${root}/${child} AND (src OR hdr) AND ${FOUND_DSYM} EQUAL -1)
 
       # Work out if this Bit should be excluded or not.  Never exclude ScannerBit.
       set(excluded "NO")
-      if(NOT ${child} STREQUAL "ScannerBit")
-        foreach(x ${excludes})
-          string(FIND ${child} ${x} location)
+
+      # Make the string comparison case insensitive
+      string( TOLOWER "${child}" child_lower )
+      string( TOLOWER "${excludes}" excludes_lower )
+
+      if(NOT ${child_lower} STREQUAL "scannerbit")
+        foreach(x ${excludes_lower})
+          string( TOLOWER "${x}" x_lower )
+          string(FIND ${child_lower} ${x_lower} location)
           if(${location} EQUAL 0)
             set(excluded "YES")
           endif()
@@ -107,20 +141,35 @@ macro(retrieve_bits bits root excludes quiet)
 
 endmacro()
 
+# Specify native make command to be put into external build steps (for correct usage of gmake jobserver)
+if(CMAKE_MAKE_PROGRAM MATCHES "make$")
+  set(MAKE_SERIAL   $(MAKE) -j1)
+  set(MAKE_PARALLEL $(MAKE))
+  set(MAKE_INSTALL_SERIAL    $(MAKE) install -j1)
+  set(MAKE_INSTALL_PARALLEL  $(MAKE) install)
+else()
+  set(MAKE_SERIAL   "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_PARALLEL "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_SERIAL   "${CMAKE_MAKE_PROGRAM}")
+  set(MAKE_INSTALL_PARALLEL "${CMAKE_MAKE_PROGRAM}")
+endif()
+
 # Arrange clean commands
 include(cmake/cleaning.cmake)
 
 # Macro to write some shell commands to clean an external code.  Adds clean-[package] and nuke-[package]
 macro(add_external_clean package dir dl target)
-  set(rmstring "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
+  set(rmstring1 "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-stamp/${package}")
+  set(rmstring2 "${CMAKE_BINARY_DIR}/${package}-prefix/src/${package}-build")
   string(REPLACE "." "_" safe_package ${package})
   set(reset_file "${CMAKE_BINARY_DIR}/BOSS_reset_info/reset_info.${safe_package}.boss")
-  add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-BOSS ${rmstring}-configure ${rmstring}-build ${rmstring}-install ${rmstring}-done
+  add_custom_target(clean-${package} COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-BOSS ${rmstring1}-configure ${rmstring1}-build ${rmstring1}-install ${rmstring1}-done
                                      COMMAND [ -e ${dir} ] && cd ${dir} && ([ -e makefile ] || [ -e Makefile ] && (${target})) || true
                                      COMMAND [ -e ${reset_file} ] && ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py -r ${reset_file} || true)
   add_custom_target(nuke-${package} DEPENDS clean-${package}
-                                    COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring}-download ${rmstring}-download-failed ${rmstring}-mkdir ${rmstring}-patch ${rmstring}-update ${rmstring}-gitclone-lastrun.txt ${dl} || true
-                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true)
+                                    COMMAND ${CMAKE_COMMAND} -E remove -f ${rmstring1}-download ${rmstring1}-download-failed ${rmstring1}-mkdir ${rmstring1}-patch ${rmstring1}-update ${rmstring1}-gitclone-lastrun.txt ${dl} || true
+                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${dir} || true
+                                    COMMAND ${CMAKE_COMMAND} -E remove_directory ${rmstring2} || true)
 endmacro()
 
 # Macro to write some shell commands to clean an external chained code.  Adds clean-[package] and nuke-[package]
@@ -173,6 +222,7 @@ function(add_gambit_library libraryname)
   add_dependencies(${libraryname} printer_harvest)
   add_dependencies(${libraryname} module_harvest)
   add_dependencies(${libraryname} yaml-cpp)
+  add_dependencies(${libraryname} elements_extras)
 
   if(${CMAKE_VERSION} VERSION_GREATER 2.8.10)
     foreach (dir ${GAMBIT_INCDIRS})
@@ -192,10 +242,6 @@ function(add_gambit_library libraryname)
   if(${ARG_VISIBLE})
     make_symbols_visible(${libraryname})
   endif()
-
-  # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
-  #cotire(${libraryname})
-  ##add_precompiled_header(${libraryname} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/common.hpp" TRUE)
 
 endfunction()
 
@@ -227,8 +273,12 @@ endmacro()
 
 # Function to add a GAMBIT custom command and target
 macro(add_gambit_custom target filename HARVESTER DEPS)
+  set(ditch_string "")
+  if (NOT "${ARGN}" STREQUAL "")
+    set(ditch_string "-x __not_a_real_name__,${ARGN}")
+  endif()
   add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${filename}
-                     COMMAND ${PYTHON_EXECUTABLE} ${${HARVESTER}} -x __not_a_real_name__,${itch_with_commas}
+                     COMMAND ${PYTHON_EXECUTABLE} ${${HARVESTER}} ${ditch_string}
                      COMMAND touch ${CMAKE_BINARY_DIR}/${filename}
                      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
                      DEPENDS ${${HARVESTER}}
@@ -252,7 +302,9 @@ macro(use_contributed_pybind11)
   set(pybind11_FOUND TRUE)
   set(pybind11_DIR "${pybind11_CONTRIB_DIR}")
   set(pybind11_VERSION "${PREFERRED_pybind11_VERSION}")
+  message("${BoldYellow}   Found pybind11 ${pybind11_VERSION} at ${pybind11_DIR}.${ColourReset}")
   add_subdirectory("${pybind11_DIR}")
+  include_directories("${PYBIND11_INCLUDE_DIR}")
   add_custom_target(nuke-pybind11 COMMAND ${CMAKE_COMMAND} -E remove_directory "${pybind11_DIR}")
   add_dependencies(nuke-contrib nuke-pybind11)
 endmacro()
@@ -292,6 +344,9 @@ function(add_gambit_executable executablename LIBRARIES)
         set_target_properties(${executablename} PROPERTIES LINK_FLAGS ${MPI_Fortran_LINK_FLAGS})
     endif()
   endif()
+  if (OpenMP_omp_LIBRARY)
+    set(LIBRARIES ${LIBRARIES} ${OpenMP_omp_LIBRARY})
+  endif()
   if (LIBDL_FOUND)
     set(LIBRARIES ${LIBRARIES} ${LIBDL_LIBRARY})
   endif()
@@ -316,22 +371,22 @@ function(add_gambit_executable executablename LIBRARIES)
   if(pybind11_FOUND)
     set(LIBRARIES ${LIBRARIES} ${PYTHON_LIBRARIES})
   endif()
-  if(SQLITE3_FOUND)
-      set(LIBRARIES ${LIBRARIES} ${SQLITE3_LIBRARIES})
+  if(SQLite3_FOUND)
+      set(LIBRARIES ${LIBRARIES} ${SQLite3_LIBRARIES})
   endif()
 
+  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    target_link_libraries(${executablename} PRIVATE ${gambit_preload_LDFLAGS} ${LIBRARIES} yaml-cpp)
+  else()
+    target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp ${gambit_preload_LDFLAGS})
+  endif()
 
-  target_link_libraries(${executablename} PRIVATE ${LIBRARIES} yaml-cpp)
-  add_dependencies(${executablename} mkpath)
+  add_dependencies(${executablename} mkpath gambit_preload)
 
   #For checking if all the needed libs are present.  Never add them manually with -lsomelib!!
   if(VERBOSE)
     message(STATUS ${LIBRARIES})
   endif()
-
-  # Cotire speeds up compilation by automatically generating and precompiling prefix headers for the targets
-  #cotire(${executablename})
-  ##add_precompiled_header(${executablename} "${PROJECT_SOURCE_DIR}/Elements/include/gambit/Elements/common.hpp" TRUE)
 
 endfunction()
 
@@ -340,10 +395,27 @@ set(STANDALONE_FACILITATOR ${PROJECT_SOURCE_DIR}/Elements/scripts/standalone_fac
 
 # Function to add a standalone executable
 function(add_standalone executablename)
-  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES" ${ARGN})
+  cmake_parse_arguments(ARG "" "" "SOURCES;HEADERS;LIBRARIES;MODULES;DEPENDENCIES;" ${ARGN})
+
+  # Assume that the standalone is to be included, unless we discover otherwise.
+  set(standalone_permitted 1)
+
+  # Exclude standalones that need HepMC or YODA if they have been excluded.
+  if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
+    message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of HepMC/Yoda.${ColourReset}")
+    set(standalone_permitted 0)
+  endif()
+
+  # Exclude standalones that need pybind11 if it has been excluded.
+  if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
+    string(REPLACE "pybind11" "" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    if (NOT HAVE_PYBIND11)
+      message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
+      set(standalone_permitted 0)
+    endif()
+  endif()
 
   # Iterate over modules, checking if the neccessary ones are present, and adding them to the target objects if so.
-  set(standalone_permitted 1)
   foreach(module ${ARG_MODULES})
     if(standalone_permitted AND EXISTS "${PROJECT_SOURCE_DIR}/${module}/" AND (";${GAMBIT_BITS};" MATCHES ";${module};"))
       if(COMMA_SEPARATED_MODULES)
@@ -356,10 +428,9 @@ function(add_standalone executablename)
       endif()
       if(module STREQUAL "SpecBit")
         set(USES_SPECBIT TRUE)
-        # Exclude standalones that need SpecBit when FS has been excluded.  Remove this once FS is BOSSed.
-        if (EXCLUDE_FLEXIBLESUSY)
-          set(standalone_permitted 0)
-        endif()
+        # Temporarily add the printers module whenever SpecBit is present to avoid linking problems
+        set(COMMA_SEPARATED_MODULES "${COMMA_SEPARATED_MODULES},Printers")
+        set(STANDALONE_OBJECTS ${STANDALONE_OBJECTS} $<TARGET_OBJECTS:Printers>)
       endif()
       if(module STREQUAL "ColliderBit")
         set(USES_COLLIDERBIT TRUE)
@@ -389,15 +460,31 @@ function(add_standalone executablename)
                                ${HARVEST_TOOLS}
                                ${PROJECT_BINARY_DIR}/CMakeCache.txt)
 
+    # All the standalones need linking to HepMC, if HepMC is not excluced.
+    # TODO: Avoid this if possible.
+    if (NOT EXCLUDE_HEPMC)
+      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+    endif()
+
+    # Add linking flags for ROOT, RestFrames, HepMC and/or YODA if required.
+    if (USES_COLLIDERBIT)
+      if (NOT EXCLUDE_ROOT)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
+        if (NOT EXCLUDE_RESTFRAMES)
+          set(ARG_LIBRARIES ${ARG_LIBRARIES} ${RESTFRAMES_LDFLAGS})
+        endif()
+      endif()
+      if (NOT EXCLUDE_HEPMC)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${HEPMC_LDFLAGS})
+      endif()
+      if (NOT EXCLUDE_YODA)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${YODA_LDFLAGS})
+      endif()
+    endif()
+
     # Do ad hoc checks for stuff that will eventually be BOSSed and removed from here.
     if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${flexiblesusy_LDFLAGS})
-    endif()
-    if (USES_COLLIDERBIT AND NOT EXCLUDE_ROOT)
-      set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ROOT_LIBRARIES})
-      if (NOT EXCLUDE_RESTFRAMES)
-        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${RESTFRAMES_LDFLAGS})
-      endif()
     endif()
 
     add_gambit_executable(${executablename} "${ARG_LIBRARIES}"
@@ -406,13 +493,15 @@ function(add_standalone executablename)
                                   ${GAMBIT_ALL_COMMON_OBJECTS}
                           HEADERS ${ARG_HEADERS})
 
-    # Do more ad hoc checks for stuff that will eventually be BOSSed and removed from here
-    if (USES_SPECBIT AND NOT EXCLUDE_FLEXIBLESUSY)
-      add_dependencies(${executablename} flexiblesusy)
-    endif()
-    if (USES_COLLIDERBIT AND NOT EXCLUDE_RESTFRAMES)
-      add_dependencies(${executablename} restframes)
-    endif()
+    # Add the elements_extras target
+    add_elements_extras(${executablename}_elements_extras)
+    add_dependencies(${executablename}_elements_extras elements_extras)
+    add_dependencies(${executablename} ${executablename}_elements_extras)
+
+    # Add each of the declared dependencies
+    foreach(dep ${ARG_DEPENDENCIES})
+      add_dependencies(${executablename} ${dep})
+    endforeach()
 
     # Add the new executable to the standalones target
     add_dependencies(standalones ${executablename})
@@ -489,7 +578,7 @@ function(add_standalone_tarballs modules version)
     set(dirname "${module}_${version}")
 
     if ("${module}" STREQUAL "ScannerBit")
-      add_custom_target(${module}-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+      add_custom_target(${module}-${version}.tar.gz COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
@@ -499,10 +588,12 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar
-                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}-${version}.tar ${dirname})
+                                      COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}/yaml_files/
+                                      COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/yaml_files/ScannerBit.yaml ${dirname}/yaml_files/
+                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar.gz
+                                      COMMAND ${CMAKE_COMMAND} -E tar cz ${module}-${version}.tar.gz ${dirname})
     else()
-      add_custom_target(${module}-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+      add_custom_target(${module}-${version}.tar.gz COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                                       COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/${module} ${dirname}/${module}
@@ -514,18 +605,18 @@ function(add_standalone_tarballs modules version)
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                                       COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar
-                                      COMMAND ${CMAKE_COMMAND} -E tar c ${module}-${version}.tar ${dirname})
+                                      COMMAND ${CMAKE_COMMAND} -E remove -f ${module}-${version}.tar.gz
+                                      COMMAND ${CMAKE_COMMAND} -E tar cz ${module}-${version}.tar.gz ${dirname})
     endif()
 
-    add_dependencies(${module}-${version}.tar nuke-all)
-    add_dependencies(standalone_tarballs ${module}-${version}.tar)
+    add_dependencies(${module}-${version}.tar.gz nuke-all)
+    add_dependencies(standalone_tarballs ${module}-${version}.tar.gz)
 
   endforeach()
 
   # Add a special ad-hoc command to make a tarball containing SpecBit, DecayBit and PrecisionBit
   set(dirname "3Bit_${version}")
-  add_custom_target(3Bit-${version}.tar COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
+  add_custom_target(3Bit-${version}.tar.gz COMMAND ${CMAKE_COMMAND} -E remove_directory ${dirname}
                              COMMAND ${CMAKE_COMMAND} -E make_directory ${dirname}
                              COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/CMakeLists.txt ${dirname}/
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/SpecBit ${dirname}/SpecBit
@@ -539,26 +630,39 @@ function(add_standalone_tarballs modules version)
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/cmake ${dirname}/cmake
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/config ${dirname}/config
                              COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/contrib ${dirname}/contrib
-                             COMMAND ${CMAKE_COMMAND} -E remove -f 3Bit-${version}.tar
-                             COMMAND ${CMAKE_COMMAND} -E tar c 3Bit-${version}.tar ${dirname})
-  add_dependencies(3Bit-${version}.tar nuke-all)
-  add_dependencies(standalone_tarballs 3Bit-${version}.tar)
+                             COMMAND ${CMAKE_COMMAND} -E remove -f 3Bit-${version}.tar.gz
+                             COMMAND ${CMAKE_COMMAND} -E tar cz 3Bit-${version}.tar.gz ${dirname})
+  add_dependencies(3Bit-${version}.tar.gz nuke-all)
+  add_dependencies(standalone_tarballs 3Bit-${version}.tar.gz)
 
 endfunction()
 
 
 # Simple function to find specific Python modules
-macro(find_python_module module)
+macro(gambit_find_python_module module)
   execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import ${module}" RESULT_VARIABLE return_value ERROR_QUIET)
   if (NOT return_value)
     message(STATUS "Found Python module ${module}.")
     set(PY_${module}_FOUND TRUE)
-  else()
-    if(${ARGC} GREATER 1 AND ${ARGV1} STREQUAL "REQUIRED")
-      message(FATAL_ERROR "-- FAILED to find Python module ${module}.")
-    else()
-      message(STATUS "FAILED to find Python module ${module}.")
+    # If module is h5py and hdf5 is present, make sure they are built with the same version
+    if(HDF5_FOUND AND module STREQUAL "h5py")
+      execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import h5py; import re; print(re.search(\"HDF5[ ]+(.*)\",h5py.version.info).group(1))" OUTPUT_VARIABLE hdf5_ver RESULT_VARIABLE hdf5_res ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+      if(${hdf5_res})
+        message(FATAL_ERROR "-- Module h5py is corrupted")
+      elseif(NOT ${hdf5_ver} AND NOT ${hdf5_ver} STREQUAL ${HDF5_VERSION})
+        message("${BoldRed}   The versions of h5py (${hdf5_ver}) and hdf5 (${HDF5_VERSION}) do not match. Backends depending on h5py will be disabled${ColourReset}")
+        set(PY_${module}_FOUND FALSE)
+      endif()
     endif()
+  else()
+    if(${ARGC} GREATER 1)
+      if (${ARGV1} STREQUAL "REQUIRED")
+        message(FATAL_ERROR "-- FAILED to find Python module ${module}.")
+      else()
+        message(FATAL_ERROR "-- Unrecognised second argument to gambit_find_python_module: ${ARGV1}.")
+      endif()
+    endif()
+    message(STATUS "FAILED to find Python module ${module}.")
   endif()
 endmacro()
 
@@ -567,7 +671,7 @@ set(BOSS_dir "${PROJECT_SOURCE_DIR}/Backends/scripts/BOSS")
 set(needs_BOSSing "")
 set(needs_BOSSing_failed "")
 
-macro(BOSS_backend name backend_version)
+macro(BOSS_backend_full name backend_version ${ARGN})
 
   # Replace "." by "_" in the backend version number
   string(REPLACE "." "_" backend_version_safe ${backend_version})
@@ -585,35 +689,49 @@ macro(BOSS_backend name backend_version)
     file(READ "${config_file_path}" conf_file)
     string(REGEX MATCH "gambit_backend_name[ \t\n]*=[ \t\n]*'\([^\n]+\)'" dummy "${conf_file}")
     set(name_in_frontend "${CMAKE_MATCH_1}")
-    set(BOSS_includes "-I ${Boost_INCLUDE_DIR}")
-    if (NOT ${GSL_INCLUDE_DIR} STREQUAL "")
-      set(BOSS_includes "${BOSS_includes} -I ${GSL_INCLUDE_DIR}")
+
+    set(BOSS_includes_Boost "")
+    if (NOT ${Boost_INCLUDE_DIR} STREQUAL "")
+        set(BOSS_includes_Boost "-I${Boost_INCLUDE_DIR}")
     endif()
+    set(BOSS_includes_GSL "")
+    if (NOT "${GSL_INCLUDE_DIRS}" STREQUAL "")
+        set(BOSS_includes_GSL "")
+        foreach(dir ${GSL_INCLUDE_DIRS})
+          set(BOSS_includes_GSL "-I${dir} ${BOSS_includes_GSL}")
+        endforeach()
+    endif()
+    set(BOSS_includes_Eigen3 "")
     if (NOT ${EIGEN3_INCLUDE_DIR} STREQUAL "")
-      set(BOSS_includes "${BOSS_includes} -I ${EIGEN3_INCLUDE_DIR}")
+      set(BOSS_includes_Eigen3 "-I${EIGEN3_INCLUDE_DIR}")
     endif()
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
       set(BOSS_castxml_cc "--castxml-cc=${CMAKE_CXX_COMPILER}")
     elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
       set(BOSS_castxml_cc "")
     endif()
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-      set(dl "https://data.kitware.com/api/v1/file/57b5de9f8d777f10f2696378/download")
-      set(dl_filename "castxml-macosx.tar.gz")
-    else()
-      set(dl "https://data.kitware.com/api/v1/file/57b5dea08d777f10f2696379/download")
-      set(dl_filename "castxml-linux.tar.gz")
-    endif()
+
+    # Parse command line options from optional arguments
+    set(BOSS_command_line_options "")
+    foreach(arg ${ARGN})
+      set(BOSS_command_line_options ${BOSS_command_line_options} ${arg})
+    endforeach()
+
+    add_dependencies(${name}_${ver} castxml)
     ExternalProject_Add_Step(${name}_${ver} BOSS
-      # Check for castxml binaries and download if they do not exist
-      COMMAND ${PROJECT_SOURCE_DIR}/cmake/scripts/download_castxml_binaries.sh ${BOSS_dir} ${CMAKE_COMMAND} ${dl} ${dl_filename}
       # Run BOSS
-      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py ${BOSS_castxml_cc} ${BOSS_includes} ${name}_${backend_version_safe}
+      COMMAND ${PYTHON_EXECUTABLE} ${BOSS_dir}/boss.py --no-instructions ${BOSS_castxml_cc} ${BOSS_command_line_options} ${BOSS_includes_Boost} ${BOSS_includes_Eigen3} ${BOSS_includes_GSL} ${name}_${backend_version_safe}
       # Copy BOSS-generated files to correct folders within Backends/include
+      COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/${name_in_frontend}_${backend_version_safe} || true
       COMMAND cp -r BOSS_output/${name_in_frontend}_${backend_version_safe}/for_gambit/backend_types/${name_in_frontend}_${backend_version_safe} ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/backend_types/
       COMMAND cp BOSS_output/${name_in_frontend}_${backend_version_safe}/frontends/${name_in_frontend}_${backend_version_safe}.hpp ${PROJECT_SOURCE_DIR}/Backends/include/gambit/Backends/frontends/${name_in_frontend}_${backend_version_safe}.hpp
       DEPENDEES patch
       DEPENDERS configure
     )
   endif()
+endmacro()
+
+macro(BOSS_backend name backend_version ${ARGN})
+  BOSS_backend_full(${name} ${backend_version} ${ARGN})
 endmacro()

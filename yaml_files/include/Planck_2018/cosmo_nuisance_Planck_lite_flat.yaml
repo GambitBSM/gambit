@@ -1,0 +1,13 @@
+##########################################################################
+## Nuisance parameter of "cosmo_nuisance_Planck_lite"
+##
+## Flat prior on all parameters. Should be scanned with
+## "Planck_nuisance_prior_loglike"
+##
+## Patrick Stoecker <stoecker@physik.rwth-aachen.de>
+## 2019, Aug
+##########################################################################
+
+A_planck:
+  prior_type: flat
+  range: [0.9,1.1]

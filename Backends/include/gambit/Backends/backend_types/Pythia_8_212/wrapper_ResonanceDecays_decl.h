@@ -2,6 +2,7 @@
 #define __wrapper_ResonanceDecays_decl_Pythia_8_212_h__
 
 #include <cstddef>
+#include <vector>
 #include "forward_decls_wrapper_classes.h"
 #include "gambit/Backends/wrapperbase.hpp"
 #include "abstract_ResonanceDecays.h"
@@ -9,7 +10,6 @@
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_Rndm_decl.h"
 #include "wrapper_Event_decl.h"
-#include <vector>
 
 #include "identification.hpp"
 
@@ -24,7 +24,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 // Member variables: 
             public:
                 // -- Static factory pointers: 
-                static Pythia8::Abstract_ResonanceDecays* (*__factory0)();
+                static Abstract_ResonanceDecays* (*__factory0)();
         
                 // -- Other member variables: 
         
@@ -42,7 +42,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ResonanceDecays();
         
                 // Special pointer-based constructor: 
-                ResonanceDecays(Pythia8::Abstract_ResonanceDecays* in);
+                ResonanceDecays(Abstract_ResonanceDecays* in);
         
                 // Copy constructor: 
                 ResonanceDecays(const ResonanceDecays& in);
@@ -54,7 +54,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 ~ResonanceDecays();
         
                 // Returns correctly casted pointer to Abstract class: 
-                Pythia8::Abstract_ResonanceDecays* get_BEptr() const;
+                Abstract_ResonanceDecays* get_BEptr() const;
         
         };
     }

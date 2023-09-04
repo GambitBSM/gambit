@@ -15,6 +15,10 @@
 ///          (benjamin.farmer@monash.edu.au)
 ///  \date 2017 Jan
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@monash.edu)
+///  \date 2020 Dec
+///
 ///  *********************************************
 
 #include "gambit/Printers/baseprinter.hpp"
@@ -23,6 +27,7 @@
 #include "gambit/Printers/printers/hdf5printer/hdf5tools.hpp"
 #include "gambit/Printers/printers/hdf5printer/DataSetInterfaceScalar.hpp"
 #include "gambit/Utils/cats.hpp"
+#include "gambit/Utils/slhaea_helpers.hpp"
 
 #include <boost/preprocessor/seq/for_each_i.hpp>
 
@@ -58,6 +63,9 @@ namespace Gambit
        BuffPair() {}
     };
 
+    // Forward declaration
+    struct SLHAcombo;
+
     /// Keeps track of vertex buffers local to a retrieve function
     /// Similar to the buffer manager for HDF5Printer. I considered
     /// trying to re-use that, but it is too integrated with the
@@ -91,6 +99,16 @@ namespace Gambit
         BuffPair<T>& get_buffer(const int vID, const unsigned int i, const std::string& label, hid_t location_id);
     };
 
+    // A simple class to manage opening and closing a HDF5 file/group on construction and destruction
+    class HDF5File
+    {
+      public:
+         HDF5File(const std::string& file, const std::string& group);
+         ~HDF5File();
+        const hid_t file_id;
+        const hid_t location_id;
+    };
+
     class HDF5Reader : public BaseReader
     {
       public:
@@ -112,9 +130,9 @@ namespace Gambit
         /// Retrieve functions
         using BaseReader::_retrieve; // Tell compiler we are using some of the base class overloads of this on purpose.
         #define DECLARE_RETRIEVE(r,data,i,elem) bool _retrieve(elem&, const std::string&, const uint, const ulong);
-        BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_TYPES)
+        BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_RETRIEVABLE_TYPES)
         #ifndef SCANNER_STANDALONE
-          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_MODULE_BACKEND_TYPES)
+          BOOST_PP_SEQ_FOR_EACH_I(DECLARE_RETRIEVE, , HDF5_BACKEND_TYPES)
         #endif
         #undef DECLARE_RETRIEVE
 
@@ -122,8 +140,7 @@ namespace Gambit
         // Location of HDF5 datasets to be read
         const std::string file;
         const std::string group;
-        const hid_t file_id;
-        const hid_t location_id;
+        HDF5File H5file; // contains file_id and location_id
 
         // Names of all datasets at the target location
         const std::vector<std::string> all_datasets;
@@ -163,6 +180,9 @@ namespace Gambit
         H5P_LocalReadBufferManager<float    > hdf5_localbufferman_float;
         H5P_LocalReadBufferManager<double   > hdf5_localbufferman_double;
 
+        /// Helper function to parse a capability name to a dataset name
+        void parse_capability_label(const std::string&, std::string&);
+
         /// "Master" templated retrieve function.
         template<class T>
         bool _retrieve_template(T& out, const std::string& label, int aux_id, const uint rank, const ulong pointID)
@@ -170,14 +190,18 @@ namespace Gambit
            // Retrieve the buffer manager for buffers with this type
            auto& buffer_manager = get_mybuffermanager<T>();
 
+           // Parse the label to an actual parameter label
+           std::string param_label;
+           parse_capability_label(label, param_label);
+
            // Buffers are labelled by an IDcode, which in the printer case is a graph vertex.
            // In the reader case I think we can safely re-use this system to assign IDs:
-           int IDcode = get_param_id(label);
+           int IDcode = get_param_id(param_label);
 
            // Extract a buffer pair from the manager corresponding to this type + label
-           auto& selected_buffer = buffer_manager.get_buffer(IDcode, aux_id, label, location_id);
+           auto& selected_buffer = buffer_manager.get_buffer(IDcode, aux_id, param_label, H5file.location_id);
 
-           // Determine the dataset index from which to extrat the input PPIDpair
+           // Determine the dataset index from which to extract the input PPIDpair
            ulong dset_index = get_index_from_PPID(PPIDpair(pointID,rank));
 
            // Extract data value
@@ -186,6 +210,9 @@ namespace Gambit
            // Extract data validity flag
            return selected_buffer.isvalid.get_entry(dset_index);
         }
+
+        /// Extra helper function for spectrum retrieval
+        bool retrieve_and_add_to_SLHAea(SLHAstruct& out, bool& found, const std::string& spec_type, const std::string& entry, const SLHAcombo& item, const std::set<std::string>& all_dataset_labels, const uint rank, const ulong pointID);
 
     };
 

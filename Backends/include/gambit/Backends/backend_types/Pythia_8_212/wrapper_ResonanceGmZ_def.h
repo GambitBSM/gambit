@@ -14,31 +14,31 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         // Member functions: 
         
         // Wrappers for original constructors: 
-        inline Pythia8::ResonanceGmZ::ResonanceGmZ(int idResIn) :
-            WrapperBase(__factory0(idResIn))
+        inline ResonanceGmZ::ResonanceGmZ(int idResIn) :
+            ResonanceWidths(__factory0(idResIn))
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
         // Special pointer-based constructor: 
-        inline Pythia8::ResonanceGmZ::ResonanceGmZ(Pythia8::Abstract_ResonanceGmZ* in) :
-            WrapperBase(in)
+        inline ResonanceGmZ::ResonanceGmZ(Abstract_ResonanceGmZ* in) :
+            ResonanceWidths(in)
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
         // Copy constructor: 
-        inline Pythia8::ResonanceGmZ::ResonanceGmZ(const ResonanceGmZ& in) :
-            WrapperBase(in.get_BEptr()->pointer_copy__BOSS())
+        inline ResonanceGmZ::ResonanceGmZ(const ResonanceGmZ& in) :
+            ResonanceWidths(in.get_BEptr()->pointer_copy__BOSS())
         {
             get_BEptr()->set_wptr(this);
             get_BEptr()->set_delete_wrapper(false);
         }
         
         // Assignment operator: 
-        inline Pythia8::ResonanceGmZ& ResonanceGmZ::operator=(const ResonanceGmZ& in)
+        inline ResonanceGmZ& ResonanceGmZ::operator=(const ResonanceGmZ& in)
         {
             if (this != &in)
             {
@@ -49,7 +49,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         
         
         // Destructor: 
-        inline Pythia8::ResonanceGmZ::~ResonanceGmZ()
+        inline ResonanceGmZ::~ResonanceGmZ()
         {
             if (get_BEptr() != 0)
             {
@@ -64,9 +64,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
         }
         
         // Returns correctly casted pointer to Abstract class: 
-        inline Pythia8::Abstract_ResonanceGmZ* Pythia8::ResonanceGmZ::get_BEptr() const
+        inline Abstract_ResonanceGmZ* Pythia8::ResonanceGmZ::get_BEptr() const
         {
-            return dynamic_cast<Pythia8::Abstract_ResonanceGmZ*>(BEptr);
+            return dynamic_cast<Abstract_ResonanceGmZ*>(BEptr);
         }
     }
     

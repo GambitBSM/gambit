@@ -30,22 +30,25 @@ namespace Gambit
      std::vector<int> scalar = initVector(1);   // i.e. get(Par::Tag, "name")
      std::vector<int> v3     = initVector(3);   // i.e. get(Par::Tag, "name", i)
 
-     //addParameter(Par::mass1, "u"   , v3);
-     //addParameter(Par::mass1, "d"   , v3);
-     //addParameter(Par::mass1, "e-"  , v3);
+     // TEMP change: add all these back otherwise fill_spectrum_as_map does not work
+ 
+     addParameter(Par::mass1, "u"   , v3);
+     addParameter(Par::mass1, "d"   , v3);
+     addParameter(Par::mass1, "e-"  , v3);
      //
      // SLHA SMINPUTS doesn't provide all those running masses. Only the light quarks:
-     addParameter(Par::mass1, "u_1", scalar); // u
-     addParameter(Par::mass1, "d_1", scalar); // d
-     addParameter(Par::mass1, "d_2", scalar); // s
+     //addParameter(Par::mass1, "u_1", scalar); // u
+     //addParameter(Par::mass1, "d_1", scalar); // d
+     //addParameter(Par::mass1, "d_2", scalar); // s
 
      // doesn't provide these either, although they are just zero of course
-     //addParameter(Par::mass1, "gamma", scalar);
-     //addParameter(Par::mass1, "g"    , scalar);
+     // TEMP change: add them otherwise fill_spectrum_as_map does not work
+     addParameter(Par::mass1, "gamma", scalar);
+     addParameter(Par::mass1, "g"    , scalar);
 
      // And we don't provide these either since they cannot be provided at the same scale.
-     //addParameter(Par::dimensionless, "alpha" , scalar);
-     //addParameter(Par::dimensionless, "alphaS", scalar);
+     addParameter(Par::dimensionless, "alpha" , scalar);
+     addParameter(Par::dimensionless, "alphaS", scalar);
 
      addParameter(Par::Pole_Mass, "gamma", scalar);
      addParameter(Par::Pole_Mass, "g"    , scalar);

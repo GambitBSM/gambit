@@ -52,6 +52,8 @@ namespace Gambit
                                              
            double get_MPhoton_pole()   const; 
            double get_MGluon_pole()    const; 
+           double get_MPhoton()        const; 
+           double get_MGluon()         const; 
                                              
            double get_MW_pole()        const; 
 
@@ -61,6 +63,12 @@ namespace Gambit
            double get_md()             const;
            double get_mu()             const;
            double get_ms()             const;
+
+           double get_mD(int)          const;
+           double get_mU(int)          const;
+
+           double get_alpha()          const;
+           double get_alphaS()         const;
            /// @}
       };
 

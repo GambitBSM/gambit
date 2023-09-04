@@ -2121,8 +2121,6 @@ void ClusterSequence::add_constituents (
   }
 }
 
-namespace { void IGNORE(int) {} } //< AB: to avoid unused-variable warnings without actually anonymising the variable; used below
-
 void ClusterSequence::_add_step_to_history (
            const int step_number, const int parent1,
 	       const int parent2, const int jetp_index,
@@ -6153,7 +6151,7 @@ void TilingExtent::_determine_rapidity_extent(const vector<PseudoJet> & particle
   for (ibin = nbins-1; ibin >= 0; ibin--) {
     cumul_hi += counts[ibin];
     if (cumul_hi >= allowed_max_cumul) {
-      double y = ibin-nrap+1; // +1 here is the rapidity bin width
+      double y = ibin-nrap+1; // +1 here is the rapidity bin width 
       if (y < _maxrap) _maxrap = y;
       break;
     }

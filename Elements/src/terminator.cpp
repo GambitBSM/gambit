@@ -7,7 +7,7 @@
 ///  *********************************************
 ///
 ///  Authors (add name and date if you modify):
-///   
+///
 ///  \author Pat Scott
 ///  \date 2014 Apr
 //
@@ -17,12 +17,13 @@
 ///  *********************************************
 
 #include "gambit/Elements/terminator.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 void Gambit::terminator()
 {
   std::cout << std::endl << "Gambit has encountered an uncaught error during initialisation." << std::endl;
-  std::cout << std::endl << "Check the output logs for details." << std::endl;
-  std::cout << std::endl << "(Check your yaml file if you can't recall where the logs are.)" << std::endl << std::endl;
+  std::cout << std::endl << "Check the output logs for details.";
+  std::cout << std::endl << "(Unless you see one or more uninitialised logger messages above, these will be in the location specified in your yaml file.)" << std::endl << std::endl;
 
   std::exception_ptr eptr = std::current_exception();
   try
@@ -37,6 +38,9 @@ void Gambit::terminator()
   {
     std::cout << "Exception not derived from std::exception." << std::endl;
   }
+
+  Utils::ProcessLock::clean_locks();
+
   exit(1);
 }
 

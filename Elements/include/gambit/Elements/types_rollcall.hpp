@@ -66,7 +66,7 @@
 ///   Elements/include/gambit/Elements/__your_header_name__.hpp
 ///  that declares the type, and include
 ///  that header by hand from 
-///   Elements/include/gambit/Utils/shared_types.hpp.
+///   Elements/include/gambit/Elements/shared_types.hpp.
 ///  
 ///  PRINTING
 ///  --------

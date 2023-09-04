@@ -1,12 +1,12 @@
 #ifndef __abstract_Error_gm2calc_1_3_0_hpp__
 #define __abstract_Error_gm2calc_1_3_0_hpp__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.hpp"
 #include "forward_decls_wrapper_classes.hpp"
-#include <string>
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -20,7 +20,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       {
          public:
    
-            virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > what() const =0;
+            virtual ::std::string what() const =0;
    
          public:
             virtual void pointer_assign__BOSS(Abstract_Error*) =0;

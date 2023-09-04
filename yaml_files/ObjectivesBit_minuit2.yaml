@@ -1,0 +1,47 @@
+# Optimize a test-function using minuit2
+
+Parameters:
+  trivial_4d:
+    x1:
+      range: [0, 2]
+    x2:
+      range: [0, 2]
+    x3:
+      range: [0, 2]
+    x4:
+      range: [0, 2]
+
+Printer:
+  printer: none
+
+Scanner:
+  use_scanner: minuit2
+
+  scanners:
+    minuit2:
+      plugin: minuit2
+      like: LogLike
+      tolerance: 0.0001
+      precision: 0.0001
+      max_loglike_calls: 100000
+      max_iterations: 100000
+      algorithm: combined # simplex, combined, scan, fumili, bfgs, migrad
+      print_level: 1
+      strategy: 2
+
+      start:
+        trivial_4d::x1: 1.5
+        trivial_4d::x2: 1.5
+        trivial_4d::x3: 1.5
+        trivial_4d::x4: 1.5
+      step:
+        trivial_4d::x1: 0.2
+        trivial_4d::x2: 0.2
+        trivial_4d::x3: 0.2
+        trivial_4d::x4: 0.2
+
+ObsLikes:
+  - purpose:      LogLike
+    capability:   gaussian
+    module:       ObjectivesBit
+    type:         double

@@ -25,9 +25,9 @@ namespace Gambit
     std::ifstream in(filename.c_str(), std::ios::binary);
     if (in.fail())
     {
-      std::cout << "ERROR. Failed loading: " << filename << std::endl;
-      // TODO: Throw proper IO error
-      exit(-1);
+      std::ostringstream errmsg;
+      errmsg << "Failed to read file '"<< filename <<"'. Check if file exists.";
+      utils_error().raise(LOCAL_INFO, errmsg.str());
     }
     std::string line;
     while(std::getline(in, line))

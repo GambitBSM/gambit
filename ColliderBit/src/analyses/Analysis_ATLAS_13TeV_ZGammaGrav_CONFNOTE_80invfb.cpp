@@ -36,7 +36,7 @@ namespace Gambit {
 
         // Electrons
         ParticlePtrs electrons;
-        for (Particle* e : event->electrons()) {
+        for (const Particle* e : event->electrons()) {
           const bool crack = e->abseta() > 1.37 && e->abseta() < 1.52;
           if (e->pT() > 10. && e->abseta() < 2.47 && !crack)
             electrons.push_back(e);
@@ -51,7 +51,7 @@ namespace Gambit {
         // Muons
         // NB. medium muon ID for pT > 10 ~ 99%: https://cds.cern.ch/record/2047831/files/ATL-PHYS-PUB-2015-037.pdf
         ParticlePtrs muons;
-        for (Particle* m : event->muons())
+        for (const Particle* m : event->muons())
           if (m->pT() > 10. && m->abseta() < 2.7 && random_bool(0.99))
             muons.push_back(m);
 
@@ -60,14 +60,14 @@ namespace Gambit {
 
         // Photons
         ParticlePtrs photons;
-        for (Particle* y : event->photons())
+        for (const Particle* y : event->photons())
           if (y->pT() > 20.)
             photons.push_back(y);
         ATLAS::applyPhotonEfficiencyR2(photons);
 
         // Jets
         JetPtrs jets;
-        for (Jet* j : event->jets())
+        for (const Jet* j : event->jets())
           if (j->pT() > 20. && j->absrap() < 4.4)
             jets.push_back(j);
 
@@ -137,7 +137,7 @@ namespace Gambit {
         cutflow[ncut++] += 1;
 
         // Signal count
-        nsig += 1;
+        _counters.at("SR").add_event(event);
 
       }
 
@@ -146,32 +146,29 @@ namespace Gambit {
       {
         const Analysis_ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb* specificOther
           = dynamic_cast<const Analysis_ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb*>(other);
+
+        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+
         for (size_t j = 0; j < NCUTS; ++j) cutflow[j] += specificOther->cutflow[j];
-        nsig += specificOther->nsig;
       }
 
 
       void collect_results() {
 
-        SignalRegionData results;
-        results.sr_label = "SR";
-        results.n_observed = 3.;
-        results.n_background = 2.1;
-        results.background_sys = 0.5;
-        results.signal_sys = 0.;
-        results.n_signal = nsig;
-        add_result(results);
+        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
-        cout << "\nCUTFLOW" << endl;
-        const string cutnames[NCUTS] = {"mll near mZ", "y1 > 25 GeV", "MET > 95 GeV", "ZH pT balance", "ZH dphi", "ll dphi"};
-        const double sf_cutflow = 85.92 / cutflow[0];
-        for (size_t i = 0; i < NCUTS; ++i) cout << i+1 << ". " << cutflow[i] * sf_cutflow << " (" << cutnames[i] << ")" << endl;
+        add_result(SignalRegionData(_counters.at("SR"), 3., {2.1, 0.5}));
+
+        // cout << "\nCUTFLOW" << endl;
+        // const string cutnames[NCUTS] = {"mll near mZ", "y1 > 25 GeV", "MET > 95 GeV", "ZH pT balance", "ZH dphi", "ll dphi"};
+        // const double sf_cutflow = 85.92 / cutflow[0];
+        // for (size_t i = 0; i < NCUTS; ++i) cout << i+1 << ". " << cutflow[i] * sf_cutflow << " (" << cutnames[i] << ")" << endl;
 
       }
 
 
       void analysis_specific_reset() {
-        nsig = 0;
+        for (auto& pair : _counters) { pair.second.reset(); }
         for (size_t i = 0; i < NCUTS; ++i) cutflow[i] = 0;
       }
 
@@ -179,7 +176,9 @@ namespace Gambit {
     private:
 
       // Numbers passing cuts
-      int nsig = 0;
+      std::map<string, EventCounter> _counters = {
+        {"SR", EventCounter("SR")},
+      };
 
       // Cut flow
       const static int NCUTS = 6;

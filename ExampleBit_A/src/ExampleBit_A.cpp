@@ -93,11 +93,18 @@ namespace Gambit
         //Example of how to declare a point invalid.
         invalid_point().raise("I don't like this point.");
       }
+      // Example of how to check if computation of another capability depends on this one at all.
+      cout << "My name is nevents_pred_rounded, and I am " <<
+       (Pipes::nevents_pred_rounded::Downstream::neededFor("nevents") ?
+       "proud to contribute to the calculation of nevents today." :
+       "completely superfluous to the calculation of nevents.")
+      << endl;
+
     }
 
     void test_sigma(double &result)
     {
-       result = 1.; //trivial test
+      result = 1.; //trivial test
     }
 
     void function_pointer_retriever( double(*&result)(int&) )
@@ -145,23 +152,6 @@ namespace Gambit
     void lnL_gaussian (double &result)
     {
       using namespace Pipes::lnL_gaussian;
-
-      cout << "checking for LHC" << endl;
-      if (runOptions->hasKey("LHC"))
-      {
-        cout << "found LHC" << endl;
-        YAML::Node colNode = runOptions->getValue<YAML::Node>("LHC");
-        cout << "extracted LHC" << endl;
-        Options colOptions(colNode);
-        double xsec_veto_fb = colOptions.getValueOrDef<double>(2.0, "xsec_veto");
-        cout << "extracted xsec_veto: " << xsec_veto_fb << endl;
-        if (colOptions.hasKey("analyses"))
-        {
-          std::vector<str> analyses = colNode["analyses"].as<std::vector<str> >();
-          cout << analyses << endl;
-        }
-      }
-
 
       // Say we have a sample of 20 drawn from a normal distribution with
       // parameters muTrue and sigmaTrue. Let the sample mean and standard
@@ -224,6 +214,12 @@ namespace Gambit
          sleeptime.tv_nsec = floor((eval_time-floor(eval_time))*1e9); // Allow user to choose fractions of second
          //std::cout << "Sleeping for "<<sleeptime.tv_sec<<" seconds and "<<sleeptime.tv_nsec<<" nanoseconds" <<std::endl;
          nanosleep(&sleeptime,NULL);
+      }
+
+      // Example use of suspicious point exception with a 1% chance, specifying message, integer code and whether to print to cout
+      if (Random::draw() < 0.01)
+      {
+        Suspicious_point_exception().raise("This is a demo for using suspicious points.",66,true);
       }
 
       result = loglTotal;
@@ -317,9 +313,24 @@ namespace Gambit
     /// Rounds an event count to the nearest integer
     void exampleCut(int &result)
     {
+      static bool first = true;
       using namespace Pipes::exampleCut;
       result = (int) *Dep::event;
       logger()<<"  Running exampleCut in iteration "<<*Loop::iteration<<endl;
+      if (first)
+      {
+        cout << "exampleCut has the following dependees: " << endl;
+        for (auto x : *Downstream::dependees) { cout << "  " << x << endl; }
+
+        cout << "and the following subcaps: " << endl;
+        cout << "  " << Downstream::subcaps->getNames() << endl;
+
+        str s1 = (Downstream::neededFor("eventAccumulation") ? " " : " not ");
+        str s2 = (Downstream::neededFor("xsection") ? " " : " not ");
+        cout << "It is" << s1 << "needed for eventAccumulation." << endl;
+        cout << "It is" << s2 << "needed for xsection." << endl;
+        first = false;
+      }
     }
 
     /// Adds an integral event count to a total number of accumulated events.
@@ -457,6 +468,17 @@ namespace Gambit
 
     /// @}
 
+    /// Scale test for various aspects of the printer buffer system
+    /// Creates 1000 items to be printed per point
+    void large_print(std::map<std::string,double>& result)
+    {
+        for(int i=0; i<1000; i++)
+        {
+            std::stringstream ss;
+            ss<<i;
+            result[ss.str()] = i;
+        }
+    }
 
     /// Test inline marginalisation of a Poisson likelihood over a log-normally or Gaussianly-distributed nuisance parameter.
     void marg_poisson_test(double &result)
@@ -480,53 +502,6 @@ namespace Gambit
         else ExampleBit_A_error().raise(LOCAL_INFO,"Unrecognised choice from lnlike_marg_poisson BEgroup.");
 
         logger() << "This is marg_poisson_test using req " << *BEgroup::lnlike_marg_poisson << ". My result is " << result << EOM;
-    }
-
-
-    /// Example of using a BOSSed version of Pythia
-    void bossed_pythia_test_function(bool &result)
-    {
-      using namespace Pipes::bossed_pythia_test_function;
-
-      cout << "Testing Pythia backend" << endl;
-      cout << "======================" << endl;
-
-      static str default_doc_path = GAMBIT_DIR "/Backends/installed/Pythia/" +
-                                    Backends::backendInfo().default_version("Pythia") +
-                                    "/share/Pythia8/xmldoc/";
-
-      Pythia_default::Pythia8::Pythia pythia(default_doc_path, false);
-
-      pythia.readString("Beams:eCM = 8000.");
-      pythia.readString("HardQCD:all = on");
-      pythia.readString("PhaseSpace:pTHatMin = 20.");
-
-      pythia.readString("Next:numberShowInfo = 0");
-      pythia.readString("Next:numberShowProcess = 0");
-      pythia.readString("Next:numberShowEvent = 0");
-
-      pythia.init();
-
-      Pythia_default::Pythia8::Hist mult("charged multiplicity", 2, -0.5, 799.5);
-      // Begin event loop. Generate event. Skip if error. List first one.
-      for (int iEvent = 0; iEvent < 2; ++iEvent) {
-        if (!pythia.next()) continue;
-        // Find number of all final charged particles and fill histogram.
-        int nCharged = 0;
-        for (int i = 0; i < pythia.event.size(); ++i)
-          if (pythia.event[i].isFinal() && pythia.event[i].isCharged())
-            ++nCharged;
-        mult.fill( nCharged );
-        cout << "Event: " << iEvent << "   nCharged: " << nCharged << endl;
-      // End of event loop. Statistics. Histogram. Done.
-      }
-
-      pythia.stat();
-
-      cout << "Done testing Pythia backend" << endl;
-      cout << "===========================" << endl;
-
-      result = true;
     }
 
 
@@ -554,6 +529,21 @@ namespace Gambit
 
     /// Flat test likelihood for checking prior distributions
     void flat_likelihood(double &result){ result = 1; }
+
+    /// A function that just returns 1
+    void const_one(int& result){ result = 1; }
+
+    /// Chained addition function that adds 1
+    void recursive_add_1(int& result){ result = 1 + *Pipes::recursive_add_1::Dep::starting_value; }
+
+    /// Chained addition function that adds 2
+    void recursive_add_2(int& result){ result = 2 + *Pipes::recursive_add_2::Dep::recursive_sum; }
+
+    /// Chained addition function that adds 3
+    void recursive_add_3(int& result){ result = 3 + *Pipes::recursive_add_3::Dep::recursive_sum; }
+
+    /// Chained addition function that adds 4
+    void recursive_add_4(int& result){ result = 4 + *Pipes::recursive_add_4::Dep::recursive_sum; }
 
     /// @}
   }

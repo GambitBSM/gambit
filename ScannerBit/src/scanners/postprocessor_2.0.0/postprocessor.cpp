@@ -39,6 +39,7 @@
 #include <sstream>
 
 // GAMBIT
+#include "gambit/Logs/logger.hpp"
 #include "gambit/Utils/mpiwrapper.hpp"
 #include "gambit/Utils/util_functions.hpp"
 #include "gambit/Utils/new_mpi_datatypes.hpp"
@@ -49,10 +50,8 @@
 using namespace Gambit;
 using namespace Gambit::PostProcessor;
 
-// Forward declare this template specialisation as extern so that we use the definition compiled into baseprinter.cpp
-extern template std::size_t Gambit::Printers::getTypeID<double>();
 
-// The reweigher Scanner plugin
+// The reweighter Scanner plugin
 scanner_plugin(postprocessor, version(2, 0, 0))
 {
   reqd_inifile_entries("like","reader");
@@ -64,9 +63,10 @@ scanner_plugin(postprocessor, version(2, 0, 0))
   int numtasks;
   int rank;
 
-  // Tags for messages
-  const int request_work_tag=10;
-  const int quit_tag=11;
+  #ifdef WITH_MPI
+    /// Tag for messages
+    const int request_work_tag=10;
+  #endif
 
   /// The reader object in use for the scan
   Gambit::Printers::BaseBaseReader* reader;
@@ -77,10 +77,13 @@ scanner_plugin(postprocessor, version(2, 0, 0))
   /// Options for PPDriver;
   PPOptions settings;
 
+  /// Allow extra log output for this process (need to restrict master process since it loops a lot)
+  bool this_rank_verbose;
+  
   // Retrieve an integer from an environment variable
   int getintenv(const std::string& name)
   {
-     int x;
+     int x = 0;
      if(const char* env_p = std::getenv(name.c_str()))
      {
        std::stringstream env_s(env_p);
@@ -110,15 +113,14 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     // Get MPI data. No communication is needed, we just need to know how to
     // split up the workload. Just a straight division among all processes is
     // used, nothing fancy.
-#ifdef WITH_MPI
-    MPI_Comm_size(MPI_COMM_WORLD, &s_numtasks); // MPI requires unsigned ints here, so we'll just convert afterwards
-    MPI_Comm_rank(MPI_COMM_WORLD, &s_rank);
-
-#else
-    s_numtasks = 1;
-    s_rank = 0;
-#endif
-    numtasks = s_numtasks;
+    #ifdef WITH_MPI
+      MPI_Comm_size(MPI_COMM_WORLD, &s_numtasks); // MPI requires unsigned ints here, so we'll just convert afterwards
+      MPI_Comm_rank(MPI_COMM_WORLD, &s_rank);
+    #else
+      s_numtasks = 1;
+      s_rank = 0;
+    #endif
+      numtasks = s_numtasks;
     rank = s_rank;
 
     if(rank==0) std::cout << "Initialising 'postprocessor' plugin for ScannerBit..." << std::endl;
@@ -140,6 +142,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     settings.data_labels = reader->get_all_labels();
 
     // Set up other options for the plugin
+    settings.verbose = get_inifile_value<bool>("verbose_logging", true); // They are all marked as 'debug', so need debug: true in the yaml file. But can turn them off by setting verbose_logging: false.
     settings.update_interval = get_inifile_value<std::size_t>("update_interval", 1000);
     settings.add_to_logl = get_inifile_value<std::vector<std::string>>("add_to_like", std::vector<std::string>());
     settings.subtract_from_logl = get_inifile_value<std::vector<std::string>>("subtract_from_like", std::vector<std::string>());
@@ -160,12 +163,12 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     if(get_inifile_value<bool>("use_virtual_rank",false))
     {
         #ifdef WITH_MPI
-        if(numtasks>1)
-        {
-          std::ostringstream err;
-          err << "You have set the 'use_virtual_rank' option for the postprocessor scanner plugin to 'true', which will allow the plugin to act as if it is part of an MPI ensemble when it really isn't, however you are also running this task in an MPI batch with size > 1! You cannot use the virtual rank system at the same time as running a real MPI job! Please choose one configuration or the other and rerun the job.";
-          scan_error().raise(LOCAL_INFO,err.str());
-        }
+          if(numtasks>1)
+          {
+            std::ostringstream err;
+            err << "You have set the 'use_virtual_rank' option for the postprocessor scanner plugin to 'true', which will allow the plugin to act as if it is part of an MPI ensemble when it really isn't, however you are also running this task in an MPI batch with size > 1! You cannot use the virtual rank system at the same time as running a real MPI job! Please choose one configuration or the other and rerun the job.";
+            scan_error().raise(LOCAL_INFO,err.str());
+          }
         #endif
         rank     = getintenv("RANK");
         numtasks = getintenv("SIZE");
@@ -179,6 +182,9 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     // Transfer MPI variables to PPOptions
     settings.rank = rank;
     settings.numtasks = numtasks;
+
+    // Set rank-specific verbosity
+    if(((rank==0 and numtasks==1) or (rank!=0 and numtasks>1)) and settings.verbose) this_rank_verbose=true;
 
     // Size of chunks to be distributed to worker processes
     settings.chunksize = get_inifile_value<std::size_t>("batch_size",1);
@@ -207,9 +213,9 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         std::ostringstream err;
         err<<"Detected 'print_timing_data: true' in master YAML file. At present this option is not compatible with\
  the postprocessor, sorry! Please set 'print_timing_data: false' and try again"<<std::endl;
-        Scanner::scan_error().raise(LOCAL_INFO,err.str()); 
+        Scanner::scan_error().raise(LOCAL_INFO,err.str());
     }
- 
+
   }
 
   /// Main run function
@@ -233,6 +239,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     settings.all_params.insert("MPIrank"); // These should be re-printed the same as they were anyway
     settings.all_params.insert("pointID");
     settings.all_params.insert(settings.logl_purpose_name); // If there is a name clash and the run was not aborted, we are to discard the old data under this name.
+    settings.all_params.insert("Modified" + settings.logl_purpose_name);
     settings.all_params.insert(settings.reweighted_loglike_name); //   "  "
     #ifdef WITH_MPI
     settings.comm = &ppComm;
@@ -249,20 +256,25 @@ scanner_plugin(postprocessor, version(2, 0, 0))
 
     // Ask the printer if this is a resumed run or not
     bool resume = get_printer().resume_mode();
- 
-    // Vector to record which processes have been told by the master to stop. 
+
+    // Vector to record which processes have been told by the master to stop.
     // Master cannot stop until all other processes have stopped.
     std::vector<bool> process_has_stopped(numtasks); // For end of run
 
     // Rank 0 needs to figure out which points are already processesed (if resuming)
     std::cout << "PP resume flag? "<<resume<<std::endl;
     if(resume)
-    { 
+    {
         if(rank==0)
         {
-            std::cout << "Analysing previous output to determine remaining postprocessing work (may take a little time for large datasets)..." << std::endl;
- 
-            // Set up reader object for temporary output file, if one exists 
+            std::stringstream ss;
+            ss << "Analysing previous output to determine remaining postprocessing work (may take a little time for large datasets)...";
+            std::cout << ss.str() << std::endl;
+            if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << ss.str() << EOM; 
+
+           
+            // Set up reader object for temporary output file, if one exists
+
             //Gambit::Options resume_reader_options = get_inifile_node("resume_reader");
             //get_printer().new_reader("done_points",resume_reader_options);
 
@@ -270,14 +282,17 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             // There is a special function for this
             // Resume reader is always called "resume".
             get_printer().create_resume_reader();
-            Gambit::Printers::BaseBaseReader* resume_reader = get_printer().get_reader("resume"); 
+            Gambit::Printers::BaseBaseReader* resume_reader = get_printer().get_reader("resume");
             done_chunks = get_done_points(*resume_reader);
 
             // Delete the reader object
             get_printer().delete_reader("resume"); 
-            std::cout << "Distributing information about remaining work to all processes..." << std::endl; 
+            ss.clear();
+            ss << "Distributing information about remaining work to all processes..."; 
+            std::cout << ss.str() << std::endl;;
+            if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << ss.str() << EOM; 
         }
- 
+
         #ifdef WITH_MPI
         if(numtasks>1)
         {
@@ -287,14 +302,15 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             // delivery times. TODO: review this if startup is too slow.
 
             // First tell all processes how many chunks to expect
-            std::size_t num_chunks;
-            if(rank==0) num_chunks = done_chunks.size();
-            ppComm.Bcast(num_chunks, 1, 0); // Broadcast to all workers from master
+            std::vector<std::size_t> num_chunks_buf(1);
+            if(rank==0) num_chunks_buf.push_back(done_chunks.size());
+            ppComm.Bcast(num_chunks_buf, 1, 0); // Broadcast to all workers from master
+            std::size_t num_chunks = num_chunks_buf.at(0);
 
             ChunkSet::iterator chunk=done_chunks.begin();
             for(std::size_t i=0; i<num_chunks; i++)
             {
-                std::size_t chunkdata[3]; // Raw form of chunk information
+                std::vector<std::size_t> chunkdata(3); // Raw form of chunk information
                 if(rank==0)
                 {
                    if(chunk!=done_chunks.end())
@@ -303,14 +319,14 @@ scanner_plugin(postprocessor, version(2, 0, 0))
                       chunkdata[1] = chunk->end;
                       chunkdata[2] = chunk->eff_length;
                       chunk++;
-                   } 
+                   }
                    else
                    {
                       std::ostringstream err;
                       err << "Iterated past end of done_chunks!";
-                      scan_error().raise(LOCAL_INFO,err.str()); 
+                      scan_error().raise(LOCAL_INFO,err.str());
                    }
-                }   
+                }
 
                 ppComm.Bcast(chunkdata, 3, 0); // Broadcast to all workers from master
 
@@ -326,18 +342,35 @@ scanner_plugin(postprocessor, version(2, 0, 0))
         }
         #endif
 
-        if(rank==0) 
+        // I think the above broadcast should be blocking, but lets do a barrier here to make sure no strange writing occurs before
+        // this resume analysis is complete
+        #ifdef WITH_MPI
+        ppComm.Barrier();
+        #endif
+
+        if(rank==0)
         {
-            std::cout << "Postprocessing resume analysis completed." << std::endl;
+            std::stringstream ss;
+            ss << "Postprocessing resume analysis completed.";
+            std::cout << ss.str() << std::endl;
+            if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << ss.str() << EOM; 
         }
 
+        if(settings.verbose) 
+        {
+            logger() << LogTags::debug << LogTags::scanner << "Rank "<<rank<<" believes that the following chunks have already been processed:"<<std::endl;
+            for(auto chunk=done_chunks.begin(); chunk!=done_chunks.end(); ++chunk)
+            {
+               logger() << "   "<<chunk->start<<" -> "<<chunk->end<<std::endl;
+            }
+            logger() << EOM; 
+        }
         // DEBUG
         //std::cout << "Rank "<<rank<<" believes that the following chunks have already been processed:"<<std::endl;
         //for(auto chunk=done_chunks.begin(); chunk!=done_chunks.end(); ++chunk)
         //{
         //   std::cout << "   "<<chunk->start<<" -> "<<chunk->end<<std::endl;
-        //} 
-
+        //}
     }
 
     // Tell the driver routine what points it can automatically skip
@@ -352,14 +385,19 @@ scanner_plugin(postprocessor, version(2, 0, 0))
     {
        Chunk mychunk; // Work to be performed this loop
 
+       //Too verbose; removing messages that would totally spam logs
+       if(this_rank_verbose) logger() << LogTags::debug << LogTags::scanner << "In main postprocessor chunk processing loop. Chunk to process is ["<<mychunk.start<<" -> "<<mychunk.end<<"]." << EOM;  
+
        #ifdef WITH_MPI
          if(rank==0 and numtasks==1)
          {
+            if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Rank zero task is only task; retrieving new chunk for ourselves to process" << EOM;
             // Compute new work for this one process.
             mychunk = driver.get_new_chunk();
          }
          else if(rank==0)
          { 
+            //if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Master process checking for work requests from other processes..." << EOM;
             // Master checks for work requests from other processes
             for(int worker=1; worker<numtasks; worker++)
             {
@@ -368,7 +406,8 @@ scanner_plugin(postprocessor, version(2, 0, 0))
                {
                   // Receive the work request message (no information, just cleaning up)
                   int quit_flag = 0; // The message itself propagates quit flags, if seen by workers
-                  //std::cout<<"Master waiting for message from "<<worker<<std::endl;
+                  if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Worker on rank "<<worker<<" has no more work. Receiving message to determined whether to send more work or quit." << EOM;
+ 
                   ppComm.Recv(&quit_flag,1,worker,request_work_tag);
 
                   if(quit_flag==1)
@@ -381,6 +420,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
                   {
                      // Send stop signal to worker
                      newchunk = stopchunk;
+                     if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Worked on rank "<<worker<<" sent us the quit signal! Assigning it a stopchunk to trigger shutdown." << EOM;  
                   }
                   else
                   {
@@ -388,6 +428,8 @@ scanner_plugin(postprocessor, version(2, 0, 0))
                      newchunk = driver.get_new_chunk();
                   }
 
+                  if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Sending chunk ["<<newchunk.start<<"->"<<newchunk.end<<"] (effective length "<<newchunk.eff_length<<") to task "<<worker<<" for processing." << EOM;  
+ 
                   // Send work assignment
                   std::size_t chunkdata[3]; // Raw form of chunk information
                   chunkdata[0] = newchunk.start;
@@ -399,25 +441,37 @@ scanner_plugin(postprocessor, version(2, 0, 0))
                   if(newchunk==stopchunk)
                   {
                      process_has_stopped[worker] = true;
+                     if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Stop signal sent to worker "<<worker<< EOM;   
                   }
                }
             }
 
             // Set zero-length chunk for master
             bool any_still_running=false;
+            //if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Checking if worker processes are still running:"<<std::endl;  
             for(int i=1; i<numtasks; i++)
             {
-               if(process_has_stopped[i]==false) any_still_running=true;
+               if(process_has_stopped[i]==false) 
+               {
+                  any_still_running=true;
+                  //logger() << LogTags::debug << LogTags::scanner << "   Worker "<<i<<" is still running"<<std::endl;
+               }
+               else
+               {
+                  //logger() << LogTags::debug << LogTags::scanner << "   Worker "<<i<<" has stopped"<<std::endl;
+               }
             }
 
             if(any_still_running)
             {
                mychunk = Chunk(1,1,0); // Zero-length chunk; master doesn't process anything, but need to continue looping
+               //if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Some workers are still running, so master needs to continue looping." << EOM;  
             }
             else
             {
                // Everyone has been told to stop! So now master should stop too.
                mychunk = stopchunk;
+               if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "All processes have been told to stop. Triggering shutdown of master process." << EOM;  
             }
          }
          else
@@ -426,12 +480,12 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             int quit_flag = 0; // Use this message to propagate quit flag, if it has been seen
             if(quit_flag_seen) quit_flag = 1;
 
-            //std::cout<<"Rank "<<rank<<" sending message to Master "<<std::endl;
+            if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Worker "<<rank<<" is sending a work request message to master process (quit_flag="<<quit_flag<<")"<< EOM;  
+ 
             ppComm.Send(&quit_flag,1,0,request_work_tag);
 
             // Receive the work assignment
             std::size_t chunkdata[3]; // Raw form of chunk information
-            //std::cout<<"Rank "<<rank<<" receiving message from Master "<<std::endl;
             ppComm.Recv(&chunkdata,3,0,request_work_tag);
 
             // Check if any work in the work assignment
@@ -440,6 +494,8 @@ scanner_plugin(postprocessor, version(2, 0, 0))
             mychunk.start      = chunkdata[0];
             mychunk.end        = chunkdata[1];
             mychunk.eff_length = chunkdata[2];
+
+            if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Received new work from master: ["<<mychunk.start<<" -> "<<mychunk.end<<"] (effective size = "<<mychunk.eff_length<<")"<<EOM; 
          }
        #else
        // Compute new work for this one process.
@@ -447,26 +503,33 @@ scanner_plugin(postprocessor, version(2, 0, 0))
        {
           // Send stop signal
           mychunk = stopchunk;
-       } 
+       }
        else
        {
-          mychunk = driver.get_new_chunk(); 
+          mychunk = driver.get_new_chunk();
        }
        #endif
+
+
+       if(this_rank_verbose) logger() << LogTags::debug << LogTags::scanner << "Rank "<<rank<<": Chunk to process is ["<<mychunk.start<<", "<<mychunk.end<<"; eff_len="<<mychunk.eff_length<<"]"<<EOM;
 
        if((rank==0 and numtasks==1) or (rank!=0 and numtasks>1))
        {
           //std::cout << "Rank "<<rank<<": Chunk to process is ["<<mychunk.start<<", "<<mychunk.end<<"; eff_len="<<mychunk.eff_length<<"]"<<std::endl;
        }
 
+
        // Progress report
        unsigned long long npi = driver.next_point_index();
-       unsigned long long this_ri = npi / settings.update_interval;       
+       unsigned long long this_ri = npi / settings.update_interval;
        if(this_ri > ri)
        {
           // Issue progress report if we have crossed into a new reporting interval
-          std::cout << npi <<" of "<<driver.get_total_length()<<" points ("
-                    <<100*npi/driver.get_total_length()<<"%) have been distributed for processing"<<std::endl;
+          std::stringstream ss;
+          ss << npi <<" of "<<driver.get_total_length()<<" points ("
+                    <<100*npi/driver.get_total_length()<<"%) have been distributed for processing";
+          std::cout<<ss.str()<<std::endl;
+          if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << ss.str() << EOM;
           ri = this_ri;
        }
 
@@ -498,7 +561,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
           // 1 - Saw quit flag and so stopped prematurely
           // 2 - Encountered end of input file unexpectedly
           exit_code = driver.run_main_loop(mychunk);
-          //std::cout << "Rank "<<rank<<": exited loop with code "<<exit_code<<std::endl;
+          if(this_rank_verbose) logger() << LogTags::debug << LogTags::scanner << "Rank "<<rank<<": exited loop with code "<<exit_code<<EOM;
        }
        else
        {
@@ -515,7 +578,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
 
        if(exit_code==0)
        {
-          //std::cout << "Rank "<<rank<<" has finished processing its batch." << std::endl;
+          if(this_rank_verbose) logger() << LogTags::debug << LogTags::scanner << "Rank "<<rank<<" has finished processing its batch." << EOM;
        }
        else if(exit_code==1)
        {
@@ -523,6 +586,7 @@ scanner_plugin(postprocessor, version(2, 0, 0))
           // until the master process explicitly tells us to stop.
           // So do nothing until "continue_processing" flag gets set to false.
           quit_flag_seen = true;
+          if(settings.verbose) logger() << LogTags::debug << LogTags::scanner << "Quit flag seen, but haven't yet been told by master process to stop. Will continue processing loop." << EOM;  
           if(rank==0 and numtasks==1)
           {
              // If we are the only process then just stop.
@@ -543,9 +607,8 @@ scanner_plugin(postprocessor, version(2, 0, 0))
           err << "Postprocessing on "<<rank<<" terminated with an unrecognised return code ("<<exit_code<<"). This indicates a bug in the postprocessor, please report it.";
           scan_error().raise(LOCAL_INFO,err.str());
        }
-       
+
     }
-    //if(rank==0) std::cout << "Done!" << std::endl;
     std::cout << "Rank "<< rank<< ": Done!" << std::endl;
 
     // Test barrier to see if everyone made it

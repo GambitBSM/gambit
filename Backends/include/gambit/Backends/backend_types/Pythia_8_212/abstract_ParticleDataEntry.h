@@ -1,17 +1,18 @@
 #ifndef __abstract_ParticleDataEntry_Pythia_8_212_h__
 #define __abstract_ParticleDataEntry_Pythia_8_212_h__
 
+#include <cstddef>
+#include <iostream>
+#include <string>
 #include "gambit/Backends/abstractbase.hpp"
 #include "forward_decls_abstract_classes.h"
 #include "forward_decls_wrapper_classes.h"
-#include <string>
 #include "wrapper_ParticleData_decl.h"
 #include "wrapper_DecayChannel_decl.h"
+#include "wrapper_ResonanceWidths_decl.h"
 #include "wrapper_Info_decl.h"
 #include "wrapper_Settings_decl.h"
 #include "wrapper_Couplings_decl.h"
-#include <cstddef>
-#include <iostream>
 
 #include "identification.hpp"
 
@@ -29,29 +30,29 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual void initPtr__BOSS(Pythia8::Abstract_ParticleData*) =0;
     
-                virtual void setAll(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double, double) =0;
+                virtual void setAll(std::string, std::string, int, int, int, double, double, double, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double, double, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int, double) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int, double) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int, int) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int, int) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int, int) =0;
+                virtual void setAll__BOSS(std::string, std::string, int, int) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, int) =0;
+                virtual void setAll__BOSS(std::string, std::string, int) =0;
     
-                virtual void setAll__BOSS(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void setAll__BOSS(std::string, std::string) =0;
     
-                virtual void setName(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void setName(std::string) =0;
     
-                virtual void setAntiName(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void setAntiName(std::string) =0;
     
-                virtual void setNames(::std::basic_string<char, std::char_traits<char>, std::allocator<char> >, ::std::basic_string<char, std::char_traits<char>, std::allocator<char> >) =0;
+                virtual void setNames(std::string, std::string) =0;
     
                 virtual void setSpinType(int) =0;
     
@@ -93,9 +94,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual bool hasAnti() const =0;
     
-                virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name(int) const =0;
+                virtual ::std::string name(int) const =0;
     
-                virtual ::std::basic_string<char, std::char_traits<char>, std::allocator<char> > name__BOSS() const =0;
+                virtual ::std::string name__BOSS() const =0;
     
                 virtual int spinType() const =0;
     
@@ -218,6 +219,10 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
                 virtual bool preparePick__BOSS(int) =0;
     
                 virtual Pythia8::Abstract_DecayChannel& pickChannel__BOSS() =0;
+    
+                virtual void setResonancePtr__BOSS(Pythia8::Abstract_ResonanceWidths*) =0;
+    
+                virtual Pythia8::Abstract_ResonanceWidths* getResonancePtr__BOSS() =0;
     
                 virtual void resInit__BOSS(Pythia8::Abstract_Info*, Pythia8::Abstract_Settings*, Pythia8::Abstract_ParticleData*, Pythia8::Abstract_Couplings*) =0;
     

@@ -1,8 +1,8 @@
 #ifndef __wrapper_MSSMNoFV_onshell_def_gm2calc_1_3_0_hpp__
 #define __wrapper_MSSMNoFV_onshell_def_gm2calc_1_3_0_hpp__
 
-#include "wrapper_MSSMNoFV_onshell_mass_eigenstates_decl.hpp"
 #include <Eigen/Core>
+#include "wrapper_MSSMNoFV_onshell_mass_eigenstates_decl.hpp"
 
 #include "identification.hpp"
 
@@ -33,17 +33,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          get_BEptr()->set_alpha_thompson(arg_1);
       }
       
-      inline void MSSMNoFV_onshell::set_Ae(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A)
+      inline void MSSMNoFV_onshell::set_Ae(const Eigen::Matrix<double, 3, 3, 0>& A)
       {
          get_BEptr()->set_Ae(A);
       }
       
-      inline void MSSMNoFV_onshell::set_Au(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A)
+      inline void MSSMNoFV_onshell::set_Au(const Eigen::Matrix<double, 3, 3, 0>& A)
       {
          get_BEptr()->set_Au(A);
       }
       
-      inline void MSSMNoFV_onshell::set_Ad(const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& A)
+      inline void MSSMNoFV_onshell::set_Ad(const Eigen::Matrix<double, 3, 3, 0>& A)
       {
          get_BEptr()->set_Ad(A);
       }
@@ -103,17 +103,17 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->get_vev();
       }
       
-      inline const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& MSSMNoFV_onshell::get_Ae() const
+      inline const ::Eigen::Matrix<double, 3, 3, 0>& MSSMNoFV_onshell::get_Ae() const
       {
          return get_BEptr()->get_Ae();
       }
       
-      inline const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& MSSMNoFV_onshell::get_Au() const
+      inline const ::Eigen::Matrix<double, 3, 3, 0>& MSSMNoFV_onshell::get_Au() const
       {
          return get_BEptr()->get_Au();
       }
       
-      inline const ::Eigen::Matrix<double, 3, 3, 0, 3, 3>& MSSMNoFV_onshell::get_Ad() const
+      inline const ::Eigen::Matrix<double, 3, 3, 0>& MSSMNoFV_onshell::get_Ad() const
       {
          return get_BEptr()->get_Ad();
       }
@@ -198,47 +198,47 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
          return get_BEptr()->get_MA0();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USe() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USe() const
       {
          return get_BEptr()->get_USe();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USm() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USm() const
       {
          return get_BEptr()->get_USm();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_UStau() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_UStau() const
       {
          return get_BEptr()->get_UStau();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USu() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USu() const
       {
          return get_BEptr()->get_USu();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USd() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USd() const
       {
          return get_BEptr()->get_USd();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USc() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USc() const
       {
          return get_BEptr()->get_USc();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USs() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USs() const
       {
          return get_BEptr()->get_USs();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USb() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USb() const
       {
          return get_BEptr()->get_USb();
       }
       
-      inline const ::Eigen::Matrix<double, 2, 2, 0, 2, 2>& MSSMNoFV_onshell::get_USt() const
+      inline const ::Eigen::Matrix<double, 2, 2, 0>& MSSMNoFV_onshell::get_USt() const
       {
          return get_BEptr()->get_USt();
       }
@@ -275,14 +275,14 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Wrappers for original constructors: 
-      inline gm2calc::MSSMNoFV_onshell::MSSMNoFV_onshell() :
+      inline MSSMNoFV_onshell::MSSMNoFV_onshell() :
          MSSMNoFV_onshell_mass_eigenstates(__factory0())
       {
          get_BEptr()->set_wptr(this);
          get_BEptr()->set_delete_wrapper(false);
       }
       
-      inline gm2calc::MSSMNoFV_onshell::MSSMNoFV_onshell(const gm2calc::MSSMNoFV_onshell_mass_eigenstates& arg_1) :
+      inline MSSMNoFV_onshell::MSSMNoFV_onshell(const gm2calc::MSSMNoFV_onshell_mass_eigenstates& arg_1) :
          MSSMNoFV_onshell_mass_eigenstates(__factory1(arg_1))
       {
          get_BEptr()->set_wptr(this);
@@ -290,7 +290,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Special pointer-based constructor: 
-      inline gm2calc::MSSMNoFV_onshell::MSSMNoFV_onshell(gm2calc::Abstract_MSSMNoFV_onshell* in) :
+      inline MSSMNoFV_onshell::MSSMNoFV_onshell(Abstract_MSSMNoFV_onshell* in) :
          MSSMNoFV_onshell_mass_eigenstates(in)
       {
          get_BEptr()->set_wptr(this);
@@ -298,7 +298,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Copy constructor: 
-      inline gm2calc::MSSMNoFV_onshell::MSSMNoFV_onshell(const MSSMNoFV_onshell& in) :
+      inline MSSMNoFV_onshell::MSSMNoFV_onshell(const MSSMNoFV_onshell& in) :
          MSSMNoFV_onshell_mass_eigenstates(in.get_BEptr()->pointer_copy__BOSS())
       {
          get_BEptr()->set_wptr(this);
@@ -306,7 +306,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Assignment operator: 
-      inline gm2calc::MSSMNoFV_onshell& MSSMNoFV_onshell::operator=(const MSSMNoFV_onshell& in)
+      inline MSSMNoFV_onshell& MSSMNoFV_onshell::operator=(const MSSMNoFV_onshell& in)
       {
          if (this != &in)
          {
@@ -317,7 +317,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       
       
       // Destructor: 
-      inline gm2calc::MSSMNoFV_onshell::~MSSMNoFV_onshell()
+      inline MSSMNoFV_onshell::~MSSMNoFV_onshell()
       {
          if (get_BEptr() != 0)
          {
@@ -332,9 +332,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
       }
       
       // Returns correctly casted pointer to Abstract class: 
-      inline gm2calc::Abstract_MSSMNoFV_onshell* gm2calc::MSSMNoFV_onshell::get_BEptr() const
+      inline Abstract_MSSMNoFV_onshell* gm2calc::MSSMNoFV_onshell::get_BEptr() const
       {
-         return dynamic_cast<gm2calc::Abstract_MSSMNoFV_onshell*>(BEptr);
+         return dynamic_cast<Abstract_MSSMNoFV_onshell*>(BEptr);
       }
    }
    

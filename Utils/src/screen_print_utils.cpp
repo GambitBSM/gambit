@@ -204,6 +204,8 @@ namespace Gambit
 
     void print_to_screen(const std::string &file_in, const std::string &name)
     {
+        if (file_in.empty()) return;
+
         std::string file = format_for_screen(file_in);
         char temp_file[20] = "_gambit_temp_XXXXXX";
         int err = mkstemp(temp_file);

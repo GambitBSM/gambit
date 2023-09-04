@@ -1,0 +1,16 @@
+--- DMsimpVectorMedVectorDM/Makefile    2014-04-03 15:29:30.000000000 +0100
++++ DMsimpVectorMedVectorDM/Makefile_patched    2019-10-08 16:23:45.576576545 +0100
+@@ -45,6 +45,13 @@ libs:
+    $(MAKE) -C work
+    $(MAKE) -C lib
+
++sharedlib: all
++ifeq (,$(main)) 
++	@echo Main program is not specified. Use gmake main='<code of main program>'
++else  
++	$(CXX) -shared -fPIC -o libmicromegas.so $(main) $(SSS) $(lDL)
++endif
++
+ clean: 
+    $(MAKE) -C lib  clean
+    $(MAKE) -C work clean 

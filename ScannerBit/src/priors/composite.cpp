@@ -250,7 +250,7 @@ namespace Gambit
                             }
                             else 
                             {
-                                //shown_param_names.push_back(joined_parname);
+                                shown_param_names.push_back(joined_parname);
                                 needSet.insert(joined_parname);
                             }
                         }
