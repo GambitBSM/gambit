@@ -62,7 +62,6 @@ namespace Gambit
 //        if(!(count%1000)) std::cout << "number of events with 2 electrons = " << count2 << std::endl;
 //        if(!(count%1000)) std::cout << "number of events with 3 electrons = " << count3 << std::endl;
 
-        // TODO: Unsure on what to do about electron and muon efficiencies
         BASELINE_PARTICLES(electrons, baselineElectrons, 5., 0., 30., 2.5, CMS::eff2DEl.at("SUS-18-004"))
         BASELINE_PARTICLES(muons, baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
         BASELINE_JETS(jets, baselineJets, 25., 0., DBL_MAX, 2.4)
@@ -162,9 +161,8 @@ namespace Gambit
 
         // Invariant mass of leptonic-decaying tau pairs
         double mTauTau=0;
-        if (nSignalLeptons == 2)
+        if (nSignalLeptons == 2 and nOSSFpairs > 0)
         {
-          // TODO: Don't understand this implementation or where it comes from, but I'll take it as I have nothing else
           double determinant = signalLeptons.at(0)->mom().px() * signalLeptons.at(1)->mom().py() - signalLeptons.at(0)->mom().py() * signalLeptons.at(1)->mom().px();
           double xi_1 = (mmom.px() * signalLeptons.at(1)->mom().py() - signalLeptons.at(1)->mom().px() * mmom.py()) / determinant;
           double xi_2 = (mmom.py() * signalLeptons.at(0)->mom().px() - signalLeptons.at(0)->mom().py() * mmom.px()) / determinant;
@@ -211,6 +209,7 @@ namespace Gambit
         ////////////////////
         // Signal Regions //
 
+
         // 2lEW, low MET,  signal regions
         if(met > 125. and metcorr > 125. and metcorr <= 200. and
            nSignalLeptons == 2 and
@@ -227,7 +226,6 @@ namespace Gambit
            nSignalBJets == 0 and
            mTauTau < 0 and mTauTau > 160)
         {
-//          LOG_CUT("2lEW1", "2lEW2", "2lEW3", "2lEW4")
 
           if(mllOSSF > 4.  and mllOSSF <= 10.) { FILL_SIGNAL_REGION("2lEW1"); }
           if(mllOSSF > 10. and mllOSSF <= 20.) { FILL_SIGNAL_REGION("2lEW2"); }

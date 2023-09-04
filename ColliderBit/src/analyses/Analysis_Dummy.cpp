@@ -30,6 +30,7 @@ namespace Gambit
 
           // Define a single signal region and the associated cuts
           // DEFINE_SIGNAL_REGION(SRNAME, CF1, CF2, ...)
+          // Fills _counters and _cutflows variables
           // By default the Preselection and Final cuts are always defined
           DEFINE_SIGNAL_REGION("SR")
 
@@ -51,6 +52,8 @@ namespace Gambit
 
           //////////////////////
           // Baseline objects //
+
+          // HEPUtils objects: photons, electrons, muons, taus, invisibles, jets
 
           // Define baseline objects with BASELINE(object_type, variable_name, minpT, mineta[, maxpT, maxeta, efficiency])
           BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
