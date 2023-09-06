@@ -90,7 +90,7 @@ namespace Gambit
         ///@}
 
         // Get the collection of cutflows for the analysis
-        const Cutflows get_cutflows();
+        const Cutflows& get_cutflows();
 
         /// Scale by xsec per event.
         void scale(double);

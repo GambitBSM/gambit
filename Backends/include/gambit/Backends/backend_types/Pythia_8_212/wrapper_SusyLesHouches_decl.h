@@ -33,8 +33,8 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
             public:
                 std::string& slhaFile;
                 std::map<int, int>& decayIndices;
-                std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersName;
-                std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersAntiName;
+                std::vector<std::string>& qnumbersName;
+                std::vector<std::string>& qnumbersAntiName;
         
                 // Member functions: 
             public:
