@@ -102,6 +102,7 @@ namespace Gambit
         collect_results();
         _needs_collection = false;
       }
+
       return _results;
     }
 
@@ -137,6 +138,12 @@ namespace Gambit
 
     /// Add the given result to the internal results list.
     void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
+
+    /// Get the cutflows
+    const Cutflows& Analysis::get_cutflows()
+    {
+      return _results.cutflows;
+    }
 
     /// Add cutflows to the internal results list
     void Analysis::add_cutflows(const Cutflows& cf)
@@ -191,7 +198,10 @@ namespace Gambit
       {
         _results[i].combine_SR_MC_signal(otherResults[i]);
       }
-      combine(other);
+      for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
+      _cutflows.combine(other->get_cutflows());
+      _results.add_cutflows(_cutflows);
+
     }
 
   }

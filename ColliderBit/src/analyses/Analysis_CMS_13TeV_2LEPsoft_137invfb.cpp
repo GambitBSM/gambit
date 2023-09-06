@@ -33,7 +33,7 @@ namespace Gambit
 
       Analysis_CMS_13TeV_2LEPsoft_137invfb()
       {
-        DEFINE_SIGNAL_REGIONS("2lEW",19, "Test")
+        DEFINE_SIGNAL_REGIONS("2lEW",19)
         DEFINE_SIGNAL_REGIONS("3lEW", 9)
         DEFINE_SIGNAL_REGIONS("2lST",24)
 
@@ -209,7 +209,6 @@ namespace Gambit
         ////////////////////
         // Signal Regions //
 
-
         // 2lEW, low MET,  signal regions
         if(met > 125. and metcorr > 125. and metcorr <= 200. and
            nSignalLeptons == 2 and
@@ -224,7 +223,7 @@ namespace Gambit
            HT > 100. and
            metcorr/HT  > 2./3 and metcorr/HT < 1.4 and
            nSignalBJets == 0 and
-           mTauTau < 0 and mTauTau > 160)
+           (mTauTau < 0 or mTauTau > 160) )
         {
 
           if(mllOSSF > 4.  and mllOSSF <= 10.) { FILL_SIGNAL_REGION("2lEW1"); }
@@ -249,7 +248,7 @@ namespace Gambit
            HT > 100. and
            metcorr/HT  > 2./3 and metcorr/HT < 1.4 and
            nSignalBJets == 0 and
-           mTauTau < 0 and mTauTau > 160)
+           (mTauTau < 0 or mTauTau > 160) )
         {
           if(metcorr > 200. and metcorr <= 240. and mllOSSF > 1.  and mllOSSF <=  4.) { FILL_SIGNAL_REGION("2lEW5"); }
           if(metcorr > 200. and metcorr <= 240. and mllOSSF > 4.  and mllOSSF <= 10.) { FILL_SIGNAL_REGION("2lEW6"); }
@@ -282,7 +281,7 @@ namespace Gambit
            HT > 100. and
            metcorr/HT  > 2./3 and metcorr/HT < 1.4 and
            nSignalBJets == 0 and
-           mTauTau < 0 and mTauTau > 160)
+           (mTauTau < 0 or mTauTau > 160) )
         {
           if(signalLeptons.at(0)->pT() >  3.5 and signalLeptons.at(0)->pT() <=  8.) { FILL_SIGNAL_REGION("2lST1"); }
           if(signalLeptons.at(0)->pT() >  8.  and signalLeptons.at(0)->pT() <= 12.) { FILL_SIGNAL_REGION("2lST2"); }
@@ -307,7 +306,7 @@ namespace Gambit
            HT > 100. and
            metcorr/HT  > 2./3 and metcorr/HT < 1.4 and
            nSignalBJets == 0 and
-           mTauTau < 0 and mTauTau > 160)
+           (mTauTau < 0 or mTauTau > 160) )
         {
           if(metcorr > 200. and metcorr <= 290. and signalLeptons.at(0)->pT() >  3.5 and signalLeptons.at(0)->pT() <=  8.) { FILL_SIGNAL_REGION("2lST7"); }
           if(metcorr > 200. and metcorr <= 290. and signalLeptons.at(0)->pT() >  8.  and signalLeptons.at(0)->pT() <= 12.) { FILL_SIGNAL_REGION("2lST8"); }
@@ -372,11 +371,8 @@ namespace Gambit
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
       void combine(const Analysis* other)
       {
-        const Analysis_CMS_13TeV_2LEPsoft_137invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_2LEPsoft_137invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
 
       }
 

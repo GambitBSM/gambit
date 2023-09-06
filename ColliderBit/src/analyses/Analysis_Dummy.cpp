@@ -54,6 +54,7 @@ namespace Gambit
           // Baseline objects //
 
           // HEPUtils objects: photons, electrons, muons, taus, invisibles, jets
+          // HEPUtils variables: met, missingmom
 
           // Define baseline objects with BASELINE(object_type, variable_name, minpT, mineta[, maxpT, maxeta, efficiency])
           BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
