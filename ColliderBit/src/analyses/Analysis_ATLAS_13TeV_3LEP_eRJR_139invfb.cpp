@@ -417,11 +417,11 @@ namespace Gambit
 	    //
 	    std::vector<TLorentzVector> leptons_boost_tl(3,TLorentzVector(0.,0.,0.,0.));
 	    for (int ilep=0; ilep<3; ilep++) {
-	      leptons_boost_tl[ilep].SetPtEtaPhiM(signalLeptons[ilep].pT(), signalLeptons[ilep].eta(), signalLeptons[ilep].phi(), signalLeptons[ilep].m());
+	      leptons_boost_tl[ilep].SetPtEtaPhiM(signalLeptons[ilep]->pT(), signalLeptons[ilep]->eta(), signalLeptons[ilep]->phi(), signalLeptons[ilep]->mass());
 	      leptons_boost_tl[ilep].Boost(-boostx, -boosty, -boostz);
 	    }
 	    std::cout << "TL leptons_boost " << leptons_boost_tl[0].P() << " " << leptons_boost_tl[1].P() << " " << leptons_boost_tl[2].P() << std::endl;
-	    std::cout << "MW leptons_boost " << leptons_boost[0].P() << " " << leptons_boost[1].P() << " " << leptons_boost[2].P() << std::endl;
+	    std::cout << "MW leptons_boost " << leptons_boost[0].p() << " " << leptons_boost[1].p() << " " << leptons_boost[2].p() << std::endl;
 	    
 	    
 	  }
