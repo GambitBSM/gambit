@@ -8,7 +8,7 @@
 /// This uses emulations of the RJR variables to prove the RJR excesses in the previous dataset
 ///  *********************************************
 
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 //#define BENCHMARK "WZ_300_200"
 //#define BENCHMARK "WZ_600_100"
 // #define BENCHMARK "Wh_190_60"
@@ -16,8 +16,6 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
-#include "TLorentzVector.h"
-
 
 using namespace std;
 
@@ -374,26 +372,41 @@ namespace Gambit
 
 	    //
 
+	    double bx = -boostx;
+	    double by = -boosty;
+	    double bz = -boostz;
+	    double b2 = bx*bx + by*by + bz*bz;
+	    double gamma = 1.0 / sqrt(1.0 - b2);
+
+	    double metX = vMETprime.px();
+	    double metY = vMETprime.py();
+	    double metZ = vMETprime.pz();
+	    double metT = vMETprime.E();
+	    
+	    double met_bp = bx*metX + by*metY + bz*metZ;
+	    double met_gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
+
+	    // Boost the MET
+	    // Note that there is a mistake in the ATLAS code snippet
+	    // They forget to boost this
+	    vMETprime.setXYZE(metX + met_gamma2*met_bp*bx + gamma*bx*metT,
+					  metY + met_gamma2*met_bp*by + gamma*by*metT,
+					  metZ + met_gamma2*met_bp*bz + gamma*bz*metT,
+					  gamma*(metT + met_bp));
+	    
 	    std::vector<HEPUtils::P4> leptons_boost(3,HEPUtils::P4(0.,0.,0.,0.));
 	    
 	    for (int ilep=0; ilep<3; ilep++) {
-
-	      // Now have to perform the boost
-	      // Will use a custom version of the TLorentzVector boost function
-	      double bx = -boostx;
-	      double by = -boosty;
-	      double bz = -boostz;
-	      double b2 = bx*bx + by*by + bz*bz;
-	      double gamma = 1.0 / sqrt(1.0 - b2);
 
 	      double X = signalLeptons[ilep]->mom().px();
 	      double Y = signalLeptons[ilep]->mom().py();
 	      double Z = signalLeptons[ilep]->mom().pz();
 	      double T = signalLeptons[ilep]->mom().E();
-	      
+
 	      double bp = bx*X + by*Y + bz*Z;
 	      double gamma2 = b2 > 0 ? (gamma - 1.0)/b2 : 0.0;
 
+	      
 	      leptons_boost[ilep].setXYZE(X + gamma2*bp*bx + gamma*bx*T,
 					  Y + gamma2*bp*by + gamma*by*T,
 					  Z + gamma2*bp*bz + gamma*bz*T,
@@ -405,24 +418,11 @@ namespace Gambit
 	    
 	    HTratio = meff3l / H_boost;
 	    pTratio = pTsoftPP / (pTsoftPP + meff3l);
-	  
+	    
 	    // Signal regions
 	    if (signalLeptons.at(0)->pT()>60. && signalLeptons.at(1)->pT()>40. && signalLeptons.at(2)->pT()>30. && njets==0 && mTW>100. && H_boost>250. && pTratio<0.05 && HTratio>0.9)_counters.at("SR-low").add_event(event);
 	    if (signalLeptons.at(0)->pT()>25. && signalLeptons.at(1)->pT()>25. && signalLeptons.at(2)->pT()>20. && njets>0 && njets<4 && mTW>100. && fabs(dphijetsinv)>2.0 && Rjetsinv>0.55 && Rjetsinv<1.0  && pTjets>100. && met>80. && pTsoft<25.)_counters.at("SR-ISR").add_event(event);
 
-	    // Try the H_boost variable again using TLorentzVectors
-	    // Just try doing the boost with ROOT stuff to compare against my calculation
-	    TLorentzVector vMETprime_tl;
-	    vMETprime_tl.SetXYZM(vMET.px(), vMET.py(), long_inv, 0.);
-	    //
-	    std::vector<TLorentzVector> leptons_boost_tl(3,TLorentzVector(0.,0.,0.,0.));
-	    for (int ilep=0; ilep<3; ilep++) {
-	      leptons_boost_tl[ilep].SetPtEtaPhiM(signalLeptons[ilep]->pT(), signalLeptons[ilep]->eta(), signalLeptons[ilep]->phi(), signalLeptons[ilep]->mass());
-	      leptons_boost_tl[ilep].Boost(-boostx, -boosty, -boostz);
-	    }
-	    std::cout << "TL leptons_boost " << leptons_boost_tl[0].P() << " " << leptons_boost_tl[1].P() << " " << leptons_boost_tl[2].P() << std::endl;
-	    std::cout << "MW leptons_boost " << leptons_boost[0].p() << " " << leptons_boost[1].p() << " " << leptons_boost[2].p() << std::endl;
-	    
 	    
 	  }
 
