@@ -114,6 +114,7 @@ namespace Gambit
       F(CMS_13TeV_0LEP_36invfb)                      \
       F(CMS_13TeV_0LEP_137invfb)                     \
       F(CMS_13TeV_1LEPbb_36invfb)                    \
+      F(CMS_13TeV_1LEPbb_137invfb)                   \
       F(CMS_13TeV_1LEPStop_36invfb)                  \
       F(CMS_13TeV_2LEPStop_36invfb)                  \
       F(CMS_13TeV_2LEPsoft_36invfb)                  \
