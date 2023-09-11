@@ -23,7 +23,7 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    class Analysis_CMS_13TeV_1LEPbb_36invfb : public Analysis
+    class Analysis_CMS_13TeV_1LEPbb_137invfb : public Analysis
     {
     private:
       std::map<string, EventCounter> _counters = {
@@ -332,7 +332,7 @@ namespace Gambit
       /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
       void combine(const Analysis *other)
       {
-        const Analysis_CMS_13TeV_1LEPbb_36invfb *specificOther = dynamic_cast<const Analysis_CMS_13TeV_1LEPbb_36invfb *>(other);
+        const Analysis_CMS_13TeV_1LEPbb_137invfb *specificOther = dynamic_cast<const Analysis_CMS_13TeV_1LEPbb_137invfb *>(other);
 
         for (auto &pair : _counters)
         {
