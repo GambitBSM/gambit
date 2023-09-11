@@ -14,7 +14,7 @@
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
-#define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 
 using namespace std;

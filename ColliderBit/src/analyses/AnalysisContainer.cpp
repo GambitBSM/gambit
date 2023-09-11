@@ -56,7 +56,7 @@ namespace Gambit
 
     #define MAP_ANALYSES_WITH_ROOT(F)                \
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
-
+      
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
@@ -86,6 +86,7 @@ namespace Gambit
       F(ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb) \
       F(ATLAS_13TeV_2OSLEP_chargino_binned_139invfb) \
       F(ATLAS_13TeV_3LEP_139invfb)                   \
+      F(ATLAS_13TeV_3LEP_eRJR_139invfb)              \
       F(ATLAS_13TeV_4LEP_36invfb)                    \
       F(ATLAS_13TeV_4LEP_139invfb)                   \
       F(ATLAS_13TeV_2bMET_36invfb)                   \
@@ -113,6 +114,7 @@ namespace Gambit
       F(CMS_13TeV_0LEP_36invfb)                      \
       F(CMS_13TeV_0LEP_137invfb)                     \
       F(CMS_13TeV_1LEPbb_36invfb)                    \
+      F(CMS_13TeV_1LEPbb_137invfb)                   \
       F(CMS_13TeV_1LEPStop_36invfb)                  \
       F(CMS_13TeV_2LEPStop_36invfb)                  \
       F(CMS_13TeV_2LEPsoft_36invfb)                  \
