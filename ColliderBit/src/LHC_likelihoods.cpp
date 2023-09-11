@@ -138,11 +138,11 @@ namespace Gambit
           const SignalRegionData srData = (*ana_data)[SR];
 
           const str key = ana_name + "__" + srData.sr_label + "__i" + std::to_string(SR) + "__eff";
-          result[key] = srData.n_sig_scaled / loop_info["event_count_"+coll_name];
-          const double n_sig_scaled_err = srData.calc_n_sig_scaled_err();
-          result[key + "_uncert"] = n_sig_scaled_err / loop_info["event_count_"+coll_name];
+          result[key] = srData.n_sig_MC / loop_info["event_count_"+coll_name];
+          const double n_sig_MC_err = srData.calc_n_sig_MC_err();
+          result[key + "_uncert"] = n_sig_MC_err / loop_info["event_count_"+coll_name];
 
-          summary_line << srData.sr_label + "__i" + std::to_string(SR) << ":" << srData.n_sig_scaled << "+-" << n_sig_scaled_err << ", ";
+          summary_line << srData.sr_label + "__i" + std::to_string(SR) << ":" << srData.n_sig_MC << "+-" << n_sig_MC_err << ", ";
         }
       }
       logger() << LogTags::debug << summary_line.str() << EOM;
