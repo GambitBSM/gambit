@@ -24,6 +24,7 @@
 ///
 ///  \author Tomas Gonzalo
 ///          (tomas.gonzalo@kit.edu)
+///  \date 2019 June
 ///  \date 2023 Aug
 ///
 ///  *********************************************
@@ -56,7 +57,7 @@ namespace Gambit
 
     #define MAP_ANALYSES_WITH_ROOT(F)                \
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
-      
+
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
       F(Covariance)                                  \
@@ -100,6 +101,7 @@ namespace Gambit
       F(ATLAS_13TeV_PhotonGGM_1Photon_139invfb)      \
       F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
       F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
+      F(ATLAS_13TeV_2LEPsoft_139invfb)               \
       F(ATLAS_8TeV_0LEP_20invfb)                     \
       F(ATLAS_8TeV_0LEPStop_20invfb)                 \
       F(ATLAS_8TeV_1LEPStop_20invfb)                 \
