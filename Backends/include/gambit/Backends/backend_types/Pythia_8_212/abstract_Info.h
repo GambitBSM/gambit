@@ -327,7 +327,7 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual ::std::string header(const std::string&) =0;
     
-                virtual ::std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > > headerKeys() =0;
+                virtual ::std::vector<std::string> headerKeys() =0;
     
                 virtual int nProcessesLHEF() =0;
     
@@ -337,9 +337,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual std::vector<double>& sigmaLHEFSave_ref__BOSS() =0;
     
-                virtual std::map<std::basic_string<char>, std::basic_string<char>, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, std::basic_string<char> > > >*& eventAttributes_ref__BOSS() =0;
+                virtual std::map<std::string, std::string>*& eventAttributes_ref__BOSS() =0;
     
-                virtual std::map<std::basic_string<char>, double, std::less<std::basic_string<char> >, std::allocator<std::pair<const std::basic_string<char>, double> > >*& weights_detailed_ref__BOSS() =0;
+                virtual std::map<std::string, double>*& weights_detailed_ref__BOSS() =0;
     
                 virtual std::vector<double>*& weights_compressed_ref__BOSS() =0;
     

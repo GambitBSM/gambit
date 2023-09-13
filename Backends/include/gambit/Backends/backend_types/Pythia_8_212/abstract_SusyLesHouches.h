@@ -54,9 +54,9 @@ namespace CAT_3(BACKENDNAME,_,SAFE_VERSION)
     
                 virtual std::map<int, int>& decayIndices_ref__BOSS() =0;
     
-                virtual std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersName_ref__BOSS() =0;
+                virtual std::vector<std::string>& qnumbersName_ref__BOSS() =0;
     
-                virtual std::vector<std::basic_string<char>, std::allocator<std::basic_string<char> > >& qnumbersAntiName_ref__BOSS() =0;
+                virtual std::vector<std::string>& qnumbersAntiName_ref__BOSS() =0;
     
                 virtual int verbose() =0;
     

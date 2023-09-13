@@ -385,7 +385,9 @@ namespace Gambit
           std::cout << "-----------------" << std::endl;
 
           if(normalized_cutflows)
+          {
             adp->cutflows.normalize(Dep::TotalCrossSection->xsec() * adp->luminosity);
+          }
           std::cout << adp->cutflows << std::endl;
         }
       }

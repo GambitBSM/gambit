@@ -38,7 +38,7 @@ namespace Gambit
         DEFINE_SIGNAL_REGIONS("2lST",24)
 
         set_analysis_name("CMS_13TeV_2LEPsoft_137invfb");
-        set_luminosity(35.9);
+        set_luminosity(137.);
       }
 
       void run(const HEPUtils::Event* event)
@@ -47,49 +47,40 @@ namespace Gambit
         //////////////////////
         // Baseline objects //
 
-        static long count = 0;
-        count++;
-
-        static long count1 = 0, count2 = 0, count3 = 0;
-
-        int nleptons = event->electrons().size() + event->muons().size();
-
-        if(nleptons == 1)  count1 ++;
-        if(nleptons == 2)  count2 ++;
-        if(nleptons == 3)  count3 ++;
-
-//        if(!(count%1000)) std::cout << "number of events with 1 electron = " << count1 << std::endl;
-//        if(!(count%1000)) std::cout << "number of events with 2 electrons = " << count2 << std::endl;
-//        if(!(count%1000)) std::cout << "number of events with 3 electrons = " << count3 << std::endl;
-
         BASELINE_PARTICLES(electrons, baselineElectrons, 5., 0., 30., 2.5, CMS::eff2DEl.at("SUS-18-004"))
         BASELINE_PARTICLES(muons, baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
+        BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons)
         BASELINE_JETS(jets, baselineJets, 25., 0., DBL_MAX, 2.4)
         BASELINE_BJETS(jets, baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::missIDBJet.at("DeepCSVMedium"))
-
-        static long bcount1 = 0, bcount2 = 0, bcount3 = 0;
-
-        int nbleptons = baselineElectrons.size() + baselineMuons.size();
-
-        if(nbleptons == 1)  bcount1 ++;
-        if(nbleptons == 2)  bcount2 ++;
-        if(nbleptons == 3)  bcount3 ++;
-
-//        if(!(count%1000)) std::cout << "number of events with 1 electron = " << bcount1 << std::endl;
-//        if(!(count%1000)) std::cout << "number of events with 2 electrons = " << bcount2 << std::endl;
-//        if(!(count%1000)) std::cout << "number of events with 3 electrons = " << bcount3 << std::endl;
-
-
-        // Remove overlaps
-        // TODO: I don't understand the isolation criteria, so don't apply it
 
         ////////////////////
         // Signal objects //
         SIGNAL_PARTICLES(baselineElectrons, signalElectrons)
         SIGNAL_PARTICLES(baselineMuons, signalMuons)
-        SIGNAL_PARTICLE_COMBINATION(signalLeptons, signalElectrons, signalMuons)
         SIGNAL_JETS(baselineJets, signalJets)
         SIGNAL_JETS(baselineBJets, signalBJets)
+
+        // Construct signal leptons by only adding signal electrons and muons that satisfy isolation requirements
+        // From the 36 invfb paper (1801.01846) I gather that the isolation criteria are:
+        // - absolute: pT sum of other charged particle tracks (leptons?) within DeltaR < 0.3 < 5 GeV
+        // - relative: pT sum of other charged particle tracks (leptons?) within DeltaR < 0.3 / pT < 0.5
+        std::vector<const HEPUtils::Particle*> signalLeptons;
+        for(auto &lep1: baselineLeptons)
+        {
+          double pTsum = 0;
+          for(auto &lep2: baselineLeptons)
+            if(lep1 != lep2 and deltaR_eta(lep1->mom(), lep2->mom()) < 0.3)
+              pTsum += lep2->pT();
+          for(auto &jet: baselineJets)
+            if(deltaR_eta(lep1->mom(), jet->mom()) < 0.3)
+              pTsum += jet->pT();
+
+          if(pTsum < 5. and pTsum/lep1->pT() < 0.5)
+            signalLeptons.push_back(lep1);
+        }
+        sortByPt(signalLeptons);
+
+
 
         // Pairs containers
         // - OS pairs, unique and ordered from lowest invariant mass
@@ -195,16 +186,13 @@ namespace Gambit
 
         // Trigger paths
         bool trigger_path_1 = metcorr > 120;
-        bool trigger_path_2 = metcorr > 60. and met > 50. and  nSignalMuons > 2 and signalMuons.at(0)->pT() > 3 and signalMuons.at(1)->pT() > 3 and
+        bool trigger_path_2 = metcorr > 60. and met > 50. and  nSignalMuons >= 2 and signalMuons.at(0)->pT() > 3 and signalMuons.at(1)->pT() > 3 and
              (signalMuons.at(0)->mom() + signalMuons.at(1)->mom()).m() > 3.8 and  (signalMuons.at(0)->mom() + signalMuons.at(1)->mom()).m() < 56;
         // TODO: Trigger path only important for WZ regions, check if it matters
         //bool trigger_path_3 = metcorr > 60. and met > 50. and  nSignalMuons > 2 and signalMuons.at(0)->pT() > 17 and signalMuons.at(1)->pT() > 8;
         if(not trigger_path_1 and not trigger_path_2/* and not trigger_path_3*/) return;
 
         END_PRESELECTION
-
-//        std::cout<< "met = " << met << ", metcorr = " << metcorr << std::endl;
-
 
         ////////////////////
         // Signal Regions //
