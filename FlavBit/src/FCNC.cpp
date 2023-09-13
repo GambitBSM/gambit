@@ -1111,6 +1111,31 @@ namespace Gambit
       if (flav_debug) std::cout << "HEPLike_B2mumu_LogLikelihood_LHCb result: " << result << std::endl;
     }
 
+    /// HEPLike LogLikelihood B -> l l (combination CMS ATLAS LHCb)
+    /// Recognised sub-capabilities:
+    ///    BRuntag_Bsmumu
+    ///    BR_Bdmumu
+    void HEPLike_B2mumu_LogLikelihood_CMS_ATLAS_LHCb(double &result)
+    {
+      if (flav_debug) std::cout << "Starting HEPLike_B2mumu_LogLikelihood_CMS_ATLAS_LHCb"<<std::endl;
+      using namespace Pipes::HEPLike_B2mumu_LogLikelihood_CMS_ATLAS_LHCb;
+      static const std::string inputfile = path_to_latest_heplike_data() + "/data/B2MuMu_CMS-ATLAS-LHCb/CMS-ATLAS-LHCb-2022-combination.yaml";
+      static std::vector<str> obs_list = Downstream::subcaps->getNames();
+      static std::vector<HepLike_default::HL_nDimGaussian> nDimGaussian;
+
+      if (obs_list.empty()) FlavBit_error().raise(LOCAL_INFO, "No subcapabilities specified!");
+
+      nDimGaussian.push_back(HepLike_default::HL_nDimGaussian(inputfile));
+      nDimGaussian[0].Read();
+      update_obs_list(obs_list, nDimGaussian[0].GetObservables());
+
+      result = 0;
+      result += nDimGaussian[0].GetLogLikelihood(get_obs_theory(*Dep::prediction_B2mumu, obs_list), get_obs_covariance(*Dep::prediction_B2mumu, obs_list));
+
+      if (flav_debug) std::cout << "HEPLike_B2mumu_LogLikelihood_CMS_ATLAS_LHCb result: " << result << std::endl;
+    }
+
+
     /// HEPLike LogLikelihood B -> K* mu mu Angular (ATLAS)
     /// Recognised sub-capabilities:
     ///   FL

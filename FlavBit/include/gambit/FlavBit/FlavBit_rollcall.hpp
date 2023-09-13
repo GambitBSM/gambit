@@ -2129,6 +2129,16 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  ///HEPLike LogLikelihood B -> mu mu combination
+  #define CAPABILITY B2mumu_LogLikelihood_CMS_ATLAS_LHCb
+  START_CAPABILITY
+    #define FUNCTION HEPLike_B2mumu_LogLikelihood_CMS_ATLAS_LHCb
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_B2mumu, flav_prediction)
+    NEEDS_CLASSES_FROM(HepLike, default)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   ///HEPLike LogLikelihood B -> K* mu mu Angular
   #define CAPABILITY B2KstarmumuAng_LogLikelihood_Atlas
   START_CAPABILITY
