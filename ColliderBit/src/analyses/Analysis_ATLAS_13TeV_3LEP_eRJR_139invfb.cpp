@@ -35,10 +35,6 @@ namespace Gambit
 	};
 
       private:
-
-      
-      
-      
      
       public:
 
@@ -433,7 +429,7 @@ namespace Gambit
 
   	  bool cut_trigger=true;
 
-	  if (_cutflows["SR-ISR"].fillnext({
+	  _cutflows["SR-ISR"].fillnext({
                   cut_3lep && cut_SFOS,
 		  cut_trigger,
                   cut_bjet,
@@ -447,9 +443,9 @@ namespace Gambit
 		  pTjets>100.,
 		  met > 80.,
 		  mTW > 100.,
-		  pTsoft < 25.}, w))_counters.at("SR-ISR").add_event(event);
+		  pTsoft < 25.}, w);
 
-	  if (_cutflows["SR-low"].fillnext({
+	  _cutflows["SR-low"].fillnext({
                   cut_3lep && cut_SFOS,
 		  cut_trigger,
                   cut_bjet,
@@ -460,7 +456,7 @@ namespace Gambit
 		  H_boost>250.,
 		  pTratio<0.05,
 		  HTratio>0.9,
-		  mTW > 100.}, w))_counters.at("SR-low").add_event(event);
+		  mTW > 100.}, w);
 	  
 	  return;
         } // End of event analysis

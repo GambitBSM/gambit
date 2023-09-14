@@ -254,24 +254,24 @@ namespace Gambit
 	const double w = event->weight();
 	_cutflows.fillinit(w);
       
-	if (_cutflows["SRL"].fillnext({
+	_cutflows["SRL"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>145., met>250., nJets>=5,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w);
 
-	if (_cutflows["SRM"].fillnext({
+	_cutflows["SRM"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>300., met>300., nJets>=5,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w); 
 
-	if (_cutflows["SRH"].fillnext({
-                  nPhotons>=1 && pTLeadingPhoton > 140.,
-                  nPhotons>=1, nLep==0,
-                  pTLeadingPhoton>400., met>600., nJets>=3,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w)) _counters.at("SRL").add_event(event);
-	  
+	_cutflows["SRH"].fillnext({
+				   nPhotons>=1 && pTLeadingPhoton > 140.,
+				   nPhotons>=1, nLep==0,
+				   pTLeadingPhoton>400., met>600., nJets>=3,
+				   deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w);
+	
         return;
 
       }
