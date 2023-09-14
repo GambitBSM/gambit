@@ -31,9 +31,13 @@
 ///          (a.kvellestad@imperial.ac.uk)
 ///  \date 2019 Sep
 ///
-/// \author Tomasz Procter
+///  \author Tomasz Procter
 ///          (t.procter.1@research.gla.ac.uk)
-/// \date 2021 November
+///  \date 2021 November
+///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
 ///
 ///  *********************************************
 
@@ -353,6 +357,26 @@
     #define FUNCTION calc_LHC_signals
     START_FUNCTION(map_str_dbl)
     DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract the efficiencies x acceptance predictions and uncertainties per signal region
+  #define CAPABILITY LHC_efficiencies_per_SR
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_SR
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  /// Extract the efficiencies x acceptance predictions and uncertainties per analysis
+  #define CAPABILITY LHC_efficiencies_per_analysis
+  START_CAPABILITY
+    #define FUNCTION calc_LHC_efficiencies_per_analysis
+    START_FUNCTION(map_str_dbl)
+    DEPENDENCY(AllAnalysisNumbers, AnalysisDataPointers)
+    DEPENDENCY(LHCEventLoopInfo, map_str_dbl)
     #undef FUNCTION
   #undef CAPABILITY
 

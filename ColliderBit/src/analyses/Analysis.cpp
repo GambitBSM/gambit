@@ -22,6 +22,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include <vector>
@@ -37,6 +41,7 @@ namespace Gambit
                          , _luminosity_is_set(false)
                          , _is_scaled(false)
                          , _needs_collection(true)
+                         , _collider_name("")
                          { }
 
     /// Public method to reset this instance for reuse, avoiding the need for "new" or "delete".
@@ -79,6 +84,16 @@ namespace Gambit
     /// Get the analysis name
     str Analysis::analysis_name() { return _analysis_name; }
 
+    /// Set the collider name
+    void Analysis::set_collider_name(str collname)
+    {
+      _collider_name = collname;
+      _results.collider_name = _collider_name;
+    }
+
+    /// Get the collider name
+    str Analysis::collider_name() { return _collider_name; }
+
     /// Get the collection of SignalRegionData for likelihood computation.
     const AnalysisData& Analysis::get_results()
     {
@@ -87,6 +102,7 @@ namespace Gambit
         collect_results();
         _needs_collection = false;
       }
+
       return _results;
     }
 
@@ -122,6 +138,12 @@ namespace Gambit
 
     /// Add the given result to the internal results list.
     void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
+
+    /// Get the cutflows
+    const Cutflows& Analysis::get_cutflows()
+    {
+      return _results.cutflows;
+    }
 
     /// Add cutflows to the internal results list
     void Analysis::add_cutflows(const Cutflows& cf)
@@ -176,7 +198,10 @@ namespace Gambit
       {
         _results[i].combine_SR_MC_signal(otherResults[i]);
       }
-      combine(other);
+      for (auto& pair : _counters) { pair.second += other->_counters.at(pair.first); }
+      _cutflows.combine(other->get_cutflows());
+      _results.add_cutflows(_cutflows);
+
     }
 
   }

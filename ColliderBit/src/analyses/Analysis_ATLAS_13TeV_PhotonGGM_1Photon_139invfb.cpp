@@ -11,9 +11,10 @@
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
-// #define CHECK_CUTFLOW
+//#define CHECK_CUTFLOW
 
 
 using namespace std;
@@ -23,6 +24,10 @@ using namespace std;
 /// Based on:
 ///  - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2021-028/
 ///  - code in Analysis_ATLAS_13TeV_PhotonGGM_36invfb.cpp by Martin White
+///
+///
+/// August 2023: Updated to the paper version by Martin White
+/// https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-11/
 ///
 /// @author Anders Kvellestad
 ///
@@ -51,10 +56,32 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
+      Cutflows _cutflows;
+      
       Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb() 
       {
         set_analysis_name("ATLAS_13TeV_PhotonGGM_1Photon_139invfb");
         set_luminosity(139.);
+
+	_cutflows.addCutflow("SRL", {"Trigger (one photon pT > 140 GeV)",
+                                           "At least one photon", "Lepton veto",
+                                           "Leading photon pT > 145 GeV", "MET > 250 GeV",
+                                           "njets >= 5", "dPhi(jet,MET) > 0.4",
+				     "dPhi(gamma,MET)>0.4", "HT > 2000 GeV", "RT4<0.9",});
+
+	_cutflows.addCutflow("SRM", {"Trigger (one photon pT > 140 GeV)",
+                                           "At least one photon", "Lepton veto",
+                                           "Leading photon pT > 300 GeV", "MET > 300 GeV",
+                                           "njets >= 5", "dPhi(jet,MET) > 0.4",
+				     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV", "RT4<0.9",});
+
+	_cutflows.addCutflow("SRH", {"Trigger (one photon pT > 140 GeV)",
+                                           "At least one photon", "Lepton veto",
+                                           "Leading photon pT > 400 GeV", "MET > 600 GeV",
+                                           "njets >= 3", "dPhi(jet,MET) > 0.4",
+				     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV",});
+
+	
       }
 
       void run(const HEPUtils::Event* event)
@@ -65,83 +92,95 @@ namespace Gambit
         HEPUtils::P4 pmiss = event->missingmom();
 
 
-        // Photons
-        // - tight ID [MISSING]
-        // - pT > 50
-        // - |eta| < 2.37
-        // - |eta| not in (1.37, 1.52)
-        // - both track and calorimetric isolation requirements [MISSING]
-        vector<const HEPUtils::Particle*> signalPhotons;
+        // Baseline Photons
+        vector<const HEPUtils::Particle*> baselinePhotons;
         for (const HEPUtils::Particle* photon : event->photons())
         {
-          bool crack = (photon->abseta() > 1.37) && (photon->abseta() < 1.52);
-          if (photon->pT() > 50. && photon->abseta() < 2.37 && !crack) signalPhotons.push_back(photon);
+	  if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
         }
         // Apply photon efficiency
-        ATLAS::applyPhotonEfficiencyR2(signalPhotons);
+        ATLAS::applyPhotonEfficiencyR2(baselinePhotons);
 
 
-        // Electrons
-        // - pT > 25
-        // - |eta| < 2.47
-        // - |eta| not in (1.37, 1.52)
-        // - loose ID
-        // - loose isolation
-        vector<const HEPUtils::Particle*> signalElectrons;
+        // Baseline electrons
+        vector<const HEPUtils::Particle*> baselineElectrons;
         for (const HEPUtils::Particle* electron : event->electrons())
         {
           bool crack = (electron->abseta() > 1.37) && (electron->abseta() < 1.52);
-          if (electron->pT() > 25. && electron->abseta() < 2.47 && !crack) signalElectrons.push_back(electron);
+          if (electron->pT() > 10. && electron->abseta() < 2.47 && !crack) baselineElectrons.push_back(electron);
         }
         // Apply electron efficiency
-        ATLAS::applyElectronEff(signalElectrons);
+        ATLAS::applyElectronEff(baselineElectrons);
         // Apply loose electron ID efficiency
-        ATLAS::applyElectronIDEfficiency2020(signalElectrons, "Loose");
+        ATLAS::applyElectronIDEfficiency2020(baselineElectrons, "Loose");
         // Apply loose electron isolation efficiency
-        ATLAS::applyElectronIsolationEfficiency2020(signalElectrons, "Loose");
+        ATLAS::applyElectronIsolationEfficiency2020(baselineElectrons, "Loose");
 
 
-        // Muons
-        // - pT > 25
-        // - |eta| < 2.7
-        // - loose isolation
-        vector<const HEPUtils::Particle*> signalMuons;
+        // Baseline Muons
+	vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons())
         {
-          if (muon->pT() > 25. && muon->abseta() < 2.7) signalMuons.push_back(muon);
+          if (muon->pT() > 10. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
         }
         // Apply muon efficiency
-        ATLAS::applyMuonEff(signalMuons);
+        ATLAS::applyMuonEff(baselineMuons);
         // Apply loose muon isolation efficiency
-        ATLAS::applyMuonIsolationEfficiency2020(signalMuons, "Loose");
+        ATLAS::applyMuonIsolationEfficiency2020(baselineMuons, "Loose");
 
 
-        // Jets
-        // - pT > 30
-        // - |eta| < 2.5
-        vector<const HEPUtils::Jet*> signalJets;
+        // Baseline Jets
+        vector<const HEPUtils::Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets())
         {
-          if (jet->pT() > 30. && fabs(jet->eta()) < 2.5)
+          if (jet->pT() > 30. && fabs(jet->eta()) < 2.8)
           {
-            signalJets.push_back(jet);
+            baselineJets.push_back(jet);
           }
         }
 
 
         // Overlap removal
-        // - If jet and photon within deltaR < 0.4, remove jet
-        // - If jet and electron within deltaR < 0.2, remove jet
-        // - If jet and electron within 0.2 < deltaR < 0.4, remove electron
-        // - If jet and muon within deltaR < 0.4, remove muon
+	// Inspire by ATLAS code snippet on HEPData
+	// Doesn't exactly match the earlier paper decsription 
 
-        removeOverlap(signalPhotons,signalElectrons, 0.01); // <-- taken from ATLAS code snippets on HEPData
-        removeOverlap(signalJets, signalPhotons, 0.4);
-        removeOverlap(signalJets, signalElectrons, 0.2);
-        removeOverlap(signalElectrons, signalJets, 0.4);
-        removeOverlap(signalMuons, signalJets, 0.4);
+	removeOverlap(baselineElectrons, baselineMuons, 0.01);
+	removeOverlap(baselinePhotons, baselineElectrons, 0.4);
+	removeOverlap(baselinePhotons, baselineMuons, 0.4);
+	removeOverlap(baselineJets, baselineElectrons, 0.2);
+	removeOverlap(baselineElectrons, baselineJets, 0.4);
+	removeOverlap(baselineJets, baselinePhotons, 0.4);
 
+	// Define signal objects
+	vector<const HEPUtils::Particle*> signalElectrons;
+	vector<const HEPUtils::Particle*> signalMuons;
+	vector<const HEPUtils::Particle*> signalPhotons;
+	vector<const HEPUtils::Jet*> signalJets; 
 
+	
+	for (size_t i=0;i<baselinePhotons.size();i++)
+          {
+	    bool crack = (baselinePhotons.at(i)->abseta() > 1.37) && (baselinePhotons.at(i)->abseta() < 1.52);
+            if (baselinePhotons.at(i)->pT()>50. && !crack) signalPhotons.push_back(baselinePhotons.at(i));
+          }
+	
+	for (size_t i=0;i<baselineMuons.size();i++)
+          {
+            if (baselineMuons.at(i)->pT()>25.) signalMuons.push_back(baselineMuons.at(i));
+          }
+
+	for (size_t i=0;i<baselineElectrons.size();i++)
+          {
+	    bool crack = (baselineElectrons.at(i)->abseta() > 1.37) && (baselineElectrons.at(i)->abseta() < 1.52);
+            if (baselineElectrons.at(i)->pT()>25. && !crack) signalElectrons.push_back(baselineElectrons.at(i));
+          }
+
+	for (size_t i=0;i<baselineJets.size();i++)
+          {
+            if (baselineJets.at(i)->pT()>30.) signalJets.push_back(baselineJets.at(i));
+          }
+
+	
         // Put objects in pT order
         sortByPt(signalJets);
         sortByPt(signalElectrons);
@@ -210,6 +249,29 @@ namespace Gambit
         if (nPhotons >= 1 && pTLeadingPhoton > 300. && nLep == 0 && nJets >= 5 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 300. && HT > 1600. && RT4 < 0.9) _counters.at("SRM").add_event(event);
         if (nPhotons >= 1 && pTLeadingPhoton > 400. && nLep == 0 && nJets >= 3 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 600. && HT > 1600.) _counters.at("SRH").add_event(event);
 
+	// Increment cutflows for debugging
+
+	const double w = event->weight();
+	_cutflows.fillinit(w);
+      
+	_cutflows["SRL"].fillnext({
+                  nPhotons>=1 && pTLeadingPhoton > 140.,
+                  nPhotons>=1, nLep==0,
+                  pTLeadingPhoton>145., met>250., nJets>=5,
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w);
+
+	_cutflows["SRM"].fillnext({
+                  nPhotons>=1 && pTLeadingPhoton > 140.,
+                  nPhotons>=1, nLep==0,
+                  pTLeadingPhoton>300., met>300., nJets>=5,
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w); 
+
+	_cutflows["SRH"].fillnext({
+				   nPhotons>=1 && pTLeadingPhoton > 140.,
+				   nPhotons>=1, nLep==0,
+				   pTLeadingPhoton>400., met>600., nJets>=3,
+				   deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w);
+	
         return;
 
       }
@@ -232,6 +294,19 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SRM"), 0., { 2.55, 0.64}));
         add_result(SignalRegionData(_counters.at("SRH"), 5., { 2.55, 0.44}));
 
+	// Cutflow printout
+        #ifdef CHECK_CUTFLOW
+	  _cutflows["SRL"].normalize(47.26, 1);
+	  _cutflows["SRM"].normalize(79.60, 1);
+	  _cutflows["SRH"].normalize(92.73, 1);
+	  cout << "\nCUTFLOWS:\n" << _cutflows << endl;
+	  cout << "\nSRCOUNTS:\n";
+	  // for (double x : _srnums) cout << x << "  ";
+          for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
+          cout << "\n" << endl;
+	#endif
+	    
+	
         return;
       }
 

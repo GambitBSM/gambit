@@ -22,6 +22,10 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #pragma once
@@ -160,6 +164,9 @@ namespace Gambit
 
       /// Analysis name
       std::string analysis_name;
+
+      /// Collider name
+      std::string collider_name;
 
       /// Luminosity
       double luminosity;

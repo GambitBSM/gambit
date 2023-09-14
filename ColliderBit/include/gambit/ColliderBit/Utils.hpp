@@ -25,8 +25,8 @@
 ///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physk.rwth-aachen.de)
-///  \date 2021 Jul
+///          (tomas.gonzalo@kit.edu)
+///  \date 2021 Jul, 2023 Aug
 ///
 ///  *********************************************
 
@@ -193,12 +193,14 @@ namespace Gambit
     bool random_bool(double eff);
 
     /// Return a random true/false at a success rate given by a 1D efficiency map
-    inline bool random_bool(const HEPUtils::BinnedFn1D<double>& effmap, double x) {
+    inline bool random_bool(const HEPUtils::BinnedFn1D<double>& effmap, double x)
+    {
       return random_bool( effmap.get_at(x) );
     }
 
     /// Return a random true/false at a success rate given by a 2D efficiency map
-    inline bool random_bool(const HEPUtils::BinnedFn2D<double>& effmap, double x, double y) {
+    inline bool random_bool(const HEPUtils::BinnedFn2D<double>& effmap, double x, double y)
+    {
       return random_bool( effmap.get_at(x, y) );
     }
 
@@ -226,18 +228,41 @@ namespace Gambit
     /// @name Tagging
     //@{
 
+    /// Randomly get a tag result (can be anything) from a single number efficiency
+    inline bool has_tag(const double& eff)
+    {
+      return random_bool(eff);
+    }
+
+    /// Randomly get a tag result (can be anything) from a 1D pT efficiency map
+    inline bool has_tag(const HEPUtils::BinnedFn1D<double>& effmap, double pt)
+    {
+      try
+      {
+        return random_bool(effmap, pt);
+      }
+      catch(...)
+      {
+        return false; // No tag if outside lookup range... be careful!
+      }
+    }
+
     /// Randomly get a tag result (can be anything) from a 2D |eta|-pT efficiency map
     /// @todo Also need 1D? Sampling in what variable?
-    inline bool has_tag(const HEPUtils::BinnedFn2D<double>& effmap, double eta, double pt) {
-      try {
+    inline bool has_tag(const HEPUtils::BinnedFn2D<double>& effmap, double eta, double pt)
+    {
+      try
+      {
         return random_bool(effmap, fabs(eta), pt);
-      } catch (...) {
+      }
+      catch (...)
+      {
         return false; // No tag if outside lookup range... be careful!
       }
     }
 
     /// Return a map<Jet*,bool> containing a generated b-tag for every jet in the input vector
-    inline std::map<const HEPUtils::Jet*,bool> generateBTagsMap(const std::vector<const HEPUtils::Jet*>& jets, 
+    inline std::map<const HEPUtils::Jet*,bool> generateBTagsMap(const std::vector<const HEPUtils::Jet*>& jets,
                                                                 double bTagEff, double cMissTagEff, double otherMissTagEff,
                                                                 double pTmin = 0., double absEtaMax = DBL_MAX)
     {
@@ -247,16 +272,16 @@ namespace Gambit
         bool genBTag = false;
         if((j->pT() > pTmin) && (j->abseta() < absEtaMax))
         {
-          if(j->btag()) 
-          { 
+          if(j->btag())
+          {
             if(random_bool(bTagEff)) { genBTag = true; }
           }
-          else if(j->ctag()) 
-          { 
+          else if(j->ctag())
+          {
             if(random_bool(cMissTagEff)) { genBTag = true; }
           }
           else
-          { 
+          {
             if(random_bool(otherMissTagEff)) { genBTag = true; }
           }
         }
@@ -390,12 +415,16 @@ namespace Gambit
 
     /// Utility function for returning a collection of same-flavour, oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSFOSpairs(std::vector<const HEPUtils::Particle*> particles);
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of same-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getSSpairs(std::vector<const HEPUtils::Particle*> particles);
+
+    // Utility function for returning a collection of same-flavour particle pairs
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFpairs(std::vector<const HEPUtils::Particle*> particles);
 
     /// Utility function for returning a collection of b-tagged jets
     std::vector<std::vector<const HEPUtils::Jet*>> getBJetPairs(std::vector<const HEPUtils::Jet*> bjets);
@@ -484,7 +513,7 @@ namespace Gambit
         }
         return sum;
     }
-    
+
     //@}
 
 
@@ -496,8 +525,8 @@ namespace Gambit
     {
         double sum = 0.;
         for (const Particle* p : particles)
-        { 
-          if (p->pT() > pTlim) { sum += p->pT(); } 
+        {
+          if (p->pT() > pTlim) { sum += p->pT(); }
         }
         return sum;
     }
@@ -507,12 +536,12 @@ namespace Gambit
     {
         double sum = 0.;
         for (const Jet* j : jets)
-        { 
-          if (j->pT() > pTlim) { sum += j->pT(); } 
+        {
+          if (j->pT() > pTlim) { sum += j->pT(); }
         }
         return sum;
     }
-    
+
     //@}
 
     /// @name Transverse masses
@@ -582,7 +611,7 @@ namespace Gambit
 
     /// @name Particle sign helper functions
     //@{
-    
+
     /// Have two particles the same sign?
     inline bool sameSign(const Particle *P1, const Particle *P2)
     {
