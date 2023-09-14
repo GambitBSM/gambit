@@ -62,7 +62,12 @@ namespace Gambit
     double Analysis::luminosity() const { return _luminosity; }
 
     /// Set the integrated luminosity.
-    void Analysis::set_luminosity(double lumi) { _luminosity_is_set = true; _luminosity = lumi; }
+    void Analysis::set_luminosity(double lumi)
+    {
+      _luminosity_is_set = true;
+      _luminosity = lumi;
+      _results.luminosity = lumi;
+    }
 
     /// Set the analysis name
     void Analysis::set_analysis_name(str aname)
@@ -118,9 +123,15 @@ namespace Gambit
     /// Add the given result to the internal results list.
     void Analysis::add_result(const SignalRegionData& sr) { _results.add(sr); }
 
+    /// Add cutflows to the internal results list
+    void Analysis::add_cutflows(const Cutflows& cf)
+    {
+      _results.add_cutflows(cf);
+    }
+
     /// Set the path to the FullLikes BKG file
     void Analysis::set_bkgjson(const std::string& bkgpath)
-    { 
+    {
       _results.bkgjson_path = bkgpath;
     }
 

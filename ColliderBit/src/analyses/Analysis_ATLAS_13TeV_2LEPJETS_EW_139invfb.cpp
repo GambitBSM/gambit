@@ -8,7 +8,8 @@
 // Luminosity: 139 fb^-1
 // Note that this uses the ATLAS object-based met significance
 // Will approximate with event-based measure, but this will lead to discrepancies
-// TODO: Perhaps reformat to make neater
+// TODO: Perhaps reformat to make neater, and be consistent with Tomas' cutflow system
+// TODO: Implement the JSON HistFactory likelihood
 
 #include <vector>
 #include <cmath>
@@ -56,10 +57,8 @@ namespace Gambit
        {"SR_OffShell_b",EventCounter("SR_OffShell_b")}
       };
 
-      vector<Cutflow> _cutflow;
-
-      //vector<int> _test;
-      //int _test2;
+      //vector<Cutflow> _cutflow;
+      Cutflows _cutflows;
 
     private:
 
@@ -85,24 +84,31 @@ namespace Gambit
         set_analysis_name("ATLAS_13TeV_2LEPJETS_EW_139invfb");
         set_luminosity(139);
 
+        _cutflows.addCutflow("SR_High_8_a", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets <= 1", "mll: [71,111] GeV", "MET significance > 18", "mt2 > 80 GeV", "njets >=2", "mjj: [60,110] GeV", "delta Rjj < 0.8", "Met Significance < 21"});
+        _cutflows.addCutflow("SR_High_8_b", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets <= 1", "mll: [71,111] GeV", "MET significance > 18", "mt2 > 80 GeV", "njets >=2", "mjj: [60,110] GeV", "delta Rjj < 0.8", "Met Significance > 21"});
+        _cutflows.addCutflow("SR_High_16_a", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets <= 1", "mll: [71,111] GeV", "MET significance > 18", "mt2 > 80 GeV", "njets >=2", "mjj: [60,110] GeV", "delta Rjj: [0.8,1.6]", "Met Significance < 21"});
+        _cutflows.addCutflow("SR_High_16_b", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets <= 1", "mll: [71,111] GeV", "MET significance > 18", "mt2 > 80 GeV", "njets >=2", "mjj: [60,110] GeV", "delta Rjj: [0.8,1.6]", "Met Significance > 21"});
+        _cutflows.addCutflow("SR_High_4", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets <= 1", "mll: [71,111] GeV", "MET significance > 12", "mt2 > 80 GeV", "njets ==1", "mjj: [60,110] GeV"});
+        _cutflows.addCutflow("SR_llbb", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "mll: [71,111] GeV", "MET significance > 18", "mt2 > 80 GeV", "nbets >=2", "njets >=2", "mbb: [60,150] GeV"});
+        
+        _cutflows.addCutflow("SR_Int_a", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets == 0", "mll: [81,101] GeV", "MET significance: [12,18]", "mt2 > 80 GeV", "jet pt1 > 60 GeV", "njets >=2", "mjj: [60,110] GeV", "Met Significance < 15"});
+        _cutflows.addCutflow("SR_Int_b", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets == 0", "mll: [81,101] GeV", "MET significance: [12,18]", "mt2 > 80 GeV", "jet pt1 > 60 GeV", "njets >=2", "mjj: [60,110] GeV", "Met Significance > 15"});
+        
+        _cutflows.addCutflow("SR_Low_a", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets == 0", "mll: [81,101] GeV", "MET significance: [6,12]", "mt2 > 80 GeV", "njets ==2", "mjj: [60,110] GeV", "Rll < 1", "Met Significance < 9"});
+        _cutflows.addCutflow("SR_Low_b", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets == 0", "mll: [81,101] GeV", "MET significance: [6,12]", "mt2 > 80 GeV", "njets ==2", "mjj: [60,110] GeV", "Rll < 1", "Met Significance > 9"});
+        _cutflows.addCutflow("SR_Low_2", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets == 0", "mll: [81,101] GeV", "MET significance: [6,9]", "mt2 < 80 GeV", "njets ==2", "mjj: [60,110] GeV", "Rll < 1.6", "dphiPllMet < 0.6"});
+        
+        _cutflows.addCutflow("SR_OffShell_a", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets == 0", "mll: [12,71] GeV", "MET significance > 9", "mt2 > 100 GeV", "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2", "mll < 40"});
+        _cutflows.addCutflow("SR_OffShell_b", {"Gen Filter and SUSY kernal", "n baseline leptons >=2", "njets >= 1", "2 baseline and signal leptons", "mll > 12 GeV", "Same Flavour leptons", "Opposite Charge Leptons", "MET significance > 6", "ETmiss > 100 GeV", "n bjets == 0", "mll: [12,71] GeV", "MET significance > 9", "mt2 > 100 GeV", "njets >=2", "jet pt1 > 100", "Rll < 1.6", "dphiJ1met > 2", "mll > 40"});
 
-        str cutflow_name = "ATLAS 2 opposite sign leptons at the Z peak 13 TeV";
-        vector<str> SRZ1A = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 4", "MET > 250 GeV", "mT23l > 100 GeV"};
-        vector<str> SRZ1B = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 5", "MET > 150 GeV", "pTll > 150 GeV", "Leading b-tagged jet pT > 100 GeV"};
-        vector<str> SRZ2A = {"Trigger", "Third leading lepton pT < 20 GeV", "|mll - mZ| < 15 GeV", "Leading jet pT > 150 GeV", "MET > 200 GeV", "pTll < 50 GeV"};
-        vector<str> SRZ2B = {"Trigger", "Third leading lepton pT < 60 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "MET > 350 GeV", "pTll > 150 GeV"};
-        // vector<str> SRh1A = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 4", "S > 12"};
-        // vector<str> SRh1B = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 6", "S > 7"};
-        _cutflow = { Cutflow(cutflow_name, SRZ1A),
-                     Cutflow(cutflow_name, SRZ1B),
-                     Cutflow(cutflow_name, SRZ2A),
-                     Cutflow(cutflow_name, SRZ2B),
-                     // Cutflow(cutflow_name, SRh1A),
-                     // Cutflow(cutflow_name, SRh1B)
-        };
-        //_test = {0,0,0,0,0};
-        //_test2 = 0;
+      }
 
+      // Fill the next cutflow, do nothing if CHECK_CUTFLOW is not defined
+      void cutflow_fillnext(str SR, double weight)
+      {
+        #ifdef CHECK_CUTFLOW
+          _cutflows[SR].fillnext(weight);
+        #endif
       }
 
       void run(const HEPUtils::Event* event)
@@ -116,35 +122,47 @@ namespace Gambit
         vector<const HEPUtils::Jet*> baselineJets;
         vector<const HEPUtils::Jet*> baselineBJets;
         vector<const HEPUtils::Jet*> baselineNonBJets;
+        
+        // TODO: Some debugging objects for cutflows
+        vector<const HEPUtils::Particle*> GeneratorFilter; // TODO: Debugging Cutflow
+        vector<const HEPUtils::Particle*> SUSYKernal; // TODO: Debugging Cutflow
+        vector<const HEPUtils::Particle*> SUSYKernal_2; // TODO: Debugging Cutflow
+        bool highpT_photon = false; // TODO: Debugging Cutflow
 
         // Missing momentum and energy
         HEPUtils::P4 metVec = event->missingmom();
         double met = event->met();
 
-        //if(event->electrons().size() + event->muons().size() >= 3)
-        //  _test2++;
-
         // Initialize cutflow
-        for(size_t i=0; i<_cutflow.size(); i++)
-        {
-          _cutflow[i].fillinit();
-        }
+        #ifdef CHECK_CUTFLOW
+          const double w = event->weight();
+          _cutflows.fillinit(w);
+        #endif
 
-        // Baseline electrons have pT > 4.5 GeV, satisfy the "loose" criteria, and have |eta|<2.47. 
+        // Baseline electrons have pT > 4.5 GeV, satisfy the "loose" criteria, and have |eta|<2.47.
         for (const HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT() > 4.5 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
+          
+          if (electron->pT() > 7.0) GeneratorFilter.push_back(electron); // TODO: Debugging
+          if (electron->pT() > 9.0 && electron->abseta() < 2.6) SUSYKernal.push_back(electron); // TODO: Debugging
+          if (electron->pT() > 25.0 && electron->abseta() < 2.6) SUSYKernal_2.push_back(electron); // TODO: Debugging
         }
 
         // Apply electron efficiency
         // Loose electron ID selection
         ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
 
-        // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7 
+        // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
         for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 3. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
+          
+          if (muon->pT() > 7.) GeneratorFilter.push_back(muon); // TODO: Debugging
+          if (muon->pT() > 9. && muon->abseta() < 2.6) SUSYKernal.push_back(muon); // TODO: Debugging
+          if (muon->pT() > 25. && muon->abseta() < 2.6) SUSYKernal_2.push_back(muon); // TODO: Debugging
         }
+
 
         // Apply muon efficiency
         // Missing: "Medium" muon ID criteria
@@ -166,6 +184,9 @@ namespace Gambit
           {
             if (photon->abseta() < 1.37 || photon->abseta() > 1.52) baselinePhotons.push_back(photon);
           }
+          
+          // TODO: Debugging Cutflow
+          if (photon->pT() > 40. && photon->abseta() < 2.6) {highpT_photon = true;}// TODO: Debugging
         }
 
         double jet_eff = 0.9;
@@ -176,6 +197,12 @@ namespace Gambit
             if( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);
           }
         }
+        
+        
+        // TODO: Debugging, Removing events for the cutflow that do not pass the generator test
+        if (GeneratorFilter.size() < 2) {return;} // TODO: Debugging
+        if ((SUSYKernal.size() < 2) && (SUSYKernal_2.size() < 1 || !highpT_photon)) {return;} // TODO: Debugging
+        _cutflows.fillnext(w);  // TODO: Debugging
 
         // Overlap removal
         // 1) Remove muons with 0.01 of an electron, mimics shared tracks
@@ -184,7 +211,7 @@ namespace Gambit
         removeOverlap(baselineJets, baselineElectrons, 0.2);
         // 3) If any lepton has Delta R < min(0.4, 0.04 + 10/pT(l)) with a jet, remove the lepton.
         auto lambda = [](double lepton_pT) { return std::min(0.4, 0.04 + 10./(lepton_pT) ); };
-        removeOverlap(baselineElectrons, baselineJets, lambda);
+        //removeOverlap(baselineElectrons, baselineJets, lambda);
         // 4) Remove muons within 0.2 of jets (incorporates shared track approximation) // TODO: I think this is the wrong way around. I think the jet should be removed. Check This
         //removeOverlap(baselineMuons, baselineJets, 0.2); // TODO: Old version, remove after checking
         removeOverlap(baselineJets, baselineMuons, 0.2);
@@ -212,6 +239,7 @@ namespace Gambit
         {
           if (signalMuon->pT() > 25. && signalMuon->abseta() < 2.6) signalMuons.push_back(signalMuon);
         }
+
 
         // Signal jets must have pT > 30 GeV
         for (const HEPUtils::Jet* signalJet : baselineJets)
@@ -253,20 +281,16 @@ namespace Gambit
         size_t nbjets = signalBJets.size();
 
         /* Preselection */
-        // Require:
-        // exactly two leptons (> 25 GeV)
-        // both leptons of the Same Flavour (SF)
-        // both leptons of Opposite Sign (OS) charge *** except VR_SS
-        // lepton pair mass in (12, 111)
-        // at least one jet (> 30 GeV)
-        // missing energy: met > 100 GeV, met significance > 6 TODO: I can't see in the text, where the met > 100 GeV requirement comes from (I can see it in cutflows).
-        bool cut_2lep= true;
-        bool cut_SF= true;
-        bool cut_mll = true;
-        bool cut_1jet = true;
-        bool cut_metsig = true;
-        bool cut_OS = true;
-        bool EWK_2Ljets_presel = false;
+        // True if passes this cut, false otherwise
+        bool cut_2baselinelep = false; // At least 2 baseline leptons
+        bool cut_1jet = false; // At least one jet
+        bool cut_2lep = false; // exactly two leptons (> 25 GeV)
+        bool cut_mll = false; // lepton pair mass in (12, 111)
+        bool cut_SF = false; // both leptons of the Same Flavour (SF)
+        bool cut_OS = false; // both leptons of Opposite Sign (OS) charge *** except VR_SS
+        bool cut_metsig = false; // met significance > 6
+        bool cut_met = false; // missing energy: met > 100 GeV
+        bool EWK_2Ljets_presel = false; // Total Pre-selection cut
         
         // Initialise some useful variables
         double mll = 0;
@@ -280,45 +304,64 @@ namespace Gambit
         double Rll = 0;
         double dphiPllMet = 0;
         double dphiJ1met = 0;
+        
 
-        // exactly two leptons (> 25 GeV)
-        if (n_leptons != 2 || n_baseline_leptons != 2) cut_2lep=false;
-        
-        // both leptons of the Same Flavour (SF)
-        // since we have exactly two leptons,
-        // 0 electron <=> 2 muon => SF
-        // 1 electron <=> 1 muon => DF
-        // 2 electron <=> 0 muon => SF
-        if (signalElectrons.size() == 1) cut_SF=false;
-        
-        // Can only do most of the following if there are two signal leptons
-        if(cut_2lep)
+        // Perform all pre-selection cuts
+        while(true)
         {
-          // lepton pair mass in (12, 111)
-          HEPUtils::P4 dilepton = signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom(); // TODO: !! This will fail if there aren't two signal leptons, make sure that this is stopped from hitting this, but that the cutflows still work.
-          mll = dilepton.m();
-          if (!(12 < mll && mll < 111)) cut_mll = false;
+
+          // At least two baseline leptons
+          if (n_baseline_leptons >= 2) {cut_2baselinelep = true;}
+          else {break;}
 
           // at least one jet (> 30 GeV)
-          if (n_jets < 1) cut_1jet = false;
+          if (n_jets >= 1) {cut_1jet = true;}
+          else {break;}
+
+          // exactly two leptons (> 25 GeV)
+          if (n_leptons == 2 && n_baseline_leptons == 2) {cut_2lep = true;}
+          else {break;}
+          
+          // lepton pair mass in (12, 111)
+          HEPUtils::P4 dilepton = signalLeptons.at(0)->mom() + signalLeptons.at(1)->mom();
+          mll = dilepton.m();
+          if (12 < mll) {cut_mll = true;}
+          else {break;}
+          
+          // both leptons of the Same Flavour (SF)
+          // since we have exactly two leptons,
+          // 0 electron <=> 2 muon => SF
+          // 1 electron <=> 1 muon => DF
+          // 2 electron <=> 0 muon => SF
+          if (!(signalElectrons.size() == 1)) {cut_SF = true;}
+          else {break;}
+
+          // both leptons of Opposite Sign (OS) charge
+          if (!(signalLeptons.at(0)->pid() == signalLeptons.at(1)->pid())) {cut_OS = true;}
+          else {break;}
 
           // Approximate the significance using HT
           // Best we can do, but still rubbish compared to ATLAS definition :-(
-          double HT = 0.0;
-          for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
-          for (const HEPUtils::Particle* p : event->photons()) HT += p->pT();
-          for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
-          for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
+          //double HT = 0.0;
+          //for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
+          //for (const HEPUtils::Particle* p : baselinePhotons) HT += p->pT();
+          //for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
+          //for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
 
           // missing energy: met > 100 GeV, met significance > 6
-          if (!(met > 100)) return; // TODO: Still trying to understand why. Could it just be for testing
-          //double metsig = met/sqrt(HT); // TODO: The approximate method
-          metsig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, baselineJets, event->taus(), metVec); // TODO: Using ATLAS' Simple Analysis Framework
-          if (!(metsig > 6)) cut_metsig=false;
+          //metsig = met/sqrt(HT); // The approximate method
+          metsig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, baselineJets, event->taus(), metVec); // Using ATLAS' Simple Analysis Framework
+
+
+          if (metsig > 6) {cut_metsig = true;}
+          else {break;}
+
+          if (met > 100) {cut_met = true;}
+          else {break;}
         
           /* More event variables */
           dphiPllMet = fabs(dilepton.deltaPhi(metVec));
-          if (n_jets >= 1) dphiJ1met = fabs(signalJets.at(0)->mom().deltaPhi(metVec));
+          dphiJ1met = fabs(signalJets.at(0)->mom().deltaPhi(metVec));
 
           Rjj = 0.;
           if (n_jets >= 2)
@@ -333,15 +376,12 @@ namespace Gambit
             HEPUtils::P4 dibjets = signalBJets.at(0)->mom() + signalBJets.at(1)->mom();
             mbb = dibjets.m();
           }
-
-          if (n_jets >= 1)
-          {
-            jetpt1 = signalJets.at(0)->mom().pT();
-            jetm1 = signalJets.at(0)->mom().m();
-          }
+          
+          jetpt1 = signalJets.at(0)->mom().pT();
+          jetm1 = signalJets.at(0)->mom().m();
 
           Rll = fabs(signalLeptons.at(0)->mom().deltaR_eta(signalLeptons.at(1)->mom()));
-
+          
           double pLep1[3] = {signalLeptons.at(0)->mass(), signalLeptons.at(0)->mom().px(), signalLeptons.at(0)->mom().py()};
           double pLep2[3] = {signalLeptons.at(1)->mass(), signalLeptons.at(1)->mom().px(), signalLeptons.at(1)->mom().py()};
           double pMiss[3] = {0., event->missingmom().px(), event->missingmom().py() };
@@ -351,168 +391,461 @@ namespace Gambit
           mt2_calc.set_momenta(pLep1, pLep2, pMiss);
           mt2_calc.set_mn(mn);
           mt2 = mt2_calc.get_mt2();
+          
+          // If it has reached this point, it has passed pre-selection
+          EWK_2Ljets_presel = true;
+          
+          // Applied all cuts
+          break;
 
-          // both leptons of Opposite Sign (OS) charge
-          if (signalLeptons.at(0)->pid() == signalLeptons.at(1)->pid()) cut_OS = false;
         }
 
-        // If event doesn't pass trigger, exit early TODO: Can just remove hte cariable, and keep it at one if statement (perhaps keep for initial cutflow debugging)
-        if(cut_2lep &&
-           cut_SF &&
-           cut_mll &&
-           cut_1jet &&
-           cut_metsig &&
-           cut_OS) EWK_2Ljets_presel=true;
+        // Pre-selection cutflows
+        #ifdef CHECK_CUTFLOW
+          if (cut_2baselinelep) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+          if (cut_1jet) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+          if (cut_2lep) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+          if (cut_mll) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+          if (cut_SF) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+          if (cut_OS) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+          if (cut_metsig) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+          if (cut_met) {_cutflows.fillnext(w);} //cutflow_fillnext("SR_High_8_a", w);
+        #endif
+
+        // If event doesn't pass Pre-selection, exit early
         if (EWK_2Ljets_presel == false) return;
         
         /* Signal Regions */
-
-        // SR High presel
-        if (71 < mll && mll < 111 && mt2 > 80)
+        // Avoiding repetition with some of the more commonly used cuts
+        bool mll_71_111 = false; // mll between 71-111 GeV
+        bool mll_81_101 = false; // mll between 81-101 GeV
+        bool mt2_gt_80 = false; // mt2 greater than 80 GeV
+        bool mt2_lt_80 = false; // mt2 less than 80 GeV
+        bool mjj_60_110 = false; // mjj between 60-110 GeV
+        bool Rjj_lt_8 = false; // delta Rjj less than 0.8
+        bool Rjj_8_16 = false; // delta Rjj between 0.8 and 1.6
+        
+        if (71 < mll && mll < 111) {mll_71_111 = true;}
+        if (81 < mll && mll < 101) {mll_81_101 = true;}
+        if (mt2 > 80) {mt2_gt_80 = true;}
+        if (mt2 < 80) {mt2_lt_80 = true;}
+        if (Rjj < 0.8) {Rjj_lt_8 = true;}
+        if (0.8 < Rjj && Rjj < 1.6) {Rjj_8_16 = true;}
+        if (60 < mjj && mjj < 110) {mjj_60_110 = true;}
+        
+        // Apply each series of cuts to form the cutflows
+        
+        // SR_High_8/16_a/b
+        while (true)
         {
-
-          // SR_High_8_a
-          if (n_jets >= 2
-              && 18 < metsig && metsig < 21
-              && Rjj < 0.8
-              && 60 < mjj && mjj < 110
-              && nbjets <= 1)
+          if (nbjets <= 1)
           {
-            _counters.at("SR_High_8_a").add_event(event);
+            cutflow_fillnext("SR_High_8_a", w);
+            cutflow_fillnext("SR_High_8_b", w);
+            cutflow_fillnext("SR_High_16_a", w);
+            cutflow_fillnext("SR_High_16_b", w);
           }
-
-          // SR_High_8_b
-          if (n_jets >= 2
-              && metsig > 21
-              && Rjj < 0.8
-              && 60 < mjj && mjj < 110
-              && nbjets <= 1)
+          else
           {
-            _counters.at("SR_High_8_b").add_event(event);
+            break;
           }
-
-          // SR_High_16_a
-          if (n_jets >= 2
-              && 18 < metsig && metsig < 21
-              && 0.8 < Rjj && Rjj < 1.6
-              && 60 < mjj && mjj < 110
-              && nbjets <= 1)
+        
+          if (mll_71_111)
           {
-            _counters.at("SR_High_16_a").add_event(event);
+            cutflow_fillnext("SR_High_8_a", w);
+            cutflow_fillnext("SR_High_8_b", w);
+            cutflow_fillnext("SR_High_16_a", w);
+            cutflow_fillnext("SR_High_16_b", w);
           }
-
-          // SR_High_16_b
-          if (n_jets >= 2
-              && metsig > 21
-              && 0.8 < Rjj && Rjj < 1.6
-              && 60 < mjj && mjj < 110
-              && nbjets <= 1)
+          else
           {
-            _counters.at("SR_High_16_b").add_event(event);
+            break;
           }
-
-          // SR_High_4
-          if (n_jets == 1
-              && metsig > 12
-              && 60 < jetm1 && jetm1 < 110
-             && nbjets <= 1)
+            
+          if (metsig > 18)
           {
+            cutflow_fillnext("SR_High_8_a", w);
+            cutflow_fillnext("SR_High_8_b", w);
+            cutflow_fillnext("SR_High_16_a", w);
+            cutflow_fillnext("SR_High_16_b", w);
+          }
+          else
+          {
+            break;
+          }
+            
+          if (mt2_gt_80)
+          {
+            cutflow_fillnext("SR_High_8_a", w);
+            cutflow_fillnext("SR_High_8_b", w);
+            cutflow_fillnext("SR_High_16_a", w);
+            cutflow_fillnext("SR_High_16_b", w);
+          }
+          else
+          {
+            break;
+          }
+            
+          if (n_jets >= 2)
+          {
+            cutflow_fillnext("SR_High_8_a", w);
+            cutflow_fillnext("SR_High_8_b", w);
+            cutflow_fillnext("SR_High_16_a", w);
+            cutflow_fillnext("SR_High_16_b", w);
+          }
+          else
+          {
+            break;
+          }
+            
+          if (mjj_60_110)
+          {
+            cutflow_fillnext("SR_High_8_a", w);
+            cutflow_fillnext("SR_High_8_b", w);
+            cutflow_fillnext("SR_High_16_a", w);
+            cutflow_fillnext("SR_High_16_b", w);
+          }
+          else
+          {
+            break;
+          }
+            
+          if (Rjj_lt_8)
+          {
+            cutflow_fillnext("SR_High_8_a", w);
+            cutflow_fillnext("SR_High_8_b", w);
+              
+            if (metsig < 21)
+            {
+              cutflow_fillnext("SR_High_8_a", w);
+              _counters.at("SR_High_8_a").add_event(event);
+            }
+            else if (metsig > 21)
+            {
+              cutflow_fillnext("SR_High_8_b", w);
+              _counters.at("SR_High_8_b").add_event(event);
+            }
+          }
+          else if (Rjj_8_16)
+          {
+            cutflow_fillnext("SR_High_16_a", w);
+            cutflow_fillnext("SR_High_16_b", w);
+              
+            if (metsig < 21)
+            {
+              cutflow_fillnext("SR_High_16_a", w);
+              _counters.at("SR_High_16_a").add_event(event);
+            }
+            else if (metsig > 21)
+            {
+              cutflow_fillnext("SR_High_16_b", w);
+              _counters.at("SR_High_16_b").add_event(event);
+            }
+          }
+            
+          // Applied all cuts
+          break;
+        }
+        
+        // SR_High_4
+        while (true)
+        {
+          if (nbjets <= 1) {cutflow_fillnext("SR_High_4", w);}
+          else {break;}
+        
+          if (mll_71_111) {cutflow_fillnext("SR_High_4", w);}
+          else {break;}
+          
+          if (metsig > 12) {cutflow_fillnext("SR_High_4", w);}
+          else {break;}
+            
+          if (mt2_gt_80) {cutflow_fillnext("SR_High_4", w);}
+          else {break;}
+            
+          if (n_jets == 1) {cutflow_fillnext("SR_High_4", w);}
+          else {break;}
+            
+          if (60 < jetm1 && jetm1 < 110)
+          {
+            cutflow_fillnext("SR_High_4", w);
             _counters.at("SR_High_4").add_event(event);
           }
-
-          // SR_llbb
-          if (n_jets >= 2
-              && metsig > 18
-              && 60 < mbb && mbb < 150
-              && nbjets >= 2)
+            
+          // Applied all cuts
+          break;
+        }
+          
+        // SR_llbb
+        while (true)
+        {
+          if (mll_71_111) {cutflow_fillnext("SR_llbb", w);}
+          else {break;}
+            
+          if (metsig > 18) {cutflow_fillnext("SR_llbb", w);}
+          else {break;}
+            
+          if (mt2_gt_80) {cutflow_fillnext("SR_llbb", w);}
+          else {break;}
+            
+          if (nbjets >= 2) {cutflow_fillnext("SR_llbb", w);}
+          else {break;}
+            
+          if (n_jets >= 2) {cutflow_fillnext("SR_llbb", w);}
+          else {break;}
+            
+          if (60 < mbb && mbb < 150)
           {
+            cutflow_fillnext("SR_llbb", w);
             _counters.at("SR_llbb").add_event(event);
           }
-
-        } // End SR High
-
-
-        // SR Int presel
-        if (81 < mll && mll < 101
-            && mt2 > 80
-            && n_jets >= 2
-            && nbjets == 0
-            && 60 < mjj && mjj < 110
-            && jetpt1 > 60)
+            
+          // Applied all cuts
+          break;
+        }
+        
+        // SR Int_a/b
+        while (true)
         {
-
-          // SR_Int_a
-          if (12 < metsig && metsig < 15)
+          if (nbjets == 0)
           {
+            cutflow_fillnext("SR_Int_a", w);
+            cutflow_fillnext("SR_Int_b", w);
+          }
+          else {break;}
+          
+          if (mll_81_101)
+          {
+            cutflow_fillnext("SR_Int_a", w);
+            cutflow_fillnext("SR_Int_b", w);
+          }
+          else {break;}
+          
+          if (12 < metsig && metsig < 18)
+          {
+            cutflow_fillnext("SR_Int_a", w);
+            cutflow_fillnext("SR_Int_b", w);
+          }
+          else {break;}
+          
+          if (mt2_gt_80)
+          {
+            cutflow_fillnext("SR_Int_a", w);
+            cutflow_fillnext("SR_Int_b", w);
+          }
+          else {break;}
+          
+          if (jetpt1 > 60)
+          {
+            cutflow_fillnext("SR_Int_a", w);
+            cutflow_fillnext("SR_Int_b", w);
+          }
+          else {break;}
+          
+          if (n_jets >= 2)
+          {
+            cutflow_fillnext("SR_Int_a", w);
+            cutflow_fillnext("SR_Int_b", w);
+          }
+          else {break;}
+          
+          if (mjj_60_110)
+          {
+            cutflow_fillnext("SR_Int_a", w);
+            cutflow_fillnext("SR_Int_b", w);
+          }
+          else {break;}
+            
+            
+          if (metsig < 15)
+          {
+            cutflow_fillnext("SR_Int_a", w);
             _counters.at("SR_Int_a").add_event(event);
           }
-
-          // SR_Int_b
-          if (15 < metsig && metsig < 18)
+          else if (metsig > 15)
           {
+            cutflow_fillnext("SR_Int_b", w);
             _counters.at("SR_Int_b").add_event(event);
           }
+            
+          // Applied all cuts
+          break;
+        }
 
-        } // End SR Int
-
-
-        // SR Low presel
-        if (81 < mll && mll < 101
-            && n_jets == 2
-            && nbjets == 0
-            && 60 < mjj && mjj < 110)
+        //SR_Low_a/b
+        while (true)
         {
-
-          // SR_Low_a
-          if (mt2 > 80
-              && 6 < metsig && metsig < 9
-              && Rll < 1)
+          if (nbjets == 0)
           {
+            cutflow_fillnext("SR_Low_a", w);
+            cutflow_fillnext("SR_Low_b", w);
+          }
+          else {break;}
+            
+          if (mll_81_101)
+          {
+            cutflow_fillnext("SR_Low_a", w);
+            cutflow_fillnext("SR_Low_b", w);
+          }
+          else {break;}
+          
+          if (6 < metsig && metsig < 12)
+          {
+            cutflow_fillnext("SR_Low_a", w);
+            cutflow_fillnext("SR_Low_b", w);
+          }
+          else {break;}
+          
+          if (mt2_gt_80)
+          {
+            cutflow_fillnext("SR_Low_a", w);
+            cutflow_fillnext("SR_Low_b", w);
+          }
+          else {break;}
+          
+          if (n_jets == 2)
+          {
+            cutflow_fillnext("SR_Low_a", w);
+            cutflow_fillnext("SR_Low_b", w);
+          }
+          else {break;}
+          
+          if (mjj_60_110)
+          {
+            cutflow_fillnext("SR_Low_a", w);
+            cutflow_fillnext("SR_Low_b", w);
+          }
+          else {break;}
+          
+          if (Rll < 1)
+          {
+            cutflow_fillnext("SR_Low_a", w);
+            cutflow_fillnext("SR_Low_b", w);
+          }
+          else {break;}
+          
+          if (metsig < 9)
+          {
+            cutflow_fillnext("SR_Low_a", w);
             _counters.at("SR_Low_a").add_event(event);
           }
-
-          // SR_Low_b
-          if (mt2 > 80
-              && 9 < metsig && metsig < 12
-              && Rll < 1)
+          else if (metsig > 9)
           {
+            cutflow_fillnext("SR_Low_b", w);
             _counters.at("SR_Low_b").add_event(event);
           }
-
-          // SR_Low_2
-          if (mt2 < 80
-              && 6 < metsig && metsig < 9
-              && Rll < 1.6
-              && dphiPllMet < 0.6)
+            
+          // Applied all cuts
+          break;
+        }
+        
+        //SR_Low_2
+        while (true)
+        {
+          if (nbjets == 0) {cutflow_fillnext("SR_Low_2", w);}
+          else {break;}
+          
+          if (mll_81_101) {cutflow_fillnext("SR_Low_2", w);}
+          else {break;}
+          
+          if (6 < metsig && metsig < 9) {cutflow_fillnext("SR_Low_2", w);}
+          else {break;}
+          
+          if (mt2_lt_80) {cutflow_fillnext("SR_Low_2", w);}
+          else {break;}
+          
+          if (n_jets == 2) {cutflow_fillnext("SR_Low_2", w);}
+          else {break;}
+          
+          if (mjj_60_110) {cutflow_fillnext("SR_Low_2", w);}
+          else {break;}
+          
+          if (Rll < 1.6) {cutflow_fillnext("SR_Low_2", w);}
+          else {break;}
+            
+          if (dphiPllMet < 0.6)
           {
+            cutflow_fillnext("SR_Low_2", w);
             _counters.at("SR_Low_2").add_event(event);
           }
-
-        } // End SR Low
-
-
-        // SR Off Shell
-        if (metsig > 9
-            && mt2 > 100
-            && n_jets >= 2
-            && nbjets == 0
-            && jetpt1 > 100
-            && dphiJ1met > 2)
+            
+          // Applied all cuts
+          break;
+        }
+        
+        // SR_OffShell_a/b
+        while (true)
         {
-
-          // SR_OffShell_a
-          if (12 < mll && mll < 40)
+          if (nbjets == 0)
           {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (12 < mll && mll < 71)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (metsig > 9)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (mt2 > 100)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (n_jets >= 2)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (jetpt1 > 100)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (Rll < 1.6)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (dphiJ1met > 2)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
+            cutflow_fillnext("SR_OffShell_b", w);
+          }
+          else {break;}
+          
+          if (mll < 40)
+          {
+            cutflow_fillnext("SR_OffShell_a", w);
             _counters.at("SR_OffShell_a").add_event(event);
           }
-
-          // SR_OffShell_b
-          if (40 < mll && mll < 71)
+          else if (mll > 40)
           {
+            cutflow_fillnext("SR_OffShell_b", w);
             _counters.at("SR_OffShell_b").add_event(event);
           }
+            
+          // Applied all cuts
+          break;
+        }
 
-        } // End SR Off Shell
 
       } // End run function
 
@@ -532,14 +865,14 @@ namespace Gambit
       virtual void collect_results()
       {
 
-        add_result(SignalRegionData(_counters.at("SR_High_8_a"), 0., {2.00, 0.23})); 
-        add_result(SignalRegionData(_counters.at("SR_High_8_b"), 0., {2.00, 0.33})); 
+        add_result(SignalRegionData(_counters.at("SR_High_8_a"), 0., {2.00, 0.23}));
+        add_result(SignalRegionData(_counters.at("SR_High_8_b"), 0., {2.00, 0.33}));
         add_result(SignalRegionData(_counters.at("SR_High_16_a"), 4., {3.9, 0.7}));
         add_result(SignalRegionData(_counters.at("SR_High_16_b"), 3., {3.4, 0.9}));
         add_result(SignalRegionData(_counters.at("SR_High_4"), 1., {0.85, 0.34}));
         add_result(SignalRegionData(_counters.at("SR_llbb"), 0., {0.58, 0.20}));
         add_result(SignalRegionData(_counters.at("SR_Int_a"), 24., {22.8, 3.5 }));
-        add_result(SignalRegionData(_counters.at("SR_Int_b"), 14., {10.1, 1.0})); 
+        add_result(SignalRegionData(_counters.at("SR_Int_b"), 14., {10.1, 1.0}));
         add_result(SignalRegionData(_counters.at("SR_Low_a"), 10., {12.8, 3.4}));
         add_result(SignalRegionData(_counters.at("SR_Low_b"), 8., {10.5, 2.5}));
         add_result(SignalRegionData(_counters.at("SR_Low_2"), 8., {9, 4}));
@@ -547,10 +880,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR_OffShell_b"), 15., {12.5, 1.9}));
 
         #ifdef CHECK_CUTFLOW
-          cout << _cutflow << endl;
-          //cout << "n signal leptons before = " << _test2 << endl;
-          //cout << "n signal leptons = " << _test[0] << endl;
-          //cout << "n baseline leptons = " << _test[1] << endl;
+          cout << _cutflows << endl;
         #endif
 
 

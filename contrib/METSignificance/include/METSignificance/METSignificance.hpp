@@ -22,11 +22,6 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    //double calcMETSignificance(std::vector<const HEPUtils::Particle*> electrons, std::vector<const HEPUtils::Particle*> photons,
-    //                           std::vector<const HEPUtils::Particle*> muons, std::vector<const HEPUtils::Jet*> jets,
-    //                           std::vector<const HEPUtils::Particle*> taus, HEPUtils::P4 &metVec);
-    
-    
     static void rotateXY(std::vector<std::vector<double>> &mat, std::vector<std::vector<double>> &mat_new, double phi) {
       double c = cos(phi);
       double s = sin(phi);
@@ -45,7 +40,7 @@ namespace Gambit
                                std::vector<const HEPUtils::Particle*> taus, HEPUtils::P4 &metVec) {
 
       HEPUtils::P4 softVec = metVec;
-      double met = metVec.pT(); //TODO: This was Et, should I be using my other function instead??
+      double met = metVec.pT();
 
       // Initialise 2D vectors
       std::vector<std::vector<double>> cov_sum = {{0.0,0.0},{0.0,0.0}};

@@ -157,7 +157,7 @@ namespace Gambit
         piped_errors.check(ColliderBit_error());
         piped_invalid_point.check();
 
-        // Execute the sigle-thread iteration XSEC_CALCULATION 
+        // Execute the sigle-thread iteration XSEC_CALCULATION
         #ifdef COLLIDERBIT_DEBUG
           cout << DEBUG_PREFIX << "operateLHCLoop: Will execute XSEC_CALCULATION" << endl;
         #endif
@@ -206,7 +206,7 @@ namespace Gambit
               bool thread_do_iteration = true;
               int thread_my_iteration;
 
-              // Increment counters before executing the corresponding event loop iteration, 
+              // Increment counters before executing the corresponding event loop iteration,
               // to stop other threads from starting any event iterations beyond max_nEvents.
               #pragma omp critical
               {
@@ -221,7 +221,7 @@ namespace Gambit
                   thread_do_iteration = false;
                 }
               }
-              
+
               if(thread_do_iteration)
               {
                 try
@@ -333,6 +333,8 @@ namespace Gambit
     {
       using namespace Pipes::CollectAnalyses;
       static bool first = true;
+      static bool print_cutflows;
+      static bool normalized_cutflows;
 
       // Start with an empty vector
       result.clear();
@@ -351,6 +353,10 @@ namespace Gambit
       // When first called, check that all analyses contain at least one signal region.
       if (first)
       {
+        // Print cutflow at the end of the run
+        print_cutflows = runOptions->getValueOrDef<bool>(false, "print_cutflows");
+        normalized_cutflows = runOptions->getValueOrDef<bool>(false, "normalized_cutflows");
+
         // Loop over all AnalysisData pointers
         for (auto& adp : result)
         {
@@ -364,6 +370,21 @@ namespace Gambit
         first = false;
       }
 
+      // Print cutflows of analyses
+      if(print_cutflows)
+      {
+        std::cout << "Cutflows" << std::endl;
+        std::cout << "========" << std::endl;
+        for(auto& adp : result)
+        {
+          std::cout << adp->analysis_name << std::endl;
+          std::cout << "-----------------" << std::endl;
+
+          if(normalized_cutflows)
+            adp->cutflows.normalize(Dep::TotalCrossSection->xsec() * adp->luminosity);
+          std::cout << adp->cutflows << std::endl;
+        }
+      }
 
       // #ifdef COLLIDERBIT_DEBUG
       //   cout << DEBUG_PREFIX << "CollectAnalyses: Current size of 'result': " << result.size() << endl;

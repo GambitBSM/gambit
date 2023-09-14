@@ -57,21 +57,13 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    //void getElectronResolution(const HEPUtils::Particle* obj, double &pt_reso,double &phi_reso);
-
-    //void getMuonResolution(const HEPUtils::Particle* obj, double &pt_reso,double &phi_reso);
-
-    //void getTauResolution(const HEPUtils::Particle* obj, double &pt_reso, double &phi_reso);
-
-    //void getPhotonResolution(const HEPUtils::Particle* obj, double &pt_reso,double &phi_reso);
-
-    //void getJetResolution(const HEPUtils::Jet* obj, double &pt_reso,double &phi_reso);
-    
-    // TODO: I added this basic function since it wasn't in HEPUtils as far as I could see
-    //       Perhaps I am wrong, and it is in HEPUtils, and I can remove this function
+    // This replicates the function in TLorentzVector
     double Et(double E, double pT2, double pz)
     {
-      return E * E * pT2 / (pT2 + pz*pz);
+      
+      if (pT2 == 0) {return 0.0;}
+      double et = E < 0 ? -sqrt(E * E * pT2 / (pT2 + pz*pz)) : sqrt(E * E * pT2 / (pT2 + pz*pz));
+      return et;
     }
 
     static double getHistValue(double *histdata, double x, double y,
@@ -182,10 +174,10 @@ namespace Gambit
       const double energy = obj->E();
       double sigma2 = rsampling * rsampling / energy +
                       rnoise * rnoise / energy / energy + rconst * rconst;
-      double et = std::min(50., std::max(5., Et(obj->E(),obj->pT2(),obj->mom().pz()))); // constraint 5-50 GeV
+      double et = std::min(50., std::max(5., Et(obj->mom().E(),obj->pT2(),obj->mom().pz()))); // constraint 5-50 GeV
 
       double pileupNoiseMeV = sqrt(32.) * (60. + 40. * log(et / 10.) / log(5.));
-      double pileupSigma2 = pow(pileupNoiseMeV / 1000. / Et(obj->E(),obj->pT2(),obj->mom().pz()), 2); // not clear why Egamma group uses Et and not E here?
+      double pileupSigma2 = pow(pileupNoiseMeV / 1000. / Et(obj->mom().E(),obj->pT2(),obj->mom().pz()), 2); // not clear why Egamma group uses Et and not E here?
       return sqrt(sigma2 + pileupSigma2);
     }
 
