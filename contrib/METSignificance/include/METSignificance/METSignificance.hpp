@@ -14,7 +14,11 @@
 ///
 ///  *********************************************
 
-#include "METSignificance/ObjectResolutions.hpp"
+//#include "METSignificance/ObjectResolutions.hpp"
+
+#include "HEPUtils/Jet.h"
+#include "HEPUtils/Vectors.h"
+#include "HEPUtils/Particle.h"
 
 namespace Gambit
 {
@@ -22,6 +26,24 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    void getElectronResolution(const HEPUtils::Particle*, double &, double &);
+
+    void getMuonResolution(const HEPUtils::Particle*, double &, double &);
+
+    void getTauResolution(const HEPUtils::Particle*, double &, double &);
+
+    void getPhotonResolution(const HEPUtils::Particle*, double &, double &);
+
+    void getJetResolution(const HEPUtils::Jet*, double &, double &);
+
+
+    //static void rotateXY(std::vector<std::vector<double>> &mat, std::vector<std::vector<double>> &, double );
+    
+    double calcMETSignificance(std::vector<const HEPUtils::Particle*>, std::vector<const HEPUtils::Particle*>,
+                               std::vector<const HEPUtils::Particle*>, std::vector<const HEPUtils::Jet*>,
+                               std::vector<const HEPUtils::Particle*>, HEPUtils::P4&);
+    
+/*
     static void rotateXY(std::vector<std::vector<double>> &mat, std::vector<std::vector<double>> &mat_new, double phi) {
       double c = cos(phi);
       double s = sin(phi);
@@ -141,7 +163,7 @@ namespace Gambit
       }
       return significance;
     }
-
+*/
 
   }
 }

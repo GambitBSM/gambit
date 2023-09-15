@@ -14,40 +14,44 @@
 ///
 ///  *********************************************
 
-#include "ObjectResolutions.hpp"
+#include "METSignificance/ObjectResolutions.hpp"
 
-#include "objres/JERData16EMTopo.h"
-#include "objres/JERMC16EMTopo.h"
+#include "HEPUtils/Jet.h"
+#include "HEPUtils/Vectors.h"
+#include "HEPUtils/Particle.h"
 
-#include "objres/jetphi100.h"
-#include "objres/jetphi20.h"
-#include "objres/jetphi50.h"
+#include "METSignificance/objres/JERData16EMTopo.h"
+#include "METSignificance/objres/JERMC16EMTopo.h"
 
-#include "objres/r0_MS_MC_BARREL.h"
-#include "objres/r1_ID_MC_BARREL.h"
-#include "objres/r1_MS_MC_BARREL.h"
-#include "objres/r2_ID_MC_BARREL.h"
-#include "objres/r2_MS_MC_BARREL.h"
+#include "METSignificance/objres/jetphi100.h"
+#include "METSignificance/objres/jetphi20.h"
+#include "METSignificance/objres/jetphi50.h"
 
-#include "objres/r0_MS_MC_ENDCAP.h"
-#include "objres/r1_ID_MC_ENDCAP.h"
-#include "objres/r1_MS_MC_ENDCAP.h"
-#include "objres/r2_ID_MC_ENDCAP.h"
-#include "objres/r2_MS_MC_ENDCAP.h"
+#include "METSignificance/objres/r0_MS_MC_BARREL.h"
+#include "METSignificance/objres/r1_ID_MC_BARREL.h"
+#include "METSignificance/objres/r1_MS_MC_BARREL.h"
+#include "METSignificance/objres/r2_ID_MC_BARREL.h"
+#include "METSignificance/objres/r2_MS_MC_BARREL.h"
 
-#include "objres/electronConst90.h"
-#include "objres/electronNoise90.h"
-#include "objres/electronSampling90.h"
+#include "METSignificance/objres/r0_MS_MC_ENDCAP.h"
+#include "METSignificance/objres/r1_ID_MC_ENDCAP.h"
+#include "METSignificance/objres/r1_MS_MC_ENDCAP.h"
+#include "METSignificance/objres/r2_ID_MC_ENDCAP.h"
+#include "METSignificance/objres/r2_MS_MC_ENDCAP.h"
 
-#include "objres/photonConst90.h"
-#include "objres/photonNoise90.h"
-#include "objres/photonSampling90.h"
+#include "METSignificance/objres/electronConst90.h"
+#include "METSignificance/objres/electronNoise90.h"
+#include "METSignificance/objres/electronSampling90.h"
 
-#include "objres/tauRes1p0nBin0.h"
-#include "objres/tauRes1p0nBin1.h"
-#include "objres/tauRes1p0nBin2.h"
-#include "objres/tauRes1p0nBin3.h"
-#include "objres/tauRes1p0nBin4.h"
+#include "METSignificance/objres/photonConst90.h"
+#include "METSignificance/objres/photonNoise90.h"
+#include "METSignificance/objres/photonSampling90.h"
+
+#include "METSignificance/objres/tauRes1p0nBin0.h"
+#include "METSignificance/objres/tauRes1p0nBin1.h"
+#include "METSignificance/objres/tauRes1p0nBin2.h"
+#include "METSignificance/objres/tauRes1p0nBin3.h"
+#include "METSignificance/objres/tauRes1p0nBin4.h"
 
 
 namespace Gambit
@@ -55,11 +59,13 @@ namespace Gambit
   namespace ColliderBit
   {
   
-    // TODO: I added this basic function since it wasn't in HEPUtils as far as I could see
-    //       Perhaps I am wrong, and it is in HEPUtils, and I can remove this function
+    // This replicates the function in TLorentzVector
     double Et(double E, double pT2, double pz)
     {
-      return E * E * pT2 / (pT2 + pz*pz);
+      
+      if (pT2 == 0) {return 0.0;}
+      double et = E < 0 ? -sqrt(E * E * pT2 / (pT2 + pz*pz)) : sqrt(E * E * pT2 / (pT2 + pz*pz));
+      return et;
     }
 
     static double getHistValue(double *histdata, double x, double y,
