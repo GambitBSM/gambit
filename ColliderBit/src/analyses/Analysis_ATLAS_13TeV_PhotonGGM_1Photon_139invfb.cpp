@@ -249,29 +249,28 @@ namespace Gambit
         if (nPhotons >= 1 && pTLeadingPhoton > 300. && nLep == 0 && nJets >= 5 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 300. && HT > 1600. && RT4 < 0.9) _counters.at("SRM").add_event(event);
         if (nPhotons >= 1 && pTLeadingPhoton > 400. && nLep == 0 && nJets >= 3 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 600. && HT > 1600.) _counters.at("SRH").add_event(event);
 
-	// Increment cutflows for debugging
+	      // Increment cutflows for debugging
 
-	const double w = event->weight();
-	_cutflows.fillinit(w);
+        const double w = event->weight();
+        _cutflows.fillinit(w);
 
-	if (_cutflows["SRL"].fillnext({
+        if (_cutflows["SRL"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>145., met>250., nJets>=5,
                   deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
 
-	if (_cutflows["SRM"].fillnext({
+        if (_cutflows["SRM"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>300., met>300., nJets>=5,
                   deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
 
-	if (_cutflows["SRH"].fillnext({
+        if (_cutflows["SRH"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>400., met>600., nJets>=3,
                   deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w)) _counters.at("SRL").add_event(event);
-
         return;
 
       }

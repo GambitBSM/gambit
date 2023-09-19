@@ -67,6 +67,7 @@ namespace Gambit
       F(ATLAS_13TeV_0LEP_36invfb)                    \
       F(ATLAS_13TeV_0LEP_139invfb)                   \
       F(ATLAS_13TeV_0LEPStop_36invfb)                \
+      F(ATLAS_13TeV_0LEPStop_139invfb)               \
       F(ATLAS_13TeV_1Lep2b_139invfb)                 \
       F(ATLAS_13TeV_2LEPStop_36invfb)                \
       F(ATLAS_13TeV_2LEPJETS_EW_139invfb)            \
@@ -155,6 +156,7 @@ namespace Gambit
       F(CMS_13TeV_MultiLEP_3LEPTau_137invfb)         \
       F(CMS_13TeV_MultiLEP_4LEP_137invfb)            \
       F(CMS_13TeV_MultiLEP_4LEPTau_137invfb)         \
+      F(CMS_13TeV_2Higgs_4b_neutralino_137invfb)         \
       F(CMS_8TeV_1LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_2LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_MultiLEP_20invfb)                   \

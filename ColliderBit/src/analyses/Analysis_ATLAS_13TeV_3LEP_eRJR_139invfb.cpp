@@ -36,10 +36,6 @@ namespace Gambit
 
       private:
 
-
-
-
-
       public:
 
         // Required detector sim
@@ -445,9 +441,9 @@ namespace Gambit
           if (_cutflows["SR-ISR"].fillnext({
                         cut_3lep && cut_SFOS,
             cut_trigger,
-                        cut_bjet,
+            cut_bjet,
             cut_mlll,
-                        cut_leppt,
+            cut_leppt,
             cut_Zpeak,
             njets > 0,
             njets < 4,
