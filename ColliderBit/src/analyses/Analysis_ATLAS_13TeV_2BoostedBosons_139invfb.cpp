@@ -147,7 +147,7 @@ namespace Gambit
               electrons.push_back(electron);
           }
           // Apply electron efficiency from "Loose" criteria in 1902.04655
-          ATLAS::applyElectronIDEfficiency2019(electrons, "Loose");
+          apply1DEfficiency(electrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
           // Baseline muons
           vector<const HEPUtils::Particle*> muons;
           for (const HEPUtils::Particle* muon : event->muons())

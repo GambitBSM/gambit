@@ -37,6 +37,33 @@ namespace Gambit
   namespace ColliderBit
   {
 
+    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 1D binned efficiencies in pT
+    inline void apply1DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn1D<double>& eff)
+    {
+      filtereff_pt(part, eff);
+    }
+
+    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 1D binned efficiencies in pT
+    /// TODO: filter functions don't work with jets, fix that
+    //inline void apply1DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn1D<double>& eff)
+    //{
+    //  filtereff_pt(jet, eff);
+    //}
+
+
+    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 2D binned efficiencies in eta and pT
+    inline void apply2DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn2D<double>& eff)
+    {
+      filtereff_etapt(part, eff);
+    }
+
+    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 2D binned efficiencies in eta and pT
+    /// TODO: filter functions don't work with jets, fix that
+    //inline void apply2DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn2D<double>& eff)
+    //{
+    //  filtereff_etapt(jet, eff);
+    //}
+
 
     /// ATLAS-specific efficiency and smearing functions for super fast detector simulation
     namespace ATLAS
@@ -108,6 +135,7 @@ namespace Gambit
         inline void applyTauEfficiencyR1(std::vector<const HEPUtils::Particle*>& taus) {
           filtereff(taus, 0.40);
         }
+
 
 
         /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
@@ -362,6 +390,161 @@ namespace Gambit
           applyMediumIDElectronSelectionR2(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
         }
 
+
+
+        ///@}
+
+
+      /// ATLAS Muon and Electron efficiencies for the WPs of the identification techniques used in SUSY analyses
+
+      /// Electron efficiencies
+      /// @{
+
+
+        /// Efficiency function for Medium ID electrons
+        /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
+        /// Digitized from Figs 11-12
+        /// Combined in 2D efficiency
+        /// TODO: Finish table
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_CONF_2014_032_Medium(
+          {-2.5, -2.37, -2.01, -1.81, -1.52, -1.37, -1.15, -0.8, -0.6, -0.1, 0, 0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.5},   // Bin edges in eta
+          {0, 7., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., DBL_MAX},    // Bin edges in pT
+          {
+            // pT:   (0,7),  (7,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,35),  (35,40),  (40,45),  (45,50),  (50,60),  (60,80),  (80,inf)
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.807,    0.783,    0.775,    0.949,  // eta: {-2.5, -2.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.892,    0.892,    0.894,    0.927,  // eta: {-2.37, -2.01}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.896,    0.900,    0.903,    0.935,  // eta: {-2.01, -1.81}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.912,    0.917,    0.922,    0.946,  // eta: {-1.81, -1.52}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.874,    0.879,    0.893,    0.908,  // eta: {-1.52, -1.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.925,    0.927,    0.927,    0.950,  // eta: {-1.37, -1.15}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.911,    0.919,    0.921,    0.953,  // eta: {-1.15, -0.8}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.918,    0.919,    0.921,    0.950,  // eta: {-0.8, -0.6}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.918,    0.923,    0.928,    0.941,  // eta: {-0.6, -0.1}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.907,    0.909,    0.904,    0.936,  // eta: {-0.1, 0}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.895,    0.897,    0.893,    0.931,  // eta: {0, 0.1}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.921,    0.923,    0.926,    0.945,  // eta: {0.1, 0.6}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.925,    0.928,    0.927,    0.954,  // eta: {0.6, 0.8}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.913,    0.919,    0.921,    0.949,  // eta: {0.8, 1.15}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.920,    0.923,    0.928,    0.951,  // eta: {1.15, 1.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.872,    0.884,    0.898,    0.914,  // eta: {1.37, 1.52}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.906,    0.913,    0.920,    0.945,  // eta: {1.52, 1.81}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.896,    0.902,    0.904,    0.924,  // eta: {1.81, 2.01}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.888,    0.884,    0.889,    0.924,  // eta: {2.01, 2.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.783,    0.759,    0.741,    0.944,  // eta: {2.37, 2.5}
+          }
+        );
+
+
+        /// Efficiency function for Tight ID electrons
+        /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
+        /// Digitized from Figs 11-12
+        /// Combined in 2D efficiency
+        /// TODO: Finish table
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_CONF_2014_032_Tight(
+          {-2.5, -2.37, -2.01, -1.81, -1.52, -1.37, -1.15, -0.8, -0.6, -0.1, 0, 0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.5},   // Bin edges in eta
+          {0, 7., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., DBL_MAX},    // Bin edges in pT
+          {
+            // pT:   (0,7),  (7,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,35),  (35,40),  (40,45),  (45,50),  (50,60),  (60,80),  (80,inf)
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.677,    0.665,    0.658,    0.857,  // eta: {-2.5, -2.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.808,    0.813,    0.812,    0.874,  // eta: {-2.37, -2.01}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.781,    0.796,    0.801,    0.858,  // eta: {-2.01, -1.81}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.807,    0.820,    0.834,    0.886,  // eta: {-1.81, -1.52}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.765,    0.784,    0.794,    0.839,  // eta: {-1.52, -1.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.817,    0.841,    0.845,    0.899,  // eta: {-1.37, -1.15}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.822,    0.842,    0.853,    0.903,  // eta: {-1.15, -0.8}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.850,    0.860,    0.868,    0.906,  // eta: {-0.8, -0.6}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.827,    0.845,    0.858,    0.887,  // eta: {-0.6, -0.1}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.762,    0.778,    0.779,    0.812,  // eta: {-0.1, 0}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.752,    0.766,    0.766,    0.816,  // eta: {0, 0.1}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.823,    0.843,    0.856,    0.894,  // eta: {0.1, 0.6}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.858,    0.878,    0.877,    0.911,  // eta: {0.6, 0.8}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.826,    0.851,    0.855,    0.903,  // eta: {0.8, 1.15}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.818,    0.842,    0.850,    0.892,  // eta: {1.15, 1.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.766,    0.790,    0.801,    0.841,  // eta: {1.37, 1.52}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.803,    0.817,    0.835,    0.888,  // eta: {1.52, 1.81}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.782,    0.802,    0.804,    0.860,  // eta: {1.81, 2.01}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.802,    0.805,    0.803,    0.876,  // eta: {2.01, 2.37}
+                     0.000,   0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.000,    0.652,    0.649,    0.627,    0.857,  // eta: {2.37, 2.5}
+          }
+        );
+
+
+        inline void applyTightIDElectronSelection(std::vector<const HEPUtils::Particle*>& electrons) {
+
+          const static std::vector<double> binedges_E10_15 = {0., 0.0485903, 0.458914, 1.10009, 1.46117, 1.78881, 2.27013, 2.5};
+          const static std::vector<double> binvalues_E10_15 = makeBinValues({0.57971, 0.582609, 0.681159, 0.655072, 0.46087, 0.634783, 0.689855, 0.689855});
+          const static HEPUtils::BinnedFn1D<double> _eff_E10_15(binedges_E10_15, binvalues_E10_15);
+
+          const static std::vector<double> binedges_E15_20 = {0., 0.0533175, 0.450237, 1.09597, 1.46327, 1.78318, 2.26896, 2.5};
+          const static std::vector<double> binvalues_E15_20 = makeBinValues({0.631884, 0.628986, 0.727536, 0.701449, 0.565217, 0.666667, 0.733333, 0.733333});
+          const static HEPUtils::BinnedFn1D<double> _eff_E15_20(binedges_E15_20, binvalues_E15_20);
+
+          const static std::vector<double> binedges_E20_25 =  {-2.5, -2.44062, -2.22684, -1.92993, -1.66865, -1.45487, -1.26485, -0.967933, -0.706651, -0.350356, -0.0415677, 0.0653207, 0.362233, 0.718527, 0.991686, 1.27672, 1.47862, 1.6924, 1.92993, 2.22684, 2.46437, 2.5};
+          const static std::vector<double> binvalues_E20_25 = makeBinValues({0.678698, 0.678674, 0.70965, 0.65361, 0.655573, 0.599567, 0.6844, 0.694632, 0.729731, 0.731654, 0.665254, 0.640358, 0.743785, 0.733282, 0.697962, 0.672992, 0.585926, 0.660394, 0.652011, 0.703663, 0.670429, 0.668338});
+          const static HEPUtils::BinnedFn1D<double> _eff_E20_25(binedges_E20_25, binvalues_E20_25);
+
+          const static std::vector<double> binedges_E25_30 = {-2.5, -2.44062, -2.22684, -1.91805, -1.68052, -1.45487, -1.27672, -0.97981, -0.706651, -0.350356, -0.0415677, 0.0771971, 0.362233, 0.718527, 0.991686, 1.30048, 1.47862, 1.6924, 1.94181, 2.22684, 2.46437, 2.5};
+          const static std::vector<double> binvalues_E25_30 = makeBinValues({0.678932, 0.681034, 0.737205, 0.683328, 0.695889, 0.633669, 0.720983, 0.733569, 0.758609, 0.769142, 0.69657, 0.688311, 0.771515, 0.771663, 0.734388, 0.717899, 0.636964, 0.699368, 0.689086, 0.730747, 0.67684, 0.67686});
+          const static HEPUtils::BinnedFn1D<double> _eff_E25_30(binedges_E25_30, binvalues_E25_30);
+
+          const static std::vector<double> binedges_E30_35 = {-2.5, -2.45249, -2.21496, -1.94181, -1.68052, -1.47862, -1.27672, -0.97981, -0.706651, -0.33848, -0.0415677, 0.0534442, 0.362233, 0.718527, 1.00356, 1.27672, 1.46675, 1.68052, 1.95368, 2.23872, 2.45249, 2.5};
+          const static std::vector<double> binvalues_E30_35 = makeBinValues({0.691395, 0.691375, 0.749436, 0.716089, 0.726366, 0.653582, 0.749047, 0.771772, 0.800739, 0.802663, 0.731916, 0.71526, 0.802372, 0.810532, 0.773025, 0.75214, 0.656512, 0.722892, 0.712393, 0.745509, 0.670643, 0.6727});
+          const static HEPUtils::BinnedFn1D<double> _eff_E30_35(binedges_E30_35, binvalues_E30_35);
+
+          const static std::vector<double> binedges_E35_40 = {-2.5, -2.46296, -2.22413, -1.93966, -1.7017, -1.47721, -1.28567, -0.988409, -0.714721, -0.334744, -0.0510125, 0.0437527, 0.342215, 0.710598, 0.971211, 1.27968, 1.45638, 1.68306, 1.94399, 2.21764, 2.44185, 2.5};
+          const static std::vector<double> binvalues_E35_40 = makeBinValues({0.683086, 0.683086, 0.759941, 0.726706, 0.751632, 0.683086, 0.772404, 0.793175, 0.824332, 0.820178, 0.743323, 0.728783, 0.820178, 0.832641, 0.793175, 0.774481, 0.689318, 0.749555, 0.728783, 0.757864, 0.6727, 0.6727});
+          const static HEPUtils::BinnedFn1D<double> _eff_E35_40(binedges_E35_40, binvalues_E35_40);
+
+          const static std::vector<double> binedges_E40_45 = {-2.5, -2.45261, -2.21564, -1.94313, -1.69431, -1.45735, -1.27962, -0.983412, -0.7109, -0.35545, -0.0592417, 0.0473934, 0.35545, 0.699052, 0.983412, 1.26777, 1.45735, 1.67062, 1.93128, 2.20379, 2.45261, 2.5};
+          const static std::vector<double> binvalues_E40_45 = makeBinValues({0.693472, 0.693472, 0.782789, 0.757864, 0.784866, 0.726706, 0.797329, 0.803561, 0.836795, 0.805638, 0.747478, 0.735015, 0.805638, 0.843027, 0.807715, 0.797329, 0.732938, 0.780712, 0.762018, 0.782789, 0.674777, 0.674777});
+          const static HEPUtils::BinnedFn1D<double> _eff_E40_45(binedges_E40_45, binvalues_E40_45);
+
+          const static std::vector<double> binedges_E45_50 = {-2.5, -2.46311, -2.22329, -1.93875, -1.70073, -1.47585, -1.273, -0.976015, -0.714205, -0.358403, -0.0625448, 0.0560444, 0.354151, 0.711078, 0.98364, 1.28045, 1.45768, 1.68407, 1.94493, 2.20653, 2.4415, 2.5};
+          const static std::vector<double>  binvalues_E45_50 =  makeBinValues({0.674556, 0.674556, 0.809172, 0.780178, 0.809172, 0.763609, 0.819527, 0.823669, 0.854734, 0.82574, 0.763609, 0.753254, 0.823669, 0.860947, 0.82574, 0.819527, 0.76568, 0.809172, 0.78432, 0.802959, 0.651775, 0.651775});
+          const static HEPUtils::BinnedFn1D<double> _eff_E45_50 = {binedges_E45_50, binvalues_E45_50};
+
+          const static std::vector<double> binedges_E50_60 = {-2.5, -2.45261, -2.21564, -1.93128, -1.68246, -1.45735, -1.27962, -0.995261, -0.699052, -0.343602, -0.0592417, 0.0592417, 0.35545, 0.699052, 0.983412, 1.26777, 1.4455, 1.68246, 1.94313, 2.21564, 2.45261, 2.5};
+          const static std::vector<double>  binvalues_E50_60 = makeBinValues({0.6625, 0.6625, 0.810417, 0.795833, 0.81875, 0.779167, 0.839583, 0.84375, 0.860417, 0.841667, 0.777083, 0.764583, 0.841667, 0.877083, 0.85, 0.839583, 0.785417, 0.816667, 0.8, 0.804167, 0.64375, 0.64375});
+          const static HEPUtils::BinnedFn1D<double> _eff_E50_60 = {binedges_E50_60, binvalues_E50_60};
+
+          const static std::vector<double> binedges_E60_80 = {-2.5, -2.46326, -2.22265, -1.93711, -1.69844, -1.47299, -1.28152, -0.995631, -0.709702, -0.364674, -0.0564949, 0.0504716, 0.349652, 0.707116, 0.980538, 1.27812, 1.46757, 1.69447, 1.94394, 2.24157, 2.45288, 2.5};
+          const static std::vector<double>  binvalues_E60_80 = makeBinValues({0.660412, 0.660432, 0.808449, 0.798151, 0.831584, 0.787928, 0.846341, 0.856877, 0.869496, 0.85714, 0.778101, 0.767729, 0.859521, 0.87842, 0.855617, 0.853658, 0.79332, 0.835081, 0.803935, 0.804059, 0.629147, 0.629172});
+          const static HEPUtils::BinnedFn1D<double> _eff_E60_80 = {binedges_E60_80, binvalues_E60_80};
+
+          const static std::vector<double> binedges_E80 = {-2.5, -2.45987, -2.22149, -1.94797, -1.69748, -1.47206, -1.29251, -0.994818, -0.709105, -0.352212, -0.0558319, 0.0513809, 0.374044, 0.719562, 0.981359, 1.27873, 1.46843, 1.70723, 1.9449, 2.20712, 2.45676, 2.5};
+          const static std::vector<double>  binvalues_E80 = makeBinValues({0.859652, 0.859627, 0.876145, 0.859415, 0.888391, 0.8426, 0.900685, 0.904716, 0.904597, 0.889909, 0.817086, 0.821195, 0.893762, 0.910235, 0.903895, 0.889231, 0.843455, 0.884899, 0.859875, 0.87846, 0.857585, 0.85756});
+          const static HEPUtils::BinnedFn1D<double> _eff_E80 = {binedges_E80, binvalues_E80};
+
+          // Now loop over the electrons and only keep those that pass the random efficiency cut
+          /// @note No delete is necessary, because this should only ever be applied to a copy of the Event Particle* vectors
+          /// @todo This is an exact duplication of the above filtering code -- split into a single util fn (in unnamed namespace?) when binned fns are static
+          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
+                                             [](const HEPUtils::Particle* electron) {
+                                               const double e_pt = electron->pT();
+                                               const double e_eta = electron->eta();
+                                               if (!(fabs(e_eta) < 2.5 && e_pt >= 10)) return true;
+                                               else if (HEPUtils::in_range(e_pt, 10, 15)) return !random_bool(_eff_E10_15, fabs(e_eta));
+                                               else if (HEPUtils::in_range(e_pt, 15, 20)) return !random_bool(_eff_E15_20, fabs(e_eta));
+                                               else if (HEPUtils::in_range(e_pt, 20, 25)) return !random_bool(_eff_E20_25, e_eta);
+                                               else if (HEPUtils::in_range(e_pt, 25, 30)) return !random_bool(_eff_E25_30, e_eta);
+                                               else if (HEPUtils::in_range(e_pt, 30, 35)) return !random_bool(_eff_E30_35, e_eta);
+                                               else if (HEPUtils::in_range(e_pt, 35, 40)) return !random_bool(_eff_E35_40, e_eta);
+                                               else if (HEPUtils::in_range(e_pt, 40, 45)) return !random_bool(_eff_E40_45, e_eta);
+                                               else if (HEPUtils::in_range(e_pt, 45, 50)) return !random_bool(_eff_E45_50, e_eta);
+                                               else if (HEPUtils::in_range(e_pt, 50, 60)) return !random_bool(_eff_E50_60, e_eta);
+                                               else if (HEPUtils::in_range(e_pt, 60, 80)) return !random_bool(_eff_E60_80, e_eta);
+                                               else return !random_bool(_eff_E80, e_eta);
+                                             } );
+          electrons.erase(keptElectronsEnd, electrons.end());
+        }
+
+        /// Alias to allow non-const particle vectors
+        inline void applyTightIDElectronSelection(std::vector<HEPUtils::Particle*>& electrons) {
+          applyTightIDElectronSelection(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
+        }
+
+
+
         /// Efficiency function for Medium ID electrons
         /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
         inline void applyMediumIDElectronSelection(std::vector<const HEPUtils::Particle*>& electrons) {
@@ -441,273 +624,231 @@ namespace Gambit
         }
 
 
-        /// Efficiency function for Tight ID electrons
-        /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
-        inline void applyTightIDElectronSelection(std::vector<const HEPUtils::Particle*>& electrons) {
-
-          const static std::vector<double> binedges_E10_15 = {0., 0.0485903, 0.458914, 1.10009, 1.46117, 1.78881, 2.27013, 2.5};
-          const static std::vector<double> binvalues_E10_15 = makeBinValues({0.57971, 0.582609, 0.681159, 0.655072, 0.46087, 0.634783, 0.689855, 0.689855});
-          const static HEPUtils::BinnedFn1D<double> _eff_E10_15(binedges_E10_15, binvalues_E10_15);
-
-          const static std::vector<double> binedges_E15_20 = {0., 0.0533175, 0.450237, 1.09597, 1.46327, 1.78318, 2.26896, 2.5};
-          const static std::vector<double> binvalues_E15_20 = makeBinValues({0.631884, 0.628986, 0.727536, 0.701449, 0.565217, 0.666667, 0.733333, 0.733333});
-          const static HEPUtils::BinnedFn1D<double> _eff_E15_20(binedges_E15_20, binvalues_E15_20);
-
-          const static std::vector<double> binedges_E20_25 =  {-2.5, -2.44062, -2.22684, -1.92993, -1.66865, -1.45487, -1.26485, -0.967933, -0.706651, -0.350356, -0.0415677, 0.0653207, 0.362233, 0.718527, 0.991686, 1.27672, 1.47862, 1.6924, 1.92993, 2.22684, 2.46437, 2.5};
-          const static std::vector<double> binvalues_E20_25 = makeBinValues({0.678698, 0.678674, 0.70965, 0.65361, 0.655573, 0.599567, 0.6844, 0.694632, 0.729731, 0.731654, 0.665254, 0.640358, 0.743785, 0.733282, 0.697962, 0.672992, 0.585926, 0.660394, 0.652011, 0.703663, 0.670429, 0.668338});
-          const static HEPUtils::BinnedFn1D<double> _eff_E20_25(binedges_E20_25, binvalues_E20_25);
-
-          const static std::vector<double> binedges_E25_30 = {-2.5, -2.44062, -2.22684, -1.91805, -1.68052, -1.45487, -1.27672, -0.97981, -0.706651, -0.350356, -0.0415677, 0.0771971, 0.362233, 0.718527, 0.991686, 1.30048, 1.47862, 1.6924, 1.94181, 2.22684, 2.46437, 2.5};
-          const static std::vector<double> binvalues_E25_30 = makeBinValues({0.678932, 0.681034, 0.737205, 0.683328, 0.695889, 0.633669, 0.720983, 0.733569, 0.758609, 0.769142, 0.69657, 0.688311, 0.771515, 0.771663, 0.734388, 0.717899, 0.636964, 0.699368, 0.689086, 0.730747, 0.67684, 0.67686});
-          const static HEPUtils::BinnedFn1D<double> _eff_E25_30(binedges_E25_30, binvalues_E25_30);
-
-          const static std::vector<double> binedges_E30_35 = {-2.5, -2.45249, -2.21496, -1.94181, -1.68052, -1.47862, -1.27672, -0.97981, -0.706651, -0.33848, -0.0415677, 0.0534442, 0.362233, 0.718527, 1.00356, 1.27672, 1.46675, 1.68052, 1.95368, 2.23872, 2.45249, 2.5};
-          const static std::vector<double> binvalues_E30_35 = makeBinValues({0.691395, 0.691375, 0.749436, 0.716089, 0.726366, 0.653582, 0.749047, 0.771772, 0.800739, 0.802663, 0.731916, 0.71526, 0.802372, 0.810532, 0.773025, 0.75214, 0.656512, 0.722892, 0.712393, 0.745509, 0.670643, 0.6727});
-          const static HEPUtils::BinnedFn1D<double> _eff_E30_35(binedges_E30_35, binvalues_E30_35);
-
-          const static std::vector<double> binedges_E35_40 = {-2.5, -2.46296, -2.22413, -1.93966, -1.7017, -1.47721, -1.28567, -0.988409, -0.714721, -0.334744, -0.0510125, 0.0437527, 0.342215, 0.710598, 0.971211, 1.27968, 1.45638, 1.68306, 1.94399, 2.21764, 2.44185, 2.5};
-          const static std::vector<double> binvalues_E35_40 = makeBinValues({0.683086, 0.683086, 0.759941, 0.726706, 0.751632, 0.683086, 0.772404, 0.793175, 0.824332, 0.820178, 0.743323, 0.728783, 0.820178, 0.832641, 0.793175, 0.774481, 0.689318, 0.749555, 0.728783, 0.757864, 0.6727, 0.6727});
-          const static HEPUtils::BinnedFn1D<double> _eff_E35_40(binedges_E35_40, binvalues_E35_40);
-
-          const static std::vector<double> binedges_E40_45 = {-2.5, -2.45261, -2.21564, -1.94313, -1.69431, -1.45735, -1.27962, -0.983412, -0.7109, -0.35545, -0.0592417, 0.0473934, 0.35545, 0.699052, 0.983412, 1.26777, 1.45735, 1.67062, 1.93128, 2.20379, 2.45261, 2.5};
-          const static std::vector<double> binvalues_E40_45 = makeBinValues({0.693472, 0.693472, 0.782789, 0.757864, 0.784866, 0.726706, 0.797329, 0.803561, 0.836795, 0.805638, 0.747478, 0.735015, 0.805638, 0.843027, 0.807715, 0.797329, 0.732938, 0.780712, 0.762018, 0.782789, 0.674777, 0.674777});
-          const static HEPUtils::BinnedFn1D<double> _eff_E40_45(binedges_E40_45, binvalues_E40_45);
-
-          const static std::vector<double> binedges_E45_50 = {-2.5, -2.46311, -2.22329, -1.93875, -1.70073, -1.47585, -1.273, -0.976015, -0.714205, -0.358403, -0.0625448, 0.0560444, 0.354151, 0.711078, 0.98364, 1.28045, 1.45768, 1.68407, 1.94493, 2.20653, 2.4415, 2.5};
-          const static std::vector<double>  binvalues_E45_50 =  makeBinValues({0.674556, 0.674556, 0.809172, 0.780178, 0.809172, 0.763609, 0.819527, 0.823669, 0.854734, 0.82574, 0.763609, 0.753254, 0.823669, 0.860947, 0.82574, 0.819527, 0.76568, 0.809172, 0.78432, 0.802959, 0.651775, 0.651775});
-          const static HEPUtils::BinnedFn1D<double> _eff_E45_50 = {binedges_E45_50, binvalues_E45_50};
-
-          const static std::vector<double> binedges_E50_60 = {-2.5, -2.45261, -2.21564, -1.93128, -1.68246, -1.45735, -1.27962, -0.995261, -0.699052, -0.343602, -0.0592417, 0.0592417, 0.35545, 0.699052, 0.983412, 1.26777, 1.4455, 1.68246, 1.94313, 2.21564, 2.45261, 2.5};
-          const static std::vector<double>  binvalues_E50_60 = makeBinValues({0.6625, 0.6625, 0.810417, 0.795833, 0.81875, 0.779167, 0.839583, 0.84375, 0.860417, 0.841667, 0.777083, 0.764583, 0.841667, 0.877083, 0.85, 0.839583, 0.785417, 0.816667, 0.8, 0.804167, 0.64375, 0.64375});
-          const static HEPUtils::BinnedFn1D<double> _eff_E50_60 = {binedges_E50_60, binvalues_E50_60};
-
-          const static std::vector<double> binedges_E60_80 = {-2.5, -2.46326, -2.22265, -1.93711, -1.69844, -1.47299, -1.28152, -0.995631, -0.709702, -0.364674, -0.0564949, 0.0504716, 0.349652, 0.707116, 0.980538, 1.27812, 1.46757, 1.69447, 1.94394, 2.24157, 2.45288, 2.5};
-          const static std::vector<double>  binvalues_E60_80 = makeBinValues({0.660412, 0.660432, 0.808449, 0.798151, 0.831584, 0.787928, 0.846341, 0.856877, 0.869496, 0.85714, 0.778101, 0.767729, 0.859521, 0.87842, 0.855617, 0.853658, 0.79332, 0.835081, 0.803935, 0.804059, 0.629147, 0.629172});
-          const static HEPUtils::BinnedFn1D<double> _eff_E60_80 = {binedges_E60_80, binvalues_E60_80};
-
-          const static std::vector<double> binedges_E80 = {-2.5, -2.45987, -2.22149, -1.94797, -1.69748, -1.47206, -1.29251, -0.994818, -0.709105, -0.352212, -0.0558319, 0.0513809, 0.374044, 0.719562, 0.981359, 1.27873, 1.46843, 1.70723, 1.9449, 2.20712, 2.45676, 2.5};
-          const static std::vector<double>  binvalues_E80 = makeBinValues({0.859652, 0.859627, 0.876145, 0.859415, 0.888391, 0.8426, 0.900685, 0.904716, 0.904597, 0.889909, 0.817086, 0.821195, 0.893762, 0.910235, 0.903895, 0.889231, 0.843455, 0.884899, 0.859875, 0.87846, 0.857585, 0.85756});
-          const static HEPUtils::BinnedFn1D<double> _eff_E80 = {binedges_E80, binvalues_E80};
-
-          // Now loop over the electrons and only keep those that pass the random efficiency cut
-          /// @note No delete is necessary, because this should only ever be applied to a copy of the Event Particle* vectors
-          /// @todo This is an exact duplication of the above filtering code -- split into a single util fn (in unnamed namespace?) when binned fns are static
-          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
-                                             [](const HEPUtils::Particle* electron) {
-                                               const double e_pt = electron->pT();
-                                               const double e_eta = electron->eta();
-                                               if (!(fabs(e_eta) < 2.5 && e_pt >= 10)) return true;
-                                               else if (HEPUtils::in_range(e_pt, 10, 15)) return !random_bool(_eff_E10_15, fabs(e_eta));
-                                               else if (HEPUtils::in_range(e_pt, 15, 20)) return !random_bool(_eff_E15_20, fabs(e_eta));
-                                               else if (HEPUtils::in_range(e_pt, 20, 25)) return !random_bool(_eff_E20_25, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 25, 30)) return !random_bool(_eff_E25_30, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 30, 35)) return !random_bool(_eff_E30_35, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 35, 40)) return !random_bool(_eff_E35_40, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 40, 45)) return !random_bool(_eff_E40_45, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 45, 50)) return !random_bool(_eff_E45_50, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 50, 60)) return !random_bool(_eff_E50_60, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 60, 80)) return !random_bool(_eff_E60_80, e_eta);
-                                               else return !random_bool(_eff_E80, e_eta);
-                                             } );
-          electrons.erase(keptElectronsEnd, electrons.end());
-        }
-
-
-        /// Alias to allow non-const particle vectors
-        inline void applyTightIDElectronSelection(std::vector<HEPUtils::Particle*>& electrons) {
-          applyTightIDElectronSelection(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
-        }
-
-
         /// Electron 2019 ID efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
         /// @note These efficiencies are 1D efficiencies so only pT is used
-        inline void applyElectronIDEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
-        {
+        /// Digitised from Fig 8
 
-          // digitised from Fig 8
-          const static std::vector<double> binedges_pt  = { 0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX};
-          const static std::vector<double> bineffs_pt_loose  = { 0.9054376657824932, 0.9267904509283819, 0.8757294429708221, 0.8450928381962863, 0.8775862068965516, 0.889655172413793, 0.9035809018567638, 0.9193633952254641, 0.929575596816976, 0.9370026525198938, 0.942572944297082, 0.9509283819628646, 0.9592838196286471};
-          const static std::vector<double> bineffs_pt_medium  = { 0.7355437665782492, 0.7912466843501325, 0.7986737400530503, 0.7717506631299733, 0.8135278514588858, 0.8348806366047744, 0.8525198938992041, 0.8692307692307691, 0.8822281167108752, 0.889655172413793, 0.902652519893899, 0.9230769230769229, 0.9407161803713526 };
-          const static std::vector<double> bineffs_pt_tight  = { 0.5572944297082227, 0.6213527851458884, 0.6547745358090185, 0.6714854111405835, 0.699336870026525, 0.7299734748010609, 0.7559681697612731, 0.7754641909814322, 0.7921750663129972, 0.8079575596816975, 0.8311671087533155, 0.8710875331564986, 0.8989389920424402 };
+        // VeryLoose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_VeryLoose(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          {0.9054376657824932, 0.9267904509283819, 0.8757294429708221, 0.8450928381962863, 0.8775862068965516, 0.889655172413793, 0.9035809018567638, 0.9193633952254641, 0.929575596816976, 0.9370026525198938, 0.942572944297082, 0.9509283819628646, 0.9592838196286471}
+        );
 
-          // select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Loose" or operating_point == "VeryLoose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "Medium")
-            bineffs_pt = bineffs_pt_medium;
-          else if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else
-            utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_Loose(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          {0.9054376657824932, 0.9267904509283819, 0.8757294429708221, 0.8450928381962863, 0.8775862068965516, 0.889655172413793, 0.9035809018567638, 0.9193633952254641, 0.929575596816976, 0.9370026525198938, 0.942572944297082, 0.9509283819628646, 0.9592838196286471}
+        );
 
-          // filter electrons
-          filtereff_pt(electrons, _eff_pt);
+        // Medium
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_Medium(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          { 0.7355437665782492, 0.7912466843501325, 0.7986737400530503, 0.7717506631299733, 0.8135278514588858, 0.8348806366047744, 0.8525198938992041, 0.8692307692307691, 0.8822281167108752, 0.889655172413793, 0.902652519893899, 0.9230769230769229, 0.9407161803713526 }
+        );
 
-        }
+        // Tight
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_Tight(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          { 0.5572944297082227, 0.6213527851458884, 0.6547745358090185, 0.6714854111405835, 0.699336870026525, 0.7299734748010609, 0.7559681697612731, 0.7754641909814322, 0.7921750663129972, 0.8079575596816975, 0.8311671087533155, 0.8710875331564986, 0.8989389920424402 }
+        );
+
 
         /// Electron 2019 Isolation efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
         /// @note These efficiencies are 1D efficiencies so only pT is used
-        inline void applyElectronIsolationEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
-        {
+        /// Digitised from Fig 12
 
-          // digitised from Fig 12
-          const static std::vector<double> binedges_pt = {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX};
-          const static std::vector<double> bineffs_pt_loose_trackonly = {0.9694027334287603, 0.9841898810834618, 0.9915715839022242, 0.9890807366218896, 0.9875756991852016, 0.9875509249064084, 0.9875261506276152, 0.9879947974014535, 0.9884634441752919, 0.9884386698964986, 0.9888959617925568, 0.9907953231667035, 0.9930404921823388};
-          const static std::vector<double> bineffs_pt_loose = {0.9595332801145123, 0.9812303870292888, 0.9891055109006828, 0.9875994412023784, 0.9856020149746753, 0.9826167143800926, 0.9820985190486677, 0.9820737447698745, 0.9820489704910813, 0.9825186495265361, 0.9829749091609778, 0.9903008698524555, 0.9930394599207224};
-          const static std::vector<double> bineffs_pt_gradient_loose = {0.8973632597445498, 0.9471843343977098, 0.9693676365338032, 0.9466465260955738, 0.947115172869412, 0.9485706617485136, 0.9539735190486678, 0.9593784408720547, 0.9642868448579609, 0.9706755120017618, 0.9780417308962784, 0.9843808494824929, 0.9851457553402335};
-          const static std::vector<double> bineffs_pt_gradient = {0.8425935229024444, 0.9082030389781987, 0.944204195111209, 0.9007573359392205, 0.9081359419731337, 0.9145235768553183, 0.924368255890773, 0.9351987447698745, 0.9460292336489761, 0.9573531435807092, 0.9716251926888351, 0.9838874284298613, 0.9851457553402335};
+        // LooseTrackOnly
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_LooseTrackOnly(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.9694027334287603, 0.9841898810834618, 0.9915715839022242, 0.9890807366218896, 0.9875756991852016, 0.9875509249064084, 0.9875261506276152, 0.9879947974014535, 0.9884634441752919, 0.9884386698964986, 0.9888959617925568, 0.9907953231667035, 0.9930404921823388}
+        );
 
-          // select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "LooseTrackOnly")
-            bineffs_pt = bineffs_pt_loose_trackonly;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "GradientLoose")
-            bineffs_pt = bineffs_pt_gradient_loose;
-          else if (operating_point == "Gradient")
-            bineffs_pt = bineffs_pt_gradient;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_Loose(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.9595332801145123, 0.9812303870292888, 0.9891055109006828, 0.9875994412023784, 0.9856020149746753, 0.9826167143800926, 0.9820985190486677, 0.9820737447698745, 0.9820489704910813, 0.9825186495265361, 0.9829749091609778, 0.9903008698524555, 0.9930394599207224}
+        );
 
-          // filter electrons
-          filtereff_pt(electrons, _eff_pt);
-        }
- 
+        // GradientLoose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_GradientLoose(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.8973632597445498, 0.9471843343977098, 0.9693676365338032, 0.9466465260955738, 0.947115172869412, 0.9485706617485136, 0.9539735190486678, 0.9593784408720547, 0.9642868448579609, 0.9706755120017618, 0.9780417308962784, 0.9843808494824929, 0.9851457553402335}
+        );
+
+        // Gradient
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_Gradient(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.8425935229024444, 0.9082030389781987, 0.944204195111209, 0.9007573359392205, 0.9081359419731337, 0.9145235768553183, 0.924368255890773, 0.9351987447698745, 0.9460292336489761, 0.9573531435807092, 0.9716251926888351, 0.9838874284298613, 0.9851457553402335}
+        );
+
 
         /// Electron 2020 reconstruction efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyElectronReconstructionEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+        /// Digitised from Fig 5
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Recon(
+          {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, DBL_MAX},   // Bin edges in pT
+          {0.0, 0.0, 0.0, 0.0, 0.003218, 0.049709, 0.203532, 0.388353, 0.546803, 0.662459, 0.749662, 0.807719, 0.850278, 0.875487, 0.893757, 0.907169, 0.919424, 0.926128, 0.932831, 0.936759, 0.940224, 0.944846, 0.947386, 0.949695, 0.951078, 0.953849, 0.955695, 0.956847, 0.958924, 0.959845, 0.962154, 0.96238, 0.96492, 0.966766, 0.966762, 0.967914, 0.967678, 0.970912, 0.970676, 0.97229, 0.972286, 0.97205, 0.973664, 0.97366, 0.973655, 0.973419, 0.975496, 0.976417, 0.977106, 0.976639}
+        );
 
-          // Digitised from Fig 5
-          const static std::vector<double> binedges_pt = {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, DBL_MAX};
-          const static std::vector<double> bineffs_pt_candidate = {0.0, 0.0, 0.0, 0.0, 0.003218, 0.049709, 0.203532, 0.388353, 0.546803, 0.662459, 0.749662, 0.807719, 0.850278, 0.875487, 0.893757, 0.907169, 0.919424, 0.926128, 0.932831, 0.936759, 0.940224, 0.944846, 0.947386, 0.949695, 0.951078, 0.953849, 0.955695, 0.956847, 0.958924, 0.959845, 0.962154, 0.96238, 0.96492, 0.966766, 0.966762, 0.967914, 0.967678, 0.970912, 0.970676, 0.97229, 0.972286, 0.97205, 0.973664, 0.97366, 0.973655, 0.973419, 0.975496, 0.976417, 0.977106, 0.976639};
-          
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Candidate")
-            bineffs_pt = bineffs_pt_candidate;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
-
-          // Filter muons
-          filtereff_pt(electrons, _eff_pt);
-        }
-
-
-        
         /// Electron 2020 ID efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyElectronIDEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+        /// Digitised from Fig 23a
 
-          // Digitised from Fig 23a
-          const static std::vector<double> binedges_pt = {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_loose = {0.976333, 0.928653, 0.882698, 0.830078, 0.86466, 0.884306, 0.901769, 0.920381, 0.930032, 0.936581, 0.938994, 0.943589, 0.949449};
-          const static std::vector<double> bineffs_pt_medium = {0.790671, 0.797679, 0.816062, 0.752183, 0.794807, 0.82801, 0.847541, 0.868796, 0.882008, 0.887868, 0.897518, 0.916475, 0.93233};
-          const static std::vector<double> bineffs_pt_tight = {0.582835, 0.608686, 0.670726, 0.651999, 0.684283, 0.716567, 0.747358, 0.768038, 0.782399, 0.795381, 0.815832, 0.853631, 0.884536};
-          
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "Medium")
-            bineffs_pt = bineffs_pt_medium;
-          else if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_ID_Loose(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX},   // Bin edeges in pT
+          {0.976333, 0.928653, 0.882698, 0.830078, 0.86466, 0.884306, 0.901769, 0.920381, 0.930032, 0.936581, 0.938994, 0.943589, 0.949449}
+        );
 
-          // Filter muons
-          filtereff_pt(electrons, _eff_pt);
-        }
+        // Medium
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_ID_Medium(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX},   // Bin edeges in pT
+          {0.790671, 0.797679, 0.816062, 0.752183, 0.794807, 0.82801, 0.847541, 0.868796, 0.882008, 0.887868, 0.897518, 0.916475, 0.93233}
+        );
+
+        // Tight
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_ID_Tight(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX},   // Bin edeges in pT
+          {0.582835, 0.608686, 0.670726, 0.651999, 0.684283, 0.716567, 0.747358, 0.768038, 0.782399, 0.795381, 0.815832, 0.853631, 0.884536}
+        );
 
 
-        /// Electron 2020 isolation efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
+        /// Electron 2020 isolation efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data, EGAM-2018-01
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyElectronIsolationEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+        /// Digitize from Fig 16
 
-          // Digitised from Fig 23a
-          const static std::vector<double> binedges_pt = {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_gradient = {0.800008, 0.880847, 0.927209, 0.879823, 0.888724, 0.895806, 0.908012, 0.9198, 0.929307, 0.941235, 0.960432, 0.979162, 0.982515, 0.993515, 0.994261, 0.995376, 0.993139, 0.992581};
-          const static std::vector<double> bineffs_pt_loose = {0.740555, 0.826427, 0.905545, 0.951997, 0.972965, 0.983728, 0.990392, 0.994352, 0.996819, 0.997565, 0.997844, 0.998311, 0.99859, 0.99859, 0.999057, 0.999105, 0.996589, 0.997614};
-          const static std::vector<double> bineffs_pt_tight = {0.458893, 0.541276, 0.617828, 0.698061, 0.769957, 0.822, 0.862863, 0.895528, 0.924554, 0.940538, 0.95321, 0.970449, 0.985547, 0.992351, 0.993187, 0.993606, 0.991326, 0.991326};
-          const static std::vector<double> bineffs_pt_highptcaloonly = {0.982097, 0.975105, 0.969703, 0.967933, 0.966908, 0.965137, 0.965416, 0.966859, 0.970449, 0.970358, 0.967138, 0.962014, 0.950973, 0.926185, 0.904053, 0.908291, 0.925906, 0.929168};
+        // Gradient
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_Gradient(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.800008, 0.880847, 0.927209, 0.879823, 0.888724, 0.895806, 0.908012, 0.9198, 0.929307, 0.941235, 0.960432, 0.979162, 0.982515, 0.993515, 0.994261, 0.995376, 0.993139, 0.992581}
+        );
 
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Gradient")
-            bineffs_pt = bineffs_pt_gradient;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else if (operating_point == "HighPtCaloOnly")
-            bineffs_pt = bineffs_pt_highptcaloonly;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_Loose(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.740555, 0.826427, 0.905545, 0.951997, 0.972965, 0.983728, 0.990392, 0.994352, 0.996819, 0.997565, 0.997844, 0.998311, 0.99859, 0.99859, 0.999057, 0.999105, 0.996589, 0.997614}
+        );
 
-          // Filter muons
-          filtereff_pt(electrons, _eff_pt);
-        }
+        // Tight
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_Tight(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.458893, 0.541276, 0.617828, 0.698061, 0.769957, 0.822, 0.862863, 0.895528, 0.924554, 0.940538, 0.95321, 0.970449, 0.985547, 0.992351, 0.993187, 0.993606, 0.991326, 0.991326}
+        );
+
+        // HighPtCaloOnly
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_HighPtCaloOnly(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.982097, 0.975105, 0.969703, 0.967933, 0.966908, 0.965137, 0.965416, 0.966859, 0.970449, 0.970358, 0.967138, 0.962014, 0.950973, 0.926185, 0.904053, 0.908291, 0.925906, 0.929168}
+        );
 
 
-        /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578
+        // VeryLoose WP from
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_VeryLoose(
+          {0., DBL_MAX},   // Bin edges in eta
+          {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500.,DBL_MAX },   // Bin edges in pT
+          {
+            // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                    0.0,      0.78,     0.80,     0.82,     0.83,       0.84,      0.825,       0.82,       0.81,       0.8,       0.795,       0.79   // eta: (0, DBL_MAX)
+          }
+        );
+
+      /// @}
+
+
+      /// Muon efficiencies
+      /// @{
+
+        /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578, MUON-2018-03
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyMuonIDEfficiency2020(std::vector<const HEPUtils::Particle*>& muons, str operating_point){
+        /// Digitised from Fig 11a
 
-          // Digitised from Fig 11a
-          const static std::vector<double> binedges_pt = {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_tight = {0.0, 0.0, 0.66948, 0.8143, 0.85466, 0.87816, 0.89246, 0.90421, 0.91418, 0.91877, 0.92031, 0.92669, 0.93972};
-          const static std::vector<double> bineffs_pt_medium = {0.45262, 0.61328, 0.80766, 0.9387, 0.96245, 0.97063, 0.97165, 0.97216, 0.97292, 0.97292, 0.97216, 0.97114, 0.97522};
-          const static std::vector<double> bineffs_pt_loose = {0.87075, 0.93129, 0.97241, 0.98851, 0.99157, 0.98851, 0.98799, 0.98799, 0.98799, 0.98748, 0.98672, 0.98748, 0.98927};
-          
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else if (operating_point == "Medium")
-            bineffs_pt = bineffs_pt_medium;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_ID_Loose(
+          {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX},   // Bin edges in pT
+          {0.87075, 0.93129, 0.97241, 0.98851, 0.99157, 0.98851, 0.98799, 0.98799, 0.98799, 0.98748, 0.98672, 0.98748, 0.98927}
+        );
 
-          // Filter muons
-          filtereff_pt(muons, _eff_pt);
-        }
+        // Medium WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_ID_Medium(
+          {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX},   // Bin edges in pT
+          {0.45262, 0.61328, 0.80766, 0.9387, 0.96245, 0.97063, 0.97165, 0.97216, 0.97292, 0.97292, 0.97216, 0.97114, 0.97522}
+        );
 
-        /// Muon 2020 isolation efficiency functions from full Run2 dataset released in 2012.00578
-        /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyMuonIsolationEfficiency2020(std::vector<const HEPUtils::Particle*>& muons, str operating_point){
+        // Tight WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_ID_Tight(
+          {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX},   // Bin edges in pT
+          {0.0, 0.0, 0.66948, 0.8143, 0.85466, 0.87816, 0.89246, 0.90421, 0.91418, 0.91877, 0.92031, 0.92669, 0.93972}
+        );
 
+
+        /// Muon 2020 isolation efficiency functions from full Run2 dataset released in 2012.00578, MUON-2018-03
+        /// @note These efficiencies are 1D efficiencies so only real dependence on p_T is used
+        /// Digitised from Fig 19a
+
+        // Loose WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_Iso_Loose(
           // Digitised from Fig 19a
-          const static std::vector<double> binedges_pt = {3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 55.0, 70.0, 90.0, 150.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_tight = {0.56788, 0.63355, 0.66702, 0.68974, 0.70173, 0.71814, 0.7314, 0.75917, 0.79262, 0.84313, 0.9189, 0.96941, 0.9915, 0.99653, 0.99649, 0.99517};
-          const static std::vector<double> bineffs_pt_loose = {0.655349, 0.725581, 0.765116, 0.788605, 0.82093, 0.851395, 0.877907, 0.92, 0.956279, 0.981163, 0.992558, 0.996744, 0.997442, 0.997442, 0.997674, 0.995116};
+          {3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 55.0, 70.0, 90.0, 150.0, DBL_MAX},   // Bin edges in pT
+          {0.655349, 0.725581, 0.765116, 0.788605, 0.82093, 0.851395, 0.877907, 0.92, 0.956279, 0.981163, 0.992558, 0.996744, 0.997442, 0.997442, 0.997674, 0.995116}
+        );
 
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
 
-          // Filter muons
-          filtereff_pt(muons, _eff_pt);
-        }
+        // Tight WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_Iso_Tight(
+          // Digitised from Fig 19a
+          {3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 55.0, 70.0, 90.0, 150.0, DBL_MAX},   // Bin edges in pT
+          {0.56788, 0.63355, 0.66702, 0.68974, 0.70173, 0.71814, 0.7314, 0.75917, 0.79262, 0.84313, 0.9189, 0.96941, 0.9915, 0.99653, 0.99649, 0.99517}
+        );
 
-        ///@}
+      /// @}
 
-      }
-   }
+      /////////////////////////
+      // ATLAS Efficiency maps //
+
+      // Map of electron efficiencies
+      static const std::map<str, HEPUtils::BinnedFn1D<double> > eff1DEl =
+      {
+        {"PERF_2017_01_ID_VeryLoose",        eff1DEl_PERF_2017_01_ID_VeryLoose},
+        {"PERF_2017_01_ID_Loose",            eff1DEl_PERF_2017_01_ID_Loose},
+        {"PERF_2017_01_ID_Medium",           eff1DEl_PERF_2017_01_ID_Medium},
+        {"PERF_2017_01_ID_Tight",            eff1DEl_PERF_2017_01_ID_Tight},
+        {"PERF_2017_01_Iso_LooseTrackOnly",  eff1DEl_PERF_2017_01_Iso_LooseTrackOnly},
+        {"PERF_2017_01_Iso_Loose",           eff1DEl_PERF_2017_01_Iso_Loose},
+        {"PERF_2017_01_Iso_GradientLoose",   eff1DEl_PERF_2017_01_Iso_GradientLoose},
+        {"PERF_2017_01_Iso_Gradient",        eff1DEl_PERF_2017_01_Iso_Gradient},
+        {"EGAM_2018_01_Recon",               eff1DEl_EGAM_2018_01_Recon},
+        {"EGAM_2018_01_ID_Loose",            eff1DEl_EGAM_2018_01_ID_Loose},
+        {"EGAM_2018_01_ID_Medium",           eff1DEl_EGAM_2018_01_ID_Medium},
+        {"EGAM_2018_01_ID_Tight",            eff1DEl_EGAM_2018_01_ID_Tight},
+        {"EGAM_2018_01_Iso_Gradient",        eff1DEl_EGAM_2018_01_Iso_Gradient},
+        {"EGAM_2018_01_Iso_Loose",           eff1DEl_EGAM_2018_01_Iso_Loose},
+        {"EGAM_2018_01_Iso_Tight",           eff1DEl_EGAM_2018_01_Iso_Tight},
+        {"EGAM_2018_01_Iso_HighPtCaloOnly",  eff1DEl_EGAM_2018_01_Iso_HighPtCaloOnly},
+//        {"VeryLoose", eff2DEl_VeryLoose},
+//        {"Medium", eff2DEl_Medium}
+      };
+
+      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DEl =
+      {
+        {"ATLAS_CONF_2014_032_Medium",     eff2DEl_ATLAS_CONF_2014_032_Medium},
+        {"ATLAS_CONF_2014_032_Tight",      eff2DEl_ATLAS_CONF_2014_032_Tight}
+      };
+
+
+      // Map of muon 1D efficiencies
+      static const std::map<str, HEPUtils::BinnedFn1D<double> > eff1DMu =
+      {
+        {"MUON_2018_03_Iso_Loose", eff1DMu_MUON_2018_03_Iso_Loose},
+        {"MUON_2018_03_Iso_Tight", eff1DMu_MUON_2018_03_Iso_Tight},
+        {"MUON_2018_03_ID_Loose",  eff1DMu_MUON_2018_03_ID_Loose},
+        {"MUON_2018_03_ID_Medium", eff1DMu_MUON_2018_03_ID_Medium},
+        {"MUON_2018_03_ID_Tight",  eff1DMu_MUON_2018_03_ID_Tight}
+      };
+
+      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DMu =
+      {
+      };
+
+    }
+  }
 }

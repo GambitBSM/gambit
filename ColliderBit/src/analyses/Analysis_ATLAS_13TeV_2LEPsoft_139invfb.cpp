@@ -1,9 +1,12 @@
 ///
 ///  \author Tomas Gonzalo
 ///  \date 2019 June
+///  \date 2023 Sep
+///
 ///  *********************************************
 
-// Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2019-014/ 
+// Based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2019-014/
+// Updated by the published paper SUSY-2018-16, https://arxiv.org/abs/1911.12606
 
 // - 139 fb^-1 data
 
@@ -15,6 +18,7 @@
 #include <fstream>
 
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
@@ -31,31 +35,17 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_2LEPsoft_139invfb : public Analysis
     {
 
-    protected:
-
-      // Counters for the number of accepted events for each signal region
-      std::map<string,double> _numSR = {
-        {"SR_chi_lowMET_lowDM", 0},
-        {"SR_chi_lowMET_highDM", 0},
-        {"SR_chi_highMET", 0},
-        {"SR_chi_1l1T", 0},
-        {"SR_sl_lowMET",0},
-        {"SR_sl_highMET",0}
-      };
-
-       vector<Cutflow> _cutflow;
-
     private:
 
-      struct ptComparison
-      {
-        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
-      } comparePt;
+//      struct ptComparison
+//      {
+//        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+//      } comparePt;
 
-      struct ptJetComparison
-      {
-        bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
-      } compareJetPt;
+//      struct ptJetComparison
+//      {
+//        bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
+//      } compareJetPt;
 
 
     public:
@@ -66,53 +56,49 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2LEPsoft_139invfb()
       {
 
+        DEFINE_SIGNAL_REGION("SR-E-low")
+        DEFINE_SIGNAL_REGION("SR-E-med")
+        DEFINE_SIGNAL_REGION("SR-E-high")
+        DEFINE_SIGNAL_REGION("SR-E-1l1T")
+        DEFINE_SIGNAL_REGION("SR-S-low")
+        DEFINE_SIGNAL_REGION("SR-S-high")
+
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
         set_luminosity(139);
-        
-        
-//        str cutflow_name = "ATLAS 2 opposite sign leptons at the Z peak 13 TeV";
-//        vector<str> SR1A = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 4", "MET > 250 GeV", "mT23l > 100 GeV"};
-//        vector<str> SR1B = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 5", "MET > 150 GeV", "pTll > 150 GeV", "Leading b-tagged jet pT > 100 GeV"};
-//        vector<str> SR2A = {"Trigger", "Third leading lepton pT < 20 GeV", "|mll - mZ| < 15 GeV", "Leading jet pT > 150 GeV", "MET > 200 GeV", "pTll < 50 GeV"};
-//        vector<str> SR2B = {"Trigger", "Third leading lepton pT < 60 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "MET > 350 GeV", "pTll > 150 GeV"};
-//        _cutflow = { Cutflow(cutflow_name, SR1A),
-//                     Cutflow(cutflow_name, SR1B),
-//                     Cutflow(cutflow_name, SR2A), 
-//                     Cutflow(cutflow_name, SR2B) };
-
       }
 
       void run(const HEPUtils::Event* event)
       {
 
         // Preselected objects
-        vector<HEPUtils::Particle*> preselectedElectrons;
-        vector<HEPUtils::Particle*> preselectedMuons;
-        vector<HEPUtils::Particle*> preselectedTracks; // This corresponds to low pT electrons and muons
-        vector<HEPUtils::Jet*> preselectedJets;
-        vector<HEPUtils::Jet*> preselectedBJets;
-        vector<HEPUtils::Jet*> preselectedNonBJets;
+        std::vector<const HEPUtils::Particle*> preselectedTracks; // This corresponds to low pT electrons and muons
+        std::vector<const HEPUtils::Jet*> preselectedJets;
+        std::vector<const HEPUtils::Jet*> preselectedBJets;
+        std::vector<const HEPUtils::Jet*> preselectedNonBJets;
 
         // Missing momentum and energy
         double met = event->met();
         HEPUtils::P4 ptot = event->missingmom();
 
 
-        // TODO: Candidate events are required to have at least one reconstructed pp interaction vertex with a minimum of two associated tracks with pT > 500 MeV 
-        // TODO: In events with multiple vertices, the primary vertex is defined as the one with the highest sum pT^2 of associated tracks. 
+        // TODO: Candidate events are required to have at least one reconstructed pp interaction vertex with a minimum of two associated tracks with pT > 500 MeV
+        // TODO: In events with multiple vertices, the primary vertex is defined as the one with the highest sum pT^2 of associated tracks.
         // Missing: We cannot reject events with detector noise or non-collision backgrounds.
 
-        // Electrons are required to have pT > 4.5 GeV and |η| < 2.47. 
+        // Electrons are required to have pT > 4.5 GeV and |η| < 2.47.
         // Preselected tracks with pT > 500 MeV and η < 2.5
-        for (HEPUtils::Particle* electron : event->electrons())
+        BASELINE_PARTICLES(electrons, preselectedElectrons, 4.5, 0, DBL_MAX, 2.47, ATLAS::eff2DEl.at(""))
+        BASELINE_PARTICLES(muons, preselectedMuons, 3.0, 0, DBL_MAX, 2.5, ATLAS::eff2DMu.at(""))
+
+        for (const HEPUtils::Particle* electron : event->electrons())
         {
           if (electron->pT() > 4.5 && electron->abseta() < 2.47)  preselectedElectrons.push_back(electron);
-          else if (electron->pT() > 0.5 && electron->abseta() < 2.5) preselectedTracks.push_back(electron); 
+          else if (electron->pT() > 0.5 && electron->abseta() < 2.5) preselectedTracks.push_back(electron);
         }
 
         // Preselected electrons are further required to pass the calorimeter- and tracking-based VeryLoose likelihood identification (arXiv:1902.04655), and to have a longitudinal impact parameter z0 relative to the primary vertex that satisfies |z0 sin θ| < 0.5 mm.
         // Missing: We cannot add cuts relating to impact parameters
- 
+
         // Apply electron efficiency
         // TODO: Is this needed if below is done
         ATLAS::applyElectronEff(preselectedElectrons);
@@ -122,7 +108,7 @@ namespace Gambit
 
         // Muons are required to satisfy pT > 3 GeV and |η| < 2.5.
         // Preselected tracks with pT > 500 MeV and η < 2.5
-        for (HEPUtils::Particle* muon : event->muons())
+        for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 3.0 && muon->abseta() > 2.5) preselectedMuons.push_back(muon);
           else if (muon->pT() > 0.5 && muon->abseta() > 2.5) preselectedTracks.push_back(muon);
@@ -142,14 +128,14 @@ namespace Gambit
         // Preselected jets are reconstructed from calorimeter topological energy clusters in the region |η| < 4.5 using the anti-kt algorithm with radius parameter R = 0.4. The jets are required to have pT > 20 GeV after being calibrated in accord with Ref. [92] and having the expected energy contribution from pileup subtracted according to the jet area.
         // In order to suppress jets due to pileup, jets with pT < 120 GeV and |η| < 2.5 are required to satisfy the Medium working point of the jet vertex tagger [93], which uses information from the tracks associated to the jet.
         // Missing : no track info
-        for (HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets())
         {
           if (jet->abseta() < 4.5 && jet->pT() > 20.) preselectedJets.push_back(jet);
         }
 
         // B-tagged jets, are identified from preselected jets within |η| < 2.5. The pT > 20 GeV requirement is maintained to maximise the rejection of the tt¯ background. The b-tagging algorithm working point is chosen so that b-jets from simulated tt¯ events are identified with an 85% efficiency, with rejection factors of 3 for charm-quark jets and 34 for light-quark and gluon jets.
         double btag = 0.85; double cmisstag = 1/3.; double misstag = 1/34.;
-        for (HEPUtils::Jet* jet : preselectedJets)
+        for (const HEPUtils::Jet* jet : preselectedJets)
         {
           if (jet->btag() && jet->abseta() < 2.5 && random_bool(btag) ) preselectedBJets.push_back(jet);
           else if (jet->ctag() && random_bool(cmisstag) ) preselectedBJets.push_back(jet);
@@ -187,12 +173,12 @@ namespace Gambit
 
         //***************
         // Signal objects
-        vector<HEPUtils::Particle*> signalElectrons = preselectedElectrons;
-        vector<HEPUtils::Particle*> signalMuons = preselectedMuons;
-        vector<HEPUtils::Jet*> signalJets, signalBJets;
-        vector<HEPUtils::Particle*> signalLeptons, signalTracks;
+        std::vector<const HEPUtils::Particle*> signalElectrons = preselectedElectrons;
+        std::vector<const HEPUtils::Particle*> signalMuons = preselectedMuons;
+        std::vector<const HEPUtils::Jet*> signalJets, signalBJets;
+        std::vector<const HEPUtils::Particle*> signalLeptons, signalTracks;
 
-        // Signal electrons must satisfy the Medium identification criterion (arXiv:1902.04655), and be compatible with originating from the primary vertex, with the significance of the transverse impact parameter defined relative to the beam position satisfying |d0|/σ(d0) < 5. 
+        // Signal electrons must satisfy the Medium identification criterion (arXiv:1902.04655), and be compatible with originating from the primary vertex, with the significance of the transverse impact parameter defined relative to the beam position satisfying |d0|/σ(d0) < 5.
         // Signal electrons are further refined using the Gradient isolation working point (arXiv:1902.04655), which uses both tracking and calorimeter information.
         // Missing: No impact parameter info
         // TODO: Isolation?
@@ -202,17 +188,17 @@ namespace Gambit
         // Signal muons are required to pass the FCTightTrackOnly isolation working point, which uses only tracking information.
         // Missing: No tracking information
 
-        // After all lepton selection criteria are applied, the efficiency for reconstructing and identifying signal electrons within the detector acceptance in the Higgsino and slepton signal samples ranges from 20% for pT = 4.5 GeV to over 75% for pT > 30 GeV. The corresponding efficiency for signal muons ranges from approximately 50% at pT = 3 GeV to 90% for pT > 30 GeV 
+        // After all lepton selection criteria are applied, the efficiency for reconstructing and identifying signal electrons within the detector acceptance in the Higgsino and slepton signal samples ranges from 20% for pT = 4.5 GeV to over 75% for pT > 30 GeV. The corresponding efficiency for signal muons ranges from approximately 50% at pT = 3 GeV to 90% for pT > 30 GeV
         // TODO: maybe use this to avoid efficiency cuts above
 
         // Signal jets are selected if they satisfy pT > 30 GeV and |η| < 2.8.
-        for (HEPUtils::Jet* jet : preselectedNonBJets)
+        for (const HEPUtils::Jet* jet : preselectedNonBJets)
         {
           if (jet->pT() > 30. && jet->abseta() < 2.8) signalJets.push_back(jet);
         }
-        for (HEPUtils::Jet* jet : preselectedBJets)
+        for (const HEPUtils::Jet* jet : preselectedBJets)
         {
-          if (jet->pT() > 30. && jet->abseta() < 2.8) 
+          if (jet->pT() > 30. && jet->abseta() < 2.8)
           {
             signalJets.push_back(jet);
             signalBJets.push_back(jet);
@@ -220,23 +206,23 @@ namespace Gambit
         }
 
         // The sum pT of preselected tracks within ∆R < 0.3 of signal tracks, excluding the contributions from nearby leptons, is required to be smaller than 0.5 GeV.
-        // Finally, signal tracks must satisfy pT > 1 GeV, |z0 sin θ| < 0.5 mm and |d0|/σ(d0) < 3. 
+        // Finally, signal tracks must satisfy pT > 1 GeV, |z0 sin θ| < 0.5 mm and |d0|/σ(d0) < 3.
         // Mising: cannot do impact parameter cuts
         // The efficiency of selecting signal tracks for the studied electroweakino signals is 20% for electrons with 3 < pT < 4 GeV and 35% for muons with 2 < pT < 3 GeV.
-        for (HEPUtils::Particle* track1 : preselectedTracks)
+        for (const HEPUtils::Particle* track1 : preselectedTracks)
         {
           double pTSum = 0;
-          for (HEPUtils::Particle* track2 : preselectedTracks)
+          for (const HEPUtils::Particle* track2 : preselectedTracks)
           {
             if (track2 != track1 && track1->mom().deltaR_eta(track2->mom()) < 0.3)
               pTSum += track2->pT();
           }
           double track_el_eff = 0.2, track_mu_eff = 0.35;
-          if (pTSum < 0.5 && track1->pT() > 1. && 
-             ( ( track1->isElectron() && (track1->pT() <= 3. || track1->pT() >= 4.) && random_bool(track_el_eff) ) || 
+          if (pTSum < 0.5 && track1->pT() > 1. &&
+             ( ( track1->isElectron() && (track1->pT() <= 3. || track1->pT() >= 4.) && random_bool(track_el_eff) ) ||
                ( track1->isMuon() && (track1->pT() <= 2. || track1->pT() >= 3.) && random_bool(track_mu_eff)  ) ) )
             signalTracks.push_back(track1);
-          
+
         }
 
         // Fill signal leptons
@@ -244,10 +230,10 @@ namespace Gambit
         signalLeptons.insert(signalLeptons.end(), signalMuons.begin(), signalMuons.end());
 
         // Sort by pT
-        sort(signalJets.begin(), signalJets.end(), compareJetPt);
-        sort(signalBJets.begin(), signalBJets.end(), compareJetPt);
-        sort(signalLeptons.begin(), signalLeptons.end(), comparePt);
-        sort(signalTracks.begin(), signalTracks.end(), comparePt);
+        sortByPt(signalJets);
+        sortByPt(signalBJets);
+        sortByPt(signalLeptons);
+        sortByPt(signalTracks);
 
         // Preselection requirements
         // Variable            2l                                              1l1T
@@ -273,7 +259,7 @@ namespace Gambit
         size_t nSignalTracks = signalTracks.size();
 
         // 2-particle system
-        vector<HEPUtils::Particle *> signalParticles;
+        std::vector<const HEPUtils::Particle *> signalParticles;
 
         if (nSignalLeptons == 2)
         {
@@ -290,7 +276,7 @@ namespace Gambit
 
         // DeltaR
         double deltaR = signalParticles.at(0)->mom().deltaR_eta(signalParticles.at(1)->mom());
- 
+
         // ID
         bool electron_pair = signalParticles.at(0)->isElectron() && signalParticles.at(1)->isElectron();
         bool muon_pair = signalParticles.at(0)->isMuon() && signalParticles.at(1)->isMuon();
@@ -306,14 +292,14 @@ namespace Gambit
 
         // DeltaPhi
         double minPhi = 0.;
-        for(HEPUtils::Jet *jet : signalJets)
+        for(const HEPUtils::Jet *jet : signalJets)
         {
-          if(minPhi > fabs(jet->phi() - ptot.phi())) 
+          if(minPhi > fabs(jet->phi() - ptot.phi()))
             minPhi = fabs(jet->phi() - ptot.phi());
         }
 
         // Preselection cuts for 2l regions
-        bool preselection_2l = (nSignalLeptons == 2) && 
+        bool preselection_2l = (nSignalLeptons == 2) &&
                                (signalLeptons.at(0)->pT() > 5.) &&
                                (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ) &&
                                (SFOS) &&
@@ -321,19 +307,19 @@ namespace Gambit
                                (mll < 3. && mll > 3.2) &&
                                (random_bool(mtautau_eff)) && // TODO: make sure this efficiency makes sense
                                (met  > 120.) &&
-                               (nSignalJets >= 1) && 
-                               (nSignalBJets == 0) && 
+                               (nSignalJets >= 1) &&
+                               (nSignalBJets == 0) &&
                                (signalJets.at(0)->pT() >= 100.) &&
                                (minPhi  > 0.4) &&
                                (fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.);
-                                 
+
 
         // Preselecton cuts for 1l1T region
-        bool preselection_1l1T = (nSignalLeptons == 1 && nSignalTracks >= 1) && 
-                                 (signalLeptons.at(0)->pT() < 10.) && 
+        bool preselection_1l1T = (nSignalLeptons == 1 && nSignalTracks >= 1) &&
+                                 (signalLeptons.at(0)->pT() < 10.) &&
                                  (deltaR > 0.05 && deltaR < 1.5) &&
                                  (SFOS) &&
-                                 (mll > 0.5 && mll < 5) && 
+                                 (mll > 0.5 && mll < 5) &&
                                  (mll < 3. && mll > 3.2) &&
                                  (met > 120.) &&
                                  (nSignalJets >= 1) &&
@@ -379,16 +365,16 @@ namespace Gambit
 
         // SR_chi_lowMET_lowDM
         if (preselection_2l &&
-            met > 120. && met > 200. && 
-            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) > 10. && 
+            met > 120. && met > 200. &&
+            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) > 10. &&
             // -
             // -
             MTS < 50.
             // -
             // -
            )
-          _numSR["SR_chi_lowMET_lowDM"]++;
- 
+          _counters["SR_chi_lowMET_lowDM"].add_event(event);
+
         // SR_chi_lowMET_highDM
         if (preselection_2l &&
             met > 120. && met > 200. &&
@@ -398,8 +384,8 @@ namespace Gambit
             // -
             mTl1 >= 10. && mTl1 <= 60 &&
             RISR >= 0.8 && RISR <= 1.0
-           ) 
-          _numSR["SR_chi_lowMET_highDM"]++;
+           )
+          _counters["SR_chi_lowMET_highDM"].add_event(event);
 
         // SR_chi_highMET
         if (preselection_2l &&
@@ -411,8 +397,8 @@ namespace Gambit
             mTl1 < 60. &&
             RISR >= max(0.85, 0.98 - 0.02*mll) && RISR <= 1.0
            )
-          _numSR["SR_chi_highMET"]++;
- 
+          _counters["SR_chi_highMET"].add_event(event);
+
         // SR_chi_1l1T
         if (preselection_1l1T &&
             met > 200. &&
@@ -423,10 +409,10 @@ namespace Gambit
             // -
             // -
            )
-          _numSR["SR_chi_1l1T"]++;
+          _counters["SR_chi_1l1T"].add_event(event);
 
         // Slepton Signal regions
-        // Variable           Sl, Low-MET                     Sl, High-MET 
+        // Variable           Sl, Low-MET                     Sl, High-MET
         // ----------------------------------------------------------------------------------------------
         // MET                [150,200]                       > 200                                       // done
         // mT2                < 140                           < 140                                       // done
@@ -456,7 +442,7 @@ namespace Gambit
             signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2-100.)) &&
             RISR >= 0.8 && RISR <= 1.0
            )
-          _numSR["SR_sl_lowMET"]++;
+          _counters["SR_sl_lowMET"].add_event(event);
 
         // SR_sl_highMET
         if (preselection_2l &&
@@ -465,21 +451,14 @@ namespace Gambit
            signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2-100.)) &&
            RISR >= max(0.85, 0.98 - 0.02*(mT2 - 100.)) && RISR <= 1.0
            )
-          _numSR["SR_sl_highMET"]++;
- 
+          _counters["SR_sl_highMET"].add_event(event);
+
 
       }
 
       /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
       void combine(const Analysis* other)
       {
-        const Analysis_ATLAS_13TeV_2LEPsoft_139invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_2LEPsoft_139invfb*>(other);
-
-        for (auto& el : _numSR)
-        {
-          el.second += specificOther->_numSR.at(el.first);
-        }
 
       }
 
@@ -497,11 +476,7 @@ namespace Gambit
         //add_result(SignalRegionData("SR_sl_highMET", n_obs, {s, s_sys}, {b, b_sys}));
 
         #ifdef CHECK_CUTFLOW
-          cout << _cutflow << endl;
-          for (auto& el : _numSR)
-          {
-             cout << el.first << "\t" << _numSR[el.first] << endl;
-          }
+          cout << _cutflows << endl;
         #endif
 
 
@@ -511,7 +486,7 @@ namespace Gambit
     protected:
       void analysis_specific_reset()
       {
-        for (auto& el : _numSR) { el.second = 0.;}
+        for (auto& pair : _counters) { pair.second.reset(); }
       }
 
     };

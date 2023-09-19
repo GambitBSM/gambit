@@ -36,7 +36,7 @@ using namespace std;
 
 namespace Gambit
 {
-  namespace ColliderBit 
+  namespace ColliderBit
   {
 
     class Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb : public Analysis
@@ -57,8 +57,8 @@ namespace Gambit
       static constexpr const char* detector = "ATLAS";
 
       Cutflows _cutflows;
-      
-      Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb() 
+
+      Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb()
       {
         set_analysis_name("ATLAS_13TeV_PhotonGGM_1Photon_139invfb");
         set_luminosity(139.);
@@ -81,7 +81,7 @@ namespace Gambit
                                            "njets >= 3", "dPhi(jet,MET) > 0.4",
 				     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV",});
 
-	
+
       }
 
       void run(const HEPUtils::Event* event)
@@ -112,9 +112,9 @@ namespace Gambit
         // Apply electron efficiency
         ATLAS::applyElectronEff(baselineElectrons);
         // Apply loose electron ID efficiency
-        ATLAS::applyElectronIDEfficiency2020(baselineElectrons, "Loose");
+        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
         // Apply loose electron isolation efficiency
-        ATLAS::applyElectronIsolationEfficiency2020(baselineElectrons, "Loose");
+        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Loose"));
 
 
         // Baseline Muons
@@ -126,7 +126,7 @@ namespace Gambit
         // Apply muon efficiency
         ATLAS::applyMuonEff(baselineMuons);
         // Apply loose muon isolation efficiency
-        ATLAS::applyMuonIsolationEfficiency2020(baselineMuons, "Loose");
+        apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Loose"));
 
 
         // Baseline Jets
@@ -142,7 +142,7 @@ namespace Gambit
 
         // Overlap removal
 	// Inspire by ATLAS code snippet on HEPData
-	// Doesn't exactly match the earlier paper decsription 
+	// Doesn't exactly match the earlier paper decsription
 
 	removeOverlap(baselineElectrons, baselineMuons, 0.01);
 	removeOverlap(baselinePhotons, baselineElectrons, 0.4);
@@ -155,15 +155,15 @@ namespace Gambit
 	vector<const HEPUtils::Particle*> signalElectrons;
 	vector<const HEPUtils::Particle*> signalMuons;
 	vector<const HEPUtils::Particle*> signalPhotons;
-	vector<const HEPUtils::Jet*> signalJets; 
+	vector<const HEPUtils::Jet*> signalJets;
 
-	
+
 	for (size_t i=0;i<baselinePhotons.size();i++)
           {
 	    bool crack = (baselinePhotons.at(i)->abseta() > 1.37) && (baselinePhotons.at(i)->abseta() < 1.52);
             if (baselinePhotons.at(i)->pT()>50. && !crack) signalPhotons.push_back(baselinePhotons.at(i));
           }
-	
+
 	for (size_t i=0;i<baselineMuons.size();i++)
           {
             if (baselineMuons.at(i)->pT()>25.) signalMuons.push_back(baselineMuons.at(i));
@@ -180,7 +180,7 @@ namespace Gambit
             if (baselineJets.at(i)->pT()>30.) signalJets.push_back(baselineJets.at(i));
           }
 
-	
+
         // Put objects in pT order
         sortByPt(signalJets);
         sortByPt(signalElectrons);
@@ -253,7 +253,7 @@ namespace Gambit
 
 	const double w = event->weight();
 	_cutflows.fillinit(w);
-      
+
 	if (_cutflows["SRL"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
@@ -271,7 +271,7 @@ namespace Gambit
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>400., met>600., nJets>=3,
                   deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w)) _counters.at("SRL").add_event(event);
-	  
+
         return;
 
       }
@@ -305,8 +305,8 @@ namespace Gambit
           for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
           cout << "\n" << endl;
 	#endif
-	    
-	
+
+
         return;
       }
 
