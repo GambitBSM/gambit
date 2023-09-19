@@ -703,7 +703,6 @@ namespace Gambit
         }
         else
         {
-          FlavBit_error().raise(LOCAL_INFO, "delete this line");
           result.SM = 1;
           result.model = -3; //force SI to read the THDM as an EFT
           result.Re_DeltaC2  = Dep::DeltaC2->real();
