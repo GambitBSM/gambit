@@ -456,12 +456,6 @@ namespace Gambit
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-
-      }
-
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()
       {

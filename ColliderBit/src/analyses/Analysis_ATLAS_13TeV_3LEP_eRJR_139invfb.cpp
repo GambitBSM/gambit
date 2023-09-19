@@ -28,11 +28,6 @@ namespace Gambit
     {
 
       protected:
-        // Signal region map
-        std::map<string, EventCounter> _counters = {
-          {"SR-low", EventCounter("SR-low")},
-          {"SR-ISR", EventCounter("SR-ISR")},
-        };
 
       private:
 
@@ -90,6 +85,10 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_3LEP_eRJR_139invfb()
         {
+          // Signal region map
+          _counters["SR-low"] = EventCounter("SR-low");
+          _counters["SR-ISR"] = EventCounter("SR-ISR");
+
 
           set_analysis_name("ATLAS_13TeV_3LEP_eRJR_139invfb");
           set_luminosity(139.);
@@ -470,13 +469,6 @@ namespace Gambit
           return;
         } // End of event analysis
 
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_3LEP_eRJR_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_3LEP_eRJR_139invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
 
 
       void collect_results()

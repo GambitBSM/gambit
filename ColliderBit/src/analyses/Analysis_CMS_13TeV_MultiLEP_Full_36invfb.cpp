@@ -27,156 +27,20 @@
 
 using namespace std;
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
     // This analysis class is a base class for three SR-specific analysis classes
     // defined further down:
     // - Analysis_CMS_13TeV_MultiLEP_Full_2SSLep_36invfb
     // - Analysis_CMS_13TeV_MultiLEP_Full_3Lep_36invfb
     // - Analysis_CMS_13TeV_MultiLEP_Full_3Lep_rebinned_36invfb
-    class Analysis_CMS_13TeV_MultiLEP_Full_36invfb : public Analysis {
+    class Analysis_CMS_13TeV_MultiLEP_Full_36invfb : public Analysis
+    {
 
     protected:
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        // 2SSLep SRs
-        {"SS01", EventCounter("SS01")},
-        {"SS02", EventCounter("SS02")},
-        {"SS03", EventCounter("SS03")},
-        {"SS04", EventCounter("SS04")},
-        {"SS05", EventCounter("SS05")},
-        {"SS06", EventCounter("SS06")},
-        {"SS07", EventCounter("SS07")},
-        {"SS08", EventCounter("SS08")},
-        {"SS09", EventCounter("SS09")},
-        {"SS10", EventCounter("SS10")},
-        {"SS11", EventCounter("SS11")},
-        {"SS12", EventCounter("SS12")},
-        {"SS13", EventCounter("SS13")},
-        {"SS14", EventCounter("SS14")},
-        {"SS15", EventCounter("SS15")},
-        {"SS16", EventCounter("SS16")},
-        {"SS17", EventCounter("SS17")},
-        {"SS18", EventCounter("SS18")},
-        {"SS19", EventCounter("SS19")},
-        {"SS20", EventCounter("SS20")},
-        {"SS21", EventCounter("SS21")},
-        {"SS22", EventCounter("SS22")},
-        {"SS23", EventCounter("SS23")},
-        {"SS24", EventCounter("SS24")},
-        {"SS25", EventCounter("SS25")},
-        {"SS26", EventCounter("SS26")},
-        {"SS27", EventCounter("SS27")},
-        {"SS28", EventCounter("SS28")},
-        {"SS29", EventCounter("SS29")},
-        {"SS30", EventCounter("SS30")},
-        // 3Lep SRs
-        {"A01", EventCounter("A01")},
-        {"A02", EventCounter("A02")},
-        {"A03", EventCounter("A03")},
-        {"A04", EventCounter("A04")},
-        {"A05", EventCounter("A05")},
-        {"A06", EventCounter("A06")},
-        {"A07", EventCounter("A07")},
-        {"A08", EventCounter("A08")},
-        {"A09", EventCounter("A09")},
-        {"A10", EventCounter("A10")},
-        {"A11", EventCounter("A11")},
-        {"A12", EventCounter("A12")},
-        {"A13", EventCounter("A13")},
-        {"A14", EventCounter("A14")},
-        // SR A15 overlaps with a CR and is not used for the results in arxiv:1709.05406
-        // {"A15", EventCounter("A16")},
-        {"A16", EventCounter("A16")},
-        {"A17", EventCounter("A17")},
-        {"A18", EventCounter("A18")},
-        {"A19", EventCounter("A19")},
-        {"A20", EventCounter("A20")},
-        {"A21", EventCounter("A21")},
-        {"A22", EventCounter("A22")},
-        {"A23", EventCounter("A23")},
-        {"A24", EventCounter("A24")},
-        {"A25", EventCounter("A25")},
-        {"A26", EventCounter("A26")},
-        {"A27", EventCounter("A27")},
-        {"A28", EventCounter("A28")},
-        {"A29", EventCounter("A29")},
-        {"A30", EventCounter("A30")},
-        {"A31", EventCounter("A31")},
-        {"A32", EventCounter("A32")},
-        {"A33", EventCounter("A33")},
-        {"A34", EventCounter("A34")},
-        {"A35", EventCounter("A35")},
-        {"A36", EventCounter("A36")},
-        {"A37", EventCounter("A37")},
-        {"A38", EventCounter("A38")},
-        {"A39", EventCounter("A39")},
-        {"A40", EventCounter("A40")},
-        {"A41", EventCounter("A41")},
-        {"A42", EventCounter("A42")},
-        {"A43", EventCounter("A43")},
-        {"A44", EventCounter("A44")},
-        // 3Lep_rebinned SRs
-        {"SR01", EventCounter("SR01")},
-        {"SR02", EventCounter("SR02")},
-        {"SR03", EventCounter("SR03")},
-        {"SR04", EventCounter("SR04")},
-        {"SR05", EventCounter("SR05")},
-        {"SR06", EventCounter("SR06")},
-        {"SR07", EventCounter("SR07")},
-        {"SR08", EventCounter("SR08")},
-        {"SR09", EventCounter("SR09")},
-        {"SR10", EventCounter("SR10")},
-        {"SR11", EventCounter("SR11")},
-        {"SR12", EventCounter("SR12")},
-        {"SR13", EventCounter("SR13")},
-        {"SR14", EventCounter("SR14")},
-        {"SR15", EventCounter("SR15")},
-        {"SR16", EventCounter("SR16")},
-        {"SR17", EventCounter("SR17")},
-        {"SR18", EventCounter("SR18")},
-        {"SR19", EventCounter("SR19")},
-        {"SR20", EventCounter("SR20")},
-        {"SR21", EventCounter("SR21")},
-        {"SR22", EventCounter("SR22")},
-        {"SR23", EventCounter("SR23")},
-        {"SR24", EventCounter("SR24")},
-        {"SR25", EventCounter("SR25")},
-        {"SR26", EventCounter("SR26")},
-        {"SR27", EventCounter("SR27")},
-        {"SR28", EventCounter("SR28")},
-        {"SR29", EventCounter("SR29")},
-        {"SR30", EventCounter("SR30")},
-        {"SR31", EventCounter("SR31")},
-        {"SR32", EventCounter("SR32")},
-        {"SR33", EventCounter("SR33")},
-        {"SR34", EventCounter("SR34")},
-        {"SR35", EventCounter("SR35")},
-        {"SR36", EventCounter("SR36")},
-        {"SR37", EventCounter("SR37")},
-        {"SR38", EventCounter("SR38")},
-        {"SR39", EventCounter("SR39")},
-        {"SR40", EventCounter("SR40")},
-        {"SR41", EventCounter("SR41")},
-        {"SR42", EventCounter("SR42")},
-        {"SR43", EventCounter("SR43")},
-        {"SR44", EventCounter("SR44")},
-        {"SR45", EventCounter("SR45")},
-        {"SR46", EventCounter("SR46")},
-        {"SR47", EventCounter("SR47")},
-        {"SR48", EventCounter("SR48")},
-        {"SR49", EventCounter("SR49")},
-        {"SR50", EventCounter("SR50")},
-        {"SR51", EventCounter("SR51")},
-        {"SR52", EventCounter("SR52")},
-        {"SR53", EventCounter("SR53")},
-        {"SR54", EventCounter("SR54")},
-        {"SR55", EventCounter("SR55")},
-        {"SR56", EventCounter("SR56")},
-        {"SR57", EventCounter("SR57")},
-        {"SR58", EventCounter("SR58")},
-      };
 
     private:
 
@@ -197,7 +61,148 @@ namespace Gambit {
         bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
 
-      Analysis_CMS_13TeV_MultiLEP_Full_36invfb() {
+      Analysis_CMS_13TeV_MultiLEP_Full_36invfb()
+      {
+
+        // Counters for the number of accepted events for each signal region
+        // 2SSLep SRs
+        _counters["SS01"] = EventCounter("SS01");
+        _counters["SS02"] = EventCounter("SS02");
+        _counters["SS03"] = EventCounter("SS03");
+        _counters["SS04"] = EventCounter("SS04");
+        _counters["SS05"] = EventCounter("SS05");
+        _counters["SS06"] = EventCounter("SS06");
+        _counters["SS07"] = EventCounter("SS07");
+        _counters["SS08"] = EventCounter("SS08");
+        _counters["SS09"] = EventCounter("SS09");
+        _counters["SS10"] = EventCounter("SS10");
+        _counters["SS11"] = EventCounter("SS11");
+        _counters["SS12"] = EventCounter("SS12");
+        _counters["SS13"] = EventCounter("SS13");
+        _counters["SS14"] = EventCounter("SS14");
+        _counters["SS15"] = EventCounter("SS15");
+        _counters["SS16"] = EventCounter("SS16");
+        _counters["SS17"] = EventCounter("SS17");
+        _counters["SS18"] = EventCounter("SS18");
+        _counters["SS19"] = EventCounter("SS19");
+        _counters["SS20"] = EventCounter("SS20");
+        _counters["SS21"] = EventCounter("SS21");
+        _counters["SS22"] = EventCounter("SS22");
+        _counters["SS23"] = EventCounter("SS23");
+        _counters["SS24"] = EventCounter("SS24");
+        _counters["SS25"] = EventCounter("SS25");
+        _counters["SS26"] = EventCounter("SS26");
+        _counters["SS27"] = EventCounter("SS27");
+        _counters["SS28"] = EventCounter("SS28");
+        _counters["SS29"] = EventCounter("SS29");
+        _counters["SS30"] = EventCounter("SS30");
+        // 3Lep SRs
+        _counters["A01"] = EventCounter("A01");
+        _counters["A02"] = EventCounter("A02");
+        _counters["A03"] = EventCounter("A03");
+        _counters["A04"] = EventCounter("A04");
+        _counters["A05"] = EventCounter("A05");
+        _counters["A06"] = EventCounter("A06");
+        _counters["A07"] = EventCounter("A07");
+        _counters["A08"] = EventCounter("A08");
+        _counters["A09"] = EventCounter("A09");
+        _counters["A10"] = EventCounter("A10");
+        _counters["A11"] = EventCounter("A11");
+        _counters["A12"] = EventCounter("A12");
+        _counters["A13"] = EventCounter("A13");
+        _counters["A14"] = EventCounter("A14");
+        // SR A15 overlaps with a CR and is not used for the results in arxiv:1709.05406
+        // _counters["A15"] = EventCounter("A16");
+        _counters["A16"] = EventCounter("A16");
+        _counters["A17"] = EventCounter("A17");
+        _counters["A18"] = EventCounter("A18");
+        _counters["A19"] = EventCounter("A19");
+        _counters["A20"] = EventCounter("A20");
+        _counters["A21"] = EventCounter("A21");
+        _counters["A22"] = EventCounter("A22");
+        _counters["A23"] = EventCounter("A23");
+        _counters["A24"] = EventCounter("A24");
+        _counters["A25"] = EventCounter("A25");
+        _counters["A26"] = EventCounter("A26");
+        _counters["A27"] = EventCounter("A27");
+        _counters["A28"] = EventCounter("A28");
+        _counters["A29"] = EventCounter("A29");
+        _counters["A30"] = EventCounter("A30");
+        _counters["A31"] = EventCounter("A31");
+        _counters["A32"] = EventCounter("A32");
+        _counters["A33"] = EventCounter("A33");
+        _counters["A34"] = EventCounter("A34");
+        _counters["A35"] = EventCounter("A35");
+        _counters["A36"] = EventCounter("A36");
+        _counters["A37"] = EventCounter("A37");
+        _counters["A38"] = EventCounter("A38");
+        _counters["A39"] = EventCounter("A39");
+        _counters["A40"] = EventCounter("A40");
+        _counters["A41"] = EventCounter("A41");
+        _counters["A42"] = EventCounter("A42");
+        _counters["A43"] = EventCounter("A43");
+        _counters["A44"] = EventCounter("A44");
+        // 3Lep_rebinned SRs
+        _counters["SR01"] = EventCounter("SR01");
+        _counters["SR02"] = EventCounter("SR02");
+        _counters["SR03"] = EventCounter("SR03");
+        _counters["SR04"] = EventCounter("SR04");
+        _counters["SR05"] = EventCounter("SR05");
+        _counters["SR06"] = EventCounter("SR06");
+        _counters["SR07"] = EventCounter("SR07");
+        _counters["SR08"] = EventCounter("SR08");
+        _counters["SR09"] = EventCounter("SR09");
+        _counters["SR10"] = EventCounter("SR10");
+        _counters["SR11"] = EventCounter("SR11");
+        _counters["SR12"] = EventCounter("SR12");
+        _counters["SR13"] = EventCounter("SR13");
+        _counters["SR14"] = EventCounter("SR14");
+        _counters["SR15"] = EventCounter("SR15");
+        _counters["SR16"] = EventCounter("SR16");
+        _counters["SR17"] = EventCounter("SR17");
+        _counters["SR18"] = EventCounter("SR18");
+        _counters["SR19"] = EventCounter("SR19");
+        _counters["SR20"] = EventCounter("SR20");
+        _counters["SR21"] = EventCounter("SR21");
+        _counters["SR22"] = EventCounter("SR22");
+        _counters["SR23"] = EventCounter("SR23");
+        _counters["SR24"] = EventCounter("SR24");
+        _counters["SR25"] = EventCounter("SR25");
+        _counters["SR26"] = EventCounter("SR26");
+        _counters["SR27"] = EventCounter("SR27");
+        _counters["SR28"] = EventCounter("SR28");
+        _counters["SR29"] = EventCounter("SR29");
+        _counters["SR30"] = EventCounter("SR30");
+        _counters["SR31"] = EventCounter("SR31");
+        _counters["SR32"] = EventCounter("SR32");
+        _counters["SR33"] = EventCounter("SR33");
+        _counters["SR34"] = EventCounter("SR34");
+        _counters["SR35"] = EventCounter("SR35");
+        _counters["SR36"] = EventCounter("SR36");
+        _counters["SR37"] = EventCounter("SR37");
+        _counters["SR38"] = EventCounter("SR38");
+        _counters["SR39"] = EventCounter("SR39");
+        _counters["SR40"] = EventCounter("SR40");
+        _counters["SR41"] = EventCounter("SR41");
+        _counters["SR42"] = EventCounter("SR42");
+        _counters["SR43"] = EventCounter("SR43");
+        _counters["SR44"] = EventCounter("SR44");
+        _counters["SR45"] = EventCounter("SR45");
+        _counters["SR46"] = EventCounter("SR46");
+        _counters["SR47"] = EventCounter("SR47");
+        _counters["SR48"] = EventCounter("SR48");
+        _counters["SR49"] = EventCounter("SR49");
+        _counters["SR50"] = EventCounter("SR50");
+        _counters["SR51"] = EventCounter("SR51");
+        _counters["SR52"] = EventCounter("SR52");
+        _counters["SR53"] = EventCounter("SR53");
+        _counters["SR54"] = EventCounter("SR54");
+        _counters["SR55"] = EventCounter("SR55");
+        _counters["SR56"] = EventCounter("SR56");
+        _counters["SR57"] = EventCounter("SR57");
+        _counters["SR58"] = EventCounter("SR58");
+
+
 
         set_analysis_name("CMS_13TeV_MultiLEP_Full_36invfb");
         set_luminosity(35.9);
@@ -618,37 +623,6 @@ namespace Gambit {
           }
         }
 
-
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_MultiLEP_Full_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_MultiLEP_Full_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS1 != specificOther->NCUTS1) NCUTS1 = specificOther->NCUTS1;
-        if (NCUTS2 != specificOther->NCUTS2) NCUTS2 = specificOther->NCUTS2;
-        if (NCUTS3 != specificOther->NCUTS3) NCUTS3 = specificOther->NCUTS3;
-        if (NCUTS4 != specificOther->NCUTS4) NCUTS4 = specificOther->NCUTS4;
-        for (size_t j = 0; j < NCUTS1; j++) {
-          cutFlowVector1[j] += specificOther->cutFlowVector1[j];
-          cutFlowVector_str1[j] = specificOther->cutFlowVector_str1[j];
-        }
-        for (size_t j = 0; j < NCUTS2; j++) {
-          cutFlowVector2[j] += specificOther->cutFlowVector2[j];
-          cutFlowVector_str2[j] = specificOther->cutFlowVector_str2[j];
-        }
-        for (size_t j = 0; j < NCUTS3; j++) {
-          cutFlowVector3[j] += specificOther->cutFlowVector3[j];
-          cutFlowVector_str3[j] = specificOther->cutFlowVector_str3[j];
-        }
-        for (size_t j = 0; j < NCUTS4; j++) {
-          cutFlowVector4[j] += specificOther->cutFlowVector4[j];
-          cutFlowVector_str4[j] = specificOther->cutFlowVector_str4[j];
-        }
 
       }
 

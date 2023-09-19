@@ -3,13 +3,13 @@
 ///  \date 2023 September
 ///  *********************************************
 
-// Based on: 
+// Based on:
 // - https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-004
 
 // Search for higgsinos decaying to two Higgs bosons and missing transverse momentum in proton-proton collisions at 13 TeV
 // https://arxiv.org/abs/2201.04206
 // CMS-SUS-20-004, CERN-EP-2021-214
-// 
+//
 // Note:
 //    * Not validate.
 //    * No AK8 jets.
@@ -38,7 +38,7 @@ namespace Gambit {
 
     class Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb : public Analysis {
     protected:
-    
+
         // Counters for the number of accepted events for each signal region
         std::map<str, EventCounter> _counters;
         Cutflow _cutflow;
@@ -49,14 +49,14 @@ namespace Gambit {
 
         Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb():
         _cutflow("CMS_13TeV_2Higgs_4b_neutralino_137invfb", {
-          "Filters", 
-          "N_vl=N_tk=0", 
+          "Filters",
+          "N_vl=N_tk=0",
           "4<=N_jet<=5",
           "N_b>=2"})
         {
             set_analysis_name("CMS_13TeV_2Higgs_4b_neutralino_137invfb");
             set_luminosity(137);
-            
+
             for(size_t i=1; i<=21; ++i)
             {
               _counters["SR"+std::to_string(i)] =  EventCounter("SR"+std::to_string(i));
@@ -87,7 +87,7 @@ namespace Gambit {
                 // Misstag light jet
                 else if( random_bool(0.05) ) baselineBJets_AK8.push_back(jet);
             }
-            
+
             // Define baseline objects with BASELINE(object_type, variable_name, minpT, mineta[, maxpT, maxeta, efficiency])
             BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
             BASELINE_PARTICLES(muons, baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
@@ -100,7 +100,7 @@ namespace Gambit {
             SIGNAL_JETS(baselineBJets_M, signalBJets_M)
             SIGNAL_JETS(baselineBJets_T, signalBJets_T)
             SIGNAL_JETS(baselineBJets_AK8, signalBJets_AK8)
-          
+
 
             // for the boosted signature
             if ( signalJets_AK8.size()>=2 ) { // N_AK8>=2
@@ -129,13 +129,13 @@ namespace Gambit {
                     }
                   }
                 }
-              } 
+              }
             }
-            
+
             // the resolved signature
             if(met < 150.) return;
             _cutflow.fill(1); // MET>150
-            if (baselineElectrons.size()>0 or baselineMuons.size()>0 ) return; 
+            if (baselineElectrons.size()>0 or baselineMuons.size()>0 ) return;
             _cutflow.fill(2); // N_vl=N_tk=0 TODO?
             if (signalJets_AK4.size()<4 or signalJets_AK4.size()>5) return;
             _cutflow.fill(3); // 4<=N_jet<=5
@@ -169,15 +169,15 @@ namespace Gambit {
             }
             if (mbb_delta_smallest>40 or mbb_average>200) return;
             _cutflow.fill(6); // Delta_m_bb < 40 GeV, <m_bb> < 200 GeV
-            
+
             double Delta_R_max = max(deltaR_eta(signalJets_AK4.at(pair1[i_smallest][0])->mom(), signalJets_AK4.at(pair1[i_smallest][1])->mom()),
                                      deltaR_eta(signalJets_AK4.at(pair2[i_smallest][0])->mom(), signalJets_AK4.at(pair2[i_smallest][1])->mom()));
             if (Delta_R_max > 2.2) return;
             _cutflow.fill(7); // Delta_R_max< 2.2
- 
+
             if (mbb_average>140 or mbb_average<100) return;
             _cutflow.fill(8); // 100 < <m_bb> < 140 GeV
- 
+
             if (Delta_R_max>1.1) { // && Delta_R_max<2.2
               if (signalBJets_M.size() == 3 and signalBJets_L.size() == 3 ) { // Nb=3
                  // and signalBJets_T.size() >= 2
@@ -229,15 +229,6 @@ namespace Gambit {
             }
 
             return;
-        }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-            const Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb*>(other);
-
-            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
         }
 
 

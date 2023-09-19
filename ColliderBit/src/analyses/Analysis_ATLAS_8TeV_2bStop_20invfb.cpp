@@ -34,10 +34,6 @@ namespace Gambit
     {
       private:
 
-        // Numbers passing cuts
-        double _numSRA, _numSRB;
-        double _numSRA15, _numSRA20, _numSRA25, _numSRA30, _numSRA35;
-
         vector<int> cutFlowVector;
         vector<string> cutFlowVector_str;
         int NCUTS; //=2;
@@ -64,7 +60,14 @@ namespace Gambit
           set_analysis_name("ATLAS_8TeV_2bStop_20invfb");
           set_luminosity(20.1);
 
-          _numSRA = 0 ; _numSRB = 0; _numSRA15 = 0; _numSRA20 = 0; _numSRA25 = 0; _numSRA30 = 0; _numSRA35 = 0;
+          _counters["SRA"] = EventCounter("SRA");
+          _counters["SRB"] = EventCounter("SRB");
+          _counters["SRA15"] = EventCounter("SRA15");
+          _counters["SRA25"] = EventCounter("SRA25");
+          _counters["SRA30"] = EventCounter("SRA30");
+          _counters["SRA35"] = EventCounter("SRA35");
+
+
           NCUTS=30;
 
           for(int i=0;i<NCUTS;i++)
@@ -440,43 +443,22 @@ namespace Gambit
           }
 
           //We're now ready to apply the cuts for each signal region
-          //_numSRA, _numSRB, _numSRA15, _numSRA20, _numSRA25, _numSRA30, _numSRA35;
+          //SRA, SRB, SRA15, SRA20, SRA25, SRA30, SRA35;
 
           if(cut_ElectronVeto && cut_MuonVeto && cut_METGt150 && passSRAJetCut && passSRAbJetCut && cut_dPhiJets && cut_METmeff2 && mbb>200.)
           {
-            _numSRA += event->weight();
-            if(mCT>150.) _numSRA15 += event->weight();
-            if(mCT>200.) _numSRA20 += event->weight();
-            if(mCT>250.) _numSRA25 += event->weight();
-            if(mCT>300.) _numSRA30 += event->weight();
-            if(mCT>350.) _numSRA35 += event->weight();
+            _counters["SRA "].add_event(event);
+            if(mCT>150.) _counters["SRA15"].add_event(event);
+            if(mCT>200.) _counters["SRA20 "].add_event(event);
+            if(mCT>250.) _counters["SRA25 "].add_event(event);
+            if(mCT>300.) _counters["SRA30 "].add_event(event);
+            if(mCT>350.) _counters["SRA35 "].add_event(event);
           }
-          if(cut_ElectronVeto && cut_MuonVeto && cut_METGt250 && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.) _numSRB += event->weight();
+          if(cut_ElectronVeto && cut_MuonVeto && cut_METGt250 && passSRBJetCut && cut_dPhiJet1 && passSRBbJetCut && cut_dPhiJets && cut_METmeff3 && ht3<50.) _counters["SRB "].add_event(event);
 
 
           return;
 
-        }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_8TeV_2bStop_20invfb* specificOther
-                  = dynamic_cast<const Analysis_ATLAS_8TeV_2bStop_20invfb*>(other);
-
-          if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-          for (int j=0; j<NCUTS; j++)
-          {
-            cutFlowVector[j] += specificOther->cutFlowVector[j];
-            cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-          }
-          _numSRA += specificOther->_numSRA;
-          _numSRB += specificOther->_numSRB;
-          _numSRA15 += specificOther->_numSRA15;
-          _numSRA20 += specificOther->_numSRA20;
-          _numSRA25 += specificOther->_numSRA25;
-          _numSRA30 += specificOther->_numSRA30;
-          _numSRA35 += specificOther->_numSRA35;
         }
 
 
@@ -496,14 +478,12 @@ namespace Gambit
           }
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
-          // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
-
-          add_result(SignalRegionData("SRA15", 102., {_numSRA15, 0.}, { 94., 13.}));
-          add_result(SignalRegionData("SRA20", 48., {_numSRA20, 0.}, { 39., 6.}));
-          add_result(SignalRegionData("SRA25", 14., {_numSRA25, 0.}, { 15.8, 2.8}));
-          add_result(SignalRegionData("SRA30", 7., {_numSRA30, 0.}, { 5.9, 1.1}));
-          add_result(SignalRegionData("SRA35", 3., {_numSRA35, 0.}, { 2.5, 0.6}));
-          add_result(SignalRegionData("SRB", 65., {_numSRB, 0.}, { 64., 10.}));
+          add_result(SignalRegionData(_counters.at("SRA15"), 102., { 94., 13.}));
+          add_result(SignalRegionData(_counters.at("SRA20"), 48., { 39., 6.}));
+          add_result(SignalRegionData(_counters.at("SRA25"), 14., { 15.8, 2.8}));
+          add_result(SignalRegionData(_counters.at("SRA30"), 7., { 5.9, 1.1}));
+          add_result(SignalRegionData(_counters.at("SRA35"), 3., { 2.5, 0.6}));
+          add_result(SignalRegionData(_counters.at("SRB"), 65., { 64., 10.}));
 
   //        plots_mct->createFile(luminosity(),(85.5847/50000));
   //        plots_mbb->createFile(luminosity(),(85.5847/50000));
@@ -519,7 +499,8 @@ namespace Gambit
       protected:
         void analysis_specific_reset()
         {
-          _numSRA = 0 ; _numSRB = 0; _numSRA15 = 0; _numSRA20 = 0; _numSRA25 = 0; _numSRA30 = 0; _numSRA35 = 0;
+
+          for (auto& pair : _counters) { pair.second.reset(); }
 
           std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         }

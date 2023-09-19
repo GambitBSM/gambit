@@ -24,8 +24,8 @@ namespace Gambit
 {
   namespace ColliderBit
   {
-    bool sortByPT13(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
-    bool sortByPT13_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT13(jet1.get(), jet2.get()); }
+    bool sortByPT14(const HEPUtils::Jet *jet1, const HEPUtils::Jet *jet2) { return (jet1->pT() > jet2->pT()); }
+    bool sortByPT14_sharedptr(std::shared_ptr<HEPUtils::Jet> jet1, std::shared_ptr<HEPUtils::Jet> jet2) { return sortByPT14(jet1.get(), jet2.get()); }
 
     class Analysis_CMS_13TeV_1LEPbb_137invfb : public Analysis
     {
@@ -220,12 +220,12 @@ namespace Gambit
           signalJets.push_back(jet);
         }
 
-        std::sort(signalJets.begin(), signalJets.end(), sortByPT13);
-        std::sort(signalBJets.begin(), signalBJets.end(), sortByPT13);
-        std::sort(signalNonBJets.begin(), signalNonBJets.end(), sortByPT13);
+        std::sort(signalJets.begin(), signalJets.end(), sortByPT14);
+        std::sort(signalBJets.begin(), signalBJets.end(), sortByPT14);
+        std::sort(signalNonBJets.begin(), signalNonBJets.end(), sortByPT14);
 
         vector<std::shared_ptr<HEPUtils::Jet>>LargeRJets = get_jets(signalJets, 0.8);
-        std::sort(LargeRJets.begin(), LargeRJets.end(), sortByPT13_sharedptr);
+        std::sort(LargeRJets.begin(), LargeRJets.end(), sortByPT14_sharedptr);
 
         vector<std::shared_ptr<HEPUtils::Jet>> signalLargeRJets;
         for (const auto& jet : LargeRJets)
@@ -348,15 +348,6 @@ namespace Gambit
           }
         }
         // if
-      }
-
-      void combine(const Analysis *other)
-      {
-        const Analysis_CMS_13TeV_1LEPbb_137invfb *specificOther = dynamic_cast<const Analysis_CMS_13TeV_1LEPbb_137invfb *>(other);
-        for (auto &pair : _counters)
-        {
-          pair.second += specificOther->_counters.at(pair.first);
-        }
       }
 
       virtual void collect_results()

@@ -32,10 +32,6 @@ namespace Gambit {
     class Analysis_ATLAS_8TeV_0LEPStop_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _numSRA1, _numSRA2, _numSRA3, _numSRA4;
-      double _numSRC1, _numSRC2, _numSRC3;
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=16;
@@ -103,8 +99,15 @@ namespace Gambit {
         set_analysis_name("ATLAS_8TeV_0LEPStop_20invfb");
         set_luminosity(20.1);
 
-        _numSRA1 = 0 ; _numSRA2 = 0; _numSRA3 = 0; _numSRA4 = 0;
-        _numSRC1 = 0 ; _numSRC2 = 0; _numSRC3 = 0;
+        // Numbers passing cuts
+        _counters["SRA1"] = EventCounter("SRA1");
+        _counters["SRA2"] = EventCounter("SRA2");
+        _counters["SRA3"] = EventCounter("SRA3");
+        _counters["SRA4"] = EventCounter("SRA4");
+        _counters["SRC1"] = EventCounter("SRC1");
+        _counters["SRC2"] = EventCounter("SRC2");
+        _counters["SRC3"] = EventCounter("SRC3");
+
         NCUTS=23;
 
         for(int i=0;i<NCUTS;i++){
@@ -643,62 +646,38 @@ namespace Gambit {
           }*/
 
         //We're now ready to apply the cuts for each signal region
-        //_numSR1, _numSR2, _numSR3;
 
-        if(isSRA1) _numSRA1 += event->weight();
-        if(isSRA2) _numSRA2 += event->weight();
-        if(isSRA3) _numSRA3 += event->weight();
-        if(isSRA4) _numSRA4 += event->weight();
+        if(isSRA1) _counters["SRA1"].add_event(event);
+        if(isSRA2) _counters["SRA2"].add_event(event);
+        if(isSRA3) _counters["SRA3"].add_event(event);
+        if(isSRA4) _counters["SRA4"].add_event(event);
 
-        if(isSRC1) _numSRC1 += event->weight();
-        if(isSRC2) _numSRC2 += event->weight();
-        if(isSRC3) _numSRC3 += event->weight();
+        if(isSRC1) _counters["SRC1"].add_event(event);
+        if(isSRC2) _counters["SRC2"].add_event(event);
+        if(isSRC3) _counters["SRC3"].add_event(event);
 
         return;
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_8TeV_0LEPStop_20invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_8TeV_0LEPStop_20invfb*>(other);
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-        _numSRA1 += specificOther->_numSRA1;
-        _numSRA2 += specificOther->_numSRA2;
-        _numSRA3 += specificOther->_numSRA3;
-        _numSRA4 += specificOther->_numSRA4;
-        _numSRC1 += specificOther->_numSRC1;
-        _numSRC2 += specificOther->_numSRC2;
-        _numSRC3 += specificOther->_numSRC3;
-      }
-
-
       void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
-
-        add_result(SignalRegionData("SRA1", 11., {_numSRA1, 0.}, {15.8, 1.9}));
-        add_result(SignalRegionData("SRA2", 4., {_numSRA2, 0.}, {4.1, 0.8}));
-        add_result(SignalRegionData("SRA3", 5., {_numSRA3, 0.}, {4.1, 0.9}));
-        add_result(SignalRegionData("SRA4", 4., {_numSRA4, 0.}, {2.4, 0.7}));
-        add_result(SignalRegionData("SRC1", 59., {_numSRC1, 0.}, {68., 7.}));
-        add_result(SignalRegionData("SRC2", 30., {_numSRC2, 0.}, {34., 5.}));
-        add_result(SignalRegionData("SRC3", 15., {_numSRC3, 0.}, {20.3, 3.}));
+        add_result(SignalRegionData(_counters["SRA1"], 11., {15.8, 1.9}));
+        add_result(SignalRegionData(_counters["SRA2"], 4., {4.1, 0.8}));
+        add_result(SignalRegionData(_counters["SRA3"], 5., {4.1, 0.9}));
+        add_result(SignalRegionData(_counters["SRA4"], 4., {2.4, 0.7}));
+        add_result(SignalRegionData(_counters["SRC1"], 59., {68., 7.}));
+        add_result(SignalRegionData(_counters["SRC2"], 30., {34., 5.}));
+        add_result(SignalRegionData(_counters["SRC3"], 15., {20.3, 3.}));
 
         return;
       }
 
 
     protected:
-      void analysis_specific_reset() {
-        _numSRA1 = 0 ; _numSRA2 = 0; _numSRA3 = 0; _numSRA4 = 0;
-        _numSRC1 = 0 ; _numSRC2 = 0; _numSRC3 = 0;
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

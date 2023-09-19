@@ -359,11 +359,6 @@ namespace Gambit
 
       }
 
-      void combine(const Analysis* other)
-      {
-
-      }
-
 
       virtual void collect_results()
       {

@@ -43,13 +43,6 @@ namespace Gambit
     {
     protected:
 
-      // Numbers passing cuts
-      std::map<string, EventCounter> _counters = {
-        {"SRL", EventCounter("SRL")},
-        {"SRM", EventCounter("SRM")},
-        {"SRH", EventCounter("SRH")},
-      };
-
 
     public:
 
@@ -60,6 +53,13 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb()
       {
+
+        // Numbers passing cuts
+        _counters["SRL"] = EventCounter("SRL");
+        _counters["SRM"] = EventCounter("SRM");
+        _counters["SRH"] = EventCounter("SRH");
+
+
         set_analysis_name("ATLAS_13TeV_PhotonGGM_1Photon_139invfb");
         set_luminosity(139.);
 
@@ -275,19 +275,9 @@ namespace Gambit
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
-
 
       virtual void collect_results()
       {
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
         add_result(SignalRegionData(_counters.at("SRL"), 2., { 2.67, 0.75}));
         add_result(SignalRegionData(_counters.at("SRM"), 0., { 2.55, 0.64}));

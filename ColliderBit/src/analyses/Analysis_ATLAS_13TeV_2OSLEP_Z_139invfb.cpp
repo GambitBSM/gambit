@@ -41,16 +41,6 @@ namespace Gambit
 
     protected:
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SRZ1A", EventCounter("SRZ1A")},
-        {"SRZ1B", EventCounter("SRZ1B")},
-        {"SRZ2A", EventCounter("SRZ2A")},
-        {"SRZ2B", EventCounter("SRZ2B")},
-        // {"SRh1A", EventCounter("SRh1A")},
-        // {"SRh1B", EventCounter("SRh1B")},
-      };
-
        vector<Cutflow> _cutflow;
 
        //vector<int> _test;
@@ -76,6 +66,15 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb()
       {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SRZ1A"] = EventCounter("SRZ1A");
+        _counters["SRZ1B"] = EventCounter("SRZ1B");
+        _counters["SRZ2A"] = EventCounter("SRZ2A");
+        _counters["SRZ2B"] = EventCounter("SRZ2B");
+          // _counters["SRh1A"] = EventCounter("SRh1A");
+          // _counters["SRh1B"] = EventCounter("SRh1B");
+
 
         set_analysis_name("ATLAS_13TeV_2OSLEP_Z_139invfb");
         set_luminosity(139);
@@ -564,14 +563,6 @@ namespace Gambit
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()

@@ -99,8 +99,6 @@ namespace Gambit
         ///@{
         /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
         void add(Analysis* other);
-        /// Add the analysis-specific variables of another analysis to this one.
-        virtual void combine(const Analysis* other) = 0;
         ///@}
 
       protected:

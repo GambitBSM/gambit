@@ -17,8 +17,10 @@ using namespace std;
 
 */
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
     // Need two different functions here for use with std::sort
     //bool sortByPT(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
@@ -29,24 +31,9 @@ namespace Gambit {
 
     class Analysis_ATLAS_13TeV_0LEPStop_139invfb : public Analysis
     {
-      
+
     protected:
-      std::map<string, EventCounter> _counters = {
 
-	//{"SRA", EventCounter("SRA")},
-          {"SRATT", EventCounter("SRATT")},
-	  {"SRATW", EventCounter("SRATW")},
-	  {"SRAT0", EventCounter("SRAT0")},
-	  {"SRBTT", EventCounter("SRBTT")},
-	  {"SRBTW", EventCounter("SRBTW")},
-	  {"SRBT0", EventCounter("SRBT0")},
-          {"SRD0", EventCounter("SRD0")},
-          {"SRD1", EventCounter("SRD1")},
-          {"SRD2", EventCounter("SRD2")},
-
-        };
-
-      
     private:
 
     public:
@@ -54,7 +41,7 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-      
+
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=16;
@@ -62,7 +49,7 @@ namespace Gambit {
 
       void muJetSpecialOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec){
 
-	vector<const HEPUtils::Jet*> Survivors;
+    vector<const HEPUtils::Jet*> Survivors;
 
         for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++)
         {
@@ -75,41 +62,53 @@ namespace Gambit {
 
             dR=jetmom.deltaR_eta(lepmom);
 
-	    double DeltaRMax = 0.;
-	    if(lepmom.pT()/jetmom.pT()>0.5)DeltaRMax = 0.2;
-	    
+        double DeltaRMax = 0.;
+        if(lepmom.pT()/jetmom.pT()>0.5)DeltaRMax = 0.2;
+
             if(fabs(dR) <= DeltaRMax) overlap=true;
           }
           if(overlap) continue;
           Survivors.push_back(jetvec.at(itjet));
         }
         jetvec=Survivors;
-	
+
         return;
-	
+
       }
 
-      
 
 
-      
+
+
       struct ptComparison
       {
-	bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
+    bool operator() (const HEPUtils::Particle* i,const HEPUtils::Particle* j) {return (i->pT()>j->pT());}
       } comparePt;
-      
+
       struct ptJetComparison
       {
-	bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
+    bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
-      
-      
+
+
       Cutflows _cutflows;
-      
-      
+
+
 
       Analysis_ATLAS_13TeV_0LEPStop_139invfb()
       {
+
+        //_counters["SRA"] = EventCounter("SRA");
+        _counters["SRATT"] = EventCounter("SRATT");
+        _counters["SRATW"] = EventCounter("SRATW");
+        _counters["SRAT0"] = EventCounter("SRAT0");
+        _counters["SRBTT"] = EventCounter("SRBTT");
+        _counters["SRBTW"] = EventCounter("SRBTW");
+        _counters["SRBT0"] = EventCounter("SRBT0");
+        _counters["SRD0"] = EventCounter("SRD0");
+        _counters["SRD1"] = EventCounter("SRD1");
+        _counters["SRD2"] = EventCounter("SRD2");
+
 
         set_analysis_name("ATLAS_13TeV_0LEPStop_139invfb");
         set_luminosity(139.);
@@ -123,37 +122,37 @@ namespace Gambit {
         // Missing energy
         HEPUtils::P4 metVec = event->missingmom();
         double Met = event->met();
-	
-	// Baseline electrons
-	vector<const HEPUtils::Particle*> baselineElectrons;
-	for (const HEPUtils::Particle* electron : event->electrons())
-	  {
-	    if (electron->pT() > 4.5 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
-	    
-	  }
-	// Apply electron efficiency
-	// Loose electron ID selection
-	ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
-        
-	// Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
-	vector<const HEPUtils::Particle*> baselineMuons;
-	for (const HEPUtils::Particle* muon : event->muons())
-	  {
-	    if (muon->pT() > 4.0 && muon->abseta() < 2.7) baselineMuons.push_back(muon);
-	  }
-	
-	// Apply muon efficiency
-	// Missing: "Medium" muon ID criteria
-	ATLAS::applyMuonEffR2(baselineMuons);
-	
-	// Baseline jets
-	vector<const HEPUtils::Jet*> baselineJets;
-	for (const HEPUtils::Jet* jet : event->jets())
+
+    // Baseline electrons
+    vector<const HEPUtils::Particle*> baselineElectrons;
+    for (const HEPUtils::Particle* electron : event->electrons())
+      {
+        if (electron->pT() > 4.5 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
+
+      }
+    // Apply electron efficiency
+    // Loose electron ID selection
+    apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+
+    // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
+    vector<const HEPUtils::Particle*> baselineMuons;
+    for (const HEPUtils::Particle* muon : event->muons())
+      {
+        if (muon->pT() > 4.0 && muon->abseta() < 2.7) baselineMuons.push_back(muon);
+      }
+
+    // Apply muon efficiency
+    // Missing: "Medium" muon ID criteria
+    ATLAS::applyMuonEffR2(baselineMuons);
+
+    // Baseline jets
+    vector<const HEPUtils::Jet*> baselineJets;
+    for (const HEPUtils::Jet* jet : event->jets())
           {
             if (jet->pT() > 20. && fabs(jet->eta()) < 2.8 )
               baselineJets.push_back(jet);
           }
-	
+
         // Jets
         vector<const HEPUtils::Jet*> bJets;
         vector<const HEPUtils::Jet*> nonBJets;
@@ -169,36 +168,36 @@ namespace Gambit {
         {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
 
-	  if(jet->btag() && hasTag && fabs(jet->eta()) < 2.5 && jet->pT() > 20.)
+      if(jet->btag() && hasTag && fabs(jet->eta()) < 2.5 && jet->pT() > 20.)
             {
               bJets.push_back(jet);
             }
-	  else
+      else
             {
               nonBJets.push_back(jet);
             }
-	  
+
         }
 
-	// Overlap removal
-	// Note: ATLAS uses rapidity rather than eta so this version is not 100% accurate
-	removeOverlap(baselineElectrons, baselineMuons, 0.01);
+    // Overlap removal
+    // Note: ATLAS uses rapidity rather than eta so this version is not 100% accurate
+    removeOverlap(baselineElectrons, baselineMuons, 0.01);
 
-	removeOverlap(nonBJets, baselineElectrons, 0.2);
-	removeOverlap(baselineElectrons,nonBJets,0.2);
-	removeOverlap(baselineElectrons,bJets,0.2);
+    removeOverlap(nonBJets, baselineElectrons, 0.2);
+    removeOverlap(baselineElectrons,nonBJets,0.2);
+    removeOverlap(baselineElectrons,bJets,0.2);
 
-	
-	muJetSpecialOverlapRemoval(nonBJets, baselineMuons);
-	removeOverlap(baselineMuons, nonBJets, 0.2);
-	removeOverlap(baselineMuons, bJets, 0.2);
 
-	auto lambda = [](double lepton_pT) { return std::min(0.4, 0.04 + 10./(lepton_pT) ); };
-	
-	removeOverlap(baselineMuons, nonBJets, lambda);
-	removeOverlap(baselineMuons, bJets, lambda);
-	removeOverlap(baselineElectrons, nonBJets, lambda);
-	removeOverlap(baselineElectrons, bJets, lambda);
+    muJetSpecialOverlapRemoval(nonBJets, baselineMuons);
+    removeOverlap(baselineMuons, nonBJets, 0.2);
+    removeOverlap(baselineMuons, bJets, 0.2);
+
+    auto lambda = [](double lepton_pT) { return std::min(0.4, 0.04 + 10./(lepton_pT) ); };
+
+    removeOverlap(baselineMuons, nonBJets, lambda);
+    removeOverlap(baselineMuons, bJets, lambda);
+    removeOverlap(baselineElectrons, nonBJets, lambda);
+    removeOverlap(baselineElectrons, bJets, lambda);
 
         // Fill a jet-pointer-to-bool map to make it easy to check
         // if a given jet is treated as a b-jet in this analysis
@@ -210,19 +209,19 @@ namespace Gambit {
           analysisBtags[jet] = false;
         }
 
-	
-	// After OR Baseline Leptons
-	int nBaseElectrons = baselineElectrons.size();
-	int nBaseMuons = baselineMuons.size();
-	int nLep = nBaseElectrons + nBaseMuons;
 
-	vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
-	baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end());
-	
+    // After OR Baseline Leptons
+    int nBaseElectrons = baselineElectrons.size();
+    int nBaseMuons = baselineMuons.size();
+    int nLep = nBaseElectrons + nBaseMuons;
+
+    vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
+    baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end());
+
         // Signal object containers
         vector<const HEPUtils::Particle*> signalElectrons;
-	vector<const HEPUtils::Particle*> signalMuons;
-        
+    vector<const HEPUtils::Particle*> signalMuons;
+
         vector<const HEPUtils::Jet*> signalJets;
         vector<const HEPUtils::Jet*> signalBJets;
         vector<const HEPUtils::Jet*> signalNonBJets;
@@ -246,13 +245,13 @@ namespace Gambit {
           }
         }
 
-	// Sort by pT
-	//Put signal jets in pT order
-	sort(signalJets.begin(), signalJets.end(), compareJetPt);
-	sort(signalBJets.begin(), signalBJets.end(), compareJetPt);
+    // Sort by pT
+    //Put signal jets in pT order
+    sort(signalJets.begin(), signalJets.end(), compareJetPt);
+    sort(signalBJets.begin(), signalBJets.end(), compareJetPt);
         sort(signalNonBJets.begin(), signalNonBJets.end(), compareJetPt);
 
-	for (const HEPUtils::Particle* electron : baselineElectrons) {
+    for (const HEPUtils::Particle* electron : baselineElectrons) {
           signalElectrons.push_back(electron);
         }
 
@@ -260,299 +259,283 @@ namespace Gambit {
           signalMuons.push_back(muon);
         }
 
-	// Need to recluster jets at this point (R=0.8 and R=1.2)
+    // Need to recluster jets at this point (R=0.8 and R=1.2)
         vector<std::shared_ptr<HEPUtils::Jet>> fatJetsR8=get_jets(signalJets,0.8);
         vector<std::shared_ptr<HEPUtils::Jet>> fatJetsR12=get_jets(signalJets,1.2);
 
-	//int nFatJetsR8 = fatJetsR8.size();
-	int nFatJetsR12 = fatJetsR12.size();
-	
+    //int nFatJetsR8 = fatJetsR8.size();
+    int nFatJetsR12 = fatJetsR12.size();
+
         //Put 1_2 signal jets in decreasing pT order
         std::sort(fatJetsR12.begin(), fatJetsR12.end(), sortByPT0l_sharedptr);
 
         //Put 0_8 signal jets in pT order
         std::sort(fatJetsR8.begin(), fatJetsR8.end(), sortByPT0l_sharedptr);
 
-	int nBJets = signalBJets.size();
-	int nNonBJets = signalNonBJets.size();
-	int nSignalJets = signalJets.size();
-	
-	// DRBB
-	float DRBB = 0;
-	if (nBJets > 1) DRBB=signalBJets[1]->mom().deltaR_eta(signalBJets[0]->mom());
-	
-	// dPhiJetMet
-	double dPhiJetMetMin2 = 0;
-	double dPhiJetMetMin3 = 0;
-	double dPhiJetMetMin4 = 0;
-	if (nSignalJets >= 2) {
-	  dPhiJetMetMin2 = std::min(fabs(metVec.deltaPhi(signalJets[0]->mom())), fabs(metVec.deltaPhi(signalJets[1]->mom())));
-	  if (nSignalJets>=3) {
-	    dPhiJetMetMin3 = std::min(dPhiJetMetMin2, fabs(metVec.deltaPhi(signalJets[2]->mom())));
-	    if (nSignalJets>=4) {
-	      dPhiJetMetMin4 = std::min(dPhiJetMetMin3, fabs(metVec.deltaPhi(signalJets[3]->mom())));
-	    }
-	  }
-	}
-	
-	float AntiKt8M_0 = 0;
+    int nBJets = signalBJets.size();
+    int nNonBJets = signalNonBJets.size();
+    int nSignalJets = signalJets.size();
+
+    // DRBB
+    float DRBB = 0;
+    if (nBJets > 1) DRBB=signalBJets[1]->mom().deltaR_eta(signalBJets[0]->mom());
+
+    // dPhiJetMet
+    double dPhiJetMetMin2 = 0;
+    double dPhiJetMetMin3 = 0;
+    double dPhiJetMetMin4 = 0;
+    if (nSignalJets >= 2) {
+      dPhiJetMetMin2 = std::min(fabs(metVec.deltaPhi(signalJets[0]->mom())), fabs(metVec.deltaPhi(signalJets[1]->mom())));
+      if (nSignalJets>=3) {
+        dPhiJetMetMin3 = std::min(dPhiJetMetMin2, fabs(metVec.deltaPhi(signalJets[2]->mom())));
+        if (nSignalJets>=4) {
+          dPhiJetMetMin4 = std::min(dPhiJetMetMin3, fabs(metVec.deltaPhi(signalJets[3]->mom())));
+        }
+      }
+    }
+
+    float AntiKt8M_0 = 0;
         //float AntiKt8M_1 = 0;
         float AntiKt12M_0 = 0;
         float AntiKt12M_1 = 0;
 
-	if (fatJetsR8.size()>0)  AntiKt8M_0 = fatJetsR8[0]->mass() ;
+    if (fatJetsR8.size()>0)  AntiKt8M_0 = fatJetsR8[0]->mass() ;
         //if (fatJetsR8.size()>1)  AntiKt8M_1 = fatJetsR8[1]->mass() ;
         if (fatJetsR12.size()>0) AntiKt12M_0 = fatJetsR12[0]->mass() ;
         if (fatJetsR12.size()>1) AntiKt12M_1 = fatJetsR12[1]->mass() ;
 
-	// Tau veto (MJW: this is my best approximation)
-	float MtTauCand = -1;
-	vector<const HEPUtils::Particle*> tauCands;
-	for (const HEPUtils::Particle* tau : event->taus()) {
-	  if (tau->pT() > 10. && tau->abseta() < 2.47) tauCands.push_back(tau);
+    // Tau veto (MJW: this is my best approximation)
+    float MtTauCand = -1;
+    vector<const HEPUtils::Particle*> tauCands;
+    for (const HEPUtils::Particle* tau : event->taus()) {
+      if (tau->pT() > 10. && tau->abseta() < 2.47) tauCands.push_back(tau);
         }
         ATLAS::applyTauEfficiencyR1(tauCands);
 
 
-	
-	bool tauVeto = false;
-	for (const HEPUtils::Particle* tau : tauCands) {
-	  if (tau->mom().deltaPhi(metVec) < M_PI/5.) {
-	    MtTauCand = get_mT(tau->mom(), metVec);
-	  }
-	  if (MtTauCand > 0) tauVeto = true;
-	}
-	
-	// Close-by b-jets and MtBMets
-	int NCloseByBJets12Leading = 0;
-	int NCloseByBJets12Subleading = 0;
-	float MtBMin = 0;
-	float MtBMax = 0;
-	double dPhi_min = 1000.;
-	double dPhi_max = 0.;
-	if (nBJets >= 2) {
-	  for (const HEPUtils::Jet* jet : signalBJets) {
-	    double dphi = fabs(metVec.deltaPhi(jet->mom()));
-	    if (dphi < dPhi_min) {
-	      dPhi_min = dphi;
-	      MtBMin = get_mT(jet->mom(), metVec);
-	    }
-	    if (dphi > dPhi_max) {
-	      dPhi_max = dphi;
-	      MtBMax = get_mT(jet->mom(), metVec);
-	    }
-	    if (nFatJetsR12 > 0 && jet->mom().deltaR_eta(fatJetsR12[0]->mom()) <= 1.2)
-	      NCloseByBJets12Leading++;
-	    if (nFatJetsR12 > 1 && jet->mom().deltaR_eta(fatJetsR12[1]->mom()) <= 1.2)
-	      NCloseByBJets12Subleading++;
-	  }
-	}
-	
-	
 
-	//Chi2 method (Same as stop0L2015.cxx)
-	float realWMass = 80.385;
-	float realTopMass = 173.210;
-	float MT2Chi2 = 0.;
-	double Chi2min = DBL_MAX;
-	int W1j1_low = -1, W1j2_low = -1, W2j1_low = -1, W2j2_low = -1, b1_low = -1, b2_low = -1;
-	if (nSignalJets >= 4 && nBJets >= 2 && nNonBJets >= 2) {
-	  for (int W1j1 = 0; W1j1 < (int) nNonBJets; W1j1++) { 
-	    for (int W2j1 = 0; W2j1 < (int) nNonBJets; W2j1++) {
-	      if (W2j1 == W1j1) continue; 
-	      for (int b1 = 0; b1 < (int) nBJets; b1++) {
-		for (int b2 = 0; b2 < (int) nBJets; b2++) {
-		  if (b2 == b1) continue;
-		  double chi21, chi22, mW1, mW2, mt1, mt2;	    
-		  if (W2j1 > W1j1) {
-		    mW1 = nonBJets[W1j1]->mass();
-		    mW2 = nonBJets[W2j1]->mass();
-		    mt1 = (nonBJets[W1j1]->mom() + signalBJets[b1]->mom()).m();
-		    mt2 = (nonBJets[W2j1]->mom() + signalBJets[b2]->mom()).m();
-		    chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
-		    chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
-		    if (Chi2min > (chi21 + chi22)) {
-		      Chi2min = chi21 + chi22;
-		      if (chi21 < chi22) {
-			W1j1_low = W1j1;
-			W1j2_low = -1;
-			W2j1_low = W2j1;
-			W2j2_low = -1;
-			b1_low = b1;
-			b2_low = b2;
-		      }
-		      else {
-			W2j1_low = W1j1;
-			W2j2_low = -1;
-			W1j1_low = W2j1;
-			W1j2_low = -1;
-			b2_low = b1;
-			b1_low = b2;
-		      }
-		    }
-		  }
-		  if (nNonBJets < 3)
-		    continue;
-		  for (int W1j2 = W1j1 + 1; W1j2 < nNonBJets; W1j2++) {
-		    if (W1j2 == W2j1) continue;
-		    //try bll,bl top candidates
-		    mW1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom()).m();
-		    mW2 = (nonBJets[W2j1]->mom()).m();
-		    mt1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom() + signalBJets[b1]->mom()).m();
-		    mt2 = (nonBJets[W2j1]->mom() + signalBJets[b2]->mom()).m();
-		    chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
-		    chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
-		    if (Chi2min > (chi21 + chi22)) {
-		      Chi2min = chi21 + chi22;
-		      if (chi21 < chi22) {
-			W1j1_low = W1j1;
-			W1j2_low = W1j2;
-			W2j1_low = W2j1;
-			W2j2_low = -1;
-			b1_low = b1;
-			b2_low = b2;
-		      }
-		      else {
-			W2j1_low = W1j1;
-			W2j2_low = W1j2;
-			W1j1_low = W2j1;
-			W1j2_low = -1;
-			b2_low = b1;
-			b1_low = b2;
-		      }
-		    }
-		    if (nNonBJets < 4) continue;
-		    //try bll, bll top candidates
-		    for (int W2j2 = W2j1 + 1; W2j2 < (int) nNonBJets; W2j2++) {
-		      if ((W2j2 == W1j1) || (W2j2 == W1j2)) continue;
-		      if (W2j1 < W1j1) continue; //runtime reasons, we don't want combinations checked twice <--------------------This line should be added
-		      mW1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom()).m();
-		      mW2 = (nonBJets[W2j1]->mom() + nonBJets[W2j2]->mom()).m();
-		      mt1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom() + signalBJets[b1]->mom()).m();
-		      mt2 = (nonBJets[W2j1]->mom() + nonBJets[W2j2]->mom() + signalBJets[b2]->mom()).m();
-		      chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
-		      chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
-		      if (Chi2min > (chi21 + chi22)) {
-			Chi2min = chi21 + chi22;
-			if (chi21 < chi22) {
-			  W1j1_low = W1j1;
-			  W1j2_low = W1j2;
-			  W2j1_low = W2j1;
-			  W2j2_low = W2j2;
-			  b1_low = b1;
-			  b2_low = b2;
-			}
-			else {
-			  W2j1_low = W1j1;
-			  W2j2_low = W1j2;
-			  W1j1_low = W2j1;
-			  W1j2_low = W2j2;
-			  b2_low = b1;
-			  b1_low = b2;
-			}
-		      }
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-	  
-	  HEPUtils::P4 WCand0 = nonBJets[W1j1_low]->mom();
-	  if (W1j2_low != -1) WCand0 += signalNonBJets[W1j2_low]->mom();
-	  HEPUtils::P4 topCand0 = WCand0 + signalBJets[b1_low]->mom();
-	  
-	  HEPUtils::P4 WCand1 = signalNonBJets[W2j1_low]->mom();
-	  if(W2j2_low != -1) WCand1 += signalNonBJets[W2j2_low]->mom();
-	  HEPUtils::P4 topCand1 = WCand1 + signalBJets[b2_low]->mom();
-	  
-	  HEPUtils::P4 tempTop0=HEPUtils::P4::mkEtaPhiMPt(0.,topCand0.phi(),173.210,topCand0.pT());
-	  HEPUtils::P4 tempTop1=HEPUtils::P4::mkEtaPhiMPt(0.,topCand1.phi(),173.210,topCand1.pT());
-	  
-	  // Note that the first component here is the mass
-	  // This must be the top mass (i.e. mass of our vectors) and not zero!
-	  
-	  double pa_a[3] = { tempTop0.m() , tempTop0.px(), tempTop0.py() };
-	  double pb_a[3] = { tempTop1.m() , tempTop1.px(), tempTop1.py() };
-	  double pmiss_a[3] = { 0, metVec.px(), metVec.py() };
-	  double mn_a = 0.;
-	  
-	  mt2_bisect::mt2 mt2_event_a;
-	  
-	  mt2_event_a.set_momenta(pa_a,pb_a,pmiss_a);
-	  mt2_event_a.set_mn(mn_a);
-	
-	  MT2Chi2 = mt2_event_a.get_mt2();
-	}
+    bool tauVeto = false;
+    for (const HEPUtils::Particle* tau : tauCands) {
+      if (tau->mom().deltaPhi(metVec) < M_PI/5.) {
+        MtTauCand = get_mT(tau->mom(), metVec);
+      }
+      if (MtTauCand > 0) tauVeto = true;
+    }
 
-	
-	
-	double Ht=0;
-	
-	for(size_t jet=0;jet<signalJets.size();jet++)Ht+=signalJets[jet]->pT();
-	
-	double HtSig = Met/sqrt(Ht);
+    // Close-by b-jets and MtBMets
+    int NCloseByBJets12Leading = 0;
+    int NCloseByBJets12Subleading = 0;
+    float MtBMin = 0;
+    float MtBMax = 0;
+    double dPhi_min = 1000.;
+    double dPhi_max = 0.;
+    if (nBJets >= 2) {
+      for (const HEPUtils::Jet* jet : signalBJets) {
+        double dphi = fabs(metVec.deltaPhi(jet->mom()));
+        if (dphi < dPhi_min) {
+          dPhi_min = dphi;
+          MtBMin = get_mT(jet->mom(), metVec);
+        }
+        if (dphi > dPhi_max) {
+          dPhi_max = dphi;
+          MtBMax = get_mT(jet->mom(), metVec);
+        }
+        if (nFatJetsR12 > 0 && jet->mom().deltaR_eta(fatJetsR12[0]->mom()) <= 1.2)
+          NCloseByBJets12Leading++;
+        if (nFatJetsR12 > 1 && jet->mom().deltaR_eta(fatJetsR12[1]->mom()) <= 1.2)
+          NCloseByBJets12Subleading++;
+      }
+    }
 
-	// Approximations (MetSig to be revisited once object-based code is debugged)
-	double MetSig = HtSig;
-	int nBadJets=0;
-	
-	//////////////////////////////////////
-	// Region Cuts
-	bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1]->pT() > 80 && signalJets[3]->pT() > 40 && dPhiJetMetMin2>0.4;
-	bool pre2B4J0L = pre1B4J0L && nBJets >= 2 && dPhiJetMetMin4 > 0.4 && MetSig > 5 && MtBMin > 50 && MtTauCand < 0;
-	bool pre2B4J0Ltight = pre2B4J0L && MtBMin > 200;
-	bool pre2B4J0LtightTT = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>120;
-	bool pre2B4J0LtightTW = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
-	bool pre2B4J0LtightT0 = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
-	
-	//bool SRA = pre2B4J0Ltight && MT2Chi2 > 450 && nFatJetsR12>=2 && AntiKt12M_0>120 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
-	bool SRATT = !tauVeto && pre2B4J0LtightTT && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1 && NCloseByBJets12Subleading >= 1 && DRBB > 1.00;
-	bool SRATW = !tauVeto && pre2B4J0LtightTW && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
-	bool SRAT0 = !tauVeto && pre2B4J0LtightT0 && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
-	
-	bool SRB = !tauVeto && pre2B4J0Ltight && MtBMax>200 && DRBB>1.4 && nFatJetsR12>=2 && AntiKt12M_0>120 && MT2Chi2<450 && MetSig>14;
-	bool SRBTT = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>120;
-	bool SRBTW = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
-	bool SRBT0 = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
 
-	if (SRATT)_counters.at("SRATT").add_event(event);
-	if (SRATW)_counters.at("SRATW").add_event(event);
-	if (SRAT0)_counters.at("SRAT0").add_event(event);
-	if (SRBTT)_counters.at("SRBTT").add_event(event);
-	if (SRBTW)_counters.at("SRBTW").add_event(event);
-	if (SRBT0)_counters.at("SRBT0").add_event(event);
-	
-	// SRC missing (these are the RJR regions)
 
-	bool SRDLoose = nLep == 0 && nBadJets == 0 && Met > 250 && nonBJets.size() > 0 && nonBJets.size() > 0 && nonBJets[0]->pT()>250 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4 && HtSig > 22;
-	bool SRD0 = SRDLoose && nBJets == 0 && dPhiJetMetMin4>0.4 && HtSig > 26;
-	bool SRD1 = SRDLoose && nBJets == 1 && fabs(signalBJets[0]->eta())<1.6 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2;
-	bool SRD2 = SRDLoose && nBJets >= 2 && signalBJets[0]->pT()<175 && fabs(signalBJets[1]->eta())<1.2 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2 && signalBJets[1]->mom().deltaPhi(nonBJets[0]->mom())>1.6;
-	//bool SRD = SRD0 || SRD1 || SRD2;
-
-	if ( SRD0 )_counters.at("SRD0").add_event(event);
-	if ( SRD1 )_counters.at("SRD1").add_event(event);
-	if ( SRD2 )_counters.at("SRD2").add_event(event);
-	
-        return;
-	
+    //Chi2 method (Same as stop0L2015.cxx)
+    float realWMass = 80.385;
+    float realTopMass = 173.210;
+    float MT2Chi2 = 0.;
+    double Chi2min = DBL_MAX;
+    int W1j1_low = -1, W1j2_low = -1, W2j1_low = -1, W2j2_low = -1, b1_low = -1, b2_low = -1;
+    if (nSignalJets >= 4 && nBJets >= 2 && nNonBJets >= 2) {
+      for (int W1j1 = 0; W1j1 < (int) nNonBJets; W1j1++) {
+        for (int W2j1 = 0; W2j1 < (int) nNonBJets; W2j1++) {
+          if (W2j1 == W1j1) continue;
+          for (int b1 = 0; b1 < (int) nBJets; b1++) {
+        for (int b2 = 0; b2 < (int) nBJets; b2++) {
+          if (b2 == b1) continue;
+          double chi21, chi22, mW1, mW2, mt1, mt2;
+          if (W2j1 > W1j1) {
+            mW1 = nonBJets[W1j1]->mass();
+            mW2 = nonBJets[W2j1]->mass();
+            mt1 = (nonBJets[W1j1]->mom() + signalBJets[b1]->mom()).m();
+            mt2 = (nonBJets[W2j1]->mom() + signalBJets[b2]->mom()).m();
+            chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
+            chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
+            if (Chi2min > (chi21 + chi22)) {
+              Chi2min = chi21 + chi22;
+              if (chi21 < chi22) {
+            W1j1_low = W1j1;
+            W1j2_low = -1;
+            W2j1_low = W2j1;
+            W2j2_low = -1;
+            b1_low = b1;
+            b2_low = b2;
+              }
+              else {
+            W2j1_low = W1j1;
+            W2j2_low = -1;
+            W1j1_low = W2j1;
+            W1j2_low = -1;
+            b2_low = b1;
+            b1_low = b2;
+              }
+            }
+          }
+          if (nNonBJets < 3)
+            continue;
+          for (int W1j2 = W1j1 + 1; W1j2 < nNonBJets; W1j2++) {
+            if (W1j2 == W2j1) continue;
+            //try bll,bl top candidates
+            mW1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom()).m();
+            mW2 = (nonBJets[W2j1]->mom()).m();
+            mt1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom() + signalBJets[b1]->mom()).m();
+            mt2 = (nonBJets[W2j1]->mom() + signalBJets[b2]->mom()).m();
+            chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
+            chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
+            if (Chi2min > (chi21 + chi22)) {
+              Chi2min = chi21 + chi22;
+              if (chi21 < chi22) {
+            W1j1_low = W1j1;
+            W1j2_low = W1j2;
+            W2j1_low = W2j1;
+            W2j2_low = -1;
+            b1_low = b1;
+            b2_low = b2;
+              }
+              else {
+            W2j1_low = W1j1;
+            W2j2_low = W1j2;
+            W1j1_low = W2j1;
+            W1j2_low = -1;
+            b2_low = b1;
+            b1_low = b2;
+              }
+            }
+            if (nNonBJets < 4) continue;
+            //try bll, bll top candidates
+            for (int W2j2 = W2j1 + 1; W2j2 < (int) nNonBJets; W2j2++) {
+              if ((W2j2 == W1j1) || (W2j2 == W1j2)) continue;
+              if (W2j1 < W1j1) continue; //runtime reasons, we don't want combinations checked twice <--------------------This line should be added
+              mW1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom()).m();
+              mW2 = (nonBJets[W2j1]->mom() + nonBJets[W2j2]->mom()).m();
+              mt1 = (nonBJets[W1j1]->mom() + nonBJets[W1j2]->mom() + signalBJets[b1]->mom()).m();
+              mt2 = (nonBJets[W2j1]->mom() + nonBJets[W2j2]->mom() + signalBJets[b2]->mom()).m();
+              chi21 = (mW1 - realWMass) * (mW1 - realWMass) / realWMass + (mt1 - realTopMass) * (mt1 - realTopMass) / realTopMass;
+              chi22 = (mW2 - realWMass) * (mW2 - realWMass) / realWMass + (mt2 - realTopMass) * (mt2 - realTopMass) / realTopMass;
+              if (Chi2min > (chi21 + chi22)) {
+            Chi2min = chi21 + chi22;
+            if (chi21 < chi22) {
+              W1j1_low = W1j1;
+              W1j2_low = W1j2;
+              W2j1_low = W2j1;
+              W2j2_low = W2j2;
+              b1_low = b1;
+              b2_low = b2;
+            }
+            else {
+              W2j1_low = W1j1;
+              W2j2_low = W1j2;
+              W1j1_low = W2j1;
+              W1j2_low = W2j2;
+              b2_low = b1;
+              b1_low = b2;
+            }
+              }
+            }
+          }
+        }
+          }
+        }
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_0LEPStop_139invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_0LEPStop_139invfb*>(other);
+      HEPUtils::P4 WCand0 = nonBJets[W1j1_low]->mom();
+      if (W1j2_low != -1) WCand0 += signalNonBJets[W1j2_low]->mom();
+      HEPUtils::P4 topCand0 = WCand0 + signalBJets[b1_low]->mom();
 
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
+      HEPUtils::P4 WCand1 = signalNonBJets[W2j1_low]->mom();
+      if(W2j2_low != -1) WCand1 += signalNonBJets[W2j2_low]->mom();
+      HEPUtils::P4 topCand1 = WCand1 + signalBJets[b2_low]->mom();
 
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
+      HEPUtils::P4 tempTop0=HEPUtils::P4::mkEtaPhiMPt(0.,topCand0.phi(),173.210,topCand0.pT());
+      HEPUtils::P4 tempTop1=HEPUtils::P4::mkEtaPhiMPt(0.,topCand1.phi(),173.210,topCand1.pT());
+
+      // Note that the first component here is the mass
+      // This must be the top mass (i.e. mass of our vectors) and not zero!
+
+      double pa_a[3] = { tempTop0.m() , tempTop0.px(), tempTop0.py() };
+      double pb_a[3] = { tempTop1.m() , tempTop1.px(), tempTop1.py() };
+      double pmiss_a[3] = { 0, metVec.px(), metVec.py() };
+      double mn_a = 0.;
+
+      mt2_bisect::mt2 mt2_event_a;
+
+      mt2_event_a.set_momenta(pa_a,pb_a,pmiss_a);
+      mt2_event_a.set_mn(mn_a);
+
+      MT2Chi2 = mt2_event_a.get_mt2();
+    }
+
+
+
+    double Ht=0;
+
+    for(size_t jet=0;jet<signalJets.size();jet++)Ht+=signalJets[jet]->pT();
+
+    double HtSig = Met/sqrt(Ht);
+
+    // Approximations (MetSig to be revisited once object-based code is debugged)
+    double MetSig = HtSig;
+    int nBadJets=0;
+
+    //////////////////////////////////////
+    // Region Cuts
+    bool pre1B4J0L = Met > 250 && nLep == 0 && nSignalJets >= 4 && nBJets >= 1 && signalJets[1]->pT() > 80 && signalJets[3]->pT() > 40 && dPhiJetMetMin2>0.4;
+    bool pre2B4J0L = pre1B4J0L && nBJets >= 2 && dPhiJetMetMin4 > 0.4 && MetSig > 5 && MtBMin > 50 && MtTauCand < 0;
+    bool pre2B4J0Ltight = pre2B4J0L && MtBMin > 200;
+    bool pre2B4J0LtightTT = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>120;
+    bool pre2B4J0LtightTW = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
+    bool pre2B4J0LtightT0 = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
+
+    //bool SRA = pre2B4J0Ltight && MT2Chi2 > 450 && nFatJetsR12>=2 && AntiKt12M_0>120 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
+    bool SRATT = !tauVeto && pre2B4J0LtightTT && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1 && NCloseByBJets12Subleading >= 1 && DRBB > 1.00;
+    bool SRATW = !tauVeto && pre2B4J0LtightTW && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
+    bool SRAT0 = !tauVeto && pre2B4J0LtightT0 && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
+
+    bool SRB = !tauVeto && pre2B4J0Ltight && MtBMax>200 && DRBB>1.4 && nFatJetsR12>=2 && AntiKt12M_0>120 && MT2Chi2<450 && MetSig>14;
+    bool SRBTT = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>120;
+    bool SRBTW = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
+    bool SRBT0 = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
+
+    if (SRATT)_counters.at("SRATT").add_event(event);
+    if (SRATW)_counters.at("SRATW").add_event(event);
+    if (SRAT0)_counters.at("SRAT0").add_event(event);
+    if (SRBTT)_counters.at("SRBTT").add_event(event);
+    if (SRBTW)_counters.at("SRBTW").add_event(event);
+    if (SRBT0)_counters.at("SRBT0").add_event(event);
+
+    // SRC missing (these are the RJR regions)
+
+    bool SRDLoose = nLep == 0 && nBadJets == 0 && Met > 250 && nonBJets.size() > 0 && nonBJets.size() > 0 && nonBJets[0]->pT()>250 && nonBJets[0]->mom().deltaR_eta(metVec) > 2.4 && HtSig > 22;
+    bool SRD0 = SRDLoose && nBJets == 0 && dPhiJetMetMin4>0.4 && HtSig > 26;
+    bool SRD1 = SRDLoose && nBJets == 1 && fabs(signalBJets[0]->eta())<1.6 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.0 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2;
+    bool SRD2 = SRDLoose && nBJets >= 2 && signalBJets[0]->pT()<175 && fabs(signalBJets[1]->eta())<1.2 && signalBJets[0]->mom().deltaPhi(nonBJets[0]->mom())>2.2 && signalBJets[1]->mom().deltaPhi(nonBJets[0]->mom())>1.6;
+    //bool SRD = SRD0 || SRD1 || SRD2;
+
+    if ( SRD0 )_counters.at("SRD0").add_event(event);
+    if ( SRD1 )_counters.at("SRD1").add_event(event);
+    if ( SRD2 )_counters.at("SRD2").add_event(event);
+
+        return;
+
       }
 
 

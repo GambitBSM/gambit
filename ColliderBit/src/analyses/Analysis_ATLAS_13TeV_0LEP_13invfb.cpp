@@ -31,27 +31,27 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-        // Counters for the number of accepted events for each signal region
-        std::map<string, EventCounter> _counters = {
-          {"2j-0800", EventCounter("2j-0800")},
-          {"2j-1200", EventCounter("2j-1200")},
-          {"2j-1600", EventCounter("2j-1600")},
-          {"2j-2000", EventCounter("2j-2000")},
-          {"3j-1200", EventCounter("3j-1200")},
-          {"4j-1000", EventCounter("4j-1000")},
-          {"4j-1400", EventCounter("4j-1400")},
-          {"4j-1800", EventCounter("4j-1800")},
-          {"4j-2200", EventCounter("4j-2200")},
-          {"4j-2600", EventCounter("4j-2600")},
-          {"5j-1400", EventCounter("5j-1400")},
-          {"6j-1800", EventCounter("6j-1800")},
-          {"6j-2200", EventCounter("6j-2200")},
-        };
-
         Cutflows _flows;
 
         Analysis_ATLAS_13TeV_0LEP_13invfb()
         {
+
+          // Counters for the number of accepted events for each signal region
+          _counters["2j-0800"] = EventCounter("2j-0800");
+          _counters["2j-1200"] = EventCounter("2j-1200");
+          _counters["2j-1600"] = EventCounter("2j-1600");
+          _counters["2j-2000"] = EventCounter("2j-2000");
+          _counters["3j-1200"] = EventCounter("3j-1200");
+          _counters["4j-1000"] = EventCounter("4j-1000");
+          _counters["4j-1400"] = EventCounter("4j-1400");
+          _counters["4j-1800"] = EventCounter("4j-1800");
+          _counters["4j-2200"] = EventCounter("4j-2200");
+          _counters["4j-2600"] = EventCounter("4j-2600");
+          _counters["5j-1400"] = EventCounter("5j-1400");
+          _counters["6j-1800"] = EventCounter("6j-1800");
+          _counters["6j-2200"] = EventCounter("6j-2200");
+
+
 
           set_analysis_name("ATLAS_13TeV_0LEP_13invfb");
           set_luminosity(13.3);
@@ -297,13 +297,6 @@ namespace Gambit
             if (nJets50 >= 6) _flows["6j-2200"].filltail({nJets50 >= 6, dphimin_123 > 0.4, dphimin_more > 0.2, signalJets[0]->pT() > 200 && signalJets[5]->pT() > 100, true,           aplanarity > 0.08, met_meff_6 > 0.15*sqrt(GeV), meff_incl > 2200});
 
           }
-        }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_0LEP_13invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_0LEP_13invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
         }
 
 

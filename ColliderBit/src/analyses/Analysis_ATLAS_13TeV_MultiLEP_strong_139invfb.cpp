@@ -102,15 +102,6 @@ namespace Gambit
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      // Numbers passing cuts
-      std::map<string, EventCounter> _counters = {
-        {"Rpv2L", EventCounter("Rpv2L")},
-        {"Rpc2L0b", EventCounter("Rpc2L0b")},
-        {"Rpc2L1b", EventCounter("Rpc2L1b")},
-        {"Rpc2L2b", EventCounter("Rpc2L2b")},
-        {"Rpc3LSS1b", EventCounter("Rpc3LSS1b")},
-      };
-
       #ifdef CHECK_CUTFLOW
         Cutflows _cutflows;
       #endif
@@ -118,6 +109,14 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb()
       {
+        // Numbers passing cuts
+        _counters["Rpv2L"] = EventCounter("Rpv2L");
+        _counters["Rpc2L0b"] = EventCounter("Rpc2L0b");
+        _counters["Rpc2L1b"] = EventCounter("Rpc2L1b");
+        _counters["Rpc2L2b"] = EventCounter("Rpc2L2b");
+        _counters["Rpc3LSS1b"] = EventCounter("Rpc3LSS1b");
+
+
         set_analysis_name("ATLAS_13TeV_MultiLEP_strong_139invfb");
         set_luminosity(139.0);
 
@@ -411,13 +410,6 @@ namespace Gambit
 
       }
 
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
 
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the paper

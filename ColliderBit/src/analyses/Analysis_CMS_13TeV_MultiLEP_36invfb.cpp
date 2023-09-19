@@ -37,18 +37,6 @@ namespace Gambit
     {
 
       protected:
-        // Counters for the number of accepted events for each signal region
-        std::map<string, EventCounter> _counters = {
-          {"SR1", EventCounter("SR1")},
-          {"SR2", EventCounter("SR2")},
-          {"SR3", EventCounter("SR3")},
-          {"SR4", EventCounter("SR4")},
-          {"SR5", EventCounter("SR5")},
-          {"SR6", EventCounter("SR6")},
-          {"SR7", EventCounter("SR7")},
-          {"SR8", EventCounter("SR8")},
-        };
-
       private:
 
         vector<int> cutFlowVector1, cutFlowVector2, cutFlowVector3, cutFlowVector4;
@@ -71,6 +59,17 @@ namespace Gambit
 
         Analysis_CMS_13TeV_MultiLEP_36invfb()
         {
+
+          // Counters for the number of accepted events for each signal region
+          _counters["SR1"] = EventCounter("SR1");
+          _counters["SR2"] = EventCounter("SR2");
+          _counters["SR3"] = EventCounter("SR3");
+          _counters["SR4"] = EventCounter("SR4");
+          _counters["SR5"] = EventCounter("SR5");
+          _counters["SR6"] = EventCounter("SR6");
+          _counters["SR7"] = EventCounter("SR7");
+          _counters["SR8"] = EventCounter("SR8");
+
 
           set_analysis_name("CMS_13TeV_MultiLEP_36invfb_200_100");
           set_luminosity(35.9);
@@ -531,41 +530,6 @@ namespace Gambit
             }
           }
         }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_CMS_13TeV_MultiLEP_36invfb* specificOther
-                  = dynamic_cast<const Analysis_CMS_13TeV_MultiLEP_36invfb*>(other);
-
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-          if (NCUTS1 != specificOther->NCUTS1) NCUTS1 = specificOther->NCUTS1;
-          if (NCUTS2 != specificOther->NCUTS2) NCUTS2 = specificOther->NCUTS2;
-          if (NCUTS3 != specificOther->NCUTS3) NCUTS3 = specificOther->NCUTS3;
-          if (NCUTS4 != specificOther->NCUTS4) NCUTS4 = specificOther->NCUTS4;
-          for (size_t j = 0; j < NCUTS1; j++)
-          {
-            cutFlowVector1[j] += specificOther->cutFlowVector1[j];
-            cutFlowVector_str1[j] = specificOther->cutFlowVector_str1[j];
-          }
-          for (size_t j = 0; j < NCUTS2; j++)
-          {
-            cutFlowVector2[j] += specificOther->cutFlowVector2[j];
-            cutFlowVector_str2[j] = specificOther->cutFlowVector_str2[j];
-          }
-          for (size_t j = 0; j < NCUTS3; j++)
-          {
-            cutFlowVector3[j] += specificOther->cutFlowVector3[j];
-            cutFlowVector_str3[j] = specificOther->cutFlowVector_str3[j];
-          }
-          for (size_t j = 0; j < NCUTS4; j++)
-          {
-            cutFlowVector4[j] += specificOther->cutFlowVector4[j];
-            cutFlowVector_str4[j] = specificOther->cutFlowVector_str4[j];
-          }
-        }
-
 
         // This function can be overridden by the derived SR-specific classes
         virtual void collect_results()

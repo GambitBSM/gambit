@@ -8,7 +8,7 @@
 ///  *********************************************
 
 // Based on confnote https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2020-040/
-// Updated to paper version: 
+// Updated to paper version:
 //   https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-02/
 //   https://arxiv.org/abs/2103.11684
 
@@ -37,18 +37,6 @@ namespace Gambit
     {
 
     protected:
-
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SR0-ZZ-loose-bveto", EventCounter("SR0-ZZ-loose-bveto")},
-        {"SR0-ZZ-tight-bveto", EventCounter("SR0-ZZ-tight-bveto")},
-        {"SR0-ZZ-loose", EventCounter("SR0-ZZ-loose")},
-        {"SR0-ZZ-tight", EventCounter("SR0-ZZ-tight")},
-        {"SR0-loose-bveto", EventCounter("SR0-loose-bveto")},
-        {"SR0-tight-bveto", EventCounter("SR0-tight-bveto")},
-        {"SR0-breq", EventCounter("SR0-breq")},
-        {"SR5L", EventCounter("SR5L")}
-      };
 
     private:
 
@@ -89,38 +77,38 @@ namespace Gambit
         return;
       }
 
-      size_t bTagger(vector<const HEPUtils::Jet*>& signalJets, vector<const HEPUtils::Particle*> signalTaus) 
+      size_t bTagger(vector<const HEPUtils::Jet*>& signalJets, vector<const HEPUtils::Particle*> signalTaus)
       {
         size_t n_btags = 0;
         // Numbers taken from Table 4 in https://arxiv.org/pdf/1907.05120.pdf
-        const double btag = 0.85; 
-        const double cmisstag = 1/2.7; 
+        const double btag = 0.85;
+        const double cmisstag = 1/2.7;
         const double misstag = 1./25.;
         const double taumisstag = 1/6.1;
 
         // Loop over signal jets and count b-tags
-        for (const HEPUtils::Jet* jet : signalJets) 
+        for (const HEPUtils::Jet* jet : signalJets)
         {
           if (jet->abseta() > 2.5) continue;
           // Count number of true b-jets that are tagged
-          if( jet->btag() ) 
+          if( jet->btag() )
           {
               if (random_bool(btag)) n_btags++;
           }
           // Count number of true c-jets that are misstagged as b-jets
-          else if( jet->ctag()) 
+          else if( jet->ctag())
           {
               if (random_bool(cmisstag)) n_btags++;
           }
           // Count number of light-flavour jets that are misstagged as b-jets
-          else 
+          else
           {
               if (random_bool(misstag)) n_btags++;
           }
         }
 
         // Count number of taus misstagged as b-jets 6.1
-        for (const HEPUtils::Particle* p : signalTaus) 
+        for (const HEPUtils::Particle* p : signalTaus)
         {
           if (p->abseta() > 2.5) continue;
           if (random_bool(taumisstag)) n_btags++;
@@ -241,6 +229,18 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_4LEP_139invfb()
       {
+
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SR0-ZZ-loose-bveto"] = EventCounter("SR0-ZZ-loose-bveto");
+        _counters["SR0-ZZ-tight-bveto"] = EventCounter("SR0-ZZ-tight-bveto");
+        _counters["SR0-ZZ-loose"] = EventCounter("SR0-ZZ-loose");
+        _counters["SR0-ZZ-tight"] = EventCounter("SR0-ZZ-tight");
+        _counters["SR0-loose-bveto"] = EventCounter("SR0-loose-bveto");
+        _counters["SR0-tight-bveto"] = EventCounter("SR0-tight-bveto");
+        _counters["SR0-breq"] = EventCounter("SR0-breq");
+        _counters["SR5L"] = EventCounter("SR5L");
+
 
         set_analysis_name("ATLAS_13TeV_4LEP_139invfb");
         set_luminosity(139.);
@@ -589,22 +589,6 @@ namespace Gambit
         #endif
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_4LEP_139invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_4LEP_139invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        #ifdef CHECK_CUTFLOW
-          // if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-          for (size_t j = 0; j < NCUTS; j++) {
-            cutFlowVector[j] += specificOther->cutFlowVector[j];
-            cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-          }
-        #endif
-      }
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {
@@ -639,7 +623,7 @@ namespace Gambit
           cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled row)    GAMBIT(scaled xs*L) " << endl;
           cout << "DEBUG CUTFLOW:   ----------------------------------------------------------------- " << endl;
 
-          for (size_t j = 0; j < NCUTS; j++) 
+          for (size_t j = 0; j < NCUTS; j++)
           {
             scaled_prefix = j == scale_to_row ? "*" : "";
             cout << setprecision(4) << "DEBUG CUTFLOW:   " << scaled_prefix << cutFlowVectorATLAS_200_50[j] << "\t"
@@ -664,7 +648,7 @@ namespace Gambit
           cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled row)    GAMBIT(scaled xs*L) " << endl;
           cout << "DEBUG CUTFLOW:   ----------------------------------------------------------------- " << endl;
 
-          for (size_t j = 0; j < NCUTS; j++) 
+          for (size_t j = 0; j < NCUTS; j++)
           {
             scaled_prefix = j == scale_to_row ? "*" : "";
             cout << setprecision(4) << "DEBUG CUTFLOW:   " << scaled_prefix << cutFlowVectorATLAS_300_100[j] << "\t"
@@ -690,7 +674,7 @@ namespace Gambit
           // cout << "DEBUG CUTFLOW:   ATLAS    GAMBIT(raw)    GAMBIT(scaled)    GAMBIT(scaled) " << endl;
           // cout << "DEBUG CUTFLOW:   -------------------------------------------------------- " << endl;
 
-          // for (size_t j = 0; j < NCUTS; j++) 
+          // for (size_t j = 0; j < NCUTS; j++)
           // {
           //   scaled_prefix = j == scale_to_row ? "*" : "";
           //   scaled_prefix = j == scale_to_row_2 ? "**" : "";
