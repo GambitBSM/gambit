@@ -39,8 +39,6 @@ namespace Gambit {
     class Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb : public Analysis {
     protected:
 
-        // Counters for the number of accepted events for each signal region
-        std::map<str, EventCounter> _counters;
         Cutflow _cutflow;
 
     public:
@@ -57,7 +55,7 @@ namespace Gambit {
             set_analysis_name("CMS_13TeV_2Higgs_4b_neutralino_137invfb");
             set_luminosity(137);
 
-            for(size_t i=1; i<=21; ++i)
+            for(size_t i=1; i<=22; ++i)
             {
               _counters["SR"+std::to_string(i)] =  EventCounter("SR"+std::to_string(i));
             }
