@@ -37,34 +37,6 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 1D binned efficiencies in pT
-    inline void apply1DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn1D<double>& eff)
-    {
-      filtereff_pt(part, eff);
-    }
-
-    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 1D binned efficiencies in pT
-    /// TODO: filter functions don't work with jets, fix that
-    //inline void apply1DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn1D<double>& eff)
-    //{
-    //  filtereff_pt(jet, eff);
-    //}
-
-
-    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 2D binned efficiencies in eta and pT
-    inline void apply2DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn2D<double>& eff)
-    {
-      filtereff_etapt(part, eff);
-    }
-
-    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 2D binned efficiencies in eta and pT
-    /// TODO: filter functions don't work with jets, fix that
-    //inline void apply2DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn2D<double>& eff)
-    //{
-    //  filtereff_etapt(jet, eff);
-    //}
-
-
     /// ATLAS-specific efficiency and smearing functions for super fast detector simulation
     namespace ATLAS
     {
@@ -806,7 +778,7 @@ namespace Gambit
       // ATLAS Efficiency maps //
 
       // Map of electron efficiencies
-      static const std::map<str, HEPUtils::BinnedFn1D<double> > eff1DEl =
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DEl(
       {
         {"PERF_2017_01_ID_VeryLoose",        eff1DEl_PERF_2017_01_ID_VeryLoose},
         {"PERF_2017_01_ID_Loose",            eff1DEl_PERF_2017_01_ID_Loose},
@@ -826,28 +798,28 @@ namespace Gambit
         {"EGAM_2018_01_Iso_HighPtCaloOnly",  eff1DEl_EGAM_2018_01_Iso_HighPtCaloOnly},
 //        {"VeryLoose", eff2DEl_VeryLoose},
 //        {"Medium", eff2DEl_Medium}
-      };
+      });
 
-      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DEl =
+      static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DEl(
       {
         {"ATLAS_CONF_2014_032_Medium",     eff2DEl_ATLAS_CONF_2014_032_Medium},
         {"ATLAS_CONF_2014_032_Tight",      eff2DEl_ATLAS_CONF_2014_032_Tight}
-      };
+      });
 
 
       // Map of muon 1D efficiencies
-      static const std::map<str, HEPUtils::BinnedFn1D<double> > eff1DMu =
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DMu(
       {
         {"MUON_2018_03_Iso_Loose", eff1DMu_MUON_2018_03_Iso_Loose},
         {"MUON_2018_03_Iso_Tight", eff1DMu_MUON_2018_03_Iso_Tight},
         {"MUON_2018_03_ID_Loose",  eff1DMu_MUON_2018_03_ID_Loose},
         {"MUON_2018_03_ID_Medium", eff1DMu_MUON_2018_03_ID_Medium},
         {"MUON_2018_03_ID_Tight",  eff1DMu_MUON_2018_03_ID_Tight}
-      };
+      });
 
-      static const std::map<str, HEPUtils::BinnedFn2D<double> > eff2DMu =
+      static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DMu(
       {
-      };
+      });
 
     }
   }

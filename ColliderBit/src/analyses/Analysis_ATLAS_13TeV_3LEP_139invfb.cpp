@@ -243,11 +243,12 @@ namespace Gambit
 
           // Apply cuts to get signal electrons
           // Apply electron ID efficiency from "Medium" criteria in 1908.00005
-          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("eff1DEl_EGAM_2018_01_ID_Medium"));
+          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
           // Apply electron isolation efficiency from "Tight" criteria in 1908.00005
-          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("eff1DEl_EGAM_2018_01_Iso_Tight"));
+          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Tight"));
           // Apply muon isolation efficiency from "Tight" criteria in 2012.00578
-          apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ISO_Tight"));
+          apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Tight"));
+
 
           // Signal jets
           vector<const HEPUtils::Jet*> signalJets;
@@ -343,7 +344,6 @@ namespace Gambit
             }
           }
           //cout << iZ1 << " " << iZ2 << " " << iW << " " << mll << endl;
-
 
 
           //

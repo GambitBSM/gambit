@@ -266,7 +266,8 @@ namespace Gambit {
       const HEPUtils::Particle* getLeptonNotInPair(vector<const HEPUtils::Particle*> leptons, vector<const HEPUtils::Particle*> pair) {
 
         // Check that there is only one more element in 'leptons' than in 'pair'
-        assert(leptons.size() == pair.size()+1);
+        // FIXME: This does not work if the pair is made with a tau and one of the light leptons
+        //assert(leptons.size() == pair.size()+1);
 
         const HEPUtils::Particle* lepton = NULL;
 

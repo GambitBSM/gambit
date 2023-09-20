@@ -8,6 +8,8 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 //#include "gambit/ColliderBit/analyses/Perf_Plot.hpp"
 
+// #define CHECK_CUTFLOW
+
 using namespace std;
 
 
@@ -63,6 +65,7 @@ namespace Gambit
           _counters["SRA"] = EventCounter("SRA");
           _counters["SRB"] = EventCounter("SRB");
           _counters["SRA15"] = EventCounter("SRA15");
+          _counters["SRA20"] = EventCounter("SRA20");
           _counters["SRA25"] = EventCounter("SRA25");
           _counters["SRA30"] = EventCounter("SRA30");
           _counters["SRA35"] = EventCounter("SRA35");
@@ -465,6 +468,7 @@ namespace Gambit
         void collect_results()
         {
 
+          #ifdef CHECK_CUTFLOW
           double scale_by=1.;
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
           cout << "CUT FLOW: ATLAS 8 TeV 2b stop paper SUSY-2013-05"<<endl;
@@ -477,6 +481,7 @@ namespace Gambit
               << 100.*cutFlowVector[j]/cutFlowVector[0] << "%" << endl;
           }
           cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
+          #endif
 
           add_result(SignalRegionData(_counters.at("SRA15"), 102., { 94., 13.}));
           add_result(SignalRegionData(_counters.at("SRA20"), 48., { 39., 6.}));
