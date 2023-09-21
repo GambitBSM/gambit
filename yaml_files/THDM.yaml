@@ -338,6 +338,7 @@ ObsLikes:
   # RK RKstar
   - purpose: LogLike
     capability: RKRKstar_LogLikelihood_LHCb
+    sub_capabilities: [RK, RKstar]
 
   # Source: GAMBIT, HEPLike
   # RD RDstar
