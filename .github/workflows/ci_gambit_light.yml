@@ -21,7 +21,7 @@ jobs:
       uses: actions/checkout@master
       with:
         repository: GambitBSM/gambit_light
-        ref: ci-debug
+        ref: master
         token: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
     - name: Set up build environment
       run: |
