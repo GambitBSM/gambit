@@ -3,7 +3,7 @@
 ///  \file
 ///
 ///  Rollcall header for THDM models in
-///  ColliderBit. TODO: Fix the model dependencies so they work for all THDM Models. This should also simplify the name
+///  ColliderBit.
 ///
 ///  *********************************************
 ///
@@ -28,7 +28,7 @@
     START_FUNCTION(SLHAstruct)
     DEPENDENCY(decay_rates, DecayTable)
     DEPENDENCY(THDM_spectrum, Spectrum)
-    //DEPENDENCY(SLHA_pseudonyms, mass_es_pseudonyms)
+    DEPENDENCY(Higgs_Couplings, HiggsCouplingsTable)
     ALLOW_MODELS(THDM, THDMatQ)
     #undef FUNCTION
 
