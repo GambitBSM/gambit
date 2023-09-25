@@ -18,10 +18,10 @@ jobs:
         shell: bash -eo pipefail {0}
     steps:
     - name: Checkout GAMBIT-light repository
-      uses: actions/checkout@master
+      uses: actions/checkout@ci-debug
       with:
         repository: GambitBSM/gambit_light
-        ref: master
+        ref: ci-debug
         token: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
     - name: Set up build environment
       run: |
