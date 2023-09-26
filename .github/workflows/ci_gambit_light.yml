@@ -7,6 +7,8 @@ on:
 jobs:
   gambit-light_test:
     runs-on: [docker, self-hosted]
+    env:
+      GAMBIT_LIGHT_SYNC_SECRET: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +24,8 @@ jobs:
       with:
         repository: GambitBSM/gambit_light
         ref: master
-        #  token: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
+        token: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
+      run: git config --global url.https://$GAMBIT_LIGHT_SYNC_SECRET@github.com/.insteadOf https://github.com/
     - name: Set up build environment
       run: |
         mkdir -p BUILD
