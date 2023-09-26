@@ -19,6 +19,10 @@ jobs:
       run:
         shell: bash -eo pipefail {0}
     steps:
+    - name: git settings
+      run: |
+        git config --global credential.https://github.com.username git
+        git config --global credential.https://github.com.password ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
     # - run: git config --global url.https://$GAMBIT_LIGHT_SYNC_SECRET@github.com/.insteadOf https://github.com/
     - name: Checkout GAMBIT-light repository
       uses: actions/checkout@v4
