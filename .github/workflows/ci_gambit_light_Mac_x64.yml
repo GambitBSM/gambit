@@ -17,13 +17,13 @@ jobs:
       run:
         shell: bash -eo pipefail {0}
     steps:
+    - run: git config --global url.https://$GAMBIT_LIGHT_SYNC_SECRET@github.com/.insteadOf https://github.com/
     - name: Checkout GAMBIT-light repository
       uses: actions/checkout@v4
       with:
         repository: GambitBSM/gambit_light
         ref: master
         token: ${{ secrets.GAMBIT_LIGHT_SYNC_SECRET }}
-    - run: git config --global url.https://$GAMBIT_LIGHT_SYNC_SECRET@github.com/.insteadOf https://github.com/
     - name: Set up build environment
       run: |
         echo "Set up the build environment"
