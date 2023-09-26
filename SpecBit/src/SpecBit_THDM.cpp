@@ -2134,6 +2134,16 @@ namespace Gambit
             check_coupling(couplings.vhh[v1][h][h2]);
           }
         }
+
+        // TODO: Chris Chang. I added this to fill the container for the tripple higgs couplings
+        for (int h2 = 1; h2 <= total_number_of_higgs; h2++)
+        {
+          for (int h3 = 1; h3 <= total_number_of_higgs; h3++)
+          {
+            container.get_coupling_hhh(h, h2, h3, couplings.hhh[h][h2][h3]);
+            check_coupling(couplings.hhh[h][h2][h3]);
+          }
+        }
       }
     }
 
@@ -2259,6 +2269,16 @@ namespace Gambit
         result.C_ZZ[h - 1] = couplings.vvh[2][2][h].imag() / couplings_SM_like[h - 1].vvh[2][2][1].imag();
         // W
         result.C_WW[h - 1] = couplings.vvh[3][3][h].imag() / couplings_SM_like[h - 1].vvh[3][3][1].imag();
+
+        // hh TODO: Chris Chang. Testing this out, this gives a nan, probably dividing by zero. In fact all of these are returning zero
+        std::cout << "couplings.hhh[h][1][1].imag(): " << couplings.hhh[h][1][1].imag() << ", couplings_SM_like[h - 1].hhh[1][1][1].imag(): " << couplings_SM_like[h - 1].hhh[1][1][1].imag() << std::endl;// TODO: Debugging
+        std::cout << "couplings.hhh[h][2][2].imag(): " << couplings.hhh[h][2][2].imag() << ", couplings_SM_like[h - 1].hhh[1][2][2].imag(): " << couplings_SM_like[h - 1].hhh[1][2][2].imag() << std::endl;// TODO: Debugging
+        std::cout << "couplings.hhh[h][3][3].imag(): " << couplings.hhh[h][3][3].imag() << ", couplings_SM_like[h - 1].hhh[1][3][3].imag(): " << couplings_SM_like[h - 1].hhh[1][3][3].imag() << std::endl;// TODO: Debugging
+        result.C_hh[h - 1] = couplings.hhh[h][1][1].imag() / couplings_SM_like[h - 1].hhh[1][1][1].imag(); // TODO: I changed 1 to h in the SM coupling to see if htis fixes things
+        // HH TODO: Chris Chang. Testing this out
+        result.C_HH[h - 1] = couplings.hhh[h][2][2].imag() / couplings_SM_like[h - 1].hhh[1][2][2].imag();
+        // AA TODO: Chris Chang. Testing this out
+        result.C_AA[h - 1] = couplings.hhh[h][3][3].imag() / couplings_SM_like[h - 1].hhh[1][3][3].imag();
 
         for (int h2 = 1; h2 <= NUMBER_OF_NEUTRAL_HIGGS; h2++)
         {

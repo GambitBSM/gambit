@@ -26,6 +26,9 @@ namespace Gambit
     n_neutral_higgses = n;
     neutral_decays_SM_array.resize(n);
     neutral_decays_array.resize(n);
+    C_hh.resize(n); // TODO: Chris CHang. I added this
+    C_HH.resize(n); // TODO: Chris CHang. I added this
+    C_AA.resize(n); // TODO: Chris CHang. I added this
     CP.resize(n);
     C_WW.resize(n);
     C_ZZ.resize(n);
@@ -73,6 +76,9 @@ namespace Gambit
   {
     for (int i = 0; i < n_neutral_higgses; i++)
     {
+      C_hh[i] = 1.0; // TODO: Chris CHang. I added this
+      C_HH[i] = 1.0; // TODO: Chris CHang. I added this
+      C_AA[i] = 1.0; // TODO: Chris CHang. I added this
       C_WW[i] = 1.0;
       C_ZZ[i] = 1.0;
       C_tt2[i] = 1.0;

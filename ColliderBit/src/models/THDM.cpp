@@ -36,23 +36,23 @@ namespace Gambit
       // Add in the Higgs Couplings
       const HiggsCouplingsTable higgs_tbl = *Dep::Higgs_Couplings;
 
-      double H1_coup2d = higgs_tbl.C_ss2.at(0);
-      double H1_coup2u = higgs_tbl.C_cc2.at(0);
-      double H1_coup2l = higgs_tbl.C_mumu2.at(0);
+      double H1_coup2d = sqrt(higgs_tbl.C_ss2.at(0));
+      double H1_coup2u = sqrt(higgs_tbl.C_cc2.at(0));
+      double H1_coup2l = sqrt(higgs_tbl.C_mumu2.at(0));
       double H1_coup2Z = higgs_tbl.C_ZZ.at(0);
       double H1_coup2W = higgs_tbl.C_WW.at(0);
 
-      double H2_coup2d = higgs_tbl.C_ss2.at(1);
-      double H2_coup2u = higgs_tbl.C_cc2.at(1);
-      double H2_coup2l = higgs_tbl.C_mumu2.at(1);
+      double H2_coup2d = sqrt(higgs_tbl.C_ss2.at(1));
+      double H2_coup2u = sqrt(higgs_tbl.C_cc2.at(1));
+      double H2_coup2l = sqrt(higgs_tbl.C_mumu2.at(1));
       double H2_coup2Z = higgs_tbl.C_ZZ.at(1);
       double H2_coup2W = higgs_tbl.C_WW.at(1);
       double H2_coup2H1Z = (higgs_tbl.C_hiZ.at(1)).at(0);
       double H2_coup2HchgW = 0.0; // TODO: NOt yet filled
 
-      double A3_coup2d = higgs_tbl.C_ss2.at(2);
-      double A3_coup2u = higgs_tbl.C_cc2.at(2);
-      double A3_coup2l = higgs_tbl.C_mumu2.at(2);
+      double A3_coup2d = sqrt(higgs_tbl.C_ss2.at(2));
+      double A3_coup2u = sqrt(higgs_tbl.C_cc2.at(2));
+      double A3_coup2l = sqrt(higgs_tbl.C_mumu2.at(2));
       double A3_coup2Z = higgs_tbl.C_ZZ.at(2);
       double A3_coup2W = higgs_tbl.C_WW.at(2);
       double A3_coup2H1Z = (higgs_tbl.C_hiZ.at(2)).at(0);
@@ -65,10 +65,10 @@ namespace Gambit
 
       double H1_coup2Hchg = 0.0; // TODO: NOt yet filled
       double H2_coup2Hchg = 0.0; // TODO: NOt yet filled
-      double H2_coup2H1H1 = 0.0; // TODO: NOt yet filled
-      double H2_coup2A3A3 = 0.0; // TODO: NOt yet filled
+      double H2_coup2H1H1 = higgs_tbl.C_hh.at(1); // TODO: NOt yet filled
+      double H2_coup2A3A3 = higgs_tbl.C_AA.at(1); // TODO: NOt yet filled
       double H2_coup2A3H1 = 0.0; // TODO: NOt yet filled
-      double A3_coup2H1H1 = 0.0; // TODO: NOt yet filled
+      double A3_coup2H1H1 = higgs_tbl.C_hh.at(2); // TODO: NOt yet filled
       double A3_coup2Hchg = 0.0; // TODO: NOt yet filled
 
       SLHAea_add_block(slha_spectrum, "THDMCOUPLINGS");

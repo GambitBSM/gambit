@@ -70,6 +70,9 @@ namespace Gambit
 
       /// Effective couplings for neutral higgses
       /// @{
+      std::vector<double> C_hh; // TODO: Chris Chang, I added this
+      std::vector<double> C_HH; // TODO: Chris Chang, I added this
+      std::vector<double> C_AA; // TODO: Chris Chang, I added this
       std::vector<double> C_WW;
       std::vector<double> C_ZZ;
       std::vector<double> C_tt2;
