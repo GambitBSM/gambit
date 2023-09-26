@@ -21,7 +21,7 @@ jobs:
     steps:
     # - run: git config --global url.https://$GAMBIT_LIGHT_SYNC_SECRET@github.com/.insteadOf https://github.com/
     - name: Checkout GAMBIT-light repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
       with:
         persist-credentials: false
         repository: GambitBSM/gambit_light
