@@ -138,7 +138,10 @@ def Evaluate(mydict,AnalysisName):
   for key,value in Nsamplesdict[AnalysisName].items():
     Signal[str(value[0])+"_"+str(value[1])] = []
     for i in range(Nbindict[AnalysisName][key]):
-      Signal[str(value[0])+"_"+str(value[1])].append(mydict[key+"_"+str(i)])
+      sig = 0.0
+      if ((key+"_"+str(i)) in mydict.keys()):
+        sig = mydict[key+"_"+str(i)]
+      Signal[str(value[0])+"_"+str(value[1])].append(sig)
 
   data['patches'].append({
           "metadata":
