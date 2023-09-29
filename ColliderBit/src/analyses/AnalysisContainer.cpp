@@ -103,6 +103,7 @@ namespace Gambit
       F(ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb)     \
       F(ATLAS_13TeV_2OSLEP_Z_139invfb)               \
       F(ATLAS_13TeV_2LEPsoft_139invfb)               \
+      F(ATLAS_13TeV_bTaus_StopStau_139invfb)         \
       F(ATLAS_8TeV_0LEP_20invfb)                     \
       F(ATLAS_8TeV_0LEPStop_20invfb)                 \
       F(ATLAS_8TeV_1LEPStop_20invfb)                 \

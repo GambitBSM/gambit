@@ -113,6 +113,7 @@ namespace Gambit
         /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
         /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
         /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
+        /// @note this is for the BDT based ID algorithm
         inline void applyTauEfficiencyR2(std::vector<const HEPUtils::Particle*>& taus) {
 
           // Delphes 3.3.2 config:
@@ -145,6 +146,19 @@ namespace Gambit
           const static HEPUtils::BinnedFn1D<double> _eff_pt_avg(binedges_pt, bineffs_pt_avg);
           filtereff_pt(taus, _eff_pt_avg);
 
+        }
+
+        /// Randomly filter the supplied particle list by parameterised Run 2 RNN tau efficiency
+        /// @note this is the newer RNN Tau ID Algorithm, use the other function for the older BDT Tau ID Algorithm.
+        /// @note by design these Tau ID working points have flat signal efficiencies in eta and phi
+        /// @note using https://cds.cern.ch/record/2688062/files/ATL-PHYS-PUB-2019-033.pdf
+        /// @note assuming frequency: 85% 1-prong, 15% >=3-prong
+        inline void applyTauEfficiencyR2_RNN(std::vector<const HEPUtils::Particle*>& taus, std::string workingPoint ) {
+           std::map<std::string, double> effs{{"Tight",     0.58}, // 0.6 (0.45) for 1 (3) prongs
+                                              {"Medium",    0.73}, // 0.75 (0.6) for 1 (3) prongs
+                                              {"Loose",     0.84}, // 0.85 (0.75) for 1 (3) prongs
+                                              {"VeryLoose", 0.58}}; // 0.95 (0.95) for 1 (3) prongs
+           filtereff(taus, effs[workingPoint]);
         }
 
 
