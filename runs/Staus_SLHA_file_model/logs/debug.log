@@ -1,0 +1,48 @@
+(Fri Sep 29 22:53:54 2023)(-7.0125 [s])[Default,Backends][Debug]:
+Custom user backend location file /afs/cern.ch/user/h/hpacey/gambit/gambit/config/backend_locations.yaml could not be read; employing default only.
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:53:54 2023)(-7.00564 [s])[Default,Backends][Debug]:
+Successfully loaded default backend location file /afs/cern.ch/user/h/hpacey/gambit/gambit/config/backend_locations.yaml.default.
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:53:55 2023)(-5.87628 [s])[Default,Backends][Debug]:
+Python interpreter successfully started.
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:02 2023)(1.57158 [s])[Default,Logger][Debug]:
+  log_debug_messages = true; log messages tagged as 'Debug' WILL be logged. 
+WARNING: This may lead to very large log files!
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:02 2023)(1.5735 [s])[Default,Logger][Debug]:
+
+Creating logger for tags [ColliderBit, ]; output is "runs/Staus_SLHA_file_model//logs//ColliderBit.log"
+Creating logger for tags [Debug, ]; output is "runs/Staus_SLHA_file_model//logs//debug.log"
+Creating logger for tags [Default, ]; output is "runs/Staus_SLHA_file_model//logs//default.log"
+Creating logger for tags [Dependency Resolver, ]; output is "runs/Staus_SLHA_file_model//logs//dep_resolver.log"
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50152 [s])[Default,Core][Debug]:
+Entered Likelihood_Container::main
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50175 [s])[Default,Core][Debug]:
+Number of target vertices to calculate:    1
+Number of auxiliary vertices to calculate: 4
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50182 [s])[Default,Dependency Resolver][Debug,Info]:
+Calling setEventWeight_unity from ColliderBit...
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50188 [s])[Default,Dependency Resolver][Debug,Info]:
+Calling nulike_1_0_9_init from BackendIniBit...
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50193 [s])[Default,Dependency Resolver][Debug,Info]:
+Calling Pythia_8_212_init from BackendIniBit...
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50197 [s])[Default,Dependency Resolver][Debug,Info]:
+Calling primary_parameters from ColliderBit_SLHA_file_model...
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50202 [s])[Default,Dependency Resolver][Debug,Info]:
+Calling getNextSLHAFileNameAndContent from ColliderBit...
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:04 2023)(3.50334 [s])[Default,Dependency Resolver][Debug,Info]:
+Calling operateLHCLoop from ColliderBit...
+--<>--<>--<>--<>--<>--<>--<>--
+(Fri Sep 29 22:54:06 2023)(5.13618 [s])[Default,Core][Debug]:
+Returning control to ScannerBit
+--<>--<>--<>--<>--<>--<>--<>--
