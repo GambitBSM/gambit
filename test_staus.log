@@ -16,9 +16,10 @@ Resolving dependencies and backend requirements.  Hang tight...
 The scan you are about to run uses backends. Please make sure to cite all of them in your work.
 You can find the list of references to include in GAMBIT.bib and an example TeX file in GAMBIT.tex
 
+Starting scan.
 Entering random sampler.
 	number of points to calculate:  1
-0, 1: scanID: 232220600
+0, 1: scanID: 233148787
   ColliderBit_SLHA_file_model:
     dummy: 1
 
@@ -31,7 +32,7 @@ Entering random sampler.
  |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.212      |  | 
  |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 23 Sep 2015  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 23:22:20    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 23:31:48    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -91,7 +92,7 @@ Entering random sampler.
  |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.212      |  | 
  |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 23 Sep 2015  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 23:22:20    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 23:31:49    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -251,7 +252,7 @@ Entering random sampler.
  | HiggsH2:coup2H1H1                             |                 -0.87428 |      1.00000                         | 
  | HiggsH2:coup2Hchg                             |                  0.57951 |          0.0                         | 
  | HiggsHchg:tanBeta                             |                  9.66644 |      5.00000                         | 
- | Random:seed                                   |                469078193 |           -1               900000000 | 
+ | Random:seed                                   |                115945237 |           -1               900000000 | 
  | SLHA:file                                     |                   slhaea |         void                         | 
  | SUSY:gg2squarkantisquark                      |                       on |          off                         | 
  | SUSY:qqbar2squarkantisquark                   |                       on |          off                         | 
@@ -4166,4 +4167,67 @@ Gambit has encountered an uncaught error during initialisation.
 
 Check the output logs for details.
 (Unless you see one or more uninitialised logger messages above, these will be in the location specified in your yaml file.)
+
+
+ *** Break *** segmentation violation
+
+
+
+===========================================================
+There was a crash.
+This is the entire stack trace of all threads:
+===========================================================
+#0  0x00007f816995460c in waitpid () from /lib64/libc.so.6
+#1  0x00007f81698d1f62 in do_system () from /lib64/libc.so.6
+#2  0x00007f816cdfcebc in TUnixSystem::StackTrace() () from /cvmfs/sft.cern.ch/lcg/releases/ROOT/6.28.00-a8528/x86_64-centos7-gcc11-opt/lib/libCore.so
+#3  0x00007f816cdfa5d5 in TUnixSystem::DispatchSignals(ESignals) () from /cvmfs/sft.cern.ch/lcg/releases/ROOT/6.28.00-a8528/x86_64-centos7-gcc11-opt/lib/libCore.so
+#4  <signal handler called>
+#5  0x00007f8169d6222d in std::rethrow_exception(std::__exception_ptr::exception_ptr) () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libstdc++.so.6
+#6  0x000000000182327f in Gambit::terminator() ()
+#7  0x00007f8169d6228a in ?? () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libstdc++.so.6
+#8  0x00007f8169d622f5 in std::terminate() () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libstdc++.so.6
+#9  0x00000000018bbd71 in Gambit::ColliderBit::operateLHCLoop(Gambit::ColliderBit::MCLoopInfo&) [clone ._omp_fn.2] ()
+#10 0x00007f8169c89bf6 in GOMP_parallel () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libgomp.so.1
+#11 0x00000000018ba701 in Gambit::ColliderBit::operateLHCLoop(Gambit::ColliderBit::MCLoopInfo&) ()
+#12 0x000000000137bb8c in Gambit::module_functor<Gambit::ColliderBit::MCLoopInfo>::calculate() ()
+#13 0x00000000023c9b67 in Gambit::DRes::DependencyResolver::calcObsLike(unsigned long) ()
+#14 0x000000000244b004 in Gambit::Likelihood_Container::main(std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, double> > >&) ()
+#15 0x00007f811582ba51 in Gambit::Scanner::Function_Base<double (std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, double> > >&)>::operator()(std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, double> > >&) () from /afs/cern.ch/user/h/hpacey/gambit/gambit/ScannerBit/lib/libscanner_simple.so
+#16 0x00007f8115829271 in Gambit::Scanner::like_ptr::operator()(std::vector<double, std::allocator<double> > const&) () from /afs/cern.ch/user/h/hpacey/gambit/gambit/ScannerBit/lib/libscanner_simple.so
+#17 0x00007f811583c790 in __gambit_plugin_random__t__scanner__v__1_0_0__namespace__::PLUGIN_MAIN() () from /afs/cern.ch/user/h/hpacey/gambit/gambit/ScannerBit/lib/libscanner_simple.so
+#18 0x00000000020cc03d in Gambit::Scanner::Plugins::Plugin_Main_Interface_Base<int ()>::operator()() ()
+#19 0x00000000020c8864 in Gambit::Scanner::Plugins::Plugin_Interface<int ()>::operator()() ()
+#20 0x00000000020c3ef9 in Gambit::Scanner::Scan_Manager::Run() ()
+#21 0x0000000000a45d28 in main ()
+===========================================================
+
+
+The lines below might hint at the cause of the crash. If you see question
+marks as part of the stack trace, try to recompile with debugging information
+enabled and export CLING_DEBUG=1 environment variable before running.
+You may get help by asking at the ROOT forum https://root.cern/forum
+Only if you are really convinced it is a bug in ROOT then please submit a
+report at https://root.cern/bugs Please post the ENTIRE stack trace
+from above as an attachment in addition to anything else
+that might help us fixing this issue.
+===========================================================
+#5  0x00007f8169d6222d in std::rethrow_exception(std::__exception_ptr::exception_ptr) () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libstdc++.so.6
+#6  0x000000000182327f in Gambit::terminator() ()
+#7  0x00007f8169d6228a in ?? () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libstdc++.so.6
+#8  0x00007f8169d622f5 in std::terminate() () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libstdc++.so.6
+#9  0x00000000018bbd71 in Gambit::ColliderBit::operateLHCLoop(Gambit::ColliderBit::MCLoopInfo&) [clone ._omp_fn.2] ()
+#10 0x00007f8169c89bf6 in GOMP_parallel () from /cvmfs/sft.cern.ch/lcg/releases/gcc/11.3.0-ad0f5/x86_64-centos7/lib64/libgomp.so.1
+#11 0x00000000018ba701 in Gambit::ColliderBit::operateLHCLoop(Gambit::ColliderBit::MCLoopInfo&) ()
+#12 0x000000000137bb8c in Gambit::module_functor<Gambit::ColliderBit::MCLoopInfo>::calculate() ()
+#13 0x00000000023c9b67 in Gambit::DRes::DependencyResolver::calcObsLike(unsigned long) ()
+#14 0x000000000244b004 in Gambit::Likelihood_Container::main(std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, double> > >&) ()
+#15 0x00007f811582ba51 in Gambit::Scanner::Function_Base<double (std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, double> > >&)>::operator()(std::unordered_map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, double, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, double> > >&) () from /afs/cern.ch/user/h/hpacey/gambit/gambit/ScannerBit/lib/libscanner_simple.so
+#16 0x00007f8115829271 in Gambit::Scanner::like_ptr::operator()(std::vector<double, std::allocator<double> > const&) () from /afs/cern.ch/user/h/hpacey/gambit/gambit/ScannerBit/lib/libscanner_simple.so
+#17 0x00007f811583c790 in __gambit_plugin_random__t__scanner__v__1_0_0__namespace__::PLUGIN_MAIN() () from /afs/cern.ch/user/h/hpacey/gambit/gambit/ScannerBit/lib/libscanner_simple.so
+#18 0x00000000020cc03d in Gambit::Scanner::Plugins::Plugin_Main_Interface_Base<int ()>::operator()() ()
+#19 0x00000000020c8864 in Gambit::Scanner::Plugins::Plugin_Interface<int ()>::operator()() ()
+#20 0x00000000020c3ef9 in Gambit::Scanner::Scan_Manager::Run() ()
+#21 0x0000000000a45d28 in main ()
+===========================================================
+
 
