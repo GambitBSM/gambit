@@ -276,7 +276,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +}
 --- a/src/chi2.c	2020-10-14 19:40:57.635018399 +0200
 +++ b/src/chi2.c	2020-10-14 19:41:08.083031147 +0200
-@@ -2809,9 +2809,6 @@
+@@ -2815,9 +2815,6 @@ void get_th_covariance_nuisance(double *
  
  	for(ie=0;ie<*nbobs;ie++) values_mod[0][ie]=values_ref[ie];		
  
@@ -327,3 +327,13 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  		
  		return -xt/8./(xH-xt)*(2.*ld*ll*(1./(xH-1.)*log(xH)-1./(xt-1.)*log(xt))
  		+lu*ll*(1./(xH-1.)+xH/(xH-xt)/(xt-1.)*log(xt)-xH*(2.*xH-xt-1.)/(xH-xt)/(xH-1.)/(xH-1.)*log(xH))
+@@ -1482,7 +1490,8 @@ double CPc_2HDM(double xH, double xt, do
+ 		+xt/4./(xH-xt)/(xH-xt)*(-ld*lu*(-(xt+xH)/2.+xt*xH/(xH-xt)*log(xH/xt))
+ 		+lu*lu/6./(xH-xt)*((xH*xH-8.*xH*xt-17.*xt*xt)/6.+xt*xt*(3.*xH+xt)/(xH-xt)*log(xH/xt)))
+ 		+sw2*xt/6./(xH-xt)/(xH-xt)*(-ld*lu*((5.*xt-3.*xH)/2.+xH*(2.*xH-3.*xt)/(xH-xt)*log(xH/xt))
+-		+lu*lu/6./(xH-xt)*((4.*xH*xH*xH-12.*xH*xH*xt+xH*xt*xt+3.*xt*xt*xt)/(xH-xt)*log(xH/xt)-(17.*xH*xH-64.*xH*xt+71.*xt*xt)/6.))
++		// Modified by GAMBIT, fixed typo on expression compared to 1511.01829
++		+lu*lu/6./(xH-xt)*((4.*xH*xH*xH-12.*xH*xH*xt+9.*xH*xt*xt+3.*xt*xt*xt)/(xH-xt)*log(xH/xt)-(17.*xH*xH-64.*xH*xt+71.*xt*xt)/6.))
+ 		+(1.-sw2)*lu*lu*xt*xt/4./(xH-xt)/(xH-xt)*(xH*log(xH/xt)+xt-xH);
+ }
+ 
