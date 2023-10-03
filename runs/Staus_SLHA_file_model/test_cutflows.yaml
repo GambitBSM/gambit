@@ -14,6 +14,7 @@ Scanner:
         output_file: weights ...
   default_output_path: runs/Staus_SLHA_file_model//scanner_plugins/
 Printer:
+  printer: cout
   printer: hdf5
   options:
     output_file: Staus_SLHA_file_model.hdf5
@@ -49,8 +50,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 10000
-        max_nEvents: 10000
+        min_nEvents: 1
+        max_nEvents: 1000
         events_between_convergence_checks: 10000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true

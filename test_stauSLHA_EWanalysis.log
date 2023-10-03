@@ -18,7 +18,7 @@ You can find the list of references to include in GAMBIT.bib and an example TeX 
 
 Entering random sampler.
 	number of points to calculate:  1
-0, 1: scanID: 232220600
+0, 1: scanID: 225903778
   ColliderBit_SLHA_file_model:
     dummy: 1
 
@@ -31,7 +31,7 @@ Entering random sampler.
  |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.212      |  | 
  |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 23 Sep 2015  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 23:22:20    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 22:59:03    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -91,7 +91,7 @@ Entering random sampler.
  |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.212      |  | 
  |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 23 Sep 2015  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 23:22:20    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 03 Oct 2023 at 22:59:04    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -251,7 +251,7 @@ Entering random sampler.
  | HiggsH2:coup2H1H1                             |                 -0.87428 |      1.00000                         | 
  | HiggsH2:coup2Hchg                             |                  0.57951 |          0.0                         | 
  | HiggsHchg:tanBeta                             |                  9.66644 |      5.00000                         | 
- | Random:seed                                   |                469078193 |           -1               900000000 | 
+ | Random:seed                                   |                711237127 |           -1               900000000 | 
  | SLHA:file                                     |                   slhaea |         void                         | 
  | SUSY:gg2squarkantisquark                      |                       on |          off                         | 
  | SUSY:qqbar2squarkantisquark                   |                       on |          off                         | 
@@ -4161,9 +4161,88 @@ Entering random sampler.
 # It uses T. Chan's closest pair algorithm, S. Fortune's Voronoi code
 # and 3rd party plugin jet algorithms. See COPYING file for details.
 #--------------------------------------------------------------------------
+ PYTHIA Warning in TimeShower::pTnext: negative dipole mass.  
+ PYTHIA Warning in SpaceShower::pT2nextQCD: weight above unity  
+ PYTHIA Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
+ PYTHIA Warning in TauDecays::decay: maximum decay weight exceeded in tau decay  
+ PYTHIA Error in StringFragmentation::fragment: stuck in joining  
+ PYTHIA Error in Pythia::next: hadronLevel failed; try again  
 
-Gambit has encountered an uncaught error during initialisation.
+ Pythia::next(): 1000 events have been generated 
 
-Check the output logs for details.
-(Unless you see one or more uninitialised logger messages above, these will be in the location specified in your yaml file.)
+ Pythia::next(): 2000 events have been generated 
+
+ Pythia::next(): 3000 events have been generated 
+ PYTHIA Error in SpaceShower::pT2nearQCDthreshold: stuck in loop  
+
+ Pythia::next(): 4000 events have been generated 
+
+ Pythia::next(): 5000 events have been generated 
+
+ Pythia::next(): 6000 events have been generated 
+ PYTHIA Error in StringFragmentation::fragmentToJunction: caught in junction flavour loop  
+
+ Pythia::next(): 7000 events have been generated 
+
+ Pythia::next(): 8000 events have been generated 
+
+ Pythia::next(): 9000 events have been generated 
+
+ Pythia::next(): 10000 events have been generated 
+  Likelihood contribution from ColliderBit::calc_combined_LHC_LogLike: -0.000596121
+0, 1: #ColliderBit_SLHA_file_model_parameters @ColliderBit_SLHA_file_model::primary_parameters::dummy: 1
+0, 1: #LHC_Combined_LogLike @ColliderBit::calc_combined_LHC_LogLike: -0.00059612139
+0, 1: #LHCEventLoopInfo @ColliderBit::getLHCEventLoopInfo::did_event_generation: 1
+0, 1: #LHCEventLoopInfo @ColliderBit::getLHCEventLoopInfo::event_count_LHC_13TeV: 10000
+0, 1: #LHCEventLoopInfo @ColliderBit::getLHCEventLoopInfo::too_many_failed_events: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh16_1_cuts_0__i2__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh16_1_cuts_0__i2__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh16_2_cuts_0__i3__signal: 0.0061161558
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh16_2_cuts_0__i3__signal_uncert: 0.0061161558
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh4_cuts_0__i4__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh4_cuts_0__i4__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh8_1_cuts_0__i0__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh8_1_cuts_0__i0__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh8_2_cuts_0__i1__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh8_2_cuts_0__i1__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRInt_1_cuts_0__i6__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRInt_1_cuts_0__i6__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRInt_2_cuts_0__i7__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRInt_2_cuts_0__i7__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow2_cuts_0__i10__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow2_cuts_0__i10__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow_1_cuts_0__i8__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow_1_cuts_0__i8__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow_2_cuts_0__i9__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow_2_cuts_0__i9__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SROffShell_1_cuts_0__i11__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SROffShell_1_cuts_0__i11__signal_uncert: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SROffShell_2_cuts_0__i12__signal: 0.012232312
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SROffShell_2_cuts_0__i12__signal_uncert: 0.0086495504
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRllbb_cuts_0__i5__signal: 0
+0, 1: #LHC_signals @ColliderBit::calc_LHC_signals::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRllbb_cuts_0__i5__signal_uncert: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh16_1_cuts_0__i2__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh16_2_cuts_0__i3__LogLike: -0.00059612139
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh4_cuts_0__i4__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh8_1_cuts_0__i0__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRHigh8_2_cuts_0__i1__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRInt_1_cuts_0__i6__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRInt_2_cuts_0__i7__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow2_cuts_0__i10__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow_1_cuts_0__i8__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRLow_2_cuts_0__i9__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SROffShell_1_cuts_0__i11__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SROffShell_2_cuts_0__i12__LogLike: 0.0018322966
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__SRllbb_cuts_0__i5__LogLike: 0
+0, 1: #LHC_LogLike_per_SR @ColliderBit::get_LHC_LogLike_per_SR::ATLAS_13TeV_2LEPJETS_EW_139invfb__combined_LogLike: -0.00059612139
+0, 1: #LHC_LogLike_SR_indices @ColliderBit::get_LHC_LogLike_SR_indices::ATLAS_13TeV_2LEPJETS_EW_139invfb: 3
+Total log-likelihood: -0.00059612139
+
+0, 1: LogLike: -0.00059612139
+0, 1: ModifiedLogLike: -0.00059612139
+0, 1: pointID: 1
+0, 1: MPIrank: 0
+points:  0 / 1
+
+GAMBIT has finished successfully!
 

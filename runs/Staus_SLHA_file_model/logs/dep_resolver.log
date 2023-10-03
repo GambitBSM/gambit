@@ -1,4 +1,4 @@
-(Fri Sep 29 22:54:02 2023)(1.651 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(2.95984 [s])[Default,Dependency Resolver]:
 
 #######################################
 #  List of Type Equivalency Classes   #
@@ -76,7 +76,7 @@
 {sspair, std::pair<str,str>}
 {vevacious_1_0::VevaciousPlusPlus::VevaciousPlusPlus}
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:02 2023)(1.67575 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.00743 [s])[Default,Dependency Resolver]:
 
 Vertices registered in masterGraph
 ----------------------------------
@@ -2716,7 +2716,7 @@ LibFarrayTest (1.0)  doubleFuncArray3                 libFarrayTest_doubleFuncAr
 LibFarrayTest (1.0)  testcomplex                      libFarrayTest_testcomplex                        void(Fcomplex16&,Freal8&,Freal8&) 1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:02 2023)(1.67635 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.00914 [s])[Default,Dependency Resolver]:
 
 #######################################
 #        List of Target ObsLikes      #
@@ -2729,7 +2729,7 @@ LHC_LogLike_per_SR () [likelihood_details]
 LHC_LogLike_SR_indices () [likelihood_details]
 LHCEventLoopInfo () [Observable]
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:02 2023)(1.67641 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.00931 [s])[Default,Dependency Resolver]:
 
 ################################################
 #         Starting dependency resolution       #
@@ -2737,7 +2737,7 @@ LHCEventLoopInfo () [Observable]
 # format: Capability (Type) [Function, Module] #
 ################################################
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.78634 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.42804 [s])[Default,Dependency Resolver]:
 Resolving LHC_Combined_LogLike (), required by ObsLike section of yaml file
 
 List of candidate vertices:
@@ -2745,13 +2745,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          calc_combined_LHC_LogLike        LHC_Combined_LogLike                             double                           1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.78645 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.42821 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          calc_combined_LHC_LogLike        LHC_Combined_LogLike                             double                           1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.78678 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.42886 [s])[Default,Dependency Resolver]:
 LHC_Combined_LogLike (), required by ObsLike section of yaml fileresolved by: [calc_combined_LHC_LogLike, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
@@ -2759,7 +2759,7 @@ LHC_LogLikes (map_str_AnalysisLogLikes)
 RunMC (MCLoopInfo)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.7973 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.44484 [s])[Default,Dependency Resolver]:
 Resolving LHC_signals (), required by ObsLike section of yaml file
 
 List of candidate vertices:
@@ -2767,20 +2767,20 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          calc_LHC_signals                 LHC_signals                                      map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.79738 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.44501 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          calc_LHC_signals                 LHC_signals                                      map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.79747 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.44523 [s])[Default,Dependency Resolver]:
 LHC_signals (), required by ObsLike section of yaml fileresolved by: [calc_LHC_signals, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
 AllAnalysisNumbers (AnalysisDataPointers)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.80907 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.46857 [s])[Default,Dependency Resolver]:
 Resolving LHC_LogLike_per_SR (), required by ObsLike section of yaml file
 
 List of candidate vertices:
@@ -2788,20 +2788,20 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          get_LHC_LogLike_per_SR           LHC_LogLike_per_SR                               map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.80914 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.46882 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          get_LHC_LogLike_per_SR           LHC_LogLike_per_SR                               map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.80923 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.46914 [s])[Default,Dependency Resolver]:
 LHC_LogLike_per_SR (), required by ObsLike section of yaml fileresolved by: [get_LHC_LogLike_per_SR, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
 LHC_LogLikes (map_str_AnalysisLogLikes)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.82116 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.49602 [s])[Default,Dependency Resolver]:
 Resolving LHC_LogLike_SR_indices (), required by ObsLike section of yaml file
 
 List of candidate vertices:
@@ -2809,20 +2809,20 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          get_LHC_LogLike_SR_indices       LHC_LogLike_SR_indices                           map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.82124 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.49623 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          get_LHC_LogLike_SR_indices       LHC_LogLike_SR_indices                           map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.82132 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.49642 [s])[Default,Dependency Resolver]:
 LHC_LogLike_SR_indices (), required by ObsLike section of yaml fileresolved by: [get_LHC_LogLike_SR_indices, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
 LHC_LogLikes (map_str_AnalysisLogLikes)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.82996 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.51905 [s])[Default,Dependency Resolver]:
 Resolving LHCEventLoopInfo (), required by ObsLike section of yaml file
 
 List of candidate vertices:
@@ -2830,20 +2830,20 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getLHCEventLoopInfo              LHCEventLoopInfo                                 map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.83001 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.51927 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getLHCEventLoopInfo              LHCEventLoopInfo                                 map_str_dbl                      1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.8301 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.51946 [s])[Default,Dependency Resolver]:
 LHCEventLoopInfo (), required by ObsLike section of yaml fileresolved by: [getLHCEventLoopInfo, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
 RunMC (MCLoopInfo)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.84113 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.53589 [s])[Default,Dependency Resolver]:
 Resolving LHC_LogLikes (map_str_AnalysisLogLikes), required by LHC_Combined_LogLike (double) [calc_combined_LHC_LogLike, ColliderBit]
 
 List of candidate vertices:
@@ -2851,31 +2851,31 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          calc_LHC_LogLikes                LHC_LogLikes                                     map_str_AnalysisLogLikes         1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.84856 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.5361 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          calc_LHC_LogLikes                LHC_LogLikes                                     map_str_AnalysisLogLikes         1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.84868 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.5364 [s])[Default,Dependency Resolver]:
 LHC_LogLikes (map_str_AnalysisLogLikes), required by LHC_Combined_LogLike (double) [calc_combined_LHC_LogLike, ColliderBit]resolved by: [calc_LHC_LogLikes, ColliderBit]
 Activate new module function
 Doing backend function resolution...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.84871 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:18 2023)(3.53648 [s])[Default,Dependency Resolver]:
 Resolving from group lnlike_marg_poisson...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.87264 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.69734 [s])[Default,Dependency Resolver]:
 Resolved by: [nulike_lnpiln, nulike (1.0.9)]
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.87291 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.69787 [s])[Default,Dependency Resolver]:
 Add dependencies of new module function to queue
 AllAnalysisNumbers (AnalysisDataPointers)
 RunMC (MCLoopInfo)
 nulike_1_0_9_init (void)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.89002 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.70939 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by LHC_Combined_LogLike (double) [calc_combined_LHC_LogLike, ColliderBit]
 
 List of candidate vertices:
@@ -2883,20 +2883,20 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.89942 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.70958 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.89979 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.71019 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by LHC_Combined_LogLike (double) [calc_combined_LHC_LogLike, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
 SLHAFileNameAndContent (pair_str_SLHAstruct)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.90717 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.73362 [s])[Default,Dependency Resolver]:
 Resolving AllAnalysisNumbers (AnalysisDataPointers), required by LHC_signals (map_str_dbl) [calc_LHC_signals, ColliderBit]
 
 List of candidate vertices:
@@ -2904,13 +2904,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          CollectAnalyses                  AllAnalysisNumbers                               AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.91595 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.73386 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          CollectAnalyses                  AllAnalysisNumbers                               AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.91607 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.73412 [s])[Default,Dependency Resolver]:
 AllAnalysisNumbers (AnalysisDataPointers), required by LHC_signals (map_str_dbl) [calc_LHC_signals, ColliderBit]resolved by: [CollectAnalyses, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
@@ -2921,7 +2921,7 @@ IdentityAnalysisNumbers (AnalysisDataPointers)
 TotalCrossSection (xsec_container)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.92516 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.75437 [s])[Default,Dependency Resolver]:
 Resolving LHC_LogLikes (map_str_AnalysisLogLikes), required by LHC_LogLike_per_SR (map_str_dbl) [get_LHC_LogLike_per_SR, ColliderBit]
 
 List of candidate vertices:
@@ -2929,17 +2929,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          calc_LHC_LogLikes                LHC_LogLikes                                     map_str_AnalysisLogLikes         2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.93394 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.75457 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          calc_LHC_LogLikes                LHC_LogLikes                                     map_str_AnalysisLogLikes         2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.93406 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.75476 [s])[Default,Dependency Resolver]:
 LHC_LogLikes (map_str_AnalysisLogLikes), required by LHC_LogLike_per_SR (map_str_dbl) [get_LHC_LogLike_per_SR, ColliderBit]resolved by: [calc_LHC_LogLikes, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.94466 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.77077 [s])[Default,Dependency Resolver]:
 Resolving LHC_LogLikes (map_str_AnalysisLogLikes), required by LHC_LogLike_SR_indices (map_str_dbl) [get_LHC_LogLike_SR_indices, ColliderBit]
 
 List of candidate vertices:
@@ -2947,17 +2947,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          calc_LHC_LogLikes                LHC_LogLikes                                     map_str_AnalysisLogLikes         2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.95369 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.77094 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          calc_LHC_LogLikes                LHC_LogLikes                                     map_str_AnalysisLogLikes         2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.95381 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.7711 [s])[Default,Dependency Resolver]:
 LHC_LogLikes (map_str_AnalysisLogLikes), required by LHC_LogLike_SR_indices (map_str_dbl) [get_LHC_LogLike_SR_indices, ColliderBit]resolved by: [calc_LHC_LogLikes, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.96342 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.78213 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by LHCEventLoopInfo (map_str_dbl) [getLHCEventLoopInfo, ColliderBit]
 
 List of candidate vertices:
@@ -2965,17 +2965,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.97206 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.78234 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.97218 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.78252 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by LHCEventLoopInfo (map_str_dbl) [getLHCEventLoopInfo, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.98089 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.80474 [s])[Default,Dependency Resolver]:
 Resolving AllAnalysisNumbers (AnalysisDataPointers), required by LHC_LogLikes (map_str_AnalysisLogLikes) [calc_LHC_LogLikes, ColliderBit]
 
 List of candidate vertices:
@@ -2983,17 +2983,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          CollectAnalyses                  AllAnalysisNumbers                               AnalysisDataPointers             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.98963 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.80491 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          CollectAnalyses                  AllAnalysisNumbers                               AnalysisDataPointers             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.98972 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.80508 [s])[Default,Dependency Resolver]:
 AllAnalysisNumbers (AnalysisDataPointers), required by LHC_LogLikes (map_str_AnalysisLogLikes) [calc_LHC_LogLikes, ColliderBit]resolved by: [CollectAnalyses, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(1.99629 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.81597 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by LHC_LogLikes (map_str_AnalysisLogLikes) [calc_LHC_LogLikes, ColliderBit]
 
 List of candidate vertices:
@@ -3001,17 +3001,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.00296 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.8161 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.00307 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.81628 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by LHC_LogLikes (map_str_AnalysisLogLikes) [calc_LHC_LogLikes, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.0138 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.83746 [s])[Default,Dependency Resolver]:
 Resolving nulike_1_0_9_init (void), required by LHC_LogLikes (map_str_AnalysisLogLikes) [calc_LHC_LogLikes, ColliderBit]
 
 List of candidate vertices:
@@ -3019,18 +3019,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 BackendIniBit        nulike_1_0_9_init                nulike_1_0_9_init                                void                             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.02196 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.8376 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 BackendIniBit        nulike_1_0_9_init                nulike_1_0_9_init                                void                             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.02206 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.83777 [s])[Default,Dependency Resolver]:
 nulike_1_0_9_init (void), required by LHC_LogLikes (map_str_AnalysisLogLikes) [calc_LHC_LogLikes, ColliderBit]resolved by: [nulike_1_0_9_init, BackendIniBit]
 Activate new module function
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.0312 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.86254 [s])[Default,Dependency Resolver]:
 Resolving SLHAFileNameAndContent (pair_str_SLHAstruct), required by RunMC (MCLoopInfo) [operateLHCLoop, ColliderBit]
 
 List of candidate vertices:
@@ -3038,20 +3038,20 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getNextSLHAFileNameAndContent    SLHAFileNameAndContent                           pair_str_SLHAstruct              1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.04009 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.86269 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getNextSLHAFileNameAndContent    SLHAFileNameAndContent                           pair_str_SLHAstruct              1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.04036 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.86313 [s])[Default,Dependency Resolver]:
 SLHAFileNameAndContent (pair_str_SLHAstruct), required by RunMC (MCLoopInfo) [operateLHCLoop, ColliderBit]resolved by: [getNextSLHAFileNameAndContent, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
 ColliderBit_SLHA_file_model_parameters (ModelParameters)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.04814 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.88652 [s])[Default,Dependency Resolver]:
 Resolving ATLASAnalysisNumbers (AnalysisDataPointers), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3059,13 +3059,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          runATLASAnalyses                 ATLASAnalysisNumbers                             AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.05662 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.88668 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          runATLASAnalyses                 ATLASAnalysisNumbers                             AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.05674 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.88689 [s])[Default,Dependency Resolver]:
 ATLASAnalysisNumbers (AnalysisDataPointers), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]resolved by: [runATLASAnalyses, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3075,7 +3075,7 @@ ATLASAnalysisContainer (AnalysisContainer)
 ATLASSmearedEvent (HEPUtils::Event)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.0682 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.90907 [s])[Default,Dependency Resolver]:
 Resolving CMSAnalysisNumbers (AnalysisDataPointers), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3083,13 +3083,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          runCMSAnalyses                   CMSAnalysisNumbers                               AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.07358 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.90923 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          runCMSAnalyses                   CMSAnalysisNumbers                               AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.07369 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.90944 [s])[Default,Dependency Resolver]:
 CMSAnalysisNumbers (AnalysisDataPointers), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]resolved by: [runCMSAnalyses, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3099,7 +3099,7 @@ CMSAnalysisContainer (AnalysisContainer)
 CMSSmearedEvent (HEPUtils::Event)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.08483 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.9383 [s])[Default,Dependency Resolver]:
 Resolving CrossSectionConsistencyCheck (bool), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3107,13 +3107,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          doCrossSectionConsistencyCheck   CrossSectionConsistencyCheck                     bool                             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.08862 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.93847 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          doCrossSectionConsistencyCheck   CrossSectionConsistencyCheck                     bool                             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.08873 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.93869 [s])[Default,Dependency Resolver]:
 CrossSectionConsistencyCheck (bool), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]resolved by: [doCrossSectionConsistencyCheck, ColliderBit]
 Activate new module function
 Add dependencies of new module function to queue
@@ -3121,7 +3121,7 @@ EventWeighterFunction (EventWeighterFunctionType)
 TotalCrossSection (xsec_container)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.10078 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.96435 [s])[Default,Dependency Resolver]:
 Resolving IdentityAnalysisNumbers (AnalysisDataPointers), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3129,13 +3129,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          runIdentityAnalyses              IdentityAnalysisNumbers                          AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.10766 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.96452 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          runIdentityAnalyses              IdentityAnalysisNumbers                          AnalysisDataPointers             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.10778 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.96475 [s])[Default,Dependency Resolver]:
 IdentityAnalysisNumbers (AnalysisDataPointers), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]resolved by: [runIdentityAnalyses, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3145,7 +3145,7 @@ CopiedEvent (HEPUtils::Event)
 IdentityAnalysisContainer (AnalysisContainer)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.11819 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.9865 [s])[Default,Dependency Resolver]:
 Resolving TotalCrossSection (xsec_container), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3153,13 +3153,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.12607 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.98669 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.12621 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(3.98694 [s])[Default,Dependency Resolver]:
 TotalCrossSection (xsec_container), required by AllAnalysisNumbers (AnalysisDataPointers) [CollectAnalyses, ColliderBit]resolved by: [getEvGenCrossSection_as_base, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3168,7 +3168,7 @@ Add dependencies of new module function to queue
 TotalEvGenCrossSection (MC_xsec_container)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.13823 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.02636 [s])[Default,Dependency Resolver]:
 Resolving ColliderBit_SLHA_file_model_parameters (ModelParameters), required by SLHAFileNameAndContent (pair_str_SLHAstruct) [getNextSLHAFileNameAndContent, ColliderBit]
 
 List of candidate vertices:
@@ -3176,18 +3176,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.14302 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.02653 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.14314 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.02679 [s])[Default,Dependency Resolver]:
 ColliderBit_SLHA_file_model_parameters (ModelParameters), required by SLHAFileNameAndContent (pair_str_SLHAstruct) [getNextSLHAFileNameAndContent, ColliderBit]resolved by: [primary_parameters, ColliderBit_SLHA_file_model]
 Activate new module function
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.15231 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.03777 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by ATLASAnalysisNumbers (AnalysisDataPointers) [runATLASAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3195,17 +3195,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.15901 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.03792 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.15913 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.03815 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by ATLASAnalysisNumbers (AnalysisDataPointers) [runATLASAnalyses, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.17126 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.06308 [s])[Default,Dependency Resolver]:
 Resolving ATLASAnalysisContainer (AnalysisContainer), required by ATLASAnalysisNumbers (AnalysisDataPointers) [runATLASAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3213,13 +3213,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getATLASAnalysisContainer        ATLASAnalysisContainer                           AnalysisContainer                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.18062 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.06323 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getATLASAnalysisContainer        ATLASAnalysisContainer                           AnalysisContainer                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.18075 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.06345 [s])[Default,Dependency Resolver]:
 ATLASAnalysisContainer (AnalysisContainer), required by ATLASAnalysisNumbers (AnalysisDataPointers) [runATLASAnalyses, ColliderBit]resolved by: [getATLASAnalysisContainer, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3228,7 +3228,7 @@ Add dependencies of new module function to queue
 TotalCrossSection (xsec_container)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.20302 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.08507 [s])[Default,Dependency Resolver]:
 Resolving ATLASSmearedEvent (HEPUtils::Event), required by ATLASAnalysisNumbers (AnalysisDataPointers) [runATLASAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3236,13 +3236,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          smearEventATLAS                  ATLASSmearedEvent                                HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.21177 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.08521 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          smearEventATLAS                  ATLASSmearedEvent                                HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.21189 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.08543 [s])[Default,Dependency Resolver]:
 ATLASSmearedEvent (HEPUtils::Event), required by ATLASAnalysisNumbers (AnalysisDataPointers) [runATLASAnalyses, ColliderBit]resolved by: [smearEventATLAS, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3252,7 +3252,7 @@ ATLASDetectorSim (BaseDetector*)
 HardScatteringEvent (HEPUtils::Event)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.2186 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.09643 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by CMSAnalysisNumbers (AnalysisDataPointers) [runCMSAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3260,17 +3260,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.22728 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.09662 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.22741 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.09684 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by CMSAnalysisNumbers (AnalysisDataPointers) [runCMSAnalyses, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.24477 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.12047 [s])[Default,Dependency Resolver]:
 Resolving CMSAnalysisContainer (AnalysisContainer), required by CMSAnalysisNumbers (AnalysisDataPointers) [runCMSAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3278,13 +3278,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getCMSAnalysisContainer          CMSAnalysisContainer                             AnalysisContainer                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.26362 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.12064 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getCMSAnalysisContainer          CMSAnalysisContainer                             AnalysisContainer                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.26376 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.12086 [s])[Default,Dependency Resolver]:
 CMSAnalysisContainer (AnalysisContainer), required by CMSAnalysisNumbers (AnalysisDataPointers) [runCMSAnalyses, ColliderBit]resolved by: [getCMSAnalysisContainer, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3293,7 +3293,7 @@ Add dependencies of new module function to queue
 TotalCrossSection (xsec_container)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.28023 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.1411 [s])[Default,Dependency Resolver]:
 Resolving CMSSmearedEvent (HEPUtils::Event), required by CMSAnalysisNumbers (AnalysisDataPointers) [runCMSAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3301,13 +3301,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          smearEventCMS                    CMSSmearedEvent                                  HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.29462 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.14127 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          smearEventCMS                    CMSSmearedEvent                                  HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.29476 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.14149 [s])[Default,Dependency Resolver]:
 CMSSmearedEvent (HEPUtils::Event), required by CMSAnalysisNumbers (AnalysisDataPointers) [runCMSAnalyses, ColliderBit]resolved by: [smearEventCMS, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3317,7 +3317,7 @@ CMSDetectorSim (BaseDetector*)
 HardScatteringEvent (HEPUtils::Event)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.30722 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.16599 [s])[Default,Dependency Resolver]:
 Resolving EventWeighterFunction (EventWeighterFunctionType), required by CrossSectionConsistencyCheck (bool) [doCrossSectionConsistencyCheck, ColliderBit]
 
 List of candidate vertices:
@@ -3325,18 +3325,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          setEventWeight_unity             EventWeighterFunction                            EventWeighterFunctionType        1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.31602 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.16619 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          setEventWeight_unity             EventWeighterFunction                            EventWeighterFunctionType        1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.31613 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.16641 [s])[Default,Dependency Resolver]:
 EventWeighterFunction (EventWeighterFunctionType), required by CrossSectionConsistencyCheck (bool) [doCrossSectionConsistencyCheck, ColliderBit]resolved by: [setEventWeight_unity, ColliderBit]
 Activate new module function
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.3296 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.18825 [s])[Default,Dependency Resolver]:
 Resolving TotalCrossSection (xsec_container), required by CrossSectionConsistencyCheck (bool) [doCrossSectionConsistencyCheck, ColliderBit]
 
 List of candidate vertices:
@@ -3344,17 +3344,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.33958 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.1884 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.33967 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.18857 [s])[Default,Dependency Resolver]:
 TotalCrossSection (xsec_container), required by CrossSectionConsistencyCheck (bool) [doCrossSectionConsistencyCheck, ColliderBit]resolved by: [getEvGenCrossSection_as_base, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.34687 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.19954 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by IdentityAnalysisNumbers (AnalysisDataPointers) [runIdentityAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3362,17 +3362,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.35402 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.19973 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.35414 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.19993 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by IdentityAnalysisNumbers (AnalysisDataPointers) [runIdentityAnalyses, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.37019 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.21521 [s])[Default,Dependency Resolver]:
 Resolving CopiedEvent (HEPUtils::Event), required by IdentityAnalysisNumbers (AnalysisDataPointers) [runIdentityAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3380,13 +3380,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          copyEvent                        CopiedEvent                                      HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.37913 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.21542 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          copyEvent                        CopiedEvent                                      HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.37929 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.21566 [s])[Default,Dependency Resolver]:
 CopiedEvent (HEPUtils::Event), required by IdentityAnalysisNumbers (AnalysisDataPointers) [runIdentityAnalyses, ColliderBit]resolved by: [copyEvent, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3396,7 +3396,7 @@ HardScatteringEvent (HEPUtils::Event)
 IdentityDetectorSim (BaseDetector*)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.39032 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.24253 [s])[Default,Dependency Resolver]:
 Resolving IdentityAnalysisContainer (AnalysisContainer), required by IdentityAnalysisNumbers (AnalysisDataPointers) [runIdentityAnalyses, ColliderBit]
 
 List of candidate vertices:
@@ -3404,13 +3404,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getIdentityAnalysisContainer     IdentityAnalysisContainer                        AnalysisContainer                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.40004 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.2427 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getIdentityAnalysisContainer     IdentityAnalysisContainer                        AnalysisContainer                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.40016 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.24292 [s])[Default,Dependency Resolver]:
 IdentityAnalysisContainer (AnalysisContainer), required by IdentityAnalysisNumbers (AnalysisDataPointers) [runIdentityAnalyses, ColliderBit]resolved by: [getIdentityAnalysisContainer, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3419,7 +3419,7 @@ Add dependencies of new module function to queue
 TotalCrossSection (xsec_container)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.41259 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.25389 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by TotalCrossSection (xsec_container) [getEvGenCrossSection_as_base, ColliderBit]
 
 List of candidate vertices:
@@ -3427,17 +3427,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.42731 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.25406 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.4275 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.25429 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by TotalCrossSection (xsec_container) [getEvGenCrossSection_as_base, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.43972 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.27923 [s])[Default,Dependency Resolver]:
 Resolving TotalEvGenCrossSection (MC_xsec_container), required by TotalCrossSection (xsec_container) [getEvGenCrossSection_as_base, ColliderBit]
 
 List of candidate vertices:
@@ -3445,13 +3445,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getEvGenCrossSection             TotalEvGenCrossSection                           MC_xsec_container                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.45092 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.27941 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getEvGenCrossSection             TotalEvGenCrossSection                           MC_xsec_container                1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.45106 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.27964 [s])[Default,Dependency Resolver]:
 TotalEvGenCrossSection (MC_xsec_container), required by TotalCrossSection (xsec_container) [getEvGenCrossSection_as_base, ColliderBit]resolved by: [getEvGenCrossSection, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3460,7 +3460,7 @@ Add dependencies of new module function to queue
 HardScatteringSim (const BaseCollider*)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.45633 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.29063 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by ATLASAnalysisContainer (AnalysisContainer) [getATLASAnalysisContainer, ColliderBit]
 
 List of candidate vertices:
@@ -3468,17 +3468,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.46567 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.29079 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.4658 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.291 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by ATLASAnalysisContainer (AnalysisContainer) [getATLASAnalysisContainer, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.47263 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.31276 [s])[Default,Dependency Resolver]:
 Resolving TotalCrossSection (xsec_container), required by ATLASAnalysisContainer (AnalysisContainer) [getATLASAnalysisContainer, ColliderBit]
 
 List of candidate vertices:
@@ -3486,17 +3486,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.48334 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.31293 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.48351 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.31315 [s])[Default,Dependency Resolver]:
 TotalCrossSection (xsec_container), required by ATLASAnalysisContainer (AnalysisContainer) [getATLASAnalysisContainer, ColliderBit]resolved by: [getEvGenCrossSection_as_base, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.4935 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.32412 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by ATLASSmearedEvent (HEPUtils::Event) [smearEventATLAS, ColliderBit]
 
 List of candidate vertices:
@@ -3504,17 +3504,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.50576 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.3243 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.50591 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.32452 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by ATLASSmearedEvent (HEPUtils::Event) [smearEventATLAS, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.51903 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.34571 [s])[Default,Dependency Resolver]:
 Resolving ATLASDetectorSim (BaseDetector*), required by ATLASSmearedEvent (HEPUtils::Event) [smearEventATLAS, ColliderBit]
 
 List of candidate vertices:
@@ -3522,13 +3522,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getBuckFastATLAS                 ATLASDetectorSim                                 BaseDetector*                    1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.52659 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.34584 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getBuckFastATLAS                 ATLASDetectorSim                                 BaseDetector*                    1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.52683 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.34633 [s])[Default,Dependency Resolver]:
 ATLASDetectorSim (BaseDetector*), required by ATLASSmearedEvent (HEPUtils::Event) [smearEventATLAS, ColliderBit]resolved by: [getBuckFastATLAS, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3536,7 +3536,7 @@ RunMC ()
 Add dependencies of new module function to queue
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.53828 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.37697 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringEvent (HEPUtils::Event), required by ATLASSmearedEvent (HEPUtils::Event) [smearEventATLAS, ColliderBit]
 
 List of candidate vertices:
@@ -3544,18 +3544,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          generateEventPythia_HEPUtils     HardScatteringEvent                              HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.54697 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.37712 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          generateEventPythia_HEPUtils     HardScatteringEvent                              HEPUtils::Event                  1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.54708 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.37734 [s])[Default,Dependency Resolver]:
 HardScatteringEvent (HEPUtils::Event), required by ATLASSmearedEvent (HEPUtils::Event) [smearEventATLAS, ColliderBit]resolved by: [generateEventPythia_HEPUtils, ColliderBit]
 Activate new module function
 Doing backend class loading resolution...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.54713 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.37746 [s])[Default,Dependency Resolver]:
 Adding module function loop manager to resolution queue:
 RunMC ()
 Add dependencies of new module function to queue
@@ -3565,7 +3565,7 @@ HardScatteringSim (Py8Collider_defaultversion)
 Pythia_8_212_init (void)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.56287 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.3885 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by CMSAnalysisContainer (AnalysisContainer) [getCMSAnalysisContainer, ColliderBit]
 
 List of candidate vertices:
@@ -3573,17 +3573,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.57057 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.38866 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.57069 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.38886 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by CMSAnalysisContainer (AnalysisContainer) [getCMSAnalysisContainer, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.5836 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.41039 [s])[Default,Dependency Resolver]:
 Resolving TotalCrossSection (xsec_container), required by CMSAnalysisContainer (AnalysisContainer) [getCMSAnalysisContainer, ColliderBit]
 
 List of candidate vertices:
@@ -3591,17 +3591,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.59236 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.41053 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.59247 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.41075 [s])[Default,Dependency Resolver]:
 TotalCrossSection (xsec_container), required by CMSAnalysisContainer (AnalysisContainer) [getCMSAnalysisContainer, ColliderBit]resolved by: [getEvGenCrossSection_as_base, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.60727 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.42162 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by CMSSmearedEvent (HEPUtils::Event) [smearEventCMS, ColliderBit]
 
 List of candidate vertices:
@@ -3609,17 +3609,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.61827 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.42174 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.61839 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.42196 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by CMSSmearedEvent (HEPUtils::Event) [smearEventCMS, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.63025 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.44122 [s])[Default,Dependency Resolver]:
 Resolving CMSDetectorSim (BaseDetector*), required by CMSSmearedEvent (HEPUtils::Event) [smearEventCMS, ColliderBit]
 
 List of candidate vertices:
@@ -3627,13 +3627,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getBuckFastCMS                   CMSDetectorSim                                   BaseDetector*                    1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.63951 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.44135 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getBuckFastCMS                   CMSDetectorSim                                   BaseDetector*                    1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.63962 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.44154 [s])[Default,Dependency Resolver]:
 CMSDetectorSim (BaseDetector*), required by CMSSmearedEvent (HEPUtils::Event) [smearEventCMS, ColliderBit]resolved by: [getBuckFastCMS, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3641,7 +3641,7 @@ RunMC ()
 Add dependencies of new module function to queue
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.6506 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.47229 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringEvent (HEPUtils::Event), required by CMSSmearedEvent (HEPUtils::Event) [smearEventCMS, ColliderBit]
 
 List of candidate vertices:
@@ -3649,17 +3649,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          generateEventPythia_HEPUtils     HardScatteringEvent                              HEPUtils::Event                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.66097 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.47244 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          generateEventPythia_HEPUtils     HardScatteringEvent                              HEPUtils::Event                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.66105 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.47263 [s])[Default,Dependency Resolver]:
 HardScatteringEvent (HEPUtils::Event), required by CMSSmearedEvent (HEPUtils::Event) [smearEventCMS, ColliderBit]resolved by: [generateEventPythia_HEPUtils, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:03 2023)(2.67185 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.48335 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by CopiedEvent (HEPUtils::Event) [copyEvent, ColliderBit]
 
 List of candidate vertices:
@@ -3667,17 +3667,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.69272 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.48346 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.69288 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.48366 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by CopiedEvent (HEPUtils::Event) [copyEvent, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.70861 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.51395 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringEvent (HEPUtils::Event), required by CopiedEvent (HEPUtils::Event) [copyEvent, ColliderBit]
 
 List of candidate vertices:
@@ -3685,17 +3685,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          generateEventPythia_HEPUtils     HardScatteringEvent                              HEPUtils::Event                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.71934 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.51412 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          generateEventPythia_HEPUtils     HardScatteringEvent                              HEPUtils::Event                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.71946 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.51432 [s])[Default,Dependency Resolver]:
 HardScatteringEvent (HEPUtils::Event), required by CopiedEvent (HEPUtils::Event) [copyEvent, ColliderBit]resolved by: [generateEventPythia_HEPUtils, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.72712 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.53705 [s])[Default,Dependency Resolver]:
 Resolving IdentityDetectorSim (BaseDetector*), required by CopiedEvent (HEPUtils::Event) [copyEvent, ColliderBit]
 
 List of candidate vertices:
@@ -3703,13 +3703,13 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getBuckFastIdentity              IdentityDetectorSim                              BaseDetector*                    1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.73558 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.5372 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getBuckFastIdentity              IdentityDetectorSim                              BaseDetector*                    1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.7357 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.5374 [s])[Default,Dependency Resolver]:
 IdentityDetectorSim (BaseDetector*), required by CopiedEvent (HEPUtils::Event) [copyEvent, ColliderBit]resolved by: [getBuckFastIdentity, ColliderBit]
 Activate new module function
 Adding module function loop manager to resolution queue:
@@ -3717,7 +3717,7 @@ RunMC ()
 Add dependencies of new module function to queue
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.74621 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.54824 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by IdentityAnalysisContainer (AnalysisContainer) [getIdentityAnalysisContainer, ColliderBit]
 
 List of candidate vertices:
@@ -3725,17 +3725,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.7593 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.54837 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.75954 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:19 2023)(4.54856 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by IdentityAnalysisContainer (AnalysisContainer) [getIdentityAnalysisContainer, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.77258 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.57007 [s])[Default,Dependency Resolver]:
 Resolving TotalCrossSection (xsec_container), required by IdentityAnalysisContainer (AnalysisContainer) [getIdentityAnalysisContainer, ColliderBit]
 
 List of candidate vertices:
@@ -3743,17 +3743,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.77758 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.57026 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getEvGenCrossSection_as_base     TotalCrossSection                                xsec_container                   2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.77771 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.57048 [s])[Default,Dependency Resolver]:
 TotalCrossSection (xsec_container), required by IdentityAnalysisContainer (AnalysisContainer) [getIdentityAnalysisContainer, ColliderBit]resolved by: [getEvGenCrossSection_as_base, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.79065 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.58142 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by TotalEvGenCrossSection (MC_xsec_container) [getEvGenCrossSection, ColliderBit]
 
 List of candidate vertices:
@@ -3761,17 +3761,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.79941 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.58156 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.79955 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.5818 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by TotalEvGenCrossSection (MC_xsec_container) [getEvGenCrossSection, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.80922 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.6088 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringSim (const BaseCollider*), required by TotalEvGenCrossSection (MC_xsec_container) [getEvGenCrossSection, ColliderBit]
 
 List of candidate vertices:
@@ -3779,18 +3779,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getPythiaAsBase                  HardScatteringSim                                const BaseCollider*              1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.81812 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.60895 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getPythiaAsBase                  HardScatteringSim                                const BaseCollider*              1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.81824 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.6092 [s])[Default,Dependency Resolver]:
 HardScatteringSim (const BaseCollider*), required by TotalEvGenCrossSection (MC_xsec_container) [getEvGenCrossSection, ColliderBit]resolved by: [getPythiaAsBase, ColliderBit]
 Activate new module function
 Doing backend class loading resolution...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.8183 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.6093 [s])[Default,Dependency Resolver]:
 Adding module function loop manager to resolution queue:
 RunMC ()
 Add dependencies of new module function to queue
@@ -3799,7 +3799,7 @@ HardScatteringSim (Py8Collider_defaultversion)
 Pythia_8_212_init (void)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.82462 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.62022 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by ATLASDetectorSim (BaseDetector*) [getBuckFastATLAS, ColliderBit]
 
 List of candidate vertices:
@@ -3807,17 +3807,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.83206 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.62037 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.83217 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.62057 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by ATLASDetectorSim (BaseDetector*) [getBuckFastATLAS, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.8383 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.63166 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]
 
 List of candidate vertices:
@@ -3825,17 +3825,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.84399 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.63182 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.8441 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.63206 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.85482 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.65616 [s])[Default,Dependency Resolver]:
 Resolving EventWeighterFunction (EventWeighterFunctionType), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]
 
 List of candidate vertices:
@@ -3843,18 +3843,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          setEventWeight_unity             EventWeighterFunction                            EventWeighterFunctionType        2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.86 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.65633 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          setEventWeight_unity             EventWeighterFunction                            EventWeighterFunctionType        2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.86011 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.65654 [s])[Default,Dependency Resolver]:
 EventWeighterFunction (EventWeighterFunctionType), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]resolved by: [setEventWeight_unity, ColliderBit]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on ColliderBit::setEventWeight_unity
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.87111 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.68738 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringEvent (Pythia_8_212::Pythia8::Event), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]
 
 List of candidate vertices:
@@ -3862,18 +3862,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          generateEventPythia              HardScatteringEvent                              Pythia_8_212::Pythia8::Event     1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.87556 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.68756 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          generateEventPythia              HardScatteringEvent                              Pythia_8_212::Pythia8::Event     1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.87588 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.68831 [s])[Default,Dependency Resolver]:
 HardScatteringEvent (Pythia_8_212::Pythia8::Event), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]resolved by: [generateEventPythia, ColliderBit]
 Activate new module function
 Doing backend class loading resolution...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.87594 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.68844 [s])[Default,Dependency Resolver]:
 Adding module function loop manager to resolution queue:
 RunMC ()
 Add dependencies of new module function to queue
@@ -3883,7 +3883,7 @@ HardScatteringSim (Py8Collider_defaultversion)
 Pythia_8_212_init (void)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.89052 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.71879 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringSim (Py8Collider_defaultversion), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]
 
 List of candidate vertices:
@@ -3891,18 +3891,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getPythia_SLHA                   HardScatteringSim                                Py8Collider_defaultversion       1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.89758 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.71897 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getPythia_SLHA                   HardScatteringSim                                Py8Collider_defaultversion       1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.89771 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.71919 [s])[Default,Dependency Resolver]:
 HardScatteringSim (Py8Collider_defaultversion), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]resolved by: [getPythia_SLHA, ColliderBit]
 Activate new module function
 Doing backend class loading resolution...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.89787 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.7195 [s])[Default,Dependency Resolver]:
 Adding module function loop manager to resolution queue:
 RunMC ()
 Add dependencies of new module function to queue
@@ -3911,7 +3911,7 @@ Pythia_8_212_init (void)
 SLHAFileNameAndContent (pair_str_SLHAstruct)
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.90961 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.74109 [s])[Default,Dependency Resolver]:
 Resolving Pythia_8_212_init (void), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]
 
 List of candidate vertices:
@@ -3919,19 +3919,19 @@ ORIGIN               FUNCTION                         CAPABILITY                
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.91816 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.74128 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             1      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.91836 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.74151 [s])[Default,Dependency Resolver]:
 Pythia_8_212_init (void), required by HardScatteringEvent (HEPUtils::Event) [generateEventPythia_HEPUtils, ColliderBit]resolved by: [Pythia_8_212_init, BackendIniBit]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on BackendIniBit::Pythia_8_212_init
 Activate new module function
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.92771 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.75251 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by CMSDetectorSim (BaseDetector*) [getBuckFastCMS, ColliderBit]
 
 List of candidate vertices:
@@ -3939,17 +3939,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.93158 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.7527 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.93173 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.75303 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by CMSDetectorSim (BaseDetector*) [getBuckFastCMS, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.94035 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.76399 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by IdentityDetectorSim (BaseDetector*) [getBuckFastIdentity, ColliderBit]
 
 List of candidate vertices:
@@ -3957,17 +3957,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.94559 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.76416 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.94573 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.76439 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by IdentityDetectorSim (BaseDetector*) [getBuckFastIdentity, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.95432 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.77542 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]
 
 List of candidate vertices:
@@ -3975,17 +3975,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.95861 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.7756 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.95877 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.77586 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.96711 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.81512 [s])[Default,Dependency Resolver]:
 Resolving ColliderBit_SLHA_file_model_parameters (ModelParameters), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]
 
 List of candidate vertices:
@@ -3993,18 +3993,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.97157 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.81532 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.9717 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.81554 [s])[Default,Dependency Resolver]:
 ColliderBit_SLHA_file_model_parameters (ModelParameters), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]resolved by: [primary_parameters, ColliderBit_SLHA_file_model]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on ColliderBit_SLHA_file_model::primary_parameters
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.98337 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.8398 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringSim (Py8Collider_defaultversion), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]
 
 List of candidate vertices:
@@ -4012,17 +4012,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getPythia_SLHA                   HardScatteringSim                                Py8Collider_defaultversion       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.99219 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.83997 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getPythia_SLHA                   HardScatteringSim                                Py8Collider_defaultversion       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(2.9923 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.84019 [s])[Default,Dependency Resolver]:
 HardScatteringSim (Py8Collider_defaultversion), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]resolved by: [getPythia_SLHA, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.01166 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.86184 [s])[Default,Dependency Resolver]:
 Resolving Pythia_8_212_init (void), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]
 
 List of candidate vertices:
@@ -4030,18 +4030,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.01823 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.86201 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.01837 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.86222 [s])[Default,Dependency Resolver]:
 Pythia_8_212_init (void), required by HardScatteringSim (const BaseCollider*) [getPythiaAsBase, ColliderBit]resolved by: [Pythia_8_212_init, BackendIniBit]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on BackendIniBit::Pythia_8_212_init
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.02845 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.87319 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]
 
 List of candidate vertices:
@@ -4049,17 +4049,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.03657 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.87334 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.03671 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.87359 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.0516 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.91273 [s])[Default,Dependency Resolver]:
 Resolving ColliderBit_SLHA_file_model_parameters (ModelParameters), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]
 
 List of candidate vertices:
@@ -4067,18 +4067,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.06057 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.91289 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.06069 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.9131 [s])[Default,Dependency Resolver]:
 ColliderBit_SLHA_file_model_parameters (ModelParameters), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]resolved by: [primary_parameters, ColliderBit_SLHA_file_model]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on ColliderBit_SLHA_file_model::primary_parameters
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.07272 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.93747 [s])[Default,Dependency Resolver]:
 Resolving EventWeighterFunction (EventWeighterFunctionType), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]
 
 List of candidate vertices:
@@ -4086,18 +4086,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          setEventWeight_unity             EventWeighterFunction                            EventWeighterFunctionType        2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.08145 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.93766 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          setEventWeight_unity             EventWeighterFunction                            EventWeighterFunctionType        2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.08157 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.93787 [s])[Default,Dependency Resolver]:
 EventWeighterFunction (EventWeighterFunctionType), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]resolved by: [setEventWeight_unity, ColliderBit]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on ColliderBit::setEventWeight_unity
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.09411 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.96835 [s])[Default,Dependency Resolver]:
 Resolving HardScatteringSim (Py8Collider_defaultversion), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]
 
 List of candidate vertices:
@@ -4105,17 +4105,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getPythia_SLHA                   HardScatteringSim                                Py8Collider_defaultversion       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.10317 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.96853 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getPythia_SLHA                   HardScatteringSim                                Py8Collider_defaultversion       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.10329 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.96875 [s])[Default,Dependency Resolver]:
 HardScatteringSim (Py8Collider_defaultversion), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]resolved by: [getPythia_SLHA, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.11491 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.99035 [s])[Default,Dependency Resolver]:
 Resolving Pythia_8_212_init (void), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]
 
 List of candidate vertices:
@@ -4123,18 +4123,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.12963 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.99051 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.12978 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(4.99072 [s])[Default,Dependency Resolver]:
 Pythia_8_212_init (void), required by HardScatteringEvent (Pythia_8_212::Pythia8::Event) [generateEventPythia, ColliderBit]resolved by: [Pythia_8_212_init, BackendIniBit]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on BackendIniBit::Pythia_8_212_init
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.14139 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.00169 [s])[Default,Dependency Resolver]:
 Resolving RunMC (MCLoopInfo), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]
 
 List of candidate vertices:
@@ -4142,17 +4142,17 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.15016 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.00186 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          operateLHCLoop                   RunMC                                            MCLoopInfo                       2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.15033 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.00249 [s])[Default,Dependency Resolver]:
 RunMC (MCLoopInfo), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]resolved by: [operateLHCLoop, ColliderBit]
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.16011 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.04166 [s])[Default,Dependency Resolver]:
 Resolving ColliderBit_SLHA_file_model_parameters (ModelParameters), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]
 
 List of candidate vertices:
@@ -4160,18 +4160,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.16887 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.04182 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit_SLHA_file_model primary_parameters               ColliderBit_SLHA_file_model_parameters           ModelParameters                  2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.16898 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.04203 [s])[Default,Dependency Resolver]:
 ColliderBit_SLHA_file_model_parameters (ModelParameters), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]resolved by: [primary_parameters, ColliderBit_SLHA_file_model]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on ColliderBit_SLHA_file_model::primary_parameters
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.18077 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.06362 [s])[Default,Dependency Resolver]:
 Resolving Pythia_8_212_init (void), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]
 
 List of candidate vertices:
@@ -4179,18 +4179,18 @@ ORIGIN               FUNCTION                         CAPABILITY                
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.18937 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.06376 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 BackendIniBit        Pythia_8_212_init                Pythia_8_212_init                                void                             2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.18949 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.06395 [s])[Default,Dependency Resolver]:
 Pythia_8_212_init (void), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]resolved by: [Pythia_8_212_init, BackendIniBit]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on BackendIniBit::Pythia_8_212_init
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.20031 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.08863 [s])[Default,Dependency Resolver]:
 Resolving SLHAFileNameAndContent (pair_str_SLHAstruct), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]
 
 List of candidate vertices:
@@ -4198,120 +4198,120 @@ ORIGIN               FUNCTION                         CAPABILITY                
 ColliderBit          getNextSLHAFileNameAndContent    SLHAFileNameAndContent                           pair_str_SLHAstruct              2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.20906 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.08875 [s])[Default,Dependency Resolver]:
 List of candidate vertices after applying subjugate rules and functionChain constraints:
 ORIGIN               FUNCTION                         CAPABILITY                                       TYPE                             STATUS 
 ColliderBit          getNextSLHAFileNameAndContent    SLHAFileNameAndContent                           pair_str_SLHAstruct              2      
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.2092 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.08897 [s])[Default,Dependency Resolver]:
 SLHAFileNameAndContent (pair_str_SLHAstruct), required by HardScatteringSim (Py8Collider_defaultversion) [getPythia_SLHA, ColliderBit]resolved by: [getNextSLHAFileNameAndContent, ColliderBit]
 Dynamically adding dependency of ColliderBit::operateLHCLoop on ColliderBit::getNextSLHAFileNameAndContent
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24388 [s])[Default,Dependency Resolver]:
-Estimated T [s]: 6.01777e-06
+(Tue Oct  3 23:22:20 2023)(5.15486 [s])[Default,Dependency Resolver]:
+Estimated T [s]: 6.03156e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24391 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15492 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24407 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15521 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 2.1e-05
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.2441 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15526 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24423 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15549 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 3e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24426 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15554 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24435 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15571 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24439 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15577 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24445 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15588 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24447 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15593 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24512 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.1571 [s])[Default,Dependency Resolver]:
 Found bibkey for backend nulike version 1.0.9: IceCube:2012fvn,IceCube:2016yoy
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24517 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15724 [s])[Default,Dependency Resolver]:
 Found bibkey for backend Pythia version 8.212: Sjostrand:2014zea
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24534 [s])[Default,Dependency Resolver]:
-Estimated T [s]: 6.01777e-06
+(Tue Oct  3 23:22:20 2023)(5.15753 [s])[Default,Dependency Resolver]:
+Estimated T [s]: 6.03156e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24537 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.1576 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24554 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15787 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 2.1e-05
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24557 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15792 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.2457 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15814 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 3e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24573 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15821 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24582 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15838 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24585 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15843 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24591 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15854 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.24593 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.15861 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.25825 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18498 [s])[Default,Dependency Resolver]:
 The scan you are about to run uses backends. Please make sure to cite all of them in your work.
 You can find the list of references to include in GAMBIT.bib and an example TeX file in GAMBIT.tex
 
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.2596 [s])[Default,Dependency Resolver]:
-Estimated T [s]: 6.01777e-06
+(Tue Oct  3 23:22:20 2023)(5.1869 [s])[Default,Dependency Resolver]:
+Estimated T [s]: 6.03156e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.25964 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18697 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.25981 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18726 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 2.1e-05
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.25983 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18731 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.25997 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18754 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 3e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.26 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18761 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.2601 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18778 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.26013 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18783 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.2602 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18794 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.26023 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18799 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.2613 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.18957 [s])[Default,Dependency Resolver]:
 
 Initial target functor evaluation order
 ----------------------------------
@@ -4446,51 +4446,51 @@ Full initial functor evaluation order
 
 
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.5007 [s])[Default,Dependency Resolver]:
-Estimated T [s]: 6.01777e-06
+(Tue Oct  3 23:22:20 2023)(5.20132 [s])[Default,Dependency Resolver]:
+Estimated T [s]: 6.03156e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50073 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20138 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.5009 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20167 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 2.1e-05
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50093 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20174 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50108 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20198 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 3e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.5011 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20214 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50122 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20234 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50124 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20241 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50131 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20253 [s])[Default,Dependency Resolver]:
 Estimated T [s]: 1e-06
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50133 [s])[Default,Dependency Resolver]:
+(Tue Oct  3 23:22:20 2023)(5.20261 [s])[Default,Dependency Resolver]:
 Estimated p: 0.01
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50182 [s])[Default,Dependency Resolver][Debug,Info]:
+(Tue Oct  3 23:22:20 2023)(5.20353 [s])[Default,Dependency Resolver][Debug,Info]:
 Calling setEventWeight_unity from ColliderBit...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50188 [s])[Default,Dependency Resolver][Debug,Info]:
+(Tue Oct  3 23:22:20 2023)(5.20364 [s])[Default,Dependency Resolver][Debug,Info]:
 Calling nulike_1_0_9_init from BackendIniBit...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50193 [s])[Default,Dependency Resolver][Debug,Info]:
+(Tue Oct  3 23:22:20 2023)(5.20373 [s])[Default,Dependency Resolver][Debug,Info]:
 Calling Pythia_8_212_init from BackendIniBit...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50197 [s])[Default,Dependency Resolver][Debug,Info]:
+(Tue Oct  3 23:22:20 2023)(5.20382 [s])[Default,Dependency Resolver][Debug,Info]:
 Calling primary_parameters from ColliderBit_SLHA_file_model...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50202 [s])[Default,Dependency Resolver][Debug,Info]:
+(Tue Oct  3 23:22:20 2023)(5.2039 [s])[Default,Dependency Resolver][Debug,Info]:
 Calling getNextSLHAFileNameAndContent from ColliderBit...
 --<>--<>--<>--<>--<>--<>--<>--
-(Fri Sep 29 22:54:04 2023)(3.50334 [s])[Default,Dependency Resolver][Debug,Info]:
+(Tue Oct  3 23:22:20 2023)(5.2062 [s])[Default,Dependency Resolver][Debug,Info]:
 Calling operateLHCLoop from ColliderBit...
 --<>--<>--<>--<>--<>--<>--<>--
