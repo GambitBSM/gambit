@@ -459,7 +459,7 @@ namespace Gambit
                                 AnalysisLogLikes& ana_loglikes,
                                 bool (*FullLikes_FileExists)(const str&),
                                 int (*FullLikes_ReadIn)(const str&, const str&),
-                                double (*FullLikes_Evaluate)(std::map<str,double>&,const str&),
+                                double (*FullLikes_Evaluate)(std::map<str,double>&, const str&),
                                 const std::string alt_loglike_key = "")
     {
       // Are we filling the standard loglike or an alternative one?
@@ -542,7 +542,8 @@ namespace Gambit
       // Work out the total (delta) log likelihood for this analysis, with correlations as available/instructed
       if (has_and_use_fulllikes)
       {
-        fill_analysis_loglikes_full(ana_data,ana_loglikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate,alt_loglike_key);
+        fill_analysis_loglikes_full(ana_data, ana_loglikes, FullLikes_FileExists, 
+                                    FullLikes_ReadIn, FullLikes_Evaluate, alt_loglike_key);
       }
       else if (has_and_use_covar)  // Use SR covariance info?
       {
@@ -765,6 +766,11 @@ namespace Gambit
         {
           dll = nocovar_srsum_dll_obs;
         }
+
+
+        // _Anders: Add block: else if (marginalise_SR_choice) {...}
+
+
 
         // Write combined loglike to the ana_loglikes reference
         if (fill_alt_loglike)
