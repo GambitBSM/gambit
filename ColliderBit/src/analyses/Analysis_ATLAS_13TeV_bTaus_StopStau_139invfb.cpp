@@ -104,7 +104,7 @@ namespace Gambit
 
         // Only jet candidates with pT > 20 GeV and |η| < 2.8 are considered in the analysis
         // TODO Missing:  cut based on detector noise and non-collision backgrounds
-        bool JVTeff = 0.95; 
+        float JVTeff = 0.95; 
         for (const HEPUtils::Jet* jet : event->jets())
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
@@ -114,16 +114,30 @@ namespace Gambit
         }
 
         // Baseline taus have pT > 10 GeV, satisfy the "medium" RNN ID criteria, and have |eta|<2.5, and not 1.37<|eta|<1.52
+        // need charge to be +-1 too.
         for (const HEPUtils::Particle* tau : event->taus())
         {
-          if (tau->pT() > 10 && tau->abseta() < 2.5 && (tau->abseta()>1.52 || tau->abseta()<1.37))
+          if (tau->pT() > 10 && tau->abspid()==15 && tau->abseta() < 2.5 && (tau->abseta()>1.52 || tau->abseta()<1.37))
           {
-            baselineTaus.push_back(tau);
+            // Veto electrons that fake 1-prong hadronic taus
+            // If DeltaR(tau,e) and e pt>5 GeV keep 95% of 1prong Loose ID taus
+            // 0.05*0.85 = 0.0425
+            bool vetoTau = false;
+            for (const HEPUtils::Particle* electron : baselineElectrons)
+            {
+                if (tau->mom().deltaR2_eta(electron->mom())<0.4 && electron->pT()>5.)
+                {
+                    if (random_bool(0.0425)) vetoTau = true;
+                }
+            } 
+            if (!vetoTau) baselineTaus.push_back(tau);
           }
         }
 
         // Apply tau efficiency RNN Medium ID https://cds.cern.ch/record/2688062/
         ATLAS::applyTauEfficiencyR2_RNN(baselineTaus, "Medium");
+
+
 
         // Overlap removal
         // 1) Remove taus within DeltaRy 0.2 of an electron
