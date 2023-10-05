@@ -53,21 +53,21 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_bTaus_StopStau_139invfb()
       {
-
+//        std::cout<<"define analysis"<<std::endl;
         set_analysis_name("ATLAS_13TeV_bTaus_StopStau_139invfb");
         set_luminosity(139);
-
-        // Counters for the number of accepted events for each signal region
-        // 1/2 is used to represent the first or second bin of the met significance
-        DEFINE_SIGNAL_REGION("SRdiTau_cuts_0", "di-tau preselection", "nOStaus == 1", "MET > 280 GeV", "mT2 > 70 GeV");
-        DEFINE_SIGNAL_REGION("SRsingleTau_pT50-100_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV", "pTtau1: [50, 100] GeV");
-        DEFINE_SIGNAL_REGION("SRsingleTau_pT100-100_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV", "pTtau1: [100, 200] GeV");
-        DEFINE_SIGNAL_REGION("SRsingleTau_pT200_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV", "pTtau1 > 200 GeV");
-
+//
+//        // Counters for the number of accepted events for each signal region
+        DEFINE_SIGNAL_REGION("SRdiTau_cuts_0", "di-tau preselection", "OS(tau1,tau2) == 1", "MET > 280 GeV")//, "mT2 > 70 GeV");
+        DEFINE_SIGNAL_REGION("SRsingleTau_pT50-100_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV")//, "pTtau1: [50, 100] GeV");
+        DEFINE_SIGNAL_REGION("SRsingleTau_pT100-200_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV")//, "pTtau1: [100, 200] GeV");
+        DEFINE_SIGNAL_REGION("SRsingleTau_pT200_cuts_0", "single-tau Preselection", "MET > 280 GeV", "mTtau > 150 GeV", "summTb > 700 GeV", "sT > 600 GeV")//, "pTtau1 > 200 GeV");
+//
       }
-
+//
       void run(const HEPUtils::Event* event)
       {
+//        std::cout<<"start of run"<<std::endl;
 
         // Baseline objects
         vector<const HEPUtils::Particle*> baselineElectrons;
@@ -83,7 +83,7 @@ namespace Gambit
         // Baseline electrons have pT > 10 GeV, satisfy the "looseAndBLayer" ID criteria, and have |eta|<2.47.
         for (const HEPUtils::Particle* electron : event->electrons())
         {
-          if (electron->pT() > 10 && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
+          if (electron->pT() > 10. && electron->abseta() < 2.47) baselineElectrons.push_back(electron);
         }
 
         // Apply electron efficiency
@@ -104,19 +104,19 @@ namespace Gambit
 
         // Only jet candidates with pT > 20 GeV and |η| < 2.8 are considered in the analysis
         // TODO Missing:  cut based on detector noise and non-collision backgrounds
-        // TODO Missing: JVT 
+        bool JVTeff = 0.95; 
         for (const HEPUtils::Jet* jet : event->jets())
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
           {
-            baselineJets.push_back(jet);
+            if ((jet->pT()<60. && jet->abseta()<2.4 && random_bool(JVTeff)) || jet->pT()>60. || jet->abseta()>2.4) baselineJets.push_back(jet);
           }
         }
 
         // Baseline taus have pT > 10 GeV, satisfy the "medium" RNN ID criteria, and have |eta|<2.5, and not 1.37<|eta|<1.52
         for (const HEPUtils::Particle* tau : event->taus())
         {
-          if (tau->pT() > 10 && tau->abseta() < 2.47 && (tau->abseta()>1.52 || tau->abseta()<1.37))
+          if (tau->pT() > 10 && tau->abseta() < 2.5 && (tau->abseta()>1.52 || tau->abseta()<1.37))
           {
             baselineTaus.push_back(tau);
           }
@@ -146,7 +146,7 @@ namespace Gambit
         // Signal objects
         vector<const HEPUtils::Jet*> signalJets = baselineJets;
         vector<const HEPUtils::Jet*> signalBJets;
-        vector<const HEPUtils::Particle*> signalTaus = signalTaus;
+        vector<const HEPUtils::Particle*> signalTaus = baselineTaus;
 
         // Find b-jets
         double btag = 0.77; double cmisstag = 0.067; double misstag = 0.009;
@@ -165,14 +165,9 @@ namespace Gambit
         sort(signalBJets.begin(), signalBJets.end(), compareJetPt);
         sort(signalTaus.begin(), signalTaus.end(), comparePt);
 
-        // Obtain OS pairs of taus
-        std::vector<std::vector<const HEPUtils::Particle*>> OStauPairs = getSFOSpairs(signalTaus);
-
-        // Start of analysis code based on ATLAS public code snippet
         int n_electrons = baselineElectrons.size();
         int n_muons = baselineMuons.size();
         int n_taus = signalTaus.size();
-        int n_OStauPairs = OStauPairs.size();
         int n_jets = signalJets.size();
         int n_bjets = signalBJets.size();
 
@@ -188,7 +183,7 @@ namespace Gambit
         {
 
           // Passes the MET Trigger plateau cut
-          if (!(met > 250))
+          if (!(met > 250.))
           {
             break;
           }
@@ -221,7 +216,7 @@ namespace Gambit
 
         // If event doesn't pass Pre-selection, exit early
         if (!bTaus_presel) return;
-        END_PRESELECTION
+      END_PRESELECTION
 
         /* Signal Regions */
 
@@ -251,24 +246,28 @@ namespace Gambit
 
           if (bTaus_diTau_presel)
           {
+//            std::cout<<"passed presel"<<std::endl;
             LOG_CUT("SRdiTau_cuts_0");
           }
           else {break;}
 
-          if (n_OStauPairs == 1)
+          if (signalTaus.at(0)->pid()*signalTaus.at(1)->pid()<0)
           {
+//            std::cout<<"OS pair"<<std::endl;
             LOG_CUT("SRdiTau_cuts_0");
           }
           else {break;}
 
-          if (met > 280)
+          if (met > 280.)
           {
+//            std::cout<<"met>280"<<std::endl;
             LOG_CUT("SRdiTau_cuts_0");
           }
           else {break;}
 
-          if (mT2 > 70)
+          if (mT2 > 70.)
           {
+//            std::cout<<"mt2>70"<<std::endl;
             FILL_SIGNAL_REGION("SRdiTau_cuts_0");
           }
 
@@ -282,56 +281,66 @@ namespace Gambit
 
           if (bTaus_singleTau_presel)
           {
+//            std::cout<<"presel passed"<<std::endl;
             LOG_CUT("SRsingleTau_pT50-100_cuts_0", "SRsingleTau_pT100-200_cuts_0", "SRsingleTau_pT200_cuts_0");
           }
           else {break;}
 
-          if (met > 280)
+          if (met > 280.)
           {
+//            std::cout<<"met>280"<<std::endl;
             LOG_CUT("SRsingleTau_pT50-100_cuts_0", "SRsingleTau_pT100-200_cuts_0", "SRsingleTau_pT200_cuts_0");
           }
           else {break;}
 
-          if (mTtau > 150)
+          if (mTtau > 150.)
           {
+//            std::cout<<"mTtau>150"<<std::endl;
             LOG_CUT("SRsingleTau_pT50-100_cuts_0", "SRsingleTau_pT100-200_cuts_0", "SRsingleTau_pT200_cuts_0");
           }
           else {break;}
 
-          if (summTb > 700)
+          if (summTb > 700.)
           {
+//            std::cout<<"summTb>700"<<std::endl;
             LOG_CUT("SRsingleTau_pT50-100_cuts_0", "SRsingleTau_pT100-200_cuts_0", "SRsingleTau_pT200_cuts_0");
           }
           else {break;}
 
-          if (sT > 600)
+          if (sT > 600.)
           {
+//            std::cout<<"sT>600"<<std::endl;
             LOG_CUT("SRsingleTau_pT50-100_cuts_0", "SRsingleTau_pT100-200_cuts_0", "SRsingleTau_pT200_cuts_0");
           }
           else {break;}
 
-          if (pTtau1 > 50 && pTtau1 <= 100)
+          if (pTtau1 > 50. && pTtau1 <= 100.)
           {
+//            std::cout<<"pTtau1=[0,100]"<<std::endl;
             FILL_SIGNAL_REGION("SRsingleTau_pT50-100_cuts_0");
           }
-          else if (pTtau1 > 100 && pTtau1 <= 200)
+          else if (pTtau1 > 100. && pTtau1 <= 200.)
           {
+//            std::cout<<"pTtau1=[100,200]"<<std::endl;
             FILL_SIGNAL_REGION("SRsingleTau_pT100-200_cuts_0");
           }
-          else if (pTtau1 > 200)
+          else if (pTtau1 > 200.)
           {
+//            std::cout<<"pTtau1>200"<<std::endl;
             FILL_SIGNAL_REGION("SRsingleTau_pT200_cuts_0");
           }
 
           // Applied all cuts
           break;
         }
+//        std::cout<<"end of run"<<std::endl;
 
       } // End run function
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()
       {
+//        std::cout<<"collect results"<<std::endl;
         // Obs. Exp. Err.
         COMMIT_SIGNAL_REGION("SRsingleTau_pT50-100_cuts_0", 8., 10.1, 1.8);
         COMMIT_SIGNAL_REGION("SRsingleTau_pT100-200_cuts_0", 6., 5.1, 1.1);
@@ -344,6 +353,7 @@ namespace Gambit
     protected:
       void analysis_specific_reset()
       {
+//        std::cout<<"analysis_specific_reset"<<std::endl;
         for (auto& pair : _counters)
         {
           pair.second.reset();

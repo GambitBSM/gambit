@@ -36,7 +36,7 @@ Scanner:
         
 Printer:
 
-  #printer: cout
+  printer: cout
 
   printer: hdf5
   options:
@@ -119,7 +119,7 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 10000  # 16000000
+        min_nEvents: 1  # 16000000
         max_nEvents: 10000  # 16000000
         events_between_convergence_checks: 10000000
         target_fractional_uncert: 0.1
@@ -130,7 +130,8 @@ Rules:
         analyses:
 #           - ATLAS_13TeV_PhotonGGM_36invfb
            - ATLAS_13TeV_bTaus_StopStau_139invfb  # skip
-#          - ATLAS_13TeV_PhotonStau_1Photon_139invfb  # skip
+#          - ATLAS_13TeV_2LEPJETS_EW_139invfb
+#          - ATLAS_13TeV_PhotonGGM_1Photon_139invfb  # skip
 #          - ATLAS_13TeV_0LEP_139invfb
 
   # Choose Monte Carlo event simulator and options.
@@ -159,6 +160,7 @@ Rules:
 #          - TauDecays:mode = 0
 #          - TimeShower:pTmin = 2
 
+
   - capability: HardScatteringSim
     type: const BaseCollider*
     function: getPythiaAsBase
@@ -179,6 +181,12 @@ Rules:
       covariance_marg_convthres_rel: 0.05
       covariance_nsamples_start: 100000
 
+  - capability: AllAnalysisNumbers
+    options:
+     print_cutflows: true
+     normalized_cutflows: true
+
+
   # Choose options for the LHC likelihood combination
   - capability: LHC_Combined_LogLike
     options:
@@ -193,6 +201,8 @@ Rules:
       LHC_13TeV:
         partonOnly: false
         antiktR: 0.4
+
+
 
 # Set the names of key log files
 Logger:
