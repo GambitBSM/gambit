@@ -297,7 +297,25 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  
  	return lu*lu*((515.*x*x*x-906.*x*x+99.*x+182.)*x*Li2(1.-1./x)/54./pow(x-1.,4.)
  	+(1030.*x*x*x-2763.*x*x-15.*x+980.)*x*log(x)/108./pow(x-1.,5.)
-@@ -1161,6 +1163,8 @@ double C7H2ldlumt(double r)
+@@ -995,6 +997,8 @@ double G4H(double x, double lu)
+ double Delta4H(double x, double lu)
+ {
+ 	if(fabs(1.-x)<1.e-5) return Delta4H(0.9999,lu);
++	// Modified by GAMBIT, for values of x close to 1 interpolate surrounding values
++	if(fabs(1.-x)<1e-2) return Delta4H(1.01,lu)*(50.*x-49.5) + Delta4H(0.99,lu)*(50.5-50*x);
+ 
+ 	return -lu*lu*((-375.*x*x-95.*x+182.)*x*log(x)/54./pow(x-1.,5.)
+ 	+(133.*x*x*x-108.*x*x+4023.*x-2320.)*x/324./pow(x-1.,4.));
+@@ -1005,6 +1009,8 @@ double Delta4H(double x, double lu)
+ double G3H(double x, double lu)
+ {
+ 	if(fabs(1.-x)<1.e-5) return G3H(0.9999,lu);
++	// Modified by GAMBIT, for values of x close to 1 interpolate surrounding values
++	if(fabs(1.-x)<1e-2) return G3H(1.01,lu)*(50.*x-49.5) + G3H(0.99,lu)*(50.5-50*x);
+ 
+ 	return lu*lu*((10.*x*x*x+30.*x-20.)*x*Li2(1.-1./x)/27./pow(x-1.,4.)
+ 	+(30.*x*x-66.*x-56.)*x*log(x)/81./pow(x-1.,4.)
+@@ -1161,6 +1167,8 @@ double C7H2ldlumt(double r)
  double C7H2(double yt, double lu, double ld, double L)
  {
  	if(fabs(1.-yt)<1.e-5) return C7H2(0.9999,lu,ld,L);
@@ -306,7 +324,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  
  	return lu*lu*(C7H2lulumt(yt)+L*(-yt*(67930.*pow(yt,4.)-470095.*pow(yt,3.)+1358478.*yt*yt-700243.*yt+54970.)/2187./pow(yt-1.,5.)+yt*(10422.*pow(yt,4.)-84390.*pow(yt,3.)+322801.*yt*yt-146588.*yt+1435.)/729./pow(yt-1.,6.)*log(yt)+2.*yt*yt*(260.*pow(yt,3.)-1515.*yt*yt+3757.*yt-1446.)/27./pow(yt-1.,5.)*Li2(1.-1./yt))
  	+L*L*(yt*(-518.*pow(yt,4.)+3665.*pow(yt,3.)-17397.*yt*yt+3767.*yt+1843.)/162./pow(yt-1.,5.)+yt*yt*(-63.*pow(yt,3.)+532.*yt*yt+2089.*yt-1118.)/27./pow(yt-1.,6.)*log(yt))
-@@ -1201,6 +1205,8 @@ double C8H2ldlumt(double r)
+@@ -1201,6 +1209,8 @@ double C8H2ldlumt(double r)
  double C8H2(double yt, double lu, double ld, double L)
  {
  	if(fabs(1.-yt)<1.e-5) return C8H2(0.9999,lu,ld,L);
@@ -315,7 +333,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  
  	return lu*lu*(C8H2lulumt(yt)+L*(yt*(51948.*pow(yt,4.)-233781.*pow(yt,3.)+48634.*yt*yt-698693.*yt+2452.)/1944./pow(yt-1.,6.)*log(yt)-yt*(522347.*pow(yt,4.)-2423255.*pow(yt,3.)+2706021.*yt*yt-5930609.*yt+148856.)/11664./pow(yt-1.,5.)+yt*yt*(481.*pow(yt,3.)-1950.*yt*yt+1523.*yt-2550.)/18./pow(yt-1.,5.)*Li2(1.-1./yt))
  	+L*L*(yt*(-259.*pow(yt,4.)+1117.*pow(yt,3.)+2925.*yt*yt+28411.*yt+2366.)/216./pow(yt-1.,5.)-yt*yt*(139.*yt*yt+2938.*yt+2683.)/36./pow(yt-1.,6.)*log(yt))
-@@ -1427,8 +1433,9 @@ double F11SP(double xt, double xH)
+@@ -1427,8 +1437,9 @@ double F11SP(double xt, double xH)
  	double xt2=xt*xt;
  	double xt3=xt*xt2;
  
@@ -326,7 +344,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  }
  
  /*--------------------------------------------------------------------*/
-@@ -1475,6 +1482,9 @@ double CPc_2HDM(double xH, double xt, do
+@@ -1475,6 +1486,9 @@ double CPc_2HDM(double xH, double xt, do
  		if(fabs(1.-xt)<1.e-5) return CPc_2HDM(xH,0.9999,lu,ld,ll,sw2);
  
  		if(fabs(1.-xH/xt)<1.e-5) return CPc_2HDM(xt*0.9998,xt,lu,ld,ll,sw2);
@@ -336,7 +354,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
  		
  		return -xt/8./(xH-xt)*(2.*ld*ll*(1./(xH-1.)*log(xH)-1./(xt-1.)*log(xt))
  		+lu*ll*(1./(xH-1.)+xH/(xH-xt)/(xt-1.)*log(xt)-xH*(2.*xH-xt-1.)/(xH-xt)/(xH-1.)/(xH-1.)*log(xH))
-@@ -1482,7 +1492,8 @@ double CPc_2HDM(double xH, double xt, do
+@@ -1482,7 +1496,8 @@ double CPc_2HDM(double xH, double xt, do
  		+xt/4./(xH-xt)/(xH-xt)*(-ld*lu*(-(xt+xH)/2.+xt*xH/(xH-xt)*log(xH/xt))
  		+lu*lu/6./(xH-xt)*((xH*xH-8.*xH*xt-17.*xt*xt)/6.+xt*xt*(3.*xH+xt)/(xH-xt)*log(xH/xt)))
  		+sw2*xt/6./(xH-xt)/(xH-xt)*(-ld*lu*((5.*xt-3.*xH)/2.+xH*(2.*xH-3.*xt)/(xH-xt)*log(xH/xt))
