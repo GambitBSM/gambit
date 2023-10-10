@@ -79,7 +79,7 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
 
@@ -108,7 +108,7 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_sm_like_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&, double))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
 
@@ -138,7 +138,7 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_sm_like_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&, double))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
 
@@ -167,7 +167,7 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_sm_like_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&, double))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
 
@@ -234,8 +234,10 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -266,8 +268,10 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     #undef FUNCTION
 
   #undef CAPABILITY
@@ -297,8 +301,10 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     #undef FUNCTION
 
 
@@ -330,8 +336,10 @@ START_MODULE
     DEPENDENCY(THDM_spectrum, Spectrum)
     DEPENDENCY(THDM_Type, THDM_TYPE)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     #undef FUNCTION
 
   #undef CAPABILITY

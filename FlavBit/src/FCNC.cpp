@@ -135,16 +135,16 @@ namespace Gambit
 
     // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
     /// SuperIso prediction for RK* in low q^2
-    void SuperIso_RKstar_0045_11(double &result)
+    void SuperIso_RKstar_01_11(double &result)
     {
-      using namespace Pipes::SuperIso_RKstar_0045_11;
-      if (flav_debug) std::cout<<"Starting SuperIso_RKstar_0045_11"<< std::endl;
+      using namespace Pipes::SuperIso_RKstar_01_11;
+      if (flav_debug) std::cout<<"Starting SuperIso_RKstar_01_11"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::SuperIso_RKstar_computation(&param,0.045,1.1);
+      result=BEreq::SuperIso_RKstar_computation(&param,0.1,1.1);
 
       if (flav_debug) printf("RK*_lowq2=%.3e\n",result);
-      if (flav_debug) std::cout<<"Finished SuperIso_RKstar_0045_11"<< std::endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RKstar_01_11"<< std::endl;
     }
 
     /// RK* in intermediate q^2
@@ -160,17 +160,30 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished SuperIso_RKstar_11_60"<< std::endl;
     }
 
-    /// RK between 1 and 6 GeV^2
-    void SuperIso_RK(double &result)
+    /// RK between 0.1 and 1.1 GeV^2
+    void SuperIso_RK_01_11(double &result)
     {
-      using namespace Pipes::SuperIso_RK;
-      if (flav_debug) std::cout<<"Starting SuperIso_RK"<< std::endl;
+      using namespace Pipes::SuperIso_RK_01_11;
+      if (flav_debug) std::cout<<"Starting SuperIso_RK_01_11"<< std::endl;
 
       parameters const& param = *Dep::SuperIso_modelinfo;
-      result=BEreq::SuperIso_RK_computation(&param,1.0,6.0);
+      result=BEreq::SuperIso_RK_computation(&param,0.1,1.1);
 
       if (flav_debug) printf("RK=%.3e\n",result);
-      if (flav_debug) std::cout<<"Finished SuperIso_RK"<< std::endl;
+      if (flav_debug) std::cout<<"Finished SuperIso_RK_01_11"<< std::endl;
+    }
+
+    /// RK between 1.1 and 6 GeV^2
+    void SuperIso_RK_11_60(double &result)
+    {
+      using namespace Pipes::SuperIso_RK_11_60;
+      if (flav_debug) std::cout<<"Starting SuperIso_RK_11_60"<< std::endl;
+
+      parameters const& param = *Dep::SuperIso_modelinfo;
+      result=BEreq::SuperIso_RK_computation(&param,1.1,6.0);
+
+      if (flav_debug) printf("RK=%.3e\n",result);
+      if (flav_debug) std::cout<<"Finished SuperIso_RK_11_60"<< std::endl;
     }
 
     /// SuperIso prediction for B -> K tau tau
@@ -437,15 +450,15 @@ namespace Gambit
     }
 
     /// RK* for RHN, using same approximations as RK, low q^2
-    void RHN_RKstar_0045_11(double &result)
+    void RHN_RKstar_01_11(double &result)
     {
-      using namespace Pipes::RHN_RKstar_0045_11;
+      using namespace Pipes::RHN_RKstar_01_11;
       SMInputs sminputs = *Dep::SMINPUTS;
       Eigen::Matrix3cd Theta = *Dep::SeesawI_Theta;
       std::vector<double> mN = {*Param["M_1"],*Param["M_2"],*Param["M_3"]};
       double mt = *Param["mT"];
 
-      if (flav_debug) std::cout << "Starting RHN_RKstar_0045_11" << std::endl;
+      if (flav_debug) std::cout << "Starting RHN_RKstar_01_11" << std::endl;
 
       const double mW = sminputs.mW;
       const double sinW2 = sqrt(1.0 - pow(sminputs.mW/sminputs.mZ,2));
@@ -468,7 +481,7 @@ namespace Gambit
       result /= std::norm(C10_SM + C10_e) + std::norm(C9_SM + C9_e);
 
       if (flav_debug) std::cout << "RK = " << result << std::endl;
-      if (flav_debug) std::cout << "Finished RHN_RKstar_0045_11" << std::endl;
+      if (flav_debug) std::cout << "Finished RHN_RKstar_01_11" << std::endl;
     }
 
     /// RK* for RHN, using same approximations as RK, intermediate q^2
@@ -1641,56 +1654,6 @@ namespace Gambit
       if (flav_debug) std::cout << "HEPLike_Bs2phimumuBr_LogLikelihood result: " << result << std::endl;
     }
 
-    /// Likelihood for RK
-    void RK_LogLikelihood_LHCb(double &result)
-    {
-      using namespace Pipes::RK_LogLikelihood_LHCb;
-
-      static double value_exp, value_th;
-      static boost::numeric::ublas::matrix<double> cov_exp, cov_th;
-
-      static bool first = true;
-
-      static double theory_RK_err;
-
-      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
-      if (first)
-      {
-        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
-        fread.debug_mode(flav_debug);
-
-        fread.read_yaml_measurement("flav_data.yaml", "RK");
-
-        fread.initialise_matrices();
-
-        theory_RK_err = fread.get_th_err()(0,0).first;
-
-        value_exp=fread.get_exp_value()(0,0);
-        cov_exp=fread.get_exp_cov();
-
-        // Init over and out.
-        first = false;
-      }
-
-      // Get theory prediction
-      value_th = *Dep::RK;
-
-      // Compute error on theory prediction and populate the covariance matrix
-      cov_th.resize(1,1);
-      cov_th(0,0) = theory_RK_err;
-
-      // adding theory and experimental covariance
-      boost::numeric::ublas::matrix<double> cov = cov_exp + cov_th;
-
-      // Calculating the differences between theory and experiment
-      double diff = value_exp - value_th;
-
-      boost::numeric::ublas::matrix<double> cov_inv(1,1);
-      InvertMatrix(cov, cov_inv);
-
-      result=-0.5*diff*cov_inv(0,0)*diff;
-    }
-
 
     /// Likelihood for RKstar
     void RKstar_LogLikelihood_LHCb(double &result)
@@ -2112,7 +2075,6 @@ namespace Gambit
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
     }
-
 
   }
 }

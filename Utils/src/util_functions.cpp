@@ -27,6 +27,9 @@
 #include <sstream> // stringstream
 #include <string>  // string
 #include <regex>   // regular expressions
+#include <algorithm>
+#include <fstream>
+#include <iterator>
 
 /// POSIX filesystem libraries
 #include <stdio.h>
@@ -396,9 +399,27 @@ namespace Gambit
     }
 
     /// returns square of double - saves tedious repetition
-    double sqr(double a)
+    double sqr(const double a)
     {
-      return a * a;
+      return a*a;
+    }
+    
+    /// returns square of double - saves tedious repetition
+    std::complex<double> sqr(const std::complex<double> a)
+    {
+      return a*a;
+    }
+
+    /// returns cube of double - saves tedious repetition
+    double cub(const double a)
+    {
+      return a*a*a;
+    }
+
+    /// returns cube of double - saves tedious repetition
+    std::complex<double> cub(const std::complex<double> a)
+    {
+      return a*a*a;
     }
 
     /// Checks whether `str' ends with `suffix'
@@ -432,11 +453,99 @@ namespace Gambit
       return true;
     }
 
-    // Factorial function
+
+    int get_mpi_rank()
+    {
+      #ifdef WITH_MPI
+      return GMPI::Comm().Get_rank();
+      #endif
+      return 0;
+    }
+
+    int get_mpi_size()
+    {
+      #ifdef WITH_MPI
+      return GMPI::Comm().Get_size();
+      #endif
+      return 1;
+    }
+
     int factorial(const int n)
     {
-      return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
+      if (n <= 1) return 1;
+      int result = 1;
+      for (int i=n; i>1; --i) result *= i;
+      return result;
     }
+
+    std::string ljust(const std::string to_be_filled, const size_t width, const char fill_character)
+    {
+      std::string tmp(std::max(to_be_filled.size(),width),fill_character);
+      std::copy(to_be_filled.begin(),to_be_filled.end(),tmp.begin());
+      return tmp;
+    }
+
+    std::string rjust(const std::string to_be_filled, const size_t width, const char fill_character)
+    {
+      std::string tmp(std::max(to_be_filled.size(),width),fill_character);
+      std::copy(to_be_filled.end()-to_be_filled.size(),to_be_filled.end(),tmp.begin());
+      return tmp;
+    }
+
+    bool check_file_exists(const std::string name) 
+    {
+        std::ifstream f(name.c_str());
+        return f.good();
+    }
+
+    std::string to_string(const std::complex<double> d)
+    {
+      std::stringstream tmp;
+      tmp << std::scientific << d.real() << " + " << std::scientific << d.imag() << "i";
+      return tmp.str();
+    }
+
+    // replaces num_occurnces substrings with a replacement, -1 to replace all
+    std::string replace(const std::string mainstring, const std::string substring, const std::string replacement, const int num_occurences)
+    {
+      if (mainstring.empty() || substring.empty() || substring == replacement || num_occurences == 0) 
+        return mainstring;
+      
+      std::string result; 
+      result.reserve(mainstring.size()*2);
+
+      int remaining_replacements = num_occurences;
+      size_t index = 0;
+
+      while(remaining_replacements != 0)
+      {
+        --remaining_replacements;
+
+        // get index of next substring
+        size_t next_occurence = mainstring.find(substring,index);
+        if (next_occurence == std::string::npos) break;
+
+        // copy in everything before the substring
+        std::copy(mainstring.begin()+index,mainstring.begin()+next_occurence,std::back_inserter(result));
+
+        // copy in the replacement string
+        std::copy(replacement.begin(),replacement.end(),std::back_inserter(result));
+
+        // move the index past occurence
+        index = next_occurence + substring.size();
+      }
+
+      // copy in the rest of the string
+      std::copy(mainstring.begin()+index,mainstring.end(),std::back_inserter(result));
+
+      return result;
+    }
+
+    // read this like: part in [first,last]
+    bool in(int part, int first, int last) { return part >= first && part <= last; };
+
+    // floating-point equality
+    bool equal(double a, double b) { return std::abs(a-b) < 1e-13; }; // NB doubles have roughly 17 sf precision
 
   }
 

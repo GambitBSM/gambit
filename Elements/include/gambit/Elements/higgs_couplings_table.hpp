@@ -119,7 +119,7 @@ namespace Gambit
       /// Compute a neutral higgs effective coupling from the current two-body neutral higgs decays
       /// @{
       template <typename T>
-      double compute_effective_coupling(int index, const T& p1, const T& p2)
+      double compute_effective_coupling(int index, const T& p1, const T& p2) const
       {
         if (index > n_neutral_higgses - 1) utils_error().raise(LOCAL_INFO, "Requested index beyond n_neutral_higgses.");
         // If channel is missing from either SM or BSM decays, return unity.

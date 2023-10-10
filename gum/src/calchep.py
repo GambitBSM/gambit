@@ -22,6 +22,7 @@ import shutil
 import re
 import datetime
 import numpy as np
+from .darkbit import *
 
 from .setup import *
 from .files import *
@@ -40,7 +41,7 @@ def clean_calchep_model_files(model_folder, model_name, output_dir):
     Makes CalcHEP .mdl files GAMBIT-friendly, and moves them to the
     CalcHEP backend folder.
     """
-    
+
     model_folder.strip('/')
     model_name.strip('/')
 
@@ -217,7 +218,7 @@ def convert(vertex, PDG_conversion):
     """
     Swaps field names for PDG codes for a vertex (list object).
     """
-
+    # TODO: throw error if not found
     for particleName, PDGcode in iteritems(PDG_conversion):
         for i in range(0, len(vertex)):
             if vertex[i] == particleName:
@@ -358,7 +359,9 @@ def copy_calchep_files(model_folder, model_name, output_dir):
     
     print("CalcHEP files moved to Backends directory.")
     
-def add_calchep_switch(model_name, spectrum, calchep_processes):
+def add_calchep_switch(model_name, spectrum, calchep_processes, mathpackage, params,
+                         particles, gambit_pdg_codes, calchep_masses,
+                         calchep_widths, ch_particles, ch_independent_params, ch_dependent_params, ch_vertices):
     """
     Adds an 'if ModelInUse()' switch to the CalcHEP frontend to make GAMBIT
     point to the correct CalcHEP files.
@@ -381,19 +384,35 @@ def add_calchep_switch(model_name, spectrum, calchep_processes):
     ).format(model_name, save_CH_matrix_elements(calchep_processes)))
 
     # Point-level
+    # src_pl = dumb_indent(2, (
+    #        "if (ModelInUse(\"{0}\"))\n"
+    #        "{{\n"
+    #        "// Obtain spectrum information to pass to CalcHEP\n"
+    #        "const Spectrum& spec = *Dep::{1};\n\n"
+    #        "// Obtain model contents\n"
+    #        "static const SpectrumContents::{0} {0}_contents;\n\n"
+    #        "// Obtain list of all parameters within model\n"
+    #        "static const std::vector<SpectrumParameter> {0}_params = "
+    #        "{0}_contents.all_parameters();\n\n"
+    #        "Assign_All_Values(spec, {0}_params);\n"
+    #        "}}\n\n"
+    # ).format(model_name, spectrum))
+
+    # !!!!!!!!!!!!!!!!!!!!!!!!
+    # update: both micrOMEGAs and CalcHEP assign the parameters using same function
+
+    ch_assignments = write_calchep_param_assignments(mathpackage, params,
+                         particles, gambit_pdg_codes, calchep_masses,
+                         calchep_widths, ch_particles, ch_independent_params, ch_dependent_params, ch_vertices)
+
     src_pl = dumb_indent(2, (
            "if (ModelInUse(\"{0}\"))\n"
            "{{\n"
            "// Obtain spectrum information to pass to CalcHEP\n"
            "const Spectrum& spec = *Dep::{1};\n\n"
-           "// Obtain model contents\n"
-           "static const SpectrumContents::{0} {0}_contents;\n\n"
-           "// Obtain list of all parameters within model\n"
-           "static const std::vector<SpectrumParameter> {0}_params = "
-           "{0}_contents.all_parameters();\n\n"
-           "Assign_All_Values(spec, {0}_params);\n"
+           "{2}\n"
            "}}\n\n"
-    ).format(model_name, spectrum))
+    ).format(model_name, spectrum, ch_assignments))
 
     header = (
            "BE_INI_CONDITIONAL_DEPENDENCY({0}, Spectrum, {1})\n"

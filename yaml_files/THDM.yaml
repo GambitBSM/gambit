@@ -27,7 +27,55 @@ Parameters:
     # the models described so far are tree-level. 'atQ' is suffixed for loop-level models
     # which use a FlexibleSUSY spectrum generator, e.g. 'THDMI_higgsatQ'
 
-    THDMIatQ:
+    # THDMIatQ:
+
+    #   # model parameters are specified here
+    #   # generic basis:      lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tanb
+    #   # Higgs basis:        Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M12_2, tanb
+    #   # Physical basis:     mh, mH, mA, mHp, lambda6, lambda7, m12_2, sba, tanb
+    #   # hybrid_Higgs basis: mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7
+
+    #   # for the general model, we must also specify the Yukawas
+    #   # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij,
+    #   # where we have a separate parameter for each i,j (which run from 1 to 3)
+
+    #   # lower limit on lambda1,2 of 0 required for vacuum stability
+    #   # limit on |lambda1,...,7| of 4pi required for perturbativity
+    #   # lambda6,7 set to 0 for Z2-symmetric scalar sector (to avoid large FCNCs at 1-loop level)
+    #   # lower limit of tanb due to perturbativity of top Yukawa coupling
+    #   # range of m12_2 hard to justify so we use a logarithmic prior over a large region
+    #   #      but m12_2 too low tends to cause negative masses
+
+    #   lambda1:
+    #       range: [0, 12.5664]
+    #       prior_type: flat
+    #   lambda2:
+    #       range: [0, 12.5664]
+    #       prior_type: flat
+    #   lambda3:
+    #       range: [-12.5664, 12.5664]
+    #       prior_type: flat
+    #   lambda4:
+    #       range: [-12.5664, 12.5664]
+    #       prior_type: flat
+    #   lambda5:
+    #       range: [-12.5664, 12.5664]
+    #       prior_type: flat
+    #   lambda6:
+    #       fixed_value: 0.0
+    #   lambda7:
+    #       fixed_value: 0.0
+    #   m12_2:
+    #       ranges: [-1e5, -1e3, 1e4, 1e7]
+    #       prior_type: double_log_flat_join
+    #   tanb:
+    #       range: [0.2, 50]
+    #       prior_type: log
+    #   Qin:
+    #       fixed_value: 91.1876 # = mZ
+
+
+    THDMI_hybrid_HiggsatQ:
 
       # model parameters are specified here
       # generic basis:      lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tanb
@@ -46,34 +94,44 @@ Parameters:
       # range of m12_2 hard to justify so we use a logarithmic prior over a large region
       #      but m12_2 too low tends to cause negative masses
 
-      lambda1:
-          range: [0, 12.5664]
-          prior_type: flat
-      lambda2:
-          range: [0, 12.5664]
-          prior_type: flat
-      lambda3:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      lambda4:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
-      lambda5:
-          range: [-12.5664, 12.5664]
-          prior_type: flat
+      # Lambda4: -3.8883787
+      # Lambda5: 0.64795802
+      # Lambda7: -0.21549477
+      # Qin: 91.1876
+      # cba: -0.13614576
+      # lambda6: 0
+      # lambda7: 0
+      # mH: 204.5666
+      # mh: 125.73188
+      # tanb: 26.71022
+
+      mh:
+          range: [125, 126]
+          prior_Type: flat
+      mH:
+          range: [140, 300]
+          prior_Type: flat
+      cba:
+          range: [-0.55, +0.55]
+          prior_Type: flat
+      tanb:
+          range: [0.001, 50]
+          prior_Type: flat
+      Lambda4:
+          range: [-4, +5]
+          prior_Type: flat
+      Lambda5:
+          range: [-3, +4]
+          prior_Type: flat
+      Lambda7:
+          range: [-2, +2.5]
+          prior_Type: flat
       lambda6:
           fixed_value: 0.0
       lambda7:
           fixed_value: 0.0
-      m12_2:
-          ranges: [-1e5, -1e3, 1e4, 1e7]
-          prior_type: double_log_flat_join
-      tanb:
-          range: [0.2, 50]
-          prior_type: log
       Qin:
-          fixed_value: 91.1876 # = mZ
-
+        fixed_value: 91.1876 # = mZ
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -109,7 +167,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 1000
+      point_number: 10000
       like:  LogLike
 
     differentialEvolution:
@@ -158,23 +216,23 @@ ObsLikes:
   # Checks that loop corrections to the pole mass of mh0
   # do not exceed 50% of the input mass at Qin
   # Likelihood type: Acceptance/Rejection
-  - purpose:    LogLike
-    capability: light_scalar_mass_corrections_LogLikelihood_THDM
+  # - purpose:    LogLike
+  #   capability: light_scalar_mass_corrections_LogLikelihood_THDM
 
-  # Checks that loop corrections to the pole masses of mH0,
-  # mA0, mHpm do not exceed 50% of the input mass at Qin
-  # Likelihood type: Acceptance/Rejection
-  # Perturbativity check on other scalar mass loop-corrections
-  - purpose:    LogLike
-    capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
+  # # # Checks that loop corrections to the pole masses of mH0,
+  # # # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # # # Likelihood type: Acceptance/Rejection
+  # # # Perturbativity check on other scalar mass loop-corrections
+  # # - purpose:    LogLike
+  # #   capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
 
-  # enforces a mass range for all scalars from the yaml
-  # these are specified by the run options (given below):
-  # (*) maximum_scalar_mass
-  # (*) minimum_scalar_mass
-  # Likelihood type: Acceptance/Rejection
-  - purpose:    LogLike
-    capability: scalar_mass_range_LogLikelihood_THDM
+  # # # enforces a mass range for all scalars from the yaml
+  # # # these are specified by the run options (given below):
+  # # # (*) maximum_scalar_mass
+  # # # (*) minimum_scalar_mass
+  # # # Likelihood type: Acceptance/Rejection
+  # # - purpose:    LogLike
+  # #   capability: scalar_mass_range_LogLikelihood_THDM
 
   # Perturbativity check on lambdas and scalar couplings
   # Calculates all quartic Higgs couplings in the physical
@@ -186,61 +244,62 @@ ObsLikes:
     # alternative simple perturbativity constraint which only checks lambdas
     # function: perturbativity_lambdas_LogLikelihood_THDM
 
-  # perturbativity constraint on yukawas
-  - purpose:    LogLike
-    capability: perturbativity_yukawas_LogLikelihood_THDM
+  # # perturbativity constraint on yukawas
+  # - purpose:    LogLike
+  #   capability: perturbativity_yukawas_LogLikelihood_THDM
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
   #-------------------------------------#
 
-  ### NOTE
-  # LHC & LEP likelihoods
-  # Coupling Squared input structs are filled by colliderBit,
-  # then chi^2 are extracted directly from HS & HB
+  # ### NOTE
+  # # LHC & LEP likelihoods
+  # # Coupling Squared input structs are filled by colliderBit,
+  # # then chi^2 are extracted directly from HS & HB
 
-  # HiggsBounds 5.8.0 likelihood
-  - capability: LEP_Higgs_LogLike
-    function: calc_HB_5_LEP_LogLike
-    purpose: LogLike
+  # # HiggsBounds 5.8.0 likelihood
+  # - capability: LEP_Higgs_LogLike
+  #   function: calc_HB_5_LEP_LogLike
+  #   purpose: LogLike
 
-  # HiggsSignals 2.5.0 likelihood
-  - capability: LHC_Higgs_LogLike
-    function: calc_HS_2_LHC_LogLike
-    purpose: LogLike
+  # # HiggsSignals 2.5.0 likelihood
+  # - capability: LHC_Higgs_LogLike
+  #   function: calc_HS_2_LHC_LogLike
+  #   purpose: LogLike
 
   #-------------------------------------#
   #      PRECISION LIKELIHOODS          #
   #-------------------------------------#
 
-  # Calculates the electroweak precision parameters, S, T, U, V, W, X
-  # & fits to meausured values. S, T, U involve a correlation matrix.
-  # Includes low-energy notation described in arxiv::9407203.
-  # Likelihood type: Half-Gaussian
-  - purpose:    LogLike
-    capability: oblique_parameters_LogLikelihood_THDM
+  # # Calculates the electroweak precision parameters, S, T, U, V, W, X
+  # # & fits to meausured values. S, T, U involve a correlation matrix.
+  # # Includes low-energy notation described in arxiv::9407203.
+  # # Likelihood type: Half-Gaussian
+  # - purpose:    Observable
+  #   capability: oblique_parameters_LogLikelihood
+  #   function: get_oblique_parameters_LogLikelihood
 
-  # muon anomalous magnetic moment likelihood (for GTHDM)
-  - purpose: Observable
-    capability: lnL_gm2
-    function: lnL_gm2
+  # # muon anomalous magnetic moment likelihood (for GTHDM)
+  # - purpose: Observable
+  #   capability: lnL_gm2
+  #   function: lnL_gm2
 
   #--------------------------------------#
   #      FLAVOUR LIKELIHOODS             #
   #--------------------------------------#
 
-  # TODO: need to add the following information
-  #       (i) which are relevant for G2HDM
-  #      (ii) which are relevant for I/II/X/Y
-  #     (iii) which cannot be explained by 2HDMs
-  #      (iv) which should only be used as observables (e.g. due to high uncertainty)
-  #       (v) which cause the largest performance hit
+  # # TODO: need to add the following information
+  # #       (i) which are relevant for G2HDM
+  # #      (ii) which are relevant for I/II/X/Y
+  # #     (iii) which cannot be explained by 2HDMs
+  # #      (iv) which should only be used as observables (e.g. due to high uncertainty)
+  # #       (v) which cause the largest performance hit
 
-  # Source -> who provides the required calculations (GAMBIT, SuperISO, or HepLike)
+  # # Source -> who provides the required calculations (GAMBIT, SuperISO, or HepLike)
 
-  # Does not work - could take from SL_Likelihood?
-  #- purpose:    LogLike
-  #  capability: B2taunu_LogLikelihood
+  # # Does not work - could take from SL_Likelihood?
+  # #- purpose:    LogLike
+  # #  capability: B2taunu_LogLikelihood
 
   # Source: GAMBIT
   # B-Dstartaunu distributions
@@ -266,10 +325,10 @@ ObsLikes:
   - purpose:    LogLike
     capability: FLDstar_LogLikelihood
 
-  # Source: GAMBIT
-  # Bc lifetime
-  - purpose:    LogLike
-    capability: Bc_lifetime_LogLikelihood
+  # # Source: GAMBIT
+  # # Bc lifetime
+  # - purpose:    LogLike
+  #   capability: Bc_lifetime_LogLikelihood
 
   # Source: GAMBIT
   # Bs2llp (Bs2mutau, Bs2tautau)
@@ -281,10 +340,10 @@ ObsLikes:
   - purpose:    LogLike
     capability: B2Kll_LogLikelihood
 
-  # Source: GAMBIT
-  # RK and RKstarnunu
-  - purpose:    LogLike
-    capability: RK_RKstarnunu_LogLikelihood
+  # # Source: GAMBIT
+  # # RK and RKstarnunu
+  # - purpose:    LogLike
+  #   capability: B2Xsnunu_LogLikelihood
 
   # Source: GAMBIT
   # RK and RKstarnunu
@@ -315,12 +374,12 @@ ObsLikes:
   - purpose:    LogLike
     capability: deltaMBd_LogLikelihood
 
-  # Source: GAMBIT or SuperISO
-  # Tree-level leptonic and semi-leptonic B & D decay measurements
-  # Overlap with other likelihoods - may need for BDmunu, BDstarmunu, Btaunu, Dstaunu, DSmunu, Dmunu, Dtaunu
-  # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
-  - purpose:    LogLike
-    capability: SL_LogLikelihood
+  # # Source: GAMBIT or SuperISO
+  # # Tree-level leptonic and semi-leptonic B & D decay measurements
+  # # Overlap with other likelihoods - may need for BDmunu, BDstarmunu, Btaunu, Dstaunu, DSmunu, Dmunu, Dtaunu
+  # # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
+  # - purpose:    LogLike
+  #   capability: SL_LogLikelihood
 
   # Source: GAMBIT
   # l -> l gamma (muegamma, tauegamma, taumugamma)
@@ -346,29 +405,29 @@ ObsLikes:
   - purpose:    LogLike
     capability: RDRDstar_LogLikelihood
 
-  # Source: SuperISO, HEPLike
-  # b -> s gamma
-  - purpose:    LogLike
-    capability: b2sgamma_LogLikelihood
-    function: HEPLike_b2sgamma_LogLikelihood
+  # # Source: SuperISO, HEPLike
+  # # b -> s gamma
+  # - purpose:    LogLike
+  #   capability: b2sgamma_LogLikelihood
+  #   function: HEPLike_b2sgamma_LogLikelihood
 
-  # TODO: is this useful
-  # Source: SuperISO, HEPLike
-  # B -> K* gamma
-  - purpose:    LogLike
-    capability: B2Kstargamma_LogLikelihood
+  # # TODO: is this useful
+  # # Source: SuperISO, HEPLike
+  # # B -> K* gamma
+  # - purpose:    LogLike
+  #   capability: B2Kstargamma_LogLikelihood
 
-  # Source: SuperISO, HEPLike
-  # B -> mu mu
-  - purpose:    LogLike
-    capability: B2mumu_LogLikelihood_LHCb
-    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-  - purpose:    LogLike
-    capability: B2mumu_LogLikelihood_CMS
-    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
-  - purpose:    LogLike
-    capability: B2mumu_LogLikelihood_Atlas
-    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  # # Source: SuperISO, HEPLike
+  # # B -> mu mu
+  # - purpose:    LogLike
+  #   capability: B2mumu_LogLikelihood_LHCb
+  #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  # - purpose:    LogLike
+  #   capability: B2mumu_LogLikelihood_CMS
+  #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  # - purpose:    LogLike
+  #   capability: B2mumu_LogLikelihood_Atlas
+  #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
   # Source: SuperISO, HEPLike
   # B -> K* mu mu Angular
@@ -385,17 +444,17 @@ ObsLikes:
     capability: B2KstarmumuAng_LogLikelihood_Belle
     sub_capabilities: [P4prime, P5prime]
 
-  # Source: SuperISO, HEPLike
-  # B -> K* l l Angular
-  - purpose:    LogLike
-    capability: B2KstarellellAng_LogLikelihood_Belle
-    sub_capabilities: [P4prime, P5prime]
+  # # Source: SuperISO, HEPLike
+  # # B -> K* l l Angular
+  # - purpose:    LogLike
+  #   capability: B2KstarellellAng_LogLikelihood_Belle
+  #   sub_capabilities: [P4prime, P5prime]
 
-  # Source: SuperISO, HEPLike
-  # B_u -> K* mu mu Angular
-  - purpose:    LogLike
-    capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
-    sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+  # # Source: SuperISO, HEPLike
+  # # B_u -> K* mu mu Angular
+  # - purpose:    LogLike
+  #   capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+  #   sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
 
   # # WARNING: CAUSES CRASH (OBSERVABLES NOT IN SUPERISO)
   # # Source: SuperISO, HEPLike
@@ -412,20 +471,20 @@ ObsLikes:
   # #  capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
   # #  sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
 
-  # Source: SuperISO, HEPLike
-  # B -> K* mu mu BR
-  - purpose:    LogLike
-    capability: B2KstarmumuBr_LogLikelihood_LHCb
+  # # Source: SuperISO, HEPLike
+  # # B -> K* mu mu BR
+  # - purpose:    LogLike
+  #   capability: B2KstarmumuBr_LogLikelihood_LHCb
 
-  # Source: SuperISO, HEPLike
-  # B -> K mu mu BR
-  - purpose:    LogLike
-    capability: B2KmumuBr_LogLikelihood_LHCb
+  # # Source: SuperISO, HEPLike
+  # # B -> K mu mu BR
+  # - purpose:    LogLike
+  #   capability: B2KmumuBr_LogLikelihood_LHCb
 
-  # Source: SuperISO, HEPLike
-  # Bs -> Phi mu mu BR
-  - purpose:    LogLike
-    capability: Bs2phimumuBr_LogLikelihood
+  # # Source: SuperISO, HEPLike
+  # # Bs -> Phi mu mu BR
+  # - purpose:    LogLike
+  #   capability: Bs2phimumuBr_LogLikelihood
 
 
 #################################
@@ -476,6 +535,45 @@ ObsLikes:
   # - purpose: Observable
   #   capability: DeltaCQ2_tautau_Prime
 
+  # - purpose: Observable
+  #   capability: DeltaC2
+
+  # - purpose: Observable
+  #   capability: DeltaC7
+
+  # - purpose: Observable
+  #   capability: DeltaC7_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC8
+
+  # - purpose: Observable
+  #   capability: DeltaC8_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC9
+
+  # - purpose: Observable
+  #   capability: DeltaC9_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC10
+
+  # - purpose: Observable
+  #   capability: DeltaC10_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC9_tautau
+
+  # - purpose: Observable
+  #   capability: DeltaC9_tautau_Prime
+
+  # - purpose: Observable
+  #   capability: DeltaC10_tautau
+
+  # - purpose: Observable
+  #   capability: DeltaC10_tautau_Prime
+
 
 ###################################
 ##  Likelihood/Observable Rules  ##
@@ -484,10 +582,22 @@ ObsLikes:
 
 Rules:
 
+  - capability: prediction_Tpar
+    function: STUVWX_to_prediction_Tpar
+
+  - capability: prediction_Spar
+    function: STUVWX_to_prediction_Spar
+
+  - capability: prediction_Upar
+    function: STUVWX_to_prediction_Upar
+
+  - capability: prediction_STUVWX
+    function: THDMC_prediction_STUVWX
+
   - capability: THDM_spectrum
     type: map_str_dbl
     options:
-      print_minimal_yukawas: false
+      print_minimal_yukawas: true
 
   - capability: THDM_spectrum
     type: Spectrum
@@ -499,7 +609,18 @@ Rules:
   - capability: all_BFs
     function: get_decaytable_as_map
     options:
-      printall: true
+      skip_particles: ['H-','W+','W-','Z0','e+_2','e+_3','e-_2','e-_3','mu+','mu-','pi+','pi-','pi0','tau+','tau-','tbar','u_3','ubar_3']
+      # skip first generation quark decays
+      # skip_channels:
+      #   - ['H+','dbar','u']
+      #   - ['A0','dbar','d']
+      #   - ['A0','ubar','u']
+      #   - ['h0_1','dbar','d']
+      #   - ['h0_1','ubar','u']
+      #   - ['h0_2','dbar','d']
+      #   - ['h0_2','ubar','u']
+      print_BF_error: False
+      print_as_widths: True
 
     # set check_other_scale to some extra scale to
     # check constraint at, or -1 to skip this
@@ -518,7 +639,7 @@ Rules:
       check_other_scale: -1
       # options below only for NLO unitarity
       check_correction_ratio: true
-      wave_function_corrections: true
+      wave_function_corrections: false # broken
       gauge_corrections: true
       yukawa_corrections: true
 
@@ -578,12 +699,14 @@ Logger:
 
 KeyValues:
 
+  print_scanID: false
+
   likelihood:
     print_invalid_points: false
-    model_invalid_for_lnlike_below: -1e6
-    model_invalid_for_lnlike_below_alt: -5e5
-    disable_print_for_lnlike_below: -4e4
-    debug: true
+    # model_invalid_for_lnlike_below: -1e6
+    # model_invalid_for_lnlike_below_alt: -5e5
+    # disable_print_for_lnlike_below: -4e4
+    debug: false
 
   dependency_resolution:
     prefer_model_specific_functions: true
@@ -595,4 +718,4 @@ KeyValues:
     core_warning: fatal
 
   default_output_path: "runs/THDMIatQ"
-  debug: true
+  debug: false

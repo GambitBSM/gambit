@@ -469,7 +469,6 @@ namespace Gambit
      return shutdown_begun();
    }
 
-
    /// Add a new loop time to internal array used to decide barrier timeout
    void SignalData::update_looptime(double /*newtime*/)
    {

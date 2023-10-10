@@ -38,8 +38,8 @@ namespace Gambit
     /// xsec and absolute uncertainty in fb.
     std::pair<double,double> convert_xsecs_to_fb(double input_xsec, double input_xsec_uncert, str input_unit, bool input_fractional_uncert)
     {
-      double xsec_fb;
-      double xsec_uncert_fb;
+      double xsec_fb = 0.0;
+      double xsec_uncert_fb = 0.0;
 
       if (input_unit == "fb" && !input_fractional_uncert)
       {

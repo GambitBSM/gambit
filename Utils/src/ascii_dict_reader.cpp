@@ -19,7 +19,6 @@
 namespace Gambit
 {
 
-
   int ASCIIdictReader::read(std::string filename)
   { 
     std::ifstream in(filename.c_str(), std::ios::binary);
@@ -59,7 +58,5 @@ namespace Gambit
     in.close();
     return 0;
   }
-
-
 
 }

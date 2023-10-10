@@ -1,0 +1,434 @@
+##########################################################################
+## GAMBIT configuration for the following                               ##
+##                                                                      ##
+## Models: THDM, THDMI, THDMII, THDMLS, THDMflipped                     ##
+##                                                                      ##
+## Includes all compatible likelihoods:                                 ##
+## theoretical, collider, electroweak, flavour                          ##
+##                                                                      ##
+## Requires backends:                                                   ##
+## thdmc, SuperISO, HiggsBounds, HiggsSignals, HEPLike                  ##
+##                                                                      ##
+## Author: A.S. Woodcock                                                ##
+## Date: 22/JUL/2022                                                    ##
+##                                                                      ##
+##########################################################################
+
+Parameters:
+    StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+    THDMII_hybrid_Higgs2:
+
+      mh:
+          prior_type: none
+      mHp:
+          prior_type: none
+      cba:
+          prior_type: none
+      tanb:
+          prior_type: none
+      Lambda4:
+          prior_type: none
+      Lambda5:
+          prior_type: none
+      Lambda7:
+          prior_type: none
+      lambda6:
+          prior_type: none
+      lambda7:
+          prior_type: none
+
+
+#################################
+##     PRINTER SELECTION       ##
+#################################
+
+Printer:
+
+  printer: cout
+
+  # printer: hdf5
+  # options:
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: true
+
+  # printer: hdf5_v1
+  # options:
+  #   output_file: "scan.hdf5"
+  #   group: "/data"
+  #   delete_file_on_restart: false
+  #   disable_combine_routines: true
+
+#################################
+##     SCANNER SELECTION       ##
+#################################
+
+Scanner:
+
+  use_scanner: postprocessor
+
+  scanners:
+
+    postprocessor:
+      plugin: postprocessor
+      version: "1.0" # If you want to use v1 of the postprocessor, select it here (default is currently v2.0) 
+      # Turn off extra log output to track what the postprocessor is doing (won't be output unless debug: true anyway though)
+      verbose_logging: false
+      # Name of the new global likelihood contribution.
+      like: LogLike
+      # Name of the combined new+old likelihood
+      reweighted_like: Comb_LogLike
+      # Add LogLike in the old output to New_LogLike in the new output.
+      add_to_like: [LogLike]
+      # Allow overwriting of the old output with the new output (e.g. if you would rather name New_LogLike as LogLike)
+      permit_discard_old_likes: true
+      update_interval: 1000 # Frequency to print status update message
+      batch_size: 100 # Number of points to distribute to worker processes each time they request more work
+       # Throw away all points outside the cuts
+      discard_points_outside_cuts: false
+      # Information about input dataset to be postprocessed
+      reader:
+        type: hdf5
+        file: "../flavSamps_16_MAY.hdf5"
+        group: "/data"
+
+
+#################################
+##  OBSERVABLES / LIKELIHOODS  ##
+#################################
+
+ObsLikes:
+
+  #-------------------------------------#
+  #      THEORETICAL LIKELIHOODS        #
+  #-------------------------------------#
+
+  # # S-matrix unitarity
+  # - purpose:    LogLike
+  #   capability: unitarity_LogLikelihood_THDM
+  #   # function: NLO_unitarity_LogLikelihood_THDM
+  #   function: LO_unitarity_LogLikelihood_THDM
+
+  # # Stability of the 2HDM Potential
+  # - purpose:    LogLike
+  #   capability: stability_LogLikelihood_THDM
+
+  # # Perturbativity check on h0 mass loop-corrections
+  # - purpose:    LogLike
+  #   capability: light_scalar_mass_corrections_LogLikelihood_THDM
+
+  # # Perturbativity check on other scalar mass loop-corrections
+  # - purpose:    LogLike
+  #   capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
+
+  # # Perturbativity check on lambdas and scalar couplings
+  # - purpose:    LogLike
+  #   capability: perturbativity_LogLikelihood_THDM
+  #   function: perturbativity_LogLikelihood_THDM
+
+  # # perturbativity constraint on yukawas
+  # - purpose:    LogLike
+  #   capability: perturbativity_yukawas_LogLikelihood_THDM
+
+  #-------------------------------------#
+  #      COLLIDER LIKELIHOODS           #
+  #-------------------------------------#
+
+  # # HiggsSignals 2.5.0 likelihood
+  # - purpose: LogLike
+  #   capability: LHC_Higgs_LogLike
+  #   function: calc_HS_2_LHC_LogLike
+
+  # # HiggsBounds 5.8.0 likelihood
+  # - purpose: LogLike
+  #   capability: LEP_Higgs_LogLike
+  #   function: calc_HB_5_LEP_LogLike
+
+  #-------------------------------------#
+  #      PRECISION LIKELIHOODS          #
+  #-------------------------------------#
+
+  # # S, T, U parameters likelihood
+  # - purpose:    Observable
+  #   capability: oblique_parameters_LogLikelihood
+  #   function: get_oblique_parameters_LogLikelihood
+
+  #-------------------------------------#
+  #      FLAVOR LIKELIHOODS             #
+  #-------------------------------------#
+
+  # # Bs2llp (Bs2mutau, Bs2tautau)
+  # - purpose:    LogLike
+  #   capability: Bs2ll_LogLikelihood
+
+  # # B2Kllp (B2Kmue, B2Ktaumu, B2Ktautau)
+  # - purpose:    LogLike
+  #   capability: B2Kll_LogLikelihood
+
+  # B -> mu mu
+  # - purpose:    LogLike
+  #   capability: B2mumu_LogLikelihood_Atlas
+  #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  # - purpose:    LogLike
+  #   capability: B2mumu_LogLikelihood_LHCb
+  #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  # - purpose:    LogLike
+  #   capability: B2mumu_LogLikelihood_CMS
+  #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # # # Bc lifetime
+  # - purpose:    LogLike
+  #   capability: Bc_lifetime_LogLikelihood
+
+  # # RK and RKstarnunu
+  # - purpose:    LogLike
+  #   capability: B2Xsnunu_LogLikelihood
+
+  # # B meson mass aysmmetry
+  # - purpose:    LogLike
+  #   capability: deltaMB_LogLikelihood
+
+  # # B_d meson mass aysmmetry
+  # - purpose:    LogLike
+  #   capability: deltaMBd_LogLikelihood
+
+  # # Tree-level leptonic and semi-leptonic B & D decay measurements
+  # # (RD, RDstar, BDmunu, BDstarmunu, Btaunu, Rmu, Dstaunu, Dsmunu, Dmunu, Dtaunu, RDemu)
+  # - purpose:    LogLike
+  #   capability: SL_LogLikelihood
+
+  # # b -> s gamma
+  # - purpose:    LogLike
+  #   capability: b2sgamma_LogLikelihood
+
+  # # B -> K* gamma
+  # - purpose:    LogLike
+  #   capability: B2Kstargamma_LogLikelihood
+
+  # # RK
+  # - purpose:    LogLike
+  #   capability: RK_LogLikelihood_LHCb
+  # # RKstar
+  # - purpose:    LogLike
+  #   capability: RKstar_LogLikelihood_LHCb
+  # # RK and RKstar
+  # - purpose: LogLike
+  #   capability: RK_RKstar_LogLikelihood_LHCb
+
+  # NOTE: these 4 seem to be way slower than the rest
+
+  # # B -> K* mu mu Angular
+  - purpose:    LogLike
+    capability: B2KstarmumuAng_LogLikelihood_Atlas
+    sub_capabilities: [FL, S3, S4, S5, S7, S8]
+  # - purpose:    LogLike
+  #   capability: B2KstarmumuAng_LogLikelihood_CMS
+  #   sub_capabilities: [P1, P5prime]
+  # - purpose:    LogLike
+  #   capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+  #   sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+  # - purpose:    LogLike
+  #   capability: B2KstarmumuAng_LogLikelihood_Belle
+  #   sub_capabilities: [P4prime, P5prime]
+
+  # B -> K* l l Angular
+  # - purpose:    LogLike
+  #   capability: B2KstarellellAng_LogLikelihood_Belle
+  #   sub_capabilities: [P4prime, P5prime]
+
+  # # B_u -> K* mu mu Angular
+  # - purpose:    LogLike
+  #   capability: Bu2KstarmumuAng_LogLikelihood_LHCb_2020
+  #   sub_capabilities: [FL, AFB, S3, S4, S5, S7, S8, S9]
+
+  # # B -> K* e e angular low q2
+  # - purpose:    LogLike
+  #   capability: B2KstareeAng_Lowq2_LogLikelihood_LHCb_2020
+  #   sub_capabilities: [FLee, AT_Re, AT_2, AT_Im]
+
+  # # B -> K* mu mu BR
+  # - purpose:    LogLike
+  #   capability: B2KstarmumuBr_LogLikelihood_LHCb
+
+  # # B -> K mu mu BR
+  # - purpose:    LogLike
+  #   capability: B2KmumuBr_LogLikelihood_LHCb
+
+  # # Bs -> Phi mu mu BR
+  # - purpose:    LogLike
+  #   capability: Bs2phimumuBr_LogLikelihood
+
+#################################
+##          OBSERVABLES        ##
+#################################
+
+  - capability: prediction_B2KstarmumuAng_Atlas
+    purpose: Observable
+
+  - capability: prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+    purpose: Observable
+    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+
+  # entire 2HDM spectrum
+  - capability: THDM_spectrum
+    type: map_str_dbl
+    purpose: Observable
+
+  # # 2HDM decay rates and branching ratios
+  # - capability: all_BFs
+  #   purpose: Observable
+
+###################################
+##  Likelihood/Observable Rules  ##
+###################################
+
+Rules:
+
+  - capability: RK_01_11
+    function: SuperIso_RK_01_11
+  - capability: RK_11_60
+    function: SuperIso_RK_11_60
+  - capability: RKstar_01_11
+    function: SuperIso_RKstar_01_11
+  - capability: RKstar_11_60
+    function: SuperIso_RKstar_11_60
+
+  - capability: prediction_DeltaMs
+    function: SuperIso_prediction_Delta_MBs
+
+  - capability: Higgs_decay_rates
+    function: h0_1_decays_THDM
+  - capability: h0_2_decay_rates
+    function: h0_2_decays_THDM
+  - capability: A0_decay_rates
+    function: A0_decays_THDM
+  - capability: H_plus_decay_rates
+    function: Hpm_decays_THDM
+  - capability: H_minus_decay_rates
+    function: H_minus_decays
+  - capability: t_decay_rates
+    function: t_decays_THDM
+  - capability: Reference_SM_Higgs_decay_rates
+    function: Ref_SM_Higgs_decays_THDM
+  - capability: Reference_SM_other_Higgs_decay_rates
+    function: Ref_SM_other_Higgs_decays_THDM
+  - capability: Reference_SM_A0_decay_rates
+    function: Ref_SM_A0_decays_THDM
+
+  - capability: RK_LogLikelihood_LHCb
+    function: RK_LogLikelihood_LHCb
+
+  - capability: RKstar_LogLikelihood_LHCb
+    function: RKstar_LogLikelihood_LHCb
+
+  - capability: THDM_spectrum
+    type: map_str_dbl
+    options:
+      print_minimal_yukawas: true
+
+  - capability: THDM_spectrum
+    type: Spectrum
+    function: get_THDM_spectrum
+    # options:
+    #   use_speedhacks: true
+
+  - capability: decay_rates
+    function: all_decays
+
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      skip_particles: ['H-','W+','W-','Z0','e+_2','e+_3','e-_2','e-_3','mu+','mu-','pi+','pi-','pi0','tau+','tau-','tbar','u_3','ubar_3']
+      print_BF_error: False
+      print_as_widths: True
+
+  - capability: perturbativity_LogLikelihood_THDM
+    options:
+      check_other_scale: 1000
+
+  - capability: stability_LogLikelihood_THDM
+    options:
+      check_other_scale: 1000
+      check_metastability: true
+
+  - capability: unitarity_LogLikelihood_THDM
+    options:
+      check_other_scale: 1000
+      # options below only for NLO unitarity
+      check_correction_ratio: true
+      wave_function_corrections: false
+      gauge_corrections: true
+      yukawa_corrections: true
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
+
+  - capability: prediction_b2sgamma
+    function: SuperIso_prediction_b2sgamma
+
+  - capability: prediction_B2mumu
+    function: SuperIso_prediction_B2mumu
+
+  - capability: B2KstarmumuAng_LogLikelihood_Atlas
+    function: HEPLike_B2KstarmumuAng_LogLikelihood_Atlas
+    options:
+      ignore_lowq2_bin: true
+
+  - capability: B2KstarmumuAng_LogLikelihood_Belle
+    function: HEPLike_B2KstarmumuAng_LogLikelihood_Belle
+    options:
+      ignore_lowq2_bin: true
+
+  - capability: B2KstarmumuAng_LogLikelihood_LHCb_2020
+    function: HEPLike_B2KstarmumuAng_LogLikelihood_LHCb_2020
+    options:
+      ignore_lowq2_bin: true
+
+  - capability: B2KstarmumuBr_LogLikelihood_LHCb
+    function: HEPLike_B2KstarmumuBr_LogLikelihood_LHCb
+    options:
+      ignore_lowq2_bin: true
+
+  - capability: LHC_Higgs_LogLike
+    options:
+      # -1:all, 0:RUN1_SS, 1:LATEST_SS, 2:LATEST_STXS
+      HS_analysis: -1
+
+#########################
+# Logging setup
+#########################
+
+Logger:
+
+  redirection:
+    # [Debug] :  "debug.log"
+    [Default] :  "default.log"
+    [DecayBit] :  "DecayBit.log"
+    [PrecisionBit] :  "PrecisionBit.log"
+    [ColliderBit] :  "ColliderBit.log"
+    [SpecBit] :  "SpecBit.log"
+
+##########################
+# Name/Value Section
+##########################
+
+KeyValues:
+
+  likelihood:
+    print_invalid_points: false
+    model_invalid_for_lnlike_below: -1e6
+    debug: false
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+    use_old_routines: false
+
+  exceptions:
+    dependency_resolver_error: fatal
+    dependency_resolver_warning: non-fatal
+    core_warning: fatal
+
+  default_output_path: "runs/THDMI_HH/tmp"
+  debug: false

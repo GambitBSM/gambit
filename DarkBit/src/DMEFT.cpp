@@ -36,7 +36,7 @@ namespace Gambit
       ~DMEFT() {};
       
       // Annihilation cross-section. sigmav is a pointer to a CalcHEP backend function.
-      double sv(str channel, DecayTable& tbl, double (*sigmav)(str&, std::vector<str>&, std::vector<str>&, double&, const DecayTable&), double v_rel)
+      double sv(str channel, DecayTable& tbl, double (*sigmav)(const str&, const std::vector<str>&, const std::vector<str>&, const double&, const DecayTable&), double v_rel)
       {
         /// Returns sigma*v for a given channel.
         double GeV2tocm3s1 = gev2cm2*s2cm;

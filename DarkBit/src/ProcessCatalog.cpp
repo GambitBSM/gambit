@@ -19,7 +19,7 @@
 #include "gambit/DarkBit/DarkBit_rollcall.hpp"
 #include "gambit/DarkBit/ProcessCatalog.hpp"
 
-//#define DARKBIT_DEBUG
+// #define DARKBIT_DEBUG
 
 namespace Gambit {
   namespace DarkBit {
@@ -164,9 +164,19 @@ namespace Gambit {
       auto it = particleProperties.find(id);
       if ( it == particleProperties.end() )
       {
-        DarkBit_error().raise(LOCAL_INFO,
-            "Cannot find entry for " + id +
-            " in particleProperties of TH_ProcessCatalog.");
+        // try again with opposite charge
+        str id2 = id;
+        int last = id2.size()-1;
+        if (id2[last] == '+') id2[last] = '-';
+        else if (id2[last] == '-') id2[last] = '+';
+        it = particleProperties.find(id2);
+
+        if ( it == particleProperties.end() )
+        {
+          DarkBit_error().raise(LOCAL_INFO,
+              "Cannot find entry for " + id +
+              " in particleProperties of TH_ProcessCatalog.");
+        }
       }
       return it->second;
     }
@@ -253,10 +263,11 @@ namespace Gambit {
             if ((it2->finalStateIDs.size() == 2) and (E_out > E_in))
             {
               double v_min = sqrt(1-1/pow(E_out/E_in,2));
-              if ( it2->genRate->bind("v")->eval(v_min*0.999) != 0 )
+              double crossSection = it2->genRate->bind("v")->eval(v_min*0.999);
+              if ( abs(crossSection) > 1e-100 )
                 DarkBit_error().raise(LOCAL_INFO,
                   "Invalid TH_ProcessCatalog annihilation entry for " + it->particle1ID + " " + it->particle2ID + "\n"
-                  "  genRate must be zero for values of v that are below kinematic threshold for annihilation into " + outstring);
+                  "  genRate must be zero for values of v that are below kinematic threshold for annihilation into " + outstring + ". CS " + std::to_string(CS));
             }
 #ifdef DARKBIT_DEBUG
             if (it2->finalStateIDs.size() == 2)

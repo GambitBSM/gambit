@@ -44,6 +44,26 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Get name of the SM-like scalar. Uses the Z2-even scalar for i2HDM, otherwise picks the one closest to 125 GeV
+  #define CAPABILITY SM_like_scalar
+  START_CAPABILITY
+    #define FUNCTION get_SM_like_scalar
+    START_FUNCTION(str)
+    DEPENDENCY(THDM_spectrum,Spectrum)
+    ALLOW_MODEL(THDM,THDMatQ,Inert2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Get the name of the additional CP-even scalar, i.e. the non SM-like one
+  #define CAPABILITY additional_scalar
+  START_CAPABILITY
+    #define FUNCTION get_additional_scalar
+    START_FUNCTION(str)
+    DEPENDENCY(SM_like_scalar,str)
+    ALLOW_MODEL(THDM,THDMatQ,Inert2)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   #define CAPABILITY THDM_spectrum
   START_CAPABILITY
 
@@ -61,7 +81,9 @@
       DEPENDENCY(THDM_Type, THDM_TYPE)
       DEPENDENCY(THDM_spectrum, Spectrum)
     #undef FUNCTION
+
   #undef CAPABILITY
+
 
   #define CAPABILITY unitarity_LogLikelihood_THDM
   START_CAPABILITY
@@ -141,12 +163,25 @@
     #undef FUNCTION
   #undef CAPABILITY
 
+  // LIKELIHOOD: guides scanner towards mh = 125 GeV (soft-cutoff)
+  #define CAPABILITY higgs_mass_LogLikelihood
+  START_CAPABILITY
+    #define FUNCTION higgs_mass_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(SM_like_scalar, str)
+    ALLOW_MODEL(THDM, THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
   // only keeps points that correspond to hidden higgs scenario (hard-cutoff)
   #define CAPABILITY hidden_higgs_scenario_LogLikelihood_THDM
   START_CAPABILITY
     #define FUNCTION hidden_higgs_scenario_LogLikelihood_THDM
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(SM_like_scalar, str)
+    DEPENDENCY(additional_scalar, str)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
@@ -157,6 +192,23 @@
     #define FUNCTION scalar_mass_range_LogLikelihood_THDM
     START_FUNCTION(double)
     DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODEL(THDM, THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // table of all couplings in the THDM
+  #define CAPABILITY coupling_table_THDM
+  START_CAPABILITY
+    #define FUNCTION get_coupling_table
+    START_FUNCTION(coupling_table)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(Higgs_decay_rates2, DecayTable::Entry)
+    DEPENDENCY(h0_2_decay_rates2, DecayTable::Entry)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    DEPENDENCY(additional_scalar, str)
+    DEPENDENCY(SM_like_scalar, str)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
   #undef CAPABILITY
@@ -176,6 +228,8 @@
     DEPENDENCY(A0_decay_rates, DecayTable::Entry)
     DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(t_decay_rates, DecayTable::Entry)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     ALLOW_MODEL(THDM, THDMatQ)
     #undef FUNCTION
 
@@ -193,8 +247,11 @@
     DEPENDENCY(A0_decay_rates, DecayTable::Entry)
     DEPENDENCY(H_plus_decay_rates, DecayTable::Entry)
     DEPENDENCY(t_decay_rates, DecayTable::Entry)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatter_ID, std::string, Inert2)
+    MODEL_CONDITIONAL_DEPENDENCY(DarkMatterConj_ID, std::string, Inert2)
     ALLOW_MODEL(THDM, THDMatQ)
-    BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_REQ(setup_thdmc_sm_like_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&, double))
     BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
     #undef FUNCTION
   #undef CAPABILITY

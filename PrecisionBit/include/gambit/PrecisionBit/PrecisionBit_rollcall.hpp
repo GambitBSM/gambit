@@ -58,6 +58,52 @@
 START_MODULE
 
 
+  #define CAPABILITY prediction_STUVWX
+  START_CAPABILITY
+    #define FUNCTION THDMC_prediction_STUVWX
+    START_FUNCTION(map_str_dbl)
+    NEEDS_CLASSES_FROM(THDMC,default)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    DEPENDENCY(THDM_Type, THDM_TYPE)
+    ALLOW_MODEL(THDM, THDMatQ)
+    BACKEND_REQ(setup_thdmc_spectrum, (libTHDMC), void ,(THDMsafe&, const Spectrum&))
+    BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Tpar
+  START_CAPABILITY
+
+    #define FUNCTION STUVWX_to_prediction_Tpar
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_STUVWX, map_str_dbl)
+    DEPENDENCY(THDM_spectrum, Spectrum) // any spectrum with sinW2 is fine
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Spar
+  START_CAPABILITY
+
+    #define FUNCTION STUVWX_to_prediction_Spar
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_STUVWX, map_str_dbl)
+    DEPENDENCY(THDM_spectrum, Spectrum) // any spectrum with sinW2 is fine
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
+  #define CAPABILITY prediction_Upar
+  START_CAPABILITY
+
+    #define FUNCTION STUVWX_to_prediction_Upar
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_STUVWX, map_str_dbl)
+    DEPENDENCY(THDM_spectrum, Spectrum) // any spectrum with sinW2 is fine
+    #undef FUNCTION
+
+  #undef CAPABILITY
+
   // FeynHiggs EWK precision observables
   #define CAPABILITY Precision
   START_CAPABILITY
@@ -294,18 +340,17 @@ START_MODULE
 
   #undef CAPABILITY
 
-#define CAPABILITY oblique_parameters_LogLikelihood_THDM
-  START_CAPABILITY
-#define FUNCTION get_oblique_parameters_LogLikelihood_THDM
-  START_FUNCTION(double)
-  NEEDS_CLASSES_FROM(THDMC,default)
-  DEPENDENCY(THDM_spectrum, Spectrum)
-  DEPENDENCY(THDM_Type, THDM_TYPE)
-  ALLOW_MODEL(THDM, THDMatQ)
-  BACKEND_REQ(init_THDM_spectrum_container_CONV, (libTHDMC), void ,(THDM_spectrum_container&, const Spectrum&, int, double, int))
-  BACKEND_OPTION( (THDMC, 1.8.0), (THDMC) )
-  #undef FUNCTION
-#undef CAPABILITY
+  #define CAPABILITY oblique_parameters_LogLikelihood
+    START_CAPABILITY
+
+    #define FUNCTION get_oblique_parameters_LogLikelihood
+    START_FUNCTION(double)
+    DEPENDENCY(prediction_Spar,double)
+    DEPENDENCY(prediction_Tpar,double)
+    DEPENDENCY(prediction_Upar,double)
+    #undef FUNCTION
+
+  #undef CAPABILITY
 
   // EWPO corrections from heavy neutrinos
   #define CAPABILITY prec_sinW2_eff

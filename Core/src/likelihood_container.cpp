@@ -183,12 +183,15 @@ namespace Gambit
       printer.print(scancode, "scanID", scancodeID, printer.getRank(), getPtID());
     }
 
+    // keep track on top N highest LLs
+    static std::vector<double> max_LLs(20, -1e20);
+
     double lnlike = 0;
     bool point_invalidated = false;
 
     // Check for signals from the scanner to switch to an alternate minimum log likelihood value. TODO: could let scanner plugin set the actual value?
     static bool switch_done(false); // Disable this check once the switch occurs
-    if(not switch_done)
+    if(!switch_done)
     {
       if(check_for_switch_to_alternate_min_LogL())
       {
@@ -206,7 +209,7 @@ namespace Gambit
     }
 
     // Decide if we need to skip the likelihood calculation due to shutdown procedure
-    if(signaldata().shutdown_begun() and not scanner_can_quit())
+    if(signaldata().shutdown_begun() && !scanner_can_quit())
     {
       // If the scanner does not have a built-in mechanism for halting the scan early, then we will assume
       // responsiblity for the process and attempt to shut the scan down from our side.
@@ -247,6 +250,16 @@ namespace Gambit
         str likelihood_tag = "ikelihood contribution from " + dependencyResolver.get_functor(*it)->origin()
                              + "::" + dependencyResolver.get_functor(*it)->name();
         if (debug) logger() << LogTags::core << "Calculating l" << likelihood_tag << "." << EOM;
+
+        // @asw skip expensive constraints if already shit LL
+        str origin = dependencyResolver.get_functor(*it)->origin();
+        if ((origin == "PrecisionBit" && lnlike < max_LLs[0]-5000) ||
+            (origin == "ColliderBit" && lnlike < max_LLs[0]-1000) ||
+            (origin == "DarkBit" && lnlike < max_LLs[0]-500) ||
+            (origin == "FlavBit" && lnlike < max_LLs[0]-500))
+        {
+          break;
+        }
 
         try
         {
@@ -353,6 +366,13 @@ namespace Gambit
         }
       }
 
+      if (lnlike > max_LLs[0])
+      {
+         max_LLs[0] = lnlike;
+         std::sort(max_LLs.begin(), max_LLs.end());
+        //  std::cout << "ln " << lnlike << std::endl;
+      }
+      
       // If the point is invalid and print_invalid_points = false disable the printer, otherwise print vertices
       if(point_invalidated and !print_invalid_points)
         printer.disable();
@@ -426,4 +446,3 @@ namespace Gambit
   }
 
 }
-

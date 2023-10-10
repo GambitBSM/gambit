@@ -1,0 +1,5 @@
+i2HDM
+Libraries
+External libraries  and citation                                      <|
+-L$HOME/packages/lhapdf/lib -lLHAPDF
+========================================================================

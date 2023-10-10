@@ -374,6 +374,6 @@ namespace Gambit
 
     /// @}
 
-
   }
+
 }

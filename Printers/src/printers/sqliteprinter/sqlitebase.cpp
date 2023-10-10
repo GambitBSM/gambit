@@ -179,7 +179,7 @@ namespace Gambit
             printer_error().raise(LOCAL_INFO,err.str());
         }
 
-        int sql_access;
+        int sql_access = 0;
         switch(access) {
            case 'r' :
               sql_access = SQLITE_OPEN_READONLY;

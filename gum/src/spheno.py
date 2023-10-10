@@ -27,14 +27,14 @@ from .setup import *
 from .models import *
 from .cmake_variables import *
 
-# An empty defaultdict in scope, so we don't save to the 
-# mug file, but can still use the writing routines in 
+# An empty defaultdict in scope, so we don't save to the
+# mug file, but can still use the writing routines in
 # the 'files' module.
 d = defaultdict(list)
 
 def copy_spheno_files_output(model_name, output_dir, spheno_oob_path, sarah_spheno_path):
     """
-    Creates a copy of SPheno output in the 
+    Creates a copy of SPheno output in the
     Outputs/... folder.
     Then create another one, for the patched version.
     """
@@ -57,7 +57,6 @@ def copy_spheno_files_output(model_name, output_dir, spheno_oob_path, sarah_sphe
 
     print("SPheno files moved to output directory, and a copy made.")
 
-
 def copy_spheno_files_gambit(model_name, clean_model_name, spheno_version, output_dir, reset_dict):
     """
     Copies unpatched SPheno files to the gambit pathches directory"
@@ -75,12 +74,194 @@ def copy_spheno_files_gambit(model_name, clean_model_name, spheno_version, outpu
 
 
 """
+FORTRAN PARSING
+"""
+
+
+# class to represent a fortran variable declaration 
+# any missing bits are set to None
+class FortranVarDec:
+    ftype = None # fortran type (e.g. Integer)
+    precision = None # precision (e.g. dp)
+    intent = None # the intent within Intent (e.g. inout)
+    dimension = None # the dimension within Dimension as tuple (e.g. (2,3))
+    varnames = None # a list of (varname, dimension, equals) tuples where dimension is a tuple
+
+    # get variable declaration as fortran code
+    def print(self):
+        def parsey(y):
+            return "" if y is None else "({0})".format(",".join([str(x) for x in y]))
+        def parsez(z):
+            return "" if z is None else " = " + z
+
+        result = self.ftype
+        result += "" if self.precision is None else "({0})".format(self.precision)
+        result += "" if self.intent is None else ", Intent({0})".format(self.intent)
+        result += "" if self.dimension is None else ", Dimension({0})".format(",".join([str(x) for x in self.dimension]))
+        result += " :: {0}".format(", ".join([x+parsey(y)+parsez(z) for x,y,z in self.varnames]))
+        return result
+
+    # TODO: delete this hack
+    def printvar(self,start,end, nname):
+        def parsey(y):
+            return "" if y is None else "({0})".format(",".join([str(x) for x in y]))
+        def parsez(z):
+            return "" if z is None else " = " + z
+
+        result = self.ftype
+        result += "" if self.precision is None else "({0})".format(self.precision)
+        result += "" if self.intent is None else ", Intent({0})".format(self.intent)
+        result += "" if self.dimension is None else ", Dimension({0})".format(",".join([str(x) for x in self.dimension]))
+        result += " :: {0}".format(", ".join([nname+parsey(y)+parsez(z) for x,y,z in self.varnames[start:end]]))
+        return result
+
+def extract_fortran_variable_declarations(sss):
+
+    # WARNING: use remove_fortran_line_continuation prior to this
+    # extract all fortran variable declarations 
+    # from given string and convert each into into a VarDec
+    # as defined above, then return list of all [VarDec]s
+
+    # returns: (FortranVarDec list, startIndex within string, stopIndex within string)
+
+    error_prefix = "ERROR while parsing fortran variable declaration \n "
+
+    # remove fortran line continuation
+    sss = remove_fortran_line_continuation(sss)
+
+    # get all variable declarations
+
+    # Notes: two key limitations of python regex that we need to deal with
+    #        1. cannot determine group nesting (it just gets flattened)
+    #        2. cannot get full list that a group matches (it only returns the last one)
+    # 
+    # so we need to do a separate regex search for each of the above cases
+
+
+    # regex for a full variable dec
+    regex = r"^(?P<ftype>Integer|Real|Complex)"\
+            r"(\((?P<precision>[a-z]\w*)\))?"\
+            r"[ \t]*(,[ \t]*(Dimension\((?P<dimension>[0-9, ]+)\))[ \t]*|,[ \t]*(Intent\((?P<intent>[a-z]+)\))[ \t]*)*"\
+            r"[ \t]*::"\
+            r"[ \t]*(?P<varnames>([ \t]*[a-z]\w*(\([0-9, ]+\))?([ \t]*=[^,\n]+)?[ \t]*(,|$))+)$"
+
+    # regex for list of numbers
+    regex2 = r"[ \t]*(?P<num>[0-9]+)[ \t]*,?"
+
+    # regex for a list of variable names
+    regex3 = r"[ \t]*(?P<var>[a-z]\w*)(\((?P<dimension>[0-9, ]+)\))?([ \t]*(=(?P<equals>[^,\n]+)))?[ \t]*(,|$)"
+
+    # find all declarations within provided string
+    declarations = re.finditer(regex, sss, flags= re.MULTILINE | re.IGNORECASE)
+    startIndex = -1
+    stopIndex = -1
+
+    # convert each match into a FortranVarDec
+    vardecs = []
+    for i,d in enumerate(declarations):
+        grps = d.groupdict()
+
+        # parse match for variable declaration
+        var = FortranVarDec()
+        var.ftype = grps["ftype"]
+        var.precision = grps["precision"] if "precision" in grps else None
+        var.dimension = grps["dimension"] if "dimension" in grps else None
+        if var.dimension is not None:
+            var.dimension = [int(x.group("num")) for x in re.finditer(regex2, var.dimension, flags=re.IGNORECASE)]
+        var.intent = grps["intent"] if "intent" in grps else None
+        var.varnames = grps["varnames"]
+        
+        # parse matches for individual variable names
+        tmp = []
+        for x in re.finditer(regex3, var.varnames, flags=re.IGNORECASE):
+            grps2 = x.groupdict()
+            dimension = grps2["dimension"] if "dimension" in grps2 else None
+            if dimension is not None:
+                dimension = [int(x.group("num")) for x in re.finditer(regex2, dimension, flags=re.IGNORECASE)]
+            equals = grps2["equals"] if "equals" in grps2 else None
+            tmp.append([grps2["var"], dimension, equals])
+        
+        # override varnames string with individually parsed varnames
+        var.varnames = tmp
+
+        # add to main list of variable declarations
+        vardecs.append(var)
+
+        # also get indices containing the full set of matches
+        if i == 0:
+            startIndex=d.start()
+        stopIndex=d.end()
+
+    return (vardecs, startIndex, stopIndex)
+
+def extract_fortran_subroutine(sss, name):
+
+    # extract fortran subroutine location from string
+
+    pattern = 'Subroutine +{0}(.*?)End +Subroutine {0}'.format(name)
+    match = re.search(pattern, sss, flags=re.IGNORECASE|re.DOTALL)
+
+    if match is None:
+        raise Exception("could not find fortran subroutine: {0}".format(name))
+
+    startIndex = match.start(0)
+    stopIndex = match.end(0)
+    in_startIndex = match.start(1)
+    in_stopIndex = match.end(1)
+
+    return (startIndex, stopIndex, in_startIndex, in_stopIndex)
+
+def remove_fortran_line_continuation(str):
+
+    # helper to remove fortran line continuations from file
+    return re.sub(r"&[ \t]*\n[ \t]*&", "", str)
+
+def add_fortran_line_continuation(str, idealColumns=100):
+
+    # helper to add fortran line continuations to file
+    result = ""
+    for line in str.splitlines():
+        maxColumns = idealColumns
+
+        while (len(line) > maxColumns):
+            pos = line.rfind(' ', 0, maxColumns)  # perhaps ',' too?
+            if pos == -1:
+                maxColumns += 20
+                continue
+            if line[0] == "!":
+                result += line[:pos] + "\n"
+                line = "!" + line[pos+1:]
+            else:
+                result += line[:pos] + " &\n& "
+                line = line[pos+1:]
+            maxColumns = idealColumns
+
+        result += line+'\n'
+    
+    # get rid of space after comma
+    result = result.replace(", ", ",")
+    return result
+
+
+"""
 PATCHING
 """
 
-def patch_spheno(model_name, sarah_model_name, patch_dir, flags, particles):
+
+# for now just make all of these global
+ew_obs = None
+flavor_obs = None
+wilson_decs = None
+wilson_decs_SM = None
+ew_obs_global = None
+flavor_obs_global = None
+wilson_decs_global = None
+wilson_decs_SM_global = None
+
+
+def patch_spheno(model_name, sarah_model_name, patch_dir, flags, particles, spheno_options):
     """
-    Applies all patches to SPheno in the GUM 
+    Applies all patches to SPheno in the GUM
     Outputs/... directory.
     """
 
@@ -92,13 +273,14 @@ def patch_spheno(model_name, sarah_model_name, patch_dir, flags, particles):
     patch_brs(model_name, sarah_model_name, patch_dir)
     patch_addloopfunctions(model_name, patch_dir)
 
+    if spheno_options["IncludeFlavorKit"]:
+        patch_spheno_low_energy(model_name, sarah_model_name, patch_dir)
 
     if flags["SupersymmetricModel"] :
         patch_model_data(model_name, sarah_model_name, patch_dir)
         patch_3_body_decays_susy(model_name, sarah_model_name, patch_dir, particles)
 
     print("SPheno files patched.")
-
 
 def patch_spheno_makefile(model_name, patch_dir):
     """
@@ -138,14 +320,13 @@ def patch_spheno_makefile(model_name, patch_dir):
 
         f.write(content)
 
-
 def patch_spheno_model_makefile(model_name, sarah_model_name, patch_dir, flags):
     """
     Patches $SPheno/<MODEL>/Makefile
     """
-    
-    filename = patch_dir + "/" + model_name + "/Makefile" 
-    temp_filename = filename + "_temp"  
+
+    filename = patch_dir + "/" + model_name + "/Makefile"
+    temp_filename = filename + "_temp"
 
     if not os.path.exists(filename):
         raise GumError(("Tried to find the file located at " + filename +
@@ -234,7 +415,7 @@ def patch_spheno_src_makefile(model_name, patch_dir):
     if not os.path.exists(filename):
         raise GumError(("Tried to find the file located at " + filename +
                         " but it does not seem to exist!"))
-            
+
     with open(filename, 'r') as f, open(temp_filename, 'w') as g :
         skip_next_lines = False
         for line in f :
@@ -297,14 +478,14 @@ def patch_control(model_name, patch_dir):
     """
     Patches $SPheno/src/Control.F90
     """
-    
+
     filename = patch_dir + "/src/Control.F90"
     temp_filename = filename + "_temp"
 
     if not os.path.exists(filename):
         raise GumError(("Tried to find the file located at " + filename +
                         " but it does not seem to exist!"))
-            
+
     with open(filename, 'r') as f, open(temp_filename, 'w') as g :
         skip_next_lines = False
         for line in f :
@@ -328,7 +509,7 @@ def patch_control(model_name, patch_dir):
                           "\n"\
                           "! GAMBIT addition end\n\n"
                 g.write(content)
-                g.write(line) 
+                g.write(line)
             elif line.startswith(" Subroutine TerminateProgram") :
                 content = " ! Subroutine modified by GAMBIT\n"\
                           " Subroutine TerminateProgram\n"\
@@ -386,14 +567,14 @@ def patch_spheno_model(model_name, sarah_model_name, patch_dir):
     """
     Patches $SPheno/<MODEL>/SPheno<MODEL>.f90
     """
- 
+
     filename = patch_dir + "/" + model_name + "/SPheno" + sarah_model_name + ".f90"
     temp_filename = filename + "_temp"
 
     if not os.path.exists(filename):
         raise GumError(("Tried to find the file located at " + filename +
                         " but it does not seem to exist!"))
-            
+
     with open(filename, 'r') as f, open(temp_filename, 'w') as g:
         for line in f:
             if line.startswith("Program SPheno" + sarah_model_name) :
@@ -403,7 +584,11 @@ def patch_spheno_model(model_name, sarah_model_name, patch_dir):
                 content = '\n'\
                     "Contains ! Added by GAMBIT\n"\
                     "\n"\
-                    "Subroutine SPheno_Main() ! Added by GAMBIT\n"
+                    "Subroutine SPheno_Main() ! Added by GAMBIT\n"\
+                    "SignOfMassChanged =.False.\n"\
+                    "SignOfMuChanged =.False.\n"\
+                    "! kont = 0\n"
+                    # Note: need to reset SignOfMassChanged for each point
                 g.write(content)
                 g.write(line)
             elif line.startswith("Call Set_All_Parameters_0()") :
@@ -422,6 +607,13 @@ def patch_spheno_model(model_name, sarah_model_name, patch_dir):
                 g.write("!"+line)
                 line2 = next(f)
                 while line2.startswith("&") :
+                  g.write("!"+line2)
+                  line2 = next(f)
+                g.write(line2)
+            elif line.startswith("Call HiggsCrossSections") :
+                g.write("!"+line)
+                line2 = next(f)
+                while line2.startswith("&"):
                   g.write("!"+line2)
                   line2 = next(f)
                 g.write(line2)
@@ -466,7 +658,7 @@ def patch_brs(model_name, sarah_model_name, patch_dir):
     if not os.path.exists(filename):
         raise GumError(("Tried to find the file located at " + filename +
                         " but it does not seem to exist!"))
-            
+
     with open(filename, 'r') as f, open(temp_filename, 'w') as g :
         for line in f :
             if line.startswith("Subroutine CalculateBR") :
@@ -502,7 +694,7 @@ def patch_addloopfunctions(model_name, patch_dir):
     if not os.path.exists(filename):
         raise GumError(("Tried to find the file located at " + filename +
                         " but it does not seem to exist!"))
-            
+
     with open(filename, 'r') as f, open(temp_filename, 'w') as g :
         for line in f :
             if line.startswith("  SA_DerB00 = 3._dp * (xm1 * xm1 - 2._dp * xm1 * xm2") :
@@ -517,20 +709,311 @@ def patch_addloopfunctions(model_name, patch_dir):
     os.remove(filename)
     os.rename(temp_filename, filename)
 
+def patch_spheno_low_energy(model_name, sarah_model_name, patch_dir):
+    """
+    Patches $SPheno/<MODEL>/Observables/LowEnergy_<MODEL>.f90 AND
+            $SPheno/<MODEL>/Model_Data_<MODEL>.f90 AND
+            $SPheno/<MODEL>/SPheno<MODEL>.f90
+    """
+
+    global ew_obs, flavor_obs, wilson_decs, wilson_decs_SM
+    global ew_obs_global, flavor_obs_global, wilson_decs_global, wilson_decs_SM_global
+
+    print("DEBUG: patching Observables/LowEnergy_{0}.f90".format(sarah_model_name))
+
+    filename = patch_dir + "/" + model_name + "/Observables/LowEnergy_" + sarah_model_name + ".f90"
+    temp_filename = filename + "_temp"
+    errPrefix = "while patching LowEnergy_"+sarah_model_name+".f90\n"
+
+    if not os.path.exists(filename):
+        raise GumError(("Tried to find the file located at " +
+                       filename + " but it does not seem to exist!"))
+
+    inFile = open(filename, 'r')
+    s = inFile.read()
+    inFile.close()
+
+    # get the subroutine as a string
+    s_start, s_stop, s_in_start, s_in_stop = extract_fortran_subroutine(s,"CalculateLowEnergyConstraints")
+    sub = s[s_start:s_in_stop]
+    
+    # delete line extensions (put back later)
+    sub = remove_fortran_line_continuation(sub)
+
+    # get full set of variable declarations from subroutine
+    vardecs, var_start, var_stop = extract_fortran_variable_declarations(sub)
+
+    # figure out which are (1) electroweak observable, 
+    #                      (2) flavour observables, 
+    #                      (3) wilson coefficients
+
+
+    # find the declaration of observables (EW+flavour) which begins with "Tpar"
+    # this is just standard SPheno code that is not touched by SARAH
+
+    obs_index = -1
+    obs_vars = None
+    for i,v in enumerate(vardecs):
+        if v.varnames[0][0] == "Tpar":
+            obs_vars = v
+            obs_index = i
+
+    if obs_vars == None:
+        raise Exception(errPrefix+"could not find the observable declarations")
+
+    # split up into flavour and EW var names
+
+    flav_var_start = -1
+    for i,name in enumerate(obs_vars.varnames):
+        if name[0] == "dRho":
+            flav_var_start = i+1
+
+    if flav_var_start == -1:
+        raise Exception(errPrefix+"could not find where the electroweak observables end")
+
+    ew_obs = copy.deepcopy(obs_vars)
+    flavor_obs = copy.deepcopy(obs_vars)
+    ew_obs.varnames = ew_obs.varnames[:flav_var_start]
+    flavor_obs.varnames = flavor_obs.varnames[flav_var_start:]
+    del obs_vars
+
+    if len(flavor_obs.varnames) == 0:
+        raise Exception(errPrefix+"could not find the flavor observable declarations")
+    if len(ew_obs.varnames) == 0:
+        raise Exception(errPrefix+"could not find the electroweak observable declarations")
+
+    # get the wilson coefficient declarations. We just jump over the 9 standard SPheno decs
+
+    wilson_decs = vardecs[obs_index+10:]
+    wilson_decs_SM = copy.deepcopy(wilson_decs)
+
+    # get rid of the Tensor/Vector/Scalar components
+
+    for w in wilson_decs:
+        varnames = [x for x in w.varnames if not x[0].startswith(("BO","PSO","PVO","TSO","TVO"))]
+        varnames = [x for x in varnames if not x[0].endswith("check")]
+        w.varnames = [x for x in varnames if not x[0].endswith("SM")]
+    
+    for i,w in enumerate(wilson_decs_SM):
+        varnames = [x for x in w.varnames if not x[0].startswith(("BO","PSO","PVO","TSO","TVO"))]
+        varnames = [x for x in varnames if not x[0].endswith("check")]
+        w.varnames = [x for x in varnames if x[0].endswith("SM")]
+    
+    wilson_decs = [x for x in wilson_decs if not len(x.varnames) == 0]
+    wilson_decs_SM = [x for x in wilson_decs_SM if not len(x.varnames) == 0]
+
+    # add another field to indicate what it is
+
+    ew_obs.whatami = "electroweak-obs"
+    flavor_obs.whatami = "flavor-obs"
+    for w in wilson_decs:
+        w.whatami = "WC"
+    for w in wilson_decs_SM:
+        w.whatami = "WC-sm"
+
+    # create a set of global variables for each observable/WC
+
+    wilson_decs_global = copy.deepcopy(wilson_decs)
+    wilson_decs_SM_global = copy.deepcopy(wilson_decs_SM)
+    ew_obs_global = copy.deepcopy(ew_obs)
+    flavor_obs_global = copy.deepcopy(flavor_obs)
+
+    decs = [ew_obs, flavor_obs] + wilson_decs + wilson_decs_SM
+    decs_global = [ew_obs_global, flavor_obs_global] + wilson_decs_global + wilson_decs_SM_global
+
+    for d in decs_global:
+        for v in d.varnames:
+            v[0] = "global_" + v[0]
+
+    # create global assignments for each observable/WC to place at end of function
+
+    assignments = ""
+    for i in range(0,len(decs)):
+        for j in range(0,len(decs[i].varnames)):
+            assignments += decs_global[i].varnames[j][0] + " = " + decs[i].varnames[j][0] + "\n"
+
+    # stitch it back together
+
+    result = s[:s_start] + add_fortran_line_continuation(sub) + "\n" + assignments + s[s_in_stop:s_stop] + "\n\n" + s[s_stop:]
+    
+    # get rid of all calls to flavour observables (since we only want the Wilson Coefficients)
+    # sub = re.sub(r"^(Call Calculate_.*)", r"! \1", sub, flags=re.MULTILINE)
+
+    # print("** removed flavour observable calculations")
+
+    # don't store to global WCs (since we only use the ones returned by this function)
+    # sub = re.sub(r"(^coeff.*)", r"! \1", sub, flags=re.MULTILINE)
+    # sub = re.sub(r"(^[A-G][SVT][LR][LR]_.*)", r"! \1", sub, flags=re.MULTILINE)
+
+    # print("** removed global storage of WCs")
+
+    # get arg list and delete everything after dRho
+    # TODO: what were all the others for again?? electroweak observables?? maybe flavour observables too??
+    argList = re.match(
+        r"Subroutine CalculateLowEnergyConstraints\(([^\)]*)\)", sub).group(1)
+    args = re.split(" *, *", argList)
+    args = args[:args.index("dRho")+1]
+
+    # write to output file
+    outFile = open(filename, 'w')
+    outFile.write(result)
+    outFile.close()
+
+    print("DEBUG: successfully patched LowEnergy_MODEL.f90")
+
+    # --------------------------------------------------------
+
+    # also patch Model_Data_[model] file so that includes the new variable declarations
+
+    filename = patch_dir + "/" + model_name + "/Model_Data_" + sarah_model_name + ".f90"
+    temp_filename = filename + "_temp"
+
+    if not os.path.exists(filename):
+        raise GumError(("Tried to find the file located at " +
+                       filename + " but it does not seem to exist!"))
+
+    print("patching Model_Data_[model].f90...")
+    inFile = open(filename, 'r')
+    s = inFile.read()
+    inFile.close()
+
+    match = re.search(r"\n *Contains", s, flags=re.IGNORECASE)
+    if match is None:
+        raise("Error: could not find 'Contains' in " + filename)
+    before_contains_index = match.start(0)
+
+    decs_str = ""
+    for w in decs_global:
+        w.intent = None
+        decs_str += w.print() + "\n\n"
+
+    s = s[:before_contains_index] + "\n\n" + add_fortran_line_continuation(decs_str) + "\n\n" + s[before_contains_index:]
+
+    # s = re.sub(r"\n *Contains", add_WC_declatarions, s)
+
+    print("DEBUG: added declarations for WC variables")
+
+    outFile = open(temp_filename, 'w')
+    outFile.write(s)
+    outFile.close()
+
+    os.remove(filename)
+    os.rename(temp_filename, filename)
+
+    # --------------------------------------------------------
+
+    # also patch main file so that it calculates low energy observables + WCs
+
+    filename = patch_dir + "/" + model_name + "/SPheno" + sarah_model_name + ".f90"
+    temp_filename = filename + "_temp"
+
+    if not os.path.exists(filename):
+        raise GumError(("Tried to find the file located at " +
+                       filename + " but it does not seem to exist!"))
+
+    print("patching SPhenoMODEL.f90...")
+    inFile = open(filename, 'r')
+    s = inFile.read()
+    inFile.close()
+
+    # # get rid of 'input' postfix from arg list
+
+    # for i, a in enumerate(args):
+    #     if a.endswith('input'):
+    #         args[i] = a[:-5]
+
+    # s = re.sub(r"Call CalculateLowEnergyConstraints\([^\)]*\)",
+    #            add_fortran_line_continuation(r"Call CalculateLowEnergyConstraints("+", ".join(args)+")"), s)
+
+    # print("DEBUG: fixed call to CalculateLowEnergyConstraints (now with WCs)")
+
+    s = re.sub(r"If \(CalculateLowEnergy\) then", r"If (.True.) then", s)
+
+    print("DEBUG: force calculation of WCs")
+
+    outFile = open(temp_filename, 'w')
+    outFile.write(s)
+    outFile.close()
+
+    os.remove(filename)
+    os.rename(temp_filename, filename)
+
+    print("* successfully patched SPhenoMODEL.f90")
+
+
+# get name of backend convenience function for observable
+def get_spheno_conv(name, model_name):
+    return "SARAHSPheno_{1}_conv_{0}".format(name, model_name)
+
+# get everything for writing new capabilities to flavbit
+def get_spheno_flavbit_info(model_name):
+    backend_capabilities = [get_spheno_conv(obs[0],model_name) for obs in flavor_obs.varnames]
+    flavbit_capabilities = ["prediction_{0}".format(obs[0]) for obs in flavor_obs.varnames]
+    return (backend_capabilities, flavbit_capabilities)
+
+# get everything for writing new capabilities to precisionbit
+def get_spheno_precisionbitbit_info(model_name):
+    backend_capabilities = [get_spheno_conv(obs[0],model_name) for obs in ew_obs.varnames]
+    precisionbit_capabilities = ["prediction_{0}".format(obs[0]) for obs in ew_obs.varnames]
+    return (backend_capabilities, precisionbit_capabilities)
+
+# get new observables/LLs to be added to yaml file
+def get_spheno_yaml_capabilities(model_name):
+
+    result_ew = ["prediction_{0}".format(obs[0]) for obs in ew_obs.varnames] if ew_obs is not None else []
+    result_flavor = ["prediction_{0}".format(obs[0]) for obs in flavor_obs.varnames] if flavor_obs is not None else []
+    
+    # todo capabilities for getting WCs
+    result_WC = []
+    result_WC_sm = []
+
+    return (result_ew, result_flavor, result_WC, result_WC_sm)
+
+# TODO: add new backend convenience functions for getting WCs
+#       These need to be converted to the gambit/SuperIso basis
+#       since SARAH uses a different basis of operators. 
+#       most of the coversions can be found here:
+#       https://arxiv.org/pdf/1405.1434.pdf  
+
+# new code added to frontend header for getting observables / WCs
+def get_spheno_lowe_frontend_head(model_name):
+    result = ""
+    for dec in [ew_obs, flavor_obs]:
+        if dec is None:
+            continue
+        result += "\n"
+        for obs in dec.varnames:
+            result += "BE_CONV_FUNCTION(conv_{0}, double, (), \"{1}\")\n".format(obs[0], get_spheno_conv(obs[0],model_name))
+    return result
+
+# new code added to frontend source for getting observables / WCs
+def get_spheno_lowe_frontend_src():
+    result = ""
+    dec = [ew_obs, flavor_obs]
+    dec_global = [ew_obs_global, flavor_obs_global]
+
+    for i in range(0,len(dec)):
+        if dec[i] is None:
+            continue
+        result += "\n"
+        for j in range(0,len(dec[i].varnames)):
+            result += "double conv_{0}() {{ return *{1}; }}\n".format(dec[i].varnames[j][0], dec_global[i].varnames[j][0])
+    return result
+
 # SUSY-only patches
 
 def patch_model_data(model_name, sarah_model_name, patch_dir):
     """
     Patches $SPheno/<MODEL>/Model_Data_<MODEL>.f90
     """
-    
+
     filename = patch_dir + "/" + model_name + "/Model_Data_" + sarah_model_name + ".f90"
     temp_filename = filename + "_temp"
 
     if not os.path.exists(filename):
         raise GumError(("Tried to find the file located at " + filename +
                         " but it does not seem to exist!"))
-            
+
     with open(filename, 'r') as f, open(temp_filename, 'w') as g :
         for line in f :
             if line.startswith("Logical, Save :: CalcLoopDecay_LoopInducedOnly=.False."):
@@ -538,15 +1021,14 @@ def patch_model_data(model_name, sarah_model_name, patch_dir):
                 g.write("Logical, Save :: CalcSUSY3BodyDecays=.False. ! Added by GAMBIT\n")
             else :
                 g.write(line)
-           
+
 
     os.remove(filename)
     os.rename(temp_filename, filename)
 
-
 def patch_3_body_decays_susy(model_name, sarah_model_name, patch_dir, bsm_particles):
     """
-    Patches the 3-body decays in: 
+    Patches the 3-body decays in:
     $SPheno/<MODEL>/3-Body-Decays/X_<MODEL>.f90
     where X is a superfield.
     """
@@ -574,14 +1056,14 @@ def patch_3_body_decays_susy(model_name, sarah_model_name, patch_dir, bsm_partic
             channels[susy_particle] = susy_channels[susy_particle]
 
     for particle in particles :
- 
+
         filename = patch_dir + "/" + model_name + "/3-Body-Decays/" + particle + "_" + sarah_model_name + ".f90"
         temp_filename = filename + "_temp"
 
         if not os.path.exists(filename):
             raise GumError(("Tried to find the file located at " + filename +
                             " but it does not seem to exist!"))
-            
+
         with open(filename, 'r') as f, open(temp_filename, 'w') as g :
             for line in f :
                 if line.startswith("Use ThreeBodyPhaseSpace") :
@@ -608,7 +1090,7 @@ class SPhenoParameter:
     """
     Container type for a SPheno parameter.
     """
-    
+
     def __init__(self, _name, _type, _size, _block="", _index=0, _alt_name="",
                  _bcs=""):
 
@@ -625,7 +1107,7 @@ def write_spheno_frontends(model_name, sarah_model_name, parameters, sm_particle
                            bsm_particles, flags, spheno_path, output_dir, blockparams,
                            gambit_pdgs, mixings, reality_dict, sphenodeps, bcs,
                            charged_higgses, neutral_higgses, fullmodelname,
-                           cap_def = {}):
+                           spheno_options, cap_def={}):
     """
     Writes the frontend source and header files for SPheno.
     """
@@ -636,7 +1118,7 @@ def write_spheno_frontends(model_name, sarah_model_name, parameters, sm_particle
     # Convert the arguments to GAMBIT types
     type_dictionary = get_fortran_shapes(arguments)
 
-    # Get all of the variables used in SPheno so we can store them as 
+    # Get all of the variables used in SPheno so we can store them as
     # BE_VARIABLES. Keep track of those used for HiggsBounds too.
     variables, hb_variables = harvest_spheno_model_variables(spheno_path,
                                                              model_name,
@@ -667,7 +1149,8 @@ def write_spheno_frontends(model_name, sarah_model_name, parameters, sm_particle
                                            sphenodeps, hb_variables, bcs,
                                            charged_higgses, neutral_higgses,
                                            mass_uncertainty_dict, fullmodelname,
-                                           variable_dictionary, hb_variable_dictionary)
+                                           variable_dictionary, hb_variable_dictionary,
+                                           spheno_options)
 
     spheno_header = write_spheno_frontend_header(model_name, sarah_model_name,
                                                  functions, type_dictionary,
@@ -676,7 +1159,7 @@ def write_spheno_frontends(model_name, sarah_model_name, parameters, sm_particle
                                                  hb_variables,
                                                  hb_variable_dictionary, flags,
                                                  fullmodelname,
-                                                 cap_def)
+                                                 cap_def,spheno_options)
 
 
     return spheno_src, spheno_header, backend_types, linenum
@@ -708,7 +1191,7 @@ def get_fortran_shapes(parameters):
                             "SPhenoParameter to function get_fortran_shapes."))
 
         fortran_type = ""
-        
+
         # If it is not a scalar, then it's an Farray
         if parameter.size:
             fortran_type += "Farray_"
@@ -743,7 +1226,7 @@ def get_fortran_shapes(parameters):
                             "your SPheno file, and if necessary, add the type "
                             "to get_fortran_shape."))
 
-        type_dictionary[name] = fortran_type  
+        type_dictionary[name] = fortran_type
 
     return type_dictionary
 
@@ -754,7 +1237,7 @@ def fix_reality_dict(reality_dict, variable_types):
     """
 
     new_reality_dict = {}
-   
+
     for key, val in iteritems(reality_dict):
 
         new_reality_dict[key] = val
@@ -774,7 +1257,7 @@ def add_to_spheno_backend_types(type_dictionary, variable_dictionary,
     # New types from the harvesting
     types = []
     for t in list(type_dictionary.values()):
-        if t.startswith('Farray_'): types.append(t)   
+        if t.startswith('Farray_'): types.append(t)
     for t in list(variable_dictionary.values()):
         if t.startswith('Farray_'): types.append(t)
     for t in list(hb_variable_dictionary.values()):
@@ -782,7 +1265,7 @@ def add_to_spheno_backend_types(type_dictionary, variable_dictionary,
 
     btypes = "../Backends/include/gambit/Backends/backend_types/SPheno.hpp"
 
-    # Already registered types that GAMBIT knows about 
+    # Already registered types that GAMBIT knows about
     registered_types = []
 
     num = 0 # Index of last entry
@@ -797,7 +1280,7 @@ def add_to_spheno_backend_types(type_dictionary, variable_dictionary,
                 # Done
                 num = i
                 break
-            
+
     toadd = []
     for t in types:
         if t not in registered_types:
@@ -818,10 +1301,10 @@ def scrape_functions_from_spheno(spheno_path, model_name, sarah_model_name):
     Reads the SPheno source to identify the function signatures
     we want to include in the frontend.
     """
-   
+
     clean_model_name = model_name.replace('-','')
 
-    # Create a dictionary of function names, and the string of 
+    # Create a dictionary of function names, and the string of
     # parameters that go into them.
     function_dictionary = {}
     args_dictionary = {}
@@ -839,11 +1322,10 @@ def scrape_functions_from_spheno(spheno_path, model_name, sarah_model_name):
 
     return function_dictionary, args_dictionary, locations_dictionary
 
-
 def harvest_spheno_model_variables(spheno_path, model_name, sarah_model_name, model_parameters):
     """
     Harvests the model variables from $SPHENO/<MODEL>/Model_Data_<MODEL>.f90.
-    Returns a dictionary of key: parameter name, value: GAMBIT fortran type, 
+    Returns a dictionary of key: parameter name, value: GAMBIT fortran type,
     and the same for the HiggsBounds output.
     """
 
@@ -852,7 +1334,7 @@ def harvest_spheno_model_variables(spheno_path, model_name, sarah_model_name, mo
                                                    clean_model_name,
                                                    sarah_model_name)
 
-        
+
     parameters = {}
     hb_parameters = {}
 
@@ -885,12 +1367,12 @@ def harvest_spheno_model_variables(spheno_path, model_name, sarah_model_name, mo
     #hb_src = hb_src.replace(' ','').replace('&\n',' ').replace('&','').split('\n')
 
     # The list of possible types a parameter could be
-    possible_types = ["Real(dp)", "Integer", "Complex(dp)", "Logical", 
+    possible_types = ["Real(dp)", "Integer", "Complex(dp)", "Logical",
                       "Character"]
 
     # A list of strings to match if we want to section it off to HB.
     # Just the starts of strings, there will be various suffixes.
-    hb_strings = ["ratioP", "ratioGG", "CPL_H_H", "CPL_A_A", "CPL_A_H", "rHB", 
+    hb_strings = ["ratioP", "ratioGG", "CPL_H_H", "CPL_A_A", "CPL_A_H", "rHB",
                   "BR_H", "BR_t"]
 
     # Each line looks like - TYPE :: definition(s)
@@ -920,11 +1402,11 @@ def harvest_spheno_model_variables(spheno_path, model_name, sarah_model_name, mo
             if r:
                 size = r.group(1)
                 name = name.split('(')[0] # Save the name without the (..)
-            else: 
+            else:
                 size = ""
 
             # If the variable is part of the model parameters, add the block
-            block = "" 
+            block = ""
             index = 0
             alt_name = ""
             bcs = ""
@@ -945,7 +1427,7 @@ def harvest_spheno_model_variables(spheno_path, model_name, sarah_model_name, mo
                     hb = True
             # If it's not a HB parameter, leave with the rest
             if not hb: parameters[name] = par
-    
+
     return parameters, hb_parameters
 
 def get_mass_uncert(spheno_path, model_name, sarah_model_name):
@@ -956,7 +1438,7 @@ def get_mass_uncert(spheno_path, model_name, sarah_model_name):
     mud = {}
 
     clean_model_name = model_name.replace('-','')
-    location = "{0}/{1}/InputOutput_{2}.f90".format(spheno_path, 
+    location = "{0}/{1}/InputOutput_{2}.f90".format(spheno_path,
                                                     clean_model_name,
                                                     sarah_model_name)
 
@@ -982,7 +1464,7 @@ def get_arguments_from_file(functions, file_path, function_dictionary,
     """
 
     # The list of possible types a parameter could be
-    possible_types = ["Real(dp)", "Integer", "Complex(dp)", "Logical", 
+    possible_types = ["Real(dp)", "Integer", "Complex(dp)", "Logical",
                       "Character"]
 
     with open(file_path) as f:
@@ -1020,16 +1502,17 @@ def get_arguments_from_file(functions, file_path, function_dictionary,
             # Firstly, find out which arguments we need to obtain types for
             for v in list(function_dictionary.values()):
                 for arg in v:
+                    # TODO: what if we are reusing the same name for a different argument?
                     # If we've got it already
-                    if arg in argument_dictionary: 
+                    if arg in argument_dictionary:
                         continue
                     else:
                         # Go through each split; if we find a possible Fortran type
-                        # in the string, scrape the parameter name and add to the 
+                        # in the string, scrape the parameter name and add to the
                         # dictionary.
                         for i in range(len(defs)):
                             # ... unless we've already got it.
-                            if arg in argument_dictionary: 
+                            if arg in argument_dictionary:
                                 continue
                             else:
                                 for j in possible_types:
@@ -1043,7 +1526,7 @@ def get_arguments_from_file(functions, file_path, function_dictionary,
                                             r = re.search(pat, vars)
                                             if r:
                                                 size = r.group(1)
-                                            else: 
+                                            else:
                                                 size = ""
                                             # Size can also be given by "Dimension"
                                             # in FORTRAN
@@ -1105,13 +1588,13 @@ def make_spheno_decay_tables(spheno_path, model_name, sarah_model_name):
                 if pdg[0]=='-' :
                     pdgs["-"+particle] = pdg[1:]
                 else :
-                    pdgs["-"+particle] = "-"+pdg 
+                    pdgs["-"+particle] = "-"+pdg
                 pdgs["--"+particle] = pdg
 
 
             # Get names of particles
             if line.startswith("NameParticle") :
-                particle = line.split('=')[0][12:] 
+                particle = line.split('=')[0][12:]
                 name = line.split('=')[1][1:-2]
                 names[particle] =  name
                 names["-"+particle] = name+"^*"
@@ -1123,7 +1606,7 @@ def make_spheno_decay_tables(spheno_path, model_name, sarah_model_name):
                 # Start reading decays
                 decays = True
                 count = 0
-     
+
                 # get particle
                 subline = line.split('.')[0]
                 part = subline[7::]
@@ -1142,7 +1625,7 @@ def make_spheno_decay_tables(spheno_path, model_name, sarah_model_name):
             # Ignore 1 loop decays
             if line.startswith("If(gT1L") :
                 decays = False
-            
+
             # Get indices
             if "Do gt" in line and decays:
 
@@ -1158,7 +1641,7 @@ def make_spheno_decay_tables(spheno_path, model_name, sarah_model_name):
                 ndaughters = int(line[10])
                 daughters = []
                 products = []
-     
+
                 for i in range(ndaughters):
                     daughter = line.split("=")[1][:-2]
                     if daughter[1] == '-' :
@@ -1183,7 +1666,7 @@ def make_spheno_decay_tables(spheno_path, model_name, sarah_model_name):
                     processes = processes[:-1]
                     di = 0 if "gt" in daughters[0] else 1 if "gt" in daughters[1] else 2
                     for i in range(int(indices[0][0]),int(indices[0][1])+1) :
-                        process =  [daught.replace("gt" + str(di+1),str(i)) for daught in daughters] 
+                        process =  [daught.replace("gt" + str(di+1),str(i)) for daught in daughters]
                         processes.append(process)
                         if len(indices) > 1 :
                             processes = processes[:-1]
@@ -1245,13 +1728,13 @@ def make_spheno_decay_tables(spheno_path, model_name, sarah_model_name):
 def write_hb_output(hb_variables):
 
     # The targets for HiggsBounds
-    hb_targets = ["rHB_S_S_Fd",  "rHB_P_P_Fd", "rHB_S_S_Fu",  "rHB_P_P_Fu", 
-                  "rHB_S_S_Fe",  "rHB_P_P_Fe", "rHB_S_VZ",  "rHB_P_VZ", 
-                  "ratioPP",  "ratioPPP", "ratioGG",  "ratioPGG", 
+    hb_targets = ["rHB_S_S_Fd",  "rHB_P_P_Fd", "rHB_S_S_Fu",  "rHB_P_P_Fu",
+                  "rHB_S_S_Fe",  "rHB_P_P_Fe", "rHB_S_VZ",  "rHB_P_VZ",
+                  "ratioPP",  "ratioPPP", "ratioGG",  "ratioPGG",
                   "CPL_H_H_Z",  "CPL_A_H_Z",  "CPL_A_A_Z"]
 
     hboutput = True
-    # If the targets aren't all there then don't write HiggsBounds output. 
+    # If the targets aren't all there then don't write HiggsBounds output.
     # They should be!
     if not all(param in hb_variables for param in hb_targets):
         hboutput = False
@@ -1259,7 +1742,7 @@ def write_hb_output(hb_variables):
     Wsign = ""
     # Check to see if we've got VWm or VWp...
     if all(p in hb_variables for p in ["rHB_S_VWm",   "rHB_P_VWm"]):
-        Wsign = "VWm" 
+        Wsign = "VWm"
     elif all(p in hb_variables for p in ["rHB_S_VWp",   "rHB_P_VWp"]):
         Wsign = "VWp"
     else:
@@ -1271,12 +1754,13 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                               sm_particles, bsm_particles, parameters, blockparams,
                               gambit_pdgs, mixings, reality_dict, sphenodeps,
                               hb_variables, bcs, charged_higgses, neutral_higgses,
-                              mass_uncertainty_dict, fullmodelname, var_dict, hb_dict):
+                              mass_uncertainty_dict, fullmodelname, var_dict, hb_dict,
+                              spheno_options):
 
     """
-    Writes source for 
+    Writes source for
     Backends/src/frontends/SARAHSPheno_<MODEL>_<VERSION>.cpp
-    """ 
+    """
 
     intro_message = "Frontend header for SARAH-SPheno {0} backend,\n" \
                     "/// for the {1} model.".format(SPHENO_VERSION, model_name)
@@ -1400,14 +1884,16 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "// Masses\n"
             "SMInputs sminputs = spectrum.get_SMInputs();\n")
 
+    # TODO: something is bugged here
+    # code to fill in sm masses fails to get generated...
     # Fill SM mass from SMINPUTS struct
     smpdgmap = {"1":"mD", "2":"mU", "3":"mS",
                 "4":"mCmC","5":"mBmB", "6":"mT",
                 "11":"mE", "13":"mMu", "15":"mTau"}
     for particle in sm_particles :
       if particle.PDG_code in smpdgmap.keys() :
-        mass = re.sub(r"\d","",particle.alt_mass_name)
-        index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
+        mass = re.sub(r"[1-9]","",particle.alt_mass_name)
+        index = re.sub(r"[A-Za-z0]","",particle.alt_mass_name)
         brace = "(" + str(index) + ")" if index else ""
         towrite += (
                 "(*{0}){1} = sminputs.{2};\n"
@@ -1415,18 +1901,18 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
         ).format(mass, brace, smpdgmap[particle.PDG_code])
 
 
-    # A dictionary in which we save the SPheno particle name alongside the 
+    # A dictionary in which we save the SPheno particle name alongside the
     # gambit one. We'll use this for the mixings in a second.
     mixingdict = {}
 
     # Add each particle to the spectrum
     for particle in bsm_particles:
-        mass = re.sub(r"\d","",particle.alt_mass_name)
-        index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
+        mass = re.sub(r"[1-9]","",particle.alt_mass_name)
+        index = re.sub(r"[A-Za-z0]","",particle.alt_mass_name)
         specmass = pdg_to_particle(particle.PDG_code, gambit_pdgs)
         brace = "(" + str(index) + ")" if index else ""
-        
-        eig = re.sub(r"\d","",particle.alt_name)
+
+        eig = re.sub(r"[1-9]","",particle.alt_name)
         if not eig in mixingdict:
             mixingdict[eig] = specmass.split('_')[0]
 
@@ -1447,7 +1933,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
               "*MVWp = spectrum.get(Par::Pole_Mass, \"W+\");\n"
               "*MVWp2 = pow(*MVWp,2);\n"
       )
-    else: 
+    else:
         raise GumError(("GUM can't find either W+ or W-, something is wrong."))
     # Z should be fine.
     towrite += (
@@ -1466,14 +1952,14 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             size = blockparams[par.block]['mixingmatrix']
             i,j = size.split('x')
 
-            # This is the eigenstate 
+            # This is the eigenstate
             eigenstate = mixings[par.name]
             # TODO: currently doesn't work for SM particle mixing matrices: ZUL, ZEL, etc.
-            # These correspond to the U(3) rotations performed to diagonalise the Yukawa 
+            # These correspond to the U(3) rotations performed to diagonalise the Yukawa
             # terms of the Standard Model so don't correspond to a "pole_mixing" entry in the
             # spectrum object.
 
-            # Decision: if Ye, Yu, Yd are defined in the SARAH file, then we don't need to 
+            # Decision: if Ye, Yu, Yd are defined in the SARAH file, then we don't need to
             # save the output of these matrices since they don't do anything.
             entry = ""
             if eigenstate in mixingdict:
@@ -1492,7 +1978,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         "}}\n"
                 ).format(i, j, par.name, entry)
 
-       
+
         # Don't want MASS, MINPAR or EXTPAR parameters
         elif par.block != "MASS" and par.block != "MINPAR" and par.block != "EXTPAR" :
 
@@ -1501,7 +1987,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                 continue
 
             entry = par.name
-            
+
             # Matrix case
             if par.shape.startswith('m'):
                 size = par.shape[1:]
@@ -1590,10 +2076,10 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
     decaying_particles = copy.deepcopy(bsm_particles)
 
     for i in range(0, len(SMpdgs)):
-        decaying_particles.append(Particle(SMnames[i], SMnames[i]+'*', 
-                                           SMspins[i], SMpdgs[i], 
-                                           "M"+SMnames[i], SMcharges[i], 
-                                           SMcolors[i], alt_name = SMnames[i], 
+        decaying_particles.append(Particle(SMnames[i], SMnames[i]+'*',
+                                           SMspins[i], SMpdgs[i],
+                                           "M"+SMnames[i], SMcharges[i],
+                                           SMcolors[i], alt_name = SMnames[i],
                                            alt_mass_name = "M"+SMnames[i]))
 
     towrite += "std::vector<int> pdg = {\n"
@@ -1613,7 +2099,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
         name = re.sub(r"\d","",particle.alt_name)
         index = re.sub(r"[A-Za-z]","",particle.alt_name)
         brace = "(i-" + str(i-int(index)+1) + ")" if index else ""
-        # If there is no gTxx symbol in the signature of CalculateBR_2, 
+        # If there is no gTxx symbol in the signature of CalculateBR_2,
         # the particle does not decay
         if "gT" + name not in function_signatures["CalculateBR_2"]:
             continue
@@ -1621,7 +2107,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             towrite += "if(i==1) return (*gT" + name + ")" + brace
         else :
             towrite += "else if(i==" + str(i+1) + ") return (*gT" + name + ")" + brace
-        towrite += ";\n" 
+        towrite += ";\n"
     towrite += "return 0.0;\n"\
                "};\n"\
                "\n"\
@@ -1631,7 +2117,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
         name = re.sub(r"\d","",particle.alt_name)
         index = re.sub(r"[A-Za-z]","",particle.alt_name)
         brace = "(i-" + str(i-( int(index) if index != "" else 0 )+1) + " ,j)"
-        # If there is no gPxx symbol in the signature of CalculateBR_2, 
+        # If there is no gPxx symbol in the signature of CalculateBR_2,
         # the particle does not decay
         if "gP" + name not in function_signatures["CalculateBR_2"]:
           continue
@@ -1650,7 +2136,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             name = re.sub(r"\d","",particle.alt_name)
             index = re.sub(r"[A-Za-z]","",particle.alt_name)
             brace = "(i-" + str(i-int(index)+1) + ")" if index else ""
-            # If there is no gTxx symbol in the signature of CalculateBR_2, 
+            # If there is no gTxx symbol in the signature of CalculateBR_2,
             # the particle does not decay
             if "gT" + name not in function_signatures["CalculateBR_2"]:
                 continue
@@ -1658,7 +2144,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                 towrite += "if(i==1) return (*gT1L" + name + ")" + brace
             else :
                 towrite += "else if(i==" + str(i+1) + ") return (*gT1L" + name + ")" + brace
-            towrite += ";\n" 
+            towrite += ";\n"
         towrite += "return 0.0;\n"\
                    "};\n"\
                    "\n"\
@@ -1668,7 +2154,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             name = re.sub(r"\d","",particle.alt_name)
             index = re.sub(r"[A-Za-z]","",particle.alt_name)
             brace = "(i-" + str(i-( int(index) if index != "" else 0 )+1) + " ,j)"
-            # If there is no gPxx symbol in the signature of CalculateBR_2, 
+            # If there is no gPxx symbol in the signature of CalculateBR_2,
             # the particle does not decay
             if "gP" + name not in function_signatures["CalculateBR_2"]:
                 continue
@@ -1951,7 +2437,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
         vector = False
         size = ""
 
-        # If it's a matrix, flag it, and get the size. 
+        # If it's a matrix, flag it, and get the size.
         if 'matrix' in entry:
             matrix = True
             size = entry['matrix']
@@ -2007,7 +2493,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         "}}\n"
                 ).format(block, size, oname)
             else:
-                # Add the imaginary block if it's not declared real. 
+                # Add the imaginary block if it's not declared real.
                 # Then add the loop for the vector
                 addedblocks.append("IM"+block)
                 towrite += (
@@ -2046,7 +2532,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         "}}\n"
                 ).format(block, i, j, oname)
             else:
-                # Add the imaginary block if it's not declared real. 
+                # Add the imaginary block if it's not declared real.
                 # Then add the loop for the matrix.
                 addedblocks.append("IM"+block)
                 towrite += (
@@ -2071,8 +2557,8 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
     )
 
     for particle in bsm_particles:
-        mass = re.sub(r"\d","",particle.alt_mass_name)
-        index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
+        mass = re.sub(r"[1-9]","",particle.alt_mass_name)
+        index = re.sub(r"[A-Za-z0]","",particle.alt_mass_name)
         brace = "(" + str(index) + ")" if index else ""
 
         towrite += (
@@ -2091,7 +2577,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       towrite += (
               "slha[\"MASS\"][\"\"] << 24 << *MVWp << \"# VWp\";\n"
       )
-    
+
     towrite += (
             "\n"
             "// Check whether any of the masses is NaN\n"
@@ -2115,11 +2601,11 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             "SLHAea_add_block(slha, \"DMASS\");\n"
     )
 
-    # S.B. Harvested the PDG code : index from SPheno -- the order is 
+    # S.B. Harvested the PDG code : index from SPheno -- the order is
     # non-trivial due the way mass lists are imported in SARAH
     for i, particle in enumerate(bsm_particles):
-        mass = re.sub(r"\d","",particle.alt_mass_name)
-        index = re.sub(r"[A-Za-z]","",particle.alt_mass_name)
+        mass = re.sub(r"[1-9]","",particle.alt_mass_name)
+        index = re.sub(r"[A-Za-z0]","",particle.alt_mass_name)
         if str(particle.PDG_code) in mass_uncertainty_dict.keys():
             mud_index = mass_uncertainty_dict[str(particle.PDG_code)]
 
@@ -2129,7 +2615,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                     "+pow((*mass_uncertainty_Yt)({1}),2)) << "
                     "\"# {2}_{3}\";\n"
             ).format(str(abs(int(particle.PDG_code))), str(mud_index), particle.name, str(index))
-   
+
     towrite += (
                 "\n"
                 "// Do the W mass separately.  Here we use 10 MeV based on "
@@ -2200,12 +2686,12 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
     numh0 = 1
     numA0 = 0
     if hboutput:
-        # Get number of Higgses from the size of the vector 
+        # Get number of Higgses from the size of the vector
         # interacting with gauge bosons
-        numh0 = ( int(hb_variables["rHB_S_VZ"].size) if "rHB_S_VZ" 
+        numh0 = ( int(hb_variables["rHB_S_VZ"].size) if "rHB_S_VZ"
                     in hb_variables else 0 )
         # Subtract 1 since A starts at (2), not (1)
-        numA0 = ( (int(hb_variables["rHB_P_VZ"].size)-1) 
+        numA0 = ( (int(hb_variables["rHB_P_VZ"].size)-1)
                    if "rHB_S_VZ" in hb_variables else 0 )
 
         towrite += (
@@ -2283,7 +2769,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                "hctbl.C_ZZ[{0}] = (*rHB_P_VZ)({1});"
                " // Coupling (A0_{2} Z Z)\n"
             ).format(numh0+i, i+2, i+1, Wsign)
-            
+
             # Signature can change for ratioPPP too
             if hb_dict['ratioPP'] == 'Fcomplex16':
               hb += (
@@ -2325,11 +2811,12 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                         " // Coupling (h0_{3} A0_{4} Z)\n"
                 ).format(i, j, i+1, j+2, j+1)
         # Finally AAZ
+        # TODO: fix this
         for i in range(numA0):
             for j in range(numA0):
                 towrite += (
-                        "hctbl.C_hiZ[{0}][{1}] = (*CPL_A_A_Z)({2},{3}).re;"
-                        " // Coupling (A0_{4} A0_{5} Z)\n" 
+                        "//hctbl.C_hiZ2[{0}][{1}] = (*CPL_A_A_Z)({2},{3}).re;"
+                        " // Coupling (A0_{4} A0_{5} Z)\n"
                 ).format(i, j, i+2, j+2, i+1, j+1)
 
         towrite += (
@@ -2729,7 +3216,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             e = par.name
 
             # Check to see if the parameter has a boundary condition
-            if par.name in bcs: 
+            if par.name in bcs:
                 e = bcs[par.name]
             elif par.alt_name in bcs:
                 e = bcs[par.alt_name]
@@ -2753,7 +3240,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             e = par.name
 
             # Check to see if the parameter has a boundary condition
-            if par.name in bcs: 
+            if par.name in bcs:
                 e = bcs[par.name]
             elif par.alt_name in bcs:
                 e = bcs[par.alt_name]
@@ -2789,14 +3276,14 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
     for name, var in iteritems(variables):
 
         if var.block != None and var.block.endswith("IN") and not var.block.startswith("PHASES"):
-            
+
 
             model_par = get_model_par_name(name, variables)
-            
+
             # If it's *not* a matrix
             if not var.size:
 
-                e = (name+"IN->re" if var.type.startswith("Complex") 
+                e = (name+"IN->re" if var.type.startswith("Complex")
                                    else "*"+name+"IN" )
                 towrite += (
                         "if(inputs.param.find(\"{0}\") != inputs.param.end())\n"
@@ -2831,7 +3318,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
                     towrite += ("*InputValuefor{0} = true;\n").format(name)
                 towrite += "}\n}\n"
 
-     
+
     # We don't need Block GAUGEIN, the gauge couplings are
     # fixed at the SM scale by the InitializeStandardModel function
     towrite += (
@@ -2920,7 +3407,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
             towrite += "// " + name + '\n'\
                 '*' + name + ' = inputs.options->getValueOrDef<bool>(true, "' + name + '");\n'\
                 '\n'
-      
+
     if flags["SupersymmetricModel"] :
       towrite += '// Calculate 3 body decays with only SUSY particles\n'\
         '*CalcSUSY3BodyDecays = inputs.options->getValueOrDef<bool>(false, "CalcSUSY3BodyDecays");\n'\
@@ -3143,6 +3630,9 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       '\n'
     # end of ErrorHandling
 
+    # convenience functions for lowe observables / WCs
+    towrite += get_spheno_lowe_frontend_src()
+
     # Helper functions
     towrite += '//Helper functions\n'\
       'void Fdecays::fill_all_channel_info(str decays_file)\n'\
@@ -3281,7 +3771,7 @@ def write_spheno_frontend_src(model_name, function_signatures, variables, flags,
       "}\n"\
       "END_BE_INI_FUNCTION\n"\
 
-      
+
     return indent(towrite)
 
 def make_fortran_symbols(module, name):
@@ -3299,15 +3789,15 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
                                  type_dictionary, locations,
                                  variables, var_dict, hb_variables, hb_dict,
                                  flags, fullmodelname,
-                                 cap_def = {}):
+                                 cap_def, spheno_options):
     """
-    Writes code for 
+    Writes code for
     Backends/include/gambit/Backends/SARAHSPheno_<MODEL>_<VERSION>.hpp
     """
 
     intro_message = "Frontend header for SARAH-SPheno {0} backend,\n" \
                     "/// for the {1} model.".format(SPHENO_VERSION, model_name)
-                    
+
     towrite = blame_gum(intro_message)
 
     # Some nice model-independent functions to begin
@@ -3357,7 +3847,7 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
     """
 
     towrite += "\n// Model-dependent arguments auto-scraped by GUM\n"
-    
+
     # The functions that we have scraped from SPheno directly.
     for function, sig in iteritems(function_signatures):
         # And the locations where each function lives
@@ -3367,7 +3857,7 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
             if function in v:
                 loc = k.lower().split('/')[-1]
                 symbol = make_fortran_symbols(loc,function.lower())
-        # Now list all arguments, with a nice comment next to it, to make it 
+        # Now list all arguments, with a nice comment next to it, to make it
         # lovely and readable.
         arguments = []
         if type_dictionary[sig[0]] == 'void' :
@@ -3384,14 +3874,14 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
             "  ({1}),"
             " {2}, \"SARAHSPheno_{3}_internal\")\n"
         ).format(function, args, symbol, fullmodelname)
-    
+
     # All scraped from Model_Data_<MODEL>.f90
     # MODEL VARIABLES
     # MASS + OUTPUT VARIABLES
     # EXTPAR VARIABLES
     # MINPAR VARIABLES
     # SPHENOINPUT VARIABLES
-    towrite += "\n// Model-dependent variables\n" 
+    towrite += "\n// Model-dependent variables\n"
     br_entry = "" # Branching ratio parameters can go later, with the rest.
 
     # Let's do this alphabetically so it looks nicer.
@@ -3399,18 +3889,18 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
 
         # We'll put this in with SMINPUTS, otherwise it'll be a duplicate.
         if name == "MZ_input": continue
- 
+
         # These go with decay info
         if name.startswith("Calc3BodyDecay_") or name.startswith("CalcLoopDecay_") or name.startswith("CalcSUSY3BodyDecays") : continue
 
         string = (
-               "BE_VARIABLE({0}, {1}, " + make_fortran_symbols("model_data_{2}","{3}") + ",\"SARAHSPheno_{4}_internal\")\n"
+            "BE_VARIABLE({0}, {1}, " + make_fortran_symbols("model_data_{2}","{3}") + ",\"SARAHSPheno_{4}_internal\")\n"
         ).format(name, var_dict[name], sarah_model_name.lower(), name.lower(), fullmodelname)
 
         # Organise branching ratio stuff separately
         if name.startswith("gT") or name.startswith("BR"):
             br_entry += string
-        else: 
+        else:
             towrite += string
 
     # Add MODSEL variable if missing
@@ -3543,7 +4033,7 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
             "BE_VARIABLE(WriteOutputForNonConvergence, Flogical, " + make_fortran_symbols("settings","writeoutputfornonconvergence") + ", \"SARAHSPheno_{0}_internal\")\n"
             "BE_VARIABLE(WriteParametersAtQ, Flogical, " + make_fortran_symbols("settings","writeparametersatq") + ", \"SARAHSPheno_{0}_internal\")\n"
             "BE_VARIABLE(WriteSLHA1, Flogical, " + make_fortran_symbols("settings","writeslha1") + ", \"SARAHSPheno_{0}_internal\")\n"
-            "BE_VARIABLE(WriteTreeLevelTadpoleParameters, Flogical, " + make_fortran_symbols("settings","writetreeleveltadpoleparameters") + ", \"SARAHSPheno_{0}_internal\")\n"            "\n"   
+            "BE_VARIABLE(WriteTreeLevelTadpoleParameters, Flogical, " + make_fortran_symbols("settings","writetreeleveltadpoleparameters") + ", \"SARAHSPheno_{0}_internal\")\n"            "\n"
             "\n"
             "// Other variables\n"
             "BE_VARIABLE(Qin, Freal8, " + make_fortran_symbols("spheno{1}","qin") + ", \"SARAHSPheno_{0}_internal\")\n"
@@ -3595,14 +4085,14 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
             towrite += (
                 "BE_VARIABLE({0}, Flogical, " + make_fortran_symbols("model_data_{1}","{2}") + ", \"SARAHSPheno_{3}_internal\")\n"
             ).format(name, sarah_model_name.lower(), name.lower(), fullmodelname)
- 
-    if flags["SupersymmetricModel"] : 
+
+    if flags["SupersymmetricModel"] :
         towrite += (
                 "BE_VARIABLE(CalcSUSY3BodyDecays, Flogical, " + make_fortran_symbols("model_data_{0}","calcsusy3bodydecays") + ", \"SARAHSPheno_{1}_internal\")\n"
         ).format(sarah_model_name.lower(), fullmodelname)
 
     # HIGGSBOUNDS OUTPUT
-    towrite += "\n// HiggsBounds variables\n" 
+    towrite += "\n// HiggsBounds variables\n"
 
     # Let's do this alphabetically so it looks nicer.
     for name, param in sorted(iteritems(hb_variables)):
@@ -3610,6 +4100,9 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
         towrite += (
                "BE_VARIABLE({0}, {1}, " + make_fortran_symbols("model_data_{2}","{3}") + ",\"SARAHSPheno_{4}_internal\")\n"
         ).format(name, hb_dict[name], sarah_model_name.lower(), name.lower(), fullmodelname)
+
+    # convenience functions for lowe observables / WCs
+    towrite += get_spheno_lowe_frontend_head(model_name)
 
     # Wrap it up.
     towrite += (
@@ -3665,7 +4158,6 @@ def write_spheno_frontend_header(model_name, sarah_model_name, function_signatur
     cap_def["SARAHSPheno_" + fullmodelname + "_" + SPHENO_VERSION.replace('.','_') + "_init"] = "Initialisation of backend SARAH-SPheno v" + SPHENO_VERSION + " for model " + fullmodelname + "."
 
     return indent(towrite)
-
 
 def write_spheno_cmake_entry(model_name, spheno_ver, clean_model_name):
     """

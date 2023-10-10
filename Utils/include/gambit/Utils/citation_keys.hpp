@@ -43,7 +43,20 @@ namespace Gambit
     "Belanger:2006is", // Micromegas 2.0
     "Belanger:2004yn", // Micromegas 1.3
     "Belanger:2001fz", // Micromegas 1.0
+    "Porod:2003um", // Spheno
+    "Porod:2011nf", // Spheno 3.1
+    "Bloor:2021gtp", // GUM 1.0 Paper
+    "Staub:2013tta", // SARAH 4.0
+    "Staub:2012pb", // SARAH 3.2
+    "Staub:2008uz", // SARAH
+    "Staub:2010jh", // SARAH: Automatic Calc of SUSY RGE and Self Energies
+    "Staub:2015kfa", // SARAH: Exploring new models in detail
+    "Pukhov:2004ca", // Calchep 2.3
+    "Belyaev:2012qa", // Calchep 3.4
+    "Porod:2003um", // Spheno
+    "Porod:2011nf", // Spheno 3.1
   };
+  
 }
 
 #endif // defined __citation_keys_hpp__

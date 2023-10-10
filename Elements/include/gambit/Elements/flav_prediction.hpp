@@ -76,4 +76,5 @@ namespace Gambit
 
     return os;
   }
+  
 }

@@ -112,7 +112,6 @@ namespace Gambit
 
     };
 
-
   }
 
 }
@@ -127,6 +126,5 @@ namespace YAML
     static bool decode(const Node&, Gambit::IniParser::Types::Observable&);
   };
 }
-
 
 #endif /* defined(__yaml_parser_hpp__) */

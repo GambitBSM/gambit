@@ -150,5 +150,4 @@ namespace Gambit
 
 } // end Gambit namespace
 
-
 #endif //defined __yaml_description_database_hpp__

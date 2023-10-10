@@ -1491,7 +1491,7 @@ namespace Gambit
       // Explicitly check up on the synchronisation of all the buffers and their
       // associated datasets
       std::string sync_type_name = "non-perfect";
-      long int diff; // required difference (dset_head_pos - sync_pos)
+      long int diff = 0; // required difference (dset_head_pos - sync_pos)
       if     (sync_type==0) {
         sync_type_name = "pre-resync (non-perfect)";
       }

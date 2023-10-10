@@ -222,6 +222,7 @@ namespace Gambit
 
   // DecayTable::Entry subclass methods
 
+
   /// Constructor creating a DecayTable Entry from an SLHAea DECAY block; full version
   DecayTable::Entry::Entry(const SLHAea::Block& block, int context,
    bool force_SM_fermion_gauge_eigenstates, str calc, str calc_ver) :
@@ -300,7 +301,6 @@ namespace Gambit
     }
   }
 
-
   /// Make sure no NaNs have been passed to the DecayTable by nefarious backends
   void DecayTable::Entry::check_BF_validity(double BF, double error, std::multiset< std::pair<int,int> >& key) const
   {
@@ -372,7 +372,6 @@ namespace Gambit
     check_particles_exist(key);
     return channels.at(key).first;
   }
-
 
   /// Output a decay table entry as an SLHAea DECAY block
   /// @{
@@ -518,7 +517,6 @@ namespace Gambit
   const DecayTable::Entry& DecayTable::at(str p) const                 { return particles.at(Models::ParticleDB().pdg_pair(p)); }
   const DecayTable::Entry& DecayTable::at(str p, int i) const          { return particles.at(Models::ParticleDB().pdg_pair(p,i)); }
   /// @}
-
 
   /// Sum up the branching fractions for a single particle's entry and return the result.
   double DecayTable::Entry::sum_BF() const

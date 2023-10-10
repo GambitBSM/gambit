@@ -294,7 +294,7 @@ void MODEL_NAMESPACE::THDMLS_physical_to_THDMLS(const ModelParameters &myP, Mode
   const SMInputs &sminputs = *Dep::SMINPUTS;
 
   //generic basis
-  double mh =  myP.getValue("m_h"), mH =  myP.getValue("m_H"), mA =  myP.getValue("m_A"), mHp =  myP.getValue("m_Hp");
+  double mh =  myP.getValue("mh"), mH =  myP.getValue("mH"), mA =  myP.getValue("mA"), mHp =  myP.getValue("mHp");
   double mh2 = mh*mh, mH2 = mH*mH, mA2 = mA*mA, mC2 = mHp*mHp;
   double tb  = myP.getValue("tanb");
   double beta = atan(tb);
@@ -391,14 +391,17 @@ void MODEL_NAMESPACE::THDMLS_hybrid_Higgs_to_THDMLS(const ModelParameters &myP, 
   // calc angles
   double beta = std::atan(tanb);
   double alpha = beta - std::acos(cba);
+  
+  // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+  // if (beta-alpha >= M_PI) alpha += M_PI;
+  // if (beta-alpha < 0) alpha -= M_PI;
+
+  // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+  if (beta-alpha >= M_PI/2) alpha += M_PI;
+  if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
   double sba = sin(beta - alpha);
 
-  // conventions
-  if (sba < 0.0)
-  {
-    alpha += M_PI;
-    sba = sin(beta - alpha);
-  }
   double sinb = std::sin(beta);
   double cosb = std::cos(beta);
   double sina = std::sin(alpha);
@@ -459,14 +462,17 @@ void MODEL_NAMESPACE::THDMLS_hybrid_HiggsatQ_to_THDMLSatQ(const ModelParameters 
   // calc angles
   double beta = std::atan(tanb);
   double alpha = beta - std::acos(cba);
+  
+  // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+  // if (beta-alpha >= M_PI) alpha += M_PI;
+  // if (beta-alpha < 0) alpha -= M_PI;
+
+  // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+  if (beta-alpha >= M_PI/2) alpha += M_PI;
+  if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
   double sba = sin(beta - alpha);
 
-  // conventions
-  if (sba < 0.0)
-  {
-    alpha += M_PI;
-    sba = sin(beta - alpha);
-  }
   double sinb = std::sin(beta);
   double cosb = std::cos(beta);
   double sina = std::sin(alpha);
@@ -642,6 +648,155 @@ void MODEL_NAMESPACE::THDMLS_hybrid_lambda2atQ_to_THDMLSatQ(const ModelParameter
   targetP.setValue("tanb", tanb );
   targetP.setValue("Qin", myP.getValue("Qin"));
 
+}
+#undef PARENT
+#undef MODEL
+
+
+//  THDMI_hybrid_Higgs --> THDMI (based on arXiv:1507.04281)
+#define MODEL THDMLS_hybrid_Higgs2
+#define PARENT THDMLS
+void MODEL_NAMESPACE::THDMLS_hybrid_Higgs2_to_THDMLS(const ModelParameters &myP, ModelParameters &targetP)
+{
+  USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
+  logger() << "Running interpret_as_PARENT calculations for THDMLS_hybrid_Higgs2 --> THDMLS" << LogTags::info << EOM;
+
+  const SMInputs &sminputs = *Dep::SMINPUTS;
+  auto sq = [&](double d)
+  { return d * d; };
+
+  // extract params
+  double mh2 = sq(myP.getValue("mh"));
+  double mHp2 = sq(myP.getValue("mHp"));
+  double cba = myP.getValue("cba");
+  double tanb = myP.getValue("tanb");
+  double L4 = myP.getValue("Lambda4");
+  double L5 = myP.getValue("Lambda5");
+  double L7 = myP.getValue("Lambda7");
+  double lambda6 = myP.getValue("lambda6");
+  double lambda7 = myP.getValue("lambda7");
+  double v2 = 1. / (sqrt(2) * sminputs.GF);
+  
+
+  // cal angles
+  double beta = std::atan(tanb);
+  double alpha = beta - std::acos(cba);
+  
+  // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+  // if (beta-alpha >= M_PI) alpha += M_PI;
+  // if (beta-alpha < 0) alpha -= M_PI;
+
+  // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+  if (beta-alpha >= M_PI/2) alpha += M_PI;
+  if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
+  double sba = sin(beta - alpha);
+
+  double sinb = std::sin(beta);
+  double cosb = std::cos(beta);
+  double sina = std::sin(alpha);
+  double cosa = std::cos(alpha);
+
+  // calc masses
+  double mH2 = (mHp2+0.5*v2*(L4+L5)-mh2*sq(cba))/sq(sba);
+  double mA2 = mH2 * sq(sba) + mh2 * sq(cba) - L5 * v2;
+  // double mHp2 = mA2 - 0.5 * v2 * (L4 - L5);
+  double L6 = (mh2 - mH2) * sba * cba / v2;
+  double m_bar = mH2 * sq(sba) + mh2 * sq(cba) + 0.5 * v2 * std::tan(2 * beta) * (L6 - L7);
+  double m122 = 0.5 * m_bar * std::sin(2 * beta);
+
+  // calc generic params
+  double lambda1 = (mH2 * sq(cosa) + mh2 * sq(sina) - m122 * tanb) / (v2 * sq(cosb)) - 1.5 * lambda6 * tanb + 0.5 * lambda7 * pow(tanb, 3);
+  double lambda2 = (mH2 * sq(sina) + mh2 * sq(cosa) - m122 / tanb) / (v2 * sq(sinb)) - 1.5 * lambda7 / tanb + 0.5 * lambda6 / pow(tanb, 3);
+  double lambda3 = ((mH2 - mh2) * cosa * sina + 2 * mHp2 * sinb * cosb - m122) / (v2 * sinb * cosb) - 0.5 * lambda6 / tanb - 0.5 * lambda7 * tanb;
+  double lambda4 = ((mA2 - 2 * mHp2) * cosb * sinb + m122) / (v2 * sinb * cosb) - 0.5 * lambda6 / tanb - 0.5 * lambda7 * tanb;
+  double lambda5 = (m122 - mA2 * sinb * cosb) / (v2 * sinb * cosb) - 0.5 * lambda6 / tanb - 0.5 * lambda7 * tanb;
+
+  // set params
+  targetP.setValue("lambda1", lambda1);
+  targetP.setValue("lambda2", lambda2);
+  targetP.setValue("lambda3", lambda3);
+  targetP.setValue("lambda4", lambda4);
+  targetP.setValue("lambda5", lambda5);
+  targetP.setValue("lambda6", lambda6);
+  targetP.setValue("lambda7", lambda7);
+  targetP.setValue("m12_2", m122);
+  targetP.setValue("tanb", tanb);
+}
+#undef PARENT
+#undef MODEL
+
+//  THDMLS_hybrid_Higgs2atQ --> THDMLSatQ (based on arXiv:1507.04281)
+#define MODEL THDMLS_hybrid_Higgs2atQ
+#define PARENT THDMLSatQ
+void MODEL_NAMESPACE::THDMLS_hybrid_Higgs2atQ_to_THDMLSatQ(const ModelParameters &myP, ModelParameters &targetP)
+{
+  USE_MODEL_PIPE(PARENT) // get pipe for "interpret as PARENT" function
+  logger() << "Running interpret_as_PARENT calculations for THDMLS_hybrid_Higgs2atQ --> THDMLSatQ" << LogTags::info << EOM;
+
+  const SMInputs &sminputs = *Dep::SMINPUTS;
+  auto sq = [&](double d)
+  { return d * d; };
+
+  // extract params
+  double mh2 = sq(myP.getValue("mh"));
+  double mHp2 = sq(myP.getValue("mHp"));
+  double cba = myP.getValue("cba");
+  double tanb = myP.getValue("tanb");
+  double L4 = myP.getValue("Lambda4");
+  double L5 = myP.getValue("Lambda5");
+  double L7 = myP.getValue("Lambda7");
+  double lambda6 = myP.getValue("lambda6");
+  double lambda7 = myP.getValue("lambda7");
+  double v2 = 1. / (sqrt(2) * sminputs.GF);
+  
+
+  // cal angles
+  double beta = std::atan(tanb);
+  double alpha = beta - std::acos(cba);
+  
+  // CONVENTION-A: ba in (0,pi), sba in (0,+1), cba in (-1,+1)
+  // if (beta-alpha >= M_PI) alpha += M_PI;
+  // if (beta-alpha < 0) alpha -= M_PI;
+
+  // CONVENTION-B: ba in (-pi/2,+pi/2), sba in (-1,+1), cba in (0,+1)
+  if (beta-alpha >= M_PI/2) alpha += M_PI;
+  if (beta-alpha < -M_PI/2) alpha -= M_PI;
+
+  double sba = sin(beta - alpha);
+
+  double sinb = std::sin(beta);
+  double cosb = std::cos(beta);
+  double sina = std::sin(alpha);
+  double cosa = std::cos(alpha);
+
+  // calc masses
+  double mH2 = (mHp2+0.5*v2*(L4+L5)-mh2*sq(cba))/sq(sba);
+  double mA2 = mH2 * sq(sba) + mh2 * sq(cba) - L5 * v2;
+  // double mHp2 = mA2 - 0.5 * v2 * (L4 - L5);
+  double L6 = (mh2 - mH2) * sba * cba / v2;
+  double m_bar = mH2 * sq(sba) + mh2 * sq(cba) + 0.5 * v2 * std::tan(2 * beta) * (L6 - L7);
+  double m122 = 0.5 * m_bar * std::sin(2 * beta);
+
+  // calc generic params
+  double lambda1 = (mH2 * sq(cosa) + mh2 * sq(sina) - m122 * tanb) / (v2 * sq(cosb)) - 1.5 * lambda6 * tanb + 0.5 * lambda7 * pow(tanb, 3);
+  double lambda2 = (mH2 * sq(sina) + mh2 * sq(cosa) - m122 / tanb) / (v2 * sq(sinb)) - 1.5 * lambda7 / tanb + 0.5 * lambda6 / pow(tanb, 3);
+  double lambda3 = ((mH2 - mh2) * cosa * sina + 2 * mHp2 * sinb * cosb - m122) / (v2 * sinb * cosb) - 0.5 * lambda6 / tanb - 0.5 * lambda7 * tanb;
+  double lambda4 = ((mA2 - 2 * mHp2) * cosb * sinb + m122) / (v2 * sinb * cosb) - 0.5 * lambda6 / tanb - 0.5 * lambda7 * tanb;
+  double lambda5 = (m122 - mA2 * sinb * cosb) / (v2 * sinb * cosb) - 0.5 * lambda6 / tanb - 0.5 * lambda7 * tanb;
+
+  // set params
+  targetP.setValue("lambda1", lambda1);
+  targetP.setValue("lambda2", lambda2);
+  targetP.setValue("lambda3", lambda3);
+  targetP.setValue("lambda4", lambda4);
+  targetP.setValue("lambda5", lambda5);
+  targetP.setValue("lambda6", lambda6);
+  targetP.setValue("lambda7", lambda7);
+  targetP.setValue("m12_2", m122);
+  targetP.setValue("tanb", tanb);
+
+  targetP.setValue("Qin", myP.getValue("Qin"));
 }
 #undef PARENT
 #undef MODEL

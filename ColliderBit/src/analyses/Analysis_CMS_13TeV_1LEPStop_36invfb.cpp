@@ -294,7 +294,7 @@ namespace Gambit {
 
             // Mlb
             double deltaRlb=9999.;
-            double Mlb;
+            double Mlb = 0;
             for (const HEPUtils::Jet* bj :mediumbJets) {
                 if (deltaRlb > bj->mom().deltaR_eta(Leptons.at(0)->mom())){
                     deltaRlb = bj->mom().deltaR_eta(Leptons.at(0)->mom());

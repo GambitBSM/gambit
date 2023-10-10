@@ -1356,18 +1356,19 @@ START_MODULE
 
 
   // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
-  // Observable: RK* in q^2 bin from 0.045 GeV^2 to 1.1 GeV^2
-  #define CAPABILITY RKstar_0045_11
+  // Observable: RK* in q^2 bin from 0.1 GeV^2 to 1.1 GeV^2
+  #define CAPABILITY RKstar_01_11
   START_CAPABILITY
-    #define FUNCTION SuperIso_RKstar_0045_11
+    #define FUNCTION SuperIso_RKstar_01_11
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    // BACKEND_REQ(RKstar, (libsuperiso), double, (const parameters*, double, double))
     BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
     #undef FUNCTION
 
     // Function to calcualte RK* for RHN
-    #define FUNCTION RHN_RKstar_0045_11
+    #define FUNCTION RHN_RKstar_01_11
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
     DEPENDENCY(SeesawI_Theta, Eigen::Matrix3cd)
@@ -1384,6 +1385,7 @@ START_MODULE
     START_FUNCTION(double)
     DEPENDENCY(SuperIso_modelinfo, parameters)
     BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    // BACKEND_REQ(RKstar, (libsuperiso), double, (const parameters*, double, double))
     BACKEND_REQ(SuperIso_RKstar_computation, (libsuperiso), double, (const parameters*, double, double))
     #undef FUNCTION
 
@@ -1398,17 +1400,9 @@ START_MODULE
   #undef CAPABILITY
 
   // TODO: Temporary restore of RK and RKstar convenience functions until their new interface is fixed
-  // Observable: RK in q^2 bin from 1 GeV^2 to 6 GeV^2
   #define CAPABILITY RK
   START_CAPABILITY
-    #define FUNCTION SuperIso_RK
-    START_FUNCTION(double)
-    DEPENDENCY(SuperIso_modelinfo, parameters)
-    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
-    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
-    #undef FUNCTION
-
-    // Function to calculate RK for RHN
+    //Function to calculate RK for RHN
     #define FUNCTION RHN_RK
     START_FUNCTION(double)
     DEPENDENCY(SMINPUTS, SMInputs)
@@ -1417,6 +1411,29 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  // Observable: RK in q^2 bin from 0.1 GeV^2 to 1.1 GeV^2
+  #define CAPABILITY RK_01_11
+  START_CAPABILITY
+    #define FUNCTION SuperIso_RK_01_11
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    // BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
+    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
+    #undef FUNCTION
+  #undef CAPABILITY
+
+  // Observable: RK in q^2 bin from 1.1 GeV^2 to 6 GeV^2
+  #define CAPABILITY RK_11_60
+  START_CAPABILITY
+    #define FUNCTION SuperIso_RK_11_60
+    START_FUNCTION(double)
+    DEPENDENCY(SuperIso_modelinfo, parameters)
+    BACKEND_OPTION( (SuperIso, 4.1), (libsuperiso) )
+    // BACKEND_REQ(RK, (libsuperiso), double, (const parameters*, double, double))
+    BACKEND_REQ(SuperIso_RK_computation, (libsuperiso), double, (const parameters*, double, double))
+    #undef FUNCTION
+  #undef CAPABILITY
 
   // Observable: BR(B -> K nu nu)
   #define CAPABILITY BKnunu
@@ -2280,7 +2297,6 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
-  // TODO: these should be re-activated once RK and RKstar can be extracted from a future version of SuperIso using the check_nameobs function.
   ///HEPLike LogLikelihood for RKstar
   #define CAPABILITY RKstar_LogLikelihood_LHCb
   START_CAPABILITY
@@ -2428,7 +2444,6 @@ START_MODULE
     NEEDS_CLASSES_FROM(HepLike, default)
     #undef FUNCTION
   #undef CAPABILITY
-
 
 
 #undef REFERENCE

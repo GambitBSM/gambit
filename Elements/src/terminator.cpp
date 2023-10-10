@@ -39,4 +39,3 @@ void Gambit::terminator()
   }
   exit(1);
 }
-

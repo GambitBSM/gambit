@@ -33,7 +33,6 @@
 
 namespace Gambit
 {
-
    namespace SpecBit
    {
       template <class MI>  // "MI" for "Model_interface"
@@ -135,9 +134,7 @@ namespace Gambit
 
       };
 
-
    } // end SpecBit namespace
-
 
 } // end Gambit namespace
 

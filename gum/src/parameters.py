@@ -17,13 +17,15 @@
 #
 #  **************************************
 
-import re
 
+import re
 from .setup import *
+
 
 ###############
 ## FEYNRULES ##
 ###############
+
 
 def fr_part_to_gum_part(fr_bsm):
     """
@@ -163,7 +165,6 @@ def fr_params(paramlist, add_higgs):
     
     return params
 
-
 def add_masses_to_params(parameters, bsm_particle_list, gambit_pdgs, add_higgs):
     """
     Adds the pole masses to the list of parameters. 
@@ -218,6 +219,7 @@ def add_masses_to_params(parameters, bsm_particle_list, gambit_pdgs, add_higgs):
 ## SARAH ##
 ###########
 
+
 def sarah_part_to_gum_part(particles):
     """
     Converts all SARAH::SARAHParticle to GUM::Particle.
@@ -227,10 +229,10 @@ def sarah_part_to_gum_part(particles):
     bsm_list = []
     add_higgs = False
 
-    all_pdgs = [x.pdg() for x in particles]
     # If the SM higgs included but not a second Higgs, 
     # then we want a dependency on StandardModel_Higgs.
     # If it is a 2+HDM then we don't.
+    all_pdgs = [x.pdg() for x in particles]
     if 25 in all_pdgs and 35 not in all_pdgs: 
         add_higgs = True
     
@@ -283,8 +285,7 @@ def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
     params = []
 
     # Convert the C++ dict to python properly
-    mixingdict = dict((m.key(),m.data()) for m in mixings)
-    bcs = dict((bc.data(),bc.key()) for bc in boundary_conditions)
+    bcs = {value:key for key,value in boundary_conditions.items()}
     
     # List of parameters which have been added. Dupes can arise
     # from the Pole_Mixings for multiple particles
@@ -321,6 +322,8 @@ def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
                 p.shape().startswith("m")) else "dimensionless"
 
             name = p.name()
+
+            # TODO: fix the default value mess below
 
             # If the parameter has a boundary condition, share the default value
             default = p.defvalue()
@@ -386,11 +389,10 @@ def sarah_params(paramlist, mixings, add_higgs, gambit_pdgs,
     return params
 
 
-
-
 ##################
 # Other routines #
 ##################
+
 
 def sort_params_by_block(parameters, mixings):
     """

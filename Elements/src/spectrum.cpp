@@ -548,4 +548,3 @@ namespace Gambit
    }
 
 } // end namespace Gambit
-

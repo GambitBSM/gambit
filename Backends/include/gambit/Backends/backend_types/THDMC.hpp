@@ -65,26 +65,10 @@ namespace Gambit
     bool isValid;
   };
 
-  struct THDM_spectrum_container
+  struct THDMsafe
   {
-    // variables
-    // (spectrum split for convenience)
-    std::unique_ptr<SubSpectrum> he;
-    std::unique_ptr<SubSpectrum> SM;
-    SMInputs sminputs;
-    THDMC_1_8_0::THDM* THDM_object;
-    int yukawa_type;
-    // constructor
-    THDM_spectrum_container()
-    {
-      THDM_object = new THDMC_1_8_0::THDM();
-    }
-    // destructor
-    ~THDM_spectrum_container()
-    {
-      THDM_object->free_gsl();
-      delete THDM_object;
-    }
+    THDMC_1_8_0::THDM obj;
+    ~THDMsafe() { obj.free_gsl(); }
   };
 
 }

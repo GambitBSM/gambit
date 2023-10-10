@@ -27,6 +27,7 @@
 
 namespace Gambit
 {
+
   namespace Utils
   {
 
@@ -57,6 +58,6 @@ namespace Gambit
 
     };
 
-
   }
+  
 }

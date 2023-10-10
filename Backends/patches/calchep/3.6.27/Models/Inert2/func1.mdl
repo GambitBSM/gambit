@@ -1,0 +1,46 @@
+i2HDM
+ Constraints 
+ Name  |> Expression                                                                                                                                                                                           <|
+Mcp    |McMc*(1+4/3*alphaQCD(McMc)/pi) % 1 loop formula like in Hdecay
+Mbp    |MbMb*(1+4/3*alphaQCD(MbMb)/pi) % 1 loop formula like in Hdecay
+alphaE0|1/137.036 % electromagnetic constant at zero energy
+CW     |MW/MZ % on-shell cos of the Weinberg angle
+SW     |sqrt(1-CW^2) % sin of the Weinberg angle
+GF     |EE^2/(2*SW*MW)^2/Sqrt2 % Fermi Constant
+vv     |2*MW/EE*SW
+c12    |sqrt(1-s12^2) % parameter  of C-K-M matrix
+c23    |sqrt(1-s23^2) % parameter  of C-K-M matrix
+c13    |sqrt(1-s13^2) % parameter  of C-K-M matrix
+LamQCD |initQCD5(alphaSMZ, McMc, MbMb, Mtop)
+Mb     |MbEff(Q)
+Mt     |MtEff(Q)
+Mc     |McEff(Q)
+md2    |1/2*ld345*vv^2-Mh1^2 % mass parameter of the dark matter lagrangian sector
+ld3    |2/vv^2*(Mhc^2+1/2*ld345*vv^2-Mh1^2) % ld3 quartic coupling constant between odd particle and higgs
+ld4    |1/vv^2*(Mh2^2+Mh1^2-2*Mhc^2) % ld4 quartic coupling constant between odd particle and higgs
+ld5    |1/vv^2*(Mh1^2-Mh2^2) % ld5 quartic coupling constant between odd particle and higgs
+lam    |(EE/SW*MH/MW)^2/8 % lambda_phi parameter
+aQCD   |alphaQCD(MH)/pi
+ahF_c  |(-EE)/MW*Mc/SW/2/Mcp
+ahF_b  |(-EE)/MW*Mb/SW/2/Mbp
+ahF_t  |(-EE)/MW*Mtop/SW/2/Mtop
+ahF_e3 |(-EE)/MW*Mtau/SW/2/Mtau
+a_hV_W |EE*MW/SW/MW^2
+a_hS_Hc|-2/EE*MW*SW*ld3/Mhc^2
+aQCD_h |alphaQCD(MH)/pi
+Rqcd_h |sqrt(1+aQCD_h*(149/12+aQCD_h*(68.6482-aQCD_h*212.447)))
+Quq    |4/9
+Qdq    |1/9
+LGGH   |CGGH*EE*vv/(-8*MW*SW*Rqcd_h)
+LAAH   |CAAH*EE*vv/(-8*MW*SW)
+B00000 |1+2*CW^2
+B00001 |1-4*CW^2
+B00002 |1-2*CW^2
+B00003 |EE^2*vv-8*LGGH*MW^2*Rqcd_h*SW^2
+B00004 |ld3+ld4+ld5
+B00005 |ld3+ld4-ld5
+B00006 |ld4+ld5
+B00007 |ld4-ld5
+B00008 |1-4*CW^2+4*CW^4
+B00009 |ld3+ld4
+=================================================================================================================================================================================================================

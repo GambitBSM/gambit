@@ -96,7 +96,7 @@ namespace Gambit
         // Clear error code by calling dlerror()
         dlerror();
         // Attempt to obtain a void pointer (pSym) to one of the library symbols.
-        void_voidFptr pSym;
+        void_voidFptr pSym; pSym.ptr = NULL;
         for (auto& name : symbol_names)
         {
           pSym.ptr = dlsym(pHandle, name.c_str());
