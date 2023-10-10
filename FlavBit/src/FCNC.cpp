@@ -1654,6 +1654,55 @@ namespace Gambit
       if (flav_debug) std::cout << "HEPLike_Bs2phimumuBr_LogLikelihood result: " << result << std::endl;
     }
 
+    /// Likelihood for RK
+    void RK_LogLikelihood_LHCb(double &result)
+    {
+      using namespace Pipes::RK_LogLikelihood_LHCb;
+
+      static double value_exp, value_th;
+      static boost::numeric::ublas::matrix<double> cov_exp, cov_th;
+
+      static bool first = true;
+
+      static double theory_RK_err;
+
+      // Read and calculate things based on the observed data only the first time through, as none of it depends on the model parameters.
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+
+        fread.read_yaml_measurement("flav_data.yaml", "RK");
+
+        fread.initialise_matrices();
+
+        theory_RK_err = fread.get_th_err()(0,0).first;
+
+        value_exp=fread.get_exp_value()(0,0);
+        cov_exp=fread.get_exp_cov();
+
+        // Init over and out.
+        first = false;
+      }
+
+      // Get theory prediction
+      value_th = *Dep::RK;
+
+      // Compute error on theory prediction and populate the covariance matrix
+      cov_th.resize(1,1);
+      cov_th(0,0) = theory_RK_err;
+
+      // adding theory and experimental covariance
+      boost::numeric::ublas::matrix<double> cov = cov_exp + cov_th;
+
+      // Calculating the differences between theory and experiment
+      double diff = value_exp - value_th;
+
+      boost::numeric::ublas::matrix<double> cov_inv(1,1);
+      InvertMatrix(cov, cov_inv);
+
+      result=-0.5*diff*cov_inv(0,0)*diff;
+    }
 
     /// Likelihood for RKstar
     void RKstar_LogLikelihood_LHCb(double &result)

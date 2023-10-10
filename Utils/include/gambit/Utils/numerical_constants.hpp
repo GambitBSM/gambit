@@ -49,9 +49,9 @@ namespace Gambit
   constexpr double gev2cm = 197.327053e-16;                         // cm per GeV^-1
   const double gev2cm2 = pow(197.327053e-16, 2.0);              // cm^2 per GeV^-2
   const double gev2pb = gev2cm2*1e36;                           // pb per GeV^-2
-  const double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
-  const double s2cm = 2.99792458e10;                            // cm per s
-  const double m_planck = 1.220910e19;                          // Planck mass (GeV)
+  constexpr double gev2tocm3s1 = 1.16733e-17;                       // cm^3 s^-1 per GeV^-2
+  constexpr double s2cm = 2.99792458e10;                            // cm per s
+  constexpr double m_planck = 1.220910e19;                          // Planck mass (GeV)
   const double m_planck_red = m_planck/sqrt(8.0*pi);            // reduced Planck mass (GeV)
   constexpr double atomic_mass_unit = 0.931494028;                  // atomic mass unit (GeV/c^2)
   constexpr double m_proton_amu = 1.00727646688;                    // proton mass (amu)
