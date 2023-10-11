@@ -155,8 +155,8 @@ namespace Gambit {
             ATLAS::applyElectronEff(baselineElectrons);
 
             // Apply loose electron selection
-            ATLAS::applyLooseIDElectronSelectionR2(blElectrons);
-            ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+            apply2DEfficiency(blElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
             const std::vector<double>  a = {0,10.};
             const std::vector<double>  b = {0,10000.};
@@ -212,7 +212,7 @@ namespace Gambit {
                     sgElectrons.push_back(electron);
                 }
             }
-            ATLAS::applyMediumIDElectronSelectionR2(sgElectrons);
+            apply2DEfficiency(sgElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             for (const HEPUtils::Particle* electron : sgElectrons) {
                 sgLeptons.push_back(electron);
             }
@@ -221,7 +221,7 @@ namespace Gambit {
                     sgLeptons.push_back(muon);
                 }
             }
-            ATLAS::applyMediumIDElectronSelectionR2(baselineElectrons);
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             for (const HEPUtils::Particle* electron : baselineElectrons) {
                 signalLeptons.push_back(electron);
             }

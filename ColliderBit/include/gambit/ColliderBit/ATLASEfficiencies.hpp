@@ -26,6 +26,7 @@
 
 #include "gambit/ColliderBit/Utils.hpp"
 #include "gambit/Utils/threadsafe_rng.hpp"
+#include "gambit/Utils/util_functions.hpp"
 
 #include "HEPUtils/MathUtils.h"
 #include "HEPUtils/BinnedFn.h"
@@ -40,6 +41,156 @@ namespace Gambit
     /// ATLAS-specific efficiency and smearing functions for super fast detector simulation
     namespace ATLAS
     {
+
+      /// @name ATLAS detector smearing functions
+      ///@{
+
+        /// Randomly smear the supplied electrons' momenta by parameterised resolutions
+        inline void smearElectronEnergy(std::vector<HEPUtils::Particle*>& electrons)
+        {
+          // Function that mimics the DELPHES electron energy resolution
+          // We need to smear E, then recalculate pT, then reset 4 vector
+
+          static HEPUtils::BinnedFn2D<double> coeffE2({{0, 2.5, 3., 5.}}, //< |eta|
+                                                      {{0, 0.1, 25., DBL_MAX}}, //< pT
+                                                      {{0.,          0.015*0.015, 0.005*0.005,
+                                                        0.005*0.005, 0.005*0.005, 0.005*0.005,
+                                                        0.107*0.107, 0.107*0.107, 0.107*0.107}});
+
+          static HEPUtils::BinnedFn2D<double> coeffE({{0, 2.5, 3., 5.}}, //< |eta|
+                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
+                                                     {{0.,        0.,        0.05*0.05,
+                                                       0.05*0.05, 0.05*0.05, 0.05*0.05,
+                                                       2.08*2.08, 2.08*2.08, 2.08*2.08}});
+
+          static HEPUtils::BinnedFn2D<double> coeffC({{0, 2.5, 3., 5.}}, //< |eta|
+                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
+                                                     {{0.,       0.,       0.25*0.25,
+                                                       0.25*0.25,0.25*0.25,0.25*0.25,
+                                                       0.,       0.,       0.}});
+
+          // Now loop over the electrons and smear the 4-vectors
+          for (HEPUtils::Particle* e : electrons)
+          {
+            if (e->abseta() > 5) continue;
+
+            // Look up / calculate resolution
+            const double c1 = coeffE2.get_at(e->abseta(), e->pT());
+            const double c2 = coeffE.get_at(e->abseta(), e->pT());
+            const double c3 = coeffC.get_at(e->abseta(), e->pT());
+            const double resolution = sqrt(c1*HEPUtils::sqr(e->E()) + c2*e->E() + c3);
+
+            // Smear by a Gaussian centered on the current energy, with width given by the resolution
+            std::normal_distribution<> d(e->E(), resolution);
+            double smeared_E = d(Random::rng());
+            if (smeared_E < e->mass()) smeared_E = 1.01*e->mass();
+            // double smeared_pt = smeared_E/cosh(e->eta()); ///< @todo Should be cosh(|eta|)?
+            e->set_mom(HEPUtils::P4::mkEtaPhiME(e->eta(), e->phi(), e->mass(), smeared_E));
+          }
+        }
+
+
+        /// Randomly smear the supplied muons' momenta by parameterised resolutions
+        inline void smearMuonMomentum(std::vector<HEPUtils::Particle*>& muons)
+        {
+          // Function that mimics the DELPHES muon momentum resolution
+          // We need to smear pT, then recalculate E, then reset 4 vector
+
+          static HEPUtils::BinnedFn2D<double> _muEff({{0,1.5,2.5}},
+                                                     {{0,0.1,1.,10.,200.,DBL_MAX}},
+                                                     {{0.,0.03,0.02,0.03,0.05,
+                                                       0.,0.04,0.03,0.04,0.05}});
+
+          // Now loop over the muons and smear the 4-vectors
+          for (HEPUtils::Particle* mu : muons)
+          {
+            if (mu->abseta() > 2.5) continue;
+
+            // Look up resolution
+            const double resolution = _muEff.get_at(mu->abseta(), mu->pT());
+
+            // Smear by a Gaussian centered on the current energy, with width given by the resolution
+            std::normal_distribution<> d(mu->pT(), resolution*mu->pT());
+            double smeared_pt = d(Random::rng());
+            if (smeared_pt < 0) smeared_pt = 0;
+            // const double smeared_E = smeared_pt*cosh(mu->eta()); ///< @todo Should be cosh(|eta|)?
+            // std::cout << "Muon pt " << mu_pt << " smeared " << smeared_pt << endl;
+            mu->set_mom(HEPUtils::P4::mkEtaPhiMPt(mu->eta(), mu->phi(), mu->mass(), smeared_pt));
+          }
+        }
+
+
+        /// Randomly smear the supplied jets' momenta by parameterised resolutions
+        inline void smearJets(std::vector<HEPUtils::Jet*>& jets)
+        {
+          // Function that mimics the DELPHES jet momentum resolution.
+          // We need to smear pT, then recalculate E, then reset the 4-vector.
+          // Const resolution for now
+          //const double resolution = 0.03;
+
+          // Matthias jet smearing implemented roughly from
+          // https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2015-017/
+          // Parameterisation can be still improved, but eta dependence is minimal
+          const std::vector<double>  binedges_eta = {0,10.};
+          const std::vector<double>  binedges_pt = {0,50.,70.,100.,150.,200.,1000.,10000.};
+          const std::vector<double> JetsJER = {0.145,0.115,0.095,0.075,0.07,0.05,0.04};
+          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
+
+          // Now loop over the jets and smear the 4-vectors
+          for (HEPUtils::Jet* jet : jets)
+          {
+            const double resolution = _resJets2D.get_at(jet->abseta(), jet->pT());
+            std::normal_distribution<> d(1., resolution);
+            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
+            double smear_factor = d(Random::rng());
+            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
+            jet->set_mom(HEPUtils::P4::mkXYZM(jet->mom().px()*smear_factor, jet->mom().py()*smear_factor, jet->mom().pz()*smear_factor, jet->mass()));
+          }
+        }
+
+
+        /// Randomly smear the MET vector by parameterised resolutions
+        inline void smearMET(HEPUtils::P4& pmiss, double set)
+        {
+          // Smearing function from ATLAS Run 1 performance paper, converted from Rivet
+          // cf. https://arxiv.org/pdf/1108.5602v2.pdf, Figs 14 and 15
+
+          // Linearity offset (Fig 14)
+          if (pmiss.pT() < 25) pmiss *= 1.05;
+          else if (pmiss.pT() < 40) pmiss *= (1.05 - (0.04/15)*(pmiss.pT() - 25)); //< linear decrease
+          else pmiss *= 1.01;
+
+          // Smear by a Gaussian with width given by the resolution(sumEt) ~ 0.45 sqrt(sumEt) GeV
+          const double resolution = 0.45 * sqrt(set);
+          std::normal_distribution<> d(pmiss.pT(), resolution);
+          const double smearedmet = std::max(d(Random::rng()), 0.);
+
+          pmiss *= smearedmet / pmiss.pT();
+        }
+
+
+        /// Randomly smear the supplied taus' momenta by parameterised resolutions
+        inline void smearTaus(std::vector<HEPUtils::Particle*>& taus)
+        {
+          // We need to smear pT, then recalculate E, then reset the 4-vector.
+          // Same as for jets, but on a vector of particles. (?)
+          // Const resolution for now
+          const double resolution = 0.03;
+
+          // Now loop over the jets and smear the 4-vectors
+          std::normal_distribution<> d(1., resolution);
+          for (HEPUtils::Particle* p : taus)
+          {
+            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
+            double smear_factor = d(Random::rng());
+            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
+            p->set_mom(HEPUtils::P4::mkXYZM(p->mom().px()*smear_factor, p->mom().py()*smear_factor, p->mom().pz()*smear_factor, p->mass()));
+          }
+        }
+
+
+      ///@}
+
 
       /// @name ATLAS detector efficiency functions
       ///@{
@@ -164,208 +315,6 @@ namespace Gambit
         }
 
 
-        /// Randomly smear the supplied electrons' momenta by parameterised resolutions
-        inline void smearElectronEnergy(std::vector<HEPUtils::Particle*>& electrons) {
-          // Function that mimics the DELPHES electron energy resolution
-          // We need to smear E, then recalculate pT, then reset 4 vector
-
-          static HEPUtils::BinnedFn2D<double> coeffE2({{0, 2.5, 3., 5.}}, //< |eta|
-                                                      {{0, 0.1, 25., DBL_MAX}}, //< pT
-                                                      {{0.,          0.015*0.015, 0.005*0.005,
-                                                        0.005*0.005, 0.005*0.005, 0.005*0.005,
-                                                        0.107*0.107, 0.107*0.107, 0.107*0.107}});
-
-          static HEPUtils::BinnedFn2D<double> coeffE({{0, 2.5, 3., 5.}}, //< |eta|
-                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
-                                                     {{0.,        0.,        0.05*0.05,
-                                                       0.05*0.05, 0.05*0.05, 0.05*0.05,
-                                                       2.08*2.08, 2.08*2.08, 2.08*2.08}});
-
-          static HEPUtils::BinnedFn2D<double> coeffC({{0, 2.5, 3., 5.}}, //< |eta|
-                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
-                                                     {{0.,       0.,       0.25*0.25,
-                                                       0.25*0.25,0.25*0.25,0.25*0.25,
-                                                       0.,       0.,       0.}});
-
-          // Now loop over the electrons and smear the 4-vectors
-          for (HEPUtils::Particle* e : electrons) {
-            if (e->abseta() > 5) continue;
-
-            // Look up / calculate resolution
-            const double c1 = coeffE2.get_at(e->abseta(), e->pT());
-            const double c2 = coeffE.get_at(e->abseta(), e->pT());
-            const double c3 = coeffC.get_at(e->abseta(), e->pT());
-            const double resolution = sqrt(c1*HEPUtils::sqr(e->E()) + c2*e->E() + c3);
-
-            // Smear by a Gaussian centered on the current energy, with width given by the resolution
-            std::normal_distribution<> d(e->E(), resolution);
-            double smeared_E = d(Random::rng());
-            if (smeared_E < e->mass()) smeared_E = 1.01*e->mass();
-            // double smeared_pt = smeared_E/cosh(e->eta()); ///< @todo Should be cosh(|eta|)?
-            e->set_mom(HEPUtils::P4::mkEtaPhiME(e->eta(), e->phi(), e->mass(), smeared_E));
-          }
-        }
-
-
-        /// Randomly smear the supplied muons' momenta by parameterised resolutions
-        inline void smearMuonMomentum(std::vector<HEPUtils::Particle*>& muons) {
-          // Function that mimics the DELPHES muon momentum resolution
-          // We need to smear pT, then recalculate E, then reset 4 vector
-
-          static HEPUtils::BinnedFn2D<double> _muEff({{0,1.5,2.5}},
-                                                     {{0,0.1,1.,10.,200.,DBL_MAX}},
-                                                     {{0.,0.03,0.02,0.03,0.05,
-                                                       0.,0.04,0.03,0.04,0.05}});
-
-          // Now loop over the muons and smear the 4-vectors
-          for (HEPUtils::Particle* mu : muons) {
-            if (mu->abseta() > 2.5) continue;
-
-            // Look up resolution
-            const double resolution = _muEff.get_at(mu->abseta(), mu->pT());
-
-            // Smear by a Gaussian centered on the current energy, with width given by the resolution
-            std::normal_distribution<> d(mu->pT(), resolution*mu->pT());
-            double smeared_pt = d(Random::rng());
-            if (smeared_pt < 0) smeared_pt = 0;
-            // const double smeared_E = smeared_pt*cosh(mu->eta()); ///< @todo Should be cosh(|eta|)?
-            // std::cout << "Muon pt " << mu_pt << " smeared " << smeared_pt << endl;
-            mu->set_mom(HEPUtils::P4::mkEtaPhiMPt(mu->eta(), mu->phi(), mu->mass(), smeared_pt));
-          }
-        }
-
-
-        /// Randomly smear the supplied jets' momenta by parameterised resolutions
-        inline void smearJets(std::vector<HEPUtils::Jet*>& jets) {
-          // Function that mimics the DELPHES jet momentum resolution.
-          // We need to smear pT, then recalculate E, then reset the 4-vector.
-          // Const resolution for now
-          //const double resolution = 0.03;
-
-          // Matthias jet smearing implemented roughly from
-          // https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2015-017/
-          // Parameterisation can be still improved, but eta dependence is minimal
-          const std::vector<double>  binedges_eta = {0,10.};
-          const std::vector<double>  binedges_pt = {0,50.,70.,100.,150.,200.,1000.,10000.};
-          const std::vector<double> JetsJER = {0.145,0.115,0.095,0.075,0.07,0.05,0.04};
-          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
-
-          // Now loop over the jets and smear the 4-vectors
-          for (HEPUtils::Jet* jet : jets) {
-            const double resolution = _resJets2D.get_at(jet->abseta(), jet->pT());
-            std::normal_distribution<> d(1., resolution);
-            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
-            double smear_factor = d(Random::rng());
-            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
-            jet->set_mom(HEPUtils::P4::mkXYZM(jet->mom().px()*smear_factor, jet->mom().py()*smear_factor, jet->mom().pz()*smear_factor, jet->mass()));
-          }
-        }
-
-
-        /// Randomly smear the MET vector by parameterised resolutions
-        inline void smearMET(HEPUtils::P4& pmiss, double set) {
-          // Smearing function from ATLAS Run 1 performance paper, converted from Rivet
-          // cf. https://arxiv.org/pdf/1108.5602v2.pdf, Figs 14 and 15
-
-          // Linearity offset (Fig 14)
-          if (pmiss.pT() < 25) pmiss *= 1.05;
-          else if (pmiss.pT() < 40) pmiss *= (1.05 - (0.04/15)*(pmiss.pT() - 25)); //< linear decrease
-          else pmiss *= 1.01;
-
-          // Smear by a Gaussian with width given by the resolution(sumEt) ~ 0.45 sqrt(sumEt) GeV
-          const double resolution = 0.45 * sqrt(set);
-          std::normal_distribution<> d(pmiss.pT(), resolution);
-          const double smearedmet = std::max(d(Random::rng()), 0.);
-
-          pmiss *= smearedmet / pmiss.pT();
-        }
-
-
-        /// Randomly smear the supplied taus' momenta by parameterised resolutions
-        inline void smearTaus(std::vector<HEPUtils::Particle*>& taus) {
-          // We need to smear pT, then recalculate E, then reset the 4-vector.
-          // Same as for jets, but on a vector of particles. (?)
-          // Const resolution for now
-          const double resolution = 0.03;
-
-          // Now loop over the jets and smear the 4-vectors
-          std::normal_distribution<> d(1., resolution);
-          for (HEPUtils::Particle* p : taus) {
-            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
-            double smear_factor = d(Random::rng());
-            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
-            p->set_mom(HEPUtils::P4::mkXYZM(p->mom().px()*smear_factor, p->mom().py()*smear_factor, p->mom().pz()*smear_factor, p->mass()));
-          }
-        }
-
-
-        /// Efficiency function for Loose ID electrons
-        /// @note Numbers digitised from Fig 3 of 13 TeV note (ATL-PHYS-PUB-2015-041)
-        /// @todo What about faking by jets or non-electrons?
-        inline void applyLooseIDElectronSelectionR2(std::vector<const HEPUtils::Particle*>& electrons) {
-          if (electrons.empty()) return;
-
-          // Manually symmetrised eta eff histogram
-          const static std::vector<double> binedges_eta = { 0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX };
-          const static std::vector<double> bineffs_eta  = { 0.950, 0.965, 0.955, 0.885, 0.950, 0.935, 0.90, 0 };
-          const static HEPUtils::BinnedFn1D<double> _eff_eta(binedges_eta, bineffs_eta);
-          // Et eff histogram (10-20 GeV bin added by hand)
-          const static std::vector<double> binedges_et = { 10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX };
-          const static std::vector<double> bineffs_et  = { 0.90, 0.91, 0.92, 0.94, 0.95, 0.955, 0.965, 0.97, 0.98, 0.98 };
-          const static HEPUtils::BinnedFn1D<double> _eff_et(binedges_et, bineffs_et);
-
-          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
-                                                 [](const HEPUtils::Particle* electron) {
-                                                   const double e_pt = electron->pT();
-                                                   const double e_aeta = electron->abseta();
-                                                   if (e_aeta > 2.47 || e_pt < 10) return true;
-                                                   const double eff1 = _eff_eta.get_at(e_aeta), eff2 = _eff_et.get_at(e_pt);
-                                                   const double eff = std::min(eff1 * eff2 / 0.95, 1.0); //< norm factor as approximate double differential
-                                                   return random_bool(1-eff);
-                                                 } );
-          electrons.erase(keptElectronsEnd, electrons.end());
-        }
-
-        /// Alias to allow non-const particle vectors
-        inline void applyLooseIDElectronSelectionR2(std::vector<HEPUtils::Particle*>& electrons) {
-          applyLooseIDElectronSelectionR2(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
-        }
-
-        /// Efficiency function for Loose ID electrons
-        /// @note Numbers digitised from Fig 3 of 13 TeV note (ATL-PHYS-PUB-2015-041)
-        inline void applyMediumIDElectronSelectionR2(std::vector<const HEPUtils::Particle*>& electrons) {
-          if (electrons.empty()) return;
-
-          // Manually symmetrised eta eff histogram
-          const static std::vector<double> binedges_eta = { 0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX };
-          const static std::vector<double> bineffs_eta  = { 0.900, 0.930, 0.905, 0.830, 0.900, 0.880, 0.85, 0 };
-          const static HEPUtils::BinnedFn1D<double> _eff_eta(binedges_eta, bineffs_eta);
-          // Et eff histogram (10-20 GeV bin added by hand)
-          const static std::vector<double> binedges_et = { 10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX };
-          const static std::vector<double> bineffs_et  = { 0.83, 0.845, 0.87, 0.89, 0.90, 0.91, 0.92, 0.93, 0.95, 0.95 };
-          const static HEPUtils::BinnedFn1D<double> _eff_et(binedges_et, bineffs_et);
-
-          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
-                                                 [](const HEPUtils::Particle* electron) {
-                                                   const double e_pt = electron->pT();
-                                                   const double e_aeta = electron->abseta();
-                                                   if (e_aeta > 2.47 || e_pt < 10) return true;
-                                                   const double eff1 = _eff_eta.get_at(e_aeta), eff2 = _eff_et.get_at(e_pt);
-                                                   const double eff = std::min(eff1 * eff2 / 0.95, 1.0); //< norm factor as approximate double differential
-                                                   return random_bool(1-eff);
-                                                 } );
-          electrons.erase(keptElectronsEnd, electrons.end());
-        }
-
-        /// Alias to allow non-const particle vectors
-        inline void applyMediumIDElectronSelectionR2(std::vector<HEPUtils::Particle*>& electrons) {
-          applyMediumIDElectronSelectionR2(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
-        }
-
-
-
-        ///@}
-
 
       /// ATLAS Muon and Electron efficiencies for the WPs of the identification techniques used in SUSY analyses
 
@@ -435,6 +384,33 @@ namespace Gambit
                      0.000,   0.820,    0.687,    0.736,    0.709,    0.733,    0.746,    0.759,    0.781,    0.802,    0.805,    0.803,    0.876,  // eta: {2.01, 2.37}
                      0.000,   0.820,    0.687,    0.736,    0.670,    0.678,    0.675,    0.669,    0.675,    0.652,    0.649,    0.627,    0.857,  // eta: {2.37, 2.5}
           }
+        );
+
+        /// Efficiency function for Loose ID electrons
+        /// @note Numbers digitised from Fig 3 of 13 TeV note (ATL-PHYS-PUB-2015-041)
+        /// @todo What about faking by jets or non-electrons?
+        /// @note Manually symmetrised eta eff histogram
+        const static std::vector<double> bineffs_eta_Loose  = { 0.950, 0.965, 0.955, 0.885, 0.950, 0.935, 0.90, 0 };
+        /// @note Et eff histogram (10-20 GeV bin added by hand)
+        /// normalisation factor as approximate double differential
+        const static std::vector<double> bineffs_et_Loose  = { 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.94/0.95, 0.95/0.95, 0.955/0.95, 0.965/0.95, 0.97/0.95, 0.98/0.95, 0.98/0.95 };
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose(
+          {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
+          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          Utils::outer_product(bineffs_eta_Loose, bineffs_et_Loose)
+        );
+
+        /// Efficiency function for Medium ID electrons
+        /// @note Numbers digitised from Fig 3 of 13 TeV note (ATL-PHYS-PUB-2015-041)
+        /// @note Manually symmetrised eta eff histogram
+        const static std::vector<double> bineffs_eta_Medium  = { 0.900, 0.930, 0.905, 0.830, 0.900, 0.880, 0.85, 0 };
+        /// @note Et eff histogram (10-20 GeV bin added by hand)
+        /// normalisation factor as approximate double differential
+        const static std::vector<double> bineffs_et_Medium  = { 0.83/0.95, 0.845/0.95, 0.87/0.95, 0.89/0.95, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.93/0.95, 0.95/0.95, 0.95/0.95};
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Medium(
+          {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
+          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          Utils::outer_product(bineffs_eta_Medium, bineffs_et_Medium)
         );
 
 
@@ -645,7 +621,9 @@ namespace Gambit
       static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DEl(
       {
         {"ATLAS_CONF_2014_032_Medium",     eff2DEl_ATLAS_CONF_2014_032_Medium},
-        {"ATLAS_CONF_2014_032_Tight",      eff2DEl_ATLAS_CONF_2014_032_Tight}
+        {"ATLAS_CONF_2014_032_Tight",      eff2DEl_ATLAS_CONF_2014_032_Tight},
+        {"ATLAS_PHYS_PUB_2015_041_Loose",  eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose},
+        {"ATLAS_PHYS_PUB_2015_041_Medium", eff2DEl_ATLAS_PHYS_PUB_2015_041_Medium}
       });
 
 

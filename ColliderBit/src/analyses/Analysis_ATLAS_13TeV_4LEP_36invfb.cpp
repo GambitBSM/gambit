@@ -205,7 +205,7 @@ namespace Gambit
         ATLAS::applyElectronEff(baselineElectrons);
 
         // Apply loose electron selection
-        ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
         for (const HEPUtils::Particle* muon : event->muons())
         {
