@@ -67,7 +67,7 @@ namespace Gambit
         muons = AnalysisUtil::leptonJetOverlapRemoval(muons, jets, 0.4);
 
         // This uses 8TeV tight electron selection, but it is close enough to the 7TeV implementation so we still use it
-        ATLAS::applyTightIDElectronSelection(electrons);
+        apply2DEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         // fill a vector with all of the leptons
         std::vector<const Particle*> leptons;

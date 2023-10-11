@@ -285,7 +285,8 @@ namespace Gambit {
 
         // Calculate common variables and cuts first
 
-        ATLAS::applyTightIDElectronSelection(signalElectrons);
+        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+
 
         int nElectrons = signalElectrons.size();
         int nMuons = signalMuons.size();

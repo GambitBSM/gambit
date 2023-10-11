@@ -56,12 +56,13 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2LEPsoft_139invfb()
       {
 
-        DEFINE_SIGNAL_REGION("SR-E-low")
-        DEFINE_SIGNAL_REGION("SR-E-med")
-        DEFINE_SIGNAL_REGION("SR-E-high")
-        DEFINE_SIGNAL_REGION("SR-E-1l1T")
-        DEFINE_SIGNAL_REGION("SR-S-low")
-        DEFINE_SIGNAL_REGION("SR-S-high")
+        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(Deltaphi(any jet)) > 0.4", "Deltaphi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > min(5+mll/4)", "10 < mTl1 < 60 GeV")
+        DEFINE_SIGNAL_REGION("SR-E-med-")
+        DEFINE_SIGNAL_REGION("SR-E-high-")
+        DEFINE_SIGNAL_REGION("SR-E-1l1T-")
+        DEFINE_SIGNAL_REGION("SR-S-low-")
+        DEFINE_SIGNAL_REGION("SR-S-high-")
+        DEFINE_SIGNAL_REGION("SR-VBF-")
 
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
         set_luminosity(139);
@@ -459,20 +460,22 @@ namespace Gambit
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()
       {
+        // SR-E-low observed and background events, from Table 11 of 1911.12606
+        // Combined ee and mumu SR data
+        COMMIT_SIGNAL_REGION("SR-E-low-1", 9., 15.4, 2.4)
+        COMMIT_SIGNAL_REGION("SR-E-low-2", 7., 8.0, 1.7)
+        COMMIT_SIGNAL_REGION("SR-E-low-3", 7.+7., 5.3+6.5, 1.5+1.6)
+        COMMIT_SIGNAL_REGION("SR-E-low-4", 11.+12., 8.6+11.3, 1.8+1.9)
+        COMMIT_SIGNAL_REGION("SR-E-low-5", 16.+17., 16.7+15.6, 2.5+2.3)
+        COMMIT_SIGNAL_REGION("SR-E-low-6", 16.+18., 15.5+16.7, 2.6+2.3)
+        COMMIT_SIGNAL_REGION("SR-E-low-7", 10.+16., 12.9+15.3, 2.1+2.0)
+        COMMIT_SIGNAL_REGION("SR-E-low-8", 9.+44., 18.8+35.9, 2.2+3.3)
 
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
-        // TODO: no signal yields provided as table
-        //add_result(SignalRegionData("SR_chi_lowMET_lowDM", n_obs, {s, s_sys}, {b, b_sys}));
-        //add_result(SignalRegionData("SR_chi_lowMET_highDM", n_obs, {s, s_sys}, {b, b_sys}));
-        //add_result(SignalRegionData("SR_chi_highMET", n_obs, {s, s_sys}, {b, b_sys}));
-        //add_result(SignalRegionData("SR_chi_1l1T", n_obs, {s, s_sys}, {b, b_sys}));
-        //add_result(SignalRegionData("SR_sl_lowMET", n_obs, {s, s_sys}, {b, b_sys}));
-        //add_result(SignalRegionData("SR_sl_highMET", n_obs, {s, s_sys}, {b, b_sys}));
+        // SR-E-med observed and background events, from Table 11 of 1911.12606
+        // Combined ee and mumu SR data
 
-        #ifdef CHECK_CUTFLOW
-          cout << _cutflows << endl;
-        #endif
 
+        COMMIT_CUTFLOWS
 
       }
 

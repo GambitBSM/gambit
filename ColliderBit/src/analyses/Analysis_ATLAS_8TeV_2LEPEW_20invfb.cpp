@@ -318,7 +318,7 @@ namespace Gambit
             candidateLeptons.push_back(muo);
           }
 
-          ATLAS::applyTightIDElectronSelection(signalElectrons);
+          apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
           int numElectrons=signalElectrons.size();
           int numMuons=signalMuons.size();
