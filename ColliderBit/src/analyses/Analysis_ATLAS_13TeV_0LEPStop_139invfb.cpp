@@ -3,6 +3,7 @@
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
+#include "METSignificance/METSignificance.hpp"
 #include "HEPUtils/FastJet.h"
 
 using namespace std;
@@ -54,11 +55,7 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-      
-      vector<int> cutFlowVector;
-      vector<string> cutFlowVector_str;
-      int NCUTS; //=16;
-
+      Cutflows _cutflows;
 
       void muJetSpecialOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, vector<const HEPUtils::Particle*> &lepvec){
 
@@ -104,17 +101,54 @@ namespace Gambit {
       } compareJetPt;
       
       
-      Cutflows _cutflows;
-      
-      
-
       Analysis_ATLAS_13TeV_0LEPStop_139invfb()
       {
 
         set_analysis_name("ATLAS_13TeV_0LEPStop_139invfb");
         set_luminosity(139.);
 
-
+	_cutflows.addCutflow("SRATT", {"MET > 250.",
+				       "njets >= 4",
+				       "nbjets >=2",
+				       "Lepton veto",
+				       "pT j4 > 40 GeV",
+				       "pT j2 > 80 GeV",
+				       "|dPhi(pT1-4, MET)| > 0.4",
+				       "Pass MET trigger",
+				       "S > 5",
+				       "mTbmin > 50 GeV",
+				       "tau veto",
+				       "mTbmin > 200 GeV",
+				       "m1(R=1.2) > 120 GeV",
+				       "m2(R=1.2) > 120 GeV",
+				       "mT2, chi^2 > 450 GeV",
+				       "m1(R=0.8) > 60 GeV",
+				       "S > 25",
+				       "j1(R=1.2)",
+				       "j2(R=1.2)",
+				       "deltaR(b1.b2) > 1",});
+	
+	_cutflows.addCutflow("SRATW", {"MET > 250.",
+				       "njets >= 4",
+				       "nbjets >=2",
+				       "Lepton veto",
+				       "pT j4 > 40 GeV",
+				       "pT j2 > 80 GeV",
+				       "|dPhi(pT1-4, MET)| > 0.4",
+				       "Pass MET trigger",
+				       "S > 5",
+				       "mTbmin > 50 GeV",
+				       "tau veto",
+				       "mTbmin > 200 GeV",
+				       "m1(R=1.2) > 120 GeV",
+				       "m2(R=1.2) > 60 GeV",
+				       "m2(R=1.2) < 120 GeV",
+				       "mT2, chi^2 > 450 GeV",
+				       "m1(R=0.8) > 60 GeV",
+				       "S > 25",
+				       "j1(R=1.2)",});
+				       
+	
       }
 
       void run(const HEPUtils::Event* event)
@@ -153,6 +187,14 @@ namespace Gambit {
             if (jet->pT() > 20. && fabs(jet->eta()) < 2.8 )
               baselineJets.push_back(jet);
           }
+
+	// Taus
+	float MtTauCand = -1;
+	vector<const HEPUtils::Particle*> tauCands;
+	for (const HEPUtils::Particle* tau : event->taus()) {
+	  if (tau->pT() > 10. && tau->abseta() < 2.47) tauCands.push_back(tau);
+        }
+        ATLAS::applyTauEfficiencyR1(tauCands);
 	
         // Jets
         vector<const HEPUtils::Jet*> bJets;
@@ -218,8 +260,8 @@ namespace Gambit {
 
 	vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
 	baselineLeptons.insert(baselineLeptons.end(), baselineMuons.begin(), baselineMuons.end());
-	
-        // Signal object containers
+
+	// Signal object containers
         vector<const HEPUtils::Particle*> signalElectrons;
 	vector<const HEPUtils::Particle*> signalMuons;
         
@@ -260,6 +302,20 @@ namespace Gambit {
           signalMuons.push_back(muon);
         }
 
+	// Now do the met sig calculation
+	// Note: use signal jets since pT and eta requirements are same as baseline
+	//       but overlap removal has been done correctly
+	// Get the photons for the purpose of the calculation: no info in paper, have guessed pT and eta from other analyses
+	vector<const HEPUtils::Particle*> baselinePhotons;
+        for (const HEPUtils::Particle* photon : event->photons())
+        {
+          if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
+        }
+        // Apply photon efficiency
+        ATLAS::applyPhotonEfficiencyR2(baselinePhotons);
+
+	double MetSig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, signalJets, tauCands, metVec);
+	
 	// Need to recluster jets at this point (R=0.8 and R=1.2)
         vector<std::shared_ptr<HEPUtils::Jet>> fatJetsR8=get_jets(signalJets,0.8);
         vector<std::shared_ptr<HEPUtils::Jet>> fatJetsR12=get_jets(signalJets,1.2);
@@ -305,22 +361,14 @@ namespace Gambit {
         if (fatJetsR12.size()>0) AntiKt12M_0 = fatJetsR12[0]->mass() ;
         if (fatJetsR12.size()>1) AntiKt12M_1 = fatJetsR12[1]->mass() ;
 
-	// Tau veto (MJW: this is my best approximation)
-	float MtTauCand = -1;
-	vector<const HEPUtils::Particle*> tauCands;
-	for (const HEPUtils::Particle* tau : event->taus()) {
-	  if (tau->pT() > 10. && tau->abseta() < 2.47) tauCands.push_back(tau);
-        }
-        ATLAS::applyTauEfficiencyR1(tauCands);
-
-
 	
-	bool tauVeto = false;
+	
+	bool hasTaus = false;
 	for (const HEPUtils::Particle* tau : tauCands) {
 	  if (tau->mom().deltaPhi(metVec) < M_PI/5.) {
 	    MtTauCand = get_mT(tau->mom(), metVec);
 	  }
-	  if (MtTauCand > 0) tauVeto = true;
+	  if (MtTauCand > 0) hasTaus = true;
 	}
 	
 	// Close-by b-jets and MtBMets
@@ -493,8 +541,6 @@ namespace Gambit {
 	
 	double HtSig = Met/sqrt(Ht);
 
-	// Approximations (MetSig to be revisited once object-based code is debugged)
-	double MetSig = HtSig;
 	int nBadJets=0;
 	
 	//////////////////////////////////////
@@ -507,11 +553,11 @@ namespace Gambit {
 	bool pre2B4J0LtightT0 = pre2B4J0Ltight && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
 	
 	//bool SRA = pre2B4J0Ltight && MT2Chi2 > 450 && nFatJetsR12>=2 && AntiKt12M_0>120 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
-	bool SRATT = !tauVeto && pre2B4J0LtightTT && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1 && NCloseByBJets12Subleading >= 1 && DRBB > 1.00;
-	bool SRATW = !tauVeto && pre2B4J0LtightTW && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
-	bool SRAT0 = !tauVeto && pre2B4J0LtightT0 && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
+	bool SRATT = !hasTaus && pre2B4J0LtightTT && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1 && NCloseByBJets12Subleading >= 1 && DRBB > 1.00;
+	bool SRATW = !hasTaus && pre2B4J0LtightTW && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
+	bool SRAT0 = !hasTaus && pre2B4J0LtightT0 && MT2Chi2 > 450 && AntiKt8M_0 > 60.00 && MetSig > 25.00 && NCloseByBJets12Leading >= 1;
 	
-	bool SRB = !tauVeto && pre2B4J0Ltight && MtBMax>200 && DRBB>1.4 && nFatJetsR12>=2 && AntiKt12M_0>120 && MT2Chi2<450 && MetSig>14;
+	bool SRB = !hasTaus && pre2B4J0Ltight && MtBMax>200 && DRBB>1.4 && nFatJetsR12>=2 && AntiKt12M_0>120 && MT2Chi2<450 && MetSig>14;
 	bool SRBTT = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>120;
 	bool SRBTW = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>60 && AntiKt12M_1<120;
 	bool SRBT0 = SRB && nFatJetsR12>=2 && AntiKt12M_0>120. && AntiKt12M_1>0 && AntiKt12M_1<60;
@@ -534,6 +580,52 @@ namespace Gambit {
 	if ( SRD0 )_counters.at("SRD0").add_event(event);
 	if ( SRD1 )_counters.at("SRD1").add_event(event);
 	if ( SRD2 )_counters.at("SRD2").add_event(event);
+
+	// Now fill the cutflows
+	const double w = event->weight();
+        _cutflows.fillinit(w);
+	
+        _cutflows["SRATT"].fillnext({Met > 250.,
+				     nSignalJets >=4,
+				     nBJets >=2,
+				     nLep == 0,
+				     signalJets[3]->pT() > 40,
+				     signalJets[1]->pT() > 80,
+				     dPhiJetMetMin2>0.4,
+				     true,
+				     MetSig > 5,
+				     MtBMin > 50.,
+				     !hasTaus,
+				     MtBMin > 200.,
+				     AntiKt12M_0>120.,
+				     AntiKt12M_1>120,
+				     MT2Chi2 > 450,
+				     AntiKt8M_0 > 60.,
+				     MetSig > 25.,
+				     NCloseByBJets12Leading >= 1,
+				     NCloseByBJets12Subleading >= 1,
+				     DRBB > 1.}, w);
+
+	_cutflows["SRATW"].fillnext({Met > 250.,
+	                             nSignalJets >=4,
+	                             nBJets >=2,
+	                             nLep == 0,
+				     signalJets[3]->pT() > 40,
+				     signalJets[1]->pT() > 80,
+				     dPhiJetMetMin2>0.4,
+				     true,
+				     MetSig > 5,
+				     MtBMin > 50.,
+				     !hasTaus,
+				     MtBMin > 200.,
+				     AntiKt12M_0>120.,
+				     AntiKt12M_1>60.,
+	                             AntiKt12M_1<120.,
+				     MT2Chi2 > 450.,
+				     AntiKt8M_0 > 60.,
+				     MetSig > 25.,
+				     NCloseByBJets12Leading >= 1},w);
+	
 	
         return;
 	
@@ -547,15 +639,9 @@ namespace Gambit {
 
         for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
 
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
       }
 
-
+      
       void collect_results()
       {
 
@@ -578,7 +664,6 @@ namespace Gambit {
       {
         for (auto& pair : _counters) { pair.second.reset(); }
 
-        std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
     };
