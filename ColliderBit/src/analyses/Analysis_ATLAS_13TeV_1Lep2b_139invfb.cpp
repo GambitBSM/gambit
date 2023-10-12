@@ -33,24 +33,6 @@ namespace Gambit
 
     public:
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"WREM_cuts_0", EventCounter("WREM_cuts_0")},
-        {"STCREM_cuts_0", EventCounter("STCREM_cuts_0")},
-        {"TRHMEM_cuts_0", EventCounter("TRHMEM_cuts_0")},
-        {"TRMMEM_cuts_0", EventCounter("TRMMEM_cuts_0")},
-        {"TRLMEM_cuts_0", EventCounter("TRLMEM_cuts_0")},
-        {"SRHMEM_mct2_0", EventCounter("SRHMEM_mct2_0")},
-        {"SRHMEM_mct2_1", EventCounter("SRHMEM_mct2_1")},
-        {"SRHMEM_mct2_2", EventCounter("SRHMEM_mct2_2")},
-        {"SRMMEM_mct2_0", EventCounter("SRMMEM_mct2_0")},
-        {"SRMMEM_mct2_1", EventCounter("SRMMEM_mct2_1")},
-        {"SRMMEM_mct2_2", EventCounter("SRMMEM_mct2_2")},
-        {"SRLMEM_mct2_0", EventCounter("SRLMEM_mct2_0")},
-        {"SRLMEM_mct2_1", EventCounter("SRLMEM_mct2_1")},
-        {"SRLMEM_mct2_2", EventCounter("SRLMEM_mct2_2")},
-      };
-
       #ifdef CHECK_CUTFLOW
         Cutflows _cutflows;
       #endif
@@ -62,6 +44,24 @@ namespace Gambit
       {
 
         analysis_specific_reset();
+
+        // Counters for the number of accepted events for each signal region
+        _counters["WREM_cuts_0"] = EventCounter("WREM_cuts_0");
+        _counters["STCREM_cuts_0"] = EventCounter("STCREM_cuts_0");
+        _counters["TRHMEM_cuts_0"] = EventCounter("TRHMEM_cuts_0");
+        _counters["TRMMEM_cuts_0"] = EventCounter("TRMMEM_cuts_0");
+        _counters["TRLMEM_cuts_0"] = EventCounter("TRLMEM_cuts_0");
+        _counters["SRHMEM_mct2_0"] = EventCounter("SRHMEM_mct2_0");
+        _counters["SRHMEM_mct2_1"] = EventCounter("SRHMEM_mct2_1");
+        _counters["SRHMEM_mct2_2"] = EventCounter("SRHMEM_mct2_2");
+        _counters["SRMMEM_mct2_0"] = EventCounter("SRMMEM_mct2_0");
+        _counters["SRMMEM_mct2_1"] = EventCounter("SRMMEM_mct2_1");
+        _counters["SRMMEM_mct2_2"] = EventCounter("SRMMEM_mct2_2");
+        _counters["SRLMEM_mct2_0"] = EventCounter("SRLMEM_mct2_0");
+        _counters["SRLMEM_mct2_1"] = EventCounter("SRLMEM_mct2_1");
+        _counters["SRLMEM_mct2_2"] = EventCounter("SRLMEM_mct2_2");
+
+
         set_analysis_name("ATLAS_13TeV_1Lep2b_139invfb");
         set_luminosity(139.);
         set_bkgjson("ColliderBit/data/analyses_json_files/ATLAS_13TeV_1Lep2b_139invfb_bkgonly.json");
@@ -243,7 +243,7 @@ namespace Gambit
 
         // electrons
         vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
-        ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
+        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
         // muons
         vector<const HEPUtils::Particle*> signalMuons = baselineMuons;
@@ -347,7 +347,7 @@ namespace Gambit
           if (mT > 100 && mT < 160) {SR_mt_100_160 = true;}
           else if (mT > 160 && mT < 240) {SR_mt_160_240 = true;}
           else if (mT > 240 && SR_mlb_gt_120) {SR_mt_gt_240 = true;} //This includes both mT and mlb cut
-          else break; 
+          else break;
 
           // Calculating mCT
           double mCT = sqrt(2 * (signalBJets[0]->pT()) * (signalBJets[1]->pT()) * (1. + cos(deltaPhi(signalBJets[0]->mom(), signalBJets[1]->mom()) ) ));
@@ -356,7 +356,7 @@ namespace Gambit
           if (mCT > 180 && mCT < 230) {SR_mct_180_230 = true;}
           else if (mCT > 230 && mCT < 280) {SR_mct_230_280 = true;}
           else if (mCT > 280) {SR_mct_gt_280 = true;}
-          else break; 
+          else break;
 
           // Applied all cuts
           break;
@@ -375,7 +375,7 @@ namespace Gambit
           if (SR_ETmiss_gt_240) _cutflows["SR"].fillnext(w);
           if (SR_mbb_100_140) _cutflows["SR"].fillnext(w);
           if (SR_mlb_gt_120) _cutflows["SR"].fillnext(w);
-          
+
           // @todo change such that all three mT bin cuts be checked at once
           //if (SR_mt_100_160) _cutflows["SR"].fillnext(w);
           //if (SR_mt_160_240) _cutflows["SR"].fillnext(w);
@@ -413,15 +413,9 @@ namespace Gambit
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_1Lep2b_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_1Lep2b_139invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
 
-      void collect_results() { 
-        //This data is used if not running ATLAS_FullLikes. 
+      void collect_results() {
+        //This data is used if not running ATLAS_FullLikes.
         add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred

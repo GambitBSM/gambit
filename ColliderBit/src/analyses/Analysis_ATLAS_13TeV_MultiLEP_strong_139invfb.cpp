@@ -9,8 +9,10 @@
 
 // #define CHECK_CUTFLOW
 
-namespace Gambit {
-  namespace ColliderBit {
+namespace Gambit
+{
+  namespace ColliderBit
+  {
 
     using namespace std;
     using namespace HEPUtils;
@@ -22,11 +24,11 @@ namespace Gambit {
     ///   - https://arxiv.org/pdf/1909.08457
     ///   - https://www.hepdata.net/record/ins1754675
     ///   - C++ code example and SLHA benchmark files available on HEPData (link above)
-    /// 
+    ///
     /// Cross-sections for cutflows taken from https://twiki.cern.ch/twiki/bin/view/LHCPhysics/SUSYCrossSections#Cross_sections_for_various_subpr
-    /// 
+    ///
 
-    /* 
+    /*
       Notes on analysis logic:
       ------------------------
 
@@ -40,13 +42,13 @@ namespace Gambit {
 
       - b-tagging for jets within |eta| < 2.5, using MV2c10 b-tagging algorithm
 
-      - basline muons: 
+      - basline muons:
         - |eta| < 2.5
         - pT > 10 GeV
       - signal muons:
         - sufficiently isolated from jets and other leptons
 
-      - basline electrons: 
+      - basline electrons:
         - |eta| < 2.47, excluding the range (1.37, 1.52)
         - pT > 10 GeV
       - signal electrons:
@@ -56,7 +58,7 @@ namespace Gambit {
       - ETmiss has a "soft term" correction
 
       - Overlap removal:
-        - Exclude any baseline leptons that are too close to a jet. 
+        - Exclude any baseline leptons that are too close to a jet.
           Requirement:
 
             Delta R > min(0.4, 0.1 + 9.6 [GeV] / pT_lepton)
@@ -65,12 +67,12 @@ namespace Gambit {
 
 
       *** From Sec 4: Event selection ***
-      
+
       - At least two signal leptons with pT > 20 GeV
 
       - If only two leptons: must have same sign
       - Else if more than two leptons (pT > 10 GeV): no sign requirement
-      
+
       - [ETmiss-dependent trigger details in second paragraph of Sec 4 ignored for now]
 
       - Selection variables:
@@ -84,38 +86,37 @@ namespace Gambit {
         - mee_near_mZ: is there a same-sign(!) electron pair with an invariant mass near mZ, i.e. in (81,101) GeV?
 
       - Five signal regions (units GeV):
-        - Rpv2L: nl >= 2; nb >= 0; nj >= 6 (pT > 40); meff > 2600 
-        - Rpc2L0b: nl >= 2; nb == 0; nj >= 6 (pT > 40); ETmiss > 200; meff > 1000; ETmiss/meff > 0.2 
-        - Rpc2L1b: nl >= 2; nb >= 1; nj >= 6 (pT > 40); ETmiss/meff > 0.25 
-        - Rpc2L2b: nl >= 2; nb >= 2; nj >= 6 (pT > 25); ETmiss > 300; meff > 1400; ETmiss/meff > 0.14 
-        - Rpc3LSS1b: nl >= 3 (same sign); nb >= 1; not mee_near_mZmee; ETmiss/meff > 0.14 
+        - Rpv2L: nl >= 2; nb >= 0; nj >= 6 (pT > 40); meff > 2600
+        - Rpc2L0b: nl >= 2; nb == 0; nj >= 6 (pT > 40); ETmiss > 200; meff > 1000; ETmiss/meff > 0.2
+        - Rpc2L1b: nl >= 2; nb >= 1; nj >= 6 (pT > 40); ETmiss/meff > 0.25
+        - Rpc2L2b: nl >= 2; nb >= 2; nj >= 6 (pT > 25); ETmiss > 300; meff > 1400; ETmiss/meff > 0.14
+        - Rpc3LSS1b: nl >= 3 (same sign); nb >= 1; not mee_near_mZmee; ETmiss/meff > 0.14
 
     */
 
 
-    class Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb : public Analysis 
+    class Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb : public Analysis
     {
     public:
 
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      // Numbers passing cuts
-      std::map<string, EventCounter> _counters = {
-        {"Rpv2L", EventCounter("Rpv2L")},
-        {"Rpc2L0b", EventCounter("Rpc2L0b")},
-        {"Rpc2L1b", EventCounter("Rpc2L1b")},
-        {"Rpc2L2b", EventCounter("Rpc2L2b")},
-        {"Rpc3LSS1b", EventCounter("Rpc3LSS1b")},
-      };
-
       #ifdef CHECK_CUTFLOW
         Cutflows _cutflows;
       #endif
 
 
-      Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb() 
+      Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb()
       {
+        // Numbers passing cuts
+        _counters["Rpv2L"] = EventCounter("Rpv2L");
+        _counters["Rpc2L0b"] = EventCounter("Rpc2L0b");
+        _counters["Rpc2L1b"] = EventCounter("Rpc2L1b");
+        _counters["Rpc2L2b"] = EventCounter("Rpc2L2b");
+        _counters["Rpc3LSS1b"] = EventCounter("Rpc3LSS1b");
+
+
         set_analysis_name("ATLAS_13TeV_MultiLEP_strong_139invfb");
         set_luminosity(139.0);
 
@@ -132,7 +133,7 @@ namespace Gambit {
       }
 
 
-      void run(const Event* event) 
+      void run(const Event* event)
       {
         #ifdef CHECK_CUTFLOW
           const double w = event->weight();
@@ -152,7 +153,7 @@ namespace Gambit {
         vector<const Jet*> baselineJets;
 
         // Get baseline electrons and apply efficiency
-        for (const Particle* electron : event->electrons()) 
+        for (const Particle* electron : event->electrons())
         {
           if (electron->pT() > 10. && electron->abseta() < 2.47)
           {
@@ -163,11 +164,11 @@ namespace Gambit {
           }
         }
         ATLAS::applyElectronEff(baselineElectrons);
-        ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
-        /// @todo Use applyElectronIsolationEfficiency2019 or something similar?
+        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+        /// @todo Use ElectronIsolationEfficiency2019 or something similar?
 
         // Get baseline muons and apply efficiency
-        for (const Particle* muon : event->muons()) 
+        for (const Particle* muon : event->muons())
         {
           if (muon->pT() > 10. && muon->abseta() < 2.5)
           {
@@ -179,9 +180,9 @@ namespace Gambit {
 
         // Get baseline jets
         /// @todo Drop b-tag if |eta| > 2.5?
-        for (const Jet* jet : event->jets()) 
+        for (const Jet* jet : event->jets())
         {
-          if (jet->pT() > 20. && jet->abseta() < 2.8) 
+          if (jet->pT() > 20. && jet->abseta() < 2.8)
           {
             baselineJets.push_back(jet);
           }
@@ -216,15 +217,15 @@ namespace Gambit {
         // - for correctly tagging a b-jet: 70%
         // - for misstagging a c-jet: 9%
         // - for misstagging a gluon or light-quark jet: 0.3%
-        // Other inputs for tagging: 
+        // Other inputs for tagging:
         // - pTmin = 0 GeV (baselineJets anyways only includes jets with pT > 20 GeV)
         // - absEtaMax = 2.5
         std::map<const Jet*,bool> analysisBtags = generateBTagsMap(baselineJets, 0.7, 0.09, 0.003, 0., 2.5);
 
 
-        // 
+        //
         // Overlap removal
-        // 
+        //
         const bool use_rapidity = true;
 
         // 1) Remove jets within DeltaR = 0.2 of electron
@@ -241,7 +242,7 @@ namespace Gambit {
         // This is a guess, based on 1706.03731
         removeOverlapIfBjet(baselineMuons, baselineJets, 0.4, use_rapidity, DBL_MAX);
         // Corresponding line from ATLAS code snippet:
-        //   jets = overlapRemoval(jets, baselineMuons, 0.4, LessThan3Tracks); 
+        //   jets = overlapRemoval(jets, baselineMuons, 0.4, LessThan3Tracks);
 
         // Construct a lambda function to calculate the DeltaR limit as function of lepton pT
         auto deltaRLimitFunc = [](double pT_lepton) { return std::min(0.4, 0.1 + 9.6 / pT_lepton); };
@@ -250,18 +251,18 @@ namespace Gambit {
         removeOverlap(baselineElectrons, baselineJets, deltaRLimitFunc, use_rapidity, DBL_MAX);
         // Corresponding lines from ATLAS code snippet:
         //   auto radiusCalcEl = [] (const AnalysisObject& electron, const AnalysisObject& ) { return 0.1 + 9.6/electron.Pt(); };
-        //   baselineElectrons = overlapRemoval(baselineElectrons, jets, radiusCalcEl); 
+        //   baselineElectrons = overlapRemoval(baselineElectrons, jets, radiusCalcEl);
 
         // 4) Remove muons within DeltaR = min(0.4, 0.1 + 9.6 GeV / pT(e)) of a jet
         removeOverlap(baselineMuons, baselineJets, deltaRLimitFunc, use_rapidity, DBL_MAX);
         // Corresponding lines from ATLAS code snippet:
         //   auto radiusCalcMuon = [] (const AnalysisObject& muon, const AnalysisObject& ) { return 0.1 + 9.6/muon.Pt(); };
-        //   baselineMuons = overlapRemoval(baselineMuons, jets, radiusCalcMuon); 
+        //   baselineMuons = overlapRemoval(baselineMuons, jets, radiusCalcMuon);
 
         // 5) Remove electrons within DeltaR = 0.01 of muons
         removeOverlap(baselineElectrons, baselineMuons, 0.01, use_rapidity, DBL_MAX);
         // Corresponding lines from ATLAS code snippet:
-        //   baselineElectrons = overlapRemoval(baselineElectrons, baselineMuons,0.01);  
+        //   baselineElectrons = overlapRemoval(baselineElectrons, baselineMuons,0.01);
 
         // Collect all baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
@@ -281,7 +282,7 @@ namespace Gambit {
         {
           if (p->abseta() < 2.0) { signalElectrons.push_back(p); }
         }
-        ATLAS::applyElectronIDEfficiency2019(signalElectrons, "Medium");
+        apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
 
         // Collect all signal leptons
         signalLeptons = signalElectrons;
@@ -301,9 +302,9 @@ namespace Gambit {
         // const size_t nMuons = signalMuons.size();
 
 
-        // 
+        //
         // Preselection
-        // 
+        //
         // Require at least two leptons
         if (nLeptons < 2) return;
 
@@ -316,7 +317,7 @@ namespace Gambit {
           if (lep0->abspid() == 11 && lep1->abspid() == 11 && lep0->pT() < 24.) { return; }  // 2e trigger
           if (lep0->abspid() == 13 && lep1->abspid() == 13 && lep0->pT() < 21.) { return; }  // 2mu trigger
           if (lep0->abspid() == 11 && lep1->abspid() == 13 && lep0->pT() < 17 ) { return; }  // 1e1mu trigger, leading e
-          if (lep0->abspid() == 13 && lep1->abspid() == 11 && lep0->pT() < 14 ) { return; }  // 1e1mu trigger, leading mu 
+          if (lep0->abspid() == 13 && lep1->abspid() == 11 && lep0->pT() < 14 ) { return; }  // 1e1mu trigger, leading mu
         }
 
         // Require pT > 20 GeV for the first two leptons
@@ -343,7 +344,7 @@ namespace Gambit {
         int nJets40 = countPt(signalJets, 40.);
 
         double meff = scalarSumPt(signalLeptons) + scalarSumPt(signalJets) + met;
-        double met_meff_ratio = met / meff; 
+        double met_meff_ratio = met / meff;
 
 
         // Count number of b-tagged jets in signalJets
@@ -367,8 +368,8 @@ namespace Gambit {
         }
         if (nPosLep >= 3 || nNegLep >= 3) { is3LSS = true; }
 
-        // The Rpc3LSS1b SR vetos events with an same-sign electron pair 
-        // with invariant mass close to the Z mass 
+        // The Rpc3LSS1b SR vetos events with an same-sign electron pair
+        // with invariant mass close to the Z mass
         bool mee_near_mZ = false;
         if (nElectrons >= 2)
         {
@@ -376,8 +377,8 @@ namespace Gambit {
           for(vector<const HEPUtils::Particle*>& pair : elSSpairs)
           {
             double mee = (pair.at(0)->mom() + pair.at(1)->mom()).m();
-            if (mee > 81. && mee < 101.) 
-            { 
+            if (mee > 81. && mee < 101.)
+            {
               mee_near_mZ = true;
               break;
             }
@@ -385,9 +386,9 @@ namespace Gambit {
         }
 
 
-        // 
+        //
         // Fill SR counters
-        // 
+        //
 
         // Rpv2L:
         if (nLeptons >= 2 && nBJets20 >= 0 && nJets40 >= 6 && meff > 2600.) _counters.at("Rpv2L").add_event(event);
@@ -410,18 +411,11 @@ namespace Gambit {
       }
 
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_MultiLEP_strong_139invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
-
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the paper
-      void collect_results() 
+      void collect_results()
       {
-        // Using average, symmetrized background errors 
+        // Using average, symmetrized background errors
         add_result(SignalRegionData(_counters.at("Rpv2L"),      5., {5.5, 1.8}));
         add_result(SignalRegionData(_counters.at("Rpc2L0b"),    6., {4.7, 1.4}));
         add_result(SignalRegionData(_counters.at("Rpc2L1b"),   11., {6.5, 1.55}));
@@ -442,7 +436,7 @@ namespace Gambit {
 
     protected:
 
-      void analysis_specific_reset() 
+      void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
       }

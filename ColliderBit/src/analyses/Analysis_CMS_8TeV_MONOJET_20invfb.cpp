@@ -27,9 +27,6 @@ namespace Gambit {
     class Analysis_CMS_8TeV_MONOJET_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _num250,_num300,_num350,_num400,_num450,_num500,_num550;
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=24;
@@ -42,9 +39,18 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       Analysis_CMS_8TeV_MONOJET_20invfb()
-        : _num250(0),_num300(0),_num350(0),_num400(0),_num450(0),_num500(0),_num550(0),
-          NCUTS(12)
+        : NCUTS(12)
       {
+
+        // Numbers passing cuts
+        _counters["250"] = EventCounter("250");
+        _counters["300"] = EventCounter("300");
+        _counters["350"] = EventCounter("350");
+        _counters["400"] = EventCounter("400");
+        _counters["450"] = EventCounter("450");
+        _counters["500"] = EventCounter("500");
+        _counters["550"] = EventCounter("550");
+
         set_analysis_name("CMS_8TeV_MONOJET_20invfb");
         set_luminosity(19.7);
 
@@ -184,59 +190,38 @@ namespace Gambit {
         }
 
         //We're now ready to apply the cuts for each signal region
-        //_numSR1, _numSR2, _numSR3;
 
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 250.) _num250 += event->weight();
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 350.) _num350 += event->weight();
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 400.) _num400 += event->weight();
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 450.) _num450 += event->weight();
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 500.) _num500 += event->weight();
-        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 550.) _num550 += event->weight();
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 250.) _counters["250"].add_event(event);
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 350.) _counters["350"].add_event(event);
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 400.) _counters["400"].add_event(event);
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 450.) _counters["450"].add_event(event);
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 500.) _counters["500"].add_event(event);
+        if(nJets > 0 && baselineJets[0]->pT() > 110. && fabs(baselineJets[0]->eta()) < 2.4 && nJets <=2 && dPhiJ1J2 < 2.5 && nLeptons==0 && met > 550.) _counters["550"].add_event(event);
 
         return;
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_8TeV_MONOJET_20invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_8TeV_MONOJET_20invfb*>(other);
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-        _num250 += specificOther->_num250;
-        _num300 += specificOther->_num300;
-        _num350 += specificOther->_num350;
-        _num400 += specificOther->_num400;
-        _num450 += specificOther->_num450;
-        _num500 += specificOther->_num500;
-        _num550 += specificOther->_num550;
-      }
 
       void collect_results()
       {
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
-
-        add_result(SignalRegionData("250", 52200., {_num250, 0}, { 51800.,  2000.}));
-        add_result(SignalRegionData("300", 19800., {_num300, 0}, { 19600.,  830.}));
-        add_result(SignalRegionData("350", 8320., {_num350, 0}, { 8190.,  400.}));
-        add_result(SignalRegionData("400", 3830., {_num400, 0}, { 3930.,  230.}));
-        add_result(SignalRegionData("450", 1830., {_num450, 0}, { 2050.,  150.}));
-        add_result(SignalRegionData("500", 934., {_num500, 0}, { 1040.,  100.}));
-        add_result(SignalRegionData("550", 519., {_num550, 0}, { 509.,  66.}));
+        add_result(SignalRegionData(_counters["250"], 52200., { 51800.,  2000.}));
+        add_result(SignalRegionData(_counters["300"], 19800., { 19600.,  830.}));
+        add_result(SignalRegionData(_counters["350"], 8320., { 8190.,  400.}));
+        add_result(SignalRegionData(_counters["400"], 3830., { 3930.,  230.}));
+        add_result(SignalRegionData(_counters["450"], 1830., { 2050.,  150.}));
+        add_result(SignalRegionData(_counters["500"], 934., { 1040.,  100.}));
+        add_result(SignalRegionData(_counters["550"], 519., { 509.,  66.}));
 
         return;
       }
 
 
     protected:
-      void analysis_specific_reset() {
-        _num250=0; _num300=0; _num350=0; _num400=0; _num450=0; _num500=0; _num550=0;
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

@@ -26,6 +26,7 @@
 
 #include "gambit/ColliderBit/Utils.hpp"
 #include "gambit/Utils/threadsafe_rng.hpp"
+#include "gambit/Utils/util_functions.hpp"
 
 #include "HEPUtils/MathUtils.h"
 #include "HEPUtils/BinnedFn.h"
@@ -37,10 +38,159 @@ namespace Gambit
   namespace ColliderBit
   {
 
-
     /// ATLAS-specific efficiency and smearing functions for super fast detector simulation
     namespace ATLAS
     {
+
+      /// @name ATLAS detector smearing functions
+      ///@{
+
+        /// Randomly smear the supplied electrons' momenta by parameterised resolutions
+        inline void smearElectronEnergy(std::vector<HEPUtils::Particle*>& electrons)
+        {
+          // Function that mimics the DELPHES electron energy resolution
+          // We need to smear E, then recalculate pT, then reset 4 vector
+
+          static HEPUtils::BinnedFn2D<double> coeffE2({{0, 2.5, 3., 5.}}, //< |eta|
+                                                      {{0, 0.1, 25., DBL_MAX}}, //< pT
+                                                      {{0.,          0.015*0.015, 0.005*0.005,
+                                                        0.005*0.005, 0.005*0.005, 0.005*0.005,
+                                                        0.107*0.107, 0.107*0.107, 0.107*0.107}});
+
+          static HEPUtils::BinnedFn2D<double> coeffE({{0, 2.5, 3., 5.}}, //< |eta|
+                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
+                                                     {{0.,        0.,        0.05*0.05,
+                                                       0.05*0.05, 0.05*0.05, 0.05*0.05,
+                                                       2.08*2.08, 2.08*2.08, 2.08*2.08}});
+
+          static HEPUtils::BinnedFn2D<double> coeffC({{0, 2.5, 3., 5.}}, //< |eta|
+                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
+                                                     {{0.,       0.,       0.25*0.25,
+                                                       0.25*0.25,0.25*0.25,0.25*0.25,
+                                                       0.,       0.,       0.}});
+
+          // Now loop over the electrons and smear the 4-vectors
+          for (HEPUtils::Particle* e : electrons)
+          {
+            if (e->abseta() > 5) continue;
+
+            // Look up / calculate resolution
+            const double c1 = coeffE2.get_at(e->abseta(), e->pT());
+            const double c2 = coeffE.get_at(e->abseta(), e->pT());
+            const double c3 = coeffC.get_at(e->abseta(), e->pT());
+            const double resolution = sqrt(c1*HEPUtils::sqr(e->E()) + c2*e->E() + c3);
+
+            // Smear by a Gaussian centered on the current energy, with width given by the resolution
+            std::normal_distribution<> d(e->E(), resolution);
+            double smeared_E = d(Random::rng());
+            if (smeared_E < e->mass()) smeared_E = 1.01*e->mass();
+            // double smeared_pt = smeared_E/cosh(e->eta()); ///< @todo Should be cosh(|eta|)?
+            e->set_mom(HEPUtils::P4::mkEtaPhiME(e->eta(), e->phi(), e->mass(), smeared_E));
+          }
+        }
+
+
+        /// Randomly smear the supplied muons' momenta by parameterised resolutions
+        inline void smearMuonMomentum(std::vector<HEPUtils::Particle*>& muons)
+        {
+          // Function that mimics the DELPHES muon momentum resolution
+          // We need to smear pT, then recalculate E, then reset 4 vector
+
+          static HEPUtils::BinnedFn2D<double> _muEff({{0,1.5,2.5}},
+                                                     {{0,0.1,1.,10.,200.,DBL_MAX}},
+                                                     {{0.,0.03,0.02,0.03,0.05,
+                                                       0.,0.04,0.03,0.04,0.05}});
+
+          // Now loop over the muons and smear the 4-vectors
+          for (HEPUtils::Particle* mu : muons)
+          {
+            if (mu->abseta() > 2.5) continue;
+
+            // Look up resolution
+            const double resolution = _muEff.get_at(mu->abseta(), mu->pT());
+
+            // Smear by a Gaussian centered on the current energy, with width given by the resolution
+            std::normal_distribution<> d(mu->pT(), resolution*mu->pT());
+            double smeared_pt = d(Random::rng());
+            if (smeared_pt < 0) smeared_pt = 0;
+            // const double smeared_E = smeared_pt*cosh(mu->eta()); ///< @todo Should be cosh(|eta|)?
+            // std::cout << "Muon pt " << mu_pt << " smeared " << smeared_pt << endl;
+            mu->set_mom(HEPUtils::P4::mkEtaPhiMPt(mu->eta(), mu->phi(), mu->mass(), smeared_pt));
+          }
+        }
+
+
+        /// Randomly smear the supplied jets' momenta by parameterised resolutions
+        inline void smearJets(std::vector<HEPUtils::Jet*>& jets)
+        {
+          // Function that mimics the DELPHES jet momentum resolution.
+          // We need to smear pT, then recalculate E, then reset the 4-vector.
+          // Const resolution for now
+          //const double resolution = 0.03;
+
+          // Matthias jet smearing implemented roughly from
+          // https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2015-017/
+          // Parameterisation can be still improved, but eta dependence is minimal
+          const std::vector<double>  binedges_eta = {0,10.};
+          const std::vector<double>  binedges_pt = {0,50.,70.,100.,150.,200.,1000.,10000.};
+          const std::vector<double> JetsJER = {0.145,0.115,0.095,0.075,0.07,0.05,0.04};
+          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
+
+          // Now loop over the jets and smear the 4-vectors
+          for (HEPUtils::Jet* jet : jets)
+          {
+            const double resolution = _resJets2D.get_at(jet->abseta(), jet->pT());
+            std::normal_distribution<> d(1., resolution);
+            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
+            double smear_factor = d(Random::rng());
+            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
+            jet->set_mom(HEPUtils::P4::mkXYZM(jet->mom().px()*smear_factor, jet->mom().py()*smear_factor, jet->mom().pz()*smear_factor, jet->mass()));
+          }
+        }
+
+
+        /// Randomly smear the MET vector by parameterised resolutions
+        inline void smearMET(HEPUtils::P4& pmiss, double set)
+        {
+          // Smearing function from ATLAS Run 1 performance paper, converted from Rivet
+          // cf. https://arxiv.org/pdf/1108.5602v2.pdf, Figs 14 and 15
+
+          // Linearity offset (Fig 14)
+          if (pmiss.pT() < 25) pmiss *= 1.05;
+          else if (pmiss.pT() < 40) pmiss *= (1.05 - (0.04/15)*(pmiss.pT() - 25)); //< linear decrease
+          else pmiss *= 1.01;
+
+          // Smear by a Gaussian with width given by the resolution(sumEt) ~ 0.45 sqrt(sumEt) GeV
+          const double resolution = 0.45 * sqrt(set);
+          std::normal_distribution<> d(pmiss.pT(), resolution);
+          const double smearedmet = std::max(d(Random::rng()), 0.);
+
+          pmiss *= smearedmet / pmiss.pT();
+        }
+
+
+        /// Randomly smear the supplied taus' momenta by parameterised resolutions
+        inline void smearTaus(std::vector<HEPUtils::Particle*>& taus)
+        {
+          // We need to smear pT, then recalculate E, then reset the 4-vector.
+          // Same as for jets, but on a vector of particles. (?)
+          // Const resolution for now
+          const double resolution = 0.03;
+
+          // Now loop over the jets and smear the 4-vectors
+          std::normal_distribution<> d(1., resolution);
+          for (HEPUtils::Particle* p : taus)
+          {
+            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
+            double smear_factor = d(Random::rng());
+            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
+            p->set_mom(HEPUtils::P4::mkXYZM(p->mom().px()*smear_factor, p->mom().py()*smear_factor, p->mom().pz()*smear_factor, p->mass()));
+          }
+        }
+
+
+      ///@}
+
 
       /// @name ATLAS detector efficiency functions
       ///@{
@@ -110,6 +260,7 @@ namespace Gambit
         }
 
 
+
         /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
         /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
         /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
@@ -164,550 +315,332 @@ namespace Gambit
         }
 
 
-        /// Randomly smear the supplied electrons' momenta by parameterised resolutions
-        inline void smearElectronEnergy(std::vector<HEPUtils::Particle*>& electrons) {
-          // Function that mimics the DELPHES electron energy resolution
-          // We need to smear E, then recalculate pT, then reset 4 vector
 
-          static HEPUtils::BinnedFn2D<double> coeffE2({{0, 2.5, 3., 5.}}, //< |eta|
-                                                      {{0, 0.1, 25., DBL_MAX}}, //< pT
-                                                      {{0.,          0.015*0.015, 0.005*0.005,
-                                                        0.005*0.005, 0.005*0.005, 0.005*0.005,
-                                                        0.107*0.107, 0.107*0.107, 0.107*0.107}});
+      /// ATLAS Muon and Electron efficiencies for the WPs of the identification techniques used in SUSY analyses
 
-          static HEPUtils::BinnedFn2D<double> coeffE({{0, 2.5, 3., 5.}}, //< |eta|
-                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
-                                                     {{0.,        0.,        0.05*0.05,
-                                                       0.05*0.05, 0.05*0.05, 0.05*0.05,
-                                                       2.08*2.08, 2.08*2.08, 2.08*2.08}});
+      /// Electron efficiencies
+      /// @{
 
-          static HEPUtils::BinnedFn2D<double> coeffC({{0, 2.5, 3., 5.}}, //< |eta|
-                                                     {{0, 0.1, 25., DBL_MAX}}, //< pT
-                                                     {{0.,       0.,       0.25*0.25,
-                                                       0.25*0.25,0.25*0.25,0.25*0.25,
-                                                       0.,       0.,       0.}});
 
-          // Now loop over the electrons and smear the 4-vectors
-          for (HEPUtils::Particle* e : electrons) {
-            if (e->abseta() > 5) continue;
-
-            // Look up / calculate resolution
-            const double c1 = coeffE2.get_at(e->abseta(), e->pT());
-            const double c2 = coeffE.get_at(e->abseta(), e->pT());
-            const double c3 = coeffC.get_at(e->abseta(), e->pT());
-            const double resolution = sqrt(c1*HEPUtils::sqr(e->E()) + c2*e->E() + c3);
-
-            // Smear by a Gaussian centered on the current energy, with width given by the resolution
-            std::normal_distribution<> d(e->E(), resolution);
-            double smeared_E = d(Random::rng());
-            if (smeared_E < e->mass()) smeared_E = 1.01*e->mass();
-            // double smeared_pt = smeared_E/cosh(e->eta()); ///< @todo Should be cosh(|eta|)?
-            e->set_mom(HEPUtils::P4::mkEtaPhiME(e->eta(), e->phi(), e->mass(), smeared_E));
+        /// Efficiency function for Medium ID electrons
+        /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
+        /// Digitized from Figs 11-12
+        /// Combined in 2D efficiency
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_CONF_2014_032_Medium(
+          {-2.5, -2.37, -2.01, -1.81, -1.52, -1.37, -1.15, -0.8, -0.6, -0.1, 0, 0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.5},   // Bin edges in eta
+          {0, 7., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., DBL_MAX},    // Bin edges in pT
+          {
+            // pT:   (0,7),  (7,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,35),  (35,40),  (40,45),  (45,50),  (50,60),  (60,80),  (80,inf)
+                     0.000,   0.887,    0.778,    0.827,    0.828,    0.842,    0.848,    0.839,    0.837,    0.807,    0.783,    0.775,    0.949,  // eta: {-2.5, -2.37}
+                     0.000,   0.887,    0.778,    0.827,    0.790,    0.826,    0.838,    0.857,    0.870,    0.892,    0.892,    0.894,    0.927,  // eta: {-2.37, -2.01}
+                     0.000,   0.736,    0.768,    0.794,    0.795,    0.831,    0.851,    0.868,    0.882,    0.896,    0.900,    0.903,    0.935,  // eta: {-2.01, -1.81}
+                     0.000,   0.736,    0.768,    0.794,    0.778,    0.817,    0.840,    0.867,    0.896,    0.912,    0.917,    0.922,    0.946,  // eta: {-1.81, -1.52}
+                     0.000,   0.675,    0.569,    0.695,    0.725,    0.756,    0.771,    0.799,    0.840,    0.874,    0.879,    0.893,    0.908,  // eta: {-1.52, -1.37}
+                     0.000,   0.775,    0.773,    0.811,    0.802,    0.842,    0.874,    0.897,    0.909,    0.925,    0.927,    0.927,    0.950,  // eta: {-1.37, -1.15}
+                     0.000,   0.775,    0.773,    0.811,    0.799,    0.837,    0.867,    0.889,    0.898,    0.911,    0.919,    0.921,    0.953,  // eta: {-1.15, -0.8}
+                     0.000,   0.832,    0.782,    0.820,    0.814,    0.847,    0.877,    0.895,    0.908,    0.918,    0.919,    0.921,    0.950,  // eta: {-0.8, -0.6}
+                     0.000,   0.832,    0.782,    0.820,    0.812,    0.850,    0.879,    0.897,    0.908,    0.918,    0.923,    0.928,    0.941,  // eta: {-0.6, -0.1}
+                     0.000,   0.823,    0.736,    0.786,    0.805,    0.836,    0.870,    0.886,    0.899,    0.907,    0.909,    0.904,    0.936,  // eta: {-0.1, 0}
+                     0.000,   0.823,    0.736,    0.786,    0.781,    0.826,    0.857,    0.868,    0.888,    0.895,    0.897,    0.893,    0.931,  // eta: {0, 0.1}
+                     0.000,   0.832,    0.782,    0.820,    0.821,    0.851,    0.878,    0.896,    0.908,    0.921,    0.923,    0.926,    0.945,  // eta: {0.1, 0.6}
+                     0.000,   0.832,    0.782,    0.820,    0.817,    0.850,    0.882,    0.901,    0.912,    0.925,    0.928,    0.927,    0.954,  // eta: {0.6, 0.8}
+                     0.000,   0.775,    0.773,    0.811,    0.795,    0.838,    0.867,    0.891,    0.902,    0.913,    0.919,    0.921,    0.949,  // eta: {0.8, 1.15}
+                     0.000,   0.775,    0.773,    0.811,    0.790,    0.842,    0.872,    0.895,    0.908,    0.920,    0.923,    0.928,    0.951,  // eta: {1.15, 1.37}
+                     0.000,   0.675,    0.569,    0.695,    0.770,    0.765,    0.776,    0.804,    0.842,    0.872,    0.884,    0.898,    0.914,  // eta: {1.37, 1.52}
+                     0.000,   0.736,    0.768,    0.794,    0.777,    0.815,    0.838,    0.864,    0.892,    0.906,    0.913,    0.920,    0.945,  // eta: {1.52, 1.81}
+                     0.000,   0.736,    0.768,    0.794,    0.796,    0.835,    0.851,    0.869,    0.884,    0.896,    0.902,    0.904,    0.924,  // eta: {1.81, 2.01}
+                     0.000,   0.887,    0.778,    0.827,    0.791,    0.823,    0.839,    0.858,    0.870,    0.888,    0.884,    0.889,    0.924,  // eta: {2.01, 2.37}
+                     0.000,   0.887,    0.778,    0.827,    0.823,    0.836,    0.831,    0.826,    0.817,    0.783,    0.759,    0.741,    0.944,  // eta: {2.37, 2.5}
           }
-        }
+        );
 
-
-        /// Randomly smear the supplied muons' momenta by parameterised resolutions
-        inline void smearMuonMomentum(std::vector<HEPUtils::Particle*>& muons) {
-          // Function that mimics the DELPHES muon momentum resolution
-          // We need to smear pT, then recalculate E, then reset 4 vector
-
-          static HEPUtils::BinnedFn2D<double> _muEff({{0,1.5,2.5}},
-                                                     {{0,0.1,1.,10.,200.,DBL_MAX}},
-                                                     {{0.,0.03,0.02,0.03,0.05,
-                                                       0.,0.04,0.03,0.04,0.05}});
-
-          // Now loop over the muons and smear the 4-vectors
-          for (HEPUtils::Particle* mu : muons) {
-            if (mu->abseta() > 2.5) continue;
-
-            // Look up resolution
-            const double resolution = _muEff.get_at(mu->abseta(), mu->pT());
-
-            // Smear by a Gaussian centered on the current energy, with width given by the resolution
-            std::normal_distribution<> d(mu->pT(), resolution*mu->pT());
-            double smeared_pt = d(Random::rng());
-            if (smeared_pt < 0) smeared_pt = 0;
-            // const double smeared_E = smeared_pt*cosh(mu->eta()); ///< @todo Should be cosh(|eta|)?
-            // std::cout << "Muon pt " << mu_pt << " smeared " << smeared_pt << endl;
-            mu->set_mom(HEPUtils::P4::mkEtaPhiMPt(mu->eta(), mu->phi(), mu->mass(), smeared_pt));
+        /// Efficiency function for Tight ID electrons
+        /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
+        /// Digitized from Figs 11-12
+        /// Combined in 2D efficiency
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_CONF_2014_032_Tight(
+          {-2.5, -2.37, -2.01, -1.81, -1.52, -1.37, -1.15, -0.8, -0.6, -0.1, 0, 0.1, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.5},   // Bin edges in eta
+          {0, 7., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., DBL_MAX},    // Bin edges in pT
+          {
+            // pT:   (0,7),  (7,10),  (10,15),  (15,20),  (20,25),  (25,30),  (30,35),  (35,40),  (40,45),  (45,50),  (50,60),  (60,80),  (80,inf)
+                     0.000,   0.820,    0.687,    0.736,    0.679,    0.684,    0.694,    0.685,    0.694,    0.677,    0.665,    0.658,    0.857,  // eta: {-2.5, -2.37}
+                     0.000,   0.820,    0.687,    0.736,    0.710,    0.741,    0.746,    0.759,    0.781,    0.808,    0.813,    0.812,    0.874,  // eta: {-2.37, -2.01}
+                     0.000,   0.566,    0.644,    0.670,    0.655,    0.684,    0.715,    0.727,    0.759,    0.781,    0.796,    0.801,    0.858,  // eta: {-2.01, -1.81}
+                     0.000,   0.566,    0.644,    0.670,    0.655,    0.696,    0.726,    0.752,    0.785,    0.807,    0.820,    0.834,    0.886,  // eta: {-1.81, -1.52}
+                     0.000,   0.535,    0.455,    0.570,    0.603,    0.634,    0.659,    0.685,    0.730,    0.765,    0.784,    0.794,    0.839,  // eta: {-1.52, -1.37}
+                     0.000,   0.608,    0.658,    0.702,    0.684,    0.721,    0.748,    0.773,    0.799,    0.817,    0.841,    0.845,    0.899,  // eta: {-1.37, -1.15}
+                     0.000,   0.608,    0.658,    0.702,    0.696,    0.735,    0.772,    0.793,    0.803,    0.822,    0.842,    0.853,    0.903,  // eta: {-1.15, -0.8}
+                     0.000,   0.712,    0.692,    0.733,    0.730,    0.762,    0.803,    0.822,    0.837,    0.850,    0.860,    0.868,    0.906,  // eta: {-0.8, -0.6}
+                     0.000,   0.712,    0.692,    0.733,    0.734,    0.769,    0.803,    0.820,    0.809,    0.827,    0.845,    0.858,    0.887,  // eta: {-0.6, -0.1}
+                     0.000,   0.619,    0.581,    0.642,    0.667,    0.698,    0.733,    0.749,    0.746,    0.762,    0.778,    0.779,    0.812,  // eta: {-0.1, 0}
+                     0.000,   0.619,    0.581,    0.642,    0.641,    0.685,    0.716,    0.727,    0.734,    0.752,    0.766,    0.766,    0.816,  // eta: {0, 0.1}
+                     0.000,   0.712,    0.692,    0.733,    0.744,    0.773,    0.803,    0.821,    0.804,    0.823,    0.843,    0.856,    0.894,  // eta: {0.1, 0.6}
+                     0.000,   0.712,    0.692,    0.733,    0.735,    0.772,    0.812,    0.831,    0.844,    0.858,    0.878,    0.877,    0.911,  // eta: {0.6, 0.8}
+                     0.000,   0.608,    0.658,    0.702,    0.697,    0.737,    0.775,    0.798,    0.807,    0.826,    0.851,    0.855,    0.903,  // eta: {0.8, 1.15}
+                     0.000,   0.608,    0.658,    0.702,    0.672,    0.721,    0.749,    0.774,    0.798,    0.818,    0.842,    0.850,    0.892,  // eta: {1.15, 1.37}
+                     0.000,   0.535,    0.455,    0.570,    0.589,    0.639,    0.660,    0.693,    0.730,    0.766,    0.790,    0.801,    0.841,  // eta: {1.37, 1.52}
+                     0.000,   0.566,    0.644,    0.670,    0.661,    0.696,    0.725,    0.751,    0.780,    0.803,    0.817,    0.835,    0.888,  // eta: {1.52, 1.81}
+                     0.000,   0.566,    0.644,    0.670,    0.645,    0.688,    0.715,    0.733,    0.761,    0.782,    0.802,    0.804,    0.860,  // eta: {1.81, 2.01}
+                     0.000,   0.820,    0.687,    0.736,    0.709,    0.733,    0.746,    0.759,    0.781,    0.802,    0.805,    0.803,    0.876,  // eta: {2.01, 2.37}
+                     0.000,   0.820,    0.687,    0.736,    0.670,    0.678,    0.675,    0.669,    0.675,    0.652,    0.649,    0.627,    0.857,  // eta: {2.37, 2.5}
           }
-        }
-
-
-        /// Randomly smear the supplied jets' momenta by parameterised resolutions
-        inline void smearJets(std::vector<HEPUtils::Jet*>& jets) {
-          // Function that mimics the DELPHES jet momentum resolution.
-          // We need to smear pT, then recalculate E, then reset the 4-vector.
-          // Const resolution for now
-          //const double resolution = 0.03;
-
-          // Matthias jet smearing implemented roughly from
-          // https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2015-017/
-          // Parameterisation can be still improved, but eta dependence is minimal
-          const std::vector<double>  binedges_eta = {0,10.};
-          const std::vector<double>  binedges_pt = {0,50.,70.,100.,150.,200.,1000.,10000.};
-          const std::vector<double> JetsJER = {0.145,0.115,0.095,0.075,0.07,0.05,0.04};
-          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
-
-          // Now loop over the jets and smear the 4-vectors
-          for (HEPUtils::Jet* jet : jets) {
-            const double resolution = _resJets2D.get_at(jet->abseta(), jet->pT());
-            std::normal_distribution<> d(1., resolution);
-            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
-            double smear_factor = d(Random::rng());
-            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
-            jet->set_mom(HEPUtils::P4::mkXYZM(jet->mom().px()*smear_factor, jet->mom().py()*smear_factor, jet->mom().pz()*smear_factor, jet->mass()));
-          }
-        }
-
-
-        /// Randomly smear the MET vector by parameterised resolutions
-        inline void smearMET(HEPUtils::P4& pmiss, double set) {
-          // Smearing function from ATLAS Run 1 performance paper, converted from Rivet
-          // cf. https://arxiv.org/pdf/1108.5602v2.pdf, Figs 14 and 15
-
-          // Linearity offset (Fig 14)
-          if (pmiss.pT() < 25) pmiss *= 1.05;
-          else if (pmiss.pT() < 40) pmiss *= (1.05 - (0.04/15)*(pmiss.pT() - 25)); //< linear decrease
-          else pmiss *= 1.01;
-
-          // Smear by a Gaussian with width given by the resolution(sumEt) ~ 0.45 sqrt(sumEt) GeV
-          const double resolution = 0.45 * sqrt(set);
-          std::normal_distribution<> d(pmiss.pT(), resolution);
-          const double smearedmet = std::max(d(Random::rng()), 0.);
-
-          pmiss *= smearedmet / pmiss.pT();
-        }
-
-
-        /// Randomly smear the supplied taus' momenta by parameterised resolutions
-        inline void smearTaus(std::vector<HEPUtils::Particle*>& taus) {
-          // We need to smear pT, then recalculate E, then reset the 4-vector.
-          // Same as for jets, but on a vector of particles. (?)
-          // Const resolution for now
-          const double resolution = 0.03;
-
-          // Now loop over the jets and smear the 4-vectors
-          std::normal_distribution<> d(1., resolution);
-          for (HEPUtils::Particle* p : taus) {
-            // Smear by a Gaussian centered on 1 with width given by the (fractional) resolution
-            double smear_factor = d(Random::rng());
-            /// @todo Is this the best way to smear? Should we preserve the mean jet energy, or pT, or direction?
-            p->set_mom(HEPUtils::P4::mkXYZM(p->mom().px()*smear_factor, p->mom().py()*smear_factor, p->mom().pz()*smear_factor, p->mass()));
-          }
-        }
-
+        );
 
         /// Efficiency function for Loose ID electrons
         /// @note Numbers digitised from Fig 3 of 13 TeV note (ATL-PHYS-PUB-2015-041)
         /// @todo What about faking by jets or non-electrons?
-        inline void applyLooseIDElectronSelectionR2(std::vector<const HEPUtils::Particle*>& electrons) {
-          if (electrons.empty()) return;
-
-          // Manually symmetrised eta eff histogram
-          const static std::vector<double> binedges_eta = { 0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX };
-          const static std::vector<double> bineffs_eta  = { 0.950, 0.965, 0.955, 0.885, 0.950, 0.935, 0.90, 0 };
-          const static HEPUtils::BinnedFn1D<double> _eff_eta(binedges_eta, bineffs_eta);
-          // Et eff histogram (10-20 GeV bin added by hand)
-          const static std::vector<double> binedges_et = { 10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX };
-          const static std::vector<double> bineffs_et  = { 0.90, 0.91, 0.92, 0.94, 0.95, 0.955, 0.965, 0.97, 0.98, 0.98 };
-          const static HEPUtils::BinnedFn1D<double> _eff_et(binedges_et, bineffs_et);
-
-          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
-                                                 [](const HEPUtils::Particle* electron) {
-                                                   const double e_pt = electron->pT();
-                                                   const double e_aeta = electron->abseta();
-                                                   if (e_aeta > 2.47 || e_pt < 10) return true;
-                                                   const double eff1 = _eff_eta.get_at(e_aeta), eff2 = _eff_et.get_at(e_pt);
-                                                   const double eff = std::min(eff1 * eff2 / 0.95, 1.0); //< norm factor as approximate double differential
-                                                   return random_bool(1-eff);
-                                                 } );
-          electrons.erase(keptElectronsEnd, electrons.end());
-        }
-
-        /// Alias to allow non-const particle vectors
-        inline void applyLooseIDElectronSelectionR2(std::vector<HEPUtils::Particle*>& electrons) {
-          applyLooseIDElectronSelectionR2(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
-        }
-
-        /// Efficiency function for Loose ID electrons
-        /// @note Numbers digitised from Fig 3 of 13 TeV note (ATL-PHYS-PUB-2015-041)
-        inline void applyMediumIDElectronSelectionR2(std::vector<const HEPUtils::Particle*>& electrons) {
-          if (electrons.empty()) return;
-
-          // Manually symmetrised eta eff histogram
-          const static std::vector<double> binedges_eta = { 0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX };
-          const static std::vector<double> bineffs_eta  = { 0.900, 0.930, 0.905, 0.830, 0.900, 0.880, 0.85, 0 };
-          const static HEPUtils::BinnedFn1D<double> _eff_eta(binedges_eta, bineffs_eta);
-          // Et eff histogram (10-20 GeV bin added by hand)
-          const static std::vector<double> binedges_et = { 10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX };
-          const static std::vector<double> bineffs_et  = { 0.83, 0.845, 0.87, 0.89, 0.90, 0.91, 0.92, 0.93, 0.95, 0.95 };
-          const static HEPUtils::BinnedFn1D<double> _eff_et(binedges_et, bineffs_et);
-
-          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
-                                                 [](const HEPUtils::Particle* electron) {
-                                                   const double e_pt = electron->pT();
-                                                   const double e_aeta = electron->abseta();
-                                                   if (e_aeta > 2.47 || e_pt < 10) return true;
-                                                   const double eff1 = _eff_eta.get_at(e_aeta), eff2 = _eff_et.get_at(e_pt);
-                                                   const double eff = std::min(eff1 * eff2 / 0.95, 1.0); //< norm factor as approximate double differential
-                                                   return random_bool(1-eff);
-                                                 } );
-          electrons.erase(keptElectronsEnd, electrons.end());
-        }
-
-        /// Alias to allow non-const particle vectors
-        inline void applyMediumIDElectronSelectionR2(std::vector<HEPUtils::Particle*>& electrons) {
-          applyMediumIDElectronSelectionR2(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
-        }
+        /// @note Manually symmetrised eta eff histogram
+        const static std::vector<double> bineffs_eta_Loose  = { 0.950, 0.965, 0.955, 0.885, 0.950, 0.935, 0.90, 0 };
+        /// @note Et eff histogram (10-20 GeV bin added by hand)
+        /// normalisation factor as approximate double differential
+        const static std::vector<double> bineffs_et_Loose  = { 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.94/0.95, 0.95/0.95, 0.955/0.95, 0.965/0.95, 0.97/0.95, 0.98/0.95, 0.98/0.95 };
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose(
+          {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
+          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          Utils::outer_product(bineffs_eta_Loose, bineffs_et_Loose)
+        );
 
         /// Efficiency function for Medium ID electrons
-        /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
-        inline void applyMediumIDElectronSelection(std::vector<const HEPUtils::Particle*>& electrons) {
-          if (electrons.empty()) return;
-
-          const static std::vector<double> binedges_E10_15 = {0., 0.0494681, 0.453578, 1.10675, 1.46298, 1.78963, 2.2766, 2.5};
-          const static std::vector<double> binvalues_E10_15 = makeBinValues({0.730435, 0.730435, 0.782609, 0.776812, 0.765217, 0.773913, 0.77971, 0.776812});
-          const static HEPUtils::BinnedFn1D<double> _eff_E10_15(binedges_E10_15, binvalues_E10_15);
-
-          const static std::vector<double> binedges_E15_20 = {0., 0.0533175, 0.456161, 1.1019, 1.46327, 1.78318, 2.26303, 2.5};
-          const static std::vector<double> binvalues_E15_20 = makeBinValues({0.77971, 0.77971, 0.82029, 0.817391, 0.701449, 0.797101, 0.828986, 0.828986});
-          const static HEPUtils::BinnedFn1D<double> _eff_E15_20(binedges_E15_20, binvalues_E15_20);
-
-          const static std::vector<double> binedges_E20_25 = {-2.5, -2.45249, -2.21496, -1.94181, -1.6924, -1.46675, -1.26485, -0.991686, -0.682898, -0.350356, -0.0415677, 0.0653207, 0.362233, 0.718527, 0.97981, 1.2886, 1.45487, 1.68052, 1.94181, 2.23872, 2.45249, 2.5};
-          const static std::vector<double> binvalues_E20_25 = makeBinValues({0.827811, 0.82572, 0.790414, 0.798585, 0.779843, 0.727974, 0.802447, 0.798192, 0.812561, 0.812423, 0.808153, 0.779115, 0.822483, 0.816123, 0.795304, 0.793105, 0.772326, 0.778446, 0.794906, 0.78857, 0.821617, 0.821593});
-          const static HEPUtils::BinnedFn1D<double> _eff_E20_25(binedges_E20_25, binvalues_E20_25);
-
-          const static std::vector<double> binedges_E25_30 = {-2.5, -2.45249, -2.22684, -1.92993, -1.6924, -1.46675, -1.26485, -0.97981, -0.694774, -0.33848, -0.0534442, 0.0771971, 0.33848, 0.74228, 1.00356, 1.26485, 1.46675, 1.6924, 1.94181, 2.22684, 2.45249, 2.5};
-          const static std::vector<double> binvalues_E25_30 = makeBinValues({0.84095, 0.838892, 0.8286, 0.830801, 0.818436, 0.76037, 0.841463, 0.83535, 0.850008, 0.852233, 0.837812, 0.82748, 0.854592, 0.854759, 0.838251, 0.844591, 0.76782, 0.815688, 0.836563, 0.824219, 0.838853, 0.838877});
-          const static HEPUtils::BinnedFn1D<double> _eff_E25_30(binedges_E25_30, binvalues_E25_30);
-
-          const static std::vector<double> binedges_E30_35 = {-2.5, -2.44062, -2.21496, -1.92993, -1.68052, -1.46675, -1.27672, -0.991686, -0.706651, -0.350356, -0.0534442, 0.0771971, 0.350356, 0.706651, 0.97981, 1.2886, 1.47862, 1.68052, 1.94181, 2.23872, 2.44062, 2.5};
-          const static std::vector<double> binvalues_E30_35 = makeBinValues({0.849263, 0.849233, 0.840831, 0.853176, 0.844763, 0.771974, 0.873676, 0.865249, 0.877593, 0.883677, 0.869013, 0.856496, 0.879231, 0.883238, 0.870661, 0.870533, 0.779059, 0.839213, 0.84949, 0.834827, 0.834743, 0.834718});
-          const static HEPUtils::BinnedFn1D<double> _eff_E30_35(binedges_E30_35, binvalues_E30_35);
-
-          const static std::vector<double> binedges_E35_40 = {-2.5, -2.44841, -2.23431, -1.94914, -1.69969, -1.46336, -1.28359, -0.998664, -0.713488, -0.357087, -0.0723338, 0.0580256, 0.343519, 0.699955, 1.0085, 1.26989, 1.45836, 1.685, 1.93451, 2.23118, 2.46818, 2.5};
-          const static std::vector<double> binvalues_E35_40 = makeBinValues({0.836795, 0.84095, 0.859644, 0.867953, 0.87003, 0.799407, 0.894955, 0.888724, 0.897033, 0.903264, 0.886647, 0.87003, 0.897033, 0.905341, 0.890801, 0.897033, 0.805638, 0.863798, 0.87003, 0.85549, 0.824332, 0.826409});
-          const static HEPUtils::BinnedFn1D<double> _eff_E35_40(binedges_E35_40, binvalues_E35_40);
-
-          const static std::vector<double> binedges_E40_45 = {-2.5, -2.45261, -2.22749, -1.93128, -1.68246, -1.46919, -1.27962, -0.995261, -0.7109, -0.343602, -0.0592417, 0.0473934, 0.35545, 0.699052, 0.983412, 1.27962, 1.4455, 1.69431, 1.94313, 2.22749, 2.44076, 2.5};
-          const static std::vector<double> binvalues_E40_45 = makeBinValues({0.836795, 0.836795, 0.87003, 0.882493, 0.897033, 0.84095, 0.911573, 0.89911, 0.907418, 0.909496, 0.89911, 0.888724, 0.907418, 0.91365, 0.89911, 0.907418, 0.843027, 0.890801, 0.882493, 0.87003, 0.816024, 0.816024});
-          const static HEPUtils::BinnedFn1D<double> _eff_E40_45(binedges_E40_45, binvalues_E40_45);
-
-          const static std::vector<double> binedges_E45_50 = {-2.5, -2.46086, -2.22192, -1.93675, -1.68709, -1.46211, -1.27124, -0.986416, -0.689328, -0.356822, -0.0482438, 0.0584337, 0.355838, 0.712203, 0.996992, 1.28217, 1.45947, 1.68576, 1.93499, 2.21988, 2.44378, 2.5};
-          const static std::vector<double>  binvalues_E45_50 =  makeBinValues({0.807101, 0.807101, 0.889941, 0.898225, 0.912722, 0.873373, 0.923077, 0.910651, 0.921006, 0.918935, 0.906509, 0.894083, 0.923077, 0.927219, 0.912722, 0.921006, 0.871302, 0.90858, 0.898225, 0.889941, 0.786391, 0.786391});
-          const static HEPUtils::BinnedFn1D<double> _eff_E45_50 = {binedges_E45_50, binvalues_E45_50};
-
-          const static std::vector<double> binedges_E50_60 = {-2.5, -2.44076, -2.21564, -1.93128, -1.69431, -1.46919, -1.26777, -0.983412, -0.7109, -0.35545, -0.0592417, 0.0592417, 0.35545, 0.7109, 0.983412, 1.27962, 1.46919, 1.68246, 1.91943, 2.22749, 2.44076, 2.5};
-          const static std::vector<double>  binvalues_E50_60 = makeBinValues({0.785417, 0.785417, 0.891667, 0.9, 0.916667, 0.877083, 0.927083, 0.91875, 0.91875, 0.922917, 0.90625, 0.9, 0.922917, 0.929167, 0.920833, 0.925, 0.885417, 0.9125, 0.904167, 0.885417, 0.7625, 0.7625});
-          const static HEPUtils::BinnedFn1D<double> _eff_E50_60 = {binedges_E50_60, binvalues_E50_60};
-
-          const static std::vector<double> binedges_E60_80 = {-2.5, -2.44933, -2.22119, -1.9353, -1.68491, -1.47115, -1.2682, -0.982628, -0.696912, -0.351494, -0.0423579, 0.0526683, 0.350856, 0.719871, 1.00552, 1.29137, 1.46938, 1.69596, 1.94572, 2.24305, 2.45479, 2.5};
-          const static std::vector<double>  binvalues_E60_80 = makeBinValues({0.779163, 0.779188, 0.893866, 0.904402, 0.927423, 0.896262, 0.92968, 0.921466, 0.921585, 0.932145, 0.909357, 0.896897, 0.930355, 0.928425, 0.924377, 0.93283, 0.899571, 0.922582, 0.908102, 0.89156, 0.741648, 0.741678});
-          const static HEPUtils::BinnedFn1D<double> _eff_E60_80 = {binedges_E60_80, binvalues_E60_80};
-
-          const static std::vector<double> binedges_E80 = {-2.5, -2.45835, -2.22058, -1.94663, -1.68451, -1.44712, -1.27961, -0.970161, -0.708258, -0.351259, -0.0537477, 0.0532884, 0.351188, 0.72041, 0.994111, 1.29176, 1.4815, 1.70839, 1.93419, 2.21998, 2.45825, 2.5};
-          const static std::vector<double>  binvalues_E80 = makeBinValues({0.951041, 0.948944, 0.930151, 0.938346, 0.9507, 0.909058, 0.95884, 0.954557, 0.954449, 0.945992, 0.939637, 0.933361, 0.949854, 0.960086, 0.953741, 0.955695, 0.911996, 0.953445, 0.930502, 0.934538, 0.944824, 0.9448});
-          const static HEPUtils::BinnedFn1D<double> _eff_E80 = {binedges_E80, binvalues_E80};
-
-          // Now loop over the electrons and only keep those that pass the random efficiency cut
-          /// @note No delete is necessary, because this should only ever be applied to a copy of the Event Particle* vectors
-          /// @todo This is an exact duplication of the below filtering code -- split into a single util fn (in unnamed namespace?) when binned fns are static
-          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
-                                             [](const HEPUtils::Particle* electron) {
-                                               const double e_pt = electron->pT();
-                                               const double e_eta = electron->eta();
-                                               if (!(fabs(e_eta) < 2.5 && e_pt >= 10)) return true;
-                                               else if (HEPUtils::in_range(e_pt, 10, 15)) return !random_bool(_eff_E10_15, fabs(e_eta));
-                                               else if (HEPUtils::in_range(e_pt, 15, 20)) return !random_bool(_eff_E15_20, fabs(e_eta));
-                                               else if (HEPUtils::in_range(e_pt, 20, 25)) return !random_bool(_eff_E20_25, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 25, 30)) return !random_bool(_eff_E25_30, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 30, 35)) return !random_bool(_eff_E30_35, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 35, 40)) return !random_bool(_eff_E35_40, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 40, 45)) return !random_bool(_eff_E40_45, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 45, 50)) return !random_bool(_eff_E45_50, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 50, 60)) return !random_bool(_eff_E50_60, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 60, 80)) return !random_bool(_eff_E60_80, e_eta);
-                                               else return !random_bool(_eff_E80, e_eta);
-                                             } );
-          electrons.erase(keptElectronsEnd, electrons.end());
-        }
-
-
-        /// Alias to allow non-const particle vectors
-        inline void applyMediumIDElectronSelection(std::vector<HEPUtils::Particle*>& electrons) {
-          applyMediumIDElectronSelection(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
-        }
-
-
-        /// Efficiency function for Tight ID electrons
-        /// @note Numbers digitised from 8 TeV note (ATLAS-CONF-2014-032)
-        inline void applyTightIDElectronSelection(std::vector<const HEPUtils::Particle*>& electrons) {
-
-          const static std::vector<double> binedges_E10_15 = {0., 0.0485903, 0.458914, 1.10009, 1.46117, 1.78881, 2.27013, 2.5};
-          const static std::vector<double> binvalues_E10_15 = makeBinValues({0.57971, 0.582609, 0.681159, 0.655072, 0.46087, 0.634783, 0.689855, 0.689855});
-          const static HEPUtils::BinnedFn1D<double> _eff_E10_15(binedges_E10_15, binvalues_E10_15);
-
-          const static std::vector<double> binedges_E15_20 = {0., 0.0533175, 0.450237, 1.09597, 1.46327, 1.78318, 2.26896, 2.5};
-          const static std::vector<double> binvalues_E15_20 = makeBinValues({0.631884, 0.628986, 0.727536, 0.701449, 0.565217, 0.666667, 0.733333, 0.733333});
-          const static HEPUtils::BinnedFn1D<double> _eff_E15_20(binedges_E15_20, binvalues_E15_20);
-
-          const static std::vector<double> binedges_E20_25 =  {-2.5, -2.44062, -2.22684, -1.92993, -1.66865, -1.45487, -1.26485, -0.967933, -0.706651, -0.350356, -0.0415677, 0.0653207, 0.362233, 0.718527, 0.991686, 1.27672, 1.47862, 1.6924, 1.92993, 2.22684, 2.46437, 2.5};
-          const static std::vector<double> binvalues_E20_25 = makeBinValues({0.678698, 0.678674, 0.70965, 0.65361, 0.655573, 0.599567, 0.6844, 0.694632, 0.729731, 0.731654, 0.665254, 0.640358, 0.743785, 0.733282, 0.697962, 0.672992, 0.585926, 0.660394, 0.652011, 0.703663, 0.670429, 0.668338});
-          const static HEPUtils::BinnedFn1D<double> _eff_E20_25(binedges_E20_25, binvalues_E20_25);
-
-          const static std::vector<double> binedges_E25_30 = {-2.5, -2.44062, -2.22684, -1.91805, -1.68052, -1.45487, -1.27672, -0.97981, -0.706651, -0.350356, -0.0415677, 0.0771971, 0.362233, 0.718527, 0.991686, 1.30048, 1.47862, 1.6924, 1.94181, 2.22684, 2.46437, 2.5};
-          const static std::vector<double> binvalues_E25_30 = makeBinValues({0.678932, 0.681034, 0.737205, 0.683328, 0.695889, 0.633669, 0.720983, 0.733569, 0.758609, 0.769142, 0.69657, 0.688311, 0.771515, 0.771663, 0.734388, 0.717899, 0.636964, 0.699368, 0.689086, 0.730747, 0.67684, 0.67686});
-          const static HEPUtils::BinnedFn1D<double> _eff_E25_30(binedges_E25_30, binvalues_E25_30);
-
-          const static std::vector<double> binedges_E30_35 = {-2.5, -2.45249, -2.21496, -1.94181, -1.68052, -1.47862, -1.27672, -0.97981, -0.706651, -0.33848, -0.0415677, 0.0534442, 0.362233, 0.718527, 1.00356, 1.27672, 1.46675, 1.68052, 1.95368, 2.23872, 2.45249, 2.5};
-          const static std::vector<double> binvalues_E30_35 = makeBinValues({0.691395, 0.691375, 0.749436, 0.716089, 0.726366, 0.653582, 0.749047, 0.771772, 0.800739, 0.802663, 0.731916, 0.71526, 0.802372, 0.810532, 0.773025, 0.75214, 0.656512, 0.722892, 0.712393, 0.745509, 0.670643, 0.6727});
-          const static HEPUtils::BinnedFn1D<double> _eff_E30_35(binedges_E30_35, binvalues_E30_35);
-
-          const static std::vector<double> binedges_E35_40 = {-2.5, -2.46296, -2.22413, -1.93966, -1.7017, -1.47721, -1.28567, -0.988409, -0.714721, -0.334744, -0.0510125, 0.0437527, 0.342215, 0.710598, 0.971211, 1.27968, 1.45638, 1.68306, 1.94399, 2.21764, 2.44185, 2.5};
-          const static std::vector<double> binvalues_E35_40 = makeBinValues({0.683086, 0.683086, 0.759941, 0.726706, 0.751632, 0.683086, 0.772404, 0.793175, 0.824332, 0.820178, 0.743323, 0.728783, 0.820178, 0.832641, 0.793175, 0.774481, 0.689318, 0.749555, 0.728783, 0.757864, 0.6727, 0.6727});
-          const static HEPUtils::BinnedFn1D<double> _eff_E35_40(binedges_E35_40, binvalues_E35_40);
-
-          const static std::vector<double> binedges_E40_45 = {-2.5, -2.45261, -2.21564, -1.94313, -1.69431, -1.45735, -1.27962, -0.983412, -0.7109, -0.35545, -0.0592417, 0.0473934, 0.35545, 0.699052, 0.983412, 1.26777, 1.45735, 1.67062, 1.93128, 2.20379, 2.45261, 2.5};
-          const static std::vector<double> binvalues_E40_45 = makeBinValues({0.693472, 0.693472, 0.782789, 0.757864, 0.784866, 0.726706, 0.797329, 0.803561, 0.836795, 0.805638, 0.747478, 0.735015, 0.805638, 0.843027, 0.807715, 0.797329, 0.732938, 0.780712, 0.762018, 0.782789, 0.674777, 0.674777});
-          const static HEPUtils::BinnedFn1D<double> _eff_E40_45(binedges_E40_45, binvalues_E40_45);
-
-          const static std::vector<double> binedges_E45_50 = {-2.5, -2.46311, -2.22329, -1.93875, -1.70073, -1.47585, -1.273, -0.976015, -0.714205, -0.358403, -0.0625448, 0.0560444, 0.354151, 0.711078, 0.98364, 1.28045, 1.45768, 1.68407, 1.94493, 2.20653, 2.4415, 2.5};
-          const static std::vector<double>  binvalues_E45_50 =  makeBinValues({0.674556, 0.674556, 0.809172, 0.780178, 0.809172, 0.763609, 0.819527, 0.823669, 0.854734, 0.82574, 0.763609, 0.753254, 0.823669, 0.860947, 0.82574, 0.819527, 0.76568, 0.809172, 0.78432, 0.802959, 0.651775, 0.651775});
-          const static HEPUtils::BinnedFn1D<double> _eff_E45_50 = {binedges_E45_50, binvalues_E45_50};
-
-          const static std::vector<double> binedges_E50_60 = {-2.5, -2.45261, -2.21564, -1.93128, -1.68246, -1.45735, -1.27962, -0.995261, -0.699052, -0.343602, -0.0592417, 0.0592417, 0.35545, 0.699052, 0.983412, 1.26777, 1.4455, 1.68246, 1.94313, 2.21564, 2.45261, 2.5};
-          const static std::vector<double>  binvalues_E50_60 = makeBinValues({0.6625, 0.6625, 0.810417, 0.795833, 0.81875, 0.779167, 0.839583, 0.84375, 0.860417, 0.841667, 0.777083, 0.764583, 0.841667, 0.877083, 0.85, 0.839583, 0.785417, 0.816667, 0.8, 0.804167, 0.64375, 0.64375});
-          const static HEPUtils::BinnedFn1D<double> _eff_E50_60 = {binedges_E50_60, binvalues_E50_60};
-
-          const static std::vector<double> binedges_E60_80 = {-2.5, -2.46326, -2.22265, -1.93711, -1.69844, -1.47299, -1.28152, -0.995631, -0.709702, -0.364674, -0.0564949, 0.0504716, 0.349652, 0.707116, 0.980538, 1.27812, 1.46757, 1.69447, 1.94394, 2.24157, 2.45288, 2.5};
-          const static std::vector<double>  binvalues_E60_80 = makeBinValues({0.660412, 0.660432, 0.808449, 0.798151, 0.831584, 0.787928, 0.846341, 0.856877, 0.869496, 0.85714, 0.778101, 0.767729, 0.859521, 0.87842, 0.855617, 0.853658, 0.79332, 0.835081, 0.803935, 0.804059, 0.629147, 0.629172});
-          const static HEPUtils::BinnedFn1D<double> _eff_E60_80 = {binedges_E60_80, binvalues_E60_80};
-
-          const static std::vector<double> binedges_E80 = {-2.5, -2.45987, -2.22149, -1.94797, -1.69748, -1.47206, -1.29251, -0.994818, -0.709105, -0.352212, -0.0558319, 0.0513809, 0.374044, 0.719562, 0.981359, 1.27873, 1.46843, 1.70723, 1.9449, 2.20712, 2.45676, 2.5};
-          const static std::vector<double>  binvalues_E80 = makeBinValues({0.859652, 0.859627, 0.876145, 0.859415, 0.888391, 0.8426, 0.900685, 0.904716, 0.904597, 0.889909, 0.817086, 0.821195, 0.893762, 0.910235, 0.903895, 0.889231, 0.843455, 0.884899, 0.859875, 0.87846, 0.857585, 0.85756});
-          const static HEPUtils::BinnedFn1D<double> _eff_E80 = {binedges_E80, binvalues_E80};
-
-          // Now loop over the electrons and only keep those that pass the random efficiency cut
-          /// @note No delete is necessary, because this should only ever be applied to a copy of the Event Particle* vectors
-          /// @todo This is an exact duplication of the above filtering code -- split into a single util fn (in unnamed namespace?) when binned fns are static
-          auto keptElectronsEnd = std::remove_if(electrons.begin(), electrons.end(),
-                                             [](const HEPUtils::Particle* electron) {
-                                               const double e_pt = electron->pT();
-                                               const double e_eta = electron->eta();
-                                               if (!(fabs(e_eta) < 2.5 && e_pt >= 10)) return true;
-                                               else if (HEPUtils::in_range(e_pt, 10, 15)) return !random_bool(_eff_E10_15, fabs(e_eta));
-                                               else if (HEPUtils::in_range(e_pt, 15, 20)) return !random_bool(_eff_E15_20, fabs(e_eta));
-                                               else if (HEPUtils::in_range(e_pt, 20, 25)) return !random_bool(_eff_E20_25, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 25, 30)) return !random_bool(_eff_E25_30, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 30, 35)) return !random_bool(_eff_E30_35, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 35, 40)) return !random_bool(_eff_E35_40, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 40, 45)) return !random_bool(_eff_E40_45, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 45, 50)) return !random_bool(_eff_E45_50, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 50, 60)) return !random_bool(_eff_E50_60, e_eta);
-                                               else if (HEPUtils::in_range(e_pt, 60, 80)) return !random_bool(_eff_E60_80, e_eta);
-                                               else return !random_bool(_eff_E80, e_eta);
-                                             } );
-          electrons.erase(keptElectronsEnd, electrons.end());
-        }
-
-
-        /// Alias to allow non-const particle vectors
-        inline void applyTightIDElectronSelection(std::vector<HEPUtils::Particle*>& electrons) {
-          applyTightIDElectronSelection(reinterpret_cast<std::vector<const HEPUtils::Particle*>&>(electrons));
-        }
+        /// @note Numbers digitised from Fig 3 of 13 TeV note (ATL-PHYS-PUB-2015-041)
+        /// @note Manually symmetrised eta eff histogram
+        const static std::vector<double> bineffs_eta_Medium  = { 0.900, 0.930, 0.905, 0.830, 0.900, 0.880, 0.85, 0 };
+        /// @note Et eff histogram (10-20 GeV bin added by hand)
+        /// normalisation factor as approximate double differential
+        const static std::vector<double> bineffs_et_Medium  = { 0.83/0.95, 0.845/0.95, 0.87/0.95, 0.89/0.95, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.93/0.95, 0.95/0.95, 0.95/0.95};
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Medium(
+          {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
+          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          Utils::outer_product(bineffs_eta_Medium, bineffs_et_Medium)
+        );
 
 
         /// Electron 2019 ID efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
         /// @note These efficiencies are 1D efficiencies so only pT is used
-        inline void applyElectronIDEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
-        {
+        /// Digitised from Fig 8
 
-          // digitised from Fig 8
-          const static std::vector<double> binedges_pt  = { 0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX};
-          const static std::vector<double> bineffs_pt_loose  = { 0.9054376657824932, 0.9267904509283819, 0.8757294429708221, 0.8450928381962863, 0.8775862068965516, 0.889655172413793, 0.9035809018567638, 0.9193633952254641, 0.929575596816976, 0.9370026525198938, 0.942572944297082, 0.9509283819628646, 0.9592838196286471};
-          const static std::vector<double> bineffs_pt_medium  = { 0.7355437665782492, 0.7912466843501325, 0.7986737400530503, 0.7717506631299733, 0.8135278514588858, 0.8348806366047744, 0.8525198938992041, 0.8692307692307691, 0.8822281167108752, 0.889655172413793, 0.902652519893899, 0.9230769230769229, 0.9407161803713526 };
-          const static std::vector<double> bineffs_pt_tight  = { 0.5572944297082227, 0.6213527851458884, 0.6547745358090185, 0.6714854111405835, 0.699336870026525, 0.7299734748010609, 0.7559681697612731, 0.7754641909814322, 0.7921750663129972, 0.8079575596816975, 0.8311671087533155, 0.8710875331564986, 0.8989389920424402 };
+        // VeryLoose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_VeryLoose(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          {0.9054376657824932, 0.9267904509283819, 0.8757294429708221, 0.8450928381962863, 0.8775862068965516, 0.889655172413793, 0.9035809018567638, 0.9193633952254641, 0.929575596816976, 0.9370026525198938, 0.942572944297082, 0.9509283819628646, 0.9592838196286471}
+        );
 
-          // select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Loose" or operating_point == "VeryLoose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "Medium")
-            bineffs_pt = bineffs_pt_medium;
-          else if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else
-            utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_Loose(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          {0.9054376657824932, 0.9267904509283819, 0.8757294429708221, 0.8450928381962863, 0.8775862068965516, 0.889655172413793, 0.9035809018567638, 0.9193633952254641, 0.929575596816976, 0.9370026525198938, 0.942572944297082, 0.9509283819628646, 0.9592838196286471}
+        );
 
-          // filter electrons
-          filtereff_pt(electrons, _eff_pt);
+        // Medium
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_Medium(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          { 0.7355437665782492, 0.7912466843501325, 0.7986737400530503, 0.7717506631299733, 0.8135278514588858, 0.8348806366047744, 0.8525198938992041, 0.8692307692307691, 0.8822281167108752, 0.889655172413793, 0.902652519893899, 0.9230769230769229, 0.9407161803713526 }
+        );
 
-        }
+        // Tight
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_ID_Tight(
+          {0.0, 6.668795911849248, 9.673354432217419, 14.643593391597225, 19.57318312476409, 24.71356813100665, 29.655352632037403, 34.594233616910074, 39.73636073284749, 44.68221015649952, 49.6292209866148, 59.52440405330856, 79.51859702099242, DBL_MAX},
+          { 0.5572944297082227, 0.6213527851458884, 0.6547745358090185, 0.6714854111405835, 0.699336870026525, 0.7299734748010609, 0.7559681697612731, 0.7754641909814322, 0.7921750663129972, 0.8079575596816975, 0.8311671087533155, 0.8710875331564986, 0.8989389920424402 }
+        );
+
 
         /// Electron 2019 Isolation efficiency functions from https://arxiv.org/pdf/1902.04655.pdf
         /// @note These efficiencies are 1D efficiencies so only pT is used
-        inline void applyElectronIsolationEfficiency2019(std::vector<const HEPUtils::Particle*>& electrons, str operating_point)
-        {
+        /// Digitised from Fig 12
 
-          // digitised from Fig 12
-          const static std::vector<double> binedges_pt = {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX};
-          const static std::vector<double> bineffs_pt_loose_trackonly = {0.9694027334287603, 0.9841898810834618, 0.9915715839022242, 0.9890807366218896, 0.9875756991852016, 0.9875509249064084, 0.9875261506276152, 0.9879947974014535, 0.9884634441752919, 0.9884386698964986, 0.9888959617925568, 0.9907953231667035, 0.9930404921823388};
-          const static std::vector<double> bineffs_pt_loose = {0.9595332801145123, 0.9812303870292888, 0.9891055109006828, 0.9875994412023784, 0.9856020149746753, 0.9826167143800926, 0.9820985190486677, 0.9820737447698745, 0.9820489704910813, 0.9825186495265361, 0.9829749091609778, 0.9903008698524555, 0.9930394599207224};
-          const static std::vector<double> bineffs_pt_gradient_loose = {0.8973632597445498, 0.9471843343977098, 0.9693676365338032, 0.9466465260955738, 0.947115172869412, 0.9485706617485136, 0.9539735190486678, 0.9593784408720547, 0.9642868448579609, 0.9706755120017618, 0.9780417308962784, 0.9843808494824929, 0.9851457553402335};
-          const static std::vector<double> bineffs_pt_gradient = {0.8425935229024444, 0.9082030389781987, 0.944204195111209, 0.9007573359392205, 0.9081359419731337, 0.9145235768553183, 0.924368255890773, 0.9351987447698745, 0.9460292336489761, 0.9573531435807092, 0.9716251926888351, 0.9838874284298613, 0.9851457553402335};
+        // LooseTrackOnly
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_LooseTrackOnly(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.9694027334287603, 0.9841898810834618, 0.9915715839022242, 0.9890807366218896, 0.9875756991852016, 0.9875509249064084, 0.9875261506276152, 0.9879947974014535, 0.9884634441752919, 0.9884386698964986, 0.9888959617925568, 0.9907953231667035, 0.9930404921823388}
+        );
 
-          // select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "LooseTrackOnly")
-            bineffs_pt = bineffs_pt_loose_trackonly;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "GradientLoose")
-            bineffs_pt = bineffs_pt_gradient_loose;
-          else if (operating_point == "Gradient")
-            bineffs_pt = bineffs_pt_gradient;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_Loose(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.9595332801145123, 0.9812303870292888, 0.9891055109006828, 0.9875994412023784, 0.9856020149746753, 0.9826167143800926, 0.9820985190486677, 0.9820737447698745, 0.9820489704910813, 0.9825186495265361, 0.9829749091609778, 0.9903008698524555, 0.9930394599207224}
+        );
 
-          // filter electrons
-          filtereff_pt(electrons, _eff_pt);
-        }
- 
+        // GradientLoose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_GradientLoose(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.8973632597445498, 0.9471843343977098, 0.9693676365338032, 0.9466465260955738, 0.947115172869412, 0.9485706617485136, 0.9539735190486678, 0.9593784408720547, 0.9642868448579609, 0.9706755120017618, 0.9780417308962784, 0.9843808494824929, 0.9851457553402335}
+        );
+
+        // Gradient
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_PERF_2017_01_Iso_Gradient(
+          {0.0, 6.548307897301772, 9.706735099256047, 14.643593391597225, 19.611982283197417, 24.561829913760132, 29.71154676569653, 34.461525174885566, 39.61370954807349, 44.56047277707178, 49.5109372879474, 59.60803424919497, 79.4086585320716, DBL_MAX},
+          {0.8425935229024444, 0.9082030389781987, 0.944204195111209, 0.9007573359392205, 0.9081359419731337, 0.9145235768553183, 0.924368255890773, 0.9351987447698745, 0.9460292336489761, 0.9573531435807092, 0.9716251926888351, 0.9838874284298613, 0.9851457553402335}
+        );
+
 
         /// Electron 2020 reconstruction efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyElectronReconstructionEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+        /// Digitised from Fig 5
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Recon(
+          {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, DBL_MAX},   // Bin edges in pT
+          {0.0, 0.0, 0.0, 0.0, 0.003218, 0.049709, 0.203532, 0.388353, 0.546803, 0.662459, 0.749662, 0.807719, 0.850278, 0.875487, 0.893757, 0.907169, 0.919424, 0.926128, 0.932831, 0.936759, 0.940224, 0.944846, 0.947386, 0.949695, 0.951078, 0.953849, 0.955695, 0.956847, 0.958924, 0.959845, 0.962154, 0.96238, 0.96492, 0.966766, 0.966762, 0.967914, 0.967678, 0.970912, 0.970676, 0.97229, 0.972286, 0.97205, 0.973664, 0.97366, 0.973655, 0.973419, 0.975496, 0.976417, 0.977106, 0.976639}
+        );
 
-          // Digitised from Fig 5
-          const static std::vector<double> binedges_pt = {0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0, 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5, 24.0, 24.5, DBL_MAX};
-          const static std::vector<double> bineffs_pt_candidate = {0.0, 0.0, 0.0, 0.0, 0.003218, 0.049709, 0.203532, 0.388353, 0.546803, 0.662459, 0.749662, 0.807719, 0.850278, 0.875487, 0.893757, 0.907169, 0.919424, 0.926128, 0.932831, 0.936759, 0.940224, 0.944846, 0.947386, 0.949695, 0.951078, 0.953849, 0.955695, 0.956847, 0.958924, 0.959845, 0.962154, 0.96238, 0.96492, 0.966766, 0.966762, 0.967914, 0.967678, 0.970912, 0.970676, 0.97229, 0.972286, 0.97205, 0.973664, 0.97366, 0.973655, 0.973419, 0.975496, 0.976417, 0.977106, 0.976639};
-          
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Candidate")
-            bineffs_pt = bineffs_pt_candidate;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
-
-          // Filter muons
-          filtereff_pt(electrons, _eff_pt);
-        }
-
-
-        
         /// Electron 2020 ID efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyElectronIDEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+        /// Digitised from Fig 23a
 
-          // Digitised from Fig 23a
-          const static std::vector<double> binedges_pt = {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_loose = {0.976333, 0.928653, 0.882698, 0.830078, 0.86466, 0.884306, 0.901769, 0.920381, 0.930032, 0.936581, 0.938994, 0.943589, 0.949449};
-          const static std::vector<double> bineffs_pt_medium = {0.790671, 0.797679, 0.816062, 0.752183, 0.794807, 0.82801, 0.847541, 0.868796, 0.882008, 0.887868, 0.897518, 0.916475, 0.93233};
-          const static std::vector<double> bineffs_pt_tight = {0.582835, 0.608686, 0.670726, 0.651999, 0.684283, 0.716567, 0.747358, 0.768038, 0.782399, 0.795381, 0.815832, 0.853631, 0.884536};
-          
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "Medium")
-            bineffs_pt = bineffs_pt_medium;
-          else if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_ID_Loose(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX},   // Bin edeges in pT
+          {0.976333, 0.928653, 0.882698, 0.830078, 0.86466, 0.884306, 0.901769, 0.920381, 0.930032, 0.936581, 0.938994, 0.943589, 0.949449}
+        );
 
-          // Filter muons
-          filtereff_pt(electrons, _eff_pt);
-        }
+        // Medium
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_ID_Medium(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX},   // Bin edeges in pT
+          {0.790671, 0.797679, 0.816062, 0.752183, 0.794807, 0.82801, 0.847541, 0.868796, 0.882008, 0.887868, 0.897518, 0.916475, 0.93233}
+        );
+
+        // Tight
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_ID_Tight(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX},   // Bin edeges in pT
+          {0.582835, 0.608686, 0.670726, 0.651999, 0.684283, 0.716567, 0.747358, 0.768038, 0.782399, 0.795381, 0.815832, 0.853631, 0.884536}
+        );
 
 
-        /// Electron 2020 isolation efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
+        /// Electron 2020 isolation efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data, EGAM-2018-01
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyElectronIsolationEfficiency2020(std::vector<const HEPUtils::Particle*>& electrons, str operating_point){
+        /// Digitize from Fig 16
 
-          // Digitised from Fig 23a
-          const static std::vector<double> binedges_pt = {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_gradient = {0.800008, 0.880847, 0.927209, 0.879823, 0.888724, 0.895806, 0.908012, 0.9198, 0.929307, 0.941235, 0.960432, 0.979162, 0.982515, 0.993515, 0.994261, 0.995376, 0.993139, 0.992581};
-          const static std::vector<double> bineffs_pt_loose = {0.740555, 0.826427, 0.905545, 0.951997, 0.972965, 0.983728, 0.990392, 0.994352, 0.996819, 0.997565, 0.997844, 0.998311, 0.99859, 0.99859, 0.999057, 0.999105, 0.996589, 0.997614};
-          const static std::vector<double> bineffs_pt_tight = {0.458893, 0.541276, 0.617828, 0.698061, 0.769957, 0.822, 0.862863, 0.895528, 0.924554, 0.940538, 0.95321, 0.970449, 0.985547, 0.992351, 0.993187, 0.993606, 0.991326, 0.991326};
-          const static std::vector<double> bineffs_pt_highptcaloonly = {0.982097, 0.975105, 0.969703, 0.967933, 0.966908, 0.965137, 0.965416, 0.966859, 0.970449, 0.970358, 0.967138, 0.962014, 0.950973, 0.926185, 0.904053, 0.908291, 0.925906, 0.929168};
+        // Gradient
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_Gradient(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.800008, 0.880847, 0.927209, 0.879823, 0.888724, 0.895806, 0.908012, 0.9198, 0.929307, 0.941235, 0.960432, 0.979162, 0.982515, 0.993515, 0.994261, 0.995376, 0.993139, 0.992581}
+        );
 
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Gradient")
-            bineffs_pt = bineffs_pt_gradient;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else if (operating_point == "HighPtCaloOnly")
-            bineffs_pt = bineffs_pt_highptcaloonly;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_Loose(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.740555, 0.826427, 0.905545, 0.951997, 0.972965, 0.983728, 0.990392, 0.994352, 0.996819, 0.997565, 0.997844, 0.998311, 0.99859, 0.99859, 0.999057, 0.999105, 0.996589, 0.997614}
+        );
 
-          // Filter muons
-          filtereff_pt(electrons, _eff_pt);
-        }
+        // Tight
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_Tight(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.458893, 0.541276, 0.617828, 0.698061, 0.769957, 0.822, 0.862863, 0.895528, 0.924554, 0.940538, 0.95321, 0.970449, 0.985547, 0.992351, 0.993187, 0.993606, 0.991326, 0.991326}
+        );
+
+        // HighPtCaloOnly
+        static const HEPUtils::BinnedFn1D<double> eff1DEl_EGAM_2018_01_Iso_HighPtCaloOnly(
+          {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, 150.0, 200.0, 250.0, 300.0, 350.0, DBL_MAX},   // Bin egdes in pT
+          {0.982097, 0.975105, 0.969703, 0.967933, 0.966908, 0.965137, 0.965416, 0.966859, 0.970449, 0.970358, 0.967138, 0.962014, 0.950973, 0.926185, 0.904053, 0.908291, 0.925906, 0.929168}
+        );
 
 
-        /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578
+        // VeryLoose WP from
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_VeryLoose(
+          {0., DBL_MAX},   // Bin edges in eta
+          {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500.,DBL_MAX },   // Bin edges in pT
+          {
+            // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+                    0.0,      0.78,     0.80,     0.82,     0.83,       0.84,      0.825,       0.82,       0.81,       0.8,       0.795,       0.79   // eta: (0, DBL_MAX)
+          }
+        );
+
+      /// @}
+
+
+      /// Muon efficiencies
+      /// @{
+
+        /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578, MUON-2018-03
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyMuonIDEfficiency2020(std::vector<const HEPUtils::Particle*>& muons, str operating_point){
+        /// Digitised from Fig 11a
 
-          // Digitised from Fig 11a
-          const static std::vector<double> binedges_pt = {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_tight = {0.0, 0.0, 0.66948, 0.8143, 0.85466, 0.87816, 0.89246, 0.90421, 0.91418, 0.91877, 0.92031, 0.92669, 0.93972};
-          const static std::vector<double> bineffs_pt_medium = {0.45262, 0.61328, 0.80766, 0.9387, 0.96245, 0.97063, 0.97165, 0.97216, 0.97292, 0.97292, 0.97216, 0.97114, 0.97522};
-          const static std::vector<double> bineffs_pt_loose = {0.87075, 0.93129, 0.97241, 0.98851, 0.99157, 0.98851, 0.98799, 0.98799, 0.98799, 0.98748, 0.98672, 0.98748, 0.98927};
-          
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else if (operating_point == "Medium")
-            bineffs_pt = bineffs_pt_medium;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
+        // Loose WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_ID_Loose(
+          {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX},   // Bin edges in pT
+          {0.87075, 0.93129, 0.97241, 0.98851, 0.99157, 0.98851, 0.98799, 0.98799, 0.98799, 0.98748, 0.98672, 0.98748, 0.98927}
+        );
 
-          // Filter muons
-          filtereff_pt(muons, _eff_pt);
-        }
+        // Medium WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_ID_Medium(
+          {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX},   // Bin edges in pT
+          {0.45262, 0.61328, 0.80766, 0.9387, 0.96245, 0.97063, 0.97165, 0.97216, 0.97292, 0.97292, 0.97216, 0.97114, 0.97522}
+        );
 
-        /// Muon 2020 isolation efficiency functions from full Run2 dataset released in 2012.00578
-        /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-        inline void applyMuonIsolationEfficiency2020(std::vector<const HEPUtils::Particle*>& muons, str operating_point){
+        // Tight WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_ID_Tight(
+          {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, DBL_MAX},   // Bin edges in pT
+          {0.0, 0.0, 0.66948, 0.8143, 0.85466, 0.87816, 0.89246, 0.90421, 0.91418, 0.91877, 0.92031, 0.92669, 0.93972}
+        );
 
+
+        /// Muon 2020 isolation efficiency functions from full Run2 dataset released in 2012.00578, MUON-2018-03
+        /// @note These efficiencies are 1D efficiencies so only real dependence on p_T is used
+        /// Digitised from Fig 19a
+
+        // Loose WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_Iso_Loose(
           // Digitised from Fig 19a
-          const static std::vector<double> binedges_pt = {3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 55.0, 70.0, 90.0, 150.0, DBL_MAX};
-          const static std::vector<double> bineffs_pt_tight = {0.56788, 0.63355, 0.66702, 0.68974, 0.70173, 0.71814, 0.7314, 0.75917, 0.79262, 0.84313, 0.9189, 0.96941, 0.9915, 0.99653, 0.99649, 0.99517};
-          const static std::vector<double> bineffs_pt_loose = {0.655349, 0.725581, 0.765116, 0.788605, 0.82093, 0.851395, 0.877907, 0.92, 0.956279, 0.981163, 0.992558, 0.996744, 0.997442, 0.997442, 0.997674, 0.995116};
+          {3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 55.0, 70.0, 90.0, 150.0, DBL_MAX},   // Bin edges in pT
+          {0.655349, 0.725581, 0.765116, 0.788605, 0.82093, 0.851395, 0.877907, 0.92, 0.956279, 0.981163, 0.992558, 0.996744, 0.997442, 0.997442, 0.997674, 0.995116}
+        );
 
-          // Select operating point
-          std::vector<double> bineffs_pt;
-          if (operating_point == "Tight")
-            bineffs_pt = bineffs_pt_tight;
-          else if (operating_point == "Loose")
-            bineffs_pt = bineffs_pt_loose;
-          else
-           utils_error().raise(LOCAL_INFO, "Unknown operating point");
-          const static HEPUtils::BinnedFn1D<double> _eff_pt(binedges_pt, bineffs_pt);
 
-          // Filter muons
-          filtereff_pt(muons, _eff_pt);
-        }
+        // Tight WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_MUON_2018_03_Iso_Tight(
+          // Digitised from Fig 19a
+          {3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 55.0, 70.0, 90.0, 150.0, DBL_MAX},   // Bin edges in pT
+          {0.56788, 0.63355, 0.66702, 0.68974, 0.70173, 0.71814, 0.7314, 0.75917, 0.79262, 0.84313, 0.9189, 0.96941, 0.9915, 0.99653, 0.99649, 0.99517}
+        );
 
-        ///@}
+      /// @}
 
-      }
-   }
+      /////////////////////////
+      // ATLAS Efficiency maps //
+
+      // Map of electron efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DEl(
+      {
+        {"PERF_2017_01_ID_VeryLoose",        eff1DEl_PERF_2017_01_ID_VeryLoose},
+        {"PERF_2017_01_ID_Loose",            eff1DEl_PERF_2017_01_ID_Loose},
+        {"PERF_2017_01_ID_Medium",           eff1DEl_PERF_2017_01_ID_Medium},
+        {"PERF_2017_01_ID_Tight",            eff1DEl_PERF_2017_01_ID_Tight},
+        {"PERF_2017_01_Iso_LooseTrackOnly",  eff1DEl_PERF_2017_01_Iso_LooseTrackOnly},
+        {"PERF_2017_01_Iso_Loose",           eff1DEl_PERF_2017_01_Iso_Loose},
+        {"PERF_2017_01_Iso_GradientLoose",   eff1DEl_PERF_2017_01_Iso_GradientLoose},
+        {"PERF_2017_01_Iso_Gradient",        eff1DEl_PERF_2017_01_Iso_Gradient},
+        {"EGAM_2018_01_Recon",               eff1DEl_EGAM_2018_01_Recon},
+        {"EGAM_2018_01_ID_Loose",            eff1DEl_EGAM_2018_01_ID_Loose},
+        {"EGAM_2018_01_ID_Medium",           eff1DEl_EGAM_2018_01_ID_Medium},
+        {"EGAM_2018_01_ID_Tight",            eff1DEl_EGAM_2018_01_ID_Tight},
+        {"EGAM_2018_01_Iso_Gradient",        eff1DEl_EGAM_2018_01_Iso_Gradient},
+        {"EGAM_2018_01_Iso_Loose",           eff1DEl_EGAM_2018_01_Iso_Loose},
+        {"EGAM_2018_01_Iso_Tight",           eff1DEl_EGAM_2018_01_Iso_Tight},
+        {"EGAM_2018_01_Iso_HighPtCaloOnly",  eff1DEl_EGAM_2018_01_Iso_HighPtCaloOnly},
+//        {"VeryLoose", eff2DEl_VeryLoose},
+//        {"Medium", eff2DEl_Medium}
+      });
+
+      static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DEl(
+      {
+        {"ATLAS_CONF_2014_032_Medium",     eff2DEl_ATLAS_CONF_2014_032_Medium},
+        {"ATLAS_CONF_2014_032_Tight",      eff2DEl_ATLAS_CONF_2014_032_Tight},
+        {"ATLAS_PHYS_PUB_2015_041_Loose",  eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose},
+        {"ATLAS_PHYS_PUB_2015_041_Medium", eff2DEl_ATLAS_PHYS_PUB_2015_041_Medium}
+      });
+
+
+      // Map of muon 1D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DMu(
+      {
+        {"MUON_2018_03_Iso_Loose", eff1DMu_MUON_2018_03_Iso_Loose},
+        {"MUON_2018_03_Iso_Tight", eff1DMu_MUON_2018_03_Iso_Tight},
+        {"MUON_2018_03_ID_Loose",  eff1DMu_MUON_2018_03_ID_Loose},
+        {"MUON_2018_03_ID_Medium", eff1DMu_MUON_2018_03_ID_Medium},
+        {"MUON_2018_03_ID_Tight",  eff1DMu_MUON_2018_03_ID_Tight}
+      });
+
+      static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DMu(
+      {
+      });
+
+    }
+  }
 }

@@ -189,6 +189,14 @@ namespace Gambit
        return (*p == 0) ;
     }
 
+    /// Perform outer product of two vectors
+    std::vector<double> outer_product(const std::vector<double>& v1, const std::vector<double>& v2)
+    {
+      std::vector<double> result;
+      for(auto &el1 : v1) for(auto &el2: v2) result.push_back(el1*el2);
+      return result;
+    }
+
     /// Copy a std::string to a character array, stripping the null termination character.  Good for sending to Fortran.
     void strcpy2f(char* arr, int len, str s)
     {
@@ -458,7 +466,7 @@ namespace Gambit
     {
       return tolower (c1) < tolower (c2);
     }
-        
+
   }
 
 }

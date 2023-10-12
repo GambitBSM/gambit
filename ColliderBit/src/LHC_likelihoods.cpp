@@ -123,9 +123,7 @@ namespace Gambit
       for (auto& ana_data : *Dep::AllAnalysisNumbers)
       {
         const str ana_name = ana_data->analysis_name;
-        // TODO: Should extract the collide name somehow from the analysis data
         const str coll_name = ana_data->collider_name;
-        std::cout << "collider name = " << coll_name << std::endl;
         if(coll_name == "" or loop_info.find("event_count_"+coll_name) == loop_info.end())
           ColliderBit_error().raise(LOCAL_INFO, "Collider name not found in analysis or loop info. The calculation of efficiencies requires knowledge of the collider name");
 
@@ -168,7 +166,6 @@ namespace Gambit
       for (auto& ana_data : *Dep::AllAnalysisNumbers)
       {
         const str ana_name = ana_data->analysis_name;
-        // TODO: Should extract the collide name somehow from the analysis data
         const str coll_name = ana_data->collider_name;
         if(coll_name == "" or loop_info.find("event_count_"+coll_name) == loop_info.end())
           ColliderBit_error().raise(LOCAL_INFO, "Collider name not found in analysis or loop info. The calculation of efficiencies requires knowledge of the collider name");
@@ -181,8 +178,8 @@ namespace Gambit
         // Loop over the signal regions inside the analysis, and add the number of events for each
         for(auto& sr_data : *ana_data)
         {
-          efficiency += sr_data.n_sig_scaled;
-          efficiency_uncert += sr_data.calc_n_sig_scaled_err();
+          efficiency += sr_data.n_sig_MC;
+          efficiency_uncert += sr_data.calc_n_sig_MC_err();
         }
 
         // Normalize over the total number of events

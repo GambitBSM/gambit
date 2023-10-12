@@ -3,15 +3,19 @@
 ///  \date 2023 September
 ///  *********************************************
 
-// Based on: 
+// Based on:
 // - https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-004
 
 // Search for higgsinos decaying to two Higgs bosons and missing transverse momentum in proton-proton collisions at 13 TeV
 // https://arxiv.org/abs/2201.04206
 // CMS-SUS-20-004, CERN-EP-2021-214
-// 
+//
 // Note:
-// 1. Not ready.
+//    * Not validate.
+//    * No AK8 jets.
+//    * No b-tag discriminator values
+
+
 
 #include <vector>
 #include <cmath>
@@ -22,6 +26,8 @@
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
+#include "gambit/ColliderBit/Utils.hpp"
 
 // #define CHECK_CUTFLOW
 
@@ -32,50 +38,27 @@ namespace Gambit {
 
     class Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb : public Analysis {
     protected:
-        // Counters for the number of accepted events for each signal region
-        std::map<string, EventCounter> _counters = {
-            // HH
-            {"SR1", EventCounter("SR1")},
-            {"SR2", EventCounter("SR2")},
-            {"SR3", EventCounter("SR3")},
-            {"SR4", EventCounter("SR4")},
-            {"SR5", EventCounter("SR5")},
-            {"SR6", EventCounter("SR6")},
-            {"SR7", EventCounter("SR7")},
-            {"SR8", EventCounter("SR8")},
-            {"SR9", EventCounter("SR9")},
-            {"SR10", EventCounter("SR10")},
-            {"SR11", EventCounter("SR11")},
-            {"SR12", EventCounter("SR12")},
-            {"SR13", EventCounter("SR13")},
-            {"SR14", EventCounter("SR14")},
-            {"SR15", EventCounter("SR15")},
-            {"SR16", EventCounter("SR16")},
-            {"SR17", EventCounter("SR17")},
-            {"SR18", EventCounter("SR18")},
-            {"SR19", EventCounter("SR19")},
-            {"SR20", EventCounter("SR20")},
-            {"SR21", EventCounter("SR21")},
-            
-        };
 
         Cutflow _cutflow;
 
-
     public:
-
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
         Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb():
         _cutflow("CMS_13TeV_2Higgs_4b_neutralino_137invfb", {
-          "Filters", 
-          "N_vl=N_tk=0", 
+          "Filters",
+          "N_vl=N_tk=0",
           "4<=N_jet<=5",
           "N_b>=2"})
         {
             set_analysis_name("CMS_13TeV_2Higgs_4b_neutralino_137invfb");
             set_luminosity(137);
+
+            for(size_t i=1; i<=22; ++i)
+            {
+              _counters["SR"+std::to_string(i)] =  EventCounter("SR"+std::to_string(i));
+            }
         }
 
         struct ptComparison {
@@ -89,222 +72,187 @@ namespace Gambit {
             double met = event->met();
             HEPUtils::P4 ptot = event->missingmom();
 
-            // Electrons
-            //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_el_035_ttbar.pdf
-            const vector<double> aEl={0., 0.8, 1.442, 1.556, 2., 2.5, DBL_MAX};   // Bin edges in eta
-            const vector<double> bEl={0., 15., 20., 25., 30., 40., 50, DBL_MAX}; // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-            const vector<double> cEl={
-                          // pT:  (0,15), (15,20), (20,25), (25,30), (30,40), (40,50), (50,inf)
-                                   0.0,   0.398,   0.501,   0.556,   0.619,   0.669,   0.720,// eta: (0, 0.8)
-                                   0.0,   0.344,   0.433,   0.498,   0.579,   0.600,   0.671,// eta: (0.8, 1.4429)
-                                   0.0,   0.201,   0.156,   0.206,   0.222,   0.255,   0.307,// eta: (1.442, 1.556)
-                                   0.0,   0.210,   0.302,   0.338,   0.428,   0.484,   0.561,// eta: (1.556, 2)
-                                   0.0,   0.162,   0.172,   0.250,   0.339,   0.396,   0.444,// eta: (2, 2.5)
-                                   0.0,   0.0,     0.0,     0.0,     0.0,     0.0,     0.0// eta > 2.5
-                                  };
-            HEPUtils::BinnedFn2D<double> _eff2dEl(aEl,bEl,cEl);
-            vector<const HEPUtils::Particle*> electrons;
-            for (const HEPUtils::Particle* electron : event->electrons()) {
-                bool isEl=has_tag(_eff2dEl, fabs(electron->eta()), electron->pT());
-                if (electron->pT() > 15. && fabs(electron->eta()) < 2.5 && isEl)
-                    electrons.push_back(electron);
-            }
-
-            // Muons
-            //@note Numbers digitized from https://twiki.cern.ch/twiki/pub/CMSPublic/SUSMoriond2017ObjectsEfficiency/2d_full_pteta_mu_035_ttbar.pdf
-            const vector<double> aMu={0., 0.9, 1.2, 2.1, 2.4, DBL_MAX};   // Bin edges in eta
-            const vector<double> bMu={0., 10, 15., 20., 25., 30, 40, 50, DBL_MAX};  // Bin edges in pT. Assume flat efficiency above 200, where the CMS map stops.
-            const vector<double> cMu={
-                          // pT:  (0,10), (10,15), (15,20), (20,25), (25,30), (30,40), (40,50), (50,inf)
-                                   0.0,   0.564,   0.645,    0.739,  0.803,   0.860,   0.894,   0.907, // eta: (0, 0.9)
-                                   0.0,   0.525,   0.616,    0.700,  0.773,   0.825,   0.891,   0.898, // eta: (0.9, 1.2)
-                                   0.0,   0.514,   0.572,    0.697,  0.748,   0.789,   0.837,   0.870, // eta: (1.2, 2.1)
-                                   0.0,   0.440,   0.575,    0.604,  0.663,   0.696,   0.784,   0.794,// eta: (2.1, 2.4)
-                                   0.0,   0.0,     0.0,      0.0,    0.0,     0.0,     0.0,     0.0// eta > 2.4
-                                  };
-            HEPUtils::BinnedFn2D<double> _eff2dMu(aMu,bMu,cMu);
-            vector<const HEPUtils::Particle*> muons;
-            for (const HEPUtils::Particle* muon : event->muons()) {
-                bool isMu=has_tag(_eff2dMu, fabs(muon->eta()), muon->pT());
-                if (muon->pT() > 10.&& fabs(muon->eta()) < 2.4 && isMu)
-                    muons.push_back(muon);
-            }
-
-            double HT = 0.;
-            // Jets
-            vector<const HEPUtils::Jet*> candJets;
-            for (const HEPUtils::Jet* jet : event->jets()) {
-                if (jet->pT() > 25. && fabs(jet->eta()) < 2.4){
-                    HT += jet->pT();
-                    candJets.push_back(jet);
-                }
-            }
-
-            // Jets
-            vector<const HEPUtils::Jet*> bJets;
-            vector<const HEPUtils::Jet*> nonbJets;
-
-            // Find b-jets
-            // Copied from ATLAS_13TeV_3b_24invfb
-            double btag = 0.85; double cmisstag = 1/12.; double misstag = 1./381.;
-            for (const HEPUtils::Jet* jet : candJets) {
+            // Define baseline jets
+            BASELINE_JETS(jets, baselineJets_AK4, 30,  0, DBL_MAX, 2.4)
+            BASELINE_JETS(jets, baselineJets_AK8, 300, 0, DBL_MAX, 2.4) // TODO: use jets_AK8
+            BASELINE_BJETS(jets, baselineBJets_L, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Loose"), CMS::missIDBJet.at("CSVv2Loose"))
+            BASELINE_BJETS(jets, baselineBJets_M, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Medium"), CMS::missIDBJet.at("CSVv2Medium"))
+            BASELINE_BJETS(jets, baselineBJets_T, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::missIDBJet.at("CSVv2Tight"))
+            vector<const HEPUtils::Jet*> baselineBJets_AK8;
+            for (const HEPUtils::Jet* jet : baselineJets_AK8) {
                 // Tag
-                if( jet->btag() && random_bool(btag) ) bJets.push_back(jet);
-                // Misstag c-jet
-                else if( jet->ctag() && random_bool(cmisstag) ) bJets.push_back(jet);
+                if( jet->btag() && random_bool(0.90) ) baselineBJets_AK8.push_back(jet);
                 // Misstag light jet
-                else if( random_bool(misstag) ) bJets.push_back(jet);
-                // Non b-jet
-                else if( jet->pT() > 40. ) nonbJets.push_back(jet);
+                else if( random_bool(0.05) ) baselineBJets_AK8.push_back(jet);
             }
 
-//            // Overlap removal
-//            JetLeptonOverlapRemoval(candJets,electrons,0.2);
-//            LeptonJetOverlapRemoval(electrons,candJets);
-//            JetLeptonOverlapRemoval(candJets,muons,0.4);
-//            LeptonJetOverlapRemoval(muons,candJets);
+            // Define baseline objects with BASELINE(object_type, variable_name, minpT, mineta[, maxpT, maxeta, efficiency])
+            BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
+            BASELINE_PARTICLES(muons, baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
 
-            size_t Nb=bJets.size();
-            size_t Nj=nonbJets.size();
 
-            // Leptons = electrons + muons
-            vector<const HEPUtils::Particle*> leptons;
-            leptons=electrons;
-            leptons.insert(leptons.end(),muons.begin(),muons.end());
-            sort(leptons.begin(),leptons.end(),comparePt);
+            // Define signal objects from baseline objects, automatically order by pT (highest first)
+            SIGNAL_JETS(baselineJets_AK4, signalJets_AK4)
+            SIGNAL_JETS(baselineJets_AK8, signalJets_AK8)
+            SIGNAL_JETS(baselineBJets_L, signalBJets_L)
+            SIGNAL_JETS(baselineBJets_M, signalBJets_M)
+            SIGNAL_JETS(baselineBJets_T, signalBJets_T)
+            SIGNAL_JETS(baselineBJets_AK8, signalBJets_AK8)
 
-            // At least two light leptons
-            if (leptons.size()<2) return;
 
-            // Find pair same sign (SS) leptons
-            vector<size_t> SS_1,SS_2;
-            for (size_t i=0; i<leptons.size(); ++i) {
-                for (size_t j=i+1; j<leptons.size(); ++j) {
-                    if (leptons[i]->pid()*leptons[j]->pid()>0){
-                        SS_1.push_back(i);
-                        SS_2.push_back(j);
+            // for the boosted signature
+            if ( signalJets_AK8.size()>=2 ) { // N_AK8>=2
+              double mj1 = (signalJets_AK8.at(0)->mom()).m();
+              double mj2 = (signalJets_AK8.at(1)->mom()).m();
+              if ( min(mj1,mj2)>60 and max(mj1,mj2)<260){// m_J1&J2 [60,260] GeV
+                if (signalBJets_AK8.size()==1){ // N_H=1
+                  // TODO reseolved event veto?
+                  if (min(mj1,mj2)>95 and max(mj1,mj2)<145) {
+                    if (met < 500.) {
+                      _counters.at("SR17").add_event(event);
+                    } else if (met < 700.) {
+                      _counters.at("SR18").add_event(event);
+                    } else{
+                      _counters.at("SR19").add_event(event);
                     }
-                    // mll>12 for an opposite-sign same flavor pair lepton
-                    if (leptons[i]->pid()+leptons[j]->pid()==0 and (leptons[i]->mom()+leptons[j]->mom()).m()<12) return;
-                    // mll>8 GeV for any pair of leptons
-                    if ((leptons[i]->mom()+leptons[j]->mom()).m()<8) return;
+                  }
+                }else{ // N_H=2
+                  if (min(mj1,mj2)>95 and max(mj1,mj2)<145) {
+                    if (met < 500.) {
+                      _counters.at("SR20").add_event(event);
+                    } else if (met < 700.) {
+                      _counters.at("SR21").add_event(event);
+                    } else{
+                      _counters.at("SR22").add_event(event);
+                    }
+                  }
                 }
+              }
             }
-            _cutflow.fill(1);
 
-            // One SS lepton pair
-            if (SS_1.size()==0) return;
-            _cutflow.fill(2);
+            // the resolved signature
+            if(met < 150.) return;
+            _cutflow.fill(1); // MET>150
+            if (baselineElectrons.size()>0 or baselineMuons.size()>0 ) return;
+            _cutflow.fill(2); // N_vl=N_tk=0 TODO?
+            if (signalJets_AK4.size()<4 or signalJets_AK4.size()>5) return;
+            _cutflow.fill(3); // 4<=N_jet<=5
+            if (signalBJets_T.size()<2 or signalBJets_M.size()<2) return;
+            _cutflow.fill(4); // N_b>=2
+            for (int ii=0; ii<4; ii++)
+            {
+              double deltaPhi_cut =  ii<2 ? 0.5 : 0.3;
+              if ( deltaR_eta(ptot, signalJets_AK4.at(ii)->mom()) < deltaPhi_cut) return;
+            }
+            _cutflow.fill(5); // DeltaPhi cuts
+            // Instead of using four jets with the highest b-tag
+            // discriminator values, we use the four hardest jets.
+            // This should be fine for signal processes, but not for bkg.
+            // TODO
+            std::vector<std::vector<double>> pair1 = {{0,1},{0,2},{0,3}};
+            std::vector<std::vector<double>> pair2 = {{2,3},{1,3},{1,2}};
+            int i_smallest = -1;
+            double mbb_delta_smallest = 9999.;
+            double mbb_average = 9999.;
+            for (int ii=1; ii<3; ii++)
+            {
+              double mbb1 = (signalJets_AK4.at(pair1[ii][0])->mom() + signalJets_AK4.at(pair1[ii][1])->mom()).m();
+              double mbb2 = (signalJets_AK4.at(pair2[ii][0])->mom() + signalJets_AK4.at(pair2[ii][1])->mom()).m();
+              double mbb_delta = fabs(mbb2 - mbb1);
+              if (mbb_delta<mbb_delta_smallest){
+                mbb_delta_smallest = mbb_delta;
+                mbb_average = 0.5*(mbb2 + mbb1);
+                i_smallest = ii;
+              }
+            }
+            if (mbb_delta_smallest>40 or mbb_average>200) return;
+            _cutflow.fill(6); // Delta_m_bb < 40 GeV, <m_bb> < 200 GeV
 
-            // At least two jets and MET>50
-            if (Nj<2 or  met<50) return;
-            _cutflow.fill(3);
+            double Delta_R_max = max(deltaR_eta(signalJets_AK4.at(pair1[i_smallest][0])->mom(), signalJets_AK4.at(pair1[i_smallest][1])->mom()),
+                                     deltaR_eta(signalJets_AK4.at(pair2[i_smallest][0])->mom(), signalJets_AK4.at(pair2[i_smallest][1])->mom()));
+            if (Delta_R_max > 2.2) return;
+            _cutflow.fill(7); // Delta_R_max< 2.2
 
-            // Find the only SS lepton pair
-            size_t SS1 = SS_1[0];
-            size_t SS2 = SS_2[0];
-            bool find_one_muon = false;
-            for (size_t i=1; i<SS_1.size(); ++i) {
-                // SS_1 and SS_2 are already order by lepton PT sum
-                if (fabs(leptons[SS_1[i]]->pid())==13 and fabs(leptons[SS_1[i]]->pid())==13) {
-                    // both of the leptons are muon
-                    SS1 = SS_1[i];
-                    SS2 = SS_2[i];
-                    break;
+            if (mbb_average>140 or mbb_average<100) return;
+            _cutflow.fill(8); // 100 < <m_bb> < 140 GeV
+
+            if (Delta_R_max>1.1) { // && Delta_R_max<2.2
+              if (signalBJets_M.size() == 3 and signalBJets_L.size() == 3 ) { // Nb=3
+                 // and signalBJets_T.size() >= 2
+                if (met < 200.) {
+                  _counters.at("SR1").add_event(event);
+                } else if (met < 300.) {
+                  _counters.at("SR2").add_event(event);
+                } else if (met < 400.) {
+                  _counters.at("SR3").add_event(event);
+                } else { //met > 400.
+                  _counters.at("SR4").add_event(event);
                 }
-                if ( (not find_one_muon) and (fabs(leptons[SS_1[i]]->pid())==13 or fabs(leptons[SS_1[i]]->pid())==13)){
-                    // one of the leptons is muon
-                    SS1 = SS_1[i];
-                    SS2 = SS_2[i];
-                    find_one_muon = true;
+              } else if (signalBJets_M.size() >= 3 and signalBJets_L.size() >= 4 ) { // Nb=4
+                 // and signalBJets_T.size() >= 2
+                if (met < 200.) {
+                  _counters.at("SR5").add_event(event);
+                } else if (met < 300.) {
+                  _counters.at("SR6").add_event(event);
+                } else if (met < 400.) {
+                  _counters.at("SR7").add_event(event);
+                } else { //met > 400.
+                  _counters.at("SR8").add_event(event);
                 }
-            }
-
-            // M_T^{miss}
-            double MTmin = sqrt(2.*leptons[SS1]->pT()*met*(1. - cos(leptons[SS1]->mom().deltaPhi(ptot))));
-            if (MTmin>sqrt(2.*leptons[SS2]->pT()*met*(1. - cos(leptons[SS2]->mom().deltaPhi(ptot))))) {
-                MTmin = sqrt(2.*leptons[SS2]->pT()*met*(1. - cos(leptons[SS2]->mom().deltaPhi(ptot))));
-            }
-
-            // HH: exactly 2 leptons, both with PT>25 GeV, and MET>50 GeV
-            if (leptons.size()==2 and leptons[1]->pT() > 25.) {
-                if (Nb==0 and HT>1000 and met>250 )
-                    _counters.at("ISR1").add_event(event);
-                if (Nb>=2 and HT>1100 ) 
-                    _counters.at("ISR2").add_event(event);
-                if (Nb==0 and met>500 ) 
-                    _counters.at("ISR3").add_event(event);
-                if (Nb>=2 and met>300 ) 
-                    _counters.at("ISR4").add_event(event);
-                if (Nb==0 and met>250 and MTmin>120 )
-                    _counters.at("ISR5").add_event(event);  
-                if (Nb>=2 and met>200 and MTmin>120 )
-                    _counters.at("ISR6").add_event(event); 
-                if (Nj>=8)
-                    _counters.at("ISR7").add_event(event); 
-                if (Nj>=6 and MTmin>120)
-                    _counters.at("ISR8").add_event(event);
-                if (Nb>=3 and HT>800)
-                    _counters.at("ISR9").add_event(event); 
-            }
-            
-            // LL: exactly 2 leptons, both with PT<25 GeV, and MET>50 GeV
-            if (leptons.size()==2 and leptons[0]->pT() < 25. and leptons[1]->pT() < 25.) {
-                if (HT>700)
-                    _counters.at("ISR10").add_event(event);
-                if (met>200)
-                    _counters.at("ISR11").add_event(event);
-                if (Nj>=6)
-                    _counters.at("ISR12").add_event(event);
-                if (Nb>=3)
-                    _counters.at("ISR13").add_event(event);
-            }
-            // LM: exactly 2 leptons, both with PT>25 GeV, and MET<50 GeV
-            if (leptons.size()==2 and leptons[0]->pT() > 25. and leptons[1]->pT() > 25.) {
-                if (Nb==0 and HT>1200 and met<50 )
-                    _counters.at("ISR14").add_event(event);
-                if (Nb>=2 and HT>1000 and met<50 )
-                    _counters.at("ISR15").add_event(event);
-            }
-            // ML: >=3 leptons, at least one with PT>25 GeV, and MET>50 GeV
-            if (leptons.size()>=3 and leptons[0]->pT() > 25.) {
-                if (Nb==0 and HT>1000 and met>300 )
-                    _counters.at("ISR16").add_event(event);
-                if (Nb>=2 and HT>1000)
-                    _counters.at("ISR17").add_event(event);
+              }
+            } else { // Delta_R_max<1.1
+              if (signalBJets_M.size() == 3 and signalBJets_L.size() == 3 ) { // Nb=3
+                 // and signalBJets_T.size() >= 2
+                if (met < 200.) {
+                  _counters.at("SR9").add_event(event);
+                } else if (met < 300.) {
+                  _counters.at("SR10").add_event(event);
+                } else if (met < 400.) {
+                  _counters.at("SR11").add_event(event);
+                } else { //met > 400.
+                  _counters.at("SR12").add_event(event);
+                }
+              } else if (signalBJets_M.size() >= 3 and signalBJets_L.size() >= 4 ) { // Nb=4
+                 // and signalBJets_T.size() >= 2
+                if (met < 200.) {
+                  _counters.at("SR13").add_event(event);
+                } else if (met < 300.) {
+                  _counters.at("SR14").add_event(event);
+                } else if (met < 400.) {
+                  _counters.at("SR15").add_event(event);
+                } else { //met > 400.
+                  _counters.at("SR16").add_event(event);
+                }
+              }
             }
 
             return;
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-            const Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_2Higgs_4b_neutralino_137invfb*>(other);
-
-            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
-
 
         void collect_results() {
-            add_result(SignalRegionData(_counters.at("ISR1"), 16, {12.7, 7.4}));
-            add_result(SignalRegionData(_counters.at("ISR2"), 14, {11.0, 3.8}));
-            add_result(SignalRegionData(_counters.at("ISR3"), 13, {10.4, 9.7}));
-            add_result(SignalRegionData(_counters.at("ISR4"), 17, {11.4, 3.8}));
-            add_result(SignalRegionData(_counters.at("ISR5"), 10, {6.6, 5.7}));
-            add_result(SignalRegionData(_counters.at("ISR6"), 8, {6.3, 1.3}));
-            add_result(SignalRegionData(_counters.at("ISR7"), 12, {7.0, 2.8}));
-            add_result(SignalRegionData(_counters.at("ISR8"), 10, {6.2, 1.4}));
-            add_result(SignalRegionData(_counters.at("ISR9"), 8, {7.8, 3.5}));
-            add_result(SignalRegionData(_counters.at("ISR10"), 12, {10.4, 9.0}));
-            add_result(SignalRegionData(_counters.at("ISR11"), 13, {12.1, 5.6}));
-            add_result(SignalRegionData(_counters.at("ISR12"), 7, {7.1, 4.3}));
-            add_result(SignalRegionData(_counters.at("ISR13"), 3, {1.61, 0.39}));
-            add_result(SignalRegionData(_counters.at("ISR14"), 3, {3.6, 3.6}));
-            add_result(SignalRegionData(_counters.at("ISR15"), 4, {2.34, 0.51}));
-            add_result(SignalRegionData(_counters.at("ISR16"), 7, {5.6, 1.6}));
-            add_result(SignalRegionData(_counters.at("ISR17"), 7, {5.7, 1.9}));
+            add_result(SignalRegionData(_counters.at("SR1"), 138, {149.74,8.8574}));
+            add_result(SignalRegionData(_counters.at("SR2"), 91,  {91.536,6.8599}));
+            add_result(SignalRegionData(_counters.at("SR3"), 14,  {12.757,2.5972}));
+            add_result(SignalRegionData(_counters.at("SR4"), 3,   {2.8097,1.4218}));
+            add_result(SignalRegionData(_counters.at("SR5"), 54,  {54.095,5.6413}));
+            add_result(SignalRegionData(_counters.at("SR6"), 38,  {33.195,4.2411}));
+            add_result(SignalRegionData(_counters.at("SR7"), 4,   {3.2223,1.2999}));
+            add_result(SignalRegionData(_counters.at("SR8"), 0,   {1.2679,0.97784}));
+            add_result(SignalRegionData(_counters.at("SR9"), 8,   {5.882,1.4052}));
+            add_result(SignalRegionData(_counters.at("SR10"), 2,  {2.3094,0.73274}));
+            add_result(SignalRegionData(_counters.at("SR11"), 4,  {0.71703,0.5334}));
+            add_result(SignalRegionData(_counters.at("SR12"), 0,  {0.51656,0.64712}));
+            add_result(SignalRegionData(_counters.at("SR13"), 1,  {2.5764,0.85482}));
+            add_result(SignalRegionData(_counters.at("SR14"), 3,  {1.6197,0.64834}));
+            add_result(SignalRegionData(_counters.at("SR15"), 1,  {1.156,0.86595}));
+            add_result(SignalRegionData(_counters.at("SR16"), 1,  {0.7792,0.76461}));
+            add_result(SignalRegionData(_counters.at("SR17"), 42, {37.03,4.4312}));
+            add_result(SignalRegionData(_counters.at("SR18"), 6,  {7.2132,1.4753}));
+            add_result(SignalRegionData(_counters.at("SR19"), 1,  {1.5016,0.74554}));
+            add_result(SignalRegionData(_counters.at("SR20"), 4,  {4.0059,1.2035}));
+            add_result(SignalRegionData(_counters.at("SR21"), 0,  {0.735,0.29432}));
+            add_result(SignalRegionData(_counters.at("SR22"), 0,  {0.14552,0.13395}));
 
             // static const vector< vector<double> > BKGCOV = {
             //     {},

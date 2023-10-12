@@ -41,6 +41,8 @@
 #include "HEPUtils/Event.h"
 #include "HEPUtils/FastJet.h"
 
+#include "gambit/Utils/util_types.hpp"
+#include "gambit/Utils/standalone_error_handlers.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 
 namespace Gambit
@@ -625,6 +627,68 @@ namespace Gambit
     }
 
     //@}
+
+    /// @name Efficiency map class and efficiency apply functions
+    //@{
+
+    template <typename T>
+    class efficiency_map
+    {
+      private:
+        std::map<str, T> _eff;
+
+      public:
+
+        efficiency_map(const std::map<str, T>& eff)
+        {
+          _eff = eff;
+        }
+
+
+        const T& at(str key) const
+        {
+          if(_eff.find(key) == _eff.end())
+          {
+            std::ostringstream err;
+            err << "Efficiency " << key << " not found.";
+            utils_error().raise(LOCAL_INFO, err.str());
+          }
+
+          return _eff.at(key);
+        }
+    };
+
+    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 1D binned efficiencies in pT
+    inline void apply1DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn1D<double>& eff)
+    {
+      filtereff_pt(part, eff);
+    }
+
+    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 1D binned efficiencies in pT
+    /// TODO: filter functions don't work with jets, fix that
+    //inline void apply1DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn1D<double>& eff)
+    //{
+    //  filtereff_pt(jet, eff);
+    //}
+
+
+    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 2D binned efficiencies in eta and pT
+    inline void apply2DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn2D<double>& eff)
+    {
+      filtereff_etapt(part, eff);
+    }
+
+    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 2D binned efficiencies in eta and pT
+    /// TODO: filter functions don't work with jets, fix that
+    //inline void apply2DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn2D<double>& eff)
+    //{
+    //  filtereff_etapt(jet, eff);
+    //}
+
+
+
+    //@}
+
   }
 
 }

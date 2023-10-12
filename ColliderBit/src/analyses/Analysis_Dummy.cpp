@@ -149,11 +149,6 @@ namespace Gambit
 
         }
 
-        void combine(const Analysis* other)
-        {
-          const Analysis_Dummy* specificOther = dynamic_cast<const Analysis_Dummy*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
 
         virtual void collect_results()
         {

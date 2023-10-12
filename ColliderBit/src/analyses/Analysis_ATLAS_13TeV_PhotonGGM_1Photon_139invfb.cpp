@@ -36,19 +36,12 @@ using namespace std;
 
 namespace Gambit
 {
-  namespace ColliderBit 
+  namespace ColliderBit
   {
 
     class Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb : public Analysis
     {
     protected:
-
-      // Numbers passing cuts
-      std::map<string, EventCounter> _counters = {
-        {"SRL", EventCounter("SRL")},
-        {"SRM", EventCounter("SRM")},
-        {"SRH", EventCounter("SRH")},
-      };
 
 
     public:
@@ -57,9 +50,16 @@ namespace Gambit
       static constexpr const char* detector = "ATLAS";
 
       Cutflows _cutflows;
-      
-      Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb() 
+
+      Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb()
       {
+
+        // Numbers passing cuts
+        _counters["SRL"] = EventCounter("SRL");
+        _counters["SRM"] = EventCounter("SRM");
+        _counters["SRH"] = EventCounter("SRH");
+
+
         set_analysis_name("ATLAS_13TeV_PhotonGGM_1Photon_139invfb");
         set_luminosity(139.);
 
@@ -81,7 +81,7 @@ namespace Gambit
                                            "njets >= 3", "dPhi(jet,MET) > 0.4",
 				     "dPhi(gamma,MET)>0.4", "HT > 1600 GeV",});
 
-	
+
       }
 
       void run(const HEPUtils::Event* event)
@@ -112,9 +112,9 @@ namespace Gambit
         // Apply electron efficiency
         ATLAS::applyElectronEff(baselineElectrons);
         // Apply loose electron ID efficiency
-        ATLAS::applyElectronIDEfficiency2020(baselineElectrons, "Loose");
+        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
         // Apply loose electron isolation efficiency
-        ATLAS::applyElectronIsolationEfficiency2020(baselineElectrons, "Loose");
+        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Loose"));
 
 
         // Baseline Muons
@@ -126,7 +126,7 @@ namespace Gambit
         // Apply muon efficiency
         ATLAS::applyMuonEff(baselineMuons);
         // Apply loose muon isolation efficiency
-        ATLAS::applyMuonIsolationEfficiency2020(baselineMuons, "Loose");
+        apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Loose"));
 
 
         // Baseline Jets
@@ -142,7 +142,7 @@ namespace Gambit
 
         // Overlap removal
 	// Inspire by ATLAS code snippet on HEPData
-	// Doesn't exactly match the earlier paper decsription 
+	// Doesn't exactly match the earlier paper decsription
 
 	removeOverlap(baselineElectrons, baselineMuons, 0.01);
 	removeOverlap(baselinePhotons, baselineElectrons, 0.4);
@@ -155,15 +155,15 @@ namespace Gambit
 	vector<const HEPUtils::Particle*> signalElectrons;
 	vector<const HEPUtils::Particle*> signalMuons;
 	vector<const HEPUtils::Particle*> signalPhotons;
-	vector<const HEPUtils::Jet*> signalJets; 
+	vector<const HEPUtils::Jet*> signalJets;
 
-	
+
 	for (size_t i=0;i<baselinePhotons.size();i++)
           {
 	    bool crack = (baselinePhotons.at(i)->abseta() > 1.37) && (baselinePhotons.at(i)->abseta() < 1.52);
             if (baselinePhotons.at(i)->pT()>50. && !crack) signalPhotons.push_back(baselinePhotons.at(i));
           }
-	
+
 	for (size_t i=0;i<baselineMuons.size();i++)
           {
             if (baselineMuons.at(i)->pT()>25.) signalMuons.push_back(baselineMuons.at(i));
@@ -180,7 +180,7 @@ namespace Gambit
             if (baselineJets.at(i)->pT()>30.) signalJets.push_back(baselineJets.at(i));
           }
 
-	
+
         // Put objects in pT order
         sortByPt(signalJets);
         sortByPt(signalElectrons);
@@ -249,46 +249,35 @@ namespace Gambit
         if (nPhotons >= 1 && pTLeadingPhoton > 300. && nLep == 0 && nJets >= 5 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 300. && HT > 1600. && RT4 < 0.9) _counters.at("SRM").add_event(event);
         if (nPhotons >= 1 && pTLeadingPhoton > 400. && nLep == 0 && nJets >= 3 && deltaPhiJetPmiss > 0.4 && deltaPhiPhotonPmiss > 0.4 && met > 600. && HT > 1600.) _counters.at("SRH").add_event(event);
 
-	// Increment cutflows for debugging
+	      // Increment cutflows for debugging
 
-	const double w = event->weight();
-	_cutflows.fillinit(w);
-      
-	_cutflows["SRL"].fillnext({
+        const double w = event->weight();
+        _cutflows.fillinit(w);
+
+        if (_cutflows["SRL"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>145., met>250., nJets>=5,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w);
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 2000., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
 
-	_cutflows["SRM"].fillnext({
+        if (_cutflows["SRM"].fillnext({
                   nPhotons>=1 && pTLeadingPhoton > 140.,
                   nPhotons>=1, nLep==0,
                   pTLeadingPhoton>300., met>300., nJets>=5,
-                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w); 
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600., RT4<0.9}, w)) _counters.at("SRL").add_event(event);
 
-	_cutflows["SRH"].fillnext({
-				   nPhotons>=1 && pTLeadingPhoton > 140.,
-				   nPhotons>=1, nLep==0,
-				   pTLeadingPhoton>400., met>600., nJets>=3,
-				   deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w);
-	
+        if (_cutflows["SRH"].fillnext({
+                  nPhotons>=1 && pTLeadingPhoton > 140.,
+                  nPhotons>=1, nLep==0,
+                  pTLeadingPhoton>400., met>600., nJets>=3,
+                  deltaPhiJetPmiss > 0.4, deltaPhiPhotonPmiss > 0.4, HT > 1600.}, w)) _counters.at("SRL").add_event(event);
         return;
 
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_13TeV_PhotonGGM_1Photon_139invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 
       virtual void collect_results()
       {
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
         add_result(SignalRegionData(_counters.at("SRL"), 2., { 2.67, 0.75}));
         add_result(SignalRegionData(_counters.at("SRM"), 0., { 2.55, 0.64}));
@@ -305,8 +294,8 @@ namespace Gambit
           for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
           cout << "\n" << endl;
 	#endif
-	    
-	
+
+
         return;
       }
 

@@ -11,7 +11,7 @@
 // Updated to paper version (3-lepton and 1-lepton SRs):
 // - https://arxiv.org/abs/2006.05880
 // - https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2018-21/
-// 
+//
 // Luminosity: 139 fb^-1
 
 
@@ -41,16 +41,6 @@ namespace Gambit
 
     protected:
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SRZ1A", EventCounter("SRZ1A")},
-        {"SRZ1B", EventCounter("SRZ1B")},
-        {"SRZ2A", EventCounter("SRZ2A")},
-        {"SRZ2B", EventCounter("SRZ2B")},
-        // {"SRh1A", EventCounter("SRh1A")},
-        // {"SRh1B", EventCounter("SRh1B")},
-      };
-
        vector<Cutflow> _cutflow;
 
        //vector<int> _test;
@@ -76,6 +66,15 @@ namespace Gambit
 
       Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb()
       {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SRZ1A"] = EventCounter("SRZ1A");
+        _counters["SRZ1B"] = EventCounter("SRZ1B");
+        _counters["SRZ2A"] = EventCounter("SRZ2A");
+        _counters["SRZ2B"] = EventCounter("SRZ2B");
+          // _counters["SRh1A"] = EventCounter("SRh1A");
+          // _counters["SRh1B"] = EventCounter("SRh1B");
+
 
         set_analysis_name("ATLAS_13TeV_2OSLEP_Z_139invfb");
         set_luminosity(139);
@@ -129,7 +128,7 @@ namespace Gambit
 
         // Apply electron efficiency
         // Loose electron ID selection
-        ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
+        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
 
         // Muon candidates are reconstructed in the region |η| < 2.4 from muon spectrometer tracks matching ID tracks. Candidate muons must have pT > 4 GeV and pass the medium identification requirements defined in arXiv: 1603.05598 [hep-ex].
         for (const HEPUtils::Particle* muon : event->muons())
@@ -209,7 +208,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> signalLeptons;
 
         // Signal electrons must satisfy the “medium” identification requirement as defined in arXiv: 1902.04655 [hep-ex]
-        ATLAS::applyElectronIDEfficiency2019(signalElectrons, "Medium");
+        apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
 
 
         // Signal muons must have pT > 5 GeV.
@@ -280,7 +279,7 @@ namespace Gambit
         int nhcand = 0;
         for(size_t i=0; i<BJetPairs.size(); ++i)
           if(random_bool(h_id_eff)) nhcand++;
-   
+
         // Transverse mass from leading lepton with pT
         // double mT = nSignalLeptons > 0 and get_mT(signalLeptons.at(0)->mom(), ptot);  // currently not used
 
@@ -333,7 +332,7 @@ namespace Gambit
         // Construct Object-based MET significance
         // FIXME: Can only do event-based MET signficance for now
         // double met_significance = met / sqrt(HT); // currently not used
-        
+
 
         // Signal Regions
         // 3l
@@ -520,30 +519,30 @@ namespace Gambit
         // {
         //   _cutflow[4].fill(1);
         //   _cutflow[5].fill(1);
- 
+
         //   // 1
         //   if (nSignalBJets >= 4 and signalBJets.at(3)->pT() > 30.)
         //   {
         //     _cutflow[4].fill(2);
         //     _cutflow[5].fill(2);
- 
+
         //     // 2
         //     if (nhcand >= 1)
         //     {
         //       _cutflow[4].fill(3);
         //       _cutflow[5].fill(3);
- 
+
         //       // 3
         //       if (mT > 150.)
         //       {
         //         _cutflow[4].fill(4);
         //         _cutflow[5].fill(4);
- 
+
         //         // 4, SRh1A
         //         if (nSignalJets >= 4 and signalJets.at(3)->pT() > 60.)
         //         {
         //           _cutflow[4].fill(5);
- 
+
         //           // 5
         //           if (met_significance > 12.)
         //             _cutflow[4].fill(6);
@@ -551,8 +550,8 @@ namespace Gambit
         //         // 4, SRh1B
         //         if (nSignalJets >= 6 and signalJets.at(3)->pT() > 60.)
         //         {
-        //           _cutflow[5].fill(5); 
- 
+        //           _cutflow[5].fill(5);
+
         //           // 5
         //           if (met_significance > 7.)
         //             _cutflow[5].fill(6);
@@ -560,18 +559,10 @@ namespace Gambit
         //       }
         //     }
         //   }
-        // } 
- 
+        // }
+
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_2OSLEP_Z_139invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()

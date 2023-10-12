@@ -40,60 +40,7 @@ namespace Gambit
 
     protected:
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SR-DF-0J-100", EventCounter("SR-DF-0J-100")},
-        {"SR-DF-0J-160", EventCounter("SR-DF-0J-160")},
-        {"SR-DF-0J-100-120", EventCounter("SR-DF-0J-100-120")},
-        {"SR-DF-0J-120-160", EventCounter("SR-DF-0J-120-160")},
-        {"SR-DF-1J-100", EventCounter("SR-DF-1J-100")},
-        {"SR-DF-1J-160", EventCounter("SR-DF-1J-160")},
-        {"SR-DF-1J-100-120", EventCounter("SR-DF-1J-100-120")},
-        {"SR-DF-1J-120-160", EventCounter("SR-DF-1J-120-160")},
-        {"SR-SF-0J-100", EventCounter("SR-SF-0J-100")},
-        {"SR-SF-0J-160", EventCounter("SR-SF-0J-160")},
-        {"SR-SF-0J-100-120", EventCounter("SR-SF-0J-100-120")},
-        {"SR-SF-0J-120-160", EventCounter("SR-SF-0J-120-160")},
-        {"SR-SF-1J-100", EventCounter("SR-SF-1J-100")},
-        {"SR-SF-1J-160", EventCounter("SR-SF-1J-160")},
-        {"SR-SF-1J-100-120", EventCounter("SR-SF-1J-100-120")},
-        {"SR-SF-1J-120-160", EventCounter("SR-SF-1J-120-160")},
-      };
-
-      std::map<string, EventCounter> _counters_bin = {
-        {"SR-DF-0J-100-105", EventCounter("SR-DF-0J-100-105")},
-        {"SR-DF-0J-105-110", EventCounter("SR-DF-0J-105-110")},
-        {"SR-DF-0J-110-120", EventCounter("SR-DF-0J-110-120")},
-        {"SR-DF-0J-120-140", EventCounter("SR-DF-0J-120-140")},
-        {"SR-DF-0J-140-160", EventCounter("SR-DF-0J-140-160")},
-        {"SR-DF-0J-160-180", EventCounter("SR-DF-0J-160-180")},
-        {"SR-DF-0J-180-220", EventCounter("SR-DF-0J-180-220")},
-        {"SR-DF-0J-220", EventCounter("SR-DF-0J-220")},
-        {"SR-DF-1J-100-105", EventCounter("SR-DF-1J-100-105")},
-        {"SR-DF-1J-105-110", EventCounter("SR-DF-1J-105-110")},
-        {"SR-DF-1J-110-120", EventCounter("SR-DF-1J-110-120")},
-        {"SR-DF-1J-120-140", EventCounter("SR-DF-1J-120-140")},
-        {"SR-DF-1J-140-160", EventCounter("SR-DF-1J-140-160")},
-        {"SR-DF-1J-160-180", EventCounter("SR-DF-1J-160-180")},
-        {"SR-DF-1J-180-220", EventCounter("SR-DF-1J-180-220")},
-        {"SR-DF-1J-220", EventCounter("SR-DF-1J-220")},
-        {"SR-SF-0J-100-105", EventCounter("SR-SF-0J-100-105")},
-        {"SR-SF-0J-105-110", EventCounter("SR-SF-0J-105-110")},
-        {"SR-SF-0J-110-120", EventCounter("SR-SF-0J-110-120")},
-        {"SR-SF-0J-120-140", EventCounter("SR-SF-0J-120-140")},
-        {"SR-SF-0J-140-160", EventCounter("SR-SF-0J-140-160")},
-        {"SR-SF-0J-160-180", EventCounter("SR-SF-0J-160-180")},
-        {"SR-SF-0J-180-220", EventCounter("SR-SF-0J-180-220")},
-        {"SR-SF-0J-220", EventCounter("SR-SF-0J-220")},
-        {"SR-SF-1J-100-105", EventCounter("SR-SF-1J-100-105")},
-        {"SR-SF-1J-105-110", EventCounter("SR-SF-1J-105-110")},
-        {"SR-SF-1J-110-120", EventCounter("SR-SF-1J-110-120")},
-        {"SR-SF-1J-120-140", EventCounter("SR-SF-1J-120-140")},
-        {"SR-SF-1J-140-160", EventCounter("SR-SF-1J-140-160")},
-        {"SR-SF-1J-160-180", EventCounter("SR-SF-1J-160-180")},
-        {"SR-SF-1J-180-220", EventCounter("SR-SF-1J-180-220")},
-        {"SR-SF-1J-220", EventCounter("SR-SF-1J-220")},
-      };
+      std::map<str, EventCounter> _counters_bin;
 
       Cutflow _cutflow;
 
@@ -105,6 +52,59 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2OSLEP_chargino_80invfb():
       _cutflow("ATLAS 2-lep chargino-W 13 TeV", {"Two_OS_leptons", "mll_25", "b_jet_veto", "MET_100", "MET_significance_10", "n_j<=1", "m_ll_m_Z"})
       {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SR-DF-0J-100"] = EventCounter("SR-DF-0J-100");
+        _counters["SR-DF-0J-160"] = EventCounter("SR-DF-0J-160");
+        _counters["SR-DF-0J-100-120"] = EventCounter("SR-DF-0J-100-120");
+        _counters["SR-DF-0J-120-160"] = EventCounter("SR-DF-0J-120-160");
+        _counters["SR-DF-1J-100"] = EventCounter("SR-DF-1J-100");
+        _counters["SR-DF-1J-160"] = EventCounter("SR-DF-1J-160");
+        _counters["SR-DF-1J-100-120"] = EventCounter("SR-DF-1J-100-120");
+        _counters["SR-DF-1J-120-160"] = EventCounter("SR-DF-1J-120-160");
+        _counters["SR-SF-0J-100"] = EventCounter("SR-SF-0J-100");
+        _counters["SR-SF-0J-160"] = EventCounter("SR-SF-0J-160");
+        _counters["SR-SF-0J-100-120"] = EventCounter("SR-SF-0J-100-120");
+        _counters["SR-SF-0J-120-160"] = EventCounter("SR-SF-0J-120-160");
+        _counters["SR-SF-1J-100"] = EventCounter("SR-SF-1J-100");
+        _counters["SR-SF-1J-160"] = EventCounter("SR-SF-1J-160");
+        _counters["SR-SF-1J-100-120"] = EventCounter("SR-SF-1J-100-120");
+        _counters["SR-SF-1J-120-160"] = EventCounter("SR-SF-1J-120-160");
+
+        _counters_bin["SR-DF-0J-100-105"] = EventCounter("SR-DF-0J-100-105");
+        _counters_bin["SR-DF-0J-105-110"] = EventCounter("SR-DF-0J-105-110");
+        _counters_bin["SR-DF-0J-110-120"] = EventCounter("SR-DF-0J-110-120");
+        _counters_bin["SR-DF-0J-120-140"] = EventCounter("SR-DF-0J-120-140");
+        _counters_bin["SR-DF-0J-140-160"] = EventCounter("SR-DF-0J-140-160");
+        _counters_bin["SR-DF-0J-160-180"] = EventCounter("SR-DF-0J-160-180");
+        _counters_bin["SR-DF-0J-180-220"] = EventCounter("SR-DF-0J-180-220");
+        _counters_bin["SR-DF-0J-220"] = EventCounter("SR-DF-0J-220");
+        _counters_bin["SR-DF-1J-100-105"] = EventCounter("SR-DF-1J-100-105");
+        _counters_bin["SR-DF-1J-105-110"] = EventCounter("SR-DF-1J-105-110");
+        _counters_bin["SR-DF-1J-110-120"] = EventCounter("SR-DF-1J-110-120");
+        _counters_bin["SR-DF-1J-120-140"] = EventCounter("SR-DF-1J-120-140");
+        _counters_bin["SR-DF-1J-140-160"] = EventCounter("SR-DF-1J-140-160");
+        _counters_bin["SR-DF-1J-160-180"] = EventCounter("SR-DF-1J-160-180");
+        _counters_bin["SR-DF-1J-180-220"] = EventCounter("SR-DF-1J-180-220");
+        _counters_bin["SR-DF-1J-220"] = EventCounter("SR-DF-1J-220");
+        _counters_bin["SR-SF-0J-100-105"] = EventCounter("SR-SF-0J-100-105");
+        _counters_bin["SR-SF-0J-105-110"] = EventCounter("SR-SF-0J-105-110");
+        _counters_bin["SR-SF-0J-110-120"] = EventCounter("SR-SF-0J-110-120");
+        _counters_bin["SR-SF-0J-120-140"] = EventCounter("SR-SF-0J-120-140");
+        _counters_bin["SR-SF-0J-140-160"] = EventCounter("SR-SF-0J-140-160");
+        _counters_bin["SR-SF-0J-160-180"] = EventCounter("SR-SF-0J-160-180");
+        _counters_bin["SR-SF-0J-180-220"] = EventCounter("SR-SF-0J-180-220");
+        _counters_bin["SR-SF-0J-220"] = EventCounter("SR-SF-0J-220");
+        _counters_bin["SR-SF-1J-100-105"] = EventCounter("SR-SF-1J-100-105");
+        _counters_bin["SR-SF-1J-105-110"] = EventCounter("SR-SF-1J-105-110");
+        _counters_bin["SR-SF-1J-110-120"] = EventCounter("SR-SF-1J-110-120");
+        _counters_bin["SR-SF-1J-120-140"] = EventCounter("SR-SF-1J-120-140");
+        _counters_bin["SR-SF-1J-140-160"] = EventCounter("SR-SF-1J-140-160");
+        _counters_bin["SR-SF-1J-160-180"] = EventCounter("SR-SF-1J-160-180");
+        _counters_bin["SR-SF-1J-180-220"] = EventCounter("SR-SF-1J-180-220");
+        _counters_bin["SR-SF-1J-220"] = EventCounter("SR-SF-1J-220");
+
+
 
         set_analysis_name("ATLAS_13TeV_2OSLEP_chargino_80invfb");
         set_luminosity(80.5);
@@ -360,18 +360,6 @@ namespace Gambit
             }
 
         }
-
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_2OSLEP_chargino_80invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_2OSLEP_chargino_80invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        for (auto& pair : _counters_bin) { pair.second += specificOther->_counters_bin.at(pair.first); }
 
       }
 

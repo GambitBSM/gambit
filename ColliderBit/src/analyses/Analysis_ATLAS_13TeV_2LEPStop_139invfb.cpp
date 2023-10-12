@@ -12,10 +12,10 @@
 
 using namespace std;
 
-/* 
+/*
   The ATLAS 2 lepton direct stop analysis (139 fb^-1) - `heavy stop'.
 
-  Based on: 
+  Based on:
   - ATLAS analysis arXiv:2102.01444, and the GAMBIT implenmen
   - The code in Analysis_ATLAS_13TeV_2LEPStop_139invfb.cpp (by Yang Zhang)
 
@@ -23,48 +23,23 @@ using namespace std;
 
   Known issues:
   - 3-body and 4-body SRs not yet implemented
-  - Use the event-based ETmiss significance rather than the object-based one. 
+  - Use the event-based ETmiss significance rather than the object-based one.
     See https://cds.cern.ch/record/2630948/files/ATLAS-CONF-2018-038.pdf
 
 */
 
-namespace Gambit 
+namespace Gambit
 {
-  namespace ColliderBit 
+  namespace ColliderBit
   {
 
     // This analysis class is a base class for two SR-specific analysis classes
     // defined further down:
     // - ATLAS_13TeV_2LEPStop_inclusive_139invfb
     // - ATLAS_13TeV_2LEPStop_exclusive_139invfb
-    class Analysis_ATLAS_13TeV_2LEPStop_139invfb : public Analysis 
+    class Analysis_ATLAS_13TeV_2LEPStop_139invfb : public Analysis
     {
     public:
-
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-            {"SR2bSF110", EventCounter("SR2bSF110")},
-            {"SR2bSF120", EventCounter("SR2bSF120")},
-            {"SR2bSF140", EventCounter("SR2bSF140")},
-            {"SR2bSF160", EventCounter("SR2bSF160")},
-            {"SR2bSF180", EventCounter("SR2bSF180")},
-            {"SR2bSF220", EventCounter("SR2bSF220")},
-            // 
-            {"SR2bDF110", EventCounter("SR2bDF110")},
-            {"SR2bDF120", EventCounter("SR2bDF120")},
-            {"SR2bDF140", EventCounter("SR2bDF140")},
-            {"SR2bDF160", EventCounter("SR2bDF160")},
-            {"SR2bDF180", EventCounter("SR2bDF180")},
-            {"SR2bDF220", EventCounter("SR2bDF220")},
-            //
-            {"SR2bInc110", EventCounter("SR2bInc110")},
-            {"SR2bInc120", EventCounter("SR2bInc120")},
-            {"SR2bInc140", EventCounter("SR2bInc140")},
-            {"SR2bInc160", EventCounter("SR2bInc160")},
-            {"SR2bInc180", EventCounter("SR2bInc180")},
-            {"SR2bInc200", EventCounter("SR2bInc200")},
-            {"SR2bInc220", EventCounter("SR2bInc220")},
-        };
 
         #ifdef CHECK_CUTFLOW
             Cutflows _cutflows;
@@ -75,6 +50,31 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_2LEPStop_139invfb()
         {
+
+            // Numbers passing cuts
+            _counters["SR2bSF110"] = EventCounter("SR2bSF110");
+            _counters["SR2bSF120"] = EventCounter("SR2bSF120");
+            _counters["SR2bSF140"] = EventCounter("SR2bSF140");
+            _counters["SR2bSF160"] = EventCounter("SR2bSF160");
+            _counters["SR2bSF180"] = EventCounter("SR2bSF180");
+            _counters["SR2bSF220"] = EventCounter("SR2bSF220");
+            //
+            _counters["SR2bDF110"] = EventCounter("SR2bDF110");
+            _counters["SR2bDF120"] = EventCounter("SR2bDF120");
+            _counters["SR2bDF140"] = EventCounter("SR2bDF140");
+            _counters["SR2bDF160"] = EventCounter("SR2bDF160");
+            _counters["SR2bDF180"] = EventCounter("SR2bDF180");
+            _counters["SR2bDF220"] = EventCounter("SR2bDF220");
+            //
+            _counters["SR2bInc110"] = EventCounter("SR2bInc110");
+            _counters["SR2bInc120"] = EventCounter("SR2bInc120");
+            _counters["SR2bInc140"] = EventCounter("SR2bInc140");
+            _counters["SR2bInc160"] = EventCounter("SR2bInc160");
+            _counters["SR2bInc180"] = EventCounter("SR2bInc180");
+            _counters["SR2bInc200"] = EventCounter("SR2bInc200");
+            _counters["SR2bInc220"] = EventCounter("SR2bInc220");
+
+
 
             set_analysis_name("ATLAS_13TeV_2LEPStop_139invfb");
             set_luminosity(139.);
@@ -107,9 +107,9 @@ namespace Gambit
             #endif
 
 
-            // 
+            //
             // Collect baseline objects
-            // 
+            //
 
             // Missing energy
             double met = event->met();
@@ -126,7 +126,7 @@ namespace Gambit
             ATLAS::applyElectronEff(baselineElectrons);
 
             // Apply loose electron selection
-            ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
             // Create a list of baseline electrons with pT > 100 (used for overlap removal)
             vector<const HEPUtils::Particle*> baselineElectronsPTgt100;
@@ -157,15 +157,15 @@ namespace Gambit
             // TG: No, and it is also missing from the ATLAS efficiencies, but it's generally over 99% effieciency
 
             // Jets
-            // 
-            // - Including a 90% efficiency for jets w/ pT < 120 and |eta| < 2.5, 
-            //   to emualte the requirement that many tracks are consistent with 
+            //
+            // - Including a 90% efficiency for jets w/ pT < 120 and |eta| < 2.5,
+            //   to emualte the requirement that many tracks are consistent with
             //   primary vertex (see paper)
 
             vector<const HEPUtils::Jet*> baselineJets;
-            for (const HEPUtils::Jet* jet : event->jets()) 
+            for (const HEPUtils::Jet* jet : event->jets())
             {
-                if (jet->pT() > 20. && jet->abseta() < 2.8) 
+                if (jet->pT() > 20. && jet->abseta() < 2.8)
                 {
                     if (jet->pT() < 120 && jet->abseta() < 2.5)
                     {
@@ -199,7 +199,7 @@ namespace Gambit
                 }
                 else
                 {
-                    baselineNonBJets.push_back(j);                    
+                    baselineNonBJets.push_back(j);
                 }
             }
 
@@ -229,9 +229,9 @@ namespace Gambit
             for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
             for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
 
-            // 
+            //
             // Signal objects
-            // 
+            //
 
             // b jets
             vector<const HEPUtils::Jet*> signalBJets = baselineBJets;
@@ -245,7 +245,7 @@ namespace Gambit
 
             // electrons
             vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
-            ATLAS::applyMediumIDElectronSelectionR2(signalElectrons);
+            apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
 
             // muons
             vector<const HEPUtils::Particle*> signalMuons = baselineMuons;
@@ -265,9 +265,9 @@ namespace Gambit
             sortByPt(signalLeptons);
 
 
-            // 
+            //
             // Event selection
-            // 
+            //
 
             // Implements the selection via a bunch of bools instead of early return
             // statements, to make it easy to implement cut-flows for SR2b*, SR3b* and
@@ -339,7 +339,7 @@ namespace Gambit
                 // Require same-flavour leptons w/ |mll - mZ| > 20
                 // or different-flavour leptons
                 if (lep1->abspid() == lep2->abspid())
-                { 
+                {
                     SR2b_SF = true;
                 }
                 else
@@ -410,10 +410,10 @@ namespace Gambit
                 if (SR2b_OS) _cutflows["SR2b"].fillnext(w);                    // "OS leptons"
                 if (SR2b_mll) _cutflows["SR2b"].fillnext(w);                   // "mll > 20"
                 if (SR2b_SF_mll_req || SR2b_DF) _cutflows["SR2b"].fillnext(w); // "SF w/ |mll - mZ| > 20 or DF"
-                if (SR2b_nbjets) _cutflows["SR2b"].fillnext(w);                // "n_bjets >= 1"            
-                if (SR2b_dphiboost) _cutflows["SR2b"].fillnext(w);             // "Delta phi_boost < 1.5"            
-                if (SR2b_ETmiss_sig) _cutflows["SR2b"].fillnext(w);            // "ETmiss significance > 12"            
-                if (SR2b_mT2) _cutflows["SR2b"].fillnext(w);                   // "mT2 >= 110"            
+                if (SR2b_nbjets) _cutflows["SR2b"].fillnext(w);                // "n_bjets >= 1"
+                if (SR2b_dphiboost) _cutflows["SR2b"].fillnext(w);             // "Delta phi_boost < 1.5"
+                if (SR2b_ETmiss_sig) _cutflows["SR2b"].fillnext(w);            // "ETmiss significance > 12"
+                if (SR2b_mT2) _cutflows["SR2b"].fillnext(w);                   // "mT2 >= 110"
             #endif
 
 
@@ -455,17 +455,8 @@ namespace Gambit
         }
 
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-            const Analysis_ATLAS_13TeV_2LEPStop_139invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_2LEPStop_139invfb*>(other);
 
-            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
-
-
-        virtual void collect_results() 
+        virtual void collect_results()
         {
             // Two-body SRs (SR2b*)
             // - SF + DF, inclusive mT2 binning
@@ -504,7 +495,7 @@ namespace Gambit
 
 
     protected:
-      void analysis_specific_reset() 
+      void analysis_specific_reset()
       {
         for (auto& pair : _counters) { pair.second.reset(); }
       }
@@ -518,16 +509,16 @@ namespace Gambit
     //
     // Derived analysis class using the SR2b inclusive SRs
     //
-    class Analysis_ATLAS_13TeV_2LEPStop_inclusive_139invfb : public Analysis_ATLAS_13TeV_2LEPStop_139invfb 
+    class Analysis_ATLAS_13TeV_2LEPStop_inclusive_139invfb : public Analysis_ATLAS_13TeV_2LEPStop_139invfb
     {
 
     public:
-        Analysis_ATLAS_13TeV_2LEPStop_inclusive_139invfb() 
+        Analysis_ATLAS_13TeV_2LEPStop_inclusive_139invfb()
         {
             set_analysis_name("ATLAS_13TeV_2LEPStop_inclusive_139invfb");
         }
 
-        virtual void collect_results() 
+        virtual void collect_results()
         {
             // Two-body SRs (SR2b*)
             // - SF + DF, inclusive mT2 binning
@@ -548,7 +539,7 @@ namespace Gambit
                 for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
                 cout << "\n" << endl;
             #endif
- 
+
         }
 
     };
@@ -560,16 +551,16 @@ namespace Gambit
     //
     // Derived analysis class using the SR2b exclusive SRs
     //
-    class Analysis_ATLAS_13TeV_2LEPStop_exclusive_139invfb : public Analysis_ATLAS_13TeV_2LEPStop_139invfb 
+    class Analysis_ATLAS_13TeV_2LEPStop_exclusive_139invfb : public Analysis_ATLAS_13TeV_2LEPStop_139invfb
     {
 
     public:
-        Analysis_ATLAS_13TeV_2LEPStop_exclusive_139invfb() 
+        Analysis_ATLAS_13TeV_2LEPStop_exclusive_139invfb()
         {
             set_analysis_name("ATLAS_13TeV_2LEPStop_exclusive_139invfb");
         }
 
-        virtual void collect_results() 
+        virtual void collect_results()
         {
             // Two-body SRs (SR2b*)
             // - SF, exclusive mT2 binning
@@ -596,7 +587,7 @@ namespace Gambit
                 for (auto& pair : _counters) cout << pair.second.weight_sum() << "  ";
                 cout << "\n" << endl;
             #endif
- 
+
         }
 
     };

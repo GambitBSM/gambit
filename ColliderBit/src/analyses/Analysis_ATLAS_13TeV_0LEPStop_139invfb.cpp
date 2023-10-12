@@ -167,7 +167,9 @@ namespace Gambit {
 	  }
 	// Apply electron efficiency
 	// Loose electron ID selection
-	ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
+	apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
+
+	//ATLAS::applyElectronIDEfficiency2019(baselineElectrons, "Loose");
         
 	// Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
 	vector<const HEPUtils::Particle*> baselineMuons;

@@ -232,6 +232,9 @@ namespace Gambit
     /// From: http://stackoverflow.com/a/2845275/1447953
     EXPORT_SYMBOLS bool isInteger(const std::string&);
 
+    /// Perform outer product of two vectors
+    EXPORT_SYMBOLS std::vector<double> outer_product(const std::vector<double>&, const std::vector<double>&);
+
     // Dummy functions for variadic variables to avoid compiler warnings
     template<typename... T> void dummy_function() {}
     template<typename T> void dummy_function(T one)
@@ -249,8 +252,8 @@ namespace Gambit
     /// Useful for allowing evaluation of a removal criterion over the whole container in parallel.
     template<template<class, class> class Container, class T >
     void masked_erase(Container<std::pair<T,bool>, std::allocator<std::pair<T,bool>>>& c)
-    {     
-      auto it = std::remove_if(c.begin(), c.end(), [](const std::pair<T,bool>& e) { return not e.second; }); 
+    {
+      auto it = std::remove_if(c.begin(), c.end(), [](const std::pair<T,bool>& e) { return not e.second; });
       c.erase(it, c.end());
     }
 

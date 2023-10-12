@@ -25,54 +25,6 @@ namespace Gambit {
     class Analysis_CMS_13TeV_2LEPStop_36invfb : public Analysis {
     private:
 
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-            {"SF-SR-0", EventCounter("SF-SR-0")},
-            {"DF-SR-0", EventCounter("DF-SR-0")},
-            {"SF-SR-1", EventCounter("SF-SR-1")},
-            {"DF-SR-1", EventCounter("DF-SR-1")},
-            {"SF-SR-2", EventCounter("SF-SR-2")},
-            {"DF-SR-2", EventCounter("DF-SR-2")},
-            {"SF-SR-3", EventCounter("SF-SR-3")},
-            {"DF-SR-3", EventCounter("DF-SR-3")},
-            {"SF-SR-4", EventCounter("SF-SR-4")},
-            {"DF-SR-4", EventCounter("DF-SR-4")},
-            {"SF-SR-5", EventCounter("SF-SR-5")},
-            {"DF-SR-5", EventCounter("DF-SR-5")},
-            {"SF-SR-6", EventCounter("SF-SR-6")},
-            {"DF-SR-6", EventCounter("DF-SR-6")},
-            {"SF-SR-7", EventCounter("SF-SR-7")},
-            {"DF-SR-7", EventCounter("DF-SR-7")},
-            {"SF-SR-8", EventCounter("SF-SR-8")},
-            {"DF-SR-8", EventCounter("DF-SR-8")},
-            {"SF-SR-9", EventCounter("SF-SR-9")},
-            {"DF-SR-9", EventCounter("DF-SR-9")},
-            {"SF-SR-10", EventCounter("SF-SR-10")},
-            {"DF-SR-10", EventCounter("DF-SR-10")},
-            {"SF-SR-11", EventCounter("SF-SR-11")},
-            {"DF-SR-11", EventCounter("DF-SR-11")},
-            {"SF-SR-12", EventCounter("SF-SR-12")},
-            {"DF-SR-12", EventCounter("DF-SR-12")},
-            //
-            {"ALL-SR-0", EventCounter("ALL-SR-0")},
-            {"ALL-SR-1", EventCounter("ALL-SR-1")},
-            {"ALL-SR-2", EventCounter("ALL-SR-2")},
-            {"ALL-SR-3", EventCounter("ALL-SR-3")},
-            {"ALL-SR-4", EventCounter("ALL-SR-4")},
-            {"ALL-SR-5", EventCounter("ALL-SR-5")},
-            {"ALL-SR-6", EventCounter("ALL-SR-6")},
-            {"ALL-SR-7", EventCounter("ALL-SR-7")},
-            {"ALL-SR-8", EventCounter("ALL-SR-8")},
-            {"ALL-SR-9", EventCounter("ALL-SR-9")},
-            {"ALL-SR-10", EventCounter("ALL-SR-10")},
-            {"ALL-SR-11", EventCounter("ALL-SR-11")},
-            {"ALL-SR-12", EventCounter("ALL-SR-12")},
-            //
-            {"A-SR-0", EventCounter("A-SR-0")},
-            {"A-SR-1", EventCounter("A-SR-1")},
-            {"A-SR-2", EventCounter("A-SR-2")},
-        };
-
         static const size_t _SR_size = 13;
         static const size_t _SRA_size = 3;
 
@@ -140,7 +92,55 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Analysis_CMS_13TeV_2LEPStop_36invfb() {
+        Analysis_CMS_13TeV_2LEPStop_36invfb()
+        {
+
+            // Numbers passing cuts
+            _counters["SF-SR-0"] = EventCounter("SF-SR-0");
+            _counters["DF-SR-0"] = EventCounter("DF-SR-0");
+            _counters["SF-SR-1"] = EventCounter("SF-SR-1");
+            _counters["DF-SR-1"] = EventCounter("DF-SR-1");
+            _counters["SF-SR-2"] = EventCounter("SF-SR-2");
+            _counters["DF-SR-2"] = EventCounter("DF-SR-2");
+            _counters["SF-SR-3"] = EventCounter("SF-SR-3");
+            _counters["DF-SR-3"] = EventCounter("DF-SR-3");
+            _counters["SF-SR-4"] = EventCounter("SF-SR-4");
+            _counters["DF-SR-4"] = EventCounter("DF-SR-4");
+            _counters["SF-SR-5"] = EventCounter("SF-SR-5");
+            _counters["DF-SR-5"] = EventCounter("DF-SR-5");
+            _counters["SF-SR-6"] = EventCounter("SF-SR-6");
+            _counters["DF-SR-6"] = EventCounter("DF-SR-6");
+            _counters["SF-SR-7"] = EventCounter("SF-SR-7");
+            _counters["DF-SR-7"] = EventCounter("DF-SR-7");
+            _counters["SF-SR-8"] = EventCounter("SF-SR-8");
+            _counters["DF-SR-8"] = EventCounter("DF-SR-8");
+            _counters["SF-SR-9"] = EventCounter("SF-SR-9");
+            _counters["DF-SR-9"] = EventCounter("DF-SR-9");
+            _counters["SF-SR-10"] = EventCounter("SF-SR-10");
+            _counters["DF-SR-10"] = EventCounter("DF-SR-10");
+            _counters["SF-SR-11"] = EventCounter("SF-SR-11");
+            _counters["DF-SR-11"] = EventCounter("DF-SR-11");
+            _counters["SF-SR-12"] = EventCounter("SF-SR-12");
+            _counters["DF-SR-12"] = EventCounter("DF-SR-12");
+            //
+            _counters["ALL-SR-0"] = EventCounter("ALL-SR-0");
+            _counters["ALL-SR-1"] = EventCounter("ALL-SR-1");
+            _counters["ALL-SR-2"] = EventCounter("ALL-SR-2");
+            _counters["ALL-SR-3"] = EventCounter("ALL-SR-3");
+            _counters["ALL-SR-4"] = EventCounter("ALL-SR-4");
+            _counters["ALL-SR-5"] = EventCounter("ALL-SR-5");
+            _counters["ALL-SR-6"] = EventCounter("ALL-SR-6");
+            _counters["ALL-SR-7"] = EventCounter("ALL-SR-7");
+            _counters["ALL-SR-8"] = EventCounter("ALL-SR-8");
+            _counters["ALL-SR-9"] = EventCounter("ALL-SR-9");
+            _counters["ALL-SR-10"] = EventCounter("ALL-SR-10");
+            _counters["ALL-SR-11"] = EventCounter("ALL-SR-11");
+            _counters["ALL-SR-12"] = EventCounter("ALL-SR-12");
+            //
+            _counters["A-SR-0"] = EventCounter("A-SR-0");
+            _counters["A-SR-1"] = EventCounter("A-SR-1");
+            _counters["A-SR-2"] = EventCounter("A-SR-2");
+
 
             set_analysis_name("CMS_13TeV_2LEPStop_36invfb");
             set_luminosity(35.9);
@@ -175,7 +175,7 @@ namespace Gambit {
                 bool hasTrig=has_tag(_eff2dMu, muon->abseta(), muon->pT());
                 if (muon->pT() > 15. && muon->abseta() < 2.4 && hasTrig) baselineMuons.push_back(muon);
             }
-            ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
             // Jets
             vector<const HEPUtils::Jet*> baselineJets;
             for (const HEPUtils::Jet* jet : event->jets()) {
@@ -189,7 +189,7 @@ namespace Gambit {
             //Baseline Leptons
             int LooseLepNum = baselineElectrons.size()+baselineMuons.size();
             //Signal Leptons
-            ATLAS::applyMediumIDElectronSelectionR2(baselineElectrons);
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             vector<const HEPUtils::Particle*> signalLeptons;
             for (const HEPUtils::Particle* electron : baselineElectrons) {
                 signalLeptons.push_back(electron);
@@ -455,25 +455,6 @@ namespace Gambit {
         return;
 
         }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-            const Analysis_CMS_13TeV_2LEPStop_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_2LEPStop_36invfb*>(other);
-
-            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-            if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-
-            for (int j=0; j<NCUTS; j++)
-            {
-                cutFlowVector[j] += specificOther->cutFlowVector[j];
-                cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-            }
-
-        }
-
 
         void collect_results() {
 

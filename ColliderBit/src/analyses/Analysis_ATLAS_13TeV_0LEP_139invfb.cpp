@@ -34,23 +34,6 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-          {"2j-1600", EventCounter("2j-1600")},
-          {"2j-2200", EventCounter("2j-2200")},
-          {"2j-2800", EventCounter("2j-2800")},
-          {"4j-1000", EventCounter("4j-1000")},
-          {"4j-2200", EventCounter("4j-2200")},
-          {"4j-3400", EventCounter("4j-3400")},
-          {"5j-1600", EventCounter("5j-1600")},
-          {"6j-1000", EventCounter("6j-1000")},
-          {"6j-2200", EventCounter("6j-2200")},
-          {"6j-3400", EventCounter("6j-3400")},
-        };
-
-        Cutflows _cutflows;
-
-
         // static const size_t NUMSR = 10;
         // double _srnums[NUMSR] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0.};
         // enum SRNames { SR2J_1600=0, "2j_2200", "2j_2800",
@@ -60,6 +43,20 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_0LEP_139invfb()
         {
+
+          // Numbers passing cuts
+          _counters["2j-1600"] = EventCounter("2j-1600");
+          _counters["2j-2200"] = EventCounter("2j-2200");
+          _counters["2j-2800"] = EventCounter("2j-2800");
+          _counters["4j-1000"] = EventCounter("4j-1000");
+          _counters["4j-2200"] = EventCounter("4j-2200");
+          _counters["4j-3400"] = EventCounter("4j-3400");
+          _counters["5j-1600"] = EventCounter("5j-1600");
+          _counters["6j-1000"] = EventCounter("6j-1000");
+          _counters["6j-2200"] = EventCounter("6j-2200");
+          _counters["6j-3400"] = EventCounter("6j-3400");
+
+
 
           set_analysis_name("ATLAS_13TeV_0LEP_139invfb");
           set_luminosity(139.0);
@@ -142,7 +139,7 @@ namespace Gambit
             if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > min(0.4, 0.04+10/e->pT()); }))
               signalElectrons.push_back(e);
           // Apply electron ID selection
-          ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
+          apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
           /// @todo And tight ID for high purity... used where?
 
           // Remove muons with dR = 0.4 of surviving |eta| < 2.8 jets
@@ -329,13 +326,6 @@ namespace Gambit
 
         }
 
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_0LEP_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_0LEP_139invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
 
 
         /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note

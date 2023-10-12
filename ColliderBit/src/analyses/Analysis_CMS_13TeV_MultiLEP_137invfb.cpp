@@ -24,7 +24,6 @@ namespace Gambit
 
       protected:
         // Counters for the number of accepted events for each signal region
-        std::map<str, EventCounter> _counters;
 
       private:
 
@@ -38,7 +37,6 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Cutflows _cutflows;
 
         Analysis_CMS_13TeV_MultiLEP_137invfb()
         {
@@ -699,12 +697,6 @@ namespace Gambit
 
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_CMS_13TeV_MultiLEP_137invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_MultiLEP_137invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
 
         virtual void collect_results()
         {

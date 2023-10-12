@@ -41,17 +41,6 @@ namespace Gambit
     {
       protected:
 
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-          {"SRaa_SL", EventCounter("SRaa_SL")},
-          {"SRaa_SH", EventCounter("SRaa_SH")},
-          {"SRaa_WL", EventCounter("SRaa_WL")},
-          {"SRaa_WH", EventCounter("SRaa_WH")},
-          {"SRaj_L", EventCounter("SRaj_L")},
-          {"SRaj_L200", EventCounter("SRaj_L200")},
-          {"SRaj_H", EventCounter("SRaj_H")},
-        };
-
 
         // Cut Flow
         #ifdef CHECK_CUTFLOW
@@ -122,6 +111,17 @@ namespace Gambit
         Analysis_ATLAS_13TeV_PhotonGGM_36invfb()
         {
 
+          // Numbers passing cuts
+          _counters["SRaa_SL"] = EventCounter("SRaa_SL");
+          _counters["SRaa_SH"] = EventCounter("SRaa_SH");
+          _counters["SRaa_WL"] = EventCounter("SRaa_WL");
+          _counters["SRaa_WH"] = EventCounter("SRaa_WH");
+          _counters["SRaj_L"] = EventCounter("SRaj_L");
+          _counters["SRaj_L200"] = EventCounter("SRaj_L200");
+          _counters["SRaj_H"] = EventCounter("SRaj_H");
+
+
+
           set_analysis_name("ATLAS_13TeV_PhotonGGM_36invfb");
           set_luminosity(36.1);
 
@@ -161,7 +161,7 @@ namespace Gambit
           ATLAS::applyElectronEff(baselineElectrons);
 
           // Apply tight electron selection
-          ATLAS::applyTightIDElectronSelection(baselineElectrons);
+          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
           for (const HEPUtils::Particle* muon : event->muons())
           {
@@ -590,24 +590,6 @@ namespace Gambit
 
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_PhotonGGM_36invfb* specificOther
-            = dynamic_cast<const Analysis_ATLAS_13TeV_PhotonGGM_36invfb*>(other);
-
-          #ifdef CHECK_CUTFLOW
-            if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-            for (int j=0; j<NCUTS; j++)
-            {
-              cutFlowVector[j] += specificOther->cutFlowVector[j];
-              cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-            }
-          #endif
-
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        }
 
 
         virtual void collect_results()
@@ -629,7 +611,6 @@ namespace Gambit
             cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
           #endif
 
-            // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
             add_result(SignalRegionData(_counters.at("SRaa_SL"), 0., { 0.50, 0.30}));
             add_result(SignalRegionData(_counters.at("SRaa_SH"), 0., { 0.48, 0.30}));
