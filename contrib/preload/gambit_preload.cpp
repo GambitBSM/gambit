@@ -14,6 +14,10 @@
 ///          p.scott@imperial.ac.uk
 ///  \date 2019 June, July
 ///
+///  \author Anders Kvellestad
+///          anders.kvellestad@fys.uio.no
+///  \date 2023 Oct
+///
 ///  *********************************************
 
 #include <cstdlib>
@@ -37,10 +41,11 @@ static void initializer()
     const char* addition = (oldenv == NULL ? RESTFRAMES_INCLUDE : ":" RESTFRAMES_INCLUDE);
     if (oldenv != NULL)
     {
-      char newenv[strlen(oldenv) + strlen(addition) + 1];
+      char* newenv = (char*) malloc((strlen(oldenv) + strlen(addition) + 1) * sizeof(char));
       strcpy(newenv, oldenv);
       strcat(newenv, addition);
       setenv("CPLUS_INCLUDE_PATH", newenv, 1);
+      free(newenv);
     }
     else setenv("CPLUS_INCLUDE_PATH", addition, 1);
   }
