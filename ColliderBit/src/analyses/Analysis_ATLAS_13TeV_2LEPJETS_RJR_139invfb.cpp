@@ -75,9 +75,6 @@ namespace Gambit
       unique_ptr<RestFrames::InvisibleRecoFrame> X1a_2L2J;
       unique_ptr<RestFrames::InvisibleRecoFrame> X1b_2L2J;
 
-      unique_ptr<RestFrames::InvisibleRecoFrame> X1a_2L2J;
-      unique_ptr<RestFrames::InvisibleRecoFrame> X1b_2L2J;
-
       unique_ptr<RestFrames::InvisibleGroup>    INV_2L2J;
 
       unique_ptr<RestFrames::SetMassInvJigsaw>     X1_mass_2L2J;
@@ -267,13 +264,10 @@ namespace Gambit
           C1a_2L2J.reset(new RestFrames::DecayRecoFrame("C1a_2L2J","#tilde{#chi}^{ #pm}_{1}"));
           N2b_2L2J.reset(new RestFrames::DecayRecoFrame("N2b_2L2J","#tilde{#chi}^{ 0}_{2}"));
 
-          Wa_2L2J.reset(new RestFrames::DecayRecoFrame("Wa_2L2J","W_{a}"));
-          Zb_2L2J.reset(new RestFrames::DecayRecoFrame("Zb_2L2J","Z_{b}"));
-
-          J1_2L2J.reset(new RestFrames::VisibleRecoFrame("J1_2L2J","#it{j}_{1}"));
+	  J1_2L2J.reset(new RestFrames::VisibleRecoFrame("J1_2L2J","#it{j}_{1}"));
           J2_2L2J.reset(new RestFrames::VisibleRecoFrame("J2_2L2J","#it{j}_{2}"));
-          L1_2L2J.reset(new RestFrames::VisibleRecoFrame("L1_2L2J","#it{l}_{1}"));
-          L2_2L2J.reset(new RestFrames::VisibleRecoFrame("L2_2L2J","#it{l}_{2}"));
+          //L1_2L2J.reset(new RestFrames::VisibleRecoFrame("L1_2L2J","#it{l}_{1}"));
+          //L2_2L2J.reset(new RestFrames::VisibleRecoFrame("L2_2L2J","#it{l}_{2}"));
 
           X1a_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1a_2L2J","#tilde{#chi}^{ 0}_{1 a}"));
           X1b_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1b_2L2J","#tilde{#chi}^{ 0}_{1 b}"));
@@ -393,7 +387,7 @@ namespace Gambit
         {
           if (electron->pT()>10. && electron->abseta()<2.47) baselineElectrons.push_back(electron);
         }
-        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl["PERF_2017_01_ID_Loose"]);
+        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
 
         // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
         for (const HEPUtils::Particle* muon : event->muons())
@@ -433,7 +427,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> signalLeptons;
 
         // Signal electrons must satisfy the “medium” identification requirement as defined in arXiv: 1902.04655 [hep-ex]
-        apply1DEfficiency(signalElectrons, ATLAS::eff1DEl["PERF_2017_01_ID_Medium"]);
+        apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
         // Signal electrons must have pT > 25 GeV
         for (const HEPUtils::Particle* signalElectron : baselineElectrons)
         {
@@ -449,7 +443,7 @@ namespace Gambit
         // Signal jets must have pT > 30 GeV
         for (const HEPUtils::Jet* signalJet : baselineJets)
         {
-          if (signalJet->pT() > 30. && jet->abseta()<2.4) signalJets.push_back(signalJet);
+          if (signalJet->pT() > 30. && signalJet->abseta()<2.4) signalJets.push_back(signalJet);
         }
 
         // Find b-jets
@@ -501,7 +495,7 @@ namespace Gambit
         // Presumably TLorentzVector stuff is needed for RestFrames
         TLorentzVector metLV;
         //TLorentzVector bigFatJet;
-        metLV.SetPxPyPzE(ptot.px(),ptot.py(),0.,sqrt(ptot.px()*ptot.px()+ptot.py()*ptot.py()));
+        metLV.SetPxPyPzE(metVec.px(),metVec.py(),0.,sqrt(metVec.px()*metVec.px()+metVec.py()*metVec.py()));
 
         //Put the Jets in a more useful form
         vector<TLorentzVector> myJets;
@@ -593,7 +587,7 @@ namespace Gambit
             for(unsigned int ijet=0; ijet<signalJets.size();ijet++)
             {
               tempjet.SetPtEtaPhiM(signalJets[ijet]->pT(),signalJets[ijet]->eta(),signalJets[ijet]->phi(),signalJets[ijet]->mass());
-              dphi = fabs(metVec.DeltaPhi(tempjet));
+              dphi = fabs(metVec.deltaPhi(tempjet));
               if(dphi<mindphi) mindphi=dphi;
             }
 
@@ -662,7 +656,7 @@ namespace Gambit
             // we are ready to go
 
             // Low mass
-            if (njets==2 && nbjets==0 && jets[0].Pt()>30. && jets[1].Pt()>30. && Zmass>80. && Zmass<100. && mjj>70. && mjj<90. && H5PP>400. && RPT_HT5PP<0.05 && R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.65 && mindphi>2.4)_counters.at("SR2L_Low").add_event(event);
+            if (njets==2 && nbjets==0 && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && Zmass>80. && Zmass<100. && mjj>70. && mjj<90. && H5PP>400. && RPT_HT5PP<0.05 && R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.65 && mindphi>2.4)_counters.at("SR2L_Low").add_event(event);
 
             // Intermediate
             //Not used in paper, despite being in ATLAS code snippet!
