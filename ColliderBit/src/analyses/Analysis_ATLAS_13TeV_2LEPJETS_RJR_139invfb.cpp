@@ -37,13 +37,13 @@ namespace Gambit
   namespace ColliderBit
   {
 
-    bool SortLeptons(const pair<TLorentzVector,int> lv1, const pair<TLorentzVector,int> lv2)
+    bool SortLeptons2LJ(const pair<TLorentzVector,int> lv1, const pair<TLorentzVector,int> lv2)
     //bool VariableConstruction::SortLeptons(const lep lv1, const lep lv2)
     {
       return lv1.first.Pt() > lv2.first.Pt();
     }
 
-    bool SortJets(const TLorentzVector jv1, const TLorentzVector jv2)
+    bool SortJets2LJ(const TLorentzVector jv1, const TLorentzVector jv2)
     {
       return jv1.Pt() > jv2.Pt();
     }
@@ -373,7 +373,7 @@ namespace Gambit
 
         // Missing momentum and energy
         HEPUtils::P4 metVec = event->missingmom();
-        double met = event->met();
+        //double met = event->met();
         TVector3 ETMiss;
         ETMiss.SetXYZ(metVec.px(),metVec.py(),0.0);
 
@@ -476,9 +476,9 @@ namespace Gambit
         // Now ready to start analysis
 
         bool m_foundSFOS=false;
-        bool m_is2Lep=false;
-        bool m_is2Lep2Jet=false;
-        bool m_is2L2JInt=false;
+        //bool m_is2Lep=false;
+        //bool m_is2Lep2Jet=false;
+        //bool m_is2L2JInt=false;
 
 
         size_t nleptons = signalLeptons.size();
@@ -524,8 +524,8 @@ namespace Gambit
           myLeptons.push_back(temp);
         }
 
-        sort(myJets.begin(), myJets.end(), SortJets);
-        sort(myLeptons.begin(), myLeptons.end(), SortLeptons);
+        sort(myJets.begin(), myJets.end(), SortJets2LJ);
+        sort(myLeptons.begin(), myLeptons.end(), SortLeptons2LJ);
 
         //Only proceed if there are 2 leptons and 2 jets
         if(cut_2lep && cut_2jets)
@@ -587,7 +587,7 @@ namespace Gambit
             for(unsigned int ijet=0; ijet<signalJets.size();ijet++)
             {
               tempjet.SetPtEtaPhiM(signalJets[ijet]->pT(),signalJets[ijet]->eta(),signalJets[ijet]->phi(),signalJets[ijet]->mass());
-              dphi = fabs(metVec.deltaPhi(tempjet));
+              dphi = fabs(metLV.DeltaPhi(tempjet));
               if(dphi<mindphi) mindphi=dphi;
             }
 
@@ -628,7 +628,7 @@ namespace Gambit
             double Pt_PP = vP_PP.Pt();
             double RPT_HT5PP = Pt_PP/(Pt_PP + HT5PP);
 
-            double dphiVP = C1N2_2L2J->GetDeltaPhiDecayVisible();
+            //double dphiVP = C1N2_2L2J->GetDeltaPhiDecayVisible();
 
             // P frame
 
@@ -640,17 +640,17 @@ namespace Gambit
             TLorentzVector vP_V2bPb = L2b_2L2J->GetFourVector(*N2b_2L2J);
             TLorentzVector vP_I1bPb = X1b_2L2J->GetFourVector(*N2b_2L2J);
 
-            double H2Pa = (vP_V1aPa + vP_V2aPa).P() + (vP_I1aPa).P(); //H(1,1)P
-            double H2Pb = (vP_V1bPb + vP_V2bPb).P() + vP_I1bPb.P();//H(1,1)P
+            //double H2Pa = (vP_V1aPa + vP_V2aPa).P() + (vP_I1aPa).P(); //H(1,1)P
+            //double H2Pb = (vP_V1bPb + vP_V2bPb).P() + vP_I1bPb.P();//H(1,1)P
 
-            double H3Pa = vP_V1aPa.P() + vP_V2aPa.P() + vP_I1aPa.P();//H(1,1)P
-            double H3Pb = vP_V1bPb.P() + vP_V2bPb.P() + vP_I1bPb.P();//H(2,1)P
+            //double H3Pa = vP_V1aPa.P() + vP_V2aPa.P() + vP_I1aPa.P();//H(1,1)P
+            //double H3Pb = vP_V1bPb.P() + vP_V2bPb.P() + vP_I1bPb.P();//H(2,1)P
 
-            double minH2P = std::min(H2Pa,H2Pb);
-            double minH3P = std::min(H3Pa,H3Pb);
+            //double minH2P = std::min(H2Pa,H2Pb);
+            //double minH3P = std::min(H3Pa,H3Pb);
             //    double R_H2Pa_H2Pb = H2Pa/H2Pb;
             //double R_H3Pa_H3Pb = H3Pa/H3Pb;
-            double R_minH2P_minH3P = minH2P/minH3P;
+            //double R_minH2P_minH3P = minH2P/minH3P;
 
             //std::cout << "STANDARD REGIONS" << std::endl;
             // we are ready to go
@@ -734,8 +734,8 @@ namespace Gambit
 
               ISR_2LNJ->SetLabFrameFourVector(vISR);
 
-              L1_2LNJ->SetLabFrameFourVector(myLeptons[ZLep1].first);
-              L2_2LNJ->SetLabFrameFourVector(myLeptons[ZLep2].first);
+              L1_2LNJ->SetLabFrameFourVector(myLeptons[Zlep1].first);
+              L2_2LNJ->SetLabFrameFourVector(myLeptons[Zlep2].first);
 
               INV_2LNJ->SetLabFrameThreeVector(ETMiss);
 
@@ -786,7 +786,7 @@ namespace Gambit
               double MZ = Z_2LNJ->GetMass();
 
               // finally do the selections
-              if (NjS==2 && NjISR<3 && leptons[0].Pt()>25. && leptons[1].Pt()>25. && jets[0].Pt()>30. && jets[1].Pt()>30. && MZ>80. && MZ<100. && MJ>50. && MJ<110. && dphiISRI>2.8 && RISR>0.4 && RISR<0.75 && PTISR>180. && PTI>100. && PTCM<20.)_counters.at("SR2L_ISR").add_event(event);
+              if (NjS==2 && NjISR<3 && signalLeptons[0]->pT()>25. && signalLeptons[1]->pT()>25. && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && MZ>80. && MZ<100. && MJ>50. && MJ<110. && dphiISRI>2.8 && RISR>0.4 && RISR<0.75 && PTISR>180. && PTI>100. && PTCM<20.)_counters.at("SR2L_ISR").add_event(event);
 
             }
 
