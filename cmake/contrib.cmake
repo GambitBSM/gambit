@@ -379,6 +379,13 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
   # Construct the command to create the shared library
   set(FS_SO_LINK_COMMAND "${CMAKE_CXX_COMPILER} ${CMAKE_SHARED_LINKER_FLAGS} ${CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS} -o")
 
+  # _Anders: temp debug test
+  if (FOUND_BREW_OPENMP)
+    set(FS_EIGEN3_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR} -I${BREW_LIBOMP_PREFIX}/include")
+  else()
+    set(FS_EIGEN3_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR}")
+  endif()
+
   # FlexibleSUSY configure options
   set(FS_OPTIONS ${FS_OPTIONS}
        --with-cxx=${CMAKE_CXX_COMPILER}
@@ -386,7 +393,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
        --with-shared-ldflags=${OpenMP_CXX_FLAGS}
        --with-fc=${CMAKE_Fortran_COMPILER}
        --with-fflags=${FS_Fortran_FLAGS}
-       --with-eigen-incdir=${EIGEN3_INCLUDE_DIR}
+       --with-eigen-incdir=${FS_EIGEN3_INCLUDE_DIR}
        --with-boost-libdir=${Boost_LIBRARY_DIR}
        --with-boost-incdir=${Boost_INCLUDE_DIR}
        --with-lapack-libs=${LAPACK_LINKLIBS}
