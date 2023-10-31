@@ -381,9 +381,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
 
   # _Anders: temp debug test
   if (FOUND_BREW_OPENMP)
-    set(FS_EIGEN3_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR} -I${BREW_LIBOMP_PREFIX}/include")
-  else()
-    set(FS_EIGEN3_INCLUDE_DIR "${EIGEN3_INCLUDE_DIR}")
+    set(FS_CXX_FLAGS "${FS_CXX_FLAGS} -I${BREW_LIBOMP_PREFIX}/include")
   endif()
 
   # FlexibleSUSY configure options
@@ -393,7 +391,7 @@ if(";${GAMBIT_BITS};" MATCHES ";SpecBit;")
        --with-shared-ldflags=${OpenMP_CXX_FLAGS}
        --with-fc=${CMAKE_Fortran_COMPILER}
        --with-fflags=${FS_Fortran_FLAGS}
-       --with-eigen-incdir=${FS_EIGEN3_INCLUDE_DIR}
+       --with-eigen-incdir=${EIGEN3_INCLUDE_DIR}
        --with-boost-libdir=${Boost_LIBRARY_DIR}
        --with-boost-incdir=${Boost_INCLUDE_DIR}
        --with-lapack-libs=${LAPACK_LINKLIBS}
