@@ -243,7 +243,7 @@ namespace Gambit
 
         // electrons
         vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
-        ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
+        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
         // muons
         vector<const HEPUtils::Particle*> signalMuons = baselineMuons;

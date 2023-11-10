@@ -126,7 +126,7 @@ namespace Gambit
             ATLAS::applyElectronEff(baselineElectrons);
 
             // Apply loose electron selection
-            ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
             // Create a list of baseline electrons with pT > 100 (used for overlap removal)
             vector<const HEPUtils::Particle*> baselineElectronsPTgt100;
@@ -245,7 +245,7 @@ namespace Gambit
 
             // electrons
             vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
-            ATLAS::applyMediumIDElectronSelectionR2(signalElectrons);
+            apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
 
             // muons
             vector<const HEPUtils::Particle*> signalMuons = baselineMuons;

@@ -200,7 +200,7 @@ namespace Gambit
           removeOverlap(baselineNonBJets, baselinePhotons, 0.4);
           removeOverlap(baselineBJets, baselinePhotons, 0.4);
 
-          ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
           // All jets
           vector<const HEPUtils::Jet*> signalJets = baselineNonBJets;

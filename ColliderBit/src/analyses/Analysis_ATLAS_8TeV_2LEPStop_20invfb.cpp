@@ -173,7 +173,7 @@ namespace Gambit {
         // We now have the signal electrons, muons, jets and b jets- move on to the analysis
 
         // Calculate common variables and cuts first
-        ATLAS::applyTightIDElectronSelection(signalElectrons);
+        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         //int nElectrons = signalElectrons.size();
         //int nMuons = signalMuons.size();

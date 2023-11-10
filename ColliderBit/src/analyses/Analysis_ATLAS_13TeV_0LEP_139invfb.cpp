@@ -139,7 +139,7 @@ namespace Gambit
             if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > min(0.4, 0.04+10/e->pT()); }))
               signalElectrons.push_back(e);
           // Apply electron ID selection
-          ATLAS::applyLooseIDElectronSelectionR2(signalElectrons);
+          apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
           /// @todo And tight ID for high purity... used where?
 
           // Remove muons with dR = 0.4 of surviving |eta| < 2.8 jets

@@ -229,7 +229,8 @@ namespace Gambit
 
         jets = AnalysisUtil::filterMaxEta(jets, 2.5);
 
-        ATLAS::applyTightIDElectronSelection(electrons);
+        apply2DEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+
 
         std::vector<const Particle*> leptons = AnalysisUtil::getSortedLeptons({electrons, muons});
         std::sort(electrons.begin(), electrons.end(), AnalysisUtil::sortParticlesByPt);

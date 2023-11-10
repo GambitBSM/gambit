@@ -161,7 +161,7 @@ namespace Gambit
           ATLAS::applyElectronEff(baselineElectrons);
 
           // Apply tight electron selection
-          ATLAS::applyTightIDElectronSelection(baselineElectrons);
+          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
           for (const HEPUtils::Particle* muon : event->muons())
           {

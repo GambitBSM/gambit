@@ -708,7 +708,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(baselineElectrons[0]);
-            ATLAS::applyTightIDElectronSelection(tightElectrons);
+            apply2DEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselLowMet = preselLowMet && (tightElectrons.size()==1);
           }
 
@@ -917,7 +917,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(signalSoftElectrons[0]);
-            ATLAS::applyTightIDElectronSelection(tightElectrons);
+            apply2DEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselSoftLep = preselSoftLep && (tightElectrons.size()==1);
           }
 

@@ -131,7 +131,7 @@ namespace Gambit {
         // We now have the signal electrons, muons and jets: move on to the 0 lepton 2012 analysis
 
         // Calculate common variables and cuts first
-        ATLAS::applyMediumIDElectronSelection(signalElectrons);
+        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
 
         int nElectrons = signalElectrons.size();
         int nMuons = signalMuons.size();

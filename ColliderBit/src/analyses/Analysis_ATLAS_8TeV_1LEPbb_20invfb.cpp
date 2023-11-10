@@ -97,7 +97,7 @@ namespace Gambit {
         ATLAS::applyElectronEff(baselineElectrons);
 
         // Apply medium electron selection
-        ATLAS::applyMediumIDElectronSelection(baselineElectrons);
+        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -163,7 +163,7 @@ namespace Gambit {
         for (size_t iEl=0;iEl<overlapElectrons2.size();iEl++) {
           if (overlapElectrons2.at(iEl)->pT()>25.)signalElectrons.push_back(overlapElectrons2.at(iEl));
         }
-        ATLAS::applyTightIDElectronSelection(signalElectrons);
+        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         for (size_t iMu=0;iMu<overlapMuons.size();iMu++) {
           if (overlapMuons.at(iMu)->pT()>25.)signalMuons.push_back(overlapMuons.at(iMu));

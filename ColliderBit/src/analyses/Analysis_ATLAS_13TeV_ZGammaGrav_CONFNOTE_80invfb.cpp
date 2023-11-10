@@ -50,7 +50,7 @@ namespace Gambit {
         ATLAS::applyElectronEff(electrons);
 
         // Apply medium electron selection
-        ATLAS::applyMediumIDElectronSelection(electrons);
+        apply2DEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
 
         // Muons
         // NB. medium muon ID for pT > 10 ~ 99%: https://cds.cern.ch/record/2047831/files/ATL-PHYS-PUB-2015-037.pdf
