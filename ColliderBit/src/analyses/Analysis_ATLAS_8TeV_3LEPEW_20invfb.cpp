@@ -192,7 +192,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(signalElectrons);
+        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Now define vector of baseline muons
         vector<const HEPUtils::Particle*> signalMuons;
@@ -201,7 +201,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(signalMuons);
+        apply2DEfficiency(signalMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> signalJets;
         vector<const HEPUtils::Jet*> bJets;
@@ -215,7 +215,7 @@ namespace Gambit {
         for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.47) signalTaus.push_back(tau);
         }
-        ATLAS::applyTauEfficiencyR1(signalTaus);
+        applyEfficiency(signalTaus, ATLAS::effTau.at("R1"));
 
         // Overlap removal
 

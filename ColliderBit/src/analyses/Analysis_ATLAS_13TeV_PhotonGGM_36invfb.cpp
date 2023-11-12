@@ -158,7 +158,7 @@ namespace Gambit
           }
 
           // Apply electron efficiency
-          ATLAS::applyElectronEff(baselineElectrons);
+          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Apply tight electron selection
           apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
@@ -169,7 +169,7 @@ namespace Gambit
           }
 
           // Apply muon efficiency
-          ATLAS::applyMuonEff(baselineMuons);
+          apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           // Photons
           vector<const HEPUtils::Particle*> baselinePhotons;
@@ -178,7 +178,7 @@ namespace Gambit
             bool crack = (photon->abseta() > 1.37) && (photon->abseta() < 1.52);
             if (photon->pT() > 25. && photon->abseta() < 2.37 && !crack) baselinePhotons.push_back(photon);
           }
-          ATLAS::applyPhotonEfficiencyR2(baselinePhotons);
+          apply2DEfficiency(baselinePhotons, ATLAS::eff2DPhoton.at("R2"));
 
           // Jets
           vector<const HEPUtils::Jet*> jets28;

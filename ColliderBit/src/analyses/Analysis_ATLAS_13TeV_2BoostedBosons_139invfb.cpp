@@ -157,7 +157,7 @@ namespace Gambit
               muons.push_back(muon);
           }
           // Apply muon efficiency
-          ATLAS::applyMuonEffR2(muons);
+          apply2DEfficiency(muons, ATLAS::eff2DMu.at("R2"));
 
           // Number of leptons
           size_t nMuons = muons.size();

@@ -390,7 +390,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Construct baseline muon objects
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -403,7 +403,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Construct set of all light baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
@@ -416,7 +416,7 @@ namespace Gambit {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.5) baselineTaus.push_back(tau);
         }
         // Apply tau efficiency
-        ATLAS::applyTauEfficiencyR1(baselineTaus);
+        applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;

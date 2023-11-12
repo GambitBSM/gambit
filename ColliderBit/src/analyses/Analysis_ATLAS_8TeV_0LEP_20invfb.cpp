@@ -72,7 +72,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -80,7 +80,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets()) {

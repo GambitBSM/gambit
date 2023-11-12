@@ -138,7 +138,7 @@ namespace Gambit
 
         // Apply muon efficiency
         // Missing: "Medium" muon ID criteria
-        ATLAS::applyMuonEffR2(baselineMuons);
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
         // Missing: transverse and longitudinal impact parameter cuts
 

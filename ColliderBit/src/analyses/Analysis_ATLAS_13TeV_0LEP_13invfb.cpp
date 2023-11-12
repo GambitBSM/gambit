@@ -101,7 +101,7 @@ namespace Gambit
               baselineElectrons.push_back(electron);
 
           // Apply electron efficiency
-          ATLAS::applyElectronEff(baselineElectrons);
+          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Get baseline muons
           vector<const Particle*> baselineMuons;
@@ -110,7 +110,7 @@ namespace Gambit
               baselineMuons.push_back(muon);
 
           // Apply muon efficiency
-          ATLAS::applyMuonEff(baselineMuons);
+          apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           // Full isolation details:
           //  - Remove electrons within dR = 0.2 of a b-tagged jet

@@ -658,6 +658,12 @@ namespace Gambit
         }
     };
 
+    /// Generic function to apply efficiencies on a list of particles, provided as a scalar number
+    inline void applyEfficiency(std::vector<const HEPUtils::Particle*> &part, const double eff)
+    {
+      filtereff(part, eff);
+    }
+
     /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 1D binned efficiencies in pT
     inline void apply1DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn1D<double>& eff)
     {
