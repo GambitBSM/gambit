@@ -572,7 +572,7 @@ namespace Gambit
 
       /// @}
 
-      /// Tau efficiencies
+      /// Photon efficiencies
       /// @{
 
         const static HEPUtils::BinnedFn2D<double> eff2DPhoton_R2(
