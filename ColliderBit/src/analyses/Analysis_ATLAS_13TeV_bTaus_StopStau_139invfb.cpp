@@ -104,7 +104,7 @@ namespace Gambit
 
         // Only jet candidates with pT > 20 GeV and |η| < 2.8 are considered in the analysis
         // TODO Missing:  cut based on detector noise and non-collision backgrounds
-        float JVTeff = 0.95; 
+        float JVTeff = 0.95;
         for (const HEPUtils::Jet* jet : event->jets())
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
@@ -129,14 +129,13 @@ namespace Gambit
                 {
                     if (random_bool(0.0425)) vetoTau = true;
                 }
-            } 
+            }
             if (!vetoTau) baselineTaus.push_back(tau);
           }
         }
 
         // Apply tau efficiency RNN Medium ID https://cds.cern.ch/record/2688062/
-        ATLAS::applyTauEfficiencyR2_RNN(baselineTaus, "Medium");
-
+        applyEfficiency(baselineTaus, ATLAS::effTau.at("R2_RNN_Medium");
 
 
         // Overlap removal
