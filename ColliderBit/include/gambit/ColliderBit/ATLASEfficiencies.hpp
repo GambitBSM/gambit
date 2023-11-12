@@ -195,7 +195,6 @@ namespace Gambit
       /// @name ATLAS detector efficiency functions
       ///@{
 
-
       /// ATLAS Electron, Muon, Tau and Photon efficiencies for the WPs of the identification techniques used in SUSY analyses
 
       /// Electron efficiencies
@@ -560,6 +559,17 @@ namespace Gambit
         const static std::vector<double> bineffs_pt_avg = { 0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
         const static HEPUtils::BinnedFn1D<double> eff1DTau_R2(binedges_pt, bineffs_pt_avg);
 
+
+        /// Randomly filter the supplied particle list by parameterised Run 2 RNN tau efficiency
+        /// @note this is the newer RNN Tau ID Algorithm, use the other function for the older BDT Tau ID Algorithm.
+        /// @note by design these Tau ID working points have flat signal efficiencies in eta and phi
+        /// @note using https://cds.cern.ch/record/2688062/files/ATL-PHYS-PUB-2019-033.pdf
+        /// @note assuming frequency: 85% 1-prong, 15% >=3-prong
+        const static double effTau_R2_RNN_Tight     = 0.58;  // 0.6 (0.45) for 1 (3) prongs
+        const static double effTau_R2_RNN_Medium    = 0.73;  // 0.75 (0.6) for 1 (3) prongs
+        const static double effTau_R2_RNN_Loose     = 0.84;  // 0.85 (0.75) for 1 (3) prongs
+        const static double effTau_R2_RNN_VeryLoose = 0.95;  // 0.95 (0.95) for 1 (3) prongs
+
       /// @}
 
       /// Photon efficiencies
@@ -634,10 +644,14 @@ namespace Gambit
         {"R2",         eff2DMu_R2}
       });
 
-      // Map of tau 0D efficiencies
+      // Map of tau efficiencies
       static const efficiency_map<double> effTau(
       {
-        {"R1",            effTau_R1},
+        {"R1",                effTau_R1},
+        {"R2_RNN_Tight",      effTau_R2_RNN_Tight},
+        {"R2_RNN_Medium",     effTau_R2_RNN_Medium},
+        {"R2_RNN_Loose",      effTau_R2_RNN_Loose},
+        {"R2_RNN_VeryLoose",  effTau_R2_RNN_VeryLoose},
       });
 
       // Map of tau 1D efficiencies
