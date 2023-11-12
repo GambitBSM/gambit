@@ -98,7 +98,7 @@ namespace Gambit
 
         // Apply muon efficiency
         // TODO Missing: "Medium" muon ID criteria
-        ATLAS::applyMuonEffR2(baselineMuons);
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
         // TODO Missing: impact parameter cuts
 
@@ -135,7 +135,7 @@ namespace Gambit
         }
 
         // Apply tau efficiency RNN Medium ID https://cds.cern.ch/record/2688062/
-        applyEfficiency(baselineTaus, ATLAS::effTau.at("R2_RNN_Medium");
+        applyEfficiency(baselineTaus, ATLAS::effTau.at("R2_RNN_Medium"));
 
 
         // Overlap removal
