@@ -164,7 +164,7 @@ namespace Gambit
 
           // Apply muon efficiency
           // Missing: "Medium" muon ID criteria
-          ATLAS::applyMuonEffR2(baselineMuons);
+          apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
           // Baseline jets
           vector<const HEPUtils::Jet*> baselineJets;

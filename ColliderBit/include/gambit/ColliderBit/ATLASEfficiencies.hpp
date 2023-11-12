@@ -195,131 +195,24 @@ namespace Gambit
       /// @name ATLAS detector efficiency functions
       ///@{
 
-        // /// Randomly filter the supplied particle list by parameterised electron tracking efficiency
-        // /// @todo Remove? This is not the electron efficiency
-        // inline void applyElectronTrackingEff(std::vector<const HEPUtils::Particle*>& electrons) {
-        //   static HEPUtils::BinnedFn2D<double> _elTrackEff2d({{0, 1.5, 2.5, DBL_MAX}}, //< |eta|
-        //                                                     {{0, 0.1, 1.0, 100, DBL_MAX}}, //< pT
-        //                                                     {{0., 0.73, 0.95, 0.99,
-        //                                                       0., 0.5,  0.83, 0.90,
-        //                                                       0., 0.,   0.,   0.}});
-        //   filtereff_etapt(electrons, _elTrackEff2d);
-        // }
 
-
-        /// Randomly filter the supplied particle list by parameterised electron efficiency
-        /// @note Should be applied after the electron energy smearing
-        inline void applyElectronEff(std::vector<const HEPUtils::Particle*>& electrons) {
-          static HEPUtils::BinnedFn2D<double> _elEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
-                                                       {{0,10.,DBL_MAX}}, //< pT
-                                                       {{0., 0.95,
-                                                         0., 0.85,
-                                                         0., 0.}});
-          filtereff_etapt(electrons, _elEff2d);
-        }
-
-
-        // /// Randomly filter the supplied particle list by parameterised muon tracking efficiency
-        // /// @todo Remove? This is not the muon efficiency
-        // inline void applyMuonTrackEff(std::vector<const HEPUtils::Particle*>& muons) {
-        //   static HEPUtils::BinnedFn2D<double> _muTrackEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
-        //                                                     {{0,0.1,1.0,DBL_MAX}}, //< pT
-        //                                                     {{0., 0.75, 0.99,
-        //                                                       0., 0.70, 0.98,
-        //                                                       0., 0.,   0.}});
-        //   filtereff_etapt(muons, _muTrackEff2d);
-        // }
-
-
-        /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEff(std::vector<const HEPUtils::Particle*>& muons) {
-          static HEPUtils::BinnedFn2D<double> _muEff2d({{0,1.5,2.7,DBL_MAX}}, //< |eta|
-                                                       {{0,10.0,DBL_MAX}}, //< pT
-                                                       {{0., 0.95,
-                                                         0., 0.85,
-                                                         0., 0.}});
-          filtereff_etapt(muons, _muEff2d);
-        }
-
-
-        /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEffR2(std::vector<const HEPUtils::Particle*>& muons) {
-          static HEPUtils::BinnedFn2D<double> _muEff2d({0, 2.7, DBL_MAX}, //< |eta|
-                                                       {0., 3.5, 4., 5., 6., 7., 8., 10., DBL_MAX}, //< pT
-                                                       {0.00, 0.76, 0.94, 0.97, 0.98, 0.98, 0.98, 0.99,//
-                                                        0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00});
-          filtereff_etapt(muons, _muEff2d);
-        }
-
-
-        /// Randomly filter the supplied particle list by parameterised Run 1 tau efficiency
-        /// @note From Delphes 3.1.2
-        /// @todo Use https://cds.cern.ch/record/1233743/files/ATL-PHYS-PUB-2010-001.pdf -- it is more accurate and has pT-dependence
-        inline void applyTauEfficiencyR1(std::vector<const HEPUtils::Particle*>& taus) {
-          filtereff(taus, 0.40);
-        }
-
-
-
-        /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
-        /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
-        /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
-        inline void applyTauEfficiencyR2(std::vector<const HEPUtils::Particle*>& taus) {
-
-          // Delphes 3.3.2 config:
-          //   set DeltaR 0.2
-          //   set DeltaRTrack 0.2
-          //   set TrackPTMin 1.0
-          //   set TauPTMin 1.0
-          //   set TauEtaMax 2.5
-          //   # instructions: {n-prongs} {eff}
-          //   # 1 - one prong efficiency
-          //   # 2 - two or more efficiency
-          //   # -1 - one prong mistag rate
-          //   # -2 - two or more mistag rate
-          //   set BitNumber 0
-          //   # taken from ATL-PHYS-PUB-2015-045 (medium working point)
-          //   add EfficiencyFormula {1} {0.70}
-          //   add EfficiencyFormula {2} {0.60}
-          //   add EfficiencyFormula {-1} {0.02}
-          //   add EfficiencyFormula {-2} {0.01}
-          // filtereff(taus, 0.65);
-
-          // Distributions from ATL-PHYS-PUB-2015-045, Fig 10
-          const static std::vector<double> binedges_pt    = { 0.,  20.,  40.,   60.,   120.,  160.,   220.,   280.,   380.,    500.,  DBL_MAX };
-          const static std::vector<double> bineffs_pt_1p  = { 0.,  .54,  .55,   .56,    .58,   .57,    .56,    .54,     .51,     0. };
-          const static std::vector<double> bineffs_pt_3p  = { 0.,  .40,  .41,   .42,    .46,   .46,    .43,    .39,     .33,     0. };
-          const static HEPUtils::BinnedFn1D<double> _eff_pt_1p(binedges_pt, bineffs_pt_1p);
-          const static HEPUtils::BinnedFn1D<double> _eff_pt_3p(binedges_pt, bineffs_pt_3p);
-          // 85% 1-prong, 15% >=3-prong
-          const static std::vector<double> bineffs_pt_avg = { 0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
-          const static HEPUtils::BinnedFn1D<double> _eff_pt_avg(binedges_pt, bineffs_pt_avg);
-          filtereff_pt(taus, _eff_pt_avg);
-
-        }
-
-
-
-        inline void applyPhotonEfficiencyR2(std::vector<const HEPUtils::Particle*>& photons) {
-
-          const static std::vector<double> binedges_eta   = { 0., 0.6, 1.37, 1.52, 1.81, 2.37, DBL_MAX };
-          const static std::vector<double> binedges_pt    = { 0., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., 100., 125., 150., 175., 250., DBL_MAX };
-          const static std::vector<double> bineffs_etapt  = { 0.00, 0.55, 0.70, 0.85, 0.89, 0.93, 0.95, 0.96, 0.96, 0.97, 0.97, 0.98, 0.97, 0.97, 0.97, 0.97, 0.97, //
-                                                              0.00, 0.47, 0.66, 0.79, 0.86, 0.89, 0.94, 0.96, 0.97, 0.97, 0.98, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, //
-                                                              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, //
-                                                              0.00, 0.54, 0.71, 0.84, 0.88, 0.92, 0.93, 0.94, 0.95, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, //
-                                                              0.00, 0.61, 0.74, 0.83, 0.88, 0.91, 0.94, 0.95, 0.96, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, //
-                                                              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 };
-          const static HEPUtils::BinnedFn2D<double> _eff_etapt(binedges_eta, binedges_pt, bineffs_etapt);
-          filtereff_etapt(photons, _eff_etapt);
-        }
-
-
-
-      /// ATLAS Muon and Electron efficiencies for the WPs of the identification techniques used in SUSY analyses
+      /// ATLAS Electron, Muon, Tau and Photon efficiencies for the WPs of the identification techniques used in SUSY analyses
 
       /// Electron efficiencies
       /// @{
+
+        /// Generic electron efficiency
+        /// Randomly filter the supplied particle list by parameterised electron efficiency
+        /// @note Should be applied after the electron energy smearing
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_Generic(
+          {0,1.5,2.5,DBL_MAX}, //< |eta|
+          {0,10.,DBL_MAX}, //< pT
+          {
+            0., 0.95,
+            0., 0.85,
+            0., 0.
+          }
+        );
 
 
         /// Efficiency function for Medium ID electrons
@@ -393,11 +286,21 @@ namespace Gambit
         const static std::vector<double> bineffs_eta_Loose  = { 0.950, 0.965, 0.955, 0.885, 0.950, 0.935, 0.90, 0 };
         /// @note Et eff histogram (10-20 GeV bin added by hand)
         /// normalisation factor as approximate double differential
-        const static std::vector<double> bineffs_et_Loose  = { 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.94/0.95, 0.95/0.95, 0.955/0.95, 0.965/0.95, 0.97/0.95, 0.98/0.95, 0.98/0.95 };
+        const static std::vector<double> bineffs_et_Loose  = {0.0, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.94/0.95, 0.95/0.95, 0.955/0.95, 0.965/0.95, 0.97/0.95, 0.98/0.95, 0.98/0.95 };
         static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose(
           {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
-          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          {0,  10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
           Utils::outer_product(bineffs_eta_Loose, bineffs_et_Loose)
+//          {
+//            0.0, 0.9, 0.91, 0.92, 0.94, 0.95, 0.955, 0.965, 0.97, 0.98, 0.98,
+//            0.0, 0.914, 0.924, 0.935, 0.955, 0.965, 0.97, 0.98, 0.985, 0.995, 0.995,
+//            0.0, 0.905, 0.915, 0.925, 0.945, 0.955, 0.96, 0.97, 0.975, 0.985, 0.985,
+//            0.0, 0.838, 0.848, 0.857, 0.876, 0.885, 0.89, 0.899, 0.904, 0.913, 0.913,
+//            0.0, 0.9, 0.91, 0.92, 0.94, 0.95, 0.955, 0.965, 0.97, 0.98, 0.98, 0.886,
+//            0.0, 0.896, 0.905, 0.925, 0.935, 0.94, 0.95, 0.955, 0.965, 0.965, 0.853,
+//            0.0, 0.862, 0.872, 0.891, 0.9, 0.905, 0.914, 0.919, 0.928, 0.928,
+//            0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+//          }
         );
 
         /// Efficiency function for Medium ID electrons
@@ -406,10 +309,10 @@ namespace Gambit
         const static std::vector<double> bineffs_eta_Medium  = { 0.900, 0.930, 0.905, 0.830, 0.900, 0.880, 0.85, 0 };
         /// @note Et eff histogram (10-20 GeV bin added by hand)
         /// normalisation factor as approximate double differential
-        const static std::vector<double> bineffs_et_Medium  = { 0.83/0.95, 0.845/0.95, 0.87/0.95, 0.89/0.95, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.93/0.95, 0.95/0.95, 0.95/0.95};
+        const static std::vector<double> bineffs_et_Medium  = {0.0, 0.83/0.95, 0.845/0.95, 0.87/0.95, 0.89/0.95, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.93/0.95, 0.95/0.95, 0.95/0.95};
         static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Medium(
           {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
-          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          {0, 10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
           Utils::outer_product(bineffs_eta_Medium, bineffs_et_Medium)
         );
 
@@ -548,6 +451,29 @@ namespace Gambit
       /// Muon efficiencies
       /// @{
 
+        /// Generic muon efficiency
+        /// Randomly filter the supplied particle list by parameterised muon efficiency
+        static const HEPUtils::BinnedFn2D<double> eff2DMu_Generic(
+          {0,1.5,2.7,DBL_MAX}, //< |eta|
+          {0,10.0,DBL_MAX}, //< pT
+          {
+            0., 0.95,
+            0., 0.85,
+            0., 0.
+          }
+        );
+
+        /// Generic R2 muon efficiency
+        /// Randomly filter the supplied particle list by parameterised muon efficiency
+        static const HEPUtils::BinnedFn2D<double> eff2DMu_R2(
+          {0, 2.7, DBL_MAX}, //< |eta|
+          {0., 3.5, 4., 5., 6., 7., 8., 10., DBL_MAX}, //< pT
+          {
+            0.00, 0.76, 0.94, 0.97, 0.98, 0.98, 0.98, 0.99,//
+            0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
+          }
+        );
+
         /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578, MUON-2018-03
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
         /// Digitised from Fig 11a
@@ -592,10 +518,72 @@ namespace Gambit
 
       /// @}
 
+      /// Tau efficiencies
+      /// @{
+
+        /// Generic tau efficiency
+        /// Randomly filter the supplied particle list by parameterised Run 1 tau efficiency
+        /// @note From Delphes 3.1.2
+        /// @todo Use https://cds.cern.ch/record/1233743/files/ATL-PHYS-PUB-2010-001.pdf -- it is more accurate and has pT-dependence
+        static const double effTau_R1 = 0.40;
+
+        /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
+        /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
+        /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
+        // Delphes 3.3.2 config:
+        //   set DeltaR 0.2
+        //   set DeltaRTrack 0.2
+        //   set TrackPTMin 1.0
+        //   set TauPTMin 1.0
+        //   set TauEtaMax 2.5
+        //   # instructions: {n-prongs} {eff}
+        //   # 1 - one prong efficiency
+        //   # 2 - two or more efficiency
+        //   # -1 - one prong mistag rate
+        //   # -2 - two or more mistag rate
+        //   set BitNumber 0
+        //   # taken from ATL-PHYS-PUB-2015-045 (medium working point)
+        //   add EfficiencyFormula {1} {0.70}
+        //   add EfficiencyFormula {2} {0.60}
+        //   add EfficiencyFormula {-1} {0.02}
+        //   add EfficiencyFormula {-2} {0.01}
+        // filtereff(taus, 0.65);
+
+        // Distributions from ATL-PHYS-PUB-2015-045, Fig 10
+        const static std::vector<double> binedges_pt    = { 0.,  20.,  40.,   60.,   120.,  160.,   220.,   280.,   380.,    500.,  DBL_MAX };
+        // TG: Commented these because they are not used
+        //const static std::vector<double> bineffs_pt_1p  = { 0.,  .54,  .55,   .56,    .58,   .57,    .56,    .54,     .51,     0. };
+        //const static std::vector<double> bineffs_pt_3p  = { 0.,  .40,  .41,   .42,    .46,   .46,    .43,    .39,     .33,     0. };
+        //const static HEPUtils::BinnedFn1D<double> _eff_pt_1p(binedges_pt, bineffs_pt_1p);
+        //const static HEPUtils::BinnedFn1D<double> _eff_pt_3p(binedges_pt, bineffs_pt_3p);
+        // 85% 1-prong, 15% >=3-prong
+        const static std::vector<double> bineffs_pt_avg = { 0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
+        const static HEPUtils::BinnedFn1D<double> eff1DTau_R2(binedges_pt, bineffs_pt_avg);
+
+      /// @}
+
+      /// Tau efficiencies
+      /// @{
+
+        const static HEPUtils::BinnedFn2D<double> eff2DPhoton_R2(
+          { 0., 0.6, 1.37, 1.52, 1.81, 2.37, DBL_MAX },
+          { 0., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., 100., 125., 150., 175., 250., DBL_MAX },
+          {
+            0.00, 0.55, 0.70, 0.85, 0.89, 0.93, 0.95, 0.96, 0.96, 0.97, 0.97, 0.98, 0.97, 0.97, 0.97, 0.97, 0.97,
+            0.00, 0.47, 0.66, 0.79, 0.86, 0.89, 0.94, 0.96, 0.97, 0.97, 0.98, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98,
+            0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
+            0.00, 0.54, 0.71, 0.84, 0.88, 0.92, 0.93, 0.94, 0.95, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96,
+            0.00, 0.61, 0.74, 0.83, 0.88, 0.91, 0.94, 0.95, 0.96, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98,
+            0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
+          }
+        );
+
+      /// @}
+
       /////////////////////////
       // ATLAS Efficiency maps //
 
-      // Map of electron efficiencies
+      // Map of electron 1D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DEl(
       {
         {"PERF_2017_01_ID_VeryLoose",        eff1DEl_PERF_2017_01_ID_VeryLoose},
@@ -618,8 +606,10 @@ namespace Gambit
 //        {"Medium", eff2DEl_Medium}
       });
 
+      // Map of electron 2D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DEl(
       {
+        {"Generic",                        eff2DEl_Generic},
         {"ATLAS_CONF_2014_032_Medium",     eff2DEl_ATLAS_CONF_2014_032_Medium},
         {"ATLAS_CONF_2014_032_Tight",      eff2DEl_ATLAS_CONF_2014_032_Tight},
         {"ATLAS_PHYS_PUB_2015_041_Loose",  eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose},
@@ -637,10 +627,30 @@ namespace Gambit
         {"MUON_2018_03_ID_Tight",  eff1DMu_MUON_2018_03_ID_Tight}
       });
 
+      // Map of muon 2D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DMu(
       {
+        {"Generic",    eff2DMu_Generic},
+        {"R2",         eff2DMu_R2}
       });
 
+      // Map of tau 0D efficiencies
+      static const efficiency_map<double> effTau(
+      {
+        {"R1",            effTau_R1},
+      });
+
+      // Map of tau 1D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DTau(
+      {
+        {"R2",            eff1DTau_R2},
+      });
+
+      // Map of photon 2D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DPhoton(
+      {
+        {"R2",           eff2DPhoton_R2},
+      });
     }
   }
 }

@@ -169,15 +169,14 @@ namespace Gambit
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT() > 6 && muon->abseta() < 2.7) baselineMuons.push_back(muon);
         }
 
-        ATLAS::applyMuonEff(baselineMuons);
-
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets())

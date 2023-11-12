@@ -614,14 +614,14 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && muon->abseta() < 2.4) baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;
@@ -634,7 +634,7 @@ namespace Gambit {
         //for (const HEPUtils::Particle* tau : event->taus()) {
           //if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         //}
-        //ATLAS::applyTauEfficiencyR1(baselineTaus);
+        //applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
 
         // Jets

@@ -102,7 +102,7 @@ namespace Gambit
 
         // Apply electron efficiency
         // TODO: Is this needed if below is done
-        ATLAS::applyElectronEff(preselectedElectrons);
+        apply2DEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // TODO: This is not the same as in the reference. Need the VeryLoose efficiency
         apply2DEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
@@ -120,7 +120,7 @@ namespace Gambit
 
         // Apply muon efficiency
         // TODO: Is this needed if below is done
-        ATLAS::applyMuonEff(preselectedMuons);
+        apply2DEfficiency(preselectedMuons, ATLAS::eff2DMu.at("Generic"));
 
         // TODO Apply "LowPt" muon ID criteria. This is missing from (arXiv:1603.05598)
 

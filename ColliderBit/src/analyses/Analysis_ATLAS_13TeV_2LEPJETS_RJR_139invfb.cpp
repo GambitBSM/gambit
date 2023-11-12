@@ -394,7 +394,7 @@ namespace Gambit
         {
           if (muon->pT()>10. && muon->abseta()<2.7) baselineMuons.push_back(muon);
         }
-        ATLAS::applyMuonEffR2(baselineMuons);
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
         double jet_eff = 0.9;
         for (const HEPUtils::Jet* jet : event->jets())

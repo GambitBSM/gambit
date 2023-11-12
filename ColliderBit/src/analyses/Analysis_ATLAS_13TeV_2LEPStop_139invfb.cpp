@@ -123,7 +123,7 @@ namespace Gambit
             }
 
             // Apply electron efficiency
-            ATLAS::applyElectronEff(baselineElectrons);
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
             // Apply loose electron selection
             apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
@@ -151,7 +151,7 @@ namespace Gambit
             }
 
             // Apply muon efficiency
-            ATLAS::applyMuonEffR2(baselineMuons);
+            apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
             // AK: Is "Medium" identification included in applyMuonEffR2 efficiency?
             // TG: No, and it is also missing from the ATLAS efficiencies, but it's generally over 99% effieciency

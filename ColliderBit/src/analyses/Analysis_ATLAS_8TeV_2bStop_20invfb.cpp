@@ -105,7 +105,7 @@ namespace Gambit
           }
 
           // Apply electron efficiency
-          ATLAS::applyElectronEff(baselineElectrons);
+          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Now define vector of baseline muons
           vector<const HEPUtils::Particle*> baselineMuons;
@@ -115,7 +115,7 @@ namespace Gambit
           }
 
           // Apply muon efficiency
-          ATLAS::applyMuonEff(baselineMuons);
+          apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           const std::vector<double> a = {0,10.};
           const std::vector<double> b = {0,10000.};

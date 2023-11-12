@@ -202,7 +202,7 @@ namespace Gambit
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Apply loose electron selection
         apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
@@ -213,7 +213,7 @@ namespace Gambit
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Missing: Apply "medium" muon ID criteria
 
@@ -222,7 +222,7 @@ namespace Gambit
           if (tau->pT()>20. && tau->abseta()<2.47) baselineTaus.push_back(tau);
         }
         // Since tau efficiencies are not applied as part of the BuckFast ATLAS sim we apply it here
-        ATLAS::applyTauEfficiencyR2(baselineTaus);
+        apply1DEfficiency(baselineTaus, ATLAS::eff1DTau.at("R2"));
 
         for (const HEPUtils::Jet* jet : event->jets())
         {

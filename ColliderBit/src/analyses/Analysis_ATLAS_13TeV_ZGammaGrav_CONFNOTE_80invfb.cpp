@@ -47,7 +47,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(electrons);
+        apply2DEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
 
         // Apply medium electron selection
         apply2DEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
@@ -60,14 +60,15 @@ namespace Gambit {
             muons.push_back(m);
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(muons);
+        apply2DEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
 
         // Photons
         ParticlePtrs photons;
         for (const Particle* y : event->photons())
           if (y->pT() > 20.)
             photons.push_back(y);
-        ATLAS::applyPhotonEfficiencyR2(photons);
+        apply2DEfficiency(photons, ATLAS::eff2DPhoton.at("R2"));
+
 
         // Jets
         JetPtrs jets;

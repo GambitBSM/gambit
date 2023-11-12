@@ -578,7 +578,7 @@ namespace Gambit {
 
       virtual void collect_results()
       {
-        cout << _cutflow << endl;
+        //cout << _cutflow << endl;
 
         // Chargino SRs
         add_result(SignalRegionData(_counters.at("SR-chargino-0"), 39, {41.9, 5}));

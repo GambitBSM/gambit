@@ -151,8 +151,8 @@ namespace Gambit {
             }
 
             // Apply electron efficiency
-            ATLAS::applyElectronEff(blElectrons);
-            ATLAS::applyElectronEff(baselineElectrons);
+            apply2DEfficiency(blElectrons, ATLAS::eff2DEl.at("Generic"));
+            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
             // Apply loose electron selection
             apply2DEfficiency(blElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
@@ -170,8 +170,8 @@ namespace Gambit {
             }
 
             // Apply muon efficiency
-            ATLAS::applyMuonEff(blMuons);
-            ATLAS::applyMuonEff(baselineMuons);
+            apply2DEfficiency(blMuons, ATLAS::eff2DMu.at("Generic"));
+            apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
             // Jets
             vector<const HEPUtils::Jet*> blJets;          // Used for SR-2body and SR-3body

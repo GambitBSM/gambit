@@ -116,7 +116,7 @@ namespace Gambit
             if (electron->pT() > 7. && electron->abseta() < 2.47)
               baselineElectrons.push_back(electron);
           }
-          ATLAS::applyElectronEff(baselineElectrons);
+          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Get baseline muons and apply efficiency
           vector<const Particle*> baselineMuons;
@@ -125,7 +125,7 @@ namespace Gambit
             if (muon->pT() > 6. && muon->abseta() < 2.7)
               baselineMuons.push_back(muon);
           }
-          ATLAS::applyMuonEff(baselineMuons);
+          apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           // Remove any |eta| < 2.8 jet within dR = 0.2 of an electron
           vector<const Jet*> signalJets;
