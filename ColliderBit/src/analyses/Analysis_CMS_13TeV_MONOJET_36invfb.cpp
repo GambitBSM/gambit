@@ -75,13 +75,13 @@ namespace Gambit {
         vector<const HEPUtils::Particle*> baselineElectrons = event->electrons();
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
 
         // Muon objects
         vector<const HEPUtils::Particle*> baselineMuons = event->muons();
 
         // Apply muon efficiency
-        CMS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
 
         // Veto on isolated leptons and photons
         for (const Particle* e : baselineElectrons) if (e->pT() > 10 && e->abseta() < 2.5) return; //< VETO

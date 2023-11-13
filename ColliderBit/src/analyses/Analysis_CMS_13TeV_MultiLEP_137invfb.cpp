@@ -286,8 +286,7 @@ namespace Gambit
           }
 
           // Apply b-tag efficiency on b-jets
-          CMS::applyCSVv2TightBtagEff(signalBJets);
-
+          applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Tight"));
 
 
           ///////////////////////////////

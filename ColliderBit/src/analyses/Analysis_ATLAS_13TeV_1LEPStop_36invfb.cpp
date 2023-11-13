@@ -390,7 +390,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Construct baseline muon objects
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -403,7 +403,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Construct set of all light baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
@@ -708,7 +708,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(baselineElectrons[0]);
-            apply2DEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+            applyEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselLowMet = preselLowMet && (tightElectrons.size()==1);
           }
 
@@ -917,7 +917,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(signalSoftElectrons[0]);
-            apply2DEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+            applyEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselSoftLep = preselSoftLep && (tightElectrons.size()==1);
           }
 

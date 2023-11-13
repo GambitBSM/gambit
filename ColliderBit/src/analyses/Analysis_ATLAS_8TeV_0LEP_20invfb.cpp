@@ -72,7 +72,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -80,7 +80,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets()) {
@@ -131,7 +131,7 @@ namespace Gambit {
         // We now have the signal electrons, muons and jets: move on to the 0 lepton 2012 analysis
 
         // Calculate common variables and cuts first
-        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
 
         int nElectrons = signalElectrons.size();
         int nMuons = signalMuons.size();

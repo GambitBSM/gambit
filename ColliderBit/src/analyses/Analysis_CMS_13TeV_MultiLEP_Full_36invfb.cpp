@@ -346,7 +346,7 @@ namespace Gambit
             if (baselineJets.at(iJet)->pT()>40.)num_ISRjets++;
           }
         }
-        CMS::applyCSVv2MediumBtagEff(signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
 
         // int nSignalElectrons=signalElectrons.size();
         int nSignalMuons=signalMuons.size();

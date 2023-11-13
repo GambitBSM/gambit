@@ -173,10 +173,10 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Apply loose electron selection
-        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -184,7 +184,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets()) {
@@ -228,7 +228,7 @@ namespace Gambit {
           }
           if (!overlap)signalElectrons.push_back(baselineElectrons.at(iEl));
         }
-        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
 
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
           bool overlap=false;

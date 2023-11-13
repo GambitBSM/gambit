@@ -43,7 +43,7 @@ namespace Gambit
     {
 
       /// @name ATLAS detector smearing functions
-      ///@{
+      /// @{
 
         /// Randomly smear the supplied electrons' momenta by parameterised resolutions
         inline void smearElectronEnergy(std::vector<HEPUtils::Particle*>& electrons)
@@ -189,11 +189,11 @@ namespace Gambit
         }
 
 
-      ///@}
+      /// @}
 
 
       /// @name ATLAS detector efficiency functions
-      ///@{
+      /// @{
 
       /// ATLAS Electron, Muon, Tau and Photon efficiencies for the WPs of the identification techniques used in SUSY analyses
 
@@ -644,7 +644,7 @@ namespace Gambit
         {"R2",         eff2DMu_R2}
       });
 
-      // Map of tau efficiencies
+      // Map of tau scalar efficiencies
       static const efficiency_map<double> effTau(
       {
         {"R1",                effTau_R1},

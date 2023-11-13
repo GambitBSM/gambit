@@ -141,7 +141,7 @@ namespace Gambit {
                 if (electron->pT() > 5. && electron->abseta() < 2.4 ) baselineElectrons.push_back(electron);
 
             // Apply electron efficiency
-            CMS::applyElectronEff(baselineElectrons);
+            applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
 
             // Muon objects
             vector<const HEPUtils::Particle*> baselineMuons;
@@ -149,7 +149,7 @@ namespace Gambit {
                 if (muon->pT() > 5. && muon->abseta() < 2.4 ) baselineMuons.push_back(muon);
 
             // Apply muon efficiency
-            CMS::applyMuonEff(baselineMuons);
+            applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
 
             // Jets
             vector<const HEPUtils::Jet*> baselineJets;

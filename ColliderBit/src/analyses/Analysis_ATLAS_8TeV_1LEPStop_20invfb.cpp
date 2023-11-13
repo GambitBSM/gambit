@@ -225,7 +225,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Now define vector of baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -235,7 +235,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Get b jets with efficiency and mistag (fake) rates
         vector<const HEPUtils::Jet*> baselineJets, bJets; // trueBJets; //for debugging
@@ -285,7 +285,7 @@ namespace Gambit {
 
         // Calculate common variables and cuts first
 
-        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
 
         int nElectrons = signalElectrons.size();

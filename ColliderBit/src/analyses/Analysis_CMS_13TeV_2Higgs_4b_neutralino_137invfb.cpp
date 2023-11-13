@@ -75,9 +75,9 @@ namespace Gambit {
             // Define baseline jets
             BASELINE_JETS(jets, baselineJets_AK4, 30,  0, DBL_MAX, 2.4)
             BASELINE_JETS(jets, baselineJets_AK8, 300, 0, DBL_MAX, 2.4) // TODO: use jets_AK8
-            BASELINE_BJETS(jets, baselineBJets_L, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Loose"), CMS::missIDBJet.at("CSVv2Loose"))
-            BASELINE_BJETS(jets, baselineBJets_M, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Medium"), CMS::missIDBJet.at("CSVv2Medium"))
-            BASELINE_BJETS(jets, baselineBJets_T, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::missIDBJet.at("CSVv2Tight"))
+            BASELINE_BJETS(jets, baselineBJets_L, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Loose"), CMS::misIDBJet.at("CSVv2Loose"))
+            BASELINE_BJETS(jets, baselineBJets_M, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Medium"), CMS::misIDBJet.at("CSVv2Medium"))
+            BASELINE_BJETS(jets, baselineBJets_T, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::misIDBJet.at("CSVv2Tight"))
             vector<const HEPUtils::Jet*> baselineBJets_AK8;
             for (const HEPUtils::Jet* jet : baselineJets_AK8) {
                 // Tag

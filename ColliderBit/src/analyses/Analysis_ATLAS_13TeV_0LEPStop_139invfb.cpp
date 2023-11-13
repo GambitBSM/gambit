@@ -168,9 +168,9 @@ namespace Gambit
     }
   // Apply electron efficiency
   // Loose electron ID selection
-  apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
+  applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
 
-  //apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("eff1DEl_PERF_2017_01_ID_Loose"));
+  //applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("eff1DEl_PERF_2017_01_ID_Loose"));
 
   // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
   vector<const HEPUtils::Particle*> baselineMuons;
@@ -181,7 +181,7 @@ namespace Gambit
 
   // Apply muon efficiency
   // Missing: "Medium" muon ID criteria
-  apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
+  applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
   // Baseline jets
   vector<const HEPUtils::Jet*> baselineJets;
@@ -315,7 +315,7 @@ namespace Gambit
           if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
         }
         // Apply photon efficiency
-        apply2DEfficiency(baselinePhotons, ATLAS::eff2DPhoton.at("R2"));
+        applyEfficiency(baselinePhotons, ATLAS::eff2DPhoton.at("R2"));
 
 
   double MetSig = calcMETSignificance(baselineElectrons, baselinePhotons, baselineMuons, signalJets, tauCands, metVec);

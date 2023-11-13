@@ -147,10 +147,10 @@ namespace Gambit
           }
         }
         vector<const HEPUtils::Jet*> signalBJets_temp=signalBJets;
-        CMS::applyCSVv2MediumBtagEff(signalBJets_temp);
+        applyEfficiency(signalBJets_temp, CMS::eff2DBJet.at("CSVv2Medium"));
         if (signalBJets_temp.size()>0)
         {
-          CMS::applyCSVv2LooseBtagEff(signalBJets_temp);
+          applyEfficiency(signalBJets_temp, CMS::eff2DBJet.at("CSVv2Loose"));
           for (size_t iJet=0;iJet<signalBJets_temp.size();iJet++)
           {
             if (find(signalBJets.begin(),signalBJets.end(),signalBJets_temp.at(iJet))==signalBJets.end())signalBJets.push_back(signalBJets_temp.at(iJet));

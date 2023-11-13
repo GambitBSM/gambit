@@ -163,8 +163,8 @@ namespace Gambit
             }
           }
         }
-        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
-        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
         /// @todo Use ElectronIsolationEfficiency2019 or something similar?
 
         // Get baseline muons and apply efficiency
@@ -175,7 +175,7 @@ namespace Gambit
             baselineMuons.push_back(muon);
           }
         }
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
 
         // Get baseline jets
@@ -282,7 +282,7 @@ namespace Gambit
         {
           if (p->abseta() < 2.0) { signalElectrons.push_back(p); }
         }
-        apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
+        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
 
         // Collect all signal leptons
         signalLeptons = signalElectrons;

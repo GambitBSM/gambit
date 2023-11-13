@@ -151,12 +151,12 @@ namespace Gambit {
             }
 
             // Apply electron efficiency
-            apply2DEfficiency(blElectrons, ATLAS::eff2DEl.at("Generic"));
-            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+            applyEfficiency(blElectrons, ATLAS::eff2DEl.at("Generic"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
             // Apply loose electron selection
-            apply2DEfficiency(blElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
-            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+            applyEfficiency(blElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
             const std::vector<double>  a = {0,10.};
             const std::vector<double>  b = {0,10000.};
@@ -170,8 +170,8 @@ namespace Gambit {
             }
 
             // Apply muon efficiency
-            apply2DEfficiency(blMuons, ATLAS::eff2DMu.at("Generic"));
-            apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+            applyEfficiency(blMuons, ATLAS::eff2DMu.at("Generic"));
+            applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
             // Jets
             vector<const HEPUtils::Jet*> blJets;          // Used for SR-2body and SR-3body
@@ -212,7 +212,7 @@ namespace Gambit {
                     sgElectrons.push_back(electron);
                 }
             }
-            apply2DEfficiency(sgElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
+            applyEfficiency(sgElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             for (const HEPUtils::Particle* electron : sgElectrons) {
                 sgLeptons.push_back(electron);
             }
@@ -221,7 +221,7 @@ namespace Gambit {
                     sgLeptons.push_back(muon);
                 }
             }
-            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             for (const HEPUtils::Particle* electron : baselineElectrons) {
                 signalLeptons.push_back(electron);
             }

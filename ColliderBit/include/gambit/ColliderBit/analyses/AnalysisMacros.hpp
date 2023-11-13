@@ -195,11 +195,11 @@
 
 /// Define baseline bjets with a min pT, a min eta, a max pT, a max eta,
 /// a selection efficiency and a misidentification efficiency
-#define BASELINE_BJETS_8(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF, MISSID) \
+#define BASELINE_BJETS_8(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF, MISID)  \
   std::vector<const HEPUtils::Jet*> NAME;                                         \
   for (const HEPUtils::Jet* object : event->OBJECT())                             \
   {                                                                               \
-    if ((object->btag() or has_tag(MISSID)) and                                   \
+    if ((object->btag() or has_tag(MISID)) and                                    \
         object->pT() > MINPT and                                                  \
         object->pT() < MAXPT and                                                  \
         fabs(object->eta()) > MINETA and                                          \

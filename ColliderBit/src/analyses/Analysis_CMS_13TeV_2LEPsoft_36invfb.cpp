@@ -175,7 +175,8 @@ namespace Gambit {
         }
         // Apply b-tag efficiencies and b-tag misidentification rate
         // for the CSVv2Loose working point
-        CMS::applyCSVv2LooseBtagEffAndMisId(signalJets,signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Loose"));
+        applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Loose"));
 
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());

@@ -197,7 +197,7 @@ namespace Gambit
         }
 
         // Apply electron efficiency
-        apply2DEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
 
         // Muons
         vector<const HEPUtils::Particle*> muons;
@@ -208,7 +208,7 @@ namespace Gambit
         }
 
         // Apply muon efficiency
-        apply2DEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
 
         // Jets
         vector<const HEPUtils::Jet*> candJets;

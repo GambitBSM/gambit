@@ -253,7 +253,9 @@ namespace Gambit
               if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
             }
           }
-  //        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
+          // applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
+          // applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Medium"));
+
 
           // Signal leptons = electrons + muons
           signalLeptons=signalElectrons;

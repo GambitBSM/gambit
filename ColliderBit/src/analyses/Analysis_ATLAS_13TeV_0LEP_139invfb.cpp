@@ -116,7 +116,7 @@ namespace Gambit
             if (electron->pT() > 7. && electron->abseta() < 2.47)
               baselineElectrons.push_back(electron);
           }
-          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+          applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Get baseline muons and apply efficiency
           vector<const Particle*> baselineMuons;
@@ -125,7 +125,7 @@ namespace Gambit
             if (muon->pT() > 6. && muon->abseta() < 2.7)
               baselineMuons.push_back(muon);
           }
-          apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+          applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           // Remove any |eta| < 2.8 jet within dR = 0.2 of an electron
           vector<const Jet*> signalJets;
@@ -139,7 +139,7 @@ namespace Gambit
             if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > min(0.4, 0.04+10/e->pT()); }))
               signalElectrons.push_back(e);
           // Apply electron ID selection
-          apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+          applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
           /// @todo And tight ID for high purity... used where?
 
           // Remove muons with dR = 0.4 of surviving |eta| < 2.8 jets

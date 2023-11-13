@@ -51,7 +51,7 @@ namespace Gambit
         BASELINE_PARTICLES(muons, baselineMuons, 3.5, 0., 30., 2.4, CMS::eff2DMu.at("SUS-18-004"))
         BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons)
         BASELINE_JETS(jets, baselineJets, 25., 0., DBL_MAX, 2.4)
-        BASELINE_BJETS(jets, baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::missIDBJet.at("DeepCSVMedium"))
+        BASELINE_BJETS(jets, baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::misIDBJet.at("DeepCSVMedium"))
 
         ////////////////////
         // Signal objects //

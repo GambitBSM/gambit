@@ -102,10 +102,10 @@ namespace Gambit
 
         // Apply electron efficiency
         // TODO: Is this needed if below is done
-        apply2DEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // TODO: This is not the same as in the reference. Need the VeryLoose efficiency
-        apply2DEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+        applyEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
         // Muons are required to satisfy pT > 3 GeV and |η| < 2.5.
         // Preselected tracks with pT > 500 MeV and η < 2.5
@@ -120,7 +120,7 @@ namespace Gambit
 
         // Apply muon efficiency
         // TODO: Is this needed if below is done
-        apply2DEfficiency(preselectedMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(preselectedMuons, ATLAS::eff2DMu.at("Generic"));
 
         // TODO Apply "LowPt" muon ID criteria. This is missing from (arXiv:1603.05598)
 
@@ -184,7 +184,7 @@ namespace Gambit
         // Missing: No impact parameter info
         // TODO: Isolation?
         // TODO: Outdated efficiency selection, use newer one (arXiv:1902.04655)
-        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
 
         // Signal muons are required to pass the FCTightTrackOnly isolation working point, which uses only tracking information.
         // Missing: No tracking information

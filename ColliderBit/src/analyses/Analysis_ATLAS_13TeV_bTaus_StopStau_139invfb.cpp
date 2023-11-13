@@ -88,7 +88,7 @@ namespace Gambit
 
         // Apply electron efficiency
         // LooseAndBLayer electron ID selection
-        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
 
         // Baseline muons have satisfy "medium" criteria and have pT > 10 GeV and |eta| < 2.7
         for (const HEPUtils::Particle* muon : event->muons())
@@ -98,7 +98,7 @@ namespace Gambit
 
         // Apply muon efficiency
         // TODO Missing: "Medium" muon ID criteria
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
         // TODO Missing: impact parameter cuts
 

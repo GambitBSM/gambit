@@ -192,7 +192,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Now define vector of baseline muons
         vector<const HEPUtils::Particle*> signalMuons;
@@ -201,7 +201,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        apply2DEfficiency(signalMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(signalMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> signalJets;
         vector<const HEPUtils::Jet*> bJets;
@@ -236,7 +236,7 @@ namespace Gambit {
         //cout << "AFTER REMOVAL nele nmuo njet " << signalElectrons.size() << " " << signalMuons.size() << " " << signalJets.size() << endl;
 
         //Now apply the tight electron selection
-        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         int numElectrons=signalElectrons.size();
         int numMuons=signalMuons.size();

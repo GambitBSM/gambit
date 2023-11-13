@@ -147,7 +147,7 @@ namespace Gambit
               electrons.push_back(electron);
           }
           // Apply electron efficiency from "Loose" criteria in 1902.04655
-          apply1DEfficiency(electrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+          applyEfficiency(electrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
           // Baseline muons
           vector<const HEPUtils::Particle*> muons;
           for (const HEPUtils::Particle* muon : event->muons())
@@ -157,7 +157,7 @@ namespace Gambit
               muons.push_back(muon);
           }
           // Apply muon efficiency
-          apply2DEfficiency(muons, ATLAS::eff2DMu.at("R2"));
+          applyEfficiency(muons, ATLAS::eff2DMu.at("R2"));
 
           // Number of leptons
           size_t nMuons = muons.size();

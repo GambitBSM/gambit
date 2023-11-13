@@ -249,8 +249,8 @@ namespace Gambit {
         }
 
         // Apply lepton efficiencies
-        apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;

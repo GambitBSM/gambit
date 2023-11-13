@@ -387,14 +387,14 @@ namespace Gambit
         {
           if (electron->pT()>10. && electron->abseta()<2.47) baselineElectrons.push_back(electron);
         }
-        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
 
         // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
         for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT()>10. && muon->abseta()<2.7) baselineMuons.push_back(muon);
         }
-        apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
         double jet_eff = 0.9;
         for (const HEPUtils::Jet* jet : event->jets())
@@ -427,7 +427,7 @@ namespace Gambit
         vector<const HEPUtils::Particle*> signalLeptons;
 
         // Signal electrons must satisfy the “medium” identification requirement as defined in arXiv: 1902.04655 [hep-ex]
-        apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
+        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
         // Signal electrons must have pT > 25 GeV
         for (const HEPUtils::Particle* signalElectron : baselineElectrons)
         {

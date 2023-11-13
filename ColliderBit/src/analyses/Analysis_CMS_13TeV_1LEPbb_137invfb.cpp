@@ -65,7 +65,7 @@ namespace Gambit
 
         // BASELINE_JETS(baselineSmallRjets, SmallRJets, 30., 0, DBL_MAX, 2.4);
         // BASELINE_JETS(baselineLargeRjets, LargeRJets, 250., 0, DBL_MAX, 2.4);
-        // BASELINE_BJETS(baselineSmallRjets, BJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::missIDBJet.at("CSVv2Tight"))
+        // BASELINE_BJETS(baselineSmallRjets, BJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::misIDBJet.at("CSVv2Tight"))
         vector<const HEPUtils::Jet *> bJets;
         vector<const HEPUtils::Jet *> nonBJets;
 

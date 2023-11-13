@@ -87,7 +87,7 @@ namespace Gambit {
             baseelecs.push_back(electron);
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baseelecs);
+        applyEfficiency(baseelecs, CMS::eff2DEl.at("Generic"));
 
         // Get baseline muons
         vector<const Particle*> basemuons;
@@ -96,7 +96,7 @@ namespace Gambit {
             basemuons.push_back(muon);
 
         // Apply muon efficiency
-        CMS::applyMuonEff(basemuons);
+        applyEfficiency(basemuons, CMS::eff2DMu.at("Generic"));
 
         // Electron isolation
         /// @todo Sum should actually be over all non-e/mu calo particles

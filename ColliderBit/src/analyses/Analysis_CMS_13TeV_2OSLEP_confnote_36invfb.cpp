@@ -145,7 +145,7 @@ namespace Gambit {
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
         }
-        CMS::applyCSVv2MediumBtagEff(signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
 
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());

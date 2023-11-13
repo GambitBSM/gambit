@@ -112,14 +112,14 @@ namespace Gambit
           for (const Particle* electron : event->electrons())
             if (electron->pT() > 10. && electron->abseta() < 2.5)
               baseelecs.push_back(electron);
-          CMS::applyElectronEff(baseelecs);
+          applyEfficiency(baseelecs, CMS::eff2DEl.at("Generic"));
 
           // Get baseline muons and apply efficiency
           vector<const Particle*> basemuons;
           for (const Particle* muon : event->muons())
             if (muon->pT() > 10. && muon->abseta() < 2.4)
               basemuons.push_back(muon);
-          CMS::applyMuonEff(basemuons);
+          applyEfficiency(basemuons, CMS::eff2DMu.at("Generic"));
 
 
           // Photon isolation

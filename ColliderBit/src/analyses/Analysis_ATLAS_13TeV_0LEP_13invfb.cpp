@@ -101,7 +101,7 @@ namespace Gambit
               baselineElectrons.push_back(electron);
 
           // Apply electron efficiency
-          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+          applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Get baseline muons
           vector<const Particle*> baselineMuons;
@@ -110,7 +110,7 @@ namespace Gambit
               baselineMuons.push_back(muon);
 
           // Apply muon efficiency
-          apply2DEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
+          applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           // Full isolation details:
           //  - Remove electrons within dR = 0.2 of a b-tagged jet
@@ -135,7 +135,7 @@ namespace Gambit
             if (all_of(signalJets, [&](const Jet* j){ return deltaR_rap(*e, *j) > 0.4; }))
               signalElectrons.push_back(e);
           // Apply electron ID selection
-          apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+          applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
           // Remove muons with dR = 0.4 of surviving |eta| < 2.8 jets
           /// @todo Actually only within 0.2--0.4...

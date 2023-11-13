@@ -82,7 +82,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
 
         // Baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -93,7 +93,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        CMS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
 
         // All baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
