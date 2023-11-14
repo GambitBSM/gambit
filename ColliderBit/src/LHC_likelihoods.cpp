@@ -37,6 +37,10 @@
 ///  \author Chris Chang
 ///  \date   2022 April
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 Aug
+///
 ///  *********************************************
 
 #include <string>
@@ -44,7 +48,7 @@
 
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
-#include "gambit/Utils/statistics.hpp" 
+#include "gambit/Utils/statistics.hpp"
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 
@@ -101,8 +105,95 @@ namespace Gambit
       logger() << LogTags::debug << summary_line.str() << EOM;
     }
 
+    // Loop over all analyses and compute efficiency x acceptance for each signal region
+    void calc_LHC_efficiencies_per_SR(map_str_dbl& result)
+    {
+      using namespace Pipes::calc_LHC_efficiencies_per_SR;
+
+      // Clear the result map
+      result.clear();
+
+      std::stringstream summary_line;
+      summary_line << "LHC efficiencies per SR: ";
+
+      // Get the loop info for the number of events
+      static map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
+
+      // Loop over analyses and collect the predicted eventes into the map
+      for (auto& ana_data : *Dep::AllAnalysisNumbers)
+      {
+        const str ana_name = ana_data->analysis_name;
+        const str coll_name = ana_data->collider_name;
+        if(coll_name == "" or loop_info.find("event_count_"+coll_name) == loop_info.end())
+          ColliderBit_error().raise(LOCAL_INFO, "Collider name not found in analysis or loop info. The calculation of efficiencies requires knowledge of the collider name");
+
+        summary_line << ana_name << ": ";
+
+        // Loop over the signal regions inside the analysis, and add the number of events for each
+        for(size_t SR = 0; SR < ana_data->size(); ++SR)
+        {
+          // Save SR efficiencies and absolute uncertainties, normalized over the total number of events
+          const SignalRegionData srData = (*ana_data)[SR];
+
+          const str key = ana_name + "__" + srData.sr_label + "__i" + std::to_string(SR) + "__eff";
+          result[key] = srData.n_sig_MC / loop_info["event_count_"+coll_name];
+          const double n_sig_MC_err = srData.calc_n_sig_MC_err();
+          result[key + "_uncert"] = n_sig_MC_err / loop_info["event_count_"+coll_name];
+
+          summary_line << srData.sr_label + "__i" + std::to_string(SR) << ":" << srData.n_sig_MC << "+-" << n_sig_MC_err << ", ";
+        }
+      }
+      logger() << LogTags::debug << summary_line.str() << EOM;
+    }
 
 
+
+    // Loop over all analyses and compute efficiency x acceptance for each
+    void calc_LHC_efficiencies_per_analysis(map_str_dbl& result)
+    {
+      using namespace Pipes::calc_LHC_efficiencies_per_SR;
+
+      // Clear the result map
+      result.clear();
+
+      std::stringstream summary_line;
+      summary_line << "LHC efficiencies per analysis: ";
+
+      // Get the loop info for the number of events
+      static map_str_dbl loop_info = *Dep::LHCEventLoopInfo;
+
+      // Loop over analyses and collect the predicted eventes into the map
+      for (auto& ana_data : *Dep::AllAnalysisNumbers)
+      {
+        const str ana_name = ana_data->analysis_name;
+        const str coll_name = ana_data->collider_name;
+        if(coll_name == "" or loop_info.find("event_count_"+coll_name) == loop_info.end())
+          ColliderBit_error().raise(LOCAL_INFO, "Collider name not found in analysis or loop info. The calculation of efficiencies requires knowledge of the collider name");
+
+        summary_line << ana_name << ": ";
+
+        double efficiency = 0.;
+        double efficiency_uncert = 0.;
+
+        // Loop over the signal regions inside the analysis, and add the number of events for each
+        for(auto& sr_data : *ana_data)
+        {
+          efficiency += sr_data.n_sig_MC;
+          efficiency_uncert += sr_data.calc_n_sig_MC_err();
+        }
+
+        // Normalize over the total number of events
+        efficiency /= loop_info["event_count_"+coll_name];
+        efficiency_uncert /= loop_info["event_count_"+coll_name];
+
+        result[ana_name + "__eff"] = efficiency;
+        result[ana_name + "__eff_uncert"] = efficiency_uncert;
+
+        summary_line << efficiency << "+-" << efficiency_uncert << ", ";
+      }
+
+      logger() << LogTags::debug << summary_line.str() << EOM;
+    }
 
     /// Loglike objective-function wrapper to provide the signature for GSL multimin
     ///
@@ -135,10 +226,10 @@ namespace Gambit
         /// @note We've dropped the log(n_obs!) terms, since they're expensive and cancel in computing DLL
         const double lambda_j = std::max(n_preds(j), 1e-3); //< manually avoid <= 0 rates
 
-        // Also include the constant log(n_obs!) computation (via Stirling's approx), 
+        // Also include the constant log(n_obs!) computation (via Stirling's approx),
         // to avoid taking the difference of two very large numbers in the DLL.
         // @todo Just compute the logfact_n_obs term for each SR once per scan
-        const double logfact_n_obs = (n_obss(j) > 0) ? n_obss(j) * log(n_obss(j)) - n_obss(j) : 0;  
+        const double logfact_n_obs = (n_obss(j) > 0) ? n_obss(j) * log(n_obss(j)) - n_obss(j) : 0;
 
         const double loglike_j = n_obss(j)*log(lambda_j) - lambda_j - logfact_n_obs;
 
@@ -230,7 +321,7 @@ namespace Gambit
       // // Set nuisances to an informed starting position
       // const Eigen::ArrayXd& err_n_preds = (evecs*sqrtevals.matrix()).array(); //< @todo CHECK
       // std::vector<double> nuisances(nSR, 0.0);
-      // for (size_t j = 0; j < nSR; ++j) 
+      // for (size_t j = 0; j < nSR; ++j)
       // {
       //   // Calculate the max-L starting position, ignoring correlations
       //   const double obs = n_obss(j);
@@ -293,7 +384,7 @@ namespace Gambit
                    _gsl_calc_Analysis_MinusLogLike,
                    _gsl_calc_Analysis_MinusLogLikeGrad,
                    _gsl_calc_Analysis_MinusLogLikeAndGrad,
-                   &fixeds[0], oparams) 
+                   &fixeds[0], oparams)
         )
       }
       else
@@ -453,9 +544,9 @@ namespace Gambit
     }
 
 
-    /// Helper function called by fill_analysis_loglikes below. It's used to get the 
+    /// Helper function called by fill_analysis_loglikes below. It's used to get the
     /// loglike(s) for ATLAS analyses for which we have the ATLAS Full Likelihood information.
-    void fill_analysis_loglikes_full(const AnalysisData& ana_data, 
+    void fill_analysis_loglikes_full(const AnalysisData& ana_data,
                                 AnalysisLogLikes& ana_loglikes,
                                 bool (*FullLikes_FileExists)(const str&),
                                 int (*FullLikes_ReadIn)(const str&, const str&),
@@ -473,8 +564,8 @@ namespace Gambit
       const std::string ana_name = ana_data.analysis_name;
 
       // Check if analysis is to use ATLAS Full Likelihood backend
-      // If the json hasn't been read in, read it in 
-      bool FullLikes_jsonread = (*FullLikes_FileExists)(ana_name); 
+      // If the json hasn't been read in, read it in
+      bool FullLikes_jsonread = (*FullLikes_FileExists)(ana_name);
       if (!FullLikes_jsonread)
       {
         if ((*FullLikes_ReadIn)(ana_name,ana_data.bkgjson_path) != 0)
@@ -510,9 +601,9 @@ namespace Gambit
         ana_loglikes.combination_loglike = dll;
       }
     }
-      
+
     /// Helper function called by calc_LHC_LogLikes to compute the loglike(s) for a given analysis.
-    void fill_analysis_loglikes(const AnalysisData& ana_data, 
+    void fill_analysis_loglikes(const AnalysisData& ana_data,
                                 AnalysisLogLikes& ana_loglikes,
                                 bool use_marg,
                                 bool has_and_use_covar,
@@ -625,7 +716,7 @@ namespace Gambit
         }
       }
       else // No SR covariance info (or user chose not to use this)
-      { 
+      {
 
         // We either take the result from the SR *expected* to be most
         // constraining under the s=0 assumption (default), or naively combine
@@ -784,7 +875,7 @@ namespace Gambit
       } // end large cov/no-cov if-else block
 
       // Check for problems with the result
-      bool check_failed = false;  
+      bool check_failed = false;
       std::string failed_at_label = "";
 
       // - First check combined loglike
@@ -796,7 +887,7 @@ namespace Gambit
       else
       {
         check_loglike = ana_loglikes.combination_loglike;
-      } 
+      }
       if (Utils::isnan(check_loglike))
       {
         check_failed = true;
@@ -815,7 +906,7 @@ namespace Gambit
           else
           {
             check_loglike = ana_loglikes.sr_loglikes.at(SR);
-          } 
+          }
           if (Utils::isnan(check_loglike))
           {
             check_failed = true;
@@ -852,7 +943,7 @@ namespace Gambit
 
     /// Loop over all analyses and fill a map of AnalysisLogLikes objects
     void calc_LHC_LogLikes_common(map_str_AnalysisLogLikes& result,
-                                  bool use_fulllikes, 
+                                  bool use_fulllikes,
                                   AnalysisDataPointers& ana,
                                   const Options& runOptions,
                                   bool skip_calc,
@@ -899,7 +990,7 @@ namespace Gambit
         const size_t nSR = ana_data.size();
         const bool has_covar = ana_data.srcov.rows() > 0;
         const bool has_fulllikes = ana_data.hasFullLikes();
-        
+
         // Initialize the AnalysisLogLikes instance in the result map
         result[ana_name].initialize(ana_data, alt_loglike_keys);
 
@@ -983,7 +1074,7 @@ namespace Gambit
         }
 
         // Now perform the actual loglikes compuations for this analysis
-        // 
+        //
         // First do standard loglike calculation
         fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate);
 
@@ -1014,7 +1105,7 @@ namespace Gambit
         {
           // Get a copy of the analysis data that we can modify
           AnalysisData ana_data_mod(ana_data);
-          // Set the observed count = expected background count, 
+          // Set the observed count = expected background count,
           // and set the signal MC error to 0 for all signal regions
           for (size_t SR = 0; SR < nSR; ++SR)
           {
@@ -1044,25 +1135,25 @@ namespace Gambit
     {
       using namespace Pipes::calc_LHC_LogLikes_full;
       AnalysisDataPointers ana = *(Dep::AllAnalysisNumbers);
-      
+
       bool use_fulllikes = true;
-      
+
       // If no events have been generated (xsec veto) or too many events have
       // failed, short-circut the loop and return delta log-likelihood = 0 for
       // every SR in each analysis.
       //
       /// @todo Needs more sophistication once we add analyses that don't use event generation.
       bool skip_calc = (not Dep::RunMC->event_gen_BYPASS && (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents) );
-      
-      
+
+
       // Get a pointer to the FullLikes backend functions.
       bool (*FileExists)(const str&) = BEreq::FullLikes_FileExists.pointer();
       int (*ReadIn)(const str&, const str&) = BEreq::FullLikes_ReadIn.pointer();
       double (*Evaluate)(std::map<str,double>&,const str&) = BEreq::FullLikes_Evaluate.pointer();
-      
+
       // Call the calc_LHC_LogLikes
       calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, skip_calc, FileExists, ReadIn, Evaluate);
-                               
+
     }
 
     /// Loop over all analyses and fill a map of AnalysisLogLikes objectss
@@ -1070,20 +1161,20 @@ namespace Gambit
     {
       using namespace Pipes::calc_LHC_LogLikes;
       AnalysisDataPointers ana = *(Dep::AllAnalysisNumbers);
-      
+
       bool use_fulllikes = false;
-    
+
       // If no events have been generated (xsec veto) or too many events have
       // failed, short-circut the loop and return delta log-likelihood = 0 for
       // every SR in each analysis.
       //
       /// @todo Needs more sophistication once we add analyses that don't use event generation.
       bool skip_calc = (not Dep::RunMC->event_gen_BYPASS && (not Dep::RunMC->event_generation_began || Dep::RunMC->exceeded_maxFailedEvents) );
-      
+
 
       // Call the calc_LHC_LogLikes
       calc_LHC_LogLikes_common(result, use_fulllikes, ana, *runOptions, skip_calc, nullptr, nullptr, nullptr);
-      
+
     }
 
 
@@ -1216,7 +1307,7 @@ namespace Gambit
       static const str alt_loglike_key = runOptions->getValueOrDef<str>("", "alt_loglike");
       static bool use_alt_loglike = !alt_loglike_key.empty();
 
-      std::stringstream summary_line_combined_loglike; 
+      std::stringstream summary_line_combined_loglike;
       summary_line_combined_loglike << "calc_combined_LHC_LogLike: combined LogLike: ";
       std::stringstream summary_line_skipped_analyses;
       summary_line_skipped_analyses << "calc_combined_LHC_LogLike: skipped analyses: ";
@@ -1242,7 +1333,7 @@ namespace Gambit
         const str& analysis_name = pair.first;
         const AnalysisLogLikes& analysis_loglikes = pair.second;
 
-        // On the first iteration we check that if the alt_loglike option is specified, the input 
+        // On the first iteration we check that if the alt_loglike option is specified, the input
         // string must exist as a key in the AnalysisLogLikes::alt_combination_loglikes map
         if (first)
         {
@@ -1260,7 +1351,7 @@ namespace Gambit
         // Get the loglike value.
         // Use the regular loglike or an alternative one?
         double use_analysis_loglike = 0.0;
-        if (use_alt_loglike) 
+        if (use_alt_loglike)
         {
           use_analysis_loglike = analysis_loglikes.alt_combination_loglikes.at(alt_loglike_key);
         }
@@ -1331,11 +1422,11 @@ namespace Gambit
         logger() << summary_line_combined_loglike.str() << EOM;
         logger() << summary_line_included_analyses.str() << EOM;
         logger() << summary_line_skipped_analyses.str() << EOM;
-      }  
+      }
     }
 
 
-    /// A dummy log-likelihood that helps the scanner track a given 
+    /// A dummy log-likelihood that helps the scanner track a given
     /// range of collider log-likelihood values
     void calc_LHC_LogLike_scan_guide(double& result)
     {
@@ -1355,10 +1446,10 @@ namespace Gambit
       // Write log summary
       if(write_summary_to_log)
       {
-        std::stringstream summary_line; 
+        std::stringstream summary_line;
         summary_line << "LHC_LogLike_scan_guide: " << result;
         logger() << summary_line.str() << EOM;
-      }  
+      }
     }
 
   }

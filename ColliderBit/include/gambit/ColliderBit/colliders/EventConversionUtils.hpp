@@ -56,7 +56,7 @@ namespace Gambit
       inline double get_unified_eta(ParticleP p) { return p.eta(); }
 
       template <typename ParticleP>
-      inline HEPUtils::P4 get_unified_momentum(ParticleP p) { return HEPUtils::P4::mkXYZE(p.px(), p.py(), p.pz(), p.e()); }
+      inline HEPUtils::P4 get_unified_momentum(ParticleP p) {return HEPUtils::P4::mkXYZM(p.px(), p.py(), p.pz(), p.m()); }
 
       template <typename ParticleP>
       inline FJNS::PseudoJet get_unified_pseudojet(ParticleP p) { return FJNS::PseudoJet(p.p().px(), p.p().py(), p.p().pz(), p.p().e()); }
@@ -99,7 +99,7 @@ namespace Gambit
         inline HEPUtils::P4 get_unified_momentum(const HepMC3::GenParticlePtr &gp)
         {
           const HepMC3::FourVector& hp4 = gp->momentum();
-          return HEPUtils::P4::mkXYZE(hp4.px(), hp4.py(), hp4.pz(), hp4.e());
+          return HEPUtils::P4::mkXYZM(hp4.px(), hp4.py(), hp4.pz(), hp4.m());
         }
 
         inline FJNS::PseudoJet get_unified_pseudojet(const HepMC3::GenParticlePtr &gp)

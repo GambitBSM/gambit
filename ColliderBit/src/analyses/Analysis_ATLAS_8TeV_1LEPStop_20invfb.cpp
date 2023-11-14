@@ -45,10 +45,6 @@ namespace Gambit {
     class Analysis_ATLAS_8TeV_1LEPStop_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _numTN1Shape_bin1, _numTN1Shape_bin2, _numTN1Shape_bin3,
-        _numTN2, _numTN3, _numBC1, _numBC2,_numBC3;
-
       vector<int> cutFlowVector_alt;
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
@@ -59,13 +55,24 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_ATLAS_8TeV_1LEPStop_20invfb() {
+      Analysis_ATLAS_8TeV_1LEPStop_20invfb()
+      {
+
+        // Numbers passing cuts
+        _counters["TN1Shape_bin1"] = EventCounter("TN1Shape_bin1");
+        _counters["TN1Shape_bin2"] = EventCounter("TN1Shape_bin2");
+        _counters["TN1Shape_bin3"] = EventCounter("TN1Shape_bin3");
+        _counters["TN2"] = EventCounter("TN2");
+        _counters["TN3"] = EventCounter("TN3");
+        _counters["BC1"] = EventCounter("BC1");
+        _counters["BC2"] = EventCounter("BC2");
+        _counters["BC3"] = EventCounter("BC3");
+
+        NCUTS = 41;
+
+
         set_analysis_name("ATLAS_8TeV_1LEPStop_20invfb");
         set_luminosity(20.7);
-
-        _numTN1Shape_bin1 = 0; _numTN1Shape_bin2 = 0; _numTN1Shape_bin3 = 0;
-        _numTN2 = 0; _numTN3 = 0; _numBC1 = 0;
-        _numBC2 = 0; _numBC3 = 0; NCUTS = 41;
 
         for(int i=0;i<NCUTS;i++){
           cutFlowVector.push_back(0);
@@ -218,7 +225,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Now define vector of baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -228,7 +235,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Get b jets with efficiency and mistag (fake) rates
         vector<const HEPUtils::Jet*> baselineJets, bJets; // trueBJets; //for debugging
@@ -278,7 +285,8 @@ namespace Gambit {
 
         // Calculate common variables and cuts first
 
-        ATLAS::applyTightIDElectronSelection(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+
 
         int nElectrons = signalElectrons.size();
         int nMuons = signalMuons.size();
@@ -642,7 +650,6 @@ namespace Gambit {
         }
 
         //We're now ready to apply the cuts for each signal region
-        //_numTN1Shape_bin1, _numTN1Shape_bin2, _numTN1Shape_bin3,_numTN2, _numTN3, _numBC1, _numBC2, _numBC3;
 
         //Do the three bins of the TN1 shape fit
         if(dphi_jetmet1>0.8 &&
@@ -652,9 +659,9 @@ namespace Gambit {
            passHadTop &&
            nBjets >= 1 &&
            bJets[0]->pT()>25.){
-          if(met>100. && met<125.) _numTN1Shape_bin1 += event->weight();
-          if(met>125. && met<150.) _numTN1Shape_bin2 += event->weight();
-          if(met>150.) _numTN1Shape_bin3 += event->weight();
+          if(met>100. && met<125.) _counters["TN1Shape_bin1"].add_event(event);
+          if(met>125. && met<150.) _counters["TN1Shape_bin2"].add_event(event);
+          if(met>150.) _counters["TN1Shape_bin3"].add_event(event);
         }
 
         //We're now ready to apply the cuts for each signal region
@@ -670,9 +677,9 @@ namespace Gambit {
              nBjets >= 1 &&
              bJets[0]->pT()>25.){
 
-            if(met>100. && met<125.) _numTN1Shape_bin1 += event->weight();
-            if(met>125. && met<150.) _numTN1Shape_bin2 += event->weight();
-            if(met>150.) _numTN1Shape_bin3 += event->weight();
+            if(met>100. && met<125.) _counters["TN1Shape_bin1"].add_event(event);
+            if(met>125. && met<150.) _counters["TN1Shape_bin2"].add_event(event);
+            if(met>150.) _counters["TN1Shape_bin3"].add_event(event);
           }
         }
 
@@ -684,7 +691,7 @@ namespace Gambit {
              mT>140. &&
              amt2>170. &&
              passHadTop &&
-             bJets[0]->pT()>25.) _numTN2 += event->weight();
+             bJets[0]->pT()>25.) _counters["TN2"].add_event(event);
         }
 
         //Do SRtN3
@@ -697,7 +704,7 @@ namespace Gambit {
              amt2>175. &&
              mt2tau>80. &&
              passHadTop &&
-             bJets[0]->pT()>25.) _numTN3 += event->weight();
+             bJets[0]->pT()>25.) _counters["TN3"].add_event(event);
         }
 
         //Do SRbC1
@@ -707,7 +714,7 @@ namespace Gambit {
              met>150. &&
              metOverSqrtHT>7. &&
              mT>120. &&
-             bJets[0]->pT()>25.) _numBC1 += event->weight();
+             bJets[0]->pT()>25.) _counters["BC1"].add_event(event);
         }
 
         //Do SRbC2
@@ -721,7 +728,7 @@ namespace Gambit {
              amt2>175. &&
              nBjets >=2 &&
              bJets[0]->pT()>100.&&
-             bJets[1]->pT()>50) _numBC2 += event->weight();
+             bJets[1]->pT()>50) _counters["BC2"].add_event(event);
         }
 
         //Do SRbC3
@@ -735,32 +742,9 @@ namespace Gambit {
              amt2>200. &&
              nBjets >=2 &&
              bJets[0]->pT()>120.&&
-             bJets[1]->pT()>90) _numBC3 += event->weight();
+             bJets[1]->pT()>90) _counters["BC3"].add_event(event);
         }
         return;
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_8TeV_1LEPStop_20invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_8TeV_1LEPStop_20invfb*>(other);
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector.at(j);
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str.at(j);
-          cutFlowVector_alt[j] += specificOther->cutFlowVector_alt.at(j);
-        }
-        _numTN1Shape_bin1 += specificOther->_numTN1Shape_bin1;
-        _numTN1Shape_bin2 += specificOther->_numTN1Shape_bin2;
-        _numTN1Shape_bin3 += specificOther->_numTN1Shape_bin3;
-        _numTN2 += specificOther->_numTN2;
-        _numTN3 += specificOther->_numTN3;
-        _numBC1 += specificOther->_numBC1;
-        _numBC2 += specificOther->_numBC2;
-        _numBC3 += specificOther->_numBC3;
       }
 
 
@@ -768,24 +752,22 @@ namespace Gambit {
         //Note: am not using shape fit bins
         //They need to be added (but will probably update to paper result)
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+        // add_result(SignalRegionData(_counters[""SR label""], n_obs, {n_bkg, n_bkg_err}));
 
-        add_result(SignalRegionData("BC1", 456., {_numBC1, 0.}, {482., 76.}));
-        add_result(SignalRegionData("BC2", 25., {_numBC2, 0.}, {18., 5.}));
-        add_result(SignalRegionData("BC3", 6., {_numBC3, 0.}, {7., 3.}));
-        add_result(SignalRegionData("TN2", 14., {_numTN2, 0.}, {13., 3.}));
-        add_result(SignalRegionData("TN3", 7., {_numTN3, 0.}, {5., 2.}));
+        add_result(SignalRegionData(_counters["BC1"], 456.,  {482., 76.}));
+        add_result(SignalRegionData(_counters["BC2"], 25., {18., 5.}));
+        add_result(SignalRegionData(_counters["BC3"], 6., {7., 3.}));
+        add_result(SignalRegionData(_counters["TN2"], 14., {13., 3.}));
+        add_result(SignalRegionData(_counters["TN3"], 7., {5., 2.}));
 
         return;
       }
 
 
     protected:
-      void analysis_specific_reset() {
-        _numTN1Shape_bin1 = 0; _numTN1Shape_bin2 = 0; _numTN1Shape_bin3 = 0;
-        _numTN2 = 0; _numTN3 = 0; _numBC1 = 0;
-        _numBC2 = 0; _numBC3 = 0;
-
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 

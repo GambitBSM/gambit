@@ -33,30 +33,6 @@ namespace Gambit {
 
     protected:
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SR2_SF_loose", EventCounter("SR2_SF_loose")},
-        {"SR2_SF_tight", EventCounter("SR2_SF_tight")},
-        {"SR2_DF_100", EventCounter("SR2_DF_100")},
-        {"SR2_DF_150", EventCounter("SR2_DF_150")},
-        {"SR2_DF_200", EventCounter("SR2_DF_200")},
-        {"SR2_DF_300", EventCounter("SR2_DF_300")},
-        {"SR2_int", EventCounter("SR2_int")},
-        {"SR2_high", EventCounter("SR2_high")},
-        {"SR2_low", EventCounter("SR2_low")},
-        {"SR3_slep_a", EventCounter("SR3_slep_a")},
-        {"SR3_slep_b", EventCounter("SR3_slep_b")},
-        {"SR3_slep_c", EventCounter("SR3_slep_c")},
-        {"SR3_slep_d", EventCounter("SR3_slep_d")},
-        {"SR3_slep_e", EventCounter("SR3_slep_e")},
-        {"SR3_WZ_0Ja", EventCounter("SR3_WZ_0Ja")},
-        {"SR3_WZ_0Jb", EventCounter("SR3_WZ_0Jb")},
-        {"SR3_WZ_0Jc", EventCounter("SR3_WZ_0Jc")},
-        {"SR3_WZ_1Ja", EventCounter("SR3_WZ_1Ja")},
-        {"SR3_WZ_1Jb", EventCounter("SR3_WZ_1Jb")},
-        {"SR3_WZ_1Jc", EventCounter("SR3_WZ_1Jc")},
-      };
-
     private:
 
       vector<int> cutFlowVector1;
@@ -101,7 +77,31 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_ATLAS_13TeV_MultiLEP_36invfb() {
+      Analysis_ATLAS_13TeV_MultiLEP_36invfb()
+      {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SR2_SF_loose"] = EventCounter("SR2_SF_loose");
+        _counters["SR2_SF_tight"] = EventCounter("SR2_SF_tight");
+        _counters["SR2_DF_100"] = EventCounter("SR2_DF_100");
+        _counters["SR2_DF_150"] = EventCounter("SR2_DF_150");
+        _counters["SR2_DF_200"] = EventCounter("SR2_DF_200");
+        _counters["SR2_DF_300"] = EventCounter("SR2_DF_300");
+        _counters["SR2_int"] = EventCounter("SR2_int");
+        _counters["SR2_high"] = EventCounter("SR2_high");
+        _counters["SR2_low"] = EventCounter("SR2_low");
+        _counters["SR3_slep_a"] = EventCounter("SR3_slep_a");
+        _counters["SR3_slep_b"] = EventCounter("SR3_slep_b");
+        _counters["SR3_slep_c"] = EventCounter("SR3_slep_c");
+        _counters["SR3_slep_d"] = EventCounter("SR3_slep_d");
+        _counters["SR3_slep_e"] = EventCounter("SR3_slep_e");
+        _counters["SR3_WZ_0Ja"] = EventCounter("SR3_WZ_0Ja");
+        _counters["SR3_WZ_0Jb"] = EventCounter("SR3_WZ_0Jb");
+        _counters["SR3_WZ_0Jc"] = EventCounter("SR3_WZ_0Jc");
+        _counters["SR3_WZ_1Ja"] = EventCounter("SR3_WZ_1Ja");
+        _counters["SR3_WZ_1Jb"] = EventCounter("SR3_WZ_1Jb");
+        _counters["SR3_WZ_1Jc"] = EventCounter("SR3_WZ_1Jc");
+
 
         set_analysis_name("ATLAS_13TeV_MultiLEP_36invfb");
         set_luminosity(36.1);
@@ -173,10 +173,10 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Apply loose electron selection
-        ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -184,7 +184,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         for (const HEPUtils::Jet* jet : event->jets()) {
@@ -228,7 +228,7 @@ namespace Gambit {
           }
           if (!overlap)signalElectrons.push_back(baselineElectrons.at(iEl));
         }
-        ATLAS::applyMediumIDElectronSelectionR2(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
 
         for (size_t iJet=0;iJet<baselineJets.size();iJet++) {
           bool overlap=false;
@@ -820,25 +820,6 @@ namespace Gambit {
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_MultiLEP_36invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_MultiLEP_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS1 != specificOther->NCUTS1) NCUTS1 = specificOther->NCUTS1;
-        for (size_t j = 0; j < NCUTS1; j++) {
-          cutFlowVector1[j] += specificOther->cutFlowVector1[j];
-          cutFlowVector1_str[j] = specificOther->cutFlowVector1_str[j];
-        }
-        if (NCUTS2 != specificOther->NCUTS2) NCUTS2 = specificOther->NCUTS2;
-        for (size_t j = 0; j < NCUTS2; j++) {
-          cutFlowVector2[j] += specificOther->cutFlowVector2[j];
-          cutFlowVector2_str[j] = specificOther->cutFlowVector2_str[j];
-        }
-      }
 
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results() {

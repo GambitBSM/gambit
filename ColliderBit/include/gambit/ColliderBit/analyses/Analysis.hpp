@@ -22,13 +22,20 @@
 ///          (p.scott@imperial.ac.uk)
 ///  \date 2019 Feb
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2023 July, Aug
+///
 ///  *********************************************
 
 #pragma once
 
 #include <string>
+
 #include "HEPUtils/Event.h"
+
 #include "gambit/ColliderBit/analyses/AnalysisData.hpp"
+#include "gambit/ColliderBit/analyses/Cutflow.hpp"
 
 namespace Gambit
 {
@@ -67,6 +74,10 @@ namespace Gambit
         void set_analysis_name(str);
         /// Get the analysis name
         str analysis_name();
+        /// Set the collider name
+        void set_collider_name(str);
+        // Get the collider name
+        str collider_name();
 
         /// Get the collection of SignalRegionData for likelihood computation.
         const AnalysisData& get_results();
@@ -78,6 +89,9 @@ namespace Gambit
         AnalysisData* get_results_ptr(str&);
         ///@}
 
+        // Get the collection of cutflows for the analysis
+        const Cutflows& get_cutflows();
+
         /// Scale by xsec per event.
         void scale(double);
 
@@ -85,8 +99,6 @@ namespace Gambit
         ///@{
         /// Add the results of another analysis to this one. Argument is not const, because the other needs to be able to gather its results if necessary.
         void add(Analysis* other);
-        /// Add the analysis-specific variables of another analysis to this one.
-        virtual void combine(const Analysis* other) = 0;
         ///@}
 
       protected:
@@ -100,6 +112,8 @@ namespace Gambit
         virtual void run(const HEPUtils::Event*) = 0;
         /// Add the given result to the internal results list.
         void add_result(const SignalRegionData& sr);
+        /// Add cutflows to the internal results list
+        void add_cutflows(const Cutflows& cf);
         /// Set the covariance matrix, expressing SR correlations
         void set_covariance(const Eigen::MatrixXd& srcov);
         /// A convenience function for setting the SR covariance from a nested vector/initialiser list
@@ -110,6 +124,12 @@ namespace Gambit
         virtual void collect_results() = 0;
         ///@}
 
+        // Counters for the number of accepted events for each signal region
+        std::map<str, EventCounter> _counters;
+
+        // Every analysis should store its cutflows
+        Cutflows _cutflows;
+
       private:
 
         double _luminosity;
@@ -118,6 +138,7 @@ namespace Gambit
         bool _needs_collection;
         AnalysisData _results;
         std::string _analysis_name;
+        std::string _collider_name;
 
     };
 

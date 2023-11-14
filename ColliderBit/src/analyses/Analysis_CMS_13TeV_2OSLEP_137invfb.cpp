@@ -34,54 +34,6 @@ namespace Gambit
 
       protected:
 
-        // Counters for the number of accepted events for each signal region
-        std::map<string, EventCounter> _counters = {
-          {"SRA_50_100", EventCounter("SRA bveto [50, 100]")},
-          {"SRA_100_150", EventCounter("SRA bveto [100, 150]")},
-          {"SRA_150_230", EventCounter("SRA bveto [150, 230]")},
-          {"SRA_230_300", EventCounter("SRA bveto [230, 300]")},
-          {"SRA_300", EventCounter("SRA bveto [300, ~]")},
-          {"SRB_50_100", EventCounter("SRB bveto [50, 100]")},
-          {"SRB_100_150", EventCounter("SRB bveto [100, 150]")},
-          {"SRB_150_230", EventCounter("SRB bveto [150, 230]")},
-          {"SRB_230_300", EventCounter("SRB bveto [230, 300]")},
-          {"SRB_300", EventCounter("SRB bveto [300, ~]")},
-          {"SRC_50_100", EventCounter("SRC bveto [50, 100]")},
-          {"SRC_100_150", EventCounter("SRC bveto [100, 150]")},
-          {"SRC_150_250", EventCounter("SRC bveto [150, 250]")},
-          {"SRC_250", EventCounter("SRC bveto [250, ~]")},
-          {"SRAb_50_100", EventCounter("SRA btag [50, 100]")},
-          {"SRAb_100_150", EventCounter("SRA btag [100, 150]")},
-          {"SRAb_150_230", EventCounter("SRA btag [150, 230]")},
-          {"SRAb_230_300", EventCounter("SRA btag [230, 300]")},
-          {"SRAb_300", EventCounter("SRA btag [300, ~]")},
-          {"SRBb_50_100", EventCounter("SRB btag [50, 100]")},
-          {"SRBb_100_150", EventCounter("SRB btag [100, 150]")},
-          {"SRBb_150_230", EventCounter("SRB btag [150, 230]")},
-          {"SRBb_230_300", EventCounter("SRB btag [230, 300]")},
-          {"SRBb_300", EventCounter("SRB btag [300, ~]")},
-          {"SRCb_50_100", EventCounter("SRC btag [50, 100]")},
-          {"SRCb_100_150", EventCounter("SRC btag [100, 150]")},
-          {"SRCb_150_250", EventCounter("SRC btag [150, 250]")},
-          {"SRCb_250", EventCounter("SRC btag [250, ~]")},
-          {"SRoffZ0j_100_150", EventCounter("SR Off-Z nj=0 [100, 150]")},
-          {"SRoffZ0j_150_225", EventCounter("SR Off-Z nj=0 [150, 225]")},
-          {"SRoffZ0j_225_300", EventCounter("SR Off-Z nj=0 [225, 300]")},
-          {"SRoffZ0j_300", EventCounter("SR Off-Z nj=0 [300, ~]")},
-          {"SRoffZj_100_150", EventCounter("SR Off-Z nj>0 [100, 150]")},
-          {"SRoffZj_150_225", EventCounter("SR Off-Z nj>0 [150, 225]")},
-          {"SRoffZj_225_300", EventCounter("SR Off-Z nj>0 [225, 300]")},
-          {"SRoffZj_300", EventCounter("SR Off-Z nj>0 [300, ~]")},
-  //        {"SRonZ0j_100_150", EventCounter("SR on-Z nj=0 [100, 150]")},
-  //        {"SRonZ0j_150_225", EventCounter("SR on-Z nj=0 [150, 225]")},
-  //        {"SRonZ0j_225_300", EventCounter("SR on-Z nj=0 [225, 300]")},
-  //        {"SRonZ0j_300", EventCounter("SR on-Z nj=0 [300, ~]")},
-  //        {"SRonZj_100_150", EventCounter("SR on-Z nj>0 [100, 150]")},
-  //        {"SRonZj_150_225", EventCounter("SR on-Z nj>0 [150, 225]")},
-  //        {"SRonZj_225_300", EventCounter("SR on-Z nj>0 [225, 300]")},
-  //        {"SRonZj_300", EventCounter("SR on-Z nj>0 [300, ~]")},
-        };
-
       private:
 
         vector<int> cutFlowVector_1;
@@ -111,6 +63,54 @@ namespace Gambit
 
         Analysis_CMS_13TeV_2OSLEP_137invfb()
         {
+
+          // Counters for the number of accepted events for each signal region
+          _counters["SRA_50_100"] = EventCounter("SRA bveto [50, 100]");
+          _counters["SRA_100_150"] = EventCounter("SRA bveto [100, 150]");
+          _counters["SRA_150_230"] = EventCounter("SRA bveto [150, 230]");
+          _counters["SRA_230_300"] = EventCounter("SRA bveto [230, 300]");
+          _counters["SRA_300"] = EventCounter("SRA bveto [300, ~]");
+          _counters["SRB_50_100"] = EventCounter("SRB bveto [50, 100]");
+          _counters["SRB_100_150"] = EventCounter("SRB bveto [100, 150]");
+          _counters["SRB_150_230"] = EventCounter("SRB bveto [150, 230]");
+          _counters["SRB_230_300"] = EventCounter("SRB bveto [230, 300]");
+          _counters["SRB_300"] = EventCounter("SRB bveto [300, ~]");
+          _counters["SRC_50_100"] = EventCounter("SRC bveto [50, 100]");
+          _counters["SRC_100_150"] = EventCounter("SRC bveto [100, 150]");
+          _counters["SRC_150_250"] = EventCounter("SRC bveto [150, 250]");
+          _counters["SRC_250"] = EventCounter("SRC bveto [250, ~]");
+          _counters["SRAb_50_100"] = EventCounter("SRA btag [50, 100]");
+          _counters["SRAb_100_150"] = EventCounter("SRA btag [100, 150]");
+          _counters["SRAb_150_230"] = EventCounter("SRA btag [150, 230]");
+          _counters["SRAb_230_300"] = EventCounter("SRA btag [230, 300]");
+          _counters["SRAb_300"] = EventCounter("SRA btag [300, ~]");
+          _counters["SRBb_50_100"] = EventCounter("SRB btag [50, 100]");
+          _counters["SRBb_100_150"] = EventCounter("SRB btag [100, 150]");
+          _counters["SRBb_150_230"] = EventCounter("SRB btag [150, 230]");
+          _counters["SRBb_230_300"] = EventCounter("SRB btag [230, 300]");
+          _counters["SRBb_300"] = EventCounter("SRB btag [300, ~]");
+          _counters["SRCb_50_100"] = EventCounter("SRC btag [50, 100]");
+          _counters["SRCb_100_150"] = EventCounter("SRC btag [100, 150]");
+          _counters["SRCb_150_250"] = EventCounter("SRC btag [150, 250]");
+          _counters["SRCb_250"] = EventCounter("SRC btag [250, ~]");
+          _counters["SRoffZ0j_100_150"] = EventCounter("SR Off-Z nj=0 [100, 150]");
+          _counters["SRoffZ0j_150_225"] = EventCounter("SR Off-Z nj=0 [150, 225]");
+          _counters["SRoffZ0j_225_300"] = EventCounter("SR Off-Z nj=0 [225, 300]");
+          _counters["SRoffZ0j_300"] = EventCounter("SR Off-Z nj=0 [300, ~]");
+          _counters["SRoffZj_100_150"] = EventCounter("SR Off-Z nj>0 [100, 150]");
+          _counters["SRoffZj_150_225"] = EventCounter("SR Off-Z nj>0 [150, 225]");
+          _counters["SRoffZj_225_300"] = EventCounter("SR Off-Z nj>0 [225, 300]");
+          _counters["SRoffZj_300"] = EventCounter("SR Off-Z nj>0 [300, ~]");
+    //      _counters["SRonZ0j_100_150"] = EventCounter("SR on-Z nj=0 [100, 150]");
+    //      _counters["SRonZ0j_150_225"] = EventCounter("SR on-Z nj=0 [150, 225]");
+    //      _counters["SRonZ0j_225_300"] = EventCounter("SR on-Z nj=0 [225, 300]");
+    //      _counters["SRonZ0j_300"] = EventCounter("SR on-Z nj=0 [300, ~]");
+    //      _counters["SRonZj_100_150"] = EventCounter("SR on-Z nj>0 [100, 150]");
+    //      _counters["SRonZj_150_225"] = EventCounter("SR on-Z nj>0 [150, 225]");
+    //      _counters["SRonZj_225_300"] = EventCounter("SR on-Z nj>0 [225, 300]");
+    //      _counters["SRonZj_300"] = EventCounter("SR on-Z nj>0 [300, ~]");
+
+
           set_analysis_name("CMS_13TeV_2OSLEP_137invfb");
           set_luminosity(137.);
 
@@ -253,7 +253,9 @@ namespace Gambit
               if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
             }
           }
-  //        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
+          // applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
+          // applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Medium"));
+
 
           // Signal leptons = electrons + muons
           signalLeptons=signalElectrons;
@@ -445,42 +447,18 @@ namespace Gambit
 
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_CMS_13TeV_2OSLEP_137invfb* specificOther
-                  = dynamic_cast<const Analysis_CMS_13TeV_2OSLEP_137invfb*>(other);
-
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-          if (NCUTS_1 != specificOther->NCUTS_1) NCUTS_1 = specificOther->NCUTS_1;
-          for (size_t j = 0; j < NCUTS_1; j++)
-          {
-            cutFlowVector_1[j] += specificOther->cutFlowVector_1[j];
-            cutFlowVector_1_str[j] = specificOther->cutFlowVector_1_str[j];
-          }
-
-          if (NCUTS_2 != specificOther->NCUTS_2) NCUTS_2 = specificOther->NCUTS_2;
-          for (size_t j = 0; j < NCUTS_2; j++)
-          {
-            cutFlowVector_2[j] += specificOther->cutFlowVector_2[j];
-            cutFlowVector_2_str[j] = specificOther->cutFlowVector_2_str[j];
-          }
-
-        }
-
 
         virtual void collect_results()
         {
-          for (size_t i=0;i<NCUTS_1;i++)
-          {
-            cout << i << "\t" << cutFlowVector_1_str[i] << "\t" << cutFlowVector_1[i] << endl;
-          }
-          cout << "=========================" << endl;
-          for (size_t i=0;i<NCUTS_2;i++)
-          {
-            cout << i << "\t" << cutFlowVector_2_str[i] << "\t" << cutFlowVector_2[i] << endl;
-          }
+          //for (size_t i=0;i<NCUTS_1;i++)
+          //{
+          //  cout << i << "\t" << cutFlowVector_1_str[i] << "\t" << cutFlowVector_1[i] << endl;
+          //}
+          //cout << "=========================" << endl;
+          //for (size_t i=0;i<NCUTS_2;i++)
+          //{
+          //  cout << i << "\t" << cutFlowVector_2_str[i] << "\t" << cutFlowVector_2[i] << endl;
+          //}
 
           add_result(SignalRegionData(_counters.at("SRA_50_100"),   1261., {1261., 41.}));
           add_result(SignalRegionData(_counters.at("SRA_100_150"),  186.,  {160.,  16.}));

@@ -27,19 +27,6 @@ namespace Gambit {
     class Analysis_ATLAS_13TeV_3b_36invfb : public Analysis {
 
     protected:
-      // Signal region map
-      std::map<string, EventCounter> _counters = {
-        // Exclusion regions, disjoint
-        {"SR-3b-meff1-A", EventCounter("SR-3b-meff1-A")},
-        {"SR-3b-meff2-A", EventCounter("SR-3b-meff2-A")},
-        {"SR-3b-meff3-A", EventCounter("SR-3b-meff3-A")},
-        {"SR-4b-meff1-A", EventCounter("SR-4b-meff1-A")},
-        {"SR-4b-meff1-B", EventCounter("SR-4b-meff1-B")},
-        {"SR-4b-meff2-A", EventCounter("SR-4b-meff2-A")},
-        {"SR-4b-meff2-B", EventCounter("SR-4b-meff2-B")},
-        // Discovery regions, SR-4b-meff1-A and SR-4b-meff2-A are subsets
-        {"SR-4b-meff1-A-disc", EventCounter("SR-4b-meff1-A-disc")},
-      };
 
     private:
 
@@ -56,7 +43,21 @@ namespace Gambit {
 
       static bool sortByPT(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
 
-      Analysis_ATLAS_13TeV_3b_36invfb() {
+      Analysis_ATLAS_13TeV_3b_36invfb()
+      {
+
+        // Signal region map
+        // Exclusion regions, disjoint
+        _counters["SR-3b-meff1-A"] = EventCounter("SR-3b-meff1-A");
+        _counters["SR-3b-meff2-A"] = EventCounter("SR-3b-meff2-A");
+        _counters["SR-3b-meff3-A"] = EventCounter("SR-3b-meff3-A");
+        _counters["SR-4b-meff1-A"] = EventCounter("SR-4b-meff1-A");
+        _counters["SR-4b-meff1-B"] = EventCounter("SR-4b-meff1-B");
+        _counters["SR-4b-meff2-A"] = EventCounter("SR-4b-meff2-A");
+        _counters["SR-4b-meff2-B"] = EventCounter("SR-4b-meff2-B");
+        // Discovery regions, SR-4b-meff1-A and SR-4b-meff2-A are subsets
+        _counters["SR-4b-meff1-A-disc"] = EventCounter("SR-4b-meff1-A-disc");
+
 
         set_analysis_name("ATLAS_13TeV_3b_36invfb");
         set_luminosity(36.1);
@@ -148,7 +149,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(electrons);
+        applyEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
 
         // Muons
         vector<const HEPUtils::Particle*> muons;
@@ -159,7 +160,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(muons);
+        applyEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> candJets;
         for (const HEPUtils::Jet* jet : event->jets()) {
@@ -302,7 +303,7 @@ namespace Gambit {
 //        cutFlowVector_str[4]  = "$N_{jet} \\ge 4$, $N_{jet} \\le 5$";
 //        cutFlowVector_str[5]  = "$110 < m(h_1)< 150$ GeV";
 //        cutFlowVector_str[6]  = "$90 < m(h_2)< 140$ GeV$";
-//        cutFlowVector_str[7]  = "$m_{T,min}^{b-jets}> 130$ GeV";
+//        cutFlowVector_str[7]  = "$m_min}^{b-jets}> 130$ GeV";
 //        cutFlowVector_str[8]  = "$m_{eff} > 1100$ GeV";
 //        cutFlowVector_str[9]  = "$N_{b-jets} \\ge 3$";
 //        cutFlowVector_str[10]  = "$0.4 \\le \\Delta R_{max}^{bb} \\le 1.4$";
@@ -406,22 +407,6 @@ namespace Gambit {
         return;
 
       } // End of analyze
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_3b_36invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_13TeV_3b_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (size_t j=0; j<NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-
-      }
 
 
       virtual void collect_results() {

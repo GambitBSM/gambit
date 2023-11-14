@@ -24,7 +24,6 @@ namespace Gambit
 
       protected:
         // Counters for the number of accepted events for each signal region
-        std::map<str, EventCounter> _counters;
 
       private:
 
@@ -34,11 +33,10 @@ namespace Gambit
         }
 
       public:
- 
+
         // Required detector sim
         static constexpr const char* detector = "CMS";
 
-        Cutflows _cutflows;
 
         Analysis_CMS_13TeV_MultiLEP_137invfb()
         {
@@ -253,12 +251,12 @@ namespace Gambit
 
           // - OS pairs, only light leptons
           std::vector<std::vector<const HEPUtils::Particle*> > OSpairs = getOSpairs(signalLightLeptons);
-          sortByParentMass(OSpairs, mZ);         
+          sortByParentMass(OSpairs, mZ);
           uniquePairs(OSpairs);
 
           // - OS pairs, including taus
           std::vector<std::vector<const HEPUtils::Particle*> > OSpairsWithTaus = getOSpairs(signalLeptons);
-          sortByParentMass(OSpairsWithTaus, mZ);         
+          sortByParentMass(OSpairsWithTaus, mZ);
           uniquePairs(OSpairsWithTaus);
 
           // - OSSF pairs, only light leptons
@@ -288,8 +286,7 @@ namespace Gambit
           }
 
           // Apply b-tag efficiency on b-jets
-          CMS::applyCSVv2TightBtagEff(signalBJets);
-          
+          applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Tight"));
 
 
           ///////////////////////////////
@@ -341,7 +338,7 @@ namespace Gambit
           // Signal regions //
 
           // 2SSLep, (2lSS)
-          if(nLightLeptons == 2 and nLeptons == 2 and nSSpairs == 1 and 
+          if(nLightLeptons == 2 and nLeptons == 2 and nSSpairs == 1 and
              ( (muonPair and signalLeptons.at(0)->pT() > 20.) or ((electronPair or mixedPair) and signalLeptons.at(0)->pT() > 25.) ) and
              ( (amIanElectron(signalLeptons.at(1)) and signalLeptons.at(1)->pT() >  15.) or (amIaMuon(signalLeptons.at(1)) and signalLeptons.at(1)->pT() > 10.) ) and
              ( nJets < 2 or signalJets.at(1)->pT() < 40) and
@@ -387,12 +384,12 @@ namespace Gambit
             static int n3lepevents = 0;
             n3lepevents++;
           }
-          bool _3Lep = nLeptons == 3 and 
-                      nLightLeptons > 0 and 
-                      ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or 
+          bool _3Lep = nLeptons == 3 and
+                      nLightLeptons > 0 and
+                      ( (amIanElectron(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 25.) or
                         (amIaMuon(signalLightLeptons.at(0)) and signalLightLeptons.at(0)->pT() > 20.) ) and
-                      ( nLightLeptons < 2 or 
-                        (amIanElectron(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 15.) or 
+                      ( nLightLeptons < 2 or
+                        (amIanElectron(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 15.) or
                         (amIaMuon(signalLightLeptons.at(1)) and signalLightLeptons.at(1)->pT() > 10.) ) and
                       met > 50;
 
@@ -582,7 +579,7 @@ namespace Gambit
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 100. and met < 250.) counter_cutflow("E02",event,w);
             if(mT2 >= 0. and mT2 < 80. and mlth <= 50. and met >= 250.) counter_cutflow("E03",event,w);
             if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >=  50. and met < 100.) counter_cutflow("E04",event,w);
-            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >= 100.) counter_cutflow("E05",event,w); 
+            if(mT2 >= 0. and mT2 < 80. and mlth >  50. and met >= 100.) counter_cutflow("E05",event,w);
 
             if(mT2 >= 80. and mlth <= 100. and met >=  50. and met < 150.) counter_cutflow("E06",event,w);
             if(mT2 >= 80. and mlth <= 100. and met >= 150.) counter_cutflow("E07",event,w);
@@ -699,12 +696,6 @@ namespace Gambit
 
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_CMS_13TeV_MultiLEP_137invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_MultiLEP_137invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
 
         virtual void collect_results()
         {
@@ -886,13 +877,16 @@ namespace Gambit
           add_result(SignalRegionData(_counters.at("K02"), 5., {5.2, 2.45}));
           add_result(SignalRegionData(_counters.at("K03"), 1., {0.61, 0.61}));
 
+          // Add cutflow data to the analysis results
+          add_cutflows(_cutflows);
+
           // Cutflow printout
           #ifdef CHECK_CUTFLOW
             //const double xsec = 5180.86; // 150 GeV winos
-            const double xsec = 3832.31; // 150 GeV higgsinos
+            //const double xsec = 3832.31; // 150 GeV higgsinos
             //const double xsec = 1165.09; // 225 GeV winos
             // const double xsec = 284.855; // 300 GeV higgsinos
-            //const double xsec = 121.013; // 400 GeV winos
+            const double xsec = 121.013; // 400 GeV winos
             //const double xsec = 46.3533; // 500 GeV winos
             //const double xsec = 20.1372; // 600 GeV winos
             //const double xsec = 2.49667; // 900 GeV winos
@@ -1187,6 +1181,6 @@ namespace Gambit
 
     // Factory fn
     DEFINE_ANALYSIS_FACTORY(CMS_13TeV_MultiLEP_4LEPTau_137invfb)
-   
+
   }
 }

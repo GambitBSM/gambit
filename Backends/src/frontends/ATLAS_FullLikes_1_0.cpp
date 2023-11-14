@@ -2,7 +2,7 @@
 //   *********************************************
 ///  \file
 ///
-///  Frontend source for the ATLAS_FullLikes 1.0 
+///  Frontend source for the ATLAS_FullLikes 1.0
 ///  backend.
 ///
 ///  *********************************************
@@ -30,20 +30,20 @@ BE_NAMESPACE
   {
     // Convert the std::map to a PyDict
     pybind11::dict n_sig_scaled;
-    
+
     for (auto mydict : SRsignal)
     {
       pybind11::str SRName = mydict.first;
       n_sig_scaled[SRName] = mydict.second;
     }
-    
+
     // Pull the delta LogLike from the backend
     double dll = FullLikes_Evaluate_pydict(n_sig_scaled,ana_name);
-    
+
     return dll;
   }
 #else
-  double FullLikes_Evaluate(std::map<str,double>& SRsignal, const str& ana_name)
+  double FullLikes_Evaluate(std::map<str,double>& , const str& )
   {
     backend_error().raise(LOCAL_INFO, "pybind11 has been excluded, but is required for the ATLAS_FullLikes backend.\n");
     return 0.0; // Just returning a number to be consistent with types

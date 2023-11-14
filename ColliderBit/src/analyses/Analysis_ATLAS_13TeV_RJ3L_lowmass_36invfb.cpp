@@ -56,17 +56,6 @@ namespace Gambit {
     class Analysis_ATLAS_13TeV_RJ3L_lowmass_36invfb : public Analysis {
 
     protected:
-      // Numbers passing cuts
-      std::map<string, EventCounter> _counters = {
-        {"2L2JHIGH", EventCounter("2L2JHIGH")},
-        {"2L2JINT", EventCounter("2L2JINT")},
-        {"2L2JLOW", EventCounter("2L2JLOW")},
-        {"2L2JCOMP", EventCounter("2L2JCOMP")},
-        {"3LHIGH", EventCounter("3LHIGH")},
-        {"3LINT", EventCounter("3LINT")},
-        {"3LLOW", EventCounter("3LLOW")},
-        {"3LCOMP", EventCounter("3LCOMP")},
-      };
 
     private:
 
@@ -247,7 +236,20 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_ATLAS_13TeV_RJ3L_lowmass_36invfb() {
+      Analysis_ATLAS_13TeV_RJ3L_lowmass_36invfb()
+      {
+
+        // Numbers passing cuts
+        _counters["2L2JHIGH"] = EventCounter("2L2JHIGH");
+        _counters["2L2JINT"] = EventCounter("2L2JINT");
+        _counters["2L2JLOW"] = EventCounter("2L2JLOW");
+        _counters["2L2JCOMP"] = EventCounter("2L2JCOMP");
+        _counters["3LHIGH"] = EventCounter("3LHIGH");
+        _counters["3LINT"] = EventCounter("3LINT");
+        _counters["3LLOW"] = EventCounter("3LLOW");
+        _counters["3LCOMP"] = EventCounter("3LCOMP");
+
+
 
         set_analysis_name("ATLAS_13TeV_RJ3L_lowmass_36invfb");
         set_luminosity(36.);
@@ -612,14 +614,14 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         for (const HEPUtils::Particle* muon : event->muons()) {
           if (muon->pT() > 10. && muon->abseta() < 2.4) baselineMuons.push_back(muon);
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;
@@ -632,7 +634,7 @@ namespace Gambit {
         //for (const HEPUtils::Particle* tau : event->taus()) {
           //if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         //}
-        //ATLAS::applyTauEfficiencyR1(baselineTaus);
+        //applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
 
         // Jets
@@ -2099,24 +2101,6 @@ namespace Gambit {
         return;
 
       } // end analyze method
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_RJ3L_lowmass_36invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_13TeV_RJ3L_lowmass_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-
-        for (int j=0; j<NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-
-      }
 
 
       virtual void collect_results() {

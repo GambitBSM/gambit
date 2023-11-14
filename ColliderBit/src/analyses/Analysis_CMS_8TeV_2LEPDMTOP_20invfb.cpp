@@ -28,9 +28,6 @@ namespace Gambit {
     class Analysis_CMS_8TeV_2LEPDMTOP_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _numSR;
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=24;
@@ -43,9 +40,10 @@ namespace Gambit {
       static constexpr const char* detector = "CMS";
 
       Analysis_CMS_8TeV_2LEPDMTOP_20invfb()
-        : _numSR(0),
-          NCUTS(6)
+        : NCUTS(6)
       {
+        _counters["SR" ] = EventCounter("SR");
+
         set_analysis_name("CMS_8TeV_2LEPDMTOP_20invfb");
         set_luminosity(19.7);
 
@@ -84,7 +82,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
 
         // Baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -95,7 +93,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        CMS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
 
         // All baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
@@ -196,26 +194,12 @@ namespace Gambit {
         }
 
         //We're now ready to apply the cuts for each signal region
-        //_numSR1, _numSR2, _numSR3;
 
-        if(passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.) _numSR += event->weight();
+        if(passPresel && met > 320. && jetPtSum < 400. && lepPtSum > 120. && dPhiLL < 2.) _counters["SR"].add_event(event);
 
         return;
       }
 
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_8TeV_2LEPDMTOP_20invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_8TeV_2LEPDMTOP_20invfb*>(other);
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-        _numSR += specificOther->_numSR;
-      }
 
 
       double loglikelihood() {
@@ -225,16 +209,16 @@ namespace Gambit {
 
       void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
-        add_result(SignalRegionData("SR", 1., {_numSR, 0.}, {1.89, 0.66}));
+        add_result(SignalRegionData(_counters["SR"], 1., {1.89, 0.66}));
 
         return;
       }
 
 
     protected:
-      void analysis_specific_reset() {
-        _numSR = 0;
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }
 
