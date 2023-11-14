@@ -5,6 +5,13 @@
 
 // \author Tomasz Procter
 // \date 2023 August
+//
+// Note 1: This analysis requires ONNXRunTime for the Neural Net signal regions.
+//
+// Note 2: The Gtb signal regions "SR_Gtb_[M,B,C]" don't work. They use the same variables as all
+//          the other regions, but my obtained cutflows are consistently greater by a factor of 2.
+//           I observed the same feature when coding the analysis up in Rivet.
+//           For now, I've commented out the `add_result` lines to make sure they're not accidentally used.
 ///  *********************************************
 
 #ifndef EXCLUDE_ONNXRUNTIME
@@ -41,6 +48,7 @@ using namespace std;
 
 // Very heavily inspired/copied from Rivet (to be fair, I wrote that too)
 // TODO: Exactly how we handle onnx files is probably a WiP.
+// TODO: The wrapper class in rivet has been generalised, would be good for completeness to have these updates here, too.
 class onnx_rt_wrapper{
   public:
   onnx_rt_wrapper(const string & filename, const string& runname = "GambitONNXrt"){
@@ -77,8 +85,6 @@ class onnx_rt_wrapper{
     _outType = out_tensor_info.GetElementType();
     _outputNodeDims = out_tensor_info.GetShape();
     // Check for -1's: This is an artifact of batch size issues.
-    // TODO: It's interesting that this is problematic in C++ and not in python.
-    // I'd like to know why.
     for (auto& i : _outputNodeDims){
       if (i < 0)
         i = abs(i);
@@ -97,7 +103,7 @@ class onnx_rt_wrapper{
     // create input tensor object from data values
     auto memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
     auto input_tensor = Ort::Value::CreateTensor<float>(memory_info, inputs.data(),
-                                                          inputs.size(), _inputNodeDims.data(), 2);//TODO: Understand this magic number
+                                                          inputs.size(), _inputNodeDims.data(), 2);
 
     //Work around for stupid pointer stuff
     const char* temp_inputNodeName = _inputNodeName.c_str();
@@ -127,16 +133,7 @@ class onnx_rt_wrapper{
   string _outputNodeName;  
 };
 
-#ifdef DEBUG_ONLY
-//DEBUG ONLY:
-template<typename T>
-void printvec(vector<T> v){
-  for (const T& t : v){
-    std::cout << t << ", ";
-  }
-  cout << std::endl;
-}
-#endif
+
 
 
 namespace Gambit {
@@ -351,13 +348,6 @@ namespace Gambit {
 
         #endif //CHECK_CUTFLOWS
 
-        // TODO: Debug only
-        #ifdef DEBUG_ONLY
-        _elfile.open("Electrons.gambit.debug.log");
-        _elfile << "Truth electrons, Loose electrons, tight electrons," << endl;
-        _mufile.open("Muons.gambit.debug.log");
-        _mufile << "Truth muons, Loose muons, tight muons," << endl;
-        #endif
       }
 
       // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
@@ -452,9 +442,6 @@ namespace Gambit {
                 && !(electron->abseta() > 1.37 && electron->abseta() < 1.52))
             electrons.push_back(electron);
         }
-        #ifdef DEBUG_ONLY
-        _elfile << electrons.size() << ", ";
-        #endif
 
         // Muons
         vector<const HEPUtils::Particle*> muons;
@@ -463,9 +450,6 @@ namespace Gambit {
               && muon->abseta() < 2.5)
             muons.push_back(muon);
         }
-        #ifdef DEBUG_ONLY
-        _mufile << muons.size() << ", ";
-        #endif
 
         // Get base and signal leptons CONSISTENTLY (i.e. all tight electrons are loose 
         //    electrons, never more signal than base etc.)
@@ -572,11 +556,6 @@ namespace Gambit {
         MuonJetOverlapRemoval(sigMuons,nonbJets);
         MuonJetOverlapRemoval(sigMuons,bJets);
         
-        #ifdef DEBUG_ONLY
-        _elfile << baseElectrons.size() << ", " << sigElectrons.size() << ",\n";
-        _mufile << baseMuons.size() << ", " << sigMuons.size() << ",\n";
-        #endif
-
         // Number of objects
         size_t nbJets = bJets.size();
         size_t nnonbJets = nonbJets.size();
@@ -687,12 +666,6 @@ namespace Gambit {
             const string param_string = to_string(param_point.first)+"_"+to_string(param_point.second);
             normalise_nn_parameters(nn_inputs);
             _nn->compute(nn_inputs, nn_outputs["Gtt_"+param_string]);
-            #ifdef DEBUG_ONLY
-            if (param_point.first == 1900){
-              // std::cout << "NN (postnorm): ";
-              // printvec(nn_inputs);
-            }
-            #endif
           }
           if (nn_outputs["Gtt_2100_1"][0] > 0.9997){
             _counters["SR_Gtt_2100_1"].add_event(event);
@@ -842,7 +815,6 @@ namespace Gambit {
         for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
 
         // TODO: Merge cutflows?
-
       }
 
 
@@ -850,7 +822,6 @@ namespace Gambit {
 
         // Now fill a results object with the results for each SR
         // TODO: prefit errors not present in table - using postfit errors as 1st approx
-        // TODO: Will this information be in the json?
         // NN SR's
         add_result(SignalRegionData(_counters.at("SR_Gtt_2100_1"), 0., {0.56, 0.4}));
         add_result(SignalRegionData(_counters.at("SR_Gtt_1800_1"), 0., {0.50, 0.27}));
@@ -867,9 +838,9 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR_Gbb_M"), 18, {14, 4}));
         add_result(SignalRegionData(_counters.at("SR_Gbb_C"), 32, {33, 9}));
 
-        add_result(SignalRegionData(_counters.at("SR_Gtb_B"), 8., {3, 0.9}));
-        add_result(SignalRegionData(_counters.at("SR_Gtb_M"), 1, {1.3, 0.6}));
-        add_result(SignalRegionData(_counters.at("SR_Gtb_C"), 4, {5.8, 2.2}));
+        // add_result(SignalRegionData(_counters.at("SR_Gtb_B"), 8., {3, 0.9}));
+        // add_result(SignalRegionData(_counters.at("SR_Gtb_M"), 1, {1.3, 0.6}));
+        // add_result(SignalRegionData(_counters.at("SR_Gtb_C"), 4, {5.8, 2.2}));
 
         add_result(SignalRegionData(_counters.at("SR_Gtt_0l_B"), 3., {0.87, 0.32}));
         add_result(SignalRegionData(_counters.at("SR_Gtt_0l_M1"), 1.3, {0.55, 0.6}));
@@ -885,12 +856,6 @@ namespace Gambit {
         #ifdef CHECK_CUTFLOWS
           _cutflows.print(std::cout);
         #endif //CHECK_CUTFLOWS
-
-        #ifdef DEBUG_ONLY
-        // TODO: Debug only
-        _elfile.close();
-        _mufile.close();
-        #endif
 
         return;
 
@@ -911,12 +876,6 @@ namespace Gambit {
       // Parameter points tested by the network explicitly in form {mglu, mneutralino}.
       const vector<pair<size_t, size_t>> _gtt_param_points {{1900,1400}, {1800,1}, {2100,1}, {2300,1200}};
       const vector<pair<size_t, size_t>> _gbb_param_points {{2000,1800}, {2100,1600}, {2300,1000}, {2800,1400}};
-
-      // TODO: DEBUG ONLY
-      #ifdef DEBUG_ONLY
-      std::ofstream _elfile; std::ofstream _mufile;
-      #endif
-
 
     };
 
