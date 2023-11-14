@@ -73,7 +73,7 @@ COMPULSORY:
 
  - gcc >= 9 / llvm clang >= 10 / AppleClang >= 13 / icc >= 15.0.2
  - gfortran >= 9 / ifort >=15.0.2
- - CMake 3.2.3 or greater
+ - CMake 3.16.3 or greater
  - Python 3
  - Python modules: yaml, future, os, re, datetime, sys, getopt, shutil and itertools.
  - git
