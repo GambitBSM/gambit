@@ -23,6 +23,7 @@
 ///  *********************************************
 
 #include <iostream>
+#include <exception>
 
 #include "gambit/Utils/yaml_parser_base.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -140,9 +141,55 @@ namespace Gambit
       // Read inifile file
       try
       {
-        root = YAML::LoadFile(filename);
+        // Edited below to allow general imports
+
+
+        // converts YAML file + all its !imports into a single string
+        std::function<std::string(const std::string&)> loadYamlRecursive = [&](const std::string& fname)
+        {
+          // load current YAML file
+          std::ifstream in(fname);
+
+          // read line by line into string
+          std::string contents;
+          std::string line;
+          while (std::getline(in, line))
+          {
+            // check if line starts with !import and append the imported file
+            // the other !imports will be treated as nodes, as usual
+            if (Utils::startsWith(line,"!import"))
+            {
+              int i = 7;
+              while (i < (int) line.size() && (line[i] == ' ' || line[i] == '\t')) ++i;
+              contents += loadYamlRecursive(std::string(line.begin()+i,line.end()));
+            }
+            // otherwise just append the line
+            else
+            {
+              contents += line;
+            }
+            // need a newline since getline deletes it
+            contents += '\n';
+          }
+
+          return contents;
+        };
+
+        // recursively load the YAML file and its imports
+        std::string combinedFileContents = loadYamlRecursive(filename);
+
+        // load the YAML file using the cstring constructor
+        root = YAML::Load(combinedFileContents.c_str());
       }
       catch (YAML::Exception &e)
+      {
+        std::ostringstream msg;
+        msg << "Error reading Inifile \""<<filename<<"\"! ";
+        msg << "Please check that file exist!" << endl;
+        msg << "(yaml-cpp error: "<<e.what()<<" )";
+        inifile_error().raise(LOCAL_INFO,msg.str());
+      }
+      catch (std::exception& e)
       {
         std::ostringstream msg;
         msg << "Error reading Inifile \""<<filename<<"\"! ";
