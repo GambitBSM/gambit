@@ -604,7 +604,7 @@ namespace Gambit
       // Standard Model value for CLL
       // Took this from Table 1 in Bednyakov et al
       const double CLLSM = 4.1;
-      const double CLLSM_uncert = 0.5;
+      // const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
       std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
@@ -655,7 +655,7 @@ namespace Gambit
       // Standard Model value for CLL
       // Took this from Table 1 in Bednyakov et al
       const double CLLSM = 4.1;
-      const double CLLSM_uncert = 0.5;
+      // const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
       std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
@@ -731,7 +731,7 @@ namespace Gambit
       // Standard Model value for CLL
       // Took this from Table 1 in Bednyakov et al
       const double CLLSM = 4.1;
-      const double CLLSM_uncert = 0.5;
+      // const double CLLSM_uncert = 0.5;
 
       // Extract Wilson coefficients from model
       std::complex<double> CVLL = {param["Re_DeltaCLL_V"], param["Im_DeltaCLL_V"]};
@@ -858,7 +858,7 @@ namespace Gambit
 
       // SM prediction for BR(B_u+ -> K+ nu nu), from 2107.01080
       const double BuKnunuSM = 4.6e-6;
-      const double BuKnunuSM_uncert = 0.5e-6;
+      // const double BuKnunuSM_uncert = 0.5e-6;
 
       result = *Dep::BuKnunu / BuKnunuSM;
     }
@@ -871,7 +871,7 @@ namespace Gambit
       // SM prediction for BR(B -> Kstar nu nu), from 2107.01080
       // TODO: I think this is outdated, check
       const double BKstarnunuSM = 8.4e-6;
-      const double BKstarnunuSM_uncert = 1.5e-6;
+      // const double BKstarnunuSM_uncert = 1.5e-6;
 
       result = *Dep::BKstarnunu / BKstarnunuSM;
     }
@@ -1844,7 +1844,7 @@ namespace Gambit
 
       const double theory = *Dep::BKnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -1867,7 +1867,7 @@ namespace Gambit
 
       const double theory = *Dep::BKnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -1890,7 +1890,7 @@ namespace Gambit
 
       const double theory = *Dep::BuKnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -1913,7 +1913,7 @@ namespace Gambit
 
       const double theory = *Dep::BuKnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -1958,7 +1958,7 @@ namespace Gambit
 
       const double theory = *Dep::BKstarnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -1981,7 +1981,7 @@ namespace Gambit
 
       const double theory = *Dep::BKstarnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -2004,7 +2004,7 @@ namespace Gambit
 
       const double theory = *Dep::BuKstarnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -2027,7 +2027,7 @@ namespace Gambit
 
       const double theory = *Dep::BuKstarnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -2050,7 +2050,7 @@ namespace Gambit
 
       const double theory = *Dep::BKnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -2073,7 +2073,7 @@ namespace Gambit
 
       const double theory = *Dep::BuKnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -2096,7 +2096,7 @@ namespace Gambit
 
       const double theory = *Dep::BKstarnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);
@@ -2119,7 +2119,7 @@ namespace Gambit
 
       const double theory = *Dep::BuKstarnunu;
       // TODO: Deal properly with theory uncertainty
-      const double theory_variance = 0.001;
+      // const double theory_variance = 0.001;
 
       // TODO: Implement theory uncertainty of HL_Limit
       result = Limit.GetLogLikelihood(theory);

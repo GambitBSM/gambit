@@ -34,6 +34,7 @@
     // Turn off some warnings
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     #pragma GCC diagnostic ignored "-Wdeprecated-copy"
+    #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
   #endif
 
   // Clang:
@@ -46,6 +47,7 @@
     // Turn off some warnings
     #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     #pragma clang diagnostic ignored "-Wdeprecated-copy"
+    #pragma clang diagnostic ignored "-Wmaybe-uninitialized"
   #endif
 
 #endif

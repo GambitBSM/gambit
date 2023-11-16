@@ -24,6 +24,7 @@
 #ifndef __util_functions_hpp__
 #define __util_functions_hpp__
 
+#include <iosfwd>
 #include <vector>
 #include <chrono>
 #include <cmath>
@@ -275,6 +276,9 @@ namespace Gambit
 
     // check if file exists (without C++17 and without boost)
     EXPORT_SYMBOLS bool check_file_exists(const std::string name);
+
+    // convert file to string
+    EXPORT_SYMBOLS std::string to_string(std::ifstream& in);
 
     // convert complex number to string
     EXPORT_SYMBOLS std::string to_string(const std::complex<double> d);

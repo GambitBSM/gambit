@@ -505,6 +505,13 @@ namespace Gambit
       return tmp.str();
     }
 
+    std::string to_string(std::ifstream& in)
+    {
+        std::stringstream strStream;
+        strStream << in.rdbuf();
+        return strStream.str();
+    }
+
     // replaces num_occurnces substrings with a replacement, -1 to replace all
     std::string replace(const std::string mainstring, const std::string substring, const std::string replacement, const int num_occurences)
     {

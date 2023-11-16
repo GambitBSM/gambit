@@ -4722,6 +4722,8 @@ namespace Gambit
       using namespace thdm;
       using namespace Utils;
 
+      (void)isDM; // suppress warning
+
       const SubSpectrum& he = spec.get_HE();
       const SubSpectrum& le = spec.get_LE();
       const SMInputs& sm = spec.get_SMInputs();
