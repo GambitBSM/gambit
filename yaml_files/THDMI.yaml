@@ -27,53 +27,39 @@ Parameters:
     # the models described so far are tree-level. 'atQ' is suffixed for loop-level models
     # which use a FlexibleSUSY spectrum generator, e.g. 'THDMI_higgsatQ'
 
-    THDMIatQ:
-
-      # model parameters are specified here
-      # generic basis:      lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tanb
-      # Higgs basis:        Lambda1, Lambda2, Lambda3, Lambda4, Lambda5, Lambda6, Lambda7, M12_2, tanb
-      # Physical basis:     mh, mH, mA, mHp, lambda6, lambda7, m12_2, sba, tanb
-      # hybrid_Higgs basis: mh, mH, cba, tanb, Lambda4, Lambda5, Lambda7, lambda6, lambda7
-
-      # for the general model, we must also specify the Yukawas
-      # yu2_re_ij, yu2_im_ij, yd2_re_ij, yd2_im_ij, yl2_re_ij, yl2_im_ij, 
-      # where we have a separate parameter for each i,j (which run from 1 to 3)
-      
-      # lower limit on lambda1,2 of 0 required for vacuum stability
-      # limit on |lambda1,...,7| of 4pi required for perturbativity
-      # lambda6,7 set to 0 for Z2-symmetric scalar sector (to avoid large FCNCs at 1-loop level)
-      # lower limit of tanb due to perturbativity of top Yukawa coupling
-      # range of m12_2 hard to justify so we use a logarithmic prior over a large region
-      #      but m12_2 too low tends to cause negative masses
-
+    THDMI:
       lambda1:
-          range: [0, 12.5664]
-          prior_type: flat
+          range: [5, 13]
+          prior_type: pow
+          power: 6
+          shift: -5
+          output_scaled_values: false
+          # scale: 0.01
       lambda2:
-          range: [0, 12.5664]
-          prior_type: flat
+          range: [0, 13]
+          prior_type: pow
+          power: 6
+          # scale: 0.01
       lambda3:
-          range: [-12.5664, 12.5664]
+          range: [-13, 13]
           prior_type: flat
       lambda4:
-          range: [-12.5664, 12.5664]
+          range: [-13, 13]
           prior_type: flat
       lambda5:
-          range: [-12.5664, 12.5664]
+          range: [-13, 13]
           prior_type: flat
       lambda6:
           fixed_value: 0.0
       lambda7:
           fixed_value: 0.0
       m12_2:
-          range: [0, 2e3]
-          prior_type: flat
+          ranges: [-1e1, -1e0, 1e6, 1e10]
+          prior_type: double_log_flat_join
       tanb:
-          range: [0.2, 50]
+          range: [0.03, 320]
           prior_type: flat
-      Qin:
-          fixed_value: 91.1876 # = mZ
-
+      # Qin: 91.1876 # = mZ
 
 #################################
 ##     PRINTER SELECTION       ##
@@ -84,16 +70,16 @@ Printer:
 
   # printer: cout
 
-  printer: ascii
-  options:
-    buffer_length: 100
-    output_file: "scan.txt"
-
-  # printer: hdf5
+  # printer: ascii
   # options:
-  #   output_file: "scan.hdf5"
-  #   group: "/data"
-  #   delete_file_on_restart: true
+  #   buffer_length: 100
+  #   output_file: "scan.txt"
+
+  printer: hdf5
+  options:
+    output_file: "scan.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
 
 
 #################################
@@ -109,15 +95,15 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 2000
+      point_number: 1000
       like:  LogLike
 
     differentialEvolution:
       plugin: diver
       like: LogLike
-      aux_printer_txt_options:
-      aux_printer_stats_options:
-      aux_printer_live_options:
+      # aux_printer_txt_options:
+      # aux_printer_stats_options:
+      # aux_printer_live_options:
       verbosity: 0
 
       # turning this off will use the less aggressive jDE self-adaptive optimization
@@ -136,13 +122,13 @@ Scanner:
       NP: 2000
 
       # when the average generation improvement falls below this, we stop the scan
-      convthresh: 1e-5
+      convthresh: 1e-15
 
       # try to fill the first generation with only valid points (1), or use any point (0)
       init_population_strategy: 0
 
       # don’t give up on initial generation
-      max_initialisation_attempts: 1000000
+      max_initialisation_attempts: 1000000000
 
       # set the acceptable value to coincide with our invalidation threshold
       max_acceptable_value: 9e5 # (invalid for < -1e6)
@@ -156,73 +142,52 @@ Scanner:
 ObsLikes:
 
   #-------------------------------------#
-  #      THEORETICAL LIKELIHOODS        #
+  #      THEORETICAL CONSTRAINTS        #
   #-------------------------------------#
 
-  # Checks that the LO or NLO scattering-matrix is unitary
-  # Calculates and applies limit on eigenvalues of matrix
-  # Likelihood type: Half-Gaussian
-  # Only supports CP-conserving models
-  # Unitarity of the S-matrix at next leading order (includes leading order too)
-  - purpose:    LogLike
-    capability: unitarity_LogLikelihood_THDM
-    # function: NLO_unitarity_LogLikelihood_THDM
-    function: LO_unitarity_LogLikelihood_THDM
+  # simple theory constraints applied BEFORE spectrum generation
+  - purpose: LogLike
+    capability: basic_theory_LogLikelihood_THDM
 
-  # Stability of the 2HDM Potential
-  # Applies the THDM stability constraints on the potential
-  # NOTE: This likelihood has two parts, described below
-  # (i) Applies strict stability constraint
-  # Likelihood type: Acceptance/Rejection
-  # (ii) If rejected, applies looser stabililty constraints
-  # Likelihood type: Half-Gaussian
-  - purpose:    LogLike
-    capability: stability_LogLikelihood_THDM
+  # # check if we can run spectrum without error
+  # - purpose: LogLike
+  #   capability: runToScaleTest_LogLikelihood_THDM
 
-  # # Perturbativity check on h0 mass loop-corrections
-  # # Checks that loop corrections to the pole mass of mh0
-  # # do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
+  # # Checks that the LO or NLO S-matrix is unitary
   # - purpose:    LogLike
-  #   capability: light_scalar_mass_corrections_LogLikelihood_THDM
+  #   capability: unitarity_LogLikelihood_THDM
+  #   # function: NLO_unitarity_LogLikelihood_THDM
+  #   function: LO_unitarity_LogLikelihood_THDM
 
-  # # Checks that loop corrections to the pole masses of mH0,
-  # # mA0, mHpm do not exceed 50% of the input mass at Qin
-  # # Likelihood type: Acceptance/Rejection
-  # # Perturbativity check on other scalar mass loop-corrections
+  # # guides scanner towards mh = 125 GeV
   # - purpose:    LogLike
-  #   capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
+  #   capability: higgs_exp_mass_LogLikelihood_THDM
 
-  # enforces a mass range for all scalars from the yaml
-  # these are specified by the run options (given below):
-  # (*) maximum_scalar_mass
-  # (*) minimum_scalar_mass
-  # Likelihood type: Acceptance/Rejection
-  - purpose:    LogLike
-    capability: scalar_mass_range_LogLikelihood_THDM
+  # # only keeps points that correspond to regular Higgs scenario
+  # - purpose:    LogLike
+  #   capability: higgs_scenario_LogLikelihood_THDM
 
-  # Perturbativity check on lambdas and scalar couplings
-  # Calculates all quartic Higgs couplings in the physical
-  # basis & applies a 4pi perturbativity constraint on each
-  # Likelihood type: Half-Gaussian
+  # # Stability + meta-stability of the 2HDM Potential
+  # - purpose:    LogLike
+  #   capability: stability_LogLikelihood_THDM
+
+  # # Perturbativity check of scalar mass corrections
+  # - purpose:    LogLike
+  #   capability: scalar_mass_corrections_LogLikelihood_THDM
+
+  # Perturbativity check of scalar couplings
   - purpose:    LogLike
     capability: perturbativity_LogLikelihood_THDM
     function: perturbativity_LogLikelihood_THDM
-    # alternative simple perturbativity constraint which only checks lambdas
     # function: perturbativity_lambdas_LogLikelihood_THDM
 
-  # perturbativity constraint on yukawas
-  - purpose:    LogLike
-    capability: perturbativity_yukawas_LogLikelihood_THDM
+  # # Perturbativity check of yukawa couplings
+  # - purpose:    LogLike
+  #   capability: perturbativity_yukawas_LogLikelihood_THDM
     
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #
   #-------------------------------------#
-
-  ### NOTE
-  # # LHC & LEP likelihoods
-  # # Coupling Squared input structs are filled by colliderBit,
-  # # then chi^2 are extracted directly from HS & HB
 
   # # HiggsSignals 2.5.0 likelihood
   # - capability: LHC_Higgs_LogLike
@@ -234,9 +199,8 @@ ObsLikes:
   #   function: calc_HB_5_LEP_LogLike
   #   purpose: LogLike
 
-
   #-------------------------------------#
-  #      PRECISION LIKELIHOODS          #
+  #      ELECTROWEAK LIKELIHOODS        #
   #-------------------------------------#
 
   # # Calculates the electroweak precision parameters, S, T, U, V, W, X
@@ -458,10 +422,55 @@ ObsLikes:
 
 Rules:
 
+  - capability: basic_theory_LogLikelihood_THDM
+    options:
+      only_perturbativity: false
+
+  - capability: runToScaleTest_LogLikelihood_THDM
+    options:
+      check_other_scale: 1000
+
+    # set check_other_scale to some extra scale to 
+    # check constraint at, or -1 to skip this
+    # note that input scale is always checked
+  - capability: perturbativity_LogLikelihood_THDM
+    options:
+      check_other_scale: 1000
+
+  - capability: scalar_mass_corrections_LogLikelihood_THDM
+    options:
+      check_other_scale: -1
+
+  - capability: stability_LogLikelihood_THDM
+    options:
+      check_other_scale: -1
+      check_metastability: true
+
+  - capability: unitarity_LogLikelihood_THDM
+    options:
+      check_other_scale: -1
+      # options below only for NLO unitarity
+      check_correction_ratio: true
+      wave_function_corrections: false
+      gauge_corrections: true
+      yukawa_corrections: true
+
+  - capability: higgs_exp_mass_LogLikelihood_THDM
+    options:
+      higgs_mass_uncertainty: 3.5
+      valid_range: 200
+
+  - capability: higgs_scenario_LogLikelihood_THDM
+    options:
+      hidden_higgs_scenario: false
+
   - capability: THDM_spectrum
     type: map_str_dbl
     options:
       print_minimal_yukawas: true
+
+  - capability: Higgs_Couplings
+    function: THDM_higgs_couplings_2HDMC
 
   - capability: prediction_B2KstarmumuBr_*
     options:
@@ -507,9 +516,6 @@ Rules:
     options:
       obs_list: [A3, A4, A5, A6, A7, A8, A9] 
 
-  - capability: THDM_spectrum
-    type: Spectrum
-    function: get_THDM_spectrum
 
   - capability: decay_rates
     function: all_decays
@@ -518,36 +524,6 @@ Rules:
     function: get_decaytable_as_map
     options:
       printall: true
-
-    # set check_other_scale to some extra scale to 
-    # check constraint at, or -1 to skip this
-    # note that input scale is always checked
-  - capability: perturbativity_LogLikelihood_THDM
-    options:
-      check_other_scale: -1
-
-  - capability: stability_LogLikelihood_THDM
-    options:
-      check_other_scale: -1
-      check_metastability: true
-
-  - capability: unitarity_LogLikelihood_THDM
-    options:
-      check_other_scale: -1
-      # options below only for NLO unitarity
-      check_correction_ratio: true
-      wave_function_corrections: false
-      gauge_corrections: true
-      yukawa_corrections: true
-
-  - capability: scalar_mass_range_LogLikelihood_THDM
-    options:
-      check_other_scale: -1
-      minimum_scalar_mass: 0
-      maximum_scalar_mass: 4000
-
-  - capability: Higgs_Couplings
-    function: THDM_higgs_couplings_2HDMC
 
   - capability: Reference_SM_Higgs_decay_rates
     function: Ref_SM_Higgs_decays_THDM
@@ -597,6 +573,8 @@ Logger:
 
 KeyValues:
 
+  print_scanID: false
+
   likelihood:
     print_invalid_points: false
     model_invalid_for_lnlike_below: -1e6
@@ -613,5 +591,5 @@ KeyValues:
     dependency_resolver_warning: non-fatal
     core_warning: fatal
 
-  default_output_path: "runs/THDMI"
+  default_output_path: "runs/THDMI/testA"
   debug: false

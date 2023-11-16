@@ -45,13 +45,13 @@ Parameters:
 
 Printer:
 
-  printer: cout
+  # printer: cout
 
-  # printer: hdf5
-  # options:
-  #   output_file: "scan.hdf5"
-  #   group: "/data"
-  #   delete_file_on_restart: true
+  printer: hdf5
+  options:
+    output_file: "scan.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
 
   # printer: hdf5_v1
   # options:
@@ -90,7 +90,7 @@ Scanner:
       # Information about input dataset to be postprocessed
       reader:
         type: hdf5
-        file: "../flavSamps_16_MAY.hdf5"
+        file: "../data/mhpSpike_29_AUG_2023_40000points.hdf5"
         group: "/data"
 
 
@@ -263,13 +263,17 @@ ObsLikes:
 ##          OBSERVABLES        ##
 #################################
 
-  - capability: prediction_B2KstarmumuAng_Atlas
-    purpose: Observable
+  # - capability: prediction_B2KstarmumuAng_Atlas
+  #   purpose: Observable
+  #   sub_capabilities: [FL, S3, S4, S5, S7, S8]
 
-  - capability: prediction_B2mumu
-    function: SuperIso_prediction_B2mumu
-    purpose: Observable
-    sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
+  # - capability: prediction_B2KstarmumuBr
+  #   purpose: Observable
+
+  # - capability: prediction_B2mumu
+  #   function: SuperIso_prediction_B2mumu
+  #   purpose: Observable
+  #   sub_capabilities: [BRuntag_Bsmumu, BR_Bdmumu]
 
   # entire 2HDM spectrum
   - capability: THDM_spectrum
@@ -430,5 +434,5 @@ KeyValues:
     dependency_resolver_warning: non-fatal
     core_warning: fatal
 
-  default_output_path: "runs/THDMI_HH/tmp"
+  default_output_path: "../runs/postprocessor"
   debug: false

@@ -78,7 +78,7 @@ namespace Gambit
         }
         catch(...)
         {
-          std::cout << "Debug: SpecBit throwing invalid point when running" << std::endl; // TODO: remove this
+         //  std::cout << "Debug: SpecBit throwing invalid point when running" << std::endl; // TODO: remove this
           invalid_point().raise("FS Invalid Point: RunToScale Failed");
         }
         // get DR bar masses
@@ -410,24 +410,24 @@ namespace Gambit
       template <class Model>
       double get_M12_2(const Model& model)
       {
-         double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
-         double b = atan(get_tanb(model)), c2b = cos(2.*b), s2b = sin(2.*b);
-         return 0.5*(m11_2-m22_2)*s2b + m12_2*c2b;
+         double b = atan(get_tanb(model)), s2b = sin(2.*b), c2b = cos(2.*b);
+         double m11_2 = model.get_M112(), m12_2 = model.get_M122(), m22_2 = model.get_M222();
+         return (m11_2-m22_2)*s2b + m12_2*c2b;
       }
 
       template <class Model>
       double get_M11_2(const Model& model)
       {
-         double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
          double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
+         double m11_2 = model.get_M112(), m12_2 = model.get_M122(), m22_2 = model.get_M222();
          return m11_2*pow(cb,2) + m22_2*pow(sb,2) - m12_2*s2b;
       }
 
       template <class Model>
       double get_M22_2(const Model& model)
       {
-         double m12_2 = model.get_M122(), m11_2 = model.get_M112(), m22_2 = model.get_M222();
          double b = atan(get_tanb(model)), cb = cos(b), sb = sin(b), s2b = sin(2.*b);
+         double m11_2 = model.get_M112(), m12_2 = model.get_M122(), m22_2 = model.get_M222();
          return m11_2*pow(sb,2) + m22_2*pow(cb,2) + m12_2*s2b;
       }
 

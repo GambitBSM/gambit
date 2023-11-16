@@ -196,6 +196,7 @@ namespace Gambit
       double lam1 = get_lambda1(), lam345 = get_lambda3() + get_lambda4() + get_lambda5(), lam6 = get_lambda6(), lam7 = get_lambda7();
       return m12_2*tan(b) - 0.5*pow(vev,2) * (lam1*cb*cb + lam345*sb*sb + 3.0*lam6*sb*cb + lam7*sb*sb*tan(b));
     }
+    
     double THDMea::get_m22_2() const
     {
       double m12_2 = get_m12_2(), b = get_beta(), cb = cos(b), sb = sin(b), vev = get_vev();

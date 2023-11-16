@@ -30,24 +30,6 @@ namespace Gambit
 {
    namespace SpecBit
    {
-      // NaN
-      constexpr double nan = std::numeric_limits<double>::quiet_NaN();
-
-      // initiate a THDM basis map
-      std::map<std::string, double> create_empty_THDM_basis();
-
-      // print a THDM basis map
-      void print_THDM_spectrum(std::map<std::string, double>& basis);
-
-      // checks that the basis map contains all necessary basis keys
-      bool check_basis(const std::vector<std::string> basis_keys, std::map<std::string, double> basis);
-
-      // this is the main method called to generate a THDM spectrum (tree-level)
-      // takes in an THDM basis map with at least one filled in basis
-      // and returns a complete THDM basis map
-      // this routines also calculates alpha
-      void generate_THDM_spectrum_tree_level(std::map<std::string, double>& basis, const SMInputs& sminputs);
-
       // additional type definitions
       enum scalar_type
       {
@@ -72,6 +54,8 @@ namespace Gambit
          FILL_YUKAWAS = 1<<5,
       };
 
+      constexpr double nan = std::numeric_limits<double>::quiet_NaN();
+
       // simple structure for passing around 2HDM parameters at a fixed scale
       // with simple variable names so that you don't need to unwrap them
       struct ThdmSpec
@@ -94,24 +78,8 @@ namespace Gambit
          ThdmSpec(const SubSpectrum& he, const int fill_type = 0xFFFF);
       };
 
-      // main function to get cubic higgs coupling
-      complexd get_cubic_coupling_higgs(const ThdmSpec &s, scalar_type p1, scalar_type p2, scalar_type p3);
-
-      // main function to get quartic higgs couplings
-      complexd get_quartic_coupling_higgs(const ThdmSpec &s, scalar_type p1, scalar_type p2, scalar_type p3, scalar_type p4);
-
-      // puts together a vector of cubic higgs couplings (necessary for NLO unitarity calculation)
-      std::vector<complexd> get_cubic_coupling_higgs(const ThdmSpec &s, const bool use_physical_basis = true);
-    
-      // puts together a vector of quartic higgs couplings (necessary for NLO unitarity calculation)
-      std::vector<complexd> get_quartic_couplings(const ThdmSpec &s, const bool use_physical_basis = true);
-
-      // get the NLO unitarity scattering eigenvalues
-      std::vector<complexd> get_NLO_scattering_eigenvalues(const ThdmSpec &s, const std::vector<complexd>& C3, const std::vector<complexd>& C4, const bool wave_function_corrections, const bool gauge_corrections, const bool yukawa_corrections);
-
       // helper function to ensure that the 2HDM scalar sector is Z2 symmetric
       void check_Z2(const double lambda6, const double lambda7, const str calculation_name);
-
    }
 
 }

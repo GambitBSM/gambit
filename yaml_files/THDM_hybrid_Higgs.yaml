@@ -27,7 +27,7 @@ Parameters:
     # the models described so far are tree-level. 'atQ' is suffixed for loop-level models
     # which use a FlexibleSUSY spectrum generator, e.g. 'THDMI_higgsatQ'
 
-    # THDMIatQ:
+    # THDMI:
     THDMI_hybrid_HiggsatQ:
 
       # model parameters are specified here
@@ -78,7 +78,6 @@ Parameters:
       Qin:
         fixed_value: 91.1876 # = mZ
 
-
 #################################
 ##     PRINTER SELECTION       ##
 #################################
@@ -93,19 +92,19 @@ Printer:
   #   buffer_length: 100
   #   output_file: "scan.txt"
 
-  printer: hdf5
-  options:
-    output_file: "scan.hdf5"
-    group: "/data"
-    delete_file_on_restart: true
-
-  # unfortunately the new hdf5 printer is buggy!
-  # printer: hdf5_v1
+  # printer: hdf5
   # options:
   #   output_file: "scan.hdf5"
   #   group: "/data"
-  #   delete_file_on_restart: false
-  #   disable_combine_routines: true
+  #   delete_file_on_restart: true
+
+  # unfortunately the new hdf5 printer is buggy!
+  printer: hdf5_v1
+  options:
+    output_file: "scan.hdf5"
+    group: "/data"
+    delete_file_on_restart: false
+    disable_combine_routines: true
 
 
 #################################
@@ -121,7 +120,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 200000
+      point_number: 10
       like:  LogLike
 
     differentialEvolution:
@@ -175,10 +174,10 @@ ObsLikes:
   # Likelihood type: Half-Gaussian
   # Only supports CP-conserving models
   # Unitarity of the S-matrix at next leading order (includes leading order too)
-  - purpose:    LogLike
-    capability: unitarity_LogLikelihood_THDM
-    function: NLO_unitarity_LogLikelihood_THDM
-    # function: LO_unitarity_LogLikelihood_THDM
+  # - purpose:    LogLike
+  #   capability: unitarity_LogLikelihood_THDM
+  #   # function: NLO_unitarity_LogLikelihood_THDM
+  #   function: LO_unitarity_LogLikelihood_THDM
 
   # # prevents Higgs pole mass from going out of set range (soft-cutoff)
   # - purpose:    LogLike
@@ -219,15 +218,17 @@ ObsLikes:
   # - purpose:    LogLike
   #   capability: scalar_mass_range_LogLikelihood_THDM
 
-  # # Perturbativity check on lambdas and scalar couplings
-  # # Calculates all quartic Higgs couplings in the physical
-  # # basis & applies a 4pi perturbativity constraint on each
-  # # Likelihood type: Half-Gaussian
-  # - purpose:    LogLike
-  #   capability: perturbativity_LogLikelihood_THDM
-  #   function: perturbativity_LogLikelihood_THDM
-  # #   alternative simple perturbativity constraint which only checks lambdas
-  # #   function: perturbativity_lambdas_LogLikelihood_THDM
+  # Perturbativity check on lambdas and scalar couplings
+  # Calculates all quartic Higgs couplings in the physical
+  # basis & applies a 4pi perturbativity constraint on each
+  # Likelihood type: Half-Gaussian
+  - purpose:    LogLike
+    capability: perturbativity_LogLikelihood_THDM
+    function: perturbativity_LogLikelihood_THDM
+
+
+  #   alternative simple perturbativity constraint which only checks lambdas
+  #   function: perturbativity_lambdas_LogLikelihood_THDM
 
   # # perturbativity constraint on yukawas
   # - purpose:    LogLike
@@ -467,6 +468,12 @@ ObsLikes:
   # - purpose:      Observable
   #   capability:   prediction_Upar
 
+  - capability: couplingtable_THDM
+    purpose: Observable
+    # function: get_coupling_table_THDMC
+    function: get_coupling_table_using_physical_basis
+    # function: get_coupling_table_using_Higgs_basis
+
   # entire 2HDM spectrum
   - capability: THDM_spectrum
     type: map_str_dbl
@@ -604,6 +611,19 @@ ObsLikes:
 
 Rules:
 
+  # - capability: couplingtable_THDM
+  #   # function: get_coupling_table_using_invariant_basis
+  #   function: get_coupling_table_using_physical_basis
+
+  - capability: perturbativity_LogLikelihood_THDM
+    function: perturbativity_LogLikelihood_THDM
+    dependencies:
+      - capability: couplingtable_THDM
+        # function: get_coupling_table_THDMC
+        function: get_coupling_table_using_Higgs_basis
+        # function: get_coupling_table_using_physical_basis
+        module: SpecBit
+
   - capability: Higgs_decay_rates
     function: h0_1_decays_THDM
   - capability: h0_2_decay_rates
@@ -622,7 +642,6 @@ Rules:
     function: Ref_SM_other_Higgs_decays_THDM
   - capability: Reference_SM_A0_decay_rates
     function: Ref_SM_A0_decays_THDM
-
 
   - capability: RK_LogLikelihood_LHCb
     function: RK_LogLikelihood_LHCb
@@ -649,7 +668,7 @@ Rules:
 
   - capability: THDM_spectrum
     type: Spectrum
-    function: get_THDM_spectrum
+    # function: get_THDM_spectrum
     options:
       use_speedhacks: false
 

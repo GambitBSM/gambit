@@ -75,7 +75,7 @@ Parameters:
     #       fixed_value: 91.1876 # = mZ
 
 
-    THDMI_hybrid_HiggsatQ:
+    THDMIatQ:
 
       # model parameters are specified here
       # generic basis:      lambda1, lambda2, lambda3, lambda4, lambda5, lambda6, lambda7, m12_2, tanb
@@ -167,7 +167,7 @@ Scanner:
 
     random:
       plugin: random
-      point_number: 10000
+      point_number: 1
       like:  LogLike
 
     differentialEvolution:
@@ -216,23 +216,23 @@ ObsLikes:
   # Checks that loop corrections to the pole mass of mh0
   # do not exceed 50% of the input mass at Qin
   # Likelihood type: Acceptance/Rejection
-  # - purpose:    LogLike
-  #   capability: light_scalar_mass_corrections_LogLikelihood_THDM
+  - purpose:    LogLike
+    capability: light_scalar_mass_corrections_LogLikelihood_THDM
 
-  # # # Checks that loop corrections to the pole masses of mH0,
-  # # # mA0, mHpm do not exceed 50% of the input mass at Qin
-  # # # Likelihood type: Acceptance/Rejection
-  # # # Perturbativity check on other scalar mass loop-corrections
-  # # - purpose:    LogLike
-  # #   capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
+  # Checks that loop corrections to the pole masses of mH0,
+  # mA0, mHpm do not exceed 50% of the input mass at Qin
+  # Likelihood type: Acceptance/Rejection
+  # Perturbativity check on other scalar mass loop-corrections
+  - purpose:    LogLike
+    capability: heavy_scalar_mass_corrections_LogLikelihood_THDM
 
-  # # # enforces a mass range for all scalars from the yaml
-  # # # these are specified by the run options (given below):
-  # # # (*) maximum_scalar_mass
-  # # # (*) minimum_scalar_mass
-  # # # Likelihood type: Acceptance/Rejection
-  # # - purpose:    LogLike
-  # #   capability: scalar_mass_range_LogLikelihood_THDM
+  # enforces a mass range for all scalars from the yaml
+  # these are specified by the run options (given below):
+  # (*) maximum_scalar_mass
+  # (*) minimum_scalar_mass
+  # Likelihood type: Acceptance/Rejection
+  - purpose:    LogLike
+    capability: scalar_mass_range_LogLikelihood_THDM
 
   # Perturbativity check on lambdas and scalar couplings
   # Calculates all quartic Higgs couplings in the physical
@@ -244,9 +244,9 @@ ObsLikes:
     # alternative simple perturbativity constraint which only checks lambdas
     # function: perturbativity_lambdas_LogLikelihood_THDM
 
-  # # perturbativity constraint on yukawas
-  # - purpose:    LogLike
-  #   capability: perturbativity_yukawas_LogLikelihood_THDM
+  # perturbativity constraint on yukawas
+  - purpose:    LogLike
+    capability: perturbativity_yukawas_LogLikelihood_THDM
 
   #-------------------------------------#
   #      COLLIDER LIKELIHOODS           #

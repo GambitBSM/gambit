@@ -483,6 +483,8 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
   const double Lam6_max = 6.0;
   const double Lam1_max = 4.0;
 
+  // --- alternative A (rescale cosba)
+
   const double delta = 1.0;
   if (mH2 > Lam1_max*v2 + delta)
   {
@@ -491,6 +493,17 @@ void MODEL_NAMESPACE::THDMI_hybrid_Higgs_to_THDMI(const ModelParameters &myP, Mo
     // rescale cosba so that we dont waste time with non-perturbative values
     cba *= cosba_max;
   }
+
+  // --- alternative B (rescale mH2)
+
+  // const double mH_lim = 1e5; // from yaml file
+  // double mH_max = sqrt((Lam1_max*v2+mh2)/sq(cba));
+  
+  // if (mH_max < mH_lim)
+  //   mH2 *= sq(mH_max / mH_lim);
+
+  // -------
+
 
   // calc angles
   double beta = std::atan(tanb);
@@ -564,6 +577,32 @@ void MODEL_NAMESPACE::THDMI_hybrid_HiggsatQ_to_THDMIatQ(const ModelParameters &m
   double lambda6 = myP.getValue("lambda6");
   double lambda7 = myP.getValue("lambda7");
   double v2 = 1./(sqrt(2)*sminputs.GF);
+
+  // maximum absolute values of Lam1, Lam6 set by theory constraints
+  // (the more conservative perturbativity limit is 4*pi)
+  const double Lam6_max = 2.0;
+  const double Lam1_max = 1.5;
+
+  // --- alternative A (rescale cosba)
+
+  const double delta = 1.0;
+  if (mH2 > Lam1_max*v2 + delta)
+  {
+    // maximum possible value of |cos(b-a)|
+    double cosba_max = std::min(1.0, Lam6_max*v2/sqrt((mH2-mh2)*(mH2-Lam1_max*v2)));
+    // rescale cosba so that we dont waste time with non-perturbative values
+    cba *= cosba_max;
+  }
+
+  // --- alternative B (rescale mH2)
+
+  // const double mH_lim = 1e5; // from yaml file
+  // double mH_max = sqrt((Lam1_max*v2+mh2)/sq(cba));
+  
+  // if (mH_max < mH_lim)
+  //   mH2 *= sq(mH_max / mH_lim);
+
+  // -------
 
   // calc angles
   double beta = std::atan(tanb);

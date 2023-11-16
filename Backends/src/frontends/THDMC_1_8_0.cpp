@@ -26,6 +26,29 @@
 BE_NAMESPACE
 {
 
+  void set_sm_spectrum_helper(THDMsafe& container, const SubSpectrum& he, const SubSpectrum& le, const SMInputs& sm)
+  {
+    // set thdmc's sm spectrum
+    THDMC_1_8_0::SM* SM_object = container.obj.get_SM_pointer();
+    double vev = he.get(Par::mass1, "vev");
+    double GF = 1.0/(sqrt(2)*pow(vev,2.0));
+    // double v2 = 1.0 / (sqrt(2.0) * sminputs.GF)
+    SM_object->set_alpha(1/sm.alphainv);
+    SM_object->set_alpha_s(sm.alphaS);
+    SM_object->set_GF(GF);
+    SM_object->set_MZ(le.get(Par::Pole_Mass, "Z0"));
+    SM_object->set_MW(le.get(Par::Pole_Mass, "W+"));
+    SM_object->set_lmass_pole(1,le.get(Par::Pole_Mass, "e-_1"));
+    SM_object->set_lmass_pole(2,le.get(Par::Pole_Mass, "e-_2"));
+    SM_object->set_lmass_pole(3,le.get(Par::Pole_Mass, "e-_3"));
+    SM_object->set_qmass_msbar(1,le.get(Par::mass1, "d_1"));
+    SM_object->set_qmass_msbar(3,sm.mS);
+    SM_object->set_qmass_pole(5,le.get(Par::Pole_Mass, "d_3"));
+    SM_object->set_qmass_msbar(2,le.get(Par::mass1, "u_1"));
+    SM_object->set_qmass_msbar(4,sm.mCmC);
+    SM_object->set_qmass_pole(6,le.get(Par::Pole_Mass, "u_3"));
+  }
+
   // copy the gambit spectrum into thdmc's internal spectrum
   void setup_thdmc_spectrum(THDMsafe& container, const Spectrum& spec)
   {
@@ -46,10 +69,13 @@ BE_NAMESPACE
     double lam6 = he.get(Par::dimensionless, "lambda6");
     double lam7 = he.get(Par::dimensionless, "lambda7");
     double m122 = he.get(Par::mass1, "m12_2");
+    
+    // TODO: should these be mass1??
     double mh = he.get(Par::Pole_Mass, "h0_1");
     double mH = he.get(Par::Pole_Mass, "h0_2");
     double mA = he.get(Par::Pole_Mass, "A0");
     double mC = he.get(Par::Pole_Mass, "H+");
+
     double alpha = he.get(Par::dimensionless, "alpha");
     double beta = he.get(Par::dimensionless, "beta");
     double sb = sin(beta), cb = cos(beta);
@@ -57,7 +83,6 @@ BE_NAMESPACE
 
     if (!he.get(Par::dimensionless,"isIDM"))
       m222 = m122/tan(beta)-0.5*vev*vev*(lam2*sqr(sb)+(lam3+lam4+lam5)*sqr(cb)+lam6*sqr(cb)/tan(beta)+3.*lam7*sb*cb);
-
 
     double sba = sin(beta - alpha);
 
@@ -83,23 +108,7 @@ BE_NAMESPACE
     }
 
     // set thdmc's sm spectrum
-    THDMC_1_8_0::SM* SM_object = container.obj.get_SM_pointer();
-    
-    double GF = 1.0/(sqrt(2)*pow(vev,2.0));
-    SM_object->set_alpha(1/sm.alphainv);
-    SM_object->set_alpha_s(sm.alphaS);
-    SM_object->set_GF(GF);
-    SM_object->set_MZ(le.get(Par::Pole_Mass, "Z0"));
-    SM_object->set_MW(le.get(Par::Pole_Mass, "W+"));
-    SM_object->set_lmass_pole(1,le.get(Par::Pole_Mass, "e-_1"));
-    SM_object->set_lmass_pole(2,le.get(Par::Pole_Mass, "e-_2"));
-    SM_object->set_lmass_pole(3,le.get(Par::Pole_Mass, "e-_3"));
-    SM_object->set_qmass_msbar(1,le.get(Par::mass1, "d_1"));
-    SM_object->set_qmass_msbar(3,sm.mS);
-    SM_object->set_qmass_pole(5,le.get(Par::Pole_Mass, "d_3"));
-    SM_object->set_qmass_msbar(2,le.get(Par::mass1, "u_1"));
-    SM_object->set_qmass_msbar(4,sm.mCmC);
-    SM_object->set_qmass_pole(6,le.get(Par::Pole_Mass, "u_3"));
+    set_sm_spectrum_helper(container, he, le, sm);
   }
 
   // setup thdmc spectrum to get the most sm-like behaviour that is possible in the thdm
@@ -113,23 +122,7 @@ BE_NAMESPACE
     container.obj.set_param_sm(sm_like_higgs_mass);
 
     // set thdmc's sm spectrum
-    THDMC_1_8_0::SM* SM_object = container.obj.get_SM_pointer();
-    double vev = he.get(Par::mass1, "vev");
-    double GF = 1.0/(sqrt(2)*pow(vev,2.0));
-    SM_object->set_alpha(1/sm.alphainv);
-    SM_object->set_alpha_s(sm.alphaS);
-    SM_object->set_GF(GF);
-    SM_object->set_MZ(le.get(Par::Pole_Mass, "Z0"));
-    SM_object->set_MW(le.get(Par::Pole_Mass, "W+"));
-    SM_object->set_lmass_pole(1,le.get(Par::Pole_Mass, "e-_1"));
-    SM_object->set_lmass_pole(2,le.get(Par::Pole_Mass, "e-_2"));
-    SM_object->set_lmass_pole(3,le.get(Par::Pole_Mass, "e-_3"));
-    SM_object->set_qmass_msbar(1,le.get(Par::mass1, "d_1"));
-    SM_object->set_qmass_msbar(3,sm.mS);
-    SM_object->set_qmass_pole(5,le.get(Par::Pole_Mass, "d_3"));
-    SM_object->set_qmass_msbar(2,le.get(Par::mass1, "u_1"));
-    SM_object->set_qmass_msbar(4,sm.mCmC);
-    SM_object->set_qmass_pole(6,le.get(Par::Pole_Mass, "u_3"));
+    set_sm_spectrum_helper(container, he, le, sm);
   }
 
 
