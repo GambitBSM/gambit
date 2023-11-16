@@ -60,8 +60,8 @@ BE_FUNCTION(returnResult, double, (), "returnResult","returnResult_capability")
  * BE_VARIABLE([name], [type], "[exact symbol name]", "[choose capability name]")
  * */
 
-BE_VARIABLE(SomeInt, int, "someInt", "SomeInt")
-BE_VARIABLE(SomeDouble, double, "someDouble", "SomeDouble")
+// BE_VARIABLE(SomeInt, int, "someInt", "SomeInt")
+// BE_VARIABLE(SomeDouble, double, "someDouble", "SomeDouble")
 
 /* We have now created the following:
  *
