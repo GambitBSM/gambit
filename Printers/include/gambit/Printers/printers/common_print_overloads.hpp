@@ -190,6 +190,13 @@ namespace Gambit
         printer._print(value.covariance, label + "::covariance", vID, mpirank, pointID);
       }
 
+      /// Generic flavour prediction print overload
+      template<typename P>
+      void _common_print(P& printer, CouplingTable const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+      {
+        printer._print(to_map(value), label, vID, mpirank, pointID);
+      }
+
       /// Generic binned flavour prediction print overload
       template<typename P>
       void _common_print(P& printer, flav_binned_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)

@@ -36,6 +36,7 @@
   (map_dblpair_dbl)                   \
   (triplet<double>)                   \
   (flav_prediction)                   \
+  (CouplingTable)                     \
   (flav_binned_prediction)            \
   (DM_nucleon_couplings)              \
   (BBN_container)

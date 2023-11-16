@@ -54,6 +54,8 @@
 #include "gambit/Elements/wimp_types.hpp"                                  // Containers for generic WIMP dark matter and annihilation properties
 #include "gambit/Elements/flav_prediction.hpp"                             // Containers for flavour physics predictions
 
+#include "gambit/Elements/couplingtable.hpp"
+
 #include "gambit/Models/SpectrumContents/subspectrum_contents.hpp"         // Contains SpectrumParameter class (names and tags)
 
 #include "gambit/Backends/default_bossed_versions.hpp"         // Default versions of backends to use when employing BOSSed types

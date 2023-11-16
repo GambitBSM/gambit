@@ -59,6 +59,7 @@
   (DM_nucleon_couplings)               \
   (BBN_container)                      \
   (flav_prediction)                    \
+  (CouplingTable)                      \
   (flav_binned_prediction)             \
 
 

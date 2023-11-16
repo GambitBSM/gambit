@@ -71,6 +71,7 @@ namespace Gambit
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, DM_nucleon_couplings)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, BBN_container)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, flav_prediction)
+      USE_COMMON_PRINT_OVERLOAD(coutPrinter, CouplingTable)
       USE_COMMON_PRINT_OVERLOAD(coutPrinter, flav_binned_prediction)
     #endif
 

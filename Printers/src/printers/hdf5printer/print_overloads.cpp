@@ -268,6 +268,11 @@ namespace Gambit
       _print(m, label, vID, mpirank, pointID);
     }
 
+    void HDF5Printer::_print(CouplingTable const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
+    {
+      _print(to_map(value), label, vID, mpirank, pointID);
+    }
+
 
     void HDF5Printer::_print(flav_binned_prediction const& value, const std::string& label, const int vID, const unsigned int mpirank, const unsigned long pointID)
     {
