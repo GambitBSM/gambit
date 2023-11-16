@@ -6363,6 +6363,15 @@ diff -ruN src/THDM.cpp src_patched/THDM.cpp
    }
  
  }
+@@ -1419,7 +1698,7 @@
+ 
+   // Z Z
+   if ((v1==2)&&(v2==2)&&(h<4)) {
+-    c=I*g/costw*MZ*real(get_qki(h,1));
++    c=I*g*costw*MZ*real(get_qki(h,1));
+   }
+   // W+ W-
+   if ((v1==3)&&(v2==3)&&(h<4)) {
 @@ -1991,54 +2270,57 @@
    fprintf(output,"Block ALPHA     # Effective Higgs mixing parameter\n");
    fprintf(output,"            % 16.8e   # alpha\n",-asin(sba)+atan(tan_beta));
