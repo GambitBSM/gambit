@@ -48,6 +48,7 @@ jobs:
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
+        cmake --version
         cmake .. -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
     - name: Build scanners
       run: |
