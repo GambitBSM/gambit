@@ -36,12 +36,12 @@ Scanner:
         
 Printer:
 
-  printer: cout
+  #printer: cout
 
   printer: hdf5
   options:
-    output_file: "Staus_SLHA_file_model.hdf5"
-    group: "/Staus_SLHA_file_model"
+    output_file: "CB_SLHA_file_model.hdf5"
+    group: "/CB_SLHA_file_model"
     delete_file_on_restart: true
 
 
@@ -79,8 +79,7 @@ Rules:
     function: getNextSLHAFileNameAndContent
     options:
       SLHA_filenames:
-#        - SUSY_GGM_gammaH_mgl_2000_mn1_1950.slha
-        - StopStau_1350_1090.slha
+      - C1N2.param.dat
          #- point.slha
 
   # List the SLHA file entries that should be stored in the GAMBIT output.
@@ -119,8 +118,8 @@ Rules:
     options:
       silenceLoop: false
       LHC_13TeV:
-        min_nEvents: 1  # 16000000
-        max_nEvents: 1000  # 16000000
+        min_nEvents: 5000  # 16000000
+        max_nEvents: 5000  # 16000000
         events_between_convergence_checks: 10000000
         target_fractional_uncert: 0.1
         halt_when_systematic_dominated: true
@@ -128,11 +127,7 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 100
         analyses:
-#           - ATLAS_13TeV_PhotonGGM_36invfb
-           - ATLAS_13TeV_bTaus_StopStau_139invfb  # skip
-#          - ATLAS_13TeV_2LEPJETS_EW_139invfb
-#          - ATLAS_13TeV_PhotonGGM_1Photon_139invfb  # skip
-#          - ATLAS_13TeV_0LEP_139invfb
+          - ATLAS_13TeV_2LEPJETS_RJR_139invfb
 
   # Choose Monte Carlo event simulator and options.
   - capability:  HardScatteringSim
@@ -140,26 +135,20 @@ Rules:
     function: getPythia_SLHA 
     options:
       LHC_13TeV:
-        xsec_veto: 0.0 #0.028
+        xsec_veto: 0.007 #0.028
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1
-#          - ResonanceWidths:minWidth = 0.0000000001
           - Print:quiet = off
           - Next:numberCount = 1000
           - Beams:eCM = 13000
-#          - PartonLevel:MPI = off
-#          - PartonLevel:ISR = on
-#          - PartonLevel:FSR = on
-#          - HadronLevel:all = on
-#          - SUSY:all = on
-          - SUSY:gg2squarkantisquark = on
-          - SUSY:qqbar2squarkantisquark = on
-#          - SUSY:gg2gluinogluino = on
-#          - SUSY:qqbar2gluinogluino = on
-#          - TauDecays:mode = 0
-#          - TimeShower:pTmin = 2
-
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
 
   - capability: HardScatteringSim
     type: const BaseCollider*
@@ -181,19 +170,13 @@ Rules:
       covariance_marg_convthres_rel: 0.05
       covariance_nsamples_start: 100000
 
-  - capability: AllAnalysisNumbers
-    options:
-     print_cutflows: true
-     normalized_cutflows: true
-
-
   # Choose options for the LHC likelihood combination
   - capability: LHC_Combined_LogLike
     options:
-       write_summary_to_log: true
+       write_summary_to_log: false
        cap_loglike: false
        cap_loglike_individual_analyses: false
-#       skip_analyses: [ ]
+       # skip_analyses:
 
   # Choose ATLAS detector simulation and options.
   - capability: ATLASDetectorSim
@@ -201,8 +184,6 @@ Rules:
       LHC_13TeV:
         partonOnly: false
         antiktR: 0.4
-
-
 
 # Set the names of key log files
 Logger:
@@ -226,7 +207,7 @@ KeyValues:
     model_invalid_for_lnlike_below_alt: -1e5
 
   # Set the default output path
-  default_output_path: "runs/Staus_SLHA_file_model/"
+  default_output_path: "runs/CB_SLHA_file_model/"
 
   # We set the errors from the physics modules to be non-fatal
   # to avoid crashing the entire scan due to a rare problem point.
