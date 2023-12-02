@@ -8,12 +8,11 @@ on:
 
 jobs:
   sync:
-    runs-on: [self-hosted, macOS, x64] #[ubuntu-latest]  #,docker, self-hosted]
+    runs-on: [self-hosted, macOS, x64]
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64]  # [ubuntu] #, ubuntu-py2, fedora
-    # container: gambitbsm/gambit-base:${{ matrix.arch }}
+        arch: [x64]
     defaults:
       run:
         shell: bash -eo pipefail {0}
