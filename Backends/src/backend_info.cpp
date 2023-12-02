@@ -25,18 +25,11 @@
 #include "gambit/cmake/cmake_variables.hpp"
 #include "gambit/Backends/backend_info.hpp"
 #include "gambit/Utils/util_functions.hpp"
+#include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/Logs/logger.hpp"
 
 #ifdef HAVE_MATHEMATICA
   #include MATHEMATICA_WSTP_H
-#endif
-
-#ifdef HAVE_PYBIND11
-
-  #include "gambit/Utils/begin_ignore_warnings_pybind11.hpp"
-  #include <pybind11/embed.h>
-  #include "gambit/Utils/end_ignore_warnings.hpp"
-
 #endif
 
 #ifdef HAVE_LINK_H
@@ -53,9 +46,6 @@ namespace Gambit
   Backends::backend_info::backend_info()
    : filename(GAMBIT_DIR "/config/backend_locations.yaml")
    , default_filename(GAMBIT_DIR "/config/backend_locations.yaml.default")
-   #ifdef HAVE_PYBIND11
-     , python_started(false)
-   #endif
   {
     // Attempt to read user yaml configuration file
     try
@@ -91,20 +81,15 @@ namespace Gambit
   /// Destructor
   Backends::backend_info::~backend_info()
   {
-    #ifdef HAVE_PYBIND11
-      if (python_started)
+    if (not loaded_python_backends.empty())
+    {
+      for (auto it = loaded_python_backends.begin();
+                it != loaded_python_backends.end();
+                it++)
       {
-        for (auto it = loaded_python_backends.begin();
-                  it != loaded_python_backends.end();
-                  it++)
-        {
-          delete it->second;
-        }
-        //TODO: Currently this causes memory leaks, so we let it die on its own
-        // If in the future this is fixed on the python side, we can uncomment it
-        //delete python_interpreter;
+        delete it->second;
       }
-    #endif
+    }
   }
 
   /// Indicate whether a custom backend locations file exists
@@ -569,8 +554,11 @@ namespace Gambit
         return;
       }
 
-      // Bail now if the backend requires a version of Python that GAMBIT is not supporting or not configured with.
-      if (PYTHON_VERSION_MAJOR != 3)
+      // Fire up the Python interpreter if it hasn't been started yet.
+      Utils::python_interpreter_guard g;
+
+      // Bail now if the backend requires a version of Python that GAMBIT is not configured with.
+      if (PYTHON_VERSION_MAJOR < 2 or PYTHON_VERSION_MAJOR > 3)
       {
         err << "GAMBIT was configured with an unsupported version of Python: " << PYTHON_VERSION_MAJOR 
             << ". Only Python 3 is supported by GAMBIT." << endl;
@@ -588,11 +576,8 @@ namespace Gambit
         return;
       }
 
-      // Fire up the Python interpreter if it hasn't been started yet.
-      if (not python_started) start_python();
-
       // Add the path to the backend to the Python system path
-      pybind11::object sys_path = sys->attr("path");
+      pybind11::object sys_path = Utils::python_interpreter::get().sys->attr("path");
       pybind11::object sys_path_insert = sys_path.attr("insert");
       sys_path_insert(0,path_dir(be, ver));
 
@@ -619,7 +604,7 @@ namespace Gambit
 
       // Check if the loaded moule has actually come from the expected path.
       // First get the relevant os functions.
-      pybind11::object os_path = os->attr("path");
+      pybind11::object os_path = Utils::python_interpreter::get().os->attr("path");
       pybind11::object os_path_split = os_path.attr("split");
       // Get the path to the loaded module (Split the path at the last '/')
       pybind11::tuple full_loaded_path = os_path_split( new_module->attr("__file__") );
@@ -648,22 +633,6 @@ namespace Gambit
       logger() << "Succeeded in loading " << path << LogTags::backends << LogTags::info << EOM;
       works[be+ver] = true;
       loaded_python_backends[be+ver] = new_module;
-    }
-
-    /// Fire up the Python interpreter
-    void Backends::backend_info::start_python()
-    {
-      // Create an instance of the interpreter.
-      python_interpreter = new pybind11::scoped_interpreter;
-      // Import the sys module, and save a wrapper to it for later.
-      static pybind11::module local_sys = pybind11::module::import("sys");
-      sys = &local_sys;
-      // Import the os module, and save a wrapper to it for later.
-      static pybind11::module local_os = pybind11::module::import("os");
-      os = &local_os;
-
-      logger() << LogTags::backends << LogTags::debug << "Python interpreter successfully started." << EOM;
-      python_started = true;
     }
 
     pybind11::module& Backends::backend_info::getPythonBackend(const str& be, const str& ver)

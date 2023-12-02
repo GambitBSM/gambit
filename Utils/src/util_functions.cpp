@@ -444,6 +444,21 @@ namespace Gambit
       }
     }
 
+    // case-independent (ci) compare_less binary function
+    bool ci_less::operator() (const std::string & s1, const std::string & s2) const
+    {
+      return std::lexicographical_compare
+        (s1.begin (), s1.end (),   // source range
+        s2.begin (), s2.end (),    // dest range
+        nocase_compare ());        // comparison
+    }
+
+    // case-independent (ci) compare_less binary function
+    bool ci_less::nocase_compare::operator() (const unsigned char& c1, const unsigned char& c2) const
+    {
+      return tolower (c1) < tolower (c2);
+    }
+        
   }
 
 }

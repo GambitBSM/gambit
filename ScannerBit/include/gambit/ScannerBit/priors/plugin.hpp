@@ -27,7 +27,7 @@ namespace Gambit
         class Plugin : public BasePrior
         {
         private:
-            typedef Scanner::Plugins::Plugin_Interface<double (const std::vector<double> &), void (const std::vector<double> &, std::unordered_map<std::string,double> &)> plugin_type;
+            typedef Scanner::Plugins::Plugin_Interface<double (const std::unordered_map<std::string, double> &), void (hyper_cube_ref<double>, std::unordered_map<std::string,double> &)> plugin_type;
             mutable plugin_type *plugin;
                 
         public:
@@ -45,21 +45,20 @@ namespace Gambit
                 }
                 plugin = new plugin_type("objective", plugin_name, param_names, sizeRef());
             }
-                
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string,double> &outputMap) const override
+            
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string,double> &outputMap) const override
             {
                 return (*plugin)(unitpars, outputMap);
             }
 
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override
+            void inverse_transform(const std::unordered_map<std::string, double> &, hyper_cube_ref<double>) const override
             {
                 scan_err << "inverse transform not supported in plugin prior" << scan_end;
-                return {};
             }
             
-            double operator()(const std::vector<double>& vec) const override
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override
             {
-                return (*plugin)(vec);
+                return (*plugin)(physical);
             }
             
             ~Plugin()

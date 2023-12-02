@@ -36,6 +36,10 @@
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
+///
 ///  *********************************************
 
 #include <chrono>
@@ -200,6 +204,13 @@ namespace Gambit
       return false;
     }
 
+    /// Getter for revealing whether this functor needs a loop manager
+    bool functor::needsLoopManager()
+    {
+      utils_error().raise(LOCAL_INFO,"The needsLoopManager method has not been defined in this class.");
+      return false;
+    }
+
     /// Getter for revealing the required capability of the wrapped function's loop manager
     str functor::loopManagerCapability()
     {
@@ -312,7 +323,7 @@ namespace Gambit
        be_functor->origin(), be_functor->version());
     }
 
-    /// Getter for listing model-specific conditional dependencies
+    /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
     std::set<sspair> functor::model_conditional_dependencies (str)
     {
       utils_error().raise(LOCAL_INFO,"The model_conditional_dependencies method has not been defined in this class.");
@@ -320,10 +331,26 @@ namespace Gambit
       return empty;
     }
 
-    /// Getter for listing model-specific conditional backend requirements
+    /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+    std::set<sspair> functor::model_conditional_dependencies_exact (str)
+    {
+      utils_error().raise(LOCAL_INFO,"The model_conditional_dependencies_exact method has not been defined in this class.");
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
     std::set<sspair> functor::model_conditional_backend_reqs (str)
     {
       utils_error().raise(LOCAL_INFO,"The model_conditional_backend_reqs method has not been defined in this class.");
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+    std::set<sspair> functor::model_conditional_backend_reqs_exact (str)
+    {
+      utils_error().raise(LOCAL_INFO,"The model_conditional_backend_reqs_exact method has not been defined in this class.");
       std::set<sspair> empty;
       return empty;
     }
@@ -443,6 +470,24 @@ namespace Gambit
     safe_ptr<std::set<sspair>> functor::getDependees()
     {
       return safe_ptr<std::set<sspair>>(&myDependees);
+    }
+
+    /// Getter for listing allowed models
+    const std::set<str>& functor::getAllowedModels()
+    {
+      return allowedModels;
+    }
+
+    /// Getter for listing conditional models
+    const std::set<str>& functor::getConditionalModels()
+    {
+      return conditionalModels;
+    }
+
+    /// Getter for map of model groups and the set of models in each group
+    const std::map<str, std::set<str>>& functor::getModelGroups()
+    {
+      return modelGroups;
     }
 
     /// Test whether the functor is allowed (either explicitly or implicitly) to be used with a given model
@@ -971,6 +1016,8 @@ namespace Gambit
       myLoopManagerCapability = cap;
       myLoopManagerType = t;
     }
+    /// Getter for revealing whether this functor needs a loop manager
+    bool module_functor_common::needsLoopManager() { return iRunNested; }
     /// Getter for revealing the required capability of the wrapped function's loop manager
     str module_functor_common::loopManagerCapability() { return myLoopManagerCapability; }
     /// Getter for revealing the required type of the wrapped function's loop manager
@@ -1091,7 +1138,7 @@ namespace Gambit
        be_functor->origin(), be_functor->version());
     }
 
-    /// Getter for listing model-specific conditional dependencies
+    /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
     std::set<sspair> module_functor_common::model_conditional_dependencies (str model)
     {
       str parent = find_friend_or_parent_model_in_map(model,myModelConditionalDependencies);
@@ -1100,11 +1147,27 @@ namespace Gambit
       return empty;
     }
 
-    /// Getter for listing model-specific conditional backend requirements
+    /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+    std::set<sspair> module_functor_common::model_conditional_dependencies_exact (str model)
+    {
+      if (myModelConditionalDependencies.count(model) != 0) return myModelConditionalDependencies[model];
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
     std::set<sspair> module_functor_common::model_conditional_backend_reqs (str model)
     {
       str parent = find_friend_or_parent_model_in_map(model,myModelConditionalBackendReqs);
       if (parent != "") return myModelConditionalBackendReqs[parent];
+      std::set<sspair> empty;
+      return empty;
+    }
+
+    /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+    std::set<sspair> module_functor_common::model_conditional_backend_reqs_exact (str model)
+    {
+      if (myModelConditionalBackendReqs.count(model) != 0) return myModelConditionalBackendReqs[model];
       std::set<sspair> empty;
       return empty;
     }
@@ -1204,6 +1267,9 @@ namespace Gambit
       }
       myModelConditionalDependencies[model].insert(key);
       dependency_map[key] = resolver;
+
+      // Add the model to the list of conditional models
+      conditionalModels.insert(model);
     }
 
     /// Add an unconditional backend requirement
@@ -1284,6 +1350,9 @@ namespace Gambit
         myModelConditionalBackendReqs[model] = newvec;
       }
       myModelConditionalBackendReqs[model].insert(key);
+
+      // Add the model to the list of conditional models
+      conditionalModels.insert(model);
     }
 
     /// Add a rule for dictating which backends can be used to fulfill which backend requirements.

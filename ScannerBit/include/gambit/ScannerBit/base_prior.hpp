@@ -25,65 +25,94 @@
 #ifndef __BASE_PRIORS_HPP__
 #define __BASE_PRIORS_HPP__
 
+#include <algorithm>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "gambit/ScannerBit/scanner_utils.hpp"
 
-namespace Gambit
-{
-  namespace Priors
-  {
-    /**
-     * @brief Abstract base class for priors
-     */
-    class BasePrior
-    {
-     private:
-      unsigned int param_size;
+namespace Gambit {
 
-     protected:
-      std::vector<std::string> param_names;
+    namespace Priors {
 
-     public:
-      virtual ~BasePrior() = default;
+        using ::Gambit::Scanner::hyper_cube_ref;
+        using ::Gambit::Scanner::map_vector;
 
-      BasePrior() : param_size(0), param_names(0) {}
+        /**
+        * @brief Abstract base class for priors
+        */
+        class BasePrior 
+        {
+        private:
+            unsigned int param_size;
 
-      explicit BasePrior(const int param_size) :
-        param_size(param_size), param_names(0) {}
+        protected:
+            std::vector<std::string> param_names;
 
-      explicit BasePrior(const std::vector<std::string> &param_names, const int param_size = 0) :
-        param_size(param_size), param_names(param_names) {}
+        public:
+            virtual ~BasePrior() = default;
 
-      explicit BasePrior(const std::string &param_name, const int param_size = 0) :
-        param_size(param_size), param_names(1, param_name) {}
+            BasePrior() : param_size(0), param_names(0) {}
 
-      /** @brief Transform from unit hypercube to parameter */
-      virtual void transform(const std::vector<double> &, std::unordered_map<std::string, double> &) const = 0;
+            explicit BasePrior(const int param_size) : param_size(param_size), param_names(0) {}
 
-      /** @brief Transform from parameter back to unit hypercube */
-      virtual std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const = 0;
+            explicit BasePrior(const std::vector<std::string> &param_names, const int param_size = 0) :
+                param_size(param_size), param_names(param_names) {}
 
-      /** @brief Log of PDF density */
-      virtual double operator()(const std::vector<double> &) const
-      {
-        Scanner::scan_error().raise(LOCAL_INFO, "operator() not implemented");
-        return 0.;
-      }
+            explicit BasePrior(const std::string &param_name, const int param_size = 0) :
+                param_size(param_size), param_names(1, param_name) {}
 
-      virtual std::vector<std::string> getShownParameters() const { return param_names; }
+            /** @brief Transform from unit hypercube to physical parameter */
+            virtual void transform(hyper_cube_ref<double> unit, std::unordered_map<std::string, double> &physical) const = 0;
 
-      inline unsigned int size() const { return param_size; }
+            /** @overload in place STL containers */
+            void transform(const std::vector<double> &unit, std::unordered_map<std::string, double> &physical) const 
+            {
+                transform(map_vector<double>(const_cast<double *>(&unit[0]), unit.size()), physical);
+            }
 
-      inline void setSize(const unsigned int size) { param_size = size; }
+            /** @overload return STL containers */
+            std::unordered_map<std::string, double> transform(const std::vector<double> &unit) const 
+            {
+                std::unordered_map<std::string, double> physical;
+                transform(unit, physical);
+                return physical;
+            }
 
-      inline unsigned int & sizeRef() { return param_size; }
+            /** @brief Transform from physical parameter to unit hypercube */
+            virtual void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const = 0;
 
-      inline std::vector<std::string> getParameters() const { return param_names; }
-    };
+            /** @overload in place STL containers */
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, std::vector<double> &unit) const 
+            {
+                inverse_transform(physical, map_vector<double>(const_cast<double *>(&unit[0]), unit.size()));
+            }
 
-  }  // namespace Priors
+            /** @overload return STL containers */
+            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const 
+            {
+                std::vector<double> unit(param_size);
+                inverse_transform(physical, unit);
+                return unit;
+            }
+
+            /** @brief Log of prior density */
+            virtual double log_prior_density(const std::unordered_map<std::string, double> &) const = 0;
+
+            virtual std::vector<std::string> getShownParameters() const { return param_names; }
+
+            inline unsigned int size() const { return param_size; }
+
+            inline void setSize(const unsigned int size) { param_size = size; }
+
+            inline unsigned int & sizeRef() { return param_size; }
+
+            inline std::vector<std::string> getParameters() const { return param_names; }
+        };
+
+    }  // namespace Priors
+    
 }  // namespace Gambit
 
 #endif  // __BASE_PRIORS_HPP__

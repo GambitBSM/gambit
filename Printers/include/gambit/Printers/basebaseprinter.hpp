@@ -201,7 +201,21 @@ namespace Gambit
                     const uint rank,
                     const ulong pointID)
         {
-           _print(in,label,rank,pointID);
+           std::ostringstream err;
+
+          err << "Attempted to print a functor whose return type "
+              << "is not registered as being printable. "
+              << "If you really want to print this functor, you must "
+              << "add its return type to the PRINTABLE_TYPES sequence "
+              << "in \"gambit/Elements/printable_types.hpp\". You will then have "
+              << "to define a print function for it in whatever printer "
+              << "you are using (see documentation for GAMBIT printers)."
+              << "\n  Available info for this print attempt..."
+              << "\n   Label      : " << label
+              << "\n   Rank       : " << rank
+              << "\n   PointID    : " << pointID
+              << "\n   Type       : " << STRINGIFY(T);
+          printer_error().raise(LOCAL_INFO,err.str());
         }
 
         // Default _print_metadata function. Should be overloaded by printers
