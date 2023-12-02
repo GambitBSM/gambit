@@ -8,15 +8,15 @@ on:
 
 jobs:
   sync:
-    runs-on: ubuntu-latest  # [self-hosted, macOS, x64] #[ubuntu-latest]  #,docker, self-hosted]
-    # strategy:
-    #   fail-fast: false
-    #   matrix:
-    #     arch: [x64]  # [ubuntu] #, ubuntu-py2, fedora
-    # # container: gambitbsm/gambit-base:${{ matrix.arch }}
-    # defaults:
-    #   run:
-    #     shell: bash -eo pipefail {0}
+    runs-on: [self-hosted, macOS, x64] #[ubuntu-latest]  #,docker, self-hosted]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]  # [ubuntu] #, ubuntu-py2, fedora
+    # container: gambitbsm/gambit-base:${{ matrix.arch }}
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@master
