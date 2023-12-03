@@ -674,7 +674,7 @@ PYBIND11_EMBEDDED_MODULE(scanner_plugin, m)
         
             if (!use_resume && Gambit::Scanner::Plugins::ScannerPyPlugin::get_printer().resume_mode())
             {
-                scan_err << "This scanner does not support resumming." << scan_end;
+                scan_err << "This scanner does not support resuming." << scan_end;
             }
                 
             return new scanner_base();
