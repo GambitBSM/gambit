@@ -25,7 +25,6 @@ GambitBSM/gambit_light@gambit_light_sync:
       optional.cmake
       FindGSL.cmake
       FindCython.cmake
-      FindEigen3.cmake
       FindMathematica.cmake
       standalones.cmake
 
