@@ -155,8 +155,8 @@ __SCAN_PLUGIN_GET_INIFILE_VALUE__(self.get_inifile_value)                       
 typedef std::unordered_map<std::string, double> map_doub_type_;
 typedef std::vector<std::string> vec_str_type_;
 
-PYBIND11_MAKE_OPAQUE(map_doub_type_);
-PYBIND11_MAKE_OPAQUE(vec_str_type_);
+PYBIND11_MAKE_OPAQUE(map_doub_type_)
+PYBIND11_MAKE_OPAQUE(vec_str_type_)
 
 /**
  * @brief A pybind11 module named "scannerbit".
