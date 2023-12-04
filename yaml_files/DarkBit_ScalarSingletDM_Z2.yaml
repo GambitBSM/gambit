@@ -228,9 +228,11 @@ ObsLikes:
 Rules:
 
   # Options for Process Catalog setup
-  - function: TH_Process_Catalog_ScalarSingletDM_Z2
-    options:
-       ProcessCatalog_MinBranching: 0 # Minimum branching fraction of included processes
+  - if:
+      function: TH_ProcessCatalog_ScalarSingletDM_Z2
+    then:
+      options:
+        ProcessCatalog_MinBranching: 0 # Minimum branching fraction of included processes
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2
@@ -265,31 +267,40 @@ Rules:
 
   # Choose whether MicrOmegas calculates decays widths for the MSSM internally using CalcHEP (internal_decays=true) or uses
   # values from the GAMBIT decay table (internal_decays=false).
-  - function: MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init
-    options:
-       VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
-       VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
+  #- if:
+  #    function: MicrOmegas_ScalarSingletDM_Z2_3_6_9_2_init
+  #  then:
+  #    options:
+  #      VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
+  #      VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
   # Use DarkBit native calculator (based on the DarkSUSY Boltzmann solver) for relic density
   - capability: RD_oh2
     function: RD_oh2_DS_general
+
   - capability: RD_oh2_DS6_ini # starting from version 6.4.0
     function: RD_oh2_DS6_ini_func
     options:
       fast: 1  # 0: standard, 1: fast (default when co-annihilations etc are involved)
 
   # Gamma-ray likelihoods (See DarkBit paper for details on version options)
-  -  function: lnL_FermiLATdwarfs_gamLike
-     options:
+  - if:
+      function: lnL_FermiLATdwarfs_gamLike
+    then:
+      options:
         version: "pass8" # Other option is pass7
 
-  - function: lnL_FermiFC_gamLike
-    options:
-       version: "externalJ" # Other options are fixedJ, margJ, margJ_HEP and externalJ
+  - if:
+      function: lnL_FermiGC_gamLike
+    then:
+      options:
+        version: "externalJ" # Options are fixedJ, margJ, margJ_HEP and externalJ
 
-  - function: lnL_HESSGC_gamLike
-    options:
-       version: "spectral_externalJ"
+  - if:
+      function: lnL_HESSGC_gamLike
+    then:
+      options:
+        version: "spectral_externalJ"
        # Other options are integral_fixedJ, integral_externalJ, and spectral_fixedJ
 
   # Choose to use DarkSUSY DS5 or DS6 yield tables for gamma-ray indirect detection
@@ -315,11 +326,13 @@ Rules:
     function: antideuteron_SimYieldTable_DarkSUSY
 
   # More options for determination of indirect detection yields
-  - function: cascadeMC_InitialStates # Finds hard process final states for which tabulated spectra do not exist
-    options:
-       ignore_all: false
-       ignore_two_body: false
-       ignore_three_body: false
+  - if:
+      function: cascadeMC_InitialStates # Finds hard process final states for which tabulated spectra do not exist
+    then:
+      options:
+        ignore_all: false
+        ignore_two_body: false
+        ignore_three_body: false
 
   # The model is annihilating DM, not decaying
   - capability: GA_Yield
@@ -331,8 +344,10 @@ Rules:
   - capability: nuyield_ptr
     function: nuyield_from_DS
     backends:
-    #  - {backend: DarkSUSY, version: 5.1.3}
-      - {backend: DarkSUSY_generic_wimp}
+      - capability: any
+        backend: DarkSUSY_generic_wimp
+        #backend: DarkSUSY
+        #version: 5.1.3        
 
   # Use DarkBit or MicrOmegas for calculating direct detection couplings
   - capability: DD_couplings
@@ -353,15 +368,15 @@ Rules:
       sigmal_obserr: 9.
 
   # Nuclear SD Parameter Likelihoos
-  - capability: lnL_SD_nuclear_parameters
-    function: lnL_deltaq
-    options:
-      a3_obs: 1.2723
-      a3_obserr: 0.0023
-      a8_obs: 0.585
-      a8_obserr: 0.025
-      deltas_obs: -0.09
-      deltas_obserr: 0.03
+  #- capability: lnL_SD_nuclear_parameters
+  #  function: lnL_deltaq
+  #  options:
+  #    a3_obs: 1.2723
+  #    a3_obserr: 0.0023
+  #    a8_obs: 0.585
+  #    a8_obserr: 0.025
+  #    deltas_obs: -0.09
+  #    deltas_obserr: 0.03
 
   # DM Halo Model Likelihoods
   # (rho0_obserr/rho0_obs)^2 is the variance of ln(rho0/rho0_obs)
@@ -389,26 +404,18 @@ Rules:
       vesc_obs: 550 # km/s
       vesc_obserr: 35 # km/s
 
-  - function: DarkSUSY_PointInit_LocalHalo_func
-    options:
-      v_earth: 29.78 # Keplerian velocity of the Earth around the Sun in km/s
+  - if:
+      function: DarkSUSY_PointInit_LocalHalo_func
+    then:
+      options:
+        v_earth: 29.78 # Keplerian velocity of the Earth around the Sun in km/s
 
   # Neutrino likelihood options
-  - function: IC22_full
-    options:
-      nulike_speed: 3
-
-  - function: IC79WH_full
-    options:
-      nulike_speed: 3
-
-  - function: IC79WL_full
-    options:
-      nulike_speed: 3
-
-  - function: IC79SL_full
-    options:
-      nulike_speed: 3
+  - if: 
+      function: IC.*_full
+    then:
+      options:
+        nulike_speed: 3
 
   # Choose to use DarkSUSY (5 or 6) rather than Capt'n General for calculating the capture rate of DM in the Sun
   - capability: capture_rate_Sun
@@ -416,24 +423,30 @@ Rules:
     function: capture_rate_Sun_const_xsec
 
   # Cascade decay MC options
-  - function: cascadeMC_LoopManager
-    options:
-      cMC_maxEvents: 20000 # Maximum number of cascade MC runs
+  - if: 
+      function: cascadeMC_LoopManager
+    then:
+      options:
+        cMC_maxEvents: 20000 # Maximum number of cascade MC runs
 
-  - function: cascadeMC_GenerateChain
-    options:
-      cMC_maxChainLength: -1 # Maximum chain length, -1 is infinite
-      cMC_Emin: 0 #Cutoff energy for cascade particles
+  - if:
+      function: cascadeMC_GenerateChain
+    then:
+      options:
+        cMC_maxChainLength: -1 # Maximum chain length, -1 is infinite
+        cMC_Emin: 0 #Cutoff energy for cascade particles
 
-  - function: cascadeMC_Histograms
-    options:
-      cMC_numSpecSamples: 10 # Number of samples to draw from tabulated spectra
-      cMC_NhistBins: 140 # Number of histogram bin
-      cMC_binLow: 0.001 # Histogram min energy in GeV
-      cMC_binHigh: 10000.0 # Histogram max energy in GeV
-      cMC_gammaBGPower: -2.5 # assumed power-law slope for astrophysical background
-      cMC_gammaRelError: 0.20 # max allowed relative error in bin with highest expected signal-to-background
-      cMC_endCheckFrequency: 25 # number of events to wait between successive checks of the convergence criteria
+  - if:
+      function: cascadeMC_Histograms
+    then:
+      options:
+        cMC_numSpecSamples: 10 # Number of samples to draw from tabulated spectra
+        cMC_NhistBins: 140 # Number of histogram bin
+        cMC_binLow: 0.001 # Histogram min energy in GeV
+        cMC_binHigh: 10000.0 # Histogram max energy in GeV
+        cMC_gammaBGPower: -2.5 # assumed power-law slope for astrophysical background
+        cMC_gammaRelError: 0.20 # max allowed relative error in bin with highest expected signal-to-background
+        cMC_endCheckFrequency: 25 # number of events to wait between successive checks of the convergence criteria
 
   # Choose to get the spectrum from SpecBit proper, not an SLHA file.
   - capability: ScalarSingletDM_Z2_spectrum

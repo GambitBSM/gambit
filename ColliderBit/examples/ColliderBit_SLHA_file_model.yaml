@@ -1,7 +1,7 @@
 
 Parameters:
 
-  # Dummy model for doing a ColliderBit-only 
+  # Dummy model for doing a ColliderBit-only
   # scan over a set of SLHA files
   ColliderBit_SLHA_file_model:
     dummy: 1.0
@@ -59,7 +59,7 @@ ObsLikes:
 
     - purpose:    Observable
       capability: SLHAFileElements
-    
+
 
 Rules:
 
@@ -87,7 +87,7 @@ Rules:
         - NMIX;1,3;2
         - NMIX;1,4;2
         - 1000024;DECAY;2               # <-- Total decay width for 1000024 (chargino1)
-        - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24 
+        - 1000024;(any),2,1000022,24;0  # <-- BR for two-body decay 1000024 -> 1000022 24
 
   # Assign cross-sections and uncertainties for each SLHA file
   - capability: TotalCrossSection
@@ -100,16 +100,21 @@ Rules:
         ColliderBit/data/example.slha: 101.32
         # list more SLHA files and corrsponding total cross section uncertainties here
 
-  # Choose how to do event weighting 
+  # Choose how to do event weighting
   - capability: EventWeighterFunction
     function: setEventWeight_unity
 
-
-  # Generate evens (don't read LH event files)
+  # Choose where to get scattering events from
   - capability: HardScatteringEvent
+    type: Pythia_default::Pythia8::Event
     function: generateEventPythia
-    module: ColliderBit
+    # options:
+    #   drop_HepMC3_file: true
+    #   # drop_HepMC2_file: true
 
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   - capability: RunMC
@@ -141,7 +146,7 @@ Rules:
           - Print:quiet = off
           - Next:numberCount = 1000
           - Random:setSeed = on
-          - Beams:eCM = 13000          
+          - Beams:eCM = 13000
           - PartonLevel:MPI = off
           - PartonLevel:ISR = on
           - PartonLevel:FSR = on
@@ -169,8 +174,12 @@ Rules:
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
+    # Choose not to use the FullLikes backend.
+    function: calc_LHC_LogLikes
+    # Choose to use the FullLikes backend when applicable
+    # function: calc_LHC_LogLikes_full
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       combine_SRs_without_covariances: false
@@ -192,7 +201,7 @@ Rules:
       write_summary_to_log: false
       cap_loglike: false
       cap_loglike_individual_analyses: false
-      # skip_analyses: 
+      # skip_analyses:
       #   - ATLAS_13TeV_2OSLEP_chargino_inclusive_80invfb
 
 

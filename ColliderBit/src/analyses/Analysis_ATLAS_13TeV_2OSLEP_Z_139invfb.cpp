@@ -195,11 +195,11 @@ namespace Gambit
 
         // Scalar sum of the transverse momenta from all the reconstructed hard objects
         // Needed for calculating ETmiss significance later
-        double HT = 0.0;
-        for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
-        for (const HEPUtils::Particle* p : event->photons()) HT += p->pT();
-        for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
-        for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
+        //double HT = 0.0;
+        //for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
+        //for (const HEPUtils::Particle* p : event->photons()) HT += p->pT();
+        //for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
+        //for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
 
         // Signal objects
         vector<const HEPUtils::Jet*> signalJets = baselineJets;

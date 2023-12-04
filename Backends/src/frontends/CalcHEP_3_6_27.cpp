@@ -24,7 +24,7 @@
 #include "gambit/Models/SpectrumContents/RegisteredSpectra.hpp"
 #include "gambit/Elements/decay_table.hpp"
 
-#include "gambit/Utils/mpiwrapper.hpp"
+#include "gambit/Utils/file_lock.hpp"
 
 #include <unistd.h>
 
@@ -67,8 +67,6 @@ BE_INI_FUNCTION
       sprintf(modeltoset, "%s", path);
     }
 
-    // CH is not threadsafe so make critical sections everywhere
-    #pragma omp critical
     if (ModelInUse("DMsimpVectorMedDiracDM"))
     {
       BEpath = backendDir + "/../models/DMsimpVectorMedDiracDM";
@@ -113,35 +111,35 @@ BE_INI_FUNCTION
       model = "DMsimpVectorMedVectorDM";
     }
 
+    else
     {
       int error = setModel(modeltoset, 1);
       if (error != 0) backend_error().raise(LOCAL_INFO, "Unable to set model" + std::string(modeltoset) +
             " in CalcHEP. CalcHEP error code: " + std::to_string(error) + ". Please check your model files.\n");
     }
 
-    // Get the MPI rank, only let the first rank make the processes...
-    int rank = 0;
-    #ifdef WITH_MPI
-      rank = GMPI::Comm().Get_rank();
-    #endif
-
-    // rank 0 can create all the libraries
-    if (rank == 0)
+    // Create a process lock to allow only one process in
     {
-      // Decays first
-      for (auto d : decays)
-        for (auto fs : d.second)
-          generate_decay_code(model, d.first, fs);
+      Utils::ProcessLock mylock("CH_decays");
+      mylock.get_lock();
 
-      // And two to twos
-      for (auto x : xsecs)
-        for (auto fs : x.second)
-          generate_xsec_code(model, x.first, fs);
+      // Only first process to get here creates the libraries
+      if (not mylock.exhausted())
+      {
+        // Decays first
+        for (auto d : decays)
+          for (auto fs : d.second)
+            generate_decay_code(model, d.first, fs);
+
+        // And two to twos
+        for (auto x : xsecs)
+          for (auto fs : x.second)
+            generate_xsec_code(model, x.first, fs);
+
+      }
+      // Release the lock, which will exhaust it first
+      mylock.release_lock();
     }
-    #ifdef WITH_MPI
-      // Wait here until the first rank has generated all matrix elements.
-      GMPI::Comm().Barrier();
-    #endif
 
     free(modeltoset);
   }

@@ -119,8 +119,8 @@ BE_VARIABLE(UseNewBoundaryEW, Flogical, ("__control_MOD_usenewboundaryew", "cont
 BE_VARIABLE(UseNewScale, Flogical, ("__control_MOD_usenewscale", "control_mp_usenewscale"), "SPheno_internal")
 BE_VARIABLE(WriteOut, Flogical, ("__control_MOD_writeout", "control_mp_writeout_"), "SPheno_internal")
 BE_VARIABLE(Switch_to_1_loop_mh, Flogical, ("__control_MOD_switch_to_1_loop_mh", "control_mp_switch_to_1_loop_mh_"), "SPheno_internal")
-BE_VARIABLE(l_fit_RP_parameters, Flogical, ("__control_MOD_l_fit_rp_parameters", "control_mp_l_fit_rp_parameters_"), "SPheno_internal");
-BE_VARIABLE(l_CSrp, Flogical, ("__control_MOD_l_csrp", "control_mp_l_csrp_"), "SPheno_internal");
+BE_VARIABLE(l_fit_RP_parameters, Flogical, ("__control_MOD_l_fit_rp_parameters", "control_mp_l_fit_rp_parameters_"), "SPheno_internal")
+BE_VARIABLE(l_CSrp, Flogical, ("__control_MOD_l_csrp", "control_mp_l_csrp_"), "SPheno_internal")
 BE_VARIABLE(ErrorHandler_cptr, fptr_void, ("__control_MOD_errorhandler_cptr", "control_mp_errorhandler_cptr_"), "SPheno_internal")
 
 

@@ -98,8 +98,19 @@ ObsLikes:
   - purpose:      Observable
     capability:   test_BE_Array
 
+  # Test functionChain. 1 must be last in the chain, but 2, 3 and 4 may be permuted.
+  - purpose:      Observable
+    capability:   recursive_sum
+    function:     recursive_add_3
+    functionChain: [recursive_add_4, recursive_add_2, recursive_add_1]
 
 Rules:
+
+   # This rule can be used to achieve the same thing as the functionChain line above in the ObsLikes section.
+  #- if:
+  #    function: recursive_add_3
+  #  then:
+  #    functionChain: [recursive_add_4, recursive_add_2, recursive_add_1]
 
   - capability:   LibFirst_1_1_init
     dependencies:
@@ -120,7 +131,7 @@ Rules:
 
   - capability:    function_pointer
     backends:
-    - {function: externalFunction2}
+    - {group: external_funcs, function: externalFunction2}
 
 
 Logger:

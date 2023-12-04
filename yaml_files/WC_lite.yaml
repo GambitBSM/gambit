@@ -61,11 +61,16 @@ Priors:
 
 Printer:
 
-  printer: hdf5
+  #printer: hdf5
+  #options:
+  #  output_file: "WC.hdf5"
+  #  group: "/WC"
 
+  printer: ascii
   options:
-    output_file: "WC.hdf5"
-    group: "/WC"
+    output_file: "WC.dat"
+    buffer_length: 100
+    delete_file_on_restart: true
 
 
 Scanner:

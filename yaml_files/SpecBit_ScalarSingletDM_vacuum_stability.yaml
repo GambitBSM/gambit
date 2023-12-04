@@ -86,8 +86,11 @@ ObsLikes:
       purpose: Observable
       function: get_ScalarSingletDM_Z2_spectrum_as_map
       dependencies:
-         - capability: ScalarSingletDM_Z2_spectrum
-           type: Spectrum
+         - if:
+             capability: ScalarSingletDM_Z2_spectrum
+           then:
+             # Requires FlexibleSUSY model ScalarSingletDM_Z2 to have been built
+             function: get_ScalarSingletDM_Z2_spectrum_pole
 
 
 Rules:

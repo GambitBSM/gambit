@@ -273,6 +273,13 @@ demo_CAP_parameters: |
 large_print: |
   Scale test for various aspects of the printer buffer system.
 
+recursive_sum: |
+  A recursive summation example for demonstrating the functionChain keyword, which adds an integer to another integer retrieved from a dependency.
+
+starting_value: |
+  A fixed integer.
+
+
 #-------------------------------------
 #  SpecBit
 #-------------------------------------
@@ -5249,7 +5256,7 @@ check_likelihood_classy_combi: |
 check_likelihood_support: |
     Checks if a given MontePython likelihood is currently supported. The reason why some likelihoods are not supported are:
 
-    - likelihood is only compatible with either python 2 or 3 and GAMBIT is configured with unsupported python version
+    - likelihood is only compatible with python 2, while GAMBIT requires python 3
     - likelihood implementation does not follow MontePython guidelines. Examples could be
         * quantities derived by CLASS are not called directly through the CLASS python object but through MontePython data.get_mcmc_parameters(['derived'])
         * parameters setting the observables that CLASS has to compute are not specified
@@ -5266,10 +5273,10 @@ calc_MP_LogLikes: |
     Calls MontePython to get the likelihood of all experiments (tagged with 'Likelihood' and 'Observable'). The results are stored as map from experiment name to LogLike result in the type MPLike_result_container.
 
 MP_Combined_LogLike: |
-   Returns combined LogLike of all montethon Likelihoods used in the scan.
+   Returns combined LogLike of all Monte Python Likelihoods used in the scan.
 
 MP_LogLikes: |
-   Calls montethon to get the likelihood of all experiments (tagged with Likelihood and Observable). The results are stored as map from experiment name to LogLike result in the type MPLike_result_container.
+   Calls Monte Python to get the likelihood of all experiments (tagged with Likelihood and Observable). The results are stored as map from experiment name to LogLike result in the type MPLike_result_container.
 
 MP_Observables: |
     Returns a map from experiment name to LogLike value containing the likelihood of all experiments used as an Observable. These are not added to the value returned by MP_Combined_LogLike, hence they are not driving the scan.
@@ -5284,16 +5291,16 @@ MontePythonLike_3_5_0_init: |
   Initialise MontePython backend v3.5.0.
 
 MP_objects: |
-   Creates an object containing the montethon ~Data and Likelihood objects, deining which experiments are in use in the process.
+   Creates an object containing the Monte Python ~Data and Likelihood objects, deining which experiments are in use in the process.
 
 parameter_dict_for_MPLike: |
-   Returns bind11::dict filled with the mcmc_parameters dictionary of montethon's Data object, with current values of nuisance parameters.
+   Returns bind11::dict filled with the mcmc_parameters dictionary of Monte Python's Data object, with current values of nuisance parameters.
 
 create_MP_likelihood_objects: |
    Returns a map of string to Python objects: the Python objects from MontePython are the initialised "Likelihood" objects used internally.
 
 bao_like_correlation: |
-   Adds the correlation coefficients of the bao_correlations likelihood to the output file. Optional to use in combination with the bao_correlations montethon likelihoods.
+   Adds the correlation coefficients of the bao_correlations likelihood to the output file. Optional to use in combination with the bao_correlations Monte Python likelihoods.
 
 #----------------------------
 #  DarkAges
@@ -5622,7 +5629,7 @@ classy_NuMasses_Nur_input: |
    Sets all neutrino related input parameters for classy (N_ur, N_ncdm, T_ncdm, m_ncdm) and stores them in a Python dictionary.
 
 classy_MPLike_input: |
-   Sets all input parameters for classy from active montethon likelihoods and stores them in a Python dictionary. If no montethon likelihoods are in use, this will simply pass an empty dictionary.
+   Sets all input parameters for classy from active Monte Python likelihoods and stores them in a Python dictionary. If no Monte Python likelihoods are in use, this will simply pass an empty dictionary.
 
 classy_PlanckLike_input: |
    Sets all input parameters for classy needed for the calculation of active Planck CMB likelihoods. This sets the non-linear treatment to "halofit", the maximum angular scale up to which the CMB spectra are computed, and which spectra need to be computed (temperature, polarisation and/or lensing).

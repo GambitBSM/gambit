@@ -241,6 +241,41 @@ START_MODULE
     ALLOW_MODELS(TestModel1D)
     #undef FUNCTION
   #undef CAPABILITY
+  
+  // Testers for functionChain field in ObsLikes. Sum numbers recursively
+  #define CAPABILITY recursive_sum
+  START_CAPABILITY
+
+    #define FUNCTION recursive_add_1
+    START_FUNCTION(int)
+    DEPENDENCY(starting_value, int)
+    #undef FUNCTION
+
+    #define FUNCTION recursive_add_2
+    START_FUNCTION(int)
+    DEPENDENCY(recursive_sum, int)
+    #undef FUNCTION
+
+    #define FUNCTION recursive_add_3
+    START_FUNCTION(int)
+    DEPENDENCY(recursive_sum, int)
+    #undef FUNCTION
+
+    #define FUNCTION recursive_add_4
+    START_FUNCTION(int)
+    DEPENDENCY(recursive_sum, int)
+    #undef FUNCTION
+
+  #undef CAPABILITY
+    
+  // Starting point for the recursive sum
+  #define CAPABILITY starting_value
+  START_CAPABILITY
+    #define FUNCTION const_one
+    START_FUNCTION(int)
+    #undef FUNCTION
+  #undef CAPABILITY
+
 
 #undef MODULE
 

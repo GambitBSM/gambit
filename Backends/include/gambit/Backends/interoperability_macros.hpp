@@ -50,12 +50,6 @@
 #ifndef Python_LANG
   #define Python_LANG 5
 #endif
-#ifndef PYTHON2_LANG
-  #define PYTHON2_LANG 5
-#endif
-#ifndef Python2_LANG
-  #define Python2_LANG 5
-#endif
 #ifndef PYTHON3_LANG
   #define PYTHON3_LANG 5
 #endif

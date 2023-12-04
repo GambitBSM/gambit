@@ -530,6 +530,21 @@ namespace Gambit
     /// Flat test likelihood for checking prior distributions
     void flat_likelihood(double &result){ result = 1; }
 
+    /// A function that just returns 1
+    void const_one(int& result){ result = 1; }
+
+    /// Chained addition function that adds 1
+    void recursive_add_1(int& result){ result = 1 + *Pipes::recursive_add_1::Dep::starting_value; }
+
+    /// Chained addition function that adds 2
+    void recursive_add_2(int& result){ result = 2 + *Pipes::recursive_add_2::Dep::recursive_sum; }
+
+    /// Chained addition function that adds 3
+    void recursive_add_3(int& result){ result = 3 + *Pipes::recursive_add_3::Dep::recursive_sum; }
+
+    /// Chained addition function that adds 4
+    void recursive_add_4(int& result){ result = 4 + *Pipes::recursive_add_4::Dep::recursive_sum; }
+
     /// @}
   }
 

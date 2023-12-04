@@ -21,11 +21,6 @@
 #           *) for this specific yaml file you only need CosmoBit, DarkBit, NeutrinoBit and PrecisionBit
 #                 => there is no need to build all Bits of GAMBIT, you can ditch the others
 #                    with the cmake flag -Ditch="Collider;Decay;Spec;Flav"
-#           *) if you want to force GAMBIT to configure with python2 and
-#                 if you have python3 installed, you have to set cmake flags to your python2 library and
-#                 interpreters s.t. GAMBIT chooses python2
-#                 If the -DFORCE_PYTHON2 flag does not do the job you have to provide the following paths, something like
-#                 -DPYTHON_INCLUDE_DIR=/usr/include/python2.7 -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython2.7.so -DPYTHON_EXECUTABLE=/usr/bin/python2.7
 #           *) you will need the python package cython (included in the cmake prerequisite)
 #
 #
