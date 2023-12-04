@@ -144,7 +144,7 @@ namespace HEPUtils {
     /// Get abs PDG ID code
     int abspid() const { return abs(_pid); }
     /// Set PDG ID code
-    void set_pid(int pid) { _pdgId = pid; }
+    void set_pid(int pid) { _pid = pid; }
     /// Electron check
     bool isElectron() const { return abspid() == 11; }
     /// Muon check
