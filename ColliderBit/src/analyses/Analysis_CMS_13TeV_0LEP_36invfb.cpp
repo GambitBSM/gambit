@@ -57,7 +57,7 @@ namespace Gambit {
 
         // Get baseline jets
         vector<const Jet*> jets24, jets50;
-        for (const Jet* jet : event->jets()) {
+        for (const Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() < 30) continue;
           if (jet->abseta() < 2.4) jets24.push_back(jet);
           if (jet->abseta() < 5.0) jets50.push_back(jet);

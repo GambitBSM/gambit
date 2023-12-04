@@ -178,7 +178,7 @@ namespace Gambit {
             applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
             // Jets
             vector<const HEPUtils::Jet*> baselineJets;
-            for (const HEPUtils::Jet* jet : event->jets()) {
+            for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
                 if (jet->pT() > 30. && fabs(jet->eta()) < 2.4) baselineJets.push_back(jet);
             }
 

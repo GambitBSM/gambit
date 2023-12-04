@@ -41,7 +41,8 @@ namespace Gambit
     coutPrinter::coutPrinter(const Options& options, BasePrinter* const primary)
       : BasePrinter(primary,options.getValueOrDef<bool>(false,"auxilliary"))
     {
-      // This printer requires no setup
+      set_resume(false);
+      // No other setup required for this printer.
     }
 
     /// Initialisation function

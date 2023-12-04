@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
+// This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
+// Copyright (C) 2013-2023 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -367,16 +367,20 @@ namespace HEPUtils {
     /// Get the transverse momentum (same as rho)
     double pT() const { return rho(); }
 
-    /// Get the spatial phi
-    double phi() const { if (rho2() == 0) return 0; else return atan2(py(),px()); }
-    /// Get the spatial theta
-    double theta() const { if (p2() == 0) return 0; else if (pz() == 0) return M_PI; else return atan2(rho(),pz()); }
-    /// Get the spatial vector pseudorapidity
-    double eta() const { return -log(tan( 0.5 * theta() )); } //< Optimise with a trig reln on tan(x/2) to avoid tan(atan(..)/2)?
-    /// Get the spatial vector absolute pseudorapidity
+    /// Get the spatial phi (in the range -pi .. pi)
+    double phi() const { if (rho2() == 0) return 0; else return atan2(py(), px()); }
+    /// Get the spatial phi (in the range 0 .. 2pi)
+    double phi_02pi() const { if (rho2() == 0) return 0; else return phi() + M_PI; }
+
+    /// Get the spatial theta (in the range 0 .. pi)
+    double theta() const { if (p2() == 0) return 0; else
+	if (pz() == 0) return M_PI/2; else return atan2(rho(), pz()); } //< atan2(+ve, z) is +ve
+    /// Get the spatial-vector pseudorapidity
+    double eta() const { return std::copysign(log((p() + fabs(pz())) / pT()), pz()); }
+    /// Get the spatial-vector absolute pseudorapidity
     double abseta() const { return fabs(eta()); }
     /// Get the 4-momentum rapidity
-    double rap() const { return 0.5 * (E() + pz()) / (E() - pz()); }
+    double rap() const { return 0.5 * log((E() + pz()) / (E() - pz())); }
     /// Get the 4-momentum absolute rapidity
     double absrap() const { return fabs(rap()); }
 
@@ -503,6 +507,19 @@ namespace HEPUtils {
   inline P4 operator * (double f, const P4& a) { P4 rtn = a; return rtn *= f; }
   inline P4 operator / (const P4& a, double f) { P4 rtn = a; return rtn /= f; }
   //@}
+
+
+  /// Function/functor for container<const P4> sorting (cf. std::less)
+  template <typename T>
+  inline bool _cmpPtDesc(const T& a, const T& b) {
+    return a.pT2() >= b.pT2();
+  }
+
+  /// Function/functor for container<const P4*> sorting (cf. std::less)
+  template <typename T>
+  inline bool _cmpPtDescPtr(const T* a, const T* b) {
+     return _cmpPtDesc(*a, *b);
+  }
 
 
 }

@@ -154,7 +154,7 @@ namespace Gambit {
             // Jets
             vector<const HEPUtils::Jet*> baselineJets;
             vector<const HEPUtils::Jet*> fullJets;
-            for (const HEPUtils::Jet* jet : event->jets()) {
+            for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
                 if (jet->pT() > 30. && jet->abseta() < 2.4) baselineJets.push_back(jet);
                 if (jet->abseta() < 5.0) fullJets.push_back(jet);
             }
@@ -294,7 +294,7 @@ namespace Gambit {
 
             // Mlb
             double deltaRlb=9999.;
-            double Mlb;
+            double Mlb = -1; ///< what if no real value is found???
             for (const HEPUtils::Jet* bj :mediumbJets) {
                 if (deltaRlb > bj->mom().deltaR_eta(Leptons.at(0)->mom())){
                     deltaRlb = bj->mom().deltaR_eta(Leptons.at(0)->mom());
@@ -395,7 +395,7 @@ namespace Gambit {
             if (baselineJets.size()>=4 and tmod>10 and Mlb<=175 and met>=450) _counters.at("aggregateSR2").add_event(event);
             if (baselineJets.size()>=4 and tmod<=0 and Mlb> 175 and met>=450) _counters.at("aggregateSR3").add_event(event);
             if (baselineJets.size()>=4 and tmod> 0 and Mlb> 175 and met>=450) _counters.at("aggregateSR4").add_event(event);
-            if(baselineJets.size()>=5 and leadjet_nob and deltaPhi_j12 >0.5 and Leptons.at(0)->pT() < 150 and Leptons.at(0)->mom().deltaPhi(ptot)<2. ){
+            if (baselineJets.size()>=5 and leadjet_nob and deltaPhi_j12 >0.5 and Leptons.at(0)->pT() < 150 and Leptons.at(0)->mom().deltaPhi(ptot)<2. ){
                 if( met>=450 ) _counters.at("aggregateSR5").add_event(event);
             }
         return;
