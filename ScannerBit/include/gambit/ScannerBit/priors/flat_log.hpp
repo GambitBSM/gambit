@@ -328,22 +328,27 @@ namespace Gambit
             // Transformation from unit interval to specified range
             // (need to use vectors to be compatible with BasePrior virtual function)
             // // unitparam -> param
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string,double> &output) const override
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string,double> &output) const override
             {
                 output[myparameter] = (inv(unitpars[0]*(upper-lower) + lower)-shift_out)/scale_out;
             }
 
             // // param -> unitparam
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
             {
                 const double p = physical.at(myparameter);
                 const double x = limits(scale_out * p + shift_out);
                 const double u = (x - lower) / (upper - lower);
-                return {u};
+
+                unit[0] = u;
             }
 
             // log ( PDF (unitparam) )
-            double operator()(const std::vector<double> &vec) const override {return prior(vec[0]*scale+shift)*scale;}
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override
+            {
+                return prior(physical.at(myparameter)*scale+shift)*scale;
+            }
+
         };
 
 
