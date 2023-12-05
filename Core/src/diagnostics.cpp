@@ -45,7 +45,9 @@ namespace Gambit
   void gambit_core::module_diagnostic()
   {
     YAML::Node gambit_bits_yaml = YAML::LoadFile(GAMBIT_DIR "/config/gambit_bits.yaml");
-    auto gambit_bits = gambit_bits_yaml["gambit_bits"].as<std::vector<std::string>>();
+    auto gambit_bits = gambit_bits_yaml["enabled"].as<std::vector<std::string>>();
+    const auto gambit_bits_disabled = gambit_bits_yaml["disabled"].as<std::vector<std::string>>();
+    gambit_bits.insert(gambit_bits.end(), gambit_bits_disabled.begin(), gambit_bits_disabled.end());
 
     // We need to manually add this here, can not be crawled by our script.
     // We want to sort it again to keep alphabetical ordering from the python script after adding bits explicitly here.
@@ -87,6 +89,26 @@ namespace Gambit
   /// Basic backend diagnostic function
   void gambit_core::backend_diagnostic()
   {
+
+    YAML::Node gambit_backends_yaml = YAML::LoadFile(GAMBIT_DIR "/config/gambit_backends.yaml");
+    auto gambit_backends = gambit_backends_yaml["enabled"].as<std::map<std::string, std::vector<std::string>>>();
+    auto gambit_backends_disabled = gambit_backends_yaml["disabled"].as<std::map<std::string, std::vector<std::string>>>();
+
+    for (auto &backend : gambit_backends_disabled)
+    {
+      if (gambit_backends.find(backend.first) == gambit_backends.end())
+      {
+        gambit_backends[backend.first] = backend.second;
+      }
+      else
+      {
+        for (auto &version : backend.second)
+        {
+          gambit_backends[backend.first].emplace_back(version);
+        }
+      }
+    }
+
     bool all_good = true;
     table_formatter table("Backends", "Version", "Path to lib", "Status ", " #func ", "#types ", "#ctors");
     table.padding(1);
@@ -94,7 +116,7 @@ namespace Gambit
     table.default_widths(18, 7, 70, 13, 3, 3);
 
     // Loop over all registered backends
-    for (const auto &backend : backend_versions)
+    for (const auto &backend : gambit_backends)
     {
       // Loop over all registered versions of this backend
       for (const auto &version : backend.second)
@@ -103,19 +125,25 @@ namespace Gambit
         int ntypes = 0;
         int nctors = 0;
 
-        // Retrieve the status and path info.
-        const str path = backendData->path(backend.first, version);          // Get the path of this backend
-        const str status = backend_status(backend.first, version, all_good); // Save the status of this backend
-
-        // Count up the number of functions in this version of the backend, using the registered functors.
-        for (const auto &functor : backendFunctorList)
+        if (backend_versions.find(backend.first) == backend_versions.end())
         {
-          if (functor->origin() == backend.first and functor->version() == version) nfuncs++; // If backend matches, increment the count of the functions in this version
+          const str firstentry = (&version == std::addressof(*backend.second.begin()) ? backend.first : "");
+          table << firstentry << version << "n/a";
+          table.red() << "disabled";
+          table << "n/a" << "n/a" << "n/a";
         }
-
-        // Do things specific to versions that provide classes
-        if (backendData->classloader.at(backend.first + version))
+        else
         {
+          // Retrieve the status and path info.
+          const str path = backendData->path(backend.first, version);          // Get the path of this backend
+          const str status = backend_status(backend.first, version, all_good); // Save the status of this backend
+
+          // Count up the number of functions in this version of the backend, using the registered functors.
+          for (const auto &functor : backendFunctorList)
+          {
+            if (functor->origin() == backend.first and functor->version() == version) nfuncs++; // If backend matches, increment the count of the functions in this version
+          }
+
           if (backendData->classes.count(backend.first + version) != 0)
           {
             const std::set<str> classes = backendData->classes.at(backend.first + version); // Retrieve classes loaded by this version
@@ -125,16 +153,31 @@ namespace Gambit
               nctors += backendData->factory_args.at(backend.first + version + class_).size(); // Add the number of factories for this class to the total
             }
           }
-        }
 
-        // Print the info
-        const str firstentry = (&version == std::addressof(*backend.second.begin()) ? backend.first : "");
-        table << firstentry << version << path;
-        if (status == "OK")
-          table.green() << status;
-        else
-          table.red() << status;
-        table << " " + std::to_string(nfuncs) << std::to_string(ntypes) << std::to_string(nctors);
+          // Do things specific to versions that provide classes
+          if (backendData->classloader.at(backend.first + version))
+          {
+            const std::set<str> classes = backendData->classes.at(backend.first + version); // Retrieve classes loaded by this version
+            ntypes = classes.size();                                                        // Get the number of classes loaded by this backend
+            for (const auto &class_ : classes)                                              // class is a C++ keyword, so use class_ here which allows the same readability.
+            {
+              nctors += backendData->factory_args.at(backend.first + version + class_).size(); // Add the number of factories for this class to the total
+            }
+          }
+
+          // Print the info
+          const str firstentry = (&version == std::addressof(*backend.second.begin()) ? backend.first : "");
+          table << firstentry << version << path;
+          if (status == "OK")
+          {
+            table.green() << status;
+          }
+          else
+          {
+            table.red() << status;
+          }
+          table << " " + std::to_string(nfuncs) << std::to_string(ntypes) << std::to_string(nctors);
+        }
       }
     }
 

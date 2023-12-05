@@ -81,15 +81,17 @@ namespace Gambit
   /// Destructor
   Backends::backend_info::~backend_info()
   {
-    if (not loaded_python_backends.empty())
-    {
-      for (auto it = loaded_python_backends.begin();
-                it != loaded_python_backends.end();
-                it++)
+    #ifdef HAVE_PYBIND11
+      if (not loaded_python_backends.empty())
       {
-        delete it->second;
+        for (auto it = loaded_python_backends.begin();
+                  it != loaded_python_backends.end();
+                  it++)
+        {
+          delete it->second;
+        }
       }
-    }
+    #endif
   }
 
   /// Indicate whether a custom backend locations file exists
@@ -560,7 +562,7 @@ namespace Gambit
       // Bail now if the backend requires a version of Python that GAMBIT is not configured with.
       if (PYTHON_VERSION_MAJOR < 2 or PYTHON_VERSION_MAJOR > 3)
       {
-        err << "GAMBIT was configured with an unsupported version of Python: " << PYTHON_VERSION_MAJOR 
+        err << "GAMBIT was configured with an unsupported version of Python: " << PYTHON_VERSION_MAJOR
             << ". Only Python 3 is supported by GAMBIT." << endl;
         backend_error().raise(LOCAL_INFO, err.str());
         works[be+ver] = false;

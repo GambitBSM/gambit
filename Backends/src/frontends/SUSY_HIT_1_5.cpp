@@ -16,7 +16,7 @@
 #include <sstream>
 
 #include "gambit/Backends/frontend_macros.hpp"
-#include "gambit/Backends/frontends/SUSY-HIT_1_5.hpp"
+#include "gambit/Backends/frontends/SUSY_HIT_1_5.hpp"
 #include "gambit/Elements/mssm_slhahelp.hpp"
 #include "gambit/Utils/slhaea_helpers.hpp"
 

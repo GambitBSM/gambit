@@ -50,7 +50,7 @@ namespace Gambit
 
         namespace Plugins
         {
-            
+
             ///Plugin info from inifile
             struct Proto_Plugin_Details
             {
@@ -73,7 +73,7 @@ namespace Gambit
                 Plugin_Interface_Details(Plugin_Details &details, printer_interface *printer, Priors::BasePrior *prior, const YAML::Node &node)
                         : details(details), printer(printer), prior(prior), flags(details.flags), node(node) {}
             };
-            
+
         #ifdef HAVE_PYBIND11
             struct EXPORT_SYMBOLS PyPlugin_Details
             {
@@ -87,12 +87,12 @@ namespace Gambit
                 std::string run_doc;
                 std::string status;
                 std::string error;
-                
+
                 PyPlugin_Details() : plugin_name(""), package(""), type(""), version("1.0.0"), loc(""), class_doc(""), init_doc(""), run_doc(""), status("ok") {}
-                
+
                 std::string print() const;
-                
-                void debug() const 
+
+                void debug() const
                 {
                     std::cout << "pyplugin details:" << std::endl;
                     std::cout << "  plugin_name: " << plugin_name << std::endl;
@@ -108,7 +108,7 @@ namespace Gambit
                 }
             };
         #endif
-            
+
             ///container class for the actual plugins detected by ScannerBit
             class EXPORT_SYMBOLS Plugin_Loader
             {
@@ -125,13 +125,13 @@ namespace Gambit
             #endif
                 std::vector<Plugin_Details> loadExcluded(const std::string &);
                 void process(const std::string &, const std::string &, const std::string &, std::vector<Plugin_Details>&);
-                
+
             public:
             #ifdef HAVE_PYBIND11
                 void Load_PyPlugins(const std::string &);
                 void Load_PyPlugins();
             #endif
-                
+
                 Plugin_Loader();
                 const std::vector<Plugin_Details> &getPluginsVec() const {return total_plugins;}
                 const std::map<std::string, std::map<std::string, std::vector<Plugin_Details>>> &getPluginsMap() const {return total_plugin_map;}
@@ -147,7 +147,9 @@ namespace Gambit
                 int print_plugin_to_screen (const std::string &, const std::string &) const;
                 int print_plugin_to_screen (const std::vector<std::string> &) const;
                 Plugin_Details &find (const std::string &, std::string, const std::string &, const std::string &) const;
+            #ifdef HAVE_PYBIND11
                 PyPlugin_Details &find_python_plugin (const std::string &, const std::string &);
+            #endif
             };
 
             ///Virtual container base class to store plugin values for resume function
@@ -238,7 +240,7 @@ namespace Gambit
                 bool early_shutdown_in_progress() const {return earlyShutdownInProgress;}
                 bool resume_mode() const { return printer->resume_mode(); }
                 std::string temp_file_path() {return Gambit::Utils::ensure_path_exists(def_out_path + "/temp_files/");}
-                
+
             #ifdef HAVE_PYBIND11
                 void load_python_plugins();
                 PyPlugin_Details &load_python_plugin(const std::string &, const std::string &);
