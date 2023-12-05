@@ -111,7 +111,7 @@ namespace Gambit {
         const std::vector<double> c = {0.60};
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
 
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 30. && fabs(jet->eta()) < 5.0) {
             baselineJets.push_back(jet);
             //LorentzVector j1 (jet->mom().px(),jet->mom().py(),jet->mom().pz(),jet->mom().E()) ;

@@ -16,6 +16,12 @@
 #include <utility>
 #include <vector>
 
+// Added in GAMBIT to suppress warning from clang
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 namespace YAML {
 namespace detail {
 struct iterator_type {
@@ -176,5 +182,9 @@ typedef node_iterator_base<node> node_iterator;
 typedef node_iterator_base<const node> const_node_iterator;
 }
 }
+
+#if defined(__clang__) && !defined(__ICC)
+  #pragma clang diagnostic pop
+#endif
 
 #endif  // VALUE_DETAIL_NODE_ITERATOR_H_62B23520_7C8E_11DE_8A39_0800200C9A66

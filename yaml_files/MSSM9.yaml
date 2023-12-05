@@ -351,8 +351,18 @@ ObsLikes:
 Rules:
 
   # Tell all functions that are able to dump SLHA files to do so.
-  #- options:
-  #    drop_SLHA_file: true
+  #- if:
+  #    capability: any
+  #  then:
+  #    options:
+  #      drop_SLHA_file: true
+
+  # Tell DarkBit to give zero annihilation yields beyond the range of table validity. 
+  - if:
+      module: DarkBit
+    then:
+      options:
+        out_of_range_zero_yield: true
 
   # Choose to use DarkSUSY 6 rather than Capt'n General for calculating the capture rate of DM in the Sun
   - capability: capture_rate_Sun
@@ -360,9 +370,12 @@ Rules:
     function: capture_rate_Sun_const_xsec
 
   # Globally permit maximal mixing between gauge and family eigenstates
-  - options:
-      gauge_mixing_tolerance: 0.5
-      family_mixing_tolerance: 0.5
+  - if: 
+      function: any
+    then:
+      options:
+        gauge_mixing_tolerance: 0.5
+        family_mixing_tolerance: 0.5
 
   # Choose to use gm2calc for g-2
   - capability: muon_gm2
@@ -377,7 +390,7 @@ Rules:
     function: SuperIso_prediction_b2sgamma
 
   # Use SuperIso instead of FeynHiggs for B_s->mumu
-  - capability: SuperIso_prediction_B2mumu
+  - capability: prediction_B2mumu
     function: SuperIso_prediction_B2mumu
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
@@ -435,11 +448,13 @@ Rules:
 
   # Choose whether MicrOmegas calculates decays widths for the MSSM internally using CalcHEP (internal_decays=true) or uses
   # values from the GAMBIT decay table (internal_decays=false).
-  #- function: MicrOmegas_MSSM_3_6_9_2_init
-  #  options:
-  #     internal_decays: true
-  #     VZdecay: 2 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
-  #     VWdecay: 2 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
+  #- if:
+  #    function: MicrOmegas_MSSM_3_6_9_2_init
+  #  then:
+  #    options:
+  #      internal_decays: true
+  #      VZdecay: 2 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
+  #      VWdecay: 2 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
   # Choose to use detailed Fermi Pass 8 dwarf likelihoood from gamlike
   - capability: lnL_FermiLATdwarfs
@@ -609,7 +624,13 @@ Rules:
         # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
         partonOnly: false
-        antiktR: 0.4
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt
+            R: 0.4
+            recombination_scheme: E_scheme
+            strategy: Best
+        jet_collection_taus: antikt_R04
         pythia_settings:
           - Print:quiet = on
           - Next:numberCount = 0
@@ -661,7 +682,7 @@ Rules:
   - capability: LHC_LogLikes
     function: calc_LHC_LogLikes
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       # covariance_marg_convthres_abs: 0.05
       # covariance_marg_convthres_rel: 0.05

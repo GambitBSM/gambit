@@ -42,6 +42,7 @@
 #  \author Anders Kvellestad
 #          (anderkve@fys.uio.no)
 #  \date 2015 May
+#  \date 2023 Jun
 #
 #  \author Christoph Weniger
 #          (c.weniger@uva.nl)
@@ -220,7 +221,7 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(examples_dir "${PROJECT_SOURCE_DIR}/Backends/examples/${name}/${ver}")
 check_ditch_status(${name} ${ver} "none" ${ditch_if_absent})
 # Ditch if Python version < v3.6 (required for pyhf)
-if(${PYTHON_VERSION_MAJOR} LESS 3 OR ${PYTHON_VERSION_MINOR} LESS 6)
+if(PYTHON_VERSION VERSION_LESS 3.6)
   message("${BoldCyan} X Excluding ATLAS FullLikes from GAMBIT configuration. Configure with Python >= v3.6 to activate ATLAS FullLikes: ${ColourReset}")
   set(ditched_${name}_${ver} true)
 endif()
@@ -821,16 +822,7 @@ set(ver "1.0.0")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "16b763a2e8b9d6c174d8b7ca2f4cb575")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-if(GSL_FOUND)
-  execute_process(
-    COMMAND gsl-config --libs
-    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
-    RESULT_VARIABLE RET
-  )
-  if( RET EQUAL 0 )
-    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
-  endif()
-endif()
+set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -853,16 +845,7 @@ set(ver "1.0.1")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "80b50ab2345e8b7d43b9eace5436e515")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-if(GSL_FOUND)
-  execute_process(
-    COMMAND gsl-config --libs
-    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
-    RESULT_VARIABLE RET
-  )
-  if( RET EQUAL 0 )
-    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
-  endif()
-endif()
+set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -1853,13 +1836,13 @@ endif()
 
 # phc
 set(name "phc")
-set(ver "2.4.58")
+set(ver "2.4.77")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(dl "http://www.math.uic.edu/~jan/mactel64y_phcv24p.tar.gz")
+  set(dl "https://github.com/janverschelde/PHCpack/releases/download/v2.4.77/mactel64y_phcv24p.tar.gz")
   #set(md5 "2e347b1794201d7ca462d2e4b5630147")
   set(md5 "none")
 else()
-  set(dl "http://www.math.uic.edu/~jan/x86_64phcv24p.tar.gz")
+  set(dl "https://github.com/janverschelde/PHCpack/releases/download/v2.4.77/x86_64phcv24p.tar.gz")
   #set(md5 "7b589002b78037c40a8c52269bf39c0e")
   set(md5 "none")
 endif()
@@ -1917,7 +1900,7 @@ set(patchdir "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")
 set(Minuit_name "minuit2")
 set(Minuit_ver "6.23.01")
 set(Minuit_lib_name "libminuit2")
-set(phc_ver "2.4.58")
+set(phc_ver "2.4.77")
 set(hom4ps_ver "2.0")
 set(Minuit_include "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/inc/")
 set(Minuit_lib "${PROJECT_SOURCE_DIR}/ScannerBit/installed/${Minuit_name}/${Minuit_ver}/lib/")
@@ -2158,7 +2141,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
+  #set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # plc
@@ -2193,7 +2176,9 @@ if(NOT ditched_${name}_${ver})
     PATCH_COMMAND tar -C ${dir}/ -xf ${dir}/code/plc_3.0/plc-3.0.tar.bz2 --strip-components=1
           COMMAND patch -p1 < ${patch}/${name}_${ver}.diff
           COMMAND sed ${dashi} -e "s#x86_64#${CMAKE_SYSTEM_PROCESSOR}#g" waf_tools/mbits.py
-    CONFIGURE_COMMAND CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} ${PYTHON_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --extra_lib=dl --no_pytools
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -E echo "CC=${CMAKE_C_COMPILER} FC=${CMAKE_Fortran_COMPILER} LDFLAGS=\"${CMAKE_SHARED_LINKER_FLAGS}\" CFLAGS=\"${BACKEND_C_FLAGS}\" ${PYTHON_EXECUTABLE} ${dir}/waf configure --cfitsio_include=${cfitsio_dir}/include --cfitsio_lib=${cfitsio_dir}/lib ${mkl_libs_option} --no_pytools" > run_waf.sh
+              COMMAND chmod u+x run_waf.sh
+              COMMAND ./run_waf.sh
     BUILD_COMMAND ""
     INSTALL_COMMAND C_INCLUDE_PATH=$(C_INCLUDE_PATH):${PYTHON_INCLUDE_DIR} ${PYTHON_EXECUTABLE} ${dir}/waf install --no_pytools
   )
@@ -2389,6 +2374,10 @@ if(NOT ditched_${name}_${ver})
 endif()
 
 
+# Linker flags used in the class makefile when linking executables
+set(CLASSY_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
+# This is the link command used by cython when compiling Python.
+set(CYTHON_LINK "LDSHARED=${CMAKE_C_COMPILER} ${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} ${CLASSY_LINKER_FLAGS}")
 # Modified OpenMP settings and linker flags for classy
 if(FOUND_BREW_OPENMP)
   set(CLASSY_OpenMP_C_FLAGS "${OpenMP_C_FLAGS} -I${BREW_LIBOMP_PREFIX}/include")
@@ -2402,9 +2391,10 @@ else()
 endif()
 if("${CMAKE_C_COMPILER_ID}" STREQUAL "AppleClang")
   set(lgomp_REPLACEMENT "${lgomp_REPLACEMENT},  '-arch', '${CMAKE_SYSTEM_PROCESSOR}'")
-  set(CLASSY_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS}")
-else()
-  set(lgomp_REPLACEMENT "${lgomp_REPLACEMENT},  '-march=${CMAKE_SYSTEM_PROCESSOR}'")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+  set(lgomp_REPLACEMENT "${lgomp_REPLACEMENT},  '-march=native'")
+elseif("${CMAKE_C_COMPILER_ID}" STREQUAL "Intel")
+  set(lgomp_REPLACEMENT "${lgomp_REPLACEMENT},  '-xHost'")
 endif()
 
 # classy
@@ -2434,7 +2424,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2473,7 +2463,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2512,7 +2502,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2551,7 +2541,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2591,7 +2581,7 @@ if(NOT ditched_${name}_${ver})
       COMMAND sed ${dashi} -e "s#autosetup.py install#autosetup.py build#g" Makefile
       COMMAND sed ${dashi} -e "s#rm -f libclass.a#rm -rf libclass.a lib#g" Makefile
       COMMAND sed ${dashi} -e "s#\"[.]\"#\"${dir}\"#g" include/common.h
-      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} all
+      BUILD_COMMAND ${MAKE_PARALLEL} CC=${CMAKE_C_COMPILER} OMPFLAG=${CLASSY_OpenMP_C_FLAGS} OPTFLAG= CCFLAG=${BACKEND_C_FLAGS} LDFLAG=${CLASSY_LINKER_FLAGS} PYTHON=${PYTHON_EXECUTABLE} ${CYTHON_LINK} CFLAGS=${BACKEND_C_FLAGS} all
       COMMAND ${CMAKE_COMMAND} -E make_directory lib
       COMMAND find python/ -name "classy*.so" | xargs -I {} cp "{}" lib/
       COMMAND ${CMAKE_COMMAND} -E echo "#This is a trampoline script to import the cythonized python module under a different name" > lib/${lib}_${sfver}.py
@@ -2645,7 +2635,8 @@ endif()
 set(name "multimodecode")
 set(ver "2.0.0")
 set(lib "libmodecode")
-set(dl "http://modecode.org/wp-content/uploads/2014/09/MultiModeCode.2.0.0.tar.gz")
+# Currently archived backend
+set(dl "https://github.com/GambitBSM/archived_backends/raw/main/multimodecode_2.0.0.tar.gz")
 set(md5 "03f99f02c572ea34383a0888fb0658d6")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}")

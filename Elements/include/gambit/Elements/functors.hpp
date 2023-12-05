@@ -13,6 +13,7 @@
 ///  \date 2013 Apr-July, Dec
 ///  \date 2014 Jan, Mar-May, Sep
 ///  \date 2015 Jan
+///  \date 2022 Dec
 ///
 ///  \author Anders Kvellestad
 ///          (anders.kvellestad@fys.uio.no)
@@ -34,6 +35,10 @@
 ///  \author Tomas Gonzalo
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 Sep
+///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 May
 ///
 ///  *********************************************
 
@@ -72,6 +77,9 @@ namespace Gambit
   /// Forward declaration of Models::ModelFunctorClaw class for use in constructors.
   namespace Models { class ModelFunctorClaw; }
 
+  /// Forward declaration of Rule and Observables classes for saving pointers to ignored and matched examples
+  namespace DRes { struct ModuleRule; struct BackendRule; struct Observable; }
+
   /// Type redefinition to get around icc compiler bugs.
   template <typename TYPE, typename... ARGS>
   struct variadic_ptr { typedef TYPE(*type)(ARGS..., ...); };
@@ -96,7 +104,7 @@ namespace Gambit
       /// Constructor
       functor(str, str, str, str, Models::ModelFunctorClaw&);
 
-      //// Destructor
+      /// Destructor
       virtual ~functor() {}
 
       /// Virtual calculate(); needs to be redefined in daughters.
@@ -147,10 +155,12 @@ namespace Gambit
       /// Getter for the wrapped function's origin (module or backend name)
       str origin() const;
       /// Getter for the version of the wrapped function's origin (module or backend)
-      str version() const;
+      virtual str version() const;
       /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
       virtual str safe_version() const;
       /// Getter for the wrapped function current status:
+      ///                    -6 = required external tool absent (pybind11)
+      ///                    -5 = required external tool absent (Mathematica)
       ///                    -4 = required backend absent (backend ini functions)
       ///                    -3 = required classes absent
       ///                    -2 = function absent
@@ -194,6 +204,8 @@ namespace Gambit
       /// Getter for revealing whether this is permitted to be a manager functor
       virtual bool canBeLoopManager();
 
+      /// Getter for revealing whether this functor needs a loop manager
+      virtual bool needsLoopManager();
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
       /// Getter for revealing the required type of the wrapped function's loop manager
@@ -232,11 +244,17 @@ namespace Gambit
       /// Getter for backend-specific conditional dependencies (backend functor pointer version)
       virtual std::set<sspair> backend_conditional_dependencies (functor*);
 
-      /// Getter for listing model-specific conditional dependencies
-      virtual std::set<sspair> model_conditional_dependencies (str);
+      /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
+      virtual std::set<sspair> model_conditional_dependencies (str model);
 
-      /// Getter for listing model-specific conditional backend requirements
-      virtual std::set<sspair> model_conditional_backend_reqs (str);
+      /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+      virtual std::set<sspair> model_conditional_dependencies_exact (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
+      virtual std::set<sspair> model_conditional_backend_reqs (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+      virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Resolve a dependency using a pointer to another functor object
       virtual void resolveDependency (functor*);
@@ -301,6 +319,15 @@ namespace Gambit
       /// Return a safe pointer to the vector of all capability,type pairs of functors arranged downstream of this one in the dependency tree.
       safe_ptr<std::set<sspair>> getDependees();
 
+      /// Getter for listing allowed models
+      const std::set<str>& getAllowedModels();
+
+      /// Getter for listing conditional models
+      const std::set<str>& getConditionalModels();
+
+      /// Getter for map of model groups and the set of models in each group
+      const std::map<str, std::set<str>>& getModelGroups();
+
       /// Test whether the functor is allowed to be used with all models
       bool allModelsAllowed();
 
@@ -324,6 +351,28 @@ namespace Gambit
 
       /// Add a combination of model groups to the internal list of combinations for which this functor is allowed to be used.
       void setAllowedModelGroupCombo(str groups);
+      
+      /// Add an observable to the set of those that this functor matches.
+      void addMatchedObservable(const DRes::Observable*);
+      
+      /// Retrieve the set of observables that this functor matches.
+      const std::set<const DRes::Observable*>& getMatchedObservables();
+
+      /// Add a module rule to the set of those against which this functor has been tested and found to match.
+      void addMatchedModuleRule(const DRes::ModuleRule*);
+      
+      /// Add a backend rule to the set of those against which this functor has been tested and found to match.
+      void addMatchedBackendRule(const DRes::BackendRule*);
+
+      /// Retrieve the set of module rules against which this functor has been tested and found to match.
+      const std::set<const DRes::ModuleRule*>& getMatchedModuleRules();
+
+      /// Retrieve the set of backend rules against which this functor has been tested and found to match.
+      const std::set<const DRes::BackendRule*>& getMatchedBackendRules();
+
+      /// Retrieve matched rules by type.
+      template<class RuleT>
+      const std::set<RuleT*>& getMatchedRules(); 
 
     protected:
 
@@ -335,8 +384,6 @@ namespace Gambit
       str myType;
       /// Internal storage of the name of the module or backend to which the function belongs.
       str myOrigin;
-      /// Internal storage of the version of the module or backend to which the function belongs.
-      str myVersion;
       /// Purpose of the function (relevant for output and next-to-output functors)
       str myPurpose;
       /// Citation key: BibTex key of the reference.
@@ -349,6 +396,8 @@ namespace Gambit
       /// String label, used to label functor timing data for printer system
       const str myTimingLabel;
       /// Status:
+      ///                    -6 = required external tool absent (pybind11)
+      ///                    -5 = required external tool absent (Mathematica)
       ///                    -4 = required backend absent (backend ini functions)
       ///                    -3 = required classes absent
       ///                    -2 = function absent
@@ -376,11 +425,23 @@ namespace Gambit
       /// List of allowed models
       std::set<str> allowedModels;
 
+      /// List of conditional models
+      std::set<str> conditionalModels;
+
       /// List of allowed model group combinations
       std::set<std::set<str> > allowedGroupCombos;
 
       /// Map from model group names to group contents
       std::map<str, std::set<str> > modelGroups;
+      
+      /// The set of observables that this functor matches.
+      std::set<const DRes::Observable*> matched_observables;
+
+      /// Set of module rules against which this functor has been tested and found to match.
+      std::set<const DRes::ModuleRule*> matched_module_rules;
+
+      /// Set of backend rules against which this functor has been tested and found to match.
+      std::set<const DRes::BackendRule*> matched_backend_rules;
 
       /// Attempt to retrieve a dependency or model parameter that has not been resolved
       static void failBigTime(str method);
@@ -464,6 +525,8 @@ namespace Gambit
 
       /// Setter for specifying the capability required of a manager functor, if it is to run this functor nested in a loop.
       virtual void setLoopManagerCapType (str cap, str t);
+      /// Getter for revealing whether this functor needs a loop manager
+      virtual bool needsLoopManager();
       /// Getter for revealing the required capability of the wrapped function's loop manager
       virtual str loopManagerCapability();
       /// Getter for revealing the required type of the wrapped function's loop manager
@@ -508,11 +571,17 @@ namespace Gambit
       /// Getter for backend-specific conditional dependencies (backend functor pointer version)
       virtual std::set<sspair> backend_conditional_dependencies (functor* be_functor);
 
-      /// Getter for listing model-specific conditional dependencies
+      /// Getter for listing model-specific conditional dependencies (matches also on parents and friends)
       virtual std::set<sspair> model_conditional_dependencies (str model);
 
-      /// Getter for listing model-specific conditional backend requirements
+      /// Getter for listing model-specific conditional dependencies (matches on the exact model)
+      virtual std::set<sspair> model_conditional_dependencies_exact (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches also on parents and friends)
       virtual std::set<sspair> model_conditional_backend_reqs (str model);
+
+      /// Getter for listing model-specific conditional backend requirements (matches on the exact model)
+      virtual std::set<sspair> model_conditional_backend_reqs_exact (str model);
 
       /// Add and activate unconditional dependencies.
       void setDependency(str, str, void(*)(functor*, module_functor_common*), str purpose= "");
@@ -862,6 +931,9 @@ namespace Gambit
       /// Integer LogTag, for tagging log messages
       int myLogTag;
 
+      /// Internal storage of the version of the backend to which the function belongs.
+      str myVersion;
+
       /// Internal storage of the 'safe' version of the version (for use in namespaces, variable names, etc).
       str mySafeVersion;
 
@@ -885,7 +957,10 @@ namespace Gambit
       /// Hand out a safe pointer to this backend functor's inUse flag.
       safe_ptr<bool> inUsePtr();
 
-      /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
+      /// Getter for the version of the wrapped function's backend.
+      virtual str version() const;
+
+      /// Getter for the 'safe' incarnation of the version of the wrapped function's backend.
       virtual str safe_version() const;
 
   };

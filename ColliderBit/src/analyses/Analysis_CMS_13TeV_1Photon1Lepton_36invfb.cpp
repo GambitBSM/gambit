@@ -270,7 +270,7 @@ namespace Gambit {
 
         // Jets
         vector<const HEPUtils::Jet*> jets;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>30. && jet->abseta()<2.5) jets.push_back(jet);
         }

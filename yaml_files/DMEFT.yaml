@@ -247,9 +247,11 @@ Rules:
     function: sigmav_late_universe
 
   # Choose to set to zero yields out of range of the tables
-  - module: DarkBit
-    options:
-      out_of_range_zero_yield: true
+  - if:
+      module: DarkBit
+    then:
+      options:
+        out_of_range_zero_yield: true
 
   # Choose to use DarkSUSY yield tables for indirect detection
   - capability: GA_SimYieldTable
@@ -324,7 +326,7 @@ Rules:
   - capability: LHC_LogLikes
     function: calc_LHC_LogLikes
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       # covariance_marg_convthres_abs: 0.05
       # covariance_marg_convthres_rel: 0.05

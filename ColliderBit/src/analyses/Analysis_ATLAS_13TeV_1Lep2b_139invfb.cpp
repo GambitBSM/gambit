@@ -180,7 +180,7 @@ namespace Gambit
 
 
         vector<const Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT() > 20.0 && jet->abseta() < 4.5)
           {

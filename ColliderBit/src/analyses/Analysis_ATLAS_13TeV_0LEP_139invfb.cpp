@@ -101,7 +101,7 @@ namespace Gambit
           // Get baseline jets
           /// @todo Drop b-tag if pT < 50 GeV or |eta| > 2.5?
           vector<const Jet*> baselineJets;
-          for (const Jet* jet : event->jets())
+          for (const Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() > 20. && jet->abseta() < 2.8)
             {

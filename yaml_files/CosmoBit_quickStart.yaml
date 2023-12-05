@@ -231,9 +231,11 @@ Rules:
   # lead to unphysical inputs in cases where dN_ur < 0 and abs(dN_ur) > N_ur contribution from 3 SM neutrinos today.
   # As this scan assumes only one massive neutrino, the resultant inputs for CLASS remain valid
   # and we can safely circumvent the limitation
-  #- module: CosmoBit
-  #  options:
-  #    allow_negative_delta_N_ur: true
+  #- if:
+  #    module: CosmoBit
+  #  then:
+  #    options:
+  #      allow_negative_delta_N_ur: true
 
 #======== 8) Logging setup ========
 Logger:

@@ -16,10 +16,12 @@
 ///  \date 2014 Feb, Mar, Apr
 ///
 ///  \author Pat Scott
-///          (patscott@physics.mcgill.ca)
+///          (patrickcolinscott@gmail.com)
 ///  \date 2013 May, Jul, Aug, Nov
 ///        2014 Jan, Mar, Apr, Dec
 ///        2018 Sep, Nov
+///        2022 Nov, Dec
+///        2023 Jan
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu)
@@ -39,6 +41,8 @@
 ///  *********************************************
 
 #include "gambit/Core/depresolver.hpp"
+#include "gambit/Core/observable.hpp"
+#include "gambit/Core/rule.hpp"
 #include "gambit/Models/models.hpp"
 #include "gambit/Utils/stream_overloads.hpp"
 #include "gambit/Utils/util_functions.hpp"
@@ -53,16 +57,13 @@
 #include <fstream>
 #include <iomanip>
 #include <regex>
+#include <utility>
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #ifdef HAVE_GRAPHVIZ
   #include <boost/graph/graphviz.hpp>
 #endif
-
-// This vertex ID is reserved for nodes that correspond to
-// likelihoods/observables/etc (observables of interest)
-#define OBSLIKE_VERTEXID 58915032
 
 // Dependency types
 #define NORMAL_DEPENDENCY 1
@@ -80,6 +81,27 @@ namespace Gambit
   namespace DRes
   {
     using namespace LogTags;
+
+    ///////////////////////
+    // Auxiliary classes
+    //////////////////////
+
+    /// Default constructor for QueueEntry
+    QueueEntry::QueueEntry()
+    : toVertex(0),
+      obslike(NULL)
+    {}
+
+    /// Alternative constructor for QueueEntry
+    QueueEntry::QueueEntry(sspair a, VertexID b, int c, bool d)
+    : quantity(a),
+      toVertex(b),
+      dependency_type(c),
+      printme(d),
+      obslike(NULL)
+    {}
+
+
     ///////////////////////
     // Auxiliary functions
     ///////////////////////
@@ -88,16 +110,16 @@ namespace Gambit
     // Functions that act on a resolved dependency graph
     //
 
-    // Collect parent vertices recursively (excluding root vertex)
+    /// Collect parent vertices recursively (excluding root vertex)
     void getParentVertices(const VertexID & vertex, const
-        DRes::MasterGraphType & graph, std::set<VertexID> & myVertexList)
+        MasterGraphType & graph, std::set<VertexID> & myVertexList)
     {
-      graph_traits<DRes::MasterGraphType>::in_edge_iterator it, iend;
+      graph_traits<MasterGraphType>::in_edge_iterator it, iend;
 
-      for (boost::tie(it, iend) = in_edges(vertex, graph);
+      for (std::tie(it, iend) = in_edges(vertex, graph);
           it != iend; ++it)
       {
-        if ( std::find(myVertexList.begin(), myVertexList.end(), source(*it, graph)) == myVertexList.end() )
+        if (std::find(myVertexList.begin(), myVertexList.end(), source(*it, graph)) == myVertexList.end() )
         {
           myVertexList.insert(source(*it, graph));
           getParentVertices(source(*it, graph), graph, myVertexList);
@@ -105,22 +127,21 @@ namespace Gambit
       }
     }
 
-    // Sort given list of vertices (according to topological sort result)
+    /// Sort given list of vertices (according to topological sort result)
     std::vector<VertexID> sortVertices(const std::set<VertexID> & set,
         const std::list<VertexID> & topoOrder)
     {
       std::vector<VertexID> result;
-      for(std::list<VertexID>::const_iterator it = topoOrder.begin(); it != topoOrder.end(); it++)
+      for(const VertexID& v : topoOrder)
       {
-        if (set.find(*it) != set.end())
-          result.push_back(*it);
+        if (set.find(v) != set.end()) result.push_back(v);
       }
       return result;
     }
 
-    // Get sorted list of parent vertices
+    /// Get sorted list of parent vertices
     std::vector<VertexID> getSortedParentVertices(const VertexID & vertex, const
-        DRes::MasterGraphType & graph, const std::list<VertexID> & topoOrder)
+        MasterGraphType & graph, const std::list<VertexID> & topoOrder)
     {
       std::set<VertexID> set;
       getParentVertices(vertex, graph, set);
@@ -128,107 +149,28 @@ namespace Gambit
       return sortVertices(set, topoOrder);
     }
 
-
-    //
-    // Functions that compare ini-file entries and observables
-    //
-
-    // Check whether quantity matches observableType
-    // Matches capability and type
-    bool quantityMatchesIniEntry(const sspair & quantity, const IniParser::ObservableType & observable, const Utils::type_equivalency & eq)
-    {
-      // Compares dependency specifications of rules entries or observable
-      // entries with capability (capabilities have to be unique for these
-      // lists)
-      return ( stringComp( observable.capability, quantity.first ) and
-               typeComp  ( observable.type,       quantity.second, eq ));
-    }
-
-    // Check whether quantity matches observableType
-    // Matches capability
-    bool capabilityMatchesIniEntry(const sspair & quantity, const IniParser::ObservableType & observable)
-    {
-      // Compares dependency specifications of rules entries or observable
-      // entries with capability (capabilities have to be unique for these
-      // lists)
-      return ( stringComp( observable.capability, quantity.first ) );
-    }
-
-    // Check whether functor matches ObservableType
-    // Matches capability, type, function and module name
-    bool moduleFuncMatchesIniEntry(functor *f, const IniParser::ObservableType &e, const Utils::type_equivalency & eq)
-    {
-      return (e.capability != "" ? stringComp(e.capability, f->capability()) : true)
-         and (e.type       != "" ? typeComp  (e.type,       f->type(), eq)   : true)
-         and (e.function   != "" ? stringComp(e.function,   f->name())       : true)
-         and (e.module     != "" ? stringComp(e.module,     f->origin())     : true);
-    }
-
-    // Check whether functor matches ObservableType
-    // Matches capability, type, function and backend name
-    bool backendFuncMatchesIniEntry(functor *f, const IniParser::ObservableType &e, const Utils::type_equivalency & eq)
-    {
-      return (e.capability != "" ? stringComp(e.capability, f->capability()) : true)
-         and (e.type       != "" ? typeComp  (e.type,       f->type(), eq)   : true)
-         and (e.function   != "" ? stringComp(e.function,   f->name())       : true)
-         and (e.backend    != "" ? stringComp(e.backend,    f->origin())     : true)
-         and (e.version    != "" ? stringComp(e.version,    f->version())    : true);
-    }
-
-    // Get entry level relevant for options
-    int getEntryLevelForOptions(const IniParser::ObservableType &e)
-    {
-      int z = 0;
-      if ( e.module != "" ) z = 1;
-      if ( e.capability != "" ) z = 2;
-      if ( e.type != "" ) z = 3;
-      if ( e.function != "" ) z = 4;
-      return z;
-    }
-
-    // Check whether functor matches rules
-    // Matches function name and type
-    bool matchesRules( functor *f, const Rule & rule)
-    {
-      #ifdef DEPRES_DEBUG
-        cout << (*f).name() << " vs " << rule.function << endl;
-        cout << (*f).origin() << " vs " << rule.module << endl;
-      #endif
-      // Rule matches functor if the capability or module function
-      // is present and they (and the module if given) match
-      bool matches = false;
-      if (not rule.capability.empty())
-        matches = stringComp( rule.capability, f->capability() );
-      if (not rule.function.empty())
-        matches = stringComp( rule.function, f->name() );
-      if (not rule.module.empty())
-        matches = matches and stringComp( rule.module, f->origin());
-      return matches;
-    }
-
-
     //
     // Graphviz output
     //
 
-    // Graphviz output for edges/dependencies
+    /// Graphviz output for edges/dependencies
     class edgeWriter
     {
       public:
-        edgeWriter(const DRes::MasterGraphType*) {};
+        edgeWriter(const MasterGraphType*) {};
         void operator()(std::ostream&, const EdgeID&) const
         {
           //out << "[style=\"dotted\"]";
         }
     };
 
-    // Graphviz output for individual vertices/nodes/module functions
+    /// Graphviz output for individual vertices/nodes/module functions
     class labelWriter
     {
       private:
-        const DRes::MasterGraphType * myGraph;
+        const MasterGraphType * myGraph;
       public:
-        labelWriter(const DRes::MasterGraphType * masterGraph) : myGraph(masterGraph) {};
+        labelWriter(const MasterGraphType * masterGraph) : myGraph(masterGraph) {};
         void operator()(std::ostream& out, const VertexID& v) const
         {
           str type = Utils::fix_type((*myGraph)[v]->type());
@@ -250,76 +192,24 @@ namespace Gambit
     // Misc
     //
 
-    /// Global flag for regex use
-    bool use_regex;
-
-    // Return runtime estimate for a set of nodes
-    double getTimeEstimate(const std::set<VertexID> & vertexList, const DRes::MasterGraphType &graph)
+    /// Return runtime estimate for a set of nodes
+    double getTimeEstimate(const std::set<VertexID> & vertexList, const MasterGraphType &graph)
     {
       double result = 0;
-      for (std::set<VertexID>::iterator it = vertexList.begin(); it != vertexList.end(); ++it)
+      for (const VertexID& v : vertexList)
       {
-        result += graph[*it]->getRuntimeAverage();
+        result += graph[v]->getRuntimeAverage();
       }
       return result;
     }
 
-    // Check whether s1 (wildcard + regex allowed) matches s2
-    bool stringComp(const str & s1, const str & s2, bool with_regex)
-    {
-      if ( s1 == s2 ) return true;
-      if ( s1 == "" ) return true;
-      if ( s1 == "*" ) return true;
-      try
-      {
-        if (with_regex) if (std::regex_match(s2, std::regex(s1))) return true;
-      }
-      catch (std::regex_error & err)
-      {
-        std::ostringstream errmsg;
-        errmsg << "ERROR during regex string comparison." << std::endl;
-        errmsg << "  Comparing regular expression: " << s1 << std::endl;
-        errmsg << "  with test string: " << s2 << std::endl;
-        dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
-      }
-      return false;
-    }
-
-    // Same thing for types (taking into account equivalence classes)
-    bool typeComp(str s1, str s2, const Utils::type_equivalency & eq, bool with_regex)
-    {
-      bool match1, match2;
-      // Loop over all the default versions of BOSSed backends and replace any corresponding *_default leading namespace with the explicit version.
-      if ((s1.find("_default") != std::string::npos) || (s2.find("_default") != std::string::npos))
-      {
-        for (auto it = Backends::backendInfo().default_safe_versions.begin(); it != Backends::backendInfo().default_safe_versions.end(); ++it)
-        {
-          s1 = Utils::replace_leading_namespace(s1, it->first+"_default", it->first+"_"+it->second);
-          s2 = Utils::replace_leading_namespace(s2, it->first+"_default", it->first+"_"+it->second);
-        }
-      }
-      // Does it just match?
-      if (stringComp(s1, s2, with_regex)) return true;
-      // Otherwise loop over equivalence classes.
-      for (auto it1 = eq.equivalency_classes.begin(); it1 != eq.equivalency_classes.end(); it1++)
-      {
-        match1 = match2 = false;
-        for (auto it2 = it1->begin(); it2 != it1->end(); it2++)
-        {
-          if (s2 == *it2) match1 = true;
-          if (stringComp(s1, *it2, with_regex)) match2 = true;
-        }
-        if (match1 and match2) return true;
-      }
-      return false;
-    }
 
 
     ///////////////////////////////////////////////////
     // Public definitions of DependencyResolver class
     ///////////////////////////////////////////////////
 
-    // Constructor
+    /// Constructor
     DependencyResolver::DependencyResolver(const gambit_core &core,
                                            const Models::ModelFunctorClaw &claw,
                                            const IniParser::IniFile &iniFile,
@@ -327,9 +217,12 @@ namespace Gambit
                                                  Printers::BasePrinter &printer)
      : boundCore(&core),
        boundClaw(&claw),
-       boundIniFile(&iniFile),
        boundTEs(&equiv_classes),
        boundPrinter(&printer),
+       boundIniFile(&iniFile),
+       obslikes(boundIniFile->getObservables()),
+       module_rules(boundIniFile->getModuleRules()),
+       backend_rules(boundIniFile->getBackendRules()),
        index(get(vertex_index,masterGraph)),
        activeFunctorGraphFile(Utils::runtime_scratch()+"GAMBIT_active_functor_graph.gv")
     {
@@ -338,10 +231,7 @@ namespace Gambit
       logger() << "#######################################"   << endl;
       logger() << "#  List of Type Equivalency Classes   #"   << endl;
       logger() << "#######################################";
-      for (std::set<std::set<str> >::const_iterator it = boundTEs->equivalency_classes.begin(); it != boundTEs->equivalency_classes.end(); ++it)
-      {
-        logger() << endl << *it;
-      }
+      for (const auto& equiv_class : boundTEs->equivalency_classes) logger() << endl << equiv_class;
       logger() << EOM;
     }
 
@@ -350,13 +240,11 @@ namespace Gambit
     // Initialization stage
     //
 
-    // Main dependency resolution
+    /// Main dependency resolution
     void DependencyResolver::doResolution()
     {
-      const IniParser::ObservablesType & observables = boundIniFile->getObservables();
-      // (cap., typ) --> dep. vertex map
-      std::queue<QueueEntry> parQueue;
-      QueueEntry queueEntry;
+      // Queue of dependencies to be resolved
+      std::queue<QueueEntry> resolutionQueue;
 
       // Set up list of target ObsLikes
       logger() << LogTags::dependency_resolver << endl;
@@ -365,15 +253,16 @@ namespace Gambit
       logger() << "#                                     #"   << endl;
       logger() << "# format: Capability (Type) [Purpose] #"   << endl;
       logger() << "#######################################";
-      for (auto it = observables.begin(); it != observables.end(); ++it)
+      for (const Observable& obslike : obslikes)
       {
         // Format output
-        logger() << LogTags::dependency_resolver << endl << it->capability << " (" << it->type << ") [" << it->purpose << "]";
-        queueEntry.first.first = it->capability;
-        queueEntry.first.second = it->type;
-        queueEntry.second = OBSLIKE_VERTEXID;
-        queueEntry.printme = it->printme;
-        parQueue.push(queueEntry);
+        logger() << LogTags::dependency_resolver << endl << obslike.capability << " (" << obslike.type << ") [" << obslike.purpose << "]";
+        QueueEntry target;
+        target.quantity.first = obslike.capability;
+        target.quantity.second = obslike.type;
+        target.obslike = &obslike;
+        target.printme = obslike.printme;
+        resolutionQueue.push(target);
       }
       logger() << EOM;
 
@@ -381,46 +270,45 @@ namespace Gambit
       makeFunctorsModelCompatible();
 
       // Generate dependency tree (the core of the dependency resolution)
-      generateTree(parQueue);
+      generateTree(resolutionQueue);
 
       // Find one execution order for activated vertices that is compatible
       // with dependency structure
       function_order = run_topological_sort();
 
       // Loop manager initialization: Notify them about their nested functions
-      for (std::map<VertexID, std::set<VertexID>>::iterator it =
-          loopManagerMap.begin(); it != loopManagerMap.end(); ++it)
+      for (const std::pair<const VertexID, std::set<VertexID>>& keyvalpair : loopManagerMap)
       {
         // Generate topologically sorted list of vertex IDs that are nested
-        // within loop manager (*it) ...
-        std::vector<VertexID> vertexList = sortVertices(it->second, function_order);
-        // ... map this on functor pointers...
+        // within loop manager keyvalpair ...
+        std::vector<VertexID> vertexList = sortVertices(keyvalpair.second, function_order);
+        // ... convert that list into functor pointers...
         std::vector<functor*> functorList;
-        for (std::vector<VertexID>::iterator jt = vertexList.begin(); jt != vertexList.end(); ++jt)
+        for (const VertexID& v : vertexList)
         {
-          functorList.push_back(masterGraph[*jt]);
+          functorList.push_back(masterGraph[v]);
         }
         // ...and store it into loop manager functor
-        masterGraph[it->first]->setNestedList(functorList);
+        masterGraph[keyvalpair.first]->setNestedList(functorList);
       }
 
       // Initialise the printer object with a list of functors that are set to print
       initialisePrinter();
 
-#ifdef HAVE_GRAPHVIZ
-      // Generate graphviz plot if running in dry-run mode.
-      if (boundCore->show_runorder)
-      {
-        std::ofstream outf(activeFunctorGraphFile);
-        write_graphviz(outf, masterGraph, labelWriter(&masterGraph), edgeWriter(&masterGraph));
-      }
-#endif
+      #ifdef HAVE_GRAPHVIZ
+        // Generate graphviz plot if running in dry-run mode.
+        if (boundCore->show_runorder)
+        {
+          std::ofstream outf(activeFunctorGraphFile);
+          write_graphviz(outf, masterGraph, labelWriter(&masterGraph), edgeWriter(&masterGraph));
+        }
+      #endif
 
       // Pre-compute the individually ordered vertex lists for each of the ObsLike entries.
       std::vector<VertexID> order = getObsLikeOrder();
-      for(auto it = order.begin(); it != order.end(); ++it)
+      for(const auto& v : order)
       {
-        SortedParentVertices[*it] = getSortedParentVertices(*it, masterGraph, function_order);
+        SortedParentVertices[v] = getSortedParentVertices(v, masterGraph, function_order);
       }
 
       // Print list of backends required
@@ -431,7 +319,7 @@ namespace Gambit
 
       // Get BibTeX key entries for backends, modules, etc
       getCitationKeys();
-      
+
       // Get the scanID
       set_scanID();
 
@@ -444,16 +332,16 @@ namespace Gambit
       // Activate functors compatible with model we scan over (and deactivate the rest)
       makeFunctorsModelCompatible();
 
-      graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
+      graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
       const str formatString = "%-20s %-32s %-32s %-32s %-15s %-7i %-5i %-5i\n";
       logger() << LogTags::dependency_resolver << endl << "Vertices registered in masterGraph" << endl;
       logger() << "----------------------------------" << endl;
       logger() << boost::format(formatString)%
-       "MODULE (VERSION)"% "FUNCTION"% "CAPABILITY"% "TYPE"% "PURPOSE"% "STATUS"% "#DEPs"% "#BE_REQs";
-      for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+       "MODULE"% "FUNCTION"% "CAPABILITY"% "TYPE"% "PURPOSE"% "STATUS"% "#DEPs"% "#BE_REQs";
+      for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
         logger() << boost::format(formatString)%
-         ((*masterGraph[*vi]).origin() + " (" + (*masterGraph[*vi]).version() + ")") %
+         (*masterGraph[*vi]).origin()%
          (*masterGraph[*vi]).name()%
          (*masterGraph[*vi]).capability()%
          (*masterGraph[*vi]).type()%
@@ -464,11 +352,11 @@ namespace Gambit
       }
       logger() <<  "Registered Backend vertices" << endl;
       logger() <<  "---------------------------" << endl;
-      logger() << printGenericFunctorList(boundCore->getBackendFunctors());
+      logger() << printGenericFunctorList(boundCore->getBackendFunctors(), true);
       logger() << EOM;
     }
 
-    // Pretty print function evaluation order
+    /// Pretty print function evaluation order
     void DependencyResolver::printFunctorEvalOrder(bool toterminal)
     {
       // Running this lets us check the order of execution. Also helps
@@ -498,15 +386,13 @@ namespace Gambit
       ss << "----------------------------------" << endl;
       ss << boost::format(formatString)% "#"% "FUNCTION"% "CAPABILITY"% "ORIGIN";
 
-      for (std::vector<VertexID>::const_iterator
-                  vi  = order.begin();
-                  vi != order.end(); ++vi)
+      for (const VertexID& v : order)
       {
         ss << boost::format(formatString)%
          i%
-         (*masterGraph[*vi]).name()%
-         (*masterGraph[*vi]).capability()%
-         (*masterGraph[*vi]).origin();
+         masterGraph[v]->name()%
+         masterGraph[v]->capability()%
+         masterGraph[v]->origin();
         i++;
       }
 
@@ -519,30 +405,26 @@ namespace Gambit
       ss << "----------------------------------" << endl;
       ss << boost::format(formatString0)% "#"% "FUNCTION"% "CAPABILITY"% "TYPE"% "ORIGIN"% "PRINT?";
 
-      for (std::vector<VertexID>::const_iterator
-                  vi  = order.begin();
-                  vi != order.end(); ++vi)
+      for (const VertexID& v : order)
       {
         // loop through parents of each target functor
         parents.clear();
-        getParentVertices(*vi, masterGraph, parents);
-        parents.insert(*vi);
+        getParentVertices(v, masterGraph, parents);
+        parents.insert(v);
         bool first = true;
-        for (std::set<VertexID>::const_iterator
-                  vi2  = parents.begin();
-                  vi2 != parents.end(); ++vi2)
+        for (const VertexID& v2 : parents)
         {
             str formatstr;
             bool dowrite = false;
             // Check if parent functor has been ticked off the list
-            bool is_done = done.find(*vi2) != done.end();
-            if( (not is_done) and (*vi != *vi2) )
+            bool is_done = done.find(v2) != done.end();
+            if( (not is_done) and (v != v2) )
             {
                 formatstr = formatString2b;
                 if (first) formatstr = formatString2a;
                 dowrite = true;
             }
-            else if( *vi != *vi2)
+            else if( v != v2)
             {
                 // Might be better to just do nothing here, i.e. set dowrite=false. For now just flagging functor as done with a special format string.
                 formatstr = formatString3b;
@@ -553,13 +435,13 @@ namespace Gambit
             if (dowrite)
             {
               ss << boost::format(formatstr)%
-                (*masterGraph[*vi2]).name()%
-                (*masterGraph[*vi2]).capability()%
-                (*masterGraph[*vi2]).type()%
-                (*masterGraph[*vi2]).origin()%
-                (*masterGraph[*vi2]).requiresPrinting();
+                masterGraph[v2]->name()%
+                masterGraph[v2]->capability()%
+                masterGraph[v2]->type()%
+                masterGraph[v2]->origin()%
+                masterGraph[v2]->requiresPrinting();
             }
-            done.insert(*vi2); // tick parent functor off the list
+            done.insert(v2); // tick parent functor off the list
             first = false;
         }
 
@@ -569,14 +451,14 @@ namespace Gambit
         else { formatstr = formatString1b; }
         ss << boost::format(formatstr)%
          i%
-         (*masterGraph[*vi]).name()%
-         (*masterGraph[*vi]).capability()%
-         (*masterGraph[*vi]).type()%
-         (*masterGraph[*vi]).origin()%
-         (*masterGraph[*vi]).requiresPrinting();
+         masterGraph[v]->name()%
+         masterGraph[v]->capability()%
+         masterGraph[v]->type()%
+         masterGraph[v]->origin()%
+         masterGraph[v]->requiresPrinting();
         i++;
 
-        done.insert(*vi); // tick this target functor off the list
+        done.insert(v); // tick this target functor off the list
 
       }
       ss << "(\"X\" indicates that the functor is pre-evaluated before the marked position)" << endl << endl;
@@ -598,7 +480,7 @@ namespace Gambit
       logger() << LogTags::dependency_resolver << ss.str() << EOM;
     }
 
-    // Print the list of required backends
+    /// Print the list of required backends
     void DependencyResolver::printRequiredBackends()
     {
       // Lists the required backends, indicating where several backends
@@ -626,7 +508,7 @@ namespace Gambit
       logger() << LogTags::dependency_resolver << ss.str() << EOM;
     }
 
-    // Print the BibTeX citation keys
+    /// Print the BibTeX citation keys
     void DependencyResolver::printCitationKeys()
     {
 
@@ -665,7 +547,7 @@ namespace Gambit
       str tex_output_file = boundIniFile->getValueOrDef<str>("GAMBIT.tex", "dependency_resolution", "tex_output_file");
       bibtex_file.dropTeXFile(citationKeys, tex_output_file, bibtex_output_file);
 
-      ss << "You can find the list of references to include in " << bibtex_output_file << ". And and example TeX file in " << tex_output_file << std::endl << std::endl;
+      ss << "You can find the list of references to include in " << bibtex_output_file << " and an example TeX file in " << tex_output_file << std::endl << std::endl;
 
       // Print to terminal
       std::cout << ss.str();
@@ -679,17 +561,16 @@ namespace Gambit
     // Runtime
     //
 
-    // Returns list of ObsLike vertices in order of runtime
+    /// Returns list of ObsLike vertices in order of runtime
     std::vector<VertexID> DependencyResolver::getObsLikeOrder()
     {
       std::vector<VertexID> unsorted;
       std::vector<VertexID> sorted;
-      std::set<VertexID> parents, colleages, colleages_min;
+      std::set<VertexID> parents, colleagues, colleagues_min;
       // Copy unsorted vertexIDs --> unsorted
-      for (std::vector<OutputVertexInfo>::iterator it = outputVertexInfos.begin();
-          it != outputVertexInfos.end(); it++)
+      for (const OutputVertex& ov : outputVertices)
       {
-        unsorted.push_back(it->vertex);
+        unsorted.push_back(ov.vertex);
       }
       // Sort iteratively (unsorted --> sorted)
       while (unsorted.size() > 0)
@@ -704,21 +585,18 @@ namespace Gambit
           getParentVertices(*it, masterGraph, parents);
           parents.insert(*it);
           // Remove vertices that were already calculated from the ist
-          for ( auto cit = colleages.begin(); cit != colleages.end(); cit++)
-          {
-            parents.erase(*cit);
-          }
+          for (const auto& colleague : colleagues) parents.erase(colleague);
           t2p_now = (double) getTimeEstimate(parents, masterGraph);
           t2p_now /= masterGraph[*it]->getInvalidationRate();
           if (t2p_min < 0 or t2p_now < t2p_min)
           {
             t2p_min = t2p_now;
             it_min = it;
-            colleages_min = parents;
+            colleagues_min = parents;
           }
         }
         // Extent list of calculated vertices
-        colleages.insert(colleages_min.begin(), colleages_min.end());
+        colleagues.insert(colleagues_min.begin(), colleagues_min.end());
         double prop = masterGraph[*it_min]->getInvalidationRate();
         logger() << LogTags::dependency_resolver << "Estimated T [s]: " << t2p_min*prop << EOM;
         logger() << LogTags::dependency_resolver << "Estimated p: " << prop << EOM;
@@ -728,34 +606,34 @@ namespace Gambit
       return sorted;
     }
 
-    // Evaluates ObsLike vertex, and everything it depends on, and prints results
+    /// Evaluates ObsLike vertex, and everything it depends on, and prints results
     void DependencyResolver::calcObsLike(VertexID vertex)
     {
       if (SortedParentVertices.find(vertex) == SortedParentVertices.end())
         core_error().raise(LOCAL_INFO, "Tried to calculate a function not in or not at top of dependency graph.");
       std::vector<VertexID> order = SortedParentVertices.at(vertex);
 
-      for (std::vector<VertexID>::iterator it = order.begin(); it != order.end(); ++it)
+      for (const VertexID& v : order)
       {
         std::ostringstream ss;
-        ss << "Calling " << masterGraph[*it]->name() << " from " << masterGraph[*it]->origin() << "...";
+        ss << "Calling " << masterGraph[v]->name() << " from " << masterGraph[v]->origin() << "...";
         logger() << LogTags::dependency_resolver << LogTags::info << LogTags::debug << ss.str() << EOM;
-        masterGraph[*it]->calculate();
+        masterGraph[v]->calculate();
         if (boundIniFile->getValueOrDef<bool>(
               false, "dependency_resolution", "log_runtime") )
         {
-          double T = masterGraph[*it]->getRuntimeAverage();
+          double T = masterGraph[v]->getRuntimeAverage();
           logger() << LogTags::dependency_resolver << LogTags::info <<
             "Runtime, averaged over multiple calls [s]: " << T << EOM;
         }
-        invalid_point_exception* e = masterGraph[*it]->retrieve_invalid_point_exception();
+        invalid_point_exception* e = masterGraph[v]->retrieve_invalid_point_exception();
         if (e != NULL) throw(*e);
       }
       // Reset the cout output precision, in case any backends have messed with it during the ObsLike evaluation.
       cout << std::setprecision(boundCore->get_outprec());
     }
 
-    // Prints the results of an ObsLike vertex
+    /// Prints the results of an ObsLike vertex
     void DependencyResolver::printObsLike(VertexID vertex, const int pointID)
     {
       // pointID is supplied by the scanner, and is used to tell the printer which model
@@ -765,13 +643,13 @@ namespace Gambit
         core_error().raise(LOCAL_INFO, "Tried to calculate a function not in or not at top of dependency graph.");
       std::vector<VertexID> order = SortedParentVertices.at(vertex);
 
-      for (std::vector<VertexID>::iterator it = order.begin(); it != order.end(); ++it)
+      for (const VertexID& v : order)
       {
         std::ostringstream ss;
-        ss << "Printing " << masterGraph[*it]->name() << " from " << masterGraph[*it]->origin() << "...";
+        ss << "Printing " << masterGraph[v]->name() << " from " << masterGraph[v]->origin() << "...";
         logger() << LogTags::dependency_resolver << LogTags::info << LogTags::debug << ss.str() << EOM;
 
-        if (not typeComp(masterGraph[*it]->type(),  "void", *boundTEs, false))
+        if (not typeComp(masterGraph[v]->type(),  "void", *boundTEs))
         {
           // Note that this prints from thread index 0 only, i.e. results created by
           // threads other than the main one need to be accessed with
@@ -780,7 +658,7 @@ namespace Gambit
           // At the moment GAMBIT only prints results of thread 0, under the expectation
           // that nested module functions are all designed to gather their results into
           // thread 0.
-          masterGraph[*it]->print(boundPrinter,pointID);
+          masterGraph[v]->print(boundPrinter,pointID);
         }
       }
     }
@@ -788,23 +666,23 @@ namespace Gambit
     /// Getter for print_timing flag (used by LikelihoodContainer)
     bool DependencyResolver::printTiming() { return print_timing; }
 
-    // Get the functor corresponding to a single VertexID
+    /// Get the functor corresponding to a single VertexID
     functor* DependencyResolver::get_functor(VertexID id)
     {
-      graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+      graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
+      for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
         if (*vi == id) return masterGraph[id];
       }
       return NULL;
     }
 
-    // Ensure that the type of a given vertex is equivalent to at least one of a provided list, and return the match.
+    /// Ensure that the type of a given vertex is equivalent to at least one of a provided list, and return the match.
     str DependencyResolver::checkTypeMatch(VertexID vertex, const str& purpose, const std::vector<str>& types)
     {
-      for (auto it = types.begin(); it != types.end(); ++it)
+      for (const auto& t : types)
       {
-        if (typeComp(*it, masterGraph[vertex]->type(), *boundTEs, false)) return *it;
+        if (typeComp(t, masterGraph[vertex]->type(), *boundTEs)) return t;
       }
       std::stringstream msg;
       msg << "All quantities with purpose \"" << purpose << "\" in your yaml file must have one " << endl
@@ -817,7 +695,19 @@ namespace Gambit
       return "If you make core errors non-fatal you deserve what you get.";
     }
 
-    // Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)
+    /// Return the purpose associated with a given functor.
+    const str& DependencyResolver::getPurpose(VertexID v)
+    {
+      for (const OutputVertex& ov : outputVertices)
+      {
+        if (ov.vertex == v) return ov.purpose;
+      }
+      /// '__no_purpose' if the functor does not correspond to an ObsLike entry in the ini file.
+      static const str none("__no_purpose");
+      return none;
+    }
+
+    /// Tell functor that it invalidated the current point in model space (due to a large or NaN contribution to lnL)
     void DependencyResolver::invalidatePointAt(VertexID vertex, bool isnan)
     {
       if (isnan)
@@ -830,23 +720,11 @@ namespace Gambit
       }
     }
 
-    // Returns pointer to ini-file entry associated with ObsLike
-    const IniParser::ObservableType * DependencyResolver::getIniEntry(VertexID v)
-    {
-      for (std::vector<OutputVertexInfo>::iterator it = outputVertexInfos.begin();
-          it != outputVertexInfos.end(); it++)
-      {
-        if (it->vertex == v)
-          return it->iniEntry;
-      }
-      return NULL;
-    }
-
-    // Resets all active functors and deletes existing results
+    /// Reset all active functors and delete existing results.
     void DependencyResolver::resetAll()
     {
-      graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
-      for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+      graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
+      for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
         if (masterGraph[*vi]->status() == 2) masterGraph[*vi]->reset();
       }
@@ -857,77 +735,99 @@ namespace Gambit
     // Private definitions of DependencyResolver class
     ////////////////////////////////////////////////////
 
-    str DependencyResolver::printQuantityToBeResolved(const sspair & quantity, const DRes::VertexID & vertex)
+    str DependencyResolver::printQuantityToBeResolved(const QueueEntry& entry)
     {
-        str s = quantity.first + " (" + quantity.second + ")";
+        str s = entry.quantity.first + " (" + entry.quantity.second + ")";
         s += ", required by ";
-        if ( vertex != OBSLIKE_VERTEXID )
+        if ( entry.obslike == NULL )
         {
-            s += (*masterGraph[vertex]).capability() + " (";
-            s += (*masterGraph[vertex]).type() + ") [";
-            s += (*masterGraph[vertex]).name() + ", ";
-            s += (*masterGraph[vertex]).origin() + "]";
+            s += masterGraph[entry.toVertex]->capability() + " (";
+            s += masterGraph[entry.toVertex]->type() + ") [";
+            s += masterGraph[entry.toVertex]->name() + ", ";
+            s += masterGraph[entry.toVertex]->origin() + "]";
         }
         else
-            s += "Core";
+            s += "ObsLike section of yaml file";
         return s;
     }
 
-    str DependencyResolver::printGenericFunctorList(const std::vector<VertexID> & vertexIDs)
+    /// Generic printer of the contents of a vector of functors as vertices
+    str DependencyResolver::printGenericFunctorList(const std::vector<VertexID> & vertexIDs, bool print_version)
     {
         std::vector<functor*> functorList;
-        for ( auto it = vertexIDs.begin(); it != vertexIDs.end(); ++it )
+        for (const auto& vid : vertexIDs)
         {
-            functorList.push_back(masterGraph[*it]);
+          functorList.push_back(masterGraph[vid]);
         }
-        return printGenericFunctorList(functorList);
+        return printGenericFunctorList(functorList, print_version);
     }
 
-    // Generic printer of the contents of a functor list
-    str DependencyResolver::printGenericFunctorList(const std::vector<functor*>& functorList)
+    /// Generic printer of the contents of a vector of functor-as-vertex, bool pairs
+    str DependencyResolver::printGenericFunctorList(const std::vector<std::pair<VertexID, bool>> & vertexIDs, bool print_version)
+    {
+        std::vector<functor*> functorList;
+        for (const auto& vid : vertexIDs)
+        {
+          functorList.push_back(masterGraph[vid.first]);
+        }
+        return printGenericFunctorList(functorList, print_version);
+    }
+
+    /// Generic printer of the contents of a vector of functors
+    str DependencyResolver::printGenericFunctorList(const std::vector<functor*>& functorList, bool print_version)
     {
       const str formatString = "%-20s %-32s %-48s %-32s %-7i\n";
+      str vtstring = (print_version ? "ORIGIN (VERSION)" : "ORIGIN");
       std::ostringstream stream;
-      stream << boost::format(formatString)%"ORIGIN (VERSION)"% "FUNCTION"% "CAPABILITY"% "TYPE"% "STATUS";
-      for (std::vector<functor *>::const_iterator
-          it  = functorList.begin();
-          it != functorList.end();
-          ++it)
+      stream << boost::format(formatString)%vtstring% "FUNCTION"% "CAPABILITY"% "TYPE"% "STATUS";
+      for (const functor* f : functorList)
       {
+        str vstring = (print_version ? " (" + f->version() + ")" : "");
         stream << boost::format(formatString)%
-         ((*it)->origin() + " (" + (*it)->version() + ")") %
-         (*it)->name()%
-         (*it)->capability()%
-         (*it)->type()%
-         (*it)->status();
+         (f->origin() + vstring) %
+         f->name()%
+         f->capability()%
+         f->type()%
+         f->status();
       }
       return stream.str();
     }
 
-    // Add module and primary model functors in bound core to class-internal
-    // masterGraph object
+    /// Generic printer of the contents of a vector of functor, bool pairs
+    str DependencyResolver::printGenericFunctorList(const std::vector<std::pair<functor*, bool>> & vertexIDs, bool print_version)
+    {
+        std::vector<functor*> functorList;
+        for (const auto& vid : vertexIDs)
+        {
+          functorList.push_back(vid.first);
+        }
+        return printGenericFunctorList(functorList, print_version);
+    }
+
+    /// Add module and primary model functors in bound core to class-internal
+    /// masterGraph object
     void DependencyResolver::addFunctors()
     {
       // Add primary model functors to masterGraph
-      for (std::vector<primary_model_functor *>::const_iterator
-          it  = boundCore->getPrimaryModelFunctors().begin();
-          it != boundCore->getPrimaryModelFunctors().end();
-          ++it)
+      for (const auto& f : boundCore->getPrimaryModelFunctors())
       {
         // Ignore functors with status set to 0 or less in order to ignore primary_model_functors
         // that are not to be used for the scan.
-        if ( (*it)->status() > 0 )
+        if ( f->status() > 0 )
         {
-          boost::add_vertex(*it, this->masterGraph);
+          #ifdef DEPRES_DEBUG
+            std::cout << "Adding primary model functor " << f->origin() << "::" << f->name() << " to masterGraph." << std::endl;
+          #endif
+          boost::add_vertex(f, this->masterGraph);
         }
       }
       // Add module functors to masterGraph
-      for (std::vector<functor *>::const_iterator
-          it  = boundCore->getModuleFunctors().begin();
-          it != boundCore->getModuleFunctors().end();
-          ++it)
+      for (const auto& f : boundCore->getModuleFunctors())
       {
-          boost::add_vertex(*it, this->masterGraph);
+          #ifdef DEPRES_DEBUG
+            std::cout << "Adding module functor " << f->origin() << "::" << f->name() << " to masterGraph." << std::endl;
+          #endif
+          boost::add_vertex(f, this->masterGraph);
       }
     }
 
@@ -939,32 +839,31 @@ namespace Gambit
       static bool already_run = false;
       if (already_run) return;
 
-      graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
-      std::vector<functor *>::const_iterator fi, fi_end = boundCore->getBackendFunctors().end();
+      graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
       std::set<str> modelList = boundClaw->get_activemodels();
 
       // Activate those module functors that match the combination of models being scanned.
-      for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+      for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
         if (masterGraph[*vi]->status() >= 0 and masterGraph[*vi]->modelComboAllowed(modelList))
         {
-          for (std::set<str>::iterator it = modelList.begin(); it != modelList.end(); ++it)
+          for (const str& model : modelList)
           {
-            masterGraph[*vi]->notifyOfModel(*it);
+            masterGraph[*vi]->notifyOfModel(model);
             masterGraph[*vi]->setStatus(1);
           }
         }
       }
 
       // Activate those backend functors that match one of the models being scanned.
-      for (std::set<str>::iterator it = modelList.begin(); it != modelList.end(); ++it)
+      for (const str& model : modelList)
       {
-        for (fi = boundCore->getBackendFunctors().begin(); fi != fi_end; ++fi)
+        for (functor* f : boundCore->getBackendFunctors())
         {
           // Activate if the backend vertex permits the model and has not been (severely) disabled by the backend system
-          if ( (*fi)->status() >= 0 and (*fi)->modelAllowed(*it) )
+          if ( f->status() >= 0 and f->modelAllowed(model) )
           {
-            (*fi)->setStatus(1);
+            f->setStatus(1);
           }
         }
       }
@@ -972,7 +871,7 @@ namespace Gambit
     }
 
     /// Set up printer object
-    // (i.e. give it the list of functors that need printing)
+    /// (i.e. give it the list of functors that need printing)
     void DependencyResolver::initialisePrinter()
     {
       // Send the state of the "print_unitcube" flag to the printer
@@ -984,7 +883,7 @@ namespace Gambit
       //Err does that make sense? There is nothing in masterGraph at that point surely... maybe put this back.
       //Ok well it does seem to work in the constructor, not sure why though...
 
-      for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+      for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
         // Inform the active functors of the vertex ID that the masterGraph has assigned to them
         // (so that later on they can pass this to the printer object to identify themselves)
@@ -1025,7 +924,7 @@ namespace Gambit
       boundPrinter->initialise(functors_to_print); // TODO: Probably obsolete
     }
 
-    std::vector<DRes::VertexID> DependencyResolver::closestCandidateForModel(std::vector<DRes::VertexID> candidates)
+    std::vector<std::pair<VertexID,bool>> DependencyResolver::closestCandidateForModel(std::vector<std::pair<VertexID,bool>> candidates)
     {
       // In case of doubt (and if not explicitely disabled in the ini-file), prefer functors
       // that are more specifically tailored for the model being scanned. Do not consider functors
@@ -1035,20 +934,20 @@ namespace Gambit
 
       // Work up the model ancestry one step at a time, and stop as soon as one or more valid model-specific functors is
       // found at a given level in the hierarchy.
-      std::vector<DRes::VertexID> newCandidates;
+      std::vector<std::pair<VertexID,bool>> newCandidates;
       std::set<str> s = boundClaw->get_activemodels();
       std::vector<str> parentModelList(s.begin(), s.end());
       while (newCandidates.size() == 0 and not parentModelList.empty())
       {
-        for (std::vector<str>::iterator mit = parentModelList.begin(); mit != parentModelList.end(); ++mit)
+        for (str& model : parentModelList)
         {
-          // Test each vertex candidate to see if it has been explicitly set up to work with the model *mit
-          for (std::vector<DRes::VertexID>::iterator it = candidates.begin(); it != candidates.end(); ++it)
+          // Test each vertex candidate to see if it has been explicitly set up to work with the model
+          for (const auto& candidate : candidates)
           {
-            if ( masterGraph[*it]->modelExplicitlyAllowed(*mit) ) newCandidates.push_back(*it);
+            if (masterGraph[candidate.first]->modelExplicitlyAllowed(model)) newCandidates.push_back({candidate.first, true});
           }
           // Step up a level in the model hierarchy for this model.
-          *mit = boundClaw->get_parent(*mit);
+          model = boundClaw->get_parent(model);
         }
         parentModelList.erase(std::remove(parentModelList.begin(), parentModelList.end(), "none"), parentModelList.end());
       }
@@ -1059,50 +958,37 @@ namespace Gambit
     }
 
     /// Collect ini options
-    Options DependencyResolver::collectIniOptions(const DRes::VertexID & vertex)
+    Options DependencyResolver::collectIniOptions(const VertexID & vertex)
     {
+      functor* f = masterGraph[vertex];
       YAML::Node nodes;
-      YAML::Node zlevels;
 
       #ifdef DEPRES_DEBUG
-        cout << "Searching options for " << masterGraph[vertex]->capability() << endl;
+        cout << "Searching options for " << f->capability() << endl;
       #endif
 
-      const IniParser::ObservablesType & entries = boundIniFile->getRules();
-      for (IniParser::ObservablesType::const_iterator it =
-          entries.begin(); it != entries.end(); ++it)
+      for (const ModuleRule* rule : f->getMatchedModuleRules())
       {
-        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs))
+        #ifdef DEPRES_DEBUG
+          cout << "Getting option from: " << rule->capability << " " << rule->type << endl;
+        #endif
+        // Option is a new addition to collector node
+        for (const auto& opt : rule->options)
         {
-          #ifdef DEPRES_DEBUG
-            cout << "Getting option from: " << it->capability << " " << it->type << endl;
-          #endif
-          for (auto jt = it->options.begin(); jt != it->options.end(); ++jt)
+          if (not nodes[opt.first.as<std::string>()])
           {
-            if ( not nodes[jt->first.as<std::string>()] )
+            #ifdef DEPRES_DEBUG
+              cout << opt.first.as<std::string>() << ": " << opt.second << endl;
+            #endif
+            nodes[opt.first.as<std::string>()] = opt.second;
+          }
+          else // Option already exists in collector node
+          {
+            // Throw an error if the existing value differs from the new value
+            if (nodes[opt.first.as<std::string>()] != opt.second)
             {
-              #ifdef DEPRES_DEBUG
-                cout << jt->first.as<std::string>() << ": " << jt->second << endl;
-              #endif
-              nodes[jt->first.as<std::string>()] = jt->second;
-              zlevels[jt->first.as<std::string>()] = getEntryLevelForOptions(*it);
-            }
-            else
-            {
-              if ( zlevels[jt->first.as<std::string>()].as<int>() < getEntryLevelForOptions(*it) )
-              {
-                #ifdef DEPRES_DEBUG
-                  cout << "Replaced : " << jt->first.as<std::string>() << ": " << jt->second << endl;
-                #endif
-                zlevels[jt->first.as<std::string>()] = getEntryLevelForOptions(*it);
-                nodes[jt->first.as<std::string>()] = jt->second;
-              }
-              else if ( zlevels[jt->first.as<std::string>()].as<int>() == getEntryLevelForOptions(*it) )
-              {
-                std::ostringstream errmsg;
-                errmsg << "ERROR! Multiple option entries with same level for key: " << jt->first.as<std::string>();
-                dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
-              }
+              str errmsg = str("ERROR! Multiple option values for key: ") + opt.first.as<str>();
+              dependency_resolver_error().raise(LOCAL_INFO, errmsg);
             }
           }
         }
@@ -1111,51 +997,51 @@ namespace Gambit
     }
 
     /// Collect sub-capabilities
-    Options DependencyResolver::collectSubCaps(const DRes::VertexID & vertex)
+    Options DependencyResolver::collectSubCaps(const VertexID& v)
     {
+      functor* f = masterGraph[v];
+      YAML::Node nodes;
+
       #ifdef DEPRES_DEBUG
-        cout << "Searching for subcaps of " << masterGraph[vertex]->capability() << endl;
+        cout << "Searching for subcaps of " << f->capability() << endl;
       #endif
 
-      YAML::Node nodes;
-      const IniParser::ObservablesType& entries = boundIniFile->getObservables();
-
-      // Iterate over the ObsLikes entries
-      for (auto it = entries.begin(); it != entries.end(); ++it)
+      // Iterate over all ObsLikes entries that match this functor
+      for (const Observable* obslike : f->getMatchedObservables())
       {
-        // Select only those entries that match the current graph vertex (i.e. module function)
-        if (moduleFuncMatchesIniEntry(masterGraph[vertex], *it, *boundTEs) and not it->subcaps.IsNull())
+        // Select only those entries that actually have subcaps
+        if (not obslike->subcaps.IsNull())
         {
           #ifdef DEPRES_DEBUG
-            cout << "Found subcaps for " << it->capability << " " << it->type << " " << it->module << ":" << endl;
+            cout << "Found subcaps for " << f->capability() << " " << f->type() << " " << f->origin() << ":" << endl;
           #endif
           // The user has given just a single entry as a subcap
-          if (it->subcaps.IsScalar())
+          if (obslike->subcaps.IsScalar())
           {
-            str key = it->subcaps.as<str>();
+            str key = obslike->subcaps.as<str>();
             if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
             nodes[key] = YAML::Node();
           }
           // The user has passed a simple list of subcaps
-          else if (it->subcaps.IsSequence())
+          else if (obslike->subcaps.IsSequence())
           {
-            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            for (const auto& subcap : obslike->subcaps)
             {
-              if (not jt->IsScalar())
-               dependency_resolver_error().raise(LOCAL_INFO,"Attempt to pass map using sequence syntax for subcaps of "+it->capability+".");
-              str key = jt->as<str>();
+              if (not subcap.IsScalar())
+               dependency_resolver_error().raise(LOCAL_INFO,"Attempt to pass map using sequence syntax for subcaps of "+obslike->capability+".");
+              str key = subcap.as<str>();
               if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
               nodes[key] = YAML::Node();
             }
           }
           // The user has passed some more complicated subcap structure than just a list of strings
-          else if (it->subcaps.IsMap())
+          else if (obslike->subcaps.IsMap())
           {
-            for (auto jt = it->subcaps.begin(); jt != it->subcaps.end(); ++jt)
+            for (const auto& subcap : obslike->subcaps)
             {
-              str key = jt->first.as<str>();
+              str key = subcap.first.as<str>();
               if (nodes[key]) dependency_resolver_error().raise(LOCAL_INFO,"Duplicate sub-capability for " + key + ".");
-              nodes[key] = jt->second.as<YAML::Node>();
+              nodes[key] = subcap.second.as<YAML::Node>();
             }
           }
           #ifdef DEPRES_DEBUG
@@ -1166,58 +1052,91 @@ namespace Gambit
       return Options(nodes);
     }
 
-    /// Resolve dependency
-    // Can resolve:
-    // - capability, type pair (requires toVertex)
-    // Rules ordering:
-    //   [Capability, Type] --> [Module, Function]
-    DRes::VertexID DependencyResolver::resolveDependencyFromRules(
-        const DRes::VertexID & toVertex, const sspair & quantity)
+    /// Helper function to update vertex candidate lists in resolveDependencyFromRules
+    void DependencyResolver::updateCandidates(bool match, const VertexID& v, int i,
+                                              std::vector<std::pair<VertexID, bool>>& allowed,
+                                              std::vector<std::pair<VertexID, bool>>& disabled)
     {
-      graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
-
-      // List of candidate vertices
-      std::vector<DRes::VertexID> vertexCandidates;  // enabled
-      std::vector<DRes::VertexID> disabledVertexCandidates;  // disabled
-      // Rules
-      std::vector<Rule> rules;
-      std::vector<Rule> strong_rules;
-      // Candidate vertices after applying rules
-      std::vector<DRes::VertexID> filteredVertexCandidates;
-      std::vector<DRes::VertexID> filteredVertexCandidates2;
-
-      // Make list of candidate vertices.
-      for (tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+      if (match)
       {
-        // Match capabilities and types (no type comparison when no types are
-        // given; this can only apply to output nodes or loop managers).
-        if ( stringComp(masterGraph[*vi]->capability(), quantity.first) and
-             *vi != toVertex and // No self-resolution
-             ( quantity.second == "" or quantity.second == "*" or quantity.second == "any" or
-               typeComp(masterGraph[*vi]->type(), quantity.second, *boundTEs, false) ) )
+        // Add the vertex to the active list of vertex candidates if
+        //   a) vertex is not disabled in any way;
+        //   b) we only want the list of backends, and the vertex comes from an ini function;
+        //   c) we only want the list of backends, and the vertex comes from a function that relies on classes from a disabled backend.
+        // Otherwise, the vertex would have been fine except that it is disabled, so save it for printing in diagnostic messages.
+        int status = masterGraph[v]->status();
+        bool vertex_allowed = status > 0 or (boundCore->show_backends and (status == -3 or status == -4));
+        allowed[i] = {v, vertex_allowed};
+        disabled[i] = {v, not vertex_allowed};
+      }
+      else
+      {
+        allowed[i] = {v, false};
+        disabled[i] = {v, false};
+      }
+    }
+
+
+    /// Resolve dependencies by matching capability, type pair of input queue entry, ensuring consistency with all obslike entries and subjugate rules.
+    /// As non-subjugate rules have global applicability, all (strong) instances are assumed to have already been applied before this function is called.
+    std::vector<VertexID> DependencyResolver::resolveDependencyFromRules(const QueueEntry& entry, const std::vector<VertexID>& vertexCandidates)
+    {
+      // Candidate vertices after applying rules
+      std::vector<std::pair<VertexID, bool>> allowedVertexCandidates(vertexCandidates.size());
+      std::vector<std::pair<VertexID, bool>> disabledVertexCandidates(vertexCandidates.size());
+
+      // If the dependency to be resolved comes from the ObsLike section, apply the conditions found in its ObsLike entry.
+      if (entry.obslike != NULL)
+      {
+        // Iterate over all candidates
+        #pragma omp parallel for
+        for (unsigned int i = 0; i < vertexCandidates.size(); ++i)
         {
-          // Add vertex to appropriate candidate list
-          if (masterGraph[*vi]->status() > 0)
-            vertexCandidates.push_back(*vi);
-          // If we only want the list of backends, also add vertex for ini function
-          else if (masterGraph[*vi]->status() == -4 and boundCore->show_backends)
-            vertexCandidates.push_back(*vi);
-          // If we only want the list of backends, also add disabled backends whose classes are needed
-          else if (masterGraph[*vi]->status() == -3 and boundCore->show_backends)
-            vertexCandidates.push_back(*vi);
-          // Otherwise
-          else
-            disabledVertexCandidates.push_back(*vi);
+          const VertexID& v = vertexCandidates[i];
+          // Require match to entry.quantity, and forbid self-resolution
+          bool match = (v != entry.toVertex and entry.obslike->matches(masterGraph[v], *boundTEs));
+          updateCandidates(match, v, i, allowedVertexCandidates, disabledVertexCandidates);
         }
       }
-      if (vertexCandidates.size() == 0)
+      else
+      {
+        // If this dependency does not come from an ObsLike entry, make a temporary rule to filter
+        // vertexCandidates down to only those that match the passed quantity. This rule has the format
+        // if:
+        //   module: any
+        // then:
+        //   capability: quantity.first
+        //   type: quantity.second
+        ModuleRule dep_rule;
+        dep_rule.has_if = dep_rule.if_module = dep_rule.has_then = dep_rule.then_capability = dep_rule.then_type = true;
+        dep_rule.module = "any";
+        dep_rule.capability = entry.quantity.first;
+        dep_rule.type = entry.quantity.second;
+        // Don't let functors log this rule when it is matched, as it is only a temporary rule.
+        dep_rule.log_matches = false;
+
+        // Iterate over all candidates
+        #pragma omp parallel for
+        for (unsigned int i = 0; i < vertexCandidates.size(); ++i)
+        {
+          const VertexID& v = vertexCandidates[i];
+          // Require match to quantity, and forbid self-resolution
+          bool match = (v != entry.toVertex and dep_rule.allows(masterGraph[v], *boundTEs));
+          updateCandidates(match, v, i, allowedVertexCandidates, disabledVertexCandidates);
+        }
+      }
+      Utils::masked_erase(allowedVertexCandidates);
+      Utils::masked_erase(disabledVertexCandidates);
+
+      // Bail now if we are already down to zero candidates.
+      if (allowedVertexCandidates.size() == 0)
       {
         std::ostringstream errmsg;
         errmsg << "No candidates found while trying to resolve:" << endl;
-        errmsg << printQuantityToBeResolved(quantity, toVertex) << endl;
+        errmsg << printQuantityToBeResolved(entry) << endl;
         if (disabledVertexCandidates.size() != 0)
         {
-          errmsg << "\nNote that viable candidates exist but have been disabled:\n"
+          errmsg << "\nNote that potentially viable candidates exist that have been disabled:\n"
                  << printGenericFunctorList(disabledVertexCandidates)
                  << endl
           << "Status flags:" << endl
@@ -1230,170 +1149,120 @@ namespace Gambit
         errmsg << "Please check your yaml file for typos, and make sure that the" << endl
         << "models you are scanning are compatible with at least one function" << endl
         << "that provides this capability (they may all have been deactivated" << endl
-        << "due to having ALLOW_MODELS declarations which are" << endl
+        << "due to having ALLOW_MODELS declarations that are" << endl
         << "incompatible with the models selected for scanning)." << endl;
         dependency_resolver_error().raise(LOCAL_INFO,errmsg.str());
       }
 
       logger() << LogTags::dependency_resolver;
       logger() << "List of candidate vertices:" << endl;
-      logger() << printGenericFunctorList(vertexCandidates) << EOM;
+      logger() << printGenericFunctorList(allowedVertexCandidates) << EOM;
 
-      if (toVertex != OBSLIKE_VERTEXID)
+      // Apply any conditions imposed by subjugate rules and function chains.
+      // Note that it is not possible to write a subjugate rule nor a functionChain
+      // that constrains the identity of the functor used to resolve an ObsLike entry.
+      if (entry.obslike == NULL)
       {
-        // Make list of all relevant 1st and 2nd level dependency rules.
-        const IniParser::ObservablesType & entries = boundIniFile->getRules();
-        for (IniParser::ObservablesType::const_iterator
-            it = entries.begin(); it != entries.end(); ++it)
+        #pragma omp parallel for
+        for (unsigned int i = 0; i < allowedVertexCandidates.size(); ++i)
         {
+          const VertexID& v = allowedVertexCandidates[i].first;
+          bool& allowed = allowedVertexCandidates[i].second;
+
+          // Iterate over all obslikes that matched the entry.toVertex.
+          for (const Observable* match : masterGraph[entry.toVertex]->getMatchedObservables())
           {
-            // Evaluate "dependencies" section
-            if (moduleFuncMatchesIniEntry(masterGraph[toVertex], *it, *boundTEs) and
-                (it->capability != "" or it->function != "" or
-                 it->type != "" or it->module != ""))
-            {
-              for (IniParser::ObservablesType::const_iterator
-                  it2 = (*it).dependencies.begin();
-                  it2 != (*it).dependencies.end(); ++it2)
-              {
-                if (quantityMatchesIniEntry(quantity, *it2, *boundTEs) and
-                    (it2->capability != "" or it2->type != "") and
-                    (it2->function != "" or it2->module != ""))
-                {
-                  rules.push_back(Rule(*it2));
-                  if (not it->weakrule and not it2->weakrule)
-                    strong_rules.push_back(Rule(*it2));
-                }
-              }
-            }
-            // Evaluate "functionChain:" section
-            if (moduleFuncMatchesIniEntry(masterGraph[toVertex], *it, *boundTEs) and
-                it->capability != "" and
-                it->function == "" and
-                (*it).functionChain.size() > 1)
-            {
-              for (auto it2 = (*it).functionChain.begin();
-                  it2 != (*it).functionChain.end() - 1; ++it2)
-              {
-                if ((*it2) == masterGraph[toVertex]->name())
-                {
-                  Rule rule(*(it2+1), masterGraph[toVertex]->origin());
-                  rules.push_back(rule);
-                  if (not it->weakrule)
-                    strong_rules.push_back(rule);
-                }
-              }
-            }
-            // Evaluate second order rules
-            if (quantityMatchesIniEntry(quantity, *it, *boundTEs) and
-                it->dependencies.size()==0 and
-                (it->capability != "" or it->type != "") and
-                (it->function != "" or it->module != ""))
-            {
-              rules.push_back(Rule(*it));
-              if (not it->weakrule)
-                strong_rules.push_back(Rule(*it));
-            }
+            // Allow only candidates that are allowed by all subjugate module rules of all rules that matched the entry.toVertex
+            allowed = allowed and match->dependencies_allow(masterGraph[v], *boundTEs);
+          }
+
+          // Iterate over all obslikes in order to check if they have functionChain entries that are relevant.
+          for (const Observable& obs : obslikes)
+          {
+            // Check that the candidate is consistent with any functionChain included in the obslike entry.
+            allowed = allowed and obs.function_chain_allows(masterGraph[v], masterGraph[entry.toVertex], *boundTEs);
+          }
+
+          // Iterate over all rules that matched the entry.toVertex.
+          for (const ModuleRule* match : masterGraph[entry.toVertex]->getMatchedModuleRules())
+          {
+            // Allow only candidates that match all subjugate module rules of all rules that matched the entry.toVertex
+            allowed = allowed and match->dependencies_allow(masterGraph[v], *boundTEs);
+          }
+
+          // Iterate over all rules in order to check if they have functionChain entries that are relevant.
+          for (const ModuleRule& rule : module_rules)
+          {
+            // Check that the candidate is consistent with any functionChain included in the obslike entry.
+            allowed = allowed and rule.function_chain_allows(masterGraph[v], masterGraph[entry.toVertex], *boundTEs);
           }
         }
+        Utils::masked_erase(allowedVertexCandidates);
       }
-      else
+
+      logger() << LogTags::dependency_resolver;
+      logger() << "List of candidate vertices after applying subjugate rules and functionChain constraints:" << endl;
+      logger() << printGenericFunctorList(allowedVertexCandidates) << EOM;
+
+      // Apply model-specific filter
+      unsigned int remaining = allowedVertexCandidates.size();
+      if (remaining > 1 and boundIniFile->getValueOrDef<bool>(true, "dependency_resolution", "prefer_model_specific_functions"))
       {
-        // Add entries in ObsLike and Rules section as 2nd order
-        const IniParser::ObservablesType & entries = boundIniFile->getObservables();
-        for (IniParser::ObservablesType::const_iterator it =
-            entries.begin(); it != entries.end(); ++it)
+        allowedVertexCandidates = closestCandidateForModel(allowedVertexCandidates);
+        if (allowedVertexCandidates.size() < remaining)
         {
-          if (quantityMatchesIniEntry(quantity, *it, *boundTEs) and
-              (it->capability != "" or it->type != "") and
-              (it->function != "" or it->module != ""))
-          {
-            rules.push_back(Rule(*it));
-            if (not it->weakrule)
-              strong_rules.push_back(Rule(*it));
-          }
-          // FIXME: Throw error if dependency or options entry exists
-        }
-        const IniParser::ObservablesType & entries2 = boundIniFile->getRules();
-        for (IniParser::ObservablesType::const_iterator it =
-            entries2.begin(); it != entries2.end(); ++it)
-        {
-          if (quantityMatchesIniEntry(quantity, *it, *boundTEs) and
-              it->dependencies.size()==0 and
-              (it->capability != "" or it->type != "") and
-              (it->function != "" or it->module != ""))
-          {
-            rules.push_back(Rule(*it));
-            if (not it->weakrule)
-              strong_rules.push_back(Rule(*it));
-          }
+          logger() << "A subset of vertex candidates is tailor-made for the scanned model." << endl;
+          logger() << "After using this as an additional constraint, the remaining vertices are:" << endl;
+          logger() << printGenericFunctorList(allowedVertexCandidates) << EOM;
         }
       }
 
-      logger() << "Number of identified rules: " << rules.size() << endl
-               << "Number of these rules that are marked as !weak: "
-               << rules.size()-strong_rules.size() << EOM;
-
-      // Make filtered lists
-      for (std::vector<DRes::VertexID>::const_iterator
-          it = vertexCandidates.begin();
-          it != vertexCandidates.end(); it ++)
+      // As a last resort, try applying weak rules (both subjugate and non-subjugate).
+      if (allowedVertexCandidates.size() > 1 and entry.obslike == NULL)
       {
-        bool valid = true;
-        for (std::vector<Rule>::const_iterator it2 = rules.begin();
-            it2 != rules.end(); it2 ++)
+        logger() << "Applying rules declared as '!weak' in final attempt to resolve dependency." << endl;
+
+        #pragma omp parallel for
+        for (unsigned int i = 0; i < allowedVertexCandidates.size(); ++i)
         {
-          if ( not matchesRules(masterGraph[*it], *it2) )
+          const VertexID& v = allowedVertexCandidates[i].first;
+          bool& allowed = allowedVertexCandidates[i].second;
+
+          // Filter out vertices that fail any non-subjugate (undirected) rules.
+          for (const ModuleRule& rule : module_rules)
           {
-            valid = false;
+            if (rule.weakrule and allowed) allowed = rule.allows(masterGraph[v], *boundTEs, false);
+          }
+
+          // Iterate over all obslikes that matched the entry.toVertex.
+          for (const Observable* match : masterGraph[entry.toVertex]->getMatchedObservables())
+          {
+            // Allow only candidates that are allowed by all subjugate module rules of all rules that matched the entry.toVertex
+            allowed = allowed and match->dependencies_allow(masterGraph[v], *boundTEs, false);
+            // Check that the candidate is consistent with any functionChain included in the obslike entry.
+            allowed = allowed and match->function_chain_allows(masterGraph[v], masterGraph[entry.toVertex], *boundTEs);
+          }
+
+          // Iterate over all rules that matched the entry.toVertex.
+          for (const ModuleRule* match : masterGraph[entry.toVertex]->getMatchedModuleRules())
+          {
+            // Allow only candidates that match all subjugate module rules of all rules that matched the entry.toVertex
+            if (match->weakrule and allowed) allowed = match->dependencies_allow(masterGraph[v], *boundTEs, false);
+            // Check that the candidate is consistent with any functionChain included in the rule.
+            if (match->weakrule and allowed) allowed = match->function_chain_allows(masterGraph[v], masterGraph[entry.toVertex], *boundTEs, false);
           }
         }
-        if (valid)
-            filteredVertexCandidates.push_back(*it);
-        valid = true;
-        for (std::vector<Rule>::const_iterator it2 = strong_rules.begin();
-            it2 != strong_rules.end(); it2 ++)
-        {
-          if ( not matchesRules(masterGraph[*it], *it2) )
-          {
-            valid = false;
-          }
-        }
-        if (valid)
-            filteredVertexCandidates2.push_back(*it);
-      }
+        Utils::masked_erase(allowedVertexCandidates);
 
-      if (rules.size() > 0 and filteredVertexCandidates.size() > 0)
-      {
-        logger() << "Candidate vertices that fulfill all rules:" << endl;
-        logger() << printGenericFunctorList(filteredVertexCandidates) << EOM;
-      }
-
-      if (filteredVertexCandidates.size() == 0)
-      {
-        filteredVertexCandidates = filteredVertexCandidates2;
-        logger() << "Ignoring rules declared as '!weak'" << endl;
-        logger() << "Candidate vertices that fulfill all non-weak rules:" << endl;
-        logger() << printGenericFunctorList(filteredVertexCandidates) << EOM;
-      }
-
-      // Apply tailor-made filter
-      if (boundIniFile->getValueOrDef<bool>(
-            true, "dependency_resolution", "prefer_model_specific_functions")
-          and filteredVertexCandidates.size() > 1)
-      {
-        filteredVertexCandidates = closestCandidateForModel(filteredVertexCandidates);
-        logger() << "A subset of vertex candidates is tailor-made for the scanned model." << endl;
-        logger() << "This is used as additional constraint since the YAML rules alone" << endl;
-        logger() << "are not constraining enough. These vertices are:" << endl;
-        logger() << printGenericFunctorList(filteredVertexCandidates) << EOM;
+        logger() << "Candidate vertices after applying weak rules:" << endl;
+        logger() << printGenericFunctorList(allowedVertexCandidates) << EOM;
       }
 
       // Nothing left?
-      if ( filteredVertexCandidates.size() == 0 )
+      if (allowedVertexCandidates.size() == 0)
       {
         str errmsg = "None of the vertex candidates for";
-        errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
+        errmsg += "\n" + printQuantityToBeResolved(entry);
         errmsg += "\nfulfills all rules in the YAML file.";
         errmsg += "\nPlease check your YAML file for contradictory rules, and";
         errmsg += "\nensure that you have built GAMBIT in the first place with";
@@ -1401,190 +1270,74 @@ namespace Gambit
         dependency_resolver_error().raise(LOCAL_INFO,errmsg);
       }
 
-      // Did vertices survive?
-      if ( filteredVertexCandidates.size() == 1 )
-        return filteredVertexCandidates[0];  // And done!
+      // At least one left.
+      logger() << "Candidate vertices that fulfill all rules:" << endl;
+      logger() << printGenericFunctorList(allowedVertexCandidates) << EOM;
 
+      // Is more than one result OK?
+      if (entry.obslike != NULL and entry.obslike->include_all)
+      {
+        std::vector<VertexID> retv;
+        for (auto v : allowedVertexCandidates) retv.push_back(v.first);
+        return retv;
+      }
+
+      // First remaining candidate.
+      const VertexID v = allowedVertexCandidates[0].first;
+
+      // Did we get down to one vertex?
+      if (allowedVertexCandidates.size() == 1) return std::vector<VertexID>(1, v);
+
+      // Failure - still more than one left.
+      const functor* f = masterGraph[v];
       str errmsg = "Unfortunately, the dependency resolution for";
-      errmsg += "\n" + printQuantityToBeResolved(quantity, toVertex);
+      errmsg += "\n" + printQuantityToBeResolved(entry);
       errmsg += "\nis still ambiguous.\n";
       errmsg += "\nThe candidate vertices are:\n";
-      errmsg += printGenericFunctorList(vertexCandidates) +"\n";
-      errmsg += "See logger output for details on the attempted (but failed) dependency resolution.\n";
-      errmsg += "\nAn entry in your YAML file that would e.g. select";
-      errmsg += "\nthe first of the above candidates could read ";
-      if ( toVertex != OBSLIKE_VERTEXID )
+      errmsg += printGenericFunctorList(allowedVertexCandidates) +"\n";
+      if (entry.obslike != NULL) 
       {
-        errmsg += "as a targeted rule (in the Rules section):\n";
-        errmsg += "\n  - capability: "+masterGraph[toVertex]->capability();
-        errmsg += "\n    function: "+masterGraph[toVertex]->name();
-        errmsg += "\n    dependencies:";
-        errmsg += "\n      - capability: " +masterGraph[vertexCandidates[0]]->capability();
-        errmsg += "\n        function: " +masterGraph[vertexCandidates[0]]->name();
-        errmsg += "\n        module: " +masterGraph[vertexCandidates[0]]->origin() +"\n\nor ";
+        errmsg += "\nNote that because the failed resolution is for an ObsLike entry,\n";
+        errmsg += "you could accept all of the above candidates by using !include_all.\n";
+        
       }
-      errmsg += "as an untargeted rule (in the Rules or ObsLike section):\n";
-      errmsg += "\n  - capability: "+masterGraph[vertexCandidates[0]]->capability();
-      errmsg += "\n    type: "+masterGraph[vertexCandidates[0]]->type();
-      errmsg += "\n    function: "+masterGraph[vertexCandidates[0]]->name();
-      errmsg += "\n    module: " +masterGraph[vertexCandidates[0]]->origin() +"\n";
-      if ( toVertex == OBSLIKE_VERTEXID )
+      errmsg += "\nSee logger output for details on the attempted (but failed) dependency resolution.\n";
+      errmsg += "\nAn entry in the ObsLike or Rules section of your YAML file that would";
+      errmsg += "\ne.g. select the first of the above candidates could read ";
+      if (entry.obslike == NULL)
       {
-        errmsg += "\n(Note that 1st class rules are not possible for vertices on which the core depends only.)\n";
+        errmsg += "as a targeted rule:\n";
+        errmsg += "\n  - if:";
+        errmsg += "\n      capability: "+masterGraph[entry.toVertex]->capability();
+        errmsg += "\n      function: "+masterGraph[entry.toVertex]->name();
+        errmsg += "\n    then:";
+        errmsg += "\n      dependencies:";
+        errmsg += "\n        - if:";
+        errmsg += "\n            capability: " +f->capability();
+        errmsg += "\n          then:";
+        errmsg += "\n            module: " +f->origin();
+        errmsg += "\n            function: " +f->name() +"\n\nor ";
+        errmsg += "as an untargeted rule:\n";
       }
-
+      errmsg += "\n  - if:";
+      errmsg += "\n      capability: "+f->capability();
+      errmsg += "\n      type: "+Utils::quote_if_contains_commas(f->type());
+      errmsg += "\n    then:";
+      errmsg += "\n      module: " +f->origin();
+      errmsg += "\n      function: "+f->name() + "\n";
       dependency_resolver_error().raise(LOCAL_INFO,errmsg);
 
-      return 0;
+      return std::vector<VertexID>(1, 0);
     }
 
-    /// Resolve dependency
-    boost::tuple<const IniParser::ObservableType *, DRes::VertexID>
-        DependencyResolver::resolveDependency( DRes::VertexID toVertex, sspair quantity)
-    {
-      graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
-      const IniParser::ObservableType *auxEntry = NULL;  // Ptr. on ini-file entry of the dependent vertex (if existent)
-      const IniParser::ObservableType *depEntry = NULL;  // Ptr. on ini-file entry that specifies how to resolve 'quantity'
-      std::vector<DRes::VertexID> vertexCandidates;
-      bool entryExists = false;  // Ini-file entry to resolve 'quantity' found?
-
-      // First, we check whether the dependent vertex has a unique
-      // correspondence in the inifile. Final (output) vertices have to be
-      // treated different from all other vertices, since they do not appear
-      // as dependencies in the rules section of the inifile. For them,
-      // we just use the entry from the observable/likelihood section for the
-      // resolution of ambiguities.  A pointer to the relevant inifile entry
-      // is stored in depEntry.
-      if ( toVertex == OBSLIKE_VERTEXID )
-      {
-        depEntry = findIniEntry(quantity, boundIniFile->getObservables(), "ObsLike");
-        entryExists = true;
-      }
-      // for all other vertices use the rules entries
-      else
-      {
-        auxEntry = findIniEntry(toVertex, boundIniFile->getRules(), "Rules");
-        if ( auxEntry != NULL )
-          depEntry = findIniEntry(quantity, (*auxEntry).dependencies, "dependency");
-        if ( auxEntry != NULL and depEntry != NULL )
-        {
-          entryExists = true;
-        }
-      }
-
-      // Loop over all available vertices in masterGraph, and make a list of
-      // functors that fulfill the dependency requirement.
-      for (tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
-      {
-        // Don't allow resolution by deactivated functors
-        if (masterGraph[*vi]->status() > 0)
-        {
-          // Without inifile entry, just match capabilities and types (no type
-          // comparison when no types are given; this should only happen for
-          // output nodes)
-          if ( ( stringComp(masterGraph[*vi]->capability(), quantity.first) and
-                 ( quantity.second == "" or quantity.second == "*" or
-                   typeComp(masterGraph[*vi]->type(), quantity.second, *boundTEs, false) ) )
-          // with inifile entry, we check capability, type, function name and
-          // module name.
-            and ( entryExists ? moduleFuncMatchesIniEntry(masterGraph[*vi], *depEntry, *boundTEs) : true ) )
-          {
-            // Add to vertex candidate list
-            vertexCandidates.push_back(*vi);
-          }
-        }
-      }
-
-      // Die if there is no way to fulfill this dependency.
-      if ( vertexCandidates.size() == 0 )
-      {
-        if ( not entryExists )
-        {
-            str errmsg = "I could not find any module function that provides ";
-            errmsg += quantity.first + " (" + quantity.second + ")"
-                +  "\nCheck your inifile for typos, your modules for consistency, etc.";
-            dependency_resolver_error().raise(LOCAL_INFO,errmsg);
-        }
-        else
-        {
-            str errmsg = "I could not find any module function that provides ";
-            errmsg += quantity.first + " (" + quantity.second + ") ["
-                + depEntry->function + ", " + depEntry->module + "]"
-                +  "\nCheck your inifile for typos, your modules for consistency, etc.";
-            dependency_resolver_error().raise(LOCAL_INFO,errmsg);
-        }
-      }
-
-      // In case of doubt (and if not explicitely disabled in the ini-file), prefer functors
-      // that are more specifically tailored for the model being scanned. Do not consider functors
-      // that are accessible via INTERPRET_AS_X links, as these are all considered to be equally 'far'
-      // from the model being scanned, with the 'distance' being one step further than the most distant
-      // ancestor.
-      if ( vertexCandidates.size() > 1 and boundIniFile->getValueOrDef<bool>(true, "dependency_resolution", "prefer_model_specific_functions") )
-      {
-        // Work up the model ancestry one step at a time, and stop as soon as one or more valid model-specific functors is
-        // found at a given level in the hierarchy.
-        std::vector<DRes::VertexID> newVertexCandidates;
-        std::set<str> s = boundClaw->get_activemodels();
-        std::vector<str> parentModelList(s.begin(), s.end());
-        while (newVertexCandidates.size() == 0 and not parentModelList.empty())
-        {
-          for (std::vector<str>::iterator mit = parentModelList.begin(); mit != parentModelList.end(); ++mit)
-          {
-            // Test each vertex candidate to see if it has been explicitly set up to work with the model *mit
-            for (std::vector<DRes::VertexID>::iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
-            {
-              if ( masterGraph[*it]->modelExplicitlyAllowed(*mit) ) newVertexCandidates.push_back(*it);
-            }
-            // Step up a level in the model hierarchy for this model.
-            *mit = boundClaw->get_parent(*mit);
-          }
-          parentModelList.erase(std::remove(parentModelList.begin(), parentModelList.end(), "none"), parentModelList.end());
-        }
-        if (newVertexCandidates.size() != 0) vertexCandidates = newVertexCandidates;
-      }
-
-      if ( vertexCandidates.size() > 1 )
-      {
-        str errmsg = "";
-        if ( not entryExists )
-        {
-            errmsg += "I found too many module functions that provide ";
-            errmsg += quantity.first + " (" + quantity.second + ")"
-                +  "\nCheck your inifile for typos, your modules for consistency, etc.";
-        }
-        else
-        {
-            errmsg += "I found too many module functions that provide ";
-            errmsg += quantity.first + " (" + quantity.second + ") \n"
-                + "\nneeded by " + depEntry->module + "::" + depEntry->function
-                +  "\nCheck your inifile for typos, your modules for consistency, etc.";
-        }
-        if (not boundIniFile->getValueOrDef<bool>(true, "dependency_resolution", "prefer_model_specific_functions"))
-         errmsg += "\nAlso consider turning on prefer_model_specific_functions in your inifile.";
-        errmsg += "\nCandidate module functions are:";
-        for (std::vector<DRes::VertexID>::iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
-        {
-            errmsg += "\n   [" + masterGraph[*it]->name() + "," + masterGraph[*it]->origin() + "]";
-        }
-        dependency_resolver_error().raise(LOCAL_INFO,errmsg);
-      }
-
-      return boost::tie(depEntry, vertexCandidates[0]);
-    }
 
     /// Set up dependency tree
-    void DependencyResolver::generateTree( std::queue<QueueEntry> parQueue)
+    void DependencyResolver::generateTree(std::queue<QueueEntry>& resolutionQueue)
     {
-      OutputVertexInfo outInfo;
-      DRes::VertexID fromVertex, toVertex;
-      DRes::EdgeID edge;
-      // Inifile entry of ObsLike (if relevant)
-      const IniParser::ObservableType * iniEntry;
+      OutputVertex outVertex;
+      std::vector<VertexID> fromVertices;
+      EdgeID edge;
       bool ok;
-      sspair quantity;
-      int dependency_type;
-      bool printme;
 
       logger() << LogTags::dependency_resolver << endl;
       logger() << "################################################" << endl;
@@ -1599,263 +1352,280 @@ namespace Gambit
       #endif
 
       // Read ini entries
-      use_regex      = boundIniFile->getValueOrDef<bool>(true,  "dependency_resolution", "use_regex");
       print_timing   = boundIniFile->getValueOrDef<bool>(false, "print_timing_data");
       print_unitcube = boundIniFile->getValueOrDef<bool>(false, "print_unitcube");
 
-      if ( use_regex      ) logger() << "Using regex for string comparison." << endl;
       if ( print_timing   ) logger() << "Will output timing information for all functors (via printer system)" << EOM;
       if ( print_unitcube ) logger() << "Printing of unitCubeParameters will be enabled." << EOM;
+
+      // Generate a list of module functors able to participate in dependency resolution.
+      std::vector<VertexID> vertexCandidates;
+      #pragma omp parallel for
+      for (auto vi = vertices(masterGraph).first; vi != vertices(masterGraph).second; ++vi)
+      {
+        bool allowed = true;
+
+        for (const ModuleRule& rule : module_rules)
+        {
+          // Filter out vertices that fail any non-subjugate (undirected) rules.
+          allowed = allowed and rule.allows(masterGraph[*vi], *boundTEs);
+        }
+
+        if (allowed)
+        {
+          #pragma omp critical (vertexCandidates)
+          vertexCandidates.push_back(*vi);
+        }
+      }
+
+      // Generate a list of backend functors able to participate in dependency resolution.
+      std::vector<functor*> backendFunctorCandidates;
+      #pragma omp parallel for
+      for(functor* f: boundCore->getBackendFunctors())
+      {
+        bool allowed = true;
+
+        for (const BackendRule& rule : backend_rules)
+        {
+          // Filter out backend functors that fail any non-subjugate (undirected) rules.
+          allowed = allowed and rule.allows(f, *boundTEs, "any");
+        }
+
+        if (allowed)
+        {
+          #pragma omp critical (vertexCandidates)
+          backendFunctorCandidates.push_back(f);
+        }
+      }
+
 
       //
       // Main loop: repeat until dependency queue is empty
       //
 
-      while (not parQueue.empty())
+      while (not resolutionQueue.empty())
       {
 
-        // Retrieve capability, type and vertex ID of dependency of interest
-        quantity = parQueue.front().first;  // (capability, type) pair
-        toVertex = parQueue.front().second;  // dependent vertex
-        dependency_type = parQueue.front().third;  // Normal or loop-manager
-        printme = parQueue.front().printme;  // bool
+        // Retrieve dependency of interest
+        const QueueEntry& entry = resolutionQueue.front();
 
         // Print information about required quantity and dependent vertex
         logger() << LogTags::dependency_resolver;
         logger() << "Resolving ";
-        logger() << printQuantityToBeResolved(quantity, toVertex) << endl << endl;
+        logger() << printQuantityToBeResolved(entry) << endl << endl;
 
         // Extra verbose output to terminal
         #ifdef VERBOSE_DEP_RES
-        std::cout << "Resolving dependency "<<printQuantityToBeResolved(quantity, toVertex)<<"..." <<std::endl;
+          std::cout << "Resolving dependency "<<printQuantityToBeResolved(entry)<<"..." <<std::endl;
         #endif
-
-        // Check that ObsLike vertices have non-empty capability
-        if ( toVertex == OBSLIKE_VERTEXID and quantity.first == "" )
-        {
-          str errmsg = "ObsLike entry without without capability "
-                       "information encountered.\n";
-          dependency_resolver_error().raise(LOCAL_INFO,errmsg);
-        }
 
         // Figure out how to resolve dependency
-        if ( boundIniFile->getValueOrDef<bool>(false, "dependency_resolution", "use_old_routines") )
+        fromVertices = resolveDependencyFromRules(entry, vertexCandidates);
+
+        // If there is more than one result, log that fact.
+        if (fromVertices.size() > 1)
         {
-          boost::tie(iniEntry, fromVertex) = resolveDependency(toVertex, quantity);
+          logger() << LogTags::dependency_resolver;
+          logger() << "Due to include_all tag, " << printQuantityToBeResolved(entry);
+          logger() << " will be resolved by " << fromVertices.size() << " functions." << endl;
         }
-        else
+
+        // Step through all results
+        for (VertexID fromVertex : fromVertices)
         {
-          fromVertex = resolveDependencyFromRules(toVertex, quantity);
-        }
 
-        // Print user info.
-        logger() << LogTags::dependency_resolver;
-        logger() << "Resolved by: [";
-        logger() << (*masterGraph[fromVertex]).name() << ", ";
-        logger() << (*masterGraph[fromVertex]).origin() << "]" << endl;
+          // Print user info.
+          logger() << LogTags::dependency_resolver;
+          logger() << printQuantityToBeResolved(entry) << "resolved by: [";
+          logger() << (*masterGraph[fromVertex]).name() << ", ";
+          logger() << (*masterGraph[fromVertex]).origin() << "]" << endl;
 
-        // Extra verbose output to terminal
-        #ifdef VERBOSE_DEP_RES
-        std::cout << "   ...resolved by ["<<(*masterGraph[fromVertex]).name()<<", "<<(*masterGraph[fromVertex]).origin()<<"]"<<std::endl;
-        #endif
+          // Extra verbose output to terminal
+          #ifdef VERBOSE_DEP_RES
+            std::cout << "   ...resolved by ["<<(*masterGraph[fromVertex]).name()<<", "<<(*masterGraph[fromVertex]).origin()<<"]"<<std::endl;
+          #endif
 
-        // Check if we wanted to output this observable to the printer system.
-        if ( toVertex==OBSLIKE_VERTEXID ) masterGraph[fromVertex]->setPrintRequirement(printme);
-        // Check if the flag to output timing data is set
-        if(print_timing) masterGraph[fromVertex]->setTimingPrintRequirement(true);
+          // Check if we wanted to output this observable to the printer system.
+          if (entry.obslike != NULL) masterGraph[fromVertex]->setPrintRequirement(entry.printme);
+          // Check if the flag to output timing data is set
+          if(print_timing) masterGraph[fromVertex]->setTimingPrintRequirement(true);
 
-        // Apply resolved dependency to masterGraph and functors
-        if ( toVertex != OBSLIKE_VERTEXID )
-        {
-          // Resolve dependency on functor level...
-          //
-          // In case the fromVertex is a loop manager, store nested function
-          // temporarily in loopManagerMap (they have to be sorted later)
-          if (dependency_type == LOOP_MANAGER_DEPENDENCY)
+          // Apply resolved dependency to masterGraph and functors
+          if (entry.obslike == NULL)
           {
-            // Check whether fromVertex is allowed to manage loops
-            if (not masterGraph[fromVertex]->canBeLoopManager())
+            // Resolve the dependency at the functor level.
+            // Default is to resolve dependency at functor level for entry.toVertex.
+            if (entry.dependency_type != LOOP_MANAGER_DEPENDENCY)
             {
-              str errmsg = "Trying to resolve dependency on loop manager with\n"
-               "module function that is not declared as loop manager.\n"
-               + printGenericFunctorList(initVector<functor*>(masterGraph[fromVertex]));
-              dependency_resolver_error().raise(LOCAL_INFO,errmsg);
+              (*masterGraph[entry.toVertex]).resolveDependency(masterGraph[fromVertex]);
             }
-            std::set<DRes::VertexID> v;
-            if (loopManagerMap.count(fromVertex) == 1)
-            {
-              v = loopManagerMap[fromVertex];
-            }
-            v.insert(toVertex);
-            loopManagerMap[fromVertex] = v;
-            (*masterGraph[toVertex]).resolveLoopManager(masterGraph[fromVertex]);
-
-            // Take any dependencies of loop-managed vertices that have already been resolved,
-            // and add them as "hidden" dependencies to this loop manager.
-            if (edges_to_force_on_manager.find(toVertex) != edges_to_force_on_manager.end())
-            {
-              for (auto it = edges_to_force_on_manager.at(toVertex).begin();
-                   it != edges_to_force_on_manager.at(toVertex).end(); ++it)
-              {
-                logger() << "Dynamically adding dependency of " << (*masterGraph[fromVertex]).origin()
-                         << "::" << (*masterGraph[fromVertex]).name() << " on "
-                         << (*masterGraph[*it]).origin() << "::" << (*masterGraph[*it]).name() << endl;
-                boost::tie(edge, ok) = add_edge(*it, fromVertex, masterGraph);
-              }
-            }
-          }
-          // Default is to resolve dependency on functor level of toVertex
-          else
-          {
-            (*masterGraph[toVertex]).resolveDependency(masterGraph[fromVertex]);
-          }
-          // ...and on masterGraph level.
-          boost::tie(edge, ok) = add_edge(fromVertex, toVertex, masterGraph);
-
-          // In the case that toVertex is a nested function, add fromVertex to
-          // the edges of toVertex's loop manager.
-          str to_lmcap = (*masterGraph[toVertex]).loopManagerCapability();
-          str to_lmtype = (*masterGraph[toVertex]).loopManagerType();
-          str from_lmcap = (*masterGraph[fromVertex]).loopManagerCapability();
-          str from_lmtype = (*masterGraph[fromVertex]).loopManagerType();
-          bool is_same_lmcap = to_lmcap == from_lmcap;
-          bool is_same_lmtype = to_lmtype == "any" or from_lmtype == "any" or to_lmtype == from_lmtype;
-          if (to_lmcap != "none")
-          {
-            // This function runs nested.  Check if its loop manager has been resolved yet.
-            if ((*masterGraph[toVertex]).loopManagerName() == "none")
-            {
-              // toVertex's loop manager has not yet been determined.
-              // Add the edge to the list to deal with when the loop manager dependency is resolved,
-              // as long as toVertex and fromVertex cannot end up inside the same loop.
-              if (!is_same_lmcap or !is_same_lmtype)
-              {
-                if (edges_to_force_on_manager.find(toVertex) == edges_to_force_on_manager.end())
-                 edges_to_force_on_manager[toVertex] = std::set<DRes::VertexID>();
-                edges_to_force_on_manager.at(toVertex).insert(fromVertex);
-              }
-            }
+            // In case the fromVertex is a loop manager, store nested function
+            // temporarily in loopManagerMap (they have to be sorted later)
             else
             {
-              // toVertex's loop manager has already been resolved.
-              // If fromVertex is not the manager itself, and is not
-              // itself a nested function that has the possibility to
-              // end up in the same loop as toVertex, then add
-              // fromVertex as an edge of the manager.
-              str name = (*masterGraph[toVertex]).loopManagerName();
-              str origin = (*masterGraph[toVertex]).loopManagerOrigin();
-              bool is_itself = (name == (*masterGraph[fromVertex]).name() and origin == (*masterGraph[fromVertex]).origin());
-              if (!is_itself and (!is_same_lmcap or !is_same_lmtype) )
+              // Check whether fromVertex is allowed to manage loops
+              if (not masterGraph[fromVertex]->canBeLoopManager())
               {
-                // Hunt through the edges of toVertex and find the one that corresponds to its loop manager.
-                graph_traits<DRes::MasterGraphType>::in_edge_iterator ibegin, iend;
-                boost::tie(ibegin, iend) = in_edges(toVertex, masterGraph);
-                if (ibegin != iend)
+                str errmsg = "Trying to resolve dependency on loop manager with\n"
+                 "module function that is not declared as loop manager.\n"
+                 + printGenericFunctorList(initVector<functor*>(masterGraph[fromVertex]));
+                dependency_resolver_error().raise(LOCAL_INFO,errmsg);
+              }
+              std::set<VertexID> v;
+              if (loopManagerMap.count(fromVertex) == 1)
+              {
+                v = loopManagerMap[fromVertex];
+              }
+              v.insert(entry.toVertex);
+              loopManagerMap[fromVertex] = v;
+              (*masterGraph[entry.toVertex]).resolveLoopManager(masterGraph[fromVertex]);
+
+              // Take any dependencies of loop-managed vertices that have already been resolved,
+              // and add them as "hidden" dependencies to this loop manager.
+              if (edges_to_force_on_manager.find(entry.toVertex) != edges_to_force_on_manager.end())
+              {
+                for (auto it = edges_to_force_on_manager.at(entry.toVertex).begin();
+                     it != edges_to_force_on_manager.at(entry.toVertex).end(); ++it)
                 {
-                  DRes::VertexID managerVertex;
-                  for (; ibegin != iend; ++ibegin)
+                  logger() << "Dynamically adding dependency of " << masterGraph[fromVertex]->origin()
+                           << "::" << masterGraph[fromVertex]->name() << " on "
+                           << masterGraph[*it]->origin() << "::" << masterGraph[*it]->name() << endl;
+                  std::tie(edge, ok) = add_edge(*it, fromVertex, masterGraph);
+                }
+              }
+            }
+            // Now save the resolved dependency into the masterGraph.
+            std::tie(edge, ok) = add_edge(fromVertex, entry.toVertex, masterGraph);
+
+            // In the case that entry.toVertex is a nested function, add fromVertex to
+            // the edges of entry.toVertex's loop manager.
+            str to_lmcap = (*masterGraph[entry.toVertex]).loopManagerCapability();
+            str to_lmtype = (*masterGraph[entry.toVertex]).loopManagerType();
+            str from_lmcap = (*masterGraph[fromVertex]).loopManagerCapability();
+            str from_lmtype = (*masterGraph[fromVertex]).loopManagerType();
+            bool is_same_lmcap = to_lmcap == from_lmcap;
+            bool is_same_lmtype = to_lmtype == "any" or from_lmtype == "any" or to_lmtype == from_lmtype;
+            if (to_lmcap != "none")
+            {
+              // This function runs nested.  Check if its loop manager has been resolved yet.
+              if ((*masterGraph[entry.toVertex]).loopManagerName() == "none")
+              {
+                // entry.toVertex's loop manager has not yet been determined.
+                // Add the edge to the list to deal with when the loop manager dependency is resolved,
+                // as long as entry.toVertex and fromVertex cannot end up inside the same loop.
+                if (!is_same_lmcap or !is_same_lmtype)
+                {
+                  if (edges_to_force_on_manager.find(entry.toVertex) == edges_to_force_on_manager.end())
+                   edges_to_force_on_manager[entry.toVertex] = std::set<VertexID>();
+                  edges_to_force_on_manager.at(entry.toVertex).insert(fromVertex);
+                }
+              }
+              else
+              {
+                // entry.toVertex's loop manager has already been resolved.
+                // If fromVertex is not the manager itself, and is not
+                // itself a nested function that has the possibility to
+                // end up in the same loop as entry.toVertex, then add
+                // fromVertex as an edge of the manager.
+                str name = (*masterGraph[entry.toVertex]).loopManagerName();
+                str origin = (*masterGraph[entry.toVertex]).loopManagerOrigin();
+                bool is_itself = (name == (*masterGraph[fromVertex]).name() and origin == (*masterGraph[fromVertex]).origin());
+                if (!is_itself and (!is_same_lmcap or !is_same_lmtype) )
+                {
+                  // Hunt through the edges of entry.toVertex and find the one that corresponds to its loop manager.
+                  graph_traits<MasterGraphType>::in_edge_iterator ibegin, iend;
+                  std::tie(ibegin, iend) = in_edges(entry.toVertex, masterGraph);
+                  if (ibegin != iend)
                   {
-                    managerVertex = source(*ibegin, masterGraph);
-                    if ((*masterGraph[managerVertex]).name() == name and
-                        (*masterGraph[managerVertex]).origin() == origin) break;
+                    VertexID managerVertex;
+                    for (; ibegin != iend; ++ibegin)
+                    {
+                      managerVertex = source(*ibegin, masterGraph);
+                      if ((*masterGraph[managerVertex]).name() == name and
+                          (*masterGraph[managerVertex]).origin() == origin) break;
+                    }
+                    logger() << "Dynamically adding dependency of " << (*masterGraph[managerVertex]).origin()
+                             << "::" << (*masterGraph[managerVertex]).name() << " on "
+                             << (*masterGraph[fromVertex]).origin() << "::" << (*masterGraph[fromVertex]).name() << endl;
+                    std::tie(edge, ok) = add_edge(fromVertex, managerVertex, masterGraph);
                   }
-                  logger() << "Dynamically adding dependency of " << (*masterGraph[managerVertex]).origin()
-                           << "::" << (*masterGraph[managerVertex]).name() << " on "
-                           << (*masterGraph[fromVertex]).origin() << "::" << (*masterGraph[fromVertex]).name() << endl;
-                  boost::tie(edge, ok) = add_edge(fromVertex, managerVertex, masterGraph);
-                }
-                else
-                {
-                  core_error().raise(LOCAL_INFO, "toVertex has no edges! So its loop manager hasn't been added as a dependency?!");
+                  else
+                  {
+                    dependency_resolver_error().raise(LOCAL_INFO, "entry.toVertex has no edges! So its loop manager hasn't been added as a dependency?!");
+                  }
                 }
               }
             }
           }
-        }
-        else // if output vertex
-        {
-          iniEntry = findIniEntry(quantity, boundIniFile->getObservables(), "ObsLike");
-          outInfo.vertex = fromVertex;
-          outInfo.iniEntry = iniEntry;
-          outputVertexInfos.push_back(outInfo);
-          // Don't need subcaps during dry-run
-          if (not boundCore->show_runorder)
+          else // if output vertex
           {
-            Options mySubCaps = collectSubCaps(fromVertex);
-            masterGraph[fromVertex]->notifyOfSubCaps(mySubCaps);
-          }
-        }
-
-        // If fromVertex is new, activate it
-        if ( (*masterGraph[fromVertex]).status() != 2 )
-        {
-          logger() << LogTags::dependency_resolver << "Activate new module function" << endl;
-          masterGraph[fromVertex]->setStatus(2); // activate node
-          resolveVertexBackend(fromVertex);
-          resolveVertexClassLoading(fromVertex);
-
-          // Don't need options during dry-run, so skip this (just to simplify terminal output)
-          if(not boundCore->show_runorder)
-          {
-            if ( boundIniFile->getValueOrDef<bool>( false, "dependency_resolution", "use_old_routines") )
+            outVertex.vertex = fromVertex;
+            outVertex.purpose = entry.obslike->purpose;;
+            outputVertices.push_back(outVertex);
+            // Don't need subcaps during dry-run
+            if (not boundCore->show_runorder)
             {
-              // Generate options object from ini-file entry that corresponds to
-              // fromVertex (overwrite iniEntry) and pass it to the fromVertex for later use
-              iniEntry = findIniEntry(fromVertex, boundIniFile->getRules(), "Rules");
-              if ( iniEntry != NULL )
-              {
-                Options myOptions(iniEntry->options);
-                masterGraph[fromVertex]->notifyOfIniOptions(myOptions);
-              }
+              Options mySubCaps = collectSubCaps(fromVertex);
+              masterGraph[fromVertex]->notifyOfSubCaps(mySubCaps);
             }
-            else
+          }
+
+          // If fromVertex is new, activate it
+          if ( (*masterGraph[fromVertex]).status() != 2 )
+          {
+            logger() << LogTags::dependency_resolver << "Activate new module function" << endl;
+            masterGraph[fromVertex]->setStatus(2); // activate node
+            resolveVertexBackend(fromVertex, backendFunctorCandidates);
+            resolveVertexClassLoading(fromVertex);
+
+            // Don't need options during dry-run, so skip this (just to simplify terminal output)
+            if(not boundCore->show_runorder)
             {
               Options myOptions = collectIniOptions(fromVertex);
               masterGraph[fromVertex]->notifyOfIniOptions(myOptions);
             }
+            // Fill parameter queue with dependencies of fromVertex
+            fillResolutionQueue(resolutionQueue, fromVertex);
           }
-          // Fill parameter queue with dependencies of fromVertex
-          fillParQueue(&parQueue, fromVertex);
         }
 
         // Done.
         logger() << EOM;
-        parQueue.pop();
+        resolutionQueue.pop();
       }
     }
 
-    /// Push module function dependencies onto the parameter queue
-    void DependencyResolver::fillParQueue( std::queue<QueueEntry> *parQueue,
-            DRes::VertexID vertex)
+    /// Put module function dependencies into the resolution queue
+    void DependencyResolver::fillResolutionQueue(std::queue<QueueEntry>& resolutionQueue, VertexID vertex)
     {
-      // Set the default printing flag for functors to pass to the parQueue constructor.
+      // Set the default printing flag for functors to pass to the resolutionQueue constructor.
       bool printme_default = false;
 
       // Tell the logger what the following messages are about.
       logger() << LogTags::dependency_resolver;
 
       // Digest capability of loop manager (if defined)
-      str lmcap = (*masterGraph[vertex]).loopManagerCapability();
-      str lmtype = (*masterGraph[vertex]).loopManagerType();
+      str lmcap = masterGraph[vertex]->loopManagerCapability();
+      str lmtype = masterGraph[vertex]->loopManagerType();
       if (lmcap != "none")
       {
         logger() << "Adding module function loop manager to resolution queue:" << endl;
         logger() << lmcap << " ()" << endl;
-        parQueue->push(QueueEntry(sspair(lmcap, lmtype), vertex, LOOP_MANAGER_DEPENDENCY, printme_default));
+        resolutionQueue.push(QueueEntry(sspair(lmcap, lmtype), vertex, LOOP_MANAGER_DEPENDENCY, printme_default));
       }
 
       // Digest regular dependencies
-      std::set<sspair> s = (*masterGraph[vertex]).dependencies();
+      std::set<sspair> s = masterGraph[vertex]->dependencies();
       if (s.size() > 0) logger() << "Add dependencies of new module function to queue" << endl;
-      for (std::set<sspair>::iterator it = s.begin(); it != s.end(); ++it)
+      for (const sspair& ss : s)
       {
         // If the loop manager requirement exists and is type-specific, it is a true depencency,
         // and thus appears in the output of functor.dependencies(). So, we need to take care
-        // not to double-count it for entry into the parQueue.
-        if (lmcap == "none" or lmtype == "any" or lmcap != it->first or lmtype != it->second)
+        // not to double-count it for entry into the resolutionQueue.
+        if (lmcap == "none" or lmtype == "any" or lmcap != ss.first or lmtype != ss.second)
         {
-          logger() << it->first << " (" << it->second << ")" << endl;
-          parQueue->push(QueueEntry(*it, vertex, NORMAL_DEPENDENCY, printme_default));
+          logger() << ss.first << " (" << ss.second << ")" << endl;
+          resolutionQueue.push(QueueEntry(ss, vertex, NORMAL_DEPENDENCY, printme_default));
         }
       }
 
@@ -1871,57 +1641,8 @@ namespace Gambit
       return topo_order;
     }
 
-    /// Find rules entry that matches vertex
-    const IniParser::ObservableType * DependencyResolver::findIniEntry(DRes::VertexID toVertex,
-     const IniParser::ObservablesType &entries, const str & errtag)
-    {
-      std::vector<const IniParser::ObservableType*> auxEntryCandidates;
-      for (IniParser::ObservablesType::const_iterator it =
-          entries.begin(); it != entries.end(); ++it)
-      {
-        if ( moduleFuncMatchesIniEntry(masterGraph[toVertex], *it, *boundTEs) and it->capability != "" )
-        {
-          auxEntryCandidates.push_back(&(*it));
-        }
-      }
-      if ( auxEntryCandidates.size() == 0 ) return NULL;
-      else if ( auxEntryCandidates.size() != 1 )
-      {
-        str errmsg = "Found multiple " + errtag + " entries for ";
-        errmsg += masterGraph[toVertex]->capability() +" (" +
-            masterGraph[toVertex]->type() + ") [" +
-            masterGraph[toVertex]->name() + ", " +
-            masterGraph[toVertex]->origin() + "]";
-        dependency_resolver_error().raise(LOCAL_INFO, errmsg);
-      }
-      return auxEntryCandidates[0]; // auxEntryCandidates.size() == 1
-    }
-
-    /// Find observable entry that matches capability/type
-    const IniParser::ObservableType* DependencyResolver::findIniEntry(
-            sspair quantity, const IniParser::ObservablesType & entries, const str & errtag)
-    {
-      std::vector<const IniParser::ObservableType*> obsEntryCandidates;
-      for (IniParser::ObservablesType::const_iterator it =
-          entries.begin(); it != entries.end(); ++it)
-      {
-        if ( capabilityMatchesIniEntry(quantity, *it) ) // use same criteria than for normal dependencies
-        {
-          obsEntryCandidates.push_back(&(*it));
-        }
-      }
-      if ( obsEntryCandidates.size() == 0 ) return NULL;
-      else if ( obsEntryCandidates.size() != 1 )
-      {
-        str errmsg = "Found multiple " + errtag + " entries for ";
-        errmsg += quantity.first + " (" + quantity.second + ")";
-        dependency_resolver_error().raise(LOCAL_INFO,errmsg);
-      }
-      return obsEntryCandidates[0]; // obsEntryCandidates.size() == 1
-    }
-
     /// Node-by-node backend resolution
-    void DependencyResolver::resolveVertexBackend(VertexID vertex)
+    void DependencyResolver::resolveVertexBackend(VertexID vertex, const std::vector<functor*>& backendFunctorCandidates)
     {
       functor* solution;
       std::vector<functor*> previous_successes;
@@ -1930,41 +1651,38 @@ namespace Gambit
       bool allow_deferral = true;
 
       // If there are no backend requirements, and thus nothing to do, return.
-      if ((*masterGraph[vertex]).backendreqs().size() == 0) return;
+      if (masterGraph[vertex]->backendreqs().size() == 0) return;
 
       // Get started.
       logger() << LogTags::dependency_resolver << "Doing backend function resolution..." << EOM;
 
-      // Check whether this vertex is mentioned in the inifile.
-      const IniParser::ObservableType * auxEntry = findIniEntry(vertex, boundIniFile->getRules(), "Rules");
-
       // Collect the list of groups that the backend requirements of this vertex exist in.
-      std::set<str> groups = (*masterGraph[vertex]).backendgroups();
+      std::set<str> groups = masterGraph[vertex]->backendgroups();
 
       // Collect the list of orphan (i.e. groupless) backend requirements.
-      std::set<sspair> orphan_reqs = (*masterGraph[vertex]).backendreqs("none");
+      std::set<sspair> orphan_reqs = masterGraph[vertex]->backendreqs("none");
 
       // Loop until no further backend resolutions are possible, or no more are required.
       while ( not ( groups.empty() and orphan_reqs.empty() ) )
       {
 
         // Loop over all groups, including the null group (group="none").
-        for (std::set<str>::iterator it = groups.begin(); it != groups.end(); ++it)
+        for (const str& group : groups)
         {
           // Switch depending on whether this is a real group or not.
-          if (*it == "none")
+          if (group == "none")
           {
             // Loop over all the orphan requirements.
-            for (std::set<sspair>::iterator req = orphan_reqs.begin(); req != orphan_reqs.end(); ++req)
+            for (const sspair& req : orphan_reqs)
             {
               logger() << LogTags::dependency_resolver;
-              logger() << "Resolving ungrouped requirement " << req->first;
-              logger() << " (" << req->second << ")..." << EOM;
+              logger() << "Resolving ungrouped requirement " << req.first;
+              logger() << " (" << req.second << ")..." << EOM;
 
               // Find a backend function that fulfills the backend requirement.
               std::set<sspair> reqsubset;
-              reqsubset.insert(*req);
-              solution = solveRequirement(reqsubset,auxEntry,vertex,previous_successes,allow_deferral);
+              reqsubset.insert(req);
+              solution = solveRequirement(reqsubset,vertex,backendFunctorCandidates,previous_successes,allow_deferral);
 
               // Check if a valid solution has been returned
               if (solution != NULL)
@@ -1973,32 +1691,32 @@ namespace Gambit
                 resolveRequirement(solution,vertex);
                 previous_successes.push_back(solution);
 
-                // If *req is in remaining_reqs, remove it
-                if (remaining_reqs.find(*req) != remaining_reqs.end())
+                // If req is in remaining_reqs, remove it
+                if (remaining_reqs.find(req) != remaining_reqs.end())
                 {
-                  remaining_reqs.erase(*req);
+                  remaining_reqs.erase(req);
                 }
               }
               else // No valid solution found, but deferral has been suggested - so defer resolution of this group until later.
               {
-                remaining_reqs.insert(*req);
+                remaining_reqs.insert(req);
                 logger() << LogTags::dependency_resolver;
-                logger() << "Resolution of ungrouped requirement " << req->first;
-                logger() << " (" << req->second << ") deferred until later." << EOM;
+                logger() << "Resolution of ungrouped requirement " << req.first;
+                logger() << " (" << req.second << ") deferred until later." << EOM;
               }
             }
-            if (not remaining_reqs.empty()) remaining_groups.insert(*it);
+            if (not remaining_reqs.empty()) remaining_groups.insert(group);
           }
           else
           {
             logger() << LogTags::dependency_resolver;
-            logger() << "Resolving from group " << *it << "..." << EOM;
+            logger() << "Resolving from group " << group << "..." << EOM;
 
             // Collect the list of backend requirements in this group.
-            std::set<sspair> reqs = (*masterGraph[vertex]).backendreqs(*it);
+            std::set<sspair> reqs = masterGraph[vertex]->backendreqs(group);
 
             // Find a backend function that fulfills one of the backend requirements in the group.
-            solution = solveRequirement(reqs,auxEntry,vertex,previous_successes,allow_deferral,*it);
+            solution = solveRequirement(reqs,vertex,backendFunctorCandidates,previous_successes,allow_deferral,group);
 
             // Check if a valid solution has been returned
             if (solution != NULL)
@@ -2009,9 +1727,9 @@ namespace Gambit
             }
             else // No valid solution found, but deferral has been suggested - so defer resolution of this group until later.
             {
-              remaining_groups.insert(*it);
+              remaining_groups.insert(group);
               logger() << LogTags::dependency_resolver;
-              logger() << "Resolution from group " << *it;
+              logger() << "Resolution from group " << group;
               logger() << "deferred until later." << EOM;
             }
           }
@@ -2029,201 +1747,183 @@ namespace Gambit
           remaining_reqs.clear();
           remaining_groups.clear();
         }
-
       }
-
     }
 
-    /// Find a backend function that matches any one of a vector of capability-type pairs.
-    functor* DependencyResolver::solveRequirement(std::set<sspair> reqs,
-     const IniParser::ObservableType * auxEntry, VertexID vertex, std::vector<functor*> previous_successes,
-     bool allow_deferral, str group)
+    /// Find a backend function that matches any one of a vector of capability-type pairs,
+    /// ensuring consistency with all subjugate backend rules. As non-subjugate rules have
+    /// global applicability, all instances are assumed to have already been applied before
+    /// this function is called.
+    functor* DependencyResolver::solveRequirement(std::set<sspair> reqs, VertexID toVertex,
+     const std::vector<functor*>& backendFunctorCandidates, std::vector<functor*> previous_successes,
+     bool allow_deferral, str group_being_resolved)
     {
-      std::vector<functor*> vertexCandidates;
-      std::vector<functor*> vertexCandidatesWithIniEntry;
-      std::vector<functor*> disabledVertexCandidates;
+      // Candidate vertices after applying rules
+      std::vector<std::pair<functor*, bool>> allowedBackendFunctorCandidates(backendFunctorCandidates.size());
+      std::vector<std::pair<functor*, bool>> disabledBackendFunctorCandidates(backendFunctorCandidates.size());
 
-      // Loop over all existing backend vertices, and make a list of
-      // functors that are available and fulfill the backend requirement
-      for (std::vector<functor *>::const_iterator
-          itf  = boundCore->getBackendFunctors().begin();
-          itf != boundCore->getBackendFunctors().end();
-          ++itf)
+      // Loop over all existing backend vertices, retaining only functors
+      // that are available and fulfill the backend requirement.
+      #pragma omp parallel for
+      for (unsigned int i = 0; i < backendFunctorCandidates.size(); ++i)
       {
-        const IniParser::ObservableType * reqEntry = NULL;
-        bool entryExists = false;
+        functor* f = backendFunctorCandidates[i];
+        bool allowed = false;
 
-        // Find relevant iniFile entry from Rules section
-        if ( auxEntry != NULL ) reqEntry = findIniEntry((*itf)->quantity(), (*auxEntry).backends, "backend");
-        if ( reqEntry != NULL) entryExists = true;
-
-        // Look for a match to at least one backend requirement, taking into account type equivalency classes.
-        bool simple_match = false;
-        for (std::set<sspair>::const_iterator
-             itr  = reqs.begin();
-             itr != reqs.end();
-             ++itr)
+        // Look for a basic match to at least one backend requirement, taking into account type equivalency classes.
+        for (const sspair& req : reqs)
         {
-          if ((*itf)->capability() == itr->first and typeComp((*itf)->type(), itr->second, *boundTEs))
+          // Make a temporary rule to filter down to only those that match the requirement. This rule has the format
+          // if:
+          //   group: group_being_resolved
+          // then:
+          //   capability: req.first
+          //   type: req.second
+          BackendRule req_rule;
+          req_rule.has_if = req_rule.has_then = req_rule.if_group = req_rule.then_capability = req_rule.then_type = true;
+          req_rule.group = group_being_resolved;
+          req_rule.capability = req.first;
+          req_rule.type = req.second;
+          // Don't let functors log this rule when it is matched, as it is only a temporary rule.
+          req_rule.log_matches = false;
+          if (req_rule.allows(f, *boundTEs, group_being_resolved))
           {
-            simple_match = true;
+            allowed = true;
             break;
           }
         }
 
-        // If there is a relevant inifile entry, we also check for a match to the capability, type, function name and backend name in that entry.
-        if ( simple_match and ( entryExists ? backendFuncMatchesIniEntry(*itf, *reqEntry, *boundTEs) : true ) )
+        // Move on to the next candidate immediately if the current one doesn't even constitute a basic match to the requirement.
+        if (not allowed) continue;
+
+        // Continue to allow the backend vertex if it is available, or if we only want to show a list of backends.
+        allowed = boundCore->show_backends or not (f->status() <= 0);
+
+        // Is the candidate permitted to fill a backend requirement of toVertex, given any specification of permitted
+        // backends and permitted versions in the basic rollcall declaration of this requirement?
+        if (allowed)
         {
-
-          // Has the backend vertex already been disabled by the backend system?
-          bool disabled = ( (*itf)->status() <= 0 );
-
-          // Is it permitted to be used to fill this backend requirement?
-          // First we create the backend-version pair for the backend vertex and its semi-generic form (where any version is OK).
-          sspair itf_signature((*itf)->origin(), (*itf)->version());
-          sspair itf_generic((*itf)->origin(), "any");
+          // First we create the backend-version pair for the backend vertex.
+          sspair f_signature(f->origin(), f->version());
+          // Next we create its semi-generic form, where any version is OK.
+          sspair f_generic(f->origin(), "any");
           // Then we find the set of backend-version pairs that are permitted.
-          std::set<sspair> permitted_bes = (*masterGraph[vertex]).backendspermitted((*itf)->quantity());
-          // Then we see if any match.  First we test for generic matches, where any version of any backend is allowed.
-          bool permitted = ( permitted_bes.empty()
-          // Next we test for semi-generic matches, where the backend matches and any version of that backend is allowed.
-          or std::find(permitted_bes.begin(), permitted_bes.end(), itf_generic) != permitted_bes.end()
-          // Finally we test for specific matches, where both the backend and version match what is allowed.
-          or std::find(permitted_bes.begin(), permitted_bes.end(), itf_signature) != permitted_bes.end() );
+          std::set<sspair> permitted_bes = masterGraph[toVertex]->backendspermitted(f->quantity());
 
-          // If the backend vertex is able and allowed,
-          if (permitted and not disabled)
-          {
-            // add it to the overall vertex candidate list
-            vertexCandidates.push_back(*itf);
-            // if it has an inifile entry, add it to the candidate list with inifile entries
-            if (entryExists) vertexCandidatesWithIniEntry.push_back(*itf);
-          }
-          else if (permitted and boundCore->show_backends) // If the backend is able and we only want to show the list of backends
-          {
-             // add it to the overall vertex candidate list
-            vertexCandidates.push_back(*itf);
-            // if it has an inifile entry, add it to the candidate list with inifile entries
-            if (entryExists) vertexCandidatesWithIniEntry.push_back(*itf);
-          }
-          else
-          {
-            // otherwise, add it to disabled vertex candidate list
-            if (not disabled) (*itf)->setStatus(1);
-            disabledVertexCandidates.push_back(*itf);
-          }
+          // Now we see if any match.  First we test for generic matches, where any version of any backend is allowed.
+          allowed = ( permitted_bes.empty()
+           // Next we test for semi-generic matches, where the backend matches and any version of that backend is allowed.
+           or std::find(permitted_bes.begin(), permitted_bes.end(), f_generic) != permitted_bes.end()
+           // Finally we test for specific matches, where both the backend and version match what is allowed.
+           or std::find(permitted_bes.begin(), permitted_bes.end(), f_signature) != permitted_bes.end() );
         }
-      }
 
-      // If too many candidates, prefer those with entries in the inifile.
-      if (vertexCandidates.size() > 1 and vertexCandidatesWithIniEntry.size() >= 1)
-      {
-        // Loop over the remaining candidates, and disable those without entries in the inifile.
-        for (std::vector<functor *>::iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
+        // Now we check if the candidate is compatible with all applicable subjugate backend rules.
+        // Iterate over all observables that matched toVertex.
+        for (const Observable* match : masterGraph[toVertex]->getMatchedObservables())
         {
-          if (std::find(vertexCandidatesWithIniEntry.begin(), vertexCandidatesWithIniEntry.end(), *it) == vertexCandidatesWithIniEntry.end() )
-            disabledVertexCandidates.push_back(*it);
+          // Allow only candidates that match all subjugate backend rules of all observables that matched the entry.toVertex
+          allowed = allowed and match->backend_reqs_allow(f, *boundTEs, group_being_resolved);
         }
-        // Set the new list of vertex candidates to be only those with inifile entries.
-        vertexCandidates = vertexCandidatesWithIniEntry;
-      }
-
-      // Purge all candidates that conflict with a backend-matching rule.
-      // Start by making a new vector to hold the candidates that survive the purge.
-      std::vector<functor *> survivingVertexCandidates;
-      // Loop over the current candidates.
-      for (std::vector<functor *>::const_iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
-      {
-        // Set up a flag to keep track of whether anything has indicated that the candidate should be thrown out.
-        bool keeper = true;
-        // Retrieve the tags of the candidate.
-        std::set<str> tags = (*masterGraph[vertex]).backendreq_tags((*it)->quantity());
-        // Loop over the tags
-        for (std::set<str>::iterator tagit = tags.begin(); tagit != tags.end(); ++tagit)
+        // Iterate over all module rules that matched toVertex.
+        for (const ModuleRule* match : masterGraph[toVertex]->getMatchedModuleRules())
         {
-          // Find out which other backend requirements exhibiting this tag must be filled from the same backend as the req this candidate would fill.
-          std::set<sspair> must_match = (*masterGraph[vertex]).forcematchingbackend(*tagit);
-          // Set up a flag to keep track of whether any of the other backend reqs have already been filled.
-          bool others_filled = false;
-          // Set up a string to keep track of which backend the other backend reqs have been filled from (if any).
-          str common_backend_and_version;
-          // Loop over the other backend reqs.
-          for (std::set<sspair>::iterator mit = must_match.begin(); mit != must_match.end(); ++mit)
+          // Allow only candidates that match all subjugate backend rules of all rules that matched the entry.toVertex
+          allowed = allowed and match->backend_reqs_allow(f, *boundTEs, group_being_resolved);
+        }
+
+        // Next, we purge all candidates that conflict with a backend-matching rule given in the rollcall declaration.
+        if (allowed)
+        {
+          // Retrieve the tags of the candidate.
+          std::set<str> tags = masterGraph[toVertex]->backendreq_tags(f->quantity());
+          // Loop over the tags
+          for (const str& tag : tags)
           {
-            // Set up a flag to indicate if the other backend req in question has been filled yet.
-            bool other_filled = false;
-            // Set up a string to keep track of which backend the other backend req in question has been filled from (if any).
-            str filled_from;
-            // Loop over the backend functors that have successfully filled backend reqs already for this funcition
-            for (std::vector<functor*>::const_iterator
-                 itf  = previous_successes.begin();
-                 itf != previous_successes.end();
-                 ++itf)
+            // Find out which other backend requirements exhibiting this tag must be filled from the same backend as the req this candidate would fill.
+            std::set<sspair> must_match = masterGraph[toVertex]->forcematchingbackend(tag);
+            // Set up a flag to keep track of whether any of the other backend reqs have already been filled.
+            bool others_filled = false;
+            // Set up a string to keep track of which backend the other backend reqs have been filled from (if any).
+            str common_backend_and_version;
+            // Loop over the other backend reqs.
+            for (const sspair& bereq_must_match : must_match)
             {
-              // Check if the current previous successful resolution (itf) was of the same backend requirement as the
-              // current one of the backend requirements (mit) that must be filled from the same backend as the current candidate (it).
-              if ((*itf)->quantity() == *mit)
+              // Set up a flag to indicate if the other backend req in question has been filled yet.
+              bool other_filled = false;
+              // Set up a string to keep track of which backend the other backend req in question has been filled from (if any).
+              str filled_from;
+              // Loop over the backend functors that have successfully filled backend reqs already for this funcition
+              for (const functor* previous_success : previous_successes)
               {
-                // Note that mit (the current backend req that must be filled from the same backend as the current candidate) has indeed been filled, by itf
-                other_filled = true;
-                // Note which backend mit has been filled from (i.e. where does itf come from?)
-                filled_from = (*itf)->origin() + " v" + (*itf)->version();
-                break;
+                // Check if the current previous success was of the same backend requirement as the
+                // current one of the backend requirements (bereq_must_match) that must be filled from the same backend as the current candidate (f).
+                if (previous_success->quantity() == bereq_must_match)
+                {
+                  // Note that bereq_must_match (the current backend req that must be filled from the same backend as the current candidate) has indeed been filled, by previous_success
+                  other_filled = true;
+                  // Note which backend bereq_must_match has been filled from (i.e. where does previous_success come from?)
+                  filled_from = previous_success->origin() + " v" + previous_success->version();
+                  break;
+                }
+              }
+              // If the other req has been filled, update the tracker of whether any of the reqs linked to this flag have been filled,
+              // and compare the filling backend to the one used to fill any other reqs associated with this tag.
+              if (other_filled)
+              {
+                others_filled = true;
+                if (common_backend_and_version.empty()) common_backend_and_version = filled_from; // Save the filling backend
+                if (filled_from != common_backend_and_version) // Something buggy has happened and the rule is already broken(!)
+                {
+                  str errmsg = "A backend-matching rule has been violated!";
+                  errmsg  += "\nFound whilst checking which backends have been used"
+                             "\nto fill requirements with tag " + tag + " in function "
+                             "\n" + masterGraph[toVertex]->name() + " of " + masterGraph[toVertex]->origin() + "."
+                             "\nOne requirement was filled from " + common_backend_and_version + ", "
+                             "\nwhereas another was filled from " + filled_from + "."
+                             "\nThis should not happen and is probably a bug in GAMBIT.";
+                  dependency_resolver_error().raise(LOCAL_INFO,errmsg);
+                }
               }
             }
-            // If the other req has been filled, updated the tracker of whether any of the reqs linked to this flag have been filled,
-            // and compare the filling backend to the one used to fill any other reqs associated with this tag.
-            if (other_filled)
-            {
-              others_filled = true;
-              if (common_backend_and_version.empty()) common_backend_and_version = filled_from; // Save the filling backend
-              if (filled_from != common_backend_and_version) // Something buggy has happened and the rule is already broken(!)
-              {
-                str errmsg = "A backend-matching rule has been violated!";
-                errmsg  += "\nFound whilst checking which backends have been used"
-                           "\nto fill requirements with tag " + *tagit + " in function "
-                           "\n" + (*masterGraph[vertex]).name() + " of " + (*masterGraph[vertex]).origin() + "."
-                           "\nOne requirement was filled from " + common_backend_and_version + ", "
-                           "\nwhereas another was filled from " + filled_from + "."
-                           "\nThis should not happen and is probably a bug in GAMBIT.";
-                dependency_resolver_error().raise(LOCAL_INFO,errmsg);
-              }
-            }
+            // Keep this candidate if it comes from the same backend as those already filled, or if none of the others are filled yet.
+            allowed = (not others_filled or common_backend_and_version == f->origin() + " v" + f->version());
+            if (not allowed) break;
           }
-          // Try to keep this candidate if it comes from the same backend as those already filled, or if none of the others are filled yet.
-          keeper = (not others_filled or common_backend_and_version == (*it)->origin() + " v" + (*it)->version());
-          if (not keeper) break;
         }
-        if (keeper) survivingVertexCandidates.push_back(*it); else disabledVertexCandidates.push_back(*it);
+
+        // Finally, save the verdict.
+        allowedBackendFunctorCandidates[i] = {f, allowed};
+        disabledBackendFunctorCandidates[i] = {f, not allowed};
       }
-      // Replace the previous list of candidates with the survivors.
-      vertexCandidates = survivingVertexCandidates;
+      Utils::masked_erase(allowedBackendFunctorCandidates);
+      Utils::masked_erase(disabledBackendFunctorCandidates);
 
       // Only print the status flags -5 or -6 if any of the disabled vertices has it
       bool printMathematicaStatus = false;
-      for(unsigned int j=0; j < disabledVertexCandidates.size(); j++)
-        if(disabledVertexCandidates[j]->status() == -5)
-          printMathematicaStatus = true;
       bool printPythonStatus = false;
-      for(unsigned int j=0; j < disabledVertexCandidates.size(); j++)
-        if(disabledVertexCandidates[j]->status() == -6)
-          printPythonStatus = true;
+      for (const auto& c : disabledBackendFunctorCandidates)
+      {
+        if (c.first->status() == -5) printMathematicaStatus = true;
+        if (c.first->status() == -6) printPythonStatus = true;
+      }
 
       // No candidates? Death.
-      if (vertexCandidates.size() == 0)
+      if (allowedBackendFunctorCandidates.size() == 0)
       {
         std::ostringstream errmsg;
         errmsg
           << "Found no candidates for backend requirements of "
-          << masterGraph[vertex]->origin() << "::" << masterGraph[vertex]->name() << ":\n"
-          << reqs << "\nfrom group: " << group;
-        if (disabledVertexCandidates.size() != 0)
+          << masterGraph[toVertex]->origin() << "::" << masterGraph[toVertex]->name() << ":\n"
+          << reqs << "\nfrom group: " << group_being_resolved;
+        if (disabledBackendFunctorCandidates.size() != 0)
         {
           errmsg << "\nNote that viable candidates exist but have been disabled:\n"
-                 <<     printGenericFunctorList(disabledVertexCandidates)
+                 <<     printGenericFunctorList(disabledBackendFunctorCandidates, true)
                  << endl
                  << "Status flags:" << endl
-                 << " 1: This function is available, but the backend version is not compatible with all your requests." << endl
+                 << " 1: This function is available, but the backend and/or its version are " << endl
+                 << "    not compatible with all relevant rollcall declarations and YAML rules." << endl
                  << " 0: This function is not compatible with any model you are scanning." << endl
                  << "-1: The backend that provides this function is missing." << endl
                  << "-2: The backend is present, but function is absent or broken." << endl;
@@ -2252,22 +1952,22 @@ namespace Gambit
       }
 
       // Still more than one candidate...
-      if (vertexCandidates.size() > 1)
+      if (allowedBackendFunctorCandidates.size() > 1)
       {
         // Check whether any of the remaining candidates is subject to a backend-matching rule,
         // and might therefore be uniquely chosen over the other(s) if resolution for this req is attempted again, after
         // another of the reqs subject to the same rule is resolved.
         bool rule_exists = false;
         // Loop over the remaining candidates.
-        for (std::vector<functor *>::const_iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
+        for (const auto& c : allowedBackendFunctorCandidates)
         {
           // Retrieve the tags of the candidate.
-          std::set<str> tags = (*masterGraph[vertex]).backendreq_tags((*it)->quantity());
+          std::set<str> tags = masterGraph[toVertex]->backendreq_tags(c.first->quantity());
           // Loop over the tags
-          for (std::set<str>::iterator tagit = tags.begin(); tagit != tags.end(); ++tagit)
+          for (const str& tag : tags)
           {
             // Find if there is a backend-matching rule associated with this tag.
-            rule_exists = not (*masterGraph[vertex]).forcematchingbackend(*tagit).empty();
+            rule_exists = not masterGraph[toVertex]->forcematchingbackend(tag).empty();
             if (rule_exists) break;
           }
           if (rule_exists) break;
@@ -2286,147 +1986,196 @@ namespace Gambit
           // consider backend functors that are accessible via INTERPRET_AS_X links, as these are all considered
           // to be equally 'far' from the model being scanned, with the 'distance' being one step further than
           // the most distant ancestor.
-          std::vector<functor*> newCandidates;
+          std::vector<std::pair<functor*, bool>> newCandidates;
           std::set<str> s = boundClaw->get_activemodels();
           std::vector<str> parentModelList(s.begin(), s.end());
           while (newCandidates.size() == 0 and not parentModelList.empty())
           {
-            for (std::vector<str>::iterator mit = parentModelList.begin(); mit != parentModelList.end(); ++mit)
+            for (str& model : parentModelList)
             {
-              // Test each vertex candidate to see if it has been explicitly set up to work with the model *mit
-              for (std::vector<functor*>::iterator it = vertexCandidates.begin(); it != vertexCandidates.end(); ++it)
+              // Test each vertex candidate to see if it has been explicitly set up to work with model
+              for (const auto& c : allowedBackendFunctorCandidates)
               {
-                if ( (*it)->modelExplicitlyAllowed(*mit) ) newCandidates.push_back(*it);
+                if (c.first->modelExplicitlyAllowed(model)) newCandidates.push_back({c.first, true});
               }
               // Step up a level in the model hierarchy for this model.
-              *mit = boundClaw->get_parent(*mit);
+              model = boundClaw->get_parent(model);
             }
             parentModelList.erase(std::remove(parentModelList.begin(), parentModelList.end(), "none"), parentModelList.end());
           }
-          if (newCandidates.size() != 0) vertexCandidates = newCandidates;
+          if (newCandidates.size() != 0) allowedBackendFunctorCandidates = newCandidates;
         }
 
-        // Still more than one candidate, so the game is up.
-        // Don't worry about too many candidates if we only want the list of required backends
-        if (vertexCandidates.size() > 1 and not boundCore->show_backends)
+        // Still more than one candidate, so the game is up (unless we only want the list of required backends).
+        if (allowedBackendFunctorCandidates.size() > 1 and not boundCore->show_backends)
         {
           str errmsg = "Found too many candidates for backend requirement ";
           if (reqs.size() == 1) errmsg += reqs.begin()->first + " (" + reqs.begin()->second + ")";
-          else errmsg += "group " + group;
-          errmsg += " of module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name()
-           + "\nViable candidates are:\n" + printGenericFunctorList(vertexCandidates);
+          else errmsg += "group " + group_being_resolved;
+          errmsg += " of module function " + masterGraph[toVertex]->origin() + "::" + masterGraph[toVertex]->name()
+           + "\nViable candidates are:\n" + printGenericFunctorList(allowedBackendFunctorCandidates, true);
           errmsg += "\nIf you don't need all the above backends, you can resolve the ambiguity simply by";
-          errmsg += "\nuninstalling the backends you don't use.";
+          errmsg += "\nuninstalling the backends that you don't want to use.";
           errmsg += "\n\nAlternatively, you can add an entry in your YAML file that selects which backend";
-          errmsg += "\nthe module function " + masterGraph[vertex]->origin() + "::" + masterGraph[vertex]->name() + " should use. A YAML file entry";
+          errmsg += "\nthe module function " + masterGraph[toVertex]->origin() + "::" + masterGraph[toVertex]->name() + " should use. A YAML entry in the Rules section";
           errmsg += "\nthat selects e.g. the first candidate above could read\n";
-          errmsg += "\n  - capability: "+masterGraph[vertex]->capability();
-          errmsg += "\n    function: "+masterGraph[vertex]->name();
-          errmsg += "\n    backends:";
-          errmsg += "\n      - {capability: "+vertexCandidates.at(0)->capability()+", type: "
-                                             +vertexCandidates.at(0)->type()+", backend: "
-                                             +vertexCandidates.at(0)->origin()+", version: "
-                                             +vertexCandidates.at(0)->version()+"}\n";
+          errmsg += "\n  - if";
+          errmsg += "\n      capability: "+masterGraph[toVertex]->capability();
+          errmsg += "\n      function: "+masterGraph[toVertex]->name();
+          errmsg += "\n    then:";
+          errmsg += "\n      backends:";
+          errmsg += "\n        - if:";
+          errmsg += "\n            capability: "+allowedBackendFunctorCandidates.at(0).first->capability();
+          errmsg += "\n            type: "+Utils::quote_if_contains_commas(allowedBackendFunctorCandidates.at(0).first->type());
+          errmsg += "\n          then:";
+          errmsg += "\n            backend: "+allowedBackendFunctorCandidates.at(0).first->origin();
+          errmsg += "\n            version: "+allowedBackendFunctorCandidates.at(0).first->version() + "\n";
           dependency_resolver_error().raise(LOCAL_INFO,errmsg);
         }
       }
 
       // Store the resolved backend requirements
       std::vector<sspair> resolvedBackends;
-      for(auto vertex : vertexCandidates)
+      for (const auto& c : allowedBackendFunctorCandidates)
       {
-        sspair backend(vertex->origin(), vertex->version());
+        sspair backend(c.first->origin(), c.first->version());
         resolvedBackends.push_back(backend);
       }
 
       bool found = false;
-      for(auto br = backendsRequired.begin(); br != backendsRequired.end(); ++br)
+      for (const auto& br : backendsRequired)
       {
         found = true;
-        for(auto backend : resolvedBackends)
+        for (auto backend : resolvedBackends)
         {
-          if(std::find(br->begin(), br->end(), backend) == br->end())
+          if (std::find(br.begin(), br.end(), backend) == br.end())
             found = false;
         }
-        if(found) break;
+        if (found) break;
       }
-      if(not found)
+      if (not found)
       {
         backendsRequired.push_back(resolvedBackends);
       }
 
       // Just one candidate.  Jackpot.
-      return vertexCandidates[0];
+      return allowedBackendFunctorCandidates[0].first;
     }
 
     /// Resolve a backend requirement of a specific module function using a specific backend function.
     void DependencyResolver::resolveRequirement(functor* func, VertexID vertex)
     {
-      (*masterGraph[vertex]).resolveBackendReq(func);
+      masterGraph[vertex]->resolveBackendReq(func);
       logger() << LogTags::dependency_resolver;
       logger() << "Resolved by: [" << func->name() << ", ";
       logger() << func->origin() << " (" << func->version() << ")]";
       logger() << EOM;
     }
 
-    /// Check for unused rules and options
-    void DependencyResolver::checkForUnusedRules(int mpi_rank)
+    /// Retrieve used or unused rules
+    template<typename RuleT>
+    std::set<const RuleT*> getUsedOrUnusedRules(bool find_used, const std::vector<RuleT>& rules, const MasterGraphType& masterGraph)
     {
-      std::vector<Rule> unusedRules;
-
-      const IniParser::ObservablesType & entries = boundIniFile->getRules();
-      for(IniParser::ObservableType entry : entries)
+      std::set<const RuleT*> returnRules;
+      for(const auto& rule : rules)
       {
         #ifdef DEPRES_DEBUG
-          std::cout << "checking rule with capability " << entry.capability << std::endl;
+          std::cout << "Triggering for " << (find_used ? "used" : "unused") << " rules." << std::endl;
+          std::cout << "Checking rule with capability " << rule.capability << std::endl;
         #endif
-        graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
+        graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
         bool unused = true;
-        for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
+        for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
         {
           // Check only for enabled functors
           if (masterGraph[*vi]->status() == 2)
           {
-            if ( matchesRules(masterGraph[*vi], Rule(entry)) )
+            const std::set<const RuleT*>& matched = masterGraph[*vi]->getMatchedRules<const RuleT>();
+            bool found = (std::find_if(matched.begin(), matched.end(), [&](const RuleT* r){ return r==&rule; } ) != matched.end());
+            if (found)
             {
-              #ifdef DEPRES_DEBUG
-                std::cout << "rule for capability " << entry.capability <<" used by vertex " << masterGraph[*vi]->capability() << std::endl;
-              #endif
               unused = false;
-              continue;
+              break;
             }
           }
         }
-        if (unused)
-          unusedRules.push_back(Rule(entry));
+        if (unused xor find_used) returnRules.insert(&rule);
+      }
+      return returnRules;
+    }
+    template<typename RuleT>
+    std::set<const RuleT*> getUsedRules(const std::vector<RuleT>& rules, const MasterGraphType& masterGraph)
+    {
+      return getUsedOrUnusedRules(true, rules, masterGraph);
+    }
+    template<typename RuleT>
+    std::set<const RuleT*> getUnusedRules(const std::vector<RuleT>& rules, const MasterGraphType& masterGraph)
+    {
+      return getUsedOrUnusedRules(false, rules, masterGraph);
+    }
+
+
+
+    /// Check for unused rules and options
+    void DependencyResolver::checkForUnusedRules()
+    {
+      // Retrieve sets of used and unused module and backend rules
+      std::set<const ModuleRule*> usedModuleRules = getUsedRules(module_rules, masterGraph);
+      std::set<const ModuleRule*> unusedModuleRules = getUnusedRules(module_rules, masterGraph);
+      std::set<const BackendRule*> usedBackendRules = getUsedRules(backend_rules, masterGraph);
+      std::set<const BackendRule*> unusedBackendRules = getUnusedRules(backend_rules, masterGraph);
+
+      // Remove any unused module rules that are also backend rules, and have been used as such.
+      while(true)
+      {
+        auto duplicate_rule = std::find_if(unusedModuleRules.begin(),
+                                           unusedModuleRules.end(),
+                                           [&](const ModuleRule* moduleRule)
+                                           {
+                                             for (const auto& backendRule : usedBackendRules)
+                                             {
+                                               if (moduleRule->yaml == backendRule->yaml) return true;
+                                             }
+                                             return false;
+                                           });
+        if (duplicate_rule == unusedModuleRules.end()) break;
+        unusedModuleRules.erase(duplicate_rule);
       }
 
-      if(unusedRules.size() > 0)
+      // Remove any unused backend rules that are also module rules, and have been used as such.
+      while(true)
       {
-        std::stringstream msg;
-        msg << "The following rules and options are not used in the current scan. This will not affect the results of the scan, but if you wish to avoid this warning you must remove all unused rules and options from the yaml file." << endl;
-        for(auto rule :unusedRules)
-        {
-          if(not rule.capability.empty()) msg << "  capability: " << rule.capability << endl;
-          if(not rule.function.empty())   msg << "  function: " << rule.function<< endl;
-          if(not rule.module.empty())     msg << "  module: " << rule.module << endl;
-          if(not rule.type.empty())       msg << "  type: " << rule.type << endl;
-          if(not rule.backend.empty())    msg << "  backend: " << rule.backend << endl;
-          if(not rule.version.empty())    msg << "  version: " << rule.version << endl;
-          if (rule.options.getNames().size() > 0)
-          {
-            msg << "  options:" << endl;
-            msg << rule.options.toString(2);
-          }
-          msg << endl;
-        }
-        logger() << msg.str() << EOM;
-        if(mpi_rank == 0) std::cout << msg.str() << std::endl;
+        auto duplicate_rule = std::find_if(unusedBackendRules.begin(),
+                                           unusedBackendRules.end(),
+                                           [&](const BackendRule* backendRule)
+                                           {
+                                             for (const auto& moduleRule : usedModuleRules)
+                                             {
+                                               if (moduleRule->yaml == backendRule->yaml) return true;
+                                             }
+                                             return false;
+                                           });
+        if (duplicate_rule == unusedBackendRules.end()) break;
+        unusedBackendRules.erase(duplicate_rule);
+      }
+
+      // If any unused rules remain, trigger an error/warning.
+      if(unusedModuleRules.size() > 0 or unusedBackendRules.size() > 0)
+      {
+        std::ostringstream msg;
+        msg << "The following rules and options are not used in the current scan:" << endl;
+        if (unusedModuleRules.size() > 0) msg << endl << "Module rules:" << endl;
+        for (const ModuleRule* rule : unusedModuleRules) msg << endl << rule->yaml << endl;
+        if (unusedBackendRules.size() > 0) msg << endl << "Backend rules:" << endl;
+        for (const BackendRule* rule : unusedBackendRules) msg << endl << rule->yaml << endl;
+        if (boundIniFile->getValueOrDef<bool>(true, "dependency_resolution", "unused_rule_is_an_error"))
+          dependency_resolver_error().raise(LOCAL_INFO,msg.str());
+        else dependency_resolver_warning().raise(LOCAL_INFO,msg.str());
       }
     }
 
     /// Construct metadata information from used observables, rules and options
-    /// Note: No keys can be identical (or differing only by capitalisation) 
+    /// Note: No keys can be identical (or differing only by capitalisation)
     ///       to those printed in the main file, otherwise the sqlite printer fails
     map_str_str DependencyResolver::getMetadata()
     {
@@ -2467,67 +2216,33 @@ namespace Gambit
       YAML::Node scanNode = boundIniFile->getScannerNode();
       str scanner = scanNode["use_scanner"].as<str>();
       metadata["Scanner::scanner"] = scanner;
-      for(auto it = scanNode.begin(); it != scanNode.end(); ++it)
+      for(const auto& entry : scanNode)
       {
-        if(it->first.as<str>() == "scanners")
-          Options(scanNode["scanners"][scanner]).toMap(metadata, "Scanner::options");
-        else if(it->first.as<str>() != "use_scanner")
-          Options(*it).toMap(metadata, "Scanner::" + it->first.as<str>());
+        const str key = entry.first.as<str>();
+        if(key == "scanners") Options(scanNode["scanners"][scanner]).toMap(metadata, "Scanner::options");
+        else if(key != "use_scanner") Options(entry).toMap(metadata, "Scanner::" + key);
       }
 
       // ObsLikes
-      const IniParser::ObservablesType &obslikes = boundIniFile->getObservables();
-      for (IniParser::ObservableType obslike : obslikes)
+      for (const Observable& obslike : obslikes)
       {
-        str key = "ObsLikes::" + obslike.capability;
-        metadata[key + "::capability"] = obslike.capability;
-        if(not obslike.purpose.empty())  metadata[key + "::purpose"] = obslike.purpose;
-        if(not obslike.function.empty()) metadata[key + "::function"] = obslike.function;
-        if(not obslike.type.empty())     metadata[key + "::type"] = obslike.type;
-        if(not obslike.module.empty())   metadata[key + "::module"] = obslike.module;
-        if(obslike.subcaps.size() and obslike.subcaps.IsSequence())
-        {
-          std::stringstream subcaps;
-          subcaps << "[";
-          for (auto subcap = obslike.subcaps.begin(); subcap != obslike.subcaps.end(); ++subcap)
-            subcaps << *subcap << ",";
-          subcaps << "]";
-          metadata[key + "::subcaps"] = subcaps.str();
-
-        }
+        std::stringstream key;
+        key << "ObsLikes::" << &obslike;
+        Options(obslike.yaml).toMap(metadata, key.str());
       }
 
       // Used rules and options
-      const IniParser::ObservablesType &rules = boundIniFile->getRules();
-      for (IniParser::ObservableType rule : rules)
+      for (const ModuleRule* rule : getUsedRules(module_rules, masterGraph))
       {
-        graph_traits<DRes::MasterGraphType>::vertex_iterator vi, vi_end;
-        for (boost::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
-        {
-          // Check only for enabled functors
-          if (masterGraph[*vi]->status() == 2)
-          {
-            if (matchesRules(masterGraph[*vi], Rule(rule)))
-            {
-              str key = "Rules";
-              if(not rule.capability.empty())
-              {
-                key += "::" + rule.capability;
-                metadata[key + "::capability"] = rule.capability;
-              }
-              if(not rule.function.empty())
-              {
-                if (not rule.capability.empty()) key += "::" + rule.function;
-                metadata[key+"::function"] = rule.function;
-              }
-              if(not rule.module.empty())     metadata[key+"::module"] = rule.module;
-              if(not rule.type.empty())       metadata[key+"::type"] = rule.type;
-              if(not rule.backend.empty())    metadata[key+"::backend"] = rule.backend;
-              if(not rule.version.empty())    metadata[key+"::version"] = rule.version;
-              if(rule.options.getNames().size()) rule.options.toMap(metadata, key+"::options");
-            }
-          }
-        }
+        std::stringstream key;
+        key << "Rule::" << rule->yaml;
+        Options(rule->yaml).toMap(metadata, key.str());
+      }
+      for (const BackendRule* rule : getUsedRules(backend_rules, masterGraph))
+      {
+        std::stringstream key;
+        key << "Rule::" << rule->yaml;
+        Options(rule->yaml).toMap(metadata, key.str());
       }
 
       // Logger
@@ -2551,7 +2266,7 @@ namespace Gambit
     void DependencyResolver::resolveVertexClassLoading(VertexID vertex)
     {
       // If there are no backend class loading requirements, and thus nothing to do, return.
-      if ((*masterGraph[vertex]).backendclassloading().size() == 0) return;
+      if (masterGraph[vertex]->backendclassloading().size() == 0) return;
 
       // If the backend is not present, this vertex has already been disabled, so from now just assume it hasn't
       // Unless the list of required backends is requested, in which case it is enabled, but it won't run a scan, so no worries
@@ -2561,16 +2276,16 @@ namespace Gambit
 
       // Add the backends to list of required backends
       std::vector<sspair> resolvedBackends;
-      for(auto backend : (*masterGraph[vertex]).backendclassloading())
+      for(auto backend : masterGraph[vertex]->backendclassloading())
         resolvedBackends.push_back(backend);
 
       bool found = false;
-      for(auto br = backendsRequired.begin(); br != backendsRequired.end(); ++br)
+      for(const auto& br : backendsRequired)
       {
         found = true;
         for(auto backend : resolvedBackends)
         {
-          if(std::find(br->begin(), br->end(), backend) == br->end())
+          if(std::find(br.begin(), br.end(), backend) == br.end())
             found = false;
         }
         if(found) break;
@@ -2587,7 +2302,7 @@ namespace Gambit
     {
       // Get the scanID from the yaml node.
       scanID = boundIniFile->getValueOrDef<int>(-1, "scanID");
-    
+
       // If scanID is supplied by user, use that
       if (scanID != -1)
       {
@@ -2642,33 +2357,27 @@ namespace Gambit
       }
 
       // Now look over activated vertices in the mastergraph and add any references to module, module functions, etc
-      std::vector<VertexID> order = getObsLikeOrder();
-      for (std::vector<VertexID>::const_iterator
-                  vi  = order.begin();
-                  vi != order.end(); ++vi)
+      for (const VertexID& vertex : getObsLikeOrder())
       {
         std::set<VertexID> parents;
-        getParentVertices(*vi, masterGraph, parents);
-        parents.insert(*vi);
-        for (std::set<VertexID>::const_iterator
-                  vi2  = parents.begin();
-                  vi2 != parents.end(); ++vi2)
-
+        getParentVertices(vertex, masterGraph, parents);
+        parents.insert(vertex);
+        for (const VertexID& vertex2 : parents)
         {
 
           // Add citation key for used modules
-          for(const auto &key : boundCore->getModuleCitationKeys())
+          for(const auto& key : boundCore->getModuleCitationKeys())
           {
-            if(key.first == masterGraph[*vi2]->origin())
+            if(key.first == masterGraph[vertex2]->origin())
             {
               BibTeX::addCitationKey(citationKeys, key.second);
             }
           }
 
           // Add citation key for specific module functions
-          if(masterGraph[*vi2]->citationKey() != "")
+          if(masterGraph[vertex2]->citationKey() != "")
           {
-            BibTeX::addCitationKey(citationKeys, masterGraph[*vi2]->citationKey());
+            BibTeX::addCitationKey(citationKeys, masterGraph[vertex2]->citationKey());
           }
 
         }

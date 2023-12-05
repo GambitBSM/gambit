@@ -143,7 +143,7 @@ namespace Gambit
             static double inv(double x) {return std::asin(1.0/std::sqrt(x));}
             static double prior(double x){return -std::log(std::tan(x));}
         };
-        
+
         struct arccosprior
         {
             inline static double SQR(double x){return x*x;}
@@ -222,22 +222,26 @@ namespace Gambit
             // Transformation from unit interval to specified range
             // (need to use vectors to be compatible with BasePrior virtual function)
             // unitparam -> param
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string,double> &output) const override
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string,double> &output) const override
             {
                 output[myparameter] = (T::inv(unitpars[0]*(upper-lower) + lower)-shift_out)/scale_out;
             }
 
             // param -> unitparam
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
             {
                 const double p = physical.at(myparameter);
                 const double x = T::limits(scale_out * p + shift_out);
                 const double u = (x - lower) / (upper - lower);
-                return {u};
+
+                unit[0] = u;
             }
 
             // log ( PDF (unitparam) )
-            double operator()(const std::vector<double> &vec) const override {return T::prior(vec[0]*scale+shift)*scale;}
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override
+            {
+                return T::prior(physical.at(param_names[0])*scale+shift)*scale;
+            }
         };
 
         class PowPrior1D : public BasePrior
@@ -312,7 +316,7 @@ namespace Gambit
                 }
 
                 power = options.getValue<double>("power");
-                
+
                 // done last ???
                 // start = range.first;
                 lower = limits(range.first*scale + shift);
@@ -351,7 +355,7 @@ namespace Gambit
         LOAD_PRIOR(sin, RangePrior1D<sinprior>)
         LOAD_PRIOR(tan, RangePrior1D<tanprior>)
         LOAD_PRIOR(cot, RangePrior1D<cotprior>)
-        LOAD_PRIOR(arccos, RangePrior1D<arccosprior>) 
+        LOAD_PRIOR(arccos, RangePrior1D<arccosprior>)
    }
 }
 

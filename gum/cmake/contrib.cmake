@@ -55,7 +55,8 @@ endmacro()
 # Download FeynRules
 set(name "FeynRules")
 set(ver "2.3.41")
-set(dl "https://gambit.hepforge.org/downloads/archived_backends/feynrules-${ver}.tar.gz")
+# Archived backend
+set(dl "https://github.com/GambitBSM/archived_backends/raw/main/feynrules-${ver}.tar.gz")
 set(md5 "d0a075dc8fa12d4a7ebcc966350e4365")
 set(patch "${CMAKE_SOURCE_DIR}/cmake/patch_${name}.dif")
 # For Mathematica versions > 12.2 patch FR and SARAH to use the legacy version of ValueQ

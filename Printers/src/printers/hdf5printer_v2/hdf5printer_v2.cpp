@@ -403,7 +403,7 @@ namespace Gambit
         , group_id(-1)
         , metadata_id(-1)
         , location_id(-1)
-        , hdf5out(file,false)
+        , hdf5out(file)
         , file_open(false)
         , have_lock(false)
 #ifdef WITH_MPI

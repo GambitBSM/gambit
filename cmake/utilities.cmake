@@ -402,7 +402,17 @@ function(add_standalone executablename)
 
   # Exclude standalones that need HepMC or YODA if they have been excluded.
   if ( (EXCLUDE_HEPMC AND (";${ARG_DEPENDENCIES};" MATCHES ";hepmc;")) OR (EXCLUDE_YODA AND (";${ARG_DEPENDENCIES};" MATCHES ";yoda;")) )
+    message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of HepMC/Yoda.${ColourReset}")
     set(standalone_permitted 0)
+  endif()
+
+  # Exclude standalones that need pybind11 if it has been excluded.
+  if (";${ARG_DEPENDENCIES};" MATCHES ";pybind11;")
+    string(REPLACE "pybind11" "" ARG_DEPENDENCIES ${ARG_DEPENDENCIES})
+    if (NOT HAVE_PYBIND11)
+      message("${BoldCyan} X Excluding ${executablename} from GAMBIT configuration due to absence of pybind11.${ColourReset}")
+      set(standalone_permitted 0)
+    endif()
   endif()
 
   # Iterate over modules, checking if the neccessary ones are present, and adding them to the target objects if so.

@@ -224,7 +224,7 @@ namespace Gambit
         // Since tau efficiencies are not applied as part of the BuckFast ATLAS sim we apply it here
         ATLAS::applyTauEfficiencyR2(baselineTaus);
 
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.8) baselineJets.push_back(jet);
         }

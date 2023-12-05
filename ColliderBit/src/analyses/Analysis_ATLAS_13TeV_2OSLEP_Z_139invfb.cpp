@@ -148,7 +148,7 @@ namespace Gambit
         // Jets with pT < 120 GeV and |η| < 2.8 have an efficiency of 90%
         // Mising:  cut based on detector noise and non-collision backgrounds
         double jet_eff = 0.9;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
             if( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);
@@ -195,11 +195,11 @@ namespace Gambit
 
         // Scalar sum of the transverse momenta from all the reconstructed hard objects
         // Needed for calculating ETmiss significance later
-        double HT = 0.0;
-        for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
-        for (const HEPUtils::Particle* p : event->photons()) HT += p->pT();
-        for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
-        for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
+        //double HT = 0.0;
+        //for (const HEPUtils::Jet* j : baselineJets) HT += j->pT();
+        //for (const HEPUtils::Particle* p : event->photons()) HT += p->pT();
+        //for (const HEPUtils::Particle* e : baselineElectrons) HT += e->pT();
+        //for (const HEPUtils::Particle* mu : baselineMuons) HT += mu->pT();
 
         // Signal objects
         vector<const HEPUtils::Jet*> signalJets = baselineJets;

@@ -219,19 +219,21 @@ Rules:
     function: RD_oh2_MicrOmegas
 
   # Initialisation Settings for MicrOmegas
-  - function: MicrOmegas_ScalarSingletDM_Z3_3_6_9_2_init
-    options:
-       VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
-       VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
+  - if:
+      function: MicrOmegas_ScalarSingletDM_Z3_3_6_9_2_init
+    then:
+      options:
+        VZdecay: 1 # 0 - no 3 body final states, 1 - virtual Z in annihilations, 2 - virtual Z in coannihilations
+        VWdecay: 1 # 0 - no 3 body final states, 1 - virtual W in annihilations, 2 - virtual W in coannihilations
 
   # Relic density settings for MicrOmegas
-  - capability: RD_oh2_Xf_MicrOmegas
+  - capability: RD_oh2_Xf
     function: RD_oh2_Xf_MicrOmegas
     options:
       fast: 1  # 0: standard (default), 1: fast
       Beps: 1e-5  #  1e-5: standard, 1: switches coann off
     backends:
-    - {backend: MicrOmegas_ScalarSingletDM_Z3}
+    - {capability: any, backend: MicrOmegas_ScalarSingletDM_Z3}
 
   # Choose to implement the relic density likelihood as an upper bound, not a detection
   - capability: lnL_oh2

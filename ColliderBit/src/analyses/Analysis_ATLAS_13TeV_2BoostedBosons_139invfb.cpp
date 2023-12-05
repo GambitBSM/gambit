@@ -54,6 +54,7 @@ namespace Gambit
     {
 
       protected:
+
         // Signal region map
         std::map<string, EventCounter> _counters = {
           // Exclusion regions
@@ -166,9 +167,9 @@ namespace Gambit
 
           // Look at jets to see if they fulfil criteria for fat jets
           vector<const HEPUtils::Jet*> fatJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
-            //  cout  << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
+            //  cout  << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->tagged(23) << " W-tag " << jet->tagged(24) << " " << endl;
             if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 40.)
             {
               fatJets.push_back(jet);
@@ -194,13 +195,13 @@ namespace Gambit
           for (const HEPUtils::Jet* jet : fatJets)
           {
             // Tag W
-            if( jet->Wtag() && random_bool( _eff1dW.get_at( jet->pT() ) ) ) nW++;
+            if( jet->tagged(24) && random_bool( _eff1dW.get_at( jet->pT() ) ) ) nW++;
             // Tag Z
-            if( jet->Ztag() && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
+            if( jet->tagged(23) && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
             // Tag SM Higgs
-            if( jet->htag() && random_bool( _eff1dH.get_at( jet->pT() )  ) ) nH++;
+            if( jet->tagged(25) && random_bool( _eff1dH.get_at( jet->pT() )  ) ) nH++;
             // Misstag as Z or W
-            if( !jet->Wtag() && !jet->Ztag() )
+            if( !jet->tagged(23) && !jet->tagged(24) )
             {
               if( random_bool( _eff1dZmiss.get_at( jet->pT() ) )  ) nZ++;
               if( random_bool( _eff1dWmiss.get_at( jet->pT() ) )  ) nW++;
@@ -212,17 +213,17 @@ namespace Gambit
           //if(nH > 0 ) cout << "nZ " << nZ << " nW " << nW << " nV " << nV << " nH " << nH << endl;
 
           // b-jet tagging
-          /* There is a difference here wrt the actual analysis where small
-           sliding radius track jets are used, and the number of such b-jets are
-           counted. This means that the rejection for b-jets in the 4Q SRs has to
-           be changed. We use the conservative choice of rejecting all events with
-           a b-labeled large radius jet and mis-tagging large radius non-b-jets
-           according to the mis-tag probabilities of the small radius track jets.
-          */
-  //        double btag = 0.83;
+          // There is a difference here wrt the actual analysis where small
+          // variable-radius track jets are used, and the number of such b-jets are
+          // counted. This means that the rejection for b-jets in the 4Q SRs has to
+          // be changed. We use the conservative choice of rejecting all events with
+          // a b-labeled large radius jet and mis-tagging large radius non-b-jets
+          // according to the mis-tag probabilities of the small radius track jets.
+
+          // double btag = 0.83;
           double cmisstag = 1/3.; double misstag = 1./33.;
           int nb = 0;
-          for ( const HEPUtils::Jet* jet : event->jets() )
+          for ( const HEPUtils::Jet* jet : event->jets("antikt_R04") )
           {
             // Tag b-jet
             if( jet->btag() ) nb++;
@@ -370,7 +371,7 @@ namespace Gambit
 
           // Compare meff spectrum
           cout << "Meff SR-4Q-VV\t" << "GAMBIT\t" << "ATLAS " << endl;
-          for( size_t j = 0; j < _meff_4QVV.size(); j++){
+          for (size_t j = 0; j < _meff_4QVV.size(); j++){
             cout << "[" << _meff_bins[j] << ", " << _meff_bins[j+1] << "]\t" << _meff_4QVV[j]*_scale << "\t" << _meff_4QVV_model[j] << endl;
           }
 

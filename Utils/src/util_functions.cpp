@@ -403,7 +403,7 @@ namespace Gambit
     {
       return a*a;
     }
-    
+
     /// returns square of double - saves tedious repetition
     std::complex<double> sqr(const std::complex<double> a)
     {
@@ -453,6 +453,18 @@ namespace Gambit
       return true;
     }
 
+    /// Enclose a string in quotation marks if it contains commas
+    std::string quote_if_contains_commas(str in)
+    {
+      if (in.find(',') == std::string::npos)
+      {
+        return in;
+      }
+      else
+      {
+        return "\""+in+"\"";
+      }
+    }
 
     int get_mpi_rank()
     {
@@ -492,7 +504,7 @@ namespace Gambit
       return tmp;
     }
 
-    bool check_file_exists(const std::string name) 
+    bool check_file_exists(const std::string name)
     {
         std::ifstream f(name.c_str());
         return f.good();
@@ -515,10 +527,10 @@ namespace Gambit
     // replaces num_occurnces substrings with a replacement, -1 to replace all
     std::string replace(const std::string mainstring, const std::string substring, const std::string replacement, const int num_occurences)
     {
-      if (mainstring.empty() || substring.empty() || substring == replacement || num_occurences == 0) 
+      if (mainstring.empty() || substring.empty() || substring == replacement || num_occurences == 0)
         return mainstring;
-      
-      std::string result; 
+
+      std::string result;
       result.reserve(mainstring.size()*2);
 
       int remaining_replacements = num_occurences;
@@ -553,6 +565,21 @@ namespace Gambit
 
     // floating-point equality
     bool equal(double a, double b) { return std::abs(a-b) < 1e-13; }; // NB doubles have roughly 17 sf precision
+
+    // case-independent (ci) compare_less binary function
+    bool ci_less::operator() (const std::string & s1, const std::string & s2) const
+    {
+      return std::lexicographical_compare
+        (s1.begin (), s1.end (),   // source range
+        s2.begin (), s2.end (),    // dest range
+        nocase_compare ());        // comparison
+    }
+
+    // case-independent (ci) compare_less binary function
+    bool ci_less::nocase_compare::operator() (const unsigned char& c1, const unsigned char& c2) const
+    {
+      return tolower (c1) < tolower (c2);
+    }
 
   }
 

@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 
+#include "gambit/ColliderBit/Utils.hpp"
+
 namespace Gambit
 {
   namespace ColliderBit
@@ -33,7 +35,7 @@ namespace Gambit
       public:
 
         /// Constructor
-        BaseCollider() : partonOnly(false), antiktR(0.4) {}
+        BaseCollider() : partonOnly(false), all_jet_collection_settings({}), jetcollection_taus("") {}
         /// Destructor
         virtual ~BaseCollider() {}
         /// Reset this instance for reuse, avoiding the need for "new" or "delete".
@@ -67,8 +69,12 @@ namespace Gambit
 
         /// Flag indicating if events from this collider should be processed as parton-only or full events
         bool partonOnly;
-        ///The jet radius used for the anti-kt jet clustering.
-        double antiktR;
+
+        /// Vector of different jet collection settings
+        std::vector<jet_collection_settings> all_jet_collection_settings;
+
+        /// Key for jet collection used in adding taus
+        std::string jetcollection_taus;
 
     };
 

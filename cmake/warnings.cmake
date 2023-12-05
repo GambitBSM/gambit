@@ -61,11 +61,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -wd1419")
 endif()
 
-# Set warnings to stop complaints about old Python headers not being C++17 compliant
-if(PYTHON_VERSION_MAJOR EQUAL 2)
-  set_compiler_warning("no-register" CMAKE_CXX_FLAGS)
-endif()
-
 # Set warnings to stop complaining about deprecated copies in Eigen
 if(EIGEN3_MAJOR_VERSION LESS 4 AND EIGEN3_MINOR_VERSION LESS 8)
   set_compiler_warning("no-deprecated-copy" CMAKE_CXX_FLAGS)

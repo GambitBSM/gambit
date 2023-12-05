@@ -176,7 +176,7 @@ namespace Gambit {
         ATLAS::applyMuonEff(baselineMuons);
 
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT()>20. && jet->abseta()<4.5)baselineJets.push_back(jet);
         }
 

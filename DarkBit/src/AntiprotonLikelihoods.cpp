@@ -8,10 +8,10 @@
 ///
 ///  Authors (add name and date if you modify):
 ///
-///  \author Sowmiya Balan 
+///  \author Sowmiya Balan
 ///          (sowmiya.balan@kit.edu)
 ///  \date 2022 June
-///  
+///
 ///
 ///  *********************************************
 
@@ -31,7 +31,7 @@ namespace Gambit
     {
       using namespace Pipes::lnL_pbarAMS02;
       LocalMaxwellianHalo LocalHaloParameters = *Dep::LocalHalo;
-      double rho0 = LocalHaloParameters.rho0;     
+      double rho0 = LocalHaloParameters.rho0;
       double rho0_eff = (*Dep::RD_fraction)*rho0/0.43;
       std::string DM_ID = Dep::WIMP_properties->name;
       std::string DMbar_ID = Dep::WIMP_properties->conjugate;
@@ -43,29 +43,29 @@ namespace Gambit
       std::string finalStates;
       double rate=0;
       for (std::vector<TH_Channel>::iterator it = process.channelList.begin(); it!=process.channelList.end();it++)
-      { 
+      {
         fs = it->finalStateIDs;
         finalStates = fs[0] + " " + fs[1];
         rate = it->genRate->bind("v")->eval(0.);
         rate = rate * rho0_eff * rho0_eff;
         input.insert({finalStates, rate});
         sv += rate;
-      }  
+      }
       result = BEreq::drn_pbar_logLikes(DM_mass, input, sv);
-    } 
+    }
 
     void lnL_pbarAMS02_uncorr (double& result)
     {
       using namespace Pipes::lnL_pbarAMS02_uncorr;
       map_str_dbl del_chi2 = *Dep::pbar_logLikes;
-      result = del_chi2["uncorrelated"];
+      result = -1./2*del_chi2["uncorrelated"];
     }
 
     void lnL_pbarAMS02_corr (double& result)
     {
       using namespace Pipes::lnL_pbarAMS02_corr;
       map_str_dbl del_chi2 = *Dep::pbar_logLikes;
-      result = del_chi2["correlated"];
+      result = -1./2*del_chi2["correlated"];
     }
-  } 
-} 
+  }
+}

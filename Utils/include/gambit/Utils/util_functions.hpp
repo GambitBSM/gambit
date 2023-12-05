@@ -13,6 +13,7 @@
 ///  \date 2013 Apr, July, Aug, Dec
 ///  \date 2014 Mar
 ///  \date 2015 Apr
+///  \date 2023 Jan
 ///
 ///  \author Ben Farmer
 ///          (benjamin.farmer@monash.edu.au)
@@ -49,6 +50,7 @@ namespace Gambit
   template <typename T>
   T byVal(T t) { return t; }
 
+  /// Get the sign of a (hopefully numeric) type
   template <typename T>
   int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
@@ -128,27 +130,19 @@ namespace Gambit
     /// Convert a whole string to lowercase
     EXPORT_SYMBOLS std::string strtolower(const std::string& a);
 
-    /************************************************************************/
-    /* Comparator for case-insensitive comparison in STL assos. containers  */
-    /************************************************************************/
-    // From: https://stackoverflow.com/a/1801913/1447953
-    struct EXPORT_SYMBOLS ci_less : std::binary_function<std::string, std::string, bool>
+    /// Enclose a string in quotation marks if it contains commas
+    EXPORT_SYMBOLS std::string quote_if_contains_commas(str);
+
+    /// Comparator for case-insensitive comparison in STL assos. containers  */
+    struct EXPORT_SYMBOLS ci_less
     {
       // case-independent (ci) compare_less binary function
-      struct nocase_compare : public std::binary_function<unsigned char,unsigned char,bool>
+      bool operator() (const std::string & s1, const std::string & s2) const;
+      struct nocase_compare
       {
-        bool operator() (const unsigned char& c1, const unsigned char& c2) const {
-            return tolower (c1) < tolower (c2);
-        }
+        bool operator() (const unsigned char& c1, const unsigned char& c2) const;
       };
-      bool operator() (const std::string & s1, const std::string & s2) const {
-        return std::lexicographical_compare
-          (s1.begin (), s1.end (),   // source range
-          s2.begin (), s2.end (),   // dest range
-          nocase_compare ());  // comparison
-      }
     };
-
 
     /// Get pointers to beginning and end of array.
     // Useful for initialising vectors with arrays, e.g.
@@ -299,12 +293,21 @@ namespace Gambit
 
     // replace substrings within some string with the given replacement, set num_occurences to -1 to replace all
     EXPORT_SYMBOLS std::string replace(const std::string mainstring, const std::string substring, const std::string replacement, const int num_occurences = -1);
-    
+
     // read this like: part in [first,last]
     EXPORT_SYMBOLS bool in(int part, int first, int last);
 
     // floating-point equality
     EXPORT_SYMBOLS bool equal(double a, double b);
+
+    /// Expunge entries in a container of std::pairs for which the second (boolean) value of the pair is false.
+    /// Useful for allowing evaluation of a removal criterion over the whole container in parallel.
+    template<template<class, class> class Container, class T >
+    void masked_erase(Container<std::pair<T,bool>, std::allocator<std::pair<T,bool>>>& c)
+    {
+      auto it = std::remove_if(c.begin(), c.end(), [](const std::pair<T,bool>& e) { return not e.second; });
+      c.erase(it, c.end());
+    }
 
   }
 

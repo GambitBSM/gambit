@@ -38,13 +38,7 @@ import itertools
 import shutil
 import ctypes
 import io
-
-# Python 2/3 compatibility
-# izip_longest renamed to zip_longest in Python 3
-try:
-    from itertools import izip_longest as zip_longest
-except ImportError:
-    from itertools import zip_longest
+from itertools import zip_longest
 
 default_bossed_versions = "./Backends/include/gambit/Backends/default_bossed_versions.hpp"
 equiv_config = "./config/resolution_type_equivalency_classes.yaml"

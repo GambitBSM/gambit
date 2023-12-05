@@ -52,6 +52,20 @@ namespace Gambit
     /// Unit conversions (multiply to construct in standard units, divide to decode to that unit)
     static const double GeV = 1, MeV = 1e-3, TeV = 1e3;
 
+    /// Struct of different jet collection settings
+    struct jet_collection_settings
+    {
+      std::string key;
+      std::string algorithm;
+      double R;
+      std::string recombination_scheme;
+      std::string strategy;
+    };
+
+    /// Storage of different FastJet methods
+    FJNS::JetAlgorithm FJalgorithm_map(std::string);
+    FJNS::Strategy FJstrategy_map(std::string);
+    FJNS::RecombinationScheme FJRecomScheme_map(std::string);
 
     /// Use the HEPUtils Event without needing namespace qualification
     using HEPUtils::Event;
@@ -305,10 +319,10 @@ namespace Gambit
 
 
     /// Check if there's a physics object above ptmin in an annulus rmin..rmax around the given four-momentum p4
-    inline bool object_in_cone(const HEPUtils::Event& e, const HEPUtils::P4& p4, double ptmin, double rmax, double rmin=0.05) {
+    inline bool object_in_cone(const HEPUtils::Event& e, std::string jetcollection, const HEPUtils::P4& p4, double ptmin, double rmax, double rmin=0.05) {
       for (const HEPUtils::Particle* p : e.visible_particles())
         if (p->pT() > ptmin && HEPUtils::in_range(HEPUtils::deltaR_eta(p4, *p), rmin, rmax)) return true;
-      for (const HEPUtils::Jet* j : e.jets())
+      for (const HEPUtils::Jet* j : e.jets(jetcollection))
         if (j->pT() > ptmin && HEPUtils::in_range(HEPUtils::deltaR_eta(p4, *j), rmin, rmax)) return true;
       return false;
     }
@@ -432,7 +446,7 @@ namespace Gambit
     {
       auto compfn = [&](std::vector<const Particle *> pair1, std::vector<const Particle *> pair2)
       {
-        return abs((pair1.at(0)->mom() + pair1.at(1)->mom()).m() - mP) < abs((pair2.at(0)->mom() + pair2.at(1)->mom()).m() - mP);
+        return std::abs((pair1.at(0)->mom() + pair1.at(1)->mom()).m() - mP) < std::abs((pair2.at(0)->mom() + pair2.at(1)->mom()).m() - mP);
       };
       std::sort(pairs.begin(), pairs.end(), compfn);
     }
