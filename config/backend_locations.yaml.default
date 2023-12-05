@@ -26,7 +26,8 @@ classy:
   2.9.4:       ./Backends/installed/classy/2.9.4/lib/classy_2_9_4.py
   3.1.0:       ./Backends/installed/classy/3.1.0/lib/classy_3_1_0.py
 
-  exo_2.7.2:   ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
+classy_exo:
+  2.7.2:       ./Backends/installed/classy/exo_2.7.2/lib/classy_exo_2_7_2.py
 
 Contur:
   2.1.1:       ./Backends/installed/contur/2.1.1/contur/init_by_GAMBIT.py
