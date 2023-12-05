@@ -6309,7 +6309,7 @@ varNames: |
 #  Rivet & Contur capabilites
 #-----------------------
 
-Rivet_3_1_5_init: |
+Rivet_3_1_8_init: |
   Initialise Rivet backend
 
 Rivet_measurements: |
@@ -6318,7 +6318,7 @@ Rivet_measurements: |
 addAnalysisLibPath: |
   Wrapper for Rivet's addaAnalysisLibPath. Adds a path to Rivet's AnalysisLibPath environment variable.
 
-Contur_2_1_1_init: |
+Contur_2_4_4_init: |
   Initialise Contur backend
 
 Contur_GetAnalyses: |
