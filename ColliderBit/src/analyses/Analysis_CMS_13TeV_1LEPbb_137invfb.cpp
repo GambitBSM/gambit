@@ -49,14 +49,14 @@ namespace Gambit
       {
         ////////////////////////
         // Useful definiitons //
-        double mZ = 91.1876;
+        // double mZ = 91.1876;  // <- Not used
         double met = event->met();
 
         // Baseline ELectrons
-        BASELINE_PARTICLES(electrons, baselineElectrons, 30, 0, DBL_MAX, 1.44, CMS::eff2DEl.at("SUS_19_008"));
+        BASELINE_PARTICLES(event->electrons(), baselineElectrons, 30, 0, DBL_MAX, 1.44, CMS::eff2DEl.at("SUS_19_008"));
 
         // Baseline Muons
-        BASELINE_PARTICLES(muons, baselineMuons, 25, 0, DBL_MAX, 2.1, CMS::eff2DMu.at("SUS_19_008"));
+        BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.1, CMS::eff2DMu.at("SUS_19_008"));
 
         // Baseline Jets, tow jets
         // ColliderBit::JetDefinition baselineSmallRjets(ColliderBit::antikt_algorithm, 0.4);
@@ -73,7 +73,7 @@ namespace Gambit
         const std::vector<double> b = {0, 10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a, b, c);
-        for (const HEPUtils::Jet *jet : event->jets())
+        for (const HEPUtils::Jet *jet : event->jets("antikt_R04"))
         {
           bool hasTag = has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if (jet->pT() > 30. && fabs(jet->eta()) < 2.4)
@@ -118,7 +118,7 @@ namespace Gambit
 
           double sumpt = 0.0;
           double sumpt_in_03 = 0.0;
-          for (const HEPUtils::Jet *j : event->jets())
+          for (const HEPUtils::Jet *j : event->jets("antikt_R04"))
           {
             if (e->mom().deltaR_eta(j->mom()) < Rrel)
             {
@@ -144,7 +144,7 @@ namespace Gambit
             Rrel = 0.05;
           double sumpt = 0.0;
           double sumpt_in_03 = 0.0;
-          for (const HEPUtils::Jet *j : event->jets())
+          for (const HEPUtils::Jet *j : event->jets("antikt_R04"))
           {
             if (mu->mom().deltaR_eta(j->mom()) < Rrel)
             {
@@ -162,8 +162,8 @@ namespace Gambit
 
         // veto leptons selections
 
-        BASELINE_PARTICLES(electrons, vetoElectrons, 5.0, 0, DBL_MAX, 2.4, CMS::eff2DEl.at("SUS_19_008"));
-        BASELINE_PARTICLES(muons, vetoMuons, 5.0, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"));
+        BASELINE_PARTICLES(event->electrons(), vetoElectrons, 5.0, 0, DBL_MAX, 2.4, CMS::eff2DEl.at("SUS_19_008"));
+        BASELINE_PARTICLES(event->muons(), vetoMuons, 5.0, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"));
 
         vector<const HEPUtils::Particle *> vetoLeptons;
         for (const HEPUtils::Particle *e : vetoElectrons)
@@ -176,7 +176,7 @@ namespace Gambit
             Rrel = 0.05;
 
           double sumpt = 0.;
-          for (const HEPUtils::Jet *j : event->jets())
+          for (const HEPUtils::Jet *j : event->jets("antikt_R04"))
           {
             if (e->mom().deltaR_eta(j->mom()) < Rrel)
               sumpt += j->pT();
@@ -195,7 +195,7 @@ namespace Gambit
             Rrel = 0.05;
 
           double sumpt = 0.;
-          for (const HEPUtils::Jet *j : event->jets())
+          for (const HEPUtils::Jet *j : event->jets("antikt_R04"))
           {
             if (mu->mom().deltaR_eta(j->mom()) < Rrel)
               sumpt += j->pT();

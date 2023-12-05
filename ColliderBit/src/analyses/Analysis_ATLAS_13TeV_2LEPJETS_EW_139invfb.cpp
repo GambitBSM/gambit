@@ -151,7 +151,7 @@ namespace Gambit
         }
 
         double jet_eff = 0.9;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
           {

@@ -73,11 +73,11 @@ namespace Gambit {
             HEPUtils::P4 ptot = event->missingmom();
 
             // Define baseline jets
-            BASELINE_JETS(jets, baselineJets_AK4, 30,  0, DBL_MAX, 2.4)
-            BASELINE_JETS(jets, baselineJets_AK8, 300, 0, DBL_MAX, 2.4) // TODO: use jets_AK8
-            BASELINE_BJETS(jets, baselineBJets_L, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Loose"), CMS::misIDBJet.at("CSVv2Loose"))
-            BASELINE_BJETS(jets, baselineBJets_M, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Medium"), CMS::misIDBJet.at("CSVv2Medium"))
-            BASELINE_BJETS(jets, baselineBJets_T, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::misIDBJet.at("CSVv2Tight"))
+            BASELINE_JETS(event->jets("antikt_R04"), baselineJets_AK4, 30,  0, DBL_MAX, 2.4)
+            BASELINE_JETS(event->jets("antikt_R04"), baselineJets_AK8, 300, 0, DBL_MAX, 2.4) // TODO: use jets_AK8
+            BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets_L, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Loose"), CMS::misIDBJet.at("CSVv2Loose"))
+            BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets_M, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Medium"), CMS::misIDBJet.at("CSVv2Medium"))
+            BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets_T, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::misIDBJet.at("CSVv2Tight"))
             vector<const HEPUtils::Jet*> baselineBJets_AK8;
             for (const HEPUtils::Jet* jet : baselineJets_AK8) {
                 // Tag
@@ -87,8 +87,8 @@ namespace Gambit {
             }
 
             // Define baseline objects with BASELINE(object_type, variable_name, minpT, mineta[, maxpT, maxeta, efficiency])
-            BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
-            BASELINE_PARTICLES(muons, baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
+            BASELINE_PARTICLES(event->electrons(), baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
+            BASELINE_PARTICLES(event->muons(), baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
 
 
             // Define signal objects from baseline objects, automatically order by pT (highest first)
