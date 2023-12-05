@@ -168,7 +168,7 @@ namespace Gambit {
           else if (met > 300. && muon->pT()>3.5 && muon->pT()<30. && fabs(muon->eta())<2.4 && isMu) signalMuons.push_back(muon);
         }
 
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT()>25. && fabs(jet->eta())<2.4) {
            signalJets.push_back(jet);
            if (jet->btag())signalBJets.push_back(jet);

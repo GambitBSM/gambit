@@ -148,7 +148,7 @@ namespace Gambit
         // Jets with pT < 120 GeV and |η| < 2.8 have an efficiency of 90%
         // Mising:  cut based on detector noise and non-collision backgrounds
         double jet_eff = 0.9;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
             if( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);

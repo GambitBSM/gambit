@@ -185,9 +185,9 @@ namespace Gambit
       try
       {
         if (HardScatteringSim.partonOnly)
-          convertPartonEvent(pythia_event, event, HardScatteringSim.antiktR, jet_pt_min);
+          convertPartonEvent(pythia_event, event, HardScatteringSim.all_jet_collection_settings, HardScatteringSim.jetcollection_taus, jet_pt_min);
         else
-          convertParticleEvent(pythia_event, event, HardScatteringSim.antiktR, jet_pt_min);
+          convertParticleEvent(pythia_event, event, HardScatteringSim.all_jet_collection_settings, HardScatteringSim.jetcollection_taus, jet_pt_min);
       }
       // No good.
       catch (Gambit::exception& e)

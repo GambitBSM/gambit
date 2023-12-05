@@ -477,7 +477,7 @@ namespace Gambit {
         // - jets
         vector<const HEPUtils::Jet*> signalJets;
         vector<const HEPUtils::Jet*> signalBjets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 30. && fabs(jet->eta()) < 2.5) signalJets.push_back(jet);
           if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 30.) signalBjets.push_back(jet);
         }

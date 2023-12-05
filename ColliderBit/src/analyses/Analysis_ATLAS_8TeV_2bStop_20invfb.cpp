@@ -123,7 +123,7 @@ namespace Gambit
           vector<const HEPUtils::Jet*> bJets;
           vector<const HEPUtils::Jet*> trueBJets; //for debugging
 
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.9) baselineJets.push_back(jet);
           }
