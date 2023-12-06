@@ -40,7 +40,7 @@ namespace HEPUtils {
     /// Typedef for the generic cluster-sequence type
     using CSeqBase = FJNS::ClusterSequence;
     /// Typedef for a smart ptr to the generic cluster-sequence type
-    using CSeqBasePtr = std::shared_ptr<const FJNS::ClusterSequence>;
+    using CSeqBasePtr = std::shared_ptr<FJNS::ClusterSequence>;
     
     /// Hold the cluster sequences corresponding to jets, to keep them alive
     std::map<const std::string, CSeqBasePtr> _cseqs;
