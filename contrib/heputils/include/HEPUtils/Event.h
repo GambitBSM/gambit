@@ -456,7 +456,7 @@ namespace HEPUtils {
     ///
     /// @warning The CS should be new'd; Event will take ownership via a shared_ptr
     template <typename CS=FJNS::ClusterSequence>
-    void set_clusterseq(std::shared_ptr<const CS> cseq, const std::string& key) {
+    void set_clusterseq(std::shared_ptr<CS> cseq, const std::string& key) {
       if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
 	throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
       }
