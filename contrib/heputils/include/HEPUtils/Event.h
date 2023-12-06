@@ -40,10 +40,10 @@ namespace HEPUtils {
     /// Typedef for the generic cluster-sequence type
     using CSeqBase = FJNS::ClusterSequence;
     /// Typedef for a smart ptr to the generic cluster-sequence type
-    using CSeqBasePtr = std::shared_ptr<FJNS::ClusterSequence>;
+    using CSeqBasePtr = std::shared_ptr<const FJNS::ClusterSequence>;
     
     /// Hold the cluster sequences corresponding to jets, to keep them alive
-    std::map<const std::string, CSeqBasePtr> _cseqs;
+    std::map<std::string, CSeqBasePtr> _cseqs;
     
     /// Missing momentum vector
     P4 _pmiss;
@@ -456,11 +456,11 @@ namespace HEPUtils {
     ///
     /// @warning The CS should be new'd; Event will take ownership via a shared_ptr
     template <typename CS=FJNS::ClusterSequence>
-    void set_clusterseq(std::shared_ptr<CS> cseq, const std::string& key) {
+    void set_clusterseq(std::shared_ptr<const CS> cseq, const std::string& key) {
       if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
 	throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
       }
-      _cseqs[key] = CSeqBasePtr(cseq);
+      _cseqs[key] = cseq;
     }
 
     
