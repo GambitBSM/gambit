@@ -460,7 +460,7 @@ namespace HEPUtils {
       if (_cseqs.find(key) != _cseqs.end() && !_cseqs.empty()) {
 	throw std::runtime_error("Event::set_clusterseq() called for a non-empty jet collection");
       }
-      _cseqs[key] =  cseq;
+      _cseqs[key] = CSeqBasePtr(cseq);
     }
 
     
