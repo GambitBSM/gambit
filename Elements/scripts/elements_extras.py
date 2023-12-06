@@ -99,6 +99,8 @@ def main(argv):
         # Extract flag for standalone
         target = args[0]
         isStandalone = 1 if "standalone" in target or "CBS" in target else 0
+        print("HEY Chris. I am in elements_extras.py or target: ", target) # TODO: Chris Chang. Debugging
+        print("isStandalone: " , isStandalone)
 
     except :
         print('Usage: elements_extras.py [flags] <isStandalone>')
