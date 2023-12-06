@@ -9,6 +9,35 @@ on:
     - cron:  '0 5 * * *'
 
 jobs:
+  standalones_build:
+    runs-on: [self-hosted, macOS,x64]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64]
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        echo "Set up the build environment"
+        mkdir -p BUILD
+        cd BUILD
+    - name: Configure with cmake
+      run: |
+        echo "Configure with cmake"
+        cd BUILD
+        # Ditching a few backends that don't currently work on Mac
+        cmake -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+    - name: Build standalones
+      run: |
+        echo "Test the building of the standalones"
+        cd BUILD
+        make standalones
+  
   gambit_build:
     runs-on: [self-hosted, macOS,x64]
     strategy:
@@ -32,11 +61,6 @@ jobs:
         cd BUILD
         # Ditching a few backends that don't currently work on Mac
         cmake -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
-    - name: Build standalones
-      run: |
-        echo "Test the building of the standalones"
-        cd BUILD
-        make standalones
     - name: Build scanners
       run: |
         echo "Build scanners"
