@@ -677,6 +677,16 @@ if args.file:
             fix_pythia_lib(gum.name, new_pythia_dir, pythia_groups,
                            bsm_particle_list, decays)
             print("Creating a diff vs original version of Pythia.")
+            # Before writing the backend patch, find and replace couplingsPtr with coupSMPtr in any of the Sigma_ModelName_process.cc files
+            # TODO: Debugging
+            print("Finding Pythia files in: ", new_pythia_dir+"/src")
+            for filename in os.listdir(new_pythia_dir+"/src"):
+                # TODO: Debugging
+                print("FileName: ", filename)
+                if os.path.isfile(os.path.join(new_pythia_dir+"/src",filename)) and ('Sigma_'+ gum.name) in filename:
+                    # TODO: Debugging
+                    print("Found FileName: ", filename)
+                    find_and_replace(filename, ",", " couplingsPtr", " coupSMPtr") # TODO: Will want to give a gum pythia option for version
             write_backend_patch(output_dir, pristine_pythia_dir, new_pythia_dir,
                                 "pythia_"+gum.name.lower(),
                                 "8."+base_pythia_version)
