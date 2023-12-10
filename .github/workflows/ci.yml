@@ -44,7 +44,7 @@ jobs:
         echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
         echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
         cat buildenv.sh
-        pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0
+        pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0 pathos
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
