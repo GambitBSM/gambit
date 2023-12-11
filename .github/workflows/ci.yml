@@ -9,7 +9,7 @@ on:
     - cron:  '0 5 * * *'
 
 jobs:
-  contur_upgrade_debug:
+  gambit_build:
     runs-on: [docker, self-hosted]
     strategy:
       fail-fast: false
@@ -48,144 +48,37 @@ jobs:
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
-        cmake .. -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM" -D WITH_MPI=OFF -Ditch="DarkBit;CosmoBit;FlavBit;NeutrinoBit;ObjectivesBit"
+        cmake .. -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
+    - name: Build scanners
+      run: |
+        cd BUILD/ && . buildenv.sh
+        make -j$(( ($(nproc)+1)/2 )) scanners
+        cmake ..
+    - name: Build Gambit
+      run: |
+        cd BUILD && . buildenv.sh
+        make -j$(( ($(nproc)+1)/2 )) gambit
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
-        make -j$(( ($(nproc)+1)/2 )) contur
-        cd ../Backends/installed/contur/2.4.4/contur
-        echo
-        pwd
-        echo "DEBUG: Listing content of init_by_GAMBIT.py:"
-        echo
-        cat init_by_GAMBIT.py
-        echo
-        echo "DEBUG: Run init_by_GAMBIT.py:"
-        echo
-        python init_by_GAMBIT.py
-        echo
-        # make -j$(( ($(nproc)+1)/2 )) rivet
-        # make -j$(( ($(nproc)+1)/2 )) pythia
-        # make ATLAS_FullLikes
-        # make nulike
-        # make susyhit
-        # make higgsbounds
-        # make higgssignals
-        echo
-        pwd
-        cd ..
-        pwd
-        echo
-        echo
-        echo "DEBUG: Listing content of Backends/installed: "
-        echo
-        ls -Rl Backends/installed
-    # - name: Build scanners
-    #   run: |
-    #     cd BUILD/ && . buildenv.sh
-    #     make diver
-    #     cmake ..
-    # - name: Build Gambit
-    #   run: |
-    #     cd BUILD && . buildenv.sh
-    #     make -j$(( ($(nproc)+1)/2 )) gambit
-    #     echo
-    #     pwd
-    #     cd ..
-    #     pwd
-    #     echo
-    #     echo "DEBUG: Listing content of contrib: "
-    #     ls -Rl contrib
-    #     echo
-    #     echo
-    #     echo "DEBUG: Listing output of ./gambit backends: "
-    #     echo
-    #     ./gambit backends 2>&1 | tee gambit_backends.txt
-    #     cat gambit_backends.txt
-    # - name: ColliderBit test
-    #   run: |
-    #     . BUILD/buildenv.sh
-    #     echo
-    #     echo
-    #     echo "DEBUG: Run ColliderBit_CMSSM.yaml and output default.log: "
-    #     echo
-    #     OMP_NUM_THREADS=1 ./gambit -rf yaml_files/ColliderBit_CMSSM.yaml ; cat runs/ColliderBit_CMSSM/logs/default.log
-    #     echo
-    #     echo "DEBUG: End of default.log:"
-    #     echo
-
-
-
-  # gambit_build:
-  #   runs-on: [docker, self-hosted]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       arch: [ubuntu] #, ubuntu-py2, fedora
-  #       #mpi: [ON, OFF]
-  #   container: gambitbsm/gambit-base:${{ matrix.arch }}
-  #   defaults:
-  #     run:
-  #       shell: bash -eo pipefail {0}
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v2
-  #   - name: Set up build environment
-  #     run: |
-  #       mkdir -p BUILD
-  #       cd BUILD
-  #       echo "Sourcing setup.sh"
-  #       cat /etc/profile.d/gambit-setup.sh
-  #       source /etc/profile.d/gambit-setup.sh
-  #       echo "Making buildenv.sh"
-  #       > buildenv.sh
-  #       echo "source /etc/profile.d/gambit-setup.sh" >> buildenv.sh
-  #       echo "export CMAKE_BUILD_TYPE=None" >> buildenv.sh
-  #       echo "export CMAKE_C_COMPILER=$(which gcc)" >> buildenv.sh
-  #       echo "export CMAKE_CXX_COMPILER=$(which g++)" >> buildenv.sh
-  #       echo "export CMAKE_Fortran_COMPILER=$(which gfortran)" >> buildenv.sh
-  #       PYTHON_LIBRARY=$(python -c 'from __future__ import print_function; from distutils.sysconfig import get_config_var; print("%s/%s" % (get_config_var("LIBDIR"), get_config_var("INSTSONAME")))')
-  #       PYTHON_INCLUDE_DIR=$(python -c 'from __future__ import print_function; from distutils import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
-  #       echo "export PYTHON_EXECUTABLE=$(which python)" >> buildenv.sh
-  #       echo "export PYTHON_LIBRARY=$PYTHON_LIBRARY" >> buildenv.sh
-  #       echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
-  #       echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
-  #       cat buildenv.sh
-  #       pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0 pathos
-  #   - name: Configure with cmake
-  #     run: |
-  #       cd BUILD/ && . buildenv.sh
-  #       cmake .. -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
-  #   - name: Build scanners
-  #     run: |
-  #       cd BUILD/ && . buildenv.sh
-  #       make -j$(( ($(nproc)+1)/2 )) scanners
-  #       cmake ..
-  #   - name: Build Gambit
-  #     run: |
-  #       cd BUILD && . buildenv.sh
-  #       make -j$(( ($(nproc)+1)/2 )) gambit
-  #   - name: Build backends
-  #     run: |
-  #       cd BUILD && . buildenv.sh
-  #       #make -j$(( ($(nproc)+1)/2 )) backends
-  #       make backends
-  #   - name: CLI test
-  #     run: |
-  #       . BUILD/buildenv.sh
-  #       ./gambit -h
-  #   - name: WC test
-  #     run: |
-  #       . BUILD/buildenv.sh
-  #       ./gambit -f yaml_files/WC_lite.yaml
-  #   - name: ColliderBit test
-  #     run: |
-  #       . BUILD/buildenv.sh
-  #       ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
-  #   - name: Build standalones
-  #     run: |
-  #       cd BUILD && . buildenv.sh
-  #       make standalones
+        #make -j$(( ($(nproc)+1)/2 )) backends
+        make backends
+    - name: CLI test
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -h
+    - name: ColliderBit test
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
+    - name: WC test
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -f yaml_files/WC_lite.yaml
+    - name: Build standalones
+      run: |
+        cd BUILD && . buildenv.sh
+        make standalones
 
     # - name: Validation dependencies
     #   run: |
