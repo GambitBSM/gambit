@@ -54,15 +54,15 @@ jobs:
         cd BUILD/ && . buildenv.sh
         make -j$(( ($(nproc)+1)/2 )) scanners
         cmake ..
-    - name: Build Gambit
-      run: |
-        cd BUILD && . buildenv.sh
-        make -j$(( ($(nproc)+1)/2 )) gambit
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
         #make -j$(( ($(nproc)+1)/2 )) backends
         make backends
+    - name: Build Gambit
+      run: |
+        cd BUILD && . buildenv.sh
+        make -j$(( ($(nproc)+1)/2 )) gambit
     - name: CLI test
       run: |
         . BUILD/buildenv.sh
