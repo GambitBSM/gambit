@@ -52,14 +52,25 @@ jobs:
     - name: Build backends
       run: |
         cd BUILD && . buildenv.sh
-        make -j$(( ($(nproc)+1)/2 )) rivet
         make -j$(( ($(nproc)+1)/2 )) contur
-        make -j$(( ($(nproc)+1)/2 )) pythia
-        make ATLAS_FullLikes
-        make nulike
-        make susyhit
-        make higgsbounds
-        make higgssignals
+        cd ../Backends/installed/contur/2.4.4/contur
+        echo
+        pwd
+        echo "DEBUG: Listing content of init_by_GAMBIT.py:"
+        echo
+        cat init_by_GAMBIT.py
+        echo
+        echo "DEBUG: Run init_by_GAMBIT.py:"
+        echo
+        python init_by_GAMBIT.py
+        echo
+        # make -j$(( ($(nproc)+1)/2 )) rivet
+        # make -j$(( ($(nproc)+1)/2 )) pythia
+        # make ATLAS_FullLikes
+        # make nulike
+        # make susyhit
+        # make higgsbounds
+        # make higgssignals
         echo
         pwd
         cd ..
