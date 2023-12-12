@@ -47,8 +47,7 @@ using namespace std;
 #define CHECK_CUTFLOWS
 
 // Very heavily inspired/copied from Rivet (to be fair, I wrote that too)
-// TODO: Exactly how we handle onnx files is probably a WiP.
-// TODO: The wrapper class in rivet has been generalised, would be good for completeness to have these updates here, too.
+// TODO: Exactly how we handle onnx files is probably a WiP - class name, where it belongs, etc.
 class onnx_rt_wrapper{
   public:
   onnx_rt_wrapper(const string & filename, const string& runname = "GambitONNXrt"){
