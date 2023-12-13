@@ -87,7 +87,7 @@ namespace Gambit {
 
         // jets
         vector<const HEPUtils::Jet*> Jets;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>30. &&fabs(jet->eta())<3.0) Jets.push_back(jet);
         }

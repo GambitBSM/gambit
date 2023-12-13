@@ -141,7 +141,7 @@ namespace Gambit
 
           // Get jets (0.9 is to emulate the requirement of coming from a primary vertex)
           vector<const Jet*> baselineJets;
-          for (const Jet* jet : event->jets())
+          for (const Jet* jet : event->jets("antikt_R04"))
           {
             if ((jet->pT() > 30) && (jet->abseta() < 2.8))
             {

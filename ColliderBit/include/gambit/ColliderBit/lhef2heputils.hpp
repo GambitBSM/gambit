@@ -24,6 +24,7 @@
 ///  *********************************************
 
 #include "gambit/cmake/cmake_variables.hpp"
+#include "gambit/ColliderBit/Utils.hpp"
 
 #ifndef EXCLUDE_HEPMC
 
@@ -32,7 +33,17 @@
 /// Forward declaration to cut down on includes
 namespace LHEF { class Reader; }
 
-/// Extract an LHE event as a HEPUtils::Event
-void get_HEPUtils_event(const LHEF::Reader&, HEPUtils::Event&, double);
+namespace Gambit
+{
+
+  namespace ColliderBit
+  {
+
+    /// Extract an LHE event as a HEPUtils::Event
+    void get_HEPUtils_event(const LHEF::Reader&, HEPUtils::Event&, double, std::vector<Gambit::ColliderBit::jet_collection_settings>);
+
+  }
+
+}
 
 #endif

@@ -67,7 +67,7 @@ namespace Gambit {
 
         // Jets
         JetPtrs jets;
-        for (const Jet* j : event->jets())
+        for (const Jet* j : event->jets("antikt_R04"))
           if (j->pT() > 20. && j->absrap() < 4.4)
             jets.push_back(j);
 

@@ -581,6 +581,7 @@ namespace Gambit
     const str bad = "absent/broken";
     const str badclass = "bad types";
     const str missingMath = "Mathematica absent";
+    const str missingPybind = "PyBind11 absent";
     str status;
     if (backendData->works.at(be + version))
     {
@@ -598,11 +599,17 @@ namespace Gambit
       status = missingMath;
 #endif
     }
+#ifdef HAVE_PYBIND11
     else if (backendData->missingPythonVersion.at(be + version) > 0)
     {
       std::ostringstream status_stream;
       status_stream << "needs Python " << backendData->missingPythonVersion.at(be + version);
       status = status_stream.str();
+#else
+    else if (backendData->needsPython.at(be + version))
+    {
+      status = missingPybind;
+#endif
     }
     else
     {
