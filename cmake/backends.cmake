@@ -782,16 +782,7 @@ set(ver "1.0.0")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "16b763a2e8b9d6c174d8b7ca2f4cb575")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-if(GSL_FOUND)
-  execute_process(
-    COMMAND gsl-config --libs
-    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
-    RESULT_VARIABLE RET
-  )
-  if( RET EQUAL 0 )
-    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
-  endif()
-endif()
+set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -814,16 +805,7 @@ set(ver "1.0.1")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "80b50ab2345e8b7d43b9eace5436e515")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-if(GSL_FOUND)
-  execute_process(
-    COMMAND gsl-config --libs
-    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
-    RESULT_VARIABLE RET
-  )
-  if( RET EQUAL 0 )
-    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
-  endif()
-endif()
+set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -1944,7 +1926,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
+  #set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # plc

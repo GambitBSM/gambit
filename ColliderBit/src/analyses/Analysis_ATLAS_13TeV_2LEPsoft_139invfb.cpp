@@ -88,8 +88,8 @@ namespace Gambit
 
         // Electrons are required to have pT > 4.5 GeV and |η| < 2.47.
         // Preselected tracks with pT > 500 MeV and η < 2.5
-        BASELINE_PARTICLES(electrons, preselectedElectrons, 4.5, 0, DBL_MAX, 2.47, ATLAS::eff2DEl.at(""))
-        BASELINE_PARTICLES(muons, preselectedMuons, 3.0, 0, DBL_MAX, 2.5, ATLAS::eff2DMu.at(""))
+        BASELINE_PARTICLES(event->electrons(), preselectedElectrons, 4.5, 0, DBL_MAX, 2.47, ATLAS::eff2DEl.at(""))
+        BASELINE_PARTICLES(event->muons(), preselectedMuons, 3.0, 0, DBL_MAX, 2.5, ATLAS::eff2DMu.at(""))
 
         for (const HEPUtils::Particle* electron : event->electrons())
         {
@@ -129,7 +129,7 @@ namespace Gambit
         // Preselected jets are reconstructed from calorimeter topological energy clusters in the region |η| < 4.5 using the anti-kt algorithm with radius parameter R = 0.4. The jets are required to have pT > 20 GeV after being calibrated in accord with Ref. [92] and having the expected energy contribution from pileup subtracted according to the jet area.
         // In order to suppress jets due to pileup, jets with pT < 120 GeV and |η| < 2.5 are required to satisfy the Medium working point of the jet vertex tagger [93], which uses information from the tracks associated to the jet.
         // Missing : no track info
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->abseta() < 4.5 && jet->pT() > 20.) preselectedJets.push_back(jet);
         }

@@ -38,7 +38,7 @@
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
-///  \date 2023 May
+///  \date 2023 May, Nov
 ///
 ///  *********************************************
 
@@ -93,6 +93,37 @@ namespace Gambit
     void leaving_multithreaded_region(module_functor_common&);
   }
 
+  /// Enumeration for the status of a given functor.
+  /// Note that the discriminant has custom values:
+  ///     * A negative value signals that the functor is disabled.
+  ///       Possible values are:
+  ///           -6 = required external tool absent (pybind11)
+  ///           -5 = required external tool absent (Mathematica)
+  ///           -4 = required backend absent (backend ini functions)
+  ///           -3 = required classes absent
+  ///           -2 = function absent
+  ///           -1 = origin absent
+  ///
+  ///     * A positive value signals that the functor can be used
+  ///       (as long as the functor is allowed the for the models in the scan)
+  ///       Possible values are
+  ///            0 = model incompatibility (default)
+  ///            1 = available
+  ///            2 = active
+  ///
+  enum FunctorStatus
+  {
+    Pybind_missing = -6,
+    Mathematica_missing = -5,
+    Backend_missing = -4,
+    Classes_missing = -3,
+    Function_missing = -2,
+    Origin_missing = -1,
+    Model_incompatible = 0,
+    Available = 1,
+    Active = 2,
+  };
+
   // ======================== Base Functor =====================================
 
   /// Function wrapper (functor) base class
@@ -128,16 +159,8 @@ namespace Gambit
       /// Reset-then-recalculate method
       virtual void reset_and_calculate();
 
-      /// Setter for status: -6 = required external tool absent (pybind11)
-      ///                    -5 = required external tool absent (Mathematica)
-      ///                    -4 = required backend absent (backend ini functions)
-      ///                    -3 = required classes absent
-      ///                    -2 = function absent
-      ///                    -1 = origin absent
-      ///                     0 = model incompatibility (default)
-      ///                     1 = available
-      ///                     2 = active
-      void setStatus(int);
+      /// Setter for status
+      void setStatus(FunctorStatus);
       /// Set the inUse flag (must be overridden in derived class to have any effect).
       virtual void setInUse(bool){};
       /// Setter for purpose (relevant only for next-to-output functors)
@@ -158,17 +181,18 @@ namespace Gambit
       virtual str version() const;
       /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
       virtual str safe_version() const;
-      /// Getter for the wrapped function current status:
-      ///                    -6 = required external tool absent (pybind11)
-      ///                    -5 = required external tool absent (Mathematica)
-      ///                    -4 = required backend absent (backend ini functions)
-      ///                    -3 = required classes absent
-      ///                    -2 = function absent
-      ///                    -1 = origin absent
-      ///                     0 = model incompatibility (default)
-      ///                     1 = available
-      ///                     2 = active
-      int status() const;
+
+      /// Getter for the functors current status
+      FunctorStatus status() const;
+      /// Checks whether the functor is available (or even already activated)
+      bool isAvailable() const;
+      /// Checks whether the functor is active
+      bool isActive() const;
+      /// Checks whether the functor is disabled (discriminant is negative)
+      bool isDisabled() const;
+      /// Checks whether the functor is enabled (discriminant is non negative)
+      bool isEnabled() const;
+
       /// Getter for the  overall quantity provided by the wrapped function (capability-type pair)
       sspair quantity() const;
       /// Getter for purpose (relevant for output nodes, aka helper structures for the dep. resolution)
@@ -351,16 +375,16 @@ namespace Gambit
 
       /// Add a combination of model groups to the internal list of combinations for which this functor is allowed to be used.
       void setAllowedModelGroupCombo(str groups);
-      
+
       /// Add an observable to the set of those that this functor matches.
       void addMatchedObservable(const DRes::Observable*);
-      
+
       /// Retrieve the set of observables that this functor matches.
       const std::set<const DRes::Observable*>& getMatchedObservables();
 
       /// Add a module rule to the set of those against which this functor has been tested and found to match.
       void addMatchedModuleRule(const DRes::ModuleRule*);
-      
+
       /// Add a backend rule to the set of those against which this functor has been tested and found to match.
       void addMatchedBackendRule(const DRes::BackendRule*);
 
@@ -396,16 +420,8 @@ namespace Gambit
       /// String label, used to label functor timing data for printer system
       const str myTimingLabel;
       /// Status:
-      ///                    -6 = required external tool absent (pybind11)
-      ///                    -5 = required external tool absent (Mathematica)
-      ///                    -4 = required backend absent (backend ini functions)
-      ///                    -3 = required classes absent
-      ///                    -2 = function absent
-      ///                    -1 = origin absent
-      ///                     0 = model incompatibility (default)
-      ///                     1 = available
-      ///                     2 = active
-      int myStatus;
+      FunctorStatus myStatus;
+
       /// Internal storage of the vertex ID number used by the printer system to identify functors
       int myVertexID;
       /// ID assigned by printers to the timing data output stream

@@ -207,7 +207,7 @@ namespace Gambit {
 
         // Jets
         vector<const HEPUtils::Jet*> jets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           // No info on baseline jet cuts in the paper, so for now we'll
           // apply an|eta| cut for HCAL coverage and a loose jet pT cut
           if (jet->pT()>10. && jet->abseta()<3.0) jets.push_back(jet);

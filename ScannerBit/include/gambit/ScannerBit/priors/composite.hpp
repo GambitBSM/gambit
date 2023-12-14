@@ -33,6 +33,7 @@
 
 #include "gambit/Utils/yaml_options.hpp"
 #include "gambit/ScannerBit/priors.hpp"
+#include "gambit/ScannerBit/scanner_utils.hpp"
 
 
 namespace Gambit 
@@ -59,56 +60,64 @@ namespace Gambit
             
             CompositePrior(const std::vector<std::string> &params, const Options &options);
             
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const override 
+            {
+                double log_pdf_density = 0.0;
+                for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; ++it)
+                {
+                    log_pdf_density += (*it)->log_prior_density(physical);
+                }
+                
+                return log_pdf_density;
+            }
+            
             inline std::vector<std::string> getShownParameters() const override { return shown_param_names; }
             
             // Transformation from unit hypercube to physical parameters
-            void transform(const std::vector<double> &unitPars, std::unordered_map<std::string,double> &outputMap) const override
+            void transform(hyper_cube_ref<double> unitPars, std::unordered_map<std::string,double> &outputMap) const override
             {
-                std::vector<double>::const_iterator unit_it = unitPars.begin(), unit_next;
-                for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
+                int unit_i = 0, unit_size;
+                for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; ++it)
                 {
-                    unit_next = unit_it + (*it)->size();
-                    std::vector<double> subUnit(unit_it, unit_next);
-                    unit_it = unit_next;
-                    (*it)->transform(subUnit, outputMap);
+                    unit_size = (*it)->size();
+                    (*it)->transform(unitPars.segment(unit_i, unit_size), outputMap);
+                    unit_i += unit_size;
                 }
             }
 
             // Transformation from physical parameters back to unit hypercube
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
             {
-                std::vector<double> u;
+                int unit_i = 0, unit_size;
                 for (auto it = my_subpriors.begin(), end = my_subpriors.end(); it != end; it++)
                 {
-                    auto ublock = (*it)->inverse_transform(physical);
-                    u.insert(u.end(), ublock.begin(), ublock.end());
+                    unit_size = (*it)->size();
+                    (*it)->inverse_transform(physical, unit.segment(unit_i, unit_size));
+                    unit_i += unit_size;
                 }
 
-                // check it
-
-                for (const auto &p : u)
+                // Check it
+                for (int i = 0, end = unit.size(); i < end; ++i)
                 {
-                  if (p > 1. || p < 0.)
-                  {
-                    throw std::runtime_error("unit hypercube outside 0 and 1");
-                  }
+                    if (unit[i] >= 1 || unit[i] <= 0)
+                    {
+                        scan_warn << "unit hypercube outside 0 and 1" << scan_end;
+                    }
                 }
 
                 auto round_trip = physical;
-                transform(u, round_trip);
+                transform(unit, round_trip);
                 const double rtol = 1e-4;
                 for (const auto &s : physical) 
                 {
-                  const double a = round_trip.at(s.first);
-                  const double b = s.second;
-                  const double rdiff = std::abs(a - b) / std::max(std::abs(a), std::abs(b));
-                  if (rdiff > rtol)
-                  {
-                    throw std::runtime_error("could not convert physical parameters to hypercube");
-                  }
+                    const double a = round_trip.at(s.first);
+                    const double b = s.second;
+                    const double rdiff = std::abs(a - b) / std::max(std::abs(a), std::abs(b));
+                    if (rdiff > rtol)
+                    {
+                        scan_err << "could not convert physical parameters to hypercube" << scan_end;
+                    }
                 }
-
-                return u;        
             }
             
             //~CompositePrior() noexcept

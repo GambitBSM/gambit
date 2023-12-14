@@ -10,6 +10,7 @@
 #include "gambit/cmake/cmake_variables.hpp"
 #ifndef EXCLUDE_ROOT
 #ifndef EXCLUDE_RESTFRAMES
+//#define CHECK_CUTFLOW
 
 #include <vector>
 #include <cmath>
@@ -53,7 +54,7 @@ namespace Gambit
 
     protected:
 
-       vector<Cutflow> _cutflow;
+       Cutflows _cutflows;
 
        //vector<int> _test;
        //int _test2;
@@ -150,42 +151,28 @@ namespace Gambit
 
         set_analysis_name("ATLAS_13TeV_2LEPJETS_RJR_139invfb");
         set_luminosity(139);
+      
+	_cutflows.addCutflow("SR2L_low", {"Trigger and 2 signal leptons", "Preselection", "0.35 < HPP11/HPP41 < 0.60", "pTlabPP/(pTlabPP+HTPP11) < 0.05", "min(dPhi(j1/j2,ptmiss))<2.4", "HPP41 > 400 GeV",});
 
-        //TODO: update
-        str cutflow_name = "ATLAS 2 opposite sign leptons at the Z peak 13 TeV";
-        vector<str> SRZ1A = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 4", "MET > 250 GeV", "mT23l > 100 GeV"};
-        vector<str> SRZ1B = {"Trigger", "Third leading lepton pT > 20 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "njets (pT > 30 GeV) >= 5", "MET > 150 GeV", "pTll > 150 GeV", "Leading b-tagged jet pT > 100 GeV"};
-        vector<str> SRZ2A = {"Trigger", "Third leading lepton pT < 20 GeV", "|mll - mZ| < 15 GeV", "Leading jet pT > 150 GeV", "MET > 200 GeV", "pTll < 50 GeV"};
-        vector<str> SRZ2B = {"Trigger", "Third leading lepton pT < 60 GeV", "|mll - mZ| < 15 GeV", "nb-tagged (pT > 30 GeV) >= 1", "MET > 350 GeV", "pTll > 150 GeV"};
-        // vector<str> SRh1A = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 4", "S > 12"};
-        // vector<str> SRh1B = {"Trigger", "nb-tagged (pT > 30 GeV) >= 4", "nh-cand >= 1", "mT > 150 GeV", "njets (pT > 60 GeV) >= 6", "S > 7"};
-        _cutflow = { Cutflow(cutflow_name, SRZ1A),
-                     Cutflow(cutflow_name, SRZ1B),
-                     Cutflow(cutflow_name, SRZ2A),
-                     Cutflow(cutflow_name, SRZ2B),
-                     // Cutflow(cutflow_name, SRh1A),
-                     // Cutflow(cutflow_name, SRh1B)
-         };
-        //_test = {0,0,0,0,0};
-        //_test2 = 0;
+	_cutflows.addCutflow("SR2L_ISR", {"Pre-selection", "80 GeV < mZ < 100 GeV", "50 GeV < mJ < 110 GeV", "dPhiCMISR > 2.8", "0.4 < RISR < 0.75", "pTCMISR > 180 GeV","pTCM_I > 100 GeV","pTCM < 30 GeV"});
 
-
+	
         // Recursive jigsaw setup
         #pragma omp critical (init_ATLAS_13TeV_2LEPJETS_RJR_139invfb)
         {
 
           LAB_2L2J.reset(new RestFrames::LabRecoFrame("LAB_2L2J","lab2L2J"));
-                C1N2_2L2J.reset(new RestFrames::DecayRecoFrame("C1N2_2L2J","#tilde{#chi}^{ #pm}_{1} #tilde{#chi}^{ 0}_{2}"));
-                C1a_2L2J.reset(new RestFrames::DecayRecoFrame("C1a_2L2J","#tilde{#chi}^{ #pm}_{1}"));
-                N2b_2L2J.reset(new RestFrames::DecayRecoFrame("N2b_2L2J","#tilde{#chi}^{ 0}_{2}"));
-
+	  C1N2_2L2J.reset(new RestFrames::DecayRecoFrame("C1N2_2L2J","#tilde{#chi}^{ #pm}_{1} #tilde{#chi}^{ 0}_{2}"));
+	  C1a_2L2J.reset(new RestFrames::DecayRecoFrame("C1a_2L2J","#tilde{#chi}^{ #pm}_{1}"));
+	  N2b_2L2J.reset(new RestFrames::DecayRecoFrame("N2b_2L2J","#tilde{#chi}^{ 0}_{2}"));
+	  
           J1_2L2J.reset(new RestFrames::VisibleRecoFrame("J1_2L2J","#it{j}_{1}"));
-                J2_2L2J.reset(new RestFrames::VisibleRecoFrame("J2_2L2J","#it{j}_{2}"));
-                L1b_2L2J.reset(new RestFrames::VisibleRecoFrame("L1b_2L2J","#it{l}_{1}"));
-                L2b_2L2J.reset(new RestFrames::VisibleRecoFrame("L2b_2L2J","#it{l}_{2}"));
-
-                X1a_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1a_2L2J","#tilde{#chi}^{ 0}_{1 a}"));
-                X1b_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1b_2L2J","#tilde{#chi}^{ 0}_{1 b}"));
+	  J2_2L2J.reset(new RestFrames::VisibleRecoFrame("J2_2L2J","#it{j}_{2}"));
+	  L1b_2L2J.reset(new RestFrames::VisibleRecoFrame("L1b_2L2J","#it{l}_{1}"));
+	  L2b_2L2J.reset(new RestFrames::VisibleRecoFrame("L2b_2L2J","#it{l}_{2}"));
+	  
+	  X1a_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1a_2L2J","#tilde{#chi}^{ 0}_{1 a}"));
+	  X1b_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1b_2L2J","#tilde{#chi}^{ 0}_{1 b}"));
 
           LAB_2L2J->SetChildFrame(*C1N2_2L2J);
 
@@ -228,6 +215,7 @@ namespace Gambit
           X1X1_contra_2L2J->AddInvisibleFrames(C1a_2L2J->GetListInvisibleFrames(),0);
           X1X1_contra_2L2J->AddInvisibleFrames(N2b_2L2J->GetListInvisibleFrames(),1);
 
+	  
           if(!LAB_2L2J->InitializeAnalysis())
           {
             str errmsg;
@@ -259,32 +247,33 @@ namespace Gambit
           }
 
           // 2L + NJ tree
-          LAB_2L2J.reset(new RestFrames::LabRecoFrame("LAB_2L2J","lab2L2J"));
-          C1N2_2L2J.reset(new RestFrames::DecayRecoFrame("C1N2_2L2J","#tilde{#chi}^{ #pm}_{1} #tilde{#chi}^{ 0}_{2}"));
-          C1a_2L2J.reset(new RestFrames::DecayRecoFrame("C1a_2L2J","#tilde{#chi}^{ #pm}_{1}"));
-          N2b_2L2J.reset(new RestFrames::DecayRecoFrame("N2b_2L2J","#tilde{#chi}^{ 0}_{2}"));
+	  LAB_2LNJ.reset(new RestFrames::LabRecoFrame("LAB_2LNJ","LAB"));
+          CM_2LNJ.reset(new RestFrames::DecayRecoFrame("CM_2LNJ","CM"));
+          S_2LNJ.reset(new RestFrames::DecayRecoFrame("S_2LNJ","S"));
+          ISR_2LNJ.reset(new RestFrames::VisibleRecoFrame("ISR_2LNJ","ISR"));
+          Ca_2LNJ.reset(new RestFrames::DecayRecoFrame("Ca_2LNJ","C_{a}"));
+          Z_2LNJ.reset(new RestFrames::DecayRecoFrame("Z_2LNJ","Z"));
+          L1_2LNJ.reset(new RestFrames::VisibleRecoFrame("L1_2LNJ","#it{l}_{1}"));
+          L2_2LNJ.reset(new RestFrames::VisibleRecoFrame("L2_2LNJ","#it{l}_{2}"));
+          Cb_2LNJ.reset(new RestFrames::DecayRecoFrame("Cb_2LNJ","C_{b}"));
+          JSA_2LNJ.reset(new RestFrames::SelfAssemblingRecoFrame("JSA_2LNJ", "J"));
+          J_2LNJ.reset(new RestFrames::VisibleRecoFrame("J_2LNJ","Jets"));
+          Ia_2LNJ.reset(new RestFrames::InvisibleRecoFrame("Ia_2LNJ","I_{a}"));
+          Ib_2LNJ.reset(new RestFrames::InvisibleRecoFrame("Ib_2LNJ","I_{b}"));
 
-	  J1_2L2J.reset(new RestFrames::VisibleRecoFrame("J1_2L2J","#it{j}_{1}"));
-          J2_2L2J.reset(new RestFrames::VisibleRecoFrame("J2_2L2J","#it{j}_{2}"));
-          //L1_2L2J.reset(new RestFrames::VisibleRecoFrame("L1_2L2J","#it{l}_{1}"));
-          //L2_2L2J.reset(new RestFrames::VisibleRecoFrame("L2_2L2J","#it{l}_{2}"));
-
-          X1a_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1a_2L2J","#tilde{#chi}^{ 0}_{1 a}"));
-          X1b_2L2J.reset(new RestFrames::InvisibleRecoFrame("X1b_2L2J","#tilde{#chi}^{ 0}_{1 b}"));
-
-          LAB_2LNJ->SetChildFrame(*CM_2LNJ);
+	  LAB_2LNJ->SetChildFrame(*CM_2LNJ);
           CM_2LNJ->AddChildFrame(*ISR_2LNJ);
           CM_2LNJ->AddChildFrame(*S_2LNJ);
           S_2LNJ->AddChildFrame(*Ca_2LNJ);
           S_2LNJ->AddChildFrame(*Cb_2LNJ);
           Ca_2LNJ->AddChildFrame(*Z_2LNJ);
           Ca_2LNJ->AddChildFrame(*Ia_2LNJ);
-          Z_2LNJ->AddChildFrame(*L1_2LNJ);
-          Z_2LNJ->AddChildFrame(*L2_2LNJ);
           Cb_2LNJ->AddChildFrame(*JSA_2LNJ);
           Cb_2LNJ->AddChildFrame(*Ib_2LNJ);
+          Z_2LNJ->AddChildFrame(*L1_2LNJ);
+          Z_2LNJ->AddChildFrame(*L2_2LNJ);
           JSA_2LNJ->AddChildFrame(*J_2LNJ);
-
+	  
           if(!LAB_2LNJ->InitializeTree())
           {
             str errmsg;
@@ -377,9 +366,6 @@ namespace Gambit
         TVector3 ETMiss;
         ETMiss.SetXYZ(metVec.px(),metVec.py(),0.0);
 
-        // Initialize cutflow
-        for(size_t i=0; i<_cutflow.size(); i++)
-          _cutflow[i].fillinit();
 
         // Baseline cuts taken from ATLAS code snippet
 
@@ -387,17 +373,20 @@ namespace Gambit
         {
           if (electron->pT()>10. && electron->abseta()<2.47) baselineElectrons.push_back(electron);
         }
-        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+        //apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+	applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
+
 
         // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
         for (const HEPUtils::Particle* muon : event->muons())
         {
           if (muon->pT()>10. && muon->abseta()<2.7) baselineMuons.push_back(muon);
         }
-        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
+        //ATLAS::applyMuonEffR2(baselineMuons);
+	applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
 
         double jet_eff = 0.9;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<4.5)
             if( (jet->pT() >= 120. || jet->abseta() >= 2.5) || random_bool(jet_eff) ) baselineJets.push_back(jet);
@@ -427,7 +416,10 @@ namespace Gambit
         vector<const HEPUtils::Particle*> signalLeptons;
 
         // Signal electrons must satisfy the “medium” identification requirement as defined in arXiv: 1902.04655 [hep-ex]
-        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
+        //apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
+	applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
+	
+
         // Signal electrons must have pT > 25 GeV
         for (const HEPUtils::Particle* signalElectron : baselineElectrons)
         {
@@ -530,7 +522,7 @@ namespace Gambit
         //Only proceed if there are 2 leptons and 2 jets
         if(cut_2lep && cut_2jets)
         {
-
+	  
           bool iscomp = false;
           if (njets>2) iscomp = true;
 
@@ -654,10 +646,26 @@ namespace Gambit
 
             //std::cout << "STANDARD REGIONS" << std::endl;
             // we are ready to go
-
+	  
             // Low mass
             if (njets==2 && nbjets==0 && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && Zmass>80. && Zmass<100. && mjj>70. && mjj<90. && H5PP>400. && RPT_HT5PP<0.05 && R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.65 && mindphi>2.4)_counters.at("SR2L_Low").add_event(event);
 
+	    // Now fill the low mass cutflow
+	    // Note: pre-selection is already applied so first cut won't match
+	    const double w = event->weight();
+	    _cutflows.fillinit(w);
+	 
+	    vector<str> SR2L_low = {"Trigger and 2 signal leptons", "Preselection", "0.35 < HPP11/HPP41 < 0.60", "pTlabPP/(pTlabPP+HTPP11) < 0.05", "min(dPhi(j1/j2,ptmiss))>2.4", "HPP41 > 400 GeV"};
+
+	    bool cut_presel = cut_2lep && cut_2jets && m_foundSFOS && nbjets==0 && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && Zmass>80. && Zmass<100.  && mjj>70. && mjj<90.;
+	    
+	    _cutflows["SR2L_low"].fillnext({cut_2lep,
+		cut_presel,
+		R_H2PP_H5PP>0.35 && R_H2PP_H5PP<0.6,
+		RPT_HT5PP<0.05,
+		mindphi>2.4,
+		H5PP>400.}, w);
+		    
             // Intermediate
             //Not used in paper, despite being in ATLAS code snippet!
             //if (nbjets==0 && leptons[0].Pt()>25. && leptons[1].Pt()>25. && jets[0].Pt()>30. && jets[1].Pt()>30. && Zmass>80. && Zmass<100. && mjj>60. && mjj<100. && H5PP>600. && RPT_HT5PP<0.05 && dphiVP>0.6 && dphiVP<2.6 && R_minH2P_minH3P>0.8)_counters.at("SR2L_Int").add_event(event);;
@@ -665,7 +673,7 @@ namespace Gambit
             // High
             //Not used - see above
             //if (leptons[0].Pt()>25. && leptons[1].Pt()>25. && jets[0].Pt()>30. && jets[1].Pt()>30. && Zmass>80. && Zmass<100. && mjj>60. && mjj<100. && H5PP>800. && RPT_HT5PP<0.05 && dphiVP>0.3 && dphiVP<2.8 && R_minH2P_minH3P>0.8)_counters.at("SR2L_High").add_event(event);
-
+	  
             // Compressed time
             if(iscomp)
             {
@@ -784,16 +792,35 @@ namespace Gambit
               double dphiISRI = fabs(vPt_ISR.Angle(vPt_I));
               double MJ = J_2LNJ->GetMass();
               double MZ = Z_2LNJ->GetMass();
-
+	    
               // finally do the selections
-              if (NjS==2 && NjISR<3 && signalLeptons[0]->pT()>25. && signalLeptons[1]->pT()>25. && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && MZ>80. && MZ<100. && MJ>50. && MJ<110. && dphiISRI>2.8 && RISR>0.4 && RISR<0.75 && PTISR>180. && PTI>100. && PTCM<20.)_counters.at("SR2L_ISR").add_event(event);
+              if (NjS==2 && NjISR>0 && njets > 2 && njets < 5 && signalLeptons[0]->pT()>25. && signalLeptons[1]->pT()>25. && signalJets[0]->pT()>30. && signalJets[1]->pT()>30. && MZ>80. && MZ<100. && MJ>50. && MJ<110. && dphiISRI>2.8 && RISR>0.4 && RISR<0.75 && PTISR>180. && PTI>100. && PTCM<20.)_counters.at("SR2L_ISR").add_event(event);
 
+	      bool cut_preselISR = NjS==2 && NjISR > 0 && njets > 2 && nbjets==0 && njets < 5 && signalLeptons[0]->pT()>25. && signalLeptons[1]->pT()>25. && signalJets[0]->pT()>30. && signalJets[1]->pT()>30.;
+	      
+		
+	      
+	      // Fill the ISR cutflow
+	      // Note the cutflow table has a mistake in the last cut
+	      // (< 30 GeV instead of < 20 GeV)
+	      
+	      _cutflows["SR2L_ISR"].fillnext({cut_preselISR,
+		MZ>80. && MZ<100.,
+		MJ>50. && MJ<110.,
+		dphiISRI>2.8,
+		RISR>0.4 && RISR<0.75,
+		PTISR>180.,
+		PTI>100.,
+       		PTCM<20.}, w);
+	    	      
             }
 
           }
 
         }
 
+
+	
       }
 
       // This function can be overridden by the derived SR-specific classes
@@ -804,7 +831,7 @@ namespace Gambit
         add_result(SignalRegionData(_counters.at("SR2L_ISR"), 30., {31., 9}));
 
         #ifdef CHECK_CUTFLOW
-          cout << _cutflow << endl;
+          cout << _cutflows << endl;
           //cout << "n signal leptons before = " << _test2 << endl;
           //cout << "n signal leptons = " << _test[0] << endl;
           //cout << "n baseline leptons = " << _test[1] << endl;

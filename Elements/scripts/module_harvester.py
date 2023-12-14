@@ -80,6 +80,7 @@ def main(argv):
     full_rollcall_headers=[]
     full_type_headers=[]
     modules=set([])
+    modules_excluded=set([])
 
     # List of headers to search
     rollcall_headers = set(["gambit/Backends/backend_rollcall.hpp", "Models/include/gambit/Models/model_rollcall.hpp"])
@@ -121,6 +122,9 @@ def main(argv):
         if verbose: print(' ',h)
         h_parts = neatsplit('\/',h)
         modules.add(h_parts[1])
+    for h in retrieve_rollcall_headers(verbose,".",exclude_header, retrieve_excluded=True):
+        h_parts = neatsplit('\/',h)
+        modules_excluded.add(h_parts[1])
     if verbose:
         print("Module type headers identified:")
         for h in module_type_headers:
@@ -349,6 +353,13 @@ namespace Gambit                                  \n\
     # Pickle the types for later usage by standalone_facilitator.py
     with open('./scratch/build_time/harvested_types.pickle', 'wb') as handle:
         pickle.dump(returned_types, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    import yaml
+    with open("./config/gambit_bits.yaml", "w+") as f:
+      yaml.dump({
+        "enabled": list(sorted(modules)),
+        "disabled": list(sorted(modules_excluded)),
+      }, f)
 
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":
