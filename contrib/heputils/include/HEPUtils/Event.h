@@ -43,7 +43,7 @@ namespace HEPUtils {
     using CSeqBasePtr = std::shared_ptr<const FJNS::ClusterSequence>;
     
     /// Hold the cluster sequences corresponding to jets, to keep them alive
-    std::map<const std::string, CSeqBasePtr> _cseqs;
+    std::map<std::string, CSeqBasePtr> _cseqs;
     
     /// Missing momentum vector
     P4 _pmiss;
