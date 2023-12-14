@@ -38,7 +38,7 @@
 #************************************************
 
 # Define minimum cmake version
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16.3 FATAL_ERROR)
 
 # Define minimum compiler versions
 set(MIN_GCC_VERSION 9.1)
@@ -336,11 +336,7 @@ endif()
 
 # Fix Boost < 1.55 for Clang
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-  if(${CMAKE_VERSION} VERSION_LESS 3.12.0)
-    add_definitions(-DBOOST_PP_VARIADICS=1)
-  else()
-    add_compile_definitions(BOOST_PP_VARIADICS=1)
-  endif()
+  add_compile_definitions(BOOST_PP_VARIADICS=1)
 endif()
 
 # Check for Eigen
