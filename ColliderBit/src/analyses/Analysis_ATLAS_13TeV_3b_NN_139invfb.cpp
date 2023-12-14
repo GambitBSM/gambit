@@ -77,7 +77,7 @@ class onnx_rt_wrapper{
     for (size_t i=0; i < _inDims.size(); ++i) {
 
       // Check that input data matches expected input node dimension
-      if (inputs[i].size() != _inDimsFlat[i]) {
+      if (inputs[i].size() != (size_t) _inDimsFlat[i]) {
         throw("Expected flattened input node dimension " + to_string(_inDimsFlat[i])
                 + ", received " + to_string(inputs[i].size()));
       }
@@ -610,7 +610,7 @@ namespace Gambit {
         vector<const HEPUtils::Jet*> candJets;
         vector<const HEPUtils::Jet*>  bJets;
         vector<const HEPUtils::Jet*>  nonbJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 30. && fabs(jet->eta()) < 2.8)
             preJVTJets.push_back(jet);
         }
