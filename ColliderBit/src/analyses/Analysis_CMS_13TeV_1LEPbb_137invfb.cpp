@@ -1,7 +1,7 @@
 ///
 ///  \author Pengxuan Zhu
 ///         (zhupx99@icloud.com)
-///  \date 2023 Sep
+///  \date 2023 Dec
 ///  *********************************************
 // Based on the CMS publication https://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-20-003/index.html
 // JHEP 10 (2021) 045, arXiv:2107.12553 [hep-ex],
@@ -49,45 +49,16 @@ namespace Gambit
       {
         ////////////////////////
         // Useful definiitons //
-        // double mZ = 91.1876;  // <- Not used
+        // Baseline objects 
         double met = event->met();
 
         // Baseline ELectrons
-        BASELINE_PARTICLES(event->electrons(), baselineElectrons, 30, 0, DBL_MAX, 1.44, CMS::eff2DEl.at("SUS_19_008"));
-
-        // Baseline Muons
-        BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.1, CMS::eff2DMu.at("SUS_19_008"));
-
-        // Baseline Jets, tow jets
-        // ColliderBit::JetDefinition baselineSmallRjets(ColliderBit::antikt_algorithm, 0.4);
-        // FastJet::JetDefinition baselineSmallRjets(FastJet::antikt_algorithm, 0.4);
-        // FastJet::JetDefinition baselineLargeRjets(FastJet::antikt_algorithm, 0.8);
-
-        // BASELINE_JETS(baselineSmallRjets, SmallRJets, 30., 0, DBL_MAX, 2.4);
-        // BASELINE_JETS(baselineLargeRjets, LargeRJets, 250., 0, DBL_MAX, 2.4);
-        // BASELINE_BJETS(baselineSmallRjets, BJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::misIDBJet.at("CSVv2Tight"))
-        vector<const HEPUtils::Jet *> bJets;
-        vector<const HEPUtils::Jet *> nonBJets;
-
-        const std::vector<double> a = {0, 10.};
-        const std::vector<double> b = {0, 10000.};
-        const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
-        HEPUtils::BinnedFn2D<double> _eff2d(a, b, c);
-        for (const HEPUtils::Jet *jet : event->jets("antikt_R04"))
-        {
-          bool hasTag = has_tag(_eff2d, fabs(jet->eta()), jet->pT());
-          if (jet->pT() > 30. && fabs(jet->eta()) < 2.4)
-          {
-            if (jet->btag() && hasTag)
-            {
-              bJets.push_back(jet);
-            }
-            else
-            {
-              nonBJets.push_back(jet);
-            }
-          }
-        }
+        BASELINE_PARTICLES(event->electrons(), baselineElectrons, 30, 0, DBL_MAX, 1.44, CMS::eff2DEl.at("SUS_19_008"))       
+        BASELINE_PARTICLES(event->muons(), baselineMuons, 25, 0, DBL_MAX, 2.1, CMS::eff2DMu.at("SUS_19_008"))
+        BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons);
+        BASELINE_JETS(event->jets("antikt_R04"), baselineJets, 30., 0., DBL_MAX, 2.4)
+        BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("DeepCSVMedium"), CMS::misIDBJet.at("DeepCSVMedium"))
+        BASELINE_JETS(event->jets("antikt_R08"), baselineLargeRJets, 250., 0., DBL_MAX, 2.4)
 
         vector<const HEPUtils::Particle *> baselineTaus;
         for (const HEPUtils::Particle *tau : event->taus())
@@ -95,12 +66,6 @@ namespace Gambit
           if (tau->pT() > 10. && tau->abseta() < 2.4)
             baselineTaus.push_back(tau);
         }
-
-        // The track is not included in this version:
-        // vector<const HEPUtils::Particle*> pfcandidates;
-
-        ////////////////////
-        // Signal objects //
 
         // Define signal objects from baseline objects, automatically order by pT (highest first)
 
@@ -204,42 +169,32 @@ namespace Gambit
             vetoLeptons.push_back(mu);
         }
 
-        vector<const HEPUtils::Jet *> signalJets;
-        vector<const HEPUtils::Jet *> signalBJets;
-        vector<const HEPUtils::Jet *> signalNonBJets;
+        ////////////////////
+        // Signal objects //
+        SIGNAL_JETS(baselineJets, signalJets_AK4);
+        SIGNAL_JETS(baselineBJets, signalBJets);
+        SIGNAL_JETS(baselineLargeRJets, signalJets_AK8)
 
-        for (const HEPUtils::Jet *jet : bJets)
-        {
-          signalBJets.push_back(jet);
-          signalJets.push_back(jet);
-        }
 
-        for (const HEPUtils::Jet *jet : nonBJets)
-        {
-          signalNonBJets.push_back(jet);
-          signalJets.push_back(jet);
-        }
+        // std::sort(signalJets.begin(), signalJets.end(), sortByPT14);
+        // std::sort(signalBJets.begin(), signalBJets.end(), sortByPT14);
+        // std::sort(signalNonBJets.begin(), signalNonBJets.end(), sortByPT14);
 
-        std::sort(signalJets.begin(), signalJets.end(), sortByPT14);
-        std::sort(signalBJets.begin(), signalBJets.end(), sortByPT14);
-        std::sort(signalNonBJets.begin(), signalNonBJets.end(), sortByPT14);
+        // vector<std::shared_ptr<HEPUtils::Jet>>LargeRJets = get_jets(signalJets, 0.8);
+        // std::sort(LargeRJets.begin(), LargeRJets.end(), sortByPT14_sharedptr);
 
-        vector<std::shared_ptr<HEPUtils::Jet>>LargeRJets = get_jets(signalJets, 0.8);
-        std::sort(LargeRJets.begin(), LargeRJets.end(), sortByPT14_sharedptr);
+        // vector<std::shared_ptr<HEPUtils::Jet>> signalLargeRJets;
+        // for (const auto& jet : LargeRJets)
+        // {
+        //   if (jet->pT() > 250. && jet->abseta() < 2.4)
+        //   {
+        //     signalLargeRJets.push_back(jet);
+        //   }
+        // }
 
-        vector<std::shared_ptr<HEPUtils::Jet>> signalLargeRJets;
-        for (const auto& jet : LargeRJets)
-        {
-          if (jet->pT() > 250. && jet->abseta() < 2.4)
-          {
-            signalLargeRJets.push_back(jet);
-          }
-        }
-
-        // removeOverlap(signalLargeRJets, signalLeptons, 0.8);
-        removeOverlap(signalJets, signalLeptons, 0.4);
+        removeOverlap(signalJets_AK8, signalLeptons, 0.8);
+        removeOverlap(signalJets_AK4, signalLeptons, 0.4);
         removeOverlap(signalBJets, signalLeptons, 0.4);
-        removeOverlap(signalNonBJets, signalLeptons, 0.4);
 
         bool lepton2_veto = true;
         if (vetoLeptons.size() > 1)
@@ -261,7 +216,7 @@ namespace Gambit
         double mCT;
         double mTl;
         int NHjet = 0;
-        int Njets = signalJets.size();
+        int Njets = signalJets_AK4.size();
 
         if (signalLeptons.size() == 1 && lepton2_veto && tau_veto)
         {
@@ -274,7 +229,7 @@ namespace Gambit
           nsRjs_ps = true;
         if (Njets == 3 && signalBJets.size() == 2)
         {
-          if (signalJets[0]->pT() < 300.)
+          if (signalJets_AK4[0]->pT() < 300.)
             nsRjs_ps = true;
         }
         if (met > 125.)
@@ -287,9 +242,9 @@ namespace Gambit
             mbb_ps = true;
           if (mCT > 200.)
             mct_ps = true;
-          if (signalLargeRJets.size() == 1)
+          if (signalJets_AK8.size() == 1)
           {
-            if ((signalLargeRJets.at(0)->mom().deltaR_eta(signalBJets.at(0)->mom()) < 0.8) && (signalLargeRJets.at(0)->mom().deltaR_eta(signalBJets.at(1)->mom()) < 0.8))
+            if ((signalJets_AK8.at(0)->mom().deltaR_eta(signalBJets.at(0)->mom()) < 0.8) && (signalJets_AK8.at(0)->mom().deltaR_eta(signalBJets.at(1)->mom()) < 0.8))
               NHjet = 1;
           }
         }
