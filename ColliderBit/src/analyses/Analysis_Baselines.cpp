@@ -109,10 +109,12 @@ namespace Gambit
 
           // Object sizes
           const size_t nLeptons = leptons.size();
+          const size_t nJets = jets.size();
+          const size_t nBJets = bjets.size();
+          
           const size_t nSSpairs = SSpairs.size();
           const size_t nOSpairs = OSpairs.size();
           const size_t nOSSFpairs = OSSFpairs.size();
-          const size_t nBJets = bjets.size();
 
           // Missing ET and momentum
           double met = event->met();
