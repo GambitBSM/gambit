@@ -584,7 +584,7 @@ namespace Gambit
               const str f = functor->name();
               const str c = functor->capability();
               const str t = functor->type();
-              const int s = functor->status();
+              const int s = functor->status(); // Uses implicit conversion of "FunctorStatus"-enum into int
               back_table << ("  " + f) << c << t;
               if (s == -5)
                 back_table.red() << "Mathematica absent";
