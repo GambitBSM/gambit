@@ -103,3 +103,7 @@ GAMBIT.tex
 # Backends files 
 Backends/*
 Backends/scripts/*
+
+# Pengxuan's Workshop for testing 
+XuanWS/*
+
