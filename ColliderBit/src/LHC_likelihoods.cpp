@@ -608,6 +608,7 @@ namespace Gambit
                                 bool use_marg,
                                 bool has_and_use_covar,
                                 bool combine_nocovar_SRs,
+                                bool marginalise_over_SR_selection,
                                 bool has_and_use_fulllikes,
                                 bool (*FullLikes_FileExists)(const str&),
                                 int (*FullLikes_ReadIn)(const str&, const str&),
@@ -848,19 +849,79 @@ namespace Gambit
           cout << DEBUG_PREFIX << ana_name << ", " << srData.sr_label << ",  llsb_exp-llb_exp = " << dll_exp << ",  llsb_obs-llb_obs= " << dll_obs << endl;
           #endif
 
-        }
+        } // End loop over SRs
 
         // Set this analysis' total obs DLL to that from the best-expected SR
         dll = bestexp_dll_obs;
-        // Or should we use the naive sum of SR loglikes (without correlations) instead?
-        if (combine_nocovar_SRs)
+
+        // Or should we use the naive sum of SR loglikes (without correlations) instead,
+        // or marginalise over the SR choice?
+        // _Anders
+        if (combine_nocovar_SRs and !marginalise_over_SR_selection)
         {
           dll = nocovar_srsum_dll_obs;
         }
+        else if (!combine_nocovar_SRs and marginalise_over_SR_selection)
+        {
+          // Vector to collect votes
+          std::vector<int> SR_votes(nSR, 0);
 
+          // Loop over n_toys
+          int n_toys = 100;
+          for (int toy_i = 0; toy_i < n_toys; ++toy_i)
+          {
 
-        // _Anders: Add block: else if (marginalise_SR_choice) {...}
+            for (size_t SR = 0; SR < nSR; ++SR)
+            {
+              const SignalRegionData& srData = ana_data[SR];
 
+              // _Anders: Do marginalisation over SR choice here
+              cerr << DEBUG_PREFIX << "Will do clever stuff here!" << endl;
+
+            }
+          }
+
+          // Use the SR_votes to compute a vector of SR weights
+          // std::vector<double> SR_weights(nSR, 0.0);
+
+          // Compute the combined dll as a weighted sum (of the actual observed loglikes)
+          dll = 0.0;
+          for (size_t SR = 0; SR < nSR; ++SR)
+          {
+            int n_votes = SR_votes[SR];
+
+            if (n_votes == 0) continue;
+
+            double weight = (1.0 / n_toys) * SR_votes[SR];
+
+            // TODO: BEGIN get rid of this block by storing results
+            const SignalRegionData& srData = ana_data[SR];
+
+            const double n_pred_b = std::max(srData.n_bkg, 0.001);
+            const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
+            const double n_obs = round(srData.n_obs);
+            const double n_pred_b_int = round(n_pred_b);
+            const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001);
+            const double abs_uncertainty_sb = std::max(srData.calc_n_sigbkg_err(), 0.001);
+
+            Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
+            Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
+            Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
+            Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
+            Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
+            Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
+            Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
+
+            const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
+            const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
+            const double dll_obs = ll_sb_obs - ll_b_obs;
+            // TODO: END get rid of this block by storing results
+
+            // Add contribution to the combined loglike for this analysis
+            dll += weight * dll_obs;
+          }
+
+        }
 
 
         // Write combined loglike to the ana_loglikes reference
@@ -963,6 +1024,11 @@ namespace Gambit
       static const bool use_covar = runOptions.getValueOrDef<bool>(true, "use_covariances");
       // Use the naive sum of SR loglikes when not using covariances?
       static const bool combine_nocovar_SRs = runOptions.getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+      static const bool marginalise_over_SR_selection = runOptions.getValueOrDef<bool>(false, "marginalise_over_SR_selection");
+      if (combine_nocovar_SRs and marginalise_over_SR_selection)
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Inconsistent settings: 'combine_nocovar_SRs' and 'marginalise_over_SR_selection' cannot both be set to true.");
+      }
       // Use marginalisation rather than profiling (probably less stable)?
       static const bool use_marg = runOptions.getValueOrDef<bool>(false, "use_marginalising");
       // Calculate various alternative loglikes?
@@ -1082,7 +1148,7 @@ namespace Gambit
         // Now perform the actual loglikes compuations for this analysis
         //
         // First do standard loglike calculation
-        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate);
+        fill_analysis_loglikes(ana_data, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, marginalise_over_SR_selection, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate);
 
         // Then do alternative loglike calculations:
         if (calc_noerr_loglikes)
@@ -1094,7 +1160,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes &&  use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate,"noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, marginalise_over_SR_selection, has_fulllikes &&  use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate,"noerr");
         }
         if (calc_expected_loglikes)
         {
@@ -1105,7 +1171,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, marginalise_over_SR_selection, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected");
         }
         if (calc_expected_noerr_loglikes)
         {
@@ -1118,7 +1184,7 @@ namespace Gambit
             ana_data_mod[SR].n_obs = ana_data_mod[SR].n_bkg;
             ana_data_mod[SR].n_sig_MC_stat = 0.;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected_noerr");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, marginalise_over_SR_selection, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "expected_noerr");
         }
         if (calc_scaledsignal_loglikes)
         {
@@ -1129,7 +1195,7 @@ namespace Gambit
           {
             ana_data_mod[SR].n_sig_scaled *= signal_scalefactor;
           }
-          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "scaledsignal");
+          fill_analysis_loglikes(ana_data_mod, ana_loglikes, use_marg, use_covar && has_covar, combine_nocovar_SRs, marginalise_over_SR_selection, has_fulllikes && use_fulllikes,FullLikes_FileExists,FullLikes_ReadIn,FullLikes_Evaluate, "scaledsignal");
         }
 
       } // end analysis loop
