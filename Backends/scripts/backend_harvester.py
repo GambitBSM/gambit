@@ -33,9 +33,36 @@ import os
 toolsfile="./Utils/scripts/harvesting_tools.py"
 exec(compile(open(toolsfile, "rb").read(), toolsfile, 'exec')) # Python 2/3 compatible version of 'execfile'
 
+
+def extract_yaml_for_diagnostic(headers):
+    """Parses the list of header files and reorganizes them into a dictionary of backend:versions.
+
+    The output is to be used with the diagnostic system. Should be called twice, once for included, once for excluded headers.
+    This implementation works for the backend harvester.
+
+    Args:
+        headers (list): List of collected header files from the backend harvester.
+
+    Returns:
+        dict: backend name key with a list of versions as value
+    """
+    # Remove the file extension
+    headers_without_file_extension = [header.split(".")[0] for header in headers]
+    # Get a list of backend names without version numbers
+    backend_names = {"_".join(x for x in header.split("_") if not x[0].isdigit()) for header in headers_without_file_extension}
+
+    backend_yaml = {}
+    for backend in sorted(backend_names):
+        # Because of some overlapping names, we need to also check that the extracted substring actually starts with the version number
+        backend_yaml[backend] = sorted(["_".join(x.split(backend)[1:])[1:].replace("_", ".") for x in headers_without_file_extension if x.startswith(backend) and x.split(backend)[1][1].isdigit()])
+    return backend_yaml
+
+
+
 def main(argv):
 
     frontend_headers=set([])
+    frontend_headers_excluded=set([])
     backend_type_headers = set([])
     bossed_backend_type_headers = set([])
     exclude_backends=set([])
@@ -57,6 +84,9 @@ def main(argv):
       elif opt in ('-x','--exclude-backends'):
         exclude_backends.update(neatsplit(",",arg))
 
+    # Get list of frontend header files to include in backend_rollcall.hpp
+    frontend_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends))
+    frontend_headers_excluded.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/frontends","frontend",exclude_backends, retrieve_excluded=True))
     # Get list of backend type header files
     backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","backend type",set([])))
     bossed_backend_type_headers.update(retrieve_generic_headers(verbose,"./Backends/include/gambit/Backends/backend_types","BOSSed type",set([])))
@@ -179,8 +209,13 @@ def main(argv):
         print("Generated backend_rollcall.hpp.")
         print("Generated backend_types_rollcall.hpp.\n")
 
+    import yaml
+    with open("./config/gambit_backends.yaml", "w+") as f:
+        yaml.dump({
+            "enabled": extract_yaml_for_diagnostic(frontend_headers),
+            "disabled": extract_yaml_for_diagnostic(frontend_headers_excluded)
+        }, f)
 
 # Handle command line arguments (verbosity)
 if __name__ == "__main__":
    main(sys.argv[1:])
-

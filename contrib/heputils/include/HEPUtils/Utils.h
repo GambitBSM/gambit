@@ -1,19 +1,17 @@
 // -*- C++ -*-
 //
-// This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
+// This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
+// Copyright (C) 2013-2022 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
 //
 #pragma once
 
-#if defined(__cplusplus) && __cplusplus < 201103L
-// #define XSTR(x) STR(x)
-// #define STR(x) #x
-// #pragma message STR(__cplusplus)
-#error "This library needs at least a C++11 compliant compiler"
+#if  __cplusplus < 201103L
+#pragma message "This library needs at least a C++11 compliant compiler"
 #endif
+
 
 /// @file Utility functions
 /// @author Andy Buckley <andy.buckley@cern.ch>
@@ -21,8 +19,8 @@
 namespace HEPUtils {
 
 
-  /// @name Container utils
-  //@{
+  /// @defgroup utils_container Container utils
+  /// @{
 
   /// Return true if f(x) is true for any x in container c, otherwise false.
   template <typename CONTAINER, typename FN>
@@ -52,7 +50,7 @@ namespace HEPUtils {
   }
 
 
-  //@}
+  /// @}
 
 
 }

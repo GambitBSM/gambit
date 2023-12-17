@@ -54,23 +54,6 @@ namespace Gambit
     {
 
       protected:
-        // Signal region map
-        std::map<string, EventCounter> _counters = {
-          // Exclusion regions
-          {"SR-4Q-WW", EventCounter("SR-4Q-WW")},
-          {"SR-4Q-WZ", EventCounter("SR-4Q-WZ")},
-          {"SR-4Q-ZZ", EventCounter("SR-4Q-ZZ")},
-          {"SR-4Q-VV", EventCounter("SR-4Q-VV")},
-  //        {"SR-2B2Q-WZ", EventCounter("SR-2B2Q-WZ")},
-  //        {"SR-2B2Q-ZZ", EventCounter("SR-2B2Q-ZZ")},
-  //        {"SR-2B2Q-Wh", EventCounter("SR-2B2Q-Wh")},
-  //        {"SR-2B2Q-Zh", EventCounter("SR-2B2Q-Zh")},
-  //        {"SR-2B2Q-VZ", EventCounter("SR-2B2Q-VZ")},
-  //        {"SR-2B2Q-Vh", EventCounter("SR-2B2Q-Vh")},
-  //        // Discovery regions
-  //        {"Disc-SR-2B2Q", EventCounter("Disc-SR-2B2Q")},  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
-  //        {"Disc-SR-Incl", EventCounter("Disc-SR-Incl")},  // Union of SR-4Q-VV and Disc-SR-2B2Q
-        };
 
       public:
 
@@ -94,6 +77,23 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_2BoostedBosons_139invfb()
         {
+
+          // Signal region map
+          // Exclusion regions
+          _counters["SR-4Q-WW"] = EventCounter("SR-4Q-WW");
+          _counters["SR-4Q-WZ"] = EventCounter("SR-4Q-WZ");
+          _counters["SR-4Q-ZZ"] = EventCounter("SR-4Q-ZZ");
+          _counters["SR-4Q-VV"] = EventCounter("SR-4Q-VV");
+    //      _counters["SR-2B2Q-WZ"] = EventCounter("SR-2B2Q-WZ");
+    //      _counters["SR-2B2Q-ZZ"] = EventCounter("SR-2B2Q-ZZ");
+    //      _counters["SR-2B2Q-Wh"] = EventCounter("SR-2B2Q-Wh");
+    //      _counters["SR-2B2Q-Zh"] = EventCounter("SR-2B2Q-Zh");
+    //      _counters["SR-2B2Q-VZ"] = EventCounter("SR-2B2Q-VZ");
+    //      _counters["SR-2B2Q-Vh"] = EventCounter("SR-2B2Q-Vh");
+    //      // Discovery regions
+    //      _counters["Disc-SR-2B2Q"] = EventCounter("Disc-SR-2B2Q");  // Union of SR-2B2Q-VZ and SR-2B2Q-Vh
+    //      _counters["Disc-SR-Incl"] = EventCounter("Disc-SR-Incl");  // Union of SR-4Q-VV and Disc-SR-2B2Q
+
 
           set_analysis_name("ATLAS_13TeV_2BoostedBosons_139invfb");
           set_luminosity(139.);
@@ -147,7 +147,7 @@ namespace Gambit
               electrons.push_back(electron);
           }
           // Apply electron efficiency from "Loose" criteria in 1902.04655
-          ATLAS::applyElectronIDEfficiency2019(electrons, "Loose");
+          applyEfficiency(electrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
           // Baseline muons
           vector<const HEPUtils::Particle*> muons;
           for (const HEPUtils::Particle* muon : event->muons())
@@ -157,7 +157,7 @@ namespace Gambit
               muons.push_back(muon);
           }
           // Apply muon efficiency
-          ATLAS::applyMuonEffR2(muons);
+          applyEfficiency(muons, ATLAS::eff2DMu.at("R2"));
 
           // Number of leptons
           size_t nMuons = muons.size();
@@ -166,9 +166,9 @@ namespace Gambit
 
           // Look at jets to see if they fulfil criteria for fat jets
           vector<const HEPUtils::Jet*> fatJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
-            //  cout  << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->Ztag() << " W-tag " << jet->Wtag() << " " << endl;
+            //  cout  << jet->pT() << " " << jet->mass() << " Z-tag " <<  jet->tagged(23) << " W-tag " << jet->tagged(24) << " " << endl;
             if (jet->pT() > 200. && fabs(jet->eta()) < 2.0 && jet->mass() > 40.)
             {
               fatJets.push_back(jet);
@@ -194,13 +194,13 @@ namespace Gambit
           for (const HEPUtils::Jet* jet : fatJets)
           {
             // Tag W
-            if( jet->Wtag() && random_bool( _eff1dW.get_at( jet->pT() ) ) ) nW++;
+            if( jet->tagged(24) && random_bool( _eff1dW.get_at( jet->pT() ) ) ) nW++;
             // Tag Z
-            if( jet->Ztag() && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
+            if( jet->tagged(23) && random_bool( _eff1dZ.get_at( jet->pT() ) ) ) nZ++;
             // Tag SM Higgs
-            if( jet->htag() && random_bool( _eff1dH.get_at( jet->pT() )  ) ) nH++;
+            if( jet->tagged(25) && random_bool( _eff1dH.get_at( jet->pT() )  ) ) nH++;
             // Misstag as Z or W
-            if( !jet->Wtag() && !jet->Ztag() )
+            if( !jet->tagged(23) && !jet->tagged(24) )
             {
               if( random_bool( _eff1dZmiss.get_at( jet->pT() ) )  ) nZ++;
               if( random_bool( _eff1dWmiss.get_at( jet->pT() ) )  ) nW++;
@@ -212,17 +212,17 @@ namespace Gambit
           //if(nH > 0 ) cout << "nZ " << nZ << " nW " << nW << " nV " << nV << " nH " << nH << endl;
 
           // b-jet tagging
-          /* There is a difference here wrt the actual analysis where small
-           sliding radius track jets are used, and the number of such b-jets are
-           counted. This means that the rejection for b-jets in the 4Q SRs has to
-           be changed. We use the conservative choice of rejecting all events with
-           a b-labeled large radius jet and mis-tagging large radius non-b-jets
-           according to the mis-tag probabilities of the small radius track jets.
-          */
-  //        double btag = 0.83;
+          // There is a difference here wrt the actual analysis where small
+          // variable-radius track jets are used, and the number of such b-jets are
+          // counted. This means that the rejection for b-jets in the 4Q SRs has to
+          // be changed. We use the conservative choice of rejecting all events with
+          // a b-labeled large radius jet and mis-tagging large radius non-b-jets
+          // according to the mis-tag probabilities of the small radius track jets.
+
+          // double btag = 0.83;
           double cmisstag = 1/3.; double misstag = 1./33.;
           int nb = 0;
-          for ( const HEPUtils::Jet* jet : event->jets() )
+          for ( const HEPUtils::Jet* jet : event->jets("antikt_R04") )
           {
             // Tag b-jet
             if( jet->btag() ) nb++;
@@ -298,14 +298,6 @@ namespace Gambit
         } // End of analyze
 
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_2BoostedBosons_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_2BoostedBosons_139invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
-
-
         void collect_results()
         {
 
@@ -370,7 +362,7 @@ namespace Gambit
 
           // Compare meff spectrum
           cout << "Meff SR-4Q-VV\t" << "GAMBIT\t" << "ATLAS " << endl;
-          for( size_t j = 0; j < _meff_4QVV.size(); j++){
+          for (size_t j = 0; j < _meff_4QVV.size(); j++){
             cout << "[" << _meff_bins[j] << ", " << _meff_bins[j+1] << "]\t" << _meff_4QVV[j]*_scale << "\t" << _meff_4QVV_model[j] << endl;
           }
 

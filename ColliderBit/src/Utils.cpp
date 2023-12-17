@@ -25,12 +25,13 @@
 ///  \date 2020 Jan
 ///
 ///  \author Tomas Gonzalo
-///          (gonzalo@physk.rwth-aachen.de)
-///  \date 2021 Jul
+///          (tomas.gonzalo@kit.edu)
+///  \date 2021 Jul, 2023 Aug
 ///
 ///  *********************************************
 
 #include "gambit/ColliderBit/Utils.hpp"
+#include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/Utils/threadsafe_rng.hpp"
 #include <iostream>
 using namespace std;
@@ -41,69 +42,51 @@ namespace Gambit
   {
 
 
+    /// Storage of different FastJet methods
+    FJNS::JetAlgorithm FJalgorithm_map(str algorithm)
+    {
+      FJNS::JetAlgorithm result;
+      if (algorithm == "antikt") {result = FJNS::antikt_algorithm;}
+      else if (algorithm == "cambridge") {result = FJNS::cambridge_algorithm;}
+      else if (algorithm == "kt") {result = FJNS::kt_algorithm;}
+      else if (algorithm == "genkt") {result = FJNS::genkt_algorithm;}
+      else if (algorithm == "cambridge_for_passive") {result = FJNS::cambridge_for_passive_algorithm;}
+      else
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Could not find jet algorithm in list available. Please add the missing option to the FJalgorithm_map function in ColliderBit/src/Utils.cpp.");
+      }
+      return result;
+    }
+
+    FJNS::Strategy FJstrategy_map(str strategy)
+    {
+      FJNS::Strategy result;
+      if (strategy == "Best") {result = FJNS::Best;}
+      else if (strategy == "NlnN") {result = FJNS::NlnN;}
+      else
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Could not find jet strategy in list available. Please add the missing option to the FJstrategy_map function in ColliderBit/src/Utils.cpp.");
+      }
+      return result;
+    }
+
+    FJNS::RecombinationScheme FJRecomScheme_map(str reco_scheme)
+    {
+      FJNS::RecombinationScheme result;
+      if (reco_scheme == "E_scheme") {result = FJNS::E_scheme;}
+      else if (reco_scheme == "pt_scheme") {result = FJNS::pt_scheme;}
+      else if (reco_scheme == "pt2_scheme") {result = FJNS::pt2_scheme;}
+      else
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Could not find jet recombination scheme in list available. Please add the missing option to the FJRecomScheme_map function in ColliderBit/src/Utils.cpp.");
+      }
+      return result;
+    }
+
     bool random_bool(double eff)
     {
       /// @todo Handle out-of-range eff values
       return Random::draw() < eff;
-    }
-
-
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, double eff, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p) {
-                                               const bool rm = !random_bool(eff);
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
-    }
-
-
-    /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, std::function<double(const HEPUtils::Particle*)> eff_fn, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p)
-                                             {
-                                               const double eff = eff_fn(p);
-                                               const bool rm = !random_bool(eff);
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
-    }
-
-
-    // Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff_pt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p)
-                                             {
-                                               const bool rm = !random_bool(eff_pt, p->pT());
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
-    }
-
-
-    // Utility function for filtering a supplied particle vector by sampling wrt a binned 2D efficiency map in |eta| and pT
-    void filtereff_etapt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete)
-    {
-      if (particles.empty()) return;
-      auto keptParticlesEnd = std::remove_if(particles.begin(), particles.end(),
-                                             [&](const HEPUtils::Particle* p)
-                                             {
-                                               const bool rm = !random_bool(eff_etapt, p->abseta(), p->pT());
-                                               if (do_delete && rm) delete p;
-                                               return rm;
-                                             } );
-      particles.erase(keptParticlesEnd, particles.end());
     }
 
 
@@ -127,6 +110,10 @@ namespace Gambit
       return SFOSpair_container;
     }
 
+    std::vector<std::vector<const HEPUtils::Particle*>> getOSSFpairs(std::vector<const HEPUtils::Particle*> particles)
+    {
+      return getSFOSpairs(particles);
+    }
 
     // Utility function for returning a collection of oppsosite-sign particle pairs
     std::vector<std::vector<const HEPUtils::Particle*>> getOSpairs(std::vector<const HEPUtils::Particle*> particles)
@@ -167,6 +154,26 @@ namespace Gambit
         }
       }
       return SSpair_container;
+    }
+
+    // Utility function for returning a collection of same-flavour particle pairs
+    std::vector<std::vector<const HEPUtils::Particle*>> getSFpairs(std::vector<const HEPUtils::Particle*> particles)
+    {
+      std::vector<std::vector<const HEPUtils::Particle*>> SFpair_container;
+      for (size_t ip1=0; ip1<particles.size(); ip1++)
+      {
+        for (size_t ip2=ip1+1; ip2<particles.size(); ip2++)
+        {
+          if (particles[ip1]->abspid()==particles[ip2]->abspid())
+          {
+            std::vector<const HEPUtils::Particle*> SFpair;
+            SFpair.push_back(particles[ip1]);
+            SFpair.push_back(particles[ip2]);
+            SFpair_container.push_back(SFpair);
+          }
+        }
+      }
+      return SFpair_container;
     }
 
     // Utility function for returning a collection of b-tagged jet pairs

@@ -31,16 +31,6 @@ namespace Gambit {
     class Analysis_ATLAS_8TeV_3LEPEW_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _num_SR0tau_a_bin_1, _num_SR0tau_a_bin_2, _num_SR0tau_a_bin_3, _num_SR0tau_a_bin_4;
-      double _num_SR0tau_a_bin_5, _num_SR0tau_a_bin_6, _num_SR0tau_a_bin_7, _num_SR0tau_a_bin_8;
-      double _num_SR0tau_a_bin_9, _num_SR0tau_a_bin_10, _num_SR0tau_a_bin_11, _num_SR0tau_a_bin_12;
-      double _num_SR0tau_a_bin_13, _num_SR0tau_a_bin_14, _num_SR0tau_a_bin_15, _num_SR0tau_a_bin_16;
-      double _num_SR0tau_a_bin_17, _num_SR0tau_a_bin_18, _num_SR0tau_a_bin_19, _num_SR0tau_a_bin_20;
-      double _num_SR0tau_b;
-      double _num_SR1tau;
-      double _num_SR2tau_a;
-      double _num_SR2tau_b;
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       const static int NCUTS=55;
@@ -55,30 +45,31 @@ namespace Gambit {
         set_analysis_name("ATLAS_8TeV_3LEPEW_20invfb");
         set_luminosity(20.3);
 
-        _num_SR0tau_a_bin_1=0;
-        _num_SR0tau_a_bin_2=0;
-        _num_SR0tau_a_bin_3=0;
-        _num_SR0tau_a_bin_4=0;
-        _num_SR0tau_a_bin_5=0;
-        _num_SR0tau_a_bin_6=0;
-        _num_SR0tau_a_bin_7=0;
-        _num_SR0tau_a_bin_8=0;
-        _num_SR0tau_a_bin_9=0;
-        _num_SR0tau_a_bin_10=0;
-        _num_SR0tau_a_bin_11=0;
-        _num_SR0tau_a_bin_12=0;
-        _num_SR0tau_a_bin_13=0;
-        _num_SR0tau_a_bin_14=0;
-        _num_SR0tau_a_bin_15=0;
-        _num_SR0tau_a_bin_16=0;
-        _num_SR0tau_a_bin_17=0;
-        _num_SR0tau_a_bin_18=0;
-        _num_SR0tau_a_bin_19=0;
-        _num_SR0tau_a_bin_20=0;
-        _num_SR0tau_b=0;
-        _num_SR1tau=0;
-        _num_SR2tau_a=0;
-        _num_SR2tau_b=0;
+        // Numbers passing cuts
+        _counters["SR0tau_a_bin_1"] = EventCounter("SR0tau_a_bin_1");
+        _counters["SR0tau_a_bin_2"] = EventCounter("SR0tau_a_bin_2");
+        _counters["SR0tau_a_bin_3"] = EventCounter("SR0tau_a_bin_3");
+        _counters["SR0tau_a_bin_4"] = EventCounter("SR0tau_a_bin_4");
+        _counters["SR0tau_a_bin_5"] = EventCounter("SR0tau_a_bin_5");
+        _counters["SR0tau_a_bin_6"] = EventCounter("SR0tau_a_bin_6");
+        _counters["SR0tau_a_bin_7"] = EventCounter("SR0tau_a_bin_7");
+        _counters["SR0tau_a_bin_8"] = EventCounter("SR0tau_a_bin_8");
+        _counters["SR0tau_a_bin_9"] = EventCounter("SR0tau_a_bin_9");
+        _counters["SR0tau_a_bin_10"] = EventCounter("SR0tau_a_bin_10");
+        _counters["SR0tau_a_bin_11"] = EventCounter("SR0tau_a_bin_11");
+        _counters["SR0tau_a_bin_12"] = EventCounter("SR0tau_a_bin_12");
+        _counters["SR0tau_a_bin_13"] = EventCounter("SR0tau_a_bin_13");
+        _counters["SR0tau_a_bin_14"] = EventCounter("SR0tau_a_bin_14");
+        _counters["SR0tau_a_bin_15"] = EventCounter("SR0tau_a_bin_15");
+        _counters["SR0tau_a_bin_16"] = EventCounter("SR0tau_a_bin_16");
+        _counters["SR0tau_a_bin_17"] = EventCounter("SR0tau_a_bin_17");
+        _counters["SR0tau_a_bin_18"] = EventCounter("SR0tau_a_bin_18");
+        _counters["SR0tau_a_bin_19"] = EventCounter("SR0tau_a_bin_19");
+        _counters["SR0tau_a_bin_20"] = EventCounter("SR0tau_a_bin_20");
+        _counters["SR0tau_b"] = EventCounter("SR0tau_b");
+        _counters["SR1tau"] = EventCounter("SR1tau");
+        _counters["SR2tau_a"] = EventCounter("SR2tau_a");
+        _counters["SR2tau_b"] = EventCounter("SR2tau_b");
 
         for(int i=0;i<NCUTS;i++){
           cutFlowVector.push_back(0);
@@ -201,7 +192,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Now define vector of baseline muons
         vector<const HEPUtils::Particle*> signalMuons;
@@ -210,12 +201,12 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(signalMuons);
+        applyEfficiency(signalMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> signalJets;
         vector<const HEPUtils::Jet*> bJets;
 
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.5) signalJets.push_back(jet);
           //if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
         }
@@ -224,7 +215,7 @@ namespace Gambit {
         for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.47) signalTaus.push_back(tau);
         }
-        ATLAS::applyTauEfficiencyR1(signalTaus);
+        applyEfficiency(signalTaus, ATLAS::effTau.at("R1"));
 
         // Overlap removal
 
@@ -245,7 +236,7 @@ namespace Gambit {
         //cout << "AFTER REMOVAL nele nmuo njet " << signalElectrons.size() << " " << signalMuons.size() << " " << signalJets.size() << endl;
 
         //Now apply the tight electron selection
-        ATLAS::applyTightIDElectronSelection(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         int numElectrons=signalElectrons.size();
         int numMuons=signalMuons.size();
@@ -466,30 +457,30 @@ namespace Gambit {
 
         if(trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && signalTaus.size()==0){
 
-          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>50. && met<90.) _num_SR0tau_a_bin_1 += event->weight();
-          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>90.) _num_SR0tau_a_bin_2 += event->weight();
-          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>50. && met<75.) _num_SR0tau_a_bin_3 += event->weight();
-          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>75.) _num_SR0tau_a_bin_4 += event->weight();
+          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>50. && met<90.) _counters["SR0tau_a_bin_1"].add_event(event);
+          if(mSFOS>12. && mSFOS < 40. && mT>0. && mT<80. && met>90.) _counters["SR0tau_a_bin_2"].add_event(event);
+          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>50. && met<75.) _counters["SR0tau_a_bin_3"].add_event(event);
+          if(mSFOS>12. && mSFOS < 40. && mT>80. && met>75.) _counters["SR0tau_a_bin_4"].add_event(event);
 
-          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) _num_SR0tau_a_bin_5 += event->weight();
-          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>75.) _num_SR0tau_a_bin_6 += event->weight();
-          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>50. && met<135.) _num_SR0tau_a_bin_7 += event->weight();
-          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>135.) _num_SR0tau_a_bin_8 += event->weight();
+          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) _counters["SR0tau_a_bin_5"].add_event(event);
+          if(mSFOS>40. && mSFOS < 60. && mT>0. && mT<80. && met>75.) _counters["SR0tau_a_bin_6"].add_event(event);
+          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>50. && met<135.) _counters["SR0tau_a_bin_7"].add_event(event);
+          if(mSFOS>40. && mSFOS < 60. && mT>80. && met>135.) _counters["SR0tau_a_bin_8"].add_event(event);
 
-          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) _num_SR0tau_a_bin_9 += event->weight();
-          if(mSFOS>60. && mSFOS < 81.2 && mT>80. && met>50. && met<75.) _num_SR0tau_a_bin_10 += event->weight();
-          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<110. && met>75.) _num_SR0tau_a_bin_11 += event->weight();
-          if(mSFOS>60. && mSFOS < 81.2 && mT>110. && met>75.) _num_SR0tau_a_bin_12 += event->weight();
+          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<80. && met>50. && met<75. && !threelZVeto) _counters["SR0tau_a_bin_9"].add_event(event);
+          if(mSFOS>60. && mSFOS < 81.2 && mT>80. && met>50. && met<75.) _counters["SR0tau_a_bin_10"].add_event(event);
+          if(mSFOS>60. && mSFOS < 81.2 && mT>0. && mT<110. && met>75.) _counters["SR0tau_a_bin_11"].add_event(event);
+          if(mSFOS>60. && mSFOS < 81.2 && mT>110. && met>75.) _counters["SR0tau_a_bin_12"].add_event(event);
 
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT<110. && met>50. && met<90. && !threelZVeto) _num_SR0tau_a_bin_13 += event->weight();
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT < 110. && met>90.) _num_SR0tau_a_bin_14 += event->weight();
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>50. && met < 135.) _num_SR0tau_a_bin_15 += event->weight();
-          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>135.) _num_SR0tau_a_bin_16 += event->weight();
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT<110. && met>50. && met<90. && !threelZVeto) _counters["SR0tau_a_bin_13"].add_event(event);
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>0. && mT < 110. && met>90.) _counters["SR0tau_a_bin_14"].add_event(event);
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>50. && met < 135.) _counters["SR0tau_a_bin_15"].add_event(event);
+          if(mSFOS>81.2 && mSFOS < 101.2 && mT>110. && met>135.) _counters["SR0tau_a_bin_16"].add_event(event);
 
-          if(mSFOS > 101.2 && mT>0. && mT<180. && met>50. && met<210.) _num_SR0tau_a_bin_17 += event->weight();
-          if(mSFOS > 101.2 && mT > 180. && met>50. && met<210.) _num_SR0tau_a_bin_18 += event->weight();
-          if(mSFOS > 101.2 && mT>0. && mT<120. && met>210.) _num_SR0tau_a_bin_19 += event->weight();
-          if(mSFOS > 101.2 && mT>120. && met>210.) _num_SR0tau_a_bin_20 += event->weight();
+          if(mSFOS > 101.2 && mT>0. && mT<180. && met>50. && met<210.) _counters["SR0tau_a_bin_17"].add_event(event);
+          if(mSFOS > 101.2 && mT > 180. && met>50. && met<210.) _counters["SR0tau_a_bin_18"].add_event(event);
+          if(mSFOS > 101.2 && mT>0. && mT<120. && met>210.) _counters["SR0tau_a_bin_19"].add_event(event);
+          if(mSFOS > 101.2 && mT>120. && met>210.) _counters["SR0tau_a_bin_20"].add_event(event);
         }
         //Now do SR0tau_b
         //Need either two electrons or two muons, and they must have the same sign
@@ -535,7 +526,7 @@ namespace Gambit {
 
         if(trigger && signalLeptons.size()==3 && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR0taub && bJets.size()==0 && signalTaus.size()==0){
 
-          if(met > 50. && leptonPTCut_SR0taub && dPhiLLMin < 1.) _num_SR0tau_b += event->weight();
+          if(met > 50. && leptonPTCut_SR0taub && dPhiLLMin < 1.) _counters["SR0tau_b"].add_event(event);
 
         }
 
@@ -569,7 +560,7 @@ namespace Gambit {
         if(leptonTypeCut_SR1tau && signalLeptons[1]->pT()>30. && (signalLeptons[0]->pT()+signalLeptons[1]->pT())>70.)leptonPTCut_SR1tau=true;
 
         if(trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && leptonTypeCut_SR1tau && bJets.size()==0){
-          if(met>50. && leptonPTCut_SR1tau && mltau < 120. && !eePairVeto) _num_SR1tau += event->weight();
+          if(met>50. && leptonPTCut_SR1tau && mltau < 120. && !eePairVeto) _counters["SR1tau"].add_event(event);
         }
 
         //Now do SR2taua
@@ -610,13 +601,13 @@ namespace Gambit {
           }
         }
 
-        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && met > 50. && mT2max > 100.) _num_SR2tau_a += event->weight();
+        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && bJets.size()==0 && met > 50. && mT2max > 100.) _counters["SR2tau_a"].add_event(event);
 
         //Finally do SR2taub
         double mtautau=0;
         if(numTaus==2)mtautau=(signalTaus[0]->mom()+signalTaus[1]->mom()).m();
 
-        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && (signalTaus[0]->mom().pT() + signalTaus[1]->mom().pT())>110. && mtautau>70. && mtautau < 120.) _num_SR2tau_b += event->weight();
+        if(numTaus==2 && (numElectrons + numMuons)==1 && trigger && mSFOS12Cut && atLeastOneEorMu && separationCut && (signalTaus[0]->pid() == -1*signalTaus[1]->pid()) && bJets.size()==0 && met > 60 && (signalTaus[0]->mom().pT() + signalTaus[1]->mom().pT())>110. && mtautau>70. && mtautau < 120.) _counters["SR2tau_b"].add_event(event);
 
         //Now do cutflow (for debugging)
 
@@ -790,103 +781,43 @@ namespace Gambit {
         return;
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_8TeV_3LEPEW_20invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_8TeV_3LEPEW_20invfb*>(other);
-
-        for (int j=0; j<NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-
-        _num_SR0tau_a_bin_1 += specificOther->_num_SR0tau_a_bin_1;
-        _num_SR0tau_a_bin_2 += specificOther->_num_SR0tau_a_bin_2;
-        _num_SR0tau_a_bin_3 += specificOther->_num_SR0tau_a_bin_3;
-        _num_SR0tau_a_bin_4 += specificOther->_num_SR0tau_a_bin_4;
-        _num_SR0tau_a_bin_5 += specificOther->_num_SR0tau_a_bin_5;
-        _num_SR0tau_a_bin_6 += specificOther->_num_SR0tau_a_bin_6;
-        _num_SR0tau_a_bin_7 += specificOther->_num_SR0tau_a_bin_7;
-        _num_SR0tau_a_bin_8 += specificOther->_num_SR0tau_a_bin_8;
-        _num_SR0tau_a_bin_9 += specificOther->_num_SR0tau_a_bin_9;
-        _num_SR0tau_a_bin_10 += specificOther->_num_SR0tau_a_bin_10;
-        _num_SR0tau_a_bin_11 += specificOther->_num_SR0tau_a_bin_11;
-        _num_SR0tau_a_bin_12 += specificOther->_num_SR0tau_a_bin_12;
-        _num_SR0tau_a_bin_13 += specificOther->_num_SR0tau_a_bin_13;
-        _num_SR0tau_a_bin_14 += specificOther->_num_SR0tau_a_bin_14;
-        _num_SR0tau_a_bin_15 += specificOther->_num_SR0tau_a_bin_15;
-        _num_SR0tau_a_bin_16 += specificOther->_num_SR0tau_a_bin_16;
-        _num_SR0tau_a_bin_17 += specificOther->_num_SR0tau_a_bin_17;
-        _num_SR0tau_a_bin_18 += specificOther->_num_SR0tau_a_bin_18;
-        _num_SR0tau_a_bin_19 += specificOther->_num_SR0tau_a_bin_19;
-        _num_SR0tau_a_bin_20 += specificOther->_num_SR0tau_a_bin_20;
-        _num_SR0tau_b += specificOther->_num_SR0tau_b;
-        _num_SR1tau += specificOther->_num_SR1tau;
-        _num_SR2tau_a += specificOther->_num_SR2tau_a;
-        _num_SR2tau_b += specificOther->_num_SR2tau_b;
-      }
-
-
       void collect_results() {
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+        // add_result(SignalRegionData(_counters["SR label"], n_obs, {n_bkg, n_bkg_err}));
 
-        add_result(SignalRegionData("SR0tau_a_bin_1", 36., {_num_SR0tau_a_bin_1, 0.}, { 23., 4. }));
-        add_result(SignalRegionData("SR0tau_a_bin_2", 5., {_num_SR0tau_a_bin_2, 0.}, { 4.2,  1.5}));
-        add_result(SignalRegionData("SR0tau_a_bin_3", 9., {_num_SR0tau_a_bin_3, 0.}, { 10.6,  1.8}));
-        add_result(SignalRegionData("SR0tau_a_bin_4", 9., {_num_SR0tau_a_bin_4, 0.}, { 8.5,  1.7}));
-        add_result(SignalRegionData("SR0tau_a_bin_5", 11., {_num_SR0tau_a_bin_5, 0.}, { 12.9,  2.4}));
-        add_result(SignalRegionData("SR0tau_a_bin_6", 13., {_num_SR0tau_a_bin_6, 0.}, { 6.6,  1.9}));
-        add_result(SignalRegionData("SR0tau_a_bin_7", 15., {_num_SR0tau_a_bin_7, 0.}, { 14.1,  2.2}));
-        add_result(SignalRegionData("SR0tau_a_bin_8", 1., {_num_SR0tau_a_bin_8, 0.}, { 1.1,  0.4}));
-        add_result(SignalRegionData("SR0tau_a_bin_9", 28., {_num_SR0tau_a_bin_9, 0.}, { 22.4,  3.6}));
-        add_result(SignalRegionData("SR0tau_a_bin_10", 24., {_num_SR0tau_a_bin_10, 0.}, { 16.4,  2.8}));
-        add_result(SignalRegionData("SR0tau_a_bin_11", 29., {_num_SR0tau_a_bin_11, 0.}, { 27., 5. }));
-        add_result(SignalRegionData("SR0tau_a_bin_12", 8., {_num_SR0tau_a_bin_12, 0.}, { 5.5,  1.5}));
-        add_result(SignalRegionData("SR0tau_a_bin_13", 714., {_num_SR0tau_a_bin_13, 0.}, { 715., 70. }));
-        add_result(SignalRegionData("SR0tau_a_bin_14", 214., {_num_SR0tau_a_bin_14, 0.}, { 219., 33. }));
-        add_result(SignalRegionData("SR0tau_a_bin_15", 63., {_num_SR0tau_a_bin_15, 0.}, { 65., 13. }));
-        add_result(SignalRegionData("SR0tau_a_bin_16", 3., {_num_SR0tau_a_bin_16, 0.}, { 4.6,  1.7}));
-        add_result(SignalRegionData("SR0tau_a_bin_17", 60., {_num_SR0tau_a_bin_17, 0.}, { 69., 9. }));
-        add_result(SignalRegionData("SR0tau_a_bin_18", 1., {_num_SR0tau_a_bin_18, 0.}, { 3.4,  1.4}));
-        add_result(SignalRegionData("SR0tau_a_bin_19", 0., {_num_SR0tau_a_bin_19, 0.}, { 1.2,  0.4}));
-        add_result(SignalRegionData("SR0tau_a_bin_20", 0., {_num_SR0tau_a_bin_20, 0.}, { 0.29,  0.18}));
-        add_result(SignalRegionData("SR1tau", 13., {_num_SR1tau, 0.}, { 10.3,  1.2}));
-        add_result(SignalRegionData("SR2tau_a", 6., {_num_SR2tau_a, 0.}, { 6.9,  0.8}));
-        add_result(SignalRegionData("SR2tau_b", 5., {_num_SR2tau_b, 0.}, { 7.2,  0.8}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_1"], 36., { 23., 4. }));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_2"], 5., { 4.2,  1.5}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_3"], 9., { 10.6,  1.8}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_4"], 9., { 8.5,  1.7}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_5"], 11., { 12.9,  2.4}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_6"], 13., { 6.6,  1.9}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_7"], 15., { 14.1,  2.2}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_8"], 1., { 1.1,  0.4}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_9"], 28., { 22.4,  3.6}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_10"], 24., { 16.4,  2.8}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_11"], 29., { 27., 5. }));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_12"], 8., { 5.5,  1.5}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_13"], 714., { 715., 70. }));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_14"], 214., { 219., 33. }));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_15"], 63., { 65., 13. }));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_16"], 3., { 4.6,  1.7}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_17"], 60., { 69., 9. }));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_18"], 1., { 3.4,  1.4}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_19"], 0., { 1.2,  0.4}));
+        add_result(SignalRegionData(_counters["SR0tau_a_bin_20"], 0., { 0.29,  0.18}));
+        add_result(SignalRegionData(_counters["SR1tau"], 13., { 10.3,  1.2}));
+        add_result(SignalRegionData(_counters["SR2tau_a"], 6., { 6.9,  0.8}));
+        add_result(SignalRegionData(_counters["SR2tau_b"], 5., { 7.2,  0.8}));
 
         return;
       }
 
 
     protected:
-      void analysis_specific_reset() {
-        _num_SR0tau_a_bin_1=0;
-        _num_SR0tau_a_bin_2=0;
-        _num_SR0tau_a_bin_3=0;
-        _num_SR0tau_a_bin_4=0;
-        _num_SR0tau_a_bin_5=0;
-        _num_SR0tau_a_bin_6=0;
-        _num_SR0tau_a_bin_7=0;
-        _num_SR0tau_a_bin_8=0;
-        _num_SR0tau_a_bin_9=0;
-        _num_SR0tau_a_bin_10=0;
-        _num_SR0tau_a_bin_11=0;
-        _num_SR0tau_a_bin_12=0;
-        _num_SR0tau_a_bin_13=0;
-        _num_SR0tau_a_bin_14=0;
-        _num_SR0tau_a_bin_15=0;
-        _num_SR0tau_a_bin_16=0;
-        _num_SR0tau_a_bin_17=0;
-        _num_SR0tau_a_bin_18=0;
-        _num_SR0tau_a_bin_19=0;
-        _num_SR0tau_a_bin_20=0;
-        _num_SR0tau_b=0;
-        _num_SR1tau=0;
-        _num_SR2tau_a=0;
-        _num_SR2tau_b=0;
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
+
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

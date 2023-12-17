@@ -22,31 +22,6 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "CMS";
 
-      std::map<string, EventCounter> _counters = {
-        {"SR-0", EventCounter("SR-0")},
-        {"SR-1", EventCounter("SR-1")},
-        {"SR-2", EventCounter("SR-2")},
-        {"SR-3", EventCounter("SR-3")},
-        {"SR-4", EventCounter("SR-4")},
-        {"SR-5", EventCounter("SR-5")},
-        {"SR-6", EventCounter("SR-6")},
-        {"SR-7", EventCounter("SR-7")},
-        {"SR-8", EventCounter("SR-8")},
-        {"SR-9", EventCounter("SR-9")},
-        {"SR-10", EventCounter("SR-10")},
-        {"SR-11", EventCounter("SR-11")},
-        {"SR-12", EventCounter("SR-12")},
-        {"SR-13", EventCounter("SR-13")},
-        {"SR-14", EventCounter("SR-14")},
-        {"SR-15", EventCounter("SR-15")},
-        {"SR-16", EventCounter("SR-16")},
-        {"SR-17", EventCounter("SR-17")},
-        {"SR-18", EventCounter("SR-18")},
-        {"SR-19", EventCounter("SR-19")},
-        {"SR-20", EventCounter("SR-20")},
-        {"SR-21", EventCounter("SR-21")},
-      };
-
       static const size_t NUMSR = 22;
 
       Cutflow _cutflow;
@@ -54,6 +29,31 @@ namespace Gambit {
       Analysis_CMS_13TeV_MONOJET_36invfb()
       // : _cutflow("CMS monojet 13 TeV", {"Njet >= 3", "HT > 300", "HTmiss > 300", "Nmuon = 0", "Nelectron = 0", "Nhadron = 0 (no-op)", "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4"})
       {
+
+        _counters["SR-0"] = EventCounter("SR-0");
+        _counters["SR-1"] = EventCounter("SR-1");
+        _counters["SR-2"] = EventCounter("SR-2");
+        _counters["SR-3"] = EventCounter("SR-3");
+        _counters["SR-4"] = EventCounter("SR-4");
+        _counters["SR-5"] = EventCounter("SR-5");
+        _counters["SR-6"] = EventCounter("SR-6");
+        _counters["SR-7"] = EventCounter("SR-7");
+        _counters["SR-8"] = EventCounter("SR-8");
+        _counters["SR-9"] = EventCounter("SR-9");
+        _counters["SR-10"] = EventCounter("SR-10");
+        _counters["SR-11"] = EventCounter("SR-11");
+        _counters["SR-12"] = EventCounter("SR-12");
+        _counters["SR-13"] = EventCounter("SR-13");
+        _counters["SR-14"] = EventCounter("SR-14");
+        _counters["SR-15"] = EventCounter("SR-15");
+        _counters["SR-16"] = EventCounter("SR-16");
+        _counters["SR-17"] = EventCounter("SR-17");
+        _counters["SR-18"] = EventCounter("SR-18");
+        _counters["SR-19"] = EventCounter("SR-19");
+        _counters["SR-20"] = EventCounter("SR-20");
+        _counters["SR-21"] = EventCounter("SR-21");
+
+
         analysis_specific_reset();
         set_analysis_name("CMS_13TeV_MONOJET_36invfb");
         set_luminosity(35.9);
@@ -75,13 +75,13 @@ namespace Gambit {
         vector<const HEPUtils::Particle*> baselineElectrons = event->electrons();
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
 
         // Muon objects
         vector<const HEPUtils::Particle*> baselineMuons = event->muons();
 
         // Apply muon efficiency
-        CMS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
 
         // Veto on isolated leptons and photons
         for (const Particle* e : baselineElectrons) if (e->pT() > 10 && e->abseta() < 2.5) return; //< VETO
@@ -91,7 +91,7 @@ namespace Gambit {
 
         // Get jets
         vector<const Jet*> jets4;
-        for (const Jet* jet : event->jets())
+        for (const Jet* jet : event->jets("antikt_R04"))
           if (jet->pT() > 20) jets4.push_back(jet);
 
         // Veto if there are any b-tagged jets (reduce top background)
@@ -122,14 +122,6 @@ namespace Gambit {
           _counters.at(sr_key.str()).add_event(event->weight() * trigweight, event->weight_err() * trigweight);
         }
       }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_MONOJET_36invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_MONOJET_36invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-      }
-
 
       /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note
       void collect_results() {

@@ -36,53 +36,6 @@ namespace Gambit
     {
 
       protected:
-        // Signal region map
-        std::map<string, EventCounter> _counters = {
-          // WZ on-shell
-          {"SR-WZ-1", EventCounter("SR-WZ-1")},
-          {"SR-WZ-2", EventCounter("SR-WZ-2")},
-          {"SR-WZ-3", EventCounter("SR-WZ-3")},
-          {"SR-WZ-4", EventCounter("SR-WZ-4")},
-          {"SR-WZ-5", EventCounter("SR-WZ-5")},
-          {"SR-WZ-6", EventCounter("SR-WZ-6")},
-          {"SR-WZ-7", EventCounter("SR-WZ-7")},
-          {"SR-WZ-8", EventCounter("SR-WZ-8")},
-          {"SR-WZ-9", EventCounter("SR-WZ-9")},
-          {"SR-WZ-10", EventCounter("SR-WZ-10")},
-          {"SR-WZ-11", EventCounter("SR-WZ-11")},
-          {"SR-WZ-12", EventCounter("SR-WZ-12")},
-          {"SR-WZ-13", EventCounter("SR-WZ-13")},
-          {"SR-WZ-14", EventCounter("SR-WZ-14")},
-          {"SR-WZ-15", EventCounter("SR-WZ-15")},
-          {"SR-WZ-16", EventCounter("SR-WZ-16")},
-          {"SR-WZ-17", EventCounter("SR-WZ-17")},
-          {"SR-WZ-18", EventCounter("SR-WZ-18")},
-          {"SR-WZ-19", EventCounter("SR-WZ-19")},
-          {"SR-WZ-20", EventCounter("SR-WZ-20")},
-          // Wh
-          {"SR-Wh-1", EventCounter("SR-Wh-1")},
-          {"SR-Wh-2", EventCounter("SR-Wh-2")},
-          {"SR-Wh-3", EventCounter("SR-Wh-3")},
-          {"SR-Wh-4", EventCounter("SR-Wh-4")},
-          {"SR-Wh-5", EventCounter("SR-Wh-5")},
-          {"SR-Wh-6", EventCounter("SR-Wh-6")},
-          {"SR-Wh-7", EventCounter("SR-Wh-7")},
-          {"SR-Wh-8", EventCounter("SR-Wh-8")},
-          {"SR-Wh-9", EventCounter("SR-Wh-9")},
-          {"SR-Wh-10", EventCounter("SR-Wh-10")},
-          {"SR-Wh-11", EventCounter("SR-Wh-11")},
-          {"SR-Wh-12", EventCounter("SR-Wh-12")},
-          {"SR-Wh-13", EventCounter("SR-Wh-13")},
-          {"SR-Wh-14", EventCounter("SR-Wh-14")},
-          {"SR-Wh-15", EventCounter("SR-Wh-15")},
-          {"SR-Wh-16", EventCounter("SR-Wh-16")},
-          {"SR-Wh-17", EventCounter("SR-Wh-17")},
-          {"SR-Wh-18", EventCounter("SR-Wh-18")},
-          {"SR-Wh-19", EventCounter("SR-Wh-19")},
-  //        {"SR-Wh-DFOS-1", EventCounter("SR-Wh-DFOS-1")},
-  //        {"SR-Wh-DFOS-2", EventCounter("SR-Wh-DFOS-2")},
-          // WZ off-shell
-        };
 
       private:
 
@@ -105,6 +58,53 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_3LEP_139invfb()
         {
+
+          // Signal region map
+          // WZ on-shell
+          _counters["SR-WZ-1"] = EventCounter("SR-WZ-1");
+          _counters["SR-WZ-2"] = EventCounter("SR-WZ-2");
+          _counters["SR-WZ-3"] = EventCounter("SR-WZ-3");
+          _counters["SR-WZ-4"] = EventCounter("SR-WZ-4");
+          _counters["SR-WZ-5"] = EventCounter("SR-WZ-5");
+          _counters["SR-WZ-6"] = EventCounter("SR-WZ-6");
+          _counters["SR-WZ-7"] = EventCounter("SR-WZ-7");
+          _counters["SR-WZ-8"] = EventCounter("SR-WZ-8");
+          _counters["SR-WZ-9"] = EventCounter("SR-WZ-9");
+          _counters["SR-WZ-10"] = EventCounter("SR-WZ-10");
+          _counters["SR-WZ-11"] = EventCounter("SR-WZ-11");
+          _counters["SR-WZ-12"] = EventCounter("SR-WZ-12");
+          _counters["SR-WZ-13"] = EventCounter("SR-WZ-13");
+          _counters["SR-WZ-14"] = EventCounter("SR-WZ-14");
+          _counters["SR-WZ-15"] = EventCounter("SR-WZ-15");
+          _counters["SR-WZ-16"] = EventCounter("SR-WZ-16");
+          _counters["SR-WZ-17"] = EventCounter("SR-WZ-17");
+          _counters["SR-WZ-18"] = EventCounter("SR-WZ-18");
+          _counters["SR-WZ-19"] = EventCounter("SR-WZ-19");
+          _counters["SR-WZ-20"] = EventCounter("SR-WZ-20");
+          // Wh
+          _counters["SR-Wh-1"] = EventCounter("SR-Wh-1");
+          _counters["SR-Wh-2"] = EventCounter("SR-Wh-2");
+          _counters["SR-Wh-3"] = EventCounter("SR-Wh-3");
+          _counters["SR-Wh-4"] = EventCounter("SR-Wh-4");
+          _counters["SR-Wh-5"] = EventCounter("SR-Wh-5");
+          _counters["SR-Wh-6"] = EventCounter("SR-Wh-6");
+          _counters["SR-Wh-7"] = EventCounter("SR-Wh-7");
+          _counters["SR-Wh-8"] = EventCounter("SR-Wh-8");
+          _counters["SR-Wh-9"] = EventCounter("SR-Wh-9");
+          _counters["SR-Wh-10"] = EventCounter("SR-Wh-10");
+          _counters["SR-Wh-11"] = EventCounter("SR-Wh-11");
+          _counters["SR-Wh-12"] = EventCounter("SR-Wh-12");
+          _counters["SR-Wh-13"] = EventCounter("SR-Wh-13");
+          _counters["SR-Wh-14"] = EventCounter("SR-Wh-14");
+          _counters["SR-Wh-15"] = EventCounter("SR-Wh-15");
+          _counters["SR-Wh-16"] = EventCounter("SR-Wh-16");
+          _counters["SR-Wh-17"] = EventCounter("SR-Wh-17");
+          _counters["SR-Wh-18"] = EventCounter("SR-Wh-18");
+          _counters["SR-Wh-19"] = EventCounter("SR-Wh-19");
+    //      _counters["SR-Wh-DFOS-1"] = EventCounter("SR-Wh-DFOS-1");
+    //      _counters["SR-Wh-DFOS-2"] = EventCounter("SR-Wh-DFOS-2");
+          // WZ off-shell
+
 
           set_analysis_name("ATLAS_13TeV_3LEP_139invfb");
           set_luminosity(139.);
@@ -194,7 +194,7 @@ namespace Gambit
             }
           }
           // Apply electron reconstruction efficiency from 1908.00005
-          ATLAS::applyElectronReconstructionEfficiency2020(baselineElectrons, "Candidate");
+          applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
           // Baseline muons
           vector<const HEPUtils::Particle*> baselineMuons;
           int nHighEtaMuons = 0;
@@ -211,7 +211,7 @@ namespace Gambit
             }
           }
           // Apply muon ID efficiency from "Medium" criteria in 2012.00578
-          ATLAS::applyMuonIDEfficiency2020(baselineMuons, "Medium");
+          applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
 
           // Number of baseline leptons used in preselection
           // This also counts muons in 2.5 < |\eta| < 2.7
@@ -219,7 +219,7 @@ namespace Gambit
 
           // Baseline jets
           vector<const HEPUtils::Jet*> baselineJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.5 )
               baselineJets.push_back(jet);
@@ -243,11 +243,12 @@ namespace Gambit
 
           // Apply cuts to get signal electrons
           // Apply electron ID efficiency from "Medium" criteria in 1908.00005
-          ATLAS::applyElectronIDEfficiency2020(baselineElectrons, "Medium");
+          applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
           // Apply electron isolation efficiency from "Tight" criteria in 1908.00005
-          ATLAS::applyElectronIsolationEfficiency2020(baselineElectrons, "Tight");
+          applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Tight"));
           // Apply muon isolation efficiency from "Tight" criteria in 2012.00578
-          ATLAS::applyMuonIsolationEfficiency2020(baselineMuons, "Tight");
+          applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Tight"));
+
 
           // Signal jets
           vector<const HEPUtils::Jet*> signalJets;
@@ -343,7 +344,6 @@ namespace Gambit
             }
           }
           //cout << iZ1 << " " << iZ2 << " " << iW << " " << mll << endl;
-
 
 
           //
@@ -599,13 +599,6 @@ namespace Gambit
 
         } // End of event analysis
 
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_3LEP_139invfb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_3LEP_139invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
 
 
         void collect_results()

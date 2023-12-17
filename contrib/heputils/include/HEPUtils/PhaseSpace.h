@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// This file is part of HEPUtils -- https://bitbucket.org/andybuckley/heputils
-// Copyright (C) 2013-2018 Andy Buckley <andy.buckley@cern.ch>
+// This file is part of HEPUtils -- https://gitlab.com/hepcedar/heputils/
+// Copyright (C) 2013-2022 Andy Buckley <andy.buckley@cern.ch>
 //
 // Embedding of HEPUtils code in other projects is permitted provided this
 // notice is retained and the HEPUtils namespace and include path are changed.
@@ -20,8 +20,12 @@
 namespace HEPUtils {
 
 
+  /// @defgroup phasespace Phase-space helpers
+  /// @{
+
+
   /// Integral of acos(x)
-  constexpr double iacos(double x) { return sqrt(1 - x*x) - x*acos(x); }
+  constexpr double iacos(double x) { return x*acos(x) - sqrt(1 - x*x); }
 
   /// Inverse secant
   constexpr double asec(double x) { return acos(1/x); }
@@ -73,6 +77,8 @@ namespace HEPUtils {
                                                           asin(M_PI/sqrt(detamax2 + M_PI2)))) * detamax/12.;
     return psPhiIntegral;
   }
+
+  /// @}
 
 
 }

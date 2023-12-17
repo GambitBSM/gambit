@@ -212,6 +212,30 @@ namespace Gambit
                 }
             };  
 
+            struct pyplugin_info
+            {
+                int major_version;
+                int minor_version;
+                int patch_version;
+                std::string release_version;
+                std::string discription;
+                
+                pyplugin_info() : major_version(1), minor_version(0), patch_version(0), release_version("") {}
+                
+                std::string version()
+                {
+                    std::stringstream ss;
+                    
+                    ss << major_version << "." << minor_version << "." << patch_version;
+                    if (release_version == "")
+                    {
+                        ss << "-" << release_version;
+                    }
+                    
+                    return ss.str();
+                }
+            };
+                
         }
 
     }

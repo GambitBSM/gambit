@@ -26,19 +26,6 @@ namespace Gambit {
     class Analysis_CMS_13TeV_2OSLEP_confnote_36invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      std::map<string, EventCounter> _counters = {
-        {"SR1", EventCounter("SR1")},
-        {"SR2", EventCounter("SR2")},
-        {"SR3", EventCounter("SR3")},
-        {"SR4", EventCounter("SR4")},
-        {"SR5", EventCounter("SR5")},
-        {"SR6", EventCounter("SR6")},
-        {"SR7", EventCounter("SR7")},
-        {"SR8", EventCounter("SR8")},
-        {"SR9", EventCounter("SR9")},
-      };
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       size_t NCUTS;
@@ -60,7 +47,20 @@ namespace Gambit {
         bool operator() (const HEPUtils::Jet* i,const HEPUtils::Jet* j) {return (i->pT()>j->pT());}
       } compareJetPt;
 
-      Analysis_CMS_13TeV_2OSLEP_confnote_36invfb() {
+      Analysis_CMS_13TeV_2OSLEP_confnote_36invfb()
+      {
+
+        // Numbers passing cuts
+        _counters["SR1"] = EventCounter("SR1");
+        _counters["SR2"] = EventCounter("SR2");
+        _counters["SR3"] = EventCounter("SR3");
+        _counters["SR4"] = EventCounter("SR4");
+        _counters["SR5"] = EventCounter("SR5");
+        _counters["SR6"] = EventCounter("SR6");
+        _counters["SR7"] = EventCounter("SR7");
+        _counters["SR8"] = EventCounter("SR8");
+        _counters["SR9"] = EventCounter("SR9");
+
 
         set_analysis_name("CMS_13TeV_2OSLEP_confnote_36invfb");
         set_luminosity(35.9);
@@ -97,7 +97,7 @@ namespace Gambit {
         }
 
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT()>35. &&fabs(jet->eta())<2.4)baselineJets.push_back(jet);
         }
 
@@ -145,7 +145,7 @@ namespace Gambit {
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
         }
-        CMS::applyCSVv2MediumBtagEff(signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
 
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());
@@ -263,21 +263,6 @@ namespace Gambit {
           cutFlowVector[j]++;
         }
 
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_2OSLEP_confnote_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_2OSLEP_confnote_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (size_t j = 0; j < NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
       }
 
 

@@ -45,19 +45,6 @@ namespace Gambit
 
         // Variables that hold the number of events passing signal region cuts
 
-        std::map<string, EventCounter> _counters = {
-          {"0L_SRA350", EventCounter("0L_SRA350")},
-          {"0L_SRA450", EventCounter("0L_SRA450")},
-          {"0L_SRA550", EventCounter("0L_SRA550")},
-          {"0L_SRB", EventCounter("0L_SRB")},
-          {"0L_SRC", EventCounter("0L_SRC")},
-          // MJW removes these regions for the Feb 2018 MareNostrum scans, since the aMT2 variable is not well-described.
-          // {"1L_SRA600", EventCounter("1L_SRA600")},
-          // {"1L_SRA750", EventCounter("1L_SRA750")},
-          // {"1L_SRA300_2j", EventCounter("1L_SRA300_2j")},
-          // {"1L_SRB", EventCounter("1L_SRB")},
-        };
-
         vector<int> cutFlowVector;
         vector<string> cutFlowVector_str;
         int NCUTS;
@@ -71,6 +58,17 @@ namespace Gambit
 
         Analysis_ATLAS_13TeV_2bMET_36invfb()
         {
+          _counters["0L_SRA350"] = EventCounter("0L_SRA350");
+          _counters["0L_SRA450"] = EventCounter("0L_SRA450");
+          _counters["0L_SRA550"] = EventCounter("0L_SRA550");
+          _counters["0L_SRB"] = EventCounter("0L_SRB");
+          _counters["0L_SRC"] = EventCounter("0L_SRC");
+            // MJW removes these regions for the Feb 2018 MareNostrum scans, since the aMT2 variable is not well-described.
+            //_counters["1L_SRA600"] = EventCounter("1L_SRA600");
+            //_counters["1L_SRA750"] = EventCounter("1L_SRA750");
+            //_counters["1L_SRA300_2j"] = EventCounter("1L_SRA300_2j");
+            //_counters["1L_SRB"] = EventCounter("1L_SRB");
+
 
           set_analysis_name("ATLAS_13TeV_2bMET_36invfb");
           set_luminosity(36.1);
@@ -326,7 +324,7 @@ namespace Gambit
           }
 
           // Apply electron efficiency
-          ATLAS::applyElectronEff(electrons);
+          applyEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
 
           vector<const HEPUtils::Particle*> muons;
           for (const HEPUtils::Particle* muon : event->muons())
@@ -337,10 +335,10 @@ namespace Gambit
           }
 
           // Apply muon efficiency
-          ATLAS::applyMuonEff(muons);
+          applyEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
 
           //vector<const HEPUtils::Jet*> candJets;
-          //for (const HEPUtils::Jet* jet : event->jets()) {
+          //for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           //if (jet->pT() > 20.
           //    && fabs(jet->eta()) < 2.8)
           //  candJets.push_back(jet);
@@ -357,7 +355,7 @@ namespace Gambit
           const std::vector<double>  b = {0,10000.};
           const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
           HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.8)
@@ -935,23 +933,6 @@ namespace Gambit
 
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_2bMET_36invfb* specificOther
-            = dynamic_cast<const Analysis_ATLAS_13TeV_2bMET_36invfb*>(other);
-
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-          if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-          for (int j=0; j<NCUTS; j++)
-          {
-            cutFlowVector[j] += specificOther->cutFlowVector[j];
-            cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-          }
-
-        }
-
 
         void collect_results()
         {
@@ -968,8 +949,6 @@ namespace Gambit
           // }
           // cout << "-------------------------------------------------------------------------------------------------------------------------------------------------"<<endl;
 
-
-          // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
           add_result(SignalRegionData(_counters.at("0L_SRA350"), 81., { 70., 13.}));
           add_result(SignalRegionData(_counters.at("0L_SRA450"), 24., { 22., 5.}));

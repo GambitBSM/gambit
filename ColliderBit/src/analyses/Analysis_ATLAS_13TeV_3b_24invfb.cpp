@@ -29,59 +29,6 @@ namespace Gambit {
     class Analysis_ATLAS_13TeV_3b_24invfb : public Analysis {
 
     protected:
-      // Signal region map
-      std::map<string, EventCounter> _counters = {
-        // Exclusion regions
-        {"meff160_ETmiss0", EventCounter("meff160_ETmiss0")},
-        {"meff160_ETmiss20", EventCounter("meff160_ETmiss20")},
-        {"meff200_ETmiss0", EventCounter("meff200_ETmiss0")},
-        {"meff200_ETmiss20", EventCounter("meff200_ETmiss20")},
-        {"meff200_ETmiss45", EventCounter("meff200_ETmiss45")},
-        {"meff200_ETmiss70", EventCounter("meff200_ETmiss70")},
-        {"meff260_ETmiss0", EventCounter("meff260_ETmiss0")},
-        {"meff260_ETmiss20", EventCounter("meff260_ETmiss20")},
-        {"meff260_ETmiss45", EventCounter("meff260_ETmiss45")},
-        {"meff260_ETmiss70", EventCounter("meff260_ETmiss70")},
-        {"meff260_ETmiss100", EventCounter("meff260_ETmiss100")},
-        {"meff340_ETmiss0", EventCounter("meff340_ETmiss0")},
-        {"meff340_ETmiss20", EventCounter("meff340_ETmiss20")},
-        {"meff340_ETmiss45", EventCounter("meff340_ETmiss45")},
-        {"meff340_ETmiss70", EventCounter("meff340_ETmiss70")},
-        {"meff340_ETmiss100", EventCounter("meff340_ETmiss100")},
-        {"meff340_ETmiss150", EventCounter("meff340_ETmiss150")},
-        {"meff340_ETmiss200", EventCounter("meff340_ETmiss200")},
-        {"meff440_ETmiss0", EventCounter("meff440_ETmiss0")},
-        {"meff440_ETmiss20", EventCounter("meff440_ETmiss20")},
-        {"meff440_ETmiss45", EventCounter("meff440_ETmiss45")},
-        {"meff440_ETmiss70", EventCounter("meff440_ETmiss70")},
-        {"meff440_ETmiss100", EventCounter("meff440_ETmiss100")},
-        {"meff440_ETmiss150", EventCounter("meff440_ETmiss150")},
-        {"meff440_ETmiss200", EventCounter("meff440_ETmiss200")},
-        {"meff560_ETmiss0", EventCounter("meff560_ETmiss0")},
-        {"meff560_ETmiss20", EventCounter("meff560_ETmiss20")},
-        {"meff560_ETmiss45", EventCounter("meff560_ETmiss45")},
-        {"meff560_ETmiss70", EventCounter("meff560_ETmiss70")},
-        {"meff560_ETmiss100", EventCounter("meff560_ETmiss100")},
-        {"meff560_ETmiss150", EventCounter("meff560_ETmiss150")},
-        {"meff560_ETmiss200", EventCounter("meff560_ETmiss200")},
-        {"meff700_ETmiss0", EventCounter("meff700_ETmiss0")},
-        {"meff700_ETmiss20", EventCounter("meff700_ETmiss20")},
-        {"meff700_ETmiss45", EventCounter("meff700_ETmiss45")},
-        {"meff700_ETmiss70", EventCounter("meff700_ETmiss70")},
-        {"meff700_ETmiss100", EventCounter("meff700_ETmiss100")},
-        {"meff700_ETmiss150", EventCounter("meff700_ETmiss150")},
-        {"meff700_ETmiss200", EventCounter("meff700_ETmiss200")},
-        {"meff860_ETmiss0", EventCounter("meff860_ETmiss0")},
-        {"meff860_ETmiss20", EventCounter("meff860_ETmiss20")},
-        {"meff860_ETmiss45", EventCounter("meff860_ETmiss45")},
-        {"meff860_ETmiss70", EventCounter("meff860_ETmiss70")},
-        {"meff860_ETmiss100", EventCounter("meff860_ETmiss100")},
-        {"meff860_ETmiss150", EventCounter("meff860_ETmiss150")},
-        {"meff860_ETmiss200", EventCounter("meff860_ETmiss200")},
-        // Discovery regions
-        {"low-SR-MET0meff440", EventCounter("low-SR-MET0meff440")},
-        {"low-SR-MET150meff440", EventCounter("low-SR-MET150meff440")},
-      };
 
     private:
 
@@ -99,6 +46,59 @@ namespace Gambit {
       static constexpr const char* detector = "ATLAS";
 
       Analysis_ATLAS_13TeV_3b_24invfb() {
+
+        // Signal region map
+        // Exclusion regions
+        _counters["meff160_ETmiss0"] = EventCounter("meff160_ETmiss0");
+        _counters["meff160_ETmiss20"] = EventCounter("meff160_ETmiss20");
+        _counters["meff200_ETmiss0"] = EventCounter("meff200_ETmiss0");
+        _counters["meff200_ETmiss20"] = EventCounter("meff200_ETmiss20");
+        _counters["meff200_ETmiss45"] = EventCounter("meff200_ETmiss45");
+        _counters["meff200_ETmiss70"] = EventCounter("meff200_ETmiss70");
+        _counters["meff260_ETmiss0"] = EventCounter("meff260_ETmiss0");
+        _counters["meff260_ETmiss20"] = EventCounter("meff260_ETmiss20");
+        _counters["meff260_ETmiss45"] = EventCounter("meff260_ETmiss45");
+        _counters["meff260_ETmiss70"] = EventCounter("meff260_ETmiss70");
+        _counters["meff260_ETmiss100"] = EventCounter("meff260_ETmiss100");
+        _counters["meff340_ETmiss0"] = EventCounter("meff340_ETmiss0");
+        _counters["meff340_ETmiss20"] = EventCounter("meff340_ETmiss20");
+        _counters["meff340_ETmiss45"] = EventCounter("meff340_ETmiss45");
+        _counters["meff340_ETmiss70"] = EventCounter("meff340_ETmiss70");
+        _counters["meff340_ETmiss100"] = EventCounter("meff340_ETmiss100");
+        _counters["meff340_ETmiss150"] = EventCounter("meff340_ETmiss150");
+        _counters["meff340_ETmiss200"] = EventCounter("meff340_ETmiss200");
+        _counters["meff440_ETmiss0"] = EventCounter("meff440_ETmiss0");
+        _counters["meff440_ETmiss20"] = EventCounter("meff440_ETmiss20");
+        _counters["meff440_ETmiss45"] = EventCounter("meff440_ETmiss45");
+        _counters["meff440_ETmiss70"] = EventCounter("meff440_ETmiss70");
+        _counters["meff440_ETmiss100"] = EventCounter("meff440_ETmiss100");
+        _counters["meff440_ETmiss150"] = EventCounter("meff440_ETmiss150");
+        _counters["meff440_ETmiss200"] = EventCounter("meff440_ETmiss200");
+        _counters["meff560_ETmiss0"] = EventCounter("meff560_ETmiss0");
+        _counters["meff560_ETmiss20"] = EventCounter("meff560_ETmiss20");
+        _counters["meff560_ETmiss45"] = EventCounter("meff560_ETmiss45");
+        _counters["meff560_ETmiss70"] = EventCounter("meff560_ETmiss70");
+        _counters["meff560_ETmiss100"] = EventCounter("meff560_ETmiss100");
+        _counters["meff560_ETmiss150"] = EventCounter("meff560_ETmiss150");
+        _counters["meff560_ETmiss200"] = EventCounter("meff560_ETmiss200");
+        _counters["meff700_ETmiss0"] = EventCounter("meff700_ETmiss0");
+        _counters["meff700_ETmiss20"] = EventCounter("meff700_ETmiss20");
+        _counters["meff700_ETmiss45"] = EventCounter("meff700_ETmiss45");
+        _counters["meff700_ETmiss70"] = EventCounter("meff700_ETmiss70");
+        _counters["meff700_ETmiss100"] = EventCounter("meff700_ETmiss100");
+        _counters["meff700_ETmiss150"] = EventCounter("meff700_ETmiss150");
+        _counters["meff700_ETmiss200"] = EventCounter("meff700_ETmiss200");
+        _counters["meff860_ETmiss0"] = EventCounter("meff860_ETmiss0");
+        _counters["meff860_ETmiss20"] = EventCounter("meff860_ETmiss20");
+        _counters["meff860_ETmiss45"] = EventCounter("meff860_ETmiss45");
+        _counters["meff860_ETmiss70"] = EventCounter("meff860_ETmiss70");
+        _counters["meff860_ETmiss100"] = EventCounter("meff860_ETmiss100");
+        _counters["meff860_ETmiss150"] = EventCounter("meff860_ETmiss150");
+        _counters["meff860_ETmiss200"] = EventCounter("meff860_ETmiss200");
+        // Discovery regions
+        _counters["low-SR-MET0meff440"] = EventCounter("low-SR-MET0meff440");
+        _counters["low-SR-MET150meff440"] = EventCounter("low-SR-MET150meff440");
+
 
         set_analysis_name("ATLAS_13TeV_3b_24invfb");
         set_luminosity(24.3);
@@ -183,7 +183,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(electrons);
+        applyEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
 
         // Muons
         vector<const HEPUtils::Particle*> muons;
@@ -194,10 +194,10 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(muons);
+        applyEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> candJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 25. && fabs(jet->eta()) < 2.5)
             candJets.push_back(jet);
         }
@@ -523,24 +523,6 @@ namespace Gambit {
 
       } // End of analyze
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_3b_24invfb* specificOther
-          = dynamic_cast<const Analysis_ATLAS_13TeV_3b_24invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        #ifdef CHECK_CUTFLOW
-          if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-          for (size_t j=0; j<NCUTS; j++) {
-            cutFlowVector[j] += specificOther->cutFlowVector[j];
-            cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-          }
-        #endif
-
-      }
-
 
       virtual void collect_results() {
 
@@ -661,7 +643,6 @@ namespace Gambit {
       }
 
       virtual void collect_results() {
-        // add_result(SignalRegionData("SR label", n_obs, {s, s_sys}, {b, b_sys}));
         add_result(SignalRegionData(_counters.at("low-SR-MET0meff440"), 1063., {1100., 25.}));
         add_result(SignalRegionData(_counters.at("low-SR-MET150meff440"), 17., {12., 8.}));
       }

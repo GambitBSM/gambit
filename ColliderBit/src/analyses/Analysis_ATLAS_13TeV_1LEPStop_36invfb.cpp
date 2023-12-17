@@ -58,23 +58,6 @@ namespace Gambit {
     {
     private:
 
-      // Numbers passing cuts
-      std::map<string, EventCounter> _counters = {
-        {"tN_med", EventCounter("tN_med")},
-        {"tN_high", EventCounter("tN_high")},
-        {"bWN", EventCounter("bWN")},
-        {"bC2x_diag", EventCounter("bC2x_diag")},
-        {"bC2x_med", EventCounter("bC2x_med")},
-        {"bCbv", EventCounter("bCbv")},
-        {"DM_low_loose", EventCounter("DM_low_loose")},
-        {"DM_low", EventCounter("DM_low")},
-        {"DM_high", EventCounter("DM_high")},
-        {"bffN", EventCounter("bffN")},
-        {"bCsoft_diag", EventCounter("bCsoft_diag")},
-        {"bCsoft_med", EventCounter("bCsoft_med")},
-        {"bCsoft_high", EventCounter("bCsoft_high")},
-      };
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=16;
@@ -175,6 +158,22 @@ namespace Gambit {
 
       Analysis_ATLAS_13TeV_1LEPStop_36invfb()
       {
+
+        // Numbers passing cuts
+        _counters["tN_med"] = EventCounter("tN_med");
+        _counters["tN_high"] = EventCounter("tN_high");
+        _counters["bWN"] = EventCounter("bWN");
+        _counters["bC2x_diag"] = EventCounter("bC2x_diag");
+        _counters["bC2x_med"] = EventCounter("bC2x_med");
+        _counters["bCbv"] = EventCounter("bCbv");
+        _counters["DM_low_loose"] = EventCounter("DM_low_loose");
+        _counters["DM_low"] = EventCounter("DM_low");
+        _counters["DM_high"] = EventCounter("DM_high");
+        _counters["bffN"] = EventCounter("bffN");
+        _counters["bCsoft_diag"] = EventCounter("bCsoft_diag");
+        _counters["bCsoft_med"] = EventCounter("bCsoft_med");
+        _counters["bCsoft_high"] = EventCounter("bCsoft_high");
+
 
         set_analysis_name("ATLAS_13TeV_1LEPStop_36invfb");
         set_luminosity(36.);
@@ -391,7 +390,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Construct baseline muon objects
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -404,7 +403,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Construct set of all light baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
@@ -417,7 +416,7 @@ namespace Gambit {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.5) baselineTaus.push_back(tau);
         }
         // Apply tau efficiency
-        ATLAS::applyTauEfficiencyR1(baselineTaus);
+        applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;
@@ -437,7 +436,7 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.9)
@@ -709,7 +708,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(baselineElectrons[0]);
-            ATLAS::applyTightIDElectronSelection(tightElectrons);
+            applyEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselLowMet = preselLowMet && (tightElectrons.size()==1);
           }
 
@@ -918,7 +917,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(signalSoftElectrons[0]);
-            ATLAS::applyTightIDElectronSelection(tightElectrons);
+            applyEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselSoftLep = preselSoftLep && (tightElectrons.size()==1);
           }
 
@@ -1350,22 +1349,6 @@ namespace Gambit {
 
         return;
 
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_1LEPStop_36invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_1LEPStop_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
       }
 
 

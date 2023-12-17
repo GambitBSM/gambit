@@ -30,25 +30,6 @@ namespace Gambit {
     class Analysis_ATLAS_13TeV_2LEPStop_36invfb : public Analysis {
     private:
 
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-            {"SRASF120", EventCounter("SRASF120")},
-            {"SRADF120", EventCounter("SRADF120")},
-            {"SRASF140", EventCounter("SRASF140")},
-            {"SRADF140", EventCounter("SRADF140")},
-            {"SRASF160", EventCounter("SRASF160")},
-            {"SRADF160", EventCounter("SRADF160")},
-            {"SRASF180", EventCounter("SRASF180")},
-            {"SRADF180", EventCounter("SRADF180")},
-            {"SRBSF120", EventCounter("SRBSF120")},
-            {"SRBDF120", EventCounter("SRBDF120")},
-            {"SRBSF140", EventCounter("SRBSF140")},
-            {"SRBDF140", EventCounter("SRBDF140")},
-            {"SRCSF110", EventCounter("SRCSF110")},
-            {"SRCDF110", EventCounter("SRCDF110")},
-            {"SR4b", EventCounter("SR4b")},
-        };
-
         // Cut Flow
         vector<int> cutFlowVector;
         vector<string> cutFlowVector_str;
@@ -116,7 +97,27 @@ namespace Gambit {
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-        Analysis_ATLAS_13TeV_2LEPStop_36invfb() {
+        Analysis_ATLAS_13TeV_2LEPStop_36invfb()
+        {
+
+          // Numbers passing cuts
+          _counters["SRASF120"] = EventCounter("SRASF120");
+          _counters["SRADF120"] = EventCounter("SRADF120");
+          _counters["SRASF140"] = EventCounter("SRASF140");
+          _counters["SRADF140"] = EventCounter("SRADF140");
+          _counters["SRASF160"] = EventCounter("SRASF160");
+          _counters["SRADF160"] = EventCounter("SRADF160");
+          _counters["SRASF180"] = EventCounter("SRASF180");
+          _counters["SRADF180"] = EventCounter("SRADF180");
+          _counters["SRBSF120"] = EventCounter("SRBSF120");
+          _counters["SRBDF120"] = EventCounter("SRBDF120");
+          _counters["SRBSF140"] = EventCounter("SRBSF140");
+          _counters["SRBDF140"] = EventCounter("SRBDF140");
+          _counters["SRCSF110"] = EventCounter("SRCSF110");
+          _counters["SRCDF110"] = EventCounter("SRCDF110");
+          _counters["SR4b"] = EventCounter("SR4b");
+
+
 
             set_analysis_name("ATLAS_13TeV_2LEPStop_36invfb");
             set_luminosity(36.1);
@@ -150,12 +151,12 @@ namespace Gambit {
             }
 
             // Apply electron efficiency
-            ATLAS::applyElectronEff(blElectrons);
-            ATLAS::applyElectronEff(baselineElectrons);
+            applyEfficiency(blElectrons, ATLAS::eff2DEl.at("Generic"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
             // Apply loose electron selection
-            ATLAS::applyLooseIDElectronSelectionR2(blElectrons);
-            ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+            applyEfficiency(blElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
             const std::vector<double>  a = {0,10.};
             const std::vector<double>  b = {0,10000.};
@@ -169,13 +170,13 @@ namespace Gambit {
             }
 
             // Apply muon efficiency
-            ATLAS::applyMuonEff(blMuons);
-            ATLAS::applyMuonEff(baselineMuons);
+            applyEfficiency(blMuons, ATLAS::eff2DMu.at("Generic"));
+            applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
             // Jets
             vector<const HEPUtils::Jet*> blJets;          // Used for SR-2body and SR-3body
             vector<const HEPUtils::Jet*> baselineJets;    // Used for SR-4body
-            for (const HEPUtils::Jet* jet : event->jets()) {
+            for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
                 if (jet->pT() > 20. && fabs(jet->eta()) < 2.8) blJets.push_back(jet);
                 if (jet->pT() > 20. && fabs(jet->eta()) < 2.8) baselineJets.push_back(jet);
             }
@@ -211,7 +212,7 @@ namespace Gambit {
                     sgElectrons.push_back(electron);
                 }
             }
-            ATLAS::applyMediumIDElectronSelectionR2(sgElectrons);
+            applyEfficiency(sgElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             for (const HEPUtils::Particle* electron : sgElectrons) {
                 sgLeptons.push_back(electron);
             }
@@ -220,7 +221,7 @@ namespace Gambit {
                     sgLeptons.push_back(muon);
                 }
             }
-            ATLAS::applyMediumIDElectronSelectionR2(baselineElectrons);
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             for (const HEPUtils::Particle* electron : baselineElectrons) {
                 signalLeptons.push_back(electron);
             }
@@ -570,22 +571,6 @@ namespace Gambit {
 
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-            const Analysis_ATLAS_13TeV_2LEPStop_36invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_2LEPStop_36invfb*>(other);
-
-            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-            if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-            for (int j=0; j<NCUTS; j++)
-            {
-                cutFlowVector[j] += specificOther->cutFlowVector[j];
-                cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-            }
-        }
-
 
         void collect_results() {
 
@@ -603,8 +588,6 @@ namespace Gambit {
             // }
             // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
 
-
-            // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
 
             // signal regin 2-body A
             add_result(SignalRegionData(_counters.at("SRASF120"), 22., { 20.0, 4.6}));

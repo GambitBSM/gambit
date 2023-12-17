@@ -54,25 +54,6 @@ namespace Gambit {
     class Analysis_ATLAS_13TeV_0LEPStop_36invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-
-      std::map<string, EventCounter> _counters = {
-        {"SRA_TT", EventCounter("SRA_TT")},
-        {"SRA_TW", EventCounter("SRA_TW")},
-        {"SRA_T0", EventCounter("SRA_T0")},
-        {"SRB_TT", EventCounter("SRB_TT")},
-        {"SRB_TW", EventCounter("SRB_TW")},
-        {"SRB_T0", EventCounter("SRB_T0")},
-        {"SRC1", EventCounter("SRC1")},
-        {"SRC2", EventCounter("SRC2")},
-        {"SRC3", EventCounter("SRC3")},
-        {"SRC4", EventCounter("SRC4")},
-        {"SRC5", EventCounter("SRC5")},
-        {"SRD_low", EventCounter("SRD_low")},
-        {"SRD_high", EventCounter("SRD_high")},
-        {"SRE", EventCounter("SRE")},
-      };
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       int NCUTS; //=16;
@@ -174,7 +155,24 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      Analysis_ATLAS_13TeV_0LEPStop_36invfb() {
+      Analysis_ATLAS_13TeV_0LEPStop_36invfb()
+      {
+        // Numbers passing cuts
+        _counters["SRA_TT"] = EventCounter("SRA_TT");
+        _counters["SRA_TW"] = EventCounter("SRA_TW");
+        _counters["SRA_T0"] = EventCounter("SRA_T0");
+        _counters["SRB_TT"] = EventCounter("SRB_TT");
+        _counters["SRB_TW"] = EventCounter("SRB_TW");
+        _counters["SRB_T0"] = EventCounter("SRB_T0");
+        _counters["SRC1"] = EventCounter("SRC1");
+        _counters["SRC2"] = EventCounter("SRC2");
+        _counters["SRC3"] = EventCounter("SRC3");
+        _counters["SRC4"] = EventCounter("SRC4");
+        _counters["SRC5"] = EventCounter("SRC5");
+        _counters["SRD_low"] = EventCounter("SRD_low");
+        _counters["SRD_high"] = EventCounter("SRD_high");
+        _counters["SRE"] = EventCounter("SRE");
+
 
         set_analysis_name("ATLAS_13TeV_0LEPStop_36invfb");
         set_luminosity(36.);
@@ -251,8 +249,8 @@ namespace Gambit {
         }
 
         // Apply lepton efficiencies
-        ATLAS::applyElectronEff(baselineElectrons);
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;
@@ -265,7 +263,7 @@ namespace Gambit {
         //for (const HEPUtils::Particle* tau : event->taus()) {
         //if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         //}
-        //ATLAS::applyTauEfficiencyR1(baselineTaus);
+        //applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
 
         // Jets
@@ -279,7 +277,7 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)
@@ -1149,21 +1147,6 @@ namespace Gambit {
 
         return;
 
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_13TeV_0LEPStop_36invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_13TeV_0LEPStop_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-        for (int j=0; j<NCUTS; j++) {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
       }
 
 

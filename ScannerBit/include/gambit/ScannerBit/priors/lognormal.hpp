@@ -40,94 +40,88 @@
 
 namespace Gambit
 {
-  namespace Priors
-  {
-    /**
-     * @brief  Multi-dimensional Log-Normal prior
-     *
-     * Defined by a covariance matrix and mean of \f$\log x\f$.
-     *
-     * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its
-     * diagonal entries, denoted \f$\sigma\f$.
-     *
-     * The base is by default 10.
-     */
-    class LogNormal : public BasePrior
+    namespace Priors
     {
-     private:
-      std::vector <double> mu;
-      double base{10.};
-      mutable Cholesky col;
-
-     public:
-      // Constructor defined in LogNormal.cpp
-      LogNormal(const std::vector<std::string>&, const Options&);
-
-      // Transformation from unit interval to the Log-Normal
-      void transform(const std::vector <double> &unitpars, std::unordered_map<std::string, double> &outputMap) const override
-      {
-        std::vector<double> vec(unitpars.size());
-
-        auto v_it = vec.begin();
-        for (auto elem_it = unitpars.begin(), elem_end = unitpars.end(); elem_it != elem_end; elem_it++, v_it++)
+        /**
+        * @brief  Multi-dimensional Log-Normal prior
+        *
+        * Defined by a covariance matrix and mean of \f$\log x\f$.
+        *
+        * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its
+        * diagonal entries, denoted \f$\sigma\f$.
+        *
+        * The base is by default 10.
+        */
+        class LogNormal : public BasePrior
         {
-          *v_it = M_SQRT2 * boost::math::erf_inv(2. * (*elem_it) - 1.);
-        }
+        private:
+            std::vector <double> mu;
+            double base{10.};
+            mutable Cholesky col;
 
-        col.ElMult(vec);
+        public:
+            // Constructor defined in LogNormal.cpp
+            LogNormal(const std::vector<std::string>&, const Options&);
 
-        v_it = vec.begin();
-        auto m_it = mu.begin();
-        for (auto str_it = param_names.begin(), str_end = param_names.end(); str_it != str_end; str_it++)
-        {
-          outputMap[*str_it] = std::pow(base, *(v_it++) + *(m_it++));
-        }
-      }
+            // Transformation from unit interval to the Log-Normal
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string, double> &outputMap) const override
+            {
+                std::vector<double> vec(unitpars.size());
+                for (int i = 0, end = vec.size(); i < end; ++i)
+                    vec[i] = M_SQRT2 * boost::math::erf_inv(2. * unitpars[i] - 1.);
 
-      std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
-      {
-        // undo exponentiation
-        std::vector<double> log_physical;
-       for (int i = 0, n = this->size(); i < n; i++)
-        {
-          log_physical.push_back(std::log(physical.at(param_names[i])) / std::log(base));
-        }
+                col.ElMult(vec);
 
-        // subtract mean
-        std::vector<double> central;
-        for (int i = 0, n = this->size(); i < n; i++)
-        {
-          central.push_back(log_physical[i] - mu[i]);
-        }
+                auto v_it = vec.begin();
+                auto m_it = mu.begin();
+                for (auto str_it = param_names.begin(), str_end = param_names.end(); str_it != str_end; str_it++)
+                {
+                    outputMap[*str_it] = std::pow(base, *(v_it++) + *(m_it++));
+                }
+            }
 
-        // invert rotation by Cholesky matrix
-        std::vector<double> rotated = col.invElMult(central);
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
+            {
+                // undo exponentiation
+                std::vector<double> log_physical;
+                for (int i = 0, n = this->size(); i < n; i++)
+                {
+                    log_physical.push_back(std::log(physical.at(param_names[i])) / std::log(base));
+                }
 
-        // now diagonal; invert Gaussian CDF
-        std::vector<double> u;
-        for (const auto& v : rotated)
-        {
-          u.push_back(0.5 * (boost::math::erf(v / M_SQRT2) + 1.));
-        }
-        return u;
-      }
+                // subtract mean
+                std::vector<double> central;
+                for (int i = 0, n = this->size(); i < n; i++)
+                {
+                    central.push_back(log_physical[i] - mu[i]);
+                }
 
-      double operator()(const std::vector<double> &vec) const override
-      {
-        static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
-        std::vector<double> log_vec;
-        for (const auto& v : vec)
-        {
-          log_vec.push_back(std::log(v) / std::log(base));
-        }
-        const double log_prod = std::accumulate(log_vec.begin(), log_vec.end(), 0.);
-        return -0.5 * col.Square(log_vec, mu) - norm - log_prod;
-      }
-    };
+                // invert rotation by Cholesky matrix
+                std::vector<double> rotated = col.invElMult(central);
 
-    LOAD_PRIOR(lognormal, LogNormal)
+                // now diagonal; invert Gaussian CDF
+                for (int i = 0, end = rotated.size(); i < end; ++i)
+                    unit[i] = 0.5 * (boost::math::erf(rotated[i] / M_SQRT2) + 1.0);
+            }
 
-  }  // namespace Priors
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const
+            {
+                static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
+                std::vector<double> log_vec(param_names.size());
+                for (int i = 0, end = param_names.size(); i < end; ++i)
+                {
+                    log_vec[i] = std::log(physical.at(param_names[i])) / std::log(base);
+                }
+                const double log_prod = std::accumulate(log_vec.begin(), log_vec.end(), 0.);
+                
+                return -0.5 * col.Square(log_vec, mu) - norm - log_prod;
+            }
+        };
+
+        LOAD_PRIOR(lognormal, LogNormal)
+
+    }  // namespace Priors
+
 }  // namespace Gambit
 
 #endif  // __PRIOR_LOGNORMAL_HPP__

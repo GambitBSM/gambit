@@ -36,6 +36,10 @@
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 Nov
+///
 ///  *********************************************
 
 #ifndef __functor_definitions_hpp__
@@ -93,7 +97,7 @@ namespace Gambit
     template <typename TYPE>
     void module_functor<TYPE>::calculate()
     {
-      if (myStatus == -3)                          // Do an explicit status check to hold standalone writers' hands
+      if (myStatus == FunctorStatus::Classes_missing) // Do an explicit status check to hold standalone writers' hands
       {
         std::ostringstream ss;
         ss << "Sorry, the function " << origin() << "::" << name()

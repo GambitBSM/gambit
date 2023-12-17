@@ -310,7 +310,13 @@ Rules:
       LHC_8TeV:
         xsec_veto: 0.00
         partonOnly: false
-        antiktR: 0.4
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt
+            R: 0.4
+            recombination_scheme: E_scheme
+            strategy: Best
+        jet_collection_taus: antikt_R04
         pythia_settings:
           - Beams:eCM = 8000
           - Next:numberShowProcess = 1
@@ -329,7 +335,18 @@ Rules:
         # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
         xsec_veto: 0.028
         partonOnly: false
-        antiktR: 0.4
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt  # antikt, cambridge, kt, genkt, cambridge_for_passive
+            R: 0.4
+            recombination_scheme: E_scheme   # E_scheme, pt_scheme, pt2_scheme 
+            strategy: Best     # Best, NlnN
+          # antikt_R08:
+          #   algorithm: antikt
+          #   R: 0.8
+          #   recombination_scheme: E_scheme
+          #   strategy: Best
+        jet_collection_taus: antikt_R04
         pythia_settings:
           - Beams:eCM = 13000
           - Next:numberShowProcess = 1

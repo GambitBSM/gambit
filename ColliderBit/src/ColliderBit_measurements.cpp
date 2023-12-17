@@ -484,7 +484,7 @@ namespace Gambit
           summary_line << "LHC Contur LogLikes per pool: ";
           result = (*Dep::LHC_measurements).pool_LLR;
 
-          for( auto const& entry : result)
+          for (auto const& entry : result)
           {
             summary_line << entry.first << ":" << entry.second << ", ";
           }
@@ -506,7 +506,7 @@ namespace Gambit
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }
           }
-          for( auto const& entry : result)
+          for (auto const& entry : result)
           {
             summary_line << entry.first << ":" << entry.second << ", ";
           }
@@ -522,7 +522,7 @@ namespace Gambit
           summary_line << "LHC Contur LogLikes per pool: ";
           result = (*Dep::LHC_measurements).pool_tags;
 
-          for( auto const& entry : result)
+          for (auto const& entry : result)
           {
             summary_line << entry.first << ":" << entry.second << ", ";
           }
@@ -547,7 +547,7 @@ namespace Gambit
               result[pool_LLR_entry.first + "_" + contur_output_instance.first] = pool_LLR_entry.second;
             }
           }
-          for( auto const& entry : result)
+          for (auto const& entry : result)
           {
             summary_line << entry.first << ":" << entry.second << ", ";
           }

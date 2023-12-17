@@ -481,6 +481,12 @@ LHC_LogLikes: |
 LHC_Combined_LogLike: |
    A final, single delta-log-likelihood value for LHC searches.
 
+LHC_efficiencies_per_SR: |
+   Efficiency x acceptance for every signal region in the LHC analyses.
+
+LHC_efficiencies_per_analysis: |
+   Efficiency x acceptance per LHC analysis.
+
 LHC_LogLike_per_SR: |
    Delta-log-likelihood values for every signal region in the LHC analyses.
 
