@@ -105,7 +105,9 @@ namespace Gambit
           xsec_veto_fb = colOptions.getValueOrDef<double>(xsec_veto_default, "xsec_veto");
           result.partonOnly = colOptions.getValueOrDef<bool>(partonOnly_default, "partonOnly");
 
-          // Fill the jet collection settings
+          // Fill the jet collection settings.
+          result.all_jet_collection_settings.clear();
+          result.jetcollection_taus = "";
           if (colOptions.hasKey("jet_collections"))
           {
             YAML::Node all_jetcollections_node = colOptions.getValue<YAML::Node>("jet_collections");

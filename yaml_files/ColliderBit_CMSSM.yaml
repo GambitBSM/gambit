@@ -297,7 +297,7 @@ Rules:
           - ATLAS_13TeV_0LEPStop_36invfb
           - ATLAS_13TeV_2LEPStop_36invfb
           - ATLAS_13TeV_2bMET_36invfb
-          - ATLAS_13TeV_1Lep2b_139invfb
+          - CMS_13TeV_1LEPbb_137invfb
         # - ATLAS_13TeV_RJ3L_lowmass_36invfb
         # - ATLAS_13TeV_1LEPStop_36invfb
         # The last two analyses depend on ROOT.
@@ -341,11 +341,11 @@ Rules:
             R: 0.4
             recombination_scheme: E_scheme   # E_scheme, pt_scheme, pt2_scheme 
             strategy: Best     # Best, NlnN
-          # antikt_R08:
-          #   algorithm: antikt
-          #   R: 0.8
-          #   recombination_scheme: E_scheme
-          #   strategy: Best
+          antikt_R08:
+            algorithm: antikt
+            R: 0.8
+            recombination_scheme: E_scheme
+            strategy: Best
         jet_collection_taus: antikt_R04
         pythia_settings:
           - Beams:eCM = 13000
