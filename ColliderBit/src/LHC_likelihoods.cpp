@@ -49,6 +49,7 @@
 #include "gambit/Elements/gambit_module_headers.hpp"
 #include "gambit/ColliderBit/ColliderBit_rollcall.hpp"
 #include "gambit/Utils/statistics.hpp"
+#include "gambit/Utils/threadsafe_rng.hpp"
 #include "gambit/Utils/util_macros.hpp"
 #include "gambit/ColliderBit/Utils.hpp"
 
@@ -727,7 +728,7 @@ namespace Gambit
         cout << DEBUG_PREFIX << "calc_LHC_LogLikes: Analysis " << analysis << " has no covariance matrix: computing single best-expected loglike." << endl;
         #endif
 
-        double bestexp_dll_exp = 0, bestexp_dll_obs = NAN;
+        double bestexp_dll_exp = 0.0, bestexp_dll_obs = NAN;
         str bestexp_sr_label;
         int bestexp_sr_index;
         double nocovar_srsum_dll_obs = 0;
@@ -856,7 +857,6 @@ namespace Gambit
 
         // Or should we use the naive sum of SR loglikes (without correlations) instead,
         // or marginalise over the SR choice?
-        // _Anders
         if (combine_nocovar_SRs and !marginalise_over_SR_selection)
         {
           dll = nocovar_srsum_dll_obs;
@@ -871,18 +871,62 @@ namespace Gambit
           for (int toy_i = 0; toy_i < n_toys; ++toy_i)
           {
 
+            int chosen_SR = -1;
+            double bestexp_dll_exp = 0.0;  // or DBL_MAX?
+
             for (size_t SR = 0; SR < nSR; ++SR)
             {
               const SignalRegionData& srData = ana_data[SR];
 
-              // _Anders: Do marginalisation over SR choice here
-              cerr << DEBUG_PREFIX << "Will do clever stuff here!" << endl;
+              // _Anders
 
-            }
+              // Sample MC signal count from Poisson (toy_s_MC)
+              std::poisson_distribution<int> poisson_dist(srData.n_sig_MC);
+              int toy_s_MC = poisson_dist(Random::rng());
+              double toy_s_scaled = toy_s_MC * srData.scalefactor();
+
+              // Compute *expected* delta loglike using (n=b, toy_s_scaled, b)
+              const double n_pred_b = std::max(srData.n_bkg, 0.001);
+              const double n_pred_sb = n_pred_b + toy_s_scaled;
+
+              const double n_pred_b_int = round(n_pred_b);
+
+              // Absolute errors for n_predicted_uncertain_*
+              const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001); // <-- Avoid trouble with b_err==0
+              const double n_sig_scaled_err = srData.calc_n_sig_scaled_err();
+              const double abs_uncertainty_sb = std::sqrt(srData.n_bkg_err * srData.n_bkg_err + n_sig_scaled_err * n_sig_scaled_err);
+
+              // Construct dummy 1-element Eigen objects for passing to the general likelihood calculator
+              Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
+              Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
+              Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
+              Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
+              Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
+              Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
+
+              const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
+              const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
+              const double dll_exp = ll_sb_exp - ll_b_exp;
+
+              // Update the SR choice?
+              if (dll_exp < bestexp_dll_exp || SR == 0)
+              {
+                chosen_SR = SR;
+                bestexp_dll_exp = dll_exp;
+              }
+
+            } // End loop over SRs
+
+            // Register a vote for the current best SR
+            SR_votes[chosen_SR] += 1; 
+
+          } // End loop over toys
+
+          // _Anders
+          for (size_t i=0; i < SR_votes.size(); ++i)
+          {
+            cerr << DEBUG_PREFIX << ana_name << ": SR " << i << ": votes: " << SR_votes[i] << endl;
           }
-
-          // Use the SR_votes to compute a vector of SR weights
-          // std::vector<double> SR_weights(nSR, 0.0);
 
           // Compute the combined dll as a weighted sum (of the actual observed loglikes)
           dll = 0.0;
@@ -892,9 +936,9 @@ namespace Gambit
 
             if (n_votes == 0) continue;
 
-            double weight = (1.0 / n_toys) * SR_votes[SR];
+            double weight = (1.0 / n_toys) * n_votes;
 
-            // TODO: BEGIN get rid of this block by storing results
+            // TODO: Get rid of this block by storing results
             const SignalRegionData& srData = ana_data[SR];
 
             const double n_pred_b = std::max(srData.n_bkg, 0.001);
@@ -915,13 +959,13 @@ namespace Gambit
             const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
             const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
             const double dll_obs = ll_sb_obs - ll_b_obs;
-            // TODO: END get rid of this block by storing results
+            // TODO END
 
             // Add contribution to the combined loglike for this analysis
             dll += weight * dll_obs;
           }
 
-        }
+        } // End if-block on how to compute the analysis loglike
 
 
         // Write combined loglike to the ana_loglikes reference

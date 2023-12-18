@@ -189,6 +189,7 @@ namespace Gambit
       bool use_covar;
       bool use_marg;
       bool combine_nocovar_SRs;
+      bool marginalise_over_SR_selection;
       bool use_fulllikes;
     };
 
@@ -203,7 +204,7 @@ namespace Gambit
 
     /// Forward declaration of funtion in LHC_likelihoods
     // @todo Interpolation will not currently work with the FullLikes backend. None of the currently written interpolation analysis require this.
-    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
+    void fill_analysis_loglikes(const AnalysisData&, AnalysisLogLikes&, bool, bool, bool, bool, bool, bool (*FullLikes_FileExists)(const str&), int (*FullLikes_ReadIn)(const str&, const str&), double (*FullLikes_Evaluate)(std::map<str,double>&,const str&), const std::string);
 
     /// Forward declarations of functions in this file
     void DMEFT_fill_analysis_info_map();
@@ -1028,7 +1029,7 @@ namespace Gambit
         // Compute the combined analysis loglike and add it to total_loglike
         AnalysisLogLikes analoglikes;
         analoglikes.initialize(adata);
-        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->use_fulllikes && has_fulllikes, nullptr, nullptr, nullptr, "");
+        fill_analysis_loglikes(adata, analoglikes, fpars->use_marg, fpars->use_covar && has_covar, fpars->combine_nocovar_SRs, fpars->marginalise_over_SR_selection, fpars->use_fulllikes && has_fulllikes, nullptr, nullptr, nullptr, "");
         total_loglike += analoglikes.combination_loglike;
       }
 
@@ -1074,6 +1075,11 @@ namespace Gambit
       static const bool use_marg = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "use_marginalising");
       // Use the naive sum of SR loglikes for analyses without known correlations?
       static const bool combine_nocovar_SRs = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "combine_SRs_without_covariances");
+      static const bool marginalise_over_SR_selection = Pipes::calc_LHC_LogLikes::runOptions->getValueOrDef<bool>(false, "marginalise_over_SR_selection");
+      if (combine_nocovar_SRs and marginalise_over_SR_selection)
+      {
+        ColliderBit_error().raise(LOCAL_INFO, "Inconsistent settings: 'combine_nocovar_SRs' and 'marginalise_over_SR_selection' cannot both be set to true.");
+      }
       // These LHC likelihoods don't use the ATLAS full likelihood system
       static const bool use_fulllikes = false;
 
@@ -1110,6 +1116,7 @@ namespace Gambit
       fpars.use_covar = use_covar;
       fpars.use_marg = use_marg;
       fpars.combine_nocovar_SRs = combine_nocovar_SRs;
+      fpars.marginalise_over_SR_selection = marginalise_over_SR_selection;
       fpars.use_fulllikes = use_fulllikes;
 
       // Create a variable to store the best-fit loglike
