@@ -96,8 +96,6 @@ namespace Gambit {
       // Required detector sim
       static constexpr const char* detector = "ATLAS";
 
-      static bool sortByPT(const HEPUtils::Jet* jet1, const HEPUtils::Jet* jet2) { return (jet1->pT() > jet2->pT()); }
-
       // Values taken from fig 17, https://arxiv.org/pdf/1510.03823.pdf
       // (old but most recent JVT publication)
       // This is almost certainly, too conservative.
@@ -206,7 +204,7 @@ namespace Gambit {
          //TODO: where does the bjet presel cut come in?
         _cutflows.addCutflow("SR_Gbb_B", {"Nsiglep=0","dPhi4jmin>0.4","mbjets_Tmin>=130","ETMiss>=550","pTjet>=65","Meff>=2600"});
         _cutflows.addCutflow("SR_Gbb_M", {"Nsiglep=0","dPhi4jmin>0.4","mbjets_Tmin>=130","ETMiss>=550","Meff>=2000"});
-        // n.b. I'm 99% sure Aux Table 4 gets meff and the met cut the wrong way round, should be consistent with Gbb_B, Gbb_M
+        // n.b. I'm 99% sure Aux Table 4 gets meff and the met cut the wrong way round for Gbb_C, should be consistent with Gbb_B, Gbb_M
         _cutflows.addCutflow("SR_Gbb_C", {"Nsiglep=0","dPhi4jmin>0.4","mbjets_Tmin>=130","ETMiss>=550","Meff>=1600"}); 
 
         _cutflows.addCutflow("SR_Gtb_B", {"ETmissTrigger", "Nsiglep=0", "dPhi4jmin>0.4", "mbjets_Tmin>=130", "Meff>=2500", "ETMiss>=550", "totJetMass>=200"});
@@ -241,9 +239,7 @@ namespace Gambit {
       }
 
       void run(const HEPUtils::Event* event) {
-        // static size_t nevents = 0;
-        // cout << nevents++ << endl;
-
+        
         // Get the missing energy in the event
         double met = event->met();
         HEPUtils::P4 metVec = event->missingmom();
@@ -471,8 +467,6 @@ namespace Gambit {
 
         };
         
-        // std::cout << "NN (prenorm): ";
-        // printvec(nn_inputs);
         normalise_nn_kinematics(nn_inputs);
         map<string, vector<float>> nn_outputs;
 
