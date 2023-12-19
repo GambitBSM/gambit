@@ -235,53 +235,6 @@ namespace Gambit {
 
       }
 
-      // The following section copied from Analysis_ATLAS_1LEPStop_20invfb.cpp
-      void JetLeptonOverlapRemoval(vector<const HEPUtils::Jet*> &jetvec, const vector<const HEPUtils::Particle*> &lepvec, const double DeltaRMax) {
-        //Routine to do jet-lepton check
-        //Discards jets if they are within DeltaRMax of a lepton
-        vector<const HEPUtils::Jet*> Survivors;
-
-        for(unsigned int itjet = 0; itjet < jetvec.size(); itjet++) {
-          bool overlap = false;
-          HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
-          for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
-            HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-            double dR;
-
-            dR=jetmom.deltaR_rap(lepmom);
-
-            if(fabs(dR) <= DeltaRMax) overlap=true;
-          }
-          if(overlap) continue;
-          Survivors.push_back(jetvec.at(itjet));
-        }
-        jetvec=Survivors;
-
-        return;
-      }
-
-      //Discards electrons if they are within variable dR of a jet as defined in analysis paper
-      void ElectronJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, const vector<const HEPUtils::Jet*> &jetvec, const double dRmax=0.2) {
-        //Routine to do lepton-jet check
-        //Discards leptons if they are within dR of a jet as defined in analysis paper
-        vector<const HEPUtils::Particle*> Survivors;
-
-        for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
-          bool overlap = false;
-          HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-          for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++) {
-            HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
-            const double dR=jetmom.deltaR_rap(lepmom);
-            if(fabs(dR) <= dRmax) overlap=true;
-          }
-          if(overlap) continue;
-          Survivors.push_back(lepvec.at(itlep));
-        }
-        lepvec=Survivors;
-
-        return;
-      }
-
       //Discards muons if they are within variable dR of a jet as defined in analysis paper
       void MuonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, const vector<const HEPUtils::Jet*> &jetvec) {
         //Routine to do lepton-jet check
@@ -428,16 +381,16 @@ namespace Gambit {
         }
         // Overlap removal
         // TODO: Just left in for now.
-        JetLeptonOverlapRemoval(nonbJets,baseElectrons,0.2);
-        JetLeptonOverlapRemoval(nonbJets,sigElectrons,0.2);
+        removeOverlap(nonbJets, baseElectrons,0.2);
+        removeOverlap(nonbJets, sigElectrons,0.2);
+        
+        removeOverlap(baseElectrons,nonbJets, 0.4);
+        removeOverlap(baseElectrons,bJets, 0.4);
+        removeOverlap(sigElectrons,nonbJets, 0.4);
+        removeOverlap(sigElectrons,bJets, 0.4);
 
-        ElectronJetOverlapRemoval(baseElectrons,nonbJets,0.4);
-        ElectronJetOverlapRemoval(baseElectrons,bJets,0.4);
-        ElectronJetOverlapRemoval(sigElectrons,nonbJets,0.4);
-        ElectronJetOverlapRemoval(sigElectrons,bJets,0.4);
         // Jet-Muon probably not doable, skip for now (need number of jet constituents)
         // Should be relatively negligible, only applies to jets <= 2 tracks.
-
         MuonJetOverlapRemoval(baseMuons,nonbJets);
         MuonJetOverlapRemoval(baseMuons,bJets);
         MuonJetOverlapRemoval(sigMuons,nonbJets);
