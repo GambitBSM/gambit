@@ -187,32 +187,6 @@ namespace Gambit {
         return bineffs_pt[binIndex(muon->pT(), binedges_pt)];
       }
 
-      /// Electron 2020 ID efficiency functions in 1908.00005 using 81 fb^-1 of Run 2 data
-      /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-      /// Function 95% copied from ATLASEfficiencies.hpp
-      inline double getElectronIDEfficiency2020(const Particle* electron, str operating_point){
-
-        // Digitised from Fig 23a
-        const static std::vector<double> binedges_pt = {4.5, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 60.0, 80.0, DBL_MAX};
-        const static std::vector<double> bineffs_pt_loose = {0.976333, 0.928653, 0.882698, 0.830078, 0.86466, 0.884306, 0.901769, 0.920381, 0.930032, 0.936581, 0.938994, 0.943589, 0.949449};
-        const static std::vector<double> bineffs_pt_medium = {0.790671, 0.797679, 0.816062, 0.752183, 0.794807, 0.82801, 0.847541, 0.868796, 0.882008, 0.887868, 0.897518, 0.916475, 0.93233};
-        const static std::vector<double> bineffs_pt_tight = {0.582835, 0.608686, 0.670726, 0.651999, 0.684283, 0.716567, 0.747358, 0.768038, 0.782399, 0.795381, 0.815832, 0.853631, 0.884536};
-        
-        // Select operating point
-        std::vector<double> bineffs_pt;
-        if (operating_point == "Loose")
-          bineffs_pt = bineffs_pt_loose;
-        else if (operating_point == "Medium")
-          bineffs_pt = bineffs_pt_medium;
-        else if (operating_point == "Tight")
-          bineffs_pt = bineffs_pt_tight;
-        else
-          utils_error().raise(LOCAL_INFO, "Unknown operating point");
-
-        return bineffs_pt[binIndex(electron->pT(), binedges_pt)];
-      }
-
-
 
       Analysis_ATLAS_13TeV_3b_NN_139invfb() {
         set_analysis_name("ATLAS_13TeV_3b_NN_139invfb");
@@ -367,8 +341,10 @@ namespace Gambit {
         vector<const HEPUtils::Particle*> sigElectrons, baseElectrons;
         vector<const HEPUtils::Particle*> sigMuons, baseMuons;
         for (const HEPUtils::Particle* el : electrons){
-          const double eff_tight = getElectronIDEfficiency2020(el, "Tight");
-          const double eff_loose = getElectronIDEfficiency2020(el, "Loose");
+          const thread_local static auto loose_func = ATLAS::eff1DEl.at("eff1DEl_EGAM_2018_01_ID_Loose");
+          const thread_local static auto tight_func = ATLAS::eff1DEl.at("eff1DEl_EGAM_2018_01_ID_Tight");
+          const double eff_loose = loose_func.get_at(el->pT());
+          const double eff_tight = tight_func.get_at(el->pT());
           const double rnd = Random::draw();
 
           if (rnd < eff_tight){
