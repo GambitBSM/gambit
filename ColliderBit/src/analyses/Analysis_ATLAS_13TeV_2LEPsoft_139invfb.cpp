@@ -35,19 +35,6 @@ namespace Gambit
     class Analysis_ATLAS_13TeV_2LEPsoft_139invfb : public Analysis
     {
 
-    private:
-
-//      struct ptComparison
-//      {
-//        bool operator() (HEPUtils::Particle* i,HEPUtils::Particle* j) {return (i->pT()>j->pT());}
-//      } comparePt;
-
-//      struct ptJetComparison
-//      {
-//        bool operator() (HEPUtils::Jet* i,HEPUtils::Jet* j) {return (i->pT()>j->pT());}
-//      } compareJetPt;
-
-
     public:
 
       // Required detector sim
@@ -71,12 +58,6 @@ namespace Gambit
       void run(const HEPUtils::Event* event)
       {
 
-        // Preselected objects
-        std::vector<const HEPUtils::Particle*> preselectedTracks; // This corresponds to low pT electrons and muons
-        std::vector<const HEPUtils::Jet*> preselectedJets;
-        std::vector<const HEPUtils::Jet*> preselectedBJets;
-        std::vector<const HEPUtils::Jet*> preselectedNonBJets;
-
         // Missing momentum and energy
         double met = event->met();
         HEPUtils::P4 ptot = event->missingmom();
@@ -86,56 +67,40 @@ namespace Gambit
         // TODO: In events with multiple vertices, the primary vertex is defined as the one with the highest sum pT^2 of associated tracks.
         // Missing: We cannot reject events with detector noise or non-collision backgrounds.
 
+        // *******************
+        // Preselected objects
+
         // Electrons are required to have pT > 4.5 GeV and |η| < 2.47.
-        // Preselected tracks with pT > 500 MeV and η < 2.5
-        BASELINE_PARTICLES(event->electrons(), preselectedElectrons, 4.5, 0, DBL_MAX, 2.47, ATLAS::eff2DEl.at(""))
-        BASELINE_PARTICLES(event->muons(), preselectedMuons, 3.0, 0, DBL_MAX, 2.5, ATLAS::eff2DMu.at(""))
-
-        for (const HEPUtils::Particle* electron : event->electrons())
-        {
-          if (electron->pT() > 4.5 && electron->abseta() < 2.47)  preselectedElectrons.push_back(electron);
-          else if (electron->pT() > 0.5 && electron->abseta() < 2.5) preselectedTracks.push_back(electron);
-        }
-
+        // There is no VeryLoose criterium in 1908.00005, so using Loose
+        BASELINE_PARTICLES(event->electrons(), preselectedElectrons, 4.5, 0, DBL_MAX, 2.47)
+        applyEfficiency(preselectedElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
         // Preselected electrons are further required to pass the calorimeter- and tracking-based VeryLoose likelihood identification (arXiv:1902.04655), and to have a longitudinal impact parameter z0 relative to the primary vertex that satisfies |z0 sin θ| < 0.5 mm.
         // Missing: We cannot add cuts relating to impact parameters
 
-        // Apply electron efficiency
-        // TODO: Is this needed if below is done
-        applyEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("Generic"));
-
-        // TODO: This is not the same as in the reference. Need the VeryLoose efficiency
-        applyEfficiency(preselectedElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
-
         // Muons are required to satisfy pT > 3 GeV and |η| < 2.5.
-        // Preselected tracks with pT > 500 MeV and η < 2.5
-        for (const HEPUtils::Particle* muon : event->muons())
-        {
-          if (muon->pT() > 3.0 && muon->abseta() > 2.5) preselectedMuons.push_back(muon);
-          else if (muon->pT() > 0.5 && muon->abseta() > 2.5) preselectedTracks.push_back(muon);
-        }
-
-        // Preselected muons are identified using the LowPt criterion, a re-optimised selection similar to those defined in (arXiv:1603.05598) but with improved signal efficiency and background rejection for pT < 10 GeV muon candidates. Preselected muons must also satisfy |z0 sin θ| < 0.5 mm
+        // Preselected muons are identified using the LowPt criterion, a re-optimised selection similar to those defined in (arXiv:1603.05598) but with improved signal efficiency and background rejection for pT < 10 GeV muon candidates.
+        // Preselected muons must also satisfy |z0 sin θ| < 0.5 mm
         // Missing: No impact parameter info
+        BASELINE_PARTICLES(event->muons(), preselectedMuons, 3.0, 0, DBL_MAX, 2.5)
+        applyEfficiency(preselectedMuons, ATLAS::eff1DMu.at("ATLAS_PHYS_PUB_2020_002_LowPT"), true);
 
-        // Apply muon efficiency
-        // TODO: Is this needed if below is done
-        applyEfficiency(preselectedMuons, ATLAS::eff2DMu.at("Generic"));
+        // Preselected leptons
+        BASELINE_PARTICLE_COMBINATION(preselectedLeptons, preselectedElectrons, preselectedMuons)
 
-        // TODO Apply "LowPt" muon ID criteria. This is missing from (arXiv:1603.05598)
+        // Preselected tracks with pT > 500 MeV and η < 2.5
+        // Signal tracks are required to be within ∆R = 0.01 of a reconstructed electron or muon candidate.  Electron (muon) candidates can be reconstructed with transverse momenta as low as 1 (2) GeV, and are required to fail the signal lepton requirements defined above to avoid any overlap
+        // We do not really have tracks, so for our purposes, signal tracks are just leptons down to 500 MeV that are not signal leptons. First select the preselected tracks and we'll compare to signal leptons later
+        BASELINE_PARTICLE_COMBINATION(preselectedTracks, event->electrons(), event->muons(), 0.5, 0, DBL_MAX, 2.5)
+        applyEfficiency(preselectedTracks, ATLAS::eff2DTrack.at("ATL_PHYS_PUB_2015_051_Tight_Primary"));
 
-        // TODO: Apply "Tight-Primary" working point efficiencies to tracks (ATL-PHYS-PUB-2015-018)
-
-        // Preselected jets are reconstructed from calorimeter topological energy clusters in the region |η| < 4.5 using the anti-kt algorithm with radius parameter R = 0.4. The jets are required to have pT > 20 GeV after being calibrated in accord with Ref. [92] and having the expected energy contribution from pileup subtracted according to the jet area.
-        // In order to suppress jets due to pileup, jets with pT < 120 GeV and |η| < 2.5 are required to satisfy the Medium working point of the jet vertex tagger [93], which uses information from the tracks associated to the jet.
-        // Missing : no track info
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
-        {
-          if (jet->abseta() < 4.5 && jet->pT() > 20.) preselectedJets.push_back(jet);
-        }
+        // Preselected jets are reconstructed from calorimeter topological energy clusters [105] in the region |η| < 4.5 using the anti-kt algorithm [106, 107] with radius parameter R = 0.4. The jets are required to have pT > 20 GeV after being calibrated in accord with Ref. [108] and having the expected energy contribution from pileup subtracted according to the jet area [109]. In order to suppress jets due to pileup, jets with pT < 120 GeV and |η| < 2.5 are required to satisfy the Medium working point of the jet vertex tagger [109], which uses information from the tracks associated with the jet. The Loose working point of the forward jet vertex tagger [110] is in turn used to suppress pileup in jets with pT < 50 GeV and |η| > 2.5.
+        // TODO: There are neither Medium nor Loose WP defined in the references, so not sure which efficiency to apply
+        BASELINE_JETS(event->jets("antikt_R04"), preselectedJets, 20, 0, DBL_MAX, 4.5)
 
         // B-tagged jets, are identified from preselected jets within |η| < 2.5. The pT > 20 GeV requirement is maintained to maximise the rejection of the tt¯ background. The b-tagging algorithm working point is chosen so that b-jets from simulated tt¯ events are identified with an 85% efficiency, with rejection factors of 3 for charm-quark jets and 34 for light-quark and gluon jets.
-        double btag = 0.85; double cmisstag = 1/3.; double misstag = 1/34.;
+        // Jets identified as containing b-hadron decays, referred to as b-tagged jets, are identified from preselected jets within |η| < 2.5 using the MV2c10 algorithm [111]. The pT > 20 GeV requirement is maintained to maximize the rejection of the tt¯ background. The b-tagging algorithm working point is chosen so that b-jets from simulated tt¯ events are identified with an 85% efficiency, with rejection factors of 2.7 for charm-quark jets and 25 for light-quark and gluon jets.
+        std::vector<const HEPUtils::Jet*> preselectedBJets, preselectedNonBJets;
+        double btag = 0.85; double cmisstag = 1/2.7; double misstag = 1/25.;
         for (const HEPUtils::Jet* jet : preselectedJets)
         {
           if (jet->btag() && jet->abseta() < 2.5 && random_bool(btag) ) preselectedBJets.push_back(jet);
@@ -144,16 +109,17 @@ namespace Gambit
           else preselectedNonBJets.push_back(jet);
         }
 
+        // ***************
+        // Overlap removal
+
         // Non-b-tagged jets that are separated from the remaining electrons by ∆Ry < 0.2 are removed
         // Using rapidity instead of pseudorapidity
-        // TODO: Should this be done for preselected or signal electrons?
         removeOverlap(preselectedNonBJets, preselectedElectrons, 0.2, true);
 
         // Jets containing a muon candidate within ∆Ry < 0.4 and with fewer than three tracks with pT > 500 MeV are removed to suppress muon bremsstrahlung.
         // Using rapidity instead of pseudorapidity
         // Do this for both on b-tagged and non-b-tagged jets
         // Missing: We have no information about internal jet tracks
-        // TODO: Should this be done for preselected or signal muons?
         removeOverlap(preselectedBJets, preselectedMuons, 0.4, true);
         removeOverlap(preselectedNonBJets, preselectedMuons, 0.4, true);
 
@@ -164,33 +130,78 @@ namespace Gambit
         removeOverlap(preselectedElectrons, preselectedBJets, 0.4);
         removeOverlap(preselectedMuons, preselectedBJets, 0.4);
 
-        // Signal tracks must also satisfy dedicated isolation criteria – they are required to be separated from preselected jets by at least ∆R > 0.5
-        removeOverlap(preselectedTracks, preselectedNonBJets, 0.5);
-        removeOverlap(preselectedTracks, preselectedBJets, 0.5);
-
-        // Missing: Cuts on signal tracks
-        // The efficiency of selecting signal tracks for the studied electroweakino signals is 20% for electrons with 3 < pT < 4 GeV and 35% for muons with 2 < pT < 3 GeV.
-        // TODO: Should we just apply an efficiency cut of 20% on electrons and 35% on muons?
-
         //***************
         // Signal objects
-        std::vector<const HEPUtils::Particle*> signalElectrons = preselectedElectrons;
-        std::vector<const HEPUtils::Particle*> signalMuons = preselectedMuons;
-        std::vector<const HEPUtils::Jet*> signalJets, signalBJets;
-        std::vector<const HEPUtils::Particle*> signalLeptons, signalTracks;
 
         // Signal electrons must satisfy the Medium identification criterion (arXiv:1902.04655), and be compatible with originating from the primary vertex, with the significance of the transverse impact parameter defined relative to the beam position satisfying |d0|/σ(d0) < 5.
         // Signal electrons are further refined using the Gradient isolation working point (arXiv:1902.04655), which uses both tracking and calorimeter information.
         // Missing: No impact parameter info
-        // TODO: Isolation?
-        // TODO: Outdated efficiency selection, use newer one (arXiv:1902.04655)
-        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
+        SIGNAL_PARTICLES(preselectedElectrons, signalElectrons)
+        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
+        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Gradient"));
 
         // Signal muons are required to pass the FCTightTrackOnly isolation working point, which uses only tracking information.
         // Missing: No tracking information
+        std::vector<const HEPUtils::Particle*> signalMuons;
 
-        // After all lepton selection criteria are applied, the efficiency for reconstructing and identifying signal electrons within the detector acceptance in the Higgsino and slepton signal samples ranges from 20% for pT = 4.5 GeV to over 75% for pT > 30 GeV. The corresponding efficiency for signal muons ranges from approximately 50% at pT = 3 GeV to 90% for pT > 30 GeV
-        // TODO: maybe use this to avoid efficiency cuts above
+        // There is no tabulated FCTightTrackOnly efficiency, so try implementing a substitute isolation criterium
+        for(auto &muon: preselectedMuons)
+        {
+          // Compute the pTvarcone30 variable, defined as the scalar sum of the transverse momenta of the tracks with pT >1 GeV in a cone of size ∆R = min(10 GeV/pTmu, 0.3) around the muon of transverse           // momentum pTmu, excluding the muon track itself
+          double pTvarcone30 = 0.;
+          for(auto &track: preselectedLeptons)
+          {
+            if(track != muon and track->pT() > 1 and track->mom().deltaR_eta(muon->mom()) < min(10/muon->pT(), 0.3))
+              pTvarcone30 += track->pT();
+          }
+          // Now build signalMuons from preselectedMuons that satisfy the FCTightTrackOnly isolation criterium
+          if(pTvarcone30/muon->pT() > 0.06)
+            signalMuons.push_back(muon);
+        }
+
+        // Signal leptons
+        SIGNAL_PARTICLE_COMBINATION(signalLeptons, signalElectrons, signalMuons)
+
+        // Signal tracks
+        // Signal tracks are required to be within ∆R = 0.01 of a reconstructed electron or muon candidate.  Electron (muon) candidates can be reconstructed with transverse momenta as low as 1 (2) GeV, and are required to fail the signal lepton requirements defined above to avoid any overlap
+        // Remove all signals that match a signallepton
+        std::vector<const HEPUtils::Particle*> candidateTracks;
+        for(auto &track : preselectedTracks)
+        {
+          bool isSignalLepton = false;
+          for(auto &lep : signalLeptons)
+            if(lep == track)
+              isSignalLepton = true;
+          if(not isSignalLepton)
+            candidateTracks.push_back(track);
+        }
+
+        // The sum pT of preselected tracks within ∆R < 0.3 of signal tracks, excluding the contributions from nearby leptons, is required to be smaller than 0.5 GeV.
+        // Finally, signal tracks must satisfy pT > 1 GeV, |z0 sin θ| < 0.5 mm and |d0|/σ(d0) < 3.
+        // Mising: cannot do impact parameter cuts
+        std::vector<const HEPUtils::Particle*> signalTracks;
+        for (const HEPUtils::Particle* track1 : candidateTracks)
+        {
+          double pTSum = 0;
+          for (const HEPUtils::Particle* track2 : candidateTracks)
+          {
+            if (track2 != track1 && track1->mom().deltaR_eta(track2->mom()) < 0.3)
+              pTSum += track2->pT();
+          }
+          if (pTSum < 0.5 && track1->pT() > 1.)
+            signalTracks.push_back(track1);
+
+        }
+
+        // Signal tracks must also satisfy dedicated isolation criteria – they are required to be separated from preselected jets by at least ∆R > 0.5
+        removeOverlap(signalTracks, preselectedNonBJets, 0.5);
+        removeOverlap(signalTracks, preselectedBJets, 0.5);
+
+        // Signal jets. From the sample of preselected jets, signal jets are selected if they satisfy pT > 30 GeV and |η| < 2.8. The VBF search uses a modified version of signal jets, labeled VBF jets, satisfying pT > 30 GeV and |η| < 4.5.
+        SIGNAL_JETS(preselectedJets, signalJets, 1, 30, 0, DBL_MAX, 2.8)
+        SIGNAL_JETS(preselectedJets, signalVBFJets, 1, 30, 0, DBL_MAX, 4.5)
+
+        std::vector<const HEPUtils::Jet*> signalBJets;
 
         // Signal jets are selected if they satisfy pT > 30 GeV and |η| < 2.8.
         for (const HEPUtils::Jet* jet : preselectedNonBJets)
@@ -206,35 +217,12 @@ namespace Gambit
           }
         }
 
-        // The sum pT of preselected tracks within ∆R < 0.3 of signal tracks, excluding the contributions from nearby leptons, is required to be smaller than 0.5 GeV.
-        // Finally, signal tracks must satisfy pT > 1 GeV, |z0 sin θ| < 0.5 mm and |d0|/σ(d0) < 3.
-        // Mising: cannot do impact parameter cuts
-        // The efficiency of selecting signal tracks for the studied electroweakino signals is 20% for electrons with 3 < pT < 4 GeV and 35% for muons with 2 < pT < 3 GeV.
-        for (const HEPUtils::Particle* track1 : preselectedTracks)
-        {
-          double pTSum = 0;
-          for (const HEPUtils::Particle* track2 : preselectedTracks)
-          {
-            if (track2 != track1 && track1->mom().deltaR_eta(track2->mom()) < 0.3)
-              pTSum += track2->pT();
-          }
-          double track_el_eff = 0.2, track_mu_eff = 0.35;
-          if (pTSum < 0.5 && track1->pT() > 1. &&
-             ( ( track1->isElectron() && (track1->pT() <= 3. || track1->pT() >= 4.) && random_bool(track_el_eff) ) ||
-               ( track1->isMuon() && (track1->pT() <= 2. || track1->pT() >= 3.) && random_bool(track_mu_eff)  ) ) )
-            signalTracks.push_back(track1);
-
-        }
-
-        // Fill signal leptons
-        signalLeptons = signalElectrons;
-        signalLeptons.insert(signalLeptons.end(), signalMuons.begin(), signalMuons.end());
-
         // Sort by pT
         sortByPt(signalJets);
         sortByPt(signalBJets);
         sortByPt(signalLeptons);
         sortByPt(signalTracks);
+
 
         // Preselection requirements
         // Variable            2l                                              1l1T

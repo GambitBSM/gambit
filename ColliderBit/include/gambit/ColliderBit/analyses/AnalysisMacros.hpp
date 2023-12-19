@@ -214,8 +214,40 @@
 #define BASELINE_BJETS(...)          VARARG(BASELINE_BJETS, __VA_ARGS__)
 
 
+/// Define a combination of baseline objects with pT and eta cuts
+#define BASELINE_OBJECT_COMBINATION_8(TYPE, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  std::vector<const HEPUtils::TYPE*> TARGET;                                      \
+  for(const HEPUtils::TYPE* obj1 : OBJECT1)                                       \
+  {                                                                               \
+    if(obj1->pT() > MINPT and                                                     \
+       obj1->pT() < MAXPT and                                                     \
+       fabs(obj1->eta()) > MINETA and                                             \
+       fabs(obj1->eta()) < MAXETA)                                                \
+    {                                                                             \
+      TARGET.push_back(obj1);                                                     \
+    }                                                                             \
+  }                                                                               \
+  for(const HEPUtils::TYPE* obj2 : OBJECT2)                                       \
+  {                                                                               \
+    if(obj2->pT() > MINPT and                                                     \
+       obj2->pT() < MAXPT and                                                     \
+       fabs(obj2->eta()) > MINETA and                                             \
+       fabs(obj2->eta()) < MAXETA)                                                \
+    {                                                                             \
+      TARGET.push_back(obj2);                                                     \
+    }                                                                             \
+  }
+
+/// Define a combination of baseline particles with pT and eta cuts
+#define BASELINE_PARTICLE_COMBINATION_7(TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  BASELINE_OBJECT_COMBINATION_8(Particle, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+
+/// Define a combination of baseline jets with pT and eta cuts
+#define BASELINE_JET_COMBINATION_7(TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  BASELINE_OBJECT_COMBINATION_8(Jet, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+
 /// Define a combination of baseline objects
-#define BASELINE_OBJECT_COMBINATION(TYPE, TARGET, OBJECT1, OBJECT2)               \
+#define BASELINE_OBJECT_COMBINATION_4(TYPE, TARGET, OBJECT1, OBJECT2)             \
   std::vector<const HEPUtils::TYPE*> TARGET;                                      \
   for(const HEPUtils::TYPE* obj1 : OBJECT1)                                       \
     TARGET.push_back(obj1);                                                       \
@@ -223,14 +255,42 @@
     TARGET.push_back(obj2);
 
 /// Define a combination of baseline particles
-#define BASELINE_PARTICLE_COMBINATION(TARGET, OBJECT1, OBJECT2)                   \
-  BASELINE_OBJECT_COMBINATION(Particle, TARGET, OBJECT1, OBJECT2)
+#define BASELINE_PARTICLE_COMBINATION_3(TARGET, OBJECT1, OBJECT2)                   \
+  BASELINE_OBJECT_COMBINATION_4(Particle, TARGET, OBJECT1, OBJECT2)
 
 /// Define a combination of baseline jets
-#define BASELINE_JET_COMBINATION(TARGET, OBJECT1, OBJECT2)                        \
-  BASELINE_OBJECT_COMBINATION(Jet, TARGET, OBJECT1, OBJECT2)
+#define BASELINE_JET_COMBINATION_3(TARGET, OBJECT1, OBJECT2)                        \
+  BASELINE_OBJECT_COMBINATION_4(Jet, TARGET, OBJECT1, OBJECT2)
 
-/// Define a (potentially sorted) signal objects from baseline objects
+/// Redirection macro
+#define BASELINE_PARTICLE_COMBINATION(...)     VARARG(BASELINE_PARTICLE_COMBINATION, __VA_ARGS__)
+#define BASELINE_JET_COMBINATION(...)          VARARG(BASELINE_JET_COMBINATION, __VA_ARGS__)
+#define BASELINE_OBJECT_COMBINATION(...)       VARARG(BASELINE_OBJECT_COMBINATION, __VA_ARGS__)
+
+/// Define (potentially sorted) signal objects from baseline objects with pT and eta cuts
+#define SIGNAL_OBJECTS_8(TYPE, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+  std::vector<const HEPUtils::TYPE*> SIGNAL;                                      \
+  for (const HEPUtils::TYPE* object : BASELINE)                                   \
+  {                                                                               \
+    if (object->pT() > MINPT and                                                  \
+        object->pT() < MAXPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        fabs(object->eta()) < MAXETA)                                             \
+    {                                                                             \
+      SIGNAL.push_back(object);                                                   \
+    }                                                                             \
+  }                                                                               \
+  if(SORTED) sortByPt(SIGNAL);
+
+/// Define (potentially sorted) signal particles from baseline particles with pT and eta cuts
+#define SIGNAL_PARTICLES_7(BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)     \
+  SIGNAL_OBJECTS_8(Particle, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+
+/// Define (potentially sorted) signal jets from baseline jets with pT and eta cuts
+#define SIGNAL_JETS_7(BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)     \
+  SIGNAL_OBJECTS_8(Jet, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+
+/// Define (potentially sorted) signal objects from baseline objects
 #define SIGNAL_OBJECTS_4(TYPE, BASELINE, SIGNAL, SORTED)                          \
   std::vector<const HEPUtils::TYPE*> SIGNAL(BASELINE);                            \
   if(SORTED) sortByPt(SIGNAL);
