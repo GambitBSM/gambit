@@ -19,6 +19,9 @@
 ///  \date 2022
 ///  \author Sowmiya Balan
 ///  \date 2023
+///  \author Patrick Stoecker
+///  \date 2023
+///
 ///  *********************************************
 
 #include <iostream>
@@ -359,9 +362,9 @@ int main(int argc, char* argv[])
     DDCalc_Couplings_WIMP_nucleon.reset_and_calculate();
 
     // Set up DDCalc backend initialization
-    Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-    Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
-    Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(FunctorStatus::Active);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(FunctorStatus::Active);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(FunctorStatus::Active);
     DDCalc_2_3_0_init.resolveDependency(&ExtractLocalMaxwellianHalo);
     // Assume for direct and indirect detection likelihoods that dark matter
     // density is always the measured one (despite relic density results)

@@ -24,23 +24,6 @@ namespace Gambit
 
         // Required detector sim
         static constexpr const char* detector = "CMS";
-
-        // Numbers passing cuts
-        std::map<string, EventCounter> _counters = {
-          {"SR1", EventCounter("SR1")},
-          {"SR2", EventCounter("SR2")},
-          {"SR3", EventCounter("SR3")},
-          {"SR4", EventCounter("SR4")},
-          {"SR5", EventCounter("SR5")},
-          {"SR6", EventCounter("SR6")},
-          {"SR7", EventCounter("SR7")},
-          {"SR8", EventCounter("SR8")},
-          {"SR9", EventCounter("SR9")},
-          {"SR10", EventCounter("SR10")},
-          {"SR11", EventCounter("SR11")},
-          {"SR12", EventCounter("SR12")},
-        };
-
         static const size_t NUMSR = 12;
 
         Cutflow _cutflow;
@@ -53,6 +36,23 @@ namespace Gambit
                        "Dphi_htmiss_j1", "Dphi_htmiss_j2", "Dphi_htmiss_j3", "Dphi_htmiss_j4",
                        "Evt quality"}) //, "SR HTmiss", "SR HT", "SR Njet", "SR Nbjet"}
         {
+
+
+          // Numbers passing cuts
+          _counters["SR1"] = EventCounter("SR1");
+          _counters["SR2"] = EventCounter("SR2");
+          _counters["SR3"] = EventCounter("SR3");
+          _counters["SR4"] = EventCounter("SR4");
+          _counters["SR5"] = EventCounter("SR5");
+          _counters["SR6"] = EventCounter("SR6");
+          _counters["SR7"] = EventCounter("SR7");
+          _counters["SR8"] = EventCounter("SR8");
+          _counters["SR9"] = EventCounter("SR9");
+          _counters["SR10"] = EventCounter("SR10");
+          _counters["SR11"] = EventCounter("SR11");
+          _counters["SR12"] = EventCounter("SR12");
+
+
           set_analysis_name("CMS_13TeV_0LEP_137invfb");
           set_luminosity(137.0);
         }
@@ -65,7 +65,7 @@ namespace Gambit
 
           // Get jets
           vector<const Jet*> jets24, jets50;
-          for (const Jet* jet : event->jets())
+          for (const Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() < 30) continue;
             if (jet->abseta() < 2.4) jets24.push_back(jet);
@@ -112,14 +112,14 @@ namespace Gambit
           for (const Particle* electron : event->electrons())
             if (electron->pT() > 10. && electron->abseta() < 2.5)
               baseelecs.push_back(electron);
-          CMS::applyElectronEff(baseelecs);
+          applyEfficiency(baseelecs, CMS::eff2DEl.at("Generic"));
 
           // Get baseline muons and apply efficiency
           vector<const Particle*> basemuons;
           for (const Particle* muon : event->muons())
             if (muon->pT() > 10. && muon->abseta() < 2.4)
               basemuons.push_back(muon);
-          CMS::applyMuonEff(basemuons);
+          applyEfficiency(basemuons, CMS::eff2DMu.at("Generic"));
 
 
           // Photon isolation
@@ -203,13 +203,6 @@ namespace Gambit
 
         }
 
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_CMS_13TeV_0LEP_137invfb* specificOther = dynamic_cast<const Analysis_CMS_13TeV_0LEP_137invfb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
-        }
 
 
         /// Register results objects with the results for each SR; obs & bkg numbers from the CONF note

@@ -29,34 +29,42 @@ Priors:
 
 Printer:
 
-  #printer: sqlite
-  #options:
-  #  output_file: "results.sql"
-  #  table_name: "spartan"
-  #  buffer_length: 1000
-  #  delete_file_on_restart: true
+  # printer: sqlite
+  # options:
+  #   output_file: "results.sql"
+  #   table_name: "spartan"
+  #   buffer_length: 1000
+  #   delete_file_on_restart: true
 
-  #printer: hdf5
-  #options:
-  #  output_file: "results.hdf5"
-  #  group: "/spartan"
-  #  delete_file_on_restart: true
-  #  buffer_length: 1000
-    #disable_autorepair: true
+  # printer: hdf5
+  # options:
+  #   output_file: "results.hdf5"
+  #   group: "/spartan"
+  #   delete_file_on_restart: true
+  #   buffer_length: 1000
+  #   # disable_autorepair: true
 
-  #printer: ascii
-  #options:
-  #  output_file: "results.dat"
-  #  buffer_length: 10
-  #  delete_file_on_restart: true
+  # printer: ascii
+  # options:
+  #   output_file: "results.dat"
+  #   buffer_length: 10
+  #   delete_file_on_restart: true
 
-  printer: cout
+  printer: hdf5
+  options:
+    # Name of info file (explains content of output file)
+    #info_file: "runs/spartan/samples/gambit_output2.info"
+    # Name of output file
+    output_file: "gambit_output.hdf5"
+    group: "/data"
+    delete_file_on_restart: true
+    disable_combine_routines: true
 
-  #printer: none
+  # printer: none
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: de
 
   scanners:
 
@@ -64,6 +72,13 @@ Scanner:
       plugin: random
       like: LogLike
       point_number: 1000
+
+    grid:
+      # plugin: pygrid
+      plugin: grid
+      #version: ">=1.0"
+      like: LogLike
+      grid_pts: [5, 3]
 
     de:
       plugin: diver
@@ -104,13 +119,211 @@ Scanner:
       algorithm: combined # simplex, combined, scan, fumili, bfgs, migrad
       print_level: 1
       strategy: 2
-
       start:
         NormalDist::mu: 25.
         NormalDist::sigma: 2.5
       step:
         NormalDist::mu: 5.
         NormalDist::sigma: 1.
+
+    scipy_basin_hopping:
+      like: LogLike
+      plugin: scipy_basin_hopping
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+        niter: 100
+        T: 1.0
+        stepsize: 0.5
+        minimizer_kwargs:
+          method: "L-BFGS-B"
+        interval: 50
+        disp: true
+        target_accept_rate: 0.5
+        stepwise_factor: 0.9
+
+    scipy_differential_evolution:
+      like: LogLike
+      plugin: scipy_differential_evolution
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        strategy: 'best1bin'
+        maxiter: 1000
+        popsize: 15
+        tol: 0.01
+        mutation: [0.5, 1]
+        recombination: 0.7
+        disp: false
+        polish: true
+        init: 'latinhypercube'
+        atol: 0
+        updating: 'immediate'
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+
+    scipy_direct:
+      like: LogLike
+      plugin: scipy_direct
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        eps: 0.0001
+        # maxfun: 2000
+        maxiter: 1000
+        locally_biased: true
+        vol_tol: 1e-16
+        len_tol: 1e-6
+
+    scipy_dual_annealing:
+      like: LogLike
+      plugin: scipy_dual_annealing
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        maxiter: 1000
+        initial_temp: 5230.0
+        restart_temp_ratio: 2.0e-5
+        visit: 2.62
+        accept: -5.0
+        maxfun: 10000000.0
+        no_local_search: false
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+
+    scipy_shgo:
+      like: LogLike
+      plugin: scipy_shgo
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        split_param_space:
+          NormalDist::mu: 2
+          NormalDist::sigma: 2
+        n: 100
+        iters: 1
+        sampling_method: "sobol"  # "simplicial", "halton", "sobol"
+        minimizer_kwargs:
+          method: "SLSQP" # "SLSQP" "L-BFGS-B"
+          options:
+            ftol: 1e-12
+        options:
+          # maxfev:
+          # f_min:
+          # f_tol:
+          # maxiter:
+          # maxev:
+          # maxtime:
+          # minhgrd:
+          # jac: false  # Buggy in some scipy versions: https://github.com/scipy/scipy/issues/14533
+          minimize_every_iter: true
+          local_iter: false
+          infty_constraints: true
+          disp: false
+
+    scipy_minimize:
+      like: LogLike
+      plugin: scipy_minimize
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 5
+        x0:
+          NormalDist::mu: 25.
+          NormalDist::sigma: 2.5
+        method: "L-BFGS-B"  # "Nelder-Mead", "Powell", "CG", "BFGS", "L-BFGS-B", "TNC", "COBYLA", "SLSQP", "trust-constr",
+        # jac: "2-point"      # "2-point", "3-point", "cs"
+        # hess: "2-point"     # "2-point", "3-point", "cs"
+        tol: 1e-6
+        options:
+          maxiter: 15000
+          disp: false
+
+    static_dynesty:
+      like: LogLike
+      pkg: gambit_dynesty
+      plugin: static_dynesty
+      pkl_name: "static_dynesty.pkl"
+      init:
+        nlive: 1000
+      run:
+        dlogz: 0.5
+        checkpoint_every: 60
+        
+    dynamic_dynesty:
+      like: LogLike
+      plugin: dynamic_dynesty
+      pkg: gambit_dynesty
+      pkl_name: "dynamic_dynesty.pkl"
+      init:
+        nlive: 1000
+      run:
+        dlogz_init: 0.5
+        n_effective: 10000
+        checkpoint_every: 60
+
+    nessai:
+      like: LogLike
+      plugin: nessai_flow_sampler
+      pkg: gambit_nessai
+      #init:
+        #output: "nessai_log_dir"
+        #logger: true
+
+    nautilus:
+      like: LogLike
+      plugin: nautilus
+      #pkg: gambit_nautilus
+      run:
+        verbose: true
+
+    zeus:
+      like: LogLike
+      pkg: gambit_zeus
+      plugin: zeus
+      init:
+        nwalkers: 8
+      #run:
+        #nsteps: 20000
+        #filename: "zeus.h5"
+      SaveProgressCallback:
+        filename: zeus.h5
+        ncheck: 100
+
+    emcee:
+      like: LogLike
+      plugin: emcee
+      pkg: gambit_emcee
+      init:
+        nwalkers: 8
+      run:
+        nsteps: 20000
+        #filename: "emcee.h5"
+
+    pocomc:
+      like: LogLike
+      plugin: pocomc
+      #pkg: gambit_pocomc
+      #init:
+      #    nparticles: 1000
+
+    ultranest:
+      like: LogLike
+      pkg: gambit_ultranest
+      plugin: reactive_ultranest
+      #init:
+      run:
+        min_num_live_points: 1000
+        dlogz: 0.5
 
 
 ObsLikes:
@@ -138,6 +351,8 @@ Logger:
   debug: true
 
 KeyValues:
+
+  debug: false #true
 
   default_output_path: "${PWD}/runs/spartan"
 

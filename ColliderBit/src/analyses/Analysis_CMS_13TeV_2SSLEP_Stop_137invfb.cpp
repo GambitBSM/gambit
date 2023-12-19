@@ -3,7 +3,7 @@
 ///  \date 2019 June
 ///  *********************************************
 
-// Based on: 
+// Based on:
 // - http://cms-results.web.cern.ch/cms-results/public-results/preliminary-results/SUS-19-008/index.html
 // - http://cms-results.web.cern.ch/cms-results/public-results/publications/SUS-19-008/index.html
 
@@ -29,203 +29,9 @@ using namespace std;
 namespace Gambit {
   namespace ColliderBit {
 
-    class Analysis_CMS_13TeV_2SSLEP_Stop_137invfb : public Analysis {
+    class Analysis_CMS_13TeV_2SSLEP_Stop_137invfb : public Analysis
+    {
     protected:
-        // Counters for the number of accepted events for each signal region
-        std::map<string, EventCounter> _counters = {
-            // HH
-            {"ISR1", EventCounter("ISR1")},
-            {"ISR2", EventCounter("ISR2")},
-            {"ISR3", EventCounter("ISR3")},
-            {"ISR4", EventCounter("ISR4")},
-            {"ISR5", EventCounter("ISR5")},
-            {"ISR6", EventCounter("ISR6")},
-            {"ISR7", EventCounter("ISR7")},
-            {"ISR8", EventCounter("ISR8")},
-            {"ISR9", EventCounter("ISR9")},
-            {"ISR10", EventCounter("ISR10")},
-            {"ISR11", EventCounter("ISR11")},
-            {"ISR12", EventCounter("ISR12")},
-            {"ISR13", EventCounter("ISR13")},
-            {"ISR14", EventCounter("ISR14")},
-            {"ISR15", EventCounter("ISR15")},
-            {"ISR16", EventCounter("ISR16")},
-            {"ISR17", EventCounter("ISR17")},
-            
-//            {"SRHH-0", EventCounter("SRHH-0")},
-//            {"SRHH-1", EventCounter("SRHH-1")},
-//            {"SRHH-2", EventCounter("SRHH-2")},
-//            {"SRHH-3", EventCounter("SRHH-3")},
-//            {"SRHH-4", EventCounter("SRHH-4")},
-//            {"SRHH-5", EventCounter("SRHH-5")},
-//            {"SRHH-6", EventCounter("SRHH-6")},
-//            {"SRHH-7", EventCounter("SRHH-7")},
-//            {"SRHH-8", EventCounter("SRHH-8")},
-//            {"SRHH-9", EventCounter("SRHH-9")},
-//            {"SRHH-10", EventCounter("SRHH-10")},
-//            {"SRHH-11", EventCounter("SRHH-11")},
-//            {"SRHH-12", EventCounter("SRHH-12")},
-//            {"SRHH-13", EventCounter("SRHH-13")},
-//            {"SRHH-14", EventCounter("SRHH-14")},
-//            {"SRHH-15", EventCounter("SRHH-15")},
-//            {"SRHH-16", EventCounter("SRHH-16")},
-//            {"SRHH-17", EventCounter("SRHH-17")},
-//            {"SRHH-18", EventCounter("SRHH-18")},
-//            {"SRHH-19", EventCounter("SRHH-19")},
-//            {"SRHH-20", EventCounter("SRHH-20")},
-//            {"SRHH-21", EventCounter("SRHH-21")},
-//            {"SRHH-22", EventCounter("SRHH-22")},
-//            {"SRHH-23", EventCounter("SRHH-23")},
-//            {"SRHH-24", EventCounter("SRHH-24")},
-//            {"SRHH-25", EventCounter("SRHH-25")},
-//            {"SRHH-26", EventCounter("SRHH-26")},
-//            {"SRHH-27", EventCounter("SRHH-27")},
-//            {"SRHH-28", EventCounter("SRHH-28")},
-//            {"SRHH-29", EventCounter("SRHH-29")},
-//            {"SRHH-30", EventCounter("SRHH-30")},
-//            {"SRHH-31", EventCounter("SRHH-31")},
-//            {"SRHH-32", EventCounter("SRHH-32")},
-//            {"SRHH-33", EventCounter("SRHH-33")},
-//            {"SRHH-34", EventCounter("SRHH-34")},
-//            {"SRHH-35", EventCounter("SRHH-35")},
-//            {"SRHH-36", EventCounter("SRHH-36")},
-//            {"SRHH-37", EventCounter("SRHH-37")},
-//            {"SRHH-38", EventCounter("SRHH-38")},
-//            {"SRHH-39", EventCounter("SRHH-39")},
-//            {"SRHH-40", EventCounter("SRHH-40")},
-//            {"SRHH-41", EventCounter("SRHH-41")},
-//            {"SRHH-42", EventCounter("SRHH-42")},
-//            {"SRHH-43", EventCounter("SRHH-43")},
-//            {"SRHH-44", EventCounter("SRHH-44")},
-//            {"SRHH-45", EventCounter("SRHH-45")},
-//            {"SRHH-46", EventCounter("SRHH-46")},
-//            {"SRHH-47", EventCounter("SRHH-47")},
-//            {"SRHH-48", EventCounter("SRHH-48")},
-//            {"SRHH-49", EventCounter("SRHH-49")},
-//            {"SRHH-50", EventCounter("SRHH-50")},
-//            {"SRHH-51", EventCounter("SRHH-51")},
-//            {"SRHH-52", EventCounter("SRHH-52")},
-//            {"SRHH-53", EventCounter("SRHH-53")},
-//            {"SRHH-54", EventCounter("SRHH-54")},
-//            {"SRHH-55", EventCounter("SRHH-55")},
-//            {"SRHH-56", EventCounter("SRHH-56")},
-//            {"SRHH-57", EventCounter("SRHH-57")},
-//            {"SRHH-58", EventCounter("SRHH-58")},
-//            {"SRHH-59", EventCounter("SRHH-59")},
-//            {"SRHH-60", EventCounter("SRHH-60")},
-//            {"SRHH-61", EventCounter("SRHH-61")},
-//            // HL
-//            {"SRHL-0", EventCounter("SRHL-0")},
-//            {"SRHL-1", EventCounter("SRHL-1")},
-//            {"SRHL-2", EventCounter("SRHL-2")},
-//            {"SRHL-3", EventCounter("SRHL-3")},
-//            {"SRHL-4", EventCounter("SRHL-4")},
-//            {"SRHL-5", EventCounter("SRHL-5")},
-//            {"SRHL-6", EventCounter("SRHL-6")},
-//            {"SRHL-7", EventCounter("SRHL-7")},
-//            {"SRHL-8", EventCounter("SRHL-8")},
-//            {"SRHL-9", EventCounter("SRHL-9")},
-//            {"SRHL-10", EventCounter("SRHL-10")},
-//            {"SRHL-11", EventCounter("SRHL-11")},
-//            {"SRHL-12", EventCounter("SRHL-12")},
-//            {"SRHL-13", EventCounter("SRHL-13")},
-//            {"SRHL-14", EventCounter("SRHL-14")},
-//            {"SRHL-15", EventCounter("SRHL-15")},
-//            {"SRHL-16", EventCounter("SRHL-16")},
-//            {"SRHL-17", EventCounter("SRHL-17")},
-//            {"SRHL-18", EventCounter("SRHL-18")},
-//            {"SRHL-19", EventCounter("SRHL-19")},
-//            {"SRHL-20", EventCounter("SRHL-20")},
-//            {"SRHL-21", EventCounter("SRHL-21")},
-//            {"SRHL-22", EventCounter("SRHL-22")},
-//            {"SRHL-23", EventCounter("SRHL-23")},
-//            {"SRHL-24", EventCounter("SRHL-24")},
-//            {"SRHL-25", EventCounter("SRHL-25")},
-//            {"SRHL-26", EventCounter("SRHL-26")},
-//            {"SRHL-27", EventCounter("SRHL-27")},
-//            {"SRHL-28", EventCounter("SRHL-28")},
-//            {"SRHL-29", EventCounter("SRHL-29")},
-//            {"SRHL-30", EventCounter("SRHL-30")},
-//            {"SRHL-31", EventCounter("SRHL-31")},
-//            {"SRHL-32", EventCounter("SRHL-32")},
-//            {"SRHL-33", EventCounter("SRHL-33")},
-//            {"SRHL-34", EventCounter("SRHL-34")},
-//            {"SRHL-35", EventCounter("SRHL-35")},
-//            {"SRHL-36", EventCounter("SRHL-36")},
-//            {"SRHL-37", EventCounter("SRHL-37")},
-//            {"SRHL-38", EventCounter("SRHL-38")},
-//            {"SRHL-39", EventCounter("SRHL-39")},
-//            {"SRHL-40", EventCounter("SRHL-40")},
-//            {"SRHL-41", EventCounter("SRHL-41")},
-//            {"SRHL-42", EventCounter("SRHL-42")},
-//            // LL
-//            {"SRLL-0", EventCounter("SRLL-0")},
-//            {"SRLL-1", EventCounter("SRLL-1")},
-//            {"SRLL-2", EventCounter("SRLL-2")},
-//            {"SRLL-3", EventCounter("SRLL-3")},
-//            {"SRLL-4", EventCounter("SRLL-4")},
-//            {"SRLL-5", EventCounter("SRLL-5")},
-//            {"SRLL-6", EventCounter("SRLL-6")},
-//            {"SRLL-7", EventCounter("SRLL-7")},
-//            // LM
-//            {"SRLM-0", EventCounter("SRLM-0")},
-//            {"SRLM-1", EventCounter("SRLM-1")},
-//            {"SRLM-2", EventCounter("SRLM-2")},
-//            {"SRLM-3", EventCounter("SRLM-3")},
-//            {"SRLM-4", EventCounter("SRLM-4")},
-//            {"SRLM-5", EventCounter("SRLM-5")},
-//            {"SRLM-6", EventCounter("SRLM-6")},
-//            {"SRLM-7", EventCounter("SRLM-7")},
-//            {"SRLM-8", EventCounter("SRLM-8")},
-//            {"SRLM-9", EventCounter("SRLM-9")},
-//            {"SRLM-10", EventCounter("SRLM-10")},
-//            // ML
-//            {"SRML-0", EventCounter("SRML-0")},
-//            {"SRML-1", EventCounter("SRML-1")},
-//            {"SRML-2", EventCounter("SRML-2")},
-//            {"SRML-3", EventCounter("SRML-3")},
-//            {"SRML-4", EventCounter("SRML-4")},
-//            {"SRML-5", EventCounter("SRML-5")},
-//            {"SRML-6", EventCounter("SRML-6")},
-//            {"SRML-7", EventCounter("SRML-7")},
-//            {"SRML-8", EventCounter("SRML-8")},
-//            {"SRML-9", EventCounter("SRML-9")},
-//            {"SRML-10", EventCounter("SRML-10")},
-//            {"SRML-11", EventCounter("SRML-11")},
-//            {"SRML-12", EventCounter("SRML-12")},
-//            {"SRML-13", EventCounter("SRML-13")},
-//            {"SRML-14", EventCounter("SRML-14")},
-//            {"SRML-15", EventCounter("SRML-15")},
-//            {"SRML-16", EventCounter("SRML-16")},
-//            {"SRML-17", EventCounter("SRML-17")},
-//            {"SRML-18", EventCounter("SRML-18")},
-//            {"SRML-19", EventCounter("SRML-19")},
-//            {"SRML-20", EventCounter("SRML-20")},
-//            {"SRML-21", EventCounter("SRML-21")},
-//            {"SRML-22", EventCounter("SRML-22")},
-//            {"SRML-23", EventCounter("SRML-23")},
-//            {"SRML-24", EventCounter("SRML-24")},
-//            {"SRML-25", EventCounter("SRML-25")},
-//            {"SRML-26", EventCounter("SRML-26")},
-//            {"SRML-27", EventCounter("SRML-27")},
-//            {"SRML-28", EventCounter("SRML-28")},
-//            {"SRML-29", EventCounter("SRML-29")},
-//            {"SRML-30", EventCounter("SRML-30")},
-//            {"SRML-31", EventCounter("SRML-31")},
-//            {"SRML-32", EventCounter("SRML-32")},
-//            {"SRML-33", EventCounter("SRML-33")},
-//            {"SRML-34", EventCounter("SRML-34")},
-//            {"SRML-35", EventCounter("SRML-35")},
-//            {"SRML-36", EventCounter("SRML-36")},
-//            {"SRML-37", EventCounter("SRML-37")},
-//            {"SRML-38", EventCounter("SRML-38")},
-//            {"SRML-39", EventCounter("SRML-39")},
-//            {"SRML-40", EventCounter("SRML-40")},
-//            {"SRML-41", EventCounter("SRML-41")},
-//            {"SRML-42", EventCounter("SRML-42")},
-//            {"SRML-43", EventCounter("SRML-43")},
-        };
-
         Cutflow _cutflow;
 
 
@@ -237,6 +43,201 @@ namespace Gambit {
         Analysis_CMS_13TeV_2SSLEP_Stop_137invfb():
         _cutflow("CMS_13TeV_2SSLEP_Stop_137invfb", {"Trigger_and_2leptons", "At_least_one_SS_lepton_pair", "Baseline"})
         {
+
+            // Counters for the number of accepted events for each signal region
+            // HH
+            _counters["ISR1"] = EventCounter("ISR1");
+            _counters["ISR2"] = EventCounter("ISR2");
+            _counters["ISR3"] = EventCounter("ISR3");
+            _counters["ISR4"] = EventCounter("ISR4");
+            _counters["ISR5"] = EventCounter("ISR5");
+            _counters["ISR6"] = EventCounter("ISR6");
+            _counters["ISR7"] = EventCounter("ISR7");
+            _counters["ISR8"] = EventCounter("ISR8");
+            _counters["ISR9"] = EventCounter("ISR9");
+            _counters["ISR10"] = EventCounter("ISR10");
+            _counters["ISR11"] = EventCounter("ISR11");
+            _counters["ISR12"] = EventCounter("ISR12");
+            _counters["ISR13"] = EventCounter("ISR13");
+            _counters["ISR14"] = EventCounter("ISR14");
+            _counters["ISR15"] = EventCounter("ISR15");
+            _counters["ISR16"] = EventCounter("ISR16");
+            _counters["ISR17"] = EventCounter("ISR17");
+
+//            _counters["SRHH-0"] = EventCounter("SRHH-0");
+//            _counters["SRHH-1"] = EventCounter("SRHH-1");
+//            _counters["SRHH-2"] = EventCounter("SRHH-2");
+//            _counters["SRHH-3"] = EventCounter("SRHH-3");
+//            _counters["SRHH-4"] = EventCounter("SRHH-4");
+//            _counters["SRHH-5"] = EventCounter("SRHH-5");
+//            _counters["SRHH-6"] = EventCounter("SRHH-6");
+//            _counters["SRHH-7"] = EventCounter("SRHH-7");
+//            _counters["SRHH-8"] = EventCounter("SRHH-8");
+//            _counters["SRHH-9"] = EventCounter("SRHH-9");
+//            _counters["SRHH-10"] = EventCounter("SRHH-10");
+//            _counters["SRHH-11"] = EventCounter("SRHH-11");
+//            _counters["SRHH-12"] = EventCounter("SRHH-12");
+//            _counters["SRHH-13"] = EventCounter("SRHH-13");
+//            _counters["SRHH-14"] = EventCounter("SRHH-14");
+//            _counters["SRHH-15"] = EventCounter("SRHH-15");
+//            _counters["SRHH-16"] = EventCounter("SRHH-16");
+//            _counters["SRHH-17"] = EventCounter("SRHH-17");
+//            _counters["SRHH-18"] = EventCounter("SRHH-18");
+//            _counters["SRHH-19"] = EventCounter("SRHH-19");
+//            _counters["SRHH-20"] = EventCounter("SRHH-20");
+//            _counters["SRHH-21"] = EventCounter("SRHH-21");
+//            _counters["SRHH-22"] = EventCounter("SRHH-22");
+//            _counters["SRHH-23"] = EventCounter("SRHH-23");
+//            _counters["SRHH-24"] = EventCounter("SRHH-24");
+//            _counters["SRHH-25"] = EventCounter("SRHH-25");
+//            _counters["SRHH-26"] = EventCounter("SRHH-26");
+//            _counters["SRHH-27"] = EventCounter("SRHH-27");
+//            _counters["SRHH-28"] = EventCounter("SRHH-28");
+//            _counters["SRHH-29"] = EventCounter("SRHH-29");
+//            _counters["SRHH-30"] = EventCounter("SRHH-30");
+//            _counters["SRHH-31"] = EventCounter("SRHH-31");
+//            _counters["SRHH-32"] = EventCounter("SRHH-32");
+//            _counters["SRHH-33"] = EventCounter("SRHH-33");
+//            _counters["SRHH-34"] = EventCounter("SRHH-34");
+//            _counters["SRHH-35"] = EventCounter("SRHH-35");
+//            _counters["SRHH-36"] = EventCounter("SRHH-36");
+//            _counters["SRHH-37"] = EventCounter("SRHH-37");
+//            _counters["SRHH-38"] = EventCounter("SRHH-38");
+//            _counters["SRHH-39"] = EventCounter("SRHH-39");
+//            _counters["SRHH-40"] = EventCounter("SRHH-40");
+//            _counters["SRHH-41"] = EventCounter("SRHH-41");
+//            _counters["SRHH-42"] = EventCounter("SRHH-42");
+//            _counters["SRHH-43"] = EventCounter("SRHH-43");
+//            _counters["SRHH-44"] = EventCounter("SRHH-44");
+//            _counters["SRHH-45"] = EventCounter("SRHH-45");
+//            _counters["SRHH-46"] = EventCounter("SRHH-46");
+//            _counters["SRHH-47"] = EventCounter("SRHH-47");
+//            _counters["SRHH-48"] = EventCounter("SRHH-48");
+//            _counters["SRHH-49"] = EventCounter("SRHH-49");
+//            _counters["SRHH-50"] = EventCounter("SRHH-50");
+//            _counters["SRHH-51"] = EventCounter("SRHH-51");
+//            _counters["SRHH-52"] = EventCounter("SRHH-52");
+//            _counters["SRHH-53"] = EventCounter("SRHH-53");
+//            _counters["SRHH-54"] = EventCounter("SRHH-54");
+//            _counters["SRHH-55"] = EventCounter("SRHH-55");
+//            _counters["SRHH-56"] = EventCounter("SRHH-56");
+//            _counters["SRHH-57"] = EventCounter("SRHH-57");
+//            _counters["SRHH-58"] = EventCounter("SRHH-58");
+//            _counters["SRHH-59"] = EventCounter("SRHH-59");
+//            _counters["SRHH-60"] = EventCounter("SRHH-60");
+//            _counters["SRHH-61"] = EventCounter("SRHH-61");
+//            // HL
+//            _counters["SRHL-0"] = EventCounter("SRHL-0");
+//            _counters["SRHL-1"] = EventCounter("SRHL-1");
+//            _counters["SRHL-2"] = EventCounter("SRHL-2");
+//            _counters["SRHL-3"] = EventCounter("SRHL-3");
+//            _counters["SRHL-4"] = EventCounter("SRHL-4");
+//            _counters["SRHL-5"] = EventCounter("SRHL-5");
+//            _counters["SRHL-6"] = EventCounter("SRHL-6");
+//            _counters["SRHL-7"] = EventCounter("SRHL-7");
+//            _counters["SRHL-8"] = EventCounter("SRHL-8");
+//            _counters["SRHL-9"] = EventCounter("SRHL-9");
+//            _counters["SRHL-10"] = EventCounter("SRHL-10");
+//            _counters["SRHL-11"] = EventCounter("SRHL-11");
+//            _counters["SRHL-12"] = EventCounter("SRHL-12");
+//            _counters["SRHL-13"] = EventCounter("SRHL-13");
+//            _counters["SRHL-14"] = EventCounter("SRHL-14");
+//            _counters["SRHL-15"] = EventCounter("SRHL-15");
+//            _counters["SRHL-16"] = EventCounter("SRHL-16");
+//            _counters["SRHL-17"] = EventCounter("SRHL-17");
+//            _counters["SRHL-18"] = EventCounter("SRHL-18");
+//            _counters["SRHL-19"] = EventCounter("SRHL-19");
+//            _counters["SRHL-20"] = EventCounter("SRHL-20");
+//            _counters["SRHL-21"] = EventCounter("SRHL-21");
+//            _counters["SRHL-22"] = EventCounter("SRHL-22");
+//            _counters["SRHL-23"] = EventCounter("SRHL-23");
+//            _counters["SRHL-24"] = EventCounter("SRHL-24");
+//            _counters["SRHL-25"] = EventCounter("SRHL-25");
+//            _counters["SRHL-26"] = EventCounter("SRHL-26");
+//            _counters["SRHL-27"] = EventCounter("SRHL-27");
+//            _counters["SRHL-28"] = EventCounter("SRHL-28");
+//            _counters["SRHL-29"] = EventCounter("SRHL-29");
+//            _counters["SRHL-30"] = EventCounter("SRHL-30");
+//            _counters["SRHL-31"] = EventCounter("SRHL-31");
+//            _counters["SRHL-32"] = EventCounter("SRHL-32");
+//            _counters["SRHL-33"] = EventCounter("SRHL-33");
+//            _counters["SRHL-34"] = EventCounter("SRHL-34");
+//            _counters["SRHL-35"] = EventCounter("SRHL-35");
+//            _counters["SRHL-36"] = EventCounter("SRHL-36");
+//            _counters["SRHL-37"] = EventCounter("SRHL-37");
+//            _counters["SRHL-38"] = EventCounter("SRHL-38");
+//            _counters["SRHL-39"] = EventCounter("SRHL-39");
+//            _counters["SRHL-40"] = EventCounter("SRHL-40");
+//            _counters["SRHL-41"] = EventCounter("SRHL-41");
+//            _counters["SRHL-42"] = EventCounter("SRHL-42");
+//            // LL
+//            _counters["SRLL-0"] = EventCounter("SRLL-0");
+//            _counters["SRLL-1"] = EventCounter("SRLL-1");
+//            _counters["SRLL-2"] = EventCounter("SRLL-2");
+//            _counters["SRLL-3"] = EventCounter("SRLL-3");
+//            _counters["SRLL-4"] = EventCounter("SRLL-4");
+//            _counters["SRLL-5"] = EventCounter("SRLL-5");
+//            _counters["SRLL-6"] = EventCounter("SRLL-6");
+//            _counters["SRLL-7"] = EventCounter("SRLL-7");
+//            // LM
+//            _counters["SRLM-0"] = EventCounter("SRLM-0");
+//            _counters["SRLM-1"] = EventCounter("SRLM-1");
+//            _counters["SRLM-2"] = EventCounter("SRLM-2");
+//            _counters["SRLM-3"] = EventCounter("SRLM-3");
+//            _counters["SRLM-4"] = EventCounter("SRLM-4");
+//            _counters["SRLM-5"] = EventCounter("SRLM-5");
+//            _counters["SRLM-6"] = EventCounter("SRLM-6");
+//            _counters["SRLM-7"] = EventCounter("SRLM-7");
+//            _counters["SRLM-8"] = EventCounter("SRLM-8");
+//            _counters["SRLM-9"] = EventCounter("SRLM-9");
+//            _counters["SRLM-10"] = EventCounter("SRLM-10");
+//            // ML
+//            _counters["SRML-0"] = EventCounter("SRML-0");
+//            _counters["SRML-1"] = EventCounter("SRML-1");
+//            _counters["SRML-2"] = EventCounter("SRML-2");
+//            _counters["SRML-3"] = EventCounter("SRML-3");
+//            _counters["SRML-4"] = EventCounter("SRML-4");
+//            _counters["SRML-5"] = EventCounter("SRML-5");
+//            _counters["SRML-6"] = EventCounter("SRML-6");
+//            _counters["SRML-7"] = EventCounter("SRML-7");
+//            _counters["SRML-8"] = EventCounter("SRML-8");
+//            _counters["SRML-9"] = EventCounter("SRML-9");
+//            _counters["SRML-10"] = EventCounter("SRML-10");
+//            _counters["SRML-11"] = EventCounter("SRML-11");
+//            _counters["SRML-12"] = EventCounter("SRML-12");
+//            _counters["SRML-13"] = EventCounter("SRML-13");
+//            _counters["SRML-14"] = EventCounter("SRML-14");
+//            _counters["SRML-15"] = EventCounter("SRML-15");
+//            _counters["SRML-16"] = EventCounter("SRML-16");
+//            _counters["SRML-17"] = EventCounter("SRML-17");
+//            _counters["SRML-18"] = EventCounter("SRML-18");
+//            _counters["SRML-19"] = EventCounter("SRML-19");
+//            _counters["SRML-20"] = EventCounter("SRML-20");
+//            _counters["SRML-21"] = EventCounter("SRML-21");
+//            _counters["SRML-22"] = EventCounter("SRML-22");
+//            _counters["SRML-23"] = EventCounter("SRML-23");
+//            _counters["SRML-24"] = EventCounter("SRML-24");
+//            _counters["SRML-25"] = EventCounter("SRML-25");
+//            _counters["SRML-26"] = EventCounter("SRML-26");
+//            _counters["SRML-27"] = EventCounter("SRML-27");
+//            _counters["SRML-28"] = EventCounter("SRML-28");
+//            _counters["SRML-29"] = EventCounter("SRML-29");
+//            _counters["SRML-30"] = EventCounter("SRML-30");
+//            _counters["SRML-31"] = EventCounter("SRML-31");
+//            _counters["SRML-32"] = EventCounter("SRML-32");
+//            _counters["SRML-33"] = EventCounter("SRML-33");
+//            _counters["SRML-34"] = EventCounter("SRML-34");
+//            _counters["SRML-35"] = EventCounter("SRML-35");
+//            _counters["SRML-36"] = EventCounter("SRML-36");
+//            _counters["SRML-37"] = EventCounter("SRML-37");
+//            _counters["SRML-38"] = EventCounter("SRML-38");
+//            _counters["SRML-39"] = EventCounter("SRML-39");
+//            _counters["SRML-40"] = EventCounter("SRML-40");
+//            _counters["SRML-41"] = EventCounter("SRML-41");
+//            _counters["SRML-42"] = EventCounter("SRML-42");
+//            _counters["SRML-43"] = EventCounter("SRML-43");
+
+
             set_analysis_name("CMS_13TeV_2SSLEP_Stop_137invfb");
             set_luminosity(137);
         }
@@ -293,10 +294,10 @@ namespace Gambit {
                     muons.push_back(muon);
             }
 
-            double HT = 0.;
             // Jets
+            double HT = 0.;
             vector<const HEPUtils::Jet*> candJets;
-            for (const HEPUtils::Jet* jet : event->jets()) {
+            for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
                 if (jet->pT() > 25. && fabs(jet->eta()) < 2.4){
                     HT += jet->pT();
                     candJets.push_back(jet);
@@ -393,24 +394,24 @@ namespace Gambit {
             if (leptons.size()==2 and leptons[1]->pT() > 25.) {
                 if (Nb==0 and HT>1000 and met>250 )
                     _counters.at("ISR1").add_event(event);
-                if (Nb>=2 and HT>1100 ) 
+                if (Nb>=2 and HT>1100 )
                     _counters.at("ISR2").add_event(event);
-                if (Nb==0 and met>500 ) 
+                if (Nb==0 and met>500 )
                     _counters.at("ISR3").add_event(event);
-                if (Nb>=2 and met>300 ) 
+                if (Nb>=2 and met>300 )
                     _counters.at("ISR4").add_event(event);
                 if (Nb==0 and met>250 and MTmin>120 )
-                    _counters.at("ISR5").add_event(event);  
+                    _counters.at("ISR5").add_event(event);
                 if (Nb>=2 and met>200 and MTmin>120 )
-                    _counters.at("ISR6").add_event(event); 
+                    _counters.at("ISR6").add_event(event);
                 if (Nj>=8)
-                    _counters.at("ISR7").add_event(event); 
+                    _counters.at("ISR7").add_event(event);
                 if (Nj>=6 and MTmin>120)
                     _counters.at("ISR8").add_event(event);
                 if (Nb>=3 and HT>800)
-                    _counters.at("ISR9").add_event(event); 
+                    _counters.at("ISR9").add_event(event);
             }
-            
+
             // LL: exactly 2 leptons, both with PT<25 GeV, and MET>50 GeV
             if (leptons.size()==2 and leptons[0]->pT() < 25. and leptons[1]->pT() < 25.) {
                 if (HT>700)
@@ -764,15 +765,6 @@ namespace Gambit {
 //            }
 
             return;
-        }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-            const Analysis_CMS_13TeV_2SSLEP_Stop_137invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_2SSLEP_Stop_137invfb*>(other);
-
-            for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
         }
 
 

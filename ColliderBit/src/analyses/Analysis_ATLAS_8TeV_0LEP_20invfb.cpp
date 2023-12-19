@@ -18,11 +18,6 @@ namespace Gambit {
     class Analysis_ATLAS_8TeV_0LEP_20invfb : public Analysis {
     private:
 
-      // Numbers passing cuts
-      double _num2jl, _num2jm, _num2jt, _num3j,
-        _num4jlm, _num4jl, _num4jm, _num4jt, _num5j, _num6jl,
-        _num6jm,_num6jt,_num6jtp;
-
       vector<int> cutFlowVector;
       vector<string> cutFlowVector_str;
       size_t NCUTS; //=16;
@@ -38,9 +33,20 @@ namespace Gambit {
         set_analysis_name("ATLAS_8TeV_0LEP_20invfb");
         set_luminosity(20.3);
 
-        _num2jl=0; _num2jm=0; _num2jt=0; _num3j=0;
-        _num4jlm=0; _num4jl=0; _num4jm=0; _num4jt=0; _num5j=0; _num6jl=0;
-        _num6jm=0;_num6jt=0;_num6jtp=0;
+        // Numbers passing cuts
+        _counters["2jl"] = EventCounter("2jl");
+        _counters["2jm"] = EventCounter("2jm");
+        _counters["2jt"] = EventCounter("2jt");
+        _counters["3j"] = EventCounter("3j");
+        _counters["4jlm"] = EventCounter("4jlm");
+        _counters["4jl"] = EventCounter("4jl");
+        _counters["4jm"] = EventCounter("4jm");
+        _counters["4jt"] = EventCounter("4jt");
+        _counters["5j"] = EventCounter("5j");
+        _counters["6jl"] = EventCounter("6jl");
+        _counters["6jm"] = EventCounter("6jm");
+        _counters["6jt"] = EventCounter("6jt");
+        _counters["6jtp"] = EventCounter("6jtp");
 
         NCUTS=60;
 
@@ -66,7 +72,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         vector<const HEPUtils::Particle*> baselineMuons;
         for (const HEPUtils::Particle* muon : event->muons()) {
@@ -74,10 +80,10 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.5) baselineJets.push_back(jet);
         }
 
@@ -125,7 +131,7 @@ namespace Gambit {
         // We now have the signal electrons, muons and jets: move on to the 0 lepton 2012 analysis
 
         // Calculate common variables and cuts first
-        ATLAS::applyMediumIDElectronSelection(signalElectrons);
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
 
         int nElectrons = signalElectrons.size();
         int nMuons = signalMuons.size();
@@ -149,9 +155,9 @@ namespace Gambit {
             dPhiMin2j = SmallestdPhi(signalJets,ptot.phi());
             //meff2j = met + signalJets[0]->pT() + signalJets[1]->pT();
             if (leptonCut && metCut && dPhiMin2j>0.4) {
-              if (met/sqrt(HT)>8. && meff_incl>800.) _num2jl += event->weight();
-              if (met/sqrt(HT)>15. && meff_incl>1200.) _num2jm += event->weight();
-              if (met/sqrt(HT)>15. && meff_incl>1600.) _num2jt += event->weight();
+              if (met/sqrt(HT)>8. && meff_incl>800.) _counters["2jl"].add_event(event);
+              if (met/sqrt(HT)>15. && meff_incl>1200.) _counters["2jm"].add_event(event);
+              if (met/sqrt(HT)>15. && meff_incl>1600.) _counters["2jt"].add_event(event);
             }
 
           }
@@ -166,7 +172,7 @@ namespace Gambit {
             dPhiMin3j = SmallestdPhi(signalJets,ptot.phi());
             meff3j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT();
             if (leptonCut && metCut && dPhiMin3j > 0.4) {
-              if (met/meff3j>0.3 && meff_incl>2200.) _num3j += event->weight();
+              if (met/meff3j>0.3 && meff_incl>2200.) _counters["3j"].add_event(event);
             }
           }
         }
@@ -182,10 +188,10 @@ namespace Gambit {
             dPhiMin2 = SmallestRemainingdPhi(signalJets,ptot.phi());
             meff4j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT() + signalJets.at(3)->pT();
             if (leptonCut && metCut && dPhiMin4 > 0.4 && dPhiMin2 > 0.2) {
-              if(met/sqrt(HT)>10. && meff_incl>700.)_num4jlm += event->weight();
-              if(met/sqrt(HT)>10. && meff_incl>1000.)_num4jl += event->weight();
-              if (met/meff4j>0.4 && meff_incl>1300.) _num4jm += event->weight();
-              if (met/meff4j>0.25 && meff_incl>2200.) _num4jt += event->weight();
+              if(met/sqrt(HT)>10. && meff_incl>700.)_counters["4jlm"].add_event(event);
+              if(met/sqrt(HT)>10. && meff_incl>1000.)_counters["4jl"].add_event(event);
+              if (met/meff4j>0.4 && meff_incl>1300.) _counters["4jm"].add_event(event);
+              if (met/meff4j>0.25 && meff_incl>2200.) _counters["4jt"].add_event(event);
             }
           }
         }
@@ -197,7 +203,7 @@ namespace Gambit {
             dPhiMin2 = SmallestRemainingdPhi(signalJets,ptot.phi());
             double meff5j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT() + signalJets.at(3)->pT() + signalJets.at(4)->pT();
             if (leptonCut && metCut && dPhiMin4>0.4 && dPhiMin2>0.2) {
-              if (met/meff5j>0.2 && meff_incl>1200.) _num5j += event->weight();
+              if (met/meff5j>0.2 && meff_incl>1200.) _counters["5j"].add_event(event);
             }
           }
         }
@@ -210,10 +216,10 @@ namespace Gambit {
             dPhiMin2 = SmallestRemainingdPhi(signalJets,ptot.phi());
             meff6j = met + signalJets.at(0)->pT() + signalJets.at(1)->pT() + signalJets.at(2)->pT() + signalJets.at(3)->pT() + signalJets.at(4)->pT() + signalJets.at(5)->pT();
             if (leptonCut && metCut && dPhiMin4>0.4 && dPhiMin2>0.2) {
-              if (met/meff6j>0.2 && meff_incl>900.) _num6jl += event->weight();
-              if (met/meff6j>0.2 && meff_incl>1200.) _num6jm += event->weight();
-              if (met/meff6j>0.25 && meff_incl>1500.) _num6jt += event->weight();
-              if (met/meff6j>0.15 && meff_incl>1700.) _num6jtp += event->weight();
+              if (met/meff6j>0.2 && meff_incl>900.) _counters["6jl"].add_event(event);
+              if (met/meff6j>0.2 && meff_incl>1200.) _counters["6jm"].add_event(event);
+              if (met/meff6j>0.25 && meff_incl>1500.) _counters["6jt"].add_event(event);
+              if (met/meff6j>0.15 && meff_incl>1700.) _counters["6jtp"].add_event(event);
             }
           }
         }
@@ -324,36 +330,6 @@ namespace Gambit {
 
       }
 
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_ATLAS_8TeV_0LEP_20invfb* specificOther
-                = dynamic_cast<const Analysis_ATLAS_8TeV_0LEP_20invfb*>(other);
-
-        if (NCUTS != specificOther->NCUTS) NCUTS = specificOther->NCUTS;
-
-        for (size_t j = 0; j < NCUTS; j++)
-        {
-          cutFlowVector[j] += specificOther->cutFlowVector[j];
-          cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-        }
-
-        _num2jl += specificOther->_num2jl;
-        _num2jm += specificOther->_num2jm;
-        _num2jt += specificOther->_num2jt;
-        _num3j += specificOther->_num3j;
-        _num4jlm += specificOther->_num4jlm;
-        _num4jl += specificOther->_num4jl;
-        _num4jm += specificOther->_num4jm;
-        _num4jt += specificOther->_num4jt;
-        _num5j += specificOther->_num5j;
-        _num6jl += specificOther->_num6jl;
-        _num6jm += specificOther->_num6jm;
-        _num6jt += specificOther->_num6jt;
-        _num6jtp += specificOther->_num6jtp;
-      }
-
-
       void collect_results() {
         // double scale_by=1.;
         // cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
@@ -372,21 +348,21 @@ namespace Gambit {
         // Now fill a results object with the results for each SR
         // Numbers are taken from CONF note
 
-        // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+        // add_result(SignalRegionData(_counters["SR label"], n_obs, {n_bkg, n_bkg_err}));
 
-        add_result(SignalRegionData("2jl", 12315., {_num2jl, 0.}, { 13000., 1000.}));
-        add_result(SignalRegionData("2jm", 715., {_num2jm, 0.}, { 760., 50.}));
-        add_result(SignalRegionData("2jt", 133., {_num2jt, 0.}, { 125., 10.}));
-        add_result(SignalRegionData("3j", 7., {_num3j, 0.}, { 5., 1.2}));
-        add_result(SignalRegionData("4jlm", 2169., {_num4jlm, 0.}, { 2120., 110.}));
-        add_result(SignalRegionData("4jl", 608., {_num4jl, 0.}, { 630., 50.}));
-        add_result(SignalRegionData("4jm", 24., {_num4jm, 0.}, { 37., 6.}));
-        add_result(SignalRegionData("4jt", 0., {_num4jt, 0.}, { 2.5, 1.}));
-        add_result(SignalRegionData("5j", 121., {_num5j, 0.}, { 126., 13.}));
-        add_result(SignalRegionData("6jl", 121., {_num6jl, 0.}, { 111., 11.}));
-        add_result(SignalRegionData("6jm", 39., {_num6jm, 0.}, { 33., 6.}));
-        add_result(SignalRegionData("6jt", 5., {_num6jt, 0.}, { 5.2, 1.4}));
-        add_result(SignalRegionData("6jtp", 6., {_num6jt, 0.}, { 4.9, 1.6}));
+        add_result(SignalRegionData(_counters["2jl"], 12315., { 13000., 1000.}));
+        add_result(SignalRegionData(_counters["2jm"], 715., { 760., 50.}));
+        add_result(SignalRegionData(_counters["2jt"], 133., { 125., 10.}));
+        add_result(SignalRegionData(_counters["3j"], 7., { 5., 1.2}));
+        add_result(SignalRegionData(_counters["4jlm"], 2169., { 2120., 110.}));
+        add_result(SignalRegionData(_counters["4jl"], 608., { 630., 50.}));
+        add_result(SignalRegionData(_counters["4jm"], 24., { 37., 6.}));
+        add_result(SignalRegionData(_counters["4jt"], 0., { 2.5, 1.}));
+        add_result(SignalRegionData(_counters["5j"], 121., { 126., 13.}));
+        add_result(SignalRegionData(_counters["6jl"], 121., { 111., 11.}));
+        add_result(SignalRegionData(_counters["6jm"], 39., { 33., 6.}));
+        add_result(SignalRegionData(_counters["6jt"], 5., { 5.2, 1.4}));
+        add_result(SignalRegionData(_counters["6jtp"], 6., { 4.9, 1.6}));
 
       }
 
@@ -419,10 +395,9 @@ namespace Gambit {
 
 
     protected:
-      void analysis_specific_reset() {
-        _num2jl=0; _num2jm=0; _num2jt=0; _num3j=0;
-        _num4jlm=0; _num4jl=0; _num4jm=0; _num4jt=0; _num5j=0; _num6jl=0;
-        _num6jm=0; _num6jt=0; _num6jtp=0;
+      void analysis_specific_reset()
+      {
+        for (auto& pair : _counters) { pair.second.reset(); }
 
         std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
       }

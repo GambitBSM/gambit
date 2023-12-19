@@ -4,6 +4,8 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "Eigen/Eigen"
 
+#include "gambit/Utils/stream_overloads.hpp"
+
 // This is based on the ATLAS 139 invfb Monojet analysis, found at: https://arxiv.org/pdf/2102.10874.pdf
 
 // #define CHECK_CUTFLOW
@@ -26,35 +28,31 @@ namespace Gambit
         // Required detector sim
         static constexpr const char* detector = "ATLAS";
 
-        // Numbers passing cuts TODO: Do the inclusive as well
-        std::map<string, EventCounter> _counters = {
-          {"EM0", EventCounter("EM0")},
-          {"EM1", EventCounter("EM1")},
-          {"EM2", EventCounter("EM2")},
-          {"EM3", EventCounter("EM3")},
-          {"EM4", EventCounter("EM4")},
-          {"EM5", EventCounter("EM5")},
-          {"EM6", EventCounter("EM6")},
-          {"EM7", EventCounter("EM7")},
-          {"EM8", EventCounter("EM8")},
-          {"EM9", EventCounter("EM9")},
-          {"EM10", EventCounter("EM10")},
-          {"EM11", EventCounter("EM11")},
-          {"EM12", EventCounter("EM12")},
-        };
-
         #ifdef CHECK_CUTFLOW
           Cutflows _cutflows;
         #endif
 
         static const size_t NUMSR = 13;
 
-        Cutflow _cutflow;
-
         Analysis_ATLAS_13TeV_MONOJET_139infb()
         {
 
-          analysis_specific_reset();
+          // Numbers passing cuts TODO: Do the inclusive as well
+          _counters["EM0"] = EventCounter("EM0");
+          _counters["EM1"] = EventCounter("EM1");
+          _counters["EM2"] = EventCounter("EM2");
+          _counters["EM3"] = EventCounter("EM3");
+          _counters["EM4"] = EventCounter("EM4");
+          _counters["EM5"] = EventCounter("EM5");
+          _counters["EM6"] = EventCounter("EM6");
+          _counters["EM7"] = EventCounter("EM7");
+          _counters["EM8"] = EventCounter("EM8");
+          _counters["EM9"] = EventCounter("EM9");
+          _counters["EM10"] = EventCounter("EM10");
+          _counters["EM11"] = EventCounter("EM11");
+          _counters["EM12"] = EventCounter("EM12");
+
+
           set_analysis_name("ATLAS_13TeV_MONOJET_139infb");
           set_luminosity(139.0);
 
@@ -141,7 +139,7 @@ namespace Gambit
 
           // Get jets (0.9 is to emulate the requirement of coming from a primary vertex)
           vector<const Jet*> baselineJets;
-          for (const Jet* jet : event->jets())
+          for (const Jet* jet : event->jets("antikt_R04"))
           {
             if ((jet->pT() > 30) && (jet->abseta() < 2.8))
             {
@@ -201,7 +199,7 @@ namespace Gambit
           removeOverlap(baselineNonBJets, baselinePhotons, 0.4);
           removeOverlap(baselineBJets, baselinePhotons, 0.4);
 
-          ATLAS::applyLooseIDElectronSelectionR2(baselineElectrons);
+          applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
           // All jets
           vector<const HEPUtils::Jet*> signalJets = baselineNonBJets;
@@ -276,13 +274,6 @@ namespace Gambit
             if (EM_ETmiss_gt_200) _cutflows["EM"].fillnext(w);
           #endif
 
-        }
-
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_13TeV_MONOJET_139infb* specificOther = dynamic_cast<const Analysis_ATLAS_13TeV_MONOJET_139infb*>(other);
-          for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
         }
 
 

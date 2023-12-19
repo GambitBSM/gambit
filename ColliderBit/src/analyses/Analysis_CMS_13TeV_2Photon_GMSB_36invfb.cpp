@@ -69,22 +69,22 @@ namespace Gambit {
 
       static constexpr const char* detector = "CMS";
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SR_MET_100-115", EventCounter("SR_MET_100-115")},
-        {"SR_MET_115-130", EventCounter("SR_MET_115-130")},
-        {"SR_MET_130-150", EventCounter("SR_MET_130-150")},
-        {"SR_MET_150-185", EventCounter("SR_MET_150-185")},
-        {"SR_MET_185-250", EventCounter("SR_MET_185-250")},
-        {"SR_MET_>250", EventCounter("SR_MET_>250")},
-      };
-
-      // Cutflow _cutflow;
+     // Cutflow _cutflow;
 
       // Analysis_CMS_13TeV_2Photon_GMSB_36invfb():
       // _cutflow("CMS 2-photon GMSB 13 TeV", {"preselection", "MET>300GeV", "MT(g,MET)>300GeV", "S_T^g>600GeV"})
       Analysis_CMS_13TeV_2Photon_GMSB_36invfb()
       {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SR_MET_100-115"] = EventCounter("SR_MET_100-115");
+        _counters["SR_MET_115-130"] = EventCounter("SR_MET_115-130");
+        _counters["SR_MET_130-150"] = EventCounter("SR_MET_130-150");
+        _counters["SR_MET_150-185"] = EventCounter("SR_MET_150-185");
+        _counters["SR_MET_185-250"] = EventCounter("SR_MET_185-250");
+        _counters["SR_MET_>250"] = EventCounter("SR_MET_>250");
+
+
         set_analysis_name("CMS_13TeV_2Photon_GMSB_36invfb");
         set_luminosity(35.9);
       }
@@ -207,7 +207,7 @@ namespace Gambit {
 
         // Jets
         vector<const HEPUtils::Jet*> jets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           // No info on baseline jet cuts in the paper, so for now we'll
           // apply an|eta| cut for HCAL coverage and a loose jet pT cut
           if (jet->pT()>10. && jet->abseta()<3.0) jets.push_back(jet);
@@ -284,16 +284,6 @@ namespace Gambit {
           else if (met > 250.) _counters.at("SR_MET_>250").add_event(event);
         }
 
-      }
-
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_2Photon_GMSB_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_2Photon_GMSB_36invfb*>(other);
-
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 

@@ -36,20 +36,20 @@ namespace Gambit {
 
       static constexpr const char* detector = "CMS";
 
-      // Counters for the number of accepted events for each signal region
-      std::map<string, EventCounter> _counters = {
-        {"SR-600-800", EventCounter("SR-600-800")},
-        {"SR-800-1000", EventCounter("SR-800-1000")},
-        {"SR-1000-1300", EventCounter("SR-1000-1300")},
-        {"SR-1300", EventCounter("SR-1300")},
-      };
-
 
       Cutflow _cutflow;
 
       Analysis_CMS_13TeV_Photon_GMSB_36invfb():
       _cutflow("CMS 1-photon GMSB 13 TeV", {"preselection", "MET>300GeV", "MT(g,MET)>300GeV", "S_T^g>600GeV"})
       {
+
+        // Counters for the number of accepted events for each signal region
+        _counters["SR-600-800"] = EventCounter("SR-600-800");
+        _counters["SR-800-1000"] = EventCounter("SR-800-1000");
+        _counters["SR-1000-1300"] = EventCounter("SR-1000-1300");
+        _counters["SR-1300"] = EventCounter("SR-1300");
+
+
         set_analysis_name("CMS_13TeV_Photon_GMSB_36invfb");
         set_luminosity(35.9);
       }
@@ -87,7 +87,7 @@ namespace Gambit {
 
         // jets
         vector<const HEPUtils::Jet*> Jets;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>30. &&fabs(jet->eta())<3.0) Jets.push_back(jet);
         }
@@ -138,14 +138,6 @@ namespace Gambit {
         else if (STgamma<1300) _counters.at("SR-1000-1300").add_event(event);
         else                   _counters.at("SR-1300").add_event(event);
 
-      }
-
-      /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-      void combine(const Analysis* other)
-      {
-        const Analysis_CMS_13TeV_Photon_GMSB_36invfb* specificOther
-                = dynamic_cast<const Analysis_CMS_13TeV_Photon_GMSB_36invfb*>(other);
-        for (auto& pair : _counters) { pair.second += specificOther->_counters.at(pair.first); }
       }
 
 

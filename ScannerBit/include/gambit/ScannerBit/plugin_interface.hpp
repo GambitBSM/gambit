@@ -101,7 +101,7 @@ namespace Gambit
                 std::vector<void *> input;
                 std::string tag;
                 typedef const std::map<type_index, void *> &(*initFuncType)(const std::string &, const YAML::Node &, const printer_interface &, Priors::BasePrior &, std::vector<void *> &);                              
-                typedef void * (*getFuncType)(std::string);
+                typedef void * (*getFuncType)(const std::string &);
                 initFuncType initFunc;
                 getFuncType getFunc;
                     
@@ -164,6 +164,7 @@ namespace Gambit
             private:
                 template <typename... T1>
                 void dummy(T1...){}
+                
             public:
                 template <typename... plug_args>
                 Plugin_Interface(const std::string &type, const std::string &name, const plug_args&... inputs)

@@ -43,21 +43,6 @@ namespace Gambit
     {
       private:
 
-        // Numbers passing cuts (doubles because we will use the trigger eff)
-        double _num_MT2_90_SF;
-        double _num_MT2_90_DF;
-        double _num_MT2_120_SF;
-        double _num_MT2_120_DF;
-        double _num_MT2_150_SF;
-        double _num_MT2_150_DF;
-        double _num_WWa_SF;
-        double _num_WWa_DF;
-        double _num_WWb_SF;
-        double _num_WWb_DF;
-        double _num_WWc_SF;
-        double _num_WWc_DF;
-        double _num_Zjets;
-
         vector<double> cutFlowVector;
         vector<double> cutFlowIncrements;
         vector<string> cutFlowVector_str;
@@ -83,19 +68,19 @@ namespace Gambit
           set_analysis_name("ATLAS_8TeV_2LEPEW_20invfb");
           set_luminosity(20.3);
 
-          _num_MT2_90_SF=0;
-          _num_MT2_90_DF=0;
-          _num_MT2_120_SF=0;
-          _num_MT2_120_DF=0;
-          _num_MT2_150_SF=0;
-          _num_MT2_150_DF=0;
-          _num_WWa_SF=0;
-          _num_WWa_DF=0;
-          _num_WWb_SF=0;
-          _num_WWb_DF=0;
-          _num_WWc_SF=0;
-          _num_WWc_DF=0;
-          _num_Zjets=0;
+          _counters["MT2_90_SF"] = EventCounter("MT2_90_SF");
+          _counters["MT2_90_DF"] = EventCounter("MT2_90_DF");
+          _counters["MT2_120_SF"] = EventCounter("MT2_120_SF");
+          _counters["MT2_120_DF"] = EventCounter("MT2_120_DF");
+          _counters["MT2_150_SF"] = EventCounter("MT2_150_SF");
+          _counters["MT2_150_DF"] = EventCounter("MT2_150_DF");
+          _counters["WWa_SF"] = EventCounter("WWa_SF");
+          _counters["WWa_DF"] = EventCounter("WWa_DF");
+          _counters["WWb_SF"] = EventCounter("WWb_SF");
+          _counters["WWb_DF"] = EventCounter("WWb_DF");
+          _counters["WWc_SF"] = EventCounter("WWc_SF");
+          _counters["WWc_DF"] = EventCounter("WWc_DF");
+          _counters["Zjets"] = EventCounter("Zjets");
 
           for(int i=0;i<NCUTS;i++)
           {
@@ -274,7 +259,7 @@ namespace Gambit
           }
 
           // Apply electron efficiency
-          ATLAS::applyElectronEff(signalElectrons);
+          applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Now define vector of baseline muons
           vector<const HEPUtils::Particle*> signalMuons;
@@ -284,10 +269,10 @@ namespace Gambit
           }
 
           // Apply muon efficiency
-          ATLAS::applyMuonEff(signalMuons);
+          applyEfficiency(signalMuons, ATLAS::eff2DMu.at("Generic"));
 
           vector<const HEPUtils::Jet*> signalJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.5) signalJets.push_back(jet);
             //if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
@@ -298,7 +283,7 @@ namespace Gambit
           {
             if (tau->pT() > 20. && tau->abseta() < 2.5) signalTaus.push_back(tau);
           }
-          ATLAS::applyTauEfficiencyR1(signalTaus);
+          applyEfficiency(signalTaus, ATLAS::effTau.at("R1"));
 
           // Overlap removal
 
@@ -333,7 +318,7 @@ namespace Gambit
             candidateLeptons.push_back(muo);
           }
 
-          ATLAS::applyTightIDElectronSelection(signalElectrons);
+          applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
           int numElectrons=signalElectrons.size();
           int numMuons=signalMuons.size();
@@ -444,17 +429,17 @@ namespace Gambit
             if(mt2>150.)cut_SRMT2150=true;
 
             //Signal region increments use the trigger efficiencies for ee, emu and mumu triggers
-            if(mt2 > 90. && (numElectrons==1 && numMuons==1)) _num_MT2_90_DF += event->weight() * 0.89;
-            if(passZVeto && mt2 > 90. && (numElectrons==2 && fabs(mll-91.)>10)) _num_MT2_90_SF += event->weight() * 0.97;
-            if(passZVeto && mt2 > 90. && (numMuons==2 && fabs(mll-91.)>10)) _num_MT2_90_SF += event->weight() * 0.75;
+            if(mt2 > 90. && (numElectrons==1 && numMuons==1)) _counters["MT2_90_DF"].add_event(event->weight() * 0.89);
+            if(passZVeto && mt2 > 90. && (numElectrons==2 && fabs(mll-91.)>10)) _counters["MT2_90_SF"].add_event(event->weight() * 0.97);
+            if(passZVeto && mt2 > 90. && (numMuons==2 && fabs(mll-91.)>10)) _counters["MT2_90_SF"].add_event(event->weight() * 0.75);
 
-            if(mt2 > 120. && (numElectrons==1 && numMuons==1)) _num_MT2_120_DF += event->weight() * 0.89;
-            if(passZVeto && mt2 > 120. && (numElectrons==2 && fabs(mll-91.)>10)) _num_MT2_120_SF += event->weight() * 0.97;
-            if(passZVeto && mt2 > 120. &&  (numMuons==2 && fabs(mll-91.)>10)) _num_MT2_120_SF += event->weight() * 0.75;
+            if(mt2 > 120. && (numElectrons==1 && numMuons==1)) _counters["MT2_120_DF"].add_event(event->weight() * 0.89);
+            if(passZVeto && mt2 > 120. && (numElectrons==2 && fabs(mll-91.)>10)) _counters["MT2_120_SF"].add_event(event->weight() * 0.97);
+            if(passZVeto && mt2 > 120. &&  (numMuons==2 && fabs(mll-91.)>10)) _counters["MT2_120_SF"].add_event(event->weight() * 0.75);
 
-            if(mt2 > 150. && (numElectrons==1 && numMuons==1)) _num_MT2_150_DF += event->weight() * 0.89;
-            if(passZVeto && mt2 > 150. && (numElectrons==2 && fabs(mll-91.)>10)) _num_MT2_150_SF += event->weight() * 0.97;
-            if(passZVeto && mt2 > 150. && (numMuons==2 && fabs(mll-91.)>10)) _num_MT2_150_SF += event->weight() * 0.75;
+            if(mt2 > 150. && (numElectrons==1 && numMuons==1)) _counters["MT2_150_DF"].add_event(event->weight() * 0.89);
+            if(passZVeto && mt2 > 150. && (numElectrons==2 && fabs(mll-91.)>10)) _counters["MT2_150_SF"].add_event(event->weight() * 0.97);
+            if(passZVeto && mt2 > 150. && (numMuons==2 && fabs(mll-91.)>10)) _counters["MT2_150_SF"].add_event(event->weight() * 0.75);
 
           }
 
@@ -535,36 +520,36 @@ namespace Gambit
             if((signalLeptons[0]->mom() + signalLeptons[1]->mom()).pT() > 80. &&
                ETmiss_rel > 80. &&
                mll < 120. &&
-               (numElectrons==1 && numMuons==1)) _num_WWa_DF += event->weight() * 0.89;
+               (numElectrons==1 && numMuons==1)) _counters["WWa_DF"].add_event(event->weight() * 0.89);
 
             if((signalLeptons[0]->mom() + signalLeptons[1]->mom()).pT() > 80. &&
                ETmiss_rel > 80. &&
                mll < 120. &&
-               (numElectrons==2 && fabs(mll-91.)>10.)) _num_WWa_SF += event->weight() * 0.97;
+               (numElectrons==2 && fabs(mll-91.)>10.)) _counters["WWa_SF"].add_event(event->weight() * 0.97);
 
             if((signalLeptons[0]->mom() + signalLeptons[1]->mom()).pT() > 80. &&
                ETmiss_rel > 80. &&
                mll < 120. &&
-               (numMuons==2 && fabs(mll-91.)>10.)) _num_WWa_SF += event->weight() * 0.75;
+               (numMuons==2 && fabs(mll-91.)>10.)) _counters["WWa_SF"].add_event(event->weight() * 0.75);
 
             if(mt2 > 90. &&
                mll < 170. &&
-               (numElectrons==1 && numMuons==1)) _num_WWb_DF += event->weight() * 0.89;
+               (numElectrons==1 && numMuons==1)) _counters["WWb_DF"].add_event(event->weight() * 0.89);
 
             if(mt2 > 90. &&
                mll < 170. &&
-               (numElectrons==2 && fabs(mll-91.)>10.)) _num_WWb_SF += event->weight() * 0.97;
+               (numElectrons==2 && fabs(mll-91.)>10.)) _counters["WWb_SF"].add_event(event->weight() * 0.97);
 
 
             if(mt2 > 90. &&
                mll < 170. &&
-               (numMuons==2 && fabs(mll-91.)>10.)) _num_WWb_SF += event->weight() * 0.75;
+               (numMuons==2 && fabs(mll-91.)>10.)) _counters["WWb_SF"].add_event(event->weight() * 0.75);
 
-            if(mt2 > 100. && (numElectrons==1 && numMuons==1)) _num_WWc_DF += event->weight() * 0.89;
+            if(mt2 > 100. && (numElectrons==1 && numMuons==1)) _counters["WWc_DF"].add_event(event->weight() * 0.89);
 
-            if(mt2 > 100. && (numElectrons==2 && fabs(mll-91.)>10.)) _num_WWc_SF += event->weight() * 0.97;
+            if(mt2 > 100. && (numElectrons==2 && fabs(mll-91.)>10.)) _counters["WWc_SF"].add_event(event->weight() * 0.97);
 
-            if(mt2 > 100. && (numMuons==2 && fabs(mll-91.)>10.)) _num_WWc_SF += event->weight() * 0.75;
+            if(mt2 > 100. && (numMuons==2 && fabs(mll-91.)>10.)) _counters["WWc_SF"].add_event(event->weight() * 0.75);
 
           }
 
@@ -629,9 +614,9 @@ namespace Gambit
             if(!(mjj > 50. && mjj<100.))passMjj=false;
             if(!(centralNonBJets[0]->pT()>45. && centralNonBJets[1]->pT()>45.))passJetPT=false;
 
-            if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==2 && numMuons==0)) _num_Zjets += event->weight() * 0.97;
+            if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==2 && numMuons==0)) _counters["Zjets"].add_event(event->weight() * 0.97);
 
-            if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==0 && numMuons==2)) _num_Zjets += event->weight() * 0.75;
+            if(fabs(mll-91.)<10 && ETmiss_rel>80. && (signalLeptons[0]->mom()+signalLeptons[1]->mom()).pT()>80. && dRll > 0.3 && dRll < 1.5 && mjj > 50. && mjj<100. && passJetPT && (numElectrons==0 && numMuons==2)) _counters["Zjets"].add_event(event->weight() * 0.75);
 
           }
 
@@ -939,35 +924,6 @@ namespace Gambit
           return;
         }
 
-        /// Combine the variables of another copy of this analysis (typically on another thread) into this one.
-        void combine(const Analysis* other)
-        {
-          const Analysis_ATLAS_8TeV_2LEPEW_20invfb* specificOther
-                  = dynamic_cast<const Analysis_ATLAS_8TeV_2LEPEW_20invfb*>(other);
-
-          for (int j=0; j<NCUTS; j++)
-          {
-            cutFlowVector[j] += specificOther->cutFlowVector[j];
-            cutFlowIncrements[j] += specificOther->cutFlowIncrements[j];
-            cutFlowVector_str[j] = specificOther->cutFlowVector_str[j];
-          }
-
-          _num_MT2_90_SF += specificOther->_num_MT2_90_SF;
-          _num_MT2_90_DF += specificOther->_num_MT2_90_DF;
-          _num_MT2_120_SF += specificOther->_num_MT2_120_SF;
-          _num_MT2_120_DF += specificOther->_num_MT2_120_DF;
-          _num_MT2_150_SF += specificOther->_num_MT2_150_SF;
-          _num_MT2_150_DF += specificOther->_num_MT2_150_DF;
-          _num_WWa_SF += specificOther->_num_WWa_SF;
-          _num_WWa_DF += specificOther->_num_WWa_DF;
-          _num_WWb_SF += specificOther->_num_WWb_SF;
-          _num_WWb_DF += specificOther->_num_WWb_DF;
-          _num_WWc_SF += specificOther->_num_WWc_SF;
-          _num_WWc_DF += specificOther->_num_WWc_DF;
-          _num_Zjets += specificOther->_num_Zjets;
-        }
-
-
         void collect_results()
         {
 
@@ -987,21 +943,21 @@ namespace Gambit
             cout << "------------------------------------------------------------------------------------------------------------------------------ "<<endl;
           #endif
 
-          // add_result(SignalRegionData("SR label", n_obs, {n_sig_MC, n_sig_MC_sys}, {n_bkg, n_bkg_err}));
+          // add_result(SignalRegionData(_counters.at("SR label"), n_obs, {n_bkg, n_bkg_err}));
 
-          add_result(SignalRegionData("MT2_90_SF", 33., {_num_MT2_90_SF, 0.}, {38.2, 5.1}));
-          add_result(SignalRegionData("MT2_90_DF", 21., {_num_MT2_90_DF, 0.}, {23.3, 3.7}));
-          add_result(SignalRegionData("MT2_120_SF", 5., {_num_MT2_120_SF, 0.}, {8.9, 2.1}));
-          add_result(SignalRegionData("MT2_120_DF", 5., {_num_MT2_120_DF, 0.}, {3.6, 1.2}));
-          add_result(SignalRegionData("MT2_150_SF", 3., {_num_MT2_150_SF, 0.}, {3.2, 0.7}));
-          add_result(SignalRegionData("MT2_150_DF", 2., {_num_MT2_150_DF, 0.}, {1.0, 0.5}));
-          add_result(SignalRegionData("WWa_SF", 73., {_num_WWa_SF, 0.}, {86.5, 7.4}));
-          add_result(SignalRegionData("WWa_DF", 70., {_num_WWa_DF, 0.}, {73.6, 7.9}));
-          add_result(SignalRegionData("WWb_SF", 26., {_num_WWb_SF, 0.}, {30.2, 3.5}));
-          add_result(SignalRegionData("WWb_DF", 17., {_num_WWb_DF, 0.}, {18.1, 2.6}));
-          add_result(SignalRegionData("WWc_SF", 10., {_num_WWc_SF, 0.}, {20.3, 3.5}));
-          add_result(SignalRegionData("WWc_DF", 11., {_num_WWc_DF, 0.}, {9.0, 2.2}));
-          add_result(SignalRegionData("Zjets", 1., {_num_Zjets, 0.}, {1.4, 0.6}));
+          add_result(SignalRegionData(_counters.at("MT2_90_SF"), 33., {38.2, 5.1}));
+          add_result(SignalRegionData(_counters.at("MT2_90_DF"), 21., {23.3, 3.7}));
+          add_result(SignalRegionData(_counters.at("MT2_120_SF"), 5., {8.9, 2.1}));
+          add_result(SignalRegionData(_counters.at("MT2_120_DF"), 5., {3.6, 1.2}));
+          add_result(SignalRegionData(_counters.at("MT2_150_SF"), 3., {3.2, 0.7}));
+          add_result(SignalRegionData(_counters.at("MT2_150_DF"), 2., {1.0, 0.5}));
+          add_result(SignalRegionData(_counters.at("WWa_SF"), 73., {86.5, 7.4}));
+          add_result(SignalRegionData(_counters.at("WWa_DF"), 70., {73.6, 7.9}));
+          add_result(SignalRegionData(_counters.at("WWb_SF"), 26., {30.2, 3.5}));
+          add_result(SignalRegionData(_counters.at("WWb_DF"), 17., {18.1, 2.6}));
+          add_result(SignalRegionData(_counters.at("WWc_SF"), 10., {20.3, 3.5}));
+          add_result(SignalRegionData(_counters.at("WWc_DF"), 11., {9.0, 2.2}));
+          add_result(SignalRegionData(_counters.at("Zjets"), 1., {1.4, 0.6}));
 
   //        plots_mt2_NOmt2_SF->createFile(luminosity(),(34.38103/50000));
   //        plots_mt2_NOmt2_DF->createFile(luminosity(),(34.38103/50000));
@@ -1018,19 +974,8 @@ namespace Gambit
       protected:
         void analysis_specific_reset()
         {
-          _num_MT2_90_SF=0;
-          _num_MT2_90_DF=0;
-          _num_MT2_120_SF=0;
-          _num_MT2_120_DF=0;
-          _num_MT2_150_SF=0;
-          _num_MT2_150_DF=0;
-          _num_WWa_SF=0;
-          _num_WWa_DF=0;
-          _num_WWb_SF=0;
-          _num_WWb_DF=0;
-          _num_WWc_SF=0;
-          _num_WWc_DF=0;
-          _num_Zjets=0;
+          for (auto& pair : _counters) { pair.second.reset(); }
+
 
           std::fill(cutFlowVector.begin(), cutFlowVector.end(), 0);
         }

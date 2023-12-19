@@ -35,24 +35,21 @@ namespace Gambit
             Dummy(const std::vector<std::string>& param, const Options&) : BasePrior(param, param.size())
             {
             }
+            
+            double log_prior_density(const std::unordered_map<std::string, double> &) const override { return 1.; }
 
-            void transform(const std::vector<double> &unitpars, std::unordered_map<std::string, double> &outputMap) const override
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string, double> &outputMap) const override
             {
-                auto it_vec = unitpars.begin();
-                for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
-                {
-                    outputMap[*it] = *(it_vec++);
-                }
+                for (int i = 0, end = unitpars.size(); i < end; ++i)
+                    outputMap[param_names[i]] = unitpars[i];
             }
 
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
             {
-                std::vector<double> u;
-                for (const auto& n : param_names)
+                for (int i = 0, end = this->size(); i < end; ++i)
                 {
-                    u.push_back(physical.at(n));
+                    unit[i] = physical.at(param_names[i]);
                 }
-                return u;
             }
 
         };
@@ -65,8 +62,14 @@ namespace Gambit
             None(const std::vector<std::string>& param, const Options&) : BasePrior(param)
             {
             }
+            
+            double log_prior_density(const std::unordered_map<std::string, double> &) const override
+            {
+                scan_err << "'None' prior has no density" << scan_end;
+                return 0.0;
+            }
 
-            void transform(const std::vector<double> &, std::unordered_map<std::string, double> &outputMap) const override
+            void transform(hyper_cube_ref<double>, std::unordered_map<std::string, double> &outputMap) const override
             {
                 for (auto it = param_names.begin(), end = param_names.end(); it != end; it++)
                 {
@@ -79,10 +82,9 @@ namespace Gambit
                 }
             }
 
-            std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &) const override
+            void inverse_transform(const std::unordered_map<std::string, double> &, hyper_cube_ref<double>) const override
             {
-              scan_err << "'None' prior has no inverse transform" << scan_end;
-              return {};
+                scan_err << "'None' prior has no inverse transform" << scan_end;
             }
 
 
