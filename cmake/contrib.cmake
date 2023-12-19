@@ -302,14 +302,14 @@ if(NOT EXCLUDE_YODA)
 endif()
 
 #contrib/fjcore-3.2.0
-# set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
-# include_directories("${fjcore_INCLUDE_DIR}")
-# add_definitions(-DFJCORE)
-# add_definitions(-DFJNS=gambit::fjcore)
-# add_gambit_library(fjcore OPTION OBJECT
-#                           SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
-#                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
-# set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
+include_directories("${fjcore_INCLUDE_DIR}")
+add_definitions(-DFJCORE)
+add_definitions(-DFJNS=gambit::fjcore)
+add_gambit_library(fjcore OPTION OBJECT
+                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
+                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
+set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
 
 # Fastjet, only with ColliderBit:
 #contrib/HepMC3; include only if ColliderBit is in use.
@@ -364,8 +364,6 @@ if(NOT EXCLUDE_FASTJET)
   )
   add_contrib_clean_and_nuke(${name} ${dir} clean)
   set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} ${name})
-  #add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # Fjcontrib
@@ -391,7 +389,6 @@ if (NOT EXCLUDE_FJCONTRIB)
     set(FJCONTRIB_LIB "${fastjet_dir}/local/lib")
     set(FJCONTRIB_LDFLAGS "-L${FJCONTRIB_LIB} -l${lib} -lfastjettools -lfastjet")
     set(FJCONTRIB_CXX_FLAGS ${FJ_CXX_FLAGS})
-    #set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
     set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
     set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
     set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
