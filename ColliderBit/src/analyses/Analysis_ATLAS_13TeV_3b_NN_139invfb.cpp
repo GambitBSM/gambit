@@ -565,8 +565,8 @@ namespace Gambit {
           }
         }
         for (const HEPUtils::Particle* mu : muons){
-          const double eff_tight = getElectronIDEfficiency2020(mu, "Tight");
-          const double eff_loose = getElectronIDEfficiency2020(mu, "Loose");
+          const double eff_tight = getMuonIDEfficiency2020(mu, "Tight");
+          const double eff_loose = getMuonIDEfficiency2020(mu, "Loose");
           const double rnd = Random::draw();
 
           if (rnd < eff_tight){
