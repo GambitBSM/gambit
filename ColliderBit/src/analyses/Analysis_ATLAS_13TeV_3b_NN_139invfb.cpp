@@ -235,30 +235,6 @@ namespace Gambit {
 
       }
 
-      //Discards muons if they are within variable dR of a jet as defined in analysis paper
-      void MuonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, const vector<const HEPUtils::Jet*> &jetvec) {
-        //Routine to do lepton-jet check
-        //Discards leptons if they are within dR of a jet as defined in analysis paper
-        vector<const HEPUtils::Particle*> Survivors;
-
-        for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++) {
-          bool overlap = false;
-          HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-          for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++) {
-            HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
-            double DeltaRMax = std::min(0.4, 0.04 + 10 / lepmom.pT());
-            const double dR=jetmom.deltaR_eta(lepmom);
-
-            if(fabs(dR) <= DeltaRMax) overlap=true;
-          }
-          if(overlap) continue;
-          Survivors.push_back(lepvec.at(itlep));
-        }
-        lepvec=Survivors;
-
-        return;
-      }
-
       // Calculate transverse mass
       inline static double transverse_mass(HEPUtils::P4 pmiss, HEPUtils::P4 p4) {
         return sqrt(2*p4.pT()*pmiss.pT()*(1-cos(p4.deltaPhi(pmiss))));
@@ -381,8 +357,8 @@ namespace Gambit {
         }
         // Overlap removal
         // TODO: Just left in for now.
-        removeOverlap(nonbJets, baseElectrons,0.2);
-        removeOverlap(nonbJets, sigElectrons,0.2);
+        removeOverlap(nonbJets, baseElectrons, 0.2);
+        removeOverlap(nonbJets, sigElectrons, 0.2);
         
         removeOverlap(baseElectrons,nonbJets, 0.4);
         removeOverlap(baseElectrons,bJets, 0.4);
@@ -391,10 +367,11 @@ namespace Gambit {
 
         // Jet-Muon probably not doable, skip for now (need number of jet constituents)
         // Should be relatively negligible, only applies to jets <= 2 tracks.
-        MuonJetOverlapRemoval(baseMuons,nonbJets);
-        MuonJetOverlapRemoval(baseMuons,bJets);
-        MuonJetOverlapRemoval(sigMuons,nonbJets);
-        MuonJetOverlapRemoval(sigMuons,bJets);
+        auto mudRmax = [](const double mupt){return std::min(0.4, 0.04 + 10./mupt);};
+        removeOverlap(baseMuons, nonbJets, mudRmax);
+        removeOverlap(baseMuons,bJets, mudRmax);
+        removeOverlap(sigMuons,nonbJets, mudRmax);
+        removeOverlap(sigMuons,bJets, mudRmax);
         
         // Number of objects
         size_t nbJets = bJets.size();
