@@ -786,12 +786,20 @@ namespace Gambit
           Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
 
           // Compute this SR's DLLs as the differences of s+b and b (partial) LLs
+
+          // _Anders
+          // /// @todo Only compute this once per run
+          // const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
+          // /// @todo Only compute this once per run
+          // const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
+          // const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
+          // const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
           /// @todo Only compute this once per run
-          const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
+          const double ll_b_exp = marg_loglike_nulike1sr(n_preds_b, n_preds_b_int, sqrtevals_b);
           /// @todo Only compute this once per run
-          const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
-          const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
-          const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
+          const double ll_b_obs = marg_loglike_nulike1sr(n_preds_b, n_obss, sqrtevals_b);
+          const double ll_sb_exp = marg_loglike_nulike1sr(n_preds_sb, n_preds_b_int, sqrtevals_sb);
+          const double ll_sb_obs = marg_loglike_nulike1sr(n_preds_sb, n_obss, sqrtevals_sb);
           const double dll_exp = ll_sb_exp - ll_b_exp;
           const double dll_obs = ll_sb_obs - ll_b_obs;
 
@@ -863,11 +871,16 @@ namespace Gambit
         }
         else if (!combine_nocovar_SRs and marginalise_over_SR_selection)
         {
+          // _Anders
+
+          // TODO: Can we use OpenMP on some of these loops?
+          //       Depends on thread safety of GSL multimin...?
+
           // Vector to collect votes
           std::vector<int> SR_votes(nSR, 0);
 
           // Loop over n_toys
-          int n_toys = 100;
+          int n_toys = std::max(100, (int) nSR * 10);
           for (int toy_i = 0; toy_i < n_toys; ++toy_i)
           {
 
@@ -878,12 +891,29 @@ namespace Gambit
             {
               const SignalRegionData& srData = ana_data[SR];
 
+              double dll_exp = 0.0;
+
+              double n_sig_MC = srData.n_sig_MC;
+              // if (n_sig_MC < 1.0)
+              // {
+              //   n_sig_MC = 0.5;
+              // }
+
+              // if (srData.n_sig_MC > 0)
+              // {
+
               // _Anders
+              // Sample a new lambda
+              std::normal_distribution<double> normal_dist_for_lambda(n_sig_MC, std::max(1.0, std::sqrt(n_sig_MC)));
+              double toy_lambda = normal_dist_for_lambda(Random::rng());
+              toy_lambda = std::max(0.0, toy_lambda);
 
               // Sample MC signal count from Poisson (toy_s_MC)
-              std::poisson_distribution<int> poisson_dist(srData.n_sig_MC);
+              // std::poisson_distribution<int> poisson_dist(n_sig_MC);
+              std::poisson_distribution<int> poisson_dist(toy_lambda);
               int toy_s_MC = poisson_dist(Random::rng());
               double toy_s_scaled = toy_s_MC * srData.scalefactor();
+              cerr << DEBUG_PREFIX << ana_name << ": toy " << toy_i << ": SR " << SR << ":  n_sig_MC: " << n_sig_MC << "   toy_s_MC: " << toy_s_MC << "   toy_s_scaled: " << toy_s_scaled << endl;
 
               // Compute *expected* delta loglike using (n=b, toy_s_scaled, b)
               const double n_pred_b = std::max(srData.n_bkg, 0.001);
@@ -904,9 +934,15 @@ namespace Gambit
               Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
               Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
 
-              const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
-              const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
-              const double dll_exp = ll_sb_exp - ll_b_exp;
+              // _Anders
+              // const double ll_b_exp = marg_prof_fn(n_preds_b, n_preds_b_int, sqrtevals_b, dummy);
+              // const double ll_sb_exp = marg_prof_fn(n_preds_sb, n_preds_b_int, sqrtevals_sb, dummy);
+              const double ll_b_exp = marg_loglike_nulike1sr(n_preds_b, n_preds_b_int, sqrtevals_b);
+              const double ll_sb_exp = marg_loglike_nulike1sr(n_preds_sb, n_preds_b_int, sqrtevals_sb);
+              dll_exp = ll_sb_exp - ll_b_exp;
+
+              // }
+
 
               // Update the SR choice?
               if (dll_exp < bestexp_dll_exp || SR == 0)
@@ -938,31 +974,36 @@ namespace Gambit
 
             double weight = (1.0 / n_toys) * n_votes;
 
-            // TODO: Get rid of this block by storing results
-            const SignalRegionData& srData = ana_data[SR];
+            // // TODO: Get rid of this block by storing results
+            // const SignalRegionData& srData = ana_data[SR];
 
-            const double n_pred_b = std::max(srData.n_bkg, 0.001);
-            const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
-            const double n_obs = round(srData.n_obs);
-            const double n_pred_b_int = round(n_pred_b);
-            const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001);
-            const double abs_uncertainty_sb = std::max(srData.calc_n_sigbkg_err(), 0.001);
+            // const double n_pred_b = std::max(srData.n_bkg, 0.001);
+            // const double n_pred_sb = n_pred_b + srData.n_sig_scaled;
+            // const double n_obs = round(srData.n_obs);
+            // const double n_pred_b_int = round(n_pred_b);
+            // const double abs_uncertainty_b = std::max(srData.n_bkg_err, 0.001);
+            // const double abs_uncertainty_sb = std::max(srData.calc_n_sigbkg_err(), 0.001);
 
-            Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
-            Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
-            Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
-            Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
-            Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
-            Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
-            Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
+            // Eigen::ArrayXd n_obss(1);        n_obss(0) = n_obs;
+            // Eigen::ArrayXd n_preds_b_int(1); n_preds_b_int(0) = n_pred_b_int;
+            // Eigen::ArrayXd n_preds_b(1);     n_preds_b(0) = n_pred_b;
+            // Eigen::ArrayXd n_preds_sb(1);    n_preds_sb(0) = n_pred_sb;
+            // Eigen::ArrayXd sqrtevals_b(1);   sqrtevals_b(0) = abs_uncertainty_b;
+            // Eigen::ArrayXd sqrtevals_sb(1);  sqrtevals_sb(0) = abs_uncertainty_sb;
+            // Eigen::MatrixXd dummy(1,1); dummy(0,0) = 1.0;
 
-            const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
-            const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
-            const double dll_obs = ll_sb_obs - ll_b_obs;
-            // TODO END
+            // // _Anders
+            // // TODO: Should rather reuse the already computed ana_loglikes.sr_loglikes
+            // // const double ll_b_obs = marg_prof_fn(n_preds_b, n_obss, sqrtevals_b, dummy);
+            // // const double ll_sb_obs = marg_prof_fn(n_preds_sb, n_obss, sqrtevals_sb, dummy);
+            // const double ll_b_obs = marg_loglike_nulike1sr(n_preds_b, n_obss, sqrtevals_b);
+            // const double ll_sb_obs = marg_loglike_nulike1sr(n_preds_sb, n_obss, sqrtevals_sb);
+            // const double dll_obs = ll_sb_obs - ll_b_obs;
+            // // TODO END
 
             // Add contribution to the combined loglike for this analysis
-            dll += weight * dll_obs;
+            // dll += weight * dll_obs;
+            dll += weight * ana_loglikes.sr_loglikes.at(SR);
           }
 
         } // End if-block on how to compute the analysis loglike
