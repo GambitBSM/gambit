@@ -91,7 +91,7 @@ namespace Gambit {
 
         // Get jets
         vector<const Jet*> jets4;
-        for (const Jet* jet : event->jets())
+        for (const Jet* jet : event->jets("antikt_R04"))
           if (jet->pT() > 20) jets4.push_back(jet);
 
         // Veto if there are any b-tagged jets (reduce top background)

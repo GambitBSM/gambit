@@ -46,6 +46,7 @@
 #include "gambit/Utils/factory_registry.hpp"
 #include "gambit/Utils/variadic_functions.hpp"
 #include "gambit/Utils/yaml_options.hpp"
+#include "gambit/ScannerBit/scanner_util_types.hpp"
 
 /// Defined to macros to output errors in the form:
 /// scan_err << "error" << scan_end;
@@ -85,8 +86,10 @@ Gambit::Scanner::Errors::_warn_()                               \
 
 namespace Gambit
 {
+    
     namespace Scanner
     {
+        
         /**********************************/
         /****** error and warnings ********/
         /**********************************/
@@ -725,7 +728,9 @@ namespace Gambit
             return param.length();
         }
         /// @}
+        
     }
+    
 }
 
 #endif

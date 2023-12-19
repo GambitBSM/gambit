@@ -437,4 +437,7 @@ if(NOT ditched_${name}_${ver})
   set_as_default_version("scanner" ${name} ${ver})
 endif()
 
+# Finally, deal with all the python scanners
+include(cmake/python_scanners.cmake)
+
 # All other scanners are implemented natively in ScannerBit.

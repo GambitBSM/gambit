@@ -105,7 +105,7 @@ namespace Gambit
         // Only jet candidates with pT > 20 GeV and |η| < 2.8 are considered in the analysis
         // TODO Missing:  cut based on detector noise and non-collision backgrounds
         float JVTeff = 0.95;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.8)
           {

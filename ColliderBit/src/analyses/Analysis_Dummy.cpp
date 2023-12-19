@@ -57,14 +57,14 @@ namespace Gambit
           // HEPUtils variables: met, missingmom
 
           // Define baseline objects with BASELINE(object_type, variable_name, minpT, mineta[, maxpT, maxeta, efficiency])
-          BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
-          BASELINE_PARTICLES(muons, baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
-          BASELINE_PARTICLES(muons, baselineLooseMuons, 10, 0, DBL_MAX, 2.4)
+          BASELINE_PARTICLES(event->electrons(), baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
+          BASELINE_PARTICLES(event->muons(), baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
+          BASELINE_PARTICLES(event->muons(), baselineLooseMuons, 10, 0, DBL_MAX, 2.4)
           BASELINE_PARTICLE_COMBINATION(baselineLeptons, baselineElectrons, baselineMuons)
 
           //Same for jets, with and without efficiency. Bjets allow also for a misID efficiency
-          BASELINE_JETS(jets, baselineJets, 25, 0, DBL_MAX, 2.4)
-          BASELINE_BJETS(jets, baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::misIDBJet.at("CSVv2Tight"))
+          BASELINE_JETS(event->jets("antikt_R04"), baselineJets, 25, 0, DBL_MAX, 2.4)
+          BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets, 25., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::misIDBJet.at("CSVv2Tight"))
 
           // Remove overlap from first argument, within certain radius
           removeOverlap(baselineJets, baselineElectrons, 0.4);

@@ -22,6 +22,7 @@ Printer:
   # Select printer to use via string tag)
   #printer: ascii
   printer: hdf5
+  #printer: cout
 
   # This options node is passed on wholesale to
   # the printer object; required options may
@@ -32,7 +33,7 @@ Printer:
     #info_file: "runs/spartan/samples/gambit_output2.info"
     # Name of output file
     output_file: "gambit_output.hdf5"
-    group: "/test"
+    group: "/data"
     delete_file_on_restart: true
 
 
@@ -42,14 +43,32 @@ Scanner:
   # Here the EggBox likelihood is chosen, but you could choose the
   # EggBox and a gaussian ([EggBox, gaussian]) as defined under
   # the objectives section
-  use_objectives: EggBox #[EggBox, gaussian]
+  use_objectives:  EggBox #[EggBox, gaussian]
 
   # This tag specifies which plugin to use as the scanner.
-  # Here the multinest scanner is choosen, but you could
-  # choose any scanner defined under the scanners section
-  use_scanner: twalk
+  # You can choose any scanner defined in the scanners section below.
+  use_scanner: de
 
   scanners:
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 1000
+      path: "runs"
+      verbosity: 1
+
+    grid:
+      plugin: grid
+      like: LogLike
+      grid_pts: [5, 3]
+      
+    python_grid:
+      like: LogLike
+      plugin: python_grid
+      grid_pts: [5, 3]
+      run:
+        my_test: 1.1
 
     mcmc:
       plugin: GreAT
@@ -57,50 +76,16 @@ Scanner:
       nTrials: 40000
       like: LogLike
 
-    twalk:
-      plugin: twalk
-      like: LogLike
-      tolerance: 1.003
-      kwalk_ratio: 0.9
-      #chain_number: 20
-      projection_dimension: 4
-
-    de:
-      plugin: Diver
-      like: LogLike
-      NP: 1000
-      path: "runs"
-      verbosity: 1
-
-    random:
-      plugin: random
-      point_number: 1000008
-      like: LogLike
-
-    toy:
-      like: LogLike
-      plugin: toy_mcmc
-      point_number: 2000
-
-    square_grid:
-      plugin: square_grid
-      # The version number can be absolute, or a logical statement (as here).
-      version: ">=1.0"
-      like: LogLike
-      grid_pts: 3 #NxN grid
-
-    grid:
-      plugin: grid
-      version: ">=1.0"
-      like: LogLike
-      grid_pts: [5, 3]
-      parameters: ["EggBox::param_1", "EggBox::param_0"]
-
     multinest:
       plugin: multinest
       like: LogLike
       nlive: 2000
       tol: 0.1
+
+    random:
+      plugin: random
+      point_number: 1000008
+      like: LogLike
 
     raster:
       plugin: raster
@@ -109,10 +94,235 @@ Scanner:
         "EggBox::param_0": 3.14
         "EggBox::param_1": [.2, .3]
 
+    # Python scanners - MCMC
 
+    zeus:
+      like: LogLike
+      #pkg: gambit_zeus
+      plugin: zeus
+      init:
+        nwalkers: 8
+      #run:
+        #nsteps: 20000
+        #filename: "zeus.h5"
+      SaveProgressCallback:
+        filename: zeus.h5
+        ncheck: 100
+
+    emcee:
+      like: LogLike
+      plugin: emcee
+      #pkg: gambit_emcee
+      init:
+        nwalkers: 8
+      run:
+        nsteps: 20000
+        #filename: "emcee.h5"
+
+    pocomc:
+      like: LogLike
+      plugin: pocomc
+      #pkg: gambit_pocomc
+      #init:
+      #    nparticles: 1000
+
+    # Python scanners - nested sampling
+
+    ultranest:
+      like: LogLike
+      #pkg: gambit_ultranest
+      plugin: reactive_ultranest
+      #init:
+      run:
+        min_num_live_points: 1000
+        dlogz: 0.5
+
+    static_dynesty:
+      like: LogLike
+      #pkg: gambit_dynesty
+      plugin: static_dynesty
+      pkl_name: "static_dynesty.pkl"
+      init:
+        nlive: 1000
+      run:
+        dlogz: 0.5
+        checkpoint_every: 60
+
+    dynamic_dynesty:
+      like: LogLike
+      plugin: dynamic_dynesty
+      #pkg: gambit_dynesty
+      pkl_name: "dynamic_dynesty.pkl"
+        
+      init:
+        nlive: 1000
+      run:
+        dlogz_init: 0.5
+        n_effective: 10000
+        checkpoint_every: 60
+
+    nessai:
+      like: LogLike
+      plugin: nessai_flow_sampler
+      #pkg: gambit_nessai
+      #init:
+        #output: "nessai_log_dir"
+        #logger: true
+        
+    nautilus:
+      like: LogLike
+      plugin: nautilus
+      #pkg: gambit_nautilus
+      run:
+        verbose: true
+
+    # Python scanners - optimization
+
+    scipy_basin_hopping:
+      like: LogLike
+      plugin: scipy_basin_hopping
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        x0:
+          EggBox::param_0: 0.5
+          EggBox::param_1: 0.5
+        niter: 100
+        T: 1.0
+        stepsize: 0.5
+        minimizer_kwargs:
+          method: "L-BFGS-B"
+        interval: 50
+        disp: true
+        target_accept_rate: 0.5
+        stepwise_factor: 0.9
+
+    scipy_differential_evolution:
+      like: LogLike
+      plugin: scipy_differential_evolution
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        strategy: 'best1bin'
+        maxiter: 1000
+        popsize: 15
+        tol: 0.01
+        mutation: [0.5, 1]
+        recombination: 0.7
+        disp: false
+        polish: true
+        init: 'latinhypercube'
+        atol: 0
+        updating: 'immediate'
+        x0:
+          EggBox::param_0: 0.5
+          EggBox::param_1: 0.5
+
+    scipy_direct:
+      like: LogLike
+      plugin: scipy_direct
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        eps: 0.0001
+        # maxfun: 2000
+        maxiter: 1000
+        locally_biased: true
+        vol_tol: 1e-16
+        len_tol: 1e-6
+
+    scipy_dual_annealing:
+      like: LogLike
+      plugin: scipy_dual_annealing
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 4
+        maxiter: 1000
+        initial_temp: 5230.0
+        restart_temp_ratio: 2.0e-5
+        visit: 2.62
+        accept: -5.0
+        maxfun: 10000000.0
+        no_local_search: false
+        x0:
+          EggBox::param_0: 0.5
+          EggBox::param_1: 0.5
+
+    scipy_shgo:
+      like: LogLike
+      plugin: scipy_shgo
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        split_param_space:
+          EggBox::param_0: 2
+          EggBox::param_1: 2
+        n: 100
+        iters: 1
+        sampling_method: "sobol"  # "simplicial", "halton", "sobol"
+        minimizer_kwargs:
+          method: "SLSQP" # "SLSQP" "L-BFGS-B"
+          options:
+            ftol: 1e-12
+        options:
+          # maxfev:
+          # f_min:
+          # f_tol:
+          # maxiter:
+          # maxev:
+          # maxtime:
+          # minhgrd:
+          # jac: false  # Buggy in some scipy versions: https://github.com/scipy/scipy/issues/14533
+          minimize_every_iter: true
+          local_iter: false
+          infty_constraints: true
+          disp: false
+
+    scipy_minimize:
+      like: LogLike
+      plugin: scipy_minimize
+      # The run arguments below have been tested with scipy v1.9. 
+      # Other versions might expect different arguments.
+      run:
+        # n_runs: 5
+        x0:
+          EggBox::param_0: 0.5
+          EggBox::param_1: 0.5
+        method: "L-BFGS-B"  # "Nelder-Mead", "Powell", "CG", "BFGS", "L-BFGS-B", "TNC", "COBYLA", "SLSQP", "trust-constr",
+        # jac: "2-point"      # "2-point", "3-point", "cs"
+        # hess: "2-point"     # "2-point", "3-point", "cs"
+        tol: 1e-6
+        options:
+          maxiter: 15000
+          disp: false
+
+    square_grid:
+      plugin: square_grid
+      # The version number can be absolute, or a logical statement (as here).
+      version: ">=1.0"
+      like: LogLike
+      grid_pts: 3 # NxN grid
+
+    toy:
+      like: LogLike
+      plugin: toy_mcmc
+      point_number: 2000
+
+    twalk:
+      plugin: twalk
+      like: LogLike
+      tolerance: 1.003
+      kwalk_ratio: 0.9
+      #chain_number: 20
+      projection_dimension: 4
+  
   # Define built-in SB likelihoods
   objectives:
-
+      
     uniform:
       purpose: LogLike
       plugin: uniform
@@ -123,7 +333,9 @@ Scanner:
 
     EggBox:
       plugin: EggBox
+      #plugin: pyeggbox
       purpose: LogLike
+      length: [5.0, 5.0]
       parameters:
         param_0:
           #prior_type: none

@@ -45,9 +45,9 @@
   }
 
 /// Define baseline objects with min pT and min eta
-#define BASELINE_OBJECTS_5(TYPE, OBJECT, NAME, MINPT, MINETA)                     \
+#define BASELINE_OBJECTS_5(TYPE, OBJECTS, NAME, MINPT, MINETA)                    \
   std::vector<const HEPUtils::TYPE*> NAME;                                        \
-  for (const HEPUtils::TYPE* object : event->OBJECT())                            \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
   {                                                                               \
     if (object->pT() > MINPT and                                                  \
         fabs(object->eta()) > MINETA)                                             \
@@ -57,9 +57,9 @@
   }
 
 /// Define baseline objects with min pT, min eta and selection efficiency
-#define BASELINE_OBJECTS_6(TYPE, OBJECT, NAME, MINPT, MINETA, EFF)                \
+#define BASELINE_OBJECTS_6(TYPE, OBJECTS, NAME, MINPT, MINETA, EFF)               \
   std::vector<const HEPUtils::TYPE*> NAME;                                        \
-  for (const HEPUtils::TYPE* object : event->OBJECT())                            \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
   {                                                                               \
     if (object->pT() > MINPT and                                                  \
         fabs(object->eta()) > MINETA and                                          \
@@ -70,9 +70,9 @@
   }
 
 /// Define baseline objects with min pT, min eta, max pT and max eta
-#define BASELINE_OBJECTS_7(TYPE, OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA)      \
+#define BASELINE_OBJECTS_7(TYPE, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)     \
   std::vector<const HEPUtils::TYPE*> NAME;                                        \
-  for (const HEPUtils::TYPE* object : event->OBJECT())                            \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
   {                                                                               \
     if(object->pT() > MINPT and                                                   \
        object->pT() < MAXPT and                                                   \
@@ -84,9 +84,9 @@
   }
 
 /// Define baseline objects with min pT, min eta, max pT, max eta and selection efficiency
-#define BASELINE_OBJECTS_8(TYPE, OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF) \
+#define BASELINE_OBJECTS_8(TYPE, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF) \
   std::vector<const HEPUtils::TYPE*> NAME;                                        \
-  for (const HEPUtils::TYPE* object : event->OBJECT())                            \
+  for (const HEPUtils::TYPE* object : OBJECTS)                                    \
   {                                                                               \
     if (object->pT() > MINPT and                                                  \
         object->pT() < MAXPT and                                                  \
@@ -94,41 +94,41 @@
         fabs(object->eta()) < MAXETA and                                          \
         has_tag(EFF, fabs(object->eta()), object->pT()))                          \
     {                                                                             \
-      NAME.push_back(object);                                                   \
+      NAME.push_back(object);                                                     \
     }                                                                             \
   }
 
 /// Define baseline particles with min pT and min et
-#define BASELINE_PARTICLES_4(OBJECT, NAME, MINPT, MINETA)                         \
-  BASELINE_OBJECTS_5(Particle, OBJECT, NAME, MINPT, MINETA)
+#define BASELINE_PARTICLES_4(OBJECTS, NAME, MINPT, MINETA)                         \
+  BASELINE_OBJECTS_5(Particle, OBJECTS, NAME, MINPT, MINETA)
 
 /// Define baseline particles with min pT, min eta and selection efficiency
-#define BASELINE_PARTICLES_5(OBJECT, NAME, MINPT, MINETA, EFF)                    \
-  BASELINE_OBJECTS_6(Particle, OBJECT, NAME, MINPT, MINETA, EFF)
+#define BASELINE_PARTICLES_5(OBJECTS, NAME, MINPT, MINETA, EFF)                    \
+  BASELINE_OBJECTS_6(Particle, OBJECTS, NAME, MINPT, MINETA, EFF)
 
 /// Define baseline particles with min pT, min eta, max pT and max eta
-#define BASELINE_PARTICLES_6(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA)          \
-  BASELINE_OBJECTS_7(Particle, OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA)
+#define BASELINE_PARTICLES_6(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)          \
+  BASELINE_OBJECTS_7(Particle, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)
 
 /// Define baseline particles with min pT, min eta, max pT, max eta and selection efficiency
-#define BASELINE_PARTICLES_7(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)     \
-  BASELINE_OBJECTS_8(Particle, OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
+#define BASELINE_PARTICLES_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)     \
+  BASELINE_OBJECTS_8(Particle, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
 
 /// Define baseline jets with a min pT and a min eta
-#define BASELINE_JETS_4(OBJECT, NAME, MINPT, MINETA)                              \
-  BASELINE_OBJECTS_5(Jet, OBJECT, NAME, MINPT, MINETA)
+#define BASELINE_JETS_4(OBJECTS, NAME, MINPT, MINETA)                              \
+  BASELINE_OBJECTS_5(Jet, OBJECTS, NAME, MINPT, MINETA)
 
 /// Define baseline jets with a min pT, a min eta and selection efficiency
-#define BASELINE_JETS_5(OBJECT, NAME, MINPT, MINETA, EFF)                         \
-  BASELINE_OBJECTS_6(Jet, OBJECT, NAME, MINPT, MINETA, EFF)
+#define BASELINE_JETS_5(OBJECTS, NAME, MINPT, MINETA, EFF)                         \
+  BASELINE_OBJECTS_6(Jet, OBJECTS, NAME, MINPT, MINETA, EFF)
 
 /// Define baseline jets with a min pT, a min eta, max pT and max eta
-#define BASELINE_JETS_6(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA)               \
-  BASELINE_OBJECTS_7(Jet, OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA)
+#define BASELINE_JETS_6(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)               \
+  BASELINE_OBJECTS_7(Jet, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)
 
 /// Define baseline jets with a min pT, a min eta, max pT, max eta and selection efficiency
-#define BASELINE_JETS_7(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)          \
-  BASELINE_OBJECTS_8(Jet, OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
+#define BASELINE_JETS_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)          \
+  BASELINE_OBJECTS_8(Jet, OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)
 
 /// Redirection macro
 #define BASELINE_PARTICLES(...)      VARARG(BASELINE_PARTICLES, __VA_ARGS__)
@@ -136,9 +136,9 @@
 #define BASELINE_OBJECTS(...)        VARARG(BASELINE_OBJECTS, __VA_ARGS__)
 
 /// Define baseline bjets with a min pT and a min eta
-#define BASELINE_BJETS_4(OBJECT, NAME, MINPT, MINETA)                             \
+#define BASELINE_BJETS_4(OBJECTS, NAME, MINPT, MINETA)                            \
   std::vector<const HEPUtils::Jet*> NAME;                                         \
-  for (const HEPUtils::Jet* object : event->OBJECT())                             \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
   {                                                                               \
     if (object->btag() and                                                        \
         object->pT() > MINPT and                                                  \
@@ -149,9 +149,9 @@
   }
 
 /// Define baseline bjets with a min pT, a min eta and selection efficiency
-#define BASELINE_BJETS_5(OBJECT, NAME, MINPT, MINETA, EFF)                        \
+#define BASELINE_BJETS_5(OBJECTS, NAME, MINPT, MINETA, EFF)                       \
   std::vector<const HEPUtils::Jet*> NAME;                                         \
-  for (const HEPUtils::Jet* object : event->OBJECT())                             \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
   {                                                                               \
     if (object->btag() and                                                        \
         object->pT() > MINPT and                                                  \
@@ -163,24 +163,24 @@
   }
 
 /// Define baseline bjets with a min pT, a min eta, a max pT and a max eta
-#define BASELINE_BJETS_6(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA)              \
+#define BASELINE_BJETS_6(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA)             \
   std::vector<const HEPUtils::Jet*> NAME;                                         \
-  for (const HEPUtils::Jet* object : event->OBJECT())                             \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
   {                                                                               \
     if (object->btag() and                                                        \
         object->pT() > MINPT and                                                  \
         object->pT() < MAXPT and                                                  \
         fabs(object->eta()) > MINETA and                                          \
-        fabs(object->eta()) < MAXETA)                          \
+        fabs(object->eta()) < MAXETA)                                             \
     {                                                                             \
       NAME.push_back(object);                                                     \
     }                                                                             \
   }
 
 /// Define baseline bjets with a min pT, a min eta, a max pT, a max eta and selection efficiency
-#define BASELINE_BJETS_7(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)         \
+#define BASELINE_BJETS_7(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF)        \
   std::vector<const HEPUtils::Jet*> NAME;                                         \
-  for (const HEPUtils::Jet* object : event->OBJECT())                             \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
   {                                                                               \
     if (object->btag() and                                                        \
         object->pT() > MINPT and                                                  \
@@ -195,9 +195,9 @@
 
 /// Define baseline bjets with a min pT, a min eta, a max pT, a max eta,
 /// a selection efficiency and a misidentification efficiency
-#define BASELINE_BJETS_8(OBJECT, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF, MISID)  \
+#define BASELINE_BJETS_8(OBJECTS, NAME, MINPT, MINETA, MAXPT, MAXETA, EFF, MISID) \
   std::vector<const HEPUtils::Jet*> NAME;                                         \
-  for (const HEPUtils::Jet* object : event->OBJECT())                             \
+  for (const HEPUtils::Jet* object : OBJECTS)                                     \
   {                                                                               \
     if ((object->btag() or has_tag(MISID)) and                                    \
         object->pT() > MINPT and                                                  \

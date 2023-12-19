@@ -19,6 +19,7 @@
 #define BACKENDLANG Python
 #define VERSION 1.0
 #define SAFE_VERSION 1_0
+#define REFERENCE Bozzi:2007qr,Fuks:2013vua,Fuks:2013lya,Fiaschi:2019zgh,Debove:2010kf,Fuks:2012qx,Fiaschi:2018hgm,Beenakker:2016lwe
 
 
 LOAD_LIBRARY

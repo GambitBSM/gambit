@@ -71,6 +71,7 @@
 #include "gambit/Elements/terminator.hpp"
 #include "gambit/Utils/static_members.hpp"
 #include "gambit/Utils/exceptions.hpp"
+#include "gambit/Utils/python_interpreter.hpp"
 #include "gambit/Backends/backend_singleton.hpp"
 #include "gambit/Models/claw_singleton.hpp"
 #include "gambit/Models/safe_param_map.hpp"
@@ -149,7 +150,6 @@
       /* Register the module with the log system.  Not done for models. */     \
       const int log_registered = register_module_with_log(STRINGIFY(MODULE));  \
                                                                                \
-                                                                               \
       CORE_START_MODULE_COMMON(MODULE)                                         \
                                                                                \
     }                                                                          \
@@ -159,6 +159,9 @@
 
 /// Central module definition macro, used by modules and models.
 #define CORE_START_MODULE_COMMON_MAIN(MODULE)                                  \
+                                                                               \
+      /* Ensure python interpreter is started so that pybind11 types work*/    \
+      Utils::python_interpreter_guard g;                                       \
                                                                                \
       /* Resolve dependency DEP_TAG in function TAG */                         \
       template <typename DEP_TAG, typename TAG>                                \
