@@ -105,32 +105,6 @@ namespace Gambit
           return;
         }
 
-        // Discards leptons if they are within DeltaRMax of a jet
-        void LeptonJetOverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double DeltaRMax)
-        {
-
-          vector<const HEPUtils::Particle*> Survivors;
-
-          for(unsigned int itlep = 0; itlep < lepvec.size(); itlep++)
-          {
-            bool overlap = false;
-            HEPUtils::P4 lepmom=lepvec.at(itlep)->mom();
-            for(unsigned int itjet= 0; itjet < jetvec.size(); itjet++)
-            {
-              HEPUtils::P4 jetmom=jetvec.at(itjet)->mom();
-              double dR;
-
-              dR=jetmom.deltaR_eta(lepmom);
-
-              if(fabs(dR) <= DeltaRMax) overlap=true;
-            }
-            if(overlap) continue;
-            Survivors.push_back(lepvec.at(itlep));
-          }
-          lepvec=Survivors;
-
-          return;
-        }
 
         // Discards leptons if they are within a cone DeltaR = min (rmax, rmin+rho/lep.pt) of a jet (used for muon removal)
         void LeptonJetVariableROverlapRemoval(vector<const HEPUtils::Particle*> &lepvec, vector<const HEPUtils::Jet*> &jetvec, double rMax, double rMin, double rho)
@@ -281,8 +255,8 @@ namespace Gambit
           JetLeptonOverlapRemoval(centralJets, electrons, 0.2);
           JetLeptonOverlapRemoval(forwardJets, electrons, 0.2);
           // Remove electrons \Delta R < 0.4 from jets
-          LeptonJetOverlapRemoval(electrons, centralJets, 0.4);
-          LeptonJetOverlapRemoval(electrons, forwardJets, 0.4);
+          removeOverlap(electrons, centralJets, 0.4);
+          removeOverlap(electrons, forwardJets, 0.4);
           // Remove Jets within 0.2 of a muon IF jet not btagged and jet has <= 2 tracks
           // TODO: ntracks requirement not currently doable -- skipped for now.
           // Remove Muons within min(0.4, 0.04+10/mu.pt) of remainning jets
