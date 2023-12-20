@@ -198,15 +198,15 @@ namespace Gambit
         removeOverlap(signalTracks, preselectedBJets, 0.5);
 
         // Signal jets. From the sample of preselected jets, signal jets are selected if they satisfy pT > 30 GeV and |η| < 2.8. The VBF search uses a modified version of signal jets, labeled VBF jets, satisfying pT > 30 GeV and |η| < 4.5.
-        SIGNAL_JETS(preselectedJets, signalJets, 1, 30, 0, DBL_MAX, 2.8)
-        SIGNAL_JETS(preselectedJets, signalVBFJets, 1, 30, 0, DBL_MAX, 4.5)
-
+        std::vector<const HEPUtils::Jet*> signalJets;
+        std::vector<const HEPUtils::Jet*> signalVBFJets;
         std::vector<const HEPUtils::Jet*> signalBJets;
 
         // Signal jets are selected if they satisfy pT > 30 GeV and |η| < 2.8.
         for (const HEPUtils::Jet* jet : preselectedNonBJets)
         {
           if (jet->pT() > 30. && jet->abseta() < 2.8) signalJets.push_back(jet);
+          if (jet->pT() > 30. && jet->abseta() < 4.5) signalVBFJets.push_back(jet);
         }
         for (const HEPUtils::Jet* jet : preselectedBJets)
         {
@@ -215,11 +215,13 @@ namespace Gambit
             signalJets.push_back(jet);
             signalBJets.push_back(jet);
           }
+          if (jet->pT() > 30. && jet->abseta() < 4.5) signalVBFJets.push_back(jet);
         }
 
         // Sort by pT
         sortByPt(signalJets);
         sortByPt(signalBJets);
+        sortByPt(signalVBFJets);
         sortByPt(signalLeptons);
         sortByPt(signalTracks);
 
@@ -233,7 +235,7 @@ namespace Gambit
         // Charge/Flav         e+- e-+ or mu+- mu-+                     e+- e-+ or mu+- mu-+   // done
         // Inv mass            3 < mee < 60,  1 < mmumu < 60               0.5 < mlT < 5       // done
         // J/psi inv mass      veto 3 < mll < 3.2                         veto 3 < mlT < 3.2   // done
-        // mtt                 < 0 or > 160                                     -              // TODO
+        // mtt                 < 0 or > 160                                     -              // done
         // MET                 > 120                                          > 120            // done
         // n-jets              >= 1                                           >= 1             // done
         // n-b-tagged-jets     = 0                                              -              // done
@@ -244,6 +246,7 @@ namespace Gambit
         // Count signal leptons and jets
         size_t nSignalLeptons = signalLeptons.size();
         size_t nSignalJets = signalJets.size();
+        size_t nSignalVBFJets = signalVBFJets.size();
         size_t nSignalBJets = signalBJets.size();
         size_t nSignalTracks = signalTracks.size();
 
@@ -276,8 +279,20 @@ namespace Gambit
         // Invariant mass
         double mll = (signalParticles.at(0)->mom() + signalParticles.at(1)->mom() ).m();
 
+        // HTlep
+        double HTlep = signalParticles.at(0)->pT () + signalParticles.at(1)->pT();
+
         // mtautau
-        double mtautau_eff = 0.8;
+        double mtautau = 0.;
+        if (nSignalLeptons == 2 and SFOS)
+        {
+          double determinant = signalLeptons.at(0)->mom().px() * signalLeptons.at(1)->mom().py() - signalLeptons.at(0)->mom().py() * signalLeptons.at(1)->mom().px();
+          double xi_1 = (ptot.px() * signalLeptons.at(1)->mom().py() - signalLeptons.at(1)->mom().px() * ptot.py()) / determinant;
+          double xi_2 = (ptot.py() * signalLeptons.at(0)->mom().px() - signalLeptons.at(0)->mom().py() * ptot.px()) / determinant;
+          mtautau = (1.+xi_1) * (1.+xi_2) * 2. * signalLeptons.at(0)->mom().dot(signalLeptons.at(1)->mom());
+          if(mtautau > 0) mtautau = sqrt(mtautau);
+          if(mtautau < 0) mtautau = -sqrt(-mtautau);
+        }
 
         // DeltaPhi
         double minPhi = 0.;
@@ -292,9 +307,9 @@ namespace Gambit
                                (signalLeptons.at(0)->pT() > 5.) &&
                                (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ) &&
                                (SFOS) &&
-                               (mll > electron_pair ? 3. : 1. && mll < 60.) &&
+                               (mll > (electron_pair ? 3. : 1.) && mll < 60.) &&
                                (mll < 3. && mll > 3.2) &&
-                               (random_bool(mtautau_eff)) && // TODO: make sure this efficiency makes sense
+                               (mtautau < 0. || mtautau > 160.) &&
                                (met  > 120.) &&
                                (nSignalJets >= 1) &&
                                (nSignalBJets == 0) &&
@@ -302,6 +317,19 @@ namespace Gambit
                                (minPhi  > 0.4) &&
                                (fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.);
 
+        // Preselection cuts for 2l VBF regions
+        bool preselection_2l_VBF = (nSignalLeptons == 2) &&
+                               (signalLeptons.at(0)->pT() > 5.) &&
+                               (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ) &&
+                               (SFOS) &&
+                               (mll > (electron_pair ? 3. : 1.) && mll < 60.) &&
+                               (mll < 3. && mll > 3.2) &&
+                               (mtautau < 0. || mtautau > 160.) &&
+                               (met  > 120.) &&
+                               (nSignalVBFJets >= 1) &&
+                               (nSignalBJets == 0) &&
+                               (signalVBFJets.at(0)->pT() >= 100.) &&
+                               (minPhi  > 0.4);
 
         // Preselecton cuts for 1l1T region
         bool preselection_1l1T = (nSignalLeptons == 1 && nSignalTracks >= 1) &&
@@ -317,16 +345,21 @@ namespace Gambit
                                  (minPhi > 0.4) &&
                                  (fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.);
 
+        // If neither preslection condition is satisfied, exit
+        BEGIN_PRESELECTION
+        if(not preselection_2l and not preselection_2l_VBF and not preselection_1l1T) return;
+        END_PRESELECTION
+
         // EWino Signal regions
-        // Variable         EW, 2l, Low-MET, Low-DeltaM    EW, 2l, Low-MET, High-DeltaM    EW, 2l, High-MET              EW, 1l1T
-        // ----------------------------------------------------------------------------------------------------------------------
-        // MET                        [120,200]                    [120,200]               > 200                           > 200 // done
-        // MET/HTlep                  > 10                         < 10                    -                               > 30  // done
-        // DPhi(lep,ptot)             -                            -                       -                               < 1.0 // done
-        // l2 or track pT             -                            > 5 + mll/4             > min(10, 2+mll/3)              < 5   // done
-        // MTS                        < 50                         -                       -                               -     // done
-        // mTl1                       -                            [10,60]                 < 60                            -     // done
-        // RISR                       -                            [0.8,1.0]               [max(0.85, 0.98-0.02 mll),1.0]  -     // done
+        // Variable                   SR-E-low          SR-E-med                SR-E-high                        SR-E-1l1T
+        // ----------------------------------------------------------------------------------------------------------------
+        // MET                        [120,200]         [120,200]               > 200                            > 200 // done
+        // MET/HTlep                  > 10              < 10                    -                                > 30  // done
+        // DPhi(lep,ptot)             -                 -                       -                                < 1.0 // done
+        // l2 or track pT             -                 > 5 + mll/4             > min(10, 2+mll/3)               < 5   // done
+        // MTS                        < 50              -                       -                                -     // done
+        // mTl1                       -                 [10,60]                 < 60                             -     // done
+        // RISR                       -                 [0.8,1.0]               [max(0.85, 0.98-0.02 mll),1.0]   -     // done
 
         // mTl1 variable
         double mTl1 = 0.0;
@@ -352,31 +385,35 @@ namespace Gambit
           RISR = met / signalJets.at(0)->pT();
         }
 
-        // SR_chi_lowMET_lowDM
+        // SR-E-low
         if (preselection_2l &&
             met > 120. && met > 200. &&
-            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) > 10. &&
-            // -
-            // -
-            MTS < 50.
-            // -
-            // -
-           )
-          _counters["SR_chi_lowMET_lowDM"].add_event(event);
-
-        // SR_chi_lowMET_highDM
-        if (preselection_2l &&
-            met > 120. && met > 200. &&
-            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) < 10. &&
+            met/HTlep > 10. &&
             // -
             signalLeptons.at(1)->pT() > 5. + mll/4. &&
             // -
             mTl1 >= 10. && mTl1 <= 60 &&
             RISR >= 0.8 && RISR <= 1.0
            )
-          _counters["SR_chi_lowMET_highDM"].add_event(event);
+        {
+           FILL_SIGNAL_REGION("SR-E-low")
+        }
 
-        // SR_chi_highMET
+        // SR-E-med
+        if (preselection_2l &&
+            met > 120. && met > 200. &&
+            met/HTlep < 10. &&
+            // -
+            // -
+            MTS < 50.
+            // -
+            // -
+           )
+        {
+          FILL_SIGNAL_REGION("SR-E-med")
+        }
+
+        // SR-E-high
         if (preselection_2l &&
             met > 200. &&
             // -
@@ -386,22 +423,93 @@ namespace Gambit
             mTl1 < 60. &&
             RISR >= max(0.85, 0.98 - 0.02*mll) && RISR <= 1.0
            )
-          _counters["SR_chi_highMET"].add_event(event);
+        {
+          FILL_SIGNAL_REGION("SR-E-high")
+        }
 
-        // SR_chi_1l1T
+        // SR-E-1l1T
         if (preselection_1l1T &&
             met > 200. &&
-            met/(signalLeptons.at(0)->pT() + signalLeptons.at(1)->pT()) > 10. && // This limit is shown inconsistently in text and table, so be wary of it
+            met/HTlep > 30. &&
             fabs(signalLeptons.at(0)->phi() - ptot.phi()) > 1.0 &&
             signalTracks.at(0)->pT() < 5.
             // -
             // -
             // -
            )
-          _counters["SR_chi_1l1T"].add_event(event);
+        {
+          FILL_SIGNAL_REGION("SR-E-1l1T")
+        }
+
+        // VBF Signal regions
+        // Variable             SR-VBF-low                      SR-VBF-high
+        // ----------------------------------------------------------------
+        // mll                  < 40                            < 40
+        // N jets               >= 2                            >= 2
+        // pTj2                 > 40                            > 40
+        // MET                  > 150                           > 40
+        // MET/HTlep            > 2                             > 2
+        // pTl2                 > min(10, 2 + mll/3)           > min(10, 2 + mll/3)
+        // mTl1                 < 60                           < 60
+        // RVBF                 [max(0.6, 0.92-mll/60), 1.0]   [max(0.6, 0.92-mll/60), 1.0]
+        // etaj1 . etaj2        < 0                            < 0
+        // mjj                  > 400                          > 400
+        // Delta etajj          [2,4]                          > 4
+
+
+        // RVBF variable
+        // TODO: This should be a RJ variable. It's done like this for simplicity but it needs to be looked into
+        double RVBF = RISR;
+
+        // mjj variable
+        double mjj = 0.;
+        if(nSignalVBFJets >= 2)
+          mjj = (signalVBFJets.at(0)->mom() + signalVBFJets.at(1)->mom()).m();
+
+        // Deletaetajj variable
+        double Deltaetajj = 0.;
+        if(nSignalVBFJets == 2)
+          Deltaetajj = fabs(signalVBFJets.at(0)->eta() - signalVBFJets.at(1)->eta());
+
+        // SR-VBF-low
+        if (preselection_2l_VBF &&
+            mll < 40. &&
+            nSignalVBFJets >= 2 &&
+            signalVBFJets.at(1)->pT() > 40. &&
+            met > 150 &&
+            met/HTlep > 2 &&
+            signalLeptons.at(1)->pT() > min(10., 2+mll/3) &&
+            mTl1 < 60. &&
+            RVBF >= max(0.6, 0.92-mll/60) && RVBF <= 1. &&
+            signalVBFJets.at(0)->eta() * signalVBFJets.at(1)->eta() < 0 &&
+            mjj > 400 &&
+            Deltaetajj >= 2. && Deltaetajj <= 4.
+           )
+         {
+           FILL_SIGNAL_REGION("SR-VBF-low")
+         }
+
+        // SR-VBF-high
+        if (preselection_2l_VBF &&
+            mll < 40. &&
+            nSignalJets >= 2 &&
+            signalJets.at(1)->pT() > 40. &&
+            met > 150 &&
+            met/HTlep > 2 &&
+            signalLeptons.at(1)->pT() > min(10., 2+mll/3) &&
+            mTl1 < 60. &&
+            RVBF >= max(0.6, 0.92-mll/60) && RVBF <= 1. &&
+            signalJets.at(0)->eta() * signalJets.at(1)->eta() < 0 &&
+            mjj > 400 &&
+            Deltaetajj > 4.
+           )
+         {
+           FILL_SIGNAL_REGION("SR-VBF-high")
+         }
+
 
         // Slepton Signal regions
-        // Variable           Sl, Low-MET                     Sl, High-MET
+        // Variable           SR-S-low                     SR-S-high
         // ----------------------------------------------------------------------------------------------
         // MET                [150,200]                       > 200                                       // done
         // mT2                < 140                           < 140                                       // done
@@ -424,25 +532,27 @@ namespace Gambit
         }
 
 
-        // SR_sl_lowMET
+        // SR-S-low
         if (preselection_2l &&
             met >= 150. && met <= 200. &&
             mT2 < 140. &&
             signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2-100.)) &&
             RISR >= 0.8 && RISR <= 1.0
            )
-          _counters["SR_sl_lowMET"].add_event(event);
+        {
+          FILL_SIGNAL_REGION("SR-S-low")
+        }
 
-        // SR_sl_highMET
+        // SR-S-high
         if (preselection_2l &&
            met > 200. &&
            mT2 < 140. &&
            signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2-100.)) &&
            RISR >= max(0.85, 0.98 - 0.02*(mT2 - 100.)) && RISR <= 1.0
            )
-          _counters["SR_sl_highMET"].add_event(event);
-
-
+        {
+          FILL_SIGNAL_REGION("SR-S-high")
+        }
       }
 
       // This function can be overridden by the derived SR-specific classes
