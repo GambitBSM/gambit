@@ -44,12 +44,13 @@ namespace Gambit
       {
 
         DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(Deltaphi(any jet)) > 0.4", "Deltaphi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > min(5+mll/4)", "10 < mTl1 < 60 GeV")
-        DEFINE_SIGNAL_REGION("SR-E-med-")
-        DEFINE_SIGNAL_REGION("SR-E-high-")
-        DEFINE_SIGNAL_REGION("SR-E-1l1T-")
-        DEFINE_SIGNAL_REGION("SR-S-low-")
-        DEFINE_SIGNAL_REGION("SR-S-high-")
-        DEFINE_SIGNAL_REGION("SR-VBF-")
+        DEFINE_SIGNAL_REGIONS("SR-E-med-", 6)
+        DEFINE_SIGNAL_REGIONS("SR-E-high-", 8)
+        DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6)
+        DEFINE_SIGNAL_REGIONS("SR-VBF-low-", 7)
+        DEFINE_SIGNAL_REGIONS("SR-VBF-high-", 7)
+        DEFINE_SIGNAL_REGIONS("SR-S-low-", 8)
+        DEFINE_SIGNAL_REGIONS("SR-S-high-", 8)
 
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
         set_luminosity(139);
@@ -571,7 +572,71 @@ namespace Gambit
 
         // SR-E-med observed and background events, from Table 11 of 1911.12606
         // Combined ee and mumu SR data
+        COMMIT_SIGNAL_REGION("SR-E-med-1", 16., 14.6, 2.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-2", 8., 6.9, 2.1)
+        COMMIT_SIGNAL_REGION("SR-E-med-3", 6.+0., 6.2+0.11, 1.9+0.08)
+        COMMIT_SIGNAL_REGION("SR-E-med-4", 41.+4., 34.+5.1, 4.+1.6)
+        COMMIT_SIGNAL_REGION("SR-E-med-5", 59.+11., 52.+7.3, 6.+1.9)
+        COMMIT_SIGNAL_REGION("SR-E-med-6", 21.+4., 18.5+2.2, 3.2+0.9)
 
+        // SR-E-high observed and background events, from Table 11 of 1911.12606
+        // Combined ee and mumu SR data
+        COMMIT_SIGNAL_REGION("SR-E-high-1", 5., 3.4, 1.2)
+        COMMIT_SIGNAL_REGION("SR-E-high-2", 5., 3.5, 1.3)
+        COMMIT_SIGNAL_REGION("SR-E-high-3", 0.+1., 3.9+0.7, 1.3+0.4)
+        COMMIT_SIGNAL_REGION("SR-E-high-4", 9.+16., 11.0+10.3, 2.0+2.5)
+        COMMIT_SIGNAL_REGION("SR-E-high-5", 23.+13., 17.8+12.1, 2.7+2.2)
+        COMMIT_SIGNAL_REGION("SR-E-high-6", 3.+8., 8.3+10.1, 1.4+1.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-7", 5.+8., 10.1+10.4, 1.5+1.7)
+        COMMIT_SIGNAL_REGION("SR-E-high-8", 20.+18, 19.6+19.3, 2.3+2.5)
+
+        // SR-E-1l1T observed and background events, from Table 12 of 1911.12606
+        COMMIT_SIGNAL_REGION("SR-E-1l1T-1", 0., 0.5, 0.5)
+        COMMIT_SIGNAL_REGION("SR-E-1l1T-2", 8., 6.0, 1.9)
+        COMMIT_SIGNAL_REGION("SR-E-1l1T-3", 8., 7.6, 2.1)
+        COMMIT_SIGNAL_REGION("SR-E-1l1T-4", 24., 20.7, 3.4)
+        COMMIT_SIGNAL_REGION("SR-E-1l1T-5", 24., 14, 4)
+        COMMIT_SIGNAL_REGION("SR-E-1l1T-6", 16., 18.1, 3.1)
+
+        // SR-VBF-low observed and background events, from Table 13 of 1911.12606
+        COMMIT_SIGNAL_REGION("SR-VBF-low-1", 0., 0.7, 0.4)
+        COMMIT_SIGNAL_REGION("SR-VBF-low-2", 0., 0.47, 0.25)
+        COMMIT_SIGNAL_REGION("SR-VBF-low-3", 0., 0.64, 0.32)
+        COMMIT_SIGNAL_REGION("SR-VBF-low-4", 6., 4.9, 1.2)
+        COMMIT_SIGNAL_REGION("SR-VBF-low-5", 21., 17.3, 2.6)
+        COMMIT_SIGNAL_REGION("SR-VBF-low-6", 14., 12.5, 1.8)
+        COMMIT_SIGNAL_REGION("SR-VBF-low-7", 15., 15.2, 2.7)
+
+        // SR-VBF-high observed and background events, from Table 13 of 1911.12606
+        COMMIT_SIGNAL_REGION("SR-VBF-high-1", 0., 1.6, 0.7)
+        COMMIT_SIGNAL_REGION("SR-VBF-high-2", 1., 0.8, 0.6)
+        COMMIT_SIGNAL_REGION("SR-VBF-high-3", 1., 0.25, 0.13)
+        COMMIT_SIGNAL_REGION("SR-VBF-high-4", 1., 0.9, 0.5)
+        COMMIT_SIGNAL_REGION("SR-VBF-high-5", 6., 7.1, 1.5)
+        COMMIT_SIGNAL_REGION("SR-VBF-high-6", 8., 8.5, 2.2)
+        COMMIT_SIGNAL_REGION("SR-VBF-high-7", 9., 7.7, 1.5)
+
+        // SR-S-low observed and background events, from Table 14 of 1911.12606
+        // Combined ee and mumu SR data
+        COMMIT_SIGNAL_REGION("SR-S-low-1", 8.+3., 6.0+5.2, 1.4+1.1)
+        COMMIT_SIGNAL_REGION("SR-S-low-2", 5.+6., 5.3+4.3, 2.1+1.0)
+        COMMIT_SIGNAL_REGION("SR-S-low-3", 15.+15., 11.6+12.8, 2.5+1.8)
+        COMMIT_SIGNAL_REGION("SR-S-low-4", 19.+23., 22.9+24.8, 3.3+2.6)
+        COMMIT_SIGNAL_REGION("SR-S-low-5", 30.+37., 31.+38., 4.+5.)
+        COMMIT_SIGNAL_REGION("SR-S-low-6", 24.+44., 23.3+37.8, 3.0+3.3)
+        COMMIT_SIGNAL_REGION("SR-S-low-7", 32.+41., 27.1+36.0, 3.1+3.4)
+        COMMIT_SIGNAL_REGION("SR-S-low-8", 11.+28., 16.8+28.0, 2.1+2.7)
+
+        // SR-S-high observed and background events, from Table 14 of 1911.12606
+        // Combined ee and mumu SR data
+        COMMIT_SIGNAL_REGION("SR-S-high-1", 3.+10., 4.0+11.0, 1.1+2.2)
+        COMMIT_SIGNAL_REGION("SR-S-high-2", 3.+3., 3.6+5.8, 1.0+1.3)
+        COMMIT_SIGNAL_REGION("SR-S-high-3", 9.+11., 7.9+8.6, 1.9+1.6)
+        COMMIT_SIGNAL_REGION("SR-S-high-4", 13.+12., 13.2+14.2, 2.1+1.9)
+        COMMIT_SIGNAL_REGION("SR-S-high-5", 9.+9., 8.6+10.0, 1.4+1.5)
+        COMMIT_SIGNAL_REGION("SR-S-high-6", 6.+11., 5.7+11.2, 1.0+1.6)
+        COMMIT_SIGNAL_REGION("SR-S-high-7", 8.+10., 7.0+11.5, .2+1.5)
+        COMMIT_SIGNAL_REGION("SR-S-high-8", 6.+8., 6.8+7.8, 1.1+1.4)
 
         COMMIT_CUTFLOWS
 
