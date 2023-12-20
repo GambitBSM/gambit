@@ -397,7 +397,14 @@ namespace Gambit
             RISR >= 0.8 && RISR <= 1.0
            )
         {
-           FILL_SIGNAL_REGION("SR-E-low")
+           if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-1") }
+           else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-2") }
+           else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-low-3") }
+           else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-low-4") }
+           else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-low-5") }
+           else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-low-6") }
+           else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-low-7") }
+           else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-low-8") }
         }
 
         // SR-E-med
@@ -411,7 +418,12 @@ namespace Gambit
             // -
            )
         {
-          FILL_SIGNAL_REGION("SR-E-med")
+           if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-1") }
+           else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-2") }
+           else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-med-3") }
+           else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-med-4") }
+           else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-med-5") }
+           else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-med-6") }
         }
 
         // SR-E-high
@@ -425,7 +437,14 @@ namespace Gambit
             RISR >= max(0.85, 0.98 - 0.02*mll) && RISR <= 1.0
            )
         {
-          FILL_SIGNAL_REGION("SR-E-high")
+           if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-1") }
+           else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-2") }
+           else if (mll > 3.2 && mll <= 5) { FILL_SIGNAL_REGION("SR-E-high-3") }
+           else if (mll > 5 && mll <= 10)  { FILL_SIGNAL_REGION("SR-E-high-4") }
+           else if (mll > 10 && mll <= 20) { FILL_SIGNAL_REGION("SR-E-high-5") }
+           else if (mll > 20 && mll <= 30) { FILL_SIGNAL_REGION("SR-E-high-6") }
+           else if (mll > 30 && mll <= 40) { FILL_SIGNAL_REGION("SR-E-high-7") }
+           else if (mll > 40 && mll <= 60) { FILL_SIGNAL_REGION("SR-E-high-8") }
         }
 
         // SR-E-1l1T
@@ -439,7 +458,12 @@ namespace Gambit
             // -
            )
         {
-          FILL_SIGNAL_REGION("SR-E-1l1T")
+           if(mll >= 0.5 && mll <= 1.0)        { FILL_SIGNAL_REGION("SR-E-1l1T-1") }
+           else if (mll > 1.0 && mll <= 1.5)   { FILL_SIGNAL_REGION("SR-E-1l1T-2") }
+           else if (mll > 1.5 && mll <= 2.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-3") }
+           else if (mll > 2.0 && mll <= 3.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-4") }
+           else if (mll > 3.2 && mll <= 4.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-5") }
+           else if (mll > 4.0 && mll <= 5.0)   { FILL_SIGNAL_REGION("SR-E-1l1T-6") }
         }
 
         // VBF Signal regions
@@ -487,7 +511,13 @@ namespace Gambit
             Deltaetajj >= 2. && Deltaetajj <= 4.
            )
          {
-           FILL_SIGNAL_REGION("SR-VBF-low")
+           if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-low-1") }
+           else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-low-2") }
+           else if(mll >= 3.2 && mll <= 5)  { FILL_SIGNAL_REGION("SR-VBF-low-3") }
+           else if(mll >= 5 && mll <= 10)   { FILL_SIGNAL_REGION("SR-VBF-low-4") }
+           else if(mll >= 10 && mll <= 20)  { FILL_SIGNAL_REGION("SR-VBF-low-5") }
+           else if(mll >= 20 && mll <= 30)  { FILL_SIGNAL_REGION("SR-VBF-low-6") }
+           else if(mll >= 30 && mll <= 40)  { FILL_SIGNAL_REGION("SR-VBF-low-7") }
          }
 
         // SR-VBF-high
@@ -505,7 +535,13 @@ namespace Gambit
             Deltaetajj > 4.
            )
          {
-           FILL_SIGNAL_REGION("SR-VBF-high")
+           if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-high-1") }
+           else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-high-2") }
+           else if(mll >= 3.2 && mll <= 5)  { FILL_SIGNAL_REGION("SR-VBF-high-3") }
+           else if(mll >= 5 && mll <= 10)   { FILL_SIGNAL_REGION("SR-VBF-high-4") }
+           else if(mll >= 10 && mll <= 20)  { FILL_SIGNAL_REGION("SR-VBF-high-5") }
+           else if(mll >= 20 && mll <= 30)  { FILL_SIGNAL_REGION("SR-VBF-high-6") }
+           else if(mll >= 30 && mll <= 40)  { FILL_SIGNAL_REGION("SR-VBF-high-7") }
          }
 
 
@@ -518,41 +554,55 @@ namespace Gambit
         // RISR               [0.8, 1.0]                      [max(0.85, 0.98 − 0.02 × (mT2 − 100)), 1.0] // done
 
         // mT2 variable
-        double mT2 = 0;
+        double mT2100 = 0;
         if(nSignalLeptons > 1)
         {
           double pa[3] = { 0, signalLeptons.at(0)->mom().px(), signalLeptons.at(0)->mom().py() };
           double pb[3] = { 0, signalLeptons.at(1)->mom().px(), signalLeptons.at(1)->mom().py() };
           double pmiss[3] = { 0, ptot.px(), ptot.py() };
-          double mn = 0.;
+          double mn = 100.;
 
           mt2_bisect::mt2 mt2_calc;
           mt2_calc.set_momenta(pa,pb,pmiss);
           mt2_calc.set_mn(mn);
-          mT2 = mt2_calc.get_mt2();
+          mT2100 = mt2_calc.get_mt2();
         }
 
 
         // SR-S-low
         if (preselection_2l &&
             met >= 150. && met <= 200. &&
-            mT2 < 140. &&
-            signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2-100.)) &&
+            mT2100 < 140. &&
+            signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2100-100.)) &&
             RISR >= 0.8 && RISR <= 1.0
            )
         {
-          FILL_SIGNAL_REGION("SR-S-low")
+          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-1") }
+          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-2") }
+          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-low-3") }
+          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-low-4") }
+          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-low-5") }
+          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-low-6") }
+          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-low-7") }
+          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-low-8") }
         }
 
         // SR-S-high
         if (preselection_2l &&
            met > 200. &&
-           mT2 < 140. &&
-           signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2-100.)) &&
-           RISR >= max(0.85, 0.98 - 0.02*(mT2 - 100.)) && RISR <= 1.0
+           mT2100 < 140. &&
+           signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2100-100.)) &&
+           RISR >= max(0.85, 0.98 - 0.02*(mT2100 - 100.)) && RISR <= 1.0
            )
         {
-          FILL_SIGNAL_REGION("SR-S-high")
+          if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-1") }
+          else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-2") }
+          else if(mT2100 >= 101 && mT2100 <= 102)   { FILL_SIGNAL_REGION("SR-S-high-3") }
+          else if(mT2100 >= 102 && mT2100 <= 105)   { FILL_SIGNAL_REGION("SR-S-high-4") }
+          else if(mT2100 >= 105 && mT2100 <= 110)   { FILL_SIGNAL_REGION("SR-S-high-5") }
+          else if(mT2100 >= 110 && mT2100 <= 120)   { FILL_SIGNAL_REGION("SR-S-high-6") }
+          else if(mT2100 >= 120 && mT2100 <= 130)   { FILL_SIGNAL_REGION("SR-S-high-7") }
+          else if(mT2100 >= 130 && mT2100 <= 140)   { FILL_SIGNAL_REGION("SR-S-high-8") }
         }
       }
 
