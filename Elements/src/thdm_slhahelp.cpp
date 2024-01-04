@@ -18,6 +18,9 @@
 ///          (gonzalo@physik.rwth-aachen.de)
 ///  \date 2021 Mar
 ///
+///  \author Chris Chang
+///  \date 2023 Sep
+///
 ///  *********************************************
 
 #include "gambit/Elements/thdm_slhahelp.hpp"
@@ -59,11 +62,12 @@ namespace Gambit
         const double g = thdmspec.get(Par::dimensionless,"g1");
         const double g_prime = thdmspec.get(Par::dimensionless,"g2");
         const double g_3 = thdmspec.get(Par::dimensionless,"g3");
+        const double vev = thdmspec.get(Par::mass1, "vev");
 
         // begin filling the SLHA
 
         // model selection block(10 = THDM)
-        SLHAea_add_block(slha, "MODSEL");;
+        SLHAea_add_block(slha, "MODSEL");
         SLHAea_add(slha, "MODSEL", 0, 10, "THDM", true);
         SLHAea_add(slha, "MODSEL", 1, 10, "THDM", true);
         
@@ -98,16 +102,24 @@ namespace Gambit
         SLHAea_add(slha, "MINPAR", 21, cba, "cos(b-a)", true);
 
         // physical mass parameters
-        SLHAea_add_block(slha, "MASS");
+        //SLHAea_add_block(slha, "MASS"); // commented this out because it is causing a repeat of the MASS block
         SLHAea_add(slha, "MASS", 24, MW, "MW", true);
         SLHAea_add(slha, "MASS", 25, m_h, "Mh0_1", true);
         SLHAea_add(slha, "MASS", 35, m_H, "Mh0_2", true);
         SLHAea_add(slha, "MASS", 36, m_A, "MA0", true);
         SLHAea_add(slha, "MASS", 37, m_Hp, "MHc", true);
 
+        // Adding in some entries in the HMIX Block
+        SLHAea_add_block(slha, "HMIX", thdmspec.GetScale());
+        SLHAea_add(slha, "HMIX", 1, sqrt(m12_2), "mu", true);
+        SLHAea_add(slha, "HMIX", 2, tanb, "tanb", true);
+        SLHAea_add(slha, "HMIX", 3, vev, "vev", true);
+        SLHAea_add(slha, "HMIX", 4, m_A*m_A, "mA^2", true);
+
         // angle alpha
         SLHAea_add_block(slha, "ALPHA");
-        SLHAea_add(slha, "ALPHA", 0, alpha, "alpha", true);
+        //SLHAea_add(slha, "ALPHA", 0, alpha, "alpha", true);
+        slha["ALPHA"][""] << alpha << "# alpha";// Pythia expects it is without an index, which is very odd, and different to how it expects all other parameters in the slha
         
         SLHAea_add_block(slha, "YU1");
         SLHAea_add_block(slha, "YD1");

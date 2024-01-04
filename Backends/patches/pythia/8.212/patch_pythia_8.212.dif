@@ -6656,3 +6656,191 @@ diff -rupN pythia_8.212_original/src/SigmaProcess.cc pythia_8.212_patched/src/Si
      p2ME3 *= compFac;
      p2ME4 *= compFac;
      p2ME5 *= compFac;
+diff -rupN pythia_8.212_original/src/SusyCouplings.cc pythia_8.212_patched/src/SusyCouplings.cc
+--- pythia_8.212_original/src/SusyCouplings.cc	2019-05-15 19:17:51.000000000 +1000
++++ pythia_8.212_patched/src/SusyCouplings.cc	2023-09-21 15:23:52.881787043 +1000
+@@ -154,48 +154,142 @@
+   double cosa = cos(alphaHiggs);
+   double sina = sin(alphaHiggs);
+ 
+-  // h0
+-  settingsPtr->parm("HiggsH1:coup2d", -sina/cosb);
+-  settingsPtr->parm("HiggsH1:coup2u",  cosa/sinb);
+-  settingsPtr->parm("HiggsH1:coup2l", cosa/sinb);
+-  settingsPtr->parm("HiggsH1:coup2Z", sba);
+-  settingsPtr->parm("HiggsH1:coup2W", sba);
+-  // H0
+-  settingsPtr->parm("HiggsH2:coup2d", cosa/cosb);
+-  settingsPtr->parm("HiggsH2:coup2u", sina/sinb);
+-  settingsPtr->parm("HiggsH2:coup2l", sina/sinb);
+-  settingsPtr->parm("HiggsH2:coup2Z", cba);
+-  settingsPtr->parm("HiggsH2:coup2W", cba);
+-  settingsPtr->parm("HiggsH2:coup2H1Z", 0.0);
+-  settingsPtr->parm("HiggsH2:coup2HchgW", sba);
+-  // A0
+-  settingsPtr->parm("HiggsA3:coup2d", tanb);
+-  settingsPtr->parm("HiggsA3:coup2u", cosb/sinb);
+-  settingsPtr->parm("HiggsA3:coup2l", cosb/sinb);
+-  settingsPtr->parm("HiggsA3:coup2Z", 0.0);
+-  settingsPtr->parm("HiggsA3:coup2W", 0.0);
+-  settingsPtr->parm("HiggsA3:coup2H1Z", cba);
+-  settingsPtr->parm("HiggsA3:coup2H2Z", sba);
+-  settingsPtr->parm("HiggsA3:coup2HchgW", 1.0);
+-
+-  // H^+
+-  settingsPtr->parm("HiggsHchg:tanBeta", tanb);
+-  settingsPtr->parm("HiggsHchg:coup2H1W", cba);
+-  settingsPtr->parm("HiggsHchg:coup2H2W", sba);
+-
+-  // Triple higgs couplings
+-
+-  double cbpa = cos(beta+alphaHiggs);
+-  double sbpa = sin(beta+alphaHiggs);
+-
+-  settingsPtr->parm("HiggsH1:coup2Hchg", cos(2*beta)*sbpa + 2*pow2(cosW)*sba);
+-  settingsPtr->parm("HiggsH2:coup2Hchg", -cos(2*beta)*cbpa + 2*pow2(cosW)*cba);
+-  settingsPtr->parm("HiggsH2:coup2H1H1", 2*sin(2*alphaHiggs)*sbpa
+-    - cos(2*alphaHiggs)*cbpa);
+-  settingsPtr->parm("HiggsH2:coup2A3A3", -cos(2*beta)*cbpa);
+-  settingsPtr->parm("HiggsH2:coup2A3H1", 0.0);
+-  settingsPtr->parm("HiggsA3:coup2H1H1", 0.0);
+-  settingsPtr->parm("HiggsA3:coup2Hchg", 0.0);
++  // GAMBIT HACK: If the THDMCOUPLINGS block is present (if the first value is present), pull in the couplings from the SLHA rather than calculating internally in Pythia
++  //              Check for the first entry as a proof that the block exists
++  double par1;
++
++  if (slhaPtr->getEntry("THDMCOUPLINGS", 1, par1))
++  {
++    double par2,par3,par4,par5,par6,par7,par8,par9,par10;
++    double par11,par12,par13,par14,par15,par16,par17,par18,par19,par20;
++    double par21,par22,par23,par24,par25,par26,par27,par28,par29,par30;
++    // Loop over each parameter and pull it from the block
++    std::vector<bool> worked;
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 1, par1));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 2, par2));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 3, par3));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 4, par4));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 5, par5));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 6, par6));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 7, par7));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 8, par8));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 9, par9));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 10, par10));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 11, par11));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 12, par12));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 13, par13));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 14, par14));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 15, par15));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 16, par16));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 17, par17));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 18, par18));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 19, par19));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 20, par20));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 21, par21));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 22, par22));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 23, par23));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 24, par24));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 25, par25));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 26, par26));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 27, par27));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 28, par28));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 29, par29));
++    worked.push_back(slhaPtr->getEntry("THDMCOUPLINGS", 30, par30));
++    
++    // Check whether any were missing in the block
++    for (size_t i = 0 ; i < worked.size(); i++)
++    {
++      if (worked[i] == false)
++      {
++        infoPtr->errorMsg("ERROR in PYTHIA: Missing THDMCouplings in SLHAea.");
++      }
++    }
++    
++    
++    // Assign parameters
++    // h0
++    settingsPtr->parm("HiggsH1:coup2d", par1);
++    settingsPtr->parm("HiggsH1:coup2u", par2);
++    settingsPtr->parm("HiggsH1:coup2l", par3);
++    settingsPtr->parm("HiggsH1:coup2Z", par4);
++    settingsPtr->parm("HiggsH1:coup2W", par5);
++    // H0
++    settingsPtr->parm("HiggsH2:coup2d", par6);
++    settingsPtr->parm("HiggsH2:coup2u", par7);
++    settingsPtr->parm("HiggsH2:coup2l", par8);
++    settingsPtr->parm("HiggsH2:coup2Z", par9);
++    settingsPtr->parm("HiggsH2:coup2W", par10);
++    settingsPtr->parm("HiggsH2:coup2H1Z", par11);
++    settingsPtr->parm("HiggsH2:coup2HchgW", par12);
++    // A0
++    settingsPtr->parm("HiggsA3:coup2d", par13);
++    settingsPtr->parm("HiggsA3:coup2u", par14);
++    settingsPtr->parm("HiggsA3:coup2l", par15);
++    settingsPtr->parm("HiggsA3:coup2Z", par16);
++    settingsPtr->parm("HiggsA3:coup2W", par17);
++    settingsPtr->parm("HiggsA3:coup2H1Z", par18);
++    settingsPtr->parm("HiggsA3:coup2H2Z", par19);
++    settingsPtr->parm("HiggsA3:coup2HchgW", par20);
++
++    // H^+
++    settingsPtr->parm("HiggsHchg:tanBeta", par21);
++    settingsPtr->parm("HiggsHchg:coup2H1W", par22);
++    settingsPtr->parm("HiggsHchg:coup2H2W", par23);
++
++    // Triple higgs couplings
++    settingsPtr->parm("HiggsH1:coup2Hchg", par24);
++    settingsPtr->parm("HiggsH2:coup2Hchg", par25);
++    settingsPtr->parm("HiggsH2:coup2H1H1", par26);
++    settingsPtr->parm("HiggsH2:coup2A3A3", par27);
++    settingsPtr->parm("HiggsH2:coup2A3H1", par28);
++    settingsPtr->parm("HiggsA3:coup2H1H1", par29);
++    settingsPtr->parm("HiggsA3:coup2Hchg", par30);
++  }
++  else
++  {
++    // h0
++    settingsPtr->parm("HiggsH1:coup2d", -sina/cosb);
++    settingsPtr->parm("HiggsH1:coup2u",  cosa/sinb);
++    settingsPtr->parm("HiggsH1:coup2l", cosa/sinb);
++    settingsPtr->parm("HiggsH1:coup2Z", sba);
++    settingsPtr->parm("HiggsH1:coup2W", sba);
++    // H0
++    settingsPtr->parm("HiggsH2:coup2d", cosa/cosb);
++    settingsPtr->parm("HiggsH2:coup2u", sina/sinb);
++    settingsPtr->parm("HiggsH2:coup2l", sina/sinb);
++    settingsPtr->parm("HiggsH2:coup2Z", cba);
++    settingsPtr->parm("HiggsH2:coup2W", cba);
++    settingsPtr->parm("HiggsH2:coup2H1Z", 0.0);
++    settingsPtr->parm("HiggsH2:coup2HchgW", sba);
++    // A0
++    settingsPtr->parm("HiggsA3:coup2d", tanb);
++    settingsPtr->parm("HiggsA3:coup2u", cosb/sinb);
++    settingsPtr->parm("HiggsA3:coup2l", cosb/sinb);
++    settingsPtr->parm("HiggsA3:coup2Z", 0.0);
++    settingsPtr->parm("HiggsA3:coup2W", 0.0);
++    settingsPtr->parm("HiggsA3:coup2H1Z", cba);
++    settingsPtr->parm("HiggsA3:coup2H2Z", sba);
++    settingsPtr->parm("HiggsA3:coup2HchgW", 1.0);
++
++    // H^+
++    settingsPtr->parm("HiggsHchg:tanBeta", tanb);
++    settingsPtr->parm("HiggsHchg:coup2H1W", cba);
++    settingsPtr->parm("HiggsHchg:coup2H2W", sba);
++
++    // Triple higgs couplings
++
++    double cbpa = cos(beta+alphaHiggs);
++    double sbpa = sin(beta+alphaHiggs);
++
++    settingsPtr->parm("HiggsH1:coup2Hchg", cos(2*beta)*sbpa + 2*pow2(cosW)*sba);
++    settingsPtr->parm("HiggsH2:coup2Hchg", -cos(2*beta)*cbpa + 2*pow2(cosW)*cba);
++    settingsPtr->parm("HiggsH2:coup2H1H1", 2*sin(2*alphaHiggs)*sbpa
++      - cos(2*alphaHiggs)*cbpa);
++    settingsPtr->parm("HiggsH2:coup2A3A3", -cos(2*beta)*cbpa);
++    settingsPtr->parm("HiggsH2:coup2A3H1", 0.0);
++    settingsPtr->parm("HiggsA3:coup2H1H1", 0.0);
++    settingsPtr->parm("HiggsA3:coup2Hchg", 0.0);
++  }
+ 
+   // Shorthand for squark mixing matrices
+   LHmatrixBlock<6> Ru(slhaPtr->usqmix);
