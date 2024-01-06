@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <fstream>
 
+#include "gambit/Utils/util_functions.hpp"
 #include "gambit/ColliderBit/analyses/Analysis.hpp"
 #include "gambit/ColliderBit/analyses/AnalysisMacros.hpp"
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
@@ -43,14 +44,14 @@ namespace Gambit
       Analysis_ATLAS_13TeV_2LEPsoft_139invfb()
       {
 
-        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(Deltaphi(any jet)) > 0.4", "Deltaphi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > min(5+mll/4)", "10 < mTl1 < 60 GeV")
-        DEFINE_SIGNAL_REGIONS("SR-E-med-", 6)
-        DEFINE_SIGNAL_REGIONS("SR-E-high-", 8)
-        DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6)
-        DEFINE_SIGNAL_REGIONS("SR-VBF-low-", 7)
-        DEFINE_SIGNAL_REGIONS("SR-VBF-high-", 7)
-        DEFINE_SIGNAL_REGIONS("SR-S-low-", 8)
-        DEFINE_SIGNAL_REGIONS("SR-S-high-", 8)
+        DEFINE_SIGNAL_REGIONS("SR-E-low-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep < 10", "0.8 < RISR < 1.0", "subleading lepton pT > min(5+mll/4)", "10 < mTl1 < 60 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-med-", 6, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "120 < met < 200 GeV", "met/HTlep > 10", "MTS < 50 GeV")
+        DEFINE_SIGNAL_REGIONS("SR-E-high-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "mTl1 < 60 GeV", "met > 200 GeV", "max(0.85, 0.98-0.02xmll) < RISR < 1.0", "subleading lepton pT > min(10,2+mll/3)")
+        DEFINE_SIGNAL_REGIONS("SR-E-1l1T-", 6, "MET trigger", "1 lepton and >=1 track", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "MET > 200GeV", "min(DeltaPhi(any jet,MET) > 0.4", "Delta(j1) > 2.0", "0.5 < mltrack < 5GeV", "DeltaRltrack > 0.05", "number of jets >= 1", "leading jet pT > 100 GeV", "MET/HTlep > 30", "Deltaltrack < 1.5", "Lepton pT < 10 GeV", "Track pT < 5 GeV", "DeltaPhi(l,MET) < 1.0", "SF lepton-track pair", "OS lepton-track pair")
+        DEFINE_SIGNAL_REGIONS("SR-VBF-low-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
+        DEFINE_SIGNAL_REGIONS("SR-VBF-high-", 7, "pTl1 > 5", "2 baseline leptons", "2 signal leptons", "MET trigger", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "SF", "OS", "1 < mll < 60 GeV", "veto 3 GeV < mll < 3.2 GeV", "mtautau < 0 or > 160 GeV", "number of b-tagged jets = 0", "leading jet pT > 100 GeV", "pT(j2) > 40 GeV", "met > 200 GeV", "met/HTlep > 2.0", "subleading lepton pT > min(10,2+mll/3)", "mTl1 < 60 GeV", "RVBF < 1.0", "RVBF > max(0.6,0.92-mll/2 GeV)", "etaj1*etaj2 < 0", "mjj > 400 GeV", "Deltaetajj > 2")
+        DEFINE_SIGNAL_REGIONS("SR-S-low-", 8, "MET trigger", "2 leptons", "veto 3 GeV < mll < 3.2 GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "150 < met < 200 GeV", "0.8 < RISR < 1.0", "subleading lepton pT > min(15,7.5+0.75*(mT2100-100))")
+        DEFINE_SIGNAL_REGIONS("SR-S-high-", 8, "MET trigger", "2 leptons", "veto 3GeV < mll < 3.2GeV", "lepton author 16 veto", "min(DeltaPhi(any jet)) > 0.4", "DeltaPhi(j1) > 2.0", "lepton truth matching", "1<mll < 60 GeV", "DeltaRee > 0.3, DeltaRmumu > 0.05, DeltaRemu > 0.2", "leading lepton pT > 5GeV", "number of jets > 1", "leading jet pT > 100GeV", "number of b-tagged jets = 0", "mtautau < 0 or > 160 GeV", "ee or mumu", "met > 200 GeV", "max(0.85,0.98-0.02*mT2100) < RISR < 1.0", "subleading lepton pT > min(20,2.5+2.5*(mT2100-100))")
 
         set_analysis_name("ATLAS_13TeV_2LEPsoft_139invfb");
         set_luminosity(139);
@@ -62,7 +63,6 @@ namespace Gambit
         // Missing momentum and energy
         double met = event->met();
         HEPUtils::P4 ptot = event->missingmom();
-
 
         // TODO: Candidate events are required to have at least one reconstructed pp interaction vertex with a minimum of two associated tracks with pT > 500 MeV
         // TODO: In events with multiple vertices, the primary vertex is defined as the one with the highest sum pT^2 of associated tracks.
@@ -83,10 +83,11 @@ namespace Gambit
         // Preselected muons must also satisfy |z0 sin θ| < 0.5 mm
         // Missing: No impact parameter info
         BASELINE_PARTICLES(event->muons(), preselectedMuons, 3.0, 0, DBL_MAX, 2.5)
-        applyEfficiency(preselectedMuons, ATLAS::eff1DMu.at("ATLAS_PHYS_PUB_2020_002_LowPT"), true);
+        applyEfficiency(preselectedMuons, ATLAS::eff1DMu.at("ATLAS_PHYS_PUB_2020_002_LowPT"), false);
 
         // Preselected leptons
         BASELINE_PARTICLE_COMBINATION(preselectedLeptons, preselectedElectrons, preselectedMuons)
+        size_t nBaselineLeptons = preselectedLeptons.size();
 
         // Preselected tracks with pT > 500 MeV and η < 2.5
         // Signal tracks are required to be within ∆R = 0.01 of a reconstructed electron or muon candidate.  Electron (muon) candidates can be reconstructed with transverse momenta as low as 1 (2) GeV, and are required to fail the signal lepton requirements defined above to avoid any overlap
@@ -226,7 +227,6 @@ namespace Gambit
         sortByPt(signalLeptons);
         sortByPt(signalTracks);
 
-
         // Preselection requirements
         // Variable            2l                                              1l1T
         // ------------------------------------------------------------------------------
@@ -264,24 +264,25 @@ namespace Gambit
           signalParticles.push_back(signalLeptons.at(0));
           signalParticles.push_back(signalTracks.at(0));
         }
-        else
-          return ;
+        size_t nSignalParticles = signalParticles.size();
 
         // DeltaR
-        double deltaR = signalParticles.at(0)->mom().deltaR_eta(signalParticles.at(1)->mom());
+        double deltaR = nSignalParticles > 1 ? signalParticles.at(0)->mom().deltaR_eta(signalParticles.at(1)->mom()) : 0.;
 
         // ID
-        bool electron_pair = signalParticles.at(0)->isElectron() && signalParticles.at(1)->isElectron();
-        bool muon_pair = signalParticles.at(0)->isMuon() && signalParticles.at(1)->isMuon();
+        bool electron_pair = nSignalParticles > 1 ? signalParticles.at(0)->isElectron() && signalParticles.at(1)->isElectron() : false;
+        bool muon_pair = nSignalParticles > 1 ? signalParticles.at(0)->isMuon() && signalParticles.at(1)->isMuon() : false;
 
         // SFOS
-        bool SFOS = signalParticles.at(0)->abspid() == signalParticles.at(1)->abspid() && signalParticles.at(0)->pid() != signalParticles.at(0)->pid();
+        bool SF = nSignalParticles > 1 ? signalParticles.at(0)->abspid() == signalParticles.at(1)->abspid() : false;
+        bool OS = nSignalParticles > 1 ? signalParticles.at(0)->pid() * signalParticles.at(0)->pid() < 0 : false;
+        bool SFOS = SF && OS;
 
         // Invariant mass
-        double mll = (signalParticles.at(0)->mom() + signalParticles.at(1)->mom() ).m();
+        double mll = nSignalParticles > 1 ? (signalParticles.at(0)->mom() + signalParticles.at(1)->mom() ).m() : 0.;
 
         // HTlep
-        double HTlep = signalParticles.at(0)->pT () + signalParticles.at(1)->pT();
+        double HTlep = nSignalParticles > 1 ? signalParticles.at(0)->pT () + signalParticles.at(1)->pT() : 0.;
 
         // mtautau
         double mtautau = 0.;
@@ -303,53 +304,70 @@ namespace Gambit
             minPhi = fabs(jet->phi() - ptot.phi());
         }
 
+        // Initialize cutflow counters
+        BEGIN_PRESELECTION
+
         // Preselection cuts for 2l regions
-        bool preselection_2l = (nSignalLeptons == 2) &&
-                               (signalLeptons.at(0)->pT() > 5.) &&
-                               (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ) &&
-                               (SFOS) &&
-                               (mll > (electron_pair ? 3. : 1.) && mll < 60.) &&
-                               (mll < 3. && mll > 3.2) &&
-                               (mtautau < 0. || mtautau > 160.) &&
-                               (met  > 120.) &&
-                               (nSignalJets >= 1) &&
-                               (nSignalBJets == 0) &&
-                               (signalJets.at(0)->pT() >= 100.) &&
-                               (minPhi  > 0.4) &&
-                               (fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.);
+        std::vector<bool> preselection_2l = { met > 120.,
+                                             nSignalLeptons == 2,
+                                             (mll < 3. && mll > 3.2),
+                                             true, // lepton author 16 veto,
+                                             (minPhi  > 0.4),
+                                             (nSignalJets > 0 && fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.),
+                                             true, // lepton truth matching,
+                                             (mll > (electron_pair ? 3. : 1.) && mll < 60.),
+                                             (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ),
+                                             (nSignalLeptons > 0 && signalLeptons.at(0)->pT() > 5.),
+                                             (nSignalJets >= 1),
+                                             (nSignalJets > 0 && signalJets.at(0)->pT() >= 100.),
+                                             (nSignalBJets == 0),
+                                             (mtautau < 0. || mtautau > 160.),
+                                             (SFOS)
+                                           };
+
+        LOG_CUTS_N(preselection_2l, "SR-E-low-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-E-med-", 6)
+        LOG_CUTS_N(preselection_2l, "SR-E-high-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-S-low-", 8)
+        LOG_CUTS_N(preselection_2l, "SR-S-high-", 8)
 
         // Preselection cuts for 2l VBF regions
-        bool preselection_2l_VBF = (nSignalLeptons == 2) &&
-                               (signalLeptons.at(0)->pT() > 5.) &&
-                               (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ) &&
-                               (SFOS) &&
-                               (mll > (electron_pair ? 3. : 1.) && mll < 60.) &&
-                               (mll < 3. && mll > 3.2) &&
-                               (mtautau < 0. || mtautau > 160.) &&
-                               (met  > 120.) &&
-                               (nSignalVBFJets >= 1) &&
-                               (nSignalBJets == 0) &&
-                               (signalVBFJets.at(0)->pT() >= 100.) &&
-                               (minPhi  > 0.4);
+        std::vector<bool> preselection_2l_VBF = { (nSignalLeptons > 0 && signalLeptons.at(0)->pT() > 5.),
+                                                  (nBaselineLeptons == 2),
+                                                  (nSignalLeptons == 2),
+                                                  (met  > 120.),
+                                                  true, // lepton author 16 veto
+                                                  (minPhi  > 0.4),
+                                                  (deltaR > (electron_pair ? 0.3 : (muon_pair ? 0.05 : 0.2) ) ),
+                                                  SF,
+                                                  OS,
+                                                  (mll > (electron_pair ? 3. : 1.) && mll < 60.),
+                                                  (mll < 3. && mll > 3.2),
+                                                  (mtautau < 0. || mtautau > 160.),
+                                                  (nSignalBJets == 0),
+                                                  (nSignalVBFJets >= 1 && signalVBFJets.at(0)->pT() >= 100.)
+                                                };
+        LOG_CUTS_N(preselection_2l_VBF, "SR-VBF-low-", 7)
+        LOG_CUTS_N(preselection_2l_VBF, "SR-VBF-high-", 7)
 
         // Preselecton cuts for 1l1T region
-        bool preselection_1l1T = (nSignalLeptons == 1 && nSignalTracks >= 1) &&
-                                 (signalLeptons.at(0)->pT() < 10.) &&
-                                 (deltaR > 0.05 && deltaR < 1.5) &&
-                                 (SFOS) &&
-                                 (mll > 0.5 && mll < 5) &&
-                                 (mll < 3. && mll > 3.2) &&
-                                 (met > 120.) &&
-                                 (nSignalJets >= 1) &&
-                                 // -
-                                 (signalJets.at(0)->pT() >= 100.) &&
-                                 (minPhi > 0.4) &&
-                                 (fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.);
-
-        // If neither preslection condition is satisfied, exit
-        BEGIN_PRESELECTION
-        if(not preselection_2l and not preselection_2l_VBF and not preselection_1l1T) return;
-        END_PRESELECTION
+        // It's not clear what's preselection and signal region cuts based on paper and cutflows, so just use cutflow order
+        std::vector<bool> preselection_1l1T = { (met > 120.),
+                                                (nSignalLeptons == 1 && nSignalTracks >= 1),
+                                                (mll < 3. && mll > 3.2),
+                                                true, // lepton author 16 veto
+                                                (met > 200.),
+                                                (minPhi > 0.4),
+                                                (nSignalJets > 0 && fabs(signalJets.at(0)->phi() - ptot.phi()) >= 2.),
+                                                (mll > 0.5 && mll < 5),
+                                                (deltaR > 0.05),
+                                                (nSignalJets >= 1),
+                                                (nSignalJets > 0 && signalJets.at(0)->pT() >= 100.),
+                                                (met/HTlep > 30.),
+                                                (deltaR < 1.5),
+                                                (signalLeptons.at(0)->pT() < 10.)
+                                              };
+        LOG_CUTS_N(preselection_1l1T, "SR-E-1l1T-", 6)
 
         // EWino Signal regions
         // Variable                   SR-E-low          SR-E-med                SR-E-high                        SR-E-1l1T
@@ -387,15 +405,14 @@ namespace Gambit
         }
 
         // SR-E-low
-        if (preselection_2l &&
-            met > 120. && met > 200. &&
-            met/HTlep > 10. &&
-            // -
-            signalLeptons.at(1)->pT() > 5. + mll/4. &&
-            // -
-            mTl1 >= 10. && mTl1 <= 60 &&
-            RISR >= 0.8 && RISR <= 1.0
-           )
+        std::vector<bool> cuts_2l_e_low = { met > 120. && met > 200.,
+                                            met/HTlep > 10.,
+                                            RISR >= 0.8 && RISR <= 1.0,
+                                            nSignalLeptons > 1 && signalLeptons.at(1)->pT() > 5. + mll/4.,
+                                            mTl1 >= 10. && mTl1 <= 60
+                                          };
+        LOG_CUTS_N(cuts_2l_e_low, "SR-E-low-", 8)
+        if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_e_low))
         {
            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-low-1") }
            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-low-2") }
@@ -408,15 +425,12 @@ namespace Gambit
         }
 
         // SR-E-med
-        if (preselection_2l &&
-            met > 120. && met > 200. &&
-            met/HTlep < 10. &&
-            // -
-            // -
-            MTS < 50.
-            // -
-            // -
-           )
+        std::vector<bool> cuts_2l_e_med = { met > 120. && met > 200.,
+                                            met/HTlep < 10.,
+                                            MTS < 50.
+                                          };
+        LOG_CUTS_N(cuts_2l_e_med, "SR-E-med-", 6)
+        if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_e_med))
         {
            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-med-1") }
            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-med-2") }
@@ -427,15 +441,13 @@ namespace Gambit
         }
 
         // SR-E-high
-        if (preselection_2l &&
-            met > 200. &&
-            // -
-            // -
-            signalLeptons.at(1)->pT() > min(10., 2.+mll/3) &&
-            // -
-            mTl1 < 60. &&
-            RISR >= max(0.85, 0.98 - 0.02*mll) && RISR <= 1.0
-           )
+        std::vector<bool> cuts_2l_e_high = { mTl1 < 60.,
+                                             met > 200.,
+                                             RISR >= max(0.85, 0.98 - 0.02*mll) && RISR <= 1.0,
+                                             nSignalLeptons > 1 && signalLeptons.at(1)->pT() > min(10., 2.+mll/3)
+                                           };
+        LOG_CUTS_N(cuts_2l_e_high, "SR-E-high-", 8)
+        if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_e_high))
         {
            if(mll >= 1 && mll <= 2)        { FILL_SIGNAL_REGION("SR-E-high-1") }
            else if (mll > 2 && mll <= 3)   { FILL_SIGNAL_REGION("SR-E-high-2") }
@@ -448,15 +460,13 @@ namespace Gambit
         }
 
         // SR-E-1l1T
-        if (preselection_1l1T &&
-            met > 200. &&
-            met/HTlep > 30. &&
-            fabs(signalLeptons.at(0)->phi() - ptot.phi()) > 1.0 &&
-            signalTracks.at(0)->pT() < 5.
-            // -
-            // -
-            // -
-           )
+        std::vector<bool> cuts_1l1T = { nSignalTracks > 0 && signalTracks.at(0)->pT() < 5.,
+                                        nSignalLeptons > 0 && fabs(signalLeptons.at(0)->phi() - ptot.phi()) > 1.0,
+                                        SF,
+                                        OS
+                                      };
+        LOG_CUTS_N(cuts_1l1T, "SR-E-1l1T-", 6)
+        if (Utils::all_of(preselection_1l1T) && Utils::all_of(cuts_1l1T))
         {
            if(mll >= 0.5 && mll <= 1.0)        { FILL_SIGNAL_REGION("SR-E-1l1T-1") }
            else if (mll > 1.0 && mll <= 1.5)   { FILL_SIGNAL_REGION("SR-E-1l1T-2") }
@@ -497,19 +507,21 @@ namespace Gambit
           Deltaetajj = fabs(signalVBFJets.at(0)->eta() - signalVBFJets.at(1)->eta());
 
         // SR-VBF-low
-        if (preselection_2l_VBF &&
-            mll < 40. &&
-            nSignalVBFJets >= 2 &&
-            signalVBFJets.at(1)->pT() > 40. &&
-            met > 150 &&
-            met/HTlep > 2 &&
-            signalLeptons.at(1)->pT() > min(10., 2+mll/3) &&
-            mTl1 < 60. &&
-            RVBF >= max(0.6, 0.92-mll/60) && RVBF <= 1. &&
-            signalVBFJets.at(0)->eta() * signalVBFJets.at(1)->eta() < 0 &&
-            mjj > 400 &&
-            Deltaetajj >= 2. && Deltaetajj <= 4.
-           )
+        // TODO: MET cut differs from paper (150) and cutflow (200), going with cutflow for now
+        // TODO: Lower limit on RVBF differs from paper (max(0.6, 0.92-mll/60)) and cutflow (max(0.6, 0.92-mll/2)), going with cutflow for now
+        std::vector<bool> cuts_2l_VBF = { (nSignalVBFJets > 1 && signalVBFJets.at(1)->pT() > 40.),
+                                          (met > 200.), // or 150 from paper
+                                          (met/HTlep > 2.),
+                                          (nSignalLeptons > 1 && signalLeptons.at(1)->pT() > min(10., 2+mll/3)),
+                                          (mTl1 < 60.),
+                                          (RVBF <= 1.),
+                                          (RVBF >= max(0.6, 0.92-mll/2)), // or mll/60 from paper
+                                          (nSignalVBFJets > 1 && signalVBFJets.at(0)->eta() * signalVBFJets.at(1)->eta() < 0),
+                                          (mjj > 400),
+                                          (Deltaetajj >= 2.)
+                                        };
+        LOG_CUTS_N(cuts_2l_VBF, "SR-VBF-low-", 7)
+        if (Utils::all_of(preselection_2l_VBF) && Utils::all_of(cuts_2l_VBF) && mll < 40. && Deltaetajj <= 4)
          {
            if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-low-1") }
            else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-low-2") }
@@ -521,19 +533,8 @@ namespace Gambit
          }
 
         // SR-VBF-high
-        if (preselection_2l_VBF &&
-            mll < 40. &&
-            nSignalJets >= 2 &&
-            signalJets.at(1)->pT() > 40. &&
-            met > 150 &&
-            met/HTlep > 2 &&
-            signalLeptons.at(1)->pT() > min(10., 2+mll/3) &&
-            mTl1 < 60. &&
-            RVBF >= max(0.6, 0.92-mll/60) && RVBF <= 1. &&
-            signalJets.at(0)->eta() * signalJets.at(1)->eta() < 0 &&
-            mjj > 400 &&
-            Deltaetajj > 4.
-           )
+        LOG_CUTS_N(cuts_2l_VBF, "SR-VBF-high-", 7)
+        if (Utils::all_of(preselection_2l_VBF) && Utils::all_of(cuts_2l_VBF) && mll < 40. && Deltaetajj > 4.)
          {
            if(mll >= 1 && mll <= 2)         { FILL_SIGNAL_REGION("SR-VBF-high-1") }
            else if(mll >= 2 && mll <= 3)    { FILL_SIGNAL_REGION("SR-VBF-high-2") }
@@ -570,12 +571,12 @@ namespace Gambit
 
 
         // SR-S-low
-        if (preselection_2l &&
-            met >= 150. && met <= 200. &&
-            mT2100 < 140. &&
-            signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2100-100.)) &&
-            RISR >= 0.8 && RISR <= 1.0
-           )
+        std::vector<bool> cuts_2l_s_low = { met >= 150. && met <= 200.,
+                                            RISR >= 0.8 && RISR <= 1.0,
+                                            nSignalLeptons > 1 &&signalLeptons.at(1)->pT() > min(15., 7.5 + 0.75*(mT2100-100.))
+                                          };
+        LOG_CUTS_N(cuts_2l_s_low, "SR-S-low-", 8)
+        if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_s_low))
         {
           if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-low-1") }
           else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-low-2") }
@@ -588,12 +589,12 @@ namespace Gambit
         }
 
         // SR-S-high
-        if (preselection_2l &&
-           met > 200. &&
-           mT2100 < 140. &&
-           signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2100-100.)) &&
-           RISR >= max(0.85, 0.98 - 0.02*(mT2100 - 100.)) && RISR <= 1.0
-           )
+        std::vector<bool> cuts_2l_s_high = { met > 200.,
+                                             RISR >= max(0.85, 0.98 - 0.02*(mT2100 - 100.)) && RISR <= 1.0,
+                                             nSignalLeptons > 1 && signalLeptons.at(1)->pT() > min(20., 2.5+2.5*(mT2100-100.))
+                                           };
+        LOG_CUTS_N(cuts_2l_s_high, "SR-S-high-", 8)
+        if (Utils::all_of(preselection_2l) && Utils::all_of(cuts_2l_s_high))
         {
           if(mT2100 >= 100 && mT2100 <= 100.5)      { FILL_SIGNAL_REGION("SR-S-high-1") }
           else if(mT2100 >= 100.5 && mT2100 <= 101) { FILL_SIGNAL_REGION("SR-S-high-2") }
@@ -609,6 +610,7 @@ namespace Gambit
       // This function can be overridden by the derived SR-specific classes
       virtual void collect_results()
       {
+        std::cout << "collecting results" << std::endl;
         // SR-E-low observed and background events, from Table 11 of 1911.12606
         // Combined ee and mumu SR data
         COMMIT_SIGNAL_REGION("SR-E-low-1", 9., 15.4, 2.4)

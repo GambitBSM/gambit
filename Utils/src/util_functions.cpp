@@ -189,6 +189,22 @@ namespace Gambit
        return (*p == 0) ;
     }
 
+    /// Wrappers of all_of, any_of and none_of using vectors
+    bool all_of(const std::vector<bool>& vec)
+    {
+      return std::all_of(vec.begin(), vec.end(), [](bool x) { return x; });
+    }
+
+    bool any_of(const std::vector<bool>& vec)
+    {
+      return std::any_of(vec.begin(), vec.end(), [](bool x) { return x; });
+    }
+
+    bool none_of(const std::vector<bool>& vec)
+    {
+      return std::none_of(vec.begin(), vec.end(), [](bool x) { return x; });
+    }
+
     /// Perform outer product of two vectors
     std::vector<double> outer_product(const std::vector<double>& v1, const std::vector<double>& v2)
     {

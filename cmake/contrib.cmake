@@ -311,6 +311,21 @@ add_gambit_library(fjcore OPTION OBJECT
                           HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
 set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
 
+#contrib/fastjet-3.4.2
+#set(fastjet_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2/include/fastjet/internal")
+#include_directories("${fastjet_INCLUDE_DIR}")
+#add_gambit_library(fastjet OPTION OBJECT
+#                             HEADERS ${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2/include/fastjet/internal/base.hh)
+#set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fastjet>)
+#
+##contrib/fjcontrib-1.053
+#set(fjcontrib_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.053/RecursiveTools")
+#include_directories("${fjcontrib_INCLUDE_DIR}")
+#add_gambit_library(fjcontrib OPTION OBJECT
+#                             SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.053/RecursiveTools/SoftDrop.cc
+#                             HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.053/RecursiveTools/SoftDrop.hh)
+#set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcontrib>)
+
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")
 include_directories("${multimin_INCLUDE_DIR}")

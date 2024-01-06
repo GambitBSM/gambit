@@ -355,7 +355,7 @@
 #define END_PRESELECTION                                                          \
   _cutflows.fillnext(event->weight());
 
-/// Log cuts for one or more signal regions
+/// Log current event for one or more signal regions
 #define LOG_CUT_1(A)                      _cutflows[A].fillnext(event->weight());
 #define LOG_CUT_2(A,B)                    LOG_CUT_1(A) LOG_CUT_1(B)
 #define LOG_CUT_3(A,B,C)                  LOG_CUT_1(A) LOG_CUT_2(B,C)
@@ -366,7 +366,30 @@
 #define LOG_CUT_8(A,B,C,D,E,F,G,H)        LOG_CUT_1(A) LOG_CUT_7(B,C,D,E,F,G,H)
 #define LOG_CUT_9(A,B,C,D,E,F,G,H,I)      LOG_CUT_1(A) LOG_CUT_8(B,C,D,E,F,G,H,I)
 #define LOG_CUT_10(A,B,C,D,E,F,G,H,I,J)   LOG_CUT_1(A) LOG_CUT_9(B,C,D,E,F,G,H,I,J)
-#define LOG_CUT(...)      VARARG(LOG_CUT, __VA_ARGS__)
+#define LOG_CUT(...)                      VARARG(LOG_CUT, __VA_ARGS__)
+
+// Log specific cuts for one or more signal region
+#define LOG_CUTS_2(CUTS,A)                     _cutflows[A].fillnext(CUTS,event->weight());
+#define LOG_CUTS_3(CUTS,A,B)                   LOG_CUTS_2(CUTS,A) LOG_CUTS_2(CUTS,B)
+#define LOG_CUTS_4(CUTS,A,B,C)                 LOG_CUTS_2(CUTS,A) LOG_CUTS_3(CUTS,B,C)
+#define LOG_CUTS_5(CUTS,A,B,C,D)               LOG_CUTS_2(CUTS,A) LOG_CUTS_4(CUTS,B,C,D)
+#define LOG_CUTS_6(CUTS,A,B,C,D,E)             LOG_CUTS_2(CUTS,A) LOG_CUTS_5(CUTS,B,C,D,E)
+#define LOG_CUTS_7(CUTS,A,B,C,D,E,F)           LOG_CUTS_2(CUTS,A) LOG_CUTS_6(CUTS,B,C,D,E,F)
+#define LOG_CUTS_8(CUTS,A,B,C,D,E,F,G)         LOG_CUTS_2(CUTS,A) LOG_CUTS_7(CUTS,B,C,D,E,F,G)
+#define LOG_CUTS_9(CUTS,A,B,C,D,E,F,G,H)       LOG_CUTS_2(CUTS,A) LOG_CUTS_8(CUTS,B,C,D,E,F,G,H)
+#define LOG_CUTS_10(CUTS,A,B,C,D,E,F,G,H,I)    LOG_CUTS_2(CUTS,A) LOG_CUTS_9(CUTS,B,C,D,E,F,G,H,I)
+#define LOG_CUTS_11(CUTS,A,B,C,D,E,F,G,H,I,J)  LOG_CUTS_2(CUTS,A) LOG_CUTS_10(CUTS,B,C,D,E,F,G,H,I,J)
+#define LOG_CUTS(...)                          VARARG(LOG_CUTS, __VA_ARGS__)
+
+// Log specific cuts for a sequential list of signal regions
+#define LOG_CUTS_N(CUTS, SR, N)                                                   \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(SR);                                                             \
+    str name = basename + std::to_string(i);                                      \
+    _cutflows[name].fillnext(CUTS,event->weight());                               \
+  }
+
 
 /// Fill signal region and cutflow
 #define FILL_SIGNAL_REGION(NAME)                                                  \
