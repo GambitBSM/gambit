@@ -195,6 +195,18 @@ namespace Gambit
       /// @name ATLAS detector efficiency functions
       /// @{
 
+      /// ATLAS trigger efficiencies
+      /// @{
+
+        /// MET trigger efficiency, from CERN-EP-2016-241 (1611.09661)
+        /// Binned in MET
+        static const HEPUtils::BinnedFn1D<double> eff1DMET_CERN_EP_2015_241(
+          {0, 30, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 170, 190, 210, 230, 250, 300, 400, DBL_MAX},
+          {0.01, 0.01, 0.04, 0.07, 0.17, 0.30, 0.47, 0.63, 0.75, 0.85, 0.90, 0.95, 0.97, 0.98, 0.99, 0.98, 0.99, 1.00, 1.00}
+        );
+
+      /// @}
+
       /// ATLAS Electron, Muon, Tau and Photon efficiencies for the WPs of the identification techniques used in SUSY analyses
 
       /// Electron efficiencies
@@ -680,6 +692,12 @@ namespace Gambit
 
       /////////////////////////
       // ATLAS Efficiency maps //
+
+      // Map of MET 1D trigger efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DMET(
+      {
+        {"CERN_EP_2015_241",   eff1DMET_CERN_EP_2015_241},
+      });
 
       // Map of electron 1D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DEl(
