@@ -159,33 +159,6 @@ namespace Gambit {
       }
 
 
-      /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578
-      /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
-      /// Function 95% copied from ATLASEfficiencies.hpp
-      /// I added in info from table 1 to get an extra 20-100, 100-inf bins (because this is actually all we care about in 99% of analyses).
-      inline double getMuonIDEfficiency2020(const HEPUtils::Particle* muon, str operating_point){
-
-        // Digitised from Fig 11a
-        const static std::vector<double> binedges_pt = {3.0, 3.5, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 100.0, DBL_MAX};
-        const static std::vector<double> bineffs_pt_tight = {0.0, 0.0, 0.66948, 0.8143, 0.85466, 0.87816, 0.89246, 0.90421, 0.91418, 0.91877, 0.92031, 0.92669, 0.93972, 0.93, 0.93};
-        const static std::vector<double> bineffs_pt_medium = {0.45262, 0.61328, 0.80766, 0.9387, 0.96245, 0.97063, 0.97165, 0.97216, 0.97292, 0.97292, 0.97216, 0.97114, 0.97522, 0.97, 0.97};
-        const static std::vector<double> bineffs_pt_loose = {0.87075, 0.93129, 0.97241, 0.98851, 0.99157, 0.98851, 0.98799, 0.98799, 0.98799, 0.98748, 0.98672, 0.98748, 0.98927, 0.99, 0.98};
-        
-        // Select operating point
-        std::vector<double> bineffs_pt;
-        if (operating_point == "Tight")
-          bineffs_pt = bineffs_pt_tight;
-        else if (operating_point == "Medium")
-          bineffs_pt = bineffs_pt_medium;
-        else if (operating_point == "Loose")
-          bineffs_pt = bineffs_pt_loose;
-        else
-          utils_error().raise(LOCAL_INFO, "Unknown operating point");
-        
-        return bineffs_pt[binIndex(muon->pT(), binedges_pt)];
-      }
-
-
       Analysis_ATLAS_13TeV_3b_NN_139invfb() {
         set_analysis_name("ATLAS_13TeV_3b_NN_139invfb");
         set_luminosity(139.);
@@ -266,8 +239,8 @@ namespace Gambit {
         vector<const HEPUtils::Particle*> sigElectrons, baseElectrons;
         vector<const HEPUtils::Particle*> sigMuons, baseMuons;
         for (const HEPUtils::Particle* el : electrons){
-          const thread_local static auto loose_func = ATLAS::eff1DEl.at("eff1DEl_EGAM_2018_01_ID_Loose");
-          const thread_local static auto tight_func = ATLAS::eff1DEl.at("eff1DEl_EGAM_2018_01_ID_Tight");
+          const thread_local static auto loose_func = ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose");
+          const thread_local static auto tight_func = ATLAS::eff1DEl.at("EGAM_2018_01_ID_Tight");
           const double eff_loose = loose_func.get_at(el->pT());
           const double eff_tight = tight_func.get_at(el->pT());
           const double rnd = Random::draw();
@@ -281,8 +254,10 @@ namespace Gambit {
           }
         }
         for (const HEPUtils::Particle* mu : muons){
-          const double eff_tight = getMuonIDEfficiency2020(mu, "Tight");
-          const double eff_loose = getMuonIDEfficiency2020(mu, "Loose");
+          const thread_local static auto tight_func = ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight");
+          const thread_local static auto loose_func = ATLAS::eff1DMu.at("MUON_2018_03_ID_Tight");
+          const double eff_tight = tight_func.get_at(mu->pT());
+          const double eff_loose = loose_func.get_at(mu->pT());
           const double rnd = Random::draw();
 
           if (rnd < eff_tight){
