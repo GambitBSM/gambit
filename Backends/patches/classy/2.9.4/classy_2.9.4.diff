@@ -1,6 +1,21 @@
 --- a/python/classy.pyx	2017-10-24 14:42:41.000000000 +0100
 +++ b/python/classy.pyx	2019-07-03 12:45:27.100272668 +0100
-@@ -118,13 +118,28 @@
+@@ -96,10 +96,10 @@
+     cdef lensing le
+     cdef file_content fc
+ 
+-    cpdef int computed # Flag to see if classy has already computed with the given pars
+-    cpdef int allocated # Flag to see if classy structs are allocated already
+-    cpdef object _pars # Dictionary of the parameters
+-    cpdef object ncp   # Keeps track of the structures initialized, in view of cleaning.
++    cdef int computed # Flag to see if classy has already computed with the given pars
++    cdef int allocated # Flag to see if classy structs are allocated already
++    cdef object _pars # Dictionary of the parameters
++    cdef object ncp   # Keeps track of the structures initialized, in view of cleaning.
+ 
+     # Defining two new properties to recover, respectively, the parameters used
+     # or the age (set after computation). Follow this syntax if you want to
+@@ -118,13 +118,28 @@ cdef class Class:
          def __get__(self):
              return self.nl.method
  
@@ -14,7 +29,7 @@
 +    # (JR) added to get information from cosmo object
 +    # whether class re-computed or not
 +    #recomputed = True
-+    cpdef int recomputed
++    cdef int recomputed
 +    property recomputed:
 +        def __get__(self):
 +            return self.recomputed
@@ -24,7 +39,8 @@
 +    # ------------------
 +
      def __cinit__(self, default=False):
-         cpdef char* dumc
+-        cpdef char* dumc
++        cdef char* dumc
 +        self.recomputed = True
          self.allocated = False
          self.computed = False

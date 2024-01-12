@@ -20,6 +20,10 @@
 ///          (t.e.gonzalo@fys.uio.no)
 ///  \date 2016 Sep
 ///
+///  \author Patrick Stoecker
+///          (stoecker@physik.rwth-aachen.de)
+///  \date 2023 Nov
+///
 ///  *********************************************
 
 #include <regex>
@@ -155,7 +159,7 @@ namespace Gambit
     bool present = Backends::backendInfo().works.at(be_functor.origin() + be_functor.version());
     if (not present)
     {
-      be_functor.setStatus(-1);
+      be_functor.setStatus(FunctorStatus::Origin_missing);
     }
     else if(dlerror() != NULL and symbol_names[0] != "no_symbol")
     {
@@ -166,7 +170,7 @@ namespace Gambit
       err << ") was found." << std::endl
           << "The backend function from this symbol will be disabled (i.e. get status = -2)" << std::endl;
       backend_warning().raise(LOCAL_INFO, err.str());
-      be_functor.setStatus(-2);
+      be_functor.setStatus(FunctorStatus::Function_missing);
     }
   }
 
@@ -178,7 +182,7 @@ namespace Gambit
     bool present = Backends::backendInfo().works.at(be);
     if (not present)
     {
-      be_functor.setStatus(-1);
+      be_functor.setStatus(FunctorStatus::Origin_missing);
     }
     else if(symbol_name != "no_symbol")
     {
@@ -199,7 +203,7 @@ namespace Gambit
       {
         err << "Error sending packet through WSTP." << std::endl;
         backend_warning().raise(LOCAL_INFO, err.str());
-        be_functor.setStatus(-2);
+        be_functor.setStatus(FunctorStatus::Function_missing);
       }
 
       int pkt;
@@ -210,7 +214,7 @@ namespace Gambit
         {
           err << "Error reading packet from WSTP" << std::endl;
           backend_warning().raise(LOCAL_INFO, err.str());
-          be_functor.setStatus(-2);
+          be_functor.setStatus(FunctorStatus::Function_missing);
         }
       }
 
@@ -219,7 +223,7 @@ namespace Gambit
       {
         err << "Error retrieving packet from WSTP." << std::endl;
         backend_warning().raise(LOCAL_INFO, err.str());
-        be_functor.setStatus(-2);
+        be_functor.setStatus(FunctorStatus::Function_missing);
       }
 
       if(str(symbol_exists) == "False")
@@ -227,7 +231,7 @@ namespace Gambit
         err << "Mathematica function " << symbol_name << " not found."  << std::endl
             << "The backend function from this symbol will be disabled (i.e. get status = -2)" << std::endl;
         backend_warning().raise(LOCAL_INFO, err.str());
-        be_functor.setStatus(-2);
+        be_functor.setStatus(FunctorStatus::Function_missing);
       }
     }
   }
@@ -241,11 +245,11 @@ namespace Gambit
     bool present = Backends::backendInfo().works.at(be);
     if (not present)
     {
-      be_functor.setStatus(-1);
+      be_functor.setStatus(FunctorStatus::Origin_missing);
     }
     else if(symbol_name != "no_symbol")
     {
-      if (Backends::backendInfo().dlerrors[be] == symbol_name) be_functor.setStatus(-2);
+      if (Backends::backendInfo().dlerrors[be] == symbol_name) be_functor.setStatus(FunctorStatus::Function_missing);
     }
   }
   #endif
@@ -270,7 +274,7 @@ namespace Gambit
           std::ostringstream err;
           err << "Mathematica is not found or it is disabled. " << std::endl
               << "The backend function for the symbol " << symbol_names[0] << " will be disabled  (i.e. get status = -5)" << endl;
-          be_functor.setStatus(-5);
+          be_functor.setStatus(FunctorStatus::Mathematica_missing);
           backend_warning().raise(LOCAL_INFO, err.str());
         #endif
       }
@@ -285,7 +289,7 @@ namespace Gambit
           std::ostringstream err;
           err << "Pybind11 for interfacing with Python backends is not found or disabled. " << std::endl
               << "The backend function for the symbol " << symbol_names[0] << " will be disabled  (i.e. get status = -6)" << endl;
-          be_functor.setStatus(-6);
+          be_functor.setStatus(FunctorStatus::Pybind_missing);
           backend_warning().raise(LOCAL_INFO, err.str());
         #endif
       }
@@ -308,7 +312,7 @@ namespace Gambit
     {
       if (not present)
       {
-        ini_functor.setStatus(-4);
+        ini_functor.setStatus(FunctorStatus::Backend_missing);
       }
     }
     catch (std::exception& e) { ini_catch(e); }

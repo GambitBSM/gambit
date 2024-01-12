@@ -36,7 +36,7 @@
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
-///  \date 2020 May
+///  \date 2020 May, Nov
 ///
 ///  *********************************************
 
@@ -726,7 +726,7 @@ namespace Gambit
       graph_traits<MasterGraphType>::vertex_iterator vi, vi_end;
       for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
-        if (masterGraph[*vi]->status() == 2) masterGraph[*vi]->reset();
+        if (masterGraph[*vi]->isActive()) masterGraph[*vi]->reset();
       }
     }
 
@@ -813,7 +813,7 @@ namespace Gambit
       {
         // Ignore functors with status set to 0 or less in order to ignore primary_model_functors
         // that are not to be used for the scan.
-        if ( f->status() > 0 )
+        if ( f->isAvailable() )
         {
           #ifdef DEPRES_DEBUG
             std::cout << "Adding primary model functor " << f->origin() << "::" << f->name() << " to masterGraph." << std::endl;
@@ -845,12 +845,12 @@ namespace Gambit
       // Activate those module functors that match the combination of models being scanned.
       for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
       {
-        if (masterGraph[*vi]->status() >= 0 and masterGraph[*vi]->modelComboAllowed(modelList))
+        if (masterGraph[*vi]->isEnabled() and masterGraph[*vi]->modelComboAllowed(modelList))
         {
           for (const str& model : modelList)
           {
             masterGraph[*vi]->notifyOfModel(model);
-            masterGraph[*vi]->setStatus(1);
+            masterGraph[*vi]->setStatus(FunctorStatus::Available);
           }
         }
       }
@@ -861,9 +861,9 @@ namespace Gambit
         for (functor* f : boundCore->getBackendFunctors())
         {
           // Activate if the backend vertex permits the model and has not been (severely) disabled by the backend system
-          if ( f->status() >= 0 and f->modelAllowed(model) )
+          if ( f->isEnabled() and f->modelAllowed(model) )
           {
-            f->setStatus(1);
+            f->setStatus(FunctorStatus::Available);
           }
         }
       }
@@ -894,9 +894,9 @@ namespace Gambit
         std::string timing_label = masterGraph[*vi]->timingLabel();
         masterGraph[*vi]->setTimingVertexID(Printers::get_param_id(timing_label));
 
-        // Check for non-void type and status==2 (after the dependency resolution) to print only active, printable functors.
+        // Check for non-void type and whether functor is active (after the dependency resolution) to print only active, printable functors.
         // TODO: this doesn't currently check for non-void type; that is done at the time of printing in calcObsLike.
-        if( masterGraph[*vi]->requiresPrinting() and (masterGraph[*vi]->status()==2) )
+        if( masterGraph[*vi]->requiresPrinting() and masterGraph[*vi]->isActive() )
         {
           functors_to_print.push_back(index[*vi]); // TODO: Probably obsolete
           boundPrinter->addToPrintList(label); // Needed mainly by postprocessor.
@@ -1064,8 +1064,12 @@ namespace Gambit
         //   b) we only want the list of backends, and the vertex comes from an ini function;
         //   c) we only want the list of backends, and the vertex comes from a function that relies on classes from a disabled backend.
         // Otherwise, the vertex would have been fine except that it is disabled, so save it for printing in diagnostic messages.
-        int status = masterGraph[v]->status();
-        bool vertex_allowed = status > 0 or (boundCore->show_backends and (status == -3 or status == -4));
+        bool vertex_allowed = masterGraph[v]->isAvailable();
+        if (!vertex_allowed)
+        {
+          FunctorStatus status = masterGraph[v]->status();
+          vertex_allowed = boundCore->show_backends && (status == FunctorStatus::Classes_missing || status == FunctorStatus::Backend_missing);
+        }
         allowed[i] = {v, vertex_allowed};
         disabled[i] = {v, not vertex_allowed};
       }
@@ -1571,10 +1575,10 @@ namespace Gambit
           }
 
           // If fromVertex is new, activate it
-          if ( (*masterGraph[fromVertex]).status() != 2 )
+          if ( !masterGraph[fromVertex]->isActive() )
           {
             logger() << LogTags::dependency_resolver << "Activate new module function" << endl;
-            masterGraph[fromVertex]->setStatus(2); // activate node
+            masterGraph[fromVertex]->setStatus(FunctorStatus::Active);
             resolveVertexBackend(fromVertex, backendFunctorCandidates);
             resolveVertexClassLoading(fromVertex);
 
@@ -1797,7 +1801,7 @@ namespace Gambit
         if (not allowed) continue;
 
         // Continue to allow the backend vertex if it is available, or if we only want to show a list of backends.
-        allowed = boundCore->show_backends or not (f->status() <= 0);
+        allowed = boundCore->show_backends or f->isAvailable();
 
         // Is the candidate permitted to fill a backend requirement of toVertex, given any specification of permitted
         // backends and permitted versions in the basic rollcall declaration of this requirement?
@@ -1904,8 +1908,8 @@ namespace Gambit
       bool printPythonStatus = false;
       for (const auto& c : disabledBackendFunctorCandidates)
       {
-        if (c.first->status() == -5) printMathematicaStatus = true;
-        if (c.first->status() == -6) printPythonStatus = true;
+        if (c.first->status() == FunctorStatus::Mathematica_missing) printMathematicaStatus = true;
+        if (c.first->status() == FunctorStatus::Pybind_missing) printPythonStatus = true;
       }
 
       // No candidates? Death.
@@ -2088,7 +2092,7 @@ namespace Gambit
         for (std::tie(vi, vi_end) = vertices(masterGraph); vi != vi_end; ++vi)
         {
           // Check only for enabled functors
-          if (masterGraph[*vi]->status() == 2)
+          if (masterGraph[*vi]->isActive())
           {
             const std::set<const RuleT*>& matched = masterGraph[*vi]->getMatchedRules<const RuleT>();
             bool found = (std::find_if(matched.begin(), matched.end(), [&](const RuleT* r){ return r==&rule; } ) != matched.end());

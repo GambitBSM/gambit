@@ -243,8 +243,21 @@ macro(add_error_target name)
     COMMAND exit 1)
 endmacro()
 
+# A variable needed for file writing in the function below
+set(CREATE_BACKENDS_LIST_FILE TRUE)
 # Function to set up a new target with a generic name of a backend/scanner and associate it with the default version
 function(set_as_default_version type name default)
+
+  # Construct a text file with the names of all the default backends.
+  # (Needed by our CI jobs, and maybe useful for other things too.)
+  if (type STREQUAL "backend")
+    set(backends_list_file "${CMAKE_CURRENT_BINARY_DIR}/default_backends.txt")
+    if(CREATE_BACKENDS_LIST_FILE)
+      file(WRITE "${backends_list_file}" "")
+      set(CREATE_BACKENDS_LIST_FILE FALSE PARENT_SCOPE)
+    endif()
+    file(APPEND "${backends_list_file}" "${name}\n")
+  endif()
 
   #Retrieve the model name if it is also passed
   if(${ARGC} GREATER 3)

@@ -38,7 +38,7 @@
 ///
 ///  \author Patrick Stoecker
 ///          (stoecker@physik.rwth-aachen.de)
-///  \date 2023 May
+///  \date 2023 May, Nov
 ///
 ///  *********************************************
 
@@ -74,7 +74,7 @@ namespace Gambit
      myClaw          (&claw),
      myLabel         ("#"+func_capability+" @"+origin_name+"::"+func_name),
      myTimingLabel   ("Runtime(ns) for "+myLabel),
-     myStatus        (0),
+     myStatus        (FunctorStatus::Model_incompatible),
      myVertexID      (-1),       // (Note: myVertexID = -1 is intended to mean that no vertexID has been assigned)
      myTimingVertexID(-1),       // Not actually a graph vertex; ID assigned by "get_main_param_id" function.
      verbose         (false)     // For debugging.
@@ -106,19 +106,11 @@ namespace Gambit
     /// Acquire ID for timing 'vertex' (used in printer system)
     void functor::setTimingVertexID(int ID) { myTimingVertexID = ID; }
 
-    /// Setter for status: -6 = required external tool absent (pybind11)
-    ///                    -5 = required external tool absent (Mathematica)
-    ///                    -4 = required backend absent (backend ini functions)
-    ///                    -3 = required classes absent
-    ///                    -2 = function absent
-    ///                    -1 = origin absent
-    ///                     0 = model incompatibility (default)
-    ///                     1 = available
-    ///                     2 = active
-    void functor::setStatus(int stat)
+    /// Setter for status
+    void functor::setStatus(FunctorStatus stat)
     {
       myStatus = stat;
-      setInUse(myStatus == 2);
+      setInUse(myStatus == FunctorStatus::Active);
     }
 
     /// Getter for the wrapped function's name
@@ -133,17 +125,18 @@ namespace Gambit
     str functor::version()     const { utils_error().raise(LOCAL_INFO,"The version method is only defined for backend functors."); return ""; }
     /// Getter for the 'safe' incarnation of the version of the wrapped function's origin (module or backend)
     str functor::safe_version()const { utils_error().raise(LOCAL_INFO,"The safe_version method is only defined for backend functors."); return ""; }
-    /// Getter for the wrapped function current status:
-    ///                    -6 = required external tool absent (pybind11)
-    ///                    -5 = required external tool absent (Mathematica)
-    ///                    -4 = required backend absent (backend ini functions)
-    ///                    -3 = required classes absent
-    ///                    -2 = function absent
-    ///                    -1 = origin absent
-    ///                     0 = model incompatibility (default)
-    ///                     1 = available
-    ///                     2 = active
-    int functor::status()      const { return myStatus; }
+
+    /// Getter for the functors current status
+    FunctorStatus functor::status() const { return myStatus; }
+    /// Checks whether the functor is available (or even already activate)
+    bool functor::isAvailable() const { return myStatus > 0; }
+    /// Checks whether the functor is active (or even hyperactive)
+    bool functor::isActive() const { return myStatus >= 2; }
+    /// Checks whether the functor is disabled (discriminant is negative)
+    bool functor::isDisabled() const { return myStatus < 0; }
+    /// Checks whether the functor is enabled (discriminant is non negative)
+    bool functor::isEnabled() const { return myStatus >= 0; }
+
     /// Getter for the  overall quantity provided by the wrapped function (capability-type pair)
     sspair functor::quantity() const { return std::make_pair(myCapability, myType); }
     /// Getter for purpose (relevant for output nodes, aka helper structures for the dep. resolution)
@@ -1480,7 +1473,7 @@ namespace Gambit
         // Check to make sure some version of the backend in question is connected.
         if (be_ver_map.find(it->first) == be_ver_map.end())
         {
-          this->myStatus = -3;
+          this->myStatus = FunctorStatus::Classes_missing;
           missing_backends.push_back(it->first);
         }
         else
@@ -1491,7 +1484,7 @@ namespace Gambit
             // Check that the specific version needed is connected.
             if (versions.find(*jt) == versions.end())
             {
-              this->myStatus = -3;
+              this->myStatus = FunctorStatus::Classes_missing;
               missing_backends.push_back(it->first + ", v" + *jt);
             }
           }
@@ -1603,7 +1596,7 @@ namespace Gambit
           (*backendreq_map[key])(be_functor);
 
           //Set this backend functor's status to active.
-          be_functor->setStatus(2);
+          be_functor->setStatus(FunctorStatus::Active);
 
           //If this is also the condition under which any backend-conditional dependencies should be activated, do it.
           std::set<sspair> deps_to_activate = backend_conditional_dependencies(be_functor);
@@ -1838,7 +1831,7 @@ namespace Gambit
     /// execution of this functor.
     void module_functor<void>::calculate()
     {
-      if (myStatus == -3)                          // Do an explicit status check to hold standalone writers' hands
+      if (myStatus == FunctorStatus::Classes_missing) // Do an explicit status check to hold standalone writers' hands
       {
         std::ostringstream ss;
         ss << "Sorry, the function " << origin() << "::" << name()
@@ -1847,7 +1840,7 @@ namespace Gambit
         for (auto it = missing_backends.begin(); it != missing_backends.end(); ++it) ss << endl << "  " << *it;
         backend_error().raise(LOCAL_INFO, ss.str());
       }
-      else if (myStatus == -4)
+      else if (myStatus == FunctorStatus::Backend_missing)
       {
         std::ostringstream ss;
         ss << "Sorry, the backend initialisation function " << name()
