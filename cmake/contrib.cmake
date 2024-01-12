@@ -321,13 +321,14 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
   include_directories("${fastjet_dir}/include")
   include_directories("${fastjet_dir}/tools")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
 
   ExternalProject_Add(fastjet
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_dir} fastjet 3.4.2
     SOURCE_DIR ${fastjet_dir}
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
-    BUILD_COMMAND ""
+    BUILD_COMMAND ${MAKE_PARALLEL} install
     INSTALL_COMMAND ""
     )
 
@@ -352,7 +353,6 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
   set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
-  set(FJCONTRIB_CXX_FLAGS "${FJCONTRIB_CXX_FLAGS} -I${fastjet_dir}/include -I${fastjet_dir}/tools")
 
   ExternalProject_Add(fjcontrib
     DEPENDS fastjet
