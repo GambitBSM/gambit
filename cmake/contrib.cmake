@@ -315,13 +315,14 @@ endif()
 #contrib/fastjet-3.4.2; include only if ColliderBit is in use.
 if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   message("   ColliderBit included, include fastjet too")
+  set(EXCLUDE_FASTJET FALSE)
 
   set(fastjet_dl "http://fastjet.fr/repo/fastjet-3.4.2.tar.gz")
   set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
   set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
-  include_directories("${fastjet_dir}/include")
-  include_directories("${fastjet_dir}/tools")
+  include_directories("${fastjet_dir}/local/include")
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
+  set(fastjet_LDFLAGS "-L${fastjet_dir}/local/lib -lfastjet")
 
   ExternalProject_Add(fastjet
     DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_dir} fastjet 3.4.2
@@ -337,6 +338,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
 
 else()
   message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+  set(EXCLUDE_FASTJET TRUE)
 endif()
 
 #contrib/fjcontrib-1.041; include only if Colliderbit is in use.
@@ -347,6 +349,7 @@ if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
   set(fjcontrib_md5 "b37674a8701af52b58ebced94a270877")
   set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.041")
   include_directories("${fjcontrib_dir}/RecursiveTools")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
 
   string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
   set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
