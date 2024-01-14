@@ -345,6 +345,13 @@ namespace Gambit
                                 scan_err << "Same_as prior \"" << priorname << "\" has no \"same_as\" entry." << scan_end;
                             }
                         }
+                        #ifdef GAMBIT_LIGHT
+                        else if (priortype == "userprior")
+                        {
+                            BasePrior* new_prior = prior_creators.at(priortype)(params,options);
+                            my_subpriors.push_back( new_prior );
+                        }
+                        #endif
                         else
                         {
                             BasePrior* new_prior = prior_creators.at(priortype)(params,options);
