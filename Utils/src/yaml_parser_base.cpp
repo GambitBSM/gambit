@@ -332,7 +332,7 @@ namespace Gambit
           }
           
           YAML::Node newPriorsNode;
-          newPriorsNode["gambit_light_prior"] = userPriorNode;
+          newPriorsNode["gambit_light_generated_prior_node"] = userPriorNode;
           userPriorNode["prior_type"] = "userprior";
           for(YAML::iterator it = userModelNode.begin(); it != userModelNode.end(); ++it)
           {
