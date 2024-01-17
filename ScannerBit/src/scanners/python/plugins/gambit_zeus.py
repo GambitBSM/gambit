@@ -7,7 +7,7 @@ import numpy as np
 import pickle
 from utils import copydoc, version, get_directory, with_mpi
 if with_mpi:
-    from utils import MPIPool, MPI
+    from utils import MPIPool
 
 try:
     import zeus

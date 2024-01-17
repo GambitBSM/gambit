@@ -6,7 +6,9 @@ Ultranest scanners
 import pickle
 import numpy as np
 from packaging.version import parse    
-from utils import copydoc, version, get_directory, store_pt_data
+from utils import copydoc, version, get_directory, store_pt_data, with_mpi
+if with_mpi:
+    from utils import MPI
 
 try:
     import ultranest
