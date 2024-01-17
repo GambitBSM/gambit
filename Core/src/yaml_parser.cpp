@@ -53,6 +53,13 @@ namespace Gambit
         lightbit_input.printme = true;
         observables.push_back(lightbit_input);
 
+        Gambit::DRes::Observable lightbit_output;
+        lightbit_output.purpose = "Observable";
+        lightbit_output.capability = "output";
+        lightbit_output.module = "LightBit";
+        lightbit_output.printme = true;
+        observables.push_back(lightbit_output);
+
         Gambit::DRes::Observable lightbit_loglike;
         lightbit_loglike.purpose = "LogLike";
         lightbit_loglike.capability = "total_loglike";
