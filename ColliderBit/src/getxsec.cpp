@@ -18,6 +18,7 @@
 ///
 ///  *********************************************
 
+#include "gambit/Utils/threadsafe_rng.hpp"
 #include "gambit/ColliderBit/ColliderBit_eventloop.hpp"
 #include "gambit/ColliderBit/complete_process_PID_pair_multimaps.hpp"
 
@@ -1707,6 +1708,9 @@ namespace Gambit
       const static double xsec_upperlim_fb = runOptions->getValueOrDef<double>(DBL_MAX, "cross_section_upperlim_fb");
       const static double xsec_upperlim_width_fb = runOptions->getValueOrDef<double>(std::max(0.5 * xsec_upperlim_fb, 1e-4), "cross_section_upperlim_width_fb");
 
+      const static double max_random_loglike_increase = runOptions->getValueOrDef<double>(0.0, "max_random_loglike_increase");
+      static double aggregated_random_loglike = 0.0;
+
       // Initialise result at the beginning of a new point
       if (*Loop::iteration == BASE_INIT)
       {
@@ -1729,6 +1733,14 @@ namespace Gambit
           result += -0.5 * pow((total_xsec_fb - xsec_upperlim_fb) / xsec_upperlim_width_fb, 2);
         }
       }
+
+      if ((max_random_loglike_increase >= 0.0) && (result >= 0.0))
+      {
+        double random_loglike_contribution = max_random_loglike_increase * Random::draw();
+        aggregated_random_loglike += random_loglike_contribution;
+        result += aggregated_random_loglike;
+      }
+
     }  // end calc_TotalCrossSection_LogLike
 
 

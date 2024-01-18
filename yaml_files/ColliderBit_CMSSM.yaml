@@ -454,10 +454,11 @@ Rules:
   - capability: TotalCrossSection_LogLike
     function: calc_TotalCrossSection_LogLike
     options:
-      cross_section_lowerlim_fb: 0.01
-      cross_section_lowerlim_width_fb: 0.0075 
+      cross_section_lowerlim_fb: 1.0
+      cross_section_lowerlim_width_fb: 0.5 
       # cross_section_upperlim_fb: 1.0e5
-      # cross_section_upperlim_width_fb: 3.0e5 
+      # cross_section_upperlim_width_fb: 0.5e5 
+      # max_random_loglike_increase: 0.01
 
 Logger:
 
