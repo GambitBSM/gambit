@@ -1732,13 +1732,16 @@ namespace Gambit
         {
           result += -0.5 * pow((total_xsec_fb - xsec_upperlim_fb) / xsec_upperlim_width_fb, 2);
         }
-      }
 
-      if ((max_random_loglike_increase >= 0.0) && (result >= 0.0))
-      {
-        double random_loglike_contribution = max_random_loglike_increase * Random::draw();
-        aggregated_random_loglike += random_loglike_contribution;
-        result += aggregated_random_loglike;
+        // Add random, increasing loglike contribution? 
+        // (Useful for exploratory scans where we don't want convergence.)
+        if ((max_random_loglike_increase >= 0.0) && (result >= 0.0))
+        {
+          double r = Random::draw();
+          double random_loglike_contribution = max_random_loglike_increase * r;
+          aggregated_random_loglike += random_loglike_contribution;
+          result += aggregated_random_loglike;
+        }
       }
 
     }  // end calc_TotalCrossSection_LogLike
