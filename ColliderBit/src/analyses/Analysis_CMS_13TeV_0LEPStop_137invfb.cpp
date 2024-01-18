@@ -50,7 +50,7 @@ namespace Gambit
 
     public:
 
-      bool doCutflow = false;
+      bool doCutflow = true;
 
       // Required detector sim
       static constexpr const char* detector = "CMS";
@@ -63,17 +63,29 @@ namespace Gambit
 //      Counters for the number of accepted events for each signal region
 
 //      Preselections:
-//      Baseline: Nj>=2, Ht>300, MET>250, dPhi(MET,j1)>0.5, dPhi(MET,j2)>0.15, dPhi(MET,j3)>0.15, Ne=0, Nmu=0, Ntau=0, Ntrack=0
-//      Low dM: Nt=0, Nw=0, Nres=0, mTb<175 iff Nb>=1, dPhi(MET, ISRjet)>2, MET/sqrt(Ht)>10
+//      Baseline: MET>250, Nj>=2, 0e+0mu, 0tau, Ht>300
+//      Low dM: Nt+Nw+Nres=0, mTb<175 iff Nb>=1, dPhi(j123,MET)>0.5,0.15,0.15, N_ISR=1 & dPhi(MET, ISRjet)>2, MET/sqrt(Ht)>10
 //      High dM: Nj>=5, Nb>=1, dPhi(MET,j1,2,3,4)>0.5
 
         if (doCutflow)
         {
             DEFINE_SIGNAL_REGION("Total");
-            DEFINE_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh_mT_njets");
+            DEFINE_SIGNAL_REGION("baseline_MET");
+            DEFINE_SIGNAL_REGION("baseline_MET_Nj");
+            DEFINE_SIGNAL_REGION("baseline_MET_Nj_0e0mu");
+            DEFINE_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau");
+            DEFINE_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau_Ht");
+            DEFINE_SIGNAL_REGION("lowmass_NtNwNres");
+            DEFINE_SIGNAL_REGION("lowmass_NtNwNres_mTb");
+            DEFINE_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi");
+            DEFINE_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi_ISR");
+            DEFINE_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi_ISR_METHt");
+            DEFINE_SIGNAL_REGION("highmass_Nj");
+            DEFINE_SIGNAL_REGION("highmass_Nj_Nb");
+            DEFINE_SIGNAL_REGION("highmass_Nj_Nb_dPhi");
         }
 
-        DEFINE_SIGNAL_REGION("SR1BH_1L"); //, "METSig > 7");
+//        DEFINE_SIGNAL_REGION("SR1BH_1L"); //, "METSig > 7");
 //
       }
 
@@ -135,11 +147,13 @@ namespace Gambit
         }
 
         // Only jet candidates with pT > 20 GeV and |η| < 2.4 are considered in the analysis
+        double Ht = 0.; 
         for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. && jet->abseta()<2.4)
           {
             baselineJets.push_back(jet);
+            Ht += jet->pT();
           }
         }
 
@@ -206,16 +220,6 @@ namespace Gambit
         }
         removeOverlap(signalBJets_soft, signalBJets_20, 0.4);
 
-        // Find non b-jets for ISR
-        double loosebtag = 0.80; double loosemisstag = 0.10;
-        for (const HEPUtils::Jet* jet : baselineFatJets)
-        {
-          // Tag
-          if( jet->btag() && !random_bool(loosebtag) ) signalFatJets.push_back(jet);
-          // Misstag light jet
-          else if( !random_bool(loosemisstag) ) signalFatJets.push_back(jet);
-        }
-
 
         // Sort by pT
         sort(signalJets_20.begin(), signalJets_20.end(), compareJetPt);
@@ -223,7 +227,6 @@ namespace Gambit
         sort(signalBJets_20.begin(), signalBJets_20.end(), compareJetPt);
         sort(signalBJets_30.begin(), signalBJets_30.end(), compareJetPt);
         sort(signalBJets_soft.begin(), signalBJets_soft.end(), compareJetPt);
-        sort(signalFatJets.begin(), signalFatJets.end(), compareJetPt);
 
         // Taggers
         
@@ -233,7 +236,7 @@ namespace Gambit
         double z_cut = 0.1;
         double R0 = 0.8;
         SoftDrop sd(beta, z_cut, R0);
-        for (const HEPUtils::Jet* jet : signalFatJets)
+        for (const HEPUtils::Jet* jet : baselineFatJets)
         {
           FJNS::PseudoJet pj = jet->pseudojet();
           FJNS::PseudoJet groomed_jet = sd(pj);
@@ -245,8 +248,9 @@ namespace Gambit
         double QCDmistagTop_Eff = 0.005;
         vector<const HEPUtils::Jet*> MergedTopCands;
         vector<const FJNS::PseudoJet*> MergedTopPseudoJets;
+        vector<bool> baselineFatJet_MergedTop;
         int count = 0;
-        for (const HEPUtils::Jet* jet : signalFatJets)
+        for (const HEPUtils::Jet* jet : baselineFatJets)
         {
           if (jet->pT() > 400. && signalFatPseudoJets.at[count]->m() > 105.)
           {
@@ -255,12 +259,18 @@ namespace Gambit
             {
               MergedTopCands.push_back(jet);
               MergedTopPseudoJets.push_back(signalFatPseudoJets.at[count]);
+              baselineFatJet_MergedTop.push_back(true);
             }
             // Misstag QCD
             else if( random_bool(QCDmistagTop_Eff) )
             {
               MergedTopCands.push_back(jet);
               MergedTopPseudoJets.push_back(signalFatPseudoJets.at[count]);
+              baselineFatJet_MergedTop.push_back(true);
+            }
+            else
+            {
+              baselineFatJet_MergedTop.push_back(false);
             }
           }
           count++;
@@ -271,8 +281,9 @@ namespace Gambit
         double QCDmistagW_Eff = 0.01;
         vector<const FJNS::PseudoJet*> WPseudoJets;
         vector<const HEPUtils::Jet*> WCands;
+        vector<bool> baselineFatJet_W;
         int countW = 0;
-        for (const HEPUtils::Jet* jet : signalFatJets)
+        for (const HEPUtils::Jet* jet : baselineFatJets)
         {
           if (jet->pT() > 200. && signalFatPseudoJets.at[count]->m() > 65. || signalFatPseudoJets.at[count]->m() < 105.)
           {
@@ -281,13 +292,19 @@ namespace Gambit
             {
               WCands.push_back(jet);
               WPseudoJets.push_back(signalFatPseudoJets.at[countW]);
+              baselineFatJet_W.push_back(true);
             }
             // Misstag QCD
             else if( random_bool(QCDmistagW_Eff) )
             {
               WCands.push_back(jet);
               WPseudoJets.push_back(signalFatPseudoJets.at[countW]);
+              baselineFatJet_W.push_back(true);
             {
+            else
+            {
+              baselineFatJet_W.push_back(false);
+            }
           }
           int countW++;
         }
@@ -343,6 +360,21 @@ namespace Gambit
           }
         }
 
+        // Find non b-jets and non-tagged jets for ISR
+        vector<const HEPUtils::Jet*> signalISRJets;
+        double loosebtag = 0.80; double loosemisstag = 0.10;
+        int f = 0;
+        for (const HEPUtils::Jet* jet : baselineFatJets)
+        {
+          if (baselineFatJet_MergedTop.at(f) || baselineFatJet_W.at(f)) continue;
+          if (delta_Phi(jet,metVec)<=2) continue;
+          // Tag
+          if( jet->btag() && !random_bool(loosebtag) ) signalISRJets.push_back(jet);
+          // Misstag light jet
+          else if( !random_bool(loosemisstag) ) signalISRJets.push_back(jet);
+          f++;
+        }
+
         // Count
         int n_MergedTop = MergedTopCands.size();
         int n_ResolvedTop = ResolvedTopCands.size();
@@ -355,7 +387,11 @@ namespace Gambit
         int n_bjets_20 = signalBJets_20.size();
         int n_bjets_30 = signalBJets_30.size();
         int n_SV = signalBJets_soft.size();
+        int n_ISR = signalISRJets.size();
 
+        double mTb = -1.;
+        if (n_bjets_30==1) mTb = get_mT(signal_bjets_30.at(0), metVec);
+        else if (n_bjets_30>1) mTb = get_mT((signal_bjets_30.at(0)->mom()+signal_bjets_30.at(1)->mom()), metVec);
 
         /* Preselection */
         // True if passes this cut, false otherwise
@@ -368,53 +404,100 @@ namespace Gambit
         while(true)
         {
 
-            // Passes 3 lepton selection
-            if (n_leptons >= 3)
+            // Passes MET > 250 GeV
+            if (met > 250.)
             {
-              // Passes the njets selection
-              if (!(n_jets >= 3))
+              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET");}
+              // Passes the Nj >= 2
+              if (!(n_jets_30 >= 2))
               {
                 break;
               }
-              // Passes the met>50 GeV selection
-              if (!(met > 50.))
+              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj");}
+              // Passes the e and mu veto
+              if (!(n_electrons==0 && n_muons==0))
               {
                 break;
               }
-              // Passes the pTl1>40 GeV selection
-              if (!(signalLeptons.at(0)->pT() > 40))
+              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj_0e0mu");}
+              // Passes the tau veto
+              if (!(n_taus==0))
               {
                 break;
               }
-              // Passes the pTl>20 GeV selection
-              if (!(signalLeptons.at(1)->pT() > 20))
+              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau");}
+              // Passes Ht > 300 GeV
+              if (!(Ht > 300.))
               {
                 break;
               }
-              // Set 3 lepton preselection as passed :)
-              threeLep_presel = true;
+              if (doCutflow){ FILL_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau_Ht");}
+              // Set Baseline preselection as passed :)
+              baseline_presel = true;
             }
-            // Passes 1 lepton selection
-            else if (n_leptons == 1)
+
+            // Low dM selection
+            if (baseline_presel)
             {
-              // Passes the baseline lepton veto
-              if (!(n_baselineLeptons <= 1))
+              // Passes the Nt+NW+Nres=0
+              if (!((n_W + n_ResolvedTop + n_MergedTop)==0))
               {
                 break;
               }
-              // Passes the njets selection
-              if (!(n_jets >= 4))
+              if (doCutflow){ FILL_SIGNAL_REGION("lowmass_NtNwNres");}
+              // Passes the mtb cut
+              if (!(n_bjets_30==0 || (n_bjets_30>0 && mTb < 175.)))
               {
                 break;
               }
-              // Passes the bjets selection
-              if (!(n_bjets >= 3))
+              if (doCutflow){ FILL_SIGNAL_REGION("lowmass_NtNwNres_mTb");}
+              // Passes the dPhi jet met cuts 
+              if (!( (delta_Phi(signalJets_30.at(0),metVec)>0.5 && delta_Phi(signalJets_30.at(1),metVec)>0.15) && (n_jets_30==2 || delta_Phi(signalJets_30.at(2),metVec)>0.15)))
               {
                 break;
               }
-              // Set 1 lepton preselection as passed :)
-              oneLep_presel = true;
+              if (doCutflow){ FILL_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi");}
+              // Passes ISR
+              if (!(n_ISR==1))
+              {
+                break;
+              }
+              if (doCutflow){ FILL_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi_ISR");}
+              // Passes MET/HT
+              if (!((met/sqrt(Ht)) > 10))
+              {
+                break;
+              }
+              if (doCutflow){ FILL_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi_ISR_METHt");}
+              // Set Low deltaM preselection as passed :)
+              low_dM_presel = true;
             }
+  
+            // High dM selection
+            if (baseline_presel)
+            {
+              // Passes the Nj cut
+              if (!(n_jets_30 >= 5))
+              {
+                break;
+              }
+              if (doCutflow){ FILL_SIGNAL_REGION("highmass_Nj");}
+              // Passes the Nb cut
+              if (!(n_bjets_30 >= 1))
+              {
+                break;
+              }
+              if (doCutflow){ FILL_SIGNAL_REGION("highmass_Nj_Nb");}
+              // Passes the dPhi jet met cuts
+              if (!( delta_Phi(signalJets_30.at(0),metVec)>0.5 && delta_Phi(signalJets_30.at(1),metVec)>0.5 && delta_Phi(signalJets_30.at(2),metVec)>0.5 && delta_Phi(signalJets_30.at(3),metVec)>0.5 ))
+              {
+                break;
+              }
+              if (doCutflow){ FILL_SIGNAL_REGION("highmass_Nj_Nb_dPhi");}
+              // Set Low deltaM preselection as passed :)
+              high_dM_presel = true;
+            }
+  
   
             // Applied all cuts
             break;
@@ -722,40 +805,20 @@ namespace Gambit
 
         if (doCutflow)
         {
-            COMMIT_SIGNAL_REGION("Total", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets_MET", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets_njets", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ_nbjets", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3_mZ", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel_pTl3", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1AZ_3L_presel", 3.,  5.7,  1.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET_pTll", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets_MET", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets_njets", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ_nbjets", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3_mZ", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel_pTl3", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR1BZ_3L_presel", 14., 12.1, 2.0);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ_pTj1_MET", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ_pTj1", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3_mZ", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel_pTl3", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2AZ_3L_presel", 3.,  5.6,  1.6);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ_nbjets_MET", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ_nbjets", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3_mZ", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel_pTl3", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR2BZ_3L_presel", 6.,  5.5,  0.9);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh_mT_njets", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh_mT", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets_nh", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel_nbjets", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1AH_1L_presel", 11., 17.0, 3.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh_mT_njets", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh_mT", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets_nh", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel_nbjets", 24., 3.0,  5.0);
-            COMMIT_SIGNAL_REGION("SR1BH_1L_presel", 24., 3.0,  5.0);
+            COMMIT_SIGNAL_REGION("Total", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("baseline_MET", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("baseline_MET_Nj", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("baseline_MET_Nj_0e0mu", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("baseline_MET_Nj_0e0mu_0tau_Ht", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("lowmass_NtNwNres", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("lowmass_NtNwNres_mTb", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi_ISR", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("lowmass_NtNwNres_mTb_dPhi_ISR_METHt", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("highmass_Nj", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("highmass_Nj_Nb", 1., 1., 1.);
+            COMMIT_SIGNAL_REGION("highmass_Nj_Nb_dPhi", 1., 1., 1.);
         }
 
         COMMIT_SIGNAL_REGION("SR1AZ_3L", 3.,  5.7,  1.0);
