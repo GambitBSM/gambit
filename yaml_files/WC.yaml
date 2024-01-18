@@ -67,6 +67,7 @@ Printer:
   options:
     output_file: "WC.hdf5"
     group: "/WC"
+    delete_file_on_restart: true
 
 
 Scanner:

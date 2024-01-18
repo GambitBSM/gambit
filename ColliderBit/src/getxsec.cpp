@@ -1693,6 +1693,45 @@ namespace Gambit
     }  // end getXsecInfoMap
 
 
+    /// A log-likelihood function based on the total collider cross-section.
+    /// Can e.g. be used as a dummy likelihood to guide the scanner towards 
+    /// interesting parameter regions, avoid going to the decoupling limit, etc.
+    void calc_TotalCrossSection_LogLike(double& result)
+    {
+      using namespace Pipes::calc_TotalCrossSection_LogLike;
+
+      // Read options
+      const static double xsec_lowerlim_fb = runOptions->getValueOrDef<double>(0.0, "cross_section_lowerlim_fb");
+      const static double xsec_lowerlim_width_fb = runOptions->getValueOrDef<double>(std::max(0.5 * xsec_lowerlim_fb, 1e-4), "cross_section_lowerlim_width_fb");
+
+      const static double xsec_upperlim_fb = runOptions->getValueOrDef<double>(DBL_MAX, "cross_section_upperlim_fb");
+      const static double xsec_upperlim_width_fb = runOptions->getValueOrDef<double>(std::max(0.5 * xsec_upperlim_fb, 1e-4), "cross_section_upperlim_width_fb");
+
+      // Initialise result at the beginning of a new point
+      if (*Loop::iteration == BASE_INIT)
+      {
+        result = 0.0;
+      }
+
+      // Add the loglike contributrion for the current collider
+      if (*Loop::iteration == COLLIDER_FINALIZE)
+      {
+        // Get the cross-section
+        double total_xsec_fb = Dep::TotalCrossSection->xsec();
+
+        // Add log-likelihood from lower/upper limit
+        if (total_xsec_fb < xsec_lowerlim_fb)
+        {
+          result += -0.5 * pow((total_xsec_fb - xsec_lowerlim_fb) / xsec_lowerlim_width_fb, 2);
+        }
+        else if (total_xsec_fb > xsec_upperlim_fb)
+        {
+          result += -0.5 * pow((total_xsec_fb - xsec_upperlim_fb) / xsec_upperlim_width_fb, 2);
+        }
+      }
+    }  // end calc_TotalCrossSection_LogLike
+
+
     /// Output PID pair cross-sections as a str-dbl map, for easy printing
     void getPIDPairCrossSectionsInfo(map_str_dbl& result)
     {

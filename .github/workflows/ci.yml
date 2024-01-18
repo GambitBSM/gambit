@@ -1,4 +1,4 @@
-name: Gambit CI
+name: Gambit Ubuntu CI
 
 on:
   push:
@@ -9,6 +9,8 @@ on:
     - cron:  '0 5 * * *'
 
 jobs:
+  # A job that builds GAMBIT + scanners, tests the command-line interface 
+  # and runs a minimal test run with spartan.yaml
   gambit_build:
     runs-on: [docker, self-hosted]
     strategy:
@@ -48,7 +50,7 @@ jobs:
     - name: Configure with cmake
       run: |
         cd BUILD/ && . buildenv.sh
-        cmake .. -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
+        cmake .. -D CMAKE_CXX_FLAGS="-rdynamic" -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
     - name: Build scanners
       run: |
         cd BUILD/ && . buildenv.sh
@@ -57,28 +59,208 @@ jobs:
     - name: Build Gambit
       run: |
         cd BUILD && . buildenv.sh
+        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
+        # Can remove this once issue #467 is fixed.
+        make -j$(( ($(nproc)+1)/2 )) yoda
+        make -j$(( ($(nproc)+1)/2 )) hepmc
+        # Now build Gambit
         make -j$(( ($(nproc)+1)/2 )) gambit
-    - name: Build backends
-      run: |
-        cd BUILD && . buildenv.sh
-        #make -j$(( ($(nproc)+1)/2 )) backends
-        make backends
     - name: CLI test
       run: |
         . BUILD/buildenv.sh
         ./gambit -h
-    - name: WC test
+    - name: Run spartan.yaml
       run: |
         . BUILD/buildenv.sh
-        ./gambit -f yaml_files/WC_lite.yaml
-    - name: ColliderBit test
+        ./gambit -rf yaml_files/spartan.yaml
+
+
+  # A job that tests the builds for all backends in the "make backends" target.
+  # Backends that are anyway tested as part of the "test_runs" job can be skipped, 
+  # see the build_backends.sh command below.
+  backends_build:
+    if: ${{ always() }}
+    needs: [gambit_build] # Sets run order
+    runs-on: [docker, self-hosted]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ubuntu] #, ubuntu-py2, fedora
+        #mpi: [ON, OFF]
+    container: gambitbsm/gambit-base:${{ matrix.arch }}
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        mkdir -p BUILD
+        cd BUILD
+        echo "Sourcing setup.sh"
+        cat /etc/profile.d/gambit-setup.sh
+        source /etc/profile.d/gambit-setup.sh
+        echo "Making buildenv.sh"
+        > buildenv.sh
+        echo "source /etc/profile.d/gambit-setup.sh" >> buildenv.sh
+        echo "export CMAKE_BUILD_TYPE=None" >> buildenv.sh
+        echo "export CMAKE_C_COMPILER=$(which gcc)" >> buildenv.sh
+        echo "export CMAKE_CXX_COMPILER=$(which g++)" >> buildenv.sh
+        echo "export CMAKE_Fortran_COMPILER=$(which gfortran)" >> buildenv.sh
+        PYTHON_LIBRARY=$(python -c 'from __future__ import print_function; from distutils.sysconfig import get_config_var; print("%s/%s" % (get_config_var("LIBDIR"), get_config_var("INSTSONAME")))')
+        PYTHON_INCLUDE_DIR=$(python -c 'from __future__ import print_function; from distutils import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
+        echo "export PYTHON_EXECUTABLE=$(which python)" >> buildenv.sh
+        echo "export PYTHON_LIBRARY=$PYTHON_LIBRARY" >> buildenv.sh
+        echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
+        echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
+        cat buildenv.sh
+        pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0
+    - name: Configure with cmake
+      run: |
+        cd BUILD/ && . buildenv.sh
+        cmake .. -D CMAKE_CXX_FLAGS="-rdynamic" -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
+    - name: Build backends
+      run: |
+        cd BUILD && . buildenv.sh
+        # Build backends, except those that are tested via other jobs.
+        # This replaces the "make backends" command.
+        ../cmake/scripts/build_backends.sh -f default_backends.txt -j 1 -s "nulike susyhit rivet contur pythia higgsbounds higgssignals ATLAS_FullLikes superiso heplikedata heplike" 
+
+
+  # A job for GAMBIT test runs. Only those GAMBIT modules, scanners and backends
+  # required by the test runs are built.
+  test_runs:
+    if: ${{ always() }}
+    needs: [gambit_build, backends_build] # Sets run order
+    runs-on: [docker, self-hosted]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ubuntu] #, ubuntu-py2, fedora
+        #mpi: [ON, OFF]
+    container: gambitbsm/gambit-base:${{ matrix.arch }}
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        mkdir -p BUILD
+        cd BUILD
+        echo "Sourcing setup.sh"
+        cat /etc/profile.d/gambit-setup.sh
+        source /etc/profile.d/gambit-setup.sh
+        echo "Making buildenv.sh"
+        > buildenv.sh
+        echo "source /etc/profile.d/gambit-setup.sh" >> buildenv.sh
+        echo "export CMAKE_BUILD_TYPE=None" >> buildenv.sh
+        echo "export CMAKE_C_COMPILER=$(which gcc)" >> buildenv.sh
+        echo "export CMAKE_CXX_COMPILER=$(which g++)" >> buildenv.sh
+        echo "export CMAKE_Fortran_COMPILER=$(which gfortran)" >> buildenv.sh
+        PYTHON_LIBRARY=$(python -c 'from __future__ import print_function; from distutils.sysconfig import get_config_var; print("%s/%s" % (get_config_var("LIBDIR"), get_config_var("INSTSONAME")))')
+        PYTHON_INCLUDE_DIR=$(python -c 'from __future__ import print_function; from distutils import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
+        echo "export PYTHON_EXECUTABLE=$(which python)" >> buildenv.sh
+        echo "export PYTHON_LIBRARY=$PYTHON_LIBRARY" >> buildenv.sh
+        echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
+        echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
+        cat buildenv.sh
+        pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0
+    - name: Configure with cmake
+      run: |
+        cd BUILD/ && . buildenv.sh
+        cmake .. -D CMAKE_CXX_FLAGS="-rdynamic" -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM" -D WITH_MPI=OFF -Ditch="DarkBit;CosmoBit;NeutrinoBit;ObjectivesBit"
+    - name: Build required scanners
+      run: |
+        cd BUILD/ && . buildenv.sh
+        make -j$(( ($(nproc)+1)/2 )) diver
+        cmake ..
+    - name: Build required backends
+      run: |
+        cd BUILD/ && . buildenv.sh
+        # Build bakends needed for ColliderBit_CMSSM.yaml
+        make -j$(( ($(nproc)+1)/2 )) nulike
+        make -j$(( ($(nproc)+1)/2 )) susyhit
+        make -j$(( ($(nproc)+1)/2 )) rivet
+        make -j$(( ($(nproc)+1)/2 )) contur
+        make -j$(( ($(nproc)+1)/2 )) pythia
+        make -j$(( ($(nproc)+1)/2 )) higgsbounds
+        make -j$(( ($(nproc)+1)/2 )) higgssignals
+        make ATLAS_FullLikes
+        # Build bakends needed for WC.yaml
+        make superiso
+        make -j$(( ($(nproc)+1)/2 )) heplikedata
+        make -j$(( ($(nproc)+1)/2 )) heplike
+    - name: Build Gambit
+      run: |
+        cd BUILD && . buildenv.sh
+        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
+        # Can remove this once issue #467 is fixed.
+        make -j$(( ($(nproc)+1)/2 )) yoda
+        make -j$(( ($(nproc)+1)/2 )) hepmc
+        # Now build Gambit
+        make -j$(( ($(nproc)+1)/2 )) gambit
+    - name: Run ColliderBit_CMSSM.yaml
       run: |
         . BUILD/buildenv.sh
-        ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
+        ./gambit -rf yaml_files/ColliderBit_CMSSM.yaml
+    - name: Run WC.yaml
+      run: |
+        . BUILD/buildenv.sh
+        ./gambit -rf yaml_files/WC.yaml
+
+
+  # A job that builds all the standalones
+  standalones_build:
+    if: ${{ always() }}
+    needs: [gambit_build, backends_build, test_runs] # Sets run order
+    runs-on: [docker, self-hosted]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ubuntu] #, ubuntu-py2, fedora
+        #mpi: [ON, OFF]
+    container: gambitbsm/gambit-base:${{ matrix.arch }}
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        mkdir -p BUILD
+        cd BUILD
+        echo "Sourcing setup.sh"
+        cat /etc/profile.d/gambit-setup.sh
+        source /etc/profile.d/gambit-setup.sh
+        echo "Making buildenv.sh"
+        > buildenv.sh
+        echo "source /etc/profile.d/gambit-setup.sh" >> buildenv.sh
+        echo "export CMAKE_BUILD_TYPE=None" >> buildenv.sh
+        echo "export CMAKE_C_COMPILER=$(which gcc)" >> buildenv.sh
+        echo "export CMAKE_CXX_COMPILER=$(which g++)" >> buildenv.sh
+        echo "export CMAKE_Fortran_COMPILER=$(which gfortran)" >> buildenv.sh
+        PYTHON_LIBRARY=$(python -c 'from __future__ import print_function; from distutils.sysconfig import get_config_var; print("%s/%s" % (get_config_var("LIBDIR"), get_config_var("INSTSONAME")))')
+        PYTHON_INCLUDE_DIR=$(python -c 'from __future__ import print_function; from distutils import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
+        echo "export PYTHON_EXECUTABLE=$(which python)" >> buildenv.sh
+        echo "export PYTHON_LIBRARY=$PYTHON_LIBRARY" >> buildenv.sh
+        echo "export PYTHON_INCLUDE_DIR=$PYTHON_INCLUDE_DIR" >> buildenv.sh
+        echo "export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH" >> buildenv.sh
+        cat buildenv.sh
+        pip install --upgrade pyyaml pybind11 h5py scipy numpy pyhf configobj pandas matplotlib setuptools==58.2.0
+    - name: Configure with cmake
+      run: |
+        cd BUILD/ && . buildenv.sh
+        cmake .. -D CMAKE_CXX_FLAGS="-rdynamic" -D WITH_ROOT=OFF -D WITH_RESTFRAMES=OFF -D WITH_HEPMC=ON -D WITH_YODA=ON -D BUILD_FS_MODELS="CMSSM;MSSM;MDM" -D WITH_MPI=OFF
     - name: Build standalones
       run: |
         cd BUILD && . buildenv.sh
         make standalones
+
+
     # - name: Validation dependencies
     #   run: |
     #     . BUILD/buildenv.sh
