@@ -130,6 +130,18 @@
     DEPENDENCY(TotalCrossSection, xsec_container)
     #undef FUNCTION
   #undef CAPABILITY
+
+  /// A log-likelihood function based on the total collider cross-section.
+  /// Can e.g. be used as a dummy likelihood to guide the scanner towards 
+  /// interesting parameter regions, avoid going to the decoupling limit, etc.
+  #define CAPABILITY TotalCrossSection_LogLike
+  START_CAPABILITY
+    #define FUNCTION calc_TotalCrossSection_LogLike
+    START_FUNCTION(double)
+    NEEDS_MANAGER(RunMC, MCLoopInfo)
+    DEPENDENCY(TotalCrossSection, xsec_container)
+    #undef FUNCTION
+  #undef CAPABILITY
   /// @}
 
 
