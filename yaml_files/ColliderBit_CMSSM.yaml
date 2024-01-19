@@ -153,7 +153,17 @@ ObsLikes:
     - purpose:    LogLike
       capability: OPAL_Neutralino_Hadronic_LLike
 
+    # Dummy likelihood that can be used to guide the scanner towards
+    # parameter regions with interesting collider cross-sections.
+    # If used, remember to subtract this loglike contribution from 
+    # the total loglike when analysing the scan results.
+    # - purpose:    LogLike
+    #   capability: TotalCrossSection_LogLike
+
     # Other observables
+    - purpose:    Observable
+      capability: TotalCrossSectionAsMap
+
     - purpose:    Observable
       capability: LHC_LogLike_per_analysis
 
@@ -172,6 +182,7 @@ ObsLikes:
     - purpose:    Observable
       capability: MSSM_spectrum
       type:       map_str_dbl
+
 
 
 Rules:
@@ -435,6 +446,19 @@ Rules:
 
   - capability: LHC_measurements_LogLike_perPool
     function: Contur_LHC_measurements_LogLike_perPool
+
+
+  # Dummy likelihood that can be used to guide the scanner.
+  # (If used, remember subtract this loglike contribution from the
+  # total loglike again when analysing the scan results.)
+  - capability: TotalCrossSection_LogLike
+    function: calc_TotalCrossSection_LogLike
+    options:
+      cross_section_lowerlim_fb: 1.0
+      cross_section_lowerlim_width_fb: 0.5 
+      # cross_section_upperlim_fb: 1.0e5
+      # cross_section_upperlim_width_fb: 0.5e5 
+      # max_random_loglike_increase: 0.01
 
 Logger:
 
