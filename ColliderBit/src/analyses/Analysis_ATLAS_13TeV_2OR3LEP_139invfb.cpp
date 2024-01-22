@@ -72,10 +72,10 @@ namespace Gambit
         DEFINE_SIGNAL_REGION("SRWh-low-mt2-mumu",    "n jets (pt>25) >= 1", "Nsig >= 2", "pt(l) >= 25GeV", "Nsig = 2", "same-sign", "n bjets = 0", "met >= 50", "mjj < 350 GeV", "mt2 < 80 GeV", "mtmin >= 100 GeV", "met sig >= 6", "type mumu")
 
         //wz
-        // DEFINE_SIGNAL_REGION("SRWZ-high-mt2-1", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [0,10]", "spread >= 2.2")
-        // DEFINE_SIGNAL_REGION("SRWZ-high-mt2-2", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [10,13]")
-        // DEFINE_SIGNAL_REGION("SRWZ-high-mt2-3", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig >= 13",   "dR_ll >= 1")
-        // DEFINE_SIGNAL_REGION("SRWZ-low-mt2",    "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 <= 100 GeV",  "mtmin >= 130 GeV", "met >= 140 GeV", "meff <= 600 GeV", "dR_ll <= 3")
+        DEFINE_SIGNAL_REGION("SRWZ-high-mt2-1", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [0,10]", "spread >= 2.2")
+        DEFINE_SIGNAL_REGION("SRWZ-high-mt2-2", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [10,13]")
+        DEFINE_SIGNAL_REGION("SRWZ-high-mt2-3", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig >= 13",   "dR_ll >= 1")
+        DEFINE_SIGNAL_REGION("SRWZ-low-mt2",    "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 <= 100 GeV",  "mtmin >= 130 GeV", "met >= 140 GeV", "meff <= 600 GeV", "dR_ll <= 3")
 
         // // bRPV
         // DEFINE_SIGNAL_REGION("SRbRPV-2l-SS", "pt >= 20GeV", "n jets (> 25GeV) >= 1", "Nsig = 2", "charge = same-sign", "mt2 >= 60 GeV" , "met >= 100 GeV", "n bjets = 0", "njets (>40 GeV) <= 4")
@@ -122,9 +122,9 @@ namespace Gambit
           }
         }
         // Apply electron isolation efficiency from "Loose" criteria in 1908.00005
-        // apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Loose"));
+        // applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Loose"));
         // // Apply electron ID efficiency from "Loose" criteria in 1908.00005
-        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
 
        
         // Get baseline muons and apply efficiency
@@ -136,13 +136,13 @@ namespace Gambit
           }
         }
         // Apply muon Id efficiency from "Medium" creteria in 2012.00578
-        apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
+        applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
         // // Apply muon isolation efficiency from "Tight" criteria in 2012.00578
-        // apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Tight"));
+        // applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Tight"));
  
 
         // Get baseline jets
-        for (const HEPUtils::Jet* jet : event->jets()) 
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) 
         {
           if (jet->pT() > 20. && jet->abseta() < 4.5) 
           {
@@ -213,7 +213,7 @@ namespace Gambit
         {
           if (p->abseta() < 2.0) { signalElectrons.push_back(p); }
         }
-        apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
+        applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
 
         //Signal jets |eta| < 2.8
         for (const HEPUtils::Jet* jet : baselineJets) 
@@ -278,7 +278,7 @@ namespace Gambit
         int nJets25 = countPt(signalJets, 25.);
 
         // njets pt>40GeV
-        int nJets40 = countPt(signalJets, 40.);
+        // int nJets40 = countPt(signalJets, 40.);
 
         // mjj  
         double mjj = 0;
@@ -411,7 +411,7 @@ namespace Gambit
         bool met_75_125  = false; // met between 75 and 125
         bool met_125_175 = false; // met between 125 and 175
         bool met_gt_175  = false; // met greater than 175
-        bool met_gt_50   = false; // met greater than 50
+        // bool met_gt_50   = false; // met greater than 50
         bool mt2_gt_80   = false; // mt2 greater than 80 GeV
         bool mt2_lt_80   = false; // mt2 less than 80 GeV
         bool mt2_gt_100  = false; // mt2 greater than 100 GeV
@@ -562,117 +562,117 @@ namespace Gambit
         }
         
 
-        //WZ 
-        // while (true)
-        // {   //n jets >= 1
-        //     if (n_jets >= 1) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
-        //     else {break;}
+        // WZ 
+        while (true)
+        {   //n jets >= 1
+            if (n_jets >= 1) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
+            else {break;}
 
-        //     //Nsig(l) >= 2 && Nbl(l) >= 2
-        //     if (n_baseline_Leptons >= 2 && n_signal_Leptons >= 2) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
-        //     else {break;}
+            //Nsig(l) >= 2 && Nbl(l) >= 2
+            if (n_baseline_Leptons >= 2 && n_signal_Leptons >= 2) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
+            else {break;}
 
-        //     // same sign
-        //     if (SSLeptons(signalLeptons)) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-        //     }
-        //     else {break;}
+            // same sign
+            if (SSLeptons(signalLeptons)) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+            }
+            else {break;}
 
-        //     // Nbl(l) == 2
-        //     if (n_baseline_Leptons == 2) 
-        //     {
-        //         LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-        //     }
-        //     else {break;}
+            // Nbl(l) == 2
+            if (n_baseline_Leptons == 2) 
+            {
+                LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+            }
+            else {break;}
 
-        //     // Nsig(l) == 2
-        //     if (n_signal_Leptons == 2) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-        //     }
-        //     else {break;}
+            // Nsig(l) == 2
+            if (n_signal_Leptons == 2) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+            }
+            else {break;}
             
-        //     //pt(l) >= 25 
-        //     if (signalLeptons.at(0)->pT() >= 25) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-        //     }
-        //     else {break;}
+            //pt(l) >= 25 
+            if (signalLeptons.at(0)->pT() >= 25) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+            }
+            else {break;}
 
-        //     //njets (pt > 25) >= 1
-        //     if (nJets25 >= 1) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-        //     }
-        //     else {break;}
+            //njets (pt > 25) >= 1
+            if (nJets25 >= 1) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+            }
+            else {break;}
 
-        //     //nbjets == 0
-        //     if (n_bjets == 0) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-        //     }
-        //     else {break;}   
+            //nbjets == 0
+            if (n_bjets == 0) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+            }
+            else {break;}   
 
-        //     //mjj <= 350
-        //     if (mjj <= 350) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-        //     }
-        //     else {break;}
+            //mjj <= 350
+            if (mjj <= 350) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+            }
+            else {break;}
 
-        //     //high mt2 >= 100
-        //     if (mt2_gt_100) 
-        //     {
-        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
+            //high mt2 >= 100
+            if (mt2_gt_100) 
+            {
+              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
-        //       //mTmin >= 100
-        //       if (mTmin >= 100) 
-        //       {
-        //         LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
+              //mTmin >= 100
+              if (mTmin >= 100) 
+              {
+                LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
-        //         // met >= 100
-        //         if (met>=100) 
-        //         {
-        //           LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
+                // met >= 100
+                if (met>=100) 
+                {
+                  LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
-        //           //type
-        //           if (0 <= metsig && metsig < 10 && spread>=2.2) {FILL_SIGNAL_REGION("SRWZ-high-mt2-1");}
-        //           else if (10 <= metsig && metsig < 13){FILL_SIGNAL_REGION("SRWZ-high-mt2-2");}
-        //           else if (metsig >= 13 && dRll>=1){FILL_SIGNAL_REGION("SRWZ-high-mt2-3");}
-        //         }
-        //       }
-        //     }
-        //     // low mt2 <= 100
-        //     else if (mt2_lt_100)
-        //     {
-        //       LOG_CUT("SRWZ-low-mt2")
-        //       // mTmin >= 130
-        //       if (mTmin >= 130) 
-        //       {
-        //         LOG_CUT("SRWZ-low-mt2")
-        //         // met >= 140
-        //         if (met >= 140) 
-        //         {
-        //           LOG_CUT("SRWZ-low-mt2")
-        //           // meff <= 600
-        //           if (meff <= 600)
-        //           {
-        //             LOG_CUT("SRWZ-low-mt2")
+                  //type
+                  if (0 <= metsig && metsig < 10 && spread>=2.2) {FILL_SIGNAL_REGION("SRWZ-high-mt2-1");}
+                  else if (10 <= metsig && metsig < 13){FILL_SIGNAL_REGION("SRWZ-high-mt2-2");}
+                  else if (metsig >= 13 && dRll>=1){FILL_SIGNAL_REGION("SRWZ-high-mt2-3");}
+                }
+              }
+            }
+            // low mt2 <= 100
+            else if (mt2_lt_100)
+            {
+              LOG_CUT("SRWZ-low-mt2")
+              // mTmin >= 130
+              if (mTmin >= 130) 
+              {
+                LOG_CUT("SRWZ-low-mt2")
+                // met >= 140
+                if (met >= 140) 
+                {
+                  LOG_CUT("SRWZ-low-mt2")
+                  // meff <= 600
+                  if (meff <= 600)
+                  {
+                    LOG_CUT("SRWZ-low-mt2")
 
-        //             // dRll <= 3
-        //             if (dRll <= 3) {FILL_SIGNAL_REGION("SRWZ-low-mt2");}
-        //           }
-        //         }
-        //       }
-        //     }
-        //     // Applied all cuts
-        //     break;  
-        // }
+                    // dRll <= 3
+                    if (dRll <= 3) {FILL_SIGNAL_REGION("SRWZ-low-mt2");}
+                  }
+                }
+              }
+            }
+            // Applied all cuts
+            break;  
+        }
         
 
         // //bRVP
