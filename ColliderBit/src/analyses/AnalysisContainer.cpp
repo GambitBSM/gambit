@@ -166,6 +166,7 @@ namespace Gambit
       F(CMS_8TeV_MultiLEP_3Lep_20invfb)              \
       F(CMS_8TeV_MultiLEP_4Lep_20invfb)              \
       F(CMS_8TeV_MONOJET_20invfb)                    \
+      F(ATLAS_13TeV_2OR3LEP_139invfb)                \
 
     /// For analysis factory function declaration
     #define DECLARE_ANALYSIS_FACTORY(ANAME)          \
