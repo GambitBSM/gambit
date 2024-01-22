@@ -2,7 +2,11 @@
 ///
 ///  \author Ida-Marie Johansson
 ///  \date 2023 November
+///  
 ///  *********************************************
+
+/// based on https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PAPERS/SUSY-2019-22/
+/// arXiv:2305.09322
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -68,10 +72,10 @@ namespace Gambit
         DEFINE_SIGNAL_REGION("SRWh-low-mt2-mumu",    "n jets (pt>25) >= 1", "Nsig >= 2", "pt(l) >= 25GeV", "Nsig = 2", "same-sign", "n bjets = 0", "met >= 50", "mjj < 350 GeV", "mt2 < 80 GeV", "mtmin >= 100 GeV", "met sig >= 6", "type mumu")
 
         //wz
-        DEFINE_SIGNAL_REGION("SRWZ-high-mt2-1", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [0,10]", "spread >= 2.2")
-        DEFINE_SIGNAL_REGION("SRWZ-high-mt2-2", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [10,13]")
-        DEFINE_SIGNAL_REGION("SRWZ-high-mt2-3", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig >= 13",   "dR_ll >= 1")
-        DEFINE_SIGNAL_REGION("SRWZ-low-mt2",    "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 <= 100 GeV",  "mtmin >= 130 GeV", "met >= 140 GeV", "meff <= 600 GeV", "dR_ll <= 3")
+        // DEFINE_SIGNAL_REGION("SRWZ-high-mt2-1", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [0,10]", "spread >= 2.2")
+        // DEFINE_SIGNAL_REGION("SRWZ-high-mt2-2", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig: [10,13]")
+        // DEFINE_SIGNAL_REGION("SRWZ-high-mt2-3", "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 >= 100 GeV",  "mtmin >= 100 GeV", "met >= 100 GeV", "MET sig >= 13",   "dR_ll >= 1")
+        // DEFINE_SIGNAL_REGION("SRWZ-low-mt2",    "n jets >= 1", "Nsig(l) >= 2 && Nbl(l) >= 2", "same-sign", "Nbl(l)=2", "Nsig(l)==2", "pt(l) >= 25GeV", "n jets (pt>25) >= 1", "n bjets = 0", "mjj <= 350 GeV", "mt2 <= 100 GeV",  "mtmin >= 130 GeV", "met >= 140 GeV", "meff <= 600 GeV", "dR_ll <= 3")
 
         // // bRPV
         // DEFINE_SIGNAL_REGION("SRbRPV-2l-SS", "pt >= 20GeV", "n jets (> 25GeV) >= 1", "Nsig = 2", "charge = same-sign", "mt2 >= 60 GeV" , "met >= 100 GeV", "n bjets = 0", "njets (>40 GeV) <= 4")
@@ -366,17 +370,17 @@ namespace Gambit
 
         }
 
-        // m_ee, m_mumu 
-        double meemumu = 0.0;
-        if (n_signal_Leptons == 3) {
-            HEPUtils::P4 p_lep3 = signalLeptons[2]->mom();
-            if (nElectrons==2){
-                meemumu = signalElectrons[0]->mom().dot(signalElectrons[1]->mom());
-            }
-            else if (nMuons==2){
-                meemumu = signalMuons[0]->mom().dot(signalMuons[1]->mom());
-            }
-        }
+        // // m_ee, m_mumu 
+        // double meemumu = 0.0;
+        // if (n_signal_Leptons == 3) {
+        //     HEPUtils::P4 p_lep3 = signalLeptons[2]->mom();
+        //     if (nElectrons==2){
+        //         meemumu = signalElectrons[0]->mom().dot(signalElectrons[1]->mom());
+        //     }
+        //     else if (nMuons==2){
+        //         meemumu = signalMuons[0]->mom().dot(signalMuons[1]->mom());
+        //     }
+        // }
 
         // // sum pt(l)
         // double sumpt_l = p_lep1.pT() + p_lep2.pT();
@@ -559,116 +563,116 @@ namespace Gambit
         
 
         //WZ 
-        while (true)
-        {   //n jets >= 1
-            if (n_jets >= 1) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
-            else {break;}
+        // while (true)
+        // {   //n jets >= 1
+        //     if (n_jets >= 1) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
+        //     else {break;}
 
-            //Nsig(l) >= 2 && Nbl(l) >= 2
-            if (n_baseline_Leptons >= 2 && n_signal_Leptons >= 2) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
-            else {break;}
+        //     //Nsig(l) >= 2 && Nbl(l) >= 2
+        //     if (n_baseline_Leptons >= 2 && n_signal_Leptons >= 2) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")}
+        //     else {break;}
 
-            // same sign
-            if (SSLeptons(signalLeptons)) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-            }
-            else {break;}
+        //     // same sign
+        //     if (SSLeptons(signalLeptons)) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+        //     }
+        //     else {break;}
 
-            // Nbl(l) == 2
-            if (n_baseline_Leptons == 2) 
-            {
-                LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-            }
-            else {break;}
+        //     // Nbl(l) == 2
+        //     if (n_baseline_Leptons == 2) 
+        //     {
+        //         LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+        //     }
+        //     else {break;}
 
-            // Nsig(l) == 2
-            if (n_signal_Leptons == 2) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-            }
-            else {break;}
+        //     // Nsig(l) == 2
+        //     if (n_signal_Leptons == 2) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+        //     }
+        //     else {break;}
             
-            //pt(l) >= 25 
-            if (signalLeptons.at(0)->pT() >= 25) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-            }
-            else {break;}
+        //     //pt(l) >= 25 
+        //     if (signalLeptons.at(0)->pT() >= 25) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+        //     }
+        //     else {break;}
 
-            //njets (pt > 25) >= 1
-            if (nJets25 >= 1) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-            }
-            else {break;}
+        //     //njets (pt > 25) >= 1
+        //     if (nJets25 >= 1) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+        //     }
+        //     else {break;}
 
-            //nbjets == 0
-            if (n_bjets == 0) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-            }
-            else {break;}   
+        //     //nbjets == 0
+        //     if (n_bjets == 0) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+        //     }
+        //     else {break;}   
 
-            //mjj <= 350
-            if (mjj <= 350) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
-            }
-            else {break;}
+        //     //mjj <= 350
+        //     if (mjj <= 350) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3", "SRWZ-low-mt2")
+        //     }
+        //     else {break;}
 
-            //high mt2 >= 100
-            if (mt2_gt_100) 
-            {
-              LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
+        //     //high mt2 >= 100
+        //     if (mt2_gt_100) 
+        //     {
+        //       LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
-              //mTmin >= 100
-              if (mTmin >= 100) 
-              {
-                LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
+        //       //mTmin >= 100
+        //       if (mTmin >= 100) 
+        //       {
+        //         LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
-                // met >= 100
-                if (met>=100) 
-                {
-                  LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
+        //         // met >= 100
+        //         if (met>=100) 
+        //         {
+        //           LOG_CUT("SRWZ-high-mt2-1", "SRWZ-high-mt2-2", "SRWZ-high-mt2-3")
 
-                  //type
-                  if (0 <= metsig && metsig < 10 && spread>=2.2) {FILL_SIGNAL_REGION("SRWZ-high-mt2-1");}
-                  else if (10 <= metsig && metsig < 13){FILL_SIGNAL_REGION("SRWZ-high-mt2-2");}
-                  else if (metsig >= 13 && dRll>=1){FILL_SIGNAL_REGION("SRWZ-high-mt2-3");}
-                }
-              }
-            }
-            // low mt2 <= 100
-            else if (mt2_lt_100)
-            {
-              LOG_CUT("SRWZ-low-mt2")
-              // mTmin >= 130
-              if (mTmin >= 130) 
-              {
-                LOG_CUT("SRWZ-low-mt2")
-                // met >= 140
-                if (met >= 140) 
-                {
-                  LOG_CUT("SRWZ-low-mt2")
-                  // meff <= 600
-                  if (meff <= 600)
-                  {
-                    LOG_CUT("SRWZ-low-mt2")
+        //           //type
+        //           if (0 <= metsig && metsig < 10 && spread>=2.2) {FILL_SIGNAL_REGION("SRWZ-high-mt2-1");}
+        //           else if (10 <= metsig && metsig < 13){FILL_SIGNAL_REGION("SRWZ-high-mt2-2");}
+        //           else if (metsig >= 13 && dRll>=1){FILL_SIGNAL_REGION("SRWZ-high-mt2-3");}
+        //         }
+        //       }
+        //     }
+        //     // low mt2 <= 100
+        //     else if (mt2_lt_100)
+        //     {
+        //       LOG_CUT("SRWZ-low-mt2")
+        //       // mTmin >= 130
+        //       if (mTmin >= 130) 
+        //       {
+        //         LOG_CUT("SRWZ-low-mt2")
+        //         // met >= 140
+        //         if (met >= 140) 
+        //         {
+        //           LOG_CUT("SRWZ-low-mt2")
+        //           // meff <= 600
+        //           if (meff <= 600)
+        //           {
+        //             LOG_CUT("SRWZ-low-mt2")
 
-                    // dRll <= 3
-                    if (dRll <= 3) {FILL_SIGNAL_REGION("SRWZ-low-mt2");}
-                  }
-                }
-              }
-            }
-            // Applied all cuts
-            break;  
-        }
+        //             // dRll <= 3
+        //             if (dRll <= 3) {FILL_SIGNAL_REGION("SRWZ-low-mt2");}
+        //           }
+        //         }
+        //       }
+        //     }
+        //     // Applied all cuts
+        //     break;  
+        // }
         
 
         // //bRVP
@@ -748,10 +752,10 @@ namespace Gambit
         COMMIT_SIGNAL_REGION("SRWh-low-mt2-mumu", 50., 47.70, 4.28)
         //WZ
         //COMMIT_SIGNAL_REGION("SRWZ-high-mt2", 32., 44.59, 15.02)
-        COMMIT_SIGNAL_REGION("SRWZ-high-mt2-1", 0., 1.92, 1.29)
-        COMMIT_SIGNAL_REGION("SRWZ-high-mt2-2", 7., 8.62, 2.98)
-        COMMIT_SIGNAL_REGION("SRWZ-high-mt2-3", 5., 7.37, 2.62)
-        COMMIT_SIGNAL_REGION("SRWZ-low-mt2", 3., 1.71, 0.89)
+        // COMMIT_SIGNAL_REGION("SRWZ-high-mt2-1", 0., 1.92, 1.29)
+        // COMMIT_SIGNAL_REGION("SRWZ-high-mt2-2", 7., 8.62, 2.98)
+        // COMMIT_SIGNAL_REGION("SRWZ-high-mt2-3", 5., 7.37, 2.62)
+        // COMMIT_SIGNAL_REGION("SRWZ-low-mt2", 3., 1.71, 0.89)
         //bRPV
         // COMMIT_SIGNAL_REGION("SRbRPV-2l-SS", 40., 44.59, 14.39)
         // COMMIT_SIGNAL_REGION("SRbRPV-3l", 227., 251.19, 59.29)
