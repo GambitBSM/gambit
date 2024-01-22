@@ -182,7 +182,7 @@ namespace Gambit
 
           // Baseline jets
           std::vector<const HEPUtils::Jet*> baselineJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT()>25. &&fabs(jet->eta())<2.4)
               baselineJets.push_back(jet);
@@ -286,8 +286,7 @@ namespace Gambit
           }
 
           // Apply b-tag efficiency on b-jets
-          CMS::applyCSVv2TightBtagEff(signalBJets);
-
+          applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Tight"));
 
 
           ///////////////////////////////

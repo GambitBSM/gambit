@@ -86,7 +86,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Now define vector of baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -95,18 +95,18 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         vector<const HEPUtils::Particle*> baselineTaus;
         for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         }
-        ATLAS::applyTauEfficiencyR1(baselineTaus);
+        applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         vector<const HEPUtils::Jet*> bJets;
         vector<const HEPUtils::Jet*> trueBJets; //for debugging
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.5) baselineJets.push_back(jet);
           if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 20.) bJets.push_back(jet);
         }
@@ -173,7 +173,7 @@ namespace Gambit {
         // We now have the signal electrons, muons, jets and b jets- move on to the analysis
 
         // Calculate common variables and cuts first
-        apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+        applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         //int nElectrons = signalElectrons.size();
         //int nMuons = signalMuons.size();

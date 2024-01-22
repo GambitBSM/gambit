@@ -4,6 +4,8 @@
 #include "gambit/ColliderBit/ATLASEfficiencies.hpp"
 #include "Eigen/Eigen"
 
+#include "gambit/Utils/stream_overloads.hpp"
+
 // This is based on the ATLAS 139 invfb Monojet analysis, found at: https://arxiv.org/pdf/2102.10874.pdf
 
 // #define CHECK_CUTFLOW
@@ -32,8 +34,6 @@ namespace Gambit
 
         static const size_t NUMSR = 13;
 
-        Cutflow _cutflow;
-
         Analysis_ATLAS_13TeV_MONOJET_139infb()
         {
 
@@ -53,7 +53,6 @@ namespace Gambit
           _counters["EM12"] = EventCounter("EM12");
 
 
-          analysis_specific_reset();
           set_analysis_name("ATLAS_13TeV_MONOJET_139infb");
           set_luminosity(139.0);
 
@@ -140,7 +139,7 @@ namespace Gambit
 
           // Get jets (0.9 is to emulate the requirement of coming from a primary vertex)
           vector<const Jet*> baselineJets;
-          for (const Jet* jet : event->jets())
+          for (const Jet* jet : event->jets("antikt_R04"))
           {
             if ((jet->pT() > 30) && (jet->abseta() < 2.8))
             {
@@ -200,7 +199,7 @@ namespace Gambit
           removeOverlap(baselineNonBJets, baselinePhotons, 0.4);
           removeOverlap(baselineBJets, baselinePhotons, 0.4);
 
-          apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+          applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
           // All jets
           vector<const HEPUtils::Jet*> signalJets = baselineNonBJets;

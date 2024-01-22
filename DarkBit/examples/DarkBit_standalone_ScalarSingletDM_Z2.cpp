@@ -15,6 +15,8 @@
 ///  \date 2016 Aug
 ///  \author Jonathan Cornell
 ///  \date 2016, 2020
+///  \author Patrick Stoecker
+///  \date 2023
 ///
 ///  *********************************************
 
@@ -193,7 +195,7 @@ int main()
     // ---- Initialize backends ----
 
     // Initialize nulike backend
-    Backends::nulike_1_0_9::Functown::nulike_bounds.setStatus(2);
+    Backends::nulike_1_0_9::Functown::nulike_bounds.setStatus(FunctorStatus::Active);
     nulike_1_0_9_init.reset_and_calculate();
 
     // Initialize gamLike backend
@@ -319,9 +321,9 @@ int main()
     logger() << "sigma_SI,p with GAMBIT: " << sigma_SI_p_simple(0) << LogTags::info << EOM;
 
     // Initialize DDCalc backend
-    Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(2);
-    Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(2);
-    Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(2);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_CalcRates_simple.setStatus(FunctorStatus::Active);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_Experiment.setStatus(FunctorStatus::Active);
+    Backends::DDCalc_2_3_0::Functown::DDCalc_LogLikelihood.setStatus(FunctorStatus::Active);
 
     // Calculate DD couplings for DDCalc
     DDCalc_Couplings_WIMP_nucleon.resolveDependency(&DD_couplings_ScalarSingletDM_Z2);

@@ -1,4 +1,4 @@
-name: Gambit CI
+name: Gambit Mac Arm64 CI
 
 on:
   push:
@@ -30,18 +30,101 @@ jobs:
       run: |
         echo "Configure with cmake"
         cd BUILD
-        cmake -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
     - name: Build scanners
       run: |
         echo "Build scanners"
         cd BUILD
         make -j $(( $(sysctl -n hw.ncpu)/2 )) scanners
         cmake ..
-    - name: Build Backends for tests
+    - name: Build Gambit
       run: |
-        echo "Building Backends required for tests"
+        echo "Build GAMBIT."
         cd BUILD
-        #make -j $(( $(sysctl -n hw.ncpu)/2 )) pythia higgssignals nulike ATLAS_FullLikes susyhit heplike superiso
+        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
+        # Can remove this once issue #467 is fixed.
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) yoda
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) hepmc
+        # Now build Gambit
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
+    - name: CLI test
+      run: |
+        echo "Run the test of gambit help"
+        ./gambit -h
+    - name: Run spartan.yaml
+      run: |
+        echo "Testing spartan.yaml (with cout printer)"
+        sed -i "" 's/ hdf5/ cout/g' yaml_files/spartan.yaml
+        ./gambit -rf yaml_files/spartan.yaml 
+
+
+  backends_build:
+    if: ${{ always() }}
+    needs: [gambit_build] # Sets run order
+    runs-on: [self-hosted, macOS, Arm64]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [Arm64]
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        echo "Set up the build environment"
+        mkdir -p BUILD
+        cd BUILD
+    - name: Configure with cmake
+      run: |
+        echo "Configure with cmake"
+        cd BUILD
+        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+    - name: Build Backends
+      run: |
+        echo "Building all Backends"
+        cd BUILD
+        # Build backends, except those that are tested via other jobs.
+        # This replaces the "make backends" command.
+        ../cmake/scripts/build_backends.sh -f default_backends.txt -j 1 -s "nulike susyhit rivet contur pythia higgsbounds higgssignals ATLAS_FullLikes superiso heplikedata heplike" 
+
+
+  test_runs:
+    if: ${{ always() }}
+    needs: [gambit_build, backends_build] # Sets run order
+    runs-on: [self-hosted, macOS, Arm64]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [Arm64]
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
+      run: |
+        echo "Set up the build environment"
+        mkdir -p BUILD
+        cd BUILD
+    - name: Configure with cmake
+      run: |
+        echo "Configure with cmake"
+        cd BUILD
+        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+    - name: Build required scanners
+      run: |
+        echo "Build scanners required for test runs"
+        cd BUILD
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) diver
+        cmake ..
+    - name: Build required backends
+      run: |
+        echo "Building backends required for test runs"
+        cd BUILD
         make pythia
         make higgssignals
         make nulike
@@ -57,33 +140,49 @@ jobs:
       run: |
         echo "Build GAMBIT."
         cd BUILD
+        # Build YODA and HepMC first, to avoid race condition during parallel build: https://github.com/GambitBSM/gambit/issues/467
+        # Can remove this once issue #467 is fixed.
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) yoda
+        make -j $(( $(sysctl -n hw.ncpu)/2 )) hepmc
+        # Now build Gambit
         make -j $(( $(sysctl -n hw.ncpu)/2 )) gambit
-    - name: Test spartan yaml
+    - name: Run ColliderBit_CMSSM.yaml
       run: |
-        echo "Testing spartan.yaml (with cout printer)"
-        sed -i "" 's/ hdf5/ cout/g' yaml_files/spartan.yaml
-        ./gambit -rf yaml_files/spartan.yaml 
-    - name: CLI test
+        echo "Test run with ColliderBit_CMSSM.yaml"
+        ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
+    - name: Run WC_lite.yaml
       run: |
-        echo "Run the test of gambit help"
-        ./gambit -h
-    - name: WC test
-      run: |
-        echo "Test WC_lite yaml (no printing)"
+        echo "Test run with WC_lite.yaml (no printing)"
         sed -i "" 's/ hdf5/ none/g' yaml_files/WC_lite.yaml
         ./gambit -f yaml_files/WC_lite.yaml
-    - name: ColliderBit test
+
+
+  standalones_build:
+    if: ${{ always() }}
+    needs: [gambit_build, backends_build, test_runs] # Sets run order
+    runs-on: [self-hosted, macOS, Arm64]
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [Arm64]
+    defaults:
+      run:
+        shell: bash -eo pipefail {0}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up build environment
       run: |
-        echo "Test the ColliderBit CMSSM yaml file"
-        ./gambit -f yaml_files/ColliderBit_CMSSM.yaml
-    - name: Build Backends
-      run: |
-        echo "Building all Backends"
+        echo "Set up the build environment"
+        mkdir -p BUILD
         cd BUILD
-        #make -j $(( $(sysctl -n hw.ncpu)/2 )) backends
-        make backends
-    #- name: Build standalones
-    #  run: |
-    #    echo "Test the building of the standalones"
-    #    cd BUILD
-    #    make standalones
+    - name: Configure with cmake
+      run: |
+        echo "Configure with cmake"
+        cd BUILD
+        cmake -DCMAKE_CXX_FLAGS="-rdynamic" -DWITH_MPI=ON -DWITH_HEPMC=ON -DWITH_YODA=ON -DBUILD_FS_MODELS="CMSSM;MSSM;MDM" -Ditch="micromegas_DMsimpVectorMedVectorDM" ..
+    - name: Build standalones
+      run: |
+        echo "Test the building of the standalones"
+        cd BUILD
+        make standalones

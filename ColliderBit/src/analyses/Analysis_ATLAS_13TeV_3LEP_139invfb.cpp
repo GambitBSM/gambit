@@ -194,7 +194,7 @@ namespace Gambit
             }
           }
           // Apply electron reconstruction efficiency from 1908.00005
-          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
+          applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Recon"));
           // Baseline muons
           vector<const HEPUtils::Particle*> baselineMuons;
           int nHighEtaMuons = 0;
@@ -211,7 +211,7 @@ namespace Gambit
             }
           }
           // Apply muon ID efficiency from "Medium" criteria in 2012.00578
-          apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
+          applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_ID_Medium"));
 
           // Number of baseline leptons used in preselection
           // This also counts muons in 2.5 < |\eta| < 2.7
@@ -219,7 +219,7 @@ namespace Gambit
 
           // Baseline jets
           vector<const HEPUtils::Jet*> baselineJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.5 )
               baselineJets.push_back(jet);
@@ -243,11 +243,11 @@ namespace Gambit
 
           // Apply cuts to get signal electrons
           // Apply electron ID efficiency from "Medium" criteria in 1908.00005
-          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
+          applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Medium"));
           // Apply electron isolation efficiency from "Tight" criteria in 1908.00005
-          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Tight"));
+          applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Tight"));
           // Apply muon isolation efficiency from "Tight" criteria in 2012.00578
-          apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Tight"));
+          applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Tight"));
 
 
           // Signal jets

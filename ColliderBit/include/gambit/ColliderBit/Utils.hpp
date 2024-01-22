@@ -54,6 +54,20 @@ namespace Gambit
     /// Unit conversions (multiply to construct in standard units, divide to decode to that unit)
     static const double GeV = 1, MeV = 1e-3, TeV = 1e3;
 
+    /// Struct of different jet collection settings
+    struct jet_collection_settings
+    {
+      std::string key;
+      std::string algorithm;
+      double R;
+      std::string recombination_scheme;
+      std::string strategy;
+    };
+
+    /// Storage of different FastJet methods
+    FJNS::JetAlgorithm FJalgorithm_map(std::string);
+    FJNS::Strategy FJstrategy_map(std::string);
+    FJNS::RecombinationScheme FJRecomScheme_map(std::string);
 
     /// Use the HEPUtils Event without needing namespace qualification
     using HEPUtils::Event;
@@ -213,16 +227,83 @@ namespace Gambit
     //@{
 
     /// Utility function for filtering a supplied particle vector by sampling wrt an efficiency scalar
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, double eff, bool do_delete=false);
+    //void filtereff(std::vector<const HEPUtils::Particle*>& particles, double eff, bool do_delete=false);
+    template<class T>
+    void filtereff(std::vector<T*>& particlesOrJetss, double eff, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p) {
+                                               const bool rm = !random_bool(eff);
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
 
     /// Utility function for filtering a supplied particle vector by sampling an efficiency returned by a provided function object
-    void filtereff(std::vector<const HEPUtils::Particle*>& particles, std::function<double(const HEPUtils::Particle*)> eff_fn, bool do_delete=false);
+    template<class T>
+    void filtereff(std::vector<T*>& particlesOrJetss, std::function<double(T*)> eff_fn, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const double eff = eff_fn(p);
+                                               const bool rm = !random_bool(eff);
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    void filtereff_pt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false);
+    template<class T>
+    void filtereff_pt(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const bool rm = !random_bool(eff_pt, p->pT());
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
+    /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in eta
+    template<class T>
+    void filtereff_eta(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn1D<double>& eff_eta, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const bool rm = !random_bool(eff_eta, p->eta());
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 2D efficiency map in |eta| and pT
-    void filtereff_etapt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false);
+    template<class T>
+    void filtereff_etapt(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const bool rm = !random_bool(eff_etapt, p->abseta(), p->pT());
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
+
 
     //@}
 
@@ -332,10 +413,10 @@ namespace Gambit
 
 
     /// Check if there's a physics object above ptmin in an annulus rmin..rmax around the given four-momentum p4
-    inline bool object_in_cone(const HEPUtils::Event& e, const HEPUtils::P4& p4, double ptmin, double rmax, double rmin=0.05) {
+    inline bool object_in_cone(const HEPUtils::Event& e, std::string jetcollection, const HEPUtils::P4& p4, double ptmin, double rmax, double rmin=0.05) {
       for (const HEPUtils::Particle* p : e.visible_particles())
         if (p->pT() > ptmin && HEPUtils::in_range(HEPUtils::deltaR_eta(p4, *p), rmin, rmax)) return true;
-      for (const HEPUtils::Jet* j : e.jets())
+      for (const HEPUtils::Jet* j : e.jets(jetcollection))
         if (j->pT() > ptmin && HEPUtils::in_range(HEPUtils::deltaR_eta(p4, *j), rmin, rmax)) return true;
       return false;
     }
@@ -658,34 +739,40 @@ namespace Gambit
         }
     };
 
-    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 1D binned efficiencies in pT
-    inline void apply1DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn1D<double>& eff)
+    /// Generic function to apply efficiencies on a list of particles or jets, provided as a scalar number
+    template <class T>
+    void applyEfficiency(std::vector<T*> &particlesOrJets, const double eff)
     {
-      filtereff_pt(part, eff);
+      filtereff(particlesOrJets, eff);
     }
 
-    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 1D binned efficiencies in pT
-    /// TODO: filter functions don't work with jets, fix that
-    //inline void apply1DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn1D<double>& eff)
-    //{
-    //  filtereff_pt(jet, eff);
-    //}
-
-
-    /// Generic function to apply efficiencies on a list of particles, provided as HEPUtils 2D binned efficiencies in eta and pT
-    inline void apply2DEfficiency(std::vector<const HEPUtils::Particle*>& part, const HEPUtils::BinnedFn2D<double>& eff)
+    /// Generic function to apply efficiencies on a list of particles or jets, provided as HEPUtils 1D binned efficiencies in pT or eta
+    template<class T>
+    void applyEfficiency(std::vector<T*>& particlesOrJets, const HEPUtils::BinnedFn1D<double>& eff, bool pTBins = true)
     {
-      filtereff_etapt(part, eff);
+      if(pTBins)
+        filtereff_pt(particlesOrJets, eff);
+      else
+        filtereff_eta(particlesOrJets, eff);
     }
 
-    /// Generic function to apply efficiencies on a list of jets, provided as HEPUtils 2D binned efficiencies in eta and pT
-    /// TODO: filter functions don't work with jets, fix that
-    //inline void apply2DEfficiency(std::vector<const HEPUtils::Jet*>& jet, HEPUtils::BinnedFn2D<double>& eff)
-    //{
-    //  filtereff_etapt(jet, eff);
-    //}
+    /// Generic function to apply efficiencies on a list of particles or jets, provided as HEPUtils 2D binned efficiencies in eta and pT
+    template<class T>
+    void applyEfficiency(std::vector<T*>& particlesOrJets, const HEPUtils::BinnedFn2D<double>& eff)
+    {
+      filtereff_etapt(particlesOrJets, eff);
+    }
 
-
+    ///Apply user-specified b-tag misidentification rate (flat)
+    inline void applyBtagMisId(std::vector<const HEPUtils::Jet*>& jets, std::vector<const HEPUtils::Jet*>& bjets, double mis_id_prob)
+    {
+      if (jets.empty()) return;
+      for (const HEPUtils::Jet* jet : jets)
+      {
+        // Only apply misidentification rate for non-b-jets
+        if (!jet->btag() && random_bool(mis_id_prob)) bjets.push_back(jet);
+      }
+    }
 
     //@}
 

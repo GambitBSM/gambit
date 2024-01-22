@@ -123,10 +123,10 @@ namespace Gambit
             }
 
             // Apply electron efficiency
-            ATLAS::applyElectronEff(baselineElectrons);
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
             // Apply loose electron selection
-            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
 
             // Create a list of baseline electrons with pT > 100 (used for overlap removal)
             vector<const HEPUtils::Particle*> baselineElectronsPTgt100;
@@ -151,7 +151,7 @@ namespace Gambit
             }
 
             // Apply muon efficiency
-            ATLAS::applyMuonEffR2(baselineMuons);
+            applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
             // AK: Is "Medium" identification included in applyMuonEffR2 efficiency?
             // TG: No, and it is also missing from the ATLAS efficiencies, but it's generally over 99% effieciency
@@ -163,7 +163,7 @@ namespace Gambit
             //   primary vertex (see paper)
 
             vector<const HEPUtils::Jet*> baselineJets;
-            for (const HEPUtils::Jet* jet : event->jets())
+            for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) 
             {
                 if (jet->pT() > 20. && jet->abseta() < 2.8)
                 {
@@ -245,7 +245,7 @@ namespace Gambit
 
             // electrons
             vector<const HEPUtils::Particle*> signalElectrons = baselineElectrons;
-            apply2DEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
+            applyEfficiency(signalElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
 
             // muons
             vector<const HEPUtils::Particle*> signalMuons = baselineMuons;

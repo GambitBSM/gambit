@@ -175,10 +175,10 @@ namespace Gambit {
                 bool hasTrig=has_tag(_eff2dMu, muon->abseta(), muon->pT());
                 if (muon->pT() > 15. && muon->abseta() < 2.4 && hasTrig) baselineMuons.push_back(muon);
             }
-            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Loose"));
             // Jets
             vector<const HEPUtils::Jet*> baselineJets;
-            for (const HEPUtils::Jet* jet : event->jets()) {
+            for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
                 if (jet->pT() > 30. && fabs(jet->eta()) < 2.4) baselineJets.push_back(jet);
             }
 
@@ -189,7 +189,7 @@ namespace Gambit {
             //Baseline Leptons
             int LooseLepNum = baselineElectrons.size()+baselineMuons.size();
             //Signal Leptons
-            apply2DEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
+            applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("ATLAS_PHYS_PUB_2015_041_Medium"));
             vector<const HEPUtils::Particle*> signalLeptons;
             for (const HEPUtils::Particle* electron : baselineElectrons) {
                 signalLeptons.push_back(electron);

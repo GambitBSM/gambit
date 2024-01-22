@@ -43,7 +43,7 @@ namespace Gambit
     {
 
       /// @name ATLAS detector smearing functions
-      ///@{
+      /// @{
 
         /// Randomly smear the supplied electrons' momenta by parameterised resolutions
         inline void smearElectronEnergy(std::vector<HEPUtils::Particle*>& electrons)
@@ -189,137 +189,41 @@ namespace Gambit
         }
 
 
-      ///@}
+      /// @}
 
 
       /// @name ATLAS detector efficiency functions
-      ///@{
+      /// @{
 
-        // /// Randomly filter the supplied particle list by parameterised electron tracking efficiency
-        // /// @todo Remove? This is not the electron efficiency
-        // inline void applyElectronTrackingEff(std::vector<const HEPUtils::Particle*>& electrons) {
-        //   static HEPUtils::BinnedFn2D<double> _elTrackEff2d({{0, 1.5, 2.5, DBL_MAX}}, //< |eta|
-        //                                                     {{0, 0.1, 1.0, 100, DBL_MAX}}, //< pT
-        //                                                     {{0., 0.73, 0.95, 0.99,
-        //                                                       0., 0.5,  0.83, 0.90,
-        //                                                       0., 0.,   0.,   0.}});
-        //   filtereff_etapt(electrons, _elTrackEff2d);
-        // }
+      /// ATLAS trigger efficiencies
+      /// @{
 
+        /// MET trigger efficiency, from CERN-EP-2016-241 (1611.09661)
+        /// Binned in MET
+        static const HEPUtils::BinnedFn1D<double> eff1DMET_CERN_EP_2015_241(
+          {0, 30, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 170, 190, 210, 230, 250, 300, 400, DBL_MAX},
+          {0.01, 0.01, 0.04, 0.07, 0.17, 0.30, 0.47, 0.63, 0.75, 0.85, 0.90, 0.95, 0.97, 0.98, 0.99, 0.98, 0.99, 1.00, 1.00}
+        );
 
-        /// Randomly filter the supplied particle list by parameterised electron efficiency
-        /// @note Should be applied after the electron energy smearing
-        inline void applyElectronEff(std::vector<const HEPUtils::Particle*>& electrons) {
-          static HEPUtils::BinnedFn2D<double> _elEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
-                                                       {{0,10.,DBL_MAX}}, //< pT
-                                                       {{0., 0.95,
-                                                         0., 0.85,
-                                                         0., 0.}});
-          filtereff_etapt(electrons, _elEff2d);
-        }
+      /// @}
 
-
-        // /// Randomly filter the supplied particle list by parameterised muon tracking efficiency
-        // /// @todo Remove? This is not the muon efficiency
-        // inline void applyMuonTrackEff(std::vector<const HEPUtils::Particle*>& muons) {
-        //   static HEPUtils::BinnedFn2D<double> _muTrackEff2d({{0,1.5,2.5,DBL_MAX}}, //< |eta|
-        //                                                     {{0,0.1,1.0,DBL_MAX}}, //< pT
-        //                                                     {{0., 0.75, 0.99,
-        //                                                       0., 0.70, 0.98,
-        //                                                       0., 0.,   0.}});
-        //   filtereff_etapt(muons, _muTrackEff2d);
-        // }
-
-
-        /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEff(std::vector<const HEPUtils::Particle*>& muons) {
-          static HEPUtils::BinnedFn2D<double> _muEff2d({{0,1.5,2.7,DBL_MAX}}, //< |eta|
-                                                       {{0,10.0,DBL_MAX}}, //< pT
-                                                       {{0., 0.95,
-                                                         0., 0.85,
-                                                         0., 0.}});
-          filtereff_etapt(muons, _muEff2d);
-        }
-
-
-        /// Randomly filter the supplied particle list by parameterised muon efficiency
-        inline void applyMuonEffR2(std::vector<const HEPUtils::Particle*>& muons) {
-          static HEPUtils::BinnedFn2D<double> _muEff2d({0, 2.7, DBL_MAX}, //< |eta|
-                                                       {0., 3.5, 4., 5., 6., 7., 8., 10., DBL_MAX}, //< pT
-                                                       {0.00, 0.76, 0.94, 0.97, 0.98, 0.98, 0.98, 0.99,//
-                                                        0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00});
-          filtereff_etapt(muons, _muEff2d);
-        }
-
-
-        /// Randomly filter the supplied particle list by parameterised Run 1 tau efficiency
-        /// @note From Delphes 3.1.2
-        /// @todo Use https://cds.cern.ch/record/1233743/files/ATL-PHYS-PUB-2010-001.pdf -- it is more accurate and has pT-dependence
-        inline void applyTauEfficiencyR1(std::vector<const HEPUtils::Particle*>& taus) {
-          filtereff(taus, 0.40);
-        }
-
-
-
-        /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
-        /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
-        /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
-        inline void applyTauEfficiencyR2(std::vector<const HEPUtils::Particle*>& taus) {
-
-          // Delphes 3.3.2 config:
-          //   set DeltaR 0.2
-          //   set DeltaRTrack 0.2
-          //   set TrackPTMin 1.0
-          //   set TauPTMin 1.0
-          //   set TauEtaMax 2.5
-          //   # instructions: {n-prongs} {eff}
-          //   # 1 - one prong efficiency
-          //   # 2 - two or more efficiency
-          //   # -1 - one prong mistag rate
-          //   # -2 - two or more mistag rate
-          //   set BitNumber 0
-          //   # taken from ATL-PHYS-PUB-2015-045 (medium working point)
-          //   add EfficiencyFormula {1} {0.70}
-          //   add EfficiencyFormula {2} {0.60}
-          //   add EfficiencyFormula {-1} {0.02}
-          //   add EfficiencyFormula {-2} {0.01}
-          // filtereff(taus, 0.65);
-
-          // Distributions from ATL-PHYS-PUB-2015-045, Fig 10
-          const static std::vector<double> binedges_pt    = { 0.,  20.,  40.,   60.,   120.,  160.,   220.,   280.,   380.,    500.,  DBL_MAX };
-          const static std::vector<double> bineffs_pt_1p  = { 0.,  .54,  .55,   .56,    .58,   .57,    .56,    .54,     .51,     0. };
-          const static std::vector<double> bineffs_pt_3p  = { 0.,  .40,  .41,   .42,    .46,   .46,    .43,    .39,     .33,     0. };
-          const static HEPUtils::BinnedFn1D<double> _eff_pt_1p(binedges_pt, bineffs_pt_1p);
-          const static HEPUtils::BinnedFn1D<double> _eff_pt_3p(binedges_pt, bineffs_pt_3p);
-          // 85% 1-prong, 15% >=3-prong
-          const static std::vector<double> bineffs_pt_avg = { 0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
-          const static HEPUtils::BinnedFn1D<double> _eff_pt_avg(binedges_pt, bineffs_pt_avg);
-          filtereff_pt(taus, _eff_pt_avg);
-
-        }
-
-
-
-        inline void applyPhotonEfficiencyR2(std::vector<const HEPUtils::Particle*>& photons) {
-
-          const static std::vector<double> binedges_eta   = { 0., 0.6, 1.37, 1.52, 1.81, 2.37, DBL_MAX };
-          const static std::vector<double> binedges_pt    = { 0., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., 100., 125., 150., 175., 250., DBL_MAX };
-          const static std::vector<double> bineffs_etapt  = { 0.00, 0.55, 0.70, 0.85, 0.89, 0.93, 0.95, 0.96, 0.96, 0.97, 0.97, 0.98, 0.97, 0.97, 0.97, 0.97, 0.97, //
-                                                              0.00, 0.47, 0.66, 0.79, 0.86, 0.89, 0.94, 0.96, 0.97, 0.97, 0.98, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, //
-                                                              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, //
-                                                              0.00, 0.54, 0.71, 0.84, 0.88, 0.92, 0.93, 0.94, 0.95, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, //
-                                                              0.00, 0.61, 0.74, 0.83, 0.88, 0.91, 0.94, 0.95, 0.96, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, //
-                                                              0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00 };
-          const static HEPUtils::BinnedFn2D<double> _eff_etapt(binedges_eta, binedges_pt, bineffs_etapt);
-          filtereff_etapt(photons, _eff_etapt);
-        }
-
-
-
-      /// ATLAS Muon and Electron efficiencies for the WPs of the identification techniques used in SUSY analyses
+      /// ATLAS Electron, Muon, Tau and Photon efficiencies for the WPs of the identification techniques used in SUSY analyses
 
       /// Electron efficiencies
       /// @{
+
+        /// Generic electron efficiency
+        /// Randomly filter the supplied particle list by parameterised electron efficiency
+        /// @note Should be applied after the electron energy smearing
+        static const HEPUtils::BinnedFn2D<double> eff2DEl_Generic(
+          {0,1.5,2.5,DBL_MAX}, //< |eta|
+          {0,10.,DBL_MAX}, //< pT
+          {
+            0., 0.95,
+            0., 0.85,
+            0., 0.
+          }
+        );
 
 
         /// Efficiency function for Medium ID electrons
@@ -393,11 +297,21 @@ namespace Gambit
         const static std::vector<double> bineffs_eta_Loose  = { 0.950, 0.965, 0.955, 0.885, 0.950, 0.935, 0.90, 0 };
         /// @note Et eff histogram (10-20 GeV bin added by hand)
         /// normalisation factor as approximate double differential
-        const static std::vector<double> bineffs_et_Loose  = { 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.94/0.95, 0.95/0.95, 0.955/0.95, 0.965/0.95, 0.97/0.95, 0.98/0.95, 0.98/0.95 };
+        const static std::vector<double> bineffs_et_Loose  = {0.0, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.94/0.95, 0.95/0.95, 0.955/0.95, 0.965/0.95, 0.97/0.95, 0.98/0.95, 0.98/0.95 };
         static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose(
           {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
-          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          {0,  10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
           Utils::outer_product(bineffs_eta_Loose, bineffs_et_Loose)
+//          {
+//            0.0, 0.9, 0.91, 0.92, 0.94, 0.95, 0.955, 0.965, 0.97, 0.98, 0.98,
+//            0.0, 0.914, 0.924, 0.935, 0.955, 0.965, 0.97, 0.98, 0.985, 0.995, 0.995,
+//            0.0, 0.905, 0.915, 0.925, 0.945, 0.955, 0.96, 0.97, 0.975, 0.985, 0.985,
+//            0.0, 0.838, 0.848, 0.857, 0.876, 0.885, 0.89, 0.899, 0.904, 0.913, 0.913,
+//            0.0, 0.9, 0.91, 0.92, 0.94, 0.95, 0.955, 0.965, 0.97, 0.98, 0.98, 0.886,
+//            0.0, 0.896, 0.905, 0.925, 0.935, 0.94, 0.95, 0.955, 0.965, 0.965, 0.853,
+//            0.0, 0.862, 0.872, 0.891, 0.9, 0.905, 0.914, 0.919, 0.928, 0.928,
+//            0.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+//          }
         );
 
         /// Efficiency function for Medium ID electrons
@@ -406,10 +320,10 @@ namespace Gambit
         const static std::vector<double> bineffs_eta_Medium  = { 0.900, 0.930, 0.905, 0.830, 0.900, 0.880, 0.85, 0 };
         /// @note Et eff histogram (10-20 GeV bin added by hand)
         /// normalisation factor as approximate double differential
-        const static std::vector<double> bineffs_et_Medium  = { 0.83/0.95, 0.845/0.95, 0.87/0.95, 0.89/0.95, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.93/0.95, 0.95/0.95, 0.95/0.95};
+        const static std::vector<double> bineffs_et_Medium  = {0.0, 0.83/0.95, 0.845/0.95, 0.87/0.95, 0.89/0.95, 0.90/0.95, 0.91/0.95, 0.92/0.95, 0.93/0.95, 0.95/0.95, 0.95/0.95};
         static const HEPUtils::BinnedFn2D<double> eff2DEl_ATLAS_PHYS_PUB_2015_041_Medium(
           {0.0,   0.1,   0.8,   1.37,  1.52,  2.01,  2.37,  2.47, DBL_MAX},   // Bin edges in eta
-          {10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
+          {0, 10,   20,   25,   30,   35,   40,    45,    50,   60,  80, DBL_MAX},   // Bin edges in pT
           Utils::outer_product(bineffs_eta_Medium, bineffs_et_Medium)
         );
 
@@ -532,21 +446,46 @@ namespace Gambit
         );
 
 
+        // FIXME: Where is this from and is it used?
         // VeryLoose WP from
-        static const HEPUtils::BinnedFn2D<double> eff2DEl_VeryLoose(
-          {0., DBL_MAX},   // Bin edges in eta
-          {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500.,DBL_MAX },   // Bin edges in pT
-          {
-            // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
-                    0.0,      0.78,     0.80,     0.82,     0.83,       0.84,      0.825,       0.82,       0.81,       0.8,       0.795,       0.79   // eta: (0, DBL_MAX)
-          }
-        );
+        //static const HEPUtils::BinnedFn2D<double> eff2DEl_VeryLoose(
+        //  {0., DBL_MAX},   // Bin edges in eta
+        //  {0., 25., 40., 60., 80., 100., 150., 200., 250., 300., 400., 500.,DBL_MAX },   // Bin edges in pT
+        //  {
+        //    // pT: (0,25),  (25,40),  (40,60),  (60,80),  (80,100),  (100,150),  (150,200),  (200,250),  (250,300),  (300,400),  (400,500),  (500,inf)
+        //            0.0,      0.78,     0.80,     0.82,     0.83,       0.84,      0.825,       0.82,       0.81,       0.8,       0.795,       0.79   // eta: (0, DBL_MAX)
+        //  }
+        //);
+
 
       /// @}
 
 
       /// Muon efficiencies
       /// @{
+
+        /// Generic muon efficiency
+        /// Randomly filter the supplied particle list by parameterised muon efficiency
+        static const HEPUtils::BinnedFn2D<double> eff2DMu_Generic(
+          {0,1.5,2.7,DBL_MAX}, //< |eta|
+          {0,10.0,DBL_MAX}, //< pT
+          {
+            0., 0.95,
+            0., 0.85,
+            0., 0.
+          }
+        );
+
+        /// Generic R2 muon efficiency
+        /// Randomly filter the supplied particle list by parameterised muon efficiency
+        static const HEPUtils::BinnedFn2D<double> eff2DMu_R2(
+          {0, 2.7, DBL_MAX}, //< |eta|
+          {0., 3.5, 4., 5., 6., 7., 8., 10., DBL_MAX}, //< pT
+          {
+            0.00, 0.76, 0.94, 0.97, 0.98, 0.98, 0.98, 0.99,//
+            0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
+          }
+        );
 
         /// Muon 2020 identification efficiency functions from full Run2 dataset released in 2012.00578, MUON-2018-03
         /// @note These efficiencies are 1D efficiencies so only dependence on p_T is used
@@ -590,12 +529,177 @@ namespace Gambit
           {0.56788, 0.63355, 0.66702, 0.68974, 0.70173, 0.71814, 0.7314, 0.75917, 0.79262, 0.84313, 0.9189, 0.96941, 0.9915, 0.99653, 0.99649, 0.99517}
         );
 
+
+        /// Muon 2020 identification efficiencies for very low transverse momentum, from ATL-PHYS-PUB-2020-002
+        /// @note: These are efficiencies binned in eta, so make sure to use the correct function form (applyEfficiency(...,...,false))
+        /// Digitised from Fig 2a
+
+        // Medium WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_ATLAS_PHYS_PUB_2020_002_Medium(
+          {-2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6, -1.5, -1.4, -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5},   // Bin edges in eta
+          {90.74, 94.48, 93.50, 95.47, 93.10, 92.91, 94.09, 93.69, 95.07, 91.33, 87.34, 76.55, 54.88, 56.26, 72.61, 71.82, 74.58, 73.99, 65.91, 69.85, 70.84, 73.00, 73.99, 69.06, 69.46, 68.67, 71.43, 74.38, 70.84, 70.44, 65.32, 64.93, 74.58, 75.76, 74.38, 73.20, 60.20, 55.86, 77.54, 87.19, 90.34, 94.48, 94.88, 95.07, 94.88, 95.07, 96.26, 96.26, 96.26, 93.89}
+        );
+
+        // LowPT WP
+        static const HEPUtils::BinnedFn1D<double> eff1DMu_ATLAS_PHYS_PUB_2020_002_LowPT(
+          {-2.5, -2.4, -2.3, -2.2, -2.1, -2.0, -1.9, -1.8, -1.7, -1.6, -1.5, -1.4, -1.3, -1.2, -1.1, -1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5},   // Bin edges in eta
+          {87.59, 91.72, 90.94, 93.50, 90.34, 90.54, 91.92, 90.34, 91.92, 90.34, 89.75, 87.19, 83.05, 73.60, 86.01, 93.10, 91.92, 92.12, 85.62, 88.37, 90.15, 91.53, 92.12, 88.37, 72.41, 72.22, 88.18, 92.12, 92.12, 90.94, 86.80, 84.24, 91.33, 91.33, 93.89, 87.98, 75.96, 80.69, 86.80, 90.74, 89.56, 90.74, 92.51, 92.51, 91.92, 91.33, 94.68, 93.69, 94.09, 90.74}
+        );
+
+      /// @}
+
+      /// Tau efficiencies
+      /// @{
+
+        /// Generic tau efficiency
+        /// Randomly filter the supplied particle list by parameterised Run 1 tau efficiency
+        /// @note From Delphes 3.1.2
+        /// @todo Use https://cds.cern.ch/record/1233743/files/ATL-PHYS-PUB-2010-001.pdf -- it is more accurate and has pT-dependence
+        static const double effTau_R1 = 0.40;
+
+        /// Randomly filter the supplied particle list by parameterised Run 2 tau efficiency
+        /// @note From Delphes 3.3.2 & ATL-PHYS-PUB-2015-045, 60% for 1-prong, 70% for multi-prong: this is *wrong*!!
+        /// @note No delete, because this should only ever be applied to copies of the Event Particle* vectors in Analysis routines
+        // Delphes 3.3.2 config:
+        //   set DeltaR 0.2
+        //   set DeltaRTrack 0.2
+        //   set TrackPTMin 1.0
+        //   set TauPTMin 1.0
+        //   set TauEtaMax 2.5
+        //   # instructions: {n-prongs} {eff}
+        //   # 1 - one prong efficiency
+        //   # 2 - two or more efficiency
+        //   # -1 - one prong mistag rate
+        //   # -2 - two or more mistag rate
+        //   set BitNumber 0
+        //   # taken from ATL-PHYS-PUB-2015-045 (medium working point)
+        //   add EfficiencyFormula {1} {0.70}
+        //   add EfficiencyFormula {2} {0.60}
+        //   add EfficiencyFormula {-1} {0.02}
+        //   add EfficiencyFormula {-2} {0.01}
+        // filtereff(taus, 0.65);
+
+        // Distributions from ATL-PHYS-PUB-2015-045, Fig 10
+        const static std::vector<double> binedges_pt    = { 0.,  20.,  40.,   60.,   120.,  160.,   220.,   280.,   380.,    500.,  DBL_MAX };
+        // TG: Commented these because they are not used
+        //const static std::vector<double> bineffs_pt_1p  = { 0.,  .54,  .55,   .56,    .58,   .57,    .56,    .54,     .51,     0. };
+        //const static std::vector<double> bineffs_pt_3p  = { 0.,  .40,  .41,   .42,    .46,   .46,    .43,    .39,     .33,     0. };
+        //const static HEPUtils::BinnedFn1D<double> _eff_pt_1p(binedges_pt, bineffs_pt_1p);
+        //const static HEPUtils::BinnedFn1D<double> _eff_pt_3p(binedges_pt, bineffs_pt_3p);
+        // 85% 1-prong, 15% >=3-prong
+        const static std::vector<double> bineffs_pt_avg = { 0.,  .52,  .53,   .54,    .56,   .55,    .54,    .52,     .48,     0. };
+        const static HEPUtils::BinnedFn1D<double> eff1DTau_R2(binedges_pt, bineffs_pt_avg);
+
+
+        /// Randomly filter the supplied particle list by parameterised Run 2 RNN tau efficiency
+        /// @note this is the newer RNN Tau ID Algorithm, use the other function for the older BDT Tau ID Algorithm.
+        /// @note by design these Tau ID working points have flat signal efficiencies in eta and phi
+        /// @note using https://cds.cern.ch/record/2688062/files/ATL-PHYS-PUB-2019-033.pdf
+        /// @note assuming frequency: 85% 1-prong, 15% >=3-prong
+        const static double effTau_R2_RNN_Tight     = 0.58;  // 0.6 (0.45) for 1 (3) prongs
+        const static double effTau_R2_RNN_Medium    = 0.73;  // 0.75 (0.6) for 1 (3) prongs
+        const static double effTau_R2_RNN_Loose     = 0.84;  // 0.85 (0.75) for 1 (3) prongs
+        const static double effTau_R2_RNN_VeryLoose = 0.95;  // 0.95 (0.95) for 1 (3) prongs
+
+      /// @}
+
+      /// Track efficiencies from ATL-PHYS-PUB-2015-051
+      /// Digitised and made 2d from figs 1a and 1b
+      /// @{
+
+        // Tight Primary WP
+        const static HEPUtils::BinnedFn2D<double> eff2DTrack_ATL_PHYS_PUB_2015_051_Tight_Primary(
+          {-2.5, -2.3, -2.1, -1.9, -1.7, -1.5, -1.3, -1.1, -0.9, -0.7, -0.5, -0.3, -0.1, 0.1, 0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5},    // Bin edges in eta
+          {0, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 2, 2.5, 3.0, 3.5, 4.0, 5, DBL_MAX},    // Bin edges in pT
+          {0.63*0.73, 0.63*0.79, 0.63*0.79, 0.63*0.80, 0.63*0.81, 0.63*0.81, 0.63*0.81, 0.63*0.82, 0.63*0.82, 0.63*0.82, 0.63*0.82, 0.63*0.83, 0.63*0.84, 0.63*0.84, 0.63*0.85, 0.63*0.85, 0.63*0.85, 0.,
+           0.71*0.73, 0.71*0.79, 0.71*0.79, 0.71*0.80, 0.71*0.81, 0.71*0.81, 0.71*0.81, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.83, 0.71*0.84, 0.71*0.84, 0.71*0.85, 0.71*0.85, 0.71*0.85, 0.,
+           0.70*0.73, 0.70*0.79, 0.70*0.79, 0.70*0.80, 0.70*0.81, 0.70*0.81, 0.70*0.81, 0.70*0.82, 0.70*0.82, 0.70*0.82, 0.70*0.82, 0.70*0.83, 0.70*0.84, 0.70*0.84, 0.70*0.85, 0.70*0.85, 0.70*0.85, 0.,
+           0.71*0.73, 0.71*0.79, 0.71*0.79, 0.71*0.80, 0.71*0.81, 0.71*0.81, 0.71*0.81, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.83, 0.71*0.84, 0.71*0.84, 0.71*0.85, 0.71*0.85, 0.71*0.85, 0.,
+           0.75*0.73, 0.75*0.79, 0.75*0.79, 0.75*0.80, 0.75*0.81, 0.75*0.81, 0.75*0.81, 0.75*0.82, 0.75*0.82, 0.75*0.82, 0.75*0.82, 0.75*0.83, 0.75*0.84, 0.75*0.84, 0.75*0.85, 0.75*0.85, 0.75*0.85, 0.,
+           0.79*0.73, 0.79*0.79, 0.79*0.79, 0.79*0.80, 0.79*0.81, 0.79*0.81, 0.79*0.81, 0.79*0.82, 0.79*0.82, 0.79*0.82, 0.79*0.82, 0.79*0.83, 0.79*0.84, 0.79*0.84, 0.79*0.85, 0.79*0.85, 0.79*0.85, 0.,
+           0.82*0.73, 0.82*0.79, 0.82*0.79, 0.82*0.80, 0.82*0.81, 0.82*0.81, 0.82*0.81, 0.82*0.82, 0.82*0.82, 0.82*0.82, 0.82*0.82, 0.82*0.83, 0.82*0.84, 0.82*0.84, 0.82*0.85, 0.82*0.85, 0.82*0.85, 0.,
+           0.84*0.73, 0.84*0.79, 0.84*0.79, 0.84*0.80, 0.84*0.81, 0.84*0.81, 0.84*0.81, 0.84*0.82, 0.84*0.82, 0.84*0.82, 0.84*0.82, 0.84*0.83, 0.84*0.84, 0.84*0.84, 0.84*0.85, 0.84*0.85, 0.84*0.85, 0.,
+           0.86*0.73, 0.86*0.79, 0.86*0.79, 0.86*0.80, 0.86*0.81, 0.86*0.81, 0.86*0.81, 0.86*0.82, 0.86*0.82, 0.86*0.82, 0.86*0.82, 0.86*0.83, 0.86*0.84, 0.86*0.84, 0.86*0.85, 0.86*0.85, 0.86*0.85, 0.,
+           0.86*0.73, 0.86*0.79, 0.86*0.79, 0.86*0.80, 0.86*0.81, 0.86*0.81, 0.86*0.81, 0.86*0.82, 0.86*0.82, 0.86*0.82, 0.86*0.82, 0.86*0.83, 0.86*0.84, 0.86*0.84, 0.86*0.85, 0.86*0.85, 0.86*0.85, 0.,
+           0.87*0.73, 0.87*0.79, 0.87*0.79, 0.87*0.80, 0.87*0.81, 0.87*0.81, 0.87*0.81, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.83, 0.87*0.84, 0.87*0.84, 0.87*0.85, 0.87*0.85, 0.87*0.85, 0.,
+           0.87*0.73, 0.87*0.79, 0.87*0.79, 0.87*0.80, 0.87*0.81, 0.87*0.81, 0.87*0.81, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.83, 0.87*0.84, 0.87*0.84, 0.87*0.85, 0.87*0.85, 0.87*0.85, 0.,
+           0.87*0.73, 0.87*0.79, 0.87*0.79, 0.87*0.80, 0.87*0.81, 0.87*0.81, 0.87*0.81, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.83, 0.87*0.84, 0.87*0.84, 0.87*0.85, 0.87*0.85, 0.87*0.85, 0.,
+           0.87*0.73, 0.87*0.79, 0.87*0.79, 0.87*0.80, 0.87*0.81, 0.87*0.81, 0.87*0.81, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.83, 0.87*0.84, 0.87*0.84, 0.87*0.85, 0.87*0.85, 0.87*0.85, 0.,
+           0.87*0.73, 0.87*0.79, 0.87*0.79, 0.87*0.80, 0.87*0.81, 0.87*0.81, 0.87*0.81, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.83, 0.87*0.84, 0.87*0.84, 0.87*0.85, 0.87*0.85, 0.87*0.85, 0.,
+           0.87*0.73, 0.87*0.79, 0.87*0.79, 0.87*0.80, 0.87*0.81, 0.87*0.81, 0.87*0.81, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.82, 0.87*0.83, 0.87*0.84, 0.87*0.84, 0.87*0.85, 0.87*0.85, 0.87*0.85, 0.,
+           0.86*0.73, 0.86*0.79, 0.86*0.79, 0.86*0.80, 0.86*0.81, 0.86*0.81, 0.86*0.81, 0.86*0.82, 0.86*0.82, 0.86*0.82, 0.86*0.82, 0.86*0.83, 0.86*0.84, 0.86*0.84, 0.86*0.85, 0.86*0.85, 0.86*0.85, 0.,
+           0.84*0.73, 0.84*0.79, 0.84*0.79, 0.84*0.80, 0.84*0.81, 0.84*0.81, 0.84*0.81, 0.84*0.82, 0.84*0.82, 0.84*0.82, 0.84*0.82, 0.84*0.83, 0.84*0.84, 0.84*0.84, 0.84*0.85, 0.84*0.85, 0.84*0.85, 0.,
+           0.82*0.73, 0.82*0.79, 0.82*0.79, 0.82*0.80, 0.82*0.81, 0.82*0.81, 0.82*0.81, 0.82*0.82, 0.82*0.82, 0.82*0.82, 0.82*0.82, 0.82*0.83, 0.82*0.84, 0.82*0.84, 0.82*0.85, 0.82*0.85, 0.82*0.85, 0.,
+           0.79*0.73, 0.79*0.79, 0.79*0.79, 0.79*0.80, 0.79*0.81, 0.79*0.81, 0.79*0.81, 0.79*0.82, 0.79*0.82, 0.79*0.82, 0.79*0.82, 0.79*0.83, 0.79*0.84, 0.79*0.84, 0.79*0.85, 0.79*0.85, 0.79*0.85, 0.,
+           0.76*0.73, 0.76*0.79, 0.76*0.79, 0.76*0.80, 0.76*0.81, 0.76*0.81, 0.76*0.81, 0.76*0.82, 0.76*0.82, 0.76*0.82, 0.76*0.82, 0.76*0.83, 0.76*0.84, 0.76*0.84, 0.76*0.85, 0.76*0.85, 0.76*0.85, 0.,
+           0.71*0.73, 0.71*0.79, 0.71*0.79, 0.71*0.80, 0.71*0.81, 0.71*0.81, 0.71*0.81, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.83, 0.71*0.84, 0.71*0.84, 0.71*0.85, 0.71*0.85, 0.71*0.85, 0.,
+           0.71*0.73, 0.71*0.79, 0.71*0.79, 0.71*0.80, 0.71*0.81, 0.71*0.81, 0.71*0.81, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.83, 0.71*0.84, 0.71*0.84, 0.71*0.85, 0.71*0.85, 0.71*0.85, 0.,
+           0.71*0.73, 0.71*0.79, 0.71*0.79, 0.71*0.80, 0.71*0.81, 0.71*0.81, 0.71*0.81, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.82, 0.71*0.83, 0.71*0.84, 0.71*0.84, 0.71*0.85, 0.71*0.85, 0.71*0.85, 0.,
+           0.63*0.73, 0.63*0.79, 0.63*0.79, 0.63*0.80, 0.63*0.81, 0.63*0.81, 0.63*0.81, 0.63*0.82, 0.63*0.82, 0.63*0.82, 0.63*0.82, 0.63*0.83, 0.63*0.84, 0.63*0.84, 0.63*0.85, 0.63*0.85, 0.63*0.85, 0.}
+        );
+
+        // Loose WP
+        const static HEPUtils::BinnedFn2D<double> eff2DTrack_ATL_PHYS_PUB_2015_051_Loose(
+          {-2.5, -2.3, -2.1, -1.9, -1.7, -1.5, -1.3, -1.1, -0.9, -0.7, -0.5, -0.3, -0.1, 0.1, 0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5},    // Bin edges in eta
+          {0, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 2, 2.5, 3.0, 3.5, 4.0, 5, DBL_MAX},    // Bin edges in pT
+          {0.73*0.78, 0.73*0.84, 0.73*0.85, 0.73*0.86, 0.73*0.86, 0.73*0.86, 0.73*0.87, 0.73*0.87, 0.73*0.87, 0.73*0.87, 0.73*0.88, 0.73*0.88, 0.73*0.88, 0.73*0.89, 0.73*0.89, 0.73*0.89, 0.73*0.90, 0.,
+           0.79*0.78, 0.79*0.84, 0.79*0.85, 0.79*0.86, 0.79*0.86, 0.79*0.86, 0.79*0.87, 0.79*0.87, 0.79*0.87, 0.79*0.87, 0.79*0.88, 0.79*0.88, 0.79*0.88, 0.79*0.89, 0.79*0.89, 0.79*0.89, 0.79*0.90, 0.,
+           0.78*0.78, 0.78*0.84, 0.78*0.85, 0.78*0.86, 0.78*0.86, 0.78*0.86, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.88, 0.78*0.88, 0.78*0.88, 0.78*0.89, 0.78*0.89, 0.78*0.89, 0.78*0.90, 0.,
+           0.78*0.78, 0.78*0.84, 0.78*0.85, 0.78*0.86, 0.78*0.86, 0.78*0.86, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.88, 0.78*0.88, 0.78*0.88, 0.78*0.89, 0.78*0.89, 0.78*0.89, 0.78*0.90, 0.,
+           0.80*0.78, 0.80*0.84, 0.80*0.85, 0.80*0.86, 0.80*0.86, 0.80*0.86, 0.80*0.87, 0.80*0.87, 0.80*0.87, 0.80*0.87, 0.80*0.88, 0.80*0.88, 0.80*0.88, 0.80*0.89, 0.80*0.89, 0.80*0.89, 0.80*0.90, 0.,
+           0.84*0.78, 0.84*0.84, 0.84*0.85, 0.84*0.86, 0.84*0.86, 0.84*0.86, 0.84*0.87, 0.84*0.87, 0.84*0.87, 0.84*0.87, 0.84*0.88, 0.84*0.88, 0.84*0.88, 0.84*0.89, 0.84*0.89, 0.84*0.89, 0.84*0.90, 0.,
+           0.87*0.78, 0.87*0.84, 0.87*0.85, 0.87*0.86, 0.87*0.86, 0.87*0.86, 0.87*0.87, 0.87*0.87, 0.87*0.87, 0.87*0.87, 0.87*0.88, 0.87*0.88, 0.87*0.88, 0.87*0.89, 0.87*0.89, 0.87*0.89, 0.87*0.90, 0.,
+           0.88*0.78, 0.88*0.84, 0.88*0.85, 0.88*0.86, 0.88*0.86, 0.88*0.86, 0.88*0.87, 0.88*0.87, 0.88*0.87, 0.88*0.87, 0.88*0.88, 0.88*0.88, 0.88*0.88, 0.88*0.89, 0.88*0.89, 0.88*0.89, 0.88*0.90, 0.,
+           0.90*0.78, 0.90*0.84, 0.90*0.85, 0.90*0.86, 0.90*0.86, 0.90*0.86, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.88, 0.90*0.88, 0.90*0.88, 0.90*0.89, 0.90*0.89, 0.90*0.89, 0.90*0.90, 0.,
+           0.90*0.78, 0.90*0.84, 0.90*0.85, 0.90*0.86, 0.90*0.86, 0.90*0.86, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.88, 0.90*0.88, 0.90*0.88, 0.90*0.89, 0.90*0.89, 0.90*0.89, 0.90*0.90, 0.,
+           0.91*0.78, 0.91*0.84, 0.91*0.85, 0.91*0.86, 0.91*0.86, 0.91*0.86, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.88, 0.91*0.88, 0.91*0.88, 0.91*0.89, 0.91*0.89, 0.91*0.89, 0.91*0.90, 0.,
+           0.91*0.78, 0.91*0.84, 0.91*0.85, 0.91*0.86, 0.91*0.86, 0.91*0.86, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.88, 0.91*0.88, 0.91*0.88, 0.91*0.89, 0.91*0.89, 0.91*0.89, 0.91*0.90, 0.,
+           0.91*0.78, 0.91*0.84, 0.91*0.85, 0.91*0.86, 0.91*0.86, 0.91*0.86, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.88, 0.91*0.88, 0.91*0.88, 0.91*0.89, 0.91*0.89, 0.91*0.89, 0.91*0.90, 0.,
+           0.91*0.78, 0.91*0.84, 0.91*0.85, 0.91*0.86, 0.91*0.86, 0.91*0.86, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.88, 0.91*0.88, 0.91*0.88, 0.91*0.89, 0.91*0.89, 0.91*0.89, 0.91*0.90, 0.,
+           0.91*0.78, 0.91*0.84, 0.91*0.85, 0.91*0.86, 0.91*0.86, 0.91*0.86, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.87, 0.91*0.88, 0.91*0.88, 0.91*0.88, 0.91*0.89, 0.91*0.89, 0.91*0.89, 0.91*0.90, 0.,
+           0.90*0.78, 0.90*0.84, 0.90*0.85, 0.90*0.86, 0.90*0.86, 0.90*0.86, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.88, 0.90*0.88, 0.90*0.88, 0.90*0.89, 0.90*0.89, 0.90*0.89, 0.90*0.90, 0.,
+           0.90*0.78, 0.90*0.84, 0.90*0.85, 0.90*0.86, 0.90*0.86, 0.90*0.86, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.87, 0.90*0.88, 0.90*0.88, 0.90*0.88, 0.90*0.89, 0.90*0.89, 0.90*0.89, 0.90*0.90, 0.,
+           0.88*0.78, 0.88*0.84, 0.88*0.85, 0.88*0.86, 0.88*0.86, 0.88*0.86, 0.88*0.87, 0.88*0.87, 0.88*0.87, 0.88*0.87, 0.88*0.88, 0.88*0.88, 0.88*0.88, 0.88*0.89, 0.88*0.89, 0.88*0.89, 0.88*0.90, 0.,
+           0.87*0.78, 0.87*0.84, 0.87*0.85, 0.87*0.86, 0.87*0.86, 0.87*0.86, 0.87*0.87, 0.87*0.87, 0.87*0.87, 0.87*0.87, 0.87*0.88, 0.87*0.88, 0.87*0.88, 0.87*0.89, 0.87*0.89, 0.87*0.89, 0.87*0.90, 0.,
+           0.84*0.78, 0.84*0.84, 0.84*0.85, 0.84*0.86, 0.84*0.86, 0.84*0.86, 0.84*0.87, 0.84*0.87, 0.84*0.87, 0.84*0.87, 0.84*0.88, 0.84*0.88, 0.84*0.88, 0.84*0.89, 0.84*0.89, 0.84*0.89, 0.84*0.90, 0.,
+           0.80*0.78, 0.80*0.84, 0.80*0.85, 0.80*0.86, 0.80*0.86, 0.80*0.86, 0.80*0.87, 0.80*0.87, 0.80*0.87, 0.80*0.87, 0.80*0.88, 0.80*0.88, 0.80*0.88, 0.80*0.89, 0.80*0.89, 0.80*0.89, 0.80*0.90, 0.,
+           0.78*0.78, 0.78*0.84, 0.78*0.85, 0.78*0.86, 0.78*0.86, 0.78*0.86, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.88, 0.78*0.88, 0.78*0.88, 0.78*0.89, 0.78*0.89, 0.78*0.89, 0.78*0.90, 0.,
+           0.78*0.78, 0.78*0.84, 0.78*0.85, 0.78*0.86, 0.78*0.86, 0.78*0.86, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.87, 0.78*0.88, 0.78*0.88, 0.78*0.88, 0.78*0.89, 0.78*0.89, 0.78*0.89, 0.78*0.90, 0.,
+           0.79*0.78, 0.79*0.84, 0.79*0.85, 0.79*0.86, 0.79*0.86, 0.79*0.86, 0.79*0.87, 0.79*0.87, 0.79*0.87, 0.79*0.87, 0.79*0.88, 0.79*0.88, 0.79*0.88, 0.79*0.89, 0.79*0.89, 0.79*0.89, 0.79*0.90, 0.,
+           0.72*0.78, 0.72*0.84, 0.72*0.85, 0.72*0.86, 0.72*0.86, 0.72*0.86, 0.72*0.87, 0.72*0.87, 0.72*0.87, 0.72*0.87, 0.72*0.88, 0.72*0.88, 0.72*0.88, 0.72*0.89, 0.72*0.89, 0.72*0.89, 0.72*0.90, 0.}
+        );
+
+      /// @}
+
+
+      /// Photon efficiencies
+      /// @{
+
+        const static HEPUtils::BinnedFn2D<double> eff2DPhoton_R2(
+          { 0., 0.6, 1.37, 1.52, 1.81, 2.37, DBL_MAX },
+          { 0., 10., 15., 20., 25., 30., 35., 40., 45., 50., 60., 80., 100., 125., 150., 175., 250., DBL_MAX },
+          {
+            0.00, 0.55, 0.70, 0.85, 0.89, 0.93, 0.95, 0.96, 0.96, 0.97, 0.97, 0.98, 0.97, 0.97, 0.97, 0.97, 0.97,
+            0.00, 0.47, 0.66, 0.79, 0.86, 0.89, 0.94, 0.96, 0.97, 0.97, 0.98, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98,
+            0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,
+            0.00, 0.54, 0.71, 0.84, 0.88, 0.92, 0.93, 0.94, 0.95, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96, 0.96,
+            0.00, 0.61, 0.74, 0.83, 0.88, 0.91, 0.94, 0.95, 0.96, 0.97, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98, 0.98,
+            0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
+          }
+        );
+
       /// @}
 
       /////////////////////////
       // ATLAS Efficiency maps //
 
-      // Map of electron efficiencies
+      // Map of MET 1D trigger efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DMET(
+      {
+        {"CERN_EP_2015_241",   eff1DMET_CERN_EP_2015_241},
+      });
+
+      // Map of electron 1D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DEl(
       {
         {"PERF_2017_01_ID_VeryLoose",        eff1DEl_PERF_2017_01_ID_VeryLoose},
@@ -618,8 +722,10 @@ namespace Gambit
 //        {"Medium", eff2DEl_Medium}
       });
 
+      // Map of electron 2D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DEl(
       {
+        {"Generic",                        eff2DEl_Generic},
         {"ATLAS_CONF_2014_032_Medium",     eff2DEl_ATLAS_CONF_2014_032_Medium},
         {"ATLAS_CONF_2014_032_Tight",      eff2DEl_ATLAS_CONF_2014_032_Tight},
         {"ATLAS_PHYS_PUB_2015_041_Loose",  eff2DEl_ATLAS_PHYS_PUB_2015_041_Loose},
@@ -634,13 +740,46 @@ namespace Gambit
         {"MUON_2018_03_Iso_Tight", eff1DMu_MUON_2018_03_Iso_Tight},
         {"MUON_2018_03_ID_Loose",  eff1DMu_MUON_2018_03_ID_Loose},
         {"MUON_2018_03_ID_Medium", eff1DMu_MUON_2018_03_ID_Medium},
-        {"MUON_2018_03_ID_Tight",  eff1DMu_MUON_2018_03_ID_Tight}
+        {"MUON_2018_03_ID_Tight",  eff1DMu_MUON_2018_03_ID_Tight},
+        {"ATLAS_PHYS_PUB_2020_002_Medium", eff1DMu_ATLAS_PHYS_PUB_2020_002_Medium},
+        {"ATLAS_PHYS_PUB_2020_002_LowPT", eff1DMu_ATLAS_PHYS_PUB_2020_002_LowPT},
       });
 
+      // Map of muon 2D efficiencies
       static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DMu(
       {
+        {"Generic",    eff2DMu_Generic},
+        {"R2",         eff2DMu_R2}
       });
 
+      // Map of tau scalar efficiencies
+      static const efficiency_map<double> effTau(
+      {
+        {"R1",                effTau_R1},
+        {"R2_RNN_Tight",      effTau_R2_RNN_Tight},
+        {"R2_RNN_Medium",     effTau_R2_RNN_Medium},
+        {"R2_RNN_Loose",      effTau_R2_RNN_Loose},
+        {"R2_RNN_VeryLoose",  effTau_R2_RNN_VeryLoose},
+      });
+
+      // Map of tau 1D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn1D<double> > eff1DTau(
+      {
+        {"R2",            eff1DTau_R2},
+      });
+
+      // Map of track 2D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DTrack(
+      {
+        {"ATL_PHYS_PUB_2015_051_Tight_Primary",   eff2DTrack_ATL_PHYS_PUB_2015_051_Tight_Primary},
+        {"ATL_PHYS_PUB_2015_051_Loose",           eff2DTrack_ATL_PHYS_PUB_2015_051_Loose},
+      });
+
+      // Map of photon 2D efficiencies
+      static const efficiency_map<HEPUtils::BinnedFn2D<double> > eff2DPhoton(
+      {
+        {"R2",           eff2DPhoton_R2},
+      });
     }
   }
 }

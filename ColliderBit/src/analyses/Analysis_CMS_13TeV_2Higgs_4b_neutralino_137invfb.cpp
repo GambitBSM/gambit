@@ -11,10 +11,14 @@
 // CMS-SUS-20-004, CERN-EP-2021-214
 //
 // Note:
-//    * Not validate.
-//    * No AK8 jets.
-//    * No b-tag discriminator values
-
+//    For the resolved signature
+//      * No cut on PTmiss quality 
+//      * No b-tag discriminator values
+//      * They may affect some low mass or compressed range 
+//    For the boosted signature
+//      * No track vetoes
+//      * No reseolved event veto
+//      * No double b-tag discriminator values
 
 
 #include <vector>
@@ -40,6 +44,10 @@ namespace Gambit {
     protected:
 
         Cutflow _cutflow;
+        HEPUtils::BinnedFn2D<double> LooseEff = CMS::eff2DBJet.at("DeepCSVLoose");
+        HEPUtils::BinnedFn2D<double> MediumEff = CMS::eff2DBJet.at("DeepCSVMedium");
+        HEPUtils::BinnedFn2D<double> TightEff = CMS::eff2DBJet.at("DeepCSVTight");
+        const double ScaleEff = 1./0.9;
 
     public:
         // Required detector sim
@@ -50,7 +58,25 @@ namespace Gambit {
           "Filters",
           "N_vl=N_tk=0",
           "4<=N_jet<=5",
-          "N_b>=2"})
+          "N_b>=2",
+          "P_T^miss_quality",
+          "Dmbb<40,mbb<200",
+          "DRmax<2.2",
+          "100<m<140",
+          "Nb>=3",
+          "Nb==4",
+          "PT^miss>200",
+          "PT^miss>300",
+          "PT^miss>400",
+          "------", // 14
+          "HadronicBaseline", 
+          "NAK8>=2",
+          "mJ1&2[60,260]",
+          "ResolvedEventVeto",
+          "mJ1&2[95,145]",
+          "DbbJ1xor2>0.7",
+          "DbbJ1&2>0.7"
+          })
         {
             set_analysis_name("CMS_13TeV_2Higgs_4b_neutralino_137invfb");
             set_luminosity(137);
@@ -59,6 +85,17 @@ namespace Gambit {
             {
               _counters["SR"+std::to_string(i)] =  EventCounter("SR"+std::to_string(i));
             }
+
+            for(size_t i=0; i<LooseEff.num_bins(); ++i) {
+                LooseEff.set_at_index(i,LooseEff.get_at_index(i)*ScaleEff);
+            }
+            for(size_t i=0; i<MediumEff.num_bins(); ++i) {
+                MediumEff.set_at_index(i,MediumEff.get_at_index(i)*ScaleEff);
+            }
+            for(size_t i=0; i<TightEff.num_bins(); ++i) {
+                TightEff.set_at_index(i,TightEff.get_at_index(i)*ScaleEff);
+            }
+            
         }
 
         struct ptComparison {
@@ -73,22 +110,23 @@ namespace Gambit {
             HEPUtils::P4 ptot = event->missingmom();
 
             // Define baseline jets
-            BASELINE_JETS(jets, baselineJets_AK4, 30,  0, DBL_MAX, 2.4)
-            BASELINE_JETS(jets, baselineJets_AK8, 300, 0, DBL_MAX, 2.4) // TODO: use jets_AK8
-            BASELINE_BJETS(jets, baselineBJets_L, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Loose"), CMS::missIDBJet.at("CSVv2Loose"))
-            BASELINE_BJETS(jets, baselineBJets_M, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Medium"), CMS::missIDBJet.at("CSVv2Medium"))
-            BASELINE_BJETS(jets, baselineBJets_T, 30., 0., DBL_MAX, 2.4, CMS::eff2DBJet.at("CSVv2Tight"), CMS::missIDBJet.at("CSVv2Tight"))
+            BASELINE_JETS(event->jets("antikt_R04"), baselineJets_AK4, 30,  0, DBL_MAX, 2.4)
+            BASELINE_JETS(event->jets("antikt_R08"), baselineJets_AK8, 300, 0, DBL_MAX, 2.4)
+            BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets_L, 30., 0., DBL_MAX, 2.4, LooseEff, CMS::misIDBJet.at("DeepCSVLoose"))
+            BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets_M, 30., 0., DBL_MAX, 2.4, MediumEff, CMS::misIDBJet.at("DeepCSVMedium"))
+            BASELINE_BJETS(event->jets("antikt_R04"), baselineBJets_T, 30., 0., DBL_MAX, 2.4, TightEff, CMS::misIDBJet.at("DeepCSVTight"))
             vector<const HEPUtils::Jet*> baselineBJets_AK8;
             for (const HEPUtils::Jet* jet : baselineJets_AK8) {
-                // Tag
-                if( jet->btag() && random_bool(0.90) ) baselineBJets_AK8.push_back(jet);
+                if( jet->btag() ) {
+                  //TODO No double-b tagging discriminator, so this eff is fixed by matching cutflow
+                  if (random_bool(0.60)) baselineBJets_AK8.push_back(jet);
                 // Misstag light jet
-                else if( random_bool(0.05) ) baselineBJets_AK8.push_back(jet);
+                }else if( random_bool(0.05) ) baselineBJets_AK8.push_back(jet);
             }
 
             // Define baseline objects with BASELINE(object_type, variable_name, minpT, mineta[, maxpT, maxeta, efficiency])
-            BASELINE_PARTICLES(electrons, baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
-            BASELINE_PARTICLES(muons, baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
+            BASELINE_PARTICLES(event->electrons(), baselineElectrons, 10, 0, DBL_MAX, 2.5, CMS::eff2DEl.at("SUS_19_008"))
+            BASELINE_PARTICLES(event->muons(), baselineMuons, 10, 0, DBL_MAX, 2.4, CMS::eff2DMu.at("SUS_19_008"))
 
 
             // Define signal objects from baseline objects, automatically order by pT (highest first)
@@ -99,31 +137,47 @@ namespace Gambit {
             SIGNAL_JETS(baselineBJets_T, signalBJets_T)
             SIGNAL_JETS(baselineBJets_AK8, signalBJets_AK8)
 
-
             // for the boosted signature
-            if ( signalJets_AK8.size()>=2 ) { // N_AK8>=2
-              double mj1 = (signalJets_AK8.at(0)->mom()).m();
-              double mj2 = (signalJets_AK8.at(1)->mom()).m();
-              if ( min(mj1,mj2)>60 and max(mj1,mj2)<260){// m_J1&J2 [60,260] GeV
-                if (signalBJets_AK8.size()==1){ // N_H=1
-                  // TODO reseolved event veto?
-                  if (min(mj1,mj2)>95 and max(mj1,mj2)<145) {
-                    if (met < 500.) {
-                      _counters.at("SR17").add_event(event);
-                    } else if (met < 700.) {
-                      _counters.at("SR18").add_event(event);
-                    } else{
-                      _counters.at("SR19").add_event(event);
-                    }
-                  }
-                }else{ // N_H=2
-                  if (min(mj1,mj2)>95 and max(mj1,mj2)<145) {
-                    if (met < 500.) {
-                      _counters.at("SR20").add_event(event);
-                    } else if (met < 700.) {
-                      _counters.at("SR21").add_event(event);
-                    } else{
-                      _counters.at("SR22").add_event(event);
+            _cutflow.fill(14);
+            if (met > 300. 
+                and baselineElectrons.size() == 0 and baselineMuons.size() == 0 
+                and signalJets_AK4.size()>=4){
+              bool DeltaPhiVeto = false;
+              for (int ii=0; ii< min(4,int(signalJets_AK4.size())); ii++){
+                double deltaPhi_cut =  ii<2 ? 0.5 : 0.3;
+                DeltaPhiVeto = deltaR_eta(ptot, signalJets_AK4.at(ii)->mom()) < deltaPhi_cut;
+              }
+              if (not DeltaPhiVeto) {
+                _cutflow.fill(15); 
+                if ( signalJets_AK8.size()>=2 ) { // N_AK8>=2
+                  _cutflow.fill(16);
+                  double mj1 = (signalJets_AK8.at(0)->mom()).m();
+                  double mj2 = (signalJets_AK8.at(1)->mom()).m();
+                  if ( min(mj1,mj2)>60 and max(mj1,mj2)<260){// m_J1&J2 [60,260] GeV
+                    _cutflow.fill(17);
+                    // TODO reseolved event veto?
+                    _cutflow.fill(18);
+                    if (min(mj1,mj2)>95 and max(mj1,mj2)<145){
+                      _cutflow.fill(19);
+                      if (signalBJets_AK8.size()==1){ // N_H=1
+                        _cutflow.fill(20);
+                        if (met < 500.) {
+                          _counters.at("SR17").add_event(event);
+                        } else if (met < 700.) {
+                          _counters.at("SR18").add_event(event);
+                        } else{
+                          _counters.at("SR19").add_event(event);
+                        }
+                      }else if (signalBJets_AK8.size()==2) { // N_H=2
+                        _cutflow.fill(21);
+                        if (met < 500.) {
+                          _counters.at("SR20").add_event(event);
+                        } else if (met < 700.) {
+                          _counters.at("SR21").add_event(event);
+                        } else{
+                          _counters.at("SR22").add_event(event);
+                        }
+                      }
                     }
                   }
                 }
@@ -134,17 +188,19 @@ namespace Gambit {
             if(met < 150.) return;
             _cutflow.fill(1); // MET>150
             if (baselineElectrons.size()>0 or baselineMuons.size()>0 ) return;
-            _cutflow.fill(2); // N_vl=N_tk=0 TODO?
+            _cutflow.fill(2); // N_vl=N_tk=0
             if (signalJets_AK4.size()<4 or signalJets_AK4.size()>5) return;
             _cutflow.fill(3); // 4<=N_jet<=5
             if (signalBJets_T.size()<2 or signalBJets_M.size()<2) return;
             _cutflow.fill(4); // N_b>=2
+
             for (int ii=0; ii<4; ii++)
             {
               double deltaPhi_cut =  ii<2 ? 0.5 : 0.3;
               if ( deltaR_eta(ptot, signalJets_AK4.at(ii)->mom()) < deltaPhi_cut) return;
             }
             _cutflow.fill(5); // DeltaPhi cuts
+
             // Instead of using four jets with the highest b-tag
             // discriminator values, we use the four hardest jets.
             // This should be fine for signal processes, but not for bkg.
@@ -175,6 +231,24 @@ namespace Gambit {
 
             if (mbb_average>140 or mbb_average<100) return;
             _cutflow.fill(8); // 100 < <m_bb> < 140 GeV
+
+            if (signalBJets_M.size() >= 3 and signalBJets_L.size() >= 3 ) { // Nb>=3
+              _cutflow.fill(9); // Nb>=3
+              if (signalBJets_M.size() >= 3 and signalBJets_L.size() >= 4 ) { // Nb==4
+                _cutflow.fill(10); // Nb==4
+                if (met > 200.) {
+                  _cutflow.fill(11); 
+                  if (met > 300.) {
+                    _cutflow.fill(12);
+                    if (met > 400.) {
+                      _cutflow.fill(13); 
+                    }
+                  }
+                }
+              }
+            }
+
+
 
             if (Delta_R_max>1.1) { // && Delta_R_max<2.2
               if (signalBJets_M.size() == 3 and signalBJets_L.size() == 3 ) { // Nb=3
@@ -231,6 +305,9 @@ namespace Gambit {
 
 
         void collect_results() {
+        
+            cout << _cutflow << endl;
+        
             add_result(SignalRegionData(_counters.at("SR1"), 138, {149.74,8.8574}));
             add_result(SignalRegionData(_counters.at("SR2"), 91,  {91.536,6.8599}));
             add_result(SignalRegionData(_counters.at("SR3"), 14,  {12.757,2.5972}));

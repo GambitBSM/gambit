@@ -137,7 +137,7 @@ namespace Gambit {
 
         // Baseline jets
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           // We use 25 GeV rather than 35 GeV
           // if (jet->pT()>35. &&fabs(jet->eta())<2.4) baselineJets.push_back(jet);
@@ -190,7 +190,8 @@ namespace Gambit {
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
         }
-        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets,signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
+        applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Medium"));
 
         // Signal leptons = electrons + muons
         signalLeptons=signalElectrons;

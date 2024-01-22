@@ -51,7 +51,7 @@ namespace Gambit
         // get the jets and leptons filtered by their pt and eta requirements
         electrons = AnalysisUtil::filterPtEta(electrons, 10, 2.47);
         muons = AnalysisUtil::filterPtEta(muons, 10, 2.4);
-        std::vector<const Jet*> jets = AnalysisUtil::filterPtEta(event->jets(), 20, 4.5);
+        std::vector<const Jet*> jets = AnalysisUtil::filterPtEta(event->jets("antikt_R04"), 20, 4.5);
 
         // check if any of the triggers were triggered
         bool eeTrigger = AnalysisUtil::isMultipleParticleTriggered(electrons, {17, 17});
@@ -67,7 +67,7 @@ namespace Gambit
         muons = AnalysisUtil::leptonJetOverlapRemoval(muons, jets, 0.4);
 
         // This uses 8TeV tight electron selection, but it is close enough to the 7TeV implementation so we still use it
-        apply2DEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+        applyEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
 
         // fill a vector with all of the leptons
         std::vector<const Particle*> leptons;

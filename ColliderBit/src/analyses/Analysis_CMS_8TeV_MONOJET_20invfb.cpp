@@ -91,7 +91,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, CMS::eff2DEl.at("Generic"));
 
         // Baseline muons
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -102,7 +102,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        CMS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, CMS::eff2DMu.at("Generic"));
 
         // Baseline taus
         vector<const HEPUtils::Particle*> baselineTaus;
@@ -111,12 +111,12 @@ namespace Gambit {
             baselineTaus.push_back(tau);
           }
         }
-        CMS::applyTauEfficiency(baselineTaus);
+        applyEfficiency(baselineTaus, CMS::effTau.at("Generic"));
 
         vector<const HEPUtils::Jet*> baselineJets;
         vector<HEPUtils::P4> jets;
 
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 30. && fabs(jet->eta()) < 4.5) {
             baselineJets.push_back(jet);
           }

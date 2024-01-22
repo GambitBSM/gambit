@@ -1,0 +1,532 @@
+##########################################################################
+##
+## A GAMBIT configuration file for running a SUSYRun2 scan.
+## This is based off the Zenodo yaml file for the EWMSSM+gravitino project
+##
+##########################################################################
+
+# This scan will use FlexibleSUSY for the spectrum generation. 
+# so build GAMBIT with the cmake flag -DBUILD_FS_MODELS="MSSM_mAmu"
+
+Parameters:
+
+  # SM parameters.
+  StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
+
+  # MSSM parameters
+  MSSM11atQ_mA_mG:
+    M1: -962.512
+      #prior_type: flat
+      #range: [-1000, 1000]
+    M2: 113.544
+      #prior_type: flat
+      #range: [0, 1000]
+    mu: -230.86
+      #prior_type: flat
+      #range: [-1000, 1000]
+    TanBeta: 28.5021
+      #prior_type: flat
+      #range: [1, 70]
+    mG: 1.0e-9
+    Ad_3: 0.0
+    Ae_3: 0.0
+    Au_3: 0.0
+    M3: 5.0e3
+    Qin: 3.0e3
+    mA: 5.0e3
+    ml2: 9.0e6
+    mq2: 9.0e6
+
+
+Priors:
+
+  # All priors simple, so specified in Parameters section
+
+
+Printer:
+
+  # Choose hdf5, cout or ascii printer
+
+  printer: hdf5
+  options:
+    output_file: "SUSYRun2_MSSMEW_gravitino.hdf5"
+    group: "/SUSYRun2_MSSMEW_gravitino"
+    delete_file_on_restart: true
+
+  # printer: cout
+
+
+Scanner:
+
+  use_scanner: random
+
+  scanners:
+
+    random:
+      plugin: random
+      point_number: 1
+      output_file:  output
+      like:  LogLike
+      files:
+        output_file: "weights ..."
+
+    de:
+      plugin: diver
+      like: LogLike
+      NP: 1000
+      convthresh: 1e-5
+      verbosity: 1
+
+
+ObsLikes:
+
+    # Combined likelihood for LHC searches
+    - purpose:    LogLike
+      capability: LHC_Combined_LogLike
+
+    # Combined likelihood for LHC measurements
+    # NOTE: The LHC_measurements_LogLike should be run as a separate post-processing run.
+    #       since it will be very slow to run on the millions of Pythia events generated
+    #       for the computation of LHC_Combined_LogLike above.
+    - purpose:    LogLike
+      capability: LHC_measurements_LogLike
+
+    # LEP likelihoods
+    - purpose:    LogLike
+      capability: L3_Gravitino_LLike
+
+    - purpose:    LogLike
+      capability: L3_Chargino_Leptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Hadronic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_SemiLeptonic_LLike
+
+    - purpose:    LogLike
+      capability: OPAL_Chargino_Leptonic_LLike
+
+    # Observables
+    - purpose:    Observable
+      capability: all_BFs
+
+    - purpose:    Observable
+      capability: TotalCrossSectionAsMap
+    
+    - purpose:    Observable
+      capability: LHC_signals
+    
+    - purpose:    Observable
+      capability: LHC_LogLike_per_SR
+
+    - purpose:    Observable
+      capability: LHC_LogLike_SR_indices
+    
+    - purpose:    Observable
+      capability: LHCEventLoopInfo
+
+    # NOTE: See comment above regarding LHC_measurements_LogLike.
+    #       The same applies for this observable.
+    - purpose:    Observable
+      capability: LHC_measurements_LogLike_perPool
+
+    - purpose:    Observable
+      capability: SLHA1_violation
+
+    - purpose:    Observable
+      capability: MSSM_spectrum
+      type:       map_str_dbl
+
+
+Rules:
+
+  # Choose to get decays from DecayBit proper, not from an SLHA file.
+  - capability: decay_rates
+    function: all_decays
+
+  # Require a small, additional mass difference before switching on new decay decay modes in the
+  # limit of small chargino--neutralino mass difference. Can help avoid problems with chargino
+  # decays in Pythia (due to Pythia's MSAFETY check).
+  - capability: chargino_plus_1_decay_rates_smallsplit
+    function: chargino_plus_1_decays_smallsplit
+    options:
+      m_safety: 0.0011
+
+  # Choose which branching fractions to save
+  - capability: all_BFs
+    function: get_decaytable_as_map
+    options:
+      # printall: true
+      BFs: [
+              ["~chi0_1",  "gamma", "~G"],
+              ["~chi0_1",  "Z0", "~G"],
+              ["~chi0_1",  "h0_1", "~G"],
+              ["~chi0_1",  "W+", "~chi-_1"],
+              ["~chi0_2",  "gamma", "~G"],
+              ["~chi0_2",  "Z0", "~G"],
+              ["~chi0_2",  "Z0", "~chi0_1"],
+              ["~chi0_2",  "h0_1", "~G"],
+              ["~chi0_2",  "h0_1", "~chi0_1"],
+              ["~chi0_2",  "W+", "~chi-_1"],
+              ["~chi0_2",  "W+", "~chi-_2"],
+              ["~chi0_3",  "gamma", "~G"],
+              ["~chi0_3",  "Z0", "~G"],
+              ["~chi0_3",  "Z0", "~chi0_1"],
+              ["~chi0_3",  "Z0", "~chi0_2"],
+              ["~chi0_3",  "h0_1", "~G"],
+              ["~chi0_3",  "h0_1", "~chi0_1"],
+              ["~chi0_3",  "h0_1", "~chi0_2"],
+              ["~chi0_3",  "W+", "~chi-_1"],
+              ["~chi0_3",  "W+", "~chi-_2"],
+              ["~chi0_4",  "gamma", "~G"],
+              ["~chi0_4",  "Z0", "~G"],
+              ["~chi0_4",  "Z0", "~chi0_1"],
+              ["~chi0_4",  "Z0", "~chi0_2"],
+              ["~chi0_4",  "Z0", "~chi0_3"],
+              ["~chi0_4",  "h0_1", "~G"],
+              ["~chi0_4",  "h0_1", "~chi0_1"],
+              ["~chi0_4",  "h0_1", "~chi0_2"],
+              ["~chi0_4",  "h0_1", "~chi0_3"],
+              ["~chi0_4",  "W+", "~chi-_1"],
+              ["~chi0_4",  "W+", "~chi-_2"],
+              ["~chi+_1",  "W+", "~G"],
+              ["~chi+_1",  "W+", "~chi0_1"],
+              ["~chi+_1",  "W+", "~chi0_2"],
+              ["~chi+_1",  "W+", "~chi0_3"],
+              ["~chi+_1",  "W+", "~chi0_4"],
+              ["~chi+_2",  "Z0", "~chi+_1"],
+              ["~chi+_2",  "h0_1", "~chi+_1"],
+              ["~chi+_2",  "W+", "~G"],
+              ["~chi+_2",  "W+", "~chi0_1"],
+              ["~chi+_2",  "W+", "~chi0_2"],
+              ["~chi+_2",  "W+", "~chi0_3"],
+              ["~chi+_2",  "W+", "~chi0_4"],
+            ]
+
+  # Choose to get the spectrum from SpecBit proper, not an SLHA file.
+  # Options set to match benchmark point specified in SpecBit/MSSM_benchmark_points/LesHouches.in.MSSM_1
+  - capability: unimproved_MSSM_spectrum
+    function: get_MSSMatQ_mA_spectrum_FS
+    options:
+      precision_goal:        1.0e-4
+      max_iterations:        0
+      calculate_sm_masses:   false
+      pole_mass_loop_order:  2
+      ewsb_loop_order:       2
+      beta_loop_order:       2
+      threshold_corrections_loop_order: 2
+      use_higgs_2loop_at_as: true
+      use_higgs_2loop_ab_as: true
+      use_higgs_2loop_at_at: true
+      use_higgs_2loop_atau_atau: true
+      invalid_point_fatal: false
+      # Only consider chargino masses > 45 GeV as masses lighter than this are excluded by
+      # LEP measurements of the Z width.
+      mass_cut: [ ["|~chi+_1|", 45., 1e6] ]
+      # For this study we set the Higgs mass by hand.
+      override_FS_pole_masses:
+        h0_1: 125.09
+      # Explicitly require the gravitino to be LSP (it always is in this scan, since we fix the mass ~0)
+      only_gravitino_LSP: true
+
+
+  # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
+  # so that things depending on "MSSM_spectrum" will be happy.
+  - capability: MSSM_spectrum
+    type: Spectrum
+    function: make_MSSM_precision_spectrum_none
+
+  # These options set various tolerances in the spectrum generation TODO: These do not work with the current rules system
+  #- options:
+  #    gauge_mixing_tolerance: 0.5
+  #    family_mixing_tolerance: 0.5
+
+  # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
+  - capability: Higgs_decay_rates
+    function: MSSM_h0_1_decays
+  - capability: h0_2_decay_rates
+    function: h0_2_decays
+  - capability: A0_decay_rates
+    function: A0_decays
+  - capability: H_plus_decay_rates
+    function: H_plus_decays
+  - capability: t_decay_rates
+    function: t_decays
+
+  # Pass an SLHA2 spectrum to Pythia
+  - capability: SpectrumAndDecaysForPythia
+    function: getSpectrumAndDecaysForPythia
+    options:
+      slha_version: 2
+      write_summary_to_log: false
+
+  # Choose to where to get cross-sections from
+  - capability: TotalCrossSection
+    function: getEvGenCrossSection_as_base
+
+  # Just use unweighted cross-sections
+  - capability: EventWeighterFunction
+    function: setEventWeight_unity
+
+  # Choose where to get scattering events from
+  - capability: HardScatteringEvent
+    type: Pythia_default::Pythia8::Event
+    function: generateEventPythia
+    # options:
+    #   drop_HepMC3_file: true
+
+  - capability: HardScatteringEvent
+    type: HEPUtils::Event
+    function: generateEventPythia_HEPUtils
+
+  - capability: HardScatteringEvent
+    type: HepMC3::GenEvent
+    function: generateEventPythia_HepMC
+
+  # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
+  # NOTE: The second collider configuration below ("LHC_13TeV_antiktR_1") is only needed to simulate the
+  #       search ATLAS_13TeV_2BoostedBosons_139invfb. 
+  - capability: RunMC
+    function: operateLHCLoop
+    options:
+      silenceLoop: false
+      LHC_13TeV:
+        min_nEvents: 16000000
+        max_nEvents: 16000000
+        events_between_convergence_checks: 1000000000
+        target_fractional_uncert: 0.1
+        halt_when_systematic_dominated: false
+        all_analyses_must_converge: true
+        all_SR_must_converge: false
+        maxFailedEvents: 100
+        analyses:
+          - ATLAS_13TeV_0LEP_139invfb
+          - ATLAS_13TeV_0LEPStop_139invfb
+          - ATLAS_13TeV_1Lep2b_139invfb
+          #  - ATLAS_13TeV_1LEPStop_36invfb  # This search requires ROOT. Build GAMBIT with -DWITH_ROOT=True.
+          - ATLAS_13TeV_2BoostedBosons_139invfb
+          - ATLAS_13TeV_2LEPJETS_EW_139invfb
+          #- ATLAS_13TeV_2LEPJETS_RJR_139invfb # TODO This search requires RestFrames
+          - ATLAS_13TeV_2LEPStop_inclusive_139invfb
+          #- ATLAS_13TeV_2LEPsoft_139invfb # TODO: Still needs testing (wasn't ready last time I tested)
+          - ATLAS_13TeV_2OSLEP_Z_139invfb
+          - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
+          - ATLAS_13TeV_3LEP_139invfb
+          - ATLAS_13TeV_3LEP_eRJR_139invfb
+          - ATLAS_13TeV_4LEP_139invfb
+          - ATLAS_13TeV_2bMET_36invfb
+          - ATLAS_13TeV_3b_24invfb
+          - ATLAS_13TeV_MultiLEP_strong_139invfb
+          - ATLAS_13TeV_PhotonGGM_2Photon_36invfb
+          - ATLAS_13TeV_PhotonGGM_1Photon_139invfb
+          - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
+          # 
+          - CMS_13TeV_0LEP_137invfb
+          - CMS_13TeV_1LEPStop_36invfb
+          - CMS_13TeV_1LEPbb_36invfb
+          - CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
+          - CMS_13TeV_2Higgs_4b_neutralino_137invfb
+          - CMS_13TeV_2LEPStop_36invfb
+          - CMS_13TeV_2LEPsoft_36invfb
+          - CMS_13TeV_2LEPsoft_stop_36invfb
+          - CMS_13TeV_2OSLEP_Strong_Production_137invfb
+          - CMS_13TeV_2OSLEP_Slepton_137invfb
+          - CMS_13TeV_2OSLEP_for_chargino_36invfb
+          - CMS_13TeV_2OSLEP_for_stop_36invfb
+          - CMS_13TeV_Photon_GMSB_36invfb
+          - CMS_13TeV_2Photon_GMSB_36invfb
+          - CMS_13TeV_2SSLEP_Stop_137invfb
+          - CMS_13TeV_MultiLEP_2LEP_137invfb
+          - CMS_13TeV_MultiLEP_3LEP_137invfb
+          - CMS_13TeV_MultiLEP_4LEP_137invfb
+          - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antiktR=1.0
+
+  # Choose Monte Carlo event simulator and options.
+  # NOTE: The second Pythia configuration below ("LHC_13TeV_antiktR_1") is only needed to simulate the
+  #       search ATLAS_13TeV_2BoostedBosons_139invfb. 
+  - capability:  HardScatteringSim
+    type: Py8Collider_defaultversion
+    function: getPythia
+    options:
+      LHC_13TeV:
+        # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        xsec_veto: 0.028
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt
+            R: 0.4
+            recombination_scheme: E_scheme
+            strategy: Best
+          antikt_R08:
+            algorithm: antikt
+            R: 0.8
+            recombination_scheme: E_scheme
+            strategy: Best
+          antikt_R1: # Needed for the ATLAS_13TeV_2BoostedBosons_139invfb search
+            algorithm: antikt
+            R: 1.0
+            recombination_scheme: E_scheme
+            strategy: Best
+        jet_collection_taus: antikt_R04
+        partonOnly: false
+        pythia_settings:
+          - Print:quiet = on
+          - Next:numberCount = 0
+          - Random:setSeed = on
+          - Beams:eCM = 13000
+          - PartonLevel:MPI = off
+          - PartonLevel:ISR = on
+          - PartonLevel:FSR = on
+          - HadronLevel:all = on
+          - SUSY:all = off
+          - SUSY:qqbar2chi0chi0 = on
+          - SUSY:qqbar2chi+-chi0 = on
+          - SUSY:qqbar2chi+chi- = on
+          - TauDecays:mode = 0
+          - TimeShower:pTmin = 2
+          - 23:mMin = 0.1
+          - 24:mMin = 0.1
+
+
+  # Choose LHC likelihood form and options.
+  - capability: LHC_LogLikes
+    function: calc_LHC_LogLikes
+    backends:
+    - {capability: lnlike_marg_poisson_lognormal_error}
+    options:
+      use_covariances: true
+      use_marginalising: false
+      combine_SRs_without_covariances: false
+      nuisance_prof_initstep: 0.1
+      nuisance_prof_convtol: 0.01
+      nuisance_prof_maxsteps: 10000
+      nuisance_prof_convacc: 0.01
+      nuisance_prof_simplexsize: 1e-8
+      nuisance_prof_method: 5
+      nuisance_prof_verbosity: 0
+      # Compute some alternative loglikes?
+      # calc_noerr_loglikes: true
+      # calc_expected_loglikes: true
+      # calc_expected_noerr_loglikes: true
+      # calc_scaledsignal_loglikes: true
+      # signal_scalefactor: 1.2
+
+  # Options for how the combined LHC loglike should be calculated
+  - capability: LHC_Combined_LogLike
+    options:
+      write_summary_to_log: false
+      cap_loglike: false
+      cap_loglike_individual_analyses: false
+      # skip_analyses:
+
+  # Set analyses for Rivet measurements
+  - capability: Rivet_measurements
+    options:
+      drop_YODA_file: false
+      LHC_13TeV:
+        analyses:
+          # Pool ATLAS_13_4L
+          - ATLAS_2017_I1625109
+          - ATLAS_2019_I1720442
+          - ATLAS_2021_I1849535
+          # Pool ATLAS_13_EEJET
+          - ATLAS_2017_I1514251:LMODE=EL
+          - ATLAS_2020_I1788444:LMODE=EL
+          - ATLAS_2019_I1718132:LMODE=ELEL
+          # Pool ATLAS_13_GAMMA
+          - ATLAS_2017_I1645627
+          # Pool ATLAS_13_JETS
+          - ATLAS_2018_I1634970
+          - ATLAS_2019_I1724098
+          - ATLAS_2017_I1637587
+          - ATLAS_2020_I1808726
+          # Pool ATLAS_13_L1L2MET
+          - ATLAS_2019_I1734263
+          # Pool ATLAS_13_L1L2METJET
+          - ATLAS_2021_I1852328
+          - ATLAS_2019_I1759875
+          - ATLAS_2019_I1718132:LMODE=ELMU
+          # Pool ATLAS_13_L1L2MET_GAMMA
+          - ATLAS_2018_I1707015:LMODE=DILEPTON          
+          # Pool ATLAS_13_LLJET
+          - ATLAS_2020_I1803608
+          # Pool ATLAS_13_LL_GAMMA
+          - ATLAS_2019_I1764342
+          # Pool ATLAS_13_LMETJET
+          - ATLAS_2017_I1614149
+          - ATLAS_2019_I1750330:TYPE=BOTH
+          - ATLAS_2018_I1656578
+          - ATLAS_2018_I1705857
+          # Pool ATLAS_13_LMET_GAMMA
+          - ATLAS_2018_I1707015:LMODE=SINGLE
+          # Pool ATLAS_13_METJET
+          - ATLAS_2017_I1609448
+          - ATLAS_2016_I1458270
+          # Pool ATLAS_13_MMJET
+          - ATLAS_2017_I1514251:LMODE=MU
+          - ATLAS_2020_I1788444:LMODE=MU
+          - ATLAS_2019_I1718132:LMODE=MUMU
+          # Pool ATLAS_13_TTHAD
+          - ATLAS_2018_I1646686
+          # Pool CMS_13_EEJET
+          - CMS_2018_I1667854:LMODE=EL
+          - CMS_2019_I1753680:LMODE=EL
+          # Pool CMS_13_HMDY
+          - CMS_2018_I1711625
+          # Pool CMS_13_JETS
+          - CMS_2016_I1459051
+          - CMS_2018_I1682495
+          # Pool CMS_13_LMETJET
+          - CMS_2016_I1491950
+          - CMS_2018_I1662081
+          - CMS_2018_I1663958
+          - CMS_2019_I1744604
+          # Pool CMS_13_MMETJET
+          - CMS_2017_I1610623
+          - CMS_2019_I1705068
+          # Pool CMS_13_MMJET
+          - CMS_2018_I1667854:LMODE=MU
+          - CMS_2019_I1753680:LMODE=MU
+          # Pool CMS_13_TTHAD
+          - CMS_2019_I1764472
+          # Pool LHCB_13_L1L2B
+          - LHCB_2018_I1662483
+
+
+  - capability: LHC_measurements
+    function: Contur_LHC_measurements_from_stream
+
+  - capability: LHC_measurements_LogLike
+    function: Contur_LHC_measurements_LogLike
+
+  - capability: LHC_measurements_LogLike_perPool
+    function: Contur_LHC_measurements_LogLike_perPool
+
+Logger:
+
+  redirection:
+    [Debug] : "debug.log"
+    [Default] : "default.log"
+    [DecayBit] : "DecayBit.log"
+    [ColliderBit] : "ColliderBit.log"
+    [SpecBit] : "SpecBit.log"
+    [Dependency Resolver] : "dep_resolver.log"
+
+
+KeyValues:
+
+  rng:
+    generator: default
+    seed: -1
+
+  dependency_resolution:
+    prefer_model_specific_functions: true
+
+  likelihood:
+    model_invalid_for_lnlike_below: -5e5
+    print_invalid_points: false
+
+  default_output_path: "runs/SUSYRun2_MSSMEW_gravitino/"
+
+  debug: false

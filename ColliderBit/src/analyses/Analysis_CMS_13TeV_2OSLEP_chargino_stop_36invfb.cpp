@@ -265,7 +265,7 @@ namespace Gambit {
 
         // Baseline jets
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT()>20. &&fabs(jet->eta())<2.4) baselineJets.push_back(jet);
         }
@@ -578,7 +578,7 @@ namespace Gambit {
 
       virtual void collect_results()
       {
-        cout << _cutflow << endl;
+        //cout << _cutflow << endl;
 
         // Chargino SRs
         add_result(SignalRegionData(_counters.at("SR-chargino-0"), 39, {41.9, 5}));

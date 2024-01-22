@@ -324,7 +324,7 @@ namespace Gambit
           }
 
           // Apply electron efficiency
-          ATLAS::applyElectronEff(electrons);
+          applyEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
 
           vector<const HEPUtils::Particle*> muons;
           for (const HEPUtils::Particle* muon : event->muons())
@@ -335,10 +335,10 @@ namespace Gambit
           }
 
           // Apply muon efficiency
-          ATLAS::applyMuonEff(muons);
+          applyEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
 
           //vector<const HEPUtils::Jet*> candJets;
-          //for (const HEPUtils::Jet* jet : event->jets()) {
+          //for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           //if (jet->pT() > 20.
           //    && fabs(jet->eta()) < 2.8)
           //  candJets.push_back(jet);
@@ -355,7 +355,7 @@ namespace Gambit
           const std::vector<double>  b = {0,10000.};
           const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
           HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.8)

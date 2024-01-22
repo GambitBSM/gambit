@@ -50,6 +50,7 @@ namespace Gambit
 
         namespace Plugins
         {
+
             ///Plugin info from inifile
             struct Proto_Plugin_Details
             {
@@ -73,6 +74,41 @@ namespace Gambit
                         : details(details), printer(printer), prior(prior), flags(details.flags), node(node) {}
             };
 
+        #ifdef HAVE_PYBIND11
+            struct EXPORT_SYMBOLS PyPlugin_Details
+            {
+                std::string plugin_name;
+                std::string package;
+                std::string type;
+                std::string version;
+                std::string loc;
+                std::string class_doc;
+                std::string init_doc;
+                std::string run_doc;
+                std::string status;
+                std::string error;
+
+                PyPlugin_Details() : plugin_name(""), package(""), type(""), version("1.0.0"), loc(""), class_doc(""), init_doc(""), run_doc(""), status("ok") {}
+
+                std::string print() const;
+
+                void debug() const
+                {
+                    std::cout << "pyplugin details:" << std::endl;
+                    std::cout << "  plugin_name: " << plugin_name << std::endl;
+                    std::cout << "  package: " << package << std::endl;
+                    std::cout << "  type: " << type << std::endl;
+                    std::cout << "  version: " << version << std::endl;
+                    std::cout << "  loc: " << loc << std::endl;
+                    std::cout << "  class_doc: " << class_doc << std::endl;
+                    std::cout << "  init_doc " << init_doc << std::endl;
+                    std::cout << "  run_doc: " << run_doc << std::endl;
+                    std::cout << "  status: " << status << std::endl;
+                    std::cout << "  error: " << error << std::endl;
+                }
+            };
+        #endif
+
             ///container class for the actual plugins detected by ScannerBit
             class EXPORT_SYMBOLS Plugin_Loader
             {
@@ -84,10 +120,18 @@ namespace Gambit
                 std::map<std::string, std::map<std::string, std::vector<Plugin_Details>>> excluded_plugin_map;
                 std::vector<Plugin_Details> total_plugins;
                 std::map<std::string, std::map<std::string, std::vector<Plugin_Details>>> total_plugin_map;
+            #ifdef HAVE_PYBIND11
+                std::map<std::string, std::map<std::string, PyPlugin_Details>> python_plugin_map;
+            #endif
                 std::vector<Plugin_Details> loadExcluded(const std::string &);
                 void process(const std::string &, const std::string &, const std::string &, std::vector<Plugin_Details>&);
 
             public:
+            #ifdef HAVE_PYBIND11
+                void Load_PyPlugins(const std::string &);
+                void Load_PyPlugins();
+            #endif
+
                 Plugin_Loader();
                 const std::vector<Plugin_Details> &getPluginsVec() const {return total_plugins;}
                 const std::map<std::string, std::map<std::string, std::vector<Plugin_Details>>> &getPluginsMap() const {return total_plugin_map;}
@@ -102,7 +146,10 @@ namespace Gambit
                 int print_plugin_to_screen (const std::string &) const;
                 int print_plugin_to_screen (const std::string &, const std::string &) const;
                 int print_plugin_to_screen (const std::vector<std::string> &) const;
-                Plugin_Details &find (const std::string &, const std::string &, const std::string &, const std::string &) const;
+                Plugin_Details &find (const std::string &, std::string, const std::string &, const std::string &) const;
+            #ifdef HAVE_PYBIND11
+                PyPlugin_Details &find_python_plugin (const std::string &, const std::string &);
+            #endif
             };
 
             ///Virtual container base class to store plugin values for resume function
@@ -146,10 +193,10 @@ namespace Gambit
                 Options options;
                 std::string def_out_path;
                 int MPIrank;
-                #ifdef WITH_MPI
+            #ifdef WITH_MPI
                 GMPI::Comm* scannerComm;
                 bool MPIdata_is_init;
-                #endif
+            #endif
                 /// Flag to indicate if early shutdown is in progess (e.g. due to intercepted OS signal). When set to 'true' scanners should at minimum close off their output files, and if possible they should stop scanning and return control to GAMBIT (or whatever the host code might be).
                 bool earlyShutdownInProgress;
 
@@ -194,13 +241,18 @@ namespace Gambit
                 bool resume_mode() const { return printer->resume_mode(); }
                 std::string temp_file_path() {return Gambit::Utils::ensure_path_exists(def_out_path + "/temp_files/");}
 
-                #ifdef WITH_MPI
+            #ifdef HAVE_PYBIND11
+                void load_python_plugins();
+                PyPlugin_Details &load_python_plugin(const std::string &, const std::string &);
+            #endif
+
+            #ifdef WITH_MPI
                 // tags for messages sent via scannerComm
                 static const int MIN_LOGL_MSG = 0;
                 ///Initialise any MPI functionality (currently just used to provide a communicator object to ScannerBit)
                 void initMPIdata(GMPI::Comm* newcomm);
                 GMPI::Comm& scanComm();
-                #endif
+            #endif
                 int getRank() { return MPIrank; }
 
                 ///resume function

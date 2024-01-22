@@ -153,7 +153,7 @@ namespace Gambit
           }
           // Apply electron efficiency
           // Loose electron ID selection
-          apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
+          applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Loose"));
 
           // Baseline muons have satisfy "medium" criteria and have pT > 3 GeV and |eta| < 2.7
           vector<const HEPUtils::Particle*> baselineMuons;
@@ -164,11 +164,11 @@ namespace Gambit
 
           // Apply muon efficiency
           // Missing: "Medium" muon ID criteria
-          ATLAS::applyMuonEffR2(baselineMuons);
+          applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("R2"));
 
           // Baseline jets
           vector<const HEPUtils::Jet*> baselineJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.5 )
               baselineJets.push_back(jet);
@@ -206,7 +206,7 @@ namespace Gambit
             if (signalElectron->pT() > 20.) signalElectrons.push_back(signalElectron);
           }
 
-          apply1DEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
+          applyEfficiency(signalElectrons, ATLAS::eff1DEl.at("PERF_2017_01_ID_Medium"));
 
 
           // Signal muons must have pT > 25 GeV.

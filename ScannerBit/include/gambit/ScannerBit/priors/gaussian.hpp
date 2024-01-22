@@ -39,78 +39,77 @@
 
 namespace Gambit
 {
-  namespace Priors
-  {
-    /**
-     * @brief  Multi-dimensional Gaussian prior
-     *
-     * Defined by a covariance matrix and mean.
-     *
-     * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its 
-     * diagonal entries, denoted \f$\sigma\f$.
-     */
-    class Gaussian : public BasePrior
+    namespace Priors
     {
-     private:
-      std::vector <double> mu;
-      mutable Cholesky col;
-
-     public:
-      // Constructor defined in gaussian.cpp
-      Gaussian(const std::vector<std::string>&, const Options&);
-
-      /** @brief Transformation from unit interval to the Gaussian */
-      void transform(const std::vector <double> &unitpars, std::unordered_map<std::string, double> &outputMap) const override
-      {
-        std::vector<double> vec(unitpars.size());
-
-        auto v_it = vec.begin();
-        for (auto elem_it = unitpars.begin(), elem_end = unitpars.end(); elem_it != elem_end; elem_it++, v_it++)
+        /**
+        * @brief  Multi-dimensional Gaussian prior
+        *
+        * Defined by a covariance matrix and mean.
+        *
+        * If the covariance matrix is diagonal, it may instead be specified by the square-roots of its 
+        * diagonal entries, denoted \f$\sigma\f$.
+        */
+        class Gaussian : public BasePrior
         {
-          *v_it = M_SQRT2 * boost::math::erf_inv(2. * (*elem_it) - 1.);
-        }
+        private:
+            std::vector <double> mu;
+            mutable Cholesky col;
 
-        col.ElMult(vec);
+        public:
+            // Constructor defined in gaussian.cpp
+            Gaussian(const std::vector<std::string>&, const Options&);
 
-        v_it = vec.begin();
-        auto m_it = mu.begin();
-        for (auto str_it = param_names.begin(), str_end = param_names.end(); str_it != str_end; str_it++)
-        {
-          outputMap[*str_it] = *(v_it++) + *(m_it++);
-        }
-      }
+            /** @brief Transformation from unit interval to the Gaussian */
+            void transform(hyper_cube_ref<double> unitpars, std::unordered_map<std::string, double> &outputMap) const override
+            {
+                std::vector<double> vec(unitpars.size());
 
-      std::vector<double> inverse_transform(const std::unordered_map<std::string, double> &physical) const override
-      {
-        // subtract mean
-        std::vector<double> central;
-        for (int i = 0, n = this->size(); i < n; i++)
-        {
-          central.push_back(physical.at(param_names[i]) - mu[i]);
-        }
+                for (int i = 0, end = vec.size(); i < end; ++i)
+                    vec[i] = M_SQRT2 * boost::math::erf_inv(2. * unitpars[i] - 1.);
 
-        // invert rotation by Cholesky matrix
-        std::vector<double> rotated = col.invElMult(central);
+                col.ElMult(vec);
 
-        // now diagonal; invert Gaussian CDF
-        std::vector<double> u;
-        for (const auto& v : rotated)
-        {
-          u.push_back(0.5 * (boost::math::erf(v / M_SQRT2) + 1.));
-        }
-        return u;
-      }
+                auto v_it = vec.begin();
+                auto m_it = mu.begin();
+                for (auto str_it = param_names.begin(), str_end = param_names.end(); str_it != str_end; ++str_it)
+                {
+                    outputMap[*str_it] = *(v_it++) + *(m_it++);
+                }
+            }
 
-      double operator()(const std::vector<double> &vec) const override
-      {
-        static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
-        return -0.5 * col.Square(vec, mu) - norm;
-      }
-    };
+            void inverse_transform(const std::unordered_map<std::string, double> &physical, hyper_cube_ref<double> unit) const override
+            {
+                // subtract mean
+                std::vector<double> central;
+                for (int i = 0, n = this->size(); i < n; i++)
+                {
+                    central.push_back(physical.at(param_names[i]) - mu[i]);
+                }
 
-    LOAD_PRIOR(gaussian, Gaussian)
+                // invert rotation by Cholesky matrix
+                std::vector<double> rotated = col.invElMult(central);
 
-  }  // namespace Priors
+                // now diagonal; invert Gaussian CDF
+                for (int i = 0, end = rotated.size(); i < end; ++i)
+                    unit[i] = 0.5 * (boost::math::erf(rotated[i] / M_SQRT2) + 1.0);
+            }
+
+            double log_prior_density(const std::unordered_map<std::string, double> &physical) const
+            {
+                static double norm = 0.5 * std::log(2. * M_PI * std::pow(col.DetSqrt(), 2));
+                std::vector<double> vec(param_names.size());
+                
+                for (int i = 0, end = param_names.size(); i < end; ++i)
+                    vec[i] = physical.at(param_names[i]);
+                
+                return -0.5 * col.Square(vec, mu) - norm;
+            }
+        };
+
+        LOAD_PRIOR(gaussian, Gaussian)
+
+    }  // namespace Priors
+
 }  // namespace Gambit
 
 #endif  // __PRIOR_GAUSSIAN_HPP__

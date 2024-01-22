@@ -133,7 +133,7 @@ Rules:
     function: operateLHCLoop
     options:
       silenceLoop: false
-      LHC_13TeV_SUSY_EWonly:
+      LHC_13TeV:
         min_nEvents: 10000  # Chosen only for quick demo -- should be increased
         max_nEvents: 10000  # Chosen only for quick demo -- should be increased
         events_between_convergence_checks: 10000000
@@ -150,8 +150,16 @@ Rules:
     type: Py8Collider_defaultversion
     function: getPythia_SLHA   # <-- The function to use for the model ColliderBit_SLHA_scan_model
     options:
-      LHC_13TeV_SUSY_EWonly:
+      LHC_13TeV:
         xsec_veto: 0.028  # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
+        partonOnly: false
+        jet_collections:
+          antikt_R04:
+            algorithm: antikt
+            R: 0.4
+            recombination_scheme: E_scheme
+            strategy: Best
+        jet_collection_taus: antikt_R04
         pythia_settings:
           - SLHA:verbose = 1
           - Next:numberShowProcess = 1
@@ -170,19 +178,6 @@ Rules:
           - TauDecays:mode = 0
           - TimeShower:pTmin = 2
 
-  # Choose ATLAS detector simulation and options.
-  - capability: ATLASDetectorSim
-    options:
-      LHC_13TeV_SUSY_EWonly:
-        partonOnly: false
-        antiktR: 0.4
-
-  # Choose CMS detector simulation and options.
-  - capability: CMSDetectorSim
-    options:
-      LHC_13TeV_SUSY_EWonly:
-        partonOnly: false
-        antiktR: 0.4
 
   # Choose LHC likelihood form and options.
   - capability: LHC_LogLikes
@@ -229,6 +224,10 @@ Logger:
 KeyValues:
 
   debug: true
+
+  rng:
+    generator: default
+    seed: -1
 
   dependency_resolution:
     prefer_model_specific_functions: true

@@ -97,7 +97,7 @@ namespace Gambit {
         }
 
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT()>35. &&fabs(jet->eta())<2.4)baselineJets.push_back(jet);
         }
 
@@ -145,7 +145,7 @@ namespace Gambit {
             if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
           }
         }
-        CMS::applyCSVv2MediumBtagEff(signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
 
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());

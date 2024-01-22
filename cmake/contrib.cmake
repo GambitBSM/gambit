@@ -302,14 +302,78 @@ if(NOT EXCLUDE_YODA)
 endif()
 
 #contrib/fjcore-3.2.0
-set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
-include_directories("${fjcore_INCLUDE_DIR}")
-add_definitions(-DFJCORE)
-add_definitions(-DFJNS=gambit::fjcore)
-add_gambit_library(fjcore OPTION OBJECT
-                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
-                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
-set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+# TODO: Temporarily comment while fastjet is a contrib, as there are class name clashes. HEPUtils can automatically switch to use fastjet if the flag -DFJCORE is not set
+#set(fjcore_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0")
+#include_directories("${fjcore_INCLUDE_DIR}")
+#add_definitions(-DFJCORE)
+#add_definitions(-DFJNS=gambit::fjcore)
+#add_gambit_library(fjcore OPTION OBJECT
+#                          SOURCES ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.cc
+#                          HEADERS ${PROJECT_SOURCE_DIR}/contrib/fjcore-3.2.0/fjcore.hh)
+#set(GAMBIT_BASIC_COMMON_OBJECTS "${GAMBIT_BASIC_COMMON_OBJECTS}" $<TARGET_OBJECTS:fjcore>)
+
+#contrib/fastjet-3.4.2; include only if ColliderBit is in use.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, include fastjet too")
+  set(EXCLUDE_FASTJET FALSE)
+
+  set(fastjet_dl "http://fastjet.fr/repo/fastjet-3.4.2.tar.gz")
+  set(fastjet_md5 "d8aede1539f478547f8be5412ab6869c")
+  set(fastjet_dir "${PROJECT_SOURCE_DIR}/contrib/fastjet-3.4.2")
+  include_directories("${fastjet_dir}/local/include")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fastjet_dir}/local/lib")
+  set(fastjet_LDFLAGS "-L${fastjet_dir}/local/lib -lfastjet")
+
+  ExternalProject_Add(fastjet
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fastjet_dl} ${fastjet_md5} ${fastjet_dir} fastjet 3.4.2
+    SOURCE_DIR ${fastjet_dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${fastjet_dir}/local --enable-silent-rules --enable-shared
+    BUILD_COMMAND ${MAKE_PARALLEL} install
+    INSTALL_COMMAND ""
+    )
+
+  # Add clean and nuke
+  add_contrib_clean_and_nuke(fastjet ${fastjet_dir} clean)
+
+else()
+  message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+  set(EXCLUDE_FASTJET TRUE)
+endif()
+
+#contrib/fjcontrib-1.041; include only if Colliderbit is in use.
+if(";${GAMBIT_BITS};" MATCHES ";ColliderBit;")
+  message("   ColliderBit included, include fjcontrib too")
+
+  set(fjcontrib_dl "http://fastjet.hepforge.org/contrib/downloads/fjcontrib-1.041.tar.gz")
+  set(fjcontrib_md5 "b37674a8701af52b58ebced94a270877")
+  set(fjcontrib_dir "${PROJECT_SOURCE_DIR}/contrib/fjcontrib-1.041")
+  include_directories("${fjcontrib_dir}/RecursiveTools")
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};${fjcontrib_dir}/local/lib")
+
+  string(REGEX REPLACE "-Xclang -fopenmp" "" FJCONTRIB_CXX_FLAGS "${BACKEND_CXX_FLAGS}")
+  set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
+  set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
+  set_compiler_warning("no-sign-compare" FJCONTRIB_CXX_FLAGS)
+  set_compiler_warning("no-catch-value" FJCONTRIB_CXX_FLAGS)
+
+  ExternalProject_Add(fjcontrib
+    DEPENDS fastjet
+    DOWNLOAD_COMMAND ${DL_CONTRIB} ${fjcontrib_dl} ${fjcontrib_md5} ${fjcontrib_dir} fjcontrib 1.041
+    SOURCE_DIR ${fjcontrib_dir}
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fjcontrib_dir}/local --only=RecursiveTools
+    BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}"
+  )
+
+
+  # Add clean and nuke
+  add_contrib_clean_and_nuke(fjcontrib ${fjcontrib_dir} clean)
+  set(MODULE_DEPENDENCIES ${MODULE_DEPENDENCIES} fjcontrib)
+
+else()
+  message("${BoldCyan} X ColliderBit is not in use: excluding fastjet from GAMBIT configuration.${ColourReset}")
+endif()
 
 #contrib/multimin
 set(multimin_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/contrib/multimin/include")

@@ -167,7 +167,7 @@ namespace Gambit {
           else if (met > 300. && muon->pT()>3.5 && muon->pT()<30. && fabs(muon->eta())<2.4 && isMu) signalMuons.push_back(muon);
         }
 
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT()>25. && fabs(jet->eta())<2.4) {
            signalJets.push_back(jet);
            if (jet->btag())signalBJets.push_back(jet);
@@ -175,7 +175,8 @@ namespace Gambit {
         }
         // Apply b-tag efficiencies and b-tag misidentification rate
         // for the CSVv2Loose working point
-        CMS::applyCSVv2LooseBtagEffAndMisId(signalJets,signalBJets);
+        applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Loose"));
+        applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Loose"));
 
         signalLeptons=signalElectrons;
         signalLeptons.insert(signalLeptons.end(),signalMuons.begin(),signalMuons.end());

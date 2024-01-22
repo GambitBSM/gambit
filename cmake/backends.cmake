@@ -782,16 +782,7 @@ set(ver "1.0.0")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "16b763a2e8b9d6c174d8b7ca2f4cb575")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-if(GSL_FOUND)
-  execute_process(
-    COMMAND gsl-config --libs
-    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
-    RESULT_VARIABLE RET
-  )
-  if( RET EQUAL 0 )
-    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
-  endif()
-endif()
+set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -814,16 +805,7 @@ set(ver "1.0.1")
 set(dl "https://${name}.hepforge.org/downloads/${name}-${ver}.tar.gz")
 set(md5 "80b50ab2345e8b7d43b9eace5436e515")
 set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
-if(GSL_FOUND)
-  execute_process(
-    COMMAND gsl-config --libs
-    OUTPUT_VARIABLE GAMLIKE_GSL_LIBS
-    RESULT_VARIABLE RET
-  )
-  if( RET EQUAL 0 )
-    string( STRIP "${GAMLIKE_GSL_LIBS}" GAMLIKE_GSL_LIBS )
-  endif()
-endif()
+set(GAMLIKE_GSL_LIBS "${GSL_LIBRARIES}")
 set(gamlike_CXXFLAGS "${BACKEND_CXX_FLAGS}")
 if (NOT GSL_INCLUDE_DIRS STREQUAL "")
   set(gamlike_CXXFLAGS "${gamlike_CXXFLAGS} -I${GSL_INCLUDE_DIRS}")
@@ -1944,7 +1926,7 @@ if(NOT ditched_${name}_${ver})
     INSTALL_COMMAND ""
   )
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  set_as_default_version("backend" ${name} ${ver})
+  #set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # plc
@@ -2012,7 +1994,7 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules
+    CONFIGURE_COMMAND ./configure FC=${CMAKE_Fortran_COMPILER} FCFLAGS=${BACKEND_Fortran_FLAGS} FFLAGS=${BACKEND_Fortran_FLAGS} CC=${CMAKE_C_COMPILER} CFLAGS=${FJ_C_FLAGS} CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJ_CXX_FLAGS} LIBS=${FJ_LINKER_FLAGS}  --prefix=${dir}/local --enable-allcxxplugins --enable-silent-rules --enable-shared
     BUILD_COMMAND ${MAKE_PARALLEL} install
     INSTALL_COMMAND ""
   )
@@ -2030,7 +2012,9 @@ set(dir "${PROJECT_SOURCE_DIR}/Backends/installed/${name}/${ver}")
 set(fastjet_name "fastjet")
 set(fastjet_ver "3.3.2")
 set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fastjet_ver}")
-set(FJCONTRIB_CXX_FLAGS ${FJ_CXX_FLAGS})
+set(FJCONTRIB_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/RecursiveTools")
+set(patch "${PROJECT_SOURCE_DIR}/Backends/patches/${name}/${ver}/patch_${name}_${ver}.dif")
+#set(FJCONTRIB_LD_FLAGS "${FJ_LINKER_FLAGS} -L${fastjet_dir}/local/lib -Wl,-rpath,${fastjet_dir}/local/lib")
 #set(FJCONTRIB_CXX_FLAGS ${BACKEND_CXX_FLAGS})
 set_compiler_warning("no-deprecated-declarations" FJCONTRIB_CXX_FLAGS)
 set_compiler_warning("no-unused-parameter" FJCONTRIB_CXX_FLAGS)
@@ -2044,12 +2028,14 @@ if(NOT ditched_${name}_${ver})
     SOURCE_DIR ${dir}
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local
+    #PATCH_COMMAND patch -p1 < ${patch}
+    CONFIGURE_COMMAND ./configure CXX=${CMAKE_CXX_COMPILER} CXXFLAGS=${FJCONTRIB_CXX_FLAGS} --fastjet-config=${fastjet_dir}/fastjet-config --prefix=${fastjet_dir}/local #--only=RecursiveTools
     BUILD_COMMAND ${MAKE_PARALLEL} CXX="${CMAKE_CXX_COMPILER}" fragile-shared-install
     INSTALL_COMMAND ${MAKE_INSTALL_PARALLEL}
   )
+#  BOSS_backend(${name} ${ver})
   add_extra_targets("backend" ${name} ${ver} ${dir} ${dl} clean)
-  #set_as_default_version("backend" ${name} ${ver})
+#  set_as_default_version("backend" ${name} ${ver})
 endif()
 
 # Rivet
@@ -2069,14 +2055,15 @@ set(fastjet_dir "${PROJECT_SOURCE_DIR}/Backends/installed/${fastjet_name}/${fast
 set(fjcontrib_name "fjcontrib")
 set(fjcontrib_ver "1.041")
 #set(Rivet_CXX_FLAGS "${BACKEND_CXX_FLAGS} -I${dir}/include/Rivet -O3")
-set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -O3")
+set(Rivet_CXX_FLAGS "${FJ_CXX_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR} -O3")
 set_compiler_warning("no-deprecated-declarations" Rivet_CXX_FLAGS)
 set_compiler_warning("no-deprecated-copy" Rivet_CXX_FLAGS)
 set_compiler_warning("no-type-limits" Rivet_CXX_FLAGS)
 set_compiler_warning("no-unused-parameter" Rivet_CXX_FLAGS)
 set_compiler_warning("no-ignored-qualifiers" Rivet_CXX_FLAGS)
 #set(Rivet_C_FLAGS "${BACKEND_C_FLAGS} -I${dir}/include/Rivet")
-set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet")
+set(Rivet_C_FLAGS "${FJ_C_FLAGS} -I${dir}/include/Rivet -I${EIGEN3_INCLUDE_DIR}")
+
 # TODO: Separate the library and linker flags to avoid compiler complaints
 set(Rivet_LD_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${NO_FIXUP_CHAINS} -L${dir}/include/Rivet -L${HEPMC_PATH}/local/lib -Wl,-rpath,${HEPMC_PATH}/local/lib")
 set(Rivet_dirs "${dir}/src/Core" "${dir}/src/Projections" "${dir}/src/Tools" "${dir}/src/AnalysisTools" "${dir}/src")

@@ -105,7 +105,7 @@ namespace Gambit
           }
 
           // Apply electron efficiency
-          ATLAS::applyElectronEff(baselineElectrons);
+          applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
           // Now define vector of baseline muons
           vector<const HEPUtils::Particle*> baselineMuons;
@@ -115,7 +115,7 @@ namespace Gambit
           }
 
           // Apply muon efficiency
-          ATLAS::applyMuonEff(baselineMuons);
+          applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
           const std::vector<double> a = {0,10.};
           const std::vector<double> b = {0,10000.};
@@ -129,7 +129,7 @@ namespace Gambit
           vector<const HEPUtils::Jet*> bJets;
           vector<const HEPUtils::Jet*> trueBJets; //for debugging
 
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT() > 20. && fabs(jet->eta()) < 4.9) baselineJets.push_back(jet);
           }

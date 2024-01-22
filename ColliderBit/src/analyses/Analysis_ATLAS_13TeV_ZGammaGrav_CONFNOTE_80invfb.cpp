@@ -47,10 +47,10 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(electrons);
+        applyEfficiency(electrons, ATLAS::eff2DEl.at("Generic"));
 
         // Apply medium electron selection
-        apply2DEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
+        applyEfficiency(electrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Medium"));
 
         // Muons
         // NB. medium muon ID for pT > 10 ~ 99%: https://cds.cern.ch/record/2047831/files/ATL-PHYS-PUB-2015-037.pdf
@@ -60,18 +60,19 @@ namespace Gambit {
             muons.push_back(m);
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(muons);
+        applyEfficiency(muons, ATLAS::eff2DMu.at("Generic"));
 
         // Photons
         ParticlePtrs photons;
         for (const Particle* y : event->photons())
           if (y->pT() > 20.)
             photons.push_back(y);
-        ATLAS::applyPhotonEfficiencyR2(photons);
+        applyEfficiency(photons, ATLAS::eff2DPhoton.at("R2"));
+
 
         // Jets
         JetPtrs jets;
-        for (const Jet* j : event->jets())
+        for (const Jet* j : event->jets("antikt_R04"))
           if (j->pT() > 20. && j->absrap() < 4.4)
             jets.push_back(j);
 

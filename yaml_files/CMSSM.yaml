@@ -708,7 +708,13 @@ Rules:
         LHC_13TeV:
           # 0.028 fb corresponds to ~1 expected event at L = 36 fb^-1.
           xsec_veto: 0.028
-          antiktR: 0.4
+          jet_collections:
+            antikt_R04:
+              algorithm: antikt
+              R: 0.4
+              recombination_scheme: E_scheme
+              strategy: Best
+          jet_collection_taus: antikt_R04
           partonOnly: false
           pythia_settings:
             - Print:quiet = on

@@ -390,7 +390,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
 
         // Construct baseline muon objects
         vector<const HEPUtils::Particle*> baselineMuons;
@@ -403,7 +403,7 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Construct set of all light baseline leptons
         vector<const HEPUtils::Particle*> baselineLeptons = baselineElectrons;
@@ -416,7 +416,7 @@ namespace Gambit {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.5) baselineTaus.push_back(tau);
         }
         // Apply tau efficiency
-        ATLAS::applyTauEfficiencyR1(baselineTaus);
+        applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;
@@ -436,7 +436,7 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if (jet->pT() > 20. && fabs(jet->eta()) < 4.9)
@@ -708,7 +708,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(baselineElectrons[0]);
-            apply2DEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+            applyEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselLowMet = preselLowMet && (tightElectrons.size()==1);
           }
 
@@ -917,7 +917,7 @@ namespace Gambit {
           {
             vector<const HEPUtils::Particle*> tightElectrons;
             tightElectrons.push_back(signalSoftElectrons[0]);
-            apply2DEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
+            applyEfficiency(tightElectrons, ATLAS::eff2DEl.at("ATLAS_CONF_2014_032_Tight"));
             preselSoftLep = preselSoftLep && (tightElectrons.size()==1);
           }
 

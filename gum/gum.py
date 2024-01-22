@@ -813,10 +813,10 @@ if args.file:
                            num+10, reset_contents)
 
             # write all invisible particles in the model to Event header
-            num = find_string("heputils/include/HEPUtils/Event.h", "contrib",
-                                  "        _cinvisibles.push_back(p);")[1]
-            amend_file("heputils/include/HEPUtils/Event.h", "contrib", get_invisibles(gum.invisibles_pdg),
-                           num+1, reset_contents)
+            num = find_string("heputils/include/HEPUtils/Particle.h", "contrib",
+                                  "      if (pid() == 1000022 || pid() == 1000039) return false;")[1]
+            amend_file("heputils/include/HEPUtils/Particle.h", "contrib", get_invisibles(gum.invisibles_pdg),
+                           num, reset_contents)
 
         # HiggsBounds interface
         if output_opts.spheno:

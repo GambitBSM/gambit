@@ -1,7 +1,7 @@
 -------------------------------
 ---Common fields---------------             ;EFN = empty for none
 
-main_chain = 'runs/spartan/samples/results.hdf5:/spartan'    ;Filename of chain to operate on
+main_chain = 'runs/spartan/samples/results.hdf5:/data'    ;Filename of chain to operate on
 comparison_chain =                          ;Filename of secondary chain to operate on, for comparison (EFN)
 
 do_posterior_pdf = F                        ;Parse, script or plot posterior pdfs

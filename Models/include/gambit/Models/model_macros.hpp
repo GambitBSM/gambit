@@ -76,7 +76,7 @@
   #define CLASSLOAD_NEEDED(BACKEND, VERSION)               CORE_CLASSLOAD_NEEDED(BACKEND, VERSION, IS_MODEL)
 #else
   #include "gambit/Elements/module_macros_inmodule_defs.hpp"
-  #define START_MODEL                                       MODULE_START_MODEL
+  #define START_MODEL                                       /* Do nothing */
   #define DEFINEPARS(...)                                   /* Do nothing */
   #define MAP_TO_CAPABILITY(PARAMETER,CAPABILITY)           /* Do nothing */
   #define INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)             MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)
@@ -127,26 +127,6 @@
 //  ****************************************************************************
 /// "Rollcall" macros. These are lifted straight from module_macros_incore.hpp
 /// but are modified here and there to suit the role of models.
-
-/// "In module" version of the START_MODEL macro
-#define MODULE_START_MODEL                                                     \
-  IF_TOKEN_UNDEFINED(MODEL,FAIL("You must define MODEL before calling "        \
-   "START_MODEL."))                                                            \
-  /*_Pragma("message declaring model...") \
-  _Pragma( STRINGIFY(CAT("message Forward declaring model: ",MODEL)) )      */ \
-  namespace Gambit                                                             \
-  {                                                                            \
-   namespace Models                                                            \
-   {                                                                           \
-    namespace MODEL                                                            \
-    {                                                                          \
-      /* Module errors */                                                      \
-      error& CAT(MODEL,_error)();                                              \
-      /* Module warnings */                                                    \
-      warning& CAT(MODEL,_warning)();                                          \
-    }                                                                          \
-   }                                                                           \
-  }                                                                            \
 
 /// "In module" version of the INTERPRET_AS_X_FUNCTION macro
 #define MODULE_INTERPRET_AS_X_FUNCTION(MODEL_X,FUNC)                           \

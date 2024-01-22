@@ -99,7 +99,7 @@ namespace Gambit
 	  if (photon->pT() > 25. && photon->abseta() < 2.37) baselinePhotons.push_back(photon);
         }
         // Apply photon efficiency
-        ATLAS::applyPhotonEfficiencyR2(baselinePhotons);
+        applyEfficiency(baselinePhotons, ATLAS::eff2DPhoton.at("R2"));
 
 
         // Baseline electrons
@@ -110,11 +110,11 @@ namespace Gambit
           if (electron->pT() > 10. && electron->abseta() < 2.47 && !crack) baselineElectrons.push_back(electron);
         }
         // Apply electron efficiency
-        ATLAS::applyElectronEff(baselineElectrons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
         // Apply loose electron ID efficiency
-        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_ID_Loose"));
         // Apply loose electron isolation efficiency
-        apply1DEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Loose"));
+        applyEfficiency(baselineElectrons, ATLAS::eff1DEl.at("EGAM_2018_01_Iso_Loose"));
 
 
         // Baseline Muons
@@ -124,14 +124,14 @@ namespace Gambit
           if (muon->pT() > 10. && muon->abseta() < 2.7) baselineMuons.push_back(muon);
         }
         // Apply muon efficiency
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
         // Apply loose muon isolation efficiency
-        apply1DEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Loose"));
+        applyEfficiency(baselineMuons, ATLAS::eff1DMu.at("MUON_2018_03_Iso_Loose"));
 
 
         // Baseline Jets
         vector<const HEPUtils::Jet*> baselineJets;
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           if (jet->pT() > 30. && fabs(jet->eta()) < 2.8)
           {

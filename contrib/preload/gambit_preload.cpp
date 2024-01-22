@@ -34,7 +34,7 @@ static void initializer()
 {
   printf("%s", "\n\x1b[1;33mGAMBIT " STRINGIFY(GAMBIT_VERSION_MAJOR) "." STRINGIFY(GAMBIT_VERSION_MINOR) "." STRINGIFY(GAMBIT_VERSION_REVISION));
   if (strcmp(GAMBIT_VERSION_PATCH, "") != 0) printf("%s", "-" GAMBIT_VERSION_PATCH);
-  printf("\nhttp://gambit.hepforge.org\n\n\x1b[0m");
+  printf("\nhttp://gambitbsm.org\n\n\x1b[0m");
   #ifndef EXCLUDE_RESTFRAMES
   {
     const char* oldenv = getenv("CPLUS_INCLUDE_PATH");

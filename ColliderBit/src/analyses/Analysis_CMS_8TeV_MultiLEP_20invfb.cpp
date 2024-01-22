@@ -458,7 +458,7 @@ namespace Gambit {
         }
 
         // Apply electron efficiency
-        CMS::applyElectronEff(signalElectrons);
+        applyEfficiency(signalElectrons, CMS::eff2DEl.at("Generic"));
 
         // - muons
         vector<const HEPUtils::Particle*> signalMuons;
@@ -467,19 +467,19 @@ namespace Gambit {
         }
 
         // Apply muon efficiency
-        CMS::applyMuonEff(signalMuons);
+        applyEfficiency(signalMuons, CMS::eff2DMu.at("Generic"));
 
         // - taus
         vector<const HEPUtils::Particle*> signalTaus;
         for (const HEPUtils::Particle* tau : event->taus()) {
           if (tau->pT() > 20. && fabs(tau->eta()) < 2.4) signalTaus.push_back(tau);
         }
-        CMS::applyTauEfficiency(signalTaus);
+        applyEfficiency(signalTaus, CMS::effTau.at("Generic"));
 
         // - jets
         vector<const HEPUtils::Jet*> signalJets;
         vector<const HEPUtils::Jet*> signalBjets;
-        for (const HEPUtils::Jet* jet : event->jets()) {
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() > 30. && fabs(jet->eta()) < 2.5) signalJets.push_back(jet);
           if(jet->btag() && fabs(jet->eta()) < 2.5 && jet->pT() > 30.) signalBjets.push_back(jet);
         }

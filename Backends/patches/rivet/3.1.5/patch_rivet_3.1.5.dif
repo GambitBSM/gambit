@@ -33,20 +33,192 @@ diff -rupN Rivet-3.1.5/Makefile.in ../installed/rivet/3.1.5/Makefile.in
 diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/include/Rivet/Makefile.in
 --- Rivet-3.1.5/include/Rivet/Makefile.in	2021-11-05 18:38:00.000000000 +0100
 +++ ../installed/rivet/3.1.5/include/Rivet/Makefile.in	2023-02-22 16:05:03.433033018 +0100
-@@ -381,6 +381,7 @@ nobase_dist_noinst_HEADERS = Tools/osdir
- 	Math/eigen3/README.md
-
+@@ -377,10 +377,10 @@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-nobase_dist_noinst_HEADERS = Tools/osdir.hh Math/eigen3/COPYING.GPL \
+-	Math/eigen3/README.md
++nobase_dist_noinst_HEADERS = Tools/osdir.hh
+ 
  # TODO: Move to Rivet/AnalysisTools header dir?
 +# Modified by GAMBIT
  nobase_pkginclude_HEADERS = Rivet.hh Run.hh Event.hh ParticleBase.hh \
  	Particle.fhh Particle.hh Jet.fhh Jet.hh Projection.fhh \
  	Projection.hh ProjectionApplier.hh ProjectionHandler.hh \
-@@ -623,7 +624,23 @@ nobase_pkginclude_HEADERS = Rivet.hh Run
- 	Math/eigen3/src/QR/HouseholderQR.h \
- 	Math/eigen3/src/SVD/BDCSVD.h Math/eigen3/src/SVD/JacobiSVD.h \
- 	Math/eigen3/src/SVD/SVDBase.h \
+@@ -456,174 +456,23 @@
+ 	Math/Vector3.hh Math/VectorN.hh Math/MatrixN.hh \
+ 	Math/MathConstants.hh Math/Vectors.hh Math/LorentzTrans.hh \
+ 	Math/Matrix3.hh Math/MathUtils.hh Math/Vector4.hh Math/Math.hh \
+-	Math/Units.hh Math/Constants.hh Math/eigen3/Cholesky \
+-	Math/eigen3/Core Math/eigen3/Dense Math/eigen3/Eigenvalues \
+-	Math/eigen3/Geometry Math/eigen3/Householder \
+-	Math/eigen3/Jacobi Math/eigen3/LU Math/eigen3/QR \
+-	Math/eigen3/src/Cholesky/LDLT.h Math/eigen3/src/Cholesky/LLT.h \
+-	Math/eigen3/src/Core/arch/AltiVec/Complex.h \
+-	Math/eigen3/src/Core/arch/AltiVec/MathFunctions.h \
+-	Math/eigen3/src/Core/arch/AltiVec/PacketMath.h \
+-	Math/eigen3/src/Core/arch/AVX/Complex.h \
+-	Math/eigen3/src/Core/arch/AVX/MathFunctions.h \
+-	Math/eigen3/src/Core/arch/AVX/PacketMath.h \
+-	Math/eigen3/src/Core/arch/AVX/TypeCasting.h \
+-	Math/eigen3/src/Core/arch/AVX512/MathFunctions.h \
+-	Math/eigen3/src/Core/arch/AVX512/PacketMath.h \
+-	Math/eigen3/src/Core/arch/CUDA/Complex.h \
+-	Math/eigen3/src/Core/arch/CUDA/Half.h \
+-	Math/eigen3/src/Core/arch/CUDA/MathFunctions.h \
+-	Math/eigen3/src/Core/arch/CUDA/PacketMath.h \
+-	Math/eigen3/src/Core/arch/CUDA/PacketMathHalf.h \
+-	Math/eigen3/src/Core/arch/CUDA/TypeCasting.h \
+-	Math/eigen3/src/Core/arch/Default/Settings.h \
+-	Math/eigen3/src/Core/arch/NEON/Complex.h \
+-	Math/eigen3/src/Core/arch/NEON/MathFunctions.h \
+-	Math/eigen3/src/Core/arch/NEON/PacketMath.h \
+-	Math/eigen3/src/Core/arch/SSE/Complex.h \
+-	Math/eigen3/src/Core/arch/SSE/MathFunctions.h \
+-	Math/eigen3/src/Core/arch/SSE/PacketMath.h \
+-	Math/eigen3/src/Core/arch/SSE/TypeCasting.h \
+-	Math/eigen3/src/Core/arch/ZVector/Complex.h \
+-	Math/eigen3/src/Core/arch/ZVector/MathFunctions.h \
+-	Math/eigen3/src/Core/arch/ZVector/PacketMath.h \
+-	Math/eigen3/src/Core/Array.h Math/eigen3/src/Core/ArrayBase.h \
+-	Math/eigen3/src/Core/ArrayWrapper.h \
+-	Math/eigen3/src/Core/Assign.h \
+-	Math/eigen3/src/Core/AssignEvaluator.h \
+-	Math/eigen3/src/Core/BandMatrix.h Math/eigen3/src/Core/Block.h \
+-	Math/eigen3/src/Core/BooleanRedux.h \
+-	Math/eigen3/src/Core/CommaInitializer.h \
+-	Math/eigen3/src/Core/ConditionEstimator.h \
+-	Math/eigen3/src/Core/CoreEvaluators.h \
+-	Math/eigen3/src/Core/CoreIterators.h \
+-	Math/eigen3/src/Core/CwiseBinaryOp.h \
+-	Math/eigen3/src/Core/CwiseNullaryOp.h \
+-	Math/eigen3/src/Core/CwiseTernaryOp.h \
+-	Math/eigen3/src/Core/CwiseUnaryOp.h \
+-	Math/eigen3/src/Core/CwiseUnaryView.h \
+-	Math/eigen3/src/Core/DenseBase.h \
+-	Math/eigen3/src/Core/DenseCoeffsBase.h \
+-	Math/eigen3/src/Core/DenseStorage.h \
+-	Math/eigen3/src/Core/Diagonal.h \
+-	Math/eigen3/src/Core/DiagonalMatrix.h \
+-	Math/eigen3/src/Core/DiagonalProduct.h \
+-	Math/eigen3/src/Core/Dot.h Math/eigen3/src/Core/EigenBase.h \
+-	Math/eigen3/src/Core/functors/AssignmentFunctors.h \
+-	Math/eigen3/src/Core/functors/BinaryFunctors.h \
+-	Math/eigen3/src/Core/functors/NullaryFunctors.h \
+-	Math/eigen3/src/Core/functors/StlFunctors.h \
+-	Math/eigen3/src/Core/functors/TernaryFunctors.h \
+-	Math/eigen3/src/Core/functors/UnaryFunctors.h \
+-	Math/eigen3/src/Core/Fuzzy.h \
+-	Math/eigen3/src/Core/GeneralProduct.h \
+-	Math/eigen3/src/Core/GenericPacketMath.h \
+-	Math/eigen3/src/Core/GlobalFunctions.h \
+-	Math/eigen3/src/Core/Inverse.h Math/eigen3/src/Core/IO.h \
+-	Math/eigen3/src/Core/Map.h Math/eigen3/src/Core/MapBase.h \
+-	Math/eigen3/src/Core/MathFunctions.h \
+-	Math/eigen3/src/Core/MathFunctionsImpl.h \
+-	Math/eigen3/src/Core/Matrix.h \
+-	Math/eigen3/src/Core/MatrixBase.h \
+-	Math/eigen3/src/Core/NestByValue.h \
+-	Math/eigen3/src/Core/NoAlias.h \
+-	Math/eigen3/src/Core/NumTraits.h \
+-	Math/eigen3/src/Core/PermutationMatrix.h \
+-	Math/eigen3/src/Core/PlainObjectBase.h \
+-	Math/eigen3/src/Core/Product.h \
+-	Math/eigen3/src/Core/ProductEvaluators.h \
+-	Math/eigen3/src/Core/products/GeneralBlockPanelKernel.h \
+-	Math/eigen3/src/Core/products/GeneralMatrixMatrix.h \
+-	Math/eigen3/src/Core/products/GeneralMatrixMatrixTriangular.h \
+-	Math/eigen3/src/Core/products/GeneralMatrixVector.h \
+-	Math/eigen3/src/Core/products/Parallelizer.h \
+-	Math/eigen3/src/Core/products/SelfadjointMatrixMatrix.h \
+-	Math/eigen3/src/Core/products/SelfadjointMatrixVector.h \
+-	Math/eigen3/src/Core/products/SelfadjointProduct.h \
+-	Math/eigen3/src/Core/products/SelfadjointRank2Update.h \
+-	Math/eigen3/src/Core/products/TriangularMatrixMatrix.h \
+-	Math/eigen3/src/Core/products/TriangularMatrixVector.h \
+-	Math/eigen3/src/Core/products/TriangularSolverMatrix.h \
+-	Math/eigen3/src/Core/products/TriangularSolverVector.h \
+-	Math/eigen3/src/Core/Random.h Math/eigen3/src/Core/Redux.h \
+-	Math/eigen3/src/Core/Ref.h Math/eigen3/src/Core/Replicate.h \
+-	Math/eigen3/src/Core/ReturnByValue.h \
+-	Math/eigen3/src/Core/Reverse.h Math/eigen3/src/Core/Select.h \
+-	Math/eigen3/src/Core/SelfAdjointView.h \
+-	Math/eigen3/src/Core/SelfCwiseBinaryOp.h \
+-	Math/eigen3/src/Core/Solve.h Math/eigen3/src/Core/SolverBase.h \
+-	Math/eigen3/src/Core/SolveTriangular.h \
+-	Math/eigen3/src/Core/StableNorm.h \
+-	Math/eigen3/src/Core/Stride.h Math/eigen3/src/Core/Swap.h \
+-	Math/eigen3/src/Core/Transpose.h \
+-	Math/eigen3/src/Core/Transpositions.h \
+-	Math/eigen3/src/Core/TriangularMatrix.h \
+-	Math/eigen3/src/Core/util/BlasUtil.h \
+-	Math/eigen3/src/Core/util/Constants.h \
+-	Math/eigen3/src/Core/util/DisableStupidWarnings.h \
+-	Math/eigen3/src/Core/util/ForwardDeclarations.h \
+-	Math/eigen3/src/Core/util/Macros.h \
+-	Math/eigen3/src/Core/util/Memory.h \
+-	Math/eigen3/src/Core/util/Meta.h \
+-	Math/eigen3/src/Core/util/MKL_support.h \
+-	Math/eigen3/src/Core/util/NonMPL2.h \
+-	Math/eigen3/src/Core/util/ReenableStupidWarnings.h \
+-	Math/eigen3/src/Core/util/StaticAssert.h \
+-	Math/eigen3/src/Core/util/XprHelper.h \
+-	Math/eigen3/src/Core/VectorBlock.h \
+-	Math/eigen3/src/Core/VectorwiseOp.h \
+-	Math/eigen3/src/Core/Visitor.h \
+-	Math/eigen3/src/Eigenvalues/ComplexEigenSolver.h \
+-	Math/eigen3/src/Eigenvalues/ComplexSchur.h \
+-	Math/eigen3/src/Eigenvalues/EigenSolver.h \
+-	Math/eigen3/src/Eigenvalues/GeneralizedEigenSolver.h \
+-	Math/eigen3/src/Eigenvalues/GeneralizedSelfAdjointEigenSolver.h \
+-	Math/eigen3/src/Eigenvalues/HessenbergDecomposition.h \
+-	Math/eigen3/src/Eigenvalues/MatrixBaseEigenvalues.h \
+-	Math/eigen3/src/Eigenvalues/RealQZ.h \
+-	Math/eigen3/src/Eigenvalues/RealSchur.h \
+-	Math/eigen3/src/Eigenvalues/SelfAdjointEigenSolver.h \
+-	Math/eigen3/src/Eigenvalues/Tridiagonalization.h \
+-	Math/eigen3/src/Geometry/AlignedBox.h \
+-	Math/eigen3/src/Geometry/AngleAxis.h \
+-	Math/eigen3/src/Geometry/arch/Geometry_SSE.h \
+-	Math/eigen3/src/Geometry/EulerAngles.h \
+-	Math/eigen3/src/Geometry/Homogeneous.h \
+-	Math/eigen3/src/Geometry/Hyperplane.h \
+-	Math/eigen3/src/Geometry/OrthoMethods.h \
+-	Math/eigen3/src/Geometry/ParametrizedLine.h \
+-	Math/eigen3/src/Geometry/Quaternion.h \
+-	Math/eigen3/src/Geometry/Rotation2D.h \
+-	Math/eigen3/src/Geometry/RotationBase.h \
+-	Math/eigen3/src/Geometry/Scaling.h \
+-	Math/eigen3/src/Geometry/Transform.h \
+-	Math/eigen3/src/Geometry/Translation.h \
+-	Math/eigen3/src/Geometry/Umeyama.h \
+-	Math/eigen3/src/Householder/BlockHouseholder.h \
+-	Math/eigen3/src/Householder/Householder.h \
+-	Math/eigen3/src/Householder/HouseholderSequence.h \
+-	Math/eigen3/src/Jacobi/Jacobi.h \
+-	Math/eigen3/src/LU/arch/Inverse_SSE.h \
+-	Math/eigen3/src/LU/Determinant.h \
+-	Math/eigen3/src/LU/FullPivLU.h \
+-	Math/eigen3/src/LU/InverseImpl.h \
+-	Math/eigen3/src/LU/PartialPivLU.h Math/eigen3/src/misc/Image.h \
+-	Math/eigen3/src/misc/Kernel.h \
+-	Math/eigen3/src/misc/RealSvd2x2.h \
+-	Math/eigen3/src/plugins/ArrayCwiseBinaryOps.h \
+-	Math/eigen3/src/plugins/ArrayCwiseUnaryOps.h \
+-	Math/eigen3/src/plugins/BlockMethods.h \
+-	Math/eigen3/src/plugins/CommonCwiseBinaryOps.h \
+-	Math/eigen3/src/plugins/CommonCwiseUnaryOps.h \
+-	Math/eigen3/src/plugins/MatrixCwiseBinaryOps.h \
+-	Math/eigen3/src/plugins/MatrixCwiseUnaryOps.h \
+-	Math/eigen3/src/QR/ColPivHouseholderQR.h \
+-	Math/eigen3/src/QR/CompleteOrthogonalDecomposition.h \
+-	Math/eigen3/src/QR/FullPivHouseholderQR.h \
+-	Math/eigen3/src/QR/HouseholderQR.h \
+-	Math/eigen3/src/SVD/BDCSVD.h Math/eigen3/src/SVD/JacobiSVD.h \
+-	Math/eigen3/src/SVD/SVDBase.h \
 -	Math/eigen3/src/SVD/UpperBidiagonalization.h Math/eigen3/SVD
-+	Math/eigen3/src/SVD/UpperBidiagonalization.h Math/eigen3/SVD \
++	Math/Units.hh Math/Constants.hh \
 +        ../gambit/Backends/abstractbase.hpp \
 +        ../gambit/Backends/backend_undefs.hpp \
 +        ../gambit/Backends/wrapperbase.hpp \
@@ -64,7 +236,7 @@ diff -rupN Rivet-3.1.5/include/Rivet/Makefile.in ../installed/rivet/3.1.5/includ
 +        ../backend_types/Rivet_3_1_5/wrapper_AnalysisHandler_def.hh
 +
  all: all-am
-
+ 
  .SUFFIXES:
 diff -rupN Rivet-3.1.5/src/Core/Makefile.in ../installed/rivet/3.1.5/src/Core/Makefile.in
 --- Rivet-3.1.5/src/Core/Makefile.in	2021-11-05 18:38:00.000000000 +0100
@@ -285,3 +457,27 @@ diff -rupN Rivet-3.1.5/analyses/pluginCMS/CMS_2018_I1663958.cc ../installed/rive
          isolation = isolation/ph.pt() - 1.;
          if (isolation > 0.25) continue;
          additionalobjects += ph;
+diff -rupN Rivet-3.1.5/include/Rivet/Math/MatrixN.hh ../installed/rivet/3.1.5/include/Rivet/Math/MatrixN.hh
+--- Rivet-3.1.5/include/Rivet/Math/MatrixN.hh	2020-01-06 11:36:55.000000000 +0100
++++ ../installed/rivet/3.1.5/include/Rivet/Math/MatrixN.hh	2024-01-16 12:03:46.891785360 +0100
+@@ -5,7 +5,7 @@
+ #include "Rivet/Math/MathUtils.hh"
+ #include "Rivet/Math/Vectors.hh"
+ 
+-#include "Rivet/Math/eigen3/Dense"
++#include <Eigen/Dense>
+ 
+ namespace Rivet {
+
+diff -rupN Rivet-3.1.5/include/Rivet/Math/VectorN.hh ../installed/rivet/3.1.5/include/Rivet/Math/VectorN.hh
+--- Rivet-3.1.5/include/Rivet/Math/VectorN.hh	2020-01-06 11:36:55.000000000 +0100
++++ ../installed/rivet/3.1.5/include/Rivet/Math/VectorN.hh	2024-01-16 12:03:46.891785360 +0100
+@@ -4,7 +4,7 @@
+ #include "Rivet/Math/MathConstants.hh"
+ #include "Rivet/Math/MathUtils.hh"
+ 
+-#include "Rivet/Math/eigen3/Dense"
++#include <Eigen/Dense>
+ 
+ namespace Rivet {
+

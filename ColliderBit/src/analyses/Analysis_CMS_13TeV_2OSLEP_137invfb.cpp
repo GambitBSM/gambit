@@ -200,7 +200,7 @@ namespace Gambit
 
           // Baseline jets
           vector<const HEPUtils::Jet*> baselineJets;
-          for (const HEPUtils::Jet* jet : event->jets())
+          for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
           {
             if (jet->pT()>25. && fabs(jet->eta())<2.4) baselineJets.push_back(jet);
           }
@@ -253,7 +253,9 @@ namespace Gambit
               if (baselineJets.at(iJet)->btag())signalBJets.push_back(baselineJets.at(iJet));
             }
           }
-  //        CMS::applyCSVv2MediumBtagEffAndMisId(signalJets25,signalBJets);
+          // applyEfficiency(signalBJets, CMS::eff2DBJet.at("CSVv2Medium"));
+          // applyBtagMisId(signalJets, signalBJets, CMS::misIDBJet.at("CSVv2Medium"));
+
 
           // Signal leptons = electrons + muons
           signalLeptons=signalElectrons;
@@ -448,15 +450,15 @@ namespace Gambit
 
         virtual void collect_results()
         {
-          for (size_t i=0;i<NCUTS_1;i++)
-          {
-            cout << i << "\t" << cutFlowVector_1_str[i] << "\t" << cutFlowVector_1[i] << endl;
-          }
-          cout << "=========================" << endl;
-          for (size_t i=0;i<NCUTS_2;i++)
-          {
-            cout << i << "\t" << cutFlowVector_2_str[i] << "\t" << cutFlowVector_2[i] << endl;
-          }
+          //for (size_t i=0;i<NCUTS_1;i++)
+          //{
+          //  cout << i << "\t" << cutFlowVector_1_str[i] << "\t" << cutFlowVector_1[i] << endl;
+          //}
+          //cout << "=========================" << endl;
+          //for (size_t i=0;i<NCUTS_2;i++)
+          //{
+          //  cout << i << "\t" << cutFlowVector_2_str[i] << "\t" << cutFlowVector_2[i] << endl;
+          //}
 
           add_result(SignalRegionData(_counters.at("SRA_50_100"),   1261., {1261., 41.}));
           add_result(SignalRegionData(_counters.at("SRA_100_150"),  186.,  {160.,  16.}));

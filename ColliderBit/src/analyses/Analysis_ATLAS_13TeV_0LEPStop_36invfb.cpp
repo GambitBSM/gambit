@@ -249,8 +249,8 @@ namespace Gambit {
         }
 
         // Apply lepton efficiencies
-        ATLAS::applyElectronEff(baselineElectrons);
-        ATLAS::applyMuonEff(baselineMuons);
+        applyEfficiency(baselineElectrons, ATLAS::eff2DEl.at("Generic"));
+        applyEfficiency(baselineMuons, ATLAS::eff2DMu.at("Generic"));
 
         // Photons
         vector<const HEPUtils::Particle*> signalPhotons;
@@ -263,7 +263,7 @@ namespace Gambit {
         //for (const HEPUtils::Particle* tau : event->taus()) {
         //if (tau->pT() > 10. && tau->abseta() < 2.47) baselineTaus.push_back(tau);
         //}
-        //ATLAS::applyTauEfficiencyR1(baselineTaus);
+        //applyEfficiency(baselineTaus, ATLAS::effTau.at("R1"));
 
 
         // Jets
@@ -277,7 +277,7 @@ namespace Gambit {
         const std::vector<double>  b = {0,10000.};
         const std::vector<double> c = {0.77}; // set b-tag efficiency to 77%
         HEPUtils::BinnedFn2D<double> _eff2d(a,b,c);
-        for (const HEPUtils::Jet* jet : event->jets())
+        for (const HEPUtils::Jet* jet : event->jets("antikt_R04"))
         {
           bool hasTag=has_tag(_eff2d, fabs(jet->eta()), jet->pT());
           if (jet->pT() > 20. && fabs(jet->eta()) < 2.8)

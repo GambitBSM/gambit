@@ -57,7 +57,7 @@ namespace Gambit {
 
         // Get baseline jets
         vector<const Jet*> jets24, jets50;
-        for (const Jet* jet : event->jets()) {
+        for (const Jet* jet : event->jets("antikt_R04")) {
           if (jet->pT() < 30) continue;
           if (jet->abseta() < 2.4) jets24.push_back(jet);
           if (jet->abseta() < 5.0) jets50.push_back(jet);
@@ -87,7 +87,7 @@ namespace Gambit {
             baseelecs.push_back(electron);
 
         // Apply electron efficiency
-        CMS::applyElectronEff(baseelecs);
+        applyEfficiency(baseelecs, CMS::eff2DEl.at("Generic"));
 
         // Get baseline muons
         vector<const Particle*> basemuons;
@@ -96,7 +96,7 @@ namespace Gambit {
             basemuons.push_back(muon);
 
         // Apply electron efficiency
-        CMS::applyMuonEff(basemuons);
+        applyEfficiency(basemuons, CMS::eff2DMu.at("Generic"));
 
         // Electron isolation
         /// @todo Sum should actually be over all non-e/mu calo particles
