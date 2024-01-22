@@ -50,7 +50,7 @@ namespace Gambit
 
     public:
 
-      bool doCutflow = false;
+      bool doCutflow = true;
 
       // Required detector sim
       static constexpr const char* detector = "CMS";
@@ -84,6 +84,7 @@ namespace Gambit
             DEFINE_SIGNAL_REGION("highmass_Nj_Nb");
             DEFINE_SIGNAL_REGION("highmass_Nj_Nb_dPhi");
         }
+//        DEFINE_SIGNAL_REGION("Total");
 
 //        DEFINE_SIGNAL_REGION("SR1BH_1L"); //, "METSig > 7");
 //
@@ -163,11 +164,11 @@ namespace Gambit
           }
         }
 
-        for (const HEPUtils::Jet* jet : event->jets("antikt_R08"))
+        for (const HEPUtils::Jet* fjet : event->jets("antikt_R08"))
         {
-          if (jet->pT()>200. && jet->abseta()<2.4)
+          if (fjet->pT()>200. && fjet->abseta()<2.4)
           {
-            baselineFatJets.push_back(jet);
+            baselineFatJets.push_back(fjet);
           }
         }
 
@@ -177,7 +178,6 @@ namespace Gambit
         vector<const HEPUtils::Jet*> signalBJets_20;
         vector<const HEPUtils::Jet*> signalBJets_30;
         vector<const HEPUtils::Jet*> signalBJets_soft;
-        vector<const HEPUtils::Jet*> signalFatJets;
 
         // Signal jets have pT > 30 GeV
         for (const HEPUtils::Jet* jet : baselineJets)
@@ -203,8 +203,9 @@ namespace Gambit
           else if( random_bool(misstag) )
           {
             signalBJets_20.push_back(jet);
-            signalJets_20_isB.push_back(0);
+            signalJets_20_isB.push_back(1);
           }
+          signalJets_20_isB.push_back(0);
         }
 
         // Signal jets have pT > 30 GeV
@@ -212,7 +213,7 @@ namespace Gambit
         {
           if (jet->pT() > 30.)
           {
-            signalJets_30.push_back(jet);
+            signalBJets_30.push_back(jet);
           }
         }
 
@@ -242,13 +243,13 @@ namespace Gambit
         double beta = 0.0;
         double z_cut = 0.1;
         double R0 = 0.8;
-        FJNS::contrib::SoftDrop sd(beta, z_cut, R0);
-        for (const HEPUtils::Jet* jet : baselineFatJets)
-        {
-          FJNS::PseudoJet pj = jet->pseudojet();
-          FJNS::PseudoJet groomed_jet = sd(pj);
-          SignalFatPseudoJets.push_back(&groomed_jet);
-        }
+//        FJNS::contrib::SoftDrop sd(beta, z_cut, R0);
+//        for (const HEPUtils::Jet* jet : baselineFatJets)
+//        {
+//          FJNS::PseudoJet pj = jet->pseudojet();
+//          FJNS::PseudoJet groomed_jet = sd(pj);
+//          SignalFatPseudoJets.push_back(&groomed_jet);
+//        }
 
         // Merged Top
         map<double, double> MergedTop_Eff{ {0., 0.0}, {200., 0.000000077667}, {250., 0.0000058738}, {300., 0.00030479}, {350., 0.016794}, {400., 0.12272}, {450., 0.24526}, {500., 0.3266}, {550., 0.37828}, {600., 0.4164}, {650., 0.44189}, {700., 0.45802}, {750., 0.47089}, {800., 0.48097}, {850., 0.49454}, {900., 0.50686}, {950., 0.50204} };
@@ -259,20 +260,21 @@ namespace Gambit
         int count = 0;
         for (const HEPUtils::Jet* jet : baselineFatJets)
         {
-          if (jet->pT() > 400. && SignalFatPseudoJets.at(count)->m() > 105.)
+//          if (jet->pT() > 400. && SignalFatPseudoJets.at(count)->m() > 105.)
+          if (jet->pT() > 400. && jet->mass() > 105.)
           {
             // Tag boosted Top
             if( jet->btag() && random_bool(findMapValue(MergedTop_Eff, jet->pT())) )
             {
               MergedTopCands.push_back(jet);
-              MergedTopPseudoJets.push_back(SignalFatPseudoJets.at(count));
+//              MergedTopPseudoJets.push_back(SignalFatPseudoJets.at(count));
               baselineFatJet_MergedTop.push_back(true);
             }
             // Misstag QCD
             else if( random_bool(QCDmistagTop_Eff) )
             {
               MergedTopCands.push_back(jet);
-              MergedTopPseudoJets.push_back(SignalFatPseudoJets.at(count));
+//              MergedTopPseudoJets.push_back(SignalFatPseudoJets.at(count));
               baselineFatJet_MergedTop.push_back(true);
             }
             else
@@ -292,20 +294,21 @@ namespace Gambit
         int countW = 0;
         for (const HEPUtils::Jet* jet : baselineFatJets)
         {
-          if (jet->pT() > 200. && (SignalFatPseudoJets.at(count)->m() > 65. || SignalFatPseudoJets.at(count)->m() < 105.))
+//          if (jet->pT() > 200. && (SignalFatPseudoJets.at(count)->m() > 65. || SignalFatPseudoJets.at(count)->m() < 105.))
+          if (jet->pT() > 200. && (jet->mass() > 65. || jet->mass() < 105.))
           {
             // Tag boosted Top
             if( jet->btag() && random_bool(findMapValue(W_Eff, jet->pT())) )
             {
               WCands.push_back(jet);
-              WPseudoJets.push_back(SignalFatPseudoJets.at(countW));
+//              WPseudoJets.push_back(SignalFatPseudoJets.at(countW));
               baselineFatJet_W.push_back(true);
             }
             // Misstag QCD
             else if( random_bool(QCDmistagW_Eff) )
             {
               WCands.push_back(jet);
-              WPseudoJets.push_back(SignalFatPseudoJets.at(countW));
+//              WPseudoJets.push_back(SignalFatPseudoJets.at(countW));
               baselineFatJet_W.push_back(true);
             }
             else
@@ -315,14 +318,15 @@ namespace Gambit
           }
           countW++;
         }
-
+//
         // Resolved Top
         map<double, double> ResolvedTop_Eff{ {0., 0.036474}, {50., 0.11336}, {100., 0.1946}, {150., 0.25656}, {200., 0.29324}, {250., 0.30583}, {300., 0.30875}, {350., 0.29854}, {400., 0.19588}, {450., 0.10523}, {500., 0.061853}, {550., 0.036214}, {600., 0.020324}, {650., 0.010021}, {700., 0.0052826}, {750., 0.0031672}, {800., 0.0017965}, {850., 0.00064142}, {900., 0.0003081}, {950., 0.00040353} };        // Taggers
         double QCDmistagResTop_Eff = 0.02;
-        // 3 smallR jets, pts >40,30,20 GeV, no more than 1 btag, all jets dR>3.1 of the centroid, no overlaps.
+//        // 3 smallR jets, pts >40,30,20 GeV, no more than 1 btag, all jets dR>3.1 of the centroid, no overlaps.
         vector<vector<const HEPUtils::Jet*>> ResolvedTopCands;
         vector<const HEPUtils::Jet*> ResolvedTopCand;
         set<int> jetsused;
+        HEPUtils::P4 centroid;
         if (signalJets_20.size()>2)
         {
           for (unsigned int j1=0; j1<signalJets_20.size(); j1++)
@@ -331,17 +335,17 @@ namespace Gambit
             if (signalJets_20.at(j1)->pT()<=40.) continue; 
             for (unsigned int j2=1; j2<signalJets_20.size(); j2++)
             {
-              if (j1<=j2) continue;
+              if (j1>=j2) continue;
               if (jetsused.find(j2)!=jetsused.end()) continue;
               if (signalJets_20.at(j2)->pT()<=30.) continue; 
               for (unsigned int j3=2; j3<signalJets_20.size(); j3++)
               {
-                if (j3<=j2) continue;
+                if (j2>=j3) continue;
                 if (signalJets_20.at(j3)->pT()<=20.) continue;
                 // <=1 btag
                 if ((signalJets_20_isB.at(j1) + signalJets_20_isB.at(j2) + signalJets_20_isB.at(j3)) > 1) continue;
                 // near centroid
-                P4 centroid = signalJets_20.at(j1)->mom() + signalJets_20.at(j3)->mom() + signalJets_20.at(j3)->mom();
+                centroid = signalJets_20.at(j1)->mom() + signalJets_20.at(j2)->mom() + signalJets_20.at(j3)->mom();
                 if (deltaR_eta(centroid, signalJets_20.at(j1)->mom()) >= 3.1) continue;
                 else if (deltaR_eta(centroid, signalJets_20.at(j2)->mom()) >= 3.1) continue;
                 else if (deltaR_eta(centroid, signalJets_20.at(j3)->mom()) >= 3.1) continue;
@@ -355,13 +359,13 @@ namespace Gambit
                 jetsused.insert(j1);
                 jetsused.insert(j2);
                 jetsused.insert(j3);
-                ResolvedTopCand.clear();
                 ResolvedTopCand.push_back(signalJets_20.at(j1));
                 ResolvedTopCand.push_back(signalJets_20.at(j2));
                 ResolvedTopCand.push_back(signalJets_20.at(j3));
-                if (!passOverlap(ResolvedTopCand, MergedTopPseudoJets)) continue;
-                if (!passOverlap(ResolvedTopCand, WPseudoJets)) continue;
+//                if (!passOverlap(ResolvedTopCand, MergedTopPseudoJets)) continue;
+//                if (!passOverlap(ResolvedTopCand, WPseudoJets)) continue;
                 ResolvedTopCands.push_back(ResolvedTopCand);
+                ResolvedTopCand.clear();
               }
             }
           }
@@ -373,7 +377,7 @@ namespace Gambit
         int f = 0;
         for (const HEPUtils::Jet* jet : baselineFatJets)
         {
-          if (baselineFatJet_MergedTop.at(f) || baselineFatJet_W.at(f)) continue;
+//          if (baselineFatJet_MergedTop.at(f) || baselineFatJet_W.at(f)) continue;
           if (deltaPhi(jet->mom(),metVec)<=2) continue;
           // Tag
           if( jet->btag() && !random_bool(loosebtag) ) signalISRJets.push_back(jet);
@@ -403,6 +407,8 @@ namespace Gambit
         bool baseline_presel = false; // baseline Pre-selection cut
         bool low_dM_presel = false; // low dM Pre-selection cut
         bool high_dM_presel = false; // high dM Pre-selection cut
+
+        FILL_SIGNAL_REGION("Total");
 
         // Perform all pre-selection cuts
         BEGIN_PRESELECTION
@@ -441,6 +447,9 @@ namespace Gambit
               baseline_presel = true;
             }
 
+        }
+        while(true)
+        {
             // Low dM selection
             if (baseline_presel)
             {
@@ -477,7 +486,10 @@ namespace Gambit
               // Set Low deltaM preselection as passed :)
               low_dM_presel = true;
             }
-  
+
+        }
+        while(true)
+        {
             // High dM selection
             if (baseline_presel)
             {
@@ -569,6 +581,7 @@ namespace Gambit
       {
         // Obs. Exp. Err.
 
+        COMMIT_SIGNAL_REGION("Total", 1., 1., 1.);
         if (doCutflow)
         {
             COMMIT_SIGNAL_REGION("Total", 1., 1., 1.);
