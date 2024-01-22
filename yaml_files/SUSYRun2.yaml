@@ -314,6 +314,7 @@ Rules:
           - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
           - ATLAS_13TeV_3LEP_139invfb
           - ATLAS_13TeV_3LEP_eRJR_139invfb
+          - ATLAS_13TeV_2OR3LEP_139invfb  # Currently only WH SRs are active. WZ SRs are still being validated. 
           - ATLAS_13TeV_4LEP_139invfb
           - ATLAS_13TeV_2bMET_36invfb
           - ATLAS_13TeV_3b_24invfb
