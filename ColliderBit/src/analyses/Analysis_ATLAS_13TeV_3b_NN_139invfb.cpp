@@ -624,6 +624,7 @@ namespace Gambit {
         add_result(SignalRegionData(_counters.at("SR_Gbb_M"), 18, {14, 4}));
         add_result(SignalRegionData(_counters.at("SR_Gbb_C"), 32, {33, 9}));
 
+        // Cutflow repoduction here isn't great - don't trust Gtb
         // add_result(SignalRegionData(_counters.at("SR_Gtb_B"), 8., {3, 0.9}));
         // add_result(SignalRegionData(_counters.at("SR_Gtb_M"), 1, {1.3, 0.6}));
         // add_result(SignalRegionData(_counters.at("SR_Gtb_C"), 4, {5.8, 2.2}));
