@@ -482,6 +482,8 @@ function(add_standalone executablename)
       endif()
       if (NOT EXCLUDE_ONNXRUNTIME)
       set(ARG_LIBRARIES ${ARG_LIBRARIES} ${ONNXRUNTIME_LDFLAGS})
+      if (NOT EXCLUDE_FASTJET)
+        set(ARG_LIBRARIES ${ARG_LIBRARIES} ${fastjet_LDFLAGS})
       endif()
     endif()
 

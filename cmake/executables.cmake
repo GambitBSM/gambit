@@ -52,6 +52,11 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/Core/")
   endif()
   if (NOT EXCLUDE_ONNXRUNTIME)
     set(gambit_XTRA ${gambit_XTRA} ${ONNXRUNTIME_LDFLAGS})
+  if (NOT EXCLUDE_FJCONTRIB)
+    set(gambit_XTRA ${gambit_XTRA} ${fjcontrib_LDFLAGS})
+  endif()
+  if (NOT EXCLUDE_FASTJET)
+    set(gambit_XTRA ${gambit_XTRA} ${fastjet_LDFLAGS})
   endif()
   add_gambit_executable(${PROJECT_NAME} "${gambit_XTRA}"
                         SOURCES ${PROJECT_SOURCE_DIR}/Core/src/gambit.cpp

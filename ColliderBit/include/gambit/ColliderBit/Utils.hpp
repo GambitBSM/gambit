@@ -243,7 +243,6 @@ namespace Gambit
 
 
     /// Utility function for filtering a supplied particle vector by sampling an efficiency returned by a provided function object
-    //void filtereff(std::vector<const HEPUtils::Particle*>& particles, std::function<double(const HEPUtils::Particle*)> eff_fn, bool do_delete=false);
     template<class T>
     void filtereff(std::vector<T*>& particlesOrJetss, std::function<double(T*)> eff_fn, bool do_delete=false)
     {
@@ -261,7 +260,6 @@ namespace Gambit
 
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in pT
-    //void filtereff_pt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false);
     template<class T>
     void filtereff_pt(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn1D<double>& eff_pt, bool do_delete=false)
     {
@@ -276,9 +274,22 @@ namespace Gambit
       particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
     }
 
+    /// Utility function for filtering a supplied particle vector by sampling wrt a binned 1D efficiency map in eta
+    template<class T>
+    void filtereff_eta(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn1D<double>& eff_eta, bool do_delete=false)
+    {
+      if (particlesOrJetss.empty()) return;
+      auto keptParticlesOrJetsEnd = std::remove_if(particlesOrJetss.begin(), particlesOrJetss.end(),
+                                             [&](T* p)
+                                             {
+                                               const bool rm = !random_bool(eff_eta, p->eta());
+                                               if (do_delete && rm) delete p;
+                                               return rm;
+                                             } );
+      particlesOrJetss.erase(keptParticlesOrJetsEnd, particlesOrJetss.end());
+    }
 
     /// Utility function for filtering a supplied particle vector by sampling wrt a binned 2D efficiency map in |eta| and pT
-    //void filtereff_etapt(std::vector<const HEPUtils::Particle*>& particles, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false);
     template<class T>
     void filtereff_etapt(std::vector<T*>& particlesOrJetss, const HEPUtils::BinnedFn2D<double>& eff_etapt, bool do_delete=false)
     {
@@ -735,11 +746,14 @@ namespace Gambit
       filtereff(particlesOrJets, eff);
     }
 
-    /// Generic function to apply efficiencies on a list of particles or jets, provided as HEPUtils 1D binned efficiencies in pT
+    /// Generic function to apply efficiencies on a list of particles or jets, provided as HEPUtils 1D binned efficiencies in pT or eta
     template<class T>
-    void applyEfficiency(std::vector<T*>& particlesOrJets, const HEPUtils::BinnedFn1D<double>& eff)
+    void applyEfficiency(std::vector<T*>& particlesOrJets, const HEPUtils::BinnedFn1D<double>& eff, bool pTBins = true)
     {
-      filtereff_pt(particlesOrJets, eff);
+      if(pTBins)
+        filtereff_pt(particlesOrJets, eff);
+      else
+        filtereff_eta(particlesOrJets, eff);
     }
 
     /// Generic function to apply efficiencies on a list of particles or jets, provided as HEPUtils 2D binned efficiencies in eta and pT

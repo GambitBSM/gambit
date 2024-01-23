@@ -19,6 +19,10 @@
 ///          (benjamin.farmer@monash.edu.au)
 ///  \date 2013 May, June, July
 ///
+///  \author Tomas Gonzalo
+///          (tomas.gonzalo@kit.edu)
+///  \date 2024 Jan
+///
 ///  *********************************************
 
 
@@ -231,6 +235,11 @@ namespace Gambit
     /// Check if a string represents an integer
     /// From: http://stackoverflow.com/a/2845275/1447953
     EXPORT_SYMBOLS bool isInteger(const std::string&);
+
+    /// Wrappers of all_of, any_of and none_of using vectors
+    EXPORT_SYMBOLS bool all_of(const std::vector<bool>&);
+    EXPORT_SYMBOLS bool any_of(const std::vector<bool>&);
+    EXPORT_SYMBOLS bool none_of(const std::vector<bool>&);
 
     /// Perform outer product of two vectors
     EXPORT_SYMBOLS std::vector<double> outer_product(const std::vector<double>&, const std::vector<double>&);

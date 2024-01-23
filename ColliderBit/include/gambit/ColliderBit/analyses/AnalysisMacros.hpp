@@ -214,8 +214,40 @@
 #define BASELINE_BJETS(...)          VARARG(BASELINE_BJETS, __VA_ARGS__)
 
 
+/// Define a combination of baseline objects with pT and eta cuts
+#define BASELINE_OBJECT_COMBINATION_8(TYPE, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  std::vector<const HEPUtils::TYPE*> TARGET;                                      \
+  for(const HEPUtils::TYPE* obj1 : OBJECT1)                                       \
+  {                                                                               \
+    if(obj1->pT() > MINPT and                                                     \
+       obj1->pT() < MAXPT and                                                     \
+       fabs(obj1->eta()) > MINETA and                                             \
+       fabs(obj1->eta()) < MAXETA)                                                \
+    {                                                                             \
+      TARGET.push_back(obj1);                                                     \
+    }                                                                             \
+  }                                                                               \
+  for(const HEPUtils::TYPE* obj2 : OBJECT2)                                       \
+  {                                                                               \
+    if(obj2->pT() > MINPT and                                                     \
+       obj2->pT() < MAXPT and                                                     \
+       fabs(obj2->eta()) > MINETA and                                             \
+       fabs(obj2->eta()) < MAXETA)                                                \
+    {                                                                             \
+      TARGET.push_back(obj2);                                                     \
+    }                                                                             \
+  }
+
+/// Define a combination of baseline particles with pT and eta cuts
+#define BASELINE_PARTICLE_COMBINATION_7(TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  BASELINE_OBJECT_COMBINATION_8(Particle, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+
+/// Define a combination of baseline jets with pT and eta cuts
+#define BASELINE_JET_COMBINATION_7(TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+  BASELINE_OBJECT_COMBINATION_8(Jet, TARGET, OBJECT1, OBJECT2, MINPT, MINETA, MAXPT, MAXETA)  \
+
 /// Define a combination of baseline objects
-#define BASELINE_OBJECT_COMBINATION(TYPE, TARGET, OBJECT1, OBJECT2)               \
+#define BASELINE_OBJECT_COMBINATION_4(TYPE, TARGET, OBJECT1, OBJECT2)             \
   std::vector<const HEPUtils::TYPE*> TARGET;                                      \
   for(const HEPUtils::TYPE* obj1 : OBJECT1)                                       \
     TARGET.push_back(obj1);                                                       \
@@ -223,14 +255,42 @@
     TARGET.push_back(obj2);
 
 /// Define a combination of baseline particles
-#define BASELINE_PARTICLE_COMBINATION(TARGET, OBJECT1, OBJECT2)                   \
-  BASELINE_OBJECT_COMBINATION(Particle, TARGET, OBJECT1, OBJECT2)
+#define BASELINE_PARTICLE_COMBINATION_3(TARGET, OBJECT1, OBJECT2)                   \
+  BASELINE_OBJECT_COMBINATION_4(Particle, TARGET, OBJECT1, OBJECT2)
 
 /// Define a combination of baseline jets
-#define BASELINE_JET_COMBINATION(TARGET, OBJECT1, OBJECT2)                        \
-  BASELINE_OBJECT_COMBINATION(Jet, TARGET, OBJECT1, OBJECT2)
+#define BASELINE_JET_COMBINATION_3(TARGET, OBJECT1, OBJECT2)                        \
+  BASELINE_OBJECT_COMBINATION_4(Jet, TARGET, OBJECT1, OBJECT2)
 
-/// Define a (potentially sorted) signal objects from baseline objects
+/// Redirection macro
+#define BASELINE_PARTICLE_COMBINATION(...)     VARARG(BASELINE_PARTICLE_COMBINATION, __VA_ARGS__)
+#define BASELINE_JET_COMBINATION(...)          VARARG(BASELINE_JET_COMBINATION, __VA_ARGS__)
+#define BASELINE_OBJECT_COMBINATION(...)       VARARG(BASELINE_OBJECT_COMBINATION, __VA_ARGS__)
+
+/// Define (potentially sorted) signal objects from baseline objects with pT and eta cuts
+#define SIGNAL_OBJECTS_8(TYPE, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+  std::vector<const HEPUtils::TYPE*> SIGNAL;                                      \
+  for (const HEPUtils::TYPE* object : BASELINE)                                   \
+  {                                                                               \
+    if (object->pT() > MINPT and                                                  \
+        object->pT() < MAXPT and                                                  \
+        fabs(object->eta()) > MINETA and                                          \
+        fabs(object->eta()) < MAXETA)                                             \
+    {                                                                             \
+      SIGNAL.push_back(object);                                                   \
+    }                                                                             \
+  }                                                                               \
+  if(SORTED) sortByPt(SIGNAL);
+
+/// Define (potentially sorted) signal particles from baseline particles with pT and eta cuts
+#define SIGNAL_PARTICLES_7(BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)     \
+  SIGNAL_OBJECTS_8(Particle, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+
+/// Define (potentially sorted) signal jets from baseline jets with pT and eta cuts
+#define SIGNAL_JETS_7(BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)     \
+  SIGNAL_OBJECTS_8(Jet, BASELINE, SIGNAL, SORTED, MINPT, MINETA, MAXPT, MAXETA)   \
+
+/// Define (potentially sorted) signal objects from baseline objects
 #define SIGNAL_OBJECTS_4(TYPE, BASELINE, SIGNAL, SORTED)                          \
   std::vector<const HEPUtils::TYPE*> SIGNAL(BASELINE);                            \
   if(SORTED) sortByPt(SIGNAL);
@@ -295,7 +355,7 @@
 #define END_PRESELECTION                                                          \
   _cutflows.fillnext(event->weight());
 
-/// Log cuts for one or more signal regions
+/// Log current event for one or more signal regions
 #define LOG_CUT_1(A)                      _cutflows[A].fillnext(event->weight());
 #define LOG_CUT_2(A,B)                    LOG_CUT_1(A) LOG_CUT_1(B)
 #define LOG_CUT_3(A,B,C)                  LOG_CUT_1(A) LOG_CUT_2(B,C)
@@ -306,7 +366,30 @@
 #define LOG_CUT_8(A,B,C,D,E,F,G,H)        LOG_CUT_1(A) LOG_CUT_7(B,C,D,E,F,G,H)
 #define LOG_CUT_9(A,B,C,D,E,F,G,H,I)      LOG_CUT_1(A) LOG_CUT_8(B,C,D,E,F,G,H,I)
 #define LOG_CUT_10(A,B,C,D,E,F,G,H,I,J)   LOG_CUT_1(A) LOG_CUT_9(B,C,D,E,F,G,H,I,J)
-#define LOG_CUT(...)      VARARG(LOG_CUT, __VA_ARGS__)
+#define LOG_CUT(...)                      VARARG(LOG_CUT, __VA_ARGS__)
+
+// Log specific cuts for one or more signal region
+#define LOG_CUTS_2(CUTS,A)                     _cutflows[A].fillnext(CUTS,event->weight());
+#define LOG_CUTS_3(CUTS,A,B)                   LOG_CUTS_2(CUTS,A) LOG_CUTS_2(CUTS,B)
+#define LOG_CUTS_4(CUTS,A,B,C)                 LOG_CUTS_2(CUTS,A) LOG_CUTS_3(CUTS,B,C)
+#define LOG_CUTS_5(CUTS,A,B,C,D)               LOG_CUTS_2(CUTS,A) LOG_CUTS_4(CUTS,B,C,D)
+#define LOG_CUTS_6(CUTS,A,B,C,D,E)             LOG_CUTS_2(CUTS,A) LOG_CUTS_5(CUTS,B,C,D,E)
+#define LOG_CUTS_7(CUTS,A,B,C,D,E,F)           LOG_CUTS_2(CUTS,A) LOG_CUTS_6(CUTS,B,C,D,E,F)
+#define LOG_CUTS_8(CUTS,A,B,C,D,E,F,G)         LOG_CUTS_2(CUTS,A) LOG_CUTS_7(CUTS,B,C,D,E,F,G)
+#define LOG_CUTS_9(CUTS,A,B,C,D,E,F,G,H)       LOG_CUTS_2(CUTS,A) LOG_CUTS_8(CUTS,B,C,D,E,F,G,H)
+#define LOG_CUTS_10(CUTS,A,B,C,D,E,F,G,H,I)    LOG_CUTS_2(CUTS,A) LOG_CUTS_9(CUTS,B,C,D,E,F,G,H,I)
+#define LOG_CUTS_11(CUTS,A,B,C,D,E,F,G,H,I,J)  LOG_CUTS_2(CUTS,A) LOG_CUTS_10(CUTS,B,C,D,E,F,G,H,I,J)
+#define LOG_CUTS(...)                          VARARG(LOG_CUTS, __VA_ARGS__)
+
+// Log specific cuts for a sequential list of signal regions
+#define LOG_CUTS_N(CUTS, SR, N)                                                   \
+  for(size_t i=1; i<=N; ++i)                                                      \
+  {                                                                               \
+    str basename(SR);                                                             \
+    str name = basename + std::to_string(i);                                      \
+    _cutflows[name].fillnext(CUTS,event->weight());                               \
+  }
+
 
 /// Fill signal region and cutflow
 #define FILL_SIGNAL_REGION(NAME)                                                  \
