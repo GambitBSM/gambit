@@ -7,8 +7,6 @@ from utils import copydoc, version, with_mpi
 import numpy as np
 from itertools import product
 from collections import OrderedDict
-if with_mpi:
-    from utils import MPIPool, MPI
 
 try:
     import scipy.optimize
