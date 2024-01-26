@@ -245,11 +245,6 @@ Rules:
     type: Spectrum
     function: make_MSSM_precision_spectrum_none
 
-  # These options set various tolerances in the spectrum generation TODO: These do not work with the current rules system
-  #- options:
-  #    gauge_mixing_tolerance: 0.5
-  #    family_mixing_tolerance: 0.5
-
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
   - capability: Higgs_decay_rates
     function: MSSM_h0_1_decays
