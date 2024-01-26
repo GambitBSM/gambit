@@ -397,7 +397,7 @@ Rules:
   - capability: LHC_LogLikes
     function: calc_LHC_LogLikes
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       use_marginalising: false
