@@ -145,6 +145,14 @@ Rules:
   - capability: decay_rates
     function: all_decays
 
+  # Globally permit maximal mixing between gauge and family eigenstates
+  - if: 
+      function: any
+    then:
+      options:
+        gauge_mixing_tolerance: 0.5
+        family_mixing_tolerance: 0.5
+
   # Require a small, additional mass difference before switching on new decay decay modes in the
   # limit of small chargino--neutralino mass difference. Can help avoid problems with chargino
   # decays in Pythia (due to Pythia's MSAFETY check).
