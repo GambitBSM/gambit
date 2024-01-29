@@ -308,7 +308,7 @@ Rules:
           - ATLAS_13TeV_0LEPStop_139invfb
           - ATLAS_13TeV_1Lep2b_139invfb
           #  - ATLAS_13TeV_1LEPStop_36invfb  # This search requires ROOT. Build GAMBIT with -DWITH_ROOT=True.
-          - ATLAS_13TeV_2BoostedBosons_139invfb
+          - ATLAS_13TeV_2BoostedBosons_139invfb # Uses antiktR=1.0
           - ATLAS_13TeV_2LEPJETS_EW_139invfb
           #- ATLAS_13TeV_2LEPJETS_RJR_139invfb # TODO This search requires RestFrames
           - ATLAS_13TeV_2LEPStop_inclusive_139invfb
@@ -344,7 +344,6 @@ Rules:
           - CMS_13TeV_MultiLEP_2LEP_137invfb
           - CMS_13TeV_MultiLEP_3LEP_137invfb
           - CMS_13TeV_MultiLEP_4LEP_137invfb
-          - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antiktR=1.0
 
   # Choose Monte Carlo event simulator and options.
   # NOTE: The second Pythia configuration below ("LHC_13TeV_antiktR_1") is only needed to simulate the
