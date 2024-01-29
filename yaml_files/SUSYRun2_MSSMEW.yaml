@@ -328,20 +328,22 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 100
         analyses:
+          - ATLAS_13TeV_0LEPStop_139invfb        # New! (Martin)
+          - ATLAS_13TeV_1Lep2b_139invfb          # New! (Chris)
+          # - ATLAS_13TeV_2LEP0JET_EW_139invfb   # New! (Roberto) - Requires ROOT + BDT stuff.
+          - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
+          # - ATLAS_13TeV_2LEPJETS_RJR_139invfb  # New! (Martin) This search requires ROOT + RestFrames.
+          # - ATLAS_13TeV_2LEPsoft_139invfb      # New! (Tomas) Not yet validated.
+          - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
+          - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
+          - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
+          - ATLAS_13TeV_1OR3LEP_StopHZ_139invfb  # New! (Holly)
           - ATLAS_13TeV_0LEP_139invfb
-          - ATLAS_13TeV_0LEPStop_139invfb
-          - ATLAS_13TeV_1Lep2b_139invfb
-          #  - ATLAS_13TeV_1LEPStop_36invfb  # This search requires ROOT. Build GAMBIT with -DWITH_ROOT=True.
-          - ATLAS_13TeV_2BoostedBosons_139invfb # Uses antiktR=1.0
-          - ATLAS_13TeV_2LEPJETS_EW_139invfb
-          #- ATLAS_13TeV_2LEPJETS_RJR_139invfb # TODO This search requires RestFrames
+          - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
           - ATLAS_13TeV_2LEPStop_inclusive_139invfb
-          #- ATLAS_13TeV_2LEPsoft_139invfb # TODO: Still needs testing (wasn't ready last time I tested)
           - ATLAS_13TeV_2OSLEP_Z_139invfb
           - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
           - ATLAS_13TeV_3LEP_139invfb
-          - ATLAS_13TeV_3LEP_eRJR_139invfb
-          - ATLAS_13TeV_2OR3LEP_139invfb  # Currently only WH SRs are active. WZ SRs are still being validated. 
           - ATLAS_13TeV_4LEP_139invfb
           - ATLAS_13TeV_2bMET_36invfb
           - ATLAS_13TeV_3b_24invfb
@@ -350,14 +352,13 @@ Rules:
           - ATLAS_13TeV_PhotonGGM_1Photon_139invfb
           - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
           # 
+          - CMS_13TeV_1LEPbb_137invfb                # New! (Pengxuan) - Uses antikt_R08.
+          - CMS_13TeV_2Higgs_4b_neutralino_137invfb  # New! (Yang) - Uses antikt_R08.
+          - CMS_13TeV_2LEPsoft_137invfb              # New! (Tomas)
           - CMS_13TeV_0LEP_137invfb
           - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_1LEPbb_36invfb
           - CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
-          - CMS_13TeV_2Higgs_4b_neutralino_137invfb
           - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_2LEPsoft_stop_36invfb
           - CMS_13TeV_2OSLEP_Strong_Production_137invfb
           - CMS_13TeV_2OSLEP_Slepton_137invfb
           - CMS_13TeV_2OSLEP_for_chargino_36invfb
