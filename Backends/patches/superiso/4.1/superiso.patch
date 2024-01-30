@@ -276,7 +276,88 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +}
 --- a/src/chi2.c	2020-10-14 19:40:57.635018399 +0200
 +++ b/src/chi2.c	2020-10-14 19:41:08.083031147 +0200
-@@ -2815,9 +2815,6 @@ void get_th_covariance_nuisance(double *
+@@ -1323,7 +1323,7 @@ int read_nameobs(char name[], obsname* o
+ int check_nameobs(obsname* obs)
+ /* Checks if the observable name is valid or implemented into SuperIso. Returns 0 if invalid, 1 if valid */
+ {
+-	if(strcmp(obs->type,"BR")&&strcmp(obs->type,"BRuntag")&&strcmp(obs->type,"dGamma/dq2")&&strcmp(obs->type,"R-1")&&strcmp(obs->type,"AI")&&strcmp(obs->type,"ACP")&&strcmp(obs->type,"AFB")&&strcmp(obs->type,"FL")&&strcmp(obs->type,"FT")&&strcmp(obs->type,"ATRe")&&strcmp(obs->type,"AT1")&&strcmp(obs->type,"AT2")&&strcmp(obs->type,"AT3")&&strcmp(obs->type,"AT4")&&strcmp(obs->type,"AAT5")&&strcmp(obs->type,"HT1")&&strcmp(obs->type,"HT2")&&strcmp(obs->type,"HT3")&&strcmp(obs->type,"alpha")&&strcmp(obs->type,"AIm")&&strcmp(obs->type,"P1")&&strcmp(obs->type,"P2")&&strcmp(obs->type,"P3")&&strcmp(obs->type,"P6")&&strcmp(obs->type,"P4prime")&&strcmp(obs->type,"P5prime")&&strcmp(obs->type,"P6prime")&&strcmp(obs->type,"P8")&&strcmp(obs->type,"P8prime")&&strcmp(obs->type,"A7")&&strcmp(obs->type,"A8")&&strcmp(obs->type,"A9")&&strcmp(obs->type,"S3")&&strcmp(obs->type,"S4")&&strcmp(obs->type,"S5")&&strcmp(obs->type,"S7")&&strcmp(obs->type,"S8")&&
++	if(strcmp(obs->type,"BR")&&strcmp(obs->type,"BRuntag")&&strcmp(obs->type,"dGamma/dq2")&&strcmp(obs->type,"R")&&strcmp(obs->type,"R-1")&&strcmp(obs->type,"AI")&&strcmp(obs->type,"ACP")&&strcmp(obs->type,"AFB")&&strcmp(obs->type,"FL")&&strcmp(obs->type,"FT")&&strcmp(obs->type,"ATRe")&&strcmp(obs->type,"AT1")&&strcmp(obs->type,"AT2")&&strcmp(obs->type,"AT3")&&strcmp(obs->type,"AT4")&&strcmp(obs->type,"AAT5")&&strcmp(obs->type,"HT1")&&strcmp(obs->type,"HT2")&&strcmp(obs->type,"HT3")&&strcmp(obs->type,"alpha")&&strcmp(obs->type,"AIm")&&strcmp(obs->type,"P1")&&strcmp(obs->type,"P2")&&strcmp(obs->type,"P3")&&strcmp(obs->type,"P6")&&strcmp(obs->type,"P4prime")&&strcmp(obs->type,"P5prime")&&strcmp(obs->type,"P6prime")&&strcmp(obs->type,"P8")&&strcmp(obs->type,"P8prime")&&strcmp(obs->type,"A7")&&strcmp(obs->type,"A8")&&strcmp(obs->type,"A9")&&strcmp(obs->type,"S3")&&strcmp(obs->type,"S4")&&strcmp(obs->type,"S5")&&strcmp(obs->type,"S7")&&strcmp(obs->type,"S8")&&
+ 	strcmp(obs->type,"S9")&&strcmp(obs->type,"FH")&&strcmp(obs->type,"ATRe")&&strcmp(obs->type,"ATIm"))
+ 	{
+ 		printf("%s_%s: Unknown observable type: %s\n", obs->name, obs->type);
+@@ -1910,6 +1910,17 @@ double compute_nameobs(obsname* obs, int
+ 		else if(!strcmp(obs->type,"ATIm")) return obsBKstartautau[32];
+ 	}
+ 
++	else if(!strcmp(obs->type,"R")&&!strcmp(obs->decay,"B0Kstar0ll"))
++	{
++		binlowB0Kstar0mumu=binlowB0Kstar0ee=obs->low;
++		binhighB0Kstar0mumu=binhighB0Kstar0ee=obs->high;
++		
++		obsB0Kstar0mumu[0]=BRBKstarll(2,0,obs->low,obs->high,obsB0Kstar0mumu,C0b,C1b,C2b,CQ0b,CQ1b,Cpb,CQpb,param,mu_b)/(obs->high-obs->low);
++		obsB0Kstar0ee[0]=BRBKstarll(1,0,obs->low,obs->high,obsB0Kstar0ee,C0eb,C1eb,C2eb,CQ0eb,CQ1eb,Cpeb,CQpeb,param,mu_b)/(obs->high-obs->low);
++	
++		return obsB0Kstar0mumu[0]/obsB0Kstar0ee[0];
++	}
++	
+ 	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"B0Kstar0ll"))
+ 	{
+ 		binlowB0Kstar0mumu=binlowB0Kstar0ee=obs->low;
+@@ -1921,6 +1932,17 @@ double compute_nameobs(obsname* obs, int
+ 		return obsB0Kstar0mumu[0]/obsB0Kstar0ee[0]-1.;
+ 	}
+ 
++	else if(!strcmp(obs->type,"R")&&!strcmp(obs->decay,"BKstarll"))
++	{
++		binlowBKstarmumu=binlowBKstaree=obs->low;
++		binhighBKstarmumu=binhighBKstaree=obs->high;
++		
++		obsBKstarmumu[0]=BRBKstarll(2,1,obs->low,obs->high,obsBKstarmumu,C0b,C1b,C2b,CQ0b,CQ1b,Cpb,CQpb,param,mu_b)/(obs->high-obs->low);
++		obsBKstaree[0]=BRBKstarll(1,1,obs->low,obs->high,obsBKstaree,C0eb,C1eb,C2eb,CQ0eb,CQ1eb,Cpeb,CQpeb,param,mu_b)/(obs->high-obs->low);
++	
++		return obsBKstarmumu[0]/obsBKstaree[0];
++	}
++	
+ 	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"BKstarll"))
+ 	{
+ 		binlowBKstarmumu=binlowBKstaree=obs->low;
+@@ -2024,6 +2046,17 @@ double compute_nameobs(obsname* obs, int
+ 		else if(!strcmp(obs->type,"FH")) return obsBKtautau[2];
+ 	}
+ 
++	else if(!strcmp(obs->type,"R")&&!strcmp(obs->decay,"B0K0ll"))
++	{
++		binlowB0K0mumu=binlowB0K0ee=obs->low;
++		binhighB0K0mumu=binhighB0K0ee=obs->high;
++		
++		obsB0K0mumu[0]=BRBKll(2,0,obs->low,obs->high,obsB0K0mumu,C0b,C1b,C2b,CQ0b,CQ1b,Cpb,CQpb,param,mu_b)/(obs->high-obs->low);
++		obsB0K0ee[0]=BRBKll(1,0,obs->low,obs->high,obsB0K0ee,C0eb,C1eb,C2eb,CQ0eb,CQ1eb,Cpeb,CQpeb,param,mu_b)/(obs->high-obs->low);
++		
++		return obsB0K0mumu[0]/obsB0K0ee[0]-1.;
++	}
++	
+ 	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"B0K0ll"))
+ 	{
+ 		binlowB0K0mumu=binlowB0K0ee=obs->low;
+@@ -2035,6 +2068,17 @@ double compute_nameobs(obsname* obs, int
+ 		return obsB0K0mumu[0]/obsB0K0ee[0]-1.;
+ 	}
+ 
++	else if(!strcmp(obs->type,"R")&&!strcmp(obs->decay,"BKll"))
++	{
++		binlowBKmumu=binlowBKee=obs->low;
++		binhighBKmumu=binhighBKee=obs->high;
++		
++		obsBKmumu[0]=BRBKll(2,1,obs->low,obs->high,obsBKmumu,C0b,C1b,C2b,CQ0b,CQ1b,Cpb,CQpb,param,mu_b)/(obs->high-obs->low);
++		obsBKee[0]=BRBKll(1,1,obs->low,obs->high,obsBKee,C0eb,C1eb,C2eb,CQ0eb,CQ1eb,Cpeb,CQpeb,param,mu_b)/(obs->high-obs->low);
++
++		return obsBKmumu[0]/obsBKee[0]-1;
++	}
++	
+ 	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"BKll"))
+ 	{
+ 		binlowBKmumu=binlowBKee=obs->low;
+@@ -2815,9 +2859,6 @@ void get_th_covariance_nuisance(double *
  
  	for(ie=0;ie<*nbobs;ie++) values_mod[0][ie]=values_ref[ie];		
  
