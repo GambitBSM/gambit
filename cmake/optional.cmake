@@ -315,6 +315,13 @@ if (WITH_ROOT AND ROOT_FOUND)
   add_definitions(${ROOT_DEFINITIONS})
   set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH};$ENV{ROOTSYS}/lib")
 
+  # FindROOT does not add the libTMVA library to the ROOT_LIBRARIES variable,
+  # so we'll add it ourselves, if the library file exists
+  set(ROOT_TMVA_LIBRARY "${ROOT_LIBRARY_DIR}/libTMVA${CMAKE_SHARED_MODULE_SUFFIX}")
+  if(EXISTS "${ROOT_TMVA_LIBRARY}")
+    set(ROOT_LIBRARIES "${ROOT_LIBRARIES};${ROOT_TMVA_LIBRARY}")
+  endif()
+
   check_root_std_flag()
   set (EXCLUDE_ROOT FALSE)
 else()
