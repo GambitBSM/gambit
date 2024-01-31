@@ -160,7 +160,8 @@ namespace Gambit
       F(CMS_13TeV_MultiLEP_3LEPTau_137invfb)         \
       F(CMS_13TeV_MultiLEP_4LEP_137invfb)            \
       F(CMS_13TeV_MultiLEP_4LEPTau_137invfb)         \
-      F(CMS_13TeV_2Higgs_4b_neutralino_137invfb)         \
+      F(CMS_13TeV_2Higgs_4b_neutralino_137invfb)     \
+      F(CMS_13TeV_0LEPStop_137invfb)                 \
       F(CMS_8TeV_1LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_2LEPDMTOP_20invfb)                  \
       F(CMS_8TeV_MultiLEP_20invfb)                   \
