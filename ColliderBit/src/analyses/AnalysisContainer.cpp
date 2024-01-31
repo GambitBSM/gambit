@@ -57,6 +57,7 @@ namespace Gambit
 
     #define MAP_ANALYSES_WITH_ROOT(F)                \
       F(ATLAS_13TeV_1LEPStop_36invfb)                \
+      F(ATLAS_13TeV_2LEP0JET_EW_139invfb)            \
 
     #define MAP_ANALYSES(F)                          \
       F(Minimum)                                     \
