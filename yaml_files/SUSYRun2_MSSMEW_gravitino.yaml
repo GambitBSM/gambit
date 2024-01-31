@@ -110,8 +110,8 @@ ObsLikes:
     #   capability: LHC_measurements_LogLike
 
     # LEP likelihoods
-    # - purpose:    LogLike
-    #   capability: L3_Gravitino_LLike
+    - purpose:    LogLike
+      capability: L3_Gravitino_LLike
 
     - purpose:    LogLike
       capability: L3_Chargino_Leptonic_LLike
