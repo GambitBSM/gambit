@@ -131,10 +131,10 @@ namespace Gambit
           // Matthias jet smearing implemented roughly from
           // https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/CONFNOTES/ATLAS-CONF-2015-017/
           // Parameterisation can be still improved, but eta dependence is minimal
-          const std::vector<double>  binedges_eta = {0,10.};
-          const std::vector<double>  binedges_pt = {0,50.,70.,100.,150.,200.,1000.,10000.};
-          const std::vector<double> JetsJER = {0.145,0.115,0.095,0.075,0.07,0.05,0.04};
-          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
+          const std::vector<double>  binedges_eta = {0, DBL_MAX};
+          const std::vector<double>  binedges_pt = {0., 50., 70., 100., 150., 200., 1000., DBL_MAX};
+          const std::vector<double> JetsJER = {0.145, 0.115, 0.095, 0.075, 0.07, 0.05, 0.04};
+          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta, binedges_pt, JetsJER);
 
           // Now loop over the jets and smear the 4-vectors
           for (HEPUtils::Jet* jet : jets)

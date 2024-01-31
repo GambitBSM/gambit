@@ -987,6 +987,11 @@ namespace Gambit
         // AnalysisData for this analysis
         const AnalysisData& ana_data = *(ana.at(analysis));
         const std::string ana_name = ana_data.analysis_name;
+        // Shortcut: The special "Baselines" analysis should not be included in loglike computations
+        if (ana_name == "Baselines") 
+        {
+          continue;
+        }
         const size_t nSR = ana_data.size();
         const bool has_covar = ana_data.srcov.rows() > 0;
         const bool has_fulllikes = ana_data.hasFullLikes();

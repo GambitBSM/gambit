@@ -14,20 +14,19 @@ Parameters:
   StandardModel_SLHA2: !import include/StandardModel_SLHA2_defaults.yaml
 
   # MSSM parameters
-  MSSM11atQ_mA_mG:
-    M1: -962.512
-      #prior_type: flat
-      #range: [-1000, 1000]
-    M2: 113.544
-      #prior_type: flat
-      #range: [0, 1000]
-    mu: -230.86
-      #prior_type: flat
-      #range: [-1000, 1000]
-    TanBeta: 28.5021
-      #prior_type: flat
-      #range: [1, 70]
-    mG: 1.0e-9
+  MSSM11atQ_mA:
+    M1:
+      prior_type: flat
+      range: [-1000, 1000]
+    M2:
+      prior_type: flat
+      range: [0, 1000]
+    mu:
+      prior_type: flat
+      range: [-1000, 1000]
+    TanBeta:
+      prior_type: log
+      range: [1, 70]
     Ad_3: 0.0
     Ae_3: 0.0
     Au_3: 0.0
@@ -36,6 +35,21 @@ Parameters:
     mA: 5.0e3
     ml2: 9.0e6
     mq2: 9.0e6
+
+  # # Test point
+  # MSSM11atQ_mA:
+  #   M1: -962.512
+  #   M2: 113.544
+  #   mu: -230.86
+  #   TanBeta: 28.5021
+  #   Ad_3: 0.0
+  #   Ae_3: 0.0
+  #   Au_3: 0.0
+  #   M3: 5.0e3
+  #   Qin: 3.0e3
+  #   mA: 5.0e3
+  #   ml2: 9.0e6
+  #   mq2: 9.0e6
 
 
 Priors:
@@ -47,18 +61,20 @@ Printer:
 
   # Choose hdf5, cout or ascii printer
 
-  printer: hdf5
+  printer: hdf5_v1
   options:
-    output_file: "SUSYRun2_MSSMEW_gravitino.hdf5"
-    group: "/SUSYRun2_MSSMEW_gravitino"
+    output_file: "SUSYRun2_MSSMEW.hdf5"
+    group: "/data"
     delete_file_on_restart: true
+    # buffer_length: 10
+    disable_combine_routines: true
 
   # printer: cout
 
 
 Scanner:
 
-  use_scanner: random
+  use_scanner: de
 
   scanners:
 
@@ -73,8 +89,8 @@ Scanner:
     de:
       plugin: diver
       like: LogLike
-      NP: 1000
-      convthresh: 1e-5
+      NP: 800
+      convthresh: 1e-12
       verbosity: 1
 
 
@@ -88,12 +104,12 @@ ObsLikes:
     # NOTE: The LHC_measurements_LogLike should be run as a separate post-processing run.
     #       since it will be very slow to run on the millions of Pythia events generated
     #       for the computation of LHC_Combined_LogLike above.
-    - purpose:    LogLike
-      capability: LHC_measurements_LogLike
+    # - purpose:    LogLike
+    #   capability: LHC_measurements_LogLike
 
     # LEP likelihoods
-    - purpose:    LogLike
-      capability: L3_Gravitino_LLike
+    # - purpose:    LogLike
+    #   capability: L3_Gravitino_LLike
 
     - purpose:    LogLike
       capability: L3_Chargino_Leptonic_LLike
@@ -106,6 +122,13 @@ ObsLikes:
 
     - purpose:    LogLike
       capability: OPAL_Chargino_Leptonic_LLike
+
+    # Dummy likelihood that can be used to guide the scanner towards
+    # parameter regions with interesting collider cross-sections.
+    # If used, remember to subtract this loglike contribution from 
+    # the total loglike when analysing the scan results.
+    - purpose:    Observable  # Currently just set to an observable
+      capability: TotalCrossSection_LogLike
 
     # Observables
     - purpose:    Observable
@@ -128,8 +151,8 @@ ObsLikes:
 
     # NOTE: See comment above regarding LHC_measurements_LogLike.
     #       The same applies for this observable.
-    - purpose:    Observable
-      capability: LHC_measurements_LogLike_perPool
+    # - purpose:    Observable
+    #   capability: LHC_measurements_LogLike_perPool
 
     - purpose:    Observable
       capability: SLHA1_violation
@@ -159,45 +182,45 @@ Rules:
     options:
       # printall: true
       BFs: [
-              ["~chi0_1",  "gamma", "~G"],
-              ["~chi0_1",  "Z0", "~G"],
-              ["~chi0_1",  "h0_1", "~G"],
+              # ["~chi0_1",  "gamma", "~G"],
+              # ["~chi0_1",  "Z0", "~G"],
+              # ["~chi0_1",  "h0_1", "~G"],
               ["~chi0_1",  "W+", "~chi-_1"],
-              ["~chi0_2",  "gamma", "~G"],
-              ["~chi0_2",  "Z0", "~G"],
+              # ["~chi0_2",  "gamma", "~G"],
+              # ["~chi0_2",  "Z0", "~G"],
               ["~chi0_2",  "Z0", "~chi0_1"],
-              ["~chi0_2",  "h0_1", "~G"],
+              # ["~chi0_2",  "h0_1", "~G"],
               ["~chi0_2",  "h0_1", "~chi0_1"],
               ["~chi0_2",  "W+", "~chi-_1"],
               ["~chi0_2",  "W+", "~chi-_2"],
-              ["~chi0_3",  "gamma", "~G"],
-              ["~chi0_3",  "Z0", "~G"],
+              # ["~chi0_3",  "gamma", "~G"],
+              # ["~chi0_3",  "Z0", "~G"],
               ["~chi0_3",  "Z0", "~chi0_1"],
               ["~chi0_3",  "Z0", "~chi0_2"],
-              ["~chi0_3",  "h0_1", "~G"],
+              # ["~chi0_3",  "h0_1", "~G"],
               ["~chi0_3",  "h0_1", "~chi0_1"],
               ["~chi0_3",  "h0_1", "~chi0_2"],
               ["~chi0_3",  "W+", "~chi-_1"],
               ["~chi0_3",  "W+", "~chi-_2"],
-              ["~chi0_4",  "gamma", "~G"],
-              ["~chi0_4",  "Z0", "~G"],
+              # ["~chi0_4",  "gamma", "~G"],
+              # ["~chi0_4",  "Z0", "~G"],
               ["~chi0_4",  "Z0", "~chi0_1"],
               ["~chi0_4",  "Z0", "~chi0_2"],
               ["~chi0_4",  "Z0", "~chi0_3"],
-              ["~chi0_4",  "h0_1", "~G"],
+              # ["~chi0_4",  "h0_1", "~G"],
               ["~chi0_4",  "h0_1", "~chi0_1"],
               ["~chi0_4",  "h0_1", "~chi0_2"],
               ["~chi0_4",  "h0_1", "~chi0_3"],
               ["~chi0_4",  "W+", "~chi-_1"],
               ["~chi0_4",  "W+", "~chi-_2"],
-              ["~chi+_1",  "W+", "~G"],
+              # ["~chi+_1",  "W+", "~G"],
               ["~chi+_1",  "W+", "~chi0_1"],
               ["~chi+_1",  "W+", "~chi0_2"],
               ["~chi+_1",  "W+", "~chi0_3"],
               ["~chi+_1",  "W+", "~chi0_4"],
               ["~chi+_2",  "Z0", "~chi+_1"],
               ["~chi+_2",  "h0_1", "~chi+_1"],
-              ["~chi+_2",  "W+", "~G"],
+              # ["~chi+_2",  "W+", "~G"],
               ["~chi+_2",  "W+", "~chi0_1"],
               ["~chi+_2",  "W+", "~chi0_2"],
               ["~chi+_2",  "W+", "~chi0_3"],
@@ -227,8 +250,9 @@ Rules:
       # For this study we set the Higgs mass by hand.
       override_FS_pole_masses:
         h0_1: 125.09
-      # Explicitly require the gravitino to be LSP (it always is in this scan, since we fix the mass ~0)
-      only_gravitino_LSP: true
+      # LSP check
+      only_neutralino_LSP: true
+      # only_gravitino_LSP: true
 
 
   # This simply relables the "unimproved_MSSM_spectrum" to "MSSM_spectrum",
@@ -237,10 +261,13 @@ Rules:
     type: Spectrum
     function: make_MSSM_precision_spectrum_none
 
-  # These options set various tolerances in the spectrum generation TODO: These do not work with the current rules system
-  #- options:
-  #    gauge_mixing_tolerance: 0.5
-  #    family_mixing_tolerance: 0.5
+  # Globally permit maximal mixing between gauge and family eigenstates
+  - if: 
+      function: any
+    then:
+      options:
+        gauge_mixing_tolerance: 0.5
+        family_mixing_tolerance: 0.5
 
   # Choose to use functions that get Higgs decays from SUSY-HIT, and t decays from DecayBit native implementation (instead of FeynHiggs)
   - capability: Higgs_decay_rates
@@ -280,9 +307,9 @@ Rules:
     type: HEPUtils::Event
     function: generateEventPythia_HEPUtils
 
-  - capability: HardScatteringEvent
-    type: HepMC3::GenEvent
-    function: generateEventPythia_HepMC
+  # - capability: HardScatteringEvent
+  #   type: HepMC3::GenEvent
+  #   function: generateEventPythia_HepMC
 
   # Choose colliders to simulate and their convergence settings, and pick analyses to run with each collider.
   # NOTE: The second collider configuration below ("LHC_13TeV_antiktR_1") is only needed to simulate the
@@ -301,20 +328,22 @@ Rules:
         all_SR_must_converge: false
         maxFailedEvents: 100
         analyses:
+          - ATLAS_13TeV_0LEPStop_139invfb        # New! (Martin)
+          - ATLAS_13TeV_1Lep2b_139invfb          # New! (Chris)
+          # - ATLAS_13TeV_2LEP0JET_EW_139invfb   # New! (Roberto) - Requires ROOT + BDT stuff.
+          - ATLAS_13TeV_2LEPJETS_EW_139invfb     # New! (Martin, Chris) 
+          # - ATLAS_13TeV_2LEPJETS_RJR_139invfb  # New! (Martin) This search requires ROOT + RestFrames.
+          # - ATLAS_13TeV_2LEPsoft_139invfb      # New! (Tomas) Not yet validated.
+          - ATLAS_13TeV_3LEP_eRJR_139invfb       # New! (Martin)
+          - ATLAS_13TeV_2OR3LEP_139invfb         # New! (Ida) -- Only WH SRs are used.
+          - ATLAS_13TeV_bTaus_StopStau_139invfb  # New! (Holly)
+          - ATLAS_13TeV_1OR3LEP_StopHZ_139invfb  # New! (Holly)
           - ATLAS_13TeV_0LEP_139invfb
-          - ATLAS_13TeV_0LEPStop_139invfb
-          - ATLAS_13TeV_1Lep2b_139invfb
-          #  - ATLAS_13TeV_1LEPStop_36invfb  # This search requires ROOT. Build GAMBIT with -DWITH_ROOT=True.
-          - ATLAS_13TeV_2BoostedBosons_139invfb
-          - ATLAS_13TeV_2LEPJETS_EW_139invfb
-          #- ATLAS_13TeV_2LEPJETS_RJR_139invfb # TODO This search requires RestFrames
+          - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antikt_R1.
           - ATLAS_13TeV_2LEPStop_inclusive_139invfb
-          #- ATLAS_13TeV_2LEPsoft_139invfb # TODO: Still needs testing (wasn't ready last time I tested)
           - ATLAS_13TeV_2OSLEP_Z_139invfb
           - ATLAS_13TeV_2OSLEP_chargino_inclusive_139invfb
           - ATLAS_13TeV_3LEP_139invfb
-          - ATLAS_13TeV_3LEP_eRJR_139invfb
-          - ATLAS_13TeV_2OR3LEP_139invfb  # Currently only WH SRs are active. WZ SRs are still being validated. 
           - ATLAS_13TeV_4LEP_139invfb
           - ATLAS_13TeV_2bMET_36invfb
           - ATLAS_13TeV_3b_24invfb
@@ -323,14 +352,13 @@ Rules:
           - ATLAS_13TeV_PhotonGGM_1Photon_139invfb
           - ATLAS_13TeV_ZGammaGrav_CONFNOTE_80invfb
           # 
+          - CMS_13TeV_1LEPbb_137invfb                # New! (Pengxuan) - Uses antikt_R08.
+          - CMS_13TeV_2Higgs_4b_neutralino_137invfb  # New! (Yang) - Uses antikt_R08.
+          - CMS_13TeV_2LEPsoft_137invfb              # New! (Tomas)
           - CMS_13TeV_0LEP_137invfb
           - CMS_13TeV_1LEPStop_36invfb
-          - CMS_13TeV_1LEPbb_36invfb
           - CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
-          - CMS_13TeV_2Higgs_4b_neutralino_137invfb
           - CMS_13TeV_2LEPStop_36invfb
-          - CMS_13TeV_2LEPsoft_36invfb
-          - CMS_13TeV_2LEPsoft_stop_36invfb
           - CMS_13TeV_2OSLEP_Strong_Production_137invfb
           - CMS_13TeV_2OSLEP_Slepton_137invfb
           - CMS_13TeV_2OSLEP_for_chargino_36invfb
@@ -341,11 +369,8 @@ Rules:
           - CMS_13TeV_MultiLEP_2LEP_137invfb
           - CMS_13TeV_MultiLEP_3LEP_137invfb
           - CMS_13TeV_MultiLEP_4LEP_137invfb
-          - ATLAS_13TeV_2BoostedBosons_139invfb  # Uses antiktR=1.0
 
   # Choose Monte Carlo event simulator and options.
-  # NOTE: The second Pythia configuration below ("LHC_13TeV_antiktR_1") is only needed to simulate the
-  #       search ATLAS_13TeV_2BoostedBosons_139invfb. 
   - capability:  HardScatteringSim
     type: Py8Collider_defaultversion
     function: getPythia
@@ -394,7 +419,7 @@ Rules:
   - capability: LHC_LogLikes
     function: calc_LHC_LogLikes
     backends:
-    - {capability: lnlike_marg_poisson_lognormal_error}
+    - {group: lnlike_marg_poisson, capability: lnlike_marg_poisson_lognormal_error}
     options:
       use_covariances: true
       use_marginalising: false
@@ -407,9 +432,9 @@ Rules:
       nuisance_prof_method: 5
       nuisance_prof_verbosity: 0
       # Compute some alternative loglikes?
-      # calc_noerr_loglikes: true
-      # calc_expected_loglikes: true
-      # calc_expected_noerr_loglikes: true
+      calc_noerr_loglikes: true
+      calc_expected_loglikes: true
+      calc_expected_noerr_loglikes: true
       # calc_scaledsignal_loglikes: true
       # signal_scalefactor: 1.2
 
@@ -504,6 +529,19 @@ Rules:
   - capability: LHC_measurements_LogLike_perPool
     function: Contur_LHC_measurements_LogLike_perPool
 
+
+  # Dummy likelihood that can be used to guide the scanner.
+  # (If used, remember subtract this loglike contribution from the
+  # total loglike again when analysing the scan results.)
+  - capability: TotalCrossSection_LogLike
+    function: calc_TotalCrossSection_LogLike
+    options:
+      cross_section_lowerlim_fb: 0.5
+      cross_section_lowerlim_width_fb: 0.25
+      cross_section_upperlim_fb: 2e4
+      cross_section_upperlim_width_fb: 1e4
+      max_random_loglike_increase: 1.0
+
 Logger:
 
   redirection:
@@ -523,11 +561,12 @@ KeyValues:
 
   dependency_resolution:
     prefer_model_specific_functions: true
+    unused_rule_is_an_error: false
 
   likelihood:
     model_invalid_for_lnlike_below: -5e5
     print_invalid_points: false
 
-  default_output_path: "runs/SUSYRun2_MSSMEW_gravitino/"
+  default_output_path: "runs/SUSYRun2_MSSMEW/"
 
   debug: false

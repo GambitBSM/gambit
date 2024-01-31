@@ -156,10 +156,10 @@ namespace Gambit
           // Parameterisation can be still improved as functional form is given
           // Pileup of <mu>=25 is taken, as JER depends strongly on mu
           // CMS does not include information about JER at eta>1.3
-          const std::vector<double>  binedges_eta = {0,10.};
-          const std::vector<double>  binedges_pt = {0,20,30,40,50.,70.,100.,150.,200.,1000.,10000.};
-          const std::vector<double> JetsJER = {0.3,0.2,0.16,0.145,0.12,0.1,0.09,0.08,0.06,0.05};
-          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta,binedges_pt,JetsJER);
+          const std::vector<double>  binedges_eta = {0., DBL_MAX};
+          const std::vector<double>  binedges_pt = {0., 20., 30., 40., 50., 70., 100., 150., 200., 1000., DBL_MAX};
+          const std::vector<double> JetsJER = {0.3, 0.2, 0.16, 0.145, 0.12, 0.1, 0.09, 0.08, 0.06, 0.05};
+          static HEPUtils::BinnedFn2D<double> _resJets2D(binedges_eta, binedges_pt, JetsJER);
 
           // Now loop over the jets and smear the 4-vectors
           for (HEPUtils::Jet* jet : jets)

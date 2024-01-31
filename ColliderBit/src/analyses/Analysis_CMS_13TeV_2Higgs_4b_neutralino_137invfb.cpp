@@ -306,7 +306,7 @@ namespace Gambit {
 
         void collect_results() {
         
-            cout << _cutflow << endl;
+            //cout << _cutflow << endl;
         
             add_result(SignalRegionData(_counters.at("SR1"), 138, {149.74,8.8574}));
             add_result(SignalRegionData(_counters.at("SR2"), 91,  {91.536,6.8599}));
