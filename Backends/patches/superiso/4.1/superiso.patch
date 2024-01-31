@@ -333,7 +333,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +		obsB0K0mumu[0]=BRBKll(2,0,obs->low,obs->high,obsB0K0mumu,C0b,C1b,C2b,CQ0b,CQ1b,Cpb,CQpb,param,mu_b)/(obs->high-obs->low);
 +		obsB0K0ee[0]=BRBKll(1,0,obs->low,obs->high,obsB0K0ee,C0eb,C1eb,C2eb,CQ0eb,CQ1eb,Cpeb,CQpeb,param,mu_b)/(obs->high-obs->low);
 +		
-+		return obsB0K0mumu[0]/obsB0K0ee[0]-1.;
++		return obsB0K0mumu[0]/obsB0K0ee[0];
 +	}
 +	
  	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"B0K0ll"))
@@ -351,7 +351,7 @@ diff -ruN 4.1/src/mixings.c 4.1_patched/src/mixings.c
 +		obsBKmumu[0]=BRBKll(2,1,obs->low,obs->high,obsBKmumu,C0b,C1b,C2b,CQ0b,CQ1b,Cpb,CQpb,param,mu_b)/(obs->high-obs->low);
 +		obsBKee[0]=BRBKll(1,1,obs->low,obs->high,obsBKee,C0eb,C1eb,C2eb,CQ0eb,CQ1eb,Cpeb,CQpeb,param,mu_b)/(obs->high-obs->low);
 +
-+		return obsBKmumu[0]/obsBKee[0]-1;
++		return obsBKmumu[0]/obsBKee[0];
 +	}
 +	
  	else if(!strcmp(obs->type,"R-1")&&!strcmp(obs->decay,"BKll"))
