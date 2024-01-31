@@ -1579,6 +1579,16 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  ///Observable: BR(t->bbc)
+  #define CAPABILITY t2bbc
+  START_CAPABILITY
+    #define FUNCTION THDM_t2bbc
+    START_FUNCTION(double)
+    DEPENDENCY(SMINPUTS,SMInputs)
+    DEPENDENCY(THDM_spectrum, Spectrum)
+    ALLOW_MODELS(THDM,THDMatQ)
+    #undef FUNCTION
+  #undef CAPABILITY	
 
   //###############################################
   //Lepton Flavour Universality Violation
@@ -1910,6 +1920,14 @@ START_MODULE
     #undef FUNCTION
   #undef CAPABILITY
 
+  ///t->Hpb->bc decay likelihood
+  #define CAPABILITY t2bbc_LogLikelihood 
+  START_CAPABILITY
+    #define FUNCTION t2bbc_likelihood
+    START_FUNCTION(double)
+    DEPENDENCY(t2bbc, double) 
+    #undef FUNCTION
+  #undef CAPABILITY
 
   ///B meson mass aysmmetry likelihood
   #define CAPABILITY deltaMB_LogLikelihood

@@ -1,4 +1,16 @@
 
+- name: t2bbc
+  islimit: false
+  exp_value: 0.0016
+  exp_stat_error: 0.0006
+  exp_sys_error: 0.000
+  exp_source: ATLAS, arXiv:2302.11739
+  th_error: 0.0 
+  th_error_type: M
+  th_error_source: NONE
+  correlation:
+  - name: NONE
+
 - name: RDemu
   islimit: false
   exp_value: 1.01
@@ -507,37 +519,37 @@
 
 - name: RDstar
   islimit: false
-  exp_value: 0.295
-  exp_stat_error: 0.011
-  exp_sys_error: 0.008
-  exp_source: HFLAV
+  exp_value: 0.284
+  exp_stat_error: 0.012
+  exp_sys_error: 0.00
+  exp_source: HFLAV2021
   th_error: 0.005
   th_error_type: M
   th_error_source: HFLAV
   correlation:
   - name: RD
-    value: -0.38
+    value: -0.40
 
 - name: RD
   islimit: false
-  exp_value: 0.340
-  exp_stat_error: 0.027
-  exp_sys_error: 0.013
+  exp_value: 0.357
+  exp_stat_error: 0.029
+  exp_sys_error: 0.00
   exp_source: HFLAV
   th_error: 0.003
   th_error_type: M
   th_error_source: HFLAV
   correlation:
   - name: RDstar
-    value: -0.38
+    value: -0.40
 
 - name: DeltaMs
   islimit: false
-  exp_value: 17.741
-  exp_stat_error: 0.020
+  exp_value: 17.765
+  exp_stat_error: 0.006
   exp_sys_error: 0.000
-  exp_source: HFLAV2021
-  th_error: 1.2 
+  exp_source: HFLAV2023
+  th_error: 1.2
   th_error_type: M
   th_error_source: 1602.03560
   correlation:

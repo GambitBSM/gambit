@@ -1003,6 +1003,38 @@ namespace Gambit
       if (flav_debug) std::cout<<"Finished THDM_h2taumu"<< std::endl;
     }
 
+    /// BR(t->H+b->bbc) at tree level for the general THDM from ArXiv:2311.03430)
+    void THDM_t2bbc(double &result)
+    {
+      using namespace Pipes::THDM_t2bbc;
+      if (flav_debug) std::cout<<"Starting THDM_t2bbc"<< std::endl;
+      Spectrum spectrum = *Dep::THDM_spectrum;
+      const double v = spectrum.get(Par::mass1, "vev");
+      double tanb = spectrum.get(Par::dimensionless,"tanb");
+      double beta = atan(tanb);
+      double cosb = cos(beta);
+      const double mTau = Dep::SMINPUTS->mTau;
+      const double mT = Dep::SMINPUTS->mT;
+      double mHp = spectrum.get(Par::Pole_Mass,"H+");
+      std::complex<double> Yetau(spectrum.get(Par::dimensionless,"Ye2",1,3), spectrum.get(Par::dimensionless, "ImYe2",1,3));
+      std::complex<double> Ymutau(spectrum.get(Par::dimensionless,"Ye2",2,3), spectrum.get(Par::dimensionless, "ImYe2",2,3));
+      std::complex<double> Ytautau(spectrum.get(Par::dimensionless,"Ye2",3,3), spectrum.get(Par::dimensionless, "ImYe2",3,3));
+      std::complex<double> Ytc(spectrum.get(Par::dimensionless,"Yu2",3,2), spectrum.get(Par::dimensionless, "ImYu2",3,2));
+      std::complex<double> Ytt(spectrum.get(Par::dimensionless,"Yu2",3,3), spectrum.get(Par::dimensionless, "ImYu2",3,3));
+      std::complex<double> xi_etau = Yetau/cosb;
+      std::complex<double> xi_mutau = Ymutau/cosb;
+      std::complex<double> xi_tautau = -((sqrt(2)*mTau*tanb)/v) + Ytautau/cosb;
+      std::complex<double> xi_tc = Ytc/cosb;
+      std::complex<double> xi_tt = -((sqrt(2)*mT*tanb)/v) + Ytt/cosb;
+      const double Gamma = 1.42;//From PDG 2021 in GeV
+      double BRt2bHp = (1/Gamma)*(mT/(32*pi))*norm(xi_tt)*pow(1-pow(mHp/mT,2),2);//extra factor of 1/2 from difference in notation compared to ours, xi_ij = 1/sqrt(2) rho_ij
+      double BRHp2cb = 3*norm(xi_tc)/(3*norm(xi_tc)+norm(xi_etau)+norm(xi_mutau)+norm(xi_tautau));
+      result = BRt2bHp*BRHp2cb;
+      if (flav_debug) printf("BR(t->bHp->bbc)=%.3e\n",result);
+      if (flav_debug) std::cout<<"Finished THDM_t2bbc"<< std::endl;
+    }
+
+
     /// Flavour observables from FeynHiggs: B_s mass asymmetry, Br B_s -> mu mu, Br B -> X_s gamma
     void FeynHiggs_FlavourObs(fh_FlavourObs_container &result)
     {
@@ -1194,6 +1226,40 @@ namespace Gambit
       result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_DeltaMs_err, exp_DeltaMd_err, profile);
     }
 
+    //Likelihood for t->Hpb->bc decay
+      
+    void t2bbc_likelihood(double &result)
+    { 
+      using namespace Pipes::t2bbc_likelihood;
+      static bool th_err_absolute, first = true;
+      static double exp_meas, exp_t2bbc_err, th_err;
+      
+      if (flav_debug) std::cout << "Starting t2bbc_likelihood"<< std::endl;
+     
+      if (first)
+      {
+        Flav_reader fread(GAMBIT_DIR  "/FlavBit/data");
+        fread.debug_mode(flav_debug);
+        if (flav_debug) std::cout<<"Initialised Flav reader in t2bbc_likelihood"<< std::endl;
+        fread.read_yaml_measurement("flav_data.yaml", "t2bbc");
+        fread.initialise_matrices();
+        exp_meas = fread.get_exp_value()(0,0);
+        exp_t2bbc_err = sqrt(fread.get_exp_cov()(0,0));
+        th_err = fread.get_th_err()(0,0).first;
+        th_err_absolute = fread.get_th_err()(0,0).second;
+        first = false;
+      }
+      
+      if (flav_debug) std::cout << "Experiment: " << exp_meas << " " << exp_t2bbc_err << " " << th_err << std::endl;
+
+      double theory_prediction = *Dep::t2bbc;
+      double theory_t2bbc_err = th_err * (th_err_absolute ? 1.0 : std::abs(theory_prediction));
+      if (flav_debug) std::cout<<"Theory prediction: "<<theory_prediction<<" +/- "<<theory_t2bbc_err<< std::endl;
+           
+      bool profile = runOptions->getValueOrDef<bool>(false, "profile_systematics");
+      
+      result = Stats::gaussian_loglikelihood(theory_prediction, exp_meas, theory_t2bbc_err, exp_t2bbc_err, profile);
+    } 
 
     /// Likelihood for the Bc lifetime
     void Bc_lifetime_likelihood(double &result)
