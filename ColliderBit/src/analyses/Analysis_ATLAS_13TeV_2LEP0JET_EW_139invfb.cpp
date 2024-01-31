@@ -653,8 +653,11 @@ namespace Gambit
        }
 
        // Instances for BDT
-       addMVABDT("lgbm_DF", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_odd.root", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_even.root");
-       addMVABDT("lgbm_SF", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_odd.root", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_even.root");
+       #pragma omp critical (init_ATLAS_13TeV_2LEP0JET_EW_139invfb)
+       {
+         addMVABDT("lgbm_DF", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_odd.root", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_even.root");
+         addMVABDT("lgbm_SF", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_odd.root", "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_even.root");
+       }
       }
 
       void addMVABDT(const std::string &name, const std::string &fname1, const std::string &fname2) {
