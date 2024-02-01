@@ -356,6 +356,7 @@ Rules:
           - CMS_13TeV_2Higgs_4b_neutralino_137invfb  # New! (Yang) - Uses antikt_R08.
           - CMS_13TeV_2LEPsoft_137invfb              # New! (Tomas)
           - CMS_13TeV_0LEPStop_137invfb              # New! (Holly)
+          - CMS_13TeV_0LEP_chargino_VV_VH_137invfb   # New! (Adil) - Uses antikt_R08.
           - CMS_13TeV_0LEP_137invfb
           - CMS_13TeV_1LEPStop_36invfb
           - CMS_13TeV_1Photon1Lepton_emu_combined_36invfb
