@@ -4770,6 +4770,9 @@ FeynHiggs_2_12_0_init: |
 FeynHiggs_2_18_1_init: |
    Initialisation of FeynHiggs.
 
+FeynHiggs_2_19_1_init: |
+   Initialisation of FeynHiggs.
+
 FHConstraints: |
    FeynHiggs precision constraint observables.
 
