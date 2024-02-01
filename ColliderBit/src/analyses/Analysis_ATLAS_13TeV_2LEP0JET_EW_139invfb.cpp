@@ -655,8 +655,8 @@ namespace Gambit
        // Instances for BDT
        #pragma omp critical (init_ATLAS_13TeV_2LEP0JET_EW_139invfb)
        {
-         addMVABDT("lgbm_DF", GAMBIT_DIR "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_odd.root", GAMBIT_DIR "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_even.root");
-         addMVABDT("lgbm_SF", GAMBIT_DIR "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_odd.root", GAMBIT_DIR "ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_even.root");
+         addMVABDT("lgbm_DF", GAMBIT_DIR "/ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_odd.root", GAMBIT_DIR "/ColliderBit/data/BDT_data/ANA-SUSY-2019-02_DF0J_trained_even.root");
+         addMVABDT("lgbm_SF", GAMBIT_DIR "/ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_odd.root", GAMBIT_DIR "/ColliderBit/data/BDT_data/ANA-SUSY-2019-02_SF0J_trained_even.root");
        }
       }
 
