@@ -72,9 +72,14 @@ def ReadIn(AnalysisName, GAMBIT_DIR, bkgpath):
     global Nbindict
     
     # First check that it hasn't already been loaded
-    if FileExists(AnalysisName):
-        print("FullLikes Error: Analysis ",AnalysisName," has been loaded twice")
-        return(-1)
+    # TODO: Commented out to protect against the rare occurence that two processes try to load together,
+    #       choosing to just let both load it in this case.
+    #if FileExists(AnalysisName):
+    #    print("FullLikes Error: Analysis ",AnalysisName," has been loaded twice")
+    #    return(-1)
+    
+    # Add on a slash to the gambit dir
+    GAMBIT_DIR = GAMBIT_DIR + "/"
     
     # Try to open the analysis bkg json file
     try:
