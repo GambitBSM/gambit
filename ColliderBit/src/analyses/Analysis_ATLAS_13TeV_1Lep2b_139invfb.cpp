@@ -46,11 +46,11 @@ namespace Gambit
         analysis_specific_reset();
 
         // Counters for the number of accepted events for each signal region
-        _counters["WREM_cuts_0"] = EventCounter("WREM_cuts_0");
-        _counters["STCREM_cuts_0"] = EventCounter("STCREM_cuts_0");
-        _counters["TRHMEM_cuts_0"] = EventCounter("TRHMEM_cuts_0");
-        _counters["TRMMEM_cuts_0"] = EventCounter("TRMMEM_cuts_0");
-        _counters["TRLMEM_cuts_0"] = EventCounter("TRLMEM_cuts_0");
+        //_counters["WREM_cuts_0"] = EventCounter("WREM_cuts_0");
+        //_counters["STCREM_cuts_0"] = EventCounter("STCREM_cuts_0");
+        //_counters["TRHMEM_cuts_0"] = EventCounter("TRHMEM_cuts_0");
+        //_counters["TRMMEM_cuts_0"] = EventCounter("TRMMEM_cuts_0");
+        //_counters["TRLMEM_cuts_0"] = EventCounter("TRLMEM_cuts_0");
         _counters["SRHMEM_mct2_0"] = EventCounter("SRHMEM_mct2_0");
         _counters["SRHMEM_mct2_1"] = EventCounter("SRHMEM_mct2_1");
         _counters["SRHMEM_mct2_2"] = EventCounter("SRHMEM_mct2_2");
