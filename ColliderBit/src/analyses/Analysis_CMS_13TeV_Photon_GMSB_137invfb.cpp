@@ -39,6 +39,7 @@ To be checked:
 #include "gambit/ColliderBit/CMSEfficiencies.hpp"
 #include "gambit/ColliderBit/mt2_bisect.h"
 #include "gambit/ColliderBit/analyses/Cutflow.hpp"
+#include "SoftDrop.hh"
 
 // #define CHECK_CUTFLOW
 
@@ -260,11 +261,20 @@ namespace Gambit {
             if (jet->pT() < 200) continue;
             if (jet->abseta() < 2.4) jets_ak8.push_back(jet);
           }
-
+	
+	double beta = 0.0;
+	double z_cut = 0.1;
+	double RSD  = 0.8;
+	FJNS::contrib::SoftDrop sd(beta, z_cut, RSD);
+	
 	bool isVtag = false, isHtag = false;
 	if (jets_ak8.size() > 0 && njets_ak4 <= 6)
 	  {
-	    double leadMass = jets_ak8[0]->mass(); //Replace it with SD mass	  
+	    //	    double leadMass = jets_ak8[0]->mass(); //Replace it with SD mass
+	    FJNS::PseudoJet pj = jets_ak8[0]->pseudojet();
+	    FJNS::PseudoJet groomed_jet = sd(pj);
+	    double leadMass = groomed_jet.m();
+	    
 	    if (leadMass > 65 && leadMass < 105) isVtag = true;
 	    else if (leadMass > 105 && leadMass < 140) isHtag = true;
 	  }
