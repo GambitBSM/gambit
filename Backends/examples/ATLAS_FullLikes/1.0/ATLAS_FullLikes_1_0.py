@@ -66,7 +66,7 @@ def Reset(AnalysisName):
 
 
 # Read in background JSON files and store this in ws dictionary
-def ReadIn(AnalysisName,bkgpath):
+def ReadIn(AnalysisName, GAMBIT_DIR, bkgpath):
     global ws
     global Nsamplesdict
     global Nbindict
@@ -78,7 +78,7 @@ def ReadIn(AnalysisName,bkgpath):
     
     # Try to open the analysis bkg json file
     try:
-      with open(bkgpath,'r') as bkg:
+      with open(GAMBIT_DIR + bkgpath,'r') as bkg:
         workspace = json.load(bkg)
 
         # Create empty dictionaries for the analysis
@@ -94,7 +94,7 @@ def ReadIn(AnalysisName,bkgpath):
         Nbindict[AnalysisName][channel["name"]] = len(channel["data"])
 
       # Load json scheme
-      with open('Backends/examples/ATLAS_FullLikes/1.0/workspace.json','r') as wk:
+      with open(GAMBIT_DIR + 'Backends/examples/ATLAS_FullLikes/1.0/workspace.json','r') as wk:
         schema = json.load(wk)
 
       # Validate the workspace against a scheme (only needed for testing new bkg files)

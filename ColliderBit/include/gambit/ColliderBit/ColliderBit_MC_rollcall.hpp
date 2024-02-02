@@ -404,7 +404,7 @@
     BACKEND_REQ_FROM_GROUP(lnlike_marg_poisson, lnlike_marg_poisson_gaussian_error, (), double, (const int&, const double&, const double&, const double&) )
     BACKEND_GROUP(lnlike_marg_poisson)
     BACKEND_REQ(FullLikes_Evaluate, (ATLAS_FullLikes), double, (std::map<str,double>&,const str&))
-    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&))
+    BACKEND_REQ(FullLikes_ReadIn, (ATLAS_FullLikes), int, (const str&,const str&,const str&))
     BACKEND_REQ(FullLikes_FileExists, (ATLAS_FullLikes), bool, (const str&))
     #undef FUNCTION
 
