@@ -415,11 +415,11 @@ namespace Gambit
 
       void collect_results() {
         //This data is used if not running ATLAS_FullLikes.
-        add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRMMEM_cuts_0"), 491, {491.0,0.0 })); //Hard-setting equal obs and pred
-        add_result(SignalRegionData(_counters.at("TRLMEM_cuts_0"), 657, {657.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("WREM_cuts_0"), 144, {144.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("STCREM_cuts_0"), 155, {155.0, 0.0})); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("TRHMEM_cuts_0"), 641, {641.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("TRMMEM_cuts_0"), 491, {491.0,0.0 })); //Hard-setting equal obs and pred
+        //add_result(SignalRegionData(_counters.at("TRLMEM_cuts_0"), 657, {657.0,0.0 })); //Hard-setting equal obs and pred
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_0"), 6, {4.1, 1.9}));
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_1"), 5, {2.9, 1.3}));
         add_result(SignalRegionData(_counters.at("SRHMEM_mct2_2"), 3, {1.1, 0.5}));
